@@ -3,10 +3,10 @@
 
 The new design and organization of SUNDIALS 
 as described in Section~\ref{s:organization}
-makes the codes surprisingly flexible and easy to use.
+makes the codes flexible and easy to use.
 This versatility is due primarily to the control that the user has
 over the modules that comprise SUNDIALS: the specification of vectors;
-the linear solver and preconditioner methods; the basic solvers; and,
+the linear solver and preconditioner methods; the basic solvers; and
 sensitivity analysis.
 Default routines are provided for the vector specification and
 computing Jacobian-vector approximations, for example. But for these
@@ -35,7 +35,7 @@ enumerations, macros, data types and function prototypes.  At a
 minimum, the user must include header files that declare: the SUNDIALS
 data types for real, integer, and boolean variables; the content and
 operations that can be performed on vectors in either a serial or
-parallel environment; and, the functions needed by the solver to
+parallel environment; and the functions needed by the solver to
 setup, compute, and extract the solution. Typically, additional header
 files will be specified to declare the preconditioning and/or linear
 solver methods to be used.
@@ -62,12 +62,13 @@ structure to be passed in evaluating the user's function.
 \item \label{sun_set}
 At this stage, the default values in the solver memory block can be
 changed if so desired. Choices and default values are given in
-Table~\ref{t:optional_io} for each of the basic solvers.
+Table~\ref{t:optional_input} for each of the basic solvers.
 
 \item \label{sun_malloc}
-The user now calls the appropriate routine to perform any required
-memory allocation, after checking the initialized memory block for
-errors in the default or optional input values.
+After checking the initialized memory block for
+errors in the default or optional input values, the user now calls 
+the appropriate routine to perform any required
+memory allocation.
 
 \item \label{sun_linear}
 Typically, preconditioning and/or linear solver methods are needed for
@@ -81,7 +82,8 @@ the tolerances and other settings that have been specified.
 \item \label{sun_get}
 To extract the solution, solver statistics, and other information,
 optional output extraction routines can be called. A listing of these
-get routines for the basic solvers is given in Table~\ref{t:optional_io}.
+``get'' routines for the basic solvers is given 
+in Table~\ref{t:optional_output}.
 
 \item \label{sun_finalize}
 To end the process, the user must make the appropriate calls to
@@ -111,9 +113,9 @@ Step~\ref{sun_finalize}. For complete details on performing forward or
 adjoint sensitivity analysis for CVODES, the reader is referred to~\cite{SeHi:03}.
 
 For a parallel machine environment, the MPI header file must be
-specified in Step~\ref{sun_headers} so that in the Step~\ref{sun_size}: the MPI
+specified in Step~\ref{sun_headers} so that in Step~\ref{sun_size}: the MPI
 communicator can be initialized, the set of active processors can be
-established; and, the global and local vector lengths can be set.
+established; and the global and local vector lengths can be set.
 In Step~\ref{sun_finalize}, memory allocated for MPI must be freed.
 
 \subsection{Optional inputs and outputs}\label{ss:optional_io}
@@ -124,28 +126,26 @@ codes.
 A key feature of SUNDIALS is that it provides a collection of optional
 input and output routines so that default settings can be changed, or
 various solver statistics and other information can be extracted.
-These set and get routines are available for each of the solvers as
-noted, and for the linear solver and preconditioning methods that
+These ``set'' and ``get'' routines are available for each of the solvers as
+noted as well as for the linear solver and preconditioning methods that
 support them.
 
 \subsubsection*{Basic Solvers} 
-Table \ref{t:optional_io} lists in its top half the various optional 
+Table \ref{t:optional_input} lists the various optional 
 inputs that the user can set to control the basic SUNDIALS solvers.
-Under each solver column we give the default value for the optional 
+Under each solver column we give the default value for the respective
 input. Inputs marked with a ``-'' are not applicable to that particular 
-solver. The bottom half of the table lists the various optional 
+solver. Table \ref{t:optional_output} lists the various optional 
 outputs that the user can get to monitor solver performance.
 Optional outputs available for a solver are marked with a ``$\surd$''
 and those not available are marked by a ``-''.
 
-\begin{table}[tp]
-\label{t:optional_io}
+\begin{acmtable}{340pt}
+\label{t:optional_input}
 \centering
-\caption{Optional inputs and outputs for the basic solvers in SUNDIALS}
 \medskip
-\begin{tabular}{|p{2.75in}|c|c|c|}
-\hline
-{\bf Optional input} & CVODE  & IDA & KINSOL \\
+\begin{tabular}{p{2.75in} c c c }
+Optional input & CVODE  & IDA & KINSOL \\
 \hline
 Pointer to the user-defined data & NULL & NULL& NULL \\
 Pointer to an error file & NULL & NULL & NULL \\
@@ -177,9 +177,17 @@ Relative error in computing $F(u)$ & - & - & $U$ \\
 %Constant to restrict solution update & - & - & $\infty$ \\
 Stopping tolerance on residual & - & - & $U^{1/3}$ \\
 Stopping tolerance on max. scaled step & - & - & $U^{2/3}$ \\
-\hline
-\hline
-{\bf Optional output} &  &  & \\
+\end{tabular}
+\caption{Optional inputs for the basic solvers in SUNDIALS. 
+The value of unit roundoff for the machine is denoted by $U$.}
+\end{acmtable}
+
+\begin{acmtable}{327pt}
+\label{t:optional_output}
+\centering
+\medskip
+\begin{tabular}{p{2.75in} c c c }
+Optional output & CVODE  & IDA & KINSOL \\
 \hline
 Size of workspace allocated by the solver & $\surd$ & $\surd$ & $\surd$ \\
 Cumulative number of internal steps taken & $\surd$ & $\surd$ & - \\
@@ -202,23 +210,23 @@ Number of backtrack operations during linesearch & - & $\surd$ & $\surd$ \\
 Number of times the $\beta$ condition could not & - & - & $\surd$ \\
 Scaled norm at a given iteration & - & - & $\surd$ \\
 Last step length in the global strategy routine & - & - & $\surd$ \\
-\hline
 \end{tabular}
-\end{table}
+\caption{Optional outputs for the basic solvers in SUNDIALS.}
+\end{acmtable}
 
 \subsubsection*{Sensitivity Analysis}
 
 Each sensitivity solver (CVODES and IDAS) offers the complete list of
-optional set and get routines as the corresponding basic solver (CVODE
+optional ``set'' and ``get'' routines as the corresponding basic solver (CVODE
 and IDA, respectively). In addition, the user has control over various
 inputs that affect sensitivity calculations. 
-The following are examples of options that can be set by the user,
+The following are examples of options that can be set by the user
 with the default given in parentheses: a user-supplied routine
 to compute sensitivity ODEs or DAE sensitivity residuals (CVODES or
 IDAS difference quotient approximation); a pointer to user data that
 will be passed to this user-supplied ODE or DAE sensitivity routine (NULL); a
 pointer to the sensitivity relative error tolerance scalar (same value as
-for state variables); and, the type of error control (FULL).
+for state variables); and the type of error control (FULL).
 For more options and details, see \cite{SeHi:03}, \cite{HiSe:02}.
 
 \subsubsection*{Linear Solvers and Preconditioners}
@@ -238,16 +246,16 @@ preconditioner data (NULL).
 
 The optional outputs for any of the linear solvers are: the amount of 
 integer and real workspace used; the number of calls made to the user-supplied 
-Jacobian evaluation routine; and, the number of calls to the user's function 
+Jacobian evaluation routine; and the number of calls to the user's function 
 due to the default difference quotient routine.
 In addition, for the SPGMR case, the user can obtain the number of preconditioner
 evaluations, the number of calls made to the preconditioner solve
 routine, the number of linear iterations, and the number of linear
 convergence failures.
 
-For the band block diagonal preconditioner, the optional outputs are:
+For the band-block-diagonal preconditioner, the optional outputs are:
 the amount of integer workspace used, the amount of real workspace
-used; and, the number of calls to the local function that approximates
+used; and the number of calls to the local function that approximates
 the user's function.
 
 \subsection{Fortran Usage} 
@@ -258,7 +266,7 @@ In particular, a Fortran/C interface package is provided with CVODE
 and KINSOL.
 Each package is a collection of C header files and functions which
 enables the user to write a main program and all user-supplied
-routines in Fortran77, and use either CVODE or KINSOL to solve the
+routines in Fortran77, and then use either CVODE or KINSOL to solve the
 problem.
 This mixed-language capability entails some compromises in
 portability, such as requiring fixed names for the user-supplied
