@@ -38,7 +38,7 @@ ARCH = `uname -s`.`uname -m`
 #------------------------
 
 FC      = f77
-FFLAGS  = -L$(LIB_DIR)
+FFLAGS  = -g -L$(LIB_DIR)
 
 #==========================================================================
 # Make rules
@@ -46,16 +46,23 @@ FFLAGS  = -L$(LIB_DIR)
 
 all:
 	@(echo 'List of serial FCVODE examples (using the serial NVECTOR module):')
-	@(echo '  NO examples at this time...')
+	@(echo '  cvdensef  : chemical kinetics example (BDF/DENSE)')
+#	@(echo '  cvbandf   : advection-diffusion example (BDF/BAND)')
 
-#serial_ex:
-#	@echo '...Compile serial_ex...'
-#	@$(FC) $(FFLAGS) -o serial_ex serial_ex.f -lcvode.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH)
-#	@rm -f serial_ex.o
+cvdensef:
+	@echo '...Compile cvdensef...'
+	@$(FC) $(FFLAGS) -o cvdensef cvdensef.f -lcvode.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH)
+	@rm -f cvdensef.o
 
-examples: serial_ex
+#cvbandf:
+#	@echo '...Compile cvbandf...'
+#	@$(FC) $(FFLAGS) -o cvbandf cvbandf.f -lcvode.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH)
+#	@rm -f cvbandf.o
+
+examples: cvdensef
 
 purge:
-	@(rm -f serial_ex)
+	@(rm -f cvdensef)
+#	@(rm -f cvbandf)
 
 #---end of fcvx_ser.mk---
