@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-06-29 23:07:40 $
+ * $Revision: 1.19 $
+ * $Date: 2004-06-30 16:06:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -1377,7 +1377,8 @@ static int KINConstraint(KINMem kin_mem)
 
   N_VProd(vtemp2, vtemp1, vtemp1);
 
-  stepmul = POINT9 * N_VMinQuotient(uu, vtemp1);
+  N_VAbs(uu, vtemp2);
+  stepmul = POINT9 * N_VMinQuotient(vtemp2, vtemp1);
 
   return(1);
 }
