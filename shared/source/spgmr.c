@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-11-15 17:26:04 $
+ * $Revision: 1.12 $
+ * $Date: 2004-11-23 19:00:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -24,6 +24,12 @@
 #include "spgmr.h"
 #include "sundialsmath.h"
 #include "sundialstypes.h"
+
+/*
+ * -----------------------------------------------------------------
+ * private constants
+ * -----------------------------------------------------------------
+ */
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
