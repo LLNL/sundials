@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.13 $
-C     $Date: 2004-10-11 20:25:03 $
+C     $Revision: 1.14 $
+C     $Date: 2004-10-11 20:29:22 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -66,9 +66,9 @@ C
          WRITE(6,15) NEQ, ALPHA, RTOL, ATOL, NPES
  15      FORMAT(/'Diagonal test problem, size NEQ =',I5,
      &        '  parameter alpha = ',F8.3/
-     &        '  ydot_i = -alpha*i * y_i (i = 1,...,NEQ)'//
-     &        'RTOL, ATOL = ',2E10.1//'Method is BDF/NEWTON/SPGMR'/
-     &        'Preconditioner is band-block-diagonal, using CVBBDPRE'//
+     &        '  ydot_i = -alpha*i * y_i (i = 1,...,NEQ)'/
+     &        'RTOL, ATOL = ',2E10.1/'Method is BDF/NEWTON/SPGMR'/
+     &        'Preconditioner is band-block-diagonal, using CVBBDPRE'/
      &        'Number of processors = ',I3)
       ENDIF
 C     
@@ -112,7 +112,7 @@ C
       ENDIF
 
       IF (MYPE.EQ. 0) WRITE(6,38)
- 38   FORMAT(//'Preconditioning on left'//)
+ 38   FORMAT(/'Preconditioning on left'/)
 C     
 C     Looping point for cases IPRE = 1 and 2.
 C     
@@ -170,7 +170,7 @@ C     Print final statistics.
          NCFL = IOPT(LNCFL)
          NETF = IOPT(LNETF)
          WRITE (6,80) NST,NFE,NPSET,NPE,NPS,NNI,NLI,AVDIM,NCFN,NCFL,NETF
- 80      FORMAT(//'Final statistics..'/
+ 80      FORMAT(/'Final statistics..'/
      &        ' number of steps        =',I5,4X,
      &        ' number of f evals.     =',I5/
      &        ' number of prec. setups =',I5/
@@ -184,7 +184,7 @@ C     Print final statistics.
      &        ' number of error test failures =',I3)
          CALL FCVBBDOPT (LENRPW, LENIPW, NGE)
          WRITE (6,82) LENRPW, LENIPW, NGE
- 82      FORMAT('In CVBBDPRE: real/integer local work space =',2I5/
+ 82      FORMAT('In CVBBDPRE:'/'real/integer local work space =',2I5/
      &        ' number of g evals.     =',I5)
       ENDIF
 C     
@@ -224,7 +224,7 @@ C     Otherwise jump to final block.
       ENDIF
 
       IF (MYPE .EQ. 0) WRITE (6,95)
- 95   FORMAT(//60('-')///'Preconditioning on right'//)
+ 95   FORMAT(/60('-')//'Preconditioning on right'/)
       GO TO 40
 C     
 C     Free the memory and finalize MPI.
