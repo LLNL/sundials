@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-01-24 22:28:53 $
+ * $Revision: 1.27 $
+ * $Date: 2005-03-21 22:15:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -248,7 +248,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
  * -----------------------------------------------------------------
  */
 
-int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data);
+int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data);
 
 /*
  * -----------------------------------------------------------------
