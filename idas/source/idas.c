@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-08 15:27:24 $
+ * $Revision: 1.25 $
+ * $Date: 2004-10-08 19:20:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -4181,7 +4181,6 @@ static int IDAStgrTestError(IDAMem IDA_mem, realtype ck,
     return(IDA_SUCCESS);
   }
 
-  return(IDA_SUCCESS);
 }
 
 /*-------------------- IDAStgr1TestError --------------------------*/
@@ -4245,7 +4244,6 @@ static int IDAStgr1TestError(IDAMem IDA_mem, int is, realtype ck,
     return(IDA_SUCCESS);
   }
 
-  return(IDA_SUCCESS);
 }
 
 /*------------------ IDARestore -----------------------------------*/
@@ -4453,8 +4451,6 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag,
     
   }
   
-  return(0);
-
 }
 
 /*-------------------- IDAReset ----------------------------------*/

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-10-08 15:27:15 $
+ * $Revision: 1.20 $
+ * $Date: 2004-10-08 19:20:57 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -474,7 +474,7 @@ int IDASetQuadTolerances(void *ida_mem, int itolQ,
  *                                                                *
  *                                                                *
  * If successful, IDAQuadMalloc returns SUCCESS.                  *
- * If an initialization error occurs, CVodeQuadMalloc prints an   *
+ * If an initialization error occurs, IDAQuadMalloc prints an     *
  * error message to the file specified by errfp and returns one   *
  * of the error flags defined below.                              *
  *----------------------------------------------------------------*/
@@ -620,9 +620,9 @@ int IDASensMalloc(void *ida_mem, int Ns, int ism,
 /*----------------------------------------------------------------*
  * Function : IDASensReInit                                       *
  *----------------------------------------------------------------*
- * IDASensReInit re-initializes CVODES's sensitivity related      *
+ * IDASensReInit re-initializes the IDAS sensitivity related      *
  * memory for a problem, assuming it has already been allocated   *
- * in prior calls to IDAMalloc and CvodeSensMalloc.               *
+ * in prior calls to IDAMalloc and IDASensMalloc.                 *
  *                                                                *
  * All problem specification inputs are checked for errors.       *
  * The number of sensitivities Ns is assumed to be unchanged      *
@@ -636,7 +636,7 @@ int IDASensMalloc(void *ida_mem, int Ns, int ism,
  *                                                                *
  * The return value is equal to SUCCESS = 0 if there were no      *
  * errors; otherwise it is a negative int equal to:               *
- *   SIDAREI_NO_MEM    indicating cvode_mem was NULL, or          *
+ *   SIDAREI_NO_MEM    indicating ida_mem was NULL, or            *
  *   SIDAREI_NO_SENSI  indicating there was not a prior call to   *
  *                     IDASensMalloc.                             *
  *   SIDAREI_ILL_INPUT indicating an input argument was illegal   *

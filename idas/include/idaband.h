@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-08 15:27:15 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-08 19:20:57 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -161,6 +161,10 @@ int IDABand(void *ida_mem, long int Neq,
  * IDABandSetJacData specifies a pointer to user data which is    
  *         passed to the bjac routine every time it is called.    
  *                                                                
+ * The return value of IDABandSet* is one of:
+ *    IDABAND_SUCCESS   if successful
+ *    IDABAND_MEM_NULL  if the ida memory was NULL
+ *    IDABAND_LMEM_NULL if the idaband memory was NULL
  * -----------------------------------------------------------------
  */
 

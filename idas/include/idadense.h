@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-08 15:27:15 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-08 19:20:57 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -147,6 +147,11 @@ int IDADense(void *ida_mem, long int Neq);
  *        supplied with this solver is used.                      
  * IDADenseSetJacData specifies a pointer to user data which is   
  *        passed to the djac routine every time it is called.     
+ *                                                                
+ * The return value of IDADenseSet* is one of:
+ *    IDADENSE_SUCCESS   if successful
+ *    IDADENSE_MEM_NULL  if the ida memory was NULL
+ *    IDaDENSE_LMEM_NULL if the idadense memory was NULL
  *                                                                
  * -----------------------------------------------------------------
  */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-18 21:37:59 $
+ * $Revision: 1.2 $
+ * $Date: 2004-10-08 19:20:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved
  * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
- * Implementation header file for the CVODEA adjoint integrator.
+ * Implementation header file for the IDAA adjoint integrator.
  * -----------------------------------------------------------------
  */
 
