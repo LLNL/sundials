@@ -160,6 +160,8 @@ tar uf $filename sundials/ida/source/idaband.c
 tar uf $filename sundials/ida/source/idaspgmr.c
 tar uf $filename sundials/ida/source/idabbdpre.c
 
+tar uf $filename sundials/ida/lib/.dontremove
+
 tar uf $filename sundials/ida/examples/Makefile
 
 if [ $ser = "T" ]
