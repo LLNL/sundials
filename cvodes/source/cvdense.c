@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-08-25 16:19:23 $
+ * $Revision: 1.8 $
+ * $Date: 2004-10-08 16:35:27 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
- *              Radu Serban @ LLNL
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for the CVDENSE linear solver.
  * -----------------------------------------------------------------
@@ -17,7 +17,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "cvdense_impl.h"
 #include "cvodes_impl.h"
@@ -34,8 +33,6 @@
 #define MSG_BAD_NVECTOR       CVDENSE "A required vector operation is not implemented.\n\n"
 
 #define MSG_MEM_FAIL          CVDENSE "A memory request failed.\n\n"
-
-#define MSG_WRONG_NVEC        CVDENSE "Incompatible NVECTOR implementation.\n\n"
 
 #define MSG_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- Integrator memory is NULL. \n\n"
 

@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-08 15:23:29 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-08 16:35:27 $
  * ----------------------------------------------------------------- 
- * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
- *              Radu Serban @ LLNL                              
+ * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
+ *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California 
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a            
  * band-block-diagonal preconditioner, i.e. a block-diagonal       
@@ -20,7 +20,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "cvbbdpre_impl.h"
 #include "cvodes_impl.h"
@@ -37,8 +36,6 @@
 #define MSG_CVMEM_NULL CVBBDALLOC "Integrator memory is NULL.\n\n"
 
 #define MSG_BAD_NVECTOR CVBBDALLOC "A required vector operation is not implemented.\n\n"
-
-#define MSG_WRONG_NVEC CVBBDALLOC "Incompatible NVECTOR implementation.\n\n"
 
 #define MSG_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL. \n\n"
 
