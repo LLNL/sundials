@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-23 21:35:15 $
+ * $Revision: 1.17 $
+ * $Date: 2004-12-22 23:01:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -77,7 +77,7 @@ int PsolveHeat(realtype tt,
 /* Prototypes for private functions */
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
-                             N_Vector id, N_Vector res);
+                             N_Vector res);
 static void PrintHeader(realtype rtol, realtype atol);
 static void PrintOutput(void *mem, realtype t, N_Vector uu);
 static int check_flag(void *flagvalue, char *funcname, int opt);
@@ -92,14 +92,14 @@ int main()
 {
   void *mem;
   UserData data;
-  N_Vector uu, up, constraints, id, res;
+  N_Vector uu, up, constraints, res;
   int ier, iout;
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
 
   mem = NULL;
   data = NULL;
-  uu = up = constraints = id = res = NULL;
+  uu = up = constraints = res = NULL;
 
   /* Allocate N-vectors and the user data structure. */
 
@@ -115,9 +115,6 @@ int main()
   constraints = N_VNew_Serial(NEQ);
   if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
 
-  id = N_VNew_Serial(NEQ);
-  if(check_flag((void *)id, "N_VNew_Serial", 0)) return(1);
-
   data = (UserData) malloc(sizeof *data);
   data->pp = NULL;
   if(check_flag((void *)data, "malloc", 2)) return(1);
@@ -130,9 +127,9 @@ int main()
   data->pp = N_VNew_Serial(NEQ);
   if(check_flag((void *)data->pp, "N_VNew_Serial", 0)) return(1);
 
-  /* Initialize uu, up, id. */
+  /* Initialize uu, up. */
 
-  SetInitialProfile(data, uu, up, id, res);
+  SetInitialProfile(data, uu, up, res);
 
   /* Set constraints to all 1's for nonnegative solution values. */
 
@@ -152,9 +149,6 @@ int main()
 
   ier = IDASetRdata(mem, data);
   if(check_flag(&ier, "IDASetRdata", 1)) return(1);
-
-  ier = IDASetId(mem, id);
-  if(check_flag(&ier, "IDASetId", 1)) return(1);
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
@@ -222,9 +216,9 @@ int main()
    * -------------------------------------------------------------------------
    */
   
-  /* Re-initialize uu, up, id. */
+  /* Re-initialize uu, up. */
 
-  SetInitialProfile(data, uu, up, id, res);
+  SetInitialProfile(data, uu, up, res);
   
   /* Re-initialize IDA and IDASPGMR */
 
@@ -272,7 +266,6 @@ int main()
   N_VDestroy_Serial(uu);
   N_VDestroy_Serial(up);
   N_VDestroy_Serial(constraints);
-  N_VDestroy_Serial(id);
   N_VDestroy_Serial(res);
 
   N_VDestroy_Serial(data->pp);
@@ -405,23 +398,19 @@ int PsolveHeat(realtype tt,
  */
 
 /*
- * SetInitialProfile: routine to initialize u, up, and id vectors.       
+ * SetInitialProfile: routine to initialize u and up vectors.
  */
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
-                             N_Vector id, N_Vector res)
+                             N_Vector res)
 {
   long int mm, mm1, i, j, offset, loc;
-  realtype xfact, yfact, *udata, *updata, *iddata;
+  realtype xfact, yfact, *udata, *updata;
 
   mm = data->mm;
 
   udata = NV_DATA_S(uu);
   updata = NV_DATA_S(up);
-  iddata = NV_DATA_S(id);
-
-  /* Initialize id to 1's. */
-  N_VConst(ONE, id);
 
   /* Initialize uu on all grid points. */ 
   mm1 = mm - 1;
@@ -444,13 +433,12 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   /* Copy -res into up to get correct interior initial up values. */
   N_VScale(-ONE, res, up);
 
-  /* Set up and id at boundary points to zero. */
+  /* Set up at boundary points to zero. */
   for (j = 0; j < mm; j++) {
     offset = mm*j;
     for (i = 0; i < mm; i++) {
       loc = offset + i;
-      if (j == 0 || j == mm1 || i == 0 || i == mm1 ) {
-        updata[loc] = ZERO; iddata[loc] = ZERO; }
+      if (j == 0 || j == mm1 || i == 0 || i == mm1 ) updata[loc] = ZERO;
     }
   }
   
