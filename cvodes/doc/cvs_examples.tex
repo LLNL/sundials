@@ -10,8 +10,8 @@
 
 \input{ug.tex}
 
-\newcommand{\cvsucrl}{148813}
-\newcommand{\cvsdate}{October 2003}
+\newcommand{\cvsucrl}{000000}
+\newcommand{\cvsdate}{November 2004}
 \newcommand{\cvsrelease}{v2.1.0}
 
 \title{Example Programs for \cvodes \\ \cvsrelease}
@@ -36,16 +36,18 @@
 \frontex
 
 %===============================================================
-% Example Problems
-\include{cvs_sim_ex}
+\include{cvs_ex_intro}
 \include{cvs_fwd_ex}
 \include{cvs_adj_ex}
+\include{cv_ex_tests}
+%===============================================================
+% References
+\bibliographystyle{plain}
+\bibliography{biblio}
 %===============================================================
 % Start appendices
 \appendix
-\include{cvs_sim_codes}
-\include{cvs_fwd_codes}
-\include{cvs_adj_codes}
+\include{cvs_ex_codes}
 %===============================================================
 \makeLLNLBackCover
 %===============================================================
