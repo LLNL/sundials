@@ -262,7 +262,7 @@ We have prototyped an automated code generator tool (not included in the
 CVODES distribution) which parses C code and generates C++ code to perform
 complex arithmetic. The user's right-hand side routine can thus be transformed
 to allow for the automatic generation of derivative information using 
-complex-step approximations. This approach allows for very accurate numerical
+complex-step approximations~\cite{MSA:03}. This approach allows for very accurate numerical
 estimation of derivatives as it circumvents the subtraction cancellation error 
 typical for finite difference methods. However, any code transformation approach
 to the automatic generation of derivative information from C functions 
@@ -368,8 +368,8 @@ intervals, the number and size of the vectors $y$ and ${\dot y}$ that would
 need to be stored make this approach computationally intractable. 
 
 CVODES settles for a compromise between storage space and execution time by
-implementing a so-called {\em check-pointing scheme}. At the cost of
-at most one additional forward integration, this approach offers the best possible 
+implementing a check-pointing scheme which, at the cost of
+at most one additional forward integration, offers the best possible 
 estimate of memory requirements for adjoint sensitivity analysis.
 \footnote{Note that truly optimal checkpointing \cite{GrWa:00} cannot
 be used since the number of integration steps is not known apriori} 
