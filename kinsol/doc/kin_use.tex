@@ -40,7 +40,7 @@ the corresponding header files are:
 \item \Id{nvector\_serial.h}, 
   which defines the serial implementation, {\nvecs};
 \item \Id{nvector\_parallel.h}, 
-  which defines the parallel MPI implementation, {\nvecp}.
+  which defines the parallel {\mpi} implementation, {\nvecp}.
 \end{itemize}
 %
 Note that both of these files include in turn the header file \Id{nvector.h}, which 
@@ -69,7 +69,7 @@ shown in Figure~\ref{f:sim_overview}.
 \begin{figure}
 \centerline{\psfig{figure=kinsim.eps,width=\textwidth}}
 \caption {Diagram of the user program and 
-  {\kinsol} package for the solution of nonlinear systems}\label{f:sim_overview}
+  KINSOL package for the solution of nonlinear systems}\label{f:sim_overview}
 \end{figure}
 %%
 The following is a skeleton of the user's main program (or calling
@@ -85,7 +85,7 @@ provided with {\kinsol}: steps marked with {\p} correspond to
 \item 
   {\bf Initialize MPI}
 
-  {\p} \id{MPI\_Init(\&argc, \&argv);} to initialize MPI if used by
+  {\p} \id{MPI\_Init(\&argc, \&argv);} to initialize {\mpi} if used by
   the user's program, aside from the internal use in {\nvecp}.  
   Here \id{argc} and \id{argv} are the command line argument 
   counter and array received by \id{main}.
@@ -96,9 +96,9 @@ provided with {\kinsol}: steps marked with {\p} correspond to
   {\s} Set \id{N}, the problem size $N$.
 
   {\p} Set \id{Nlocal}, the local vector length (the sub-vector
-  length for this processor); \id{N}, the global vector length (the
+  length for this process); \id{N}, the global vector length (the
   problem size $N$, and the sum of all the values of \id{Nlocal});
-  and the active set of processors.
+  and the active set of processes.
   
 \item
   {\bf Set vector with initial guess}
@@ -123,10 +123,10 @@ provided with {\kinsol}: steps marked with {\p} correspond to
 
   {\p} \id{NV\_DATA\_P(u)}
 
-  Here \id{comm} is the MPI communicator, set in one of two ways: 
-  If a proper subset of active processors is to be used, \id{comm} 
-  must be set by suitable MPI calls. Otherwise, to specify that all 
-  processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
+  Here \id{comm} is the {\mpi} communicator, set in one of two ways: 
+  If a proper subset of active processes is to be used, \id{comm} 
+  must be set by suitable {\mpi} calls. Otherwise, to specify that all 
+  processes are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
   
 \item\label{i:kinsol_create} 
   {\bf Create {\kinsol} object}
@@ -195,7 +195,7 @@ provided with {\kinsol}: steps marked with {\p} correspond to
 \item 
   {\bf {\p} Finalize MPI}
 
-  Call \id{MPI\_Finalize();} to terminate MPI.
+  Call \id{MPI\_Finalize();} to terminate {\mpi}.
   
 \end{Steps}
 
@@ -338,7 +338,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_ILL\_INPUT]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The {\kinspgmr} initialization was successful.
@@ -381,7 +381,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
   \item[u] (\id{N\_Vector})
     vector set to initial guess by user before calling \id{KINSol},
     but which upon return contains an approximate solution of
-    the nonlinear system $F(u) = 0$ the computed solution vector.
+    the nonlinear system $F(u)=0$ the computed solution vector.
   \item[strategy]
     globalization strategy applied to the Newton method.
     It must be one of \ID{KIN\_INEXACT\_NEWTON} or \ID{KIN\_LINESEARCH}.
@@ -415,7 +415,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
 
     {\kinsol} stopped based on scaled step length.
     This means that the current iterate may be an approximate solution of the given
-    nonlinear system, but it is also quite possible that the algorithm is "stalled" 
+    nonlinear system, but it is also quite possible that the algorithm is ``stalled" 
     (making insufficient progress) near an invalid solution, or that the 
     scalar \id{scsteptol} is too large (see \id{KINSetScaledStepTol} in 
     \S\ref{ss:optional_input} to change \id{scsteptol} from its default value).
@@ -442,7 +442,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
     Failure to satisfy the sufficient decrease
     condition could mean the current iterate is
     ``close" to an approximate solution of the given
-    nonlinear system, the finite-difference
+    nonlinear system, the finite difference
     approximation of the matrix-vector product
     $J(u) v$ is inaccurate, or the real scalar
     \id{scsteptol} is too large.
@@ -530,7 +530,7 @@ will catch any error.
 
 \begin{table}
 \centering
-\caption{Optional inputs for {\kinsol} and {\kinspgmr}}
+\caption{Optional inputs for KINSOL and KINSPGMR}
 \label{t:optional_input}
 \medskip
 \begin{tabular}{|l|l|l|}\hline
@@ -540,7 +540,7 @@ will catch any error.
 \hline
 Pointer to an error file & \id{KINSetErrFile} & \id{stderr}  \\
 Pointer to an info file & \id{KINSetInfoFile} & \id{stdout} \\
-Data for problem-defining function & \id{KINSetFdata} & NULL \\
+Data for problem-defining function & \id{KINSetFdata} & \id{NULL} \\
 Verbosity level of output & \id{KINSetPrintLevel} & 0 \\
 Max. number of nonlinear iterations & \id{KINSetNumMaxIters} & 200 \\
 No initial preconditioner setup & \id{KINSetNoPrecInit} & \id{FALSE} \\
@@ -559,11 +559,11 @@ Nonlinear system function & \id{KINSetSysFunc} & none \\
 \multicolumn{3}{|c|}{\bf KINSPGMR linear solver} \\
 \hline
 Max. number of restarts & \id{KINSpgmrSetMaxRestarts} & 0 \\
-Preconditioner solve function & \id{KINSpgmrSetPrecSolveFn} & NULL \\
-Preconditioner setup function & \id{KINSpgmrSetPrecSetupFn} & NULL \\
-Data for preconditioner functions & \id{KINSpgmrSetPrecData} & NULL \\
-Jacobian times vector function & \id{KINSpgmrSetJacTimesVecFn} & internal DQ \\
-Data for Jacobian times vector function &\id{KINSpgmrSetJacData} & NULL \\ 
+Preconditioner solve function & \id{KINSpgmrSetPrecSolveFn} & \id{NULL} \\
+Preconditioner setup function & \id{KINSpgmrSetPrecSetupFn} & \id{NULL} \\
+Data for preconditioner functions & \id{KINSpgmrSetPrecData} & \id{NULL} \\
+Jacobian-vector product function & \id{KINSpgmrSetJacTimesVecFn} & internal DQ \\
+Data for Jacobian-vector product function &\id{KINSpgmrSetJacData} & \id{NULL} \\ 
 \hline
 \end{tabular}
 \end{table}
@@ -593,7 +593,7 @@ flag = KINSetErrFile(kin\_mem, errfp);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -626,7 +626,7 @@ flag = KINSetInfoFile(kin\_mem, infofp);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -663,7 +663,7 @@ flag = KINSetPrintLevel(kin\_mem, printfl);
     \item[1]
       for each nonlinear iteration display
       the following information: the scaled
-      $L_2$ norm of the system function
+      Euclidean $\ell_2$ norm of the system function
       evaluated at the current iterate, the
       scaled norm of the Newton step (only if
       using \id{KIN\_INEXACT\_NEWTON}), and the
@@ -692,7 +692,7 @@ flag = KINSetPrintLevel(kin\_mem, printfl);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -724,7 +724,7 @@ flag = KINSetFdata(kin\_mem, f\_data);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -754,7 +754,7 @@ flag = KINSetNumMaxIters(kin\_mem, mxiter);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -787,7 +787,7 @@ flag = KINSetNoPrecInit(kin\_mem, noPrecInit);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -820,7 +820,7 @@ flag = KINSetMaxPrecCalls(kin\_mem, msbpre);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -855,7 +855,7 @@ flag = KINSetEtaForm(kin\_mem, etachoice);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -887,7 +887,7 @@ flag = KINSetEtaConstValue(kin\_mem, eta);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -922,10 +922,10 @@ flag = KINSetEtaParams(kin\_mem, egamma, ealpha);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
-    The optional value has been successfully set.
+    The optional values have been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KIN\_ILL\_INPUT}]
@@ -961,7 +961,7 @@ flag = KINSetNoMinEps(kin\_mem, noMinEps);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -991,7 +991,7 @@ flag = KINSetMaxNewtonStep(kin\_mem, mxnewtstep);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1013,7 +1013,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
 }
 {
   The function \ID{KINSetRelErrFunc} specifies the relative error in 
-  computing $F(u)$, which is used in the difference-quotient approximation of the
+  computing $F(u)$, which is used in the difference quotient approximation of the
   Jacobian-vector product.
 }
 {
@@ -1025,7 +1025,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1057,7 +1057,7 @@ flag = KINSetFuncNormTol(kin\_mem, fnormtol);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1089,7 +1089,7 @@ flag = KINSetScaledStepTol(kin\_mem, scsteptol);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1128,7 +1128,7 @@ flag = KINSetConstraints(kin\_mem, constraints);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1159,7 +1159,7 @@ flag = KINSetSysFunc(kin\_mem, func);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1213,9 +1213,9 @@ specified through \id{KINSetFdata}.
 The \index{KINSPGMR@{\kinspgmr} linear solver!Jacobian approximation used by}
 {\kinspgmr} solver requires a function to compute an approximation to the
 product between the Jacobian matrix $J(u)$ and a vector $v$.
-The user can supply his/her own Jacobian times vector approximation function, 
+The user can supply his/her own Jacobian-vector product approximation function, 
 or use the difference quotient function \Id{KINSpgmrDQJtimes} 
-\index{Jacobian times vector approximation!difference quotient}
+\index{Jacobian-vector product approximation!difference quotient}
 that comes with the {\kinspgmr} solver.
 A user-defined Jacobian-vector function must be of type \id{KINSpgmrJtimesFn} and 
 can be specified through a call to \id{KINSpgmrSetJacTimesVecFn} 
@@ -1224,7 +1224,7 @@ can be specified through a call to \id{KINSpgmrSetJacTimesVecFn}
 As with the preconditioner user data structure \id{prec\_data}, 
 the user can specify, through a call to \id{KINSpgmrSetJacData}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
-the {\kinspgmr} solver passes to the Jacobian times vector function \id{jtimes} each
+the {\kinspgmr} solver passes to the Jacobian-vector product function \id{jtimes} each
 time it is called.  
 The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_data}.
 %%
@@ -1246,7 +1246,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_ILL\_INPUT]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1278,7 +1278,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1310,7 +1310,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1343,7 +1343,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1357,7 +1357,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
 %%
 \index{preconditioning!user-supplied|)}
 %%
-\index{Jacobian times vector approximation!user-supplied}
+\index{Jacobian-vector product approximation!user-supplied}
 \ucfunction{KINSpgmrSetJacTimesVecFn}
 {
   flag = KINSpgmrSetJacTimesVecFn(kin\_mem, jtimes);
@@ -1375,7 +1375,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1411,7 +1411,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional value has been successfully set.
@@ -1436,7 +1436,7 @@ which are then described in detail in the remainder of this section.
 
 \begin{table}
 \centering
-\caption{Optional outputs from {\kinsol} and {\kinspgmr}}
+\caption{Optional outputs from KINSOL and KINSPGMR}
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|l|l|}\hline
@@ -1498,10 +1498,10 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
-    The optional output value has been successfully set.
+    The optional output values have been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1529,7 +1529,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1557,7 +1557,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1585,7 +1585,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1614,7 +1614,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1642,7 +1642,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1670,7 +1670,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1713,10 +1713,10 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional output value has been successfully set.
+    The optional output values have been successfully set.
   \item[\Id{KINSPGMR\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \item[\Id{KINSPGMR\_LMEM\_NULL}]
@@ -1727,8 +1727,8 @@ performance of the {\kinspgmr} module are described below.
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is
   (\id{maxl}$+ 5)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ \id{realtype}
-  words.  (In a parallel setting, this value is global --- summed over
-  all processors.)
+  words.  (In a parallel setting, this value is global - summed over
+  all processes.)
 }
 %%
 \index{KINSPGMR@{\kinspgmr} linear solver!memory requirements|)} 
@@ -1752,7 +1752,7 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1782,7 +1782,7 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1815,7 +1815,7 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1846,7 +1846,7 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1877,7 +1877,7 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1908,7 +1908,7 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1941,7 +1941,7 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_LMEM\_NULL]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -1965,7 +1965,7 @@ performance of the {\kinspgmr} module are described below.
  \id{SPGMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve function
  \id{psolve} failed recoverably;
   \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
-  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector
+  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian-vector product
   function;
   \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
@@ -1983,7 +1983,7 @@ performance of the {\kinspgmr} module are described below.
 %%==============================================================================
 
 The user-supplied functions consist of one function defining the nonlinear system, 
-(optionally) a function that provides Jacobian related information for the linear
+(optionally) a function that provides Jacobian-related information for the linear
 solver, and (optionally) one or two functions that define the preconditioner for 
 use in the {\spgmr} algorithm. 
 
@@ -2024,7 +2024,7 @@ Allocation of memory for \id{fval} is handled within {\kinsol}.
 \subsection{Jacobian information (SPGMR matrix-vector product)}
 \label{ss:jtimesFn}
 %%==============================================================================
-\index{Jacobian times vector approximation!user-supplied}
+\index{Jacobian-vector product approximation!user-supplied}
 The user may provide a function of type \ID{KINSpgmrJacTimesVecFn} to evaluate
 Jacobian-vector products for the {\kinspgmr} linear solver module.
 This function has the following form:
@@ -2057,14 +2057,14 @@ typedef int (*KINSpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, \\
   \end{args}
 }
 {  
-  The value to be returned by the Jacobian times vector function should be
+  The value to be returned by the Jacobian-vector product function should be
   $0$ if successful. Any other return value will result in an unrecoverable
   error of the {\spgmr} generic solver, in which case the solution process
   is halted.
 }
 {
   If a user-defined routine is not given, then an internal
-  {\kinspgmr} function, using difference-quotient approximations,
+  {\kinspgmr} function, using difference quotient approximations,
   is used.
 
   If the user-provided \id{KINSpgmrJacTimesVec} function needs the unit roundoff,
@@ -2110,7 +2110,7 @@ typedef int (*KINSpgmrPrecSolveFn)(&N\_Vector u, N\_Vector uscale,  \\
     system, \id{r}. On output, \id{v} must contain the solution \id{z} of
     the linear system $Pz=r$.
   \item[prec\_data]
-    is a pointer to user data --- the same as the \id{prec\_data}      
+    is a pointer to user data - the same as the \id{prec\_data}      
     parameter passed to the function \id{KINSpgmrSetPrecData}.
   \item[tmp]
     is a pointer to memory allocated for a variable of type \id{N\_Vector}
@@ -2130,7 +2130,7 @@ typedef int (*KINSpgmrPrecSolveFn)(&N\_Vector u, N\_Vector uscale,  \\
 \index{preconditioning!user-supplied}
 \index{KINSPGMR@{\kinspgmr} linear solver!preconditioner setup function}
 
-If the user's preconditioner requires that any Jacobian related data
+If the user's preconditioner requires that any Jacobian-related data
 be evaluated or preprocessed, then this needs to be done in a
 user-supplied {\C} function of type \ID{KINSpgmrPrecSetupFn}, defined as follows:
 \usfunction{KINSpgmrPrecSetupFn}
@@ -2141,7 +2141,7 @@ typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
                                    &N\_Vector tmp2);
 }
 {
-  This function evaluates and/or preprocesses Jacobian related data needed
+  This function evaluates and/or preprocesses Jacobian-related data needed
   by the preconditioner.
 }
 {
@@ -2158,7 +2158,7 @@ typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
     is a vector containing diagonal elements
     of the scaling matrix for \id{fval}.
   \item[prec\_data]
-    is a pointer to user data --- the same as the \id{prec\_data}      
+    is a pointer to user data - the same as the \id{prec\_data}      
     parameter passed to the function \id{KINSpgmrSetPrecData}.
   \item[tmp1]
   \item[tmp2]
@@ -2221,7 +2221,7 @@ The {\kinbbdpre} module calls two user-provided functions to construct $P$:
 a required function \id{Gloc} (of type \id{KINLocalFn}) 
 which approximates the nonlinear system function function $G(u) \approx F(u)$ and which 
 is computed locally, and an optional function \id{Gcomm} (of type \id{KINCommFn}) 
-which performs all inter-process communication necessary to evaluate 
+which performs all interprocess communication necessary to evaluate 
 the approximate function $G$.  
 These are in addition to the user-supplied nonlinear system function that 
 evaluates $F(u)$.
@@ -2229,7 +2229,7 @@ Both functions take as input the same pointer \id{f\_data} as that passed
 by the user to \id{KINSetFdata} and passed to the user's function \id{func},
 and neither function has a return value. The user is responsible for
 providing space (presumably within \id{f\_data}) for components of \id{u}
-that are communicated by \id{Gcomm} from the other processors, and that are
+that are communicated by \id{Gcomm} from the other processes, and that are
 then used by \id{Gloc}, which is not expected to do any communication.
 %%
 %%
@@ -2251,7 +2251,7 @@ then used by \id{Gloc}, which is not expected to do any communication.
   \item[gval]
     is the output vector.
   \item[f\_data]
-    is a pointer to user data --- the same as the \Id{f\_data}      
+    is a pointer to user data - the same as the \Id{f\_data}      
     parameter passed to \id{KINSetFdata}.  
   \end{args}
 }
@@ -2259,7 +2259,7 @@ then used by \id{Gloc}, which is not expected to do any communication.
   A \id{KINLocalFn} function type does not have a return value.
 }
 {
-  This function assumes that all inter-processor communication of data needed to 
+  This function assumes that all interprocess communication of data needed to 
   calculate \id{gval} has already been done, and this data is accessible within
   \id{f\_data}.
 
@@ -2274,7 +2274,7 @@ then used by \id{Gloc}, which is not expected to do any communication.
   typedef void (*KINCommFn)(long int Nlocal, N\_Vector u, void *f\_data);
 }
 {
-  This function performs all inter-processor communications necessary 
+  This function performs all interprocess communications necessary 
   for the execution of the \id{gloc} function above, using the input vector \id{u}.
 }
 {
@@ -2284,7 +2284,7 @@ then used by \id{Gloc}, which is not expected to do any communication.
   \item[u]
     is the current value of the iterate.
   \item[f\_data]
-    is a pointer to user data --- the same as the \Id{f\_data}      
+    is a pointer to user data - the same as the \Id{f\_data}      
     parameter passed to \id{KINSetFdata}.  
   \end{args}
 }
@@ -2316,7 +2316,7 @@ function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence
 of calls in the user main program. Steps that are unchanged from the user main
-program presented in \S\ref{s:skeleton_sol} are grayed-out.
+program presented in \S\ref{s:skeleton_sol} are grayed out.
 %%
 %%
 \index{User main program!KINBBDPRE@{\kinbbdpre} usage}
@@ -2431,9 +2431,9 @@ next.
   \item[Nlocal] (\id{long int})
     local vector length.
   \item[mu] (\id{long int})
-    upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
+    upper half-bandwidth to be used in the difference quotient Jacobian approximation.
   \item[ml] (\id{long int})
-    lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
+    lower half-bandwidth to be used in the difference quotient Jacobian approximation.
   \item[dq\_rel\_u] (\id{realtype})
     the relative increment in components of \id{u} used in the difference quotient
     approximations.  The default is \id{dq\_rel\_u}$ = \sqrt{\text{unit roundoff}}$,
@@ -2441,7 +2441,7 @@ next.
   \item[Gloc] (\id{KINLocalFn})
     the {\C} function which computes the approximation $G(u) \approx F(u)$. 
   \item[Gcomm] (\id{KINCommFn})
-    the optional {\C} function which performs all inter-process communication required for
+    the optional {\C} function which performs all interprocess communication required for
     the computation of $G(u)$.
   \end{args}
 }
@@ -2455,7 +2455,7 @@ next.
   half-bandwidths of the Jacobian of the local block of $G$,    
   when smaller values may provide a greater efficiency.       
 
-  Moreover, the half-bandwidth values need not be the same on every processor.
+  Moreover, the half-bandwidth values need not be the same for every process.
 }
 %%
 %%
@@ -2481,7 +2481,7 @@ next.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KINSPGMR\_ILL\_INPUT]
   \item[\Id{KINSPGMR\_SUCCESS}] 
     The {\kinspgmr} initialization was successful.
@@ -2541,10 +2541,10 @@ the {\kinbbdpre} module:
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_PDATA\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
-    The optional output value has been successfully set.
+    The optional output values have been successfully set.
   \item[\Id{KIN\_PDATA\_NULL}]
     The {\kinbbdpre} preconditioner has not been initialized.
   \end{args}
@@ -2571,7 +2571,7 @@ the {\kinbbdpre} module:
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
+  The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_PDATA\_NULL]
   \item[\Id{KIN\_SUCCESS}] 
     The optional output value has been successfully set.
@@ -2669,7 +2669,7 @@ for the resulting mixed-language program.
 %%==============================================================================
 \subsubsection{Important note on portability}
 %%==============================================================================
-\index{portability!Fortran}
+\index{portability!{\F}}
 
 In this package, the names of the interface functions, and the names of
 the {\F} user routines called by them, appear as dummy names
@@ -2677,7 +2677,7 @@ which are mapped to actual values by a series of definitions in the
 header files \id{fkinsol.h} and \id{fkinbbd.h}.
 By default, those mapping definitions depend in turn on the {\C} macro
 \id{F77\_FUNC} defined in the header file \id{config.h} by \id{configure}. However,
-the set of flags --- \Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
+the set of flags - \Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
 \Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_ONE}, and
 \Id{SUNDIALS\_UNDERSCORE\_TWO} can be explicitly defined in \id{config.h} when
 configuring {\sundials} via the \id{--with-f77underscore} and
@@ -2694,8 +2694,8 @@ depending on whether {\kinsol} was built in single, double or extended precision
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
 {\C} type \id{long int}. These integer variables include: the array
 of integer optional inputs and outputs (\id{IOPT}), problem dimensions (\id{NEQ},
-\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU}, \id{ML},
-\id{MUDQ}, and \id{MLDQ}). This is particularly important when using
+\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU} and \id{ML}).
+This is particularly important when using
 {\kinsol} and the {\fkinsol} package on 64-bit architectures.
 
 
@@ -2718,7 +2718,7 @@ and \S\ref{ss:optional_output}.
 
 \begin{table}
 \centering
-\caption{Description of the {\fkinsol} optional input-output arrays \Id{IOPT} and \Id{ROPT}}
+\caption{Description of the FKINSOL optional input-output arrays \Id{IOPT} and \Id{ROPT}}
 \label{t:fkinsol_io}
 \medskip
 \begin{tabular}{|r|c|c|l|}
@@ -2833,12 +2833,12 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FNVINITP(NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{NLOCAL} the local size of vectors on this
-  processor, \id{NGLOBAL} the system size (and the global size of vectors, that
+  in which the arguments are: \id{NLOCAL} the local size of vectors for this
+  process, \id{NGLOBAL} the system size (and the global size of vectors, that
   is the sum of all values of NLOCAL). The return completion flag \id{IER} is
   set to $0$ upon successful return and to $-1$ otherwise.
-  Note that if MPI was initialized by the user, the communicator must be
-  set to \id{MPI\_COMM\_WORLD}.  If not, this routine initializes MPI and sets
+  Note that if {\mpi} was initialized by the user, the communicator must be
+  set to \id{MPI\_COMM\_WORLD}.  If not, this routine initializes {\mpi} and sets
   the communicator equal to \id{MPI\_COMM\_WORLD}.
 
 \item {\bf Problem specification}
@@ -2906,7 +2906,7 @@ apply to {\nvecp}.
   \id{IER} is the return completion flag (possible values are $0$: success and
   $-1$: failure).
     
-  \index{Jacobian times vector approximation!use in {\fkinsol}}
+  \index{Jacobian-vector product approximation!use in {\fkinsol}}
   As an option when using the {\spgmr} linear solver, the user may supply a 
   routine that computes the product of the system Jacobian 
   $J = \partial F / \partial u$ 
@@ -2937,7 +2937,7 @@ apply to {\nvecp}.
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian times
   vector approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
-  for success or non-zero if an error occurred.
+  for success or nonzero if an error occurred.
   
   If preconditioning is to be done then, following the
   call to \id{FKINSPGMR}, the user must call
@@ -2960,7 +2960,7 @@ apply to {\nvecp}.
   or function value, as given in the arrays \id{USCALE} and
   \id{FSCALE}, respectively.
   
-  If the user's preconditioner requires that any Jacobian related data be evaluated
+  If the user's preconditioner requires that any Jacobian-related data be evaluated
   or preprocessed, then, following the call to \id{FKINSPGMRSETPSOL}, the user must
   call \index{FKINSPGMRSETPSET@\texttt{FKINSPGMRSETPSET}}
 \begin{verbatim}
@@ -3055,7 +3055,7 @@ The user-callable functions in this package, with the corresponding
   interfaces to \id{KINBBDPrecFree}.
 \end{itemize}
 
-In addition to the Fortran right-hand side function \id{FKFUN}, the
+In addition to the {\F} right-hand side function \id{FKFUN}, the
 user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within {\kinbbdpre} or {\kinsol}):
@@ -3068,15 +3068,12 @@ type within {\kinbbdpre} or {\kinsol}):
 \id{FKJTIMES} & \id{FKINJtimes}   & \id{KINSpgmrJacTimesVecFn} \\ \hline
 \end{tabular}
 \end{center}
-As with the rest of the {\fkinsol} routines, the names of all user-supplied routines 
-here are fixed, in order to maximize portability for the resulting mixed-language
-program.  Additionally, based on the flags \Id{SUNDIALS\_CASE\_*} and 
-\Id{SUNDIALS\_UNDERSCORE\_*}, the names of the user-supplied routines 
-are mapped to actual values through a series of definitions in the header file 
-\id{fkinbbd.h}.
+As with the rest of the {\fkinsol} routines, the names of the user-supplied routines
+are mapped to actual values through a series of definitions in the header file
+\id{fkinbbd.h} (see \S\ref{ss:fcmix}).
 
 The following is a summary of the usage of this module. Steps that are unchanged
-from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
+from the main program described in \S\ref{ss:fkinsol_usage} are grayed out.
 
 
 \index{User main program!FCVBBD@{\fcvbbd} usage}
@@ -3096,7 +3093,7 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
       CALL FKINBBDINIT(NLOCAL, MU, ML, IER)
 \end{verbatim}
   The arguments are as follows.
-  \id{NLOCAL} is the local size of vectors on this processor.
+  \id{NLOCAL} is the local size of vectors for this process.
   \id{MU} and \id{ML} are the upper and lower half-bandwidths to be used in 
   the computation of the local Jacobian blocks by difference quotients.
   These may be smaller than the true half-bandwidths of the
@@ -3137,9 +3134,9 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
 \end{verbatim}
   The arguments returned are as follows.
   \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
-  words.  This size is local to the current processor.
+  words.  This size is local to the current process.
   \id{LENIPW} is the length of integer preconditioner work space, in integer
-  words.  This size is local to the current processor.
+  words.  This size is local to the current process.
   \id{NGE} is the cumulative number of $G(u)$ evaluations (calls to \id{FKLOCFN}).
   
 \item {\bf Memory deallocation}

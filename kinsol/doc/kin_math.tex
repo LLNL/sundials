@@ -38,8 +38,8 @@ A test for convergence is made before the iteration continues.
 
 The linear iterative method currently implemented is one of the
 class of Krylov methods, GMRES \cite{BrHi:89,SaSc:86}, provided
-through the SPGMR module common to all SUNDIALS codes. Use of
-SPGMR provides a linear solver which, by default, is applied in a
+through the {\spgmr} module common to all {\sundials} codes. Use of
+{\spgmr} provides a linear solver which, by default, is applied in a
 matrix-free manner, with matrix-vector products $Jv$ obtained by
 either finite difference quotients or a user-supplied routine. In
 the case where finite differences are used, the matrix-vector
@@ -138,11 +138,11 @@ The default is Eisenstat and Walker Choice 1. For both options 1
 and 2, appropriate safeguards are incorporated to ensure that
 $\eta$ does not decrease too quickly~\cite{EiWa:96}.
 
-As a user option, KINSOL permits the application of inequality
+As a user option, {\kinsol} permits the application of inequality
 constraints, $u^i > 0$ and $u^i < 0$, as well as $u^i \geq 0$ and
 $u^i \leq 0$, where $u^i$ is the $i$th component of $u$.  Any such
 constraint, or no constraint, may be imposed on each component.
-KINSOL will reduce step lengths in order to ensure that no
+{\kinsol} will reduce step lengths in order to ensure that no
 constraint is violated.  Specifically, if a new Newton iterate
 will violate a constraint, the maximum (over all $i$) step length
 along the Newton direction that will satisfy all constraints is
