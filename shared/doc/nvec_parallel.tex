@@ -3,13 +3,15 @@
 %
 The parallel implementation of the {\nvector} module defines the {\em content} 
 field of \id{N\_Vector} to be a structure containing the global and local lengths 
-of the vector, a pointer to the beginning of a contiguous local data array, and
-an MPI communicator.
+of the vector, a pointer to the beginning of a contiguous local data array,
+an MPI communicator, an a boolean flag {\em own\_data} indicating ownership of 
+the data array {\em data}.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Parallel {
   long int local_length;
   long int global_length;
+  booleantype own_data;
   realtype *data;
   MPI_Comm comm;
 };
