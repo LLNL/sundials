@@ -3,7 +3,7 @@
  * File          : nvector_serial.h                                *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *               : Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 26 March 2003                                   *
+ * Version of    : 06 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -16,8 +16,8 @@
  * Part I of this file contains declarations which are specific    *
  * to the particular machine environment in which this version     *
  * of the vector package is to be used. This includes the          *
- * typedef for the 'content' fields of the structures M_Env and    *
- * N_Vector (M_EnvSerialContent and N_VectorSerialContent,         *
+ * typedef for the 'content' fields of the structures NV_Spec and  *
+ * N_Vector (NV_SpecContent_Serial and N_VectorContent_Serial,     *
  * respectively).                                                  *
  *                                                                 *
  * Part II of this file defines accessor macros that allow the     *
@@ -26,14 +26,14 @@
  *                                                                 *
  * Part III of this file contains the prototype for the            *
  * initialization routine specific to this implementation          *
- * (M_EnvInit_Serial) as well as prototypes for the vector         *
+ * (NV_SpecInit_Serial) as well as prototypes for the vector       *
  * kernels which operate on the serial N_Vector. These             *
  * prototypes are unique to this particular implementation of      *
  * the vector package.                                             *
  *                                                                 *
  * NOTES:                                                          *
  *                                                                 *
- * The definitions of the generic M_Env and N_Vector structures    *
+ * The definitions of the generic NV_Spec and N_Vector structures  *
  * are in the header file nvector.h.                               *
  *                                                                 *
  * The definitions of the types realtype and integertype are in    *
@@ -47,7 +47,7 @@
  * is legal.                                                       *
  *                                                                 * 
  * This version of nvector is for the ordinary sequential          *
- * machine environment. In the documentation given below, N is     *
+ * vector specification. In the documentation given below, N is    *
  * the length of all N_Vector parameters and x[i] denotes the      *
  * ith component of the N_Vector x, where 0 <= i <= N-1.           *
  *                                                                 *
@@ -66,32 +66,32 @@ extern "C" {
 
 /****************************************************************
  * PART I:                                                      *
- * Serial implementaion of M_Env and N_Vector                   *
+ * Serial implementaion of NV_Spec and N_Vector                 *
  ****************************************************************/
 
-/* The serial implementation of the machine environment has 
+/* The serial implementation of the vector specification has 
    ID tag 'serial' */
 #define ID_TAG_S "serial"
 
-/* The serial implementation of the machine environment 'content'
+/* The serial implementation of the vector specification 'content'
    structure contains the length of vectors */
 
-struct _M_EnvSerialContent {
+struct _NV_SpecContent_Serial {
   integertype length;
 };
 
-typedef struct _M_EnvSerialContent *M_EnvSerialContent;
+typedef struct _NV_SpecContent_Serial *NV_SpecContent_Serial;
 
 /* The serial implementation of the N_Vector 'content' 
    structure contains the length of the vector and a pointer 
    to an array of realtype components */
 
-struct _N_VectorSerialContent {
+struct _N_VectorContent_Serial {
   integertype length;
   realtype   *data;
 };
 
-typedef struct _N_VectorSerialContent *N_VectorSerialContent;
+typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
 
 /****************************************************************
  *                                                              *
@@ -103,7 +103,7 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  * In the descriptions below, the following user declarations   *
  * are assumed:                                                 *
  *                                                              *
- * M_Env         machenv;                                       *
+ * NV_Spec       nvSpec;                                        *
  * N_Vector      v, *vs;                                        *
  * realtype     *v_data, **vs_data, r;                          *
  * integertype   v_len, s_len, i;                               *
@@ -114,9 +114,9 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  *     destroy an N_Vector with a component array v_data        *
  *     allocated by the user.                                   *
  *                                                              *
- *     The call NV_MAKE_S(v, v_data, machenv) makes v an        *
+ *     The call NV_MAKE_S(v, v_data, nvspec) makes v an         *
  *     N_Vector with component array v_data. The length of the  *
- *     array is taken from machenv.                             *
+ *     array is taken from nvspec.                              *
  *     NV_MAKE_S stores the pointer v_data so that changes      *
  *     made by the user to the elements of v_data are           *
  *     simultaneously reflected in v. There is no copying of    *
@@ -133,9 +133,9 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  *     an array of N_Vectors with component vs_data allocated   *
  *     by the user.                                             *
  *                                                              *
- *     The call NVS_MAKE_S(vs, vs_data, s_len, machenv) makes   *
+ *     The call NVS_MAKE_S(vs, vs_data, s_len, nvspec) makes    *
  *     vs an array of s_len N_Vectors, each with component      *
- *     array vs_data[i] and array length taken from machenv.    *
+ *     array vs_data[i] and array length taken from nvspec.     *
  *     NVS_MAKE_S stores the pointers vs_data[i] so that        *
  *     changes made by the user to the elements of vs_data are  *
  *     simultaneously reflected in vs. There is no copying of   *
@@ -146,14 +146,14 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  *     This memory was allocated by the user and, therefore,    *
  *     should be deallocated by the user.                       *
  *                                                              *
- * (3) ME_CONTENT_S, NV_CONTENT_S                               *
+ * (3) NS_CONTENT_S, NV_CONTENT_S                               *
  *                                                              *
  *     These routines give access to the contents of the serial *
- *     machine environment and N_Vector, respectively.          * 
+ *     vector specification and N_Vector, respectively.         * 
  *                                                              *
- *     The assignment m_cont = ME_CONTENT_S(machenv) sets       *
- *     m_cont to be a pointer to the serial machine             *
- *     environment content structure.                           * 
+ *     The assignment ns_cont = NS_CONTENT_S(nvspec) sets       *
+ *     ns_cont to be a pointer to the serial vector             *
+ *     specification content structure.                         * 
  *                                                              *
  *     The assignment v_cont = NV_CONTENT_S(v) sets             *
  *     v_cont to be a pointer to the serial N_Vector content    *
@@ -208,29 +208,30 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  *                                                              *
  ****************************************************************/ 
 
-#define NV_MAKE_S(v, v_data, machenv) \
+#define NV_MAKE_S(v, v_data, nvspec) \
         v = (N_Vector) malloc(sizeof(*v)); \
-        v->content = (N_VectorSerialContent) malloc(sizeof(struct _N_VectorSerialContent)); \
+        v->content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial)); \
         v->content->data = v_data; \
-        v->content->length = machenv->content->v_len; \
-        v->menv = machenv
+        v->content->length = nvspec->content->v_len; \
+        v->nvspec = nvspec
 
 #define NV_DISPOSE_S(v) \
-        free((N_VectorSerialContent)(v->content)); \
+        free((N_VectorContent_Serial)(v->content)); \
         free(v)
 
-#define NVS_MAKE_S(vs, vs_data, s_len, machenv) \
+#define NVS_MAKE_S(vs, vs_data, s_len, nvspec) \
         vs = (N_Vector_S) malloc(s_len*sizeof(N_Vector *)); \
         for ((int)is=0; is<s_len; is++) { \
-           NV_MAKE_S(vs[is], vs_data[is], machenv); \
+           NV_MAKE_S(vs[is], vs_data[is], nvspec); \
         }
+
 #define NVS_DISPOSE_S(vs, s_len) \
         for ((int)is=0; is<s_len; is++) NV_DISPOSE_S(vs[i]); \
         free(vs);
 
-#define ME_CONTENT_S(m) ( (M_EnvSerialContent)(m->content) )
+#define NS_CONTENT_S(s) ( (NV_SpecContent_Serial)(s->content) )
 
-#define NV_CONTENT_S(v) ( (N_VectorSerialContent)(v->content) )
+#define NV_CONTENT_S(v) ( (N_VectorContent_Serial)(v->content) )
 
 #define NV_LENGTH_S(v) ( NV_CONTENT_S(v)->length )
 
@@ -245,15 +246,15 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  ****************************************************************/
 
 /*--------------------------------------------------------------*
- * Routine : M_EnvInit_Serial                                   *
+ * Routine : NV_SpecInit_Serial                                 *
  *--------------------------------------------------------------*
- * This function sets the content field of the machine          *
- * environment for the serial implementation to a structure of  *
- * type _MEnvSerialContent and attaches the vector operations   *
- * defined for this implementation.                             *
+ * This function sets the content field of the vector           *
+ * specification for the serial implementation to a structure   *
+ * of type _NV_SpecContent_Serial and attaches the vector       *
+ * operations defined for this implementation.                  *
  *                                                              *
- * If successful, M_EnvInit_Serial returns a pointer of type    *
- * M_Env. This pointer should in turn be passed in any user     *
+ * If successful, NV_SpecInit_Serial returns a pointer of type  *
+ * NV_Spec. This pointer should in turn be passed in any user   *
  * calls to N_VNew, or uses of the macros NV_MAKE_S and         *
  * NVS_MAKE_S.                                                  *
  *                                                              *
@@ -263,19 +264,19 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  *                                                              *
  *--------------------------------------------------------------*/
 
-M_Env M_EnvInit_Serial(integertype vec_length);
+NV_Spec NV_SpecInit_Serial(integertype vec_length);
 
 /*--------------------------------------------------------------*
- * Function M_EnvFree_Serial                                    *
+ * Function NV_SpecFree_Serial                                  *
  *--------------------------------------------------------------*
- * Function to free the block of machine-dependent environment  *
- * information created by M_EnvInit_Serial.                     *
- * Its only argument is the pointer machenv returned by         *
- * M_EnvInit_Serial.                                            *
+ * Function to free the block of vector specification           *
+ * information created by NV_SpecInit_Serial.                   *
+ * Its only argument is the pointer nvspec returned by          *
+ * NV_SpecInit_Serial.                                          *
  *                                                              *
  *--------------------------------------------------------------*/
 
-void M_EnvFree_Serial(M_Env machenv);
+void NV_SpecFree_Serial(NV_Spec nvspec);
 
 /*--------------------------------------------------------------*
  * Serial implementations of the vector operations              * 
@@ -284,10 +285,10 @@ void M_EnvFree_Serial(M_Env machenv);
  * see the header file nvector.h                                *
  *--------------------------------------------------------------*/
 
-N_Vector N_VNew_Serial(M_Env machEnv);
-void N_VSpace_Serial(M_Env machEnv, long int *lrw, long int *liw);
+N_Vector N_VNew_Serial(NV_Spec nvspec);
+void N_VSpace_Serial(NV_Spec nvspec, long int *lrw, long int *liw);
 void N_VFree_Serial(N_Vector v);
-N_Vector N_VMake_Serial(realtype *v_data, M_Env machEnv);
+N_Vector N_VMake_Serial(realtype *v_data, NV_Spec nvspec);
 void N_VDispose_Serial(N_Vector v);
 realtype *N_VGetData_Serial(N_Vector v);
 void N_VSetData_Serial(realtype *v_data, N_Vector v);

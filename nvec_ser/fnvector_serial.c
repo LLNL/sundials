@@ -11,8 +11,8 @@
  * For details, see sundials/shared/LICENSE                        *
  *-----------------------------------------------------------------*
  * This file, companion of nvector_serial.c contains the           *
- * implementation of the Fortran interface to M_EnvInit_Serial     *
- * and M_EnvFree_Serial.                                           *
+ * implementation of the Fortran interface to NV_SpecInit_Serial   *
+ * and NV_SpecFree_Serial.                                         *
  *******************************************************************/
 
 #include <stdio.h>
@@ -21,22 +21,22 @@
 #include "nvector_serial.h"
 #include "fnvector_serial.h"
 
-/* Define global variable F2C_machEnv */
-M_Env F2C_machEnv;
+/* Define global variable F2C_nvspec */
+NV_Spec F2C_nvspec;
 
-/* Fortran callable interfaces to M_EnvInit_Serial
-   and M_EnvFree_Serial */
+/* Fortran callable interfaces to NV_SpecInit_Serial
+   and NV_SpecFree_Serial */
 
-void F_MENVINITS(integertype *neq, int *ier)
+void F_NVSPECINITS(integertype *neq, int *ier)
 {
- F2C_machEnv = M_EnvInit_Serial(*neq);
+ F2C_nvspec = NV_SpecInit_Serial(*neq);
 
- *ier = (F2C_machEnv == NULL) ? -1 : 0 ;
+ *ier = (F2C_nvspec == NULL) ? -1 : 0 ;
 }
 
 
-void F_MENVFREES()
+void F_NVSPECFREES()
 {
-  M_EnvFree_Serial(F2C_machEnv);
+  NV_SpecFree_Serial(F2C_nvspec);
 }
 

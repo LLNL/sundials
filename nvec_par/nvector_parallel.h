@@ -3,7 +3,7 @@
  * File          : nvector_parallel.h                              *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *               : Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 23 March 2003                                   *
+ * Version of    : 06 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -14,10 +14,10 @@
  * NVECTOR package.                                                *
  *                                                                 *
  * Part I of this file contains declarations which are specific    *
- * to the particular machine environment in which this version     *
+ * to the particular vector specification in which this version    *
  * of the NVECTOR module is to be used. This includes the          *
- * typedef for the 'content' fields of the structures M_Env and    *
- * N_Vector (M_EnvParallelContent and N_VectorParallelContent,     *
+ * typedef for the 'content' fields of the structures NV_Spec and  *
+ * N_Vector (NV_SpecContent_Serial and N_VectorContent_Parallel,   *
  * respectively).                                                  *
  *                                                                 *
  * Part II of this file defines accessor macros that allow the     *
@@ -26,14 +26,14 @@
  *                                                                 *
  * Part III of this file contains the prototype for the            *
  * initialization routine specific to this implementation          *
- * (M_EnvInit_Parallel) as well as prototypes for the vector       *
+ * (NV_SpecInit_Parallel) as well as prototypes for the vector     *
  * kernels which operate on the parallel N_Vector. These           *
  * prototypes are unique to this particular implementation of      *
  * the vector package.                                             *
  *                                                                 *
  * NOTES:                                                          *
  *                                                                 *
- * The definitions of the generic M_Env and N_Vector structures    *
+ * The definitions of the generic NV_Spec and N_Vector structures  *
  * are in the header file nvector.h.                               *
  *                                                                 *
  * The definitions of the types realtype and integertype are in    *
@@ -68,7 +68,7 @@ extern "C" {
 
 /****************************************************************
  * PART I:                                                      *
- * Parallel MPI implementaion of M_Env and N_Vector             *
+ * Parallel MPI implementaion of NV_Spec and N_Vector           *
  ****************************************************************/
 
 /* Environment: MPI                                  */
@@ -90,44 +90,44 @@ extern "C" {
    ID tag 'parallel' */
 #define ID_TAG_P "parallel"
 
-/* The parallel implementation of the machine environment 'content'
+/* The parallel implementation of the vector specification 'content'
    structure contains the global and local lengths of vectors, a
    pointer to MPI communicator, and a flag showing if the user
    called MPI_Init */
 
-struct _M_EnvParallelContent {
+struct _NV_SpecContent_Parallel {
   MPI_Comm comm;                 /* pointer to MPI communicator */
   integertype local_vec_length;  /* local length of vectors */ 
   integertype global_vec_length; /* global length of vectors */ 
   int init_by_user;              /* flag showing if user called MPI_Init */
 };
 
-typedef struct _M_EnvParallelContent *M_EnvParallelContent;
+typedef struct _NV_SpecContent_Parallel *NV_SpecContent_Parallel;
  
 /* The parallel implementation of the N_Vector 'content' 
    structure contains the global and local lengths of the vector 
    and a pointer to an array of real components */
 
-struct _N_VectorParallelContent {
+struct _N_VectorContent_Parallel {
   integertype local_length;  /* local vector length  */
   integertype global_length; /* global vector length */
   realtype   *data;          /* local data array     */
 };
 
-typedef struct _N_VectorParallelContent *N_VectorParallelContent;
+typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
 
 
 /****************************************************************
  *                                                              *
  * PART II: Macros                                              *
  *    NV_MAKE_P, NV_DISPOSE_P, NVS_MAKE_P, NVS_DISPOSE_P        *
- *    ME_CONTENT_P, NV_CONTENT_P                                *
+ *    NS_CONTENT_P, NV_CONTENT_P                                *
  *    NV_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P, NV_Ith_P      *
  *--------------------------------------------------------------*
  * In the descriptions below, the following user                *
  * declarations are assumed:                                    *
  *                                                              *
- * M_Env        machenv;                                        *
+ * NV_Spec      nvspec;                                         *
  * N_Vector     v, *vs;                                         *
  * realtype     *v_data, **vs_data, r;                          *
  * integertype  v_len, s_len, i;                                *
@@ -138,9 +138,9 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  *     destroy an N_Vector with a component array v_data        *
  *     allocated by the user.                                   *
  *                                                              *
- *     The call NV_MAKE_P(v, v_data, machenv) makes v an        *
+ *     The call NV_MAKE_P(v, v_data, nvspec) makes v an         *
  *     N_Vector with component array v_data.  The local and     *
- *     global vector lengths are taken from machenv.            *
+ *     global vector lengths are taken from nvspec.             *
  *     NV_MAKE_P stores the pointer v_data so that              *
  *     changes made by the user to the elements of v_data are   *
  *     simultaneously reflected in v. There is no copying of    *
@@ -157,10 +157,10 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  *     destroy an array of N_Vectors with component vs_data     *
  *     allocated by the user.                                   *
  *                                                              * 
- *     The call NVS_MAKE_P(vs, vs_data, s_len, machEnv) makes   *
+ *     The call NVS_MAKE_P(vs, vs_data, s_len, nvspec) makes    *
  *     vs an array of s_len N_Vectors, each with component      *
  *     array vs_data[i] and local and global vector lengths     *
- *     taken from machenv.                                      *
+ *     taken from nvspec.                                       *
  *     NVS_MAKE_P stores the pointers vs_data[i] so that        *
  *     changes made by the user to the elements of sdata are    *
  *     simultaneously reflected in vs. There is no copying of   *
@@ -171,14 +171,14 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  *     This memory was allocated by the user and, therefore,    *
  *     should be deallocated by the user.                       *
  *                                                              *
- * (3) ME_CONTENT_P, NV_CONTENT_P                               *
+ * (3) NS_CONTENT_P, NV_CONTENT_P                               *
  *                                                              *
  *     These routines give access to the contents of the        *
- *     parallel machine environment and N_Vector, respectively. * 
+ *     parallel vector specification and N_Vector, respectively.* 
  *                                                              *
- *     The assignment m_cont = ME_CONTENT_P(machenv) sets       *
- *     m_cont to be a pointer to the parallel machine           *
- *     environment content structure.                           * 
+ *     The assignment ns_cont = NS_CONTENT_P(nvspec) sets       *
+ *     ns_cont to be a pointer to the parallel vector           *
+ *     specification content structure.                         * 
  *                                                              *
  *     The assignment v_cont = NV_CONTENT_P(v) sets             *
  *     v_cont to be a pointer to the parallel N_Vector content  *
@@ -241,30 +241,30 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  *                                                              *
  ****************************************************************/ 
 
-#define NV_MAKE_P(v, v_data, machenv) \
+#define NV_MAKE_P(v, v_data, nvspec) \
         v = (N_Vector) malloc(sizeof(*v)); \
-        v->content = (N_VectorParallelContent) malloc(sizeof(struct _N_VectorParallelContent)); \
+        v->content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel)); \
         v->content->data = v_data; \
-        v->content->local_length  = machenv->content->local_vec_length; \
-        v->content->global_length = machenv->content->global_vec_length; \
-        v->menv = machenv
+        v->content->local_length  = nvspec->content->local_vec_length; \
+        v->content->global_length = nvspec->content->global_vec_length; \
+        v->nvspec = nvspec
 
 #define NV_DISPOSE_P(v) \
-        free((N_VectorParallelContent)(v->content)); \
+        free((N_VectorContent_Parallel)(v->content)); \
         free(v)
 
-#define NVS_MAKE_P(vs, vs_data, s_len, machenv) \
+#define NVS_MAKE_P(vs, vs_data, s_len, nvspec) \
         vs = (N_Vector_S) malloc(s_len*sizeof(N_Vector *)); \
         for ((int)is=0; is<s_len; is++) { \
-           NV_MAKE_P(vs[is], vs_data[is], machenv); \
+           NV_MAKE_P(vs[is], vs_data[is], nvspec); \
         }
 #define NVS_DISPOSE_P(vs, s_len) \
         for ((int)is=0; is<s_len; is++) NV_DISPOSE_P(vs[i]); \
         free(vs);
 
-#define ME_CONTENT_P(m) ( (M_EnvParallelContent)(m->content) )
+#define NS_CONTENT_P(s) ( (NV_SpecContent_Parallel)(s->content) )
 
-#define NV_CONTENT_P(v) ( (N_VectorParallelContent)(v->content) )
+#define NV_CONTENT_P(v) ( (N_VectorContent_Parallel)(v->content) )
 
 #define NV_LOCLENGTH_P(v) ( NV_CONTENT_P(v)->local_length )
 
@@ -281,20 +281,20 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  ****************************************************************/
 
 /*--------------------------------------------------------------*
- * Routine : M_EnvInit_Parallel                                 *
+ * Routine : NV_SpecInit_Parallel                               *
  *--------------------------------------------------------------*
- * This function sets the content field of the machine          *
- * environment for the parallel MPI implementation to a         *
- * structure of type _MEnvParallelContent and attaches the      *
+ * This function sets the content field of the vector           *
+ * specification for the parallel MPI implementation to a       *
+ * structure of type _NV_SpecContent_Parallel and attaches the  *
  * vector operations defined for this implementation.           *
  *                                                              *
- * If successful, M_EnvInit_Parallel returns a pointer of type  *
- * M_Env. This pointer should in turn be passed in any user     *
+ * If successful, NV_SpecInit_Parallel returns a pointer of type*
+ * NV_Spec. This pointer should in turn be passed in any user   *
  * calls to N_VNew, or uses of the macros NV_MAKE_P and         *
  * NVS_MAKE_P.                                                  *
  * If a memory allocation failure occurs, or if the global      *
  * length differs from the sum of the local lengths,            *
- * M_EnvInit_Parallel returns NULL.  In the latter case, an     *
+ * NV_SpecInit_Parallel returns NULL.  In the latter case, an   *
  * error message is printed to stdout.                          *
  *                                                              *
  *--------------------------------------------------------------*
@@ -326,24 +326,24 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  *                                                              *
  *--------------------------------------------------------------*/
 
-M_Env M_EnvInit_Parallel(MPI_Comm comm, 
-                         integertype local_vec_length,
-                         integertype global_vec_length, 
-                         int *argc, char ***argv);
+NV_Spec NV_SpecInit_Parallel(MPI_Comm comm, 
+                             integertype local_vec_length,
+                             integertype global_vec_length, 
+                             int *argc, char ***argv);
 
-/*--------------------------------------------------------------*
- * Function M_EnvFree_Parallel                                  *
- *--------------------------------------------------------------*
- * Function to free the block of machine-dependent environment  *
- * information created by N_VecInit_Parallel.                   *
- * Its only argument is the pointer machenv returned by         *
- * M_EnvInit_Parallel.                                          *
- * NOTE: if MPI is initialized by other than M_EnvInit_Parallel *
- * it is necessary to call MPI_Finalize in addition to (after)  *
- * calling M_EnvFree_Parallel.                                  *
- *--------------------------------------------------------------*/
+/*----------------------------------------------------------------*
+ * Function NV_SpecFree_Parallel                                  *
+ *----------------------------------------------------------------*
+ * Function to free the block of machine-dependent environment    *
+ * information created by NV_SpecInit_Parallel.                   *
+ * Its only argument is the pointer nvspec returned by            *
+ * NV_SpecInit_Parallel.                                          *
+ * NOTE: if MPI is initialized by other than NV_SpecInit_Parallel *
+ * it is necessary to call MPI_Finalize in addition to (after)    *
+ * calling NV_SpecFree_Parallel.                                  *
+ *----------------------------------------------------------------*/
 
-void M_EnvFree_Parallel(M_Env machenv);
+void NV_SpecFree_Parallel(NV_Spec nvspec);
 
 /*--------------------------------------------------------------*
  * Parallel implementations of the vector operations            *
@@ -352,10 +352,10 @@ void M_EnvFree_Parallel(M_Env machenv);
  * see the header file nvector.h                                *
  *--------------------------------------------------------------*/
 
-N_Vector N_VNew_Parallel(M_Env machEnv);
-void N_VSpace_Parallel(M_Env machEnv, long int *lrw, long int *liw);
+N_Vector N_VNew_Parallel(NV_Spec nvspec);
+void N_VSpace_Parallel(NV_Spec nvspec, long int *lrw, long int *liw);
 void N_VFree_Parallel(N_Vector v);
-N_Vector N_VMake_Parallel(realtype *v_data, M_Env machEnv);
+N_Vector N_VMake_Parallel(realtype *v_data, NV_Spec nvspec);
 void N_VDispose_Parallel(N_Vector v);
 realtype *N_VGetData_Parallel(N_Vector v);
 void N_VSetData_Parallel(realtype *v_data, N_Vector v);

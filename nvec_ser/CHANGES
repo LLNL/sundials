@@ -3,3 +3,8 @@ nvector_serial.h nvector_serial.c
   - removed dimension from N_VNew
   - removed serial implementation of N_VNew_S and N_VFree_S
 
+  - changed M_Env -> NV_Spec , N_VectorSerialContent -> N_VectorContent_Serial
+
+fnvector_serial.h fnvector_serial.c
+  - changed MENV -> NVSPEC , M_Env -> NV_Spec , etc.
+  

@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : fnvector_parallel.h                             *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 29 March 2002                                   *
+ * Version of    : 06 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -11,7 +11,7 @@
  *-----------------------------------------------------------------*
  * This file (companion of nvector_parallel.h) contains the        *
  * definitions needed for the Fortran callable wrappers to         *
- * M_EnvInit_Parallel and M_EnvFree_Parallel (these definitions    *
+ * NV_SpecInit_Parallel and NV_SpecFree_Parallel (these definitions*
  * are based on the machine specific information for Fortran       *
  * externals given in the header file fcmixpar.h).                 *
  *******************************************************************/
@@ -25,22 +25,22 @@ extern "C" {
 
 #include "fcmixpar.h" /* Machine specific definitions for Fortran externals */
 
-/* Fortran callable wrappers to M_EnvInit_Parallel and M_EnvFree_Parallel */ 
+/* Fortran callable wrappers to NV_SpecInit_Parallel and NV_SpecFree_Parallel */ 
 
 #if (CRAY)
   
-#define F_MENVINITP  FMENVINITP
-#define F_MENVFREEP  FMENVFREEP
+#define F_NVSPECINITP  FNVSPECINITP
+#define F_NVSPECFREEP  FNVSPECFREEP
 
 #elif  (UNDERSCORE)
 
-#define F_MENVINITP  fmenvinitp_
-#define F_MENVFREEP  fmenvfreep_
+#define F_NVSPECINITP  fnvspecinitp_
+#define F_NVSPECFREEP  fnvspecfreep_
 
 #else
 
-#define F_MENVINITP  fmenvinitp
-#define F_MENVFREEP  fmenvfreep
+#define F_NVSPECINITP  fnvspecinitp
+#define F_NVSPECFREEP  fnvspecfreep
 
 #endif
 

@@ -3,7 +3,7 @@
  * File          : nvector_parallel.c                              *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *                 Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 26 March 2003                                   *
+ * Version of    : 06 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -12,7 +12,7 @@
  *-----------------------------------------------------------------*
  * This is the implementation file for a parallel implementation   *
  * of the NVECTOR package. It contains the implementation of       *
- * the parallel machine environment intialization and free         *
+ * the parallel vector specification intialization and free        *
  * routines (and of the Fortran callable interfaces to them)       *
  * and of the N_Vector kernels listed in nvector_parallel.h.       *
  * It uses MPI for message-passing.                                *
@@ -33,14 +33,14 @@
 
 /* Error message */
 
-#define BAD_N1  "M_EnvInit_Parallel -- Sum of local vector lengths differs from "
+#define BAD_N1  "NV_SpecInit_Parallel -- Sum of local vector lengths differs from "
 #define BAD_N2  "input global length. \n\n"
 #define BAD_N    BAD_N1 BAD_N2
 
 /* Private Helper Prototypes */
 
 /* Reduction operations add/max/min over the processor group */
-static realtype VAllReduce_Parallel(realtype d, int op, M_Env machEnv);
+static realtype VAllReduce_Parallel(realtype d, int op, NV_Spec nvspec);
 /* z=x */
 static void VCopy_Parallel(N_Vector x, N_Vector z);
 /* z=x+y */
@@ -65,135 +65,135 @@ static void VScaleBy_Parallel(realtype a, N_Vector x);
 
 /********************* Exported Functions ************************/
 
-/* Parallel implementation of the machine environment 
+/* Parallel implementation of the vector specification
    initialization routine */
 
-M_Env M_EnvInit_Parallel(MPI_Comm comm,  integertype local_vec_length, 
-                         integertype global_vec_length, int *argc, char ***argv)
+NV_Spec NV_SpecInit_Parallel(MPI_Comm comm,  integertype local_vec_length, 
+                             integertype global_vec_length, int *argc, char ***argv)
 {
-  M_Env me;
+  NV_Spec nvspec;
   int initflag, initerr;
   integertype n, Nsum;
 
-  /* Create machine environment structure */
-  me = (M_Env) malloc (sizeof *me);
-  if (me == NULL) return(NULL);
+  /* Create vector specification structure */
+  nvspec = (NV_Spec) malloc (sizeof *nvspec);
+  if (nvspec == NULL) return(NULL);
   
-  /* Create parallel content of machine environment structure */
-  me->content = (M_EnvParallelContent) malloc(sizeof(struct _M_EnvParallelContent));
-  if (me->content == NULL) {
-    free(me);
+  /* Create parallel content of vector specification structure */
+  nvspec->content = (NV_SpecContent_Parallel) malloc(sizeof(struct _NV_SpecContent_Parallel));
+  if (nvspec->content == NULL) {
+    free(nvspec);
     return(NULL);
   }
 
-  /* Load parallel content of machine environment structure */
-  ME_CONTENT_P(me)->local_vec_length = local_vec_length;
-  ME_CONTENT_P(me)->global_vec_length = global_vec_length;
+  /* Load parallel content of vector specification structure */
+  NS_CONTENT_P(nvspec)->local_vec_length = local_vec_length;
+  NS_CONTENT_P(nvspec)->global_vec_length = global_vec_length;
   
   MPI_Initialized(&initflag);
   if (!initflag) {
     initerr = MPI_Init(argc,argv);
     if (initerr != MPI_SUCCESS) return(NULL);
   }
-  ME_CONTENT_P(me)->init_by_user = initflag;
+  NS_CONTENT_P(nvspec)->init_by_user = initflag;
   
-  ME_CONTENT_P(me)->comm = comm;
+  NS_CONTENT_P(nvspec)->comm = comm;
   
   /* Attach vector operations */
-  me->ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (me->ops == NULL) {
-    free(me->content);
-    free(me);
+  nvspec->ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (nvspec->ops == NULL) {
+    free(nvspec->content);
+    free(nvspec);
     return(NULL);
   }
 
-  me->ops->nvnew           = N_VNew_Parallel;
-  me->ops->nvfree          = N_VFree_Parallel;
-  me->ops->nvspace         = N_VSpace_Parallel;
-  me->ops->nvmake          = N_VMake_Parallel;
-  me->ops->nvdispose       = N_VDispose_Parallel;
-  me->ops->nvgetdata       = N_VGetData_Parallel;
-  me->ops->nvsetdata       = N_VSetData_Parallel;
-  me->ops->nvlinearsum     = N_VLinearSum_Parallel;
-  me->ops->nvconst         = N_VConst_Parallel;
-  me->ops->nvprod          = N_VProd_Parallel;
-  me->ops->nvdiv           = N_VDiv_Parallel;
-  me->ops->nvscale         = N_VScale_Parallel;
-  me->ops->nvabs           = N_VAbs_Parallel;
-  me->ops->nvinv           = N_VInv_Parallel;
-  me->ops->nvaddconst      = N_VAddConst_Parallel;
-  me->ops->nvdotprod       = N_VDotProd_Parallel;
-  me->ops->nvmaxnorm       = N_VMaxNorm_Parallel;
-  me->ops->nvwrmsnorm      = N_VWrmsNorm_Parallel;
-  me->ops->nvmin           = N_VMin_Parallel;
-  me->ops->nvwl2norm       = N_VWL2Norm_Parallel;
-  me->ops->nvl1norm        = N_VL1Norm_Parallel;
-  me->ops->nvonemask       = N_VOneMask_Parallel;
-  me->ops->nvcompare       = N_VCompare_Parallel;
-  me->ops->nvinvtest       = N_VInvTest_Parallel;
-  me->ops->nvconstrprodpos = N_VConstrProdPos_Parallel;
-  me->ops->nvconstrmask    = N_VConstrMask_Parallel;
-  me->ops->nvminquotient   = N_VMinQuotient_Parallel;
-  me->ops->nvprint         = N_VPrint_Parallel;
+  nvspec->ops->nvnew           = N_VNew_Parallel;
+  nvspec->ops->nvfree          = N_VFree_Parallel;
+  nvspec->ops->nvspace         = N_VSpace_Parallel;
+  nvspec->ops->nvmake          = N_VMake_Parallel;
+  nvspec->ops->nvdispose       = N_VDispose_Parallel;
+  nvspec->ops->nvgetdata       = N_VGetData_Parallel;
+  nvspec->ops->nvsetdata       = N_VSetData_Parallel;
+  nvspec->ops->nvlinearsum     = N_VLinearSum_Parallel;
+  nvspec->ops->nvconst         = N_VConst_Parallel;
+  nvspec->ops->nvprod          = N_VProd_Parallel;
+  nvspec->ops->nvdiv           = N_VDiv_Parallel;
+  nvspec->ops->nvscale         = N_VScale_Parallel;
+  nvspec->ops->nvabs           = N_VAbs_Parallel;
+  nvspec->ops->nvinv           = N_VInv_Parallel;
+  nvspec->ops->nvaddconst      = N_VAddConst_Parallel;
+  nvspec->ops->nvdotprod       = N_VDotProd_Parallel;
+  nvspec->ops->nvmaxnorm       = N_VMaxNorm_Parallel;
+  nvspec->ops->nvwrmsnorm      = N_VWrmsNorm_Parallel;
+  nvspec->ops->nvmin           = N_VMin_Parallel;
+  nvspec->ops->nvwl2norm       = N_VWL2Norm_Parallel;
+  nvspec->ops->nvl1norm        = N_VL1Norm_Parallel;
+  nvspec->ops->nvonemask       = N_VOneMask_Parallel;
+  nvspec->ops->nvcompare       = N_VCompare_Parallel;
+  nvspec->ops->nvinvtest       = N_VInvTest_Parallel;
+  nvspec->ops->nvconstrprodpos = N_VConstrProdPos_Parallel;
+  nvspec->ops->nvconstrmask    = N_VConstrMask_Parallel;
+  nvspec->ops->nvminquotient   = N_VMinQuotient_Parallel;
+  nvspec->ops->nvprint         = N_VPrint_Parallel;
 
   /* If local length is negative, return now */
-  if (local_vec_length < 0) return(me);
+  if (local_vec_length < 0) return(nvspec);
   
   /* Compute global length as sum of local lengths */
   n = local_vec_length;
   MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
-  ME_CONTENT_P(me)->global_vec_length = Nsum;
+  NS_CONTENT_P(nvspec)->global_vec_length = Nsum;
   
   /* Check input global length against computed value */
   if (Nsum != global_vec_length) {
     printf(BAD_N);
-    M_EnvFree_Parallel(me);
+    NV_SpecFree_Parallel(nvspec);
     return(NULL);
   } 
 
   /* Attach ID tag */
-  me->tag = ID_TAG_P;
+  nvspec->tag = ID_TAG_P;
   
-  /* Return the machine environment */
-  return(me);
+  /* Return the vector specification */
+  return(nvspec);
 }
 
-/* Parallel implementation of the machine environment 
+/* Parallel implementation of the vector specification
    free routine */
 
-void M_EnvFree_Parallel(M_Env machEnv)
+void NV_SpecFree_Parallel(NV_Spec nvspec)
 {
-  if (machEnv == NULL) return;
+  if (nvspec == NULL) return;
 
-  if (!(ME_CONTENT_P(machEnv)->init_by_user)) MPI_Finalize();
+  if (!(NS_CONTENT_P(nvspec)->init_by_user)) MPI_Finalize();
 
-  free(machEnv->content);
-  free(machEnv->ops);
-  free(machEnv);
+  free(nvspec->content);
+  free(nvspec->ops);
+  free(nvspec);
 }
  
 /***************************************************************************/
 
 /* BEGIN implementation of vector operations */
 
-N_Vector N_VNew_Parallel(M_Env machEnv)
+N_Vector N_VNew_Parallel(NV_Spec nvspec)
 {
   N_Vector v;
   int N_local, N_global;
 
-  if (machEnv == NULL) return(NULL);
+  if (nvspec == NULL) return(NULL);
 
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
-  v->content = (N_VectorParallelContent) malloc(sizeof(struct _N_VectorParallelContent));
+  v->content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
   if (v->content == NULL) {
     free(v);
     return(NULL);
   }
 
-  N_local  = ME_CONTENT_P(machEnv)->local_vec_length;
-  N_global = ME_CONTENT_P(machEnv)->global_vec_length;
+  N_local  = NS_CONTENT_P(nvspec)->local_vec_length;
+  N_global = NS_CONTENT_P(nvspec)->global_vec_length;
 
   NV_CONTENT_P(v)->data = (realtype *) malloc(N_local * sizeof(realtype));
   if (NV_CONTENT_P(v)->data == NULL) {
@@ -205,14 +205,14 @@ N_Vector N_VNew_Parallel(M_Env machEnv)
   NV_CONTENT_P(v)->local_length  = N_local;
   NV_CONTENT_P(v)->global_length = N_global;
 
-  v->menv = machEnv;
+  v->nvspec = nvspec;
   
   return(v);
 }
 
-void N_VSpace_Parallel(M_Env machEnv, long int *lrw, long int *liw)
+void N_VSpace_Parallel(NV_Spec nvspec, long int *lrw, long int *liw)
 {
-  *lrw = ME_CONTENT_P(machEnv)->global_vec_length;
+  *lrw = NS_CONTENT_P(nvspec)->global_vec_length;
   *liw = 2;
 }
 
@@ -223,31 +223,31 @@ void N_VFree_Parallel(N_Vector v)
   free(v);
 }
 
-N_Vector N_VMake_Parallel(realtype *v_data, M_Env machEnv)
+N_Vector N_VMake_Parallel(realtype *v_data, NV_Spec nvspec)
 {
   N_Vector v;
   int N_local, N_global;
 
-  if (machEnv == NULL) return(NULL);
+  if (nvspec == NULL) return(NULL);
 
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
-  v->content = (N_VectorParallelContent) malloc(sizeof(struct _N_VectorParallelContent));
+  v->content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
   if (v->content == NULL) {
     free(v);
     return(NULL);
   }
 
-  N_local  = ME_CONTENT_P(machEnv)->local_vec_length;
-  N_global = ME_CONTENT_P(machEnv)->global_vec_length;
+  N_local  = NS_CONTENT_P(nvspec)->local_vec_length;
+  N_global = NS_CONTENT_P(nvspec)->global_vec_length;
 
   NV_CONTENT_P(v)->data = v_data;
 
   NV_CONTENT_P(v)->local_length  = N_local;
   NV_CONTENT_P(v)->global_length = N_global;
 
-  v->menv = machEnv;
+  v->nvspec = nvspec;
   
   return(v);
 }
@@ -466,16 +466,16 @@ realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 {
   integertype i, N;
   realtype sum = ZERO, *xd, *yd, gsum;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   yd = NV_DATA_P(y);
-  machEnv = x->menv; 
+  nvspec = x->nvspec; 
 
   for (i=0; i < N; i++) sum += xd[i] * yd[i];
 
-  gsum = VAllReduce_Parallel(sum, 1, machEnv);
+  gsum = VAllReduce_Parallel(sum, 1, nvspec);
   return(gsum);
 }
 
@@ -484,17 +484,17 @@ realtype N_VMaxNorm_Parallel(N_Vector x)
 {
   integertype i, N;
   realtype max = ZERO, *xd, gmax;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
-  machEnv = x->menv;
+  nvspec = x->nvspec;
 
   for (i=0; i < N; i++, xd++) {
     if (ABS(*xd) > max) max = ABS(*xd);
   }
    
-  gmax = VAllReduce_Parallel(max, 2, machEnv);
+  gmax = VAllReduce_Parallel(max, 2, nvspec);
   return(gmax);
 }
 
@@ -503,20 +503,20 @@ realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 {
   integertype i, N, N_global;
   realtype sum = ZERO, prodi, *xd, *wd, gsum;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   N_global = NV_GLOBLENGTH_P(x);
   xd = NV_DATA_P(x);
   wd = NV_DATA_P(w);
-  machEnv = x->menv;
+  nvspec = x->nvspec;
 
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
     sum += prodi * prodi;
   }
 
-  gsum = VAllReduce_Parallel(sum, 1, machEnv);
+  gsum = VAllReduce_Parallel(sum, 1, nvspec);
   return(RSqrt(gsum / N_global));
 }
 
@@ -524,11 +524,11 @@ realtype N_VMin_Parallel(N_Vector x)
 {
   integertype i, N;
   realtype min, *xd, gmin;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
-  machEnv = x->menv;
+  nvspec = x->nvspec;
 
   min = xd[0];
 
@@ -537,7 +537,7 @@ realtype N_VMin_Parallel(N_Vector x)
     if ((*xd) < min) min = *xd;
   }
 
-  gmin = VAllReduce_Parallel(min, 3, machEnv);
+  gmin = VAllReduce_Parallel(min, 3, nvspec);
   return(gmin);
 }
 
@@ -546,19 +546,19 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 {
   integertype i, N;
   realtype sum = ZERO, prodi, *xd, *wd, gsum;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   wd = NV_DATA_P(w);
-  machEnv = x->menv;
+  nvspec = x->nvspec;
 
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
     sum += prodi * prodi;
   }
 
-  gsum = VAllReduce_Parallel(sum, 1, machEnv);
+  gsum = VAllReduce_Parallel(sum, 1, nvspec);
   return(RSqrt(gsum));
 }
 
@@ -567,16 +567,16 @@ realtype N_VL1Norm_Parallel(N_Vector x)
 {
   integertype i, N;
   realtype sum = ZERO, gsum, *xd;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
-  machEnv = x->menv;
+  nvspec = x->nvspec;
 
   for (i=0; i<N; i++,xd++) 
     sum += ABS(*xd);
 
-  gsum = VAllReduce_Parallel(sum, 1, machEnv);
+  gsum = VAllReduce_Parallel(sum, 1, nvspec);
   return(gsum);
 }
 
@@ -614,12 +614,12 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 {
   integertype i, N;
   realtype *xd, *zd, val, gval;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   zd = NV_DATA_P(z);
-  machEnv = x->menv; 
+  nvspec = x->nvspec; 
 
   val = ONE;
   for (i=0; i < N; i++) {
@@ -629,7 +629,7 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
       *zd++ = ONE / (*xd++);
   }
 
-  gval = VAllReduce_Parallel(val, 3, machEnv);
+  gval = VAllReduce_Parallel(val, 3, nvspec);
   if (gval == ZERO)
     return(FALSE);
   else
@@ -642,12 +642,12 @@ booleantype N_VConstrProdPos_Parallel(N_Vector c, N_Vector x)
   integertype i, N;
   booleantype test;
   realtype  *xd, *cd;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   cd = NV_DATA_P(c);
-  machEnv = x->menv;
+  nvspec = x->nvspec;
 
   test = TRUE;
 
@@ -660,7 +660,7 @@ booleantype N_VConstrProdPos_Parallel(N_Vector c, N_Vector x)
     }
   }
 
-  return((booleantype)VAllReduce_Parallel((realtype)test, 3, machEnv));
+  return((booleantype)VAllReduce_Parallel((realtype)test, 3, nvspec));
 }
 
 
@@ -669,13 +669,13 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
   integertype i, N;
   booleantype test;
   realtype *cd, *xd, *md;
-  M_Env machEnv;
+  NV_Spec nvspec;
  
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   cd = NV_DATA_P(c);
   md = NV_DATA_P(m);
-  machEnv = x->menv;
+  nvspec = x->nvspec;
 
   test = TRUE;
 
@@ -691,7 +691,7 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
     }
   }
 
-  return((booleantype)VAllReduce_Parallel((realtype)test, 3, machEnv));
+  return((booleantype)VAllReduce_Parallel((realtype)test, 3, nvspec));
 }
 
 
@@ -700,12 +700,12 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   booleantype notEvenOnce;
   integertype i, N;
   realtype *nd, *dd, min;
-  M_Env machEnv;
+  NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(num);
   nd = NV_DATA_P(num);
   dd = NV_DATA_P(denom);
-  machEnv = num->menv;
+  nvspec = num->nvspec;
 
   notEvenOnce = TRUE;
 
@@ -723,7 +723,7 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   }
   if (notEvenOnce) min = 1.e99;
   
-  return(VAllReduce_Parallel(min, 3, machEnv));
+  return(VAllReduce_Parallel(min, 3, nvspec));
 }
 
  
@@ -743,19 +743,19 @@ void N_VPrint_Parallel(N_Vector x)
 
 /***************** Private Helper Functions **********************/
 
-static realtype VAllReduce_Parallel(realtype d, int op, M_Env machEnv)
+static realtype VAllReduce_Parallel(realtype d, int op, NV_Spec nvspec)
 {
   /* This function does a global reduction.  The operation is
        sum if op = 1,
        max if op = 2,
        min if op = 3.
      The operation is over all processors in the group defined by
-     the parameters within machEnv. */
+     the parameters within nvspec. */
 
   MPI_Comm comm;
   realtype out;
 
-  comm = ME_CONTENT_P(machEnv)->comm;
+  comm = NS_CONTENT_P(nvspec)->comm;
 
   switch (op) {
    case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);

@@ -3,7 +3,7 @@
  * File          : nvector_serial.c                                *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *                 Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 26 March 2003                                   *
+ * Version of    : 06 June 2003                                    *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -12,7 +12,7 @@
  *-----------------------------------------------------------------*
  * This is the implementation file for a serial implementation     *
  * of the NVECTOR package. It contains the implementation of       *
- * the serial machine environment intialization and free           *
+ * the serial vector specification intialization and free          *
  * routines (and of the Fortran callable interfaces to them)       *
  * and of the N_Vector kernels listed in nvector_serial.h.         *
  *                                                                 *
@@ -55,104 +55,104 @@ static void VScaleBy_Serial(realtype a, N_Vector x);
 
 /********************* Exported Functions ************************/
 
-/* Serial implementation of the machine environment 
+/* Serial implementation of the vector specification 
    initialization routine */
 
-M_Env M_EnvInit_Serial(integertype vec_length)
+NV_Spec NV_SpecInit_Serial(integertype vec_length)
 {
-  M_Env me;
+  NV_Spec nvspec;
 
-  /* Create machine environment structure */
-  me = (M_Env) malloc(sizeof *me);
-  if (me == NULL) return(NULL);
+  /* Create vector specification structure */
+  nvspec = (NV_Spec) malloc(sizeof *nvspec);
+  if (nvspec == NULL) return(NULL);
 
-  /* Create serial content of machine environment structure */
-  me->content = (M_EnvSerialContent) malloc(sizeof(struct _M_EnvSerialContent));
-  if (me->content == NULL) {
-    free(me);
+  /* Create serial content of vector specification structure */
+  nvspec->content = (NV_SpecContent_Serial) malloc(sizeof(struct _NV_SpecContent_Serial));
+  if (nvspec->content == NULL) {
+    free(nvspec);
     return(NULL);
   }
 
-  /* Load serial content of machine environment structure */
-  ME_CONTENT_S(me)->length = vec_length;
+  /* Load serial content of vector specification structure */
+  NS_CONTENT_S(nvspec)->length = vec_length;
 
   /* Attach vector operations */
-  me->ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (me->ops == NULL) {
-    free(me->content);
-    free(me);
+  nvspec->ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (nvspec->ops == NULL) {
+    free(nvspec->content);
+    free(nvspec);
     return(NULL);
   }
 
-  me->ops->nvnew           = N_VNew_Serial;
-  me->ops->nvfree          = N_VFree_Serial;
-  me->ops->nvspace         = N_VSpace_Serial;
-  me->ops->nvmake          = N_VMake_Serial;
-  me->ops->nvdispose       = N_VDispose_Serial;
-  me->ops->nvgetdata       = N_VGetData_Serial;
-  me->ops->nvsetdata       = N_VSetData_Serial;
-  me->ops->nvlinearsum     = N_VLinearSum_Serial;
-  me->ops->nvconst         = N_VConst_Serial;
-  me->ops->nvprod          = N_VProd_Serial;
-  me->ops->nvdiv           = N_VDiv_Serial;
-  me->ops->nvscale         = N_VScale_Serial;
-  me->ops->nvabs           = N_VAbs_Serial;
-  me->ops->nvinv           = N_VInv_Serial;
-  me->ops->nvaddconst      = N_VAddConst_Serial;
-  me->ops->nvdotprod       = N_VDotProd_Serial;
-  me->ops->nvmaxnorm       = N_VMaxNorm_Serial;
-  me->ops->nvwrmsnorm      = N_VWrmsNorm_Serial;
-  me->ops->nvmin           = N_VMin_Serial;
-  me->ops->nvwl2norm       = N_VWL2Norm_Serial;
-  me->ops->nvl1norm        = N_VL1Norm_Serial;
-  me->ops->nvonemask       = N_VOneMask_Serial;
-  me->ops->nvcompare       = N_VCompare_Serial;
-  me->ops->nvinvtest       = N_VInvTest_Serial;
-  me->ops->nvconstrprodpos = N_VConstrProdPos_Serial;
-  me->ops->nvconstrmask    = N_VConstrMask_Serial;
-  me->ops->nvminquotient   = N_VMinQuotient_Serial;
-  me->ops->nvprint         = N_VPrint_Serial;
+  nvspec->ops->nvnew           = N_VNew_Serial;
+  nvspec->ops->nvfree          = N_VFree_Serial;
+  nvspec->ops->nvspace         = N_VSpace_Serial;
+  nvspec->ops->nvmake          = N_VMake_Serial;
+  nvspec->ops->nvdispose       = N_VDispose_Serial;
+  nvspec->ops->nvgetdata       = N_VGetData_Serial;
+  nvspec->ops->nvsetdata       = N_VSetData_Serial;
+  nvspec->ops->nvlinearsum     = N_VLinearSum_Serial;
+  nvspec->ops->nvconst         = N_VConst_Serial;
+  nvspec->ops->nvprod          = N_VProd_Serial;
+  nvspec->ops->nvdiv           = N_VDiv_Serial;
+  nvspec->ops->nvscale         = N_VScale_Serial;
+  nvspec->ops->nvabs           = N_VAbs_Serial;
+  nvspec->ops->nvinv           = N_VInv_Serial;
+  nvspec->ops->nvaddconst      = N_VAddConst_Serial;
+  nvspec->ops->nvdotprod       = N_VDotProd_Serial;
+  nvspec->ops->nvmaxnorm       = N_VMaxNorm_Serial;
+  nvspec->ops->nvwrmsnorm      = N_VWrmsNorm_Serial;
+  nvspec->ops->nvmin           = N_VMin_Serial;
+  nvspec->ops->nvwl2norm       = N_VWL2Norm_Serial;
+  nvspec->ops->nvl1norm        = N_VL1Norm_Serial;
+  nvspec->ops->nvonemask       = N_VOneMask_Serial;
+  nvspec->ops->nvcompare       = N_VCompare_Serial;
+  nvspec->ops->nvinvtest       = N_VInvTest_Serial;
+  nvspec->ops->nvconstrprodpos = N_VConstrProdPos_Serial;
+  nvspec->ops->nvconstrmask    = N_VConstrMask_Serial;
+  nvspec->ops->nvminquotient   = N_VMinQuotient_Serial;
+  nvspec->ops->nvprint         = N_VPrint_Serial;
 
   /* Attach ID tag */
-  me->tag = ID_TAG_S;
+  nvspec->tag = ID_TAG_S;
 
-  return(me);
+  return(nvspec);
 
 }
  
-/* Serial implementation of the machine environment 
+/* Serial implementation of the vector specification
    free routine */
 
-void M_EnvFree_Serial(M_Env machEnv)
+void NV_SpecFree_Serial(NV_Spec nvspec)
 {
-  if (machEnv == NULL) return;
+  if (nvspec == NULL) return;
 
-  free(machEnv->content);
-  free(machEnv->ops);
-  free(machEnv);
+  free(nvspec->content);
+  free(nvspec->ops);
+  free(nvspec);
 }
 
 /***************************************************************************/
 
 /* BEGIN implementation of vector operations */
 
-N_Vector N_VNew_Serial(M_Env machEnv)
+N_Vector N_VNew_Serial(NV_Spec nvspec)
 {
   N_Vector v;
   integertype length;
 
-  if (machEnv == NULL) return(NULL);
+  if (nvspec == NULL) return(NULL);
 
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
-  v->content = (N_VectorSerialContent) malloc(sizeof(struct _N_VectorSerialContent));
+  v->content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
   if (v->content == NULL) {
     free(v);
     return(NULL);
   }
 
-  length = ME_CONTENT_S(machEnv)->length;
+  length = NS_CONTENT_S(nvspec)->length;
 
   NV_CONTENT_S(v)->data = (realtype *) malloc(length * sizeof(realtype));
   if(NV_CONTENT_S(v)->data == NULL) {
@@ -163,14 +163,14 @@ N_Vector N_VNew_Serial(M_Env machEnv)
 
   NV_CONTENT_S(v)->length = length;
 
-  v->menv = machEnv;
+  v->nvspec = nvspec;
 
   return(v);
 }
 
-void N_VSpace_Serial(M_Env machEnv, long int *lrw, long int *liw)
+void N_VSpace_Serial(NV_Spec nvspec, long int *lrw, long int *liw)
 {
-  *lrw = ME_CONTENT_S(machEnv)->length;
+  *lrw = NS_CONTENT_S(nvspec)->length;
   *liw = 1;
 }
 
@@ -182,29 +182,29 @@ void N_VFree_Serial(N_Vector v)
 }
 
 
-N_Vector N_VMake_Serial(realtype *v_data, M_Env machEnv)
+N_Vector N_VMake_Serial(realtype *v_data, NV_Spec nvspec)
 {
   N_Vector v;
   integertype length;
 
-  if (machEnv == NULL) return(NULL);
+  if (nvspec == NULL) return(NULL);
 
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
-  v->content = (N_VectorSerialContent) malloc(sizeof(struct _N_VectorSerialContent));
+  v->content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
   if (v->content == NULL) {
     free(v);
     return(NULL);
   }
 
-  length = ME_CONTENT_S(machEnv)->length;
+  length = NS_CONTENT_S(nvspec)->length;
 
   NV_CONTENT_S(v)->data = v_data;
 
   NV_CONTENT_S(v)->length = length;
 
-  v->menv = machEnv;
+  v->nvspec = nvspec;
 
   return(v);
 }
