@@ -527,7 +527,7 @@ static int   CVNlsNewton(CVodeMem cv_mem, int nflag);
 static int   CVNewtonIteration(CVodeMem cv_mem);
 
 static int   CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
-                           int *ncfPtr, int *ncfnPtr);
+                           int *ncfPtr, long int *ncfnPtr);
 
 static void  CVRestore(CVodeMem cv_mem, realtype saved_t);
 
@@ -828,7 +828,7 @@ int CVodeSetMaxOrd(void *cvode_mem, int maxord)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetMaxNumSteps(void *cvode_mem, int mxsteps)
+int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
 {
   CVodeMem cv_mem;
 
@@ -1962,8 +1962,8 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
   if (ism == STAGGERED1) {
     stgr1alloc = TRUE;
     ncfS1  = (int*)malloc(Ns*sizeof(int));
-    ncfnS1 = (int*)malloc(Ns*sizeof(int));
-    nniS1  = (int*)malloc(Ns*sizeof(int));
+    ncfnS1 = (long int*)malloc(Ns*sizeof(long int));
+    nniS1  = (long int*)malloc(Ns*sizeof(long int));
     if ( (ncfS1 == NULL) || (ncfnS1 == NULL) || (nniS1 == NULL) ) {
       if (abstolSalloc) CVSensFreeAtol(cv_mem, abstolS);
       fprintf(errfp, MSG_SCVM_MEM_FAIL);
@@ -2145,8 +2145,8 @@ int CVodeSensReInit(void *cvode_mem, int ism,
   if ( (ism==STAGGERED1) && (stgr1alloc==FALSE) ) {
     stgr1alloc = TRUE;
     ncfS1  = (int*)malloc(Ns*sizeof(int));
-    ncfnS1 = (int*)malloc(Ns*sizeof(int));
-    nniS1  = (int*)malloc(Ns*sizeof(int));
+    ncfnS1 = (long int*)malloc(Ns*sizeof(long int));
+    nniS1  = (long int*)malloc(Ns*sizeof(long int));
     if ( (ncfS1==NULL) || (ncfnS1==NULL) || (nniS1==NULL) ) {
       if (abstolSalloc) CVSensFreeAtol(cv_mem, abstolS);
       fprintf(errfp, MSG_SCVM_MEM_FAIL);
@@ -2330,7 +2330,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 {
   CVodeMem cv_mem;
   N_Vector wrk1, wrk2;
-  int nstloc, kflag, istate, ier, task;
+  long int nstloc; 
+  int kflag, istate, ier, task;
   booleantype istop, hOK, ewtsetOK, ewtSsetOK, ewtQsetOK;
   int is;
   realtype troundoff, rh, nrm;
@@ -2786,7 +2787,7 @@ int CVodeGetRealWorkSpace(void *cvode_mem, long int *lenrw)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSteps(void *cvode_mem, int *nsteps)
+int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
 {
   CVodeMem cv_mem;
 
@@ -2804,7 +2805,7 @@ int CVodeGetNumSteps(void *cvode_mem, int *nsteps)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumRhsEvals(void *cvode_mem, int *nfevals)
+int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
 {
   CVodeMem cv_mem;
 
@@ -2822,7 +2823,7 @@ int CVodeGetNumRhsEvals(void *cvode_mem, int *nfevals)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumLinSolvSetups(void *cvode_mem, int *nlinsetups)
+int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
 {
   CVodeMem cv_mem;
 
@@ -2840,7 +2841,7 @@ int CVodeGetNumLinSolvSetups(void *cvode_mem, int *nlinsetups)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumErrTestFails(void *cvode_mem, int *netfails)
+int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
 {
   CVodeMem cv_mem;
 
@@ -2894,7 +2895,7 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumStabLimOrderReds(void *cvode_mem, int *nslred)
+int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
 {
   CVodeMem cv_mem;
 
@@ -3062,8 +3063,8 @@ int CVodeGetWorkSpace(void *cvode_mem, long int *leniw, long int *lenrw)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetIntegratorStats(void *cvode_mem, int *nsteps, int *nfevals, 
-                            int *nlinsetups, int *netfails, int *qlast, 
+int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals, 
+                            long int *nlinsetups, long int *netfails, int *qlast, 
                             int *qcur, realtype *hinused, realtype *hlast, 
                             realtype *hcur, realtype *tcur)
 {
@@ -3092,7 +3093,7 @@ int CVodeGetIntegratorStats(void *cvode_mem, int *nsteps, int *nfevals,
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumNonlinSolvIters(void *cvode_mem, int *nniters)
+int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 {
   CVodeMem cv_mem;
 
@@ -3110,7 +3111,7 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, int *nniters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, int *nncfails)
+int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
 {
   CVodeMem cv_mem;
 
@@ -3128,7 +3129,8 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, int *nncfails)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNonlinSolvStats(void *cvode_mem, int *nniters, int *nncfails)
+int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, 
+                            long int *nncfails)
 {
   CVodeMem cv_mem;
 
@@ -3232,7 +3234,7 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumQuadRhsEvals(void *cvode_mem, int *nfQevals)
+int CVodeGetNumQuadRhsEvals(void *cvode_mem, long int *nfQevals)
 {
   CVodeMem cv_mem;
 
@@ -3255,7 +3257,7 @@ int CVodeGetNumQuadRhsEvals(void *cvode_mem, int *nfQevals)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumQuadErrTestFails(void *cvode_mem, int *nQetfails)
+int CVodeGetNumQuadErrTestFails(void *cvode_mem, long int *nQetfails)
 {
   CVodeMem cv_mem;
 
@@ -3302,7 +3304,7 @@ int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector *eQweight)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetQuadStats(void *cvode_mem, int *nfQevals, int *nQetfails)
+int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails)
 {
   CVodeMem cv_mem;
 
@@ -3453,7 +3455,7 @@ int CVodeGetSensDky(void *cvode_mem, realtype t, int k, int is,
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensRhsEvals(void *cvode_mem, int *nfSevals)
+int CVodeGetNumSensRhsEvals(void *cvode_mem, long int *nfSevals)
 {
   CVodeMem cv_mem;
 
@@ -3476,7 +3478,7 @@ int CVodeGetNumSensRhsEvals(void *cvode_mem, int *nfSevals)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumRhsEvalsSens(void *cvode_mem, int *nfevalsS)
+int CVodeGetNumRhsEvalsSens(void *cvode_mem, long int *nfevalsS)
 {
   CVodeMem cv_mem;
 
@@ -3499,7 +3501,7 @@ int CVodeGetNumRhsEvalsSens(void *cvode_mem, int *nfevalsS)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensErrTestFails(void *cvode_mem, int *nSetfails)
+int CVodeGetNumSensErrTestFails(void *cvode_mem, long int *nSetfails)
 {
   CVodeMem cv_mem;
 
@@ -3522,7 +3524,7 @@ int CVodeGetNumSensErrTestFails(void *cvode_mem, int *nSetfails)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensLinSolvSetups(void *cvode_mem, int *nlinsetupsS)
+int CVodeGetNumSensLinSolvSetups(void *cvode_mem, long int *nlinsetupsS)
 {
   CVodeMem cv_mem;
 
@@ -3568,8 +3570,8 @@ int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S *eSweight)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetSensStats(void *cvode_mem, int *nfSevals, int *nfevalsS, 
-                      int *nSetfails, int *nlinsetupsS)
+int CVodeGetSensStats(void *cvode_mem, long int *nfSevals, long int *nfevalsS, 
+                      long int *nSetfails, long int *nlinsetupsS)
 {
   CVodeMem cv_mem;
 
@@ -3595,7 +3597,7 @@ int CVodeGetSensStats(void *cvode_mem, int *nfSevals, int *nfevalsS,
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, int *nSniters)
+int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, long int *nSniters)
 {
   CVodeMem cv_mem;
 
@@ -3618,7 +3620,7 @@ int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, int *nSniters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, int *nSncfails)
+int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
 {
   CVodeMem cv_mem;
 
@@ -3641,7 +3643,7 @@ int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, int *nSncfails)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, int *nSTGR1niters)
+int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
 {
   CVodeMem cv_mem;
 
@@ -3666,7 +3668,7 @@ int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, int *nSTGR1niters)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, int *nSTGR1ncfails)
+int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfails)
 {
   CVodeMem cv_mem;
 
@@ -3690,7 +3692,8 @@ int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, int *nSTGR1ncfails)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetSensNonlinSolvStats(void *cvode_mem, int *nSniters, int *nSncfails)
+int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters, 
+                                long int *nSncfails)
 {
   CVodeMem cv_mem;
 
@@ -3714,7 +3717,8 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, int *nSniters, int *nSncfails)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem, int *nSTGR1niters, int *nSTGR1ncfails)
+int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem, long int *nSTGR1niters, 
+                                    long int *nSTGR1ncfails)
 {
   CVodeMem cv_mem;
 
@@ -5735,7 +5739,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
 /*-----------------------------------------------------------------*/
 
 static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
-                         int *ncfPtr, int *ncfnPtr)
+                         int *ncfPtr, long int *ncfnPtr)
 {
   int nflag;
   
@@ -5813,7 +5817,7 @@ static void CVRestore(CVodeMem cv_mem, realtype saved_t)
   
   If maxnef error test failures have occurred or if ABS(h) = hmin,
   we set *kflagPtr = REP_ERR_FAIL. (Otherwise *kflagPtr has the
-  value last returned by CVHandleNflag.)
+  value last returned by CVHandleNFlag.)
   
   If more than MXNEF1 error test failures have occurred, an order
   reduction is forced. If already at order 1 restart by reloading 
@@ -5913,7 +5917,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   
   If maxnef error test failures have occurred or if ABS(h) = hmin,
   we set *kflagPtr = REP_ERR_FAIL. (Otherwise *kflagPtr has the
-  value last returned by CVHandleNflag.)
+  value last returned by CVHandleNFlag.)
   
   If more than MXNEF1 error test failures have occurred, an order
   reduction is forced. If already at order 1 restart by reloading 

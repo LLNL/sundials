@@ -89,14 +89,14 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem);
 static CkpntMem CVAckpntNew(CVodeMem cv_mem);
 static void CVAckpntDelete(CkpntMem *ck_memPtr);
 
-static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, int steps);
-static void CVAdataFree(DtpntMem *dt_mem, int steps);
+static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps);
+static void CVAdataFree(DtpntMem *dt_mem, long int steps);
 
 static int  CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem);
 static int  CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem); 
-static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, int i);
+static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, long int i);
 static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
-                                  int i, realtype t, N_Vector y);
+                                  long int i, realtype t, N_Vector y);
 
 static void CVArhs(realtype t, N_Vector yB, 
                    N_Vector yBdot, void *passed_data);
@@ -218,7 +218,7 @@ static void CVArhsQ(realtype t, N_Vector yB,
 */
 /*-----------------------------------------------------------------*/
 
-void *CVadjMalloc(void *cvode_mem, int steps)
+void *CVadjMalloc(void *cvode_mem, long int steps)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
@@ -500,7 +500,7 @@ int CVodeSetMaxOrdB(void *cvadj_mem, int maxordB)
 }
 
 
-int CVodeSetMaxNumStepsB(void *cvadj_mem, int mxstepsB)
+int CVodeSetMaxNumStepsB(void *cvadj_mem, long int mxstepsB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -1158,8 +1158,8 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
 {
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
-  static int i;
-  int inew;
+  static long int i;
+  long int inew;
   booleantype to_left, to_right;
   realtype troundoff;
 
@@ -1255,7 +1255,7 @@ void CVadjGetCheckPointsList(void *cvadj_mem)
 */
 /*-----------------------------------------------------------------*/
 
-void CVadjGetStoredData(void *cvadj_mem, int which, 
+void CVadjGetStoredData(void *cvadj_mem, long int which, 
                         realtype *t, N_Vector yout, N_Vector ydout)
 {
   CVadjMem ca_mem;
@@ -1403,10 +1403,10 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
 */
 /*-----------------------------------------------------------------*/
 
-static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, int steps)
+static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, long int steps)
 {
   DtpntMem *dt_mem;
-  int i;
+  long int i;
 
   dt_mem = (DtpntMem *)malloc((steps+1)*sizeof(struct DtpntMemRec *));
 
@@ -1426,9 +1426,9 @@ static DtpntMem *CVAdataMalloc(CVodeMem cv_mem, int steps)
 */
 /*-----------------------------------------------------------------*/
 
-static void CVAdataFree(DtpntMem *dt_mem, int steps)
+static void CVAdataFree(DtpntMem *dt_mem, long int steps)
 {
-  int i;
+  long int i;
 
   for (i=0; i<=steps; i++) {
     N_VFree(dt_mem[i]->y);
@@ -1451,7 +1451,8 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
   CVodeMem cv_mem;
   DtpntMem *dt_mem;
   realtype t;
-  int i, flag;
+  long int i;
+  int flag;
 
   cv_mem = ca_mem->cv_mem;
   dt_mem = ca_mem->dt_mem;
@@ -1550,7 +1551,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
 */
 /*-----------------------------------------------------------------*/
 
-static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, int i)
+static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, long int i)
 {
   realtype t0, t1; 
   N_Vector y0, y1, yd0, yd1;
@@ -1578,7 +1579,7 @@ static void CVAhermitePrepare(CVadjMem ca_mem, DtpntMem *dt_mem, int i)
 /*-----------------------------------------------------------------*/
 
 static void CVAhermiteInterpolate(CVadjMem ca_mem, DtpntMem *dt_mem,
-                                  int i, realtype t, N_Vector y)
+                                  long int i, realtype t, N_Vector y)
 {
   realtype t0, t1;
   N_Vector y0, yd0;

@@ -190,8 +190,8 @@ int CVBandSetJacData(void *cvode_mem, void *jac_data);
 
 int CVBandGetIntWorkSpace(void *cvode_mem, long int *leniwB);
 int CVBandGetRealWorkSpace(void *cvode_mem, long int *lenrwB);
-int CVBandGetNumJacEvals(void *cvode_mem, int *njevalsB);
-int CVBandGetNumRhsEvals(void *cvode_mem, int *nfevalsB);
+int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB);
+int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB);
 
 
 /******************************************************************
@@ -221,11 +221,11 @@ typedef struct {
   
   BandMat b_savedJ;       /* savedJ = old Jacobian                    */
   
-  int b_nstlj;            /* nstlj = nst at last Jacobian eval.       */
+  long int b_nstlj;       /* nstlj = nst at last Jacobian eval.       */
   
-  int b_nje;              /* nje = no. of calls to jac                */
+  long int b_nje;         /* nje = no. of calls to jac                */
   
-  int b_nfeB;             /* nfeB = no. of calls to f due to difference
+  long int b_nfeB;        /* nfeB = no. of calls to f due to difference
                              quotient band Jacobian approximation     */
 
   void *b_J_data;         /* J_data is passed to jac                  */

@@ -163,7 +163,7 @@ typedef int (*CVSpgmrJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
  *                                                                *
  ******************************************************************/
 
-void *CVadjMalloc(void *cvode_mem, int steps);
+void *CVadjMalloc(void *cvode_mem, long int steps);
 
 /******************************************************************
  *                                                                *
@@ -203,7 +203,7 @@ int CVodeResetIterTypeB(void *cvadj_mem, int iterB);
 int CVodeSetFdataB(void *cvadj_mem, void *f_dataB);
 int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB);
 int CVodeSetMaxOrdB(void *cvadj_mem, int maxordB);
-int CVodeSetMaxNumStepsB(void *cvadj_mem, int mxstepsB);
+int CVodeSetMaxNumStepsB(void *cvadj_mem, long int mxstepsB);
 int CVodeSetStabLimDetB(void *cvadj_mem, booleantype stldetB);
 int CVodeSetInitStepB(void *cvadj_mem, realtype hinB);
 int CVodeSetMinStepB(void *cvadj_mem, realtype hminB);
@@ -429,7 +429,7 @@ void  CVadjGetCheckPointsList(void *cvadj_mem);
  *                                                                *
  ******************************************************************/
 
-void CVadjGetStoredData(void *cvadj_mem, int which, 
+void CVadjGetStoredData(void *cvadj_mem, long int which, 
                         realtype *t, N_Vector yout, N_Vector ydout);
 
 
@@ -453,7 +453,7 @@ typedef struct CkpntMemRec {
   N_Vector ck_zn[L_MAX];
   
   /* Step data */
-  int          ck_nst;
+  long int     ck_nst;
   int          ck_q;
   int          ck_qprime;
   int          ck_qwait;
@@ -569,7 +569,7 @@ typedef struct CVadjMemRec {
   int ca_nckpnts;
   
   /* Number of steps between 2 check points */
-  int ca_nsteps;
+  long int ca_nsteps;
 
   /* Flag to indicate that data in dt_mem is new */
   booleantype ca_newData;
@@ -579,7 +579,7 @@ typedef struct CVadjMemRec {
 
   /* Actual number of data points saved in current dt_mem */
   /* Commonly, np = nsteps+1                              */
-  int ca_np;
+  long int ca_np;
   
   /* Temporary space used by the Hermite interpolation */
   realtype ca_delta;

@@ -65,7 +65,7 @@ int CVDiag(void *cvode_mem);
 
 int CVDiagGetIntWorkSpace(void *cvode_mem, long int *leniwDI);
 int CVDiagGetRealWorkSpace(void *cvode_mem, long int *lenrwDI);
-int CVDiagGetNumRhsEvals(void *cvode_mem, int *nfevalsDI);
+int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI);
 
 
 /******************************************************************
@@ -88,7 +88,7 @@ typedef struct {
 
   N_Vector di_bitcomp; /* temporary storage vector                  */
 
-  int di_nfeDI;        /* no. of calls to f due to difference 
+  long int di_nfeDI;   /* no. of calls to f due to difference 
                           quotient diagonal Jacobian approximation  */
 
 } CVDiagMemRec, *CVDiagMem;

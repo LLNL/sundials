@@ -162,8 +162,8 @@ int CVDenseSetJacData(void *cvode_mem, void *jac_data);
 
 int CVDenseGetIntWorkSpace(void *cvode_mem, long int *leniwD);
 int CVDenseGetRealWorkSpace(void *cvode_mem, long int *lenrwD);
-int CVDenseGetNumJacEvals(void *cvode_mem, int *njevalsD);
-int CVDenseGetNumRhsEvals(void *cvode_mem, int *nfevalsD);
+int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD);
+int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD);
 
 /******************************************************************
  *                                                                *           
@@ -186,11 +186,11 @@ typedef struct {
   
   DenseMat d_savedJ;  /* savedJ = old Jacobian                  */
   
-  int  d_nstlj;       /* nstlj = nst at last Jacobian eval.     */
+  long int  d_nstlj;  /* nstlj = nst at last Jacobian eval.     */
   
-  int d_nje;          /* nje = no. of calls to jac              */
+  long int d_nje;     /* nje = no. of calls to jac              */
 
-  int d_nfeD;         /* nfeD = no. of calls to f due to
+  long int d_nfeD;    /* nfeD = no. of calls to f due to
                          difference quotient approximation of J */
   
   void *d_J_data;     /* J_data is passed to jac                */

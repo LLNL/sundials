@@ -319,7 +319,7 @@ int CVBandGetRealWorkSpace(void *cvode_mem, long int *lenrwB)
 
 /************* CVBandGetNumJacEvals **********************************/
 
-int CVBandGetNumJacEvals(void *cvode_mem, int *njevalsB)
+int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -344,7 +344,7 @@ int CVBandGetNumJacEvals(void *cvode_mem, int *njevalsB)
 
 /************* CVBandGetNumRhsEvals **********************************/
 
-int CVBandGetNumRhsEvals(void *cvode_mem, int *nfevalsB)
+int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;

@@ -182,7 +182,7 @@ typedef struct {
   /* available for optional output: */
   long int rpwsize;
   long int ipwsize;
-  int nge;
+  long int nge;
 
   /* Pointer to cvode_mem */
   CVodeMem cv_mem;
@@ -308,7 +308,7 @@ void CVBBDPrecFree(void *p_data);
 
 int CVBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP);
 int CVBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP);
-int CVBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP);
+int CVBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 
 /* Return values for CVBBDPrecGet* functions */
 /* OKAY = 0 */

@@ -334,12 +334,12 @@ int CVSpgmrSetJacData(void *cvode_mem, void *jac_data);
 
 int CVSpgmrGetIntWorkSpace(void *cvode_mem, long int *leniwSG);
 int CVSpgmrGetRealWorkSpace(void *cvode_mem, long int *lenrwSG);
-int CVSpgmrGetNumPrecEvals(void *cvode_mem, int *npevals);
-int CVSpgmrGetNumPrecSolves(void *cvode_mem, int *npsolves);
-int CVSpgmrGetNumLinIters(void *cvode_mem, int *nliters);
-int CVSpgmrGetNumConvFails(void *cvode_mem, int *nlcfails);
-int CVSpgmrGetNumJtimesEvals(void *cvode_mem, int *njvevals);
-int CVSpgmrGetNumRhsEvals(void *cvode_mem, int *nfevalsSG); 
+int CVSpgmrGetNumPrecEvals(void *cvode_mem, long int *npevals);
+int CVSpgmrGetNumPrecSolves(void *cvode_mem, long int *npsolves);
+int CVSpgmrGetNumLinIters(void *cvode_mem, long int *nliters);
+int CVSpgmrGetNumConvFails(void *cvode_mem, long int *nlcfails);
+int CVSpgmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
+int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG); 
 
 /******************************************************************
  * Types : CVSpgmrMemRec, CVSpgmrMem                              *
@@ -359,13 +359,13 @@ typedef struct {
   realtype g_delta;   /* delta = deltar * sqrtN                       */
   int  g_maxl;        /* maxl = maximum dimension of the Krylov space */
 
-  int g_nstlpre;       /* value of nst at the last pset call          */     
-  int g_npe;           /* npe = total number of pset calls            */   
-  int g_nli;           /* nli = total number of linear iterations     */
-  int g_nps;           /* nps = total number of psolve calls          */
-  int g_ncfl;          /* ncfl = total number of convergence failures */
-  int g_njtimes;       /* njtimes = total number of calls to jtimes   */
-  int g_nfeSG;         /* nfeSG = total number of calls to f  for     
+  long int g_nstlpre;  /* value of nst at the last pset call          */     
+  long int g_npe;      /* npe = total number of pset calls            */   
+  long int g_nli;      /* nli = total number of linear iterations     */
+  long int g_nps;      /* nps = total number of psolve calls          */
+  long int g_ncfl;     /* ncfl = total number of convergence failures */
+  long int g_njtimes;  /* njtimes = total number of calls to jtimes   */
+  long int g_nfeSG;    /* nfeSG = total number of calls to f  for     
                           difference quotient Jacobian-vector products*/
 
   N_Vector g_ytemp;    /* temp vector passed to jtimes and psolve     */

@@ -346,7 +346,7 @@ int CVodeResetIterType(void *cvode_mem, int iter);
 int CVodeSetFdata(void *cvode_mem, void *f_data);
 int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 int CVodeSetMaxOrd(void *cvode_mem, int maxord);
-int CVodeSetMaxNumSteps(void *cvode_mem, int mxsteps);
+int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
 int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
 int CVodeSetInitStep(void *cvode_mem, realtype hin);
@@ -867,13 +867,13 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
 
 int CVodeGetIntWorkSpace(void *cvode_mem, long int *leniw);
 int CVodeGetRealWorkSpace(void *cvode_mem, long int *lenrw);
-int CVodeGetNumSteps(void *cvode_mem, int *nsteps);
-int CVodeGetNumRhsEvals(void *cvode_mem, int *nfevals);
-int CVodeGetNumLinSolvSetups(void *cvode_mem, int *nlinsetups);
-int CVodeGetNumErrTestFails(void *cvode_mem, int *netfails);
+int CVodeGetNumSteps(void *cvode_mem, long int *nsteps);
+int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals);
+int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups);
+int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails);
 int CVodeGetLastOrder(void *cvode_mem, int *qlast);
 int CVodeGetCurrentOrder(void *cvode_mem, int *qcur);
-int CVodeGetNumStabLimOrderReds(void *cvode_mem, int *nslred);
+int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred);
 int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused);
 int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
 int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
@@ -888,8 +888,8 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele);
  *----------------------------------------------------------------*/
 
 int CVodeGetWorkSpace(void *cvode_mem, long int *leniw, long int *lenrw);
-int CVodeGetIntegratorStats(void *cvode_mem, int *nsteps, int *nfevals, 
-                            int *nlinsetups, int *netfails, int *qlast, 
+int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals, 
+                            long int *nlinsetups, long int *netfails, int *qlast, 
                             int *qcur, realtype *hinused, realtype *hlast, 
                             realtype *hcur, realtype *tcur);
 
@@ -906,15 +906,15 @@ int CVodeGetIntegratorStats(void *cvode_mem, int *nsteps, int *nfevals,
  *       convergence failures.                                    *
  *----------------------------------------------------------------*/
 
-int CVodeGetNumNonlinSolvIters(void *cvode_mem, int *nniters);
-int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, int *nncfails);
+int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters);
+int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails);
 
 /*----------------------------------------------------------------*
  * As a convenience, the following function provides the          *
  * optional outputs in a group.                                   *
  *----------------------------------------------------------------*/
 
-int CVodeGetNonlinSolvStats(void *cvode_mem, int *nniters, int *nncfails);
+int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, long int *nncfails);
 
 /*----------------------------------------------------------------*
  * Quadrature integration solution extraction routines            *
@@ -944,8 +944,8 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  *      space for ewtQ.                                           *
  *----------------------------------------------------------------*/
 
-int CVodeGetNumQuadRhsEvals(void *cvode_mem, int *nfQevals);
-int CVodeGetNumQuadErrTestFails(void *cvode_mem, int *nQetfails);
+int CVodeGetNumQuadRhsEvals(void *cvode_mem, long int *nfQevals);
+int CVodeGetNumQuadErrTestFails(void *cvode_mem, long int *nQetfails);
 int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector *eQweight);
 
 /*----------------------------------------------------------------*
@@ -953,7 +953,7 @@ int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector *eQweight);
  * optional outputs in a group.                                   *
  *----------------------------------------------------------------*/
 
-int CVodeGetQuadStats(void *cvode_mem, int *nfQevals, int *nQetfails);
+int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails);
 
 /*----------------------------------------------------------------*
  * Forward sensitivity solution extraction routines               *
@@ -1012,10 +1012,10 @@ int CVodeGetSensDkyAll(void *cvode_mem, realtype t, int k,
  *     vectors. The user need not allocate space for ewtS.        *
  *----------------------------------------------------------------*/
 
-int CVodeGetNumSensRhsEvals(void *cvode_mem, int *nfSevals);
-int CVodeGetNumRhsEvalsSens(void *cvode_mem, int *nfevalsS);
-int CVodeGetNumSensErrTestFails(void *cvode_mem, int *nSetfails);
-int CVodeGetNumSensLinSolvSetups(void *cvode_mem, int *nlinsetupsS);
+int CVodeGetNumSensRhsEvals(void *cvode_mem, long int *nfSevals);
+int CVodeGetNumRhsEvalsSens(void *cvode_mem, long int *nfevalsS);
+int CVodeGetNumSensErrTestFails(void *cvode_mem, long int *nSetfails);
+int CVodeGetNumSensLinSolvSetups(void *cvode_mem, long int *nlinsetupsS);
 int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S *eSweight);
 
 /*----------------------------------------------------------------*
@@ -1023,8 +1023,8 @@ int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S *eSweight);
  * optional outputs in a group.                                   *
  *----------------------------------------------------------------*/
 
-int CVodeGetSensStats(void *cvode_mem, int *nfSevals, int *nfevalsS, 
-                      int *nSetfails, int *nlinsetupsS);
+int CVodeGetSensStats(void *cvode_mem, long int *nfSevals, long int *nfevalsS, 
+                      long int *nSetfails, long int *nlinsetupsS);
 
 /*----------------------------------------------------------------*
  * Sensitivity nonlinear solver optional output extraction        *
@@ -1046,19 +1046,20 @@ int CVodeGetSensStats(void *cvode_mem, int *nfSevals, int *nfevalsS,
  *         sensitivity variables in the STAGGERED1 method.        *
  *----------------------------------------------------------------*/
 
-int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, int *nSniters);
-int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, int *nSncfails);
-int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, int *nSTGR1niters);
-int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, int *nSTGR1ncfails);
+int CVodeGetNumSensNonlinSolvIters(void *cvode_mem, long int *nSniters);
+int CVodeGetNumSensNonlinSolvConvFails(void *cvode_mem, long int *nSncfails);
+int CVodeGetNumStgrSensNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters);
+int CVodeGetNumStgrSensNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfails);
 
 /*----------------------------------------------------------------*
  * As a convenience, the following two functions provide the      *
  * optional outputs in groups.                                    *
  *----------------------------------------------------------------*/
 
-int CVodeGetSensNonlinSolvStats(void *cvode_mem, int *nSniters, int *nSncfails);
-int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem, int *nSTGR1niters, 
-                                    int *nSTGR1ncfails);
+int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters, 
+                                long int *nSncfails);
+int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem, long int *nSTGR1niters, 
+                                    long int *nSTGR1ncfails);
 
 /* CVodeGet* return values */
 enum { OKAY=0, CVG_NO_MEM=-1, CVG_NO_SLDET=-2, 
@@ -1272,7 +1273,7 @@ typedef struct CVodeMemRec {
   --------*/
 
   int cv_qmax;             /* q <= qmax                                    */
-  int cv_mxstep;           /* maximum number of internal steps for one 
+  long int cv_mxstep;      /* maximum number of internal steps for one 
                               user call                                    */
   int cv_maxcor;           /* maximum number of corrector iterations for 
                               the solution of the nonlinear equation       */
@@ -1291,29 +1292,29 @@ typedef struct CVodeMemRec {
     Counters 
   ----------*/
 
-  int cv_nst;              /* number of internal steps taken               */
-  int cv_nfe;              /* number of f calls                            */
-  int cv_nfSe;             /* number of fS calls                           */
-  int cv_nfQe;             /* number of fQ calls                           */
-  int cv_nfeS;             /* number of f calls from sensi DQ              */
+  long int cv_nst;              /* number of internal steps taken               */
+  long int cv_nfe;              /* number of f calls                            */
+  long int cv_nfSe;             /* number of fS calls                           */
+  long int cv_nfQe;             /* number of fQ calls                           */
+  long int cv_nfeS;             /* number of f calls from sensi DQ              */
 
-  int cv_ncfn;             /* number of corrector convergence failures     */
-  int cv_ncfnS;            /* number of total sensi. corr. conv. failures  */
-  int *cv_ncfnS1;          /* number of sensi. corrector conv. failures    */
+  long int cv_ncfn;             /* number of corrector convergence failures     */
+  long int cv_ncfnS;            /* number of total sensi. corr. conv. failures  */
+  long int *cv_ncfnS1;          /* number of sensi. corrector conv. failures    */
 
-  int cv_nni;              /* number of nonlinear iterations performed     */
-  int cv_nniS;             /* number of total sensi. nonlinear iterations  */
-  int *cv_nniS1;           /* number of sensi. nonlinear iterations        */
+  long int cv_nni;              /* number of nonlinear iterations performed     */
+  long int cv_nniS;             /* number of total sensi. nonlinear iterations  */
+  long int *cv_nniS1;           /* number of sensi. nonlinear iterations        */
 
-  int cv_netf;             /* number of error test failures                */
-  int cv_netfS;            /* number of sensi. error test failures         */
-  int cv_netfQ;            /* number of quadr. error test failures         */
+  long int cv_netf;             /* number of error test failures                */
+  long int cv_netfS;            /* number of sensi. error test failures         */
+  long int cv_netfQ;            /* number of quadr. error test failures         */
 
-  int cv_nsetups;          /* number of setup calls                        */
-  int cv_nsetupsS;         /* number of setup calls due to sensitivities   */
+  long int cv_nsetups;          /* number of setup calls                        */
+  long int cv_nsetupsS;         /* number of setup calls due to sensitivities   */
 
-  int cv_nhnil;            /* number of messages issued to the user that
-                              t + h == t for the next iternal step         */
+  int cv_nhnil;                 /* number of messages issued to the user that
+                                   t + h == t for the next iternal step         */
 
   /*------------------------------- 
     Space requirements for CVODES 
@@ -1364,7 +1365,7 @@ typedef struct CVodeMemRec {
   --------------*/
 
   int cv_qu;               /* last successful q value used                 */
-  int cv_nstlp;            /* step number of last setup call               */
+  long int cv_nstlp;       /* step number of last setup call               */
   realtype cv_h0u;         /* actual initial stepsize                      */
   realtype cv_hu;          /* last successful h value used                 */
   realtype cv_saved_tq5;   /* saved value of tq[5]                         */
@@ -1409,7 +1410,7 @@ typedef struct CVodeMemRec {
   booleantype cv_sldeton;     /* Is Stability Limit Detection on?          */
   realtype cv_ssdat[6][4];    /* scaled data array for STALD               */
   int cv_nscon;               /* counter for STALD method                  */
-  int cv_nor;                 /* counter for number of order reductions    */
+  long int cv_nor;            /* counter for number of order reductions    */
 
   /*-------------------------
     Complex step memory block
