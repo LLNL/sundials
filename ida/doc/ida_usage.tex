@@ -776,6 +776,7 @@ Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{FALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \\
 Inequality constraints on solution & \id{IDASetConstraints} & \\
+Integration tolerances & \id{IDASetTolerances} & none \\
 \hline
 \multicolumn{3}{|c|}{\bf IDA initial conditions calculation} \\
 \hline
@@ -1303,6 +1304,48 @@ flag = IDASetConstraints(ida\_mem, constraints);
   all components will cause constraint checking to be performed.
 }
 %%
+\ucfunction{IDASetTolerances}
+{
+flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
+}
+{
+  The function \ID{IDASetTolerances} resets the integration tolerances.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[itol] (\id{int}) 
+    is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDa\_SS} indicates scalar
+    relative error tolerance and scalar absolute error tolerance, while
+    \id{itol}$=$\id{IDA\_SV} indicates scalar relative error tolerance and vector
+    absolute error tolerance.  The latter choice is important when the absolute
+    error tolerance needs to be different for each component of the DAE. 
+  \item[reltol] (\id{realtype *})
+    \index{tolerances}
+    is a pointer to the relative error tolerance.
+  \item[abstol] (\id{void *})
+    is a pointer to the absolute error tolerance.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The tolerances have been successfully set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    An input argument has an illegal value.
+  \end{args}
+}
+{
+  The integration tolerances are initially specified in the call
+  to \id{IDAMalloc} (see \S\ref{sss:idamalloc}). This function call is
+  needed only if the tolerances are being changed from their values between
+  succesive calls to \id{IDASolve}.
+}
+%%
 \index{optional input!solver|)}
 %%
 %%
@@ -1379,7 +1422,7 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
   function each time it is called.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[jac\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[jac\_data] (\id{void *})
@@ -1468,7 +1511,7 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
   function each time it is called.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[jac\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[jac\_data] (\id{void *})
@@ -1610,7 +1653,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{res\_data
 %%
 \ucfunction{IDASpgmrSetPrecData}
 {
-  flag = IDASpgmrSetPrecData(ida\_mem, void *P\_data);
+  flag = IDASpgmrSetPrecData(ida\_mem, void *prec\_data);
 }
 {
   The function \ID{IDASpgmrSetPrecData} specifies the data structure
@@ -1618,10 +1661,10 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{res\_data
   functions each time they are called.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[prec\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[P\_data] (\id{void *})
+  \item[prec\_data] (\id{void *})
      pointer to the user-defined data structure.
   \end{args}
 }
@@ -1686,7 +1729,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{res\_data
   function each time it is called.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[jac\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[jac\_data] (\id{void *})
@@ -1826,7 +1869,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{res\_data
   to the Jacobian-vector products.  
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[dqincfac]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[dqincfac] (\id{realtype})
@@ -2324,7 +2367,7 @@ These optional output functions are described next.
   number of local error test failures that have occurred.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[netfails]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[netfails] (\id{long int})
@@ -2528,7 +2571,7 @@ These optional output functions are described next.
   requested for some internal step.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[tolsfac]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[tolsfac] (\id{realtype})
@@ -2556,7 +2599,7 @@ These optional output functions are described next.
   at the current time. These are the reciprocals of the $W_i$ of (\ref{e:errwt}).
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[eweight]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[eweight] (\id{N\_Vector})
@@ -2621,7 +2664,7 @@ These optional output functions are described next.
   as a group.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nlinsetups]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nsteps] (\id{long int})
@@ -2667,7 +2710,7 @@ These optional output functions are described next.
   number of nonlinear (functional or Newton) iterations performed. 
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nniters]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nniters] (\id{long int})
@@ -2695,7 +2738,7 @@ These optional output functions are described next.
   number of nonlinear convergence failures that have occurred.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nncfails]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nncfails] (\id{long int})
@@ -2723,7 +2766,7 @@ These optional output functions are described next.
   {\ida} nonlinear solver statistics as a group.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nncfails]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nniters] (\id{long int})
@@ -2807,7 +2850,7 @@ to access these are described below.
   number of calls to the dense Jacobian approximation function.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[njevalsD]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[njevalsD] (\id{long int})
@@ -2838,7 +2881,7 @@ to access these are described below.
   finite difference dense Jacobian approximation.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nrevalsD]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nrevalsD] (\id{long int})
@@ -2955,7 +2998,7 @@ to access these are described below.
   number of calls to the banded Jacobian approximation function.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[njevalsB]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[njevalsB] (\id{long int})
@@ -2986,7 +3029,7 @@ to access these are described below.
   finite difference banded Jacobian approximation.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nrevalsB]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nrevalsB] (\id{long int})
@@ -3064,7 +3107,7 @@ to access these are described below.
   the {\idaspgmr} real and integer workspaces.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[lenrwSG]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[lenrwSG] (\id{long int})
@@ -3100,7 +3143,7 @@ to access these are described below.
   cumulative number of linear iterations.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nliters]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nliters] (\id{long int})
@@ -3130,7 +3173,7 @@ to access these are described below.
   cumulative number of linear convergence failures.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nlcfails]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nlcfails] (\id{long int})
@@ -3161,7 +3204,7 @@ to access these are described below.
   calls made to \id{psetup} with \id{jok=FALSE}.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[npevals]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[npevals] (\id{long int})
@@ -3192,7 +3235,7 @@ to access these are described below.
   solve function, \id{psolve}.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[npsolves]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[npsolves] (\id{long int})
@@ -3223,7 +3266,7 @@ to access these are described below.
   \id{jtimes}.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[njvevals]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[njvevals] (\id{long int})
@@ -3254,7 +3297,7 @@ to access these are described below.
   finite difference Jacobian-vector product approximation.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[nrevalsSG]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[nrevalsSG] (\id{long int})
@@ -3411,20 +3454,20 @@ will be reused for the new problem.
 \section{User-supplied functions}\label{ss:user_fct_sim}
 %%===================================================================================
 
-The user-supplied functions consist of one function defining the ODE, 
+The user-supplied functions consist of one function defining the DAE residual, 
 (optionally) a function that provides Jacobian related information for the linear 
 solver (if Newton iteration is chosen), and (optionally) one or two functions 
 that define the preconditioner for use in the {\spgmr} algorithm. 
 %%
 %%--------------
 %%
-\subsection{Residual function}\label{ss:rhsFn}
+\subsection{Residual function}\label{ss:resFn}
 \index{residual function}
 The user must provide a function of type \ID{IDAResFn} defined as follows:
 \usfunction{IDAResFn}
 {
-  typedef void (*IDAResFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
-                           &void *res\_data);
+  typedef void (*IDAResFn)(&realtype tt, N\_Vector yy, N\_Vector yp,  \\
+                           &N\_Vector rr, void *res\_data);
 }
 {
   This function computes the problem residual for given value
@@ -3432,12 +3475,14 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
 }
 {
   \begin{args}[res\_data]
-  \item[t]
+  \item[tt]
     is the current value of the independent variable.
-  \item[y]
+  \item[yy]
     is the current value of the dependent variable vector, $y(t)$.
-  \item[ydot]
-    is the output vector $f(t,y)$.
+  \item[yp]
+    is the current value of $y'(t)$.
+  \item[rr]
+    is the output vector $F(t,y,y')$.
   \item[res\_data]
     is a pointer to user data - the same as the \Id{res\_data}      
     parameter passed to \id{IDASetRdata}.   
@@ -3465,37 +3510,42 @@ If the direct linear solver with dense treatment of the Jacobian is used
 the user may provide a function of type \ID{IDADenseJacFn} defined by
 \usfunction{IDADenseJacFn}
 {
-  typedef int (*IDADenseJacFn)(&long int N, DenseMat J, realtype t, \\
-                               &N\_Vector y, N\_Vector fy, void *jac\_data, \\
+  typedef int (*IDADenseJacFn)(&long int Neq, realtype tt, \\
+                               &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
+                               &realtype c\_j, void *jac\_data, \\
+                               &DenseMat Jac, \\
                                &N\_Vector tmp1, N\_Vector tmp2, \\
                                &N\_Vector tmp3);
 }
 {
-  This function computes the dense Jacobian $J = \partial f / \partial y$ 
-  (or an approximation to it).
+  This function computes the dense Jacobian (or an approximation to it)
+  of the DAE system.
 }
 {
   \begin{args}[jac\_data]
-  \item[N]
+  \item[Neq]
     is the problem size.
-  \item[J]
-    is the output Jacobian matrix.  
-  \item[t]
+  \item[tt]
     is the current value of the independent variable.
-  \item[y]
-    is the current value of the dependent variable vector, 
-    namely the predicted value of $y(t)$.
-  \item[fy]
-    is the vector $f(t,y)$.
+  \item[yy]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yp]
+    is the current value of $y'(t)$.
+  \item[rr]
+    is the current value of the vector $F(t,y,y')$.
+  \item[c\_j]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size.
   \item[jac\_data]
     is a pointer to user data - the same as the \id{jac\_data}      
     parameter passed to \id{IDADenseSetJacData}.   
+  \item[Jac]
+    is the output Jacobian matrix.  
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
-    are pointers to memory allocated    
-    for vectors of length \id{N} which can be used by           
-    \id{IDADenseJacFn} as temporary storage or work space.    
+    are pointers to memory allocated for variables of type \id{N\_Vector} 
+    which can be used by \id{IDADenseJacFn} as temporary storage or work space.
   \end{args}
 }
 {
@@ -3508,26 +3558,26 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
   and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
 }
 {
-  A user-supplied dense Jacobian function must load the \id{N} by \id{N}
-  dense matrix \id{J} with an approximation to the Jacobian matrix $J$
-  at the point (\id{t}, \id{y}).  Only nonzero elements need to be loaded
-  into \id{J} because \id{J} is set to the zero matrix before the call
-  to the Jacobian function. The type of \id{J} is \Id{DenseMat}. 
+  A user-supplied dense Jacobian function must load the \id{Neq} $\times$ \id{Neq}
+  dense matrix \id{Jac} with an approximation to the Jacobian matrix $J$
+  at the point (\id{t}, \id{yy}, \id{yp}).  Only nonzero elements need to be loaded
+  into \id{Jac} because \id{Jac} is set to the zero matrix before the call
+  to the Jacobian function. The type of \id{Jac} is \Id{DenseMat}. 
   
   The accessor macros \Id{DENSE\_ELEM} and \Id{DENSE\_COL} allow the user to
   read and write dense matrix elements without making explicit
   references to the underlying representation of the \id{DenseMat}
-  type. \id{DENSE\_ELEM(J, i, j)} references the (\id{i}, \id{j})-th
-  element of the dense matrix \id{J} (\id{i}, \id{j}$= 0\ldots N-1$). This macro
-  is for use in small problems in which efficiency of access is not a major
+  type. \id{DENSE\_ELEM(Jac, i, j)} references the (\id{i}, \id{j})-th
+  element of the dense matrix \id{Jac} (\id{i}, \id{j}$= 0\ldots$ \id{Neq}$-1$).
+  This macro is for use in small problems in which efficiency of access is not a major
   concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
-  $N$, the Jacobian element $J_{m,n}$ can be loaded with the statement
-  \id{DENSE\_ELEM(J, m-1, n-1) =} $J_{m,n}$.  Alternatively,
-  \id{DENSE\_COL(J, j)} returns a pointer to the storage for
-  the \id{j}th column of \id{J} (\id{j}$= 0\ldots N-1$), and the 
-  elements of the \id{j}th column
+  \id{Neq}, the Jacobian element $J_{m,n}$ can be loaded with the statement
+  \id{DENSE\_ELEM(Jac, m-1, n-1) =} $J_{m,n}$.  Alternatively,
+  \id{DENSE\_COL(Jac, j)} returns a pointer to the storage for
+  the \id{j}th column of \id{Jac} (\id{j}$= 0\ldots$ \id{Neq}$-1$), and the 
+  elements of the \id{j}-th column
   are then accessed via ordinary array indexing.  Thus $J_{m,n}$ can be 
-  loaded with the statements \id{col\_n = DENSE\_COL(J, n-1);}
+  loaded with the statements \id{col\_n = DENSE\_COL(Jac, n-1);}
   \id{col\_n[m-1] =} $J_{m,n}$.  For large problems, it is more 
   efficient to use \id{DENSE\_COL} than to use \id{DENSE\_ELEM}. 
   Note that both of these macros number rows and columns
@@ -3555,41 +3605,45 @@ If the direct linear solver with banded treatment of the Jacobian is used
 the user may provide a function of type \ID{IDABandJacFn} defined as follows:
 \usfunction{IDABandJacFn}
 {
- typedef int (*IDABandJacFn)(&long int N, long int mupper, \\
-                             &long int mlower, BandMat J, realtype t, \\ 
-                             &N\_Vector y, N\_Vector fy, void *jac\_data, \\
+ typedef int (*IDABandJacFn)(&long int Neq, long int mupper, \\
+                             &long int mlower, realtype tt, \\ 
+                             &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
+                             &realtype c\_j, void *jac\_data, \\
+                             &BandMat Jac, \\
                              &N\_Vector tmp1, N\_Vector tmp2, \\
                              &N\_Vector tmp3);
 }
 {
-  This function computes the banded Jacobian $J = \partial f / \partial y$ 
-  (or a banded approximation to it).
+  This function computes the banded Jacobian (or a banded approximation to it).
 }
 {
   \begin{args}[jac\_data]
-  \item[N]
+  \item[Neq]
     is the problem size.
   \item[mlower]
   \item[mupper]
     are the lower and upper half bandwidth of the Jacobian.
-  \item[J]
-    is the output Jacobian matrix.  
-  \item[t]
+  \item[tt]
     is the current value of the independent variable.
-  \item[y]
-    is the current value of the dependent variable vector, 
-    namely the predicted value of $y(t)$.
-  \item[fy]
-    is the vector $f(t,y)$.
+  \item[yy]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yp]
+    is the current value of $y'(t)$.
+  \item[rr]
+    is the current value of the vector $F(t,y,y')$.
+  \item[c\_j]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size.
   \item[jac\_data]
     is a pointer to user data - the same as the \id{jac\_data}      
     parameter passed to \id{IDABandSetJacData}.   
+  \item[Jac]
+    is the output Jacobian matrix.  
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
-    are pointers to memory allocated    
-    for vectors of length \id{N} which can be used by           
-    \id{IDABandJacFn} as temporary storage or work space.    
+    are pointers to memory allocated for variables of type \id{N\_Vector} 
+    which can be used by \id{IDABandJacFn} as temporary storage or work space.    
   \end{args}
 }
 {
@@ -3602,29 +3656,29 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
   and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
 }
 {
-  A user-supplied band Jacobian function must load the band matrix \id{J}
+  A user-supplied band Jacobian function must load the band matrix \id{Jac}
   of type \Id{BandMat} with the elements of the Jacobian $J(t,y)$ at the
-  point (\id{t},\id{y}).  Only nonzero elements need to be loaded into
-  \id{J} because \id{J} is preset to zero before the call to the
+  point (\id{tt},\id{yy},\id{yp}).  Only nonzero elements need to be loaded into
+  \id{Jac} because \id{Jac} is preset to zero before the call to the
   Jacobian function.  
 
   The accessor macros \Id{BAND\_ELEM}, \Id{BAND\_COL}, and \Id{BAND\_COL\_ELEM} 
   allow the user to read and write band matrix elements without making specific 
   references to the underlying representation of the \id{BandMat} type.
-  \id{BAND\_ELEM(J, i, j)} references the (\id{i}, \id{j})th element of the 
-  band matrix \id{J}, counting from $0$.
+  \id{BAND\_ELEM(Jac, i, j)} references the (\id{i}, \id{j})th element of the 
+  band matrix \id{Jac}, counting from $0$.
   This macro is for use in small problems in which efficiency of access is not
   a major concern.  Thus, in terms of indices $m$ and $n$ running from $1$ to
   $N$ with $(m,n)$ within the band defined by \id{mupper} and
   \id{mlower}, the Jacobian element $J_{m,n}$ can be loaded with the 
-  statement \id{BAND\_ELEM(J, m-1, n-1) =} $J_{m,n}$. The elements within
+  statement \id{BAND\_ELEM(Jac, m-1, n-1) =} $J_{m,n}$. The elements within
   the band are those with \id{-mupper} $\le$ \id{m-n} $\le$ \id{mlower}.
-  Alternatively, \id{BAND\_COL(J, j)} returns a pointer to the diagonal element of the
-  \id{j}th column of \id{J}, and if we assign this address to 
+  Alternatively, \id{BAND\_COL(Jac, j)} returns a pointer to the diagonal element of the
+  \id{j}th column of \id{Jac}, and if we assign this address to 
   \id{realtype *col\_j}, then the \id{i}th element of the \id{j}th column is
   given by \id{BAND\_COL\_ELEM(col\_j, i, j)}, counting from $0$.
   Thus for $(m,n)$ within the band, $J_{m,n}$ can be loaded by setting 
-  \id{col\_n = BAND\_COL(J, n-1);} \id{BAND\_COL\_ELEM(col\_n, m-1, n-1) =} $J_{m,n}$.
+  \id{col\_n = BAND\_COL(Jac, n-1);} \id{BAND\_COL\_ELEM(col\_n, m-1, n-1) =} $J_{m,n}$.
   The elements of the \id{j}th column can also be accessed
   via ordinary array indexing, but this approach requires knowledge of
   the underlying storage for a band matrix of type \id{BandMat}.  
@@ -3656,32 +3710,40 @@ If an iterative {\spgmr} linear solver is selected (\id{IDASpgmr} is called in s
 of type \ID{IDASpgmrJacTimesVecFn} in the following form:
 \usfunction{IDASpgmrJacTimesVecFn}
 {
-  typedef int (*IDASpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, realtype t, \\
-                                      &N\_Vector y, N\_Vector fy, \\
-                                      &void *jac\_data, N\_Vector tmp);
+  typedef int (*IDASpgmrJacTimesVecFn)(&realtype tt, \\
+                                       &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
+                                       &N\_Vector v, N\_Vector Jv, \\
+                                       &realtype c\_j, void *jac\_data, \\
+                                       &N\_Vector tmp1, N\_Vector tmp2);
 }
 {
-  This function computes the product $J v = (\partial f / \partial y) v$ 
-  (or an approximation to it).
+  This function computes the product of the problem Jacobian and the
+  vector \id{v} (or an approximation to it).
 }
 {
   \begin{args}[jac\_data]
+  \item[tt]
+    is the current value of the independent variable.
+  \item[yy]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yp]
+    is the current value of $y'(t)$.
+  \item[rr]
+    is the current value of the vector $F(t,y,y')$.
+  \item[c\_j]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size.
   \item[v]
     is the vector by which the Jacobian must be multiplied to the right.
   \item[Jv]
       is the output vector computed.
-  \item[t]
-    is the current value of the independent variable.       
-  \item[y] 
-    is the current value of the dependent variable vector. 
-  \item[fy]
-    is the vector $f(t,y)$.
   \item[jac\_data]
     is a pointer to user data - the same as the \id{jac\_data}      
     parameter passed to \id{IDASpgmrSetJacData}.   
-  \item[tmp]
-    is a pointer to memory allocated for a vector of        
-    length \id{N} which can be used for work space.
+  \item[tmp1]
+  \item[tmp2]
+    are pointers to memory allocated for variables of type \id{N\_Vector} 
+    which can be used by \id{IDASpgmrJacTimesVecFn} as temporary storage or work space.
   \end{args}
 }
 {  
@@ -3710,28 +3772,32 @@ This function must be of type \ID{IDASpgmrPrecSolveFn}, defined as follows:
 %%
 \usfunction{IDASpgmrPrecSolveFn}
 {
-  typedef int (*IDASpgmrPrecSolveFn)(&realtype t, N\_Vector y, N\_Vector fy, \\
-                                    &N\_Vector r, N\_Vector z, \\ 
-                                    &realtype gamma, realtype delta, \\
-                                    &int lr, void *P\_data, N\_Vector tmp);
+  typedef int (*IDASpgmrPrecSolveFn)(&realtype tt, \\
+                                     &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
+                                     &N\_Vector rvec, N\_Vector zvec, \\ 
+                                     &realtype c\_j, realtype delta, \\
+                                     &void *prec\_data, N\_Vector tmp);
 }
 {
   This function solves the preconditioning system $Pz = r$.
 }
 {  
-  \begin{args}[P\_data]
-  \item[t]
+  \begin{args}[prec\_data]
+  \item[tt]
     is the current value of the independent variable.
-  \item[y] 
-    is the current value of the dependent variable vector.  
-  \item[fy]
-    is the vector $f(t,y)$.
-  \item[r]
+  \item[yy]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yp]
+    is the current value of $y'(t)$.
+  \item[rr]
+    is the current value of the vector $F(t,y,y')$.
+  \item[rvec]
     is the right-hand side vector of the linear system.
-  \item[z]
+  \item[zvec]
     is the output vector computed.
-  \item[gamma]
-    is the scalar $\gamma$ appearing in the Newton matrix $M=I-\gamma J$.
+  \item[c\_j]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size.
   \item[delta]
     is an input tolerance to be used if an iterative method 
     is employed in the solution.  In that case, the residual 
@@ -3740,16 +3806,12 @@ This function must be of type \ID{IDASpgmrPrecSolveFn}, defined as follows:
     i.e., $\sqrt{\sum_i (Res_i \cdot ewt_i)^2 } < delta$.
     To obtain the \id{N\_Vector} \id{ewt}, call \id{IDAGetErrWeights} 
     (see \S\ref{ss:optional_output}).
-  \item[lr]
-    is an input flag indicating whether the preconditioner solve
-    function is to use the left preconditioner (\id{lr=1}) or 
-    the right preconditioner (\id{lr=2});
-  \item[P\_data]
-    is a pointer to user data - the same as the \id{P\_data}      
+  \item[prec\_data]
+    is a pointer to user data - the same as the \id{prec\_data}      
     parameter passed to the function \id{IDASpgmrSetPrecData}.
   \item[tmp]
-    is a pointer to memory allocated for a vector of        
-    length \id{N} which can be used for work space.
+    is a pointer to memory allocated for a variable of type    
+    \id{N\_Vector} which can be used for work space.
   \end{args}
 }
 {
@@ -3771,11 +3833,11 @@ be evaluated or preprocessed, then this needs to be done in a
 user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows:
 \usfunction{IDASpgmrPrecSetupFn}
 {
-  typedef int (*IDASpgmrPrecSetupFn)(&realtype t, N\_Vector y, N\_Vector fy,  \\
-                                    &booleantype jok, booleantype *jcurPtr, \\
-                                    &realtype gamma, void *P\_data,\\
-                                    &N\_Vector tmp1, N\_Vector tmp2,\\
-                                    &N\_Vector tmp3);
+  typedef int (*IDASpgmrPrecSetupFn)(&realtype tt, \\
+                                     &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
+                                     &realtype c\_j, void *prec\_data,\\
+                                     &N\_Vector tmp1, N\_Vector tmp2,\\
+                                     &N\_Vector tmp3);
 }
 {
   This function evaluates and/or preprocesses Jacobian related data needed
@@ -3783,41 +3845,26 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
 }
 {
   The arguments of a \id{IDASpgmrPrecSetupFn} are as follows:
-  \begin{args}[jcurPtr]
-  \item[t]
+  \begin{args}[prec\_data]
+  \item[tt]
     is the current value of the independent variable.
-  \item[y]
-    is the current value of the dependent variable vector, 
-    namely the predicted value of $y(t)$.
-  \item[fy]
-    is the vector $f(t,y)$.                    
-  \item[jok]
-    is an input flag indicating whether Jacobian-related   
-    data needs to be recomputed. The \id{jok} argument provides for 
-    the re-use of Jacobian data in the preconditioner solve function.
-    \id{jok == FALSE} means that Jacobian-related data   
-    must be recomputed from scratch.                                 
-    \id{jok == TRUE}  means that Jacobian data, if saved from 
-    the previous call to this function, can be reused      
-    (with the current value of \id{gamma}).            
-    A call with \id{jok == TRUE} can only occur after   
-    a call with \id{jok == FALSE}.
-  \item[jcurPtr]
-    is a pointer to an output integer flag which is        
-    to be set to \id{TRUE} if Jacobian data was recomputed or   
-    to \id{FALSE} if Jacobian data was not           
-    recomputed, but saved data was reused.
-  \item[gamma]
-    is the scalar $\gamma$ appearing in the Newton matrix $M = I - \gamma P$.
-  \item[P\_data]
-    is a pointer to user data, the same as the \id{P\_data}      
+  \item[yy]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yp]
+    is the current value of $y'(t)$.
+  \item[rr]
+    is the current value of the vector $F(t,y,y')$.
+  \item[c\_j]
+    is the scalar in the system Jacobian, proportional to the inverse of the
+    step size.
+  \item[prec\_data]
+    is a pointer to user data, the same as the \id{prec\_data}      
     parameter passed to \id{IDASpgmrSetPrecData}.
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
-    are pointers to memory allocated    
-    for vectors of length \id{N} which can be used by           
-    \id{IDASpgmrPrecSetupFn} as temporary storage or work space.    
+    are pointers to memory allocated for variables of type \id{N\_Vector} 
+    which can be used by \id{IDASpgmrPrecSetupFn} as temporary storage or work space.    
   \end{args}
 }
 {
@@ -3829,10 +3876,10 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
 {
   The operations performed by this function might include forming a crude 
   approximate Jacobian, and performing an LU factorization on the resulting            
-  approximation to $M=I - \gamma J$.
+  approximation.
 
   Each call to the preconditioner setup function is preceded by a call to     
-  the \id{IDAResFn} user function with the same \id{(t,y)} arguments.  
+  the \id{IDAResFn} user function with the same (\id{tt},\id{yy},\id{yp}) arguments.  
   Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the DAE residual.
   
@@ -3943,8 +3990,8 @@ then used by \id{Gres}, which is not expected to do any communication.
 \usfunction{IDABBDLocalFn}
 {
   typedef void (*IDABBDLocalFn)(&long int Nlocal, realtype tt,  \\
-                                &N\_Vector yy, N\_Vector yp, \\
-                                &N\_Vector Glocal, void *res\_data);
+                                &N\_Vector yy, N\_Vector yp, N\_Vector gval, \\
+                                &void *res\_data);
 }
 {
   This function computes $G(t,y,{\dot y})$. It loads the vector
@@ -3960,7 +4007,7 @@ then used by \id{Gres}, which is not expected to do any communication.
     is the dependent variable. 
   \item[yp]
     is the derivative of the dependent variable. 
-  \item[Glocal]
+  \item[gval]
     is the output vector.
   \item[res\_data]
     is a pointer to user data - the same as the \Id{res\_data}      
@@ -3972,7 +4019,7 @@ then used by \id{Gres}, which is not expected to do any communication.
 }
 {
   This function assumes that all inter-processor communication of data needed to 
-  calculate \id{Glocal} has already been done, and this data is accessible within
+  calculate \id{gval} has already been done, and this data is accessible within
   \id{res\_data}.
 
   The case where $G$ is mathematically identical to $F$ is allowed.
@@ -4066,8 +4113,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 
    \id{
      \begin{tabular}[t]{@{}r@{}l@{}}
-       bbd\_data = IBBDPrecAlloc(&ida\_mem, local\_N, mudq, mldq, \\
-                                 &mukeep, mlkeep, dqrely, Gres, Gcomm);
+       bbd\_data = IBBDPrecAlloc(&ida\_mem, Nlocal, mudq, mldq, \\
+                                 &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
      \end{tabular}
    }
 
@@ -4129,8 +4176,8 @@ next.
 \ucfunction{IBBDPrecAlloc}
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
-     bbd\_data = IBBDPrecAlloc(&ida\_mem, local\_N, mudq, mldq, \\
-                                &mukeep, mlkeep, dqrely, Gres, Gcomm);
+     bbd\_data = IBBDPrecAlloc(&ida\_mem, Nlocal, mudq, mldq, \\
+                                &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
    \end{tabular}
 }
 {
@@ -4138,10 +4185,10 @@ next.
   memory for the {\idabbdpre} preconditioner.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[dq\_rel\_yy]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[local\_N] (\id{long int})
+  \item[Nlocal] (\id{long int})
     local vector dimension.
   \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
@@ -4151,7 +4198,7 @@ next.
     upper half-bandwidth of the retained banded approximate Jacobian block.
   \item[mlkeep] (\id{long int})
     lower half-bandwidth of the retained banded approximate Jacobian block.
-  \item[dqrely] (\id{realtype})
+  \item[dq\_rel\_yy] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
     approximations.  The default is \id{dqrely}$ = \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely}$ = 0.0$.
@@ -4171,7 +4218,7 @@ next.
 {
   If one of the half-bandwidth \id{mudq} or \id{mldq} to be used in the 
   difference-quotient calculation of the approximate Jacobian is negative or 
-  exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
+  exceeds the value \id{Nlocal}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 
   The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
   half-bandwidths of the Jacobian of the local block of $g$,    
@@ -4196,7 +4243,7 @@ next.
   memory block.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[bbd\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[maxl] (\id{int})
@@ -4246,28 +4293,28 @@ After solving one problem, and after calling \id{IDAReInit} to re-initialize
 {\ida} for a subsequent problem, a call to \id{IBBDPrecReInit} can be made
 to change any of the following: the half-bandwidths \id{mudq} and \id{mldq} 
 used in the difference-quotient Jacobian approximations, the relative increment 
-\id{dqrely}, or one of the user-supplied functions \id{Gres} and \id{Gcomm}.
+\id{dq\_rel\_yy}, or one of the user-supplied functions \id{Gres} and \id{Gcomm}.
 %%
 \ucfunction{IBBDPrecReInit}
 {
-  flag = IBBDPrecReInit(bbd\_data, mudq, mldq, dqrely, Gres, Gcomm);
+  flag = IBBDPrecReInit(bbd\_data, mudq, mldq, dq\_rel\_yy, Gres, Gcomm);
 }
 {
   The function \ID{IBBDPrecReInit} reinitializes the {\idabbdpre} preconditioner.
 }
 {
-  \begin{args}[bbd\_data]
+  \begin{args}[dq\_rel\_yy]
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
   \item[mudq] (\id{long int})
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[mldq] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[dqrely] (\id{realtype})
+  \item[dq\_rel\_yy] (\id{realtype})
     the relative increment in components of \id{y} used in the difference quotient
     approximations.  The default is \id{dqrely} $= \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely} $= 0.0$.
-  \item[gGres] (\id{IDABBDLocalFn})
+  \item[Gres] (\id{IDABBDLocalFn})
     the {\C} function which computes the local residual approximation 
     $G(t,y,{\dot y})$.
   \item[Gcomm] (\id{IDACommFn})
@@ -4280,7 +4327,7 @@ used in the difference-quotient Jacobian approximations, the relative increment
 }
 {
   If one of the half-bandwidth \id{mudq} or \id{mldq} is negative or
-  exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
+  exceeds the value \id{Nlocal}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 }
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|)}
@@ -4302,7 +4349,7 @@ the {\idabbdpre} module:
   of the {\idabbdpre} real and integer workspaces.
 }
 {
-  \begin{args}[leniwBBDP]
+  \begin{args}[lenrwBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
   \item[lenrwBBDP] (\id{long int})
@@ -4325,8 +4372,7 @@ the {\idabbdpre} module:
   $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$ \id{realtype} words,
   where \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$.
 
-  In terms of the local vector dimension $N_{l}$, the actual size of the integer workspace
-  is $N_l$ integer words.
+  The actual size of the integer workspace is $N_l$ integer words.
 }
 %%
 %%

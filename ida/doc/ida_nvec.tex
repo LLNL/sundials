@@ -23,23 +23,27 @@ integrator module, while the remaining three columns show kernel usage
 within each of the three {\ida} linear solvers. 
 
 There is one subtlety in the {\idaspgmr} column hidden by the table. 
-The dot product kernel \id{N\_VDotProd} is called both within the 
-implementation file \id{idaspgmr.c} for the {\idaspgmr} solver and within 
-the implementation files \id{spgmr.c} and \id{iterative.c} for the generic {\spgmr} 
+The \id{N\_VDotProd} function is called both from the 
+implementation file \id{idaspgmr.c} for the {\idaspgmr} solver and from
+the files \id{spgmr.c} and \id{iterative.c} for the generic {\spgmr} 
 solver upon which the {\idaspgmr} solver is implemented. 
-This issue does not arise for the other 
-two {\cvode} linear solvers because the generic {\dense} and {\band} solvers 
-(used in the implementation of {\idadense} and {\idaband}) do not make calls to 
-any vector kernels.
+This is not the case with {\idadense} and {\idaband}
+because the generic {\dense} and {\band} solvers 
+do not make calls to any vector kernels.
 
 The vector kernels \id{N\_VMake}, \id{N\_VDispose}, \id{N\_VGetData}, and
-\id{N\_VSetData} are only called by the {\cvode} direct linear solvers, 
+\id{N\_VSetData} are only called by the {\ida} direct linear solvers, 
 {\idadense} and {\idaband}, and by preconditioner solve routines that use a 
 direct linear solver ({\idabbdpre}). They duplicate 
 functionality provided by macros in particular implementations of {\nvector},
 but are part of the specifications of the generic {\nvector} module to insure 
 that the {\ida} package is not dependent on any particular {\nvector} implementation.
-
+%5
+The vector kernels listed in Table \ref{t:nvecops} that are {\em not} used by
+{\ida} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VInvTest}, \id{N\_VNew\_S}, 
+and \id{N\_VFree\_S}. Therefore a user-supplied {\nvector} module for {\ida} could 
+omit these five kernels.
+%%
 At this point, we should emphasize that the {\ida} user does not need to know 
 anything about the usage of vector kernels by the {\ida} code modules in order 
 to use {\ida}. The information is presented as an implementation detail for the 
@@ -83,7 +87,3 @@ interested reader.
 \end{tabular}
 \end{table}
 
-The vector kernels listed in Table \ref{t:nvecops} that are {\em not} used by
-{\ida} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VInvTest}, \id{N\_VNew\_S}, 
-and \id{N\_VFree\_S}. Therefore a user-supplied {\nvector} module for {\ida} could 
-omit these five kernels.
