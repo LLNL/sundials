@@ -31,10 +31,12 @@ AC_CONFIG_SRCDIR(/shared/source/nvector.c)
 
 AC_CONFIG_AUX_DIR(config)
 
-# Define $build, $host, $target, etc
-AC_CANONICAL_BUILD
-AC_CANONICAL_HOST
-AC_CANONICAL_TARGET
+# If --host was not specified, guess it
+if test -z "${host}"; then
+   AC_CANONICAL_BUILD
+   AC_CANONICAL_HOST
+   AC_CANONICAL_TARGET
+fi
 
 # Overwrite the default installation path
 DEFAULT_PREFIX=`pwd`
@@ -48,37 +50,41 @@ AC_PROG_MAKE_SET
 # ------------------------------------------------------------------------
 # Check for user overrides (some to be used later)
 # ------------------------------------------------------------------------
+MY_CC=none
+MY_CXX=none
+MY_F77=none
+MY_CFLAGS=none
+MY_CXXFLAGS=none
+MY_FFLAGS=none
 
 if test -n "${CC}"; then
-  USERDEF_CC=yes
+  MY_CC=${CC}
+  unset CC
 fi
 
 if test -n "${CXX}"; then
-  USERDEF_CXX=yes
+  MY_CXX=${CXX}
+  unset CXX
 fi
 
 if test -n "${F77}"; then
-  USERDEF_F77=yes
-fi
-
-if test -n "${CPPFLAGS}"; then
-  USERDEF_CPPFLAGS=yes
+  MY_F77=${F77}
+  unset F77
 fi
 
 if test -n "${CFLAGS}"; then
-  USERDEF_CFLAGS=yes
+  MY_CFLAGS=${CFLAGS}
+  unset CFLAGS
 fi
 
 if test -n "${CXXFLAGS}"; then
-  USERDEF_CXXFLAGS=yes
+  MY_CXXFLAGS=${CXXFLAGS}
+  unset CXXFLAGS
 fi
 
 if test -n "${FFLAGS}"; then
-  USERDEF_FFLAGS=yes
-fi
-
-if test -n "${LDFLAGS}"; then
-  USERDEF_LDFLAGS=yes
+  MY_FFLAGS=${FFLAGS}
+  unset FFLAGS
 fi
 
 # ------------------------------------------------------------------------
@@ -177,6 +183,15 @@ if test "X${EXAMPLES}" = "Xyes"; then
 fi
 
 # ------------------------------------------------------------------------
+# some initializations
+# ------------------------------------------------------------------------
+CC_OK=no
+CXX_OK=no
+F77_OK=no
+MPICC_OK=no
+MPICXX_OK=no
+MPIF77_OK=no
+# ------------------------------------------------------------------------
 # Check for preprocessor flags
 # ------------------------------------------------------------------------
 
@@ -192,19 +207,19 @@ fi
 # C compiler and flags
 # ------------------------------------------------------------------------
 
-if test "X${USERDEF_CC}" != "Xyes"; then
+if test "X${MY_CC}" = "Xnone"; then
   SUNDIALS_PROG_CC
 fi
-AC_CHECK_PROG(CC_OK, ${CC}, yes, no)
+AC_PROG_CC(${MY_CC} cc gcc)
+test -n "${CC}" && CC_OK=yes
 
 AC_MSG_CHECKING([for C compiler flags])
-if test "X${USERDEF_CFLAGS}" = "Xyes"; then
-  AC_MSG_RESULT([${CFLAGS} (user-specified via CFLAGS)])
-else
-  CFLAGS="-O"
+if test "X${MY_CFLAGS}" = "Xnone"; then
+  MY_CFLAGS="-O"
   SUNDIALS_PROG_CFLAGS
-  AC_MSG_RESULT([${CFLAGS}])
 fi
+CFLAGS=${MY_CFLAGS}
+AC_MSG_RESULT([${CFLAGS}])
 
 AC_MSG_CHECKING([for extra C compiler flags])
 if test -z "${EXTRA_CFLAGS}"; then
@@ -214,34 +229,72 @@ else
   CFLAGS="${CFLAGS} ${EXTRA_CFLAGS}"
 fi
 
+AC_LANG([C])
+AC_HEADER_STDC
+
+if test "X${EXAMPLES}" = "Xyes"; then
+
+  AC_LANG([C])
+  AC_CHECK_HEADERS(
+    [math.h],
+    break,
+    AC_MSG_WARN([You do not appear to have math.h!])
+  )
+
+  AC_LANG([C])
+  AC_SEARCH_LIBS(pow,[m],,AC_MSG_WARN([Cannot find math library]))
+  AC_SEARCH_LIBS(sqrt,[m],,AC_MSG_WARN([Cannot find math library]))
+
+fi
+
 # ------------------------------------------------------------------------
 # C++ compiler and flags
 # ------------------------------------------------------------------------
 
 if test "X${COMPLEX}" = "Xyes"; then
 
-  if test "X${USERDEF_CXX}" != "Xyes"; then
+  if test "X${MY_CXX}" = "Xnone"; then
     SUNDIALS_PROG_CXX
   fi
-  AC_CHECK_PROG(CXX_OK, ${CXX}, yes, no)
+  AC_PROG_CXX(${MY_CXX} CC g++ gcc c++ cxx)
 
-  AC_MSG_CHECKING([for C++ compiler flags])
-  if test "X${USERDEF_CXXFLAGS}" = "Xyes"; then
-    AC_MSG_RESULT([${CXXFLAGS} (user-specified via CXXFLAGS)])
-  else
-    CXXFLAGS="-O"
-    SUNDIALS_PROG_CXXFLAGS
+  if test -n "${CXX}"; then 
+
+    CXX_OK=yes
+
+    AC_MSG_CHECKING([for C++ compiler flags])
+    if test "X${MY_CXXFLAGS}" = "Xnone"; then
+      MY_CXXFLAGS="-O"
+      SUNDIALS_PROG_CXXFLAGS
+    fi
+    CXXFLAGS=${MY_CXXFLAGS}
     AC_MSG_RESULT([${CXXFLAGS}])
-  fi
 
-  AC_MSG_CHECKING([for extra C++ compiler flags])
-  if test -z "${EXTRA_CXXFLAGS}"; then
-    AC_MSG_RESULT(none)
+    AC_MSG_CHECKING([for extra C++ compiler flags])
+    if test -z "${EXTRA_CXXFLAGS}"; then
+      AC_MSG_RESULT(none)
+    else
+      AC_MSG_RESULT([${EXTRA_CXXFLAGS}])
+      CXXFLAGS="${CXXFLAGS} ${EXTRA_CXXFLAGS}" 
+    fi
+
+    AC_LANG([C++])
+    AC_CHECK_HEADERS(
+      [complex],
+      break,
+      AC_MSG_NOTICE([You do not appear to have complex.h!])
+    )
+
   else
-    AC_MSG_RESULT([${EXTRA_CXXFLAGS}])
-    CXXFLAGS="${CXXFLAGS} ${EXTRA_CXXFLAGS}" 
-  fi
 
+    AC_MSG_WARN([no acceptable C++ compiler found])
+    echo "
+         Cannot find a working C++ compiler.
+         Some modules will not be configured...
+         "
+
+  fi
+  
 fi
 
 # ------------------------------------------------------------------------
@@ -250,19 +303,22 @@ fi
 
 if test "X${F77_EXAMPLES}" = "Xyes"; then
 
-    if test "X${USERDEF_F77}" != "Xyes"; then
-      SUNDIALS_PROG_F77
-    fi
-    AC_CHECK_PROG(F77_OK, ${F77}, yes, no)
+  if test "X${MY_F77}" = "Xnone"; then
+    SUNDIALS_PROG_F77
+  fi
+  AC_PROG_F77(${MY_F77} f77 g77)
+
+  if test -n "${F77}"; then 
+
+    F77_OK=yes
 
     AC_MSG_CHECKING([for Fortran compiler flags])
-    if test "X${USERDEF_FFLAGS}" = "Xyes"; then
-      AC_MSG_RESULT([${FFLAGS} (user-specified via FFLAGS)])
-    else
-      FFLAGS="-O"
+    if test "X${MY_FFLAGS}" = "Xnone"; then
+      MY_FFLAGS="-O"
       SUNDIALS_PROG_FFLAGS
-      AC_MSG_RESULT([${FFLAGS}])
     fi
+    FFLAGS=${MY_FFLAGS}
+    AC_MSG_RESULT([${FFLAGS}])
 
     AC_MSG_CHECKING([for extra Fortran compiler flags])
     if test -z "${EXTRA_FFLAGS}"; then
@@ -271,6 +327,17 @@ if test "X${F77_EXAMPLES}" = "Xyes"; then
       AC_MSG_RESULT([${EXTRA_FFLAGS}])
       FFLAGS="${FFLAGS} ${EXTRA_FFLAGS}"
     fi
+
+    AC_F77_LIBRARY_LDFLAGS
+
+  else
+
+    AC_MSG_WARN([no acceptable F77 compiler found])
+    echo "
+         Cannot find a working Fortran compiler.
+         Some modules will not be configured...
+         "
+  fi
 
 fi
 
@@ -285,62 +352,6 @@ else
   AC_MSG_RESULT([${EXTRA_LDFLAGS}])
   LDFLAGS="${LDFLAGS} ${EXTRA_LDFLAGS}"
 fi
-
-# ------------------------------------------------------------------------
-# Check for required header files
-# ------------------------------------------------------------------------
-
-AC_LANG([C])
-AC_CHECK_HEADERS(
-  [stdio.h],
-  break,
-  AC_MSG_NOTICE([You do not appear to have stdio.h!])
-)
-
-if test "X${EXAMPLES}" = "Xyes"; then
-
-  AC_LANG([C])
-  AC_CHECK_HEADERS(
-    [stdlib.h],
-    break,
-    AC_MSG_NOTICE([You do not appear to have stdlib.h!])
-  )
-
-  AC_LANG([C])
-  AC_CHECK_HEADERS(
-    [math.h],
-    break,
-    AC_MSG_NOTICE([You do not appear to have math.h!])
-  )
-
-fi
-
-if test "X${COMPLEX}" = "Xyes"; then
-
-  AC_LANG([C++])
-  AC_CHECK_HEADERS(
-    [complex.h],
-    break,
-    AC_MSG_NOTICE([You do not appear to have complex.h!])
-  )
-
-fi
-
-# ------------------------------------------------------------------------
-# Check for required libraries
-# ------------------------------------------------------------------------
-
-if test "X${EXAMPLES}" = "Xyes"; then
-
-  AC_SEARCH_LIBS(pow,[m],,AC_MSG_ERROR(Cannot find math library))
-  AC_SEARCH_LIBS(sqrt,[m],,AC_MSG_ERROR(Cannot find math library))
-
-  if test "X${F77_EXAMPLES}" = "Xyes"; then
-    AC_F77_LIBRARY_LDFLAGS
-  fi  
-
-fi
-
 
 # ------------------------------------------------------------------------
 # Check for MPI
@@ -359,7 +370,9 @@ if test "X${PARALLEL}" = "Xyes"; then
 
     SUNDIALS_CHECK_MPICC
 
-    SUNDIALS_CHECK_MPICXX
+    if test "X${COMPLEX}" = "Xyes"; then
+      SUNDIALS_CHECK_MPICXX
+    fi
 
     if test "X${F77_EXAMPLES}" = "Xyes"; then
       SUNDIALS_CHECK_MPIF77
@@ -370,8 +383,10 @@ if test "X${PARALLEL}" = "Xyes"; then
     MPICC=${CC}
     SUNDIALS_CHECK_CC_WITH_MPI
 
-    MPICXX=${CXX}
-    SUNDIALS_CHECK_CXX_WITH_MPI
+    if test "X${COMPLEX}" = "Xyes"; then
+      MPICXX=${CXX}
+      SUNDIALS_CHECK_CXX_WITH_MPI
+    fi
 
     if test "X${F77_EXAMPLES}" = "Xyes"; then
       MPIF77=${F77}
@@ -399,22 +414,14 @@ if test "X${EXAMPLES}" = "Xyes"; then
 
   if test "X${SERIAL}" = "Xyes"; then
     AC_MSG_CHECKING([whether we can build the serial C examples])
-    if test "X${CC_OK}" = "Xyes"; then
-      SERIAL_C_EXAMPLES=yes
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no (C compiler problem)])
-    fi
+    test "X${CC_OK}" = "Xyes" && SERIAL_C_EXAMPLES=yes
+    AC_MSG_RESULT([${SERIAL_C_EXAMPLES}])
   fi
 
   if test "X${PARALLEL}" = "Xyes"; then
     AC_MSG_CHECKING([whether we can build the parallel C examples])
-    if test "X${MPICC_OK}" = "Xyes"; then
-      PARALLEL_C_EXAMPLES=yes
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no (C compiler with MPI problem)])
-    fi
+    test "X${MPICC_OK}" = "Xyes" && PARALLEL_C_EXAMPLES=yes
+    AC_MSG_RESULT([${PARALLEL_C_EXAMPLES}])
   fi
 
 fi
@@ -425,22 +432,14 @@ if test "X${CXX_EXAMPLES}" = "Xyes"; then
 
   if test "X${SERIAL}" = "Xyes"; then
     AC_MSG_CHECKING([whether we can build the serial C++ examples])
-    if test "X${CXX_OK}" = "Xyes"; then
-      SERIAL_CXX_EXAMPLES=yes
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no (C++ compiler problem)])
-    fi
+    test "X${CXX_OK}" = "Xyes" && SERIAL_CXX_EXAMPLES=yes
+    AC_MSG_RESULT([${SERIAL_CXX_EXAMPLES}])
   fi
 
   if test "X${PARALLEL}" = "Xyes"; then
     AC_MSG_CHECKING([whether we can build the parallel C++ examples])
-    if test "X${MPICXX_OK}" = "Xyes"; then
-      PARALLEL_CXX_EXAMPLES=yes
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no (C++ compiler with MPI problem)])
-    fi
+    test "X${MPICXX_OK}" = "Xyes" && PARALLEL_CXX_EXAMPLES=yes
+    AC_MSG_RESULT([${PARALLEL_CXX_EXAMPLES}])
   fi
 
 fi
@@ -451,22 +450,14 @@ if test "X${F77_EXAMPLES}" = "Xyes"; then
 
   if test "X${SERIAL}" = "Xyes"; then
     AC_MSG_CHECKING([whether we can build the serial Fortran examples])
-    if test "X${F77_OK}" = "Xyes"; then
-      SERIAL_F77_EXAMPLES=yes
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no (F77 compiler problem)])
-    fi
+    test "X${F77_OK}" = "Xyes" && SERIAL_F77_EXAMPLES=yes
+    AC_MSG_RESULT([${SERIAL_F77_EXAMPLES}])
   fi
 
   if test "X${PARALLEL}" = "Xyes"; then
     AC_MSG_CHECKING([whether we can build the parallel Fortran examples])
-    if test "X${MPIF77_OK}" = "Xyes"; then
-      PARALLEL_F77_EXAMPLES=yes
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no (Fortran compiler with MPI problem)])
-    fi
+    test "X${MPIF77_OK}" = "Xyes" && PARALLEL_F77_EXAMPLES=yes
+    AC_MSG_RESULT([${PARALLEL_F77_EXAMPLES}])
   fi
 
 fi
@@ -535,8 +526,94 @@ AC_CONFIG_FILES([${SUNDIALS_MAKEFILES}])
 AC_OUTPUT()
 
 # Say Bye!
-echo "----------------------------------"
-echo "Finished SUNDIALS Configure Script"
-echo "----------------------------------"
+
+echo "
+Configuration:
+--------------
+
+  Host System Type:           $host
+  Source code location:       $srcdir
+  Install path (include):     $my_includedir
+  Install path (lib):         $my_libdir
+
+  C Preprocessor:             $CPP $CPPFLAGS
+  C Compiler:	              $CC $CFLAGS
+  C Linker:                   $CC $LDFLAGS $LIBS"
+
+if test "X${CXX_OK}" = "Xyes"; then
+echo "  
+  C++ Compiler:               $CXX $CXXFLAGS"
+fi
+
+if test "X${F77_OK}" = "Xyes"; then
+echo "
+  F77 Compiler:               $F77 $FFLAGS"
+fi
+
+if test "X${MPICC_OK}" = "Xyes"; then
+echo "  
+  MPICC:                      $MPICC
+  MPI include directory:      $MPIINC
+  MPI lib directory:          $MPILIBDIR
+  MPI libraries               $MPILIBS"
+fi
+
+if test "X${MPICXX_OK}" = "Xyes"; then
+echo "  
+  MPICXX:                     $MPICXX"
+fi
+
+if test "X${MPIF77_OK}" = "Xyes"; then
+echo "  
+  MPIF77:                     $MPIF77"
+fi
+
+echo "  
+  Type 'make' and then 'make install' to build and install ${PACKAGE_STRING}"
+
+if test "X${EXAMPLES}" = "Xyes"; then
+echo "
+Examples:
+---------
+  
+  Type 'make examples' to build the following examples:
+"
+if test "X${SERIAL_C_EXAMPLES}" = "Xyes"; then
+echo "  Serial C examples"
+fi
+if test "X${PARALLEL_C_EXAMPLES}" = "Xyes"; then
+if test "X${MPICC_OK}" = "Xyes"; then
+echo "  Parallel C examples"
+fi
+fi
+if test "X${SERIAL_CXX_EXAMPLES}" = "Xyes"; then
+if test "X${CXX_OK}" = "Xyes"; then
+echo "  Serial C++ examples"
+fi
+fi
+if test "X${PARALLEL_CXX_EXAMPLES}" = "Xyes"; then
+if test "X${MPICXX_OK}" = "Xyes"; then
+echo "  Parallel C++ examples"
+fi
+fi
+if test "X${SERIAL_F77_EXAMPLES}" = "Xyes"; then
+if test "X${F77_OK}" = "Xyes"; then
+echo "  Serial Fortran examples"
+fi
+fi
+if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
+if test "X${MPIF77_OK}" = "Xyes"; then
+echo "  Parallel Fortran examples"
+fi
+fi
+
+fi
+
+
+echo "
+----------------------------------
+Finished SUNDIALS Configure Script
+----------------------------------
+"
 
 #that's all

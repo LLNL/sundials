@@ -10,16 +10,7 @@ AC_DEFUN(SUNDIALS_PROG_CC,
     # IBM
     rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
 
-      AC_MSG_CHECKING([for C compiler])
-      CC=xlc
-      AC_MSG_RESULT([$CC])
-
-    ;;
-
-    # All others
-    *)
-
-      AC_PROG_CC(cc gcc)
+      MY_CC=xlc
 
     ;;
 
@@ -35,16 +26,7 @@ AC_DEFUN(SUNDIALS_PROG_CXX,
     # IBM
     rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
 
-      AC_MSG_CHECKING([for C++ compiler])
-      CXX=xlCC
-      AC_MSG_RESULT([$CXX])
-
-    ;;
-
-    # All others
-    *)
-
-      AC_PROG_CXX(CC g++ gcc c++ cxx)
+      MY_CXX=xlCC
 
     ;;
 
@@ -60,17 +42,7 @@ AC_DEFUN(SUNDIALS_PROG_F77,
     # IBM
     rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
 
-      AC_MSG_CHECKING([for Fortran compiler])
-      F77=xlf
-      AC_MSG_RESULT([$F77])
-
-    ;;
-
-    # All others
-
-    *)
-
-      AC_PROG_F77(f77 g77 f90 xlf90)
+      MY_F77=xlf
 
     ;;
 
@@ -90,7 +62,7 @@ AC_DEFUN(SUNDIALS_PROG_CFLAGS,
     # IBM
     rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
 
-      CFLAGS="${CFLAGS} -qmaxmem=18432"
+      MY_CFLAGS="${MY_CFLAGS} -qmaxmem=18432"
 
     ;;
 
@@ -98,7 +70,7 @@ AC_DEFUN(SUNDIALS_PROG_CFLAGS,
     i686-pc-linux-gnu)
 
       if test "X${GCC}" = "Xyes"; then       
-        CFLAGS="${CFLAGS} -ffloat-store"
+        MY_CFLAGS="${MY_CFLAGS} -ffloat-store"
       fi
 
     ;;
@@ -116,15 +88,15 @@ AC_DEFUN(SUNDIALS_PROG_CXXFLAGS,
     # IBM
     rs6000-ibm-aix3.2.* | rs6000-ibm-aix4.* | powerpc-ibm-aix4.*)
 
-      CXXFLAGS_MISC="-qnolm -qrtti"
+      MY_CXXFLAGS="${MY_CXXFLAGS} -qnolm -qrtti"
 
     ;;
 
     # Linux
     i686-pc-linux-gnu)
 
-      if test "X${GCC}" = "Xyes"; then       
-        CXXFLAGS="${CXXFLAGS} -ffloat-store"
+      if test "X${GXX}" = "Xyes"; then       
+        MY_CXXFLAGS="${MY_CXXFLAGS} -ffloat-store"
       fi
 
     ;;
@@ -140,7 +112,7 @@ AC_DEFUN(SUNDIALS_PROG_FFLAGS,
     # SGI/IRIX
     mips-sgi-irix* ) 
 
-      FFLAGS_MISC="-64"
+      MY_FFLAGS="-64"
 
     ;;
 
@@ -398,28 +370,30 @@ AC_DEFUN(SUNDIALS_MPI_SPECIFY,
 AC_DEFUN(SUNDIALS_CHECK_MPICC,
 [
 
-  # Test the MPICC compiler
+# Test the MPICC compiler
+if test -x ${MPI_CC}; then
+  AC_MSG_CHECKING([for ${MPI_CC}])
+  AC_MSG_RESULT([yes])
+  MPI_CC_EXISTS=yes
+else
+  AC_CHECK_PROG(MPI_CC_EXISTS, ${MPI_CC}, yes, no)
+fi
 
-  if test -n "${MPI_CC}"; then
-    if test -f ${MPI_CC}; then
-      MPI_CC_EXISTS=yes
-    else
-      AC_CHECK_PROG(MPI_CC_EXISTS, ${MPI_CC}, yes, no)
-    fi
+if test "X${MPI_CC_EXISTS}" = "Xyes"; then
+  MPICC_OK=yes
+  MPICC=${MPI_CC}
+else
+  MPICC_OK=no
+  AC_MSG_WARN([MPI C compiler (${MPI_CC}) not found.])
+  echo "
+       Cannot find a working MPI C compiler.
+       Try --with-mpi-comp to specify MPI C compiler script.
+       Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
+       to specify all the specific MPI compile options.
 
-    if test "X${MPI_CC_EXISTS}" = "Xyes"; then
-      MPICC_OK=yes
-      MPICC=${MPI_CC}
-    else
-      MPICC_OK=no
-      echo "-----"
-      echo "Cannot find MPI C compiler ${MPI_CC}."
-      echo "Specify a path to all mpi compilers with --with-mpi-comp=DIR"
-      echo "or specify a C compiler using CC=<compiler>"
-      echo "-----"
-      AC_MSG_ERROR([MPI C compiler (${MPI_CC}) not found.])
-    fi
-  fi
+       Some modules will not be configured...
+       "
+fi
 
 ])
 
@@ -428,29 +402,31 @@ AC_DEFUN(SUNDIALS_CHECK_MPICC,
 AC_DEFUN(SUNDIALS_CHECK_MPICXX,
 [
 
-  # Test the MPICXX compiler
+# Test the MPICXX compiler
 
-  if test -n "${MPI_CXX}"; then
+if test -x ${MPI_CXX}; then   
+  AC_MSG_CHECKING([for ${MPI_CXX}])
+  AC_MSG_RESULT([yes])
+  MPI_CXX_EXISTS=yes
+else
+  AC_CHECK_PROG(MPI_CXX_EXISTS, ${MPI_CXX}, yes, no)
+fi
 
-    if test -f ${MPI_CXX}; then   
-      MPI_CXX_EXISTS=yes
-    else
-      AC_CHECK_PROG(MPI_CXX_EXISTS, ${MPI_CXX}, yes, no)
-    fi
+if test "X${MPI_CXX_EXISTS}" = "Xyes"; then
+  MPICXX_OK=yes
+  MPICXX=${MPI_CXX}
+else
+  MPICXX_OK=no
+  AC_MSG_WARN([MPI C++ compiler (${MPI_CXX}) not found.])
+  echo "
+       Cannot find a working MPI C++ compiler.
+       Try --with-mpi-comp to specify MPI C++ compiler script.
+       Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
+       to specify all the specific MPI compile options.
 
-    if test "X${MPI_CXX_EXISTS}" = "Xyes"; then
-      MPICXX_OK=yes
-      MPICXX=${MPI_CXX}
-    else
-      MPICXX_OK=no
-      echo "-----"
-      echo "Cannot find MPI C++ compiler ${MPI_CXX}."
-      echo "Specify with --with-mpi-cxx."
-      echo "-----"
-      AC_MSG_ERROR([MPI C++ compiler (${MPI_CXX}) not found.])
-    fi
-
-  fi
+       Some modules will not be configured...
+       "
+fi
 
 ])
 
@@ -459,28 +435,31 @@ AC_DEFUN(SUNDIALS_CHECK_MPICXX,
 AC_DEFUN(SUNDIALS_CHECK_MPIF77,
 [
 
-  # Test the MPIF77 compiler
+# Test the MPIF77 compiler
 
-  if test -n "${MPI_F77}"; then
-    if test -f ${MPI_F77}; then
-      MPI_F77_EXISTS=yes
-    else
-      AC_CHECK_PROG(MPI_F77_EXISTS, ${MPI_F77}, yes, no)
-    fi
+if test -x ${MPI_F77}; then
+  AC_MSG_CHECKING([for ${MPI_F77}])
+  AC_MSG_RESULT([yes])
+  MPI_F77_EXISTS=yes
+else
+  AC_CHECK_PROG(MPI_F77_EXISTS, ${MPI_F77}, yes, no)
+fi
 
-    if test "X${MPI_F77_EXISTS}" = "Xyes"; then
-      MPIF77_OK=yes
-      MPIF77=${MPI_F77}
-    else
-      MPIF77_OK=no
-      echo "-----"
-      echo "Cannot find MPI Fortran compiler ${MPI_F77}."
-      echo "Specify a path to all mpi compilers with --with-mpi-comp=DIR"
-      echo "or specify a Fortran 77 compiler using F77=<compiler>"
-        echo "-----"
-      AC_MSG_ERROR([MPI Fortran 77 compiler (${MPI_F77}) not found.])
-    fi
-  fi
+if test "X${MPI_F77_EXISTS}" = "Xyes"; then
+  MPIF77_OK=yes
+  MPIF77=${MPI_F77}
+else
+  MPIF77_OK=no
+  AC_MSG_WARN([MPI F77 compiler (${MPI_F77}) not found.])
+  echo "
+       Cannot find a working MPI F77 compiler.
+       Try --with-mpi-comp to specify MPI F77 compiler script.
+       Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
+       to specify all the specific MPI compile options.
+
+       Some modules will not be configured...
+       "
+fi
 
 ])
 
@@ -492,64 +471,67 @@ AC_DEFUN(SUNDIALS_CHECK_MPIF77,
 AC_DEFUN(SUNDIALS_CHECK_CC_WITH_MPI,
 [
 
-  # Save copies of current CPPFLAGS, LDFLAGS, LIBS
+# Save copies of current CPPFLAGS, LDFLAGS, LIBS
 
-  SAVED_CPPFLAGS=${CPPFLAGS}
-  SAVED_LDFLAGS=${LDFLAGS}
-  SAVED_LIBS=${LIBS}
+SAVED_CPPFLAGS=${CPPFLAGS}
+SAVED_LDFLAGS=${LDFLAGS}
+SAVED_LIBS=${LIBS}
 
-  # Try a simple MPI C program
+# Try a simple MPI C program
 
-  if test -n "${MPI_DIR}" && test -z "${MPI_INC}"; then
-    MPI_INC="${MPI_DIR}/include"
-  fi
+if test -n "${MPI_DIR}" && test -z "${MPI_INC}"; then
+  MPI_INC="${MPI_DIR}/include"
+fi
 
-  if test -n "${MPI_INC}"; then
-    MPIINC="-I${MPI_INC}"
-    CPPFLAGS="${CPPFLAGS} ${MPIINC}"
-  fi
+if test -n "${MPI_INC}"; then
+  MPIINC="-I${MPI_INC}"
+  CPPFLAGS="${CPPFLAGS} ${MPIINC}"
+fi
 
-  if test -n "${MPI_DIR}" && test -z "${MPI_LIBDIR}"; then
-    MPI_LIBDIR="${MPI_DIR}/lib"
-  fi
+if test -n "${MPI_DIR}" && test -z "${MPI_LIBDIR}"; then
+  MPI_LIBDIR="${MPI_DIR}/lib"
+fi
 
-  if test -n "${MPI_LIBDIR}"; then
-    MPILIBDIR="-L${MPI_LIBDIR}"
-    LDFLAGS="${LDFLAGS} ${MPILIBDIR}"
-  fi
+if test -n "${MPI_LIBDIR}"; then
+  MPILIBDIR="-L${MPI_LIBDIR}"
+  LDFLAGS="${LDFLAGS} ${MPILIBDIR}"
+fi
 
-  if test -z "${MPI_LIBS}" && test -n "${MPI_LIBDIR}"; then
-    MPI_LIBS="-lmpi"
-  fi
+if test -z "${MPI_LIBS}" && test -n "${MPI_LIBDIR}"; then
+  MPI_LIBS="-lmpi"
+fi
 
-  if test -n "${MPI_LIBS}"; then
-    MPILIBS=${MPI_LIBS}
-    LIBS="${LIBS} ${MPILIBS}"
-  fi
+if test -n "${MPI_LIBS}"; then
+  MPILIBS=${MPI_LIBS}
+  LIBS="${LIBS} ${MPILIBS}"
+fi
 
-  AC_LANG([C]) 
-  AC_MSG_CHECKING(whether MPI will link using the C compiler)
-  AC_LINK_IFELSE(
-  [AC_LANG_PROGRAM([[#include "mpi.h"]], [[int c; char** v; MPI_Init(&c,&v);]])],
-  [AC_MSG_RESULT(yes)],
-  [AC_MSG_RESULT(no)  
-   echo "-----"
-   echo "Cannot link simple MPI program."
-   echo "Try --with-mpi-comp to specify MPI C compile script."
-   echo "Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir"
-   echo "to specify all the specific MPI compile options."
-   echo "-----"
-   AC_MSG_ERROR(MPI cannot link)
-  ])
+AC_LANG([C]) 
+AC_MSG_CHECKING(whether MPI will link using the C compiler)
+AC_LINK_IFELSE(
+[AC_LANG_PROGRAM([[#include "mpi.h"]], [[int c; char** v; MPI_Init(&c,&v);]])],
+[AC_MSG_RESULT(yes)
+    MPICC_OK=yes 
+],
+[AC_MSG_RESULT(no)
+    MPICC_OK=no
+    AC_MSG_WARN([MPI cannot link with ${CC}])
+    echo "
+         Cannot build a simple MPI program.
+         Try --with-mpi-comp to specify MPI C compiler script.
+         Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
+         to specify all the specific MPI compile options.
 
-  # Restore CPPFLAGS, LDFLAGS, LIBS
+         Some modules will not be configured...
+         "
+])
 
-  CPPFLAGS=${SAVED_CPPFLAGS}
-  LDFLAGS=${SAVED_LDFLAGS}
-  LIBS=${SAVED_LIBS}
+# Restore CPPFLAGS, LDFLAGS, LIBS
 
-  # Everything worked fine
-  MPICC_OK=yes
+CPPFLAGS=${SAVED_CPPFLAGS}
+LDFLAGS=${SAVED_LDFLAGS}
+LIBS=${SAVED_LIBS}
+
 ])
 
 #---------------------------------------------------------------------------------------------
@@ -557,64 +539,66 @@ AC_DEFUN(SUNDIALS_CHECK_CC_WITH_MPI,
 AC_DEFUN(SUNDIALS_CHECK_CXX_WITH_MPI,
 [
 
-  # Save copies of current CPPFLAGS, LDFLAGS, LIBS
+# Save copies of current CPPFLAGS, LDFLAGS, LIBS
 
-  SAVED_CPPFLAGS=${CPPFLAGS}
-  SAVED_LDFLAGS=${LDFLAGS}
-  SAVED_LIBS=${LIBS}
+SAVED_CPPFLAGS=${CPPFLAGS}
+SAVED_LDFLAGS=${LDFLAGS}
+SAVED_LIBS=${LIBS}
 
-  # Test a simple MPI C++ program
+# Test a simple MPI C++ program
 
-  if test -n "${MPI_DIR}" && test -z "${MPI_INC}"; then
-    MPI_INC="${MPI_DIR}/include"
-  fi
+if test -n "${MPI_DIR}" && test -z "${MPI_INC}"; then
+  MPI_INC="${MPI_DIR}/include"
+fi
 
-  if test -n "${MPI_INC}"; then
-    MPIINC="-I${MPI_INC}"
-    CPPFLAGS="${CPPFLAGS} ${MPIINC}"
-  fi
+if test -n "${MPI_INC}"; then
+  MPIINC="-I${MPI_INC}"
+  CPPFLAGS="${CPPFLAGS} ${MPIINC}"
+fi
 
-  if test -n "${MPI_DIR}" && test -z "${MPI_LIBDIR}"; then
-    MPI_LIBDIR="${MPI_DIR}/lib"
-  fi
+if test -n "${MPI_DIR}" && test -z "${MPI_LIBDIR}"; then
+  MPI_LIBDIR="${MPI_DIR}/lib"
+fi
 
-  if test -n "${MPI_LIBDIR}"; then
-    MPILIBDIR="-L${MPI_LIBDIR}"
-    LDFLAGS="${LDFLAGS} ${MPILIBDIR}"
-  fi
+if test -n "${MPI_LIBDIR}"; then
+  MPILIBDIR="-L${MPI_LIBDIR}"
+  LDFLAGS="${LDFLAGS} ${MPILIBDIR}"
+fi
 
-  if test -z "${MPI_LIBS}" && test -n "${MPI_LIBDIR}"; then
-    MPI_LIBS="-lmpi"
-  fi
+if test -z "${MPI_LIBS}" && test -n "${MPI_LIBDIR}"; then
+  MPI_LIBS="-lmpi"
+fi
 
-  if test -n "${MPI_LIBS}"; then
-    MPILIBS=${MPI_LIBS}
-    LIBS="${LIBS} ${MPILIBS}"
-  fi
+if test -n "${MPI_LIBS}"; then
+  MPILIBS=${MPI_LIBS}
+  LIBS="${LIBS} ${MPILIBS}"
+fi
 
-  AC_LANG([C++]) 
-  AC_MSG_CHECKING(whether MPI will link using the C++ compiler)
-  AC_LINK_IFELSE(
-  [AC_LANG_PROGRAM([[#include "mpi.h"]], [[int c; char** v; MPI_Init(&c,&v);]])],
-  [AC_MSG_RESULT(yes)],
-  [AC_MSG_RESULT(no)  
-   echo "-----"
-   echo "Cannot link simple MPI program."
-   echo "Try --with-mpi-comp to specify MPI C++ compile script."
-   echo "Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir"
-   echo "to specify all the specific MPI compile options."
-   echo "-----"
-   AC_MSG_ERROR(MPI cannot link)
-  ])
+AC_LANG([C++]) 
+AC_MSG_CHECKING(whether MPI will link using the C++ compiler)
+AC_LINK_IFELSE(
+[AC_LANG_PROGRAM([[#include "mpi.h"]], [[int c; char** v; MPI_Init(&c,&v);]])],
+[AC_MSG_RESULT(yes)
+    MPICXX_OK=yes
+],
+[AC_MSG_RESULT(no)
+    MPICXX_OK=no  
+    AC_MSG_WARN([MPI cannot link with ${CXX}])
+    echo "
+         Cannot build a simple MPI program.
+         Try --with-mpi-comp to specify MPI C++ compiler script.
+         Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
+         to specify all the specific MPI compile options.
 
-  # Restore CPPFLAGS, LDFLAGS, LIBS
+         Some modules will not be configured...
+         "
+])
 
-  CPPFLAGS=${SAVED_CPPFLAGS}
-  LDFLAGS=${SAVED_LDFLAGS}
-  LIBS=${SAVED_LIBS}
+# Restore CPPFLAGS, LDFLAGS, LIBS
 
-  # Everything worked fine
-  MPICXX_OK=yes
+CPPFLAGS=${SAVED_CPPFLAGS}
+LDFLAGS=${SAVED_LDFLAGS}
+LIBS=${SAVED_LIBS}
 
 ])
 
@@ -623,68 +607,70 @@ AC_DEFUN(SUNDIALS_CHECK_CXX_WITH_MPI,
 AC_DEFUN(SUNDIALS_CHECK_F77_WITH_MPI,
 [
 
-  # Save copies of current FFLAGS, LDFLAGS, LIBS
+# Save copies of current FFLAGS, LDFLAGS, LIBS
 
-  SAVED_FFLAGS=${FFLAGS}
-  SAVED_LDFLAGS=${LDFLAGS}
-  SAVED_LIBS=${LIBS}
+SAVED_FFLAGS=${FFLAGS}
+SAVED_LDFLAGS=${LDFLAGS}
+SAVED_LIBS=${LIBS}
 
-  # Try a simple MPI F77 program
+# Try a simple MPI F77 program
 
-  if test -n "${MPI_DIR}" && test -z "${MPI_INC}"; then
-    MPI_INC="${MPI_DIR}/include"
-  fi
+if test -n "${MPI_DIR}" && test -z "${MPI_INC}"; then
+  MPI_INC="${MPI_DIR}/include"
+fi
 
-  if test -n "${MPI_INC}"; then
-    MPIINC="-I${MPI_INC}"
-    FFLAGS="${FFLAGS} ${MPIINC}"
-  fi
+if test -n "${MPI_INC}"; then
+  MPIINC="-I${MPI_INC}"
+  FFLAGS="${FFLAGS} ${MPIINC}"
+fi
 
-  if test -n "${MPI_DIR}" && test -z "${MPI_LIBDIR}"; then
-    MPI_LIBDIR="${MPI_DIR}/lib"
-  fi
+if test -n "${MPI_DIR}" && test -z "${MPI_LIBDIR}"; then
+  MPI_LIBDIR="${MPI_DIR}/lib"
+fi
 
-  if test -n "${MPI_LIBDIR}"; then
-    MPILIBDIR="-L${MPI_LIBDIR}"
-    LDFLAGS="${LDFLAGS} ${MPILIBDIR}"
-  fi
+if test -n "${MPI_LIBDIR}"; then
+  MPILIBDIR="-L${MPI_LIBDIR}"
+  LDFLAGS="${LDFLAGS} ${MPILIBDIR}"
+fi
 
-  if test -z "${MPI_LIBS}" && test -n "${MPI_LIBDIR}"; then
-    MPI_LIBS="-lmpi"
-  fi
+if test -z "${MPI_LIBS}" && test -n "${MPI_LIBDIR}"; then
+  MPI_LIBS="-lmpi"
+fi
 
-  if test -n "${MPI_LIBS}"; then
-    MPILIBS=${MPI_LIBS}
-    LIBS="${LIBS} ${MPILIBS}"
-  fi
+if test -n "${MPI_LIBS}"; then
+  MPILIBS=${MPI_LIBS}
+  LIBS="${LIBS} ${MPILIBS}"
+fi
 
-  AC_LANG([Fortran 77]) 
-  AC_MSG_CHECKING(whether MPI will link using the Fortran compiler)
-  AC_LINK_IFELSE(
-  [AC_LANG_PROGRAM([], 
-  [      
+AC_LANG([Fortran 77]) 
+AC_MSG_CHECKING(whether MPI will link using the Fortran compiler)
+AC_LINK_IFELSE(
+[AC_LANG_PROGRAM([], 
+[      
       INCLUDE "mpif.h"
       CALL MPI_INIT(IER)
-  ])],
-  [AC_MSG_RESULT(yes)],
-  [AC_MSG_RESULT(no)  
-   echo "-----"
-   echo "Cannot link simple MPI program."
-   echo "Try --with-mpi-comp to specify MPI F77 compile script."
-   echo "Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir"
-   echo "to specify all the specific MPI compile options."
-   echo "-----"
-   AC_MSG_ERROR(MPI cannot link)
-  ])
+])],
+[AC_MSG_RESULT(yes)
+    MPIF77_OK=yes
+],
+[AC_MSG_RESULT(no)
+    MPIF77_OK=no  
+    AC_MSG_WARN([MPI cannot link with ${F77}])
+    echo "
+         Cannot build a simple MPI program.
+         Try --with-mpi-comp to specify MPI F77 compiler script.
+         Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
+         to specify all the specific MPI compile options.
 
-  # Restore FFLAGS, LDFLAGS, LIBS
+         Some modules will not be configured...
+         "
+])
 
-  FFLAGS=${SAVED_FFLAGS}
-  LDFLAGS=${SAVED_LDFLAGS}
-  LIBS=${SAVED_LIBS}
+# Restore FFLAGS, LDFLAGS, LIBS
 
-  # Everything worked fine
-  MPIF77_OK=yes
+FFLAGS=${SAVED_FFLAGS}
+LDFLAGS=${SAVED_LDFLAGS}
+LIBS=${SAVED_LIBS}
 
 ])
 
