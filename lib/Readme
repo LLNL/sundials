@@ -1,0 +1,7 @@
+                      Main SUNDIALS Library Directory
+
+This subdirectory, /sundials/lib/, is to contain the lib files created
+by the compilation of the various SUNDIALS solvers.  Except for this
+Readme file, when the SUNDIALS suite (or any part of it) is delivered
+as a tar-file, this subdirectory is empty.
+
