@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-10-18 23:48:18 $
+ * $Revision: 1.4 $
+ * $Date: 2004-10-21 21:54:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -28,6 +28,8 @@
  *------------------------------------------------------------------
  */
 
+#define USE3D
+
 #ifdef USE3D
 #define DIM 3
 #else
@@ -38,18 +40,20 @@
 
 #define XMIN  0.0
 #define XMAX 20.0
-#define MX   80
-#define NPX  2
+#define MX   80    /* no. of divisions in x dir. */
+#define NPX  2     /* no. of procs. in x dir.    */
 
 #define YMIN  0.0
 #define YMAX 20.0
-#define MY   80
-#define NPY  4
+#define MY   80    /* no. of divisions in y dir. */
+#define NPY  4     /* no. of procs. in y dir.    */
 
+#ifdef USE3D
 #define ZMIN  0.0
 #define ZMAX 20.0
-#define MZ   40
-#define NPZ  2
+#define MZ   40    /* no. of divisions in z dir. */
+#define NPZ  2     /* no. of procs. in z dir.    */
+#endif
 
 /* Parameters for source Gaussians */
 
@@ -57,36 +61,44 @@
 #define G1_SIGMA  1.7  
 #define G1_X      4.0
 #define G1_Y      8.0
+#ifdef USE3D
 #define G1_Z      8.0
+#endif
 
 #define G2_AMPL   0.8
 #define G2_SIGMA  3.0  
 #define G2_X     16.0
 #define G2_Y     12.0
+#ifdef USE3D
 #define G2_Z     12.0
+#endif
 
 #define G_MIN    1.0e-5
+
+/* Diffusion coeff., max. velocity, domain width in y dir. */
 
 #define DIFF_COEF 1.0
 #define V_MAX     1.0
 #define L         (YMAX-YMIN)/2.0
 #define V_COEFF   V_MAX/L/L
 
+/* Initial and final times */
+
 #define ti    0.0
 #define tf   10.0
 
 /* Integration tolerances */
 
-#define RTOL    1.0e-8
-#define ATOL    1.0e-6
+#define RTOL    1.0e-8 /* states */
+#define ATOL    1.0e-6 
 
-#define RTOL_Q  1.0e-8
+#define RTOL_Q  1.0e-8 /* forward quadrature */
 #define ATOL_Q  1.0e-6
 
-#define RTOL_B  1.0e-8
+#define RTOL_B  1.0e-8 /* adjoint variables */
 #define ATOL_B  1.0e-6
 
-#define RTOL_QB 1.0e-8
+#define RTOL_QB 1.0e-8 /* backward quadratures */
 #define ATOL_QB 1.0e-6
 
 /* Steps between check points */
@@ -101,8 +113,8 @@
 
 #define FOR_DIM for(dim=0; dim<DIM; dim++)
 
-/* IJth accesses the (i,j)-th solution component */
-/* IJth accesses the (i,j)-th component in the extended array */
+/* IJth:     (i[0],i[1],i[2])-th vector component                       */
+/* IJth_ext: (i[0],i[1],i[2])-th vector component in the extended array */
 
 #ifdef USE3D
 #define IJth(y,i)     ( y[(i[0])+(l_m[0]*((i[1])+(i[2])*l_m[1]))] )
@@ -317,7 +329,6 @@ int main(int argc, char *argv[])
   /* Create and allocate backward CVODE memory */
   flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
   flag = CVodeSetFdataB(cvadj_mem, d);
-  flag = CVodeSetMaxNumStepsB(cvadj_mem, 10000);
   abstolB = ATOL_B;  
   reltolB = RTOL_B; 
   flag = CVodeMallocB(cvadj_mem, fB, tf, yB, CV_SS, &reltolB, &abstolB);
@@ -389,7 +400,8 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
   int n[DIM], nd[DIM];
   int dim, size;
 
-  /* Set MPI communicator, id,  and total number of processes */
+  /* Set MPI communicator, id, and total number of processes */
+
   d->comm = comm;
   d->myId = myId;
   d->npes = npes;
@@ -403,6 +415,7 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
   d->xmin[1] = YMIN;
   d->xmax[1] = YMAX;
   d->m[1]    = MY;
+
 #ifdef USE3D
   d->xmin[2] = ZMIN;
   d->xmax[2] = ZMAX;
@@ -410,6 +423,7 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 #endif
 
   /* Calculate grid spacing and differential volume */
+
   d->dOmega = 1.0;
   FOR_DIM {
     d->dx[dim] = (d->xmax[dim] - d->xmin[dim]) / d->m[dim];
@@ -426,6 +440,7 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
   d->num_procs[1] = NPY;
   n[1] = NPY; 
   nd[1] = d->m[1] / NPY;
+
 #ifdef USE3D
   d->num_procs[2] = NPZ;
   n[2] = NPZ; 
@@ -439,6 +454,7 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 
   d->nbr_left[1]  = (myId/n[0])%n[1] == 0           ? myId : myId-n[0];
   d->nbr_right[1] = (myId/n[0])%n[1] == n[1]-1      ? myId : myId+n[0];
+
 #ifdef USE3D
   d->nbr_left[2]  = (myId/n[0]/n[1])%n[2] == 0      ? myId : myId-n[0]*n[1];
   d->nbr_right[2] = (myId/n[0]/n[1])%n[2] == n[2]-1 ? myId : myId+n[0]*n[1];
@@ -460,24 +476,27 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 #endif
 
   /* Allocate memory for the y_ext array 
-     (local solution + ghost cells) */
+     (local solution + data from neighbors) */
+
   size = 1;
   FOR_DIM size *= d->l_m[dim]+2;
   d->y_ext = (realtype *) malloc( size*sizeof(realtype));
 
   /* Initialize Buffer field.
      Size of buffer is checked when needed */
+
   d->buf_send = NULL;
   d->buf_recv = NULL;
   d->buf_size = 0;   
 
-
   /* Allocate space for the source parameters */
+
   *neq = 1; *l_neq = 1;
   FOR_DIM {*neq *= d->m[dim];  *l_neq *= d->l_m[dim];}
   d->p = N_VNew_Parallel(comm, *l_neq, *neq);
 
   /* Initialize the parameters for a source with Gaussian profile */
+
   SetSource(d);
 
 }
@@ -549,7 +568,7 @@ static void f_comm(long int N_local, realtype t, N_Vector y, void *f_data)
 {
   int id, n[DIM], proc_cond[DIM], nbr[DIM][2];
   ProblemData d;
-  realtype *y_ext, *y_data;
+  realtype *yextdata, *ydata;
   int l_m[DIM], dim;
   int c, i[DIM], l[DIM-1];
   realtype *buf_send, *buf_recv;
@@ -566,8 +585,8 @@ static void f_comm(long int N_local, realtype t, N_Vector y, void *f_data)
     n[dim] = d->num_procs[dim];
     l_m[dim] = d->l_m[dim];
   }
-  y_ext = d->y_ext;
-  y_data = NV_DATA_P(y);
+  yextdata = d->y_ext;
+  ydata    = NV_DATA_P(y);
   
   /* Calculate required buffer size */
   FOR_DIM {
@@ -620,7 +639,7 @@ static void f_comm(long int N_local, realtype t, N_Vector y, void *f_data)
         for(i[l[1]]=0; i[l[1]]<l_m[l[1]]; i[l[1]]++) 
 #endif
           for(i[l[0]]=0; i[l[0]]<l_m[l[0]]; i[l[0]]++) 
-            buf_send[c++] = IJth(y_data, i);
+            buf_send[c++] = IJth(ydata, i);
 	  
         if ( proc_cond[dim] ) {
           /* Send buf_send and receive into buf_recv */
@@ -634,15 +653,15 @@ static void f_comm(long int N_local, realtype t, N_Vector y, void *f_data)
 
         c=0;
 
-        /* Compute the index of the boundary (right or left) in y_ext */
+        /* Compute the index of the boundary (right or left) in yextdata */
         i[dim] = (dir ^ proc_cond[dim]) ? l_m[dim] : -1;
 
-        /* Loop over all other dimensions and copy data into y_ext */
+        /* Loop over all other dimensions and copy data into yextdata */
 #ifdef USE3D
         for(i[l[1]]=0; i[l[1]]<l_m[l[1]]; i[l[1]]++)
 #endif
           for(i[l[0]]=0; i[l[0]]<l_m[l[0]]; i[l[0]]++)
-            IJth_ext(y_ext, i) = buf_recv[c++];
+            IJth_ext(yextdata, i) = buf_recv[c++];
       }
     } /* end loop over direction */
   } /* end loop over dimension */ 
@@ -675,31 +694,35 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 static void f_local(long int Nlocal, realtype t, N_Vector y, 
                     N_Vector ydot, void *f_data)
 {
-  realtype *yextdata, *dydata, *ydata, *pdata;
+  realtype *Ydata, *dydata, *pdata;
   realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
   realtype adv[DIM], diff[DIM];
   realtype xmin[DIM], xmax[DIM], x[DIM], x1;
-  int i[DIM], l_m[DIM], m_start[DIM];
+  int i[DIM], l_m[DIM], m_start[DIM], nbr_left[DIM], nbr_right[DIM], id;
   ProblemData d;
   int dim;
 
   d = (ProblemData) f_data;
 
+  /* Extract stuff from data structure */
+  id = d->myId;
   FOR_DIM {
-    xmin[dim]    = d->xmin[dim];
-    xmax[dim]    = d->xmax[dim];
-    l_m[dim]     = d->l_m[dim];
-    m_start[dim] = d->m_start[dim];
-    dx[dim]      = d->dx[dim];
+    xmin[dim]      = d->xmin[dim];
+    xmax[dim]      = d->xmax[dim];
+    l_m[dim]       = d->l_m[dim];
+    m_start[dim]   = d->m_start[dim];
+    dx[dim]        = d->dx[dim];
+    nbr_left[dim]  = d->nbr_left[dim];
+    nbr_right[dim] = d->nbr_right[dim];
   } 
 
-  yextdata = d->y_ext;
-  dydata   = NV_DATA_P(ydot);
-  ydata    = NV_DATA_P(y); 
-  pdata    = NV_DATA_P(d->p);
+  /* Get pointers to vector data */
+  dydata = NV_DATA_P(ydot);
+  pdata  = NV_DATA_P(d->p);
 
-  /* Copy local segment of y to y_ext, boundary */
-  Load_yext(ydata, d);
+  /* Copy local segment of y to y_ext */
+  Load_yext(NV_DATA_P(y), d);
+  Ydata = d->y_ext;
 
   /* Velocity components in x1 and x2 directions (Poiseuille profile) */
   v[1] = 0.0;
@@ -725,17 +748,24 @@ static void f_local(long int Nlocal, realtype t, N_Vector y,
 
         x[0] = xmin[0] + (m_start[0]+i[0])*dx[0];
 
-        c  = IJth_ext(yextdata, i);	       
+        c  = IJth_ext(Ydata, i);	       
 
         /* Source term*/
         IJth(dydata, i) = IJth(pdata, i);
 
         FOR_DIM {
           i[dim]+=1;
-          cr[dim] = IJth_ext(yextdata, i);
+          cr[dim] = IJth_ext(Ydata, i);
           i[dim]-=2;
-          cl[dim] = IJth_ext(yextdata, i);
+          cl[dim] = IJth_ext(Ydata, i);
           i[dim]+=1;
+
+          /* Boundary conditions for the state variables */
+          if( i[dim]==l_m[dim]-1 && nbr_right[dim]==id)
+            cr[dim] = cl[dim];
+          else if( i[dim]==0 && nbr_left[dim]==id )
+            cl[dim] = cr[dim];
+
           adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (2.0*dx[dim]);
           diff[dim] = DIFF_COEF * (cr[dim]-2.*c+cl[dim]) / SQR(dx[dim]);
 
@@ -795,10 +825,10 @@ static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
 }
 
 static void fB_local(long int NlocalB, realtype t, 
-                     N_Vector y, N_Vector yB, N_Vector gB, 
+                     N_Vector y, N_Vector yB, N_Vector dyB, 
                      void *f_dataB)
 {
-  realtype *yextdata, *dydata, *ydata, *old_y;
+  realtype *YBdata, *dyBdata, *ydata;
   realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
   realtype adv[DIM], diff[DIM];
   realtype xmin[DIM], xmax[DIM], x[DIM], x1;
@@ -808,7 +838,7 @@ static void fB_local(long int NlocalB, realtype t,
   
   d = (ProblemData) f_dataB;
 
-  /* Extract stuff from data */
+  /* Extract stuff from data structure */
   id = d->myId;
   FOR_DIM {
     xmin[dim]      = d->xmin[dim];
@@ -820,13 +850,12 @@ static void fB_local(long int NlocalB, realtype t,
     nbr_right[dim] = d->nbr_right[dim];
   }
  
-  yextdata = d->y_ext;
-  dydata   = NV_DATA_P(gB);
-  ydata    = NV_DATA_P(yB); 
-  old_y    = NV_DATA_P(y);
+  dyBdata = NV_DATA_P(dyB);
+  ydata   = NV_DATA_P(y);
 
-  /* Copy local segment of y to y_ext, boundary */
-  Load_yext(ydata, d);
+  /* Copy local segment of yB to y_ext */
+  Load_yext(NV_DATA_P(yB), d);
+  YBdata = d->y_ext;
 
   /* Velocity components in x1 and x2 directions (Poiseuille profile) */
   v[1] = 0.0;
@@ -853,17 +882,17 @@ static void fB_local(long int NlocalB, realtype t,
 
         x[0] = xmin[0] + (m_start[0]+i[0])*dx[0];
         
-        c  = IJth_ext(yextdata, i);	       
+        c  = IJth_ext(YBdata, i);	       
         
         /* Source term for adjoint PDE */
-        IJth(dydata, i) = -IJth(old_y, i);
+        IJth(dyBdata, i) = -IJth(ydata, i);
         
         FOR_DIM {
           
           i[dim]+=1;
-          cr[dim] = IJth_ext(yextdata, i);
+          cr[dim] = IJth_ext(YBdata, i);
           i[dim]-=2;
-          cl[dim] = IJth_ext(yextdata, i);
+          cl[dim] = IJth_ext(YBdata, i);
           i[dim]+=1;
 
           /* Boundary conditions for the adjoint variables */
@@ -875,7 +904,7 @@ static void fB_local(long int NlocalB, realtype t,
           adv[dim]  = v[dim] * (cr[dim]-cl[dim]) / (2.0*dx[dim]);
           diff[dim] = DIFF_COEF * (cr[dim]-2.*c+cl[dim]) / SQR(dx[dim]);
           
-          IJth(dydata, i) -= (diff[dim] + adv[dim]);
+          IJth(dyBdata, i) -= (diff[dim] + adv[dim]);
         } 
       }
     }
@@ -906,20 +935,15 @@ static void fQB(realtype t, N_Vector y,
 /*
  *------------------------------------------------------------------
  * Load_yext: 
- * copies data from y into y_ext, the array with boundaries
+ * copies data from src (y or yB) into y_ext, which already contains
+ * data from neighboring processes.
  *------------------------------------------------------------------
  */
 
 static void Load_yext(realtype *src, ProblemData d)
 {
-  int i[DIM], j[DIM];
-  int id, l_m[DIM];
-  int dim, l1;
-#ifdef USE3D
-  int  l2;
-#endif
+  int i[DIM], l_m[DIM], dim;
 
-  id = d->myId;
   FOR_DIM l_m[dim] = d->l_m[dim];
      
   /* copy local segment */
@@ -929,48 +953,6 @@ static void Load_yext(realtype *src, ProblemData d)
     for(i[1]=0; i[1]<l_m[1]; i[1]++)
       for(i[0]=0; i[0]<l_m[0]; i[0]++)
 	IJth_ext(d->y_ext, i) = IJth(src, i);
-
-  /* copy borders if subdomain at boundary */
-  FOR_DIM {
-    /* subdomain at boundary ? */
-    if( id == d->nbr_left[dim]) {
-      /* left boundary*/
-      i[dim] = 1;
-      j[dim] = -1;
-      l1=(dim+1)%DIM;
-#ifdef USE3D
-      l2=(dim+2)%DIM;
-      for(i[l2]=0; i[l2]<l_m[l2]; i[l2]++) {
-        j[l2]=i[l2];
-#endif
-        for(i[l1]=0; i[l1]<l_m[l1]; i[l1]++) {
-          j[l1]=i[l1]; 
-          IJth_ext(d->y_ext,j) = IJth(src, i);
-        }
-#ifdef USE3D
-      }
-#endif
-    }
-    /* subdomain at boundary ? */
-    if( id == d->nbr_right[dim]) {
-      /* right boundary*/
-      i[dim] = l_m[dim]-2;
-      j[dim] = l_m[dim];
-      l1=(dim+1)%DIM;
-#ifdef USE3D
-      l2=(dim+2)%DIM;
-      for(i[l2]=0; i[l2]<l_m[l2]; i[l2]++) {
-        j[l2]=i[l2];
-#endif
-        for(i[l1]=0; i[l1]<l_m[l1]; i[l1]++) {
-          j[l1]=i[l1]; 
-          IJth_ext(d->y_ext,j) = IJth(src, i);
-        }
-#ifdef USE3D
-      }
-#endif
-    }
-  }
 }
 
 /*
