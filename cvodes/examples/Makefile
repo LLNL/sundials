@@ -1,14 +1,17 @@
-# File Makefile  Version of 15 January 2002
-#----------------------------------------------------
-# Makefile for the CVODES/PVODES examples
-# (serial and parallel versions)
-#----------------------------------------------------
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+# Version of  : 20 March 2002
+#--------------------------------------------------------------------------------
+# Makefile for the CVODES examples.
+#
+# This makefile generates the executables for the CVODES examples requested.
+# 
+# Type 'make' to see usage instructions and list of examples.
+#
+#--------------------------------------------------------------------------------
 
-
-#---------------------
-# Path to shared files
-#---------------------
-SHARED_DIR = ../../shared
+SHELL = /bin/sh
 
 #======================================================
 # Make rules
@@ -16,41 +19,33 @@ SHARED_DIR = ../../shared
 
 all:
 	@(echo)
-	@(echo 'Usage: make cvodesx   - make all CVODE examples')
-	@(echo '       make pvodesx   - make all PVODE examples')
-	@(echo '       make <ex>      - make example <ex>')
-	@(echo '       make examples  - make all CVODE and PVODE examples')
-	@(echo '       make purge     - remove all example executable files')
+	@(echo 'Usage: make <ex>     - make example <ex>')
+	@(echo '       make cvsx_ser - make all serial CVODES examples')
+	@(echo '       make cvsx_par - make all parallel CVODES examples')
+	@(echo '       make examples - make all CVODES examples')
+	@(echo '       make purge    - remove all example executable files')
 	@(echo)
-	@(make -f cvodesx.mk)
-	@(make -f pvodesx.mk)
+	@(if test -f cvsx_ser.mk; then make -f cvsx_ser.mk; fi)
+	@(echo)
+	@(if test -f cvsx_par.mk; then make -f cvsx_par.mk; fi)
+	@(echo)
 
-examples: cvodesx pvodesx
+examples: cvsx_ser cvsx_par
 
-cvodesx:
-	@(cp $(SHARED_DIR)/include/nvector_serial.h $(SHARED_DIR)/include/nvector.h)
-	@(make -f cvodesx.mk examples)
-	@(rm $(SHARED_DIR)/include/nvector.h)
+cvsx_ser:
+	@(if test -f cvsx_ser.mk; then make -f cvsx_ser.mk examples; fi)
 
-pvodesx:
-	@(cp $(SHARED_DIR)/include/nvector_parallel.h $(SHARED_DIR)/include/nvector.h)
-	@(make -f pvodesx.mk examples)
-	@(rm $(SHARED_DIR)/include/nvector.h)
+cvsx_par:
+	@(if test -f cvsx_par.mk; then make -f cvsx_par.mk examples; fi)
 
-cvsnx cvsdx cvskx:
-	@(cp $(SHARED_DIR)/include/nvector_serial.h $(SHARED_DIR)/include/nvector.h)
-	@(make -f cvodesx.mk $@)
-	@(rm $(SHARED_DIR)/include/nvector.h)
+cvsdx cvskx cvsnx:
+	@(if test -f cvsx_ser.mk; then make -f cvsx_ser.mk $@; fi)
 
-pvsnx pvskx:
-	@(cp $(SHARED_DIR)/include/nvector_parallel.h $(SHARED_DIR)/include/nvector.h)
-	@(make -f pvodesx.mk $@)
-	@(rm $(SHARED_DIR)/include/nvector.h)
-
-#======================================================
+pvskx pvsnx:
+	@(if test -f cvsx_par.mk; then make -f cvsx_par.mk $@; fi)
 
 purge:
-	@(make -f cvodesx.mk purge)
-	@(make -f pvodesx.mk purge)
+	@(if test -f cvsx_ser.mk; then make -f cvsx_ser.mk purge; fi)
+	@(if test -f cvsx_par.mk; then make -f cvsx_par.mk purge; fi)
 
-#======================================================
+#---End of Makefile---
