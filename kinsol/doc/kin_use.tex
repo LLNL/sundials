@@ -97,25 +97,25 @@ provided with {\kinsol}: steps marked with {\p} correspond to
 \item
   {\bf Set vector with intial guess}
  
-  To set the vector \id{y} of initial values, use functions defined by a
-  particular {\nvector} implementation.  If a \id{realtype} array  \id{ydata}
-  already exists, containing the initial guess of $y$, make the call:
+  To set the vector \id{u} of initial values, use functions defined by a
+  particular {\nvector} implementation.  If a \id{realtype} array  \id{udata}
+  already exists, containing the initial guess of $u_0$, make the call:
 
-  {\s} \id{y = NV\_Make\_Serial(N, ydata);}
+  {\s} \id{u = NV\_Make\_Serial(N, udata);}
 
-  {\p} \id{y = NV\_Make\_Parallel(comm, Nlocal, N, ydata);}
+  {\p} \id{u = NV\_Make\_Parallel(comm, Nlocal, N, udata);}
 
   Otherwise, make the call:
 
-  {\s} \id{y = NV\_New\_Serial(N);}
+  {\s} \id{u = NV\_New\_Serial(N);}
 
-  {\p} \id{y = NV\_New\_Parallel(comm, Nlocal, N);}
+  {\p} \id{u = NV\_New\_Parallel(comm, Nlocal, N);}
 
   and load initial values into the structure defined by:
 
-  {\s} \id{NV\_DATA\_S(y)}
+  {\s} \id{NV\_DATA\_S(u)}
 
-  {\p} \id{NV\_DATA\_P(y)}
+  {\p} \id{NV\_DATA\_P(u)}
 
   Here \id{comm} is the MPI communicator, set in one of two ways: 
   If a proper subset of active processors is to be used, \id{comm} 
@@ -173,12 +173,12 @@ provided with {\kinsol}: steps marked with {\p} correspond to
 \item
   {\bf Deallocate memory for solution vector}
 
-  Upon completion of the solution, deallocate memory for the vector \id{y}
+  Upon completion of the solution, deallocate memory for the vector \id{u}
   by calling the destructor function defined by the {\nvector} implementation:
 
-  {\s} \id{NV\_Destroy\_Serial(y);}
+  {\s} \id{NV\_Destroy\_Serial(u);}
 
-  {\p} \id{NV\_Destroy\_Parallel(y);}
+  {\p} \id{NV\_Destroy\_Parallel(u);}
   
 \item
   {\bf Free solver memory}
@@ -232,19 +232,19 @@ is to be called only after the problem solution complete, as it frees the
 %%
 \ucfunction{KINMalloc}
 {
-flag = KINMalloc(kin\_mem, f, tmpl);
+flag = KINMalloc(kin\_mem, func, tmpl);
 }
 {
   The function \ID{KINMalloc} specifies the problem-defining
-  funciton, allocates internal memory, and initializes {\kinsol}.
+  function, allocates internal memory, and initializes {\kinsol}.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block returned by \id{KINCreate}.
-  \item[f] (\Id{KINSysFn})
+  \item[func] (\Id{KINSysFn})
     is the {\C} function which computes $F$ in the nonlinear problem. 
-    This function has the form \id{f(y, fval, f\_data)} 
+    This function has the form \id{func(u, fval, f\_data)} 
     (for full details see \S\ref{ss:sysFn}).
   \item[tmpl] (\id{N\_Vector})
     is an \id{N\_Vector} which is used as a template to create (by cloning)
@@ -361,7 +361,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
 
 \ucfunction{KINSol}
 {
-  flag = KINSol(kin\_mem, y, strategy, y\_scale, f\_scale);
+  flag = KINSol(kin\_mem, u, strategy, u\_scale, f\_scale);
 }
 {
   The function \ID{KINSol} computes an approximate solution of the nonlinear
@@ -371,27 +371,27 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
   \begin{args}[strategy]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[y] (\id{N\_Vector})
+  \item[u] (\id{N\_Vector})
     vector set to initial guess by user before calling \id{KINSol},
     but which upon return contains an approximate solution of
-    the nonlinear system $F(y) = 0$ the computed solution vector.
+    the nonlinear system $F(u) = 0$ the computed solution vector.
   \item[strategy]
     global strategy applied to Newton step if unsatisfactory.
     It must be one of \ID{KIN\_INEXACT\_NEWTON} or \ID{KIN\_LINESEARCH}.
-  \item[y\_scale]
-    vector containing diagonal elements of scaling matrix for vector \id{y}
-    chosen so that the components of \id{y\_scale}$\cdot$\id{y}
+  \item[u\_scale]
+    vector containing diagonal elements of scaling matrix for vector \id{u}
+    chosen so that the components of \id{u\_scale}$\cdot$\id{u}
     (as a matrix multiplication) all have about the same magnitude when 
-    \id{y} is close to a root of $F(y)$.
+    \id{u} is close to a root of $F(u)$.
   \item[f\_scale]
-    vector containing diagonal elements of scaling matrix for $F(y)$ chosen 
-    so that the components of \id{f\_scale}$\cdot F($\id{y}$)$ 
+    vector containing diagonal elements of scaling matrix for $F(u)$ chosen 
+    so that the components of \id{f\_scale}$\cdot F($\id{u}$)$ 
     (as a matrix multiplication) all have roughly the same magnitude when 
-    \id{y} is not too near a root of $F(y)$.
+    \id{u} is not too near a root of $F(u)$.
   \end{args}
 }
 {
-  On return, \id{KINSol} returns the approximate solution in the vector \id{y}.
+  On return, \id{KINSol} returns the approximate solution in the vector \id{u}.
   The return value \id{flag} (of type \id{int}) will be one of the following:
   \begin{args}[a]
 
@@ -401,7 +401,7 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
 
   \item[\Id{KIN\_INITIAL\_GUESS\_OK}]\rule{0pt}{0pt}
 
-    The guess \id{y} satisfied the system $F(y)=0$
+    The guess \id{u} $=u_0$ satisfied the system $F(u)=0$
     within the tolerances specified.
 
   \item[\Id{KIN\_STEP\_LT\_STPTOL}]\rule{0pt}{0pt}
@@ -448,12 +448,12 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
     
     Five consecutive steps have been taken
     that satisfy the inequality
-    $\|u_{scale} p\|_{L2} > 0.99 mxnewtstep$,
+    $\|D_u p\|_{L2} > 0.99 mxnewtstep$,
     where $p$ denotes the current step and
     $mxnewtstep$ is a scalar upper bound
     on the scaled step length.
     
-    Such a failure may mean that $\|f_{scale} F(y)\|_{L2}$
+    Such a failure may mean that $\|D_F F(u)\|_{L2}$
     asymptotes from above to a finite value, or
     the real scalar \id{mxnewtstep} is too small.
  
@@ -493,12 +493,12 @@ generic solver, {\spgmr}, is described separately in \S\ref{s:gen_linsolv}.
   \end{args}
 }
 {
-  The components of vectors \id{y\_scale} and \id{f\_scale} should be positive.
+  The components of vectors \id{u\_scale} and \id{f\_scale} should be positive.
   
   \id{KIN\_SUCCESS} $=0$, \id{KIN\_INITIAL\_GUESS\_OK} $=1$, and 
   \id{KIN\_STEP\_LT\_STPTOL} $=2$.
   %%
-  All remaining return values are negative and therefore a test \id{flag}$< 0$
+  All remaining return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{KINSol} failures.
 }
 
@@ -517,7 +517,7 @@ For the most casual use of {\kinsol}, the reader can skip to \S\ref{ss:user_fct_
 We note that, on error return, all these functions also print an error message
 to \id{stderr} (or to the file pointed to by \id{errfp} if already specified).
 \index{error message}
-We also note that all error return values are negative, so a test \id{flag}$<0$
+We also note that all error return values are negative, so a test \id{flag} $<0$
 will catch any error.
 
 \begin{table}
@@ -541,7 +541,7 @@ Form of $\eta$ coefficient & \id{KINSetEtaform} &  \id{KIN\_ETACHOICE1}\\
 Constant value of $\eta$ & \id{KINSetEtaconstValue} &  0.1 \\
 Values of $\gamma$ and $\alpha$ & \id{KINSetEtaParams} & 0.9 and 2.0 \\
 Lower bound on $\epsilon$ & \id{KINSetNoMinEps} & \id{FALSE} \\
-Max. scaled length of Newton step & \id{KINSetMaxNewtonStep} & $1000 \| u_{scale} y_0 \|_{L_2}$ \\
+Max. scaled length of Newton step & \id{KINSetMaxNewtonStep} & $1000 \| D_u u_0 \|_2$ \\
 Rel. error for F.D. $Jv$ & \id{KINSetRelerrFunc} & $\sqrt{\text{uround}}$ \\
 Function-norm stopping tolerance & \id{KINSetFuncNormTol} & $\sqrt[3]{\text{uround}}$ \\
 Scaled-step stopping tolerance & \id{KINSetScaledSteptol} & $\sqrt[3]{\text{uround}^2}$ \\
@@ -666,10 +666,10 @@ flag = KINSetPrintLevel(kin\_mem, printfl);
       display level 1 output and the
       following values for each iteration:
       
-      $\|f_{scale} F(y)\|_{L_2}$
+      $\|D_F F(u)\|_2$
       (only for \id{KIN\_INEXACT\_NEWTON}).
       
-      $\|f_{scale} |F(y))| \|_{L_\infty}$
+      $\|D_F |F(u)| \|_\infty$
       (for \id{KIN\_INEXACT\_NEWTON} and
       \id{KIN\_LINESEARCH}).
       
@@ -843,7 +843,7 @@ flag = KINSetEtaForm(kin\_mem, etachoice);
   \item[etachoice] (\id{int})
     flag indicating the method for computing $\eta$. \id{etachoice} must be one
     of \Id{KIN\_ETACHOICE1}, \Id{KIN\_ETACHOICE2}, or \Id{KIN\_ETACONSTANT}
-    (see \S\ref{} for details).
+    (see \S\ref{s:math} for details).
   \end{args}
 }
 {
@@ -993,8 +993,8 @@ flag = KINSetMAxNewtonStep(kin\_mem, mxnewtstep);
   \end{args}
 }
 {
-  The default value of \id{mxnewtstep} is $1000 \| y_{scale} y_0 \|_{L_2}$,
-  where $y_0$ is the initial guess.
+  The default value of \id{mxnewtstep} is $1000 \| D_u u_0 \|_2$,
+  where $u_0$ is the initial guess.
 }
 %%
 %%
@@ -1004,7 +1004,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
 }
 {
   The function \ID{KINSetRelErrFunc} specifies the relative error in 
-  computing $F(y)$ used in the difference-quotient appoximation of the
+  computing $F(u)$ used in the difference-quotient appoximation of the
   Jacobian-vector product.
 }
 {
@@ -1012,7 +1012,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[relfunc] (\id{realtype})
-    relative error in $F(y)$ for difference-quotient Jacobian-vector
+    relative error in $F(u)$ for difference-quotient Jacobian-vector
     product.
   \end{args}
 }
@@ -1028,7 +1028,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
   \end{args}
 }
 {
-  The default value for \id{relfunc} is $\sqrt{\text{uround}}$.
+  The default value for \id{relfunc} is $\sqrt{\text{unit roundoff}}$.
 }
 %%
 %%
@@ -1038,7 +1038,7 @@ flag = KINSetFuncNormTol(kin\_mem, fnormtol);
 }
 {
   The function \ID{KINSetFuncNormTol} specifies the scalar used as a stopping
-  tolerance on the scaled norm of the system function $F(y)$.
+  tolerance on the scaled norm of the system function $F(u)$.
 }
 {
   \begin{args}[fnormtol]
@@ -1060,7 +1060,7 @@ flag = KINSetFuncNormTol(kin\_mem, fnormtol);
   \end{args}
 }
 {
-  The default value for \id{fnormtol} is $\sqrt[3]{\text{uround}}$.
+  The default value for \id{fnormtol} is $\sqrt[3]{\text{unit roundoff}}$.
 }
 %%
 %%
@@ -1092,7 +1092,7 @@ flag = KINSetScaledStepTol(kin\_mem, scsteptol);
   \end{args}
 }
 {
-  The default value for \id{} is $\sqrt[3]{\text{uround}^2}$.
+  The default value for \id{} is $\sqrt[3]{\text{unit roundoff}^2}$.
 }
 %%
 %%
@@ -1102,7 +1102,7 @@ flag = KINSetConstraints(kin\_mem, constraints);
 }
 {
   The function \ID{KINSetConstraints} specifies a vector defining
-  inequality constraints for each component of the solution vector $y$.
+  inequality constraints for each component of the solution vector $u$.
 }
 {
   \begin{args}[constraints]
@@ -1111,11 +1111,11 @@ flag = KINSetConstraints(kin\_mem, constraints);
   \item[constraints] (\id{N\_Vector})
     vector of constraint flags. If \id{constraints[i]} is
     \begin{itemize}    
-    \item[$0.0$] then no constraint is imposed on $y_i$. 
-    \item[$1.0$] then $y_i$ will be constrained to be $y_i > 0.0$.
-    \item[$-1.0$] then $y_i$ will be constrained to be $y_i < 0.0$.
-    \item[$2.0$] then $y_i$ will be constrained to be $y_i \ge 0.0$.
-    \item[$-2.0$] then $y_i$ will be constrained to be $y_i \le 0.0$.
+    \item[$0.0$] then no constraint is imposed on $u_i$. 
+    \item[$1.0$] then $u_i$ will be constrained to be $u_i > 0.0$.
+    \item[$-1.0$] then $u_i$ will be constrained to be $u_i < 0.0$.
+    \item[$2.0$] then $u_i$ will be constrained to be $u_i \ge 0.0$.
+    \item[$-2.0$] then $u_i$ will be constrained to be $u_i \le 0.0$.
     \end{itemize}
   \end{args}
 }
@@ -1140,14 +1140,14 @@ flag = KINSetSysFunc(kin\_mem, func);
 }
 {
   The function \ID{KINSetSysFunc} specifies the user-provided function
-  that evaluates the nonlinear system functino $F(y)$.
+  that evaluates the nonlinear system functino $F(u)$.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[func] (\id{KINSysFn})
-    user-supplied function taht evaluates $F(y)$.
+    user-supplied function taht evaluates $F(u)$.
   \end{args}
 }
 {
@@ -1204,7 +1204,7 @@ specified through \id{KINSetFdata}.
 
 The \index{KINSPGMR@{\kinspgmr} linear solver!Jacobian approximation used by}
 {\kinspgmr} solver requires a function to compute an approximation to the
-product between the Jacobian matrix $J(t,y)$ and a vector $v$.
+product between the Jacobian matrix $J(u)$ and a vector $v$.
 The user can supply his/her own Jacobian times vector approximation function, 
 or use the difference quotient function \Id{KINSpgmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
@@ -1517,7 +1517,7 @@ These optional output functions are described next.
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[nfevals] (\id{long int})
-    number of calls to the user-supplied function that evaluates $F(y)$.
+    number of calls to the user-supplied function that evaluates $F(u)$.
   \end{args}
 }
 {
@@ -1623,14 +1623,14 @@ These optional output functions are described next.
 }
 {
   The function \ID{KINGetFuncNorm} returns the scaled norm of the 
-  nonlinear system function $F(y)$ evaluated at the current iterate.
+  nonlinear system function $F(u)$ evaluated at the current iterate.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[fnorm] (\id{realtype})
-    current scaled norm of $F(y)$.
+    current scaled norm of $F(u)$.
   \end{args}
 }
 {
@@ -1985,17 +1985,17 @@ use in the {\spgmr} algorithm.
 The user must provide a function of type \ID{KINSysFn} defined as follows:
 \usfunction{KINSysFn}
 {
-  typedef void (*KINSysFn)(N\_Vector y, N\_Vector fval, void *f\_data );
+  typedef void (*KINSysFn)(N\_Vector u, N\_Vector fval, void *f\_data );
 }
 {
-  This function computes $F(y)$ for a given value of the vector $y$.
+  This function computes $F(u)$ for a given value of the vector $u$.
 }
 {
   \begin{args}[f\_data]
-  \item[y]
-    is the current value of the variable vector, $y$.
+  \item[u]
+    is the current value of the variable vector, $u$.
   \item[fval]
-    is the output vector $F(y)$.
+    is the output vector $F(u)$.
   \item[f\_data]
     is a pointer to user data, the same as the \Id{f\_data}      
     parameter passed to \id{KINSetFdata}.   
@@ -2021,11 +2021,11 @@ This function has the following form:
 \usfunction{KINSpgmrJacTimesVecFn}
 {
 typedef int (*KINSpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, \\
-                                     &N\_Vector y, booleantype *new\_y, \\
+                                     &N\_Vector u, booleantype *new\_u, \\
                                      &void *jac\_data);
 }
 {
-  This function computes the product $J v = (\partial f / \partial y) v$ 
+  This function computes the product $J v = (\partial F / \partial u) v$ 
   (or an approximation to it).
 }
 {
@@ -2034,13 +2034,13 @@ typedef int (*KINSpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, \\
     is the vector by which the Jacobian must be multiplied to the right.
   \item[Jv]
       is the output vector computed.
-  \item[y] 
+  \item[u] 
     is the current (unscaled) value of the iterate.
-  \item[new\_y]
-    is a flag (reset by user) indicating if the iterate \id{y}
+  \item[new\_u]
+    is a flag (reset by user) indicating if the iterate \id{u}
     has been updated in the interim. The Jacobian-vector product 
     needs to be updated/reevaluated, if appropriate, unless
-    \id{new\_y = FALSE}.
+    \id{new\_u = FALSE}.
   \item[jac\_data]
     is a pointer to user data, the same as the \id{jac\_data}      
     parameter passed to \id{KINSpgmrSetJacData}.   
@@ -2075,7 +2075,7 @@ This function must be of type \ID{KINSpgmrPrecSolveFn}, defined as follows:
 %%
 \usfunction{KINSpgmrPrecSolveFn}
 {
-typedef int (*KINSpgmrPrecSolveFn)(&N\_Vector y, N\_Vector yscale,  \\
+typedef int (*KINSpgmrPrecSolveFn)(&N\_Vector u, N\_Vector uscale,  \\
                                    &N\_Vector fval, N\_Vector fscale,  \\
                                    &N\_Vector v, void *prec\_data, \\
                                    &N\_Vector tmp);
@@ -2085,13 +2085,13 @@ typedef int (*KINSpgmrPrecSolveFn)(&N\_Vector y, N\_Vector yscale,  \\
 }
 {  
   \begin{args}[prec\_data]
-  \item[y] 
+  \item[u] 
     is the current (unscaled) value of the iterate.
-  \item[yscale]
+  \item[uscale]
     is a vector containing diagonal elements
-    of scaling matrix for \id{y}.
+    of scaling matrix for \id{u}.
   \item[fval]
-    is the vector $F(y)$ evaluated at \id{y}.
+    is the vector $F(u)$ evaluated at \id{u}.
   \item[fscale]
     is a vector containing diagonal elements
     of scaling matrix for \id{fval}.
@@ -2125,7 +2125,7 @@ be evaluated or preprocessed, then this needs to be done in a
 user-supplied {\C} function of type \ID{KINSpgmrPrecSetupFn}, defined as follows:
 \usfunction{KINSpgmrPrecSetupFn}
 {
-typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector y, N\_Vector yscale, \\
+typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
                                    &N\_Vector fval, N\_Vector fscale,\\
                                    &void *prec\_data, N\_Vector tmp1,\\
                                    &N\_Vector tmp2);
@@ -2137,13 +2137,13 @@ typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector y, N\_Vector yscale, \\
 {
   The arguments of a \id{KINSpgmrPrecSetupFn} are as follows:
   \begin{args}[prec\_data]
-  \item[y] 
+  \item[u] 
     is the current (unscaled) value of the iterate.
-  \item[yscale]
+  \item[uscale]
     is a vector containing diagonal elements
-    of scaling matrix for \id{y}.
+    of scaling matrix for \id{u}.
   \item[fval]
-    is the vector $F(y)$ evaluated at \id{y}.
+    is the vector $F(u)$ evaluated at \id{u}.
   \item[fscale]
     is a vector containing diagonal elements
     of scaling matrix for \id{fval}.
@@ -2168,10 +2168,10 @@ typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector y, N\_Vector yscale, \\
   block referenced by the \id{prec\_data} pointer) used to form the
   scaled preconditioned linear system
  
-   $$(D_f J(y) P^{-1} D_y^{-1}) \cdot (D_y P x) = - D_f F(y) \, ,$$
+   $$(D_F J(u) P^{-1} D_u^{-1}) \cdot (D_u P x) = - D_F F(u) \, ,$$
  
-  where $D_y$ and $D_f$ denote the diagonal scaling matrices whose
-  diagonal elements are stored in the vectors \id{yscale} and
+  where $D_u$ and $D_F$ denote the diagonal scaling matrices whose
+  diagonal elements are stored in the vectors \id{uscale} and
   \id{fscale}, repsectively.
  
   The preconditioner setup routine will not be called prior
@@ -2194,10 +2194,10 @@ user cannot define a more effective, problem-specific preconditioner,
 
 This module provides a preconditioner matrix for {\kinsol} that
 is block-diagonal with banded blocks. The blocking corresponds
-to the distribution of the dependent variable vector $y$ amongst
+to the distribution of the dependent variable vector $u$ amongst
 the processes. Each preconditioner block is generated from
 the Jacobian of the local part (associated with the current
-process) of a given function $G(y)$ approximating $F(y)$. The blocks
+process) of a given function $G(u)$ approximating $F(u)$. The blocks
 are generated by each process via a difference quotient scheme,
 utilizing the assumed banded structure with given
 half-bandwidths.
@@ -2208,34 +2208,34 @@ half-bandwidths.
 \index{KINBBDPRE@{\kinbbdpre} preconditioner!user-supplied functions|(}
 The {\kinbbdpre} module calls two user-provided functions to construct $P$: 
 a required function \id{Gloc} (of type \id{KINLocalFn}) 
-which approximates the nonlinear system function function $G(y) \approx F(y)$ and which 
+which approximates the nonlinear system function function $G(u) \approx F(u)$ and which 
 is computed locally, and an optional function \id{Gcomm} (of type \id{KINCommFn}) 
 which performs all inter-process communication necessary to evaluate 
 the approximate function $G$.  
 These are in addition to the user-supplied nonlinear system function that 
-evaluates $F(y)$.
+evaluates $F(u)$.
 Both functions take as input the same pointer \id{f\_data} as that passed
 by the user to \id{KINSetFdata} and passed to the user's function \id{func},
 and neither function has a return value. The user is responsible for
-providing space (presumably within \id{f\_data}) for components of \id{y}
+providing space (presumably within \id{f\_data}) for components of \id{u}
 that are communicated by \id{Gcomm} from the other processors, and that are
 then used by \id{Gloc}, which is not expected to do any communication.
 %%
 %%
 \usfunction{KINLocalFn}
 {
-typedef void (*KINLocalFn)(&long int Nlocal, N\_Vector y, \\
-                           &N\_Vector gval, void *f\_data);
+  typedef void (*KINLocalFn)(&long int Nlocal, N\_Vector u, \\
+                             &N\_Vector gval, void *f\_data);
 }
 {
-  This function computes $G(y)$. It loads the vector
-  \id{gval} as a function of \id{y}.  
+  This function computes $G(u)$. It loads the vector
+  \id{gval} as a function of \id{u}.  
 }
 {
   \begin{args}[Nlocal]
   \item[Nlocal] 
     is the local vector length.
-  \item[y]
+  \item[u]
     is the current value of the iterate.
   \item[gval]
     is the output vector.
@@ -2252,7 +2252,7 @@ typedef void (*KINLocalFn)(&long int Nlocal, N\_Vector y, \\
   calculate \id{gval} has already been done, and this data is accessible within
   \id{f\_data}.
 
-   Memory for \id{y} and \id{gval} is handled within the preconditioner module.
+   Memory for \id{u} and \id{gval} is handled within the preconditioner module.
 
   The case where $G$ is mathematically identical to $F$ is allowed.
 }
@@ -2260,17 +2260,17 @@ typedef void (*KINLocalFn)(&long int Nlocal, N\_Vector y, \\
 %%
 \usfunction{KINCommFn}
 {
-typedef void (*KINCommFn)(long int Nlocal, N\_Vector y, void *f\_data);
+  typedef void (*KINCommFn)(long int Nlocal, N\_Vector u, void *f\_data);
 }
 {
   This function performs all inter-processor communications necessary 
-  for the execution of the \id{gloc} function above, using the input vector \id{y}.
+  for the execution of the \id{gloc} function above, using the input vector \id{u}.
 }
 {
   \begin{args}[Nlocal]
   \item[Nlocal] 
     is the local vector length.
-  \item[y]
+  \item[u]
     is the current value of the iterate.
   \item[f\_data]
     is a pointer to user data --- the same as the \Id{f\_data}      
@@ -2285,9 +2285,9 @@ typedef void (*KINCommFn)(long int Nlocal, N\_Vector y, void *f\_data);
   within the structure \id{f\_data}. 
 
   Each call to the \id{Gcomm} function is preceded by a call to the system function
-  \id{func} with the same \id{y} argument.  Thus \id{Gcomm} can omit 
+  \id{func} with the same \id{u} argument.  Thus \id{Gcomm} can omit 
   any communications done by \id{func} if relevant to the evaluation of \id{Gloc}.
-  If all necessary comunication was done in \id{func}, then \id{Gcomm} $=$ \id{NULL}
+  If all necessary comunication was done in \id{func}, then \id{Gcomm = NULL}
   can be passed in the call to \id{KINBBDPrecAlloc} (see below).
 }
 %%
@@ -2336,7 +2336,7 @@ program presented in \S\ref{s:skeleton_sol} are grayed-out.
    \id{
      \begin{tabular}[t]{@{}r@{}l@{}}
        bbd\_data = KINBBDPrecAlloc(&kin\_mem, Nlocal, mu, ml, \\
-                                  &dq\_rel\_y, Gloc, Gcomm);
+                                   &dq\_rel\_u, Gloc, Gcomm);
      \end{tabular}
    }
 
@@ -2406,7 +2406,7 @@ next.
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
      bbd\_data = KINBBDPrecAlloc(&kin\_mem, Nlocal, mu, ml, \\
-                                &dq\_rel\_y, Gloc, Gcomm);
+                                 &dq\_rel\_u, Gloc, Gcomm);
    \end{tabular}
 }
 {
@@ -2414,7 +2414,7 @@ next.
   memory for the {\kinbbdpre} preconditioner.
 }
 {
-  \begin{args}[dq\_rel\_y]
+  \begin{args}[dq\_rel\_u]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[Nlocal] (\id{long int})
@@ -2423,15 +2423,15 @@ next.
     upper half-bandwidth to be used in the difference-quotient Jacobian approximation.
   \item[ml] (\id{long int})
     lower half-bandwidth to be used in the difference-quotient Jacobian approximation.
-  \item[dq\_rel\_y] (\id{realtype})
-    the relative increment in components of \id{y} used in the difference quotient
-    approximations.  The default is \id{dq\_rel\_y}$ = \sqrt{\text{unit roundoff}}$,
-    which can be specified by passing \id{dq\_rel\_y}$ = 0.0$.
+  \item[dq\_rel\_u] (\id{realtype})
+    the relative increment in components of \id{u} used in the difference quotient
+    approximations.  The default is \id{dq\_rel\_u}$ = \sqrt{\text{unit roundoff}}$,
+    which can be specified by passing \id{dq\_rel\_u}$ = 0.0$.
   \item[Gloc] (\id{KINLocalFn})
-    the {\C} function which computes the approximation $G(y) \approx F(y)$. 
+    the {\C} function which computes the approximation $G(u) \approx F(u)$. 
   \item[Gcomm] (\id{KINCommFn})
     the optional {\C} function which performs all inter-process communication required for
-    the computation of $G(y)$.
+    the computation of $G(u)$.
   \end{args}
 }
 {
@@ -2580,7 +2580,7 @@ the {\kinbbdpre} module:
 
 The {\fkinsol} interface module is a package of {\C} functions which support
 the use of the {\kinsol} solver, for the solution nonlinear systems
-$F(y)=0$, in a mixed {\F}/{\C} setting.  While {\kinsol} is written
+$F(u)=0$, in a mixed {\F}/{\C} setting.  While {\kinsol} is written
 in {\C}, it is assumed here that the user's calling program and
 user-supplied problem-defining routines are written in {\F}.
 This package provides the necessary interface to {\kinsol} for both the
@@ -2796,11 +2796,11 @@ apply to {\nvecp}.
   The user must in all cases supply the following Fortran routine
   \index{FKFUN@\texttt{FKFUN}}
 \begin{verbatim}
-      SUBROUTINE FKFUN(Y, FVAL)
-      DIMENSION Y(*), FVAL(*)
+      SUBROUTINE FKFUN(U, FVAL)
+      DIMENSION U(*), FVAL(*)
 \end{verbatim}
-  It must set the \id{FVAL} array to $F(y)$, the system function, as a
-  function of the array \id{Y}. Here \id{Y} and \id{FVAL} are arrays representing
+  It must set the \id{FVAL} array to $F(u)$, the system function, as a
+  function of the array \id{U}. Here \id{U} and \id{FVAL} are arrays representing
   vectors, which are distributed vectors in the parallel case.
 
 \item  {\bf {\nvector} module initialization}
@@ -2851,10 +2851,10 @@ apply to {\nvecp}.
     \item[MSBPRE] is the maximum number of preconditioning solve calls
       without calling the preconditioning setup routine.
       A value of $0$ indicates the default.
-    \item[FNORMTOL] is the tolerance on the norm of $F(y)$ to accept convergence.
+    \item[FNORMTOL] is the tolerance on the norm of $F(u)$ to accept convergence.
     \item[SCSTEPTOL] is the tolerance on minimum scaled step size.
     \item[CONSTRAINTS] is an array of constraint values on the components of the
-      solution $y$.
+      solution $u$.
     \item[INOPT] is an integer flag indicating whether possible
       input values in IOPT are to be used for input. a value of
       $0$ means {\em no} and a value of $1$ indicates {\em yes}.
@@ -2896,21 +2896,21 @@ apply to {\nvecp}.
   \index{Jacobian approximation function!Jacobian times vector!use in {\fkinsol}}
   As an option when using the {\spgmr} linear solver, the user may supply a 
   routine that computes the product of the system Jacobian 
-  $J = \partial f / \partial y$ 
+  $J = \partial F / \partial u$ 
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FKJTIMES@\texttt{FKJTIMES}}
 \begin{verbatim}
-      SUBROUTINE FKJTIMES(V, Z, NEWY, Y, IER)
-      DIMENSION V(*), Z(*), Y(*)
+      SUBROUTINE FKJTIMES(V, Z, NEWU, U, IER)
+      DIMENSION V(*), Z(*), U(*)
 \end{verbatim}
   This must set the array \id{Z} to the product $Jv$, where $J$ is the Jacobian
-  matrix $J = \partial F/ \partial y$, and \id{V} is a given array. 
-  Here \id{Y} is an array containing
-  the current value of the unknown vector $y$. \id{NEWY} is an input integer 
-  indicating whether \id{Y} has changed since \id{FKJTIMES} was last called 
+  matrix $J = \partial F/ \partial u$, and \id{V} is a given array. 
+  Here \id{U} is an array containing
+  the current value of the unknown vector $y$. \id{NEWU} is an input integer 
+  indicating whether \id{U} has changed since \id{FKJTIMES} was last called 
   (1 = yes, 0 = no). If \id{FKJTIMES} computes and saves Jacobian data, then 
-  no such computation is necessary when \id{NEWY} $= 0$. 
-  The arguments \id{V}, \id{Z}, and \id{Y} are 
+  no such computation is necessary when \id{NEWU} $= 0$. 
+  The arguments \id{V}, \id{Z}, and \id{U} are 
   arrays of length \id{NEQ}, the problem size, or the local length of all 
   distributed vectors in the parallel case. \id{FKJTIMES} should return 
   \id{IER} $= 0$ if successful, or a nonzero \id{IER} otherwise.
@@ -2936,10 +2936,10 @@ apply to {\nvecp}.
   for solution of the preconditioner linear system:
   \index{FKPSOL@\texttt{FKPSOL}}
 \begin{verbatim}
-      SUBROUTINE FKPSOL (Y, YSCALE, FVAL, FSCALE, VTEM, FTEM, IER)
-      DIMENSION Y(*), YSCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
+      SUBROUTINE FKPSOL (U, USCALE, FVAL, FSCALE, VTEM, FTEM, IER)
+      DIMENSION U(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
 \end{verbatim}
-  Typically this routine will use only \id{Y}, \id{FVAL}, \id{VTEM} and \id{FTEM}.
+  Typically this routine will use only \id{U}, \id{FVAL}, \id{VTEM} and \id{FTEM}.
   It must solve the preconditioned linear system $Pz = r$, where
   $r = $ \id{VTEM} is input, and store the solution $z$ in \id{VTEM} as well. 
   Here $P$ is the right preconditioner. If scaling is being used, the
@@ -2956,16 +2956,16 @@ apply to {\nvecp}.
   the following routine for the evaluation and preprocessing of the preconditioner:
   \index{FKPSET@\texttt{FKPSET}}
 \begin{verbatim}
-      SUBROUTINE FKPSET (Y, YSCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
-      DIMENSION Y(*), YSCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
+      SUBROUTINE FKPSET (U, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
+      DIMENSION U(*), USCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
 \end{verbatim}
   It must perform any evaluation of Jacobian-related data and
   preprocessing needed for the solution of the preconditioned linear
-  systems by \id{FKPSOL}. The variables \id{Y} through \id{FSCALE} are for use in the
+  systems by \id{FKPSOL}. The variables \id{U} through \id{FSCALE} are for use in the
   preconditioning setup process. Typically, the system function \id{FKFUN} is
-  called, so that \id{FVAL} will have been updated. \id{Y} is the current solution
+  called, so that \id{FVAL} will have been updated. \id{U} is the current solution
   iterate. The arrays \id{VTEMP1} and \id{VTEMP2} are available for work space. 
-  If scaling is being used, \id{YSCALE} and \id{FSCALE} are available for those operatins
+  If scaling is being used, \id{USCALE} and \id{FSCALE} are available for those operatins
   requiring scaling. \id{NEQ} is the problem size.
   
   On return, set \id{IER} $= 0$ if \id{FKPSET} was successful or set \id{IER} $= 1$
@@ -2975,18 +2975,18 @@ apply to {\nvecp}.
   Solving the nonlinear system is accomplished by making the following call:
   \index{FKINSOL@\texttt{FKINSOL}}
 \begin{verbatim}
-      CALL FKINSOL(Y, GLOBALSTRAT, YSCALE, FSCALE, IER)
+      CALL FKINSOL(U, GLOBALSTRAT, USCALE, FSCALE, IER)
 \end{verbatim}
   The arguments are as follows.
-  \id{Y} is an array containing the initial guess on input, and the
+  \id{U} is an array containing the initial guess on input, and the
   solution on return.
   \id{GLOBALSTRAT} is an integer (type \id{INTEGER}) defining the global strategy 
   choice ($1$ specifies inexact Newton, while $2$ indicates line search).
-  \id{YSCALE} is an array of scaling factors for the \id{Y} vector.
+  \id{USCALE} is an array of scaling factors for the \id{U} vector.
   \id{FSCALE} is an array of scaling factors for the \id{FVAL} vector.
   \id{IER} is an integer completion flag and will have one of the following values:
   $0$ to indicate success,
-  $1$ to indicate that the initial guess satisfies $F(y) = 0$ within tolerances,
+  $1$ to indicate that the initial guess satisfies $F(u) = 0$ within tolerances,
   $2$ to indicate apparent stalling (small step), or
   a negative value to indicate an error or failure.
   
@@ -3122,7 +3122,7 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
   words.  This size is local to the current processor.
   \id{LENIPW} is the length of integer preconditioner work space, in integer
   words.  This size is local to the current processor.
-  \id{NGE} is the number of $G(y)$ evaluations (calls to \id{FKLOCFN}) so far.
+  \id{NGE} is the number of $G(u)$ evaluations (calls to \id{FKLOCFN}) so far.
   
 \item {\bf Memory deallocation}
 

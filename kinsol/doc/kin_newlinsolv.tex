@@ -94,7 +94,8 @@ The type definition of \id{lsolve} is
 }
 {
   The routine \id{lsolve} must solve the linear equation $J x = b$, where         
-  $J = \partial F / \partial y(y_{cur})$ and the right-hand side vector $b$ is input. 
+  $J = \partial F / \partial u$ evaluated at the current iterate
+  and the right-hand side vector $b$ is input. 
 }
 {
   \begin{args}[res\_norm]
@@ -104,7 +105,7 @@ The type definition of \id{lsolve} is
     is a vector set to an initial guess prior to calling \id{lsolve}. 
     On return it should contain the solution to $J x = b$.
   \item[b]
-    is the right-hand side vector $b$, set to $-F(y)$, evaluated at
+    is the right-hand side vector $b$, set to $-F(u)$, evaluated at
     the current iterate.
   \item[res\_norm]
     holds the value of the $L_2$ norm of the residual vector upon return.
