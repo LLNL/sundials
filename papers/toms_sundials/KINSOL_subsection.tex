@@ -49,11 +49,11 @@ and $\sigma$ is a scalar.  The choice of $\sigma$ is taken from
   \sigma = \frac{\max \{|u^T v|, \mbox{typ}u^T |v|\}}{\|v\|_2} 
   \mbox{sign}(u^T v) \sqrt{U} \, ,
 \end{equation}
-where $\mbox{typ}u$ is a vector of typical values for the solution (can be 
-taken to be inverses of the scale factors given for $u$ as described 
-below), and $U$ is unit roundoff.
-Convergence of the Newton method is maintained as long as the value
-of $\sigma$ remains appropriately small as shown in \cite{Bro:87}.
+where $\mbox{typ}u$ is a vector of typical values for the absolute
+values of the solution (and can be taken to be inverses of the scale
+factors given for $u$ as described below), and $U$ is unit roundoff.
+Convergence of the Newton method is maintained as long as the value of
+$\sigma$ remains appropriately small as shown in \cite{Bro:87}.
 
 To the above methods are added scaling and preconditioning. Scaling is allowed
 for both the approximate solution vector and the system function vector.
