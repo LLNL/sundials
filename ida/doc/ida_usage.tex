@@ -1320,7 +1320,7 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
+    pointer to the {\ida} memory block.
   \item[itol] (\id{int}) 
     is either \ID{IDA\_SS} or \ID{IDA\_SV}, where \ID{itol}$=$\id{IDA\_SS} indicates scalar
     relative error tolerance and scalar absolute error tolerance, while
@@ -1360,9 +1360,8 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
 %%
 \subsubsection{Linear solver optional input functions}
 %%
-The linear solver modules, with one exception, allow for various optional 
-inputs, which are described here. The {\bf diagonal linear solver} 
-module has no optional inputs.
+The linear solver modules allow for various optional inputs, which are
+described here.
 %%
 \noindent\paragraph{\bf Dense Linear solver.}
 \index{optional input!dense linear solver|(}
@@ -3477,13 +3476,6 @@ will be reused for the new problem.
   If an error occurred, \id{IDAReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
-%%
-%%
-
-
-%% RADU
-%% GOT HERE....
-
 
 
 %%===================================================================================
@@ -3710,8 +3702,8 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
   \id{mlower}, the Jacobian element $J_{m,n}$ can be loaded with the 
   statement \id{BAND\_ELEM(Jac, m-1, n-1) =} $J_{m,n}$. The elements within
   the band are those with \id{-mupper} $\le$ \id{m-n} $\le$ \id{mlower}.
-  Alternatively, \id{BAND\_COL(Jac, j)} returns a pointer to the diagonal element of the
-  \id{j}th column of \id{Jac}, and if we assign this address to 
+  Alternatively, \id{BAND\_COL(Jac, j)} returns a pointer to the diagonal element
+  of the \id{j}th column of \id{Jac}, and if we assign this address to 
   \id{realtype *col\_j}, then the \id{i}th element of the \id{j}th column is
   given by \id{BAND\_COL\_ELEM(col\_j, i, j)}, counting from $0$.
   Thus for $(m,n)$ within the band, $J_{m,n}$ can be loaded by setting 
@@ -3901,7 +3893,7 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   \item[tmp2]
   \item[tmp3]
     are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by \id{IDASpgmrPrecSetupFn} as temporary storage or work space.    
+    which can be used by \id{IDASpgmrPrecSetupFn} as temporary storage or work space.
   \end{args}
 }
 {
@@ -3911,8 +3903,8 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   negative for an unrecoverable error (in which case the integration is halted). 
 }
 {
-  The operations performed by this function might include forming a crude 
-  approximate Jacobian, and performing an LU factorization on the resulting            
+  The operations performed by this function might include forming a crude
+  approximate Jacobian, and performing an LU factorization on the resulting
   approximation.
 
   Each call to the preconditioner setup function is preceded by a call to     
@@ -4092,8 +4084,8 @@ then used by \id{Gres}, which is not expected to do any communication.
   An \id{IDABBDCommFn} function type does not have a return value.
 }
 {
-  The \id{Gcomm} function is expected to save communicated data in space defined within the
-  structure \id{res\_data}. 
+  The \id{Gcomm} function is expected to save communicated data in space defined
+  within the structure \id{res\_data}. 
 
   Each call to the \id{Gcomm} function is preceded by a call to the residual
   function \id{res} with the same (\id{tt}, \id{yy}, \id{yp}) arguments.  
