@@ -1,7 +1,7 @@
 /************************************************************************
  * File: cvkx.c                                                         *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 10 July 2003                                            *
+ * Version of : 19 February 2004                                        *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -19,18 +19,18 @@
  *   0 <= t <= 86400 sec (1 day).                                       *
  * The PDE system is treated by central differences on a uniform        *
  * 10 x 10 mesh, with simple polynomial initial profiles.               *
- * The problem is solved with CVODE, with the BDF/GMRES method (i.e.    *
- * using the CVSPGMR linear solver) and the block-diagonal part of the  *
- * Newton matrix as a left preconditioner. A copy of the block-diagonal *
- * part of the Jacobian is saved and conditionally reused within the    *
- * Precond routine.                                                     *
+ * The problem is solved with CVODE/CVODES, with the BDF/GMRES method   *
+ * (i.e. using the CVSPGMR linear solver) and the block-diagonal part   *
+ * of the Newton matrix as a left preconditioner. A copy of the         *
+ * block-diagonal part of the Jacobian is saved and conditionally       *
+ * reused within the Precond routine.                                   *
  ************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "sundialstypes.h"  /* definitions of realtype,                       */
-#include "cvode.h"          /* main CVODE header file                         */
+#include "cvode.h"          /* main solver header file                        */
 #include "iterative.h"      /* contains the enum for types of preconditioning */
 #include "cvspgmr.h"        /* use CVSPGMR linear solver each internal step   */
 #include "smalldense.h"     /* use generic DENSE solver for preconditioning   */
@@ -118,7 +118,7 @@ static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
 static void PrintOutput(void *cvode_mem, N_Vector y, realtype t);
 static void PrintFinalStats(void *cvode_mem);
 
-/* Functions Called by the CVODE Solver */
+/* Functions Called by the Solver */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -166,12 +166,12 @@ int main()
   abstol=ATOL; 
   reltol=RTOL;
 
-  /* Call CvodeCreate to create CVODE memory 
+  /* Call CvodeCreate to create the solver memory 
 
      BDF     specifies the Backward Differentiation Formula
      NEWTON  specifies a Newton iteration
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem. */
+     A pointer to the integrator memory is returned and stored in cvode_mem. */
   cvode_mem = CVodeCreate(BDF, NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
@@ -179,7 +179,7 @@ int main()
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  /* Call CVodeMalloc to initialize CVODE memory: 
+  /* Call CVodeMalloc to initialize the integrator memory: 
 
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
@@ -189,7 +189,7 @@ int main()
   flag = CVodeMalloc(cvode_mem, f, T0, y, SS, &reltol, &abstol, nvSpec);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
-  /* Call CVSpgmr to specify the CVODE linear solver CVSPGMR 
+  /* Call CVSpgmr to specify the linear solver CVSPGMR 
      with left preconditioning and the maximum Krylov dimension maxl */
   flag = CVSpgmr(cvode_mem, LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
@@ -204,7 +204,7 @@ int main()
   if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1)) return(1);
 
   flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
-  if(check_flag(&flag, "CVSpgmrSetPrecSolvFn", 1)) return(1);
+  if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1)) return(1);
 
   flag = CVSpgmrSetPrecData(cvode_mem, data);
   if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
@@ -386,7 +386,7 @@ static void PrintFinalStats(void *cvode_mem)
   printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl);
 }
 
-/***************** Functions Called by the CVODE Solver ******************/
+/***************** Functions Called by the Solver ******************/
 
 /* f routine. Compute f(t,y). */
 

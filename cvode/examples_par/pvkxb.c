@@ -2,7 +2,7 @@
  * File       : pvkxb.c                                                 *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and        *
  *              Radu Serban  @LLNL                                      *
- * Version of : 11 July 2003                                            *
+ * Version of : 19 February 2004                                        *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -21,15 +21,15 @@
  * The PDE system is treated by central differences on a uniform        *
  * mesh, with simple polynomial initial profiles.                       *
  *                                                                      *
- * The problem is solved by CVODE on NPE processors, treated as a       *
- * rectangular process grid of size NPEX by NPEY, with NPE = NPEX*NPEY. *
+ * The problem is solved by CVODE/CVODES on NPE processors, treated as  *
+ * a rectangular process grid of size NPEX by NPEY, with NPE=NPEX*NPEY. *
  * Each processor contains a subgrid of size MXSUB by MYSUB of the      *
  * (x,y) mesh.  Thus the actual mesh sizes are MX = MXSUB*NPEX and      *
  * MY = MYSUB*NPEY, and the ODE system size is neq = 2*MX*MY.           *
  *                                                                      *
- * The solution with CVODE is done with the BDF/GMRES method (i.e.      *
- * using the CVSPGMR linear solver) and a block-diagonal matrix with    *
- * banded blocks as a preconditioner, using the CVBBDPRE module.        *
+ * The solution is done with the BDF/GMRES method (i.e. using the       *
+ * CVSPGMR linear solver) and a block-diagonal matrix with banded       *
+ * blocks as a preconditioner, using the CVBBDPRE module.               *
  * Each block is generated using difference quotients, with             *
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded       *
  * blocks have half-bandwidths mukeep = mlkeep = 2.                     *
@@ -41,7 +41,7 @@
  * Performance data and sampled solution values are printed at selected *
  * output times, and all performance counters are printed on completion.*
  *                                                                      *
- * This version uses MPI for user routines, and the CVODE solver.       *   
+ * This version uses MPI for user routines.                             *   
  * Execute with number of processors = NPEX*NPEY (see constants below). *
  ************************************************************************/
 
@@ -49,7 +49,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "sundialstypes.h" /* definitions of realtype,                        */
-#include "cvode.h"         /* main CVODE header file                          */
+#include "cvode.h"         /* main solver header file                         */
 #include "iterative.h"     /* contains the enum for types of preconditioning  */
 #include "cvspgmr.h"       /* use CVSPGMR linear solver                       */
 #include "cvbbdpre.h"      /* band preconditioner function prototypes         */
@@ -105,32 +105,34 @@
 typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
-  long int my_pe, isubx, isuby, nvmxsub, nvmxsub2;
-  long int Nlocal;
+  int my_pe, isubx, isuby;
+  long int nvmxsub, nvmxsub2, Nlocal;
   MPI_Comm comm;
 } *UserData;
 
 /* Prototypes of private helper functions */
 
-static void InitUserData(long int my_pe, long int local_N, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, long int local_N, MPI_Comm comm, UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
-static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm,
+static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *cvode_mem);
-static void BSend(MPI_Comm comm, long int my_pe, long int isubx,
-                  long int isuby, long int dsizex, long int dsizey,
+static void BSend(MPI_Comm comm, 
+                  int my_pe, int isubx, int isuby, 
+                  long int dsizex, long int dsizey,
                   realtype uarray[]);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-		      long int isubx, long int isuby,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
+                      int my_pe, int isubx, int isuby,
 		      long int dsizex, long int dsizey,
 		      realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], long int isubx,
-		      long int isuby, long int dsizex, realtype uext[],
+static void BRecvWait(MPI_Request request[], 
+                      int isubx, int isuby, 
+                      long int dsizex, realtype uext[],
                       realtype buffer[]);
 
 static void fucomm(realtype t, N_Vector u, void *f_data);
 
-/* Prototype of function called by the CVODE solver */
+/* Prototype of function called by the solver */
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
@@ -203,12 +205,12 @@ int main(int argc, char *argv[])
   reltol = RTOL;
 
   /* 
-     Call CVodeCreate to create CVODE memory:
+     Call CVodeCreate to create the solver memory:
      
      BDF     specifies the Backward Differentiation Formula
      NEWTON  specifies a Newton iteration
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem.
+     A pointer to the integrator memory is returned and stored in cvode_mem.
   */
 
   cvode_mem = CVodeCreate(BDF, NEWTON);
@@ -219,9 +221,9 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVodeSetFdata", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* 
-     Call CVodeMalloc to initialize CVODE memory: 
+     Call CVodeMalloc to initialize the integrator memory: 
 
-     cvode_mem is the pointer to CVODE memory returned by CVodeCreate
+     cvode_mem is the pointer to the integrator memory returned by CVodeCreate
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      u       is the initial dependent variable vector
@@ -240,7 +242,7 @@ int main(int argc, char *argv[])
                          mukeep, mlkeep, 0.0, flocal, ucomm);
   if(check_flag((void *)pdata, "CVBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
 
-  /* Call CVBBDSpgmr to specify the CVODE linear solver CVSPGMR 
+  /* Call CVBBDSpgmr to specify the linear solver CVSPGMR 
      with left preconditioning, the maximum Krylov dimension maxl,
      and using the CVBBDPRE preconditioner */
   flag = CVBBDSpgmr(cvode_mem, LEFT, 0, pdata);
@@ -260,7 +262,7 @@ int main(int argc, char *argv[])
   /* Loop over jpre (= LEFT, RIGHT), and solve the problem */
   for (jpre = LEFT; jpre <= RIGHT; jpre++) {
 
-  /* On second run, re-initialize u, CVODE, CVBBDPRE, and CVSPGMR */
+  /* On second run, re-initialize u, the integrator, CVBBDPRE, and CVSPGMR */
 
   if (jpre == RIGHT) {
 
@@ -327,9 +329,9 @@ int main(int argc, char *argv[])
 
 /* Load constants in data */
 
-static void InitUserData(long int my_pe, long int local_N, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, long int local_N, MPI_Comm comm, UserData data)
 {
-  long int isubx, isuby;
+  int isubx, isuby;
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
@@ -357,7 +359,9 @@ static void InitUserData(long int my_pe, long int local_N, MPI_Comm comm, UserDa
 
 static void SetInitialProfiles(N_Vector u, UserData data)
 {
-  long int isubx, isuby, lx, ly, jx, jy, offset;
+  int isubx, isuby;
+  int lx, ly, jx, jy;
+  long int offset;
   realtype dx, dy, x, y, cx, cy, xmid, ymid;
   realtype *uarray;
 
@@ -396,12 +400,12 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, long int my_pe, MPI_Comm comm, 
+static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm, 
                         N_Vector u, realtype t)
 {
-  int qu, flag;
+  int qu, flag, npelast;
+  long int i0, i1, nst;
   realtype hu, *uarray, tempu[2];
-  long int npelast, i0, i1, nst;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -492,8 +496,9 @@ static void PrintFinalStats(void *cvode_mem)
  
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, long int my_pe, long int isubx,
-                  long int isuby, long int dsizex, long int dsizey,
+static void BSend(MPI_Comm comm, 
+                  int my_pe, int isubx, int isuby, 
+                  long int dsizex, long int dsizey,
                   realtype uarray[])
 {
   int i, ly;
@@ -545,8 +550,8 @@ static void BSend(MPI_Comm comm, long int my_pe, long int isubx,
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
-		      long int isubx, long int isuby,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
+                      int my_pe, int isubx, int isuby,
 		      long int dsizex, long int dsizey,
 		      realtype uext[], realtype buffer[])
 {
@@ -587,8 +592,9 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvWait(MPI_Request request[], long int isubx,
-		      long int isuby, long int dsizex, realtype uext[],
+static void BRecvWait(MPI_Request request[], 
+                      int isubx, int isuby, 
+                      long int dsizex, realtype uext[],
                       realtype buffer[])
 {
   int i, ly;
@@ -641,7 +647,8 @@ static void fucomm(realtype t, N_Vector u, void *f_data)
   UserData data;
   realtype *uarray, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
-  long int my_pe, isubx, isuby, nvmxsub, nvmysub;
+  int my_pe, isubx, isuby;
+  long int nvmxsub, nvmysub;
   MPI_Request request[4];
 
   data = (UserData) f_data;
@@ -668,7 +675,7 @@ static void fucomm(realtype t, N_Vector u, void *f_data)
   BRecvWait(request, isubx, isuby, nvmxsub, uext, buffer);
 }
 
-/***************** Function called by the CVODE solver *******************/
+/***************** Function called by the solver **************************/
 
 /* f routine.  Evaluate f(t,y).  First call fucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to flocal. */
@@ -703,7 +710,8 @@ static void flocal(long int Nlocal, realtype t, N_Vector u,
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
   int i, lx, ly, jx, jy;
-  long int isubx, isuby, nvmxsub, nvmxsub2, offsetu, offsetue;
+  int isubx, isuby;
+  long int nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
   realtype *uarray, *duarray;
 

@@ -1,10 +1,10 @@
 /**************************************************************************
  * File       : cvdemd.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL   *
- * Version of : 11 July 2003                                              *
+ * Version of : 19 February 2004                                          *
  *------------------------------------------------------------------------*
  *                                                                        *
- * Demonstration program for CVODE - direct linear solvers. Two           *
+ * Demonstration program for CVODE/CVODES - direct linear solvers. Two    *
  * separate problems are solved using both the ADAMS and BDF linear       *
  * multistep methods in combination with FUNCTIONAL and NEWTON            *
  * iterations :                                                           *
@@ -24,10 +24,10 @@
  * quotient approximation, (3) diagonal approximation.                    *
  *                                                                        *
  * For each problem, in the series of eight runs, CVodeMalloc is called   *
- * only once, for the first run, whereas CVodeReInit is called for each of*
- * the remaining seven runs.                                              *
+ * only once, for the first run, whereas CVodeReInit is called for each   *
+ * of the remaining seven runs.                                           *
  *                                                                        *
- * Notes.. This program demonstrates the usage of the sequential CVODE    *
+ * Notes.. This program demonstrates the usage of the sequential          *
  * macros NV_Ith_S, NV_DATA_S, DENSE_ELEM, BAND_COL, and BAND_COL_ELEM.   *
  * The NV_Ith_S macro is used to reference the components of an N_Vector. *
  * It works for any size N=NEQ, but due to efficiency concerns it should  *
@@ -52,7 +52,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "sundialstypes.h"  /* definitions for realtype,                    */
-#include "cvode.h"          /* main CVODE header file                       */
+#include "cvode.h"          /* main integrator header file                  */
 #include "cvdense.h"        /* use CVDENSE linear solver each internal step */
 #include "cvband.h"         /* use CVBAND linear solver each internal step  */
 #include "cvdiag.h"         /* use CVDIAG linear solver each internal step  */
@@ -107,7 +107,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, long int mu,
                           long int ml);
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero);
 
-/* Functions Called by the CVODE Solver */
+/* Functions Called by the Solver */
 
 static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -158,7 +158,7 @@ static int Problem1(void)
   if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
 
   y = N_VNew(nvSpec);
-  if(check_flag((void *)nvSpec, "N_VNew", 0)) return(1);
+  if(check_flag((void *)y, "N_VNew", 0)) return(1);
   PrintIntro1();
 
   /* ADAMS formula */
@@ -278,7 +278,7 @@ static int Problem1(void)
 
 static void PrintIntro1(void)
 {
-  printf("Demonstration program for CVODE package - direct linear solvers\n");
+  printf("Demonstration program for CVODE/CVODES package - direct linear solvers\n");
   printf("\n\n");
   
   printf("Problem 1.. Van der Pol oscillator..\n");
@@ -318,7 +318,7 @@ static int Problem2(void)
   realtype reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
   int lmm, miter, flag, temp_flag, nerr=0;
   N_Vector y;
-  void *cvode_mem = NULL;
+  void *cvode_mem;
   booleantype firstrun;
   int qu, iout;
   realtype hu;

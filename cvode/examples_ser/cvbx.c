@@ -1,11 +1,11 @@
 /************************************************************************
  * File       : cvbx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 10 July 2003                                            *
+ * Version of : 19 February 2004                                        *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem with a banded Jacobian,    *
- * with the program for its solution by CVODE.                          *
+ * with the program for its solution by CVODE/CVODES.                   *
  * The problem is the semi-discrete form of the advection-diffusion     *
  * equation in 2-D:                                                     *
  *   du/dt = d^2 u / dx^2 + .5 du/dx + d^2 u / dy^2                     *
@@ -17,7 +17,7 @@
  * central differencing, and with boundary values eliminated,           *
  * leaving an ODE system of size NEQ = MX*MY.                           *
  * This program solves the problem with the BDF method, Newton          *
- * iteration with the CVODE band linear solver, and a user-supplied     *
+ * iteration with the CVBAND band linear solver, and a user-supplied    *
  * Jacobian routine.                                                    * 
  * It uses scalar relative and absolute tolerances.                     *
  * Output is printed at t = .1, .2, ..., 1.                             *
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* CVODE header files with a description of contents used in cvbx.c */
+/* Header files with a description of contents used in cvbx.c */
 
 #include "sundialstypes.h"  /* definitions of realtype,                       */
 #include "cvode.h"          /* prototypes for CVodeMalloc, CVode, CVodeFree,  */
@@ -78,7 +78,7 @@ static void SetIC(N_Vector u, UserData data);
 
 static void PrintFinalStats(void *cvode_mem);
 
-/* Functions Called by the CVODE Solver */
+/* Functions Called by the Solver */
 
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
@@ -128,21 +128,21 @@ int main()
   SetIC(u, data);              /* Initialize u vector */
 
   /* 
-     Call CvodeCreate to create CVODE memory 
+     Call CvodeCreate to create integrator memory 
 
      BDF     specifies the Backward Differentiation Formula
      NEWTON  specifies a Newton iteration
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem.  
+     A pointer to the integrator problem memory is returned and stored in cvode_mem.  
   */
 
   cvode_mem = CVodeCreate(BDF, NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* 
-     Call CVodeMalloc to initialize CVODE memory: 
+     Call CVodeMalloc to initialize the integrator memory: 
 
-     cvode_mem is the pointer to CVODE memory returned by CVodeCreate
+     cvode_mem is the pointer to the integrator memory returned by CVodeCreate
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      u       is the initial dependent variable vector
@@ -159,7 +159,7 @@ int main()
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  /* Call CVBand to specify the CVODE band linear solver */
+  /* Call CVBand to specify the CVBAND band linear solver */
   flag = CVBand(cvode_mem, NEQ, MY, MY);
   if(check_flag(&flag, "CVBand", 1)) return(1);
 
@@ -188,7 +188,7 @@ int main()
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
   N_VFree(u);                  /* Free the u vector */
-  CVodeFree(cvode_mem);        /* Free the CVODE problem memory */
+  CVodeFree(cvode_mem);        /* Free the integrator memory */
   free(data);                  /* Free the user data */
   NV_SpecFree_Serial(nvSpec);  /* Free the vector specification memory */
 
@@ -257,7 +257,7 @@ static void PrintFinalStats(void *cvode_mem)
 	 nni, ncfn, netf);
 }
 
-/***************** Functions Called by the CVODE Solver ******************/
+/***************** Functions Called by the Solver ******************/
 
 /* f routine. Compute f(t,u). */
 

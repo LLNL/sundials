@@ -1,19 +1,20 @@
 /************************************************************************
  * File       : cvdx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 10 July 2003                                            *
+ * Version of : 19 February 2004                                        *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
- * needed for its solution by CVODE.  The problem is from chemical      *
- * kinetics, and consists of the following three rate equations..       *
+ * needed for its solution by CVODE/CVODES.  The problem is from        *
+ * chemical kinetics, and consists of the following three rate          *
+ * equations:                                                           *
  *    dy1/dt = -.04*y1 + 1.e4*y2*y3                                     *
  *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2                        *
  *    dy3/dt = 3.e7*(y2)^2                                              *
  * on the interval from t = 0.0 to t = 4.e10, with initial conditions   *
  * y1 = 1.0, y2 = y3 = 0.  The problem is stiff.                        *
  * This program solves the problem with the BDF method, Newton          *
- * iteration with the CVODE dense linear solver, and a user-supplied    *
+ * iteration with the CVDENSE dense linear solver, and a user-supplied  *
  * Jacobian routine.                                                    * 
  * It uses a scalar relative tolerance and a vector absolute tolerance. *
  * Output is printed in decades from t = .4 to t = 4.e10.               *
@@ -22,7 +23,7 @@
 
 #include <stdio.h>
 
-/* CVODE header files with a description of contents used in cvdx.c */
+/* Header files with a description of contents used in cvdx.c */
 
 #include "sundialstypes.h"   /* definitions of types realtype and             */
                              /* the constant FALSE                            */
@@ -75,7 +76,7 @@
 static void PrintFinalStats(void *cvode_mem);
 
 
-/* Functions Called by the CVODE Solver */
+/* Functions Called by the Solver */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -122,20 +123,20 @@ int main()
   Ith(abstol,3) = ATOL3;
 
   /* 
-     Call CVodeCreate to create CVODE memory:
+     Call CVodeCreate to create the solver memory:
 
      BDF     specifies the Backward Differentiation Formula
      NEWTON  specifies a Newton iteration
 
-     A pointer to CVODE problem memory is returned and stored in cvode_mem.
+     A pointer to the integrator problem memory is returned and stored in cvode_mem.
   */
   cvode_mem = CVodeCreate(BDF, NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* 
-     Call CVodeMalloc to initialize CVODE memory: 
+     Call CVodeMalloc to initialize the integrator memory: 
 
-     cvode_mem is the pointer to CVODE memory returned by CVodeCreate
+     cvode_mem is the pointer to the integrator memory returned by CVodeCreate
      f       is the user's right hand side function in y'=f(t,y)
      T0      is the initial time
      y       is the initial dependent variable vector
@@ -147,7 +148,7 @@ int main()
   flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpec);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
-  /* Call CVDense to specify the CVODE dense linear solver */
+  /* Call CVDense to specify the CVDENSE dense linear solver */
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
@@ -170,7 +171,7 @@ int main()
   N_VFree(y);
   /* Free abstol vector */
   N_VFree(abstol);
-  /* Free CVODE problem memory */
+  /* Free integrator memory */
   CVodeFree(cvode_mem);
   /* Free vector specification memory */
   NV_SpecFree_Serial(nvSpec);
@@ -202,9 +203,9 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
   flag = CVDenseGetNumJacEvals(cvode_mem, &njeD);
-  check_flag(&flag, "CVodeGetNumJacEvals", 1);
+  check_flag(&flag, "CVDenseGetNumJacEvals", 1);
   flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
+  check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeD = %-6ld njeD = %ld\n",
@@ -214,7 +215,7 @@ static void PrintFinalStats(void *cvode_mem)
 }
 
 
-/***************** Functions Called by the CVODE Solver ******************/
+/***************** Functions Called by the Solver ******************/
 
 /* f routine. Compute f(t,y). */
 

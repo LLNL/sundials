@@ -1,9 +1,9 @@
 /*************************************************************************
  * File       : cvdemk.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL  *
- * Version of : 14 July 2003                                             *
+ * Version of : 19 February 2004                                         *
  *-----------------------------------------------------------------------*
- * Demonstration program for CVODE - Krylov linear solver.               *
+ * Demonstration program for CVODE/CVODES - Krylov linear solver.        *
  * ODE system from ns-species interaction PDE in 2 dimensions.           *
  *                                                                       *
  * This program solves a stiff ODE system that arises from a system      *
@@ -44,8 +44,8 @@
  * The PDEs are discretized by central differencing on an MX by MY mesh. *
  * The resulting ODE system is stiff.                                    *
  *                                                                       *
- * The ODE system is solved by CVODE using Newton iteration and the      *
- * CVSPGMR linear solver (scaled preconditioned GMRES).                  *
+ * The ODE system is solved using Newton iteration and the CVSPGMR       *
+ * linear solver (scaled preconditioned GMRES).                          *
  *                                                                       *
  * The preconditioner matrix used is the product of two matrices:        * 
  * (1) A matrix, only defined implicitly, based on a fixed number of     *
@@ -65,8 +65,8 @@
  * A problem description, performance statistics at selected output      *
  * times, and final statistics are written to standard output.           *
  * On the first run, solution values are also printed at output times.   *
- * CVODE error and warning messages are written to standard error, but   *
- * there should be no such messages.                                     *
+ * Error and warning messages are written to standard error, but there   *
+ * should be no such messages.                                           *
  *                                                                       *
  * Note.. This program requires the "small" dense linear solver routines *
  * denalloc, denallocpiv, denaddI, gefa, gesl, denfreepiv and denfree.   *
@@ -87,7 +87,7 @@
 #include <math.h>
 #include "sundialstypes.h"   /* definitions for realtype,                     */
                              /*  booleantype                                  */
-#include "cvode.h"           /* main CVODE header file                        */
+#include "cvode.h"           /* main integrator header file                   */
 #include "iterative.h"       /* for types of preconditioning and Gram-Schmidt */
 #include "cvspgmr.h"         /* use CVSPGMR linear solver each internal step  */
 #include "smalldense.h"      /* use generic DENSE linear solver for "small"   */
@@ -191,7 +191,7 @@ static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[],
 static void v_prod(realtype u[], realtype v[], realtype w[], int n);
 static void v_zero(realtype u[], int n);
 
-/* Functions Called By The CVODE Solver */
+/* Functions Called By The Solver */
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
@@ -456,7 +456,7 @@ static void CInit(N_Vector c, WebData wdata)
 
 static void PrintIntro(void)
 {
-  printf("\n\nDemonstration program for CVODE - CVSPGMR linear solver\n\n");
+  printf("\n\nDemonstration program for CVODE/CVODES - CVSPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
   printf("Matrix parameters.. a = %.2g   e = %.2g   g = %.2g\n",
