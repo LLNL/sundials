@@ -1,7 +1,8 @@
 /*******************************************************************
  * File          : spgmr.h                                         *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 26 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -128,7 +129,6 @@ extern "C" {
   
 typedef struct _SpgmrMemRec {
 
-  integertype N;
   int l_max;
 
   N_Vector *V;
@@ -147,8 +147,7 @@ typedef struct _SpgmrMemRec {
  *----------------------------------------------------------------*
  * SpgmrMalloc allocates the memory used by SpgmrSolve. It        *
  * returns a pointer of type SpgmrMem which the user of the       *
- * SPGMR package should pass to SpgmrSolve. The parameter N       *
- * is the size of the system to be solved by SpgmrSolve and l_max *
+ * SPGMR package should pass to SpgmrSolve. The parameter l_max   *
  * is the maximum Krylov dimension that SpgmrSolve will be        *
  * permitted to use. The parameter machEnv is a pointer to        *
  * machine environment-specific information. This routine returns *
@@ -156,7 +155,7 @@ typedef struct _SpgmrMemRec {
  *                                                                *
  ******************************************************************/
 
-SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv);
+SpgmrMem SpgmrMalloc(int l_max, void *machEnv);
 
 
 /******************************************************************

@@ -1,7 +1,8 @@
 /*******************************************************************
  * File          : spgmr.c                                         *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ *                 Radu Seban @ LLNL                               *
+ * Version of    : 26 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -37,7 +38,7 @@ static void FreeVectorArray(N_Vector *A, int indMax);
 
 /*************** SpgmrMalloc *****************************************/
 
-SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv)
+SpgmrMem SpgmrMalloc(int l_max, void *machEnv)
 {
   SpgmrMem mem;
   N_Vector *V, xcor, vtemp;
@@ -46,7 +47,7 @@ SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv)
  
   /* Check the input parameters. */
 
-  if ((N <= 0) || (l_max <= 0)) return(NULL);
+  if (l_max <= 0) return(NULL);
 
   /* Get memory for the Krylov basis vectors V[0], ..., V[l_max]. */
   
@@ -54,7 +55,7 @@ SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv)
   if (V == NULL) return(NULL);
 
   for (k = 0; k <= l_max; k++) {
-    V[k] = N_VNew(N, machEnv);
+    V[k] = N_VNew(machEnv);
     if (V[k] == NULL) {
       FreeVectorArray(V, k-1);
       return(NULL);
@@ -89,7 +90,7 @@ SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv)
 
   /* Get memory to hold the correction to z_tilde. */
 
-  xcor = N_VNew(N, machEnv);
+  xcor = N_VNew(machEnv);
   if (xcor == NULL) {
     free(givens);
     for (i = 0; i <= l_max; i++) free(Hes[i]);
@@ -110,7 +111,7 @@ SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv)
 
   /* Get an array to hold a temporary vector. */
 
-  vtemp = N_VNew(N, machEnv);
+  vtemp = N_VNew(machEnv);
   if (vtemp == NULL) {
     free(yg);
     N_VFree(xcor);
@@ -135,7 +136,6 @@ SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv)
 
   /* Set the fields of mem. */
 
-  mem->N = N;
   mem->l_max = l_max;
   mem->V = V;
   mem->Hes = Hes;
