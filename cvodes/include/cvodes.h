@@ -3,7 +3,7 @@
  * File          : cvodes.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 25 March 2003                                   *
+ * Version of    : 28 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -148,7 +148,7 @@ enum { NORMAL, ONE_STEP };        /* itask */
  *                                                                *
  ******************************************************************/
 
-typedef void (*RhsFn)(integertype N, realtype t, N_Vector y, 
+typedef void (*RhsFn)(realtype t, N_Vector y, 
                       N_Vector ydot, void *f_data);
 
 /******************************************************************
@@ -161,7 +161,7 @@ typedef void (*RhsFn)(integertype N, realtype t, N_Vector y,
  *                                                                *
  ******************************************************************/
 
-typedef void (*SensRhsFn)(integertype Ns, integertype N, realtype t, 
+typedef void (*SensRhsFn)(integertype Ns, realtype t, 
                           N_Vector y, N_Vector ydot, 
                           N_Vector *yS, N_Vector *ySdot, 
                           void *fS_data,  
@@ -177,7 +177,7 @@ typedef void (*SensRhsFn)(integertype Ns, integertype N, realtype t,
  *                                                                *
  ******************************************************************/
 
-typedef void (*SensRhs1Fn)(integertype Ns, integertype N, realtype t, 
+typedef void (*SensRhs1Fn)(integertype Ns, realtype t, 
                            N_Vector y, N_Vector ydot, 
                            integertype iS, N_Vector yS, N_Vector ySdot, 
                            void *fS_data,
@@ -192,8 +192,8 @@ typedef void (*SensRhs1Fn)(integertype Ns, integertype N, realtype t,
  *                                                                *
  ******************************************************************/
 
-typedef void (*QuadRhsFn)(integertype Nq, integertype N, realtype t, 
-                          N_Vector y, N_Vector qdot, void *fQ_data);
+typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector qdot, 
+                          void *fQ_data);
 
 /******************************************************************
  *                                                                *
@@ -201,8 +201,6 @@ typedef void (*QuadRhsFn)(integertype Nq, integertype N, realtype t,
  *----------------------------------------------------------------*
  * CVodeMalloc allocates and initializes memory for a problem to  *
  * to be solved by CVODE.                                         *
- *                                                                *
- * N       is the number of equations in the ODE system.          *
  *                                                                *
  * f       is the right hand side function in y' = f(t,y).        *          
  *                                                                *
@@ -235,7 +233,8 @@ typedef void (*QuadRhsFn)(integertype Nq, integertype N, realtype t,
  *   ewt[i] = 1/(reltol*abs(y[i]) + abstol[i])   (if itol = SV).  *
  * This vector is used in all error and convergence tests, which  *
  * use a weighted RMS norm on all error-like vectors v:           *
- *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ).    *
+ *    WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*ewt[i])^2 ),    *
+ * where N is the problem dimension.                              *
  *                                                                *
  * f_data  is a pointer to user data that will be passed to the   *
  *             user's f function every time f is called.          *
@@ -283,7 +282,7 @@ typedef void (*QuadRhsFn)(integertype Nq, integertype N, realtype t,
  *                                                                *
  ******************************************************************/
 
-void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, 
+void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0, 
                   int lmm, int iter, int itol, realtype *reltol, 
                   void *abstol, void *f_data, FILE *errfp, 
                   booleantype optIn, long int iopt[], realtype ropt[],
@@ -388,9 +387,6 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
  *                                                                *
  * cvode_mem is a pointer to CVODE memory returned by CVodeMalloc.*
  *                                                                *
- * Nq        is the number of quadratures to be computed          *
- *                                                                *
- *                                                                *
  * fQ        is the user-provided integrand routine.              *
  *                                                                *
  * errconQ   is the type of error control. The legal values are   *
@@ -417,7 +413,7 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
  *                                                                *
  ******************************************************************/
 
-int CVodeQuadMalloc(void *cvode_mem, integertype Nq, 
+int CVodeQuadMalloc(void *cvode_mem, 
                     void *fQ, int errconQ,
                     realtype *reltolQ, void *abstolQ,
                     void *fQ_data, M_Env machEnvQ);
@@ -637,8 +633,8 @@ enum {QCVREI_NO_MEM    = -1, QCVREI_NO_QUAD = -2,
  *                                                                *
  ******************************************************************/
 
-int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, 
-          int itask);
+int CVode(void *cvode_mem, realtype tout, N_Vector yout, 
+          realtype *t, int itask);
 
 /* CVode return values */
 
@@ -761,7 +757,7 @@ int CVodeQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  * sensitivities in weight and weightS, respectively. They are    *
  * provided for use in user-defined sensitivity right hand side   *
  * routines based on finite differences. Note that the user need  *
- * not allocate space for either ewt or ewtS.                     *
+ * not allocate space for either weight or weightS.               *
  *                                                                *
  ******************************************************************/
 
@@ -1003,7 +999,6 @@ typedef struct CVodeMemRec {
     Problem Specification Data 
   ----------------------------*/
 
-  integertype  cv_N;       /* ODE system size                              */
   RhsFn cv_f;              /* y' = f(t,y(t))                               */
   void *cv_f_data;         /* user pointer passed to f                     */
   int cv_lmm;              /* lmm = ADAMS or BDF                           */
@@ -1037,7 +1032,6 @@ typedef struct CVodeMemRec {
   --------------------------*/
 
   booleantype cv_quad;     /* TRUE if integrating quadratures              */
-  integertype cv_Nq;
   QuadRhsFn cv_fQ;
   realtype *cv_reltolQ;    /* ptr to relative tolerance for quad           */
   void *cv_abstolQ;        /* ptr to absolute tolerance for quad           */
@@ -1178,10 +1172,18 @@ typedef struct CVodeMemRec {
   int      cv_nhnil;       /* number of messages issued to the user that
                               t + h == t for the next iternal step         */
 
-  long int cv_lrw;         /* number of realtype words in work vectors     */
-  long int cv_liw;         /* no. of integertype words in work vectors     */
-
   long int cv_nscon;       /* counter for STALD method                     */
+
+  /*------------------------------- 
+    Space requirements for CVODES 
+  -------------------------------*/
+
+  long int cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */ 
+  long int cv_liw1;        /* no. of integertype words in 1 N_Vector y        */ 
+  long int cv_lrw1Q;       /* no. of realtype words in 1 N_Vector yQ          */ 
+  long int cv_liw1Q;       /* no. of integertype words in 1 N_Vector yQ       */ 
+  long int cv_lrw;         /* no. of realtype words in CVODES work vectors    */
+  long int cv_liw;         /* no. of integertype words in CVODES work vectors */
 
   /*------------------
     Step size ratios
