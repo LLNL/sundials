@@ -34,10 +34,10 @@
 #include <math.h>
 #include "sundialstypes.h"
 #include "sundialsmath.h"
-#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
+#include "nvector_serial.h"
 #include "ida.h"
 #include "idaspgmr.h"
-#include "iterativ.h"
+#include "iterative.h"
 
 
 typedef struct {  

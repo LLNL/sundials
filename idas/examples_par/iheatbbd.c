@@ -34,10 +34,10 @@
 #include <math.h>
 #include "sundialstypes.h"
 #include "sundialsmath.h"
-#include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P */
+#include "nvector_parallel.h"
 #include "idas.h"
 #include "idasspgmr.h"
-#include "iterativ.h"
+#include "iterative.h"
 #include "idasbbdpre.h"
 #include "mpi.h"
 

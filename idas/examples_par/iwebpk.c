@@ -92,7 +92,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "sundialstypes.h"     /* Definitions of realtype, integertype            */
-#include "iterativ.h"          /* Contains the enum for types of preconditioning.  */
+#include "iterative.h"         /* Contains the enum for types of preconditioning.  */
 #include "idas.h"              /* Main IDAS header file.                           */
 #include "idasspgmr.h"         /* Use IDASPGMR linear solver.                      */
 #include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P.   */

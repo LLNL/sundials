@@ -88,7 +88,7 @@
 #include "sundialstypes.h"   /* definitions for realtype, integertype,        */
                              /*  booleantype                                  */
 #include "cvodes.h"          /* main CVODE header file                        */
-#include "iterativ.h"        /* for types of preconditioning and Gram-Schmidt */
+#include "iterative.h"        /* for types of preconditioning and Gram-Schmidt */
 #include "cvsspgmr.h"        /* use CVSPGMR linear solver each internal step  */
 #include "smalldense.h"      /* use generic DENSE linear solver for "small"   */
                              /* dense matrix blocks in right preconditioner   */

@@ -50,7 +50,7 @@
 #include <math.h>
 #include "sundialstypes.h" /* definitions of realtype, integertype            */
 #include "cvodes.h"        /* main CVODE header file                          */
-#include "iterativ.h"      /* contains the enum for types of preconditioning  */
+#include "iterative.h"     /* contains the enum for types of preconditioning  */
 #include "cvsspgmr.h"      /* use CVSPGMR linear solver                       */
 #include "cvsbbdpre.h"     /* band preconditioner function prototypes         */
 #include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P*/

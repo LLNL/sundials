@@ -74,7 +74,7 @@
 #include <math.h>
 #include "sundialstypes.h"     /* def's of realtype, integertype, booleantype */
 #include "kinsol.h"            /* main KINSol header file                     */
-#include "iterativ.h"          /* enum for types of preconditioning           */
+#include "iterative.h"         /* enum for types of preconditioning           */
 #include "kinspgmr.h"          /* use KINSpgmr linear solver                  */
 #include "smalldense.h"        /* use generic DENSE solver for preconditioning*/
 #include "nvector_parallel.h"  /* def's of type N_Vector, macro NV_DATA_P     */

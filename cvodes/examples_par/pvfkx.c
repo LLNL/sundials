@@ -65,7 +65,7 @@
 #include <string.h>
 #include "sundialstypes.h"    /* definitions of realtype, integertype            */
 #include "cvodes.h"           /* main CVODES header file                         */
-#include "iterativ.h"         /* contains the enum for types of preconditioning  */
+#include "iterative.h"        /* contains the enum for types of preconditioning  */
 #include "cvsspgmr.h"         /* use CVSPGMR linear solver each internal step    */
 #include "smalldense.h"       /* use generic DENSE solver in preconditioning     */
 #include "nvector_parallel.h" /* definitions of type N_Vector, macro N_VDATA     */

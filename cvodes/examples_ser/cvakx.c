@@ -85,7 +85,7 @@
 #include <math.h>
 #include "sundialstypes.h"
 #include "cvodea.h"
-#include "iterativ.h"
+#include "iterative.h"
 #include "cvsspgmr.h"
 #include "dense.h"
 #include "nvector_serial.h"

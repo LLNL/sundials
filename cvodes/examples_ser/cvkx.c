@@ -31,7 +31,7 @@
 #include <math.h>
 #include "sundialstypes.h"  /* definitions of realtype, integertype           */
 #include "cvodes.h"         /* main CVODE header file                         */
-#include "iterativ.h"       /* contains the enum for types of preconditioning */
+#include "iterative.h"      /* contains the enum for types of preconditioning */
 #include "cvsspgmr.h"       /* use CVSPGMR linear solver each internal step   */
 #include "smalldense.h"     /* use generic DENSE solver for preconditioning   */
 #include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
