@@ -373,20 +373,19 @@ at most one additional forward integration, offers the best possible
 estimate of memory requirements for adjoint sensitivity analysis.
 \footnote{Note that truly optimal checkpointing \cite{GrWa:00} cannot
 be used since the number of integration steps is not known apriori} 
-To begin with,
-based on the problem size $N$ and the available memory, the user decides on 
-the number $N_d$ of data pairs ($y$, ${\dot y}$) that can be kept in memory for 
-the purpose of interpolation. Then, during the first forward integration stage, 
-every $N_d$ integration steps a check point is formed by saving enough information
-(either in memory or on disk if needed) to allow for a hot restart, that is, a restart
-that will exactly reproduce the forward integration. In order to avoid storing
-Jacobian-related data at each check point, a reevaluation of the iteration matrix
-is forced before each check point.
-The backward integration from check point $i+1$ to check point $i$ is preceded
-by a forward integration from $i$ to $i+1$ during which $N_d$ data pairs 
-($y$, ${\dot y}$) are generated and stored in memory for interpolation.
-%
-This procedure is illustrated in Fig.~\ref{f:ckpnt}.
+%% To begin with,
+%% based on the problem size $N$ and the available memory, the user decides on 
+%% the number $N_d$ of data pairs ($y$, ${\dot y}$) that can be kept in memory for 
+%% the purpose of interpolation. Then, during the first forward integration stage, 
+%% every $N_d$ integration steps a check point is formed by saving enough information
+%% (either in memory or on disk if needed) to allow for a hot restart, that is, a restart
+%% that will exactly reproduce the forward integration. In order to avoid storing
+%% Jacobian-related data at each check point, a reevaluation of the iteration matrix
+%% is forced before each check point.
+%% The backward integration from check point $i+1$ to check point $i$ is preceded
+%% by a forward integration from $i$ to $i+1$ during which $N_d$ data pairs 
+%% ($y$, ${\dot y}$) are generated and stored in memory for interpolation.
+%% This procedure is illustrated in Fig.~\ref{f:ckpnt}.
 %
 \begin{figure}
 \centerline{\psfig{figure=ckpnt.eps,width=4in}}
@@ -394,8 +393,8 @@ This procedure is illustrated in Fig.~\ref{f:ckpnt}.
   the forward solution during the integration of the adjoint system.}
 \label{f:ckpnt}
 \end{figure}
-
-This approach transfers the uncertainty in the number of integration
+%%
+This approach, illustrated in Fig.~\ref{f:ckpnt}, transfers the uncertainty in the number of integration
 steps in the forward integration phase to uncertainty in the final number of check 
 points. However, $N_c$ is much smaller than the number of steps taken during
 the forward integration, and there is no major penalty for writing and then reading

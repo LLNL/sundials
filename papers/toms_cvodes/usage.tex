@@ -153,7 +153,7 @@ The initialization, set-up, and solution of the adjoint problem is then
 done in the same way as for a regular forward ODE integration but
 calling CVODES and linear solver wrapper routines that have the names 
 mentioned before with the suffix {\tt B} attached. Some examples of such
-CVODES routines are: {\tt CVodeCreateB}, {\tt CVodeSpgmrB}, {\tt CVodeMallocB},
+CVODES routines are: {\tt CVodeCreateB}, {\tt CVSpgmrB}, {\tt CVodeMallocB},
 and {\tt CVodeB}.
 
 %------------------------------------------------------
@@ -171,8 +171,7 @@ and {\tt CVodeB}.
 \hline
 Pointer to an error output file & {\tt CVodeSetErrFile} & NULL  \\
 Data for right-hand side routine & {\tt CVodeSetFdata} & NULL \\
-Maximum order for BDF method & {\tt CVodeSetMaxOrd} & 5 \\
-Maximum order for Adams method & {\tt CVodeSetMaxOrd} & 12  \\
+Maximum order for BDF (or Adams) method & {\tt CVodeSetMaxOrd} & 5 (12) \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & {\tt CVodeSetMaxNumSteps} & 500 \\
 Maximum no. of warnings for $h < U$ & {\tt CVodeSetMaxHnilWarns} & 10 \\
 Flag to activate stability limit detection & {\tt CVodeSetStabLimDet} & FALSE \\
@@ -184,15 +183,15 @@ Maximum no. of error test failures & {\tt CVodeSetMaxErrTestFails} & 7 \\
 Maximum no. of nonlinear iterations & {\tt CVodeSetMaxNonlinIters} & 3 \\
 Maximum no. of convergence failures & {\tt CVodeSetMaxConvFails} & 10 \\
 Coefficient in the nonlinear convergence test & {\tt CVodeSetNonlinConvCoef} & 0.1 \\
-Error control on quadrature variables & {\tt CVodeSetQuadErrCon} & FULL \\
 Data for quadrature right-hand side routine & {\tt CVodeSetQuadFdata} & NULL\\
+Error control on quadrature variables & {\tt CVodeSetQuadErrCon} & FALSE \\
+Tolerances for quadrature variables & {\tt CVodeSetQuadTolerances} & none \\
 Sensitivity right-hand side routine & {\tt CVodeSetSensRhsFn}  & internal DQ  \\
 Data for sensitivity right-hand side routine & {\tt CVodeSetSensFdata} & NULL \\
-Error control on sensitivity variables & {\tt CVodeSetSensErrCon} & FULL \\
+Error control on sensitivity variables & {\tt CVodeSetSensErrCon} & FALSE \\
 Control for difference quotient approximation & {\tt CVodeSetSensRho}   & 0.0 \\
 Vector of problem parameter scalings & {\tt CVodeSetSensPbar}  & NULL \\
-Relative tolerance for sensitivity variables & {\tt CVodeSetSensReltol} & estimated \\
-Absolute tolerance for sensitivity variables & {\tt CVodeSetSensAbstol} & estimated \\
+Tolerances for sensitivity variables & {\tt CVodeSetSensTolerances} & estimated \\
 \hline
 \multicolumn{3}{c}{\bf CVSDENSE linear solver} \\
 \hline
@@ -206,13 +205,13 @@ Data for Jacobian routine & {\tt CVBandSetJacData} & NULL \\
 \hline
 \multicolumn{3}{c}{\bf CVSSPGMR linear solver} \\
 \hline
-Type of Gram-Schmidt orthogonalization & {\tt CVSpgmrSetGSType} & classical GS \\
-Ratio between linear and nonlinear tolerances & {\tt CVSpgmrSetDelt} & 0.05 \\
-Preconditioner setup routine & {\tt CVSpgmrSetPrecSetupFn} & NULL \\
 Preconditioner solve routine & {\tt CVSpgmrSetPrecSolveFn} & NULL \\
+Preconditioner setup routine & {\tt CVSpgmrSetPrecSetupFn} & NULL \\
 Data for preconditioner routines & {\tt CVSpgmrSetPrecData} & NULL \\
 Jacobian times vector routine & {\tt CVSpgmrSetJacTimesVecFn} & NULL \\
 Data for Jacobian times vector routine &{\tt CVSpgmrSetJacData} & NULL \\
+Type of Gram-Schmidt orthogonalization & {\tt CVSpgmrSetGSType} & classical GS \\
+Ratio between linear and nonlinear tolerances & {\tt CVSpgmrSetDelt} & 0.05 \\
 \end{tabularx}
 \caption{Optional inputs for CVODES, CVSDENSE, CVSBAND, and CVSSPGMR}
 \label{t:optional_inputs}

@@ -22,6 +22,10 @@ approximations using the complex step method is underway.
 Automatic differentiation (AD) tools will be incorporated as they become available;
 we are especially interested in adding reverse AD capabilities to the SUNDIALS
 adjoint sensitivity solvers.
+We are currently investigating alternatives to checkpointing within 
+the adjoint solver in CVODES: one direction is in using reduced order models of the 
+forward problem, while another is in storing the complete decision history on the
+first forward pass and re-use it on the second pass.
 Finally, to address language interoperability issues and thus facilitate the use
 of the SUNDIALS solvers for users of other programming languages, we plan to
 generate Babel~\cite{KKPR:01} wrappers for them.
