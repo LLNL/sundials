@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2004-10-08 23:43:01 $
+ * $Revision: 1.39 $
+ * $Date: 2004-10-13 15:55:55 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -80,18 +80,6 @@
 /*=================================================================*/
 /*BEGIN        CVODES Routine-Specific Constants                   */
 /*=================================================================*/
-
-/*
- * ifS:   Type of the function returning the sensitivity right    
- *        hand side. ifS can be either CV_ALLSENS if the function    
- *        (of type SensRhsFn) returns right hand sides for all    
- *        sensitivity systems at once, or CV_ONESENS if the function 
- *        (of type SensRhs1Fn) returns the right hand side of one 
- *        sensitivity system at a time.                           
- *                                                                
- */
-#define CV_ONESENS 1
-#define CV_ALLSENS 2
 
 /* CVodeGetDky and CVStep */
 
