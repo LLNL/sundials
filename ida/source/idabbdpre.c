@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-06-18 21:36:13 $
+ * $Revision: 1.18 $
+ * $Date: 2004-07-22 23:01:09 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -36,6 +36,7 @@
 
 #define IDABBDALLOC      "IBBDPrecAlloc-- "
 #define MSG_IDAMEM_NULL  IDABBDALLOC "Integrator Memory is NULL.\n\n"
+#define MSG_BAD_NVECTOR  IDABBDALLOC "A required vector operation is not implemented.\n\n"
 #define MSG_WRONG_NVEC   IDABBDALLOC "Incompatible NVECTOR implementation.\n\n"
 #define MSG_PDATA_NULL   "IBBDPrecGet*-- BBDPrecData is NULL. \n\n"
 
@@ -51,9 +52,9 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
 /* Readability Replacements */
 
-#define nvspec (IDA_mem->ida_nvspec)
-#define errfp  (IDA_mem->ida_errfp)
-#define uround (IDA_mem->ida_uround)
+#define errfp    (IDA_mem->ida_errfp)
+#define uround   (IDA_mem->ida_uround)
+#define vec_tmpl (IDA_mem->ida_tempv1)
 
 /*********** User-Callable Functions: malloc, reinit, and free *************/
 
@@ -76,10 +77,11 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with BLOCK BAND preconditioner */
-  if (nvspec->ops->nvgetdata == NULL || nvspec->ops->nvsetdata == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
+  if(vec_tmpl->ops->nvgetarraypointer == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
     return(NULL);
   }
+
   /* Allocate data memory. */
   pdata = (IBBDPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) return(NULL);
@@ -110,9 +112,8 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
     return(NULL);
   }
 
-  /* Allocate tempv4 for use by IBBDDQJac.  Note: Nlocal is a dummy,
-     in that ida_nvspec parameters are used to determine size. */
-  tempv4 = N_VNew(nvspec); 
+  /* Allocate tempv4 for use by IBBDDQJac */
+  tempv4 = N_VClone(vec_tmpl); 
   if (tempv4 == NULL){
     BandFreeMat(pdata->PP);
     BandFreePiv(pdata->pivots);
@@ -197,7 +198,7 @@ void IDABBDPrecFree(void *p_data)
     pdata = (IBBDPrecData) p_data;
     BandFreeMat(pdata->PP);
     BandFreePiv(pdata->pivots);
-    N_VFree(pdata->tempv4);
+    N_VDestroy(pdata->tempv4);
     free(pdata);
   }
 }
@@ -370,9 +371,9 @@ int IDABBDPrecSolve(realtype tt,
   /* Copy rvec to zvec, do the backsolve, and return. */
   N_VScale(ONE, rvec, zvec);
 
-  zd = (realtype *) N_VGetData(zvec);
+  zd = N_VGetArrayPointer(zvec);
+
   BandBacksolve(PP, pivots, zd);
-  N_VSetData((void *)zd, zvec);
 
   return(0);
 }
@@ -415,23 +416,22 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
   IDA_mem = pdata->IDA_mem;
 
-  /* Obtain pointers as required to the data array of vectors. */
-
-  ydata     = (realtype *) N_VGetData(yy);
-  ypdata    = (realtype *) N_VGetData(yp);
-
-  gtempdata = (realtype *) N_VGetData(gtemp);
-
-  ewtdata = (realtype *) N_VGetData(ewt);
-  if (constraints != NULL) cnsdata = (realtype *) N_VGetData(constraints);
-
   /* Initialize ytemp and yptemp. */
 
   N_VScale(ONE, yy, ytemp);
   N_VScale(ONE, yp, yptemp);
 
-  ytempdata = (realtype *) N_VGetData(ytemp);
-  yptempdata= (realtype *) N_VGetData(yptemp);
+  /* Obtain pointers as required to the data array of vectors. */
+
+  ydata     = N_VGetArrayPointer(yy);
+  ypdata    = N_VGetArrayPointer(yp);
+  gtempdata = N_VGetArrayPointer(gtemp);
+  ewtdata   = N_VGetArrayPointer(ewt);
+  if (constraints != NULL) 
+    cnsdata = N_VGetArrayPointer(constraints);
+  ytempdata = N_VGetArrayPointer(ytemp);
+  yptempdata= N_VGetArrayPointer(yptemp);
+  grefdata = N_VGetArrayPointer(gref);
 
   /* Call gcomm and glocal to get base value of G(t,y,y'). */
 
@@ -442,7 +442,6 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   nge++;
   if (retval != 0) return(retval);
 
-  grefdata = (realtype *) N_VGetData(gref);
 
   /* Set bandwidth and number of column groups for band differencing. */
 
@@ -480,15 +479,10 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
     /* Evaluate G with incremented y and yp arguments. */
 
-    N_VSetData((void *)ytempdata, ytemp);
-    N_VSetData((void *)yptempdata, yptemp);
-
     retval = glocal(Nlocal, tt, ytemp, yptemp, gtemp, res_data); 
     nge++;
     if (retval != 0) return(retval);
 
-    gtempdata = (realtype *) N_VGetData(gtemp);
-    
     /* Loop over components of the group again; restore ytemp and yptemp. */
     for(j = group-1; j < Nlocal; j += width) {
       yj  = ytempdata[j]  = ydata[j];
