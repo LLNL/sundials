@@ -1,0 +1,67 @@
+#--------------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+#--------------------------------------------------------------------------------------
+# Makefile for the parallel NVECTOR module.
+# @configure_input@
+#--------------------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SHARED include directory
+SHARED_INC_DIR = ../shared/include
+
+# NVECPARALLEL libraries
+NVECPAR_LIB = libnvecparallel.a
+FNVECPAR_LIB = libfnvecparallel.a
+
+# Source and object files
+SRC = nvector_parallel.c fnvector_parallel.c
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+MPIINCLUDE = @MPIINCLUDE@
+INCS = -I. ${SHAREDINCLUDE} ${MPIINCLUDE}
+
+# Compiler and compiler options
+CC     = @MPICC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: ${OBJ}
+
+
+install:
+	ar rc ${NVECPAR_LIB} nvector_parallel.o
+	ar rc ${FNVECPAR_LIB} fnvector_parallel.o
+	cp ${NVECPAR_LIB}      ${libdir}
+	cp ${FNVECPAR_LIB}     ${libdir}
+	cp nvector_parallel.h  ${includedir}
+	cp fnvector_parallel.h ${includedir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${NVECPAR_LIB}
+	rm -f ${FNVECPAR_LIB}
+
+uninstall:
+	rm -f ${libdir}/${NVECPAR_LIB}
+	rm -f ${libdir}/${FNVECPAR_LIB}
+	rm -f ${includedir}/nvector_parallel.h
+	rm -f ${includedir}/fnvector_parallel.h
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---
