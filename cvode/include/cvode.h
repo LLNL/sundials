@@ -1,19 +1,19 @@
-/*******************************************************************
- *                                                                 *
- * File          : cvode.h                                         *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
- *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 27 April 2004                                   *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvode/LICENSE                         *
- *-----------------------------------------------------------------*
- * This is the interface file for the main CVODE integrator.       *
- *                                                                 *
- *******************************************************************/
-
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.15 $
+ * $Date: 2004-04-29 14:51:03 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
+ *              and Dan Shumaker @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvode/LICENSE
+ * -----------------------------------------------------------------
+ * This is the interface file for the main CVODE integrator.
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -21,7 +21,6 @@ extern "C" {
 
 #ifndef _cvode_h
 #define _cvode_h
-
 
 #include <stdio.h>
 #include "sundialstypes.h"
@@ -133,7 +132,6 @@ typedef void (*RhsFn)(realtype t, N_Vector y, N_Vector ydot,
 typedef void (*RootFn)(realtype t, N_Vector y, realtype *gout, 
                        void *g_data);
  
-
 /*================================================================*
  *                                                                *
  *          U S E R - C A L L A B L E   R O U T I N E S           *
@@ -399,7 +397,6 @@ int CVodeReInit(void *cvode_mem, RhsFn f,
 /* SUCCESS = 0 */ 
 enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
 
-
 /*----------------------------------------------------------------*
  * Function : CVodeRootInit                                       *
  *----------------------------------------------------------------*
@@ -430,7 +427,6 @@ int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn);
 /* CVodeRootInit return values: */
 /* SUCCESS = 0 */ 
 enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2};
-
 
 /******************************************************************
  * Function : CVode                                               *
@@ -511,10 +507,8 @@ enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2};
  *                 unrecoverable manner.                          *
  ******************************************************************/
 
-
 int CVode(void *cvode_mem, realtype tout, N_Vector yout, 
           realtype *tret, int itask);
-
 
 /* CVode return values */
 enum { SUCCESS=0, TSTOP_RETURN=1, ROOT_RETURN=2,
@@ -690,7 +684,6 @@ void CVodeFree(void *cvode_mem);
 #define Q_MAX  ADAMS_Q_MAX /* max value of q for either lmm       */
 #define L_MAX  (Q_MAX+1)   /* max value of L for either lmm       */
 #define NUM_TESTS    5     /* number of error test quantities     */
-
 
 /******************************************************************
  * Types : struct CVodeMemRec, CVodeMem                           *
@@ -1060,7 +1053,6 @@ enum {LMEM_FAIL=-1, LIN_ILL_INPUT=-2, LIN_NO_MEM=-3, LIN_NO_LMEM=-4};
  * solver. This routine is called once a problem has been          *
  * completed and the linear solver is no longer needed.            *
  *******************************************************************/
-
 
 #endif
 
