@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-05-26 19:54:25 $
+ * $Revision: 1.2 $
+ * $Date: 2004-07-22 21:21:26 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California 
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/cvodes/LICENSE
+ * For details, see sundials/cvode/LICENSE
  * -----------------------------------------------------------------
  * Implementation header file for the diagonal linear solver, CVDIAG. 
  * -----------------------------------------------------------------
