@@ -95,7 +95,6 @@ struct _generic_N_Vector_Ops {
   realtype    (*nvl1norm)(N_Vector);
   void        (*nvcompare)(realtype, N_Vector, N_Vector);
   booleantype (*nvinvtest)(N_Vector, N_Vector);
-  booleantype (*nvconstrprodpos)(N_Vector, N_Vector);
   booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
   realtype    (*nvminquotient)(N_Vector, N_Vector);
   void        (*nvprint)(N_Vector);
@@ -389,19 +388,6 @@ void N_VCompare(realtype c, N_Vector x, N_Vector z);
  *--------------------------------------------------------------*/
 
 booleantype N_VInvTest(N_Vector x, N_Vector z);
-
-/*--------------------------------------------------------------*
- * Function : N_VConstrProdPos                                  *
- * Usage    : booltest = N_VConstrProdPos(c,x);                 *
- *--------------------------------------------------------------*
- * Returns a boolean equal to                                   *
- *   FALSE if some c[i] != 0.0 and x[i]*c[i] <= 0.0,  or        *
- *   TRUE otherwise.                                            *
- *                                                              *
- * This routine is used for constraint checking.                *
- *--------------------------------------------------------------*/
-
-booleantype N_VConstrProdPos(N_Vector c, N_Vector x);
 
 /*--------------------------------------------------------------*
  * Function  : N_VConstrMask                                    *

@@ -131,7 +131,6 @@ NV_Spec NV_SpecInit_Parallel(MPI_Comm comm,  long int local_vec_length,
   nvspec->ops->nvl1norm        = N_VL1Norm_Parallel;
   nvspec->ops->nvcompare       = N_VCompare_Parallel;
   nvspec->ops->nvinvtest       = N_VInvTest_Parallel;
-  nvspec->ops->nvconstrprodpos = N_VConstrProdPos_Parallel;
   nvspec->ops->nvconstrmask    = N_VConstrMask_Parallel;
   nvspec->ops->nvminquotient   = N_VMinQuotient_Parallel;
   nvspec->ops->nvprint         = N_VPrint_Parallel;
@@ -195,11 +194,13 @@ N_Vector N_VNew_Parallel(NV_Spec nvspec)
   N_local  = NS_CONTENT_P(nvspec)->local_vec_length;
   N_global = NS_CONTENT_P(nvspec)->global_vec_length;
 
-  NV_CONTENT_P(v)->data = (realtype *) malloc(N_local * sizeof(realtype));
-  if (NV_CONTENT_P(v)->data == NULL) {
-    free(v->content);
-    free(v);
-    return(NULL);
+  if(N_local > 0) {
+    NV_CONTENT_P(v)->data = (realtype *) malloc(N_local * sizeof(realtype));
+    if (NV_CONTENT_P(v)->data == NULL) {
+      free(v->content);
+      free(v);
+      return(NULL);
+    }
   }
 
   NV_CONTENT_P(v)->local_length  = N_local;
@@ -653,33 +654,6 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
     return(FALSE);
   else
     return(TRUE);
-}
-
-
-booleantype N_VConstrProdPos_Parallel(N_Vector c, N_Vector x)
-{
-  long int i, N;
-  booleantype test;
-  realtype  *xd, *cd;
-  NV_Spec nvspec;
-
-  N  = NV_LOCLENGTH_P(x);
-  xd = NV_DATA_P(x);
-  cd = NV_DATA_P(c);
-  nvspec = x->nvspec;
-
-  test = TRUE;
-
-  for (i=0; i < N; i++, xd++,cd++) {
-    if (*cd != ZERO) {
-      if ( (*xd)*(*cd) <= ZERO) {
-        test = FALSE;
-        break;
-      }
-    }
-  }
-
-  return((booleantype)VAllReduce_Parallel((realtype)test, 3, nvspec));
 }
 
 

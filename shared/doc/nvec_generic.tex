@@ -65,7 +65,6 @@ struct _generic_N_Vector_Ops {
   realtype    (*nvl1norm)(N_Vector);
   void        (*nvcompare)(realtype, N_Vector, N_Vector);
   booleantype (*nvinvtest)(N_Vector, N_Vector);
-  booleantype (*nvconstrprodpos)(N_Vector, N_Vector);
   booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
   realtype    (*nvminquotient)(N_Vector, N_Vector);
   void        (*nvprint)(N_Vector);
@@ -118,7 +117,7 @@ of the newly defined \id{N\_Vector}.
 %%\newpage
 \bigskip
 \newlength{\colone}
-\settowidth{\colone}{\id{N\_VConstrProdPos}}
+\settowidth{\colone}{\id{N\_VWrmsNormMask}}
 \newlength{\coltwo}
 \setlength{\coltwo}{\textwidth}
 \addtolength{\coltwo}{-0.5in}
@@ -288,13 +287,6 @@ for zero values:
 $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$.
 This routine returns \id{TRUE} if all components of \id{x} are
 non-zero (successful inversion) and returns \id{FALSE} otherwise.  
-\\
-%
-\id{N\_VConstrProdPos} & \id{t = N\_VConstrProdPos(c, x);} \\
-& Returns a boolean equal to \id{FALSE} if, for some
-$i=0,\ldots,n-1$, 
-$c_i \ne 0.0$ and $x_i c_i \le 0.0$, and \id{TRUE} otherwise.
-This routine is used for constraint checking.
 \\
 %
 \id{N\_VConstrMask} & \id{t = N\_VConstrMask(c, x, m);} \\

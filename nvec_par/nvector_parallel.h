@@ -367,7 +367,6 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w);
 realtype N_VL1Norm_Parallel(N_Vector x);
 void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z);
 booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z);
-booleantype N_VConstrProdPos_Parallel(N_Vector c, N_Vector x);
 booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);   
 realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom);
 void N_VPrint_Parallel(N_Vector x);

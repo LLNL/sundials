@@ -304,7 +304,6 @@ realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w);
 realtype N_VL1Norm_Serial(N_Vector x);
 void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z);
 booleantype N_VInvTest_Serial(N_Vector x, N_Vector z);
-booleantype N_VConstrProdPos_Serial(N_Vector c, N_Vector x);
 booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);   
 realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
 void N_VPrint_Serial(N_Vector x);

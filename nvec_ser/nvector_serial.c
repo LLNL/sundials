@@ -108,7 +108,6 @@ NV_Spec NV_SpecInit_Serial(long int vec_length)
   nvspec->ops->nvl1norm        = N_VL1Norm_Serial;
   nvspec->ops->nvcompare       = N_VCompare_Serial;
   nvspec->ops->nvinvtest       = N_VInvTest_Serial;
-  nvspec->ops->nvconstrprodpos = N_VConstrProdPos_Serial;
   nvspec->ops->nvconstrmask    = N_VConstrMask_Serial;
   nvspec->ops->nvminquotient   = N_VMinQuotient_Serial;
   nvspec->ops->nvprint         = N_VPrint_Serial;
@@ -586,30 +585,6 @@ booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
   }
 
   return(TRUE);
-}
-
-
-booleantype N_VConstrProdPos_Serial(N_Vector c, N_Vector x)
-{
-  long int i, N;
-  realtype  *xd, *cd;
-  booleantype test;
-
-  N  = NV_LENGTH_S(x);
-  xd = NV_DATA_S(x);
-  cd = NV_DATA_S(c);
-
-  test = TRUE;
-
-  for (i=0; i < N; i++, xd++,cd++) {
-    if (*cd != ZERO) {
-      if ((*xd)*(*cd) <= ZERO) {
-        test = FALSE;
-        break;
-      }
-    }
-  }
-  return(test);
 }
 
 

@@ -190,13 +190,6 @@ booleantype N_VInvTest(N_Vector x, N_Vector z)
   return(flag);
 }
 
-booleantype N_VConstrProdPos(N_Vector c, N_Vector x)
-{
-  booleantype flag;
-  flag = x->nvspec->ops->nvconstrprodpos(c, x);
-  return(flag);
-}
-
 booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 {
   booleantype flag;
