@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-04-03 00:28:06 $
+ * $Revision: 1.20 $
+ * $Date: 2004-04-03 02:41:17 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,9 +26,12 @@
  *    CVodeMallocB
  *    CVDenseB    
  *    CVBandB 
- *    CVBandPrecAllocB
- *    CVBandPrecFreeB 
  *    CVSpgmrB
+ *    CVBandPrecAllocB
+ *    CVBPSpgmrB
+ *    CVBBDPrecAllocB
+ *    CVBBDPrecReInit
+ *    CVBBDSpgmrB
  *    CVodeB  
  *    CVadjFree
  *    CVadjGetY
@@ -56,6 +59,7 @@ extern "C" {
 #include "cvband.h"
 #include "cvspgmr.h"
 #include "cvbandpre.h"
+#include "cvbbdpre.h"
 
 /******************************************************************
  *                                                                *
@@ -156,6 +160,24 @@ typedef int (*CVSpgmrPrecSolveFnB)(realtype t, N_Vector y,
 typedef int (*CVSpgmrJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t, 
                                      N_Vector y, N_Vector yB, N_Vector fyB,
                                      void *jac_dataB, N_Vector tmpB);
+
+
+/******************************************************************
+ *                                                                *
+ * Type : CVLocalFnB and CVCommFnB                                *
+ *----------------------------------------------------------------*
+ * Local approximation function and inter-process communication   *
+ * function for the BBD preconditioner on the backward phase.     *
+ *                                                                *
+ ******************************************************************/
+
+typedef void (*CVLocalFnB)(long int NlocalB, realtype t, 
+                           N_Vector y, N_Vector yB, N_Vector gB, 
+                           void *f_dataB);
+
+typedef void (*CVCommFnB)(long int NlocalB, realtype t, 
+                          N_Vector y, N_Vector yB,
+                          void *f_dataB);
 
 /******************************************************************
  *                                                                *
@@ -307,7 +329,7 @@ int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB);
 
 /******************************************************************
  *                                                                *
- * Function: CVBandPrecAllocB, CVBPSpgmrB, CVBandPrecFreeB        *
+ * Function: CVBandPrecAllocB, CVBPSpgmrB                         *
  *----------------------------------------------------------------*
  * CVBandPrecAllocB interfaces to the CVBANDPRE preconditioner for*
  * the backward integration. The pointer to the structure         *
@@ -316,13 +338,30 @@ int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB);
  *                                                                *
  ******************************************************************/
 
-void *CVBandPrecAllocB(void *cvadj_mem, long int nB, 
-                       long int muB, long int mlB);
+int CVBandPrecAllocB(void *cvadj_mem, long int nB, 
+                     long int muB, long int mlB);
 
-int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB, 
-               void *bp_dataB);
+int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
 
-void CVBandPrecFreeB(void *bp_dataB);
+/******************************************************************
+ *                                                                *
+ * Functions: CVBBDPrecAllocB, CVBBDSpgmrB, CVBBDPrecReInit       *
+ *----------------------------------------------------------------*
+ * Interface functions for the BBD preconditioner to be used on   *
+ * the backward phase.                                            *
+ *                                                                *
+ ******************************************************************/
+
+int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB, 
+                    long int mudqB, long int mldqB, 
+                    long int mukeepB, long int mlkeepB, 
+                    realtype dqrelyB,
+                    CVLocalFnB glocB, CVCommFnB cfnB);
+
+int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
+
+int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
+                     realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB);
 
 /******************************************************************
  *                                                                *
@@ -522,12 +561,16 @@ typedef struct CVadjMemRec {
   /* Banded Jacobian function (bjacB) for backward run */
   CVBandJacFnB ca_bjacB;
 
+  /* Jac times vec routine (jtimesB) for backward run */
+  CVSpgmrJacTimesVecFnB ca_jtimesB;
+
   /* Preconditioner routines (precondB and psolveB) for backward run */
   CVSpgmrPrecSetupFnB ca_psetB;
   CVSpgmrPrecSolveFnB ca_psolveB;
 
-  /* Jac times vec routine (jtimesB) for backward run */
-  CVSpgmrJacTimesVecFnB ca_jtimesB;
+  /* BBD user functions (glocB and cfnB) for backward run */
+  CVLocalFnB ca_glocB;
+  CVCommFnB  ca_cfnB;
 
   /* User f_dataB */
   void *ca_f_dataB;
@@ -540,6 +583,12 @@ typedef struct CVadjMemRec {
 
   /* User P_dataB */
   void *ca_P_dataB;
+
+  /* BP prec data */
+  void *ca_bp_dataB;
+
+  /* BBD prec data */
+  void *ca_bbd_dataB;
   
   /* Unit roundoff */
   realtype ca_uround;
