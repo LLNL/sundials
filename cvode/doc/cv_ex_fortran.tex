@@ -2,22 +2,84 @@
 \section{Fortran example problems}\label{s:ex_fortran}
 %===================================================================================
 
+The Fortran example problem programs supplied with the {\cvode}
+package are all written in standard F77 Fortran, with Double Precision
+arithmetic.  Changes needed to convert these to Single Precision (for
+long-wordlength machines) should be straigtforward.
+
 \subsection{A serial example: \id{cvkryf}}\label{ss:cvkryf}
 
-Sample output from \id{cvkryf} follows.
+The \id{cvkryf} example is a Fortran equivalent of the \id{cvkx} problem.
+(In fact, it was derived from an earlier Fortran example program for VODPK.)
+The source program \id{cvkryf.c} is listed in Appendix \ref{s:cvkryf_f}.
+
+The main program begins with a call to \id{INITKX}, which sets problem
+parameters, loads these in a Common block for use by other routines, and
+loads \id{Y} with its initial values.  It calls \id{FNVINITS}, \id{FCVMALLOC},
+\id{FCVSPGMR}, \id{FCVSPGMRSETPSET}, and \id{FCVSPGMRSETPSOL} to initialize
+the {\nvecs} module, the main solver memory, and the {\cvspgmr} module, and
+to specify user-supplied preconditioner setup and solve routines.
+It calls \id{FCVODE} in a loop over \id{TOUT} values, with printing of
+selected solution values and performance data (from the \id{IOPT}  and \id{ROPT}
+arrays).  At the end, it prints a number of performance counters, and
+frees memory with calls to \id{FCVFREE} and \id{FNVFREES}.
+
+In \id{cvkryf.c}, the \id{FCVFUN} routine is a straghtforward implementation
+of the discretized form of Ens. (\ref{cvkxpde}).  In \id{FCVPSET}, the
+block-diagonal part of the Jacobian, $J_{bd}$, is computed (and copied to
+\id{P}) if \id{JOK} = 0, but is simply copied from \id{BD} to \id{P} if
+\id{JOK} = 1.  In both cases, the preconditioner matrix $P$ is formed from 
+$J_{bd}$ and its $2 \times 2$ blocks are LU-factored.  In \id{FCVPSOL},
+the solution of a linear system $Px = z$ is solved by doing backsolve
+operations on the blocks.  The remainder of \id{cvkryf.c} consists of
+routines from LINPACK and the BLAS needed for matrix and vector operations.
+
+The following is sample output from \id{cvkryf}, using a $10 \times 10$ mesh.
+The performance of {\fcvode} here is quite similar to that of {\cvode} on
+the \id{cvkx} problem, as expected.
+
 %%
-\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvkryf} sample output,fontsize=\small]
-{../fcmix/examples_ser/cvkryf.out}
+\VerbatimInput[frame=single,framesep=0.1in,label={\tt cvkryf} sample output,
+  fontsize=\small]{../fcmix/examples_ser/cvkryf.out}
 %%
 
 %-----------------------------------------------------------------------------------
 
 \subsection{A parallel example: \id{pvdiagkbf}}\label{ss:pvdiagkbf}
 
-Sample output from \id{pvdiagkbf} follows.
+This example, \id{pvdiagkbf}, uses a simple diagonal ODE system to illustrate
+the use of {\fcvode} in a parallel setting.  The system is
+\begin{equation} \label{diagode}
+\dot{y}_i = - \alpha ~i~ y_i ~~~ (i = 1,\ldots, N)
+\end{equation}
+on the time interval $0 \leq t \leq 1$.  In this case, we use $\alpha = 10$
+and $N = 10*$\id{NPES}, where \id{NPES} is the number of processors
+and is specified at run time.  The linear solver to be used is
+{\spgmr} with the {\cvbbdpre} (band-block-diagonal) preconditioner.
+Since the system Jacobian is diagonal, the half-bandwidths specified
+are all zero.  The problem is solved twice --- with preconditioning on
+the left, then on the right.
+
+The source file, \id{pvdiagkbf.f}, is listed in Appendix \ref{s:pvdiagkbf_f}.
+It begins with MPI calls to initialize MPI and to get the number of processors
+and local processor index.  The linear solver specification is done with
+calls to \id{FCVBBDINIT} and \id{FCVBBDSPGMR}.  In a loop over \id{TOUT}
+values, it calls \id{FCVODE} and prints the step and $f$ evaluation counters.
+After that, it computes and prints the maximum global error, and all the
+relevant performance counters.  Those specific to {\cvbbdpre} are obtained
+by a call to \id{FCVBBDOPT}.  To prepare for the second run, the program
+calls \id{FCVREINIT}, \id{FCVBBDREINIT}, and \id{FCVSPGMRREINIT}, in addition
+to resetting the initial conditions.  Finally, it frees memory and terminates MPI.
+Notice that in the \id{FCVFUN} routine, the local processor index \id{MYPE}
+and the local vector size \id{NLOCAL} are used to form the global index
+values needed to evaluate the right-hand side of Eq. (\ref{diagode}).
+
+The following is a sample output from \id{pvdiagkbf}, with \id{NPES} = 4.
+As expected, the performance is identical for left vs right preconditioning.
+
 %%
-\VerbatimInput[frame=single,framesep=0.1in,label={\tt pvdiagkbf} sample output,fontsize=\small]
-{../fcmix/examples_par/pvdiagkbf.out}
+\VerbatimInput[frame=single,framesep=0.1in,label={\tt pvdiagkbf} sample output,
+  fontsize=\small]{../fcmix/examples_par/pvdiagkbf.out}
 %%
 
 %-----------------------------------------------------------------------------------
