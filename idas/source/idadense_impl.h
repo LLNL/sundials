@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-11-05 23:55:11 $
+ * $Revision: 1.5 $
+ * $Date: 2005-01-26 22:18:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDADENSE_IMPL_H
+#define _IDADENSE_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _idadense_impl_h
-#define _idadense_impl_h
 
 #include <stdio.h>
 
@@ -75,9 +75,8 @@ typedef struct {
 
 #define MSGD_SETGET_LMEM_NULL   "IDADenseSet*/IDADenseGet*-- IDADENSE memory is NULL. \n\n"
 
-
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

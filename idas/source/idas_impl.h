@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-11-30 21:07:12 $
+ * $Revision: 1.11 $
+ * $Date: 2005-01-26 22:18:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,12 +14,12 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 #ifndef _IDAS_IMPL_H
 #define _IDAS_IMPL_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
 
 #include <stdio.h>
 
@@ -653,9 +653,8 @@ typedef struct IDAMemRec {
 
 #define MSG_IDAG_NO_STGR1  "IDAGetSensStgr*-- STAGGERED1 method was not used.\n\n"
 
-
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

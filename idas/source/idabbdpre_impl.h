@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-12-08 19:37:05 $
+ * $Revision: 1.9 $
+ * $Date: 2005-01-26 22:18:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,12 +17,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDABBDPRE_IMPL_H
+#define _IDABBDPRE_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _IDABBDPRE_IMPL_H
-#define _IDABBDPRE_IMPL_H
 
 #include "band.h"
 #include "idabbdpre.h"
@@ -102,8 +102,8 @@ typedef struct {
 
 #define MSGBBD_NO_PDATA "IDABBDSpgmr/IDABBDSpbcg-- IBBDPrecData is NULL.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

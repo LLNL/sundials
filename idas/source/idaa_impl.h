@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-11-05 23:55:11 $
+ * $Revision: 1.5 $
+ * $Date: 2005-01-26 22:18:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,13 +14,13 @@
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifndef _IDAA_IMPL_H
+#define _IDAA_IMPL_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  
-#ifndef _idaa_impl_h
-#define _idaa_impl_h
-  
+
 #include <stdio.h>
 
 #include "idaa.h"
@@ -196,8 +196,6 @@ extern "C" {
     N_Vector ia_ytmp, ia_yptmp;
     
   } *IDAadjMem;
-  
-#endif
 
 /*
  *----------------------------------------------------------------
@@ -220,7 +218,8 @@ extern "C" {
 #define MSG_IDASOLVEB_FWD    "IDASolveB-- an error occured during the forward phase.\n\n"
 #define MSG_IDASOLVEB_BCK    "IDASolveB-- an error occured during the backward phase.\n\n"
 
-  
 #ifdef __cplusplus
 }
+#endif
+
 #endif
