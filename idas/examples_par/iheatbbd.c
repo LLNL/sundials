@@ -1,10 +1,10 @@
 /***********************************************************************
  * File       : iheatbbd.c   
  * Written by : Allan G. Taylo, Alan C. Hindmarsh, and Radu Serban
- * Version of : 11 February 2004
+ * Version of : 23 July 2003
  *----------------------------------------------------------------------
  *
- * Example problem for IDAS: 2D heat equation, parallel, GMRES, IDABBDPRE.
+ * Example problem for IDA: 2D heat equation, parallel, GMRES, IDABBDPRE.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the Krylov solver IDASpgmr and BBD preconditioning.
@@ -21,7 +21,7 @@
  * The system is actually implemented on submeshes, processor by processor,
  * with an MXSUB by MYSUB mesh on each of NPEX * NPEY processors.
  *
- * The system is solved with IDAS using the Krylov linear solver IDASPGMR
+ * The system is solved with IDA using the Krylov linear solver IDASPGMR
  * in conjunction with the preconditioner module IDABBDPRE.  The
  * preconditioner uses a tridiagonal approximation (half-bandwidths = 1).
  * The constraints u >= 0 are posed for all components.
@@ -196,14 +196,14 @@ int main(int argc, char *argv[])
   
   /* Case 1 -- mldq = mudq = MXSUB */
 
-  /* Call IBBDPrecAlloc to initialize BBD preconditioner. */
-  P_data = IBBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+  /* Call IDABBDPrecAlloc to initialize BBD preconditioner. */
+  P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
                          ZERO, reslocal, rescomm);
-  if(check_flag((void *)P_data, "IBBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IBBDSpgmr to specify the linear solver. */
-  ier = IBBDSpgmr(mem, 0.0, P_data);
-  if(check_flag(&ier, "IBBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  /* Call IDABBDSpgmr to specify the linear solver. */
+  ier = IDABBDSpgmr(mem, 0.0, P_data);
+  if(check_flag(&ier, "IDABBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Compute the max norm of uu. */
   umax = N_VMaxNorm(uu);
@@ -283,9 +283,9 @@ int main(int argc, char *argv[])
   ier = IDAReInit(mem, heatres, t0, uu, up, itol, &rtol, &atol);
   if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IBBDPrecReInit to re-initialize BBD preconditioner. */
-  ier = IBBDPrecReInit(P_data, mudq, mldq, ZERO, reslocal, rescomm);
-  if(check_flag(&ier, "IBBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
+  /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
+  ier = IDABBDPrecReInit(P_data, mudq, mldq, ZERO, reslocal, rescomm);
+  if(check_flag(&ier, "IDABBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Compute the max norm of uu. */
   umax = N_VMaxNorm(uu);
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
   }
 
   /* Free Memory */
-  IBBDPrecFree(P_data);
+  IDABBDPrecFree(P_data);
   IDAFree(mem);
   free(data);
   N_VFree(id);
