@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-08-25 16:23:53 $
+ * $Revision: 1.5 $
+ * $Date: 2004-10-18 18:40:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -154,7 +154,6 @@ static void PrintGrids(long int *xpes, long int *ypes, long int my_pe,
 static void PrintRow(realtype *row, FILE* f1, FILE* f2);
 #endif
 static void PrintFinalStats(void *cvode_mem, booleantype sensi);
-static void vprint(long int mype, realtype v[], long int N);
 
 static void BSend(MPI_Comm comm, long int my_pe, long int isubx, long int isuby,
                   long int dsizex, long int dsizey, realtype udata[]);
@@ -184,7 +183,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   UserData data;
 
@@ -839,7 +838,7 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   }  
 
   printf("\nFinal Statistics\n\n");
-  printf("(Px*Mx)*(Py*My)*NVARS = (%d*%ld)*(%d*%ld)*%d = %ld\n\n",
+  printf("(Px*Mx)*(Py*My)*NVARS = (%d*%d)*(%d*%d)*%d = %d\n\n",
          NPEX,MXSUB,NPEY,MYSUB,NVARS,NPEX*MXSUB*NPEY*MYSUB*NVARS);
   printf("lrw      = %5ld    liw      = %5ld\n",   lenrw,      leniw);
   printf("lrwSPGMR = %5ld    liwSPGMR = %5ld\n\n", lenrwSPGMR, leniwSPGMR);
@@ -1019,7 +1018,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   realtype Q1, Q2, C3, A3, A4, KH, VEL, KV;
   MPI_Comm comm;
   long int my_pe, isubx, isuby, nvmxsub, nvmxsub2, nvmysub,
-    offsetu, offsetue, offsetbuf;
+           offsetu, offsetue;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
   MPI_Request request[4];
   realtype buffer[2*NVARS*MYSUB];
