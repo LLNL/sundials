@@ -774,8 +774,8 @@ Maximum no. of convergence failures & \id{IDASetMaxConvFails} & 10 \\
 Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 7 \\
 Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{FALSE} \\
-Variable types (differential/algebraic) & \id{IDASetId} & \\
-Inequality constraints on solution & \id{IDASetConstraints} & \\
+Variable types (differential/algebraic) & \id{IDASetId} & \id{NULL} \\
+Inequality constraints on solution & \id{IDASetConstraints} & \id{NULL} \\
 Integration tolerances & \id{IDASetTolerances} & none \\
 \hline
 \multicolumn{3}{|c|}{\bf IDA initial conditions calculation} \\
@@ -785,7 +785,7 @@ Maximum no. of steps & \id{IDASetMaxNumStepsIC} & 5 \\
 Maximum no. of Jacobian/precond. evals. & \id{IDASetMaxNumJacsIC} & 4 \\
 Maximum no. of Newton iterations & \id{IDASetMaxNumItersIC} & 10 \\
 Turn off linesearch & \id{IDASetLineSearchOffIC} & \id{FALSE} \\
-Lower bound on Newton step & \id{IDASetStepToleranceIC} & (2/3)uround \\ 
+Lower bound on Newton step & \id{IDASetStepToleranceIC} & $(2/3) \text{uround}$ \\ 
 \hline
 \multicolumn{3}{|c|}{\bf IDADENSE linear solver} \\
 \hline
