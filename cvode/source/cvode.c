@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-05-12 17:21:46 $
+ * $Revision: 1.26 $
+ * $Date: 2004-05-13 17:43:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1249,6 +1249,14 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nstlp   = 0;
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
+
+  /* Initialize root finding variables */
+  cv_mem->cv_glo    = NULL;
+  cv_mem->cv_ghi    = NULL;
+  cv_mem->cv_groot  = NULL;
+  cv_mem->cv_iroots = NULL;
+  cv_mem->cv_gfun   = NULL;
+  cv_mem->cv_nrtfn  = 0; 
 
   /* Initialize Stablilty Limit Detection data */
   cv_mem->cv_nor = 0;
