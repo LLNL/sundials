@@ -1,19 +1,17 @@
 /*******************************************************************
- *                                                                 *
  * File          : idaband.h                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
+ * See sundials/ida/LICENSE or sundials/idas/LICENSE               *
  *-----------------------------------------------------------------*
- * This is the header file for the IDA band linear solver          *
+ * This is the header file for the IDA/IDAS band linear solver     *
  * module, IDABAND. It interfaces between the band module and the  *
- * IDA package when a banded linear solver is appropriate.         *
- *                                                                 *
+ * integrator when a banded linear solver is appropriate.          *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
@@ -23,13 +21,10 @@ extern "C" {
 #ifndef _idaband_h
 #define _idaband_h
 
-
 #include <stdio.h>
-#include "ida.h"
 #include "sundialstypes.h"
 #include "band.h"
 #include "nvector.h"
-
  
 /******************************************************************
  *                                                                *           
@@ -107,8 +102,8 @@ extern "C" {
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * In the case of a recoverable error return, IDA will attempt to *
- * recover by reducing the stepsize (which changes cj).           *
+ * In the case of a recoverable error return, the integrator will *
+ * attempt to recover by reducing the stepsize (which changes cj).*
  ******************************************************************/
   
 typedef int (*IDABandJacFn)(long int Neq, long int mupper, 
@@ -122,10 +117,11 @@ typedef int (*IDABandJacFn)(long int Neq, long int mupper,
  *                                                                *
  * Function : IDABand                                             *
  *----------------------------------------------------------------*
- * A call to the IDABand function links the main IDA integrator   *
+ * A call to the IDABand function links the main integrator       *
  * with the IDABAND linear solver module.                         *
  *                                                                *
- * ida_mem is the pointer to IDA memory returned by IDAMalloc.    *
+ * ida_mem is the pointer to the integrator memory returned by    *
+ *   IDAMalloc.                                                   *
  *                                                                *
  * mupper is the upper bandwidth of the banded Jacobian matrix.   *
  *                                                                *

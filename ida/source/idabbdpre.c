@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : idabbdpre.c                                     *
  * Programmers   : Allan G Taylor, Alan C Hindmarsh, and           *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -22,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ida.h"
 #include "idabbdpre.h"
 #include "idaspgmr.h"
 #include "sundialsmath.h"
@@ -31,15 +31,14 @@
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
 
-
 /* Error messages */
 
 #define IDABBDALLOC      "IBBDPrecAlloc-- "
-#define MSG_IDAMEM_NULL  IDABBDALLOC "IDA Memory is NULL.\n\n"
+#define MSG_IDAMEM_NULL  IDABBDALLOC "Integrator Memory is NULL.\n\n"
 #define MSG_WRONG_NVEC   IDABBDALLOC "Incompatible NVECTOR implementation.\n\n"
 #define MSG_PDATA_NULL   "IBBDPrecGet*-- BBDPrecData is NULL. \n\n"
 
-#define MSG_NO_PDATA   "IBBDSpgmr-- BBDPrecData is NULL. \n\n"
+#define MSG_NO_PDATA     "IBBDSpgmr-- BBDPrecData is NULL. \n\n"
 
 /* Prototype for difference quotient Jacobian calculation routine */
 

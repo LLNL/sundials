@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : idaspgmr.c                                      *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 18 July 2003                                    *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -12,13 +11,12 @@
  *-----------------------------------------------------------------*
  * This is the implementation file for the IDA Scaled              *
  * Preconditioned GMRES linear solver module, IDASPGMR.            *
- *                                                                 *
  *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "idaspgmr.h"
 #include "ida.h"
+#include "idaspgmr.h"
 #include "spgmr.h"
 #include "iterative.h"
 #include "sundialstypes.h"
@@ -29,11 +27,11 @@
 
 #define IDASPGMR               "IDASpgmr-- "
 
-#define MSG_IDAMEM_NULL        IDASPGMR "IDA memory is NULL.\n\n"
+#define MSG_IDAMEM_NULL        IDASPGMR "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL           IDASPGMR "A memory request failed.\n\n"
 
-#define MSG_SETGET_IDAMEM_NULL "IDASpgmrSet*/IDASpgmrGet*-- IDA memory is NULL. \n\n"
+#define MSG_SETGET_IDAMEM_NULL "IDASpgmrSet*/IDASpgmrGet*-- Integrator memory is NULL. \n\n"
 
 #define MSG_SETGET_LMEM_NULL   "IDASpgmrSet*/IDASpgmrGet*-- IDASPGMR memory is NULL. \n\n"
 
@@ -44,9 +42,9 @@
 
 #define MSG_IDAS_NEG_MAXRS     "IDASpgmrSetMaxRestarts-- maxrs<0 illegal. \n\n"
 
-#define MSG_IDAS_NEG_EPLIFAC   "IDASpgmrSetEpsLin-- eplifac<0.0 illegal. \n\n"
+#define MSG_IDAS_NEG_EPLIFAC   "IDASpgmrSetEpsLin-- eplifac < 0.0 illegal. \n\n"
 
-#define MSG_IDAS_NEG_DQINCFAC  "IDASpgmrSetIncrementFactor-- dqincfac<0.0 illegal. \n\n"
+#define MSG_IDAS_NEG_DQINCFAC  "IDASpgmrSetIncrementFactor-- dqincfac < 0.0 illegal. \n\n"
 
 /* Warning Messages */
 
@@ -270,7 +268,7 @@ int IDASpgmr(void *ida_mem, int maxl)
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to IDA memory */
+  /* Attach linear solver memory to the integrator memory */
   lmem = idaspgmr_mem;
 
   return(SUCCESS);

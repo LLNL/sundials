@@ -1,16 +1,15 @@
 /*******************************************************************
- *                                                                 *
  * File          : idadense.h                                      *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
  *                 Radu Serban @LLNL                               *
- * Version of    : 07 February 2004                                *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
+ * See sundials/ida/LICENSE or sundials/idas/LICENSE               *
  *-----------------------------------------------------------------*
- * This is the header file for the IDA dense linear solver         *
+ * This is the header file for the IDA/IDAS dense linear solver    *
  * module, IDADENSE.                                               *
  *                                                                 *
  *******************************************************************/
@@ -22,16 +21,12 @@ extern "C" {
 #ifndef _idadense_h
 #define _idadense_h
 
-
 #include <stdio.h>
-#include "ida.h"
 #include "sundialstypes.h"
 #include "dense.h"
 #include "nvector.h"
-
  
 /******************************************************************
- *                                                                *           
  * Type : IDADenseJacFn                                           *
  *----------------------------------------------------------------*
  * A dense Jacobian approximation function djac must have the     *
@@ -98,8 +93,8 @@ extern "C" {
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * In the case of a recoverable error return, IDA will attempt to *
- * recover by reducing the stepsize (which changes cj).           *
+ * In the case of a recoverable error return, the integrator will *
+ * attempt to recover by reducing the stepsize (which changes cj).*
  ******************************************************************/
   
 typedef int (*IDADenseJacFn)(long int Neq, realtype tt, N_Vector yy, 
@@ -112,10 +107,11 @@ typedef int (*IDADenseJacFn)(long int Neq, realtype tt, N_Vector yy,
  *                                                                *
  * Function : IDADense                                            *
  *----------------------------------------------------------------*
- * A call to the IDADense function links the main IDA integrator  *
+ * A call to the IDADense function links the main integrator      *
  * with the IDADENSE linear solver module.                        *
  *                                                                *
- * ida_mem is the pointer to IDA memory returned by IDACreate.    *
+ * ida_mem is the pointer to integrator memory returned by        *
+ *     IDACreate.                                                 *
  *                                                                *
  * Neq  is the problem size                                       *
  *                                                                *

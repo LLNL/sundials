@@ -51,7 +51,7 @@ int main(void)
   long int SystemSize = 3;
   realtype rtol, *yval, *ypval, *atval;
   realtype t0, t1, tout, tret, hused;
-  int iout, itol, itask, retval, ier, kused;
+  int iout, itol, itask, retval, kused;
   long int nst, nni, nje, nre, nreD, netf, ncfn;
 
   mem = NULL;

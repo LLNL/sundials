@@ -1,19 +1,16 @@
 /*******************************************************************
- *                                                                 *
  * File          : idaspgmr.h                                      *
  * Programmers   : Alan C. Hindmarsh and Allan G. Taylor           *
- * Version of    : 17 July 2003                                    *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/ida/LICENSE                           *
+ * See sundials/ida/LICENSE or sundials/idas/LICENSE               *
  *-----------------------------------------------------------------*
- * This is the header file for the IDA Scaled Preconditioned       *
- * GMRES linear solver module, IDASPGMR.                           *
- *                                                                 *
+ * This is the header file for the Scaled Preconditioned GMRES     *
+ * linear solver module, IDASPGMR.                                 *
  *******************************************************************/
-
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -22,9 +19,7 @@ extern "C" {
 #ifndef _idaspgmr_h
 #define _idaspgmr_h
 
-
 #include <stdio.h>
-#include "ida.h"
 #include "sundialstypes.h"
 #include "spgmr.h"
 #include "nvector.h"
@@ -49,7 +44,7 @@ extern "C" {
  * factorization on it.  This function will not be called in      *
  * advance of every call to PrecSolve, but instead will be called *
  * only as often as necessary to achieve convergence within the   *
- * Newton iteration in IDA.  If the PrecSolve function needs no   *
+ * Newton iteration.  If the PrecSolve function needs no          *
  * preparation, the PrecSetup function can be NULL.               *
  *                                                                *
  * Each call to the PrecSetup function is preceded by a call to   *
@@ -91,8 +86,8 @@ extern "C" {
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * In the case of a recoverable error return, IDA will attempt to *
- * recover by reducing the stepsize (which changes cj).           *
+ * In the case of a recoverable error return, the integrator will *
+ * attempt to recover by reducing the stepsize (which changes cj).*
  ******************************************************************/
   
 typedef int (*IDASpgmrPrecSetupFn)(realtype tt, 
@@ -146,8 +141,9 @@ typedef int (*IDASpgmrPrecSetupFn)(realtype tt,
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * Following a recoverable error, IDA will attempt to recover by  *
- * updating the preconditioner and/or reducing the stepsize.      *
+ * Following a recoverable error, the integrator will attempt to  *
+ * recover by updating the preconditioner and/or reducing the     *
+ * stepsize.                                                      *
  *                                                                *
  ******************************************************************/
   
@@ -204,11 +200,11 @@ typedef int (*IDASpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
  *                                                                *
  * Function : IDASpgmr                                            *
  *----------------------------------------------------------------*
- * A call to the IDASpgmr function links the main IDA integrator  *
- * with the IDASPGMR linear solver module.  Its parameters are    *
- * as follows:                                                    *
+ * A call to the IDASpgmr function links the main integrator with *
+ * the IDASPGMR linear solver module.  Its parameters are as      *
+ * follows:                                                       *
  *                                                                *
- * IDA_mem   is the pointer to IDA memory returned by IDACreate.  *
+ * IDA_mem   is the pointer to memory block returned by IDACreate.*
  *                                                                *
  * maxl      is the maximum Krylov subspace dimension, an         *
  *           optional input.  Pass 0 to use the default value,    *
@@ -343,8 +339,8 @@ typedef struct {
   N_Vector g_ytemp;    /* temp vector used by IDAAtimesDQ              */ 
   N_Vector g_yptemp;   /* temp vector used by IDAAtimesDQ              */ 
   N_Vector g_xx;       /* temp vector used by IDASpgmrSolve            */
-  N_Vector g_ycur;     /* IDA current y vector in Newton iteration     */
-  N_Vector g_ypcur;    /* IDA current yp vector in Newton iteration    */
+  N_Vector g_ycur;     /* current y vector in Newton iteration         */
+  N_Vector g_ypcur;    /* current yp vector in Newton iteration        */
   N_Vector g_rcur;     /* rcur = F(tn, ycur, ypcur)                    */
 
   IDASpgmrPrecSetupFn g_pset;     /* pset = user-supplied routine      */

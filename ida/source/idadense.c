@@ -1,9 +1,8 @@
 /*******************************************************************
- *                                                                 *
  * File          : idadense.c                                      *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -18,8 +17,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "idadense.h"
 #include "ida.h"
+#include "idadense.h"
 #include "dense.h"
 #include "sundialstypes.h"
 #include "nvector.h"
@@ -29,13 +28,13 @@
 
 #define IDADENSE               "IDADense-- "
 
-#define MSG_IDAMEM_NULL        IDADENSE "IDA memory is NULL.\n\n"
+#define MSG_IDAMEM_NULL        IDADENSE "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL           IDADENSE "A memory request failed.\n\n"
 
 #define MSG_WRONG_NVEC         IDADENSE "Incompatible NVECTOR implementation.\n\n"
 
-#define MSG_SETGET_IDAMEM_NULL "IDADenseSet*/IDADenseGet*-- IDA memory is NULL. \n\n"
+#define MSG_SETGET_IDAMEM_NULL "IDADenseSet*/IDADenseGet*-- Integrator memory is NULL. \n\n"
 
 #define MSG_SETGET_LMEM_NULL   "IDADenseSet*/IDADenseGet*-- IDADENSE memory is NULL. \n\n"
 
@@ -182,7 +181,7 @@ int IDADense(void *ida_mem, long int Neq)
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to IDA memory */
+  /* Attach linear solver memory to the integrator memory */
   lmem = idadense_mem;
 
   return(SUCCESS);
