@@ -1,51 +1,41 @@
-/*******************************************************************
- *                                                                 *
- * File          : sundialsmath.h                                  *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the header file for a C math library. The routines      *
- * listed here work with the type realtype as defined in           *
- * sundialstypes.h.                                                *
- * To do single precision floating point arithmetic, set the type  *
- * realtype to be float. To do double precision arithmetic, set    *
- * the type realtype to be double. The default implementations     *
- * for RPowerR and RSqrt call standard math library functions      *
- * which do double precision arithmetic. If this is unacceptable   *
- * when realtype is float, then the user should re-implement       *
- * these two routines by calling single precision routines         *
- * available on his/her machine.                                   *
- *                                                                 *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.4 $
+ * $Date: 2004-11-11 00:07:49 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
+ *                Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
+ * -----------------------------------------------------------------
+ * This is the header file for a simple C-language math library. The
+ * routines listed here work with the type realtype as defined in
+ * the header file shared/include/sundialstypes.h.
+ * -----------------------------------------------------------------
+ */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _sundialsmath_h
-#define _sundialsmath_h
+#ifndef _SUNDIALSMATH_H
+#define _SUNDIALSMATH_H
 
 #include "sundialstypes.h"
 
+/*
+ * -----------------------------------------------------------------
+ * Macros : MIN and MAX
+ * -----------------------------------------------------------------
+ * MIN(A,B) returns the minimum of A and B
+ *
+ * MAX(A,B) returns the maximum of A and B
+ * -----------------------------------------------------------------
+ */
 
-/******************************************************************
- *                                                                *
- * Macros : MIN, MAX, ABS, SQR                                    *
- *----------------------------------------------------------------*
- * MIN(A, B) returns the minimum of A and B.                      *
- *                                                                *
- * MAX(A, B) returns the maximum of A and B.                      *
- *                                                                *
- * ABS(A) returns the absolute value of A.                        *
- *                                                                *
- * SQR(A) returns the square of A.                                *
- *                                                                *
- ******************************************************************/
 #ifndef MIN
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 #endif
@@ -55,55 +45,82 @@ extern "C" {
 #endif
 
 #ifndef ABS
-#define ABS(A)    ((A < 0) ? -(A) : (A))
+#define ABS RAbs
 #endif
 
 #ifndef SQR
-#define SQR(A)    ((A) * (A))
+#define SQR RPower2
 #endif
 
-/******************************************************************
- *                                                                *
- * Function : RPowerI                                             *
- * Usage    : int exponent;                                       *
- *            realtype base, ans;                                 *
- *            ans = RPowerI(base,exponent);                       *
- *----------------------------------------------------------------*
- * RPowerI returns the value base^exponent, where base is a       *
- * realtype and exponent is an int.                               *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : RPowerI
+ * -----------------------------------------------------------------
+ * Usage : int exponent;
+ *         realtype base, ans;
+ *         ans = RPowerI(base,exponent);
+ * -----------------------------------------------------------------
+ * RPowerI returns the value of base^exponent, where base is of type
+ * realtype and exponent is of type int.
+ * -----------------------------------------------------------------
+ */
 
 realtype RPowerI(realtype base, int exponent);
 
-
-/******************************************************************
- *                                                                *
- * Function : RPowerR                                             *
- * Usage    : realtype base, exponent, ans;                       *
- *            ans = RPowerR(base,exponent);                       *
- *----------------------------------------------------------------*
- * RPowerR returns the value base^exponent, where both base and   *
- * exponent are realtype. If base < 0.0, then RPowerR returns 0.0 *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : RPowerR
+ * -----------------------------------------------------------------
+ * Usage : realtype base, exponent, ans;
+ *         ans = RPowerR(base,exponent);
+ * -----------------------------------------------------------------
+ * RPowerR returns the value of base^exponent, where both base and
+ * exponent are of type realtype. If base < ZERO, then RPowerR
+ * returns ZERO.
+ * -----------------------------------------------------------------
+ */
 
 realtype RPowerR(realtype base, realtype exponent);
 
-
-/******************************************************************
- *                                                                *
- * Function : RSqrt                                               *
- * Usage    : realtype sqrt_x;                                    *
- *            sqrt_x = RSqrt(x);                                  *
- *----------------------------------------------------------------*
- * RSqrt(x) returns the square root of x. If x < 0.0, then RSqrt  *
- * returns 0.0.                                                   *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : RSqrt
+ * -----------------------------------------------------------------
+ * Usage : realtype sqrt_x;
+ *         sqrt_x = RSqrt(x);
+ * -----------------------------------------------------------------
+ * RSqrt(x) returns the square root of x. If x < ZERO, then RSqrt
+ * returns ZERO.
+ * -----------------------------------------------------------------
+ */
 
 realtype RSqrt(realtype x);
 
+/*
+ * -----------------------------------------------------------------
+ * Function : RAbs (a.k.a. ABS)
+ * -----------------------------------------------------------------
+ * Usage : realtype abs_x;
+ *         abs_x = RAbs(x);
+ * -----------------------------------------------------------------
+ * RAbs(x) returns the absolute value of x.
+ * -----------------------------------------------------------------
+ */
+
+realtype RAbs(realtype x);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : RPower2 (a.k.a. SQR)
+ * -----------------------------------------------------------------
+ * Usage : realtype sqr_x;
+ *         sqr_x = RPower2(x);
+ * -----------------------------------------------------------------
+ * RPower2(x) returns x^2.
+ * -----------------------------------------------------------------
+ */
+
+realtype RPower2(realtype x);
 
 #endif
 
