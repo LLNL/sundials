@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-04 22:43:13 $
+ * $Revision: 1.12 $
+ * $Date: 2004-08-05 17:59:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -27,7 +27,7 @@
 
 /* Prototype of the Fortran routine */
 void FCV_PSOL(realtype*, realtype*, realtype*, realtype*, 
-              realtype*, realtype*, realtype*, realtype*, 
+              realtype*, realtype*, realtype*, 
               realtype*, int*, realtype*, int*);
 
 /***************************************************************************/
