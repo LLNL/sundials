@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2004-08-25 16:17:30 $
+ * $Revision: 1.32 $
+ * $Date: 2004-09-28 23:37:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -467,13 +467,14 @@ void *CVodeCreate(int lmm, int iter)
   maxord = (lmm == CV_ADAMS) ? ADAMS_Q_MAX : BDF_Q_MAX;
 
   /* copy input parameters into cv_mem */
-  cv_mem->cv_lmm    = lmm;
-  cv_mem->cv_iter   = iter;
+  cv_mem->cv_lmm  = lmm;
+  cv_mem->cv_iter = iter;
 
   /* Set uround */
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
+  cv_mem->cv_f        = NULL;
   cv_mem->cv_f_data   = NULL;
   cv_mem->cv_errfp    = stderr;
   cv_mem->cv_qmax     = maxord;
@@ -488,11 +489,9 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_maxnef   = MXNEF;
   cv_mem->cv_maxncf   = MXNCF;
   cv_mem->cv_nlscoef  = CORTES;
-  cv_mem->cv_nrtfn    = 0;
-  cv_mem->cv_g_data   = NULL;
 
   /* No mallocs have been done yet */
-  cv_mem->cv_MallocDone     = FALSE;
+  cv_mem->cv_MallocDone = FALSE;
 
   /* Return pointer to CVODE memory block */
   return((void *)cv_mem);
@@ -1066,21 +1065,21 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_qwait  = cv_mem->cv_L;
   cv_mem->cv_etamax = ETAMX1;
 
-  cv_mem->cv_qu = 0;
-  cv_mem->cv_hu = ZERO;
+  cv_mem->cv_qu    = 0;
+  cv_mem->cv_hu    = ZERO;
   cv_mem->cv_tolsf = ONE;
 
   /* Set the linear solver addresses to NULL.
      (We check != NULL later, in CVode, if using CV_NEWTON.) */
-  cv_mem->cv_linit   = NULL;
-  cv_mem->cv_lsetup  = NULL;
-  cv_mem->cv_lsolve  = NULL;
-  cv_mem->cv_lfree   = NULL;
-  cv_mem->cv_lmem    = NULL;
+  cv_mem->cv_linit  = NULL;
+  cv_mem->cv_lsetup = NULL;
+  cv_mem->cv_lsolve = NULL;
+  cv_mem->cv_lfree  = NULL;
+  cv_mem->cv_lmem   = NULL;
 
   /* Initialize zn[0] in the history array */
   N_VScale(ONE, y0, cv_mem->cv_zn[0]);
- 
+
   /* Initialize all the counters */
   cv_mem->cv_nst     = 0;
   cv_mem->cv_nfe     = 0;
@@ -1099,6 +1098,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_groot  = NULL;
   cv_mem->cv_iroots = NULL;
   cv_mem->cv_gfun   = NULL;
+  cv_mem->cv_g_data = NULL;
   cv_mem->cv_nrtfn  = 0;
 
   /* Initialize Stablilty Limit Detection data */
@@ -1211,9 +1211,9 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_qwait  = cv_mem->cv_L;
   cv_mem->cv_etamax = ETAMX1;
 
-  cv_mem->cv_qu     = 0;
-  cv_mem->cv_hu     = ZERO;
-  cv_mem->cv_tolsf  = ONE;
+  cv_mem->cv_qu    = 0;
+  cv_mem->cv_hu    = ZERO;
+  cv_mem->cv_tolsf = ONE;
 
   /* Initialize zn[0] in the history array */
   N_VScale(ONE, y0, cv_mem->cv_zn[0]);
@@ -1229,14 +1229,6 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nstlp   = 0;
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
-
-  /* Initialize root finding variables */
-  cv_mem->cv_glo    = NULL;
-  cv_mem->cv_ghi    = NULL;
-  cv_mem->cv_groot  = NULL;
-  cv_mem->cv_iroots = NULL;
-  cv_mem->cv_gfun   = NULL;
-  cv_mem->cv_nrtfn  = 0; 
 
   /* Initialize Stablilty Limit Detection data */
   cv_mem->cv_nor = 0;
@@ -4409,8 +4401,8 @@ static int CVRcheck3(CVodeMem cv_mem)
             and iroots[i] = 0 otherwise.
 
  This routine returns an int equal to:
-      RTFOUND =  1 if a root of g was found, or
-      CV_SUCCESS    =  0 otherwise.
+      RTFOUND = 1 if a root of g was found, or
+      CV_SUCCESS = 0 otherwise.
 
 ********************************************************************/
 
