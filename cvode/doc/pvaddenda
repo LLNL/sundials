@@ -1,7 +1,7 @@
 
                             ADDENDA TO 
   "User Documentation for PVODE, an ODE Solver for Parallel Computers"
-                          14 January 2002 
+                          1 March 2002    
 
 Since the publication of the PVODE User Documentation, several changes
 have been made in the PVODE package.  Those which affect the usage of
@@ -87,7 +87,7 @@ to be called, depending on which optional user routines are supplied.
 See the files fpvode.h and fpvbbd.h for details.
 
 12. The routines CVDiag and CVSpgmr that specifies the linear solver
-to be used (when iter = NEWTON) now has an int return value (0 for
+to be used (when iter = NEWTON) now have an int return value (0 for
 success, negative for failure).  These routines now perform all malloc
 operations specific to that linear solver, whereas previously these
 operations were done by a call from CVode to the (linit) member of the
@@ -99,14 +99,26 @@ for the various routines in the module have changed.  The user-callable
 routine returns a flag (as noted above), and the linit routine has one
 less argument.  See cvode.h for details.
 
-14. When CVReInit is used to re-initialize PVODE for a new problem of
-the same size as one already solved, as described above, the linear
-solver specification routine need not be called again if the choice of
-linear solver, and related input parameters, are unchanged.  In that
-case, the memory specific to the linear solver, as well as the main
-PVODE memory, will be re-used, with no new memory allocation operations.
+14. In the CVSPGMR module, a new routine has been written to
+reinitialize the linear solver module while allowing the existing
+linear solver memory to be reused when a sequence of problems is
+solved.  Following a call to CVReInit for a new problem, if there are
+no changes in the linear solver parameters, then no call to the linear
+solver specification routine CVSpgmr is needed.  If there are changes
+in linear solver parameters, but these do not increase the linear
+solver memory, then reinitialization routine CVReInitSpgmr should be
+called to communicate the new parameters.  These routines reset the
+link to the linear solver but do no memory allocations.  However, if
+the parameter changes require an increase in linear solver memory,
+then CVSpgmr must be called (and linear solver memory will be freed
+and reallocated).
 
 15. In the FPVODE package (Fortran interfaces), all calls to the linear
 solver specification routines now include an error return flag as a new
 (final) argument.  This change corresponds to the changes described
 above in these routines.  See fpvode.h for details.
+
+16. In the FPVODE interface package, there are six new routines that
+reinitialize the SPGMR linear solver module in the cases where the
+linear solver memory can be reused.  See fpvode.h for details.  The
+pvdiagkf example illustrates the use of one of the new routines.
