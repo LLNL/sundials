@@ -36,7 +36,7 @@ the sake of space).
 %------------------------------------------------------------------------------
 
 \paragraph{Initialization routine.}
-The type definition of \ID{linit} is
+The type definition of \id{linit} is
 \usfunction{linit}
 {
   int (*linit)(IDAMem IDA\_mem);
@@ -52,9 +52,9 @@ The type definition of \ID{linit} is
   \end{args}
 }
 {
-  An \id{linit} function should return \ID{LINIT\_OK} = 0 if it 
+  An \id{linit} function should return $0$ if it 
   has successfully initialized the {\cvode} linear solver and 
-  \ID{LINIT\_ERR} = -1 otherwise. 
+  a negative value otherwise. 
 }
 {
   If an error does occur, an appropriate message should be sent 

@@ -2,12 +2,12 @@
 \chapter{Using IDA}\label{s:simulation}
 %%===================================================================================
 
-This section is concerned with the use of {\ida} for the integration of DAEs.
-The following subsections treat the header files, the layout of the user's main
+This chapter is concerned with the use of {\ida} for the integration of DAEs.
+The following sections treat the header files, the layout of the user's main
 program, description of the {\ida} user-callable functions, and user-supplied functions. 
-The listings of the sample programs in the companion document \cite{ida2.1_ex} may also 
-be helpful. 
-Those codes are intended to serve as templates and are included in the {\ida} package.
+The listings of the sample programs in the companion document \cite{ida2.2.0_ex} 
+may also be helpful. Those codes are intended to serve as templates and 
+are included in the {\ida} package.
 
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
@@ -40,7 +40,7 @@ which defines the types \id{realtype} and \id{booleantype}
 and the constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
-(see \S\ref{s:nvector} for details).
+(see Chapter \ref{s:nvector} for details).
 For the two {\nvector} implementations that are included in the {\ida} package,
 the corresponding header files are:
 %%
@@ -52,7 +52,7 @@ the corresponding header files are:
 \end{itemize}
 %%
 Note that both these files include in turn the header file \Id{nvector.h} which 
-defines the abstract \Id{N\_Vector} and \Id{N\_VSpec} types. 
+defines the abstract \Id{N\_Vector} type. 
 
 Finally, a linear solver module header file is required. 
 \index{IDA@{\ida} linear solvers!header files}
@@ -115,37 +115,38 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   length for this processor); \id{N}, the global vector length (the
   problem size $N$, and the sum of all the values of \id{Nlocal});
   and the active set of processors.
-  
-\item\label{i:nv_spec_init}
-  {\bf Initialize vector specification}\index{nvSpec@{\tt nvSpec}}
+    
+\item
+  {\bf Set vector of initial values}
+ 
+  To set the vectors \id{y0} and \id{yp0} to initial values for $y$ and $y'$, 
+  use functions defined by a particular {\nvector} implementation. 
+  If a \id{realtype} array  \id{ydata}
+  already exists, containing the initial values of $y$, make the call:
 
-  {\s} \id{nvSpec = }\Id{NV\_SpecInit\_Serial}\id{(N);}
+  {\s} \id{y0 = NV\_Make\_Serial(N, ydata);}
 
-  {\p} \id{nvSpec = }\Id{NV\_SpecInit\_Parallel}\id{(comm, Nlocal, N, \&argc, \&argv);}
+  {\p} \id{y0 = NV\_Make\_Parallel(comm, Nlocal, N, ydata);}
+
+  Otherwise, make the call:
+
+  {\s} \id{y0 = NV\_New\_Serial(N);}
+
+  {\p} \id{y0 = NV\_New\_Parallel(comm, Nlocal, N);}
+
+  and load initial values into the structure defined by:
+
+  {\s} \id{NV\_DATA\_S(y0)}
+
+  {\p} \id{NV\_DATA\_P(y0)}
+
   Here \id{comm} is the MPI communicator, set in one of two ways: 
   If a proper subset of active processors is to be used, \id{comm} 
   must be set by suitable MPI calls. Otherwise, to specify that all 
   processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
   
-\item
-  {\bf Set initial values}
- 
-  To set the vectors \id{y0} and \id{yp0} to initial values for $y$ and $y'$, 
-  respectively, use macros defined by a particular 
-  {\nvector} implementation:
+  The initial conditions for $y'$ are set similarly.
 
-  {\s} \id{NV\_MAKE\_S(y0, ydata, nvSpec);}
-
-  {\p} \id{NV\_MAKE\_P(y0, ydata, nvSpec);}
-
-  if an existing real array \id{ydata} contains the initial values of $y$.  
-  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(nvSpec);} and load 
-  initial values into the real array defined by:
-
-  {\s} \id{NV\_DATA\_S(y0)}
-
-  {\p} \id{NV\_DATA\_P(y0)}
-  
 \item\label{i:ida_create} 
   {\bf Create {\ida} object}
 
@@ -217,27 +218,20 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   {\bf Deallocate memory for solution vector}
 
   Upon completion of the integration, deallocate memory for the vectors \id{yret}
-  and \id{ypret} by either calling a macro defined by the {\nvector} implementation:
+  and \id{ypret} by calling the destructor function defined by the {\nvector} 
+  implementation:
 
-  {\s} \id{NV\_DISPOSE\_S(yret);}
+  {\s} \id{NV\_Destroy\_Serial(yret);}
 
-  {\p} \id{NV\_DISPOSE\_P(yret);}
-
-  if \id{yret} was created from \id{ydata}, or by making the call 
-  \Id{N\_VFree}\id{(yret);} if \id{yret} was created by a call to \id{N\_VNew}.
+  {\p} \id{NV\_Destroy\_Parallel(yret);}
+  
+  and similarly for \id{ypret}.
   
 \item
   {\bf Free solver memory}
 
   \Id{IDAFree}\id{(ida\_mem);} to free the memory allocated for {\ida}.
   
-\item
-  {\bf Free vector specification memory}
-
-  {\s} \Id{NV\_SpecFree\_Serial}\id{(nvSpec);}
-
-  {\p} \Id{NV\_SpecFree\_Parallel}\id{(nvSpec);}
-
 \item 
   {\bf {\p} Finalize MPI}
   
@@ -282,7 +276,7 @@ created and allocated by the first two calls.
 %%
 \ucfunction{IDAMalloc}
 {
-flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol, nvSpec);
+flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
 }
 {
   The function \ID{IDAMalloc} provides required problem and solution specifications, 
@@ -292,9 +286,9 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol, nvSpec);
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block returned by \id{IDACreate}.
-  \item[res] (\Id{ResFn})
+  \item[res] (\Id{IDAResFn})
     is the {\C} function which computes $F$ in the DAE. This function has the form 
-    \id{res(t, yy, yp, resval, r\_data)} (for full details see \S\ref{ss:user_fct_sim}).
+    \id{res(t, yy, yp, resval, res\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -302,8 +296,8 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol, nvSpec);
   \item[yp0] (\id{N\_Vector})
     is the initial value of $y^\prime$. 
   \item[itol] (\id{int}) 
-    is either \Id{SS} or \Id{SV}, where \Id{itol}$=$\id{SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{SV} indicates scalar
+    is either \Id{IDA\_SS} or \Id{IDA\_SV}, where \Id{itol}$=$\id{IDA\_SS} indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{IDA\_SV} indicates scalar
     relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the DAE. 
@@ -312,21 +306,18 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol, nvSpec);
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance.
-  \item[nvSpec] (\id{NV\_Spec})
-    is a pointer to the vector specification structure. See \S\ref{ss:skeleton_sim}, 
-    step \ref{i:nv_spec_init}.
   \end{args}
 }
 {
   The return flag \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[IDAM\_ILL\_INPUT]
-  \item[\Id{SUCCESS}]
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}]
     The call to \id{IDAMalloc} was successful.
-  \item[\Id{IDAM\_NO\_MEM}] 
+  \item[\Id{IDA\_MEM\_NULL}] 
     The {\ida} memory block was not initialized through a previous call to \id{IDACreate}.
-  \item[\Id{IDAM\_MEM\_FAIL}] 
+  \item[\Id{IDA\_MEM\_FAIL}] 
     A memory allocation request has failed.
-  \item[\Id{IDAM\_ILL\_INPUT}] 
+  \item[\Id{IDA\_ILL\_INPUT}] 
     An input argument to \id{IDAMalloc} has an illegal value.
   \end{args}
 }
@@ -416,14 +407,14 @@ separately in \S\ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDADENSE\_ILL\_INPUT]
+  \item[\Id{IDADENSE\_SUCCESS}] 
     The {\idadense} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDADENSE\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{IDADENSE\_ILL\_INPUT}]
     The {\idadense} solver is not compatible with the current {\nvector} module.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{IDADENSE\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -463,15 +454,15 @@ separately in \S\ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDABAND\_ILL\_INPUT]
+  \item[\Id{IDABAND\_SUCCESS}] 
     The {\idaband} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDABAND\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{IDABAND\_ILL\_INPUT}]
     The {\idaband} solver is not compatible with the current {\nvector} module, or
     one of the Jacobian half-bandwidths is outside its valid range ($0 \ldots$ \id{N}$-1$).
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{IDABAND\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -508,12 +499,12 @@ separately in \S\ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_MEM\_NULL]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The {\idaspgmr} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{IDASPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -545,7 +536,7 @@ for the given problem.
 %
 \ucfunction{IDACalcIC}
 {
-  flag = IDASolve(ida\_mem, icopt, tout1);
+  flag = IDACalcIC(ida\_mem, icopt, tout1);
 }
 {
   The function \ID{IDACalcIC} corrects the initial values \id{y0}, \id{yp0}.
@@ -578,53 +569,53 @@ for the given problem.
 {
   The return value \id{flag} (of type \id{int}) will be one of the following:
 
-  \begin{args}[IC\_FAILED\_LINESRCH]
+  \begin{args}[IDA\_LINESEARCH\_FAIL]
 
-  \item[\Id{SUCCESS}]
+  \item[\Id{IDA\_SUCCESS}]
     \id{IDASolve} succeeded.
 
-  \item[\ID{IC\_IDA\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The argument \id{ida\_mem} was \id{NULL}.             
                
-  \item[\ID{IC\_NO\_MALLOC}]
+  \item[\Id{IDA\_NO\_MALLOC}]
     The allocation function \id{IDAMalloc} has not been called.
                                                   
-  \item[\ID{IC\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     One of the input arguments was illegal.    
                                                                  
-  \item[\ID{SETUP\_FAILURE}] 
+  \item[\Id{IDA\_LSETUP\_FAIL}] 
     The linear solver's setup function failed in an unrecoverable manner.
 
-  \item[\ID{IC\_LINIT\_FAIL}]
+  \item[\Id{IDA\_LINIT\_FAIL}]
     The linear solver's initialization function failed.   
                                                                  
-  \item[\ID{SOLVE\_FAILURE}] 
+  \item[\Id{IDA\_LSOLVE\_FAIL}] 
     The linear solver's solve function failed in an unrecoverable manner.
 
-  \item[\ID{IC\_BAD\_EWT}]
+  \item[\Id{IDA\_BAD\_EWT}]
     Some component of the error weight vector is zero (illegal), either for 
     the input value of \id{y0} or a corrected value.          
                                                                  
-  \item[\ID{IC\_FIRST\_RES\_FAIL}]
+  \item[\Id{IDA\_FIRST\_RES\_FAIL}]
     The user's residual function returned a recoverable error flag on the first call,
     but \id{IDACalcIC} was unable to recover.       
                                                                  
-  \item[\ID{RES\_NONRECOV\_ERR}]
+  \item[\Id{IDA\_RES\_FAIL}]
     The user's residual function returned a nonrecoverable error flag.
 
-  \item[\ID{IC\_NO\_RECOVERY}]
+  \item[\Id{IDA\_NO\_RECOVERY}]
     The user's residual function, or the linear solver's setup or solve function had a      
     recoverable error, but \id{IDACalcIC} was unable to recover.
                                                                  
-  \item[\ID{IC\_FAILED\_CONSTR}]
+  \item[\Id{IDA\_CONSTR\_FAIL}]
     \id{IDACalcIC} was unable to find a solution    
     satisfying the inequality constraints.     
                                                                  
-  \item[\ID{IC\_FAILED\_LINESRCH}]
+  \item[\Id{IDA\_LINESEARCH\_FAIL}]
     The linesearch algorithm failed to find a solution with a step larger than 
     \id{steptol} in weighted RMS norm.                      
                                                                  
-  \item[\ID{IC\_CONV\_FAILURE}]
+  \item[\Id{IDA\_CONV\_FAIL}]
     \id{IDACalcIC} failed to get convergence of the Newton iterations.
 
   \end{args} 
@@ -664,14 +655,14 @@ of the DAE.
   \item[itask] (\id{int})
     \index{itask@\texttt{itask}}
     a flag indicating the job of the solver for the next user step. 
-    The \Id{NORMAL} task is to have the solver take internal steps until   
+    The \Id{IDA\_NORMAL} task is to have the solver take internal steps until   
     it has reached or just passed the user specified \id{tout}
     parameter. The solver then interpolates in order to   
     return approximate values of $y($\id{tout}$)$ and $y^\prime($\id{tout}$)$. 
-    The \Id{ONE\_STEP} option tells the solver to just take one internal step  
+    The \Id{IDA\_ONE\_STEP} option tells the solver to just take one internal step  
     and return the solution at the point reached by that step. 
-    The \Id{NORMAL\_TSTOP} and \Id{ONE\_STEP\_TSTOP} modes are     
-    similar to \id{NORMAL} and \id{ONE\_STEP}, respectively, except    
+    The \Id{IDA\_NORMAL\_TSTOP} and \Id{IDA\_ONE\_STEP\_TSTOP} modes are     
+    similar to \id{IDA\_NORMAL} and \id{IDA\_ONE\_STEP}, respectively, except    
     that the integration never proceeds past the value      
     \id{tstop} (specified through the function \id{IDASetStopTime}).
   \end{args}
@@ -685,48 +676,47 @@ of the DAE.
   and \id{yret} = $y($\id{tout}$)$, \id{ypret} = $y^\prime($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[INTERMEDIATE\_RETURN]
-  \item[\Id{SUCCESS}]
+  \begin{args}[IDA\_TOO\_MUCH\_WORK]
+  \item[\Id{IDA\_SUCCESS}]
     \id{IDASolve} succeeded.
-  \item[\ID{INTERMEDIATE\_RETURN}]
-    \id{IDASolve} returned computed results for the last single step
-    (\id{itask}$=$\id{ONE\_STEP}).
-  \item[\ID{TSTOP\_RETURN}]
-    \id{IDASolve} succeeded by reaching the stopping point specified through
+  \item[\Id{IDA\_TSTOP\_RETURN}]
+    \id{IDASolve} succeeded by reaching the stop point specified through
     the optional input function \id{IDASetStopTime} (see \S\ref{ss:optional_input}).
-  \item[\ID{IDA\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} argument was \id{NULL}.
-  \item[\ID{ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     One of the inputs to \id{IDASolve} is illegal. This includes the situation when a 
     component of the error weight vectors becomes negative during internal 
-    time-stepping. The \id{ILL\_INPUT} flag will also be returned if the linear 
+    time-stepping. The \id{IDA\_ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
-    \id{IDACreate}) failed to set one of the linear solver-related fields 
-    in \id{ida\_mem} or if the linear solver's initialization function failed. 
+    \id{IDACreate}) failed to set the linear solver-specific \id{lsolve} field
+    in \id{ida\_mem}. 
     In any case, the user should see the printed error message for more details.
-  \item[\ID{TOO\_MUCH\_WORK}] 
+  \item[\Id{IDA\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach tout. 
     The default value for \id{mxstep} is \id{MXSTEP\_DEFAULT = 500}.
-  \item[\ID{TOO\_MUCH\_ACC}] 
+  \item[\Id{IDA\_TOO\_MUCH\_ACC}] 
     The solver could not satisfy the accuracy demanded by the user for some 
     internal step.
-  \item[\ID{ERR\_FAILURE}]
+  \item[\Id{IDA\_ERR\_FAIL}]
     Error test failures occurred too many times (\id{MXNEF = 10}) during one 
     internal time step or occurred with $|h| = h_{min}$.
-  \item[\ID{CONV\_FAILURE}] 
+  \item[\Id{IDA\_CONV\_FAIL}] 
     Convergence test failures occurred too many times (\id{MXNCF = 10}) during 
     one internal time step or occurred with $|h| = h_{min}$.             
-  \item[\ID{SETUP\_FAILURE}] 
+  \item[\Id{IDA\_LINIT\_FAIL}]
+    The linear solver's initialization function failed.   
+  \item[\Id{IDA\_LSETUP\_FAIL}] 
     The linear solver's setup function failed in an unrecoverable manner.
-  \item[\ID{SOLVE\_FAILURE}] 
+  \item[\Id{IDA\_LSOLVE\_FAIL}] 
     The linear solver's solve function failed in an unrecoverable manner.
-  \item[\ID{CONSTR\_FAILURE}]
+  \item[\Id{IDA\_CONSTR\_FAIL}]
     The inequality constraints were violated and the solver was unable
     to recover.
-  \item[\ID{REP\_RES\_REC\_ERR}]
+  \item[\Id{IDA\_REP\_RES\_ERR}]
     The user's residual function repeatedly returned a recoverable error
     flag, but the solver was unable to recover.
-  \item[\ID{RES\_NONRECOV\_ERR}]
+  \item[\Id{IDA\_RES\_FAIL}]
     The user's residual function returned a nonrecoverable error flag.
   \end{args} 
 }
@@ -735,7 +725,7 @@ of the DAE.
   initial conditions that was passed to \id{IDAMalloc}, while the
   vector \id{ypret} can occupy the same space as the \id{yp0}.
 
-  In the \id{ONE\_STEP} mode, \id{tout} is used on the first call only, 
+  In the \id{IDA\_ONE\_STEP} mode, \id{tout} is used on the first call only, 
   to get the direction and rough scale of the independent variable.
 
   All failure return values are negative and therefore a test \id{flag}$< 0$
@@ -756,7 +746,7 @@ For the most casual use of {\ida}, the reader can skip to \S\ref{ss:user_fct_sim
 We note that, on error return, all these functions also print an error message to 
 \id{stderr} (or to the file pointed to by \id{errfp} if already specified).
 \index{error message}
-We also note that all error return values are negative, so a test \id{flag}$==0$
+We also note that all error return values are negative, so a test \id{flag}$<0$
 will catch any error.
 
 \begin{table}
@@ -769,7 +759,7 @@ will catch any error.
 \hline
 \multicolumn{3}{|c|}{\bf IDA main solver} \\
 \hline
-Pointer to an error file & \id{IDASetErrFile} & \id{NULL}  \\
+Pointer to an error file & \id{IDASetErrFile} & \id{stderr}  \\
 Data for residual function & \id{IDASetRdata} & \id{NULL} \\
 Maximum order for BDF method & \id{IDASetMaxOrd} & 5 \\
 Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & \id{IDASetMaxNumSteps} & 500 \\
@@ -780,19 +770,19 @@ Maximum no. of error test failures & \id{IDAMaxErrTestFails} & 10 \\
 Maximum no. of nonlinear iterations & \id{IDASetMaxNonlinIters} & 4 \\
 Maximum no. of convergence failures & \id{IDASetMaxConvFails} & 10 \\
 Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 7 \\
-Coefficient in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
+Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{FALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \\
-Inequality constraints on solution components & \id{IDASetConstraints} & \\
+Inequality constraints on solution & \id{IDASetConstraints} & \\
 \hline
 \multicolumn{3}{|c|}{\bf IDA initial conditions calculation} \\
 \hline
-Coefficient in the nonlinear convergence test & \id{IDASetNonlinConvCoefIC} & 0.0033 \\
+Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoefIC} & 0.0033 \\
 Maximum no. of steps & \id{IDASetMaxNumStepsIC} & 5 \\
 Maximum no. of Jacobian/precond. evals. & \id{IDASetMaxNumJacsIC} & 4 \\
 Maximum no. of Newton iterations & \id{IDASetMaxNumItersIC} & 10 \\
 Turn off linesearch & \id{IDASetLineSearchOffIC} & \id{FALSE} \\
-Lower bound on Newton step & \id{IDASetStepToleranceIC} & (2/3)(unit roundoff) \\ 
+Lower bound on Newton step & \id{IDASetStepToleranceIC} & (2/3)uround \\ 
 \hline
 \multicolumn{3}{|c|}{\bf IDADENSE linear solver} \\
 \hline
@@ -844,47 +834,48 @@ flag = IDASetErrFile(ida\_mem, errfp);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
   The default value for \id{errfp} is \id{stderr}.
 
-  Passing a value \id{errfp}$=$\id{NULL} disables all future error message printing.
+  Passing a value \id{NULL} disables all future error message output
+  (except for the case in which the {\ida} memory pointer is \id{NULL}).
 }
 %%
 %%
 \ucfunction{IDASetRdata}
 {
-  flag = IDASetRdata(ida\_mem, r\_data);
+  flag = IDASetRdata(ida\_mem, res\_data);
 }
 {
-  The function \ID{IDASetRdata} specifies the user data block \Id{r\_data}
+  The function \ID{IDASetRdata} specifies the user data block \Id{res\_data}
   and attaches it to the main {\ida} memory block.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[res\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[f\_data] (\id{void *})
+  \item[res\_data] (\id{void *})
     pointer to the user data.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
-  If \id{f\_data} is not specified, a \id{NULL} pointer is
+  If \id{res\_data} is not specified, a \id{NULL} pointer is
   passed to all user functions that have it as an argument.
 }
 %%
@@ -907,18 +898,18 @@ flag = IDASetMaxOrder(ida\_mem, maxord);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     The specified value \id{maxord} is negative, or larger than 
     its previous value.
   \end{args}
 }
 {
-  The default value is \Id{MAXORD\_DEFAULT}$= 5$.
+  The default value is $5$.
   Since \id{maxord} affects the memory requirements
   for the internal {\ida} memory block, its value
   can not be increased past its previous value.
@@ -944,12 +935,12 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     \id{mxsteps} is non-positive.
   \end{args}
 }
@@ -975,10 +966,10 @@ flag = IDASetInitStep(ida\_mem, hin);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1009,12 +1000,12 @@ flag = IDASetMinStep(ida\_mem, hmin);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     Either \id{hmin} is not positive or it is larger than the maximum allowable step.
   \end{args}
 }
@@ -1041,12 +1032,12 @@ flag = IDASetMaxStep(ida\_mem, hmax);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     Either \id{hmax} is not positive or it is smaller than the minimum allowable step.
   \end{args}
 }
@@ -1075,10 +1066,10 @@ flag = IDASetStopTime(ida\_mem, tstop);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1105,10 +1096,10 @@ flag = IDASetMaxErrTestFails(ida\_mem, maxnef);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1135,10 +1126,10 @@ flag = IDASetMaxNonlinIters(ida\_mem, maxcor);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1166,10 +1157,10 @@ flag = IDASetMaxConvFails(ida\_mem, maxncf);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1196,10 +1187,10 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1217,20 +1208,20 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
   suppress algebraic variables in the local error test.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[suppressalg]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[suppresslag] (\id{booleantype})
-    flag to indicate whether to suppress (\id{TRUE}) or not
+    indicates whether to suppress (\id{TRUE}) or not
     (\id{FALSE}) the algebraic variables in the local error test.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1260,17 +1251,17 @@ flag = IDASetId(ida\_mem, id);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
   The vector \id{id} is required if the algebraic variables are to be 
   suppressed from the local error test (see \id{IDASetSuppressAlg}) or
-  if \id{IDACalcIC} is to be called with \id{icopt}$=$\id{CALC\_YA\_YDP\_INIT}
+  if \id{IDACalcIC} is to be called with \id{icopt} $=$ \id{CALC\_YA\_YDP\_INIT}
   (see \S\ref{ss:idacalcic}).
 }
 %%
@@ -1298,10 +1289,10 @@ flag = IDASetConstraints(ida\_mem, constraints);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -1339,7 +1330,7 @@ to its dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
-identical to \id{f\_data}, if the latter was specified through \id{IDASetFdata}.
+identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata}.
 %%
 \index{Jacobian approximation function!dense!user-supplied}
 \ucfunction{IDADenseSetJacFn}
@@ -1360,12 +1351,12 @@ identical to \id{f\_data}, if the latter was specified through \id{IDASetFdata}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDADENSE\_LMEM\_NULL]
+  \item[\Id{IDADENSE\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDADENSE\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDADENSE\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
@@ -1395,12 +1386,12 @@ identical to \id{f\_data}, if the latter was specified through \id{IDASetFdata}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDADENSE\_LMEM\_NULL]
+  \item[\Id{IDADENSE\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDADENSE\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDADENSE\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
@@ -1428,7 +1419,7 @@ to its banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
-identical to \id{f\_data}, if the latter was specified through \id{IDASetFdata}.
+identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata}.
 %%
 \index{Jacobian approximation function!band!user-supplied}
 \ucfunction{IDABandSetJacFn}
@@ -1449,12 +1440,12 @@ identical to \id{f\_data}, if the latter was specified through \id{IDASetFdata}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDABAND\_LMEM\_NULL]
+  \item[\Id{IDABAND\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDABAND\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDABAND\_LMEM\_NULL}]
     The {\idaband} linear solver has not been initialized.
   \end{args}
 }
@@ -1484,12 +1475,12 @@ identical to \id{f\_data}, if the latter was specified through \id{IDASetFdata}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDABAND\_LMEM\_NULL]
+  \item[\Id{IDABAND\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDABAND\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDABAND\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
@@ -1529,8 +1520,8 @@ Optionally, the {\idaspgmr} solver passes the pointer it receives through
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
-The pointer \id{P\_data} may be identical to \id{f\_data}, if the latter was 
-specified through \id{IDASetFdata}.
+The pointer \id{P\_data} may be identical to \id{res\_data}, if the latter was 
+specified through \id{IDASetRdata}.
 
 The \index{IDASPGMR@{\idaspgmr} linear solver!Jacobian approximation used by}
 {\idaspgmr} solver requires a function to compute an approximation to the
@@ -1548,7 +1539,7 @@ the user can specify, through a call to \id{IDASpgmrSetJacData}, a pointer to a
 user-defined data structure, \id{jac\_data}, which
 the {\idaspgmr} solver passes to the Jacobian times vector function \id{jtimes} each
 time it is called.  
-The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
+The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{res\_data}.
 %%
 %%
 \ucfunction{IDASpgmrSetPrecSolveFn}
@@ -1569,12 +1560,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1601,12 +1592,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1634,12 +1625,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1666,12 +1657,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1702,12 +1693,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -1736,14 +1727,14 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_ILL\_INPUT]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
-  \item[\Id{LIN\_ILL\_INPUT}]
+  \item[\Id{IDASPGMR\_ILL\_INPUT}]
     The Gram-Schmidt orthogonalization type \id{gstype} is not valid.
   \end{args}
 }
@@ -1752,12 +1743,46 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 %%
 %%
-\ucfunction{IDASpgmrSetDelt}
+\ucfunction{IDASpgmrSetMaxRestarts}
 {
-  flag = IDASpgmrSetDelt(ida\_mem, realtype delt);
+  flag = IDASpgmrSetMaxRestarts(ida\_mem, int maxrs);
 }
 {
-  The function \ID{IDASpgmrSetDelt} specifies the factor by
+  The function \ID{IDASpgmrSetMaxRestarts} specifies the maximum number of 
+  restarts to be used in the GMRES algorithm.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxrs] (\id{int})
+    maximum number of restarts.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPGMR\_ILL\_INPUT]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPGMR\_ILL\_INPUT}]
+    The \id{maxrs} argument is negative.
+  \end{args}
+}
+{
+  The default value is $5$. Pass \id{maxrs} $=0$ to specify no restarts.
+}
+%%
+%%
+\ucfunction{IDASpgmrSetEpslin}
+{
+  flag = IDASpgmrSetEpsLin(ida\_mem, realtype eplifac);
+}
+{
+  The function \ID{IDASpgmrSetEps} specifies the factor by
   which the GMRES\index{GMRES method} convergence test constant is reduced
   from the Newton iteration test constant.
 }
@@ -1765,66 +1790,62 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[delt] (\id{realtype})
+  \item[eplifac] (\id{realtype})
 
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_ILL\_INPUT]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
-  \item[\Id{LIN\_ILL\_INPUT}]
-    The factor \id{delt} is negative.  
+  \item[\Id{IDASPGMR\_ILL\_INPUT}]
+    The factor \id{eplifac} is negative.  
   \end{args}
 }
 {
   The default value is $0.05$.
 
-  Passing a value \id{delt}$ = 0.0$ also indicates using the default value.
+  Passing a value \id{eplifac}$ = 0.0$ also indicates using the default value.
 }
 %%
 %%
-\ucfunction{IDASpgmrResetPrecType}
+\ucfunction{IDASpgmrSetIncrementFactor}
 {
-  flag = IDASpgmrResetPrecType(ida\_mem, int pretype);
+  flag = IDASpgmrSetIncrementFactor(ida\_mem, dqincfac);
 }
 {
-  The function \ID{IDASpgmrResetPrecType} resets the type
-  of preconditioning to be used.
+  The function \ID{IDASpgmrSetIncrementFactor} specifies a factor in the 
+  increments to $y$ used in the difference quotient approximations 
+  to the Jacobian-vector products.  
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}}
-    specifies the type of prconditioning and may be
-    \Id{NONE}, \Id{LEFT}, \Id{RIGHT}, or \Id{BOTH}.
+  \item[dqincfac] (\id{realtype})
+    difference quotient increment factor.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_ILL\_INPUT]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
-  \item[\Id{LIN\_ILL\_INPUT}]
-    The preconditioner type \id{pretype} is not valid.
+  \item[\Id{IDASPGMR\_ILL\_INPUT}]
+    The increment factor was non-positive.
   \end{args}
 }
 {
-  The preconditioning type is initially specified in the call
-  to \id{IDASpgmr} (see \S\ref{sss:lin_solv_init}). This function call is
-  needed only if \id{pretype} is being changed from its value in the
-  previous call to \id{IDASpgmr}.
+  The default value is \id{dqincfac} $=1.0$.
 }
 %%
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|)}
@@ -1858,12 +1879,12 @@ flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     The \id{epiccon} factor is negative (illegal).
   \end{args}
 }
@@ -1895,12 +1916,12 @@ flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     \id{maxnh} is non-positive.
   \end{args}
 }
@@ -1928,12 +1949,12 @@ flag = IDASetMaxNumJacsIC(ida\_mem, maxnj);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     \id{maxnj} is non-positive.
   \end{args}
 }
@@ -1961,12 +1982,12 @@ flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     \id{maxnit} is non-positive.
   \end{args}
 }
@@ -1994,10 +2015,10 @@ flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_NO\_MEM]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2024,12 +2045,12 @@ flag = IDASetStepToleranceIC(ida\_mem, steptol);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAS\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{IDAS\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDAS\_ILL\_INPUT}]
+  \item[\Id{IDA\_ILL\_INPUT}]
     The \id{steptol} tolerance is negative (illegal).
   \end{args}
 }
@@ -2046,58 +2067,47 @@ flag = IDASetStepToleranceIC(ida\_mem, steptol);
 \subsection{Interpolated output function}\label{ss:optional_dky}
 \index{optional output!interpolated solution}
 
-An optional function \ID{IDAGetDky} is available to obtain additional output values.  
+An optional function \ID{IDAGetSolution} is available to obtain additional output values.  
 This function must be called after a successful return from \id{IDASolve} and provides 
-interpolated values of $y$ or its derivatives, up to the current order of the 
-integration method, interpolated to any value of $t$ in the last internal step 
+interpolated values of $y$ and $y'$ for any value of $t$ in the last internal step 
 taken by {\ida}.
 
-The call to the \id{IDAGetDky} function has the following form:
+The call to the \id{IDAGetSolution} function has the following form:
 %%
-\ucfunction{IDAGetDky}
+\ucfunction{IDAGetSolution}
 {
-  flag = IDAGetDky(ida\_mem, t, k, dky);
+  flag = IDAGetSolution(ida\_mem, t, yret, ypret);
 }
 {
-  The function \ID{IDAGetDky} computes the \id{k}-th derivative of the \id{y} function at      
-  time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$ \id{t} $\le t_n$, 
-  $t_n$ denotes the current internal time reached, and $h_u$ is the 
-  last internal step size successfully used by the solver. 
-  The user may request \id{k} $= 0, 1, ..., q_u$, where $q_u$ is the 
-  current order. 
+  The function \ID{IDAGetSolution} computes the interpolated values of 
+  $y$ and $y'$ for any value of $t$ in the last internal step taken by {\ida}.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[t] (\id{realtype})
-  \item[k] (\id{int})
-  \item[dky] (\id{N\_Vector})
-    vector containing the derivative.
-    This vector must be allocated by the caller. 
+  \item[yret] (\id{N\_Vector})
+    vector containing the interpolated $y(t)$.
+  \item[ypret] (\id{N\_Vector})
+    vector containing the interpolated $y'(t)$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[DKY\_NO\_MEM] 
-  \item[\Id{OKAY}]
+  \begin{args}[IDA\_MEM\_NULL] 
+  \item[\Id{IDA\_SUCCESS}]
     \id{IDAGetDky} succeeded.
-  \item[\Id{BAD\_K}] 
-    \id{k} is not in the range $0, 1, ..., q_u$.
-  \item[\Id{BAD\_T}] 
-    \id{t} is not in the interval $[t_n - h_u , t_n]$.
-  \item[\Id{BAD\_DKY}] 
-    The \id{dky} argument was \id{NULL}.
-  \item[\Id{DKY\_NO\_MEM}] 
+  \item[\Id{IDA\_MEM\_NULL}] 
     The \id{ida\_mem} argument was \id{NULL}.
+  \item[\Id{IDA\_BAD\_T}] 
+    \id{t} is not in the interval $[t_n - h_u , t_n]$.
   \end{args}
 
 }
 {
-  It is only legal to call the function \id{IDAGetDky} after a 
-  successful return from \id{IDASolve}. See \id{IDAGetLastOrder} 
-  and \id{IDAGetLastStep} in the next section for access to 
-  $q_u$ and $h_u$.
+  It is only legal to call the function \id{IDAGetSolution} after a 
+  successful return from \id{IDASolve}. 
 }
 
 %%
@@ -2121,10 +2131,9 @@ which are then described in detail in the remainder of this section.
 \hline
 \multicolumn{2}{|c|}{\bf IDA main solver} \\
 \hline
-Size of {\ida} integer workspace & \id{IDAGetIntWorkSpace} \\
-Size of {\ida} real workspace & \id{IDAGetRealWorkSpace} \\
+Size of {\ida} real and integer workspace & \id{IDAGetWorkSpace} \\
 Cumulative number of internal steps & \id{IDAGetNumSteps} \\
-No. of calls to r.h.s. function & \id{IDAGetNumRhsEvals} \\
+No. of calls to residual function & \id{IDAGetNumResEvals} \\
 No. of calls to linear solver setup function & \id{IDAGetNumLinSolvSetups} \\
 No. of local error test failures that have occurred & \id{IDAGetNumErrTestFails} \\
 Order used during the last step & \id{IDAGetLastOrder} \\
@@ -2142,28 +2151,28 @@ No. of nonlinear convergence failures & \id{IDAGetNumNonlinSolvConvFails} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDADENSE linear solver} \\
 \hline
-Size of {\idadense} integer workspace & \id{IDADenseGetIntWorkSpace} \\
-Size of {\idadense} real workspace & \id{IDADenseGetRealWorkSpace} \\
+Size of {\idadense} real and integer workspace & \id{IDADenseGetWorkSpace} \\
 No. of Jacobian evaluations & \id{IDADenseGetNumJacEvals} \\
-No. of r.h.s. calls for finite diff. Jacobian evals. & \id{IDADenseGetNumRhsEvals} \\ 
+No. of residual calls for finite diff. Jacobian evals. & \id{IDADenseGetNumResEvals} \\ 
+Last return from a {\idadense} function & \id{IDADenseGetLastFlag} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf IDABAND linear solver} \\
 \hline
-Size of {\idaband} integer workspace & \id{IDABandGetIntWorkSpace} \\
-Size of {\idaband} real workspace & \id{IDABandGetRealWorkSpace} \\
+Size of {\idaband} real and integer workspace & \id{IDABandGetWorkSpace} \\
 No. of Jacobian evaluations & \id{IDABandGetNumJacEvals} \\
-No. of r.h.s. calls for finite diff. Jacobian evals. & \id{IDABandGetNumRhsEvals} \\ 
+No. of residual calls for finite diff. Jacobian evals. & \id{IDABandGetNumResEvals} \\ 
+Last return from a {\idaband} function & \id{IDABandGetLastFlag} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf IDASPGMR linear solver} \\
 \hline
-Size of {\idaspgmr} integer workspace & \id{IDASpgmrGetIntWorkSpace} \\
-Size of {\idaspgmr} real workspace & \id{IDASpgmrGetRealWorkSpace} \\
+Size of {\idaspgmr} real and integer workspace & \id{IDASpgmrGetWorkSpace} \\
 No. of linear iterations & \id{IDASpgmrGetNumLinIters} \\
 No. of linear convergence failures & \id{IDASpgmrGetNumConvFails} \\
 No. of preconditioner evaluations & \id{IDASpgmrGetNumPrecEvals} \\
 No. of preconditioner solves & \id{IDASpgmrGetNumPrecSolves} \\
 No. of Jacobian-vector product evaluations & \id{IDASpgmrGetNumJtimesEvals} \\
-No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{IDASpgmrGetNumRhsEvals} \\ 
+No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASpgmrGetNumResEvals} \\ 
+Last return from a {\idaspgmr} function & \id{IDASpgmrGetLastFlag} \\ 
 \hline
 \end{tabular}
 \end{table}
@@ -2185,85 +2194,30 @@ These optional output functions are described next.
 %%
 \index{memory requirements!IDA@{\ida} solver|(}
 %%
-\ucfunction{IDAGetIntWorkSpace}
-{
-  flag = IDAGetIntWorkSpace(ida\_mem, \&leniw);
-}
-{
-  The function \ID{IDAGetIntWorkSpace} returns the
-  {\ida} integer workspace size.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[leniw] (\id{long int})
-    number of integer values in the {\ida} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
-    The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{}
-%%
-\ucfunction{IDAGetRealWorkSpace}
-{
-  flag = IDAGetRealWorkSpace(ida\_mem, \&lenrw);
-}
-{
-  The function \ID{IDAGetRealWorkSpace} returns the
-  {\ida} real workspace size.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[lenrw] (\id{long int})
-    number of \id{realtype} values in the {\ida} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
-    The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{}
-%%
-%%
 \ucfunction{IDAGetWorkSpace}
 {
-  flag = IDAGetWorkSpace(ida\_mem, \&leniw, \&lenrw);
+  flag = IDAGetWorkSpace(ida\_mem, \&lenrw, \&leniw);
 }
 {
   The function \ID{IDAGetWorkSpace} returns the
-  {\ida} integer and real workspace sizes.
+  {\ida} real and integer workspace sizes.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
+  \item[lenrw] (\id{long int})
+    number of real values in the {\ida} workspace.
   \item[leniw] (\id{long int})
     number of integer values in the {\ida} workspace.
-  \item[lenrw] (\id{long int})
-    number of \id{realtype} values in the {\ida} workspace.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2289,44 +2243,44 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {}
 %%
 %%
-\ucfunction{IDAGetNumRhsEvals}
+\ucfunction{IDAGetNumResEvals}
 {
-  flag = IDAGetNumRhsEvals(ida\_mem, \&nfevals);
+  flag = IDAGetNumResEvals(ida\_mem, \&nrevals);
 }
 {
-  The function \ID{IDAGetNumRhsEvals} returns the 
-  number of calls to the user's right-hand side evaluation function.
+  The function \ID{IDAGetNumResEvals} returns the 
+  number of calls to the user's residual evaluation function.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nfevals] (\id{long int})
-    number of calls to the user's \id{f} function.
+  \item[nrevals] (\id{long int})
+    number of calls to the user's \id{res} function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
-  The \id{nfevals} value returned by \id{IDAGetNumRhsEvals} does not
-  account for calls made to \id{f} from a linear solver or preconditioner 
+  The \id{nrevals} value returned by \id{IDAGetNumResEvals} does not
+  account for calls made to \id{res} from a linear solver or preconditioner 
   module. 
 }
 %%
@@ -2349,10 +2303,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2377,10 +2331,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2405,10 +2359,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2433,10 +2387,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2461,10 +2415,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2489,10 +2443,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2517,10 +2471,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2551,10 +2505,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2581,10 +2535,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2609,10 +2563,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2640,10 +2594,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2655,9 +2609,9 @@ These optional output functions are described next.
 \ucfunction{IDAGetIntegratorStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = IDAGetIntegratorStats(&ida\_mem, \&nsteps, \&nfevals, \&nlinsetups, \\
-                                 &\&netfails, \&qlast, \&qcur, \&hinused, \&hlast, \\
-                                 &\&hcur, \&tcur);
+    flag = IDAGetIntegratorStats(&ida\_mem, \&nsteps, \&nrevals, \&nlinsetups, \\
+                                 &\&netfails, \&qlast, \&qcur, \&hinused,\\
+                                 &\&hlast, \&hcur, \&tcur);
   \end{tabular}
 }
 {
@@ -2670,8 +2624,8 @@ These optional output functions are described next.
     pointer to the {\ida} memory block.
   \item[nsteps] (\id{long int})
     number of steps taken by {\ida}.
-  \item[nfevals] (\id{long int})
-    number of calls to the user's \id{f} function.
+  \item[nrevals] (\id{long int})
+    number of calls to the user's \id{res} function.
   \item[nlinsetups] (\id{long int})
     number of calls made to the linear solver setup function.
   \item[netfails] (\id{long int})
@@ -2692,10 +2646,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     the optional output values have been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     the \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2720,10 +2674,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2748,10 +2702,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2778,10 +2732,10 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDAG\_NO\_MEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDAG\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
@@ -2801,75 +2755,45 @@ to access these are described below.
 \index{optional output!dense linear solver|(}
 \index{IDADENSE@{\idadense} linear solver!optional output|(}
 %%
-\index{IDADENSE@{\idadense} linear solver!memory requirements|(} 
-\index{memory requirements!IDADENSE@{\idadense} linear solver|(}
+\index{IDADENSE@{\idadense} linear solver!memory requirements} 
+\index{memory requirements!IDADENSE@{\idadense} linear solver}
 %%
-\ucfunction{IDADenseGetIntWorkSpace}
+\ucfunction{IDADenseGetWorkSpace}
 {
-  flag = IDADenseGetIntWorkSpace(ida\_mem, \&leniwD);
+  flag = IDADenseGetWorkSpace(ida\_mem, \&lenrwD, \&leniwD);
 }
 {
-  The function \ID{IDADenseGetIntWorkSpace} returns the
-  {\idadense} integer workspace size.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[leniwD] (\id{long int})
-    the number of integer values in the {\idadense} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
-    The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
-    The {\idadense} linear solver has not been initialized.
-  \end{args}
-}
-{
-  In terms of the problem size $N$, the actual size of the integer workspace
-  is $N$ integer words.
-}
-%%
-\ucfunction{IDADenseGetRealWorkSpace}
-{
-  flag = IDADenseGetRealWorkSpace(ida\_mem, \&lenrwD);
-}
-{
-  The function \ID{IDADenseGetRealWorkSpace} returns the
-  {\idadense} real workspace size.
+  The function \ID{IDADenseGetWorkSpace} returns the sizes of
+  the {\idadense} real and integer workspaces.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[lenrwD] (\id{long int})
-    the number of \id{realtype} values in the {\idadense} workspace.
+    the number of real values in the {\idadense} workspace.
+  \item[leniwD] (\id{long int})
+    the number of integer values in the {\idadense} workspace.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDA\_MEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
 {
   In terms of the problem size $N$, the actual size of the real workspace
   is $2N^2$ \id{realtype} words.
+
+  In terms of the problem size $N$, the actual size of the integer workspace
+  is $N$ integer words.
 }
-%%
-\index{IDADENSE@{\idadense} linear solver!memory requirements|)} 
-\index{memory requirements!IDADENSE@{\idadense} linear solver|)}
 %%
 %%
 \ucfunction{IDADenseGetNumJacEvals}
@@ -2890,12 +2814,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDADENSE\_LMEM\_NULL]
+  \item[IDADENSE\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDADENSE\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDADENSE\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
@@ -2921,12 +2845,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDADENSE\_LMEM\_NULL]
+  \item[IDADENSE\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDADENSE\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDADENSE\_LMEM\_NULL}]
     The {\idadense} linear solver has not been initialized.
   \end{args}
 }
@@ -2935,6 +2859,39 @@ to access these are described below.
   \id{IDADenseDQJac} difference quotient function is used.
 }
 %%
+\ucfunction{IDADenseGetLastFlag}
+{
+  flag = IDADenseGetLastFlag(ida\_mem, \&flag);
+}
+{
+  The function \ID{IDADenseGetLastFlag} returns the
+  last return value from a {\idadense} routine. 
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from a {\idadense} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDADENSE\_LMEM\_NULL]
+  \item[\Id{IDADENSE\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{IDADENSE\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDADENSE\_LMEM\_NULL}]
+    The {\idadense} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\idadense} setup function failed (\id{IDASolve} returned \id{IDA\_LSETUP\_FAIL}),
+  the value \id{flag} is equal to the column index (numbered from one) at which
+  a zero diagonal element was encountered during the LU factorization of the 
+  dense Jacobian matrix.
+}
 %%
 \index{IDADENSE@{\idadense} linear solver!optional output|)}
 \index{optional output!dense linear solver|)}
@@ -2945,65 +2902,35 @@ to access these are described below.
 \index{optional output!band linear solver|(}
 \index{IDABAND@{\idaband} linear solver!optional output|(}
 %%
-\index{IDABAND@{\idaband} linear solver!memory requirements|(} 
-\index{memory requirements!IDABAND@{\idaband} linear solver|(}
+\index{IDABAND@{\idaband} linear solver!memory requirements} 
+\index{memory requirements!IDABAND@{\idaband} linear solver}
 %%
-\ucfunction{IDABandGetIntWorkSpace}
+\ucfunction{IDABandGetWorkSpace}
 {
-  flag = IDABandGetIntWorkSpace(ida\_mem, \&leniwB);
+  flag = IDABandGetWorkSpace(ida\_mem, \&lenrwB, \&leniwB);
 }
 {
-  The function \ID{IDABandGetIntWorkSpace} returns the
-  {\idaband} integer workspace size.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[leniwB] (\id{long int})
-    the number of integer values in the {\idaband} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
-    The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
-    The {\idaband} linear solver has not been initialized.
-  \end{args}
-}
-{
-  In terms of the problem size $N$, the actual size of the integer workspace
-  is $N$ integer words.
-}
-%%
-\ucfunction{IDABandGetRealWorkSpace}
-{
-  flag = IDABandGetRealWorkSpace(ida\_mem, \&lenrwB);
-}
-{
-  The function \ID{IDABandGetRealWorkSpace} returns the
-  {\idaband} real workspace size.
+  The function \ID{IDABandGetWorkSpace} returns the sizes of
+  the {\idaband} real and integer workspaces.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[lenrwB] (\id{long int})
-    the number of \id{realtype} values in the {\idaband} workspace.
+    the number of real values in the {\idaband} workspace.
+  \item[leniwB] (\id{long int})
+    the number of integer values in the {\idaband} workspace.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDABAND\_LMEM\_NULL]
+  \item[IDABAND\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDABAND\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDABAND\_LMEM\_NULL}]
     The {\idaband} linear solver has not been initialized.
   \end{args}
 }
@@ -3011,10 +2938,10 @@ to access these are described below.
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
   the actual size of the real workspace
   $N\,(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)$ \id{realtype} words.
+
+  In terms of the problem size $N$, the actual size of the integer workspace
+  is $N$ integer words.
 }
-%%
-\index{IDABAND@{\idaband} linear solver!memory requirements|)} 
-\index{memory requirements!IDABAND@{\idaband} linear solver|)}
 %%
 %%
 \ucfunction{IDABandGetNumJacEvals}
@@ -3035,12 +2962,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDABAND\_LMEM\_NULL]
+  \item[IDABAND\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDABAND\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDABAND\_LMEM\_NULL}]
     The {\idaband} linear solver has not been initialized.
   \end{args}
 }
@@ -3066,12 +2993,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDABAND\_LMEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDABAND\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDABAND\_LMEM\_NULL}]
     The {\idaband} linear solver has not been initialized.
   \end{args}
 }
@@ -3080,6 +3007,39 @@ to access these are described below.
   \id{IDABandDQJac} difference quotient function is used.
 }
 %%
+\ucfunction{IDABandGetLastFlag}
+{
+  flag = IDABandGetLastFlag(ida\_mem, \&flag);
+}
+{
+  The function \ID{IDABandGetLastFlag} returns the
+  last return value from a {\idaband} routine. 
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from a {\idaband} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDABAND\_LMEM\_NULL]
+  \item[\Id{IDABAND\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{IDaBAND\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDABAND\_LMEM\_NULL}]
+    The {\idaband} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\idaband} setup sunction failed (\id{IDASolve} returned \id{IDA\_LSETUP\_FAIL}),
+  the value \id{flag} is equal to the column index (numbered from one) at which
+  a zero diagonal element was encountered during the LU factorization of the 
+  banded Jacobian matrix.
+}
 %%
 \index{IDABAND@{\idaband} linear solver!optional output|)}
 \index{optional output!band linear solver|)}
@@ -3090,62 +3050,35 @@ to access these are described below.
 \index{optional output!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional output|(} 
 %%
-\index{IDASPGMR@{\idaspgmr} linear solver!memory requirements|(} 
-\index{memory requirements!IDASPGMR@{\idaspgmr} linear solver|(}
+\index{IDASPGMR@{\idaspgmr} linear solver!memory requirements} 
+\index{memory requirements!IDASPGMR@{\idaspgmr} linear solver}
 %%
-\ucfunction{IDASpgmrGetIntWorkSpace}
+\ucfunction{IDASpgmrGetWorkSpace}
 {
-  flag = IDASpgmrGetIntWorkSpace(ida\_mem, \&leniwSG);
+  flag = IDASpgmrGetWorkSpace(ida\_mem, \&lenrwSG, \&leniwSG);
 }
 {
-  The function \ID{IDASpgmrGetIntWorkSpace} returns the
-  {\idaspgmr} integer workspace size.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[leniwSG] (\id{long int})
-    the number of integer values in the {\idaspgmr} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
-    The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
-    The {\idaspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{}
-%%
-\ucfunction{IDASpgmrGetRealWorkSpace}
-{
-  flag = IDASpgmrGetRealWorkSpace(ida\_mem, \&lenrwSG);
-}
-{
-  The function \ID{IDASpgmrGetRealWorkSpace} returns the
-  {\idaspgmr} real workspace size.
+  The function \ID{IDASpgmrGetWorkSpace} returns the sizes of
+  the {\idaspgmr} real and integer workspaces.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[lenrwSG] (\id{long int})
-    the number of \id{realtype} values in the {\idaspgmr} workspace.
+    the number of real values in the {\idaspgmr} workspace.
+  \item[leniwSG] (\id{long int})
+    the number of integer values in the {\idaspgmr} workspace.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[IDASPGMR\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3154,9 +3087,6 @@ to access these are described below.
   the actual size of the real workspace is
   $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$ \id{realtype} words.
 }
-%%
-\index{IDASPGMR@{\idaspgmr} linear solver!memory requirements|)} 
-\index{memory requirements!IDASPGMR@{\idaspgmr} linear solver|)}
 %%
 %%
 \ucfunction{IDASpgmrGetNumLinIters}
@@ -3177,12 +3107,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[IDASPGMR\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3207,12 +3137,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[IDASPGMR\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3238,12 +3168,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[IDASPGMR\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3269,12 +3199,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[IDASPGMR\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3300,12 +3230,12 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[IDASPGMR\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
@@ -3331,18 +3261,63 @@ to access these are described below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[OKAY] 
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
 {
   The value \id{nrevalsSG} is incremented only if the default 
   \id{IDASpgmrDQJtimes} difference quotient function is used.
+}
+%%
+%%
+\ucfunction{IDASpgmrGetLastFlag}
+{
+  flag = IDASpgmrGetLastFlag(ida\_mem, \&flag);
+}
+{
+  The function \ID{IDASpgmrGetLastFlag} returns the
+  last return value from a {\idaspgmr} routine. 
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from a {\idaspgmr} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPGMR\_LMEM\_NULL]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPGMR\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\idaspgmr} setup function failed (\id{IDASolve} returned \id{IDA\_LSETUP\_FAIL}),
+  \id{flag} contains the return value of the preconditioner setup function \id{psetup}.
+
+  If the {\idaspgmr} solve function failed (\id{IDASolve} returned \id{IDA\_LSETUP\_FAIL}),
+  \id{flag} contains the error return flag from \id{SpgmrSolve} and will be one
+  of: \id{SPGMR\_CONV\_FAIL} indicating a failure to converge, \id{SPGMR\_QRFACT\_FAIL}
+  indicating a singular matrix foud during the QR factorization, \id{SPGMR\_PSOLVE\_FAIL\_REC}
+  indicating that the preconditioner solve function \id{psolve} failed recoverably,
+  \id{SPGMR\_MEM\_NULL} indicating that the {\spgmr} memory is \id{NULL}, \id{SPGMR\_ATIMES\_FAIL},
+  indicating a failure in the Jacobian times vector function, \id{SPGMR\_PSOLVE\_FAIL\_UNREC}
+  indicating that the preconditioner solve function \id{psolve} failed unrecoverably,
+  \id{SPGMR\_GS\_FAIL} indicating a failure in the Gram-Schmidt procedure, 
+  or \id{SPGMR\_QRSOL\_FAIL} indicating that the matrix $R$ was found to be singular during
+  the QR solve phase.
 }
 %%
 \index{IDASPGMR@{\idaspgmr} linear solver!optional output|)} 
@@ -3371,7 +3346,7 @@ will be reused for the new problem.
 %%
 \ucfunction{IDAReInit}
 {
-  flag = IDAReInit(ida\_mem, f, t0, y0, itol, reltol, abstol);
+  flag = IDAReInit(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
 }
 {
   The function \id{IDAReInit} provides required problem specifications 
@@ -3381,16 +3356,18 @@ will be reused for the new problem.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[f] (\Id{RhsFn})
+  \item[res] (\Id{IDAResFn})
     is the {\C} function which computes $F$. This function has the form 
-    \id{f(N, t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
+    \id{f(N, t, y, ydot, resval, res\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
+  \item[yp0] (\id{N\_Vector})
+    is the initial value of $y^\prime$.   
   \item[itol] (\id{int}) 
-    is either \Id{SS} or \Id{SV}, where \id{SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{SV} indicates scalar
+    is either \Id{IDA\_SS} or \Id{IDA\_SV}, where \id{IDA\_SS} indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{IDA\_SV} indicates scalar
     relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the ODE. 
@@ -3402,16 +3379,16 @@ will be reused for the new problem.
 }
 {
   The return flag \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[IDAREI\_NO\_MALLOC]
-  \item[\Id{SUCCESS}]
+  \begin{args}[IDA\_NO\_MALLOC]
+  \item[\Id{IDA\_SUCCESS}]
     The call to \id{IDAReInit} was successful.
-  \item[\Id{IDAREI\_NO\_MEM}] 
+  \item[\Id{IDA\_MEM\_NULL}] 
     The {\ida} memory block was not initialized through a 
     previous call to \id{IDACreate}.
-  \item[\Id{IDAREI\_NO\_MALLOC}] 
+  \item[\Id{IDA\_NO\_MALLOC}] 
     Memory space for the {\ida} memory block was not allocated through a 
     previous call to \id{IDAMalloc}.
-  \item[\Id{IDAREI\_ILL\_INPUT}] 
+  \item[\Id{IDA\_ILL\_INPUT}] 
     An input argument to \id{IDAReInit} has an illegal value.
   \end{args}
 }
@@ -3421,6 +3398,13 @@ will be reused for the new problem.
 }
 %%
 %%
+
+
+%% RADU
+%% GOT HERE....
+
+
+
 %%===================================================================================
 \section{User-supplied functions}\label{ss:user_fct_sim}
 %%===================================================================================
@@ -3432,38 +3416,42 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 %%
 %%--------------
 %%
-\subsection{Residual function} 
-\label{ss:rhsFn}
+\subsection{Residual function}\label{ss:rhsFn}
 \index{residual function}
-The user must provide a function of type \ID{ResFn} defined as follows:
-\usfunction{ResFn}
+The user must provide a function of type \ID{IDAResFn} defined as follows:
+\usfunction{IDAResFn}
 {
-  typedef void (*ResFn)(realtype t, N\_Vector y, N\_Vector ydot, void *f\_data);
+  typedef void (*IDAResFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
+                           &void *res\_data);
 }
 {
   This function computes the problem residual for given value
   of the independent variable $t$, state vector $y$, and derivative $\dot y$.
 }
 {
-  \begin{args}[f\_data]
+  \begin{args}[res\_data]
   \item[t]
     is the current value of the independent variable.
   \item[y]
     is the current value of the dependent variable vector, $y(t)$.
   \item[ydot]
     is the output vector $f(t,y)$.
-  \item[f\_data]
-    is a pointer to user data - the same as the \Id{f\_data}      
-    parameter passed to \id{IDASetFdata}.   
+  \item[res\_data]
+    is a pointer to user data - the same as the \Id{res\_data}      
+    parameter passed to \id{IDASetRdata}.   
   \end{args}
 }
 {
-  A \id{RhsFn} function type does not have a return value.                        
+  An \id{IDAResFn} function type should return a value of $0$ if successful, 
+  a positive value if a recoverable error occured (e.g. \id{yy} has an illegal value),
+  or a negative value if a nonrecoverable error occured. 
+
+  In the latter case, the integrator halts. 
+  If a recoverable error occured, the integrator will attempt to correct and retry.
 }
 {
-Allocation of memory for \id{ydot} is handled within {\ida}.
+  Allocation of memory for \id{ydot} is handled within {\ida}.
 }
-\index{right-hand side function}
 %%
 %%--------------
 %%
@@ -3475,9 +3463,10 @@ If the direct linear solver with dense treatment of the Jacobian is used
 the user may provide a function of type \ID{IDADenseJacFn} defined by
 \usfunction{IDADenseJacFn}
 {
-  typedef void (*IDADenseJacFn)(&long int N, DenseMat J, realtype t, \\
+  typedef int (*IDADenseJacFn)(&long int N, DenseMat J, realtype t, \\
                                &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+                               &N\_Vector tmp1, N\_Vector tmp2, \\
+                               &N\_Vector tmp3);
 }
 {
   This function computes the dense Jacobian $J = \partial f / \partial y$ 
@@ -3508,7 +3497,13 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
   \end{args}
 }
 {
-  A \id{IDADenseJacFn} function type does not have a return value.                        
+  An \id{IDADenseJacFn} function type should return $0$ if successful,
+  a positive value if a recoverable error occured, or a negative value
+  if a nonrecoverable error occured. 
+
+  In the case of a recoverable eror return, 
+  the integrator will attempt to recover by reducing the stepsize,
+  and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
 }
 {
   A user-supplied dense Jacobian function must load the \id{N} by \id{N}
@@ -3558,10 +3553,11 @@ If the direct linear solver with banded treatment of the Jacobian is used
 the user may provide a function of type \ID{IDABandJacFn} defined as follows:
 \usfunction{IDABandJacFn}
 {
- typedef void (*IDABandJacFn)(&long int N, long int mupper, \\
+ typedef int (*IDABandJacFn)(&long int N, long int mupper, \\
                              &long int mlower, BandMat J, realtype t, \\ 
                              &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+                             &N\_Vector tmp1, N\_Vector tmp2, \\
+                             &N\_Vector tmp3);
 }
 {
   This function computes the banded Jacobian $J = \partial f / \partial y$ 
@@ -3595,7 +3591,13 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
   \end{args}
 }
 {
-  A \id{IDABandJacFn} function type does not have a return value.                        
+  A \id{IDABandJacFn} function type should return $0$ if successful,
+  a positive value if a recoverable error occured, or a negative value
+  if a nonrecoverable error occured. 
+
+  In the case of a recoverable eror return, 
+  the integrator will attempt to recover by reducing the stepsize,
+  and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{J}
@@ -3653,8 +3655,8 @@ of type \ID{IDASpgmrJacTimesVecFn} in the following form:
 \usfunction{IDASpgmrJacTimesVecFn}
 {
   typedef int (*IDASpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, realtype t, \\
-                                      &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                                      &N\_Vector tmp);
+                                      &N\_Vector y, N\_Vector fy, \\
+                                      &void *jac\_data, N\_Vector tmp);
 }
 {
   This function computes the product $J v = (\partial f / \partial y) v$ 
@@ -3682,8 +3684,12 @@ of type \ID{IDASpgmrJacTimesVecFn} in the following form:
 }
 {  
   The value to be returned by the Jacobian times vector function should be
-  $0$ if successful. Any other return value will result in an unrecoverable
-  error of the {\spgmr} generic solver, in which case the integration is halted.
+  $0$ if successful. 
+  A positive value indicates that a recoverable error occured, while a negative 
+  value indicates that a nonrecoverable error occured. 
+
+  In the case of a recoverable eror return, the integrator will attempt to recover 
+  by reducing the stepsize, and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
 }
 {}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
@@ -3824,7 +3830,7 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   approximation to $M=I - \gamma J$.
 
   Each call to the preconditioner setup function is preceded by a call to     
-  the \id{RhsFn} user function with the same \id{(t,y)} arguments.  
+  the \id{IDAResFn} user function with the same \id{(t,y)} arguments.  
   Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the DAE residual.
   
@@ -3867,20 +3873,20 @@ the computational PDE problem as being subdivided into $M$ non-overlapping
 sub-domains.  Each of these sub-domains is then assigned to one of the
 $M$ processors to be used to solve the DAE system. The basic idea is
 to isolate the preconditioning so that it is local to each processor,
-and also to use a (possibly cheaper) approximate right-hand side
+and also to use a (possibly cheaper) approximate residual
 function. This requires the definition of a new function $G(t,y,{\dot y})$
 which approximates the function $F(t, y, {\dot y})$ in the definition of the DAE
-system (\ref{e:DAE}). However, the user may set $g = f$.  Corresponding
+system (\ref{e:DAE}). However, the user may set $G = F$.  Corresponding
 to the domain decomposition, there is a decomposition of the solution
-vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $g$
-into blocks $g_m$.  The block $g_m$ depends on $y_m$ and also on
+vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $G$
+into blocks $G_m$.  The block $G_m$ depends on $y_m$ and also on
 components of blocks $y_{m'}$ associated with neighboring sub-domains
 (so-called ghost-cell data).  Let $\bar{y}_m$ denote $y_m$ augmented
-with those other components on which $g_m$ depends.  Then we have
+with those other components on which $G_m$ depends.  Then we have
 \begin{equation}
-  g(t,y) = [g_1(t,\bar{y}_1), g_2(t,\bar{y}_2), \ldots, g_M(t,\bar{y}_M)]^T
+  G(t,y) = [G_1(t,\bar{y}_1), G_2(t,\bar{y}_2), \ldots, G_M(t,\bar{y}_M)]^T
 \end{equation}
-and each of the blocks $g_m(t, \bar{y}_m)$ is uncoupled from the others.
+and each of the blocks $G_m(t, \bar{y}_m)$ is uncoupled from the others.
 
 The preconditioner associated with this decomposition has the form 
 \begin{equation}
@@ -3888,17 +3894,17 @@ The preconditioner associated with this decomposition has the form
 \end{equation}
 where 
 \begin{equation}
-  P_m \approx I - \gamma J_m
+  P_m \approx \partial G_m / \partial y_m
+  + \alpha \partial G_m / \partial {\dot y}_m
 \end{equation}
-and $J_m$ is a difference quotient approximation to 
-$\partial g_m/\partial y_m$. This matrix is taken to be banded, with
+This matrix is taken to be banded, with
 upper and lower half-bandwidths \id{mudq} and \id{mldq} defined as
 the number of non-zero diagonals above and below the main diagonal,
 respectively. The difference quotient approximation is computed using
-\id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $g_m$, but only a matrix
+\id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $G_m$, but only a matrix
 of bandwidth \id{mu} $+$ \id{ml} $+ 1$ is retained. 
-Neither pair of parameters need be the true half-bandwidths of the Jacobian of the
-local block of $g$, if smaller values provide a more efficient
+Neither pair of parameters need be the true half-bandwidths of the Jacobians of the
+local block of $G$, if smaller values provide a more efficient
 preconditioner. The solution of the complete linear system
 \begin{equation}
   Px = b
@@ -3916,33 +3922,34 @@ backsolve.
 %%
 
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-supplied functions|(}
-To use this {\idabbdpre} module, the user must supply two functions which the
-module calls to construct $P$: a function \id{glocal} (of type \id{IDALocalFn}) 
-which approximates the right-hand side function $G(t,y,{\dot y}) \approx F(t,y,{\dot y})$ 
-and which is computed locally, and a function \id{gcomm} (of type \id{IDACommFn}) which 
-performs all inter-process communication necessary to evaluate the approximate 
+%%
+The {\idabbdpre} module calls two user-provided functions to construct $P$: 
+a required function \id{Gres} (of type \id{IDABBDLocalFn}) 
+which approximates the residual function $G(t,y) \approx F(t,y)$ and which 
+is computed locally, and an optional function \id{Gcomm} (of type \id{IDABBDCommFn}) 
+which performs all inter-process communication necessary to evaluate the approximate 
 residual $G$.
 These are in addition to the user-supplied residual function \id{res}.
 Both functions take as input the same pointer \id{res\_data} as that passed
 by the user to \id{IDASetRdata} and passed to the user's function \id{res},
 and neither function has a return value. The user is responsible for
-providing space (presumably within \id{res\_data}) for components of \id{y}
-and \id{yp} that are communicated by \id{gcomm} from the other processors, and that are
-then used by \id{glocal}, which is not expected to do any communication.
+providing space (presumably within \id{res\_data}) for components of \id{yy}
+and \id{yp} that are communicated by \id{Gcomm} from the other processors, and that are
+then used by \id{Gres}, which is not expected to do any communication.
 %%
 %%
-\usfunction{IDALocalFn}
+\usfunction{IDABBDLocalFn}
 {
-  typedef void (*IDALocalFn)(&long int Nlocal, realtype tt,  \\
-                             &N\_Vector yy, N\_Vector yp, \\
-                             &N\_Vector gval, void *res\_data);
+  typedef void (*IDABBDLocalFn)(&long int Nlocal, realtype tt,  \\
+                                &N\_Vector yy, N\_Vector yp, \\
+                                &N\_Vector Glocal, void *res\_data);
 }
 {
   This function computes $G(t,y,{\dot y})$. It loads the vector
   \id{glocal} as a function of \id{tt}, \id{yy}, and \id{yp}.  
 }
 {
-  \begin{args}[Nlocal]
+  \begin{args}[res\_data]
   \item[Nlocal] 
     is the local vector length.
   \item[tt]
@@ -3951,7 +3958,7 @@ then used by \id{glocal}, which is not expected to do any communication.
     is the dependent variable. 
   \item[yp]
     is the derivative of the dependent variable. 
-  \item[gval]
+  \item[Glocal]
     is the output vector.
   \item[res\_data]
     is a pointer to user data - the same as the \Id{res\_data}      
@@ -3959,29 +3966,29 @@ then used by \id{glocal}, which is not expected to do any communication.
   \end{args}
 }
 {
-  An \id{IDALocalFn} function type does not have a return value.
+  An \id{IDABBDLocalFn} function type does not have a return value.
 }
 {
   This function assumes that all inter-processor communication of data needed to 
-  calculate \id{glocal} has already been done, and this data is accessible within
+  calculate \id{Glocal} has already been done, and this data is accessible within
   \id{res\_data}.
 
   The case where $G$ is mathematically identical to $F$ is allowed.
 }
 %%
 %%
-\usfunction{IDACommFn}
+\usfunction{IDABBDCommFn}
 {
-  typedef void (*IDACommFn)(&long int Nlocal, realtype tt,  \\
-                           &N\_Vector yy, N\_Vector yp, void *f\_data);
+  typedef void (*IDABBDCommFn)(&long int Nlocal, realtype tt,  \\
+                               &N\_Vector yy, N\_Vector yp, void *res\_data);
 }
 {
   This function performs all inter-processor communications necessary 
-  for the execution of the \id{glocal} function above, using the input 
+  for the execution of the \id{Gres} function above, using the input 
   vectors \id{yy} and \id{yp}.
 }
 {
-  \begin{args}[Nlocal]
+  \begin{args}[res\_data]
   \item[Nlocal] 
     is the local vector length.
   \item[tt]
@@ -3996,16 +4003,19 @@ then used by \id{glocal}, which is not expected to do any communication.
   \end{args}
 }
 {
-  An \id{IDACommFn} function type does not have a return value.
+  An \id{IDABBDCommFn} function type does not have a return value.
 }
 {
-  The \id{gcomm} function is expected to save communicated data in space defined within the
+  The \id{Gcomm} function is expected to save communicated data in space defined within the
   structure \id{res\_data}. 
 
-  Each call to the \id{gcomm} function is preceded by a call to the residual
+  Each call to the \id{Gcomm} function is preceded by a call to the residual
   function \id{res} with the same (\id{tt}, \id{yy}, \id{yp}) arguments.  
-  Thus \id{gcomm} can omit 
-  any communications done by \id{res} if relevant to the evaluation of \id{glocal}.  
+  Thus \id{Gcomm} can omit 
+  any communications done by \id{res} if relevant to the evaluation of \id{Glocal}.  
+  If all necessary comunication was done in \id{res}, then \id{Gcomm} $=$ \id{NULL}
+  can be passed in the call to \id{IDABBDPrecAlloc} (see below).
+
 }
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-supplied functions|)}
@@ -4035,10 +4045,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Set problem dimensions}
 
 \item
-  \textcolor{gray}{\bf Initialize vector specification}
-
-\item
-  \textcolor{gray}{\bf Set initial values}
+  \textcolor{gray}{\bf Set vector of initial values}
  
 \item
   \textcolor{gray}{\bf Create {\ida} object}
@@ -4058,13 +4065,13 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
    \id{
      \begin{tabular}[t]{@{}r@{}l@{}}
        bbd\_data = IBBDPrecAlloc(&ida\_mem, local\_N, mudq, mldq, \\
-                                  &mukeep, mlkeep, dqrely, glocal, gcomm);
+                                 &mukeep, mlkeep, dqrely, Gres, Gcomm);
      \end{tabular}
    }
 
   to allocate memory for and initialize a data structure \id{bbd\_data} to be 
   passed to the {\idaspgmr} linear solver. The last two arguments of \id{IBBDPrecAlloc}
-  are the two mandatory user-supplied functions described above.
+  are the two user-supplied functions described above.
 
 \item \label{i:bbdpre_attach}
   {\bf Attach the {\idaspgmr} linear solver}
@@ -4100,9 +4107,6 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Free solver memory}
   
-\item
-  \textcolor{gray}{\bf Free vector specification memory}
-
 \item 
   \textcolor{gray}{\bf Finalize MPI}
 
@@ -4124,7 +4128,7 @@ next.
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
      bbd\_data = IBBDPrecAlloc(&ida\_mem, local\_N, mudq, mldq, \\
-                                &mukeep, mlkeep, dqrely, glocal, gcomm);
+                                &mukeep, mlkeep, dqrely, Gres, Gcomm);
    \end{tabular}
 }
 {
@@ -4149,11 +4153,11 @@ next.
     the relative increment in components of \id{y} used in the difference quotient
     approximations.  The default is \id{dqrely}$ = \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely}$ = 0.0$.
-  \item[glocal] (\id{IDALocalFn})
-    the {\C} function which computes the approximation 
-    $G(t,y,{\dot y}) \approx F(t,y,{\dot y})$. 
-  \item[gcomm] (\id{IDACommFn})
-    the {\C} function which performs all inter-process communication required for
+  \item[Gres] (\id{IDABBDLocalFn})
+    the {\C} function which computes the local residual approximation 
+    $G(t,y,{\dot y})$.
+  \item[Gcomm] (\id{IDABBDCommFn})
+    the optional {\C} function which performs all inter-process communication required for
     the computation of $G(t,y,{\dot y})$.
   \end{args}
 }
@@ -4203,14 +4207,14 @@ next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_ILL\_INPUT]
-  \item[\Id{SUCCESS}] 
+  \begin{args}[IDASPGMR\_ILL\_INPUT]
+  \item[\Id{IDASPGMR\_SUCCESS}] 
     The {\idaspgmr} initialization was successful.
-  \item[\Id{LIN\_NO\_MEM}]
+  \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{LMEM\_FAIL}]
+  \item[\Id{IDASPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{BBDP\_NO\_DATA}]
+  \item[\Id{IDA\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4240,11 +4244,11 @@ After solving one problem, and after calling \id{IDAReInit} to re-initialize
 {\ida} for a subsequent problem, a call to \id{IBBDPrecReInit} can be made
 to change any of the following: the half-bandwidths \id{mudq} and \id{mldq} 
 used in the difference-quotient Jacobian approximations, the relative increment 
-\id{dqrely}, or one of the user-supplied functions \id{glocal} and \id{gcomm}.
+\id{dqrely}, or one of the user-supplied functions \id{Gres} and \id{Gcomm}.
 %%
 \ucfunction{IBBDPrecReInit}
 {
-  flag = IBBDPrecReInit(bbd\_data, mudq, mldq, dqrely, glocal, gcomm);
+  flag = IBBDPrecReInit(bbd\_data, mudq, mldq, dqrely, Gres, Gcomm);
 }
 {
   The function \ID{IBBDPrecReInit} reinitializes the {\idabbdpre} preconditioner.
@@ -4261,19 +4265,19 @@ used in the difference-quotient Jacobian approximations, the relative increment
     the relative increment in components of \id{y} used in the difference quotient
     approximations.  The default is \id{dqrely} $= \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely} $= 0.0$.
-  \item[glocal] (\id{IDALocalFn})
-    the {\C} function which computes the approximation 
-    $G(t,y,{\dot y}) \approx F(t,y,{\dot y})$. 
-  \item[gcomm] (\id{IDACommFn})
-    the {\C} function which performs all inter-process communication required for
+  \item[gGres] (\id{IDABBDLocalFn})
+    the {\C} function which computes the local residual approximation 
+    $G(t,y,{\dot y})$.
+  \item[Gcomm] (\id{IDACommFn})
+    the optional {\C} function which performs all inter-process communication required for
     the computation of $G(t,y,{\dot y})$.
   \end{args}
 }
 {
-  The return value of \id{IBBDPrecReInit} is always \Id{SUCCESS}.
+  The return value of \id{IBBDPrecReInit} is always \Id{IDA\_SUCCESS}.
 }
 {
-  If one of the half-bandwidth \id{mudq} or \id{mldq} is negative or it
+  If one of the half-bandwidth \id{mudq} or \id{mldq} is negative or
   exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 }
 %%
@@ -4286,60 +4290,31 @@ used in the difference-quotient Jacobian approximations, the relative increment
 The following three optional output functions are available for use with
 the {\idabbdpre} module:
 %%
-\index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner|(}
-\ucfunction{IBBDPrecGetIntWorkSpace}
+\index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
+\ucfunction{IBBDPrecGetWorkSpace}
 {
-  flag = IBBDPrecGetIntWorkSpace(bbd\_data, \&leniwBP);
+  flag = IBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
 }
 {
-  The function \ID{IBBDPrecGetIntWorkSpace} returns the
-  {\idabbdpre} integer workspace size.
+  The function \ID{IBBDPrecGetWorkSpace} returns the sizes
+  of the {\idabbdpre} real and integer workspaces.
 }
 {
   \begin{args}[leniwBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
+  \item[lenrwBBDP] (\id{long int})
+    the number of real values in the {\idabbdpre} workspace.
   \item[leniwBBDP] (\id{long int})
     the number of integer values in the {\idabbdpre} workspace.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BBDP\_NO\_DATA]
-  \item[OKAY] 
+  \begin{args}[IDA\_PDATA\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{BBDP\_NO\_DATA}]
-    The {\idabbdpre} preconditioner has not been initialized.
-  \end{args}
-}
-{
-  In terms of the local vector dimension $N_{l}$, the actual size of the integer workspace
-  is $N_l$ integer words.
-}
-%%
-%%
-\ucfunction{IBBDPrecGetRealWorkSpace}
-{
-  flag = IBBDPrecGetRealWorkSpace(bbd\_data, \&lenrwBBDP);
-}
-{
-  The function \ID{IBBDPrecGetRealWorkSpace} returns the
-  {\idabbdpre} real workspace size.
-}
-{
-  \begin{args}[lenrwBBDP]
-  \item[bbd\_data] (\id{void *})
-    pointer to the {\idabbdpre} data structure.
-  \item[lenrwBBDP] (\id{long int})
-    the number of \id{realtype} values in the {\idabbdpre} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BBDP\_NO\_DATA]
-  \item[OKAY] 
-    The optional output value has been successfuly set.
-  \item[\Id{BBDP\_NO\_DATA}]
+  \item[\Id{IDA\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4347,9 +4322,11 @@ the {\idabbdpre} module:
   In terms of the local vector dimension $N_l$, the actual size of the real workspace is
   $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$ \id{realtype} words,
   where \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$.
+
+  In terms of the local vector dimension $N_{l}$, the actual size of the integer workspace
+  is $N_l$ integer words.
 }
 %%
-\index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner|)}
 %%
 \ucfunction{IBBDPrecGetNumGfnEvals}
 {
@@ -4357,7 +4334,7 @@ the {\idabbdpre} module:
 }
 {
   The function \ID{IBBDPrecGetNumGfnEvals} returns the
-  number of calls to the user \id{glocal} function due to the 
+  number of calls to the user \id{Gres} function due to the 
   finite difference approximation of the Jacobian blocks used within
   {\idabbdpre}'s preconditioner setup function.
 }
@@ -4366,15 +4343,15 @@ the {\idabbdpre} module:
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
   \item[ngevalsBBDP] (\id{long int})
-    the number of calls to the user \id{glocal} function.
+    the number of calls to the user \id{Gres} function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BBDP\_NO\_DATA]
-  \item[OKAY] 
+  \begin{args}[IDA\_PDATA\_NULL]
+  \item[IDA\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{BBDP\_NO\_DATA}]
+  \item[\Id{IDA\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4387,7 +4364,7 @@ the {\idabbdpre} module:
 %-------------------------------------------------------
 
 The costs associated with {\idabbdpre} also include \id{nlinsetups} LU
-factorizations, \id{nlinsetups} calls to \id{gcomm}, and \id{npsolves} banded
+factorizations, \id{nlinsetups} calls to \id{Gcomm}, and \id{npsolves} banded
 backsolve calls, where \id{nlinsetups} and \id{npsolves} are optional {\ida}
 outputs (see \S\ref{ss:optional_output}).
 
