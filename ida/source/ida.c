@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-06-02 23:14:21 $
+ * $Revision: 1.24 $
+ * $Date: 2004-07-22 23:21:56 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -244,6 +244,8 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 
 #define MSG_BAD_ATOL       IDAM "Some atol component < 0.0 illegal.\n\n"
 
+#define MSG_BAD_NVECTOR    IDAM "A required vector operation is not implemented.\n\n"
+
 #define MSG_MEM_FAIL       IDAM "A memory request failed.\n\n"
 
 #define MSG_REI_NO_MALLOC  "IDAReInit-- Attempt to call before IDAMalloc. \n\n"
@@ -418,7 +420,9 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, NV_Spec NVSpec);
+static booleantype IDACheckNvector(N_Vector tmpl);
+
+static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
 static int IDAnlsIC (IDAMem IDA_mem);
@@ -845,11 +849,10 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
 int IDAMalloc(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
-              int itol, realtype *rtol, void *atol,
-              NV_Spec nvspec)
+              int itol, realtype *rtol, void *atol)
 {
   IDAMem IDA_mem;
-  booleantype allocOK, neg_atol;
+  booleantype nvectorOK, allocOK, neg_atol;
   long int lrw1, liw1;
 
   /* Check ida_mem */
@@ -906,13 +909,20 @@ int IDAMalloc(void *ida_mem, ResFn res,
     return(IDAM_ILL_INPUT); 
   }
 
+  /* Test if all required vector operations are implemented */
+  nvectorOK = IDACheckNvector(y0);
+  if(!nvectorOK) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(IDAM_ILL_INPUT);
+  }
+
   /* Set space requirements for one N_Vector */
-  N_VSpace(nvspec, &lrw1, &liw1);
+  N_VSpace(y0, &lrw1, &liw1);
   IDA_mem->ida_lrw1 = lrw1;
   IDA_mem->ida_liw1 = liw1;
 
-  /* Allocate the vectors */
-  allocOK = IDAAllocVectors(IDA_mem, nvspec);
+  /* Allocate the vectors (using y0 as a template) */
+  allocOK = IDAAllocVectors(IDA_mem, y0);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(IDAM_MEM_FAIL);
@@ -921,7 +931,6 @@ int IDAMalloc(void *ida_mem, ResFn res,
   /* All error checking is complete at this point */
 
   /* Copy the input parameters into IDA memory block */
-  IDA_mem->ida_nvspec = nvspec;
   IDA_mem->ida_res = res;
   IDA_mem->ida_tn = t0;
   IDA_mem->ida_y0  = y0;
@@ -2162,6 +2171,30 @@ void IDAFree(void *ida_mem)
 /******** BEGIN Private Helper Functions Implementation ************/
 /*******************************************************************/
  
+/****************** IDACheckNvector **********************************
+ This routine checks if all required vector operations are present.
+ If any of them is missing it returns FALSE.
+**********************************************************************/
+
+static booleantype IDACheckNvector(N_Vector tmpl)
+{
+  if((tmpl->ops->nvclone        == NULL) ||
+     (tmpl->ops->nvdestroy      == NULL) ||
+     (tmpl->ops->nvspace        == NULL) ||
+     (tmpl->ops->nvlinearsum    == NULL) ||
+     (tmpl->ops->nvconst        == NULL) ||
+     (tmpl->ops->nvprod         == NULL) ||
+     (tmpl->ops->nvscale        == NULL) ||
+     (tmpl->ops->nvabs          == NULL) ||
+     (tmpl->ops->nvinv          == NULL) ||
+     (tmpl->ops->nvaddconst     == NULL) ||
+     (tmpl->ops->nvwrmsnorm     == NULL) ||
+     (tmpl->ops->nvmin          == NULL))
+    return(FALSE);
+  else
+    return(TRUE);
+}
+
 /****************** IDAAllocVectors ***********************************
 
  This routine allocates the IDA vectors ewt, tempv1, tempv2, and
@@ -2176,38 +2209,39 @@ void IDAFree(void *ida_mem)
 
 **********************************************************************/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, NV_Spec NVSpec)
+static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j, maxcol;
 
   /* Allocate ewt, ee, delta, tempv1, tempv2 */
   
-  ewt = N_VNew(NVSpec);
+  ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
-  ee = N_VNew(NVSpec);
+
+  ee = N_VClone(tmpl);
   if (ee == NULL) {
-    N_VFree(ewt);
+    N_VDestroy(ewt);
     return(FALSE);
   }
-  delta = N_VNew(NVSpec);
+  delta = N_VClone(tmpl);
   if (delta == NULL) {
-    N_VFree(ewt);
-    N_VFree(ee);
+    N_VDestroy(ewt);
+    N_VDestroy(ee);
     return(FALSE);
   }
-  tempv1 = N_VNew(NVSpec);
+  tempv1 = N_VClone(tmpl);
   if (tempv1 == NULL) {
-    N_VFree(ewt);
-    N_VFree(ee);
-    N_VFree(delta);
+    N_VDestroy(ewt);
+    N_VDestroy(ee);
+    N_VDestroy(delta);
     return(FALSE);
   }
-  tempv2= N_VNew(NVSpec);
+  tempv2= N_VClone(tmpl);
   if (tempv2 == NULL) {
-    N_VFree(ewt);
-    N_VFree(ee);
-    N_VFree(delta);
-    N_VFree(tempv1);
+    N_VDestroy(ewt);
+    N_VDestroy(ee);
+    N_VDestroy(delta);
+    N_VDestroy(tempv1);
     return(FALSE);
   }
 
@@ -2218,14 +2252,14 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, NV_Spec NVSpec)
 
   maxcol = MAX(maxord,3);
   for (j=0; j <= maxcol; j++) {
-    phi[j] = N_VNew(NVSpec);
+    phi[j] = N_VClone(tmpl);
     if (phi[j] == NULL) {
-      N_VFree(ewt);
-      N_VFree(ee);
-      N_VFree(delta);
-      N_VFree(tempv1);
-      N_VFree(tempv2);
-      for (i=0; i < j; i++) N_VFree(phi[i]);
+      N_VDestroy(ewt);
+      N_VDestroy(ee);
+      N_VDestroy(delta);
+      N_VDestroy(tempv1);
+      N_VDestroy(tempv2);
+      for (i=0; i < j; i++) N_VDestroy(phi[i]);
       return(FALSE);
     }
   }
@@ -2249,13 +2283,13 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 {
   int j, maxcol;
   
-  N_VFree(ewt);
-  N_VFree(ee);
-  N_VFree(delta);
-  N_VFree(tempv1);
-  N_VFree(tempv2);
+  N_VDestroy(ewt);
+  N_VDestroy(ee);
+  N_VDestroy(delta);
+  N_VDestroy(tempv1);
+  N_VDestroy(tempv2);
   maxcol = MAX(maxord,3);
-  for(j=0; j <= maxcol; j++) N_VFree(phi[j]);
+  for(j=0; j <= maxcol; j++) N_VDestroy(phi[j]);
 }
 
 
@@ -2670,6 +2704,24 @@ static int IDAInitialSetup(IDAMem IDA_mem)
   realtype temptest;
   booleantype ewtsetOK, conOK;
   
+  /* Test for more vector operations, depending on options */
+
+  if (suppressalg)
+    if (id->ops->nvwrmsnormmask == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+      return(ILL_INPUT);
+  }
+
+  if (constraints != NULL)
+    if (constraints->ops->nvdiv         == NULL ||
+        constraints->ops->nvmaxnorm     == NULL ||
+        constraints->ops->nvcompare     == NULL ||
+        constraints->ops->nvconstrmask  == NULL ||
+        constraints->ops->nvminquotient == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+      return(ILL_INPUT);
+    }
+
   /* Test id vector for legality */
   
   if(suppressalg && (id==NULL)){ 
@@ -2687,7 +2739,8 @@ static int IDAInitialSetup(IDAMem IDA_mem)
 
   /*  Check the constraints pointer and vector */
   
-  if (constraints == NULL) constraintsSet = FALSE;
+  if (constraints == NULL) 
+    constraintsSet = FALSE;
   else {
     constraintsSet = TRUE;
     temptest = N_VMaxNorm(constraints);

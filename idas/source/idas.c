@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-06-18 21:37:59 $
+ * $Revision: 1.21 $
+ * $Date: 2004-07-22 23:24:22 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -201,6 +201,8 @@
 
 #define MSG_BAD_ABSTOL       IDAM "Some abstol component < 0.0 illegal.\n\n"
 
+#define MSG_BAD_NVECTOR    IDAM "A required vector operation is not implemented.\n\n"
+
 #define MSG_MEM_FAIL       IDAM "A memory request failed.\n\n"
 
 #define MSG_REI_NO_MALLOC  "IDAReInit-- Attempt to call before IDAMalloc. \n\n"
@@ -392,13 +394,15 @@
 /*BEGIN        Private Helper Functions Prototypes                 */
 /*=================================================================*/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem);
+static booleantype IDACheckNvector(N_Vector tmpl);
+
+static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
-static booleantype IDAQuadAllocVectors(IDAMem IDA_mem);
+static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
 static void IDAQuadFreeVectors(IDAMem IDA_mem);
 
-static booleantype IDASensAllocVectors(IDAMem IDA_mem);
+static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
 static void IDASensFreeVectors(IDAMem IDA_mem);
 
 /*------------------*/
@@ -622,11 +626,10 @@ void *IDACreate(void)
 
 int IDAMalloc(void *ida_mem, ResFn res,
               realtype t0, N_Vector y0, N_Vector yp0, 
-              int itol, realtype *reltol, void *abstol,
-              NV_Spec nvspec)
+              int itol, realtype *reltol, void *abstol)
 {
   IDAMem IDA_mem;
-  booleantype allocOK, neg_abstol;
+  booleantype nvectorOK, allocOK, neg_abstol;
   long int lrw1, liw1;
 
   /* Check ida_mem */
@@ -683,14 +686,20 @@ int IDAMalloc(void *ida_mem, ResFn res,
     return(IDAM_ILL_INPUT); 
   }
 
+  /* Test if all required vector operations are implemented */
+  nvectorOK = IDACheckNvector(y0);
+  if(!nvectorOK) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(IDAM_ILL_INPUT);
+  }
+
   /* Set space requirements for one N_Vector */
-  N_VSpace(nvspec, &lrw1, &liw1);
+  N_VSpace(y0, &lrw1, &liw1);
   IDA_mem->ida_lrw1 = lrw1;
   IDA_mem->ida_liw1 = liw1;
 
   /* Allocate the vectors */
-  IDA_mem->ida_nvspec = nvspec;
-  allocOK = IDAAllocVectors(IDA_mem);
+  allocOK = IDAAllocVectors(IDA_mem, y0);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(IDAM_MEM_FAIL);
@@ -891,7 +900,7 @@ int IDAReInit(void *ida_mem, ResFn res,
 */
 /*-----------------------------------------------------------------*/
 
-int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, NV_Spec nvspecQ)
+int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0)
 {
   IDAMem IDA_mem;
   booleantype allocOK;
@@ -910,20 +919,19 @@ int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, NV_Spec nvspecQ)
   }
 
   /* Set space requirements for one N_Vector */
-  N_VSpace(nvspecQ, &lrw1Q, &liw1Q);
+  N_VSpace(yQ0, &lrw1Q, &liw1Q);
   IDA_mem->ida_lrw1Q = lrw1Q;
   IDA_mem->ida_liw1Q = liw1Q;
 
   /* Allocate the vectors */
-  IDA_mem->ida_nvspecQ = nvspecQ;
-  allocOK = IDAQuadAllocVectors(IDA_mem);
+  allocOK = IDAQuadAllocVectors(IDA_mem, yQ0);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_QIDAM_MEM_FAIL);
     return(QIDAM_MEM_FAIL);
   }
 
   /* Initialize phiQ in the history array */
-  N_VConst(ZERO, IDA_mem->ida_phiQ[0]);
+  N_VScale(ONE, yQ0, IDA_mem->ida_phiQ[0]);
 
   /* Copy the input parameters into IDAS state */
   IDA_mem->ida_rhsQ = rhsQ;
@@ -954,7 +962,7 @@ int IDAQuadMalloc(void *ida_mem, QuadRhsFn rhsQ, NV_Spec nvspecQ)
 */
 /*-----------------------------------------------------------------*/
 
-int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ)
+int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ, N_Vector yQ0)
 {
   IDAMem IDA_mem;
 
@@ -977,7 +985,7 @@ int IDAQuadReInit(void *ida_mem, QuadRhsFn rhsQ)
   }
 
   /* Initialize phiQ in the history array */
-  N_VConst(ZERO, IDA_mem->ida_phiQ[0]);
+  N_VScale(ONE, yQ0, IDA_mem->ida_phiQ[0]);
 
   /* Copy the input parameters into IDAS state */
   IDA_mem->ida_rhsQ    = rhsQ;
@@ -1069,8 +1077,8 @@ int IDASensMalloc(void *ida_mem, int Ns, int ism,
   }
   IDA_mem->ida_ypS0 = ypS0;
 
-  /* Allocate the vectors */
-  allocOK = IDASensAllocVectors(IDA_mem);
+  /* Allocate the vectors (using yS0[0] as a template) */
+  allocOK = IDASensAllocVectors(IDA_mem, yS0[0]);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSG_SIDAM_MEM_FAIL);
     return(SIDAM_MEM_FAIL);
@@ -1257,7 +1265,6 @@ int IDASensReInit(void *ida_mem, int ism,
 #define itol     (IDA_mem->ida_itol)
 #define reltol   (IDA_mem->ida_reltol)
 #define abstol   (IDA_mem->ida_abstol)
-#define nvspec   (IDA_mem->ida_nvspec)
 #define uround   (IDA_mem->ida_uround)  
 #define maxcol   (IDA_mem->ida_maxcol)
 #define phi      (IDA_mem->ida_phi) 
@@ -1321,7 +1328,6 @@ int IDASensReInit(void *ida_mem, int ism,
 #define reltolQ      (IDA_mem->ida_reltolQ)
 #define abstolQ      (IDA_mem->ida_abstolQ)
 #define rdataQ       (IDA_mem->ida_rdataQ)
-#define nvspecQ      (IDA_mem->ida_nvspecQ)
 #define rhsQ         (IDA_mem->ida_rhsQ)
 #define phiQ         (IDA_mem->ida_phiQ)
 #define yyQ          (IDA_mem->ida_yyQ)
@@ -1956,12 +1962,34 @@ void IDASensFree(void *ida_mem)
 /*BEGIN        PRIVATE FUNCTIONS IMPLEMENTATION                    */
 /*=================================================================*/
  
+/****************** IDACheckNvector **********************************
+ This routine checks if all required vector operations are present.
+ If any of them is missing it returns FALSE.
+**********************************************************************/
+
+static booleantype IDACheckNvector(N_Vector tmpl)
+{
+  if((tmpl->ops->nvclone        == NULL) ||
+     (tmpl->ops->nvdestroy      == NULL) ||
+     (tmpl->ops->nvspace        == NULL) ||
+     (tmpl->ops->nvlinearsum    == NULL) ||
+     (tmpl->ops->nvconst        == NULL) ||
+     (tmpl->ops->nvprod         == NULL) ||
+     (tmpl->ops->nvscale        == NULL) ||
+     (tmpl->ops->nvabs          == NULL) ||
+     (tmpl->ops->nvinv          == NULL) ||
+     (tmpl->ops->nvaddconst     == NULL) ||
+     (tmpl->ops->nvwrmsnorm     == NULL) ||
+     (tmpl->ops->nvmin          == NULL))
+    return(FALSE);
+  else
+    return(TRUE);
+}
+
 /****************** IDAAllocVectors ***********************************
 
  This routine allocates the IDA vectors ewt, tempv1, tempv2, and
- phi[0], ..., phi[maxord]. The length of the vectors is the input
- parameter Neq and the maximum order (needed to allocate phi) is the
- input parameter maxord. If all memory allocations are successful,
+ phi[0], ..., phi[maxord]. If all memory allocations are successful,
  IDAAllocVectors returns TRUE. Otherwise all allocated memory is freed
  and IDAAllocVectors returns FALSE.
  This routine also updates the optional outputs lrw and liw, which are
@@ -1970,38 +1998,39 @@ void IDASensFree(void *ida_mem)
 
 **********************************************************************/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem)
+static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j;
 
   /* Allocate ewt, ee, delta, tempv1, tempv2 */
   
-  ewt = N_VNew(nvspec);
+  ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
-  ee = N_VNew(nvspec);
+
+  ee = N_VClone(tmpl);
   if (ee == NULL) {
-    N_VFree(ewt);
+    N_VDestroy(ewt);
     return(FALSE);
   }
-  delta = N_VNew(nvspec);
+  delta = N_VClone(tmpl);
   if (delta == NULL) {
-    N_VFree(ewt);
-    N_VFree(ee);
+    N_VDestroy(ewt);
+    N_VDestroy(ee);
     return(FALSE);
   }
-  tempv1 = N_VNew(nvspec);
+  tempv1 = N_VClone(tmpl);
   if (tempv1 == NULL) {
-    N_VFree(ewt);
-    N_VFree(ee);
-    N_VFree(delta);
+    N_VDestroy(ewt);
+    N_VDestroy(ee);
+    N_VDestroy(delta);
     return(FALSE);
   }
-  tempv2= N_VNew(nvspec);
+  tempv2= N_VClone(tmpl);
   if (tempv2 == NULL) {
-    N_VFree(ewt);
-    N_VFree(ee);
-    N_VFree(delta);
-    N_VFree(tempv1);
+    N_VDestroy(ewt);
+    N_VDestroy(ee);
+    N_VDestroy(delta);
+    N_VDestroy(tempv1);
     return(FALSE);
   }
 
@@ -2012,14 +2041,14 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem)
 
   maxcol = MAX(maxord,3);
   for (j=0; j <= maxcol; j++) {
-    phi[j] = N_VNew(nvspec);
+    phi[j] = N_VClone(tmpl);
     if (phi[j] == NULL) {
-      N_VFree(ewt);
-      N_VFree(ee);
-      N_VFree(delta);
-      N_VFree(tempv1);
-      N_VFree(tempv2);
-      for (i=0; i < j; i++) N_VFree(phi[i]);
+      N_VDestroy(ewt);
+      N_VDestroy(ee);
+      N_VDestroy(delta);
+      N_VDestroy(tempv1);
+      N_VDestroy(tempv2);
+      for (i=0; i < j; i++) N_VDestroy(phi[i]);
       return(FALSE);
     }
   }
@@ -2043,12 +2072,12 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 {
   int j;
   
-  N_VFree(ewt);
-  N_VFree(ee);
-  N_VFree(delta);
-  N_VFree(tempv1);
-  N_VFree(tempv2);
-  for(j=0; j <= maxcol; j++) N_VFree(phi[j]);
+  N_VDestroy(ewt);
+  N_VDestroy(ee);
+  N_VDestroy(delta);
+  N_VDestroy(tempv1);
+  N_VDestroy(tempv2);
+  for(j=0; j <= maxcol; j++) N_VDestroy(phi[j]);
 }
 
 /*------------------ IDAQuadAllocVectors  --------------------------*/
@@ -2062,48 +2091,48 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 */
 /*-----------------------------------------------------------------*/
 
-static booleantype IDAQuadAllocVectors(IDAMem IDA_mem)
+static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j;
 
   /* Allocate yyQ */
-  yyQ = N_VNew(nvspecQ);
+  yyQ = N_VClone(tmpl);
   if (yyQ == NULL) {
     return (FALSE);
   }
 
   /* Allocate ypQ */
-  ypQ = N_VNew(nvspecQ);
+  ypQ = N_VClone(tmpl);
   if (ypQ == NULL) {
-    N_VFree(yyQ);
+    N_VDestroy(yyQ);
     return (FALSE);
   }
 
   /* Allocate ewtQ */
-  ewtQ = N_VNew(nvspecQ);
+  ewtQ = N_VClone(tmpl);
   if (ewtQ == NULL) {
-    N_VFree(yyQ);
-    N_VFree(ypQ);
+    N_VDestroy(yyQ);
+    N_VDestroy(ypQ);
     return (FALSE);
   }
 
   /* Allocate eeQ */
-  eeQ = N_VNew(nvspecQ);
+  eeQ = N_VClone(tmpl);
   if (eeQ == NULL) {
-    N_VFree(yyQ);
-    N_VFree(ypQ);
-    N_VFree(ewtQ);
+    N_VDestroy(yyQ);
+    N_VDestroy(ypQ);
+    N_VDestroy(ewtQ);
     return (FALSE);
   }
 
   for (j=0; j <= maxord; j++) {
-    phiQ[j] = N_VNew(nvspecQ);
+    phiQ[j] = N_VClone(tmpl);
     if (phiQ[j] == NULL) {
-      N_VFree(yyQ);
-      N_VFree(ypQ);
-      N_VFree(ewtQ);
-      N_VFree(eeQ);
-      for (i=0; i < j; i++) N_VFree(phiQ[i]);
+      N_VDestroy(yyQ);
+      N_VDestroy(ypQ);
+      N_VDestroy(ewtQ);
+      N_VDestroy(eeQ);
+      for (i=0; i < j; i++) N_VDestroy(phiQ[i]);
       return(FALSE);
     }
   }
@@ -2121,48 +2150,48 @@ static void IDAQuadFreeVectors(IDAMem IDA_mem)
 {
   int j;
 
-  N_VFree(yyQ);
-  N_VFree(ypQ);
-  N_VFree(ewtQ);
-  N_VFree(eeQ);
-  for(j=0; j <= maxord; j++) N_VFree(phiQ[j]);
+  N_VDestroy(yyQ);
+  N_VDestroy(ypQ);
+  N_VDestroy(ewtQ);
+  N_VDestroy(eeQ);
+  for(j=0; j <= maxord; j++) N_VDestroy(phiQ[j]);
 }
 
 /*------------------ IDASensAllocVectors  -------------------------*/
 /*-----------------------------------------------------------------*/
 
-static booleantype IDASensAllocVectors(IDAMem IDA_mem)
+static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j;
   
   tmpS1 = tempv1;
   tmpS2 = tempv2;
 
-  tmpS3 = N_VNew(nvspec);
+  tmpS3 = N_VClone(tmpl);
   if (tmpS3==NULL) {
     return(FALSE);
   }
   
-  ewtS = N_VNew_S(Ns, nvspec);
+  ewtS = N_VCloneVectorArray(Ns, tmpl);
   if (ewtS==NULL) {
-    N_VFree(tmpS3);
+    N_VDestroy(tmpS3);
     return(FALSE);
   }
 
-  eeS = N_VNew_S(Ns, nvspec);
+  eeS = N_VCloneVectorArray(Ns, tmpl);
   if (eeS==NULL) {
-    N_VFree(tmpS3);
-    N_VFree_S(Ns, ewtS);
+    N_VDestroy(tmpS3);
+    N_VDestroyVectorArray(ewtS, Ns);
     return(FALSE);
   }
 
   for (j=0; j <= maxcol; j++) {
-    phiS[j] = N_VNew_S(Ns, nvspec);
+    phiS[j] = N_VCloneVectorArray(Ns, tmpl);
     if (phiS[j] == NULL) {
-      N_VFree(tmpS3);
-      N_VFree_S(Ns, ewtS);
-      N_VFree_S(Ns, eeS);
-      for (i=0; i < j; i++) N_VFree_S(Ns, phiS[i]);
+      N_VDestroy(tmpS3);
+      N_VDestroyVectorArray(ewtS, Ns);
+      N_VDestroyVectorArray(eeS, Ns);
+      for (i=0; i < j; i++) N_VDestroyVectorArray(phiS[i], Ns);
       return(FALSE);
     }
   }
@@ -2175,33 +2204,33 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem)
   case SIMULTANEOUS:
   case STAGGERED:
 
-    yyS = N_VNew_S(Ns, nvspec);
+    yyS = N_VCloneVectorArray(Ns, tmpl);
     if (yyS==NULL) {
-      for (j=0; j<=maxcol; j++) N_VFree_S(Ns, phiS[j]);
-      N_VFree_S(Ns, eeS);
-      N_VFree_S(Ns, ewtS);
-      N_VFree(tmpS3);
+      for (j=0; j<=maxcol; j++) N_VDestroyVectorArray(phiS[j], Ns);
+      N_VDestroyVectorArray(eeS, Ns);
+      N_VDestroyVectorArray(ewtS, Ns);
+      N_VDestroy(tmpS3);
       return(FALSE);
     }
 
-    ypS = N_VNew_S(Ns, nvspec);
+    ypS = N_VCloneVectorArray(Ns, tmpl);
     if (ypS==NULL) {
-      N_VFree_S(Ns, yyS);
-      for (j=0; j<=maxcol; j++) N_VFree_S(Ns, phiS[j]);
-      N_VFree_S(Ns, eeS);
-      N_VFree_S(Ns, ewtS);
-      N_VFree(tmpS3);
+      N_VDestroyVectorArray(yyS, Ns);
+      for (j=0; j<=maxcol; j++) N_VDestroyVectorArray(phiS[j], Ns);
+      N_VDestroyVectorArray(eeS, Ns);
+      N_VDestroyVectorArray(ewtS, Ns);
+      N_VDestroy(tmpS3);
       return(FALSE);
     }
 
-    deltaS = N_VNew_S(Ns, nvspec);
+    deltaS = N_VCloneVectorArray(Ns, tmpl);
     if (deltaS==NULL) {
-      N_VFree_S(Ns, ypS);
-      N_VFree_S(Ns, yyS);
-      for (j=0; j<=maxcol; j++) N_VFree_S(Ns, phiS[j]);
-      N_VFree_S(Ns, eeS);
-      N_VFree_S(Ns, ewtS);
-      N_VFree(tmpS3);
+      N_VDestroyVectorArray(ypS, Ns);
+      N_VDestroyVectorArray(yyS, Ns);
+      for (j=0; j<=maxcol; j++) N_VDestroyVectorArray(phiS[j], Ns);
+      N_VDestroyVectorArray(eeS, Ns);
+      N_VDestroyVectorArray(ewtS, Ns);
+      N_VDestroy(tmpS3);
       return(FALSE);
     }
 
@@ -2212,33 +2241,33 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem)
 
   case STAGGERED1:
 
-    yyS1 = N_VNew(nvspec);
+    yyS1 = N_VClone(tmpl);
     if (yyS1==NULL) {
-      for (j=0; j<=maxcol; j++) N_VFree_S(Ns, phiS[j]);
-      N_VFree_S(Ns, eeS);
-      N_VFree_S(Ns, ewtS);
-      N_VFree(tmpS3);
+      for (j=0; j<=maxcol; j++) N_VDestroyVectorArray(phiS[j], Ns);
+      N_VDestroyVectorArray(eeS, Ns);
+      N_VDestroyVectorArray(ewtS, Ns);
+      N_VDestroy(tmpS3);
       return(FALSE);
     }
 
-    ypS1 = N_VNew(nvspec);
+    ypS1 = N_VClone(tmpl);
     if (ypS1==NULL) {
-      N_VFree(yyS1);
-      for (j=0; j<=maxcol; j++) N_VFree_S(Ns, phiS[j]);
-      N_VFree_S(Ns, eeS);
-      N_VFree_S(Ns, ewtS);
-      N_VFree(tmpS3);
+      N_VDestroy(yyS1);
+      for (j=0; j<=maxcol; j++) N_VDestroyVectorArray(phiS[j], Ns);
+      N_VDestroyVectorArray(eeS, Ns);
+      N_VDestroyVectorArray(ewtS, Ns);
+      N_VDestroy(tmpS3);
       return(FALSE);
     }
 
-    deltaS1 = N_VNew(nvspec);
+    deltaS1 = N_VClone(tmpl);
     if (deltaS1==NULL) {
-      N_VFree(ypS1);
-      N_VFree(yyS1);
-      for (j=0; j<=maxcol; j++) N_VFree_S(Ns, phiS[j]);
-      N_VFree_S(Ns, eeS);
-      N_VFree_S(Ns, ewtS);
-      N_VFree(tmpS3);
+      N_VDestroy(ypS1);
+      N_VDestroy(yyS1);
+      for (j=0; j<=maxcol; j++) N_VDestroyVectorArray(phiS[j], Ns);
+      N_VDestroyVectorArray(eeS, Ns);
+      N_VDestroyVectorArray(ewtS, Ns);
+      N_VDestroy(tmpS3);
       return(FALSE);
     }
 
@@ -2262,20 +2291,20 @@ static void IDASensFreeVectors(IDAMem IDA_mem)
   switch (ism) {
   case SIMULTANEOUS:
   case STAGGERED:
-    N_VFree_S(Ns, deltaS);
-    N_VFree_S(Ns, ypS);
-    N_VFree_S(Ns, yyS);
+    N_VDestroyVectorArray(deltaS, Ns);
+    N_VDestroyVectorArray(ypS, Ns);
+    N_VDestroyVectorArray(yyS, Ns);
     break;
   case STAGGERED1:
-    N_VFree(deltaS1);
-    N_VFree(ypS1);
-    N_VFree(yyS1);
+    N_VDestroy(deltaS1);
+    N_VDestroy(ypS1);
+    N_VDestroy(yyS1);
     break;
   }
-  for (j=0; j<=maxcol; j++) N_VFree_S(Ns, phiS[j]);
-  N_VFree_S(Ns, eeS);
-  N_VFree_S(Ns, ewtS);
-  N_VFree(tmpS3);
+  for (j=0; j<=maxcol; j++) N_VDestroyVectorArray(phiS[j], Ns);
+  N_VDestroyVectorArray(eeS, Ns);
+  N_VDestroyVectorArray(ewtS, Ns);
+  N_VDestroy(tmpS3);
 }
 
 /********************** IDAInitialSetup *********************************
@@ -2293,6 +2322,24 @@ int IDAInitialSetup(IDAMem IDA_mem)
   realtype temptest;
   booleantype allocOK, ewtsetOK, conOK, neg_abstol, tolsetOK;
   
+  /* Test for more vector operations, depending on options */
+  
+  if (suppressalg)
+    if (id->ops->nvwrmsnormmask == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+      return(ILL_INPUT);
+    }
+  
+  if (constraints != NULL)
+    if (constraints->ops->nvdiv         == NULL ||
+        constraints->ops->nvmaxnorm     == NULL ||
+        constraints->ops->nvcompare     == NULL ||
+        constraints->ops->nvconstrmask  == NULL ||
+        constraints->ops->nvminquotient == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+      return(ILL_INPUT);
+    }
+
   /* Test id vector for legality */
   if(suppressalg && (id==NULL)){ 
     if(errfp!=NULL) fprintf(errfp, MSG_MISSING_ID); 
@@ -2619,8 +2666,11 @@ static booleantype IDASensTestAtol(IDAMem IDA_mem, void *atolS)
   return(FALSE);
 }
 
-/*-------------------- IDASensAllocAtol  --------------------------*/
-/*-----------------------------------------------------------------*/
+/* 
+ * IDASensAllocAtol
+ * Allocate space for the forward sensitivity absolute tolerances
+ * If needed, use the N_Vector 'tempv1' as a template
+ */
 
 static booleantype IDASensAllocAtol(IDAMem IDA_mem, void **atolSPtr)
 {
@@ -2629,7 +2679,7 @@ static booleantype IDASensAllocAtol(IDAMem IDA_mem, void **atolSPtr)
     *atolSPtr = (void *)malloc(Ns*sizeof(realtype));
     break;
   case SV:
-    *atolSPtr = (void *)N_VNew_S(Ns, nvspec);
+    *atolSPtr = (void *)N_VCloneVectorArray(Ns, tempv1);
     break;
   }
   
@@ -2647,7 +2697,7 @@ static void IDASensFreeAtol(IDAMem IDA_mem, void *atolS)
     free((realtype*)atolS);
     break;
   case SV:
-    N_VFree_S(Ns,(N_Vector *)atolS);
+    N_VDestroyVectorArray((N_Vector *)atolS, Ns);
     break;
   }
 }
