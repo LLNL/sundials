@@ -9,8 +9,8 @@ lie systems of nonlinear algebraic or time-dependent equations, and
 simulation scientists continue to require efficient solvers for these 
 systems.  
 
-To meet this need, LLNL has a long history of research and 
-development in ordinary
+To meet this need, Lawrence Livermore National Laboratory 
+has a long history of research and development in ordinary
 differential equation (ODE) methods and software, along with closely related
 areas, with emphasis on applications to partial differential equations
 (PDEs).  Among the popular Fortran solvers written at LLNL are the
@@ -38,9 +38,8 @@ parallel extension of CVODE \cite{ByHi:98,ByHi:99}.
 Similar rewrites of NKSOL and DASPK were then done, using the same
 general design as CVODE and PVODE.  The resulting solvers are called
 KINSOL and IDA, respectively.
-More recently, we have changed the naming of PVODE in order
-to be consistent throughout the family.  Specifically, there is
-one solver, CVODE, which runs in both serial and parallel environments. 
+More recently, we have merged the PVODE and CVODE codes into a 
+single solver, CVODE, which runs in both serial and parallel environments. 
 
 These codes have been combined into the core of SUNDIALS, the  
 SUite of Nonlinear and DIfferential/Algebraic equation Solvers.  
