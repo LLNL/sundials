@@ -2,7 +2,7 @@
  * File          : ida.c                                          *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 3 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the main IDA solver.       *
  * It is independent of the linear solver in use.                 *
@@ -193,39 +193,39 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 /***************** BEGIN Error Messages ************************/
 /***************************************************************/
 
-/* IDAMalloc error messages */
+/* IDAMalloc/IDAReInit error messages */
 
 #define IDAM               "IDAMalloc/IDAReInit-- "
 
-#define MSG_Y0_NULL        IDAM "y0=NULL illegal.\n\n"
-#define MSG_YP0_NULL       IDAM "yp0=NULL illegal.\n\n"
+#define MSG_Y0_NULL        IDAM "y0 = NULL illegal.\n\n"
+#define MSG_YP0_NULL       IDAM "yp0 = NULL illegal.\n\n"
 
-#define MSG_BAD_NEQ        IDAM "Neq=%ld < 1 illegal.\n\n"
+#define MSG_BAD_NEQ        IDAM "Neq = %ld < 1 illegal.\n\n"
 
-#define MSG_BAD_ITOL_1     IDAM "itol=%d illegal.\n"
-#define MSG_BAD_ITOL_2     "The legal values are SS=%d and SV=%d.\n\n"
+#define MSG_BAD_ITOL_1     IDAM "itol = %d illegal.\n"
+#define MSG_BAD_ITOL_2     "The legal values are SS = %d and SV = %d.\n\n"
 #define MSG_BAD_ITOL       MSG_BAD_ITOL_1 MSG_BAD_ITOL_2
 
-#define MSG_RES_NULL       IDAM "res=NULL illegal.\n\n"
+#define MSG_RES_NULL       IDAM "res = NULL illegal.\n\n"
 
-#define MSG_RTOL_NULL      IDAM "rtol=NULL illegal.\n\n"
+#define MSG_RTOL_NULL      IDAM "rtol = NULL illegal.\n\n"
 
 #define MSG_BAD_CONSTRAINTS  IDAM "illegal values in constraints vector.\n\n"
 #define MSG_MISSING_ID     IDAM "id = NULL but suppressalg option on.\n\n"
 #define MSG_BAD_ID         IDAM "illegal values in id vector.\n\n"
  
-#define MSG_BAD_RTOL       IDAM "*rtol=%g < 0 illegal.\n\n"
+#define MSG_BAD_RTOL       IDAM "*rtol = %g < 0 illegal.\n\n"
 
-#define MSG_ATOL_NULL      IDAM "atol=NULL illegal.\n\n"
+#define MSG_ATOL_NULL      IDAM "atol = NULL illegal.\n\n"
 
 #define MSG_BAD_ATOL       IDAM "Some atol component < 0.0 illegal.\n\n"
 
-#define MSG_BAD_OPTIN_1    IDAM "optIn=%d illegal.\n"
-#define MSG_BAD_OPTIN_2    "The legal values are FALSE=%d and TRUE=%d.\n\n"
+#define MSG_BAD_OPTIN_1    IDAM "optIn = %d illegal.\n"
+#define MSG_BAD_OPTIN_2    "The legal values are FALSE = %d and TRUE = %d.\n\n"
 #define MSG_BAD_OPTIN      MSG_BAD_OPTIN_1 MSG_BAD_OPTIN_2
 
-#define MSG_BAD_OPT        IDAM "optIn=TRUE, but iopt=ropt=NULL.\n\n"
-#define MSG_BAD_NCONFAC    IDAM "optIn=TRUE, but ropt[NCONFAC] negative\n\n"
+#define MSG_BAD_OPT        IDAM "optIn = TRUE, but iopt = ropt = NULL.\n\n"
+#define MSG_BAD_NCONFAC    IDAM "optIn = TRUE, but ropt[NCONFAC] negative\n\n"
 
 #define MSG_BAD_HMAX       IDAM "Negative hmax: %g\n"
 
@@ -400,7 +400,8 @@ enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq,  M_Env machEnv);
+static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq,
+                                   M_Env machEnv);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
 static int IDAnlsIC (IDAMem IDA_mem);
@@ -416,10 +417,10 @@ static booleantype IDAEwtSet0(IDAMem IDA_mem, N_Vector ycur);
 static booleantype IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur);
 static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur);
 
-static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype tstop, realtype *tret, 
-                        N_Vector yret, N_Vector ypret, int itask);
-static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype tstop, realtype *tret, 
-                        N_Vector yret, N_Vector ypret, int itask);
+static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype tstop,
+                      realtype *tret, N_Vector yret, N_Vector ypret, int itask);
+static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype tstop,
+                      realtype *tret, N_Vector yret, N_Vector ypret, int itask);
 static int IDAInterp(IDAMem IDA_mem, realtype t, N_Vector yret, N_Vector ypret);
 static int IDAHandleFailure(IDAMem IDA_mem, int sflag);
 
@@ -546,9 +547,9 @@ void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
 
   if (Neq <= 0) { fprintf(fp, MSG_BAD_NEQ, (long int) Neq); return(NULL); }
 
-  if (y0==NULL) { fprintf(fp, MSG_Y0_NULL); return(NULL); }
+  if (y0 == NULL) { fprintf(fp, MSG_Y0_NULL); return(NULL); }
   
-  if (yp0==NULL) { fprintf(fp, MSG_YP0_NULL); return(NULL); }
+  if (yp0 == NULL) { fprintf(fp, MSG_YP0_NULL); return(NULL); }
 
   if ((itol != SS) && (itol != SV)) {
     fprintf(fp, MSG_BAD_ITOL, itol, SS, SV);
@@ -791,7 +792,8 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
 
   if (rtol == NULL) { fprintf(fp, MSG_RTOL_NULL); return(IDAREI_ILL_INPUT); }
 
-  if (*rtol < ZERO) { fprintf(fp, MSG_BAD_RTOL, *rtol); return(IDAREI_ILL_INPUT); }
+  if (*rtol < ZERO) {
+    fprintf(fp, MSG_BAD_RTOL, *rtol); return(IDAREI_ILL_INPUT); }
    
   if (atol == NULL) { fprintf(fp, MSG_ATOL_NULL); return(IDAREI_ILL_INPUT); }
 
@@ -812,12 +814,13 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
   ioptExists = (iopt != NULL);
   roptExists = (ropt != NULL);
 
-  if(optIn && roptExists) {
+  if (optIn && roptExists) {
     if (ropt[HMAX] < ZERO) {
       fprintf(fp, MSG_BAD_HMAX, ropt[HMAX]);
       return(IDAREI_ILL_INPUT);
     }
-    if(ropt[NCONFAC] < ZERO) { fprintf(fp, MSG_BAD_NCONFAC); return(IDAREI_ILL_INPUT); }
+    if (ropt[NCONFAC] < ZERO) {
+      fprintf(fp, MSG_BAD_NCONFAC); return(IDAREI_ILL_INPUT); }
   }
 
   /* Set maxord and suppressalg, and check new vs old maxord */
@@ -826,7 +829,7 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
   maxord = MAXORD_DEFAULT;
   suppressalg = FALSE;
   if (optIn && ioptExists) {
-    if(iopt[SUPPRESSALG] == ONE) suppressalg = TRUE;
+    if (iopt[SUPPRESSALG] == ONE) suppressalg = TRUE;
     if (iopt[MAXORD] > 0) maxord = MIN(maxord, iopt[MAXORD]);
   }
   if (maxord > oldmaxord) {
@@ -836,10 +839,11 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
  
   /* Test id vector for legality */
 
-  if(suppressalg && (id==NULL)){ fprintf(fp, MSG_MISSING_ID); return(IDAREI_ILL_INPUT); }
-  if(suppressalg) {
+  if (suppressalg && (id==NULL)) {
+    fprintf(fp, MSG_MISSING_ID); return(IDAREI_ILL_INPUT); }
+  if (suppressalg) {
     temptest = N_VMin(id);
-    if(temptest < ZERO){ fprintf(fp, MSG_BAD_ID); return(IDAREI_ILL_INPUT); }
+    if (temptest < ZERO) { fprintf(fp, MSG_BAD_ID); return(IDAREI_ILL_INPUT); }
   }
 
   /* Set the mskewt vector, set relevant memory pointers, and load ewt */
@@ -865,9 +869,10 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
   else {
     constraintsSet = TRUE;
     temptest = N_VMaxNorm(constraints);
-    if(temptest > TWOPT5){ fprintf(fp, MSG_BAD_CONSTRAINTS); return(IDAREI_ILL_INPUT); }
+    if (temptest > TWOPT5) {
+      fprintf(fp, MSG_BAD_CONSTRAINTS); return(IDAREI_ILL_INPUT); }
 
-    else if(temptest < HALF) constraintsSet = FALSE; /* constraints empty */
+    else if (temptest < HALF) constraintsSet = FALSE; /* constraints empty */
   }
 
   /* Check to see if y0 satisfies constraints. */
@@ -1473,7 +1478,8 @@ void IDAFree(void *ida_mem)
 
 **********************************************************************/
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq, M_Env machEnv)
+static booleantype IDAAllocVectors(IDAMem IDA_mem, integertype Neq,
+                                   M_Env machEnv)
 {
   int i, j, maxcol;
 
@@ -2106,8 +2112,8 @@ static booleantype IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur)
 
 ********************************************************************/
 
-static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype tstop, realtype *tret, 
-             N_Vector yret, N_Vector ypret, int itask)
+static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype tstop,
+                       realtype *tret, N_Vector yret, N_Vector ypret, int itask)
 {
 
   int ier;
@@ -2223,8 +2229,8 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype tstop, realtype 
 
 ********************************************************************/
 
-static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype tstop, realtype *tret, 
-             N_Vector yret, N_Vector ypret, int itask)
+static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype tstop,
+                       realtype *tret, N_Vector yret, N_Vector ypret, int itask)
 {
 
   int ier;
@@ -2800,7 +2806,7 @@ static int IDATestError(IDAMem IDA_mem, realtype *ck, realtype *est,
         if(MAX(*terkm1, terkm2) > *terk) goto evaltest;
       }
       
-      else if(*terkm1 > 0.5 * (*terk)) goto evaltest; /* executed for kk=2 only */
+      else if(*terkm1 > 0.5*(*terk)) goto evaltest; /* executed for kk=2 only */
     }
     /* end of "kk>2" if/else block */
     
