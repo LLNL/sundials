@@ -1,5 +1,5 @@
                            CVODES 
-                 Release 2.1.0, December 2004
+                 Release 2.1.1, January 2005
                Alan C. Hindmarsh and Radu Serban
           Center for Applied Scientific Computing, LLNL
 
@@ -72,6 +72,14 @@ D.1. Revision History since release 2.1.0 (December 2004)
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
    - added support for SPBCG to the CVBBDPRE and CVBANDPRE preconditioner
      modules.
+   - added function CVodeSensToggle to allow activation/deactivation of
+     sensitivity calculations without memory allocation/deallocation.
+
+- Bug fixes
+   - fixed bug in CVCompleteStep related to quadrature and sensitivity variables
+     (leading to wrong values at a BDF order increase)
+   - in CVUpperBoundH0, fixed a potential, although not harmful, use of 
+     uninitialized memory
 
 - Changes to user-callable functions
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-11-23 21:24:32 $
+ * $Revision: 1.2 $
+ * $Date: 2005-01-20 22:34:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1309,7 +1309,7 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
  * Readability constants
  */
 
-#define quad           (cv_mem->cv_quad)
+#define quadr          (cv_mem->cv_quadr)
 #define nfQe           (cv_mem->cv_nfQe)
 #define netfQ          (cv_mem->cv_netfQ)
 #define ewtQ           (cv_mem->cv_ewtQ)
@@ -1328,7 +1328,7 @@ int CVodeGetQuadNumRhsEvals(void *cvode_mem, long int *nfQevals)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quad==FALSE) {
+  if (quadr==FALSE) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_GET_NO_QUAD);
     return(CV_NO_QUAD);
   }
@@ -1351,7 +1351,7 @@ int CVodeGetQuadNumErrTestFails(void *cvode_mem, long int *nQetfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quad==FALSE) {
+  if (quadr==FALSE) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_GET_NO_QUAD);
     return(CV_NO_QUAD);
   }
@@ -1374,7 +1374,7 @@ int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector *eQweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quad==FALSE) {
+  if (quadr==FALSE) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_GET_NO_QUAD);
     return(CV_NO_QUAD);
   }
@@ -1398,7 +1398,7 @@ int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals, long int *nQetfails)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (quad==FALSE) {
+  if (quadr==FALSE) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_GET_NO_QUAD);
     return(CV_NO_QUAD);
   }

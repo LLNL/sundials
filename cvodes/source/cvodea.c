@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2004-12-08 21:57:17 $
+ * $Revision: 1.39 $
+ * $Date: 2005-01-20 22:34:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -175,7 +175,7 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
 #define f_data     (cv_mem->cv_f_data)
 #define errfp      (cv_mem->cv_errfp)
 #define h0u        (cv_mem->cv_h0u)
-#define quad       (cv_mem->cv_quad)
+#define quadr      (cv_mem->cv_quadr)
 #define errconQ    (cv_mem->cv_errconQ)
 #define znQ        (cv_mem->cv_znQ)
 #define itolQ      (cv_mem->cv_itolQ)
@@ -189,7 +189,7 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
 #define t1_        (ck_mem->ck_t1)
 #define zn_        (ck_mem->ck_zn)
 #define znQ_       (ck_mem->ck_znQ)
-#define quad_      (ck_mem->ck_quad)
+#define quadr_     (ck_mem->ck_quadr)
 #define zqm_       (ck_mem->ck_zqm)
 #define nst_       (ck_mem->ck_nst)
 #define q_         (ck_mem->ck_q)
@@ -1676,9 +1676,9 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   f(t0_, zn_[0], zn_[1], f_data);
   
   /* Do we need to carry quadratures */
-  quad_ = quad && errconQ;
+  quadr_ = quadr && errconQ;
 
-  if (quad_) {
+  if (quadr_) {
     znQ_[0] = N_VClone(tempvQ);
     N_VScale(ONE, znQ[0], znQ_[0]);
   }
@@ -1724,9 +1724,9 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
   }
 
   /* Test if we need to carry quadratures */
-  quad_ = quad && errconQ;
+  quadr_ = quadr && errconQ;
 
-  if (quad_) {
+  if (quadr_) {
     for (j=0; j<=q; j++) {
       znQ_[j] = N_VClone(tempvQ);
       if(znQ_[j] == NULL) return(NULL);
@@ -1743,7 +1743,7 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
   for (j=0; j<=q; j++) N_VScale(ONE, zn[j], zn_[j]);
   if ( q < qmax ) N_VScale(ONE, zn[qmax], zn_[qmax]);
 
-  if(quad_) {
+  if(quadr_) {
     for (j=0; j<=q; j++) N_VScale(ONE, znQ[j], znQ_[j]);
     if ( q < qmax ) N_VScale(ONE, znQ[qmax], znQ_[qmax]);
   }
@@ -1794,7 +1794,7 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
     /* free N_Vectors for quadratures in tmp 
      Note that at the check point at t_initial, only znQ_[0] 
      was allocated*/
-    if(tmp->ck_quad) {
+    if(tmp->ck_quadr) {
       if(tmp->ck_next != NULL) {
         for (j=0;j<=tmp->ck_q;j++) N_VDestroy(tmp->ck_znQ[j]);
         if (tmp->ck_zqm != 0) N_VDestroy(tmp->ck_znQ[tmp->ck_zqm]);
@@ -1926,7 +1926,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     flag = CVodeReInit(cv_mem, f, t0_, zn_[0], itol, reltol, abstol);
     if (flag != CV_SUCCESS) return(flag);
 
-    if(quad_) {
+    if(quadr_) {
       flag = CVodeQuadReInit(cv_mem, fQ, znQ_[0]);
       if (flag != CV_SUCCESS) return(flag);
     }
@@ -1953,7 +1953,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     /* Copy the arrays from check point data structure */
     for (j=0; j<=q; j++) N_VScale(ONE, zn_[j], zn[j]);
     if ( q < qmax ) N_VScale(ONE, zn_[qmax], zn[qmax]);
-    if(quad_) {
+    if(quadr_) {
       for (j=0; j<=q; j++) N_VScale(ONE, znQ_[j], znQ[j]);
       if ( q < qmax ) N_VScale(ONE, znQ_[qmax], znQ[qmax]);
     }

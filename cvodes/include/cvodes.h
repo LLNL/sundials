@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2004-11-23 21:21:30 $
+ * $Revision: 1.35 $
+ * $Date: 2005-01-20 22:34:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -743,7 +743,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
  * The return value is equal to CV_SUCCESS = 0 if there were no
  * errors; otherwise it is a negative int equal to:
  *   CV_MEM_NULL  indicating cvode_mem was NULL, or
- *   CV_NO_SENSI  indicating there was not a prior call to
+ *   CV_NO_SENS   indicating there was not a prior call to
  *                CVodeSensMalloc.
  *   CV_ILL_INPUT indicating an input argument was illegal
  *                (including an attempt to increase maxord).
@@ -754,6 +754,25 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism,
 
 int CVodeSensReInit(void *cvode_mem, int ism,
                     realtype *p, int *plist, N_Vector *yS0);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : CVodeSensToggle
+ * -----------------------------------------------------------------
+ * CVodeSensToggle activates or deactivates sensitivity calculations.
+ * It does NOT deallocate sensitivity-related memory.
+ * It is allowed to set sensi=TRUE only if CVodeSensMalloc has been
+ * previously called.
+ * 
+ * The return value is equal to CV_SUCCESS = 0 if there were no
+ * errors; otherwise it is a negative int equal to:
+ *   CV_MEM_NULL  indicating cvode_mem was NULL
+ *   CV_NO_SENS   indicating there was not a prior call to
+ *                CVodeSensMalloc.   
+ * -----------------------------------------------------------------
+*/
+
+int CVodeSensToggle(void *cvode_mem, booleantype sensi);
 
 /*
  * -----------------------------------------------------------------

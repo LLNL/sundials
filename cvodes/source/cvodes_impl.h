@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-11-23 21:24:32 $
+ * $Revision: 1.10 $
+ * $Date: 2005-01-20 22:34:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -102,7 +102,7 @@ typedef struct CVodeMemRec {
     Quadrature Related Data 
     -----------------------*/
 
-  booleantype cv_quad;     /* TRUE if integrating quadratures              */
+  booleantype cv_quadr;    /* TRUE if integrating quadratures              */
   CVQuadRhsFn cv_fQ;
   int cv_itolQ;
   realtype *cv_reltolQ;    /* ptr to relative tolerance for quad           */
@@ -573,6 +573,12 @@ typedef struct CVodeMemRec {
 #define MSGCVS_SREI_SENSI1 "CVodeSensReInit-- Illegal attempt to call before "
 #define MSGCVS_SREI_SENSI2 "calling CVodeSensMalloc.\n\n"
 #define MSGCVS_SREI_NO_SENSI MSGCVS_SREI_SENSI1 MSGCVS_SREI_SENSI2
+
+#define MSGCVS_SCVT_NO_MEM "CVodeSensToggle-- cvode_mem = NULL illegal.\n\n"
+
+#define MSGCVS_SCVT_SENSI1 "CVodeSensToggle-- Illegal attempt to call before "
+#define MSGCVS_SCVT_SENSI2 "calling CVodeSensMalloc.\n\n"
+#define MSGCVS_SCVT_NO_SENSI MSGCVS_SCVT_SENSI1 MSGCVS_SCVT_SENSI2
 
 /* CVode Error Messages */
 
