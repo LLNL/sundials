@@ -2,8 +2,8 @@
 \chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
 The central {\ida} module interfaces with the linear solver module to be
-used by way of calls to four routines.  These are denoted here by 
-\id{linit}, \id{lsetup}, \id{lsolve}, and \id{lfree}.
+used by way of calls to five routines.  These are denoted here by 
+\id{linit}, \id{lsetup}, \id{lsolve}, \id{lperf}, and \id{lfree}.
 Briefly, their purposes are as follows:
 %%
 %%
@@ -12,18 +12,19 @@ Briefly, their purposes are as follows:
   linear solver;
 \item \id{lsetup}: evaluate and preprocess the Jacobian or preconditioner;
 \item \id{lsolve}: solve the linear system;
+\item \id{lperf}: monitor performance and issue warnings;
 \item \id{lfree}: free the linear solver memory.
 \end{itemize}
 %%
 %%
 A linear solver module must also provide a user-callable specification routine
-(like those described in \S\ref{sss:lin_solv_init}) which will attach the above four 
-routines to the main {\ida} memory block. The return value of the specification 
-routine should be: \id{SUCCESS} = 0 if the routine was successful,
+(like those described in \S\ref{sss:lin_solv_init}) which will attach
+the above five routines to the main {\ida} memory block. The return value of the
+specification routine should be: \id{SUCCESS} = 0 if the routine was successful,
 \id{LMEM\_FAIL} = -1 if a memory allocation failed, or \id{LIN\_ILL\_INPUT} = -2
 if some input was illegal.
 
-These four routines that interface between {\ida} and the linear solver module
+These five routines, which interface between {\ida} and the linear solver module,
 necessarily have fixed call sequences.  Thus a user wishing to implement another 
 linear solver within the {\ida} package must adhere to this set of interfaces.
 The following is a complete description of the call list for each of
@@ -111,7 +112,7 @@ The type definition of \id{lsetup} is
 The type definition of \id{lsolve} is
 \usfunction{lsolve}
 {
-  int (*lsolve)(&IDAMem cv\_mem, N\_Vector b, N\_Vector weight, \\
+  int (*lsolve)(&IDAMem IDA\_mem, N\_Vector b, N\_Vector weight, \\
                 &N\_Vector ycur, N\_Vector ypcur, N\_Vector rescur);  
 }
 {
@@ -141,6 +142,31 @@ The type definition of \id{lsolve} is
   \id{lsolve} returns a positive value    
   for a recoverable error and a negative value for an             
   unrecoverable error. Success is indicated by a \id{0} return value.
+}
+{}
+
+%------------------------------------------------------------------------------
+
+\paragraph{Performance monitoring routine.}
+The type definition of \id{lperf} is
+\usfunction{lperf}
+{
+  int (*lperf)(IDAMem IDA\_mem, int perftask);
+}
+{
+  The routine \id{lperf} is to monitor the performance of the linear solver.
+}
+{
+  \begin{args}[IDA\_mem]
+  \item[IDA\_mem]
+    is the {\ida} memory pointer of type \id{IDAMem}.
+  \item[perftask]
+    is a task flag.  \id{perftask} = 0 means initialize needed counters.
+    \id{perftask} = 1 means evaluate performance and issue warnings if needed.
+  \end{args}
+}
+{
+  The \id{lperf} return value is ignored.
 }
 {}
 
