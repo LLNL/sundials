@@ -225,8 +225,7 @@
  NO_MIN_EPS =      IOPT(9) = flag to suppress minimum tolerance (eps)
  MXNEWTSTEP = ROPT(1) = max size of Newton step
  RELFUNC =    ROPT(2) = relative error in computing f(u)
- RELU =       ROTP(3) = control on relative change in components of u per step
- ETACONST = ROPT(6), ETAGAMMA = ROPT(7), ETAALPHA = ROPT(8): constants in
+ ETACONST = ROPT(5), ETAGAMMA = ROPT(6), ETAALPHA = ROPT(7): constants in
             optional choices of forcing terms.
 
  The optional outputs available by way of IOPT and ROPT have the following
@@ -237,8 +236,8 @@
  NFE  =   IOPT(5) = number of f evaluations
  NBCF =   IOPT(6) = number of Linesearch beta condition failures
  NBKTRK = IOPT(7) = number of Linesearch backtracks
- FNORM =  ROPT(4) = final scaled norm of f(u)
- STEPL =  ROPT(5) = scaled last step length
+ FNORM =  ROPT(3) = final scaled norm of f(u)
+ STEPL =  ROPT(4) = scaled last step length
 
 The following optional outputs are specific to the SPGMR module:
  NLI  = IOPT(11) = number of linear (Krylov) iterations

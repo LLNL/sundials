@@ -24,7 +24,6 @@
 #include "nvector.h"
 #include "sundialsmath.h"
 #include "kinsol.h"
-#include "kinspgmr.h"
 
 /************************************************************/
 /******************** END Imports ***************************/
@@ -66,8 +65,7 @@
 /***************************************************************/
 /************** BEGIN Default Constants ************************/
 /***************************************************************/
-
-#define RELU_DEFAULT RCONST(10000.0) 
+ 
 #define PRINTFL_DEFAULT 0
 #define MXITER_DEFAULT 200
 #define MXNBCF 10
@@ -108,8 +106,6 @@
 #define MSG_BAD_MXNEWTSTEP "KINSetMaxNewtonStep-- mxnewtstep nonpositive.\n\n"
 
 #define MSG_BAD_RELFUNC   "KINSetRelErrFunc-- relfunc=%g < 0 illegal.\n\n"
-
-#define MSG_BAD_RELU      "KINSetMaxSolUpdate-- relu=%g < 0 illegal.\n\n"
 
 #define MSG_BAD_FNORMTOL  "KINSetFuncNormTol-- fnormtol=%g < 0 illegal.\n\n"
 #define MSG_BAD_SCSTEPTOL "KINSetScaledStepTol-- scsteptol=%g < 0 illegal.\n\n"
@@ -241,7 +237,6 @@ void *KINCreate(void)
   kin_mem->kin_noMinEps = FALSE;
   kin_mem->kin_mxnewtstep = ZERO;
   kin_mem->kin_sqrt_relfunc = RSqrt(uround);
-  kin_mem->kin_relu = RELU_DEFAULT;
   kin_mem->kin_scsteptol = RPowerR(uround,TWOTHIRDS);
   kin_mem->kin_fnormtol = RPowerR(uround,ONETHIRD);
 
@@ -557,31 +552,6 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc)
 }
 
 #define relfunc (kin_mem->kin_sqrt_relfunc)
-
-/*-----------------------------------------------------------------*/
-
-int KINSetMaxSolUpdate(void *kinmem, realtype relu)
-{
-  KINMem kin_mem;
-
-  if (kinmem==NULL) {
-    fprintf(stdout, MSG_KINS_NO_MEM);
-    return(KINS_NO_MEM);
-  }
-
-  kin_mem = (KINMem) kinmem;
-
-  if (relu <= ZERO) {
-    fprintf(errfp, MSG_BAD_RELU, relu);
-    return(KINS_ILL_INPUT);
-  }
-
-  kin_mem->kin_relu = relu;
-
-  return(SUCCESS);
-}
-
-#define relu (kin_mem->kin_relu)
 
 /*-----------------------------------------------------------------*/
 
@@ -1253,7 +1223,7 @@ static int KINSolInit(KINMem kin_mem)
   kin_mem->kin_constraints = constraints;
   kin_mem->kin_uscale = uscale;
   kin_mem->kin_fscale = fscale;
-  kin_mem->kin_precondflag = FALSE;  /* set to the correct state in KINSpgmr */
+  kin_mem->kin_precondflag = FALSE;  /* set to the correct state in KINSpgmr and KINSpbcg */
 
   if (printfl>0) fprintf(errfp,"scsteptol used: %12.3g \n",scsteptol);
   if (printfl>0) fprintf(errfp,"fnormtol  used: %12.3g \n",fnormtol);
@@ -1321,7 +1291,7 @@ static int KINConstraint(KINMem kin_mem)
   realtype mxchange;
 
   N_VLinearSum(ONE, uu, ONE, pp, vtemp1);
- 
+
   /* if vtemp1[i] violates constraint[i] then vtemp2[i] = 1
      else vtemp2[i] = 0 (vtemp2 is the mask vector) */
   if(N_VConstrMask(constraints, vtemp1, vtemp2)) return(0);
@@ -1331,9 +1301,7 @@ static int KINConstraint(KINMem kin_mem)
   /* consider vtemp1[i] only if vtemp2[i] = 1 (constraint violated) */
   N_VProd(vtemp1, vtemp2, vtemp1);
   mxchange = N_VMaxNorm(vtemp1);
-
-  if(mxchange>= relu) stepmul = POINT9 * relu / mxchange;
-  else stepmul = POINT9 / mxchange;
+  stepmul = POINT9 / mxchange;
 
   return(1);
 }
@@ -1463,19 +1431,15 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   stepl = pnorm;
   stepmul = 1.0;
   if (constraintsSet) {
-    loop{
-      ret = KINConstraint(kin_mem);  /* NOTE: This routine changes the step pp. */
-      if (ret == 1) {
-	ratio *= stepmul;
-	N_VScale(stepmul, pp, pp);
-	pnorm *= stepmul;
-	stepl = pnorm;
-	if (printfl > 0) fprintf(errfp,
-	   " --- in routine KINInexactNewton (pnorm= %12.4e \n", pnorm);
-	if (pnorm <= scsteptol) return(1);
-      }
-      else
-	break;
+    ret = KINConstraint(kin_mem);  /* NOTE: This routine changes the step pp. */
+    if (ret == 1) {
+      ratio *= stepmul;
+      N_VScale(stepmul, pp, pp);
+      pnorm *= stepmul;
+      stepl = pnorm;
+      if (printfl > 0) fprintf(errfp,
+	 " --- in routine KINInexactNewton (pnorm= %12.4e \n", pnorm);
+      if (pnorm <= scsteptol) return(1);
     }
   }
  
@@ -1535,19 +1499,15 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   stepl = pnorm;
   stepmul = 1.0;
   if(constraintsSet){
-    loop{
-      ret=KINConstraint(kin_mem);
-      if(ret == 1){
-	ivio = 1;
-	ratio *= stepmul;
-	N_VScale(stepmul, pp, pp);
-	pnorm *= stepmul;
-	stepl = pnorm;
-	if (printfl > 0) fprintf(errfp," --- in routine KINLineSearch"
-	   "(ivio=1, pnorm= %12.4e )\n",pnorm);
-      }
-      else
-	break;
+    ret=KINConstraint(kin_mem);
+    if(ret == 1){
+      ivio = 1;
+      ratio *= stepmul;
+      N_VScale(stepmul, pp, pp);
+      pnorm *= stepmul;
+      stepl = pnorm;
+      if (printfl > 0) fprintf(errfp," --- in routine KINLineSearch"
+	 "(ivio=1, pnorm= %12.4e )\n",pnorm);
     }
   }
 

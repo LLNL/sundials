@@ -205,12 +205,6 @@ void *KINCreate(void);
  * KINSetRelErrFunc     | relative error in computing func(uu)    *
  *                      | [roundoff unit]                         *
  *                      |                                         * 
- * KINSetMaxSolUpdate   | a scalar constraint which restricts the *
- *                      | update of uu to  del(uu)/uu < relu      *
- *                      | The default is no constraint on the     *
- *                      | relative step in uu.                    *
- *                      | [infinity]                              *
- *                      |                                         * 
  * KINSetFuncNormTol    | a real (scalar) value containing the    *
  *                      | stopping tolerance on                   *
  *                      |    maxnorm( fscale * func(uu) )         *
@@ -225,22 +219,16 @@ void *KINCreate(void);
  *                      |     (uround) to the 2/3 power           *
  *                      |                                         * 
  * KINSetConstraints    | pointer to an array (type N_Vector) of  *
- *                      | constraints on uu. If the pointer       *
- *                      | passed in is NULL, then NO constraints  *
- *                      | are applied to uu. A NULL pointer also  *
- *                      | stops application of the constraint on  *
- *                      | the maximum relative change in uu,      *
- *                      | controlled by the input variable relu   *
- *                      | which is input via KINSetMaxSolUpdate.  *
- *                      | A positive value in constraints[i]      *
- *                      | implies that the i-th* component of uu  *
- *                      | is to be constrained > 0.               *
- *                      | A negative value in constraints[i]      *
- *                      | implies that the i-th component of uu   *
- *                      | is to be constrained < 0.               *
- *                      | A zero value in constraints[i] implies  *
- *                      | there is no constraint on uu[i].        *
- *                      | [NULL]                                  *
+ *                      | constraints on uu.  If the pointer      *
+ *                      | passed is NULL, then NO constraints     *
+ *                      | are applied to uu.  If constraints(i)   *
+ *                      | = +2 or -2, then uu(i) will be          *
+ *                      | constrained to be > 0.0 or < 0.0,       *
+ *                      | respectively.  If constraints(i) = +1   *
+ *                      | or -1, then uu(i) will be constrained   *
+ *                      | to be >= 0.0 or <= 0.0, respectively.   *
+ *                      | A zero value in constraints(i) implies  *
+ *                      | there is no constraint on uu(i).        *
  *                      |                                         * 
  * -------------------------------------------------------------- *
  * If successful, these functions return SUCCESS. If an argument  *
@@ -261,7 +249,6 @@ int KINSetEtaParams(void *kinmem, realtype egamma, realtype eaplpha);
 int KINSetNoMinEps(void *kinmem, booleantype noMinEps);
 int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep);
 int KINSetRelErrFunc(void *kinmem, realtype relfunc);
-int KINSetMaxSolUpdate(void *kinmem, realtype relu);
 int KINSetFuncNormTol(void *kinmem, realtype fnormtol);
 int KINSetScaledStepTol(void *kinmem, realtype scsteptol);
 int KINSetConstraints(void *kinmem, N_Vector constraints);
@@ -529,7 +516,6 @@ typedef struct KINMemRec {
   realtype kin_mxnewtstep;     /* max allowable step length of a Newton step  */
   realtype kin_sqrt_relfunc;   /* relative error bound for func(uu) 
                                      (sqrt of error used in the code)         */
-  realtype kin_relu;           /* scalar bound on (del(uu)/uu)                */
   realtype kin_stepl;          /* step length of current step (w/scaling)     */
   realtype kin_stepmul;        /* scalar quantity the step was scaled by      */
   realtype kin_eps;            /* current eps value for the iteration         */

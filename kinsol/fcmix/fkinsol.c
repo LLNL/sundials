@@ -57,10 +57,9 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
     if(ropt[0]>0.0) KINSetMaxNewtonStep(KIN_mem, ropt[0]);
     if(ropt[1]>0.0) KINSetRelErrFunc(KIN_mem, ropt[1]);
-    if(ropt[2]>0.0) KINSetMaxSolUpdate(KIN_mem, ropt[2]);
-    if(ropt[5]>0.0) KINSetEtaConstValue(KIN_mem, ropt[5]);
-    if(ropt[6]>0.0 || ropt[7]>0.0) 
-      KINSetEtaParams(KIN_mem, ropt[6], ropt[7]);
+    if(ropt[4]>0.0) KINSetEtaConstValue(KIN_mem, ropt[4]);
+    if(ropt[5]>0.0 || ropt[6]>0.0) 
+      KINSetEtaParams(KIN_mem, ropt[5], ropt[6]);
   }
 
   *ier = KINMalloc(KIN_mem, FKINfunc, F2C_nvspec);
@@ -111,8 +110,8 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KIN_iopt[5] = nbcfails;
     KIN_iopt[6] = nbacktr;
 
-    KINGetFuncNorm(KIN_mem, &KIN_ropt[3]);
-    KINGetStepLength(KIN_mem, &KIN_ropt[4]);
+    KINGetFuncNorm(KIN_mem, &KIN_ropt[2]);
+    KINGetStepLength(KIN_mem, &KIN_ropt[3]);
     
     KINSpgmrGetNumLinIters(KIN_mem, &nliters);
     KINSpgmrGetNumPrecEvals(KIN_mem, &npevals);
