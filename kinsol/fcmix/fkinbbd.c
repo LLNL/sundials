@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-11-30 21:20:57 $
+ * $Revision: 1.20 $
+ * $Date: 2004-12-01 00:07:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -57,7 +57,10 @@ extern void FK_COMMFN(long int*, realtype*);
 void FKIN_BBDINIT(long int *nlocal, long int *mu, long int *ml, int *ier)
 {
   KBBD_Data = KINBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, ZERO, FKINgloc, FKINgcomm);
-  if (KBBD_Data == NULL) { *ier = -1; return; }
+  if (KBBD_Data == NULL) *ier = -1;
+  else *ier = 0;
+
+  return;
 }
 
 /*
