@@ -30,8 +30,6 @@ the various actual vector operations, and is defined as
 struct _generic_N_Vector_Ops {
   N_Vector    (*nvclone)(N_Vector);
   void        (*nvdestroy)(N_Vector);
-  N_Vector    (*nvcloneempty)(N_Vector);
-  void        (*nvdestroyempty)(N_Vector);
   void        (*nvspace)(N_Vector, long int *, long int *);
   realtype*   (*nvgetarraypointer)(N_Vector);
   void        (*nvsetarraypointer)(realtype *, N_Vector);
@@ -85,7 +83,7 @@ by the generic {\nvector} module.
 
 Finally, note that the generic {\nvector} module defines a function \ID{N\_VCloneVectorArray}
 which creates (by cloning) an array of \id{count} \id{N\_Vector} of the same type as an
-existing one. Its prototype is
+existing \id{N\_Vector}. Its prototype is
 \begin{verbatim}
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
 \end{verbatim}
@@ -108,7 +106,7 @@ A particular implementation of the {\nvector} module must:
   to permit using \id{N\_Vector}'s with different 
   internal representations in the same code.
 \item Define and implement user-callable constructor and destructor
-  routines to create and free a variable of type \id{N\_Vector} with
+  routines to create and free an \id{N\_Vector} with
   the new {\em content} field and with {\em ops} pointing to the
   new vector kernels.
 \item Optionally, define and implement additional user-callable routines
@@ -146,18 +144,9 @@ A particular implementation of the {\nvector} module must:
 It does not copy the vector, but rather allocates storage for the new vector.
 \\
 %
-\id{N\_VCloneEmpty} & \id{v = N\_VcloneEmpty(w);} \\ 
-& Creates a new \id{N\_Vector} of the same type as an existing vector and sets the
-{\em ops} field, but does not allocate memory for the internal data.
-\\
-%
 \id{N\_VDestroy} & \id{N\_VDestroy(v);} \\
 & Destroys the \id{N\_Vector} \id{v} and frees memory allocated for its
 internal data.
-\\
-%
-\id{N\_VDestroyEmpty} & \id{N\_VDestroy(v);} \\
-& Destroys an \id{N\_Vector} \id{v} created by \id{N\_VCloneEmpty}.
 \\
 %
 \id{N\_VSpace} & \id{N\_VSpace(nvSpec, \&lrw, \&liw);} \\

@@ -3,19 +3,21 @@
 %%
 
 The {\nvecs} implementation of the {\nvector} module defines the {\em content} 
-field of \id{N\_Vector} to be a structure containing the length of the vector 
-and a pointer to the beginning of a contiguous data array.
+field of \id{N\_Vector} to be a structure containing the length of the vector,
+a pointer to the beginning of a contiguous data array, and a boolean flag
+{\em own\_data} which specifies the ownership of {\em data}.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_Serial {
   long int length;
+  booleantype own_data;
   realtype *data;
 };
 \end{verbatim}
 %%
 %%--------------------------------------------
 %%
-The following four macros are provided to access the content of a {\nvecs}
+The following five macros are provided to access the content of a {\nvecs}
 vector. The suffix \id{\_S} in the names denotes serial version.
 %%
 \begin{itemize}
@@ -33,7 +35,7 @@ vector. The suffix \id{\_S} in the names denotes serial version.
   
   \verb|#define NV_CONTENT_S(v) ( (N_VectorContent_Serial)(v->content) )|
   
-\item \ID{NV\_DATA\_S}, \ID{NV\_LENGTH\_S}                                 
+\item \ID{NV\_OWN\_DATA\_S}, \ID{NV\_DATA\_S}, \ID{NV\_LENGTH\_S}                                 
                                                             
   These macros give individual access to the parts of    
   the content of a serial \id{N\_Vector}.                        
@@ -49,6 +51,8 @@ vector. The suffix \id{\_S} in the names denotes serial version.
                                                             
   Implementation: 
   
+  \verb|#define NV_OWN_DATA_S(v) ( NV_CONTENT_S(v)->own_data )|
+
   \verb|#define NV_DATA_S(v) ( NV_CONTENT_S(v)->data )|
   
   \verb|#define NV_LENGTH_S(v) ( NV_CONTENT_S(v)->length )|
@@ -77,6 +81,8 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 %%
 \begin{itemize}
 
+%%--------------------------------------
+
 \item \ID{N\_VNew\_Serial}
 
   This function creates and allocates memory for a serial \id{N\_Vector}.
@@ -86,6 +92,8 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
   \verb|N_Vector N_VNew_Serial(long int vec_length);|
 
+%%--------------------------------------
+
 \item \ID{N\_VNewEmpty\_Serial}
 
   This function creates a new serial \id{N\_Vector} with an empty (\id{NULL}) data array.
@@ -93,6 +101,19 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
   Prototype
 
   \verb|N_Vector N_VNewEmpty_Serial(long int vec_length);|
+
+%%--------------------------------------
+
+\item \ID{N\_VCloneEmpty\_Serial}
+
+  This function creates a new serial \id{N\_Vector} with an empty (\id{NULL}) data array
+  by using an existing \id{N\_Vector} as a template.
+
+  Prototype
+
+  \verb|N_Vector N_VCloneEmpty_Serial(N\_Vector w);|
+
+%%--------------------------------------
 
 \item \ID{N\_VMake\_Serial}
 
@@ -103,30 +124,39 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
  \verb|N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);|
 
+%%--------------------------------------
 
 \item \ID{N\_VNewVectorArray\_Serial}
 
  This function creates an array of \id{count} serial vectors.
- This array of \id{N\_Vector} can be freed with \id{N\_VDestroyVectorArray}
- (defined by the generic nvector module).
 
  Prototype
 
  \verb|N_Vector *N_VNewVectorArray_Serial(int count, long int vec_length);|
 
+%%--------------------------------------
 
-\item \ID{N\_VDispose\_Serial}
+\item \ID{N\_VNewVectorArrayEmpty\_Serial}
 
- This function frees a serial \id{N\_Vector} created with \id{N\_VMake\_Serial}.
- Note that deallocation of the {\em data} array is the user's
- responsibility. In other words, \id{N\_VDispose\_Serial} is identitical
- to \id{N\_VDestroyEmpty\_Serial} (defined by {\nvecs} as part of the {\em ops}
- structure).
+ This function creates an array of \id{count} serial vectors, each with an empty (\id{NULL})
+ data array.
 
  Prototype
 
- \verb|void N_VDispose_Serial(N_Vector v);|
+ \verb|N_Vector *N_VNewVectorArrayEmpty_Serial(int count, long int vec_length);|
 
+%%--------------------------------------
+
+\item \ID{N\_VDestroyVectorArray\_Serial}
+
+ This function frees memory allocated for the array of \id{count} serial \id{N\_Vector} 
+ created with \id{N\_VNewVectorArray\_Serial} or with \id{N\_VNewVectorArrayEmpty\_Serial}.
+
+ Prototype
+
+ \verb|void N_VDestroyVectorArray_Serial(N_Vector *vs, int count);|
+
+%%--------------------------------------
 
 \item \ID{N\_VPrint\_Serial}
 
@@ -149,20 +179,16 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
   more efficient to first obtain the component array via       
   \id{v\_data = NV\_DATA\_S(v)} and then access \id{v\_data[i]} within the     
   loop than it is to use \id{NV\_Ith\_S(v,i)} within the loop.        
-                                     
-\item                          
-  \id{NV\_MAKE\_S} and \id{NV\_DISPOSE\_S} are similar to the \id{N\_VNew} and  
-  \id{N\_VFree} implemented by {\nvecs}, while \id{NVS\_MAKE\_S} and 
-  \id{NVS\_DISPOSE\_S}  are similar to  \id{N\_VNew\_S} and \id{N\_VFree\_S}. 
-  The difference is one of responsibility for component memory     
-  allocation and deallocation. \id{N\_VNew} allocates memory  
-  for the \id{N\_Vector} components and \id{N\_VFree} frees the     
-  component memory allocated by \id{N\_VNew}. For \id{NV\_MAKE\_S}   
-  and \id{NV\_DISPOSE\_S}, the component memory is allocated and      
-  freed by the user of this package. Similar remarks hold for  
-  \id{NVS\_MAKE\_S},  \id{NVS\_DISPOSE\_S} and \id{N\_VNew\_S},              
-  \id{N\_VFree\_S}.                                            
 
+\item
+  The constructor functions \id{N\_VNewEmpty\_Serial}, \id{N\_VCloneEmpty\_Serial},
+  \id{N\_VMake\_Serial}, and \id{N\_VNewVectorArrayEmpty\_Serial}
+  set the field {\em own\_data}$=$\id{FALSE}. 
+  The destructor functions \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
+  will not attempt to free the pointer {\em data} for any \if{N\_Vector} with
+  {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
+  deallocate the {\em data} pointer.
+                                     
 \item
   To maximize efficiency, vector operations in the {\nvecs} implementation
   that have more than one \id{N\_Vector} argument do not check for
