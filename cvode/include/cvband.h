@@ -160,7 +160,7 @@ enum { BAND_NJE=CVODE_IOPT_SIZE, BAND_LRW, BAND_LIW };
  *                                                                *
  ******************************************************************/
   
-typedef void (*CVBandJacFn)(integertype N, integertype mupper, integertype mlower,
+typedef void (*CVBandJacFn)(integertype N,integertype mupper,integertype mlower,
                             BandMat J, RhsFn f, void *f_data, realtype t,
                             N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
                             realtype uround, void *jac_data, long int *nfePtr,

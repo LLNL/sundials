@@ -182,9 +182,9 @@ int CVBandPrecond(integertype N, realtype t, N_Vector y, N_Vector fy,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 
-int CVBandPSolve(integertype N, realtype t, N_Vector y, N_Vector fy, 
-                 N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta, 
-                 long int *nfePtr, N_Vector r, int lr, void *bp_data, N_Vector z);
+int CVBandPSolve(integertype N, realtype t, N_Vector y, N_Vector fy,
+               N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
+               long int *nfePtr, N_Vector r, int lr, void *bp_data, N_Vector z);
 
 
 #endif
