@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-04-29 19:17:02 $
+ * $Revision: 1.6 $
+ * $Date: 2004-04-29 22:32:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -283,7 +283,7 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
 /* Return values for CVBBDPrecGet* functions */
 /* OKAY = 0 */
-enum { BBDP_NO_PDATA = -1 };
+enum { BBDP_NO_PDATA = -11 };
 
 /*********************** Definition of CVBBDData *****************/
 

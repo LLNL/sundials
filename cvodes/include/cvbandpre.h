@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-04-29 19:17:02 $
+ * $Revision: 1.5 $
+ * $Date: 2004-04-29 22:32:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -167,7 +167,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
 /* Return values for CVBandPrecGet* functions */
 /* OKAY = 0 */
-enum { BP_NO_PDATA = -1 };
+enum { BP_NO_PDATA = -11 };
 
 /************* CVBandPrecData type definition ************/
 
