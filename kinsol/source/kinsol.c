@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-07-15 23:57:37 $
+ * $Revision: 1.21 $
+ * $Date: 2004-07-16 15:34:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -184,24 +184,24 @@ void *KINCreate(void)
   
   /* set default values for solver optional inputs */
 
-  kin_mem->kin_f_data = NULL;
-  kin_mem->kin_errfp = stderr;
-  kin_mem->kin_infofp = stdout;
-  kin_mem->kin_printfl = PRINTFL_DEFAULT;
-  kin_mem->kin_mxiter = MXITER_DEFAULT;
-  kin_mem->kin_noPrecInit = FALSE;
-  kin_mem->kin_msbpre = MSBPRE;
-  kin_mem->kin_pthrsh = TWO;
-  kin_mem->kin_noMinEps = FALSE;
-  kin_mem->kin_mxnewtstep = ZERO;
+  kin_mem->kin_f_data       = NULL;
+  kin_mem->kin_errfp        = stderr;
+  kin_mem->kin_infofp       = stdout;
+  kin_mem->kin_printfl      = PRINTFL_DEFAULT;
+  kin_mem->kin_mxiter       = MXITER_DEFAULT;
+  kin_mem->kin_noPrecInit   = FALSE;
+  kin_mem->kin_msbpre       = MSBPRE;
+  kin_mem->kin_pthrsh       = TWO;
+  kin_mem->kin_noMinEps     = FALSE;
+  kin_mem->kin_mxnewtstep   = ZERO;
   kin_mem->kin_sqrt_relfunc = RSqrt(uround);
-  kin_mem->kin_scsteptol = RPowerR(uround,TWOTHIRDS);
-  kin_mem->kin_fnormtol = RPowerR(uround,ONETHIRD);
-  kin_mem->kin_etaflag   = ETACHOICE1;
-  kin_mem->kin_eta       = POINT1;  /* default for ETACONSTANT */
-  kin_mem->kin_eta_alpha = TWO;  /* default for ETACHOICE2 */
-  kin_mem->kin_eta_gamma = POINT9;  /* default for ETACHOICE2 */
-  kin_mem->kin_MallocDone = FALSE;
+  kin_mem->kin_scsteptol    = RPowerR(uround,TWOTHIRDS);
+  kin_mem->kin_fnormtol     = RPowerR(uround,ONETHIRD);
+  kin_mem->kin_etaflag      = ETACHOICE1;
+  kin_mem->kin_eta          = POINT1;  /* default for ETACONSTANT */
+  kin_mem->kin_eta_alpha    = TWO;  /* default for ETACHOICE2 */
+  kin_mem->kin_eta_gamma    = POINT9;  /* default for ETACHOICE2 */
+  kin_mem->kin_MallocDone   = FALSE;
 
   return((void *) kin_mem);
 }
@@ -704,11 +704,11 @@ int KINMalloc(void *kinmem, SysFn func, NV_Spec nvspec)
 
   /* set the linear solver addresses to NULL */
 
-  kin_mem->kin_linit = NULL;
+  kin_mem->kin_linit  = NULL;
   kin_mem->kin_lsetup = NULL;
   kin_mem->kin_lsolve = NULL;
-  kin_mem->kin_lfree = NULL;
-  kin_mem->kin_lmem = NULL;
+  kin_mem->kin_lfree  = NULL;
+  kin_mem->kin_lmem   = NULL;
   
   /* problem memory has been successfully allocated */
 
@@ -1338,8 +1338,9 @@ static int KINSolInit(KINMem kin_mem)
   fnorm = N_VWL2Norm(fval, fscale);
   f1norm = HALF * fnorm * fnorm;
 
-  if (printfl > 0) fprintf(infofp, "KINSolInit nni = %4ld  fnorm = %26.16g  nfe = %6ld \n",
-			   nni, fnorm, nfe);
+  if (printfl > 0)
+    fprintf(infofp, "KINSolInit nni = %4ld  fnorm = %26.16g  nfe = %6ld \n",
+	    nni, fnorm, nfe);
 
   /* problem has now been successfully initialized */
 
@@ -1682,9 +1683,9 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       rl_b *= tmp1;
       disc = (rl_b * rl_b) - (3.0 * rl_a * slpi);
 
-      /* cubic is actually just a quadratic */
+      /* cubic is actually just a quadratic (rl_a ~ 0) */
 
-      if (ABS(rl_a) < (uround * ABS(rl_a))) rltmp = -slpi / (2.0 * rl_b);
+      if (ABS(rl_a) < uround) rltmp = -slpi / (2.0 * rl_b);
 
       /* real cubic */
 
