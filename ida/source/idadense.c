@@ -3,7 +3,7 @@
  * File          : idadense.c                                     *
  * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 3 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the IDA dense linear       *
  * solver module, IDADENSE.                                       *
@@ -77,10 +77,10 @@ static int IDADenseSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
 static int IDADenseFree(IDAMem ida_mem);
 
 static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
-                         realtype cj, N_Vector constraints, ResFn res, void *rdata,
-                         void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
-                         realtype uround, DenseMat JJ, long int *nrePtr,
-                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+                      realtype cj, N_Vector constraints, ResFn res, void *rdata,
+                      void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
+                      realtype uround, DenseMat JJ, long int *nrePtr,
+                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 
 /*************** IDADenseDQJac ****************************************
@@ -90,7 +90,7 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
  DenseMat is stored column-wise, and that elements within each column
  are contiguous.  The address of the jth column of JJ is obtained via
  the macro DENSE_COL and an N_Vector jthCol with the jth column as the
- component array is created using N_VMAKE and N_VDATA.  The jth column
+ component array is created using N_VMake and N_VGetData.  The jth column
  of the Jacobian is constructed using a call to the res routine, and
  a call to N_VLinearSum.
  The return value is either SUCCESS = 0, or the nonzero value returned
@@ -98,11 +98,11 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
 
 **********************************************************************/
 
-static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp, realtype cj,
-                         N_Vector constraints, ResFn res, void *rdata, void *jdata,
-                         N_Vector resvec, N_Vector ewt, realtype hh, realtype uround,
-                         DenseMat JJ, long int *nrePtr, N_Vector tempv1,
-                         N_Vector tempv2, N_Vector tempv3)
+static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
+                      realtype cj, N_Vector constraints, ResFn res, void *rdata,
+                      void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
+                      realtype uround, DenseMat JJ, long int *nrePtr,
+                      N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
  
 {
   realtype inc, inc_inv, yj, ypj, srur, conj;
@@ -217,8 +217,7 @@ static int IDADenseDQJac(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
    (1) the input parameter djac, if djac != NULL, or                
    (2) IDADenseDQJac, if djac == NULL.                             
  Finally, it allocates memory for JJ and pivots.
- IDADense returns either SUCCESS = 0 or LMEM_FAIL = -1 or 
- LIN_ILL_INPUT = -2.
+ The return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
 
  NOTE: The dense linear solver assumes a serial implementation
        of the NVECTOR package. Therefore, IDADense will first 
@@ -296,7 +295,7 @@ int IDADense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
  dense linear solver module IDADENSE.  No memory freeing or allocation
  operations are done, as the existing linear solver memory is assumed
  sufficient.  All other initializations are the same as in IDADense.
- The return value is SUCCESS = 0 or LMEM_FAIL = -1.
+ The return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
 
 **********************************************************************/
 
@@ -319,7 +318,7 @@ int IDAReInitDense(void *IDA_mem, IDADenseJacFn djac, void *jdata)
       machenv->ops->nvgetdata == NULL || 
       machenv->ops->nvsetdata == NULL) {
     fprintf(errfp, MSG_WRONG_NVEC);
-    return(LMEM_FAIL);
+    return(LIN_ILL_INPUT);
   }
 
   /* Set five main function fields in ida_mem. */
