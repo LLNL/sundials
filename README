@@ -1,10 +1,15 @@
-SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
+                            SUNDIALS 
+    SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
+                   Release 2.0, November 2004           
+     Peter Brown, Aaron Collier, Keith Grant, Alan Hindmarsh, 
+      Steve Lee, Radu Serban, Dan Shumaker, Carol Woodward
+          Center for Applied Scientific Computing, LLNL
 
-The family of solvers referred to as SUNDIALS consists of solvers
-CVODE (for ODE systems), KINSOL (for nonlinear algebraic systems), 
-and IDA (for differential-algebraic systems).  
-In addition, variants of these which also do sensitivity analysis 
-calculations are in development.
+
+The family of solvers referred to as SUNDIALS consists of solvers CVODE 
+(for ODE systems), CVODES (ODE with sensitivity analysis capabilities),
+IDA (for differential-algebraic systems), and KINSOL (for nonlinear 
+algebraic systems), 
 
 The various solvers of this family share many subordinate modules.
 For this reason, it is organized as a family, with a directory
@@ -14,21 +19,19 @@ a tar-file for all solvers released to date, called sundials.tar.
 Each individual solver includes documentation on installation, along
 with full usage documentation.
 
-The following is a list of the solver packages presently available,
-along with the corresponding tar-file name, and the path and name of
-the installation documentation file.
+The following is a list of the solver packages presently available.
 
-CVODE:  A solver for stiff and nonstiff ODE systems dy/dt = f(t,y),
+CVODE:  A solver for stiff and nonstiff ODE systems y' = f(t,y),
         with serial and parallel versions.
 
-KINSOL: A solver for nonlinear algebraic systems F(u) = 0, with serial
-        and parallel versions.
+CVODES: A solver for stiff and non-stiff ODE systems with sensitivity
+        analysis capabilities, with serial and parallel versions.
 
 IDA:    A solver for differential-algebraic systems F(t,y,y') = 0, with
         serial and parallel versions.
 
-CVODES: A solver for stiff and non-stiff ODE systems with sensitivity
-        analysis capabilities, with serial and parallel versions.
+KINSOL: A solver for nonlinear algebraic systems F(u) = 0, with serial
+        and parallel versions.
 
 Warning to users who receive more than one of these individual solvers
 at different times: The mixing of old and new versions SUNDIALS may fail.  
@@ -36,30 +39,16 @@ To avoid such failures, obtain all desired solvers at the same time.
 
 For installation directions see the file INSTALL.
 
+For additional information on a particular solver, see the README file in
+the solver directory.
 
-Revision history
-----------+------------------------------------------------------+
-          |                      Version                         |
-Date      +----------+----------+----------+----------+----------+
-          | Sundials |   Cvode  |    Ida   |  Kinsol  |  Cvodes  |
-----------+----------+----------+----------+----------+----------+
-Jul 2002  |   1.0    |    2.0   |    2.0   |    2.0   |    1.0   |
-??? 2003  |   1.1    |    2.1   |    2.1   |    2.1   |    1.1   |
-----------+----------+----------+----------+----------+----------+
+                        Release history
 
-
-Peter Brown
-Keith Grant
-Alan Hindmarsh
-Steve Lee
-Radu Serban
-Dan Shumaker
-Allan Taylor
-Carol Woodward
-
-Nonlinear Solvers and Differential Equations Project
-Center for Applied Scientific Computing
-Lawrence Livermore National Laboratory
-Livermore, California, USA
-
-25 February 2003
++----------+------------------------------------------------------+
+|          | SUNDIALS |             Soler version                 |
+|   Date   |          +----------+----------+----------+----------+
+|          | release  |   Cvode  |    Ida   |  Kinsol  |  Cvodes  |
++----------+----------+----------+----------+----------+----------+
+| Jul 2002 |   1.0    |    2.0   |    2.0   |    2.0   |    1.0   |
+| Nov 2004 |   2.0    |  2.2.0   |  2.2.0   |  2.2.0   |  2.1.0   |
++----------+----------+----------+----------+----------+----------+
