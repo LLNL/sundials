@@ -96,7 +96,7 @@
 #include "ida.h"               /* Main IDA header file.                            */
 #include "idaspgmr.h"          /* Use IDASPGMR linear solver.                      */
 #include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P.   */
-#include "sundialsmath.h"      /* Contains RSqrt and UnitRoundoff routines.        */
+#include "sundialsmath.h"      /* Contains RSqrt routine.                          */
 #include "smalldense.h"        /* Contains definitions for denalloc routine.       */
 #include "mpi.h"               /* MPI library routines.                            */
 
@@ -1026,7 +1026,7 @@ static int Precondbd(realtype tt, N_Vector cc,
   realtype hh;
 
   webdata = (UserData)Pdata;
-  uround = UnitRoundoff();
+  uround = UNIT_ROUNDOFF;
   sqru = RSqrt(uround); 
   
   mem = webdata->ida_mem;

@@ -78,7 +78,7 @@
 #include "kinspgmr.h"         /* use KINSpgmr linear solver                   */
 #include "smalldense.h"       /* use generic DENSE solver for preconditioning */
 #include "nvector_parallel.h" /* definitions of type N_Vector, access macros  */
-#include "sundialsmath.h"     /* contains RSqrt and UnitRoundoff routines     */
+#include "sundialsmath.h"     /* contains RSqrt routine                       */
 #include "mpi.h"              /* MPI include file                             */
 
 /* Problem Constants */
@@ -384,7 +384,7 @@ static void InitUserData(integertype my_pe, MPI_Comm comm, UserData data)
   data->ay = AY;
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
-  data->uround = UnitRoundoff();
+  data->uround = UNIT_ROUNDOFF;
   data->sqruround = RSqrt(data->uround);
   data->my_pe = my_pe;
   data->comm = comm;

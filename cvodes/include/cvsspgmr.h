@@ -127,8 +127,8 @@ extern "C" {
  *     they are accessible as follows: hcur (the current stepsize)*
  *     and ewt (the error weight vector) are accessible through   *
  *     IDAGetCurrentStep and CVodeGetErrWeights, respectively     *
- *     see cvode.h). The unit roundoff is available through a     *
- *     call to UnitRoundoff.                                      *
+ *     see cvode.h). The unit roundoff is available as            *
+ *     UNIT_ROUNDOFF defined in sundialstypes.h                   *
  *                                                                *
  * Returned value:                                                *
  * The value to be returned by the PrecSetup function is a flag   *

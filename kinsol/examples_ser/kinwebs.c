@@ -75,7 +75,7 @@
 #include "kinspgmr.h"       /* use KINSPGMR linear solver                     */
 #include "smalldense.h"     /* use generic DENSE solver for preconditioning   */
 #include "nvector_serial.h" /* definitions of type N_Vector and access macros */
-#include "sundialsmath.h"   /* contains RSqrt and UnitRoundoff routines       */
+#include "sundialsmath.h"   /* contains RSqrt routine                         */
 
 /* Problem Constants */
 
@@ -317,7 +317,7 @@ static void InitUserData(UserData data)
   data->ay = AY;
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
-  data->uround = UnitRoundoff();
+  data->uround = UNIT_ROUNDOFF;
   data->sqruround = RSqrt(data->uround);
   
   /* Set up the coefficients a and b plus others found in the equations */

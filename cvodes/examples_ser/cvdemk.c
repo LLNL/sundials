@@ -93,7 +93,7 @@
 #include "smalldense.h"      /* use generic DENSE linear solver for "small"   */
                              /* dense matrix blocks in right preconditioner   */
 #include "nvector_serial.h"  /* contains the definition of type N_Vector      */
-#include "sundialsmath.h"    /* contains UnitRoundoff, RSqrt, SQR functions   */
+#include "sundialsmath.h"    /* contains RSqrt, SQR functions                 */
 
 /* Problem Specification Constants */
 
@@ -361,7 +361,7 @@ static void InitUserData(WebData wdata)
   wdata->mq = MQ;
   wdata->mx = MX;
   wdata->my = MY;
-  wdata->srur = RSqrt(UnitRoundoff());
+  wdata->srur = RSqrt(UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
   wdata->ngx = NGX;
@@ -666,7 +666,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   CVodeGetErrWeights(cvode_mem, &rewt);
   rewtdata = NV_DATA_S(rewt);
 
-  uround = UnitRoundoff();
+  uround = UNIT_ROUNDOFF;
 
   P = wdata->P;
   pivot = wdata->pivot;

@@ -86,7 +86,7 @@
 #include "ida.h"             /* Main IDA header file.                            */
 #include "idaband.h"         /* Use IDABAND linear solver.                       */
 #include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S.   */
-#include "sundialsmath.h"    /* Contains RSqrt and UnitRoundoff routines.        */
+#include "sundialsmath.h"    /* Contains RSqrt routine.                          */
 #include "smalldense.h"      /* Contains definitions for denalloc routine.       */
 
 /* Problem Constants. */

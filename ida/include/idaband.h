@@ -96,8 +96,8 @@ extern "C" {
  *     they are accessible as follows: hcur (the current stepsize)*
  *     and ewt (the error weight vector) are accessible through   *
  *     IDAGetCurrentStep and IDAGetErrWeights, respectively (see  *
- *     ida.h). The unit roundoff is available through a call to   *
- *     UnitRoundoff.                                              *
+ *     ida.h). The unit roundoff is available as                  *
+ *     UNIT_ROUNDOFF defined in sundialstypes.h                   *
  *                                                                *
  * A third way, using the BAND_ELEM(A,i,j) macro, is much less    *
  * efficient in general.  It is only appropriate for use in small *

@@ -492,8 +492,8 @@ void *IDACreate(void)
     return (NULL);
   }
 
-  /* Compute unit roundoff and set it in IDA_mem */
-  IDA_mem->ida_uround = UnitRoundoff();
+  /* Set unit roundoff in IDA_mem */
+  IDA_mem->ida_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
   IDA_mem->ida_rdata       = NULL;

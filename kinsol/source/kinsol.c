@@ -227,7 +227,7 @@ void *KINCreate(void)
   }
 
   /* Set uround */
-  kin_mem->kin_uround = uround = UnitRoundoff();
+  kin_mem->kin_uround = uround = UNIT_ROUNDOFF;
   
   /* Set default values for solver optional inputs */
   kin_mem->kin_f_data = NULL;

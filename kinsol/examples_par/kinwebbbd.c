@@ -78,7 +78,7 @@
 #include "kinspgmr.h"          /* use KINSpgmr linear solver                  */
 #include "smalldense.h"        /* use generic DENSE solver for preconditioning*/
 #include "nvector_parallel.h"  /* def's of type N_Vector, macro NV_DATA_P     */
-#include "sundialsmath.h"      /* contains RSqrt and UnitRoundoff routines    */
+#include "sundialsmath.h"      /* contains RSqrt routine                      */
 #include "mpi.h"               /* MPI include file                            */
 #include "kinbbdpre.h"         /* band preconditioner function prototypes     */
 

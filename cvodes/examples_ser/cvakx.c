@@ -413,7 +413,7 @@ static void InitUserData(WebData wdata)
   wdata->mq = MQ;
   wdata->mx = MX;
   wdata->my = MY;
-  wdata->srur = RSqrt(UnitRoundoff());
+  wdata->srur = RSqrt(UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
   wdata->ngx = NGX;
@@ -694,7 +694,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   cdata = NV_DATA_S(c);
   rewtdata = NV_DATA_S(rewt);
 
-  uround = UnitRoundoff();
+  uround = UNIT_ROUNDOFF;
 
   P = wdata->P;
   pivot = wdata->pivot;
@@ -1139,7 +1139,7 @@ static int PrecondB(realtype t, N_Vector c,
   cdata = NV_DATA_S(c);
   rewtdata = NV_DATA_S(rewt);
 
-  uround = UnitRoundoff();
+  uround = UNIT_ROUNDOFF;
 
   P = wdata->P;
   pivot = wdata->pivot;
