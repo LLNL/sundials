@@ -81,6 +81,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.2.3   - Apr. 2005
 v. 2.2.2   - Mar. 2005
 v. 2.2.1   - Jan. 2005
 v. 2.2.0   - Dec. 2004
@@ -91,8 +92,8 @@ v. 1.0     - Aug. 1998 (date written)
 E. Revision History
 -------------------
 
-v. 2.2.2 (Mar. 2005) ---> 
----------------------------------------------------------
+v. 2.2.3 (Apr. 2005) ---> 
+------------------------------------------------
 
 - New feature
    - added option to KINBBDPRE preconditioner module to allow specification
@@ -125,19 +126,6 @@ v. 2.2.2 (Mar. 2005) --->
      and the retained matrix (mukeep, mlkeep).
    - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
 
-- Bug fixes
-   - modified FCMIX files to avoid C++ compiler errors
-   - changed implicit type conversion to explicit in check_flag() routine in
-     examples to avoid C++ compiler errors
-
-- Changes to documentation
-   - added description of --with-mpi-flags option
-
-- Changes related to build system
-   - added --with-mpi-flags as a configure option to allow user to specify
-     MPI-specific flags
-   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
-     CC and MPICC to link)
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------
@@ -146,14 +134,22 @@ v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
    - fixed bug in computation of the scaled step length
    - fixed bug in logic for disabling the call to the preconditioner setup function 
      at the first iteration
+   - modified FCMIX files to avoid C++ compiler errors
+   - changed implicit type conversion to explicit in check_flag() routine in
+     examples to avoid C++ compiler errors
 
 - Changes to documentation
    - added section with numerical values of all input and output solver constants
+   - added description of --with-mpi-flags option
 
 - Changes related to the build system
    - fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
    - modified to use customized detection of the Fortran name mangling scheme 
      (autoconf's AC_F77_WRAPPERS routine is problematic on some platforms)
+   - added --with-mpi-flags as a configure option to allow user to specify
+     MPI-specific flags
+   - updated Makefiles for Fortran examples to avoid C++ compiler errors (now use
+     CC and MPICC to link)
 
 v. 2.2.0 (Dec. 2004) ---> v. 2.2.1 (Jan. 2005)
 ----------------------------------------------
