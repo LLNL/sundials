@@ -68,7 +68,7 @@ interested reader.
 \end{tabular}
 \end{table}
 
-The vector functions listed in Table \ref{t:nvecops} that are {\em not} used by
-{\kinsol} are: \id{N\_VAddConst}, \id{N\_VWrmsNorm}, \id{N\_VWrmsNormMask},
+The following vector operations listed in Table~\ref{t:nvecops} are {\em not} used by
+{\kinsol}: \id{N\_VAddConst}, \id{N\_VWrmsNorm}, \id{N\_VWrmsNormMask},
 \id{N\_VCompare}, and \id{N\_VInvTest}.
 Therefore a user-supplied {\nvector} module for {\kinsol} could omit these five functions.

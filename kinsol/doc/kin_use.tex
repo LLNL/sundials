@@ -22,8 +22,8 @@ and data types can be used. The header file that is always required is:
   types and various constants, and includes function prototypes.
 \end{itemize}
 %
-Note that \id{kinsol.h} also includes \Id{sundialstypes.h}, 
-which defines the types \id{realtype}, and \id{ booleantype}
+\id{kinsol.h} also includes \Id{sundialstypes.h}, 
+which defines the types \id{realtype} and \id{ booleantype}
 and constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
@@ -50,7 +50,7 @@ which enumerates the kind of preconditioning and the choices for the
 Gram-Schmidt process.
 
 Other headers may be needed, according as to the choice of
-preconditioner, etc. In the \id{kinwebs} example~\cite{kinsol2.2.0_ex}, 
+preconditioner, etc. For example, in the \id{kinwebs} example~\cite{kinsol2.2.0_ex}, 
 preconditioning is done with a block-diagonal matrix. For this, the header
 \id{smalldense.h} is included.
 
@@ -74,6 +74,7 @@ where this is not the case, usage specifications are given for the two implement
 provided with {\kinsol}: steps marked with {\p} correspond to 
 {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
 %
+\index{User main program!KINSOL@{\kinsol} usage}
 \begin{Steps}
   
 \item 
@@ -1207,7 +1208,7 @@ The \index{KINSPGMR@{\kinspgmr} linear solver!Jacobian approximation used by}
 product between the Jacobian matrix $J(u)$ and a vector $v$.
 The user can supply his/her own Jacobian times vector approximation function, 
 or use the difference quotient function \Id{KINSpgmrDQJtimes} 
-\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+\index{Jacobian times vector approximation!difference quotient}
 that comes with the {\kinspgmr} solver.
 A user-defined Jacobian-vector function must be of type \id{KINSpgmrJtimesFn} and 
 can be specified through a call to \id{KINSpgmrSetJacTimesVecFn} 
@@ -1349,7 +1350,7 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
 %%
 \index{preconditioning!user-supplied|)}
 %%
-\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\index{Jacobian times vector approximation!user-supplied}
 \ucfunction{KINSpgmrSetJacTimesVecFn}
 {
   flag = KINSpgmrSetJacTimesVecFn(kin\_mem, jtimes);
@@ -1692,7 +1693,7 @@ performance of the {\kinspgmr} module are described below.
 }
 {
   The function \ID{KINSpgmrGetWorkSpace} returns the
-  {\kinspgmr} real and integer workspace sizes.
+  real and integer workspace sizes used by {\kinspgmr}.
 }
 {
   \begin{args}[kin\_mem]
@@ -1997,8 +1998,8 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
   \item[fval]
     is the output vector $F(u)$.
   \item[f\_data]
-    is a pointer to user data, the same as the \Id{f\_data}      
-    parameter passed to \id{KINSetFdata}.   
+    is a pointer to user data, same as the pointer \Id{f\_data}      
+    passed to \id{KINSetFdata}.   
   \end{args}
 }
 {
@@ -2014,7 +2015,7 @@ Allocation of memory for \id{fval} is handled within {\kinsol}.
 \subsection{Jacobian information (SPGMR matrix-vector product)}
 \label{ss:jtimesFn}
 %%==============================================================================
-\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\index{Jacobian times vector approximation!user-supplied}
 The user may provide a function of type \ID{KINSpgmrJacTimesVecFn} to evaluate
 Jacobian-vector products for the {\kinspgmr} linear solver module.
 This function has the following form:
@@ -2164,7 +2165,7 @@ typedef int (*KINSpgmrPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
 }
 {
   The user-supplied preconditioner setup subroutine should
-  compute the right-preconditioner matrix $P$ (stored in the memory
+  compute the right preconditioner matrix $P$ (stored in the memory
   block referenced by the \id{prec\_data} pointer) used to form the
   scaled preconditioned linear system
  
@@ -2692,7 +2693,8 @@ of integer optional inputs and outputs (\id{IOPT}), problem dimensions (\id{NEQ}
 \subsection{FKINSOL optional input and output}
 %%==============================================================================
 \index{FKINSOL@{\fkinsol} interface module!optional input and output}
-
+\index{optional input!FKINSOL@{\fkinsol}}
+\index{optional output!FKINSOL@{\fkinsol}}
 In order to keep the number of user-callable {\fkinsol} interface routines to
 a minimum, optional inputs and outputs to the {\kinsol} solver and to related 
 modules are not accessed through individual functions, but rather through a
@@ -2893,7 +2895,7 @@ apply to {\nvecp}.
   \id{IER} is the return completion flag (possible values are $0$: succes and
   $-1$: failure).
     
-  \index{Jacobian approximation function!Jacobian times vector!use in {\fkinsol}}
+  \index{Jacobian times vector approximation!use in {\fkinsol}}
   As an option when using the {\spgmr} linear solver, the user may supply a 
   routine that computes the product of the system Jacobian 
   $J = \partial F / \partial u$ 
@@ -3019,6 +3021,7 @@ apply to {\nvecp}.
 %%==============================================================================
 \subsection{Usage of the FKINBBD interface to KINBBDPRE}
 %%==============================================================================
+\index{FKINBBD@{\fkinbbd} interface module!usage}
 
 The {\fkinbbd} interface sub-module is a package of {\C} functions which,
 as part of the {\fkinsol} interface module, support the use of the
@@ -3114,6 +3117,8 @@ from the main program described in \S\ref{ss:fkinsol_usage} are grayed-out.
   To obtain the optional outputs associated with the {\kinbbdpre} module, make
   the following call:
   \index{FKINBBDOPT@\texttt{FKINBBDOPT}}
+  \index{optional output!FKINBBD@{\fkinbbd}}
+  \index{FKINBBD@{\fkinbbd} interface module!optional output}
 \begin{verbatim}
       CALL FKINBBDOPT(LENRPW, LENIPW, NGE)
 \end{verbatim}
