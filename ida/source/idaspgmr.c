@@ -2,7 +2,7 @@
  *                                                                *
  * File          : idaspgmr.c                                     *
  * Programmers   : Alan C. Hindmarsh and Allan G. Taylor          *
- * Version of    : 3 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the IDA Scaled             *
  * Preconditioned GMRES linear solver module, IDASPGMR.           *
@@ -306,7 +306,7 @@ int IDASpgmr(void *IDA_mem, IDASpgmrPrecondFn precond,
 }
 
 
-/*************** IDAReInit Spgmr **************************************
+/*************** IDAReInitSpgmr **************************************
 
  This routine resets the link between the main IDA module and the
  Spgmr linear solver module IDASPGMR.  No memory freeing or allocation
@@ -480,8 +480,8 @@ static int IDASpgmrSolve(IDAMem ida_mem, N_Vector bb, N_Vector ynow,
   
   /* Call SpgmrSolve and copy xx to bb. */
   retval = SpgmrSolve(spgmr_mem, ida_mem, xx, bb, pretype, gstype, epslin,
-                      maxrs, ida_mem, ewt, ewt, IDASpgmrAtimesDQ, IDASpgmrPSolve,
-                      &res_norm, &nli_inc, &nps_inc);
+                      maxrs, ida_mem, ewt, ewt, IDASpgmrAtimesDQ,
+                      IDASpgmrPSolve, &res_norm, &nli_inc, &nps_inc);
 
   if (nli_inc == 0) N_VScale(ONE, SPGMR_VTEMP(spgmr_mem), bb);
   else N_VScale(ONE, xx, bb);
