@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.14 $
-C     $Date: 2004-07-22 22:55:16 $
+C     $Revision: 1.15 $
+C     $Date: 2004-09-21 22:59:49 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -31,7 +31,7 @@ C
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)
       INTEGER IOUT, NOUT, NGE
-      INTEGER IOPT(40)
+      INTEGER IOPT(40), INFO(2)
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LNJE/18/, NGE/25/
 C
@@ -108,6 +108,21 @@ C
            STOP
         ENDIF
 C
+        IF (IER .EQ. 2) THEN
+           CALL FCVROOTINFO(2, INFO, IERROOT)
+           IF (IERROOT .LT. 0) THEN
+              WRITE(6,65) IER
+ 65           FORMAT(///' SUNDIALS_ERROR: FCVROOTINFO returned IER =',
+     1              I5)
+              CALL FNVFREES
+              CALL FCVROOTFREE
+              CALL FCVFREE
+              STOP
+           ENDIF
+           WRITE(6,70)(INFO(I),I=1,2)
+ 70        FORMAT(5X,'Above is a root, INFO() =',2I3)
+        ENDIF                   
+C
         IF (IER .EQ. 0) THEN
            TOUT = TOUT*10.0D0
            IOUT = IOUT+1
@@ -124,7 +139,7 @@ C
          CALL FCVFREE
          STOP
       ENDIF
-      WRITE(6,85)y(1),y(2),y(3)
+      WRITE(6,85)Y(1),Y(2),Y(3)
  85   FORMAT(/'Final value of ydot =',3D11.3)
 C
       WRITE(6,90) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
