@@ -145,18 +145,11 @@
 %%--------------------------------
 \newcommand{\frontex}
 {
-  \maketitle
+  \maketitle\thispagestyle{empty}
 
-  %% Leave an empty page
-  \newpage\thispagestyle{empty}
-  \vspace*{1.0in}
-  
-  %% Start roman numbering
-  \pagestyle{plain}\pagenumbering{roman}
-  \tableofcontents
-  
-  %% Move to new page and start arabic numbering
+  %% Start arabic numbering
   \newpage\pagestyle{plain}\pagenumbering{arabic}
+  \tableofcontents
 }
 
 %%----------------------------------
