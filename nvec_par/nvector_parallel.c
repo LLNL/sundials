@@ -483,12 +483,14 @@ realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 realtype N_VMaxNorm_Parallel(N_Vector x)
 {
   integertype i, N;
-  realtype max = ZERO, *xd, gmax;
+  realtype max, *xd, gmax;
   NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   nvspec = x->nvspec;
+
+  max = ZERO;
 
   for (i=0; i < N; i++, xd++) {
     if (ABS(*xd) > max) max = ABS(*xd);
@@ -551,16 +553,23 @@ realtype N_VMin_Parallel(N_Vector x)
   NV_Spec nvspec;
 
   N  = NV_LOCLENGTH_P(x);
-  xd = NV_DATA_P(x);
   nvspec = x->nvspec;
 
-  min = xd[0];
+  min = BIG_REAL;
 
-  xd++;
-  for (i=1; i < N; i++, xd++) {
-    if ((*xd) < min) min = *xd;
+  if (N > 0) {
+
+    xd = NV_DATA_P(x);
+    
+    min = xd[0];
+    
+    xd++;
+    for (i=1; i < N; i++, xd++) {
+      if ((*xd) < min) min = *xd;
+    }
+
   }
-
+    
   gmin = VAllReduce_Parallel(min, 3, nvspec);
   return(gmin);
 }
@@ -731,8 +740,9 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
         min = MIN(min, (*nd)/(*dd));
     }
   }
-  if (notEvenOnce) min = 1.e99;
-  
+  if (notEvenOnce) min = BIG_REAL;
+  if (N==0)        min = BIG_REAL;
+
   return(VAllReduce_Parallel(min, 3, nvspec));
 }
 
