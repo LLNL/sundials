@@ -1,14 +1,11 @@
 C ------------------------------------------------------------------
-C $Revision: 1.1 $
-C $Date: 2004-03-31 21:25:31 $
+C $Revision: 1.2 $
+C $Date: 2004-05-17 18:50:18 $
 C ------------------------------------------------------------------
-C
-C File: pvdiagkbf.f
-C
-C Diagonal ODE example.  Stiff case, with diagonal preconditioner.
+C Diagonal ODE example. Stiff case, with diagonal preconditioner.
 C Uses FCVODE interfaces and FCVBBD interfaces.
 C Solves problem twice -- with left and right preconditioning.
-C Version of 27 January 2004
+C ------------------------------------------------------------------
 C
 C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
 C
@@ -61,9 +58,9 @@ C Set input arguments.
       ITMETH = 2
       IATOL = 1
       INOPT = 0
-      ITASK = 0
+      ITASK = 1
       IPRE = 1
-      IGS = 0
+      IGS = 1
 C Set parameter alpha
       ALPHA  = 10.0D0
 C

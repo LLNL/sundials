@@ -1,6 +1,6 @@
 C ------------------------------------------------------------------
-C $Revision: 1.1 $
-C $Date: 2004-03-31 21:25:42 $
+C $Revision: 1.2 $
+C $Date: 2004-05-17 18:50:12 $
 C ------------------------------------------------------------------
 C
 C File cvbandf.f
@@ -50,7 +50,7 @@ C
       MU = MY
       ML = MY
       DTOUT = 0.1D0
-      ITASK = 0
+      ITASK = 1
 C
       WRITE(6,10)NEQ
  10   FORMAT('Band example problem: Advection-diffusion, NEQ = ',I2//)

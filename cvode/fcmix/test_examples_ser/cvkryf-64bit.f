@@ -1,6 +1,6 @@
 C ------------------------------------------------------------------
-C $Revision: 1.1 $
-C $Date: 2004-03-31 21:25:42 $
+C $Revision: 1.2 $
+C $Date: 2004-05-17 18:50:13 $
 C ------------------------------------------------------------------
 C
 C File cvkryf.f
@@ -43,7 +43,7 @@ C
       DOUBLE PRECISION ATOL, AVDIM, T, TOUT, TWOHR, RTOL, FLOOR, DELT
       DOUBLE PRECISION Y(2,10,10), ROPT(40)
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
-     1     JPRETYPE/1/, IGSTYPE/0/, MAXL/0/, DELT/0.0D0/
+     1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/,
      1     LQ/11/, LH/5/, LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
       COMMON /PBDIM/ NEQ
@@ -61,7 +61,7 @@ C Set other input arguments.
       IATOL = 1
       ATOL = RTOL*FLOOR
       INOPT = 0
-      ITASK = 0
+      ITASK = 1
 C
       WRITE(6,10)NEQ
  10   FORMAT('Krylov example problem: Kinetics-transport, NEQ = ',I4/)

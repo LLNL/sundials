@@ -1,12 +1,9 @@
 C ------------------------------------------------------------------
-C $Revision: 1.1 $
-C $Date: 2004-03-31 21:25:31 $
+C $Revision: 1.2 $
+C $Date: 2004-05-17 18:50:18 $
 C ------------------------------------------------------------------
-C
-C File: pvdiagnf.f
-C
-C Diagonal ODE example.  Nonstiff case: alpha = 10/NEQ.
-C Version of 27 January 2004
+C Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
+C ------------------------------------------------------------------
 C
 C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
 C
@@ -54,7 +51,7 @@ C Set input arguments.
       ITMETH = 1
       IATOL = 1
       INOPT = 0
-      ITASK = 0
+      ITASK = 1
 c Set parameter ALPHA
       ALPHA  = 10.0D0/NEQ
 C
