@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-11-15 17:11:48 $
+ * $Revision: 1.16 $
+ * $Date: 2004-11-16 19:52:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -234,7 +234,7 @@ struct _generic_N_Vector {
  *   This routine returns the minimum of the quotients obtained
  *   by term-wise dividing num[i] by denom[i]. A zero element
  *   in denom will be skipped. If no such quotients are found,
- *   then the large value 1.e99 is returned.
+ *   then the large value 1.0e99 is returned.
  *
  * -----------------------------------------------------------------
  *
@@ -248,22 +248,20 @@ struct _generic_N_Vector {
  * I    -  called by the iterative linear solver module
  * BP   -  called by the band preconditioner module
  * BBDP -  called by the band-block diagonal preconditioner module
- * F    -  called by the Fortran - C interface
+ * F    -  called by the Fortran-to-C interface
  *
- * Note that N_VMake, N_VGetData and N_VSetData expect to exchange
- * data through contiguous arrays of realtype values. If this is
- * also the internal vector representation, then these functions
- * can exchange information through pointers. Otherwise, copying
- * of data may be necessary.
+ * Note: Although N_VDiv and N_VProd are not called within the
+ * implementation files *spgmr.c, they are called within spgmr.c
+ * and so are required by the *SPGMR module.
  *
  *                  ------------------------------------------------
  *                                         MODULES                  
  * NVECTOR          ------------------------------------------------
  * FUNCTIONS          CVODE/CVODES          IDA             KINSOL    
  * -----------------------------------------------------------------
- * N_VClone           S Di I                S I             S I BBDP
+ * N_VClone           S Di I                S I BBDP        S I BBDP
  * -----------------------------------------------------------------
- * N_VDestroy         S Di I                S BBDP I        S BBDP
+ * N_VDestroy         S Di I                S I BBDP        S I BBDP
  * -----------------------------------------------------------------
  * N_VSpace           S                     S               S         
  * -----------------------------------------------------------------
@@ -275,9 +273,9 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  * N_VConst           S I                   S I             I       
  * -----------------------------------------------------------------
- * N_VProd            S Di                  S               S I       
+ * N_VProd            S Di I                S I             S I       
  * -----------------------------------------------------------------
- * N_VDiv             S Di                  S               S         
+ * N_VDiv             S Di I                S I             S I
  * -----------------------------------------------------------------
  * N_VScale           S D B Di I BP BBDP    S D B I BBDP    S I BBDP  
  * -----------------------------------------------------------------
