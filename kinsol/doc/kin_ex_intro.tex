@@ -50,6 +50,7 @@ the {\F}-{\C} interface:
   is a parallel implementation of \id{kindiagsf}.
 \end{itemize}
 
+\vspace{0.2in}\noindent 
 In the following sections, we give detailed descriptions of some (but
 not all) of these examples.  The Appendices contain complete listings
 of those examples described below.  We also give our output files for
@@ -63,3 +64,17 @@ In the descriptions below, we make frequent references to the {\kinsol}
 User Document \cite{kinsol2.2.0_ug}.  All citations to specific sections
 (e.g. \S\ref{s:types}) are references to parts of that User Document, unless
 explicitly stated otherwise.
+
+\vspace{0.2in}\noindent {\bf Note}. 
+The examples in the {\kinsol} distribution are written in such a way as
+to compile and run for any combination of configuration options during
+the installation of {\sundials} (see \S\ref{s:install}). As a consequence,
+they contain portions of code that will not be typically present in a
+user program. For example, all {\C} example programs make use of the
+variable \id{SUNDIALS\_EXTENDED\_PRECISION} to test if the solver libraries
+were built in extended precision and use the appropriate conversion 
+specifiers in \id{printf} functions. Similarly, the {\F} examples in
+{\fkinsol} are automatically pre-processed to generate source code that
+corresponds to the manner in which the {\kinsol} libraries were built
+(see \S\ref{s:ex_fortran} in this document for more details).
+
