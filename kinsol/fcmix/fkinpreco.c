@@ -3,12 +3,11 @@
  * File          : fkinpreco.c                                     *
  * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 29 July 2002                                    *
  *-----------------------------------------------------------------*
- * This C function KINPreco is to interface between routines that  *
- * call KINSpgmr(fkinspgmr20, fkinspgmr21) and the user-supplied   *
- * preconditioner setup routine KPRECO. Note the use of generic    *
- * names below (K_PRECO)                                           *
+ * This C function KINPreco is to interface between KINSOL and the *
+ * Fortran user-supplied preconditioner setup routine.             *
+ * Note the use of generic name K_PRECO below.                     *
  ******************************************************************/
 
 #include <stdio.h>
@@ -20,7 +19,7 @@
 
 /*********************************************************************/
 
-/* Prototypes of the Fortran routines */
+/* Prototype of the user-supplied Fortran routine */
 void K_PRECO(integertype*, realtype*, realtype*, realtype*, realtype*, 
              realtype*, realtype*, realtype*, long int*, int*);
 
