@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-30 23:30:14 $
+ * $Revision: 1.22 $
+ * $Date: 2004-11-17 00:49:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -303,12 +303,9 @@ void *KINCreate(void);
  *                      | constraints are applied to vector u
  *                      | [NULL]
  *                      |
- * KINResetSysFunc      | changes the user-provided routine which
+ * KINSetSysFunc        | set the user-provided routine which
  *                      | defines the nonlinear problem to be 
- *                      | solved.
- *                      | KINResetSysFunc is provided for a user 
- *                      | who wishes to solve several problems of 
- *                      | the same size but with different functions.
+ *                      | solved
  *                      | [none]
  * -----------------------------------------------------------------
  * The possible return values for the KINSet* subroutines are the
