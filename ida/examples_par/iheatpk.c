@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
   }
   ier = IDASetRdata(mem, data);
   ier = IDASetSuppressAlg(mem, TRUE);
-  ier = IDASetID(mem, id);
+  ier = IDASetId(mem, id);
   ier = IDASetConstraints(mem, constraints);
   ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
   

@@ -122,8 +122,8 @@ int main()
   if (mem == NULL) { printf("IDACreate failed."); return(1); }
   ier = IDASetRdata(mem, data);
   if (ier != SUCCESS) { printf("IDASetRdata failed. "); return(1); }
-  ier = IDASetID(mem, id);
-  if (ier != SUCCESS) { printf("IDASetID failed. "); return(1); }
+  ier = IDASetId(mem, id);
+  if (ier != SUCCESS) { printf("IDASetId failed. "); return(1); }
   ier = IDASetConstraints(mem, constraints);
   if (ier != SUCCESS) { printf("IDASetConstraints failed. "); return(1); }
   ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);

@@ -180,9 +180,9 @@ void *IDACreate(void);
  *                      | NOTE: if suppressed algebraic variables *
  *                      | is selected, the nvector 'id' must be   *
  *                      | supplied for identification of those    *
- *                      | algebraic components (see IDASetID).    *
+ *                      | algebraic components (see IDASetId).    *
  *                      |                                         * 
- * IDASetID             | an N_Vector, which states a given       *
+ * IDASetId             | an N_Vector, which states a given       *
  *                      | element to be either algebraic or       *
  *                      | differential.                           *
  *                      | A value of 1.0 indicates a differential *
@@ -230,7 +230,7 @@ int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
 int IDASetMaxNonlinIters(void *ida_mem, int maxcor);
 int IDASetMaxConvFails(void *ida_mem, int maxncf);
 int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
-int IDASetID(void *ida_mem, N_Vector id);
+int IDASetId(void *ida_mem, N_Vector id);
 int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
 /* Error return values for IDASet* functions */

@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
     return(1); 
   }
   retval = IDASetRdata(mem, webdata);
-  retval = IDASetID(mem, id);
+  retval = IDASetId(mem, id);
   retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol, nvSpec);
   
   /* Call IBBDPrecAlloc to initialize the band-block-diagonal preconditioner.

@@ -201,8 +201,8 @@ int main()
   if (mem == NULL) { printf("IDACreate failed."); return(1); }
   retval = IDASetRdata(mem, webdata);
   if (retval != SUCCESS) { printf("IDASetRdata failed. "); return(1); }
-  retval = IDASetID(mem, id);
-  if (retval != SUCCESS) { printf("IDASetID failed. "); return(1); }
+  retval = IDASetId(mem, id);
+  if (retval != SUCCESS) { printf("IDASetId failed. "); return(1); }
   retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol, nvSpec);
   if (retval != SUCCESS) { printf("IDAMalloc failed. "); return(1); }
 
