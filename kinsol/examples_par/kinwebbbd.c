@@ -168,7 +168,7 @@ static void BRecvWait(MPI_Request request[], integertype isubx,
 static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
 
 static void ccomm(integertype Nlocal, N_Vector cc, void *data);
-//static void ccomm(integertype Nlocal, realtype *cdata, void *data);
+/* static void ccomm(integertype Nlocal, realtype *cdata, void *data); */
 
 static void fcalcprpr(integertype Nlocal, N_Vector cc, N_Vector fval, void *f_data);
 
