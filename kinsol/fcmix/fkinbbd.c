@@ -41,11 +41,11 @@ void F_KINBBDINIT(integertype *nlocal, int *maxl, int *maxlrst,
   KBBD_Data = KBBDPrecAlloc(KIN_mem, *nlocal, *mu, *ml, 0.0, KINgloc, KINgcomm);
   if (KBBD_Data == NULL) { *ier = -1; return; }
 
-  *ier = KINSpgmr(KIN_mem, *maxl);
-  KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
-  KINSpgmrSetPrecSetupFn(KIN_mem, KBBDPrecSetup);
-  KINSpgmrSetPrecSolveFn(KIN_mem, KBBDPrecSolve);
-  KINSpgmrSetPrecData(KIN_mem, KBBD_Data);
+  *ier = KBBDSpgmr(KIN_mem, *maxl, KBBD_Data);
+  if (*ier != 0) return;
+
+  *ier = KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
+  if (*ier != 0) return;
 }
 
 /***************************************************************************/

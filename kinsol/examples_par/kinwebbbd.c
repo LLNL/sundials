@@ -259,20 +259,16 @@ int main(int argc, char *argv[])
     if (my_pe == 0) printf("KBBDPrecAlloc failed \n"); return(1);
   }
 
-  /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
-     routines KBBDPrecSetup and KBBDPrecSolve, and pointer to preconditioner data. */
+  /* Call KBBDSpgmr to specify the linear solver KINSPGMR 
+     with preconditioner KINBBDPRE */
   maxl = 20; maxlrst = 2;
-  flag = KINSpgmr(kmem, maxl);
+  flag = KBBDSpgmr(kmem, maxl, pdata);
   if (flag != 0) {
-    if (my_pe == 0) printf("KINSpgmr failed, returning %d \n",flag);
+    if (my_pe == 0) printf("KBBDSpgmr failed, returning %d \n",flag);
     return(1);
   }
 
   flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
-  flag = KINSpgmrSetPrecSetupFn(kmem, KBBDPrecSetup);
-  flag = KINSpgmrSetPrecSolveFn(kmem, KBBDPrecSolve);
-  flag = KINSpgmrSetPrecData(kmem, pdata);
-
   /* Print out the problem size, solution parameters, initial guess. */
   
   if (my_pe == 0) {
