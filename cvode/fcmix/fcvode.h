@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-07-26 17:26:30 $
+ * $Revision: 1.22 $
+ * $Date: 2004-08-04 22:44:35 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -286,7 +286,7 @@
  *       CALL FCVSPGMRSETPSOL(FLAG, IER)
  * where FLAG=0 indicates no FCVPSOL (default) and FLAG=1 specifies using FCVPSOL.
  * The user-supplied routine FCVPSOL must be of the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, H, DELTA, NFE, R, LR, Z, IER)
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, NFE, R, LR, Z, IER)
  *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
@@ -531,27 +531,26 @@
   
 void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-void FCVDenseJac(long int N, DenseMat J, realtype t, 
-                 N_Vector y, N_Vector fy, void *jac_data,
+void FCVDenseJac(long int N, realtype t, N_Vector y, N_Vector fy,
+                 DenseMat J, N_Vector ewt, realtype h,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-void FCVBandJac(long int N, long int mupper, long int mlower,
-                BandMat J, realtype t, N_Vector y, N_Vector fy,
-                void *jac_data,
+void FCVBandJac(long int N, long int mupper, long int mlower, long int eband,
+                realtype t, N_Vector y, N_Vector fy, BandMat J,
+                N_Vector ewt, realtype h,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
-            booleantype *jcurPtr, realtype gamma, void *P_data,
-            N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+int FCVPSet(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
+            booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
+            N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3, int ier);
 
-int FCVPSol(realtype tn, N_Vector y, N_Vector fy, 
-            N_Vector r, N_Vector z,
-            realtype gamma, realtype delta,
-            int lr, void *P_data, N_Vector vtemp);
+int FCVPSol(realtype tn, N_Vector y, N_Vector fy, N_Vector vtemp,
+            realtype gamma, N_Vector ewt, realtype delta,
+            N_Vector r, int lr, N_Vector z, int ier);
 
 int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
-              N_Vector y, N_Vector fy,
-              void *jac_data, N_Vector work);
+              N_Vector y, N_Vector fy, N_Vector ewt, realtype h,
+              N_Vector work, int ier);
 
 
 /* Declarations for global variables, shared among various routines */
