@@ -47,7 +47,7 @@ Examples [2] (kin_examples.ps and kin_examples.pdf) documents.
 B. Installation
 ---------------
 
-For basic installation instructions see /sundials/INSTALL. 
+For basic installation instructions see the file /sundials/INSTALL. 
 For complete installation instructions see the "KINSOL Installation Procedure"
 chapter in the KINSOL User Guide [1].
 
@@ -64,7 +64,7 @@ C. References
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
-    accepted, 2004.
+    to appear.
 
 [4] Peter N. Brown and Youcef Saad, "Hybrid Krylov Methods for
     Nonlinear Systems of Equations," SIAM J. Sci. Stat. Comput., 
@@ -76,6 +76,9 @@ C. References
 
 D.1. Revision History since release 2.0 (July 2002)
 ---------------------------------------------------
+
+- New feature
+   - added option to disable all error messages
 
 - Bug fixes
    - fixed constraints-related bug.
@@ -134,27 +137,19 @@ D.1. Revision History since release 2.0 (July 2002)
    - removed N (problem dimension) from argument lists.
    - in KINSPGMR, shortened argument lists for user preconditioner functions.
 
-D.2. Previous revisions (YYYYMMDD)
---------------------------------
+D.2. Summary of previous revisions (YYYYMMDD) (significant revisions only)
+--------------------------------------------------------------------------
 
 19980802   DATE WRITTEN - KINSOL released.
 19981203   Implemented serial Fortran/C interface (fkinsols.c).
-19990120   Minor corrections throughout.
-19990128   Better setting of eps (kinsol.c and kinsol.h).
-19990301   Fixed bug in nbktrk and revised memory allocation in KINSPGMR module.
-19990309   Miscellaneous minor fixes to kinsol.c, kinsol.h, kinspgmr.h,
-           and diagsf.f.
-19990325   Removed machEnv as an argument to KINSol and revised examples.
+19990301   Fixed bug in nbktrk.
+19990325   Removed machEnv as an argument to KINSol.
 19991229   Fixed preconditioner evaluation logic;
            revised SPGMR module to treat scalings correctly.
-20000324   Upgraded serial and parallel versions of NVECTOR module to match 
-           versions in IDA package; minor corrections to Makefiles.
+20000324   Upgraded serial and parallel versions of NVECTOR module.
 20000706   Fixed bug in use of vtemp1 in KINSpgmrSolve call to KINAtimes etc.
 20000808   Fixed bug in N_VMin routine.
-20010118   Minor revisions to solver source and header files, notably:
-           In kinbbdpre.h, kinbbdpre.c, fkinbbd.c, and fkinbbdinit1.c,
-           KBBDAlloc argument uround removed.  In kinbbdpre.c, five
-           arguments to KBBDDQJac removed, accessed from P_data instead.
+20010118   Minor corrections, notably:
            In fkinsol.h, KINUAtimes prototype fixed.  In fkinsols.c and
            fkinsolp.c, N_Vector's disposed with N_VDISPOSE after KINSol call. 
            In all fkin*.c, #include lines for header files corrected.
@@ -162,15 +157,6 @@ D.2. Previous revisions (YYYYMMDD)
 20011212   Added missing error flag print in KINSol, and changed 5 return
            values in KINStop to enum-defined expressions.
 20011220   Default type 'integer' changed to 'long int' in llnltyps.h.
-20011220   In parallel nvector.h, PVecInitMPI prototype, corrected type
-           (int to integer) of length arguments.
 20011221   In FKINSOL, corrected type (integer) for Neq in KINPreco, KINPSol.
 20020313   Modified to work with new NVECTOR abstraction.
-           Revised this file to reflect new N_Vector usage.
 20020627   Modified to reflect type name changes.
-20020730   In kinsol.c, eliminated 1-line routine KINInitialConstraint.
-           Changed kinwebs example to use positivity constraints.
-           Eliminated use of KINMem type in all C examples.
-           In FKINSOL module: corrected usage notes and other comments;
-           added error return flag to all fkinspgmr** routines;
-           upgraded both examples.
