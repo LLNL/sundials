@@ -170,13 +170,16 @@ INOPT  = optional input flag: 0 = none, 1 = inputs used
 IOPT   = array of length 40 for integer optional inputs and outputs
          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
 ROPT   = array of length 40 for real optional inputs and outputs
-         The optional inputs are MAXORD, MXSTEP, MXHNIL, SLDET, H0, HMAX,
-         HMIN, stored in IOPT(1), IOPT(2), IOPT(3), IOPT(14), ROPT(1),
-         ROPT(2), ROPT(3), respectively.  If any of these optional inputs
-         are used, set the others to zero to indicate default values.
-         The optional outputs are NST, NFE, NSETUPS, NNI, NCFN, NETF, QU, QCUR,
-         LENRW, LENIW, NOR, HU,HCUR, TCUR, TOLSF, stored in IOPT(4) .. IOPT(13),
-         IOPT(15), ROPT(4) .. ROPT(7), resp.  See the CVODE manual for details. 
+         The optional inputs are MAXORD, MXSTEP, MXHNIL, SLDET, 
+         MAXERRTESTFAILS, MAXNONLINITERS, MAXCONVFAILS, H0, HMAX,
+         HMIN, TSTOP, NONLINCONVCOEF, stored in IOPT(1), IOPT(2), 
+         IOPT(3), IOPT(14), IOPT(22), IOPT(23), IOPT(24), ROPT(1), ROPT(2), 
+         ROPT(3), ROPT(8), ROPT(9), respectively.  If any of these optional 
+         inputs are used, set the others to zero to indicate default values.
+         The optional outputs are NST, NFE, NSETUPS, NNI, NCFN, NETF, QU, 
+         QCUR, LENRW, LENIW, NOR, HU,HCUR, TCUR, TOLSF, stored in 
+         IOPT(4) .. IOPT(13), IOPT(15), ROPT(4) .. ROPT(7), resp.  
+         See the CVODE manual for details. 
 IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
          See printed message for details in case of failure.
 
@@ -313,8 +316,12 @@ The arguments are:
 TOUT  = next value of t at which a solution is desired (input)
 T     = value of t reached by the solver on output
 Y     = array containing the computed solution on output
-ITASK = task indicator: 0 = normal mode (overshoot TOUT and interpolate)
-        1 = one-step mode (return after each internal step taken)
+ITASK = task indicator: 0 = default (normal mode)
+        1 = normal mode (overshoot TOUT and interpolate)
+        2 = one-step mode (return after each internal step taken)
+        3 = normal tstop mode (like 0, but integration never proceeds past 
+            TSTOP, which must be specified through the user input ROPT(8))
+        4 = one step tstop (like 1, but integration never goes past TSTOP)
 IER   = completion flag: 0 = success, values -1 ... -8 are various
         failure modes (see CVODE manual).
 The current values of the optional outputs are available in IOPT and ROPT.

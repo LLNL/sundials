@@ -75,9 +75,14 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     if (iopt[1]>0)      CVodeSetMaxNumSteps(CV_cvodemem, iopt[1]);
     if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, (int)iopt[2]);
     if (iopt[13]>0)     CVodeSetStabLimDet(CV_cvodemem, TRUE);
+    if (iopt[21]>0)     CVodeSetMaxErrTestFails(CV_cvodemem, (int)iopt[21]);
+    if (iopt[22]>0)     CVodeSetMaxNonlinIters(CV_cvodemem, (int)iopt[22]);
+    if (iopt[23]>0)     CVodeSetMaxConvFails(CV_cvodemem, (int)iopt[23]);
     if (ropt[0] != 0.0) CVodeSetInitStep(CV_cvodemem, ropt[0]);
     if (ropt[1] > 0.0)  CVodeSetMaxStep(CV_cvodemem, ropt[1]);
     if (ropt[2] > 0.0)  CVodeSetMinStep(CV_cvodemem, ropt[2]);
+    if (ropt[7] != 0.0) CVodeSetStopTime(CV_cvodemem, ropt[7]);
+    if (ropt[8] > 0.0)  CVodeSetNonlinConvCoef(CV_cvodemem, ropt[8]);
   }
 
   *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, CV_yvec,
@@ -123,9 +128,14 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     if (iopt[1]>0)      CVodeSetMaxNumSteps(CV_cvodemem, iopt[1]);
     if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, (int)iopt[2]);
     if (iopt[13]>0)     CVodeSetStabLimDet(CV_cvodemem, TRUE);
+    if (iopt[21]>0)     CVodeSetMaxErrTestFails(CV_cvodemem, (int)iopt[21]);
+    if (iopt[22]>0)     CVodeSetMaxNonlinIters(CV_cvodemem, (int)iopt[22]);
+    if (iopt[23]>0)     CVodeSetMaxConvFails(CV_cvodemem, (int)iopt[23]);
     if (ropt[0] != 0.0) CVodeSetInitStep(CV_cvodemem, ropt[0]);
     if (ropt[1] > 0.0)  CVodeSetMaxStep(CV_cvodemem, ropt[1]);
     if (ropt[2] > 0.0)  CVodeSetMinStep(CV_cvodemem, ropt[2]);
+    if (ropt[7] != 0.0) CVodeSetStopTime(CV_cvodemem, ropt[7]);
+    if (ropt[8] > 0.0)  CVodeSetNonlinConvCoef(CV_cvodemem, ropt[8]);
   }  
 
 
@@ -236,7 +246,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
      *tout       is the t value where output is desired
      CV_yvec     is the N_Vector containing the solution on return
      t           is the returned independent variable value
-     *itask      is the task indicator (NORMAL or ONE_STEP) */
+     *itask      is the task indicator (NORMAL, ONE_STEP, 
+                                   NORMAL_TSTOP, ONE_STEP_TSTOP) */
 
   *ier = CVode(CV_cvodemem, *tout, CV_yvec, t, *itask);
   y = N_VGetData(CV_yvec);
