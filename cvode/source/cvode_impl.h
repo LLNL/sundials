@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5.2.1 $
- * $Date: 2005-01-24 21:40:23 $
+ * $Revision: 1.5.2.2 $
+ * $Date: 2005-01-26 22:05:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _CVODE_IMPL_H
+#define _CVODE_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _CVODE_IMPL_H
-#define _CVODE_IMPL_H
 
 #include <stdio.h>
 
@@ -475,8 +475,8 @@ typedef struct CVodeMemRec {
 #define MSGCV_GET_NO_SLDET2 "to call without enabling SLDET.\n\n"
 #define MSGCV_GET_NO_SLDET  MSGCV_GET_NO_SLDET1 MSGCV_GET_NO_SLDET2
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

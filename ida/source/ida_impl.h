@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-11-30 21:07:00 $
+ * $Revision: 1.8.2.1 $
+ * $Date: 2005-01-26 22:05:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDA_IMPL_H
+#define _IDA_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _IDA_IMPL_H
-#define _IDA_IMPL_H
 
 #include <stdio.h>
 
@@ -413,9 +413,8 @@ typedef struct IDAMemRec {
 #define MSG_IDAG_BAD_T1    "IDAGetSolution-- "
 #define MSG_IDAG_BAD_T     MSG_IDAG_BAD_T1 MSG_TIME MSG_TIME_INT
 
-
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

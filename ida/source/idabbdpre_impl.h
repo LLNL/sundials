@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-11-05 23:35:41 $
+ * $Revision: 1.6.2.1 $
+ * $Date: 2005-01-26 22:05:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,11 +17,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IBBDPRE_IMPL_H
+#define _IBBDPRE_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-#ifndef _ibbdpre_impl_h
-#define _ibbdpre_impl_h
 
 #include "idabbdpre.h"
 
@@ -95,9 +96,8 @@ typedef struct {
 
 #define MSGBBD_NO_PDATA     "IBBDSpgmr-- BBDPrecData is NULL. \n\n"
 
-
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

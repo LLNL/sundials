@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7.2.1 $
- * $Date: 2005-01-24 21:46:33 $
+ * $Revision: 1.7.2.2 $
+ * $Date: 2005-01-26 22:05:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _KINSOL_IMPL_H
+#define _KINSOL_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _KINSOL_IMPL_H
-#define _KINSOL_IMPL_H
 
 #include "kinsol.h"
 #include "nvector.h"
@@ -228,8 +228,8 @@ typedef struct KINMemRec {
 
 #define MSG_KING_NO_MEM        "KINGet*-- kin_mem = NULL illegal.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

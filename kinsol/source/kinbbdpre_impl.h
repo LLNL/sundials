@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-11-04 01:56:11 $
+ * $Revision: 1.3.2.1 $
+ * $Date: 2005-01-26 22:05:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _KBBDPRE_IMPL_H
+#define _KBBDPRE_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _KBBDPRE_IMPL_H
-#define _KBBDPRE_IMPL_H
 
 #include "band.h"
 #include "kinbbdpre.h"
@@ -91,8 +91,8 @@ typedef struct {
 
 #define MSGBBD_NO_PDATA "KINBBDSpgmr-- KBBDPrecData is NULL.\n\n"
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

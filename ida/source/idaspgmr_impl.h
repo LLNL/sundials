@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-11-15 21:24:55 $
+ * $Revision: 1.5.2.1 $
+ * $Date: 2005-01-26 22:05:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -15,12 +15,12 @@
  * -----------------------------------------------------------------
  */
 
+#ifndef _IDASPGMR_IMPL_H
+#define _IDASPGMR_IMPL_H
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _IDASPGMR_IMPL_H
-#define _IDASPGMR_IMPL_H
 
 #include <stdio.h>
 
@@ -168,8 +168,8 @@ typedef struct {
 
 #endif
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif
