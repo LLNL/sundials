@@ -3,7 +3,7 @@
  * File          : kinsol.h                                        *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 25 July 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -41,8 +41,7 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-typedef void (*SysFn)(integertype Neq, N_Vector uu, N_Vector fval,
-                      void *f_data );
+typedef void (*SysFn)(N_Vector uu, N_Vector fval, void *f_data );
 
 /******************************************************************
  *                                                                *
@@ -52,9 +51,6 @@ typedef void (*SysFn)(integertype Neq, N_Vector uu, N_Vector fval,
  *            package. It also allocates several vectors of size  *
  *            Neq used by the package. Other N_Vectors are also   *
  *            to be allocated by the user and supplied to KINSol. *
- *                                                                *
- * Neq     size of nonlinear system, and size of vectors being    *
- *         handled by the current allocation call to KINMalloc.   *
  *                                                                *
  * msgfp   pointer to a FILE used to receive error messages from  *
  *         KINMalloc.  Pass NULL to direct messages to stdout.    *
@@ -70,7 +66,7 @@ typedef void (*SysFn)(integertype Neq, N_Vector uu, N_Vector fval,
  *                                                                *
  *****************************************************************/
 
-void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv);
+void *KINMalloc(FILE *msgfp, M_Env machEnv);
 
 
 #define KINSOL_IOPT_SIZE 10
@@ -94,8 +90,6 @@ void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv);
  * point that is not near a root.                                 *
  * The input arguments for KINSol and their meanings are as       *
  * follows:                                                       *
- *                                                                *
- * Neq     is the number of equations in the algebraic system     *
  *                                                                *
  * kinmem  pointer to KINSol memory block returned by the         *
  *         preceding KINMalloc call                               *
@@ -414,7 +408,7 @@ enum { INEXACT_NEWTON , LINESEARCH };  /* globalstrategy */
  ******************************************************************/
 
 
-int KINSol(void *kinmem, integertype Neq, N_Vector uu, SysFn func, 
+int KINSol(void *kinmem, N_Vector uu, SysFn func, 
            int globalstrategy, N_Vector uscale, N_Vector fscale,
            realtype fnormtol, realtype scsteptol, N_Vector constraints, 
            booleantype optIn, long int iopt[], realtype ropt[], void *f_data);
@@ -476,7 +470,6 @@ typedef struct KINMemRec {
 
   /* Problem Specification Data */
 
-  integertype  kin_Neq;        /*  system size                                */
   SysFn kin_func;              /* = func(uu)= 0.                              */
   void *kin_f_data;            /* ptr to func work space                      */
   realtype kin_fnormtol;       /* ptr to func norm tolerance                  */

@@ -89,8 +89,6 @@
 
 #define KINM                "KINMalloc-- "
 
-#define MSG_BAD_NEQ         KINM "N = %ld < 1 illegal.\n\n"
-
 #define MSG_MEM_FAIL        KINM "A memory request failed.\n\n"
 
 /* KINSol error messages */
@@ -151,8 +149,7 @@
 /********* BEGIN Private Helper Functions Prototypes **********/
 /**************************************************************/
 
-static booleantype KINAllocVectors(KINMem kin_mem, integertype neq, 
-                                   M_Env machEnv);
+static booleantype KINAllocVectors(KINMem kin_mem, M_Env machEnv);
 
 static int KINConstraint( KINMem kin_mem );
 
@@ -177,7 +174,7 @@ static realtype KINScSteplength(KINMem kin_mem,
 
 static int KINStop(KINMem kinmem, booleantype maxStepTaken, int globalstratret);
 
-static int KINSolInit(void *kinmem, integertype Neq, N_Vector uu, SysFn func,
+static int KINSolInit(void *kinmem, N_Vector uu, SysFn func,
                       int globalstrategy, N_Vector uscale, N_Vector fscale,
                       realtype fnormtol, realtype scsteptol,
                       N_Vector constraints, booleantype optIn, 
@@ -250,7 +247,7 @@ static int KINSolInit(void *kinmem, integertype Neq, N_Vector uu, SysFn func,
  
 *******************************************************************/
 
-void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv)
+void *KINMalloc(FILE *msgfp, M_Env machEnv)
  
 {
   booleantype    allocOK;
@@ -262,11 +259,6 @@ void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv)
   fp = (msgfp == NULL) ? stdout : msgfp;
  
 
-  if (Neq <= 0) {
-    fprintf(fp, MSG_BAD_NEQ, Neq);
-    return(NULL);
-  }
-
   /* Allocate the memory for the memory record itself.  */
 
   kin_mem = (KINMem) malloc(sizeof(struct KINMemRec));
@@ -277,7 +269,7 @@ void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv)
 
   /* Allocate the vectors. */
 
-  allocOK = KINAllocVectors(kin_mem, Neq, machEnv);
+  allocOK = KINAllocVectors(kin_mem, machEnv);
   if (!allocOK) {
     fprintf(fp, MSG_MEM_FAIL);
     free(kin_mem);
@@ -290,7 +282,6 @@ void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv)
    lsolve = NULL;
    lfree = NULL;
    lmem = NULL;
-   kin_mem->kin_Neq = Neq;
    kin_mem->kin_msgfp = fp;
    uround = UnitRoundoff();
    machenv = machEnv;
@@ -321,7 +312,7 @@ void *KINMalloc(integertype Neq, FILE *msgfp, M_Env machEnv)
  
 *****************************************************************************/
 
-static int KINSolInit(void *kinmem, integertype Neq,  N_Vector uu, SysFn func,
+static int KINSolInit(void *kinmem, N_Vector uu, SysFn func,
                       int globalstrategy, N_Vector uscale, N_Vector fscale,
                       realtype fnormtol, realtype scsteptol,
                       N_Vector constraints,  booleantype optIn,
@@ -336,11 +327,6 @@ static int KINSolInit(void *kinmem, integertype Neq,  N_Vector uu, SysFn func,
   kin_mem = (KINMem)kinmem;
 
   fp = kin_mem->kin_msgfp;
-
-  if (Neq <= 0) {
-    fprintf(fp, MSG_BAD_NEQ, Neq);
-    return(-1);
-  }
 
   if (uu==NULL) {
     fprintf(fp, MSG_UU_NULL);   
@@ -602,7 +588,7 @@ static int KINSolInit(void *kinmem, integertype Neq,  N_Vector uu, SysFn func,
 
 
 ***************************************************************************/
-int KINSol(void *kinmem, integertype Neq, N_Vector uu, SysFn func,
+int KINSol(void *kinmem, N_Vector uu, SysFn func,
            int globalstrategy,  N_Vector uscale, N_Vector fscale,
            realtype fnormtol, realtype scsteptol, N_Vector constraints, 
            booleantype optIn, long int iopt[], realtype ropt[], void *f_data)
@@ -627,7 +613,7 @@ int KINSol(void *kinmem, integertype Neq, N_Vector uu, SysFn func,
     return(KINSOL_LSOLV_NO_MEM);
   }
 
-  ret = KINSolInit(kinmem, Neq, uu, func, globalstrategy, uscale, fscale,
+  ret = KINSolInit(kinmem, uu, func, globalstrategy, uscale, fscale,
                    fnormtol, scsteptol, constraints, optIn, iopt, ropt, f_data);
 
   if (ret < 0) {
@@ -647,7 +633,6 @@ int KINSol(void *kinmem, integertype Neq, N_Vector uu, SysFn func,
  
  /* Put in some define's for ease in working with the KINSol mem block. */
  
-#define Neq       (kin_mem->kin_Neq)
 #define func      (kin_mem->kin_func) 
 #define f_data    (kin_mem->kin_f_data)    
 #define fnormtol  (kin_mem->kin_fnormtol)       
@@ -834,31 +819,30 @@ void KINFree(void *kinsol_mem)
 
 **********************************************************************/
 
-static booleantype KINAllocVectors(KINMem kin_mem, integertype neq,
-                                   M_Env machEnv)
+static booleantype KINAllocVectors(KINMem kin_mem, M_Env machEnv)
 {
   /* Allocate unew, fval, pp, vtemp1 and vtemp2
      Any future modifier of this code is advised to be wary.
                   --- watch scope carefully  -- 
      unew, pp, vtemp1 and vtemp2 are used in  more than one context. */
   
-  unew = N_VNew(neq, machEnv);
+  unew = N_VNew(machEnv);
   if (unew == NULL) return(FALSE);
 
-  fval = N_VNew(neq, machEnv);
+  fval = N_VNew(machEnv);
   if (fval == NULL) {
     N_VFree(unew);
     return(FALSE);
   }
 
-  pp = N_VNew(neq, machEnv);
+  pp = N_VNew(machEnv);
   if (pp == NULL) {
     N_VFree(unew);
     N_VFree(fval);
     return(FALSE);
   }
 
-  vtemp1 = N_VNew(neq, machEnv);
+  vtemp1 = N_VNew(machEnv);
   if (vtemp1 == NULL) {
     N_VFree(unew);
     N_VFree(fval);
@@ -866,7 +850,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, integertype neq,
     return(FALSE);
   }
 
-  vtemp2 = N_VNew(neq, machEnv);
+  vtemp2 = N_VNew(machEnv);
   if (vtemp2 == NULL) {
     N_VFree(unew);
     N_VFree(fval);
@@ -996,7 +980,7 @@ static booleantype KINInitialStop(KINMem kin_mem)
 {
   realtype fmax;
 
-  func(Neq, uu, fval, f_data);    nfe++;
+  func(uu, fval, f_data);    nfe++;
   fmax = KINScFNorm(fval, fscale, vtemp1);
   if (printfl > 1) fprintf(msgfp,
                  "KINInitialStop: scaled f norm (for stopping)= %12.3g\n",fmax);
@@ -1060,7 +1044,7 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   N_VLinearSum(ONE, uu, ONE, pp, unew);
 
   /* Evaluate func(unew) and its norm, and return. */ 
-  func(Neq, unew, fval, f_data);   nfe++;
+  func(unew, fval, f_data);   nfe++;
   *fnormp = N_VWL2Norm(fval,fscale);
   *f1normp = HALF * (*fnormp) * (*fnormp);
   if (printfl > 1) fprintf(msgfp," fnorm (L2) = %20.8e\n", (*fnormp));
@@ -1138,7 +1122,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   loop {
 
     N_VLinearSum(ONE, uu, rl, pp, unew);
-    func(Neq, unew, fval, f_data);   nfe++;
+    func(unew, fval, f_data);   nfe++;
     *fnormp = N_VWL2Norm(fval,fscale);
     *f1normp = HALF * (*fnormp) * (*fnormp) ;
     alpha_cond = f1norm + alpha*slpi*rl;
@@ -1153,7 +1137,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
       /* No satisfactory unew can be found sufficiently distinct from uu.
          Copy uu into unew and return.  */
       N_VScale(ONE, uu, unew);
-      func(Neq, unew, fval, f_data);   nfe++;
+      func(unew, fval, f_data);   nfe++;
       *fnormp = N_VWL2Norm(fval,fscale);
       *f1normp = HALF * (*fnormp) * (*fnormp);
       nbktrk = nfe - nfesav - 1;
@@ -1181,7 +1165,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         rl = MIN(TWO*rl,rlmax);
         rladjust++;
         N_VLinearSum(ONE, uu, rl, pp, unew);
-        func(Neq, unew, fval, f_data);   nfe++;
+        func(unew, fval, f_data);   nfe++;
         *fnormp = N_VWL2Norm(fval,fscale);
         *f1normp = HALF * (*fnormp) * (*fnormp);
         alpha_cond = f1norm + alpha*slpi*rl;
@@ -1203,7 +1187,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
         rl = rllo + rlincr;
         rladjust++;
         N_VLinearSum(ONE, uu, rl, pp, unew);
-        func(Neq, unew, fval, f_data);   nfe++;
+        func(unew, fval, f_data);   nfe++;
         *fnormp = N_VWL2Norm(fval,fscale);
         *f1normp = HALF * *fnormp * *fnormp;
         alpha_cond = f1norm + alpha*slpi*rl;
@@ -1229,7 +1213,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
           counter on number of steps beta condition not satisfied.       */
 
         N_VLinearSum(ONE, uu, rllo, pp, unew);
-        func(Neq, unew, fval, f_data);   nfe++;
+        func(unew, fval, f_data);   nfe++;
         *fnormp = N_VWL2Norm(fval,fscale);
         *f1normp = HALF * *fnormp * *fnormp;   
         nbcf++;
