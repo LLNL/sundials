@@ -1218,7 +1218,7 @@ typedef struct CVodeMemRec {
 
   N_Vector *cv_znS[L_MAX]; /* Nordsieck arrays for sensitivities           */
   N_Vector *cv_ewtS;       /* error weight vectors for sensitivities       */
-  N_Vector *cv_yS;         /* Unlike y, yS is not allocated by the user    */
+  N_Vector *cv_yS;         /* yS=yS0 (allocated by the user)               */
   N_Vector *cv_acorS;      /* acorS = yS_n(m) - yS_n(0)                    */
   N_Vector *cv_tempvS;     /* temporary storage vector (~ tempv)           */
   N_Vector *cv_ftempS;     /* temporary storage vector (~ ftemp)           */
