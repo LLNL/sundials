@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-10-21 19:04:40 $
+# $Revision: 1.10 $
+# $Date: 2004-11-08 17:48:21 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -14,71 +14,111 @@
 
 SHARED_DOC = ../../shared/doc
 
+UG_FILES = \
+cvs_guide.tex \
+cvs_intro.tex \
+cvs_install.tex \
+cvs_math.tex \
+cvs_org.tex \
+cvs_sim.tex \
+cvs_fwd.tex \
+cvs_adj.tex \
+cvs_nvec.tex \
+cvs_newlinsolv.tex \
+cvs_linsolv.tex
+
+UG_SHARED_FILES = \
+band.tex \
+install.tex \
+dense.tex \
+nvec_generic.tex \
+nvec_parallel.tex \
+nvec_serial.tex \
+spgmr.tex \
+sun_org.tex \
+types.tex \
+ug.tex \
+biblio.bib \
+bandmat.eps \
+sunorg1.eps \
+sunorg2.eps \
+llnlCoverPage.tex \
+Logo_for_papers.ps \
+Rule_and_address.ps \
+chngpage.sty
+
+EX_FILES = \
+cvs_examples.tex \
+cvs_ex_intro.tex \
+cvs_fwd_ex.tex \
+cvs_adj_ex.tex \
+cvs_ex_codes.tex \
+cvs_ex_tests.tex   
+
+EX_SHARED_FILES = \
+llnlCoverPage.tex \
+Logo_for_papers.ps \
+Rule_and_address.ps \
+chngpage.sty \
+ug.tex \
+biblio.bib
+
 all:
 	@echo "Usage:"
-	@echo "  make ug - compile LaTeX files to generate CVODE User's Guide"
-	@echo "  make ex - compile LaTeX files to generate CVODE Examples Guide"
-	@echo "  make clean - remove all files"
+	@echo "  make ug     - compile LaTeX files to generate DVI file for CVODES User's Guide"
+	@echo "  make ug_pdf - compile LaTeX files to generate PS + PDF files for CVODES User's Guide"
+	@echo "  make ex     - compile LaTeX files to generate DVI file for CVODES Examples Guide"
+	@echo "  make ex_pdf - compile LaTeX files to generate PS + PDF files for CVODES Examples Guide"
+	@echo "  make clean  - remove all temporary files"
+	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
 
-ug:
-	cp $(SHARED_DOC)/band.tex .
-	cp $(SHARED_DOC)/dense.tex .
-	cp $(SHARED_DOC)/install.tex .
-	cp $(SHARED_DOC)/nvec_generic.tex .
-	cp $(SHARED_DOC)/nvec_parallel.tex .
-	cp $(SHARED_DOC)/nvec_serial.tex .
-	cp $(SHARED_DOC)/spgmr.tex .
-	cp $(SHARED_DOC)/sun_org.tex .
-	cp $(SHARED_DOC)/types.tex .
-	cp $(SHARED_DOC)/ug.tex .
-	cp $(SHARED_DOC)/biblio.bib .
-	cp $(SHARED_DOC)/bandmat.eps .
-	cp $(SHARED_DOC)/sunorg1.eps .
-	cp $(SHARED_DOC)/sunorg2.eps .
-	cp $(SHARED_DOC)/llnlCoverPage.tex .
-	cp $(SHARED_DOC)/Logo_for_papers.ps .
-	cp $(SHARED_DOC)/Rule_and_address.ps .
-	cp $(SHARED_DOC)/chngpage.sty .
+#-------------------------------------------------------------------------------
+
+ug: 	copy_ug cvs_guide.aux
+
+ug_pdf: ug 
+	dvips -Ppdf cvs_guide
+	ps2pdf cvs_guide.ps
+
+copy_ug:
+	@for i in ${UG_SHARED_FILES} ; do \
+	cp ${SHARED_DOC}/$${i} . ;\
+	done
+
+cvs_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
 	latex cvs_guide
 	latex cvs_guide
 	bibtex cvs_guide
 	makeindex -s cvs_indx.ist cvs_guide
 	latex cvs_guide
 	latex cvs_guide
-#	dvips -Ppdf -o cvs_guide.ps cvs_guide
-#	ps2pdf cvs_guide.ps cvs_guide.pdf
 
-ex:
-	cp $(SHARED_DOC)/llnlCoverPage.tex .
-	cp $(SHARED_DOC)/Logo_for_papers.ps .
-	cp $(SHARED_DOC)/Rule_and_address.ps .
-	cp $(SHARED_DOC)/chngpage.sty .
-	cp $(SHARED_DOC)/ug.tex .
-	cp $(SHARED_DOC)/biblio.bib .
+#-------------------------------------------------------------------------------
+
+ex:	copy_ex cvs_examples.aux
+
+ex_pdf: ex 
+	dvips -Ppdf cvs_examples
+	ps2pdf cvs_examples.ps
+
+copy_ex:
+	@for i in ${EX_SHARED_FILES} ; do \
+	cp ${SHARED_DOC}/$${i} . ;\
+	done
+
+cvs_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
 	latex cvs_examples
 	bibtex cvs_examples
 	latex cvs_examples
 	latex cvs_examples
-#	dvips -Ppdf -o cvs_examples.ps cvs_examples
-#	ps2pdf cvs_examples.ps cvs_examples.pdf
+
+#-------------------------------------------------------------------------------
 
 clean:
-	rm -f bandmat.eps
-	rm -f band.tex
-	rm -f biblio.bib
-	rm -f dense.tex
-	rm -f install.tex
-	rm -f nvec_generic.tex
-	rm -f nvec_parallel.tex
-	rm -f nvec_serial.tex
-	rm -f spgmr.tex
-	rm -f sunorg1.eps
-	rm -f sunorg2.eps
-	rm -f sun_org.tex
-	rm -f types.tex
-	rm -f ug.tex
-	rm -f llnlCoverPage.tex Logo_for_papers.ps Rule_and_address.ps chngpage.sty
+	rm -rf ${UG_SHARED_FILES}
+	rm -rf ${EX_SHARED_FILES}
 	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
+purge:  clean
 	rm -f cvs_guide.ps cvs_guide.pdf
 	rm -f cvs_examples.ps cvs_examples.pdf
