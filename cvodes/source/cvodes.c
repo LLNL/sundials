@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2004-11-23 21:24:31 $
+ * $Revision: 1.46.2.1 $
+ * $Date: 2005-01-18 23:20:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2969,11 +2969,8 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   realtype *atolSS=NULL, hubS_inv;
   N_Vector *atolSV=NULL;
   int is;
-    
-  vectorAtol  = (itol  == CV_SV);
-  vectorAtolQ = (itolQ == CV_SV);
-  vectorAtolS = (itolS == CV_SV);
 
+  vectorAtol  = (itol  == CV_SV);
   temp1 = tempv;
   temp2 = acor;
   N_VAbs(zn[0], temp1);
@@ -2989,6 +2986,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   hub_inv = N_VMaxNorm(temp1);
   
   if (quad && errconQ) {
+    vectorAtolQ = (itolQ == CV_SV);
     tempQ1 = tempvQ;
     tempQ2 = acorQ;
     N_VAbs(znQ[0], tempQ1);
@@ -3006,6 +3004,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   }
 
   if (sensi && errconS) {
+    vectorAtolS = (itolS == CV_SV);
     if (vectorAtolS) atolSV = (N_Vector *)abstolS;
     else             atolSS = (realtype *)abstolS;
     for (is=0; is<Ns; is++) {
@@ -5207,10 +5206,10 @@ static void CVCompleteStep(CVodeMem cv_mem)
     
     N_VScale(ONE, acor, zn[qmax]);
     
-    if (quad && errconQ)
+    if (quad)
       N_VScale(ONE, acorQ, znQ[qmax]);
 
-    if (sensi && errconS)
+    if (sensi)
       for (is=0; is<Ns; is++)
         N_VScale(ONE, acorS[is], znS[qmax][is]);
     
