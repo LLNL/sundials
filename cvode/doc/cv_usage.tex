@@ -135,7 +135,7 @@ shown in Figure~\ref{f:sim_overview}.
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP. Some steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for the
-two implementations provided with {\cvode}: steps marked with {\p} correspond to 
+two implementations provided with {\cvode}: Steps marked with {\p} correspond to 
 {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
 %%
 %%
@@ -5249,9 +5249,7 @@ apply to {\nvecp}.
   it may need to use the error weights provided as the \id{EWT}
   argument, and it may also need to access quantities that are not in
   the call list.  These include the current stepsize and the unit
-  roundoff, which can be obtained from the \id{ROPT} array of optional
-  outputs (see Table \ref{t:fcvode_io}).  In this case, we suggest
-  putting \id{ROPT} in a \id{COMMON} block in order to access it here.
+  roundoff, which can be obtained from ...
 
   If the \id{FCVDJAC} routine is provided, then, 
   following the call to \id{FCVDENSE}, the user must make the call:
@@ -5301,9 +5299,7 @@ apply to {\nvecp}.
   it may need to use the error weights provided as the \id{EWT}
   argument, and it may also need to access quantities that are not in
   the call list.  These include the current stepsize and the unit
-  roundoff, which can be obtained from the \id{ROPT} array of optional
-  outputs (see Table \ref{t:fcvode_io}).  In this case, we suggest
-  putting \id{ROPT} in a \id{COMMON} block in order to access it here.
+  roundoff, which can be obtained from ...
   
   If the \id{FCVBJAC} routine is provided, then, following the call to \id{FCVBAND},
   the user must make the call:
@@ -5358,9 +5354,7 @@ apply to {\nvecp}.
   it may need to use the error weights provided as the \id{EWT}
   argument, and it may also need to access quantities that are not in
   the call list.  These include the current stepsize and the unit
-  roundoff, which can be obtained from the \id{ROPT} array of optional
-  outputs (see Table \ref{t:fcvode_io}).  In this case, we suggest
-  putting \id{ROPT} in a \id{COMMON} block in order to access it here.
+  roundoff, which can be obtained from ...
   
   If the \id{FCVJTIMES} routine is provided, then, 
   following the call to \id{FCVSPGMR}, the user must make the call:
@@ -5429,9 +5423,7 @@ apply to {\nvecp}.
   it may need to use the error weights provided as the \id{EWT}
   argument, and it may also need to access quantities that are not in
   the call list.  These include the current stepsize and the unit
-  roundoff, which can be obtained from the \id{ROPT} array of optional
-  outputs (see Table \ref{t:fcvode_io}).  In this case, we suggest
-  putting \id{ROPT} in a \id{COMMON} block in order to access it here.
+  roundoff, which can be obtained from ...
 
   Optional outputs specific to the {\spgmr} case are \id{NPE}, \id{NLI}, \id{NPS}, 
   \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$ \id{IOPT(21)}, 
