@@ -551,11 +551,13 @@ separately in Chapter \ref{s:gen_linsolv}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVDIAg\_MEM\_FAIL]
+  \begin{args}[CVDIAG\_ILL\_INPUT]
   \item[\Id{CVDIAG\_SUCCESS}]
     The {\cvdiag} initialization was successful.
   \item[\Id{CVDIAG\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVDIAG\_ILL\_INPUT}]
+    The {\cvdiag} solver is not compatible with the current {\nvector} module.
   \item[\Id{CVDIAG\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
@@ -2724,7 +2726,7 @@ and last return value from a {\cvdense} function.
 %%
 \ucfunction{CVDenseGetLastFlag}
 {
-  flag = CVDenseGetLastFlag(cvode\_mem, \&flag);
+  flag = CVDenseGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
   The function \ID{CVDenseGetLastFlag} returns the
@@ -2734,7 +2736,7 @@ and last return value from a {\cvdense} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[flag] (\id{int})
+  \item[lsflag] (\id{int})
     the value of the last return flag from a {\cvdense} function.
   \end{args}
 }
@@ -2751,7 +2753,7 @@ and last return value from a {\cvdense} function.
 }
 {
   If the {\cvdense} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  then the value of \id{flag} corresponds to the column index (numbered from one) of
+  then the value of \id{lsflag} corresponds to the column index (numbered from one) of
   a diagonal element with value zero that was encountered during the LU factorization of the 
   dense Jacobian matrix.
 }
@@ -2879,7 +2881,7 @@ and last return value from a {\cvband} function.
 %%
 \ucfunction{CVBandGetLastFlag}
 {
-  flag = CVBandGetLastFlag(cvode\_mem, \&flag);
+  flag = CVBandGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
   The function \ID{CVBandGetLastFlag} returns the
@@ -2889,7 +2891,7 @@ and last return value from a {\cvband} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[flag] (\id{int})
+  \item[lsflag] (\id{int})
     the value of the last return flag from a {\cvband} function.
   \end{args}
 }
@@ -2906,7 +2908,7 @@ and last return value from a {\cvband} function.
 }
 {
   If the {\cvband} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  the value of \id{flag} corresponds to the column index (numbered from one) of
+  the value of \id{lsflag} corresponds to the column index (numbered from one) of
   a diagonal element with value zero that was encountered during the LU factorization of the 
   banded Jacobian matrix.
 }
@@ -3003,7 +3005,7 @@ finite-difference Jacobian approximation, and last return value from a
 %%
 \ucfunction{CVDiagGetLastFlag}
 {
-  flag = CVDiagGetLastFlag(cvode\_mem, \&flag);
+  flag = CVDiagGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
   The function \ID{CVDiagGetLastFlag} returns the
@@ -3013,7 +3015,7 @@ finite-difference Jacobian approximation, and last return value from a
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[flag] (\id{int})
+  \item[lsflag] (\id{int})
     the value of the last return flag from a {\cvdiag} function.
   \end{args}
 }
@@ -3030,7 +3032,7 @@ finite-difference Jacobian approximation, and last return value from a
 }
 {
   If the {\cvdiag} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  the value of \id{flag} is equal to \id{CVDIAG\_INV\_FAIL}, indicating that a
+  the value of \id{lsflag} is equal to \id{CVDIAG\_INV\_FAIL}, indicating that a
   diagonal element with value zero was encountered.
   The same value is also returned if the {\cvdiag} solve function failed
   (\id{CVode} returned \id{CV\_LSOLVE\_FAIL}).
@@ -3285,7 +3287,7 @@ and last return value from a {\cvspgmr} function.
 %%
 \ucfunction{CVSpgmrGetLastFlag}
 {
-  flag = CVSpgmrGetLastFlag(cvode\_mem, \&flag);
+  flag = CVSpgmrGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
   The function \ID{CVSpgmrGetLastFlag} returns the
@@ -3295,7 +3297,7 @@ and last return value from a {\cvspgmr} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[flag] (\id{int})
+  \item[lsflag] (\id{int})
     the value of the last return flag from a {\cvspgmr} function.
   \end{args}
 }
@@ -3312,10 +3314,10 @@ and last return value from a {\cvspgmr} function.
 }
 {
   If the {\cvspgmr} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  then \id{flag} contains the return value of the preconditioner setup function \id{psetup}.
+  then \id{lsflag} contains the return value of the preconditioner setup function \id{psetup}.
 
-  If the {\cvspgmr} solve function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  \id{flag} contains the error return flag from \id{SpgmrSolve} and will be one
+  If the {\cvspgmr} solve function failed (\id{CVode} returned \id{CV\_LSOLVE\_FAIL}),
+  \id{lsflag} contains the error return flag from \id{SpgmrSolve} and will be one
   of: \id{SPGMR\_CONV\_FAIL} indicating a failure to converge, \id{SPGMR\_QRFACT\_FAIL}
   indicating a singular matrix was found during the QR factorization, \id{SPGMR\_PSOLVE\_FAIL\_REC}
   indicating that the preconditioner solve function \id{psolve} failed recoverably,
@@ -4471,13 +4473,15 @@ required user-supplied function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CV\_MEM\_FAIL]
+  \begin{args}[CV\_RTFUNC\_NULL]
   \item[CV\_SUCCESS]
     The call to \id{CVodeRootInit} was successful.
   \item[CV\_MEM\_NULL]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[CV\_MEM\_FAIL]
     A memory allocation failed.
+  \item[CV\_RTFUNC\_NULL]
+    The function \id{g} is \id{NULL}, but \id{nrtfn}$>0$.
   \end{args}
 }
 {

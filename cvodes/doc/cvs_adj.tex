@@ -623,6 +623,8 @@ The call to this function has the form
     The {\cvodes} memory for the backward problem was \id{NULL}.
   \item[\Id{CV\_ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal.
+  \item[\Id{CV\_BAD\_ITASK}]
+    The \id{itaskB} argument has an illegal value.
   \item[\Id{CV\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach \id{tBout}. 
   \item[\Id{CV\_TOO\_MUCH\_ACC}] 

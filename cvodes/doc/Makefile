@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2005-01-26 21:35:40 $
+# $Revision: 1.16 $
+# $Date: 2005-02-11 17:31:37 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -27,7 +27,8 @@ cvs_fwd.tex \
 cvs_adj.tex \
 cvs_nvec.tex \
 cvs_newlinsolv.tex \
-cvs_linsolv.tex
+cvs_linsolv.tex \
+cvs_constants.tex
 
 UG_SHARED_FILES = \
 band.tex \
