@@ -12,7 +12,7 @@ write in the abstract form
 where $y \in \mbox{\bf R}^N$.
 Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
-not be.  {\cvode} solves both stiff and non-stiff systems.  Roughly
+not be.  {\cvode} solves both stiff and nonstiff systems.  Roughly
 speaking, stiffness is characterized by the presence of at least one
 rapidly damped mode, whose time constant is small compared to the time
 scale of the solution itself.
@@ -31,12 +31,12 @@ methods, based on formulas of the form
 \end{equation}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvode} must choose
-appropriately one of two multistep methods.  For non-stiff problems,
+appropriately one of two multistep methods.  For nonstiff problems,
 {\cvode} includes the Adams-Moulton formulas \index{Adams method},
 characterized by $K_1 = 1$
 and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
 For stiff problems, {\cvode} includes the Backward Differentiation
-Formulas (BDF)  \index{BDF method} 
+Formulas (BDFs)  \index{BDF method} 
 in so-called fixed-leading coefficient form, given by
 $K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
 The coefficients are uniquely determined by the method type, its
@@ -53,7 +53,7 @@ For either choice of formula, the nonlinear system
 where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$, 
 must be solved (approximately) at each integration step.  For this, {\cvode}
 offers the choice of either {\em functional iteration}, suitable only
-for non-stiff systems, and various versions of {\em Newton iteration}.
+for nonstiff systems, and various versions of {\em Newton iteration}.
 Functional iteration, given by
 \[ y_{n(m+1)} = h_n \beta_{n,0} f(t_n,y_{n(m)}) + a_n \, , \]
 involves evaluations of $f$ only.  In contrast, Newton iteration requires

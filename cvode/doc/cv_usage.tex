@@ -1041,8 +1041,8 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
   \end{args}
 }
 {
-  By default, {\cvode} estimates the initial step as solution of 
-  $\| 0.5 h^2 \ddot y \|_{\mbox{\scriptsize WRMS}} = 1$,
+  By default, {\cvode} estimates the initial stepsize as the solution $h$ 
+  of $\| 0.5 h^2 \ddot y \|_{\mbox{\scriptsize WRMS}} = 1$,
   where $\ddot y$ is an estimated second derivative of the solution at the
   initial time.
 }
@@ -3474,7 +3474,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
     is the problem size.
   \item[mlower]
   \item[mupper]
-    are the lower and upper half bandwidth of the Jacobian.
+    are the lower and upper half-bandwidths of the Jacobian.
   \item[J]
     is the output Jacobian matrix.  
   \item[t]
@@ -4569,7 +4569,7 @@ next.
   If an error occurred, \id{CVBBDPrecAlloc} returns \id{NULL}.
 }
 {
-  If one of the half-bandwidth \id{mudq} or \id{mldq} to be used in the 
+  If one of the half-bandwidths \id{mudq} or \id{mldq} to be used in the 
   difference-quotient calculation of the approximate Jacobian is negative or 
   exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 
@@ -4683,7 +4683,7 @@ or one of the user-supplied functions \id{gloc} and \id{cfn}.
   The return value of \id{CVBBDPrecReInit} is always \Id{SUCCESS}.
 }
 {
-  If one of the half-bandwidth \id{mudq} or \id{mldq} is negative or it
+  If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or it
   exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 }
 %%
