@@ -1,66 +1,186 @@
-# File tarida: Script to build IDA tar-file, ida.tar.
-# To execute, type 'sundials/scripts/tarida' in the directory
-# containing /sundials/.
-# Version of 15 February 2002.
+#!/bin/sh
+#
+# File tarida: Script to build IDA tar-file.
+# Version of 4 April 2002.
+#
+#-------------
+# Define flags
+#-------------
+err=F   # Error flag
+hlp=F   # Help flag
+ser=F   # Serial flag
+par=F   # Parallel flag
+fnm=F   # File name flag
 
-tar cvf ida.tar sundials/doc/Readme
+#------------------
+# Process arguments
+#------------------
+if [ $# -eq 0 ]
+then
+   err=T
+else
+   while getopts asphf: name
+   do
+     case $name in
+        h) hlp=T;;
+        a) ser=T;par=T;;
+        s) ser=T;;
+        p) par=T;;
+        f) fnm=T;filename=$OPTARG;;
+        ?) err=T;;
+     esac
+   done
+fi
 
-tar uvf ida.tar sundials/lib/Readme
+#------------
+# Print usage
+#------------
+if [ $err = "T" -o $hlp = "T" ]
+then
+    echo "Usage: tarsundials [option | file]"
+    echo "   -a      : both serial and parallel"
+    echo "   -s      : serial"
+    echo "   -p      : parallel"
+    echo "   -h      : help"
+    echo "   -f file : output to file" 
+    if [ $err = "T" -o \( $ser = "F" -a $par = "F" \) ]
+    then
+        exit 1
+    fi
+fi
 
-tar uvf ida.tar sundials/shared/include/llnltyps.h
-tar uvf ida.tar sundials/shared/include/llnlmath.h
-tar uvf ida.tar sundials/shared/include/nvector_serial.h
-tar uvf ida.tar sundials/shared/include/nvector_parallel.h
-tar uvf ida.tar sundials/shared/include/dense.h
-tar uvf ida.tar sundials/shared/include/smalldense.h
-tar uvf ida.tar sundials/shared/include/band.h
-tar uvf ida.tar sundials/shared/include/spgmr.h
-tar uvf ida.tar sundials/shared/include/iterativ.h
+#-----------------
+# Create file name
+#-----------------
+if [ $fnm != "T" ]
+then
+    if [ $ser = "T" -a $par = "F" ]
+    then
+        filename="ida_ser.tar"
+    elif [ $ser = "F" -a $par = "T" ]
+    then
+        filename="ida_par.tar"
+    else
+        filename="ida.tar"
+    fi
+fi
 
-tar uvf ida.tar sundials/shared/source/llnlmath.c
-tar uvf ida.tar sundials/shared/source/nvector_serial.c
-tar uvf ida.tar sundials/shared/source/nvector_parallel.c
-tar uvf ida.tar sundials/shared/source/dense.c
-tar uvf ida.tar sundials/shared/source/smalldense.c
-tar uvf ida.tar sundials/shared/source/band.c
-tar uvf ida.tar sundials/shared/source/spgmr.c
-tar uvf ida.tar sundials/shared/source/iterativ.c
+#----------------
+# Create tar file
+#----------------
 
-tar uvf ida.tar sundials/ida/doc/idareadme
-tar uvf ida.tar sundials/ida/doc/idaudoc.ps
-tar uvf ida.tar sundials/ida/doc/idaaddenda
+cd ../..
+echo "Generate tar file $PWD/$filename"
 
-tar uvf ida.tar sundials/ida/include/ida.h
-tar uvf ida.tar sundials/ida/include/idadense.h
-tar uvf ida.tar sundials/ida/include/idaband.h
-tar uvf ida.tar sundials/ida/include/idaspgmr.h
-tar uvf ida.tar sundials/ida/include/idabbdpre.h
+# Add top level files
+#--------------------
 
-tar uvf ida.tar sundials/ida/source/Makefile
-tar uvf ida.tar sundials/ida/source/idas.mk
-tar uvf ida.tar sundials/ida/source/idap.mk
-tar uvf ida.tar sundials/ida/source/ida.c
-tar uvf ida.tar sundials/ida/source/idadense.c
-tar uvf ida.tar sundials/ida/source/idaband.c
-tar uvf ida.tar sundials/ida/source/idaspgmr.c
-tar uvf ida.tar sundials/ida/source/idabbdpre.c
+echo "  Add top-level files/directories"
 
-tar uvf ida.tar sundials/ida/examples/Makefile
-tar uvf ida.tar sundials/ida/examples/idaxs.mk
-tar uvf ida.tar sundials/ida/examples/idaxp.mk
-tar uvf ida.tar sundials/ida/examples/irobx.c
-tar uvf ida.tar sundials/ida/examples/irobx.out
-tar uvf ida.tar sundials/ida/examples/iheatsb.c
-tar uvf ida.tar sundials/ida/examples/iheatsb.out
-tar uvf ida.tar sundials/ida/examples/iheatsk.c
-tar uvf ida.tar sundials/ida/examples/iheatsk.out
-tar uvf ida.tar sundials/ida/examples/iheatpk.c
-tar uvf ida.tar sundials/ida/examples/iheatpk.out
-tar uvf ida.tar sundials/ida/examples/iheatbbd.c
-tar uvf ida.tar sundials/ida/examples/iheatbbd.out
-tar uvf ida.tar sundials/ida/examples/iwebsb.c
-tar uvf ida.tar sundials/ida/examples/iwebsb.out
-tar uvf ida.tar sundials/ida/examples/iwebpk.c
-tar uvf ida.tar sundials/ida/examples/iwebpk.out
-tar uvf ida.tar sundials/ida/examples/iwebbbd.c
-tar uvf ida.tar sundials/ida/examples/iwebbbd.out
+tar cf $filename sundials/Makefile
+
+tar uf $filename sundials/lib/.dontremove
+
+tar uf $filename sundials/include/.dontremove
+
+tar uf $filename sundials/doc/Readme
+tar uf $filename sundials/doc/dirstruc
+
+# Add SHARED module
+#------------------
+
+echo "  Add shared module"
+
+tar uf $filename sundials/shared/doc/nvecreadme
+
+tar uf $filename sundials/shared/lib/.dontremove
+
+tar uf $filename sundials/shared/include/llnltyps.h
+tar uf $filename sundials/shared/include/llnlmath.h
+tar uf $filename sundials/shared/include/nvector.h
+tar uf $filename sundials/shared/include/dense.h
+tar uf $filename sundials/shared/include/smalldense.h
+tar uf $filename sundials/shared/include/band.h
+tar uf $filename sundials/shared/include/spgmr.h
+tar uf $filename sundials/shared/include/iterativ.h
+tar uf $filename sundials/shared/include/fcmixpar.h
+
+tar uf $filename sundials/shared/source/Makefile
+tar uf $filename sundials/shared/source/llnlmath.c
+tar uf $filename sundials/shared/source/nvector.c
+tar uf $filename sundials/shared/source/dense.c
+tar uf $filename sundials/shared/source/smalldense.c
+tar uf $filename sundials/shared/source/band.c
+tar uf $filename sundials/shared/source/spgmr.c
+tar uf $filename sundials/shared/source/iterativ.c
+
+if [ $ser = "T" ]
+then
+    tar uf $filename sundials/shared/include/nvector_serial.h
+    tar uf $filename sundials/shared/include/fnvector_serial.h
+
+    tar uf $filename sundials/shared/source/nvecserial.mk
+    tar uf $filename sundials/shared/source/nvector_serial.c
+    tar uf $filename sundials/shared/source/fnvector_serial.c
+fi
+
+if [ $par = "T" ]
+then
+    tar uf $filename sundials/shared/include/nvector_parallel.h
+    tar uf $filename sundials/shared/include/fnvector_parallel.h
+
+    tar uf $filename sundials/shared/source/nvecparallel.mk
+    tar uf $filename sundials/shared/source/nvector_parallel.c
+    tar uf $filename sundials/shared/source/fnvector_parallel.c
+fi
+
+# Add IDA module
+#---------------
+
+echo "  Add ida module"
+
+tar uf $filename sundials/ida/doc/idareadme
+tar uf $filename sundials/ida/doc/idaaddenda
+
+tar uf $filename sundials/ida/include/ida.h
+tar uf $filename sundials/ida/include/idadense.h
+tar uf $filename sundials/ida/include/idaband.h
+tar uf $filename sundials/ida/include/idaspgmr.h
+tar uf $filename sundials/ida/include/idabbdpre.h
+
+tar uf $filename sundials/ida/source/Makefile
+tar uf $filename sundials/ida/source/ida.c
+tar uf $filename sundials/ida/source/idadense.c
+tar uf $filename sundials/ida/source/idaband.c
+tar uf $filename sundials/ida/source/idaspgmr.c
+tar uf $filename sundials/ida/source/idabbdpre.c
+
+tar uf $filename sundials/ida/examples/Makefile
+
+if [ $ser = "T" ]
+then
+    tar uf $filename sundials/ida/examples/idax_ser.mk
+    tar uf $filename sundials/ida/examples/irobx.c
+    tar uf $filename sundials/ida/examples/irobx.out
+    tar uf $filename sundials/ida/examples/iheatsb.c
+    tar uf $filename sundials/ida/examples/iheatsb.out
+    tar uf $filename sundials/ida/examples/iheatsk.c
+    tar uf $filename sundials/ida/examples/iheatsk.out
+    tar uf $filename sundials/ida/examples/iwebsb.c
+    tar uf $filename sundials/ida/examples/iwebsb.out
+fi
+
+if [ $par = "T" ]
+then
+    tar uf $filename sundials/ida/examples/idax_par.mk
+    tar uf $filename sundials/ida/examples/iheatpk.c
+    tar uf $filename sundials/ida/examples/iheatpk.out
+    tar uf $filename sundials/ida/examples/iheatbbd.c
+    tar uf $filename sundials/ida/examples/iheatbbd.out
+    tar uf $filename sundials/ida/examples/iwebpk.c
+    tar uf $filename sundials/ida/examples/iwebpk.out
+    tar uf $filename sundials/ida/examples/iwebbbd.c
+    tar uf $filename sundials/ida/examples/iwebbbd.out
+fi
+
+#----End of tarida script file----

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# File tarkinsol: Script to build KINSOL tar-file.
+# File tarcvodes: Script to build CVODES tar-file.
 # Version of 4 April 2002.
 #
 #-------------
@@ -56,12 +56,12 @@ if [ $fnm != "T" ]
 then
     if [ $ser = "T" -a $par = "F" ]
     then
-        filename="kinsol_ser.tar"
+        filename="cvodes_ser.tar"
     elif [ $ser = "F" -a $par = "T" ]
     then
-        filename="kinsol_par.tar"
+        filename="cvodes_par.tar"
     else
-        filename="kinsol.tar"
+        filename="cvodes.tar"
     fi
 fi
 
@@ -134,62 +134,74 @@ then
     tar uf $filename sundials/shared/source/fnvector_parallel.c
 fi
 
-# Add KINSOL module
+# Add CVODES module
 #------------------
 
-echo "  Add kinsol module"
+echo "  Add cvodes module"
 
-tar uf $filename sundials/kinsol/doc/kinreadme
-tar uf $filename sundials/kinsol/doc/kinaddenda
+tar uf $filename sundials/cvodes/include/cvodes.h
+tar uf $filename sundials/cvodes/include/cvodea.h
+tar uf $filename sundials/cvodes/include/cvsdense.h
+tar uf $filename sundials/cvodes/include/cvsband.h
+tar uf $filename sundials/cvodes/include/cvsdiag.h
+tar uf $filename sundials/cvodes/include/cvsspgmr.h
+tar uf $filename sundials/cvodes/include/cvsbandpre.h
+tar uf $filename sundials/cvodes/include/cvsbbdpre.h
 
-tar uf $filename sundials/kinsol/include/kinsol.h
-tar uf $filename sundials/kinsol/include/kinspgmr.h
-tar uf $filename sundials/kinsol/include/kinbbdpre.h
+tar uf $filename sundials/cvodes/source/Makefile
+tar uf $filename sundials/cvodes/source/cvodes.c
+tar uf $filename sundials/cvodes/source/cvodea.c
+tar uf $filename sundials/cvodes/source/cvsdense.c
+tar uf $filename sundials/cvodes/source/cvsband.c
+tar uf $filename sundials/cvodes/source/cvsdiag.c
+tar uf $filename sundials/cvodes/source/cvsspgmr.c
+tar uf $filename sundials/cvodes/source/cvsbandpre.c
+tar uf $filename sundials/cvodes/source/cvsbbdpre.c
 
-tar uf $filename sundials/kinsol/source/Makefile
-tar uf $filename sundials/kinsol/source/kinsol.c
-tar uf $filename sundials/kinsol/source/kinspgmr.c
-tar uf $filename sundials/kinsol/source/kinbbdpre.c
+tar uf $filename sundials/cvodes/lib/.dontremove
 
-tar uf $filename sundials/kinsol/examples/Makefile
+tar uf $filename sundials/cvodes/examples/Makefile
 
-tar uf $filename sundials/kinsol/fcmix/Makefile
-tar uf $filename sundials/kinsol/fcmix/fkinsol.h
-tar uf $filename sundials/kinsol/fcmix/fkinsol.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr01.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr10.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr11.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr20.c
-tar uf $filename sundials/kinsol/fcmix/fkinspgmr21.c
-tar uf $filename sundials/kinsol/fcmix/fkinpreco.c
-tar uf $filename sundials/kinsol/fcmix/fkinpsol.c
-tar uf $filename sundials/kinsol/fcmix/fkinuatimes.c
-tar uf $filename sundials/kinsol/fcmix/fkinbbd.h
-tar uf $filename sundials/kinsol/fcmix/fkinbbd.c
-tar uf $filename sundials/kinsol/fcmix/fkinbbdinit1.c
+tar uf $filename sundials/cvodes/fwd_examples/Makefile
+
+tar uf $filename sundials/cvodes/adj_examples/Makefile
 
 if [ $ser = "T" ]
 then
-    tar uf $filename sundials/kinsol/examples/kinx_ser.mk
-    tar uf $filename sundials/kinsol/examples/kinwebs.c
-    tar uf $filename sundials/kinsol/examples/kinwebs.out
+    tar uf $filename sundials/cvodes/examples/cvx_ser.mk
+    tar uf $filename sundials/cvodes/examples/cvdx.c
+    tar uf $filename sundials/cvodes/examples/cvbx.c
+    tar uf $filename sundials/cvodes/examples/cvkx.c
+    tar uf $filename sundials/cvodes/examples/cvkxb.c
+    tar uf $filename sundials/cvodes/examples/cvdemd.c
+    tar uf $filename sundials/cvodes/examples/cvdemk.c
 
-    tar uf $filename sundials/kinsol/fcmix/fkinx_ser.mk
-    tar uf $filename sundials/kinsol/fcmix/kindiagsf.f
-    tar uf $filename sundials/kinsol/fcmix/kindiagsf.out
+    tar uf $filename sundials/cvodes/fwd_examples/cvsx_ser.mk
+    tar uf $filename sundials/cvodes/fwd_examples/cvsdx.c
+    tar uf $filename sundials/cvodes/fwd_examples/cvsnx.c
+    tar uf $filename sundials/cvodes/fwd_examples/cvskx.c
+
+    tar uf $filename sundials/cvodes/adj_examples/cvax_ser.mk
+    tar uf $filename sundials/cvodes/adj_examples/adadj.c
+    tar uf $filename sundials/cvodes/adj_examples/chemadj.c
+    tar uf $filename sundials/cvodes/adj_examples/foodadj.c
+    tar uf $filename sundials/cvodes/adj_examples/foodadj1.c
 fi
-    
+
+
 if [ $par = "T" ]
 then
-    tar uf $filename sundials/kinsol/examples/kinx_par.mk
-    tar uf $filename sundials/kinsol/examples/kinwebp.c
-    tar uf $filename sundials/kinsol/examples/kinwebp.out
-    tar uf $filename sundials/kinsol/examples/kinwebbbd.c
-    tar uf $filename sundials/kinsol/examples/kinwebbbd.out
-    
-    tar uf $filename sundials/kinsol/fcmix/fkinx_par.mk
-    tar uf $filename sundials/kinsol/fcmix/kindiagpf.f
-    tar uf $filename sundials/kinsol/fcmix/kindiagpf.out
+    tar uf $filename sundials/cvodes/examples/cvx_par.mk
+    tar uf $filename sundials/cvodes/examples/pvnx.c
+    tar uf $filename sundials/cvodes/examples/pvkx.c
+    tar uf $filename sundials/cvodes/examples/pvkxb.c
+
+    tar uf $filename sundials/cvodes/fwd_examples/cvsx_par.mk
+    tar uf $filename sundials/cvodes/fwd_examples/pvsnx.c
+    tar uf $filename sundials/cvodes/fwd_examples/pvskx.c
+
+    tar uf $filename sundials/cvodes/adj_examples/cvax_par.mk
 fi
 
-#----End of tarkinsol script file----
+
+#----End of tarcvodes script file----

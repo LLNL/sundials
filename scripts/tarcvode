@@ -1,61 +1,223 @@
-# File tarcvode: Script to build CVODE tar-file, cvode.tar.
-# To execute, type 'sundials/scripts/tarcvode' in the directory
-# containing /sundials/.
-# Version of 15 February 2002.
+#!/bin/sh
+#
+# File tarcvode: Script to build CVODE tar-file.
+# Version of 4 April 2002.
+#
+#-------------
+# Define flags
+#-------------
+err=F   # Error flag
+hlp=F   # Help flag
+ser=F   # Serial flag
+par=F   # Parallel flag
+fnm=F   # File name flag
 
-tar cvf cvode.tar sundials/doc/Readme
+#------------------
+# Process arguments
+#------------------
+if [ $# -eq 0 ]
+then
+   err=T
+else
+   while getopts asphf: name
+   do
+     case $name in
+        h) hlp=T;;
+        a) ser=T;par=T;;
+        s) ser=T;;
+        p) par=T;;
+        f) fnm=T;filename=$OPTARG;;
+        ?) err=T;;
+     esac
+   done
+fi
 
-tar uvf cvode.tar sundials/lib/Readme
+#------------
+# Print usage
+#------------
+if [ $err = "T" -o $hlp = "T" ]
+then
+    echo "Usage: tarsundials [option | file]"
+    echo "   -a      : both serial and parallel"
+    echo "   -s      : serial"
+    echo "   -p      : parallel"
+    echo "   -h      : help"
+    echo "   -f file : output to file" 
+    if [ $err = "T" -o \( $ser = "F" -a $par = "F" \) ]
+    then
+        exit 1
+    fi
+fi
 
-tar uvf cvode.tar sundials/shared/include/llnltyps.h
-tar uvf cvode.tar sundials/shared/include/llnlmath.h
-tar uvf cvode.tar sundials/shared/include/nvector_serial.h
-tar uvf cvode.tar sundials/shared/include/dense.h
-tar uvf cvode.tar sundials/shared/include/smalldense.h
-tar uvf cvode.tar sundials/shared/include/band.h
-tar uvf cvode.tar sundials/shared/include/spgmr.h
-tar uvf cvode.tar sundials/shared/include/iterativ.h
+#-----------------
+# Create file name
+#-----------------
+if [ $fnm != "T" ]
+then
+    if [ $ser = "T" -a $par = "F" ]
+    then
+        filename="cvode_ser.tar"
+    elif [ $ser = "F" -a $par = "T" ]
+    then
+        filename="cvode_par.tar"
+    else
+        filename="cvode.tar"
+    fi
+fi
 
-tar uvf cvode.tar sundials/shared/source/llnlmath.c
-tar uvf cvode.tar sundials/shared/source/nvector_serial.c
-tar uvf cvode.tar sundials/shared/source/dense.c
-tar uvf cvode.tar sundials/shared/source/smalldense.c
-tar uvf cvode.tar sundials/shared/source/band.c
-tar uvf cvode.tar sundials/shared/source/spgmr.c
-tar uvf cvode.tar sundials/shared/source/iterativ.c
+#----------------
+# Create tar file
+#----------------
 
-tar uvf cvode.tar sundials/cvode/doc/cvreadme
-tar uvf cvode.tar sundials/cvode/doc/cvudoc.ps
-tar uvf cvode.tar sundials/cvode/doc/cvaddenda
+cd ../..
+echo "Generate tar file $PWD/$filename"
 
-tar uvf cvode.tar sundials/cvode/include/cvode.h
-tar uvf cvode.tar sundials/cvode/include/cvdense.h
-tar uvf cvode.tar sundials/cvode/include/cvband.h
-tar uvf cvode.tar sundials/cvode/include/cvdiag.h
-tar uvf cvode.tar sundials/cvode/include/cvspgmr.h
-tar uvf cvode.tar sundials/cvode/include/cvbandpre.h
+# Add top level files
+#--------------------
 
-tar uvf cvode.tar sundials/cvode/source/Makefile
-tar uvf cvode.tar sundials/cvode/source/cvode.mk
-tar uvf cvode.tar sundials/cvode/source/cvode.c
-tar uvf cvode.tar sundials/cvode/source/cvdense.c
-tar uvf cvode.tar sundials/cvode/source/cvband.c
-tar uvf cvode.tar sundials/cvode/source/cvdiag.c
-tar uvf cvode.tar sundials/cvode/source/cvspgmr.c
-tar uvf cvode.tar sundials/cvode/source/cvbandpre.c
+echo "  Add top-level files/directories"
 
-tar uvf cvode.tar sundials/cvode/examples/Makefile
-tar uvf cvode.tar sundials/cvode/examples/cvodex.mk
-tar uvf cvode.tar sundials/cvode/examples/pvodex.mk
-tar uvf cvode.tar sundials/cvode/examples/cvdx.c
-tar uvf cvode.tar sundials/cvode/examples/cvdx.out
-tar uvf cvode.tar sundials/cvode/examples/cvbx.c
-tar uvf cvode.tar sundials/cvode/examples/cvbx.out
-tar uvf cvode.tar sundials/cvode/examples/cvkx.c
-tar uvf cvode.tar sundials/cvode/examples/cvkx.out
-tar uvf cvode.tar sundials/cvode/examples/cvkxb.c
-tar uvf cvode.tar sundials/cvode/examples/cvkxb.out
-tar uvf cvode.tar sundials/cvode/examples/cvdemd.c
-tar uvf cvode.tar sundials/cvode/examples/cvdemd.out
-tar uvf cvode.tar sundials/cvode/examples/cvdemk.c
-tar uvf cvode.tar sundials/cvode/examples/cvdemk.out
+tar cf $filename sundials/Makefile
+
+tar uf $filename sundials/lib/.dontremove
+
+tar uf $filename sundials/include/.dontremove
+
+tar uf $filename sundials/doc/Readme
+tar uf $filename sundials/doc/dirstruc
+
+# Add SHARED module
+#------------------
+
+echo "  Add shared module"
+
+tar uf $filename sundials/shared/doc/nvecreadme
+
+tar uf $filename sundials/shared/lib/.dontremove
+
+tar uf $filename sundials/shared/include/llnltyps.h
+tar uf $filename sundials/shared/include/llnlmath.h
+tar uf $filename sundials/shared/include/nvector.h
+tar uf $filename sundials/shared/include/dense.h
+tar uf $filename sundials/shared/include/smalldense.h
+tar uf $filename sundials/shared/include/band.h
+tar uf $filename sundials/shared/include/spgmr.h
+tar uf $filename sundials/shared/include/iterativ.h
+tar uf $filename sundials/shared/include/fcmixpar.h
+
+tar uf $filename sundials/shared/source/Makefile
+tar uf $filename sundials/shared/source/llnlmath.c
+tar uf $filename sundials/shared/source/nvector.c
+tar uf $filename sundials/shared/source/dense.c
+tar uf $filename sundials/shared/source/smalldense.c
+tar uf $filename sundials/shared/source/band.c
+tar uf $filename sundials/shared/source/spgmr.c
+tar uf $filename sundials/shared/source/iterativ.c
+
+if [ $ser = "T" ]
+then
+    tar uf $filename sundials/shared/include/nvector_serial.h
+    tar uf $filename sundials/shared/include/fnvector_serial.h
+
+    tar uf $filename sundials/shared/source/nvecserial.mk
+    tar uf $filename sundials/shared/source/nvector_serial.c
+    tar uf $filename sundials/shared/source/fnvector_serial.c
+fi
+
+if [ $par = "T" ]
+then
+    tar uf $filename sundials/shared/include/nvector_parallel.h
+    tar uf $filename sundials/shared/include/fnvector_parallel.h
+
+    tar uf $filename sundials/shared/source/nvecparallel.mk
+    tar uf $filename sundials/shared/source/nvector_parallel.c
+    tar uf $filename sundials/shared/source/fnvector_parallel.c
+fi
+
+# Add CVODE module
+#-----------------
+
+echo "  Add cvode module"
+
+tar uf $filename sundials/cvode/doc/cvreadme
+tar uf $filename sundials/cvode/doc/stald.doc
+
+tar uf $filename sundials/cvode/include/cvode.h
+tar uf $filename sundials/cvode/include/cvdense.h
+tar uf $filename sundials/cvode/include/cvband.h
+tar uf $filename sundials/cvode/include/cvdiag.h
+tar uf $filename sundials/cvode/include/cvspgmr.h
+tar uf $filename sundials/cvode/include/cvbandpre.h
+tar uf $filename sundials/cvode/include/cvbbdpre.h
+
+tar uf $filename sundials/cvode/source/Makefile
+tar uf $filename sundials/cvode/source/cvode.c
+tar uf $filename sundials/cvode/source/cvdense.c
+tar uf $filename sundials/cvode/source/cvband.c
+tar uf $filename sundials/cvode/source/cvdiag.c
+tar uf $filename sundials/cvode/source/cvspgmr.c
+tar uf $filename sundials/cvode/source/cvbandpre.c
+tar uf $filename sundials/cvode/source/cvbbdpre.c
+
+tar uf $filename sundials/cvode/lib/.dontremove
+
+tar uf $filename sundials/cvode/examples/Makefile
+
+tar uf $filename sundials/cvode/fcmix/Makefile
+tar uf $filename sundials/cvode/fcmix/fcvode.h
+tar uf $filename sundials/cvode/fcmix/fcvode.c
+tar uf $filename sundials/cvode/fcmix/fcvspgmr01.c
+tar uf $filename sundials/cvode/fcmix/fcvspgmr10.c
+tar uf $filename sundials/cvode/fcmix/fcvspgmr11.c
+tar uf $filename sundials/cvode/fcmix/fcvspgmr20.c
+tar uf $filename sundials/cvode/fcmix/fcvspgmr21.c
+tar uf $filename sundials/cvode/fcmix/fcvpreco.c
+tar uf $filename sundials/cvode/fcmix/fcvpsol.c
+tar uf $filename sundials/cvode/fcmix/fcvjtimes.c
+tar uf $filename sundials/cvode/fcmix/fcvband1.c
+tar uf $filename sundials/cvode/fcmix/fcvdense1.c
+tar uf $filename sundials/cvode/fcmix/fcvbbd.h
+tar uf $filename sundials/cvode/fcmix/fcvbbd.c
+tar uf $filename sundials/cvode/fcmix/fcvbbdin1.c
+
+if [ $ser = "T" ]
+then
+    tar uf $filename sundials/cvode/examples/cvx_ser.mk
+    tar uf $filename sundials/cvode/examples/cvdx.c
+    tar uf $filename sundials/cvode/examples/cvdx.out
+    tar uf $filename sundials/cvode/examples/cvbx.c
+    tar uf $filename sundials/cvode/examples/cvbx.out
+    tar uf $filename sundials/cvode/examples/cvkx.c
+    tar uf $filename sundials/cvode/examples/cvkx.out
+    tar uf $filename sundials/cvode/examples/cvkxb.c
+    tar uf $filename sundials/cvode/examples/cvkxb.out
+    tar uf $filename sundials/cvode/examples/cvdemd.c
+    tar uf $filename sundials/cvode/examples/cvdemd.out
+    tar uf $filename sundials/cvode/examples/cvdemk.c
+    tar uf $filename sundials/cvode/examples/cvdemk.out
+
+    tar uf $filename sundials/cvode/fcmix/fcvx_ser.mk
+    tar uf $filename sundials/cvode/fcmix/cvdensef.f
+    tar uf $filename sundials/cvode/fcmix/cvdensef.out
+fi
+
+if [ $par = "T" ]
+then
+    tar uf $filename sundials/cvode/examples/cvx_par.mk
+    tar uf $filename sundials/cvode/examples/pvnx.c
+    tar uf $filename sundials/cvode/examples/pvnx.out
+    tar uf $filename sundials/cvode/examples/pvkx.c
+    tar uf $filename sundials/cvode/examples/pvkx.out
+    tar uf $filename sundials/cvode/examples/pvkxb.c
+    tar uf $filename sundials/cvode/examples/pvkxb.out
+
+    tar uf $filename sundials/cvode/fcmix/fcvx_par.mk
+    tar uf $filename sundials/cvode/fcmix/pvdiagnf.f
+    tar uf $filename sundials/cvode/fcmix/pvdiagnf.out
+    tar uf $filename sundials/cvode/fcmix/pvdiagkf.f
+    tar uf $filename sundials/cvode/fcmix/pvdiagkf.out
+    tar uf $filename sundials/cvode/fcmix/pvdiagkbf.f
+    tar uf $filename sundials/cvode/fcmix/pvdiagkbf.out
+fi
+
+#----End of tarcvode script file----
