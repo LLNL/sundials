@@ -1,0 +1,57 @@
+#!/bin/sh
+
+tarfile=$1
+distrobase=$2
+ser=$3
+par=$4
+
+echo "  Add kinsol module"
+
+tar uf $tarfile $distrobase/kinsol/LICENSE
+
+tar uf $tarfile $distrobase/kinsol/doc/kinreadme
+#tar uf $tarfile $distrobase/kinsol/doc/kinudoc.ps
+#tar uf $tarfile $distrobase/kinsol/doc/kinudoc.pdf
+
+tar uf $tarfile $distrobase/kinsol/include/kinsol.h
+tar uf $tarfile $distrobase/kinsol/include/kinspgmr.h
+tar uf $tarfile $distrobase/kinsol/include/kinbbdpre.h
+
+tar uf $tarfile $distrobase/kinsol/source/Makefile.in
+tar uf $tarfile $distrobase/kinsol/source/kinsol.c
+tar uf $tarfile $distrobase/kinsol/source/kinspgmr.c
+tar uf $tarfile $distrobase/kinsol/source/kinbbdpre.c
+
+tar uf $tarfile $distrobase/kinsol/fcmix/Makefile.in
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.h
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinpreco.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinpsol.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinjtimes.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.h
+tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.c
+
+if [ $ser = "T" ]
+then
+    tar uf $tarfile $distrobase/kinsol/examples_ser/Makefile.in
+    tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.c
+    tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.out
+
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/Makefile.in
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.f
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.out
+fi
+    
+if [ $par = "T" ]
+then
+    tar uf $tarfile $distrobase/kinsol/examples_par/Makefile.in
+    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebp.c
+    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebp.out
+    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebbbd.c
+    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebbbd.out
+    
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/Makefile.in
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.f
+    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.out
+fi
+

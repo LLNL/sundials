@@ -1,0 +1,62 @@
+#!/bin/sh
+
+tarfile=$1
+distrobase=$2
+ser=$3
+par=$4
+
+echo "  Add top-level files"
+    
+tar cf $tarfile $distrobase/configure
+tar uf $tarfile $distrobase/tarch
+
+tar uf $tarfile $distrobase/Makefile.in
+
+tar uf $tarfile $distrobase/INSTALL
+tar uf $tarfile $distrobase/README
+
+echo "  Add shared module"
+
+tar uf $tarfile $distrobase/shared/LICENSE
+
+tar uf $tarfile $distrobase/shared/doc/nvecreadme
+
+tar uf $tarfile $distrobase/shared/include/sundialstypes.h
+tar uf $tarfile $distrobase/shared/include/sundialsmath.h
+tar uf $tarfile $distrobase/shared/include/nvector.h
+tar uf $tarfile $distrobase/shared/include/dense.h
+tar uf $tarfile $distrobase/shared/include/smalldense.h
+tar uf $tarfile $distrobase/shared/include/band.h
+tar uf $tarfile $distrobase/shared/include/spgmr.h
+tar uf $tarfile $distrobase/shared/include/iterativ.h
+tar uf $tarfile $distrobase/shared/include/fcmixpar.h
+
+tar uf $tarfile $distrobase/shared/source/Makefile.in
+tar uf $tarfile $distrobase/shared/source/sundialsmath.c
+tar uf $tarfile $distrobase/shared/source/nvector.c
+tar uf $tarfile $distrobase/shared/source/dense.c
+tar uf $tarfile $distrobase/shared/source/smalldense.c
+tar uf $tarfile $distrobase/shared/source/band.c
+tar uf $tarfile $distrobase/shared/source/spgmr.c
+tar uf $tarfile $distrobase/shared/source/iterativ.c
+
+if [ $ser = "T" ]
+then
+    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
+    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
+
+    tar uf $tarfile $distrobase/nvec_ser/Makefile.in
+    tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
+    tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
+fi
+
+if [ $par = "T" ]
+then
+    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
+    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
+
+    tar uf $tarfile $distrobase/nvec_par/Makefile.in
+    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
+    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
+fi
+

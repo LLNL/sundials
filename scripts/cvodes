@@ -1,0 +1,92 @@
+#!/bin/sh
+
+tarfile=$1
+distrobase=$2
+ser=$3
+par=$4
+
+echo "  Add cvodes module"
+
+tar uf $tarfile $distrobase/cvodes/LICENSE
+
+tar uf $tarfile $distrobase/cvodes/doc/cvsreadme
+tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.ps
+tar uf $tarfile $distrobase/cvodes/doc/cvs_guide.pdf
+
+tar uf $tarfile $distrobase/cvodes/include/cvodes.h
+tar uf $tarfile $distrobase/cvodes/include/cvodea.h
+tar uf $tarfile $distrobase/cvodes/include/cvsdense.h
+tar uf $tarfile $distrobase/cvodes/include/cvsband.h
+tar uf $tarfile $distrobase/cvodes/include/cvsdiag.h
+tar uf $tarfile $distrobase/cvodes/include/cvsspgmr.h
+tar uf $tarfile $distrobase/cvodes/include/cvsbandpre.h
+tar uf $tarfile $distrobase/cvodes/include/cvsbbdpre.h
+
+tar uf $tarfile $distrobase/cvodes/source/Makefile.in
+tar uf $tarfile $distrobase/cvodes/source/cvodes.c
+tar uf $tarfile $distrobase/cvodes/source/cvodea.c
+tar uf $tarfile $distrobase/cvodes/source/cvsdense.c
+tar uf $tarfile $distrobase/cvodes/source/cvsband.c
+tar uf $tarfile $distrobase/cvodes/source/cvsdiag.c
+tar uf $tarfile $distrobase/cvodes/source/cvsspgmr.c
+tar uf $tarfile $distrobase/cvodes/source/cvsbandpre.c
+tar uf $tarfile $distrobase/cvodes/source/cvsbbdpre.c
+
+if [ $ser = "T" ]
+then
+    tar uf $tarfile $distrobase/cvodes/examples_ser/Makefile.in
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvbx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvbx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvkx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvkx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvkxb.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvkxb.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdemd.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdemd.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdemk.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvdemk.out
+
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfdx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfdx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfdx.out2
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfnx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfnx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfnx.out2
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfkx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfkx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvfkx.out2
+
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvadx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvadx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvabx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvabx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvakx.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvakx.out
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvakxb.c
+    tar uf $tarfile $distrobase/cvodes/examples_ser/cvakxb.out
+fi
+
+
+if [ $par = "T" ]
+then
+    tar uf $tarfile $distrobase/cvodes/examples_par/Makefile.in
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.out
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.out
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvkxb.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvkxb.out
+
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.out2
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.out1
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.out2
+
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvanx.c
+    tar uf $tarfile $distrobase/cvodes/examples_par/pvanx.out
+fi
+

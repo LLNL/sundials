@@ -1,0 +1,183 @@
+#!/bin/sh
+#
+# File tarscript: Script to build SUNDIALS tar-files.
+# Author: Radu Serban @ LLNL
+# Version of 08 August 2003
+#
+
+#==============================================================================
+#
+# Prints usage if help was requested or if the script was incorectly called
+#
+#==============================================================================
+
+function print_usage
+{
+    echo ""
+    echo "Usage: tarscript [-bsph] [module]"
+    echo "   -b       : serial and parallel"
+    echo "   -s       : serial"
+    echo "   -p       : parallel"
+    echo "   -h       : help"
+    echo "   module   : all, sundials, cvode, cvodes, ida, kinsol"
+    echo ""
+    echo "Note1: If none of the options 'b', 's', or 'p' are specified,"
+    echo "       all 3 tar files are created for this module."
+    echo "Note2: If the module is not specified, tar files are created"
+    echo "       for all of them."
+    echo "Note3: This script must be executed from within its directory" 
+    echo "       Default file will be created in $distrodir."
+    echo ""
+    exit 1
+}
+
+#==============================================================================
+#
+# Generates one tar file for the given $module, accordingly to the 
+# $ser and $par flags
+#
+#==============================================================================
+
+function create_file
+{
+    what=$1
+    ser=$2
+    par=$3
+
+    if [ $ser = "T" -a $par = "F" ];   then
+        tail="_ser.tar"
+    elif [ $ser = "F" -a $par = "T" ]; then
+        tail="_par.tar"
+    else
+        tail=".tar"
+    fi
+
+    tarfile=$distrodir$what$tail
+
+    cd ../..
+
+    echo "Generate $distrobase distribution tar-file $tarfile"
+
+    $distrobase/scripts/shared $tarfile $distrobase $ser $par 
+    
+    if [ $what = "cvode" -o $what = "sundials" ];  then
+        $distrobase/scripts/cvode $tarfile $distrobase $ser $par 
+    fi
+    
+    if [ $what = "cvodes" -o $what = "sundials" ]; then
+        $distrobase/scripts/cvodes $tarfile $distrobase $ser $par 
+    fi
+
+    if [ $what = "ida" -o $what = "sundials" ];    then
+        $distrobase/scripts/ida $tarfile $distrobase $ser $par 
+    fi
+
+    if [ $what = "kinsol" -o $what = "sundials" ]; then
+        $distrobase/scripts/kinsol $tarfile $distrobase $ser $par 
+    fi
+    
+    cd $scriptdir
+}
+
+#==============================================================================
+#
+# This function decides how many files need to be created for the current
+# module
+#
+#==============================================================================
+
+function create_module
+{
+    module=$1
+
+    if [ $bsp = "F" ]
+    then
+        create_file $module $ser $par
+    else
+        create_file $module "T" "F"
+        create_file $module "F" "T"
+        create_file $module "T" "T"
+    fi
+}
+
+#==============================================================================
+#
+# MAIN SCRIPT
+#
+#==============================================================================
+
+#---------------------------------------------------------
+# Test if the script is executed from within its directory
+#---------------------------------------------------------
+scriptbase=`basename $0`
+if [ ! -f "$scriptbase" ] ; then
+    print_usage
+fi
+
+#-------------
+# Define flags
+#-------------
+err=F   # Error flag
+hlp=F   # Help flag
+ser=F   # Serial flag
+par=F   # Parallel flag
+bsp=T   # generate all 3 files for the module
+
+#----------------
+# Process options
+#----------------
+while getopts ":bsph" name ; do
+    case $name in
+        b) bsp=F;ser=T;par=T;;
+        s) bsp=F;ser=T;;
+        p) bsp=F;par=T;;
+        h) hlp=T;;
+        ?) err=T;;
+    esac
+done
+
+#------------------------------
+# Extract argument (module name)
+#------------------------------
+shift $(($OPTIND - 1))
+module=$1
+
+#------------
+# Test module 
+#------------
+if [ -z $module ]; then
+    module="all"
+else
+    if [ $module != "all" -a $module != "sundials" -a $module != "cvode" -a $module != "cvodes" -a $module != "ida" -a $module != "kinsol" ]; then
+        err=T
+    fi
+fi
+
+#------------------
+# Define some names
+#------------------
+scriptdir=`pwd`
+distrodir=`echo $PWD | sed -e 's/scripts//'`
+distrobase=`basename $distrodir`
+
+#------------
+# Print usage
+#------------
+if [ $err = "T" -o $hlp = "T" ]; then
+    print_usage
+fi
+
+#---------------------------
+# Create requested tar files
+#---------------------------
+if [ $module != "all" ]; then
+    create_module $module
+else
+    create_module "sundials"
+    create_module "cvode"
+    create_module "cvodes"
+    create_module "ida"
+    create_module "kinsol"
+fi
+
+# That's all folks...
