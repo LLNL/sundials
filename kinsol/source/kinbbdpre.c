@@ -3,15 +3,15 @@
  * File          : kinbbdpre.c                                    *
  * Programmers   : Allan G Taylor, Alan C Hindmarsh, and          *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 27 June 2002                                   *
+ * Version of    : 26 July 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of routines for a           *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
- * matrix with banded blocks, for use with KINSol,  KINSpgmr, and *
+ * matrix with banded blocks, for use with KINSol, KINSpgmr, and  *
  * the parallel implementation of NVECTOR.                        *
  * NOTE: with only one processor in use, a banded matrix results  *
- * rather than a b-b matrix with banded blocks. Diagonal blocking *
- * occurs at the processor level.                                 *
+ * rather than a b-b-d matrix with banded blocks. Diagonal        *
+ * blocking occurs at the processor level.                        *
  ******************************************************************/
 
 #include <stdio.h>
@@ -71,25 +71,25 @@ KBBDData KBBDAlloc(integertype Nlocal, integertype mu, integertype ml,
     return(NULL);
   }
 
-  pdata = (KBBDData) malloc(sizeof *pdata);  /* Allocate data memory */
+  pdata = (KBBDData) malloc(sizeof *pdata);  /* Allocate data memory. */
   if (pdata == NULL)
     return(NULL);
 
-  /* Set pointers to f_data, gloc, and gcomm; load half-bandwiths */
+  /* Set pointers to f_data, gloc, and gcomm; load half-bandwiths. */
   pdata->f_data = f_data;
   pdata->ml = ml;
   pdata->mu = mu;
   pdata->gloc = gloc;
   pdata->gcomm = gcomm;
  
-  /* Allocate memory for preconditioner matrix */
+  /* Allocate memory for preconditioner matrix. */
   pdata->PP = BandAllocMat(Nlocal, mu, ml, mu+ml);
   if (pdata->PP == NULL) {
     free(pdata);
     return(NULL);
   }
 
-  /* Allocate memory for pivots */
+  /* Allocate memory for pivots. */
   pdata->pivots = BandAllocPiv(Nlocal);
   if (pdata->PP == NULL) {
     BandFreeMat(pdata->PP);
@@ -97,34 +97,35 @@ KBBDData KBBDAlloc(integertype Nlocal, integertype mu, integertype ml,
     return(NULL);
   }
 
-  /* allocate vtemp3 for use by KBBDDQJac  */
+  /* Allocate vtemp3 for use by KBBDDQJac. */
 
-  vtemp3 = N_VNew(Nlocal, machenv); /* Note: Nlocal here is a dummy in that 
-                                       machenv parameters are used to determine size */
+  vtemp3 = N_VNew(Nlocal, machenv); /* Note: Nlocal here is a dummy; machenv
+                                       parameters are used to determine size. */
   if (vtemp3 == NULL) {
-      free(pdata);
-      return(NULL);
+    free(pdata);
+    return(NULL);
   }
   pdata->vtemp3 = vtemp3;
 
   /* set rel_uu based on input value dq_rel_uu */
 
-  if (dq_rel_uu > ZERO) rel_uu=dq_rel_uu;
-  else  rel_uu=RSqrt(kin_mem->kin_uround); /* a dq_rel_uu value of 0.0 received
-                                              by this routine implies using
-                                              the default instead */
+  if (dq_rel_uu > ZERO) rel_uu = dq_rel_uu;
+  else rel_uu = RSqrt(kin_mem->kin_uround); /* A value dq_rel_uu = 0.0 received
+                                               by this routine implies using
+                                               the default instead.           */
 
   pdata->rel_uu = rel_uu;
 
-  /* Store Nlocal to be used in KBBDPrecon */
+  /* Store Nlocal to be used in KBBDPrecon. */
   pdata->n_local = Nlocal;
 
-  /* Set work space sizes and initialize nge */
+  /* Set work space sizes and initialize nge. */
   pdata->rpwsize = Nlocal*(2*mu + ml + 1);
   pdata->ipwsize = Nlocal;
   pdata->nge = 0;
   return(pdata);
 }
+
 
 void KBBDFree(KBBDData pdata)
 {
@@ -148,6 +149,7 @@ void KBBDFree(KBBDData pdata)
 #define PP        (pdata->PP)
 #define nge       (pdata->nge)
 #define rel_uu    (pdata->rel_uu)
+
 
 /******************************************************************
  * Function : KBBDPrecon                                          *
@@ -191,7 +193,6 @@ void KBBDFree(KBBDData pdata)
  *           parameter passed to KINSpgmr. For KBBDPrecon, this   *
  *           should be of type KBBDData.                          *
  *                                                                *
- *                                                                *
  * Return value:                                                  *
  * The value to be returned by the KBBDPrecon function is a flag  *
  * indicating whether it was successful.  This value is           *
@@ -215,15 +216,15 @@ int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
 
   Nlocal = pdata->n_local;
 
-  /* Otherwise call KBBDDQJac for a new Jacobian calc and store in PP */
+  /* Call KBBDDQJac for a new Jacobian and store in PP. */
   BandZero(PP);
   KBBDDQJac(Nlocal, PP, P_data, uu, uscale, vtemp1, vtemp2, vtemp3);
   nge += 1 + MIN(ml + mu + 1, Nlocal);
-  
-  /* Do LU factorization of P in place  (in PP) */
+
+  /* Do LU factorization of P in place (in PP). */
   ier = BandFactor(PP, pivots);
-  
-  /* Return 0 if the LU was complete; otherwise return 1 */
+
+  /* Return 0 if the LU was complete; otherwise return 1. */
   if (ier > 0) return(1);
   return(0);
 }
@@ -234,8 +235,8 @@ int KBBDPrecon(integertype Neq, N_Vector uu, N_Vector uscale,
  *----------------------------------------------------------------*
  * KBBDPSol solves a linear system P z = r, with the banded       *
  * blocked preconditioner matrix P generated and factored by      *
- * KBBDPrecon.  Here, r comes in as vtem and z is returned in vtem*
- * as well.                                                       *
+ * KBBDPrecon.  Here, r comes in as vtem and z is returned in     *
+ * vtem as well.                                                  *
  *                                                                *
  * The parameters of KBBDPSol are as follows:                     *
  *                                                                *
@@ -286,7 +287,7 @@ int KBBDPSol(integertype Nlocal, N_Vector uu, N_Vector uscale,
 
   pdata = (KBBDData)P_data;
 
-  /* Do the backsolve and return */
+  /* Do the backsolve and return. */
   vd = N_VGetData(vtem);
   BandBacksolve(PP, pivots, vd);
   N_VSetData(vd, vtem);
@@ -306,6 +307,7 @@ int KBBDPSol(integertype Nlocal, N_Vector uu, N_Vector uscale,
  bandwidth + 1, where bandwidth = ml + mu + 1.
  This routine also assumes that the local elements of a vector are
  stored contiguously.
+
 **********************************************************************/
 
 static void KBBDDQJac(integertype Nlocal, BandMat J, void *P_data,
@@ -316,41 +318,40 @@ static void KBBDDQJac(integertype Nlocal, BandMat J, void *P_data,
   integertype group, i, j, width, ngroups, i1, i2;
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
   KBBDData pdata;
-  
+
   pdata= (KBBDData)P_data;
-  
-  /* Set pointers to the data for all vectors */
+
+  /* Set pointers to the data for all vectors. */
   udata     = N_VGetData(uu);
   uscdata   = N_VGetData(uscale);
   gudata    = N_VGetData(gu);
   gtempdata = N_VGetData(gtemp);
   utempdata = N_VGetData(utemp);
 
-  /* Load utemp with uu = predicted solution vector */
+  /* Load utemp with uu = predicted solution vector. */
   N_VScale(ONE, uu, utemp);
-  
-  /* Call gcomm and gloc to get base value of g(uu) */
+
+  /* Call gcomm and gloc to get base value of g(uu). */
   gcomm (Nlocal, udata, f_data);
   gloc (Nlocal, uu, gu, f_data);
-  
-  
-  /* Set bandwidth and number of column groups for band differencing */
+
+  /* Set bandwidth and number of column groups for band differencing. */
   width = ml + mu + 1;
   ngroups = MIN(width, Nlocal);
-  
-  /* Loop over groups */  
+
+  /* Loop over groups. */  
   for (group=1; group <= ngroups; group++) {
-    
-    /* Increment all u_j in group */
+  
+    /* Increment all u_j in group. */
     for(j=group-1; j < Nlocal; j+=width) {
       inc = rel_uu * MAX(ABS(udata[j]), ONE/uscdata[j]);
       utempdata[j] += inc;
     }
-    
-    /* Evaluate g with incremented u */
+  
+    /* Evaluate g with incremented u. */
     gloc (Nlocal, utemp, gtemp, f_data);
-    
-    /* Restore utemp, then form and load difference quotients */
+
+    /* Restore utemp, then form and load difference quotients. */
     for (j=group-1; j < Nlocal; j+=width) {
       utempdata[j] = udata[j];
       col_j = BAND_COL(J,j);
@@ -359,8 +360,7 @@ static void KBBDDQJac(integertype Nlocal, BandMat J, void *P_data,
       i1 = MAX(0, j-mu);
       i2 = MIN(j+ml, Nlocal-1);
       for (i=i1; i <= i2; i++)
-        BAND_COL_ELEM(col_j,i,j) =
-          inc_inv * (gtempdata[i] - gudata[i]);
+        BAND_COL_ELEM(col_j,i,j) = inc_inv * (gtempdata[i] - gudata[i]);
     }
   }
 }
