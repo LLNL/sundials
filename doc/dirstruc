@@ -8,6 +8,7 @@ Modified 7 February 2002 - Alan
 Modified 21 February 2002 - Alan
 Modified 13 March 2002 - Radu
 Modified 27 March 2002 - Radu
+Modified 27 June 2002 - Radu
 
 Overall structure:
 ------------------
@@ -57,7 +58,7 @@ doc/
     nvecreadme
     
 include/
-    llnltyps.h  llnlmath.h
+    sundialstypes.h  sundialsmath.h
     band.h  dense.h  smalldense.h  spgmr.h  iterativ.h
     nvector.h
     nvector_serial.h  nvector_parallel.h
@@ -66,7 +67,7 @@ include/
       
 source/
     Makefile, nvecserial.mk, nvecparallel.mk
-    llnlmath.c
+    sundialsmath.c
     band.c  dense.c  smalldense.c  spgmr.c  iterativ.c
     nvector.c
     nvector_serial.c  nvector_parallel.c
@@ -145,7 +146,7 @@ fcmix/
 cvodes/ subdirectories for CVODES/PVODES:
 
 doc/
-    cvsreadme, cvsdoc.tex
+    cvs_guide.ps cvs_guide.pdf
 
 include/
     cvodes.h, cvodea.h
@@ -160,18 +161,20 @@ lib/
 
 examples/
     Makefile, cvx_ser.mk, cvx_par.mk
-    cvdx.c; cvbx.c; cvkx.c
-    cvkxb.c; cvdemd.c; cvdemk.c
-    pvnx.c; pvkx.c; pvkxb.c
+    cvdx.c, cvdx.out; 	cvbx.c, cvbx.out;	cvkx.c, cvkx.out
+    cvkxb.c, cvkxb.out;	cvdemd.c, cvdemd.out;	cvdemk.c, cvdemk.out
+    pvnx.c, pvnx.out; 	pvkx.c, pvkx.out;	pvkxb.c, pvkxb.out
 
 fwd_examples/
     Makefile, cvsx_ser.mk, cvsx_par.mk
-    cvsnx.c;  cvsdx.c; cvskx.c  
-    pvsnx.c; pvskx.c
+    cvfnx.c, cvfnx.out;  cvfdx.c, cvfdx.out; cvfkx.c, cvfkx.out
+    pvfnx.c, pvfnx.out; pvfkx.c, pvfkx.out
 
 adj_examples/
     Makefile, cvax_ser.mk cvax_par.mk
-    adadj.c, chemadj.c, foodadj.c, foodadj1.c
+    cvabx.c, cvabx.out; cvadx.c, cvadx.out
+    cvakxb.c, cvakxb.out; cvakx.c, cvakx.out
+    pvanx.c, pvanx.out
 
 fcmix/
 
