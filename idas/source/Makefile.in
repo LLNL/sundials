@@ -23,7 +23,7 @@ IDAS_INC_DIR  = ../include
 IDAS_LIB = libidas.a
 
 # Source and object files
-SRC    = idasband.c idasdense.c idas.c idasspgmr.c idasbbdpre.c
+SRC    = idas.c idasic.c idasband.c idasdense.c idasspgmr.c idasbbdpre.c
 OBJ = ${SRC:.c=.o}
 
 # Includes
