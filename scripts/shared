@@ -12,6 +12,7 @@ tar uf $tarfile $distrobase/config/config.guess
 tar uf $tarfile $distrobase/config/config.sub
 tar uf $tarfile $distrobase/config/install-sh
 tar uf $tarfile $distrobase/config/ltmain.sh
+tar uf $tarfile $distrobase/config/sundials_config.in
 tar uf $tarfile $distrobase/config/fortran_update.in
 
 tar uf $tarfile $distrobase/Makefile.in
