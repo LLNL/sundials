@@ -293,6 +293,10 @@ The following configuration options are only applicable to the parallel sundials
 
   Default: INCDIR=MPIDIR/include, LIBDIR=MPIDIR/lib and LIBS=-lmpi
 
+--with-mpi-flags=ARG
+
+  Specify additional MPI-specific flags.
+
 3.4. Options for library support
 --------------------------------
 
