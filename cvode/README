@@ -45,7 +45,7 @@ Examples (cv_examples.ps and cv_examples.pdf) documents.
 B. Installation
 ---------------
 
-For basic installation instructions see the file /sundials/INSTALL. 
+For basic installation instructions see the file /sundials/INSTALL_NOTES. 
 For complete installation instructions see the "CVODE Installation Procedure"
 chapter in the CVODE User Guide.
 

@@ -34,7 +34,7 @@ Warning to users who receive more than one of these individual solvers
 at different times: The mixing of old and new versions SUNDIALS may fail.  
 To avoid such failures, obtain all desired solvers at the same time.
 
-For installation directions see the file INSTALL.
+For installation directions see the file INSTALL_NOTES.
 
 For additional information on a particular solver, see the README file in
 the solver directory.
