@@ -181,7 +181,7 @@ typedef struct {
   /* available for optional output: */
   long int rpwsize;
   long int ipwsize;
-  long int nge;
+  int nge;
 
   /* Pointer to cvode_mem */
   CVodeMem cv_mem;
