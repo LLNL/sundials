@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2004-08-25 16:22:25 $
+ * $Revision: 1.31 $
+ * $Date: 2004-09-21 22:57:52 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -288,7 +288,6 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
   realtype h0u;
   int i, qu, qcur, flag;
-  int *rootsfound;
 
   /* 
      tout      is the t value where output is desired
@@ -306,16 +305,6 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   /* CVode() succeeded and found at least one root */
   if (*ier == CV_ROOT_RETURN) {
     CVodeGetNumGEvals(CV_cvodemem, &CV_iopt[24]);
-    flag = CVodeGetRootInfo(CV_cvodemem, &rootsfound);
-    if (flag == CV_SUCCESS) {
-      printf("   rootsfound[] = ");
-      for (i = 0; i < CV_nrtfn; ++i) printf("%d ", *(rootsfound + i));
-      printf("\n");
-    }
-    else {
-      *ier = flag;
-      return;
-    }
   }
 
   /* Load optional outputs in iopt & ropt */
