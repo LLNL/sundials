@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28.2.2 $
- * $Date: 2005-04-05 19:07:55 $
+ * $Revision: 1.28.2.3 $
+ * $Date: 2005-04-05 20:23:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -166,7 +166,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   N_Vector uuvec, uscalevec, fscalevec;
   realtype *data_uuvec, *data_uscalevec, *data_fscalevec;
 
-  uuvec = N_VClone(F2C_vec);
+  uuvec = F2C_vec;
   data_uuvec = N_VGetArrayPointer(uuvec);
   N_VSetArrayPointer(uu, uuvec);
 
@@ -181,7 +181,6 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   *ier = KINSol(KIN_mem, uuvec, *globalstrategy, uscalevec, fscalevec);
 
   N_VSetArrayPointer(data_uuvec, uuvec);
-  N_VDestroy(uuvec);
 
   N_VSetArrayPointer(data_uscalevec, uscalevec);
   N_VDestroy(uscalevec);
