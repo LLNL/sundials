@@ -190,15 +190,29 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
  ******************************************************************/
 
 int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB, 
-                 N_Vector yB0, int lmmB, int iterB, int itolB, 
+                 realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
                  realtype *reltolB, void *abstolB, void *f_dataB, 
                  FILE *errfpB, booleantype optInB, 
                  long int ioptB[], realtype roptB[], M_Env machEnv);
 
 /* CVodeMallocB return values */
 /* SUCCESS=0, defined under CVode return values */
-#define CVBM_NO_MEM   -1
-#define CVBM_MEM_FAIL -2
+#define CVBM_NO_MEM   -101
+#define CVBM_MEM_FAIL -102
+#define CVBM_BAD_TB0  -103
+
+/******************************************************************
+ *                                                                *
+ * Function : CVReInitB                                           *
+ *----------------------------------------------------------------*
+ * CVReInitB resets the final time and final condition for the    *
+ * backward system, assuming a prior call to CVodeMallocB has     *
+ * been made. Except for tB0 and yB0, all other settings are kept *
+ * unchanged from the preevious call to CvodeMallocB.             *
+ *                                                                *
+ ******************************************************************/
+
+int CVReInitB(void *cvadj_mem, realtype tB0, N_Vector yB0);
 
 /******************************************************************
  *                                                                *
@@ -465,6 +479,9 @@ typedef struct CVadjMemRec {
 
   /* Flag to indicate that data in dt_mem is new */
   booleantype ca_newData;
+
+  /* address of the check point structure for which data is available */
+  struct CkpntMemRec *ca_ckpntData;
 
   /* Actual number of data points saved in current dt_mem */
   /* Commonly, np = nsteps+1                              */
