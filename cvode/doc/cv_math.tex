@@ -291,9 +291,10 @@ calling program after each step.  There are also options to force
 $t = t_{\mbox{\scriptsize stop}}$.
 \index{output mode|)}
 
-%-----------------------------------------------
 
+%------------------------
 \section{BDF stability limit detection}\label{s:bdf_stab}
+%------------------------
 
 \index{Stability limit detection}
 {\cvode} includes an algorithm, {\stald} (STAbility Limit Detection),
@@ -350,7 +351,7 @@ manner, the presence of a stability region boundary that is limiting
 the step sizes in the presence of a weakly damped oscillation \cite{Hin:92}.
 The algorithm supplements (but differs greatly from) the existing
 algorithms in {\cvode} for choosing step size and order based on
-estimated local truncation errors.  The {\stald} algorithm works directly
+estimated local truncation errors.  It works directly
 with history data that is readily available in {\cvode}.  If it concludes
 that the step size is in fact stability-limited, it dictates a
 reduction in the method order, regardless of the outcome of the
@@ -373,3 +374,86 @@ then there is a good chance that step sizes are being limited by
 stability, and that turning on the option will improve the efficiency
 of the solution. 
 
+
+%------------------------
+\section{Rootfinding}\label{ss:rootfinding}
+%------------------------
+
+\index{Rootfinding}
+The {\cvode} solver has been augmented to include a rootfinding
+feature.  This means that, while integrating the Initial Value Problem
+(\ref{e:ivp}), {\cvode} can also find the roots of a set of user-defined
+functions $g_i(t,y)$ that depend on $t$ and the solution vector 
+$y = y(t)$.  The number of these root functions is arbitrary, and if
+more than one $g_i$ is found to have a root in any given interval, the
+various root locations are found and reported in the order that they
+occur on the $t$ axis, in the direction of integration.
+
+Generally, this rootfinding feature finds only roots of odd
+multiplicity, corresponding to changes in sign of $g_i(t,y(t))$,
+denoted $g_i(t)$ for short.  If a user root function has a root of
+even multiplicity (no sign change), it will probably be missed by
+{\cvode}.  If such a root is desired, the user should reformulate the
+root function so that it changes sign at the desired root.
+
+The basic scheme used is to check for sign changes of any $g_i(t)$ over
+each time step taken, and then (when a sign change is found) to home
+in on the root (or roots) with a modified secant method \cite{HeSh:80}.  
+In addition, each time $g$ is computed, {\cvode} checks to see if 
+$g_i(t) = 0$ exactly, and if so it reports this as a root.  However,
+if an exact zero of any $g_i$ is found at a point $t$, {\cvode}
+computes $g$ at $t + \tau$ for a small (near roundoff level) increment
+$\tau$, slightly further in the direction of integration, and if any
+$g_i(t + \tau) = 0$ also, {\cvode} stops and reports an error.  This
+way, each time {\cvode} takes a time step, it is guaranteed that the
+values of all $g_i$ are nonzero at some past value of $t$, beyond
+which a search for roots is to be done.
+
+At any given time in the course of the time-stepping, after suitable
+checking and adjusting has been done, {\cvode} has a value 
+$t = t_{lo}$ such that all $g_i(t_{lo}) \neq 0$, and another value
+$t = t_{hi}$ that is further ahead in the direction of integration.
+Roots in the interval $(t_{lo},t_{hi})$ are then sought.  Generally,
+$t_{hi}$ is either $t_n$, the end of the time step last taken, or
+the next requested output time $t_{\mbox{\scriptsize out}}$ if this
+comes sooner.  The value $t_{lo}$ is either $t_{n-1}$, or the last
+root location (if a root was just located in $(t_{n-1},t_n)$),
+possibly adjusted slightly toward $t_n$ if an exact zero was found.
+The algorithm checks $g$ at $t_{hi}$ for zeros and for sign changes in
+$(t_{lo},t_{hi})$.  If no sign changes are found, then either a root
+is reported (if some $g_i(t_{hi}) = 0$) or we proceed to the next time
+interval (starting at $t_{hi}$).  If one or more sign changes were
+found, then a loop is entered to locate the root to within a rather
+tight tolerance, given by
+\[ \tau = 100 * U * (|t_n| + |h|)~~~ (U = \mbox{unit roundoff}) ~. \]
+Whenever sign changes are seen in two or more root functions, the one
+deemed most likely to have its root occur first is the one with the
+largest value of $|g_i(t_{hi})|/|g_i(t_{hi}) - g_i(t_{lo})|$,
+corresponding to the closest to $t_{lo}$ of the secant method values.
+At each pass through the loop, a new value $t_{mid}$ is set, strictly
+within the search interval, and the values of $g_i(t_{mid})$ are
+checked.  Then either $t_{lo}$ or $t_{hi}$ is reset to $t_{mid}$
+according to which subinterval is found to have the sign change.  If
+there is none in $(t_{lo},t_{mid})$ but some $g_i(t_{mid}) = 0$, then
+that root is reported.  The loop continues until 
+$|t_{hi}-t_{lo}| < \tau$, and then the reported root location is
+$t_{hi}$.
+
+In the loop to locate the root of $g_i(t)$, the formula for $t_{mid}$
+is
+\[ t_{mid} = t_{hi} - (t_{hi} - t_{lo})
+               g_i(t_{hi}) / [g_i(t_{hi}) - \alpha g_i(t_{lo})] ~, \] 
+where $\alpha$ a weight parameter.  On the first two passes through
+the loop, $\alpha$ is set to $1$, making $t_{mid}$ the secant method
+value.  Thereafter, $\alpha$ is reset according to the side of the
+subinterval (low vs high, i.e. towards $t_{lo}$ vs towards $t_{hi}$)
+in which the sign change was found in the previous two passes.  If the
+two sides were opposite, $\alpha$ is set to 1.  If the two sides were
+the same, $\alpha$ is halved (if on the low side) or doubled (if on
+the high side).  The value of $t_{mid}$ is closer to $t_{lo}$ when
+$\alpha < 1$ and closer to $t_{hi}$ when $\alpha > 1$.  If the above
+value of $t_{mid}$ is within $\tau/2$ of $t_{lo}$ or $t_{hi}$, it is
+adjusted inward, such that its fractional distance from the endpoint
+(relative to the interval size) is between .1 and .5 (.5 being the
+midpoint), and the actual distance from the endpoint is at least
+$\tau/2$.
