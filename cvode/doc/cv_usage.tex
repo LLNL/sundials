@@ -201,6 +201,13 @@ two implementations provided with {\cvode}: steps marked with {\p} correspond to
   See \S\ref{ss:optional_input} for details.
 
 \item
+  {\bf Specify rootfinding problem}
+
+  Optionally, call \id{CVodeRootInit} to initialize a rootfinding problem
+  to be solved during the integration of the ODE system.
+  See \S\ref{ss:root_init} for details.
+
+\item
   {\bf Advance solution in time}
 
   For each point at which output is desired, call
@@ -308,7 +315,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
     pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
   \item[f] (\Id{RhsFn})
     is the {\C} function which computes $f$ in the ODE. This function has the form 
-    \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
+    \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:rhsFn}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -783,7 +790,7 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -815,7 +822,7 @@ flag = CVodeResetIterType(cvode\_mem, iter);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVS\_ILL\_INPUT}]
@@ -836,7 +843,8 @@ flag = CVodeResetIterType(cvode\_mem, iter);
 }
 {
   The function \ID{CVodeSetFdata} specifies the user data block \Id{f\_data}
-  and attaches it to the main {\cvode} memory block.
+  for use by the user right-hand side function $f$ and attaches it to the main 
+  {\cvode} memory block.
 }
 {
   \begin{args}[cvode\_mem]
@@ -850,14 +858,14 @@ flag = CVodeResetIterType(cvode\_mem, iter);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
   If \id{f\_data} is not specified, a \id{NULL} pointer is
-  passed to all user functions that have it as an argument.
+  passed to the $f$ function.
 }
 %%
 %%
@@ -881,7 +889,7 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVS\_ILL\_INPUT}]
@@ -920,7 +928,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVS\_ILL\_INPUT}]
@@ -952,7 +960,7 @@ flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -984,7 +992,7 @@ flag = CVodeSetstabLimDet(cvode\_mem, stldet);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVS\_ILL\_INPUT}]
@@ -1017,7 +1025,7 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1051,7 +1059,7 @@ flag = CVodeSetMinStep(cvode\_mem, hmin);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVS\_ILL\_INPUT}]
@@ -1083,7 +1091,7 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVS\_ILL\_INPUT}]
@@ -1117,7 +1125,7 @@ flag = CVodeSetStopTime(cvode\_mem, tstop);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1147,7 +1155,7 @@ flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1177,7 +1185,7 @@ flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1208,7 +1216,7 @@ flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1238,7 +1246,7 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{CVS\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1299,7 +1307,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1334,7 +1342,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1388,7 +1396,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1423,7 +1431,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1508,7 +1516,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1540,7 +1548,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1573,7 +1581,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1605,7 +1613,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1641,7 +1649,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1675,7 +1683,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1710,7 +1718,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1748,7 +1756,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -1939,7 +1947,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1966,7 +1974,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1996,7 +2004,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2025,7 +2033,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2053,7 +2061,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2085,7 +2093,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2113,7 +2121,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2141,7 +2149,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2169,7 +2177,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2197,7 +2205,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2225,7 +2233,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2253,7 +2261,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2287,7 +2295,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2316,7 +2324,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_SLDET]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVG\_NO\_SLDET}]
@@ -2349,7 +2357,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2377,7 +2385,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2408,7 +2416,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2460,7 +2468,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    the optional output values have been successfuly set.
+    the optional output values have been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     the \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2488,7 +2496,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2516,7 +2524,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2546,7 +2554,7 @@ These optional output functions are described next.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVG\_NO\_MEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{CVG\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
@@ -2590,7 +2598,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2622,7 +2630,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2658,7 +2666,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2689,7 +2697,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2734,7 +2742,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2766,7 +2774,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2803,7 +2811,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2834,7 +2842,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2879,7 +2887,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2908,7 +2916,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2945,7 +2953,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -2991,7 +2999,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -3020,7 +3028,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -3057,7 +3065,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -3087,7 +3095,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -3118,7 +3126,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -3149,7 +3157,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -3180,7 +3188,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -3211,7 +3219,7 @@ to access these are described below.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[LIN\_NO\_LMEM]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{LIN\_NO\_MEM}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{LIN\_NO\_LMEM}]
@@ -3965,7 +3973,7 @@ the {\cvbandpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BP\_NO\_DATA]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{BP\_NO\_DATA}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
@@ -3996,7 +4004,7 @@ the {\cvbandpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BP\_NO\_DATA]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{BP\_NO\_DATA}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
@@ -4031,7 +4039,7 @@ the {\cvbandpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BP\_NO\_DATA]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{BP\_NO\_DATA}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
@@ -4517,7 +4525,7 @@ the {\cvbbdpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BBDP\_NO\_DATA]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{BBDP\_NO\_DATA}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
@@ -4548,7 +4556,7 @@ the {\cvbbdpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BBDP\_NO\_DATA]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{BBDP\_NO\_DATA}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
@@ -4583,7 +4591,7 @@ the {\cvbbdpre} module:
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[BBDP\_NO\_DATA]
   \item[OKAY] 
-    The optional output value has been successfuly set.
+    The optional output value has been successfully set.
   \item[\Id{BBDP\_NO\_DATA}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
@@ -4717,7 +4725,7 @@ a minimum, optional inputs and outputs to the {\cvode} solver and to related
 modules are not accessed through individual routines, but rather through a
 pair of arrays, \Id{IOPT} of integer type and \Id{ROPT} of real type.
 Note that \id{IOPT} must be declared as \id{INTEGER*4} or \id{INTEGER*8}
-acording to the {\C} type \id{long int}, while \id{ROPT} must be declared
+according to the {\C} type \id{long int}, while \id{ROPT} must be declared
 as \id{REAL} or \id{DOUBLE PRECISION} depending on whether {\cvode} was
 built in single or double precision (see \S\ref{s:install}).
 Table \ref{t:fcvode_io} lists the entries in these two arrays and specifies the
@@ -4899,7 +4907,7 @@ apply to {\nvecp}.
   }
   {
     \begin{args}[ITMETH ]
-    \item[T0] is the initial value of t.
+    \item[T0] is the initial value of $t$.
     \item[Y0] is an array of initial conditions.
     \item[METH] specifies the  basic integration method: 
       $1$ for Adams (nonstiff) or $2$ for BDF (stiff).
@@ -4907,10 +4915,11 @@ apply to {\nvecp}.
       $1$ for functional iteration or $2$ for Newton iteration.
     \item[IATOL] specifies the type for absolute tolerance \id{ATOL}:
       $1$ for scalar or $2$ for array.
-    \item[RTOL] is the relative tolerance (scalar)
-    \item[ATOL] is the absolute tolerance (scalar or array)
-    \item[INOPT] is the optional input flag: $0$ if none or $1$ if inputs are used.
-    \item[IOPT] is an array of length 40 for integer optional inputs and outputs
+    \item[RTOL] is the relative tolerance (scalar).
+    \item[ATOL] is the absolute tolerance (scalar or array).
+    \item[INOPT] is the optional input flag: $0$ if none or $1$ if optional 
+      inputs are used.
+    \item[IOPT] is an array of length 40 for integer optional inputs and outputs.
     \item[ROPT] is an array of length 40 for real optional inputs and outputs.
     \end{args}
   }
@@ -5054,8 +5063,9 @@ apply to {\nvecp}.
        
     \index{Jacobian approximation routine!Jacobian times vector!use in {\fcvode}}
     As an option when using the {\spgmr} linear solver, the user may supply a 
-    routine that computes the product of the system Jacobian $J = df/dy$ and 
-    a given vector $v$.  If supplied, it must have the following form:
+    routine that computes the product of the system Jacobian 
+    $J = \partial f / \partial y$ 
+    and a given vector $v$.  If supplied, it must have the following form:
     \index{FCVJTIMES@\texttt{FCVJTIMES}}
 \begin{verbatim}
       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, WORK, IER)
@@ -5277,7 +5287,7 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FCVBPSPGMR@\texttt{FCVBPSPGMR}}
 \begin{verbatim}
-       CALL FCVBPINIT(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+       CALL FCVBPSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FCVSPGMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
@@ -5307,9 +5317,7 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \end{verbatim}
   The arguments returned are as follows.
   \id{LENRPW} is the length of real preconditioner work space, in \id{realtype} words.
-  This size is local to the current processor.
   \id{LENIPW} is the length of integer preconditioner work space, in integer words.
-  This size is local to the current processor.
   \id{NFE} is the number of $f(t,y)$ evaluations (calls to \id{FCVFUN}) for
   finite difference banded Jacobian approximation.
   
@@ -5394,7 +5402,7 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \end{verbatim}
   The arguments are as follows.
   \id{NLOCAL} is the local size of vectors on this processor.
-  \d{MUDQ} and \id{MLDQ} are the upper and lower half-bandwidths to be used in 
+  \id{MUDQ} and \id{MLDQ} are the upper and lower half-bandwidths to be used in 
   the computation of the local Jacobian blocks by difference quotients.
   These may be smaller than the true half-bandwidths of the
   Jacobian of the local block of $g$, when smaller values may
@@ -5412,7 +5420,7 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FCVBBDSPGMR@\texttt{FCVBBDSPGMR}}
 \begin{verbatim}
-       CALL FCVBBDINIT(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+       CALL FCVBBDSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FCVSPGMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
@@ -5464,8 +5472,9 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   This reinitializes the {\cvbbdpre} preconditioner, but without reallocating its memory.  
   The arguments of the \id{FCVBBDREINIT} routine have the same names and meanings as 
   those of \id{FCVBBDINIT}.
-  Finally, if the value of \id{MU}, \id{ML}, or \id{MAXL} is being changed, then a call to 
-  \id{FCVBBDINIT} must be made; in this case the {\spgmr} memory is reallocated.
+  Finally, if the value of \id{MU} or \id{ML}, then a call to \id{FCVBBDINIT} must 
+  be made. If \id{MAXL} is being changed, the a call to \id{FCVBBDSPGMR} must
+  be made; in this case the {\spgmr} memory is reallocated.
   
 \item {\bf Memory deallocation}
 
