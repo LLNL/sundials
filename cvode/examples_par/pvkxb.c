@@ -1,11 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-08-25 16:23:13 $
+ * $Revision: 1.14 $
+ * $Date: 2004-09-01 22:47:37 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------
  * Example problem:
  *
  * An ODE system is generated from the following 2-species diurnal
@@ -24,7 +24,7 @@
  * The PDE system is treated by central differences on a uniform
  * mesh, with simple polynomial initial profiles.
  *
- * The problem is solved by CVODE/CVODES on NPE processors, treated
+ * The problem is solved by CVODE on NPE processors, treated
  * as a rectangular process grid of size NPEX by NPEY, with
  * NPE = NPEX*NPEY. Each processor contains a subgrid of size MXSUB
  * by MYSUB of the (x,y) mesh. Thus the actual mesh sizes are
@@ -40,29 +40,28 @@
  * A copy of the approximate Jacobian is saved and conditionally
  * reused within the preconditioner routine.
  *
- * The problem is solved twice -- with left and right
- * preconditioning.
+ * The problem is solved twice -- with left and right preconditioning.
  *
  * Performance data and sampled solution values are printed at
  * selected output times, and all performance counters are printed
  * on completion.
  *
  * This version uses MPI for user routines.
- * Execute with number of processors = NPEX*NPEY (see constants
- * below).
- * -----------------------------------------------------------------
+ * Execute with number of processors = NPEX*NPEY (see constants below).
+ * --------------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "cvode.h"
-#include "cvspgmr.h"
-#include "cvbbdpre.h"
-#include "nvector_parallel.h"
-#include "sundialsmath.h"
-#include "mpi.h"
+#include "sundialstypes.h"     /* definition of type realtype                 */
+#include "sundialsmath.h"      /* definition of macro SQR                     */
+#include "cvode.h"             /* prototypes for CVode***, various constants  */
+#include "cvspgmr.h"           /* prototypes and constants for CVSPGMR solver */
+#include "cvbbdpre.h"          /* prototypes for CVBBDPRE module              */
+#include "nvector_parallel.h"  /* definition of type N_Vector, macro NV_DATA_P*/
+#include "mpi.h"               /* for MPI constants and types                 */
+
 
 /* Problem Constants */
 
@@ -119,7 +118,8 @@ typedef struct {
 
 /* Prototypes of private helper functions */
 
-static void InitUserData(int my_pe, long int local_N, MPI_Comm comm, UserData data);
+static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
+                         UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
@@ -183,7 +183,8 @@ int main(int argc, char *argv[])
 
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
-      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n", npes, NPEX*NPEY);
+      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
+              npes, NPEX*NPEY);
     MPI_Finalize();
     return(1);
   }
@@ -240,9 +241,9 @@ int main(int argc, char *argv[])
                          mukeep, mlkeep, 0.0, flocal, ucomm);
   if(check_flag((void *)pdata, "CVBBDPrecAlloc", 0, my_pe)) MPI_Abort(comm, 1);
 
-  /* Call CVBBDSpgmr to specify the linear solver CVSPGMR 
-     with left preconditioning, the maximum Krylov dimension maxl,
-     and using the CVBBDPRE preconditioner */
+  /* Call CVBBDSpgmr to specify the linear solver CVSPGMR using the
+     CVBBDPRE preconditioner, with left preconditioning and the
+     default maximum Krylov dimension maxl  */
   flag = CVBBDSpgmr(cvode_mem, PREC_LEFT, 0, pdata);
   if(check_flag(&flag, "CVBBDSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
@@ -324,7 +325,8 @@ int main(int argc, char *argv[])
 
 /* Load constants in data */
 
-static void InitUserData(int my_pe, long int local_N, MPI_Comm comm, UserData data)
+static void InitUserData(int my_pe, long int local_N, MPI_Comm comm,
+                         UserData data)
 {
   int isubx, isuby;
 
@@ -858,19 +860,22 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+            id, funcname);
     return(1); }
 
   /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+              id, funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+            id, funcname);
     return(1); }
 
   return(0);
