@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.10 $
-C     $Date: 2004-05-14 21:56:12 $
+C     $Revision: 1.11 $
+C     $Date: 2004-05-17 18:52:47 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -75,7 +75,7 @@ C
       CALL FCVROOTINIT(2, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,45) IER
- 45      FORMAT(///' SUNDIALS_ERROR: FCVROOT returned IER =',I5)
+ 45      FORMAT(///' SUNDIALS_ERROR: FCVROOTINIT returned IER =',I5)
          CALL FNVFREES
          CALL FCVFREE
          STOP
