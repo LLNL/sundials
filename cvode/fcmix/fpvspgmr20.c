@@ -1,6 +1,6 @@
 /* File fpvspgmr20.c:  Fortran/C interface routine for PVODE/CVSPGMR, for
    the case of preconditioner setup and solve routines but no Jtimes.
-   Version of 11 January 2002 */
+   Version of 1 March 2002 */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +26,28 @@ void FCV_SPGMR20 (int *pretype, int *gstype, int *maxl, real *delt, int *ier)
      NULL        is a pointer to the Jtimes routine
      NULL        is the pointer to jac_data                             */
 
-
   *ier = CVSpgmr (CV_cvodemem, *pretype, *gstype, *maxl, *delt,
                   CVPreco, CVPSol, NULL, NULL, NULL);
+}
+
+
+/***************************************************************************/
+
+void FCV_REINSPGMR20 (int *pretype, int *gstype, int *maxl, real *delt,
+                      int *ier)
+{
+  /* Call CVReInitSpgmr to specify the SPGMR linear solver:
+     CV_cvodemem is the pointer to the CVODE memory block
+     *pretype    is the preconditioner type
+     *gstype     is the Gram-Schmidt process type
+     *maxl       is the maximum Krylov dimension
+     *delt       is the linear convergence tolerance factor
+     CVPreco     is a pointer to the preconditioner setup routine
+     CVPSol      is a pointer to the preconditioner solve routine
+     NULL        is the pointer to P_data
+     NULL        is a pointer to the Jtimes routine
+     NULL        is the pointer to jac_data                             */
+
+  *ier = CVReInitSpgmr (CV_cvodemem, *pretype, *gstype, *maxl, *delt,
+                        CVPreco, CVPSol, NULL, NULL, NULL);
 }
