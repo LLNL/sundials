@@ -41,9 +41,9 @@ Newton matrix as a left preconditioner. A copy of the block-diagonal
 part of the Jacobian is saved and conditionally reused within the
 preconditioner setup function.
 
-The problem is solved by {\cvodes} on $P$ processors, treated as a 
+The problem is solved by {\cvodes} using $P$ processes, treated as a 
 rectangular process grid of size $p_x \times p_z$.
-Each processor contains a subgrid of size $n = n_x \times n_z$ of the 
+Each process is assigned a subgrid of size $n = n_x \times n_z$ of the 
 $(x,z)$ mesh.  Thus the actual mesh size is 
 $N_x \times N_z = (p_x n_x) \times (p_z n_z)$,
 and the ODE system size is $N = 2 N_x N_z$.
@@ -75,13 +75,13 @@ shown in Fig.~\ref{f:pvfktTest} and listed below.
 
 %%
 We note that there was not enough memory to solve the problem (even without
-carrying sensitivities) on fewer processors.
+carrying sensitivities) using fewer processes.
 
 The departure from the ideal line of slope $-1$ is explained by the 
 interplay of several conflicting processes. On one hand, when increasing the 
-number of processors, the preconditioner quality decreases, as it incorporates 
-a smaller and smaller fraction of the Jacobian and the cost of inter-process 
-communication increases. On the other hand, decreasing the number of processors
+number of processes, the preconditioner quality decreases, as it incorporates 
+a smaller and smaller fraction of the Jacobian and the cost of interprocess 
+communication increases. On the other hand, decreasing the number of processes
 leads to an increase in the cost of the preconditioner setup phase and to a larger
 local problem size which can lead to a point where a node starts memory paging to disk.
 %%

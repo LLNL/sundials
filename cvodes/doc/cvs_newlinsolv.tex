@@ -10,7 +10,7 @@ Briefly, their purposes are as follows:
 \begin{itemize}
 \item \id{linit}: initialize and allocate memory specific to the
   linear solver;
-\item \id{lsetup}: evaluate and preprocess the Jacobian or preconditioner;
+\item \id{lsetup}: preprocess and evaluate the Jacobian or preconditioner;
 \item \id{lsolve}: solve the linear system;
 \item \id{lfree}: free the linear solver memory.
 \end{itemize}
@@ -19,15 +19,16 @@ Briefly, their purposes are as follows:
 A linear solver module must also provide a user-callable specification routine
 (like those described in \S\ref{sss:lin_solv_init}) which will attach the above four 
 routines to the main {\cvodes} memory block. The return value of the specification 
-routine should be: \id{SUCCESS} = 0 if the routine was successful,
-\id{LMEM\_FAIL} = -1 if a memory allocation failed, or \id{LIN\_ILL\_INPUT} = -2
-if some input was illegal.
+routine should be: \id{CV*\_SUCCESS} = 0 if the routine was successful,
+\id{CV*\_MEM\_FAIL} = -4 if a memory allocation failed, \id{CV*\_ILL\_INPUT} = -3
+if some input was illegal or the {\nvector} implementation is not compatible, or
+\id{CV*\_MEM\_NULL} = -1 if the pointer to the main {\cvodes} memory block is \id{NULL}.
 
 These four routines that interface between {\cvodes} and the linear solver module
-necessarily have fixed call sequences.  Thus a user wishing to implement another 
+necessarily have fixed call sequences.  Thus, a user wishing to implement another 
 linear solver within the {\cvodes} package must adhere to this set of interfaces.
-The following is a complete description of the call list for each of
-these routines.  Note that the call list of each routine includes a
+The following is a complete description of the argument list for each of
+these routines.  Note that the argument list of each routine includes a
 pointer to the main {\cvodes} memory block, by which the routine can access
 various data related to the {\cvodes} solution.  The contents of this memory
 block are given in the file \id{cvodes.h} (but not reproduced here, for
@@ -42,8 +43,8 @@ The type definition of \ID{linit} is
   int (*linit)(CVodeMem cv\_mem);
 }
 {
-  The purpose of \id{linit} is to complete initializations for      
-  specific linear solver, such as counters and statistics.        
+  The purpose of \id{linit} is to complete linear solver-specific initializations,
+  such as counters and statistics.        
 }
 {
   \begin{args}[cv\_mem]
@@ -73,8 +74,8 @@ The type definition of \id{lsetup} is
 }
 {
   The job of \id{lsetup} is to prepare the linear solver for subsequent 
-  calls to \id{lsolve}. It may re-compute Jacobian-related data is it 
-  deems necessary. 
+  calls to \id{lsolve}. It may recompute Jacobian-related data if it is 
+  deemed necessary. 
 }
 {
    \begin{args}[convfail]
@@ -113,9 +114,9 @@ The type definition of \id{lsetup} is
    \item[jcurPtr]
      is a pointer to a boolean to be filled in by \id{lsetup}.  
      The function should set \id{*jcurPtr = TRUE} if its Jacobian 
-     data is current after the call and should set         
+     data is current after the call, and should set         
      \id{*jcurPtr = FALSE} if its Jacobian data is not current.   
-     If \id{lsetup} calls for re-evaluation of         
+     If \id{lsetup} calls for reevaluation of         
      Jacobian data (based on \id{convfail} and {\cvodes} state      
      data), it should return \id{*jcurPtr = TRUE} unconditionally;
      otherwise an infinite loop can result.                
