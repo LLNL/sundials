@@ -1,0 +1,72 @@
+\documentclass[10pt]{report}
+
+\input{ug.tex}
+
+%===============================================================
+
+\newcommand{\kinucrl}{123456}
+\newcommand{\kindate}{November 2003}
+\newcommand{\kinrelease}{v2.1}
+
+\title{User Documentation for \kinsol, \\ 
+An Inexact Newton-Krylov Nonlinear Solver  \\
+\kinrelease}
+\author{
+  author1 and author2\\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
+\date{}
+
+%===============================================================
+
+\makeindex
+
+%===============================================================
+
+\begin{document}
+
+%Create the LLNL Cover Page
+\makeLLNLCover{\kinucrl}%                           UCRL number
+{User Documentation for {\kinsol} {\kinrelease}}%   Title on cover page
+{author1 and author2}%                              Authors
+{\kindate}%                                         Date
+{0in}{0in}
+
+\frontmatter
+
+%===============================================================
+% Introduction
+\include{kin_intro}
+%===============================================================
+% Mathematical Considerations
+\include{kin_math}
+%===============================================================
+% KINSOL Code Organization
+\include{kin_org}
+%===============================================================
+% Using KINSOL for NLP Solution
+\include{kin_use}
+%===============================================================
+% Types realtype and integertype
+\include{kin_types}
+%===============================================================
+% Description of the NVECTOR Concept
+\include{kin_nvec}
+%===============================================================
+% Providing a new linear solver module
+\include{kin_newlinsolv}
+%===============================================================
+% Generic linear solvers
+\include{kin_linsolv}
+%===============================================================
+% References
+\bibliographystyle{plain}
+\bibliography{biblio}
+%===============================================================
+% Index
+\printindex
+%===============================================================
+\makeLLNLBackCover
+%===============================================================
+\end{document}

@@ -1,0 +1,42 @@
+\documentclass[11pt]{report}
+
+\input{ug.tex}
+
+\newcommand{\kinucrl}{123456}
+\newcommand{\kindate}{November 2003}
+\newcommand{\kinrelease}{v2.1}
+
+\title{Example Programs for \cvodes, \\ 
+An Inexact Newton-Krylov Nonlinear Solver  \\
+\kinrelease}
+\author{
+  author1 and author2\\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
+\date{}
+
+\makeindex
+
+\begin{document}
+
+%Create the LLNL Cover Page
+\makeLLNLCover{\kinucrl}%                         UCRL number
+{Example Programs for {\kinsol} {\kinrelease}}%   Title on cover page
+{author1 and author2}%                            Authors
+{\kindate}%                                       Date
+{0in}{0in}
+
+\frontmatter
+
+%===============================================================
+% Example Problems
+\include{kin_ex}
+%===============================================================
+% Start appendices
+\appendix
+\include{cvs_codes}
+%===============================================================
+\makeLLNLBackCover
+%===============================================================
+\end{document}
