@@ -1,12 +1,12 @@
-%\documentclass[11pt]{article}
 \documentclass[11pt]{article}
-
+\usepackage{tabularx}
 \usepackage{xr}
 \externaldocument{cvs_math}
 \externaldocument{cvs_sim}
 \externaldocument{cvs_fwd}
 \externaldocument{cvs_adj}
 \externaldocument{cvs_nvec}
+\externaldocument{cv_linsolv}
 
 \input{ug.tex}
 
@@ -27,10 +27,10 @@
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\cvsucrl}%                              UCRL number
+\makeLLNLCover{\cvsucrl}%                         UCRL number
 {Example Programs for {\cvodes} {\cvsrelease}}%   Title on cover page
-{Alan C. Hindmarsh and Radu Serban}%                   Authors
-{\cvsdate}%                                            Date
+{Alan C. Hindmarsh and Radu Serban}%              Authors
+{\cvsdate}%                                       Date
 {0in}{0in}
 
 \frontex
@@ -39,7 +39,7 @@
 \include{cvs_ex_intro}
 \include{cvs_fwd_ex}
 \include{cvs_adj_ex}
-\include{cv_ex_tests}
+\include{cvs_ex_tests}
 %===============================================================
 % References
 \bibliographystyle{plain}

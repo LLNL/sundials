@@ -29,18 +29,21 @@ ug:
 	makeindex -s cvs_indx.ist cvs_guide
 	latex cvs_guide
 	latex cvs_guide
-	dvips -Ppdf -o cvs_guide.ps cvs_guide
-	ps2pdf cvs_guide.ps cvs_guide.pdf
+#	dvips -Ppdf -o cvs_guide.ps cvs_guide
+#	ps2pdf cvs_guide.ps cvs_guide.pdf
 ex:
 	cp $(SHARED_DOC)/llnlCoverPage.tex .
 	cp $(SHARED_DOC)/Logo_for_papers.ps .
 	cp $(SHARED_DOC)/Rule_and_address.ps .
 	cp $(SHARED_DOC)/chngpage.sty .
 	cp $(SHARED_DOC)/ug.tex .
+	cp $(SHARED_DOC)/biblio.bib .
+	latex cvs_examples
+	bibtex cvs_examples
 	latex cvs_examples
 	latex cvs_examples
-	dvips -Ppdf -o cvs_examples.ps cvs_examples
-	ps2pdf cvs_examples.ps cvs_examples.pdf
+#	dvips -Ppdf -o cvs_examples.ps cvs_examples
+#	ps2pdf cvs_examples.ps cvs_examples.pdf
 clean:
 	rm -f bandmat.eps
 	rm -f band.tex
