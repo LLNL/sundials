@@ -31,10 +31,14 @@ all:
 	@(if test -f cvax_par.mk; then make -f cvax_par.mk; fi)
 	@(echo)
 
-chemadj adadj foodadj foodadj1:
+cvadx cvabx cvakx cvakxb:
 	@(if test -f cvax_ser.mk; then make -f cvax_ser.mk $@; fi)
+
+pvanx:
+	@(if test -f cvax_par.mk; then make -f cvax_par.mk $@; fi)
 
 purge:
 	@(if test -f cvax_ser.mk; then make -f cvax_ser.mk purge; fi)
+	@(if test -f cvax_par.mk; then make -f cvax_par.mk purge; fi)
 
 #---End of Makefile---

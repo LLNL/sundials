@@ -52,37 +52,37 @@ CFLAGS = -Wall -ffloat-store -I$(INC_DIR) -L$(LIB_DIR)
 
 all:
 	@(echo 'List of serial adjoint CVODES examples (using the serial NVECTOR module):')
-	@(echo 'chemadj  - Chemical kinetics; adjoint sensitivity')
-	@(echo 'adadj    - Advection-diffusion; adjoint sensitivity')
-	@(echo 'foodadj  - Food web; adjoint sensitivity for G') 
-	@(echo 'foodadj1 - Food web; adjoint sensitivity for g') 
+	@(echo 'cvadx  - Chemical kinetics; adjoint sensitivity')
+	@(echo 'cvabx  - Advection-diffusion; adjoint sensitivity')
+	@(echo 'cvakx  - Food web; adjoint sensitivity for G') 
+	@(echo 'cvakxb - Food web; adjoint sensitivity for g') 
 
-chemadj: chemadj.c
-	@echo '...Compile chemadj...'
-	@$(CC) $(CFLAGS) -o chemadj chemadj.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
-	@rm -f chemadj.o
+cvadx: cvadx.c
+	@echo '...Compile cvadx...'
+	@$(CC) $(CFLAGS) -o cvadx cvadx.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
+	@rm -f cvadx.o
 
-adadj: adadj.c
-	@echo '...Compile adadj...'
-	@$(CC) $(CFLAGS) -o adadj adadj.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
-	@rm -f adadj.o
+cvabx: cvabx.c
+	@echo '...Compile cvabx...'
+	@$(CC) $(CFLAGS) -o cvabx cvabx.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
+	@rm -f cvabx.o
 
-foodadj: foodadj.c
-	@echo '...Compile foodadj...'
-	@$(CC) $(CFLAGS) -o foodadj foodadj.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
-	@rm -f foodadj.o
+cvakx: cvakx.c
+	@echo '...Compile cvakx...'
+	@$(CC) $(CFLAGS) -o cvakx cvakx.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
+	@rm -f cvakx.o
 
-foodadj1: foodadj1.c
-	@echo '...Compile foodadj1...'
-	@$(CC) $(CFLAGS) -o foodadj1 foodadj1.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
-	@rm -f foodadj1.o
+cvakxb: cvakxb.c
+	@echo '...Compile cvakxb...'
+	@$(CC) $(CFLAGS) -o cvakxb cvakxb.c -lcvodes.$(ARCH) -lshared.$(ARCH) -lnvecserial.$(ARCH) -lm
+	@rm -f cvakxb.o
 
-examples: chemadj adadj foodadj foodadj1
+examples: cvadx cvabx cvakx cvakxb
 
 purge:
-	@(rm -f chemadj)
-	@(rm -f adadj)
-	@(rm -f foodadj)
-	@(rm -f foodadj1)
+	@(rm -f cvadx)
+	@(rm -f cvabx)
+	@(rm -f cvakx)
+	@(rm -f cvakxb)
 
 #---End of cvax_ser.mk---
