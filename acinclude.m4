@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-11-15 17:07:44 $
+# $Revision: 1.10 $
+# $Date: 2004-12-10 01:52:33 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -517,6 +517,8 @@ LIBS=""
 # The abs routine is defined for an integer argument, so check for it regardless of
 # the level of precision chosen
 AC_CHECK_LIB([m],abs,[],[AC_MSG_ERROR([cannot find abs function])])
+TEMP_MATH_LIB="${LIBS}"
+LIBS=""
 # Check for single-precision math routines
 if test "X${FLOAT_TYPE}" = "Xsingle"; then
   AC_CHECK_LIB([m],fabsf,[],[MATH_FABS_OK="no"])
@@ -552,26 +554,21 @@ else
 fi
 
 # Add math library to LIBS environment variable
-if test "X${LIBS_TEMP}" = "X"; then
-  LIBS="-lm"
-else
-  LIBS="-lm ${LIBS_TEMP}"
-fi
-
+LIBS="${TEMP_MATH_LIB}"
 AC_MSG_CHECKING([for additional required C libraries])
 if test "X${LIBS}" = "X"; then
-  if test "X${TEMP_LIBS}" = "X"; then
+  if test "X${SAVED_LIBS}" = "X"; then
     LIBS=""
   else
-    LIBS="${TEMP_LIBS}"
+    LIBS="${SAVED_LIBS}"
   fi
   AC_MSG_RESULT([none])
 else
   AC_MSG_RESULT([${LIBS}])
-  if test "X${TEMP_LIBS}" = "X"; then
+  if test "X${SAVED_LIBS}" = "X"; then
     LIBS="${LIBS}"
   else
-    LIBS="${LIBS} ${TEMP_LIBS}"
+    LIBS="${LIBS} ${SAVED_LIBS}"
   fi
 fi
 
@@ -676,7 +673,7 @@ else
   AH_TEMPLATE([SUNDIALS_UNDERSCORE_TWO],
               [FCMIX: Append TWO underscores to function names])
 
-  # Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
+  # Provided in case AC_F77_WRAPPERS cannot determine name-mangling scheme
   AC_ARG_WITH(f77underscore, 
   [AC_HELP_STRING([--with-f77underscore=ARG],[specify number of underscores to append to function names (none/one/two) [AUTO]],[])],
   [
@@ -702,7 +699,7 @@ else
   AH_TEMPLATE([SUNDIALS_CASE_LOWER],
               [FCMIX: Make function names lowercase])
 
-  # Provided in case AC_F77_WRAPPERS cannot determine name mangling scheme
+  # Provided in case AC_F77_WRAPPERS cannot determine name-mangling scheme
   AC_ARG_WITH(f77case, 
   [AC_HELP_STRING([--with-f77case=ARG   ],[specify case of function names (lower/upper) [AUTO]],[])],
   [
@@ -750,13 +747,6 @@ else
     else
       F77="${F77_COMP}"
     fi
-  fi
-
-  # Determine how to properly mangle function names so Fortran subroutines can
-  # call C functions included in SUNDIALS libraries
-  # Defines C preprocessor macros F77_FUNC and F77_FUNC_
-  if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
-    AC_F77_WRAPPERS
   fi
 
   AC_MSG_CHECKING([for extra Fortran compiler flags])
@@ -809,6 +799,15 @@ else
     fi
   fi
 
+fi
+
+# Determine how to properly mangle function names so Fortran subroutines can
+# call C functions included in SUNDIALS libraries
+# Defines C preprocessor macros F77_FUNC and F77_FUNC_
+if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
+  if test "X${F77_OK}" = "Xyes"; then
+    AC_F77_WRAPPERS
+  fi
 fi
 
 AC_LANG_POP([Fortran 77])
@@ -865,10 +864,6 @@ case $host in
 esac
 
 ]) dnl END SUNDIALS_DEFAULT_FFLAGS
-
-#------------------------------------------------------------------
-# CHECK C++ COMPILER
-#------------------------------------------------------------------
 
 AC_DEFUN([SUNDIALS_SET_CXX],
 [
@@ -2187,7 +2182,8 @@ fi
 
 if test "X${F77_ENABLED}" = "Xyes" && test "X${F77_OK}" = "Xyes"; then
 echo "
-  F77 Compiler:            ${F77} ${FFLAGS}"
+  F77 Compiler:            ${F77} ${FFLAGS}
+  F77 Linker:              ${F77} ${LDFLAGS} ${LIBS} ${FLIBS}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes"; then
