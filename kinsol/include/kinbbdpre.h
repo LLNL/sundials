@@ -1,11 +1,13 @@
 /******************************************************************
  * File          : kinbbdpre.h                                    *
- * Programmers   : Allan Grant Taylor and Alan C Hindmarsh @ LLNL *
- * Version of    : 17 January 2001                                *
+ * Programmers   : Allan Grant Taylor, Alan C Hindmarsh, and      *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 7 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the KINBBDPRE module, for a        *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
- * matrix with banded blocks, for use with KINSol and KINSpgmr.   *
+ * matrix with banded blocks, for use with KINSol, KINSpgmr, and  *
+ * the parallel implementaion of the NVECTOR module.              *
  *                                                                *
  * Summary:                                                       *
  *                                                                *
@@ -21,11 +23,12 @@
  *                                                                *
  * The user's calling program should have the following form:     *
  *                                                                *
+ *   #include "nvector_parallel.h"                                *
  *   #include "kinbbdpre.h"                                       *
  *   ...                                                          *
  *   KBBDData p_data;                                             *
  *   ...                                                          *
- *   machEnv = PVecInitMPI(...);                                  *
+ *   machEnv = M_EnvInit_Parallel(...);                           *
  *   ...                                                          *
  *   kin_mem = KINMalloc(...);                                    *
  *   ...                                                          *
@@ -39,6 +42,8 @@
  *   KBBDFree(p_data);                                            *
  *   ...                                                          *
  *   KINFree(...);                                                *
+ *   ...                                                          *
+ *   M_EnvFree_Parallel(machEnv);                                 *
  *                                                                *
  *                                                                *
  * The user-supplied routines required are:                       *
@@ -163,6 +168,9 @@ typedef struct {
   BandMat PP;
   integer *pivots;
 
+  /* set by KBBDAlloc and used by KBBDPrecon */
+  integer n_local;
+
   /* available for optional output: */
   integer rpwsize;
   integer ipwsize;
@@ -221,15 +229,13 @@ typedef struct {
  *                                                                *
  * f_data  is a pointer to the optional user data block.          *
  *                                                                *
- * machEnv is the environment structure required for parallel use *
- *                                                                *
  * KBBDAlloc returns the storage allocated (type KBBDData),       *
  * or NULL if the request for storage cannot be satisfied.        *
  ******************************************************************/
 
 KBBDData KBBDAlloc(integer Nlocal, integer mu, integer ml,
 		 real dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm, 
-		 void *kinmem, void *f_data, machEnvType machEnv);
+		 void *f_data, void *kinmem);
 
 
 /******************************************************************

@@ -1,17 +1,22 @@
 /******************************************************************
  *                                                                *
  * File          : kinbbdpre.c                                    *
- * Programmers   : Allan G Taylor and Alan C Hindmarsh @ LLNL     *
- * Version of    : 18 January 2001                                *
+ * Programmers   : Allan G Taylor, Alan C Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 7 March 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of routines for a           *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
- * matrix with banded blocks, for use with KINSol and KINSpgmr.   *
+ * matrix with banded blocks, for use with KINSol,  KINSpgmr, and *
+ * the parallel implementation of NVECTOR.                        *
  * NOTE: with only one processor in use, a banded matrix results  *
  * rather than a b-b matrix with banded blocks. Diagonal blocking *
  * occurs at the processor level.                                 *
  ******************************************************************/
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "kinbbdpre.h"
 #include "kinsol.h"
 #include "llnltyps.h"
@@ -23,6 +28,11 @@
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 
+/* Error Messages */
+#define KBBDALLOC      "KBBDAlloc-- "
+#define MSG_KINMEM_NULL KBBDALLOC "KINSOL Memory is NULL.\n\n"
+#define MSG_WRONG_NVEC  KBBDALLOC "Incompatible NVECTOR implementation.\n\n"
+
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
@@ -30,19 +40,36 @@ static void KBBDDQJac(integer Nlocal, BandMat J, void *P_data,
                       N_Vector uu, N_Vector uscale, N_Vector gu,
                       N_Vector gtemp, N_Vector utemp);
 
+/* Redability replacements */
+#define machenv  (kin_mem->kin_machenv)
+#define errfp    (kin_mem->kin_msgfp)
 
 /***************** User-Callable Functions: malloc and free ******************/
 
 KBBDData KBBDAlloc(integer Nlocal, integer mu, integer ml,
-		   real dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm, 
-		   void *kinmem, void *f_data, machEnvType machEnv)
+                   real dq_rel_uu, KINLocalFn gloc, KINCommFn gcomm, 
+                   void *f_data, void *kinmem)
 {
   KBBDData pdata;
   KINMem kin_mem;
   N_Vector vtemp3;
   real rel_uu;
 
-  kin_mem = (KINMem)kinmem;
+  kin_mem = (KINMem) kinmem;
+  if (kin_mem == NULL) {
+    fprintf(errfp, MSG_KINMEM_NULL);
+    return(NULL);
+  }
+
+  /* Test if the NVECTOR package is compatible with the BAND preconditioner */
+  if ((strcmp(machenv->tag,"parallel")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
+    return(NULL);
+  }
 
   pdata = (KBBDData) malloc(sizeof *pdata);  /* Allocate data memory */
   if (pdata == NULL)
@@ -72,8 +99,8 @@ KBBDData KBBDAlloc(integer Nlocal, integer mu, integer ml,
 
   /* allocate vtemp3 for use by KBBDDQJac  */
 
-  vtemp3 = N_VNew(Nlocal, machEnv); /* Note: Nlocal here is a dummy in that 
-                            machEnv parameters are used to determine size */
+  vtemp3 = N_VNew(Nlocal, machenv); /* Note: Nlocal here is a dummy in that 
+                                       machenv parameters are used to determine size */
   if (vtemp3 == NULL) {
       free(pdata);
       return(NULL);
@@ -84,10 +111,13 @@ KBBDData KBBDAlloc(integer Nlocal, integer mu, integer ml,
 
   if (dq_rel_uu > ZERO) rel_uu=dq_rel_uu;
   else  rel_uu=RSqrt(kin_mem->kin_uround); /* a dq_rel_uu value of 0.0 received
-				 	      by this routine implies using
-					      the default instead */
+                                              by this routine implies using
+                                              the default instead */
 
   pdata->rel_uu = rel_uu;
+
+  /* Store Nlocal to be used in KBBDPrecon */
+  pdata->n_local = Nlocal;
 
   /* Set work space sizes and initialize nge */
   pdata->rpwsize = Nlocal*(2*mu + ml + 1);
@@ -170,10 +200,10 @@ void KBBDFree(KBBDData pdata)
  ******************************************************************/
 
 int KBBDPrecon(integer Neq, N_Vector uu, N_Vector uscale,
-	        N_Vector fval, N_Vector fscale,
-                N_Vector vtemp1, N_Vector vtemp2,
-	        SysFn func, real uround,
-                long int *nfePtr, void *P_data)
+               N_Vector fval, N_Vector fscale,
+               N_Vector vtemp1, N_Vector vtemp2,
+               SysFn func, real uround,
+               long int *nfePtr, void *P_data)
 
 {
   integer Nlocal, ier;
@@ -183,16 +213,16 @@ int KBBDPrecon(integer Neq, N_Vector uu, N_Vector uscale,
   pdata = (KBBDData)P_data;
   vtemp3 = pdata->vtemp3;
 
-  Nlocal = N_VLOCLENGTH(uu);
+  Nlocal = pdata->n_local;
 
   /* Otherwise call KBBDDQJac for a new Jacobian calc and store in PP */
   BandZero(PP);
   KBBDDQJac(Nlocal, PP, P_data, uu, uscale, vtemp1, vtemp2, vtemp3);
   nge += 1 + MIN(ml + mu + 1, Nlocal);
- 
+  
   /* Do LU factorization of P in place  (in PP) */
   ier = BandFactor(PP, pivots);
- 
+  
   /* Return 0 if the LU was complete; otherwise return 1 */
   if (ier > 0) return(1);
   return(0);
@@ -252,12 +282,15 @@ int KBBDPSol(integer Nlocal, N_Vector uu, N_Vector uscale,
 	      long int *nfePtr, void *P_data)
 {
   KBBDData pdata;
+  real *vd;
 
   pdata = (KBBDData)P_data;
 
   /* Do the backsolve and return */
-  BandBacksolve(PP, pivots, vtem);
- 
+  vd = N_VGetData(vtem);
+  BandBacksolve(PP, pivots, vd);
+  N_VSetData(vd, vtem);
+
   return(0);
 }
 
@@ -276,35 +309,35 @@ int KBBDPSol(integer Nlocal, N_Vector uu, N_Vector uscale,
 **********************************************************************/
 
 static void KBBDDQJac(integer Nlocal, BandMat J, void *P_data,
-		       N_Vector uu, N_Vector uscale, N_Vector gu,
-		       N_Vector gtemp, N_Vector utemp)
+                      N_Vector uu, N_Vector uscale, N_Vector gu,
+                      N_Vector gtemp, N_Vector utemp)
 {
   real inc, inc_inv;
   integer group, i, j, width, ngroups, i1, i2;
   real *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
   KBBDData pdata;
-
+  
   pdata= (KBBDData)P_data;
-
+  
   /* Set pointers to the data for all vectors */
-  udata     = N_VDATA(uu);
-  uscdata   = N_VDATA(uscale);
-  gudata    = N_VDATA(gu);
-  gtempdata = N_VDATA(gtemp);
-  utempdata = N_VDATA(utemp);
+  udata     = N_VGetData(uu);
+  uscdata   = N_VGetData(uscale);
+  gudata    = N_VGetData(gu);
+  gtempdata = N_VGetData(gtemp);
+  utempdata = N_VGetData(utemp);
 
   /* Load utemp with uu = predicted solution vector */
   N_VScale(ONE, uu, utemp);
-
+  
   /* Call gcomm and gloc to get base value of g(uu) */
   gcomm (Nlocal, udata, f_data);
   gloc (Nlocal, uu, gu, f_data);
-
-
+  
+  
   /* Set bandwidth and number of column groups for band differencing */
   width = ml + mu + 1;
   ngroups = MIN(width, Nlocal);
-
+  
   /* Loop over groups */  
   for (group=1; group <= ngroups; group++) {
     
@@ -313,10 +346,10 @@ static void KBBDDQJac(integer Nlocal, BandMat J, void *P_data,
       inc = rel_uu * MAX(ABS(udata[j]), ONE/uscdata[j]);
       utempdata[j] += inc;
     }
-
+    
     /* Evaluate g with incremented u */
     gloc (Nlocal, utemp, gtemp, f_data);
-
+    
     /* Restore utemp, then form and load difference quotients */
     for (j=group-1; j < Nlocal; j+=width) {
       utempdata[j] = udata[j];
@@ -326,8 +359,8 @@ static void KBBDDQJac(integer Nlocal, BandMat J, void *P_data,
       i1 = MAX(0, j-mu);
       i2 = MIN(j+ml, Nlocal-1);
       for (i=i1; i <= i2; i++)
-	BAND_COL_ELEM(col_j,i,j) =
-	  inc_inv * (gtempdata[i] - gudata[i]);
+        BAND_COL_ELEM(col_j,i,j) =
+          inc_inv * (gtempdata[i] - gudata[i]);
     }
   }
 }
