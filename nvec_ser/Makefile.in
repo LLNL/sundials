@@ -1,0 +1,65 @@
+#--------------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+#--------------------------------------------------------------------------------------
+# Makefile for the serial NVECTOR module.
+# @configure_input@
+#--------------------------------------------------------------------------------------
+
+# Shell
+SHELL = @SHELL@
+
+# SUNDIALS instalation directory
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+
+# SHARED include directory
+SHARED_INC_DIR = ../shared/include
+
+# NVECSERIAL libraries
+NVECSER_LIB = libnvecserial.a
+FNVECSER_LIB = libfnvecserial.a
+
+# Source and object files
+SRC = nvector_serial.c fnvector_serial.c
+OBJ = ${SRC:.c=.o}
+
+# Includes
+SHAREDINCLUDE = -I${SHARED_INC_DIR}
+INCS =  -I. ${SHAREDINCLUDE}
+
+# Compiler and compiler options
+CC     = @CC@
+CFLAGS = @CFLAGS@
+
+#--------------------------------------------------------------------------------
+# Make rules
+#--------------------------------------------------------------------------------
+
+all: $(OBJ)
+
+install:
+	ar rc ${NVECSER_LIB} nvector_serial.o
+	ar rc ${FNVECSER_LIB} fnvector_serial.o
+	cp ${NVECSER_LIB}    ${libdir}
+	cp ${FNVECSER_LIB}   ${libdir}
+	cp nvector_serial.h  ${includedir}
+	cp fnvector_serial.h ${includedir}
+
+clean:
+	rm -f ${OBJ}
+	rm -f ${NVECSER_LIB}
+	rm -f ${FNVECSER_LIB}
+
+uninstall:
+	rm -f ${libdir}/${NVECSER_LIB}
+	rm -f ${libdir}/${FNVECSER_LIB}
+	rm -f ${includedir}/nvector_serial.h
+	rm -f ${includedir}/fnvector_serial.h
+
+.c.o:
+	${CC} -c ${CFLAGS} ${INCS} $*.c
+
+#---End of Makefile---
