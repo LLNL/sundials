@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-08-24 20:39:16 $
+ * $Revision: 1.14 $
+ * $Date: 2004-08-24 22:28:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -32,8 +32,7 @@
 
 /* Header files with a description of contents used in cvdx.c */
 
-#include "sundialstypes.h"   /* definitions of types realtype and             */
-                             /* the constant FALSE                            */
+#include "sundialstypes.h"   /* definition of type realtype                   */
 #include "cvode.h"           /* prototypes for CVode*** functions; constants  */
                              /* BDF, NEWTON, SV, NORMAL, CV_SUCCESS,          */
                              /* CV_ROOT_RETURN                                */
