@@ -35,10 +35,10 @@ enumerations, macros, data types and function prototypes.  At a
 minimum, the user must include header files that declare: the SUNDIALS
 data types for real, integer, and boolean variables; the content and
 operations that can be performed on vectors in either a serial or
-parallel environment; and the functions needed by the solver to
-setup, compute, and extract the solution. Typically, additional header
-files will be specified to declare the preconditioning and/or linear
-solver methods to be used.
+parallel environment; and the solver functions needed to
+set up and initialize the problem, compute, and extract the solution. 
+Typically, additional header files will be specified to declare the 
+preconditioning and/or linear solver methods to be used.
 
 \item \label{sun_problem}
 The user must provide a function for evaluating the equations to be
@@ -153,7 +153,7 @@ Maximum order for Adams method& 12  & - & - \\
 Maximum number of internal steps before $t_{out}$ & 500 & 500 & - \\
 Maximum number of warnings for $h < U$ & 10 & - & - \\
 Flag to activate stability limit detection & FALSE & - & - \\
-Initial step size & est. & est. & - \\
+Initial step size & estimated & est. & - \\
 Minimum absolute step size & 0.0 & - & - \\
 Maximum absolute step size & $\infty$ & $\infty$ & - \\
 Value of $t_{stop}$ & - & $\infty$ & - \\
@@ -203,9 +203,9 @@ Step size to be attempted on the next step & $\checkmark$ & $\checkmark$ & - \\
 Current internal time reached by the solver & $\checkmark$ & $\checkmark$ & - \\
 %Suggested factor for tolerance scaling & $\checkmark$ & - & - \\
 Vector containing the error weights for state variables & $\checkmark$ & $\checkmark$ & - \\
-Vector containing the est. local errors & $\checkmark$ & - & - \\
+Vector containing the estimated local errors & $\checkmark$ & - & - \\
 Number of backtrack operations during linesearch & - & $\checkmark$ & $\checkmark$ \\
-Number of times the $\beta$ condition could not & - & - & $\checkmark$ \\
+Number of times the $\beta$ condition could not be met & - & - & $\checkmark$ \\
 Scaled norm at a given iteration & - & - & $\checkmark$ \\
 Last step length in the global strategy routine & - & - & $\checkmark$ \\
 \end{tabular}
