@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-08-25 16:19:33 $
+ * $Revision: 1.19 $
+ * $Date: 2004-10-08 15:09:57 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -394,7 +394,7 @@ static int CVDenseInit(CVodeMem cv_mem)
     J_data = cv_mem;
   }
 
-  last_flag = CVDENSE_SUCCESS;
+  last_flag = 0;
   return(0);
 }
 

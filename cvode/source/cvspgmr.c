@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-08-25 16:19:33 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-08 15:09:57 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and
  *                 Radu Serban @ LLNL
@@ -206,7 +206,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   cvspgmr_mem->g_j_data     = cvode_mem;
   cvspgmr_mem->g_last_flag  = CVSPGMR_SUCCESS;
 
-
+  /* Set setupNonNull to FALSE */
   setupNonNull = FALSE;
 
   /* Check for legal pretype */ 
