@@ -1,118 +1,182 @@
 \section{Usage}
-\label{s:usage}
 
-A brief outline is given for using the serial version of CVODE to solve
-a nonstiff initial-value problem.
-This example conveys the basic elements of including appropriate
-header files; declaring function prototypes and user-supplied data
-structures; creating, manipulating, and freeing N\_Vector and CVODE
-memory; 
-calling CVODE to solve the initial-value problem; etc.
+A general approach for using SUNDIALS is given below. 
+The outline conveys the basic elements of what is needed to properly
+specify and solve a problem, the order in which certain tasks must be
+done, the options available for modifying certain solver parameters,
+heuristics and algorithms, and the options for extracting the solution
+and/or solver statistics.
 Complete details and additional examples are in the documentation that
 accompanies each solver in SUNDIALS.
 
 \begin{enumerate}
-\item With a {\bf \#include} statement, the following header files must be
-specified for this example: {\bf ``sundialstypes.h''} for defining
-real, integer and boolean types; {\bf ``nvector\_serial.h''} for
-defining the content and operations that can be performed on vectors
-in a serial machine environment; and, {\bf ``cvode.h''} for defining
-operations involving CVODE memory. Of course, if the solution process
-requires the use of preconditioning and/or linear solver methods then
-the appropriate set of header files must also be added.
 
-\item In defining a C routine that calculates the derivatives
-$u'=f(t,u)$, the right-hand side function must have the prototype \\
-{\bf static void f(realtype t, N\_Vector u, N\_Vector udot, void
-*f\_data);} \\
-in which {f\_data} is an optional user-defined data structure
-that may be used in calculating the derivative values returned in {udot}.
+\item SUNDIALS contains header files that define various
+constants, enumerations, macros, data types and function prototypes.
+At a minimum, the user must include header files that declare: the
+SUNDIALS data types for real, integer, and boolean variables; the
+content and operations that can be performed on vectors in either a
+serial or parallel environment; and, the functions needed
+by the solver to setup, compute, and extract the solution. 
+Typically, additional header files will be specified to declare the
+preconditioning and/or linear solver methods to be used.
 
-\item Within the main program, the user should begin with declarations such as
-\\
-{\bf realtype t;~},{\bf NV\_Spec nvSpec;~}, {\bf N\_Vector u;~}, {\bf
-void *cvode\_mem;~} \\
-for defining the time variable $t$, the vector specification data structure, the
-solution $u$, and a pointer to CVODE memory, respectively.
-Additional declarations may include loop counters or status flags of
-type {int}, absolute and relative ODE error tolerances of type
-{N\_Vector} and/or {realtype}, and user-defined data structures
-for preconditioning and/or evaluating $f(t,u)$.
+\item The user must provide a function for evaluating the equations to
+be solved. Optionally, a user-defined data structure can be created
+and passed to this function. The user must also provide a suitable
+initial guess or initial values, specify error tolerances, along with
+other details for the problem.
 
-\item The routines {\bf NV\_SpecInit\_Serial} and {\bf N\_VNew} must be called for
-allocating memory for the vector specification data structure (nvSpec)
-and any N\_Vector types such as u.  The argument list and user
-description of each routine is given in the header files
-``nvector\_serial.h'' and ``nvector.h''.
+\item The next step is to call a routine for initializing a block of
+memory that will be used in solving the specified problem. The memory
+block is created with certain default values for the solver, such as
+the use standard output for writing warning and error messages, or
+{\tt NULL} as a default value for the pointer to the user-specified
+data structure to be passed in evaluating the user's function.
 
-\item Before leaving this step, the ODE problem to be solved should be completely
-specified: the initial value for time $t$, initial conditions for $u$,
-absolute and relative error tolerances (atol, rtol), and the next time
-($t_{\rm out}$) at which output is desired.
+\item At this stage, the default values in the solver memory block can
+be changed if so desired. Choices and default values are given in the
+following subsections for each of the basic solvers.
 
-\item The next phase initializes CVODE memory and
-allows the user to set different default values for the solver.
-As described in ``cvode.h'', CVODE memory can be initialized with \\
-{\bf cvode\_mem = CVodeCreate(ADAMS, FUNCTIONAL)}\\
-if we want functional iteration to be used within Adams method for
-solving the nonstiff initial-value problem.
-By default, the maximum order used for the Adams method is 12 but 
-{\bf CVodeSetMaxOrd} can be called to set it to a lower value.
-CVODE contains eight other optional set routines, including
-{\bf CVodeSetFdata} for passing the optional user-defined data
-structure f\_data to the user's f() routine.
-The CVODE memory allocation is finalized with a call such as \\
-{\bf flag = CVodeMalloc(cvode\_mem, f, t0, u, SS, \&rtol, \&atol,
-nvSpec);} \\
-in which $t0$ and $u$ define the initial conditions.
+\item The user now calls the appropriate routine to perform
+any required memory allocation, after checking the initialized memory
+block for errors in the default or optional inputs.
 
-\item Although not needed in this example involving functional
-iteration (i.e., no linear systems are solved), typically this step
-involves the specification and attachment of desired preconditioning
-and/or linear solver methods to CVODE memory. To do so, the
-appropriate set of header files need to be specified in Step 1 with
-calls made at this step according to the descriptions provided in
-those header files.
+\item Typically, preconditioning and/or linear solver methods are
+needed for solving the linear systems that may arise. These methods
+can now be attached to the block of memory allocated for the solver.
 
-\item At this point, {\bf CVode} can be called to integrate the
-problem in the direction from $t$ to $t_{\rm out}$. The call to the
-integrator includes an option to specify either one-step mode (take
-one step and return) or normal mode (take steps until passing 
-$t_{\rm out}$ and interpolate).
-For the latter, \\
-{\bf flag = CVode(cvode\_mem, tout, u, \&t, NORMAL);} \\
-computes the solution $u$ at time $t_{\rm out}$. Note that to compute
-solutions at additional points in time, the call to CVode can be
-embedded in a for-loop.
+\item Solve the problem. Information and solver statistics are
+available through extraction functions.
 
-\item At each output time or before exiting the program, the solution
-and solver statistics can be obtained by using various routines such
-as {\bf CVodeGetNumSteps} to determine the cumulative number of
-internal time steps taken taken by the solver, or {\bf
-CVodeGetNumRhsEvals} to determine the number of calls to the user's
-f() routine. A total of 16 such routines are given in ``cvode.h''.
+\item (Re-initialize the problem?)
 
-\item The memory allocated in Steps 4--6 can be freed by at least calling
-{\bf CVodeFree(cvode\_mem);~}, {\bf N\_VFree(u);~}, and {\bf
-NV\_SpecFree\_Serial(nvSpec);}. Of course, the user must free other
-allocated memory or user-defined data structures if necessary---and do so in the
-correct order.
+\item To complete the process, the user must make the appropriate calls to
+free memory that was allocated in the previous steps.
 
 \end{enumerate}
 
+How do the steps change for parallel machine environments? \\
+How do the steps change for forward sensitivity analysis? \\
+How do the steps change for adjoint sensitivity analysis? \\
+Give the set() and get() routines for the subsections below. \\
 
-\section{Fortran Usage}
+\subsection{CVODE}
+
+The following options can be set by the user; otherwise, the option
+retains the default setting that appears in the brackets {\tt []}:
+a pointer to the user-defined data structure that is passed to the
+user's $f$ routine [{\tt NULL}]; a pointer to an error file where all
+warning and error messages will be written [{\tt NULL} means standard
+output]; the maximum order used by the Adams method [12] or BDF method
+[5]; the maximum number of internal steps to be taken in its attempt
+to reach the next output time [500]; the maximum number of warning
+messages issued when the internal step size is below machine epsilon
+[10]; a flag to activate stability limit detection [{\tt FALSE}]; the
+initial step size [estimated by the solver]; the minimum absolute step
+size value allowed [0.0]; the maximum absolute step size value allowed
+[infinity]; and, the independent variable value past which the
+solution is not to proceed [infinity].
+
+If desired, the user can request the following information from the
+solver: the amount of integer workspace allocated by CVODE; the amount
+of real workspace allocated by CVODE; the cumulative number of
+internal steps taken; the number of calls to the user's
+f function; the number of calls made to the linear solver's setup
+routine; the number of local error test failures that have occurred;
+the order used during the last internal step; the number of order
+reductions due to stability limit detection; the actual initial step
+size used; the step size used for the last internal step; the step
+size to be attempted on the next internal step; the current internal
+time reached by the solver; a suggested factor by which the user's
+tolerances should be scaled when too much accuracy has been requested
+for some internal time steps; the vector containing the error weights
+for the state variables; and, the vector containing the estimated
+local errors at the current internal time step.
+
+\subsection{KINSOL}
+
+(draft) \\
+The following options can be set by the user; otherwise, the option
+retains the default setting that appears in the brackets {\tt []}:
+a pointer to the user data that will be passed to the user's $F$
+routine [{\tt NULL}]; a pointer to an error file where all
+warning and error messages will be written [{\tt NULL} means standard
+output]; an integer value between 0--3 to indicated the desired amount
+of convergence-related output [{\tt 0} means no statistics printed];
+the maximum allowable number of nonlinear iterations [{\tt
+MXITER\_DEFAULT}]; a flag to control the initial call to the
+preconditioner setup routine [{\tt FALSE} forces the initial call];
+the maximum number of steps calling the preconditioner solve without
+calling the preconditioner setup [10]; a flag indicating which of
+three methods to use for computing the coefficient ($\eta$) in the linear
+solver convergence tolerance epsilon~(?) [{\tt ETACHOICE1}]; the
+constant value of $\eta$ for {\tt ETACONSTANT} [0.1]; the parameter
+values for $\eta$ in the case {\tt ETACHOICE2} [egamma=0.9,
+ealpha=2.0]; the flag to control the lower bound on the linear solver
+convergence tolerance ($\epsilon$) [{\tt FALSE}]; the maximum
+allowable length of a Newton step [{\tt default}]; the relative error
+in computing {\tt func(uu)} [{\tt unit roundoff}]; a scalar constant
+which restricts the update of uu [{\tt infinity}]; a real scalar value
+containing the stopping tolerance; a real scalar value containing the
+stopping tolerance on the maximum scaled step [{\tt default}]; a
+pointer to an array of constraints on uu [{\tt NULL}].
+
+If desired, the user can request the following information from the
+solver: the amount of integer workspace allocated by KINSOL; the
+amount of real workspace allocated by KINSOL; the number of calls to
+the user's {\tt func} function; the number of nonlinear iterations
+performed; the total number of times the $\beta$ condition could not
+be met in the line search algorithm; the number of backtrack
+operations done in the linesearch algorithm; the scaled norm at a
+given iteration; and, the last step length in the global strategy
+routine.
+
+\subsection{IDA}
+
+The following options can be set by the user; otherwise, the option
+retains the default setting that appears in the brackets {\tt []}:
+a pointer to the user data structure that will be passed to the user's
+$F$ routine [{\tt NULL}]; a file pointer to an error file where
+all warning and error messages will be written [{\tt NULL}]; the
+maximum order used by the BDF method [5]; the maximum number of
+internal steps to be taken in an attempt to reach the next output time
+[500]; the initial step size [estimated by the solver]; the maximum
+absolute step size allowed [{\tt infinity}]; the independent variable
+value past which the solution is not to proceed [{\tt infinity}]; the
+factor in nonlinear convergence test for use during integration [1.0];
+a flag to indicate whether or not to suppress algebraic variables in
+the local error test [{\tt FALSE}]; a vector which indicates whether a
+given component is either an algebraic or differential variable [0.0
+and 1.0 indicate algebraic and differential variables, respectively];
+a vector defining inequality constraints for each component of the
+solution vector [0.0 means the corresponding component has no
+constraint; etc.].
+
+If desired, the user can request the following information from the
+solver: the amount of integer workspace allocated by IDA; the amount
+of real workspace allocated by IDA; the cumulative number of internal
+steps taken; the number of calls to the user's {\tt res} function; the
+number of calls made to the linear solver's setup routine; the number
+of local error test failures that have occurred; the number of
+backtrack operations done in the linesearch algorithm of the
+consistent initialization routine; the order used during the last
+internal step; the order to be used on the next internal step; the
+actual initial step size used; the step size for the last internal
+step, or the last value of the artificial step size in calculating
+consistent initial conditions; the step size to be attempted on the
+next internal step; the current internal time reached; a suggested
+factor by which the user's tolerances should be scaled when too much
+accuracy has been requested for some internal step; the vector
+containing the error weights for the state variables; and, the vector
+containing the estimated local error at the current internal time steps.
+
+\subsection{Fortran Usage}
 
 For two of the SUNDIALS solvers -- CVODE and KINSOL, users with
 Fortran applications are accommodated.  This is done with a set of
 interface routines that connect the C solver with the user's Fortran
 routines.
-
-The cross-language calls go in both directions:
-\newline \hspace*{.5in} user's Fortran Main $\longrightarrow$
-interfaces $\longrightarrow$ solver routines, and
-\newline \hspace*{.5in} Solver routines $\longrightarrow$ interfaces
-$\longrightarrow$ user's {\tt f} routine etc.
 
 In order to achieve portability for these interfaces, all of the
 Fortran user-supplied routines have fixed names.
@@ -120,5 +184,10 @@ Fortran user-supplied routines have fixed names.
 These interfaces are provided as separate modules, called FCVODE and
 FKINSOL, for CVODE and KINSOL, respectively.  In each case, small
 examples programs are provided.
+
+For complete details,
+see the user documentation for each of the solvers in SUNDIALS.
+
+
 
 
