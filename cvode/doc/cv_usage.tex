@@ -344,7 +344,7 @@ created and allocated by the first two calls.
 %%
 \ucfunction{CVodeMalloc}
 {
-flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
+flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 }
 {
   The function \ID{CVodeMalloc} provides required problem and solution specifications, 
@@ -372,9 +372,6 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
     is a pointer to the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance.
-  \item[nvSpec] (\id{NV\_Spec})
-    is a pointer to the vector specification structure. See \S\ref{ss:skeleton_sim}, 
-    step \ref{i:nv_spec_init}.
   \end{args}
 }
 {
@@ -383,7 +380,8 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
   \item[\Id{SUCCESS}]
     The call to \id{CVodeMalloc} was successful.
   \item[\Id{CVM\_NO\_MEM}] 
-    The {\cvode} memory block was not initialized through a previous call to \id{CVodeCreate}.
+    The {\cvode} memory block was not initialized through a previous call
+    to \id{CVodeCreate}.
   \item[\Id{CVM\_MEM\_FAIL}] 
     A memory allocation request has failed.
   \item[\Id{CVM\_ILL\_INPUT}] 
@@ -392,7 +390,9 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
 }
 {
   If an error occurred, \id{CVodeMalloc} also prints an error message to the
-  file specified by the optional input \id{errfp}.
+  file specified by the optional input \id{errfp}. \\
+  The tolerance values in \id{reltol} and \id{abstol} may be changed between
+  calls to \id{CVode}.
 }
 %%
 %%
@@ -704,7 +704,7 @@ perform the integration of the IVP.
   \item[\ID{CVODE\_NO\_MEM}]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[\ID{CVODE\_NO\_MALLOC}]
-    The {\cvode} memory was not allocated through a call to \id{CVodeMalloc}.
+    The {\cvode} memory was not allocated by a call to \id{CVodeMalloc}.
   \item[\ID{ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal. This includes the situation where
     a root of one of the root functions was found both at $t_0$ and very near $t_0$.
@@ -1225,7 +1225,7 @@ flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
 flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
 }
 {
-  The function \ID{CVodeSetNonlinIters} specifies the maximum
+  The function \ID{CVodeSetMaxNonlinIters} specifies the maximum
   number of nonlinear solver iterations at one step.
 }
 {
@@ -1908,6 +1908,7 @@ which are then described in detail in the remainder of this section.
 \hline
 Size of {\cvode} integer workspace & \id{CVodeGetIntWorkSpace} \\
 Size of {\cvode} real workspace & \id{CVodeGetRealWorkSpace} \\
+Size of both {\cvode} workspaces & \id{CVodeGetWorkSpace} \\
 Cumulative number of internal steps & \id{CVodeGetNumSteps} \\
 No. of calls to r.h.s. function & \id{CVodeGetNumRhsEvals} \\
 No. of calls to linear solver setup function & \id{CVodeGetNumLinSolvSetups} \\
@@ -1923,7 +1924,9 @@ Suggested factor for tolerance scaling  & \id{CVodeGetTolScaleFactor} \\
 Error weight vector for state variables & \id{CVodeGetErrWeights} \\
 Estimated local error vector & \id{CVodeGetEstLocalErrors} \\
 No. of nonlinear solver iterations & \id{CVodeGetNumNonlinSolvIters} \\
-No. of nonlinear convergence failures & \id{CVodeGetNumNonlinSolvConvFails} \\ 
+No. of nonlinear convergence failures & \id{CVodeGetNumNonlinSolvConvFails} \\
+All {\cvode} integrator statistics & \id{CVodeGetIntegratorStats} \\
+{\cvode} nonlinear solver statistics & \id{CVodeGetNonlinSolvStats} \\
 Array showing roots found & \id{CvodeGetRootInfo} \\
 No. of calls to user root function & \id{CVodeGetNumGEvals} \\
 \hline
@@ -2482,9 +2485,9 @@ These optional output functions are described next.
 \ucfunction{CVodeGetIntegratorStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = CVodeGetIntegratorStats(&cvode\_mem, \&nsteps, \&nfevals, \&nlinsetups, \\
-                                   &\&netfails, \&qlast, \&qcur, \&hinused, \&hlast, \\
-                                   &\&hcur, \&tcur);
+    flag = CVodeGetIntegratorStats(&cvode\_mem, \&nsteps, \&nfevals, \\
+                                   &\&nlinsetups, \&netfails, \&qlast, \&qcur, \\
+                                   &\&hinused, \&hlast, \&hcur, \&tcur);
   \end{tabular}
 }
 {
@@ -2590,7 +2593,7 @@ These optional output functions are described next.
   flag = CVodeGetNonlinSolvStats(cvode\_mem, \&nniters, \&nncfails);
 }
 {
-  The function \ID{CVodeGetNonlinSolvStats} returns the the
+  The function \ID{CVodeGetNonlinSolvStats} returns the
   {\cvode} nonlinear solver statistics as a group.
 }
 {
@@ -3378,7 +3381,8 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 The user must provide a function of type \ID{RhsFn} defined as follows:
 \usfunction{RhsFn}
 {
-  typedef void (*RhsFn)(realtype t, N\_Vector y, N\_Vector ydot, void *f\_data);
+  typedef void (*RhsFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
+                        &void *f\_data);
 }
 {
   This function computes the ODE right-hand side for a given value
@@ -3419,7 +3423,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
 {
   typedef void (*CVDenseJacFn)(&long int N, DenseMat J, realtype t, \\
                                &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+                               &N\_Vector tm1, N\_Vector tm2, N\_Vector tm3);
 }
 {
   This function computes the dense Jacobian $J = \partial f / \partial y$ 
@@ -3441,9 +3445,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
   \item[jac\_data]
     is a pointer to user data --- the same as the \id{jac\_data}      
     parameter passed to \id{CVDenseSetJacData}.   
-  \item[tmp1]
-  \item[tmp2]
-  \item[tmp3]
+  \item[tm1,tm2,tm3]
     are pointers to memory allocated    
     for vectors of length \id{N} which can be used by           
     \id{CVDenseJacFn} as temporary storage or work space.    
@@ -3486,7 +3488,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
   \S\ref{ss:optional_output}. The unit roundoff can be accessed
-  through the macro \id{DBL\_EPSILON} defined in \id{float.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
 
@@ -3505,7 +3507,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
  typedef void (*CVBandJacFn)(&long int N, long int mupper, \\
                              &long int mlower, BandMat J, realtype t, \\ 
                              &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+                             &N\_Vector tm1, N\_Vector tm2, N\_Vector tm3);
 }
 {
   This function computes the banded Jacobian $J = \partial f / \partial y$ 
@@ -3530,9 +3532,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   \item[jac\_data]
     is a pointer to user data --- the same as the \id{jac\_data}      
     parameter passed to \id{CVBandSetJacData}.   
-  \item[tmp1]
-  \item[tmp2]
-  \item[tmp3]
+  \item[tm1,tm2,tm3]
     are pointers to memory allocated    
     for vectors of length \id{N} which can be used by           
     \id{CVBandJacFn} as temporary storage or work space.    
@@ -3580,8 +3580,8 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   If the user's \id{CVBandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet*} functions 
-  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
-  the macro \id{DBL\_EPSILON} defined in \id{float.h}.
+  described in \S\ref{ss:optional_output}. The unit roundoff can be
+  accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -3598,8 +3598,8 @@ of type \ID{CVSpgmrJacTimesVecFn} in the following form:
 \usfunction{CVSpgmrJacTimesVecFn}
 {
   typedef int (*CVSpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, realtype t, \\
-                                      &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                                      &N\_Vector tmp);
+                                      &N\_Vector y, N\_Vector fy, \\
+                                      &void *jac\_data, N\_Vector tmp);
 }
 {
   This function computes the product $J v = (\partial f / \partial y) v$ 
@@ -3636,7 +3636,7 @@ of type \ID{CVSpgmrJacTimesVecFn} in the following form:
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
   \S\ref{ss:optional_output}. The unit roundoff can be accessed
-  through the macro \id{DBL\_EPSILON} defined in \id{float.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 
@@ -3715,11 +3715,11 @@ be evaluated or preprocessed, then this needs to be done in a
 user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
 \usfunction{CVSpgmrPrecSetupFn}
 {
-  typedef int (*CVSpgmrPrecSetupFn)(&realtype t, N\_Vector y, N\_Vector fy,  \\
-                                    &booleantype jok, booleantype *jcurPtr, \\
-                                    &realtype gamma, void *P\_data,\\
-                                    &N\_Vector tmp1, N\_Vector tmp2,\\
-                                    &N\_Vector tmp3);
+  typedef int (*CVSpgmrPrecSetupFn&)(realtype t, N\_Vector y, N\_Vector fy,  \\
+                                  &booleantype jok, booleantype *jcurPtr, \\
+                                  &realtype gamma, void *P\_data,\\
+                                  &N\_Vector tm1, N\_Vector tm2,\\
+                                  &N\_Vector tm3);
 }
 {
   This function evaluates and/or preprocesses Jacobian related data needed
@@ -3756,9 +3756,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   \item[P\_data]
     is a pointer to user data, the same as the \id{P\_data}      
     parameter passed to \id{CVSpgmrSetPrecData}.
-  \item[tmp1]
-  \item[tmp2]
-  \item[tmp3]
+  \item[tm1,tm2,tm3]
     are pointers to memory allocated    
     for vectors of length \id{N} which can be used by           
     \id{CVSpgmrPrecSetupFn} as temporary storage or work space.    
@@ -3789,7 +3787,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
   \S\ref{ss:optional_output}. The unit roundoff can be accessed
-  through the macro \id{DBL\_EPSILON} defined in \id{float.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 
 %%==============================================================================
@@ -3946,7 +3944,8 @@ the user must supply a {\C} function of type \id{RootFn}, defined as follows:
 %%
 \usfunction{RootFn}
 {
-  typedef void (*RootFn)(realtype t, N\_Vector y, realtype *gout, void *g\_data);
+  typedef void (*RootFn)(&realtype t, N\_Vector y, realtype *gout, \\
+                         &void *g\_data);
 }
 {
   This function computes a vector-valued function $g(t,y)$ such that the roots of 
@@ -4611,7 +4610,8 @@ next.
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} to be used in the 
   difference-quotient calculation of the approximate Jacobian is negative or 
-  exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
+  exceeds the value \id{local\_N}$-1$, it is replaced with 0 or
+  \id{local\_N}$-1$ accordingly.
 
   The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
   half-bandwidths of the Jacobian of the local block of $g$,    
@@ -4723,8 +4723,9 @@ or one of the user-supplied functions \id{gloc} and \id{cfn}.
   The return value of \id{CVBBDPrecReInit} is always \Id{SUCCESS}.
 }
 {
-  If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or it
-  exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
+  If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
+  exceeds the value \id{local\_N}$-1$, it is replaced with 0 or
+  \id{local\_N}$-1$ accordingly.
 }
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-callable functions|)}
