@@ -86,7 +86,7 @@ All state information used by {\kinsol} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
 user.  There is no global data in the {\kinsol} package, and so in this
 respect it is reentrant. State information specific to the linear
-solver is saved in separate structure, a pointer to which resides in
+solver is saved in a separate structure, a pointer to which resides in
 the {\kinsol} memory structure. The reentrancy of {\kinsol} was motivated
 by the anticipated multicomputer extension, but is also essential
 in a uniprocessor setting where two or more problems are solved by
