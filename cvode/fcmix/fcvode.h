@@ -1,26 +1,34 @@
-/* File fcvode.h: Header file for the FCVODE Interface Package
-   Version of 26 June 2002 */
+/******************************************************************
+ * File          : fcvode.h                                       *
+ * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
+ * Version of    : 22 July 2002                                   *
+ *----------------------------------------------------------------*
+ * This is the header file for FCVODE, the Fortran interface to   *
+ * the CVODE package.                                             *
+ ******************************************************************/
 
 #ifndef _fcvode_h
 #define _fcvode_h
 
-/***************************************************************************
+
+/******************************************************************************
 
                   FCVODE Interface Package
 
 The FCVODE Interface Package is a package of C functions which support
-the use of the CVODE solver, for the solution of ODE
-systems dy/dt = f(t,y), in a mixed Fortran/C setting.  While CVODE is
-written in C, it is assumed here that the user's calling program and
-user-supplied problem-defining routines are written in Fortran.
-This package provides the necessary interface to CVODE for both the 
+the use of the CVODE solver, for the solution of ODE systems 
+dy/dt = f(t,y), in a mixed Fortran/C setting.  While CVODE is written
+in C, it is assumed here that the user's calling program and
+user-supplied problem-defining routines are written in Fortran.  
+This package provides the necessary interface to CVODE for both the
 serial and the parallel NVECTOR implementations.
 
 The user-callable functions, with the corresponding CVODE functions,
 are as follows:
+
   FMENVINITS and FMENVINITP interface to M_EnvInit_Serial and
-       M_EnvInitParallel (defined by nvector_serial
-       and nvector_parallel, respectively)
+             M_EnvInitParallel (defined by nvector_serial
+             and nvector_parallel, respectively)
 
   FCVMALLOC  interfaces to CVodeMalloc
 
@@ -29,15 +37,15 @@ are as follows:
   FCVDIAG    interfaces to CVDiag
 
   FCVDENSE0, FCVDENSE1, FCVREINDENSE0, FCVREINDENSE1
-             interface to CVDense for the various option
+             interface to CVDense or CVReInitDense for the various options
 
   FCVBAND0, FCVBAND1, FCVREINBAND0, FCVREINBAND1
-             interface to CVBand for the various options
+             interface to CVBand or CVReInitBand for the various options
 
   FCVSPGMR00, FCVSPGMR01, FCVSPGMR10, FCVSPGMR11, FCVSPGMR20, FCVSPGMR21,
   FCVREINSPGMR00, FCVREINSPGMR01, FCVREINSPGMR10, FCVREINSPGMR11,
   FCVREINSPGMR20, FCVREINSPGMR21,
-             interface to CVSpgmr for the various options
+             interface to CVSpgmr or CVReInitSpgmr for the various options
 
   FCVODE     interfaces to CVode
 
@@ -46,8 +54,8 @@ are as follows:
   FCVFREE    interfaces to CVodeFree
 
   FMENVFREES and FMENVFREEP interface to M_EnvFree_Serial and
-       M_EnvFree_parallel(defined by nvector_serial
-       and nvector_parallel, respectively)
+             M_EnvFree_parallel(defined by nvector_serial
+             and nvector_parallel, respectively)
 
 The user-supplied functions, each listed with the corresponding interface
 function which calls it (and its type within CVODE), are as follows:
@@ -72,20 +80,24 @@ names are mapped are either upper or lower case, and may or may not have
 an underscore appended, depending on these parameters.  Check, and if 
 necessary modify, the file fcmixpar.h for a given machine environment.
 
-=========================================================================
+===============================================================================
 
                  Usage of the FPVODE Interface Package
 
-The usage of FCVODE requires calls to five to seven interface
+The usage of FCVODE requires calls to six or seven interface
 functions, depending on the method options selected, and one or more
 user-supplied routines which define the problem to be solved.  These
 function calls and user routines are summarized separately below.
 
 Some details are omitted, and the user is referred to the user documents
-on CVODE for more complete documentation.  Information on the
+on CVODE and PVODE for more complete documentation.  Information on the
 arguments of any given user-callable interface routine, or of a given
 user-supplied function called by an interface function, can be found in
 the documentation on the corresponding function in the CVODE package.
+
+The number labels on the instructions below end with s for instructions
+that apply to the serial version of CVODE only, and end with p for
+those that apply to the parallel version only.
 
 
 (1) User-supplied right-hand side routine: CVFUN
@@ -100,21 +112,23 @@ are distributed vectors, and NEQ is the problem size.
 As an option when using the DENSE linear solver, the user may supply a
 routine that computes a dense approximation of the system Jacobian 
 J = df/dy. If supplied, it must have the following form:
-      SUBROUTINE CVDJAC (NEQ, JAC, T, Y, FY, EWT, H, UROUND,
-     1                   NFE, WORK1, WORK2, WORK3)
-      DIMENSION JAC(*), Y(*), FY(*), EWT(*), WORK1(*), WORK2(*), WORK3(*)
-Typically this routine will use only NEQ, T, Y, and JAC. It must compute
-the Jacobian and store it, column-wise in JAC.
+      SUBROUTINE CVDJAC (NEQ, T, Y, FY, EWT, H, UROUND, DJAC, NFE,
+     1                   WK1, WK2, WK3)
+      DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
+Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
+the Jacobian and store it columnwise in DJAC.
 
 (3) Optional user-supplied band Jacobian approximation routine: CVBJAC
 As an option when using the BAND linear solver, the user may supply a
 routine that computes a band approximation of the system Jacobian 
 J = df/dy. If supplied, it must have the following form:
-      SUBROUTINE CVBJAC (NEQ, MU, ML, JAC, T, Y, FY, EWT, H, UROUND,
-     1                   NFE, WORK1, WORK2, WORK3)
-      DIMENSION JAC(*), Y(*), FY(*), EWT(*), WORK1(*), WORK2(*), WORK3(*)
-Typically this routine will use only NEQ, MU, ML, T, Y, and JAC. 
-It must compute the Jacobian and store it, column-wise in JAC.
+      SUBROUTINE CVBJAC (NEQ, MU, ML, MDIM, T, Y, FY, EWT, H, UROUND,
+     1                   BJAC, NFE, WK1, WK2, WK3)
+      DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
+Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
+It must load the MDIM by N array BJAC with the Jacobian matrix at the
+current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element J(i,j)
+with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
 
 (4) Optional user-supplied Jacobian-vector product routine: CVJTIMES
 As an option when using the SPGMR linear solver, the user may supply a 
@@ -168,7 +182,7 @@ ROPT   = array of length 40 for real optional inputs and outputs
          ROPT(2), ROPT(3), respectively.  If any of these optional inputs
          are used, set the others to zero to indicate default values.
          The optional outputs are NST, NFE, NSETUPS, NNI, NCFN, NETF, QU, QCUR,
-         LENRW, LENIW, NOR, HU, HCUR, TCUR, TOLSF, stored in IOPT(4) .. IOPT(13),
+         LENRW, LENIW, NOR, HU,HCUR, TCUR, TOLSF, stored in IOPT(4) .. IOPT(13),
          IOPT(15), ROPT(4) .. ROPT(7), resp.  See the CVODE manual for details. 
 IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
          See printed message for details in case of failure.
@@ -183,13 +197,13 @@ for the new problem).  FCVREINIT performs the same initializations as
 FCVMALLOC, but does no memory allocation, using instead the existing
 internal memory created by the previous FCVMALLOC call.  The call to
 specify the linear system solution method may or may not be needed;
-see paragraph (4.2) below.
+see paragraph (6) below.
 
 (6) Specification of linear system solution method.
 In the case of a stiff system, the implicit BDF method involves the solution
 of linear systems related to the Jacobian J = df/dy of the ODE system.
-CVODE presently includes four choices for the treatment of these systems, 
-and the user must call a routine with a specific name to make the
+CVODE presently includes four choices for the treatment of these systems,
+and the user of FCVODE must call a routine with a specific name to make the
 desired choice.
 
 (6.1) Diagonal approximate Jacobian.
@@ -205,33 +219,64 @@ IOPT(16) and IOPT(17), respectively.  (See the CVODE manual for descriptions.)
 The user must make one of the following two calls:
       CALL FCVDENSE0(IER)
           if CVDJAC is not supplied 
-
+or
       CALL FCVDENSE1(IER)
           if CVDJAC is supplied 
 
-In all cases, the argument is:
+In both cases, the argument is:
 IER = error return flag: 0 = success , -1 = memory allocation failure,
-           -2 = illegal input. 
+                        -2 = illegal input. 
 
   In the case FCVDENSE1, the user program must include the CVDJAC routine 
 for the evaluation of the dense approximation to the Jacobian.
+
+     Optional outputs specific to the DENSE case are NJE, LRW, and LIW,
+stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
+manual for descriptions.)
+
+     If a sequence of problems of the same size is being solved using the
+DENSE linear solver, then following the call to FCVREINIT, a call to specify
+the linear solver may or may not be needed.  If the choice of user vs internal
+Jacobian routine is unchanged, no such call is needed, and the user program can
+proceed to the FCVODE calls.  However, if there is a change in this choice, then
+a call to FCVREINDENSE0(IER) or FCVREINDENSE1(IER) must be made, for the case
+of a CVDJAC routine not supplied or supplied, respectively.  This call
+reinitializes the DENSE linear solver without reallocating its memory.
+These routines have a return argument IER, with the same meaning as for the
+FCVDENSE* routines.
 
 (6.3) BAND treatment of the linear system
 The user must make one of the following two calls:
       CALL FCVBAND0(MU, ML, IER)
           if CVBJAC is not supplied
-
+or
       CALL FCVBAND1(MU, ML, IER)
           if CVBJAC is supplied
 
-In all cases, the arguments are:
+In both cases, the arguments are:
 MU  = upper bandwidth
 ML  = lower bandwidth
 IER = error return flag: 0 = success , -1 = memory allocation failure,
-           -2 = illegal input.     
+                        -2 = illegal input.     
 
   In the case FCVBAND1, the user program must include the CVBJAC routine 
 for the evaluation of the banded approximation to the Jacobian.
+
+     Optional outputs specific to the BAND case are NJE, LRW, and LIW,
+stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
+manual for descriptions.)
+
+     If a sequence of problems of the same size is being solved using the
+BAND linear solver, then following the call to FCVREINIT, a call to specify
+the linear solver may or may not be needed.  If the values of MU and ML and
+the choice of user vs internal Jacobian routine are unchanged, no such call is
+needed, and the user program can proceed to the FCVODE calls.  If MU and ML
+are unchanged, but the choice of Jacobian routine is changed, then a call to
+FCVREINBAND0 or FCVREINBAND1 must be made, for the case of a CVBJAC routine
+not supplied or supplied, respectively.  This call reinitializes the BAND
+linear solver without reallocating its memory.  These routines have the same
+arguments (with the same meanings) as for the FCVBAND* routines.  If there
+is a change to MU or ML, then one of the FCVBAND* routines must be called.
 
 (6.4) SPGMR treatment of the linear systems.
 For the Scaled Preconditioned GMRES solution of the linear systems,
@@ -240,19 +285,21 @@ the user must make one of the following six calls:
           if no preconditioning is to be done and CVJTIMES is not supplied;
 
       CALL FCVSPGMR10 (IPRETYPE, IGSTYPE, MAXL, DELT, IER)
-          if the preconditioner involves no data setup and CVJTIMES is not supplied;
+          if the preconditioner involves no data setup and CVJTIMES is not
+          supplied;
 
       CALL FCVSPGMR20 (IPRETYPE, IGSTYPE, MAXL, DELT, IER)
-           if the preconditioner involves data setup and CVJTIMES is not supplied;
+          if the preconditioner involves data setup and CVJTIMES is not
+          supplied;
 
       CALL FCVSPGMR01 (IGSTYPE, MAXL, DELT, IER)
-           if the preconditioning is to be done but CVJTIMES is supplied;
+          if the preconditioning is to be done but CVJTIMES is supplied;
 
       CALL FCVSPGMR11 (IPRETYPE, IGSTYPE, MAXL, DELT, IER)
-           if the preconditioner involves no data setup but CVJTIMES is supplied;
+          if the preconditioner involves no data setup but CVJTIMES is supplied;
 
       CALL FCVSPGMR21 (IPRETYPE, IGSTYPE, MAXL, DELT, IER)
-           if the preconditioner involves data setup and CVJTIMES is supplied.
+          if the preconditioner involves data setup and CVJTIMES is supplied.
 
 (In the two-digit suffix on the name above, the first digit is the number of
 preconditioner routines supplied, and the second digit is 1 or 0 according as
@@ -269,8 +316,8 @@ IER      = error return flag: 0 = success, -1 = memory allocation failure,
      In the cases FCVSPGMR10, FCVSPGMR11, FCVSPGMR20, and FCVSPGMR21, the user
 program must include the following routine for solution of the preconditioner
 linear system:
-      SUBROUTINE CVPSOL (NEQ, T, Y, FY, VT, GAMMA, EWT, DELTA, NFE, R, LR, Z, IER)
-      DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*), 
+      SUBROUTINE CVPSOL (NEQ, T, Y,FY, VT, GAMMA, EWT,DELTA, NFE, R, LR, Z, IER)
+      DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
 Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
 must solve the preconditioner linear system Pz = r, where r = R is input, 
 and store the solution z in Z.  Here P is the left preconditioner if LR = 1
@@ -298,18 +345,18 @@ occurred.
 LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
 manual for descriptions.)
 
-     If a sequence of problems is being solved using the SPGMR linear solver,
-then following the call to FCVREINIT, a call to the FCVSPGMR* routine may or
-may not be needed.  First, if the choice among the six SPGMR options is the
-same and the input arguments are the same, no FCVSPGMR* call is needed.
-If a different choice of options is desired, or there is a change in input
-arguments other than MAXL, then the user program should call one of the
-routines FCVREINSPGMR00, FCVREINSPGMR01, FCVREINSPGMR10, FCVREINSPGMR11,
-FCVREINSPGMR20, or FCVREINSPGMR21.  In this case, the FCVREINSPGMR routine
+     If a sequence of problems of the same size is being solved using the SPGMR
+linear solver, then following the call to FCVREINIT, a call to the FCVSPGMR**
+routine may or may not be needed.  First, if the choice among the six SPGMR
+options is the same and the input arguments are the same, no FCVSPGMR** call
+is needed.  If a different choice of options is desired, or there is a change
+in input arguments other than MAXL, then the user program should call one of
+the routines FCVREINSPGMR00, FCVREINSPGMR01, FCVREINSPGMR10, FCVREINSPGMR11,
+FCVREINSPGMR20, or FCVREINSPGMR21.  In this case, the FCVREINSPGMR** routine
 reinitializes the SPGMR linear solver, but without reallocating its memory.
-The arguments of each FCVREINSPGMR routine have the same names and meanings
-as the corresponding FCVSPGMR routine.  Finally, if the value of MAXL is
-being changed, then a call to one of the six FCVSPGMR* routines must be made,
+The arguments of each FCVREINSPGMR** routine have the same names and meanings
+as the corresponding FCVSPGMR** routine.  Finally, if the value of MAXL is
+being changed, then a call to one of the six FCVSPGMR** routines must be made,
 where again a different choice of that routine is allowed.  
 
 (7) The integrator: FCVODE
@@ -328,20 +375,22 @@ The current values of the optional outputs are available in IOPT and ROPT.
 (8) Computing solution derivatives: FCVDKY
 To obtain a derivative of the solution, of order up to the current method
 order, make the following call:
-      CALL FCVDKY (T, K, DKY)
+      CALL FCVDKY (T, K, DKY, IER
 The arguments are:
 T   = value of t at which solution derivative is desired
 K   = derivative order (0 .le. K .le. QU)
 DKY = array containing computed K-th derivative of y on return
+IER = return flag: = 0 for success, < 0 for illegal argument.
 
 (9) Memory freeing: FCVFREE and FMENVFREES / FMENVFREEP
-To the free the internal memory created by the calls to FMENVINITS
- or FMENVINITP and FCVMALLOC, make the following calls, in this order:
+To the free the internal memory created by the calls to FCVMALLOC and
+FMENVINITS or FMENVINITP, depending on the version (serial/parallel), make
+the following calls, in this order:
       CALL FCVFREE
       CALL FMENVFREES or CALL FMENVFREEP  
 
 
-****************************************************************************/
+******************************************************************************/
 
 #include "fcmixpar.h"   /* parameters for function name definitions */
 
@@ -353,7 +402,7 @@ To the free the internal memory created by the calls to FMENVINITS
 #define FCV_REINIT  FCVREINIT
 #define FCV_DIAG    FCVDIAG
 #define FCV_DENSE0  FCVDENSE0
-#define FCV_DENSE1  FCDENSE1
+#define FCV_DENSE1  FCVDENSE1
 #define FCV_REINDENSE0 FCVREINDENSE0
 #define FCV_REINDENSE1 FCVREINDENSE1
 #define FCV_BAND0   FCVBAND0
@@ -479,7 +528,7 @@ void CVBandJac(integertype N, integertype mupper, integertype mlower,
                realtype uround, void *jac_data, long int *nfePtr,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int CVPreco(integertype N, realtype tn, N_Vector y, N_Vector fy, booleantype jok,
+int CVPreco(integertype N, realtype tn, N_Vector y,N_Vector fy, booleantype jok,
             booleantype *jcurPtr, realtype gamma, N_Vector ewt, realtype h,
             realtype uround, long int *nfePtr, void *P_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
