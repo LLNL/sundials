@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-26 20:15:32 $
+ * $Revision: 1.25 $
+ * $Date: 2004-11-05 23:35:41 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -22,33 +22,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "ida_impl.h"
 #include "idabbdpre_impl.h"
 #include "idaspgmr_impl.h"
+
 #include "sundialsmath.h"
-#include "iterative.h"
+
 
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
 #define TWO          RCONST(2.0)
-
-/* Error messages */
-
-#define IDABBDALLOC      "IBBDPrecAlloc-- "
-#define MSG_IDAMEM_NULL  IDABBDALLOC "Integrator Memory is NULL.\n\n"
-#define MSG_BAD_NVECTOR  IDABBDALLOC "A required vector operation is not implemented.\n\n"
-#define MSG_WRONG_NVEC   IDABBDALLOC "Incompatible NVECTOR implementation.\n\n"
-#define MSG_PDATA_NULL   "IBBDPrecGet*-- BBDPrecData is NULL. \n\n"
-
-#define MSG_NO_PDATA     "IBBDSpgmr-- BBDPrecData is NULL. \n\n"
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
 static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
                      N_Vector yy, N_Vector yp, N_Vector gref, 
                      N_Vector ytemp, N_Vector yptemp, N_Vector gtemp);
-
-/**********************************************************************/
 
 /* Readability Replacements */
 
@@ -74,7 +64,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   long int muk, mlk, storage_mu;
 
   if (ida_mem == NULL) {
-    fprintf(stderr, MSG_IDAMEM_NULL);
+    fprintf(stderr, MSGBBD_IDAMEM_NULL);
     return(NULL);
   }
 
@@ -82,7 +72,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 
   /* Test if the NVECTOR package is compatible with BLOCK BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    if(errfp!=NULL) fprintf(errfp, MSGBBD_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -145,7 +135,7 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
   int flag;
 
   if ( bbd_data == NULL ) {
-    fprintf(stderr, MSG_NO_PDATA);
+    fprintf(stderr, MSGBBD_NO_PDATA);
     return(IDA_PDATA_NULL);
   }
 
@@ -212,7 +202,7 @@ int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwB
   IBBDPrecData pdata;
 
   if ( bbd_data == NULL ) {
-    fprintf(stderr, MSG_PDATA_NULL);
+    fprintf(stderr, MSGBBD_PDATA_NULL);
     return(IDA_PDATA_NULL);
   } 
 
@@ -229,7 +219,7 @@ int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   IBBDPrecData pdata;
 
   if ( bbd_data == NULL ) {
-    fprintf(stderr, MSG_PDATA_NULL);
+    fprintf(stderr, MSGBBD_PDATA_NULL);
     return(IDA_PDATA_NULL);
   } 
 

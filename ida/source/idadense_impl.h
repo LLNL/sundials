@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-10-08 15:26:54 $
+ * $Revision: 1.4 $
+ * $Date: 2004-11-05 23:35:41 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
  * This is the header file (private version) for the IDA/IDAS dense
  * linear solver module, IDADENSE.
@@ -56,6 +56,25 @@ typedef struct {
   int d_last_flag;       /* last error return flag               */
 
 } IDADenseMemRec, *IDADenseMem;
+
+/*
+ * -----------------------------------------------------------------
+ * Error Messages
+ * -----------------------------------------------------------------
+ */
+
+#define MSGD_IDAMEM_NULL        "IDADense-- integrator memory is NULL.\n\n"
+
+#define MSGD_MEM_FAIL           "IDADense-- a memory request failed.\n\n"
+
+#define MSGD_BAD_NVECTOR        "IDADense-- a required vector operation is not implemented.\n\n"
+
+#define MSGD_WRONG_NVEC         "IDADense-- incompatible NVECTOR implementation.\n\n"
+
+#define MSGD_SETGET_IDAMEM_NULL "IDADenseSet*/IDADenseGet*-- integrator memory is NULL. \n\n"
+
+#define MSGD_SETGET_LMEM_NULL   "IDADenseSet*/IDADenseGet*-- IDADENSE memory is NULL. \n\n"
+
 
 #endif
 

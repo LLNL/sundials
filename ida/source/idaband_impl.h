@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2004-10-08 15:26:54 $
+ * $Revision: 1.4 $
+ * $Date: 2004-11-05 23:35:41 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
  * This is the header file (private version) for the IDA/IDAS band
  * linear solver module, IDABAND. It interfaces between the band
@@ -65,6 +65,31 @@ typedef struct {
   int b_last_flag;          /* last error return flag                       */
 
 } IDABandMemRec, *IDABandMem;
+
+/*
+ * -----------------------------------------------------------------
+ * Error Messages 
+ * -----------------------------------------------------------------
+ */
+
+#define _IDABAND_              "IDABand-- "
+
+#define MSGB_IDAMEM_NULL        _IDABAND_ "Integrator memory is NULL.\n\n"
+
+#define MSGB_BAD_SIZES1         _IDABAND_ "illegal bandwidth parameter(s) "
+#define MSGB_BAD_SIZES2         "Must have 0 <=  mlower, mupper <= N-1.\n\n"
+#define MSGB_BAD_SIZES          MSGB_BAD_SIZES1 MSGB_BAD_SIZES2
+
+#define MSGB_MEM_FAIL           _IDABAND_ "a memory request failed.\n\n"
+
+#define MSGB_BAD_NVECTOR        _IDABAND_ "a required vector operation is not implemented.\n\n"
+
+#define MSGB_WRONG_NVEC         _IDABAND_ "incompatible NVECTOR implementation.\n\n"
+
+#define MSGB_SETGET_IDAMEM_NULL "IDABandSet*/IDABandGet*-- integrator memory is NULL. \n\n"
+
+#define MSGB_SETGET_LMEM_NULL   "IDABandSet*/IDABandGet*-- IDABAND memory is NULL. \n\n"
+
 
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-26 20:15:32 $
+ * $Revision: 1.6 $
+ * $Date: 2004-11-05 23:35:41 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,10 +26,15 @@ extern "C" {
 #include "idabbdpre.h"
 
 #include "band.h"
+#include "iterative.h"
 #include "nvector.h"
 #include "sundialstypes.h"
 
-/* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
+/*
+ * -----------------------------------------------------------------
+ * Prototypes of IDABBDPrecSetup and IDABBDPrecSolve 
+ * -----------------------------------------------------------------
+ */
 
 int IDABBDPrecSetup(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
@@ -42,7 +47,11 @@ int IDABBDPrecSolve(realtype tt,
 		    realtype c_j, realtype delta, void *prec_data, 
                     N_Vector tmp);
 
-/* Definition of IBBDPrecData */
+/*
+ * -----------------------------------------------------------------
+ * Definition of IBBDPrecData 
+ * -----------------------------------------------------------------
+ */
 
 typedef struct {
 
@@ -72,6 +81,20 @@ typedef struct {
   IDAMem IDA_mem;
 
 } *IBBDPrecData;
+
+/*
+ * -----------------------------------------------------------------
+ * Error Messages
+ * -----------------------------------------------------------------
+ */
+
+#define MSGBBD_IDAMEM_NULL  "IBBDPrecAlloc-- integrator memory is NULL.\n\n"
+#define MSGBBD_BAD_NVECTOR  "IBBDPrecAlloc-- a required vector operation is not implemented.\n\n"
+#define MSGBBD_WRONG_NVEC   "IBBDPrecAlloc-- incompatible NVECTOR implementation.\n\n"
+#define MSGBBD_PDATA_NULL   "IBBDPrecGet*-- BBDPrecData is NULL. \n\n"
+
+#define MSGBBD_NO_PDATA     "IBBDSpgmr-- BBDPrecData is NULL. \n\n"
+
 
 #endif
 
