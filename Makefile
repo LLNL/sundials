@@ -29,7 +29,7 @@ all:
 
 install: shared_lib cvode_lib ida_lib kinsol_lib cvodes_lib
 
-purge: shared_purge cvode_purge ida_purge kinsol_purge cvode_purge
+purge: shared_purge cvode_purge ida_purge kinsol_purge cvodes_purge
 
 #--------------------------------------------------------------------------------
 
@@ -42,6 +42,9 @@ shared_lib:
 cvode_lib:
 	@if test -d cvode; \
 		then cd cvode/source; make lib; \
+	fi
+	@if test -d cvode/fcmix; \
+		then cd cvode/fcmix; make lib; \
 	fi
 
 ida_lib:
@@ -65,12 +68,14 @@ cvodes_lib:
 #--------------------------------------------------------------------------------
 
 shared_purge:
-		@if test -d shared; \
+	@if test -d shared; \
 		then cd shared/source; make purge; \
-		else echo 'SHARED module does not exist!!! ERROR'; \
 	fi
 
 cvode_purge:
+	@if test -d cvode/fcmix; \
+		then cd cvode/fcmix; make purge; \
+	fi
 	@if test -d cvode; \
 		then cd cvode/source; make purge; \
 	fi
