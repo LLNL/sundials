@@ -30,6 +30,14 @@ tar uf $tarfile $distrobase/cvodes/source/cvdiag.c
 tar uf $tarfile $distrobase/cvodes/source/cvspgmr.c
 tar uf $tarfile $distrobase/cvodes/source/cvbandpre.c
 tar uf $tarfile $distrobase/cvodes/source/cvbbdpre.c
+tar uf $tarfile $distrobase/cvodes/source/cvodes_impl.h
+tar uf $tarfile $distrobase/cvodes/source/cvodea_impl.h
+tar uf $tarfile $distrobase/cvodes/source/cvdense_impl.h
+tar uf $tarfile $distrobase/cvodes/source/cvband_impl.h
+tar uf $tarfile $distrobase/cvodes/source/cvdiag_impl.h
+tar uf $tarfile $distrobase/cvodes/source/cvspgmr_impl.h
+tar uf $tarfile $distrobase/cvodes/source/cvbandpre_impl.h
+tar uf $tarfile $distrobase/cvodes/source/cvbbdpre_impl.h
 
 tar uf $tarfile $distrobase/cvodes/examples_ser/README
 tar uf $tarfile $distrobase/cvodes/examples_ser/Makefile.in

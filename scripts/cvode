@@ -28,6 +28,13 @@ tar uf $tarfile $distrobase/cvode/source/cvdiag.c
 tar uf $tarfile $distrobase/cvode/source/cvspgmr.c
 tar uf $tarfile $distrobase/cvode/source/cvbandpre.c
 tar uf $tarfile $distrobase/cvode/source/cvbbdpre.c
+tar uf $tarfile $distrobase/cvode/source/cvode_impl.h
+tar uf $tarfile $distrobase/cvode/source/cvdense_impl.h
+tar uf $tarfile $distrobase/cvode/source/cvband_impl.h
+tar uf $tarfile $distrobase/cvode/source/cvdiag_impl.h
+tar uf $tarfile $distrobase/cvode/source/cvspgmr_impl.h
+tar uf $tarfile $distrobase/cvode/source/cvbandpre_impl.h
+tar uf $tarfile $distrobase/cvode/source/cvbbdpre_impl.h
 
 tar uf $tarfile $distrobase/cvode/fcmix/Makefile.in
 tar uf $tarfile $distrobase/cvode/fcmix/fcvode.h
