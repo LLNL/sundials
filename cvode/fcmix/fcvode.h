@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2004-08-25 16:22:25 $
+ * $Revision: 1.28 $
+ * $Date: 2004-09-15 22:04:28 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -337,8 +337,8 @@
  *         3 = normal tstop mode (like 1, but integration never proceeds past 
  *             TSTOP, which must be specified through the user input ROPT(8))
  *         4 = one step tstop (like 2, but integration never goes past TSTOP)
- * IER   = completion flag: 0 = success, values -1 ... -10 are various
- *         failure modes (see CVODE manual).
+ * IER   = completion flag: 0 = success, 1 = tstop return, 2 = root return, 
+ *         values -1 ... -10 are various failure modes (see CVODE manual).
  * The current values of the optional outputs are available in IOPT and ROPT.
  * 
  * (8) Computing solution derivatives: FCVDKY
