@@ -1,36 +1,37 @@
-/*******************************************************************
- *                                                                 *
- * File          : iterative.c                                     *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
- * Version of    : 26 June 2002                                    *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This is the implementation file for the iterativ.h header       *
- * file. It contains the implementation of functions that may be   *
- * useful for many different iterative solvers of A x = b.         *
- *                                                                 *
- *******************************************************************/
-
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2004-07-22 20:31:32 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
+ *              Radu Serban, LLNL                               
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California 
+ * Produced at the Lawrence Livermore National Laboratory          
+ * All rights reserved                                             
+ * For details, see sundials/shared/LICENSE                        
+ * -----------------------------------------------------------------
+ * This is the implementation file for the iterativ.h header
+ * file. It contains the implementation of functions that may be
+ * useful for many different iterative solvers of A x = b.
+ * -----------------------------------------------------------------
+ */
 
 #include "iterative.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "sundialsmath.h"
 
-
 #define FACTOR RCONST(1000.0)
 #define ZERO   RCONST(0.0)
 #define ONE    RCONST(1.0)
 
-
-/************************* ModifiedGS ***********************************
- This implementation of ModifiedGS is a slight modification of a previous
- modified Gram-Schmidt routine (called mgs) written by Milo Dorr.
-*************************************************************************/
+/*
+ * ModifiedGS 
+ * This implementation of ModifiedGS is a slight modification of a 
+ * previous modified Gram-Schmidt routine (called mgs) written by 
+ * Milo Dorr.
+ */
  
 int ModifiedGS(N_Vector *v, realtype **h, int k, int p, 
                realtype *new_vk_norm)
@@ -81,10 +82,10 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
   return(0);
 }
 
-/************************ ClassicalGS ********************************
- This implementation of ClassicalGS was contributed to by Homer Walker
- and Peter Brown.
-**********************************************************************/
+/* ClassicalGS 
+ * This implementation of ClassicalGS was contributed by Homer Walker
+ * and Peter Brown.
+ */
 
 int ClassicalGS(N_Vector *v, realtype **h, int k, int p, 
                 realtype *new_vk_norm, N_Vector temp, realtype *s)
@@ -135,10 +136,10 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
   return(0);
 }
 
-/*************** QRfact **********************************************
- This implementation of QRfact is a slight modification of a previous
- routine (called qrfact) written by Milo Dorr.
-**********************************************************************/
+/* QRfact
+ * This implementation of QRfact is a slight modification of a previous
+ * routine (called qrfact) written by Milo Dorr.
+ */
 
 int QRfact(int n, realtype **h, realtype *q, int job)
 {
@@ -227,10 +228,10 @@ int QRfact(int n, realtype **h, realtype *q, int job)
   return (code);
 }
 
-/*************** QRsol ************************************************
- This implementation of QRsol is a slight modification of a previous
- routine (called qrsol) written by Milo Dorr.
-**********************************************************************/
+/* QRsol
+ * This implementation of QRsol is a slight modification of a previous
+ * routine (called qrsol) written by Milo Dorr.
+ */
 
 int QRsol(int n, realtype **h, realtype *q, realtype *b)
 {
