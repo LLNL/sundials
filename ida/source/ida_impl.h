@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-06-02 23:22:21 $
+ * $Revision: 1.2 $
+ * $Date: 2004-07-22 22:59:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -191,11 +191,6 @@ typedef struct IDAMemRec {
   /* Flag to indicate successful ida_linit call */
 
   booleantype ida_linitOK;
-
-
-  /* Pointer to Vector Sepcification Information   */
-
-  NV_Spec ida_nvspec;
 
 } *IDAMem;
 
