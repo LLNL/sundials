@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2004-10-26 20:13:24 $
+ * $Revision: 1.28 $
+ * $Date: 2004-10-26 20:51:24 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -287,7 +287,7 @@ extern "C" {
 
   int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
 
-  int CVSpgmrResetPrecTypeB(void *cvadj_mem, int pretypeB);
+  int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB);
 
   int CVSpgmrSetGSTypeB(void *cvadj_mem, int gstypeB);
   int CVSpgmrSetDeltB(void *cvadj_mem, realtype deltB);
