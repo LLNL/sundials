@@ -66,8 +66,8 @@ C. References
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
     to appear.
 
-D.1. Revision History since release 2.0 (July 2002)
----------------------------------------------------
+D.1. Revision History since release 2.0 (August 2002)
+-----------------------------------------------------
 
 - New features
    - added option to specify a value of the independent variable (time)
@@ -119,13 +119,11 @@ D.1. Revision History since release 2.0 (July 2002)
    - revised to use underscore and precision flags at compile time (from
      configure); example sources are preprocessed accordingly.
    - reorganized FCVODE into fewer files.
-   - added tstop, one-step, and STALD options, and interfaces to CVBANDPRE
-     and rootfinding capabilities.
+   - added tstop options, and interfaces to CVBANDPRE and rootfinding features.
    - use CV*Set* and CV*Get* functions from CVODE (although the optional I/O 
      is still communicated to the user of FCVODE through arrays IOPT and ROPT).
    - added new optional inputs and outputs (e.g.tstop, nlscoef, maxnef, maxcor, 
      maxncf, etc.) and rearranged locations in IOPT and ROPT for uniformity.
-   - added examples cvbandf and cvkryf.
 
 
 D.2 Summary of previous revisions (YYYYMMDD) (significant revisions only)
@@ -200,7 +198,7 @@ D.2.2 Parallel version of CVODE (PVODE)  (July 1995 - March 2002)
           to it.  Revised pvkxb and pvidagkbf examples accordingly.
 
 
-D.2.3. Combined CVODE package (March 2002 - June 2002)
+D.2.3. Combined CVODE package (March 2002 - July 2002)
 ------------------------------------------------------
 
 20020313  Modified to work with new NVECTOR abstraction.
