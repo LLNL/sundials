@@ -1,7 +1,7 @@
 /*
  * ----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-05-03 21:24:50 $
+ * $Revision: 1.16 $
+ * $Date: 2004-07-26 17:27:14 $
  * ----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -250,6 +250,8 @@
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
+#if defined(SUNDIALS_CASE_LOWER)
+
 #define FKIN_BBDINIT   fkinbbdinit
 #define FKIN_BBDSPGMR  fkinbbdspgmr
 #define FKIN_BBDOPT    fkinbbdopt
@@ -257,7 +259,20 @@
 #define FK_COMMFN      fkcommfn
 #define FK_LOCFN       fklocfn
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FKIN_BBDINIT   FKINBBDINIT
+#define FKIN_BBDSPGMR  FKINBBDSPGMR
+#define FKIN_BBDOPT    FKINBBDOPT
+#define FKIN_BBDFREE   FKINBBDFREE
+#define FK_COMMFN      FKCOMMFN
+#define FK_LOCFN       FKLOCFN
+
+#endif
+
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_BBDINIT   fkinbbdinit__
 #define FKIN_BBDSPGMR  fkinbbdspgmr__
@@ -266,7 +281,20 @@
 #define FK_COMMFN      fkcommfn__
 #define FK_LOCFN       fklocfn__
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FKIN_BBDINIT   FKINBBDINIT__
+#define FKIN_BBDSPGMR  FKINBBDSPGMR__
+#define FKIN_BBDOPT    FKINBBDOPT__
+#define FKIN_BBDFREE   FKINBBDFREE__
+#define FK_COMMFN      FKCOMMFN__
+#define FK_LOCFN       FKLOCFN__
+
+#endif
+
 #else
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_BBDINIT   fkinbbdinit_
 #define FKIN_BBDSPGMR  fkinbbdspgmr_
@@ -274,6 +302,17 @@
 #define FKIN_BBDFREE   fkinbbdfree_
 #define FK_COMMFN      fkcommfn_
 #define FK_LOCFN       fklocfn_
+
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FKIN_BBDINIT   FKINBBDINIT_
+#define FKIN_BBDSPGMR  FKINBBDSPGMR_
+#define FKIN_BBDOPT    FKINBBDOPT_
+#define FKIN_BBDFREE   FKINBBDFREE_
+#define FK_COMMFN      FKCOMMFN_
+#define FK_LOCFN       FKLOCFN_
+
+#endif
 
 #endif
 

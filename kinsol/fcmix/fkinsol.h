@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-06-02 23:06:11 $
+ * $Revision: 1.17 $
+ * $Date: 2004-07-26 17:27:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -305,6 +305,8 @@
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
+#if defined(SUNDIALS_CASE_LOWER)
+
 #define FKIN_MALLOC        fkinmalloc
 #define FKIN_SPGMR         fkinspgmr
 #define FKIN_SPGMRSETJAC   fkinspgmrsetjac
@@ -317,7 +319,25 @@
 #define FK_PSOL            fkpsol
 #define FK_JTIMES          fkjtimes
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FKIN_MALLOC        FKINMALLOC
+#define FKIN_SPGMR         FKINSPGMR
+#define FKIN_SPGMRSETJAC   FKINSPGMRSETJAC
+#define FKIN_SPGMRSETPSOL  FKINSPGMRSETPSOL
+#define FKIN_SPGMRSETPSET  FKINSPGMRSETPSET
+#define FKIN_SOL           FKINSOL
+#define FKIN_FREE          FKINFREE
+#define FK_FUN             FKFUN
+#define FK_PSET            FKPSET
+#define FK_PSOL            FKPSOL
+#define FK_JTIMES          FKJTIMES
+
+#endif
+
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC        fkinmalloc__
 #define FKIN_SPGMR         fkinspgmr__
@@ -331,7 +351,25 @@
 #define FK_PSOL            fkpsol__
 #define FK_JTIMES          fkjtimes__
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FKIN_MALLOC        FKINMALLOC__
+#define FKIN_SPGMR         FKINSPGMR__
+#define FKIN_SPGMRSETJAC   FKINSPGMRSETJAC__
+#define FKIN_SPGMRSETPSOL  FKINSPGMRSETPSOL__
+#define FKIN_SPGMRSETPSET  FKINSPGMRSETPSET__
+#define FKIN_SOL           FKINSOL__
+#define FKIN_FREE          FKINFREE__
+#define FK_FUN             FKFUN__
+#define FK_PSET            FKPSET__
+#define FK_PSOL            FKPSOL__
+#define FK_JTIMES          FKJTIMES__
+
+#endif
+
 #else
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC        fkinmalloc_
 #define FKIN_SPGMR         fkinspgmr_
@@ -344,6 +382,22 @@
 #define FK_PSET            fkpset_
 #define FK_PSOL            fkpsol_
 #define FK_JTIMES          fkjtimes_
+
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FKIN_MALLOC        FKINMALLOC_
+#define FKIN_SPGMR         FKINSPGMR_
+#define FKIN_SPGMRSETJAC   FKINSPGMRSETJAC_
+#define FKIN_SPGMRSETPSOL  FKINSPGMRSETPSOL_
+#define FKIN_SPGMRSETPSET  FKINSPGMRSETPSET_
+#define FKIN_SOL           FKINSOL_
+#define FKIN_FREE          FKINFREE_
+#define FK_FUN             FKFUN_
+#define FK_PSET            FKPSET_
+#define FK_PSOL            FKPSOL_
+#define FK_JTIMES          FKJTIMES_
+
+#endif
 
 #endif
 

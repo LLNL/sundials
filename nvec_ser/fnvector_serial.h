@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-07-22 21:12:43 $
+ * $Revision: 1.8 $
+ * $Date: 2004-07-26 17:26:53 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban, LLNL
  * -----------------------------------------------------------------
@@ -27,18 +27,45 @@ extern "C" {
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
+#if defined(SUNDIALS_CASE_LOWER)
+
 #define FNV_INITS  fnvinits
 #define FNV_FREES  fnvfrees
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FNV_INITS  FNVINITS
+#define FNV_FREES  FNVFREES
+
+#endif
+
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FNV_INITS  fnvinits__
 #define FNV_FREES  fnvfrees__
 
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FNV_INITS  FNVINITS__
+#define FNV_FREES  FNVFREES__
+
+#endif
+
 #else
+
+#if defined(SUNDIALS_CASE_LOWER)
 
 #define FNV_INITS  fnvinits_
 #define FNV_FREES  fnvfrees_
+
+#elif defined(SUNDIALS_CASE_UPPER)
+
+#define FNV_INITS  FNVINITS_
+#define FNV_FREES  FNVFREES_
+
+#endif
 
 #endif
 
