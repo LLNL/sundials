@@ -36,7 +36,20 @@
 
 #define MSG_NO_PDATA   "CVBBDSpgmr-- BBDPrecData is NULL. \n\n"
 
+/* Prototypes of functions CVBBDPrecSetup and CVBBDPrecSolve */
+
+static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
+                          booleantype jok, booleantype *jcurPtr, 
+                          realtype gamma, void *p_data, 
+                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
+                          N_Vector r, N_Vector z, 
+                          realtype gamma, realtype delta,
+                          int lr, void *p_data, N_Vector tmp);
+
 /* Prototype for difference quotient Jacobian calculation routine */
+
 static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
                        N_Vector y, N_Vector gy, 
                        N_Vector ytemp, N_Vector gtemp);
@@ -306,10 +319,10 @@ int CVBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
  *   1  for a recoverable error (step will be retried).           *
  ******************************************************************/
 
-int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                   booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *p_data, 
-                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
+                          booleantype jok, booleantype *jcurPtr, 
+                          realtype gamma, void *p_data, 
+                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   long int ier;
   CVBBDPrecData pdata;
@@ -362,10 +375,10 @@ int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
  * indicating success.                                            *
  ******************************************************************/
 
-int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                   N_Vector r, N_Vector z, 
-                   realtype gamma, realtype delta,
-                   int lr, void *p_data, N_Vector tmp)
+static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
+                          N_Vector r, N_Vector z, 
+                          realtype gamma, realtype delta,
+                          int lr, void *p_data, N_Vector tmp)
 {
   CVBBDPrecData pdata;
   realtype *zd;

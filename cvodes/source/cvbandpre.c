@@ -39,6 +39,18 @@
 
 #define MSG_NO_PDATA   "CVBPSpgmr-- BandPrecData is NULL. \n\n"
 
+/* Prototypes of CVBandPrecSetup and CVBandPrecSolve */
+  
+static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
+                           booleantype jok, booleantype *jcurPtr, 
+                           realtype gamma, void *bp_data,
+                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
+                           N_Vector r, N_Vector z, 
+                           realtype gamma, realtype delta,
+                           int lr, void *bp_data, N_Vector tmp);
+
 /* Prototype for difference quotient Jacobian calculation routine */
 
 static void CVBandPDQJac(CVBandPrecData pdata, 
@@ -266,10 +278,10 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 
  ******************************************************************/
 
-int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                    booleantype jok, booleantype *jcurPtr, 
-                    realtype gamma, void *bp_data,
-                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
+                           booleantype jok, booleantype *jcurPtr, 
+                           realtype gamma, void *bp_data,
+                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   long int ier;
   CVBandPrecData pdata;
@@ -321,10 +333,10 @@ int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
  
  ******************************************************************/
 
-int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                    N_Vector r, N_Vector z, 
-                    realtype gamma, realtype delta,
-                    int lr, void *bp_data, N_Vector tmp)
+static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
+                           N_Vector r, N_Vector z, 
+                           realtype gamma, realtype delta,
+                           int lr, void *bp_data, N_Vector tmp)
 {
   CVBandPrecData pdata;
   realtype *zd;

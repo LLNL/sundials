@@ -310,18 +310,6 @@ int CVBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 /* OKAY = 0 */
 enum { BBDP_NO_PDATA = -1 };
 
-/*** Prototypes of functions CVBBDPrecSetup and CVBBDPrecSolve ****/
-  
-int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                   booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, void *p_data, 
-                   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
-int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                   N_Vector r, N_Vector z, 
-                   realtype gamma, realtype delta,
-                   int lr, void *p_data, N_Vector tmp);
-
 #endif
 
 #ifdef __cplusplus

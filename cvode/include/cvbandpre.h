@@ -187,18 +187,6 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 /* OKAY = 0 */
 enum { BP_NO_PDATA = -1 };
 
-/* Prototypes of CVBandPrecSetup and CVBandPrecSolve */
-  
-int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                    booleantype jok, booleantype *jcurPtr, 
-                    realtype gamma, void *bp_data,
-                    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
-int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                    N_Vector r, N_Vector z, 
-                    realtype gamma, realtype delta,
-                    int lr, void *bp_data, N_Vector tmp);
-
 #endif
 
 #ifdef __cplusplus
