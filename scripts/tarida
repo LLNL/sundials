@@ -100,8 +100,8 @@ tar uf $filename sundials/shared/doc/nvecreadme
 
 tar uf $filename sundials/shared/lib/.dontremove
 
-tar uf $filename sundials/shared/include/llnltyps.h
-tar uf $filename sundials/shared/include/llnlmath.h
+tar uf $filename sundials/shared/include/sundialstypes.h
+tar uf $filename sundials/shared/include/sundialsmath.h
 tar uf $filename sundials/shared/include/nvector.h
 tar uf $filename sundials/shared/include/dense.h
 tar uf $filename sundials/shared/include/smalldense.h
@@ -111,7 +111,7 @@ tar uf $filename sundials/shared/include/iterativ.h
 tar uf $filename sundials/shared/include/fcmixpar.h
 
 tar uf $filename sundials/shared/source/Makefile
-tar uf $filename sundials/shared/source/llnlmath.c
+tar uf $filename sundials/shared/source/sundialsmath.c
 tar uf $filename sundials/shared/source/nvector.c
 tar uf $filename sundials/shared/source/dense.c
 tar uf $filename sundials/shared/source/smalldense.c
