@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-01-26 22:18:55 $
+# $Revision: 1.12 $
+# $Date: 2005-02-25 01:17:41 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,8 +50,7 @@ OBJECT_FILES = idas.o idaa.o idasic.o idasio.o idaband.o idadense.o idaspbcg.o i
 all: update $(IDAS_LIB_FILES)
 
 update:
-	@echo "${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h" ; \
-	 ${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h
+	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(IDAS_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
