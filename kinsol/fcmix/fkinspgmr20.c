@@ -2,7 +2,7 @@
  *                                                                *
  * File          : fkinspgmr20.c                                  *
  * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 17 January 2001                                *
+ * Version of    : 30 July 2002                                   *
  *----------------------------------------------------------------*
  * Routine used to interface between a Fortran main and the       *
  * various options available re preconditioning and user-supplied *
@@ -16,7 +16,7 @@
 
 /***************************************************************************/
 
-void F_KINSPGMR20( int *maxl, int *maxlrst, int *msbpre)
+void F_KINSPGMR20(int *maxl, int *maxlrst, int *msbpre, int *ier)
 {
   /* Call KINSpgmr to specify the SPGMR linear solver:
 
@@ -33,5 +33,6 @@ void F_KINSPGMR20( int *maxl, int *maxlrst, int *msbpre)
      NULL        is a pointer to the user ATimes interface routine     
      NULL        is a pointer to the P_data memory structure  */
 
-  KINSpgmr (KIN_kmem, *maxl, *maxlrst, *msbpre, KINPreco, KINPSol, NULL, NULL);
+  *ier = KINSpgmr (KIN_kmem, *maxl, *maxlrst, *msbpre, KINPreco, KINPSol,
+                   NULL, NULL);
 }
