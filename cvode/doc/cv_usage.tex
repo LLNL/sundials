@@ -89,7 +89,7 @@ the corresponding header files are:
 \end{itemize}
 %%
 Note that both these files include in turn the header file \Id{nvector.h} which 
-defines the abstract \Id{N\_Vector} and \Id{N\_VSpec} types. 
+defines the abstract \Id{N\_Vector} type. 
 
 Finally, if the user chooses Newton iteration for the solution of the nonlinear
 systems, then a linear solver module header file will be required. 
@@ -163,39 +163,38 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
   problem size $N$, and the sum of all the values of \id{Nlocal});
   and the active set of processors.
   
-\item\label{i:nv_spec_init}
-  {\bf Initialize vector specification}\index{nvSpec@{\tt nvSpec}}
+\item
+  {\bf Set vector of initial values}
+ 
+  To set the vector \id{y0} of initial values, use functions defined by a
+  particular {\nvector} implementation.  If a data structure \id{ydata}
+  already exists, containing the initial values of $y$, make the call:
 
-  {\s} \id{nvSpec = }\Id{NV\_SpecInit\_Serial}\id{(N);}
+  {\s} \id{y0 = NV\_Make\_Serial(N, ydata);}
 
-  {\p} \id{nvSpec = }\Id{NV\_SpecInit\_Parallel}\id{(comm, Nlocal, N, \&argc, \&argv);}
+  {\p} \id{y0 = NV\_Make\_Parallel(comm, Nlocal, N, ydata);}
+
+  Otherwise, make the call:
+
+  {\s} \id{y0 = NV\_New\_Serial(N);}
+
+  {\p} \id{y0 = NV\_New\_Parallel(comm, Nlocal, N);}
+
+  and load initial values into the structure defined by:
+
+  {\s} \id{NV\_DATA\_S(y0)}
+
+  {\p} \id{NV\_DATA\_P(y0)}
+
   Here \id{comm} is the MPI communicator, set in one of two ways: 
   If a proper subset of active processors is to be used, \id{comm} 
   must be set by suitable MPI calls. Otherwise, to specify that all 
   processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
   
-\item
-  {\bf Set initial values}
- 
-  To set the vector \id{y0} of initial values, use macros defined by a
-  particular {\nvector} implementation:
-
-  {\s} \id{NV\_MAKE\_S(y0, ydata, nvSpec);}
-
-  {\p} \id{NV\_MAKE\_P(y0, ydata, nvSpec);}
-
-  if an existing real array \id{ydata} contains the initial values of $y$.  
-  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(nvSpec);} and load 
-  initial values into the real array defined by:
-
-  {\s} \id{NV\_DATA\_S(y0)}
-
-  {\p} \id{NV\_DATA\_P(y0)}
-  
 \item\label{i:cvode_create} 
   {\bf Create {\cvode} object}
 
-  Call \id{cvode\_mem = }\id{CVodeCreate}\id{(...);} 
+  Call \id{cvode\_mem = }\id{CVodeCreate}\id{(lmm,iter);} 
   to create the {\cvode} memory block and specify the solution method
   (linear multistep method and nonlinear solver iteration type).
   \id{CVodeCreate} returns a pointer to the {\cvode} memory structure.
@@ -267,27 +266,26 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
   {\bf Deallocate memory for solution vector}
 
   Upon completion of the integration, deallocate memory for the vector \id{y}
-  by either calling a macro defined by the {\nvector} implementation:
+  by calling a function defined by the {\nvector} implementation.  If
+  \id{y} was created from \id{ydata}, make the call:
 
-  {\s} \id{NV\_DISPOSE\_S(y);}
+  {\s} \id{NV\_Dispose\_Serial(y);}
 
-  {\p} \id{NV\_DISPOSE\_P(y);}
+  {\p} \id{NV\_Dispose\_Parallel(y);}
 
-  if \id{y} was created from \id{ydata}, or by making the call 
-  \Id{N\_VFree}\id{(y);} if \id{y} was created by a call to \id{N\_VNew}.
+  If \id{y} was created by a call to \id{N\_VNew\_Serial} or
+  \id{N\_VNew\_Parallel}, then make the call:
+
+  {\s} \id{NV\_Destroy\_Serial(y);}
+
+  {\p} \id{NV\_Destroy\_Parallel(y);}
+
   
 \item
   {\bf Free solver memory}
 
   \Id{CVodeFree}\id{(cvode\_mem);} to free the memory allocated for {\cvode}.
   
-\item
-  {\bf Free vector specification memory}
-
-  {\s} \Id{NV\_SpecFree\_Serial}\id{(nvSpec);}
-
-  {\p} \Id{NV\_SpecFree\_Parallel}\id{(nvSpec);}
-
 \item 
   {\bf {\p} Finalize MPI}
   
@@ -1909,9 +1907,7 @@ which are then described in detail in the remainder of this section.
 \hline
 \multicolumn{2}{|c|}{\bf CVODE main solver} \\
 \hline
-Size of {\cvode} integer workspace & \id{CVodeGetIntWorkSpace} \\
-Size of {\cvode} real workspace & \id{CVodeGetRealWorkSpace} \\
-Size of both {\cvode} workspaces & \id{CVodeGetWorkSpace} \\
+Size of {\cvode} real and integer workspaces & \id{CVodeGetWorkSpace} \\
 Cumulative number of internal steps & \id{CVodeGetNumSteps} \\
 No. of calls to r.h.s. function & \id{CVodeGetNumRhsEvals} \\
 No. of calls to linear solver setup function & \id{CVodeGetNumLinSolvSetups} \\
@@ -1935,28 +1931,24 @@ No. of calls to user root function & \id{CVodeGetNumGEvals} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVDENSE linear solver} \\
 \hline
-Size of {\cvdense} integer workspace & \id{CVDenseGetIntWorkSpace} \\
-Size of {\cvdense} real workspace & \id{CVDenseGetRealWorkSpace} \\
+Size of {\cvdense} real and integer workspaces & \id{CVDenseGetWorkSpace} \\
 No. of Jacobian evaluations & \id{CVDenseGetNumJacEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDenseGetNumRhsEvals} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf CVBAND linear solver} \\
 \hline
-Size of {\cvband} integer workspace & \id{CVBandGetIntWorkSpace} \\
-Size of {\cvband} real workspace & \id{CVBandGetRealWorkSpace} \\
+Size of {\cvband} real and integer workspaces & \id{CVBandGetWorkSpace} \\
 No. of Jacobian evaluations & \id{CVBandGetNumJacEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVBandGetNumRhsEvals} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf CVDIAG linear solver} \\
 \hline
-Size of {\cvdiag} integer workspace & \id{CVDiagGetIntWorkSpace} \\
-Size of {\cvdiag} real workspace & \id{CVDiagGetRealWorkSpace} \\
+Size of {\cvdiag} real and integer workspaces & \id{CVDiagGetWorkSpace} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDiagGetNumRhsEvals} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
-Size of {\cvspgmr} integer workspace & \id{CVSpgmrGetIntWorkSpace} \\
-Size of {\cvspgmr} real workspace & \id{CVSpgmrGetRealWorkSpace} \\
+Size of {\cvspgmr} real and integer workspaces & \id{CVSpgmrGetWorkSpace} \\
 No. of linear iterations & \id{CVSpgmrGetNumLinIters} \\
 No. of linear convergence failures & \id{CVSpgmrGetNumConvFails} \\
 No. of preconditioner evaluations & \id{CVSpgmrGetNumPrecEvals} \\
@@ -1985,61 +1977,6 @@ outputs in groups.
 These optional output functions are described next.
 %%
 \index{memory requirements!CVODE@{\cvode} solver|(}
-%%
-\ucfunction{CVodeGetIntWorkSpace}
-{
-  flag = CVodeGetIntWorkSpace(cvode\_mem, \&leniw);
-}
-{
-  The function \ID{CVodeGetIntWorkSpace} returns the
-  {\cvode} integer workspace size.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[leniw] (\id{long int})
-    number of integer values in the {\cvode} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
-    The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{}
-%%
-\ucfunction{CVodeGetRealWorkSpace}
-{
-  flag = CVodeGetRealWorkSpace(cvode\_mem, \&lenrw);
-}
-{
-  The function \ID{CVodeGetRealWorkSpace} returns the
-  {\cvode} real workspace size.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[lenrw] (\id{long int})
-    number of \id{realtype} values in the {\cvode} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVG\_NO\_MEM]
-  \item[\Id{OKAY}] 
-    The optional output value has been successfully set.
-  \item[\Id{CVG\_NO\_MEM}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{}
-%%
 %%
 \ucfunction{CVodeGetWorkSpace}
 {
@@ -2637,18 +2574,20 @@ to access these are described below.
 \index{CVDENSE@{\cvdense} linear solver!memory requirements|(} 
 \index{memory requirements!CVDENSE@{\cvdense} linear solver|(}
 %%
-\ucfunction{CVDenseGetIntWorkSpace}
+\ucfunction{CVDenseGetWorkSpace}
 {
-  flag = CVDenseGetIntWorkSpace(cvode\_mem, \&leniwD);
+  flag = CVDenseGetWorkSpace(cvode\_mem, \&lenrwD, \&leniwD);
 }
 {
-  The function \ID{CVDenseGetIntWorkSpace} returns the
-  {\cvdense} integer workspace size.
+  The function \ID{CVDenseGetWorkSpace} returns the
+  {\cvdense} real and integer workspace sizes.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
+  \item[lenrwD] (\id{long int})
+    the number of \id{realtype} values in the {\cvdense} workspace.
   \item[leniwD] (\id{long int})
     the number of integer values in the {\cvdense} workspace.
   \end{args}
@@ -2665,40 +2604,9 @@ to access these are described below.
   \end{args}
 }
 {
-  In terms of the problem size $N$, the actual size of the integer workspace
-  is $N$ integer words.
-}
-%%
-\ucfunction{CVDenseGetRealWorkSpace}
-{
-  flag = CVDenseGetRealWorkSpace(cvode\_mem, \&lenrwD);
-}
-{
-  The function \ID{CVDenseGetRealWorkSpace} returns the
-  {\cvdense} real workspace size.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[lenrwD] (\id{long int})
-    the number of \id{realtype} values in the {\cvdense} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
-    The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
-    The {\cvdense} linear solver has not been initialized.
-  \end{args}
-}
-{
   In terms of the problem size $N$, the actual size of the real workspace
-  is $2N^2$ \id{realtype} words.
+  is $2N^2$ \id{realtype} words, and the actual size of the integer workspace
+  is $N$ integer words.
 }
 %%
 \index{CVDENSE@{\cvdense} linear solver!memory requirements|)} 
@@ -2781,18 +2689,20 @@ to access these are described below.
 \index{CVBAND@{\cvband} linear solver!memory requirements|(} 
 \index{memory requirements!CVBAND@{\cvband} linear solver|(}
 %%
-\ucfunction{CVBandGetIntWorkSpace}
+\ucfunction{CVBandGetWorkSpace}
 {
-  flag = CVBandGetIntWorkSpace(cvode\_mem, \&leniwB);
+  flag = CVBandGetWorkSpace(cvode\_mem, \&lenrwB, \&leniwB);
 }
 {
-  The function \ID{CVBandGetIntWorkSpace} returns the
-  {\cvband} integer workspace size.
+  The function \ID{CVBandGetWorkSpace} returns the
+  {\cvband} real and integer workspace sizes.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
+  \item[lenrwB] (\id{long int})
+    the number of \id{realtype} values in the {\cvband} workspace.
   \item[leniwB] (\id{long int})
     the number of integer values in the {\cvband} workspace.
   \end{args}
@@ -2809,41 +2719,10 @@ to access these are described below.
   \end{args}
 }
 {
-  In terms of the problem size $N$, the actual size of the integer workspace
-  is $N$ integer words.
-}
-%%
-\ucfunction{CVBandGetRealWorkSpace}
-{
-  flag = CVBandGetRealWorkSpace(cvode\_mem, \&lenrwB);
-}
-{
-  The function \ID{CVBandGetRealWorkSpace} returns the
-  {\cvband} real workspace size.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[lenrwB] (\id{long int})
-    the number of \id{realtype} values in the {\cvband} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
-    The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
-    The {\cvband} linear solver has not been initialized.
-  \end{args}
-}
-{
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
-  the actual size of the real workspace
-  $N\,(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)$ \id{realtype} words.
+  the actual size of the real workspace is
+  $(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)\, N$ \id{realtype} words,
+  and the actual size of the integer workspace is $N$ integer words.
 }
 %%
 \index{CVBAND@{\cvband} linear solver!memory requirements|)} 
@@ -2926,18 +2805,20 @@ to access these are described below.
 \index{CVDIAG@{\cvdiag} linear solver!memory requirements|(} 
 \index{memory requirements!CVDIAG@{\cvdiag} linear solver|(}
 %%
-\ucfunction{CVDiagGetIntWorkSpace}
+\ucfunction{CVDiagGetWorkSpace}
 {
-  flag = CVDiagGetIntWorkSpace(cvode\_mem, \&leniwDI);
+  flag = CVDiagGetWorkSpace(cvode\_mem, \&lenrwDI, \&leniwDI);
 }
 {
-  The function \ID{CVDiagGetIntWorkSpace} returns the
-  {\cvdiag} integer workspace size.
+  The function \ID{CVDiagGetWorkSpace} returns the
+  {\cvdiag} real and integer workspace sizes.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
+  \item[lenrwDI] (\id{long int})
+    the number of \id{realtype} values in the {\cvdiag} workspace.
   \item[leniwDI] (\id{long int})
     the number of integer values in the {\cvdiag} workspace.
   \end{args}
@@ -2953,38 +2834,9 @@ to access these are described below.
     The {\cvdiag} linear solver has not been initialized.
   \end{args}
 }
-{}
-%%
-\ucfunction{CVDiagGetRealWorkSpace}
-{
-  flag = CVDiagGetRealWorkSpace(cvode\_mem, \&lenrwDI);
-}
-{
-  The function \ID{CVDiagGetRealWorkSpace} returns the
-  {\cvdiag} real workspace size.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[lenrwDI] (\id{long int})
-    the number of \id{realtype} values in the {\cvdiag} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
-    The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
-    The {\cvdiag} linear solver has not been initialized.
-  \end{args}
-}
 {
   In terms of the problem size $N$, the actual size of the real workspace
-  $3 N$ \id{realtype} words.
+  is $3 N$ \id{realtype} words.
 }
 %%
 \index{CVDIAG@{\cvdiag} linear solver!memory requirements|)} 
@@ -3038,49 +2890,22 @@ to access these are described below.
 \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements|(} 
 \index{memory requirements!CVSPGMR@{\cvspgmr} linear solver|(}
 %%
-\ucfunction{CVSpgmrGetIntWorkSpace}
+\ucfunction{CVSpgmrGetWorkSpace}
 {
-  flag = CVSpgmrGetIntWorkSpace(cvode\_mem, \&leniwSG);
+  flag = CVSpgmrGetWorkSpace(cvode\_mem, \&lenrwSG, \&leniwSG);
 }
 {
-  The function \ID{CVSpgmrGetIntWorkSpace} returns the
-  {\cvspgmr} integer workspace size.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[leniwSG] (\id{long int})
-    the number of integer values in the {\cvspgmr} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[LIN\_NO\_LMEM]
-  \item[\Id{OKAY}] 
-    The optional output value has been successfully set.
-  \item[\Id{LIN\_NO\_MEM}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{LIN\_NO\_LMEM}]
-    The {\cvspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{}
-%%
-\ucfunction{CVSpgmrGetRealWorkSpace}
-{
-  flag = CVSpgmrGetRealWorkSpace(cvode\_mem, \&lenrwSG);
-}
-{
-  The function \ID{CVSpgmrGetRealWorkSpace} returns the
-  {\cvspgmr} real workspace size.
+  The function \ID{CVSpgmrGetWorkSpace} returns the
+  {\cvspgmr} real and integer workspace sizes.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[lenrwSG] (\id{long int})
-    the number of \id{realtype} values in the {\cvspgmr} workspace.
+    the global number of \id{realtype} values in the {\cvspgmr} workspace.
+  \item[leniwSG] (\id{long int})
+    the global number of integer values in the {\cvspgmr} workspace.
   \end{args}
 }
 {
@@ -3097,7 +2922,9 @@ to access these are described below.
 {
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is
-  $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$ \id{realtype} words.
+  $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$ \id{realtype}
+  words.  (In a parallel setting, this value is global --- totalled over
+  all processors.)
 }
 %%
 \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements|)} 
@@ -3312,8 +3139,10 @@ automatically fulfilled if the multistep method parameter \Id{lmm}
 is unchanged (or changed from \Id{ADAMS} to \Id{BDF}) and the default    
 value for \id{maxord} is specified.
 
-The {\nvector} module specification \id{nvSpec} set for the previous problem
-will be reused for the new problem.
+If there are changes to the linear solver specifications, make the
+appropriate \id{Set} or \id{Reset} calls, as described in
+\S\ref{sss:lin_solv_init}
+
 %%
 %%
 \ucfunction{CVodeReInit}
@@ -4025,10 +3854,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Set problem dimensions}
 
 \item
-  \textcolor{gray}{\bf Initialize vector specification}
-
-\item
-  \textcolor{gray}{\bf Set initial values}
+  \textcolor{gray}{\bf Set vector of initial values}
  
 \item
   \textcolor{gray}{\bf Create {\cvode} object}
@@ -4086,9 +3912,6 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Free solver memory}
   
-\item
-  \textcolor{gray}{\bf Free vector specification memory}
-
 \end{Steps}
 %%
 %%
@@ -4199,18 +4022,21 @@ The following three optional output functions are available for use with
 the {\cvbandpre} module:
 %%
 \index{memory requirements!CVBANDPRE@{\cvbandpre} preconditioner|(}
-\ucfunction{CVBandPrecGetIntWorkSpace}
+%%
+\ucfunction{CVBandPrecGetWorkSpace}
 {
-  flag = CVBandPrecGetIntWorkSpace(bp\_data, \&leniwBP);
+  flag = CVBandPrecGetWorkSpace(bp\_data, \&lenrwBP, \&leniwBP);
 }
 {
-  The function \ID{CVBandPrecGetIntWorkSpace} returns the
-  {\cvbandpre} integer workspace size.
+  The function \ID{CVBandPrecGetWorkSpace} returns the
+  {\cvbandpre} real and integer workspace sizes.
 }
 {
-  \begin{args}[leniwBP]
+  \begin{args}[lenrwBP]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
+  \item[lenrwBP] (\id{long int})
+    the number of \id{realtype} values in the {\cvbandpre} workspace.
   \item[leniwBP] (\id{long int})
     the number of integer values in the {\cvbandpre} workspace.
   \end{args}
@@ -4225,40 +4051,11 @@ the {\cvbandpre} module:
   \end{args}
 }
 {
-  In terms of the problem size $N$, the actual sizes of the integer workspace
-  is $N$ integer words.
-}
-%%
-%%
-\ucfunction{CVBandPrecGetRealWorkSpace}
-{
-  flag = CVBandPrecGetRealWorkSpace(bp\_data, \&lenrwBP);
-}
-{
-  The function \ID{CVBandPrecGetRealWorkSpace} returns the
-  {\cvbandpre} real workspace size.
-}
-{
-  \begin{args}[lenrwBP]
-  \item[bp\_data] (\id{void *})
-    pointer to the {\cvbandpre} data structure.
-  \item[lenrwBP] (\id{long int})
-    the number of \id{realtype} values in the {\cvbandpre} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BP\_NO\_DATA]
-  \item[\Id{OKAY}] 
-    The optional output value has been successfully set.
-  \item[\Id{BP\_NO\_DATA}]
-    The {\cvbandpre} preconditioner has not been initialized.
-  \end{args}
-}
-{
-  In terms of the problem size $N$, the actual sizes of the real workspace is
-  $N\,(2$ \id{ml} $+$ \id{mu} $+$ \id{smu} $+2)$ \id{realtype} words,
-  where \id{smu} = $\min(N-1 ,$ \id{mu} $+$ \id{ml}$)$.
+  In terms of the problem size $N$, and the extended upper half-bandwidth
+  \id{smu} = $\min(N-1 ,$ \id{mu} $+$ \id{ml}$)$, the actual size of the
+  real workspace is $N\,(2$ \id{ml} $+$ \id{mu} $+$ \id{smu} $+2)$
+  \id{realtype} words, and the actual size of the integer workspace is $N$
+  integer words.
 }
 %%
 \index{memory requirements!CVBANDPRE@{\cvbandpre} preconditioner|)}
@@ -4483,10 +4280,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Set problem dimensions}
 
 \item
-  \textcolor{gray}{\bf Initialize vector specification}
-
-\item
-  \textcolor{gray}{\bf Set initial values}
+  \textcolor{gray}{\bf Set vector of initial values}
  
 \item
   \textcolor{gray}{\bf Create {\cvode} object}
@@ -4551,9 +4345,6 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item
   \textcolor{gray}{\bf Free solver memory}
   
-\item
-  \textcolor{gray}{\bf Free vector specification memory}
-
 \item 
   \textcolor{gray}{\bf Finalize MPI}
 
@@ -4739,51 +4530,22 @@ The following three optional output functions are available for use with
 the {\cvbbdpre} module:
 %%
 \index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner|(}
-\ucfunction{CVBBDPrecGetIntWorkSpace}
+\ucfunction{CVBBDPrecGetWorkSpace}
 {
-  flag = CVBBDPrecGetIntWorkSpace(bbd\_data, \&leniwBP);
+  flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
 }
 {
-  The function \ID{CVBBDPrecGetIntWorkSpace} returns the
-  {\cvbbdpre} integer workspace size.
-}
-{
-  \begin{args}[leniwBBDP]
-  \item[bbd\_data] (\id{void *})
-    pointer to the {\cvbbdpre} data structure.
-  \item[leniwBBDP] (\id{long int})
-    the number of integer values in the {\cvbbdpre} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[BBDP\_NO\_DATA]
-  \item[\Id{OKAY}] 
-    The optional output value has been successfully set.
-  \item[\Id{BBDP\_NO\_DATA}]
-    The {\cvbbdpre} preconditioner has not been initialized.
-  \end{args}
-}
-{
-  In terms of the local vector dimension $N_{l}$, the actual size of the integer
-  workspace is $N_l$ integer words.
-}
-%%
-%%
-\ucfunction{CVBBDPrecGetRealWorkSpace}
-{
-  flag = CVBBDPrecGetRealWorkSpace(bbd\_data, \&lenrwBBDP);
-}
-{
-  The function \ID{CVBBDPrecGetRealWorkSpace} returns the
-  {\cvbbdpre} real workspace size.
+  The function \ID{CVBBDPrecGetWorkSpace} returns the
+  {\cvbbdpre} real and integer workspace sizes.
 }
 {
   \begin{args}[lenrwBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
   \item[lenrwBBDP] (\id{long int})
-    the number of \id{realtype} values in the {\cvbbdpre} workspace.
+    the local number of \id{realtype} values in the {\cvbbdpre} workspace.
+  \item[leniwBBDP] (\id{long int})
+    the local number of integer values in the {\cvbbdpre} workspace.
   \end{args}
 }
 {
@@ -4796,10 +4558,12 @@ the {\cvbbdpre} module:
   \end{args}
 }
 {
-  In terms of the local vector dimension $N_l$, the actual size of the real
-  workspace is $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$
-  \id{realtype} words, where \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep}
-  $+$ \id{mlkeep}$)$.
+  In terms of the local vector dimension $N_l$, and the local extended upper
+  half-bandwidth \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$,
+  the actual size of the real workspace is
+  $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$
+  \id{realtype} words, and the actual size of the integer workspace is
+  $N_l$ integer words.  (These values are local to the current processor.)
 }
 %%
 \index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner|)}
@@ -5016,9 +4780,9 @@ and \S\ref{ss:optional_output}.
 %
 11 & O & \id{FCVODE}                   & \id{CVodeGetCurrentOrder} \\
 %
-12 & O & \id{FCVODE}                   & \id{CVodeGetRealWorkSpace} \\
+12 & O & \id{FCVODE}                   & \id{CVodeGetWorkSpace} [real \\
 %
-13 & O & \id{FCVODE}                   & \id{CVodeGetIntWorkSpace} \\
+13 & O & \id{FCVODE}                   & \id{CVodeGetWorkSpace} [integer] \\
 %
 14 & I & \id{FCVMALLOC}/\id{FCVREINIT} & \id{CVodeSetStabLimDet} \\
 %
@@ -5035,25 +4799,25 @@ and \S\ref{ss:optional_output}.
 \hline
 \multicolumn{4}{|c|}{{\cvdense} linear solver}\\
 \hline
-16 & O & \id{FCVODE}                   & \id{CVDenseGetRealWorkSpace} \\ 
-17 & O & \id{FCVODE}                   & \id{CVDenseGetIntWorkSpace} \\ 
+16 & O & \id{FCVODE}                   & \id{CVDenseGetWorkSpace} [real] \\ 
+17 & O & \id{FCVODE}                   & \id{CVDenseGetWorkSpace} [integer]\\ 
 18 & O & \id{FCVODE}                   & \id{CVDenseGetNumJacEvals} \\ 
 \hline
 \multicolumn{4}{|c|}{{\cvband} linear solver}\\
 \hline
-16 & O & \id{FCVODE}                   & \id{CVBandGetRealWorkSpace} \\ 
-17 & O & \id{FCVODE}                   & \id{CVBandGetIntWorkSpace} \\ 
+16 & O & \id{FCVODE}                   & \id{CVBandGetWorkSpace} [real] \\ 
+17 & O & \id{FCVODE}                   & \id{CVBandGetWorkSpace} [integer] \\ 
 18 & O & \id{FCVODE}                   & \id{CVBandGetNumJacEvals} \\ 
 \hline
 \multicolumn{4}{|c|}{{\cvdiag} linear solver}\\
 \hline
-16 & O & \id{FCVODE}                   & \id{CVDiagGetRealWorkSpace} \\ 
-17 & O & \id{FCVODE}                   & \id{CVDiagGetIntWorkSpace} \\ 
+16 & O & \id{FCVODE}                   & \id{CVDiagGetWorkSpace} [real] \\ 
+17 & O & \id{FCVODE}                   & \id{CVDiagGetWorkSpace} [integer] \\ 
 \hline
 \multicolumn{4}{|c|}{{\cvspgmr} linear solver}\\
 \hline
-16 & O & \id{FCVODE}                   & \id{CVSpgmrGetRealWorkSpace} \\ 
-17 & O & \id{FCVODE}                   & \id{CVSpgmrGetIntWorkSpace} \\ 
+16 & O & \id{FCVODE}                   & \id{CVSpgmrGetWorkSpace} [real] \\ 
+17 & O & \id{FCVODE}                   & \id{CVSpgmrGetWorkSpace} [integer] \\ 
 18 & O & \id{FCVODE}                   & \id{CVSpgmrGetNumPrecEvals} \\ 
 19 & O & \id{FCVODE}                   & \id{CVSpgmrGetNumLinIters} \\ 
 20 & O & \id{FCVODE}                   & \id{CVSpgmrGetNumPrecSolves} \\ 
