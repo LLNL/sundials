@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-04-28 15:25:13 $
+ * $Revision: 1.27 $
+ * $Date: 2004-04-29 15:04:15 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -47,16 +47,18 @@
 /*BEGIN        CVODES Private Constants                            */
 /*=================================================================*/
 
-#define FOURTH RCONST(0.25)    /* real 0.25    */
-#define THREE  RCONST(3.0)     /* real 3.0     */
-#define FOUR   RCONST(4.0)     /* real 4.0     */
-#define HUN    RCONST(100.0)   /* real 100.0   */
-#define TINY   RCONST(1.0e-10) /* small number */
-#define HALF   RCONST(0.5)     /* real 0.5     */
 #define ZERO   RCONST(0.0)     /* real 0.0     */
+#define TINY   RCONST(1.0e-10) /* small number */
+#define TENTH  RCONST(0.1)     /* real 0.1     */
+#define FOURTH RCONST(0.25)    /* real 0.25    */
+#define HALF   RCONST(0.5)     /* real 0.5     */
 #define ONE    RCONST(1.0)     /* real 1.0     */
 #define TWO    RCONST(2.0)     /* real 2.0     */
+#define THREE  RCONST(3.0)     /* real 3.0     */
+#define FOUR   RCONST(4.0)     /* real 4.0     */
+#define FIVE   RCONST(5.0)     /* real 5.0     */
 #define TWELVE RCONST(12.0)    /* real 12.0    */
+#define HUN    RCONST(100.0)   /* real 100.0   */
 
 /*=================================================================*/
 /*END          CVODES Private Constants                            */
@@ -168,6 +170,13 @@
 #define TRY_AGAIN  99      /* control constant for CVNlsNewton - should be
                               distinct from CVNls return values            */
 
+/* CVRcheck* return values      */
+/* (OKAY=0 defined in cvodes.h) */
+
+#define INITROOT -1
+#define CLOSERT  -2
+#define RTFOUND   1
+
 /* CVSensRhs1DQ finite difference methods */
 
 #define CENTERED1  0
@@ -252,6 +261,15 @@
 #define MSG_MEM_FAIL        CVM "A memory request failed.\n\n"
 
 #define MSG_CVREI_NO_MALLOC "CVodeReInit-- Attempt to call before CVodeMalloc. \n\n"
+
+/* CVodeRootInit Error Messages */
+
+#define CVRT                "CVodeRootInit-- "
+
+#define MSG_CVRT_NO_MEM     CVRT "cvode_mem = NULL illegal.\n\n"
+
+#define MSG_CVRT_MEM_FAIL   CVRT "A memory request failed.\n\n"
+
 
 /* CVodeQuadMalloc/ CVodeQuadReInit error messages */
 
@@ -407,9 +425,13 @@
 #define MSG_TOO_CLOSE_2     " integration.\n\n"
 #define MSG_TOO_CLOSE       MSG_TOO_CLOSE_1 MSG_TOO_CLOSE_2
 
-#define MSG_BAD_TSTOP_1    CVODE "tstop = %g is behind  current t = %g \n"
-#define MSG_BAD_TSTOP_2    "in the direction of integration.\n\n"
-#define MSG_BAD_TSTOP      MSG_BAD_TSTOP_1 MSG_BAD_TSTOP_2
+#define MSG_BAD_TSTOP_1     CVODE "tstop = %g is behind  current t = %g \n"
+#define MSG_BAD_TSTOP_2     "in the direction of integration.\n\n"
+#define MSG_BAD_TSTOP       MSG_BAD_TSTOP_1 MSG_BAD_TSTOP_2
+
+#define MSG_BAD_INIT_ROOT   CVODE "Root found at and very near initial t.\n\n"
+
+#define MSG_CLOSE_ROOTS     CVODE "Root found at and very near t=%g.\n\n"
 
 /* CVodeGetDky Error Messages */
 
@@ -499,57 +521,63 @@ static booleantype CVEwtSetSS(CVodeMem cv_mem, N_Vector ycur);
 static booleantype CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur);
 
 static booleantype CVHin(CVodeMem cv_mem, realtype tout);
-static realtype  CVUpperBoundH0(CVodeMem cv_mem, realtype tdist);
-static realtype  CVYddNorm(CVodeMem cv_mem, realtype hg);
+static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist);
+static realtype CVYddNorm(CVodeMem cv_mem, realtype hg);
 
-static int   CVStep(CVodeMem cv_mem);
+static int CVStep(CVodeMem cv_mem);
 
-static int   CVsldet(CVodeMem cv_mem);
+static int CVsldet(CVodeMem cv_mem);
 
-static void  CVAdjustParams(CVodeMem cv_mem);
-static void  CVAdjustOrder(CVodeMem cv_mem, int deltaq);
-static void  CVAdjustAdams(CVodeMem cv_mem, int deltaq);
-static void  CVAdjustBDF(CVodeMem cv_mem, int deltaq);
-static void  CVIncreaseBDF(CVodeMem cv_mem);
-static void  CVDecreaseBDF(CVodeMem cv_mem);
+static void CVAdjustParams(CVodeMem cv_mem);
+static void CVAdjustOrder(CVodeMem cv_mem, int deltaq);
+static void CVAdjustAdams(CVodeMem cv_mem, int deltaq);
+static void CVAdjustBDF(CVodeMem cv_mem, int deltaq);
+static void CVIncreaseBDF(CVodeMem cv_mem);
+static void CVDecreaseBDF(CVodeMem cv_mem);
 
-static void  CVRescale(CVodeMem cv_mem);
+static void CVRescale(CVodeMem cv_mem);
 
-static void  CVPredict(CVodeMem cv_mem);
+static void CVPredict(CVodeMem cv_mem);
 
-static void  CVSet(CVodeMem cv_mem);
-static void  CVSetAdams(CVodeMem cv_mem);
-static realtype  CVAdamsStart(CVodeMem cv_mem, realtype m[]);
-static void  CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype hsum);
-static realtype  CVAltSum(int iend, realtype a[], int k);
-static void  CVSetBDF(CVodeMem cv_mem);
-static void  CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
-                        realtype alpha0_hat, realtype xi_inv, realtype xistar_inv);
+static void CVSet(CVodeMem cv_mem);
+static void CVSetAdams(CVodeMem cv_mem);
+static realtype CVAdamsStart(CVodeMem cv_mem, realtype m[]);
+static void CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype hsum);
+static realtype CVAltSum(int iend, realtype a[], int k);
+static void CVSetBDF(CVodeMem cv_mem);
+static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
+                       realtype alpha0_hat, realtype xi_inv, realtype xistar_inv);
 
-static int   CVNls(CVodeMem cv_mem, int nflag);
-static int   CVNlsFunctional(CVodeMem cv_mem);
-static int   CVNlsNewton(CVodeMem cv_mem, int nflag);
-static int   CVNewtonIteration(CVodeMem cv_mem);
+static int CVNls(CVodeMem cv_mem, int nflag);
+static int CVNlsFunctional(CVodeMem cv_mem);
+static int CVNlsNewton(CVodeMem cv_mem, int nflag);
+static int CVNewtonIteration(CVodeMem cv_mem);
 
-static int   CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
-                           int *ncfPtr, long int *ncfnPtr);
+static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
+                         int *ncfPtr, long int *ncfnPtr);
 
-static void  CVRestore(CVodeMem cv_mem, realtype saved_t);
+static void CVRestore(CVodeMem cv_mem, realtype saved_t);
 
 static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
                                  realtype saved_t, int *nefPtr, realtype *dsmPtr);
 
-static void  CVCompleteStep(CVodeMem cv_mem);
+static void CVCompleteStep(CVodeMem cv_mem);
 
-static void  CVPrepareNextStep(CVodeMem cv_mem, realtype dsm);
-static void  CVSetEta(CVodeMem cv_mem);
-static realtype  CVComputeEtaqm1(CVodeMem cv_mem);
-static realtype  CVComputeEtaqp1(CVodeMem cv_mem);
-static void  CVChooseEta(CVodeMem cv_mem);
-static void  CVBDFStab(CVodeMem cv_mem);
+static void CVPrepareNextStep(CVodeMem cv_mem, realtype dsm);
+static void CVSetEta(CVodeMem cv_mem);
+static realtype CVComputeEtaqm1(CVodeMem cv_mem);
+static realtype CVComputeEtaqp1(CVodeMem cv_mem);
+static void CVChooseEta(CVodeMem cv_mem);
+static void CVBDFStab(CVodeMem cv_mem);
 
-static int   CVHandleFailure(CVodeMem cv_mem,int kflag);
+static int CVHandleFailure(CVodeMem cv_mem,int kflag);
 
+/*----------------*/
+
+static int CVRcheck1(CVodeMem cv_mem);
+static int CVRcheck2(CVodeMem cv_mem);
+static int CVRcheck3(CVodeMem cv_mem);
+static int CVRootfind(CVodeMem cv_mem);
 
 /*----------------*/
 
@@ -569,15 +597,15 @@ static booleantype CVQuadDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
 
 static realtype CVQuadUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
                                  N_Vector xQ, N_Vector wQ);
-static realtype  CVQuadUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
-                                 realtype dsmQ);
+static realtype CVQuadUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
+                                realtype dsmQ);
 
 /*----------------*/
 
 static booleantype CVSensTestAtol(CVodeMem cv_mem, void *atolS);
 
 static booleantype CVSensAllocAtol(CVodeMem cv_mem, void **atolSPtr);
-static void  CVSensFreeAtol(CVodeMem cv_mem, void *atolS);
+static void CVSensFreeAtol(CVodeMem cv_mem, void *atolS);
 
 static booleantype CVSensSetAtol(CVodeMem cv_mem, void *atolS);
 static booleantype CVSensSetAtolSS(CVodeMem cv_mem, realtype *atolS);
@@ -586,7 +614,7 @@ static booleantype CVSensSetAtolSV(CVodeMem cv_mem, N_Vector *atolS);
 /*----------------*/
 
 static booleantype CVSensAllocVectors(CVodeMem cv_mem);
-static void  CVSensFreeVectors(CVodeMem cv_mem);
+static void CVSensFreeVectors(CVodeMem cv_mem);
 
 /*----------------*/
 
@@ -596,14 +624,14 @@ static booleantype CVSensEwtSetSV(CVodeMem cv_mem, N_Vector *yScur);
 
 /*----------------*/
 
-static int   CVStgrNls(CVodeMem cv_mem);
-static int   CVStgrNlsFunctional(CVodeMem cv_mem);
-static int   CVStgrNlsNewton(CVodeMem cv_mem);
-static int   CVStgrNewtonIteration(CVodeMem cv_mem);
-static int   CVStgr1Nls(CVodeMem cv_mem, int is);
-static int   CVStgr1NlsFunctional(CVodeMem cv_mem, int is);
-static int   CVStgr1NlsNewton(CVodeMem cv_mem, int is);
-static int   CVStgr1NewtonIteration(CVodeMem cv_mem, int is);
+static int CVStgrNls(CVodeMem cv_mem);
+static int CVStgrNlsFunctional(CVodeMem cv_mem);
+static int CVStgrNlsNewton(CVodeMem cv_mem);
+static int CVStgrNewtonIteration(CVodeMem cv_mem);
+static int CVStgr1Nls(CVodeMem cv_mem, int is);
+static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is);
+static int CVStgr1NlsNewton(CVodeMem cv_mem, int is);
+static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is);
 static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr, 
                                      realtype saved_t, int *nefSPtr, realtype *dsmSPtr);
 
@@ -612,8 +640,8 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagP
 static realtype CVSensNorm(CVodeMem cv_mem, N_Vector *xS, N_Vector *wS);
 static realtype CVSensUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
                                  N_Vector *xS, N_Vector *wS);
-static realtype  CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
-                                 realtype dsmS);
+static realtype CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
+                                realtype dsmS);
 
 /*----------------*/
 
@@ -705,6 +733,8 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_maxnef   = MXNEF;
   cv_mem->cv_maxncf   = MXNCF;
   cv_mem->cv_nlscoef  = CORTES;
+  cv_mem->cv_nrtfn    = 0;
+  cv_mem->cv_g_data   = NULL;
 
   /* Set default values for quad. optional inputs */
   cv_mem->cv_quad     = FALSE;
@@ -805,6 +835,26 @@ int CVodeSetFdata(void *cvode_mem, void *f_data)
 }
 
 #define f_data (cv_mem->cv_f_data)    
+
+/*-----------------------------------------------------------------*/
+
+int CVodeSetGdata(void *cvode_mem, void *g_data)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVS_NO_MEM);
+    return(CVS_NO_MEM);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_g_data = g_data;
+
+  return(SUCCESS);
+}
+
+#define g_data (cv_mem->cv_g_data)  
 
 /*-----------------------------------------------------------------*/
 
@@ -1240,6 +1290,7 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
   cv_mem->cv_nscon   = 0;
+  cv_mem->cv_nge     = 0;
 
   /* Initialize Stablilty Limit Detection data */
   /* NOTE: We do this even if stab lim det was not
@@ -1367,6 +1418,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nhnil   = 0;
   cv_mem->cv_nstlp   = 0;
   cv_mem->cv_nscon   = 0;
+  cv_mem->cv_nge     = 0;
 
   /* Initialize Stablilty Limit Detection data */
   cv_mem->cv_nor = 0;
@@ -1383,6 +1435,72 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 #define reltol (cv_mem->cv_reltol)       
 #define abstol (cv_mem->cv_abstol)     
 #define nvspec (cv_mem->cv_nvspec)
+
+
+#define gfun   (cv_mem->cv_gfun)
+#define glo    (cv_mem->cv_glo)
+#define ghi    (cv_mem->cv_ghi)
+#define groot  (cv_mem->cv_groot)
+#define iroots (cv_mem->cv_iroots)
+
+/*------------------     CVodeRootInit     ------------------------*/
+/*
+  CVodeRootInit initializes a rootfinding problem to be solved
+  during the integration of the ODE system.  It loads the root
+  function pointer and the number of root functions, and allocates
+  workspace memory.  The return value is SUCCESS = 0 if no errors
+  occurred, or a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn)
+{
+  CVodeMem cv_mem;
+  int nrt;
+
+  /* Check cvode_mem */
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVRT_NO_MEM);
+    return(CVRT_NO_MEM);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  nrt = (nrtfn < 0) ? 0 : nrtfn;
+  cv_mem->cv_nrtfn = nrt;
+
+  if (nrt == 0) return(SUCCESS);
+
+  gfun = g;
+
+  glo = (realtype *) malloc(nrt*sizeof(realtype));
+  if (glo == NULL) {
+    fprintf(stdout, MSG_CVRT_MEM_FAIL);
+    return(CVRT_MEM_FAIL);
+  }
+    
+  ghi = (realtype *) malloc(nrt*sizeof(realtype));
+  if (ghi == NULL) {
+    free(glo);
+    fprintf(stdout, MSG_CVRT_MEM_FAIL);
+    return(CVRT_MEM_FAIL);
+  }
+    
+  groot = (realtype *) malloc(nrt*sizeof(realtype));
+  if (groot == NULL) {
+    free(glo); free(ghi);
+    fprintf(stdout, MSG_CVRT_MEM_FAIL);
+    return(CVRT_MEM_FAIL);
+  }
+
+  iroots = (int *) malloc(nrt*sizeof(int));
+  if (iroots == NULL) {
+    free(glo); free(ghi); free(groot);
+    fprintf(stdout, MSG_CVRT_MEM_FAIL);
+    return(CVRT_MEM_FAIL);
+  }
+
+  return(SUCCESS);
+}
 
 /*=================================================================*/
 /*BEGIN        QUADRATURE OPTIONAL INPUT FUNCTIONS                 */
@@ -2075,6 +2193,17 @@ int CVodeSensReInit(void *cvode_mem, int ism,
 #define nor            (cv_mem->cv_nor)
 #define ssdat          (cv_mem->cv_ssdat)
 
+#define nrtfn          (cv_mem->cv_nrtfn)
+#define tlo            (cv_mem->cv_tlo)
+#define thi            (cv_mem->cv_thi)
+#define tretlast       (cv_mem->cv_tretlast)
+#define toutc          (cv_mem->cv_toutc)
+#define troot          (cv_mem->cv_troot)
+#define ttol           (cv_mem->cv_ttol)
+#define taskc          (cv_mem->cv_taskc)
+#define irfnd          (cv_mem->cv_irfnd)
+#define nge            (cv_mem->cv_nge)
+
 #define sensi          (cv_mem->cv_sensi)
 #define znS            (cv_mem->cv_znS)
 #define ewtS           (cv_mem->cv_ewtS)
@@ -2131,12 +2260,12 @@ int CVodeSensReInit(void *cvode_mem, int ism,
 /*-----------------------------------------------------------------*/
 
 int CVode(void *cvode_mem, realtype tout, N_Vector yout, 
-          realtype *t, int itask)
+          realtype *tret, int itask)
 {
   CVodeMem cv_mem;
   N_Vector wrk1, wrk2;
   long int nstloc; 
-  int kflag, istate, ier, task;
+  int kflag, istate, ier, task, irfndp;
   booleantype istop, hOK, ewtsetOK, ewtSsetOK, ewtQsetOK;
   int is;
   realtype troundoff, rh, nrm;
@@ -2160,12 +2289,12 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     return (ILL_INPUT);
   }
   
-  /* Check for t != NULL */
-  if (t == NULL) {
+  /* Check for tret != NULL */
+  if (tret == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_TRET_NULL);
     return (ILL_INPUT);
   }
-  *t = tn;
+  *tret = tn;
 
   /* Check for valid itask */
   if ((itask != NORMAL)       && 
@@ -2187,10 +2316,11 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     istop = FALSE;
   }
   if ((itask == NORMAL) || (itask == NORMAL_TSTOP)) {
-    task = NORMAL;
+    task = NORMAL; toutc = tout;
   } else {
     task = ONE_STEP;
   }
+  taskc = task;
 
   /* Begin first call block */
   
@@ -2202,7 +2332,10 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     /* 
        On the first call, call f at (t0,y0), set zn[1] = y'(t0), 
-       set initial h (from H0 or CVHin), and scale zn[1] by h   
+       set initial h (from H0 or CVHin), and scale zn[1] by h.
+
+       Also check for zeros of root function g at and near t0.
+
        If computing sensitivities, call fS at (t0,y0,yS0), set
        znS[1][is] = yS'(t0), is=1,...,Ns, and scale znS[1][is] by h. 
        If computing any quadratures, call fQ at (t0,znQ[0]), set
@@ -2263,11 +2396,59 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (quad)
       N_VScale(h, znQ[1], znQ[1]);
 
+    if (nrtfn > 0) {
+      ier = CVRcheck1(cv_mem);
+      if (ier != OKAY) {
+        fprintf(errfp, MSG_BAD_INIT_ROOT);
+        return(ILL_INPUT);
+      }
+    }
+
   } /* end first call block */
 
   /* At following steps, perform stop tests */
 
   if (nst > 0) {
+
+    /* First check for a root in the last step taken, other than the
+       last root found, if any.  If task = ONE_STEP and y(tn) was not
+       returned because of an intervening root, return y(tn) now.     */
+
+    if (nrtfn > 0) {
+      
+      irfndp = irfnd;
+      
+      ier = CVRcheck2(cv_mem);
+      
+      if (ier == CLOSERT) {
+        tretlast = *tret = tlo;
+        fprintf(errfp, MSG_CLOSE_ROOTS, tlo);
+        return(ILL_INPUT);
+      }
+      
+      if (ier == RTFOUND) {
+        tretlast = *tret = tlo;
+        return(ROOT_RETURN);
+      }
+      
+      if (tn != tretlast) {       /* Check remaining interval for roots */
+        ier = CVRcheck3(cv_mem);
+        if (ier == OKAY) {     /* no root found */
+          irfnd = 0;
+          if (irfndp == 1 & task == ONE_STEP) {
+            tretlast = *tret = tn;
+            N_VScale(ONE, zn[0], yout);
+            return(SUCCESS);
+          }
+        }
+        if (ier == RTFOUND) {  /* a new root was found */
+          irfnd = 1;
+          tretlast = *tret = tlo;
+          return(ROOT_RETURN);
+        }
+      }
+
+    } /* end of root stop check */
 
     /* Test for tn past tstop */
     if ( istop && ((tstop - tn)*h < ZERO) ) {
@@ -2277,13 +2458,20 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     /* In NORMAL mode, test if tout was reached */
     if ( (task == NORMAL) && ((tn-tout)*h >= ZERO) ) {
-      *t = tout;
+      *tret = tout;
       ier =  CVodeGetDky(cv_mem, tout, 0, yout);
       if (ier != OKAY) {
         if(errfp!=NULL) fprintf(errfp, MSG_BAD_TOUT, tout);
         return (ILL_INPUT);
       }
       return (SUCCESS);
+    }
+
+    /* In ONE_STEP mode, test if tn was returned */
+    if (task == ONE_STEP && tretlast != tn) {
+      tretlast = *tret = tn;
+      N_VScale(ONE, zn[0], yout);
+      return(SUCCESS);
     }
 
     /* Test for tn at tstop or near tstop */
@@ -2296,7 +2484,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
           if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
           return (ILL_INPUT);
         }
-        *t = tstop;
+        *tret = tstop;
         return (TSTOP_RETURN);
       }
       
@@ -2305,9 +2493,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         eta = hprime/h;
       }
 
-    }
+    } /* end of istop tests block */
     
-  } /* end stop tests block */
+  } /* end stopping tests block */  
 
   /* Start looping for internal steps */
 
@@ -2340,7 +2528,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         if(!ewtQsetOK) if(errfp!=NULL) fprintf(errfp, MSG_EWTQ_NOW_BAD, tn);
 
         istate = ILL_INPUT;
-        *t = tn;
+        *tret = tn;
         N_VScale(ONE, zn[0], yout);
         break;
 
@@ -2353,7 +2541,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (nstloc >= mxstep) {
       if(errfp!=NULL) fprintf(errfp, MSG_MAX_STEPS, tn, mxstep, tout);
       istate = TOO_MUCH_WORK;
-      *t = tn;
+      *tret = tn;
       N_VScale(ONE, zn[0], yout);
       break;
     }
@@ -2372,7 +2560,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (tolsf > ONE) {
       if(errfp!=NULL) fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
       istate = TOO_MUCH_ACC;
-      *t = tn;
+      *tret = tn;
       N_VScale(ONE, zn[0], yout);
       tolsf *= TWO;
       break;
@@ -2394,12 +2582,25 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
    
     if (kflag != SUCCESS_STEP) {
       istate = CVHandleFailure(cv_mem, kflag);
-      *t = tn;
+      *tret = tn;
       N_VScale(ONE, zn[0], yout);
       break;
     }
     
     nstloc++;
+
+    /* Check for root in last step taken. */
+    
+    if (nrtfn > 0) {
+      
+      ier = CVRcheck3(cv_mem);
+      
+      if (ier == RTFOUND) {  /* a new root was found */
+        irfnd = 1;
+        tretlast = *tret = tlo;
+        return(ROOT_RETURN);
+      }
+    }
 
     /* Check if tn is at tstop or near tstop */
 
@@ -2408,7 +2609,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       troundoff = FUZZ_FACTOR*uround*(ABS(tn) + ABS(h));
       if ( ABS(tn - tstop) <= troundoff) {
         (void) CVodeGetDky(cv_mem, tstop, 0, yout);
-        *t = tstop;
+        *tret = tstop;
         istate = TSTOP_RETURN;
         break;
       }
@@ -2424,7 +2625,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     
     if (task == ONE_STEP) {
       istate = SUCCESS;
-      *t = tn;
+      *tret = tn;
       N_VScale(ONE, zn[0], yout);
       next_q = qprime;
       next_h = hprime;
@@ -2435,7 +2636,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     if ((tn-tout)*h >= ZERO) {
       istate = SUCCESS;
-      *t = tout;
+      *tret = tout;
       (void) CVodeGetDky(cv_mem, tout, 0, yout);
       next_q = qprime;
       next_h = hprime;
@@ -2873,6 +3074,43 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
 
   return(OKAY);
 }
+
+/*-----------------------------------------------------------------*/
+
+int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVG_NO_MEM);
+    return(CVG_NO_MEM);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *ngevals = nge;
+
+  return(OKAY);
+}
+
+/*-----------------------------------------------------------------*/
+
+int CVodeGetRootInfo(void *cvode_mem, int **rootsfound)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_CVG_NO_MEM);
+    return(CVG_NO_MEM);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *rootsfound = iroots;
+
+  return(OKAY);
+}
+
 
 /*-----------------------------------------------------------------*/
 
@@ -3567,8 +3805,14 @@ void CVodeFree(void *cvode_mem)
 
   CVodeSensFree(cv_mem);
 
-  if (iter == NEWTON) 
-    lfree(cv_mem);
+  if (iter == NEWTON) lfree(cv_mem);
+
+  if (nrtfn > 0) {
+    free(glo); 
+    free(ghi); 
+    free(groot); 
+    free(iroots);
+  }
 
   free(cv_mem);
 }
@@ -7292,6 +7536,370 @@ static int CVsldet(CVodeMem cv_mem)
 
 /*=================================================================*/
 /*END          BDF Stability Limit Detection                       */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        Root finding                                        */
+/*=================================================================*/
+
+
+/*------------------     CVRcheck1       --------------------------*/
+/* 
+ This routine completes the initialization of rootfinding memory
+ information, and checks whether g has a zero both at and very near
+ the initial point of the IVP.
+
+ This routine returns an int equal to:
+   INITROOT = -1 if a close pair of zeros was found, and
+   OKAY     =  0 otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+
+static int CVRcheck1(CVodeMem cv_mem)
+{
+  int i;
+  realtype smallh, hratio;
+  booleantype zroot;
+
+  for (i = 0; i < nrtfn; i++) iroots[i] = 0;
+  tlo = tn;
+  ttol = (ABS(tn) + ABS(h))*uround*HUN;
+
+  /* Evaluate g at initial t and check for zero values. */
+  gfun (tlo, zn[0], glo, g_data);
+  nge = 1;
+  zroot = FALSE;
+  for (i = 0; i < nrtfn; i++) {
+    if (ABS(glo[i]) == ZERO) zroot = TRUE;
+  }
+  if (!zroot) return(OKAY);
+
+  /* Some g_i is zero at t0; look at g at t0+(small increment). */
+  smallh = (h > ZERO) ? ttol : -ttol;
+  tlo += smallh;
+  hratio = smallh/h;
+  N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
+  gfun (tlo, y, glo, g_data);  nge++;
+  zroot = FALSE;
+  for (i = 0; i < nrtfn; i++) {
+    if (ABS(glo[i]) == ZERO) {
+      zroot = TRUE;
+      iroots[i] = 1;
+    }
+  }
+  if (zroot) return(INITROOT);
+  return(OKAY);
+
+}
+
+/*------------------     CVRcheck2       --------------------------*/
+/*
+ This routine checks for exact zeros of g at the last root found,
+ if the last return was a root.  It then checks for a close
+ pair of zeros (an error condition), and for a new root at a
+ nearby point.  The left endpoint (tlo) of the search interval
+ is adjusted if necessary to assure that all g_i are nonzero
+ there, before returning to do a root search in the interval.
+
+ On entry, tlo = tretlast is the last value of tret returned by
+ CVode.  This may be the previous tn, the previous tout value, or
+ the last root location.
+
+ This routine returns an int equal to:
+      CLOSERT = -2 if a close pair of zeros was found,
+      RTFOUND =  1 if a new zero of g was found near tlo, or
+      OKAY    =  0 otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+static int CVRcheck2(CVodeMem cv_mem)
+{
+  int i;
+  realtype smallh, hratio;
+  booleantype zroot;
+
+  if (irfnd == 0) return (OKAY);
+
+  (void) CVodeGetDky(cv_mem, tlo, 0, y);
+  gfun (tlo, y, glo, g_data);  nge++;
+  zroot = FALSE;
+  for (i = 0; i < nrtfn; i++) iroots[i] = 0;
+  for (i = 0; i < nrtfn; i++) {
+    if (ABS(glo[i]) == ZERO) {
+      zroot = TRUE;
+      iroots[i] = 1;
+    }
+  }
+  if (!zroot) return(OKAY);
+
+  /* One or more g_i has a zero at tlo.  Check g at tlo+smallh. */
+  ttol = (ABS(tn) + ABS(h))*uround*HUN;
+  smallh = (h > ZERO) ? ttol : -ttol;
+  tlo += smallh;
+  if ( (tlo - tn)*h >= ZERO) {
+    hratio = smallh/h;
+    N_VLinearSum(ONE, y, hratio, zn[1], y);
+  } else {
+    (void) CVodeGetDky(cv_mem, tlo, 0, y);
+  }
+  gfun (tlo, y, glo, g_data);  nge++;
+  zroot = FALSE;
+  for (i = 0; i < nrtfn; i++) {
+    if (ABS(glo[i]) == ZERO) {
+      if (iroots[i] == 1) return(CLOSERT);
+      zroot = TRUE;
+      iroots[i] = 1;
+    }
+  }
+  if (zroot) return(RTFOUND);
+  return(OKAY);
+
+}
+
+/*------------------     CVRcheck3       --------------------------*/
+/*
+ This routine interfaces to CVRootfind to look for a root of g
+ between tlo and either tn or tout, whichever comes first.
+ Only roots beyond tlo in the direction of integration are sought.
+
+ This routine returns an int equal to:
+      RTFOUND =  1 if a root of g was found, or
+      OKAY    =  0 otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+static int CVRcheck3(CVodeMem cv_mem)
+{
+  int i, ier;
+
+  /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
+  if (taskc == ONE_STEP) {
+    thi = tn;
+    N_VScale(ONE, zn[0], y);
+  }
+  if (taskc == NORMAL) {
+    if ( (toutc - tn)*h >= ZERO) {
+      thi = tn; 
+      N_VScale(ONE, zn[0], y);
+    } else {
+      thi = toutc;
+      (void) CVodeGetDky(cv_mem, thi, 0, y);
+    }
+  }
+
+  /* Set ghi = g(thi) and call CVRootfind to search (tlo,thi) for roots. */
+  gfun (thi, y, ghi, g_data);  nge++;
+  ttol = (ABS(tn) + ABS(h))*uround*HUN;
+  ier = CVRootfind(cv_mem);
+  tlo = troot;
+  for (i = 0; i < nrtfn; i++) glo[i] = groot[i];
+
+  /* If no root found, return OKAY. */  
+  if (ier == OKAY) return(OKAY);
+
+  /* If a root was found, interpolate to get y(troot) and return.  */
+  (void) CVodeGetDky(cv_mem, troot, 0, y);
+  return (RTFOUND);
+
+}
+
+/*------------------     CVRootFind     --------------------------*/
+/*
+ This routine solves for a root of g(t) between tlo and thi, if
+ one exists.  Only roots of odd multiplicity (i.e. with a change
+ of sign in one of the g_i), or exact zeros, are found.
+ Here the sign of tlo - thi is arbitrary, but if multiple roots
+ are found, the one closest to tlo is returned.
+ 
+ The method used is the Illinois algorithm, a modified secant method.
+ Reference: Kathie L. Hiebert and Lawrence F. Shampine, Implicitly
+ Defined Output Points for Solutions of ODEs, Sandia National
+ Laboratory Report SAND80-0180, February 1980.
+
+ This routine uses the following parameters for communication:
+
+ nrtfn    = number of functions g_i, or number of components of
+            the vector-valued function g(t).  Input only.
+
+ gfun     = user-defined function for g(t).  Its form is
+            (void) gfun(t, y, gt, g_data)
+
+ nge      = cumulative counter for gfun calls.
+
+ ttol     = a convergence tolerance for troot.  Input only.
+            When a root at troot is found, it is located only to
+            within a tolerance of ttol.  Typically, ttol should
+            be set to a value on the order of
+               100 * UROUND * max (ABS(tlo), ABS(thi))
+            where UROUND is the unit roundoff of the machine.
+
+ tlo, thi = endpoints of the interval in which roots are sought.
+            On input, and must be distinct, but tlo - thi may
+            be of either sign.  The direction of integration is
+            assumed to be from tlo to thi.  On return, tlo and thi
+            are the endpoints of the final relevant interval.
+
+ glo, ghi = arrays of length nrtfn containing the vectors g(tlo)
+            and g(thi) respectively.  Input and output.  On input,
+            none of the glo[i] should be zero.
+
+ troot    = root location, if a root was found, or thi if not.
+            Output only.  If a root was found other than an exact
+            zero of g, troot is the endpoint thi of the final
+            interval bracketing the root, with size at most ttol.
+
+ groot    = array of length nrtfn containing g(troot) on return.
+
+ iroots   = int array of length nrtfn with root information.
+            Output only.  If a root was found, iroots indicates
+            which components g_i have a root at troot.  For
+            i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
+            and iroots[i] = 0 otherwise.
+
+ This routine returns an int equal to:
+      RTFOUND =  1 if a root of g was found, or
+      OKAY    =  0 otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+static int CVRootfind(CVodeMem cv_mem)
+{
+  realtype alpha, tmid, gfrac, maxfrac, fracint, fracsub;
+  int i, imax, side, sideprev;
+  booleantype zroot, sgnchg;
+
+  /* First check for change in sign in ghi or for a zero in ghi. */
+  maxfrac = ZERO;
+  zroot = FALSE;
+  sgnchg = FALSE;
+  for (i = 0;  i < nrtfn; i++) {
+    if (ABS(ghi[i]) == ZERO) {
+      zroot = TRUE;
+    } else {
+      if (glo[i]*ghi[i] < ZERO) {
+        gfrac = ABS(ghi[i]/(ghi[i] - glo[i]));
+        if (gfrac > maxfrac) {
+          sgnchg = TRUE;
+          maxfrac = gfrac;
+          imax = i;
+        }
+      }
+    }
+  }
+
+  /* If no sign change was found, reset troot and groot.  Then return
+     OKAY if no zero was found, or set iroots and return RTFOUND.  */ 
+  if (!sgnchg) {
+    troot = thi;
+    for (i = 0; i < nrtfn; i++) groot[i] = ghi[i];
+    if (!zroot) return (OKAY);
+    for (i = 0; i < nrtfn; i++) {
+      iroots[i] = 0;
+      if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
+    }
+    return(RTFOUND);
+  }
+
+  /* A sign change was found.  Loop to locate nearest root. */
+
+  side = 0;  sideprev = -1;
+  loop {                                    /* Looping point */
+
+    /* Set weight alpha.
+       On the first two passes, set alpha = 1.  Thereafter, reset alpha
+       according to the side (low vs high) of the subinterval in which
+       the sign change was found in the previous two passes.
+       If the sides were opposite, set alpha = 1.
+       If the sides were the same, then double alpha (if high side),
+       or halve alpha (if low side).
+       The next guess tmid is the secant method value if alpha = 1, but
+       is closer to tlo if alpha < 1, and closer to thi if alpha > 1.    */
+
+    if (sideprev == side) {
+      alpha = (side == 2) ? alpha*TWO : alpha*HALF;
+    } else {
+      alpha = ONE;
+    }
+
+    /* Set next root approximation tmid and get g(tmid).
+       If tmid is too close to tlo or thi, adjust it inward,
+       by a fractional distance that is between 0.1 and 0.5.  */
+    tmid = thi - (thi - tlo)*ghi[imax]/(ghi[imax] - alpha*glo[imax]);
+    if (ABS(tmid - tlo) < HALF*ttol) {
+      fracint = ABS(thi - tlo)/ttol;
+      fracsub = (fracint > FIVE) ? TENTH : HALF/fracint;
+      tmid = tlo + fracsub*(thi - tlo);
+    }
+    if (ABS(thi - tmid) < HALF*ttol) {
+      fracint = ABS(thi - tlo)/ttol;
+      fracsub = (fracint > FIVE) ? TENTH : HALF/fracint;
+      tmid = thi - fracsub*(thi - tlo);
+    }
+
+    (void) CVodeGetDky(cv_mem, tmid, 0, y);
+    gfun (tmid, y, groot, g_data);  nge++;
+
+    /* Check to see in which subinterval g changes sign, and reset imax.
+       Set side = 1 if sign change is on low side, or 2 if on high side.  */  
+    maxfrac = ZERO;
+    zroot = FALSE;
+    sgnchg = FALSE;
+    sideprev = side;
+    for (i = 0;  i < nrtfn; i++) {
+      if (ABS(groot[i]) == ZERO) {
+        zroot = TRUE;
+      } else {
+        if (glo[i]*groot[i] < ZERO) {
+          gfrac = ABS(groot[i]/(groot[i] - glo[i]));
+          if (gfrac > maxfrac) {
+            sgnchg = TRUE;
+            maxfrac = gfrac;
+            imax = i;
+          }
+        }
+      }
+    }
+    if (sgnchg) {
+      /* Sign change found in (tlo,tmid); replace thi with tmid. */
+      thi = tmid;
+      for (i = 0; i < nrtfn; i++) ghi[i] = groot[i];
+      side = 1;
+      /* Stop at root thi if converged; otherwise loop. */
+      if (ABS(thi - tlo) <= ttol) break;
+    continue;  /* Return to looping point. */
+    }
+
+    if (zroot) {
+      /* No sign change in (tlo,tmid), but g = 0 at tmid; return root tmid. */
+      thi = tmid;
+      for (i = 0; i < nrtfn; i++) ghi[i] = groot[i];
+      break;
+    }
+
+    /* No sign change in (tlo,tmid), and no zero at tmid.
+       Sign change must be in (tmid,thi).  Replace tlo with tmid.           */
+    tlo = tmid;
+    for (i = 0; i < nrtfn; i++) glo[i] = groot[i];
+    side = 2;
+    /* Stop at root thi if converged; otherwise loop back. */
+    if (ABS(thi - tlo) <= ttol) break;
+
+  } /* End of root-search loop */
+
+  /* Reset troot and groot, set iroots, and return RTFOUND. */
+  troot = thi;
+  for (i = 0; i < nrtfn; i++) {
+    groot[i] = ghi[i];
+    iroots[i] = 0;
+    if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
+    if (glo[i]*ghi[i] < ZERO) iroots[i] = 1;
+  }
+  return(RTFOUND);
+}
+
+/*=================================================================*/
+/*END          Root finding                                        */
 /*=================================================================*/
 
 /*=================================================================*/
