@@ -1,22 +1,22 @@
 /*******************************************************************
- * File          : idasbbdpre.h                                    *
+ * File          : idabbdpre.h                                     *
  * Programmers   : Allan G. Taylor, Alan C Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
+ * See sundials/ida/LICENSE or sundials/idas/LICENSE               *
  *-----------------------------------------------------------------*
  * This is the header file for the IDABBDPRE module, for a         *
  * band-block-diagonal preconditioner, i.e. a block-diagonal       *
- * matrix with banded blocks, for use with IDAS and IDASpgmr.      *
+ * matrix with banded blocks, for use with IDA/IDAS and IDASpgmr.  *
  *                                                                 *
  * Summary:                                                        *
  *                                                                 *
- * These routines provide a preconditioner matrix for IDAS that    *
- * is block-diagonal with banded blocks.  The blocking corresponds *
+ * These routines provide a preconditioner matrix that is          *
+ * block-diagonal with banded blocks.  The blocking corresponds    *
  * to the distribution of the dependent variable vector y among    *
  * the processors.  Each preconditioner block is generated from    *
  * the Jacobian of the local part (on the current processor) of a  *
@@ -90,21 +90,19 @@
  *    and the cumulative number of glocal calls.  The costs        *
  *    associated with this module also include nsetups banded LU   *
  *    factorizations, nsetups gcomm calls, and nps banded          *
- *    backsolve calls, where nsetups and nps are IDAS optional     *
- *    outputs.                                                     *
+ *    backsolve calls, where nsetups and nps are integrator        *
+ *    optional outputs.                                            *
  *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-#ifndef _idasbbdpre_h
-#define _idasbbdpre_h
+#ifndef _ibbdpre_h
+#define _ibbdpre_h
 
-#include "idas.h"
 #include "sundialstypes.h"
 #include "nvector.h"
 #include "band.h"
-
 
 /******************************************************************
  * Type : IDALocalFn                                              *
@@ -206,7 +204,7 @@ typedef struct {
  *                                                                *
  * The parameters of IBBDPrecAlloc are as follows:                *
  *                                                                *
- * ida_mem  is the pointer to IDAS memory returned by IDACreate.  *
+ * ida_mem  is a pointer to the memory blockreturned by IDACreate.*
  *                                                                *
  * Nlocal  is the length of the local block of the vectors yy etc.*
  *         on the current processor.                              *
@@ -245,27 +243,27 @@ void *IBBDPrecAlloc(void *ida_mem, long int Nlocal,
 /******************************************************************
  * Function : IBBDSpgmr                                           *
  *----------------------------------------------------------------*
- * IBBDSpgmr links the IDASBBDPRE preconditioner to the           *
- * IDASSPGMR linear solver. It performs the following actions:    *
- *  1) Calls the IDASSPGMR specification routine and attaches the *
- *     IDASSPGMR linear solver to the IDAS solver;                *
- *  2) Sets the preconditioner data structure for IDASSPGMR       *
- *  3) Sets the preconditioner setup routine for IDASSPGMR        *
- *  4) Sets the preconditioner solve routine for IDASSPGMR        *
+ * IBBDSpgmr links the IDABBDPRE preconditioner to the IDASPGMR   *
+ * linear solver. It performs the following actions:              *
+ *  1) Calls the IDASPGMR specification routine and attaches the  *
+ *     IDASPGMR linear solver to the IDA solver;                  *
+ *  2) Sets the preconditioner data structure for IDASPGMR        *
+ *  3) Sets the preconditioner setup routine for IDASPGMR         *
+ *  4) Sets the preconditioner solve routine for IDASPGMR         *
  *                                                                *
  * Its first 2 arguments are the same as for IDASpgmr (see        *
- * idasspgmr.h). The last argument is the pointer to the          *
- * IDASBBDPRE memory block returned by IDABBDPrecAlloc.           * 
+ * idaspgmr.h). The last argument is the pointer to the IDABBDPRE *
+ * memory block returned by IBBDPrecAlloc.                        * 
  * Note that the user need not call IDASpgmr anymore.             *
  *                                                                *
  * Possible return values are:                                    *
- *   (from idas.h)   SUCCESS                                      *
+ *   (from ida.h)    SUCCESS                                      *
  *                   LIN_NO_MEM                                   *
  *                   LMEM_FAIL                                    *
  *                   LIN_NO_LMEM                                  *
  *                   LIN_ILL_INPUT                                *
  *   Additionaly, if IBBDPrecAlloc was not previously called,     *
- *   IBBDSpgmr returns BBDP_NO_PDATA (defined below).             *
+ *   IDABBDSpgmr returns BBDP_NO_PDATA (defined below).           *
  *                                                                *
  ******************************************************************/
 
@@ -278,7 +276,7 @@ int IBBDSpgmr(void *ida_mem, int maxl, void *p_data);
  * a sequence of problems of the same size with IDASPGMR/IDABBDPRE*
  * provided there is no change in Nlocal, mukeep, or mlkeep.      *
  * After solving one problem, and after calling IDAReInit to      *
- * re-initialize IDAS for a subsequent problem, call              *
+ * re-initialize the integrator for a subsequent problem, call    *
  * IBBDPrecReInit.                                                *
  * Then call IDAReInitSpgmr or IDASpgmr, if necessary, to         *
  * re-initialize the Spgmr linear solver, depending on changes    *

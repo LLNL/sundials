@@ -1,30 +1,25 @@
 /*******************************************************************
- * File          : idasspgmr.h                                     *
- * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 17 July 2003                                    *
+ * File          : idaspgmr.h                                      *
+ * Programmers   : Alan C. Hindmarsh and Allan G. Taylor           *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
- * For details, see sundials/idas/LICENSE                          *
+ * See sundials/ida/LICENSE or sundials/idas/LICENSE               *
  *-----------------------------------------------------------------*
- * This is the header file for the IDAS Scaled Preconditioned      *
- * GMRES linear solver module, IDASPGMR.                           *
- *                                                                 *
+ * This is the header file for the Scaled Preconditioned GMRES     *
+ * linear solver module, IDASPGMR.                                 *
  *******************************************************************/
-
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-#ifndef _idasspgmr_h
-#define _idasspgmr_h
-
+#ifndef _idaspgmr_h
+#define _idaspgmr_h
 
 #include <stdio.h>
-#include "idas.h"
 #include "sundialstypes.h"
 #include "spgmr.h"
 #include "nvector.h"
@@ -49,7 +44,7 @@ extern "C" {
  * factorization on it.  This function will not be called in      *
  * advance of every call to PrecSolve, but instead will be called *
  * only as often as necessary to achieve convergence within the   *
- * Newton iteration in IDAS.  If the PrecSolve function needs no  *
+ * Newton iteration.  If the PrecSolve function needs no          *
  * preparation, the PrecSetup function can be NULL.               *
  *                                                                *
  * Each call to the PrecSetup function is preceded by a call to   *
@@ -77,23 +72,22 @@ extern "C" {
  *        the pdata parameter passed to IDASpgmr.                 *
  *                                                                *
  * tmp1, tmp2, tmp3 are pointers to vectors of type N_Vector      *
- *      which can be used by an IDASpgmrPrecSetupFn routine       *
- *      as temporary storage or work space.                       *
+ * which can be used by an IDASpgmrPrecSetupFn routine            *
+ * as temporary storage or work space.                            *
  *                                                                *
  * NOTE: If the user's preconditioner needs other quantities,     *
  *     they are accessible as follows: hcur (the current stepsize)*
  *     and ewt (the error weight vector) are accessible through   *
  *     IDAGetCurrentStep and IDAGetErrWeights, respectively (see  *
- *     idas.h). The unit roundoff is available as                 *
+ *     ida.h). The unit roundoff is available as                  *
  *     UNIT_ROUNDOFF defined in sundialstypes.h                   *
  *                                                                *
  * The IDASpgmrPrecSetupFn should return                          *
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * In the case of a recoverable error return, IDAS will attempt   *
- * to recover by reducing the stepsize (which changes cj).        *
- *                                                                *
+ * In the case of a recoverable error return, the integrator will *
+ * attempt to recover by reducing the stepsize (which changes cj).*
  ******************************************************************/
   
 typedef int (*IDASpgmrPrecSetupFn)(realtype tt, 
@@ -139,7 +133,7 @@ typedef int (*IDASpgmrPrecSetupFn)(realtype tt,
  *                                                                *
  * zvec   is the computed solution vector z.                      *
  *                                                                *
- * tmp    is an N_Vector which can be used by the PrecSolve       *
+ * tmp  is an N_Vector which can be used by the PrecSolve         *
  * routine as temporary storage or work space.                    *
  *                                                                *
  *                                                                *
@@ -147,8 +141,9 @@ typedef int (*IDASpgmrPrecSetupFn)(realtype tt,
  *     0 if successful,                                           *
  *     a positive int if a recoverable error occurred, or         *
  *     a negative int if a nonrecoverable error occurred.         *
- * Following a recoverable error, IDAS will attempt to recover by *
- * updating the preconditioner and/or reducing the stepsize.      *
+ * Following a recoverable error, the integrator will attempt to  *
+ * recover by updating the preconditioner and/or reducing the     *
+ * stepsize.                                                      *
  *                                                                *
  ******************************************************************/
   
@@ -198,19 +193,18 @@ typedef int (*IDASpgmrPrecSolveFn)(realtype tt,
 
 typedef int (*IDASpgmrJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
                                      N_Vector yy, N_Vector yp, N_Vector rr,
-                                     realtype cj, void *jac_data, 
+                                     realtype c_j, void *jac_data, 
                                      N_Vector tmp1, N_Vector tmp2);
-
 
 /******************************************************************
  *                                                                *
  * Function : IDASpgmr                                            *
  *----------------------------------------------------------------*
- * A call to the IDASpgmr function links the main IDAS integrator *
- * with the IDASPGMR linear solver module.  Its parameters are    *
- * as follows:                                                    *
+ * A call to the IDASpgmr function links the main integrator with *
+ * the IDASPGMR linear solver module.  Its parameters are as      *
+ * follows:                                                       *
  *                                                                *
- * IDA_mem   is the pointer to IDAS memory returned by IDACreate. *
+ * IDA_mem   is the pointer to memory block returned by IDACreate.*
  *                                                                *
  * maxl      is the maximum Krylov subspace dimension, an         *
  *           optional input.  Pass 0 to use the default value,    *
@@ -240,9 +234,9 @@ int IDASpgmr(void *ida_mem, int maxl);
  *           to be used in the GMRES algorithm.  maxrs must be a  *
  *           non-negative integer.  Pass 0 to specify no restarts.*
  *           Default is 5.                                        *
- * IDASpgmrSetEpsLin specifies a factor in the linear iteration   *
+ * IDASpgmrSetEpsLin specifies the factor in the linear iteration *
  *           convergence test constant.                           *
- *           Default is 1.0                                       *
+ *           Default is 0.05                                      *
  * IDASpgmrSetIncrementFactor specifies a factor in the increments*
  *           to yy used in the difference quotient approximations *
  *           to matrix-vector products Jv.                        *
@@ -342,11 +336,11 @@ typedef struct {
   long int g_ncfl0;    /* ncfl0 = saved ncfl (for performance monitor) */   
   long int g_nwarn;    /* nwarn = no. of warnings (for perf. monitor)  */   
 
-  N_Vector g_ytemp;    /* temp vector used by IDAJtimesDQ              */ 
-  N_Vector g_yptemp;   /* temp vector used by IDAJtimesDQ              */ 
+  N_Vector g_ytemp;    /* temp vector used by IDAAtimesDQ              */ 
+  N_Vector g_yptemp;   /* temp vector used by IDAAtimesDQ              */ 
   N_Vector g_xx;       /* temp vector used by IDASpgmrSolve            */
-  N_Vector g_ycur;     /* IDAS current y vector in Newton iteration    */
-  N_Vector g_ypcur;    /* IDAS current yp vector in Newton iteration   */
+  N_Vector g_ycur;     /* current y vector in Newton iteration         */
+  N_Vector g_ypcur;    /* current yp vector in Newton iteration        */
   N_Vector g_rcur;     /* rcur = F(tn, ycur, ypcur)                    */
 
   IDASpgmrPrecSetupFn g_pset;     /* pset = user-supplied routine      */

@@ -94,7 +94,7 @@
 #include "sundialstypes.h"     /* Definition of realtype                           */
 #include "iterative.h"         /* Contains the enum for types of preconditioning.  */
 #include "idas.h"              /* Main IDA header file.                            */
-#include "idasspgmr.h"         /* Use IDASPGMR linear solver.                      */
+#include "idaspgmr.h"          /* Use IDASPGMR linear solver.                      */
 #include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P.   */
 #include "sundialsmath.h"      /* Contains RSqrt routine.                          */
 #include "smalldense.h"        /* Contains definitions for denalloc routine.       */

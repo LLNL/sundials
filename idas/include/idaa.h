@@ -21,9 +21,9 @@ extern "C" {
 #include <stdio.h>
 #include "nvector.h"
 #include "idas.h"
-#include "idasdense.h"
-#include "idasband.h"
-#include "idasspgmr.h"
+#include "idadense.h"
+#include "idaband.h"
+#include "idaspgmr.h"
   
   /******************************************************************
    *                                                                *

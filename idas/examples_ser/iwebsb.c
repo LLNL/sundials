@@ -84,7 +84,7 @@
 #include <math.h>
 #include "sundialstypes.h"   /* Definitions of realtype and booleantype          */
 #include "idas.h"            /* Main IDA header file.                            */
-#include "idasband.h"        /* Use IDABAND linear solver.                       */
+#include "idaband.h"         /* Use IDABAND linear solver.                       */
 #include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S.   */
 #include "sundialsmath.h"    /* Contains RSqrt routine.                          */
 #include "smalldense.h"      /* Contains definitions for denalloc routine.       */

@@ -36,7 +36,7 @@
 #include "sundialsmath.h"
 #include "nvector_serial.h"
 #include "idas.h"
-#include "idasspgmr.h"
+#include "idaspgmr.h"
 #include "iterative.h"
 
 typedef struct {  

@@ -1,8 +1,8 @@
 /*******************************************************************
- * File          : idasspgmr.c                                     *
- * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
+ * File          : idaspgmr.c                                      *
+ * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 12 August 2003                                  *
+ * Version of    : 19 February 2004                                *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -11,13 +11,12 @@
  *-----------------------------------------------------------------*
  * This is the implementation file for the IDAS Scaled             *
  * Preconditioned GMRES linear solver module, IDASPGMR.            *
- *                                                                 *
  *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "idasspgmr.h"
 #include "idas.h"
+#include "idaspgmr.h"
 #include "spgmr.h"
 #include "iterative.h"
 #include "sundialstypes.h"
@@ -28,11 +27,11 @@
 
 #define IDASPGMR               "IDASpgmr-- "
 
-#define MSG_IDAMEM_NULL        IDASPGMR "IDAS memory is NULL.\n\n"
+#define MSG_IDAMEM_NULL        IDASPGMR "Integrator memory is NULL.\n\n"
 
 #define MSG_MEM_FAIL           IDASPGMR "A memory request failed.\n\n"
 
-#define MSG_SETGET_IDAMEM_NULL "IDASpgmrSet*/IDASpgmrGet*-- IDAS memory is NULL. \n\n"
+#define MSG_SETGET_IDAMEM_NULL "IDASpgmrSet*/IDASpgmrGet*-- Integrator memory is NULL. \n\n"
 
 #define MSG_SETGET_LMEM_NULL   "IDASpgmrSet*/IDASpgmrGet*-- IDASPGMR memory is NULL. \n\n"
 
@@ -45,7 +44,7 @@
 
 #define MSG_IDAS_NEG_EPLIFAC   "IDASpgmrSetEpsLin-- eplifac < 0.0 illegal. \n\n"
 
-#define MSG_IDAS_NEG_DQINCFAC  "IDASpgmrSetIncrementFactor-- dqincfac<0.0 illegal. \n\n"
+#define MSG_IDAS_NEG_DQINCFAC  "IDASpgmrSetIncrementFactor-- dqincfac < 0.0 illegal. \n\n"
 
 /* Warning Messages */
 
@@ -63,6 +62,7 @@
 #define MSG_CFL_WARN3  "Linear convergence failure rate is %e.\n\n"
 #define MSG_CFL_WARN   MSG_WARN1 MSG_WARN2 MSG_CFL_WARN3
 
+
 /* Constants */
 
 #define ZERO         RCONST(0.0)
@@ -72,6 +72,7 @@
 
 #define IDA_SPGMR_MAXL    5
 #define IDA_SPGMR_MAXRS   5
+
 
 /* IDASPGMR linit, lsetup, lsolve, lperf, and lfree routines */
 
@@ -124,10 +125,8 @@ static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define lmem    (IDA_mem->ida_lmem)
 #define nni     (IDA_mem->ida_nni)
 #define ncfn    (IDA_mem->ida_ncfn)
-#define nvspec  (IDA_mem->ida_nvspec)
 #define setupNonNull  (IDA_mem->ida_setupNonNull)
-
-#define ewtS    (IDA_mem->ida_ewtS)
+#define nvspec  (IDA_mem->ida_nvspec)
 
 #define sqrtN   (idaspgmr_mem->g_sqrtN)
 #define epslin  (idaspgmr_mem->g_epslin)
@@ -152,6 +151,7 @@ static int IDASpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define nreSG   (idaspgmr_mem->g_nreSG)
 
 #define spgmr_mem (idaspgmr_mem->g_spgmr_mem)
+
 
 /*************** IDASpgmr *********************************************
 
@@ -203,11 +203,11 @@ int IDASpgmr(void *ida_mem, int maxl)
   if (lfree != NULL) flag = lfree(ida_mem);
 
   /* Set five main function fields in ida_mem */
-  linit   = IDASpgmrInit;
-  lsetup  = IDASpgmrSetup;
-  lsolve  = IDASpgmrSolve;
-  lperf   = IDASpgmrPerf;
-  lfree   = IDASpgmrFree;
+  linit  = IDASpgmrInit;
+  lsetup = IDASpgmrSetup;
+  lsolve = IDASpgmrSolve;
+  lperf  = IDASpgmrPerf;
+  lfree  = IDASpgmrFree;
 
   /* Get memory for IDASpgmrMemRec */
   idaspgmr_mem = (IDASpgmrMem) malloc(sizeof(IDASpgmrMemRec));
@@ -268,7 +268,7 @@ int IDASpgmr(void *ida_mem, int maxl)
     return(LMEM_FAIL);
   }
 
-  /* Attach linear solver memory to IDAS memory */
+  /* Attach linear solver memory to the integrator memory */
   lmem = idaspgmr_mem;
 
   return(SUCCESS);
@@ -727,6 +727,7 @@ int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
   return(OKAY);
 }
 
+
 /* Additional readability Replacements */
 
 #define gstype   (idaspgmr_mem->g_gstype)
@@ -805,7 +806,7 @@ static int IDASpgmrSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
  This routine handles the call to the generic SPGMR solver SpgmrSolve
  for the solution of the linear system Ax = b.
 
- The x-scaling and b-scaling arrays are both equal to ewt.
+ The x-scaling and b-scaling arrays are both equal to weight.
 
  We set the initial guess, x = 0, then call SpgmrSolve.  
  We copy the solution x into b, and update the counters nli, nps, ncfl.
@@ -824,26 +825,23 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
+
   /* Set SpgmrSolve convergence test constant epslin, in terms of the
     Newton convergence test constant epsNewt and safety factors.  The factor 
     sqrt(Neq) assures that the GMRES convergence test is applied to the
     WRMS norm of the residual vector, rather than the weighted L2 norm. */
-
   epslin = sqrtN*eplifac*epsNewt;
 
   /* Set vectors ycur, ypcur, and rcur for use by the Atimes and Psolve */
-
   ycur = ynow;
   ypcur = ypnow;
   rcur = rnow;
 
   /* Set SpgmrSolve inputs pretype and initial guess xx = 0. */  
-
   pretype = (psolve == NULL) ? NONE : LEFT;
   N_VConst(ZERO, xx);
   
   /* Call SpgmrSolve and copy xx to bb. */
-
   retval = SpgmrSolve(spgmr_mem, IDA_mem, xx, bb, pretype, gstype, epslin,
                       maxrs, IDA_mem, weight, weight, IDASpgmrAtimes,
                       IDASpgmrPSolve, &res_norm, &nli_inc, &nps_inc);
@@ -852,14 +850,12 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   else N_VScale(ONE, xx, bb);
   
   /* Increment counters nli, nps, and return if successful. */
-
   nli += nli_inc;
   nps += nps_inc;
 
   if (retval == SUCCESS) return(SUCCESS);
 
   /* If not successful, increment ncfl and return appropriate flag. */
-
   ncfl++;
 
   if (retval > 0)   return(LSOLVE_ERROR_RECVR);

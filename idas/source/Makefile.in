@@ -40,12 +40,12 @@ SRC =	${srcdir}/idas.c \
 	${srcdir}/idaa.c \
 	${srcdir}/idasic.c \
 	${srcdir}/idasio.c \
-	${srcdir}/idasband.c \
-	${srcdir}/idasdense.c \
-	${srcdir}/idasspgmr.c \
-	${srcdir}/idasbbdpre.c
+	${srcdir}/idaband.c \
+	${srcdir}/idadense.c \
+	${srcdir}/idaspgmr.c \
+	${srcdir}/idabbdpre.c
 
-OBJ = idas.o idaa.o idasic.o idasio.o idasband.o idasdense.o idasspgmr.o idasbbdpre.o
+OBJ = idas.o idaa.o idasic.o idasio.o idaband.o idadense.o idaspgmr.o idabbdpre.o
 
 #--------------------------------------------------------------------------------
 # Make rules
@@ -58,10 +58,10 @@ install: ${OBJ}
 	cp ${IDAS_LIB} ${libdir}
 	cp ${IDAS_INC_DIR}/idas.h       ${includedir}
 	cp ${IDAS_INC_DIR}/idaa.h       ${includedir}
-	cp ${IDAS_INC_DIR}/idasdense.h  ${includedir}
-	cp ${IDAS_INC_DIR}/idasband.h   ${includedir}
-	cp ${IDAS_INC_DIR}/idasspgmr.h  ${includedir}
-	cp ${IDAS_INC_DIR}/idasbbdpre.h ${includedir}
+	cp ${IDAS_INC_DIR}/idadense.h  ${includedir}
+	cp ${IDAS_INC_DIR}/idaband.h   ${includedir}
+	cp ${IDAS_INC_DIR}/idaspgmr.h  ${includedir}
+	cp ${IDAS_INC_DIR}/idabbdpre.h ${includedir}
 
 clean:
 	rm -f ${OBJ}
@@ -71,10 +71,10 @@ uninstall:
 	rm -f ${libdir}/${IDAS_LIB}
 	rm -f ${includedir}/idas.h
 	rm -f ${includedir}/idaa.h
-	rm -f ${includedir}/idasdense.h
-	rm -f ${includedir}/idasband.h
-	rm -f ${includedir}/idasspgmr.h
-	rm -f ${includedir}/idasbbdpre.h
+	rm -f ${includedir}/idadense.h
+	rm -f ${includedir}/idaband.h
+	rm -f ${includedir}/idaspgmr.h
+	rm -f ${includedir}/idabbdpre.h
 
 idas.o: ${srcdir}/idas.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
@@ -84,13 +84,13 @@ idasic.o: ${srcdir}/idasic.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 idasio.o: ${srcdir}/idasio.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-idasband.o: ${srcdir}/idasband.c
+idaband.o: ${srcdir}/idaband.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-idasdense.o: ${srcdir}/idasdense.c
+idadense.o: ${srcdir}/idadense.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-idasspgmr.o: ${srcdir}/idasspgmr.c
+idaspgmr.o: ${srcdir}/idaspgmr.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-idasbbdpre.o: ${srcdir}/idasbbdpre.c
+idabbdpre.o: ${srcdir}/idabbdpre.c
 	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
 
 #---End of Makefile---

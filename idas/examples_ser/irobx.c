@@ -25,7 +25,7 @@
 #include "sundialsmath.h"
 #include "nvector_serial.h"
 #include "idas.h"
-#include "idasdense.h"
+#include "idadense.h"
 
 /* Macro to define dense matrix elements, indexed from 1. */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)

@@ -35,7 +35,7 @@
 #include "sundialsmath.h"
 #include "nvector_serial.h"
 #include "idas.h"
-#include "idasband.h"
+#include "idaband.h"
 
 typedef struct {
   long int    mm;

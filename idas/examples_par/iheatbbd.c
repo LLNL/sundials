@@ -36,9 +36,9 @@
 #include "sundialsmath.h"
 #include "nvector_parallel.h"
 #include "idas.h"
-#include "idasspgmr.h"
+#include "idaspgmr.h"
 #include "iterative.h"
-#include "idasbbdpre.h"
+#include "idabbdpre.h"
 #include "mpi.h"
 
 #define ZERO  RCONST(0.0)
