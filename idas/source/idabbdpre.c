@@ -68,7 +68,7 @@ void *IBBDPrecAlloc(void *ida_mem, long int Nlocal,
   long int muk, mlk, storage_mu;
 
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDAMEM_NULL);
+    fprintf(stderr, MSG_IDAMEM_NULL);
     return(NULL);
   }
 
@@ -76,7 +76,7 @@ void *IBBDPrecAlloc(void *ida_mem, long int Nlocal,
 
   /* Test if the NVECTOR package is compatible with BLOCK BAND preconditioner */
   if (nvspec->ops->nvgetdata == NULL || nvspec->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
+    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
     return(NULL);
   }
   /* Allocate data memory. */
@@ -139,7 +139,7 @@ int IBBDSpgmr(void *ida_mem, int maxl, void *p_data)
   int flag;
 
   if ( p_data == NULL ) {
-    fprintf(stdout, MSG_NO_PDATA);
+    fprintf(stderr, MSG_NO_PDATA);
     return(BBDP_NO_PDATA);
   }
 
@@ -206,7 +206,7 @@ int IBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
   IBBDPrecData pdata;
 
   if ( p_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 
@@ -222,7 +222,7 @@ int IBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
   IBBDPrecData pdata;
 
   if ( p_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 
@@ -238,7 +238,7 @@ int IBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
   IBBDPrecData pdata;
 
   if ( p_data == NULL ) {
-    fprintf(stdout, MSG_PDATA_NULL);
+    fprintf(stderr, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 

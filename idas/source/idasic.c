@@ -235,7 +235,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check if IDA memory exists */
 
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IC_IDA_NO_MEM);
+    fprintf(stderr, MSG_IC_IDA_NO_MEM);
     return(IC_IDA_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -243,7 +243,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check if problem was malloc'ed */
   
   if (IDA_mem->ida_MallocDone == FALSE) {
-    fprintf(errfp, MSG_IC_NO_MALLOC);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_NO_MALLOC);
     return(IC_NO_MALLOC);
   }
 
@@ -256,20 +256,20 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check legality of input arguments, and set IDA memory copies. */
 
   if (icopt < CALC_YA_YDP_INIT || icopt > CALC_Y_INIT) {
-    fprintf(errfp, MSG_BAD_ICOPT, icopt);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ICOPT, icopt);
     return(IC_ILL_INPUT);
   }
   IDA_mem->ida_icopt = icopt;
 
   if (icopt == CALC_YA_YDP_INIT && (id == NULL)) {
-    fprintf(errfp, MSG_IC_MISSING_ID);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_MISSING_ID);
     return(IC_ILL_INPUT);
   }
 
   tdist = ABS(tout1 - tn);
   troundoff = TWO*uround*(ABS(tn) + ABS(tout1));    
   if (tdist < troundoff) {
-    fprintf(errfp, MSG_IC_TOO_CLOSE, tout1, tn);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_TOO_CLOSE, tout1, tn);
     return(IC_ILL_INPUT);
   }
 
@@ -280,7 +280,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   if (icopt == CALC_YA_YDP_INIT) {
     minid = N_VMin(id);
     if (minid < ZERO) {
-      fprintf(errfp, MSG_IC_BAD_ID);
+      if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_ID);
       return(IC_ILL_INPUT);
     }
     if (minid > HALF) IDA_mem->ida_sysindex = 0;
@@ -297,7 +297,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   nbacktr = 0;
   linitOK = (linit(IDA_mem) == LINIT_OK);
   if (!linitOK) {
-    fprintf(errfp, MSG_IC_LINIT_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_LINIT_FAIL);
     return(IC_LINIT_FAIL);
   }
 
@@ -726,34 +726,34 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval)
   /* Depending on retval, print error message and return error flag. */
   switch (retval) {
 
-    case RES_NONRECOV_ERR:  fprintf(errfp, MSG_IC_RES_NONREC);
+    case RES_NONRECOV_ERR:  if(errfp!=NULL) fprintf(errfp, MSG_IC_RES_NONREC);
                          return(RES_NONRECOV_ERR);
 
-    case IC_FIRST_RES_FAIL:  fprintf(errfp, MSG_IC_RES_FAIL);
+    case IC_FIRST_RES_FAIL:  if(errfp!=NULL) fprintf(errfp, MSG_IC_RES_FAIL);
                          return(IC_FIRST_RES_FAIL);
 
-    case SETUP_FAILURE:  fprintf(errfp, MSG_IC_SETUP_FAIL);
+    case SETUP_FAILURE:  if(errfp!=NULL) fprintf(errfp, MSG_IC_SETUP_FAIL);
                          return(SETUP_FAILURE);
 
-    case SOLVE_FAILURE:  fprintf(errfp, MSG_IC_SOLVE_FAIL);
+    case SOLVE_FAILURE:  if(errfp!=NULL) fprintf(errfp, MSG_IC_SOLVE_FAIL);
                          return(SOLVE_FAILURE);
 
-    case IC_FAIL_RECOV:  fprintf(errfp, MSG_IC_NO_RECOVERY);
+    case IC_FAIL_RECOV:  if(errfp!=NULL) fprintf(errfp, MSG_IC_NO_RECOVERY);
                          return(IC_NO_RECOVERY);
 
-    case IC_CONSTR_FAILED: fprintf(errfp, MSG_IC_FAIL_CONSTR);
+    case IC_CONSTR_FAILED: if(errfp!=NULL) fprintf(errfp, MSG_IC_FAIL_CONSTR);
                          return(IC_FAILED_CONSTR);
 
-    case IC_LINESRCH_FAILED:  fprintf(errfp, MSG_IC_FAILED_LINS);
+    case IC_LINESRCH_FAILED:  if(errfp!=NULL) fprintf(errfp, MSG_IC_FAILED_LINS);
                          return(IC_FAILED_LINESRCH);
 
-    case IC_CONV_FAIL:   fprintf(errfp, MSG_IC_CONV_FAILED);
+    case IC_CONV_FAIL:   if(errfp!=NULL) fprintf(errfp, MSG_IC_CONV_FAILED);
                          return(IC_CONV_FAILURE);
 
-    case IC_SLOW_CONVRG: fprintf(errfp, MSG_IC_CONV_FAILED);
+    case IC_SLOW_CONVRG: if(errfp!=NULL) fprintf(errfp, MSG_IC_CONV_FAILED);
                          return(IC_CONV_FAILURE);
 
-    case IC_BAD_EWT:     fprintf(errfp, MSG_IC_BAD_EWT);
+    case IC_BAD_EWT:     if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_EWT);
                          return(IC_BAD_EWT);
 
   }

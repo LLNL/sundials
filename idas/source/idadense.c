@@ -128,7 +128,7 @@ int IDADense(void *ida_mem, long int Neq)
 
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDAMEM_NULL);
+    fprintf(stderr, MSG_IDAMEM_NULL);
     return(LMEM_FAIL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -139,7 +139,7 @@ int IDADense(void *ida_mem, long int Neq)
       nvspec->ops->nvdispose == NULL ||
       nvspec->ops->nvgetdata == NULL || 
       nvspec->ops->nvsetdata == NULL) {
-    fprintf(errfp, MSG_WRONG_NVEC);
+    if(errfp!=NULL) fprintf(errfp, MSG_WRONG_NVEC);
     return(LIN_ILL_INPUT);
   }
 
@@ -155,7 +155,7 @@ int IDADense(void *ida_mem, long int Neq)
   /* Get memory for IDADenseMemRec. */
   idadense_mem = (IDADenseMem) malloc(sizeof(IDADenseMemRec));
   if (idadense_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
 
@@ -171,12 +171,12 @@ int IDADense(void *ida_mem, long int Neq)
   /* Allocate memory for JJ and pivot array. */
   JJ = DenseAllocMat(Neq);
   if (JJ == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
   pivots = DenseAllocPiv(Neq);
   if (pivots == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     DenseFreeMat(JJ);
     return(LMEM_FAIL);
   }
@@ -196,13 +196,13 @@ int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -221,13 +221,13 @@ int IDADenseSetJacData(void *ida_mem, void *jac_data)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -246,13 +246,13 @@ int IDADenseGetIntWorkSpace(void *ida_mem, long int *leniwD)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -271,13 +271,13 @@ int IDADenseGetRealWorkSpace(void *ida_mem, long int *lenrwD)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -296,13 +296,13 @@ int IDADenseGetNumJacEvals(void *ida_mem, long int *njevalsD)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -321,13 +321,13 @@ int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsD)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idadense_mem = (IDADenseMem) lmem;

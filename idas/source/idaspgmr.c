@@ -195,7 +195,7 @@ int IDASpgmr(void *ida_mem, int maxl)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDAMEM_NULL);
+    fprintf(stderr, MSG_IDAMEM_NULL);
     return(LMEM_FAIL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -212,7 +212,7 @@ int IDASpgmr(void *ida_mem, int maxl)
   /* Get memory for IDASpgmrMemRec */
   idaspgmr_mem = (IDASpgmrMem) malloc(sizeof(IDASpgmrMemRec));
   if (idaspgmr_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
 
@@ -237,18 +237,18 @@ int IDASpgmr(void *ida_mem, int maxl)
   /* Allocate memory for ytemp, yptemp, and xx */
   ytemp = N_VNew(nvspec);
   if (ytemp == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
   yptemp = N_VNew(nvspec);
   if (yptemp == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(ytemp);
     return(LMEM_FAIL);
   }
   xx = N_VNew(nvspec);
   if (xx == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(ytemp);
     N_VFree(yptemp);
     return(LMEM_FAIL);
@@ -261,7 +261,7 @@ int IDASpgmr(void *ida_mem, int maxl)
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
   spgmr_mem = SpgmrMalloc(maxl1, nvspec);
   if (spgmr_mem == NULL) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(ytemp);
     N_VFree(yptemp);
     N_VFree(xx);
@@ -283,20 +283,20 @@ int IDASpgmrSetGSType(void *ida_mem, int gstype)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal gstype */
   if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
-    fprintf(errfp, MSG_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_GSTYPE, gstype, MODIFIED_GS, CLASSICAL_GS);
     return(LIN_ILL_INPUT);
   }
 
@@ -314,20 +314,20 @@ int IDASpgmrSetMaxRestarts(void *ida_mem, int maxrs)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal maxrs */
   if (maxrs < 0) {
-    fprintf(errfp, MSG_IDAS_NEG_MAXRS);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_MAXRS);
     return(LIN_ILL_INPUT);
   }
 
@@ -345,20 +345,20 @@ int IDASpgmrSetEpsLin(void *ida_mem, realtype eplifac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal maxrs */
   if (eplifac < ZERO) {
-    fprintf(errfp, MSG_IDAS_NEG_EPLIFAC);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_EPLIFAC);
     return(LIN_ILL_INPUT);
   }
 
@@ -376,20 +376,20 @@ int IDASpgmrSetIncrementFactor(void *ida_mem, realtype dqincfac)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   /* Check for legal maxrs */
   if (dqincfac < ZERO) {
-    fprintf(errfp, MSG_IDAS_NEG_DQINCFAC);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_DQINCFAC);
     return(LIN_ILL_INPUT);
   }
 
@@ -407,13 +407,13 @@ int IDASpgmrSetPrecSetupFn(void *ida_mem, IDASpgmrPrecSetupFn pset)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -432,13 +432,13 @@ int IDASpgmrSetPrecSolveFn(void *ida_mem, IDASpgmrPrecSolveFn psolve)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -457,13 +457,13 @@ int IDASpgmrSetPrecData(void *ida_mem, void *pdata)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -482,13 +482,13 @@ int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -507,13 +507,13 @@ int IDASpgmrSetJacData(void *ida_mem, void *jdata)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -533,13 +533,13 @@ int IDASpgmrGetIntWorkSpace(void *ida_mem, long int *leniwSG)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -560,13 +560,13 @@ int IDASpgmrGetRealWorkSpace(void *ida_mem, long int *lenrwSG)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -586,13 +586,13 @@ int IDASpgmrGetNumPrecEvals(void *ida_mem, long int *npevals)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -611,13 +611,13 @@ int IDASpgmrGetNumPrecSolves(void *ida_mem, long int *npsolves)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -636,13 +636,13 @@ int IDASpgmrGetNumLinIters(void *ida_mem, long int *nliters)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -661,13 +661,13 @@ int IDASpgmrGetNumConvFails(void *ida_mem, long int *nlcfails)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -686,13 +686,13 @@ int IDASpgmrGetNumJtimesEvals(void *ida_mem, long int *njvevals)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -711,13 +711,13 @@ int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_SETGET_IDAMEM_NULL);
+    fprintf(stderr, MSG_SETGET_IDAMEM_NULL);
     return(LIN_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    fprintf(errfp, MSG_SETGET_LMEM_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_SETGET_LMEM_NULL);
     return(LIN_NO_LMEM);
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
@@ -902,9 +902,9 @@ static int IDASpgmrPerf(IDAMem IDA_mem, int perftask)
   if (!(lavd || lcfn || lcfl)) return 0;
   nwarn++;
   if (nwarn > 10) return 1;
-  if (lavd) fprintf(errfp, MSG_AVD_WARN, tn, avdim);
-  if (lcfn) fprintf(errfp, MSG_CFN_WARN, tn, rcfn);
-  if (lcfl) fprintf(errfp, MSG_CFL_WARN, tn, rcfl);
+  if (lavd) if(errfp!=NULL) fprintf(errfp, MSG_AVD_WARN, tn, avdim);
+  if (lcfn) if(errfp!=NULL) fprintf(errfp, MSG_CFN_WARN, tn, rcfn);
+  if (lcfl) if(errfp!=NULL) fprintf(errfp, MSG_CFL_WARN, tn, rcfl);
 
   return 0;
 }

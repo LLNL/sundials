@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-04-08 21:34:37 $
+ * $Revision: 1.21 $
+ * $Date: 2004-04-21 22:33:04 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -489,7 +489,7 @@ void *IDACreate(void)
 
   IDA_mem = (IDAMem) malloc(sizeof(struct IDAMemRec));
   if (IDA_mem == NULL) {
-    fprintf(stdout, MSG_MEM_FAIL);
+    fprintf(stderr, MSG_MEM_FAIL);
     return (NULL);
   }
 
@@ -498,7 +498,7 @@ void *IDACreate(void)
 
   /* Set default values for integrator optional inputs */
   IDA_mem->ida_rdata       = NULL;
-  IDA_mem->ida_errfp       = stdout;
+  IDA_mem->ida_errfp       = stderr;
   IDA_mem->ida_maxord      = MAXORD_DEFAULT;
   IDA_mem->ida_mxstep      = MXSTEP_DEFAULT;
   IDA_mem->ida_hmax_inv    = ZERO;
@@ -535,7 +535,7 @@ int IDASetRdata(void *ida_mem, void *rdata)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
@@ -555,7 +555,7 @@ int IDASetErrFile(void *ida_mem, FILE *errfp)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
@@ -575,19 +575,19 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (maxord <= 0) {
-    fprintf(errfp, MSG_IDAS_NEG_MAXORD);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_MAXORD);
     return(IDAS_ILL_INPUT);
   }
 
   if (maxord > IDA_mem->ida_maxord) {
-    fprintf(errfp, MSG_IDAS_BAD_MAXORD, IDA_mem->ida_maxord, maxord);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXORD, IDA_mem->ida_maxord, maxord);
     return(IDAS_ILL_INPUT);
   }  
 
@@ -605,14 +605,14 @@ int IDASetMaxNumSteps(void *ida_mem, long int mxsteps)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (mxsteps <= 0) {
-    fprintf(errfp, MSG_IDAS_NEG_MXSTEPS);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_MXSTEPS);
     return(IDAS_ILL_INPUT);
   }
 
@@ -630,7 +630,7 @@ int IDASetInitStep(void *ida_mem, realtype hin)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
@@ -650,14 +650,14 @@ int IDASetMaxStep(void *ida_mem, realtype hmax)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (hmax <= 0) {
-    fprintf(errfp, MSG_IDAS_NEG_HMAX);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_HMAX);
     return(IDAS_ILL_INPUT);
   }
 
@@ -675,7 +675,7 @@ int IDASetStopTime(void *ida_mem, realtype tstop)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
@@ -697,14 +697,14 @@ int IDASetNonlinConvCoef(void *ida_mem, realtype epcon)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (epcon < ZERO) {
-    fprintf(errfp, MSG_IDAS_NEG_EPCON);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NEG_EPCON);
     return(IDAS_ILL_INPUT);
   }
 
@@ -722,7 +722,7 @@ int IDASetMaxErrTestFails(void *ida_mem, int maxnef)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return (IDAS_NO_MEM);
   }
 
@@ -742,7 +742,7 @@ int IDASetMaxConvFails(void *ida_mem, int maxncf)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return (IDAS_NO_MEM);
   }
 
@@ -762,7 +762,7 @@ int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return (IDAS_NO_MEM);
   }
 
@@ -782,7 +782,7 @@ int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
@@ -802,7 +802,7 @@ int IDASetId(void *ida_mem, N_Vector id)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
@@ -822,7 +822,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
@@ -855,7 +855,7 @@ int IDAMalloc(void *ida_mem, ResFn res,
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDAM_NO_MEM);
+    fprintf(stderr, MSG_IDAM_NO_MEM);
     return(IDAM_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -863,37 +863,37 @@ int IDAMalloc(void *ida_mem, ResFn res,
   /* Check for legal input parameters */
   
   if (y0 == NULL) { 
-    fprintf(errfp, MSG_Y0_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_Y0_NULL); 
     return(IDAM_ILL_INPUT); 
   }
   
   if (yp0 == NULL) { 
-    fprintf(errfp, MSG_YP0_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_YP0_NULL); 
     return(IDAM_ILL_INPUT); 
   }
 
   if ((itol != SS) && (itol != SV)) {
-    fprintf(errfp, MSG_BAD_ITOL, itol, SS, SV);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL, itol, SS, SV);
     return(IDAM_ILL_INPUT);
   }
 
   if (res == NULL) { 
-    fprintf(errfp, MSG_RES_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_RES_NULL); 
     return(IDAM_ILL_INPUT); 
   }
 
   if (rtol == NULL) { 
-    fprintf(errfp, MSG_RTOL_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_RTOL_NULL); 
     return(IDAM_ILL_INPUT); 
   }
 
   if (*rtol < ZERO) { 
-    fprintf(errfp, MSG_BAD_RTOL, *rtol); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL, *rtol); 
     return(IDAM_ILL_INPUT); 
   }
    
   if (atol == NULL) { 
-    fprintf(errfp, MSG_ATOL_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
     return(IDAM_ILL_INPUT); 
   }
 
@@ -903,7 +903,7 @@ int IDAMalloc(void *ida_mem, ResFn res,
     neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
   }
   if (neg_atol) { 
-    fprintf(errfp, MSG_BAD_ATOL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOL); 
     return(IDAM_ILL_INPUT); 
   }
 
@@ -915,7 +915,7 @@ int IDAMalloc(void *ida_mem, ResFn res,
   /* Allocate the vectors */
   allocOK = IDAAllocVectors(IDA_mem, nvspec);
   if (!allocOK) {
-    fprintf(errfp, MSG_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_MEM_FAIL);
     return(IDAM_MEM_FAIL);
   }
  
@@ -988,7 +988,7 @@ int IDAReInit(void *ida_mem, ResFn res,
   /* Check for legal input parameters */
   
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDAM_NO_MEM);
+    fprintf(stderr, MSG_IDAM_NO_MEM);
     return(IDAREI_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -996,44 +996,44 @@ int IDAReInit(void *ida_mem, ResFn res,
   /* Check if problem was malloc'ed */
   
   if (IDA_mem->ida_MallocDone == FALSE) {
-    fprintf(errfp, MSG_REI_NO_MALLOC);
+    if(errfp!=NULL) fprintf(errfp, MSG_REI_NO_MALLOC);
     return(IDAREI_NO_MALLOC);
   }
 
   /* Check for legal input parameters */
   
   if (y0 == NULL) { 
-    fprintf(errfp, MSG_Y0_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_Y0_NULL); 
     return(IDAREI_ILL_INPUT); 
   }
   
   if (yp0 == NULL) { 
-    fprintf(errfp, MSG_YP0_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_YP0_NULL); 
     return(IDAREI_ILL_INPUT); 
   }
 
   if ((itol != SS) && (itol != SV)) {
-    fprintf(errfp, MSG_BAD_ITOL, itol, SS, SV);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITOL, itol, SS, SV);
     return(IDAREI_ILL_INPUT);
   }
 
   if (res == NULL) { 
-    fprintf(errfp, MSG_RES_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_RES_NULL); 
     return(IDAREI_ILL_INPUT); 
   }
 
   if (rtol == NULL) { 
-    fprintf(errfp, MSG_RTOL_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_RTOL_NULL); 
     return(IDAREI_ILL_INPUT); 
   }
 
   if (*rtol < ZERO) {
-    fprintf(errfp, MSG_BAD_RTOL, *rtol); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL, *rtol); 
     return(IDAREI_ILL_INPUT); 
   }
    
   if (atol == NULL) { 
-    fprintf(errfp, MSG_ATOL_NULL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
     return(IDAREI_ILL_INPUT); 
   }
 
@@ -1043,7 +1043,7 @@ int IDAReInit(void *ida_mem, ResFn res,
     neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
   }
   if (neg_atol) { 
-    fprintf(errfp, MSG_BAD_ATOL); 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ATOL); 
     return(IDAREI_ILL_INPUT); 
   }
 
@@ -1102,14 +1102,14 @@ int IDASetNonlinConvCoefIC(void *ida_mem, realtype epiccon)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (epiccon < ZERO) {
-    fprintf(errfp, MSG_IDAS_BAD_EPICCON);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_EPICCON);
     return(IDAS_ILL_INPUT);
   }
 
@@ -1127,14 +1127,14 @@ int IDASetMaxNumStepsIC(void *ida_mem, int maxnh)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (maxnh < 0) {
-    fprintf(errfp, MSG_IDAS_BAD_MAXNH);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXNH);
     return(IDAS_ILL_INPUT);
   }
 
@@ -1152,14 +1152,14 @@ int IDASetMaxNumJacsIC(void *ida_mem, int maxnj)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
    if (maxnj < 0) {
-    fprintf(errfp, MSG_IDAS_BAD_MAXNJ);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXNJ);
     return(IDAS_ILL_INPUT);
   } 
 
@@ -1177,14 +1177,14 @@ int IDASetMaxNumItersIC(void *ida_mem, int maxnit)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (maxnit < 0) {
-    fprintf(errfp, MSG_IDAS_BAD_MAXNIT);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXNIT);
     return(IDAS_ILL_INPUT);
   }
 
@@ -1202,7 +1202,7 @@ int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
@@ -1222,14 +1222,14 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAS_NO_MEM);
+    fprintf(stderr, MSG_IDAS_NO_MEM);
     return(IDAS_NO_MEM);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (steptol < ZERO) {
-    fprintf(errfp, MSG_IDAS_BAD_STEPTOL);
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_STEPTOL);
     return(IDAS_ILL_INPUT);
   }
 
@@ -1340,7 +1340,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check if IDA memory exists */
 
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IC_IDA_NO_MEM);
+    fprintf(stderr, MSG_IC_IDA_NO_MEM);
     return(IC_IDA_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -1348,7 +1348,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check if problem was malloc'ed */
   
   if (IDA_mem->ida_MallocDone == FALSE) {
-    fprintf(errfp, MSG_IC_NO_MALLOC);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_NO_MALLOC);
     return(IC_NO_MALLOC);
   }
 
@@ -1361,20 +1361,20 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check legality of input arguments, and set IDA memory copies. */
 
   if (icopt < CALC_YA_YDP_INIT || icopt > CALC_Y_INIT) {
-    fprintf(errfp, MSG_BAD_ICOPT, icopt);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ICOPT, icopt);
     return(IC_ILL_INPUT);
   }
   IDA_mem->ida_icopt = icopt;
 
   if (icopt == CALC_YA_YDP_INIT && (id == NULL)) {
-    fprintf(errfp, MSG_IC_MISSING_ID);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_MISSING_ID);
     return(IC_ILL_INPUT);
   }
 
   tdist = ABS(tout1 - tn);
   troundoff = TWO*uround*(ABS(tn) + ABS(tout1));    
   if (tdist < troundoff) {
-    fprintf(errfp, MSG_IC_TOO_CLOSE, tout1, tn);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_TOO_CLOSE, tout1, tn);
     return(IC_ILL_INPUT);
   }
 
@@ -1385,7 +1385,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   if (icopt == CALC_YA_YDP_INIT) {
     minid = N_VMin(id);
     if (minid < ZERO) {
-      fprintf(errfp, MSG_IC_BAD_ID);
+      if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_ID);
       return(IC_ILL_INPUT);
     }
     if (minid > HALF) IDA_mem->ida_sysindex = 0;
@@ -1402,7 +1402,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   nbacktr = 0;
   linitOK = (linit(IDA_mem) == LINIT_OK);
   if (!linitOK) {
-    fprintf(errfp, MSG_IC_LINIT_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_IC_LINIT_FAIL);
     return(IC_LINIT_FAIL);
   }
 
@@ -1513,7 +1513,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   /* Check for legal inputs in all cases. */
 
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDA_NO_MEM);
+    fprintf(stderr, MSG_IDA_NO_MEM);
     return(IDA_NO_MEM);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -1521,38 +1521,38 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   /* Check if problem was malloc'ed */
   
   if (IDA_mem->ida_MallocDone == FALSE) {
-    fprintf(errfp, MSG_NO_MALLOC);
+    if(errfp!=NULL) fprintf(errfp, MSG_NO_MALLOC);
     return(NO_MALLOC);
   }
 
   /* Check for legal arguments */
 
   if (yret == NULL) {
-    fprintf(errfp, MSG_YRET_NULL);       
+    if(errfp!=NULL) fprintf(errfp, MSG_YRET_NULL);       
     return(ILL_INPUT);
   }
   yy = yret;  
 
   if (ypret == NULL) {
-    fprintf(errfp, MSG_YPRET_NULL);       
+    if(errfp!=NULL) fprintf(errfp, MSG_YPRET_NULL);       
     return(ILL_INPUT);
   }
   yp = ypret;
   
   if (tret == NULL) {
-    fprintf(errfp, MSG_TRET_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_TRET_NULL);
     return(ILL_INPUT);
   }
   *tret = tretp = tn; /* Set tret now in case of illegal-input return. */
 
   if ((itask < NORMAL) || (itask > ONE_STEP_TSTOP)) {
-    fprintf(errfp, MSG_BAD_ITASK, itask);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITASK, itask);
     return(ILL_INPUT);
   }
   
   if ( (itask == NORMAL_TSTOP) || (itask == ONE_STEP_TSTOP) ) {
     if ( tstopset == FALSE ) {
-      fprintf(errfp, MSG_NO_TSTOP);
+      if(errfp!=NULL) fprintf(errfp, MSG_NO_TSTOP);
       return(ILL_INPUT);
     }
     istop = TRUE;
@@ -1578,13 +1578,13 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     tdist = ABS(tout - tn);
     troundoff = TWO*uround*(ABS(tn) + ABS(tout));    
     if (tdist < troundoff) {
-      fprintf(errfp, MSG_TOO_CLOSE, tout, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_TOO_CLOSE, tout, tn);
       return(ILL_INPUT);
     }
 
     hh = hin;
     if ( (hh != ZERO) && ((tout-tn)*hh < ZERO) ) {
-      fprintf(errfp, MSG_BAD_HINIT, hh, tout-tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_HINIT, hh, tout-tn);
       return(ILL_INPUT);
     }
 
@@ -1600,7 +1600,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     if(istop) {
       if ( (tstop - tn)*hh < ZERO) {
-        fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
         return(ILL_INPUT);
       }
       if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
@@ -1637,7 +1637,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     /* Check for too many steps taken. */
     
     if (nstloc >= mxstep) {
-      fprintf(errfp, MSG_MAX_STEPS, tn, mxstep, tout);
+      if(errfp!=NULL) fprintf(errfp, MSG_MAX_STEPS, tn, mxstep, tout);
       istate = TOO_MUCH_WORK;
       *tret = tretp = tn;
       break; /* Here yy=yret and yp=ypret already have the current solution. */
@@ -1652,7 +1652,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     if (nst > 0) {
       ewtsetOK = IDAEwtSet(IDA_mem, phi[0]);
       if (!ewtsetOK) {
-        fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_EWT_NOW_BAD, tn);
         istate = ILL_INPUT;
         ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
         *tret = tretp = tn;
@@ -1666,7 +1666,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     tolsf = uround * nrm;
     if (tolsf > ONE) {
       tolsf *= TEN;
-      fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
       istate = TOO_MUCH_ACC;
       *tret = tretp = tn;
       if (nst > 0) ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
@@ -1722,7 +1722,7 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
   int j, kord;
 
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return (IDAG_NO_MEM);
   }
 
@@ -1732,7 +1732,7 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
   tfuzz = HUNDRED * uround * (tn + hh);
   tp = tn - hused - tfuzz;
   if ( (t - tp)*hh < ZERO) {
-    fprintf(errfp, MSG_BAD_T, t, tn-hused, tn);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_T, t, tn-hused, tn);
     return(BAD_T);
   }
 
@@ -1765,7 +1765,7 @@ int IDAGetIntWorkSpace(void *ida_mem, long int *leniw)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1783,7 +1783,7 @@ int IDAGetRealWorkSpace(void *ida_mem, long int *lenrw)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1801,7 +1801,7 @@ int IDAGetNumSteps(void *ida_mem, long int *nsteps)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1819,7 +1819,7 @@ int IDAGetNumResEvals(void *ida_mem, long int *nrevals)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1837,7 +1837,7 @@ int IDAGetNumLinSolvSetups(void *ida_mem, long int *nlinsetups)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1855,7 +1855,7 @@ int IDAGetNumErrTestFails(void *ida_mem, long int *netfails)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1873,7 +1873,7 @@ int IDAGetNumBacktrackOps(void *ida_mem, long int *nbacktracks)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1891,7 +1891,7 @@ int IDAGetLastOrder(void *ida_mem, int *klast)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1909,7 +1909,7 @@ int IDAGetCurrentOrder(void *ida_mem, int *kcur)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1927,7 +1927,7 @@ int IDAGetActualInitStep(void *ida_mem, realtype *hinused)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1945,7 +1945,7 @@ int IDAGetLastStep(void *ida_mem, realtype *hlast)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1963,7 +1963,7 @@ int IDAGetCurrentStep(void *ida_mem, realtype *hcur)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1981,7 +1981,7 @@ int IDAGetCurrentTime(void *ida_mem, realtype *tcur)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -1999,7 +1999,7 @@ int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -2017,7 +2017,7 @@ int IDAGetErrWeights(void *ida_mem, N_Vector *eweight)
   IDAMem IDA_mem;
   
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return (IDAG_NO_MEM);
   }
 
@@ -2035,7 +2035,7 @@ int IDAGetWorkSpace(void *ida_mem, long int *leniw, long int *lenrw)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -2057,7 +2057,7 @@ int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals,
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -2083,7 +2083,7 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -2101,7 +2101,7 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -2119,7 +2119,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    fprintf(stdout, MSG_IDAG_NO_MEM);
+    fprintf(stderr, MSG_IDAG_NO_MEM);
     return(IDAG_NO_MEM);
   }
 
@@ -2618,34 +2618,34 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval)
   /* Depending on retval, print error message and return error flag. */
   switch (retval) {
 
-    case RES_NONRECOV_ERR:  fprintf(errfp, MSG_IC_RES_NONREC);
+    case RES_NONRECOV_ERR:  if(errfp!=NULL) fprintf(errfp, MSG_IC_RES_NONREC);
                          return(RES_NONRECOV_ERR);
 
-    case IC_FIRST_RES_FAIL:  fprintf(errfp, MSG_IC_RES_FAIL);
+    case IC_FIRST_RES_FAIL:  if(errfp!=NULL) fprintf(errfp, MSG_IC_RES_FAIL);
                          return(IC_FIRST_RES_FAIL);
 
-    case SETUP_FAILURE:  fprintf(errfp, MSG_IC_SETUP_FAIL);
+    case SETUP_FAILURE:  if(errfp!=NULL) fprintf(errfp, MSG_IC_SETUP_FAIL);
                          return(SETUP_FAILURE);
 
-    case SOLVE_FAILURE:  fprintf(errfp, MSG_IC_SOLVE_FAIL);
+    case SOLVE_FAILURE:  if(errfp!=NULL) fprintf(errfp, MSG_IC_SOLVE_FAIL);
                          return(SOLVE_FAILURE);
 
-    case IC_FAIL_RECOV:  fprintf(errfp, MSG_IC_NO_RECOVERY);
+    case IC_FAIL_RECOV:  if(errfp!=NULL) fprintf(errfp, MSG_IC_NO_RECOVERY);
                          return(IC_NO_RECOVERY);
 
-    case IC_CONSTR_FAILED: fprintf(errfp, MSG_IC_FAIL_CONSTR);
+    case IC_CONSTR_FAILED: if(errfp!=NULL) fprintf(errfp, MSG_IC_FAIL_CONSTR);
                          return(IC_FAILED_CONSTR);
 
-    case IC_LINESRCH_FAILED:  fprintf(errfp, MSG_IC_FAILED_LINS);
+    case IC_LINESRCH_FAILED:  if(errfp!=NULL) fprintf(errfp, MSG_IC_FAILED_LINS);
                          return(IC_FAILED_LINESRCH);
 
-    case IC_CONV_FAIL:   fprintf(errfp, MSG_IC_CONV_FAILED);
+    case IC_CONV_FAIL:   if(errfp!=NULL) fprintf(errfp, MSG_IC_CONV_FAILED);
                          return(IC_CONV_FAILURE);
 
-    case IC_SLOW_CONVRG: fprintf(errfp, MSG_IC_CONV_FAILED);
+    case IC_SLOW_CONVRG: if(errfp!=NULL) fprintf(errfp, MSG_IC_CONV_FAILED);
                          return(IC_CONV_FAILURE);
 
-    case IC_BAD_EWT:     fprintf(errfp, MSG_IC_BAD_EWT);
+    case IC_BAD_EWT:     if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_EWT);
                          return(IC_BAD_EWT);
 
   }
@@ -2674,7 +2674,7 @@ static int IDAInitialSetup(IDAMem IDA_mem)
   /* Test id vector for legality */
   
   if(suppressalg && (id==NULL)){ 
-    fprintf(errfp, MSG_MISSING_ID); 
+    if(errfp!=NULL) fprintf(errfp, MSG_MISSING_ID); 
     return(ILL_INPUT); 
   }
 
@@ -2682,7 +2682,7 @@ static int IDAInitialSetup(IDAMem IDA_mem)
 
   ewtsetOK = IDAEwtSet(IDA_mem, y0);
   if (!ewtsetOK) {
-    fprintf(errfp, MSG_BAD_EWT);
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_EWT);
     return(ILL_INPUT);
   }
 
@@ -2693,7 +2693,7 @@ static int IDAInitialSetup(IDAMem IDA_mem)
     constraintsSet = TRUE;
     temptest = N_VMaxNorm(constraints);
     if(temptest > TWOPT5){ 
-      fprintf(errfp, MSG_BAD_CONSTRAINTS); 
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_CONSTRAINTS); 
       return(ILL_INPUT); 
     } else if(temptest < HALF) constraintsSet = FALSE; /* constraints empty */
   }
@@ -2703,7 +2703,7 @@ static int IDAInitialSetup(IDAMem IDA_mem)
   if (constraintsSet) {
     conOK = N_VConstrMask (constraints, y0, tempv2);
     if (!conOK) { 
-      fprintf(errfp, MSG_Y0_FAIL_CONSTR); 
+      if(errfp!=NULL) fprintf(errfp, MSG_Y0_FAIL_CONSTR); 
       return(ILL_INPUT); 
     }
   }
@@ -2711,26 +2711,26 @@ static int IDAInitialSetup(IDAMem IDA_mem)
   /* Check linear solver functions and call linit function. */
 
   if (linit == NULL) {
-    fprintf(errfp, MSG_LINIT_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_LINIT_NULL);
     return(ILL_INPUT);
   }
   if (lsetup == NULL) {
-    fprintf(errfp, MSG_LSETUP_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_LSETUP_NULL);
     return(ILL_INPUT);
   }
   if (lsolve == NULL) {
-    fprintf(errfp, MSG_LSOLVE_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_LSOLVE_NULL);
     return(ILL_INPUT);
   }
   if (lfree == NULL) {
-    fprintf(errfp, MSG_LFREE_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_LFREE_NULL);
     return(ILL_INPUT);
   }
   /* Call linit if not already successfully called by IDACalcIC */
   if (!linitOK) {
     linitOK = (linit(IDA_mem) == LINIT_OK);
     if (!linitOK) {
-      fprintf(errfp, MSG_LINIT_FAIL);
+      if(errfp!=NULL) fprintf(errfp, MSG_LINIT_FAIL);
       return(ILL_INPUT);
     }
   }
@@ -2857,7 +2857,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( (tn - tout)*hh >= ZERO) {
       ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
       if (ier != OKAY) {
-        fprintf(errfp,MSG_BAD_TOUT, tout);
+        if(errfp!=NULL) fprintf(errfp,MSG_BAD_TOUT, tout);
         return(ILL_INPUT);
       }
       *tret = tretp = tout;
@@ -2877,7 +2877,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
   case NORMAL_TSTOP:
     /* Test for tn past tstop, tn = tretp, tn past tout, tn near tstop. */
     if ( (tn - tstop)*hh > ZERO) {
-      fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
       return(ILL_INPUT);
     }
     if (tout == tretp) {
@@ -2887,7 +2887,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( (tn - tout)*hh >= ZERO) {
       ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
       if (ier != OKAY) {
-        fprintf(errfp, MSG_BAD_TOUT, tout);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TOUT, tout);
         return(ILL_INPUT);
       }
       *tret = tretp = tout;
@@ -2897,7 +2897,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( ABS(tn - tstop) <= troundoff) {
       ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
       if (ier != OKAY) {
-        fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
         return(ILL_INPUT);
       }
       *tret = tretp = tstop;
@@ -2909,7 +2909,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
   case ONE_STEP_TSTOP:
     /* Test for tn past tstop, tn past tretp, and tn near tstop. */
     if ( (tn - tstop)*hh > ZERO) {
-      fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+      if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
       return(ILL_INPUT);
     }
     if ( (tn - tretp)*hh > ZERO) {
@@ -2921,7 +2921,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
     if ( ABS(tn - tstop) <= troundoff) {
       ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
       if (ier != OKAY) {
-        fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tstop, tn);
         return(ILL_INPUT);
       }
       *tret = tretp = tstop;
@@ -3025,25 +3025,25 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
   /* Depending on sflag, print error message and return error flag */
   switch (sflag) {
 
-    case REP_ERR_FAIL:  fprintf(errfp, MSG_ERR_FAILS, tn, hh);
+    case REP_ERR_FAIL:  if(errfp!=NULL) fprintf(errfp, MSG_ERR_FAILS, tn, hh);
                         return(ERR_FAILURE);
 
-    case REP_CONV_FAIL: fprintf(errfp, MSG_CONV_FAILS, tn, hh);
+    case REP_CONV_FAIL: if(errfp!=NULL) fprintf(errfp, MSG_CONV_FAILS, tn, hh);
                         return(CONV_FAILURE);
 
-    case LSETUP_ERROR_NONRECVR:  fprintf(errfp, MSG_SETUP_FAILED, tn);
+    case LSETUP_ERROR_NONRECVR:  if(errfp!=NULL) fprintf(errfp, MSG_SETUP_FAILED, tn);
                         return(SETUP_FAILURE);
 
-    case CONV_FAIL_LINR_NONRECVR:  fprintf(errfp, MSG_SOLVE_FAILED, tn);
+    case CONV_FAIL_LINR_NONRECVR:  if(errfp!=NULL) fprintf(errfp, MSG_SOLVE_FAILED, tn);
                         return(SOLVE_FAILURE);
 
-    case REP_RES_ERR:   fprintf(errfp, MSG_REP_RES_ERR, tn);
+    case REP_RES_ERR:   if(errfp!=NULL) fprintf(errfp, MSG_REP_RES_ERR, tn);
                         return(REP_RES_REC_ERR);
 
-    case RES_ERROR_NONRECVR:  fprintf(errfp, MSG_RES_NONRECOV, tn);
+    case RES_ERROR_NONRECVR:  if(errfp!=NULL) fprintf(errfp, MSG_RES_NONRECOV, tn);
                         return(RES_NONRECOV_ERR);
 
-    case CONSTR_FAIL:   fprintf(errfp, MSG_FAILED_CONSTR, tn);
+    case CONSTR_FAIL:   if(errfp!=NULL) fprintf(errfp, MSG_FAILED_CONSTR, tn);
                         return(CONSTR_FAILURE);
 
   }

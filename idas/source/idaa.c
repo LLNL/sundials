@@ -258,18 +258,18 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
 
   /* Check arguments */
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDAAM_NO_MEM);
+    fprintf(stderr, MSG_IDAAM_NO_MEM);
     return (NULL);
   }
   if (steps <= 0) {
-    fprintf(stdout, MSG_IDAAM_BAD_STEPS);
+    fprintf(stderr, MSG_IDAAM_BAD_STEPS);
     return (NULL);
   }
 
   /* Allocate memory block */
   IDAADJ_mem = (IDAadjMem) malloc(sizeof(struct IDAadjMemRec));
   if (IDAADJ_mem == NULL) {
-    fprintf(stdout, MSG_IDAAM_MEM_FAIL);
+    fprintf(stderr, MSG_IDAAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -281,7 +281,7 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
   IDAADJ_mem->ck_mem = IDAAckpntInit(IDA_mem);
   if (IDAADJ_mem->ck_mem == NULL) {
     free(IDAADJ_mem);
-    fprintf(stdout, MSG_IDAAM_MEM_FAIL);
+    fprintf(stderr, MSG_IDAAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -290,7 +290,7 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
   if (IDAADJ_mem->dt_mem == NULL) {
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
-    fprintf(stdout, MSG_IDAAM_MEM_FAIL);
+    fprintf(stderr, MSG_IDAAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -300,7 +300,7 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
     IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
-    fprintf(stdout, MSG_IDAAM_MEM_FAIL);
+    fprintf(stderr, MSG_IDAAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -310,7 +310,7 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
     IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
-    fprintf(stdout, MSG_IDAAM_MEM_FAIL);
+    fprintf(stderr, MSG_IDAAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -321,7 +321,7 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
     IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
-    fprintf(stdout, MSG_IDAAM_MEM_FAIL);
+    fprintf(stderr, MSG_IDAAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -333,7 +333,7 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
     IDAAdataFree(IDAADJ_mem->dt_mem, steps);
     IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     free(IDAADJ_mem);
-    fprintf(stdout, MSG_IDAAM_MEM_FAIL);
+    fprintf(stderr, MSG_IDAAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -528,7 +528,7 @@ int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
   }
 
   if (flag == IDASOLVEF_MEM_FAIL) 
-    fprintf(stdout, MSG_IDASOLVEF_MEM_FAIL);
+    fprintf(stderr, MSG_IDASOLVEF_MEM_FAIL);
 
   /* Get ncheck from IDAADJ_mem */ 
   *ncheckPtr = nckpnts;
@@ -551,7 +551,7 @@ int IDACreateB(void *idaadj_mem)
   void *ida_mem;
 
   if (idaadj_mem == NULL) {
-    fprintf(stdout, MSG_IDABM_NO_MEM);
+    fprintf(stderr, MSG_IDABM_NO_MEM);
     return(IDABM_NO_MEM);
   }
 
@@ -560,7 +560,7 @@ int IDACreateB(void *idaadj_mem)
   ida_mem = IDACreate();
 
   if (ida_mem == NULL) {
-    fprintf(stdout, MSG_IDABM_MEM_FAIL);
+    fprintf(stderr, MSG_IDABM_MEM_FAIL);
     return(IDABM_MEM_FAIL);
   }
 
@@ -708,14 +708,14 @@ int IDAMallocB(void *idaadj_mem, ResFnB resB,
   int flag;
 
   if (idaadj_mem == NULL) {
-    fprintf(stdout, MSG_IDABM_NO_MEM);
+    fprintf(stderr, MSG_IDABM_NO_MEM);
     return(IDABM_NO_MEM);
   }
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
-    fprintf(stdout, MSG_IDABM_BAD_TB0);
+    fprintf(stderr, MSG_IDABM_BAD_TB0);
     return(IDABM_BAD_TB0);
   }
 
@@ -743,14 +743,14 @@ int IDAReInitB(void *idaadj_mem, ResFnB resB,
   int flag;
 
   if (idaadj_mem == NULL) {
-    fprintf(stdout, MSG_IDABM_NO_MEM);
+    fprintf(stderr, MSG_IDABM_NO_MEM);
     return(IDABM_NO_MEM);
   }
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   if ( (tB0 < tinitial) || (tB0 > tfinal) ) {
-    fprintf(stdout, MSG_IDABM_BAD_TB0);
+    fprintf(stderr, MSG_IDABM_BAD_TB0);
     return(IDABM_BAD_TB0);
   }
 
@@ -819,7 +819,7 @@ int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, NV_Spec nvspecQB)
   int flag;
 
   if (idaadj_mem == NULL) {
-    fprintf(stdout, MSG_IDABQM_NO_MEM);
+    fprintf(stderr, MSG_IDABQM_NO_MEM);
     return(IDABM_NO_MEM);
   }
 
@@ -846,7 +846,7 @@ int IDAQuadReInitB(void *idaadj_mem, QuadRhsFnB rhsQB)
   int flag;
 
   if (idaadj_mem == NULL) {
-    fprintf(stdout, MSG_IDABQM_NO_MEM);
+    fprintf(stderr, MSG_IDABQM_NO_MEM);
     return(IDABM_NO_MEM);
   }
 
@@ -1145,7 +1145,7 @@ int IDASolveB(void *idaadj_mem, N_Vector yyB, N_Vector ypB)
     if (ck_mem != ckpntData) {
       flag = IDAAdataStore(IDAADJ_mem, ck_mem);
       if (flag < 0) {
-        fprintf(stdout, MSG_IDASOLVEB_FWD);
+        fprintf(stderr, MSG_IDASOLVEB_FWD);
         return(flag);
       }
     }
@@ -1154,7 +1154,7 @@ int IDASolveB(void *idaadj_mem, N_Vector yyB, N_Vector ypB)
     IDASetStopTime((void *)IDAB_mem, t0_);
     flag = IDASolve(IDAB_mem, t0_, &t, yyB, ypB, NORMAL_TSTOP);
     if (flag < 0) {
-      fprintf(stdout, MSG_IDASOLVEB_BCK);
+      fprintf(stderr, MSG_IDASOLVEB_BCK);
       return(flag);
     }
 
@@ -1234,7 +1234,7 @@ int IDAAloadData(void *idaadj_mem, int which_ckpnt, long int *points)
     printf("...regenerate data\n");
     flag = IDAAdataStore(IDAADJ_mem, ck_mem);
     if (flag < 0) {
-      fprintf(stdout, MSG_IDASOLVEB_FWD);
+      fprintf(stderr, MSG_IDASOLVEB_FWD);
       return(flag);
     }
   } else {
