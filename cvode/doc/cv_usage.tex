@@ -46,7 +46,7 @@ All relevant header files are all located in
 \end{itemize}
 
 For an application that contains both a {\cvode} problem (IVP) and a
-{\cvodes} problem (IVP with sensitivity analysis), \index{CVODES}
+{\cvodes} problem (IVP with sensitivity analysis), \index{CVODES@{\cvodes}}
 references to the library files must be made carefully, because both
 of the associated solver library files contain a user-callable
 function called \Id{CVode}, although the version in {\cvodes} is fully
@@ -695,18 +695,18 @@ perform the integration of the IVP.
   \begin{args}[CV\_TOO\_MUCH\_WORK]
   \item[\Id{CV\_SUCCESS}]
     \id{CVode} succeeded and no root was found.
-  \item[\ID{CV\_TSTOP\_RETURN}]
+  \item[\Id{CV\_TSTOP\_RETURN}]
     \id{CVode} succeeded by reaching the stopping point specified through
     the optional input function \id{CVodeSetStopTime} (see \S\ref{ss:optional_input}).
-  \item[\ID{CV\_ROOT\_RETURN}]
+  \item[\Id{CV\_ROOT\_RETURN}]
     \id{CVode} succeeded and found one or more roots.  If \id{nrtfn}
      $>1$, call \id{CVodeGetRootInfo} to see which $g_i$ were found to
      have a root.  See \S\ref{s:using_rootfinding} for more information.
-  \item[\ID{CV\_MEM\_NULL}]
+  \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} argument was \id{NULL}.
-  \item[\ID{CV\_NO\_MALLOC}]
+  \item[\Id{CV\_NO\_MALLOC}]
     The {\cvode} memory was not allocated by a call to \id{CVodeMalloc}.
-  \item[\ID{CV\_ILL\_INPUT}]
+  \item[\Id{CV\_ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal. This includes the situation where
     a root of one of the root functions was found both at $t_0$ and very near $t_0$.
     It also includes the situation 
@@ -718,21 +718,21 @@ perform the integration of the IVP.
     In any case, the user should see the printed error message for details.
   \item[\Id{CV\_LINIT\_FAIL}] 
     The linear solver's initialization function failed. 
-  \item[\ID{CV\_TOO\_MUCH\_WORK}] 
+  \item[\Id{CV\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach tout. 
     The default value for \id{mxstep} is \id{MXSTEP\_DEFAULT = 500}.
-  \item[\ID{CV\_TOO\_MUCH\_ACC}] 
+  \item[\Id{CV\_TOO\_MUCH\_ACC}] 
     The solver could not satisfy the accuracy demanded by the user for some 
     internal step.
-  \item[\ID{CV\_ERR\_FAILURE}]
+  \item[\Id{CV\_ERR\_FAILURE}]
     Error test failures occurred too many times (\id{MXNEF = 7}) during one 
     internal time step or occurred with $|h| = h_{min}$.
-  \item[\ID{CV\_CONV\_FAILURE}] 
+  \item[\Id{CV\_CONV\_FAILURE}] 
     Convergence test failures occurred too many times (\id{MXNCF = 10}) during 
     one internal time step or occurred with $|h| = h_{min}$.             
-  \item[\ID{CV\_LSETUP\_FAIL}] 
+  \item[\Id{CV\_LSETUP\_FAIL}] 
     The linear solver's setup function failed in an unrecoverable manner.
-  \item[\ID{CV\_LSOLVE\_FAIL}] 
+  \item[\Id{CV\_LSOLVE\_FAIL}] 
     The linear solver's solve function failed in an unrecoverable manner.
   \end{args} 
 }
@@ -1805,7 +1805,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
     specifies the type of preconditioning and may be
-    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREc\_RIGHT}, or \Id{PREC\_BOTH}.
+    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \end{args}
 }
 {
@@ -3299,7 +3299,7 @@ The use of \id{CVodeReInit} requires that the maximum method order,
 \Id{maxord}, is no larger for the new problem than for the problem  
 specified in the last call to \id{CVodeMalloc}.  This condition is  
 automatically fulfilled if the multistep method parameter \Id{lmm}  
-is unchanged (or changed from \Id{ADAMS} to \Id{BDF}) and the default    
+is unchanged (or changed from \Id{CV\_ADAMS} to \Id{CV\_BDF}) and the default    
 value for \id{maxord} is specified.
 
 If there are changes to the linear solver specifications, make the
@@ -4133,7 +4133,7 @@ in more detail below.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
-    preconditioning type. Must be one of \Id{LEFT} or \Id{RIGHT}.
+    preconditioning type. Must be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
@@ -4597,7 +4597,7 @@ next.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
-    preconditioning type. Must be one of \Id{LEFT} or \Id{RIGHT}.
+    preconditioning type. Must be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 

@@ -37,6 +37,9 @@ ex:
 	cp $(SHARED_DOC)/Rule_and_address.ps .
 	cp $(SHARED_DOC)/chngpage.sty .
 	cp $(SHARED_DOC)/ug.tex .
+	cp $(SHARED_DOC)/biblio.bib .
+	latex cv_examples
+	bibtex cv_examples
 	latex cv_examples
 	latex cv_examples
 	dvips -Ppdf -o cv_examples.ps cv_examples
