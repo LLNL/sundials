@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.9 $
-C     $Date: 2004-04-29 22:23:29 $
+C     $Revision: 1.10 $
+C     $Date: 2004-09-08 21:22:26 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -106,7 +106,7 @@ C
       CALL FCVBBDSPGMR(IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,36) IER
- 36      FORMAT(///' SUNDIALS_ERROR: FCVBBSPGMR returned IER =',I5)
+ 36      FORMAT(///' SUNDIALS_ERROR: FCVBBDSPGMR returned IER =',I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
