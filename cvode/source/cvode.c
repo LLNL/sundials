@@ -180,9 +180,9 @@
 /***************** BEGIN Error Messages ************************/
 /***************************************************************/
 
-/* CVodeMalloc/CVReInit Error Messages */
+/* CVodeMalloc/CVodeReInit Error Messages */
 
-#define CVM             "CVodeMalloc/CVReInit-- "
+#define CVM             "CVodeMalloc/CVodeReInit-- "
 
 #define MSG_Y0_NULL     CVM "y0=NULL illegal.\n\n"
 
@@ -221,9 +221,9 @@
 
 #define MSG_BAD_EWT     CVM "Some initial ewt component = 0.0 illegal.\n\n"
 
-#define MSG_REI_NO_MEM  "CVReInit-- cvode_mem = NULL illegal.\n\n"
+#define MSG_REI_NO_MEM  "CVodeReInit-- cvode_mem = NULL illegal.\n\n"
 
-#define MSG_REI_MAXORD1 "CVReInit-- Illegal attempt to increase "
+#define MSG_REI_MAXORD1 "CVodeReInit-- Illegal attempt to increase "
 #define MSG_REI_MAXORD2 "maximum method order from %d to %d.\n\n"
 #define MSG_REI_MAXORD  MSG_REI_MAXORD1 MSG_REI_MAXORD2 
 
@@ -718,9 +718,9 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
 }
 
 
-/******************** CVReInit **********************************
+/******************** CVodeReInit ********************************
 
- CVReInit re-initializes CVODE's memory for a problem, assuming
+ CVodeReInit re-initializes CVODE's memory for a problem, assuming
  it has already been allocated in a prior CVodeMalloc call.
  All problem specification inputs are checked for errors.
  The problem size N is assumed to be unchanged since the call to
@@ -732,11 +732,11 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
  
 *****************************************************************/
 
-int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
-             int lmm, int iter, int itol, 
-             realtype *reltol, void *abstol,
-             void *f_data,  FILE *errfp, booleantype optIn, 
-             long int iopt[], realtype ropt[], M_Env machEnv) 
+int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
+                int lmm, int iter, int itol, 
+                realtype *reltol, void *abstol,
+                void *f_data,  FILE *errfp, booleantype optIn, 
+                long int iopt[], realtype ropt[], M_Env machEnv) 
 {
   booleantype ioptExists, roptExists, neg_abstol, ewtsetOK;
   int maxord, i,k;

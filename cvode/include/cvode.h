@@ -42,10 +42,10 @@ extern "C" {
  
 /******************************************************************
  *                                                                *
- * Enumerations for inputs to CVodeMalloc, CVReInit, and CVode.   *
+ * Enumerations for inputs to CVodeMalloc, CVodeReInit, and CVode.*
  *----------------------------------------------------------------*
  * Symbolic constants for the lmm, iter, and itol input           *
- * parameters to CVodeMalloc and CVReInit, as well as the input   *
+ * parameters to CVodeMalloc and CVodeReInit, as well as the input*
  * parameter itask to CVode, are given below.                     *
  *                                                                *
  * lmm  : The user of the CVODE package specifies whether to use  *
@@ -211,23 +211,23 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
  
 /******************************************************************
  *                                                                *
- * Function : CVReInit                                            *
+ * Function : CVodeReInit                                         *
  *----------------------------------------------------------------*
- * CVReInit re-initializes CVode for the solution of a problem,   *
+ * CVodeReInit re-initializes CVode for the solution of a problem,*
  * where a prior call to CVodeMalloc has been made with the same  *
- * problem size N.  CVReInit performs the same input checking     *
+ * problem size N.  CVodeReInit performs the same input checking  *
  * and initializations that CVodeMalloc does (except for N).      *
  * But it does no memory allocation, assuming that the existing   *
  * internal memory is sufficient for the new problem.             *
  *                                                                *
- * The use of CVReInit requires that the maximum method order,    *
+ * The use of CVodeReInit requires that the maximum method order, *
  * maxord, is no larger for the new problem than for the problem  *
  * specified in the last call to CVodeMalloc.  This condition is  *
  * automatically fulfilled if the multistep method parameter lmm  *
  * is unchanged (or changed from ADAMS to BDF) and the default    *
  * value for maxord is specified.                                 *
  *                                                                *
- * If iter = NEWTON, then following the call to CVReInit, a call  *
+ * If iter = NEWTON, then following the call to CVodeReInit,a call*
  * to the linear solver specification routine is necessary if a   *
  * different linear solver is chosen, but may not be otherwise.   *
  * If the same linear solver is chosen, and there are no changes  *
@@ -241,16 +241,16 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
  * size, then the main linear solver specification routine must be*
  * called.  See the linear solver documentation for full details. *
  *                                                                *
- * The first argument to CVReInit is:                             *
+ * The first argument to CVodeReInit is:                          *
  *                                                                *
  * cvode_mem = pointer to CVODE memory returned by CVodeMalloc.   *
  *                                                                *
- * All the remaining arguments to CVReInit have names and         *
+ * All the remaining arguments to CVodeReInit have names and      *
  * meanings identical to those of CVodeMalloc.  Note that the     *
- * problem size N is not passed as an argument to CVReInit,       *
+ * problem size N is not passed as an argument to CVodeReInit,    *
  * as that is assumed to be unchanged since the CVodeMalloc call. *
  *                                                                *
- * The return value of CVReInit is equal to SUCCESS = 0 if there  *
+ * The return value of CVodeReInit is equal to SUCCESS=0 if there *
  * were no errors; otherwise it is a negative int equal to:       *
  *   CVREI_NO_MEM     indicating cvode_mem was NULL, or           *
  *   CVREI_ILL_INPUT  indicating an input argument was illegal    *
@@ -262,14 +262,14 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
  * so may be larger than would be computed for the new problem.   *
  ******************************************************************/
 
-int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
-             int lmm, int iter, int itol, realtype *reltol, 
-             void *abstol, void *f_data, FILE *errfp, 
-             booleantype optIn, long int iopt[],
-             realtype ropt[], M_Env machEnv);
+int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
+                int lmm, int iter, int itol, realtype *reltol, 
+                void *abstol, void *f_data, FILE *errfp, 
+                booleantype optIn, long int iopt[],
+                realtype ropt[], M_Env machEnv);
 
 
-/* CVReInit return values: */
+/* CVodeReInit return values: */
 
 /* SUCCESS = 0  (Defined under CVode return values, but listed
                  here also for completeness)                      */
