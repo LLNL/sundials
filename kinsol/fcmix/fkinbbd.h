@@ -200,7 +200,7 @@
 
 /* definitions of interface function names */
 
-#if SUNDIALS_UNDERSCORE_NONE
+#if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define F_KINBBDINIT    fkinbbdinit
 #define K_COMMFN        kcommfn
@@ -208,7 +208,7 @@
 #define F_KINBBDOPT     fkinbbdopt
 #define F_KINBBDFREE    fkinbbdfree
 
-#elif SUNDIALS_UNDERSCORE_TWO
+#elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define F_KINBBDINIT     fkinbbdinit__
 #define K_COMMFN         kcommfn__

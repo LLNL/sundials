@@ -260,7 +260,7 @@ The following optional outputs are specific to the SPGMR module:
 /* Generic names are translated through the define statements below for a
   specific platform/compiler */
 
-#if SUNDIALS_UNDERSCORE_NONE
+#if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define F_KINMALLOC      fkinmalloc
 #define F_KINSPGMR       fkinspgmr
@@ -274,7 +274,7 @@ The following optional outputs are specific to the SPGMR module:
 #define K_PSOL           kpsol
 #define K_JTIMES         kjtimes
 
-#elif SUNDIALS_UNDERSCORE_TWO
+#elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define F_KINMALLOC      fkinmalloc__
 #define F_KINSPGMR       fkinspgmr__
