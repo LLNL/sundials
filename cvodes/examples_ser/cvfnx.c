@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-19 15:38:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -74,6 +74,10 @@ typedef struct {
   realtype dx, hdcoef, hacoef;
 } *UserData;
 
+/* Functions Called by the CVODES Solver */
+
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+
 /* Private Helper Functions */
 
 static void ProcessArgs(int argc, char *argv[],
@@ -84,14 +88,13 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi);
 
-/* Functions Called by the CVODES Solver */
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
-
-/* Private function to check function return values */
-
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -117,7 +120,7 @@ int main(int argc, char *argv[])
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
 
-  /* USER DATA STRUCTURE */
+  /* Set user data */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
   if(check_flag((void *)data, "malloc", 2)) return(1);
   data->p = (realtype *) malloc(NP * sizeof(realtype));
@@ -125,29 +128,29 @@ int main(int argc, char *argv[])
   data->p[0] = 1.0;
   data->p[1] = 0.5;
 
-  /* INITIAL STATES */
-  u = N_VNew_Serial(NEQ);    /* Allocate u vector */
+  /* Allocate and set initial states */
+  u = N_VNew_Serial(NEQ);
   if(check_flag((void *)u, "N_VNew_Serial", 0)) return(1);
-  SetIC(u, dx);           /* Initialize u vector */
+  SetIC(u, dx);
 
-  /* TOLERANCES */
-  reltol = 0.0;                /* Set the tolerances */
+  /* Set integration tolerances */
+  reltol = 0.0;
   abstol = ATOL;
 
-  /* CVODE_CREATE */
+  /* Create CVODES object */
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   flag = CVodeSetFdata(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  /* CVODE_MALLOC */
+  /* Allocate CVODES memory */
   flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
   
   printf("\n1-D advection-diffusion equation, mesh size =%3d\n", MX);
 
-  /* SENSITIVTY */
+  /* Sensitivity-related settings */
   if(sensi) {
 
     pbar  = (realtype *) malloc(NP * sizeof(realtype));
@@ -214,21 +217,75 @@ int main(int argc, char *argv[])
   PrintFinalStats(cvode_mem, sensi);
 
   /* Free memory */
-  N_VDestroy(u);                    /* Free the u vector              */
-  if (sensi) 
-    N_VDestroyVectorArray(uS, NS);  /* Free the uS vectors            */
-  free(data);                       /* Free block of UserData         */
-  CVodeFree(cvode_mem);             /* Free the CVODES problem memory */
-  free(pbar);
-  if (plist) free(plist);
+  N_VDestroy_Serial(u);
+  if (sensi) {
+    N_VDestroyVectorArray_Serial(uS, NS);
+    free(plist);
+    free(pbar);
+  }
+  free(data);
+  CVodeFree(cvode_mem);
 
   return(0);
 }
 
-/************************ Private Helper Functions ***********************/
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
 
-/* ======================================================================= */
-/* Exit if arguments are incorrect */
+/* 
+ * f routine. Compute f(t,u). 
+ */
+
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+{
+  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  realtype dx;
+  realtype *udata, *dudata;
+  int i;
+  UserData data;
+
+  udata = NV_DATA_S(u);
+  dudata = NV_DATA_S(udot);
+
+  /* Extract needed problem constants from data */
+  data = (UserData) f_data;
+  dx    = data->dx;
+  hordc = data->p[0]/(dx*dx);
+  horac = data->p[1]/(2.0*dx);
+
+  /* Loop over all grid points. */
+  for (i=0; i<NEQ; i++) {
+
+    /* Extract u at x_i and two neighboring points */
+    ui = udata[i];
+    if(i!=0) 
+      ult = udata[i-1];
+    else
+      ult = 0.0;
+    if(i!=NEQ-1)
+      urt = udata[i+1];
+    else
+      urt = 0.0;
+
+    /* Set diffusion and advection terms and load into udot */
+    hdiff = hordc*(ult - 2.0*ui + urt);
+    hadv = horac*(urt - ult);
+    dudata[i] = hdiff + hadv;
+  }
+}
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/* 
+ * Process and verify arguments to cvfnx.
+ */
 
 static void ProcessArgs(int argc, char *argv[], 
                         booleantype *sensi, int *sensi_meth, booleantype *err_con)
@@ -279,8 +336,9 @@ static void WrongArgs(char *name)
     exit(0);
 }
 
-/* ======================================================================= */
-/* Set initial conditions in u vector */
+/* 
+ * Set initial conditions in u vector.
+ */
 
 static void SetIC(N_Vector u, realtype dx)
 {
@@ -298,8 +356,9 @@ static void SetIC(N_Vector u, realtype dx)
   }  
 }
 
-/* ======================================================================= */
-/* Print current t, step count, order, stepsize, and max norm of solution  */
+/*
+ * Print current t, step count, order, stepsize, and max norm of solution  
+ */
 
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 {
@@ -318,8 +377,10 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
   printf("                                Solution       ");
   printf("%12.4e \n", N_VMaxNorm(u));
 }
-/* ======================================================================= */
-/* Print max norm of sensitivities */
+
+/*
+ * Print max norm of sensitivities 
+ */
 
 static void PrintOutputS(N_Vector *uS)
 {
@@ -329,8 +390,10 @@ static void PrintOutputS(N_Vector *uS)
   printf("%12.4e \n", N_VMaxNorm(uS[1]));
 }
 
-/* ======================================================================= */
-/* Print some final statistics located in the iopt array */
+
+/*
+ * Print some final statistics located in the CVODES memory
+ */
 
 static void PrintFinalStats(void *cvode_mem, booleantype sensi)
 {
@@ -382,56 +445,15 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
 
 }
 
-/***************** Function Called by the CVODES Solver ********************/
-
-/* ======================================================================= */
-/* f routine. Compute f(t,u). */
-
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
-{
-  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype dx;
-  realtype *udata, *dudata;
-  int i;
-  UserData data;
-
-  udata = NV_DATA_S(u);
-  dudata = NV_DATA_S(udot);
-
-  /* Extract needed problem constants from data */
-  data = (UserData) f_data;
-  dx    = data->dx;
-  hordc = data->p[0]/(dx*dx);
-  horac = data->p[1]/(2.0*dx);
-
-  /* Loop over all grid points. */
-  for (i=0; i<NEQ; i++) {
-
-    /* Extract u at x_i and two neighboring points */
-    ui = udata[i];
-    if(i!=0) 
-      ult = udata[i-1];
-    else
-      ult = 0.0;
-    if(i!=NEQ-1)
-      urt = udata[i+1];
-    else
-      urt = 0.0;
-
-    /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - 2.0*ui + urt);
-    hadv = horac*(urt - ult);
-    dudata[i] = hdiff + hadv;
-  }
-}
-
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
