@@ -66,7 +66,7 @@ The header files corresponding to the various linear solver options in {\ida} ar
 \item \Id{idaband.h}, 
   which is used with the band direct linear solver in the
   context of {\ida}. This in turn includes a header file (\id{band.h})
-  which defines the \Id{BandMat} type and corrsponding accessor macros;
+  which defines the \Id{BandMat} type and corresponding accessor macros;
 \item \Id{idaspgmr.h}, 
   which is used with the Krylov solver {\spgmr} in the
   context of {\ida}. This in turn includes a header file (\id{iterative.h})
@@ -177,11 +177,11 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   Initialize the linear solver module
   with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
 
-  {\s} \id{ier = }\Id{IDADense}\id{(...);}
+  {\s} \id{flag = }\Id{IDADense}\id{(...);}
 
-  {\s} \id{ier = }\Id{IDABand}\id{(...);}
+  {\s} \id{flag = }\Id{IDABand}\id{(...);}
 
-  \id{ier = }\Id{IDASpgmr}\id{(...);}
+  \id{flag = }\Id{IDASpgmr}\id{(...);}
   
 \item
   {\bf Set linear solver optional inputs}
@@ -200,7 +200,7 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   {\bf Advance solution in time}
 
   For each point at which output is desired, call
-  \id{ier = }\Id{IDASolve}\id{(ida\_mem, tout, \&tret, yret, ypret, itask);}
+  \id{flag = }\Id{IDASolve}\id{(ida\_mem, tout, \&tret, yret, ypret, itask);}
   Set \id{itask} to specify the return mode.
   The vector \id{yret} (which can be the same as
   the vector \id{y0} above) will contain $y(t)$,
@@ -274,7 +274,7 @@ created and allocated by the first two calls.
 {
   If successful, \id{IDACreate} returns a pointer to the newly created 
   {\ida} memory block (of type \id{void *}).
-  If an error occured, \id{IDACreate} prints an error message to \id{stderr}
+  If an error occurred, \id{IDACreate} prints an error message to \id{stderr}
   and returns \id{NULL}.
 }
 {}
@@ -331,7 +331,7 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol, nvSpec);
   \end{args}
 }
 {
-  If an error occured, \id{IDAMalloc} also prints an error message to the
+  If an error occurred, \id{IDAMalloc} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
 %%
@@ -548,7 +548,7 @@ for the given problem.
   flag = IDASolve(ida\_mem, icopt, tout1);
 }
 {
-  The function \ID{IDACalcIC} corrects the intial values \id{y0}, \id{yp0}.
+  The function \ID{IDACalcIC} corrects the initial values \id{y0}, \id{yp0}.
 }
 {
   \begin{args}[ida\_mem]
@@ -569,7 +569,7 @@ for the given problem.
     components of $y$, given ${\dot y}$.  \id{id} is not required.
 
   \item[tout1] (\id{realtype})
-    is the first value of $t$ at which a soluton will be requested (from \id{IDASolve}).
+    is the first value of $t$ at which a solution will be requested (from \id{IDASolve}).
     This is needed here to determine the direction of integration and rough scale  
     in the independent variable $t$.   
 
@@ -596,7 +596,7 @@ for the given problem.
     The linear solver's setup function failed in an unrecoverable manner.
 
   \item[\ID{IC\_LINIT\_FAIL}]
-    The linear solver's init function failed.   
+    The linear solver's initialization function failed.   
                                                                  
   \item[\ID{SOLVE\_FAILURE}] 
     The linear solver's solve function failed in an unrecoverable manner.
@@ -846,7 +846,7 @@ flag = IDASetErrFile(ida\_mem, errfp);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
@@ -878,7 +878,7 @@ flag = IDASetErrFile(ida\_mem, errfp);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
@@ -909,7 +909,7 @@ flag = IDASetMaxOrder(ida\_mem, maxord);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDAS\_ILL\_INPUT}]
@@ -931,7 +931,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
 }
 {
   The function \ID{IDASetMaxNumSteps} specifies the maximum number
-  of steps to be taken by the solver in its attemt to reach 
+  of steps to be taken by the solver in its attempt to reach 
   the final time.
 }
 {
@@ -946,7 +946,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDAS\_ILL\_INPUT}]
@@ -977,13 +977,13 @@ flag = IDASetInitStep(ida\_mem, hin);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
-  By default, {\ida} estimates the inital step as solution of 
+  By default, {\ida} estimates the initial step as solution of 
   $\| 0.5 h^2 \ddot y \|_{\mbox{\scriptsize WRMS}} = 1$,
   where $\ddot y$ is an estimated second derivative of the solution at the
   initial time.
@@ -1011,7 +1011,7 @@ flag = IDASetMinStep(ida\_mem, hmin);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDAS\_ILL\_INPUT}]
@@ -1043,7 +1043,7 @@ flag = IDASetMaxStep(ida\_mem, hmax);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_ILL\_INPUT]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDAS\_ILL\_INPUT}]
@@ -1077,7 +1077,7 @@ flag = IDASetStopTime(ida\_mem, tstop);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1107,7 +1107,7 @@ flag = IDASetMaxErrTestFails(ida\_mem, maxnef);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1137,7 +1137,7 @@ flag = IDASetMaxNonlinIters(ida\_mem, maxcor);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1168,7 +1168,7 @@ flag = IDASetMaxConvFails(ida\_mem, maxncf);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1198,7 +1198,7 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1222,14 +1222,14 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
     pointer to the {\ida} memory block.
   \item[suppresslag] (\id{booleantype})
     flag to indicate whether to suppress (\id{TRUE}) or not
-    (\id{FALSE}) the algebaric variables in the local error test.
+    (\id{FALSE}) the algebraic variables in the local error test.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
@@ -1238,7 +1238,7 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
   The default value is \id{FALSE}.
 
   If \id{suppresslag}$=$\id{TRUE} is selected, then the \id{id} vector
-  must be set (through \id{IDASetId}) to specify the algebnraic components.
+  must be set (through \id{IDASetId}) to specify the algebraic components.
 }
 %%
 %%
@@ -1262,13 +1262,13 @@ flag = IDASetId(ida\_mem, id);
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDAS\_NO\_MEM]
   \item[\Id{SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDAS\_NO\_MEM}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
-  The vactor \id{id} is required if the algebraic variables are to be 
+  The vector \id{id} is required if the algebraic variables are to be 
   suppressed from the local error test (see \id{IDASetSuppressAlg}) or
   if \id{IDACalcIC} is to be called with \id{icopt}$=$\id{CALC\_YA\_YDP\_INIT}
   (see \S\ref{ss:idacalcic}).
@@ -1307,7 +1307,7 @@ flag = IDASetConstraints(ida\_mem, constraints);
 }
 {
   The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
-  all components will caouse constraint checking to be performed.
+  all components will cause constraint checking to be performed.
 }
 %%
 \index{optional input!solver|)}
@@ -1333,7 +1333,7 @@ difference quotient function \Id{IDADenseDQJac}
 that comes with the {\idadense} solver.
 To specify a user-supplied Jacobian function \id{djac} and associated user 
 data \id{jac\_data}, {\idadense} provides the functions \id{IDADenseSetJacFn}
-and \id{IDADenseSetJacData}, respctively.
+and \id{IDADenseSetJacData}, respectively.
 The {\idadense} solver passes the pointer it receives through \id{IDADenseSetJacData} 
 to its dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
@@ -1422,9 +1422,9 @@ or use the default difference quotient function \Id{IDABandDQJac}
 that comes with the {\idaband} solver.
 To specify a user-supplied Jacobian function \id{bjac} and associated user 
 data \id{jac\_data}, {\idaband} provides the functions \id{IDABandSetJacFn}
-and \id{IDABandSetJacData}, respctively.
+and \id{IDABandSetJacData}, respectively.
 The {\idaband} solver passes the pointer it receives through \id{IDABandSetJacData} 
-to its banded Jacobian approximaton function. This allows the user to
+to its banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
@@ -1872,7 +1872,7 @@ flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
 
   This test uses a weighted RMS norm (with weights defined by the tolerances).
   For new initial value vectors $y$ and ${\dot y}$ to be accepted, the norm
-  of $J^{-1}F(t_0, y, {\dot y}) \le $\id{epicon}, where $J$ is the system Jacobian.
+  of $J^{-1}F(t_0, y, {\dot y}) \le $\id{epiccon}, where $J$ is the system Jacobian.
 }
 %%
 \ucfunction{IDASetMaxNumStepsIC}
@@ -2011,7 +2011,7 @@ flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
 flag = IDASetStepToleranceIC(ida\_mem, steptol);
 }
 {
-  The function \ID{IDASetStepToleranceIC} specifies a positve lower bound
+  The function \ID{IDASetStepToleranceIC} specifies a positive lower bound
   on the Newton step.
 }
 {
@@ -3416,7 +3416,7 @@ will be reused for the new problem.
   \end{args}
 }
 {
-  If an error occured, \id{IDAReInit} also prints an error message to the
+  If an error occurred, \id{IDAReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
 %%
@@ -3573,7 +3573,7 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
     is the problem size.
   \item[mlower]
   \item[mupper]
-    are the lower and upper halh bandwidth of the Jacobian.
+    are the lower and upper half bandwidth of the Jacobian.
   \item[J]
     is the output Jacobian matrix.  
   \item[t]
@@ -3825,7 +3825,7 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
 
   Each call to the preconditioner setup function is preceded by a call to     
   the \id{RhsFn} user function with the same \id{(t,y)} arguments.  
-  Thus the preconditoner setup function can use any auxiliary data that is 
+  Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the DAE residual.
   
   This function is not called in advance of every call to the preconditioner solve
@@ -3864,7 +3864,7 @@ block. This Band-Block-Diagonal Preconditioner module is called
 \index{preconditioning!band-block diagonal}
 One way to envision these preconditioners is to think of the domain of
 the computational PDE problem as being subdivided into $M$ non-overlapping
-subdomains.  Each of these subdomains is then assigned to one of the
+sub-domains.  Each of these sub-domains is then assigned to one of the
 $M$ processors to be used to solve the DAE system. The basic idea is
 to isolate the preconditioning so that it is local to each processor,
 and also to use a (possibly cheaper) approximate right-hand side
@@ -3874,7 +3874,7 @@ system (\ref{e:DAE}). However, the user may set $g = f$.  Corresponding
 to the domain decomposition, there is a decomposition of the solution
 vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $g$
 into blocks $g_m$.  The block $g_m$ depends on $y_m$ and also on
-components of blocks $y_{m'}$ associated with neighboring subdomains
+components of blocks $y_{m'}$ associated with neighboring sub-domains
 (so-called ghost-cell data).  Let $\bar{y}_m$ denote $y_m$ augmented
 with those other components on which $g_m$ depends.  Then we have
 \begin{equation}
@@ -4071,7 +4071,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 
   \id{flag = IDABBDSpgmr(ida\_mem, maxl, bbd\_data);}
 
-  The function \Id{CVBPSpgmr} is a wrapper around the {\idaspgmr} specification
+  The function \Id{IDABBDSpgmr} is a wrapper around the {\idaspgmr} specification
   function \id{IDASpgmr} and performs the following actions:
   \begin{itemize}
     \item Attaches the {\idaspgmr} linear solver to the main {\ida} solver memory;
@@ -4160,14 +4160,14 @@ next.
 {
   If successful, \id{IBBDPrecAlloc} returns a pointer to the newly created 
   {\idabbdpre} memory block (of type \id{void *}).
-  If an error occured, \id{IBBDPrecAlloc} returns \id{NULL}.
+  If an error occurred, \id{IBBDPrecAlloc} returns \id{NULL}.
 }
 {
   If one of the half-bandwidth \id{mudq} or \id{mldq} to be used in the 
   difference-quotient calculation of the approximate Jacobian is negative or 
   exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 
-  The half-bandwiths \id{mudq} and \id{mldq} need not be the true 
+  The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
   half-bandwidths of the Jacobian of the local block of $g$,    
   when smaller values may provide a greater efficiency.       
 
@@ -4357,8 +4357,8 @@ the {\idabbdpre} module:
 }
 {
   The function \ID{IBBDPrecGetNumGfnEvals} returns the
-  number of calls to the user \id{gloc} function due to the 
-  finite difference approximaton of the Jacobian blocks used within
+  number of calls to the user \id{glocal} function due to the 
+  finite difference approximation of the Jacobian blocks used within
   {\idabbdpre}'s preconditioner setup function.
 }
 {
@@ -4366,7 +4366,7 @@ the {\idabbdpre} module:
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
   \item[ngevalsBBDP] (\id{long int})
-    the number of calls to the user \id{gloc} function.
+    the number of calls to the user \id{glocal} function.
   \end{args}
 }
 {
@@ -4387,7 +4387,7 @@ the {\idabbdpre} module:
 %-------------------------------------------------------
 
 The costs associated with {\idabbdpre} also include \id{nlinsetups} LU
-factorizations, \id{nlinsetups} calls to \id{cfn}, and \id{npsolves} banded
+factorizations, \id{nlinsetups} calls to \id{gcomm}, and \id{npsolves} banded
 backsolve calls, where \id{nlinsetups} and \id{npsolves} are optional {\ida}
 outputs (see \S\ref{ss:optional_output}).
 

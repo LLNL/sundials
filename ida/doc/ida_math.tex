@@ -21,7 +21,7 @@ satisfy the DAE residual $F(t_0,y_0, {\dot y}_0) = 0$.
 For a class of problems that includes so-called
 semi-explicit index-one systems, IDA provides a routine that computes
 consistent initial conditions from a user's initial guess~\cite{BHP:98}.  
-For this, the user must identify subvectors of $y$
+For this, the user must identify sub-vectors of $y$
 (not necessarily contiguous), denoted $y_d$ and $y_a$, which are its
 differential and algebraic parts, respectively, such that $F$ depends
 on ${\dot y}_d$ but not on any components of ${\dot y}_a$.  The assumption that
@@ -203,7 +203,7 @@ into this expression for $\sigma$).
 % Error control
 %--------------
 During the course of integrating the system, IDA computes an estimate
-of the local truncation error LTE at the $n$-th time step, and
+of the local truncation error, LTE, at the $n$-th time step, and
 requires this to satisfy the inequality
 \begin{equation*}
   \| \mbox{LTE} \|_{\mbox{\scriptsize WRMS}} \leq 1 \, .               
