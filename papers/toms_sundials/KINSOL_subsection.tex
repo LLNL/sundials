@@ -48,15 +48,24 @@ and $\sigma$ is a scalar.  The choice of $\sigma$ is taken from
   \sigma = \frac{\max \{|u^T v|, typ(u^T |v|)\}}{\|v\|_2} 
   sign(u^T v) \sqrt{U} \, ,
 \end{equation}
-where $typ(u)$ is a vector of typical values for the solution (can be 
-values used in scaling described below), and $U$ is unit roundoff.
+where $typ(u)$ is a vector of typical values for the solution
+taken to be inverses of the scale factors given for $u$ (described 
+below), and $U$ is unit roundoff.
 Convergence of the Newton method is maintained as long as the value
 of $\sigma$ remains appropriately small as shown in \cite{Bro:87}.
 
 To the above methods are added scaling and preconditioning. Scaling is allowed
-for both the approximate solution vector and the system function vector, 
-provided the user supplies typical values of each near the system solution.
-When typical values are provided for the solution vector, these values are 
+for both the approximate solution vector and the system function vector.
+For scaling to be used, the user should supply values $D_u$ which
+are diagonal elements of the scaling matrix such that $D_u u_n$ has all
+components roughly the same magnitude when $u_n$ is close to a solution,
+and $D_F F$ has all components roughly the same magnitude when $u_n$ is not
+too close to a solution.
+In the text below, we use the following scaled norms,
+\begin{equation}
+\|z\|_{D_u} = \|D_u z\|, \;\; {\rm and} \;\; \|z\|_{D_F} = \|D_F z\|.
+\end{equation}
+When scaling values are provided for the solution vector, these values are 
 automatically incorporated into the calculation of $\sigma$ in
 (\ref{sigma_comp}).
 Additionally, right preconditioning is provided if the preconditioning 
@@ -88,11 +97,11 @@ close to the solution.
 Stopping criteria for the Newton method can be required for either or 
 both of the nonlinear residual and the step length.  For the former, 
 the Newton iteration must pass a stopping test,
-\[ \|F(u_n)\|_{max} < ftol \, , \]
+\[ \|F(u_n)\|_{D_F,max} < ftol \, , \]
 where $ftol$ is an input scalar tolerance with a default value of $U^{1/3}$.
 For the latter, the Newton method will terminate when the maximum scaled step
 is below a given tolerance,
-\[ \|\delta_n\|_{max} < steptol \, , \]
+\[ \|\delta_n\|_{D_u,max} < steptol \, , \]
 where $steptol$ is an input scalar tolerance with a default value of 
 $U^{2/3}$.
 
@@ -100,21 +109,23 @@ Three options for stopping criteria for the linear system solve are
 implemented, including the two 
 algorithms of Eisenstat and Walker \cite{EiWa:96}.
 The Krylov iteration must pass a stopping test,
-\[ \|J \delta_n + F\| < (\eta_k + U) \|F\| \, , \]
+\[ \|J \delta_n + F\|_{D_F} < (\eta_k + U) \|F\|_{D_F} \, , \]
 where $\eta_k$ is one of:
 \begin{itemize}
 \item Eisenstat and Walker Choice 1
   \[ 
-  \eta_n = \frac{\left|\; \|F(u_n)\|  
-      - \|F(u_{n-1}) + J(u_{n-1}) \delta_n \| 
+  \eta_n = \frac{\left|\; \|F(u_n)\|_{D_F}  
+      - \|F(u_{n-1}) + J(u_{n-1}) \delta_n \|_{D_F} 
       \; \right|}
-  {\|F(u_{n-1})\|} \, ,  
+  {\|F(u_{n-1})\|_{D_F}} \, ,  
   \]
 \item Eisenstat and Walker Choice 2
   \[ 
-  \eta_n = \gamma \left( \frac{ \|F(u_n)\|}{\|F(u_{n-1})\|} \right)^{\alpha} \, ,
+  \eta_n = \gamma 
+  \left( \frac{ \|F(u_n)\|_{D_F}}{\|F(u_{n-1})\|_{D_F}} \right)^{\alpha} \, ,
   \] 
-  where default values of $\gamma$ and $\alpha$ are $0.9$ and $2$, respectively. 
+where default values of $\gamma$ and $\alpha$ are $0.9$ and $2$,
+ respectively. 
 \item  $\eta_n$ = constant with 0.1 as the default.
 \end{itemize}
 The default is Eisenstat and Walker Choice 1. For both options 1 and 2, 
