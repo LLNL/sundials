@@ -1,0 +1,381 @@
+           SUNDIALS Installation Instructions
+              Release 2.0, November 2004  
+
+These are generic installation instructions. For complete installation 
+instructions, consult the user guide for any of the SUNDIALS solvers.
+
+Contents:
+1. Basic Installation
+2. Installation Names
+3. Compilers and Options
+  3.1. General options
+  3.2. Options for Fortran support
+  3.3. Options for MPI support
+  3.4. Options for library support
+  3.5. Options for cross-compilation
+  3.6. Environment variables
+4. Configuration examples
+
+1. Basic Installation
+=====================
+
+The simplest way to build SUNDIALS is to use the `configure' shell script
+which attempts to guess correct values for various system-dependent
+variables and features and find the directories where various system
+headers and libraries are kept.  It then creates a `Makefile' in each
+subdirectory. Running the `make' utility then builds the package for
+your system.
+
+Here's the procedure to build SUNDIALS using `configure' on systems which
+are supported by it.  If this simplified procedure fails, or if you
+are using a platform such as MS-Windows, where `configure' script
+doesn't work, you might need to use various non-default options, and
+maybe perform some of the steps manually.
+
+  1. `cd' to the sundials directory (the directory where this file resides)
+     and type `./configure' to configure the package for your system.  
+     If you're using `csh' on an old version of System V, you might need to 
+     type `sh ./configure' instead to prevent `csh' from trying to execute
+     `configure' itself.
+
+     Running `configure' takes a while.  While running, it prints some
+     messages telling which features it is checking for.
+
+  2. Type `make' to compile all existing modules.
+
+  3. Type `make install' to install the libraries and header files.
+ 
+  4. To compile the example programs for all the existing modules, type
+     'make examples'.
+
+  5. You can remove the libraries and object files from the source code 
+     directories by typing `make clean'.
+
+2. Installation Names
+=====================
+
+By default, 'make install' will install the SUNDIALS libraries in 
+the subdirectory 'lib' and the header files in the sudirectory 'include'
+of the directory from where 'configure' was invoked.
+You can specify a different installation prefix by giving 'configure' 
+the option '--prefix=PREFIX'.
+
+You can specify separate installation prefixes for architecture-specific
+files and architecture-independent files. If you give 'configure' the
+option '--exec-prefix=EPREFIX', the package will use EPATH as the prefix
+for installing libraries. The header files will still use the regular 
+prefix.
+
+You can also specify the directory where libraries should be installed
+by giving 'configure' the option '--libdir=DIR'. Similarly, invoking
+'configure --includedir=DIR' will install header files in DIR.
+
+Run `configure --help' for a list of the directories you can set and 
+what kinds of files go in them.
+
+The SUNDIALS libraries and header files are summarized below:
+
+SHARED module
+  library:      libsundials_shared.{a,so}  
+  header files: sundialstypes.h  sundialsmath.h  dense.h      smalldense.h
+                band.h           spgmr.h         iterative.h  nvector.h
+
+
+NVECTOR_SERIAL module
+  libraries:    libsundials_nvecserial.{a,so} libsundials_fnvecserial.a
+  header files: nvector_serial.h
+
+
+NVECTOR_PARALLEL module
+  libraries:    libsundials_nvecparallel.{a,so} libsundials_fnvecparallel.a
+  header files: nvector_parallel.h
+
+
+CVODE module
+  libraries:    libsundials_cvode.{a,so} libsundials_fcvode.a
+  header files: cvband.h  cvbandpre.h  cvbbdpre.h  cvdense.h  cvdiag.h  
+                cvode.h   cvspgmr.h
+
+
+CVODES module
+  library:      libsundials_cvodes.{a,so}
+  header files: cvband.h     cvbbdpre.h  cvdiag.h  cvodec.h  
+                cvbandpre.h  cvdense.h   cvodea.h  cvodes.h  cvspgmr.h
+
+
+IDA module
+  library:      libsundials_ida.{a,so}
+  header files: idaband.h  idabbdpre.h  idadense.h  ida.h  idaspgmr.h
+
+
+KINSOL module
+  libraries:    libsundials_kinsol.{a,so} libsundials_fkinsol.a
+  header files: kinbbdpre.h  kinsol.h  kinspgmr.h
+
+
+
+3. Compilers and Options
+========================
+
+Some systems require unusual options for compilation or linking that
+the `configure' script does not know about.  Run `./configure --help'
+for details on some of the pertinent environment variables.
+
+You can give `configure' initial values for these variables by setting 
+them in the environment.  You can do that on the command line like this:
+
+     ./configure CC=gcc CFLAGS=-O2 F77=g77 FFLAGS=-O
+
+Here is a detailed description of the configure options that are
+pertinent to SUNDIALS. In what follows, 'build_tree' is the directory
+from where 'configure' was invoked.
+
+3.1. General options
+--------------------
+
+--help
+-h
+
+  print a summary of the options to `configure', and exit.
+
+--quiet
+--silent
+-q
+
+  do not print messages saying which checks are being made.  To
+  suppress all normal output, redirect it to `/dev/null' (any error
+  messages will still be shown).
+
+
+--prefix=PREFIX
+
+  Location for architecture-independent files.
+  Default: PREFIX=build_tree
+  
+--includedir=DIR
+
+  Alternate location for header files.
+  Default: DIR=PREFIX/include
+  
+--libdir=DIR
+
+  Alternate location for libraries.
+  Default: DIR=PREFIX/lib
+
+--disable-examples
+
+  All available example programs are automatically built unless this option is
+  used. The example executables are stored under the following subdirectories
+  of the associated solver: 
+  
+  
+   build_tree/ solver/examples_ser :      serial C examples
+   build_tree/solver/examples_par :       parallel C examples
+   build_tree/solver/fcmix/examples_ser : serial F77 examples
+   build_tree/solver/fcmix/examples_par : parallel F77 examples
+  
+  
+  Note: Some of these subdirectories may not exist depending upon the
+  solver and/or the configuration options used.
+  
+--disable-solver
+
+  Although each existing solver module is built by default, support for a
+  given solver can be explicitly disabled using this option. 
+  The valid values for solver are: cvode, cvodes, 
+  ida, and kinsol.
+  
+--with-cppflags=ARG
+
+  Specify additional C preprocessor flags 
+  (e.g., ARG=-I<include_dir> if necessary header files are located in nonstandard locations).
+
+--with-cflags=ARG
+
+  Specify additional C compilation flags.
+
+--with-ldflags=ARG
+
+  Specify additional linker flags 
+  (e.g., ARG=-L<lib_dir> if required libraries are located in nonstandard locations).
+
+--with-libs=ARG
+
+  Specify additional libraries to be used 
+  (e.g., ARG=-l<foo> to link with the library named libfoo.a or libfoo.so).
+
+--with-precision=ARG
+
+  By default, sundials will define a real number (internally referred to as
+  realtype) to be a double-precision floating-point numeric data type (double
+  C-type); however, this option may be used to build sundials with realtype
+  alternatively defined as a single-precision floating-point numeric data type
+  (float C-type) if ARG=single, or as a long double C-type if ARG=extended.
+
+  Default: ARG=double
+
+3.2. Options for Fortran support
+--------------------------------
+
+--disable-f77
+
+  Using this option will disable all F77 support. The fcvode, fkinsol and
+  fnvector modules will not be built regardless of availability.
+
+--with-fflags=ARG
+
+  Specify additional F77 compilation flags.
+
+
+The configuration script will attempt to automatically determine the
+function name mangling scheme required by the specified F77 compiler, but the
+following two options may be used to override the default behavior.
+
+--with-f77underscore=ARG
+
+  This option pertains to the fkinsol, fcvode and fnvector F/C interface 
+  modules and is used to specify the number of underscores to append to 
+  function names so F77 routines can properly link with the associated
+  sundials libraries. Valid values for ARG are: none, one, and two.
+
+  Default: ARG=one
+
+--with-f77case=ARG
+
+  Use this option to specify whether the external names of the fkinsol,
+  fcvode and fnvector F/C interface functions should be lowercase
+  or uppercase so F77 routines can properly link with the associated sundials
+  libraries. Valid values for ARG are: lower and upper.
+
+  Default: ARG=lower
+
+3.3. Options for MPI support
+----------------------------
+
+The following configuration options are only applicable to the parallel sundials packages:
+
+  
+--disable-mpi
+
+  Using this option will completely disable MPI support.
+
+--with-mpicc=ARG
+--with-mpif77=ARG
+
+  By default, the configuration utility script will use the MPI compiler
+  scripts named mpicc and mpif77 to compile the parallelized
+  sundials subroutines; however, for reasons of compatibility, different
+  executable names may be specified via the above options. Also, ARG=no
+  can be used to disable the use of MPI compiler scripts, thus causing
+  the serial C and F compilers to be used to compile the parallelized
+  sundials functions and examples.
+
+--with-mpi-root=MPIDIR
+
+  This option may be used to specify which MPI implementation should be used.
+  The sundials configuration script will automatically check under the
+  subdirectories MPIDIR/include and MPIDIR/lib for the necessary
+  header files and libraries. The subdirectory MPIDIR/bin will also be
+  searched for the C and F MPI compiler scripts, unless the user uses
+  --with-mpicc=no or --with-mpif77=no.
+
+--with-mpi-incdir=INCDIR
+--with-mpi-libdir=LIBDIR
+--with-mpi-libs=LIBS
+
+  These options may be used if the user would prefer not to use a preexisting
+  MPI compiler script, but instead would rather use a serial complier and
+  provide the flags necessary to compile the MPI-aware subroutines in
+  sundials.
+
+  Often an MPI implementation will have unique library names and so it may
+  be necessary to specify the appropriate libraries to use (e.g., LIBS=-lmpich).
+
+  Default: INCDIR=MPIDIR/include, LIBDIR=MPIDIR/lib and LIBS=-lmpi
+
+3.4. Options for library support
+--------------------------------
+
+By default, only static libraries are built, but the following option
+may be used to build shared libraries on supported platforms.
+
+--enable-shared
+
+  Using this particular option will result in both static and shared versions
+  of the available sundials libraries being built if the systsupports
+  shared libraries. To build only shared libraries also specify --disable-static.
+
+  Note: The fcvode and fkinsol libraries can only be built as static
+  libraries because they contain references to externally defined symbols, namely
+  user-supplied F77 subroutines.  Although the F77 interfaces to the serial and
+  parallel implementations of the supplied nvector module do not contain any
+  unresolvable external symbols, the libraries are still built as static libraries
+  for the purpose of consistency.
+
+3.5. Options for cross-compilation
+----------------------------------
+
+If the sundials suite will be cross-compiled (meaning the build
+procedure will not be completed on the actual destination system, but rather
+on an alternate system with a different architecture) then the following two
+options should be used:
+
+--build=BUILD
+
+  This particular option is used to specify the canonical system/platform name
+  for the build system.
+
+--host=HOST
+
+  If cross-compiling, then the user must use this option to specify the canonical
+  system/platform name for the destination system.
+
+3.6. Environment variables
+--------------------------
+
+The following environment variables can be locally (re)defined for use during the 
+configuration of sundials. See the next section for illustrations of these.
+
+CC
+
+F77
+
+  Since the configuration script uses the first C and F77 compilers found in
+  the current executable search path, then each relevant shell variable (CC
+  and F77) must be locally (re)defined in order to use a different compiler. 
+  For example, to use xcc (executable name of chosen compiler) as the C
+  language compiler, use CC=xcc in the configure step.
+
+CFLAGS
+
+FFLAGS
+
+  Use these environment variables to override the default C and F77 compilation flags.
+
+4. Configuration examples
+=========================
+
+The following examples are meant to help demonstrate proper usage of the configure options:
+
+
+% configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
+            --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
+            --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+
+
+The above example builds sundials using gcc as the serial C compiler, g77 as the serial F77
+compiler, mpicc as the parallel C compiler, mpif77 as the parallel F77 compiler, 
+and appends the -g3 compilaton flag to the list of default flags.
+
+% configure CC=gcc --disable-examples --with-mpicc=no \
+            --with-mpi-root=/usr/apps/mpich/1.2.4 \
+            --with-mpi-libs=-lmpich
+
+This example again builds sundials using gcc as the serial C compiler, but the 
+--with-mpicc=no option explicitly disables the use of the corresponding MPI compiler script. 
+In addition, since the --with-mpi-root option is given, the compilation flags
+-I/usr/apps/mpich/1.2.4/include and -L/usr/apps/mpich/1.2.4/lib are passed to gcc when 
+compiling the MPI-enabled functions. The --disable-examples option disables the examples
+(which means a Fortran compiler is not required). The --with-mpi-libs option is still needed
+so that the configure script can check if gcc can link with the appropriate MPI library as
+-lmpi is the internal default.
