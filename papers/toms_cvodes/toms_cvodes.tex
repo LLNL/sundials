@@ -1,0 +1,109 @@
+% LaTeX source for joint paper on SUNDIALS
+% Version of 18 August 2003
+
+\documentclass[acmtoms]{acmtrans2m}
+\usepackage{amsmath, amssymb}
+\usepackage{epsfig}
+\usepackage{tabularx}
+\usepackage{showlabels}
+
+\newcommand{\id}[1]{{\tt #1}}
+
+\newcommand{\dfdy}{\frac{\partial f}{\partial y}}
+\newcommand{\dfdyI}{\partial f / \partial y}
+\newcommand{\dfdpi}{\frac{\partial f}{\partial p_i}}
+\newcommand{\dfdpiI}{\partial f / \partial p_i}
+
+\acmVolume{V}
+\acmNumber{N}
+\acmYear{Y}
+\acmMonth{Month}
+
+\markboth{R. Serban and A.C. Hindmarsh}
+{CVODES: An ODE solver with sensitivity analysis capabilities}
+
+\title{CVODES: An ODE solver with sensitivity analysis capabilities}
+
+\author{RADU SERBAN and ALAN C. HINDMARSH \\
+  Center for Applied Scientific Computing \\
+  Lawrence Livermore National Laboratory}
+
+\begin{abstract}
+CVODES, which is part of the SUNDIALS software suite,
+is a stiff and nonstiff ordinary differential equation initial 
+value problem solver with sensitivity analysis capabilities. 
+CVODES is written in a data-independent manner, with a highly 
+modular structure to allow incorporation of different 
+preconditioning and/or linear solver methods. It shares with the 
+other SUNDIALS solvers several common modules, most notably the 
+generic kernel of vector operations and a set of generic linear 
+solvers and preconditioners.
+
+CVODES solves the IVP by one of two methods -- backward differentiation 
+formula or Adams-Moulton -- both implemented in a variable-step, 
+variable-order form. The forward sensitivity module in CVODES implements 
+the simultaneous corrector method, as well as two flavors of 
+staggered corrector methods. Its adjoint sensitivity module 
+provides a combination of checkpointing and cubic Hermite interpolation 
+for the efficient generation of the forward solution during the adjoint 
+system integration.
+
+We describe the current capabilities of CVODES, its design principles 
+and connection to the SUNDIALS suite, and the user interface. 
+Finally, we mention current and future development efforts for CVODES, 
+particularly in the direction of automatic generation of the sensitivity 
+right hand sides using automatic differentiation and/or complex-step 
+techniques.
+\end{abstract}
+
+\category{}{}{}
+\terms{Algorithms, Design}
+\keywords{ODEs, Forward Sensitivity Analysis, Adjoint Sensitivity Analysis}
+
+%=======================================================================
+
+\begin{document}
+
+\setcounter{page}{1}
+
+\begin{bottomstuff}
+Authors' address: 
+Radu Serban, 
+Lawrence Livermore National Laboratory, P.O. Box 808, L-560,
+Livermore, CA 94551; email: {\tt radu@llnl.gov};
+Alan C. Hindmarsh,
+Lawrence Livermore National Laboratory, P.O. Box 808, L-560,
+Livermore, CA 94551; email: {\tt alanh@llnl.gov};
+\newline
+This work was performed under the auspices of the
+U.S. Department of Energy by the University of California,
+Lawrence Livermore National Laboratory, under contract No.
+W-7405-Eng-48.
+\end{bottomstuff}
+
+\maketitle
+
+%=======================================================================
+% Include sections
+
+\input{introduction.tex}
+\input{algorithms.tex}
+\input{organization.tex}
+\input{usage.tex}
+\input{conclusions.tex}
+
+%=======================================================================
+% Bibliography
+\bibliographystyle{acmtrans}
+\bibliography{../biblio}
+
+%=======================================================================
+% The article should end by the following lines. 
+% The actual dates will be supplied by the Editor-in-Chief.
+
+\begin{received}
+Received Month Year;
+revised Month Year; accepted Month Year
+\end{received}
+
+\end{document}

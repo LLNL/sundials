@@ -1,0 +1,478 @@
+\section{Algorithms}\label{s:algorithms}
+
+CVODES solves initial value problems (IVP) for systems of ODEs. 
+Such problems can be stated as
+\begin{equation}\label{e:ivp}
+\dot{y} = f(t,\,y) \, , \quad y(t_0) = y_0 \, ,
+\end{equation}
+where $y \in {\bf R}^N$ and $\dot{y}\,=dy/dt$.
+That is, (\ref{e:ivp}) represents a system of $N$ ordinary
+differential equations and their initial conditions at some $t_0$. The
+dependent variable is $y$ and the independent variable is $t$. The
+independent variable need not appear explicitly in the vector valued
+function $f$.
+
+Additionally, if (\ref{e:ivp}) depends (through its right-hand side and/or its initial
+conditions) on some parameters $p \in {\bf R}^{N_p}$, i.e.
+\begin{equation}\label{e:ivp_p}
+\dot{y}  = f(t,\,y,\,p) \, , \quad y(t_0)  = y_0(p) \, ,
+\end{equation}
+CVODES can also compute first order derivative information, performing either
+{\em forward sensitivity analysis} or {\em adjoint sensitivity analysis}.
+In the first case, CVODES computes the sensitivities of the solution with respect to the 
+parameters $p$, while in the second case, CVODES computes the gradient of a 
+{\em derived function} with respect to the parameters $p$.
+
+In the remaining of this section we describe the algorithms implemented in CVODES,
+with emphasis on sensitivity analysis. In Section~\ref{ss:integration} we give only a 
+brief overview of the ODE integration algorithm to introduce some of the
+quantities needed in the sequel. 
+Since CVODES shares the main integration engine with CVODE, the interested reader is
+directed to~\cite{HBGLSSW:03}.
+
+%-----------------------------------------------------------------------------------
+
+\subsection{ODE Integration}\label{ss:integration}
+
+The IVP is solved by one of two numerical methods. These are the
+backward differentiation formula (BDF) and the Adams-Moulton formula. 
+Both are implemented in a variable-stepsize, variable-order form. The BDF
+uses a fixed-leading-coefficient form. These formulas can both be
+represented by a linear multistep formula 
+\begin{equation}\label{e:lmm}
+\sum_{i=0}^{K_1}\alpha_{n,i}y_{n-i} + h_n\sum_{i=0}^{K_2}\beta_{n,i} 
+\dot{y}_{n-i}=0
+\end{equation}
+where the $N$-vector $y_n$ is the computed approximation to $y(t_n)$,
+the exact solution of (\ref{e:ivp}) at $t_n$. The stepsize is
+$h_n=t_n-t_{n-1}$.  The coefficients $\alpha_{n,i}$ and $\beta_{n,i}$
+are uniquely determined by the particular integration formula, the
+history of the stepsize, and the normalization $\alpha_{n,0}=-1$. The
+Adams-Moulton formula is recommended for nonstiff ODEs and is
+represented by (\ref{e:lmm}) with $K_1=1$ and $K_2=q-1$. The order
+of this formula is $q$ and its values range from 1 through 12. For
+stiff ODEs, BDF should be selected and is represented by 
+(\ref{e:lmm}) with $K_1=q$ and $K_2=0$. For BDF, the order $q$ may
+take on values from 1 through 5. In the case of either formula, the
+integration begins with $q=1$, and after that $q$ varies automatically
+and dynamically.
+
+For either BDF or the Adams formula, $\dot{y}_n$ denotes
+$f(t_n,\,y_n)$. That is, (\ref{e:lmm}) is an implicit formula, and 
+the nonlinear equation 
+\begin{equation}\label{e:nonlinear}
+  \begin{split}
+    G(y_n) &\equiv  y_n-h_n\beta_{n,0}f(t_n,\,y_n) - a_n=0   \\
+    a_n &= \sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i}) 
+  \end{split}
+\end{equation}
+must be solved for $y_{n}$ at each time step. For nonstiff problems,
+a functional (or fixpoint) iteration is normally used which does not
+require the solution of a linear system of equations. For stiff
+problems, a Newton iteration is used and for each iteration an
+underlying linear system must be solved. This linear system of
+equations has the form
+\begin{equation}\label{e:Newton}
+M[y_{n(m+1)}-y_{n(m)}]=-G(y_{n(m)}) \, ,
+\end{equation}
+where $y_{n(m)}$ is the $m$th approximation to $y_n$, and $M$
+approximates $\partial G/ \partial y$:
+\begin{equation} \label{e:N_Matrix}
+M \approx I-\gamma J, ~~~~ J = \frac{\partial f}{\partial y}, ~~~~
+    \gamma = h_n\beta_{n,0} ~.
+\end{equation}
+At present, aside from a diagonal Jacobian approximation, the other
+options implemented in CVODES for solving the linear systems
+(\ref{e:Newton}) are:
+(a) a direct method with dense treatment of the Jacobian,
+(b) a direct method with band treatment of the Jacobian, and
+(c) an iterative method SPGMR (scaled, preconditioned
+GMRES) \cite{BrHi:89}, which is a Krylov subspace method. In most
+cases, performance of SPGMR is improved by user-supplied
+preconditioners. The user may precondition the system on the left, on
+the right, on both the left and right, or use no preconditioner.
+In most cases of interest to the CVODES user, the technique of
+integration will involve BDF and the Newton method coupled with one of the 
+linear solver modules.
+
+The integrator computes an estimate $E_{n}$ of the local error at each time
+step, and strives to satisfy the following inequality
+\begin{equation*}
+\left\| E_n\right\|_{WRMS} < 1 ~,
+\end{equation*}
+where $\|\cdot\|_{WRMS}$ is the weighted root-mean-square norm~\cite{BCP:96}
+defined in terms of the user-defined relative and absolute tolerances. 
+Since these tolerances define the allowed error per step, they should be 
+chosen conservatively. Experience indicates that a conservative choice yields 
+a more economical solution than error tolerances that are too large.
+The error control mechanism in CVODES varies the stepsize and order
+in an attempt to take minimum number of steps while satisfying the local
+error test. 
+
+CVODES also incorporates an algorithm for special treatment of
+quadratures depending on the solution $y$ of the (\ref{e:ivp}) or
+(\ref{e:ivp_p}). Evaluation of integrals of the form
+$G = \int_{t_0}^{t_f} g(t,y,p) dt$ can be done efficiently using the
+underlying linear multistep method interpolant polynomials by
+appending to (\ref{e:ivp_p}) an additional ODE
+\begin{equation}\label{e:quad_eqns}
+\dot\phi = g(t,y,p) \, , \quad \phi(t_0) = 0 \, ,
+\end{equation}
+in which case $G = \phi(t_f)$. In the context of an implicit ODE
+integrator, since the right-hand side of (\ref{e:quad_eqns}) does not
+depend on $\phi$, such equations need not participate in the solution of
+the nonlinear system~(\ref{e:nonlinear}). CVODES allows the user to
+identify these equations separately from those in~(\ref{e:ivp_p}) and
+provides the option of including or excluding $\phi$ from the error
+control algorithm.
+%
+The main reason for including this option in CVODES was the need for
+efficient quadrature computation in the context of adjoint sensitivity 
+analysis (see Section~\ref{ss:adj_sensitivity}).
+
+A complete description of the CVODES integration algortihm, including 
+the nonlinear solver convergence, error control mechanism, and heuristics 
+related to stopping criteria and finite-difference parameter selection, is
+given in~\cite{HBGLSSW:03}.
+
+%-----------------------------------------------------------------------------------
+
+\subsection{Forward Sensitivity Analysis}\label{ss:fwd_sensitivity}
+
+Typically, the governing equations of complex, large-scale models
+depend on various parameters,  through the right-hand side vector 
+and/or through the vector of initial conditions, as in (\ref{e:ivp_p}).
+In addition to numerically solving the ODEs, it may be desirable to
+determine the sensitivity of the results with respect to the model
+parameters. 
+Such sensitivity information can be used to estimate which
+parameters are most influential in affecting the behavior of the
+simulation or to evaluate optimization gradients (in the setting of dynamic
+optimization, parameter estimation, optimal control, etc.).
+
+The {\em solution sensitivity} with respect to the model parameter
+$p_i$ is defined as the vector 
+$s_i (t) = {\partial y(t)}/{\partial p_i}$
+and satisfies the following {\em forward sensitivity equations}
+(or in short {\em sensitivity equations}):
+\begin{equation}\label{e:sens_eqns}
+\dot{s_i}  = \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \, ,
+\quad s_i(t_0)  = \frac{\partial y_{0}(p)}{\partial p_i} \, ,
+\end{equation}
+which are obtained by applying the chain rule of differentiation to the original
+ODEs (\ref{e:ivp_p}). 
+
+When performing forward sensitivity analysis, CVODES carries out the time integration 
+of the combined system, (\ref{e:ivp_p}) and (\ref{e:sens_eqns}), by viewing it as an ODE
+system of size $N(N_s+1)$, where $N_s$ represents a subset of model parameters $p_i$, 
+with respect to which sensitivities are desired ($N_s \le N_p$). 
+However, major efficiency improvements can be obtained by taking advantage of the special 
+form of the sensitivity equations as linearizations of the original ODEs. 
+In particular, for stiff systems, in which case CVODES employs a Newton iteration, 
+the original ODE system and all sensitivity systems share the same Jacobian matrix, 
+and therefore the same iteration matrix $M$ in (\ref{e:N_Matrix}).
+
+The sensitivity equations are solved with the same linear multistep formula that
+was selected for the original ODEs and, if Newton iteration was selected, the
+same linear solver is used in the correction phase for both state and sensitivity 
+variables. In addition, CVODES offers the option of including
+({\em full error control}) or excluding
+({\em partial error control}) the sensitivity variables from the local 
+error test.
+
+\subsubsection{Forward sensitivity methods}
+In what follows we briefly describe three methods that have been proposed for the 
+solution of the combined ODE and sensitivity system for the vector
+${\hat y} = [y, s_1, \ldots , s_{N_s}]$.
+Due to its inefficiency, especially for large-scale problems, the first approach 
+is not implemented in CVODES.
+
+\begin{itemize}
+
+\item[{\em Staggered Direct.}]
+  In this approach \cite{CaSt:85}, the nonlinear system (\ref{e:nonlinear}) is first 
+  solved and, once an acceptable numerical solution is obtained, the sensitivity 
+  variables at the new step are found by directly solving (\ref{e:sens_eqns}) 
+  after the BDF discretization is used to eliminate ${\dot s}_i$. 
+  Although the system matrix of the above linear system is based on the exact same 
+  information as the matrix $M$ in (\ref{e:N_Matrix}), it must be updated and factored 
+  at every step of the integration as $M$ is updated only ocasionally. 
+  The computational cost associated with these matrix updates and factrorizations 
+  makes this method unattractive when compared with the methods described below and 
+  is therefore not implemented in CVODES.
+  
+\item[{\em Simultaneous Corrector.}] 
+  In this method \cite{MaPe:97}, the BDF discretization is applied simultaneously
+  to both the original equations (\ref{e:ivp_p}) and the sensitivity systems
+  (\ref{e:sens_eqns}) resulting in the following nonlinear system 
+  \begin{equation*}
+    {\hat G}({\hat y}_n) \equiv  
+    {\hat y}_n - h_n\beta_{n,0} {\hat f}(t_n,\,{\hat y}_n) - {\hat a}_n = 0 \, ,
+  \end{equation*}
+  where
+  ${\hat f} = [ f(t,y,p), \ldots , (\dfdyI)(t,y,p) s_i + (\dfdpiI)(t,y,p) , \ldots ]$
+  and ${\hat a}_n$ are the terms in the BDF discretization that depend on the
+  solution at previous integration steps.
+  This combined nonlinear system can be solved as in (\ref{e:Newton}) using
+  a modified Newton method by solving the corrector equation
+  \begin{equation}\label{e:Newton_sim}
+    {\hat M}[{\hat y}_{n(m+1)}-{\hat y}_{n(m)}]=-{\hat G}({\hat y}_{n(m)})
+  \end{equation}
+  at each iteration, where 
+  \begin{equation*}
+    {\hat M} = 
+    \begin{bmatrix}
+      M              &        &        &        &   \\
+      \gamma J_1     & M      &        &        &   \\
+      \gamma J_2     & 0      & M      &        &   \\
+      \vdots         & \vdots & \ddots & \ddots &   \\
+      \gamma J_{N_s} & 0      & \ldots & 0      & M 
+    \end{bmatrix} \, ,
+  \end{equation*}
+  $M$ is defined as in (\ref{e:N_Matrix}), and 
+  $J_i = ({\partial}/{\partial y})\left[ (\dfdyI) s_i + (\dfdpiI) \right]$.
+  It can be shown that a 2-step quadratic convergence can be attained by only
+  using the block-diagonal portion of ${\hat M}$ in the corrector equation
+  (\ref{e:Newton_sim}). This results in a decoupling that allows the reuse of 
+  $M$ without additional matrix factorizations. However, the products
+  $(\dfdyI)s_i$ as well as the vectors $\dfdpiI$ must still be reevaluated at 
+  each step of the iterative process (\ref{e:Newton_sim}) to update the 
+  sensitivity portions of the residual ${\hat G}$.
+  
+\item[{\em Staggered corrector.}] In this approach \cite{FTB:97}, as in the staggered direct method,
+  the nonlinear system (\ref{e:nonlinear}) is solved first using the Newton iteration
+  (\ref{e:Newton}). Then, a separate Newton iteration is used to solve the
+  sensitivity system (\ref{e:sens_eqns}):
+  \begin{multline}\label{e:stgr_iterations}
+    M [s_{i , n(m+1)} - s_{i , n(m)}]= \\
+    s_{i, n(m)} - 
+    \gamma \left( \dfdy (t_n , y_n, p) s_{i , n(m)} + \dfdpi (t_n , y_n , p) \right)
+    -a_{i,n} \, ,
+  \end{multline}
+  where $a_{i,n} = \sum_{j>0}(\alpha_{n,j}s_{i , n-j}+h_n\beta_{n,j}\dot{s}_{i , n-j})$.
+  In other words, a modified-Newton iteration is used to solve a linear system.
+  In this approach, the vectors $\dfdpiI$ need be updated only once per integration step, 
+  after the state correction phase (\ref{e:Newton}) has converged. Note also that 
+  Jacobian-related data can be reused at all iterations (\ref{e:stgr_iterations})
+  to evaluate the products $(\dfdyI) s_i$.
+\end{itemize}  
+
+CVODES implements the simultaneous corrector method and two flavors of the 
+staggered corrector method which differ only if the sensitivity variables are
+included in the error control test.
+In the {\em full error control} case, 
+the first variant of the staggered corrector method requires the convergence of 
+the iterations (\ref{e:stgr_iterations}) for all $N_s$ sensitivity sytems and then 
+performs the error test on the sensitivity variables. The second variant of the method
+will perform the error test for each sensitivity vector $s_i,\,i=1,2,\ldots,N_s$
+individually, as they pass the convergence test. Differences in performance
+between the two variants may therefore be noticed whenever one of the sensitivity 
+vectors $s_i$ fails a convergence or error test. 
+
+An important observation is that the staggered corrector method, combined with 
+the SPGMR linear solver effectively results in a staggered direct method. 
+Indeed, SPGMR requires only the action of the matrix $M$ on a vector and
+this can be provided with the current Jacobian information. Therefore, the
+modified Newton procedure (\ref{e:stgr_iterations}) will theoretically converge 
+after one iteration.
+
+\subsubsection{Selection of the absolute tolerances for sensitivity variables}
+If the sensitivities are considered in the error test, CVODES provides an 
+automated estimation of absolute tolerances for the sensitivity variables 
+based on the absolute tolerance for the corresponding state variable.
+The relative tolerance for sensitivity variables is set to be the same as for 
+the state variables. The selection of absolute tolerances for the sensitivity 
+variables is based on the observation that the sensitivity vector $s_i$ will have 
+units of $[y]/[p_i]$.
+With this, the absolute tolerance for the $j$-th component of the sensitivity
+vector $s_i$ is set to ${atol_j}/{|{\bar p}_i|}$,
+where $atol$ are the absolute tolerances for the state variables and $\bar p$
+is a vector of scaling factors that are dimensionally consistent with
+the model parameters $p$ and give indication of their order of magnitude.
+This choice of relative and absolute tolerances is equivalent 
+to requiring that the weighted root-mean-square norm of the sensitivity 
+vector $s_i$ with weights based on $s_i$ is the same as the
+weighted root-mean-square norm of the vector of scaled sensitivities 
+${\bar s}_i = |{\bar p}_i| s_i$ with weights based on the state variables
+(the scaled sensitivities ${\bar s}_i$ being dimensionally consistent with the
+state variables).
+
+\subsubsection{Evaluation of the sensitivity right-hand side}
+There are several methods for evaluating the right-hand side of the sensitivity 
+systems (\ref{e:sens_eqns}): analytic evaluation, automatic differentiation, 
+complex-step approximation, finite differences (or directional derivatives).
+CVODES provides all the software hooks for implementing interfaces to
+automatic differentiation or complex-step approximation and future versions
+will provide these capabilities.
+At the present time, besides the option for analytical sensitivity right hand 
+sides (user-provided), CVODES can evaluate these quantities using various
+finite difference-based approximations to evaluate the terms $(\dfdyI) s_i$ 
+and $(\dfdpiI)$, or using directional derivatives to evaluate
+$\left[ (\dfdyI) s_i + (\dfdpiI) \right]$.
+As is typical for finite differences, the proper choice of perturbations is a 
+delicate matter. CVODES takes into account several problem-related features;
+the relative ODE error tolerance $rtol$, the machine unit roundoff $U$,
+the scale factor ${\bar p}_i$, and the weighted root-mean-square norm of the 
+sensitivity vector $s_i$.
+
+Using central finite differences asd an example, the two terms 
+$({\partial f}/{\partial y}) s_i$ 
+and ${\partial f}/{\partial p_i}$ in the right-hand side of (\ref{e:sens_eqns}) 
+can be evaluated separately:
+\begin{gather}
+  \frac{\partial f}{\partial y} s_i \approx \frac{f(t, y+\sigma_y s_i, p)-
+    f(t, y-\sigma_y s_i, p)}{2\,\sigma_y} \, , \label{e:fd2} \\
+  \frac{\partial f}{\partial p_i} \approx \frac{f(t,y,p + \sigma_i e_i)-
+    f(t,y,p - \sigma_i e_i)}{2\,\sigma_i} \, , \tag{\ref{e:fd2}'} \\
+  \sigma_i = |{\bar p}_i| \sqrt{\max(rtol, U)} \, , \quad
+  \sigma_y = \frac{1}{\max(1/\sigma_i, \|s_i\|_{WRMS}/|{\bar p}_i|)} \, , \nonumber
+\end{gather}
+simultaneously:
+\begin{gather}
+  \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \approx
+  \frac{f(t, y+\sigma s_i, p + \sigma e_i) -
+    f(t, y-\sigma s_i, p - \sigma e_i)}{2\,\sigma} \, , \label{e:dd2} \\
+  \sigma = \min(\sigma_i, \sigma_y) \, , \nonumber
+\end{gather}
+or adaptively switching between (\ref{e:fd2})+(\ref{e:fd2}') and (\ref{e:dd2}), 
+depending on the relative size of the estimated finite difference 
+increments $\sigma_i$ and $\sigma_y$.
+
+%-----------------------------------------------------------------------------------
+
+\subsection{Adjoint Sensitivity Analysis}\label{ss:adj_sensitivity}
+
+In the {\em forward sensitivity approach} described in the previous
+section, obtaining sensitivities with respect to $N_s$ parameters is roughly
+equivalent to solving an ODE system of size $(1+N_s) N$. This can become 
+prohibitively expensive, especially for large-scale problems, if sensitivities
+with respect to many parameters are desired.
+In this situation, the {\em adjoint sensitivity method} is a very
+attractive alternative, provided that we do not need the solution sensitivities
+$s_i$, but rather the gradients with respect to model parameters of a relatively 
+few derived functionals of the solution. In other words, if $y(t)$ is the solution
+of (\ref{e:ivp_p}), we wish to evaluate the gradient ${dG}/{dp}$ of
+\begin{equation}\label{e:G}
+G(p) = \int_{t_0}^{t_f} g(t, y, p) dt \, ,
+\end{equation}
+or, alternatively, the gradient ${dg}/{dp}$ of the function $g(t, x, p)$ 
+at time $t_f$. The function $g$ must be smooth enough that $\partial g / \partial y$ 
+and $\partial g / partial p$ exist and are bounded. 
+In what follows, we only provide the final results for the gradients of both $G$ and 
+$g(t_f)$. For details on the derivation see~\cite{CLPS:03}.
+%
+The gradient of $G$ with respect to $p$ is nothing but
+\begin{equation}\label{e:dGdp}
+  \frac{dG}{dp} = \lambda^T(t_0) s(t_0) + 
+  \int_{t_0}^{t_f} \left( \frac{\partial g}{\partial p} + 
+    \lambda^T \frac{\partial f}{\partial p} \right) dt,
+\end{equation}
+where $\lambda$ is solution of
+\begin{equation}\label{e:adj_eqns}
+{\dot \lambda} = -\left( \dfdy \right)^T \lambda - 
+\left( \frac{\partial g}{\partial y} \right)^T \, ,
+\quad \lambda(t_f) = 0
+\end{equation}
+and $s(t_0) = dy_0/dp$.
+%
+The gradient of $g(t_f,y,p)$ with respect to $p$ can be then obtained
+by using the Leibnitz differentiation rule. Indeed, from (\ref{e:G}),
+$({dg}/{dp})(t_f) = {d}/{dt_f}({dG}/{dp})$
+and therefore, taking into account that $dG/dp$ in (\ref{e:dGdp}) depends on $t_f$
+both through the upper integration limit and through $\lambda$ and that $\lambda(t_f) = 0$, 
+\begin{equation}\label{e:dgdp}
+  \frac{dg}{dp}(t_f) = 
+  \frac{\partial g}{\partial p}(t_f) +
+  \mu^T(t_0) s(t_0) + 
+  \int_{t_0}^{t_f} \mu^T \frac{\partial f}{\partial p} dt \, ,
+\end{equation}
+where $\mu$ is the sensitivity of $\lambda$ with respect to the final integration 
+limit and thus satisfies the following equation, obtained by taking the total derivative
+with respect to $t_f$ of (\ref{e:adj_eqns}):
+\begin{equation}\label{e:adj1_eqns}
+{\dot \mu} = -\left( \dfdy \right)^T \mu \, ,
+\quad \mu(t_f) = \left( \frac{\partial g}{\partial y}(t_f) \right)^T \, .
+\end{equation}
+The final condition on $\mu(t_f)$ follows from 
+$(\partial\lambda/\partial t) + (\partial\lambda/\partial t_f) = 0$ at $t_f$, and
+therefore, $\mu(t_f) = -{\dot\lambda}(t_f)$. 
+
+The first thing to notice about the adjoint system (\ref{e:adj_eqns}) is that there is 
+no explicit specification of the parameters $p$; this implies that, once the solution
+$\lambda$ is found, the formula (\ref{e:dGdp}) can then be used to find the gradient
+of $G$ with respect to any of the parameters $p$. The same holds true for the system
+(\ref{e:adj1_eqns}) and the formula (\ref{e:dgdp}) for gradients of $g(t_f,y,p)$. 
+The second important remark is that the adjoint systems are terminal value problems 
+which depend on the solution $y(t)$ of the original IVP (\ref{e:ivp_p}). 
+Therefore, a procedure is needed for providing the states $y$ obtained during a forward 
+integration phase of (\ref{e:ivp_p}) to CVODES during the backward integration phase 
+of (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}). 
+The approach adopted in CVODES, based on {\em check-pointing} is described next.
+
+During the backward integration, the evaluation of the right hand side 
+of the adjoint system requires, at the current time, the states $y$ which
+were computed in the forward integration phase.
+Since CVODES implements variable-stepsize integration formulas,
+it is unlikely that the states will be available at the desired time and
+therefore some form of interpolation is needed. The CVODES implementation
+being also variable-order, it is possible that during the forward
+integration phase the order may be reduced as low as 1st order,
+which means that there may be points in time where only $y$ and ${\dot y}$
+are available. Therefore, CVODES employs a cubic Hermite interpolation
+algorithm. However, especially for large-scale problems and long integration
+intervals, the number and size of the vectors $y$ and ${\dot y}$ that would 
+need to be stored make this approach computationally intractable. 
+
+CVODES settles for a compromise between storage space and execution time by
+implementing a so-called {\em check-pointing scheme}. At the cost of
+at most one additional forward integration, this approach offers the best possible 
+estimate of memory requirements for adjoint sensitivity analysis. To begin with,
+based on the problem size $N$ and the available memory, the user decides on 
+the number $N_d$ of data pairs $y$-${\dot y}$ that can be kept in memory for 
+the purpose of interpolation. Then, during the first forward integration stage, 
+every $N_d$ integration steps a check point is formed by saving enough information
+(either in memory or on disk if needed) to allow for a hot restart, that is a restart
+which will exactly reproduce the forward integration. In order to avoid storing
+Jacobian-related data at each check point, a reevaluation of the iteration matrix
+is forced before each check point. At the end of this stage, we are left with $N_c$ 
+check points, including one at $t_0$.
+During the backward integration stage, the adjoint variables are integrated
+from $t_f$ to $t_0$ going from one check point to the previous one.
+The backward integration from check point $i+1$ to check point $i$ is preceeded
+by a forward integration from $i$ to $i+1$ during which $N_d$ data pairs 
+$y$-${\dot y}$ are generated and stored in memory for interpolation.
+%
+This procedure is illustrated in Fig.~\ref{f:ckpnt}.
+%
+\begin{figure}
+\centerline{\psfig{figure=ckpnt.eps,width=4in}}
+\caption {Illustration of the check-pointing algorithm for generation of 
+  the forward solution during the integration of the adjoint system.}
+\label{f:ckpnt}
+\end{figure}
+
+This approach transfers the uncertainty in the number of integration
+steps in the forward integration phase to uncertainty in the final number of check 
+points. However, $N_c$ is much smaller than the number of steps taken during
+the forward integration and there is no major penalty for writting and then reading
+check point data to/from a temporary file.
+%
+Note that, at the end of the first forward integration stage, data pairs 
+$y$-${\dot y}$ are available from the last check point to the end of the integration 
+interval. If no check points are necessary, i.e $N_d$ is larger than the 
+number of integration steps taken in the solution of (\ref{e:ivp_p}),
+the total cost of an adjoint sensitivity computation can be as low as one forward
+plus one backward integration.
+%
+In addition, CVODES provides the capability of reusing a set of check points
+for multiple backward integrations, thus allowing for efficient computation of
+gradients of several functionals (\ref{e:G}).
+
+Finally, we note that the adjoint sensitivity module in CVODES provides the 
+infrastructure to integrate backwards in time any ODE terminal value problem
+dependent on the solution of the IVP (\ref{e:ivp_p}), including
+adjoint systems (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}), as well as any other
+quadrature ODEs that may be needed in evaluating the integrals in (\ref{e:dGdp}) 
+or (\ref{e:dgdp}). In particular, for ODE systems arising from semi-discretization
+of time-dependent PDEs, this feature allows for integration of either the 
+discretized adjoint PDE system or the adjoint of the discretized PDE.
