@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2005-02-15 00:10:27 $
+# $Revision: 1.8 $
+# $Date: 2005-03-02 17:58:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -40,13 +40,17 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_kinsol -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = kinwebs
+EXEC_FILES = kinwebs kinft
 
 all: $(EXEC_FILES)
 
 kinwebs: $(srcdir)/kinwebs.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinwebs.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinwebs $(builddir)/kinwebs.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
+
+kinft: $(srcdir)/kinft.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinft.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinft $(builddir)/kinft.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
 
 clean:
 	rm -rf .libs

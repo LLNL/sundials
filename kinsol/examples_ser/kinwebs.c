@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-02-02 22:50:18 $
+ * $Revision: 1.17 $
+ * $Date: 2005-03-02 17:58:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -189,7 +189,8 @@ int main()
   data = NULL;
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
-  globalstrategy = KIN_INEXACT_NEWTON;
+  globalstrategy = KIN_NONE;
+  //globalstrategy = KIN_LINESEARCH;
 
   data = AllocUserData();
   if (check_flag((void *)data, "AllocUserData", 2)) return(1);
@@ -634,7 +635,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Number of species = %d\n", NUM_SPECIES);
   printf("Total system size = %d\n\n", NEQ);
-  printf("Flag globalstrategy = %d (1 = Inex. Newton, 2 = Linesearch)\n",
+  printf("Flag globalstrategy = %d (0 = None, 1 = Linesearch)\n",
          globalstrategy);
   printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
          maxl, maxlrst);

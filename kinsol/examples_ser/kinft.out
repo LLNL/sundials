@@ -1,0 +1,61 @@
+
+Ferraris and Tronconi test problem --  KINSol (serial version)
+Total system size = 6
+Linear solver is KINDENSE
+Tolerance parameters:  fnormtol = 1e-05   scsteptol = 1e-05
+--------------------------------
+glstr = 0   mset = 1
+Initial guess: 0.25  1.5
+Solution:      0.299449  2.83693
+Final Statistics.. 
+nni    =     3    nfe   =     4 
+nje    =     3    nfeD  =    18 
+--------------------------------
+glstr = 1   mset = 1
+Initial guess: 0.25  1.5
+Solution:      0.299449  2.83693
+Final Statistics.. 
+nni    =     3    nfe   =     4 
+nje    =     3    nfeD  =    18 
+--------------------------------
+glstr = 0   mset = 0
+Initial guess: 0.25  1.5
+Solution:      0.299449  2.83693
+Final Statistics.. 
+nni    =    11    nfe   =    12 
+nje    =     2    nfeD  =    12 
+--------------------------------
+glstr = 1   mset = 0
+Initial guess: 0.25  1.5
+Solution:      0.299449  2.83693
+Final Statistics.. 
+nni    =    11    nfe   =    12 
+nje    =     2    nfeD  =    12 
+--------------------------------
+glstr = 0   mset = 1
+Initial guess: 0.625  3.89159
+Solution:      0.5  3.14159
+Final Statistics.. 
+nni    =     5    nfe   =     6 
+nje    =     5    nfeD  =    30 
+--------------------------------
+glstr = 1   mset = 1
+Initial guess: 0.625  3.89159
+Solution:      0.5  3.14159
+Final Statistics.. 
+nni    =     5    nfe   =     6 
+nje    =     5    nfeD  =    30 
+--------------------------------
+glstr = 0   mset = 0
+Initial guess: 0.625  3.89159
+Solution:      0.500003  3.1416
+Final Statistics.. 
+nni    =    12    nfe   =    13 
+nje    =     2    nfeD  =    12 
+--------------------------------
+glstr = 1   mset = 0
+Initial guess: 0.625  3.89159
+Solution:      0.299459  2.83694
+Final Statistics.. 
+nni    =    12    nfe   =    19 
+nje    =     1    nfeD  =     6 
