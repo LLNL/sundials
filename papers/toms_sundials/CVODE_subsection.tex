@@ -1,44 +1,98 @@
 \subsection{CVODE}
 
-{\sf In this subsection, we need to include some information about the stability limit detection algorithms, cost, and performance.}
-
-CVODE solves ODE initial value problems, which we write in the form
+CVODE solves ODE initial value problems in real $N$-space, which we
+write in the abstract form
 \[ \dot{y} = f(t,y),~~ y(t_0) = y_0,~~ y \in \mbox{\bf R}^N ~. \]
+Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
+the independent variable, and usually this is time, it certainly need
+not be.  CVODE solves both stiff and nonstiff systems.  Roughly
+speaking, stiffness is characterized by the presence of at least one
+rapidly damped mode, whose time constant is small compared to the time
+scale of the solution itself.
 
-The methods used in CVODE are the following variable-order,
-variable-step multistep methods:
-\vspace*{-.19in}
-\begin{itemize}
-\item BDF = Backward Differentiation Formulas, in the so-called
-fixed-leading coefficient form), suitable for stiff systems; and
-\item Implicit Adams methods, suitable for nonstiff systems.
-\end{itemize}
+The methods used in CVODE are variable-order, variable-step multistep
+methods, based on formulas of the form
+\begin{equation}
+ \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} + 
+     h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 ~.
+\label{LMM}
+\end{equation}
+Here the $y_n$ are computed approximations to $y(t_n)$, and
+$h_n = t_n - t_{n-1}$ is the step size.  The user of CVODE must choose
+appropriately one of two multistep methods: For nonstiff problems,
+CVODE includes the Adams-Moulton formulas, characterized by $K_1 = 1$
+and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
+For stiff problems, CVODE includes the Backward Differentiation
+Formulas (BDFs) in so-called fixed-leading coefficient form, given by
+$K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
+The coefficients are uniquely determined by the method type, its
+order, the recent history of the stepsizes, and the normalization
+$\alpha_{n,0} = -1$.
 
-The multistep methods are implicit, and CVODE offers a choice of two
-methods for solving the resulting nonlinear systems:
-\vspace*{-.19in}
-\begin{itemize}
-\item Newton iteration, suitable in the stiff case, and
-\item functional iteration, suitable in the nonstiff case.
-\end{itemize}
-
-In the stiff case, with Newton iteration specified, the linear systems
-are solved by one of four methods:
+For either choice of formula, the nonlinear system
+\begin{equation}
+G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0
+  \mbox{~,~~~where~~~} a_n \equiv  
+  \sum_{i>0}(\alpha_{n,i} y_{n-i} + h_n \beta_{n,i} \dot{y}_{n-i}),
+\label{NLS}
+\end{equation}
+must be solved (approximately) at each time step.  For this, CVODE
+offers the choice of either {\bf functional iteration}, suitable only
+for nonstiff systems, and various versions of {\bf Newton iteration}.
+Functional iteration involves evaluations of $f$ only, while Newton
+iteration requires the solution of linear systems
+\begin{equation} M (y_{n(m+1)} - y_{n(m)}) = -G(y_{n(m)}) ~,
+\label{Newtoncorr} \end{equation}
+in which
+\begin{equation} M \approx I - \gamma J, ~~~J = \partial f / \partial y 
+                 ~~~ \mbox{and} ~~~\gamma = h_n \beta_{n,0} ~. 
+\label{Newtonmat} \end{equation}
+Here CVODE provides a choice of four methods:
 \vspace*{-.19in}
 \begin{itemize}
 \item a dense direct solver (serial version only),
 \item a band direct solver (serial version only),
 \item a diagonal approximate Jacobian solver, or
-\item SPGMR = Scaled Preconditioned GMRES, implemented in a
-matrix-free manner, without restarts, with left and/or right
-preconditioning, and requiring user routines for the preconditioning
-setup and solve operations.
-
+\item SPGMR = Scaled Preconditioned GMRES (without restarts).
 \end{itemize}
+In the cases of a direct solver (dense, band, or diagonal), the
+iteration is a Modified Newton iteration, in that the iteration matrix
+$M$ is fixed throughout the nonlinear iterations.  However, for SPGMR,
+it is a true Newton iteration, in which $M$ is applied in a
+matrix-free manner, with matrix-vector products $Jv$ obtained by
+either difference quotients or a user-supplied routine.  With the
+direct dense and band methods, the Jacobian may be supplied by a user
+routine, or approximated by difference quotients, at the user's
+option.  With SPGMR, preconditioning may be used on the left and/or
+the right, with user-supplied routines for the preconditioning setup
+and solve operations.  In the direct cases, values of the Jacobian are
+reused over as many time steps as possible, and in the case of SPGMR,
+a provision is made for the user to save and reuse the Jacobian data
+in the preconditioner.
 
-In the case of direct methods, the Jacobian may be supplied by a user
-routine, or approximated by difference quotients.  In the case of
-SPGMR, the user may supply a routine for the Jacobian-vector products,
-or they will be approximated by matrix-free difference quotients.
+The combination of a BDF integrator and a preconditioned GMRES
+algorithm yields a powerful tool for large stiff systems, because it
+combines established methods for stiff integration, nonlinear
+iteration, and Krylov (linear) iteration with a problem-specific
+treatment of the dominant source of stiffness, in the form of the
+user-supplied preconditioner matrix \cite{BrHi:89}.
 
+Regardless of the multistep method or nonlinear iteration chosen,
+CVODE integrates the initial value problem with local error control
+and variation of both step size and order.  A weighted root-mean-square
+norm of the estimated local is made to satisfy a local error test on
+every step, using weights that involve relative and absolute
+tolerances provided by the user.  Based primarily on these estimated
+local errors, at both actual order and contemplated nearby orders, the
+stepsize $h_n$ and the order $q$ are frequently varied, always in an
+attempt to maximize the stepsize, subject to the local error test.
+
+The various algorithmic features of CVODE, as inherited from VODE and
+VODPK, are documented in Refs. \cite{BBH:89}, \cite{Byr:92}, and
+\cite{Hin:00}.
+
+There is an important additional part of the CVODE order selection
+algorithm that is not based on local error.  
+*** DAN *** 
+See Refs. \cite{Hin:92} and \cite{Hin:95} for details.
 
