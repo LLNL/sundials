@@ -2,7 +2,7 @@
 %% the serial nvector implementation
 %%
 
-The implementation of the {\nvector} module defines the {\em content} 
+The serial implementation of the {\nvector} module defines the {\em content} 
 field of \id{N\_Vector} to be a structure containing the length of the vector,
 a pointer to the beginning of a contiguous data array, and a boolean flag
 {\em own\_data} which specifies the ownership of {\em data}.
@@ -149,7 +149,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
 \item \ID{N\_VDestroyVectorArray\_Serial}
 
- This function frees memory allocated for the array of \id{count} serial \id{N\_Vector} 
+ This function frees memory allocated for the array of \id{count} serial \id{N\_Vector}'s 
  created with \id{N\_VNewVectorArray\_Serial} or with \id{N\_VNewVectorArrayEmpty\_Serial}.
 
  
@@ -194,7 +194,6 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
   that have more than one \id{N\_Vector} argument do not check for
   consistent internal representation of these vectors. It is the user's 
   responsibility to ensure that such routines are called with \id{N\_Vector}
-  arguments that were all created with the \id{NV\_Spec} structure returned
-  by \id{NV\_SpecInit\_Serial}.
+  arguments that were all created with the same internal representations.
 
 \end{itemize}
