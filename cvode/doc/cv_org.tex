@@ -17,10 +17,7 @@ summarizes the basic structure of the package, although knowledge
 of this structure is not necessary for its use.
 
 The overall organization of the {\cvode} package is shown in Figure
-\ref{f:cvorg}.  The basic elements of the structure are a module for
-the basic integration algorithm (including forward sensitivity analysis),
-a module for adjoint sensitivity analysis, and a set of modules for the solution
-of linear systems that arise in the case of a stiff system.  
+\ref{f:cvorg}. 
 \begin{figure}
 {\centerline{\psfig{figure=cvorg.eps,width=\textwidth}}}
 \caption [Overall structure diagram of the {\cvode} package]
@@ -58,7 +55,7 @@ In the case of the direct {\cvdense} and {\cvband} methods, the package includes
 an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly. In the case of the iterative
-{\cvspgmr} method, the package includes and algorithm for the approximation
+{\cvspgmr} method, the package includes an algorithm for the approximation
 by difference quotients of the product between the Jacobian matrix and
 a vector of appropriate length. Again, the user has the option of providing
 a routine for this operation.
@@ -73,7 +70,7 @@ the example and demonstration programs included with {\cvode}, offer
 considerable assistance in building preconditioners.
 
 \index{CVODE@{\cvode} linear solvers!implementation details|(} 
-Each {\cvode} linear solver module consists of five routines, devoted to (1)
+Each {\cvode} linear solver module consists of four routines, devoted to (1)
 memory allocation and initialization, (2) setup of the matrix data
 involved, (3) solution of the system, and (4) freeing of memory.  
 The setup and solution phases are separate because the evaluation of
