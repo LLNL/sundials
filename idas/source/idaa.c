@@ -172,7 +172,6 @@ static int IDAAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
 
 /* Forward IDAS memory block */
 
-/*#define         (IDA_mem->ida_)*/
 #define nvspec     (IDA_mem->ida_nvspec)
 #define res        (IDA_mem->ida_res)
 #define itol       (IDA_mem->ida_itol)
@@ -202,13 +201,21 @@ static int IDAAspgmrJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
 #define cj         (IDA_mem->ida_cj)
 #define cjlast     (IDA_mem->ida_cjlast)
 #define cjold      (IDA_mem->ida_cjold)
-#define cjratio    (IDA_mem->ida_cjratio)
+#define cjratio    (IDA_mem->ida_cjratio) 
+
+#define quad       (IDA_mem->ida_quad)
+#define errconQ    (IDA_mem->ida_errconQ)
+#define phiQ       (IDA_mem->ida_phiQ)
+#define rhsQ       (IDA_mem->ida_rhsQ)
+#define nvspecQ    (IDA_mem->ida_nvspecQ)
 
 /* Checkpoint memory block */
 
 #define t0_        (ck_mem->ck_t0)
 #define t1_        (ck_mem->ck_t1)
 #define phi_       (ck_mem->ck_phi)
+#define phiQ_      (ck_mem->ck_phiQ)
+#define quad_      (ck_mem->ck_quad)
 #define psi_       (ck_mem->ck_psi)
 #define alpha_     (ck_mem->ck_alpha)
 #define beta_      (ck_mem->ck_beta)
@@ -1295,6 +1302,9 @@ static CkpntMem IDAAckpntInit(IDAMem IDA_mem)
   phi_[0] = N_VNew(nvspec);
   phi_[1] = N_VNew(nvspec);
 
+  /* Do we need to carry quadratures? */
+  quad_ = quad && errconQ;
+
   /* Load ckdata from IDA_mem 
      Note: phi[1] has not been scaled by the step size yet!!! */
   N_VScale(ONE, phi[0], phi_[0]);
@@ -1325,15 +1335,26 @@ static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
 
   for (j=0; j<=kk; j++) {
     phi_[j] = N_VNew(nvspec);
-    if(phi_[j] == NULL) {
-      for(jj=0; jj<j; jj++) N_VFree(phi_[jj]);
-      return(NULL);
+    if(phi_[j] == NULL)  return(NULL);
+  }
+
+  /* Test if we need to carry quadratures */
+  quad_ = quad && errconQ;
+
+  if(quad_) {
+    for (j=0; j<=kk; j++) {
+      phiQ_[j] = N_VNew(nvspecQ);
+      if(phiQ_[j] == NULL)  return(NULL);
     }
   }
 
   /* Load check point data from IDA_mem */
-  for (j=0; j<=kk; j++)
-    N_VScale(ONE, phi[j], phi_[j]);
+  for (j=0; j<=kk; j++) N_VScale(ONE, phi[j], phi_[j]);
+
+  if(quad_) {
+    for (j=0; j<=kk; j++) N_VScale(ONE, phiQ[j], phiQ_[j]);
+  }
+
   for (j=0; j<MXORDP1; j++) {
     psi_[j]   = psi[j];
     alpha_[j] = alpha[j];
@@ -1341,6 +1362,7 @@ static CkpntMem IDAAckpntNew(IDAMem IDA_mem)
     sigma_[j] = sigma[j];
     gamma_[j] = gamma[j];
   }
+
   nst_       = nst;
   kk_        = kk;
   kused_     = kused;
@@ -1375,8 +1397,17 @@ static void IDAAckpntDelete(CkpntMem *ck_memPtr)
     tmp = *ck_memPtr;
     /* move head of list */
     *ck_memPtr = (*ck_memPtr)->ck_next;
-    /* free tmp */
+
+    /* free N_Vectors in tmp */
     for (j=0;j<=tmp->ck_kk;j++) N_VFree(tmp->ck_phi[j]);
+
+    /* free N_Vectors for quadratures in tmp,
+       unless tmp is the check point at t_initial where 
+       znQ_ was not allocated */
+    if(tmp->ck_quad && (tmp->ck_next != NULL)) {
+      for (j=0;j<=tmp->ck_kk;j++) N_VFree(tmp->ck_phiQ[j]);
+    }
+
     free(tmp);
   }
 }
@@ -1459,6 +1490,11 @@ int IDAAdataStore(IDAadjMem IDAADJ_mem, CkpntMem ck_mem)
     flag = IDAReInit(IDA_mem, res, t0_, phi_[0], phi_[1], itol, reltol, abstol);
     if (flag != SUCCESS) return(flag);
 
+    if(quad_) {
+      flag = IDAQuadReInit(IDA_mem, rhsQ);
+      if (flag != SUCCESS) return(flag);
+    }
+
     dt_mem[0]->t = t0_;
     N_VScale(ONE, phi_[0], dt_mem[0]->y);
     N_VScale(ONE, phi_[1], dt_mem[0]->yd);
@@ -1482,8 +1518,12 @@ int IDAAdataStore(IDAadjMem IDAADJ_mem, CkpntMem ck_mem)
     tn        = t0_;
 
     /* Copy the arrays from check point data structure */
-    for (j=0; j<=kk; j++)
-      N_VScale(ONE, phi_[j], phi[j]);
+    for (j=0; j<=kk; j++) N_VScale(ONE, phi_[j], phi[j]);
+
+    if(quad_) {
+      for (j=0; j<=kk; j++) N_VScale(ONE, phiQ_[j], phiQ[j]);
+    }
+
     for (j=0; j<MXORDP1; j++) {
       psi[j]   = psi_[j];
       alpha[j] = alpha_[j];

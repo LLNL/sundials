@@ -379,7 +379,13 @@ extern "C" {
     
     /* Nordsieck History Array */
     N_Vector ck_phi[MXORDP1];
-    
+
+    /* Nordsieck History Array for quadratures */
+    N_Vector ck_phiQ[MXORDP1];
+
+    /* Do we need to carry quadratures? */
+    booleantype ck_quad;
+
     realtype ck_psi[MXORDP1];
     realtype ck_alpha[MXORDP1];
     realtype ck_beta[MXORDP1];
