@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-11-08 19:47:28 $
+ * $Revision: 1.17 $
+ * $Date: 2004-11-08 23:14:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -151,11 +151,11 @@ typedef struct {
 
 /* Function called by the KINSol Solver */
 
-static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
+static void func(N_Vector cc, N_Vector fval, void *f_data);
 
 static void ccomm(long int Nlocal, N_Vector cc, void *data);
 
-static void fcalcprpr(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data);
+static void func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data);
 
 /* Private Helper Functions */
 
@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
   if (check_flag((void *)kmem, "KINCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Vector cc passed as template vector. */
-  flag = KINMalloc(kmem, funcprpr, cc);
+  flag = KINMalloc(kmem, func, cc);
   if (check_flag(&flag, "KINMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   flag = KINSetFdata(kmem, data);
@@ -270,12 +270,12 @@ int main(int argc, char *argv[])
   
   /* Call KINBBDPrecAlloc to initialize and allocate memory for the
      band-block-diagonal preconditioner, and specify the local and
-     communication functions fcalcprpr and gcomm=NULL (all communication
-     needed for the fcalcprpr is already done in funcprpr). */
+     communication functions func_local and gcomm=NULL (all communication
+     needed for the func_local is already done in func). */
   dq_rel_uu = ZERO;
   mu = ml = 2*NUM_SPECIES - 1;
 
-  pdata = KINBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, fcalcprpr, NULL);
+  pdata = KINBBDPrecAlloc(kmem, Nlocal, mu, ml, dq_rel_uu, func_local, NULL);
   if (check_flag((void *)pdata, "KINBBDPrecAlloc", 0, my_pe)) 
     MPI_Abort(comm, 1);
 
@@ -373,7 +373,7 @@ static void ccomm(long int Nlocal, N_Vector cc, void *userdata)
  * System function for predator-prey system - calculation part 
  */
 
-static void fcalcprpr(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data)
+static void func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
@@ -478,22 +478,22 @@ static void fcalcprpr(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data)
 }
 
 /*
- * System function routine.  Evaluate funcprpr(cc).  First call ccomm to do 
- * communication of subgrid boundary data into cext.  Then calculate funcprpr
- * by a call to fcalcprpr. 
+ * System function routine.  Evaluate f(cc).  First call ccomm to do 
+ * communication of subgrid boundary data into cext.  Then calculate f
+ * by a call to func_local. 
  */
 
-static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
+static void func(N_Vector cc, N_Vector fval, void *f_data)
 {
   UserData data;
 
   data = (UserData) f_data;
 
   /* Call ccomm to do inter-processor communicaiton */
-  ccomm (data->Nlocal, cc, data);
+  ccomm(data->Nlocal, cc, data);
 
-  /* Call fcalcprpr to calculate all right-hand sides */
-  fcalcprpr (data->Nlocal, cc, fval, data);
+  /* Call func_local to calculate all right-hand sides */
+  func_local(data->Nlocal, cc, fval, data);
 }
 
 /*
