@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-10-14 22:13:24 $
+ * $Revision: 1.16 $
+ * $Date: 2004-10-21 20:44:48 $
  * ----------------------------------------------------------------- 
- * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
- *              Radu Serban, LLNL
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
+ *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/shared/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for a parallel MPI implementation
  * of the NVECTOR package.
@@ -18,10 +18,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
 #include "nvector_parallel.h"
+#include "sundialsmath.h"
 #include "sundialstypes.h"
-#include "sundialsmath.h" 
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -62,7 +62,7 @@ static void VScaleBy_Parallel(realtype a, N_Vector x);
 
 /*
  * -----------------------------------------------------------------
- * Exported functions
+ * exported functions
  * -----------------------------------------------------------------
  */
 
@@ -341,9 +341,10 @@ void N_VPrint_Parallel(N_Vector x)
   printf("\n");
 }
 
+
 /*
  * -----------------------------------------------------------------
- * Implementation of vector operations
+ * implementation of vector operations
  * -----------------------------------------------------------------
  */
 
@@ -490,7 +491,6 @@ void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
     *zd++ = a * (*xd++) + b * (*yd++);
 }
 
-
 void N_VConst_Parallel(realtype c, N_Vector z)
 {
   long int i, N;
@@ -502,7 +502,6 @@ void N_VConst_Parallel(realtype c, N_Vector z)
   for (i=0; i < N; i++) 
     *zd++ = c;
 }
-
 
 void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
@@ -518,7 +517,6 @@ void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z)
     *zd++ = (*xd++) * (*yd++);
 }
 
-
 void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
@@ -532,7 +530,6 @@ void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z)
   for (i=0; i < N; i++)
     *zd++ = (*xd++) / (*yd++);
 }
-
 
 void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z)
 {
@@ -557,7 +554,6 @@ void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z)
   }
 }
 
-
 void N_VAbs_Parallel(N_Vector x, N_Vector z)
 {
   long int i, N;
@@ -570,7 +566,6 @@ void N_VAbs_Parallel(N_Vector x, N_Vector z)
   for (i=0; i < N; i++, xd++, zd++)
     *zd = ABS(*xd);
 }
-
 
 void N_VInv_Parallel(N_Vector x, N_Vector z)
 {
@@ -585,7 +580,6 @@ void N_VInv_Parallel(N_Vector x, N_Vector z)
     *zd++ = ONE / (*xd++);
 }
 
-
 void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z)
 {
   long int i, N;
@@ -597,7 +591,6 @@ void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z)
   
   for (i=0; i < N; i++) *zd++ = (*xd++) + b; 
 }
-
 
 realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 {
@@ -615,7 +608,6 @@ realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
   gsum = VAllReduce_Parallel(sum, 1, comm);
   return(gsum);
 }
-
 
 realtype N_VMaxNorm_Parallel(N_Vector x)
 {
@@ -636,7 +628,6 @@ realtype N_VMaxNorm_Parallel(N_Vector x)
   gmax = VAllReduce_Parallel(max, 2, comm);
   return(gmax);
 }
-
 
 realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
 {
@@ -711,7 +702,6 @@ realtype N_VMin_Parallel(N_Vector x)
   return(gmin);
 }
 
-
 realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
 {
   long int i, N;
@@ -732,7 +722,6 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
   return(RSqrt(gsum));
 }
 
-
 realtype N_VL1Norm_Parallel(N_Vector x)
 {
   long int i, N;
@@ -750,7 +739,6 @@ realtype N_VL1Norm_Parallel(N_Vector x)
   return(gsum);
 }
 
-
 void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z)
 {
   long int i, N;
@@ -764,7 +752,6 @@ void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z)
     *zd = (ABS(*xd) >= c) ? ONE : ZERO;
   }
 }
-
 
 booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 {
@@ -791,7 +778,6 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
   else
     return(TRUE);
 }
-
 
 booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 {
@@ -823,7 +809,6 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
   return((booleantype)VAllReduce_Parallel((realtype)test, 3, comm));
 }
 
-
 realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce;
@@ -838,27 +823,26 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 
   notEvenOnce = TRUE;
 
-  min = 0.0;
-  for (i=0; i<N; i++, nd++, dd++) {
+  for (i = 0; i < N; i++, nd++, dd++) {
     if (*dd == ZERO) continue;
     else {
       if (notEvenOnce) {
         min = *nd / *dd ;
         notEvenOnce = FALSE;
       }
-      else 
-        min = MIN(min, (*nd)/(*dd));
+      else min = MIN(min, (*nd) / (*dd));
     }
   }
-  if (notEvenOnce) min = BIG_REAL;
-  if (N==0)        min = BIG_REAL;
+
+  if (notEvenOnce || (N == 0)) min = BIG_REAL;
 
   return(VAllReduce_Parallel(min, 3, comm));
 }
 
+
 /*
  * -----------------------------------------------------------------
- * Private functions
+ * private functions
  * -----------------------------------------------------------------
  */
 
@@ -890,7 +874,6 @@ static realtype VAllReduce_Parallel(realtype d, int op, MPI_Comm comm)
   return(out);
 }
 
-
 static void VCopy_Parallel(N_Vector x, N_Vector z)
 {
   long int i, N;
@@ -903,7 +886,6 @@ static void VCopy_Parallel(N_Vector x, N_Vector z)
   for (i=0; i < N; i++)
     *zd++ = *xd++; 
 }
-
 
 static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
@@ -919,7 +901,6 @@ static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z)
     *zd++ = (*xd++) + (*yd++);
 }
 
-
 static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
@@ -934,7 +915,6 @@ static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z)
     *zd++ = (*xd++) - (*yd++);
 }
 
-
 static void VNeg_Parallel(N_Vector x, N_Vector z)
 {
   long int i, N;
@@ -947,7 +927,6 @@ static void VNeg_Parallel(N_Vector x, N_Vector z)
   for (i=0; i < N; i++)
     *zd++ = -(*xd++);
 }
-
 
 static void VScaleSum_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
@@ -963,7 +942,6 @@ static void VScaleSum_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
     *zd++ = c * ((*xd++) + (*yd++));
 }
 
-
 static void VScaleDiff_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
@@ -978,7 +956,6 @@ static void VScaleDiff_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z)
     *zd++ = c * ((*xd++) - (*yd++));
 }
 
-
 static void VLin1_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   long int i, N;
@@ -992,7 +969,6 @@ static void VLin1_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
   for (i=0; i < N; i++)
     *zd++ = a * (*xd++) + (*yd++);
 }
-
 
 static void VLin2_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {

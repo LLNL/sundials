@@ -1,78 +1,64 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-12 20:09:17 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-21 20:44:41 $
  * ----------------------------------------------------------------- 
- * Programmer: Radu Serban, LLNL
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/shared/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
- * This file (companion of nvector_serial.h) contains the 
- * definitions needed for the Fortran initialization of serial 
- * vector operations
+ * This file (companion of nvector_serial.h) contains the
+ * definitions needed for the initialization of serial
+ * vector operations in Fortran.
  * -----------------------------------------------------------------
  */
 
-#ifdef __cplusplus     /* wrapper to enable C++ usage */
-extern "C" {
+#ifndef _FNVECTOR_SERIAL_H
+#define _FNVECTOR_SERIAL_H
+
+#ifndef _CONFIG_H
+#define _CONFIG_H
+#include <config.h>
 #endif
 
-#ifndef included_fnvector_serial_h
-#define included_fnvector_serial_h
+#if defined(F77_FUNC)
 
-/* 
- * Fortran callable routines to initialize and finalize 
- * calculations using the serial NVECTOR module.
- */ 
+#define FNV_INITS F77_FUNC(fnvinits, FNVINITS)
+#define FNV_FREES F77_FUNC(fnvfrees, FNVFREES)
 
-#if defined(SUNDIALS_UNDERSCORE_NONE)
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#if defined(SUNDIALS_CASE_LOWER)
+#define FNV_INITS fnvinits
+#define FNV_FREES fnvfrees
 
-#define FNV_INITS  fnvinits
-#define FNV_FREES  fnvfrees
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#define FNV_INITS FNVINITS
+#define FNV_FREES FNVFREES
 
-#define FNV_INITS  FNVINITS
-#define FNV_FREES  FNVFREES
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#endif
+#define FNV_INITS fnvinits_
+#define FNV_FREES fnvfrees_
 
-#elif defined(SUNDIALS_UNDERSCORE_TWO)
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#if defined(SUNDIALS_CASE_LOWER)
+#define FNV_INITS FNVINITS_
+#define FNV_FREES FNVFREES_
 
-#define FNV_INITS  fnvinits__
-#define FNV_FREES  fnvfrees__
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#define FNV_INITS fnvinits__
+#define FNV_FREES fnvfrees__
 
-#define FNV_INITS  FNVINITS__
-#define FNV_FREES  FNVFREES__
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#endif
-
-#else
-
-#if defined(SUNDIALS_CASE_LOWER)
-
-#define FNV_INITS  fnvinits_
-#define FNV_FREES  fnvfrees_
-
-#elif defined(SUNDIALS_CASE_UPPER)
-
-#define FNV_INITS  FNVINITS_
-#define FNV_FREES  FNVFREES_
+#define FNV_INITS FNVINITS__
+#define FNV_FREES FNVFREES__
 
 #endif
 
-#endif
-
-#endif
-#ifdef __cplusplus
-}
 #endif

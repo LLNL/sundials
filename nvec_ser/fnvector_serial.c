@@ -1,25 +1,27 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-10-12 20:09:17 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-21 20:44:41 $
  * ----------------------------------------------------------------- 
- * Programmer: Radu Serban, LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/shared/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
- * This file (companion of nvector_serial.h) contains the 
- * implementation needed for the Fortran initialization of serial 
- * vector operations
+ * This file (companion of nvector_serial.h) contains the
+ * implementation needed for the Fortran initialization of serial
+ * vector operations.
  * -----------------------------------------------------------------
  */
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"
-#include "nvector_serial.h"
+
 #include "fnvector_serial.h"
+#include "nvector_serial.h"
+#include "sundialstypes.h"
 
 /* Define global variable F2C_vec */
 N_Vector F2C_vec;
@@ -32,7 +34,6 @@ void FNV_INITS(long int *neq, int *ier)
 
  *ier = (F2C_vec == NULL) ? -1 : 0 ;
 }
-
 
 void FNV_FREES()
 {

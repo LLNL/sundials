@@ -1,27 +1,28 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-10-12 20:09:46 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-21 20:44:48 $
  * ----------------------------------------------------------------- 
- * Programmer: Radu Serban, LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California
- * Produced at the Lawrence Livermore National Laboratory
- * All rights reserved
- * For details, see sundials/shared/LICENSE
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
  * This file (companion of nvector_serial.h) contains the 
  * implementation needed for the Fortran initialization of parallel 
- * vector operations
+ * vector operations.
  * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"
-#include "nvector_parallel.h"
+
 #include "fnvector_parallel.h"
 #include "mpi.h"
+#include "nvector_parallel.h"
+#include "sundialstypes.h"
 
 /* Define global variable F2C_vec */
 N_Vector F2C_vec;
@@ -30,7 +31,6 @@ N_Vector F2C_vec;
 
 void FNV_INITP(long int *nlocal, long int *nglobal, int *ier)
 {
-  
   /* Call N_VNew_Parallel:
      the first slot is for the communicator. 
      (From Fortran, only MPI_COMM_WORLD is allowed)
@@ -42,9 +42,7 @@ void FNV_INITP(long int *nlocal, long int *nglobal, int *ier)
  *ier = (F2C_vec == NULL) ? -1 : 0 ;
 }
 
-
 void FNV_FREEP()
 {
   N_VDestroy_Parallel(F2C_vec);
 }
-
