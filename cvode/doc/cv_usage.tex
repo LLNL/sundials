@@ -4865,13 +4865,13 @@ are as follows:
   Interface to the {\nvector} modules
   \begin{itemize}
   \item \id{FNVINITS} (defined by {\nvecs}) 
-    interfaces to \id{NV\_SpecInit\_Serial}.
+    interfaces to \id{NV\_NewEmpty\_Serial}.
   \item \id{FNVINITP} (defined by {\nvecp}) 
-    interfaces to \id{NV\_SpecInit\_Parallel}.
+    interfaces to \id{NV\_NewEmpty\_Parallel}.
   \item \id{FNVFREES} (defined by {\nvecs})
-    interface to \id{NV\_SpecFree\_Serial}.
+    interface to \id{NV\_DestroyEmpty\_Serial}.
   \item \id{FNVFREEP}  (defined by {\nvecp})
-    interfaces to \id{NV\_SpecFree\_Parallel}.
+    interfaces to \id{NV\_DestroyEmpty\_Parallel}.
   \end{itemize}
 \item Interface to the main {\cvode} module
   \begin{itemize}
@@ -4880,8 +4880,8 @@ are as follows:
   \item \id{FCVREINIT}  
     interfaces to \id{CVodeReInit} and \id{CVodeSet*} functions.
   \item \id{FCVODE}
-    interfaces to \id{CVode}, \id{CVodeGet*} functions, and to the optional output functions 
-    for the selected linear solver module.
+    interfaces to \id{CVode}, \id{CVodeGet*} functions, and to the optional
+    output functions for the selected linear solver module.
   \item \id{FCVDKY}     
     interfaces to the interpolated output function \id{CVodeGetDky}.
   \item \id{FCVFREE}    
@@ -4898,7 +4898,7 @@ are as follows:
   \item \id{FCVBAND}
     interfaces to \id{CVBand}.
   \item \id{FCVBANDSETJAC}
-    interfaces to \id{CVBandSetJac}.
+    interfaces to \id{CVBandSetJacFn}.
   \item \id{FCVSPGMR}
     interfaces to \id{CVSpgmr} and {\spgmr} optional input functions.
   \item \id{FCVSPGMRREINIT} 
@@ -4942,11 +4942,12 @@ In this package, the names of the interface functions, and the names of
 the {\F} user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
 header files \id{fcvode.h} and \id{fcvbbd.h}.  
-Those mapping definitions depend in turn on a pair of parameters, 
-\Id{SUNDIALS\_UNDERSCORE\_NONE} and \Id{SUNDIALS\_UNDERSCORE\_TWO} 
+Those mapping definitions depend in turn on a set of parameters --- 
+\Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
+\Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_TWO},
 which can be set when configuring {\sundials} (see Chapter \ref{s:install}).
-The names into which the dummy names are mapped have one, two, or no underscore
-appended, depending on these parameters.
+Depending on these parameters, the names into which the dummy names are mapped
+are in upper or lower case and have up to two underscores appended.
 
 The user must also ensure that variables in the user {F} code are
 declared in a manner consistent with their counterparts in {\cvode}.
@@ -5180,11 +5181,22 @@ apply to {\nvecp}.
     $-1$ otherwise. See printed message for details in case of failure.
   }
   {
-    The optional inputs are \id{MAXORD}, \id{MXSTEP}, \id{MXHNIL}, \id{SLDET}, \id{H0}, 
-    \id{HMAX}, \id{HMIN}, stored in \id{IOPT(1)}, \id{IOPT(2)}, \id{IOPT(3)}, 
-    \id{IOPT(14)}, \id{ROPT(1)}, \id{ROPT(2)}, \id{ROPT(3)}, respectively.  
-    If any of these optional inputs are used, set the others to zero to indicate 
-    default values. 
+    The optional inputs associated with \id{FCVMALLOC} are 
+    \id{MAXORD}, \id{MXSTEP}, \id{MXHNIL}, \id{SLDET},
+    \id{MAXERRTESTFAILS}, \id{MAXNONLINITERS}, \id{MAXCONVFAILS},
+    \id{H0}, \id{HMAX}, \id{HMIN}, \id{TSTOP}, and
+    \newline \id{NONLINCONVCOEF}, stored in \id{IOPT(1)}, \id{IOPT(2)},
+    \id{IOPT(3)}, \id{IOPT(14)}, \id{IOPT(22)},
+    \newline  \id{IOPT(23)}, \id{IOPT(24)},
+    \id{ROPT(1)}, \id{ROPT(2)}, \id{ROPT(3)}, \id{ROPT(8)}, \id{ROPT(9)},
+    respectively.  If any of these optional inputs are used, set the others
+    to zero to indicate default values.
+
+    The optional outputs are \id{NST}, \id{NFE}, \id{NSETUPS}, \id{NNI}, 
+    \id{NCFN}, \id{NETF}, \id{QU}, \id{QCUR}, \id{LENRW}, \id{LENIW},
+    \id{NOR}, \id{HU}, \id{HCUR}, \id{TCUR}, \id{TOLSF}, \id{UROUND},
+    stored in \id{IOPT(4)}, ..., \id{IOPT(13)}, \id{IOPT(15)},
+    \id{ROPT(4)}, ..., \id{ROPT(7)}, \id{ROPT(10)}, respectively.
   }
 
 \item\label{i:fcvode_lin_solv_spec} {\bf Linear solver specification} 
@@ -5456,7 +5468,7 @@ apply to {\nvecp}.
   from \id{CVode} (see \S\ref{sss:cvode}) 
   The current values of the optional outputs are available in \id{IOPT} and \id{ROPT}.
   
-\item {\bf Solution output}
+\item {\bf Additional solution output}
 
   To obtain a derivative of the solution, of order up to the current method
   order, make the following call:
@@ -5467,7 +5479,8 @@ apply to {\nvecp}.
   where
   \id{T} is the value of $t$ at which solution derivative is desired,
   \id{K} is the derivative order ($0 \le$ \id{K} $\le$ \id{QU}), and
-  \id{DKY} is an array containing the computed \id{K}-th derivative of $y$ on return.
+  \id{DKY} is an array containing the computed \id{K}-th derivative of $y$
+  on return.  The value \id{T} must lie between \id{TCUR-HU} and \id{TCUR}.
   The return flag \id{IER} is set to $0$ upon successful return or to a negative
   value to indicate an illegal input.
   
@@ -5477,8 +5490,7 @@ apply to {\nvecp}.
   of the same size as one already solved, make the following call:
   \index{FCVREINIT@\texttt{FCVREINIT}}
 \begin{verbatim}
-      CALL FCVREINIT(T0, Y0, METH, IATOL, RTOL, ATOL, INOPT,
-     &               IOPT, ROPT, IER)
+      CALL FCVREINIT(T0, Y0, IATOL, RTOL, ATOL, INOPT, IOPT, ROPT, IER)
 \end{verbatim}
   The arguments have the same names and meanings as those of \id{FCVMALLOC}.
   \id{FCVREINIT} performs the same initializations as
