@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-07-22 21:25:00 $
+ * $Revision: 1.30 $
+ * $Date: 2004-07-28 15:40:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1009,6 +1009,14 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     return(CVM_ILL_INPUT);
   }
 
+  /* Test if all required vector operations are implemented */
+  nvectorOK = CVCheckNvector(y0);
+  if(!nvectorOK) {
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
+    return(CVM_ILL_INPUT);
+  }
+
+  /* Test absolute tolerances */
   if (itol == SS) {
     neg_abstol = (*((realtype *)abstol) < ZERO);
   } else {
@@ -1019,15 +1027,13 @@ int CVodeMalloc(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     return(CVM_ILL_INPUT);
   }
 
-  /* Test if all required vector operations are implemented */
-  nvectorOK = CVCheckNvector(y0);
-  if(!nvectorOK) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_NVECTOR);
-    return(CVM_ILL_INPUT);
-  }
-
   /* Set space requirements for one N_Vector */
-  N_VSpace(y0, &lrw1, &liw1);
+  if (y0->ops->nvspace != NULL) {
+    N_VSpace(y0, &lrw1, &liw1);
+  } else {
+    lrw1 = 0;
+    liw1 = 0;
+  }
   cv_mem->cv_lrw1 = lrw1;
   cv_mem->cv_liw1 = liw1;
 
@@ -2470,7 +2476,6 @@ static booleantype CVCheckNvector(N_Vector tmpl)
 {
   if((tmpl->ops->nvclone     == NULL) ||
      (tmpl->ops->nvdestroy   == NULL) ||
-     (tmpl->ops->nvspace     == NULL) ||
      (tmpl->ops->nvlinearsum == NULL) ||
      (tmpl->ops->nvconst     == NULL) ||
      (tmpl->ops->nvprod      == NULL) ||
