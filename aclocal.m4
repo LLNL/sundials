@@ -172,8 +172,8 @@ dnl ********************************************************************
 
 AC_DEFUN(SUNDIALS_PROG_MPICC,
 [
-   AC_CHECK_PROGS(MPICC, mpcc mpicc tmcc hcc)
-   test -z "$MPICC" && AC_MSG_ERROR([no acceptable mpicc found in \$PATH])
+   AC_CHECK_PROGS(MPICC, mpcc_r mpcc mpicc tmcc hcc)
+   test -z "$MPICC"
 ])dnl
 
 
@@ -200,7 +200,7 @@ AC_DEFUN(CASC_CHECK_MPIF77_PP,
 [
    AC_REQUIRE([SUNDIALS_PROG_MPIF77])
 
-   rm -f testppmp.o
+   rm -f testppmp.F testppmp.o
 
    AC_MSG_CHECKING(whether $FPP needs to be called before $MPIF77)
 
@@ -242,17 +242,28 @@ dnl ***********************************************************************
 
 AC_DEFUN(MPI_OPTIONS,
 [       
+   AC_ARG_WITH(MPICC,
+      AC_HELP_STRING([--with-MPICC=ARG],
+                     [ARG is mpicc or similar MPI C compiling tool]),
+      [AC_MSG_RESULT([setting MPICC to $withval]); MPICC=$withval],
+      [SUNDIALS_PROG_MPICC])
+
+   AC_ARG_WITH(MPIF77,
+       AC_HELP_STRING([--with-MPIF77=ARG], [manually set MPIF77 to ARG]),
+       [AC_MSG_RESULT([setting MPIF77 to $withval]); MPIF77=$withval],
+       [SUNDIALS_PROG_MPIF77])
+
    AC_ARG_WITH(mpi-include, 
       AC_HELP_STRING([--with-mpi-include=DIR],
                      [ mpi.h is in DIR]),
-      for mpi_dir in $withval; do
-         MPIINCLUDE="$MPIINCLUDE -I$withval"
-      done; casc_user_chose_mpi=yes)
+      MPIINCLUDE=-I$withval
+      casc_user_chose_mpi=yes)
 
    AC_ARG_WITH(mpi-libs,
       AC_HELP_STRING([--with-mpi-libs=LIBS],
                      [LIBS is space-separated list of library names 
                       needed for MPI, e.g. "nsl socket mpi"]),  
+      MPILIBS=""
       for mpi_lib in $withval; do
          MPILIBS="$MPILIBS -l$mpi_lib"
       done; casc_user_chose_mpi=yes)
@@ -263,12 +274,10 @@ AC_DEFUN(MPI_OPTIONS,
                      [DIRS is space-separated list of directories
                       containing the libraries specified by
                       `--with-mpi-libs', e.g "/usr/lib /usr/local/mpi/lib"]),
+      MPILIBDIRS=""
       for mpi_lib_dir in $withval; do
-         MPILIBDIRS="-L$mpi_lib_dir $MPILIBDIRS"
+         MPILIBDIRS="$MPILIBDIRS -L$mpi_lib_dir"
       done; casc_user_chose_mpi=yes)
-
-      dnl * --with-mpi-flags only adds to automatic selections, 
-      dnl * does not override
 
    AC_ARG_WITH(mpi-flags,
      AC_HELP_STRING([--with-mpi-flags=FLAGS],
@@ -470,422 +479,375 @@ dnl ********************************************************************
 AC_DEFUN(CASC_FIND_MPI,
 [
 
-   casc_find_mpi_cache_used=yes
+dnl * Set up user options.  If user uses any of the fist three options,
+dnl * then automatic tests are not run.
 
-   AC_CACHE_VAL(casc_cv_mpi_include, casc_find_mpi_cache_used=no)
-   AC_CACHE_VAL(casc_cv_mpi_libs, casc_find_mpi_cache_used=no)
-   AC_CACHE_VAL(casc_cv_mpi_lib_dirs, casc_find_mpi_cache_used=no)
-   AC_CACHE_VAL(casc_cv_mpi_flags, casc_find_mpi_cache_used=no)
+casc_user_chose_mpi=no
 
-   if test "$casc_find_mpi_cache_used" = "yes"; then
-      AC_MSG_CHECKING(for location of mpi.h)
-      MPIINCLUDE=$casc_cv_mpi_include
-      AC_MSG_RESULT("\(cached\) $MPIINCLUDE")
+MPI_OPTIONS
 
-      AC_MSG_CHECKING(for MPI library directories)
-      MPILIBDIRS=$casc_cv_mpi_lib_dirs
-      AC_MSG_RESULT("\(cached\) $MPILIBDIRS")
+if test "$casc_user_chose_mpi" = "yes"; then
 
-      AC_MSG_CHECKING(for MPI libraries)
-      MPILIBS=$casc_cv_mpi_libs
-      AC_MSG_RESULT("\(cached\) $MPILIBS")
+  if test -z "$MPICC"; then
+     MPICC=$CC
+  fi
 
-      AC_MSG_CHECKING(for other MPI-related flags)
-      MPIFLAGS=$casc_cv_mpi_flags
-      AC_MSG_RESULT("\(cached\) $MPIFLAGS")
-   else
-   
+else dnl "$casc_user_chose_mpi" = "no"
 
-      dnl * Set up user options.  If user uses any of the fist three options,
-      dnl * then automatic tests are not run.
+  dnl * Find an MPICC.  If there is none, call CASC_SET_MPI to choose MPI
+  dnl * settings based on architecture name.  If CASC_SET_MPI fails,
+  dnl * print warning message.  Manual MPI settings must be used.
 
-      casc_user_chose_mpi=no
+  if test -z "$MPICC"; then
 
-      MPI_OPTIONS
+    AC_MSG_WARN([no acceptable mpicc found in $PATH])
+    CASC_SET_MPI
+    if test -z "$MPILIBS"; then
+      AC_MSG_WARN([MPI not found - must set manually using --with flags])
+    else
+      MPICC=$CC
+    fi
 
-      if test "$casc_user_chose_mpi" = "no"; then
+  else      
 
-      dnl * Find an MPICC.  If there is none, call CASC_SET_MPI to choose MPI
-      dnl * settings based on architecture name.  If CASC_SET_MPI fails,
-      dnl * print warning message.  Manual MPI settings must be used.
-
-         AC_ARG_WITH(MPICC,
-           AC_HELP_STRING([--with-MPICC=ARG],
-                          [ARG is mpicc or similar MPI C compiling tool]),
-            MPICC=$withval,
-            [AC_CHECK_PROGS(MPICC, mpcc mpicc tmcc hcc)])
-
-         if test -z "$MPICC"; then
-            AC_MSG_WARN([no acceptable mpicc found in \$PATH])
-            CASC_SET_MPI
-            if test -z "$MPILIBS"; then
-             AC_MSG_WARN([MPI not found - must set manually using --with flags])
-            fi
-
-         dnl * When $MPICC is there, run the automatic test
-         dnl * here begins the hairy stuff
-
-         else      
- 
-            dnl changequote(, )dnl
+    dnl * When $MPICC is there, run the automatic test here begins the hairy stuff
   
-            dnl * Create a minimal MPI program.  It will be compiled using
-            dnl * $MPICC with verbose output.
-            cat > mpconftest.c << EOF
-#include "mpi.h"
+    dnl * Create a minimal MPI program.  It will be compiled using
+    dnl * $MPICC with verbose output.
 
-main(int argc, char **argv)
-{
-   int rank, size;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-   return 0;
-}
+    cat > mpconftest.c << EOF
+
+    #include "mpi.h"
+    main(int argc, char **argv) {
+      int rank, size;
+      MPI_Init(&argc, &argv);
+      MPI_Comm_size(MPI_COMM_WORLD, &size);
+      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+      MPI_Finalize();
+      return 0;
+    }
 EOF
 
-            casc_mplibs=
-            casc_mplibdirs=
-            casc_flags=
-            casc_lmpi_exists=no
+    casc_mplibs=
+    casc_mplibdirs=
+    casc_flags=
+    casc_lmpi_exists=no
 
-            dnl * These are various ways to produce verbose output from $MPICC
-            dnl * All of their outputs are stuffed into variable
-            dnl * $casc_mpoutput
+    dnl * These are various ways to produce verbose output from $MPICC
+    dnl * All of their outputs are stuffed into variable
+    dnl * $casc_mpoutput
 
-            for casc_command in "$MPICC -show"\
-                                "$MPICC -v"\
-                                "$MPICC -#"\
-                                "$MPICC"; do
-
-               casc_this_output=`$casc_command mpconftest.c -o mpconftest 2>&1`
-
-               dnl * If $MPICC uses xlc, then commas must be removed from output
-               xlc_p=`echo $casc_this_output | grep xlcentry`
-               if test -n "$xlc_p"; then
-                  casc_this_output=`echo $casc_this_output | sed 's/,/ /g'`
-               fi
-
-               dnl * Turn on flag once -lmpi is found in output
-               lmpi_p=`echo $casc_this_output | grep "\-lmpi"`
-               if test -n "$lmpi_p"; then
-                  casc_lmpi_exists=yes
-               fi
-
-               casc_mpoutput="$casc_mpoutput $casc_this_output"
-               casc_this_output=
-
-            done
-
-            rm -rf mpconftest*
-
-            dnl * little test to identify $CC as IBM's xlc
-            echo "main() {}" > cc_conftest.c
-            cc_output=`${CC-cc} -v -o cc_conftest cc_conftest.c 2>&1`
-            xlc_p=`echo $cc_output | grep xlcentry`
-            if test -n "$xlc_p"; then
-               casc_compiler_is_xlc=yes
-            fi 
-            rm -rf cc_conftest*
-
-            dnl * $MPICC might not produce '-lmpi', but we still need it.
-            dnl * Add -lmpi to $casc_mplibs if it was never found
-            if test "$casc_lmpi_exists" = "no"; then
-               casc_mplibs="-lmpi"
-            else
-               casc_mplibs=
-            fi
-
-            casc_want_arg=
-
-            dnl * Loop through every word in output to find possible flags.
-            dnl * If the word is the absolute path of a library, it is added
-            dnl * to $casc_flags.  Any "-llib", "-L/dir", "-R/dir" and
-            dnl * "-I/dir" is kept.  If '-l', '-L', '-R', '-I', '-u', or '-Y'
-            dnl * appears alone, then the next word is checked.  If the next
-            dnl * word is another flag beginning with '-', then the first
-            dnl * word is discarded.  If the next word is anything else, then
-            dnl * the two words are coupled in the $casc_arg variable.
-            dnl * "-binitfini:poe_remote_main" is a flag needed especially
-            dnl * for IBM MPI, and it is always kept if it is found.
-            dnl * Any other word is discarded.  Also, after a word is found
-            dnl * and kept once, it is discarded if it appears again
-
-            for casc_arg in $casc_mpoutput; do
+    for casc_command in "$MPICC -show"\
+                        "$MPICC -v"\
+                        "$MPICC -#"\
+                        "$MPICC"; do
  
-               casc_old_want_arg=$casc_want_arg
-               casc_want_arg=  
+       casc_this_output=`$casc_command mpconftest.c -o mpconftest 2>&1`
 
-               if test -n "$casc_old_want_arg"; then
-                  case "$casc_arg" in
-                  [-*)]
-                     casc_old_want_arg=
-                  ;;
-                  esac
-               fi
-
-               case "$casc_old_want_arg" in
-               ['')]
-                  case $casc_arg in
-                  [/*.a)]
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  [-binitfini:poe_remote_main)]
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  [-lang*)]
-                     casc_arg=
-                  ;;
-                  [-[lLR])]
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  [-[lLR]*)]
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                       casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                 [-u)]
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  [-Y)]
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  [-I)]
-                     casc_want_arg=$casc_arg
-                     casc_arg=
-                  ;;
-                  [-I*)]
-                     exists=false
-                     for f in $casc_flags; do
-                        if test x$casc_arg = x$f; then
-                           exists=true
-                        fi
-                     done
-                     if $exists; then
-                        casc_arg=
-                     else
-                        casc_flags="$casc_flags $casc_arg"
-                     fi
-                  ;;
-                  [*)]
-                     casc_arg=
-                  ;;
-                  esac
-
-               ;;
-               [-[lLRI])]
-                  casc_arg="casc_old_want_arg $casc_arg"
-               ;;
-               [-u)]
-                  casc_arg="-u $casc_arg"
-               ;;
-               [-Y)]
-                  casc_arg=`echo $casc_arg | sed -e 's%^P,%%'`
-                  SAVE_IFS=$IFS
-                  IFS=:
-                  casc_list=
-                  for casc_elt in $casc_arg; do
-                     casc_list="$casc_list -L$casc_elt"
-                  done
-                  IFS=$SAVE_IFS
-                  casc_arg="$casc_list"
-               ;;
-               esac
-
-               dnl * Still inside the big for loop, we separate each flag
-               dnl * into includes, libdirs, libs, flags
-               if test -n "$casc_arg"; then
-                  case $casc_arg in
-                  [-I*)]
-
-                     dnl * if the directory given in this flag contains mpi.h
-                     dnl * then the flag is assigned to $MPIINCLUDE
-                     if test -z "$MPIINCLUDE"; then
-                        casc_cppflags="$casc_cppflags $casc_arg"
-                        casc_include_dir=`echo "$casc_arg" | sed 's/-I//g'` 
-
-                        SAVE_CPPFLAGS="$CPPFLAGS"
-                        CPPFLAGS="$casc_cppflags"
-                        dnl changequote([, ])dnl
-
-                        unset ac_cv_header_mpi_h
-                        AC_CHECK_HEADER(mpi.h,
-                                        MPIINCLUDE="$casc_cppflags")
-
-                        dnl changequote(, )dnl
-                        CPPFLAGS="$SAVE_CPPFLAGS"
-
-                     else
-                        casc_arg=
-                     fi
-                  ;;
-                  [-[LR]*)]
-
-                     dnl * These are the lib directory flags
-                     casc_mplibdirs="$casc_mplibdirs $casc_arg"
-                  ;;
-                  [-l* | /*)]
-
-                     dnl * These are the libraries
-                     casc_mplibs="$casc_mplibs $casc_arg"
-                  ;;
-                  [-binitfini:poe_remote_main)]
-                     if test "$casc_compiler_is_xlc" = "yes"; then
-                        casc_mpflags="$casc_mpflags $casc_arg"
-                     fi
-                  ;;
-                  [*)]
-                     dnl * any other flag that has been kept goes here
-                     casc_mpflags="$casc_mpflags $casc_arg"
-                  ;;
-                  esac
-
-                  dnl * Upcoming test needs $LIBS to contain the flags 
-                  dnl * we've found
-                  LIBS_SAVE=$LIBS
-                  LIBS="$MPIINCLUDE $casc_mpflags $casc_mplibdirs $casc_mplibs"
-
-                  if test -n "`echo $LIBS | grep '\-R/'`"; then
-                     LIBS=`echo $LIBS | sed 's/-R\//-R \//'`
-                  fi
-
-                  dnl changequote([, ])dnl
-
-
-                  dnl * Test to see if flags found up to this point are
-                  dnl * sufficient to compile and link test program.  If not,
-                  dnl * the loop keeps going to the next word
-                  AC_LANG_PUSH(C)
-                  AC_TRY_LINK(
-dnl                     ifelse(AC_LANG, [C++],
-
-dnl [#ifdef __cplusplus
-dnl extern "C"
-dnl #endif
-dnl ])dnl
-[#include "mpi.h"
-], [int rank, size;
-   int argc;
-   char **argv;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-],
-                     casc_result=yes)
-                  AC_LANG_POP(C)
-                  LIBS=$LIBS_SAVE
-
-                  if test "$casc_result" = yes; then
-                     casc_result=
-                     break
-                  fi
-               fi
-            done
-
-            dnl * After loop is done, set variables to be substituted
-            MPILIBS=$casc_mplibs
-            MPILIBDIRS=$casc_mplibdirs
-            MPIFLAGS="$MPIFLAGS $casc_mpflags"
-
-            dnl * IBM MPI uses /usr/lpp/ppe.poe/libc.a instead of /lib/libc.a
-            dnl * so we need to make sure that -L/lib is not part of the 
-            dnl * linking line when we use IBM MPI.  This only appears in
-            dnl * configure when CASC_FIND_MPI is called first.
-	    dnl            ifdef([AC_PROVIDE_CASC_FIND_F77LIBS], 
-            dnl               if test -n "`echo $F77LIBFLAGS | grep '\-L/lib '`"; then
-            dnl                  if test -n "`echo $F77LIBFLAGS | grep xlf`"; then
-            dnl                     F77LIBFLAGS=`echo $F77LIBFLAGS | sed 's/-L\/lib //g'`
-            dnl                  fi
-            dnl               fi
-            dnl            )
-
-            if test -n "`echo $MPILIBS | grep pmpich`" &&
-               test -z "`echo $MPILIBS | grep pthread`"; then
-                  LIBS_SAVE=$LIBS
-                  LIBS="$MPIINCLUDE $MPIFLAGS $MPILIBDIRS $MPILIBS -lpthread"
-                  AC_LANG_PUSH(C)
-                  AC_TRY_LINK(
-dnl                     ifelse(AC_LANG, [C++],
-
-dnl [#ifdef __cplusplus
-dnl extern "C"
-dnl #endif
-dnl ])dnl
-[#include "mpi.h"
-], [int rank, size;
-   int argc;
-   char **argv;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &size);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Finalize();
-],
-                     MPILIBS="$MPILIBS -lpthread")
-                  AC_LANG_POP(C)
-                  LIBS=$LIBS_SAVE
-            fi
-
-            AC_MSG_CHECKING(for MPI include directories)
-            AC_MSG_RESULT($MPIINCLUDE)
-            AC_MSG_CHECKING(for MPI library directories)
-            AC_MSG_RESULT($MPILIBDIRS)
-            AC_MSG_CHECKING(for MPI libraries)
-            AC_MSG_RESULT($MPILIBS)
-            AC_MSG_CHECKING(for other MPI-related flags)
-            AC_MSG_RESULT($MPIFLAGS)
-         fi
+      dnl * If $MPICC uses xlc, then commas must be removed from output
+      xlc_p=`echo $casc_this_output | grep xlcentry`
+      if test -n "$xlc_p"; then
+        casc_this_output=`echo $casc_this_output | sed 's/,/ /g'`
       fi
 
-      AC_CACHE_VAL(casc_cv_mpi_include, casc_cv_mpi_include=$MPIINCLUDE)
-      AC_CACHE_VAL(casc_cv_mpi_lib_dirs, casc_cv_mpi_lib_dirs=$MPILIBDIRS)
-      AC_CACHE_VAL(casc_cv_mpi_libs, casc_cv_mpi_libs=$MPILIBS)
-      AC_CACHE_VAL(casc_cv_mpi_flags, casc_cv_mpi_flags=$MPIFLAGS)
-   fi
+      dnl * Turn on flag once -lmpi is found in output
+      lmpi_p=`echo $casc_this_output | grep "\-lmpi"`
+      if test -n "$lmpi_p"; then
+        casc_lmpi_exists=yes
+      fi
 
-dnl Find MPIF77
-   AC_ARG_WITH(MPIF77,
-       AC_HELP_STRING([--with-MPIF77=ARG], [manually set MPIF77 to ARG]),
-       [AC_MSG_RESULT([setting MPIF77 to $withval]); MPIF77=$withval],
-       [SUNDIALS_PROG_MPIF77])
+      casc_mpoutput="$casc_mpoutput $casc_this_output"
+      casc_this_output=
+
+    done
+
+    rm -f mpconftest mpconftest.o mpconftest.c
+
+    dnl * little test to identify $CC as IBM's xlc
+
+    echo "main() {}" > cc_conftest.c
+    cc_output=`${CC-cc} -v -o cc_conftest cc_conftest.c 2>&1`
+    xlc_p=`echo $cc_output | grep xlcentry`
+    if test -n "$xlc_p"; then
+    casc_compiler_is_xlc=yes
+    fi 
+    rm -f cc_conftest cc_conftest.c cc_conftest.o
+
+    dnl * $MPICC might not produce '-lmpi', but we still need it.
+    dnl * Add -lmpi to $casc_mplibs if it was never found
+
+    if test "$casc_lmpi_exists" = "no"; then
+      casc_mplibs="-lmpi"
+    else
+      casc_mplibs=
+    fi
+
+    casc_want_arg=
+
+    dnl * Loop through every word in output to find possible flags.
+    dnl * If the word is the absolute path of a library, it is added
+    dnl * to $casc_flags.  Any "-llib", "-L/dir", "-R/dir" and
+    dnl * "-I/dir" is kept.  If '-l', '-L', '-R', '-I', '-u', or '-Y'
+    dnl * appears alone, then the next word is checked.  If the next
+    dnl * word is another flag beginning with '-', then the first
+    dnl * word is discarded.  If the next word is anything else, then
+    dnl * the two words are coupled in the $casc_arg variable.
+    dnl * "-binitfini:poe_remote_main" is a flag needed especially
+    dnl * for IBM MPI, and it is always kept if it is found.
+    dnl * Any other word is discarded.  Also, after a word is found
+    dnl * and kept once, it is discarded if it appears again
 
 
-   AC_SUBST(MPIINCLUDE)
-   AC_SUBST(MPILIBDIRS)
-   AC_SUBST(MPILIBS)
-   AC_SUBST(MPIFLAGS)
+    for casc_arg in $casc_mpoutput; do
+
+      casc_old_want_arg=$casc_want_arg
+      casc_want_arg=  
+
+      if test -n "$casc_old_want_arg"; then
+        case "$casc_arg" in
+          [-*)]
+            casc_old_want_arg=
+          ;;
+        esac
+      fi
+
+      case "$casc_old_want_arg" in
+
+        ['')]
+          case $casc_arg in
+            [/*.a)]
+              exists=false
+              for f in $casc_flags; do
+                if test x$casc_arg = x$f; then
+                  exists=true
+                fi
+              done
+              if $exists; then
+                casc_arg=
+              else
+                casc_flags="$casc_flags $casc_arg"
+              fi
+            ;;
+            [-binitfini:poe_remote_main)]
+              exists=false
+              for f in $casc_flags; do
+                if test x$casc_arg = x$f; then
+                  exists=true
+                fi
+              done
+              if $exists; then
+                casc_arg=
+              else
+                casc_flags="$casc_flags $casc_arg"
+              fi
+            ;;
+            [-lang*)]
+              casc_arg=
+            ;;
+            [-[lLR])]
+              casc_want_arg=$casc_arg
+              casc_arg=
+            ;;
+            [-[lLR]*)]
+              exists=false
+              for f in $casc_flags; do
+                if test x$casc_arg = x$f; then
+                  exists=true
+                fi
+              done
+              if $exists; then
+                casc_arg=
+              else
+                casc_flags="$casc_flags $casc_arg"
+              fi
+            ;;
+            [-u)]
+              casc_want_arg=$casc_arg
+              casc_arg=
+            ;;
+            [-Y)]
+              casc_want_arg=$casc_arg
+              casc_arg=
+            ;;
+            [-I)]
+              casc_want_arg=$casc_arg
+              casc_arg=
+            ;;
+            [-I*)]
+              exists=false
+              for f in $casc_flags; do
+                if test x$casc_arg = x$f; then
+                  exists=true
+                fi
+              done
+              if $exists; then
+                casc_arg=
+              else
+                casc_flags="$casc_flags $casc_arg"
+              fi
+            ;;
+            [*)]
+              casc_arg=
+            ;;
+          
+          esac
+        ;;
+
+        [-[lLRI])]
+          casc_arg="casc_old_want_arg $casc_arg"
+        ;;
+
+        [-u)]
+          casc_arg="-u $casc_arg"
+        ;;
+
+        [-Y)]
+          casc_arg=`echo $casc_arg | sed -e 's%^P,%%'`
+          SAVE_IFS=$IFS
+          IFS=:
+          casc_list=
+          for casc_elt in $casc_arg; do
+            casc_list="$casc_list -L$casc_elt"
+          done
+          IFS=$SAVE_IFS
+          casc_arg="$casc_list"
+        ;;
+
+      esac
+
+      dnl * Still inside the big for loop, we separate each flag
+      dnl * into includes, libdirs, libs, flags
+      if test -n "$casc_arg"; then
+
+        case $casc_arg in
+
+          [-I*)]
+            dnl * if the directory given in this flag contains mpi.h
+            dnl * then the flag is assigned to $MPIINCLUDE
+            if test -z "$MPIINCLUDE"; then
+              casc_cppflags="$casc_cppflags $casc_arg"
+              casc_include_dir=`echo "$casc_arg" | sed 's/-I//g'` 
+
+              SAVE_CPPFLAGS="$CPPFLAGS"
+              CPPFLAGS="$casc_cppflags"
+
+              unset ac_cv_header_mpi_h
+              AC_CHECK_HEADER(mpi.h, MPIINCLUDE="$casc_cppflags")
+
+              CPPFLAGS="$SAVE_CPPFLAGS"
+
+            else
+              casc_arg=
+            fi
+          ;;
+  
+          [-[LR]*)]
+
+            dnl * These are the lib directory flags
+            casc_mplibdirs="$casc_mplibdirs $casc_arg"
+          ;;
+
+          [-l* | /*)]
+
+            dnl * These are the libraries
+            casc_mplibs="$casc_mplibs $casc_arg"
+          ;;
+   
+          [-binitfini:poe_remote_main)]
+            if test "$casc_compiler_is_xlc" = "yes"; then
+              casc_mpflags="$casc_mpflags $casc_arg"
+            fi
+          ;;
+
+          [*)]
+            dnl * any other flag that has been kept goes here
+            casc_mpflags="$casc_mpflags $casc_arg"
+          ;;
+
+        esac
+
+        dnl * Upcoming test needs $LIBS to contain the flags 
+        dnl * we've found
+        LIBS_SAVE=$LIBS
+        LIBS="$MPIINCLUDE $casc_mpflags $casc_mplibdirs $casc_mplibs"
+
+        if test -n "`echo $LIBS | grep '\-R/'`"; then
+          LIBS=`echo $LIBS | sed 's/-R\//-R \//'`
+        fi
+
+        dnl * Test to see if flags found up to this point are
+        dnl * sufficient to compile and link test program.  If not,
+        dnl * the loop keeps going to the next word
+
+        AC_LANG_PUSH(C)
+        AC_TRY_LINK([#include "mpi.h"], 
+                    [int rank, size;
+                     int argc;
+                     char **argv;
+                     MPI_Init(&argc, &argv);
+                     MPI_Comm_size(MPI_COMM_WORLD, &size);
+                     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+                     MPI_Finalize();
+                    ],casc_result=yes)
+        AC_LANG_POP(C)
+        LIBS=$LIBS_SAVE
+
+        if test "$casc_result" = yes; then
+          casc_result=
+          break
+        fi
+
+      fi
+
+    done
+
+    dnl * After loop is done, set variables to be substituted
+    MPILIBS=$casc_mplibs
+    MPILIBDIRS=$casc_mplibdirs
+    MPIFLAGS="$MPIFLAGS $casc_mpflags"
+
+    dnl * IBM MPI uses /usr/lpp/ppe.poe/libc.a instead of /lib/libc.a
+    dnl * so we need to make sure that -L/lib is not part of the 
+    dnl * linking line when we use IBM MPI.  This only appears in
+    dnl * configure when CASC_FIND_MPI is called first.
+    dnl            ifdef([AC_PROVIDE_CASC_FIND_F77LIBS], 
+    dnl               if test -n "`echo $F77LIBFLAGS | grep '\-L/lib '`"; then
+    dnl                  if test -n "`echo $F77LIBFLAGS | grep xlf`"; then
+    dnl                     F77LIBFLAGS=`echo $F77LIBFLAGS | sed 's/-L\/lib //g'`
+    dnl                  fi
+    dnl               fi
+    dnl            )
+
+    if test -n "`echo $MPILIBS | grep pmpich`" &&
+       test -z "`echo $MPILIBS | grep pthread`"; then
+      LIBS_SAVE=$LIBS
+      LIBS="$MPIINCLUDE $MPIFLAGS $MPILIBDIRS $MPILIBS -lpthread"
+      AC_LANG_PUSH(C)
+      AC_TRY_LINK([#include "mpi.h"], 
+                  [int rank, size;
+                   int argc;
+                   char **argv;
+                   MPI_Init(&argc, &argv);
+                   MPI_Comm_size(MPI_COMM_WORLD, &size);
+                   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+                   MPI_Finalize();],
+                  MPILIBS="$MPILIBS -lpthread")
+      AC_LANG_POP(C)
+      LIBS=$LIBS_SAVE
+    fi
+
+    AC_MSG_CHECKING(for MPI include directories)
+    AC_MSG_RESULT($MPIINCLUDE)
+    AC_MSG_CHECKING(for MPI library directories)
+    AC_MSG_RESULT($MPILIBDIRS)
+    AC_MSG_CHECKING(for MPI libraries)
+    AC_MSG_RESULT($MPILIBS)
+    AC_MSG_CHECKING(for other MPI-related flags)
+    AC_MSG_RESULT($MPIFLAGS)
+
+  fi
+
+fi  dnl if test "$casc_user_chose_mpi" = "no";
 
 ])dnl
 
