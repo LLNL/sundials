@@ -8,8 +8,8 @@ Total system size = 384
 Flag globalstrategy = 1 (1 = Inex. Newton, 2 = Linesearch)
 Linear solver is SPGMR with maxl = 15, maxlrst = 2
 Preconditioning uses interaction-only block-diagonal matrix
-Tolerance parameters:  fnormtol = 1e-07   scsteptol = 1e-13
 Positivity constraints imposed on all components 
+Tolerance parameters:  fnormtol = 1e-07   scsteptol = 1e-13
 
 Initial profile of concentration
 At all mesh points:  1 1 1   30000 30000 30000
