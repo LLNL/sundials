@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2004-11-03 23:27:21 $
+# $Revision: 1.12 $
+# $Date: 2004-11-23 21:24:31 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR = $(srcdir)/../../shared/include
 CVODES_INC_DIR = $(srcdir)/../include
 
 CVODES_LIB       = libsundials_cvodes.la
-CVODES_LIB_FILES = cvodes.lo cvodea.lo cvband.lo cvdense.lo cvdiag.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo
+CVODES_LIB_FILES = cvodes.lo cvodesio.lo cvodea.lo cvband.lo cvdense.lo cvdiag.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo
 
-OBJECT_FILES = cvodes.o cvodea.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o
+OBJECT_FILES = cvodes.o cvodesio.o cvodea.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o
 
 all: update $(CVODES_LIB_FILES)
 
@@ -84,6 +84,8 @@ uninstall: clean
 
 cvodes.lo: $(srcdir)/cvodes.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes.c
+cvodesio.lo: $(srcdir)/cvodesio.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodesio.c
 cvodea.lo: $(srcdir)/cvodea.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodea.c
 cvdense.lo: $(srcdir)/cvdense.c

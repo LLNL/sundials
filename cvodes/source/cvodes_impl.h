@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-11-15 19:01:31 $
+ * $Revision: 1.9 $
+ * $Date: 2004-11-23 21:24:32 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -32,6 +32,20 @@ extern "C" {
 #define _SUNDIALS_CONFIG_H
 #include <sundials_config.h>
 #endif
+
+/* Prototypes for internal sensitivity rhs DQ functions */
+
+void CVSensRhsDQ(int Ns, realtype t, 
+                 N_Vector y, N_Vector ydot, 
+                 N_Vector *yS, N_Vector *ySdot, 
+                 void *fS_data,  
+                 N_Vector tempv, N_Vector ftemp);
+
+void CVSensRhs1DQ(int Ns, realtype t, 
+                  N_Vector y, N_Vector ydot, 
+                  int is, N_Vector yS, N_Vector ySdot, 
+                  void *fS_data,
+                  N_Vector tempv, N_Vector ftemp);
 
 /* 
  * =================================================================
@@ -715,19 +729,19 @@ typedef struct CVodeMemRec {
 
 /* CVodeGet* Error Messages */
 
-#define MSGCVS_CVGET_NO_MEM "cvode_mem = NULL in a CVodeGet routine illegal. \n\n"
+#define MSGCVS_GET_NO_MEM    "cvode_mem = NULL in a CVodeGet routine illegal. \n\n"
 
-#define MSGCVS_CVGET_NO_SLDET1 "CVodeGetNumStabLimOrderReds-- Illegal attempt "
-#define MSGCVS_CVGET_NO_SLDET2 "to call without enabling SLDET.\n\n"
-#define MSGCVS_CVGET_NO_SLDET  MSGCVS_CVGET_NO_SLDET1 MSGCVS_CVGET_NO_SLDET2
+#define MSGCVS_GET_NO_SLDET1 "CVodeGetNumStabLimOrderReds-- Illegal attempt "
+#define MSGCVS_GET_NO_SLDET2 "to call without enabling SLDET.\n\n"
+#define MSGCVS_GET_NO_SLDET  MSGCVS_GET_NO_SLDET1 MSGCVS_GET_NO_SLDET2
 
-#define MSGCVS_CVGET_NO_QUAD1 "CVodeGetQuad*-- Illegal attempt to call before "
-#define MSGCVS_CVGET_NO_QUAD2 "calling CVodeQuadMalloc.\n\n"
-#define MSGCVS_CVGET_NO_QUAD  MSGCVS_CVGET_NO_QUAD1 MSGCVS_CVGET_NO_QUAD2
+#define MSGCVS_GET_NO_QUAD1  "CVodeGetQuad*-- Illegal attempt to call before "
+#define MSGCVS_GET_NO_QUAD2  "calling CVodeQuadMalloc.\n\n"
+#define MSGCVS_GET_NO_QUAD   MSGCVS_GET_NO_QUAD1 MSGCVS_GET_NO_QUAD2
 
-#define MSGCVS_CVGET_NO_SENSI1 "CVodeGetSens*-- Illegal attempt to call before "
-#define MSGCVS_CVGET_NO_SENSI2 "calling CVodeSensMalloc.\n\n"
-#define MSGCVS_CVGET_NO_SENSI  MSGCVS_CVGET_NO_SENSI1 MSGCVS_CVGET_NO_SENSI2
+#define MSGCVS_GET_NO_SENSI1 "CVodeGetSens*-- Illegal attempt to call before "
+#define MSGCVS_GET_NO_SENSI2 "calling CVodeSensMalloc.\n\n"
+#define MSGCVS_GET_NO_SENSI  MSGCVS_GET_NO_SENSI1 MSGCVS_GET_NO_SENSI2
 
 #endif
 
