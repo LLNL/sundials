@@ -1,6 +1,6 @@
                     Addenda to CVODE User Guide
                          Alan C. Hindmarsh
-                            1 March 2002 
+                            6 March 2002 
 
 
 Since the initial release of CVODE in 1994, a number of modifications
@@ -127,10 +127,22 @@ problems is solved.  Following a call to CVReInit for a new problem,
 if there are no changes in the linear solver parameters, then no call
 to the linear solver specification routine is needed.  If there are
 changes in linear solver parameters, but these do not increase the
-linear solver memory, then the linear solver reinitialization routine --
-CVReInitDense, CVReInitBand, or CVReInitSpgmr -- should be called to
-communicate the new parameters.  These routines reset the link to the
-linear solver but do no memory allocations.  However, if the parameter
-changes require an increase in linear solver memory, then the main
-linear solver specification routine must be called (and linear solver
-memory will be freed and reallocated).
+linear solver memory, then the linear solver reinitialization routine
+-- CVReInitDense, CVReInitBand, or CVReInitSpgmr -- should be called
+to communicate the new parameters.  These routines reset the link to
+the linear solver but do no memory allocations.  However, if the
+parameter changes require an increase in linear solver memory, then
+the main linear solver specification routine must be called (and
+linear solver memory will be freed and reallocated).  For details, see
+the appropriate linear solver header file.  The use of CVReInit and
+these linear solver reinitialization routines is illustrated in the
+demo programs cvdemd.c and cvdemk.c.
+
+19. In the CVBANDPRE module, a new routine has been added to
+reinitialize this preconditioner module while allowing its existing
+memory to be reused, when a sequence of problems is being solved.
+Following a call to CVReInit for a new problem, if the preconditioner
+memory size is unchanged, then the reinitialization routine
+CVReInitBandPre should be called, followed (possibly) by a call to
+CVSpgmr or CVReInitSpgmr.  For details, see the file cvbandpre.h.
+The example cvkxb illustrates the use of CVReInit and CVReInitSpgmr.
