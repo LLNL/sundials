@@ -1,17 +1,13 @@
+Example program kindiagpf
+ This fkinsol example code solves a 128 eqn diagonal algebraic system.
+ Its purpose is to demonstrate the use of the Fortran interface
+ in a parallel environment.
+ globalstrategy = INEXACT_NEWTON
 
 
-kindiagpf demo case. This kinsol example code does a
-128 eqn diagonal algebraic system. Its purpose is to 
-demonstrate the use of the Fortran interface in a
-parallel environment.
+ fkinsol return code is     1
 
-
-globalstrategy = INEXACT_NEWTON
-
-
-  return code is     1
  The resultant values of uu (processor 0) are:
-
 
 
    1   1.000000   2.000000   3.000000   4.000000
@@ -22,4 +18,6 @@ globalstrategy = INEXACT_NEWTON
   21  21.000000  22.000000  23.000000  24.000000
   25  25.000000  26.000000  27.000000  28.000000
   29  29.000000  30.000000  31.000000  32.000000
- nni=   7 nli=  21 nfe=  36 npe=   2 nps=  28 ncfl=   0
+
+
+ nni=   7,  nli=  21,  nfe=  36,  npe=   2,  nps=  28,  ncfl=   0
