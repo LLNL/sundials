@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2004-10-08 15:21:59 $
+ * $Revision: 1.6 $
+ * $Date: 2004-10-11 15:51:48 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -378,8 +378,6 @@ int CVSpgmrGetLastFlag(void *cvode_mem, int *flag);
 #define CVSPGMR_LMEM_NULL  -2 
 #define CVSPGMR_ILL_INPUT  -3
 #define CVSPGMR_MEM_FAIL   -4
-
-#define CVSPGMR_DATA_NULL  -10
 
 #endif
 
