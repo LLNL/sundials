@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2004-10-21 21:11:45 $
+# $Revision: 1.5 $
+# $Date: 2004-10-28 00:36:23 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -24,7 +24,7 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-LIBTOOL = @LIBTOOL@
+@LIBTOOL_CMD@
 
 CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -33,31 +33,34 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+COMPILER_PREFIX = @COMPILER_PREFIX@
+LINKER_PREFIX   = @LINKER_PREFIX@
+
 SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_ida -lsundials_nvecserial -lsundials_shared
 
-OBJECT_FILES = irobx.o iheatsb.o iheatsk.o iwebsb.o
 EXEC_FILES   = irobx iheatsb iheatsk iwebsb
 
 all: $(EXEC_FILES)
 
 irobx: $(srcdir)/irobx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/irobx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/irobx $(builddir)/irobx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/irobx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/irobx $(builddir)/irobx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 iheatsb: $(srcdir)/iheatsb.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsb.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/iheatsb $(builddir)/iheatsb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsb.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatsb $(builddir)/iheatsb.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 iheatsk: $(srcdir)/iheatsk.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsk.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/iheatsk $(builddir)/iheatsk.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsk.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatsk $(builddir)/iheatsk.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 iwebsb: $(srcdir)/iwebsb.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iwebsb.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/iwebsb $(builddir)/iwebsb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iwebsb.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/iwebsb $(builddir)/iwebsb.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
-	@for i in ${EXEC_FILES} ; do             \
-	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
-	   rm -f $${i}.lo ;                      \
-	 done
-	rm -f $(OBJECT_FILES)
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+
+uninstall: clean
+	rm -f $(EXEC_FILES)

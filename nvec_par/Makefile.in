@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-10-26 18:02:11 $
+# $Revision: 1.10 $
+# $Date: 2004-10-28 00:35:24 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -56,7 +56,7 @@ update:
 	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
 	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
-install: $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
+install: update $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) -o $(NVECTOR_PARALLEL_LIB) $(NVECTOR_PARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_PARALLEL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_PARALLEL_INC_DIR)/nvector_parallel.h $(includedir)
@@ -72,7 +72,7 @@ clean:
 	rm -f $(OBJECT_FILES)
 	rm -f sundials_config.h
 
-uninstall:
+uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECTOR_PARALLEL_LIB)
 	rm -f $(includedir)/nvector_parallel.h
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FNVECTOR_PARALLEL_LIB)

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2004-10-26 18:02:06 $
+# $Revision: 1.11 $
+# $Date: 2004-10-28 00:35:21 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -55,7 +55,7 @@ update:
 	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
 	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
-install: $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
+install: update $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECTOR_SERIAL_LIB) $(NVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_SERIAL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_SERIAL_INC_DIR)/nvector_serial.h $(includedir)
@@ -71,7 +71,7 @@ clean:
 	rm -f $(OBJECT_FILES)
 	rm -f sundials_config.h
 
-uninstall:
+uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECTOR_SERIAL_LIB)
 	rm -f $(includedir)/nvector_serial.h
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FNVECTOR_SERIAL_LIB)

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-10-26 18:01:26 $
+# $Revision: 1.10 $
+# $Date: 2004-10-28 00:35:35 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -54,7 +54,7 @@ update:
 	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
 	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
-install: $(FCVODE_LIB_FILES)
+install: update $(FCVODE_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FCVODE_LIB) $(FCVODE_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FCVODE_LIB) $(libdir)
 
@@ -64,7 +64,7 @@ clean:
 	rm -f $(OBJECT_FILES)
 	rm -f sundials_config.h
 
-uninstall:
+uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FCVODE_LIB)
 
 fcvode.lo: $(srcdir)/fcvode.c

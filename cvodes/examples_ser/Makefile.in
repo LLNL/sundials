@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2004-10-21 21:11:25 $
+# $Revision: 1.5 $
+# $Date: 2004-10-28 00:36:11 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -24,7 +24,7 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-LIBTOOL = @LIBTOOL@
+@LIBTOOL_CMD@
 
 CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -33,58 +33,61 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+COMPILER_PREFIX = @COMPILER_PREFIX@
+LINKER_PREFIX   = @LINKER_PREFIX@
+
 SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecserial -lsundials_shared
 
-OBJECT_FILES = cvdx.o cvbx.o cvkx.o cvkxb.o cvdemd.o cvdemk.o cvfnx.o cvfdx.o cvfkx.o cvadx.o cvabx.o cvakx.o cvakxb.o
 EXEC_FILES   = cvdx cvbx cvkx cvkxb cvdemd cvdemk cvfnx cvfdx cvfkx cvadx cvabx cvakx cvakxb
 
 all: $(EXEC_FILES)
 
 cvdx: $(srcdir)/cvdx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdx $(builddir)/cvdx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdx $(builddir)/cvdx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvbx: $(srcdir)/cvbx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvbx $(builddir)/cvbx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvbx $(builddir)/cvbx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvkx: $(srcdir)/cvkx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkx $(builddir)/cvkx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvkx $(builddir)/cvkx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvkxb: $(srcdir)/cvkxb.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkxb.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvkxb $(builddir)/cvkxb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkxb.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvkxb $(builddir)/cvkxb.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvdemd: $(srcdir)/cvdemd.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdemd.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdemd $(builddir)/cvdemd.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdemd.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdemd $(builddir)/cvdemd.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvdemk: $(srcdir)/cvdemk.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdemk.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvdemk $(builddir)/cvdemk.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdemk.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdemk $(builddir)/cvdemk.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvfnx: $(srcdir)/cvfnx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfnx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvfnx $(builddir)/cvfnx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfnx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvfnx $(builddir)/cvfnx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvfdx: $(srcdir)/cvfdx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfdx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvfdx $(builddir)/cvfdx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfdx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvfdx $(builddir)/cvfdx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvfkx: $(srcdir)/cvfkx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfkx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvfkx $(builddir)/cvfkx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfkx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvfkx $(builddir)/cvfkx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvadx: $(srcdir)/cvadx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvadx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvadx $(builddir)/cvadx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvadx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvadx $(builddir)/cvadx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvabx: $(srcdir)/cvabx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvabx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvabx $(builddir)/cvabx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvabx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvabx $(builddir)/cvabx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvakx: $(srcdir)/cvakx.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvakx.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvakx $(builddir)/cvakx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvakx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvakx $(builddir)/cvakx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvakxb: $(srcdir)/cvakxb.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvakxb.c
-	$(LIBTOOL) --mode=link $(CC) -o $(builddir)/cvakxb $(builddir)/cvakxb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvakxb.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvakxb $(builddir)/cvakxb.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
-	@for i in ${EXEC_FILES} ; do             \
-	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
-	   rm -f $${i}.lo ;                      \
-	 done
-	rm -f $(OBJECT_FILES)
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+
+uninstall: clean
+	rm -f $(EXEC_FILES)

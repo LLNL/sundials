@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2004-10-21 20:18:23 $
+# $Revision: 1.12 $
+# $Date: 2004-10-28 00:35:14 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -34,6 +34,10 @@ SUNDIALS_SET_MPICC
 SUNDIALS_SET_MPIF77
 SUNDIALS_SET_MPICXX
 
+# Run libtool checks
+AC_DISABLE_SHARED
+AC_PROG_LIBTOOL
+
 # Set modules to build
 SUNDIALS_ENABLE_MODULES
 SUNDIALS_ENABLE_DEV_MODULES
@@ -42,11 +46,9 @@ SUNDIALS_ENABLE_DEV_MODULES
 SUNDIALS_ENABLE_EXAMPLES
 SUNDIALS_ENABLE_DEV_EXAMPLES
 
-# Run libtool checks
-AC_DISABLE_SHARED
-AC_PROG_LIBTOOL
-
 # Substitute variables
+AC_SUBST(COMPILER_PREFIX)
+AC_SUBST(LINKER_PREFIX)
 AC_SUBST(MPICC)
 AC_SUBST(MPICXX)
 AC_SUBST(MPIF77)
@@ -57,6 +59,7 @@ AC_SUBST(MODULES)
 AC_SUBST(NVEC_MODULES)
 AC_SUBST(EXAMPLE_MODULES)
 AC_SUBST(F77_FLOAT_TYPE)
+AC_SUBST(LIBTOOL_CMD)
 AC_SUBST(LIBTOOL_DEPS)
 
 # Set installation path
@@ -65,7 +68,7 @@ SUNDIALS_INSTALL_PATH
 # Generate makefiles
 SUNDIALS_BUILD_MODULES_LIST
 AC_CONFIG_FILES([${SUNDIALS_MAKEFILES}])
-AC_OUTPUT()
+AC_OUTPUT
 
 # Display summary
 SUNDIALS_REPORT

@@ -477,7 +477,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CC_COMP CPP EGREP FGREP F77 FFLAGS ac_ct_F77 F77_COMP FLIBS CXX CXXFLAGS ac_ct_CXX CXX_COMP CXXCPP MPICC_COMP MPIF77_COMP MPICXX_COMP LN_S ECHO RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP LIBTOOL MPICC MPICXX MPIF77 MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MODULES NVEC_MODULES EXAMPLE_MODULES F77_FLOAT_TYPE LIBTOOL_DEPS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CC_COMP CPP EGREP FGREP F77 FFLAGS ac_ct_F77 F77_COMP FLIBS CXX CXXFLAGS ac_ct_CXX CXX_COMP CXXCPP MPICC_COMP MPIF77_COMP MPICXX_COMP LN_S ECHO RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP LIBTOOL COMPILER_PREFIX LINKER_PREFIX MPICC MPICXX MPIF77 MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MODULES NVEC_MODULES EXAMPLE_MODULES F77_FLOAT_TYPE LIBTOOL_CMD LIBTOOL_DEPS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1039,15 +1039,15 @@ Optional Features:
 
   --disable-kinsol        disable configuration of KINSOL
   --disable-cvode         disable configuration of CVODE
+  --enable-shared=PKGS  build shared libraries default=no
+  --enable-static=PKGS  build static libraries default=yes
+  --enable-fast-install=PKGS  optimize for fast installation default=yes
+  --disable-libtool-lock  avoid locking (might break parallel builds)
   --disable-cvodes        disable configuration of CVODES
   --disable-ida           disable configuration of IDA
 
   --disable-idas          disable configuration of IDAS
 
-  --enable-shared=PKGS  build shared libraries default=no
-  --enable-static=PKGS  build static libraries default=yes
-  --enable-fast-install=PKGS  optimize for fast installation default=yes
-  --disable-libtool-lock  avoid locking (might break parallel builds)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -7021,8 +7021,8 @@ if test "X${CXX_ENABLED}" = "Xyes"; then
   CXX_OK="yes"
 
   # CXX and CCC are common so check both
-  if "X${CXX}" = "X"; then
-    if "X${CCC}" = "X"; then
+  if test "X${CXX}" = "X"; then
+    if test "X${CCC}" = "X"; then
       USER_CXX=""
     else
       USER_CXX="${CCC}"
@@ -7695,7 +7695,35 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
     # Add default flag(s) to CXXFLAGS only if not already defined
     if test "X${CXXFLAGS_USER_OVERRIDE}" = "Xno"; then
-      SUNDIALS_DEFAULT_CXXFLAGS
+
+
+# Specify "-ffloat-store" flag if using g++ on an IA-32 system (recommended)
+case $host in
+
+  # IA-32 system running Linux
+  i*-pc-linux-*)
+
+    if test "X${GXX}" = "Xyes"; then
+      if test "X${CXXFLAGS}" = "X"; then
+        # If user wants extra precision (long double), then let program store
+        # floating-point values in registers
+        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+          CXXFLAGS="-ffloat-store"
+        fi
+      else
+        # If user wants extra precision (long double), then let program store
+        # floating-point values in registers
+        if test "X${FLOAT_TYPE}" = "Xsingle" || test "X${FLOAT_TYPE}" = "Xdouble"; then
+          CXXFLAGS="${CXXFLAGS} -ffloat-store"
+        fi
+      fi
+    fi
+
+  ;;
+
+esac
+
+
     fi
 
     if test "X${USER_CXXFLAGS}" = "X"; then
@@ -8936,265 +8964,6 @@ fi;
 
 
 
-# Set modules to build
-
-
-# Must have cvode directory in order to build CVODE
-CVODE_ENABLED="no"
-if test -d ${srcdir}/cvode ; then
-  CVODE_ENABLED="yes"
-fi
-
-# Check if user wants to skip CVODE
-# Check whether --enable-cvode or --disable-cvode was given.
-if test "${enable_cvode+set}" = set; then
-  enableval="$enable_cvode"
-
-if test "X${enableval}" = "Xno"; then
-  CVODE_ENABLED="no"
-fi
-
-fi;
-
-# Must have cvodes directory in order to build CVODES
-CVODES_ENABLED="no"
-if test -d ${srcdir}/cvodes ; then
-  CVODES_ENABLED="yes"
-fi
-
-# Check if user wants to skip CVODES
-# Check whether --enable-cvodes or --disable-cvodes was given.
-if test "${enable_cvodes+set}" = set; then
-  enableval="$enable_cvodes"
-
-if test "X${enableval}" = "Xno"; then
-  CVODES_ENABLED="no"
-fi
-
-fi;
-
-# Must have ida directory in order to build IDA
-IDA_ENABLED="no"
-if test -d ${srcdir}/ida  ; then
-  IDA_ENABLED="yes"
-fi
-
-# Check if user wants to skip IDA
-# Check whether --enable-ida or --disable-ida was given.
-if test "${enable_ida+set}" = set; then
-  enableval="$enable_ida"
-
-if test "X${enableval}" = "Xno"; then
-  IDA_ENABLED="no"
-fi
-
-fi;
-
-# Must have kinsol directory in order to build KINSOL
-KINSOL_ENABLED="no"
-if test -d ${srcdir}/kinsol ; then
-  KINSOL_ENABLED="yes"
-fi
-
-# Check if user wants to skip KINSOL
-# Check whether --enable-kinsol or --disable-kinsol was given.
-if test "${enable_kinsol+set}" = set; then
-  enableval="$enable_kinsol"
-
-if test "X${enableval}" = "Xno"; then
-  KINSOL_ENABLED="no"
-fi
-
-fi;
-
-IDAS_ENABLED="no"
-
-# Check whether --enable- or --disable- was given.
-if test "${enable_+set}" = set; then
-  enableval="$enable_"
-
-fi;
-
-
-
-
-# Must have idas directory in order to build IDAS
-IDAS_ENABLED="no"
-if test -d ${srcdir}/idas ; then
-  IDAS_ENABLED="yes"
-fi
-
-# Check if user wants to skip IDAS
-# Check whether --enable-idas or --disable-idas was given.
-if test "${enable_idas+set}" = set; then
-  enableval="$enable_idas"
-
-if test "X${enableval}" = "Xno"; then
-  IDAS_ENABLED="no"
-fi
-
-fi;
-
-# Check whether --enable- or --disable- was given.
-if test "${enable_+set}" = set; then
-  enableval="$enable_"
-
-fi;
-
-
-
-# Set examples modules
-
-
-# Examples are built by default, but user can override
-EXAMPLES_ENABLED="yes"
-# Check whether --enable-examples or --disable-examples was given.
-if test "${enable_examples+set}" = set; then
-  enableval="$enable_examples"
-
-if test "X${enableval}" = "Xno"; then
-  EXAMPLES_ENABLED="no"
-fi
-
-fi;
-
-# Check if we need to build the Fortran examples
-# Recall F77_ENABLED is set in SUNDIALS_SET_F77 based upon CVODE_ENABLED,
-# KINSOL_ENABLED and EXAMPLES_ENABLED, so the check here is rather simple
-F77_EXAMPLES="no";
-if test "X${F77_ENABLED}" = "Xyes"; then
-  F77_EXAMPLES="yes"
-fi
-
-# Check if we need to build the C++ examples
-CXX_EXAMPLES="no"
-if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes"; then
-  if test "X${CVODES_ENABLED}" = "Xyes" || test "X${IDAS_ENABLED}" = "Xyes"; then
-    CXX_EXAMPLES="yes"
-  fi
-fi
-
-# Check if examples can actually be built
-SERIAL_C_EXAMPLES="no"
-SERIAL_CXX_EXAMPLES="no"
-SERIAL_F77_EXAMPLES="no"
-
-PARALLEL_C_EXAMPLES="no"
-PARALLEL_CXX_EXAMPLES="no"
-PARALLEL_F77_EXAMPLES="no"
-
-# Check C examples
-if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
-
-  echo "$as_me:$LINENO: checking if we can build serial C examples" >&5
-echo $ECHO_N "checking if we can build serial C examples... $ECHO_C" >&6
-  if test "X${CC_OK}" = "Xyes"; then
-    SERIAL_C_EXAMPLES="yes"
-  fi
-  echo "$as_me:$LINENO: result: ${SERIAL_C_EXAMPLES}" >&5
-echo "${ECHO_T}${SERIAL_C_EXAMPLES}" >&6
-
-  if test "X${MPI_ENABLED}" = "Xyes"; then
-
-    echo "$as_me:$LINENO: checking if we can build parallel C examples" >&5
-echo $ECHO_N "checking if we can build parallel C examples... $ECHO_C" >&6
-    if test "X${MPI_C_COMP_OK}" = "Xyes"; then
-      PARALLEL_C_EXAMPLES="yes"
-    fi
-    echo "$as_me:$LINENO: result: ${PARALLEL_C_EXAMPLES}" >&5
-echo "${ECHO_T}${PARALLEL_C_EXAMPLES}" >&6
-
-  fi
-
-fi
-
-# Check Fortran examples
-if test "X${F77_EXAMPLES}" = "Xyes"; then
-
-  echo "$as_me:$LINENO: checking if we can build serial Fortran examples" >&5
-echo $ECHO_N "checking if we can build serial Fortran examples... $ECHO_C" >&6
-  if test "X${F77_OK}" = "Xyes"; then
-    SERIAL_F77_EXAMPLES="yes"
-  fi
-  echo "$as_me:$LINENO: result: ${SERIAL_F77_EXAMPLES}" >&5
-echo "${ECHO_T}${SERIAL_F77_EXAMPLES}" >&6
-
-  if test "X${MPI_ENABLED}" = "Xyes"; then
-
-    echo "$as_me:$LINENO: checking if we can build parallel Fortran examples" >&5
-echo $ECHO_N "checking if we can build parallel Fortran examples... $ECHO_C" >&6
-    if test "X${MPI_F77_COMP_OK}" = "Xyes"; then
-      PARALLEL_F77_EXAMPLES="yes"
-    fi
-    echo "$as_me:$LINENO: result: ${PARALLEL_F77_EXAMPLES}" >&5
-echo "${ECHO_T}${PARALLEL_F77_EXAMPLES}" >&6
-
-  fi
-
-fi
-
-# Check if the Fortran update script (config/fortran_update.in) should
-# be initialized
-BUILD_F77_UPDATE_SCRIPT="no"
-if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" || test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
-  BUILD_F77_UPDATE_SCRIPT="yes";
-fi
-
-# Check C++ examples
-if test "X${CXX_EXAMPLES}" = "Xyes"; then
-
-  echo "$as_me:$LINENO: checking if we can build serial C++ examples" >&5
-echo $ECHO_N "checking if we can build serial C++ examples... $ECHO_C" >&6
-  if test "X${CXX_OK}" = "Xyes"; then
-    SERIAL_CXX_EXAMPLES="yes"
-  fi
-  echo "$as_me:$LINENO: result: ${SERIAL_CXX_EXAMPLES}" >&5
-echo "${ECHO_T}${SERIAL_CXX_EXAMPLES}" >&6
-
-  if test "X${MPI_ENABLED}" = "Xyes"; then
-
-    echo "$as_me:$LINENO: checking if we can build parallel C++ examples" >&5
-echo $ECHO_N "checking if we can build parallel C++ examples... $ECHO_C" >&6
-    if test "X${MPI_CXX_COMP_OK}" = "Xyes"; then
-      PARALLEL_CXX_EXAMPLES="yes"
-    fi
-    echo "$as_me:$LINENO: result: ${PARALLEL_CXX_EXAMPLES}" >&5
-echo "${ECHO_T}${PARALLEL_CXX_EXAMPLES}" >&6
-
-  fi
-
-fi
-
-# Disable developer examples be default so output logic still works
-PARALLEL_DEV_C_EXAMPLES="no"
-
-RAN_ENABLE_DEV_EXAMPLES="no"
-
-
-
-
-RAN_ENABLE_DEV_EXAMPLES="yes"
-
-# Check if developer examples can actually be built
-PARALLEL_DEV_C_EXAMPLES="no"
-
-# Check C developer examples
-if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; then
-
-  if test "X${MPI_ENABLED}" = "Xyes"; then
-    echo "$as_me:$LINENO: checking if we can build parallel C developer examples" >&5
-echo $ECHO_N "checking if we can build parallel C developer examples... $ECHO_C" >&6
-    if test "X${MPI_C_COMP_OK}" = "Xyes"; then
-      PARALLEL_DEV_C_EXAMPLES="yes"
-    fi
-    echo "$as_me:$LINENO: result: ${PARALLEL_DEV_C_EXAMPLES}" >&5
-echo "${ECHO_T}${PARALLEL_DEV_C_EXAMPLES}" >&6
-  fi
-
-fi
-
-
-
 # Run libtool checks
 # Check whether --enable-shared or --disable-shared was given.
 if test "${enable_shared+set}" = set; then
@@ -10372,7 +10141,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 10375 "configure"' > conftest.$ac_ext
+  echo '#line 10144 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -10919,7 +10688,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:10922: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:10691: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -12115,7 +11884,7 @@ linux-gnu*)
   libsuff=
   case "$host_cpu" in
   x86_64*|s390x*)
-    echo '#line 12118 "configure"' > conftest.$ac_ext
+    echo '#line 11887 "configure"' > conftest.$ac_ext
     if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -12823,7 +12592,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12826 "configure"
+#line 12595 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12921,7 +12690,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12924 "configure"
+#line 12693 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13649,7 +13418,284 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
+# Set modules to build
+
+
+# Must have cvode directory in order to build CVODE
+CVODE_ENABLED="no"
+if test -d ${srcdir}/cvode ; then
+  CVODE_ENABLED="yes"
+fi
+
+# Check if user wants to skip CVODE
+# Check whether --enable-cvode or --disable-cvode was given.
+if test "${enable_cvode+set}" = set; then
+  enableval="$enable_cvode"
+
+if test "X${enableval}" = "Xno"; then
+  CVODE_ENABLED="no"
+fi
+
+fi;
+
+# Must have cvodes directory in order to build CVODES
+CVODES_ENABLED="no"
+if test -d ${srcdir}/cvodes ; then
+  CVODES_ENABLED="yes"
+fi
+
+# Check if user wants to skip CVODES
+# Check whether --enable-cvodes or --disable-cvodes was given.
+if test "${enable_cvodes+set}" = set; then
+  enableval="$enable_cvodes"
+
+if test "X${enableval}" = "Xno"; then
+  CVODES_ENABLED="no"
+fi
+
+fi;
+
+# Must have ida directory in order to build IDA
+IDA_ENABLED="no"
+if test -d ${srcdir}/ida  ; then
+  IDA_ENABLED="yes"
+fi
+
+# Check if user wants to skip IDA
+# Check whether --enable-ida or --disable-ida was given.
+if test "${enable_ida+set}" = set; then
+  enableval="$enable_ida"
+
+if test "X${enableval}" = "Xno"; then
+  IDA_ENABLED="no"
+fi
+
+fi;
+
+# Must have kinsol directory in order to build KINSOL
+KINSOL_ENABLED="no"
+if test -d ${srcdir}/kinsol ; then
+  KINSOL_ENABLED="yes"
+fi
+
+# Check if user wants to skip KINSOL
+# Check whether --enable-kinsol or --disable-kinsol was given.
+if test "${enable_kinsol+set}" = set; then
+  enableval="$enable_kinsol"
+
+if test "X${enableval}" = "Xno"; then
+  KINSOL_ENABLED="no"
+fi
+
+fi;
+
+IDAS_ENABLED="no"
+
+# Check whether --enable- or --disable- was given.
+if test "${enable_+set}" = set; then
+  enableval="$enable_"
+
+fi;
+
+
+
+
+# Must have idas directory in order to build IDAS
+IDAS_ENABLED="no"
+if test -d ${srcdir}/idas ; then
+  IDAS_ENABLED="yes"
+fi
+
+# Check if user wants to skip IDAS
+# Check whether --enable-idas or --disable-idas was given.
+if test "${enable_idas+set}" = set; then
+  enableval="$enable_idas"
+
+if test "X${enableval}" = "Xno"; then
+  IDAS_ENABLED="no"
+fi
+
+fi;
+
+# Check whether --enable- or --disable- was given.
+if test "${enable_+set}" = set; then
+  enableval="$enable_"
+
+fi;
+
+
+
+# Set examples modules
+
+
+# Check libtool settings to determine which compiler and linker commands
+# should be used
+# Must export LIBTOOL_CMD, COMPILER_CMD and LINKER_CMD via AC_SUBST
+# If building shared libraries, then use libtool
+if test "X${enable_shared}" = "Xyes"; then
+  LIBTOOL_CMD="LIBTOOL = ${LIBTOOL}"
+  COMPILER_PREFIX="\$(LIBTOOL) --mode=compile"
+  LINKER_PREFIX="\$(LIBTOOL) --mode=link"
+# If building static libraries, then use regular C compiler
+else
+  LIBTOOL_CMD=""
+  COMPILER_PREFIX=""
+  LINKER_PREFIX=""
+fi
+
+# Examples are built by default, but user can override
+EXAMPLES_ENABLED="yes"
+# Check whether --enable-examples or --disable-examples was given.
+if test "${enable_examples+set}" = set; then
+  enableval="$enable_examples"
+
+if test "X${enableval}" = "Xno"; then
+  EXAMPLES_ENABLED="no"
+fi
+
+fi;
+
+# Check if we need to build the Fortran examples
+# Recall F77_ENABLED is set in SUNDIALS_SET_F77 based upon CVODE_ENABLED,
+# KINSOL_ENABLED and EXAMPLES_ENABLED, so the check here is rather simple
+F77_EXAMPLES="no";
+if test "X${F77_ENABLED}" = "Xyes"; then
+  F77_EXAMPLES="yes"
+fi
+
+# Check if we need to build the C++ examples
+CXX_EXAMPLES="no"
+if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes"; then
+  if test "X${CVODES_ENABLED}" = "Xyes" || test "X${IDAS_ENABLED}" = "Xyes"; then
+    CXX_EXAMPLES="yes"
+  fi
+fi
+
+# Check if examples can actually be built
+SERIAL_C_EXAMPLES="no"
+SERIAL_CXX_EXAMPLES="no"
+SERIAL_F77_EXAMPLES="no"
+
+PARALLEL_C_EXAMPLES="no"
+PARALLEL_CXX_EXAMPLES="no"
+PARALLEL_F77_EXAMPLES="no"
+
+# Check C examples
+if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
+
+  echo "$as_me:$LINENO: checking if we can build serial C examples" >&5
+echo $ECHO_N "checking if we can build serial C examples... $ECHO_C" >&6
+  if test "X${CC_OK}" = "Xyes"; then
+    SERIAL_C_EXAMPLES="yes"
+  fi
+  echo "$as_me:$LINENO: result: ${SERIAL_C_EXAMPLES}" >&5
+echo "${ECHO_T}${SERIAL_C_EXAMPLES}" >&6
+
+  if test "X${MPI_ENABLED}" = "Xyes"; then
+
+    echo "$as_me:$LINENO: checking if we can build parallel C examples" >&5
+echo $ECHO_N "checking if we can build parallel C examples... $ECHO_C" >&6
+    if test "X${MPI_C_COMP_OK}" = "Xyes"; then
+      PARALLEL_C_EXAMPLES="yes"
+    fi
+    echo "$as_me:$LINENO: result: ${PARALLEL_C_EXAMPLES}" >&5
+echo "${ECHO_T}${PARALLEL_C_EXAMPLES}" >&6
+
+  fi
+
+fi
+
+# Check Fortran examples
+if test "X${F77_EXAMPLES}" = "Xyes"; then
+
+  echo "$as_me:$LINENO: checking if we can build serial Fortran examples" >&5
+echo $ECHO_N "checking if we can build serial Fortran examples... $ECHO_C" >&6
+  if test "X${F77_OK}" = "Xyes"; then
+    SERIAL_F77_EXAMPLES="yes"
+  fi
+  echo "$as_me:$LINENO: result: ${SERIAL_F77_EXAMPLES}" >&5
+echo "${ECHO_T}${SERIAL_F77_EXAMPLES}" >&6
+
+  if test "X${MPI_ENABLED}" = "Xyes"; then
+
+    echo "$as_me:$LINENO: checking if we can build parallel Fortran examples" >&5
+echo $ECHO_N "checking if we can build parallel Fortran examples... $ECHO_C" >&6
+    if test "X${MPI_F77_COMP_OK}" = "Xyes"; then
+      PARALLEL_F77_EXAMPLES="yes"
+    fi
+    echo "$as_me:$LINENO: result: ${PARALLEL_F77_EXAMPLES}" >&5
+echo "${ECHO_T}${PARALLEL_F77_EXAMPLES}" >&6
+
+  fi
+
+fi
+
+# Check if the Fortran update script (config/fortran_update.in) should
+# be initialized
+BUILD_F77_UPDATE_SCRIPT="no"
+if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" || test "X${PARALLEL_F77_EXAMPLES}" = "Xyes"; then
+  BUILD_F77_UPDATE_SCRIPT="yes";
+fi
+
+# Check C++ examples
+if test "X${CXX_EXAMPLES}" = "Xyes"; then
+
+  echo "$as_me:$LINENO: checking if we can build serial C++ examples" >&5
+echo $ECHO_N "checking if we can build serial C++ examples... $ECHO_C" >&6
+  if test "X${CXX_OK}" = "Xyes"; then
+    SERIAL_CXX_EXAMPLES="yes"
+  fi
+  echo "$as_me:$LINENO: result: ${SERIAL_CXX_EXAMPLES}" >&5
+echo "${ECHO_T}${SERIAL_CXX_EXAMPLES}" >&6
+
+  if test "X${MPI_ENABLED}" = "Xyes"; then
+
+    echo "$as_me:$LINENO: checking if we can build parallel C++ examples" >&5
+echo $ECHO_N "checking if we can build parallel C++ examples... $ECHO_C" >&6
+    if test "X${MPI_CXX_COMP_OK}" = "Xyes"; then
+      PARALLEL_CXX_EXAMPLES="yes"
+    fi
+    echo "$as_me:$LINENO: result: ${PARALLEL_CXX_EXAMPLES}" >&5
+echo "${ECHO_T}${PARALLEL_CXX_EXAMPLES}" >&6
+
+  fi
+
+fi
+
+# Disable developer examples be default so output logic still works
+PARALLEL_DEV_C_EXAMPLES="no"
+
+RAN_ENABLE_DEV_EXAMPLES="no"
+
+
+
+
+RAN_ENABLE_DEV_EXAMPLES="yes"
+
+# Check if developer examples can actually be built
+PARALLEL_DEV_C_EXAMPLES="no"
+
+# Check C developer examples
+if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; then
+
+  if test "X${MPI_ENABLED}" = "Xyes"; then
+    echo "$as_me:$LINENO: checking if we can build parallel C developer examples" >&5
+echo $ECHO_N "checking if we can build parallel C developer examples... $ECHO_C" >&6
+    if test "X${MPI_C_COMP_OK}" = "Xyes"; then
+      PARALLEL_DEV_C_EXAMPLES="yes"
+    fi
+    echo "$as_me:$LINENO: result: ${PARALLEL_DEV_C_EXAMPLES}" >&5
+echo "${ECHO_T}${PARALLEL_DEV_C_EXAMPLES}" >&6
+  fi
+
+fi
+
+
+
 # Substitute variables
+
+
+
 
 
 
@@ -14555,6 +14601,8 @@ s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@STRIP@,$STRIP,;t t
 s,@ac_ct_STRIP@,$ac_ct_STRIP,;t t
 s,@LIBTOOL@,$LIBTOOL,;t t
+s,@COMPILER_PREFIX@,$COMPILER_PREFIX,;t t
+s,@LINKER_PREFIX@,$LINKER_PREFIX,;t t
 s,@MPICC@,$MPICC,;t t
 s,@MPICXX@,$MPICXX,;t t
 s,@MPIF77@,$MPIF77,;t t
@@ -14565,6 +14613,7 @@ s,@MODULES@,$MODULES,;t t
 s,@NVEC_MODULES@,$NVEC_MODULES,;t t
 s,@EXAMPLE_MODULES@,$EXAMPLE_MODULES,;t t
 s,@F77_FLOAT_TYPE@,$F77_FLOAT_TYPE,;t t
+s,@LIBTOOL_CMD@,$LIBTOOL_CMD,;t t
 s,@LIBTOOL_DEPS@,$LIBTOOL_DEPS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t

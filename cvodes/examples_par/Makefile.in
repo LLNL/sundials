@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-10-21 22:46:44 $
+# $Revision: 1.8 $
+# $Date: 2004-10-28 00:36:14 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -24,7 +24,7 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-LIBTOOL = @LIBTOOL@
+@LIBTOOL_CMD@
 
 CPP         = @CPP@
 CPPFLAGS    = @CPPFLAGS@
@@ -37,43 +37,46 @@ MPI_INC_DIR = @MPI_INC_DIR@
 MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 
+COMPILER_PREFIX = @COMPILER_PREFIX@
+LINKER_PREFIX   = @LINKER_PREFIX@
+
 SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared
 
-OBJECT_FILES = pvnx.o pvkx.o pvkxb.o pvfnx.o pvfkx.o pvanx.o pvakx.o
 EXEC_FILES   = pvnx pvkx pvkxb pvfnx pvfkx pvanx pvakx pvakx3D
 
 all: $(EXEC_FILES)
 
 pvnx: $(srcdir)/pvnx.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvnx.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvnx $(builddir)/pvnx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvnx.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvnx $(builddir)/pvnx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvkx: $(srcdir)/pvkx.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkx.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkx $(builddir)/pvkx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkx.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkx $(builddir)/pvkx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvkxb: $(srcdir)/pvkxb.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkxb.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvkxb $(builddir)/pvkxb.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkxb.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkxb $(builddir)/pvkxb.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvfnx: $(srcdir)/pvfnx.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfnx.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfnx $(builddir)/pvfnx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfnx.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfnx $(builddir)/pvfnx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvfkx: $(srcdir)/pvfkx.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkx.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvfkx $(builddir)/pvfkx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkx.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfkx $(builddir)/pvfkx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvanx: $(srcdir)/pvanx.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvanx.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvanx $(builddir)/pvanx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvanx.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvanx $(builddir)/pvanx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvakx: $(srcdir)/pvakx.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvakx.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvakx $(builddir)/pvakx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvakx.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvakx $(builddir)/pvakx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 pvakx3D: $(srcdir)/pvakx.c
-	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -DUSE3D -c $(srcdir)/pvakx.c
-	$(LIBTOOL) --mode=link $(MPICC) -o $(builddir)/pvakx3D $(builddir)/pvakx.lo $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -DUSE3D -c $(srcdir)/pvakx.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvakx3D $(builddir)/pvakx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 
 clean:
-	@for i in ${EXEC_FILES} ; do             \
-	   $(LIBTOOL) --mode=clean rm -f $${i} ; \
-	   rm -f $${i}.lo ;                      \
-	 done
-	rm -f $(OBJECT_FILES)
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+
+uninstall: clean
+	rm -f $(EXEC_FILES)

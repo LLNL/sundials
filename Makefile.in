@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2004-10-26 18:01:16 $
+# $Revision: 1.5 $
+# $Date: 2004-10-28 00:35:14 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -92,6 +92,19 @@ examples_clean:
 	   done ;                              \
 	 fi
 
+examples_uninstall:
+	@if test "X${EXAMPLES}" = "Xno" ; then \
+	   : ;                                 \
+	 else                                  \
+	   for i in ${EXAMPLES} ; do           \
+	     if test -d $${i} ; then           \
+	       cd $${i} ;                      \
+	       ${MAKE} uninstall ;             \
+	       cd ${abs_builddir} ;            \
+	     fi ;                              \
+	   done ;                              \
+	 fi
+
 distclean: clean examples_clean
 	@for i in ${COMPONENTS} ; do           \
 	   if test -d $${i} ; then             \
@@ -113,7 +126,7 @@ distclean: clean examples_clean
 	 rm -f config.h                        \
 	 rm -f Makefile
 
-uninstall:
+uninstall: examples_uninstall
 	@for i in ${COMPONENTS} ; do \
 	   if test -d $${i} ; then   \
 	     cd $${i} ;              \

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-10-27 18:35:53 $
+# $Revision: 1.8 $
+# $Date: 2004-10-28 00:35:28 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -53,7 +53,7 @@ update:
 	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
 	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
-install: $(CVODE_LIB_FILES)
+install: update $(CVODE_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES) -rpath $(libdir) $(LDLFAGS) $(LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODE_LIB) $(libdir)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvode.h $(includedir)
@@ -70,7 +70,7 @@ clean:
 	rm -f $(OBJECT_FILES)
 	rm -f sundials_config.h
 
-uninstall:
+uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CVODE_LIB)
 	rm -f $(includedir)/cvode.h
 	rm -f $(includedir)/cvdense.h

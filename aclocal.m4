@@ -12,8 +12,8 @@
 # PARTICULAR PURPOSE.
 
 # -----------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2004-10-21 20:18:22 $
+# $Revision: 1.19 $
+# $Date: 2004-10-28 00:35:14 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -749,8 +749,8 @@ if test "X${CXX_ENABLED}" = "Xyes"; then
   CXX_OK="yes"
 
   # CXX and CCC are common so check both
-  if "X${CXX}" = "X"; then
-    if "X${CCC}" = "X"; then
+  if test "X${CXX}" = "X"; then
+    if test "X${CCC}" = "X"; then
       USER_CXX=""
     else
       USER_CXX="${CCC}"
@@ -828,7 +828,7 @@ fi
 # DEFAULT CXXFLAGS
 #------------------------------------------------------------------
 
-AC_DEFUN([SUNDIALS_PROG_CXXFLAGS],
+AC_DEFUN([SUNDIALS_DEFAULT_CXXFLAGS],
 [
 
 # Specify "-ffloat-store" flag if using g++ on an IA-32 system (recommended)
@@ -1757,6 +1757,21 @@ AC_ARG_ENABLE([],[   ],[])
 
 AC_DEFUN([SUNDIALS_ENABLE_EXAMPLES],
 [
+
+# Check libtool settings to determine which compiler and linker commands
+# should be used
+# Must export LIBTOOL_CMD, COMPILER_CMD and LINKER_CMD via AC_SUBST
+# If building shared libraries, then use libtool
+if test "X${enable_shared}" = "Xyes"; then
+  LIBTOOL_CMD="LIBTOOL = ${LIBTOOL}"
+  COMPILER_PREFIX="\$(LIBTOOL) --mode=compile"
+  LINKER_PREFIX="\$(LIBTOOL) --mode=link"
+# If building static libraries, then use regular C compiler
+else
+  LIBTOOL_CMD=""
+  COMPILER_PREFIX=""
+  LINKER_PREFIX=""
+fi
 
 # Examples are built by default, but user can override
 EXAMPLES_ENABLED="yes"

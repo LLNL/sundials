@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-10-26 18:02:00 $
+# $Revision: 1.8 $
+# $Date: 2004-10-28 00:35:17 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -51,7 +51,7 @@ update:
 	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
 	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
 
-install: $(SHARED_LIB_FILES)
+install: update $(SHARED_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(SHARED_LIB) $(SHARED_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(SHARED_LIB) $(libdir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/band.h $(includedir)
@@ -70,7 +70,7 @@ clean:
 	rm -f $(OBJECT_FILES)
 	rm -f sundials_config.h
 
-uninstall:
+uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(SHARED_LIB)
 	rm -f $(includedir)/band.h
 	rm -f $(includedir)/dense.h

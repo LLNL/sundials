@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2004-10-28 00:07:53 $
+# $Revision: 1.3 $
+# $Date: 2004-10-28 00:35:14 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -1744,6 +1744,21 @@ AC_ARG_ENABLE([],[   ],[])
 
 AC_DEFUN([SUNDIALS_ENABLE_EXAMPLES],
 [
+
+# Check libtool settings to determine which compiler and linker commands
+# should be used
+# Must export LIBTOOL_CMD, COMPILER_CMD and LINKER_CMD via AC_SUBST
+# If building shared libraries, then use libtool
+if test "X${enable_shared}" = "Xyes"; then
+  LIBTOOL_CMD="LIBTOOL = ${LIBTOOL}"
+  COMPILER_PREFIX="\$(LIBTOOL) --mode=compile"
+  LINKER_PREFIX="\$(LIBTOOL) --mode=link"
+# If building static libraries, then use regular C compiler
+else
+  LIBTOOL_CMD=""
+  COMPILER_PREFIX=""
+  LINKER_PREFIX=""
+fi
 
 # Examples are built by default, but user can override
 EXAMPLES_ENABLED="yes"
