@@ -21,7 +21,7 @@ C At the end of the run, various counters of interest are printed.
 C
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)
-      INTEGER*4 IOPT(40)
+      INTEGER IOPT(40)
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LNJE/16/
 C
@@ -41,7 +41,7 @@ C
       TOUT = 0.4D0
       ITASK = 0
 C
-      WRITE(6,10)NEQ
+      WRITE(6,10) NEQ
  10   FORMAT('Dense example problem: Robertson kinetics, NEQ = ',I2//)
 C
       CALL FNVSPECINITS(NEQ, IER)
@@ -81,7 +81,8 @@ C
           STOP
         ENDIF
 C
- 70     TOUT = TOUT*10.0D0
+        TOUT = TOUT*10.0D0
+ 70   CONTINUE
 C
       CALL FCVDKY (T, 1, Y, IER)
       IF (IER .NE. 0) THEN

@@ -22,7 +22,7 @@ C At the end of the run, various counters of interest are printed.
 C
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
       DOUBLE PRECISION U(50), ROPT(40)
-      INTEGER*4 IOPT(40)
+      INTEGER IOPT(40)
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LNJE/16/
 C
@@ -88,7 +88,8 @@ C
           STOP
           ENDIF
 C
- 70     TOUT = TOUT + DTOUT
+          TOUT = TOUT + DTOUT
+ 70    CONTINUE
 C
       WRITE(6,80) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
      1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF)
@@ -138,7 +139,8 @@ C Compute max-norm of array U
       DOUBLE PRECISION U(*), UNORM, TEMP
       TEMP = 0.0D0
       DO 10 I = 1,N
- 10     TEMP = MAX(ABS(U(I)),TEMP)
+         TEMP = MAX(ABS(U(I)),TEMP)
+ 10   CONTINUE
       UNORM = TEMP
       RETURN
       END
