@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-05-05 15:26:55 $
+ * $Revision: 1.5 $
+ * $Date: 2004-07-29 16:02:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -191,7 +191,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 main(int argc, char *argv[])
 {
-  NV_Spec nvSpec;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
@@ -208,7 +207,6 @@ main(int argc, char *argv[])
   /* for output of timestep and grid data */
   FILE *timesteps;
 
-  nvSpec = NULL;
   u = NULL;
   data = NULL;
   cvode_mem = NULL;
@@ -243,16 +241,10 @@ main(int argc, char *argv[])
   if(check_flag((void *)data, "AllocUserData", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
 
-  nvSpec = NV_SpecInit_Parallel(comm, local_N, neq, &argc, &argv);
-  if(nvSpec == NULL) {
-    if(my_pe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, my_pe);
-    MPI_Finalize();
-    return(1); }
-
   /* Allocate u, and set initial values and tolerances */
 
-  u = N_VNew(nvSpec);
-  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  u = N_VNew_Parallel(comm, local_N, neq);
+  if(check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
@@ -284,7 +276,7 @@ main(int argc, char *argv[])
      nvSpec  is the vector specification object 
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol, nvSpec);
+  flag = CVodeMalloc(cvode_mem, f, T0, u, SS, &reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVSpgmr to specify the CVODES linear solver CVSPGMR 
@@ -371,10 +363,9 @@ main(int argc, char *argv[])
   }
 
   /* Free memory */
-  N_VFree(u);
+  N_VDestroy(u);
   FreeUserData(data);
   CVodeFree(cvode_mem);
-  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 
