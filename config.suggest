@@ -42,12 +42,12 @@ echo 'CC=gcc CXX=g++ F77=g77 --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc --with
 ;;
 
 casc_li_icc_mpich_comp) # CASC Intel Linux, using Intel icc-7.1 and mpich compiler scripts
-echo 'CC=icc CXX=icc F77=ifc --with-ldflags=-L/usr/apps/intel/compiler70/ia32/lib --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc --with-mpicxx=/usr/apps/mpich/1.2.4/bin/mpiCC --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77'
+echo 'CC=icc CXX=icc CPPFLAGS=-no-gcc F77=ifc --with-ldflags=-L/usr/apps/intel/compiler70/ia32/lib --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc --with-mpicxx=/usr/apps/mpich/1.2.4/bin/mpiCC --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77'
 # Maintained by 
 ;;
 
 casc_li_new_icc_mpich) # Updated CASC Intel Linux, using Intel icc-8.0 and mpich
-echo 'CC=icc CXX=icc F77=ifort --with-ldflags=-L/usr/apps/intel/default/lib --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/usr/apps/mpich/default --with-mpi-libs=-lmpich'
+echo 'CC=icc CXX=icc CPPFLAGS=-no-gcc F77=ifort --with-ldflags=-L/usr/apps/intel/default/lib --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/usr/apps/mpich/default --with-mpi-libs=-lmpich'
 # Maintained by 
 ;;
 
@@ -89,7 +89,7 @@ echo 'CC=cc F77=f77 --with-cflags="-arch ev6 -om" --with-fflags="-arch ev6" --wi
 ;;
 
 mcr_icc_mpiicc) # MCR with Intel compilers and Quadrics MPI compiler scripts
-echo 'CC=icc F77=ifc --with-mpicc=mpiicc --with-mpif77=mpiifc'
+echo 'CC=icc CPPFLAGS=-no-gcc F77=ifc --with-mpicc=mpiicc --with-mpif77=mpiifc'
 ;;
 
 *) # Bad index or no index given, so provide help message.
