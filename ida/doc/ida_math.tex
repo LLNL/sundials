@@ -58,18 +58,18 @@ $q$, and the history of the step sizes.  The application of the BDF
 (\ref{e:BDF}) to the DAE system (\ref{e:DAE}) results in a nonlinear
 algebraic system to be solved at each step:
 \begin{equation}\label{e:DAE_nls}
-  G(y^n) \equiv 
-  F \left( t_n , \, y^n , \, 
-    h_n^{-1} \sum_{i=0}^q \alpha_{n,i}y^{n-i} \right) = 0 \, .
+  G(y_n) \equiv 
+  F \left( t_n , \, y_n , \, 
+    h_n^{-1} \sum_{i=0}^q \alpha_{n,i}y_{n-i} \right) = 0 \, .
 \end{equation}
 %
 Regardless of the method options, the solution of the nonlinear system
 (\ref{e:DAE_nls}) is accomplished with some form of Newton iteration.
 This leads to a linear system for each Newton correction, of the form
 \begin{equation}\label{e:DAE_Newtoncorr}
-  J [y^{n(m+1)} - y^{n(m)}] = -G(y^{n(m)})  \, , 
+  J [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)})  \, , 
 \end{equation}
-where $y^{n(m)}$ is the $m$-th approximation to $y^n$. 
+where $y_{n(m)}$ is the $m$-th approximation to $y_n$. 
 %
 Here $J$ is some approximation to the system Jacobian
 \begin{equation}\label{e:DAE_Jacobian}
@@ -136,13 +136,13 @@ reevaluated from scratch.
 % Newton convergence test
 %------------------------
 The stopping test for the Newton iteration
-in IDA ensures that the iteration error $y^n - y^{n(m)}$ is small relative
+in IDA ensures that the iteration error $y_n - y_{n(m)}$ is small relative
 to $y$ itself. For this, we estimate the linear convergence rate at all 
 iterations $m>1$ as
 \begin{equation*}
 R = \left( \frac{\delta_m}{\delta_1} \right)^{\frac{1}{m-1}} \, , 
 \end{equation*}
-where the $\delta_m = y^{n(m)} - y^{n(m-1)}$ is the correction at
+where the $\delta_m = y_{n(m)} - y_{n(m-1)}$ is the correction at
 iteration $m=1,2,\ldots$. The Newton iteration is halted if $R>0.9$.
 The convergence test at the $m$-th iteration is then
 \begin{equation}\label{e:DAE_nls_test}
@@ -188,7 +188,7 @@ by difference quotients. In the latter case, we use the approximation
              \mbox{sign}(h y^\prime_j) \, ,
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current step size, and $W_j$ is 
-the error weight for $y_j$ defined by (\ref{e:errwt}).
+the error weight for the component $y_j$ defined by (\ref{e:errwt}).
 In the SPGMR case, if a routine for $Jv$ is not supplied, such products are
 approximated by
 \begin{equation*}
