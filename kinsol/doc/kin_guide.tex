@@ -1,7 +1,8 @@
+%\documentclass[twoside,10pt]{report}
 \documentclass[10pt]{report}
+\usepackage{fancyheadings}
 
 \input{ug.tex}
-
 %===============================================================
 
 \newcommand{\kinucrl}{123456}
@@ -34,7 +35,8 @@ An Inexact Newton-Krylov Nonlinear Solver  \\
 {0in}{0in}
 
 \frontug
-
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
 %===============================================================
 % Introduction
 \include{kin_intro}
