@@ -18,6 +18,7 @@ libdir      = @libdir@
 
 # Path to sources
 srcdir = @srcdir@
+VPATH  = @srcdir@
 
 # Archiver program
 AR = @AR@
@@ -26,6 +27,8 @@ AR = @AR@
 CC       = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS   = @CFLAGS@
+
+FCFLAGS  = @FCFLAGS@
 
 # KINSOL and SHARED include directories
 SHARED_INC_DIR  = ${srcdir}/../../shared/include
@@ -63,15 +66,7 @@ clean:
 uninstall:
 	rm -f ${libdir}/${FKINSOL_LIB}
 
-fkinsol.o : ${srcdir}/fkinsol.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fkinpreco.o : ${srcdir}/fkinpreco.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fkinpsol.o : ${srcdir}/fkinpsol.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fkinjtimes.o : ${srcdir}/fkinjtimes.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fkinbbd.o : ${srcdir}/fkinbbd.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+.c.o:
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
 
 #---End of Makefile---
