@@ -3,7 +3,7 @@
  * File          : ida.h                                          *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 2 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the header (include) file for the main IDA solver.     *
  *                                                                *
@@ -236,9 +236,9 @@ enum { NORMAL_RETURN=0,     INTERMEDIATE_RETURN=1, TSTOP_RETURN=2,
  ******************************************************************/
 
 void *IDAMalloc(integertype Neq, ResFn res, void *rdata, realtype t0,
-                N_Vector y0, N_Vector yp0, int itol, realtype *rtol, void *atol, 
-                N_Vector id, N_Vector constraints, FILE *errfp, booleantype optIn, 
-                long int iopt[], realtype ropt[], M_Env machEnv);
+              N_Vector y0, N_Vector yp0, int itol, realtype *rtol, void *atol,
+              N_Vector id, N_Vector constraints, FILE *errfp, booleantype optIn,
+              long int iopt[], realtype ropt[], M_Env machEnv);
 
 /******************************************************************
  *                                                                *
@@ -537,7 +537,7 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
  *                                                                *
  ******************************************************************/
 
- int IDACalcIC (void *ida_mem, int icopt, realtype tout1, realtype epicfac, 
+int IDACalcIC (void *ida_mem, int icopt, realtype tout1, realtype epicfac, 
                int maxnh, int maxnj, int maxnit, int lsoff, realtype steptol);
 
 
@@ -563,27 +563,28 @@ int IDAReInit(void *ida_mem, ResFn res, void *rdata, realtype t0,
  * solution does not go past the independent variable value tstop.*
  *                                                                *
  * IDA_mem is the pointer (void) to IDA memory returned by        *
- * IDAMalloc.                                                     *
+ *         IDAMalloc.                                             *
  *                                                                *
- * tout  is the next independent variable value  at which a       *
- * computed solution is desired                                   *
+ * tout    is the next independent variable value at which a      *
+ *         computed solution is desired.                          *
  *                                                                *
- * tstop is the (optional) independent variable value past which  *
- * the solution is not to proceed (see itask options)             *
+ * tstop   is the (optional) independent variable value past which*
+ *         the solution is not to proceed (see itask options).    *
+ *         Ignored if itask is NORMAL or ONE_STEP.                *
  *                                                                *
- * *tret  is the actual independent variable value corresponding  *
- * to the solution vector yret.                                   *
+ * *tret   is the actual independent variable value corresponding *
+ *         to the solution vector yret.                           *
  *                                                                *
- * yret  is the computed solution vector. With no errors,         *
- *            yret=y(tret).                                       *
+ * yret    is the computed solution vector.  With no errors,      *
+ *         yret = y(tret).                                        *
  *                                                                *
- * ypret is the derivative of the computed solution vector at tret*
+ * ypret   is the derivative of the computed solution at t = tret.*
  *                                                                *
  * Note: yret and ypret may be the same N_Vectors as y0 and yp0   *
  * in the call to IDAMalloc or IDAReInit.                         *
  *                                                                *
- * itask is NORMAL, NORMAL_TSTOP, ONE_STEP, or ONE_STEP_TSTOP.    *
- *        These modes are described above.                        *
+ * itask   is NORMAL, NORMAL_TSTOP, ONE_STEP, or ONE_STEP_TSTOP.  *
+ *         These modes are described above.                       *
  *                                                                *
  *                                                                *
  * The return values for IDASolve are described below.            *
@@ -716,12 +717,12 @@ typedef struct IDAMemRec {
   N_Vector ida_phi[MXORDP1];
            /* phi = Neq x (maxord+1) array of divided differences */
 
-  realtype ida_psi[MXORDP1];   /* differences in t (sums of successive step sizes) */
-  realtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values         */
+  realtype ida_psi[MXORDP1];   /* differences in t (sums of recent step sizes) */
+  realtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values     */
   realtype ida_beta[MXORDP1]; 
-                            /* ratios of current to previous product of psi values */
-  realtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial    */
-  realtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values                 */
+                            /* ratios of current to previous product of psi's  */
+  realtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial*/
+  realtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values             */
 
   /* Vectors of length Neq */
 
