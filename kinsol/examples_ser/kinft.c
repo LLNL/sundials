@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-03-02 17:58:04 $
+ * $Revision: 1.2 $
+ * $Date: 2005-03-03 17:28:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -127,13 +127,6 @@ int main()
 
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
-
-  /* Force exact Newton (i.e. Jacobian evaluation at each iteration) */
-  //  flag = KINSetMaxSetupCalls(kmem, 1);
-  //  if (check_flag(&flag, "KINSetMaxSetupCalls", 1)) return(1);
-
-  //  flag = KINSetPrintLevel(kmem, 3);
-  //  if (check_flag(&flag, "KINSetPrintLevel", 1)) return(1);
 
   flag = KINSetFdata(kmem, data);
   if (check_flag(&flag, "KINSetFdata", 1)) return(1);

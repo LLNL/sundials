@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-03-02 17:58:04 $
+ * $Revision: 1.18 $
+ * $Date: 2005-03-03 17:28:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -190,7 +190,6 @@ int main()
 
   /* Allocate memory, and set problem data, initial values, tolerances */ 
   globalstrategy = KIN_NONE;
-  //globalstrategy = KIN_LINESEARCH;
 
   data = AllocUserData();
   if (check_flag((void *)data, "AllocUserData", 2)) return(1);
