@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2004-10-26 20:44:00 $
+ * $Revision: 1.37 $
+ * $Date: 2004-11-05 23:56:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -304,11 +304,6 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 
   y = N_VGetArrayPointer(F2C_vec);
 
-  /* CVode() succeeded and found at least one root */
-  if (*ier == CV_ROOT_RETURN) {
-    CVodeGetNumGEvals(CV_cvodemem, &CV_iopt[24]);
-  }
-
   /* Load optional outputs in iopt & ropt */
   if ( (CV_iopt != NULL) && (CV_ropt != NULL) ) {
 
@@ -334,6 +329,10 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                       &CV_iopt[12]);  /* LENIW */
     if (CV_optin && (CV_iopt[13] > 0))
       CVodeGetNumStabLimOrderReds(CV_cvodemem, &CV_iopt[14]);  /* NOR */
+
+    /* Root finding is on */
+    if (CV_nrtfn != 0)
+      CVodeGetNumGEvals(CV_cvodemem, &CV_iopt[24]);
 
     switch(CV_ls) {
     case 1:
