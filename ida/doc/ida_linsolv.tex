@@ -1,0 +1,39 @@
+%===================================================================================
+\chapter{Generic Linear Solvers in SUNDIALS}\label{s:gen_linsolv}
+%===================================================================================
+In this section, we describe three generic linear solver code modules that 
+are included in {\cvode}, but which are of potential use as generic packages in
+themselves, either in conjunction with the use of {\cvode} or separately.
+These modules are:
+\begin{itemize}
+\item The {\dense} matrix package, which includes the matrix type \id{DenseMat},
+      macros and functions for \id{DenseMat} matrices, and functions
+      for small dense matrices treated as simple array types.
+\item The {\band} matrix package, which includes the matrix type \id{BandMat},
+      macros and functions for \id{BandMat} matrices, and functions
+      for small band matrices treated as simple array types.
+\item The {\spgmr} package, which includes a solver for the scaled
+      preconditioned GMRES method.
+\end{itemize}
+
+For the sake of space, the functions for \id{DenseMat} and
+\id{BandMat} matrices and the functions in {\spgmr} are only summarized
+briefly, since they are less likely to be of direct use in connection
+with {\cvode}.  The functions for small dense matrices are fully
+described, because we expect that they will be useful in the
+implementation of preconditioners used with the combination of {\cvode}
+and the {\cvspgmr} solver.
+
+%-------------------------------
+\section{The DENSE module}\label{ss:dense}
+\input{dense}
+
+%-------------------------------
+\section{The BAND module}\label{ss:band}
+\input{band}
+
+%-------------------------------
+\section{The SPGMR module}\label{ss:spgmr}
+\input{spgmr}
+
+%-------------------------------

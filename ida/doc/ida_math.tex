@@ -1,0 +1,296 @@
+%===================================================================================
+\chapter{Mathematical Considerations}\label{s:math}
+%===================================================================================
+
+IDA solves the initial-value problem for 
+a DAE system of the general form
+\begin{equation}\label{e:DAE}
+  F(t,y,{\dot y}) = 0 \, ,
+  \quad y(t_0) = y_0 \, ,~ {\dot y}(t_0) = {\dot y}_0 \, ,
+\end{equation}
+where $y$, ${\dot y}$, and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
+variable, ${\dot y} = dy/dt$, 
+and initial conditions $y(t_0) = y_0$, ${\dot y}(t_0) = {\dot y}_0$ 
+are given.  (Often $t$ is time, but it certainly need not be.)
+
+% Initial condition calculation
+%------------------------------
+Prior to integrating a DAE initial-value problem, an important requirement 
+is that the pair of vectors $y_0$ and ${\dot y_0}$ are both initialized to
+satisfy the DAE residual $F(t_0,y_0, {\dot y}_0) = 0$.
+For a class of problems that includes so-called
+semi-explicit index-one systems, IDA provides a routine that computes
+consistent initial conditions from a user's initial guess~\cite{BHP:98}.  
+For this, the user must identify subvectors of $y$
+(not necessarily contiguous), denoted $y_d$ and $y_a$, which are its
+differential and algebraic parts, respectively, such that $F$ depends
+on ${\dot y}_d$ but not on any components of ${\dot y}_a$.  The assumption that
+the system is ``index one'' means that for a given $t$ and $y_d$, the
+system $F(t,y,{\dot y}) = 0$ defines $y_a$ uniquely.  In this case, a solver
+within IDA computes $y_a$ and ${\dot y}_d$ at $t = t_0$, given $y_d$ and an
+initial guess for $y_a$.  A second available option with this solver
+also computes all of $y(t_0)$ given ${\dot y}(t_0)$; this is intended mainly
+for quasi-steady-state problems, where ${\dot y}(t_0) = 0$ is given.
+In both cases, IDA solves the system $F(t_0,y_0, {\dot y}_0) = 0$ for the
+unknown components of $y_0$ and ${\dot y}_0$, using Newton iteration
+augmented with a line search global strategy.  In doing this, it makes
+use of the existing machinery that is to be used for solving the
+linear systems during the integration, in combination with certain
+tricks involving the step size (which is set artificially for this
+calculation).
+For problems that do not fall into either of these categories, the
+user is responsible for passing consistent values or risk failure in
+the numerical integration.
+
+% Integration method and nonlinear system
+%----------------------------------------
+The integration method in IDA is variable-order, variable-coefficient
+BDF, in fixed-leading-coefficient form~\cite{BCP:96}.
+The method order ranges from 1 to 5, with the BDF of order $q$
+given by the multistep formula
+\begin{equation}\label{e:BDF}
+  \sum_{i=0}^q \alpha_{n,i}y_{n-i} = h_n {\dot y}_n \, ,
+\end{equation}
+where $y_n$ and ${\dot y}_n$ are the computed approximations to $y(t_n)$
+and ${\dot y}(t_n)$, respectively, and the step size is $h_n = t_n - t_{n-1}$.  
+The coefficients $\alpha_{n,i}$ are uniquely determined by the order
+$q$, and the history of the step sizes.  The application of the BDF
+(\ref{e:BDF}) to the DAE system (\ref{e:DAE}) results in a nonlinear
+algebraic system to be solved at each step:
+\begin{equation}\label{e:DAE_nls}
+  G(y_n) \equiv 
+  F \left( t_n , \, y_n , \, 
+    h_n^{-1} \sum_{i=0}^q \alpha_{n,i}y_{n-i} \right) = 0 \, .
+\end{equation}
+%
+Regardless of the method options, the solution of the nonlinear system
+(\ref{e:DAE_nls}) is accomplished with some form of Newton iteration.
+This leads to a linear system for each Newton correction, of the form
+\begin{equation}\label{e:DAE_Newtoncorr}
+  J [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)})  \, , 
+\end{equation}
+where $y_{n(m)}$ is the $m$-th approximation to $y_n$. 
+%
+Here $J$ is some approximation to the system Jacobian
+\begin{equation}\label{e:DAE_Jacobian}
+  J = \frac{\partial G}{\partial y}
+  = \frac{\partial F}{\partial y} + 
+  \alpha\frac{\partial F}{\partial {\dot y}} \, ,
+\end{equation}
+where $\alpha = \alpha_{n,0}/h_n$.  The scalar $\alpha$ changes 
+whenever the step size or method order changes.
+%
+The linear systems are solved by one of three methods:
+\begin{itemize}
+\item direct dense solve (serial version only),
+\item direct banded solve (serial version only), or
+\item SPGMR = Scaled Preconditioned GMRES, with restarts allowed.
+\end{itemize}
+For the SPGMR case, preconditioning is allowed only on the
+left,\footnote{Left preconditioning is required to make the norm of
+the linear residual in the Newton iteration meaningful; in general,
+$\| J \Delta y + G \|$ is meaningless, since the weights used in 
+the WRMS-norm correspond to $y$.}
+so that GMRES is applied to systems $(P^{-1}J)\Delta y = -P^{-1}G$. 
+
+% WRMS Norm
+%----------
+In the process of controlling the various errors, IDA uses the
+same weighted root-mean-square norm as CVODE,
+$\|\cdot\|_{\mbox{\scriptsize WRMS}}$, for all error-like quantities.
+The weights used are based on the current solution and on input
+tolerances, as given by (\ref{errwt}).
+
+% Newton iteration
+%-----------------
+In the cases of a direct linear solver (dense or banded), the nonlinear 
+iteration (\ref{e:DAE_Newtoncorr}) is a Modified Newton iteration, in
+that the Jacobian $J$ is fixed (and usually out of date), with
+a coefficient $\bar\alpha$ in place of $\alpha$ in $J$. When using
+SPGMR as the linear solver, the iteration is an Inexact Newton iteration,
+using the current Jacobian (through matrix-free products $Jv$), in 
+which the linear residual $J\Delta y + G$ is nonzero but controlled.
+The Jacobian matrix $J$ (direct cases) or preconditioner matrix $P$ 
+(SPGMR case) is updated when:
+\begin{itemize}
+\item starting the problem,
+\item the value $\bar\alpha$ at the last update is such that
+  $\alpha / {\bar\alpha} < 3/5$ or $\alpha / {\bar\alpha} > 5/3$, or
+\item a non-fatal convergence failure occurred with an out-of-date $J$ or $P$.
+\end{itemize}
+The above strategy balances the high cost of frequent matrix evaluations
+and preprocessing with the slow convergence due to infrequent updates.
+To reduce storage costs on an update, Jacobian information is always
+reevaluated from scratch.
+
+% Newton convergence test
+%------------------------
+Unlike the CVODE/CVODES case, the stopping test for the Newton iteration
+in IDA ensures that the iteration error $y_n - y_{n(m)}$ is small relative
+to $y$ itself. For this, we estimate the linear convergence rate at all 
+iterations $m>1$ as
+\begin{equation*}
+R = \left( \frac{\delta_m}{\delta_1} \right)^{\frac{1}{m-1}} \, , 
+\end{equation*}
+where the $\delta_m = y_{n(m)} - y_{n(m-1)}$ is the correction at
+iteration $m=1,2,\ldots$. The Newton iteration is halted if $R>0.9$.
+The convergence test at the $m$-th iteration is then
+\begin{equation}\label{e:DAE_nls_test}
+S \| \delta_m \| < 0.33 \, ,
+\end{equation}
+where $S = R/(R-1)$ whenever $m>1$ and $R\le 0.9$. The user has the
+option of changing the constant in the convergence test from its default 
+value of $0.33$.
+%
+The quantity $S$ is set to $S=20$ initially and whenever $J$ or $P$ is
+updated, and it is reset to $S=100$ on a step with $\alpha \neq \bar\alpha$.
+Note that at $m=1$, the convergence test (\ref{e:DAE_nls_test}) uses an old 
+value for $S$. Therefore, at the first Newton iteration, we make an additional
+test and stop the iteration if $\|\delta_1\| < 0.33 \cdot 10^{-4}$
+(since such a $\delta_1$ is probably just noise and therefore not appropriate 
+for use in evaluating $R$).
+%
+We allow only a small number (default value 4) of Newton iterations.
+If convergence fails with $J$ or $P$ current, 
+we are forced to reduce the step size $h_n$, and we replace $h_n$ by $h_n/4$.
+The integration is halted after a preset number (default value 10)
+of convergence failures. Both the maximum allowable Newton iterations
+and the maximum nonlinear convergence failures can be changed by the user
+from their default values.
+
+When SPGMR is used to solve the linear system, to minimize the effect of
+linear iteration errors on the nonlinear and local integration error controls,
+we require the preconditioned linear residual to be small relative to the 
+allowed error in the Newton iteration, i.e., 
+$\| P^{-1}(Jx+G) \| < 0.05 \cdot 0.33$.
+The safety factor $0.05$ can be changed by the user.
+
+% Jacobian DQ approximations
+%---------------------------
+In the direct cases, the Jacobian $J$ defined in (\ref{e:DAE_Jacobian}) 
+can be either supplied by the user or have IDA compute one internally 
+by difference quotients. In the latter case, we use the approximation
+\begin{gather*}
+  J_{ij} = [F^i(t,y+\sigma_j e_j,{\dot y}+\alpha\sigma_j e_j) - 
+            F^i(t,y,{\dot y})]/\sigma_j \, , \text{ with}\\
+  \sigma_j = \sqrt{U} \max \left\{ |y^j|, |h{\dot y}^j|,W_j \right\}
+             \mbox{sign}(h {\dot y}^j) \, ,
+\end{gather*}
+where $U$ is the unit roundoff, $h$ is the current step size, and $W_j$ is 
+the error weight for $y^j$ defined by (\ref{errwt}).
+In the SPGMR case, if a routine for $Jv$ is not supplied, such products are
+approximated by
+\begin{equation*}
+Jv = [F(t,y+\sigma v,{\dot y}+\alpha\sigma v) - F(t,y,{\dot y})]/\sigma \, ,
+\end{equation*}
+where the increment $\sigma$ is $1/\|v\|$ (as with
+CVODE).\footnote{All vectors $v$ occurring here have been divided by
+the weights $W_i$ and then scaled so as to have $L_2$ norm equal to 1.
+Thus, in fact $\sigma = 1/\|v\|_{\mbox{\scriptsize WRMS}}=\sqrt{N}$.}
+(As an option, the user can specify a constant factor that is inserted
+into this expression for $\sigma$).
+
+% Error control
+%--------------
+During the course of integrating the system, IDA computes an estimate
+of the local truncation error LTE at the $n$-th time step, and
+requires this to satisfy the inequality
+\begin{equation*}
+  \| \mbox{LTE} \|_{\mbox{\scriptsize WRMS}} \leq 1 \, .               
+\end{equation*}
+Asymptotically, LTE varies as $h^{q+1}$ at step size $h$ and order $q$, as
+does the predictor-corrector difference $\Delta_n \equiv y_n-y_{n(0)}$.  
+Thus there is a constant $C$ such that
+\[ \mbox{LTE} = C \Delta_n + O(h^{q+2}) \, , \]
+and so the norm of LTE is estimated as $|C| \cdot \|\Delta_n\|$.
+In addition, IDA requires that the error in the associated polynomial
+interpolant over the current step be bounded by 1 in norm.  The
+leading term of the norm of this error is bounded by
+$\bar{C} \|\Delta_n\|$ for another constant $\bar{C}$.  Thus the local
+error test in IDA is
+\begin{equation}\label{lerrtest}
+   \max\{ |C|, \bar{C} \} \|\Delta_n\| \leq 1 \, .
+\end{equation}
+A user option is available by which the algebraic components of the
+error vector are omitted from the test (\ref{lerrtest}), if these have
+been so identified.
+
+% Step/order selection
+%---------------------
+In IDA, the local error test is tightly coupled with the logic for
+selecting the step size and order.  First, there is an initial phase
+that is treated specially; for the first few steps, the step size is
+doubled and the order raised (from its initial value of 1) on every
+step, until (a) the local error test (\ref{lerrtest}) fails, (b) the
+order is reduced (by the rules given below), or (c) the order reaches
+5 (the maximum).  For step and order selection on the general step,
+IDA uses a different set of local error estimates, based on the
+asymptotic behavior of the local error in the case of fixed step sizes.
+At each of the orders $q'$ equal to $q$, $q-1$ (if $q > 1$), $q-2$ (if
+$q > 2$), or $q+1$ (if $q < 5$), there are constants $C(q')$ such that
+the norm of the local truncation error at order $q'$ satisfies
+\[ \mbox{LTE}(q') = C(q') \| \phi(q'+1) \| + O(h^{q'+2}) \, , \]
+where $\phi(k)$ is a modified divided difference of order $k$ that is
+retained by IDA (and behaves asymptotically as $h^k$).
+Thus the local truncation errors are estimated as
+ELTE$(q') = C(q')\|\phi(q'+1)\|$ to select step sizes.  But the choice
+of order in IDA is based on the requirement that the scaled derivative
+norms, $\|h^k y^{(k)}\|$, are monotonically decreasing with $k$, for
+$k$ near $q$.  These norms are again estimated using the $\phi(k)$,
+and in fact
+\[ \|h^{q'+1} y^{(q'+1)}\| \approx T(q') \equiv (q'+1) \mbox{ELTE}(q') \, . \]
+The step/order selection begins with a test for monotonicity that is
+made even {\em before} the local error test is performed.  Namely,
+the order is reset to $q' = q-1$ if (a) $q=2$ and $T(1)\leq T(2)/2$,
+or (b) $q > 2$ and $\max\{T(q-1),T(q-2)\} \leq T(q)$; otherwise 
+$q' = q$.  Next the local error test (\ref{lerrtest}) is performed,
+and if it fails, the step is redone at order $q\leftarrow q'$ and a
+new step size $h'$.  The latter is based on the $h^{q+1}$ asymptotic
+behavior of $\mbox{ELTE}(q)$, and, with safety factors, is given by
+\[ \eta = h'/h = 0.9/[2 \, \mbox{ELTE}(q)]^{1/(q+1)} \, . \]
+The value of $\eta$ is adjusted so that $0.25 \leq \eta \leq 0.9$
+before setting $h \leftarrow h' = \eta h$.  If the local error test
+fails a second time, IDA uses $\eta = 0.25$, and on the third
+and subsequent failures it uses $q = 1$ and $\eta = 0.25$.  After
+10 failures, IDA returns with a give-up message.
+
+As soon as the local error test has passed, the step and order for the
+next step may be adjusted.  No such change is made if $q' = q-1$ from
+the prior test, if $q = 5$, or if $q$ was increased on the previous
+step.  Otherwise, if the last $q+1$ steps were taken at a constant
+order $q < 5$ and a constant step size, IDA considers raising the order
+to $q+1$.  The logic is as follows: (a) If $q = 1$, then reset $q = 2$
+if $T(2) < T(1)/2$.  (b) If $q > 1$ then 
+\begin{itemize}
+\item reset $q \leftarrow q-1$ if $T(q-1) \leq \min\{T(q),T(q+1)\}$;
+\item else reset $q \leftarrow q+1$ if $T(q+1) < T(q)$;
+\item leave $q$ unchanged otherwise $[$then $T(q-1) > T(q) \leq T(q+1)]$.
+\end{itemize}
+In any case, the new step size $h'$ is set much as before:
+\[ \eta = h'/h = 1/[2 \, \mbox{ELTE}(q)]^{1/(q+1)} \, . \]
+The value of $\eta$ is adjusted such that (a) if $\eta > 2$, $\eta$ is
+reset to 2; (b) if $\eta \leq 1$, $\eta$ is restricted to 
+$0.5 \leq \eta \leq 0.9$; and (c) if $1 < \eta < 2$ we use $\eta = 1$.
+Finally $h$ is reset to $h' = \eta h$.  Thus we do not increase the
+step size unless it can be doubled.  See \cite{BCP:96} for details.
+
+% Additional constraints on y components
+%---------------------------------------
+IDA permits the user to impose optional inequality constraints on individual 
+components of the solution vector $y$. Any of the following four constraints 
+can be imposed: $y^i > 0$, $y^i < 0$, $y^i \geq 0$, or $y^i \leq 0$. 
+The constraint satisfaction is tested after a successful nonlinear system solution. 
+If any constraint fails, we declare a convergence failure of the Newton iteration 
+and reduce the step size. Rather than cutting the step size by some arbitrary factor, 
+IDA estimates a new step size $h'$ using a linear approximation of the components 
+in $y$ that failed the constraint test (including a safety factor of $0.9$ to 
+cover the strict inequality case). These additional constraints are also imposed
+during the calculation of consistent initial conditions.
+
+Normally, IDA takes steps until a user-defined output value $t =
+t_{\mbox{\scriptsize out}}$ is overtaken, and then computes
+$y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
+``one step'' mode option is available, where control returns to the
+calling program after each step.  There are also options to force IDA
+not to integrate past a given stopping point $t = t_{\mbox{\scriptsize
+stop}}$.
