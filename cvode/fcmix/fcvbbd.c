@@ -145,7 +145,7 @@ void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 
 /* C function FCVBBDOPT to access optional outputs from CVBBD_Data */
 
-void FCV_BBDOPT(long int *lenrpw, long int *lenipw, int *nge)
+void FCV_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
   CVBBDPrecGetIntWorkSpace(CVBBD_Data, lenipw);
   CVBBDPrecGetRealWorkSpace(CVBBD_Data, lenrpw);

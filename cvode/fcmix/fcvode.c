@@ -228,6 +228,7 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
   CVodeMem CV_cvmem;
+  int qu, qcur;
   realtype h0u;
 
   /* Call CVode:
@@ -250,12 +251,14 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                             &CV_iopt[4],  /* NFE  */ 
                             &CV_iopt[5],  /* NSETUPS  */ 
                             &CV_iopt[8],  /* NETF  */ 
-                            &CV_iopt[9],  /* QU  */ 
-                            &CV_iopt[10], /* QCUR  */ 
+                            &qu,
+                            &qcur,
                             &h0u,
                             &CV_ropt[3],  /* HU */ 
                             &CV_ropt[4],  /* HCUR  */ 
                             &CV_ropt[5]); /* TCUR  */ 
+    CV_iopt[9]  = qu;    /* QU  */ 
+    CV_iopt[10] = qcur;  /* QCUR  */ 
     CVodeGetTolScaleFactor(CV_cvodemem, &CV_ropt[6]);
     CVodeGetNonlinSolvStats(CV_cvodemem,
                             &CV_iopt[6],  /* NNI */
