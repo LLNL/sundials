@@ -25,8 +25,8 @@ They solve the nonlinear system
 
 \subsection{A serial example: \id{kindiagsf}}\label{ss:kindiagsf}
 
-The \id{kindiagsf} program (for which the source code is listed in
-Appendix~\ref{s:kindiagsf_f}) solves the above problem using the serial
+The \id{kindiagsf} program, for which the source code is listed in
+Appendix~\ref{s:kindiagsf_f}, solves the above problem using the serial
 {\nvecs} module.
 
 The main program begins by calling \id{fnvinits} to initialize computations
@@ -43,13 +43,14 @@ the tolerance for stopping based on the function norm (\id{fnormtol} = $10^{-5}$
 the tolerance for stopping based on the step length (\id{scsteptol} $=10^{-4}$),
 and that no optional inputs are provided (\id{inopt} $=0$).
 
-Next, the {\kinspgmr} linear solver module is attached to {\kinsol} by calling \id{fkinspgmr}, 
-which also specifies the maximum Krylov subspace dimension (\id{maxl} $=10$) and the
-maximum number of restarts allowed for {\spgmr} (\id{maxlrst} $=2$).
-The {\kinspgmr} module is directed to use the supplied preconditioner by 
-calling the routines \id{fkinspgmrsetpsol} and \id{fkinspgmrsetpset} with
-a first argument equal to $1$. The solution of the nonlinear system is obtained after
-a successful return from \id{fkinsol}, which is then printed to unit 6 (stdout).
+Next, the {\kinspgmr} linear solver module is attached to {\kinsol} by calling
+\id{fkinspgmr}, which also specifies the maximum Krylov subspace dimension
+(\id{maxl} $=10$) and the maximum number of restarts allowed for {\spgmr}
+(\id{maxlrst} $=2$).  The {\kinspgmr} module is directed to use the supplied
+preconditioner by  calling the routines \id{fkinspgmrsetpsol} and
+\id{fkinspgmrsetpset} with a first argument equal to $1$. The solution of the
+nonlinear system is obtained after a successful return from \id{fkinsol}, which
+is then printed to unit 6 (stdout).
 
 Memory allocated for the {\kinsol} solver is released by calling \id{fkinfree} and
 computations with the {\nvecs} module are terminated by calling \id{fnvfrees}.
@@ -69,7 +70,7 @@ The following is sample output from \id{kindiagsf}, using $N = 128$.
 
 \subsection{A parallel example: \id{kindiagpf}}\label{ss:kindiagpf}
 
-The program \id{kindiapf} (listed in Appendix~\ref{s:kindiagpf_f}) is a
+The program \id{kindiapf}, listed in Appendix~\ref{s:kindiagpf_f}, is a
 straightforward modification of \id{kindiagsf} to use the parallel MPI
 {\nvecp} module.
 
