@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-06-18 21:37:55 $
+ * $Revision: 1.9 $
+ * $Date: 2004-07-22 23:05:08 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -222,8 +222,7 @@ extern "C" {
 
   int IDAMallocB(void *idaadj_mem, ResFnB resB,
                  realtype tB0, N_Vector yyB0, N_Vector ypB0, 
-                 int itolB, realtype *reltolB, void *abstolB,
-                 NV_Spec nvspecB);
+                 int itolB, realtype *reltolB, void *abstolB);
   
   int IDAReInitB(void *idaadj_mem, ResFnB resB,
                  realtype tB0, N_Vector yyB0, N_Vector ypB0,
@@ -261,7 +260,7 @@ extern "C" {
   int IDASetQuadTolerancesB(void *idaadj_mem, int itolQB, 
                             realtype *reltolQB, void *abstolQB);
 
-  int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, NV_Spec nvspecQB);
+  int IDAQuadMallocB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0);
 
   /* IDAQuadMallocB return values */
   /* SUCCESS=0                    */
@@ -277,7 +276,7 @@ extern "C" {
    *                                                                *
    ******************************************************************/
 
-  int IDAQuadReInitB(void *idaadj_mem, QuadRhsFnB rhsQB);
+  int IDAQuadReInitB(void *idaadj_mem, QuadRhsFnB rhsQB, N_Vector yQB0);
 
   /******************************************************************
    *                                                                *
