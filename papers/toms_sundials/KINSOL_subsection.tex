@@ -1,4 +1,4 @@
-\subsection{KINSOL}
+\subsection{KINSOL}\label{ss:kinsol}
 
 KINSOL solves nonlinear algebraic systems in real space, which we write as
 \begin{equation}
@@ -20,7 +20,7 @@ resulting in the following iteration:
    \item For $n = 0, 1, 2,...$ until convergence do:\nonumber 
       \begin{itemize}
           \item[(a)] Solve $J(u_n)\delta_n = - F(u_n)$ 
-     	  \item[(b)] Set $u_{n+1} = u_n + \delta_n$
+          \item[(b)] Set $u_{n+1} = u_n + \delta_n$
           \item[(c)] Test for convergence
       \end{itemize}
 \end{enumerate}
