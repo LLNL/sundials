@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-08 15:28:04 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-22 20:41:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -69,16 +69,9 @@ typedef struct {
   MPI_Comm    comm;
 } *UserData;
 
-/* Prototypes of private helper functions */
-
-static int InitUserData(int thispe, MPI_Comm comm, UserData data);
-
-static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
-                             N_Vector res, UserData data);
-
 /* User-supplied residual function and supporting routines */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata);
+int resHeat(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata);
 
 static int rescomm(N_Vector uu, N_Vector up, void *rdata);
 
@@ -98,23 +91,32 @@ static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
 
 /* User-supplied preconditioner routines */
 
-int PSolveHeateq(realtype tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, 
-                 N_Vector rvec, N_Vector zvec,
-                 realtype cj, realtype delta,
-                 void *pdata, N_Vector tempv);
+int PsolveHeat(realtype tt, N_Vector uu,
+               N_Vector up, N_Vector rr, 
+               N_Vector rvec, N_Vector zvec,
+               realtype cj, realtype delta,
+               void *pdata, N_Vector tempv);
 
-int PrecondHeateq(realtype tt, N_Vector yy,
-                  N_Vector yp, N_Vector rr, 
-                  realtype cj, void *pdata,
-                  N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+int PsetupHeat(realtype tt, N_Vector yy,
+               N_Vector yp, N_Vector rr, 
+               realtype cj, void *pdata,
+               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Private function to check function return values */
+
+static int InitUserData(int thispe, MPI_Comm comm, UserData data);
+
+static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
+                             N_Vector res, UserData data);
+
+static void PrintOutput(void *mem, realtype t, N_Vector uu, int thispe);
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 /*
- * Main program
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
  */
 
 int main(int argc, char *argv[])
@@ -142,7 +144,9 @@ int main(int argc, char *argv[])
   
   if (npes != NPEX*NPEY) {
     if (thispe == 0)
-      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n", npes,NPEX*NPEY);
+      fprintf(stderr, 
+              "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n", 
+              npes,NPEX*NPEY);
     MPI_Finalize();
     return(1);
   }
@@ -211,7 +215,7 @@ int main(int argc, char *argv[])
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol);
+  ier = IDAMalloc(mem, resHeat, t0, uu, up, itol, &rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDASpgmr to specify the linear solver. */
@@ -219,10 +223,10 @@ int main(int argc, char *argv[])
   ier = IDASpgmr(mem, 0.0);
   if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpgmrSetPrecSetupFn(mem, PrecondHeateq);
+  ier = IDASpgmrSetPrecSetupFn(mem, PsetupHeat);
   if(check_flag(&ier, "IDASpgmrSetPrecSetupFn", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpgmrSetPrecSolveFn(mem, PSolveHeateq);
+  ier = IDASpgmrSetPrecSolveFn(mem, PsolveHeat);
   if(check_flag(&ier, "IDASpgmrSetPrecSolveFn", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASpgmrSetPrecData(mem, data);
@@ -235,7 +239,7 @@ int main(int argc, char *argv[])
   /* Print output heading (on processor 0 only). */
   
   if (thispe == 0) { 
-    printf("iheatpk: Heat equation, parallel example problem for IDA \n");
+    printf("\niheatpk: Heat equation, parallel example problem for IDA \n");
     printf("         Discretized heat equation on 2D unit square. \n");
     printf("         Zero boundary conditions,");
     printf(" polynomial initial conditions.\n");
@@ -252,68 +256,51 @@ int main(int argc, char *argv[])
 
     /* Print output table heading and initial line of table. */
     printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-    printf("  time     umax       k  nst  nni  nli   nre   nreS    h      npe nps\n");
-    printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
+    printf("  time     umax       k  nst  nni  nli   nre   nreS     h      npe nps\n");
+    printf("----------------------------------------------------------------------\n");
 
-    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %4d  %9.2e  %3d %3d\n",
+    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %4d  %9.2e  %3d %3d\n",
            t0, umax, 0, 0, 0, 0, 0, 0, 0.0, 0, 0);
   }
 
   /* Loop over tout, call IDASolve, print output. */
 
-  itask = IDA_NORMAL;
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-    
-    ier = IDASolve(mem, tout, &tret, uu, up, itask);
+    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
-
-    umax = N_VMaxNorm(uu);
-
-    if (thispe == 0) {
-      ier = IDAGetLastOrder(mem, &kused);
-      check_flag(&ier, "IDAGetLastOrder", 1, thispe);
-      ier = IDAGetNumSteps(mem, &nst);
-      check_flag(&ier, "IDAGetNumSteps", 1, thispe);
-      ier = IDAGetNumNonlinSolvIters(mem, &nni);
-      check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, thispe);
-      ier = IDAGetNumResEvals(mem, &nre);
-      check_flag(&ier, "IDAGetNumResEvals", 1, thispe);
-      ier = IDAGetLastStep(mem, &hused);
-      check_flag(&ier, "IDAGetLastStep", 1, thispe);
-      ier = IDASpgmrGetNumLinIters(mem, &nli);
-      check_flag(&ier, "IDASpgmrGetNumLinIters", 1, thispe);
-      ier = IDASpgmrGetNumPrecEvals(mem, &npe);
-      check_flag(&ier, "IDASpgmrGetNumPrecEvals", 1, thispe);
-      ier = IDASpgmrGetNumPrecSolves(mem, &nps);
-      check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1, thispe);
-      ier = IDASpgmrGetNumResEvals(mem, &nreS);
-      check_flag(&ier, "IDASpgmrGetNumResEvals", 1, thispe);
-      printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld %4ld  %9.2e  %3ld %3ld\n",
-             tret, umax, kused, nst, nni, nli, nre, nreS, hused, npe, nps);
-    }
-  }  /* End of tout loop. */
+    PrintOutput(mem, tret, uu, thispe);
+  }
   
   /* Print remaining counters and free memory. */
 
-  ier = IDAGetNumErrTestFails(mem, &netf);
-  check_flag(&ier, "IDAGetNumErrTestFails", 1, thispe);
+  if (thispe == 0) {
 
-  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1, thispe);
+    ier = IDAGetNumErrTestFails(mem, &netf);
+    check_flag(&ier, "IDAGetNumErrTestFails", 1, thispe);
+    
+    ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+    check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1, thispe);
+    
+    ier = IDASpgmrGetNumConvFails(mem, &ncfl);
+    check_flag(&ier, "IDASpgmrGetNumConvFails", 1, thispe);
+   
+    printf("\nError test failures            = %ld\n", netf);
+    printf("Nonlinear convergence failures = %ld\n", ncfn);
+    printf("Linear convergence failures    = %ld\n", ncfl);
+  }
 
-  ier = IDASpgmrGetNumConvFails(mem, &ncfl);
-  check_flag(&ier, "IDASpgmrGetNumConvFails", 1, thispe);
-
-  printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", netf, ncfn, ncfl);
+  /* Free memory */
 
   IDAFree(mem);
-  N_VDestroy(data->pp);
+
+  N_VDestroy_Parallel(id);
+  N_VDestroy_Parallel(constraints);
+  N_VDestroy_Parallel(res);
+  N_VDestroy_Parallel(up);
+  N_VDestroy_Parallel(uu);
+
+  N_VDestroy_Parallel(data->pp);
   free(data);
-  N_VDestroy(id);
-  N_VDestroy(constraints);
-  N_VDestroy(res);
-  N_VDestroy(up);
-  N_VDestroy(uu);
 
   MPI_Finalize();
 
@@ -321,92 +308,14 @@ int main(int argc, char *argv[])
 
 }
 
-/* 
- * InitUserData initializes the user's data block data. 
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY IDA
+ *--------------------------------------------------------------------
  */
 
-static int InitUserData(int thispe, MPI_Comm comm, UserData data)
-{
-  data->thispe = thispe;
-  data->dx = ONE/(MX-ONE);       /* Assumes a [0,1] interval in x. */
-  data->dy = ONE/(MY-ONE);       /* Assumes a [0,1] interval in y. */
-  data->coeffx  = ONE/(data->dx * data->dx);
-  data->coeffy  = ONE/(data->dy * data->dy);
-  data->coeffxy = TWO/(data->dx * data->dx) + TWO/(data->dy * data->dy) ;
-  data->jysub   = thispe/NPEX;
-  data->ixsub   = thispe - data->jysub * NPEX;
-  data->npex    = NPEX;
-  data->npey    = NPEY;
-  data->mx      = MX;
-  data->my      = MY;
-  data->mxsub = MXSUB;
-  data->mysub = MYSUB;
-  data->comm    = comm;
-  return(0);
-
-}
-
 /*
- * SetInitialProfile sets the initial values for the problem. 
- */
-
-static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
-                             N_Vector res, UserData data)
-{
-  long int i, iloc, j, jloc, offset, loc, ixsub, jysub;
-  long int ixbegin, ixend, jybegin, jyend;
-  realtype xfact, yfact, *udata, *iddata, dx, dy;
-  
-  /* Initialize uu. */ 
-
-  udata = NV_DATA_P(uu);
-  iddata = NV_DATA_P(id);
-  
-  /* Set mesh spacings and subgrid indices for this PE. */
-  dx = data->dx;
-  dy = data->dy;
-  ixsub = data->ixsub;
-  jysub = data->jysub;
-  
-  /* Set beginning and ending locations in the global array corresponding 
-     to the portion of that array assigned to this processor. */
-  ixbegin = MXSUB*ixsub;
-  ixend   = MXSUB*(ixsub+1) - 1;
-  jybegin = MYSUB*jysub;
-  jyend   = MYSUB*(jysub+1) - 1;
-  
-  /* Loop over the local array, computing the initial profile value.
-     The global indices are (i,j) and the local indices are (iloc,jloc).
-     Also set the id vector to zero for boundary points, one otherwise. */
-  
-  N_VConst(ONE,id);
-  for (j = jybegin, jloc = 0; j <= jyend; j++, jloc++) {
-    yfact = data->dy*j;
-    offset= jloc*MXSUB;
-    for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
-      xfact = data->dx * i;
-      loc = offset + iloc;
-      udata[loc] = 16. * xfact * (ONE - xfact) * yfact * (ONE - yfact);
-      if (i == 0 || i == MX-1 || j == 0 || j == MY-1) iddata[loc] = ZERO;
-    }
-  }
-  
-  /* Initialize up. */
-  
-  N_VConst(ZERO, up);    /* Initially set up = 0. */
-  
-  /* heatres sets res to negative of ODE RHS values at interior points. */
-  heatres(ZERO, uu, up, res, data);
-  
-  /* Copy -res into up to get correct initial up values. */
-  N_VScale(-ONE, res, up);
-  
-  return(0);
-
-}
-
-/*
- * heatres: heat equation system residual function                       
+ * resHeat: heat equation system residual function                       
  * This uses 5-point central differencing on the interior points, and    
  * includes algebraic equations for the boundary values.                 
  * So for each interior point, the residual component has the form       
@@ -421,7 +330,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * of uu required to calculate the residual. 
  */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
+int resHeat(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
 {
   int retval;
   UserData data;
@@ -437,6 +346,100 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
   return(0);
 
 }
+
+/*
+ * PsetupHeat: setup for diagonal preconditioner for heatsk.    
+ *                                                                 
+ * The optional user-supplied functions PsetupHeat and          
+ * PsolveHeat together must define the left preconditoner        
+ * matrix P approximating the system Jacobian matrix               
+ *                   J = dF/du + cj*dF/du'                         
+ * (where the DAE system is F(t,u,u') = 0), and solve the linear   
+ * systems P z = r.   This is done in this case by keeping only    
+ * the diagonal elements of the J matrix above, storing them as    
+ * inverses in a vector pp, when computed in PsetupHeat, for    
+ * subsequent use in PsolveHeat.                                 
+ *                                                                 
+ * In this instance, only cj and data (user data structure, with    
+ * pp etc.) are used from the PsetupHeat argument list.         
+ *
+ */
+
+int PsetupHeat(realtype tt, N_Vector yy,
+               N_Vector yp, N_Vector rr, 
+               realtype cj, void *pdata,
+               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+{
+  realtype *ppv, pelinv;
+  long int lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
+  long int ixsub, jysub, npex, npey;
+  UserData data;
+
+  data = (UserData) pdata;
+
+  ppv = NV_DATA_P(data->pp);
+  ixsub = data->ixsub;
+  jysub = data->jysub;
+  mxsub = data->mxsub;
+  mysub = data->mysub;
+  npex  = data->npex;
+  npey  = data->npey;
+  
+  /* Initially set all pp elements to one. */
+  N_VConst(ONE, data->pp);
+  
+  /* Prepare to loop over subgrid. */
+  ixbegin = 0;
+  ixend   = mxsub-1;
+  jybegin = 0;
+  jyend   = mysub-1;
+  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
+  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
+  pelinv = ONE/(cj + data->coeffxy); 
+  
+  /* Load the inverse of the preconditioner diagonal elements
+     in loop over all the local subgrid. */
+  
+  for (ly = jybegin; ly <=jyend; ly++) {
+    for (lx = ixbegin; lx <= ixend; lx++) {
+      locu  = lx + ly*mxsub;
+      ppv[locu] = pelinv;
+    }
+  }
+
+  return(0);
+
+}
+
+/*
+ * PsolveHeat: solve preconditioner linear system.              
+ * This routine multiplies the input vector rvec by the vector pp 
+ * containing the inverse diagonal Jacobian elements (previously  
+ * computed in PsetupHeat), returning the result in zvec.      
+ */
+
+int PsolveHeat(realtype tt, N_Vector uu,
+               N_Vector up, N_Vector rr, 
+               N_Vector rvec, N_Vector zvec,
+               realtype cj, realtype delta,
+               void *pdata, N_Vector tempv)
+{
+  UserData data;
+
+  data = (UserData) pdata;
+  
+  N_VProd(data->pp,rvec, zvec);
+
+  return(0);
+
+}
+
+/*
+ *--------------------------------------------------------------------
+ * SUPPORTING FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
 
 /* 
  * rescomm routine.  This routine performs all inter-processor
@@ -689,90 +692,132 @@ static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
 }
 
 /*
- * PrecondHeateq: setup for diagonal preconditioner for heatsk.    
- *                                                                 
- * The optional user-supplied functions PrecondHeateq and          
- * PSolveHeateq together must define the left preconditoner        
- * matrix P approximating the system Jacobian matrix               
- *                   J = dF/du + cj*dF/du'                         
- * (where the DAE system is F(t,u,u') = 0), and solve the linear   
- * systems P z = r.   This is done in this case by keeping only    
- * the diagonal elements of the J matrix above, storing them as    
- * inverses in a vector pp, when computed in PrecondHeateq, for    
- * subsequent use in PSolveHeateq.                                 
- *                                                                 
- * In this instance, only cj and data (user data structure, with    
- * pp etc.) are used from the PrecondHeateq argument list.         
- *
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
  */
 
-int PrecondHeateq(realtype tt, N_Vector yy,
-                  N_Vector yp, N_Vector rr, 
-                  realtype cj, void *pdata,
-                  N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+/* 
+ * InitUserData initializes the user's data block data. 
+ */
+
+static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 {
-  realtype *ppv, pelinv;
-  long int lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
-  long int ixsub, jysub, npex, npey;
-  UserData data;
-
-  data = (UserData) pdata;
-
-  ppv = NV_DATA_P(data->pp);
-  ixsub = data->ixsub;
-  jysub = data->jysub;
-  mxsub = data->mxsub;
-  mysub = data->mysub;
-  npex  = data->npex;
-  npey  = data->npey;
-  
-  /* Initially set all pp elements to one. */
-  N_VConst(ONE, data->pp);
-  
-  /* Prepare to loop over subgrid. */
-  ixbegin = 0;
-  ixend   = mxsub-1;
-  jybegin = 0;
-  jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
-  pelinv = ONE/(cj + data->coeffxy); 
-  
-  /* Load the inverse of the preconditioner diagonal elements
-     in loop over all the local subgrid. */
-  
-  for (ly = jybegin; ly <=jyend; ly++) {
-    for (lx = ixbegin; lx <= ixend; lx++) {
-      locu  = lx + ly*mxsub;
-      ppv[locu] = pelinv;
-    }
-  }
-
+  data->thispe = thispe;
+  data->dx = ONE/(MX-ONE);       /* Assumes a [0,1] interval in x. */
+  data->dy = ONE/(MY-ONE);       /* Assumes a [0,1] interval in y. */
+  data->coeffx  = ONE/(data->dx * data->dx);
+  data->coeffy  = ONE/(data->dy * data->dy);
+  data->coeffxy = TWO/(data->dx * data->dx) + TWO/(data->dy * data->dy) ;
+  data->jysub   = thispe/NPEX;
+  data->ixsub   = thispe - data->jysub * NPEX;
+  data->npex    = NPEX;
+  data->npey    = NPEY;
+  data->mx      = MX;
+  data->my      = MY;
+  data->mxsub = MXSUB;
+  data->mysub = MYSUB;
+  data->comm    = comm;
   return(0);
 
 }
 
 /*
- * PSolveHeateq: solve preconditioner linear system.              
- * This routine multiplies the input vector rvec by the vector pp 
- * containing the inverse diagonal Jacobian elements (previously  
- * computed in PrecondHeateq), returning the result in zvec.      
+ * SetInitialProfile sets the initial values for the problem. 
  */
 
-int PSolveHeateq(realtype tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, 
-                 N_Vector rvec, N_Vector zvec,
-                 realtype cj, realtype delta,
-                 void *pdata, N_Vector tempv)
+static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
+                             N_Vector res, UserData data)
 {
-  UserData data;
-
-  data = (UserData) pdata;
+  long int i, iloc, j, jloc, offset, loc, ixsub, jysub;
+  long int ixbegin, ixend, jybegin, jyend;
+  realtype xfact, yfact, *udata, *iddata, dx, dy;
   
-  N_VProd(data->pp,rvec, zvec);
+  /* Initialize uu. */ 
 
+  udata = NV_DATA_P(uu);
+  iddata = NV_DATA_P(id);
+  
+  /* Set mesh spacings and subgrid indices for this PE. */
+  dx = data->dx;
+  dy = data->dy;
+  ixsub = data->ixsub;
+  jysub = data->jysub;
+  
+  /* Set beginning and ending locations in the global array corresponding 
+     to the portion of that array assigned to this processor. */
+  ixbegin = MXSUB*ixsub;
+  ixend   = MXSUB*(ixsub+1) - 1;
+  jybegin = MYSUB*jysub;
+  jyend   = MYSUB*(jysub+1) - 1;
+  
+  /* Loop over the local array, computing the initial profile value.
+     The global indices are (i,j) and the local indices are (iloc,jloc).
+     Also set the id vector to zero for boundary points, one otherwise. */
+  
+  N_VConst(ONE,id);
+  for (j = jybegin, jloc = 0; j <= jyend; j++, jloc++) {
+    yfact = data->dy*j;
+    offset= jloc*MXSUB;
+    for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
+      xfact = data->dx * i;
+      loc = offset + iloc;
+      udata[loc] = 16. * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      if (i == 0 || i == MX-1 || j == 0 || j == MY-1) iddata[loc] = ZERO;
+    }
+  }
+  
+  /* Initialize up. */
+  
+  N_VConst(ZERO, up);    /* Initially set up = 0. */
+  
+  /* resHeat sets res to negative of ODE RHS values at interior points. */
+  resHeat(ZERO, uu, up, res, data);
+  
+  /* Copy -res into up to get correct initial up values. */
+  N_VScale(-ONE, res, up);
+  
   return(0);
+}
 
+/*
+ * PrintOutput: print max norm of solution and current solver statistics
+ */
+
+static void PrintOutput(void *mem, realtype t, N_Vector uu, int thispe)
+{
+  realtype hused, umax;
+  long int nst, nni, nje, nre, nreS, nli, npe, nps;
+  int kused, ier;
+
+  umax = N_VMaxNorm(uu);
+
+  if (thispe == 0) {
+
+    ier = IDAGetLastOrder(mem, &kused);
+    check_flag(&ier, "IDAGetLastOrder", 1, thispe);
+    ier = IDAGetNumSteps(mem, &nst);
+    check_flag(&ier, "IDAGetNumSteps", 1, thispe);
+    ier = IDAGetNumNonlinSolvIters(mem, &nni);
+    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, thispe);
+    ier = IDAGetNumResEvals(mem, &nre);
+    check_flag(&ier, "IDAGetNumResEvals", 1, thispe);
+    ier = IDAGetLastStep(mem, &hused);
+    check_flag(&ier, "IDAGetLastStep", 1, thispe);
+    ier = IDASpgmrGetNumJtimesEvals(mem, &nje);
+    check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1, thispe);
+    ier = IDASpgmrGetNumLinIters(mem, &nli);
+    check_flag(&ier, "IDASpgmrGetNumLinIters", 1, thispe);
+    ier = IDASpgmrGetNumResEvals(mem, &nreS);
+    check_flag(&ier, "IDASpgmrGetNumResEvals", 1, thispe);
+    ier = IDASpgmrGetNumPrecEvals(mem, &npe);
+    check_flag(&ier, "IDASpgmrGetPrecEvals", 1, thispe);
+    ier = IDASpgmrGetNumPrecSolves(mem, &nps);
+    check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1, thispe);
+    
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
+           t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+  }
 }
 
 /*
@@ -789,28 +834,28 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {
   int *errflag;
 
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
+    /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
             id, funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
+    return(1); 
+  } else if (opt == 1) {
+    /* Check if flag < 0 */
     errflag = flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, 
               "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", 
               id, funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
             id, funcname);
-    return(1); }
+    return(1); 
+  }
 
   return(0);
 }
