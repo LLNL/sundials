@@ -1,14 +1,13 @@
 % LaTeX source for KINSOL user's guide.
 % Last revised 6 July 1998.
 
-\input{prtgrph}
-
-\documentstyle[12pt]{siam}
+\documentclass[11pt]{article}
+\usepackage{epsfig}
 
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 \setlength{\textwidth}{6.5in}
-
+\setlength{\textheight}{8.5in}
 
 \title{User Documentation for KINSOL, a Nonlinear Solver for Sequential and 
 Parallel Computers%
@@ -26,51 +25,41 @@ contract W-7405-ENG-48.  Work supported by LDRD, Project 95-ER-036.} }
 \thispagestyle{empty}
 
 % Generate cover page
-
-\vspace*{\fill}
-\vspace*{0.1in}
-
+\vspace{2in}
 \begin{center}
-
-\LARGE
-User Documentation for KINSOL, \\ A Nonlinear Solver for Sequential and Parallel Computers
-
-\par\vspace*{0.7in}
-\large
-A.G. Taylor\\{\em Lawrence Livermore National Laboratory}
-\par\bigskip
-
-A.C. Hindmarsh\\{\em Lawrence Livermore National Laboratory}
-\end{center}
-
+  {\LARGE
+    User Documentation for KINSOL, \\ 
+    A Nonlinear Solver \\
+    for Sequential and Parallel Computers
+    }
+  \\
+  \vspace{1in}
+  {\large Allan G. Taylor}\\
+  {\large\em Lawrence Livermore National Laboratory}\\
+  \vspace{0.25in}
+  {\large Alan C. Hindmarsh}\\
+  {\large\em Lawrence Livermore National Laboratory}
+\end{center}  
 \vfill
-\mbox{}
-\vfill
-\vspace*{3.5in}
-
 % LLNL report info
-
-\par\Large\it Center for Applied Scientific Computing
-\vspace*{0.7in}
-\par\large UCRL-ID-131185
-\par\large July 1998
+{\large\it Center for Applied Scientific Computing}\\
+\vspace{0.7in}\\
+{\large UCRL-ID-131185}\\
+{\large July 1998}
 
 \newpage
+
 \thispagestyle{empty}
 
 % Disclaimer and preprint blurb page
 
 \vspace*{1.0in}
-
 \scriptsize
 \begin{center}
 \begin{minipage}{4.0in}
-
 \begin{center}
-
 DISCLAIMER
 \end{center}
-
 This document was prepared as an account of work sponsored by an
 agency of the United States Government.
 Neither the United States Government nor the University of California
@@ -88,17 +77,14 @@ The views and opinions of authors expressed herein do not necessarily
 state or reflect those of the United States Government or the
 University of California, and shall not be used for advertising or
 product endorsement purposes.  
-
 \par\vspace*{1.0in}
-
-\begin{center}
-PREPRINT
-\end{center}
-
-This is a preprint of a paper submitted to [journal/conference].  
-Since changes may be made before publication, this preprint is made
-available with the understanding that it will not be cited or
-reproduced without the permission of the author.
+%\begin{center}
+%PREPRINT
+%\end{center}
+%This is a preprint of a paper submitted to [journal/conference].  
+%Since changes may be made before publication, this preprint is made
+%available with the understanding that it will not be cited or
+%reproduced without the permission of the author.
 \end{minipage}
 \end{center}
 
@@ -160,15 +146,14 @@ where $F(u)$ is a nonlinear function from ${\bf R}^N$ to ${\bf R}^N$, is
 solved by this package. An Inexact Newton method is applied to (\ref{nonlinear system}) 
 resulting in the following iteration:
 
-\newpage
-
+\vspace{0.2in}
 {\bf Inexact Newton iteration}
 \begin{enumerate}
    \item Set $u_0 = $ an initial guess
    \item For $n = 0, 1, 2,...$ until convergence do:\nonumber 
       \begin{itemize}
           \item[(a)] Solve $J(u_n)\delta_n = - F(u_n)$ 
-	  \item[(b)] Set $u_{n+1} = u_n + \delta_n$
+      \item[(b)] Set $u_{n+1} = u_n + \delta_n$
           \item[(c)] Test for convergence
       \end{itemize}
 \end{enumerate}
@@ -256,7 +241,7 @@ is implemented in the second strategy, called Linesearch. The so-called
 linear convergence tolerance are also implemented. 
 
 A fundamental set of mathematical operations on $N$-vectors has been written
-for both CVODE/PVODE and KINSOL. This set of computational kernels exists in
+for both KINSOL and CVODE/PVODE. This set of computational kernels exists in
 a distinct code module called {\tt NVECTOR}. By separating these frequent 
 operations from the rest of the code, almost all operations in KINSOL with 
 significant potential for parallel computation have been isolated. Then, two
@@ -268,8 +253,7 @@ scaling, and copy, vector norms, scalar products, and so forth.
 \section{Code Organization}
 
 \begin{figure}[p]
-\VGPrint{kinorg.ps}{5.5}{8}{1.4}{1.5}{1.0}
-\vspace{0.8in}
+\centerline{\psfig{figure=kinorg.eps,height=7.0in}}
 \caption{Overall structure of the KINSOL package.
   Modules comprising the central solver are distinguished by rounded
   boxes, while the user program, generic linear solvers, and auxiliary
@@ -379,8 +363,11 @@ module there are two corresponding files. For example, {\tt KINSOL} requires
 both the files {\tt kinsol.c} and {\tt kinsol.h} .
 
 
-\begin{table}[htb]
+\begin{table}%[htb]
 \begin{center}
+\caption{Modules in the KINSOL package}
+\label{KINmodules}
+\vspace{0.1 in}
 \begin{tabular}{|l|l|l|} \hline
 Module name & User-callable routines & other contents \\ \hline \hline
 {\tt KINSOL} & {\tt KINMalloc}, {\tt KINSol}, & system function type {\tt SysFn};
@@ -401,14 +388,14 @@ macros \\
          & & Macros {\tt MIN, MAX, ABS, SQR} \\ \hline
 {\tt LLNLTYPS} & & Types {\tt real}, {\tt integer}, {\tt boole} \\ \hline
 \end{tabular}
-\vspace{0.1 in}
-\caption{Modules in the KINSOL package}
-\label{KINmodules}
 \end{center}
 \end{table}
 
-\begin{table}[hkb]
+\begin{table}%[hkb]
 \begin{center}
+\caption{User-supplied routines for KINSOL}
+\label{user-supplied-routines}
+\vspace{.1 in}
 \begin{tabular}{|l|l|} \hline
 typedef name  (* - optional) &  purpose of user-supplied routine \\ \hline \hline
 {\tt SysFn} & the function ${F(u)}$, also known as {\tt func(uu)} \\  \hline
@@ -420,9 +407,6 @@ typedef name  (* - optional) &  purpose of user-supplied routine \\ \hline \hlin
 {\tt KINCommFn}* & interprocessor communication function \\
  & (BBD preconditioner) \\ \hline
 \end{tabular}
-\vspace{.1 in}
-\caption{User-supplied routines for KINSOL}
-\label{user-supplied-routines}
 \end{center}
 \end{table}
 
@@ -531,7 +515,7 @@ int KINSol(void *kinmem, integer Neq,
  *         uround is the unit roundoff for the machine            *
  *         in use for the calculation. (see UnitRoundoff in       *
  *         llnlmath module                                        *
- *        							  *
+ *                                    *
  * scsteptol  is a real (scalar) value containing the stopping    *
  *         tolerance on the maximum scaled step  uu(k) - uu(k-1). *
  *         If scsteptol is input as 0., then a default value of   *
@@ -982,10 +966,10 @@ described.
 
 void KINSpgmr(void *kin_mem, int maxl, int maxlrst, int msbpre,
               KINSpgmrPrecondFn precondset, 
-	      KINSpgmrPrecondSolveFn precondsolve,
-	      KINSpgmruserAtimesFn userAtimes,
+          KINSpgmrPrecondSolveFn precondsolve,
+          KINSpgmruserAtimesFn userAtimes,
               void *P_data);
-	 
+     
 /******************************************************************
  *                                                                *
  * Function : KINSpgmr                                            *
@@ -1143,7 +1127,7 @@ given next.
 \item  {\tt KINSpgmr(kmem, \ldots);}
 
 \item  {\tt retcode=KINSol(kmem,...);}
-	
+    
 \item  {\tt KINFree(mem);}
 
 \end{enumerate}
@@ -1183,12 +1167,12 @@ set of processors.
    
 
 \item  {\tt KINSpgmr(\ldots)};  call the setup routine for the linear solver to be used.
-	      Note that only {\tt KINSpgmr} is available at present.
+          Note that only {\tt KINSpgmr} is available at present.
     
 \item  {\tt flag= KINSol(kmem, Neq, u, func, ... , machEnv);}
-	   call the KINSOL main routine -- can be called repetitively with
-	   different functions {\tt func} and other options. A linear solver
-	   choice made in step 7, when another choice is available, cannot 
+       call the KINSOL main routine -- can be called repetitively with
+       different functions {\tt func} and other options. A linear solver
+       choice made in step 7, when another choice is available, cannot 
            be changed between {\tt KINSol} calls.   
    
 \item {\tt N\_VDISPOSE}(  ); or {\tt N\_VFree}( ); call, as appropriate.
@@ -1339,11 +1323,11 @@ typedef int (*KINSpgmrPrecondFn)(integer Neq,
   
 
 typedef int (*KINSpgmrPrecondSolveFn)(integer Neq,
-				      N_Vector uu, N_Vector uscale, 
-				      N_Vector fval, N_Vector fscale, 
-				      N_Vector vtem, N_Vector ftem,
-				      SysFn func, real u_round,
-				      long int *nfePtr, void *P_data);
+                      N_Vector uu, N_Vector uscale, 
+                      N_Vector fval, N_Vector fscale, 
+                      N_Vector vtem, N_Vector ftem,
+                      SysFn func, real u_round,
+                      long int *nfePtr, void *P_data);
  
 /******************************************************************
  *                                                                *           
@@ -1413,8 +1397,8 @@ routine {\tt KINSpgmr}, in particular.
 \begin{verbatim}
 
 typedef int (*KINSpgmruserAtimesFn)(void *f_data, N_Vector v, 
-				    N_Vector z, boole *new_uu, 
-				    N_Vector uu);
+                    N_Vector z, boole *new_uu, 
+                    N_Vector uu);
   
 /******************************************************************
  *                                                                *
@@ -1695,7 +1679,7 @@ with saved matrix data, respectively, each  without or with a user-supplied
 Jacobian-vector multiply ({\tt FATIMES}) routine. For example, {\tt FKINSPGMR11}
 uses conditioning but no setup routine ({\tt psolve} but no {\tt precondset}) 
 and also the user has supplied a routine {\tt FATIMES} that performs the 
-Jacobian-vector multiply 	used in the GMRES solver.
+Jacobian-vector multiply    used in the GMRES solver.
 
 \item  {\tt FKINSOL} interfaces with {\tt KINSol}.
 
@@ -1712,7 +1696,7 @@ memory allocated for MPI.
 \begin{center}
 \begin{tabular}{|l|l|} \hline
 MODULE & Fortran-callable routine \\ \hline \hline
-	
+    
 {\tt FKINSOL} & {\tt FKINITMPI, FKFREEMPI, FPKINMALLOC,} \\ 
            &{\tt FKINFREE, FKINSPGMR00, FKINSOL} \\ \hline
 {\tt FKINSPGMR01}  &  {\tt FKINSPGMR01} \\ \hline
@@ -1780,14 +1764,14 @@ pattern established above for the C interface.
       Here, {\tt nlocal} and {\tt neq} are the local and global sizes of vectors to be used.
 
 \item  {\tt call MPI\_COMM\_SIZE(...)} or {\tt call MPI\_COMM\_RANK(...)} Optional calls to 
-	determine logical processor number and count, part of MPI, proper.
+    determine logical processor number and count, part of MPI, proper.
 
 \item  {\tt call FPKINMALLOC(...)} Allocate space for {\tt KINSOL}.
 
 \item  {\tt call FKINSPGMR20(...)} Set up the linear solver. The
-	choice illustrated here is for both a setup and solve preconditioner 
-	routine to be supplied by the user in Fortran, but no user-supplied
-	{\tt FATIMES} routine.
+    choice illustrated here is for both a setup and solve preconditioner 
+    routine to be supplied by the user in Fortran, but no user-supplied
+    {\tt FATIMES} routine.
 
 \item  {\tt call FKINSOL(...)} Call {\tt KINSol}, through the Fortran interface.
 
@@ -1803,9 +1787,9 @@ pattern established above for the C interface.
 \item  {\tt call FPKINMALLOC(...)} Allocate space for {\tt KINSOL}.
 
 \item  {\tt call FKINSPGMR20(...)} Set up the linear solver. The
-	choice illustrated here is for both a setup and solve preconditioner 
-	routine to be supplied by the user in Fortran, but no user-supplied
-	{\tt FATIMES} routine.
+    choice illustrated here is for both a setup and solve preconditioner 
+    routine to be supplied by the user in Fortran, but no user-supplied
+    {\tt FATIMES} routine.
 
 \item  {\tt call FKINSOL(...)} Call {\tt KINSol}, through the Fortran interface.
 
@@ -2054,8 +2038,8 @@ Comp. 7 (1986), pp. 856--869.
 /* Problem Constants */
 
 #define NUM_SPECIES     6         /*  must equal 2*(number of prey or
-				      predators)  number of prey = 
-				      number of predators */
+                      predators)  number of prey = 
+                      number of predators */
 
 #define PI       3.1415926535898   /* pi */ 
 
@@ -2130,14 +2114,14 @@ static real DotProd(integer size, real *x1, real *x2);
 static void BSend(MPI_Comm comm, integer my_pe, integer isubx, integer isuby,
                   integer dsizex, integer dsizey, real *cdata);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
-		      integer isubx, integer isuby,
-		      integer dsizex, integer dsizey,
-		      real *cext, real *buffer);
+              integer isubx, integer isuby,
+              integer dsizex, integer dsizey,
+              real *cext, real *buffer);
 static void BRecvWait(MPI_Request request[], integer isubx, integer isuby,
-		      integer dsizex, real *cext, real *buffer);
+              integer dsizex, real *cext, real *buffer);
 static void ccomm(integer Neq, real *cdata, UserData data);
 static void fcalcprpr(integer Neq, N_Vector cc, N_Vector fval, 
-	             void *f_data);
+                 void *f_data);
 
 
 
@@ -2149,15 +2133,15 @@ static void funcprpr(integer Neq, N_Vector cc, N_Vector fval,
 
 
 static int Precondbd(integer Neq, N_Vector cc, N_Vector cscale,
-		   N_Vector fval, N_Vector fscale,
-		   N_Vector vtem,N_Vector vtemp1, SysFn func, real uround,
-		   long int *nfePtr, void *P_data);
+           N_Vector fval, N_Vector fscale,
+           N_Vector vtem,N_Vector vtemp1, SysFn func, real uround,
+           long int *nfePtr, void *P_data);
 
 
 static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
-		  N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-		  SysFn func, real uround, 
-		  long int *nfePtr, void *P_data);
+          N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
+          SysFn func, real uround, 
+          long int *nfePtr, void *P_data);
 
 
 
@@ -2213,7 +2197,7 @@ main(int argc, char *argv[])
 /* example of changing defaults using iopt */
   optIn = TRUE; for(i=0;i<KINSOL_IOPT_SIZE;i++)iopt[i]=0; 
                 for(i=0;i<KINSOL_ROPT_SIZE;i++)ropt[i]=ZERO;
-		iopt[MXITER]=250; 
+        iopt[MXITER]=250; 
 
 /* choose global strategy */
   globalstrategy = INEXACT_NEWTON;
@@ -2243,16 +2227,16 @@ main(int argc, char *argv[])
       the user-defined  block data.               */
 
   KINSpgmr(kmem,
-	   16, /* a zero in this position forces use of the KINSpgmr default
-		  for maxl, dimension of the Krylov space*/
-	   2,  /* if zero in this position forces use of the KINSpgmr default
-	        for maxlrst, the max number of linear solver restarts allowed*/
-	   0,  /* a zero in this position forces use of the KINSpgmr default 
-		  for msbpre, the number of calls to the preconditioner allowed
-		  without a call to the preconditioner setup routine */
+       16, /* a zero in this position forces use of the KINSpgmr default
+          for maxl, dimension of the Krylov space*/
+       2,  /* if zero in this position forces use of the KINSpgmr default
+            for maxlrst, the max number of linear solver restarts allowed*/
+       0,  /* a zero in this position forces use of the KINSpgmr default 
+          for msbpre, the number of calls to the preconditioner allowed
+          without a call to the preconditioner setup routine */
            Precondbd, /* user-supplied preconditioner setup routine */
            PSolvebd,  /* user-supplied preconditioner solve routine */
-	   NULL,   /* user-supplied ATimes routine -- Null chosen here */
+       NULL,   /* user-supplied ATimes routine -- Null chosen here */
            data);
 
   if(my_pe==0)printf(" \n predator-prey test problem --  KINSol\n\n");
@@ -2265,7 +2249,7 @@ main(int argc, char *argv[])
     printf("Total system size %d\n",Neq);
     printf("Preconditioning uses interaction-only block-diagonal matrix\n");
     printf("tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
-	           fnormtol,scsteptol);
+               fnormtol,scsteptol);
 
     printf("\nInitial profile of concentration\n");
   }
@@ -2275,21 +2259,21 @@ main(int argc, char *argv[])
   /* call KINSol and print output concentration profile */
 
   flag = KINSol(kmem,           /* KINSol memory block */
-		Neq,            /* system size -- number of equations  */
-		cc,             /* solution cc of funcprpr(cc)=0 is desired */
-		funcprpr,       /* function describing the system equations */
-		globalstrategy, /* global stragegy choice */
-		sc,             /* scaling vector, for the variable cc */
-		sc,             /* scaling vector for function values fval */
-		fnormtol,       /* tolerance on fnorm funcprpr(cc) for sol'n */
-		scsteptol,      /* step size tolerance */
-		constraints,    /* constraints vector  */
-		optIn,          /* optional inputs flat: TRUE or FALSE */
-		iopt,           /* integer optional input array */
-		ropt,           /* real optional input array */
-		data,           /* pointer to user data */
-		msgfile,        /* file pointer to message file */
-		machEnv);          /* machEnv pointer */
+        Neq,            /* system size -- number of equations  */
+        cc,             /* solution cc of funcprpr(cc)=0 is desired */
+        funcprpr,       /* function describing the system equations */
+        globalstrategy, /* global stragegy choice */
+        sc,             /* scaling vector, for the variable cc */
+        sc,             /* scaling vector for function values fval */
+        fnormtol,       /* tolerance on fnorm funcprpr(cc) for sol'n */
+        scsteptol,      /* step size tolerance */
+        constraints,    /* constraints vector  */
+        optIn,          /* optional inputs flat: TRUE or FALSE */
+        iopt,           /* integer optional input array */
+        ropt,           /* real optional input array */
+        data,           /* pointer to user data */
+        msgfile,        /* file pointer to message file */
+        machEnv);          /* machEnv pointer */
 
   if(my_pe==0){
    if (flag != KINSOL_SUCCESS) { 
@@ -2470,8 +2454,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
       st1 = IJ_Vptr(sc,jx,jy);
       st2 = stemp;
       for(i=0;i<NUM_SPECIES;i++){
-	*ct1++=*ct2++;
-	*st1++=*st2++;
+    *ct1++=*ct2++;
+    *st1++=*st2++;
       }
     }
   }
@@ -2598,9 +2582,9 @@ static void BSend(MPI_Comm comm, integer my_pe, integer isubx, integer isuby,
    2) request should have 4 entries, and should be passed in both calls also. */
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
-		      integer isubx, integer isuby,
-		      integer dsizex, integer dsizey,
-		      real *cext, real *buffer)
+              integer isubx, integer isuby,
+              integer dsizex, integer dsizey,
+              real *cext, real *buffer)
 {
   integer offsetce;
   /* Have bufleft and bufright use the same buffer */
@@ -2609,7 +2593,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
   /* If isuby > 0, receive data for bottom x-line of cext */
   if (isuby != 0)
     MPI_Irecv(&cext[NUM_SPECIES], dsizex, PVEC_REAL_MPI_TYPE,
-    					 my_pe-NPEX, 0, comm, &request[0]);
+                         my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of cext */
   if (isuby != NPEY-1) {
@@ -2644,7 +2628,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integer my_pe,
    2) request should have 4 entries, and should be passed in both calls also. */
 
 static void BRecvWait(MPI_Request request[], integer isubx, integer isuby,
-		      integer dsizex, real *cext, real *buffer)
+              integer dsizex, real *cext, real *buffer)
 {
   int i, ly;
   integer dsizex2, offsetce, offsetbuf;
@@ -2683,7 +2667,7 @@ static void BRecvWait(MPI_Request request[], integer isubx, integer isuby,
       offsetbuf = ly*NUM_SPECIES;
       offsetce = (ly+2)*dsizex2 - NUM_SPECIES;
       for (i = 0; i < NUM_SPECIES; i++)
-	cext[offsetce+i] = bufright[offsetbuf+i];
+    cext[offsetce+i] = bufright[offsetbuf+i];
     }
   }
 
@@ -2732,7 +2716,7 @@ static void ccomm(integer Neq,real *cdata, UserData data)
 /* system function for predator - prey system  calculation part */
 
 static void fcalcprpr(integer Neq, N_Vector cc, N_Vector fval, 
-	             void *f_data)
+                 void *f_data)
 {
   real xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   real *cext, dely, delx, *cdata;
@@ -2820,20 +2804,20 @@ static void fcalcprpr(integer Neq, N_Vector cc, N_Vector fval,
       
       for(is=0; is<NUM_SPECIES; is++){
 
-	/* differencing in x */
+    /* differencing in x */
 
-	dcydi = cext[offsetc+is]  - cext[offsetcd+is];
+    dcydi = cext[offsetc+is]  - cext[offsetcd+is];
         dcyui = cext[offsetcu+is] - cext[offsetc+is];
-	
-	/* differencing in y */
+    
+    /* differencing in y */
 
-	dcxli = cext[offsetc+is]  - cext[offsetcl+is];
-	dcxri = cext[offsetcr+is] - cext[offsetc+is];
+    dcxli = cext[offsetc+is]  - cext[offsetcl+is];
+    dcxri = cext[offsetcr+is] - cext[offsetc+is];
 
-	/* compute the value at xx , yy */
+    /* compute the value at xx , yy */
 
-	fxy[is] = (coy)[is] * (dcyui - dcydi) +
-	           (cox)[is] * (dcxri - dcxli) + rxy[is];
+    fxy[is] = (coy)[is] * (dcyui - dcydi) +
+               (cox)[is] * (dcxri - dcxli) + rxy[is];
 
       } /* end is loop */
 
@@ -2879,9 +2863,9 @@ static void funcprpr(integer Neq, N_Vector cc, N_Vector fval, void *f_data)
 /* Preconditioner setup routine. Generate and preprocess P. */
 
 static int Precondbd(integer Neq, N_Vector cc, N_Vector cscale,
-		   N_Vector fval, N_Vector fscale,
-		   N_Vector vtem, N_Vector vtemp1, SysFn func, real uround,
-		   long int *nfePtr, void *P_data)
+           N_Vector fval, N_Vector fscale,
+           N_Vector vtem, N_Vector vtemp1, SysFn func, real uround,
+           long int *nfePtr, void *P_data)
 {
   real r, r0, sqruround;
   real xx, yy, *cxy, *scxy, cctemp, **Pxy, *ratesxy, *Pxycol;
@@ -2916,21 +2900,21 @@ static int Precondbd(integer Neq, N_Vector cc, N_Vector cscale,
 
       for(j=0; j<NUM_SPECIES; j++){
 
-	cctemp=cxy[j];  /* save the j,jx,jy element of cc */
-	r=MAX(sqruround * ABS(cctemp),r0/scxy[j]);
-	cxy[j] += r; /* perturb the j,jx,jy element of cc */
-	fac = ONE/r;
+    cctemp=cxy[j];  /* save the j,jx,jy element of cc */
+    r=MAX(sqruround * ABS(cctemp),r0/scxy[j]);
+    cxy[j] += r; /* perturb the j,jx,jy element of cc */
+    fac = ONE/r;
 
-	WebRate(xx, yy, cxy, perturb_rates,data);
+    WebRate(xx, yy, cxy, perturb_rates,data);
 
-	Pxycol = Pxy[j];
+    Pxycol = Pxy[j];
 
-	for(i=0; i<NUM_SPECIES; i++) {
-	  Pxycol[i]=(perturb_rates[i]-ratesxy[i]) * fac;
-	}
+    for(i=0; i<NUM_SPECIES; i++) {
+      Pxycol[i]=(perturb_rates[i]-ratesxy[i]) * fac;
+    }
 
-	/* restore j,jx,jy element of cc */
-	cxy[j] = cctemp;
+    /* restore j,jx,jy element of cc */
+    cxy[j] = cctemp;
 
       } /* end of j loop */
 
@@ -2955,9 +2939,9 @@ static int Precondbd(integer Neq, N_Vector cc, N_Vector cscale,
 /* Preconditioner solve routine */
 
 static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
-		  N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-		  SysFn func, real uround, 
-		  long int *nfePtr, void *P_data)
+          N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
+          SysFn func, real uround, 
+          long int *nfePtr, void *P_data)
 {
  real **Pxy, *vxy;
  integer *pivot, jx, jy;
@@ -2969,8 +2953,8 @@ static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
    for(jy=0; jy<MYSUB; jy++){
      /* for a given jx,jy block, do the inversion process */
      /* vvxy is the address of the portion of the vector to which the
-	inversion process is applied, and Pxy is the first address for the 
-	jx,jy block of P */
+    inversion process is applied, and Pxy is the first address for the 
+    jx,jy block of P */
      pivot=(data->pivot)[jx][jy];
      Pxy = (data->P)[jx][jy];
      vxy = IJ_Vptr(vv,jx,jy);
@@ -3003,7 +2987,7 @@ static void WebRate(real xx, real yy, real *cxy, real *ratesxy, void *f_data)
   fac = ONE + ALPHA * xx * yy;
 
   for(i=0; i<NUM_SPECIES; i++){  ratesxy[i] = cxy[i] *
-				 ( bcoef[i] * fac + ratesxy[i] );
+                 ( bcoef[i] * fac + ratesxy[i] );
   }
 
 } /* end WebRate */
