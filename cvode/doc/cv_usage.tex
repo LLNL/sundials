@@ -4974,17 +4974,6 @@ variable, as well as the {\cvode} optional function which is actually called.
 For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
 and \S\ref{ss:optional_output}.
 
-There is only one optional output routine in {\fcvode}. If one of the
-user-provided Jacobian information routines uses difference quotient approximations,
-it may need to access the array of error weights. This array can be obtained
-by making the call:
-\begin{verbatim}
-      CALL FCVGETEWT (EWT, IER)
-\end{verbatim}
-where \id{EWT} is an array containing the error weights (which need not be 
-allocated by the user) and \id{IER} is an error return flag which can be 
-$0$ if \id{EWT} was successfully set and non-zero if an error occurred.
-
 \begin{table}
 \centering
 \caption{Description of the {\fcvode} optional input-output arrays \Id{IOPT} and \Id{ROPT}}
@@ -5200,10 +5189,10 @@ apply to {\nvecp}.
 \item\label{i:fcvode_lin_solv_spec} {\bf Linear solver specification} 
   
   In the case of a stiff system, the implicit \id{BDF} method involves the solution
-  of linear systems related to the Jacobian $J = df/dy$ of the ODE system.
-  {\cvode} presently includes four choices for the treatment of these systems,
-  and the user of {\fcvode} must call a routine with a specific name to make the
-  desired choice.
+  of linear systems related to the Jacobian $J = \partial f / \partial y$
+  of the ODE system.  {\cvode} presently includes four choices for the treatment
+  of these systems, and the user of {\fcvode} must call a routine with a
+  specific name to make the desired choice.
 
   {\s} {\bf Diagonal approximate Jacobian}
   \index{CVDIAG@{\cvdiag} linear solver!use in {\fcvode}}
@@ -5237,7 +5226,7 @@ apply to {\nvecp}.
   $J = \partial f / \partial y$. If supplied, it must have the following form:
   \index{FCVDJAC@\texttt{FCVDJAC}}
 \begin{verbatim}
-      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, WK1, WK2, WK3)
+      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, H, WK1, WK2, WK3)
       DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, and \id{DJAC}. 
@@ -5245,11 +5234,11 @@ apply to {\nvecp}.
   \id{FY} contains $f(t,y)$. The vectors \id{WK1}, \id{WK2}, and \id{WK3}
   of length \id{NEQ} are provided as work space for use in \id{FCVDJAC}.
   
-  If the user's \id{FCVDJAC} uses difference quotient approximations,
-  it may need to use the error weights provided as the \id{EWT}
-  argument, and it may also need to access quantities that are not in
-  the call list.  These include the current stepsize and the unit
-  roundoff, which can be obtained from ...
+  If the user's \id{FCVDJAC} uses difference quotient approximations, it
+  may need to use the error weight array \id{EWT} and current stepsize \id{H}
+  in the calculation of suitable increments.  It may also need the unit
+  roundoff, which can be obtained as the optional output \id{ROPT(10)},
+  passed from the calling program to this routine using \id{COMMON}.
 
   If the \id{FCVDJAC} routine is provided, then, 
   following the call to \id{FCVDENSE}, the user must make the call:
@@ -5283,8 +5272,8 @@ apply to {\nvecp}.
   $J = \partial f / \partial y$. If supplied, it must have the following form:
   \index{FCVBJAC@\texttt{FCVBJAC}}
 \begin{verbatim}
-      SUBROUTINE FCVBJAC(NEQ, MU, ML, MDIM, T, Y, FY,
-     &                   BJAC, EWT, WK1, WK2, WK3)
+      SUBROUTINE FCVBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC,
+     &                   EWT, H, WK1, WK2, WK3)
       DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{MU}, \id{ML}, \id{T}, 
@@ -5295,12 +5284,12 @@ apply to {\nvecp}.
   \id{FY} contains $f(t,y)$. The vectors \id{WK1}, \id{WK2}, and \id{WK3}
   of length \id{NEQ} are provided as work space for use in \id{FCVBJAC}.
 
-  If the user's \id{FCVBJAC} uses difference quotient approximations,
-  it may need to use the error weights provided as the \id{EWT}
-  argument, and it may also need to access quantities that are not in
-  the call list.  These include the current stepsize and the unit
-  roundoff, which can be obtained from ...
-  
+  If the user's \id{FCVBJAC} uses difference quotient approximations, it
+  may need to use the error weight array \id{EWT} and current stepsize \id{H}
+  in the calculation of suitable increments.  It may also need the unit
+  roundoff, which can be obtained as the optional output \id{ROPT(10)},
+  passed from the calling program to this routine using \id{COMMON}.
+
   If the \id{FCVBJAC} routine is provided, then, following the call to \id{FCVBAND},
   the user must make the call:
   \index{FCVBANDSETJAC@\texttt{FCVBANDSETJAC}}
@@ -5340,7 +5329,7 @@ apply to {\nvecp}.
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FCVJTIMES@\texttt{FCVJTIMES}}
 \begin{verbatim}
-      SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, WORK, IER)
+      SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, WORK, IER)
       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, \id{V}, and \id{FJV}.
@@ -5350,12 +5339,12 @@ apply to {\nvecp}.
   \id{FY} contains $f(t,y)$. The vector \id{WORK}, of length \id{NEQ}, is
   provided as work space for use in \id{FCVJTIMES}.
 
-  If the user's \id{FCVJTIMES} uses difference quotient approximations,
-  it may need to use the error weights provided as the \id{EWT}
-  argument, and it may also need to access quantities that are not in
-  the call list.  These include the current stepsize and the unit
-  roundoff, which can be obtained from ...
-  
+  If the user's \id{FCVJTIMES} uses difference quotient approximations, it
+  may need to use the error weight array \id{EWT} and current stepsize \id{H}
+  in the calculation of suitable increments.  It may also need the unit
+  roundoff, which can be obtained as the optional output \id{ROPT(10)},
+  passed from the calling program to this routine using \id{COMMON}.
+
   If the \id{FCVJTIMES} routine is provided, then, 
   following the call to \id{FCVSPGMR}, the user must make the call:
   \index{FCVSPGMRSETJAC@\texttt{FCVSPGMRSETJAC}}
@@ -5388,11 +5377,13 @@ apply to {\nvecp}.
   $I - \gamma J$, where $I$ is the identity matrix, $J$ is the system Jacobian,
   and $\gamma =$ \id{GAMMA}.
   
-  The argument \id{DELTA} is an input tolerance for use by
-  \id{FCVPSOL} if it uses an iterative method in its solution.  In
-  that case, the residual vector $\Delta = r - Pz$ of the system should
-  be made less than \id{DELTA} in weighted L2 norm, i.e.
-  $\sqrt{\sum(\Delta_i * \id{EWT}[i])^2} < $ \id{DELTA}.
+  The arguments \id{EWT} and \id{DELTA} are input and provide the error weight
+  array and a scalar tolerance, respectively, for use by \id{FCVPSOL} if it uses
+  an iterative method in its solution.  In that case, the residual vector
+  $\rho = r - Pz$ of the system should be made less than \id{DELTA} in weighted
+  $\ell_2$ norm, i.e. $\sqrt{\sum(\rho_i * \id{EWT}[i])^2} < $ \id{DELTA}.
+  The argument \id{VT} is a work array of length \id{NEQ} for use by this
+  routine.
 
   If the user's preconditioner requires that any Jacobian related data be evaluated
   or preprocessed, then, following the call to \id{FCVSPGMRSETPSOL}, the user must call
@@ -5405,8 +5396,7 @@ apply to {\nvecp}.
   the following routine for the evaluation and preprocessing of the preconditioner:
   \index{FCVPSET@\texttt{FCVPSET}}
 \begin{verbatim}
-      SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, UROUND, 
-     &                   V1, V2, V3, IER)
+      SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
 \end{verbatim}
   It must perform any evaluation of Jacobian-related data and preprocessing needed
@@ -5419,11 +5409,11 @@ apply to {\nvecp}.
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
   
-  If the user's \id{FCVPSET} uses difference quotient approximations,
-  it may need to use the error weights provided as the \id{EWT}
-  argument, and it may also need to access quantities that are not in
-  the call list.  These include the current stepsize and the unit
-  roundoff, which can be obtained from ...
+  If the user's \id{FCVPSET} uses difference quotient approximations, it
+  may need to use the error weight array \id{EWT} and current stepsize \id{H}
+  in the calculation of suitable increments.  It may also need the unit
+  roundoff, which can be obtained as the optional output \id{ROPT(10)},
+  passed from the calling program to this routine using \id{COMMON}.
 
   Optional outputs specific to the {\spgmr} case are \id{NPE}, \id{NLI}, \id{NPS}, 
   \id{NCFL}, \id{LRW}, and \id{LIW}, stored in \id{IOPT(16)} $\cdots$ \id{IOPT(21)}, 
