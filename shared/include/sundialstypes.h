@@ -68,28 +68,20 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
-#define SUNDIALS_DOUBLE 1
-#define SUNDIALS_FLOAT  0
+#if SUNDIALS_SINGLE_PRECISION
 
-#define SUNDIALS_LONG 1
-#define SUNDIALS_INT  0
-
-/*-----------------------------*/
-
-#if SUNDIALS_DOUBLE
-typedef double realtype;
-#define RCONST(x) x
-#define BIG_REAL DBL_MAX
-#else
 typedef float realtype;
+typedef int integertype;
 #define RCONST(x) x##F
 #define BIG_REAL FLT_MAX
-#endif
 
-#if SUNDIALS_LONG
-typedef long int integertype;
 #else
-typedef int integertype;
+
+typedef double realtype;
+typedef long int integertype;
+#define RCONST(x) x
+#define BIG_REAL DBL_MAX
+
 #endif
 
 /******************************************************************
