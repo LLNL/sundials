@@ -12,44 +12,44 @@ At bottom left:  c1, c2 = 1.000000e+01 9.999900e+04
 At top right:    c1, c2 = 1.000000e+01 9.994900e+04 
 
 
-TIME t = 1.000000e-03.     NST = 33, k = 4, h = 7.399114e-05
-NRE = 58, NRE_B = 1134, NNI = 56, NJE = 14
-At bottom left:  c1, c2 = 1.031837e+01 1.031879e+05 
-At top right:    c1, c2 = 1.082689e+01 1.082230e+05 
+TIME t = 1.000000e-03.     NST = 31, k = 4, h = 1.082270e-04
+NRE = 54, NRE_B = 972, NNI = 52, NJE = 12
+At bottom left:  c1, c2 = 1.031832e+01 1.031874e+05 
+At top right:    c1, c2 = 1.082683e+01 1.082224e+05 
 
 
-TIME t = 1.000000e-02.     NST = 133, k = 4, h = 1.254453e-04
-NRE = 258, NRE_B = 1701, NNI = 256, NJE = 21
-At bottom left:  c1, c2 = 1.618889e+02 1.618898e+06 
-At top right:    c1, c2 = 1.973516e+02 1.973473e+06 
+TIME t = 1.000000e-02.     NST = 134, k = 4, h = 1.800028e-04
+NRE = 238, NRE_B = 1782, NNI = 236, NJE = 22
+At bottom left:  c1, c2 = 1.618917e+02 1.618932e+06 
+At top right:    c1, c2 = 1.973560e+02 1.973523e+06 
 
 
-TIME t = 1.000000e-01.     NST = 232, k = 1, h = 4.354841e-02
-NRE = 422, NRE_B = 2835, NNI = 420, NJE = 35
+TIME t = 1.000000e-01.     NST = 226, k = 1, h = 4.144189e-02
+NRE = 387, NRE_B = 2592, NNI = 385, NJE = 32
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 4.000000e-01.     NST = 234, k = 1, h = 1.741937e-01
-NRE = 424, NRE_B = 2997, NNI = 422, NJE = 37
+TIME t = 4.000000e-01.     NST = 229, k = 1, h = 3.315351e-01
+NRE = 390, NRE_B = 2835, NNI = 388, NJE = 35
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 7.000000e-01.     NST = 235, k = 1, h = 3.483873e-01
-NRE = 425, NRE_B = 3078, NNI = 423, NJE = 38
+TIME t = 7.000000e-01.     NST = 229, k = 1, h = 3.315351e-01
+NRE = 390, NRE_B = 2835, NNI = 388, NJE = 35
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 1.000000e+00.     NST = 236, k = 1, h = 6.967746e-01
-NRE = 426, NRE_B = 3159, NNI = 424, NJE = 39
+TIME t = 1.000000e+00.     NST = 230, k = 1, h = 6.630702e-01
+NRE = 391, NRE_B = 2916, NNI = 389, NJE = 36
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
 Final run statistics: 
 
-NST  =   236     NRE  =  3585 
-NNI  =   424     NJE  =    39 
-NETF =     6     NCFN =     0 
+NST  =   230     NRE  =  3307 
+NNI  =   389     NJE  =    36 
+NETF =     4     NCFN =     0 
