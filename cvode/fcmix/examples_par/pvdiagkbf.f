@@ -21,22 +21,23 @@ C
 C Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,5) IER
- 5      FORMAT(///' MPI_INIT returned IER =',I5)
-        STOP
-        ENDIF
+         WRITE(6,5) IER
+ 5       FORMAT(///' MPI_INIT returned IER =',I5)
+         STOP
+      ENDIF
       CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NPES, IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,6) IER
- 6      FORMAT(///' MPI_COMM_SIZE returned IER =',I5)
-        STOP
-        ENDIF
+         WRITE(6,6) IER
+ 6       FORMAT(///' MPI_COMM_SIZE returned IER =',I5)
+         STOP
+      ENDIF
       CALL MPI_COMM_RANK(MPI_COMM_WORLD, MYPE, IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,7) IER
- 7      FORMAT(///' MPI_COMM_RANK returned IER =',I5)
-        STOP
-        ENDIF
+         WRITE(6,7) IER
+ 7       FORMAT(///' MPI_COMM_RANK returned IER =',I5)
+         STOP
+      ENDIF
+      
 C
 C Set input arguments.
       NLOCAL = 10
@@ -63,7 +64,7 @@ C
      3         'RTOL, ATOL = ',2E10.1//'Method is BDF/NEWTON/SPGMR'/
      4         'Preconditioner is band-block-diagonal, using CVBBDPRE'//
      5         'Number of processors = ',I3)
-        ENDIF
+      ENDIF
 C
       CALL FNVSPECINITP(NLOCAL, NEQ, IER)
 C
@@ -166,24 +167,29 @@ C
 C If IPRE = 1, re-initialize T, Y, and the solver, and loop for case IPRE = 2.
 C Otherwise jump to final block.
       IF (IPRE .EQ. 2) GO TO 99
+
       T = 0.0D0
       DO 90 I = 1,NLOCAL
  90      Y(I) = 1.0D0
-      CALL FCVREINIT(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+         
+      CALL FCVREINIT(T, Y, IATOL, RTOL, ATOL,
      1               INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
-        WRITE(6,91) IER
- 91     FORMAT(///' FCVREINIT returned IER =',I5)
-        STOP
-        ENDIF
+         WRITE(6,91) IER
+ 91      FORMAT(///' FCVREINIT returned IER =',I5)
+         STOP
+      ENDIF
+
       IPRE = 2
-      CALL FCVREINBBD (NLOCAL, MUDQ, MLDQ, MU,ML, 0.0D0, 
-     1                 IPRE,IGS, 0,0.0D0, IER)
+
+      CALL FCVREINBBD (NLOCAL, MUDQ, MLDQ, 
+     1                 0D0, IPRE, IGS, 
+     2                 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,92) IER
  92     FORMAT(///' FCVREINBBD0 returned IER =',I5)
         STOP
-        ENDIF
+      ENDIF
       IF (MYPE .EQ. 0) WRITE (6,95)
  95   FORMAT(///60('-')///'Preconditioning on right'//)
       GO TO 40
