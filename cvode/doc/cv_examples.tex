@@ -1,5 +1,5 @@
-%\documentclass[11pt]{article}
-\documentclass[11pt]{article}
+\documentclass[twoside,titlepage,11pt]{article}
+%%\documentclass[titlepage,11pt]{article}
 
 \input{ug.tex}
 
@@ -28,10 +28,10 @@
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\cvucrl}%                              UCRL number
-{Example Programs for \\ CVODE {\cvrelease}}%         Title on cover page
-{Alan C. Hindmarsh and Radu Serban}%                  Authors
-{\cvdate}%                                            Date
+\makeLLNLCover{\cvucrl}%                       UCRL number
+{Example Programs for \\ CVODE {\cvrelease}}%  Title on cover page
+{Alan C. Hindmarsh and Radu Serban}%           Authors
+{\cvdate}%                                     Date
 {0in}{0in}
 
 \frontex
@@ -51,6 +51,7 @@
 \appendix
 \include{cv_ex_codes}
 %===============================================================
+\clearemptydoublepage
 \makeLLNLBackCover
 %===============================================================
 \end{document}
