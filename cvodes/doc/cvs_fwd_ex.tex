@@ -38,9 +38,9 @@ with their central difference approximations. Since the value of $u$ is
 constant at the two endpoints, the semi-discrete equations for those points
 can be eliminated.  With $u_{i}$ as the approximation to $u(t,x_{i})$, 
 $x_{i} = i(\Delta x)$, and $\Delta x=2/(\id{MX}+1)$, the resulting system of
-ODEs, $u^\prime = f(t,u)$, can now be written:
+ODEs, ${\dot u} = f(t,u)$, can now be written:
 \begin{equation}\label{e:cvfnx_ODE}
-  u^\prime_i= q_1 \frac{u_{i+1}-2u_{i}+u_{i-1}}{(\Delta x)^{2}}
+  {\dot u}_i= q_1 \frac{u_{i+1}-2u_{i}+u_{i-1}}{(\Delta x)^{2}}
   + q_2 \frac{u_{i+1}-u_{i-1}}{2(\Delta x)} \, .
 \end{equation}
 This equation holds for $i=1,2,\ldots ,$ \id{MX}, with the understanding
@@ -163,9 +163,9 @@ IVP, sensitivities of the solution with respect to the three reaction rates
 involved in the model. The ODEs are written as:
 \begin{equation}\label{e:cvfdx_ode}
   \begin{split}
-    y^\prime_1 &= -p_1 y_1 + p_2 y_2 y_3   \\
-    y^\prime_2 &=  p_1 y_1 - p_2 y_2 y_3 - p_3 y_2^2 \\
-    y^\prime_3 &=  p_3 y_2^2 \, ,
+    {\dot y}_1 &= -p_1 y_1 + p_2 y_2 y_3   \\
+    {\dot y}_2 &=  p_1 y_1 - p_2 y_2 y_3 - p_3 y_2^2 \\
+    {\dot y}_3 &=  p_3 y_2^2 \, ,
   \end{split}
 \end{equation}
 with initial conditions at $t_0 = 0$, $y_1 = 1$ and $y_2 = y_3 = 0$. 
@@ -174,7 +174,7 @@ $p_1 = 0.04$, $p_2 = 10^4$ and $p_3 = 3\cdot 10^7$.
 The sensitivity systems that are solved together with (\ref{e:cvfdx_ode}) are
 \begin{equation}\label{e:cvfdx_sens}
   \begin{split}
-    & s^\prime_i = 
+    & {\dot s}_i = 
     \begin{bmatrix}
       - p_1 &   p_2 y_3             &   p_2 y_2 \\
         p_1 & - p_2 y_3 - 2 p_3 y_2 & - p_2 y_2 \\
@@ -385,7 +385,7 @@ initial conditions are
 \end{equation}
 %%
 We discretize the PDE system with central differencing, to
-obtain an ODE system $u^\prime = f(t,u)$ representing (\ref{e:pvfkx_PDE}).  
+obtain an ODE system ${\dot u} = f(t,u)$ representing (\ref{e:pvfkx_PDE}).  
 In this case, the discrete solution vector is distributed across
 many processes.  Specifically, we may think of the processes as
 being laid out in a rectangle, and each process being assigned a
