@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-08 15:21:59 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-08 18:44:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -235,7 +235,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
  *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
  *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure     
  *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
- *    CVBBD_DATA_NULL     if the bbd_data was NULL
+ *    CVSPGMR_DATA_NULL   if the bbd_data was NULL
  * -----------------------------------------------------------------
  */                                                                
 
@@ -258,8 +258,8 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * that was returned by CVBBDPrecAlloc.  All other arguments have 
  * the same names and meanings as those of CVBBDPrecAlloc.        
  *                                                                
- * The return value of CVBBDPrecReInit is CVBBD_SUCCESS, indicating 
- * success, or CVBBD_DATA_NULL id bbd_data was NULL.  
+ * The return value of CVBBDPrecReInit is CVSPGMR_SUCCESS, indicating 
+ * success, or CVSPGMR_DATA_NULL id bbd_data was NULL.  
  * -----------------------------------------------------------------
  */
 
@@ -286,8 +286,8 @@ void CVBBDPrecFree(void *bbd_data);
  * CVBBDPrecGetNumGfnEvals returns the number of calls to gfn.    
  *
  * The return value of CVBBDPrecGet* is one of:
- *    CVBBD_SUCCESS   if successful
- *    CVBBD_DATA_NULL if the bbd_data memory was NULL
+ *    CVSPGMR_SUCCESS   if successful
+ *    CVSPGMR_DATA_NULL if the bbd_data memory was NULL
  * -----------------------------------------------------------------
  */
 
