@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-02-15 00:09:55 $
+# $Revision: 1.14 $
+# $Date: 2005-02-24 20:09:31 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -103,6 +103,11 @@ if test "X${FFLAGS}" = "X"; then
   FFLAGS_USER_OVERRIDE="no"
 else
   FFLAGS_USER_OVERRIDE="yes"
+fi
+if test "X${FLIBS}" = "X"; then
+  FLIBS_USER_OVERRIDE="no"
+else
+  FLIBS_USER_OVERRIDE="yes"
 fi
 
 # Set defaults for config/sundials_config.in file
@@ -792,32 +797,10 @@ else
     FFLAGS="${FFLAGS} ${USER_FFLAGS}"
   fi
 
-  TEMP_FLIBS="${FLIBS}"
-  FLIBS=""
+  # Add any required linker flags into FLIBS
+  # Note: if FLIBS is defined, it is left unchanged
 
-  # Add any required linker flags to FLIBS
-  AC_F77_LIBRARY_LDFLAGS
-
-  AC_MSG_CHECKING([for additional required Fortran linker flags])
-  if test "X${FLIBS}" = "X"; then
-    if test "X${TEMP_FLIBS}" = "X"; then
-      FLIBS=""
-    else
-      FLIBS="${TEMP_FLIBS}"
-    fi
-    AC_MSG_RESULT([none])
-  else
-    AC_MSG_RESULT([${FLIBS}])
-    if test "X${TEMP_FLIBS}" = "X"; then
-      FLIBS="${FLIBS}"
-    else
-      if test "X${FLIBS}" = "X${TEMP_FLIBS}"; then
-        FLIBS="${FLIBS}"
-      else
-        FLIBS="${FLIBS} ${TEMP_FLIBS}"
-      fi
-    fi
-  fi
+   AC_F77_LIBRARY_LDFLAGS
 
 fi
 
