@@ -25,8 +25,11 @@ within each of the four {\cvodes} linear solvers.
 There is one subtlety in the {\cvspgmr} column hidden by the table. 
 The dot product kernel \id{N\_VDotProd} is called both within the 
 implementation file \id{cvspgmr.c} for the {\cvspgmr} solver and within 
-the implementation files \id{spgmr.c} and \id{iterative.c} for the generic {\spgmr} 
-solver upon which the {\cvspgmr} solver is implemented. 
+the implementation files \id{spgmr.c} and \id{iterative.c} for the generic
+{\spgmr} solver upon which the {\cvspgmr} solver is implemented. Also, although
+\id{N\_VDiv} and \id{N\_VProd} are not called within the implementation file
+\id{cvspgmr.c}, they are called within the implementation file
+\id{spgmr.c} and so are required by the {\cvspgmr} solver module.
 This issue does not arise for the other 
 three {\cvodes} linear solvers because the generic {\dense} and {\band} solvers 
 (used in the implementation of {\cvdense} and {\cvband}) do not make calls to 
@@ -59,8 +62,8 @@ interested reader.
 \id{N\_VSetArrayPointer} &     & \cm &     &     &     &     &     &     \\ \hline
 \id{N\_VLinearSum}       & \cm & \cm &     & \cm & \cm &     &     & \cm \\ \hline
 \id{N\_VConst}           & \cm &     &     &     & \cm &     &     &     \\ \hline
-\id{N\_VProd}            & \cm &     &     & \cm &     &     &     &     \\ \hline
-\id{N\_VDiv}             & \cm &     &     & \cm &     &     &     &     \\ \hline
+\id{N\_VProd}            & \cm &     &     & \cm & \cm &     &     &     \\ \hline
+\id{N\_VDiv}             & \cm &     &     & \cm & \cm &     &     &     \\ \hline
 \id{N\_VScale}           & \cm & \cm & \cm & \cm & \cm & \cm & \cm & \cm \\ \hline
 \id{N\_VAbs}             & \cm &     &     &     &     &     &     &     \\ \hline
 \id{N\_VInv}             & \cm &     &     & \cm &     &     &     &     \\ \hline
