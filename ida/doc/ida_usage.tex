@@ -19,7 +19,7 @@ The {\idadense} and {\idaband} modules can only be used with {\nvecs}.
 The preconditioner module {\idabbdpre} can only be used with {\nvecp}. 
 
 %%===================================================================================
-\section{Data Types}\label{s:types}
+\section{Data types}\label{s:types}
 %%===================================================================================
 \input{types}
 
@@ -385,7 +385,7 @@ In each case the linear
 solver module used by {\ida} is actually built on top of a generic
 linear system solver, which may be of interest in itself.  These
 generic solvers, denoted {\dense}, {\band}, and {\spgmr}, are described
-separately in \S\ref{s:gen_linsolv}.
+separately in Chapter \ref{s:gen_linsolv}.
 \index{IDA@{\ida} linear solvers!built on generic solvers|)}
 %%
 %%
@@ -1183,7 +1183,7 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 {
   The function \ID{IDASetNonlinConvCoef} specifies the safety factor
   in the nonlinear convergence test;
-  see \S\ref{s:math}, Eq. (\ref{e:DAE_nls_test}).
+  see Chapter \ref{s:math}, Eq. (\ref{e:DAE_nls_test}).
 }
 {
   \begin{args}[ida\_mem]
@@ -1920,8 +1920,8 @@ conditions calculations.
 flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
 }
 {
-  The function \ID{IDASetNonlinConvCoefIC} specifies the positive
-  coefficient in the Newton initial condition test.
+  The function \ID{IDASetNonlinConvCoefIC} specifies the positive constant in
+  the Newton iteration convergence test within the initial condition calculation.
 }
 {
   \begin{args}[ida\_mem]
@@ -3623,8 +3623,9 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
   If the user's \id{IDADenseJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
-  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
-  the macro \id{DBL\_EPSILON} defined in \id{float.h}.
+  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
 %%
@@ -3728,8 +3729,9 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
   If the user's \id{IDABandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
-  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
-  the macro \id{DBL\_EPSILON} defined in \id{float.h}.
+  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -3781,13 +3783,16 @@ of type \ID{IDASpgmrJacTimesVecFn} in the following form:
   \end{args}
 }
 {  
-  The value to be returned by the Jacobian times vector function should be
-  $0$ if successful. 
-  A positive value indicates that a recoverable error occured, while a negative 
-  value indicates that a nonrecoverable error occured. 
+  The value to be returned by the Jacobian times vector function should be 0 if
+  successful.  A nonzero value indicates that a nonrecoverable error occurred. 
 
-  In the case of a recoverable eror return, the integrator will attempt to recover 
-  by reducing the stepsize, and hence changing $\alpha$ in (\ref{e:DAE_Jacobian}).
+  If the user's \id{IDASpgmrJacTimesVecFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call
+  list. These include the current stepsize, the error weights, etc.
+  To obtain these, use the \id{IDAGet*} functions described in
+  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
 }
 {}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
@@ -3919,7 +3924,15 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   
   This function is not called in advance of every call to the preconditioner solve
   function, but rather is called only as often as needed to achieve convergence in the
-  Newton iteration. 
+  Newton iteration.
+
+  If the user's \id{IDASpgmrPrecSetupFn} function uses difference quotient
+  approximations, it may need to access quantities not in the call
+  list. These include the current stepsize, the error weights, etc.
+  To obtain these, use the \id{IDAGet*} functions described in
+  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
 }
 
 %%===================================================================================
