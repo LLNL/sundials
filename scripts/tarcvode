@@ -1,11 +1,11 @@
 # File tarcvode: Script to build CVODE tar-file, cvode.tar.
 # To execute, type 'sundials/scripts/tarcvode' in the directory
 # containing /sundials/.
-# Version of 7 February 2002.
+# Version of 15 February 2002.
 
 tar cvf cvode.tar sundials/doc/Readme
 
-tar uvf cvode.tar sundials/lib
+tar uvf cvode.tar sundials/lib/Readme
 
 tar uvf cvode.tar sundials/shared/include/llnltyps.h
 tar uvf cvode.tar sundials/shared/include/llnlmath.h

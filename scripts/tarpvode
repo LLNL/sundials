@@ -1,11 +1,11 @@
 # File tarpvode: Script to build PVODE tar-file, pvode.tar.
 # To execute, type 'sundials/scripts/tarpvode' in the directory
 # containing /sundials/.
-# Version of 7 February 2002.
+# Version of 15 February 2002.
 
 tar cvf pvode.tar sundials/doc/Readme
 
-tar uvf pvode.tar sundials/lib
+tar uvf pvode.tar sundials/lib/Readme
 
 tar uvf pvode.tar sundials/shared/include/llnltyps.h
 tar uvf pvode.tar sundials/shared/include/llnlmath.h

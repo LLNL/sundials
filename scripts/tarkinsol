@@ -1,11 +1,11 @@
 # File tarkinsol: Script to build KINSOL tar-file, kinsol.tar.
 # To execute, type 'sundials/scripts/tarkinsol' in the directory
 # containing /sundials/.
-# Version of 7 February 2002.
+# Version of 15 February 2002.
 
 tar cvf kinsol.tar sundials/doc/Readme
 
-tar uvf kinsol.tar sundials/lib
+tar uvf kinsol.tar sundials/lib/Readme
 
 tar uvf kinsol.tar sundials/shared/include/llnltyps.h
 tar uvf kinsol.tar sundials/shared/include/llnlmath.h

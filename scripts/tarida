@@ -1,11 +1,11 @@
 # File tarida: Script to build IDA tar-file, ida.tar.
 # To execute, type 'sundials/scripts/tarida' in the directory
 # containing /sundials/.
-# Version of 7 February 2002.
+# Version of 15 February 2002.
 
 tar cvf ida.tar sundials/doc/Readme
 
-tar uvf ida.tar sundials/lib
+tar uvf ida.tar sundials/lib/Readme
 
 tar uvf ida.tar sundials/shared/include/llnltyps.h
 tar uvf ida.tar sundials/shared/include/llnlmath.h
