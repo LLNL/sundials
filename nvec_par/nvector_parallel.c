@@ -3,7 +3,7 @@
  * File          : nvector_parallel.c                              *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *                 Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 26 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -108,9 +108,8 @@ M_Env M_EnvInit_Parallel(MPI_Comm comm,  integertype local_vec_length,
   }
 
   me->ops->nvnew           = N_VNew_Parallel;
-  me->ops->nvnewS          = N_VNew_S_Parallel;
   me->ops->nvfree          = N_VFree_Parallel;
-  me->ops->nvfreeS         = N_VFree_S_Parallel;
+  me->ops->nvspace         = N_VSpace_Parallel;
   me->ops->nvmake          = N_VMake_Parallel;
   me->ops->nvdispose       = N_VDispose_Parallel;
   me->ops->nvgetdata       = N_VGetData_Parallel;
@@ -177,12 +176,10 @@ void M_EnvFree_Parallel(M_Env machEnv)
 
 /* BEGIN implementation of vector operations */
 
-N_Vector N_VNew_Parallel(integertype n, M_Env machEnv)
+N_Vector N_VNew_Parallel(M_Env machEnv)
 {
   N_Vector v;
   int N_local, N_global;
-
-  if (n <= 0) return(NULL);
 
   if (machEnv == NULL) return(NULL);
 
@@ -213,28 +210,10 @@ N_Vector N_VNew_Parallel(integertype n, M_Env machEnv)
   return(v);
 }
 
-N_Vector_S N_VNew_S_Parallel(integertype ns, integertype n, M_Env machEnv)
+void N_VSpace_Parallel(M_Env machEnv, long int *lrw, long int *liw)
 {
-    N_Vector_S vs;
-    integertype is, j;
-
-    if (ns <= 0 || n <= 0) return(NULL);
-
-    if (machEnv == NULL) return(NULL);
-
-    vs = (N_Vector_S) malloc(ns * sizeof(N_Vector *));
-    if (vs == NULL) return(NULL);
-
-    for (is=0; is<ns; is++) {
-        vs[is] = N_VNew_Parallel(n, machEnv);
-        if (vs[is] == NULL) {
-            for (j=0; j<is; j++) N_VFree_Parallel(vs[j]);
-            free(vs);
-            return(NULL);
-        }
-    }
-    
-    return(vs);
+  *lrw = ME_CONTENT_P(machEnv)->global_vec_length;
+  *liw = 2;
 }
 
 void N_VFree_Parallel(N_Vector v)
@@ -244,20 +223,10 @@ void N_VFree_Parallel(N_Vector v)
   free(v);
 }
 
-void N_VFree_S_Parallel(integertype ns, N_Vector_S vs)
-{
-    integertype is;
-    
-    for (is=0; is<ns; is++) N_VFree_Parallel(vs[is]);
-    free(vs);
-}
-
-N_Vector N_VMake_Parallel(integertype n, realtype *v_data, M_Env machEnv)
+N_Vector N_VMake_Parallel(realtype *v_data, M_Env machEnv)
 {
   N_Vector v;
   int N_local, N_global;
-
-  if (n <= 0) return(NULL);
 
   if (machEnv == NULL) return(NULL);
 

@@ -3,7 +3,7 @@
  * File          : nvector_parallel.h                              *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *               : Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 23 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -352,11 +352,10 @@ void M_EnvFree_Parallel(M_Env machenv);
  * see the header file nvector.h                                *
  *--------------------------------------------------------------*/
 
-N_Vector N_VNew_Parallel(integertype n, M_Env machEnv);
-N_Vector_S N_VNew_S_Parallel(integertype ns, integertype n, M_Env machEnv);
+N_Vector N_VNew_Parallel(M_Env machEnv);
+void N_VSpace_Parallel(M_Env machEnv, long int *lrw, long int *liw);
 void N_VFree_Parallel(N_Vector v);
-void N_VFree_S_Parallel(integertype ns, N_Vector_S vs);
-N_Vector N_VMake_Parallel(integertype n, realtype *v_data, M_Env machEnv);
+N_Vector N_VMake_Parallel(realtype *v_data, M_Env machEnv);
 void N_VDispose_Parallel(N_Vector v);
 realtype *N_VGetData_Parallel(N_Vector v);
 void N_VSetData_Parallel(realtype *v_data, N_Vector v);
