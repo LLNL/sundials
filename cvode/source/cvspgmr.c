@@ -117,10 +117,10 @@ static int CVSpgmrPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
 
 /* CVSPGMR difference quotient routine for J*v */
 
-static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f, 
-                           void *f_data, realtype tn, N_Vector y, N_Vector fy,
-                           realtype vnrm, N_Vector ewt, realtype h, realtype uround, 
-                           void *jac_data, long int *nfePtr, N_Vector ytemp);
+static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f,
+                       void *f_data, realtype tn, N_Vector y, N_Vector fy,
+                       realtype vnrm, N_Vector ewt, realtype h, realtype uround,
+                       void *jac_data, long int *nfePtr, N_Vector ytemp);
 
 
 /*************** CVSpgmrDQJtimes *************************************
@@ -133,9 +133,9 @@ static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f,
 **********************************************************************/
 
 static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f, 
-                            void *f_data, realtype tn, N_Vector y, N_Vector fy,
-                            realtype vnrm, N_Vector ewt, realtype h, realtype uround, 
-                            void *jac_data, long int *nfePtr, N_Vector work)
+                       void *f_data, realtype tn, N_Vector y, N_Vector fy,
+                       realtype vnrm, N_Vector ewt, realtype h, realtype uround,
+                       void *jac_data, long int *nfePtr, N_Vector work)
 {
   N_Vector ytemp;
 

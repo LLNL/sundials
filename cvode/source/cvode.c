@@ -3,7 +3,7 @@
  * File          : cvode.c                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
  *                 and Dan Shumaker @ LLNL                        *
- * Version of    : 26 June 2002                                   *
+ * Version of    : 15 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the main CVODE integrator. *
  * It is independent of the CVODE linear solver in use.           *
@@ -332,7 +332,8 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, int maxord,
                                   M_Env machEnv);
 static void CVFreeVectors(CVodeMem cv_mem, int maxord);
 
-static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol, int tol_type,
+static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol,
+                            int tol_type,
                             N_Vector ycur, integertype neq);
 static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol, realtype *atol,
                               N_Vector ycur, integertype neq);
@@ -361,11 +362,12 @@ static void CVPredict(CVodeMem cv_mem);
 static void CVSet(CVodeMem cv_mem);
 static void CVSetAdams(CVodeMem cv_mem);
 static realtype CVAdamsStart(CVodeMem cv_mem, realtype m[]);
-static void CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype hsum);
+static void CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[],
+                          realtype hsum);
 static realtype CVAltSum(int iend, realtype a[], int k);
 static void CVSetBDF(CVodeMem cv_mem);
 static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
-                       realtype alpha0_hat, realtype xi_inv, realtype xistar_inv);
+                     realtype alpha0_hat, realtype xi_inv, realtype xistar_inv);
 
 static int CVnls(CVodeMem cv_mem, int nflag);
 static int CVnlsFunctional(CVodeMem cv_mem);
@@ -378,7 +380,7 @@ static int  CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 static void CVRestore(CVodeMem cv_mem, realtype saved_t);
 
 static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
-                                 realtype saved_t, int *nefPtr, realtype *dsmPtr);
+                               realtype saved_t, int *nefPtr, realtype *dsmPtr);
 
 static void CVCompleteStep(CVodeMem cv_mem);
 
@@ -491,13 +493,12 @@ static int  CVHandleFailure(CVodeMem cv_mem,int kflag);
 
 void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, 
                   int lmm, int iter, int itol, 
-                  realtype *reltol, void *abstol, void *f_data,
-                  FILE *errfp, booleantype optIn, 
-                  long int iopt[], realtype ropt[],
-                  M_Env machEnv)
+                  realtype *reltol, void *abstol,
+                  void *f_data, FILE *errfp, booleantype optIn, 
+                  long int iopt[], realtype ropt[], M_Env machEnv)
 {
-  booleantype   allocOK, ioptExists, roptExists, neg_abstol, ewtsetOK;
-  int     maxord;
+  booleantype allocOK, ioptExists, roptExists, neg_abstol, ewtsetOK;
+  int maxord;
   CVodeMem cv_mem;
   FILE *fp;
   int i,k;
@@ -732,13 +733,12 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
 
 int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
              int lmm, int iter, int itol, 
-             realtype *reltol, void *abstol, void *f_data, 
-             FILE *errfp, booleantype optIn, 
-             long int iopt[], realtype ropt[], 
-             M_Env machEnv)
+             realtype *reltol, void *abstol,
+             void *f_data,  FILE *errfp, booleantype optIn, 
+             long int iopt[], realtype ropt[], M_Env machEnv) 
 {
-  booleantype   ioptExists, roptExists, neg_abstol, ewtsetOK;
-  int     maxord;
+  booleantype ioptExists, roptExists, neg_abstol, ewtsetOK;
+  int maxord;
   CVodeMem cv_mem;
   FILE *fp;
   integertype N;
@@ -2058,7 +2058,7 @@ static void CVSetBDF(CVodeMem cv_mem)
 ******************************************************************/
 
 static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
-                       realtype alpha0_hat, realtype xi_inv, realtype xistar_inv)
+                      realtype alpha0_hat, realtype xi_inv, realtype xistar_inv)
 {
   realtype A1, A2, A3, A4, A5, A6;
   realtype C, CPrime, CPrimePrime;
@@ -2399,7 +2399,7 @@ static void CVRestore(CVodeMem cv_mem, realtype saved_t)
 ******************************************************************/
 
 static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
-                                 realtype saved_t, int *nefPtr, realtype *dsmPtr)
+                                realtype saved_t, int *nefPtr, realtype *dsmPtr)
 {
   realtype dsm;
   
@@ -2713,7 +2713,8 @@ void CVBDFStab(CVodeMem cv_mem)
         eta = eta/MAX(ONE,ABS(h)*hmax_inv*eta);
         hprime = h*eta;
         iopt[NOR] =iopt[NOR] + 1;
-     /* printf(" Order reduced to %d by CVBDFStab at nst = %d,\n    h = %e hnew = %e\n",
+     /* fprintf(errfp,
+        " Order reduced to %d by CVBDFStab at nst = %d,\n    h = %e hnew = %e\n",
         qprime,nst,h,h*eta); */
       }
     }
@@ -2762,7 +2763,7 @@ void CVBDFStab(CVodeMem cv_mem)
 
 static int CVsldet(CVodeMem cv_mem)
 {
-  integertype i, k, j, it, kmin, kflag;
+  integertype i, k, j, it, kmin, kflag = 0;
   realtype rat[5][4], rav[4], qkr[4], sigsq[4], smax[4], ssmax[4];
   realtype drr[4], rrc[4],sqmx[4], qjk[4][4], vrat[5], qc[6][4], qco[6][4];
   realtype rr, rrcut, vrrtol, vrrt2, sqtol, rrtol;
@@ -2771,10 +2772,6 @@ static int CVsldet(CVodeMem cv_mem)
   realtype rsa, rsb, rsc, rsd, rse, rd1a, rd1b, rd1c, rd1d;
   realtype rd2a, rd2b, rd2c, rd3a, rd3b, cest1, corr1; 
   realtype ratp, ratm, qfac1, qfac2, bb, rrb;
-
-  /* Initialize some variables */
-  kmin = 1;
-  kflag = 1;
 
   /* The following are cutoffs and tolerances used by this routine */
 
@@ -2947,8 +2944,8 @@ static int CVsldet(CVodeMem cv_mem)
           sqmx[k] = sqmaxk;
         } 
 
-        sqmin = sqmx[1] + ONE;
-        for(k=1; k<=3; k++) {
+        sqmin = sqmx[1]; kmin = 1;
+        for(k=2; k<=3; k++) {
           if (sqmx[k] < sqmin) {
             kmin = k;
             sqmin = sqmx[k];

@@ -127,7 +127,7 @@ static void CVDenseDQJac(integertype N, DenseMat J, RhsFn f, void *f_data,
   minInc = (fnorm != ZERO) ?
            (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
 
-  jthCol = N_VMake(N, y_data, machEnv);  /* j loop overwrites this data address */
+  jthCol = N_VMake(N, y_data, machEnv); /* j loop overwrites this data address */
 
   /* This is the only for loop for 0..N-1 in CVODE */
   for (j = 0; j < N; j++) {
