@@ -8,8 +8,8 @@ communicator, and a flag showing if the user called \id{MPI\_Init}:
 \begin{verbatim}
 struct _NV_SpecContent_Parallel {
   MPI_Comm comm;
-  integertype local_vec_length;
-  integertype global_vec_length;
+  long int local_vec_length;
+  long int global_vec_length;
   int init_by_user;
 };
 \end{verbatim}
@@ -19,8 +19,8 @@ the global and local lengths of the vector and a pointer to the beginning
 of a contiguous local data array:
 \begin{verbatim} 
 struct _N_VectorContent_Parallel {
-  integertype local_length;
-  integertype global_length;
+  long int local_length;
+  long int global_length;
   realtype   *data;
 };
 \end{verbatim}

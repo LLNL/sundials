@@ -6,7 +6,7 @@ defines the {\em content} field of \id{NV\_Spec} to be a structure
 containing the length of the vector:
 \begin{verbatim}
 struct _NV_SpecContent_Serial {
-  integertype length;
+  long int length;
 };
 \end{verbatim}
 The {\em tag} field of \id{NV\_Spec} is set to \id{serial}.
@@ -14,7 +14,7 @@ The {\em content} field of \id{N\_Vector} is defined to be a structure containin
 the length of the vector and a pointer to the beginning of a contiguous data array:
 \begin{verbatim} 
 struct _N_VectorContent_Serial {
-  integertype length;
+  long int length;
   realtype   *data;
 };
 \end{verbatim}
