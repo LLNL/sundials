@@ -1,53 +1,57 @@
-/****************************************************************
- *                                                              *
- * File          : nvector_serial.h                             *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
- *               : Radu Serban, and Allan G. Taylor, LLNL       *
- * Version of    : 26 June 2002                                 *
- *--------------------------------------------------------------*
- *                                                              *
- * This is the header file for a serial implementation of the   *
- * NVECTOR package.                                             *
- *                                                              *
- * Part I of this file contains declarations which are specific *
- * to the particular machine environment in which this version  *
- * of the vector package is to be used. This includes the       *
- * typedef for the 'content' fields of the structures M_Env and *
- * N_Vector (M_EnvSerialContent and N_VectorSerialContent,      *
- * respectively).                                               *
- *                                                              *
- * Part II of this file defines accessor macros that allow the  *
- * user to use efficiently the type N_Vector without making     *
- * explicit references to its underlying representation.        *
- *                                                              *
- * Part III of this file contains the prototype for the         *
- * initialization routine specific to this implementation       *
- * (M_EnvInit_Serial) as well as prototypes for the vector      *
- * kernels which operate on the serial N_Vector. These          *
- * prototypes are unique to this particular implementation of   *
- * the vector package.                                          *
- *                                                              *
- * NOTES:                                                       *
- *                                                              *
- * The definitions of the generic M_Env and N_Vector structures *
- * are in the header file nvector.h.                            *
- *                                                              *
- * The definitions of the types realtype and integertype are in *
- * the header file sundialstypes.h and these may be changed     *
- * according to the user's needs. The sundialstypes.h file also *
- * contains the definition for the type booleantype.            *
- *                                                              *
- * N_Vector arguments to arithmetic kernels need not be         *
- * distinct. Thus, for example, the call                        *
- *         N_VLinearSum_Serial(a,x,b,y,y);   y <- ax+by         *
- * is legal.                                                    *
- *                                                              * 
- * This version of nvector is for the ordinary sequential       *
- * machine environment. In the documentation given below, N is  *
- * the length of all N_Vector parameters and x[i] denotes the   *
- * ith component of the N_Vector x, where 0 <= i <= N-1.        *
- *                                                              *
- ****************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : nvector_serial.h                                *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
+ *               : Radu Serban, and Allan G. Taylor, LLNL          *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the header file for a serial implementation of the      *
+ * NVECTOR package.                                                *
+ *                                                                 *
+ * Part I of this file contains declarations which are specific    *
+ * to the particular machine environment in which this version     *
+ * of the vector package is to be used. This includes the          *
+ * typedef for the 'content' fields of the structures M_Env and    *
+ * N_Vector (M_EnvSerialContent and N_VectorSerialContent,         *
+ * respectively).                                                  *
+ *                                                                 *
+ * Part II of this file defines accessor macros that allow the     *
+ * user to use efficiently the type N_Vector without making        *
+ * explicit references to its underlying representation.           *
+ *                                                                 *
+ * Part III of this file contains the prototype for the            *
+ * initialization routine specific to this implementation          *
+ * (M_EnvInit_Serial) as well as prototypes for the vector         *
+ * kernels which operate on the serial N_Vector. These             *
+ * prototypes are unique to this particular implementation of      *
+ * the vector package.                                             *
+ *                                                                 *
+ * NOTES:                                                          *
+ *                                                                 *
+ * The definitions of the generic M_Env and N_Vector structures    *
+ * are in the header file nvector.h.                               *
+ *                                                                 *
+ * The definitions of the types realtype and integertype are in    *
+ * the header file sundialstypes.h and these may be changed        *
+ * according to the user's needs. The sundialstypes.h file also    *
+ * contains the definition for the type booleantype.               *
+ *                                                                 *
+ * N_Vector arguments to arithmetic kernels need not be            *
+ * distinct. Thus, for example, the call                           *
+ *         N_VLinearSum_Serial(a,x,b,y,y);   y <- ax+by            *
+ * is legal.                                                       *
+ *                                                                 * 
+ * This version of nvector is for the ordinary sequential          *
+ * machine environment. In the documentation given below, N is     *
+ * the length of all N_Vector parameters and x[i] denotes the      *
+ * ith component of the N_Vector x, where 0 <= i <= N-1.           *
+ *                                                                 *
+ *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

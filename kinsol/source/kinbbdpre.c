@@ -1,18 +1,23 @@
-/******************************************************************
- *                                                                *
- * File          : kinbbdpre.c                                    *
- * Programmers   : Allan G Taylor, Alan C Hindmarsh, and          *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 26 July 2002                                   *
- *----------------------------------------------------------------*
- * This file contains implementations of routines for a           *
- * band-block-diagonal preconditioner, i.e. a block-diagonal      *
- * matrix with banded blocks, for use with KINSol, KINSpgmr, and  *
- * the parallel implementation of NVECTOR.                        *
- * NOTE: with only one processor in use, a banded matrix results  *
- * rather than a b-b-d matrix with banded blocks. Diagonal        *
- * blocking occurs at the processor level.                        *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : kinbbdpre.c                                     *
+ * Programmers   : Allan G Taylor, Alan C Hindmarsh, and           *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 26 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/kinsol/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This file contains implementations of routines for a            *
+ * band-block-diagonal preconditioner, i.e. a block-diagonal       *
+ * matrix with banded blocks, for use with KINSol, KINSpgmr, and   *
+ * the parallel implementation of NVECTOR.                         *
+ * NOTE: with only one processor in use, a banded matrix results   *
+ * rather than a b-b-d matrix with banded blocks. Diagonal         *
+ * blocking occurs at the processor level.                         *
+ *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>

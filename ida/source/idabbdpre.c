@@ -1,17 +1,23 @@
-/******************************************************************
- *                                                                *
- * File          : idabbdpre.c                                    *
- * Programmers   : Allan G Taylor, Alan C Hindmarsh, and          *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 11 July 2002                                   *
- *----------------------------------------------------------------*
- * This file contains implementations of routines for a           *
- * band-block-diagonal preconditioner, i.e. a block-diagonal      *
- * matrix with banded blocks, for use with IDA and IDASpgmr.      *
- * NOTE: with only one processor in use, a banded matrix results  *
- * rather than a block-diagonal matrix with banded blocks.        *
- * Diagonal blocking occurs at the processor level.               *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : idabbdpre.c                                     *
+ * Programmers   : Allan G Taylor, Alan C Hindmarsh, and           *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 11 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/ida/LICENSE                           *
+ *-----------------------------------------------------------------*
+ * This file contains implementations of routines for a            *
+ * band-block-diagonal preconditioner, i.e. a block-diagonal       *
+ * matrix with banded blocks, for use with IDA and IDASpgmr.       *
+ * NOTE: with only one processor in use, a banded matrix results   *
+ * rather than a block-diagonal matrix with banded blocks.         *
+ * Diagonal blocking occurs at the processor level.                *
+ *                                                                 *
+ *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,22 +1,27 @@
-/******************************************************************
- *                                                                *
- * File          : sundialsmath.h                                 *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the header file for a C math library. The routines     *
- * listed here work with the type realtype as defined in          *
- * sundialstypes.h.                                               *
- * To do single precision floating point arithmetic, set the type *
- * realtype to be float. To do double precision arithmetic, set   *
- * the type realtype to be double. The default implementations    *
- * for RPowerR and RSqrt call standard math library functions     *
- * which do double precision arithmetic. If this is unacceptable  *
- * when realtype is float, then the user should re-implement      *
- * these two routines by calling single precision routines        *
- * available on his/her machine.                                  *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : sundialsmath.h                                  *
+ * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the header file for a C math library. The routines      *
+ * listed here work with the type realtype as defined in           *
+ * sundialstypes.h.                                                *
+ * To do single precision floating point arithmetic, set the type  *
+ * realtype to be float. To do double precision arithmetic, set    *
+ * the type realtype to be double. The default implementations     *
+ * for RPowerR and RSqrt call standard math library functions      *
+ * which do double precision arithmetic. If this is unacceptable   *
+ * when realtype is float, then the user should re-implement       *
+ * these two routines by calling single precision routines         *
+ * available on his/her machine.                                   *
+ *                                                                 *
+ *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

@@ -1,47 +1,51 @@
- 
-/******************************************************************
- *                                                                *
- * File          : band.h                                         *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the header file for a generic BAND linear solver       *
- * package. There are two sets of band solver routines listed in  *
- * this file: one set uses type BandMat defined below and the     *
- * other set uses the type realtype ** for band matrix arguments. *
- * The two sets of band solver routines make it easy to work      *
- * with two types of band matrices:                               *
- *                                                                *
- * (1) The BandMat type is intended for use with large            *
- *     band matrices whose elements/columns may be stored in      *
- *     non-contiguous memory locations or even distributed into   *
- *     different processor memories. This type may be modified to *
- *     include such distribution information. If this is done,    *
- *     then all the routines that use BandMat must be modified to *
- *     reflect the new data structure.                            *
- *                                                                *
- * (2) The set of routines that use realtype ** (and NOT the      *
- *     BandMat type) is intended for use with small matrices      *
- *     which can easily be allocated within a contiguous block of *
- *     memory on a single processor.                              *
- *                                                                *
- * Routines that work with the type BandMat begin with "Band".    *
- * The BandAllocMat function allocates a band matrix for use in   *
- * the other matrix routines listed in this file. Matrix storage  *
- * details are given in the documentation for the type BandMat.   *
- * The BandAllocPiv function allocates memory for pivot           *
- * information. The storage allocated by BandAllocMat and         *
- * BandAllocPiv is deallocated by the routines BandFreeMat and    *
- * BandFreePiv, respectively. The BandFactor and BandBacksolve    *
- * routines perform the actual solution of a band linear system.  *
- *                                                                * 
- * Routines that work with realtype ** begin with "band" (except  *
- * for the factor and solve routines which are called gbfa and    *
- * gbsl, respectively). The underlying matrix storage is          *
- * described in the documentation for bandalloc.                  *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : band.h                                          *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the header file for a generic BAND linear solver        *
+ * package. There are two sets of band solver routines listed in   *
+ * this file: one set uses type BandMat defined below and the      *
+ * other set uses the type realtype ** for band matrix arguments.  *
+ * The two sets of band solver routines make it easy to work       *
+ * with two types of band matrices:                                *
+ *                                                                 *
+ * (1) The BandMat type is intended for use with large             *
+ *     band matrices whose elements/columns may be stored in       *
+ *     non-contiguous memory locations or even distributed into    *
+ *     different processor memories. This type may be modified to  *
+ *     include such distribution information. If this is done,     * 
+ *     then all the routines that use BandMat must be modified to  *
+ *     reflect the new data structure.                             *
+ *                                                                 *
+ * (2) The set of routines that use realtype ** (and NOT the       *
+ *     BandMat type) is intended for use with small matrices       *
+ *     which can easily be allocated within a contiguous block of  *
+ *     memory on a single processor.                               *
+ *                                                                 *
+ * Routines that work with the type BandMat begin with "Band".     *
+ * The BandAllocMat function allocates a band matrix for use in    *
+ * the other matrix routines listed in this file. Matrix storage   *
+ * details are given in the documentation for the type BandMat.    *
+ * The BandAllocPiv function allocates memory for pivot            *
+ * information. The storage allocated by BandAllocMat and          *
+ * BandAllocPiv is deallocated by the routines BandFreeMat and     *
+ * BandFreePiv, respectively. The BandFactor and BandBacksolve     *
+ * routines perform the actual solution of a band linear system.   *
+ *                                                                 * 
+ * Routines that work with realtype ** begin with "band" (except   *
+ * for the factor and solve routines which are called gbfa and     *
+ * gbsl, respectively). The underlying matrix storage is           *
+ * described in the documentation for bandalloc.                   *
+ *                                                                 *
+ *******************************************************************/
  
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

@@ -1,14 +1,19 @@
-/******************************************************************
- *                                                                *
- * File          : kinsol.c                                       *
- * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 26 July 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the main KINSol solver.    *
- * It is independent of the KINSol linear solver in use.          *
- *                                                                *
- *****************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : kinsol.c                                        *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 26 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/kinsol/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the main KINSol solver.     *
+ * It is independent of the KINSol linear solver in use.           *
+ *                                                                 *
+ *******************************************************************/
 
 /************************************************************/
 /******************* BEGIN Imports **************************/

@@ -1,13 +1,18 @@
-/******************************************************************
- *                                                                *
- * File          : kinsol.h                                       *
- * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 25 July 2002                                   *
- *----------------------------------------------------------------*
- * This is the interface file for the main KINSol solver          *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : kinsol.h                                        *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 25 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/kinsol/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the interface file for the main KINSol solver           *
+ *                                                                 *
+ *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

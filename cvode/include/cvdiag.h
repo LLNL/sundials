@@ -1,16 +1,21 @@
-/******************************************************************
- *                                                                *
- * File          : cvdiag.h                                       *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the header file for the CVODE diagonal linear solver,  *
- * CVDIAG.                                                        *
- *                                                                *
- * Note: The type integer must be large enough to store the value *
- * of the linear system size N.                                   *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : cvdiag.h                                        *
+ * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/cvode/LICENSE                         *
+ *-----------------------------------------------------------------*
+ * This is the header file for the CVODE diagonal linear solver,   *
+ * CVDIAG.                                                         *
+ *                                                                 *
+ * Note: The type integer must be large enough to store the value  *
+ * of the linear system size N.                                    *
+ *                                                                 *
+ *******************************************************************/
 
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */

@@ -1,13 +1,18 @@
-/******************************************************************
- *                                                                *
- * File          : cvdiag.c                                       *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the CVODE diagonal linear  *
- * solver, CVDIAG.                                                *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : cvdiag.c                                        *
+ * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/cvode/LICENSE                         *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the CVODE diagonal linear   *
+ * solver, CVDIAG.                                                 *
+ *                                                                 *
+ *******************************************************************/
 
 
 #include <stdio.h>

@@ -1,35 +1,40 @@
-/******************************************************************
- *                                                                *
- * File          : dense.h                                        *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the header file for a generic DENSE linear solver      *
- * package.  The routines listed in this file all use type        *
- * DenseMat, defined below, for matrices.  These routines in turn *
- * call routines in the smalldense.h/smalldense.c module, which   *
- * use the type realtype** for matrices.  This separation allows  *
- * for possible modifications in which matrices of type DenseMat  *
- * may not be stored contiguously, while small matrices can still *
- * be treated with the routines in smalldense.                    *
- *                                                                * 
- * Routines that work with the type DenseMat begin with "Dense".  *
- * The DenseAllocMat function allocates a dense matrix for use in *
- * the other DenseMat routines listed in this file. Matrix        *
- * storage details are given in the documentation for the type    *
- * DenseMat. The DenseAllocPiv function allocates memory for      *
- * pivot information. The storage allocated by DenseAllocMat and  *
- * DenseAllocPiv is deallocated by the routines DenseFreeMat and  *
- * DenseFreePiv, respectively. The DenseFactor and DenseBacksolve *
- * routines perform the actual solution of a dense linear system. *
- *                                                                *
- * Routines that work with realtype** begin with "den" (except for*
- * the factor and solve routines which are called gefa and gesl,  *
- * respectively). The underlying matrix storage is described in   *
- * the documentation for denalloc in smalldense.h                 *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : dense.h                                         *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the header file for a generic DENSE linear solver       *
+ * package.  The routines listed in this file all use type         *
+ * DenseMat, defined below, for matrices.  These routines in turn  *
+ * call routines in the smalldense.h/smalldense.c module, which    *
+ * use the type realtype** for matrices.  This separation allows   *
+ * for possible modifications in which matrices of type DenseMat   *
+ * may not be stored contiguously, while small matrices can still  *
+ * be treated with the routines in smalldense.                     *
+ *                                                                 * 
+ * Routines that work with the type DenseMat begin with "Dense".   *
+ * The DenseAllocMat function allocates a dense matrix for use in  *
+ * the other DenseMat routines listed in this file. Matrix         *
+ * storage details are given in the documentation for the type     *
+ * DenseMat. The DenseAllocPiv function allocates memory for       *
+ * pivot information. The storage allocated by DenseAllocMat and   *
+ * DenseAllocPiv is deallocated by the routines DenseFreeMat and   *
+ * DenseFreePiv, respectively. The DenseFactor and DenseBacksolve  *
+ * routines perform the actual solution of a dense linear system.  *
+ *                                                                 *
+ * Routines that work with realtype** begin with "den" (except for *
+ * the factor and solve routines which are called gefa and gesl,   *
+ * respectively). The underlying matrix storage is described in    *
+ * the documentation for denalloc in smalldense.h                  *
+ *                                                                 *
+ *******************************************************************/
  
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

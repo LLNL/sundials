@@ -1,14 +1,19 @@
-/******************************************************************
- *                                                                *
- * File          : dense.c                                        *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for a generic DENSE linear     *
- * solver package.                                                *
- *                                                                *
- ******************************************************************/ 
+/*******************************************************************
+ *                                                                 *
+ * File          : dense.c                                         *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for a generic DENSE linear      *
+ * solver package.                                                 *
+ *                                                                 *
+ *******************************************************************/ 
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,10 +1,20 @@
-/*=============  TO DO LIST ===================================
-
-  Add more arguments to CVodeMemExtract, such as estimated
-  local errors (which are available in acor and acorS after
-  a succesful step)
-
- =============================================================*/
+/*******************************************************************
+ *                                                                 *
+ * File          : cvodes.c                                        *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
+ *                 and Dan Shumaker @ LLNL                         *
+ * Version of    : 27 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/cvodes/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the main CVODES integrator  *
+ * with sensitivity analysis capabilities.                         *
+ * It is independent of the CVODES linear solver in use.           *
+ *                                                                 *
+ *******************************************************************/
 
 /*=============  CHANGE LOG ===================================
 
@@ -23,18 +33,13 @@
 
 ==============================================================*/
 
-/******************************************************************
- *                                                                *
- * File          : cvodes.c                                       *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban *
- *                 and Dan Shumaker @ LLNL                        *
- * Version of    : 27 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the main CVODES integrator *
- * with sensitivity analysis capabilities.                        *
- * It is independent of the CVODES linear solver in use.          *
- *                                                                *
- ******************************************************************/
+/*=============  TO DO LIST ===================================
+
+  Add more arguments to CVodeMemExtract, such as estimated
+  local errors (which are available in acor and acorS after
+  a succesful step)
+
+ =============================================================*/
 
 
 /************************************************************/

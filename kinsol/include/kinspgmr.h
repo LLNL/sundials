@@ -1,16 +1,21 @@
-/******************************************************************
- *                                                                *
- * File          : kinspgmr.h                                     *
- * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 30 July 2002                                   *
- *----------------------------------------------------------------*
- * This is the header file for the KINSol scaled, preconditioned  *
- * GMRES linear solver, KINSpgmr.                                 *
- *                                                                *
- * Note: The type integertype must be large enough to store the   *
- * value of the linear system size Neq.                           *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : kinspgmr.h                                      *
+ * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL     *
+ * Version of    : 30 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/kinsol/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the header file for the KINSol scaled, preconditioned   *
+ * GMRES linear solver, KINSpgmr.                                  *
+ *                                                                 *
+ * Note: The type integertype must be large enough to store the    *
+ * value of the linear system size Neq.                            *
+ *                                                                 *
+ *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

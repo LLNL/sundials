@@ -1,13 +1,18 @@
-/******************************************************************
- *                                                                *
- * File          : ida.h                                          *
- * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 11 July 2002                                   *
- *----------------------------------------------------------------*
- * This is the header (include) file for the main IDA solver.     *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : ida.h                                           *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 11 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/ida/LICENSE                           *
+ *-----------------------------------------------------------------*
+ * This is the header (include) file for the main IDA solver.      *
+ *                                                                 *
+ *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

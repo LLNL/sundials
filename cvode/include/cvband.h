@@ -1,19 +1,24 @@
-/******************************************************************
- *                                                                *
- * File          : cvband.h                                       *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the header file for the CVODE band linear solver,      *
- * CVBAND.                                                        *
- *                                                                *
- * Note: The type integertype must be large enough to store the   *
- * value N + mupper + mlower, where N is the linear system size   *
- * and mupper and mlower are the upper and lower bandwidths,      *
- * respectively, passed to CVBand.                                *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : cvband.h                                        *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/cvode/LICENSE                         *
+ *-----------------------------------------------------------------*
+ * This is the header file for the CVODE band linear solver,       *
+ * CVBAND.                                                         *
+ *                                                                 *
+ * Note: The type integertype must be large enough to store the    *
+ * value N + mupper + mlower, where N is the linear system size    *
+ * and mupper and mlower are the upper and lower bandwidths,       *
+ * respectively, passed to CVBand.                                 *
+ *                                                                 *
+ *******************************************************************/
  
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

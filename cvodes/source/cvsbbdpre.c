@@ -1,14 +1,19 @@
-/******************************************************************
- * File          : cvsbbdpre.c                                    *
- * Programmers   : Michael Wittman, Alan C. Hindmarsh, and        *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 27 June 2002                                   *
- *----------------------------------------------------------------*
- * This file contains implementations of routines for a           *
- * band-block-diagonal preconditioner, i.e. a block-diagonal      *
- * matrix with banded blocks, for use with CVODE, CVSpgmr, and    *
- * the parallel implementation of NVECTOR.                        *
- ******************************************************************/
+/*******************************************************************
+ * File          : cvsbbdpre.c                                     *
+ * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 27 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/cvodes/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This file contains implementations of routines for a            *
+ * band-block-diagonal preconditioner, i.e. a block-diagonal       *
+ * matrix with banded blocks, for use with CVODE, CVSpgmr, and     *
+ * the parallel implementation of NVECTOR.                         *
+ *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>

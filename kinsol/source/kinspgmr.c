@@ -1,13 +1,18 @@
-/******************************************************************
- *                                                                *
- * File          : kinspgmr.c                                     *
- * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 26 July 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the KINSOL scaled,         *
- * preconditioned GMRES linear solver, KINSPGMR.                  *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : kinspgmr.c                                      *
+ * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL     *
+ * Version of    : 26 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/kinsol/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the KINSOL scaled,          *
+ * preconditioned GMRES linear solver, KINSPGMR.                   *
+ *                                                                 *
+ *******************************************************************/
 
 
 #include <stdio.h>

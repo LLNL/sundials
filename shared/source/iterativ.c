@@ -1,14 +1,19 @@
-/******************************************************************
- *                                                                *
- * File          : iterativ.c                                     *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the iterativ.h header      *
- * file. It contains the implementation of functions that may be  *
- * useful for many different iterative solvers of A x = b.        *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : iterativ.c                                      *
+ * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the iterativ.h header       *
+ * file. It contains the implementation of functions that may be   *
+ * useful for many different iterative solvers of A x = b.         *
+ *                                                                 *
+ *******************************************************************/
 
 
 #include "iterativ.h"

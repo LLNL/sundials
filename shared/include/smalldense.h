@@ -1,19 +1,24 @@
-/******************************************************************
- *                                                                *
- * File          : smalldense.h                                   *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 26 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the header file for a generic DENSE linear solver      *
- * package, intended for small dense matrices.  These routines    *
- * use the type realtype** for dense matrix arguments.            *
- *                                                                *
- * These routines begin with "den" (except for the factor and     *
- * solve routines which are called gefa and gesl, respectively).  *
- * The underlying matrix storage is described in the              *
- * documentation for denalloc.                                    *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : smalldense.h                                    *
+ * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL     *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the header file for a generic DENSE linear solver       *
+ * package, intended for small dense matrices.  These routines     *
+ * use the type realtype** for dense matrix arguments.             *
+ *                                                                 *
+ * These routines begin with "den" (except for the factor and      *
+ * solve routines which are called gefa and gesl, respectively).   *
+ * The underlying matrix storage is described in the               *
+ * documentation for denalloc.                                     *
+ *                                                                 *
+ *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

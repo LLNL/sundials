@@ -1,20 +1,23 @@
-/****************************************************************
- *                                                              *
- * File          : nvector_parallel.c                           *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
- *                 Radu Serban, and Allan G. Taylor, LLNL       *
- * Version of    : 26 June 2002                                 *
- *                                                              *
- *--------------------------------------------------------------*
- *                                                              *
- * This is the implementation file for a parallel implementation*
- * of the NVECTOR package. It contains the implementation of    *
- * the parallel machine environment intialization and free      *
- * routines (and of the Fortran callable interfaces to them)    *
- * and of the N_Vector kernels listed in nvector_parallel.h.    *
- * It uses MPI for message-passing.                             *
- *                                                              *
- ****************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : nvector_parallel.c                              *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
+ *                 Radu Serban, and Allan G. Taylor, LLNL          *
+ * Version of    : 26 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for a parallel implementation   *
+ * of the NVECTOR package. It contains the implementation of       *
+ * the parallel machine environment intialization and free         *
+ * routines (and of the Fortran callable interfaces to them)       *
+ * and of the N_Vector kernels listed in nvector_parallel.h.       *
+ * It uses MPI for message-passing.                                *
+ *                                                                 *
+ *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,14 +1,19 @@
-/******************************************************************
- *                                                                *
- * File          : cvode.c                                        *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,*
- *                 and Dan Shumaker @ LLNL                        *
- * Version of    : 24 July 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the main CVODE integrator. *
- * It is independent of the CVODE linear solver in use.           *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : cvode.c                                         *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban, *
+ *                 and Dan Shumaker @ LLNL                         *
+ * Version of    : 24 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/cvode/LICENSE                         *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the main CVODE integrator.  *
+ * It is independent of the CVODE linear solver in use.            *
+ *                                                                 *
+ *******************************************************************/
 
 
 /************************************************************/

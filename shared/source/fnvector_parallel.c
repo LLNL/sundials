@@ -1,14 +1,20 @@
-/****************************************************************
- *                                                              *
- * File          : fnvector_parallel.c                          *
- * Programmers   : Radu Serban @ LLNL                           *
- * Version of    : 26 June 2002                                 *
- *                                                              *
- *--------------------------------------------------------------*
- * This file, companion of nvector_parallel.c contains the      *
- * implementation of the Fortran interface to M_EnvInit_Parallel*
- * and M_EnvFree_Parallel.                                      *
- ****************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : fnvector_parallel.c                             *
+ * Programmers   : Radu Serban @ LLNL                              *
+ * Version of    : 26 June 2002                                    *
+ *                                                                 *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California *
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/shared/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This file, companion of nvector_parallel.c contains the         *
+ * implementation of the Fortran interface to M_EnvInit_Parallel   *
+ * and M_EnvFree_Parallel.                                         *
+ *                                                                 *
+ *******************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>

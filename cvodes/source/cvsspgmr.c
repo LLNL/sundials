@@ -1,14 +1,19 @@
-/******************************************************************
- *                                                                *
- * File          : cvspgmr.c                                      *
- * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and          *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 27 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the CVODES scaled,         *
- * preconditioned GMRES linear solver, CVSSPGMR.                  *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : cvspgmr.c                                       *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 27 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/cvodes/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the CVODES scaled,          *
+ * preconditioned GMRES linear solver, CVSSPGMR.                   *
+ *                                                                 *
+ *******************************************************************/
 
 
 #include <stdio.h>

@@ -1,14 +1,19 @@
-/******************************************************************
- *                                                                *
- * File          : idadense.c                                     *
- * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and        *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 11 July 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the IDA dense linear       *
- * solver module, IDADENSE.                                       *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : idadense.c                                      *
+ * Programmers   : Alan C. Hindmarsh, Allan G. Taylor, and         *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 11 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/ida/LICENSE                           *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the IDA dense linear        *
+ * solver module, IDADENSE.                                        *
+ *                                                                 *
+ *******************************************************************/
 
 
 #include <stdio.h>

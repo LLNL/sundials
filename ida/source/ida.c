@@ -1,13 +1,18 @@
-/******************************************************************
- * File          : ida.c                                          *
- * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
- *                 Radu Serban @ LLNL                             *
- * Version of    : 11 July 2002                                   *
- *----------------------------------------------------------------*
- * This is the implementation file for the main IDA solver.       *
- * It is independent of the linear solver in use.                 *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ * File          : ida.c                                           *
+ * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                              *
+ * Version of    : 11 July 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/ida/LICENSE                           *
+ *-----------------------------------------------------------------*
+ * This is the implementation file for the main IDA solver.        *
+ * It is independent of the linear solver in use.                  *
+ *                                                                 *
+ *******************************************************************/
 
 
 /************************************************************/

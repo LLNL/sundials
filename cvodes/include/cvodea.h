@@ -1,37 +1,42 @@
-/******************************************************************
- *                                                                *
- * File          : cvodea.h                                       *
- * Programmers   : Radu Serban @ LLNL                             *
- * Version of    : 27 June 2002                                   *
- *----------------------------------------------------------------*
- * This is the interface file for the CVODEA adjoint integrator.  *
- *                                                                *
- * Function types:                                                *
- *    RhsFnB                                                      *
- *    CVDenseJacFnB                                               *
- *    CVBandJacFnB                                                *
- *    CVSpgmrPrecondFnB                                           *
- *    CVSpgmrPsolveB                                              *
- *    CVSpgmrJtimesB                                              *
- * Exported functions prototypes:                                 *
- *    CVadjMalloc                                                 *
- *    CVodeF                                                      *
- *    CVodeMallocB                                                *
- *    CVDenseB                                                    *
- *    CVBandB                                                     *
- *    CVBandPreAllocB                                             *
- *    CVSpgmrB                                                    *
- *    CVodeB                                                      *
- *    CVadjFree                                                   *
- *    CVadjGetY                                                   *
- *    CVadjCheckPointsList                                        *
- *    CVadjDataExtract                                            *
- * Type definitions:                                              *
- *    struct CkpntMemRec, CkpntMem                                *
- *    struct DtpntMemRec, DtpntMem                                *
- *    struct CVadjMemRec, CVadjMem                                *
- *                                                                *
- ******************************************************************/
+/*******************************************************************
+ *                                                                 *
+ * File          : cvodea.h                                        *
+ * Programmers   : Radu Serban @ LLNL                              *
+ * Version of    : 27 June 2002                                    *
+ *-----------------------------------------------------------------*
+ * Copyright (c) 2002, The Regents of the University of California * 
+ * Produced at the Lawrence Livermore National Laboratory          *
+ * All rights reserved                                             *
+ * For details, see sundials/cvodes/LICENSE                        *
+ *-----------------------------------------------------------------*
+ * This is the interface file for the CVODEA adjoint integrator.   *
+ *                                                                 *
+ * Function types:                                                 *
+ *    RhsFnB                                                       *
+ *    CVDenseJacFnB                                                *
+ *    CVBandJacFnB                                                 *
+ *    CVSpgmrPrecondFnB                                            *
+ *    CVSpgmrPsolveB                                               *
+ *    CVSpgmrJtimesB                                               *
+ * Exported functions prototypes:                                  *
+ *    CVadjMalloc                                                  *
+ *    CVodeF                                                       *
+ *    CVodeMallocB                                                 *
+ *    CVDenseB                                                     *
+ *    CVBandB                                                      *
+ *    CVBandPreAllocB                                              *
+ *    CVSpgmrB                                                     *
+ *    CVodeB                                                       *
+ *    CVadjFree                                                    *
+ *    CVadjGetY                                                    *
+ *    CVadjCheckPointsList                                         *
+ *    CVadjDataExtract                                             *
+ * Type definitions:                                               *
+ *    struct CkpntMemRec, CkpntMem                                 *
+ *    struct DtpntMemRec, DtpntMem                                 *
+ *    struct CVadjMemRec, CVadjMem                                 *
+ *                                                                 *
+ *******************************************************************/
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
