@@ -2,7 +2,7 @@
  *                                                                *
  * File          : cvbandpre.h                                    *
  * Programmers   : Michael Wittman and Alan C. Hindmarsh @ LLNL   *
- * Version of    : 11 January 2002                                *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVBANDPRE module, which        *
  * provides a banded difference quotient Jacobian-based           *
@@ -115,6 +115,31 @@ typedef struct {
 
 CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
                              integer mu, integer ml);
+
+
+/******************************************************************
+ *                                                                *
+ * Function : CVReInitBandPre                                     *
+ *----------------------------------------------------------------*
+ * CVReInitBandPre re-initializes the CVBANDPRE module when       *
+ * solving a  sequence of problems of the same size with          *
+ * CVSPGMR/CVBANDPRE, provided there is no change in N, mu, or ml.*
+ * After solving one problem, and after calling CVReInit to       *
+ * re-initialize CVODE for a subsequent problem, call             *
+ * CVReInitBandPre.  Then call CVReInitSpgmr or CVSpgmr if        *
+ * necessary, depending on changes made in the CVSpgmr            *
+ * parameters, before calling CVode.                              *
+ *                                                                *
+ * The first argument to CVReInitBandPre must be the pointer      *
+ * bpdata that was returned by CVBandPreAlloc.  All other         *
+ * arguments have the same names and meanings as in               *
+ * CVBandPreAlloc.                                                *
+ *                                                                *
+ * The return value of CVReInitBandPre is 0, indicating success.  *
+ ******************************************************************/
+
+int CVReInitBandPre(CVBandPreData bpdata, integer N, RhsFn f,
+                    void *f_data, integer mu, integer ml);
 
 
 /******************************************************************

@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : pvbbdpre.h                                     *
  * Programmers   : Michael Wittman and Alan C. Hindmarsh @ LLNL   *
- * Last Modified : 11 January 2002                                *
+ * Last Modified : 4 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the PVBBDPRE module, for a         *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -242,6 +242,30 @@ typedef struct {
 PVBBDData PVBBDAlloc(integer Nlocal, integer mudq, integer mldq,
             integer mukeep, integer mlkeep, real dqrely,
             PVLocalFn gloc, PVCommFn cfn, void *f_data );
+
+
+/******************************************************************
+ * Function : PVReInitBBD                                         *
+ *----------------------------------------------------------------*
+ * PVReInitBBD re-initializes the BBDPRE module when solving a    *
+ * sequence of problems of the same size with CVSPGMR/PVBBDPRE,   *
+ * provided there is no change in Nlocal, mukeep, or mlkeep.      *
+ * After solving one problem, and after calling CVReInit to       *
+ * re-initialize PVODE for a subsequent problem, call PVReInitBBD.*
+ * Then call CVReInitSpgmr or CVSpgmr if necessary, depending on  *
+ * changes made in the CVSpgmr parameters, before calling CVode.  *
+ *                                                                *
+ * The first argument to PVReInitBBD must be the pointer pdata    *
+ * that was returned by PVBBDAlloc.  All other arguments have     *
+ * the same names and meanings as those of PVBBDAlloc.            *
+ *                                                                *
+ * The return value of PVReInitBBD is 0, indicating success.      *
+ ******************************************************************/
+
+int PVReInitBBD(PVBBDData pdata, integer Nlocal,
+                integer mudq, integer mldq,
+                integer mukeep, integer mlkeep, real dqrely,
+                PVLocalFn gloc, PVCommFn cfn, void *f_data);
 
 
 /******************************************************************

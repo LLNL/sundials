@@ -1,7 +1,7 @@
 /******************************************************************
  * File          : pvbbdpre.c                                     *
  * Programmers   : Michael Wittman and Alan C. Hindmarsh @ LLNL   *
- * Version of    : 20 March 2000                                  *
+ * Version of    : 4 March 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of routines for a           *
  * band-block-diagonal preconditioner, i.e. a block-diagonal      *
@@ -30,7 +30,7 @@ static void PVBBDDQJac(integer Nlocal, integer mudq, integer mldq,
                     N_Vector gy, N_Vector gtemp, N_Vector ytemp);
 
 
-/***************** User-Callable Functions: malloc and free ******************/
+/*********** User-Callable Functions: malloc, reinit, and free ***************/
 
 PVBBDData PVBBDAlloc(integer Nlocal, integer mudq, integer mldq,
                  integer mukeep, integer mlkeep, real dqrely, 
@@ -83,6 +83,35 @@ PVBBDData PVBBDAlloc(integer Nlocal, integer mudq, integer mldq,
   pdata->nge = 0;
 
   return(pdata);
+}
+
+int PVReInitBBD(PVBBDData pdata, integer Nlocal, integer mudq, integer mldq,
+                integer mukeep, integer mlkeep, real dqrely, 
+                PVLocalFn gloc, PVCommFn cfn, void *f_data)
+{
+  integer muk, mlk, storage_mu;
+
+  /* Set pointers to f_data, gloc, and cfn; load half-bandwidths */
+  pdata->f_data = f_data;
+  pdata->gloc = gloc;
+  pdata->cfn = cfn;
+  pdata->mudq = MIN( Nlocal-1, MAX(0,mudq) );
+  pdata->mldq = MIN( Nlocal-1, MAX(0,mldq) );
+  muk = MIN( Nlocal-1, MAX(0,mukeep) );
+  mlk = MIN( Nlocal-1, MAX(0,mlkeep) );
+  pdata->mukeep = muk;
+  pdata->mlkeep = mlk;
+  storage_mu = MIN(Nlocal-1, muk + mlk);
+
+  /* Set pdata->dqrely based on input dqrely (0 implies default). */
+  pdata->dqrely = (dqrely > ZERO) ? dqrely : RSqrt(UnitRoundoff());
+
+  /* Set work space sizes and initialize nge */
+  pdata->rpwsize = Nlocal*(muk + 2*mlk + storage_mu + 2);
+  pdata->ipwsize = Nlocal;
+  pdata->nge = 0;
+
+  return(0);
 }
 
 void PVBBDFree(PVBBDData pdata)

@@ -2,7 +2,7 @@
  *                                                                *
  * File          : cvbandpre.c                                    *
  * Programmers   : Michael Wittman and Alan C. Hindmarsh @ LLNL   *
- * Version of    : 15 January 2002                                *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This file contains implementations of the banded difference    *
  * quotient Jacobian-based preconditioner and solver routines for *
@@ -30,7 +30,7 @@ static void CVBandPDQJac(integer N, integer mupper, integer mlower, BandMat J,
                          N_Vector ftemp, N_Vector ytemp);
 
 
-/********************** Malloc and Free Functions **********************/
+/**************  Malloc, ReInit, and Free Functions **********************/
 
 CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
                              integer mu, integer ml)
@@ -73,6 +73,18 @@ CVBandPreData CVBandPreAlloc(integer N, RhsFn f, void *f_data,
   }
 
   return(pdata);
+}
+
+int CVReInitBandPre(CVBandPreData pdata, integer N, RhsFn f, void *f_data,
+                    integer mu, integer ml)
+{
+  /* Load pointers and bandwidths into pdata block. */
+  pdata->f = f;
+  pdata->f_data = f_data;
+  pdata->mu = MIN( N-1, MAX(0,mu) );
+  pdata->ml = MIN( N-1, MAX(0,ml) );
+
+  return(0);
 }
 
 void CVBandPreFree(CVBandPreData pdata)
