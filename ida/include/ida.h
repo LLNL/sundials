@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-21 15:57:40 $
+ * $Revision: 1.25 $
+ * $Date: 2004-10-21 17:47:38 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -56,13 +56,11 @@ extern "C" {
  * to the user's res function every time it is called, to provide 
  * access in res to user data.                                    
  *                                                                
- * A IDAResFn res will return the value ires, which has possible     
- * values RES_ERROR_RECVR = 1, RES_ERROR_NONRECVR = -1,           
- * and SUCCESS = 0. The file ida.h may be used to obtain these    
- * values but is not required; returning 0, +1, or -1 suffices.   
- * RES_ERROR_NONRECVR will ensure that the program halts.         
- * RES_ERROR_RECVR should be returned if, say, a yy or other input
- * value is illegal. IDA will attempt to correct and retry.       
+ * A IDAResFn res should return a value of 0 if successful, a positive
+ * value if a recoverable error occured (e.g. yy has an illegal value),
+ * or a negative value if a nonrecoverable error occured. In the latter
+ * case, the program halts. If a recoverable error occured, the integrator
+ * will attempt to correct and retry.
  * ----------------------------------------------------------------
  */
 
