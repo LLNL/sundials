@@ -1,135 +1,144 @@
 %===================================================================================
 \chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
-The central {\cvodes} module interfaces with the linear solver module to be
-used by way of calls to five routines.  These are denoted here by 
-\id{linit}, \id{lsetup}, \id{lsolve}, \id{lsolveS}, and \id{lfree}.
+The central {\kinsol} module interfaces with the linear solver module to be
+used by way of calls to four routines.  These are denoted here by 
+\id{linit}, \id{lsetup}, \id{lsolve}, and \id{lfree}.
 Briefly, their purposes are as follows:
 \begin{itemize}
 \item \id{linit}: initialize and allocate memory specific to the
-linear solver;
+  linear solver;
 \item \id{lsetup}: evaluate and preprocess the Jacobian or preconditioner;
 \item \id{lsolve}: solve the linear system;
-\item \id{lsolveS}: solve the linear system;
 \item \id{lfree}: free the linear solver memory.
 \end{itemize}
-The \id{lsolveS} routine is intended only for use during forward sensitivity
-analysis for the solution of linear systems coming from the sensitivity
-systems, and need not be implemented if {\cvodes} will not be used for 
-forward sensitivity analysis.
-
 A linear solver module must also provide a user-callable specification routine
-(like those described in \S\ref{sss:lin_solv_init}) which will atach the above five 
-routines to the main {\cvodes} memory block. The return value of the specification 
-routine should be: \id{SUCCESS} = 0 if the routine was successful,
-\id{LMEM\_FAIL} = -1 if a memory allocation failed, or \id{LIN\_ILL\_INPUT} = -2
-if some input was illegal.
+(like that described in \S\ref{ss:lin_solv_init} for {\kinspgmr}) which will atach 
+the above four routines to the main {\kinsol} memory block. 
+Note that of the four interface routines, only the \id{lsolve} routine is required. 
+The \id{lfree} routine must be provided only if the solver specification routine
+makes any memory allocation.
 
-These five routines that interface between {\cvodes} and the linear solver module
-necessarily have fixed call sequences.  Thus a user wishing to implement another 
-linear solver within the {\cvodes} package must adhere to this set of interfaces.
+These four routines that interface between {\kinsol} and the linear solver module
+necessarily have fixed call sequences.  Thus, a user wishing to implement another 
+linear solver within the {\kinsol} package must adhere to this set of interfaces.
 The following is a complete description of the call list for each of
 these routines.  Note that the call list of each routine includes a
-pointer to the main {\cvodes} memory block, by which the routine can access
-various data related to the {\cvodes} solution.  The contents of this memory
-block are given in the file \id{cvodes.h} (but not reproduced here, for
+pointer to the main {\kinsol} memory block, by which the routine can access
+various data related to the {\kinsol} solution.  The contents of this memory
+block are given in the file \id{kinsol\_impl.h} (but not reproduced here, for
 the sake of space).
 
 %------------------------------------------------------------------------------
+
 \paragraph{Initialization routine.}
-The type definition of \id{linit} is
-\begin{verbatim}
-int (*cv_linit)(CVodeMem cv_mem);
-\end{verbatim}
-The purpose of \id{linit} is to complete initializations for      
-specific linear solver, such as counters and statistics.        
-An \id{linit} function should return \ID{LINIT\_OK} = 0 if it 
-has successfully initialized the {\cvodes} linear solver and 
-\ID{LINIT\_ERR} = -1 otherwise. 
-If an error does occur, an appropriate message should be sent 
-to \id{cv\_mem->errfp}.
+The type definition of \ID{linit} is
+\usfunction{linit}
+{
+  int (*linit)(KINMem kin\_mem);
+}
+{
+  The purpose of \id{linit} is to complete initializations for      
+  specific linear solver, such as counters and statistics.        
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem]
+    is the {\kinsol} memory pointer of type \id{KINMem}.
+  \end{args}
+}
+{
+  An \id{linit} function should return $0$ if it 
+  has successfully initialized the {\kinsol} linear solver and 
+  $-1$ otherwise. 
+}
+{
+  If an error does occur, an appropriate message should be sent 
+  to \id{kin\_mem->kin\_errfp}.
+}
 
 %------------------------------------------------------------------------------
+
 \paragraph{Setup routine.} 
 The type definition of \id{lsetup} is
-\begin{verbatim}
-int (*cv_lsetup)(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                 N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
-                 N_Vector vtemp2, N_Vector vtemp3); 
-\end{verbatim}
-The job of \id{lsetup} is to prepare the linear solver for subsequent 
-calls to \id{lsolve}. It may re-compute Jacobian-related data is it 
-deems necessary. Its parameters are as follows:
-\begin{itemize}
-  
-\item \id{cv\_mem}: problem memory pointer of type \id{CVodeMem}.
-  
-\item \id{convfail}: a flag to indicate any problem that occurred during  
-  the solution of the nonlinear equation on the current time step for which 
-  the linear solver is being used. This flag can be used to help decide     
-  whether the Jacobian data kept by a {\cvodes} linear solver needs to be updated 
-  or not. Its possible values are:
-  \begin{itemize}
-  \item \id{NO\_FAILURES}: this value is passed to \id{lsetup} if 
-    either this is the first call for this step, or the local error test failed on the 
-    previous attempt at this step (but the Newton iteration converged).
-  \item \id{FAIL\_BAD\_J}: this value is passed to \id{lsetup} if
-    (a) the previous Newton corrector iteration did not converge and the linear solver's      
-    setup routine indicated that its Jacobian-related data is not current,
-    or                            
-    (b) during the previous Newton corrector iteration, the linear solver's solve routine  
-    failed in a recoverable manner and the linear solver's setup routine indicated that  
-    its Jacobian-related data is not current.
-  \item \id{FAIL\_OTHER}: this value is passed to \id{lsetup} if 
-    during the current internal step try, the previous Newton iteration failed to 
-    converge even though the linear solver was using current Jacobian-related data.
-  \end{itemize}
-  
-\item \id{ypred}: the predicted \id{y} vector for the current {\cvodes} internal   
-  step.                                                   
-  
-\item \id{fpred}: the value of the right-hand side at \id{ypred}, 
-  i.e. $f(t_n, y_{pred})$.
-  
-\item \id{jcurPtr}: a pointer to a boolean to be filled in by \id{lsetup}.  
-  The function should set \id{*jcurPtr = TRUE} if its Jacobian 
-  data is current after the call and should set         
-  \id{*jcurPtr = FALSE} if its Jacobian data is not current.   
-  If \id{lsetup} calls for re-evaluation of         
-  Jacobian data (based on \id{convfail} and {\cvodes} state      
-  data), it should return \id{*jcurPtr = TRUE} unconditionally;
-  otherwise an infinite loop can result.                
-  
-\item \id{vtemp1}, \id{vtemp2}, \id{vtemp3}: 
-  temporary variables of type \id{N\_Vector} provided for use by \id{lsetup}.      
-  
-\end{itemize}
-
-The \id{lsetup} routine should return \id{0} if successful,            
-a positive value for a recoverable error, and a negative value  
-for an unrecoverable error.  
+\usfunction{lsetup}
+{
+  int (*lsetup)(&KINMem kin\_mem);
+}
+{
+  The job of \id{lsetup} is to prepare the linear solver for subsequent 
+  calls to \id{lsolve}. It may re-compute Jacobian-related data is it 
+  deems necessary. 
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem]
+    is the {\kinsol} memory pointer of type \id{KINMem}.
+  \end{args}
+}
+{
+  The \id{lsetup} routine should return $0$ if successful,            
+  a positive value for a recoverable error, and a negative value  
+  for an unrecoverable error.  
+}
+{}
 
 %------------------------------------------------------------------------------
+
 \paragraph{Solve routine.}
 The type definition of \id{lsolve} is
-\begin{verbatim}
-int (*cv_lsolve)(CVodeMem cv_mem, N_Vector b, N_Vector ycur, N_Vector fcur);  
-\end{verbatim}
-The routine \id{lsolve} must solve the linear equation $M x = b$, where         
-$M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$  
-and the right-hand side vector \id{b} is input. The vector \id{ycur}
-contains the solver's current approximation to $y(t_n)$ and the vector      
-\id{fcur} contains $f(t_n,y_{cur})$. The solution is to be    
-returned in the vector \id{b}. \id{lsolve} returns a positive value    
-for a recoverable error and a negative value for an             
-unrecoverable error. Success is indicated by a \id{0} return value.
+\usfunction{lsolve}
+{
+  int (*lsolve)(&KINMem kin\_mem, N\_Vector x, \\
+                &N\_Vector b, realtype *res\_norm);
+}
+{
+  The routine \id{lsolve} must solve the linear equation $J x = b$, where         
+  $J = \partial F / \partial y(y_{cur})$ and the right-hand side vector $b$ is input. 
+}
+{
+  \begin{args}[res\_norm]
+  \item[kin\_mem]
+    is the {\kinsol} memory pointer of type \id{KINMem}.
+  \item[x]
+    is a vector set to an initial guess prior to calling \id{lsolve}. 
+    On return it should contain the solution to $J x = b$.
+  \item[b]
+    is the right-hand side vector $b$, set to $-F(y)$, evaluated at
+    the current iterate.
+  \item[res\_norm]
+    holds the value of the $L_2$ norm of the residual vector upon return.
+  \end{args}
+}
+{
+  \id{lsolve} returns a positive value    
+  for a recoverable error and a negative value for an             
+  unrecoverable error. Success is indicated by a $0$ return value.
+}
+{}
 
 %------------------------------------------------------------------------------
+
 \paragraph{Memory deallocation routine.}
 The type definition of \id{lfree} is
-\begin{verbatim}
-void (*cv_lfree)(CVodeMem cv_mem);
-\end{verbatim}
-The routine \id{lfree} should free up any memory allocated by the linear
-solver. This routine is called once a problem has been completed and the 
-linear solver is no longer needed.
+\usfunction{lfree}
+{
+  void (*lfree)(KINMem kin\_mem);
+}
+{
+  The routine \id{lfree} should free up any memory allocated by the linear
+  solver.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem]
+    is the {\kinsol} memory pointer of type \id{KINMem}.
+  \end{args}
+}
+{
+  This routine has no return value.
+}
+{
+  This routine is called once a problem has been completed and the 
+  linear solver is no longer needed.
+}
