@@ -234,6 +234,20 @@ extern "C" {
 
   /******************************************************************
    *                                                                *
+   * Function : IDAGetMemB                                    *
+   *----------------------------------------------------------------*
+   * IDAGetMemB returns a (void *) pointer to the IDAS     *
+   * memory allocated for the backward problem. This pointer can    *
+   * then be used to call any of the IDAGet* IDAS routines to   *
+   * extract optional output for the backward integration phase.    *
+   *                                                                *
+   ******************************************************************/
+
+  void *IDAGetMemB(void *idaadj_mem);
+
+
+  /******************************************************************
+   *                                                                *
    * Function : IDASetQuad*B, IDAQuadMallocB                    *
    *----------------------------------------------------------------*
    *                                                                *
@@ -338,16 +352,6 @@ extern "C" {
   int IDAGetQuadB(void *idaadj_mem, N_Vector qB);
 
   /******************************************************************
-   *                                                                *
-   * Types : struct CkpntMemRec, CkpntMem                           *
-   *----------------------------------------------------------------*
-   * The type CkpntMem is type pointer to struct CkpntMemRec.       *
-   * This structure contains fields to store all information at a   *
-   * check point that is needed to 'hot' start cvodes.              *
-   *                                                                *
-   ******************************************************************/
-
-  /******************************************************************
    * Debugging routines....                                         *
    *----------------------------------------------------------------*
    *                                                                *
@@ -356,6 +360,16 @@ extern "C" {
   int IDAAloadData(void *idaadj_mem, int which_ckpnt, long int *points);
   void IDAAgetData(void *idaadj_mem, long int which_pnt, 
                    realtype *t, N_Vector yout, N_Vector ydout);
+
+  /******************************************************************
+   *                                                                *
+   * Types : struct CkpntMemRec, CkpntMem                           *
+   *----------------------------------------------------------------*
+   * The type CkpntMem is type pointer to struct CkpntMemRec.       *
+   * This structure contains fields to store all information at a   *
+   * check point that is needed to 'hot' start cvodes.              *
+   *                                                                *
+   ******************************************************************/
 
   typedef struct CkpntMemRec {
 

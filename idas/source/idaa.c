@@ -414,8 +414,8 @@ void IDAAdjCheckPointsList(void *idaadj_mem)
   i = 0;
 
   while (ck_mem != NULL) {
-    printf("Check point %2d  addr: %x  time = [ %5e %5e ]  next: %x\n", 
-           nckpnts-i, ck_mem, t0_, t1_, next_ );
+    printf("Check point %2d  addr: %p  time = [ %5e %5e ]  next: %p\n", 
+           nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
     ck_mem = next_;
     i++;
   }
@@ -1183,6 +1183,27 @@ int IDAGetQuadB(void *idaadj_mem, N_Vector qB)
 /*END               Wrappers for IDAA                            */
 /*=================================================================*/
 
+/*------------------  IDAGetMemB  --------------------------*/
+/*
+  IDAGetMemB returns a (void *) pointer to the IDAS
+  memory allocated for the backward problem. This pointer can    
+  then be used to call any of the IDAGet* IDAS routines to  
+  extract optional output for the backward integration phase.
+*/
+/*-----------------------------------------------------------------*/
+
+void *IDAGetMemB(void *idaadj_mem)
+{
+  IDAadjMem IDAADJ_mem;
+  void *idab_mem;
+  
+  IDAADJ_mem  = (IDAadjMem) idaadj_mem;
+  idab_mem = (void *) IDAADJ_mem->IDAB_mem;
+
+  return(idab_mem);
+}
+
+
 /*=================================================================*/
 /*BEGIN           Debugging routines                               */
 /*=================================================================*/
@@ -1198,7 +1219,7 @@ int IDAAloadData(void *idaadj_mem, int which_ckpnt, long int *points)
 
   for (i=0; i<which_ckpnt; i++) ck_mem = next_;
 
-  printf("Starting at check point %x   ",ck_mem);
+  printf("Starting at check point %p   ",(void *)ck_mem);
 
   /* If data in dt_mem is not available for the 
      current check point, compute it */
