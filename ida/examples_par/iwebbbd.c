@@ -291,23 +291,23 @@ int main(int argc, char *argv[])
   retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol, nvSpec);
   if(check_flag(&retval, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
   
-  /* Call IBBDPrecAlloc to initialize the band-block-diagonal preconditioner.
+  /* Call IDABBDPrecAlloc to initialize the band-block-diagonal preconditioner.
      The half-bandwidths for the difference quotient evaluation are exact
      for the system Jacobian, but only a 5-diagonal band matrix is retained. */
   
   mudq = mldq = NSMXSUB;
   mukeep = mlkeep = 2;
-  P_data = IBBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+  P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
                          ZERO, reslocal, rescomm);
-  if(check_flag((void *)P_data, "IBBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
   
-  /* Call IBBDSpgmr to specify the IDA linear solver IDASPGMR and specify
+  /* Call IDABBDSpgmr to specify the IDA linear solver IDASPGMR and specify
      the preconditioner routines supplied
      maxl (max. Krylov subspace dim.) is set to 12.   */
   
   maxl = 12;
-  retval = IBBDSpgmr(mem, maxl, P_data);
-  if(check_flag(&retval, "IBBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDABBDSpgmr(mem, maxl, P_data);
+  if(check_flag(&retval, "IDABBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
   
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
   N_VFree(cc);
   N_VFree(cp);
   N_VFree(id);
-  IBBDPrecFree(P_data);
+  IDABBDPrecFree(P_data);
   IDAFree(mem);
   FreeUserData(webdata);
   NV_SpecFree_Parallel(nvSpec);
@@ -564,8 +564,8 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     check_flag(&flag, "IDASpgmrGetNumPrecSolves", 1, thispe);
     flag = IDASpgmrGetNumResEvals(mem, &nreS);
     check_flag(&flag, "IDASpgmrGetNumResEvals", 1, thispe);
-    flag = IBBDPrecGetNumGfnEvals(P_data, &nge);
-    check_flag(&flag, "IBBDPrecGetNumGfnEvals", 1, thispe);
+    flag = IDABBDPrecGetNumGfnEvals(P_data, &nge);
+    check_flag(&flag, "IDABBDPrecGetNumGfnEvals", 1, thispe);
 
     printf("\nTIME t = %e.     NST = %ld,  k = %d,  h = %e\n",
            tt, nst, kused, hused);
@@ -606,8 +606,8 @@ static void PrintFinalStats(void *mem, void *P_data)
   check_flag(&flag, "IDASpgmrGetNumPrecSolves", 1, 0);
   flag = IDASpgmrGetNumResEvals(mem, &nreS);
   check_flag(&flag, "IDASpgmrGetNumResEvals", 1, 0);
-  flag = IBBDPrecGetNumGfnEvals(P_data, &nge);
-  check_flag(&flag, "IBBDPrecGetNumGfnEvals", 1, 0);
+  flag = IDABBDPrecGetNumGfnEvals(P_data, &nge);
+  check_flag(&flag, "IDABBDPrecGetNumGfnEvals", 1, 0);
 
   printf("\nFinal statistics: \n\n");
   printf("NST  = %5ld     NRE  = %5ld     NGE  = %5ld \n", nst, nre+nreS, nge);

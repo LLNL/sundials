@@ -196,14 +196,14 @@ int main(int argc, char *argv[])
   
   /* Case 1 -- mldq = mudq = MXSUB */
 
-  /* Call IBBDPrecAlloc to initialize BBD preconditioner. */
-  P_data = IBBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
+  /* Call IDABBDPrecAlloc to initialize BBD preconditioner. */
+  P_data = IDABBDPrecAlloc(mem, local_N, mudq, mldq, mukeep, mlkeep, 
                          ZERO, reslocal, rescomm);
-  if(check_flag((void *)P_data, "IBBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)P_data, "IDABBDPrecAlloc", 0, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IBBDSpgmr to specify the linear solver. */
-  ier = IBBDSpgmr(mem, 0.0, P_data);
-  if(check_flag(&ier, "IBBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  /* Call IDABBDSpgmr to specify the linear solver. */
+  ier = IDABBDSpgmr(mem, 0.0, P_data);
+  if(check_flag(&ier, "IDABBDSpgmr", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Compute the max norm of uu. */
   umax = N_VMaxNorm(uu);
@@ -283,9 +283,9 @@ int main(int argc, char *argv[])
   ier = IDAReInit(mem, heatres, t0, uu, up, itol, &rtol, &atol);
   if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IBBDPrecReInit to re-initialize BBD preconditioner. */
-  ier = IBBDPrecReInit(P_data, mudq, mldq, ZERO, reslocal, rescomm);
-  if(check_flag(&ier, "IBBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
+  /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
+  ier = IDABBDPrecReInit(P_data, mudq, mldq, ZERO, reslocal, rescomm);
+  if(check_flag(&ier, "IDABBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Compute the max norm of uu. */
   umax = N_VMaxNorm(uu);
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
   }
 
   /* Free Memory */
-  IBBDPrecFree(P_data);
+  IDABBDPrecFree(P_data);
   IDAFree(mem);
   free(data);
   N_VFree(id);
