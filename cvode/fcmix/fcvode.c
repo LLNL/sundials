@@ -252,7 +252,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                             &CV_iopt[5],  /* NSETUPS  */ 
                             &CV_iopt[8],  /* NETF  */ 
                             &CV_iopt[9],  /* QU  */ 
-                            &CV_iopt[11], /* QCUR  */ 
+                            &CV_iopt[10], /* QCUR  */ 
                             &h0u,
                             &CV_ropt[3],  /* HU */ 
                             &CV_ropt[4],  /* HCUR  */ 
@@ -262,8 +262,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                             &CV_iopt[6],  /* NNI */
                             &CV_iopt[7]); /* NCFN */
     CVodeGetWorkSpace(CV_cvodemem, &liw, &lrw);
-    CV_iopt[12] = (int) lrw;              /* LENRW */
-    CV_iopt[13] = (int) liw;              /* LENIW */
+    CV_iopt[11] = (int) lrw;              /* LENRW */
+    CV_iopt[12] = (int) liw;              /* LENIW */
     if (CV_cvmem->cv_sldeton)
       CVodeGetNumStabLimOrderReds(CV_cvodemem, &CV_iopt[14]); /* NOR */
 
