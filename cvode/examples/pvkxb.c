@@ -2,7 +2,7 @@
  *                                                                      *
  * File: pvkxb.c                                                        *
  * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @ LLNL      *
- * Version of 11 January 2002                                           *
+ * Version of 5 March 2002                                              *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -29,12 +29,14 @@
  *                                                                      *
  * The solution with PVODE is done with the BDF/GMRES method (i.e.      *
  * using the CVSPGMR linear solver) and a block-diagonal matrix with    *
- * banded blocks as a left preconditioner, using the PVBBDPRE module.   *
+ * banded blocks as a preconditioner, using the PVBBDPRE module.        *
  * Each block is generated using difference quotients, with             *
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded       *
  * blocks have half-bandwidths mukeep = mlkeep = 2.                     *
  * A copy of the approximate Jacobian is saved and conditionally reused *
  * within the Precond routine.                                          *
+ *                                                                      *
+ * The problem is solved twice -- with left and right preconditioning.  *
  *                                                                      *
  * Performance data and sampled solution values are printed at selected *
  * output times, and all performance counters are printed on completion.*
@@ -153,7 +155,7 @@ main(int argc, char *argv[])
   UserData data;
   PVBBDData pdata;
   void *cvode_mem;
-  int iout, flag, my_pe, npes;
+  int iout, flag, my_pe, npes, jpre;
   integer neq, local_N, mudq, mldq, mukeep, mlkeep;
   machEnvType machEnv;
   MPI_Comm comm;
@@ -192,9 +194,9 @@ main(int argc, char *argv[])
   /* Set machEnv block */
 
   machEnv = PVecInitMPI(comm, local_N, neq, &argc, &argv);
-  if (machEnv == NULL) return(1);
+  if (machEnv == NULL) { printf("PVecInitMPI failed."); return(1); }
 
-  /* Allocate u, and set initial values and tolerances */ 
+  /* Allocate and initialize u, and set tolerances */ 
 
   u = N_VNew(neq, machEnv);
   SetInitialProfiles(u, data);
@@ -232,19 +234,54 @@ main(int argc, char *argv[])
                  PVBBDPrecon, PVBBDPSol, pdata, NULL, NULL);
   if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
 
+  /* Print heading */
+
   if (my_pe == 0) {
-    printf("\n2-species diurnal advection-diffusion problem\n");
+    printf("2-species diurnal advection-diffusion problem\n");
     printf("  %d by %d mesh on %d processors\n",MX,MY,npes);
     printf("  Using PVBBDPRE preconditioner module\n");
     printf("    Difference-quotient half-bandwidths are mudq = %d,  mldq = %d\n",
            mudq, mldq);
-    printf("    Retained band block half-bandwidths are mukeep = %d,  mlkeep = %d\n\n",
+    printf("    Retained band block half-bandwidths are mukeep = %d,  mlkeep = %d",
            mukeep, mlkeep); 
+
+  }
+
+  /* Loop over jpre (= LEFT, RIGHT), and solve the problem */
+
+  for (jpre = LEFT; jpre <= RIGHT; jpre++) {
+
+  /* On second run, re-initialize u, CVODE, PVBBDPRE, and CVSPGMR */
+
+  if (jpre == RIGHT) {
+
+    SetInitialProfiles(u, data);
+
+    flag = CVReInit(cvode_mem, f, T0, u, BDF, NEWTON, SS, &reltol,
+                    &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
+    if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
+
+    flag = PVReInitBBD(pdata, local_N, mudq, mldq, mukeep, mlkeep, 0.0, 
+                       flocal, ucomm, data);
+
+    flag = CVReInitSpgmr(cvode_mem, jpre, MODIFIED_GS, 0, 0.0,
+                         PVBBDPrecon, PVBBDPSol, pdata, NULL, NULL);
+    if (flag != SUCCESS) { printf("CVReInitSpgmr failed."); return(1); }
+
+    if (my_pe == 0) {
+      printf("\n\n-------------------------------------------------------");
+      printf("------------\n");
+    }
+  }
+
+  if (my_pe == 0) {
+    printf("\n\nPreconditioner type is:  jpre = %s\n\n",
+           (jpre == LEFT) ? "LEFT" : "RIGHT");
   }
 
   /* In loop over output points, call CVode, print results, test for error */
 
-  for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
+  for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     flag = CVode(cvode_mem, tout, u, &t, NORMAL);
     PrintOutput(my_pe, comm, iopt, ropt, u, t);
     if (flag != SUCCESS) {
@@ -253,7 +290,7 @@ main(int argc, char *argv[])
     }
   }
 
-  /* Print final statistics and free memory */
+  /* Print final statistics */
 
   if (my_pe == 0) {
     PrintFinalStats(iopt);
@@ -261,6 +298,11 @@ main(int argc, char *argv[])
            PVBBD_RPWSIZE(pdata), PVBBD_IPWSIZE(pdata) );  
     printf("             no. flocal evals. = %d\n",PVBBD_NGE(pdata));
   }
+
+  } /* End of jpre loop */
+
+  /* Free memory */
+
   N_VFree(u);
   PVBBDFree(pdata);
   free(data);
@@ -383,14 +425,14 @@ static void PrintOutput(integer my_pe, MPI_Comm comm, long int iopt[],
 
 static void PrintFinalStats(long int iopt[])
 {
-  printf("Final Statistics.. \n");
+  printf("Final Statistics: \n");
   printf("lenrw   = %5ld    leniw = %5ld\n", iopt[LENRW], iopt[LENIW]);
   printf("llrw    = %5ld    lliw  = %5ld\n", iopt[SPGMR_LRW], iopt[SPGMR_LIW]);
   printf("nst     = %5ld    nfe   = %5ld\n", iopt[NST], iopt[NFE]);
   printf("nni     = %5ld    nli   = %5ld\n", iopt[NNI], iopt[SPGMR_NLI]);
   printf("nsetups = %5ld    netf  = %5ld\n", iopt[NSETUPS], iopt[NETF]);
   printf("npe     = %5ld    nps   = %5ld\n", iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
-  printf("ncfn    = %5ld    ncfl  = %5ld\n \n", iopt[NCFN], iopt[SPGMR_NCFL]);
+  printf("ncfn    = %5ld    ncfl  = %5ld\n", iopt[NCFN], iopt[SPGMR_NCFL]);
 }
  
 /* Routine to send boundary data to neighboring PEs */
