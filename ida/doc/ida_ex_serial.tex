@@ -6,8 +6,8 @@
 
 This example, due to Robertson~\cite{Rob:66}, is a model of a three-species 
 chemical kinetics system written in DAE form. Differential equations are given 
-for species $y^1$ and $y^2$ while an algebraic equation determines $y^3$. The 
-equations for the system concentrations $y^i(t)$ are:
+for species $y_1$ and $y_2$ while an algebraic equation determines $y_3$. The 
+equations for the system concentrations $y_i(t)$ are:
 \begin{equation}\label{e:irobx_ODE}
 \begin{cases}
   y^\prime_1 &= -.04 y_1 + 10^4 y_2 y_3   \\
@@ -77,7 +77,7 @@ pointer must be passed in the remaining calls to {\ida} functions.
 
 The call to \id{IDAMalloc} allocates the solver memory block.
 Its arguments include the name of the {\C} function \id{resrob} defining the
-residual function $T(t,y,y')$, and the initial values of $t$, $y$, and $y'$.
+residual function $F(t,y,y')$, and the initial values of $t$, $y$, and $y'$.
 The argument \id{IDA\_SV} specifies a vector of absolute tolerances, and
 this is followed by the address of the relative tolerance \id{rtol}
 and the absolute tolerance vector \id{avtol}.
@@ -291,7 +291,7 @@ of the region.
 The equations solved are:
 \begin{equation}\label{e:iheatsk_PDE}
 \begin{cases}
-  \frac{\partial u}{\partial t}  = u_{xx} + u_{yy}  & (x,y) \in \Omega \\
+  \partial u / \partial t = u_{xx} + u_{yy}  & (x,y) \in \Omega \\
   u = 0 & (x,y) \in \partial\Omega\, .
 \end{cases}
 \end{equation}
@@ -302,7 +302,7 @@ $0 \leq t \leq 10.24$.
 We discretize the PDE system (\ref{e:iheatsk_PDE}) (plus boundary conditions)
 with central differencing on a $10 \times 10$ mesh, so as to obtain a
 DAE system of size $N = 100$.  The dependent variable vector $u$
-consists of the values $u^i(x_j,y_k,t)$ grouped first by $x$, and then
+consists of the values $u(x_j,y_k,t)$ grouped first by $x$, and then
 by $y$.  At each spatial boundary point, the boundary condition is coupled
 algebraically into the adjacent interior points by the central differencing
 scheme. 
