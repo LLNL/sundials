@@ -1,6 +1,6 @@
-                    Addenda to CVODE User Guide
-                         Alan C. Hindmarsh
-                            6 March 2002 
+                    Addenda to "CVODE User Guide"
+                  Alan C. Hindmarsh and Radu Serban
+                            23 July 2002 
 
 
 Since the initial release of CVODE in 1994, a number of modifications
@@ -147,17 +147,17 @@ CVReInitBandPre should be called, followed (possibly) by a call to
 CVSpgmr or CVReInitSpgmr.  For details, see the file cvbandpre.h.
 The example cvkxb illustrates the use of CVReInit and CVReInitSpgmr.
 
-20. The NVECTOR module has been reorganized throughout SUNDIALS. For 
-more information, see the file idareadme and the files nvecreadme, 
-nvector.h and nvector_serial.h in /sundials/shared/.
-A serial CVODE example must include 'nvector_serial.h'.
+20. The NVECTOR module has been reorganized throughout SUNDIALS.  
+For more information, see the file cvreadme, and the files nvecreadme,
+nvector.h, and nvector_serial.h in /sundials/shared/.  A serial CVODE
+example must now include 'nvector_serial.h'.
 
 21. The serial version of CVODE must now initialize the machine environment 
 through calls to M_EnvInit_Serial. As a consequence, the machine 
-environment argument to CVodeMalloc (last argument) cannot be NULL anymore.
+environment argument to CVodeMalloc (last argument) cannot be NULL.
 
-22. Vector accessor macros now have implementation-dependent names, such
-as NV_DATA_S, NV_LENGTH_S, NV_Ith_S for the serial NVECTOR (nvector_serial.h).
+22. Vector accessor macros now have implementation-dependent names, such as
+NV_DATA_S, NV_LENGTH_S, NV_Ith_S for the serial NVECTOR (nvector_serial.h).
 
 23. The file llnltyps.h was renamed sundialstypes.h. 
 The constant name
@@ -165,8 +165,8 @@ The constant name
    LLNL_DOUBLE     has been changed to  SUNDIALS_DOUBLE, 
    LLNL_INT        has been changed to  SUNDIALS_INT,    and 
    LLNL_LONG       has been changed to  SUNDIALS_LONG.
-
-To avoid conflicts with C++ methods the following type names have been changed:
+To avoid conflicts with the C++ function 'real', the following type names
+have been changed:
    real    has been changed to realtype
    integer has been changed to integertype
    boole   has been changed to bolleantype

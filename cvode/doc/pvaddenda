@@ -1,12 +1,12 @@
-
-                            ADDENDA TO 
+                            Addenda to 
   "User Documentation for PVODE, an ODE Solver for Parallel Computers"
-                          6 March 2002    
+                  Alan C. Hindmarsh and Radu Serban
+                          23 July 2002    
 
 Since the publication of the PVODE User Documentation, several changes
 have been made in the PVODE package.  Those which affect the usage of
-PVODE are summarized here.  Full details are available in the
-appropriate header files.
+the package (now known as the parallel version of CVODE) are summarized 
+here.  Full details are available in the appropriate header files.
 
 1. The preconditioner module PVBBDPRE has been modified, and the
 routine PVBBDAlloc has three new arguments:
@@ -138,10 +138,10 @@ solved.  Following a call to FPVREINIT, if the preconditioner and
 SPGMR memory sizes are both unchanged, then a call to FPVREINBBD0 or
 FPVREINBBD1 should be made in place of the call to FPVBBDIN0/FPVBBDIN1.
 
-19. The NVECTOR module has been reorganized throughout SUNDIALS. For 
-more information, see the file idareadme and the files nvecreadme, 
-nvector.h, and nvector_parallel.h in /sundials/shared/.
-A parallel CVODE example must include 'nvector_parallel.h'.
+19. The NVECTOR module has been reorganized throughout SUNDIALS. 
+For more information, see the file cvreadme, and the files nvecreadme,
+nvector.h, and nvector_parallel.h in /sundials/shared/.  A parallel
+CVODE example must now include 'nvector_parallel.h'.
 
 20. The machine environment initialization routine has been renamed from
 PVecInitMPI to M_EnvInit_Parallel.
@@ -160,8 +160,8 @@ The constant name
    LLNL_DOUBLE     has been changed to  SUNDIALS_DOUBLE, 
    LLNL_INT        has been changed to  SUNDIALS_INT,    and 
    LLNL_LONG       has been changed to  SUNDIALS_LONG.
-
-To avoid conflicts with C++ methods the following type names have been changed:
+To avoid conflicts with the C++ function 'real', the following type names
+have been changed:
    real    has been changed to realtype
    integer has been changed to integertype
    boole   has been changed to bolleantype

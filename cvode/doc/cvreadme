@@ -1,30 +1,33 @@
-                   CVODE: Version of 21 March 2002
+                   CVODE: Version of 23 July 2002
                    Notes on Installation and Usage
-                 Scott D. Cohen and Alan C. Hindmarsh
+             Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
 
 CVODE [1,2,3,4] is a solver for stiff and nonstiff ODE systems
-(initial value problem) given in explicit form dy/dt = f(t,y).  It is
-written in the ANSI standard C.
+(initial value problem) given in explicit form dy/dt = f(t,y).  
+It is written in ANSI standard C.
 
-CVODE can be used both on serial and parallel (MPI) computers.
-The difference is only in the NVECTOR module of vector kernels.
-The desired version is obtained when compiling the example files
-by linking the appropriate library of NVECTOR kernels. In the parallel 
-version, communication between processors is done with the MPI 
-(Message Passage Interface) system.
+CVODE can be used both on serial and parallel (MPI) computers.  The main
+difference is in the NVECTOR module of vector kernels.  The desired
+version is obtained when compiling the example files by linking the
+appropriate library of NVECTOR kernels.  In the parallel version,
+communication between processors is done with the MPI (Message Passage
+Interface) system.  Throughout this document, we will refer to the
+combination of CVODE with the serial implementation of the NVECTOR
+module as "the serial version of CVODE".  Similarly, the combination of
+CVODE with the parallel implementation of the NVECTOR module is called
+"the parallel version of CVODE".  (It was formerly known as PVODE.)
 
-Throughout this document, we will refer to the combination of CVODE with
-the serial implementation of the NVECTOR module as "the serial version
-of CVODE". Similarly, the combination of CVODE with the parallel implementation
-of the NVECTOR module will be called "the parallel version of CVODE".
-Note that some linear solver modules are available only for one or the 
-other of these versions. The serial version of CVODE can use direct linear
-solvers (CVDENSE or CVBAND), as well as a banded preconditioner (CVBANDPRE) 
-which are not available for the parallel version. On the other hand, 
-in addition to the basic solver, the CVODE package also contains a 
-preconditioner module called CVBBDPRE, which provides a 
-band-block-diagonal preconditioner for use with the parallel version.
+In addition, the two versions are different in the linear system
+solvers available.  With the serial version of CVODE, both direct
+(dense and band) solvers and a preconditioned Krylov (iterative)
+solver are available, but in the parallel version only the Krylov
+solver is available.  (An approximate diagonal Jacobian option is
+available with both versions.)  For the serial version, there is a
+banded preconditioner module called CVBANDPRE available for use with
+the Krylov solver, while for the parallel version there is a
+preconditioner module called CVBBDPRE which provides a
+band-block-diagonal preconditioner.
 
 CVODE is part of a software family called SUNDIALS: SUite of Nonlinear
 and DIfferential/ALgebraic equation Solvers.  This suite consists of
@@ -32,8 +35,8 @@ CVODE, KINSOL, and IDA, and variants of these.  The directory
 structure of the package supplied reflects this family relationship.
 
 In the package supplied, each Makefile is set up so that typing 'make'
-produces instructions for various make operations. The parallel version
- has been tested on a workstation cluster, an IBM-SP, and on
+produces instructions for various make operations. The parallel
+version has been tested on a workstation cluster, an IBM-SP, and on
 the LLNL Cray-T3D with two different implementations of the MPI
 library (MPICH and EPCC).  In the package supplied here, the makefiles
 are set up to access a workstation cluster, but with commented lines
@@ -46,45 +49,57 @@ the user calling program and all user-supplied routines are in Fortran.
 
 The notes below provide instructions for the installation of the CVODE
 package.  For convenience, we include a brief summary of the usage of
-CVODE (without CVBANDPRE or CVBBDPRE), with notes on the locations of 
-full user documentation.  Following that is a list of references and 
-a brief history of revisions to the package.
+CVODE (without CVBANDPRE or CVBBDPRE), with notes on the locations of
+full user documentation.  Following that is a list of references and a
+brief history of revisions to the package.
+
 
 A. Installation Notes for CVODE
 -------------------------------
 
-1. A tar file  cvode.tar  is provided.  To un-tar, type
-   'tar xvf cvode.tar' in an appropriate working directory.  This
-   generates a directory /sundials/ with subdirectories /shared/,
-   /cvode/, /include/, and /lib/.
+1. A tar file such as cvode.tar is provided.  (The name depends on what
+   subset of SUNDIALS was downloaded.)  Un-tar this file in a suitable
+   working directory.  This generates a directory called /sundials/
+   there,  with subdirectories /shared/, /cvode/, /include/, and /lib/.
 
-2. /sundials/cvode/doc/ contains this file, called cvreadme, a PostScript
-   file cvudoc.ps for the serial CVODE user documentation [1], and a file
-   cvaddenda with corrections to the usage as given in [1]. In addition,
-   the PostScript file pvudoc.ps contains the user documentation for
-   PVODE (the parallel version of CVODE) [3], while the file pvaddenda
-   contains corrections to the usage as given in [3].
+2. /sundials/cvode/doc/ contains this file, called cvreadme.  For the
+   serial version, it contains a PostScript file cvudoc.ps for the serial
+   CVODE user document [1], and a file cvaddenda with corrections to
+   that document.  For the parallel version, this subdirectory contains
+   a PostScript file pvudoc.ps for the user document [3] for PVODE
+   (the former name for the parallel version of CVODE), and a file
+   pvaddenda with corrections to that document.
 
 3. /sundials/shared/ contains files (header and source) that are shared
-   with other members of SUNDIALS. Typing 'make lib' in /sundials/shared/source
-   generates a library file /sundials/shared/lib/libshared.***.a (where *** 
-   is a machine dependent identifier), creates a symbolic link to this library in 
-   /sundials/lib/ and symbolic links to the SHARED header files in
-   /sundials/include/, then removes the object files.
+   with other members of SUNDIALS.  Installation requires two steps:
+   (a) Typing 'make lib' in /sundials/shared/source/ generates a library
+   file /sundials/shared/lib/libshared.***.a (where *** is a machine-
+   dependent identifier), creates a symbolic link to this library in 
+   /sundials/lib/ and symbolic links to the shared header files in
+   /sundials/include/, and removes the corresponding object files.
+   (b) Type 'make nvecserial' or 'make nvecparallel' (or both) in 
+   /sundials/shared/source/, according to which versions of CVODE are
+   being installed.  This generates library files libnvecserial.***.a
+   and libfnvecserial.***.a  and/or libnvecparallel.***.a and 
+   libfnvecparallel.***.a in /sundials/shared/lib/, creates symbolic
+   links to these library files in /sundials/lib/ and symbolic links
+   to the NVECTOR header files in /sundials/include/, and removes the
+   corresponding object files.
 
-4. /sundials/cvode/source/ contains source files for CVODE and a makefile.  
-   Typing 'make lib' there generates all associated object files and a
-   library file /sundials/cvode/lib/libcvode.***.a (where *** is a machine
+4. /sundials/cvode/source/ contains source files for CVODE and a
+   Makefile.  Typing 'make lib' there generates a library file
+   /sundials/cvode/lib/libcvode.***.a (where *** is a machine-
    dependent identifier), creates a symbolic link to this library in 
    /sundials/lib/ and symbolic links to the CVODE header files in
-   /sundials/include/, then removes the object files.
+   /sundials/include/, and removes the corresponding object files.
 
-5. /sundials/cvode/include/ contains all required header files for CVODE.
+5. /sundials/cvode/include/ contains header files specific to CVODE.
 
-6. /sundials/cvode/examples/ contains nine example programs and a makefile.
-
-   The first six are examples for the serial version of CVODE:
-
+6. /sundials/cvode/examples/ contains nine example programs and a Makefile.
+   For each example, there is a source file and a sample output, and
+   the source file is commented with details of the problem and the
+   setup for its solution with CVODE.
+      The first six are examples for the serial version of CVODE:
    (a) cvdx.c has a small kinetics system, solved with the stiff (BDF)
    method and CVDENSE for the linear solver.
    (b) cvbx.c has a simple semi-discretized PDE problem, solved with the
@@ -100,8 +115,7 @@ A. Installation Notes for CVODE
    (f) cvdemk.c is also a set of examples.  It has a 2-D 6-species
    reaction-diffusion PDE system, semi-discretized, run with the CVSPGMR
    linear solver, with 4 different method options.
-
-   The last three examples are for the parallel version of CVODE:
+      The last three examples are for the parallel version of CVODE:
    (g) pvnx.c has an ODE system based on a 1-D PDE problem, solved with
    the nonstiff option.
    (h) pvkx.c has an ODE system based on a 2-D 2-species reaction-transport
@@ -109,133 +123,134 @@ A. Installation Notes for CVODE
    Krylov linear system method (SPGMR).
    (i) pvkxb.c solves the same problem as pvkx.c, but uses the band-
    block-diagonal preconditioner module CVBBDPRE.
+      Typing 'make <ex>' in this subdirectory, where <ex> is any of the above
+   nine example names (cvdx etc.), finds the required header files etc. and
+   generates the corresponding executable file.  Also included are sample
+   outputs for the examples (with names ending in .out).  Outputs obtained  
+   by another user (and run with the same number of processors) should
+   agree with these, possibly with relatively small differences throughout.
 
-      See the initial comments in each example source file for details on
-   problem and solution parameters.   
-      Typing 'make <ex>' in this subdirectory, where <ex> is cvdx, cvbx,
-   cvkx, cvkxb, cvdemd, cvdemk, pvnx, pvkx, or pvkxb finds the required 
-   header files etc. and generates the corresponding executable file.  Also 
-   included are sample outputs for the examples (with names ending in .out).  
-   Outputs obtained by another user should agree with these, possibly with 
-   relatively small differences throughout.
-
-7. /subndials/cvode/fcmix/ contains FCVODE, package of Fortran/C interfaces
-   which allow a Fortran application to use CVODE.  A makefile is supplied,
-   and typing 'make lib' adds these interfaces to the CVODE library file in
-   /sundials/cvode/lib/. Note that the CVODE library must have been
-   created before this.
-   Usage documentation for FCVODE is contained in [3], and also in fcvode.h
-   and fcvbbd.h (for use of CVODE without and with CVBBDPRE, respectively).
-   The header file fcmixpar.h (in /sundials/shared/include/) contains two 
-   machine-dependent parameters that are used to define interface function 
-   names.  Check, and if necessary modify, those parameter values for a given 
-   machine.
-      The subdirectory /sundials/cvode/fcmix/ also contains three parallel Fortran
-   examples, called pvdiagnf, pvdiagkf, and pvdiagkbf.  Type 'make fcvodex_par'
-   to compile all of these examples.  A sample output for each is included.
+7. /sundials/cvode/fcmix/ contains FCVODE, package of Fortran/C interfaces
+   which allow a Fortran application to use CVODE.  A Makefile is supplied,
+   and typing 'make lib' in this directory generates a library file
+   /sundials/cvode/lib/libfcvode.***.a.  Note that the CVODE library must
+   have been created before this.  Usage documentation for FCVODE is contained
+   in [3] (together with the addenda files), and also in fcvode.h and fcvbbd.h
+   (for use of CVODE without and with CVBBDPRE, respectively).  The header file
+   fcmixpar.h (in /sundials/shared/include/) contains two machine-dependent
+   parameters that are used to define interface function names.  Check, and
+   if necessary modify, those parameter values for a given machine.
+      The subdirectory /sundials/cvode/fcmix/ contains three serial Fortran
+   examples -- cvdensef, cvbandf, and cvkryf, and three parallel Fortran
+   examples -- pvdiagnf, pvdiagkf, and pvdiagkbf.  Type 'make fcvx_ser'
+   or 'make fcvx_par' to compile either of these two sets examples.
+   A sample output for each example is included.
       Note: the example programs are in double precision Fortran; for a
    long-wordlength machine, these should be converted to single precision.
 
-9. Installing and using CVODE in a different environment requires only
-   minor modifications to the various makefiles.  For the compilation of
-   CVODE, check the file /sundials/cvode/source/Makefile, and if necessary
-   modify the compiler name and flags.
+8. Installing and using CVODE in a different environment requires only
+   minor modifications to the various makefiles.  For the compilation
+   of CVODE, check the file Makefile in /sundials/cvode/source/ and the
+   files Makefile and nvec***.mk in /sundials/shared/source/, and if
+   necessary modify the compiler name and flags, and the path to MPI
+   include files.
       To run CVODE on an application in a different directory location,
    the makefiles in /sundials/cvode/examples/ can be used with minor
-   changes.   In the files Makefile, cvodex_ser.mk, and cvodex_par.mk, correct
-   the various paths involved -- path to the top of the SUNDIALS tree 
-   and to MPI include files.
-   Also check and correct the compiler/linker names and flags.
-   Similar remarks apply to the use of FCVODE.
+   changes.  In the files cvx_ser.mk and cvx_par.mk, correct the
+   various paths involved -- the path to the top of the SUNDIALS tree 
+   and the path to MPI include files.  Also check and correct the
+   compiler name and flags.  Similar remarks apply to the use of FCVODE.
 
 
 B. Summary of Usage of CVODE
 --------------------------------
 
-The following outline summarizes the sequence of steps in the usage of
-CVODE. When using CVODE with the parallel NVECTOR library, select steps 0.p, 3.p 
-and 9.p. When using CVODE with the serial NVECTOR library, select steps 
-0.s, 3.s and 9.s and omit steps 1 and 2. In step 6, use a linear solver consistent
-with the NVECTOR module (see note above). In either case, the user's program 
-must include the system right hand side function that defines the problem 
-in the form y' = f(t,y), and (optionally) any Jacobian or preconditioner 
-routines called for in the options selected.
+The following outline summarizes the sequence of steps in using CVODE.
+For the serial version, select steps 0.s, 3.s and 9.s and omit steps 1
+and 2.  For the parallel version, select steps 0.p, 3.p and 9.p.
+In step 6, use a linear solver consistent with the version of CVODE
+(i.e. of NVECTOR) being used (see note above).  In either case, the
+user's program must include the system right-hand side function that
+defines the problem in the form y' = f(t,y), and (optionally) any
+Jacobian or preconditioner routines called for in the options selected.
 
-0.p   #include "nvector_parallel.h"
-0.s   #include "nvector_serial.h"
+0.s  #include "nvector_serial.h"
+0.p  #include "nvector_parallel.h"
 
-1.    MPI_Init();   /* if user is using MPI also, aside from CVODE */
+1.   MPI_Init();   /* if user is using MPI also, aside from CVODE */
 
-2.  Set local vector length nloc, the global length (problem size) Neq, and 
-      the active set of processors
+2.   Set local vector length nloc, the global length (problem size) Neq, and 
+     the active set of processors
 
-3.p   machEnv = M_EnvInit_Parallel(comm, nloc, Neq, &argc, &argv);
-      /* comm = MPI communicator (if set up by user), or
-         comm = MPI_COMM_WORLD (specifying all processors)
-         &argc,&argv = pointers to command line argument count and arrays
-                       (needed if MPI not already initialized)  */
-3.s   machEnv = M_EnvInit_Serial(Neq);
+3.s  machEnv = M_EnvInit_Serial(Neq); if (machEnv == NULL) return(1);
+3.p  machEnv = M_EnvInit_Parallel(comm, nloc, Neq, &argc, &argv);
+     /* comm = MPI communicator (if set up by user), or
+        comm = MPI_COMM_WORLD (specifying all processors)
+        &argc,&argv = pointers to command line argument count and arrays
+                      (needed if MPI not already initialized)           */
 
-      if (machEnv == NULL) return(1);
+4.   Set up vector y:
+       y = N_VNew(Neq, machEnv);
+     OR use NV_MAKE** macros defined by the current NVECTOR implementation.
 
-4.  User sets up vector y:
-      y = N_VNew(Neq, machEnv);
-    OR use NV_MAKE** macros defined by the current NVECTOR implementation
+5.   cvmem = CVodeMalloc(Neq, f, ..., machEnv); /* initializes CVODE */
+     if (cvmem == NULL) return(1);
+     ...
 
-5.  cvmem = CVodeMalloc( N, f, ..., machEnv); /* initializes CVODE */
-    if (cvmem == NULL) return(1);
+6.   flag = CV<linear solver choice>(...);      
+     /* CVDense, CVBand, CVDiag, or CVSpgmr(... Precond, Psolve,...) */
     ...
 
-6.  flag = CV<linear solver choice>(...);      
-    /* CVDense, CVBand, CVDiag, or CVSpgmr(... Precond, Psolve,...) */
+7.   ier = CVode(cvmem, tout, y, &t, itask);  /* in loop over tout values */
+     ...
 
-    ...
+8.   CVodeFree(cvmem);          /* Free CVODE memory independent of machine */
 
-7.  ier = CVode(cvmem, tout, y, &t, itask);  /* in loop over tout values */
-    ...
-
-8.  CVodeFree(cvmem);          /* Free CVODE memory independent of machine */
-
+9.s  M_EnvFree_Serial(machEnv);   /* Free the machine environment */
 9.p  M_EnvFree_Parallel(machEnv); /* Free the machine environment */
-9.s  M_EnvFree_Serial(machEnv); /* Free the machine environment */
-    ...
+     ...
 
 
 Usage Notes:
 
-(1) See [1] and the file sundials/cvode/doc/cvaddenda and [3] and the
-    file sundials/cvode/doc/pvaddenda for further user documentation.
-    Additional usage details are also available from other sources:
-    (a) See the file nvector.h for documentation of the vector kernels and
-        the files nvector_serial.h and nvector_parallel.h for documentation
-        of M_EnvInit_Serial / M_EnvFree_Serial and 
-        M_EnvInit_Parallel / M_EnvFree_Parallel, as well as accessor macros 
-        for the particular NVECTOR implementation.
-    (b) The paper [2] is a summary of the serial version of CVODE with another 
-        short usage example.
-    (c) For further assistance with usage, see the example programs, which
-        are heavily annotated.
+(1) See [1] and the file sundials/cvode/doc/cvaddenda, or [3] and the
+    file sundials/cvode/doc/pvaddenda, for further user documentation.
+    The papers [2] and [4] are summaries of the serial and parallel versions
+    of CVODE, respectively, each with a short example problem.
 
-(2) CVODE can be called from a C++ application, by virtue of wrappers
+(2) For documentation of the vector kernels, see the file nvector.h.  Also
+    see the files nvector_serial.h and nvector_parallel.h for documentation of
+    M_EnvInit_Serial/M_EnvFree_Serial and M_EnvInit_Parallel/M_EnvFree_Parallel
+    as well as accessor macros for the particular NVECTOR implementation.
+
+(3) Usage of the band preconditioner module CVBANDPRE (serial) or the
+    band-block-diagonal preconditioner module CVBBDPRE (parallel) involves
+    a call (to CVBandPreAlloc or CVBBDAlloc) between steps 5 and 6, and
+    for CVBBDPRE there are two additional user-supplied routines.
+
+(4) For further assistance with usage, see the example programs, which
+    are heavily annotated.
+
+(5) CVODE can be called from a C++ application, by virtue of wrappers
     around all CVODE header files specifying C-style naming of functions.
 
 
 C. References
 -------------
 
-[1] S. D. Cohen and A. C. Hindmarsh, CVODE User Guide, Lawrence
+[1] S. D. Cohen and A. C. Hindmarsh, "CVODE User Guide," Lawrence
     Livermore National Laboratory report UCRL-MA-118618, September 1994.
 
-[2] S. D. Cohen and A. C. Hindmarsh, CVODE, A Stiff/Nonstiff ODE Solver
-    in C, Computers in Physics, vol. 10, no. 2 (March 1996), pp. 138-143.
+[2] S. D. Cohen and A. C. Hindmarsh, "CVODE, A Stiff/Nonstiff ODE Solver
+    in C," Computers in Physics, vol. 10, no. 2 (March 1996), pp. 138-143.
 
-[3] George D. Byrne and Alan C. Hindmarsh, User Documentation for PVODE,
-    an ODE Solver for Parallel Computers, LLNL Report UCRL-ID-130884,
+[3] George D. Byrne and Alan C. Hindmarsh, "User Documentation for PVODE,
+    an ODE Solver for Parallel Computers," LLNL Report UCRL-ID-130884,
     May 1998.
 
-[4] A. C. Hindmarsh and A. G. Taylor, PVODE and KINSOL: Parallel Software
-    for Differential and Nonlinear Systems, LLNL Report UCRL-ID-129739,
-    February 1998.
+[4] George D. Byrne and Alan C. Hindmarsh, "PVODE, An ODE Solver for
+    Parallel Computers," in Int. J. High Perf. Comput. Applic., vol. 13,
+    no. 4 (1999), pp. 354-365.
 
 
 D.1. Revision History for serial version of CVODE(YYYYMMDD)
@@ -406,7 +421,13 @@ D.3. Revision History for combined CVODE package (YYYYMMDD)
           routine names to reflect this.
 20020321  Merged readme files cvreadme and pvreadme.
           Revised to reflect new N_Vector usage.
-20020626  Modified to reflect type name changes
+20020626  Modified to reflect type name changes.
+20020723  Minor comment and other corrections throughout.
+          Modified over-long lines throughout.  Minor corrections
+          to this file cvreadme and files cvaddenda and pvaddenda.
+          In FCVODE: revised dense and band Jacobian treatment;
+          added examples cvbandf and cvkryf and revised cvdensef;
+          minor corrections throughout.
 
 ......................................................................
 
