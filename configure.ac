@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2004-10-28 22:51:07 $
+# $Revision: 1.15 $
+# $Date: 2004-11-03 23:17:50 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -70,7 +70,7 @@ AC_SUBST(MODULES)
 AC_SUBST(NVEC_MODULES)
 AC_SUBST(EXAMPLE_MODULES)
 AC_SUBST(FCMIX_ENABLED)
-AC_SUBST(F77_FLOAT_TYPE)
+AC_SUBST(FLOAT_TYPE)
 AC_SUBST(LIBTOOL_CMD)
 AC_SUBST(LIBTOOL_DEPS)
 

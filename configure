@@ -477,7 +477,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CC_COMP CPP EGREP FGREP F77 FFLAGS ac_ct_F77 F77_COMP FLIBS CXX CXXFLAGS ac_ct_CXX CXX_COMP CXXCPP MPICC_COMP MPIF77_COMP MPICXX_COMP LN_S ECHO RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP LIBTOOL COMPILER_PREFIX LINKER_PREFIX MPICC MPICXX MPIF77 MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MODULES NVEC_MODULES EXAMPLE_MODULES FCMIX_ENABLED F77_FLOAT_TYPE LIBTOOL_CMD LIBTOOL_DEPS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CC_COMP CPP EGREP FGREP F77 FFLAGS ac_ct_F77 F77_COMP FLIBS CXX CXXFLAGS ac_ct_CXX CXX_COMP CXXCPP MPICC_COMP MPIF77_COMP MPICXX_COMP LN_S ECHO RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP LIBTOOL COMPILER_PREFIX LINKER_PREFIX MPICC MPICXX MPIF77 MPI_INC_DIR MPI_LIB_DIR MPI_LIBS MODULES NVEC_MODULES EXAMPLE_MODULES FCMIX_ENABLED FLOAT_TYPE LIBTOOL_CMD LIBTOOL_DEPS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -5541,9 +5541,6 @@ _ACEOF
 
 fi
 
-# F77_FLOAT_TYPE exported via AC_SUBST (see configure.ac) - used by FCMIX Makefile's
-F77_FLOAT_TYPE="${FLOAT_TYPE}"
-
 # Defines EGREP and exports via AC_SUBST - used by FCMIX Makefile's
 echo "$as_me:$LINENO: checking for egrep" >&5
 echo $ECHO_N "checking for egrep... $ECHO_C" >&6
@@ -5630,7 +5627,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:5633: \"$ac_link\") >&5
+(eval echo $as_me:5630: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -5710,7 +5707,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:5713: \"$ac_link\") >&5
+(eval echo $as_me:5710: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6321,7 +6318,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:6324:" \
+echo "$as_me:6321:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6833,7 +6830,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:6836: \"$ac_link\") >&5
+(eval echo $as_me:6833: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6913,7 +6910,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:6916: \"$ac_link\") >&5
+(eval echo $as_me:6913: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -10280,7 +10277,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 10283 "configure"' > conftest.$ac_ext
+  echo '#line 10280 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -10827,7 +10824,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:10830: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:10827: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -12023,7 +12020,7 @@ linux-gnu*)
   libsuff=
   case "$host_cpu" in
   x86_64*|s390x*)
-    echo '#line 12026 "configure"' > conftest.$ac_ext
+    echo '#line 12023 "configure"' > conftest.$ac_ext
     if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -12731,7 +12728,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12734 "configure"
+#line 12731 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12829,7 +12826,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12832 "configure"
+#line 12829 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -14641,7 +14638,7 @@ s,@MODULES@,$MODULES,;t t
 s,@NVEC_MODULES@,$NVEC_MODULES,;t t
 s,@EXAMPLE_MODULES@,$EXAMPLE_MODULES,;t t
 s,@FCMIX_ENABLED@,$FCMIX_ENABLED,;t t
-s,@F77_FLOAT_TYPE@,$F77_FLOAT_TYPE,;t t
+s,@FLOAT_TYPE@,$FLOAT_TYPE,;t t
 s,@LIBTOOL_CMD@,$LIBTOOL_CMD,;t t
 s,@LIBTOOL_DEPS@,$LIBTOOL_DEPS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t

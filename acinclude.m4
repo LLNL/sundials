@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-10-30 00:26:42 $
+# $Revision: 1.7 $
+# $Date: 2004-11-03 23:17:49 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -565,9 +565,6 @@ elif test "X${FLOAT_TYPE}" = "Xdouble"; then
 elif test "X${FLOAT_TYPE}" = "Xextended"; then
   AC_CHECK_SIZEOF(long double)
 fi
-
-# F77_FLOAT_TYPE exported via AC_SUBST (see configure.ac) - used by FCMIX Makefile's
-F77_FLOAT_TYPE="${FLOAT_TYPE}"
 
 # Defines EGREP and exports via AC_SUBST - used by FCMIX Makefile's
 AC_PROG_EGREP
