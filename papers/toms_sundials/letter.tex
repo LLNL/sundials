@@ -199,7 +199,7 @@ Page 8.
 Inexact Newton Iteration. Using $m$ rather than $n$ fits with earlier
 notation.
 
-{\em Response:} Kept $n$ notation as this leaves the presentation
+{\em Response:} Kept $n$ notation, as this leaves the presentation
 consistent with literature on Newton's method.  Added
 clarification of the meaning of $n$ for this iteration.
 
@@ -210,7 +210,7 @@ explained that either of these may be used. Possibly change 2(b) to
 `Set $u_{n+1} = u_n + $ multiple of $\delta_n$'. Alter p9 text accordingly.
 
 {\em Response: } Done. Changed line 2(b) to specify that $\lambda
-\delta_n, \lambda \leq 1$ is used.  Changed following text
+\delta_n, \lambda \leq 1$, is used.  Changed following text
 appropriately.
 
 line -13. `These solutions are only approximate ... new approximate
@@ -416,7 +416,7 @@ ciently in a parallel environment based on a specific parallelization
 facility such as Open MP or MPI, for example.
 
 {\em Response: } We have added a paragraph in the introduction
-stating the difference between runnign the codes in serial and
+stating the difference between running the codes in serial and
 parallel and why we no longer distinguish between serial and
 parallel versions.
 
@@ -428,8 +428,6 @@ appropriate references.
 {\em Response: } We have not done such performance comparison
 testing and do not feel that it is within the scope of this paper
 to provide such comparisons.
-
-{\em Response: }
 
 Detailed Comments on the Manuscript
 
@@ -528,7 +526,7 @@ $|\gamma/\bar{\gamma} - 1| > 0.3 $"
 
 Page 5, Line 2: Explain what is meant by a "non-fatal convergence failure"?
 
-{\em Response:} Reworded.  A non-fatal convergence refers to an fatal
+{\em Response:} Reworded.  A non-fatal convergence refers to a fatal
 error flag that the user may have returned from the preconditioner
 routine.  Since this section is about algorithms, it seems best not to
 bother going into that here.
@@ -571,7 +569,7 @@ Page 9, Line -12: Give a brief indication of what criterion is used to
 decide when one is close to the solution.
 
 {\em Response: } We have added a reference for further details of
-the line search algorithm.
+the linesearch algorithm.
 
 Page 10, Line -11: Add a reference after "so-called semi-explicit
 index-one systems".
@@ -590,8 +588,8 @@ is better to defer the details of the preconditioning so I would
 recommend leaving out the "so that GMRES is applied ..."  part of this
 sentence. Also I do not understand the footnote.
 
-{\em Response:} We disagree.  This information is needed to
-understand the stopping test described one page later. Further
+{\em Response:} We disagree.  The specific preconditioned system is needed
+to understand the stopping test described one page later. Further
 explanation was added to the footnote.
 
 Page 12, Lines 22, 23: Change "$S = 20$" to "20" and "$S = 100$" to "100".
