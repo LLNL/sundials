@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-21 21:01:24 $
+ * $Revision: 1.14 $
+ * $Date: 2004-12-02 19:29:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -74,8 +74,8 @@ int FKINPSet(N_Vector uu, N_Vector uscale,
 
   FK_PSET(udata, uscaledata, fdata, fscaledata, vtemp1data, vtemp2data, &retcode);
 
- /* Note: There is no need to use N_VSetData since we are not getting back any
-    information that should go into an N_Vector */
+ /* Note: There is no need to use N_VSetArrayPointer since we are not getting back
+    any information that should go into an N_Vector */
 
  return(retcode);
 }
