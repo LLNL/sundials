@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-05-13 17:43:29 $
+ * $Revision: 1.27 $
+ * $Date: 2004-05-13 22:42:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1758,6 +1758,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       N_VScale(ONE, zn[0], yout);
       tolsf *= TWO;
       break;
+    } else {
+      tolsf = ONE;
     }
 
     /* Check for h below roundoff level in tn */
