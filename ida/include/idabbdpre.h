@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-10-21 15:57:40 $
+ * $Revision: 1.24 $
+ * $Date: 2004-10-21 17:48:36 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,7 +42,7 @@
  *   ier = IDAMalloc(...);                                         
  *   ...                                                           
  *   p_data = IDABBDPrecAlloc(ida_mem, Nlocal, mudq, mldq,         
- *                      mukeep, mlkeep, dq_rel_yy, glocal, gcomm); 
+ *                            mukeep, mlkeep, dq_rel_yy, Gres, Gcomm); 
  *   flag = IDABBDSpgmr(ida_mem, maxl, p_data);                  
  *   ...                                                           
  *   ier = IDASolve(...);                                          
@@ -59,11 +59,11 @@
  *   res  is the function F(t,y,y') defining the DAE system to     
  *   be solved:  F(t,y,y') = 0.                                    
  *                                                                 
- *   glocal  is the function defining a local approximation        
+ *   Gres  is the function defining a local approximation        
  *   G(t,y,y') to F, for the purposes of the preconditioner.       
  *                                                                 
- *   gcomm  is the function performing communication needed        
- *                   for glocal.                                   
+ *   Gcomm  is the function performing communication needed        
+ *   for Glocal.                                   
  *                                                                 
  *                                                                 
  * Notes:                                                          
@@ -81,7 +81,7 @@
  *    mldq need not be the same on every processor.                
  *                                                                 
  * 3) The actual name of the user's res function is passed to      
- *    IDAMalloc, and the names of the user's glocal and gcomm      
+ *    IDAMalloc, and the names of the user's Gres and Gcomm      
  *    functions are passed to IDABBDPrecAlloc.                     
  *                                                                 
  * 4) The pointer to the user-defined data block res_data, which   
@@ -130,7 +130,7 @@ extern "C" {
  * parameter is the same as that passed by the user to the        
  * IDAMalloc routine.                                             
  *                                                                
- * A IDABBDLocalFn glocal is to return an int, defined in the same   
+ * An IDABBDLocalFn Gres is to return an int, defined in the same   
  * way as for the residual function: 0 (success), +1 or -1 (fail).
  * -----------------------------------------------------------------
  */
@@ -152,10 +152,10 @@ typedef int (*IDABBDLocalFn)(long int Nlocal, realtype tt,
  * res_data parameter is the same as that passed by the user to   
  * the IDAMalloc routine.                                         
  *                                                                
- * The IDABBDCommFn gcomm is expected to save communicated data in   
+ * The IDABBDCommFn Gcomm is expected to save communicated data in   
  * space defined with the structure *res_data.                    
  *                                                                
- * A IDABBDCommFn gcomm returns an int value equal to 0 (success),   
+ * A IDABBDCommFn Gcomm returns an int value equal to 0 (success),   
  * > 0 (recoverable error), or < 0 (unrecoverable error).         
  *                                                                
  * Each call to the IDABBDCommFn is preceded by a call to the system 
@@ -199,11 +199,11 @@ typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt,
  *         default is sqrt(unit roundoff), and specified by       
  *         passing dq_rel_yy = 0.                                 
  *                                                                
- * glocal    is the name of the user-supplied function G(t,y,y')  
+ * Gres    is the name of the user-supplied function G(t,y,y')  
  *         that approximates F and whose local Jacobian blocks    
  *         are to form the preconditioner.                        
  *                                                                
- * gcomm   is the name of the user-defined function that performs 
+ * Gcomm   is the name of the user-defined function that performs 
  *         necessary inter-processor communication for the        
  *         execution of glocal.                                   
  *                                                                
@@ -216,7 +216,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 		      long int mudq, long int mldq, 
 		      long int mukeep, long int mlkeep, 
 		      realtype dq_rel_yy, 
-		      IDABBDLocalFn glocal, IDABBDCommFn gcomm);
+		      IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 
 /*
  * -----------------------------------------------------------------
@@ -244,7 +244,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
  * -----------------------------------------------------------------
  */
 
-int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data);
+int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data);
 
 /*
  * -----------------------------------------------------------------
@@ -261,7 +261,7 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data);
  * made in its input parameters, before calling IDASolve.         
  *                                                                
  * The first argument to IDABBDPrecReInit must be the pointer     
- * p_data that was returned by IDABBDPrecAlloc.  All other        
+ * bbd_data that was returned by IDABBDPrecAlloc.  All other        
  * arguments have the same names and meanings as those of         
  * IDABBDPrecAlloc.                                               
  *                                                                
@@ -269,21 +269,21 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-int IDABBDPrecReInit(void *p_data, 
+int IDABBDPrecReInit(void *bbd_data, 
 		     long int mudq, long int mldq,
 		     realtype dq_rel_yy, 
-		     IDABBDLocalFn glocal, IDABBDCommFn gcomm); 
+		     IDABBDLocalFn Gres, IDABBDCommFn Gcomm); 
 
 /*
  * -----------------------------------------------------------------
  * Function : IDABBDPrecFree                                      
  *----------------------------------------------------------------
- * IDABBDPrecFree frees the memory block p_data allocated by the  
+ * IDABBDPrecFree frees the memory block bbd_data allocated by the  
  * call to IDABBDPrecAlloc.                                       
  * -----------------------------------------------------------------
  */
 
-void IDABBDPrecFree(void *p_data);
+void IDABBDPrecFree(void *bbd_data);
 
 /*
  * -----------------------------------------------------------------
@@ -293,26 +293,13 @@ void IDABBDPrecFree(void *p_data);
  * IDABBDPrecGetWorkSpace returns the real and integer workspace for    
  *    IBBDPRE.                                                    
  * IDABBDPrecGetNumGfnEvals returns the number of calls to the    
- *    uer glocal function.                                        
+ *    uer Gres function.                                        
  *                                                                
  * -----------------------------------------------------------------
  */
 
-int IDABBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP);
-int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
-
-/* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
-
-int IDABBDPrecSetup(realtype tt, 
-		    N_Vector yy, N_Vector yp, N_Vector rr, 
-		    realtype cj, void *p_data,
-		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
- 
-int IDABBDPrecSolve(realtype tt, 
-		    N_Vector yy, N_Vector yp, N_Vector rr, 
-		    N_Vector rvec, N_Vector zvec,
-		    realtype cj, realtype delta,
-		    void *p_data, N_Vector tempv);
+int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
+int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
 #endif
 
