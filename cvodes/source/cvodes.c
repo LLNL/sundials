@@ -701,6 +701,7 @@ static void CVSensRhs1DQ(integertype Ns, realtype t,
 #define yS             (cv_mem->cv_yS)
 #define tempvS         (cv_mem->cv_tempvS)
 #define ftempS         (cv_mem->cv_ftempS)
+#define crateS         (cv_mem->cv_crateS)
 #define acnrmS         (cv_mem->cv_acnrmS)
 #define maxcorS        (cv_mem->cv_maxcorS)
 #define nfSe           (cv_mem->cv_nfSe)
@@ -710,6 +711,7 @@ static void CVSensRhs1DQ(integertype Ns, realtype t,
 #define ncfnS1         (cv_mem->cv_ncfnS1)
 #define ncfS1          (cv_mem->cv_ncfS1)
 #define netfS          (cv_mem->cv_netfS)
+#define nsetupss       (cv_mem->cv_nsetupss)
 #define lsolveS        (cv_mem->cv_lsolveS) 
 #define abstolSalloc   (cv_mem->cv_abstolSalloc)
 #define stgr1alloc     (cv_mem->cv_stgr1alloc)
@@ -928,8 +930,8 @@ void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0,
   nst = nfe = ncfn = netf = nni = nsetups = nhnil = nstlp = 0;
   nscon = 0;
 
-  /* Initialize all other vars corresponding to optional outputs */
-  
+  /* Initialize counters for sensitivities */
+
   qu = 0;
   hu = ZERO;
   tolsf = ONE;
@@ -945,9 +947,16 @@ void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0,
     iopt[QCUR] = 0;
     iopt[LENRW] = lrw;
     iopt[LENIW] = liw;
+    /* Sensitivity */
+    iopt[NFSE]    = 0;
+    iopt[NNIS]    = 0;
+    iopt[NCFNS]   = 0;
+    iopt[NETFS]   = 0;
+    iopt[NSETUPSS]= 0;
+    /* SLDET */
+    iopt[NOR] = 0;
     if (optIn && iopt[SLDET] && (lmm == BDF)) {
       sldeton = TRUE;
-      iopt[NOR] = 0;
       for (i = 1; i <= 5; i++) {
         for (k = 1; k <= 3; k++) ssdat[i-1][k-1] = ZERO;}
     }
@@ -984,7 +993,7 @@ void *CVodeMalloc(RhsFn f, realtype t0, N_Vector y0,
 /*-----------------------------------------------------------------*/
 
 int CVodeQuadMalloc(void *cvode_mem, 
-                    void *fQ, int errconQ,
+                    QuadRhsFn fQ, int errconQ,
                     realtype *reltolQ, void *abstolQ,
                     void *fQ_data, M_Env machEnvQ)
 {
@@ -1289,7 +1298,7 @@ int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism,
     N_VScale(ONE, yS0[is], znS[0][is]);
   
   /* Initialize all sensitivity related counters */
-  nfSe = ncfnS = netfS = nniS = 0;
+  nfSe = ncfnS = netfS = nniS = nsetupss = 0;
   if (ism==STAGGERED1)
     for (is=0; is<Ns; is++) {
       ncfnS1[is] = 0;
@@ -1505,9 +1514,16 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     iopt[QCUR] = 0;
     iopt[LENRW] = lrw;
     iopt[LENIW] = liw;
+    /* Sensitivity */
+    iopt[NFSE]    = 0;
+    iopt[NNIS]    = 0;
+    iopt[NCFNS]   = 0;
+    iopt[NETFS]   = 0;
+    iopt[NSETUPSS]= 0;
+    /* SLDET */
+    iopt[NOR] = 0;
     if (optIn && iopt[SLDET] && (lmm == BDF)) {
       sldeton = TRUE;
-      iopt[NOR] = 0;
       for (i = 1; i <= 5; i++)
         for (k = 1; k <= 3; k++) 
           ssdat[i-1][k-1] = ZERO;
@@ -1547,7 +1563,7 @@ int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
 /*-----------------------------------------------------------------*/
 
 
-int CVodeQuadReInit(void *cvode_mem, void *fQ, int errconQ,
+int CVodeQuadReInit(void *cvode_mem, QuadRhsFn fQ, int errconQ,
                     realtype *reltolQ, void *abstolQ, 
                     void *fQ_data, M_Env machEnvQ)
 {
@@ -1844,7 +1860,7 @@ int CVodeSensReInit(void *cvode_mem, int ism,
     N_VScale(ONE, yS0[is], znS[0][is]);
 
   /* Initialize all sensitivity related counters */
-  nfSe = ncfnS = netfS = nniS = 0;
+  nfSe = ncfnS = netfS = nniS = nsetupss = 0;
   if (ism==STAGGERED1)
     for (is=0; is<Ns; is++) {
       ncfnS1[is] = 0;
@@ -2255,6 +2271,10 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
     iopt[NETF]    = netf;
     iopt[QU]      = q;
     iopt[QCUR]    = next_q;
+    if (quad) {
+      iopt[NFQE]    = nfQe;
+      iopt[NETFQ]   = netfQ;
+    }
     if (sensi && (ism==STAGGERED1)) { 
       nniS  = 0;
       ncfnS = 0;
@@ -2263,15 +2283,12 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
         ncfnS += ncfnS1[is];
       }
     }
-    if (quad) {
-      iopt[NFQE]    = nfQe;
-      iopt[NETFQ]   = netfQ;
-    }
     if (sensi) {
       iopt[NFSE]    = nfSe;
       iopt[NNIS]    = nniS;
       iopt[NCFNS]   = ncfnS;
       iopt[NETFS]   = netfS;
+      iopt[NSETUPSS]= nsetupss;
     }
   }
   
@@ -2468,7 +2485,7 @@ int CVodeSensExtract(void *cvode_mem, realtype t, N_Vector *ySout)
 
 int CVodeSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA)
 {
-  int ier;
+  int ier=OKAY;
   integertype is;
   CVodeMem cv_mem;
   
@@ -2809,7 +2826,7 @@ static void CVFreeVectors(CVodeMem cv_mem, int maxord)
 
 static booleantype CVEwtSet(CVodeMem cv_mem, N_Vector ycur)
 {
-  booleantype flag;
+  booleantype flag=TRUE;
 
   switch (itol) {
   case SS: 
@@ -2932,6 +2949,8 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, M_Env machEnvQ)
   /* Update solver workspace lengths */
   lrw += (qmax + 4)*lrw1Q;
   liw += (qmax + 5)*liw1Q;
+
+  return(TRUE);
 }
 
 /*------------------   CVQuadEwtSet      --------------------------*/
@@ -2939,7 +2958,7 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, M_Env machEnvQ)
 
 static booleantype CVQuadEwtSet(CVodeMem cv_mem, N_Vector qcur)
 {
-  booleantype flag;
+  booleantype flag=TRUE;
 
   switch (itol) {
   case SS: 
@@ -3088,7 +3107,7 @@ static booleantype CVSensSetAtol(CVodeMem cv_mem, integertype nsens,
                                  realtype *prmbar, integertype *prmlist, 
                                  void *atolS)
 {
-  booleantype flag;
+  booleantype flag=TRUE;
 
   switch (itol) {
   case SS: 
@@ -3225,7 +3244,7 @@ static void CVSensFreeVectors(CVodeMem cv_mem, int maxord,
 static booleantype CVSensEwtSet(CVodeMem cv_mem, N_Vector *yScur, 
                                 integertype nsens)
 {
-  booleantype flag;
+  booleantype flag=TRUE;
 
   switch (itol) {
   case SS: 
@@ -3369,8 +3388,8 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   realtype hubQ_inv;
   N_Vector tempQ1, tempQ2;
 
-  realtype *atolSS, hubS_inv;
-  N_Vector *atolSV;
+  realtype *atolSS=NULL, hubS_inv;
+  N_Vector *atolSV=NULL;
   integertype is;
     
   vectorAtol = (itol == SV);
@@ -4215,7 +4234,7 @@ static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 
 static int CVNls(CVodeMem cv_mem, int nflag)
 {
-  int flag;
+  int flag=SOLVED;
 
   switch(iter) {
   case FUNCTIONAL: 
@@ -4406,6 +4425,7 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
 
   } else {  
     crate = ONE;
+    crateS = ONE;  /* if NO lsetup all conv. rates are set to ONE */
     callSetup = FALSE;
   }
   
@@ -4430,8 +4450,10 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
       nsetups++;
       callSetup = FALSE;
       forceSetup = FALSE;
-      gamrat = crate = ONE; 
+      gamrat = ONE; 
       gammap = gamma;
+      crate = ONE;
+      crateS = ONE; /* after lsetup all conv. rates are reset to ONE */
       nstlp = nst;
       /* Return if lsetup failed */
       if (ier < 0) return (SETUP_FAIL_UNREC);
@@ -4484,7 +4506,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
 {
   int m, ret;
   realtype del, delS, Del, Delp, dcon;
-  N_Vector b, *bS, wrk1, wrk2;
+  N_Vector b, *bS=NULL, wrk1, wrk2;
   booleantype do_sensi_sim;
   integertype is;
   
@@ -4908,7 +4930,7 @@ static booleantype CVQuadDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
 
 static int CVStgrNls(CVodeMem cv_mem)
 {
-  int flag;
+  int flag=SOLVED;
 
   switch(iter) {
   case FUNCTIONAL: 
@@ -4944,7 +4966,7 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
   N_Vector wrk1, wrk2;
 
   /* Initialize estimated conv. rate and counter */
-  crate = ONE;
+  crateS = ONE;
   m = 0;
 
   /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
@@ -4976,11 +4998,11 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
       N_VScale(ONE, tempvS[is], acorS[is]);
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
-       rate constant is stored in crate, and used in the test. 
+       rate constant is stored in crateS, and used in the test. 
        acnrmS contains the norm of the corrections (yS_n-yS_n(0)) and
        will be used in the error test (if errcon==FULL)                */
-    if (m > 0) crate = MAX(CRDOWN_S * crate, Del / Delp);
-    dcon = Del * MIN(ONE, crate) / tq[4];
+    if (m > 0) crateS = MAX(CRDOWN_S * crateS, Del / Delp);
+    dcon = Del * MIN(ONE, crateS) / tq[4];
     
     if (dcon <= ONE) {
       if (errcon==FULL)
@@ -5028,11 +5050,7 @@ static int CVStgrNlsNewton(CVodeMem cv_mem)
   int convfail, ier;
   booleantype callSetup;
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
-  realtype saved_crate;
 
-  saved_crate = crate;
-
-  /*crate = ONE;*/
   callSetup = FALSE;
 
   loop {
@@ -5071,10 +5089,11 @@ static int CVStgrNlsNewton(CVodeMem cv_mem)
     ier = lsetup(cv_mem, convfail, y, ftemp, &jcur, 
                  vtemp1, vtemp2, vtemp3);
     nsetups++;
+    nsetupss++;
     gamrat = ONE;
-    crate = saved_crate;
-    /*crate = ONE; */
     gammap = gamma;
+    crate = ONE;
+    crateS = ONE; /* after lsetup all conv. rates are reset to ONE */
     nstlp = nst;
 
     /* Return if lsetup failed */
@@ -5148,9 +5167,9 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
     }
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
-       rate constant is stored in crate, and used in the test.        */
-    if (m > 0) crate = MAX(CRDOWN_S * crate, Del/Delp);
-    dcon = Del * MIN(ONE, crate) / tq[4];
+       rate constant is stored in crateS, and used in the test.        */
+    if (m > 0) crateS = MAX(CRDOWN_S * crateS, Del/Delp);
+    dcon = Del * MIN(ONE, crateS) / tq[4];
     if (dcon <= ONE) {
       if (errcon==FULL)
         acnrmS = (m==0) ? Del : CVSensNorm(cv_mem, acorS, ewtS);
@@ -5192,7 +5211,7 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
 
 static int CVStgr1Nls(CVodeMem cv_mem, integertype is)
 {
-  int flag;
+  int flag=SOLVED;
 
   switch(iter) {
   case FUNCTIONAL: 
@@ -5227,7 +5246,7 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, integertype is)
   N_Vector wrk1, wrk2;
 
   /* Initialize estimated conv. rate and counter */
-  crate = ONE;
+  crateS = ONE;
   m = 0;
 
   /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
@@ -5255,10 +5274,10 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, integertype is)
     N_VScale(ONE, tempvS[is], acorS[is]);
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
-       rate constant is stored in crate, and used in the test. */
+       rate constant is stored in crateS, and used in the test. */
 
-    if (m > 0) crate = MAX(CRDOWN_S * crate, Del / Delp);
-    dcon = Del * MIN(ONE, crate) / tq[4];
+    if (m > 0) crateS = MAX(CRDOWN_S * crateS, Del / Delp);
+    dcon = Del * MIN(ONE, crateS) / tq[4];
 
     if (dcon <= ONE) {
       return (SOLVED);  /* Convergence achieved */
@@ -5304,11 +5323,7 @@ static int CVStgr1NlsNewton(CVodeMem cv_mem, integertype is)
   int convfail, ier;
   booleantype callSetup;
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
-  realtype saved_crate;
 
-  saved_crate = crate;
-
-  /*crate = ONE;*/
   callSetup = FALSE;
 
   loop {
@@ -5345,9 +5360,10 @@ static int CVStgr1NlsNewton(CVodeMem cv_mem, integertype is)
     ier = lsetup(cv_mem, convfail, y, ftemp, &jcur, 
                  vtemp1, vtemp2, vtemp3);
     nsetups++;
+    nsetupss++;
     gamrat = ONE;
-    crate = saved_crate;
-    /*crate = ONE; */
+    crate = ONE;
+    crateS = ONE; /* after lsetup all conv. rates are reset to ONE */
     gammap = gamma;
     nstlp = nst;
 
@@ -5416,9 +5432,9 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, integertype is)
     N_VLinearSum(ONE, znS[0][is], ONE, acorS[is], yS[is]);
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
-       rate constant is stored in crate, and used in the test.        */
-    if (m > 0) crate = MAX(CRDOWN_S * crate, Del/Delp);
-    dcon = Del * MIN(ONE, crate) / tq[4];
+       rate constant is stored in crateS, and used in the test.        */
+    if (m > 0) crateS = MAX(CRDOWN_S * crateS, Del/Delp);
+    dcon = Del * MIN(ONE, crateS) / tq[4];
     if (dcon <= ONE) {
       jcur = FALSE;
       return (SOLVED);  /* Convergence achieved */
@@ -5951,7 +5967,7 @@ void CVBDFStab(CVodeMem cv_mem)
 
 static int CVsldet(CVodeMem cv_mem)
 {
-  integertype i, k, j, it, kmin, kflag;
+  integertype i, k, j, it, kmin=0, kflag=0;
   realtype rat[5][4], rav[4], qkr[4], sigsq[4], smax[4], ssmax[4];
   realtype drr[4], rrc[4],sqmx[4], qjk[4][4], vrat[5], qc[6][4], qco[6][4];
   realtype rr, rrcut, vrrtol, vrrt2, sqtol, rrtol;
