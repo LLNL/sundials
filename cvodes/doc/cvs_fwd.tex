@@ -16,6 +16,10 @@ only way to pass values of the problem parameters to the ODE right-hand side
 function is to require the user data structure \id{f\_data} to contain a pointer
 to the array of real parameters $p$.
 
+{\cvodes} uses various constants for both input and output.  These are
+defined as needed in this chapter, but for convenience are also listed
+separately in Chapter \ref{c:constants}.
+
 We begin with a brief overview, in the form of a skeleton user program.
 Following that are detailed descriptions of the interface to the
 various user-callable routines and of the user-supplied routines that were not already
