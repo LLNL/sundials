@@ -1,6 +1,8 @@
-\section{Usage}
+\section{Usage} 
+\label{s:usage}
 
 A general approach for using SUNDIALS is given below. 
+{\sf The guiding philosophy of using SUNDIALS is ...}
 The outline conveys the basic elements of what is needed to properly
 specify and solve a problem, the order in which certain tasks must be
 done, the options available for modifying certain solver parameters,
@@ -11,57 +13,83 @@ accompanies each solver in SUNDIALS.
 
 \begin{enumerate}
 
-\item SUNDIALS contains header files that define various
-constants, enumerations, macros, data types and function prototypes.
-At a minimum, the user must include header files that declare: the
-SUNDIALS data types for real, integer, and boolean variables; the
-content and operations that can be performed on vectors in either a
-serial or parallel environment; and, the functions needed
-by the solver to setup, compute, and extract the solution. 
-Typically, additional header files will be specified to declare the
-preconditioning and/or linear solver methods to be used.
+\item \label{sun_headers}
+SUNDIALS contains header files that define various constants,
+enumerations, macros, data types and function prototypes.  At a
+minimum, the user must include header files that declare: the SUNDIALS
+data types for real, integer, and boolean variables; the content and
+operations that can be performed on vectors in either a serial or
+parallel environment; and, the functions needed by the solver to
+setup, compute, and extract the solution. Typically, additional header
+files will be specified to declare the preconditioning and/or linear
+solver methods to be used.
 
-\item The user must provide a function for evaluating the equations to
-be solved. Optionally, a user-defined data structure can be created
-and passed to this function. The user must also provide a suitable
-initial guess or initial values, specify error tolerances, along with
-other details for the problem.
+\item \label{sun_problem}
+The user must provide a function for evaluating the equations to be
+solved. Optionally, a user-defined data structure can be created and
+passed to this function. The user must also initialize the vector
+specification data structure, give the problem size and error
+tolerances, provide a suitable initial guess or initial values, along
+with other details for the problem.
 
-\item The next step is to call a routine for initializing a block of
-memory that will be used in solving the specified problem. The memory
-block is created with certain default values for the solver, such as
-the use standard output for writing warning and error messages, or
-{\tt NULL} as a default value for the pointer to the user-specified
-data structure to be passed in evaluating the user's function.
+\item \label{sun_create}
+The next step is to call a routine for initializing a block of memory
+that will be used in solving the problem. The memory block is created
+with certain default values for the solver, such as the use of
+standard output for writing warning and error messages, or {\tt NULL}
+as a default value for the pointer to the user-specified data
+structure to be passed in evaluating the user's function.
 
-\item At this stage, the default values in the solver memory block can
-be changed if so desired. Choices and default values are given in the
+\item \label{sun_set}
+At this stage, the default values in the solver memory block can be
+changed if so desired. Choices and default values are given in the
 following subsections for each of the basic solvers.
 
-\item The user now calls the appropriate routine to perform
-any required memory allocation, after checking the initialized memory
-block for errors in the default or optional inputs.
+\item \label{sun_malloc}
+The user now calls the appropriate routine to perform any required
+memory allocation, after checking the initialized memory block for
+errors in the default or optional inputs.
 
-\item Typically, preconditioning and/or linear solver methods are
-needed for solving the linear systems that may arise. These methods
-can now be attached to the block of memory allocated for the solver.
+\item \label{sun_linear}
+Typically, preconditioning and/or linear solver methods are needed for
+solving the linear systems that may arise. These methods can now be
+attached to the block of memory allocated for the solver.
 
-\item Solve the problem. Information and solver statistics are
-available through extraction functions.
+\item \label{sun_solve}
+Solve the problem. Information and solver statistics are available
+through extraction functions.
 
-\item (Re-initialize the problem?)
+\item \label{sun_reinit}
+Re-initialization (SUNDIALS solver, linear solver)?
 
-\item To complete the process, the user must make the appropriate calls to
+\item \label{sun_finalize}
+To complete the process, the user must make the appropriate calls to
 free memory that was allocated in the previous steps.
 
 \end{enumerate}
 
-How do the steps change for parallel machine environments? \\
-How do the steps change for forward sensitivity analysis? \\
-How do the steps change for adjoint sensitivity analysis? \\
-Give the set() and get() routines for the subsections below. \\
+For a parallel machine environment, the appropriate header file for
+MPI must be specified in Step~\ref{sun_headers}; and, the MPI communicator,
+active set of processors, local and global vectors lengths must be
+initialized or given in Step~\ref{sun_problem}. Finally, in
+Step~\ref{sun_finalize}, memory allocated for MPI must be freed.
 
-\subsection{CVODE}
+For forward sensitivity analysis, the appropriate forward sensitivity
+header file must be specified in Step~\ref{sun_headers} and the
+definition of the sensitivity problem must be given before
+Step~\ref{sun_solve}. To do so, the user must create an array of
+real parameters upon which the problem solution depends; attach a pointer to
+this array to the user-defined data structure f\_data; specify the
+number of sensitivities to be computed; and, provide an array to
+specify the parameters for which solution sensitivities are to be
+computed. Memory allocated for sensitivity analysis should be freed in
+Step~\ref{sun_finalize}.
+
+{\sf For adjoint sensitivity analysis, we refer the interested reader to
+the user's guide.}
+
+\subsection{CVODE and CVODES} 
+\label{ss:CVODE_usage}
 
 The following options can be set by the user; otherwise, the option
 retains the default setting that appears in the brackets {\tt []}:
@@ -77,6 +105,10 @@ initial step size [estimated by the solver]; the minimum absolute step
 size value allowed [0.0]; the maximum absolute step size value allowed
 [infinity]; and, the independent variable value past which the
 solution is not to proceed [infinity].
+Additional optional inputs include: the maximum number of Newton
+iterations [3]; the maximum number of convergence failures [10]; the
+maximum number of error test failures [7]; and, the proportionality
+coefficient in the nonlinear convergence test [0.1].
 
 If desired, the user can request the following information from the
 solver: the amount of integer workspace allocated by CVODE; the amount
@@ -94,9 +126,9 @@ for some internal time steps; the vector containing the error weights
 for the state variables; and, the vector containing the estimated
 local errors at the current internal time step.
 
-\subsection{KINSOL}
+\subsection{KINSOL} 
+\label{ss:KINSOL_usage}
 
-(draft) \\
 The following options can be set by the user; otherwise, the option
 retains the default setting that appears in the brackets {\tt []}:
 a pointer to the user data that will be passed to the user's $F$
@@ -132,7 +164,8 @@ operations done in the linesearch algorithm; the scaled norm at a
 given iteration; and, the last step length in the global strategy
 routine.
 
-\subsection{IDA}
+\subsection{IDA} 
+\label{ss:IDA_usage}
 
 The following options can be set by the user; otherwise, the option
 retains the default setting that appears in the brackets {\tt []}:
@@ -152,6 +185,10 @@ and 1.0 indicate algebraic and differential variables, respectively];
 a vector defining inequality constraints for each component of the
 solution vector [0.0 means the corresponding component has no
 constraint; etc.].
+Additional optional inputs include: the maximum number of Newton
+iterations [3]; the maximum number of convergence failures [10]; the
+maximum number of error test failures [10]; and, the constant in the
+nonlinear solver convergence test [0.33].
 
 If desired, the user can request the following information from the
 solver: the amount of integer workspace allocated by IDA; the amount
@@ -171,7 +208,63 @@ accuracy has been requested for some internal step; the vector
 containing the error weights for the state variables; and, the vector
 containing the estimated local error at the current internal time steps.
 
-\subsection{Fortran Usage}
+\subsection{Preconditioners and Linear Solvers}
+\label{ss:linear_usage}
+
+For the scaled preconditioned GMRES solver, the following options can
+be set by the user; otherwise, the option retains the default setting
+that appears in the brackets {\tt []}:
+a classical Gram-Schmidt orthogonalization can be used [modified Gram-Schmidt];
+the factor by which the tolerance on the
+nonlinear iteration is multiplied to get a tolerance on the linear
+iteration [0.05]; the preconditioner setup routine [NULL]; the
+preconditioner solver routine [NULL]; a pointer to the user
+preconditioner data [NULL]; the Jacobian-vector product routine
+[internal finite difference approximation]; and, a pointer to user
+Jacobian data. The optional outputs are: the amount of integer
+workspace; the amount of real workspace; the number of preconditioner
+evaluations; the number of calls made to the preconditioner solve
+routine; the number of linear iterations; the number of linear
+convergence failures; the number of calls to the Jacobian-vector
+product routines; and, the number of calls to the user's function due
+to finite difference Jacobian-vector products.
+
+For the band block diagonal preconditioner, the optional outputs are:
+the amount of integer workspace used, the amount of real workspace
+used; and, the number of calls to the local function that approximates
+the user's function.
+
+For the dense linear solver, the user can set optional inputs so that a
+user-supplied dense Jacobian approximation is used instead of the
+default difference quotient routine. Also, a pointer can be set so
+that user data is passed each time the user-supplied dense Jacobian
+routine is called. The optional outputs are: the amount of integer
+workspace used; the amount of real workspace used; the number of calls
+made to the user-supplied Jacobian evaluation routine; and, the number
+of calls to the user's function due to the default difference quotient
+routine.
+
+For the band linear solver, the user can set optional inputs so that a
+user-supplied band Jacobian approximation routine is used instead of
+the default difference quotient routine. Furthermore, a pointer can be
+set so that user data is passed each time the user-supplied banded
+Jacobian routine is called. The optional outputs are: the amount
+of integer workspace used; the amount of real workspace used; the
+number of calls made to the Jacobian evaluation routine; and, the
+number of calls made to the user's function due to the default
+difference quotient routine.
+
+For the diagonal linear solver, the optional outputs are: the amount
+of integer workspace used; the amount of real workspace used; and, the
+number of calls due to computing the diagonal Jacobian via finite differences.
+
+\subsection{Sensitivity Analysis}
+\label{ss:sensitivity_analysis}
+
+{\sf Is this needed?}
+
+\subsection{Fortran Usage} 
+\label{ss:Fortran_usage}
 
 For two of the SUNDIALS solvers -- CVODE and KINSOL, users with
 Fortran applications are accommodated.  This is done with a set of
