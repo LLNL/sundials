@@ -317,38 +317,22 @@ int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB);
 
 /******************************************************************
  *                                                                *
- * Function: CVBandPrecAllocB, CVBandPrecSetupB, CVBandPrecSolveB *
+ * Function: CVBandPrecAllocB, CVBPSpgmrB, CVBandPrecFreeB        *
  *----------------------------------------------------------------*
  * CVBandPrecAllocB interfaces to the CVBANDPRE preconditioner for*
  * the backward integration. The pointer to the structure         *
- * returned by this routine can then be used together with the    *
- * functions CVBandPrecSetupB and CVBandPrecSolveB in a call      *
- * to CVSpgmrB.                                                   *
- *                                                                *
- * CVBandPrecSetupB is of type CVSpgmrPrecSetupFnB to agree with  *
- * the expected argument in CVSpgmrB.                             *
- *                                                                *
- * CVBandPrecSolveB is of type CVSpgmrPrecSolveFnB to agree with  *
- * the expected argument in CVSpgmrB.                             *
+ * returned by this routine should then be used in the call to    *
+ * CVBPSpgmrB which interfaces to CVBPSpgmr.                      *
  *                                                                *
  ******************************************************************/
 
 void *CVBandPrecAllocB(void *cvadj_mem, long int nB, 
                        long int muB, long int mlB);
 
-void CVBandPrecFreeB(void *bp_dataB);
+int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB, 
+               void *bp_dataB);
 
-int CVBandPrecSetupB(realtype t, N_Vector y, 
-                     N_Vector yB, N_Vector fyB, booleantype jokB, 
-                     booleantype *jcurPtrB, realtype gammaB,
-                     void *bp_dataB,
-                     N_Vector tmp1B, N_Vector tmp2B,
-                     N_Vector tmp3B);
-int CVBandPrecSolveB(realtype t, N_Vector y, 
-                     N_Vector yB, N_Vector fyB, 
-                     N_Vector rB, N_Vector zB,
-                     realtype gammaB, realtype deltaB, 
-                     int lrB, void *bp_dataB, N_Vector tmpB);
+void CVBandPrecFreeB(void *bp_dataB);
 
 /******************************************************************
  *                                                                *

@@ -983,31 +983,26 @@ void *CVBandPrecAllocB(void *cvadj_mem, long int nB,
 
 /*-----------------------------------------------------------------*/
 
-int CVBandPrecSetupB(realtype t, N_Vector y, 
-                     N_Vector yB, N_Vector fyB, booleantype jokB, 
-                     booleantype *jcurPtrB, realtype gammaB,
-                     void *bp_dataB,
-                     N_Vector tmp1B, N_Vector tmp2B,
-                     N_Vector tmp3B)
+int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB, void *bp_dataB)
 {
+  CVadjMem ca_mem;
+  void *cvode_mem;
   int flag;
-  flag = CVBandPrecSetup(t, yB, fyB, jokB, jcurPtrB, gammaB,
-                         bp_dataB, tmp1B, tmp2B, tmp3B);
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBPSpgmr(cvode_mem, pretypeB, maxlB, bp_dataB);
+
   return(flag);
 }
 
 /*-----------------------------------------------------------------*/
 
-int CVBandPrecSolveB(realtype t, N_Vector y, 
-                     N_Vector yB, N_Vector fyB, 
-                     N_Vector rB, N_Vector zB,
-                     realtype gammaB, realtype deltaB, 
-                     int lrB, void *bp_dataB, N_Vector tmpB)
+void CVBandPrecFreeB(void *bp_dataB)
 {
-  int flag;
-  flag = CVBandPrecSolve(t, yB, fyB, rB, zB, gammaB,
-                         deltaB, lrB, bp_dataB, tmpB);
-  return(flag);
+  CVBandPrecFree(bp_dataB);
 }
 
 /*------------------     CVodeB          --------------------------*/
