@@ -1,6 +1,6 @@
                             SUNDIALS 
     SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 2.0, November 2004           
+                   Release 2.0, December 2004           
      Peter Brown, Aaron Collier, Keith Grant, Alan Hindmarsh, 
       Steve Lee, Radu Serban, Dan Shumaker, Carol Woodward
           Center for Applied Scientific Computing, LLNL
@@ -12,12 +12,9 @@ IDA (for differential-algebraic systems), and KINSOL (for nonlinear
 algebraic systems), 
 
 The various solvers of this family share many subordinate modules.
-For this reason, it is organized as a family, with a directory
-structure that exploits that sharing.  However, tar-files for
-individual solvers can be built and are being distributed, as well as
-a tar-file for all solvers released to date, called sundials.tar.
-Each individual solver includes documentation on installation, along
-with full usage documentation.
+For this reason, it is organized as a family, with a directory structure 
+that exploits that sharing. Each individual solver includes documentation 
+on installation, along with full usage documentation.
 
 The following is a list of the solver packages presently available.
 
@@ -45,10 +42,10 @@ the solver directory.
                         Release history
 
 +----------+------------------------------------------------------+
-|          | SUNDIALS |             Soler version                 |
+|          | SUNDIALS |            Solver version                 |
 |   Date   |          +----------+----------+----------+----------+
-|          | release  |   Cvode  |    Ida   |  Kinsol  |  Cvodes  |
+|          | release  |   CVODE  | CVODES   |   IDA    |  KINSOL  |
 +----------+----------+----------+----------+----------+----------+
-| Jul 2002 |   1.0    |    2.0   |    2.0   |    2.0   |    1.0   |
-| Nov 2004 |   2.0    |  2.2.0   |  2.2.0   |  2.2.0   |  2.1.0   |
+| Jul 2002 |   1.0    |    2.0   |    1.0   |    2.0   |    2.0   |
+| Dec 2004 |   2.0    |  2.2.0   |  2.1.0   |  2.2.0   |  2.2.0   |
 +----------+----------+----------+----------+----------+----------+

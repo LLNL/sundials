@@ -2,7 +2,7 @@
 \chapter{Using CVODES for Adjoint Sensitivity Analysis}\label{s:adjoint}
 %===================================================================================
 
-This section describes the use of {\cvodes} to compute sensitivities of derived 
+This chapter describes the use of {\cvodes} to compute sensitivities of derived 
 functions using adjoint sensitivity analysis. As mentioned before, the adjoint
 sensitivity module of {\cvodes} provides the infrastructure for integrating
 backward in time any system of ODEs that depends on the solution of the original
@@ -1610,7 +1610,7 @@ of the following type:
   \id{yB} is the solution of the backward problem at the same time.  
   The rest of the arguments are equivalent to those passed to a function of type
   \id{CVSpgmrJtimesFn} (see \S\ref{ss:jtimesFn}).
-  If the backward problem is the adjoint of $y^\prime = f(t, y)$, then this 
+  If the backward problem is the adjoint of ${\dot y} = f(t, y)$, then this 
   function is to compute $-(\dfdyI)^T v_B$.
 }
 

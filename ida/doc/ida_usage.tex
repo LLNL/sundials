@@ -7,8 +7,8 @@ The following sections treat the header files, the layout of the user's main
 program, description of the {\ida} user-callable functions, and 
 description of user-supplied functions. 
 The listings of the sample programs in the companion document \cite{ida2.2.0_ex} 
-may also be helpful. Those codes are intended to serve as templates and 
-are included in the {\ida} package.
+may also be helpful. Those codes may be used as templates (with the removal of
+some lines involved in testing), and are included in the {\ida} package.
 
 The user should be aware that not all linear solver modules are compatible 
 with all {\nvector} implementations. 
@@ -981,9 +981,8 @@ flag = IDASetInitStep(ida\_mem, hin);
 }
 {
   By default, {\ida} estimates the initial step as the solution of 
-  $\| 0.5 h^2 \ddot y \|_{\mbox{\scriptsize WRMS}} = 1$,
-  where $\ddot y$ is an estimated second derivative of the solution at the
-  initial time.
+  $\|h y' \|_{\mbox{\scriptsize WRMS}} = 1/2$, with an added restriction
+  that $|h| \leq .001|$\id{tout - t0}$|$.
 }
 %%
 %%
@@ -3438,7 +3437,7 @@ will be reused for the new problem.
     pointer to the {\ida} memory block.
   \item[res] (\Id{IDAResFn})
     is the {\C} function which computes $F$. This function has the form 
-    \id{f(N, t, y, ydot, resval, res\_data)} (for full details see \S\ref{ss:user_fct_sim}).
+    \id{f(t, y, yp, r, res\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
     is the initial value of $t$.
   \item[y0] (\id{N\_Vector})
@@ -3525,7 +3524,7 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
   If a recoverable error occured, the integrator will attempt to correct and retry.
 }
 {
-  Allocation of memory for \id{ydot} is handled within {\ida}.
+  Allocation of memory for \id{yp} is handled within {\ida}.
 }
 %%
 %%--------------
@@ -4143,13 +4142,13 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 
    \id{
      \begin{tabular}[t]{@{}r@{}l@{}}
-       bbd\_data = IBBDPrecAlloc(&ida\_mem, Nlocal, mudq, mldq, \\
-                                 &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
+       bbd\_data = IDABBDPrecAlloc(&ida\_mem, Nlocal, mudq, mldq, \\
+                                   &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
      \end{tabular}
    }
 
   to allocate memory for and initialize a data structure \id{bbd\_data} to be 
-  passed to the {\idaspgmr} linear solver. The last two arguments of \id{IBBDPrecAlloc}
+  passed to the {\idaspgmr} linear solver. The last two arguments of \id{IDABBDPrecAlloc}
   are the two user-supplied functions described above.
 
 \item \label{i:bbdpre_attach}
@@ -4181,7 +4180,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item \label{i:bbdpre_free}
   {\bf Free the {\idabbdpre} data structure}
 
-  \id{IBBDPrecFree(bbd\_data);}
+  \id{IDABBDPrecFree(bbd\_data);}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
@@ -4203,15 +4202,15 @@ the {\idabbdpre} preconditioner module (steps \ref{i:bbdpre_init},
 next.
 %%
 \index{half-bandwidths}
-\ucfunction{IBBDPrecAlloc}
+\ucfunction{IDABBDPrecAlloc}
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
-     bbd\_data = IBBDPrecAlloc(&ida\_mem, Nlocal, mudq, mldq, \\
-                                &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
+     bbd\_data = IDABBDPrecAlloc(&ida\_mem, Nlocal, mudq, mldq, \\
+                                 &mukeep, mlkeep, dq\_rel\_yy, Gres, Gcomm);
    \end{tabular}
 }
 {
-  The function \ID{IBBDPrecAlloc} initializes and allocates
+  The function \ID{IDABBDPrecAlloc} initializes and allocates
   memory for the {\idabbdpre} preconditioner.
 }
 {
@@ -4242,9 +4241,9 @@ next.
   \end{args}
 }
 {
-  If successful, \id{IBBDPrecAlloc} returns a pointer to the newly created 
+  If successful, \id{IDABBDPrecAlloc} returns a pointer to the newly created 
   {\idabbdpre} memory block (of type \id{void *}).
-  If an error occurred, \id{IBBDPrecAlloc} returns \id{NULL}.
+  If an error occurred, \id{IDABBDPrecAlloc} returns \id{NULL}.
 }
 {
   If one of the half-bandwidth \id{mudq} or \id{mldq} to be used in the 
@@ -4300,20 +4299,20 @@ next.
 }
 {}
 %%
-\ucfunction{IBBDPrecFree}
+\ucfunction{IDABBDPrecFree}
 {
-  IBBDPrecFree(bbd\_data);
+  IDABBDPrecFree(bbd\_data);
 }
 {
-  The function \ID{IBBDPrecFree} frees the pointer allocated by
-  \id{IBBDPrecAlloc}.
+  The function \ID{IDABBDPrecFree} frees the pointer allocated by
+  \id{IDABBDPrecAlloc}.
 }
 {
-  The only argument of \id{IBBDPrecFree} is the pointer to the {\idabbdpre} 
+  The only argument of \id{IDABBDPrecFree} is the pointer to the {\idabbdpre} 
   data structure (of type \id{void *}).
 }
 {
-  The function \id{IBBDPrecFree} has no return value.
+  The function \id{IDABBDPrecFree} has no return value.
 }
 {}
 %%
@@ -4321,17 +4320,17 @@ The {\idabbdpre} module also provides a reinitialization function to allow
 solving  a sequence of problems of the same size with {\idaspgmr}/{\idabbdpre},
 provided there is no change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
 After solving one problem, and after calling \id{IDAReInit} to re-initialize 
-{\ida} for a subsequent problem, a call to \id{IBBDPrecReInit} can be made
+{\ida} for a subsequent problem, a call to \id{IDABBDPrecReInit} can be made
 to change any of the following: the half-bandwidths \id{mudq} and \id{mldq} 
 used in the difference-quotient Jacobian approximations, the relative increment 
 \id{dq\_rel\_yy}, or one of the user-supplied functions \id{Gres} and \id{Gcomm}.
 %%
-\ucfunction{IBBDPrecReInit}
+\ucfunction{IDABBDPrecReInit}
 {
-  flag = IBBDPrecReInit(bbd\_data, mudq, mldq, dq\_rel\_yy, Gres, Gcomm);
+  flag = IDABBDPrecReInit(bbd\_data, mudq, mldq, dq\_rel\_yy, Gres, Gcomm);
 }
 {
-  The function \ID{IBBDPrecReInit} reinitializes the {\idabbdpre} preconditioner.
+  The function \ID{IDABBDPrecReInit} reinitializes the {\idabbdpre} preconditioner.
 }
 {
   \begin{args}[dq\_rel\_yy]
@@ -4355,7 +4354,7 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \end{args}
 }
 {
-  The return value of \id{IBBDPrecReInit} is always \Id{IDA\_SUCCESS}.
+  The return value of \id{IDABBDPrecReInit} is always \Id{IDA\_SUCCESS}.
 }
 {
   If one of the half-bandwidth \id{mudq} or \id{mldq} is negative or
@@ -4372,12 +4371,12 @@ The following two optional output functions are available for use with
 the {\idabbdpre} module:
 %%
 \index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
-\ucfunction{IBBDPrecGetWorkSpace}
+\ucfunction{IDABBDPrecGetWorkSpace}
 {
-  flag = IBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
+  flag = IDABBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
 }
 {
-  The function \ID{IBBDPrecGetWorkSpace} returns the sizes
+  The function \ID{IDABBDPrecGetWorkSpace} returns the sizes
   of the {\idabbdpre} real and integer workspaces.
 }
 {
@@ -4408,12 +4407,12 @@ the {\idabbdpre} module:
 }
 %%
 %%
-\ucfunction{IBBDPrecGetNumGfnEvals}
+\ucfunction{IDABBDPrecGetNumGfnEvals}
 {
-  flag = IBBDPrecGetNumGfnEvals(bbd\_data, \&ngevalsBBDP);
+  flag = IDABBDPrecGetNumGfnEvals(bbd\_data, \&ngevalsBBDP);
 }
 {
-  The function \ID{IBBDPrecGetNumGfnEvals} returns the
+  The function \ID{IDABBDPrecGetNumGfnEvals} returns the
   cumulative number of calls to the user \id{Gres} function due to the 
   finite difference approximation of the Jacobian blocks used within
   {\idabbdpre}'s preconditioner setup function.

@@ -144,35 +144,35 @@ and the examples in \cite{cvodes2.1.0_ex}.
 The structure of this document is as follows:
 \begin{itemize}
 \item
-  In \S\ref{s:install} we begin with instructions for the installation of 
+  In Chapter \ref{s:install} we begin with instructions for the installation of 
   {\cvodes}, within the structure of {\sundials}.
 \item
-  In \S\ref{s:math}, we give short descriptions of the numerical 
+  In Chapter \ref{s:math}, we give short descriptions of the numerical 
   methods implemented by {\cvodes} for the solution of initial value problems
   for systems of ODEs, continue with an overview of the mathematical aspects 
   of sensitivity analysis, both forward (\S\ref{ss:fwd_sensi}) and adjoint
   (\S\ref{ss:adj_sensi}), and conclude with a description of stability limit
   detection (\S\ref{s:bdf_stab}).
 \item
-  The next section describes the structure of the {\sundials} suite
+  The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvodes}
   solver (\S\ref{ss:cvodes_org}). 
 \item
-  In \S\ref{s:simulation}, we give an overview of the usage of {\cvodes},
+  In Chapter \ref{s:simulation}, we give an overview of the usage of {\cvodes},
   as well as a complete description of the user interface and of the 
   user-defined routines for integration of IVP ODEs. Readers that are not 
   interested in using {\cvodes} for sensitivity analysis can then 
   skip to the example programs in \cite{cvode2.2.0_ex}.
 \item
-  Section \ref{s:forward} describes the usage of {\cvodes} for forward
+  Chapter \ref{s:forward} describes the usage of {\cvodes} for forward
   sensitivity analysis as an extension of its IVP integration capabilities. 
   We begin with a skeleton of the user main program, with emphasis on the 
-  steps that are required in addition to those already described in \S\ref{s:simulation}.
+  steps that are required in addition to those already described in Chapter \ref{s:simulation}.
   Following that we provide detailed descriptions of the user-callable interface routines 
   specific to forward sensitivity analysis and of the additonal optional user-defined
   routines.
 \item
-  Section \ref{s:adjoint} describes the usage of {\cvodes} for adjoint
+  Chapter \ref{s:adjoint} describes the usage of {\cvodes} for adjoint
   sensitivity analysis. We begin by describing the {\cvodes} checkpointing 
   implementation for interpolation of the original IVP solution during
   integration of the adjoint system backward in time, and with 
@@ -180,16 +180,16 @@ The structure of this document is as follows:
   descriptions of the user-callable interface routines for adjoint sensitivity
   analysis as well as descriptions of the required additional user-defined routines.
 \item
-  Section \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
+  Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
   shared amongst the various components of {\sundials}, as well as details on the two {\nvector}
   implementations provided with {\sundials}: a serial implementation
   (\S\ref{ss:nvec_ser}) and a parallel implementation based on {\mpi}\index{MPI}
   (\S\ref{ss:nvec_par}).
 \item
-  Section \ref{s:new_linsolv} describes the specifications of linear solver modules as 
+  Chapter \ref{s:new_linsolv} describes the specifications of linear solver modules as 
   supplied by the user.
 \item
-  Section \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
+  Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
   by all {\sundials} solvers.
 \end{itemize}
 

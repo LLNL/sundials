@@ -1,5 +1,5 @@
                              KINSOL
-                      Release 2.2.0, November 2004
+                      Release 2.2.0, December 2004
             Allan G. Taylor, Alan C. Hindmarsh, Radu Serban
              Center for Applied Scientific Computing, LLNL
 
@@ -78,7 +78,7 @@ D.1. Revision History since release 2.0 (July 2002)
 ---------------------------------------------------
 
 - New feature
-   - added option to disable all error messages
+   - added option to disable all error messages.
 
 - Bug fixes
    - fixed constraints-related bug.
@@ -119,7 +119,7 @@ D.1. Revision History since release 2.0 (July 2002)
    - added KINSet* and KINGet* functions for optional inputs/outputs,
      replacing the arrays iopt and ropt.
    - added new optional inputs (e.g. maximum number of nonlinear iterations
-     between calls to preconditioner setup routine, etc.)
+     between calls to preconditioner setup routine, etc.).
    - the value of the last return flag from any function within the SPGMR
      linear solver module can be obtained as an optional output using
      KINSpgmrGetLastFlag.
@@ -136,6 +136,15 @@ D.1. Revision History since release 2.0 (July 2002)
 - Changes to user-supplied functions
    - removed N (problem dimension) from argument lists.
    - in KINSPGMR, shortened argument lists for user preconditioner functions.
+
+- Changes to the FKINSOL module
+   - revised to use underscore and precision flags at compile time (from
+     configure); example sources are preprocessed accordingly.
+   - use KIN*Set* and KIN*Get* functions from KINSOL (although the optional
+     I/O is still communicated to the user of FKINSOL through arrays IOPT
+     and ROPT).
+   - added new optional inputs and outputs (e.g. last return flag from the
+     linear solver, etc.).
 
 D.2. Summary of previous revisions (YYYYMMDD) (significant revisions only)
 --------------------------------------------------------------------------

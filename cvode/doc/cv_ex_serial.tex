@@ -14,10 +14,10 @@ The problem consists of the following three rate equations:
 \vspace*{-.08in}
 \begin{equation}
   \begin{split}
-    y^\prime_1 &= -0.04 \cdot y_1 + 10^4 \cdot y_2 \cdot y_3 \\
-    y^\prime_2 &=  0.04 \cdot y_1 - 10^4 \cdot y_2 \cdot y_3
+    \dot{y}_1 &= -0.04 \cdot y_1 + 10^4 \cdot y_2 \cdot y_3 \\
+    \dot{y}_2 &=  0.04 \cdot y_1 - 10^4 \cdot y_2 \cdot y_3
                                   - 3 \cdot 10^7 \cdot y_2^2 \\
-    y^\prime_3 &=  3 \cdot 10^7 \cdot y_2^2
+    \dot{y}_3 &=  3 \cdot 10^7 \cdot y_2^2
   \end{split} 
 \end{equation}
 on the interval $t \in [0, ~4 \cdot 10^{10}]$, with initial conditions
@@ -204,8 +204,8 @@ $y = j \Delta y$. The ODEs are
 where $1 \leq i \leq $\id{MX} and $1 \leq j \leq $\id{MY}.  The boundary
 conditions are imposed by taking $v_{ij} = 0$ above if $i = 0$
 or \id{MX}$ + 1$, or if $j = 0$ or \id{MY}$ + 1$. 
-If we set $u_{(j-1)+(i-1)*MY} = v_{ij}$, so that the ODE system is
-$u^\prime = f(u)$, then the system Jacobian $J = \partial f / \partial u$ is
+If we set $u_{(j-1)+(i-1)*\id{MY}} = v_{ij}$, so that the ODE system is
+$\dot{u} = f(u)$, then the system Jacobian $J = \partial f / \partial u$ is
 a band matrix with upper and lower half-bandwidths both equal to \id{MY}.
 In the example, we take \id{MX} $= 10$ and \id{MY} $= 5$.
 The source is listed in Appendix \ref{s:cvbx_c}.

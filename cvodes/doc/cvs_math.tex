@@ -7,10 +7,10 @@
 {\cvodes} solves ODE initial value problems (IVPs) in real $N$-space, which we
 write in the abstract form
 \begin{equation}\label{e:ivp} 
-  y^\prime = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
+  {\dot y} = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
 \end{equation}
 where $y \in \mbox{\bf R}^N$.
-Here we use $y^\prime$ to denote $dy/dt$.  While we use $t$ to denote
+Here we use ${\dot y}$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
 not be.  {\cvodes} solves both stiff and non-stiff systems.  Roughly
 speaking, stiffness is characterized by the presence of at least one
@@ -20,7 +20,7 @@ scale of the solution itself.
 Additionally, if (\ref{e:ivp}) depends on some parameters $p \in {\bf R}^{N_p}$, i.e.
 \begin{equation}\label{e:ivp_p}
 \begin{split}
-&y^\prime  = f(t,\,y,\,p) \\
+&{\dot y}  = f(t,\,y,\,p) \\
 &y(t_0)  = y_0(p) \, ,
 \end{split}
 \end{equation}
@@ -40,7 +40,7 @@ The methods used in {\cvodes} are variable-order, variable-step multistep
 methods, based on formulas of the form
 \begin{equation}\label{e:lmm}
  \sum_{i = 0}^{K_1} \alpha_{n,i} y^{n-i} + 
-     h_n \sum_{i = 0}^{K_2} \beta_{n,i} {y^\prime}^{n-i} = 0 \, .
+     h_n \sum_{i = 0}^{K_2} \beta_{n,i} {{\dot y}}^{n-i} = 0 \, .
 \end{equation}
 Here the $y^n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvodes} must
@@ -63,7 +63,7 @@ For either choice of formula, the nonlinear system
 \begin{equation}\label{e:nonlinear}
   G(y_n) \equiv y^n - h_n \beta_{n,0} f(t_n,y^n) - a_n = 0 \, ,
 \end{equation}
-where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y^{n-i}+h_n\beta_{n,i}{y^\prime}^{n-i})$, 
+where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y^{n-i}+h_n\beta_{n,i}{{\dot y}}^{n-i})$, 
 must be solved (approximately) at each integration step.  For this, {\cvodes}
 offers the choice of either {\em functional iteration}, suitable only
 for non-stiff systems, and various versions of {\em Newton iteration}.
@@ -327,7 +327,7 @@ $s_i (t) = {\partial y(t)}/{\partial p_i}$
 and satisfies the following {\em forward sensitivity equations}
 (or in short {\em sensitivity equations}):
 \begin{equation}\label{e:sens_eqns}
-{s^\prime_i}  = \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \, ,
+{{\dot s}_i}  = \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \, ,
 \quad s_i(t_0)  = \frac{\partial y_{0}(p)}{\partial p_i} \, ,
 \end{equation}
 obtained by applying the chain rule of differentiation to the original
@@ -364,7 +364,7 @@ ${\hat y} = [y, s_1, \ldots , s_{N_s}]$.
   In this approach \cite{CaSt:85}, the nonlinear system (\ref{e:nonlinear}) is first 
   solved and, once an acceptable numerical solution is obtained, the sensitivity 
   variables at the new step are found by directly solving (\ref{e:sens_eqns}) 
-  after the (BDF or Adams) discretization is used to eliminate $s^\prime_i$. 
+  after the (BDF or Adams) discretization is used to eliminate ${\dot s}_i$. 
   Although the system matrix of the above linear system is based on exactly the same 
   information as the matrix $M$ in (\ref{e:Newtonmat}), it must be updated and factored 
   at every step of the integration, in contrast to $M$ which is updated only occasionally. 
@@ -426,7 +426,7 @@ ${\hat y} = [y, s_1, \ldots , s_{N_s}]$.
     \gamma \left( \dfdy (t_n , y^n, p) s_{i}^{n(m)} + \dfdpi (t_n , y^n , p) \right)
     -a_{i,n} \right] \, ,
   \end{multline}
-  where $a_{i,n} = \sum_{j>0}(\alpha_{n,j}s_{i}^{n-j}+h_n\beta_{n,j}{s^\prime_i}^{n-j})$.
+  where $a_{i,n} = \sum_{j>0}(\alpha_{n,j}s_{i}^{n-j}+h_n\beta_{n,j}{{\dot s}_i}^{n-j})$.
   In other words, a modified Newton iteration is used to solve a linear system.
   In this approach, the vectors $\dfdpiI$ need be updated only once per integration step, 
   after the state correction phase (\ref{e:Newton}) has converged. Note also that 
@@ -570,21 +570,21 @@ Introducing a Lagrange multiplier $\lambda$, we form the augmented
 objective function
 \begin{equation}
 I(p) = G(p) - \int_{t_0}^{t_1} \lambda^* 
-\left( y^\prime - f(t,y,p)\right) dt \, ,
+\left( {\dot y} - f(t,y,p)\right) dt \, ,
 \end{equation}
 where $*$ denotes the conjugate transpose. The gradient of $G$ with respect to $p$ is
 \begin{equation}
   \frac{dG}{dp} = \frac{dI}{dp} 
 =\int_{t_0}^{t_1}(g_p + g_y s)dt - \int_{t_0}^{t_1} 
-\lambda^* \left( s^\prime - f_y s - f_p \right)dt \, ,
+\lambda^* \left( {\dot s} - f_y s - f_p \right)dt \, ,
 \end{equation}
 where subscripts on functions such as $f$ or $g$ are used to denote partial 
 derivatives and $s = [s_1,\ldots,s_{N_s}]$ is the matrix of solution sensitivities.
-Applying integration by parts to the term $\lambda^* s^\prime$ and selecting
+Applying integration by parts to the term $\lambda^* {\dot s}$ and selecting
 $\lambda$ such that
 \begin{equation}\label{e:adj_eqns}
 \begin{split}
-&\lambda^\prime = -\left( \dfdy \right)^* \lambda - 
+&{\dot\lambda} = -\left( \dfdy \right)^* \lambda - 
 \left( \frac{\partial g}{\partial y} \right)^* \\
 &\lambda(t_1) = 0 \, ,
 \end{split}
@@ -610,13 +610,13 @@ limit and thus satisfies the following equation, obtained by taking the total de
 with respect to $t_1$ of (\ref{e:adj_eqns}):
 \begin{equation}\label{e:adj1_eqns}
 \begin{split}
-&\mu^\prime = -\left( \dfdy \right)^* \mu \\ 
+&{\dot\mu} = -\left( \dfdy \right)^* \mu \\ 
 &\mu(t_1) = \left( \frac{\partial g}{\partial y} \right)^*_{t=t_1} \, .
 \end{split}
 \end{equation}
 The final condition on $\mu(t_1)$ follows from 
 $(\partial\lambda/\partial t) + (\partial\lambda/\partial t_1) = 0$ at $t_1$, and
-therefore, $\mu(t_1) = -\lambda^\prime(t_1)$. 
+therefore, $\mu(t_1) = -{\dot\lambda}(t_1)$. 
 
 The first thing to notice about the adjoint system (\ref{e:adj_eqns}) is that there is 
 no explicit specification of the parameters $p$; this implies that, once the solution
@@ -640,10 +640,10 @@ it is unlikely that the states will be available at the desired time and
 so some form of interpolation is needed. The {\cvodes} implementation
 being also variable-order, it is possible that during the forward
 integration phase the order may be reduced as low as first order,
-which means that there may be points in time where only $y$ and $y^\prime$
+which means that there may be points in time where only $y$ and ${\dot y}$
 are available. Therefore, {\cvodes} implements a cubic Hermite interpolation
 algorithm. However, especially for large-scale problems and long integration
-intervals, the number and size of the vectors $y$ and $y^\prime$ that would 
+intervals, the number and size of the vectors $y$ and ${\dot y}$ that would 
 need to be stored make this approach computationally intractable. 
 
 {\cvodes} settles for a compromise between storage space and execution time by
@@ -651,7 +651,7 @@ implementing a so-called {\em checkpointing scheme}. At the cost of
 at most one additional forward integration, this approach offers the best possible 
 estimate of memory requirements for adjoint sensitivity analysis. To begin with,
 based on the problem size $N$ and the available memory, the user decides on 
-the number $N_d$ of data pairs ($y$, $y^\prime$) that can be kept in memory for 
+the number $N_d$ of data pairs ($y$, ${\dot y}$) that can be kept in memory for 
 the purpose of interpolation. Then, during the first forward integration stage, after
 every $N_d$ integration steps a checkpoint is formed by saving enough information
 (either in memory or on disk) to allow for a hot restart, that is a restart
@@ -663,7 +663,7 @@ During the backward integration stage, the adjoint variables are integrated
 from $t_1$ to $t_0$ going from one checkpoint to the previous one.
 The backward integration from checkpoint $i+1$ to checkpoint $i$ is preceded
 by a forward integration from $i$ to $i+1$ during which $N_d$ data pairs 
-($y$, $y^\prime$) are generated and stored in memory for interpolation.
+($y$, ${\dot y}$) are generated and stored in memory for interpolation.
 (see Fig.~\ref{f:ckpnt}).
 %
 \begin{figure}
@@ -680,7 +680,7 @@ the forward integration, and there is no major penalty for writing/reading the c
 data to/from a temporary file.
 %
 Note that, at the end of the first forward integration stage, data pairs 
-($y$, $y^\prime$) are available from the last checkpoint to the end of the interval of integration.
+($y$, ${\dot y}$) are available from the last checkpoint to the end of the interval of integration.
 If no checkpoints are necessary ($N_d$ is larger than the 
 number of integration steps taken in the solution of (\ref{e:ivp_p})),
 the total cost of an adjoint sensitivity computation can be as low as one forward
@@ -718,7 +718,7 @@ When the BDF option is selected, {\cvodes} uses Backward Differentiation
 Formula methods of orders 1 to 5.  At order 1 or 2, the BDF
 method is A-stable, meaning that for any complex constant $\lambda$ in
 the open left half-plane the method is unconditionally stable (for
-any step size) for the standard scalar model problem $y^\prime = \lambda y$.
+any step size) for the standard scalar model problem ${\dot y} = \lambda y$.
 For an ODE system, this means that, roughly speaking, as long as all
 modes in the system are stable, the method is also stable for any
 choice of step size, at least in the sense of a local linear stability
