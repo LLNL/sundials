@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-10-21 21:10:38 $
+# $Revision: 1.9 $
+# $Date: 2004-10-21 21:54:38 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -56,7 +56,7 @@ install: $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECTOR_SERIAL_LIB) $(NVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_SERIAL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_SERIAL_INC_DIR)/nvector_serial.h $(includedir)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FNVECTOR_SERIAL_LIB) $(FNVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FNVECTOR_SERIAL_LIB) $(FNVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -static -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FNVECTOR_SERIAL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_SERIAL_INC_DIR)/fnvector_serial.h $(includedir)
 
