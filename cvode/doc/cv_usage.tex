@@ -873,7 +873,7 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
 }
 {
   The default value is \Id{ADAMS\_Q\_MAX}$= 12$ for
-  the Adams-Moulton method and \Id{BDF\_Q\_Max}$= 5$
+  the Adams-Moulton method and \Id{BDF\_Q\_MAX}$= 5$
   for the BDF method.
   Since \id{maxord} affects the memory requirements
   for the internal {\cvode} memory block, its value
@@ -4999,7 +4999,7 @@ apply to {\nvecp}.
     As an option when using the \id{spgmr} linear solver, the user may supply a 
     routine that computes the product of the system Jacobian $J = df/dy$ and 
     a given vector $v$.  If supplied, it must have the following form:
-    \index{CVJTIMES@\texttt{CVJTIMIES}}
+    \index{CVJTIMES@\texttt{CVJTIMES}}
 \begin{verbatim}
       SUBROUTINE CVJTIMES (V, FJV, T, Y, FY, WORK, IER)
       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
