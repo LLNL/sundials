@@ -1,9 +1,9 @@
 %!PS-Adobe-2.0 EPSF-2.0
-%%Title: sim.eps
-%%Creator: fig2dev Version 3.2 Patchlevel 3c
-%%CreationDate: Tue Apr 23 16:33:26 2002
-%%For: radu@tux29.llnl.gov (Radu Serban)
-%%BoundingBox: 0 0 651 600
+%%Title: cvssim.eps
+%%Creator: fig2dev Version 3.2 Patchlevel 3d
+%%CreationDate: Mon Mar 31 17:05:48 2003
+%%For: radu@tux111.llnl.gov (Radu Serban)
+%%BoundingBox: 0 0 651 599
 %%Magnification: 1.0000
 %%EndComments
 /$F2psDict 200 dict def
@@ -45,8 +45,8 @@ $F2psDict /mtrx matrix put
 
 end
 save
-newpath 0 600 moveto 0 0 lineto 651 0 lineto 651 600 lineto closepath clip newpath
--89.0 666.0 translate
+newpath 0 599 moveto 0 0 lineto 651 0 lineto 651 599 lineto closepath clip newpath
+-89.3 665.3 translate
 1 -1 scale
 
 /cp {closepath} bind def
@@ -84,18 +84,11 @@ newpath 0 600 moveto 0 0 lineto 651 0 lineto 651 600 lineto closepath clip newpa
 /$F2psEnd {$F2psEnteredState restore end} def
 
 $F2psBegin
-%%Page: 1 1
 10 setmiterlimit
  0.06000 0.06000 sc
 %
 % Fig objects follow
 %
-/Times-Roman ff 180.00 scf sf
-4200 2175 m
-gs 1 -1 sc (menv = M_EnvInit_Serial\(...\) or M_EnvInit_Parallel\(...\)) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 4125 m
-gs 1 -1 sc (M_EnvFree_Serial\(menv\) or M_EnvFree_Parallel\(menv\)) col0 sh gr
 /Times-Roman ff 180.00 scf sf
 10200 4800 m
 gs 1 -1 sc (NV_DATA_P\(...\)) col0 sh gr
@@ -235,48 +228,12 @@ n 8625 3450 m
 
 % arrowhead
 n 9314 3480 m 9434 3450 l 9314 3420 l 9314 3480 l  cp gs 0.00 setgray ef gr  col0 s
-% Polyline
-n 3975 1650 m
- 8625 1650 l gs col0 s gr 
-% Polyline
-n 8625 5625 m 8625 1125 l 3975 1125 l 3975 5625 l
- cp gs col0 s gr 
 /Times-Roman ff 180.00 scf sf
-5325 1500 m
-gs 1 -1 sc (User's Program) col0 sh gr
+4200 2175 m
+gs 1 -1 sc (menv = M_EnvInit_Serial\(...\) or M_EnvInit_Parallel\(...\)) col0 sh gr
 /Times-Roman ff 180.00 scf sf
-4125 1950 m
-gs 1 -1 sc (main\(\) {) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 2400 m
-gs 1 -1 sc (  y = N_VNew\(...\)) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 3000 m
-gs 1 -1 sc (  CVDense or CVBand or CVDiag or CVSpgmr\(...\)) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 3600 m
-gs 1 -1 sc (  CVodeFree\(...\)) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 3900 m
-gs 1 -1 sc (  N_VFree\(y\)) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 2700 m
-gs 1 -1 sc (  CVodeMalloc\(N, f, ...\)) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 3300 m
-gs 1 -1 sc (  for \(...\) { CVode\(..., y, ...\) }) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 4350 m
-gs 1 -1 sc (}) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 4650 m
-gs 1 -1 sc (f\(...\){...}) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 5025 m
-gs 1 -1 sc (Jac\(...\){...} or) col0 sh gr
-/Times-Roman ff 180.00 scf sf
-4125 5325 m
-gs 1 -1 sc (jtimes\(...\){...} , Precond\(...\){...} and PSolve\(...\){...}) col0 sh gr
+4125 4125 m
+gs 1 -1 sc (M_EnvFree_Serial\(menv\) or M_EnvFree_Parallel\(menv\)) col0 sh gr
 % Polyline
 n 10050 4580 m
  12300 4580 l gs col0 s gr 
@@ -427,5 +384,47 @@ gs 1 -1 sc (Main   CVODES   Integrator) col0 sh gr
 /Times-Roman ff 180.00 scf sf
 5700 7050 m
 gs 1 -1 sc (cvodes.h, cvodes.c) col0 sh gr
+% Polyline
+n 3975 1650 m
+ 8625 1650 l gs col0 s gr 
+% Polyline
+n 8625 5625 m 8625 1125 l 3975 1125 l 3975 5625 l
+ cp gs col0 s gr 
+/Times-Roman ff 180.00 scf sf
+5325 1500 m
+gs 1 -1 sc (User's Program) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 1950 m
+gs 1 -1 sc (main\(\) {) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 2400 m
+gs 1 -1 sc (  y = N_VNew\(...\)) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 3000 m
+gs 1 -1 sc (  CVDense or CVBand or CVDiag or CVSpgmr\(...\)) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 3600 m
+gs 1 -1 sc (  CVodeFree\(...\)) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 3900 m
+gs 1 -1 sc (  N_VFree\(y\)) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 3300 m
+gs 1 -1 sc (  for \(...\) { CVode\(..., y, ...\) }) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 4350 m
+gs 1 -1 sc (}) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 4650 m
+gs 1 -1 sc (f\(...\){...}) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 5025 m
+gs 1 -1 sc (Jac\(...\){...} or) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 5325 m
+gs 1 -1 sc (jtimes\(...\){...} , Precond\(...\){...} and PSolve\(...\){...}) col0 sh gr
+/Times-Roman ff 180.00 scf sf
+4125 2700 m
+gs 1 -1 sc (  CVodeMalloc\( f, ...\)) col0 sh gr
 $F2psEnd
 rs

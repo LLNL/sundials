@@ -77,7 +77,7 @@ we examine the chemical kinetics problem of \S\ref{ss:serial_sim_ex} and
 \end{equation}
 for which we want to compute the gradient with respect to $p$ of 
 \begin{equation}\label{e:chemkin:G}
-  G(p) = \int_{t_0}^{t_1}  \left( y_1 + p_2 y_2 y_3 \right) dt ,
+  G(p) = \int_{t_0}^{t_1}  y_3  dt ,
 \end{equation}
 without having to compute the solution sensitivities ${dy}/{dp}$.
 Following the derivation of \S\ref{ss:adj_sensi} and taking into account
@@ -87,7 +87,7 @@ the parameters $p$, by (\ref{e:dGdp}) this gradient is simply
 \frac{dG}{dp} = \int_{t_0}^{t_1} 
 \left( g_p + \lambda^T f_p \right) dt \, ,
 \end{equation}
-where $g(t,y,p) = y_1 + p_2 y_2 y_3$, $f$ is the vector valued function 
+where $g(t,y,p) = y_3$, $f$ is the vector valued function 
 defining the right hand side of (\ref{e:chemkin:ivp}), and $\lambda$ is 
 the solution of the adjoint problem (\ref{e:adj_eqns}),
 \begin{equation}\label{e:chemkin:adj}
@@ -165,23 +165,29 @@ is printed by \id{CVadjCheckPointsList}.
 
 The next segment of code deals with the setup of the backward problem. First,
 a serial machine environment variable \id{machEnvB} is initialized for vectors
-of length \id{NEQ + NP + 1} (dimension of $\lambda$ $+$ dimension of $\xi$ $+$
-one additional quadrature variable to evaluate $G$). Following that, the program 
-allocates space and initializes the variables of the backward problem and
-the relative and absolute tolerances for the backward integration.
+of length \id{NEQ} (dimension of $\lambda$). A second serial
+machine environmnet, \id{machEnvQB} is initializaed for vectors of
+dimension \id{NP+1} (dimension of $\xi$ $+$ one quadrature variable to evaluate $G$).
+Following that, the program allocates space and initializes the variables of the 
+backward problem and the relative and absolute tolerances for the backward integration.
 {\cvodes} memory for the integration of the backward integration is allocated
 by the call to the interface routine \id{CVodeMallocB} which specifies the
-size of the problem, the right hand side user function \id{fB} and the \id{BDF}
+right hand side user function \id{fB} and the \id{BDF}
 integration method with \id{NEWTON} iteration, among other things.
+Quadrature computation is then initialized by calling \id{CVodeQuadMallocB}
+which specifies the right hand side of the quadrature equations as \id{fQB}
+and indicates that $\xi$ should not be considered in the error test.
 The dense linear solver {\cvdense} is then initialized by calling the \id{CVDenseB}
 interface routine with a non-\id{NULL} Jacobian routine \id{JacB}.
 
 The actual solution of the backward problem is acomplished through the call to
 \id{CVodeB}. If successful, \id{CVodeB} returns the solution of the backward 
-problem at time \id{T0} in the vector \id{yB}. The values for $G$ and its gradient
-are printed next.
+problem at time \id{T0} in the vector \id{yB}. The values of the quadrature
+variables at time \id{T0} are loaded in \id{qB} by calling the extraction
+routine \id{CVodeQuadExtractB}. The values for $G$ and its gradient are printed next.
 
-The main program continues with a call to \id{CVReInitB} to reinitialize the 
+The main program continues with a call to \id{CVodeReInitB} and
+\id{CVodeQuadReInitB} to reinitialize the 
 backward memory block for a new adjoint computation with a different final 
 time (\id{TB2}), followed by a second call to \id{CVodeB} and, upon successful
 return, reporting of the new values for $G$ and its gradient.
@@ -194,7 +200,7 @@ environment variables \id{machEnvF} and \id{machEnvB}).
 
 The user-supplied functions \id{f} and \id{Jac} for the right hand side and
 Jacobian of the forward problem are straightforward expressions of its 
-mathematical formulation (\ref{e:chemkin:ivp}), while \id{fB} and \id{JacB}
+mathematical formulation (\ref{e:chemkin:ivp}), while \id{fB}, \id{fQB}, and \id{JacB}
 are mere translations of the backward problem
 (\ref{e:chemkin:adj})--(\ref{e:chemkin:xi})--(\ref{e:chemkin:zeta}).
 \index{examples, adjoint sensitivity!serial sample program!explanation of|)}
@@ -289,7 +295,12 @@ and the backward problems are solved with the option for nonstiff systems,
 i.e. using the Adams method with functional iteration for the solution of
 the nonlinear systems. The overall structure of the \id{main} function is very
 similar to that of the code \id{cvadx} (\S\ref{ss:serial_adj_ex}) with 
-differences arising from the use of the parallel vector module.
+differences arising from the use of the parallel vector module. Unlike 
+\id{cvadx}, the example \id{pvanx} illustrates computation of the additional
+quadrature variables by appending \id{NP} equations to the adjoint system.
+This approach can be a better alternative to using special treatment
+of the quadrature equations when their number is too small for parallel 
+treatment.
 
 Besides the parallelism implemented by {\cvodes} at the vector kernel level,
 \id{pvanx} uses MPI calls to parallelize the calculations of the right-hand side

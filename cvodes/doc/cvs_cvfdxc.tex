@@ -4,7 +4,7 @@
  * File       : cvfdx.c                                                 *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and Radu Serban      * 
  *              @ LLNL                                                  *
- * Version of : 20 March 2002                                           *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -25,6 +25,8 @@
  *                                                                      *
  * Optionally, CVODES can compute sensitivities with respect to the     *
  * problem parameters p1, p2, and p3.                                   *
+ * The sensitivity right hand side is given analytically through the    *
+ * user routine fS (of type SensRhs1Fn).                                *
  * Any of three sensitivity methods (SIMULTANEOUS, STAGGERED, and       *
  * STAGGERED1) can be used and sensitivities may be included in the     *
  * error test or not (error control set on FULL or PARTIAL,             *
@@ -44,8 +46,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sundialstypes.h"   /* definitions of types realtype and                 */
-                             /* integertype, and the constant FALSE               */
+#include "sundialstypes.h"   /* definitions of types realtype (set to double) and */
+                             /* integertype (set to int), and the constant FALSE  */
 #include "cvodes.h"          /* prototypes for CVodeMalloc, CVode, and CVodeFree, */
                              /* constants OPT_SIZE, BDF, NEWTON, SV, SUCCESS,     */
                              /* NST, NFE, NSETUPS, NNI, NCFN, NETF                */
@@ -85,19 +87,23 @@ typedef struct {
 /* Private Helper Function */
 
 static void WrongArgs(char *argv[]);
-static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con, 
-                            long int iopt[]);
-static void PrintOutput(long int iopt[], realtype ropt[], realtype t, N_Vector u);
+static void PrintFinalStats(booleantype sensi, int sensi_meth, 
+                            int err_con, long int iopt[]);
+static void PrintOutput(long int iopt[], realtype ropt[], 
+                        realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 
 /* Functions Called by the CVODES Solver */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
-                N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
-                void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                N_Vector vtemp2, N_Vector vtemp3);
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
+static void Jac(integertype N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data, 
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+static void fS(integertype Ns, realtype t, N_Vector y, N_Vector ydot, 
+               integertype iS, N_Vector yS, N_Vector ySdot, 
+               void *fS_data, N_Vector tmp1, N_Vector tmp2);
 
 /***************************** Main Program ******************************/
 
@@ -161,8 +167,8 @@ int main(int argc, char *argv[])
   data->p[2] = 3.0e7;
 
   /* INITIAL STATES */
-  y = N_VNew(NEQ, machEnv);
-  abstol = N_VNew(NEQ, machEnv);
+  y = N_VNew(machEnv);
+  abstol = N_VNew(machEnv);
 
   /* Initialize y */
   Ith(y,1) = Y1;
@@ -178,7 +184,7 @@ int main(int argc, char *argv[])
   Ith(abstol,3) = ATOL3;
 
   /* CVODE_MALLOC */
-  cvode_mem = CVodeMalloc(NEQ, f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
+  cvode_mem = CVodeMalloc(f, T0, y, BDF, NEWTON, SV, &reltol, abstol,
                           data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { 
     printf("CVodeMalloc failed.\n"); 
@@ -186,7 +192,7 @@ int main(int argc, char *argv[])
   }
 
   /* CVDENSE */
-  flag = CVDense(cvode_mem, Jac, NULL);
+  flag = CVDense(cvode_mem, NEQ, Jac, data);
   if (flag != SUCCESS) { printf("CVDense failed.\n"); return(1); }
 
   /* SENSITIVITY */
@@ -197,16 +203,14 @@ int main(int argc, char *argv[])
     plist = (integertype *) malloc(NS * sizeof(integertype));
     for(is=0;is<NS;is++) plist[is] = is+1;
 
-    yS = N_VNew_S(NS, NEQ, machEnv);
+    yS = N_VNew_S(NS, machEnv);
     for(is=0;is<NS;is++)
       N_VConst(0.0, yS[is]);
 
-    ifS = ALLSENS;
-    if(sensi_meth==STAGGERED1) ifS = ONESENS;
-
-    rhomax = ZERO;
+    ifS = ONESENS;
+    rhomax = ZERO; /* ignored, since we provide the sensitivity rhs */
     flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, data->p, pbar, plist,
-                           ifS, NULL, err_con, rhomax, yS, NULL, NULL);
+                           ifS, fS, err_con, rhomax, yS, NULL, NULL, data);
     if (flag != SUCCESS) {
       printf("CVodeSensMalloc failed, flag=%d\n",flag);
       return(1);
@@ -355,7 +359,7 @@ static void PrintFinalStats(booleantype sensi, int sensi_meth, int err_con,
 /* ======================================================================= */
 /* f routine. Compute f(t,y). */
 
-static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y1, y2, y3, yd1, yd3;
   UserData data;
@@ -373,21 +377,64 @@ static void f(integertype N, realtype t, N_Vector y, N_Vector ydot, void *f_data
 /* ======================================================================= */
 /* Jacobian routine. Compute J(t,y). */
 
-static void Jac(integertype N, DenseMat J, RhsFn f, void *f_data, realtype t,
-                N_Vector y, N_Vector fy, N_Vector ewt, realtype h, realtype uround,
-                void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                N_Vector vtemp2, N_Vector vtemp3)
+static void Jac(integertype N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data, 
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
   UserData data;
   realtype p1, p2, p3;
  
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) f_data;
+  data = (UserData) jac_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
  
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
   IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
                       IJth(J,3,2) = 2*p3*y2;
+}
+ 
+/* ======================================================================= */
+/* fS routine. Compute sensitivity r.h.s. */
+
+static void fS(integertype Ns, realtype t, N_Vector y, N_Vector ydot, 
+               integertype iS, N_Vector yS, N_Vector ySdot, 
+               void *fS_data, N_Vector tmp1, N_Vector tmp2)
+{
+  UserData data;
+  realtype p1, p2, p3;
+  realtype y1, y2, y3;
+  realtype s1, s2, s3;
+  realtype sd1, sd2, sd3;
+
+  data = (UserData) fS_data;
+  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
+
+  y1 = Ith(y,1);  y2 = Ith(y,2);  y3 = Ith(y,3);
+  s1 = Ith(yS,1); s2 = Ith(yS,2); s3 = Ith(yS,3);
+
+  sd1 = -p1*s1 + p2*y3*s2 + p2*y2*s3;
+  sd3 = 2*p3*y2*s2;
+  sd2 = -sd1-sd3;
+
+  switch (iS) {
+  case 0:
+    sd1 += -y1;
+    sd2 +=  y1;
+    break;
+  case 1:
+    sd1 +=  y2*y3;
+    sd2 += -y2*y3;
+    break;
+  case 2:
+    sd2 += -y2*y2;
+    sd3 +=  y2*y2;
+    break;
+  }
+  
+  Ith(ySdot,1) = sd1;
+  Ith(ySdot,2) = sd2;
+  Ith(ySdot,3) = sd3;
+
 }
 \end{verbatim}

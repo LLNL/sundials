@@ -103,7 +103,7 @@ the one below start only at step (\ref{i:fwd_start}).
   \item {\p} 
     \id{NVS\_MAKE\_P(Ns, yS0, ySdata, machEnv);}
   \end{itemize}
-  Otherwise, make the call \id{yS0 = }\Id{N\_VNew\_S}\id{(Ns,N,machEnv);} 
+  Otherwise, make the call \id{yS0 = }\Id{N\_VNew\_S}\id{(Ns,machEnv);} 
   to create an array of \id{N\_Vector}'s and load initial values for 
   sensitivities \id{yS0[i]} into the array given by:
   \begin{itemize}
@@ -173,8 +173,8 @@ The routine \ID{CVodeSensMalloc} activates forward sensitivity computations and
 allocates internal memory related to sensitivity calculations.
 The form of the call to this routine is
 \begin{verbatim}
-ier = CVodeSensMalloc(cvode_mem, Ns, ism, p, pbar, plist, 
-                      ifS, fS, errcon, rhomax, yS0, rtolS, atolS);
+ier = CVodeSensMalloc(cvode_mem, Ns, ism, p, pbar, plist, ifS, fS,
+                      errcon, rhomax, yS0, rtolS, atolS, fS_data);
 \end{verbatim}
 
 \begin{itemize}
@@ -281,6 +281,9 @@ ier = CVodeSensMalloc(cvode_mem, Ns, ism, p, pbar, plist,
   as absolute error tolerance for sensitivity \id{yS[i]} a multiple of the
   absolute error tolerance for the state variables, with the scale factor
   being $1/$\id{pbar[j-1]}, \id{j}$=|$\id{plist[i]}$|$.
+
+\item \id{fS\_data}
+  is a pointer to user-defined space passed directly to the user's \id{fS} function.
   
 \end{itemize}
 Note that, unlike the argument \id{y0} of \id{CVodeMalloc} - which could be deallocated
@@ -435,22 +438,23 @@ is \Id{BAD\_DKY}.
 \subsubsection{Forward Sensitivity Reinitialization Routine}\label{sss:cvsreinit}
 \index{reinitialization}
 
-The routine \ID{CVSensReInit}, useful during the solution of a sequence of problems of 
+The routine \ID{CVodeSensReInit}, useful during the solution of a sequence of problems of 
 same size, reinitializes the sensitivity related internal memory 
 and must follow a call to \Id{CVodeSensMalloc} (and maybe a call to \id{CVReInit}). 
 The number \id{Ns} of sensitivities is assumed to be unchanged since the call to 
 \Id{CVodeSensMalloc}.
 
-The call to the \id{CVSensReInit} function has the form
+The call to the \id{CVodeSensReInit} function has the form
 \begin{verbatim}
-ier = CVSensReInit(cvode_mem, ism, p, pbar, plist,
-                   ifS, fS, errcon, rhomax, yS0, rtolS, atolS);
+ier = CVodeSensReInit(cvode_mem, ism, p, pbar, plist, ifS, fS,
+                      errcon, rhomax, yS0, rtolS, atolS, fS_data);
 \end{verbatim}
 The arguments have names and meanings identical to those of \id{CVodeSensMalloc}.
 Note that the number of sensitivities \id{Ns} is not passed as an argument to 
-\id{CVSensReInit}, as that is assumed to be unchanged since the \id{CVodeSensMalloc} call. 
+\id{CVodeSensReInit}, as that is assumed to be unchanged since 
+the \id{CVodeSensMalloc} call. 
 
-The return value \id{ier} of \id{CVSensReInit} is equal to: 
+The return value \id{ier} of \id{CVodeSensReInit} is equal to: 
 \begin{itemize}
 \item \Id{SUCCESS}=0 if there were no errors; 
 \item \Id{SCVREI\_NO\_MEM} if \id{cvode\_mem} was NULL;
@@ -461,13 +465,12 @@ The return value \id{ier} of \id{CVSensReInit} is equal to:
 \end{itemize}
 In case of an error return, an error message is also printed.  
 
-Note that \id{CVSensReInit} is not a completely genuine reinitialization
+Note that \id{CVodeSensReInit} is not a completely genuine reinitialization
 routine as it may perform some memory allocation. This can happen
-if \id{atolS = NULL} is passed to \id{CVSensReInit}, in which case {\cvodes}
+if \id{atolS = NULL} is passed to \id{CVodeSensReInit}, in which case {\cvodes}
 must allocate and set its own internal absolute tolerances for the sensitivity
 varaiables, or if \id{ism = STAGGERED1}, in which case some internal counter
-arrays of length \id{Ns} are allocated by \id{CVSensReInit}.
-
+arrays of length \id{Ns} are allocated by \id{CVodeSensReInit}.
 
 %-------------------------------------------------------------------
 \subsection{User-Supplied Routines for Forward Sensitivity Analysis}\label{ss:user_fct_fwd}
@@ -502,14 +505,11 @@ to the array of real parameters upon which the original IVP depends.
   (\ref{e:sens_eqns}), for all sensitivity parameters at once, through a function 
   of type \ID{SensRhsFn} defined by
 \begin{verbatim}
-typedef void (*SensRhsFn) (RhsFn f, integertype Ns, integertype N, 
-                        realtype t, N_Vector y, N_Vector ydot, 
-                        N_Vector *yS, N_Vector *ySdot, 
-                        realtype *p, realtype *pbar, integertype *plist,
-                        void *f_data, N_Vector ewt, N_Vector *ewtS, 
-                        realtype *reltol, realtype *reltolS,
-                        realtype uround, realtype rhomax, long int *nfePtr,
-                        N_Vector ytemp, N_Vector ftemp);
+typedef void (*SensRhsFn)(integertype Ns, realtype t, 
+                          N_Vector y, N_Vector ydot, 
+                          N_Vector *yS, N_Vector *ySdot, 
+                          void *fS_data,  
+                          N_Vector tmp1, N_Vector tmp2);
 \end{verbatim}
   In this case, the argument \id{ifS} of \id{CVodeSensMalloc} must be set to \id{ALLSENS}.
   Note that a sensitivity right hand side function of type \id{SensRhsFn} is not
@@ -521,39 +521,16 @@ typedef void (*SensRhsFn) (RhsFn f, integertype Ns, integertype N,
   $(\dfdyI) s_i(t) + (\dfdpiI)$ are store them in \id{ySdot[i]}. 
   There is no return value for a \id{SensRhsFn}.
 
-  The complete list of arguments is given below. Typically, a user-supplied
-  sensitivity right hand side function would be expected to access the arguments
-  \id{Ns}, \id{N}, \id{t}, \id{y}, \id{yS}, \id{p}, \id{plist}, and \id{f\_data}.
-  The remaining arguments would not typically be accessed, but appear in the 
-  call list because they are needed by the difference quotient function 
-  \id{CVSensRhsDQ}.
+  The complete list of arguments is given below.
   \begin{itemize}
-  \item \id{f} is a pointer to the user-supplied routine of type \id{RhsFn} 
-    passed to \id{CVodeMalloc};
   \item \id{Ns} is the number of sensitivity parameters;
-  \item \id{N} is the problem dimension;
   \item \id{t} is the value of the independent variable;
   \item \id{y} and \id{ydot} are the ODE solution and its derivative;
   \item \id{yS} contains the \id{Ns} sensitivity vectors;
   \item \id{ySdot} is the output of \id{SensRhsFn}. On exit it must contain
     the sensitivity right hand side vectors;
-  \item \id{p} is the vector of problem parameters;
-  \item \id{pbar} is the vector containing scaling factors for \id{p};
-  \item \id{plist} is a vector of flags specifying the sensitivity parameters 
-    among the problem parameters;
-  \item \id{f\_data} is a pointer to the user-data space passed to \id{CVodeMalloc};
-  \item \id{ewt} contains error weights for the state variables \id{y};
-  \item \id{ewtS} is an array of vectors \id{ewtS[i]} containing
-    error weights for sensitivity variables \id{yS[i]};
-  \item \id{reltol} and \id{reltolS} are the relative error tolerances for state 
-    and sensitivity variables, respectively;
-  \item \id{uround} is the machine unit roundoff;
-  \item \id{rhomax} is the finite difference threshold parameter used by 
-    \id{CVSensRhsDQ};
-  \item \id{nfePtr} is a pointer to the number of function evaluation
-    calls counter. If any calls to \id{f} are made, the user has the 
-    option of accounting for them in the final {\cvodes} statistics;
-  \item \id{ytemp} and \id{ftemp} are pointers to memory allocated
+  \item \id{fS\_data} is a pointer to the user-data space passed to \id{CVodeSensMalloc};
+  \item \id{tmp1} and \id{tmp2} are pointers to memory allocated
     for vectors of length \id{N} which can be used by a \id{SensRhsFn} 
     function as temporary storage or work space.
   \end{itemize}
@@ -569,14 +546,11 @@ typedef void (*SensRhsFn) (RhsFn f, integertype Ns, integertype N,
 
   The type \id{SensRhs1Fn} is defined by
 \begin{verbatim}
-typedef void (*SensRhs1Fn) (RhsFn f, integertype Ns, integertype N, 
-                         realtype t, N_Vector y, N_Vector ydot, 
-                         integertype iS, N_Vector yS, N_Vector ySdot, 
-                         realtype *p, realtype *pbar, integertype *plist, 
-                         void *f_data, N_Vector ewt, N_Vector *ewtS, 
-                         realtype *reltol, realtype *reltolS,
-                         realtype uround, realtype rhomax, long int *nfePtr,
-                         N_Vector ytemp, N_Vector ftemp);
+typedef void (*SensRhs1Fn)(integertype Ns, realtype t, 
+                           N_Vector y, N_Vector ydot, 
+                           integertype iS, N_Vector yS, N_Vector ySdot, 
+                           void *fS_data,
+                           N_Vector tmp1, N_Vector tmp2);
 \end{verbatim}
   Except for \id{iS}, \id{yS}, and \id{ySdot}, the arguments are identical to those of 
   \id{SensRhsFn} functions.
@@ -586,14 +560,25 @@ typedef void (*SensRhs1Fn) (RhsFn f, integertype Ns, integertype N,
   sensitivity vector and, on return, \id{ySdot} must contain the right hand side of the
   \id{iS}-th sensitivity system.
 
-  Typically, a user-supplied sensitivity right hand side function would be expected 
-  to access the arguments \id{iS}, \id{Ns}, \id{N}, \id{t}, \id{y}, \id{yS}, \id{p}, 
-  \id{plist}, and \id{f\_data}. The remaining arguments would not typically be accessed,
-  but appear in the call list because they are needed by the difference quotient function 
-  \id{CVSensRhs1DQ}.  
   \index{right hand side function!forward sensitivity|)}
   \index{forward sensitivity analysis!right hand side evaluation|)}
 
 %
 \end{itemize}
 
+For user-provided sensitivity right-hand side routines based on finite
+differences, additional quantities already available to {\cvodes} may
+be of interest, such as the machine roundoff \id{uround} and error
+weights for states and sensitivities. The value \id{uround} used 
+internally by {\cvodes} can be obtained by calling the routine
+\Id{UnitRoundoff}() defined in \id{sundialsmath.c}. Error weight vectors
+can be obtained through the functions:
+\begin{verbatim}
+     CVodeGetEwt(cvode_mem, weight);
+     CVodeGetEwtS(cvode_mem, weightS);
+\end{verbatim}
+where \id{cvode\_mem} is the pointer to the {\cvodes} memory returned by 
+{\tt CVodeMalloc}, \id{weight} is of type \id{N\_Vector} and \id{weightS}
+is of type \id{N\_Vector *}. Note that the user need not allocate space 
+for either \id{weight} or \id{weightS} in \Id{CvodeGetEwt} and 
+\Id{CVodeGetEwtS}, respectivley.

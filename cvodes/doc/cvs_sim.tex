@@ -134,7 +134,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
     \id{NV\_MAKE\_P(y0, ydata, machEnv);}
   \end{itemize}
   if an existing real array \id{ydata} contains the initial values of $y$.  
-  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(N, machEnv);} and load 
+  Otherwise, make the call \id{y0 = }\Id{N\_VNew}\id{(machEnv);} and load 
   initial values into the real array defined by:
   \begin{itemize}
   \item {\s}
@@ -200,11 +200,10 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 
 The form of the call to \ID{CVodeMalloc} (step \ref{i:cvode_malloc}) is
 \begin{verbatim}
-cvode_mem = CVodeMalloc(N, f, t0, y0, lmm, iter, itol, &rtol, 
+cvode_mem = CVodeMalloc(f, t0, y0, lmm, iter, itol, &rtol, 
                         atol, f_data, errfp, optIn, iopt, ropt, machEnv);
 \end{verbatim}
-where \id{N} is the number of ODEs in the system, \id{f}
-is the C function to compute $f$ in the ODE, \id{t0} is the initial
+\id{f} is the C function to compute $f$ in the ODE, \id{t0} is the initial
 value of $t $ and \id{y0} is the initial value of $y$. 
 \id{f} has the form \id{f(N, t, y, ydot, f\_data)} (for full details
 see \S\ref{ss:user_fct_sim}).
@@ -252,6 +251,42 @@ are examined in \id{iopt} and \id{ropt}.
 
 If there was a failure, the return value of \id{CVodeMalloc} is \id{NULL} and
 an error message is printed.
+
+Note that if the system of ODEs contains {\em pure quadratures} it is more efficient
+to treat them separately. To do this, exclude them from \id{y0} in the 
+\id{CVodeMalloc} (as well from within \id{f}) and instead use the following 
+routine to initialize quadrature integration with {\cvodes}.
+
+\subsubsection{Quadrature Initialization Routine}\label{sss:cvodequadmalloc}
+
+The routine \ID{CVodeQuadMalloc} activates integration of quadrature equations 
+and allocates internal memory related to these calculations.
+The form of the call to this routine is
+\begin{verbatim}
+ier = CVodeQuadMalloc(cvode_mem, fQ, errconQ, &rtolQ, atolQ, fQ_data, machEnvQ);  
+\end{verbatim}
+where \id{cvode\_mem} is the pointer to the {\cvodes} memory returned by {\tt CVodeMalloc}
+and \id{fQ} is a user-provided {\C} function to evaluate the righ-hand side of the
+quadrature equations (for full details, see \S\ref{ss:user_fct_sim}). 
+The flag \id{errconQ} specify whether partial or full error 
+control is to be used. If \id{errconQ = }\Id{FULL} then both state variables and
+quadrature variables are included in the error tests. 
+If \id{errconQ = }\Id{PARTIAL} then the quadrature variables are excluded from the 
+error tests. When full error control is used, \id{\&rtolQ} is the relative tolerance for
+quadrature variables and \id{atolQ} is a pointer to a scalar absolute tolerance for
+quadrature variables (if \id{itol = }\id{SS}) or to a vector of absolute tolerances 
+(if \id{itol = }\id{SV}). The pointer to the user data \id{fQ\_data} is passed
+directly to the user's \id{fQ} function. The final argument, \id{machEnvQ},
+is a pointer to a machine environment structure corresponding to the
+vector of quadrature variables, as obtained from a previous call to an
+\id{M\_EnvInit\_*} routine.
+
+Note that there are no initial values for quadrature variables. The reason for this is 
+that these variables are always $0$ at the initial time and {\cvodes} performs this
+initialization by itself.
+
+The return value \id{ier} of \id{CVodeQuadMalloc} is equal to \id{SUCCESS}=0 if
+there were no errors, or \Id{QCVM\_NO\_MEM} if \id{cvode\_mem} was NULL.  
 
 \subsubsection{Linear Solver Specification Routines}\label{sss:lin_solv_init}
 
@@ -307,7 +342,7 @@ separately in \S\ref{s:gen_linsolv}.
   \par After the call to \id{CVodeMalloc}, the user must call the routine \ID{CVDense}
   to select the {\cvdense} solver. The call to this routine has the following form:
 \begin{verbatim}
-ier = CVDense(cvode_mem, djac, jac_data);
+ier = CVDense(cvode_mem, N, djac, jac_data);
 \end{verbatim}
   \index{CVDENSE@{\cvdense} linear solver!selection of|)}
 
@@ -373,7 +408,7 @@ ier = CVDense(cvode_mem, djac, jac_data);
   \par After the call to \id{CVodeMalloc}, the user must call the routine \ID{CVBand}
   to select the {\cvband} solver. The call to this routine has the following form:
 \begin{verbatim}
-ier = CVBand(cvode_mem, mupper, mlower, bjac, jac_data);
+ier = CVBand(cvode_mem, N, mupper, mlower, bjac, jac_data);
 \end{verbatim}
   The upper and lower half-bandwidths of problem Jacobian (or of the
   approximation of it to be used in {\cvodes}) are specified in this call
@@ -682,6 +717,38 @@ All failure return values are negative and therefore a test \id{ier < 0}
 will trap all \id{CVode} failures.
 
 %--------------------------------------------------------------------
+\subsubsection{Quadrature Extraction Routine}\label{sss:cvodequadextract}
+
+If forward sensitivity computations have been initialized by a call to \id{CVodeQuadMalloc},
+or reinitialized by a call to \id{CVodeQuadReInit}, then {\cvodes} computes both solution
+and quadratures at time \id{t}. However, \id{CVode} will still return only the solution
+$y$ in \id{y}. Solution quadratures can be obtained through the routine
+\ID{CVodeQuadExtract}:
+\begin{verbatim}
+ier = CVodeQuadExtract(cvode_mem, t, yQ);
+\end{verbatim}
+Its arguments are as follows:
+\begin{itemize}
+\item \id{cvode\_mem} is the pointer to the memory previously allocated
+  by \id{CVodeMalloc}.
+\item \id{t} specifies the time at which quadrature information is 
+  requested. The time \id{t} must fall within the interval defined by the last 
+  succesful step taken by {\cvodes}.
+\item \id{yQ} must be declared of type \id{N\_Vector}.
+  If successful, \id{CVodeQuadExtract} will load \id{yQ} with the values of the
+  solution quadratures at time \id{t}.
+\end{itemize}
+The return value \id{ier} of \id{CVodeQuadExtract} is equal to: 
+\begin{itemize}
+\item \Id{SUCCESS}=0 if there were no errors; 
+\item \Id{DKY\_NO\_MEM} if \id{cvode\_mem} was NULL;
+\item \Id{DKY\_NO\_QUAD} if quadrature computation was not turned on
+      by a call to \id{CVodeQuadMalloc};
+\item \Id{BAD\_T} if the time \id{t} is not in the allowed range.
+\end{itemize}
+In case of an error return, an error message is also printed.  
+
+%--------------------------------------------------------------------
 \subsubsection{Optional Input/Output}\label{sss:optional_io}
 
 In order to change some of the {\cvodes} constants (such as the maximum method order) 
@@ -757,6 +824,10 @@ the solver (total so far).
 Number of calls to the user's \id{f} function.
 \\ \hline
 %
+\id{NFQE} & O & &
+Number of calls to the user's \id{fQ} function.
+\\ \hline
+%
 \id{NSETUPS} & O & &
 Number of calls made to the linear solver's setup routine.
 \\ \hline
@@ -771,6 +842,10 @@ Number of nonlinear convergence failures that have occurred.
 %
 \id{NETF} & O & &
 Number of local error test failures that have occurred.
+\\ \hline
+%
+\id{NETFQ} & O & &
+Number of local error test failures for quadarture varaibles that have occurred.
 \\ \hline
 %
 \id{QU} & O & &
@@ -856,7 +931,7 @@ requested for some internal step.
 \end{table}                                                                  
 
 %--------------------------------------------------------------------
-\subsubsection{Interpolated Output Routines}
+\subsubsection{Interpolated Output Routine}
 \index{interpolated output}
 
 An optionally callable function \ID{CVodeDky} is available
@@ -891,24 +966,36 @@ The return value \id{ier} for \id{CVodeDky} is
 \end{itemize}
 
 %--------------------------------------------------------------------
+\subsubsection{Interpolated Quadrature Output Routine}
+
+The routine \ID{CVodeQuadDky} computes the \id{k}-th derivatives of the interpolating 
+polynomials for the quadrature variables at time \id{t}.
+This function is called by \id{CVodeQuadExtract} with \id{k} $= 0$, but may also be called 
+directly by the user.
+\begin{verbatim}
+ier = CVodeQuadDky(cvode_mem, t, k, dkyQ)
+\end{verbatim}
+Its arguments and return value are the same as for \id{CVodeDky}.
+
+%--------------------------------------------------------------------
 \subsubsection{{\cvodes} Reinitialization Routine}\label{sss:cvreinit}
 \index{reinitialization}
 
-The function \ID{CVReInit} reinitializes the main {\cvodes} solver for
+The function \ID{CVodeReInit} reinitializes the main {\cvodes} solver for
 the solution of a problem, where a prior call to \Id{CVodeMalloc} has
-been made with the same problem size \id{N}. \id{CVReInit} performs the 
+been made with the same problem size \id{N}. \id{CVodeReInit} performs the 
 same input checking and initializations that \id{CVodeMalloc} does 
 (except for \id{N}), but does no memory allocation, assuming that the 
 existing internal memory is sufficient for the new problem.             
                                                                  
-The use of \id{CVReInit} requires that the maximum method order,    
+The use of \id{CVodeReInit} requires that the maximum method order,    
 \Id{maxord}, is no larger for the new problem than for the problem  
 specified in the last call to \id{CVodeMalloc}.  This condition is  
 automatically fulfilled if the multistep method parameter \id{lmm}  
 is unchanged (or changed from \Id{ADAMS} to \Id{BDF}) and the default    
 value for \id{maxord} is specified.                                 
                                                                  
-If \id{iter = }\Id{NEWTON}, then following the call to \id{CVReInit}, a call  
+If \id{iter = }\Id{NEWTON}, then following the call to \id{CVodeReInit}, a call  
 to the linear solver specification routine is necessary if a   
 different linear solver is chosen, but may not be otherwise.   
 If the same linear solver is chosen, and there are no changes  
@@ -923,19 +1010,19 @@ If the parameter changes do increase the linear solver memory
 size, then the main linear solver specification routine must be
 called (\S\ref{sss:lin_solv_init}).
 
-The call to the \id{CVReInit} function has the form
+The call to the \id{CVodeReInit} function has the form
 \begin{verbatim}
-ier = CVReInit(cvode_mem, f, t0, y0, lmm, iter, itol, &rtol, 
-               atol, f_data, errfp, optIn, iopt, ropt, machEnv);
+ier = CVodeReInit(cvode_mem, f, t0, y0, lmm, iter, itol, &rtol, 
+                  atol, f_data, errfp, optIn, iopt, ropt, machEnv);
 \end{verbatim}
 Its first argument, \id{cvode\_mem} is the pointer to the {\cvodes}
 memory returned by \id{CVodeMalloc}.
-All the remaining arguments to \id{CVReInit} have names and         
+All the remaining arguments to \id{CVodeReInit} have names and         
 meanings identical to those of \id{CVodeMalloc}.  Note that the     
-problem size \id{N} is not passed as an argument to \id{CVReInit},       
+problem size \id{N} is not passed as an argument to \id{CVodeReInit},       
 as that is assumed to be unchanged since the \id{CVodeMalloc} call. 
 
-The return value \id{ier} of \id{CVReInit} is equal to: 
+The return value \id{ier} of \id{CVodeReInit} is equal to: 
 \begin{itemize}
 \item \id{SUCCESS}=0 if there were no errors; 
 \item \id{CVREI\_NO\_MEM} if \id{cvode\_mem} was NULL;
@@ -950,13 +1037,39 @@ by \id{CVodeMalloc}, and so may be larger than would be computed for
 the new problem.
 
 %--------------------------------------------------------------------
+\subsubsection{Quadrature Reinitialization Routine}\label{sss:cvqreinit}
+
+The routine \ID{CVodeQuadReInit}, useful during the solution of a sequence of problems of 
+same size, reinitializes the quadrature related internal memory 
+and must follow a call to \Id{CVodeQuadMalloc} (and maybe a call to \id{CVodeReInit}). 
+The number \id{Nq} of quadratures is assumed to be unchanged since the call to 
+\Id{CVodeQuadMalloc}.
+
+The call to the \id{CVodeQuadReInit} function has the form
+\begin{verbatim}
+ier = CVodeQuadReInit(cvode_mem, fQ, errconQ, &rtolQ, atolQ, 
+                      fQ_data, machEnvQ);
+\end{verbatim}
+The arguments have names and meanings identical to those of \id{CVodeQuadMalloc}.
+
+The return value \id{ier} of \id{CVodeQuadReInit} is equal to: 
+\begin{itemize}
+\item \Id{SUCCESS}=0 if there were no errors; 
+\item \Id{QCVREI\_NO\_MEM} if \id{cvode\_mem} was NULL;
+\item \Id{QCVREI\_NO\_QUAD} if quadrature computation was not turned on
+      by a call to \id{CVodeQuadMalloc};
+\item \Id{QCVREI\_ILL\_INPUT} if an input argument was illegal;
+\end{itemize}
+In case of an error return, an error message is also printed.  
+
+%--------------------------------------------------------------------
 \subsubsection{Linear Solver Reinitialization Routines}\label{sss:lin_solv_reinit}
 \index{reinitialization}
 
 \index{CVODES@{\cvodes} linear solvers!reinitializing one|(} 
 Linear solver reinitialization routines reset the link between the main {\cvodes}
 integrator and the linear solver module. Such a routine must be called after a call
-to \Id{CVReInit} to solve another problem of the same size if there is a change
+to \Id{CVodeReInit} to solve another problem of the same size if there is a change
 in some of the linear solver parameters (such as the Jacobian data approximation
 routine or the user-defined data structure). Reinitialization routines exist for
 all but the {\cvdiag} linear solver.
@@ -969,7 +1082,7 @@ all but the {\cvdiag} linear solver.
   \index{CVDENSE@{\cvdense} linear solver!reinitialization|(}
   A call to the \ID{CVReInitDense} function resets the link between   
   the main {\cvodes} integrator and the {\cvdense} linear solver.       
-  After solving one problem using {\cvdense}, call \id{CVReInit} and then
+  After solving one problem using {\cvdense}, call \id{CVodeReInit} and then
   \id{CVReInitDense} to solve another problem of the same size, if    
   there is a change in the \id{CVDense} parameters \id{djac} or \id{jac\_data}.  
   If there is no change in parameters, it is not necessary to    
@@ -1000,7 +1113,7 @@ ier = CVReInitDense(cvode_mem, djac, jac_data);
   \index{CVBAND@{\cvband} linear solver!reinitialization|(}
   A call to the \ID{CVReInitBand} function resets the link between    
   the main {\cvodes} integrator and the {\cvband} linear solver.        
-  After solving one problem using {\cvband}, call \id{CVReInit} and then 
+  After solving one problem using {\cvband}, call \id{CVodeReInit} and then 
   \id{CVReInitBand} to solve another problem of the same size, if     
   there is a change in the \id{CVBand} parameters \id{bjac} or \id{jac\_data},   
   but no change in \id{mupper} or \id{mlower}.  If there is a change in    
@@ -1035,7 +1148,7 @@ ier = CVReInitBand(cvode_mem, mupper, mlower, bjac, jac_data);
   \index{CVSPGMR@{\cvspgmr} linear solver!reinitialization|(}
   A call to the \ID{CVReInitSpgmr} function resets the link between   
   the main {\cvodes} integrator and the {\cvspgmr} linear solver.       
-  After solving one problem using {\cvspgmr}, call \id{CVReInit} and then
+  After solving one problem using {\cvspgmr}, call \id{CVodeReInit} and then
   \id{CVReInitSpgmr} to solve another problem of the same size, if    
   there is a change in the \id{CVSpgmr} parameters \id{pretype}, \id{gstype},   
   \id{delt}, \id{precond}, \id{psolve}, \id{P\_data}, \id{jtimes}, or 
@@ -1083,13 +1196,12 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 
   The user must provide a function of type \ID{RhsFn} defined by
 \begin{verbatim}
-typedef void (*RhsFn)(integertype N, realtype t, N_Vector y, 
-                      N_Vector ydot, void *f_data);
+typedef void (*RhsFn)(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 \end{verbatim}
   to compute the right hand side of the ODE system.
   
-  This function takes as input the problem size \id{N}, the independent variable  
-  value \id{t}, and the dependent variable vector \id{y}.  It must store the    
+  This function takes as input the independent variable  
+  value \id{t} and the dependent variable vector \id{y}.  It must store the    
   result of $f(t,y)$ in the vector \id{ydot}.  The \id{y} and \id{ydot} arguments 
   are of type \id{N\_Vector}. Allocation of memory for \id{ydot} is handled within {\cvodes}.
   The \id{f\_data} parameter is the same as the \id{f\_data} parameter passed by 
@@ -1097,6 +1209,36 @@ typedef void (*RhsFn)(integertype N, realtype t, N_Vector y,
   the user's \id{f} function every time it is called.                                       
   A \id{RhsFn} function type does not have a return value.                        
   \index{right hand side function!initial value problem|)}
+%
+%--------------
+%
+\item {\em Quadrature right hand side}
+   \index{right hand side function|quadarture equations|(}
+   For integration of quadrature equations, the user must provide a function of
+   type \ID{QuadRhsFn} defined by
+\begin{verbatim}
+typedef void (*QuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot, 
+                          void *fQ_data);
+\end{verbatim}
+   to compute the right-hand side of these equations.
+
+   This function takes as input the independent variable value \id{t}
+   and the dependent variable vector \id{y}. It must store the
+   result of $fQ(t,y)$ in the vector \id{yQdot}. 
+   The \id{fQ\_data} parameter is the same as the \id{fQ\_data} parameter passed by 
+   the user to the \id{CVodeQuadMalloc} routine. This user-supplied pointer is passed to 
+   the user's \id{fQ} function every time it is called.
+   
+   Both \id{y} and \id{yQdot} arguments are of type \id{N\_Vector},
+   but they  typically all have different internal representations. It is the user's 
+   responsibility to access the vector data consistently (including the use of the 
+   correct accessor macros from each {\nvector} implementation). For the sake of 
+   computational efficiency, the vector kernels in the two {\nvector} implementations 
+   provided with {\cvodes} do not perform any consistency checking for their 
+   \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
+
+   A \id{QuadRhsFn} function type does not have a return value.
+   \index{right hand side function|quadarture equations|)}
 %
 %--------------
 %
@@ -1108,12 +1250,9 @@ typedef void (*RhsFn)(integertype N, realtype t, N_Vector y,
   (i.e. \Id{CVDense} is called in step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
   the user may provide a function of type \ID{CVDenseJacFn} defined by
 \begin{verbatim}
-typedef void (*CVDenseJacFn)(integertype N, DenseMat J, RhsFn f, 
-                             void *f_data, realtype t, N_Vector y, 
-                             N_Vector fy, N_Vector ewt, realtype h, 
-                             realtype uround, void *jac_data,
-                             long int *nfePtr, N_Vector vtemp1,
-                             N_Vector vtemp2, N_Vector vtemp3);
+typedef void (*CVDenseJacFn)(integertype N, DenseMat J, realtype t, 
+                             N_Vector y, N_Vector fy, void *jac_data,
+                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 \end{verbatim}
   to compute the dense Jacobian $J = \partial f / \partial y$ (or an approximation to it).
   
@@ -1142,13 +1281,9 @@ typedef void (*CVDenseJacFn)(integertype N, DenseMat J, RhsFn f,
   macros \id{DENSE\_ELEM} and \id{DENSE\_COL} are documented in
   \S\ref{ss:dense}.
   
-  Typically, a user-supplied Jacobian function \id{djac} would be
-  expected to access the arguments \id{N}, \id{t}, \id{y}, \id{J}, 
-  \id{f\_data}, and \id{jac\_data}, at most.  The remaining arguments 
-  would not typically be accessed, but appear in the call list because
-  they are needed by the function \id{CVDenseDQJac} that computes a
-  difference quotient approximation to $J$, when the user specifies that
-  option.
+  The arguments \id{tmp1}, \id{tmp2}, and \id{tmp3} are pointers to 
+  memory allocated for vectors of length N which can be used 
+  as temporary storage or work space.
   \index{Jacobian approximation routine!dense!user-supplied|)}
 %
 %--------------
@@ -1162,12 +1297,9 @@ typedef void (*CVDenseJacFn)(integertype N, DenseMat J, RhsFn f,
   the user may provide a function of type \ID{CVBandJacFn} defined by
 \begin{verbatim}
 typedef void (*CVBandJacFn)(integertype N, integertype mupper, 
-                            integertype mlower, BandMat J, RhsFn f, 
-                            void *f_data, realtype t, N_Vector y, 
-                            N_Vector fy, N_Vector ewt, realtype h, 
-                            realtype uround, void *jac_data, 
-                            long int *nfePtr, N_Vector vtemp1, 
-                            N_Vector vtemp2, N_Vector vtemp3); 
+                            integertype mlower, BandMat J, realtype t, 
+                            N_Vector y, N_Vector fy, void *jac_data,
+                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 \end{verbatim}
   to generate the banded Jacobian $J = \partial f / \partial y$ 
   (or a banded approximation to it).
@@ -1204,13 +1336,9 @@ typedef void (*CVBandJacFn)(integertype N, integertype mupper,
   accessor macros \id{BAND\_ELEM}, \id{BAND\_COL}, and
   \id{BAND\_COL\_ELEM} are documented in \S\ref{ss:band}.
   
-  Typically, a user-supplied Jacobian function \id{bjac} would be
-  expected to access the arguments \id{N}, \id{mupper}, \id{mlower},
-  \id{t}, \id{y}, \id{J}, \id{f\_data}, and \id{jac\_data}, at most.
-  The remaining arguments would not typically be accessed, but appear in
-  the call list because they are needed by the function \id{CVBandDQJac}
-  that computes a difference quotient approximation to $J$, when the
-  user specifies that option.
+  The arguments \id{tmp1}, \id{tmp2}, and \id{tmp3} are pointers to 
+  memory allocated for vectors of length N which can be used 
+  as temporary storage or work space.
   \index{Jacobian approximation routine!band!user-supplied|)}
 %
 %----------------
@@ -1223,12 +1351,9 @@ typedef void (*CVBandJacFn)(integertype N, integertype mupper,
   \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}) the user may provide a function
   of type \ID{CVSpgmrJtimesFn} in the form 
 \begin{verbatim}
-typedef int (*CVSpgmrJtimesFn)(integertype N, N_Vector v, N_Vector Jv,
-                               RhsFn f, void *f_data, realtype t, 
-                               N_Vector y, N_Vector fy,
-                               realtype vnrm, N_Vector ewt, realtype h, 
-                               realtype uround, void *jac_data,
-                               long int *nfePtr, N_Vector work);
+typedef int (*CVSpgmrJtimesFn)(N_Vector v, N_Vector Jv, realtype t,
+                               N_Vector y, N_Vector fy, void *jac_data,
+                               N_Vector work);
 \end{verbatim} 
   to compute the product $J v = (\partial f / \partial y) v$ (or an approximation to it).
   
@@ -1236,13 +1361,9 @@ typedef int (*CVSpgmrJtimesFn)(integertype N, N_Vector v, N_Vector Jv,
   with the result of the product between the Jacobian $J(t,y)$ at the
   point (\id{t},\id{y}) and the vector \id{v} of dimension \id{N}.
 
-  Typically, a user-supplied Jacobian-times-vector function \id{jtimes} would be
-  expected to access the arguments \id{N}, \id{v},
-  \id{t}, \id{y}, \id{Jv}, \id{f\_data}, and \id{jac\_data}, at most.
-  The remaining arguments would not typically be accessed, but appear in
-  the call list because they are needed by the function \id{CVSpgmrDQJtimes}
-  that computes a difference quotient approximation to $Jv$, when the
-  user specifies that option.
+  The argument \id{work} is a pointer to 
+  memory allocated for a vector of length N which can be used 
+  as temporary storage or work space.
 
   The value to be returned by the Jacobian times vector routine should be
   $0$ if successful. Any other return value will result in an unrecoverable
@@ -1261,7 +1382,7 @@ typedef int (*CVSpgmrJtimesFn)(integertype N, N_Vector v, N_Vector Jv,
   right preconditioner matrix.
   This function must be of type \ID{CVSpgmrPSolveFn} defined by
 \begin{verbatim}
-typedef int (*CVSpgmrPSolveFn)(integertype N, realtype t, N_Vector y, 
+typedef int (*CVSpgmrPSolveFn)(realtype t, N_Vector y, 
                             N_Vector fy, N_Vector vtemp, realtype gamma, 
                             N_Vector ewt, realtype delta, long int *nfePtr, 
                             N_Vector r, int lr, void *P_data, N_Vector z);
@@ -1269,8 +1390,6 @@ typedef int (*CVSpgmrPSolveFn)(integertype N, realtype t, N_Vector y,
   
   Its parameters are as follows:
   \begin{itemize}
-  \item 
-    \id{N} is the length of all vector arguments;
   \item 
     \id{t} is the current value of the independent variable;       
   \item 
@@ -1326,7 +1445,7 @@ typedef int (*CVSpgmrPSolveFn)(integertype N, realtype t, N_Vector y,
   be evaluated or preprocessed, then this needs to be done in a
   user-supplied {\C} function of type \ID{CVSpgmrPrecondFn} as defined by
 \begin{verbatim}
-typedef int (*CVSpgmrPrecondFn)(integertype N, realtype t, N_Vector y, 
+typedef int (*CVSpgmrPrecondFn)(realtype t, N_Vector y, 
                                 N_Vector fy, booleantype jok, 
                                 booleantype *jcurPtr, realtype gamma, 
                                 N_Vector ewt, realtype h, realtype uround, 
@@ -1359,8 +1478,6 @@ typedef int (*CVSpgmrPrecondFn)(integertype N, realtype t, N_Vector y,
   
   The arguments of a \id{CVSpgmrPrecondFn} are as follows:
   \begin{itemize}
-  \item 
-    \id{N} is the length of all vector arguments;
   \item 
     \id{t} is the current value of the independent variable;
   \item 
@@ -1458,7 +1575,7 @@ module and describes the sequence of calls in the user main program.
   \item \id{machEnv = M\_EnvInit\_Serial(N);} 
     to initialize the serial machine environment;
 
-  \item \id{cvode\_mem = CVodeMalloc(N, f, \ldots );}
+  \item \id{cvode\_mem = CVodeMalloc(f, \ldots );}
 
   \item \id{bp\_data = }\Id{CVBandPreAlloc}\id{(N, f, f\_data, mu, ml, cvode\_mem);}
 
@@ -1606,9 +1723,9 @@ The user's calling program should include the following elements:
   
 \item  \id{machEnv = M\_EnvInit\_Parallel(comm, Nlocal, N, argc, argv)};
 
-\item  \id{y = N\_VNew(N, machEnv)};
+\item  \id{y = N\_VNew(machEnv)};
 
-\item  \id{cvode\_mem = CVodeMaloc(N, f, \ldots )};
+\item  \id{cvode\_mem = CVodeMaloc(f, \ldots )};
 
 \item  \id{p\_data = }\Id{CVBBDAlloc}\id{(Nlocal, mudq, mldq, mukeep, mlkeep,}
   \newline\hspace*{1in}\id{dqrely, gloc, cfn, f\_data, cvode\_mem)};

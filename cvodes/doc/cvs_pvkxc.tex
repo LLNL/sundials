@@ -1,11 +1,9 @@
 \begin{verbatim}
 /************************************************************************
- *                                                                      *
  * File       : pvkx.c                                                  *
- * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman @ LLNL      *
- * Version of : 6 March 2002                                            *
- *----------------------------------------------------------------------*
- * Modified by R. Serban to work with new parallel nvector (6/3/2002)   *
+ * Programmers: S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and        *
+ *              Radu Serban  @LLNL                                      *
+ * Version of : 30 March 2003                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * An ODE system is generated from the following 2-species diurnal      *
@@ -46,14 +44,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"      /* definitions of realtype, integertype,           */
-                                /* booleantype, and consants TRUE, FALSE           */
-#include "cvodes.h"             /* main CVODE header file                          */
-#include "iterativ.h"           /* contains the enum for types of preconditioning  */
-#include "cvsspgmr.h"           /* use CVSPGMR linear solver each internal step    */
-#include "smalldense.h"         /* use generic DENSE solver in preconditioning     */
-#include "nvector_parallel.h"   /* definitions of type N_Vector, macro NV_DATA_P   */
-#include "sundialsmath.h"       /* contains SQR macro                              */
+#include "sundialstypes.h"    /* definitions of realtype, integertype,        */
+                              /* booleantype                                  */
+#include "cvodes.h"           /* main CVODE header file                       */
+#include "iterativ.h"         /* contains the enum for preconditioning types  */
+#include "cvsspgmr.h"         /* use CVSPGMR linear solver each internal step */
+#include "smalldense.h"       /* use generic DENSE solver in preconditioning  */
+#include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P*/
+#include "sundialsmath.h"     /* contains SQR macro                           */
 #include "mpi.h"
 
 
@@ -140,32 +138,33 @@ static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintOutput(integertype my_pe, MPI_Comm comm, long int iopt[],
                         realtype ropt[], N_Vector u, realtype t);
 static void PrintFinalStats(long int iopt[]);
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, 
-                  integertype isuby, integertype dsizex, integertype dsizey, 
+static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
+                  integertype isuby, integertype dsizex, integertype dsizey,
                   realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
                       integertype isubx, integertype isuby,
                       integertype dsizex, integertype dsizey,
                       realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-                      integertype dsizex, realtype uext[], realtype buffer[]);
-static void ucomm(integertype N, realtype t, N_Vector u, UserData data);
-static void fcalc(integertype N, realtype t, realtype udata[], realtype dudata[], 
-                  UserData data);
+static void BRecvWait(MPI_Request request[], integertype isubx,
+                      integertype isuby, integertype dsizex, realtype uext[],
+                      realtype buffer[]);
+static void ucomm(realtype t, N_Vector u, UserData data);
+static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data);
 
 /* Functions Called by the CVODE Solver */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data);
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu, 
-                   booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+static int Precond(realtype tn, N_Vector u, N_Vector fu,
+                   booleantype jok, booleantype *jcurPtr, realtype gamma,
+                   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
+                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   N_Vector vtemp3);
 
-static int PSolve(integertype N, realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta, 
-                  long int *nfePtr, N_Vector r, int lr, void *P_data, N_Vector z);
+static int PSolve(realtype tn, N_Vector u, N_Vector fu,
+                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
+                  long int *nfePtr, N_Vector r, int lr, void *P_data,
+                  N_Vector z);
 
 
 /***************************** Main Program ******************************/
@@ -217,13 +216,12 @@ int main(int argc, char *argv[])
 
   /* Allocate u, and set initial values and tolerances */ 
 
-  u = N_VNew(neq, machEnv);
+  u = N_VNew(machEnv);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
 /* Call CVodeMalloc to initialize CVODE: 
 
-     neq     is the problem size = number of equations
      f       is the user's right hand side function in u'=f(t,u)
      T0      is the initial time
      u       is the initial dependent variable vector
@@ -237,7 +235,7 @@ int main(int argc, char *argv[])
 
      A pointer to CVODE problem memory is returned and stored in cvode_mem.  */
 
-  cvode_mem = CVodeMalloc(neq, f, T0, u, BDF, NEWTON, SS, &reltol,
+  cvode_mem = CVodeMalloc(f, T0, u, BDF, NEWTON, SS, &reltol,
                           &abstol, data, NULL, FALSE, iopt, ropt, machEnv);
   if (cvode_mem == NULL) { printf("CVodeMalloc failed."); return(1); }
 
@@ -442,8 +440,8 @@ static void PrintFinalStats(long int iopt[])
  
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx, 
-                  integertype isuby, integertype dsizex, integertype dsizey, 
+static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
+                  integertype isuby, integertype dsizex, integertype dsizey,
                   realtype udata[])
 {
   int i, ly;
@@ -496,9 +494,9 @@ static void BSend(MPI_Comm comm, integertype my_pe, integertype isubx,
    2) request should have 4 entries, and should be passed in both calls also. */
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
-              integertype isubx, integertype isuby,
-              integertype dsizex, integertype dsizey,
-              realtype uext[], realtype buffer[])
+                      integertype isubx, integertype isuby,
+                      integertype dsizex, integertype dsizey,
+                      realtype uext[], realtype buffer[])
 {
   integertype offsetue;
   /* Have bufleft and bufright use the same buffer */
@@ -507,7 +505,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
     MPI_Irecv(&uext[NVARS], dsizex, PVEC_REAL_MPI_TYPE,
-                         my_pe-NPEX, 0, comm, &request[0]);
+                                         my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
@@ -537,8 +535,9 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], integertype my_pe,
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
 
-static void BRecvWait(MPI_Request request[], integertype isubx, integertype isuby,
-              integertype dsizex, realtype uext[], realtype buffer[])
+static void BRecvWait(MPI_Request request[], integertype isubx,
+                      integertype isuby, integertype dsizex, realtype uext[],
+                      realtype buffer[])
 {
   int i, ly;
   integertype dsizex2, offsetue, offsetbuf;
@@ -577,7 +576,7 @@ static void BRecvWait(MPI_Request request[], integertype isubx, integertype isub
       offsetbuf = ly*NVARS;
       offsetue = (ly+2)*dsizex2 - NVARS;
       for (i = 0; i < NVARS; i++)
-    uext[offsetue+i] = bufright[offsetbuf+i];
+        uext[offsetue+i] = bufright[offsetbuf+i];
     }
   }
 
@@ -586,7 +585,7 @@ static void BRecvWait(MPI_Request request[], integertype isubx, integertype isub
 /* ucomm routine.  This routine performs all communication 
    between processors of data needed to calculate f. */
 
-static void ucomm(integertype N, realtype t, N_Vector u, UserData data)
+static void ucomm(realtype t, N_Vector u, UserData data)
 {
 
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
@@ -625,8 +624,8 @@ static void ucomm(integertype N, realtype t, N_Vector u, UserData data)
    between processors of data needed to calculate f has already been done,
    and this data is in the work array uext. */
 
-static void fcalc(integertype N, realtype t, realtype udata[], realtype dudata[],
-                  UserData data)
+static void fcalc(realtype t, realtype udata[],
+                  realtype dudata[], UserData data)
 {
   realtype *uext;
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
@@ -770,7 +769,7 @@ static void fcalc(integertype N, realtype t, realtype udata[], realtype dudata[]
 /* f routine.  Evaluate f(t,y).  First call ucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to fcalc. */
 
-static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data)
+static void f(realtype t, N_Vector u, N_Vector udot,void *f_data)
 {
   realtype *udata, *dudata;
   UserData data;
@@ -782,22 +781,22 @@ static void f(integertype N, realtype t, N_Vector u, N_Vector udot, void *f_data
 
   /* Call ucomm to do inter-processor communication */
 
-  ucomm (N, t, u, data);
+  ucomm (t, u, data);
 
   /* Call fcalc to calculate all right-hand sides */
 
-  fcalc (N, t, udata, dudata, data);
+  fcalc (t, udata, dudata, data);
 
 }
 
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu, 
-                   booleantype jok, booleantype *jcurPtr, 
-                   realtype gamma, N_Vector ewt, realtype h,
-                   realtype uround, long int *nfePtr, void *P_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+static int Precond(realtype tn, N_Vector u, N_Vector fu,
+                   booleantype jok, booleantype *jcurPtr, realtype gamma,
+                   N_Vector ewt, realtype h, realtype uround, long int *nfePtr,
+                   void *P_data, N_Vector vtemp1, N_Vector vtemp2,
+                   N_Vector vtemp3)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
@@ -893,9 +892,9 @@ static int Precond(integertype N, realtype tn, N_Vector u, N_Vector fu,
 
 /* Preconditioner solve routine */
 
-static int PSolve(integertype N, realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta, 
-                  long int *nfePtr, N_Vector r, int lr, void *P_data, N_Vector z)
+static int PSolve(realtype tn, N_Vector u, N_Vector fu,
+                  N_Vector vtemp, realtype gamma, N_Vector ewt, realtype delta,
+                  long int *nfePtr, N_Vector r, int lr, void *P_data,N_Vector z)
 {
   realtype **(*P)[MYSUB];
   integertype nvmxsub, *(*pivot)[MYSUB];

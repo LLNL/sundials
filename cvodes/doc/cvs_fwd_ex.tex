@@ -155,14 +155,14 @@ The call to \id{CVodeSensMalloc} specifies the sensitivity solution method throu
 \id{sensi\-meth} (read from the command line arguments) as \id{SIMULTANEOUS}, 
 \id{STAGGERED}, or \id{STAGGERED1} and the error control strategy through \id{err\_con}
 (also read from the command line arguments) as either \id{FULL} or \id{PARTIAL}.
-The \id{ifS} parameter indicates the type of sensitivity right hand side function
-(\id{ALLSENS}, or \id{ONESENS} if the \id{STAGGERED1} approach was selected),
-while the first \id{NULL} parameter indicates that the {\cvodes} internal difference quotient 
-routines (\id{CVSensRhsDQ} or \id{CVSensRhsDQ1}, depending on the value of \id{ifS})
-should be used. The last two \id{NULL} parameters in the call to \id{CVodeSensMalloc}
+The \id{ifS = ONESENS} parameter indicates that the user-provided sensitivity right hand side
+routine \id{fS} computes the right hand side one sensitivity at a time. 
+The next two \id{NULL} parameters in the call to \id{CVodeSensMalloc}
 force {\cvodes} to set the relative and absolute
 tolerances \id{rtolS} and \id{atolS} for sensitivity variables based on the tolerances for 
 state variables and the scaling parameters \id{pbar} (see \S\ref{ss:fwd_sensi} for details).
+The last argument specifies that the structure \id{data} containing user-specified data
+should be passed to each call of \id{fS}.
 
 The return value of \id{CVodeSensMalloc} is an \id{int} flag. In case of failure
 (\id{flag != SUCCESS}), the main program prints an error message and stops execution.
@@ -183,7 +183,9 @@ to \id{N\_VFree}, \id{N\_VFree\_S}, \id{CVodeFree}, and \id{M\_EnvFree\_Serial}.
 The user-supplied functions \id{f} for the right hand side of the original ODEs and
 \id{Jac} for the system Jacobian are identical to those in \id{cvdx.c} with the 
 notable exeption that model parameters are extracted from the user-data structure
-\id{f\_data}, which must be first cast to the \id{UserData} type.
+\id{f\_data}, which must be first cast to the \id{UserData} type. The user-supplied
+function \id{fS} computes the sensitivity right hand side for the \id{iS}-th 
+sensitivity equation.
 \index{examples, forward sensitivity!serial sample program!explanation of|)}
 
 Sample outputs from \id{cvfdx}, for two different combinations of command line arguments, 

@@ -136,6 +136,11 @@ in an attempt to take minimum number of steps while satisfying the local
 error test. The order control can be (optionally) modified with an algorithm
 that attempts to detect limitations resulting from BDF stability properties.
 
+If the system of ODEs (\ref{e:ivp}) contains equations that are {\em pure quadratures}
+(i.e. the corresponding variables do not appear in the right hand side),
+{\cvodes} implements an efficient staggered algorithm for their treatment, by not
+including these varaibles in the solution of the nonlinear system (\ref{e:nonlinear}).
+
 %----------------------------------------
 \subsection{Forward Sensitivity Analysis}\label{ss:fwd_sensi}
 %----------------------------------------

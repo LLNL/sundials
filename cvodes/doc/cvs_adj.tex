@@ -111,6 +111,11 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   backward problems; for example, the forward problem could be solved
   with the {\cvdense} linear solver and the backward problem with {\cvspgmr};
 
+\item \label{i:quadB}
+  If additional quadrature equations must be evaluated , 
+  call \id{CVodeQuadMallocB}, a wrapper around \id{CVodeQuadMalloc},
+  to initialize and allocate memory for quadrature integration;
+
 \item \label{i:back_end}
   Call \Id{CVodeB}, a second wrapper around the {\cvodes} main integration
   routine \id{CVode}, to integrate the backward problem from \id{tB0}, 
@@ -208,7 +213,7 @@ if no check points were necessary there is no need for the second forward integr
 The routine \ID{CVodeMallocB} initializes and allocates memory for the backward
 problem. It has the following form
 \begin{verbatim}
-ier = CVodeMallocB(cvadj_mem, NB, fB, tB0, yB0, lmmB, iterB, itolB, &rtolB, 
+ier = CVodeMallocB(cvadj_mem, fB, tB0, yB0, lmmB, iterB, itolB, &rtolB, 
                    atolB, f_dataB, errfpB, optInB, ioptB, roptB, machEnvB);
 \end{verbatim}
 and is essentially a call to \id{CVodeMalloc} with some particularization for 
@@ -216,7 +221,7 @@ backward integration. First, \id{CVodeMallocB} takes as an argument
 \id{cvadj\_mem}, the memory pointer returned by \id{CVadjMalloc}.
 Secondly, the argument \id{fB}, the {\C} function to compute the right hand side 
 of the backward problem, must be of type \id{RhsFnB} and
-has the form \id{fB(NB, t, y, yB, yBdot, f\_dataB)} 
+has the form \id{fB(t, y, yB, yBdot, f\_dataB)} 
 (see \S\ref{ss:user_fct_adj} for details). 
 All other arguments are equivalent to those of \id{CVodeMalloc}. The argument
 \id{tB0} specifies the end point $t_1$ where final conditions are provided for
@@ -256,7 +261,7 @@ does not provide for a user-defined diagonal Jacobian approximation routine.
   In order to use the {\cvdense} solver for the backward problem, after the call to 
   \id{CVodeMallocB}, the calling program must make the call
 \begin{verbatim}
-ier = CVDenseB(cvadj_mem, djacB, jac_dataB);
+ier = CVDenseB(cvadj_mem, NB, djacB, jac_dataB);
 \end{verbatim}
   The argument \id{cvadj\_mem} is a pointer to the memory block
   returned by \id{CVadjMalloc}. The {\cvdense} solver routine for computing a
@@ -280,7 +285,7 @@ ier = CVDenseB(cvadj_mem, djacB, jac_dataB);
   In order to use the {\cvband} solver for the backward problem, after the call to 
   \id{CVodeMallocB}, the calling program must make the call
 \begin{verbatim}
-ier = CVBandB(cvadj_mem, mupperB, mlowerB, bjacB, jac_dataB);
+ier = CVBandB(cvadj_mem, NB, mupperB, mlowerB, bjacB, jac_dataB);
 \end{verbatim}  
   The \ID{CVBandB} argument \id{cvadj\_mem} is a pointer to the memory block
   returned by \id{CVadjMalloc}. The upper and lower bandwidths of the 
@@ -336,6 +341,23 @@ ier = CVSpgmrB(cvadj_mem, pretypeB, gstypeB, maxlB, deltB, PrecondB,
 
 \end{itemize}
 
+\subsubsection{Backward Quadrature Initialization Routine}\label{sss:cvodequadmallocb}
+
+The routine \ID{CVodeQuadMallocB} initializes and allocates memory for the backward
+integration of quadrature equations. It has the following form
+\begin{verbatim}
+ier = CVodeQuadMallocB(cvadj_mem, fQB, errconQB, &rtolQB, atolQB, 
+                       fQ_dataB, machEnvQB);
+\end{verbatim}
+and is essentially a call to \id{CVodeQuadMalloc} with some particularization for 
+backward integration. First, \id{CVodeQuadMallocB} takes as an argument 
+\id{cvadj\_mem}, the memory pointer returned by \id{CVadjMalloc}.
+Secondly, the argument \id{fQB}, the {\C} function to compute the right hand side 
+of the backward problem, must be of type \id{QuadRhsFnB} and
+has the form \id{fQB(t, y, yB, yQBdot, fQ\_dataB)} 
+(see \S\ref{ss:user_fct_adj} for details). 
+All other arguments are equivalent to those of \id{CVodeQuadMalloc}. 
+
 \subsubsection{Backward Integration Routine}\label{sss:cvodeb}
 
 The routine \ID{CVodeB} performs the integration of the backward problem
@@ -361,6 +383,18 @@ phase. If an error occurred, \id{CVodeB} prints an error message indicating whet
 the error occurred during the forward or the backward integration phase and returns 
 \id{ier} from \id{CVode} (see \S\ref{sss:cvode}).
 
+
+\subsubsection{Backward Quadrature Extraction Routine}
+
+To extract the values of the quadrature variables at the initial time,
+{\cvodes} provides a wrapper around the routine \ID{CVodeQuadExtract}
+(see \S\ref{sss:cvodequadextract}). The call to this routine has the form
+\begin{verbatim}
+ier = CVodeQuadExtractB(cvadj_mem, yQB);
+\end{verbatim}
+Possible return values for \id{CVodeQuadExtractB} are the same as for
+\id{CVodeQuadExtract}, except for \id{BAD\_T}.
+
 \subsubsection{Adjoint Sensitivity Deallocation Routine}\label{sss:cvadjfree}
 
 To free the \id{cvadj\_mem} memory block allocated by \id{CVadjMalloc}, the
@@ -377,30 +411,48 @@ value for \id{CVadjFree}.
 
 For the case when it is needed to solve several different backward problems 
 corresponding to the same original problem, {\cvodes} provides a mechanism 
-to reuse the existing check points. The function \ID{CVReInitB} reinitializes
+to reuse the existing check points. The function \ID{CVodeReInitB} reinitializes
 the {\cvodes} memory block for the backward problem, where a prior call to
 \Id{CVodeMallocB} has been made with the same problem size \id{NB}.
-\id{CVReInitB} performs the same input checking and initializations that 
-\id{CVodeMallocB} does (except for \id{NB}), but does no memory allocation, 
+\id{CVodeReInitB} performs the same input checking and initializations that 
+\id{CVodeMallocB} does, but does no memory allocation, 
 assuming that the existing internal memory is sufficient for the new problem. 
-Note that \id{CVReInitB} is essentially a wrapper around \id{CVReInit}
-and hence all details given for \id{CVReInit} in \S\ref{sss:cvreinit}
+Note that \id{CVReInitB} is essentially a wrapper around \id{CVodeReInit}
+and hence all details given for \id{CVodeReInit} in \S\ref{sss:cvreinit}
 apply.
 
-The call to the \id{CVReInitB} function has the form
+The call to the \id{CVodeReInitB} function has the form
 \begin{verbatim}
-ier = CVReInitB(cvadj_mem, fB, tB0, yB0, lmmB, iterB, itolB, &rtolB, 
-                atolB, f_dataB, errfpB, optInB, ioptB, roptB, machEnvB);
+ier = CVodeReInitB(cvadj_mem, fB, tB0, yB0, lmmB, iterB, itolB, &rtolB, 
+                   atolB, f_dataB, errfpB, optInB, ioptB, roptB, machEnvB);
 \end{verbatim}
 All its arguments  have names and meanings identical to those of \id{CVodeMallocB}.
-Note that the backward problem size \id{NB} is not passed as an argument to 
-\id{CVReInitB}, as that is assumed to be unchanged since the \id{CVodeMallocB} call.
+Note that the backward problem size \id{NB} is assumed to be unchanged since 
+the \id{CVodeMallocB} call.
 
-The return value \id{ier} of \id{CVReInitB} is  
+The return value \id{ier} of \id{CVodeReInitB} is  
 \id{SUCCESS}=0 if there were no errors,
 \id{CVBM\_NO\_MEM} if \id{cvadj\_mem} was NULL,
 \id{CVBM\_BAD\_TB0} if \id{tB0} has an illegal value,
-or any other error return value from \id{CVReInit} (see \S\ref{sss:cvreinit}).
+or any other error return value from \id{CVodeReInit} (see \S\ref{sss:cvreinit}).
+In case of an error return, an error message is also printed.  
+
+\subsubsection{Backward Quadrature Reinitialization Routine}\label{sss:cvodequadreinitb}
+
+The integratiojn of quadrature equations during the backward phase can be
+reinitialized by calling
+\begin{verbatim}
+ier = CVodeQuadReInitB(cvadj_mem, fQB, errconQB, &rtolQB, atolQB, 
+                       fQ_dataB, machEnvQB);
+\end{verbatim}
+All its arguments  have names and meanings identical to those of \id{CVodeQuadMallocB}.
+Note that the size of the vector of quadrature variables is assumed to 
+be unchanged since the \id{CVodeQuadMallocB} call.
+
+The return value \id{ier} of \id{CVodeQuadReInitB} is  
+\id{SUCCESS}=0 if there were no errors,
+\id{CVBM\_NO\_MEM} if \id{cvadj\_mem} was NULL, or
+\id{CVBM\_ILL\_INPUT} if an argument has an illegal value.
 In case of an error return, an error message is also printed.  
 
 \subsubsection{Check Point Listing Routine}
@@ -435,15 +487,14 @@ Type definitions for all these user-supplied routines are given below.
 
   The user must provide a function of type \ID{RhsFnB} defined by
 \begin{verbatim}
-typedef void (*RhsFnB)(integertype NB, realtype t, N_Vector y, 
-                       N_Vector yB, N_Vector yBdot, void *f_dataB);
+typedef void (*RhsFnB)(realtype t, N_Vector y, N_Vector yB, 
+                       N_Vector yBdot, void *f_dataB);
 \end{verbatim}
   to compute the right hand side of the backward problem ODE system.
-  This could be (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}), 
-  possibly with one or more quadrature ODEs appended.
+  This could be (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}).
 
-  This function takes as input the size \id{NB} of the backward problem, the 
-  independent variable value \id{t}, and the dependent variable vector \id{yB},
+  This function takes as input the 
+  independent variable value \id{t} and the dependent variable vector \id{yB},
   as well as the solution of the original IVP \id{y} at time \id{t}.  
   It must store the backward problem right hand side in the vector \id{yBdot}.  
   Allocation of memory for \id{yBdot} is handled within {\cvodes}.
@@ -465,6 +516,38 @@ typedef void (*RhsFnB)(integertype NB, realtype t, N_Vector y,
   \index{right hand side function!adjoint backward problem|)}
   \index{adjoint sensitivity analysis!right hand side evaluation|)}
 
+\item{\em Quadrature right hand side for the backward problem}
+  \index{right hand side function!quadrature backward problem|(}
+  \index{adjoint sensitivity analysis!quadrature evaluation|(}
+  The user must provide a function of type \ID{QuadRhsFnB} defined by
+\begin{verbatim}
+typedef void (*QuadRhsFnB)(realtype t, N_Vector y, N_Vector yB, 
+                           N_Vector yQBdot, void *fQ_dataB);
+\end{verbatim}
+  to compute the right hand side of the backward quadrature equations.
+
+  This function takes as input the 
+  independent variable value \id{t} and the dependent variable vector \id{yB},
+  as well as the solution of the original IVP \id{y} at time \id{t}.  
+  It must store the quadrature right hand side in the vector \id{yQBdot}.  
+  Allocation of memory for \id{yQBdot} is handled within {\cvodes}.
+  
+  The \id{y}, \id{yB}, and \id{yQBdot} arguments are all of type \id{N\_Vector},
+  but they  typically all have different internal representations. It is the user's 
+  responsibility to access the vector data consistently (including the use of the 
+  correct accessor macros from each {\nvector} implementation). For the sake of 
+  computational efficiency, the vector kernels in the two {\nvector} implementations 
+  provided with {\cvodes} do not perform any consistency checking for their 
+  \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
+
+  The \id{fQ\_dataB} parameter is the same as the \id{fQ\_dataB} parameter passed by 
+  the user to the \id{CVodeQuadMallocB} routine. This user-supplied pointer is passed to 
+  the user's \id{fQB} function every time it is called and can be the same as the 
+  \id{f\_data} pointer used for the forward problem.
+  A \id{QuadRhsFnB} function type does not have a return value.
+  \index{adjoint sensitivity analysis!quadrature evaluation|)}
+  \index{right hand side function!quadrature backward problem|)}
+
 \item {\em Jacobian information for the backward problem
     (direct method with dense Jacobian)}
   
@@ -473,12 +556,10 @@ typedef void (*RhsFnB)(integertype NB, realtype t, N_Vector y,
   of \S\ref{ss:skeleton_adj}), the user may provide a function of type \ID{CVDenseJacFnB} 
   defined by
 \begin{verbatim}
-typedef void (*CVDenseJacFnB)(integertype NB, DenseMat JB, RhsFnB fB, 
-                           void *f_dataB, realtype t, N_Vector y, 
-                           N_Vector yB, N_Vector fyB, N_Vector ewtB,
-                           realtype hB, realtype uroundB, void *jac_dataB,
-                           long int *nfePtrB, N_Vector vtemp1B,
-                           N_Vector vtemp2B, N_Vector vtemp3B);
+typedef void (*CVDenseJacFnB)(integertype nB, DenseMat JB, realtype t, 
+                              N_Vector y, N_Vector yB, N_Vector fyB,
+                              void *jac_dataB, N_Vector tmp1B,
+                              N_Vector tmp2B, N_Vector tmp3B);
 \end{verbatim}
   to compute the dense Jacobian of the backward problem (or an approximation
   to it). If the backward problem is the adjoint of the original IVP then
@@ -497,14 +578,6 @@ typedef void (*CVDenseJacFnB)(integertype NB, DenseMat JB, RhsFnB fB,
   accessing a \id{DenseMat} object as well as details on the rest of the 
   arguments of a function of type \id{CVDenseJacFnB}.
 
-  Typically, a user-supplied Jacobian function \id{djacB} would be
-  expected to access the arguments \id{NB}, \id{t}, \id{y}, \id{yB}, \id{JB}, 
-  \id{f\_dataB}, and \id{jac\_dataB}, at most. The remaining arguments 
-  would not typically be accessed, but appear in the call list because
-  they are needed by the function \id{CVDenseDQJac} that computes a
-  difference quotient dense Jacobian approximation, when the user specifies that
-  option.
-
 \item {\em Jacobian information for the backward problem
     (direct method with banded Jacobian)}
 
@@ -513,13 +586,12 @@ typedef void (*CVDenseJacFnB)(integertype NB, DenseMat JB, RhsFnB fB,
   of \S\ref{ss:skeleton_adj}), the user may provide a function of type \ID{CVBandJacFnB} 
   defined by
 \begin{verbatim}
-typedef void (*CVBandJacFnB)(integertype NB, integertype mupperB, 
-                             integertype mlowerB, BandMat JB, RhsFnB fB, 
-                             void *f_dataB, realtype t, N_Vector y, 
-                             N_Vector yB, N_Vector fyB, N_Vector ewtB, 
-                             realtype hB, realtype uroundB, void *jac_dataB, 
-                             long int *nfePtrB, N_Vector vtemp1B, 
-                             N_Vector vtemp2B, N_Vector vtemp3B);
+typedef void (*CVBandJacFnB)(integertype nB, integertype mupperB, 
+                             integertype mlowerB, BandMat JB,
+                             realtype t, N_Vector y, 
+                             N_Vector yB, N_Vector fyB,
+                             void *jac_dataB, N_Vector tmp1B, 
+                             N_Vector tmp2B, N_Vector tmp3B);
 \end{verbatim}
   to compute the banded Jacobian of the backward problem (or an approximation
   to it).
@@ -536,14 +608,6 @@ typedef void (*CVBandJacFnB)(integertype NB, integertype mupperB,
   of type \id{CVBandJacFnB} are given in \S\ref{ss:user_fct_sim} on page
   \pageref{p:bjac}.
 
-  Typically, a user-supplied Jacobian function \id{bjacB} would be
-  expected to access the arguments \id{NB}, \id{mupperb}, \id{mlowerB},
-  \id{t}, \id{y}, \id{yB}, \id{JB}, \id{f\_dataB}, and \id{jac\_dataB}, at most.
-  The remaining arguments would not typically be accessed, but appear in
-  the call list because they are needed by the function \id{CVBandDQJac}
-  that computes a difference quotient banded Jacobian approximation, when the
-  user specifies that option.
-
 \item {\em Jacobian information for the backward problem
     ({\spgmr} case)}
 
@@ -551,12 +615,9 @@ typedef void (*CVBandJacFnB)(integertype NB, integertype mupperB,
   \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}) the user may provide a function
   of type \ID{CVSpgmrJtimesFnB} in the form 
 \begin{verbatim}
-typedef int (*CVSpgmrJtimesFnB)(integertype NB, N_Vector vB, N_Vector JvB, 
-                                RhsFnB fB, void *f_dataB, realtype t, 
+typedef int (*CVSpgmrJtimesFnB)(N_Vector vB, N_Vector JvB, realtype t, 
                                 N_Vector y, N_Vector yB, N_Vector fyB,
-                                realtype vnrmB, N_Vector ewtB, realtype hB, 
-                                realtype uroundB, void *jac_dataB, 
-                                long int *nfePtrB, N_Vector workB);
+                                void *jac_dataB, N_Vector workB);
 \end{verbatim}
   to compute the action of the Jacobian on a given vector \id{vB} for
   the backward problem (or an approximation to it).
@@ -582,7 +643,7 @@ typedef int (*CVSpgmrJtimesFnB)(integertype NB, N_Vector vB, N_Vector JvB,
   $Pz = r$ where $P$ may be either a left or a right preconditioner matrix.
   This function must be of type \ID{CVSpgmrPSolveFnB} defined by
 \begin{verbatim}
-typedef int (*CVSpgmrPSolveFnB)(integertype NB, realtype t, N_Vector y, 
+typedef int (*CVSpgmrPSolveFnB)(realtype t, N_Vector y, 
                                 N_Vector yB, N_Vector fyB, 
                                 N_Vector vtempB,  realtype gammaB, 
                                 N_Vector ewtB, realtype deltaB, 
@@ -607,7 +668,7 @@ typedef int (*CVSpgmrPSolveFnB)(integertype NB, realtype t, N_Vector y,
   user-supplied {\C} function of type \ID{CVSpgmrPrecondFnB} 
   as defined by
 \begin{verbatim}
-typedef int (*CVSpgmrPrecondFnB)(integertype NB, realtype t, N_Vector y, 
+typedef int (*CVSpgmrPrecondFnB)(realtype t, N_Vector y, 
                              N_Vector yB, N_Vector fyB, booleantype jokB, 
                              booleantype *jcurPtrB, realtype gammaB,
                              N_Vector ewtB, realtype hB, realtype uroundB,
