@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-10-22 20:42:07 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-25 19:46:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -131,7 +131,7 @@
  * species index is = 0, x-index ix = i, and y-index jy = j.                
  */
 
-#define IJ_Vptr(vv,i,j) (&NV_Ith_S(vv, i*NUM_SPECIES + j*NSMX))
+#define IJ_Vptr(vv,i,j) (&NV_Ith_S(vv, (i)*NUM_SPECIES + (j)*NSMX))
 
 /* Type: UserData.  Contains problem constants, etc. */
 
