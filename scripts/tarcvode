@@ -202,6 +202,8 @@ then
     tar uf $filename sundials/cvode/examples/cvdemk.out
 
     tar uf $filename sundials/cvode/fcmix/fcvx_ser.mk
+    tar uf $filename sundials/cvode/fcmix/cvbandf.f
+    tar uf $filename sundials/cvode/fcmix/cvbandf.out
     tar uf $filename sundials/cvode/fcmix/cvdensef.f
     tar uf $filename sundials/cvode/fcmix/cvdensef.out
 fi
