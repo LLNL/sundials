@@ -1,19 +1,22 @@
-/*******************************************************************
- * File          : cvbbdpre.c                                      *
- * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
- *                 Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/cvodes/LICENSE                        *
- *-----------------------------------------------------------------*
- * This file contains implementations of routines for a            *
- * band-block-diagonal preconditioner, i.e. a block-diagonal       *
- * matrix with banded blocks, for use with CVODE, CVSpgmr, and     *
- * the parallel implementation of NVECTOR.                         *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.4 $
+ * $Date: 2004-04-03 01:10:53 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
+ *              Radu Serban @ LLNL                              
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California 
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvodes/LICENSE
+ * -----------------------------------------------------------------
+ * This file contains implementations of routines for a            
+ * band-block-diagonal preconditioner, i.e. a block-diagonal       
+ * matrix with banded blocks, for use with CVODE, CVSpgmr, and     
+ * the parallel implementation of NVECTOR.                         
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,13 +43,13 @@
 
 static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
                           booleantype jok, booleantype *jcurPtr, 
-                          realtype gamma, void *p_data, 
+                          realtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
                           N_Vector r, N_Vector z, 
                           realtype gamma, realtype delta,
-                          int lr, void *p_data, N_Vector tmp);
+                          int lr, void *bbd_data, N_Vector tmp);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
@@ -134,11 +137,11 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   return((void *)pdata);
 }
 
-int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
+int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 {
   int flag;
 
-  if ( p_data == NULL ) {
+  if ( bbd_data == NULL ) {
     fprintf(stdout, MSG_NO_PDATA);
     return(BBDP_NO_PDATA);
   } 
@@ -146,7 +149,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   flag = CVSpgmr(cvode_mem, pretype, maxl);
   if(flag != SUCCESS) return(flag);
 
-  flag = CVSpgmrSetPrecData(cvode_mem, p_data);
+  flag = CVSpgmrSetPrecData(cvode_mem, bbd_data);
   if(flag != SUCCESS) return(flag);
 
   flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBBDPrecSetup);
@@ -158,7 +161,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   return(SUCCESS);
 }
 
-int CVBBDPrecReInit(void *p_data, 
+int CVBBDPrecReInit(void *bbd_data, 
                     long int mudq, long int mldq, 
                     realtype dqrely, 
                     CVLocalFn gloc, CVCommFn cfn)
@@ -167,7 +170,7 @@ int CVBBDPrecReInit(void *p_data,
   CVodeMem cv_mem;
   long int Nlocal;
 
-  pdata = (CVBBDPrecData) p_data;
+  pdata = (CVBBDPrecData) bbd_data;
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Set pointers to gloc and cfn; load half-bandwidths */
@@ -186,12 +189,12 @@ int CVBBDPrecReInit(void *p_data,
   return(0);
 }
 
-void CVBBDPrecFree(void *p_data)
+void CVBBDPrecFree(void *bbd_data)
 {
   CVBBDPrecData pdata;
   
-  if ( p_data != NULL ) {
-    pdata = (CVBBDPrecData) p_data;
+  if ( bbd_data != NULL ) {
+    pdata = (CVBBDPrecData) bbd_data;
     BandFreeMat(pdata->savedJ);
     BandFreeMat(pdata->savedP);
     BandFreePiv(pdata->pivots);
@@ -199,48 +202,48 @@ void CVBBDPrecFree(void *p_data)
   }
 }
 
-int CVBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP)
+int CVBBDPrecGetIntWorkSpace(void *bbd_data, long int *leniwBBDP)
 {
   CVBBDPrecData pdata;
 
-  if ( p_data == NULL ) {
+  if ( bbd_data == NULL ) {
     fprintf(stdout, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 
-  pdata = (CVBBDPrecData) p_data;
+  pdata = (CVBBDPrecData) bbd_data;
 
   *leniwBBDP = pdata->ipwsize;
 
   return(OKAY);
 }
 
-int CVBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
+int CVBBDPrecGetRealWorkSpace(void *bbd_data, long int *lenrwBBDP)
 {
   CVBBDPrecData pdata;
 
-  if ( p_data == NULL ) {
+  if ( bbd_data == NULL ) {
     fprintf(stdout, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 
-  pdata = (CVBBDPrecData) p_data;
+  pdata = (CVBBDPrecData) bbd_data;
 
   *lenrwBBDP = pdata->rpwsize;
 
   return(OKAY);
 }
 
-int CVBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
+int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 {
   CVBBDPrecData pdata;
 
-  if ( p_data == NULL ) {
+  if ( bbd_data == NULL ) {
     fprintf(stdout, MSG_PDATA_NULL);
     return(BBDP_NO_PDATA);
   } 
 
-  pdata = (CVBBDPrecData) p_data;
+  pdata = (CVBBDPrecData) bbd_data;
 
   *ngevalsBBDP = pdata->nge;
 
@@ -304,7 +307,7 @@ int CVBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
  *                                                                *
  * gamma   is the scalar appearing in the Newton matrix.          *
  *                                                                *
- * p_data  is a pointer to user data - the same as the P_data     *
+ * bbd_data  is a pointer to user data - the same as the P_data   *
  *           parameter passed to CVSpgmr. For CVBBDPrecon, this   *
  *           should be of type CVBBDData.                         *
  *                                                                *
@@ -321,13 +324,13 @@ int CVBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 
 static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
                           booleantype jok, booleantype *jcurPtr, 
-                          realtype gamma, void *p_data, 
+                          realtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   long int ier;
   CVBBDPrecData pdata;
 
-  pdata = (CVBBDPrecData) p_data;
+  pdata = (CVBBDPrecData) bbd_data;
 
   if (jok) {
     /* If jok = TRUE, use saved copy of J */
@@ -366,7 +369,7 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
  *                                                                *
  * r      is the right-hand side vector of the linear system.     *
  *                                                                *
- * P_data is a pointer to the preconditioner data returned by     *
+ * bbd_data is a pointer to the preconditioner data returned by   *
  *        CVBBDPrecAlloc.                                         *
  *                                                                *
  * z      is the output vector computed by CVBBDPrecSolve.        *
@@ -378,12 +381,12 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
                           N_Vector r, N_Vector z, 
                           realtype gamma, realtype delta,
-                          int lr, void *p_data, N_Vector tmp)
+                          int lr, void *bbd_data, N_Vector tmp)
 {
   CVBBDPrecData pdata;
   realtype *zd;
 
-  pdata = (CVBBDPrecData) p_data;
+  pdata = (CVBBDPrecData) bbd_data;
 
   /* Copy r to z, then do backsolve and return */
   N_VScale(ONE, r, z);
