@@ -5238,12 +5238,12 @@ apply to {\nvecp}.
   \id{IER} is a completion flag and will be set to a positive value upon
   successful return or to a negative value if an error occurred. These values
   correspond to the \id{CVode} returns (see \S\ref{sss:cvode}) as follows:
-  $0$: \Id{SUCCESS}, $1$: \Id{TSTOP\_RETURN}, $2$: \Id{ROOT\_RETURN},
-  $-1$: \Id{CVODE\_NO\_MEM}, $-2$: \Id{CVODE\_NO\_MALLOC}, $-3$: \Id{ILL\_INPUT},
-  $-4$: \Id{TOO\_MUCH\_WORK}, $-5$: \Id{TOO\_MUCH\_ACC}, $-6$: \Id{ERR\_FAILURE},
-  $-7$: \Id{CONV\_FAILURE}, $-8$: \Id{SETUP\_FAILURE}, and $-9$: \Id{SOLVE\_FAILURE}
-  from \id{CVode} (see \S\ref{sss:cvode})   The current values of the optional
-  outputs are available in \id{IOPT} and \id{ROPT}.
+  $0$: \Id{CV\_SUCCESS}, $1$: \Id{CV\_TSTOP\_RETURN}, $2$: \Id{CV\_ROOT\_RETURN},
+  $-1$: \Id{CV\_MEM\_NULL}, $-2$: \Id{Cv\_ILL\_INPUT}, $-3$: \Id{CV\_NO\_MALLOC}
+  $-4$: \Id{CV\_TOO\_MUCH\_WORK}, $-5$: \Id{CV\_TOO\_MUCH\_ACC}, $-6$: \Id{CV\_ERR\_FAILURE},
+  $-7$: \Id{CV\_CONV\_FAILURE}, $-8$: \Id{CV\_LINIT\_FAIL}, $-9$: \Id{CV\_LSETUP\_FAIL}, 
+  and $-10$: \Id{CV\_LSOLVE\_FAIL} from \id{CVode} (see \S\ref{sss:cvode}).
+  The current values of the optional outputs are available in \id{IOPT} and \id{ROPT}.
   
 \item {\bf Additional solution output}
 
@@ -5323,7 +5323,7 @@ call must be made, after calling \id{FCVMALLOC} but prior to calling
 The arguments are as follows:
 \id{NRTFN} is the number of root functions.
 \id{IER} is a return completion flag; its values are $0$ for success, $-1$ 
-if the \id{CVODE} memory was \id{NULL}, and $-2$ if a memory allocation failed.
+if the \id{CVODE} memory was \id{NULL}, and $-11$ if a memory allocation failed.
 
 To specifiy the functions whose roots are to be found, the user must
 define the following routine:
@@ -5547,9 +5547,9 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   These may be smaller than \id{MUDQ} and \id{MLDQ}.
   \id{DQRELY} is the relative increment factor in $y$ for difference quotients
   (optional).  A value of $0.0$ indicates the default, $\sqrt{\text{unit roundoff}}$.
-  \id{IER} is a return completion flag.  A value of $0$ indicates success, a
-  value of $-1$ indicates that a memory failure occurred, and a value of $-2$
-  indicates an illegal input.
+  \id{IER} is a return completion flag.  A value of $0$ indicates success, while a
+  value of $-1$ indicates that a memory failure occurred or that an input had
+  an illegal value.
   
   To specify the {\spgmr} linear system solver and use the {\cvbbdpre}
   preconditioner, make the following call:
