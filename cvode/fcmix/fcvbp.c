@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-03-29 20:32:00 $
+ * $Revision: 1.3 $
+ * $Date: 2004-04-29 22:23:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -28,15 +28,16 @@ void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
 {
   /* 
      Call CVBandPrecAlloc to initialize the CVBANDPRE module:
-     *N          is the vector size
-     *mu, *ml    are the half-bandwidths of the retained preconditioner blocks
-     */
+     N      is the vector size
+     mu, ml are the half-bandwidths of the retained preconditioner blocks
+  */
 
   CVBP_Data = CVBandPrecAlloc(CV_cvodemem, *N, *mu, *ml);
-  if (CVBP_Data == NULL) { 
-    *ier = -1; 
-    return; 
-  }
+
+  if (CVBP_Data == NULL) *ier = -1; 
+  else                   *ier = 0;
+
+  return; 
 
 }
 
@@ -44,12 +45,14 @@ void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
 
 void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
-  /* Call CVBPSpgmr to specify the SPGMR linear solver:
+  /* 
+     Call CVBPSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block
-     *pretype    is the preconditioner type
-     *gstype     is the Gram-Schmidt process type
-     *maxl       is the maximum Krylov dimension
-     *delt       is the linear convergence tolerance factor */
+     pretype    is the preconditioner type
+     gstype     is the Gram-Schmidt process type
+     maxl       is the maximum Krylov dimension
+     delt       is the linear convergence tolerance factor 
+  */
 
   *ier = CVBPSpgmr(CV_cvodemem, *pretype, *maxl, CVBP_Data);
   if (*ier != 0) return;

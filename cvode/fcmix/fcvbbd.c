@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-03-29 20:32:00 $
+ * $Revision: 1.13 $
+ * $Date: 2004-04-29 22:23:21 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -35,20 +35,22 @@ void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
                  long int *mu, long int *ml, realtype* dqrely, int *ier)
 {
 
-  /* First call CVBBDPrecAlloc to initialize CVBBDPRE module:
-     *Nloc       is the local vector size
-     *mudq,*mldq are the half-bandwidths for computing preconditioner blocks
-     *mu, *ml    are the half-bandwidths of the retained preconditioner blocks
-     *dqrely     is the difference quotient relative increment factor
-     FCVgloc     is a pointer to the CVLocalFn function
-     FCVcfn      is a pointer to the CVCommFn function */
+  /* 
+     First call CVBBDPrecAlloc to initialize CVBBDPRE module:
+     Nloc       is the local vector size
+     mudq,mldq  are the half-bandwidths for computing preconditioner blocks
+     mu, ml     are the half-bandwidths of the retained preconditioner blocks
+     dqrely     is the difference quotient relative increment factor
+     FCVgloc    is a pointer to the CVLocalFn function
+     FCVcfn     is a pointer to the CVCommFn function 
+  */
 
   CVBBD_Data = CVBBDPrecAlloc(CV_cvodemem, *Nloc, *mudq, *mldq, *mu, *ml, 
                               *dqrely, FCVgloc, FCVcfn);
-  if (CVBBD_Data == NULL) { 
-    *ier = -1; 
-    return; 
-  }
+  if (CVBBD_Data == NULL) *ier = -1; 
+  else                    *ier = 0;
+
+  return; 
 
 }
 
@@ -56,12 +58,13 @@ void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
 
 void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
-  /* Call CVBBDSpgmr to specify the SPGMR linear solver:
-     CV_cvodemem is the pointer to the CVODE memory block
-     *pretype    is the preconditioner type
-     *gstype     is the Gram-Schmidt process type
-     *maxl       is the maximum Krylov dimension
-     *delt       is the linear convergence tolerance factor */
+  /* 
+     Call CVBBDSpgmr to specify the SPGMR linear solver:
+     pretype    is the preconditioner type
+     gstype     is the Gram-Schmidt process type
+     maxl       is the maximum Krylov dimension
+     delt       is the linear convergence tolerance factor 
+  */
 
   *ier = CVBBDSpgmr(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
   if (*ier != 0) return;
@@ -81,12 +84,14 @@ void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier
 void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, 
                    realtype* dqrely, int *ier)
 {
-  /* First call CVReInitBBD to re-initialize CVBBDPRE module:
+  /* 
+     First call CVReInitBBD to re-initialize CVBBDPRE module:
      CVBBD_Data  is the pointer to P_data
-     *mudq,*mldq are the half-bandwidths for computing preconditioner blocks
-     *dqrely     is the difference quotient relative increment factor
+     mudq,mldq   are the half-bandwidths for computing preconditioner blocks
+     dqrely      is the difference quotient relative increment factor
      FCVgloc     is a pointer to the CVLocalFn function
-     FCVcfn      is a pointer to the CVCommFn function */
+     FCVcfn      is a pointer to the CVCommFn function 
+  */
 
   *ier = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq,
                          *dqrely, FCVgloc, FCVcfn);

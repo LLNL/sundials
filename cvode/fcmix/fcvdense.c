@@ -1,13 +1,19 @@
-/******************************************************************
- * File          : fcvdense.c                                     *
- * Programmers   : Radu Serban  and Alan Hindmarsh@ LLNL          *
- * Version of    : 07 February 2004                               *
- *----------------------------------------------------------------*
- *                                                                *
- * Fortran/C interface routines for CVODE/CVDENSE, for the case   *
- * of a user-supplied Jacobian approximation routine.             *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.4 $
+ * $Date: 2004-04-29 22:23:21 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvode/LICENSE
+ * -----------------------------------------------------------------
+ * Fortran/C interface routines for CVODE/CVDENSE, for the case   
+ * of a user-supplied Jacobian approximation routine.            
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

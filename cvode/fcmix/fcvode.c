@@ -1,14 +1,22 @@
-/******************************************************************
- * File          : fcvode.c                                       *
- * Programmers   : Alan C. Hindmarsh and Radu Serban @ LLNL       *
- * Version of    : 07 February 2004                               *
- *----------------------------------------------------------------*
- * This is the implementation file for the Fortran interface to   *
- * the CVODE package.  See fcvode.h for usage.                    *
- * NOTE: some routines are necessarily stored elsewhere to avoid  *
- * linking problems.  Therefore, see also fcvpreco.c, fcvpsol.c,  *
- * fcvjtimes.c, and fcvspgmr.c for all the options available.     *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.17 $
+ * $Date: 2004-04-29 22:23:21 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/cvode/LICENSE
+ * -----------------------------------------------------------------
+ * This is the implementation file for the Fortran interface to   
+ * the CVODE package.  See fcvode.h for usage.                    
+ * NOTE: some routines are necessarily stored elsewhere to avoid  
+ * linking problems.  Therefore, see also fcvpreco.c, fcvpsol.c,  
+ * fcvjtimes.c, and fcvspgmr.c for all the options available.    
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +55,8 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     { atolvec = N_VMake(atol, F2C_nvspec);
       itol = SV; atolptr = atolvec; }
 
-  /* Call CVodeCreate, CVodeSet*, and CVodeMalloc to initialize CVODE: 
+  /* 
+     Call CVodeCreate, CVodeSet*, and CVodeMalloc to initialize CVODE: 
      lmm     is the method specifier
      iter    is the iteration method specifier
      CVf     is the user's right-hand side function in y'=f(t,y)
@@ -58,8 +67,8 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
      atolptr is the absolute tolerance pointer (to scalar or vector)
      F2C_nvspec is the pointer to the vector specification
 
-     A pointer to CVODE problem memory is createded and stored in CV_cvodemem. */
-
+     A pointer to CVODE problem memory is createded and stored in CV_cvodemem. 
+  */
 
   *ier = 0;
 
@@ -113,15 +122,16 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     { atolvec = N_VMake(atol, F2C_nvspec);
       itol = SV; atolptr = atolvec; }
 
-  /* Call CVodeSet* and CVReInit to re-initialize CVODE: 
-     CV_cvodemem is the pointer to the CVODE memory block
+  /* 
+     Call CVodeSet* and CVReInit to re-initialize CVODE: 
      CVf     is the user's right-hand side function in y'=f(t,y)
-     *t0     is the initial time
+     t0      is the initial time
      CV_yvec is the initial dependent variable vector
      itol    specifies tolerance type
      rtol    is a pointer to the scalar relative tolerance
      atolptr is the absolute tolerance pointer (to scalar or vector)
-     F2C_nvspec is the pointer to the vector specification */
+     F2C_nvspec is the pointer to the vector specification 
+  */
 
   if (*optin == 1) {
     if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, (int)iopt[0]);
@@ -152,8 +162,6 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
 
 void FCV_DIAG(int *ier)
 {
-  /* Call CVDiag:
-     CV_cvodemem is the pointer to the CVODE memory block  */
 
   *ier = CVDiag(CV_cvodemem);
 
@@ -164,9 +172,9 @@ void FCV_DIAG(int *ier)
 
 void FCV_DENSE(long int *neq, int *ier)
 {
-  /* Call CVDense:
-     *neq        is the problem size
-     CV_cvodemem is the pointer to the CVODE memory block */
+  /* 
+     neq  is the problem size
+  */
 
   *ier = CVDense(CV_cvodemem, *neq);
 
@@ -177,11 +185,11 @@ void FCV_DENSE(long int *neq, int *ier)
 
 void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 {
-  /* Call CVBand:
-     CV_cvodemem is the pointer to the CVODE memory block 
-     *neq        is the problem size
-     *mupper     is the upper bandwidth
-     *mlower     is the lower bandwidth */
+  /* 
+     neq        is the problem size
+     mupper     is the upper bandwidth
+     mlower     is the lower bandwidth 
+  */
 
   *ier = CVBand(CV_cvodemem, *neq, *mupper, *mlower);
 
@@ -192,12 +200,12 @@ void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 
 void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
-  /* Call CVSpgmr to specify the SPGMR linear solver:
-     CV_cvodemem is the pointer to the CVODE memory block
-     0           is the preconditioner type (none)
-     *maxl       is the maximum Krylov dimension
-     *gstype     is the Gram-Schmidt process type
-     *delt       is the linear convergence tolerance factor */
+  /* 
+     pretype    the preconditioner type
+     maxl       the maximum Krylov dimension
+     gstype     the Gram-Schmidt process type
+     delt       the linear convergence tolerance factor 
+  */
 
   *ier = CVSpgmr(CV_cvodemem, *pretype, *maxl);
   if (*ier != 0) return;
@@ -216,9 +224,11 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 
 void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
 {
-  /* Call CVSpgmrSet* to specify 
-     *gstype     is the Gram-Schmidt process type
-     *delt       is the linear convergence tolerance factor */
+  /* 
+     pretype    the preconditioner type
+     gstype     the Gram-Schmidt process type
+     delt       the linear convergence tolerance factor 
+  */
 
   *ier = CVSpgmrResetPrecType(CV_cvodemem, *pretype);
   if (*ier != 0) return;
@@ -241,13 +251,13 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   int qu, qcur;
   realtype h0u;
 
-  /* Call CVode:
-     CV_cvodemem is the pointer to the CVODE memory block
-     *tout       is the t value where output is desired
-     CV_yvec     is the N_Vector containing the solution on return
-     t           is the returned independent variable value
-     *itask      is the task indicator (NORMAL, ONE_STEP, 
-                                   NORMAL_TSTOP, ONE_STEP_TSTOP) */
+  /* 
+     tout      is the t value where output is desired
+     CV_yvec   is the N_Vector containing the solution on return
+     t         is the returned independent variable value
+     itask     is the task indicator (1=NORMAL, 2=ONE_STEP, 
+                                      3=NORMAL_TSTOP, 4=ONE_STEP_TSTOP) 
+  */
 
   *ier = CVode(CV_cvodemem, *tout, CV_yvec, t, *itask);
   y = N_VGetData(CV_yvec);
@@ -313,11 +323,11 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 
 void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 {
-  /* Call CVodeDky:
-     CV_cvodemem is the pointer to the CVODE memory block
-     *t          is the t value where output is desired
-     *k          is the derivative order
-     CV_yvec     is the N_Vector containing the solution derivative on return */
+  /* 
+     t        is the t value where output is desired
+     k        is the derivative order
+     CV_yvec  is the N_Vector containing the solution derivative on return 
+  */
 
   *ier = CVodeGetDky(CV_cvodemem, *t, *k, CV_yvec);
 
@@ -329,18 +339,18 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 
 void FCV_FREE ()
 {
-  /* Call CVodeFree:
-     CV_cvodemem is the pointer to the CVODE memory block */
 
   CVodeFree(CV_cvodemem);
 }
 
 /***************************************************************************/
 
-/* C function CVf to interface between CVODE and a Fortran subroutine CVFUN.
+/* 
+   C function CVf to interface between CVODE and a Fortran subroutine CVFUN.
    Addresses of t, y, and ydot are passed to CVFUN, using the
    routine N_VGetData from the NVECTOR module.
-   Auxiliary data is assumed to be communicated by Common. */
+   Auxiliary data is assumed to be communicated by Common. 
+*/
 
 void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
