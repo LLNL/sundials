@@ -35,7 +35,6 @@ AC_CONFIG_AUX_DIR(config)
 if test -z "${host}"; then
    AC_CANONICAL_BUILD
    AC_CANONICAL_HOST
-   AC_CANONICAL_TARGET
 fi
 
 # Overwrite the default installation path
@@ -476,34 +475,62 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
 
   # Test if we can use MPI
 
-  if test "X${USE_MPI_COMPILERS}" = "Xyes"; then
-
+  if test "X${USE_MPICC}" = "Xyes"; then
     SUNDIALS_CHECK_MPICC
-
-    if test "X${CXX_ENABLED}" = "Xyes"; then
-      SUNDIALS_CHECK_MPICXX
-    fi
-
-    if test "X${F77_EXAMPLES}" = "Xyes"; then
-      SUNDIALS_CHECK_MPIF77
-    fi
-
   else
-
     MPICC=${CC}
     SUNDIALS_CHECK_CC_WITH_MPI
+  fi
 
-    if test "X${CXX_ENABLED}" = "Xyes"; then
+
+  if test "X${CXX_ENABLED}" = "Xyes"; then
+    if test "X${USE_MPICXX}" = "Xyes"; then
+      SUNDIALS_CHECK_MPICXX
+    else
       MPICXX=${CXX}
       SUNDIALS_CHECK_CXX_WITH_MPI
     fi
+  fi
 
-    if test "X${F77_EXAMPLES}" = "Xyes"; then
+  if test "X${F77_EXAMPLES}" = "Xyes"; then
+    if test "X${USE_MPIF77}" = "Xyes"; then
+      SUNDIALS_CHECK_MPIF77
+    else
       MPIF77=${F77}
       SUNDIALS_CHECK_F77_WITH_MPI
     fi
-
   fi
+
+
+
+#  if test "X${USE_MPI_COMPILERS}" = "Xyes"; then
+#
+#    SUNDIALS_CHECK_MPICC
+#
+#    if test "X${CXX_ENABLED}" = "Xyes"; then
+#      SUNDIALS_CHECK_MPICXX
+#    fi
+#
+#    if test "X${F77_EXAMPLES}" = "Xyes"; then
+#      SUNDIALS_CHECK_MPIF77
+#    fi
+#
+#  else
+#
+#    MPICC=${CC}
+#    SUNDIALS_CHECK_CC_WITH_MPI
+#
+#    if test "X${CXX_ENABLED}" = "Xyes"; then
+#      MPICXX=${CXX}
+#      SUNDIALS_CHECK_CXX_WITH_MPI
+#    fi
+#
+#    if test "X${F77_EXAMPLES}" = "Xyes"; then
+#      MPIF77=${F77}
+#      SUNDIALS_CHECK_F77_WITH_MPI
+#    fi
+#
+#  fi
 
 fi
 
@@ -662,10 +689,7 @@ fi
 
 if test "X${MPICC_OK}" = "Xyes"; then
 echo "  
-  MPICC:                      $MPICC
-  MPI include directory:      $MPIINC
-  MPI lib directory:          $MPILIBDIR
-  MPI libraries               $MPILIBS"
+  MPICC:                      $MPICC"
 fi
 
 if test "X${MPICXX_OK}" = "Xyes"; then
@@ -676,6 +700,13 @@ fi
 if test "X${MPIF77_OK}" = "Xyes"; then
 echo "  
   MPIF77:                     $MPIF77"
+fi
+
+if test "X${MPICC_OK}" = "Xyes"; then
+echo "
+  MPI include directory:      $MPIINC
+  MPI lib directory:          $MPILIBDIR
+  MPI libraries               $MPILIBS"
 fi
 
 echo "  

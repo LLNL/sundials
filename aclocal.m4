@@ -6,7 +6,7 @@
 AC_DEFUN(SUNDIALS_PROG_CFLAGS,
 [
 
-  case $target in 
+  case $host in 
 
     # Linux
     i686-pc-linux-gnu)
@@ -25,7 +25,7 @@ AC_DEFUN(SUNDIALS_PROG_CFLAGS,
 
 AC_DEFUN(SUNDIALS_PROG_CXXFLAGS,
 [
-  case $target in 
+  case $host in 
 
     # Linux
     i686-pc-linux-gnu)
@@ -42,7 +42,7 @@ AC_DEFUN(SUNDIALS_PROG_CXXFLAGS,
 
 AC_DEFUN(SUNDIALS_PROG_FFLAGS,
 [
-  case $target in
+  case $host in
 
     # SGI/IRIX
     mips-sgi-irix* ) 
@@ -226,87 +226,60 @@ AC_DEFUN(SUNDIALS_MPI_SPECIFY,
   # MPI compilers
   # -------------
 
-#  AC_ARG_WITH(mpi-comp,
-#  [AC_HELP_STRING([--with-mpi-comp[[[[=DIR]]]]],
-#                  [use MPI compiler scripts from DIR [$PATH]],
-#                  [                                ])],
-#  [
-#    if test "X${withval}" != "Xno"; then
-#      USE_MPI_COMPILERS=yes
-#      if test "X${withval}" = "Xyes"; then
-#        MPI_CC=mpicc
-#        MPI_F77=mpif77
-#        MPI_CXX=mpiCC
-#      else
-#        MPI_CC=${withval}/mpicc
-#        MPI_F77=${withval}/mpif77
-#        MPI_TEMP_CXX=${withval}/mpicxx
-#        if test -f ${MPI_TEMP_CXX}; then
-#          MPI_CXX=${MPI_TEMP_CXX}
-#        else
-#          MPI_CXX=${withval}/mpiCC
-#        fi
-#      fi
-#    else
-#      USE_MPI_COMPILERS=no
-#    fi
-#  ],
-#  [
-#    USE_MPI_COMPILERS=yes
-#    MPI_CC=mpicc
-#    MPI_F77=mpif77
-#    MPI_CXX=mpiCC
-#  ])
-
   AC_ARG_WITH(mpicc,
-  [AC_HELP_STRING([--with-mpicc],[specify MPI C compiler to use],
-                  [])],
+  [AC_HELP_STRING([--with-mpicc[[[[=ARG]]]]],[specify MPI C compiler to use @<:@mpicc@:>@],
+                  [                                ])],
   [
     if [ test "X${withval}" != "Xno" ]; then
-      USE_MPI_COMPILERS="yes"
+      USE_MPICC="yes"
       MPI_CC="${withval}"
+    else
+      USE_MPICC="no"
     fi
   ],
   [
-    USE_MPI_COMPILERS="yes"
+    USE_MPICC="yes"
     MPI_CC="mpicc"
   ])
 
-  AC_ARG_WITH(mpiCC,
-  [AC_HELP_STRING([--with-mpiCC],[specify MPI C++ compiler to use],
-                  [])],
+  AC_ARG_WITH(mpicxx,
+  [AC_HELP_STRING([--with-mpicxx[[[[=ARG]]]]],[specify MPI C++ compiler to use @<:@mpiCC@:>@],
+                  [                                ])],
   [
     if [ test "X${withval}" != "Xno" ]; then
-      USE_MPI_COMPILERS="yes"
+      USE_MPICXX="yes"
       MPI_CXX="${withval}"
+    else
+      USE_MPICXX="no"
     fi
   ],
   [
-    USE_MPI_COMPILERS="yes"
+    USE_MPICXX="yes"
     MPI_CXX="mpiCC"
   ])
 
   AC_ARG_WITH(mpif77,
-  [AC_HELP_STRING([--with-mpif77],[specify MPI Fortran compiler to use],
-                  [])],
+  [AC_HELP_STRING([--with-mpif77[[[[=ARG]]]]],[specify MPI Fortran compiler to use @<:@mpif77@:>@],
+                  [                                ])],
   [
     if [ test "X${withval}" != "Xno" ]; then
-      USE_MPI_COMPILERS="yes"
+      USE_MPIF77="yes"
       MPI_F77="${withval}"
+    else
+      USE_MPIF77="no"
     fi
   ],
   [
-    USE_MPI_COMPILERS="yes"
+    USE_MPIF77="yes"
     MPI_F77="mpif77"
   ])
 
   # MPI root directory
   # ------------------
 
-  AC_ARG_WITH(mpi,
+  AC_ARG_WITH(mpi-root,
   [AC_HELP_STRING([--with-mpi-root=MPIROOT],[use MPI root directory])],
   [
-    USE_MPI_COMPILERS=no
     MPI_DIR=${withval}
     AC_MSG_CHECKING(MPI directory)
     AC_MSG_RESULT([${MPI_DIR}])
@@ -318,7 +291,6 @@ AC_DEFUN(SUNDIALS_MPI_SPECIFY,
   AC_ARG_WITH(mpi-incdir,
   [AC_HELP_STRING([--with-mpi-incdir=DIR],[MPI include directory @<:@MPIROOT/include@:>@])],
   [
-    USE_MPI_COMPILERS=no
     MPI_INC=${withval}
     AC_MSG_CHECKING(user-defined MPI includes)
     AC_MSG_RESULT([${MPI_INC}])
@@ -330,7 +302,6 @@ AC_DEFUN(SUNDIALS_MPI_SPECIFY,
   AC_ARG_WITH(mpi-libdir,
   [AC_HELP_STRING([--with-mpi-libdir=DIR],[MPI library directory @<:@MPIROOT/lib@:>@])],
   [
-    USE_MPI_COMPILERS=no
     MPI_LIBDIR=${withval}
     AC_MSG_CHECKING(user-defined MPI library directory)
     AC_MSG_RESULT([${MPI_LIBDIR}])
@@ -342,7 +313,6 @@ AC_DEFUN(SUNDIALS_MPI_SPECIFY,
   AC_ARG_WITH(mpi-libs,
   [AC_HELP_STRING([--with-mpi-libs],[MPI libraries @<:@"-lmpi"@:>@])],
   [ 
-    USE_MPI_COMPILERS=no
     MPI_LIBS=${withval}
     AC_MSG_CHECKING(user-defined MPI libraries)
     AC_MSG_RESULT([${MPI_LIBS}])
@@ -360,8 +330,12 @@ AC_DEFUN(SUNDIALS_CHECK_MPICC,
 
 # Test the MPICC compiler
 
-TEMP_MPI_CC=`basename "${MPI_CC}"`
-AC_CHECK_PROG(MPI_CC_EXISTS, ${TEMP_MPI_CC}, yes, no)
+if test -x ${MPI_CC}; then
+  MPI_CC_EXISTS=yes
+else
+  TEMP_MPI_CC=`basename "${MPI_CC}"`
+  AC_CHECK_PROG(MPI_CC_EXISTS, ${TEMP_MPI_CC}, yes, no)
+fi
 
 if test "X${MPI_CC_EXISTS}" = "Xyes"; then
   MPICC_OK=yes
@@ -371,7 +345,7 @@ else
   AC_MSG_WARN([MPI C compiler (${MPI_CC}) not found.])
   echo "
        Cannot find a working MPI C compiler.
-       Try --with-mpi-comp to specify MPI C compiler script.
+       Try --with-mpicc to specify MPI C compiler script.
        Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
        to specify all the specific MPI compile options.
 
@@ -388,8 +362,12 @@ AC_DEFUN(SUNDIALS_CHECK_MPICXX,
 
 # Test the MPICXX compiler
 
-TEMP_MPI_CXX=`basename "${MPI_CXX}"`
-AC_CHECK_PROG(MPI_MPICXX_EXISTS, ${TEMP_MPI_CXX}, yes, no)
+if test -x ${MPI_CXX}; then
+  MPI_CXX_EXISTS=yes
+else 
+  TEMP_MPI_CXX=`basename "${MPI_CXX}"`
+  AC_CHECK_PROG(MPI_CXX_EXISTS, ${TEMP_MPI_CXX}, yes, no)
+fi
 
 if test "X${MPI_CXX_EXISTS}" = "Xyes"; then
   MPICXX_OK=yes
@@ -399,7 +377,7 @@ else
   AC_MSG_WARN([MPI C++ compiler (${MPI_CXX}) not found.])
   echo "
        Cannot find a working MPI C++ compiler.
-       Try --with-mpiCC to specify a MPI C++ compiler script.
+       Try --with-mpicxx to specify a MPI C++ compiler script.
        Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
        to specify all the specific MPI compile options.
 
@@ -415,9 +393,12 @@ AC_DEFUN(SUNDIALS_CHECK_MPIF77,
 [
 
 # Test the MPIF77 compiler
-
-TEMP_MPI_F77=`basename "${MPI_F77}"`
-AC_CHECK_PROG(MPI_F77_EXISTS, ${TEMP_MPI_F77}, yes, no)
+if test -x ${MPI_F77}; then
+  MPI_F77_EXISTS=yes
+else
+  TEMP_MPI_F77=`basename "${MPI_F77}"`
+  AC_CHECK_PROG(MPI_F77_EXISTS, ${TEMP_MPI_F77}, yes, no)
+fi
 
 if test "X${MPI_F77_EXISTS}" = "Xyes"; then
   MPIF77_OK=yes
@@ -560,7 +541,7 @@ AC_LINK_IFELSE(
     AC_MSG_WARN([MPI cannot link with ${CXX}])
     echo "
          Cannot build a simple MPI program.
-         Try --with-mpiCC to specify MPI C++ compiler script.
+         Try --with-mpicxx to specify MPI C++ compiler script.
          Or try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir
          to specify all the specific MPI compile options.
 
