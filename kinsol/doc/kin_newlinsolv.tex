@@ -1,8 +1,8 @@
 %===================================================================================
 \chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
-The central {\kinsol} module interfaces with the linear solver module to be
-used by way of calls to four routines.  These are denoted here by 
+The central {\kinsol} module interfaces with the linear solver module 
+by way of calls to four routines.  These are denoted here by 
 \id{linit}, \id{lsetup}, \id{lsolve}, and \id{lfree}.
 Briefly, their purposes are as follows:
 \begin{itemize}
@@ -13,7 +13,7 @@ Briefly, their purposes are as follows:
 \item \id{lfree}: free the linear solver memory.
 \end{itemize}
 A linear solver module must also provide a user-callable specification routine
-(like that described in \S\ref{ss:lin_solv_init} for {\kinspgmr}) which will atach 
+(like that described in \S\ref{ss:lin_solv_init} for {\kinspgmr}) which will attach 
 the above four routines to the main {\kinsol} memory block. 
 Note that of the four interface routines, only the \id{lsolve} routine is required. 
 The \id{lfree} routine must be provided only if the solver specification routine
@@ -39,7 +39,7 @@ The type definition of \ID{linit} is
 }
 {
   The purpose of \id{linit} is to complete initializations for      
-  specific linear solver, such as counters and statistics.        
+  a specific linear solver, such as counters and statistics.        
 }
 {
   \begin{args}[kin\_mem]
@@ -67,7 +67,7 @@ The type definition of \id{lsetup} is
 }
 {
   The job of \id{lsetup} is to prepare the linear solver for subsequent 
-  calls to \id{lsolve}. It may re-compute Jacobian-related data is it 
+  calls to \id{lsolve}. It may re-compute Jacobian-related data if it 
   deems necessary. 
 }
 {
@@ -94,7 +94,7 @@ The type definition of \id{lsolve} is
 }
 {
   The routine \id{lsolve} must solve the linear equation $J x = b$, where         
-  $J = \partial F / \partial u$ evaluated at the current iterate
+  $J = \partial F / \partial u$ is evaluated at the current iterate
   and the right-hand side vector $b$ is input. 
 }
 {
@@ -127,8 +127,8 @@ The type definition of \id{lfree} is
   void (*lfree)(KINMem kin\_mem);
 }
 {
-  The routine \id{lfree} should free up any memory allocated by the linear
-  solver.
+  The routine \id{lfree} should free any linear solver memory
+  allocated by the \id{linit} routine.
 }
 {
   \begin{args}[kin\_mem]
