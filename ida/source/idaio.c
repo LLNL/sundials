@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2004-11-23 22:13:43 $
+ * $Revision: 1.2 $
+ * $Date: 2005-04-04 22:58:48 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -19,8 +19,10 @@
 #include <stdlib.h>
 #include "ida_impl.h"
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO    RCONST(0.0)
+#define HALF    RCONST(0.5)
+#define ONE     RCONST(1.0)
+#define TWOPT5  RCONST(2.5)
 
 /* 
  * =================================================================
@@ -283,7 +285,21 @@ int IDASetId(void *ida_mem, N_Vector id)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_id = id;
+  if (id == NULL) {
+    if (IDA_mem->ida_idMallocDone)
+      N_VDestroy(IDA_mem->ida_id);
+    IDA_mem->ida_idMallocDone = FALSE;    
+    return(IDA_SUCCESS);
+  }
+
+  if ( !(IDA_mem->ida_idMallocDone) ) {
+    IDA_mem->ida_id = N_VClone(id);
+    IDA_mem->ida_idMallocDone = TRUE;
+  }
+
+  /* Load the id vector */
+
+  N_VScale(ONE, id, IDA_mem->ida_id);
 
   return(IDA_SUCCESS);
 }
@@ -293,6 +309,7 @@ int IDASetId(void *ida_mem, N_Vector id)
 int IDASetConstraints(void *ida_mem, N_Vector constraints)
 {
   IDAMem IDA_mem;
+  realtype temptest;
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
@@ -301,7 +318,43 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_constraints = constraints;
+  if (constraints == NULL) {
+    if (IDA_mem->ida_constraintsMallocDone)
+      N_VDestroy(IDA_mem->ida_constraints);
+    IDA_mem->ida_constraintsMallocDone = FALSE;
+    IDA_mem->ida_constraintsSet = FALSE;
+    return(IDA_SUCCESS);
+  }
+
+  /* Test if required vector ops. are defined */
+
+  if (constraints->ops->nvdiv         == NULL ||
+      constraints->ops->nvmaxnorm     == NULL ||
+      constraints->ops->nvcompare     == NULL ||
+      constraints->ops->nvconstrmask  == NULL ||
+      constraints->ops->nvminquotient == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_NVECTOR);
+    return(IDA_ILL_INPUT);
+  }
+
+  /*  Check the constraints vector */
+
+  temptest = N_VMaxNorm(constraints);
+  if((temptest > TWOPT5) || (temptest < HALF)){ 
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_CONSTRAINTS); 
+    return(IDA_ILL_INPUT); 
+  }
+
+  if ( !(IDA_mem->ida_constraintsMallocDone) ) {
+    IDA_mem->ida_constraints = N_VClone(constraints);
+    IDA_mem->ida_constraintsMallocDone = TRUE;
+  }
+
+  /* Load the constraints vector */
+
+  N_VScale(ONE, constraints, IDA_mem->ida_constraints);
+
+  IDA_mem->ida_constraintsSet = TRUE;
 
   return(IDA_SUCCESS);
 }
@@ -309,7 +362,7 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 /*-----------------------------------------------------------------*/
 
 int IDASetTolerances(void *ida_mem, 
-                     int itol, realtype *rtol, void *atol)
+                     int itol, realtype rtol, void *atol)
 {
   IDAMem IDA_mem;
   booleantype neg_atol;
@@ -321,43 +374,103 @@ int IDASetTolerances(void *ida_mem,
 
   IDA_mem = (IDAMem) ida_mem;
 
-  if ((itol != IDA_SS) && (itol != IDA_SV)) {
+  /* Check if ida_mem was allocated */
+
+  if (IDA_mem->ida_MallocDone == FALSE) {
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NO_MALLOC);
+    return(IDA_NO_MALLOC);
+  }
+
+  /* Check inputs */
+
+  if ((itol != IDA_SS) && (itol != IDA_SV) && (itol != IDA_WF)) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ITOL);
     return(IDA_ILL_INPUT);
   }
 
-  if (rtol == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_RTOL_NULL); 
-    return(IDA_ILL_INPUT); 
-  }
-
-  if (*rtol < ZERO) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOL); 
-    return(IDA_ILL_INPUT); 
-  }
-   
   if (atol == NULL) { 
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_ATOL_NULL); 
     return(IDA_ILL_INPUT); 
   }
 
-  /* Test absolute tolerances */
-  if (itol == IDA_SS) { 
-    neg_atol = (*((realtype *)atol) < ZERO); 
-  } else { 
-    neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+  if (itol != IDA_WF) {
+
+    if (rtol < ZERO) { 
+      if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_RTOL); 
+      return(IDA_ILL_INPUT); 
+    }
+
+    
+    if (itol == IDA_SS) { 
+      neg_atol = (*((realtype *)atol) < ZERO); 
+    } else { 
+      neg_atol = (N_VMin((N_Vector)atol) < ZERO); 
+    }
+
+    if (neg_atol) { 
+      if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ATOL); 
+      return(IDA_ILL_INPUT); 
+    }
+
   }
-  if (neg_atol) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_ATOL); 
-    return(IDA_ILL_INPUT); 
+
+  /* Copy tolerances into memory */
+
+  if ( (itol != IDA_SV) && (IDA_mem->ida_VatolMallocDone) ) {
+    N_VDestroy(IDA_mem->ida_Vatol);
+    IDA_mem->ida_VatolMallocDone = FALSE;
+  }
+
+  if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
+    IDA_mem->ida_Vatol = N_VClone(IDA_mem->ida_ewt);
+    IDA_mem->ida_VatolMallocDone = TRUE;
   }
 
   IDA_mem->ida_itol = itol;
   IDA_mem->ida_rtol = rtol;      
-  IDA_mem->ida_atol = atol;  
+
+  if (itol == IDA_WF)
+    IDA_mem->ida_efun = (IDAEwtFn)atol;
+  else {
+    IDA_mem->ida_efun = IDAEwtSet;
+    if (itol == IDA_SS)
+      IDA_mem->ida_Satol = *((realtype *)atol);
+    else 
+      N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
+  }
 
   return(IDA_SUCCESS);
 }
+
+/* 
+ * IDASetEdata
+ *
+ * Specifies the user data pointer for e
+ */
+
+int IDASetEdata(void *ida_mem, void *e_data)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stderr, MSG_IDAS_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* To ensure that everything is in place, we enforce
+     that this function is called only if itol=IDA_WF */
+  if (IDA_mem->ida_itol != IDA_WF) {
+    if(errfp!=NULL) fprintf(errfp, MSG_IDAS_NO_EFUN);
+    return(IDA_ILL_INPUT);
+  }
+
+  IDA_mem->ida_edata = e_data;
+
+  return(IDA_SUCCESS);
+}
+
 
 /* 
  * =================================================================
@@ -742,7 +855,7 @@ int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetErrWeights(void *ida_mem, N_Vector *eweight)
+int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
 {
   IDAMem IDA_mem;
   
@@ -753,7 +866,7 @@ int IDAGetErrWeights(void *ida_mem, N_Vector *eweight)
 
   IDA_mem = (IDAMem) ida_mem; 
 
-  *eweight = ewt;
+  N_VScale(ONE, ewt, eweight);
 
   return(IDA_SUCCESS);
 }

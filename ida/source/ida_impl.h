@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-01-26 22:23:33 $
+ * $Revision: 1.10 $
+ * $Date: 2005-04-04 22:58:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -29,6 +29,10 @@ extern "C" {
 #include "sundialstypes.h"
 #include "nvector.h"
 
+/* Prototype of internal ewtSet function */
+
+int IDAEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
+
 /* Basic IDA constants */
 
 #define MXORDP1   6     /* max. number of N_Vectors kept in the phi array */
@@ -49,9 +53,15 @@ typedef struct IDAMemRec {
 
   IDAResFn       ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
   void          *ida_rdata;          /* user pointer passed to res         */
+
   int            ida_itol;           /* itol = SS or SV                    */
-  realtype      *ida_rtol;           /* ptr to relative tolerance          */
-  void          *ida_atol;           /* ptr to absolute tolerance          */  
+  realtype       ida_rtol;           /* relative tolerance                 */
+  realtype       ida_Satol;          /* scalar absolute tolerance          */  
+  N_Vector       ida_Vatol;          /* vector absolute tolerance          */  
+  IDAEwtFn       ida_efun;           /* function to set ewt                */
+  void          *ida_edata;          /* user pointer passed to efun        */
+  
+
   booleantype    ida_setupNonNull;   /* Does setup do something?           */
   booleantype    ida_constraintsSet; /* constraints vector present: 
                                         do constraints calc                */
@@ -71,8 +81,6 @@ typedef struct IDAMemRec {
   /* N_Vectors */
 
   N_Vector ida_ewt;         /* error weight vector                           */
-  N_Vector ida_y0;          /* initial y vector (user-supplied)              */
-  N_Vector ida_yp0;         /* initial y' vector (user-supplied)             */
   N_Vector ida_yy;          /* work space for y vector (= user's yret)       */
   N_Vector ida_yp;          /* work space for y' vector (= user's ypret)     */
   N_Vector ida_delta;       /* residual vector                               */
@@ -88,7 +96,11 @@ typedef struct IDAMemRec {
   N_Vector ida_delnew;      /* work vector for delta in IDACalcIC (= phi[2]) */
   N_Vector ida_dtemp;       /* work vector in IDACalcIC (= phi[3])           */
 
-  /* Scalars for use by IDACalcIC*/
+  /* Variables for use by IDACalcIC*/
+
+  realtype ida_t0;          /* initial t                                     */
+  N_Vector ida_yy0;         /* initial y vector (user-supplied).             */
+  N_Vector ida_yp0;         /* initial y' vector (user-supplied).            */
 
   int ida_icopt;            /* IC calculation user option                    */
   booleantype ida_lsoff;    /* IC calculation linesearch turnoff option      */
@@ -164,6 +176,10 @@ typedef struct IDAMemRec {
 
   booleantype ida_SetupDone;     /* set to FALSE by IDAMalloc and IDAReInit   */
                                  /* set to TRUE by IDACalcIC or IDASolve      */
+
+  booleantype ida_VatolMallocDone;
+  booleantype ida_constraintsMallocDone;
+  booleantype ida_idMallocDone;
 
   booleantype ida_MallocDone;    /* set to FALSE by IDACreate                 */
                                  /* set to TRUE by IDAMAlloc                  */
@@ -243,8 +259,6 @@ typedef struct IDAMemRec {
 
 #define MSG_RES_NULL       _IDAM_ "res = NULL illegal.\n\n"
 
-#define MSG_RTOL_NULL      _IDAM_ "reltol = NULL illegal.\n\n"
-
 #define MSG_BAD_RTOL       _IDAM_ "*reltol < 0 illegal.\n\n"
 
 #define MSG_ATOL_NULL      _IDAM_ "abstol = NULL illegal.\n\n"
@@ -264,8 +278,6 @@ typedef struct IDAMemRec {
 #define MSG_MISSING_ID      _IDAIS_ "id = NULL but suppressalg option on.\n\n"
 
 #define MSG_BAD_EWT         _IDAIS_ "some initial ewt component = 0.0 illegal.\n\n"
-
-#define MSG_BAD_CONSTRAINTS _IDAIS_ "illegal values in constraints vector.\n\n"
 
 #define MSG_Y0_FAIL_CONSTR  _IDAIS_ "y0 fails to satisfy constraints.\n\n"
 
@@ -334,6 +346,9 @@ typedef struct IDAMemRec {
 
 #define MSG_IC_NO_MALLOC   _IDAIC_ "attempt to call before IDAMalloc. \n\n"
  
+#define MSG_IC_Y0_NULL     _IDAIC_ "y0 = NULL illegal.\n\n"
+#define MSG_IC_YP0_NULL    _IDAIC_ "yp0 = NULL illegal.\n\n"
+
 #define MSG_IC_BAD_ICOPT   _IDAIC_ "icopt has an illegal value.\n\n"
 
 #define MSG_IC_MISSING_ID  _IDAIC_ "id = NULL conflicts with icopt.\n\n"
@@ -386,9 +401,13 @@ typedef struct IDAMemRec {
 
 #define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal. \n\n"
 
-#define MSG_IDAS_BAD_ITOL    "IDASetTolerances-- itol has an illegal value.\n\n"
+#define MSG_IDAS_BAD_NVECTOR  "IDASetConstraints-- a required vector operation is not implemented.\n\n"
 
-#define MSG_IDAS_RTOL_NULL   "IDASetTolerances-- rtol = NULL illegal.\n\n"
+#define MSG_IDAS_BAD_CONSTRAINTS "IDASetConstraints-- illegal values in constraints vector.\n\n"
+
+#define MSG_IDAS_NO_MALLOC   "IDASetTolerances-- Attemp to call before IDAMalloc.\n\n"
+
+#define MSG_IDAS_BAD_ITOL    "IDASetTolerances-- itol has an illegal value.\n\n"
 
 #define MSG_IDAS_BAD_RTOL    "IDASetTolerances-- *rtol < 0 illegal.\n\n"
 
@@ -405,6 +424,10 @@ typedef struct IDAMemRec {
 #define MSG_IDAS_BAD_MAXNIT  "IDASetMaxNumItersIC-- maxnit < 0 illegal.\n\n"
 
 #define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
+
+#define MSG_IDAS_NO_EFUN1    "IDASetEdata-- Attempt to set e_data before specifying efun\n"
+#define MSG_IDAS_NO_EFUN2    "(through IDAMalloc or IDASetTolerances) illegal.\n\n"
+#define MSG_IDAS_NO_EFUN     MSG_IDAS_NO_EFUN1 MSG_IDAS_NO_EFUN2
 
 /* IDAGet* Error Messages */
 

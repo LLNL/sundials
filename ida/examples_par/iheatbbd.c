@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-03-19 00:10:35 $
+ * $Revision: 1.18 $
+ * $Date: 2005-04-04 22:58:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -207,8 +207,9 @@ int main(int argc, char *argv[])
 
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  N_VDestroy_Parallel(constraints);
 
-  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, &rtol, &atol);
+  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
 
   mudq = MXSUB;
@@ -237,7 +238,6 @@ int main(int argc, char *argv[])
   
   /* Print output heading (on processor 0 only) and initial solution. */
   if (thispe == 0) PrintCase(1, mudq, mukeep);
-  PrintOutput(thispe, mem, t0, uu); 
 
   /* Loop over tout, call IDASolve, print output. */
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
   SetInitialProfile(uu, up, id, res, data);
 
   /* Call IDAReInit to re-initialize IDA. */
-  ier = IDAReInit(mem, heatres, t0, uu, up, IDA_SS, &rtol, &atol);
+  ier = IDAReInit(mem, heatres, t0, uu, up, IDA_SS, rtol, &atol);
   if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
@@ -274,7 +274,6 @@ int main(int argc, char *argv[])
 
   /* Print output heading (on processor 0 only). */
   if (thispe == 0) PrintCase(2, mudq, mukeep);
-  PrintOutput(thispe, mem, t0, uu); 
 
   /* Loop over tout, call IDASolve, print output. */
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
@@ -294,7 +293,6 @@ int main(int argc, char *argv[])
   IDAFree(mem);
   free(data);
   N_VDestroy_Parallel(id);
-  N_VDestroy_Parallel(constraints);
   N_VDestroy_Parallel(res);
   N_VDestroy_Parallel(up);
   N_VDestroy_Parallel(uu);
