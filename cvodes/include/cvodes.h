@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-04-29 19:17:02 $
+ * $Revision: 1.24 $
+ * $Date: 2004-05-13 17:45:10 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -497,7 +497,7 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  * nrtfn     = number of functions g_i, an int >= 0.              *
  *                                                                *
  * If a new problem is to be solved with a call to CVodeReInit,   *
- * where the new problme has no root functions but the prior one  *
+ * where the new problem has no root functions but the prior one  *
  * did, then call CVodeRootInit with nrtfn = 0.                   *
  *                                                                *
  * The return value of CVodeRootInit is SUCCESS = 0 if there were *
@@ -505,13 +505,14 @@ enum {CVREI_NO_MEM = -1, CVREI_NO_MALLOC = -2, CVREI_ILL_INPUT = -3};
  *   CVRT_NO_MEM     indicating cvode_mem was NULL, or            *
  *   CVRT_MEM_FAIL   indicating a memory allocation failed.       *
  *                    (including an attempt to increase maxord).  *
+ *   CVRT_FUNC_NULL  indicating nrtfn > 0 but g = NULL.           *
  * In case of an error return, an error message is also printed.  *
  *----------------------------------------------------------------*/
 
 int CVodeRootInit(void *cvode_mem, RootFn g, int nrtfn);
 /* CVodeRootInit return values: */
 /* SUCCESS = 0 */ 
-enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2};
+enum {CVRT_NO_MEM = -1, CVRT_MEM_FAIL = -2, CVRT_FUNC_NULL = -3};
 
 /*----------------------------------------------------------------*
  * Quadrature optional input specification functions              *
