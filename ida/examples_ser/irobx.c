@@ -1,9 +1,7 @@
 /***********************************************************************
  * File       : irobx.c
- * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 3 July 2002
- *----------------------------------------------------------------------
- * Modified by R. Serban to work with new serial NVECTOR 8 March 2002.
+ * Written by : Allan G. Taylor, Alan C. Hindmarsh, and Radu Serban
+ * Version of : 31 March 2003
  *----------------------------------------------------------------------
  *
  * This simple example problem for IDA, due to Robertson, is from
@@ -32,13 +30,11 @@
 /* Macro to define dense matrix elements, indexed from 1. */
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
-int resrob(integertype Neq, realtype tres, N_Vector yy, N_Vector yp, 
+int resrob(realtype tres, N_Vector yy, N_Vector yp, 
            N_Vector resval, void *rdata);
 
 int jacrob(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
-           realtype cj, N_Vector constraints, ResFn res, void *rdata,
-           void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
-           realtype uround, DenseMat JJ, long int *nrePtr,
+           realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 #define NOUT  12
@@ -59,9 +55,9 @@ int main()
   machEnv = M_EnvInit_Serial(SystemSize);
 
   /* Allocate N-vectors. */
-  yy = N_VNew(SystemSize, machEnv); 
-  yp = N_VNew(SystemSize, machEnv);
-  avtol = N_VNew(SystemSize, machEnv);
+  yy = N_VNew(machEnv); 
+  yp = N_VNew(machEnv);
+  avtol = N_VNew(machEnv);
 
   /* Set various input parameters and initialize y and y'. */
   yval  = NV_DATA_S(yy);
@@ -86,13 +82,13 @@ int main()
   /* Call IDAMalloc to set up problem memory.
   NULL arguments are: id, constraints, errfp, and machEnv, respectively. */
 
-  mem = IDAMalloc(SystemSize, resrob, NULL, t0, yy, yp, itol, &rtol, avtol,
+  mem = IDAMalloc(resrob, NULL, t0, yy, yp, itol, &rtol, avtol,
                   NULL , NULL , NULL, optIn, iopt, ropt,  machEnv);
   if (mem == NULL) {printf("IDAMalloc failed.\n"); return(1); }
 
   /* Call IDADense and set up the linear solver package. */
 
-  retval = IDADense(mem, jacrob, NULL);
+  retval = IDADense(mem, SystemSize, jacrob, NULL);
   if (retval != SUCCESS) {printf("IDADense failed.\n"); return(1); }
 
   printf("irobx: Robertson kinetics DAE serial example problem for IDA \n");
@@ -142,8 +138,7 @@ int main()
 
 /*  Define the system residual function resrob. */
 
-int resrob(integertype Neq, realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, 
-           void *rdata)
+int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
 {
   realtype *yval, *ypval, *rval;
 
@@ -161,9 +156,7 @@ int resrob(integertype Neq, realtype tres, N_Vector yy, N_Vector yp, N_Vector rr
 /* Define the Jacobian function jacrob. */
 
 int jacrob(integertype Neq, realtype tt, N_Vector yy, N_Vector yp,
-           realtype cj, N_Vector constraints, ResFn res, void *rdata,
-           void *jdata, N_Vector rr, N_Vector ewt, realtype hh,
-           realtype uround, DenseMat JJ, long int *nrePtr,
+           realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
 

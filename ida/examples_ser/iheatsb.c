@@ -1,9 +1,7 @@
 /***********************************************************************
  * File       : iheatsb.c   
- * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 3 July 2002
- *----------------------------------------------------------------------
- * Modified by R. Serban to work with new serial NVECTOR 8 March 2002.
+ * Written by : Allan G. Taylor, Alan C. Hindmarsh, and Radu Serban
+ * Version of : 31 March 2003
  *----------------------------------------------------------------------
  *
  * Example problem for IDA: 2D heat equation, serial, banded. 
@@ -40,7 +38,6 @@
 #include "idaband.h"
 
 typedef struct {
-  integertype    neq;
   integertype    mm;
   realtype       dx;
   realtype       coeff;
@@ -50,8 +47,7 @@ typedef struct {
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res);
 
-int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
-            N_Vector resval, void *rdata);
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *rdata);
 
 
 #define NOUT  11
@@ -77,15 +73,14 @@ int main()
   machEnv = M_EnvInit_Serial(NEQ);
 
   /* Create vectors uu, up, res, constraints, id. */
-  uu = N_VNew(NEQ, machEnv); 
-  up = N_VNew(NEQ, machEnv);
-  res = N_VNew(NEQ, machEnv);
-  constraints = N_VNew(NEQ, machEnv);
-  id = N_VNew(NEQ, machEnv);
+  uu = N_VNew(machEnv); 
+  up = N_VNew(machEnv);
+  res = N_VNew(machEnv);
+  constraints = N_VNew(machEnv);
+  id = N_VNew(machEnv);
 
   /* Create and load problem data block. */
   data = (UserData) malloc(sizeof *data);
-  data->neq = NEQ;
   data->mm = MGRID;
   data->dx = ONE/(MGRID - ONE);
   data->coeff = ONE/( (data->dx) * (data->dx) );
@@ -107,14 +102,14 @@ int main()
 
   /* Call IDAMalloc to initialize solution.
      NULL arguments are errfp and machEnv, respectively. */
-  mem = IDAMalloc(NEQ, heatres, data, t0, uu, up, itol, &rtol, &atol,
+  mem = IDAMalloc(heatres, data, t0, uu, up, itol, &rtol, &atol,
                   id, constraints, NULL, optIn, iopt, ropt,  machEnv);
   if (mem == NULL) { printf("IDAMalloc failed."); return(1); }
 
 
   /* Call IDABand to specify the linear solver. */
   mu = MGRID; ml = MGRID;
-  retval = IDABand(mem, mu, ml, NULL, NULL);
+  retval = IDABand(mem, NEQ, mu, ml, NULL, NULL);
   if (retval != SUCCESS) { printf("IDABand failed."); return(1); }
  
   /* Call IDACalcIC to correct the initial values. */
@@ -211,7 +206,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   N_VConst(ZERO, up);
 
   /* heatres sets res to negative of ODE RHS values at interior points. */
-  heatres(data->neq, ZERO, uu, up, res, data);
+  heatres(ZERO, uu, up, res, data);
   
   /* Copy -res into up to get correct interior initial up values. */
   N_VScale(-ONE, res, up);
@@ -239,8 +234,8 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  *    res_i = u'_i - (central difference)_i                              *
  * while for each boundary point, it is res_i = u_i.                     */
 
-int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
-            N_Vector resval, void *rdata)
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
+            void *rdata)
 {
   integertype mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;

@@ -1,9 +1,7 @@
 /***********************************************************************
  * File       : iheatbbd.c   
- * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 11 July 2002
- *----------------------------------------------------------------------
- * Modified by R. Serban to work with new parallel NVECTOR 8 March 2002.
+ * Written by : Allan G. Taylo, Alan C. Hindmarsh, and Radu Serban
+ * Version of : 31 March 2003
  *----------------------------------------------------------------------
  *
  * Example problem for IDA: 2D heat equation, parallel, GMRES, IDABBDPRE.
@@ -61,7 +59,7 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  integertype   neq, thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
+  integertype   thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
   realtype      dx, dy, coeffx, coeffy, coeffxy;
   realtype      uext[(MXSUB+2)*(MYSUB+2)];
   MPI_Comm  comm;
@@ -70,8 +68,7 @@ typedef struct {
 
 /* Prototypes of private helper functions */
 
-static int InitUserData(integertype Neq, int thispe,
-                        MPI_Comm comm, UserData data);
+static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
@@ -79,7 +76,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 /* User-supplied residual function and supporting routines */
 
-int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
+int heatres(realtype tres, N_Vector uu, N_Vector up,
             N_Vector res, void *rdata);
 
 static int rescomm(N_Vector uu, N_Vector up, void *rdata);
@@ -138,15 +135,15 @@ int main(int argc, char *argv[])
   if (machEnv == NULL) return(1);
   
   /* Allocate N-vectors. */
-  uu = N_VNew(Neq,machEnv); 
-  up = N_VNew(Neq,machEnv);
-  res = N_VNew(Neq,machEnv);
-  constraints = N_VNew(Neq,machEnv);
-  id = N_VNew(Neq,machEnv);
+  uu = N_VNew(machEnv); 
+  up = N_VNew(machEnv);
+  res = N_VNew(machEnv);
+  constraints = N_VNew(machEnv);
+  id = N_VNew(machEnv);
 
   /* Allocate and initialize the data structure. */
   data = (UserData) malloc(sizeof *data);
-  retval = InitUserData(Neq, thispe, comm, data);
+  retval = InitUserData(thispe, comm, data);
 
   /* Initialize the uu, up, id, and constraints profiles. */
   retval = SetInitialProfile(uu, up, id, res, data);
@@ -166,7 +163,7 @@ int main(int argc, char *argv[])
 
   /* Call IDAMalloc to initialize solution.  (NULL argument is errfp.) */
   itask = NORMAL;
-  mem = IDAMalloc(Neq, heatres, data, t0, uu, up, itol, &rtol, &atol,
+  mem = IDAMalloc(heatres, data, t0, uu, up, itol, &rtol, &atol,
                   id, constraints, NULL, optIn, iopt, ropt,  machEnv);
   if (mem == NULL) {
     if (thispe == 0) printf ("IDAMalloc failed.");
@@ -341,10 +338,8 @@ int main(int argc, char *argv[])
 /********************************************************/
 /* InitUserData initializes the user's data block data. */
 
-static int InitUserData(integertype Neq, int thispe, MPI_Comm comm,
-                        UserData data)
+static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 {
-  data->neq = Neq;
   data->thispe = thispe;
   data->dx = ONE/(MX-ONE);       /* Assumes a [0,1] interval in x. */
   data->dy = ONE/(MY-ONE);       /* Assumes a [0,1] interval in y. */
@@ -414,7 +409,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   N_VConst(ZERO, up);    /* Initially set up = 0. */
   
   /* heatres sets res to negative of ODE RHS values at interior points. */
-  heatres(data->neq, ZERO, uu, up, res, data);
+  heatres(ZERO, uu, up, res, data);
   
   /* Copy -res into up to get correct initial up values. */
   N_VScale(-ONE, res, up);
@@ -442,8 +437,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * BSend, BRecvPost, and BREcvWait handle interprocessor communication
  * of uu required to calculate the residual. */
 
-int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
-            N_Vector res, void *rdata)
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
 {
   int retval;
   UserData data;

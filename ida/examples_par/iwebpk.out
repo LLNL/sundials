@@ -21,38 +21,38 @@ At top right:    c1, c2 = 1.082687e+01 1.082227e+05
 
 
 TIME t = 1.000000e-02.     NST = 103,  k = 5,  h = 2.164541e-04
-NRE = 505,  NNI = 126,  NLI = 377,  NPE = 14,  NPS = 505
+NRE = 506,  NNI = 126,  NLI = 378,  NPE = 14,  NPS = 506
 At bottom left:  c1, c2 = 1.618873e+02 1.618888e+06 
 At top right:    c1, c2 = 1.973486e+02 1.973449e+06 
 
 
-TIME t = 1.000000e-01.     NST = 168,  k = 1,  h = 2.139013e-02
-NRE = 844,  NNI = 204,  NLI = 638,  NPE = 21,  NPS = 844
+TIME t = 1.000000e-01.     NST = 170,  k = 1,  h = 4.431070e-02
+NRE = 862,  NNI = 207,  NLI = 653,  NPE = 22,  NPS = 862
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 4.000000e-01.     NST = 171,  k = 1,  h = 1.711210e-01
-NRE = 868,  NNI = 210,  NLI = 656,  NPE = 24,  NPS = 868
+TIME t = 4.000000e-01.     NST = 172,  k = 1,  h = 1.772428e-01
+NRE = 877,  NNI = 210,  NLI = 665,  NPE = 24,  NPS = 877
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 7.000000e-01.     NST = 172,  k = 1,  h = 3.422421e-01
-NRE = 877,  NNI = 212,  NLI = 663,  NPE = 25,  NPS = 877
+TIME t = 7.000000e-01.     NST = 173,  k = 1,  h = 3.544856e-01
+NRE = 883,  NNI = 211,  NLI = 670,  NPE = 25,  NPS = 883
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 1.000000e+00.     NST = 173,  k = 1,  h = 6.844841e-01
-NRE = 886,  NNI = 214,  NLI = 670,  NPE = 26,  NPS = 886
+TIME t = 1.000000e+00.     NST = 174,  k = 1,  h = 7.089711e-01
+NRE = 887,  NNI = 212,  NLI = 673,  NPE = 26,  NPS = 887
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
 Final statistics: 
 
-NST  =   173     NRE  =   886
-NNI  =   214     NLI  =   670
-NPE  =    26     NPS  =   886
+NST  =   174     NRE  =   887
+NNI  =   212     NLI  =   673
+NPE  =    26     NPS  =   887
 NETF =     1     NCFN =     0     NCFL =     0
