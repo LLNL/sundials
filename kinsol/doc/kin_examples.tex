@@ -2,7 +2,7 @@
 
 \usepackage{xr}
 \externaldocument{kin_math}
-\externaldocument{kin_use}
+\externaldocument{kin_usage}
 \externaldocument{kin_nvec}
 \externaldocument{kin_linsolv}
 
@@ -12,11 +12,9 @@
 \newcommand{\kindate}{November 2004}
 \newcommand{\kinrelease}{v2.2.0}
 
-\title{Example Programs for {\kinsol}, \\ 
-An Inexact Newton-Krylov Nonlinear Solver  \\
-\kinrelease}
+\title{Example Programs for {\kinsol} {\kinrelease}}
 \author{
-  author1 and author2\\
+  author1 and author2 \\
   {\em Center for Applied Scientific Computing} \\
   {\em Lawrence Livermore National Laboratory}
 }
@@ -27,17 +25,18 @@ An Inexact Newton-Krylov Nonlinear Solver  \\
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\kinucrl}%                         UCRL number
-{Example Programs for {\kinsol} {\kinrelease}}%   Title on cover page
-{author1 and author2}%                            Authors
-{\kindate}%                                       Date
+\makeLLNLCover{\kinucrl}%                             UCRL number
+{Example Programs for \\ KINSOL {\kinrelease}}%       Title on cover page
+{author1 and author2}%                                Authors
+{\kindate}%                                           Date
 {0in}{0in}
 
 \frontex
 
 %===============================================================
 \include{kin_ex_intro}
-\include{kin_ex_c}
+\include{kin_ex_serial}
+\include{kin_ex_parallel}
 \include{kin_ex_fortran}
 %===============================================================
 % References
