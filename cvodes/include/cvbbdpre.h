@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-04-29 22:32:12 $
+ * $Revision: 1.7 $
+ * $Date: 2004-05-26 18:35:41 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -109,97 +109,103 @@ extern "C" {
 #ifndef _cvbbdpre_h
 #define _cvbbdpre_h
 
-#include "sundialstypes.h"
-#include "nvector.h"
 #include "band.h"
+#include "nvector.h"
+#include "sundialstypes.h"
 
-/******************************************************************
- * Type : CVLocalFn                                               *
- *----------------------------------------------------------------*        
- * The user must supply a function g(t,y) which approximates the  *
- * right-hand side function f for the system y'=f(t,y), and which *
- * is computed locally (without inter-processor communication).   *
- * (The case where g is mathematically identical to f is allowed.)*
- * The implementation of this function must have type CVLocalFn.  *
- *                                                                *
- * This function takes as input the local vector size Nlocal, the *
- * independent variable value t, the local real dependent         *
- * variable vector y, and a pointer to the user-defined data      *
- * block f_data.  It is to compute the local part of g(t,y) and   *
- * store this in the vector g.                                    *
- * (Allocation of memory for y and g is handled within  the       *
- * preconditioner module.)                                        *
- * The f_data parameter is the same as that specified by the user *
- * through the CVodeSetFdata routine.                             *
- * A CVLocalFn gloc does not have a return value.                 *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Type : CVLocalFn                                               
+ * -----------------------------------------------------------------
+ * The user must supply a function g(t,y) which approximates the  
+ * right-hand side function f for the system y'=f(t,y), and which 
+ * is computed locally (without inter-processor communication).   
+ * (The case where g is mathematically identical to f is allowed.)
+ * The implementation of this function must have type CVLocalFn.  
+ *                                                                
+ * This function takes as input the local vector size Nlocal, the 
+ * independent variable value t, the local real dependent         
+ * variable vector y, and a pointer to the user-defined data      
+ * block f_data.  It is to compute the local part of g(t,y) and   
+ * store this in the vector g.                                    
+ * (Allocation of memory for y and g is handled within  the       
+ * preconditioner module.)                                        
+ * The f_data parameter is the same as that specified by the user 
+ * through the CVodeSetFdata routine.                             
+ * A CVLocalFn gloc does not have a return value.                 
+ * -----------------------------------------------------------------
+ */
 
 typedef void (*CVLocalFn)(long int Nlocal, realtype t, 
                           N_Vector y, N_Vector g, 
                           void *f_data);
 
-/******************************************************************
- * Type : CVCommFn                                                *
- *----------------------------------------------------------------*        
- * The user must supply a function of type CVCommFn which performs*
- * all inter-processor communication necessary to evaluate the    *
- * approximate right-hand side function described above.          *
- *                                                                *
- * This function takes as input the local vector size Nlocal,     *
- * the independent variable value t, the dependent variable       *
- * vector y, and a pointer to the user-defined data block f_data. *
- * The f_data parameter is the same as that specified by the user *
- * through the CVodeSetFdata routine.  The CVCommFn cfn is        *
- * expected to save communicated data in space defined within the *
- * structure f_data.                                              *
- * A CVCommFn cfn does not have a return value.                   *
- *                                                                *
- * Each call to the CVCommFn cfn is preceded by a call to the     *
- * RhsFn f with the same (t,y) arguments.  Thus cfn can omit any  *
- * communications done by f if relevant to the evaluation of g.   *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Type : CVCommFn                                                
+ * -----------------------------------------------------------------
+ * The user must supply a function of type CVCommFn which performs
+ * all inter-processor communication necessary to evaluate the    
+ * approximate right-hand side function described above.          
+ *                                                                
+ * This function takes as input the local vector size Nlocal,     
+ * the independent variable value t, the dependent variable       
+ * vector y, and a pointer to the user-defined data block f_data. 
+ * The f_data parameter is the same as that specified by the user 
+ * through the CVodeSetFdata routine.  The CVCommFn cfn is        
+ * expected to save communicated data in space defined within the 
+ * structure f_data.                                              
+ * A CVCommFn cfn does not have a return value.                   
+ *                                                                
+ * Each call to the CVCommFn cfn is preceded by a call to the     
+ * RhsFn f with the same (t,y) arguments.  Thus cfn can omit any  
+ * communications done by f if relevant to the evaluation of g.   
+ * -----------------------------------------------------------------
+ */
 
 typedef void (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
                          void *f_data);
 
-/******************************************************************
- * Function : CVBBDPrecAlloc                                      *
- *----------------------------------------------------------------*
- * CVBBDPrecAlloc allocates and initializes a CVBBDData structure *
- * to be passed to CVSpgmr (and used by CVBBDPrecSetup and        *
- * and CVBBDPrecSolve.                                            *
- *                                                                *
- * The parameters of CVBBDPrecAlloc are as follows:               *
- *                                                                *
- * cvode_mem is the pointer to the integrator memory.             *
- *                                                                *
- * Nlocal  is the length of the local block of the vectors y etc. *
- *         on the current processor.                              *
- *                                                                *
- * mudq, mldq  are the upper and lower half-bandwidths to be used *
- *         in the difference-quotient computation of the local    *
- *         Jacobian block.                                        *
- *                                                                *
- * mukeep, mlkeep  are the upper and lower half-bandwidths of the *
- *         retained banded approximation to the local Jacobian    * 
- *         block.                                                 *
- *                                                                *
- * dqrely  is an optional input.  It is the relative increment    *
- *         in components of y used in the difference quotient     *
- *         approximations.  To specify the default, pass 0.       *
- *         The default is dqrely = sqrt(unit roundoff).           *
- *                                                                *
- * gloc    is the name of the user-supplied function g(t,y) that  *
- *         approximates f and whose local Jacobian blocks are     *
- *         to form the preconditioner.                            *
- *                                                                *
- * cfn     is the name of the user-defined function that performs *
- *         necessary inter-processor communication for the        *
- *         execution of gloc.                                     *
- *                                                                *
- * CVBBDPrecAlloc returns the storage allocated (type *void),     *
- * or NULL if the request for storage cannot be satisfied.        *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : CVBBDPrecAlloc                                      
+ * -----------------------------------------------------------------
+ * CVBBDPrecAlloc allocates and initializes a CVBBDData structure 
+ * to be passed to CVSpgmr (and used by CVBBDPrecSetup and        
+ * and CVBBDPrecSolve.                                            
+ *                                                                
+ * The parameters of CVBBDPrecAlloc are as follows:               
+ *                                                                
+ * cvode_mem is the pointer to the integrator memory.             
+ *                                                                
+ * Nlocal  is the length of the local block of the vectors y etc. 
+ *         on the current processor.                              
+ *                                                                
+ * mudq, mldq  are the upper and lower half-bandwidths to be used 
+ *         in the difference-quotient computation of the local    
+ *         Jacobian block.                                        
+ *                                                                
+ * mukeep, mlkeep  are the upper and lower half-bandwidths of the 
+ *         retained banded approximation to the local Jacobian 
+ *         block.                                                 
+ *                                                                
+ * dqrely  is an optional input.  It is the relative increment    
+ *         in components of y used in the difference quotient     
+ *         approximations.  To specify the default, pass 0.       
+ *         The default is dqrely = sqrt(unit roundoff).           
+ *                                                                
+ * gloc    is the name of the user-supplied function g(t,y) that  
+ *         approximates f and whose local Jacobian blocks are     
+ *         to form the preconditioner.                            
+ *                                                                
+ * cfn     is the name of the user-defined function that performs 
+ *         necessary inter-processor communication for the        
+ *         execution of gloc.                                     
+ *                                                                
+ * CVBBDPrecAlloc returns the storage allocated (type *void),     
+ * or NULL if the request for storage cannot be satisfied.        
+ * -----------------------------------------------------------------
+ */
 
 void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal, 
                      long int mudq, long int mldq, 
@@ -207,75 +213,82 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
                      realtype dqrely,
                      CVLocalFn gloc, CVCommFn cfn);
 
-/******************************************************************
- * Function : CVBBDSpgmr                                          *
- *----------------------------------------------------------------*
- * CVBBDSpgmr links the CVBBDPRE preconditioner to the CVSPGMR    *
- * linear solver. It performs the following actions:              *
- *  1) Calls the CVSPGMR specification routine and attaches the   *
- *     CVSPGMR linear solver to the integrator memory;            *
- *  2) Sets the preconditioner data structure for CVSPGMR         *
- *  3) Sets the preconditioner setup routine for CVSPGMR          *
- *  4) Sets the preconditioner solve routine for CVSPGMR          *
- *                                                                *
- * Its first 3 arguments are the same as for CVSpgmr (see         *
- * cvspgmr.h). The last argument is the pointer to the CVBBDPRE   *
- * memory block returned by CVBBDPrecAlloc.                       * 
- * Note that the user need not call CVSpgmr anymore.              *
- *                                                                *
- * Possible return values are:                                    *
- *   (from cvode.h)  SUCCESS                                      *
- *                   LIN_NO_MEM                                   *
- *                   LMEM_FAIL                                    *
- *                   LIN_NO_LMEM                                  *
- *                   LIN_ILL_INPUT                                *
- *   Additionaly, if CVBBDPrecAlloc was not previously called,    *
- *   CVBBDSpgmr returns BBDP_NO_PDATA (defined below).            *
- *                                                                *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : CVBBDSpgmr                                          
+ * -----------------------------------------------------------------
+ * CVBBDSpgmr links the CVBBDPRE preconditioner to the CVSPGMR    
+ * linear solver. It performs the following actions:              
+ *  1) Calls the CVSPGMR specification routine and attaches the   
+ *     CVSPGMR linear solver to the integrator memory;            
+ *  2) Sets the preconditioner data structure for CVSPGMR         
+ *  3) Sets the preconditioner setup routine for CVSPGMR          
+ *  4) Sets the preconditioner solve routine for CVSPGMR          
+ *                                                                
+ * Its first 3 arguments are the same as for CVSpgmr (see         
+ * cvspgmr.h). The last argument is the pointer to the CVBBDPRE   
+ * memory block returned by CVBBDPrecAlloc.  
+ * Note that the user need not call CVSpgmr anymore.              
+ *                                                                
+ * Possible return values are:                                    
+ *   (from cvode.h)  SUCCESS                                      
+ *                   LIN_NO_MEM                                   
+ *                   LMEM_FAIL                                    
+ *                   LIN_NO_LMEM                                  
+ *                   LIN_ILL_INPUT                                
+ *   Additionaly, if CVBBDPrecAlloc was not previously called,    
+ *   CVBBDSpgmr returns BBDP_NO_PDATA (defined below).            
+ * -----------------------------------------------------------------
+ */                                                                
 
 int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
 
-/******************************************************************
- * Function : CVBBDPrecReInit                                     *
- *----------------------------------------------------------------*
- * CVBBDPrecReInit re-initializes the BBDPRE module when solving a*
- * sequence of problems of the same size with CVSPGMR/CVBBDPRE,   *
- * provided there is no change in Nlocal, mukeep, or mlkeep.      *
- * After solving one problem, and after calling CVodeReInit to    *
- * re-initialize the integrator for a subsequent problem, call    *
- * CVBBDPrecReInit.                                               *
- * Then call CVReInitSpgmr or CVSpgmr if necessary, depending on  *
- * changes made in the CVSpgmr parameters, before calling CVode.  *
- *                                                                *
- * The first argument to CVBBDPrecReInit must be the pointer pdata*
- * that was returned by CVBBDPrecAlloc.  All other arguments have *
- * the same names and meanings as those of CVBBDPrecAlloc.        *
- *                                                                *
- * The return value of CVBBDPrecReInit is 0, indicating success.  *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : CVBBDPrecReInit                                     
+ * -----------------------------------------------------------------
+ * CVBBDPrecReInit re-initializes the BBDPRE module when solving a
+ * sequence of problems of the same size with CVSPGMR/CVBBDPRE,   
+ * provided there is no change in Nlocal, mukeep, or mlkeep.      
+ * After solving one problem, and after calling CVodeReInit to    
+ * re-initialize the integrator for a subsequent problem, call    
+ * CVBBDPrecReInit.                                               
+ * Then call CVReInitSpgmr or CVSpgmr if necessary, depending on  
+ * changes made in the CVSpgmr parameters, before calling CVode.  
+ *                                                                
+ * The first argument to CVBBDPrecReInit must be the pointer pdata
+ * that was returned by CVBBDPrecAlloc.  All other arguments have 
+ * the same names and meanings as those of CVBBDPrecAlloc.        
+ *                                                                
+ * The return value of CVBBDPrecReInit is 0, indicating success.  
+ * -----------------------------------------------------------------
+ */
 
 int CVBBDPrecReInit(void *bbd_data, long int mudq, long int mldq,
                     realtype dqrely, CVLocalFn gloc, CVCommFn cfn);
 
-/******************************************************************
- * Function : CVBBDPrecFree                                       *
- *----------------------------------------------------------------*
- * CVBBDPrecFree frees the memory block bbd_data allocated by the *
- * call to CVBBDAlloc.                                            *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * Function : CVBBDPrecFree                                       
+ * -----------------------------------------------------------------
+ * CVBBDPrecFree frees the memory block bbd_data allocated by the 
+ * call to CVBBDAlloc.                                            
+ * -----------------------------------------------------------------
+ */
 
 void CVBBDPrecFree(void *bbd_data);
 
-/******************************************************************
- * BBDPRE optional output extraction routines                     *
- *----------------------------------------------------------------*
- * CVBBDPrecGetIntWorkSpace returns the BBDPRE integer workspace  *
- *     size.                                                      *
- * CVBBDPrecGetRealWorkSpace returns the BBDPRE real workspace    *
- *     size.                                                      *
- * CVBBDPrecGetNumGfnEvals returns the number of calls to gfn.    *
- ******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * BBDPRE optional output extraction routines                     
+ * -----------------------------------------------------------------
+ * CVBBDPrecGetIntWorkSpace returns the BBDPRE integer workspace  
+ *     size.                                                      
+ * CVBBDPrecGetRealWorkSpace returns the BBDPRE real workspace    
+ *     size.                                                      
+ * CVBBDPrecGetNumGfnEvals returns the number of calls to gfn.    
+ * -----------------------------------------------------------------
+ */
 
 int CVBBDPrecGetIntWorkSpace(void *bbd_data, long int *leniwBBDP);
 int CVBBDPrecGetRealWorkSpace(void *bbd_data, long int *lenrwBBDP);
@@ -284,34 +297,6 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 /* Return values for CVBBDPrecGet* functions */
 /* OKAY = 0 */
 enum { BBDP_NO_PDATA = -11 };
-
-/*********************** Definition of CVBBDData *****************/
-
-typedef struct {
-
-  /* passed by user to CVBBDPrecAlloc, used by PrecSetup/PrecSolve */
-  long int mudq, mldq, mukeep, mlkeep;
-  realtype dqrely;
-  CVLocalFn gloc;
-  CVCommFn cfn;
-
-  /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
-  BandMat savedJ;
-  BandMat savedP;
-  long int *pivots;
-
-  /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
-  long int n_local;
-
-  /* available for optional output: */
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
-
-  /* Pointer to cvode_mem */
-  void *cvode_mem;
-
-} *CVBBDPrecData;
 
 #endif
 
