@@ -1,7 +1,7 @@
 /*****************************************************************************
  * File          : spgmr.h                                                   *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL               *
- * Version of    : 17 December 1999                                          *
+ * Version of    : 26 June 2002                                              *
  *---------------------------------------------------------------------------*
  * This is the header file for the implementation of SPGMR Krylov            *
  * iterative linear solver.  The SPGMR algorithm is based on the Scaled      *
@@ -61,7 +61,7 @@ extern "C" {
 #ifndef _spgmr_h
 #define _spgmr_h
 
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "iterativ.h"
 #include "nvector.h"
 
@@ -108,7 +108,7 @@ extern "C" {
  * xcor is a length N vector (type N_Vector) which holds the      *
  * scaled, preconditioned correction to the initial guess.        *
  *                                                                *
- * yg is a length (l_max+1) array of reals used to hold "short"   *
+ * yg is a length (l_max+1) array of realtype used to hold "short"*
  * vectors (e.g. y and g).                                        *
  *                                                                *
  * vtemp is a length N vector (type N_Vector) used as temporary   *
@@ -118,14 +118,14 @@ extern "C" {
   
 typedef struct _SpgmrMemRec {
 
-  integer N;
+  integertype N;
   int l_max;
 
   N_Vector *V;
-  real **Hes;
-  real *givens;
+  realtype **Hes;
+  realtype *givens;
   N_Vector xcor;
-  real *yg;
+  realtype *yg;
   N_Vector vtemp;
 
 } SpgmrMemRec, *SpgmrMem;
@@ -141,13 +141,12 @@ typedef struct _SpgmrMemRec {
  * is the size of the system to be solved by SpgmrSolve and l_max *
  * is the maximum Krylov dimension that SpgmrSolve will be        *
  * permitted to use. The parameter machEnv is a pointer to        *
- * machine environment-specific information. Pass NULL in the     *
- * ordinary sequential case (see nvector.h). This routine returns *
+ * machine environment-specific information. This routine returns *
  * NULL if there is a memory request failure.                     *
  *                                                                *
  ******************************************************************/
 
-SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv);
+SpgmrMem SpgmrMalloc(integertype N, int l_max, void *machEnv);
 
 
 /******************************************************************
@@ -238,9 +237,10 @@ SpgmrMem SpgmrMalloc(integer N, int l_max, void *machEnv);
 
      
 int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
-               int pretype, int gstype, real delta, int max_restarts,
-	       void *P_data, N_Vector s1, N_Vector s2, ATimesFn atimes,
-	       PSolveFn psolve, real *res_norm, int *nli, int *nps);
+               int pretype, int gstype, realtype delta, 
+               int max_restarts, void *P_data, N_Vector s1, 
+               N_Vector s2, ATimesFn atimes, PSolveFn psolve, 
+               realtype *res_norm, int *nli, int *nps);
 
 
 /* Return values for SpgmrSolve */
@@ -255,7 +255,7 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
 #define SPGMR_ATIMES_FAIL        -2  /* atimes returned failure flag */
 #define SPGMR_PSOLVE_FAIL_UNREC  -3  /* psolve failed unrecoverably  */
 #define SPGMR_GS_FAIL            -4  /* Gram-Schmidt routine         
-					returned failure flag        */
+                                        returned failure flag        */
 #define SPGMR_QRSOL_FAIL         -5  /* QRsol found singular R       */
 
 

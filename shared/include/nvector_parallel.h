@@ -3,7 +3,7 @@
  * File          : nvector_parallel.h                           *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
  *               : Radu Serban, and Allan G. Taylor, LLNL       *
- * Version of    : 27 February 2002                             *
+ * Version of    : 26 June 2002                                 *
  *--------------------------------------------------------------*
  *                                                              *
  * This is the header file for a parallel MPI implementation of *
@@ -32,10 +32,10 @@
  * The definitions of the generic M_Env and N_Vector structures *
  * are in the header file nvector.h.                            *
  *                                                              *
- * The definitions of the types real and integer are in the     *
- * header file llnltyps.h and these may be changed according to *
- * the user's needs. The llnltyps.h file also contains the      *
- * definition for the type boole (short for boolean).           *
+ * The definitions of the types realtype and integertype are in *
+ * the header file sundialstypes.h and these may be changed     *
+ * according to the user's needs. The sundialstypes.h file also *
+ * contains the definition for the type booleantype.            *
  *                                                              *
  * N_Vector arguments to arithmetic kernels need not be         *
  * distinct. Thus, for example, the call                        *
@@ -59,7 +59,7 @@ extern "C" {
 #define included_nvector_parallel_h
 
 #include "nvector.h"  /* Generic M_Env and N_Vector type definitions */
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "mpi.h"
 
 /****************************************************************
@@ -67,16 +67,16 @@ extern "C" {
  * Parallel MPI implementaion of M_Env and N_Vector             *
  ****************************************************************/
 
-/* Environment: MPI                          */
-/* Set types real and integer for MPI calls. */
+/* Environment: MPI                                  */
+/* Set types realtype and integertype for MPI calls. */
 
-#if (LLNL_DOUBLE == 1)
+#if (SUNDIALS_DOUBLE == 1)
 #define PVEC_REAL_MPI_TYPE MPI_DOUBLE
 #else
 #define PVEC_REAL_MPI_TYPE MPI_FLOAT
 #endif
 
-#if (LLNL_INT == 1)
+#if (SUNDIALS_INT == 1)
 #define PVEC_INTEGER_MPI_TYPE MPI_INT
 #else
 #define PVEC_INTEGER_MPI_TYPE MPI_LONG
@@ -92,10 +92,10 @@ extern "C" {
    called MPI_Init */
 
 struct _M_EnvParallelContent {
-  MPI_Comm comm;             /* pointer to MPI communicator */
-  integer local_vec_length;  /* local length of vectors */ 
-  integer global_vec_length; /* global length of vectors */ 
-  int init_by_user;          /* flag showing if user called MPI_Init */
+  MPI_Comm comm;                 /* pointer to MPI communicator */
+  integertype local_vec_length;  /* local length of vectors */ 
+  integertype global_vec_length; /* global length of vectors */ 
+  int init_by_user;              /* flag showing if user called MPI_Init */
 };
 
 typedef struct _M_EnvParallelContent *M_EnvParallelContent;
@@ -105,9 +105,9 @@ typedef struct _M_EnvParallelContent *M_EnvParallelContent;
    and a pointer to an array of real components */
 
 struct _N_VectorParallelContent {
-  integer local_length;  /* local vector length  */
-  integer global_length; /* global vector length */
-  real   *data;          /* local data array     */
+  integertype local_length;  /* local vector length  */
+  integertype global_length; /* global vector length */
+  realtype   *data;          /* local data array     */
 };
 
 typedef struct _N_VectorParallelContent *N_VectorParallelContent;
@@ -123,10 +123,10 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  * In the descriptions below, the following user                *
  * declarations are assumed:                                    *
  *                                                              *
- * M_Env    machenv;                                            *
- * N_Vector v, *vs;                                             *
- * real     *v_data, **vs_data, r;                              *
- * integer  v_len, s_len, i;                                    *
+ * M_Env        machenv;                                        *
+ * N_Vector     v, *vs;                                         *
+ * realtype     *v_data, **vs_data, r;                          *
+ * integertype  v_len, s_len, i;                                *
  *                                                              *
  * (1) NV_MAKE_P, NV_DISPOSE_P                                  *
  *                                                              *
@@ -322,8 +322,9 @@ typedef struct _N_VectorParallelContent *N_VectorParallelContent;
  *                                                              *
  *--------------------------------------------------------------*/
 
-M_Env M_EnvInit_Parallel(MPI_Comm comm, integer local_vec_length,
-                         integer global_vec_length, 
+M_Env M_EnvInit_Parallel(MPI_Comm comm, 
+                         integertype local_vec_length,
+                         integertype global_vec_length, 
                          int *argc, char ***argv);
 
 /*--------------------------------------------------------------*
@@ -347,34 +348,34 @@ void M_EnvFree_Parallel(M_Env machenv);
  * see the header file nvector.h                                *
  *--------------------------------------------------------------*/
 
-N_Vector N_VNew_Parallel(integer n, M_Env machEnv);
-N_Vector_S N_VNew_S_Parallel(integer ns, integer n, M_Env machEnv);
+N_Vector N_VNew_Parallel(integertype n, M_Env machEnv);
+N_Vector_S N_VNew_S_Parallel(integertype ns, integertype n, M_Env machEnv);
 void N_VFree_Parallel(N_Vector v);
-void N_VFree_S_Parallel(integer ns, N_Vector_S vs);
-N_Vector N_VMake_Parallel(integer n, real *v_data, M_Env machEnv);
+void N_VFree_S_Parallel(integertype ns, N_Vector_S vs);
+N_Vector N_VMake_Parallel(integertype n, realtype *v_data, M_Env machEnv);
 void N_VDispose_Parallel(N_Vector v);
-real *N_VGetData_Parallel(N_Vector v);
-void N_VSetData_Parallel(real *v_data, N_Vector v);
-void N_VLinearSum_Parallel(real a, N_Vector x, real b, N_Vector y, N_Vector z);
-void N_VConst_Parallel(real c, N_Vector z);
+realtype *N_VGetData_Parallel(N_Vector v);
+void N_VSetData_Parallel(realtype *v_data, N_Vector v);
+void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
+void N_VConst_Parallel(realtype c, N_Vector z);
 void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z);
 void N_VDiv_Parallel(N_Vector x, N_Vector y, N_Vector z);
-void N_VScale_Parallel(real c, N_Vector x, N_Vector z);
+void N_VScale_Parallel(realtype c, N_Vector x, N_Vector z);
 void N_VAbs_Parallel(N_Vector x, N_Vector z);
 void N_VInv_Parallel(N_Vector x, N_Vector z);
-void N_VAddConst_Parallel(N_Vector x, real b, N_Vector z);
-real N_VDotProd_Parallel(N_Vector x, N_Vector y);
-real N_VMaxNorm_Parallel(N_Vector x);
-real N_VWrmsNorm_Parallel(N_Vector x, N_Vector w);
-real N_VMin_Parallel(N_Vector x);
-real N_VWL2Norm_Parallel(N_Vector x, N_Vector w);
-real N_VL1Norm_Parallel(N_Vector x);
+void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z);
+realtype N_VDotProd_Parallel(N_Vector x, N_Vector y);
+realtype N_VMaxNorm_Parallel(N_Vector x);
+realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w);
+realtype N_VMin_Parallel(N_Vector x);
+realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w);
+realtype N_VL1Norm_Parallel(N_Vector x);
 void N_VOneMask_Parallel(N_Vector x);
-void N_VCompare_Parallel(real c, N_Vector x, N_Vector z);
-boole N_VInvTest_Parallel(N_Vector x, N_Vector z);
-boole N_VConstrProdPos_Parallel(N_Vector c, N_Vector x);
-boole N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);   
-real N_VMinQuotient_Parallel(N_Vector num, N_Vector denom);
+void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z);
+booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z);
+booleantype N_VConstrProdPos_Parallel(N_Vector c, N_Vector x);
+booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);   
+realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom);
 void N_VPrint_Parallel(N_Vector x);
 
 

@@ -4,12 +4,12 @@
  * File          : band.h                                         *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 5 March 2002                                   *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for a generic BAND linear solver       *
  * package. There are two sets of band solver routines listed in  *
  * this file: one set uses type BandMat defined below and the     *
- * other set uses the type real ** for band matrix arguments.     *
+ * other set uses the type realtype ** for band matrix arguments. *
  * The two sets of band solver routines make it easy to work      *
  * with two types of band matrices:                               *
  *                                                                *
@@ -21,10 +21,10 @@
  *     then all the routines that use BandMat must be modified to *
  *     reflect the new data structure.                            *
  *                                                                *
- * (2) The set of routines that use real ** (and NOT the BandMat  *
- *     type) is intended for use with small matrices which can    *
- *     easily be allocated within a contiguous block of memory    *
- *     on a single processor.                                     *
+ * (2) The set of routines that use realtype ** (and NOT the      *
+ *     BandMat type) is intended for use with small matrices      *
+ *     which can easily be allocated within a contiguous block of *
+ *     memory on a single processor.                              *
  *                                                                *
  * Routines that work with the type BandMat begin with "Band".    *
  * The BandAllocMat function allocates a band matrix for use in   *
@@ -36,10 +36,10 @@
  * BandFreePiv, respectively. The BandFactor and BandBacksolve    *
  * routines perform the actual solution of a band linear system.  *
  *                                                                * 
- * Routines that work with real ** begin with "band" (except for  *
- * the factor and solve routines which are called gbfa and gbsl,  *
- * respectively). The underlying matrix storage is described in   *
- * the documentation for bandalloc.                               *
+ * Routines that work with realtype ** begin with "band" (except  *
+ * for the factor and solve routines which are called gbfa and    *
+ * gbsl, respectively). The underlying matrix storage is          *
+ * described in the documentation for bandalloc.                  *
  *                                                                *
  ******************************************************************/
  
@@ -50,7 +50,7 @@ extern "C" {
 #ifndef _band_h
 #define _band_h
 
-#include "llnltyps.h"
+#include "sundialstypes.h"
 
  
 /******************************************************************
@@ -115,9 +115,9 @@ extern "C" {
 
 
 typedef struct _BandMat {
-  integer size;
-  integer mu, ml, smu;
-  real **data;
+  integertype size;
+  integertype mu, ml, smu;
+  realtype **data;
 } *BandMat;
  
 
@@ -146,9 +146,9 @@ typedef struct _BandMat {
  *----------------------------------------------------------------*
  * BAND_COL(A,j) references the diagonal element of the jth       *
  * column of the N by N band matrix A, 0 <= j <= N-1. The type of *
- * the expression BAND_COL(A,j) is real *. The pointer returned   *
- * by the call BAND_COL(A,j) can be treated as an array which is  *
- * indexed from -(A->mu) to (A->ml).                              *
+ * the expression BAND_COL(A,j) is realtype *. The pointer        *
+ * returned by the call BAND_COL(A,j) can be treated as an array  *
+ * which is indexed from -(A->mu) to (A->ml).                     *
  *                                                                *
  ******************************************************************/
 
@@ -196,7 +196,8 @@ typedef struct _BandMat {
  *                                                                * 
  ******************************************************************/
 
-BandMat BandAllocMat(integer N, integer mu, integer ml, integer smu);
+BandMat BandAllocMat(integertype N, integertype mu, integertype ml, 
+                     integertype smu);
 
 
 /******************************************************************
@@ -214,7 +215,7 @@ BandMat BandAllocMat(integer N, integer mu, integer ml, integer smu);
  *                                                                * 
  ******************************************************************/
 
-integer *BandAllocPiv(integer N);
+integertype *BandAllocPiv(integertype N);
 
 
 /******************************************************************
@@ -258,7 +259,7 @@ integer *BandAllocPiv(integer N);
  *                                                                *
  ******************************************************************/
 
-integer BandFactor(BandMat A, integer *p);
+integertype BandFactor(BandMat A, integertype *p);
 
 
 /******************************************************************
@@ -274,7 +275,7 @@ integer BandFactor(BandMat A, integer *p);
  *                                                                *
  ******************************************************************/
 
-void BandBacksolve(BandMat A, integer *p, real *b);
+void BandBacksolve(BandMat A, integertype *p, realtype *b);
 
 
 /******************************************************************
@@ -300,7 +301,8 @@ void BandZero(BandMat A);
  *                                                                *
  ******************************************************************/
 
-void BandCopy(BandMat A, BandMat B, integer copymu, integer copyml);
+void BandCopy(BandMat A, BandMat B, integertype copymu, 
+              integertype copyml);
 
 
 /******************************************************************
@@ -312,7 +314,7 @@ void BandCopy(BandMat A, BandMat B, integer copymu, integer copyml);
  *                                                                *
  ******************************************************************/
 
-void BandScale(real c, BandMat A);
+void BandScale(realtype c, BandMat A);
 
 
 /******************************************************************
@@ -350,7 +352,7 @@ void BandFreeMat(BandMat A);
  *                                                                *
  ******************************************************************/
 
-void BandFreePiv(integer *p);
+void BandFreePiv(integertype *p);
 
 
 /******************************************************************
@@ -371,13 +373,13 @@ void BandPrint(BandMat A);
  
 
 
-/* Functions that use the real ** representation for a band matrix */
+/* Functions that use the realtype ** representation for a band matrix */
 
  
 /******************************************************************
  *                                                                *
  * Function : bandalloc                                           *
- * Usage    : real **a;                                           *
+ * Usage    : realtype **a;                                       *
  *            a = bandalloc(n, smu, ml);                          *
  *            if (a == NULL) ... memory request failed            *
  *----------------------------------------------------------------*
@@ -399,8 +401,8 @@ void BandPrint(BandMat A);
  *                                                                *
  * (2) Pass smu = MIN(n-1,mu+ml) if A will be factored.           *
  *                                                                *
- * The underlying type of the band matrix returned is real **. If *
- * we allocate a band matrix A in real **a by                     *
+ * The underlying type of the band matrix returned is realtype**. *
+ * If we allocate a band matrix A in realtype **a by              *
  * a = bandalloc(n,smu,ml), then a[0] is a pointer to             *
  * n * (smu + ml + 1) contiguous storage locations and a[j] is a  *
  * pointer to the uppermost element in the storage for the jth    *
@@ -411,13 +413,13 @@ void BandPrint(BandMat A);
  *                                                                *
  ******************************************************************/
 
-real **bandalloc(integer n, integer smu, integer ml);
+realtype **bandalloc(integertype n, integertype smu, integertype ml);
 
 
 /******************************************************************
  *                                                                *
  * Function : bandallocpiv                                        *
- * Usage    : integer *pivot;                                     *
+ * Usage    : integertype *pivot;                                 *
  *            pivot = bandallocpiv(n);                            *
  *            if (pivot == NULL) ... memory request failed        *
  *----------------------------------------------------------------*
@@ -427,13 +429,13 @@ real **bandalloc(integer n, integer smu, integer ml);
  *                                                                *
  ******************************************************************/
 
-integer *bandallocpiv(integer n);
+integertype *bandallocpiv(integertype n);
 
 
 /******************************************************************
  *                                                                *
  * Function : gbfa                                                *
- * Usage    : integer ier;                                        *
+ * Usage    : integertype ier;                                    *
  *            ier = gbfa(a,n,mu,ml,smu,p);                        *
  *            if (ier > 0) ... zero element encountered during    *
  *                             the factorization                  *
@@ -481,14 +483,14 @@ integer *bandallocpiv(integer n);
  *                                                                *
  ******************************************************************/
 
-integer gbfa(real **a, integer n, integer mu, integer ml, integer smu,
-             integer *p);
+integertype gbfa(realtype **a, integertype n, integertype mu, 
+                 integertype ml, integertype smu, integertype *p);
 
 
 /******************************************************************
  *                                                                *
  * Function : gbsl                                                *
- * Usage    : real *b;                                            *
+ * Usage    : realtype *b;                                        *
  *            ier = gbfa(a,n,mu,ml,smu,p);                        *
  *            if (ier == 0) gbsl(a,n,smu,ml,p,b);                 *
  *----------------------------------------------------------------*
@@ -501,7 +503,8 @@ integer gbfa(real **a, integer n, integer mu, integer ml, integer smu,
  *                                                                *
  ******************************************************************/
 
-void gbsl(real **a, integer n, integer smu, integer ml, integer *p, real *b);
+void gbsl(realtype **a, integertype n, integertype smu, 
+          integertype ml, integertype *p, realtype *b);
 
 
 /******************************************************************
@@ -513,7 +516,8 @@ void gbsl(real **a, integer n, integer smu, integer ml, integer *p, real *b);
  *                                                                *
  ******************************************************************/
 
-void bandzero(real **a, integer n, integer mu, integer ml, integer smu);
+void bandzero(realtype **a, integertype n, integertype mu, 
+              integertype ml, integertype smu);
 
 
 /******************************************************************
@@ -525,8 +529,9 @@ void bandzero(real **a, integer n, integer mu, integer ml, integer smu);
  *                                                                *
  ******************************************************************/
 
-void bandcopy(real **a, real **b, integer n, integer a_smu, integer b_smu,
-              integer copymu, integer copyml);
+void bandcopy(realtype **a, realtype **b, integertype n, 
+              integertype a_smu, integertype b_smu,
+              integertype copymu, integertype copyml);
 
 
 /******************************************************************
@@ -538,8 +543,8 @@ void bandcopy(real **a, real **b, integer n, integer a_smu, integer b_smu,
  *                                                                *
  ******************************************************************/
 
-void bandscale(real c, real **a, integer n, integer mu, integer ml,
-               integer smu);
+void bandscale(realtype c, realtype **a, integertype n, 
+               integertype mu, integertype ml, integertype smu);
 
 
 /******************************************************************
@@ -551,7 +556,7 @@ void bandscale(real c, real **a, integer n, integer mu, integer ml,
  *                                                                *
  ******************************************************************/
 
-void bandaddI(real **a, integer n, integer smu);
+void bandaddI(realtype **a, integertype n, integertype smu);
 
 
 /******************************************************************
@@ -564,7 +569,7 @@ void bandaddI(real **a, integer n, integer smu);
  *                                                                *
  ******************************************************************/
 
-void bandfreepiv(integer *p);
+void bandfreepiv(integertype *p);
 
 
 /******************************************************************
@@ -576,7 +581,7 @@ void bandfreepiv(integer *p);
  *                                                                *
  ******************************************************************/
 
-void bandfree(real **a);
+void bandfree(realtype **a);
 
 
 /******************************************************************
@@ -593,7 +598,8 @@ void bandfree(real **a);
  *                                                                *
  ******************************************************************/
 
-void bandprint(real **a, integer n, integer mu, integer ml, integer smu);
+void bandprint(realtype **a, integertype n, integertype mu, 
+               integertype ml, integertype smu);
  
 
 #endif

@@ -2,7 +2,7 @@
  *                                                                *
  * File          : iterativ.h                                     *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 4 May 1998                                     *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This header file contains declarations intended for use by     *
  * generic iterative solvers of Ax = b. The enumeration gives     *
@@ -22,7 +22,7 @@ extern "C" {
 #ifndef _iterativ_h
 #define _iterativ_h
 
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "nvector.h"
 
 
@@ -140,7 +140,8 @@ typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z, int lr);
  *                                                                *
  ******************************************************************/
 
-int ModifiedGS(N_Vector *v, real **h, int k, int p, real *new_vk_norm);
+int ModifiedGS(N_Vector *v, realtype **h, int k, int p, 
+               realtype *new_vk_norm);
 
 
 /******************************************************************
@@ -156,15 +157,15 @@ int ModifiedGS(N_Vector *v, real **h, int k, int p, real *new_vk_norm);
  * temp is an N_Vector which can be used as workspace by the      *
  * ClassicalGS routine.                                           *
  *                                                                *
- * s is a length k array of reals which can be used as workspace  *
- * by the ClassicalGS routine.                                    *
+ * s is a length k array of realtype which can be used as         *
+ * workspace by the ClassicalGS routine.                          *
  *                                                                * 
  * ClassicalGS returns 0 to indicate success. It cannot fail.     *
  *                                                                *
  ******************************************************************/
 
-int ClassicalGS(N_Vector *v, real **h, int k, int p, real *new_vk_norm,
-		N_Vector temp, real *s);
+int ClassicalGS(N_Vector *v, realtype **h, int k, int p, 
+                realtype *new_vk_norm, N_Vector temp, realtype *s);
 
 
 /******************************************************************
@@ -199,7 +200,7 @@ int ClassicalGS(N_Vector *v, real **h, int k, int p, real *new_vk_norm,
  *                                                                *
  ******************************************************************/
 
-int QRfact(int n, real **h, real *q, int job);
+int QRfact(int n, realtype **h, realtype *q, int job);
 
 
 /******************************************************************
@@ -234,7 +235,7 @@ int QRfact(int n, real **h, real *q, int job);
  *                                                                *
  ******************************************************************/
 
-int QRsol(int n, real **h, real *q, real *b);
+int QRsol(int n, realtype **h, realtype *q, realtype *b);
 
 #endif
 

@@ -2,11 +2,11 @@
  *                                                                *
  * File          : smalldense.h                                   *
  * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 4 May 1998                                     *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for a generic DENSE linear solver      *
  * package, intended for small dense matrices.  These routines    *
- * use the type real ** for dense matrix arguments.               *
+ * use the type realtype** for dense matrix arguments.            *
  *                                                                *
  * These routines begin with "den" (except for the factor and     *
  * solve routines which are called gefa and gesl, respectively).  *
@@ -22,13 +22,13 @@ extern "C" {
 #ifndef _smalldense_h
 #define _smalldense_h
 
-#include "llnltyps.h"
+#include "sundialstypes.h"
 
  
 /******************************************************************
  *                                                                *
  * Function : denalloc                                            *
- * Usage    : real **a;                                           *
+ * Usage    : realtype **a;                                       *
  *            a = denalloc(n);                                    *
  *            if (a == NULL) ... memory request failed            *
  *----------------------------------------------------------------*
@@ -36,38 +36,38 @@ extern "C" {
  * returns a pointer to the newly allocated storage if            *
  * successful. If the memory request cannot be satisfied, then    *
  * denalloc returns NULL. The underlying type of the dense matrix *
- * returned is real **. If we allocate a dense matrix real **a by *
- * a = denalloc(n), then a[j][i] references the (i,j)th element   *
- * of the matrix a, 0 <= i,j <= n-1, and a[j] is a pointer to the *
- * first element in the jth column of a. The location a[0]        *
- * contains a pointer to n^2 contiguous locations which contain   *
- * the elements of a.                                             *
+ * returned is realtype **. If we allocate a dense matrix         *
+ * realtype **a by a = denalloc(n), then a[j][i] references the   *
+ * (i,j)th element of the matrix a, 0 <= i,j <= n-1, and a[j] is  *
+ * a pointer to the first element in the jth column of a.         *
+ * The location a[0] contains a pointer to n^2 contiguous         *
+ * locations which contain the elements of a.                     *
  *                                                                *
  ******************************************************************/
 
-real **denalloc(integer n);
+realtype **denalloc(integertype n);
 
 
 /******************************************************************
  *                                                                *
  * Function : denallocpiv                                         *
- * Usage    : integer *pivot;                                     *
+ * Usage    : integertype *pivot;                                 *
  *            pivot = denallocpiv(n);                             *
  *            if (pivot == NULL) ... memory request failed        *
  *----------------------------------------------------------------*
- * denallocpiv(n) allocates an array of n integers. It returns a  *
- * pointer to the first element in the array if successful. It    *
- * returns NULL if the memory request could not be satisfied.     *
+ * denallocpiv(n) allocates an array of n integertype. It returns *
+ * a pointer to the first element in the array if successful.     *
+ * It returns NULL if the memory request could not be satisfied.  *
  *                                                                *
  ******************************************************************/
 
-integer *denallocpiv(integer n);
+integertype *denallocpiv(integertype n);
 
 
 /******************************************************************
  *                                                                *
  * Function : gefa                                                *
- * Usage    : integer ier;                                        *
+ * Usage    : integertype ier;                                    *
  *            ier = gefa(a,n,p);                                  *
  *            if (ier > 0) ... zero element encountered during    *
  *                             the factorization                  *
@@ -96,13 +96,13 @@ integer *denallocpiv(integer n);
  *                                                                *
  ******************************************************************/
 
-integer gefa(real **a, integer n, integer *p);
+integertype gefa(realtype **a, integertype n, integertype *p);
 
 
 /******************************************************************
  *                                                                *
  * Function : gesl                                                *
- * Usage    : real *b;                                            *
+ * Usage    : realtype *b;                                        *
  *            ier = gefa(a,n,p);                                  *
  *            if (ier == 0) gesl(a,n,p,b);                        *
  *----------------------------------------------------------------*
@@ -113,7 +113,7 @@ integer gefa(real **a, integer n, integer *p);
  *                                                                *
  ******************************************************************/
 
-void gesl(real **a, integer n, integer *p, real *b);
+void gesl(realtype **a, integertype n, integertype *p, realtype *b);
 
 
 /******************************************************************
@@ -126,7 +126,7 @@ void gesl(real **a, integer n, integer *p, real *b);
  *                                                                *
  ******************************************************************/
 
-void denzero(real **a, integer n);
+void denzero(realtype **a, integertype n);
 
 
 /******************************************************************
@@ -139,7 +139,7 @@ void denzero(real **a, integer n);
  *                                                                *
  ******************************************************************/
 
-void dencopy(real **a, real **b, integer n);
+void dencopy(realtype **a, realtype **b, integertype n);
 
 
 /******************************************************************
@@ -152,7 +152,7 @@ void dencopy(real **a, real **b, integer n);
  *                                                                *
  ******************************************************************/
 
-void denscale(real c, real **a, integer n);
+void denscale(realtype c, realtype **a, integertype n);
 
 
 /******************************************************************
@@ -165,7 +165,7 @@ void denscale(real c, real **a, integer n);
  *                                                                *
  ******************************************************************/
 
-void denaddI(real **a, integer n);
+void denaddI(realtype **a, integertype n);
 
 
 /******************************************************************
@@ -178,7 +178,7 @@ void denaddI(real **a, integer n);
  *                                                                *
  ******************************************************************/
 
-void denfreepiv(integer *p);
+void denfreepiv(integertype *p);
 
 
 /******************************************************************
@@ -190,7 +190,7 @@ void denfreepiv(integer *p);
  *                                                                *
  ******************************************************************/
 
-void denfree(real **a);
+void denfree(realtype **a);
 
 
 /******************************************************************
@@ -206,7 +206,7 @@ void denfree(real **a);
  *                                                                *
  ******************************************************************/
 
-void denprint(real **a, integer n);
+void denprint(realtype **a, integertype n);
  
 
 #endif

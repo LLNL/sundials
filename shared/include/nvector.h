@@ -2,7 +2,7 @@
  *                                                              *
  * File          : nvector.h                                    *
  * Programmers   : Radu Serban, LLNL                            *
- * Version of    : 26 February 2002                             *
+ * Version of    : 26 June 2002                                 *
  *                                                              *
  *--------------------------------------------------------------*
  *                                                              *
@@ -44,7 +44,7 @@ extern "C" {
 #ifndef included_nvector_h
 #define included_nvector_h
   
-#include "llnltyps.h"  /* definition of types */
+#include "sundialstypes.h"  /* definition of types */
   
 /****************************************************************
  * Generic definitions of machine environment and N_Vector      *
@@ -64,35 +64,35 @@ typedef N_Vector *N_Vector_S;
 
 /* Structure containing function pointers to vector operations  */  
 struct _generic_N_Vector_Ops {
-  N_Vector   (*nvnew)(integer, M_Env);
-  N_Vector_S (*nvnewS)(integer, integer, M_Env);
-  void       (*nvfree)(N_Vector);
-  void       (*nvfreeS)(integer, N_Vector_S);
-  N_Vector   (*nvmake)(integer, real *, M_Env);
-  void       (*nvdispose)(N_Vector);
-  real*      (*nvgetdata)(N_Vector);
-  void       (*nvsetdata)(real *, N_Vector);
-  void       (*nvlinearsum)(real, N_Vector, real, N_Vector, N_Vector); 
-  void       (*nvconst)(real, N_Vector);
-  void       (*nvprod)(N_Vector, N_Vector, N_Vector);
-  void       (*nvdiv)(N_Vector, N_Vector, N_Vector);
-  void       (*nvscale)(real, N_Vector, N_Vector);
-  void       (*nvabs)(N_Vector, N_Vector);
-  void       (*nvinv)(N_Vector, N_Vector);
-  void       (*nvaddconst)(N_Vector, real, N_Vector);
-  real       (*nvdotprod)(N_Vector, N_Vector);
-  real       (*nvmaxnorm)(N_Vector);
-  real       (*nvwrmsnorm)(N_Vector, N_Vector);
-  real       (*nvmin)(N_Vector);
-  real       (*nvwl2norm)(N_Vector, N_Vector);
-  real       (*nvl1norm)(N_Vector);
-  void       (*nvonemask)(N_Vector);
-  void       (*nvcompare)(real, N_Vector, N_Vector);
-  boole      (*nvinvtest)(N_Vector, N_Vector);
-  boole      (*nvconstrprodpos)(N_Vector, N_Vector);
-  boole      (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
-  real       (*nvminquotient)(N_Vector, N_Vector);
-  void       (*nvprint)(N_Vector);
+  N_Vector    (*nvnew)(integertype, M_Env);
+  N_Vector_S  (*nvnewS)(integertype, integertype, M_Env);
+  void        (*nvfree)(N_Vector);
+  void        (*nvfreeS)(integertype, N_Vector_S);
+  N_Vector    (*nvmake)(integertype, realtype *, M_Env);
+  void        (*nvdispose)(N_Vector);
+  realtype*   (*nvgetdata)(N_Vector);
+  void        (*nvsetdata)(realtype *, N_Vector);
+  void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector); 
+  void        (*nvconst)(realtype, N_Vector);
+  void        (*nvprod)(N_Vector, N_Vector, N_Vector);
+  void        (*nvdiv)(N_Vector, N_Vector, N_Vector);
+  void        (*nvscale)(realtype, N_Vector, N_Vector);
+  void        (*nvabs)(N_Vector, N_Vector);
+  void        (*nvinv)(N_Vector, N_Vector);
+  void        (*nvaddconst)(N_Vector, realtype, N_Vector);
+  realtype    (*nvdotprod)(N_Vector, N_Vector);
+  realtype    (*nvmaxnorm)(N_Vector);
+  realtype    (*nvwrmsnorm)(N_Vector, N_Vector);
+  realtype    (*nvmin)(N_Vector);
+  realtype    (*nvwl2norm)(N_Vector, N_Vector);
+  realtype    (*nvl1norm)(N_Vector);
+  void        (*nvonemask)(N_Vector);
+  void        (*nvcompare)(realtype, N_Vector, N_Vector);
+  booleantype (*nvinvtest)(N_Vector, N_Vector);
+  booleantype (*nvconstrprodpos)(N_Vector, N_Vector);
+  booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+  realtype    (*nvminquotient)(N_Vector, N_Vector);
+  void        (*nvprint)(N_Vector);
 };
   
 /* A machine environment is a structure with an implementation
@@ -127,7 +127,7 @@ struct _generic_N_Vector {
  * N_VNew returns NULL.                                         *
  *--------------------------------------------------------------*/
   
-N_Vector N_VNew(integer n, M_Env machEnv);
+N_Vector N_VNew(integertype n, M_Env machEnv);
 
 /*--------------------------------------------------------------*
  * Function : N_VNew_S                                          *
@@ -140,7 +140,7 @@ N_Vector N_VNew(integer n, M_Env machEnv);
  * or for one of the components, then N_VNew_S returns NULL.    *
  *--------------------------------------------------------------*/
 
-N_Vector_S N_VNew_S(integer ns, integer n, M_Env machEnv);
+N_Vector_S N_VNew_S(integertype ns, integertype n, M_Env machEnv);
 
 /*--------------------------------------------------------------*
  * Function : N_VFree                                           *
@@ -160,7 +160,7 @@ void N_VFree(N_Vector v);
  * It is illegal to use vs after the call N_VFree_S(Ns,vs).     *
  *--------------------------------------------------------------*/
 
-void N_VFree_S(integer ns, N_Vector_S vs);
+void N_VFree_S(integertype ns, N_Vector_S vs);
 
 /*--------------------------------------------------------------*
  * Function : N_VMake                                           *
@@ -170,7 +170,7 @@ void N_VFree_S(integer ns, N_Vector_S vs);
  * the user.                                                    *
  *--------------------------------------------------------------*/
 
-N_Vector N_VMake(integer n, real *v_data, M_Env machEnv);
+N_Vector N_VMake(integertype n, realtype *v_data, M_Env machEnv);
 
 /*--------------------------------------------------------------*
  * Function : N_VDispose                                        *
@@ -195,7 +195,7 @@ void N_VDispose(N_Vector v);
  *       used.                                                  *
  *--------------------------------------------------------------*/
 
-real *N_VGetData(N_Vector v);
+realtype *N_VGetData(N_Vector v);
 
 /*--------------------------------------------------------------*
  * Function : N_VSetData                                        *
@@ -210,21 +210,22 @@ real *N_VGetData(N_Vector v);
  *       used.                                                  *
  *--------------------------------------------------------------*/
 
-void N_VSetData(real *v_data, N_Vector v);
+void N_VSetData(realtype *v_data, N_Vector v);
 
 /*--------------------------------------------------------------*
  * Function  : N_VLinearSum                                     *
  * Operation : z = a x + b y                                    *
  *--------------------------------------------------------------*/
 
-void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z);
+void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, 
+                  N_Vector z);
 
 /*--------------------------------------------------------------*
  * Function  : N_VConst                                         *
  * Operation : z[i] = c for i=0, 1, ..., N-1                    *
  *--------------------------------------------------------------*/
 
-void N_VConst(real c, N_Vector z);
+void N_VConst(realtype c, N_Vector z);
 
 /*--------------------------------------------------------------*
  * Function  : N_VProd                                          *
@@ -245,7 +246,7 @@ void N_VDiv(N_Vector x, N_Vector y, N_Vector z);
  * Operation : z = c x                                          *
  *--------------------------------------------------------------*/
 
-void N_VScale(real c, N_Vector x, N_Vector z);
+void N_VScale(realtype c, N_Vector x, N_Vector z);
 
 /*--------------------------------------------------------------*
  * Function  : N_VAbs                                           *
@@ -270,7 +271,7 @@ void N_VInv(N_Vector x, N_Vector z);
  * Operation : z[i] = x[i] + b   for i = 0, 1, ..., N-1         *
  *--------------------------------------------------------------*/
 
-void N_VAddConst(N_Vector x, real b, N_Vector z);
+void N_VAddConst(N_Vector x, realtype b, N_Vector z);
 
 /*--------------------------------------------------------------*
  * Function : N_VDotProd                                        *
@@ -281,7 +282,7 @@ void N_VAddConst(N_Vector x, real b, N_Vector z);
  * Returns 0.0 if N <= 0.                                       *
  *--------------------------------------------------------------*/
 
-real N_VDotProd(N_Vector x, N_Vector y);
+realtype N_VDotProd(N_Vector x, N_Vector y);
 
 /*--------------------------------------------------------------*
  * Function : N_VMaxNorm                                        *
@@ -292,7 +293,7 @@ real N_VDotProd(N_Vector x, N_Vector y);
  * Returns 0.0 if N <= 0.                                       *
  *--------------------------------------------------------------*/
 
-real N_VMaxNorm(N_Vector x);
+realtype N_VMaxNorm(N_Vector x);
 
 /*--------------------------------------------------------------*
  * Function : N_VWrmsNorm                                       *
@@ -304,7 +305,7 @@ real N_VMaxNorm(N_Vector x);
  * Returns 0.0 if N <= 0.                                       *
  *--------------------------------------------------------------*/
 
-real N_VWrmsNorm(N_Vector x, N_Vector w);
+realtype N_VWrmsNorm(N_Vector x, N_Vector w);
 
 /*--------------------------------------------------------------*
  * Function : N_VMin                                            *
@@ -315,7 +316,7 @@ real N_VWrmsNorm(N_Vector x, N_Vector w);
  * Returns 0.0 if N <= 0.                                       *
  *--------------------------------------------------------------*/
 
-real N_VMin(N_Vector x);
+realtype N_VMin(N_Vector x);
 
 /*--------------------------------------------------------------*
  * Function : N_VWL2Norm                                        *
@@ -327,7 +328,7 @@ real N_VMin(N_Vector x);
  * Returns 0.0 if N <= 0.                                       *
  *--------------------------------------------------------------*/
 
-real N_VWL2Norm(N_Vector x, N_Vector w);
+realtype N_VWL2Norm(N_Vector x, N_Vector w);
 
 /*--------------------------------------------------------------*
  * Function : N_VL1Norm                                         *
@@ -338,7 +339,7 @@ real N_VWL2Norm(N_Vector x, N_Vector w);
  * Returns 0.0 if N <= 0.                                       *
  *--------------------------------------------------------------*/
 
-real N_VL1Norm(N_Vector x);
+realtype N_VL1Norm(N_Vector x);
 
 /*--------------------------------------------------------------*
  * Function  : N_VOneMask                                       *
@@ -354,7 +355,7 @@ void N_VOneMask(N_Vector x);
  *                    0.0 otherwise                             *
  *--------------------------------------------------------------*/
 
-void N_VCompare(real c, N_Vector x, N_Vector z);
+void N_VCompare(realtype c, N_Vector x, N_Vector z);
 
 /*--------------------------------------------------------------*
  * Function  : N_VInvTest                                       *
@@ -366,7 +367,7 @@ void N_VCompare(real c, N_Vector x, N_Vector z);
  * otherwise.                                                   *
  *--------------------------------------------------------------*/
 
-boole N_VInvTest(N_Vector x, N_Vector z);
+booleantype N_VInvTest(N_Vector x, N_Vector z);
 
 /*--------------------------------------------------------------*
  * Function : N_VConstrProdPos                                  *
@@ -379,7 +380,7 @@ boole N_VInvTest(N_Vector x, N_Vector z);
  * This routine is used for constraint checking.                *
  *--------------------------------------------------------------*/
 
-boole N_VConstrProdPos(N_Vector c, N_Vector x);
+booleantype N_VConstrProdPos(N_Vector c, N_Vector x);
 
 /*--------------------------------------------------------------*
  * Function  : N_VConstrMask                                    *
@@ -391,7 +392,7 @@ boole N_VConstrProdPos(N_Vector c, N_Vector x);
  *    If c[i] = -1.0, then x[i] must be <= 0.0.                 *
  *    If c[i] = -2.0, then x[i] must be < 0.0.                  *
  *--------------------------------------------------------------*
- * This routine returns a boole FALSE if any element failed     *
+ * This routine returns a boolean FALSE if any element failed   *
  * the constraint test, TRUE if all passed.  It also sets a     *
  * mask vector m, with elements equal to 1.0 where the          *
  * corresponding constraint test failed, and equal to 0.0       *
@@ -400,7 +401,7 @@ boole N_VConstrProdPos(N_Vector c, N_Vector x);
  * constraint checking.                                         *
  *--------------------------------------------------------------*/
 
-boole N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
+booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
 
 /*--------------------------------------------------------------*
  * Function  : N_VMinQuotient                                   *
@@ -413,7 +414,7 @@ boole N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
  * then the large value 1.e99 is returned.                      *
  *--------------------------------------------------------------*/
 
-real N_VMinQuotient(N_Vector num, N_Vector denom);
+realtype N_VMinQuotient(N_Vector num, N_Vector denom);
 
 /*--------------------------------------------------------------*
  * Function : N_VPrint                                          *

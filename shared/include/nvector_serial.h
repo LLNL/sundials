@@ -3,7 +3,7 @@
  * File          : nvector_serial.h                             *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
  *               : Radu Serban, and Allan G. Taylor, LLNL       *
- * Version of    : 26 February 2002                             *
+ * Version of    : 26 June 2002                                 *
  *--------------------------------------------------------------*
  *                                                              *
  * This is the header file for a serial implementation of the   *
@@ -32,10 +32,10 @@
  * The definitions of the generic M_Env and N_Vector structures *
  * are in the header file nvector.h.                            *
  *                                                              *
- * The definitions of the types real and integer are in the     *
- * header file llnltyps.h and these may be changed according to *
- * the user's needs. The llnltyps.h file also contains the      *
- * definition for the type boole (short for boolean).           *
+ * The definitions of the types realtype and integertype are in *
+ * the header file sundialstypes.h and these may be changed     *
+ * according to the user's needs. The sundialstypes.h file also *
+ * contains the definition for the type booleantype.            *
  *                                                              *
  * N_Vector arguments to arithmetic kernels need not be         *
  * distinct. Thus, for example, the call                        *
@@ -57,7 +57,7 @@ extern "C" {
 #define included_nvector_serial_h
 
 #include "nvector.h"  /* Generic M_Env and N_Vector type definitions */
-#include "llnltyps.h"
+#include "sundialstypes.h"
 
 
 /****************************************************************
@@ -73,18 +73,18 @@ extern "C" {
    structure contains the length of vectors */
 
 struct _M_EnvSerialContent {
-  integer length;
+  integertype length;
 };
 
 typedef struct _M_EnvSerialContent *M_EnvSerialContent;
 
 /* The serial implementation of the N_Vector 'content' 
    structure contains the length of the vector and a pointer 
-   to an array of real components */
+   to an array of realtype components */
 
 struct _N_VectorSerialContent {
-  integer length;
-  real *data;
+  integertype length;
+  realtype   *data;
 };
 
 typedef struct _N_VectorSerialContent *N_VectorSerialContent;
@@ -99,10 +99,10 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  * In the descriptions below, the following user declarations   *
  * are assumed:                                                 *
  *                                                              *
- * M_Env    machenv;                                            *
- * N_Vector v, *vs;                                             *
- * real     *v_data, **vs_data, r;                              *
- * integer  v_len, s_len, i;                                    *
+ * M_Env         machenv;                                       *
+ * N_Vector      v, *vs;                                        *
+ * realtype     *v_data, **vs_data, r;                          *
+ * integertype   v_len, s_len, i;                               *
  *                                                              *
  * (1) NV_MAKE_S, NV_DISPOSE_S                                  *
  *                                                              *
@@ -259,7 +259,7 @@ typedef struct _N_VectorSerialContent *N_VectorSerialContent;
  *                                                              *
  *--------------------------------------------------------------*/
 
-M_Env M_EnvInit_Serial(integer vec_length);
+M_Env M_EnvInit_Serial(integertype vec_length);
 
 /*--------------------------------------------------------------*
  * Function M_EnvFree_Serial                                    *
@@ -280,34 +280,34 @@ void M_EnvFree_Serial(M_Env machenv);
  * see the header file nvector.h                                *
  *--------------------------------------------------------------*/
 
-N_Vector N_VNew_Serial(integer n, M_Env machEnv);
-N_Vector_S N_VNew_S_Serial(integer ns, integer n, M_Env machEnv);
+N_Vector N_VNew_Serial(integertype n, M_Env machEnv);
+N_Vector_S N_VNew_S_Serial(integertype ns, integertype n, M_Env machEnv);
 void N_VFree_Serial(N_Vector v);
-void N_VFree_S_Serial(integer ns, N_Vector_S vs);
-N_Vector N_VMake_Serial(integer n, real *v_data, M_Env machEnv);
+void N_VFree_S_Serial(integertype ns, N_Vector_S vs);
+N_Vector N_VMake_Serial(integertype n, realtype *v_data, M_Env machEnv);
 void N_VDispose_Serial(N_Vector v);
-real *N_VGetData_Serial(N_Vector v);
-void N_VSetData_Serial(real *v_data, N_Vector v);
-void N_VLinearSum_Serial(real a, N_Vector x, real b, N_Vector y, N_Vector z);
-void N_VConst_Serial(real c, N_Vector z);
+realtype *N_VGetData_Serial(N_Vector v);
+void N_VSetData_Serial(realtype *v_data, N_Vector v);
+void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
+void N_VConst_Serial(realtype c, N_Vector z);
 void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z);
 void N_VDiv_Serial(N_Vector x, N_Vector y, N_Vector z);
-void N_VScale_Serial(real c, N_Vector x, N_Vector z);
+void N_VScale_Serial(realtype c, N_Vector x, N_Vector z);
 void N_VAbs_Serial(N_Vector x, N_Vector z);
 void N_VInv_Serial(N_Vector x, N_Vector z);
-void N_VAddConst_Serial(N_Vector x, real b, N_Vector z);
-real N_VDotProd_Serial(N_Vector x, N_Vector y);
-real N_VMaxNorm_Serial(N_Vector x);
-real N_VWrmsNorm_Serial(N_Vector x, N_Vector w);
-real N_VMin_Serial(N_Vector x);
-real N_VWL2Norm_Serial(N_Vector x, N_Vector w);
-real N_VL1Norm_Serial(N_Vector x);
+void N_VAddConst_Serial(N_Vector x, realtype b, N_Vector z);
+realtype N_VDotProd_Serial(N_Vector x, N_Vector y);
+realtype N_VMaxNorm_Serial(N_Vector x);
+realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w);
+realtype N_VMin_Serial(N_Vector x);
+realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w);
+realtype N_VL1Norm_Serial(N_Vector x);
 void N_VOneMask_Serial(N_Vector x);
-void N_VCompare_Serial(real c, N_Vector x, N_Vector z);
-boole N_VInvTest_Serial(N_Vector x, N_Vector z);
-boole N_VConstrProdPos_Serial(N_Vector c, N_Vector x);
-boole N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);   
-real N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
+void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z);
+booleantype N_VInvTest_Serial(N_Vector x, N_Vector z);
+booleantype N_VConstrProdPos_Serial(N_Vector c, N_Vector x);
+booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);   
+realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
 void N_VPrint_Serial(N_Vector x);
 
 

@@ -3,16 +3,16 @@
  * File          : dense.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 4 March 2002                                   *
+ * Version of    : 26 June 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for a generic DENSE linear solver      *
  * package.  The routines listed in this file all use type        *
  * DenseMat, defined below, for matrices.  These routines in turn *
  * call routines in the smalldense.h/smalldense.c module, which   *
- * use the type real ** for matrices.  This separation allows for *
- * possible modifications in which matrices of type DenseMat may  *
- * not be stored contiguously, while small matrices can still be  *
- * treated with the routines in smalldense.                       *
+ * use the type realtype** for matrices.  This separation allows  *
+ * for possible modifications in which matrices of type DenseMat  *
+ * may not be stored contiguously, while small matrices can still *
+ * be treated with the routines in smalldense.                    *
  *                                                                * 
  * Routines that work with the type DenseMat begin with "Dense".  *
  * The DenseAllocMat function allocates a dense matrix for use in *
@@ -24,7 +24,7 @@
  * DenseFreePiv, respectively. The DenseFactor and DenseBacksolve *
  * routines perform the actual solution of a dense linear system. *
  *                                                                *
- * Routines that work with real ** begin with "den" (except for   *
+ * Routines that work with realtype** begin with "den" (except for*
  * the factor and solve routines which are called gefa and gesl,  *
  * respectively). The underlying matrix storage is described in   *
  * the documentation for denalloc in smalldense.h                 *
@@ -38,7 +38,7 @@ extern "C" {
 #define _dense_h
 
 
-#include "llnltyps.h"
+#include "sundialstypes.h"
 #include "smalldense.h"
 
  
@@ -66,8 +66,8 @@ extern "C" {
  ******************************************************************/
 
 typedef struct _DenseMat {
-  integer size;
-  real  **data;
+  integertype size;
+  realtype  **data;
 } *DenseMat;
  
 
@@ -95,7 +95,7 @@ typedef struct _DenseMat {
  *----------------------------------------------------------------*
  * DENSE_COL(A,j) references the jth column of the N by N         *
  * DenseMat A, 0 <= j <= N-1. The type of the expression          *
- * DENSE_COL(A,j) is real *. After the assignment in the usage    *
+ * DENSE_COL(A,j) is realtype *. After the assignment in the usage*
  * above, col_j may be treated as an array indexed from 0 to N-1. *
  * The (i,j)th element of A is referenced by col_j[i].            *
  *                                                                *
@@ -121,7 +121,7 @@ typedef struct _DenseMat {
  *                                                                * 
  ******************************************************************/
 
-DenseMat DenseAllocMat(integer N);
+DenseMat DenseAllocMat(integertype N);
 
 
 /******************************************************************
@@ -139,7 +139,7 @@ DenseMat DenseAllocMat(integer N);
  *                                                                * 
  ******************************************************************/
 
-integer *DenseAllocPiv(integer N);
+integertype *DenseAllocPiv(integertype N);
 
 
 /******************************************************************
@@ -172,7 +172,7 @@ integer *DenseAllocPiv(integer N);
  *                                                                *
  ******************************************************************/
 
-integer DenseFactor(DenseMat A, integer *p);
+integertype DenseFactor(DenseMat A, integertype *p);
 
 
 /******************************************************************
@@ -188,7 +188,7 @@ integer DenseFactor(DenseMat A, integer *p);
  *                                                                *
  ******************************************************************/
 
-void DenseBacksolve(DenseMat A, integer *p, real *b);
+void DenseBacksolve(DenseMat A, integertype *p, realtype *b);
 
 
 /******************************************************************
@@ -226,7 +226,7 @@ void DenseCopy(DenseMat A, DenseMat B);
  *                                                                *
  ******************************************************************/
 
-void DenseScale(real c, DenseMat A);
+void DenseScale(realtype c, DenseMat A);
 
 
 /******************************************************************
@@ -265,7 +265,7 @@ void DenseFreeMat(DenseMat A);
  *                                                                *
  ******************************************************************/
 
-void DenseFreePiv(integer *p);
+void DenseFreePiv(integertype *p);
 
 
 /******************************************************************
