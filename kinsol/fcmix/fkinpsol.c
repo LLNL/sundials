@@ -1,8 +1,9 @@
- /******************************************************************
+ /*****************************************************************
  *                                                                *
  * File          : fkinpsol.c                                     *
- * Programmers   : Allan G Taylor and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 21 December 2001                               *
+ * Programmers   : Allan G Taylor, Alan C. Hindmarsh, and         * 
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 8 MArch 2002                                   *
  *----------------------------------------------------------------*
  * This routine interfaces between the user-supplied Fortran      *
  * routine KPSOL and the various routines that call KINSpgmr.     *
@@ -12,36 +13,43 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "llnltyps.h" /* definitions of types real and integer            */
-#include "nvector.h"  /* definitions of type N_Vector and related macros  */
-#include "kinsol.h"   /* KINSOL constants and prototypes                  */
-#include "fkinsol.h"  /* prototypes of interfaces, global variables       */
+#include "llnltyps.h" /* definitions of types real and integer      */
+#include "nvector.h"  /* definitions of type N_Vector               */
+#include "kinsol.h"   /* KINSOL constants and prototypes            */
+#include "fkinsol.h"  /* prototypes of interfaces, global variables */
 
-/**************************************************************************/
+/********************************************************************/
+
+/* Prototypes of the Fortran routines */
+void K_PSOL(integer*, real*, real*, real*, real*, real*, real*, real*, long int*, int*);
+
+/********************************************************************/
 
 /* C function KINPSol to interface between KINSpgmr and KPSOL, the user-
   supplied Fortran preconditioner solve routine. */
 
 int KINPSol(integer Neq, N_Vector uu, N_Vector uscale, 
-             N_Vector fval, N_Vector fscale,
-	     N_Vector vtem, N_Vector ftem,
-	     SysFn func, real u_round,
-	     long int *nfePtr, void *P_data)
+            N_Vector fval, N_Vector fscale,
+            N_Vector vtem, N_Vector ftem,
+            SysFn func, real u_round,
+            long int *nfePtr, void *P_data)
 {
   real *udata,*uscaledata, *fdata,*fscaledata, *vtemdata, *ftemdata;
   int retcode;
 
- udata      = N_VDATA(uu);
- uscaledata = N_VDATA(uscale);
- fdata      = N_VDATA(fval);
- fscaledata = N_VDATA(fscale);
- vtemdata   = N_VDATA(vtem);
- ftemdata   = N_VDATA(ftem);
+  udata      = N_VGetData(uu);
+  uscaledata = N_VGetData(uscale);
+  fdata      = N_VGetData(fval);
+  fscaledata = N_VGetData(fscale);
+  vtemdata   = N_VGetData(vtem);
+  ftemdata   = N_VGetData(ftem);
+  
+  K_PSOL(&Neq, udata, uscaledata, fdata, fscaledata, vtemdata, ftemdata,
+         &u_round, nfePtr,&retcode);
  
- K_PSOL(&Neq, udata, uscaledata, fdata, fscaledata, vtemdata, ftemdata,
-       &u_round, nfePtr,&retcode);
+  N_VSetData(vtemdata, vtem);
 
- return(retcode);
+  return(retcode);
 
 }
 
