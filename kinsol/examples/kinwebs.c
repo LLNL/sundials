@@ -1,7 +1,9 @@
 /*************************************************************************
- * File: kinwebs.c                                                       *
- * Programmers: Allan G. Taylor and Alan C. Hindmarsh @ LLNL             *
- * Version of 16 January 2001                                            *
+ * File        : kinwebs.c                                               *
+ * Programmers : Allan G. Taylor and Alan C. Hindmarsh @ LLNL            *
+ * Version of  : 7 March 2002                                            *
+ *-----------------------------------------------------------------------*
+ * Modified by R. Serban to work with new serial nvector (7/3/2002)      *
  *-----------------------------------------------------------------------*
  * Example problem for KINSol, serial machine version.
  * This example solves a nonlinear system that arises from a system of  
@@ -68,18 +70,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"   /* definitions of real, integer, bool, TRUE, FALSE */
-#include "kinsol.h"     /* main KINSOL header file                         */
-#include "iterativ.h"   /* contains the enum for types of preconditioning  */
-#include "kinspgmr.h"   /* use KINSPGMR linear solver                      */
-#include "smalldense.h" /* use generic DENSE solver for preconditioning    */
-#include "nvector.h"    /* definitions of type N_Vector, macro N_VDATA     */
-#include "llnlmath.h"   /* contains RSqrt and UnitRoundoff routines        */
+#include "llnltyps.h"       /* definitions of real, integer, bool, TRUE, FALSE */
+#include "kinsol.h"         /* main KINSOL header file                         */
+#include "iterativ.h"       /* contains the enum for types of preconditioning  */
+#include "kinspgmr.h"       /* use KINSPGMR linear solver                      */
+#include "smalldense.h"     /* use generic DENSE solver for preconditioning    */
+#include "nvector_serial.h" /* definitions of type N_Vector, macros NV_Ith_S,  NV_DATA_S   */
+#include "llnlmath.h"       /* contains RSqrt and UnitRoundoff routines        */
 
 /* Problem Constants */
 
 #define NUM_SPECIES     6  /* must equal 2*(number of prey or predators)
-			      number of prey = number of predators       */ 
+                              number of prey = number of predators       */ 
 
 #define PI       3.1415926535898   /* pi */ 
 
@@ -111,7 +113,8 @@
    IJ_Vptr(vv,i,j) returns a pointer to the location in vv corresponding to 
    indices is = 0, jx = i, jy = j.    */
 
-#define IJ_Vptr(vv,i,j)   (&(((vv)->data)[(i)*NUM_SPECIES + (j)*NSMX]))
+#define IJ_Vptr(vv,i,j)   (&NV_Ith_S(vv, i*NUM_SPECIES + j*NSMX))
+
 
 /* Type : UserData 
    contains preconditioner blocks, pivot arrays, and problem constants */
@@ -155,21 +158,23 @@ static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
 
 /***************************** Main Program ******************************/
 
-main()
+int main()
 {
-  integer Neq=NEQ, globalstrategy, i;
+  M_Env machEnv;
+  integer Neq=NEQ, globalstrategy;
   real fnormtol, scsteptol, ropt[OPT_SIZE];
   long int iopt[OPT_SIZE];
   N_Vector cc, sc, constraints;
   UserData data;
-  void *kinsol_mem;
-  int iout, flag, maxl, maxlrst;
+  int flag, maxl, maxlrst;
   boole optIn;
   void *mem;
   KINMem kmem;
 
-  /* Allocate memory, and set problem data, initial values, tolerances */ 
+  /* Initialize serial machine environment */
+  machEnv = M_EnvInit_Serial(Neq);
 
+  /* Allocate memory, and set problem data, initial values, tolerances */ 
   optIn = FALSE;
 
   globalstrategy = INEXACT_NEWTON;
@@ -177,11 +182,11 @@ main()
   data = AllocUserData();
   InitUserData(data);
 
-  cc = N_VNew(Neq, NULL);
-  sc = N_VNew(Neq, NULL);
-  data->rates=N_VNew(Neq,NULL);
+  cc = N_VNew(Neq, machEnv);
+  sc = N_VNew(Neq, machEnv);
+  data->rates=N_VNew(Neq, machEnv);
 
-  constraints = N_VNew(Neq, NULL);
+  constraints = N_VNew(Neq, machEnv);
   N_VConst(0.,constraints);
   
   SetInitialProfiles(cc, sc);
@@ -191,10 +196,10 @@ main()
   /* Call KINMalloc to initialize KINSOL: 
      Neq      is the number of equations in the system being solved
      NULL     directs error messages to stdout
-     NULL     the machEnv pointer is not used in the serial version
-   A pointer to KINSOL problem memory is returned and stored in kinsol_mem.*/
+     machEnv  the machEnv pointer used in the serial version
+     A pointer to KINSOL problem memory is returned and stored in kinsol_mem.*/
 
-  mem = KINMalloc(Neq, NULL, NULL);
+  mem = KINMalloc(Neq, NULL, machEnv);
   if (mem == NULL) { printf("KINMalloc failed."); return(1); }
   kmem = (KINMem)mem;
 
@@ -203,16 +208,16 @@ main()
 
   maxl = 15; maxlrst = 2;
   flag = KINSpgmr(kmem,
-           maxl,      /*  max. dimension of the Krylov subspace in SPGMR */
-           maxlrst,   /*  max number of SPGMR restarts */
-           0,         /*  0 forces use of default for msbpre, the max.
-                          number of nonlinear steps between calls to the
-                          preconditioner setup routine */
-           Precondbd, /* user-supplied preconditioner setup routine */
-           PSolvebd,  /* user-supplied preconditioner solve routine */
-           NULL,      /* user-supplied ATimes routine -- Null here */
-           data);     /* pointer to the user-defined data block */
-
+                  maxl,      /*  max. dimension of the Krylov subspace in SPGMR */
+                  maxlrst,   /*  max number of SPGMR restarts */
+                  0,         /*  0 forces use of default for msbpre, the max.
+                                 number of nonlinear steps between calls to the
+                                 preconditioner setup routine */
+                  Precondbd, /* user-supplied preconditioner setup routine */
+                  PSolvebd,  /* user-supplied preconditioner solve routine */
+                  NULL,      /* user-supplied ATimes routine -- Null here */
+                  data);     /* pointer to the user-defined data block */
+  
   if (flag != 0) {
     printf("KINSpgmr call failed, returning %d \n",flag);
     return(1);
@@ -223,40 +228,40 @@ main()
   printf("\nPredator-prey test problem --  KINSol (serial version)\n\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Number of species = %d\n", NUM_SPECIES);
-  printf("Total system size = %d\n\n", Neq);
-  printf("Flag globalstrategy = %d (0 = Inex. Newton, 1 = Linesearch)\n",
-                   globalstrategy);
+  printf("Total system size = %ld\n\n", Neq);
+  printf("Flag globalstrategy = %ld (0 = Inex. Newton, 1 = Linesearch)\n",
+         globalstrategy);
   printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
-                   maxl, maxlrst);
+         maxl, maxlrst);
   printf("Preconditioning uses interaction-only block-diagonal matrix\n");
   printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
-	           fnormtol, scsteptol);
+         fnormtol, scsteptol);
 
   printf("\nInitial profile of concentration\n");
   printf("At all mesh points:  %g %g %g   %g %g %g\n", PREYIN,PREYIN,PREYIN,
          PREDIN,PREDIN,PREDIN);
-
+  
   /* Call KINSol and print output concentration profile */
-
+  
   flag = KINSol(kmem,           /* KINSol memory block */
-		Neq,            /* system size -- number of equations  */
-		cc,             /* solution vector, and initial guess on input */
-		funcprpr,       /* function describing the system equations */
-		globalstrategy, /* global stragegy choice */
-		sc,             /* scaling vector, for the variable cc */
-		sc,             /* scaling vector for function values fval */
-		fnormtol,       /* tolerance on norm of scaled function value */
-		scsteptol,      /* step size tolerance */
-		constraints,    /* constraints vector  */
-		optIn,          /* optional inputs flag: TRUE or FALSE */
-		iopt,           /* integer optional input array */
-		ropt,           /* real optional input array */
-		data);          /* pointer to user data */
-
+                Neq,            /* system size -- number of equations  */
+                cc,             /* solution vector, and initial guess on input */
+                funcprpr,       /* function describing the system equations */
+                globalstrategy, /* global stragegy choice */
+                sc,             /* scaling vector, for the variable cc */
+                sc,             /* scaling vector for function values fval */
+                fnormtol,       /* tolerance on norm of scaled function value */
+                scsteptol,      /* step size tolerance */
+                constraints,    /* constraints vector  */
+                optIn,          /* optional inputs flag: TRUE or FALSE */
+                iopt,           /* integer optional input array */
+                ropt,           /* real optional input array */
+                data);          /* pointer to user data */
+  
   if (flag != KINSOL_SUCCESS) { 
     printf("KINSOL failed, returning %d.\n", flag); 
     return(flag); }
-
+  
   printf("\n\n\nComputed equilibrium species concentrations:\n");
   PrintOutput(cc);
 
@@ -270,6 +275,7 @@ main()
   N_VFree(constraints);
   KINFree(kmem);
   FreeUserData(data);
+  M_EnvFree_Serial(machEnv);
 
   return(0);
 
@@ -287,20 +293,20 @@ static UserData AllocUserData(void)
   UserData data;
 
   data = (UserData) malloc(sizeof *data);
-
+  
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       (data->P)[jx][jy] = denalloc(NUM_SPECIES);
       (data->pivot)[jx][jy] = denallocpiv(NUM_SPECIES);
     }
   }
- (data->acoef) = denalloc(NUM_SPECIES);
- (data->bcoef) = (real *)malloc(NUM_SPECIES * sizeof(real));
- (data->cox)   = (real *)malloc(NUM_SPECIES * sizeof(real));
- (data->coy)   = (real *)malloc(NUM_SPECIES * sizeof(real));
- 
+  (data->acoef) = denalloc(NUM_SPECIES);
+  (data->bcoef) = (real *)malloc(NUM_SPECIES * sizeof(real));
+  (data->cox)   = (real *)malloc(NUM_SPECIES * sizeof(real));
+  (data->coy)   = (real *)malloc(NUM_SPECIES * sizeof(real));
+  
   return(data);
-
+  
 } /* end of routine AllocUserData ****************************************/
 
 
@@ -316,8 +322,8 @@ static UserData AllocUserData(void)
 static void InitUserData(UserData data)
 {
   int i, j, np;
-  real *a1,*a2, *a3, *a4, *b, dx2, dy2;
-
+  real *a1,*a2, *a3, *a4, dx2, dy2;
+  
   data->mx = MX;
   data->my = MY;
   data->Neq= NEQ;
@@ -347,21 +353,21 @@ static void InitUserData(UserData data)
       *a3++ = ZERO;
       *a4++ = ZERO;
     }
-
+    
     /* and then change the diagonal elements of acoef to -AA */
     acoef[i][i]=-AA;
     acoef[i+np][i+np] = -AA;
-
+    
     bcoef[i] = BB;
     bcoef[i+np] = -BB;
-
+    
     cox[i]=DPREY/dx2;
     cox[i+np]=DPRED/dx2;
-
+    
     coy[i]=DPREY/dy2;
     coy[i+np]=DPRED/dy2;
   }
-
+  
 } /* end of routine InitUserData *****************************************/
 
 
@@ -370,20 +376,20 @@ static void InitUserData(UserData data)
 static void FreeUserData(UserData data)
 {
   int jx, jy;
-
+  
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       denfree((data->P)[jx][jy]);
       denfreepiv((data->pivot)[jx][jy]);
     }
   }
-
+  
   denfree(acoef);
   free(bcoef);
   free(cox);
   N_VFree(data->rates);
   free(data);
-
+  
 } /* end of routine FreeUserData *****************************************/
 
 
@@ -394,7 +400,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   int i, jx, jy;
   real *cloc, *sloc;
   real  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
-
+  
   /* Initialize arrays ctemp and stemp used in the loading process */
   for(i=0;i<NUM_SPECIES/2;i++) {
     ctemp[i] = PREYIN;
@@ -411,8 +417,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
       cloc = IJ_Vptr(cc,jx,jy);
       sloc = IJ_Vptr(sc,jx,jy);
       for(i=0;i<NUM_SPECIES;i++){
-	cloc[i] = ctemp[i];
-	sloc[i] = stemp[i];
+        cloc[i] = ctemp[i];
+        sloc[i] = stemp[i];
       }
     }
   }
@@ -426,7 +432,7 @@ static void PrintOutput(N_Vector cc)
 {
   int is, jx, jy;
   real *ct;
-
+  
   jy = 0; jx = 0;
   ct = IJ_Vptr(cc,jx,jy);
   printf("\nAt bottom left:");
@@ -435,7 +441,7 @@ static void PrintOutput(N_Vector cc)
     if((is%6)*6 == is)printf("\n");
     printf(" %g",ct[is]);
   }
-
+  
   jy = MY-1; jx = MX-1;
   ct = IJ_Vptr(cc,jx,jy);
   printf("\n\nAt top right:");
@@ -444,8 +450,8 @@ static void PrintOutput(N_Vector cc)
     if((is%6)*6 == is)printf("\n");
     printf(" %g",ct[is]);
   }
- printf("\n\n");
-
+  printf("\n\n");
+  
 } /* end of routine PrintOutput ******************************************/
 
 
@@ -457,7 +463,7 @@ static void PrintFinalStats(long int iopt[])
   printf("nni    = %5ld    nli   = %5ld\n", iopt[NNI], iopt[SPGMR_NLI]);
   printf("nfe    = %5ld    npe   = %5ld\n", iopt[NFE], iopt[SPGMR_NPE]);
   printf("nps    = %5ld    ncfl  = %5ld\n", iopt[SPGMR_NPS], iopt[SPGMR_NCFL]);
-
+  
 } /* end of routine PrintFinalStats **************************************/
 
 
@@ -471,20 +477,20 @@ static void funcprpr(integer Neq, N_Vector cc, N_Vector fval, void *f_data)
   real xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
   integer jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
- 
+  
   data=(UserData)f_data;
   delx = data->dx;
   dely = data->dy;
-
+  
   /* Loop over all mesh points, evaluating rate array at each point*/
-
+  
   for (jy = 0; jy < MY; jy++) {
-
+    
     yy = dely*jy;
     /* Set lower/upper index shifts, special at boundaries. */
     idyl = (jy != 0   ) ? NSMX : -NSMX;
     idyu = (jy != MY-1) ? NSMX : -NSMX;
-
+    
     for (jx = 0; jx < MX; jx++) {
 
       xx = delx*jx;
@@ -498,130 +504,130 @@ static void funcprpr(integer Neq, N_Vector cc, N_Vector fval, void *f_data)
 
       /* Get species interaction rate array at (xx,yy) */
       WebRate(xx, yy, cxy, rxy, f_data);
-
+      
       for(is=0; is<NUM_SPECIES; is++){
-
-	/* Differencing in x direction */
-	dcyli = *(cxy+is) - *(cxy - idyl + is) ;
-	dcyui = *(cxy + idyu + is) - *(cxy+is);
-	
-	/* Differencing in y direction */
-	dcxli = *(cxy+is) - *(cxy - idxl + is);
-	dcxri = *(cxy + idxr +is) - *(cxy+is);
-
-	/* Compute the total rate value at (xx,yy) */
-	fxy[is] = (coy)[is] * (dcyui - dcyli) +
-                  (cox)[is] * (dcxri - dcxli) + rxy[is];
-
+        
+        /* Differencing in x direction */
+        dcyli = *(cxy+is) - *(cxy - idyl + is) ;
+        dcyui = *(cxy + idyu + is) - *(cxy+is);
+        
+        /* Differencing in y direction */
+        dcxli = *(cxy+is) - *(cxy - idxl + is);
+        dcxri = *(cxy + idxr +is) - *(cxy+is);
+        
+        /* Compute the total rate value at (xx,yy) */
+        fxy[is] = (coy)[is] * (dcyui - dcyli) +
+          (cox)[is] * (dcxri - dcxli) + rxy[is];
+        
       } /* end of is loop */
-
+      
     } /* end of jx loop */
-
+    
   } /* end of jy loop */
-
+  
 } /* end of routine funcprpr *********************************************/
 
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
 static int Precondbd(integer Neq, N_Vector cc, N_Vector cscale,
-		   N_Vector fval, N_Vector fscale,
-		   N_Vector vtemp1, N_Vector vtemp2, 
-		   SysFn func, real uround, long int *nfePtr, void *P_data)
+                     N_Vector fval, N_Vector fscale,
+                     N_Vector vtemp1, N_Vector vtemp2, 
+                     SysFn func, real uround, long int *nfePtr, void *P_data)
 {
   real r, r0, sqruround, xx, yy, delx, dely, csave, fac;
   real *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
   integer i, j, jx, jy, ret;
   UserData data;
-
+  
   data = (UserData)P_data;
   delx = data->dx;
   dely = data->dy;
-
+  
   sqruround = data->sqruround;
   fac = N_VWL2Norm(fval, fscale);
   r0 = THOUSAND * uround * fac * Neq;
   if(r0 == ZERO) r0 = ONE;
-
+  
   /* Loop over spatial points; get size NUM_SPECIES Jacobian block at each */
-
+  
   for (jy = 0; jy < MY; jy++) {
     yy = jy*dely;
-
+    
     for (jx = 0; jx < MX; jx++) {
       xx = jx*delx;
       Pxy = (data->P)[jx][jy];
       cxy = IJ_Vptr(cc,jx,jy);
       scxy= IJ_Vptr(cscale,jx,jy);
       ratesxy = IJ_Vptr((data->rates),jx,jy);
-
+      
       /* Compute difference quotients of interaction rate fn. */
-
+      
       for (j = 0; j < NUM_SPECIES; j++) {
-
-	csave = cxy[j];  /* Save the j,jx,jy element of cc */
-	r = MAX(sqruround*ABS(csave), r0/scxy[j]);
-	cxy[j] += r; /* Perturb the j,jx,jy element of cc */
-	fac = ONE/r;
-
-	WebRate(xx, yy, cxy, perturb_rates, data);
-
-	/* Restore j,jx,jy element of cc */
-	cxy[j] = csave;
-
+        
+        csave = cxy[j];  /* Save the j,jx,jy element of cc */
+        r = MAX(sqruround*ABS(csave), r0/scxy[j]);
+        cxy[j] += r; /* Perturb the j,jx,jy element of cc */
+        fac = ONE/r;
+        
+        WebRate(xx, yy, cxy, perturb_rates, data);
+        
+        /* Restore j,jx,jy element of cc */
+        cxy[j] = csave;
+        
         /* Load the j-th column of difference quotients */
-	Pxycol = Pxy[j];
-	for (i = 0; i < NUM_SPECIES; i++)
-	  Pxycol[i] = (perturb_rates[i] - ratesxy[i]) * fac;
-
-
+        Pxycol = Pxy[j];
+        for (i = 0; i < NUM_SPECIES; i++)
+          Pxycol[i] = (perturb_rates[i] - ratesxy[i]) * fac;
+        
+        
       } /* end of j loop */
-
+      
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-
+      
       ret = gefa(Pxy, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
-
+      
     } /* end of jx loop */
-
+    
   } /* end of jy loop */
-
+  
   return(0);
-
+  
 } /* end of routine Precondbd ********************************************/
 
 
 /* Preconditioner solve routine */
 
 static int PSolvebd(integer Neq, N_Vector cc, N_Vector cscale,
-		  N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
-		  SysFn func, real uround, long int *nfePtr, void *P_data)
+                    N_Vector fval, N_Vector fscale, N_Vector vv, N_Vector ftem,
+                    SysFn func, real uround, long int *nfePtr, void *P_data)
 {
- real **Pxy, *vxy;
- integer *piv, jx, jy;
- UserData data;
-
- data = (UserData)P_data;
- 
- for(jx=0; jx<MX; jx++) {
-
-   for(jy=0; jy<MY; jy++) {
-
-     /* For each (jx,jy), solve a linear system of size NUM_SPECIES.
-        vxy is the address of the corresponding portion of the vector vv;
-	Pxy is the address of the corresponding block of the matrix P;
-	piv is the address of the corresponding block of the array pivot. */
-     vxy = IJ_Vptr(vv,jx,jy);
-     Pxy = (data->P)[jx][jy];
-     piv = (data->pivot)[jx][jy];
-     gesl (Pxy, NUM_SPECIES, piv, vxy);
-
-   } /* end of jy loop */
-
- } /* end of jx loop */
-
- return(0);
-
+  real **Pxy, *vxy;
+  integer *piv, jx, jy;
+  UserData data;
+  
+  data = (UserData)P_data;
+  
+  for(jx=0; jx<MX; jx++) {
+    
+    for(jy=0; jy<MY; jy++) {
+      
+      /* For each (jx,jy), solve a linear system of size NUM_SPECIES.
+         vxy is the address of the corresponding portion of the vector vv;
+         Pxy is the address of the corresponding block of the matrix P;
+         piv is the address of the corresponding block of the array pivot. */
+      vxy = IJ_Vptr(vv,jx,jy);
+      Pxy = (data->P)[jx][jy];
+      piv = (data->pivot)[jx][jy];
+      gesl (Pxy, NUM_SPECIES, piv, vxy);
+      
+    } /* end of jy loop */
+    
+  } /* end of jx loop */
+  
+  return(0);
+  
 } /* end of routine PSolvebd *********************************************/
 
 
@@ -632,17 +638,17 @@ static void WebRate(real xx, real yy, real *cxy, real *ratesxy, void *f_data)
   integer i;
   real fac;
   UserData data;
-
+  
   data = (UserData)f_data;
-
+  
   for (i = 0; i<NUM_SPECIES; i++)
-       ratesxy[i] = DotProd(NUM_SPECIES, cxy, acoef[i]);
-
+    ratesxy[i] = DotProd(NUM_SPECIES, cxy, acoef[i]);
+  
   fac = ONE + ALPHA * xx * yy;
-
+  
   for (i = 0; i < NUM_SPECIES; i++)
     ratesxy[i] = cxy[i] * ( bcoef[i] * fac + ratesxy[i] );
-
+  
 } /* end of routine WebRate **********************************************/
 
 
@@ -656,5 +662,5 @@ static real DotProd(integer size, real *x1, real *x2)
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
   return(temp);
-
+  
 } /* end of routine DotProd **********************************************/
