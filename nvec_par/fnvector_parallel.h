@@ -1,18 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : fnvector_parallel.h                             *
- * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 06 June 2003                                    *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This file (companion of nvector_parallel.h) contains the        *
- * definitions needed for the Fortran callable wrappers to         *
- * NV_SpecInit_Parallel and NV_SpecFree_Parallel                   *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.6 $
+ * $Date: 2004-07-22 21:12:20 $
+ * ----------------------------------------------------------------- 
+ * Programmer: Radu Serban, LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/shared/LICENSE
+ * -----------------------------------------------------------------
+ * This file (companion of nvector_serial.h) contains the 
+ * definitions needed for the Fortran initialization of parallel
+ * vector operations
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
