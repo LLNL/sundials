@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-11-03 23:17:49 $
+# $Revision: 1.8 $
+# $Date: 2004-11-06 00:52:22 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -414,6 +414,7 @@ fi
 # Determine absolute pathname for specified C compiler
 CC_TEMP1="${CC}"
 CC_TEMP2=`basename "${CC}"`
+CC_EXEC="${CC_TEMP2}"
 # If only the executable name was given, then determine absolute pathname
 if test "X${CC_TEMP1}" = "X${CC_TEMP2}"; then
   AC_PATH_PROG([CC_COMP],[${CC}],[none])
@@ -721,6 +722,8 @@ else
   # Determine absolute pathname for specified Fortran compiler
   F77_TEMP1="${F77}"
   F77_TEMP2=`basename "${F77}"`
+  # SUNDIALS_DEFAULT_FFLAGS needs just the executable name
+  F77_EXEC="${F77_TEMP2}"
   # If only the executable name was given, then determine absolute pathname
   if test "X${F77_TEMP1}" = "X${F77_TEMP2}"; then
     AC_PATH_PROG([F77_COMP],[${F77}],[none])
@@ -837,7 +840,7 @@ case $host in
   # Compaq/Tru64
   *-dec-osf*)
 
-    if test "X${F77}" = "Xf77"; then
+    if test "X${F77_EXEC}" = "Xf77"; then
       FFLAGS="-O1"
     fi
 
@@ -891,6 +894,7 @@ else
   # Determine absolute pathname for specified C++ compiler
   CXX_TEMP1="${CXX}"
   CXX_TEMP2=`basename "${CXX}"`
+  CXX_EXEC="${CXX_TEMP2}"
   # If only the executable name was given, then determine absolute pathname
   if test "X${CXX_TEMP1}" = "X${CXX_TEMP2}"; then
     AC_PATH_PROG([CXX_COMP],[${CXX}],[none])

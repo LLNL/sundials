@@ -2822,6 +2822,7 @@ fi
 # Determine absolute pathname for specified C compiler
 CC_TEMP1="${CC}"
 CC_TEMP2=`basename "${CC}"`
+CC_EXEC="${CC_TEMP2}"
 # If only the executable name was given, then determine absolute pathname
 if test "X${CC_TEMP1}" = "X${CC_TEMP2}"; then
   # Extract the first word of "${CC}", so it can be a program name with args.
@@ -5627,7 +5628,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:5630: \"$ac_link\") >&5
+(eval echo $as_me:5631: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -5707,7 +5708,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:5710: \"$ac_link\") >&5
+(eval echo $as_me:5711: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6318,7 +6319,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:6321:" \
+echo "$as_me:6322:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6567,6 +6568,8 @@ _ACEOF
   # Determine absolute pathname for specified Fortran compiler
   F77_TEMP1="${F77}"
   F77_TEMP2=`basename "${F77}"`
+  # SUNDIALS_DEFAULT_FFLAGS needs just the executable name
+  F77_EXEC="${F77_TEMP2}"
   # If only the executable name was given, then determine absolute pathname
   if test "X${F77_TEMP1}" = "X${F77_TEMP2}"; then
     # Extract the first word of "${F77}", so it can be a program name with args.
@@ -6762,7 +6765,7 @@ case $host in
   # Compaq/Tru64
   *-dec-osf*)
 
-    if test "X${F77}" = "Xf77"; then
+    if test "X${F77_EXEC}" = "Xf77"; then
       FFLAGS="-O1"
     fi
 
@@ -6830,7 +6833,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:6833: \"$ac_link\") >&5
+(eval echo $as_me:6836: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -6910,7 +6913,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:6913: \"$ac_link\") >&5
+(eval echo $as_me:6916: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -7506,6 +7509,7 @@ else
   # Determine absolute pathname for specified C++ compiler
   CXX_TEMP1="${CXX}"
   CXX_TEMP2=`basename "${CXX}"`
+  CXX_EXEC="${CXX_TEMP2}"
   # If only the executable name was given, then determine absolute pathname
   if test "X${CXX_TEMP1}" = "X${CXX_TEMP2}"; then
     # Extract the first word of "${CXX}", so it can be a program name with args.
@@ -10277,7 +10281,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 10280 "configure"' > conftest.$ac_ext
+  echo '#line 10284 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -10824,7 +10828,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:10827: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:10831: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -12020,7 +12024,7 @@ linux-gnu*)
   libsuff=
   case "$host_cpu" in
   x86_64*|s390x*)
-    echo '#line 12023 "configure"' > conftest.$ac_ext
+    echo '#line 12027 "configure"' > conftest.$ac_ext
     if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -12728,7 +12732,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12731 "configure"
+#line 12735 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12826,7 +12830,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12829 "configure"
+#line 12833 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
