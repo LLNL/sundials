@@ -3,7 +3,7 @@
  * File          : cvspgmr.c                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh and           * 
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 28 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -122,50 +122,16 @@ static int CVSpgmrPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
 
 /* CVSPGMR difference quotient routine for J*v */
 
-static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f,
-                       void *f_data, realtype tn, N_Vector y, N_Vector fy,
-                       realtype vnrm, N_Vector ewt, realtype h, realtype uround,
-                       void *jac_data, long int *nfePtr, N_Vector ytemp);
-
-
-/*************** CVSpgmrDQJtimes *************************************
-
- This routine generates a difference quotient approximation to
- the Jacobian times vector f_y(t,y) * v. The approximation is 
- Jv = vnrm[f(y + v/vnrm) - f(y)], where vnrm = (WRMS norm of v) is
- input, i.e. the WRMS norm of v/vnrm is 1.
-
-**********************************************************************/
-
-static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f, 
-                       void *f_data, realtype tn, N_Vector y, N_Vector fy,
-                       realtype vnrm, N_Vector ewt, realtype h, realtype uround,
-                       void *jac_data, long int *nfePtr, N_Vector work)
-{
-  N_Vector ytemp;
-
-  /* Rename work for readability */
-  ytemp = work;
-
-  /* Set ytemp = y + (1/vnrm) v */
-  N_VLinearSum(ONE/vnrm, v, ONE, y, ytemp);
-
-  /* Set Jv = f(tn, ytemp) */
-  f(N, tn, ytemp, Jv, f_data); 
-  (*nfePtr)++;
-  
-  /* Replace Jv by vnrm*(Jv - fy) */
-  N_VLinearSum(ONE, Jv, -ONE, fy, Jv);
-  N_VScale(vnrm, Jv, Jv);
-
-  return(0);
-}
+static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t, 
+                           N_Vector y, N_Vector fy,
+                           void *jac_data, N_Vector work);
 
 /**********************************************************************/
 
 /* Readability Replacements */
 
-#define N       (cv_mem->cv_N)      
+#define lrw1    (cv_mem->cv_lrw1)
+#define liw1    (cv_mem->cv_liw1)
 #define uround  (cv_mem->cv_uround)
 #define tq      (cv_mem->cv_tq)
 #define nst     (cv_mem->cv_nst)
@@ -234,8 +200,8 @@ static int CVSpgmrDQJtimes(integertype N, N_Vector v, N_Vector Jv, RhsFn f,
 **********************************************************************/
 
 int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, realtype delt,
-             CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve, void *P_data,
-             CVSpgmrJtimesFn jtimes, void *jac_data)
+            CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve, void *P_data,
+            CVSpgmrJtimesFn jtimes, void *jac_data)
 
 {
   CVodeMem cv_mem;
@@ -267,7 +233,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, realtype delt,
   /* Set Spgmr parameters that have been passed in call sequence */
   cvspgmr_mem->g_pretype    = pretype;
   cvspgmr_mem->g_gstype     = gstype;
-  mxl = cvspgmr_mem->g_maxl = (maxl <= 0) ? MIN(CVSPGMR_MAXL, N) : maxl;
+  mxl = cvspgmr_mem->g_maxl = (maxl <= 0) ? CVSPGMR_MAXL : maxl;
   cvspgmr_mem->g_delt       = (delt == ZERO) ? CVSPGMR_DELT : delt;
   cvspgmr_mem->g_P_data     = P_data;
   cvspgmr_mem->g_precond    = precond;
@@ -276,12 +242,11 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, realtype delt,
   /* Set Jacobian times vector routine to user's jtimes or CVSpgmrDQJtimes */
   if(jtimes == NULL) {
     cvspgmr_mem->g_jtimes = CVSpgmrDQJtimes;
+    cvspgmr_mem->g_j_data = cvode_mem;
   } else {
     cvspgmr_mem->g_jtimes = jtimes;
+    cvspgmr_mem->g_j_data = jac_data;
   }
-
-  /* Set Jacobian data */
-  cvspgmr_mem->g_j_data = jac_data;
 
   /* Check for legal pretype, precond, and psolve */ 
   if ((pretype != NONE) && (pretype != LEFT) &&
@@ -305,20 +270,24 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, realtype delt,
   setupNonNull = (pretype != NONE) && (precond != NULL);
 
   /* Allocate memory for ytemp and x */
-  ytemp = N_VNew(N, machenv);
+  ytemp = N_VNew(machenv);
   if (ytemp == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     return(LMEM_FAIL);
   }
-  x = N_VNew(N, machenv);
+  x = N_VNew(machenv);
   if (x == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(ytemp);
     return(LMEM_FAIL);
   }
 
+  /* Compute sqrtN from a dot product */
+  N_VConst(ONE, ytemp);
+  sqrtN = RSqrt( N_VDotProd(ytemp, ytemp) );
+
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
-  spgmr_mem = SpgmrMalloc(N, mxl, machenv);
+  spgmr_mem = SpgmrMalloc(mxl, machenv);
   if (spgmr_mem == NULL) {
     fprintf(errfp, MSG_MEM_FAIL);
     N_VFree(ytemp);
@@ -340,9 +309,10 @@ int CVSpgmr(void *cvode_mem, int pretype, int gstype, int maxl, realtype delt,
 
 **********************************************************************/
 
-int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, int maxl,
-            realtype delt, CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve,
-            void *P_data, CVSpgmrJtimesFn jtimes, void *jac_data)
+int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, 
+                  int maxl, realtype delt, 
+                  CVSpgmrPrecondFn precond, CVSpgmrPSolveFn psolve,
+                  void *P_data, CVSpgmrJtimesFn jtimes, void *jac_data)
 
 {
   CVodeMem cv_mem;
@@ -367,7 +337,7 @@ int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, int maxl,
   /* Set Spgmr parameters that have been passed in call sequence */
   cvspgmr_mem->g_pretype    = pretype;
   cvspgmr_mem->g_gstype     = gstype;
-  mxl = cvspgmr_mem->g_maxl = (maxl <= 0) ? MIN(CVSPGMR_MAXL, N) : maxl;
+  mxl = cvspgmr_mem->g_maxl = (maxl <= 0) ? CVSPGMR_MAXL : maxl;
   cvspgmr_mem->g_delt       = (delt == ZERO) ? CVSPGMR_DELT : delt;
   cvspgmr_mem->g_P_data     = P_data;
   cvspgmr_mem->g_precond    = precond;
@@ -376,12 +346,11 @@ int CVReInitSpgmr(void *cvode_mem, int pretype, int gstype, int maxl,
   /* Set Jacobian times vector routine to user's jtimes or CVSpgmrDQJtimes */
   if(jtimes == NULL) {
     cvspgmr_mem->g_jtimes = CVSpgmrDQJtimes;
+    cvspgmr_mem->g_j_data = cvode_mem;
   } else {
     cvspgmr_mem->g_jtimes = jtimes;
+    cvspgmr_mem->g_j_data = jac_data;
   }
-
-  /* Set Jacobian data */
-  cvspgmr_mem->g_j_data = jac_data;
 
   /* Check for legal pretype, precond, and psolve */ 
   if ((pretype != NONE) && (pretype != LEFT) &&
@@ -433,9 +402,8 @@ static int CVSpgmrInit(CVodeMem cv_mem)
   CVSpgmrMem cvspgmr_mem;
   cvspgmr_mem = (CVSpgmrMem) lmem;
 
-  /* Initialize sqrtN and counters, and set workspace lengths */
+  /* Initialize counters, and set workspace lengths */
 
-  sqrtN = RSqrt(N);
   npe = nli = nps = ncfl = nstlpre = 0;
     
   if (iopt != NULL) {
@@ -443,8 +411,8 @@ static int CVSpgmrInit(CVodeMem cv_mem)
     iopt[SPGMR_NLI] = nli;
     iopt[SPGMR_NPS] = nps;
     iopt[SPGMR_NCFL] = ncfl;
-    iopt[SPGMR_LRW] = N*(maxl + 5) + maxl*(maxl + 4) + 1;
-    iopt[SPGMR_LIW] = 0;
+    iopt[SPGMR_LRW] = lrw1*(maxl + 5) + maxl*(maxl + 4) + 1;
+    iopt[SPGMR_LIW] = liw1*(maxl + 5);
   }
 
   return(LINIT_OK);
@@ -481,7 +449,7 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   jok = !jbad;
 
   /* Call precond routine and possibly reset jcur */
-  ier = precond(N, tn, ypred, fpred, jok, jcurPtr, gamma, ewt, h,
+  ier = precond(tn, ypred, fpred, jok, jcurPtr, gamma, ewt, h,
                 uround, &nfe, P_data, vtemp1, vtemp2, vtemp3);
   if (jbad) *jcurPtr = TRUE;
 
@@ -607,15 +575,7 @@ static int CVSpgmrAtimes(void *cvode_mem, N_Vector v, N_Vector z)
   cv_mem = (CVodeMem) cvode_mem;
   cvspgmr_mem = (CVSpgmrMem) lmem;
 
-  /* If rho = norm(v) is 0, return z = 0 */
-  rho = N_VWrmsNorm(v, ewt);
-  if (rho == ZERO) {
-    N_VConst(ZERO, z);
-    return(0);
-  }
-  
-  jtflag = jtimes(N, v, z, f, f_data, tn, ycur, fcur, rho, ewt, h,
-                  uround, j_data, &nfe, ytemp);
+  jtflag = jtimes(v, z, tn, ycur, fcur, j_data, ytemp);
   if (jtflag != 0) return(jtflag);
 
   N_VLinearSum(ONE, v, -gamma, z, z);
@@ -644,9 +604,46 @@ static int CVSpgmrPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
   cv_mem = (CVodeMem) cvode_mem;
   cvspgmr_mem = (CVSpgmrMem)lmem;
 
-  ier = psolve(N, tn, ycur, fcur, ytemp, gamma, ewt, delta, &nfe, r,
+  ier = psolve(tn, ycur, fcur, ytemp, gamma, ewt, delta, &nfe, r,
                lr, P_data, z);
   /* This call is counted in nps within the CVSpgmrSolve routine */
 
   return(ier);     
 }
+
+/*************** CVSpgmrDQJtimes *************************************
+
+ This routine generates a difference quotient approximation to
+ the Jacobian times vector f_y(t,y) * v. The approximation is 
+ Jv = vnrm[f(y + v/vnrm) - f(y)], where vnrm = (WRMS norm of v) is
+ input, i.e. the WRMS norm of v/vnrm is 1.
+
+**********************************************************************/
+
+static int CVSpgmrDQJtimes(N_Vector v, N_Vector Jv, realtype t, 
+                           N_Vector y, N_Vector fy,
+                           void *jac_data, N_Vector work)
+{
+  CVodeMem cv_mem;
+  realtype vnrm;
+
+  /* jac_data is cvode_mem */
+  cv_mem = (CVodeMem) jac_data;
+
+  /* Evaluate norm of v */
+  vnrm = N_VWrmsNorm(v, ewt);
+
+  /* Set work = y + (1/vnrm) v */
+  N_VLinearSum(ONE/vnrm, v, ONE, y, work);
+
+  /* Set Jv = f(tn, work) */
+  f(t, work, Jv, f_data); 
+  nfe += 1;
+
+  /* Replace Jv by vnrm*(Jv - fy) */
+  N_VLinearSum(ONE, Jv, -ONE, fy, Jv);
+  N_VScale(vnrm, Jv, Jv);
+
+  return(0);
+}
+

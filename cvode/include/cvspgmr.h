@@ -3,7 +3,7 @@
  * File          : cvspgmr.h                                       *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and          *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 31 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -140,8 +140,6 @@ enum { SPGMR_NPE = CVODE_IOPT_SIZE,
  * A function Precond must have the prototype given below.        *
  * Its parameters are as follows:                                 *
  *                                                                *
- * N       is the length of all vector arguments.                 *
- *                                                                *
  * t       is the current value of the independent variable.      *
  *                                                                *
  * y       is the current value of the dependent variable vector, *
@@ -198,7 +196,7 @@ enum { SPGMR_NPE = CVODE_IOPT_SIZE,
  *                                                                *
  ******************************************************************/
   
-typedef int (*CVSpgmrPrecondFn)(integertype N, realtype t, N_Vector y, 
+typedef int (*CVSpgmrPrecondFn)(realtype t, N_Vector y, 
                                 N_Vector fy, booleantype jok, 
                                 booleantype *jcurPtr, realtype gamma,
                                 N_Vector ewt, realtype h, realtype uround,
@@ -218,8 +216,6 @@ typedef int (*CVSpgmrPrecondFn)(integertype N, realtype t, N_Vector y,
  *                                                                *
  * A function PSolve must have the prototype given below.         *
  * Its parameters are as follows:                                 *
- *                                                                *
- * N      is the length of all vector arguments.                  *
  *                                                                *
  * t      is the current value of the independent variable.       *
  *                                                                *
@@ -268,7 +264,7 @@ typedef int (*CVSpgmrPrecondFn)(integertype N, realtype t, N_Vector y,
  *                                                                *
  ******************************************************************/
   
-typedef int (*CVSpgmrPSolveFn)(integertype N, realtype t, N_Vector y, 
+typedef int (*CVSpgmrPSolveFn)(realtype t, N_Vector y, 
                                N_Vector fy, N_Vector vtemp, 
                                realtype gamma, N_Vector ewt,
                                realtype delta, long int *nfePtr, 
@@ -293,11 +289,6 @@ typedef int (*CVSpgmrPSolveFn)(integertype N, realtype t, N_Vector y,
  *                                                                *
  *   Jv       is the output N_Vector containing J*v.              *
  *                                                                *
- *   f        is the function defining the ODE right-hand side.   *
- *                                                                *
- *   f_data   is a pointer to the structure used to handle data   *
- *            for the user-supplied system function.              *
- *                                                                *
  *   t        is the current value of the independent variable.   *
  *                                                                *
  *   y        is the current value of the dependent variable      *
@@ -305,35 +296,17 @@ typedef int (*CVSpgmrPSolveFn)(integertype N, realtype t, N_Vector y,
  *                                                                *
  *   fy       is the vector f(t,y).                               *
  *                                                                *
- *   vnrm     is the WRMS norm of the vector v, computed with     *
- *            weights corresponding to y (input).                 *   
- *                                                                *
- *   ewt      is the error weight vector.                         *
- *                                                                *
- *   h        is a tentative step size in t.                      *   
- *                                                                *
- *   uround   is the machine unit roundoff.                       *
- *                                                                *
  *   jac_data is a pointer to user Jacobian data, the same as the *
  *            pointer passed to CVSpgmr.                          *
- *                                                                *
- *   nfePtr   is a pointer to the memory location containing the  *
- *            CVODE problem data nfe = number of calls to f. The  *
- *            Jtimes routine should update this counter by adding *
- *            on the number of f calls made in order to compute   *
- *            its output, if any.                                 *   
  *                                                                *
  *   work     is a pointer to memory allocated for a vector of    *
  *            length N which can be used by Jtimes for work space.*
  *                                                                *
  ******************************************************************/
 
-typedef int (*CVSpgmrJtimesFn)(integertype N, N_Vector v, N_Vector Jv,
-                               RhsFn f, void *f_data, realtype t,
+typedef int (*CVSpgmrJtimesFn)(N_Vector v, N_Vector Jv, realtype t,
                                N_Vector y, N_Vector fy,
-                               realtype vnrm, N_Vector ewt, realtype h,
-                               realtype uround, void *jac_data,
-                               long int *nfePtr, N_Vector work);
+                               void *jac_data, N_Vector work);
 
  
 /******************************************************************
