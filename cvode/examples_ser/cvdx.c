@@ -1,7 +1,7 @@
 /************************************************************************
  * File       : cvdx.c                                                  *
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh and Radu Serban @LLNL *
- * Version of : 19 February 2004                                        *
+ * Version of : 27 April 2004                                           *
  *----------------------------------------------------------------------*
  * Example problem.                                                     *
  * The following is a simple example problem, with the coding           *
@@ -13,6 +13,8 @@
  *    dy3/dt = 3.e7*(y2)^2                                              *
  * on the interval from t = 0.0 to t = 4.e10, with initial conditions   *
  * y1 = 1.0, y2 = y3 = 0.  The problem is stiff.                        *
+ * While integrating the system, we also use the rootfinding feature    *
+ * to find the points at which y1 = 1e-4 or at which y3 = 0.01.         *
  * This program solves the problem with the BDF method, Newton          *
  * iteration with the CVDENSE dense linear solver, and a user-supplied  *
  * Jacobian routine.                                                    * 
@@ -80,6 +82,8 @@ static void PrintFinalStats(void *cvode_mem);
 
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
+static void g(realtype t, N_Vector y, realtype *gout, void *g_data);
+
 static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -98,7 +102,8 @@ int main()
   realtype reltol, t, tout;
   N_Vector y, abstol;
   void *cvode_mem;
-  int flag, iout;
+  int flag, flagr, iout;
+  int *rootsfound;
 
   nvSpec = NULL;
   y = abstol = NULL;
@@ -148,6 +153,10 @@ int main()
   flag = CVodeMalloc(cvode_mem, f, T0, y, SV, &reltol, abstol, nvSpec);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
+  /* Call CVodeRootInit to specify the root function g with 2 components */
+  flag = CVodeRootInit(cvode_mem, g, 2);
+  if (check_flag(&flag, "CVodeRootInit", 1)) return(1);
+
   /* Call CVDense to specify the CVDENSE dense linear solver */
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
@@ -156,13 +165,29 @@ int main()
   flag = CVDenseSetJacFn(cvode_mem, Jac);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
 
-  /* In loop over output points, call CVode, print results, test for error */
+  /* In loop, call CVode, print results, and test for error.
+     Break out of loop when NOUT preset output times have been reached.  */
   printf(" \n3-species kinetics problem\n\n");
-  for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
+
+  iout = 0;  tout = T1;
+  for (;;) {
     flag = CVode(cvode_mem, tout, y, &t, NORMAL);
     printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n",
            t, Ith(y,1), Ith(y,2), Ith(y,3));
+
+    if (flag == ROOT_RETURN) {
+      flagr = CVodeGetRootInfo(cvode_mem, &rootsfound);
+      check_flag(&flagr, "CVodeGetRootInfo", 1);
+      printf("    rootsfound[] = %3d %3d\n",rootsfound[0],rootsfound[1]);
+    }
+
     if (check_flag(&flag, "CVode", 1)) break;
+    if (flag == SUCCESS) {
+      iout++;
+      tout *= TMULT;
+    }
+
+    if (iout == NOUT) break;
   }
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
@@ -186,7 +211,7 @@ int main()
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nsetups, njeD, nfeD, nni, ncfn, netf;
+  long int nst, nfe, nsetups, njeD, nfeD, nni, ncfn, netf, nge;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
@@ -207,11 +232,14 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
   check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
 
+  flag = CVodeGetNumGEvals(cvode_mem, &nge);
+  check_flag(&flag, "CVodeGetNumGEvals", 1);
+
   printf("\nFinal Statistics.. \n\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeD = %-6ld njeD = %ld\n",
 	 nst, nfe, nsetups, nfeD, njeD);
-  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
-	 nni, ncfn, netf);
+  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n \n",
+	 nni, ncfn, netf, nge);
 }
 
 
@@ -228,6 +256,17 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   yd1 = Ith(ydot,1) = -0.04*y1 + 1e4*y2*y3;
   yd3 = Ith(ydot,3) = 3e7*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
+}
+
+/* g routine. Compute g_i(t,y) for i = 0,1. */
+
+static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
+{
+  realtype y1, y3;
+
+  y1 = Ith(y,1); y3 = Ith(y,3);
+  gout[0] = y1 - 0.0001;
+  gout[1] = y3 - 0.01;
 }
 
 /* Jacobian routine. Compute J(t,y). */
@@ -251,7 +290,7 @@ static void Jac(long int N, DenseMat J, realtype t,
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
      opt == 1 means SUNDIALS function returns a flag so check if
-              flag == SUCCESS
+              flag >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
@@ -265,10 +304,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 	    funcname);
     return(1); }
 
-  /* Check if flag != SUCCESS */
+  /* Check if flag < 0 */
   else if (opt == 1) {
     errflag = flagvalue;
-    if (*errflag != SUCCESS) {
+    if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
 	      funcname, *errflag);
       return(1); }}
