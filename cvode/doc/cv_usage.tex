@@ -1936,17 +1936,20 @@ No. of calls to user root function & \id{CVodeGetNumGEvals} \\
 Size of {\cvdense} real and integer workspaces & \id{CVDenseGetWorkSpace} \\
 No. of Jacobian evaluations & \id{CVDenseGetNumJacEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDenseGetNumRhsEvals} \\ 
+Last return from a {\cvdense} function & \id{CVDenseGetLastFlag} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf CVBAND linear solver} \\
 \hline
 Size of {\cvband} real and integer workspaces & \id{CVBandGetWorkSpace} \\
 No. of Jacobian evaluations & \id{CVBandGetNumJacEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVBandGetNumRhsEvals} \\ 
+Last return from a {\cvband} function & \id{CVBandGetLastFlag} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf CVDIAG linear solver} \\
 \hline
 Size of {\cvdiag} real and integer workspaces & \id{CVDiagGetWorkSpace} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDiagGetNumRhsEvals} \\ 
+Last return from a {\cvdiag} function & \id{CVDiagGetLastFlag} \\ 
 \hline
 \multicolumn{2}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
@@ -1957,6 +1960,7 @@ No. of preconditioner evaluations & \id{CVSpgmrGetNumPrecEvals} \\
 No. of preconditioner solves & \id{CVSpgmrGetNumPrecSolves} \\
 No. of Jacobian-vector product evaluations & \id{CVSpgmrGetNumJtimesEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{CVSpgmrGetNumRhsEvals} \\ 
+Last return from a {\cvspgmr} function & \id{CVSpgmrGetLastFlag} \\ 
 \hline
 \end{tabular}
 \end{table}
