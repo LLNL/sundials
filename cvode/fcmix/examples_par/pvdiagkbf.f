@@ -22,19 +22,21 @@ C Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
       IF (IER .NE. 0) THEN
          WRITE(6,5) IER
- 5       FORMAT(///' MPI_INIT returned IER =',I5)
+ 5       FORMAT(///' MPI_ERROR: MPI_INIT returned IER =',I5)
          STOP
       ENDIF
       CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NPES, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,6) IER
- 6       FORMAT(///' MPI_COMM_SIZE returned IER =',I5)
+ 6       FORMAT(///' MPI_ERROR: MPI_COMM_SIZE returned IER =',I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
       CALL MPI_COMM_RANK(MPI_COMM_WORLD, MYPE, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,7) IER
- 7       FORMAT(///' MPI_COMM_RANK returned IER =',I5)
+ 7       FORMAT(///' MPI_ERROR: MPI_COMM_RANK returned IER =',I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
       
@@ -70,7 +72,8 @@ C
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
- 20     FORMAT(///' FNVINITP returned IER =',I5)
+ 20     FORMAT(///' SUNDIALS_ERROR: FNVINITP returned IER =',I5)
+        CALL MPI_FINALIZE(IER)
         STOP
         ENDIF
 C
@@ -79,7 +82,8 @@ C
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
- 30     FORMAT(///' FCVMALLOC returned IER =',I5)
+ 30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER =',I5)
+        CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
         STOP
         ENDIF
 C
@@ -91,7 +95,8 @@ C
      1                 IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,35) IER
- 35     FORMAT(///' FCVBBDINIT returned IER =',I5)
+ 35     FORMAT(///' SUNDIALS_ERROR: FCVBBDINIT returned IER =',I5)
+        CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
         STOP
         ENDIF
       IF (MYPE.EQ. 0) WRITE(6,38)
@@ -112,7 +117,8 @@ C
 C
         IF (IER .NE. 0) THEN
           WRITE(6,50) IER
- 50       FORMAT(///' FCVODE returned IER =',I5)
+ 50       FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER =',I5)
+          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
           STOP
           ENDIF
 C
@@ -130,7 +136,8 @@ C Get global max. error from MPI_REDUCE call.
      1                 0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,70) IER
- 70     FORMAT(///' MPI_REDUCE returned IER =',I5)
+ 70     FORMAT(///' MPI_ERROR: MPI_REDUCE returned IER =',I5)
+        CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
         STOP
         ENDIF
       IF (MYPE .EQ. 0) WRITE(6,75) GERMAX
@@ -176,7 +183,8 @@ C Otherwise jump to final block.
      1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,91) IER
- 91      FORMAT(///' FCVREINIT returned IER =',I5)
+ 91      FORMAT(///' SUNDIALS_ERROR: FCVREINIT returned IER =',I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
 
@@ -187,7 +195,8 @@ C Otherwise jump to final block.
      2                   0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,92) IER
- 92     FORMAT(///' FCVBBDREINIT returned IER =',I5)
+ 92     FORMAT(///' SUNDIALS_ERROR: FCVBBDREINIT returned IER =',I5)
+        CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
         STOP
       ENDIF
       IF (MYPE .EQ. 0) WRITE (6,95)

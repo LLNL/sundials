@@ -47,7 +47,7 @@ C
       CALL FNVINITS (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
- 20     FORMAT(///' FNVINITS returned IER =',I5)
+ 20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER =',I5)
         STOP
       ENDIF
 C
@@ -55,19 +55,22 @@ C
      1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
- 30     FORMAT(///' FCVMALLOC returned IER =',I5)
+ 30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER =',I5)
+        CALL FNVFREES
         STOP
       ENDIF
 C
       CALL FCVDENSE (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' FCVDENSE returned IER =',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVDENSE returned IER =',I5)
+        CALL FNVFREES
+        CALL FCVFREE
         STOP
       ENDIF
 C
       CALL FCVDENSESETJAC(1, IER)
-
+C
       DO 70 IOUT = 1,12
 C
         CALL FCVODE (TOUT, T, Y, ITASK, IER)
@@ -77,7 +80,9 @@ C
 C
         IF (IER .NE. 0) THEN
           WRITE(6,60) IER
- 60       FORMAT(///' FCVODE returned IER =',I5)
+ 60       FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER =',I5)
+          CALL FNVFREES
+          CALL FCVFREE
           STOP
         ENDIF
 C
@@ -87,7 +92,9 @@ C
       CALL FCVDKY (T, 1, Y, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,80) IER
- 80     FORMAT(///' FCVDKY returned IER =',I5)
+ 80     FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER =',I5)
+        CALL FNVFREES
+        CALL FCVFREE
         STOP
       ENDIF
       WRITE(6,85)y(1),y(2),y(3)
@@ -131,4 +138,3 @@ C Fortran routine for dense user-supplied Jacobian.
       JAC(3,2) = 6.D7*Y2
       RETURN
       END
-

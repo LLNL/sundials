@@ -57,7 +57,7 @@ C
       CALL FNVINITS (NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
- 20     FORMAT(///' FNVINITS returned IER =',I5)
+ 20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER =',I5)
         STOP
       ENDIF
 C
@@ -65,18 +65,22 @@ C
      1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
-  30    FORMAT(///' FCVMALLOC returned IER =',I5)
+  30    FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER =',I5)
+        CALL FNVFREES
         STOP
         ENDIF
 C
       CALL FCVSPGMR (JPRETYPE, IGSTYPE, MAXL, DELT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' FCVSPGMR returned IER =',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVSPGMR returned IER =',I5)
+        CALL FNVFREES
+        CALL FCVFREE
         STOP
       ENDIF
-
+C
       CALL FCVSPGMRSETPSOL (1, IER)
+C
       CALL FCVSPGMRSETPSET (1, IER)
 C
 C Loop over output points, call FCVODE, print sample solution values.
@@ -95,7 +99,9 @@ C
 C
         IF (IER .NE. 0) THEN
           WRITE(6,60) IER
- 60       FORMAT(///' FCVODE returned IER =',I5)
+ 60       FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER =',I5)
+          CALL FNVFREES
+          CALL FCVFREE
           STOP
           ENDIF
 C
