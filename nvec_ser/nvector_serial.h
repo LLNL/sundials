@@ -3,7 +3,7 @@
  * File          : nvector_serial.h                                *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,              *
  *               : Radu Serban, and Allan G. Taylor, LLNL          *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 26 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California *
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -284,11 +284,10 @@ void M_EnvFree_Serial(M_Env machenv);
  * see the header file nvector.h                                *
  *--------------------------------------------------------------*/
 
-N_Vector N_VNew_Serial(integertype n, M_Env machEnv);
-N_Vector_S N_VNew_S_Serial(integertype ns, integertype n, M_Env machEnv);
+N_Vector N_VNew_Serial(M_Env machEnv);
+void N_VSpace_Serial(M_Env machEnv, long int *lrw, long int *liw);
 void N_VFree_Serial(N_Vector v);
-void N_VFree_S_Serial(integertype ns, N_Vector_S vs);
-N_Vector N_VMake_Serial(integertype n, realtype *v_data, M_Env machEnv);
+N_Vector N_VMake_Serial(realtype *v_data, M_Env machEnv);
 void N_VDispose_Serial(N_Vector v);
 realtype *N_VGetData_Serial(N_Vector v);
 void N_VSetData_Serial(realtype *v_data, N_Vector v);
