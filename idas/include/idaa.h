@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-10-21 15:59:06 $
+ * $Revision: 1.11 $
+ * $Date: 2004-10-21 19:15:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -36,8 +36,8 @@ extern "C" {
    ******************************************************************/
   
   typedef int (*IDAResFnB)(realtype t, N_Vector yy, N_Vector yp,
-                        N_Vector yyB, N_Vector ypB, N_Vector resvalB,
-                        void *rdataB);
+                           N_Vector yyB, N_Vector ypB, N_Vector resvalB,
+                           void *rdataB);
 
   /******************************************************************
    *                                                                *
@@ -49,8 +49,8 @@ extern "C" {
    ******************************************************************/
   
   typedef void (*IDAQuadRhsFnB)(realtype t, N_Vector yy, N_Vector yp, 
-                             N_Vector yyB, N_Vector ypB,
-                             N_Vector ypQB, void *rdataQB);
+                                N_Vector yyB, N_Vector ypB,
+                                N_Vector ypQB, void *rdataQB);
   
   /******************************************************************
    *                                                                *
