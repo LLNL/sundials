@@ -137,3 +137,19 @@ existing memories to be reused, when a sequence of problems is being
 solved.  Following a call to FPVREINIT, if the preconditioner and
 SPGMR memory sizes are both unchanged, then a call to FPVREINBBD0 or
 FPVREINBBD1 should be made in place of the call to FPVBBDIN0/FPVBBDIN1.
+
+19. The NVECTOR module has been reorganized throughout SUNDIALS. For 
+more information, see the file idareadme and the files nvecreadme, 
+nvector.h, and nvector_parallel.h in /sundials/shared/.
+A parallel CVODE example must include 'nvector_parallel.h'.
+
+20. The machine environment initialization routine has been renamed from
+PVecInitMPI to M_EnvInit_Parallel.
+
+21. Vector accessor macros now have implementation-dependent names, such
+as NV_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P, NV_Ith_P for the parallel
+NVECTOR (nvector_parallel.h).
+
+22. The PVBBDPRE module has been renamed CVBBDPRE. As a consequence all
+type names and user-callable routine names have been changed accordingly
+(see /sundials/cvode/include/cvbbdpre.h for new names).

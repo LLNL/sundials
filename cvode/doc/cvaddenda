@@ -146,3 +146,17 @@ memory size is unchanged, then the reinitialization routine
 CVReInitBandPre should be called, followed (possibly) by a call to
 CVSpgmr or CVReInitSpgmr.  For details, see the file cvbandpre.h.
 The example cvkxb illustrates the use of CVReInit and CVReInitSpgmr.
+
+20. The NVECTOR module has been reorganized throughout SUNDIALS. For 
+more information, see the file idareadme and the files nvecreadme, 
+nvector.h and nvector_serial.h in /sundials/shared/.
+A serial CVODE example must include 'nvector_serial.h'.
+
+21. The serial version of CVODE must now initialize the machine environment 
+through calls to M_EnvInit_Serial. As a consequence, the machine 
+environment argument to CVodeMalloc (last argument) cannot be NULL anymore.
+
+22. Vector accessor macros now have implementation-dependent names, such
+as NV_DATA_S, NV_LENGTH_S, NV_Ith_S for the serial NVECTOR (nvector_serial.h).
+
+
