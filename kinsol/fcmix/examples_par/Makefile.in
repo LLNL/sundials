@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-11-03 23:22:13 $
+# $Revision: 1.7 $
+# $Date: 2004-11-04 01:07:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -52,8 +52,8 @@ update:
 
 kindiagpf: $(srcdir)/kindiagpf.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagpf.f
-	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/kindiagpf.f
-	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/kindiagpf $(builddir)/kindiagpf.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/kindiagpf-updated.f
+	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/kindiagpf $(builddir)/kindiagpf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
 
 clean:
 	rm -rf .libs

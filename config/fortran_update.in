@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.3 $
-# $Date: 2004-11-03 23:19:14 $
+# $Revision: 1.4 $
+# $Date: 2004-11-04 01:07:29 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -433,6 +433,8 @@ if test -f ${srcdir}/${SOURCE_FILE} ; then
       done
     fi
   fi
+  SOURCE_FILE=`echo "${SOURCE_FILE}" | cut -d'.' -f1`
+  SOURCE_FILE="${SOURCE_FILE}-updated.f"
   ${CP_FILE} ${builddir}/temp1.f ${builddir}/${SOURCE_FILE}
   rm -f ${builddir}/temp1.f ${builddir}/temp2.f
 fi

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2004-11-03 23:22:20 $
+# $Revision: 1.8 $
+# $Date: 2004-11-04 01:07:33 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,20 +49,20 @@ update:
 
 cvdensef: $(srcdir)/cvdensef.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvdensef.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvdensef.f
-	$(LINKER_PREFIX) $(F77) -o $(builddir)/cvdensef $(builddir)/cvdensef.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvdensef-updated.f
+	$(LINKER_PREFIX) $(F77) -o $(builddir)/cvdensef $(builddir)/cvdensef-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvbandf: $(srcdir)/cvbandf.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvbandf.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvbandf.f
-	$(LINKER_PREFIX) $(F77)  -o $(builddir)/cvbandf $(builddir)/cvbandf.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvbandf-updated.f
+	$(LINKER_PREFIX) $(F77)  -o $(builddir)/cvbandf $(builddir)/cvbandf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvkryf: $(srcdir)/cvkryf.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvkryf.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvkryf.f
-	$(LINKER_PREFIX) $(F77)  -o $(builddir)/cvkryf $(builddir)/cvkryf.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvkryf-updated.f
+	$(LINKER_PREFIX) $(F77)  -o $(builddir)/cvkryf $(builddir)/cvkryf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 cvkrybf: $(srcdir)/cvkrybf.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvkrybf.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvkrybf.f
-	$(LINKER_PREFIX) $(F77)  -o $(builddir)/cvkrybf $(builddir)/cvkrybf.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvkrybf-updated.f
+	$(LINKER_PREFIX) $(F77)  -o $(builddir)/cvkrybf $(builddir)/cvkrybf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
 	rm -rf .libs

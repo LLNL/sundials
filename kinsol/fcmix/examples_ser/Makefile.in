@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-11-03 23:22:05 $
+# $Revision: 1.7 $
+# $Date: 2004-11-04 01:07:40 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,8 +49,8 @@ update:
 
 kindiagsf: $(srcdir)/kindiagsf.f
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagsf.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/kindiagsf.f
-	$(LINKER_PREFIX) $(F77) -o $(builddir)/kindiagsf $(builddir)/kindiagsf.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/kindiagsf-updated.f
+	$(LINKER_PREFIX) $(F77) -o $(builddir)/kindiagsf $(builddir)/kindiagsf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
 	rm -rf .libs
