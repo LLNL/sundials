@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.10 $
-C     $Date: 2004-08-05 21:29:23 $
+C     $Revision: 1.11 $
+C     $Date: 2004-09-15 20:00:40 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -82,7 +82,7 @@ C
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
-  20    FORMAT(///' SUNDIALS_ERROR: FMENVINITP returned IER =',I5)
+  20    FORMAT(///' SUNDIALS_ERROR: FNVINITP returned IER =',I5)
         CALL MPI_FINALIZE(IER)
         STOP
         ENDIF
