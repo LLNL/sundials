@@ -4476,7 +4476,7 @@ static booleantype CVHin(CVodeMem cv_mem, realtype tout)
 
 static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 {
-  booleantype vectorAtol;
+  booleantype vectorAtol, vectorAtolQ;
 
   realtype atoli, hub_inv, hub;
   N_Vector temp1, temp2;
@@ -4488,7 +4488,8 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   N_Vector *atolSV=NULL;
   int is;
     
-  vectorAtol = (itol == SV);
+  vectorAtol  = (itol  == SV);
+  vectorAtolQ = (itolQ == SV);
 
   temp1 = tempv;
   temp2 = acor;
@@ -4509,7 +4510,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
     tempQ2 = acorQ;
     N_VAbs(znQ[0], tempQ1);
     N_VAbs(znQ[1], tempQ2);
-    if (vectorAtol) {
+    if (vectorAtolQ) {
       N_VLinearSum(HUB_FACTOR, tempQ1, ONE, (N_Vector)abstolQ, tempQ1);
     } else {
       atoli = *((realtype *) abstolQ);
