@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-08 16:25:39 $
+ * $Revision: 1.22 $
+ * $Date: 2004-10-11 15:51:01 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh and         
  *              Radu Serban @ LLNL                              
@@ -148,7 +148,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
   if ( bbd_data == NULL ) {
     fprintf(stderr, MSG_NO_PDATA);
-    return(CVSPGMR_DATA_NULL);
+    return(CV_PDATA_NULL);
   } 
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
@@ -177,7 +177,7 @@ int CVBBDPrecReInit(void *bbd_data,
 
   if ( bbd_data == NULL ) {
     fprintf(stderr, MSG_NO_PDATA);
-    return(CVSPGMR_DATA_NULL);
+    return(CV_PDATA_NULL);
   } 
 
   pdata = (CVBBDPrecData) bbd_data;
@@ -196,7 +196,7 @@ int CVBBDPrecReInit(void *bbd_data,
   /* Re-initialize nge */
   pdata->nge = 0;
 
-  return(CVSPGMR_SUCCESS);
+  return(CV_SUCCESS);
 }
 
 void CVBBDPrecFree(void *bbd_data)
@@ -218,7 +218,7 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBB
 
   if ( bbd_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(CVSPGMR_DATA_NULL);
+    return(CV_PDATA_NULL);
   } 
 
   pdata = (CVBBDPrecData) bbd_data;
@@ -226,7 +226,7 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBB
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(CVSPGMR_SUCCESS);
+  return(CV_SUCCESS);
 }
 
 int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
@@ -235,14 +235,14 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 
   if ( bbd_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(CVSPGMR_DATA_NULL);
+    return(CV_PDATA_NULL);
   } 
 
   pdata = (CVBBDPrecData) bbd_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(CVSPGMR_SUCCESS);
+  return(CV_SUCCESS);
 }
 
 
