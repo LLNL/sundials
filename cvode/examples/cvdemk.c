@@ -92,7 +92,7 @@
 #include "cvode.h"           /* main CVODE header file                            */
 #include "iterativ.h"        /* for types of preconditioning and Gram-Schmidt     */
 #include "cvspgmr.h"         /* use CVSPGMR linear solver each internal step      */
-#include "dense.h"           /* use generic DENSE linear solver for "small" dense */
+#include "smalldense.h"      /* use generic DENSE linear solver for "small" dense */
                              /* matrix blocks in right preconditioner             */
 #include "nvector_serial.h"  /* contains the definition of type N_Vector          */
 #include "llnlmath.h"        /* contains UnitRoundoff, RSqrt, SQR functions       */
