@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : cvband.c                                       *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 1 March 2002                                   *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the implementation file for the CVODE band linear      *
  * solver, CVBAND.                                                *
@@ -12,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cvband.h"
 #include "cvode.h"
 #include "band.h"
@@ -33,6 +35,7 @@
 
 #define MSG_CVMEM_NULL   CVBAND "CVode Memory is NULL.\n\n"
 
+#define MSG_WRONG_NVEC  CVBAND "Incompatible NVECTOR implementation.\n\n"
 
 /* Other Constants */
 
@@ -90,10 +93,10 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
 static void CVBandFree(CVodeMem cv_mem);
 
 static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
-                 RhsFn f, void *f_data, real t, N_Vector y, N_Vector fy,
-                 N_Vector ewt, real h, real uround, void *jac_data,
-                 long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
-                 N_Vector vtemp3);
+                        RhsFn f, void *f_data, real t, N_Vector y, N_Vector fy,
+                        N_Vector ewt, real h, real uround, void *jac_data,
+                        long int *nfePtr, N_Vector vtemp1, N_Vector vtemp2,
+                        N_Vector vtemp3);
 
 
 /*************** CVBandDQJac *****************************************
@@ -108,10 +111,10 @@ static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
 **********************************************************************/
 
 static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
-                 RhsFn f, void *f_data, real tn, N_Vector y,
-                 N_Vector fy, N_Vector ewt, real h, real uround,
-                 void *jac_data, long int *nfePtr, N_Vector vtemp1,
-                 N_Vector vtemp2, N_Vector vtemp3)
+                        RhsFn f, void *f_data, real tn, N_Vector y,
+                        N_Vector fy, N_Vector ewt, real h, real uround,
+                        void *jac_data, long int *nfePtr, N_Vector vtemp1,
+                        N_Vector vtemp2, N_Vector vtemp3)
 {
   real    fnorm, minInc, inc, inc_inv, srur;
   N_Vector ftemp, ytemp;
@@ -123,11 +126,11 @@ static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
   ytemp = vtemp2;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = N_VDATA(ewt);
-  fy_data    = N_VDATA(fy);
-  ftemp_data = N_VDATA(ftemp);
-  y_data     = N_VDATA(y);
-  ytemp_data = N_VDATA(ytemp);
+  ewt_data   = N_VGetData(ewt);
+  fy_data    = N_VGetData(fy);
+  ftemp_data = N_VGetData(ftemp);
+  y_data     = N_VGetData(y);
+  ytemp_data = N_VGetData(ytemp);
 
   /* Load ytemp with y = predicted y vector */
   N_VScale(ONE, y, ytemp);
@@ -195,6 +198,7 @@ static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
 #define lfree     (cv_mem->cv_lfree)
 #define lmem      (cv_mem->cv_lmem)
 #define setupNonNull  (cv_mem->cv_setupNonNull)
+#define machenv   (cv_mem->cv_machenv)
 
 #define jac       (cvband_mem->b_jac)
 #define M         (cvband_mem->b_M)
@@ -226,7 +230,14 @@ static void CVBandDQJac(integer N, integer mupper, integer mlower, BandMat J,
  Finally, it allocates memory for M, savedJ, and pivot.  The CVBand
  return value is SUCCESS = 0, LMEM_FAIL = -1, or LIN_ILL_INPUT = -2.
 
-**********************************************************************/
+ NOTE: The band linear solver assumes a serial implementation
+       of the NVECTOR package. Therefore, CVBand will first 
+       test for compatible a compatible N_Vector internal
+       representation by checking (1) the machine environment
+       ID tag and (2) that the functions N_VMake, N_VDispose,
+       N_VGetData, and N_VSetData are implemented.
+
+***********************************************************************/
                   
 int CVBand(void *cvode_mem, integer mupper, integer mlower, CVBandJacFn bjac,
            void *jac_data)
@@ -238,6 +249,16 @@ int CVBand(void *cvode_mem, integer mupper, integer mlower, CVBandJacFn bjac,
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem == NULL) {               /* CVode reports this error */
     fprintf(errfp, MSG_CVMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  /* Test if the NVECTOR package is compatible with the BAND solver */
+  if ((strcmp(machenv->tag,"serial")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
     return(LMEM_FAIL);
   }
 
@@ -321,6 +342,16 @@ int CVReInitBand(void *cvode_mem, integer mupper, integer mlower,
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem == NULL) {               /* CVode reports this error */
     fprintf(errfp, MSG_CVMEM_NULL);
+    return(LMEM_FAIL);
+  }
+
+  /* Test if the NVECTOR package is compatible with the DENSE solver */
+  if ((strcmp(machenv->tag,"serial")) || 
+      machenv->ops->nvmake    == NULL || 
+      machenv->ops->nvdispose == NULL ||
+      machenv->ops->nvgetdata == NULL || 
+      machenv->ops->nvsetdata == NULL) {
+    fprintf(errfp, MSG_WRONG_NVEC);
     return(LMEM_FAIL);
   }
 
@@ -451,10 +482,13 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector ycur,
                        N_Vector fcur)
 {
   CVBandMem cvband_mem;
+  real *bd;
   
   cvband_mem = (CVBandMem) lmem;
 
-  BandBacksolve(M, pivots, b);
+  bd = N_VGetData(b);
+  BandBacksolve(M, pivots, bd);
+  N_VSetData(bd, b);
 
   /* If BDF, scale the correction to account for change in gamma */
   if ((lmm == BDF) && (gamrat != ONE)) {

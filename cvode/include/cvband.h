@@ -1,8 +1,9 @@
 /******************************************************************
  *                                                                *
  * File          : cvband.h                                       *
- * Programmers   : Scott D. Cohen and Alan C. Hindmarsh @ LLNL    *
- * Version of    : 1 March 2002                                   *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, and         *
+ *                 Radu Serban @ LLNL                             *
+ * Version of    : 5 March 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the CVODE band linear solver,      *
  * CVBAND.                                                        *
@@ -197,6 +198,13 @@ typedef void (*CVBandJacFn)(integer N, integer mupper, integer mlower,
  *   LMEM_FAIL     = -1 if there was a memory allocation failure. *
  *   LIN_ILL_INPUT = -2 if there was illegal input.               *
  *                                                                *
+ * NOTE: The band linear solver assumes a serial implementation   *
+ *       of the NVECTOR package. Therefore, CVBand will first     *
+ *       test for a compatible N_Vector internal representation   *
+ *       by checking (1) the machine environment ID tag and       *
+ *       (2) that the functions N_VMake, N_VDispose, N_VGetData,  *
+ *       and N_VSetData are implemented.                          *
+ *                                                                *
  ******************************************************************/
 
 int CVBand(void *cvode_mem, integer mupper, integer mlower,
@@ -226,6 +234,9 @@ int CVBand(void *cvode_mem, integer mupper, integer mlower,
  *   SUCCESS   = 0      if successful                             *
  *   LMEM_FAIL = -1     if the cvode_mem argument is NULL         *
  *   LIN_ILL_INPUT = -2 if there was illegal input.               *
+ *                                                                *
+ * NOTE: CVReInitBand performs the same compatibility tests as    *
+ *       CVBand.                                                  *
  *                                                                *
  ******************************************************************/
 
