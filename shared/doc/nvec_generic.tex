@@ -40,11 +40,10 @@ struct _generic_N_Vector {
 The \id{\_generic\_N\_Vector\_Ops} structure is defined as
 \begin{verbatim}
 struct _generic_N_Vector_Ops {
-    N_Vector    (*nvnew)(integertype, M_Env);
-    N_Vector_S  (*nvnewS)(integertype, integertype, M_Env);
+    N_Vector    (*nvnew)(M_Env);
     void        (*nvfree)(N_Vector);
     void        (*nvfreeS)(integertype, N_Vector_S);
-    N_Vector    (*nvmake)(integertype, realtype *, M_Env);
+    N_Vector    (*nvmake)(realtype *, M_Env);
     void        (*nvdispose)(N_Vector);
     realtype*   (*nvgetdata)(N_Vector);
     void        (*nvsetdata)(realtype *, N_Vector);
@@ -130,18 +129,26 @@ of the newly defined \id{N\_Vector}.
 \tablelasttail{\hline}
 \begin{supertabular}{|p{\colone}|p{\coltwo}|}
 %
-\id{N\_VNew} & \id{v = N\_VNew(n, machEnv);} \\ 
-& Returns a new \id{N\_Vector} of length \id{n}. 
+\id{N\_VNew} & \id{v = N\_VNew(machEnv);} \\ 
+& Returns a new \id{N\_Vector} build with information in \id{machEnv}. 
 If there is not enough memory for a new \id{N\_Vector}, then \id{N\_VNew} 
 returns \id{NULL}.
 \\
 %
-\id{N\_VNew\_S} & \id{vs = N\_VNew\_S(ns, n, machEnv);} \\
-& Returns an array of \id{ns} new \id{N\_Vector}'s of length \id{n}. 
+\id{N\_VSpace} & \id{N\_VSpace(machEnv, \&lrw, \&liw); \\
+& Returns storage requirements for one \id{N\_Vector}.
+\id{lrw} contains the number of \id{realtype} words and \id{liw}
+contains the number of \id{integertype} words.
+\\
+%
+\id{N\_VNew\_S} & \id{vs = N\_VNew\_S(ns, machEnv);} \\
+& Returns an array of \id{ns} new \id{N\_Vector}'s.
 The parameter \id{machEnv} is a pointer to machine environment 
 specific information. If there is not enough memory for a new array 
 of \id{N\_Vector}'s or for one of the components, then \id{N\_VNew\_S}
-returns \id{NULL}.
+returns \id{NULL}. Note that this routine is common to all {\nvector}
+implementations as it's based on the routine \id{N\_VNew}. A new {\nvector}
+implementation need not implement this routine.
 \\
 %
 \id{N\_VFree} & \id{N\_VFree(v);} \\
@@ -152,10 +159,13 @@ to \id{N\_VFree}.
 \id{N\_VFree\_S} & \id{N\_VFree\_S(ns, vs);} \\
 & Frees the array of \id{ns} \id{N\_Vector}'s \id{vs}.
 It is illegal to use \id{vs} after the call to \id{N\_VFree\_S}.
+Note that this routine is common to all {\nvector}
+implementations as it's based on the routine \id{N\_VNew}. A new {\nvector}
+implementation need not implement this routine.
 \\
 %
-\id{N\_VMake} & \id{v = N\_VMake(n, vdata, machEnv);} \\
-& Creates an \id{N\_Vector} of length \id{n} with component array data 
+\id{N\_VMake} & \id{v = N\_VMake(vdata, machEnv);} \\
+& Creates an \id{N\_Vector} with component array data 
 \id{vdata} allocated by the user.
 \\
 %
