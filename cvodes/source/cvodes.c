@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-04-21 22:27:47 $
+ * $Revision: 1.26 $
+ * $Date: 2004-04-28 15:25:13 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -345,7 +345,7 @@
 
 #define MSG_YOUT_NULL       CVODE "yout=NULL illegal.\n\n"
 
-#define MSG_T_NULL          CVODE "t=NULL illegal.\n\n"
+#define MSG_TRET_NULL       CVODE "tret=NULL illegal.\n\n"
 
 #define MSG_BAD_ITASK       CVODE "itask=%d illegal.\n"
 
@@ -2162,7 +2162,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   
   /* Check for t != NULL */
   if (t == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSG_T_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_TRET_NULL);
     return (ILL_INPUT);
   }
   *t = tn;
