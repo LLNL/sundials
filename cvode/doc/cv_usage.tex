@@ -1941,7 +1941,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetIntWorkSpace}
 {
-  flag = CVodeGetIntWorkSpace(cvode\_mem, leniw);
+  flag = CVodeGetIntWorkSpace(cvode\_mem, \&leniw);
 }
 {
   The function \ID{CVodeGetIntWorkSpace} returns the
@@ -1951,7 +1951,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[leniw] (\id{long int *})
+  \item[leniw] (\id{long int})
     number of integer values in the {\cvode} workspace.
   \end{args}
 }
@@ -1968,7 +1968,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetRealWorkSpace}
 {
-  flag = CVodeGetRealWorkSpace(cvode\_mem, lenrw);
+  flag = CVodeGetRealWorkSpace(cvode\_mem, \&lenrw);
 }
 {
   The function \ID{CVodeGetRealWorkSpace} returns the
@@ -1978,7 +1978,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrw] (\id{long int *})
+  \item[lenrw] (\id{long int})
     number of \id{realtype} values in the {\cvode} workspace.
   \end{args}
 }
@@ -1996,7 +1996,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetWorkSpace}
 {
-  flag = CVodeGetWorkSpace(cvode\_mem, leniw, lenrw);
+  flag = CVodeGetWorkSpace(cvode\_mem, \&leniw, \&lenrw);
 }
 {
   The function \ID{CVodeGetWorkSpace} returns the
@@ -2006,9 +2006,9 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[leniw] (\id{long int *})
+  \item[leniw] (\id{long int})
     number of integer values in the {\cvode} workspace.
-  \item[lenrw] (\id{long int *})
+  \item[lenrw] (\id{long int})
     number of \id{realtype} values in the {\cvode} workspace.
   \end{args}
 }
@@ -2027,7 +2027,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetNumSteps}
 {
-  flag = CVodeGetNumSteps(cvode\_mem, nsteps);
+  flag = CVodeGetNumSteps(cvode\_mem, \&nsteps);
 }
 {
   The function \ID{CVodeGetNumSteps} returns the cumulative number of internal 
@@ -2037,7 +2037,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nsteps] (\id{long int *})
+  \item[nsteps] (\id{long int})
     number of steps taken by {\cvode}.
   \end{args}
 }
@@ -2055,7 +2055,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetNumRhsEvals}
 {
-  flag = CVodeGetNumRhsEvals(cvode\_mem, nfevals);
+  flag = CVodeGetNumRhsEvals(cvode\_mem, \&nfevals);
 }
 {
   The function \ID{CVodeGetNumRhsEvals} returns the 
@@ -2065,7 +2065,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevals] (\id{long int *})
+  \item[nfevals] (\id{long int})
     number of calls to the user's \id{f} function.
   \end{args}
 }
@@ -2087,7 +2087,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetNumLinSolvSetups}
 {
-  flag = CVodeGetNumLinSolvSetups(cvode\_mem, nlinsetups);
+  flag = CVodeGetNumLinSolvSetups(cvode\_mem, \&nlinsetups);
 }
 {
   The function \ID{CVodeGetNumLinSolvSetups} returns the
@@ -2097,7 +2097,7 @@ These optional output functions are described next.
   \begin{args}[nlinsetups]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nlinsetups] (\id{long int *})
+  \item[nlinsetups] (\id{long int})
     number of calls made to the linear solver setup function.
   \end{args}
 }
@@ -2115,7 +2115,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetNumErrTestFails}
 {
-  flag = CVodeGetNumErrTestFails(cvode\_mem, netfails);
+  flag = CVodeGetNumErrTestFails(cvode\_mem, \&netfails);
 }
 {
   The function \ID{CVodeGetNumErrTestFails} returns the
@@ -2125,7 +2125,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[netfails] (\id{long int *})
+  \item[netfails] (\id{long int})
     number of error test failures.
   \end{args}
 }
@@ -2143,7 +2143,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetLastOrder}
 {
-  flag = CVodeGetLastOrder(cvode\_mem, qlast);
+  flag = CVodeGetLastOrder(cvode\_mem, \&qlast);
 }
 {
   The function \ID{CVodeGetLastOrder} returns the
@@ -2153,7 +2153,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[qlast] (\id{int *})
+  \item[qlast] (\id{int})
     method order used on the last internal step.
   \end{args}
 }
@@ -2171,7 +2171,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetCurrentOrder}
 {
-  flag = CVodeGetCurrentOrder(cvode\_mem, qcur);
+  flag = CVodeGetCurrentOrder(cvode\_mem, \&qcur);
 }
 {
   The function \ID{CVodeGetCurrentOrder} returns the
@@ -2181,7 +2181,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[qcur] (\id{int *})
+  \item[qcur] (\id{int})
     method order to be used on the next internal step.
   \end{args}
 }
@@ -2199,7 +2199,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetLastStep}
 {
-  flag = CVodeGetLastStep(cvode\_mem, hlast);
+  flag = CVodeGetLastStep(cvode\_mem, \&hlast);
 }
 {
   The function \ID{CVodeGetLastStep} returns the
@@ -2209,7 +2209,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[hlast] (\id{realtype *})
+  \item[hlast] (\id{realtype})
     step size taken on the last internal step.
   \end{args}
 }
@@ -2227,7 +2227,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetCurrentStep}
 {
-  flag = CVodeGetCurrentStep(cvode\_mem, hcur);
+  flag = CVodeGetCurrentStep(cvode\_mem, \&hcur);
 }
 {
   The function \ID{CVodeGetCurrentStep} returns the
@@ -2237,7 +2237,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[hcur] (\id{realtype 8})
+  \item[hcur] (\id{realtype})
     step size to be attempted on the next internal step.
   \end{args}
 }
@@ -2255,7 +2255,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetActualInitStep}
 {
-  flag = CVodeGetActualInitStep(cvode\_mem, hinused);
+  flag = CVodeGetActualInitStep(cvode\_mem, \&hinused);
 }
 {
   The function \ID{CVodeGetActualInitStep} returns the
@@ -2265,7 +2265,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[hinused] (\id{realtype *})
+  \item[hinused] (\id{realtype})
     actual value of initial step size.
   \end{args}
 }
@@ -2289,7 +2289,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetCurrentTime}
 {
-  flag = CVodeGetCurrentTime(cvode\_mem, tcur);
+  flag = CVodeGetCurrentTime(cvode\_mem, \&tcur);
 }
 {
   The function \ID{CVodeGetCurrentTime} returns the
@@ -2299,7 +2299,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[tcur] (\id{realtype *})
+  \item[tcur] (\id{realtype})
     current internal time reached.
   \end{args}
 }
@@ -2317,7 +2317,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetNumStabLimOrderReds}
 {
-  flag = CVodeGetNumStabLimOrderReds(cvode\_mem, nslred);
+  flag = CVodeGetNumStabLimOrderReds(cvode\_mem, \&nslred);
 }
 {
   The function \ID{CVodeGetNumStabLimOrderReds} returns the
@@ -2328,7 +2328,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nslred] (\id{long int *})
+  \item[nslred] (\id{long int})
     number of order reductions due to stability limit detection.
   \end{args}
 }
@@ -2349,7 +2349,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetTolScaleFactor}
 {
-  flag = CVodeGetTolScaleFactor(cvode\_mem, tolsfac);
+  flag = CVodeGetTolScaleFactor(cvode\_mem, \&tolsfac);
 }
 {
   The function \ID{CVodeGetTolScaleFactor} returns a
@@ -2361,7 +2361,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[tolsfac] (\id{realtype *})
+  \item[tolsfac] (\id{realtype})
     suggested scaling factor for user tolerances.
   \end{args}
 }
@@ -2379,7 +2379,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetErrWeights}
 {
-  flag = CVodeGetErrWeights(cvode\_mem, eweight);
+  flag = CVodeGetErrWeights(cvode\_mem, \&eweight);
 }
 {
   The function \ID{CVodeGetErrWeights} returns the solution error weights 
@@ -2389,7 +2389,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[eweight] (\id{N\_Vector *})
+  \item[eweight] (\id{N\_Vector})
     solution error weights at the current time.
   \end{args}
 }
@@ -2410,7 +2410,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetEstLocalErrors}
 {
-  flag = CVodeGetEstLocalErrors(cvode\_mem, ele);
+  flag = CVodeGetEstLocalErrors(cvode\_mem, \&ele);
 }
 {
   The function \ID{CVodeGetEstLocalErrors} returns the
@@ -2420,8 +2420,8 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[ele] (\id{N\_Vector *})
-    
+  \item[ele] (\id{N\_Vector})
+    estimated local errors.
   \end{args}
 }
 {
@@ -2441,9 +2441,9 @@ These optional output functions are described next.
 \ucfunction{CVodeGetIntegratorStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
-    flag = CVodeGetIntegratorStats(&cvode\_mem, nsteps, nfevals, nlinsetups, \\
-                                   &netfails, qlast, qcur, hinused, hlast, \\
-                                   &hcur, tcur);
+    flag = CVodeGetIntegratorStats(&cvode\_mem, \&nsteps, \&nfevals, \&nlinsetups, \\
+                                   &\&netfails, \&qlast, \&qcur, \&hinused, \&hlast, \\
+                                   &\&hcur, \&tcur);
   \end{tabular}
 }
 {
@@ -2451,28 +2451,28 @@ These optional output functions are described next.
   as a group.
 }
 {
-  \begin{args}[cvode\_mem]
+  \begin{args}[nlinsetups]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nsteps] (\id{long int *})
+  \item[nsteps] (\id{long int})
     number of steps taken by {\cvode}.
-  \item[nfevals] (\id{long int *})
+  \item[nfevals] (\id{long int})
     number of calls to the user's \id{f} function.
-  \item[nlinsetups] (\id{long int *})
+  \item[nlinsetups] (\id{long int})
     number of calls made to the linear solver setup function.
-  \item[netfails] (\id{long int *})
+  \item[netfails] (\id{long int})
     number of error test failures.
-  \item[qlast] (\id{int *})
+  \item[qlast] (\id{int})
     method order used on the last internal step.
-  \item[qcur] (\id{int *})
+  \item[qcur] (\id{int})
     method order to be used on the next internal step.
-  \item[hinused] (\id{realtype *})
+  \item[hinused] (\id{realtype})
     actual value of initial step size.
-  \item[hlast] (\id{realtype *})
+  \item[hlast] (\id{realtype})
     step size taken on the last internal step.
-  \item[hcur] (\id{realtype *})
+  \item[hcur] (\id{realtype})
     step size to be attempted on the next internal step.
-  \item[tcur] (\id{realtype *})
+  \item[tcur] (\id{realtype})
     current internal time reached.
   \end{args}
 }
@@ -2490,7 +2490,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetNumNonlinSolvIters}
 {
-  flag = CVodeGetNumNonlinSolvIters(cvode\_mem, nniters);
+  flag = CVodeGetNumNonlinSolvIters(cvode\_mem, \&nniters);
 }
 {
   The function \ID{CVodeGetNumNonlinSolvIters} returns the
@@ -2500,7 +2500,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nniters] (\id{long int *})
+  \item[nniters] (\id{long int})
     number of nonlinear iterations performed.
   \end{args}
 }
@@ -2518,7 +2518,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetNumNonlinSolvConvFails}
 {
-  flag = CVodeGetNumNonlinSolvConvFails(cvode\_mem, nncfails);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode\_mem, \&nncfails);
 }
 {
   The function \ID{CVodeGetNumNonlinSolvConvFails} returns the
@@ -2528,7 +2528,7 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nncfails] (\id{long int *})
+  \item[nncfails] (\id{long int})
     number of nonlinear convergence failures.
   \end{args}
 }
@@ -2546,7 +2546,7 @@ These optional output functions are described next.
 %%
 \ucfunction{CVodeGetNonlinSolvStats}
 {
-  flag = CVodeGetNonlinSolvStats(cvode\_mem, nniters, nncfails);
+  flag = CVodeGetNonlinSolvStats(cvode\_mem, \&nniters, \&nncfails);
 }
 {
   The function \ID{CVodeGetNonlinSolvStats} returns the the
@@ -2556,9 +2556,9 @@ These optional output functions are described next.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nniters] (\id{long int *})
+  \item[nniters] (\id{long int})
     number of nonlinear iterations performed.
-  \item[nncfails] (\id{long int *})
+  \item[nncfails] (\id{long int})
     number of nonlinear convergence failures.
   \end{args}
 }
@@ -2592,7 +2592,7 @@ to access these are described below.
 %%
 \ucfunction{CVDenseGetIntWorkSpace}
 {
-  flag = CVDenseGetIntWorkSpace(cvode\_mem, leniwD);
+  flag = CVDenseGetIntWorkSpace(cvode\_mem, \&leniwD);
 }
 {
   The function \ID{CVDenseGetIntWorkSpace} returns the
@@ -2602,7 +2602,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[leniwD] (\id{long int *})
+  \item[leniwD] (\id{long int})
     the number of integer values in the {\cvdense} workspace.
   \end{args}
 }
@@ -2624,7 +2624,7 @@ to access these are described below.
 %%
 \ucfunction{CVDenseGetRealWorkSpace}
 {
-  flag = CVDenseGetRealWorkSpace(cvode\_mem, lenrwD);
+  flag = CVDenseGetRealWorkSpace(cvode\_mem, \&lenrwD);
 }
 {
   The function \ID{CVDenseGetRealWorkSpace} returns the
@@ -2634,7 +2634,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwD] (\id{long int *})
+  \item[lenrwD] (\id{long int})
     the number of \id{realtype} values in the {\cvdense} workspace.
   \end{args}
 }
@@ -2660,7 +2660,7 @@ to access these are described below.
 %%
 \ucfunction{CVDenseGetNumJacEvals}
 {
-  flag = CVDenseGetNumJacEvals(cvode\_mem, njevalsD);
+  flag = CVDenseGetNumJacEvals(cvode\_mem, \&njevalsD);
 }
 {
   The function \ID{CVDenseGetNumJacEvals} returns the
@@ -2670,7 +2670,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[njevalsD] (\id{long int *})
+  \item[njevalsD] (\id{long int})
     the number of calls to the Jacobian function.
   \end{args}
 }
@@ -2690,7 +2690,7 @@ to access these are described below.
 %%
 \ucfunction{CVDenseGetNumRhsEvals}
 {
-  flag = CVDenseGetNumRhsEvals(cvode\_mem, nfevalsD);
+  flag = CVDenseGetNumRhsEvals(cvode\_mem, \&nfevalsD);
 }
 {
   The function \ID{CVDenseGetNumRhsEvals} returns the
@@ -2701,7 +2701,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsD] (\id{long int *})
+  \item[nfevalsD] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -2736,7 +2736,7 @@ to access these are described below.
 %%
 \ucfunction{CVBandGetIntWorkSpace}
 {
-  flag = CVBandGetIntWorkSpace(cvode\_mem, leniwB);
+  flag = CVBandGetIntWorkSpace(cvode\_mem, \&leniwB);
 }
 {
   The function \ID{CVBandGetIntWorkSpace} returns the
@@ -2746,7 +2746,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[leniwB] (\id{long int *})
+  \item[leniwB] (\id{long int})
     the number of integer values in the {\cvband} workspace.
   \end{args}
 }
@@ -2768,7 +2768,7 @@ to access these are described below.
 %%
 \ucfunction{CVBandGetRealWorkSpace}
 {
-  flag = CVBandGetRealWorkSpace(cvode\_mem, lenrwB);
+  flag = CVBandGetRealWorkSpace(cvode\_mem, \&lenrwB);
 }
 {
   The function \ID{CVBandGetRealWorkSpace} returns the
@@ -2778,7 +2778,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwB] (\id{long int *})
+  \item[lenrwB] (\id{long int})
     the number of \id{realtype} values in the {\cvband} workspace.
   \end{args}
 }
@@ -2805,7 +2805,7 @@ to access these are described below.
 %%
 \ucfunction{CVBandGetNumJacEvals}
 {
-  flag = CVBandGetNumJacEvals(cvode\_mem, njevalsB);
+  flag = CVBandGetNumJacEvals(cvode\_mem, \&njevalsB);
 }
 {
   The function \ID{CVBandGetNumJacEvals} returns the
@@ -2815,7 +2815,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[njevalsB] (\id{long int *})
+  \item[njevalsB] (\id{long int})
     the number of calls to the Jacobian function.
   \end{args}
 }
@@ -2835,7 +2835,7 @@ to access these are described below.
 %%
 \ucfunction{CVBandGetNumRhsEvals}
 {
-  flag = CVBandGetNumRhsEvals(cvode\_mem, nfevalsB);
+  flag = CVBandGetNumRhsEvals(cvode\_mem, \&nfevalsB);
 }
 {
   The function \ID{CVBandGetNumRhsEvals} returns the
@@ -2846,7 +2846,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsB] (\id{long int *})
+  \item[nfevalsB] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -2881,7 +2881,7 @@ to access these are described below.
 %%
 \ucfunction{CVDiagGetIntWorkSpace}
 {
-  flag = CVDiagGetIntWorkSpace(cvode\_mem, leniwDI);
+  flag = CVDiagGetIntWorkSpace(cvode\_mem, \&leniwDI);
 }
 {
   The function \ID{CVDiagGetIntWorkSpace} returns the
@@ -2891,7 +2891,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[leniwDI] (\id{long int *})
+  \item[leniwDI] (\id{long int})
     the number of integer values in the {\cvdiag} workspace.
   \end{args}
 }
@@ -2910,7 +2910,7 @@ to access these are described below.
 %%
 \ucfunction{CVDiagGetRealWorkSpace}
 {
-  flag = CVDiagGetRealWorkSpace(cvode\_mem, lenrwDI);
+  flag = CVDiagGetRealWorkSpace(cvode\_mem, \&lenrwDI);
 }
 {
   The function \ID{CVDiagGetRealWorkSpace} returns the
@@ -2920,7 +2920,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwDI] (\id{long int *})
+  \item[lenrwDI] (\id{long int})
     the number of \id{realtype} values in the {\cvdiag} workspace.
   \end{args}
 }
@@ -2946,7 +2946,7 @@ to access these are described below.
 %%
 \ucfunction{CVDiagGetNumRhsEvals}
 {
-  flag = CVDiagGetNumRhsEvals(cvode\_mem, nfevalsDI);
+  flag = CVDiagGetNumRhsEvals(cvode\_mem, \&nfevalsDI);
 }
 {
   The function \ID{CVDiagGetNumRhsEvals} returns the
@@ -2957,7 +2957,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsDI] (\id{long int *})
+  \item[nfevalsDI] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -2993,7 +2993,7 @@ to access these are described below.
 %%
 \ucfunction{CVSpgmrGetIntWorkSpace}
 {
-  flag = CVSpgmrGetIntWorkSpace(cvode\_mem, leniwSG);
+  flag = CVSpgmrGetIntWorkSpace(cvode\_mem, \&leniwSG);
 }
 {
   The function \ID{CVSpgmrGetIntWorkSpace} returns the
@@ -3003,7 +3003,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[leniwSG] (\id{long int *})
+  \item[leniwSG] (\id{long int})
     the number of integer values in the {\cvspgmr} workspace.
   \end{args}
 }
@@ -3022,7 +3022,7 @@ to access these are described below.
 %%
 \ucfunction{CVSpgmrGetRealWorkSpace}
 {
-  flag = CVSpgmrGetRealWorkSpace(cvode\_mem, lenrwSG);
+  flag = CVSpgmrGetRealWorkSpace(cvode\_mem, \&lenrwSG);
 }
 {
   The function \ID{CVSpgmrGetRealWorkSpace} returns the
@@ -3032,7 +3032,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwSG] (\id{long int *})
+  \item[lenrwSG] (\id{long int})
     the number of \id{realtype} values in the {\cvspgmr} workspace.
   \end{args}
 }
@@ -3059,7 +3059,7 @@ to access these are described below.
 %%
 \ucfunction{CVSpgmrGetNumLinIters}
 {
-  flag = CVSpgmrGetNumLinIters(cvode\_mem, nliters);
+  flag = CVSpgmrGetNumLinIters(cvode\_mem, \&nliters);
 }
 {
   The function \ID{CVSpgmrGetNumLinIters} returns the
@@ -3069,7 +3069,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nliters] (\id{long int *})
+  \item[nliters] (\id{long int})
     the current number of linear iterations.
   \end{args}
 }
@@ -3089,7 +3089,7 @@ to access these are described below.
 %%
 \ucfunction{CVSpgmrGetNumConvFails}
 {
-  flag = CVSpgmrGetNumConvFails(cvode\_mem, nlcfails);
+  flag = CVSpgmrGetNumConvFails(cvode\_mem, \&nlcfails);
 }
 {
   The function \ID{CVSpgmrGetNumConvFails} returns the
@@ -3099,7 +3099,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nlcfails] (\id{long int *})
+  \item[nlcfails] (\id{long int})
     the current number of linear convergence failures.
   \end{args}
 }
@@ -3119,7 +3119,7 @@ to access these are described below.
 %%
 \ucfunction{CVSpgmrGetNumPrecEvals}
 {
-  flag = CVSpgmrGetNumPrecEvals(cvode\_mem, npevals);
+  flag = CVSpgmrGetNumPrecEvals(cvode\_mem, \&npevals);
 }
 {
   The function \ID{CVSpgmrGetNumPrecEvals} returns the
@@ -3130,7 +3130,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[npevals] (\id{long int *})
+  \item[npevals] (\id{long int})
     the current number of calls to \id{psetup}.
   \end{args}
 }
@@ -3150,7 +3150,7 @@ to access these are described below.
 %%
 \ucfunction{CVSpgmrGetNumPrecSolves}
 {
-  flag = CVSpgmrGetNumPrecSolves(cvode\_mem, npsolves);
+  flag = CVSpgmrGetNumPrecSolves(cvode\_mem, \&npsolves);
 }
 {
   The function \ID{CVSpgmrGetNumPrecSolves} returns the
@@ -3161,7 +3161,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[npsolves] (\id{long int *})
+  \item[npsolves] (\id{long int})
     the current number of calls to \id{psolve}.
   \end{args}
 }
@@ -3181,7 +3181,7 @@ to access these are described below.
 %%
 \ucfunction{CVSpgmrGetNumJtimesEvals}
 {
-  flag = CVSpgmrGetNumJtimesEvals(cvode\_mem, njvevals);
+  flag = CVSpgmrGetNumJtimesEvals(cvode\_mem, \&njvevals);
 }
 {
   The function \ID{CVSpgmrGetNumJtimesEvals} returns the
@@ -3192,7 +3192,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[njvevals] (\id{long int *})
+  \item[njvevals] (\id{long int})
     the current number of calls to \id{jtimes}.
   \end{args}
 }
@@ -3212,7 +3212,7 @@ to access these are described below.
 %%
 \ucfunction{CVSpgmrGetNumRhsEvals}
 {
-  flag = CVSpgmrGetNumRhsEvals(cvode\_mem, nfevalsSG);
+  flag = CVSpgmrGetNumRhsEvals(cvode\_mem, \&nfevalsSG);
 }
 {
   The function \ID{CVSpgmrGetNumRhsEvals} returns the
@@ -3223,7 +3223,7 @@ to access these are described below.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsSG] (\id{long int *})
+  \item[nfevalsSG] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -3442,7 +3442,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
 
   If the user's \id{CVDenseJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
-  stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet} functions 
+  stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet*} functions 
   described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
   the macro \id{DBL\_EPSILON} defined in \id{float.h}.
 }
@@ -3536,7 +3536,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
 
   If the user's \id{CVBandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
-  stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet} functions 
+  stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet*} functions 
   described in \S\ref{ss:optional_output}. The unit roundoff can be accessed through
   the macro \id{DBL\_EPSILON} defined in \id{float.h}.
 }
@@ -3821,7 +3821,7 @@ There are two optional output functions associated with rootfinding.
 %%
 \ucfunction{CVodeGetRootInfo}
 {
-  flag = CVodeGetRootInfo(cvode\_mem, rootsfound);
+  flag = CVodeGetRootInfo(cvode\_mem, \&rootsfound);
 }
 {
   The function \ID{CVodeGetRootInfo} returns an array showing which 
@@ -3831,7 +3831,7 @@ There are two optional output functions associated with rootfinding.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[rootsfound] (\id{int **})
+  \item[rootsfound] (\id{int *})
     pointer to an array of \id{int} of length \id{nrtfn}, showing the
     indeces of the user functions $g_i$ found to have a root. 
     For $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
@@ -3852,7 +3852,7 @@ There are two optional output functions associated with rootfinding.
 %%
 \ucfunction{CVodeGetNumGEvals}
 {
-  flag = CVodeGetNumGEvals(cvode\_mem, ngevals);
+  flag = CVodeGetNumGEvals(cvode\_mem, \&ngevals);
 }
 {
   The function \ID{CVodeGetNumGEvals} returns the 
@@ -3862,7 +3862,7 @@ There are two optional output functions associated with rootfinding.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[ngevals] (\id{long int *})
+  \item[ngevals] (\id{long int})
     number of calls to the user's \id{g} function.
   \end{args}
 }
@@ -4147,7 +4147,7 @@ the {\cvbandpre} module:
 \index{memory requirements!CVBANDPRE@{\cvbandpre} preconditioner|(}
 \ucfunction{CVBandPrecGetIntWorkSpace}
 {
-  flag = CVBandPrecGetIntWorkSpace(bp\_data, leniwBP);
+  flag = CVBandPrecGetIntWorkSpace(bp\_data, \&leniwBP);
 }
 {
   The function \ID{CVBandPrecGetIntWorkSpace} returns the
@@ -4157,7 +4157,7 @@ the {\cvbandpre} module:
   \begin{args}[leniwBP]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[leniwBP] (\id{long int *})
+  \item[leniwBP] (\id{long int})
     the number of integer values in the {\cvbandpre} workspace.
   \end{args}
 }
@@ -4178,7 +4178,7 @@ the {\cvbandpre} module:
 %%
 \ucfunction{CVBandPrecGetRealWorkSpace}
 {
-  flag = CVBandPrecGetRealWorkSpace(bp\_data, lenrwBP);
+  flag = CVBandPrecGetRealWorkSpace(bp\_data, \&lenrwBP);
 }
 {
   The function \ID{CVBandPrecGetRealWorkSpace} returns the
@@ -4188,7 +4188,7 @@ the {\cvbandpre} module:
   \begin{args}[lenrwBP]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[lenrwBP] (\id{long int *})
+  \item[lenrwBP] (\id{long int})
     the number of \id{realtype} values in the {\cvbandpre} workspace.
   \end{args}
 }
@@ -4211,7 +4211,7 @@ the {\cvbandpre} module:
 %%
 \ucfunction{CVBandPrecGetNumRhsEvals}
 {
-  flag = CVBandPrecGetNumRhsEvals(bp\_data, nfevalsBP);
+  flag = CVBandPrecGetNumRhsEvals(bp\_data, \&nfevalsBP);
 }
 {
   The function \ID{CVBandPrecGetNumRhsEvals} returns the
@@ -4223,7 +4223,7 @@ the {\cvbandpre} module:
   \begin{args}[nfevalsBP]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[nfevalsBP] (\id{long int *})
+  \item[nfevalsBP] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -4699,7 +4699,7 @@ the {\cvbbdpre} module:
 \index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner|(}
 \ucfunction{CVBBDPrecGetIntWorkSpace}
 {
-  flag = CVBBDPrecGetIntWorkSpace(bbd\_data, leniwBP);
+  flag = CVBBDPrecGetIntWorkSpace(bbd\_data, \&leniwBP);
 }
 {
   The function \ID{CVBBDPrecGetIntWorkSpace} returns the
@@ -4709,7 +4709,7 @@ the {\cvbbdpre} module:
   \begin{args}[leniwBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
-  \item[leniwBBDP] (\id{long int *})
+  \item[leniwBBDP] (\id{long int})
     the number of integer values in the {\cvbbdpre} workspace.
   \end{args}
 }
@@ -4730,7 +4730,7 @@ the {\cvbbdpre} module:
 %%
 \ucfunction{CVBBDPrecGetRealWorkSpace}
 {
-  flag = CVBBDPrecGetRealWorkSpace(bbd\_data, lenrwBBDP);
+  flag = CVBBDPrecGetRealWorkSpace(bbd\_data, \&lenrwBBDP);
 }
 {
   The function \ID{CVBBDPrecGetRealWorkSpace} returns the
@@ -4740,7 +4740,7 @@ the {\cvbbdpre} module:
   \begin{args}[lenrwBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
-  \item[lenrwBBDP] (\id{long int *})
+  \item[lenrwBBDP] (\id{long int})
     the number of \id{realtype} values in the {\cvbbdpre} workspace.
   \end{args}
 }
@@ -4763,7 +4763,7 @@ the {\cvbbdpre} module:
 %%
 \ucfunction{CVBBDPrecGetNumGfnEvals}
 {
-  flag = CVBBDPrecGetNumGfnEvals(bbd\_data, ngevalsBBDP);
+  flag = CVBBDPrecGetNumGfnEvals(bbd\_data, \&ngevalsBBDP);
 }
 {
   The function \ID{CVBBDPrecGetNumGfnEvals} returns the
@@ -4775,7 +4775,7 @@ the {\cvbbdpre} module:
   \begin{args}[ngevalsBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
-  \item[ngevalsBBDP] (\id{long int *})
+  \item[ngevalsBBDP] (\id{long int})
     the number of calls to the user \id{gloc} function.
   \end{args}
 }
@@ -5197,7 +5197,7 @@ apply to {\nvecp}.
   $J = \partial f / \partial y$. If supplied, it must have the following form:
   \index{FCVDJAC@\texttt{FCVDJAC}}
 \begin{verbatim}
-      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, WK1, WK2, WK3)
+      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, WK1, WK2, WK3)
       DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, and \id{DJAC}. 
@@ -5216,12 +5216,10 @@ apply to {\nvecp}.
   for success or non-zero if an error occured.
   
   If the user's \id{FCVDJAC} uses difference quotient approximations,
-  it may need to access quantities not in the call list. 
-  These include the current stepsize, the error weights, the unit roundoff, etc.
-  To obtain these, use the \id{ropt} array of optional outputs.
-  The array of error weights can be obtained by calling the optional output
-  routine \id{FCVGETEWT} described before.
-  
+  it may use the error weights provided as the \id{EWT} argument.
+  Other possibly required quantities (such as the current stepsize, the unit 
+  roundoff, etc.) can be obtained from the \id{ropt} array of optional outputs.
+
   Optional outputs specific to the {\dense} case are \id{NJE}, \id{LRW}, and \id{LIW},
   stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
   
@@ -5267,12 +5265,10 @@ apply to {\nvecp}.
   for success or non-zero if an error occured.
   
   If the user's \id{FCVBJAC} uses difference quotient approximations,
-  it may need to access quantities not in the call list. 
-  These include the current stepsize, the error weights, the unit roundoff, etc.
-  To obtain these, use the \id{ropt} array of optional outputs.
-  The array of error weights can be obtained by calling the optional output
-  routine \id{FCVGETEWT} described before.
-  
+  it may use the error weights provided as the \id{EWT} argument.
+  Other possibly required quantities (such as the current stepsize, the unit 
+  roundoff, etc.) can be obtained from the \id{ropt} array of optional outputs.
+
   Optional outputs specific to the {\band} case are \id{NJE}, \id{LRW}, and \id{LIW},
   stored in \id{IOPT(16)}, \id{IOPT(17)}, and \id{IOPT(18)}, respectively.
   
@@ -5324,12 +5320,10 @@ apply to {\nvecp}.
   for success or non-zero if an error occured.
   
   If the user's \id{FCVJTIMES} uses difference quotient approximations,
-  it may need to access quantities not in the call list. 
-  These include the current stepsize, the error weights, the unit roundoff, etc.
-  To obtain these, use the \id{ropt} array of optional outputs.
-  The array of error weights can be obtained by calling the optional output
-  routine \id{FCVGETEWT} described before.
-  
+  it may use the error weights provided as the \id{EWT} argument.
+  Other possibly required quantities (such as the current stepsize, the unit 
+  roundoff, etc.) can be obtained from the \id{ropt} array of optional outputs.
+
   If preconditioning is to be done (\id{IPRETYPE}$\neq 0$), then, following the call 
   to \id{FCVSPGMR}, the user must call
   \index{FCVSPGMRSETPSOL@\texttt{FCVSPGMRSETPSOL}}
