@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2004-11-10 01:01:12 $
+ * $Revision: 1.38 $
+ * $Date: 2004-11-23 20:48:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -34,7 +34,7 @@
 #define loop for(;;)
 
 /*
- * BEGIN CVODE Private Constants
+ * CVODE Private Constants
  */
 
 #define ZERO   RCONST(0.0)   /* real 0.0   */
@@ -51,7 +51,7 @@
 #define HUN    RCONST(100.0) /* real 100.0 */
 
 /*
- * BEGIN Default Constants
+ * Default Constants
  */
 
 #define HMIN_DEFAULT     ZERO    /* hmin default value     */
@@ -61,7 +61,7 @@
 
 
 /*
- * BEGIN Routine-Specific Constants
+ * Routine-Specific Constants
  */
 
 /* CVodeGetDky */
@@ -75,7 +75,7 @@
 #define H_BIAS     HALF
 #define MAX_ITERS  4
 
-/* CVSet */
+/* CVCreate */
 
 #define CORTES RCONST(0.1)
 
@@ -159,14 +159,13 @@
 #define RTFOUND   1
 
 /*
- * BEGIN Private Helper Functions Prototypes
+ * Private Helper Functions Prototypes
  */
 
 static booleantype CVCheckNvector(N_Vector tmpl);
 
-static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord,
-                                  N_Vector tmpl);
-static void CVFreeVectors(CVodeMem cv_mem, int maxord);
+static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
+static void CVFreeVectors(CVodeMem cv_mem);
 
 static booleantype CVEwtSet(CVodeMem cv_mem, N_Vector ycur);
 static booleantype CVEwtSetSS(CVodeMem cv_mem, N_Vector ycur);
@@ -232,7 +231,7 @@ static int CVRootfind(CVodeMem cv_mem);
 
 /* 
  * =================================================================
- * BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION
+ * EXPORTED FUNCTIONS IMPLEMENTATION
  * =================================================================
  */
 
@@ -303,510 +302,9 @@ void *CVodeCreate(int lmm, int iter)
   return((void *)cv_mem);
 }
 
+#define iter   (cv_mem->cv_iter)  
 #define lmm (cv_mem->cv_lmm) 
-
-/*
- * =================================================================
- * BEGIN        INTEGRATOR OPTIONAL INPUT FUNCTIONS
- * =================================================================
- */
-
-/* 
- * CVodeSetErrFile
- *
- * Specifies the FILE pointer for output (NULL means no messages)
- */
-
-int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_errfp = errfp;
-
-  return(CV_SUCCESS);
-}
-
 #define errfp (cv_mem->cv_errfp)
-
-/* 
- * CVodeSetIterType
- *
- * Specifies the iteration type (CV_FUNCTIONAL or CV_NEWTON)
- */
-
-int CVodeSetIterType(void *cvode_mem, int iter)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if ((iter != CV_FUNCTIONAL) && (iter != CV_NEWTON)) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_ITER);
-    return (CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_iter = iter;
-
-  return(CV_SUCCESS);
-}
-
-#define iter   (cv_mem->cv_iter)        
-
-/* 
- * CVodeSetFdata
- *
- * Specifies the user data pointer for f
- */
-
-int CVodeSetFdata(void *cvode_mem, void *f_data)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_f_data = f_data;
-
-  return(CV_SUCCESS);
-}
-
-#define f_data (cv_mem->cv_f_data)    
-
-/* 
- * CVodeSetGdata
- *
- * Specifies the user data pointer for g
- */
-
-int CVodeSetGdata(void *cvode_mem, void *g_data)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_g_data = g_data;
-
-  return(CV_SUCCESS);
-}
-
-#define g_data (cv_mem->cv_g_data)    
-
-/* 
- * CVodeSetMaxOrd
- *
- * Specifies the maximum method order
- */
-
-int CVodeSetMaxOrd(void *cvode_mem, int maxord)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (maxord <= 0) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NEG_MAXORD);
-    return(CV_ILL_INPUT);
-  }
-  
-  if (maxord > cv_mem->cv_qmax) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_MAXORD);
-    return(CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_qmax = maxord;
-
-  return(CV_SUCCESS);
-}
-
-#define qmax (cv_mem->cv_qmax) 
-
-/* 
- * CVodeSetMaxNumSteps
- *
- * Specifies the maximum number of integration steps
- */
-
-int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (mxsteps<=0) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NEG_MXSTEPS);
-    return(CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_mxstep = mxsteps;
-
-  return(CV_SUCCESS);
-}
-
-#define mxstep (cv_mem->cv_mxstep)
-
-/* 
- * CVodeSetMaxHnilWarns
- *
- * Specifies the maximum number of warnings for small h
- */
-
-int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_mxhnil = mxhnil;
-
-  return(CV_SUCCESS);
-}
-
-#define mxhnil (cv_mem->cv_mxhnil)
-
-/* 
- *CVodeSetStabLimDet
- *
- * Turns on/off the stability limit detection algorithm
- */
-
-int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if(cv_mem->cv_lmm != CV_BDF) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_SLDET);
-    return(CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_sldeton = sldet;
-
-  return(CV_SUCCESS);
-}
-
-#define sldeton (cv_mem->cv_sldeton)
-
-/* 
- * CVodeSetInitStep
- *
- * Specifies the initial step size
- */
-
-int CVodeSetInitStep(void *cvode_mem, realtype hin)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_hin = hin;
-
-  return(CV_SUCCESS);
-}
-
-#define hin (cv_mem->cv_hin)
-
-/* 
- * CVodeSetMinStep
- *
- * Specifies the minimum step size
- */
-
-int CVodeSetMinStep(void *cvode_mem, realtype hmin)
-{
-  realtype hmax;
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (hmin<=0) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NEG_HMIN);
-    return(CV_ILL_INPUT);
-  }
-
-  if (hmin * cv_mem->cv_hmax_inv > ONE) {
-    hmax = ONE/cv_mem->cv_hmax_inv;
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_HMIN_HMAX);
-    return(CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_hmin = hmin;
-
-  return(CV_SUCCESS);
-}
-
-#define hmin (cv_mem->cv_hmin)
-
-/* 
- * CVodeSetMaxStep
- *
- * Specifies the maximum step size
- */
-
-int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
-{
-  realtype hmax_inv;
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return (CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (hmax <= 0) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_NEG_HMAX);
-    return(CV_ILL_INPUT);
-  }
-
-  hmax_inv = ONE/hmax;
-  if (hmax_inv * cv_mem->cv_hmin > ONE) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_HMIN_HMAX);
-    return(CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_hmax_inv = hmax_inv;
-
-  return(CV_SUCCESS);
-}
-
-#define hmax_inv (cv_mem->cv_hmax_inv)
-
-/* 
- * CVodeSetStopTime
- *
- * Specifies the time beyond which the integration is not to
- * proceed
- */
-
-int CVodeSetStopTime(void *cvode_mem, realtype tstop)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return (CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_tstop = tstop;
-  cv_mem->cv_tstopset = TRUE;
-
-  return(CV_SUCCESS);
-}
-
-#define tstop    (cv_mem->cv_tstop)
-#define tstopset (cv_mem->cv_tstopset)
-
-/* 
- * CVodeSetMaxErrTestFails
- *
- * Specifies the maximum number of error test failures during one
- * step try.
- */
-
-int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return (CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_maxnef = maxnef;
-
-  return(CV_SUCCESS);
-}
-
-#define maxnef (cv_mem->cv_maxnef)
-
-/* 
- * CVodeSetMaxConvFails
- *
- * Specifies the maximum number of nonlinear convergence failures 
- * during one step try.
- */
-
-int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return (CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_maxncf = maxncf;
-
-  return(CV_SUCCESS);
-}
-
-#define maxncf (cv_mem->cv_maxncf)
-
-/* 
- * CVodeSetMaxNonlinIters
- *
- * Specifies the maximum number of nonlinear iterations during
- * one solve.
- */
-
-int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return (CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_maxcor = maxcor;
-
-  return(CV_SUCCESS);
-}
-
-#define maxcor (cv_mem->cv_maxcor)
-
-/* 
- * CVodeSetNonlinConvCoef
- *
- * Specifies the coeficient in the nonlinear solver convergence
- * test
- */
-
-int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_nlscoef = nlscoef;
-
-  return(CV_SUCCESS);
-}
-
-#define nlscoef (cv_mem->cv_nlscoef)
-
-/*
- * CVodeSetTolerances
- *
- * Changes te integration tolerances between calls to CVode()
- */
-
-int CVodeSetTolerances(void *cvode_mem, 
-                       int itol, realtype *reltol, void *abstol)
-{
-  CVodeMem cv_mem;
-  booleantype neg_abstol;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if ((itol != CV_SS) && (itol != CV_SV)) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_ITOL);
-    return(CV_ILL_INPUT);
-  }
-
-  if (*reltol < ZERO) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_RELTOL);
-    return(CV_ILL_INPUT);
-  }
-
-  if (abstol == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_ABSTOL_NULL);
-    return(CV_ILL_INPUT);
-  }
-
-  if (itol == CV_SS) {
-    neg_abstol = (*((realtype *)abstol) < ZERO);
-  } else {
-    neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
-  }
-  if (neg_abstol) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_SET_BAD_ABSTOL);
-    return(CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_itol   = itol;
-  cv_mem->cv_reltol = reltol;      
-  cv_mem->cv_abstol = abstol;
-
-  return(CV_SUCCESS);
-}
-
-/*
- * =================================================================
- * END        INTEGRATOR OPTIONAL INPUT FUNCTIONS
- * =================================================================
- */
 
 /*------------------     CVodeMalloc     --------------------------*/
 /* 
@@ -893,7 +391,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_liw1 = liw1;
 
   /* Allocate the vectors (using y0 as a template) */
-  allocOK = CVAllocVectors(cv_mem, qmax, y0);
+  allocOK = CVAllocVectors(cv_mem, y0);
   if (!allocOK) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
@@ -906,7 +404,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   ewtsetOK = CVEwtSet(cv_mem, y0);
   if (!ewtsetOK) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_EWT);
-    CVFreeVectors(cv_mem, qmax);
+    CVFreeVectors(cv_mem);
     return(CV_ILL_INPUT);
   }
   
@@ -1097,10 +595,6 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   return(CV_SUCCESS);
 }
 
-#define f      (cv_mem->cv_f)      
-#define itol   (cv_mem->cv_itol)         
-#define reltol (cv_mem->cv_reltol)       
-#define abstol (cv_mem->cv_abstol)     
 #define gfun   (cv_mem->cv_gfun)
 #define glo    (cv_mem->cv_glo)
 #define ghi    (cv_mem->cv_ghi)
@@ -1215,9 +709,31 @@ int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
   return(CV_SUCCESS);
 }
 
-/*=================================================================*/
-/*BEGIN        Readibality Constants                               */
-/*=================================================================*/
+/* 
+ * =================================================================
+ * Readibility Constants
+ * =================================================================
+ */
+
+#define f              (cv_mem->cv_f)      
+#define f_data         (cv_mem->cv_f_data) 
+#define g_data         (cv_mem->cv_g_data) 
+#define qmax           (cv_mem->cv_qmax) 
+#define mxstep         (cv_mem->cv_mxstep)
+#define mxhnil         (cv_mem->cv_mxhnil)
+#define sldeton        (cv_mem->cv_sldeton)
+#define hin            (cv_mem->cv_hin)
+#define hmin           (cv_mem->cv_hmin)
+#define hmax_inv       (cv_mem->cv_hmax_inv)
+#define tstop          (cv_mem->cv_tstop)
+#define tstopset       (cv_mem->cv_tstopset)
+#define maxnef         (cv_mem->cv_maxnef)
+#define maxncf         (cv_mem->cv_maxncf)
+#define maxcor         (cv_mem->cv_maxcor)
+#define nlscoef        (cv_mem->cv_nlscoef)
+#define itol           (cv_mem->cv_itol)         
+#define reltol         (cv_mem->cv_reltol)       
+#define abstol         (cv_mem->cv_abstol)     
 
 #define uround         (cv_mem->cv_uround)  
 #define zn             (cv_mem->cv_zn) 
@@ -1288,10 +804,6 @@ int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
 #define taskc          (cv_mem->cv_taskc)
 #define irfnd          (cv_mem->cv_irfnd)
 #define nge            (cv_mem->cv_nge)
-
-/*=================================================================*/
-/*END          Readability Constants                               */
-/*=================================================================*/
 
 /********************* CVode ****************************************
 
@@ -1662,10 +1174,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   return(istate);
 }
 
-/*=================================================================*/
-/*BEGIN        CVODE OPTIONAL OUTPUT FUNCTIONS                     */
-/*=================================================================*/
-
 /*------------------    CVodeGetDky      --------------------------*/
 /*
   This routine computes the k-th derivative of the interpolating
@@ -1735,494 +1243,6 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   return (CV_SUCCESS);
 }
 
-/*------------------ CVodeGetNumSteps    --------------------------*/
-/* 
-   Returns the current number of integration steps
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *nsteps = nst;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetNumRhsEvals --------------------------*/
-/* 
-   Returns the current number of calls to f
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *nfevals = nfe;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetNumLinSolvSetups ---------------------*/
-/* 
-   Returns the current number of calls to the linear solver
-   setup routine
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNumLinSolvSetups(void *cvode_mem, long int *nlinsetups)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *nlinsetups = nsetups;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetNumErrTestFails ----------------------*/
-/* 
-   Returns the current number of error test failures
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *netfails = netf;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetLastOrder   --------------------------*/
-/* 
-   Returns the order on the last succesful step
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetLastOrder(void *cvode_mem, int *qlast)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *qlast = q;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetCurrentOrder   --------------------------*/
-/* 
-   Returns the order to be attempted on the next step
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *qcur = next_q;
-
-  return(CV_SUCCESS);
-}
-
-/*------------- CVodeGetNumStabLimOrderReds -----------------------*/
-/* 
-   Returns the number of order reductions triggered by the stability
-   limit detection algorithm
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (sldeton==FALSE) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_GET_NO_SLDET);
-    return(CV_NO_SLDET);
-  }
-
-  *nslred = nor;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetActualInitStep -----------------------*/
-/* 
-   Returns the step size used on the first step
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *hinused = h0u;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------   CVodeGetLastStep  --------------------------*/
-/* 
-   Returns the step size used on the last successful step
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *hlast = h;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetCurrentStep    --------------------------*/
-/* 
-   Returns the step size to be attempted on the next step
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-  
-  *hcur = next_h;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetCurrentTime --------------------------*/
-/* 
-   Returns the current value of the independent variable
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *tcur = tn;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetTolScaleFactor -----------------------*/
-/* 
-   Returns a suggested factor for scaling tolerances
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *tolsfact = tolsf;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetErrWeights   --------------------------*/
-/* 
-   This routine returns the current weight vector for y in weight.
-   Note that weight need not be allocated by the user.
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetErrWeights(void *cvode_mem, N_Vector *eweight)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *eweight = ewt;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetEstLocalErrors -----------------------*/
-/* 
-   Returns an estimate of the local error
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector *ele)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *ele = acor;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetWorkSpace   --------------------------*/
-/* 
-   Returns integrator work space requirements
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *leniw = liw;
-  *lenrw = lrw;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetIntegratorStats ----------------------*/
-/* 
-   Returns integrator statistics
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals, 
-                            long int *nlinsetups, long int *netfails, int *qlast, 
-                            int *qcur, realtype *hinused, realtype *hlast, 
-                            realtype *hcur, realtype *tcur)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *nsteps = nst;
-  *nfevals = nfe;
-  *nlinsetups = nsetups;
-  *netfails = netf;
-  *qlast = q;
-  *qcur = next_q;
-  *hinused = h0u;
-  *hlast = h;
-  *hcur = next_h;
-  *tcur = tn;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetNumGEvals ----------------------------*/
-/* 
-   Returns the current number of calls to g (for rootfinding)
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *ngevals = nge;
-
-  return(CV_SUCCESS);
-}
-
-/*------------------ CVodeGetRootInfo -----------------------------*/
-/* 
-   Returns pointer to array rootsfound showing roots found
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetRootInfo(void *cvode_mem, int **rootsfound)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *rootsfound = iroots;
-
-  return(CV_SUCCESS);
-}
-
-
-/*---------------   CVodeGetNumNonlinSolvIters --------------------*/
-/* 
-   Returns the current number of iterations in the nonlinear
-   solver
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *nniters = nni;
-
-  return(CV_SUCCESS);
-}
-
-/*------------      CVodeGetNumNonlinSolvConvFails ----------------*/
-/* 
-   Returns the current number of convergence failures in the
-   nonlinear solver
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *nncfails = ncfn;
-
-  return(CV_SUCCESS);
-}
-
-/*---------------   CVodeGetNonlinSolvStats -----------------------*/
-/* 
-   Returns nonlinear solver statistics
-*/
-/*-----------------------------------------------------------------*/
-
-int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, 
-                            long int *nncfails)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCV_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  *nniters = nni;
-  *nncfails = ncfn;
-
-  return(CV_SUCCESS);
-}
-
 /********************* CVodeFree **********************************
 
  This routine frees the problem memory allocated by CVodeMalloc.
@@ -2240,7 +1260,7 @@ void CVodeFree(void *cvode_mem)
   
   if (cvode_mem == NULL) return;
 
-  CVFreeVectors(cv_mem, qmax);
+  CVFreeVectors(cv_mem);
 
   if (iter == CV_NEWTON && lfree != NULL) lfree(cv_mem);
 
@@ -2254,14 +1274,12 @@ void CVodeFree(void *cvode_mem)
   free(cv_mem);
 }
 
-/*=================================================================*/
-/*END          EXPORTED FUNCTIONS IMPLEMENTATION                   */
-/*=================================================================*/
+/* 
+ * =================================================================
+ *  Private Functions Implementation
+ * =================================================================
+ */
 
-/*******************************************************************/
-/******** BEGIN Private Helper Functions Implementation ************/
-/*******************************************************************/
- 
 /****************** CVCheckNvector ***********************************
  This routine checks if all required vector operations are present.
  If any of them is missing it returns FALSE.
@@ -2290,9 +1308,7 @@ static booleantype CVCheckNvector(N_Vector tmpl)
 /****************** CVAllocVectors ***********************************
 
  This routine allocates the CVODE vectors ewt, acor, tempv, ftemp, and
- zn[0], ..., zn[maxord]. The length of the vectors is the input
- parameter neq and the maximum order (needed to allocate zn) is the
- input parameter maxord. If all memory allocations are successful,
+ zn[0], ..., zn[qmax]. If all memory allocations are successful,
  CVAllocVectors returns TRUE. Otherwise all allocated memory is freed
  and CVAllocVectors returns FALSE.
  This routine also sets the optional outputs lrw and liw, which are
@@ -2301,8 +1317,7 @@ static booleantype CVCheckNvector(N_Vector tmpl)
 
 **********************************************************************/
 
-static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord, 
-                                  N_Vector tmpl)
+static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -2329,9 +1344,9 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord,
     return(FALSE);
   }
 
-  /* Allocate zn[0] ... zn[maxord] */
+  /* Allocate zn[0] ... zn[qmax] */
 
-  for (j=0; j <= maxord; j++) {
+  for (j=0; j <= qmax; j++) {
     zn[j] = N_VClone(tmpl);
     if (zn[j] == NULL) {
       N_VDestroy(ewt);
@@ -2345,8 +1360,8 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord,
 
   /* Set solver workspace lengths  */
 
-  lrw = (maxord + 5)*lrw1;
-  liw = (maxord + 5)*liw1;
+  lrw = (qmax + 5)*lrw1;
+  liw = (qmax + 5)*liw1;
 
   return(TRUE);
 }
@@ -2357,7 +1372,7 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, int maxord,
 
 ******************************************************************/
 
-static void CVFreeVectors(CVodeMem cv_mem, int maxord)
+static void CVFreeVectors(CVodeMem cv_mem)
 {
   int j;
   
@@ -2365,7 +1380,7 @@ static void CVFreeVectors(CVodeMem cv_mem, int maxord)
   N_VDestroy(acor);
   N_VDestroy(tempv);
   N_VDestroy(ftemp);
-  for(j=0; j <= maxord; j++) N_VDestroy(zn[j]);
+  for(j=0; j <= qmax; j++) N_VDestroy(zn[j]);
 }
 
 /*********************** CVEwtSet **************************************
@@ -4404,12 +3419,3 @@ static int CVRootfind(CVodeMem cv_mem)
   return(RTFOUND);
 }
 
-
-/*******************************************************************/
-/********* END Private Helper Functions Implementation *************/
-/*******************************************************************/
-
-
-/***************************************************************/
-/************** END CVODE Implementation ***********************/
-/***************************************************************/

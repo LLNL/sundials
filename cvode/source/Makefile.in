@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-10-28 00:35:28 $
+# $Revision: 1.9 $
+# $Date: 2004-11-23 20:48:24 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR   = $(srcdir)/../../shared/include
 CVODE_INC_DIR    = $(srcdir)/../include
 
 CVODE_LIB       = libsundials_cvode.la
-CVODE_LIB_FILES = cvode.lo cvband.lo cvdense.lo cvdiag.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo
+CVODE_LIB_FILES = cvode.lo cvodeio.lo cvband.lo cvdense.lo cvdiag.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo
 
-OBJECT_FILES = cvode.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o
+OBJECT_FILES = cvode.o cvodeio.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o
 
 all: update $(CVODE_LIB_FILES)
 
@@ -82,6 +82,8 @@ uninstall: clean
 
 cvode.lo: $(srcdir)/cvode.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvode.c
+cvodeio.lo: $(srcdir)/cvodeio.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodeio.c
 cvdense.lo: $(srcdir)/cvdense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdense.c
 cvband.lo: $(srcdir)/cvband.c
