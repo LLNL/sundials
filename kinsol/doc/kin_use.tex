@@ -23,12 +23,12 @@ and data types can be used. The header file that is always required is:
 %
 \begin{itemize}
 \item  \Id{kinsol.h}, 
-  the header file for {\kinsol}, which defines the several
+  the header file for {\kinsol}, which defines several
   types and various constants, and includes function prototypes.
 \end{itemize}
 %
 \id{kinsol.h} also includes \Id{sundialstypes.h}, 
-which defines the types \id{realtype} and \id{ booleantype}
+which defines the types \id{realtype} and \id{booleantype}
 and constants \id{FALSE} and \id{TRUE}.
 
 The calling program must also include an {\nvector} implementation header file
@@ -54,7 +54,7 @@ This in turn includes a header file (\id{iterative.h})
 which enumerates the kind of preconditioning and the choices for the
 Gram-Schmidt process.
 
-Other headers may be needed, according as to the choice of
+Other headers may be needed, according to the choice of
 preconditioner, etc. For example, in the \id{kinwebs} example~\cite{kinsol2.2.0_ex}, 
 preconditioning is done with a block-diagonal matrix. For this, the header
 \id{smalldense.h} is included.
