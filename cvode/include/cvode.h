@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-10-08 15:11:08 $
+ * $Revision: 1.23 $
+ * $Date: 2004-10-11 15:50:40 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -694,14 +694,16 @@ void CVodeFree(void *cvode_mem);
 #define CV_LSETUP_FAIL   -9
 #define CV_LSOLVE_FAIL   -10
 
-#define CV_MEM_FAIL      -4
+#define CV_MEM_FAIL      -11
 
-#define CV_RTFUNC_NULL   -3
+#define CV_RTFUNC_NULL   -12
 
-#define CV_NO_SLDET      -2  
-#define CV_BAD_K         -3
-#define CV_BAD_T         -4
-#define CV_BAD_DKY       -5
+#define CV_NO_SLDET      -13 
+#define CV_BAD_K         -14
+#define CV_BAD_T         -15
+#define CV_BAD_DKY       -16
+
+#define CV_PDATA_NULL    -17
 
 /*
  * =================================================================
