@@ -1,20 +1,20 @@
 \section{Code Organization}
 \label{s:organization}
 
-The writing of CVODE from the Fortran solvers VODE and VODPK involved a
-complete redesign and reorganization.  This was done partly to exploit
-features of C not present in Fortran, partly to achieve a more
-object-oriented design, partly to maximize the reuse of code modules, and
-partly to facilitate the extension from a serial to a parallel
+The writing of CVODE from the Fortran solvers VODE and VODPK initiated a
+complete redesign and reorganization of LLNL nonlinear solver coding.  This
+was done partly to exploit features of C not present in Fortran, partly to
+achieve a more object-oriented design, partly to maximize the reuse of code
+modules, and partly to facilitate the extension from a serial to a parallel
 implementation.
 
 The process of modularization has continued with the collection of CVODE,
-KINSOL, and IDA into SUNDIALS. The SUNDIALS distribution now contains common
-modules in a shared directory. Additionally, compilation of SUNDIALS is now
-independent of any prior specification of a particular NVECTOR
-implementation, facilitating the use of binary libraries. The current
-NVECTOR structure also allows use of multiple implementations within the
-same code, as may be required to meet user needs.
+KINSOL, and IDA into SUNDIALS. The SUNDIALS distribution now contains a
+number of common modules in a shared directory. Additionally, compilation of
+SUNDIALS is now independent of any prior specification of a particular
+NVECTOR implementation, facilitating the use of binary libraries. The
+current NVECTOR structure also allows use of multiple implementations within
+the same code, as may be required to meet user needs.
 
 The features of the design of CVODE include the following:
 \begin{itemize}
@@ -29,13 +29,17 @@ integrator module.
 $N-$vectors are isolated in a separate NVECTOR module.
 \end{itemize}
 
-The following Fig. \ref{fig-sunorg} shows the overall structure of SUNDIALS
-solvers, with the various separate modules.  The separation of the linear
-solvers from the core integrator allows for easy addition of other linear
-solver algorithms in the future.  At the bottom level are the NVECTOR
-module, default serial and parallel implementations, and two small modules,
-SUNDIALSTYPS and SUNDIALSMATH dealing with data types and elementary
-mathematical operations.
+Figure \ref{fig-sunorg} shows the overall structure of SUNDIALS solvers,
+with the various separate modules. The evolution of SUNDIALS has been
+directed keeping the entire set of solvers in mind. Thus, CVODE, KINSOL and
+IDA share much in their organization and have a number of common modules.
+The separation of the linear solvers from the core integrators allows for
+easy addition of linear solvers not currently included in SUNDIALS. At the
+bottom level is the NVECTOR module, providing key vector operations such as
+creation, destruction, summation, and dot-products on potentially
+distributed data vectors. Example serial and parallel NVECTOR
+implementations are included with SUNDIALS. Two small modules defining
+several data types and elementary mathematical operations are also included.
 
 \begin{figure}[tp]
 \centerline{\psfig{figure=sunorg.eps,width=\textwidth}}
@@ -43,77 +47,51 @@ mathematical operations.
 \label{fig-sunorg}
 \end{figure}
 
-A number of user-supplied routines for the SUNDIALS solvers are not shown in
-\ref{fig-sunorg}.  These routines must include a routine for the evaluation
-of $f$ (CVODE) or $F$ (KINSOL and IDA). The user provided routines may
-include, depending on the options chosen, routines for Jacobian evaluation
-(direct cases) or Jacobian-vector products (Krylov case), and the setup and
-solution routines for the Krylov preconditioner.
-
-The evolution of SUNDIALS has been directed keeping the entire set of
-solvers in mind.  Thus CVODE, KINSOL and IDA all share many of the same
-modules, as can be seen in \ref{fig-sunorg}.
-
-The KINSOL solver, which includes only one linear system solver at present,
-sharing with CVODE and IDA the GMRES based SPGMR module, the NVECTOR module,
-and the lower level modules SUNDIALSTYPS and SUNDIALSMATH. The KINSOL user
-must supply a routine for $F$ evaluation, and may (optionally) supply
-routines for $Jv$ products, and for the preconditioner.
-
-The structure and organization of IDA and CVODE are very similar. They
-shares all of the generic dense, band, and SPGMR linear system solvers, the
-NVECTOR module, and the modules SUNDIALSTYPS and SUNDIALSMATH.
-
-The IDA user must supply a routine for the evaluation of $F$, and may
-(optionally) include routines for Jacobian evaluation, and routines
-for the preconditioner.
+A number of necessary and optional user-supplied routines for the SUNDIALS
+solvers are not shown in \mbox{Figure \ref{fig-sunorg}}. The user must
+provide a routine for the evaluation of $f$ (CVODE) or $F$ (KINSOL and
+IDA). The user provided routines may include, depending on the options
+chosen, routines for Jacobian evaluation (direct cases) or Jacobian-vector
+products (Krylov case), and routines for the setup and solution of Krylov
+preconditioners.
 
 \subsection{Shared Modules - NVECTOR}
 
-The NVECTOR module is shared among all the SUNDIALS solvers.
-Actually, as supplied with the complete package, this module
-includes three submodules:
-\begin{itemize}
-\item Generic NVECTOR
-\item NVECTOR\_SERIAL
-\item NVECTOR\_PARALLEL
-\end{itemize}
+A generic NVECTOR implementation is used within the SUNDIALS solvers to
+operate on NVECTORS. This generic implementation defines an NVECTOR
+structure specification, a data-independent NVECTOR type, a set of
+operations, and a set of wrappers for access to the actual operation set of
+the implementation under which an NVECTOR was created. Because details of
+vector operations are thus encapsulated within each specific implementation,
+compilation of SUNDIAL solvers is now independent of implementation,
+allowing the solvers to reside in precompiled libraries.
 
-The Generic NVECTOR module defines:
-\begin{itemize}
-\item an NVECTOR  structure specification {\tt NV\_Spec}
-\item a data-independent {\tt N\_Vector} type
-\item (in {\tt NV\_Spec}) a set of operations
-\item a set of kernels, which are wrappers around the actual kernels
-accessed through the operation set
-\end{itemize}
+A particular NVECTOR implementation, such as the serial and parallel example
+implementations included with SUNDIALS of a user provided implementation,
+must provide certain functionalities. Each implementation must provide a
+specification of the data needed to generate an new NVECTOR and a menu to
+routines for operations on NVECTORS, including, for example, creation,
+destruction, summation, element-by-element inversion, and dot-product. Each
+NVECTOR includes data and descriptive fields as well as a pointer to the
+specification for the implementation to which it belongs.
 
-Each NVECTOR\_*** implementation supplied with the package (or any
-NVECTOR module defined by the user) defines:
-\begin{itemize}
-\item a content field of {\tt NV\_Spec}
-\item a content field of {\tt N\_Vector}
-\item a set of implemented vector kernels
-\item a function to construct {\tt NV\_Spec} and fill the list of operations
-\end{itemize}
-
-More specifically, in NVECTOR\_PARALLEL, the types and kernels are
-defined so as to operate on distributed vectors, with all N-vectors
-distributed the same way.  The type {\tt NV\_Spec} includes
-\begin{itemize}
-  \item the local vector length
-  \item the global vector length
-  \item the MPI communicator
-\end{itemize}
-and the {\tt N\_Vector} content field includes
-\begin{itemize}
-  \item the local vector length
-  \item the global vector length
-  \item the local data array
-\end{itemize}
-
-If neither package NVECTOR implementation is suitable, the user can provide
-one or more NVECTOR implementations.  For example, it might (and has been)
-more practical to substitute a more complex data structure.
+If neither the serial nor parallel package NVECTOR implementation is
+suitable, the user can provide one or more NVECTOR implementations.  For
+example, it might (and has been) more practical to substitute a more complex
+data structure.
 
 
+\subsection{Shared Modules - Linear Solvers}
+
+As can be seen in \mbox{Figure \ref{fig-sunorg}}, three linear solver
+packages are currently included with SUNDIALS: a direct dense matrix solver
+(DENSE), a direct band solver (BAND), and an iterative Krylov solver
+(SPGMR). These are stand-along packages in their own right.
+
+The shared linear solvers are accessed from SUNDIALS solvers via solver
+specific wrappers. Thus, SPGMR is accessed via CVSPGMR, IDASPGMR, and
+KINSPGMR for CVODE (and CVODES), IDA, and KINSOL, respectively. For the
+DENSE solver, the wrappers are CVDENSE and IDADENSE for CVODE/CVODES and
+IDA, respectively. Similar wrappers for BAND are CVBAND and IDABAND. KINSOL,
+because of its design specific to large problems, does not interface with
+the direct solvers.
