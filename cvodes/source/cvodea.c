@@ -186,6 +186,7 @@ static void CVArhsQ(realtype t, N_Vector yB,
 #define t0_        (ck_mem->ck_t0)
 #define t1_        (ck_mem->ck_t1)
 #define zn_        (ck_mem->ck_zn)
+#define zqm_       (ck_mem->ck_zqm)
 #define nst_       (ck_mem->ck_nst)
 #define q_         (ck_mem->ck_q)
 #define qprime_    (ck_mem->ck_qprime)
@@ -1239,8 +1240,8 @@ void CVadjGetCheckPointsList(void *cvadj_mem)
   i = 0;
 
   while (ck_mem != NULL) {
-    printf("Check point %2d  addr: %x  time = [ %5e %5e ]  next: %x\n", 
-           nckpnts-i, ck_mem, t0_, t1_, next_ );
+    printf("Check point %2d  addr: %p  time = [ %5e %5e ]  next: %p\n", 
+           nckpnts-i, (void *)ck_mem, t0_, t1_, (void *)next_ );
     ck_mem = next_;
     i++;
   }
@@ -1298,6 +1299,9 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   zn_[0] = N_VNew(nvspec);
   zn_[1] = N_VNew(nvspec);
 
+  /* zn_[qmax] was not allocated */
+  zqm_ = 0;
+
   /* Load ckdata from cv_mem */
   N_VScale(ONE, zn[0], zn_[0]);
   t0_    = tn;
@@ -1341,12 +1345,14 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
      increase is deemed necessary at the first step after a check 
      point */
   qmax = cv_mem->cv_qmax;
+  zqm_ = 0;
   if ( q < qmax) {
     zn_[qmax] = N_VNew(nvspec);
     if ( zn_[qmax] == NULL ) {
       for(jj=0; jj<=q; jj++) N_VFree(zn_[jj]);
       return(NULL);
     }
+    zqm_ = qmax;
   }
 
   /* Load check point data from cv_mem */
@@ -1390,6 +1396,7 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
     *ck_memPtr = (*ck_memPtr)->ck_next;
     /* free tmp */
     for (j=0;j<=tmp->ck_q;j++) N_VFree(tmp->ck_zn[j]);
+    if (tmp->ck_zqm != 0) N_VFree(tmp->ck_zn[tmp->ck_zqm]);
     free(tmp);
   }
 }

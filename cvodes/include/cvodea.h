@@ -451,6 +451,11 @@ typedef struct CkpntMemRec {
    
   /* Nordsieck History Array */
   N_Vector ck_zn[L_MAX];
+
+  /* Was ck_zn[qmax] allocated?
+     ck_zqm = 0    - no
+     ck_zqm = qmax - yes      */
+  int ck_zqm;
   
   /* Step data */
   long int     ck_nst;
