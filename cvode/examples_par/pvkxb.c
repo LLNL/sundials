@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-09-01 22:47:37 $
+ * $Revision: 1.15 $
+ * $Date: 2004-10-11 20:18:03 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 
   /* Print heading */
   if (my_pe == 0) {
-    printf("2-species diurnal advection-diffusion problem\n");
+    printf("\n2-species diurnal advection-diffusion problem\n");
     printf("  %d by %d mesh on %d processors\n",MX,MY,npes);
     printf("  Using CVBBDPRE preconditioner module\n");
     printf("    Difference-quotient half-bandwidths are");
