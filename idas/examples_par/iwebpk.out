@@ -14,45 +14,45 @@ At bottom left:  c1, c2 = 1.000000e+01 9.999900e+04
 At top right:    c1, c2 = 1.000000e+01 9.994900e+04 
 
 
-TIME t = 1.000000e-03.     NST = 32,  k = 4,  h = 9.740434e-05
-NRE = 50,  NRE_S = 40,  NNI = 48,  NLI = 40,  NPE = 13,  NPS = 90
+TIME t = 1.000000e-03.     NST = 33,  k = 4,  h = 9.740434e-05
+NRE = 51,  NRE_S = 40,  NNI = 49,  NLI = 40,  NPE = 13,  NPS = 91
 At bottom left:  c1, c2 = 1.031839e+01 1.031881e+05 
 At top right:    c1, c2 = 1.082692e+01 1.082232e+05 
 
 
-TIME t = 1.000000e-02.     NST = 85,  k = 4,  h = 1.753278e-04
-NRE = 106,  NRE_S = 619,  NNI = 104,  NLI = 619,  NPE = 13,  NPS = 725
+TIME t = 1.000000e-02.     NST = 86,  k = 4,  h = 1.753278e-04
+NRE = 107,  NRE_S = 619,  NNI = 105,  NLI = 619,  NPE = 13,  NPS = 726
 At bottom left:  c1, c2 = 1.618890e+02 1.618905e+06 
 At top right:    c1, c2 = 1.973506e+02 1.973470e+06 
 
 
-TIME t = 1.000000e-01.     NST = 164,  k = 1,  h = 4.039553e-02
-NRE = 199,  NRE_S = 972,  NNI = 197,  NLI = 972,  NPE = 22,  NPS = 1171
+TIME t = 1.000000e-01.     NST = 162,  k = 1,  h = 4.039553e-02
+NRE = 196,  NRE_S = 966,  NNI = 194,  NLI = 966,  NPE = 22,  NPS = 1162
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 4.000000e-01.     NST = 167,  k = 1,  h = 3.231642e-01
-NRE = 205,  NRE_S = 991,  NNI = 203,  NLI = 991,  NPE = 25,  NPS = 1196
+TIME t = 4.000000e-01.     NST = 165,  k = 1,  h = 3.231642e-01
+NRE = 199,  NRE_S = 977,  NNI = 197,  NLI = 977,  NPE = 25,  NPS = 1176
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 7.000000e-01.     NST = 167,  k = 1,  h = 3.231642e-01
-NRE = 205,  NRE_S = 991,  NNI = 203,  NLI = 991,  NPE = 25,  NPS = 1196
+TIME t = 7.000000e-01.     NST = 165,  k = 1,  h = 3.231642e-01
+NRE = 199,  NRE_S = 977,  NNI = 197,  NLI = 977,  NPE = 25,  NPS = 1176
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
-TIME t = 1.000000e+00.     NST = 168,  k = 1,  h = 6.463285e-01
-NRE = 207,  NRE_S = 998,  NNI = 205,  NLI = 998,  NPE = 26,  NPS = 1205
+TIME t = 1.000000e+00.     NST = 166,  k = 1,  h = 6.463285e-01
+NRE = 200,  NRE_S = 980,  NNI = 198,  NLI = 980,  NPE = 26,  NPS = 1180
 At bottom left:  c1, c2 = 2.401904e+02 2.401915e+06 
 At top right:    c1, c2 = 2.707209e+02 2.707169e+06 
 
 
 Final statistics: 
 
-NST  =   168     NRE  =  1205
-NNI  =   205     NLI  =   998
-NPE  =    26     NPS  =  1205
+NST  =   166     NRE  =  1180
+NNI  =   198     NLI  =   980
+NPE  =    26     NPS  =  1180
 NETF =     0     NCFN =     0     NCFL =     0

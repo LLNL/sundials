@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-05-05 16:27:21 $
+ * $Revision: 1.7 $
+ * $Date: 2004-07-22 23:01:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for IDA: 2D heat equation, serial, banded.
+ * Example problem for IDA/IDAS: 2D heat equation, serial, banded.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the band solver IDABand, and IDACalcIC.
@@ -20,7 +20,7 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDA using the banded linear system
+ * The system is solved with IDA/IDAS using the banded linear system
  * solver, half-bandwidths equal to M, and default
  * difference-quotient Jacobian. For purposes of illustration,
  * IDACalcIC is called to compute correct values at the boundary,
@@ -36,7 +36,7 @@
 #include <math.h>
 #include "sundialstypes.h"
 #include "sundialsmath.h"
-#include "nvector_serial.h" /* definitions of type N_Vector and macro NV_DATA_S */
+#include "nvector_serial.h"
 #include "ida.h"
 #include "idaband.h"
 
@@ -67,7 +67,6 @@ int main(void)
 {
   void *mem;
   UserData data;
-  NV_Spec nvSpec;
   N_Vector uu, up, constraints, id, res;
   int ier, iout, itol, itask;
   long int mu, ml;
@@ -77,24 +76,19 @@ int main(void)
 
   mem = NULL;
   data = NULL;
-  nvSpec = NULL;
   uu = up = constraints = id = res = NULL;
 
-  /* Initialize serial vector specification */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
   /* Create vectors uu, up, res, constraints, id. */
-  uu = N_VNew(nvSpec);
-  if(check_flag((void *)uu, "N_VNew", 0)) return(1);
-  up = N_VNew(nvSpec);
-  if(check_flag((void *)up, "N_VNew", 0)) return(1);
-  res = N_VNew(nvSpec);
-  if(check_flag((void *)res, "N_VNew", 0)) return(1);
-  constraints = N_VNew(nvSpec);
-  if(check_flag((void *)constraints, "N_VNew", 0)) return(1);
-  id = N_VNew(nvSpec);
-  if(check_flag((void *)id, "N_VNew", 0)) return(1);
+  uu = N_VNew_Serial(NEQ);
+  if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
+  up = N_VNew_Serial(NEQ);
+  if(check_flag((void *)up, "N_VNew_Serial", 0)) return(1);
+  res = N_VNew_Serial(NEQ);
+  if(check_flag((void *)res, "N_VNew_Serial", 0)) return(1);
+  constraints = N_VNew_Serial(NEQ);
+  if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  id = N_VNew_Serial(NEQ);
+  if(check_flag((void *)id, "N_VNew_Serial", 0)) return(1);
 
   /* Create and load problem data block. */
   data = (UserData) malloc(sizeof *data);
@@ -126,7 +120,7 @@ int main(void)
   if(check_flag(&ier, "IDASetId", 1)) return(1);
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
+  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the linear solver. */
@@ -214,19 +208,19 @@ int main(void)
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(mem);
-  N_VFree(uu);
-  N_VFree(up);
-  N_VFree(constraints);
-  N_VFree(id);
-  N_VFree(res);
+  N_VDestroy(uu);
+  N_VDestroy(up);
+  N_VDestroy(constraints);
+  N_VDestroy(id);
+  N_VDestroy(res);
   free(data);
-  NV_SpecFree_Serial(nvSpec);
 
   return(0);
-} /* End of iheatsb main program. */
+}
 
-/*************************************************************************
- * SetInitialProfile: routine to initialize u, up, and id vectors.       */
+/*
+ * SetInitialProfile: routine to initialize u, up, and id vectors.       
+ */
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res)
@@ -276,15 +270,16 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   
   return(SUCCESS);
 
-} /* End of SetInitialProfiles */
+}
 
-/*************************************************************************
- * heatres: heat equation system residual function                       *
- * This uses 5-point central differencing on the interior points, and    *
- * includes algebraic equations for the boundary values.                 *
- * So for each interior point, the residual component has the form       *
- *    res_i = u'_i - (central difference)_i                              *
- * while for each boundary point, it is res_i = u_i.                     */
+/*
+ * heatres: heat equation system residual function                       
+ * This uses 5-point central differencing on the interior points, and    
+ * includes algebraic equations for the boundary values.                 
+ * So for each interior point, the residual component has the form       
+ *    res_i = u'_i - (central difference)_i                              
+ * while for each boundary point, it is res_i = u_i.                     
+ */
 
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
             void *rdata)
@@ -314,15 +309,17 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
   
   return(SUCCESS);
 
-} /* End of residual function heatres. */
+}
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/* 
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {

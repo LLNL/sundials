@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-05-05 16:27:21 $
+ * $Revision: 1.8 $
+ * $Date: 2004-07-22 23:01:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example program for IDA: Food web, serial, band solve IDABAND.
+ * Example program for IDA/IDAS: Food web, serial, band solve IDABAND.
  *
- * This example program for IDA (serial version) uses IDABAND as the
+ * This example program for IDA/IDAS (serial version) uses IDABAND as the
  * linear solver, and IDACalcIC for initial condition calculation.
  *
  * The mathematical problem solved in this example is a DAE system
@@ -89,12 +89,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"   /* Definitions of realtype and booleantype          */
-#include "ida.h"             /* Main IDA header file.                            */
-#include "idaband.h"         /* Use IDABAND linear solver.                       */
-#include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S.   */
-#include "sundialsmath.h"    /* Contains RSqrt routine.                          */
-#include "smalldense.h"      /* Contains definitions for denalloc routine.       */
+#include "sundialstypes.h"   /* Definitions of realtype and booleantype       */
+#include "ida.h"             /* Main header file                              */
+#include "idaband.h"         /* Use IDABAND linear solver                     */
+#include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S */
+#include "sundialsmath.h"    /* Contains RSqrt routine                        */
+#include "smalldense.h"      /* Contains definitions for denalloc routine     */
 
 /* Problem Constants. */
 
@@ -126,11 +126,13 @@
 #define TMULT       RCONST(10.0)   /* Multiplier for tout values */
 #define TADD        RCONST(0.3)    /* Increment for tout values */
 
-/* User-defined vector and accessor macro: IJ_Vptr.
-   IJ_Vptr is defined in order to express the underlying 3-D structure of the 
-   dependent variable vector from its underlying 1-D storage (an N_Vector).
-   IJ_Vptr(vv,i,j) returns a pointer to the location in vv corresponding to 
-   species index is = 0, x-index ix = i, and y-index jy = j.                */
+/* 
+ * User-defined vector and accessor macro: IJ_Vptr.
+ * IJ_Vptr is defined in order to express the underlying 3-D structure of the 
+ * dependent variable vector from its underlying 1-D storage (an N_Vector).
+ * IJ_Vptr(vv,i,j) returns a pointer to the location in vv corresponding to 
+ * species index is = 0, x-index ix = i, and y-index jy = j.                
+ */
 
 #define IJ_Vptr(vv,i,j) (&NV_Ith_S(vv, i*NUM_SPECIES + j*NSMX))
 
@@ -145,7 +147,7 @@ typedef struct {
 
 /* Prototypes for private Helper Functions. */
 
-static UserData AllocUserData(NV_Spec nvSpec);
+static UserData AllocUserData(long int SystemSize);
 static void InitUserData(UserData webdata);
 static void FreeUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
@@ -168,49 +170,45 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
 
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
-/***************************** Main Program ******************************/
+/*
+ *----------------------------
+ * Main program
+ *----------------------------
+ */
 
 int main()
 { 
   void *mem;
   UserData webdata;
-  NV_Spec nvSpec;
-  N_Vector cc, cp, id, res;
+  N_Vector cc, cp, id;
   int iout, flag, retval, itol, itask;
   long int SystemSize, mu, ml;
   realtype rtol, atol, t0, tout, tret;
 
   mem = NULL;
   webdata = NULL;
-  nvSpec = NULL;
-  cc = cp = id = res = NULL;
-
-  /* Initialize serial machine environment */
-  nvSpec = NV_SpecInit_Serial(NEQ);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
+  cc = cp = id = NULL;
 
   /* Set up and load user data block webdata. */
+
   SystemSize = NEQ;
-  webdata = AllocUserData(nvSpec);
+  webdata = AllocUserData(SystemSize);
   if(check_flag((void *)webdata, "AllocUserData", 2)) return(1);
+
   InitUserData(webdata);
 
-  /* Allocate N-vectors and initialize cc, cp, and id.
-     The vector res is used temporarily only.           */ 
+  /* Allocate N-vectors and initialize cc, cp, and id. */
 
-  SystemSize = NEQ;
-  cc  = N_VNew(nvSpec);
-  if(check_flag((void *)cc, "N_VNew", 0)) return(1);
-  cp  = N_VNew(nvSpec);
-  if(check_flag((void *)cp, "N_VNew", 0)) return(1);
-  res = N_VNew(nvSpec);
-  if(check_flag((void *)res, "N_VNew", 0)) return(1);
-  id  = N_VNew(nvSpec);
-  if(check_flag((void *)id, "N_VNew", 0)) return(1);
+  cc  = N_VNew_Serial(NEQ);
+  if(check_flag((void *)cc, "N_VNew_Serial", 0)) return(1);
+
+  cp  = N_VNew_Serial(NEQ);
+  if(check_flag((void *)cp, "N_VNew_Serial", 0)) return(1);
+
+  id  = N_VNew_Serial(NEQ);
+  if(check_flag((void *)id, "N_VNew_Serial", 0)) return(1);
   
   SetInitialProfiles(cc, cp, id, webdata);
-  N_VFree(res);
-  res = NULL;
   
   /* Set remaining inputs to IDAMalloc. */
   
@@ -221,14 +219,18 @@ int main()
   
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
+
   retval = IDASetRdata(mem, webdata);
   if(check_flag(&retval, "IDASetRdata", 1)) return(1);
+
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1)) return(1);
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol, nvSpec);
+
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol);
   if(check_flag(&retval, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the IDA linear solver. */
+
   mu = ml = NSMX;
   retval = IDABand(mem, SystemSize, mu, ml);
   if(check_flag(&retval, "IDABand", 1)) return(1);
@@ -269,28 +271,32 @@ int main()
   
   PrintFinalStats(mem);
 
-  N_VFree(cc);
-  N_VFree(cp);
-  N_VFree(id);
+  N_VDestroy(cc);
+  N_VDestroy(cp);
+  N_VDestroy(id);
   IDAFree(mem);
   FreeUserData(webdata);
-  NV_SpecFree_Serial(nvSpec);
 
   return(0);
-}  /* End of iwebsb main program. */
+}
 
-/*********************** Private Helper Functions ************************/
+/*
+ *----------------------------
+ * Private Helper Functions
+ *----------------------------
+ */
 
-/*************************************************************************/
-/* AllocUserData: Allocate memory for data structure of type UserData.   */
+/* 
+ * AllocUserData: Allocate memory for data structure of type UserData.   
+ */
 
-static UserData AllocUserData(NV_Spec nvSpec)
+static UserData AllocUserData(long int SystemSize)
 {
   UserData webdata;
 
   webdata = (UserData) malloc(sizeof *webdata);
 
-  webdata->rates = N_VNew(nvSpec);
+  webdata->rates = N_VNew_Serial(SystemSize);
 
   webdata->acoef = denalloc(NUM_SPECIES);
  
@@ -304,8 +310,9 @@ static UserData AllocUserData(NV_Spec nvSpec)
 #define cox    (webdata->cox)
 #define coy    (webdata->coy)
 
-/*************************************************************************/
-/* InitUserData: Load problem constants in webdata (of type UserData).   */
+/*
+ * InitUserData: Load problem constants in webdata (of type UserData).   
+ */
 
 static void InitUserData(UserData webdata)
 {
@@ -346,26 +353,29 @@ static void InitUserData(UserData webdata)
     coy[i] = DPREY/dy2; coy[i+np] = DPRED/dy2;
   }
   
-} /* End of InitUserData */
+}
 
-/*************************************************************************/
-/* FreeUserData: Free webdata memory.                                    */
+
+/* 
+ * FreeUserData: Free webdata memory.
+ */
 
 static void FreeUserData(UserData webdata)
 {
   denfree(acoef);
-  N_VFree(webdata->rates);
+  N_VDestroy(webdata->rates);
   
   free(webdata);
 }
 
-/*************************************************************************/
-/* SetInitialProfiles: Set initial conditions in cc, cp, and id.
-   A polynomial profile is used for the prey cc values, and a constant
-   (1.0e5) is loaded as the initial guess for the predator cc values.
-   The id values are set to 1 for the prey and 0 for the predators.
-   The prey cp values are set according to the given system, and
-   the predator cp values are set to zero.                               */
+/* 
+ * SetInitialProfiles: Set initial conditions in cc, cp, and id.
+ * A polynomial profile is used for the prey cc values, and a constant
+ * (1.0e5) is loaded as the initial guess for the predator cc values.
+ * The id values are set to 1 for the prey and 0 for the predators.
+ * The prey cp values are set according to the given system, and
+ * the predator cp values are set to zero.                               
+ */
 
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
@@ -416,13 +426,14 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       }
     }
   }
-}  /* End of SetInitialProfiles. */
+}
 
-/*************************************************************************/
-/* PrintOutput: Print output values at output time t = tt.
-   Selected run statistics are printed.  Then values of c1 and c2
-   are printed for the bottom left and top right grid points only.  
-   (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         */
+/* 
+ * PrintOutput: Print output values at output time t = tt.
+ * Selected run statistics are printed.  Then values of c1 and c2
+ * are printed for the bottom left and top right grid points only.  
+ * (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         
+ */
 
 static void PrintOutput(void *mem, N_Vector cc, realtype tt,
                         UserData webdata)
@@ -457,10 +468,11 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
   jx = MX-1; jy = MY-1; ct = IJ_Vptr(cc,jx,jy);
   printf("At top right:    c1, c2 = %e %e \n\n", ct[0],ct[1]);
   
-} /* End of PrintOutput. */
+}
 
-/*************************************************************************/
-/* PrintFinalStats: Print final run data contained in iopt.              */
+/* 
+ * PrintFinalStats: Print final run data contained in iopt.              
+ */
 
 static void PrintFinalStats(void *mem)
 { 
@@ -487,15 +499,14 @@ static void PrintFinalStats(void *mem)
   printf("NNI  = %5ld     NJE  = %5ld \n", nni, nje);
   printf("NETF = %5ld     NCFN = %5ld \n", netf, ncfn);
   
-} /* End of PrintFinalStats. */
+}
 
-/*********** Functions called by IDA and supporting functions ************/
-
-/*************************************************************************/
-/* resweb: System residual function for predator-prey system.            */
-/* This routine calls Fweb to get all the right-hand sides of the        */
-/* equations, then loads the residual vector accordingly,                */
-/* using cp in the case of prey species.                                 */
+/* 
+ * resweb: System residual function for predator-prey system.
+ * This routine calls Fweb to get all the right-hand sides of the
+ * equations, then loads the residual vector accordingly,
+ * using cp in the case of prey species.                 
+ */
 
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *rdata)
@@ -531,13 +542,14 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
   
   return(0);
   
-}  /* End of residual function resweb. */
+}
 
-/*************************************************************************/
-/* Fweb: Rate function for the food-web problem.                         */
-/* This routine computes the right-hand sides of the system equations,   */
-/* consisting of the diffusion term and interaction term.                */
-/* The interaction term is computed by the function WebRates.            */
+/* 
+ * Fweb: Rate function for the food-web problem.                        
+ * This routine computes the right-hand sides of the system equations,   
+ * consisting of the diffusion term and interaction term.                
+ * The interaction term is computed by the function WebRates.            
+ */
 
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,  
                  UserData webdata)
@@ -583,11 +595,12 @@ static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,
     } /* End of jx loop */
   } /* End of jy loop */
   
-}  /* End of Fweb. */
+}
 
-/*************************************************************************/
-/* WebRates: Evaluate reaction rates at a given spatial point.           */
-/* At a given (x,y), evaluate the array of ns reaction terms R.          */
+/* 
+ * WebRates: Evaluate reaction rates at a given spatial point.
+ * At a given (x,y), evaluate the array of ns reaction terms R.
+ */
 
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
                      UserData webdata)
@@ -603,10 +616,11 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
   for (is = 0; is < NUM_SPECIES; is++)  
     ratesxy[is] = cxy[is]*( bcoef[is]*fac + ratesxy[is] );
   
-} /* End of WebRates. */
+}
 
-/*************************************************************************/
-/* dotprod: dot product routine for realtype arrays, for use by WebRates.    */
+/*
+ * dotprod: dot product routine for realtype arrays, for use by WebRates.    
+ */
 
 static realtype dotprod(long int size, realtype *x1, realtype *x2)
 {
@@ -617,15 +631,17 @@ static realtype dotprod(long int size, realtype *x1, realtype *x2)
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
   return(temp);
   
-} /* End of dotprod. */
+}
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-05-05 17:12:51 $
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 23:02:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -15,17 +15,16 @@
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
- * on the unit square.  The boundary condition is u = 0 on all
- * edges. Initial conditions are given by
- * u = 16 x (1 - x) y (1 - y). The PDE is treated with central
- * differences on a uniform MX x MY grid. The values of u at
- * the interior points satisfy ODEs, and equations u = 0 at the
- * boundaries are appended, to form a DAE system of size
- * N = MX * MY.  Here MX = MY = 10.
+ * on the unit square. The boundary condition is u = 0 on all edges.
+ * Initial conditions are given by u = 16 x (1 - x) y (1 - y). The
+ * PDE is treated with central differences on a uniform MX x MY
+ * grid. The values of u at the interior points satisfy ODEs, and
+ * equations u = 0 at the boundaries are appended, to form a DAE
+ * system of size N = MX * MY. Here MX = MY = 10.
  *
- * The system is actually implemented on submeshes, processor
- * by processor, with an MXSUB by MYSUB mesh on each of
- * NPEX * NPEY processors.
+ * The system is actually implemented on submeshes, processor by
+ * processor, with an MXSUB by MYSUB mesh on each of NPEX * NPEY
+ * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
  * IDASPGMR in conjunction with the preconditioner module IDABBDPRE.
@@ -65,11 +64,11 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  long int   thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  long int   n_local;
-  realtype      dx, dy, coeffx, coeffy, coeffxy;
-  realtype      uext[(MXSUB+2)*(MYSUB+2)];
-  MPI_Comm  comm;
+  long int thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
+  long int n_local;
+  realtype dx, dy, coeffx, coeffy, coeffxy;
+  realtype uext[(MXSUB+2)*(MYSUB+2)];
+  MPI_Comm comm;
 } *UserData;
 
 /* Prototypes of private helper functions */
@@ -107,11 +106,13 @@ static int BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
+/*
+ * Main program
+ */
+
 int main(int argc, char *argv[])
-     
 {
   MPI_Comm comm;
-  NV_Spec nvSpec;
   void *mem;
   void *P_data;
   UserData data;
@@ -123,12 +124,12 @@ int main(int argc, char *argv[])
   N_Vector uu, up, constraints, id, res;
   long int nst, nni, nre, netf, ncfn, ncfl, nli, npe, nps, nreS;
 
-  nvSpec = NULL;
   mem = P_data = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
 
   /* Get processor number and total number of pe's. */
+
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
@@ -142,40 +143,43 @@ int main(int argc, char *argv[])
   }
   
   /* Set local length local_N and global length Neq. */
+
   local_N = MXSUB*MYSUB;
   Neq     = MX * MY;
 
-  /* Set nvSpec block. */
-  nvSpec = NV_SpecInit_Parallel(comm, local_N, Neq, &argc, &argv);
-  if (nvSpec == NULL) {
-    if(thispe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, thispe);
-    MPI_Finalize();
-    return(1); }
-  
   /* Allocate N-vectors. */
-  uu = N_VNew(nvSpec);
-  if(check_flag((void *)uu, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
-  up = N_VNew(nvSpec);
-  if(check_flag((void *)up, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
-  res = N_VNew(nvSpec);
-  if(check_flag((void *)res, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
-  constraints = N_VNew(nvSpec);
-  if(check_flag((void *)constraints, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
-  id = N_VNew(nvSpec);
-  if(check_flag((void *)id, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
+
+  uu = N_VNew_Parallel(comm, local_N, Neq);
+  if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+
+  up = N_VNew_Parallel(comm, local_N, Neq);
+  if(check_flag((void *)up, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+
+  res = N_VNew_Parallel(comm, local_N, Neq);
+  if(check_flag((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+
+  constraints = N_VNew_Parallel(comm, local_N, Neq);
+  if(check_flag((void *)constraints, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+
+  id = N_VNew_Parallel(comm, local_N, Neq);
+  if(check_flag((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   /* Allocate and initialize the data structure. */
+
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2, thispe)) MPI_Abort(comm, 1);
+
   InitUserData(thispe, comm, data);
 
   /* Initialize the uu, up, id, and constraints profiles. */
+
   SetInitialProfile(uu, up, id, res, data);
   N_VConst(ONE, constraints);
 
   t0 = 0.0; t1 = 0.01;
 
   /* Scalar relative and absolute tolerance. */
+
   itol = SS;
   rtol = 0.0;
   atol = 1.e-3;
@@ -187,13 +191,17 @@ int main(int argc, char *argv[])
 
   ier = IDASetRdata(mem, data);
   if(check_flag(&ier, "IDASetRdata", 1, thispe)) MPI_Abort(comm, 1);
+
   ier = IDASetSuppressAlg(mem, TRUE);
   if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
+
   ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
+
+  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
 
   mudq = MXSUB;
@@ -348,21 +356,21 @@ int main(int argc, char *argv[])
   IDABBDPrecFree(P_data);
   IDAFree(mem);
   free(data);
-  N_VFree(id);
-  N_VFree(constraints);
-  N_VFree(res);
-  N_VFree(up);
-  N_VFree(uu);
-  NV_SpecFree_Parallel(nvSpec);
+  N_VDestroy(id);
+  N_VDestroy(constraints);
+  N_VDestroy(res);
+  N_VDestroy(up);
+  N_VDestroy(uu);
 
   MPI_Finalize();
 
   return(0);
 
-} /* End of iheatbbd main program. */
+}
 
-/********************************************************/
-/* InitUserData initializes the user's data block data. */
+/*
+ * InitUserData initializes the user's data block data. 
+ */
 
 static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 {
@@ -384,11 +392,11 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
   data->n_local = MXSUB*MYSUB;
   return(0);
   
-} /* End of InitUserData. */
+}
 
-
-/**************************************************************/
-/* SetInitialProfile sets the initial values for the problem. */
+/* 
+ * SetInitialProfile sets the initial values for the problem. 
+ */
 
 static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
                              N_Vector res, UserData data)
@@ -443,11 +451,10 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   
   return(0);
   
-} /* End of SetInitialProfiles. */
+}
 
-/***************** Functions called by the IDA solver ******************/
 
-/*************************************************************************
+/*
  * heatres: heat equation system residual function                       
  * This uses 5-point central differencing on the interior points, and    
  * includes algebraic equations for the boundary values.                 
@@ -460,7 +467,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * data into array uext.  Then reslocal is called to compute the residual
  * on individual processors and their corresponding domains.  The routines
  * BSend, BRecvPost, and BREcvWait handle interprocessor communication
- * of uu required to calculate the residual. */
+ * of uu required to calculate the residual. 
+ */
 
 static int heatres(realtype tres, N_Vector uu, N_Vector up, 
                    N_Vector res, void *rdata)
@@ -481,14 +489,13 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
   
   return(0);
   
-} /* End of residual function heatres. */
+}
 
+/* 
+ * rescomm routine.  This routine performs all inter-processor
+ * communication of data in u needed to calculate G.                 
+ */
 
-/*  Supporting functions for heatres. */
-
-/*********************************************************************/
-/* rescomm routine.  This routine performs all inter-processor
-   communication of data in u needed to calculate G.                 */
 static int rescomm(long int Nlocal, realtype tt, 
                    N_Vector uu, N_Vector up, void *rdata)
 {
@@ -518,12 +525,13 @@ static int rescomm(long int Nlocal, realtype tt,
 
   return(0);
 
-} /* End of rescomm. */
+}
 
-/**************************************************************************/
-/* reslocal routine.  Compute res = F(t, uu, up).  This routine assumes
-   that all inter-processor communication of data needed to calculate F
-    has already been done, and that this data is in the work array uext.  */
+/*
+ * reslocal routine.  Compute res = F(t, uu, up).  This routine assumes
+ * that all inter-processor communication of data needed to calculate F
+ *  has already been done, and that this data is in the work array uext.  
+ */
 
 static int reslocal(long int Nlocal, realtype tres, 
                     N_Vector uu, N_Vector up, N_Vector res,  
@@ -586,10 +594,11 @@ static int reslocal(long int Nlocal, realtype tres,
   }
   return(0);
 
-} /* End of reslocal. */
+}
 
-/*************************************************************************/
-/* Routine to send boundary data to neighboring PEs.                     */
+/*
+ * Routine to send boundary data to neighboring PEs.                     
+ */
 
 static int BSend(MPI_Comm comm, long int thispe, long int ixsub,
                  long int jysub, long int dsizex, long int dsizey,
@@ -633,16 +642,17 @@ static int BSend(MPI_Comm comm, long int thispe, long int ixsub,
 
   return(0);
 
-} /* End of BSend. */
+}
 
-/**************************************************************/
-/* Routine to start receiving boundary data from neighboring PEs.
-   Notes:
-   1) buffer should be able to hold 2*MYSUB realtype entries, should be
-   passed to both the BRecvPost and BRecvWait functions, and should not
-   be manipulated between the two calls.
-   2) request should have 4 entries, and should be passed in 
-   both calls also. */
+/* 
+ * Routine to start receiving boundary data from neighboring PEs.
+ * Notes:
+ *   1) buffer should be able to hold 2*MYSUB realtype entries, should be
+ *      passed to both the BRecvPost and BRecvWait functions, and should not
+ *      be manipulated between the two calls.
+ *   2) request should have 4 entries, and should be passed in 
+ *      both calls also. 
+ */
 
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
                      long int ixsub, long int jysub,
@@ -679,16 +689,17 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], long int thispe,
   
   return(0);
 
-} /* End of BRecvPost. */
+}
 
-/****************************************************************/
-/* Routine to finish receiving boundary data from neighboring PEs.
-   Notes:
-   1) buffer should be able to hold 2*MYSUB realtype entries, should be
-   passed to both the BRecvPost and BRecvWait functions, and should not
-   be manipulated between the two calls.
-   2) request should have four entries, and should be passed in both 
-      calls also. */
+/*
+ * Routine to finish receiving boundary data from neighboring PEs.
+ * Notes:
+ *   1) buffer should be able to hold 2*MYSUB realtype entries, should be
+ *      passed to both the BRecvPost and BRecvWait functions, and should not
+ *      be manipulated between the two calls.
+ *   2) request should have four entries, and should be passed in both 
+ *      calls also. 
+ */
 
 static int BRecvWait(MPI_Request request[], long int ixsub,
                      long int jysub, long int dsizex, realtype uext[],
@@ -732,15 +743,17 @@ static int BRecvWait(MPI_Request request[], long int ixsub,
 
   return(0);
 
-} /* End of BRecvWait. */
+}
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {

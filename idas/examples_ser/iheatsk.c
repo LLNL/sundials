@@ -1,27 +1,26 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-05-05 17:12:48 $
+ * $Revision: 1.8 $
+ * $Date: 2004-07-22 23:01:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for IDAS: 2D heat equation, serial, GMRES.
+ * Example problem for IDA/IDAS: 2D heat equation, serial, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the Krylov solver IDASpgmr.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
- * on the unit square.  The boundary condition is u = 0 on all
- * edges. Initial conditions are given by
- * u = 16 x (1 - x) y (1 - y). The PDE is treated with central
- * differences on a uniform M x M grid. The values of u at the
- * interior points satisfy ODEs, and equations u = 0 at the
- * boundaries are appended, to form a DAE system of size N = M^2.
- * Here M = 10.
+ * on the unit square. The boundary condition is u = 0 on all edges.
+ * Initial conditions are given by u = 16 x (1 - x) y (1 - y). The
+ * PDE is treated with central differences on a uniform M x M grid.
+ * The values of u at the interior points satisfy ODEs, and
+ * equations u = 0 at the boundaries are appended, to form a DAE
+ * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDAS using the Krylov linear solver
+ * The system is solved with IDA/IDAS using the Krylov linear solver
  * IDASPGMR. The preconditioner uses the diagonal elements of the
  * Jacobian only. Routines for preconditioning, required by
  * IDASPGMR, are supplied here. The constraints u >= 0 are posed
@@ -43,10 +42,12 @@
 #include "iterative.h"
 
 typedef struct {  
-  long int mm; /* mm is the number of points in the grid. */
-  realtype    dx;
-  realtype    coeff;
-  N_Vector    pp; /* pp is the vector of diagonal preconditioner elements. */
+  /* mm is the number of points in the grid. */
+  long int mm;
+  realtype dx;
+  realtype coeff;
+  /* pp is the vector of diagonal preconditioner elements. */
+  N_Vector pp;
 } *UserData;
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
@@ -81,7 +82,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 int main()
 {
   void *mem;
-  NV_Spec nvSpec;
   UserData data;
   N_Vector uu, up, constraints, id, res;
   int ier, iout, itol, itask, kused;
@@ -89,26 +89,21 @@ int main()
   long int nst, nni, nje, nre, nreS, nli, npe, nps, netf, ncfn, ncfl;
 
   mem = NULL;
-  nvSpec = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
 
-  /* Initialize serial vector specification */
-  nvSpec = NV_SpecInit_Serial(NEQ);  
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
   /* Allocate N-vectors and the user data structure. */
 
-  uu = N_VNew(nvSpec);
-  if(check_flag((void *)uu, "N_VNew", 0)) return(1);
-  up = N_VNew(nvSpec);
-  if(check_flag((void *)up, "N_VNew", 0)) return(1);
-  res = N_VNew(nvSpec);
-  if(check_flag((void *)res, "N_VNew", 0)) return(1);
-  constraints = N_VNew(nvSpec);
-  if(check_flag((void *)constraints, "N_VNew", 0)) return(1);
-  id = N_VNew(nvSpec);
-  if(check_flag((void *)id, "N_VNew", 0)) return(1);
+  uu = N_VNew_Serial(NEQ);
+  if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
+  up = N_VNew_Serial(NEQ);
+  if(check_flag((void *)up, "N_VNew_Serial", 0)) return(1);
+  res = N_VNew_Serial(NEQ);
+  if(check_flag((void *)res, "N_VNew_Serial", 0)) return(1);
+  constraints = N_VNew_Serial(NEQ);
+  if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  id = N_VNew_Serial(NEQ);
+  if(check_flag((void *)id, "N_VNew_Serial", 0)) return(1);
 
   data = (UserData) malloc(sizeof *data);
   data->pp = NULL;
@@ -119,8 +114,8 @@ int main()
   data->mm  = MGRID;
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
-  data->pp = N_VNew(nvSpec);
-  if(check_flag((void *)data->pp, "N_VNew", 0)) return(1);
+  data->pp = N_VNew_Serial(NEQ);
+  if(check_flag((void *)data->pp, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize uu, up, id. */
   SetInitialProfile(data, uu, up, id, res);
@@ -145,7 +140,7 @@ int main()
   if(check_flag(&ier, "IDASetId", 1)) return(1);
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol, nvSpec);
+  ier = IDAMalloc(mem, heatres, t0, uu, up, itol, &rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1)) return(1);
 
   /* Call IDASpgmr to specify the linear solver. */
@@ -297,21 +292,22 @@ int main()
   printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", netf, ncfn, ncfl);
 
   /* Free Memory */
+
   IDAFree(mem);
-  N_VFree(uu);
-  N_VFree(up);
-  N_VFree(constraints);
-  N_VFree(id);
-  N_VFree(res);
-  N_VFree(data->pp);
+  N_VDestroy(uu);
+  N_VDestroy(up);
+  N_VDestroy(constraints);
+  N_VDestroy(id);
+  N_VDestroy(res);
+  N_VDestroy(data->pp);
   free(data);
-  NV_SpecFree_Serial(nvSpec);
 
   return(0);
-} /* End of iheatsk main program. */
+}
 
-/*************************************************************************
- * SetInitialProfile: routine to initialize u, up, and id vectors.       */
+/*
+ * SetInitialProfile: routine to initialize u, up, and id vectors.       
+ */
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res)
@@ -361,17 +357,16 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   
   return(SUCCESS);
   
-} /* End of SetInitialProfiles. */
+}
 
-/* Routines called by IDASPGMR. */
-
-/*************************************************************************
- * heatres: heat equation system residual function (user-supplied)       *
- * This uses 5-point central differencing on the interior points, and    *
- * includes algebraic equations for the boundary values.                 *
- * So for each interior point, the residual component has the form       *
- *    res_i = u'_i - (central difference)_i                              *
- * while for each boundary point, it is res_i = u_i.                     */
+/*
+ * heatres: heat equation system residual function (user-supplied)      
+ * This uses 5-point central differencing on the interior points, and   
+ * includes algebraic equations for the boundary values.                
+ * So for each interior point, the residual component has the form      
+ *    res_i = u'_i - (central difference)_i                             
+ * while for each boundary point, it is res_i = u_i.                     
+ */
 
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
 {
@@ -401,23 +396,24 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector res, void *rdata)
 
   return(SUCCESS);
 
- } /* End of residual function heatres. */
+}
 
-/*******************************************************************
- * PrecondHeateq: setup for diagonal preconditioner for iheatsk.   *
- *                                                                 *
- * The optional user-supplied functions PrecondHeateq and          *
- * PSolveHeateq together must define the left preconditoner        *
- * matrix P approximating the system Jacobian matrix               *
- *                   J = dF/du + cj*dF/du'                         *
- * (where the DAE system is F(t,u,u') = 0), and solve the linear   *
- * systems P z = r.   This is done in this case by keeping only    *
- * the diagonal elements of the J matrix above, storing them as    *
- * inverses in a vector pp, when computed in PrecondHeateq, for    *
- * subsequent use in PSolveHeateq.                                 *
- *                                                                 *
- * In this instance, only cj and data (user data structure, with   * 
- * pp etc.) are used from the PrecondHeateq argument list.         */
+/*
+ * PrecondHeateq: setup for diagonal preconditioner for iheatsk.   
+ *                                                                 
+ * The optional user-supplied functions PrecondHeateq and          
+ * PSolveHeateq together must define the left preconditoner        
+ * matrix P approximating the system Jacobian matrix               
+ *                   J = dF/du + cj*dF/du'                         
+ * (where the DAE system is F(t,u,u') = 0), and solve the linear   
+ * systems P z = r.   This is done in this case by keeping only    
+ * the diagonal elements of the J matrix above, storing them as    
+ * inverses in a vector pp, when computed in PrecondHeateq, for    
+ * subsequent use in PSolveHeateq.                                 
+ *                                                                 
+ * In this instance, only cj and data (user data structure, with    
+ * pp etc.) are used from the PrecondHeateq argument list.         
+ */
   
 int PrecondHeateq(realtype tt, N_Vector uu,
                   N_Vector up, N_Vector rr, realtype cj,
@@ -451,13 +447,14 @@ int PrecondHeateq(realtype tt, N_Vector uu,
   
   return(SUCCESS);
   
-} /* End of PrecondHeateq. */
+}
 
-/******************************************************************
- * PSolveHeateq: solve preconditioner linear system.              *
- * This routine multiplies the input vector rvec by the vector pp *
- * containing the inverse diagonal Jacobian elements (previously  *
- * computed in PrecondHeateq), returning the result in zvec.      */
+/*
+ * PSolveHeateq: solve preconditioner linear system.              
+ * This routine multiplies the input vector rvec by the vector pp 
+ * containing the inverse diagonal Jacobian elements (previously  
+ * computed in PrecondHeateq), returning the result in zvec.      
+ */
 
 int PSolveHeateq(realtype tt, N_Vector uu,
                  N_Vector up, N_Vector rr, 
@@ -473,15 +470,17 @@ int PSolveHeateq(realtype tt, N_Vector uu,
   
   return(SUCCESS);
 
-} /* End of PSolveHeateq. */
+}
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {

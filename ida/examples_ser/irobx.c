@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-05-05 16:27:21 $
+ * $Revision: 1.7 $
+ * $Date: 2004-07-22 23:01:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * This simple example problem for IDA, due to Robertson, is from
+ * This simple example problem for IDA/IDAS, due to Robertson, is from
  * chemical kinetics, and consists of the following three equations:
  *
  *      dy1/dt = -.04*y1 + 1.e4*y2*y3
@@ -16,7 +16,7 @@
  * on the interval from t = 0.0 to t = 4.e10, with initial
  * conditions: y1 = 1, y2 = y3 = 0.
  *
- * The problem is solved with IDA using IDADENSE for the linear
+ * The problem is solved with IDA/IDAS using IDADENSE for the linear
  * solver, with a user-supplied Jacobian. Output is printed at
  * t = .4, 4, 40, ..., 4e10.
  * -----------------------------------------------------------------
@@ -26,11 +26,12 @@
 #include <math.h>
 #include "sundialstypes.h"
 #include "sundialsmath.h"
-#include "nvector_serial.h" /* definition of type N_Vector and macros NV_DATA_S */
+#include "nvector_serial.h"
 #include "ida.h"
 #include "idadense.h"
 
 /* Macro to define dense matrix elements, indexed from 1. */
+
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
 int resrob(realtype tres, N_Vector yy, N_Vector yp, 
@@ -49,7 +50,6 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 int main(void)
 {
   void *mem;
-  NV_Spec nvSpec;
   N_Vector yy, yp, avtol;
   long int SystemSize = 3;
   realtype rtol, *yval, *ypval, *atval;
@@ -58,21 +58,16 @@ int main(void)
   long int nst, nni, nje, nre, nreD, netf, ncfn;
 
   mem = NULL;
-  nvSpec = NULL;
   yy = yp = avtol = NULL;
   yval = ypval = atval = NULL;
 
-  /* Initialize serial machine environment */
-  nvSpec = NV_SpecInit_Serial(SystemSize);
-  if(check_flag((void *)nvSpec, "NV_SpecInit", 0)) return(1);
-
   /* Allocate N-vectors. */
-  yy = N_VNew(nvSpec);
-  if(check_flag((void *)yy, "N_VNew", 0)) return(1);
-  yp = N_VNew(nvSpec);
-  if(check_flag((void *)yp, "N_VNew", 0)) return(1);
-  avtol = N_VNew(nvSpec);
-  if(check_flag((void *)avtol, "N_VNew", 0)) return(1);
+  yy = N_VNew_Serial(SystemSize);
+  if(check_flag((void *)yy, "N_VNew_Serial", 0)) return(1);
+  yp = N_VNew_Serial(SystemSize);
+  if(check_flag((void *)yp, "N_VNew_Serial", 0)) return(1);
+  avtol = N_VNew_Serial(SystemSize);
+  if(check_flag((void *)avtol, "N_VNew_Serial", 0)) return(1);
 
   /* Set various input parameters and initialize y and y'. */
   yval  = NV_DATA_S(yy);
@@ -96,7 +91,7 @@ int main(void)
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
-  retval = IDAMalloc(mem, resrob, t0, yy, yp, itol, &rtol, avtol, nvSpec);
+  retval = IDAMalloc(mem, resrob, t0, yy, yp, itol, &rtol, avtol);
   if(check_flag(&retval, "IDAMalloc", 1)) return(1);
 
   /* Call IDADense and set up the linear solver package. */
@@ -155,18 +150,17 @@ int main(void)
   printf("Number of nonlinear (corrector) convergence failures = %ld\n",ncfn);
 
   IDAFree(mem);
-  N_VFree(yy);
-  N_VFree(yp);
-  N_VFree(avtol);
-  NV_SpecFree_Serial(nvSpec);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(avtol);
 
   return(0);
   
-} /* End of irobx main. */
+}
 
-/**************************************************************************/
-
-/*  Define the system residual function resrob. */
+/*
+ * Define the system residual function resrob. 
+ */
 
 int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
 {
@@ -181,9 +175,11 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
 
   return(SUCCESS);
 
-} /* End of residual function resrob. */
+}
 
-/* Define the Jacobian function jacrob. */
+/*
+ * Define the Jacobian function jacrob. 
+ */
 
 int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
            realtype cj, void *jdata, N_Vector resvec, DenseMat JJ,
@@ -206,15 +202,17 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 
   return(SUCCESS);
 
-} /* End of the Jacobian function jacrob. */
+}
 
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {

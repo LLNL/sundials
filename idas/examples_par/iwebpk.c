@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-05-05 17:12:51 $
+ * $Revision: 1.10 $
+ * $Date: 2004-07-22 23:02:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example program for IDAS: Food web, parallel, GMRES, user
+ * Example program for IDA: Food web, parallel, GMRES, user
  * preconditioner.
  *
- * This example program for IDAS uses IDASPGMR as the linear solver.
+ * This example program for IDA uses IDASPGMR as the linear solver.
  * It is written for a parallel computer system and uses a
  * block-diagonal preconditioner (setup and solve routines) for the
  * IDASPGMR package. It was originally run on a Sun SPARC cluster
@@ -31,7 +31,7 @@
  *                   xx     yy       i
  *
  *              i      i
- *   0 = d(i)*(c    + c  )  +  R  (x,y,c)   (i = np+1,...,ns)
+ *   0 = d(i)*(c   +  c  )  +  R  (x,y,c)   (i = np+1,...,ns)
  *              xx     yy       i
  *
  *   where the reaction terms R are:
@@ -49,12 +49,12 @@
  *   a(i,j) =  EE  (i >  np,  j <= np)
  *   all other a(i,j) = 0
  *   b(i) = BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y))  (i <= np)
- *   b(i) =-BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y))  (i > np)
+ *   b(i) =-BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y))  (i  > np)
  *   d(i) = DPREY  (i <= np)
  *   d(i) = DPRED  (i > np)
  *
- * Note: The above equations are written in 1-based indices, whereas
- * the code has 0-based indices, being written in C.
+ * Note: The above equations are written in 1-based indices,
+ * whereas the code has 0-based indices, being written in C.
  *
  * The various scalar parameters required are set using '#define'
  * statements or directly in routine InitUserData. In this program,
@@ -72,7 +72,7 @@
  * submeshes, processor by processor, with an MXSUB by MYSUB mesh
  * on each of NPEX * NPEY processors.
  *
- * The DAE system is solved by IDAS using the IDASPGMR linear
+ * The DAE system is solved by IDA using the IDASPGMR linear
  * solver, which uses the preconditioned GMRES iterative method to
  * solve linear systems. The precondtioner supplied to IDASPGMR is
  * the block-diagonal part of the Jacobian with ns by ns blocks
@@ -94,20 +94,20 @@
  *     Consistent Initial Condition Calculation for Differential-
  *     Algebraic Systems, SIAM J. Sci. Comput., 19 (1998),
  *     pp. 1495-1512.
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"     /* Definition of realtype                           */
-#include "iterative.h"         /* Contains the enum for types of preconditioning.  */
-#include "idas.h"              /* Main IDA header file.                            */
-#include "idaspgmr.h"          /* Use IDASPGMR linear solver.                      */
-#include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P.   */
-#include "sundialsmath.h"      /* Contains RSqrt routine.                          */
-#include "smalldense.h"        /* Contains definitions for denalloc routine.       */
-#include "mpi.h"               /* MPI library routines.                            */
+#include "sundialstypes.h"     /* Definition of realtype                        */
+#include "iterative.h"         /* Contains the types of preconditioning         */
+#include "idas.h"              /* Main IDA header file                          */
+#include "idaspgmr.h"          /* Use IDASPGMR linear solver                    */
+#include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P */
+#include "sundialsmath.h"      /* Contains RSqrt routine                        */
+#include "smalldense.h"        /* Contains definitions for denalloc routine     */
+#include "mpi.h"               /* MPI library routines                          */
 
 
 /* Problem Constants. */
@@ -172,7 +172,8 @@ typedef struct {
 
 /* Prototypes for private Helper Functions. */
 
-static UserData AllocUserData(NV_Spec nvSpec);
+static UserData AllocUserData(MPI_Comm comm, long int local_N, 
+                              long int SystemSize);
 
 static void InitUserData(UserData webdata, int thispe, int npes, 
                          MPI_Comm comm);
@@ -231,7 +232,11 @@ static int PSolvebd(realtype tt, N_Vector cc,
 static int check_flag(void *flagvalue, char *funcname, int opt, int id);
 
 
-/***************************** Main Program *******************************/
+/*
+ * ----------------------------
+ * Main program
+ * ----------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -244,14 +249,13 @@ int main(int argc, char *argv[])
   booleantype optIn;
   void *mem;
   MPI_Comm comm;
-  NV_Spec nvSpec;
 
   cc = cp = res = id = NULL;
   webdata = NULL;
   mem = NULL;
-  nvSpec = NULL;
 
   /* Set communicator, and get processor number and total number of PE's. */
+
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_rank(comm, &thispe);
@@ -262,41 +266,42 @@ int main(int argc, char *argv[])
       fprintf(stderr, "\nMPI_ERROR(0): npes = %d not equal to NPEX*NPEY = %d\n",
 	      npes, NPEX*NPEY);
     MPI_Finalize();
-    return(1); }
+    return(1); 
+  }
 
   /* Set local length (local_N) and global length (SystemSize). */
+
   local_N = MXSUB*MYSUB*NUM_SPECIES;
   SystemSize = NEQ;
 
-  /* Set nvSpec block. */
-  nvSpec = NV_SpecInit_Parallel(comm, local_N, SystemSize, &argc, &argv);
-  if (nvSpec == NULL) {
-    if (thispe == 0) check_flag((void *)nvSpec, "NV_SpecInit", 0, thispe);
-    MPI_Finalize();
-    return(1); }
-  
   /* Set up user data block webdata. */
-  webdata = AllocUserData(nvSpec);
+
+  webdata = AllocUserData(comm, local_N, SystemSize);
   if (check_flag((void *)webdata, "AllocUserData", 0, thispe)) MPI_Abort(comm, 1);
+
   InitUserData(webdata, thispe, npes, comm);
   
   /* Create needed vectors, and load initial values.
      The vector res is used temporarily only.        */
-  cc  = N_VNew(nvSpec);
-  if (check_flag((void *)cc, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
-  cp  = N_VNew(nvSpec);
-  if (check_flag((void *)cp, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
-  res = N_VNew(nvSpec);
-  if (check_flag((void *)res, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
-  id  = N_VNew(nvSpec);
-  if (check_flag((void *)id, "N_VNew", 0, thispe)) MPI_Abort(comm, 1);
+
+  cc  = N_VNew_Parallel(comm, local_N, SystemSize);
+  if (check_flag((void *)cc, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+
+  cp  = N_VNew_Parallel(comm, local_N, SystemSize);
+  if (check_flag((void *)cp, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+
+  res = N_VNew_Parallel(comm, local_N, SystemSize);
+  if (check_flag((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+
+  id  = N_VNew_Parallel(comm, local_N, SystemSize);
+  if (check_flag((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
   
   SetInitialProfiles(cc, cp, id, res, webdata);
   
-  N_VFree(res);
-  res = NULL;
+  N_VDestroy(res);
 
   /* Set remaining inputs to IDAMalloc. */
+
   t0 = ZERO;
   itol = SS; rtol = RTOL; atol = ATOL;
   optIn = FALSE;
@@ -305,13 +310,14 @@ int main(int argc, char *argv[])
      First NULL argument  = constraints vector, not used here.
      Second NULL argument = file pointer for error messages (sent to stdout).
      A pointer to IDA problem memory is returned and stored in idamem.      */
+
   mem = IDACreate();
   if (check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
   retval = IDASetRdata(mem, webdata);
   if (check_flag(&retval, "IDASetRdata", 1, thispe)) MPI_Abort(comm, 1);
   retval = IDASetId(mem, id);
   if (check_flag(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol, nvSpec);
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol);
   if (check_flag(&retval, "IDAMalloc", 1, thispe)) MPI_Abort(comm, 1);
 
   webdata->ida_mem = mem;
@@ -319,22 +325,33 @@ int main(int argc, char *argv[])
   /* Call IDASpgmr to specify the IDA linear solver IDASPGMR and specify
      the preconditioner routines supplied (Precondbd and PSolvebd).
      maxl (max. Krylov subspace dim.) is set to 15.                      */
+
   maxl = 15;
   retval = IDASpgmr(mem, maxl);
-  if (check_flag(&retval, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&retval, "IDASpgmr", 1, thispe)) 
+    MPI_Abort(comm, 1);
+
   retval = IDASpgmrSetPrecSetupFn(mem, Precondbd);
-  if (check_flag(&retval, "IDASpgmrSetPrecSetupFn", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&retval, "IDASpgmrSetPrecSetupFn", 1, thispe)) 
+    MPI_Abort(comm, 1);
+
   retval = IDASpgmrSetPrecSolveFn(mem, PSolvebd);
-  if (check_flag(&retval, "IDASpgmrSetPrecSolveFn", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&retval, "IDASpgmrSetPrecSolveFn", 1, thispe)) 
+    MPI_Abort(comm, 1);
+
   retval = IDASpgmrSetPrecData(mem, webdata);
-  if (check_flag(&retval, "IDASpgmrSetPrecData", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&retval, "IDASpgmrSetPrecData", 1, thispe)) 
+    MPI_Abort(comm, 1);
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
+
   tout = 0.001;
   retval = IDACalcIC(mem, CALC_YA_YDP_INIT, tout);
-  if (check_flag(&retval, "IDACalcIC", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&retval, "IDACalcIC", 1, thispe)) 
+    MPI_Abort(comm, 1);
 
   /* On PE 0, print heading, basic parameters, initial values. */
+
   if (thispe == 0) {
     printf("iwebpk: Predator-prey DAE parallel example problem for IDA \n\n");
     printf("Number of species ns: %d", NUM_SPECIES);
@@ -352,6 +369,7 @@ int main(int argc, char *argv[])
   PrintOutput(mem, cc, t0, webdata, comm);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
+
   itask = NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
     
@@ -368,33 +386,32 @@ int main(int argc, char *argv[])
   if (thispe == 0) PrintFinalStats(mem);
   
   /* Free memory. */
-  N_VFree(cc);
-  N_VFree(cp);
-  N_VFree(id);
+
+  N_VDestroy(cc);
+  N_VDestroy(cp);
+  N_VDestroy(id);
   IDAFree(mem);
   FreeUserData(webdata);
-  NV_SpecFree_Parallel(nvSpec);
 
   MPI_Finalize();
 
   return(0);
 
-} /* End of iwebpk main program. */
+}
 
+/* 
+ * AllocUserData: Allocate memory for data structure of type UserData.   
+ */
 
-/*********************** Private Helper Functions ************************/
-
-/*************************************************************************/
-/* AllocUserData: Allocate memory for data structure of type UserData.   */
-
-static UserData AllocUserData(NV_Spec nvSpec)
+static UserData AllocUserData(MPI_Comm comm, long int local_N, 
+                              long int SystemSize)
 {
   long int ix, jy;
   UserData webdata;
   
   webdata = (UserData) malloc(sizeof *webdata);
   
-  webdata->rates = N_VNew(nvSpec);
+  webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize);
   
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
@@ -407,10 +424,11 @@ static UserData AllocUserData(NV_Spec nvSpec)
   
   return(webdata);
   
-} /* End of AllocUserData. */
+}
 
-/*************************************************************************/
-/* InitUserData: Load problem constants in webdata (of type UserData).   */
+/*
+ * InitUserData: Load problem constants in webdata (of type UserData).   
+ */
 
 static void InitUserData(UserData webdata, int thispe, int npes, 
                          MPI_Comm comm)
@@ -466,10 +484,11 @@ static void InitUserData(UserData webdata, int thispe, int npes,
     coy[i] = DPREY/dy2; coy[i+np] = DPRED/dy2;
   }
 
-} /* End of InitUserData. */
+}
 
-/*************************************************************************/
-/* FreeUserData: Free webdata memory.                                    */
+/*
+ * FreeUserData: Free webdata memory.                                    
+ */
 
 static void FreeUserData(UserData webdata)
 {
@@ -483,18 +502,19 @@ static void FreeUserData(UserData webdata)
   }
 
   denfree(webdata->acoef);
-  N_VFree(webdata->rates);
+  N_VDestroy(webdata->rates);
   free(webdata);
 
-} /* End of FreeData. */
+}
 
-/*************************************************************************/
-/* SetInitialProfiles: Set initial conditions in cc, cp, and id.
-   A polynomial profile is used for the prey cc values, and a constant
-   (1.0e5) is loaded as the initial guess for the predator cc values.
-   The id values are set to 1 for the prey and 0 for the predators.
-   The prey cp values are set according to the given system, and
-   the predator cp values are set to zero.                               */
+/*
+ * SetInitialProfiles: Set initial conditions in cc, cp, and id.
+ * A polynomial profile is used for the prey cc values, and a constant
+ * (1.0e5) is loaded as the initial guess for the predator cc values.
+ * The id values are set to 1 for the prey and 0 for the predators.
+ * The prey cp values are set according to the given system, and
+ * the predator cp values are set to zero.                               
+ */
 
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector res, UserData webdata)
@@ -540,13 +560,14 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       for (is = np; is < NUM_SPECIES; is++) cpxy[is] = ZERO;
     }
   }
-} /* End of SetInitialProfiles. */
+}
 
-/*************************************************************************/
-/* PrintOutput: Print output values at output time t = tt.
-   Selected run statistics are printed.  Then values of c1 and c2
-   are printed for the bottom left and top right grid points only.
-   (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         */
+/*
+ * PrintOutput: Print output values at output time t = tt.
+ * Selected run statistics are printed.  Then values of c1 and c2
+ * are printed for the bottom left and top right grid points only.
+ * (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         
+ */
 
 static void PrintOutput(void *mem, N_Vector cc, realtype tt,
                         UserData webdata, MPI_Comm comm)
@@ -603,10 +624,11 @@ static void PrintOutput(void *mem, N_Vector cc, realtype tt,
     printf("At top right:    c1, c2 = %e %e \n\n", clast[0], clast[1]);
   }
   
-} /* End of PrintOutput. */
+}
 
-/*************************************************************************/
-/* PrintFinalStats: Print final run data contained in iopt.              */
+/*
+ * PrintFinalStats: Print final run data contained in iopt.              
+ */
 
 static void PrintFinalStats(void *mem)
 {
@@ -640,16 +662,14 @@ static void PrintFinalStats(void *mem)
   printf("NPE  = %5ld     NPS  = %5ld\n", npe, nps);
   printf("NETF = %5ld     NCFN = %5ld     NCFL = %5ld\n", netf, ncfn, ncfl);
   
-} /* End of PrintFinalStats. */
+}
 
-
-/********** Functions Called by IDA, and supporting functions  ***********/
-
-/*************************************************************************/
-/* resweb: System residual function for predator-prey system.
-   To compute the residual function F, this routine calls:
-      rescomm, for needed communication, and then
-      reslocal, for computation of the residuals on this processor.      */
+/*
+ * resweb: System residual function for predator-prey system.
+ * To compute the residual function F, this routine calls:
+ *    rescomm, for needed communication, and then
+ *    reslocal, for computation of the residuals on this processor.      
+ */
 
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *rdata)
@@ -667,16 +687,17 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
 
   return(0);
  
-} /* End of resweb. */
+}
 
-/*************************************************************************/
-/* rescomm: Communication routine in support of resweb.
-   This routine performs all inter-processor communication of components
-   of the cc vector needed to calculate F, namely the components at all
-   interior subgrid boundaries (ghost cell data).  It loads this data
-   into a work array cext (the local portion of c, extended).
-   The message-passing uses blocking sends, non-blocking receives,
-   and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         */
+/*
+ * rescomm: Communication routine in support of resweb.
+ * This routine performs all inter-processor communication of components
+ * of the cc vector needed to calculate F, namely the components at all
+ * interior subgrid boundaries (ghost cell data).  It loads this data
+ * into a work array cext (the local portion of c, extended).
+ * The message-passing uses blocking sends, non-blocking receives,
+ * and receive-waiting, in routines BRecvPost, BSend, BRecvWait.         
+ */
 
 static int rescomm(N_Vector cc, N_Vector cp, void *rdata)
 {
@@ -708,12 +729,13 @@ static int rescomm(N_Vector cc, N_Vector cp, void *rdata)
 
   return(0);
 
-} /* End of rescomm. */
+}
 
-/*************************************************************************/
-/* BSend: Send boundary data to neighboring PEs.
-   This routine sends components of cc from internal subgrid boundaries
-   to the appropriate neighbor PEs.                                      */
+/*
+ * BSend: Send boundary data to neighboring PEs.
+ * This routine sends components of cc from internal subgrid boundaries
+ * to the appropriate neighbor PEs.                                      
+ */
  
 static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
                   long int dsizex, long int dsizey, realtype cdata[])
@@ -754,14 +776,15 @@ static void BSend(MPI_Comm comm, long int my_pe, long int ixsub, long int jysub,
     MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
   }
 
-} /* End of Bsend. */
+}
 
-/*************************************************************************/
-/* BRecvPost: Start receiving boundary data from neighboring PEs.
-   (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
-   should be passed to both the BRecvPost and BRecvWait functions, and
-   should not be manipulated between the two calls.
-   (2) request should have 4 entries, and is also passed in both calls.  */
+/*
+ * BRecvPost: Start receiving boundary data from neighboring PEs.
+ * (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
+ *     should be passed to both the BRecvPost and BRecvWait functions, and
+ *     should not be manipulated between the two calls.
+ * (2) request should have 4 entries, and is also passed in both calls.  
+ */
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
                       long int ixsub, long int jysub,
@@ -796,14 +819,15 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], long int my_pe,
               my_pe+1, 0, comm, &request[3]);
   }
   
-} /* End of BRecvPost. */
+}
 
-/*************************************************************************/
-/* BRecvWait: Finish receiving boundary data from neighboring PEs.
-   (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
-   should be passed to both the BRecvPost and BRecvWait functions, and
-   should not be manipulated between the two calls.
-   (2) request should have 4 entries, and is also passed in both calls.  */
+/*
+ * BRecvWait: Finish receiving boundary data from neighboring PEs.
+ * (1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
+ *     should be passed to both the BRecvPost and BRecvWait functions, and
+ *     should not be manipulated between the two calls.
+ * (2) request should have 4 entries, and is also passed in both calls.  
+ */
 
 static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
                       long int dsizex, realtype cext[], realtype buffer[])
@@ -848,8 +872,7 @@ static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
         cext[offsetce+i] = bufright[offsetbuf+i];
     }
   }
-} /* End of BRecvWait. */
-
+}
 
 /* Define lines are for ease of readability in the following functions. */
 
@@ -873,19 +896,19 @@ static void BRecvWait(MPI_Request request[], long int ixsub, long int jysub,
 #define acoef      (webdata->acoef)
 #define bcoef      (webdata->bcoef)
 
-
-/*************************************************************************/
-/* reslocal: Compute res = F(t,cc,cp).
-   This routine assumes that all inter-processor communication of data
-   needed to calculate F has already been done.  Components at interior
-   subgrid boundaries are assumed to be in the work array cext.
-   The local portion of the cc vector is first copied into cext.
-   The exterior Neumann boundary conditions are explicitly handled here
-   by copying data from the first interior mesh line to the ghost cell
-   locations in cext.  Then the reaction and diffusion terms are
-   evaluated in terms of the cext array, and the residuals are formed.
-   The reaction terms are saved separately in the vector webdata->rates
-   for use by the preconditioner setup routine.                          */
+/* 
+ * reslocal: Compute res = F(t,cc,cp).
+ * This routine assumes that all inter-processor communication of data
+ * needed to calculate F has already been done.  Components at interior
+ * subgrid boundaries are assumed to be in the work array cext.
+ * The local portion of the cc vector is first copied into cext.
+ * The exterior Neumann boundary conditions are explicitly handled here
+ * by copying data from the first interior mesh line to the ghost cell
+ * locations in cext.  Then the reaction and diffusion terms are
+ * evaluated in terms of the cext array, and the residuals are formed.
+ * The reaction terms are saved separately in the vector webdata->rates
+ * for use by the preconditioner setup routine.                          
+ */
 
 static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
                     void *rdata)
@@ -975,11 +998,12 @@ static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
   
   return(0);
   
-} /* End of reslocal. */
+}
 
-/*************************************************************************/
-/* WebRates: Evaluate reaction rates at a given spatial point.           */
-/* At a given (x,y), evaluate the array of ns reaction terms R.          */
+/*
+ * WebRates: Evaluate reaction rates at a given spatial point.
+ * At a given (x,y), evaluate the array of ns reaction terms R. 
+ */
 
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
                      UserData webdata)
@@ -995,10 +1019,11 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
   for (is = 0; is < NUM_SPECIES; is++)
     ratesxy[is] = cxy[is]*( bcoef[is]*fac + ratesxy[is] );
 
-} /* End of WebRates. */
+}
 
-/*************************************************************************/
-/* dotprod: dot product routine for realtype arrays, for use by WebRates.    */
+/*
+ * dotprod: dot product routine for realtype arrays, for use by WebRates.    
+ */
 
 static realtype dotprod(long int size, realtype *x1, realtype *x2)
 {
@@ -1009,15 +1034,16 @@ static realtype dotprod(long int size, realtype *x1, realtype *x2)
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
   return(temp);
 
-} /* End of dotprod. */
+}
 
-/*************************************************************************/
-/* Preconbd: Preconditioner setup routine.
-   This routine generates and preprocesses the block-diagonal
-   preconditoner PP.  At each spatial point, a block of PP is computed
-   by way of difference quotients on the reaction rates R.
-   The base value of R are taken from webdata->rates, as set by webres.
-   Each block is LU-factored, for later solution of the linear systems.  */
+/*
+ * Preconbd: Preconditioner setup routine.
+ * This routine generates and preprocesses the block-diagonal
+ * preconditoner PP.  At each spatial point, a block of PP is computed
+ * by way of difference quotients on the reaction rates R.
+ * The base value of R are taken from webdata->rates, as set by webres.
+ * Each block is LU-factored, for later solution of the linear systems.  
+ */
 
 static int Precondbd(realtype tt, N_Vector cc,
                      N_Vector cp, N_Vector rr, 
@@ -1085,12 +1111,13 @@ static int Precondbd(realtype tt, N_Vector cc,
   
   return(0);
 
-} /* End of Precondbd. */
+}
 
-/*************************************************************************/
-/* PSolvebd: Preconditioner solve routine.
-   This routine applies the LU factorization of the blocks of the
-   preconditioner PP, to compute the solution of PP * zvec = rvec.       */
+/*
+ * PSolvebd: Preconditioner solve routine.
+ * This routine applies the LU factorization of the blocks of the
+ * preconditioner PP, to compute the solution of PP * zvec = rvec.       
+ */
 
 static int PSolvebd(realtype tt, N_Vector cc,
                  N_Vector cp, N_Vector rr, 
@@ -1123,19 +1150,17 @@ static int PSolvebd(realtype tt, N_Vector cc,
   
   return(0);
   
-} /* End of PSolvebd. */
+}
 
-
-/*********************** Private Helper Function ************************/
-
-/*************************************************************************/
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag >= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 {
@@ -1143,7 +1168,8 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
@@ -1151,13 +1177,15 @@ static int check_flag(void *flagvalue, char *funcname, int opt, int id)
   else if (opt == 1) {
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
 	      id, funcname, *errflag);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, 
+            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
