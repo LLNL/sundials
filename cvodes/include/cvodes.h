@@ -3,7 +3,7 @@
  * File          : cvodes.h                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 25 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -13,7 +13,6 @@
  * This is the interface file for the main CVODES integrator.      *
  *                                                                 *
  *******************************************************************/
-
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -44,15 +43,15 @@ extern "C" {
  *                                                                *
  ******************************************************************/
 
- 
 /******************************************************************
  *                                                                *
- * Enumerations for inputs to CVodeMalloc, CVReInit,              *
- * CVodeSensMalloc, CVSensReInit, and CVode.                      *
+ * Enumerations for inputs to CVodeMalloc, CVodeReInit,           *
+ * CVodeSensMalloc, CVodeSensReInit, CvodeQuadMalloc,             *
+ * CVodeQuadReInit, and CVode.                                    *
  *----------------------------------------------------------------*
  * Symbolic constants for the lmm, iter, and itol input           *
- * parameters to CVodeMalloc and CVReInit, as well as the input   *
- * parameter itask to CVode, are given below.                     *
+ * parameters to CVodeMalloc and CVodeReInit, as well as the      *
+ * input parameter itask to CVode, are given below.               *
  *                                                                *
  * lmm  : The user of the CVODE package specifies whether to use  *
  *        the ADAMS or BDF (backward differentiation formula)     *
@@ -98,6 +97,7 @@ extern "C" {
  *        for ism=SIMULTANEOUS or STAGGERED.                      *
  *                                                                *
  * errcon: This parameter specifies whether sensitivity variables *
+ * errconQ (or quadrature variables, for errconQ)                 *
  *         are included in the local error estimation (FULL) or   *
  *         not (PARTIAL). Note that, even with errcon=PARTIAL,    *
  *         sensitivities are included in the convergence test     *
@@ -129,7 +129,6 @@ enum { FULL, PARTIAL };           /* errcon */
     
 enum { NORMAL, ONE_STEP };        /* itask */
 
- 
 /******************************************************************
  *                                                                *
  * Type : RhsFn                                                   *
@@ -162,15 +161,11 @@ typedef void (*RhsFn)(integertype N, realtype t, N_Vector y,
  *                                                                *
  ******************************************************************/
 
-typedef void (*SensRhsFn)(RhsFn f, integertype Ns, integertype N, 
-                          realtype t, N_Vector y, N_Vector ydot, 
+typedef void (*SensRhsFn)(integertype Ns, integertype N, realtype t, 
+                          N_Vector y, N_Vector ydot, 
                           N_Vector *yS, N_Vector *ySdot, 
-                          realtype *p, realtype *pbar, integertype *plist, 
-                          void *f_data, N_Vector ewt, N_Vector *ewtS, 
-                          realtype *reltol, realtype *reltolS,
-                          realtype uround, realtype rhomax, 
-                          long int *nfePtr, 
-                          N_Vector ytemp, N_Vector ftemp);
+                          void *fS_data,  
+                          N_Vector tmp1, N_Vector tmp2);
 
 /******************************************************************
  *                                                                *
@@ -182,15 +177,23 @@ typedef void (*SensRhsFn)(RhsFn f, integertype Ns, integertype N,
  *                                                                *
  ******************************************************************/
 
-typedef void (*SensRhs1Fn)(RhsFn f, integertype Ns, integertype N, 
-                           realtype t, N_Vector y, N_Vector ydot, 
-                           integertype i, N_Vector yS, N_Vector ySdot, 
-                           realtype *p, realtype *pbar, integertype *plist, 
-                           void *f_data, N_Vector ewt, N_Vector ewtS, 
-                           realtype *reltol, realtype *reltolS,
-                           realtype uround, realtype rhomax, 
-                           long int *nfePtr,
-                           N_Vector ytemp, N_Vector ftemp);
+typedef void (*SensRhs1Fn)(integertype Ns, integertype N, realtype t, 
+                           N_Vector y, N_Vector ydot, 
+                           integertype iS, N_Vector yS, N_Vector ySdot, 
+                           void *fS_data,
+                           N_Vector tmp1, N_Vector tmp2);
+
+/******************************************************************
+ *                                                                *
+ * Type : QuadRhsFn                                               *
+ *----------------------------------------------------------------*        
+ *                                                                *
+ * A QuadRhsFn f does not have a return value.                    *
+ *                                                                *
+ ******************************************************************/
+
+typedef void (*QuadRhsFn)(integertype Nq, integertype N, realtype t, 
+                          N_Vector y, N_Vector qdot, void *fQ_data);
 
 /******************************************************************
  *                                                                *
@@ -280,15 +283,13 @@ typedef void (*SensRhs1Fn)(RhsFn f, integertype Ns, integertype N,
  *                                                                *
  ******************************************************************/
 
-
 void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, 
                   int lmm, int iter, int itol, realtype *reltol, 
                   void *abstol, void *f_data, FILE *errfp, 
                   booleantype optIn, long int iopt[], realtype ropt[],
                   M_Env machEnv);
  
- 
-/******************************************************************
+ /******************************************************************
  *                                                                *
  * Function : CVodeSensMalloc                                     *
  *----------------------------------------------------------------*
@@ -356,6 +357,9 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
  *           sensitivity absolute tolerances based on the values  *
  *           of abstol and pbar.                                  *
  *                                                                *
+ * fS_data   is a pointer to user data that will be passed to the *
+ *           user's fS function every time fS is called.          *
+ *                                                                *
  * If successful, CVodeSensMalloc returns SUCCESS. If an          *
  * initialization error occurs, CVodeSensMalloc prints an error   *
  * message to the file specified by errfp and returns one of      *
@@ -366,7 +370,8 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0,
 int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism, 
                     realtype *p, realtype *pbar, integertype *plist, 
                     int ifS, void *fS, int errcon, realtype rhomax, 
-                    N_Vector *yS0, realtype *reltolS, void *abstolS);
+                    N_Vector *yS0, realtype *reltolS, void *abstolS,
+                    void *fS_data);
     
 /* CVodeSensMalloc return values: */
 
@@ -376,23 +381,72 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
 
 /******************************************************************
  *                                                                *
- * Function : CVReInit                                            *
+ * Function : CVodeQuadMalloc                                     *
  *----------------------------------------------------------------*
- * CVReInit re-initializes CVode for the solution of a problem,   *
+ * CVodeQuadMalloc allocates and initializes memory related to    *
+ * quadrature integration.                                        *
+ *                                                                *
+ * cvode_mem is a pointer to CVODE memory returned by CVodeMalloc.*
+ *                                                                *
+ * Nq        is the number of quadratures to be computed          *
+ *                                                                *
+ *                                                                *
+ * fQ        is the user-provided integrand routine.              *
+ *                                                                *
+ * errconQ   is the type of error control. The legal values are   *
+ *           FULL and PARTIAL (see previous description).         *
+ *                                                                *
+ * reltolQ   is a pointer to the quadrature relative tolerance    *
+ *           scalar.                                              *
+ *                                                                *
+ * abstolQ   is a pointer to the absolute tolerance scalar or     *
+ *           an N_Vector of absolute tolerances for quadrature    *
+ *           variables.                                           *
+ *                                                                *
+ * fQ_data   is a pointer to user data that will be passed to the *
+ *           user's fQ function every time fQ is called.          *
+ *                                                                *
+ * machEnvQ  is a pointer to machine environment-specific         *
+ *           information for Nvectors containing quadrature       *
+ *           variables.                                           *
+ *                                                                *
+ * If successful, CVodeQuadMalloc returns SUCCESS. If an          *
+ * initialization error occurs, CVodeQuadMalloc prints an error   *
+ * message to the file specified by errfp and returns one of      *
+ * the error flags defined below.                                 *
+ *                                                                *
+ ******************************************************************/
+
+int CVodeQuadMalloc(void *cvode_mem, integertype Nq, 
+                    void *fQ, int errconQ,
+                    realtype *reltolQ, void *abstolQ,
+                    void *fQ_data, M_Env machEnvQ);
+    
+/* CVodeQuadMalloc return values: */
+
+/* SUCCESS = 0  (Defined under CVode return values, but listed
+                 here also for completeness)                     */
+enum {QCVM_NO_MEM = -1, QCVM_ILL_INPUT = -2, QCVM_MEM_FAIL = -3};
+
+/******************************************************************
+ *                                                                *
+ * Function : CVodeReInit                                         *
+ *----------------------------------------------------------------*
+ * CVodeReInit re-initializes CVode for the solution of a problem,*
  * where a prior call to CVodeMalloc has been made with the same  *
- * problem size N.  CVReInit performs the same input checking     *
+ * problem size N. CVodeReInit performs the same input checking   *
  * and initializations that CVodeMalloc does (except for N).      *
  * But it does no memory allocation, assuming that the existing   *
  * internal memory is sufficient for the new problem.             *
  *                                                                *
- * The use of CVReInit requires that the maximum method order,    *
+ * The use of CVodeReInit requires that the maximum method order, *
  * maxord, is no larger for the new problem than for the problem  *
  * specified in the last call to CVodeMalloc.  This condition is  *
  * automatically fulfilled if the multistep method parameter lmm  *
  * is unchanged (or changed from ADAMS to BDF) and the default    *
  * value for maxord is specified.                                 *
  *                                                                *
- * If iter = NEWTON, then following the call to CVReInit, a call  *
+ * If iter=NEWTON, then following the call to CVodeReInit, a call *
  * to the linear solver specification routine is necessary if a   *
  * different linear solver is chosen, but may not be otherwise.   *
  * If the same linear solver is chosen, and there are no changes  *
@@ -406,17 +460,17 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
  * size, then the main linear solver specification routine must be*
  * called.  See the linear solver documentation for full details. *
  *                                                                *
- * The first argument to CVReInit is:                             *
+ * The first argument to CVodeReInit is:                          *
  *                                                                *
  * cvode_mem = pointer to CVODE memory returned by CVodeMalloc.   *
  *                                                                *
- * All the remaining arguments to CVReInit have names and         *
+ * All the remaining arguments to CVodeReInit have names and      *
  * meanings identical to those of CVodeMalloc.  Note that the     *
- * problem size N is not passed as an argument to CVReInit,       *
+ * problem size N is not passed as an argument to CVodeReInit,    *
  * as that is assumed to be unchanged since the CVodeMalloc call. *
  *                                                                *
- * The return value of CVReInit is equal to SUCCESS = 0 if there  *
- * were no errors; otherwise it is a negative int equal to:       *
+ * The return value of CVodeReInit is equal to SUCCESS = 0 if     *
+ * there were no errors; otherwise it is a negative int equal to: *
  *   CVREI_NO_MEM     indicating cvode_mem was NULL, or           *
  *   CVREI_ILL_INPUT  indicating an input argument was illegal    *
  *                    (including an attempt to increase maxord).  *
@@ -427,15 +481,13 @@ enum {SCVM_NO_MEM = -1, SCVM_ILL_INPUT = -2, SCVM_MEM_FAIL = -3};
  * so may be larger than would be computed for the new problem.   *
  ******************************************************************/
 
+int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
+                int lmm, int iter, int itol, realtype *reltol, 
+                void *abstol, void *f_data, FILE *errfp, 
+                booleantype optIn, long int iopt[], 
+                realtype ropt[], M_Env machEnv);
 
-int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0, 
-             int lmm, int iter, int itol, realtype *reltol, 
-             void *abstol, void *f_data, FILE *errfp, 
-             booleantype optIn, long int iopt[], 
-             realtype ropt[], M_Env machEnv);
-
-
-/* CVReInit return values: */
+/* CVodeReInit return values: */
 
 /* SUCCESS = 0  (Defined under CVode return values, but listed
                  here also for completeness)                     */
@@ -443,11 +495,11 @@ enum {CVREI_NO_MEM = -1, CVREI_ILL_INPUT = -2};
 
 /******************************************************************
  *                                                                *
- * Function : CVSensReInit                                        *
+ * Function : CVodeSensReInit                                     *
  *----------------------------------------------------------------*
- * CVSensReInit re-initializes CVODE's sensitivity related memory *
- * for a problem, assuming it has already been allocated in prior *
- * calls to CVodeMalloc and CvodeSensMalloc.                      *
+ * CVodeSensReInit re-initializes CVODE's sensitivity related     *
+ * memory for a problem, assuming it has already been allocated   *
+ * in prior calls to CVodeMalloc and CvodeSensMalloc.             *
  *                                                                *
  * All problem specification inputs are checked for errors.       *
  * The number of sensitivities Ns is assumed to be unchanged      *
@@ -455,7 +507,7 @@ enum {CVREI_NO_MEM = -1, CVREI_ILL_INPUT = -2};
  * If any error occurs during initialization, it is reported to   *
  * the file whose file pointer is errfp.                          *
  *                                                                *
- * CVSensReInit potentially does some minimal memory allocation   *
+ * CVodeSensReInit potentially does some minimal memory allocation*
  * (for the sensitivity absolute tolerance and for arrays of      *
  * counters used by the STAGGERED1 method).                       *
  *                                                                *
@@ -471,17 +523,47 @@ enum {CVREI_NO_MEM = -1, CVREI_ILL_INPUT = -2};
  *                                                                *
  ******************************************************************/
 
-int CVSensReInit(void *cvode_mem, int ism, 
-                 realtype *p, realtype *pbar, integertype *plist, 
-                 int ifS, void *fS, int errcon, realtype rhomax, 
-                 N_Vector *yS0, realtype *reltolS, void *abstolS);
-
-/* CVSensReInit return values: */
+int CVodeSensReInit(void *cvode_mem, int ism, 
+                    realtype *p, realtype *pbar, integertype *plist, 
+                    int ifS, void *fS, int errcon, realtype rhomax, 
+                    N_Vector *yS0, realtype *reltolS, void *abstolS,
+                    void *fS_data);
+  
+/* CVodeSensReInit return values: */
 
 /* SUCCESS = 0  (Defined under CVode return values, but listed
                  here also for completeness)                     */
 enum {SCVREI_NO_MEM    = -1, SCVREI_NO_SENSI = -2, 
       SCVREI_ILL_INPUT = -3, SCVREI_MEM_FAIL = -4};
+
+/******************************************************************
+ *                                                                *
+ * Function : CVodeQuadReInit                                     *
+ *----------------------------------------------------------------*
+ * CVodeQuadReInit re-initializes CVODE's quadrature related      *
+ * memory for a problem, assuming it has already been allocated   *
+ * in prior calls to CVodeMalloc and CvodeQuadMalloc.             *
+ *                                                                *
+ * All problem specification inputs are checked for errors.       *
+ * The number of quadratures Nq is assumed to be unchanged        *
+ * since the previous call to CVodeQuadMalloc.                    *
+ * If any error occurs during initialization, it is reported to   *
+ * the file whose file pointer is errfp.                          *
+ *                                                                *
+ * In case of an error return, an error message is also printed.  *
+ *                                                                *
+ ******************************************************************/
+
+int CVodeQuadReInit(void *cvode_mem, void *fQ, int errconQ,
+                    realtype *reltolQ, void *abstolQ, 
+                    void *fQ_data, M_Env machEnvQ);
+
+/* CVodeQuadReInit return values: */
+
+/* SUCCESS = 0  (Defined under CVode return values, but listed
+                 here also for completeness)                     */
+enum {QCVREI_NO_MEM    = -1, QCVREI_NO_QUAD = -2, 
+      QCVREI_ILL_INPUT = -3};
 
 /******************************************************************
  *                                                                *
@@ -555,10 +637,8 @@ enum {SCVREI_NO_MEM    = -1, SCVREI_NO_SENSI = -2,
  *                                                                *
  ******************************************************************/
 
-
 int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, 
           int itask);
-
 
 /* CVode return values */
 
@@ -605,14 +685,11 @@ enum { SUCCESS=0, TSTOP_RETURN=1, CVODE_NO_MEM=-1, ILL_INPUT=-2,
  *                                                                * 
  ******************************************************************/
 
-
 int CVodeDky(void *cvode_mem, realtype t, int k, N_Vector dky);
-
 
 /* CVodeDky return values */
 
 enum { OKAY=0, BAD_K=-1, BAD_T=-2, BAD_DKY=-3, DKY_NO_MEM=-4 };
- 
  
 /******************************************************************
  *                                                                *
@@ -641,7 +718,7 @@ enum { OKAY=0, BAD_K=-1, BAD_T=-2, BAD_DKY=-3, DKY_NO_MEM=-4 };
  * user to hold at least Ns vectors.                              *
  *                                                                *
  * Return values are similar to those of CVodeDky. Additionally,  *
- * CVodeSensDky can return SKY_NO_SENSI if sensitivities were     *
+ * CVodeSensDky can return DKY_NO_SENSI if sensitivities were     *
  * not computed and BAD_IS if is < 0 or is >= Ns.                 *
  *                                                                * 
  ******************************************************************/
@@ -653,8 +730,50 @@ int CVodeSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA);
 int CVodeSensDky(void *cvode_mem, realtype t, int k, integertype is, 
                  N_Vector dky);
     
+/* Additional CVodeSensExtract/CVodeSensDky output values */
+
 #define DKY_NO_SENSI -5
 #define BAD_IS -6
+
+/******************************************************************
+ *                                                                *
+ * Functions : CVodeQuadExtract, CVodeQuadDky                     *
+ *----------------------------------------------------------------*
+ * Return values are similar to those of CVodeDky. Additionally,  *
+ * CVodeQuadDky can return DKY_NO_QUAD if quadratures were not    *
+ * computed.                                                      *
+ *                                                                * 
+ ******************************************************************/
+
+int CVodeQuadExtract(void *cvode_mem, realtype t, N_Vector yQout);
+
+int CVodeQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky);
+
+/* Additional CVodeQuadExtract/CVodeQuadDky output values */
+
+#define DKY_NO_QUAD -7
+
+/******************************************************************
+ *                                                                *
+ * Function : CVodeGetEwt and CVodeGetEwtS                        *
+ *----------------------------------------------------------------*
+ * This routines return the weight vectors for states and         *
+ * sensitivities in weight and weightS, respectively. They are    *
+ * provided for use in user-defined sensitivity right hand side   *
+ * routines based on finite differences. Note that the user need  *
+ * not allocate space for either ewt or ewtS.                     *
+ *                                                                *
+ ******************************************************************/
+
+int CVodeGetEwt(void *cvode_mem, N_Vector weight);
+int CVodeGetEwtS(void *cvode_mem, N_Vector *weightS);
+
+/* CVodeGetEwt/CVodeGetEwtS return values */
+
+/* OKAY = 0  (Defined under CVodeDky return values but listed 
+              here also for compleetness)                         */
+
+enum {GEWT_NO_MEM=-1};
 
 /******************************************************************
  *                                                                *
@@ -775,7 +894,7 @@ void CVodeFree(void *cvode_mem);
  *                 Optional output.                               *
  *                                                                *
  * iopt[NFSE]    : number of calls made to the sensitivity        *
- *                 residual evaluation routine. Optional output.  *
+ *                 r.h.s. evaluation routine. Optional output.    *
  *                                                                *
  * iopt[NNIS]    : number of Newton iterations performed during   *
  *                 sensitivity corrections (sum over all          *
@@ -788,6 +907,13 @@ void CVodeFree(void *cvode_mem);
  *                 Optional output.                               *
  *                                                                *
  * iopt[NETFS]   : number of error test failures for sensitivity  *
+ *                 variables.                                     *
+ *                 Optional output.                               *
+ *                                                                *
+ * iopt[NFQE]    : number of calls made to the quadrature         *
+ *                 integrand evaluation routine. Optional output. *
+ *                                                                *
+ * iopt[NETFQ]   : number of error test failures for quadrature   *
  *                 variables.                                     *
  *                 Optional output.                               *
  *                                                                *
@@ -837,13 +963,14 @@ void CVodeFree(void *cvode_mem);
  * actually accessed in cvode.c.  The locations beyond these      *
  * values are used by the linear solvers.                         */
 
-#define CVODE_IOPT_SIZE 20
+#define CVODE_IOPT_SIZE 22
 #define CVODE_ROPT_SIZE  9
 
 /* iopt indices */
 enum { MAXORD, MXSTEP, MXHNIL,
        NST, NFE, NSETUPS, NNI, NCFN, NETF, QU, QCUR,
-       LENRW, LENIW, SLDET, ISTOP, NOR, NFSE, NNIS, NCFNS, NETFS };
+       LENRW, LENIW, SLDET, ISTOP, NOR, 
+       NFSE, NNIS, NCFNS, NETFS, NFQE, NETFQ};
 
 /* ropt indices */
 
@@ -870,50 +997,62 @@ enum { H0, HMAX, HMIN, TSTOP, H0U,
   
 typedef struct CVodeMemRec {
     
-  realtype cv_uround;      /* machine unit roundoff               */
+  realtype cv_uround;      /* machine unit roundoff                        */
 
   /*---------------------------- 
     Problem Specification Data 
   ----------------------------*/
 
-  integertype  cv_N;       /* ODE system size                     */
-  RhsFn cv_f;              /* y' = f(t,y(t))                      */
-  void *cv_f_data;         /* user pointer passed to f            */
-  int cv_lmm;              /* lmm = ADAMS or BDF                  */
-  int cv_iter;             /* iter = FUNCTIONAL or NEWTON         */
-  int cv_itol;             /* itol = SS or SV                     */
-  realtype *cv_reltol;     /* ptr to relative tolerance           */
-  void *cv_abstol;         /* ptr to absolute tolerance           */
+  integertype  cv_N;       /* ODE system size                              */
+  RhsFn cv_f;              /* y' = f(t,y(t))                               */
+  void *cv_f_data;         /* user pointer passed to f                     */
+  int cv_lmm;              /* lmm = ADAMS or BDF                           */
+  int cv_iter;             /* iter = FUNCTIONAL or NEWTON                  */
+  int cv_itol;             /* itol = SS or SV                              */
+  realtype *cv_reltol;     /* ptr to relative tolerance                    */
+  void *cv_abstol;         /* ptr to absolute tolerance                    */
 
   /*--------------------------
     Sensitivity Related Data 
   --------------------------*/
 
-  booleantype cv_sensi;    /* TRUE if computing sensitivities     */
-  integertype cv_Ns;       /* Number of sensitivities             */
-  SensRhsFn cv_fS;         /* fS = (df/dy)*yS + (df/dp)           */
-  SensRhs1Fn cv_fS1;       /* fS1 = (df/dy)*yS_i + (df/dp)        */
-  int cv_ifS;              /* ifS = ALLSENS or ONESENS            */
-  int cv_ism;              /* ism = SIMULTANEOUS or STAGGERED     */
-  realtype *cv_p;          /* parameters in f(t,y,p)              */
-  realtype *cv_pbar;       /* scale factors for parameters        */
-  integertype *cv_plist;   /* list of sensitivities               */
-  realtype *cv_reltolS;    /* ptr to relative tolerance for sensi */
-  void *cv_abstolS;        /* ptr to absolute tolerance for sensi */
-  realtype cv_rhomax;      /* cut-off value for centered/forward
-                              finite differences                  */
-  int cv_errcon;           /* errcon = FULL or PARTIAL            */
+  booleantype cv_sensi;    /* TRUE if computing sensitivities              */
+  integertype cv_Ns;       /* Number of sensitivities                      */
+  SensRhsFn cv_fS;         /* fS = (df/dy)*yS + (df/dp)                    */
+  SensRhs1Fn cv_fS1;       /* fS1 = (df/dy)*yS_i + (df/dp)                 */
+  int cv_ifS;              /* ifS = ALLSENS or ONESENS                     */
+  int cv_ism;              /* ism = SIMULTANEOUS or STAGGERED              */
+  realtype *cv_p;          /* parameters in f(t,y,p)                       */
+  realtype *cv_pbar;       /* scale factors for parameters                 */
+  integertype *cv_plist;   /* list of sensitivities                        */
+  realtype *cv_reltolS;    /* ptr to relative tolerance for sensi          */
+  void *cv_abstolS;        /* ptr to absolute tolerance for sensi          */
+  realtype cv_rhomax;      /* cut-off value for centered/forward finite
+                              differences                                  */
+  int cv_errcon;           /* errcon = FULL or PARTIAL                     */
+  void *cv_fS_data;        /* user pointer passed to fS                    */
+
+  /*--------------------------
+    Quadrature Related Data 
+  --------------------------*/
+
+  booleantype cv_quad;     /* TRUE if integrating quadratures              */
+  integertype cv_Nq;
+  QuadRhsFn cv_fQ;
+  realtype *cv_reltolQ;    /* ptr to relative tolerance for quad           */
+  void *cv_abstolQ;        /* ptr to absolute tolerance for quad           */
+  int cv_errconQ;
+  void *cv_fQ_data;        /* user pointer passed to fQ                    */
 
   /*-------------------------
     Nordsieck History Array 
   -------------------------*/
 
-  /* Nordsieck array, of size N x (q+1).
-     zn[j] is a vector of length N (j=0,...,q)
-     zn[j] = [1/factorial(j)] * h^j * (jth derivative of the 
-     interpolating polynomial                                     */
-
-  N_Vector cv_zn[L_MAX];  
+  N_Vector cv_zn[L_MAX];   /* Nordsieck array, of size N x (q+1).
+                              zn[j] is a vector of length N (j=0,...,q)
+                              zn[j] = [1/factorial(j)] * h^j * 
+                              (jth derivative of the interpolating 
+                              polynomial                                   */
 
   /*---------------------
     Vectors of length N 
@@ -942,12 +1081,23 @@ typedef struct CVodeMemRec {
   N_Vector *cv_tempvS;     /* temporary storage vector (~ tempv)           */
   N_Vector *cv_ftempS;     /* temporary storage vector (~ ftemp)           */
 
+  /*-----------------------------
+    Quadrature Related Vectors 
+  -----------------------------*/
+
+  N_Vector cv_znQ[L_MAX];
+  N_Vector cv_ewtQ;        /* error weight vector for quadratures          */
+  N_Vector cv_yQ;          /*                                              */
+  N_Vector cv_acorQ;       /*                                              */
+  N_Vector cv_tempvQ;      /*                                              */
+
   /*-------------------------------------------------
     Does CVodeSensMalloc allocate additional space?
   -------------------------------------------------*/  
 
-  booleantype cv_abstolSalloc;   /* Is abstolS allocated by CVODES?                   */
-  booleantype cv_stgr1alloc;     /* Are ncfS1, ncfnS1, and nniS1 allocated by CVODES? */
+  booleantype cv_abstolSalloc;   /* Is abstolS allocated by CVODES?        */
+  booleantype cv_stgr1alloc;     /* Are ncfS1, ncfnS1, and nniS1 allocated 
+                                    by CVODES?                             */
 
   /*-----------
     Step Data 
@@ -980,6 +1130,7 @@ typedef struct CVodeMemRec {
   realtype cv_crate;           /* estimated corrector convergence rate     */
   realtype cv_acnrm;           /* | acor |                                 */
   realtype cv_acnrmS;          /* | acorS |                                */
+  realtype cv_acnrmQ;          /* | acorQ |                                */
   int  cv_mnewt;               /* Newton iteration counter                 */
   int  *cv_ncfS1;              /* Array of Ns local counters for conv.  
                                   failures (used in CVStep for STAGGERED1) */
@@ -1009,6 +1160,7 @@ typedef struct CVodeMemRec {
   long int cv_nst;         /* number of internal steps taken               */
   long int cv_nfe;         /* number of f calls                            */
   long int cv_nfSe;        /* number of fS calls                           */
+  long int cv_nfQe;        /* number of fQ calls                           */
 
   long int cv_ncfn;        /* number of corrector convergence failures     */
   long int cv_ncfnS;       /* number of total sensi. corr. conv. failures  */
@@ -1020,13 +1172,14 @@ typedef struct CVodeMemRec {
 
   long int cv_netf;        /* number of error test failures                */
   long int cv_netfS;       /* number of sensi. error test failures         */
+  long int cv_netfQ;       /* number of quadr. error test failures         */
 
   long int cv_nsetups;     /* number of setup calls                        */
   int      cv_nhnil;       /* number of messages issued to the user that
                               t + h == t for the next iternal step         */
 
-  long int cv_lrw;         /* number of realtype words in CVODE work vectors   */
-  long int cv_liw;         /* no. of integertype words in CVODE work vectors   */
+  long int cv_lrw;         /* number of realtype words in work vectors     */
+  long int cv_liw;         /* no. of integertype words in work vectors     */
 
   long int cv_nscon;       /* counter for STALD method                     */
 
@@ -1082,21 +1235,28 @@ typedef struct CVodeMemRec {
   realtype cv_tolsf;       /* tolerance scale factor                       */
   booleantype cv_setupNonNull;  /* Does setup do something?                */
 
+  /*----------------------------------------------------------
+    Flags turned ON by SensMalloc and QuadMalloc and read by
+    SensReInit and QuadReInit
+    ---------------------------------------------------------*/
+
+  booleantype cv_sensMallocDone;
+  booleantype cv_quadMallocDone;
+
   /*-----------------------------------------------
     Arrays for Optional Input and Optional Output 
   -----------------------------------------------*/
 
-  long int *cv_iopt;       /* long int optional input, output              */
-  realtype     *cv_ropt;   /* real optional input, output                  */
-  booleantype    cv_optIn; /* flag to indicate optional input 
-                              (used by adjoint)                            */
-
+  long int    *cv_iopt;       /* long int optional input, output           */
+  realtype    *cv_ropt;       /* real optional input, output               */
+  booleantype  cv_optIn;      /* flag to indicate optional input 
+                                 (used by adjoint)                         */
 
   /*------------
     Error File 
   ------------*/
 
-  FILE *cv_errfp;          /* CVODE error messages are sent to errfp       */
+  FILE *cv_errfp;             /* CVODE error messages are sent to errfp    */
 
   /*-----------------------------------------------------
     Pointer to Machine Environment-Specific Information 
@@ -1104,11 +1264,18 @@ typedef struct CVodeMemRec {
 
   M_Env cv_machenv;
 
+  /*-----------------------------------------------------
+    Pointer to Machine Environment-Specific Information
+    for Quadrature N_Vectors
+  -----------------------------------------------------*/
+
+  M_Env cv_machenvQ;
+
   /*----------------------------------------
     Stability Limit Detection control flag 
   ----------------------------------------*/
 
-  booleantype cv_sldeton;  /* Is Stability Limit Detection on?             */
+  booleantype cv_sldeton;     /* Is Stability Limit Detection on?          */
 
 } *CVodeMem;
 

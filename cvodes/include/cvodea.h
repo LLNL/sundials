@@ -2,7 +2,7 @@
  *                                                                 *
  * File          : cvodea.h                                        *
  * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 23 September 2002                               *
+ * Version of    : 25 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -64,6 +64,21 @@ extern "C" {
 
 typedef void (*RhsFnB)(integertype NB, realtype t, N_Vector y, 
                        N_Vector yB, N_Vector yBdot, void *f_dataB);
+
+/******************************************************************
+ *                                                                *
+ * Type : QuadRhsFnB                                              *
+ *----------------------------------------------------------------*
+ * The fQB function which defines the quadratures to be integrated*
+ * backwards must have type QuadRhsFnB.                           *
+ *                                                                *
+ ******************************************************************/
+
+typedef void (*QuadRhsFnB)(integertype NqB, integertype NB, 
+                           realtype t, N_Vector y, 
+                           N_Vector yB, N_Vector qBdot, 
+                           void *fQ_dataB);
+
 /******************************************************************
  *                                                                *
  * Type : CVDenseJacFnB                                           *
@@ -190,9 +205,9 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout, realtype *t,
  ******************************************************************/
 
 int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB, 
-                 realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
-                 realtype *reltolB, void *abstolB, void *f_dataB, 
-                 FILE *errfpB, booleantype optInB, 
+                 realtype tB0, N_Vector yB0, int lmmB, int iterB, 
+                 int itolB, realtype *reltolB, void *abstolB, 
+                 void *f_dataB, FILE *errfpB, booleantype optInB, 
                  long int ioptB[], realtype roptB[], M_Env machEnv);
 
 /* CVodeMallocB return values */
@@ -203,20 +218,52 @@ int CVodeMallocB(void *cvadj_mem, integertype NB, RhsFnB fB,
 
 /******************************************************************
  *                                                                *
- * Function : CVReInitB                                           *
+ * Function : CVodeReInitB                                        *
  *----------------------------------------------------------------*
- * CVReInitB resets the final time and final condition for the    *
+ * CVodeReInitB resets the final time and final condition for the *
  * backward system, assuming a prior call to CVodeMallocB has     *
  * been made.                                                     *
  *                                                                *
  ******************************************************************/
 
-int CVReInitB(void *cvadj_mem, RhsFnB fB, 
-              realtype tB0, N_Vector yB0, int lmmB, int iterB, int itolB, 
-              realtype *reltolB, void *abstolB, void *f_dataB, 
-              FILE *errfpB, booleantype optInB, 
-              long int ioptB[], realtype roptB[], M_Env machEnvB);
-/*int CVReInitB(void *cvadj_mem, realtype tB0, N_Vector yB0);*/
+int CVodeReInitB(void *cvadj_mem, RhsFnB fB, 
+                 realtype tB0, N_Vector yB0, int lmmB, int iterB, 
+                 int itolB, realtype *reltolB, void *abstolB, 
+                 void *f_dataB, FILE *errfpB, booleantype optInB, 
+                 long int ioptB[], realtype roptB[], M_Env machEnvB);
+
+/******************************************************************
+ *                                                                *
+ * Function : CVodeQuadMallocB                                    *
+ *----------------------------------------------------------------*
+ * CVodeQuadMallocB allocates memory for quadrature integration   *
+ * during the backward phase. It is essentailly a call to         *
+ * CVodeQuadMalloc but with some particularizations for backward  *
+ * integration.                                                   *
+ *                                                                *
+ ******************************************************************/
+
+int CVodeQuadMallocB(void *cvadj_mem, integertype NqB, QuadRhsFnB fQB,
+                     int errconQB, realtype *reltolQB, void *abstolQB,
+                     void *fQ_dataB, M_Env machEnvQB);
+
+/* CVodeQuadMallocB return values               */
+/* SUCCESS=0, defined under CVode return values */
+/* CVBM_NO_MEM, defined under CVodeMallocB      */
+#define CVBM_ILL_INPUT   -104
+
+/******************************************************************
+ *                                                                *
+ * Function : CVodeQuadReInitB                                    *
+ *----------------------------------------------------------------*
+ * CVodeQuadReInitB re-initializaes memory for quadrature         *
+ * integration during the backward phase                          *
+ *                                                                *
+ ******************************************************************/
+
+int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB,
+                     int errconQB, realtype *reltolQB, void *abstolQB,
+                     void *fQ_dataB, M_Env machEnvQB);
 
 /******************************************************************
  *                                                                *
@@ -447,6 +494,9 @@ typedef struct CVadjMemRec {
   /* Right hand side function (fB) for backward run */
   RhsFnB ca_fB;
 
+  /* Right hand side quadrature function (fQB) for backward run */
+  QuadRhsFnB ca_fQB;
+
   /* Dense Jacobian function (djacB) for backward run */
   CVDenseJacFnB ca_djacB;
 
@@ -463,6 +513,9 @@ typedef struct CVadjMemRec {
   /* User f_dataB */
   void *ca_f_dataB;
   
+  /* User fQ_dataB */
+  void *ca_fQ_dataB;
+
   /* User jac_dataB */
   void *ca_jac_dataB;
 
