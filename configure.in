@@ -1,0 +1,339 @@
+dnl *********************************************************************
+dnl configure.in
+dnl *********************************************************************
+
+AC_INIT(shared/include/nvector.h)
+
+AC_PREFIX_DEFAULT(`pwd`)
+
+AC_ARG_WITH(ARCH,
+   AC_HELP_STRING([--with-ARCH=ARG], [manually set ARCH to ARG]),
+   [AC_MSG_RESULT([setting ARCH to $withval])
+   ARCH=$withval],
+   [CASC_GUESS_ARCH])
+
+AC_ARG_WITH(CC,
+   AC_HELP_STRING([--with-CC=ARG], [manually set CC to ARG]),
+   [AC_MSG_RESULT([setting CC to $withval])
+   CC=$withval],
+   [SUNDIALS_PROG_CC])
+
+AC_ARG_WITH(F77,
+   AC_HELP_STRING([--with-F77=ARG], [manually set F77 to ARG]),
+   [AC_MSG_RESULT([setting F77 to $withval])
+   F77=$withval],
+   [SUNDIALS_PROG_F77])
+
+AC_ARG_WITH(debug,
+   AC_HELP_STRING([--with-debug(=ARG)], [set compiler debug flags (ARG=yes). 
+                                         CFLAGS and FFLAGS will contain -g (if ARG=yes)
+                                         or ARG]),
+   debug=$withval,
+   debug="no")
+
+AC_ARG_WITH(CFLAGS,
+   AC_HELP_STRING([--with-CFLAGS=ARG], [manually set CFLAGS to ARG]),
+   [AC_MSG_RESULT([setting CFLAGS to $withval])
+   CFLAGS=$withval],
+   [SUNDIALS_PROG_CFLAGS])
+
+AC_ARG_WITH(FFLAGS,
+   AC_HELP_STRING([--with-FFLAGS=ARG], [manually set FFLAGS to ARG]),
+   [AC_MSG_RESULT([setting FFLAGS to $withval])
+   FFLAGS=$withval],
+   [SUNDIALS_PROG_FFLAGS])
+
+dnl *********************************************************************
+dnl * Sets MPIINCLUDE, MPILIBDIRS, MPILIBS, MPIFLAGS
+dnl *********************************************************************
+
+if test -d nvec_par; \
+then \
+  SUNDIALS_FIND_MPI
+  SUNDIALS_FIND_MPIF77
+fi
+
+dnl *********************************************************************
+dnl Define MAKE
+dnl *********************************************************************
+
+AC_PROG_MAKE_SET
+
+dnl *********************************************************************
+dnl * Set the list of existing modules
+dnl *********************************************************************
+
+MODULES=shared/source
+
+if test -d cvode; \
+  then MODULES="$MODULES cvode/source cvode/fcmix"; \
+fi
+if test -d cvodes; \
+  then MODULES="$MODULES cvodes/source"; \
+fi
+if test -d ida; \
+  then MODULES="$MODULES ida/source"; \
+fi
+if test -d kinsol; \
+  then MODULES="$MODULES kinsol/source kinsol/fcmix"; \
+fi
+
+dnl *********************************************************************
+dnl * Set the list of existing NVECTOR modules
+dnl *********************************************************************
+
+NVEC_MODULES=
+
+if test -d nvec_ser; \
+then \
+  NVEC_MODULES="$NVEC_MODULES nvec_ser"; \
+fi
+
+if test -d nvec_par; \
+then \
+  NVEC_MODULES="$NVEC_MODULES nvec_par"; \
+fi
+
+dnl *********************************************************************
+dnl * Set the list of existing example directories
+dnl *********************************************************************
+
+EX_MODULES=
+
+if test -d cvode/examples_ser; \
+then \
+  EX_MODULES="$EX_MODULES cvode/examples_ser"; \
+fi
+
+if test -d cvode/examples_par; \
+then \
+  EX_MODULES="$EX_MODULES cvode/examples_par"; \
+fi
+
+if test -d cvode/fcmix/examples_ser; \
+then \
+  EX_MODULES="$EX_MODULES cvode/fcmix/examples_ser"; \
+fi
+
+if test -d cvode/fcmix/examples_par; \
+then \
+  EX_MODULES="$EX_MODULES cvode/fcmix/examples_par"; \
+fi
+
+if test -d cvodes/examples_ser; \
+then \
+  EX_MODULES="$EX_MODULES cvodes/examples_ser"; \
+fi
+
+if test -d cvodes/examples_par; \
+then \
+  EX_MODULES="$EX_MODULES cvodes/examples_par"; \
+fi
+
+if test -d ida/examples_ser; \
+then \
+  EX_MODULES="$EX_MODULES ida/examples_ser"; \
+fi
+
+if test -d ida/examples_par; \
+then \
+  EX_MODULES="$EX_MODULES ida/examples_par"; \
+fi
+
+if test -d kinsol/examples_ser; \
+then \
+  EX_MODULES="$EX_MODULES kinsol/examples_ser"; \
+fi
+
+if test -d kinsol/examples_par; \
+then \
+  EX_MODULES="$EX_MODULES kinsol/examples_par"; \
+fi
+
+if test -d kinsol/fcmix/examples_ser; \
+then \
+  EX_MODULES="$EX_MODULES kinsol/fcmix/examples_ser"; \
+fi
+
+if test -d kinsol/fcmix/examples_par; \
+then \
+  EX_MODULES="$EX_MODULES kinsol/fcmix/examples_par"; \
+fi
+
+dnl *********************************************************************
+dnl * Substitute variables
+dnl *********************************************************************
+
+AC_SUBST(SET_MAKE)
+
+AC_SUBST(CC)
+AC_SUBST(F77)
+
+AC_SUBST(MPILIBS)
+AC_SUBST(MPILIBDIRS)
+AC_SUBST(MPIINCLUDE)
+AC_SUBST(MPIFLAGS)
+
+AC_SUBST(MPIF77)
+
+AC_SUBST(INSTALL)
+
+AC_SUBST(MODULES)
+AC_SUBST(NVEC_MODULES)
+AC_SUBST(EX_MODULES)
+
+dnl *********************************************************************
+dnl * Report on what we decided to do
+dnl *********************************************************************
+
+AC_CONFIG_COMMANDS_PRE([
+my_prefix=${prefix}
+
+if test "${exec_prefix}" = '${prefix}'; 
+then 
+  my_exec_prefix=${prefix}; 
+else 
+  my_exec_prefix=${exec_prefix}; 
+fi
+
+if test "${libdir}" = '${exec_prefix}/lib';
+then
+  my_libdir=${my_exec_prefix}/lib;
+else
+  my_libdir=${libdir};
+fi
+
+if test "${includedir}" = '${prefix}/include';
+then
+  my_includedir=${my_prefix}/include;
+else
+  my_includedir=${includedir};
+fi
+
+test ! -d $my_includedir && mkdir -p $my_includedir
+test ! -d $my_libdir && mkdir -p $my_libdir
+
+echo "
+Configured for $ARCH
+  Where should we install header files?                ${my_includedir}
+  Where should we install libraries?                   ${my_libdir}
+  What C compiler should we use?                       ${CC}
+  What flags should be passed to the C compiler?       ${CFLAGS}
+  What Fortran compiler should we use?                 ${F77}
+  What flags should be passed to the Fortran compiler? ${FFLAGS}"
+
+if test -d nvec_par; \
+then \
+  echo "  What should we use for MPICC?                        ${MPICC}"
+  echo "  What should we use for MPIF77?                       ${MPIF77}"
+  echo "  Where should we look for MPI header files?          ${MPIINCLUDE}"
+  echo "  Where should we look for MPI libraries?             ${MPILIBDIRS}"
+  echo "  What MPI libraries should we use?                   ${MPILIBS}"
+  echo "  What other flags should we use for MPI?             ${MPIFLAGS}"
+fi
+echo ""  
+])
+
+dnl *********************************************************************
+dnl * Generate Makefiles
+dnl *********************************************************************
+
+AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(shared/source/Makefile)
+
+if test -d nvec_ser; \
+then \
+  AC_CONFIG_FILES(nvec_ser/Makefile)
+fi
+
+if test -d nvec_par; \
+then \
+  AC_CONFIG_FILES(nvec_par/Makefile)
+fi
+
+if test -d cvode; \
+then \
+  AC_CONFIG_FILES(cvode/source/Makefile)
+  AC_CONFIG_FILES(cvode/fcmix/Makefile)
+fi
+
+if test -d cvode/examples_ser; \
+then \
+  AC_CONFIG_FILES(cvode/examples_ser/Makefile)
+fi
+
+if test -d cvode/examples_par; \
+then \
+  AC_CONFIG_FILES(cvode/examples_par/Makefile)
+fi
+
+if test -d cvode/fcmix/examples_ser; \
+then \
+  AC_CONFIG_FILES(cvode/fcmix/examples_ser/Makefile)
+fi
+
+if test -d cvode/fcmix/examples_par; \
+then \
+  AC_CONFIG_FILES(cvode/fcmix/examples_par/Makefile)
+fi
+
+if test -d cvodes; \
+then \
+  AC_CONFIG_FILES(cvodes/source/Makefile)
+fi
+
+if test -d cvodes/examples_ser; \
+then \
+  AC_CONFIG_FILES(cvodes/examples_ser/Makefile)
+fi
+
+if test -d cvodes/examples_par; \
+then \
+  AC_CONFIG_FILES(cvodes/examples_par/Makefile)
+fi
+
+if test -d ida; \
+then \
+  AC_CONFIG_FILES(ida/source/Makefile)
+fi
+
+if test -d ida/examples_ser; \
+then \
+  AC_CONFIG_FILES(ida/examples_ser/Makefile)
+fi
+
+if test -d ida/examples_par; \
+then \
+  AC_CONFIG_FILES(ida/examples_par/Makefile)
+fi
+
+if test -d kinsol; \
+then \
+  AC_CONFIG_FILES(kinsol/source/Makefile)
+  AC_CONFIG_FILES(kinsol/fcmix/Makefile)
+fi
+
+if test -d kinsol/examples_ser; \
+then \
+  AC_CONFIG_FILES(kinsol/examples_ser/Makefile)
+fi
+
+if test -d kinsol/examples_par; \
+then \
+  AC_CONFIG_FILES(kinsol/examples_par/Makefile)
+fi
+
+if test -d kinsol/fcmix/examples_ser; \
+then \
+  AC_CONFIG_FILES(kinsol/fcmix/examples_ser/Makefile)
+fi
+
+if test -d kinsol/fcmix/examples_par; \
+then \
+  AC_CONFIG_FILES(kinsol/fcmix/examples_par/Makefile)
+fi
+
+AC_OUTPUT()
+
+
+dnl that's all
