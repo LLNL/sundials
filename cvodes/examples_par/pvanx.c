@@ -65,7 +65,7 @@ typedef struct {
   realtype dx;              /* spatial discretization grid              */
   realtype hdcoef, hacoef;  /* diffusion and advection coefficients     */
   integertype npes, my_pe;  /* total number of processes and current ID */
-  MPI_Comm comm;        /* MPI communicator                         */
+  MPI_Comm comm;            /* MPI communicator                         */
   realtype *z1, *z2;        /* work space                               */
 } *UserData;
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
   realtype dx, t, g_val;
   int flag, my_pe, nprocs, npes, ncheck;
-  integertype local_N=0, nperpe, nrem, my_base=0, i, iglobal;
+  integertype local_N=0, nperpe, nrem, my_base=0, i;
 
   realtype *mu;
   integertype indx, Ni;
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 
     printf("mu(t0)\n");
     for (i=0; i<NEQ; i++)
-      printf("  [%2d]: %8e\n", i+1, mu[i]);
+      printf("  [%2ld]: %8e\n", i+1, mu[i]);
 
   } else {
 
