@@ -1,171 +1,183 @@
 % This is a shared SUNDIALS TEX file with description of
 % the parallel nvector implementation
 %
-The {\nvecp} implementation of the {\nvector} module
-defines the {\em content} field of \id{NV\_Spec} to be a structure 
-containing the local and global lengths of the vector, a pointer to the MPI\index{MPI}
-communicator, and a flag showing if the user called \id{MPI\_Init}:
-\begin{verbatim}
-struct _NV_SpecContent_Parallel {
-  MPI_Comm comm;
-  long int local_vec_length;
-  long int global_vec_length;
-  int init_by_user;
-};
-\end{verbatim}
-The {\em tag} field of \id{NV\_Spec} is set to \id{parallel}.
-The {\em content} field of \id{N\_Vector} is defined to be a structure containing
-the global and local lengths of the vector and a pointer to the beginning 
-of a contiguous local data array:
+The {\nvecp} implementation of the {\nvector} module defines the {\em content} 
+field of \id{N\_Vector} to be a structure containing the global and local lengths 
+of the vector, a pointer to the beginning of a contiguous local data array, and
+an MPI communicator.
+%%
 \begin{verbatim} 
 struct _N_VectorContent_Parallel {
   long int local_length;
   long int global_length;
-  realtype   *data;
+  realtype *data;
+  MPI_Comm comm;
 };
 \end{verbatim}
-
-The {\nvecp} implementation provides user-callable routines \ID{NV\_SpecInit\_Parallel} 
-to create a structure of type \id{NV\_Spec} whose {\em content} field is
-of type \id{struct \_NV\_SpecParallelContent}, and \ID{NV\_SpecFree\_Parallel} 
-to deallocate the space used by such a structure. 
-
-\noindent The form of the call to \id{NV\_SpecInit\_Parallel} is
-\begin{verbatim}
-nvspec = NV_SpecInit_Parallel(comm, local_vec_length, global vec_length,
-                              argc, argv);
-\end{verbatim}
-Its arguments are:
-\begin{itemize}
-\item \id{comm} is a pointer to the MPI communicator, of type \id{MPI\_Comm}.
-  Must be non-\id{NULL};
-\item \id{local\_vec\_length} is the length of the piece of the vectors
-  residing on this processor. If the active processor set is a proper
-  subset of the full processor set assigned to the job, the value of \id{local\_vec\_length}
-  should be 0 on the inactive processors. Otherwise, the two global length values,
-  input and computed, may differ;
-\item \id{global\_vec\_length} is the global length of the vectors.
-  This must equal the sum of all local lengths over the active processor set.
-  If not, a message is printed;
-\item \id{argc}, \id{argv} are the command line arguments count
-  and the command line argument character array from the main program,
-  respectively. Dummy arguments are acceptable if \id{MPI\_Init} has
-  already been called.
-\end{itemize}
-If successful, \id{NV\_SpecInit\_Parallel} returns a pointer of type
-\id{NV\_Spec}. \index{nvSpec@{\tt nvSpec}}This pointer should in turn be passed in any user
-calls to \id{N\_VNew} to create a new \id{N\_Vector} of this type.
-A vector specification object \id{nvspec} returned by \id{NV\_SpecInit\_Parallel}
-can be freed by calling:
-\begin{verbatim}
-NV_SpecFree_Parallel(nvspec);
-\end{verbatim}
-In addition to these two routines, {\nvecp} defines MPI\index{MPI} implementations of all 
-vector kernels listed in Table \ref{t:nvecops}, as well as the following macros
-that can be used to access the contents of \id{NV\_Spec} and \id{N\_Vector}
-or to create and destroy \id{N\_Vector}s with component array data allocated
-by the user. The suffix \id{\_P} in the names denotes parallel version.
-
+%%
+%%--------------------------------------------
+%%
+The following six macros are provided to access the content of a {\nvecp}
+vector. The suffix \id{\_P} in the names denotes parallel version.
 \begin{itemize}
 
-\item \ID{NS\_CONTENT\_P}, \ID{NV\_CONTENT\_P}
+\item \ID{NV\_CONTENT\_P}
 
-      These macros give access to the contents of the parallel
-      vector specification object and the parallel \id{N\_Vector}, respectively.           
-                                                               
-      The assignment \id{ns\_cont = NS\_CONTENT\_P(nvspec)} sets       
-      \id{ns\_cont} to be a pointer to the parallel vector
-      specification content structure (of type \id{struct \_NV\_SpecParallelContent}).
-
-      The assignment \id{v\_cont = NV\_CONTENT\_P(v)} sets       
-      \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
-      structure of type \id{struct \_N\_VectorParallelContent}.
-
+  This macro gives access to the contents of the parallel
+  vector \id{N\_Vector}.
+  
+  The assignment \id{v\_cont = NV\_CONTENT\_P(v)} sets       
+  \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
+  structure of type \id{struct \_N\_VectorParallelContent}.
+  
+  Implementation:
+  
+  \verb|#define NV_CONTENT_P(v) ( (N_VectorContent_Parallel)(v->content) )|
+  
 \item \ID{NV\_DATA\_P}, \ID{NV\_LOCLENGTH\_P}, \ID{NV\_GLOBLENGTH\_P}
+  
+  These macros give individual access to the parts of    
+  the content of a parallel \id{N\_Vector}.                        
+  
+  The assignment \id{v\_data = NV\_DATA\_P(v)} sets \id{v\_data} to be     
+  a pointer to the first component of the local data for the \id{N\_Vector} \id{v}. 
+  The assignment \id{NV\_DATA\_P(v) = v\_data} sets the component array of 
+  \id{v} to be \id{v\_data} by storing the pointer \id{v\_data}.                   
+  
+  The assignment \id{v\_llen = NV\_LOCLENGTH\_P(v)} sets \id{v\_llen} to be     
+  the length of the local part of \id{v}. 
+  The call \id{NV\_LENGTH\_P(v) = llen\_v} sets      
+  the local length of \id{v} to be \id{llen\_v}.
+  
+  The assignment \id{v\_glen = NV\_GLOBLENGTH\_P(v)} sets \id{v\_glen} to  
+  be the global length of the vector \id{v}.                    
+  The call \id{NV\_GLOBLENGTH\_P(v) = glen\_v} sets the global       
+  length of \id{v} to be \id{glen\_v}.
+  
+  Implementation:
+  
+  \verb|#define NV_DATA_P(v)       ( NV_CONTENT_P(v)->data )|
 
-      These macros give individual access to the parts of    
-      the content of a parallel \id{N\_Vector}.                        
-                                                               
-      The assignment \id{v\_data = NV\_DATA\_P(v)} sets \id{v\_data} to be     
-      a pointer to the first component of the local data for the \id{N\_Vector} \id{v}. 
-      The assignment \id{NV\_DATA\_P(v) = v\_data} sets the component array of 
-      \id{v} to be \id{v\_data} by storing the pointer \id{v\_data}.                   
-                                                               
-      The assignment \id{v\_llen = NV\_LOCLENGTH\_P(v)} sets \id{v\_llen} to be     
-      the length of the local part of \id{v}. 
-      The call \id{NV\_LENGTH\_P(v) = llen\_v} sets      
-      the local length of \id{v} to be \id{llen\_v}.
+  \verb|#define NV_LOCLENGTH_P(v)  ( NV_CONTENT_P(v)->local_length )|
 
-      The assignment \id{v\_glen = NV\_GLOBLENGTH\_P(v)} sets \id{v\_glen} to  
-      be the global length of the vector \id{v}.                    
-      The call \id{NV\_GLOBLENGTH\_P(v) = glen\_v} sets the global       
-      length of \id{v} to be \id{glen\_v}.
+  \verb|#define NV_GLOBLENGTH_P(v) ( NV_CONTENT_P(v)->global_length )|
+  
+\item \ID{NV\_COMM\_P}
+
+  This macro provides access to the MPI communicator used by the {\nvecp}
+  vectors.
+
+  Implementation:
+
+  \verb|#define NV_COMM_P(v) ( NV_CONTENT_P(v)->comm )|
 
 \item \ID{NV\_Ith\_P}
 
-      This macro gives access to the individual components of the local data
-      array of an \id{N\_Vector}.
+  This macro gives access to the individual components of the local data
+  array of an \id{N\_Vector}.
 
-      The assignment \id{r = NV\_Ith\_P(v,i)} sets \id{r} to be the value of 
-      the \id{i}-th component of the local part of \id{v}. 
-      The assignment \id{NV\_Ith\_P(v,i) = r}   
-      sets the value of the \id{i}-th component of the local part of \id{v} 
-      to be \id{r}.        
+  The assignment \id{r = NV\_Ith\_P(v,i)} sets \id{r} to be the value of 
+  the \id{i}-th component of the local part of \id{v}. 
+  The assignment \id{NV\_Ith\_P(v,i) = r}   
+  sets the value of the \id{i}-th component of the local part of \id{v} 
+  to be \id{r}.        
+  
+  Here $i$ ranges from $0$ to $n-1$, where $n$ is the local length.
+      
+  Implementation:
 
-      Here $i$ ranges from $0$ to $n-1$, where $n$ is the local length.
-
-\item \ID{NV\_MAKE\_P}, \ID{NV\_DISPOSE\_P}
-
-      These companion macros are used to create and          
-      destroy an \id{N\_Vector} with a component array \id{vdata}        
-      allocated by the user.                                   
-                                                               
-      The call \id{NV\_MAKE\_P(v,v\_data,nvspec)} makes \id{v} an        
-      \id{N\_Vector} with local component array pointer \id{v\_data}. 
-      The local and global lengths of the  
-      vector \id{v} is taken from \id{nvspec}.                             
-      \id{NV\_MAKE\_P} stores the pointer \id{v\_data} so that changes      
-      made by the user to the elements of \id{v\_data} are           
-      simultaneously reflected in \id{v}. There is no copying of    
-      elements.                                                
-                                                               
-      The call \id{NV\_DISPOSE\_P(v)} frees all memory associated     
-      with \id{v} except for its component array. This memory was   
-      allocated by the user and, therefore, should be          
-      deallocated by the user.   
-
-\item \ID{NVS\_MAKE\_P}, \ID{NVS\_DISPOSE\_P}
-                             
-      These companion macros are used to create and destroy  
-      an array of \id{N\_Vector}s with component array \id{vs\_data} 
-      (of type \id{realtype **}) allocated by the user, for use
-      in sensitivity calculations.
-                                                               
-      The call \id{NVS\_MAKE\_P(vs,vs\_data,ns,nvspec)} makes   
-      \id{vs} an array of \id{ns} \id{N\_Vector}s, with \id{vs[i]} having
-      local component array pointer \id{vs\_data[i]} and local and global lengths taken 
-      from \id{nvspec}.    
-      \id{NVS\_MAKE\_P} stores the pointers \id{vs\_data[i]} so that        
-      changes made by the user to the elements of \id{vs\_data} are  
-      simultaneously reflected in \id{vs}. There is no copying of   
-      elements.                                                
-                                                               
-      The call \id{NVS\_DISPOSE\_P(vs,ns)} frees all memory associated   
-      with \id{vs} except for its components' component array.      
-      This memory was allocated by the user and, therefore,    
-      should be deallocated by the user.                       
+  \verb|#define NV_Ith_P(v,i) ( NV_DATA_P(v)[i] )|
 
 \end{itemize}
+%%
+%%--------------------------------------------
+%%
+The {\nvecp} module defines serial implementations of all vector operations listed 
+in Table \ref{t:nvecops} and provides the following user-callable routines:
+%%
+\begin{itemize}
 
-\noindent{\bf Notes}                                                      
+\item  \ID{N\_VNew\_Parallel}
+  
+  This function creates and allocates memory for a parallel vector.
+ 
+  Prototype
+
+\begin{verbatim}
+N_Vector N_VNew_Parallel(MPI_Comm comm, 
+                         long int local_length, 
+                         long int global_length);
+\end{verbatim}
+  
+\item \ID{N\_VNewEmpty\_Parallel}
+ 
+  This function creates a new parallel \id{N\_Vector} with an empty (\id{NULL}) data array.
+ 
+  Prototype
+
+\begin{verbatim}
+N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, 
+                              long int local_length, 
+                              long int global_length);
+\end{verbatim}
+
+  
+\item \ID{N\_VMake\_Parallel}
+  
+  This function creates and allocates memory for a parallel vector
+  with user-provided data array.
+ 
+  Prototype
+
+\begin{verbatim}
+N_Vector N_VMake_Parallel(MPI_Comm comm, 
+                          long int local_length,
+                          long int global_length,
+                          realtype *v_data);
+\end{verbatim}
+
+\item \ID{N\_VNewVectorArray\_Parallel}
+ 
+  This function creates an array of \id{count} parallel vectors.
+  This array of \id{N\_Vector} can be freed with \id{N\_VDestroyVectorArray}
+  (defined by the generic nvector module).
+ 
+\begin{verbatim}
+N_Vector *N_VNewVectorArray_Parallel(int count, 
+                                     MPI_Comm comm, 
+                                     long int local_length,
+                                     long int global_length);
+\end{verbatim}
+
+\item \ID{N\_VDispose\_Parallel}
+ 
+  This function frees an \id{N\_Vector} created with \id{N\_VMake\_Parallel}.
+  Note that deallocation of the {\em data} array is the user's
+  responsibility. In other words, \id{N\_VDispose\_Parallel} is identitical
+  to \id{N\_VDestroyEmpty\_Parallel}.
+ 
+  Prototype
+
+  \verb|void N_VDispose_Parallel(N_Vector v);|
+
+
+\item \ID{N\_VPrint\_Parallel}
+  
+  This function prints the content of a parallel vector to stdout.
+ 
+  Prototype
+  
+  \verb|void N_VPrint_Parallel(N_Vector v);|
+
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+\paragraph{\bf Notes} 
            
 \begin{itemize}
                                         
-\item
-  Users who use the make/dispose macros must                 
-  \id{\#include<stdlib.h>} since these macros expand to calls to     
-  \id{malloc} and \id{free}.                                             
-       
 \item
   When looping over the components of an \id{N\_Vector} \id{v}, it is     
   more efficient to first obtain the local component array via       
@@ -187,7 +199,7 @@ by the user. The suffix \id{\_P} in the names denotes parallel version.
   \id{N\_VFree\_S}.                                            
 
 \item
-  To maximize efficiency, vector kernels in the {\nvecp} implementation
+  To maximize efficiency, vector operations in the {\nvecp} implementation
   that have more than one \id{N\_Vector} argument do not check for
   consistent internal representation of these vectors. It is the user's 
   responsability to ensure that such routines are called with \id{N\_Vector}
