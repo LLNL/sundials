@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.14 $
-C     $Date: 2004-10-11 16:56:57 $
+C     $Revision: 1.15 $
+C     $Date: 2004-10-11 20:20:05 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -58,7 +58,7 @@ C Set other input arguments.
       ITASK = 1
 C
       WRITE(6,10)NEQ
- 10   FORMAT('Krylov example problem: Kinetics-transport, NEQ = ',I4/)
+ 10   FORMAT(/'Krylov example problem: Kinetics-transport, NEQ = ',I4/)
 C
       CALL FNVINITS (NEQ, IER)
       IF (IER .NE. 0) THEN
