@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-01-26 22:23:33 $
+ * $Revision: 1.9 $
+ * $Date: 2005-01-31 23:58:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,9 +23,6 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-#ifndef _IDABBDPRE_IMPL_H
-#define _IDABBDPRE_IMPL_H
 
 #include "band.h"
 #include "idabbdpre.h"
