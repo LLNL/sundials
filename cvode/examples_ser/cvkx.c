@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-08-25 16:23:06 $
+ * $Revision: 1.11 $
+ * $Date: 2004-08-25 22:50:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -35,12 +35,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "cvode.h"
-#include "cvspgmr.h"
-#include "smalldense.h"
-#include "nvector_serial.h"
-#include "sundialsmath.h"
+#include "sundialstypes.h"  /* definitions of realtype                        */
+#include "cvode.h"          /* CVode*** prototypes, various constants         */
+#include "cvspgmr.h"        /* prototypes & constants for CVSPGMR solver      */
+#include "smalldense.h"     /* use generic DENSE solver in preconditioning    */
+#include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S  */
+#include "sundialsmath.h"   /* contains SQR macro                             */
 
 /* Problem Constants */
 
@@ -122,6 +122,7 @@ static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector y, realtype dx, realtype dz);
 static void PrintOutput(void *cvode_mem, N_Vector y, realtype t);
 static void PrintFinalStats(void *cvode_mem);
+static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
@@ -137,11 +138,12 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   realtype gamma, realtype delta,
                   int lr, void *P_data, N_Vector vtemp);
 
-/* Private function to check function return values */
 
-static int check_flag(void *flagvalue, char *funcname, int opt);
-
-/***************************** Main Program ******************************/
+/*
+ *-------------------------------
+ * Main Program
+ *-------------------------------
+ */
 
 int main()
 {
@@ -226,7 +228,11 @@ int main()
   return(0);
 }
 
-/*********************** Private Helper Functions ************************/
+/*
+ *-------------------------------
+ * Private helper functions
+ *-------------------------------
+ */
 
 /* Allocate memory for data structure of type UserData */
 
@@ -380,7 +386,46 @@ static void PrintFinalStats(void *cvode_mem)
   printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl);
 }
 
-/***************** Functions Called by the Solver ******************/
+/* Check function return value...
+     opt == 0 means SUNDIALS function allocates memory so check if
+              returned NULL pointer
+     opt == 1 means SUNDIALS function returns a flag so check if
+              flag >= 0
+     opt == 2 means function allocates memory so check if returned
+              NULL pointer */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return(1); }
+
+  /* Check if flag < 0 */
+  else if (opt == 1) {
+    errflag = flagvalue;
+    if (*errflag < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+              funcname, *errflag);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return(1); }
+
+  return(0);
+}
+
+/*
+ *-------------------------------
+ * Functions called by the solver
+ *-------------------------------
+ */
 
 /* f routine. Compute f(t,y). */
 
@@ -474,6 +519,7 @@ static void f(realtype t, N_Vector y,N_Vector ydot, void *f_data)
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */
+
 static int Precond(realtype tn, N_Vector y, N_Vector fy,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
                    void *P_data, N_Vector vtemp1, N_Vector vtemp2,
@@ -562,6 +608,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy,
 }
 
 /* Preconditioner solve routine */
+
 static int PSolve(realtype tn, N_Vector y, N_Vector fy,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
@@ -591,38 +638,6 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
       gesl(P[jx][jz], NUM_SPECIES, pivot[jx][jz], v);
     }
   }
-
-  return(0);
-}
-
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
-
-static int check_flag(void *flagvalue, char *funcname, int opt)
-{
-  int *errflag;
-
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
-    errflag = flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return(1); }
 
   return(0);
 }
