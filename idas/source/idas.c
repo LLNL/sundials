@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2004-11-24 23:03:44 $
+ * $Revision: 1.36 $
+ * $Date: 2004-11-30 21:07:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3064,7 +3064,7 @@ static int IDAStep(IDAMem IDA_mem)
 
 static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 {
-  long int i;
+  int i;
   int is;
   realtype temp1, temp2, alpha0, alphas;
   
@@ -4033,7 +4033,7 @@ static int IDAStgr1TestError(IDAMem IDA_mem, int is, realtype ck,
 
 static void IDARestore(IDAMem IDA_mem, realtype saved_t)
 {
-  long int j;
+  int j;
   int is;
 
   tn = saved_t;
@@ -4041,15 +4041,15 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
   for (j = 1; j <= kk; j++) 
     psi[j-1] = psi[j] - hh;
 
-  for (j = ns; j<=kk; j++) 
+  for (j = ns; j <= kk; j++) 
     N_VScale(ONE/beta[j], phi[j], phi[j]);
 
   if (quad)
-    for (j = ns; j<=kk; j++) 
+    for (j = ns; j <= kk; j++) 
       N_VScale(ONE/beta[j], phiQ[j], phiQ[j]);
 
   if (sensi)
-    for (is=0; is<Ns; is++)
+    for (is = 0; is < Ns; is++)
       for (j = ns; j<=kk; j++) 
         N_VScale(ONE/beta[j], phiS[j][is], phiS[j][is]);
 

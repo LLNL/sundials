@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-11-24 23:03:44 $
+ * $Revision: 1.10 $
+ * $Date: 2004-11-30 21:07:12 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -223,7 +223,7 @@ typedef struct IDAMemRec {
   int ida_kused;     /* method order used on last successful step         */
   int ida_knew;      /* order for next step from order decrease decision  */
   int ida_phase;     /* flag to trigger step doubling in first few steps  */
-  long int ida_ns;   /* counts steps at fixed stepsize and order          */
+  int ida_ns;        /* counts steps at fixed stepsize and order          */
 
   realtype ida_hin;      /* initial step                                      */
   realtype ida_h0u;      /* actual initial stepsize                           */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2004-11-24 23:03:32 $
+ * $Revision: 1.38 $
+ * $Date: 2004-11-30 21:07:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1554,7 +1554,7 @@ static int IDAStep(IDAMem IDA_mem)
 
 static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 {
-  long int i;
+  int i;
   realtype temp1, temp2, alpha0, alphas;
 
   /* Set coefficients for the current stepsize h */
@@ -1944,7 +1944,7 @@ static int IDATestError(IDAMem IDA_mem, realtype *ck, realtype *est,
 static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
                           int *ncfPtr, int *nefPtr, realtype *est)
 {
-  long int j;
+  int j;
   int *ncf, *nef;
   
   ncf = ncfPtr; nef = nefPtr;
@@ -1952,7 +1952,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
     
   /* restore tn, phi, and psi */
   tn = saved_t;
-  for (j = ns; j<=kk; j++) N_VScale(ONE/beta[j], phi[j], phi[j]);
+  for (j = ns; j <= kk; j++) N_VScale(ONE/beta[j], phi[j], phi[j]);
   for (j = 1; j <= kk; j++) psi[j-1] = psi[j] - hh;
   
   /* NLS FAILURE  */
