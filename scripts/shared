@@ -4,6 +4,7 @@ tarfile=$1
 distrobase=$2
 par=$3
 
+echo ""
 echo "  Add top-level files"
     
 tar cf $tarfile $distrobase/configure
@@ -19,6 +20,7 @@ tar uf $tarfile $distrobase/config.hin
 tar uf $tarfile $distrobase/INSTALL
 tar uf $tarfile $distrobase/README
 
+echo ""
 echo "  Add shared module"
 
 tar uf $tarfile $distrobase/shared/LICENSE

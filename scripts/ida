@@ -4,6 +4,13 @@ tarfile=$1
 distrobase=$2
 par=$3
 
+echo ""
+echo "  Generate ida documentation"
+cd $distrobase/ida/doc
+make QUIET=-q ug_pdf
+make QUIET=-q ex_pdf
+cd -
+
 echo "  Add ida module"
 
 tar uf $tarfile $distrobase/ida/LICENSE

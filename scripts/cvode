@@ -4,6 +4,13 @@ tarfile=$1
 distrobase=$2
 par=$3
 
+echo ""
+echo "  Generate cvode documentation"
+cd $distrobase/cvode/doc
+make QUIET=-q ug_pdf
+make QUIET=-q ex_pdf
+cd -
+
 echo "  Add cvode module"
 
 tar uf $tarfile $distrobase/cvode/LICENSE
