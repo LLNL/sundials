@@ -58,13 +58,13 @@ set at the configuration stage.
               Usage of the FCVODE/FCVBBD Interface Packages
 
 The usage of the combined interface packages FCVODE and FCVBBD requires
-calls to seven to nine interface functions, and three or four user-supplied
+calls to seven to twelve interface functions, and three or four user-supplied
 routines which define the problem to be solved and indirectly define
 the preconditioner.  These function calls and user routines are
 summarized separately below.
 
-Some details are omitted, and the user is referred to the CVODE and PVODE
-user documents for more complete information.
+Some details are omitted, and the user is referred to the CVODE user document 
+for more complete information.
 
 (1) User-supplied right-hand side routine: FCVFUN
 The user must in all cases supply the following Fortran routine
