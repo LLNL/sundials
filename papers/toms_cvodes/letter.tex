@@ -1,5 +1,9 @@
 \documentstyle[12pt]{letter}
 \batchmode
+
+\setlength{\textheight}{9.0in}
+\setlength{\topmargin}{-1.0in}
+
 \begin{document}
 \begin{letter}
 
@@ -146,7 +150,8 @@ to give some related examples in the code.
 {\em Response:}
 We have added, under Code Organization, a note about how a user can
 easily incorporate his/her own linear system solver into CVODES.  We
-have not made such provisions for changing the nonlinear solver.
+have not made such provisions for changing the nonlinear solver, because 
+the nonlinear solution algorithm is tightly coupled to the ODE setting.
 
 4) The authors do not state much about the parallelization. I would like to 
 see more about that topic in the paper and numerical efficiency and speed-up
