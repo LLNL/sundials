@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-10-12 20:09:46 $
+ * $Revision: 1.15 $
+ * $Date: 2004-10-14 22:13:24 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and 
  *              Radu Serban, LLNL
@@ -383,8 +383,14 @@ void N_VDestroy_Parallel(N_Vector v)
 
 void N_VSpace_Parallel(N_Vector v, long int *lrw, long int *liw)
 {
+  MPI_Comm comm;
+  int npes;
+
+  comm = NV_COMM_P(v);
+  MPI_Comm_size(comm, &npes);
+  
   *lrw = NV_GLOBLENGTH_P(v);
-  *liw = 2;
+  *liw = 2 * npes;
 }
 
 realtype *N_VGetArrayPointer_Parallel(N_Vector v)
