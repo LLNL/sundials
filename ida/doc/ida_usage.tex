@@ -2774,7 +2774,7 @@ These optional output functions are described next.
   flag = IDAGetNonlinSolvStats(ida\_mem, \&nniters, \&nncfails);
 }
 {
-  The function \ID{IDAGetNonlinSolvStats} returns the the
+  The function \ID{IDAGetNonlinSolvStats} returns the
   {\ida} nonlinear solver statistics as a group.
 }
 {
@@ -3001,7 +3001,7 @@ and last return value from a {\idaband} function.
 }
 {
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
-  the actual size of the real workspace
+  the actual size of the real workspace is
   $N\,(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)$ \id{realtype} words.
 
   In terms of the problem size $N$, the actual size of the integer workspace
@@ -3129,7 +3129,7 @@ and last return value from an {\idaspgmr} function.
   flag = IDASpgmrGetWorkSpace(ida\_mem, \&lenrwSG, \&leniwSG);
 }
 {
-  The function \ID{IDASpgmrGetWorkSpace} returns the sizes of
+  The function \ID{IDASpgmrGetWorkSpace} returns the global sizes of
   the {\idaspgmr} real and integer workspaces.
 }
 {
@@ -3137,9 +3137,9 @@ and last return value from an {\idaspgmr} function.
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[lenrwSG] (\id{long int})
-    the number of real values in the {\idaspgmr} workspace.
+    global number of real values in the {\idaspgmr} workspace.
   \item[leniwSG] (\id{long int})
-    the number of integer values in the {\idaspgmr} workspace.
+    global number of integer values in the {\idaspgmr} workspace.
   \end{args}
 }
 {
@@ -3380,23 +3380,21 @@ and last return value from an {\idaspgmr} function.
   \id{flag} contains the return value of the preconditioner 
   setup function \id{psetup}.
 
-  If the {\idaspgmr} solve function failed (\id{IDASolve} 
-  returned \id{IDA\_LSETUP\_FAIL}),
-  \id{flag} contains the error return flag from \id{SpgmrSolve} and will be one
-  of: \id{SPGMR\_CONV\_FAIL} indicating a failure to 
-  converge, \id{SPGMR\_QRFACT\_FAIL}
-  indicating a singular matrix found during the QR 
-  factorization, \id{SPGMR\_PSOLVE\_FAIL\_REC}
-  indicating that the preconditioner solve function \id{psolve} 
-  failed recoverably,
-  \id{SPGMR\_MEM\_NULL} indicating that the {\spgmr} memory 
-  is \id{NULL}, \id{SPGMR\_ATIMES\_FAIL},
-  indicating a failure in the Jacobian times vector 
-  function, \id{SPGMR\_PSOLVE\_FAIL\_UNREC}
-  indicating that the preconditioner solve function \id{psolve} 
-  failed unrecoverably,
-  \id{SPGMR\_GS\_FAIL} indicating a failure in the Gram-Schmidt procedure, 
-  or \id{SPGMR\_QRSOL\_FAIL} indicating that the matrix $R$ was found to 
+  If the {\idaspgmr} solve function failed (\id{IDASolve} returned 
+  \id{IDA\_LSETUP\_FAIL}), \id{flag} contains the error return flag from
+  \id{SpgmrSolve} and will be one of:
+  \id{SPGMR\_CONV\_FAIL}, indicating a failure to converge;
+  \id{SPGMR\_QRFACT\_FAIL}, indicating a singular matrix found during the
+  QR factorization;
+  \id{SPGMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve
+  function \id{psolve} failed recoverably;
+  \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
+  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector 
+  function;
+  \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+  function \id{psolve} failed unrecoverably;
+  \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure;
+  or \id{SPGMR\_QRSOL\_FAIL}, indicating that the matrix $R$ was found to 
   be singular during the QR solve phase.
 }
 %%
@@ -3421,6 +3419,10 @@ The use of \id{IDAReInit} requires that the maximum method order,
 specified in the last call to \id{IDAMalloc}.  In addition, the same
 {\nvector} module set for the previous problem
 will be reused for the new problem.
+
+If there are changes to the linear solver specifications, make the
+appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
+
 %%
 %%
 \ucfunction{IDAReInit}
@@ -3979,10 +3981,19 @@ upper and lower half-bandwidths \id{mudq} and \id{mldq} defined as
 the number of non-zero diagonals above and below the main diagonal,
 respectively. The difference quotient approximation is computed using
 \id{mudq} $+$ \id{mldq} $+ 2$ evaluations of $G_m$, but only a matrix
-of bandwidth \id{mukeep} $+$ \id{mlkeep} $+ 1$ is retained. 
-Neither pair of parameters need be the true half-bandwidths of the Jacobians of the
-local block of $G$, if smaller values provide a more efficient
-preconditioner. The solution of the complete linear system
+of bandwidth \id{mukeep} $+$ \id{mlkeep} $+ 1$ is retained.
+
+Neither pair of parameters need be the true half-bandwidths of the Jacobians
+of the local block of $G$, if smaller values provide a more efficient
+preconditioner.  Such an efficiency gain may occur if the couplings
+in the DAE system outside a certain bandwidth are considerably weaker than
+those within the band.  Reducing \id{mukeep} and \id{mlkeep} while keeping
+\id{mudq} and \id{mldq} at their true values, discards the elements
+outside the narrower band.  Reducing both pairs has the additional
+effect of lumping the outer Jacobian elements into the computed elements
+within the band, and requires more caution and experimentation.
+
+The solution of the complete linear system
 \begin{equation}
   Px = b
 \end{equation}
@@ -3993,6 +4004,10 @@ reduces to solving each of the equations
 and this is done by banded LU factorization of $P_m$ followed by a banded
 backsolve.
 \index{IDABBDPRE@{\idabbdpre} preconditioner!description|)}
+
+Similar block-diagonal preconditioners could be considered with different
+treatment of the blocks $P_m$. For example, incomplete LU factorization or
+an iterative method could be used instead of banded LU factorization.
 
 %%
 %%------------------------------------------------------------------------------------
@@ -4246,9 +4261,10 @@ next.
   If an error occurred, \id{IDABBDPrecAlloc} returns \id{NULL}.
 }
 {
-  If one of the half-bandwidth \id{mudq} or \id{mldq} to be used in the 
+  If one of the half-bandwidths \id{mudq} or \id{mldq} to be used in the 
   difference-quotient calculation of the approximate Jacobian is negative or 
-  exceeds the value \id{Nlocal}$-1$, it is replaced with \id{Nlocal}$-1$.
+  exceeds the value \id{Nlocal}$-1$, it is replaced by 0 or \id{Nlocal}$-1$
+  accordingly.
 
   The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
   half-bandwidths of the Jacobian of the local block of $G$,    
@@ -4357,8 +4373,9 @@ used in the difference-quotient Jacobian approximations, the relative increment
   The return value of \id{IDABBDPrecReInit} is always \Id{IDA\_SUCCESS}.
 }
 {
-  If one of the half-bandwidth \id{mudq} or \id{mldq} is negative or
-  exceeds the value \id{Nlocal}$-1$, it is replaced with \id{Nlocal}$-1$.
+  If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
+  exceeds the value \id{Nlocal}$-1$, it is replaced by 0 or \id{Nlocal}$-1$,
+  accordingly.
 }
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|)}
@@ -4376,7 +4393,7 @@ the {\idabbdpre} module:
   flag = IDABBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
 }
 {
-  The function \ID{IDABBDPrecGetWorkSpace} returns the sizes
+  The function \ID{IDABBDPrecGetWorkSpace} returns the local sizes
   of the {\idabbdpre} real and integer workspaces.
 }
 {
@@ -4384,9 +4401,9 @@ the {\idabbdpre} module:
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
   \item[lenrwBBDP] (\id{long int})
-    the number of real values in the {\idabbdpre} workspace.
+    local number of real values in the {\idabbdpre} workspace.
   \item[leniwBBDP] (\id{long int})
-    the number of integer values in the {\idabbdpre} workspace.
+    local number of integer values in the {\idabbdpre} workspace.
   \end{args}
 }
 {
@@ -4446,9 +4463,3 @@ The costs associated with {\idabbdpre} also include \id{nlinsetups} LU
 factorizations, \id{nlinsetups} calls to \id{Gcomm}, and \id{npsolves} banded
 backsolve calls, where \id{nlinsetups} and \id{npsolves} are optional {\ida}
 outputs (see \S\ref{ss:optional_output}).
-
-Similar block-diagonal preconditioners could be considered with different
-treatment of the blocks $P_m$. For example, incomplete LU factorization or
-an iterative method could be used instead of banded LU factorization.
-
-
