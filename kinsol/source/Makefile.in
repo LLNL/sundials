@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-11-23 21:37:30 $
+# $Revision: 1.8.2.1 $
+# $Date: 2005-01-25 23:33:23 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,8 +50,8 @@ OBJECT_FILES = kinsol.o kinsolio.o kinspgmr.o kinbbdpre.o
 all: update $(KINSOL_LIB_FILES)
 
 update:
-	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
-	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
+	@echo "${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h" ; \
+	 ${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h
 
 install: update $(KINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version

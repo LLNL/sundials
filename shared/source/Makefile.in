@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2004-10-28 00:35:17 $
+# $Revision: 1.8.2.1 $
+# $Date: 2005-01-25 23:33:34 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,8 +48,8 @@ OBJECT_FILES = band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o 
 all: update $(SHARED_LIB_FILES)
 
 update:
-	@echo "${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h" ; \
-	 ${INSTALL_HEADER} ${top_builddir}/config.h ${builddir}/sundials_config.h
+	@echo "${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h" ; \
+	 ${INSTALL_HEADER} ${top_builddir}/sundials_config.h ${builddir}/sundials_config.h
 
 install: update $(SHARED_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(SHARED_LIB) $(SHARED_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version

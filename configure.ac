@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2004-11-03 23:17:50 $
+# $Revision: 1.15.2.1 $
+# $Date: 2005-01-25 23:29:30 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 # ------------------------------------------------------------------------
 
 # Initialize configure
-AC_INIT(SUNDIALS, 2.0, radu@llnl.gov)
+AC_INIT(SUNDIALS, 2.0.1, radu@llnl.gov)
 
 # Display greeting
 SUNDIALS_GREETING
@@ -73,6 +73,11 @@ AC_SUBST(FCMIX_ENABLED)
 AC_SUBST(FLOAT_TYPE)
 AC_SUBST(LIBTOOL_CMD)
 AC_SUBST(LIBTOOL_DEPS)
+AC_SUBST(F77_MANGLE_MACRO)
+AC_SUBST(F77_CASE)
+AC_SUBST(F77_UNDERSCORES)
+AC_SUBST(PRECISION_LEVEL)
+AC_SUBST(GENERIC_MATH_LIB)
 
 # Set installation path
 SUNDIALS_INSTALL_PATH

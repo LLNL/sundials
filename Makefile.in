@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5.2.1 $
-# $Date: 2005-01-24 21:30:06 $
+# $Revision: 1.5.2.2 $
+# $Date: 2005-01-25 23:29:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -37,7 +37,7 @@ INSTALL = @INSTALL@
 CP_FILE = @INSTALL_DATA@
 
 all:
-	@${CP_FILE} ${abs_builddir}/config.h ${abs_builddir}/sundials_config.h
+	@${CP_FILE} ${abs_builddir}/config/sundials_config ${abs_builddir}/sundials_config.h
 	@for i in ${COMPONENTS} ; do  \
 	   if test -d $${i} ; then    \
 	     echo "Making $${i}..." ; \
@@ -139,6 +139,7 @@ distclean: clean examples_clean
 	 rm -f config.status ;                 \
 	 rm -f config.cache ;                  \
 	 rm -f config.h                        \
+	 rm -f sundials_config.h ;             \
 	 rm -f Makefile
 
 uninstall: examples_uninstall
