@@ -1,0 +1,91 @@
+#!/bin/sh
+
+# Note to Sundials developers:
+#
+# This script lists known working configure options and associates
+# each configuration with an easy-to-remember index.  Its output can
+# be used as options to Sundials' configure script.
+#
+# To add an index, add another case in the case statement, but use the
+# following restrictions so that the help message works automatically:
+#
+# 1. Give your case an index name according to the naming convention.
+# 2. Insert your addition in alphabetical order by index name.
+# 3. Do not use * or | in the glob pattern.
+# 4. Follow the ) with # and a brief (one line) description of
+#    the index.  If you leave out the #, the case will be hidden from
+#    the help message.
+# 5. Add comment that you are maintaining the specific case you added,
+#    so that in case of an error, you can be notified.
+# 6. After adding a case, run this script without arguments to make
+#    sure the help message correctly lists your new addition.
+#
+# Originally written by Brian Gunney.
+# Modified for use with Sundials by Radu Serban
+
+case $1 in
+
+
+casc_li_gcc_lam_comp) # CASC Intel Linux, using default gcc-2.96 and LAM scripts
+echo 'CC=gcc CXX=g++ F77=g77 --with-cflags=-I/usr/include --with-cxxflags=-I/usr/include --with-fflags=-I/usr/include --with-mpi-comp=/usr/bin'
+# Maintained by
+;;
+
+casc_li_gcc_mpich) # CASC Intel Linux, using default gcc-2.96 and mpich
+echo 'CC=gcc CXX=g++ F77=g77 --with-mpi=/usr/apps/mpich/1.2.4 --with-mpi-libs="-lmpich"'
+# Maintained by
+;;
+
+casc_li_gcc_mpich_comp) # CASC Intel Linux, using default gcc-2.96 and mpich compiler scripts
+echo 'CC=gcc CXX=g++ F77=g77 --with-mpi-comp=/usr/apps/mpich/1.2.4/bin'
+# Maintained by
+;;
+
+casc_li_icc_mpich_comp) # CASC Intel Linux, using Intel icc-7.1 and mpich compiler scripts
+echo 'CC=icc CXX=icc F77=ifc --with-ldflags=-L/usr/apps/intel/compiler70/ia32/lib --with-mpi-comp=/usr/apps/mpich/1.2.4/bin'
+# Maintained by 
+;;
+
+casc_li_pgi41_mpich) # CASC Intel Linux, using PGI 4.1 and mpich
+echo 'CC=pgcc CXX=pgCC F77=pgf77 --with-ldflags=-L/usr/apps/pgi/4.1/linux86/lib --with-mpi=/usr/apps/mpich/1.2.5 --with-mpi-libs=-lmpich'
+# Maintained by
+;;
+
+casc_li_pgi41_mpich_comp) # CASC Intel Linux, using PGI 4.1 and mpich compiler scripts
+echo 'CC=pgcc CXX=pgCC F77=pgf77 --with-ldflags=-L/usr/apps/pgi/4.1/linux86/lib --with-mpi-comp=/usr/apps/mpich/1.2.5/bin'
+# Maintained by 
+;;
+
+bgl_cross_gcc_mpich) # BlueGene Light with gcc cross compiler and MPI compiler scripts
+echo 'CC=gcc CXX=g++ F77=g77 CFLAGS="-g -gdwarf-2 -O2 -mbig-endian -Wall" --with-cppflags=-I/BlueLight/current/bglsys/include --with-mpi=/BlueLight/current/bglsys --with-mpi-libs="-lrts.rts -ldevices.rts -lmpich.rts -lvdevices.rts -lcoprocessor.rts -lspad.rts" --build=i686-pc-linux-gnu --host=powerpc-bgl-blrts-gnu'
+# Maintained by 
+;;
+
+bgl_cross_gcc_mpich_comp) # BlueGene Light with gcc cross compiler and MPI compiler scripts
+echo 'CC=gcc CXX=g++ F77=g77 CFLAGS="-g -gdwarf-2 -O2 -mbig-endian -Wall" --with-cppflags=-I/BlueLight/current/bglsys/include --with-mpi-comp=/BlueLight/current/bglsys/bin --build=i686-pc-linux-gnu --host=powerpc-bgl-blrts-gnu'
+# Maintained by 
+;;
+
+*) # Bad index or no index given, so provide help message.
+cat <<-EOF
+	Usage: $0 <index>
+
+	This script suggests configure options for configuring Sundials
+	on platforms that the Sundials team have some experience with.
+
+	The output of this script, edited to suit your needs, can be
+	used as options for Sundials' configure script.
+
+	For an explanation of the configure script options, use that
+	script's --help option.
+
+	Valid indices are:
+	EOF
+sed -e '/^[ 	]\{0,\}[-_a-zA-Z0-9]\{1,\}[ 	]\{0,\})[ 	]\{0,\}#/!d' -e 's/^[ 	]\{0,\}\([-_a-zA-Z0-9]\{1,\}\)[ 	]\{0,\})[ 	]\{0,\}#[ 	]\{0,\}\(.\{0,\}\)/\1	\2/' -e h -e 's/^[^	]\{0,\}	//' -e x -e 's/	.\{0,\}$//' -e ':a' -e 's/^.\{1,23\}$/ &/' -e 'ta' -e G -e 's/\n/ = /' $0
+test $# = 0 && exit	# Normal exit if no index was given.
+exit 1	# Error exit if given bad index.
+;;
+
+
+esac
+
