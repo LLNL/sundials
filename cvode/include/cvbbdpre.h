@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2004-10-18 21:53:14 $
+ * $Revision: 1.25 $
+ * $Date: 2004-10-26 20:49:27 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -252,9 +252,8 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * provided there is no change in Nlocal, mukeep, or mlkeep.      
  * After solving one problem, and after calling CVodeReInit to    
  * re-initialize the integrator for a subsequent problem, call    
- * CVBBDPrecReInit.  Then call CVSpgmrSet* or CVSpgmrReset*
- * functions if necessary for any changes to CVSpgmr parameters,
- * before calling CVode.
+ * CVBBDPrecReInit.  Then call CVSpgmrSet* functions if necessary 
+ * for any changes to CVSpgmr parameters, before calling CVode.
  *                                                                
  * The first argument to CVBBDPrecReInit must be the pointer pdata
  * that was returned by CVBBDPrecAlloc.  All other arguments have 
