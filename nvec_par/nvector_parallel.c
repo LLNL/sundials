@@ -135,6 +135,9 @@ NV_Spec NV_SpecInit_Parallel(MPI_Comm comm,  long int local_vec_length,
   nvspec->ops->nvminquotient   = N_VMinQuotient_Parallel;
   nvspec->ops->nvprint         = N_VPrint_Parallel;
 
+  /* Attach ID tag */
+  nvspec->tag = ID_TAG_P;
+  
   /* If local length is negative, return now */
   if (local_vec_length < 0) return(nvspec);
   
@@ -150,9 +153,6 @@ NV_Spec NV_SpecInit_Parallel(MPI_Comm comm,  long int local_vec_length,
     return(NULL);
   } 
 
-  /* Attach ID tag */
-  nvspec->tag = ID_TAG_P;
-  
   /* Return the vector specification */
   return(nvspec);
 }
@@ -178,7 +178,7 @@ void NV_SpecFree_Parallel(NV_Spec nvspec)
 N_Vector N_VNew_Parallel(NV_Spec nvspec)
 {
   N_Vector v;
-  int N_local, N_global;
+  long int N_local, N_global;
 
   if (nvspec == NULL) return(NULL);
 
@@ -201,6 +201,8 @@ N_Vector N_VNew_Parallel(NV_Spec nvspec)
       free(v);
       return(NULL);
     }
+  } else {
+    NV_CONTENT_P(v)->data = NULL;
   }
 
   NV_CONTENT_P(v)->local_length  = N_local;
@@ -219,7 +221,7 @@ void N_VSpace_Parallel(NV_Spec nvspec, long int *lrw, long int *liw)
 
 void N_VFree_Parallel(N_Vector v)
 {
-  free(NV_DATA_P(v));
+  if(NV_DATA_P(v) != NULL) free(NV_DATA_P(v));
   free(NV_CONTENT_P(v));
   free(v);
 }
@@ -227,7 +229,7 @@ void N_VFree_Parallel(N_Vector v)
 N_Vector N_VMake_Parallel(realtype *v_data, NV_Spec nvspec)
 {
   N_Vector v;
-  int N_local, N_global;
+  long int N_local, N_global;
 
   if (nvspec == NULL) return(NULL);
 
