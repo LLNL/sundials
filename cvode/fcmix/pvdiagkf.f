@@ -1,7 +1,7 @@
 C File: pvdiagkf.f
 C Diagonal ODE example.  Stiff case, with BDF/SPGMR, diagonal precond.
 C Solved with preconditioning on left, then with preconditioning on right.
-C Version of 11 January 2002
+C Version of 1 March 2002
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 C
@@ -172,7 +172,7 @@ C
         STOP
         ENDIF
 C
-      CALL FCVSPGMR10 (IPRE, IGS, 0, 0.0D0, IER)
+      CALL FCVREINSPGMR10 (IPRE, IGS, 0, 0.0D0, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,135) IER
  135    FORMAT(///' FCVSPGMR10 returned IER =',I5)
