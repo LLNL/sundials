@@ -37,7 +37,7 @@ Final statistics:
 
 In CVBBDPRE:
 
- real/integer local work space =    20   10
+ real/int local workspace =    20   10
  number of g evals. =    14
 
 
@@ -72,5 +72,5 @@ Final statistics:
 
 In CVBBDPRE:
 
- real/integer local work space =    20   10
+ real/int local workspace =    20   10
  number of g evals. =    14

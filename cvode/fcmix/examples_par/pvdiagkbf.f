@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.16 $
-C     $Date: 2004-10-15 20:20:16 $
+C     $Revision: 1.17 $
+C     $Date: 2004-10-15 22:25:35 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -195,7 +195,7 @@ C     Print final statistics.
          CALL FCVBBDOPT(LENRPW, LENIPW, NGE)
          WRITE(6,82) LENRPW, LENIPW, NGE
  82      FORMAT('In CVBBDPRE:'//
-     &          ' real/integer local work space = ', 2I5/
+     &          ' real/int local workspace = ', 2I5/
      &          ' number of g evals. = ', I5)
       ENDIF
 C     
