@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2004-10-08 19:20:59 $
+ * $Revision: 1.26 $
+ * $Date: 2004-10-08 23:01:22 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -4556,7 +4556,6 @@ static void IDACompleteStep(IDAMem IDA_mem,
 
     /* Choose among orders k-1, k, k+1 using local truncation error norms. */
 
-    terkm1 =  kk    * error_km1;
     terk   = (kk+1) * error_k;
     terkp1 = (kk+2) * error_kp1;
 
@@ -4564,6 +4563,7 @@ static void IDACompleteStep(IDAMem IDA_mem,
       if (terkp1 >= HALF * terk)       {action = MAINTAIN; goto takeaction;}
       else                             {action = RAISE;    goto takeaction;}
     } else {
+      terkm1 =  kk    * error_km1;
       if (terkm1 <= MIN(terk, terkp1)) {action = LOWER;    goto takeaction;}
       else if (terkp1  >= terk)        {action = MAINTAIN; goto takeaction;}
       else                             {action = RAISE;    goto takeaction;}
