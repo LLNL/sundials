@@ -14,9 +14,14 @@ The user should be aware that not all linear solver modules are compatible
 with all {\nvector} implementations. 
 \index{IDA@{\ida} linear solvers!NVECTOR@{\nvector} compatibility}
 For example, {\nvecp} is not compatible with the direct dense or direct band 
-linear solvers since these linear solver modules need to form the system Jacobian.
+linear solvers, since these linear solver modules need to form the complete
+system Jacobian.
 The {\idadense} and {\idaband} modules can only be used with {\nvecs}. 
 The preconditioner module {\idabbdpre} can only be used with {\nvecp}. 
+
+{\ida} uses various constants for both input and output.  These are
+defined as needed in this chapter, but for convenience are also listed
+separately in Chapter \ref{c:constants}.
 
 %%===================================================================================
 \section{Data types}\label{s:types}
