@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-07-27 23:52:30 $
+ * $Revision: 1.23 $
+ * $Date: 2004-08-17 20:55:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -1854,13 +1854,13 @@ static int KINLinSolDrv(KINMem kin_mem , N_Vector bb , N_Vector xx )
 {
   int ret;
 
-  if (nni-nnilpre >= msbpre) pthrsh = TWO;
+  if ((nni - nnilpre) >= msbpre) pthrsh = TWO;
 
   loop{
 
     precondcurrent = FALSE;
 
-    if( (pthrsh > ONEPT5) && setupNonNull ) {
+    if ((pthrsh > ONEPT5) && setupNonNull) {
       ret = lsetup(kin_mem);  /* call pset routine.  */
       precondcurrent = TRUE;
       nnilpre = nni;
@@ -1868,14 +1868,14 @@ static int KINLinSolDrv(KINMem kin_mem , N_Vector bb , N_Vector xx )
     }
 
   /* load bb with the current value of -fval */
-             
+
   N_VScale(-ONE, fval, bb);
 
   /* call the generic 'lsolve' routine to solve the system Jx = b */
 
   ret = lsolve(kin_mem, xx, bb, &res_norm);
 
-  if (ret != 1) return(ret);
+  if (ret <= 0) return(ret);
 
   if (!precondflag) return(KINSOL_KRYLOV_FAILURE);
 

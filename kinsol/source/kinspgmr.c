@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-08-17 18:43:47 $
+ * $Revision: 1.13 $
+ * $Date: 2004-08-17 20:55:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -736,7 +736,6 @@ static int KINSpgmrSetup(KINMem kin_mem)
   if (ret != 0) return(1);
   npe++;
   nnilpre = nni; 
-  precondcurrent = TRUE; 
 
   /* return the same value ret that pset returned */
 
