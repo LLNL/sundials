@@ -27,42 +27,47 @@ case $1 in
 
 
 casc_li_gcc_lam_comp) # CASC Intel Linux, using default gcc-2.96 and LAM scripts
-echo 'CC=gcc CXX=g++ F77=g77 --with-cflags=-I/usr/include --with-cxxflags=-I/usr/include --with-fflags=-I/usr/include --with-mpi-comp=/usr/bin'
+echo 'CC=gcc CXX=g++ F77=g77 --with-cflags=-I/usr/include --with-cxxflags=-I/usr/include --with-fflags=-I/usr/include --with-mpicc=/usr/bin/mpicc --with-mpicxx=/usr/bin/mpiCC --with-mpif77=/usr/bin/mpif77'
 # Maintained by
 ;;
 
 casc_li_gcc_mpich) # CASC Intel Linux, using default gcc-2.96 and mpich
-echo 'CC=gcc CXX=g++ F77=g77 --with-mpi=/usr/apps/mpich/1.2.4 --with-mpi-libs="-lmpich"'
+echo 'CC=gcc CXX=g++ F77=g77 --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/usr/apps/mpich/1.2.4 --with-mpi-libs="-lmpich"'
 # Maintained by
 ;;
 
 casc_li_gcc_mpich_comp) # CASC Intel Linux, using default gcc-2.96 and mpich compiler scripts
-echo 'CC=gcc CXX=g++ F77=g77 --with-mpi-comp=/usr/apps/mpich/1.2.4/bin'
+echo 'CC=gcc CXX=g++ F77=g77 --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc --with-mpicxx=/usr/apps/mpich/1.2.4/bin/mpiCC --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77'
 # Maintained by
 ;;
 
 casc_li_icc_mpich_comp) # CASC Intel Linux, using Intel icc-7.1 and mpich compiler scripts
-echo 'CC=icc CXX=icc F77=ifc --with-ldflags=-L/usr/apps/intel/compiler70/ia32/lib --with-mpi-comp=/usr/apps/mpich/1.2.4/bin'
+echo 'CC=icc CXX=icc F77=ifc --with-ldflags=-L/usr/apps/intel/compiler70/ia32/lib --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc --with-mpicxx=/usr/apps/mpich/1.2.4/bin/mpiCC --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77'
 # Maintained by 
 ;;
 
 casc_li_pgi41_mpich) # CASC Intel Linux, using PGI 4.1 and mpich
-echo 'CC=pgcc CXX=pgCC F77=pgf77 --with-ldflags=-L/usr/apps/pgi/4.1/linux86/lib --with-mpi=/usr/apps/mpich/1.2.5 --with-mpi-libs=-lmpich'
+echo 'CC=pgcc CXX=pgCC F77=pgf77 --with-ldflags=-L/usr/apps/pgi/4.1/linux86/lib --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/usr/apps/mpich/1.2.5 --with-mpi-libs=-lmpich'
 # Maintained by
 ;;
 
 casc_li_pgi41_mpich_comp) # CASC Intel Linux, using PGI 4.1 and mpich compiler scripts
-echo 'CC=pgcc CXX=pgCC F77=pgf77 --with-ldflags=-L/usr/apps/pgi/4.1/linux86/lib --with-mpi-comp=/usr/apps/mpich/1.2.5/bin'
+echo 'CC=pgcc CXX=pgCC F77=pgf77 --with-ldflags=-L/usr/apps/pgi/4.1/linux86/lib --with-mpicc=/usr/apps/mpich/1.2.5/bin/mpicc --with-mpicxx=/usr/apps/mpich/1.2.5/bin/mpiCC --with-mpif77=/usr/apps/mpich/1.2.5/bin/mpif77'
 # Maintained by 
 ;;
 
-bgl_cross_gcc_mpich) # BlueGene Light with gcc cross compiler and MPI compiler scripts
-echo 'CC=gcc CXX=g++ F77=g77 CFLAGS="-g -gdwarf-2 -O2 -mbig-endian -Wall" --with-cppflags=-I/BlueLight/current/bglsys/include --with-mpi=/BlueLight/current/bglsys --with-mpi-libs="-lrts.rts -ldevices.rts -lmpich.rts -lvdevices.rts -lcoprocessor.rts -lspad.rts" --build=i686-pc-linux-gnu --host=powerpc-bgl-blrts-gnu'
+casc_sun_cc_mpich_comp) # CASC SUN, using cc and mpich 1.2.4 compiler scripts
+echo 'CC=cc CXX=CC F77=g77 --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc --with-mpicxx=/usr/apps/mpich/1.2.4/bin/mpiCC --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77'
+# Maintained by
+;;
+
+bgl_cross_gcc_mpich) # BlueGene Light with gcc cross compiler and MPI 
+echo 'CC=gcc CXX=g++ F77=g77 CFLAGS="-gdwarf-2 -O2 -mbig-endian -Wall" FFLAGS="-fno-underscoring" --with-cppflags=-I/BlueLight/current/bglsys/include --with-mpicc=no --with-mpicxx=no --with-mpif77=no --with-mpi-root=/BlueLight/current/bglsys --with-mpi-libs="-lmpich.rts -ldevices.rts -lrts.rts" --build=i686-pc-linux-gnu --host=powerpc-bgl-blrts-gnu'
 # Maintained by 
 ;;
 
 bgl_cross_gcc_mpich_comp) # BlueGene Light with gcc cross compiler and MPI compiler scripts
-echo 'CC=gcc CXX=g++ F77=g77 CFLAGS="-g -gdwarf-2 -O2 -mbig-endian -Wall" --with-cppflags=-I/BlueLight/current/bglsys/include --with-mpi-comp=/BlueLight/current/bglsys/bin --build=i686-pc-linux-gnu --host=powerpc-bgl-blrts-gnu'
+echo 'CC=gcc CXX=g++ F77=g77 CFLAGS="-g -gdwarf-2 -O2 -mbig-endian -Wall" --with-cppflags=-I/BlueLight/current/bglsys/include --with-mpicc=/BlueLight/current/bglsys/bin/mpicc --with-mpicxx=/BlueLight/current/bglsys/bin/mpiCC --with-mpif77=/BlueLight/current/bglsys/bin/mpif77 --build=i686-pc-linux-gnu --host=powerpc-bgl-blrts-gnu'
 # Maintained by 
 ;;
 
