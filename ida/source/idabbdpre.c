@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-10-08 15:26:54 $
+ * $Revision: 1.20 $
+ * $Date: 2004-10-11 16:01:52 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -146,7 +146,7 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSG_NO_PDATA);
-    return(IDASPGMR_DATA_NULL);
+    return(IDA_PDATA_NULL);
   }
 
   flag = IDASpgmr(ida_mem, maxl);
@@ -213,7 +213,7 @@ int IDABBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBD
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(IDASPGMR_DATA_NULL);
+    return(IDA_PDATA_NULL);
   } 
 
   pdata = (IBBDPrecData) p_data;
@@ -221,7 +221,7 @@ int IDABBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBD
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(IDASPGMR_SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
@@ -230,14 +230,14 @@ int IDABBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(IDASPGMR_DATA_NULL);
+    return(IDA_PDATA_NULL);
   } 
 
   pdata = (IBBDPrecData) p_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(IDASPGMR_SUCCESS);
+  return(IDA_SUCCESS);
 }
 
 /* Readability Replacements */
@@ -502,5 +502,5 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
     }
   }
   
-  return(IDASPGMR_SUCCESS);
+  return(0);
 }
