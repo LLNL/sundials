@@ -334,7 +334,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
-  \item[f] (\Id{RhsFn})
+  \item[f] (\Id{CVRhsFn})
     is the {\C} function which computes $f$ in the ODE. This function has the 
     form \id{f(t, y, ydot, f\_data)} (for full details see \S\ref{ss:rhsFn}).
   \item[t0] (\id{realtype})
@@ -1970,7 +1970,7 @@ These optional output functions are described next.
 }
 {
   The function \ID{CVodeGetWorkSpace} returns the
-  {\cvodes} integer and real workspace sizes.
+  {\cvodes} real and integer workspace sizes.
 }
 {
   \begin{args}[cvode\_mem]
@@ -3300,7 +3300,7 @@ appropriate \id{Set} or \id{Reset} calls, as described in
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[f] (\Id{RhsFn})
+  \item[f] (\Id{CVRhsFn})
     is the {\C} function which computes $f$ in the ODE. This function has the form 
     \id{f(N, t, y, ydot, f\_data)} (for full details see \S\ref{ss:user_fct_sim}).
   \item[t0] (\id{realtype})
@@ -3353,11 +3353,11 @@ that define the preconditioner for use in the {\spgmr} algorithm.
 %%==============================================================================
 \index{right-hand side function}
 
-The user must provide a function of type \ID{RhsFn} defined as follows:
-\usfunction{RhsFn}
+The user must provide a function of type \ID{CVRhsFn} defined as follows:
+\usfunction{CVRhsFn}
 {
-  typedef void (*RhsFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
-                        &void *f\_data);
+  typedef void (*CVRhsFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
+                          &void *f\_data);
 }
 {
   This function computes the ODE right-hand side for a given value
@@ -3377,7 +3377,7 @@ The user must provide a function of type \ID{RhsFn} defined as follows:
   \end{args}
 }
 {
-  A \id{RhsFn} function type does not have a return value.                        
+  A \id{CVRhsFn} function type does not have a return value.                        
 }
 {
 Allocation of memory for \id{ydot} is handled within {\cvodes}.
@@ -3749,7 +3749,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
   approximation to $M=I - \gamma J$.
 
   Each call to the preconditioner setup function is preceded by a call to     
-  the \id{RhsFn} user function with the same \id{(t,y)} arguments.  
+  the \id{CVRhsFn} user function with the same \id{(t,y)} arguments.  
   Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the ODE right hand side.
   
@@ -3891,7 +3891,7 @@ flag = CVodeQuadMalloc(cvode\_mem, fQ, yQ0);
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
-  \item[fQ] (\Id{QuadRhsFn})
+  \item[fQ] (\Id{CVQuadRhsFn})
     is the {\C} function which computes $f_Q$, the right-hand side of the quadrature
     equations. This function has the form 
     \id{fQ(t, y, yQdot, fQ\_data)} (for full details see \S\ref{ss:user_fct_quad}).
@@ -3934,7 +3934,7 @@ The call to the \id{CVodeQuadReInit} function has the form:
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[fQ] (\Id{QuadRhsFn})
+  \item[fQ] (\Id{CVQuadRhsFn})
     is the {\C} function which computes $fQ$, the right-hand side of the quadrature
     equations.
   \item[yQ0] (\id{N\_Vector})
@@ -4325,10 +4325,10 @@ performance information related to quadrature integration.
 \index{right-hand side function!quadrature equations}
 For integration of quadrature equations, the user must provide a function 
 that defines the right-hand side of the quadrature equations. This function
-must be of type \ID{QuadRhsFn} defined as follows:
-\usfunction{QuadRhsFn}
+must be of type \ID{CVQuadRhsFn} defined as follows:
+\usfunction{CVQuadRhsFn}
 {
-  typedef void (*QuadRhsFn)(realtype t, N\_Vector y, N\_Vector yQdot, void *fQ\_data);
+  typedef void (*CVQuadRhsFn)(realtype t, N\_Vector y, N\_Vector yQdot, void *fQ\_data);
 }
 {
   This function computes the quadrature equation right-hand side for a given value
@@ -4348,7 +4348,7 @@ must be of type \ID{QuadRhsFn} defined as follows:
   \end{args}
 }
 {
-  A \id{QuadRhsFn} function type does not have a return value.                        
+  A \id{CVQuadRhsFn} function type does not have a return value.                        
 }
 {
   Allocation of memory for \id{yQdot} is handled within {\cvodes}.
@@ -4389,7 +4389,7 @@ required additional user-supplied function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
-  \item[g] (\id{RootFn})
+  \item[g] (\id{CVRootFn})
     is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y)$
     whose roots are sought. See \S\ref{ss:root_us} for details.
   \item[nrtfn] (\id{int})
@@ -4512,12 +4512,12 @@ There are two optional output functions associated with rootfinding.
 %%==============================================================================
 
 If a rootfinding problem is to be solved during the integration of the ODE system,
-the user must supply a {\C} function of type \id{RootFn}, defined as follows:
+the user must supply a {\C} function of type \ID{CVRootFn}, defined as follows:
 %%
-\usfunction{RootFn}
+\usfunction{CVRootFn}
 {
-  typedef void (*RootFn)(&realtype t, N\_Vector y, realtype *gout, \\
-                         &void *g\_data);
+  typedef void (*CVRootFn)(&realtype t, N\_Vector y, realtype *gout, \\
+                           &void *g\_data);
 }
 {
   This function computes a vector-valued function $g(t,y)$ such that the roots of 
@@ -4537,7 +4537,7 @@ the user must supply a {\C} function of type \id{RootFn}, defined as follows:
   \end{args}
 }
 {
-  A \id{RootFn} function type does not have a return value.                        
+  A \id{CVRootFn} function type does not have a return value.                        
 }
 {
   Allocation of memory for \id{gout} is handled within {\cvodes}.

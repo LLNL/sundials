@@ -423,7 +423,7 @@ particularization for backward integration as described below.
   \begin{args}[cvadj\_mem]
   \item[cvadj\_mem] (\id{void *})
     pointer to the adjoint memory block returned by \id{CVadjMalloc}.
-  \item[fB] (\Id{RhsFnB})
+  \item[fB] (\Id{CVRhsFnB})
     is the {\C} function which computes $fB$, the right-hand side of the 
     backward ODE problem. This function has the form 
     \id{fB(t, y, yB, yBdot, f\_dataB)} (for full details see \S\ref{ss:user_fct_adj}).
@@ -491,7 +491,7 @@ The call to the \id{CVodeReInitB} function has the form
   \begin{args}[cvadj\_mem]
   \item[cvadj\_mem] (\id{void *})
     pointer to the adjoint memory block returned by \id{CVadjMalloc}.
-  \item[fB] (\Id{RhsFnB})
+  \item[fB] (\Id{CVRhsFnB})
     is the {\C} function which computes $fB$, the right-hand side of the 
     backward ODE problem. This function has the form 
     \id{fB(t, y, yB, yBdot, f\_dataB)} (for full details see \S\ref{ss:user_fct_adj}).
@@ -1162,7 +1162,7 @@ flag = CVodeQuadMallocB(cvadj\_mem, fQB, yQB0);
   \begin{args}[cvadj\_mem]
   \item[cvadj\_mem] (\id{void *})
     pointer to the adjoint memory block returned by \id{CVadjMalloc}.
-  \item[fQB] (\Id{QuadRhsFnB})
+  \item[fQB] (\Id{CVQuadRhsFnB})
     is the {\C} function which computes $fQB$, the right-hand side of the 
     backward quadrature equations. This function has the form 
     \id{fQB(t, y, yB, qBdot, fQ\_dataB)} (for full details see below).
@@ -1203,7 +1203,7 @@ reinitialized by calling
   \begin{args}[cvadj\_mem]
   \item[cvadj\_mem] (\id{void *})
     pointer to the adjoint memory block.
-  \item[fQB] (\Id{QuadRhsFnB})
+  \item[fQB] (\Id{CVQuadRhsFnB})
     is the {\C} function which computes $fQB$, the right-hand side of the 
     backward quadrature equations.
   \item[yQB0] (\id{N\_Vector})
@@ -1336,11 +1336,11 @@ Type definitions for all these user-supplied functions are given below.
 \index{adjoint sensitivity analysis!right-hand side evaluation}
 \index{right-hand side function!backward problem}
 
-The user must provide a function of type \ID{RhsFnB} defined as follows:
-\usfunction{RhsFnB}
+The user must provide a function of type \ID{CVRhsFnB} defined as follows:
+\usfunction{CVRhsFnB}
 {
-  typedef void (*RhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
-                         &N\_Vector yBdot, void *f\_dataB);
+  typedef void (*CVRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                           &N\_Vector yBdot, void *f\_dataB);
 }
 {
   This function computes the right-hand side of the backward problem ODE system.
@@ -1362,7 +1362,7 @@ The user must provide a function of type \ID{RhsFnB} defined as follows:
   \end{args}
 }
 {
-  A \id{RhsFnB} function type does not have a return value.                        
+  A \id{CVRhsFnB} function type does not have a return value.                        
 }
 {
   Allocation of memory for \id{yBdot} is handled within {\cvodes}.
@@ -1385,11 +1385,11 @@ The user must provide a function of type \ID{RhsFnB} defined as follows:
 \subsubsection{Quadrature right-hand side for the backward problem}
 \index{right-hand side function!quadrature backward problem}
 \index{adjoint sensitivity analysis!quadrature evaluation}
-The user must provide a function of type \ID{QuadRhsFnB} defined by
-\usfunction{QuadRhsFnB}
+The user must provide a function of type \ID{CVQuadRhsFnB} defined by
+\usfunction{CVQuadRhsFnB}
 {
-  typedef void (*QuadRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
-                             &N\_Vector qBdot, void *fQ\_dataB);
+  typedef void (*CVQuadRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                               &N\_Vector qBdot, void *fQ\_dataB);
 }
 {
   This function computes the quadrature equation right-hand side for the
@@ -1412,7 +1412,7 @@ The user must provide a function of type \ID{QuadRhsFnB} defined by
   \end{args}
 }
 {
-  A \id{QuadRhsFnB} function type does not have a return value.                        
+  A \id{CVQuadRhsFnB} function type does not have a return value.                        
 }
 {
   Allocation of memory for \id{qBdot} is handled within {\cvodes}.
