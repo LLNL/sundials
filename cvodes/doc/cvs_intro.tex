@@ -4,7 +4,7 @@
 
 {\cvodes} is part of a software family called {\sundials}: 
 SUite of Nonlinear and DIfferential/ALgebraic equation Solvers.  
-This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these
+This suite consists of {\cvode}, {\kinsol} and {\ida}, and variants of these
 with sensitivity analysis capabilities.
 %
 {\cvodes}\index{CVODES@{\cvodes}!brief description of} is a solver for stiff and
@@ -18,9 +18,9 @@ analysis capabilities, using either the forward or the adjoint methods.
 
 \index{CVODES@{\cvodes}!relationship to {\vode}, {\vodpk}|(}
 {\F} solvers for ODE initial value problems are widespread and heavily used. 
-Two solvers that have been written at LLNL in the past are {\vode} \cite{BBH:89} 
+Two solvers that were previously written at LLNL are {\vode} \cite{BBH:89} 
 and {\vodpk} \cite{Byr:92}.
-{\vode}\index{VODE@{\vode}} is a general purpose solver that includes methods for stiff
+{\vode}\index{VODE@{\vode}} is a general-purpose solver that includes methods for both stiff
 and nonstiff systems, and in the stiff case uses direct methods (full or
 banded) for the solution of the linear systems that arise at each implicit
 step. Externally, {\vode} is very similar to the well known solver
@@ -31,16 +31,16 @@ tool for large stiff systems because it combines established methods for stiff
 integration, nonlinear iteration, and Krylov (linear) iteration with a problem-specific
 treatment of the dominant source of stiffness, in the form of the user-supplied
 preconditioner matrix \cite{BrHi:89}.
-The capabilities of both {\vode} and {\vodpk} have been combined in the {\C}-language 
+The capabilities of both {\vode} and {\vodpk} were combined in the {\C}-language 
 package {\cvode}\index{CVODE@{\cvode}} \cite{CoHi:94, CoHi:96}.
 
 In the process of translating the {\vode} and {\vodpk} algorithms into {\C}, the overall 
-{\cvode} organization has been changed considerably.
+{\cvode} organization has changed considerably.
 One key feature of the {\cvode} organization is that the linear system solvers comprise a
-layer of code modules that is separated from the integration algorithm, allowing for 
+layer of code modules that is separated from the integration algorithm, thus allowing for 
 easy modification and expansion of the linear solver array.
 A second key feature is a separate module devoted to vector operations; this 
-facilitated the extension to multiprosessor environments with minimal impacts 
+facilitated the extension to multiprosessor environments with only a minimal impact 
 on the rest of the solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByHi:99}, 
 the parallel variant of {\cvode}.
 \index{CVODES@{\cvodes}!relationship to {\vode}, {\vodpk}|)}
@@ -54,33 +54,33 @@ simultaneously with the original IVP, yielding both the solution and its sensiti
 with respect to parameters in the model. Adjoint sensitivity analysis, most useful
 when the gradients of relatively few functionals of the solution with respect to
 many parameters are sought, involves integration of the original IVP forward in time
-followed by the integration of the so-called {\em adjoint equations} backwards
+followed by the integration of the so-called {\em adjoint equations} backward
 in time. {\cvodes} provides the infrastructure needed to integrate any final-condition ODE
 dependent on the solution of the original IVP (in particular the adjoint system). 
 
 Development of {\cvodes} was concurrent with a redesign of the vector operations module
 across the {\sundials} suite. The key feature of the new {\nvector} module is that it
-is written in terms of abstract vector operations with the actual vector kernels attached
+is written in terms of abstract vector operations with the actual vector functions attached
 by a particular implementation (such as serial or parallel) of {\nvector}. This allows
 writing the {\sundials} solvers in a manner independent of the actual {\nvector} 
 implementation (which can be user-supplied), as well as allowing more than one 
-{\nvector} module linked into an executable file.
+{\nvector} module to be linked into an executable file.
 \index{CVODES@{\cvodes}!relationship to {\cvode}, {\pvode}|)}
 
 \index{CVODES@{\cvodes}!motivation for writing in C|(}
-There are several motivations for choosing the {\C} language for {\cvode} and later
+There were several motivations for choosing the {\C} language for {\cvode} and later
 for {\cvodes}.
 First, a general movement away from {\F} and toward {\C} in scientific
-computing is apparent.  Second, the pointer, structure, and dynamic
-memory allocation features in C are extremely useful in software of
-this complexity, with the great variety of method options offered.
+computing was and still is apparent.  Second, the pointer, structure, and dynamic
+memory allocation features in {\C} are extremely useful in software of
+this complexity.
 Finally, we prefer {\C} over {\CPP} for {\cvodes} because of the wider
 availability of {\C} compilers, the potentially greater efficiency of {\C},
 and the greater ease of interfacing the solver to applications written
 in extended {\F}.
 \index{CVODES@{\cvodes}!motivation for writing in C|)}
 
-\section{Changes in version {\cvsrelease}}
+\section{Changes in {\cvsrelease}}
 The major changes from the previous version involve a redesign of the
 user interface across the entire {\sundials} suite. We have eliminated the
 mechanism of providing optional inputs and extracting optional statistics 
@@ -101,7 +101,7 @@ through such arguments can now be obtained through {\id{Get}-type}
 functions.
 
 Installation of {\cvodes} (and all of {\sundials}) has been completely 
-redesigned and is now based on configure scripts.
+redesigned and is now based on a configure script.
 
 \section{Reading this user guide}\label{ss:reading}
 
@@ -120,7 +120,7 @@ In addition, to solve a forward sensitivity problem the user should read
 
 %%
 %%
-In a different direction, a more expert user with an IVP problem may want to 
+In a different direction, a more advanced user with an IVP problem may want to 
 (a) use a package preconditioner (\S\ref{ss:preconds}), 
 (b) supply his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
 (c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit}), 
@@ -173,17 +173,17 @@ The structure of this document is as follows:
   routines.
 \item
   Section \ref{s:adjoint} describes the usage of {\cvodes} for adjoint
-  sensitivity analysis. We begin by describing the {\cvodes} check-pointing 
+  sensitivity analysis. We begin by describing the {\cvodes} checkpointing 
   implementation for interpolation of the original IVP solution during
-  integration of the adjoint system backwards in time and with 
-  an overview of the user main program. Following that we provide complete
+  integration of the adjoint system backward in time, and with 
+  an overview of a user's main program. Following that we provide complete
   descriptions of the user-callable interface routines for adjoint sensitivity
   analysis as well as descriptions of the required additional user-defined routines.
 \item
   Section \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
-  shared among the various components of {\sundials}, as well as details on the two {\nvector}
+  shared amongst the various components of {\sundials}, as well as details on the two {\nvector}
   implementations provided with {\sundials}: a serial implementation
-  (\S\ref{ss:nvec_ser}) and a parallel implementation, based on MPI\index{MPI}
+  (\S\ref{ss:nvec_ser}) and a parallel implementation based on {\mpi}\index{MPI}
   (\S\ref{ss:nvec_par}).
 \item
   Section \ref{s:new_linsolv} describes the specifications of linear solver modules as 
@@ -199,4 +199,4 @@ within textual explanations appear in typewriter type style;
 fields in {\C} structures (such as {\em content}) appear in italics;
 and packages or modules, such as {\cvdense}, are written in all capitals. 
 In the Index, page numbers that appear in bold indicate the main reference
-for that entry. 
+for that entry.
