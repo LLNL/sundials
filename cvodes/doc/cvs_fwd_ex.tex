@@ -1,0 +1,266 @@
+%===================================================================================
+\section{Example Problems for Forward Sensitivity Analysis}\label{s:fwd_examples}
+%===================================================================================
+\index{forward sensitivity analysis!examples|see{examples, forward sensitivity}}
+
+\index{examples, forward sensitivity!list of|(}
+The {\cvodes} distribution contains, in the \id{sundials/cvodes/fwd\_examples}
+directory, the following five examples for forward sensitivity analysis:
+
+\begin{itemize}
+\item \id{cvfnx}
+  solves the semi-discrete form of an advection-diffusion equation in 1-D.
+
+  {\cvodes} computes both its solution and solution sensitivities with respect
+  to the advection and diffusion coefficients.
+  This program solves the problem with the option for nonstiff systems,
+  i.e. Adams method and functional iteration;
+\item \id{cvfdx}
+  solves a chemical kinetics problem consisting of three rate equations.
+
+  {\cvodes} computes both its solution and solution sensitivities with respect
+  to the three reaction rate constants appearing in the model. 
+  This program solves the problem with the BDF method, Newton          
+  iteration with the {\cvdense} linear solver, and a user-supplied    
+  Jacobian routine;
+\item \id{cvfkx}
+  solves the semi-discrete form of a two-species diurnal kinetics
+  advection-diffusion PDE system in 2-D space.
+
+  {\cvodes} computes both its solution and solution sensitivities with respect
+  to two parameters affecting the kinetic rate terms.
+  The problem is solved with the BDF/GMRES method (i.e.    
+  using the {\cvspgmr} linear solver) and the block-diagonal part of the  
+  Newton matrix as a left preconditioner;
+\item \id{pvfnx}
+  is the parallel version of \id{cvfnx};
+\item \id{pvfkx}
+  is the parallel version of \id{cvfkx}.
+\end{itemize}
+The first three are serial examples that use the {\nvecs} module and
+the last two are parallel examples using the {\nvecp} module.
+For all the above examples, any of three sensitivity methods (\id{SIMULTANEOUS}, 
+\id{STAGGERED}, and \id{STAGGERED1}) can be used and sensitivities may be 
+included in the error test or not (error control set on \id{FULL} or \id{PARTIAL},
+respectively).
+\index{examples, forward sensitivity!list of|)}
+
+The next two sections describe in detail a serial example (\id{cvfdx}) and
+a parallel one (\id{pvfkx}). For details on the other examples, the reader is
+directed to the comments in their source files.
+
+%--------------------------------------------------------------------
+\subsection{A Serial Sample Problem}\label{ss:serial_fwd_ex}
+
+As a first example of using {\cvodes} for forward sensitivity analysis,
+we provide a modification of the chemical kinetics problem described in
+\S\ref{ss:serial_sim_ex} which computes, in addition to the solution of the
+IVP, sensitivities of the solution with respect to the three reaction rates 
+involved in the model.
+\index{examples, forward sensitivity!serial sample program!problem solved by|(}
+The ODEs are written as:
+\begin{equation}\label{e:chemkin}
+  \begin{split}
+    {\dot y}_1 &= -p_1 y_1 + p_2 y_2 y_3   \\
+    {\dot y}_2 &=  p_1 y_1 - p_2 y_2 y_3 - p_3 y_2^2 \\
+    {\dot y}_3 &=  p_3 y_2^2 \, ,
+  \end{split}
+\end{equation}
+with initial conditions at $t_0 = 0$, $y_1 = 1$ and $y_2 = y_3 = 0$. 
+The nominal values of the reaction rate constants are 
+$p_1 = 0.04$, $p_2 = 10^4$, and $p_3 = 3\cdot 10^7$.
+The sensitivity systems that are solved together with (\ref{e:chemkin}) are
+\begin{equation}
+  \begin{split}
+    & {\dot s}_i = 
+    \begin{bmatrix}
+      - p_1 &   p_2 y_3             &   p_2 y_2 \\
+        p_1 & - p_2 y_3 - 2 p_3 y_2 & - p_2 y_2 \\
+        0   &             2 p_3 y_2 &  0              
+    \end{bmatrix}
+    s_i + \frac{\partial f}{\partial p_i} ~,
+    \quad s_i(t_0) = \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix}  ~,
+    \quad i = 1,2,3 \\
+    & \frac{\partial f}{\partial p_1} = \begin{bmatrix} -y_1 \\ y_1 \\ 0 \end{bmatrix}, \quad
+    \frac{\partial f}{\partial p_2} = \begin{bmatrix} y_2 y_3 \\ -y_2 y_3 \\ 0 \end{bmatrix}, \quad
+    \frac{\partial f}{\partial p_3} = \begin{bmatrix} 0 \\ - y_2^2 \\ y_2^2 \end{bmatrix} \, .
+  \end{split}
+\end{equation}
+\index{examples, forward sensitivity!serial sample program!problem solved by|)}
+
+The source code for this example is listed in \A\ref{ss:cvfdx}. The main program is described 
+below with emphasis on the sensitivity related components. 
+\index{examples, forward sensitivity!serial sample program!explanation of|(}
+These explanations, together with those given for the code \id{cvdx}
+in \S\ref{ss:serial_sim_ex}, will also provide the user with a template for instrumenting 
+an existing simulation code to perform forward sensitivity analysis.
+As will be seen from this example, an existing simulation code can be modified to compute 
+sensitivity variables (in addition to state variables) by only inserting a few {\cvodes} 
+calls in the main program. 
+
+First note that no new header files need be included. In addition to the constants already
+defined in \id{cvdx} we define the number of model parameters, \id{NP} ($=3$),
+the number of sensitivity parameters, \id{NS} ($=3$), and a constant \id{ZERO}$=0.0$. 
+
+As mentioned in \S\ref{ss:forward_usage} and \S\ref{sss:cvodesensmalloc}, the user data
+structure \id{f\_data} must provide access to the array of model parameters 
+\index{examples, forward sensitivity!serial sample program!user data}
+as the only way for {\cvodes} to communicate parameter values to the right hand side 
+function \id{f}. In the \id{cvfdx} example this is done by defining \id{f\_data} to be 
+of type \id{UserData}, i.e. a pointer to a structure which contains an array of 
+\id{NP} \id{realtype} values.
+
+The program prologue ends by defining three additional private helper functions. The first
+one, \id{WrongArgs} (which would not be present in a typical user code) prints a usage
+message and stops execution if the command line arguments to \id{cvfdx} are wrong.
+After each successful return from the main {\cvodes} integrator, the functions 
+\id{PrintOutput} and \id{PrintOutputS} print the state and sensitivity variables,
+respectively. The program does not define any additional user-supplied functions 
+since this example uses the {\cvodes} internal difference quotient routines to compute
+the sensitivity equations right hand sides (see below).
+
+The \id{main} function begins with definitions and type declarations. In addition to 
+those in \id{cvdx.s}, it defines the vector \id{pbar} of \id{NP} scaling factors for
+the model parameters \id{p}, the array \id{plist} of \id{integertype} flags specifying
+the sensitivity parameters among the model parameters, and the array \id{yS} of 
+\id{N\_Vector}'s which will contain the initial conditions and solutions for the sensitivity
+variables. It also declares the variable \id{data} of type \id{UserData} 
+which will contain the user-data structure to be passed to {\cvodes} and used in the 
+evaluation of the ODEs right hand sides.
+
+The first code block in \id{main} deals with reading and interpreting the
+command line arguments. \id{cvfdx} can be run with or without sensitivity computations
+turned on and with different selections for the sensitivity method and error control strategy.
+
+Next, the serial machine environment variable \id{machEnv} is initialized by calling
+the {\nvecs} function \id{M\_EnvInit\_Serial} and the user-data structure is allocated
+and initialized with the model parameter values.
+\index{examples, forward sensitivity!serial sample program!user data}
+
+The next block of code is identical to that in \id{cvdx.c} and involves allocation and 
+initialization of the state variables and integration tolerances for the state variables,
+initialization of \id{cvode\_mem} and of the {\cvodes} solver memory. It also attaches {\cvdense},
+with a non-\id{NULL} Jacobian function, as the linear solver to be used in the Newton 
+nonlinear solver.
+
+If sensitivity analysis is enabled (through the command line arguments), 
+the main program will then set the scaling parameters
+\id{pbar} (\id{pbar}$_i$ = \id{p}$_i$, which can typically be used for 
+non-zero model parameters) and the array of flags \id{plist}. The choice \id{plist}$_i=i+1$
+indicates that sensitivities with respect to all model parameters will be computed.
+Next, the program allocates memory for \id{yS}, by calling the {\nvector} function 
+\id{N\_VNew\_S}, and initializaes all sensitivity variables to $0.0$.
+
+The call to \id{CVodeSensMalloc} specifies the sensitivity solution method through 
+\id{sensi\-meth} (read from the command line arguments) as \id{SIMULTANEOUS}, 
+\id{STAGGERED}, or \id{STAGGERED1} and the error control strategy through \id{err\_con}
+(also read from the command line arguments) as either \id{FULL} or \id{PARTIAL}.
+The \id{ifS} parameter indicates the type of sensitivity right hand side function
+(\id{ALLSENS}, or \id{ONESENS} if the \id{STAGGERED1} approach was selected),
+while the first \id{NULL} parameter indicates that the {\cvodes} internal difference quotient 
+routines (\id{CVSensRhsDQ} or \id{CVSensRhsDQ1}, depending on the value of \id{ifS})
+should be used. The last two \id{NULL} parameters in the call to \id{CVodeSensMalloc}
+force {\cvodes} to set the relative and absolute
+tolerances \id{rtolS} and \id{atolS} for sensitivity variables based on the tolerances for 
+state variables and the scaling parameters \id{pbar} (see \S\ref{ss:fwd_sensi} for details).
+
+The return value of \id{CVodeSensMalloc} is an \id{int} flag. In case of failure
+(\id{flag != SUCCESS}), the main program prints an error message and stops execution.
+
+Next, in a loop over the \id{NOUT} output times, the program calls the integration
+routine \id{CVode} which, if sensitivity analysis was initialized through the call
+to \id{CVodeSensMalloc}, computes both state and sensitivity variables. However,
+\id{CVode} returns only the state solution at \id{tout} in the vector \id{y}.
+The program tests the return from \id{CVode} for a value other than \id{SUCCESS} and
+prints the state variables.
+Sensitivity variables at \id{tout} are loaded into \id{yS} by calling \id{CVodeSensExtract}.
+The program tests the return from \id{CVodeSensExtract} for a value other than \id{SUCCESS} 
+and then prints the sensitivity variables.
+
+Finally, the program prints some final statistics and deallocates memory through calls
+to \id{N\_VFree}, \id{N\_VFree\_S}, \id{CVodeFree}, and \id{M\_EnvFree\_Serial}.
+
+The user-supplied functions \id{f} for the right hand side of the original ODEs and
+\id{Jac} for the system Jacobian are identical to those in \id{cvdx.c} with the 
+notable exeption that model parameters are extracted from the user-data structure
+\id{f\_data}, which must be first cast to the \id{UserData} type.
+\index{examples, forward sensitivity!serial sample program!explanation of|)}
+
+Sample outputs from \id{cvfdx}, for two different combinations of command line arguments, 
+follows. The command to execute this program must have the form:
+\begin{verbatim}
+% cvfdx -nosensi
+\end{verbatim} 
+if no sensitivity calculations are desired, or
+\begin{verbatim}
+% cvfdx -sensi sensi_meth err_con
+\end{verbatim}
+where \id{sensi\_meth} must be one of \id{sim}, \id{stg}, or \id{stg1} to
+indicate the \id{SIMULTANEOUS}, \id{STAGGERED}, or \id{STAGGERED1} method,
+respectively and \id{err\_con} must be one of \id{full} or \id{partial} to
+select the \id{FULL} or \id{PARTIAL} error control strategy, respectively.
+
+\index{examples, forward sensitivity!serial sample program!output|(}
+The output generated by \id{cvfdx} when computing sensitivities with the \id{SIMULTANEOUS}
+method and \id{FULL} error control (\id{cvfdx -sensi sim full}) is:
+{\small\input{cvs_cvfdxo1}}
+
+The output generated by \id{cvfdx} when computing sensitivities with the \id{STAGGERED1}
+method and \id{PARTIAL} error control (\id{cvfdx -sensi stg1 partial}) is:
+{\small\input{cvs_cvfdxo2}}
+\index{examples, forward sensitivity!serial sample program!output|)}
+
+%----------------------------------------------------------------------------------
+
+\subsection{A Parallel Sample Program}\label{ss:parallel_fwd_ex}
+
+\index{examples, forward sensitivity!parallel sample program!problem solved by|(}
+The second example program for forward sensitivity analysis, \id{pvfkx} is the
+semi-discrete form of a two-species diurnal kinetics advection-diffusion PDE 
+system in 2-D space (\ref{e:pvkx:pde}), described in \S\ref{ss:parallel_sim_ex}, 
+for which we compute solution sensitivities with respect to the parameters $q_1$ 
+and $q_2$ that appear in the kinetic rate terms (\ref{e:pvkx:r}).
+\index{examples, forward sensitivity!parallel sample program!problem solved by|)}
+
+\index{examples, forward sensitivity!parallel sample program!explanation of|(}
+The source code for this example is listed in \A\ref{ss:pvfkx}.
+The overall structure of the \id{main} function is very
+similar to that of the code \id{cvfdx} (\S\ref{ss:serial_fwd_ex}) with 
+differences arising from the use of the parallel vector module.
+On the other hand, the user-supplied routines in \id{pvfkx},
+\id{f} for the right-hand side of the original system,
+\id{Precond} for the preconditioner set-up, and \id{PSolve} for the
+preconditioner solve, are identical to those defined for the sample program
+\id{pvkx} (see \S\ref{ss:parallel_sim_ex}). The only difference is in the
+routine \id{fcalc}, which operates on local data only and contains the actual 
+calculation of $f(t,u)$, where the problem parameters are first extracted from
+the user data structure \id{data}. The program \id{pvfkx} defines no additional
+user-supplied routines, as it uses the {\cvodes} internal difference quotient routines 
+to compute the sensitivity equation right hand sides (as indicated by passing
+\id{NULL} for \id{fS} in the call to \id{CVodeSensMalloc}).
+\index{examples, forward sensitivity!parallel sample program!explanation of|)}
+
+Sample outputs from \id{pvfkx}, for two different combinations of command line arguments, 
+follow. The command to execute this program must have the form:
+\begin{verbatim}
+% mpirun -np nproc pvfkx -nosensi
+\end{verbatim} 
+if no sensitivity calculations are desired, or
+\begin{verbatim}
+% mpirun -np nproc pvfkx -sensi sensi_meth err_con
+\end{verbatim}
+where \id{nproc} is the number of processes, \id{sensi\_meth} must be one of \id{sim}, 
+\id{stg}, or \id{stg1} to
+indicate the \id{SIMULTANEOUS}, \id{STAGGERED}, or \id{STAGGERED1} method,
+respectively and \id{err\_con} must be one of \id{full} or \id{partial} to
+select the \id{FULL} or \id{PARTIAL} error control strategy, respectively.
+
+\index{examples, forward sensitivity!parallel sample program!output|(}
+The output generated by \id{pvfkx} when computing sensitivities with the \id{SIMULTANEOUS}
+method and \id{FULL} error control (\id{mpirun -np 4 pvfkx -sensi sim full}) is:
+{\small\input{cvs_pvfkxo1}}
+
+The output generated by \id{pvfkx} when computing sensitivities with the \id{STAGGERED1}
+method and \id{PARTIAL} error control (\id{mpirun -np 4 pvfkx -sensi stg1 partial}) is:
+{\small\input{cvs_pvfkxo2}}
+\index{examples, forward sensitivity!parallel sample program!output|)}

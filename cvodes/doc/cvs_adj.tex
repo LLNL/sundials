@@ -1,0 +1,632 @@
+%===================================================================================
+\section{Using {\cvodes} for Adjoint Sensitivity Analysis}\label{s:adjoint}
+%===================================================================================
+
+This section describes the use of {\cvodes} to compute sensitivities of derived 
+functions using adjoint sensitivity analysis. As mentioned before, the adjoint
+sensitivity module of {\cvodes} provides the infrastructure for integrating
+backwards in time any system of ODEs that depends on the solution of the original
+IVP, by providing various interfaces to the main {\cvodes} integrator, as well 
+as several supporting user-callable routines. For this reason, in the following
+sections we refer to the {\em backward problem} and not to the 
+{\em adjoint problem} when discussing details relevant to the ODEs that
+are integrated backwards in  time. The backward problem can be the adjoint problem
+(\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}),
+maybe augmented with some quadrature differential equations.
+
+We begin with a brief overview, in the form of a skeleton user program.
+Following that are detailed descriptions of the interface to the
+various user-callable routines and of the user-supplied routines that were not already
+described in \S\ref{s:simulation}.
+%-----------------------------
+\subsection{A Skeleton of the User's Main Program}\label{ss:skeleton_adj}
+%-----------------------------
+
+The following is a skeleton of the user's main program as an application of
+{\cvodes}. The user program is to have these steps in the order indicated, 
+unless otherwise noted. For the sake of brevity, we defer many of the details to 
+the later sections.
+As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
+implementation used; where this is not the case, usage specifications are given for the
+two implementations provided with {\cvodes}: steps marked with {\p} correspond to 
+{\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
+
+\begin{enumerate}
+
+\item
+  Include necessary header files. The header file that is always required
+  is \Id{cvodea.h} which defines additional types and constants, and includes
+  function prototypes for the adjoint sensitivity module user-callable routines.
+  The header file \id{cvodes.h} need not be included by the user, as it is included 
+  by \id{cvodea.h}. In addition, the main program should include an {\nvector} 
+  implementation header file (\id{nvector\_serial.h} or \id{nvector\_parallel.h}
+  for the two implementations provided with {\cvodes}) and, if Newton iteration 
+  was selected, a header file from the desired linear solver module.
+
+\item
+  {\p} If MPI is needed by the user code, call \id{MPI\_Init(\&argc, \&argv);}
+
+\item
+  Set problem dimensions for the forward problem:
+
+  {\s} set \id{N}; {\p} set \id{N} and \id{Nlocal};
+
+\item
+  Initialize the machine environment block for the forward problem by calling 
+  the appropriate implementation-dependent {\nvector} routine:
+
+  {\s} \id{M\_EnvInit\_Serial}; {\p} \id{M\_EnvInit\_Parallel};
+
+\item
+  Set the vector \id{y0} of initial values for the forward problem; 
+
+\item
+  Call \id{cvode\_mem = }\Id{CVodeMalloc}\id{()} to allocate internal memory for 
+  {\cvodes} and initializes {\cvodes} for the forward problem;
+
+\item
+  If Newton iteration is chosen, initialize the linear solver module 
+  for the forward problem, by calling the appropriate initialization routine;
+
+\item
+  Call \id{cvadj\_mem = }\Id{CVadjMalloc}\id{()} to allocate memory for the 
+  combined forward-backward problem (see \S\ref{sss:cvadjmalloc} for more details). 
+  This call requires \id{Nd}, the number of steps between two consecutive check points;
+
+\item
+  Call \Id{CVodeF}, a wrapper around the {\cvodes} main integration
+  routine \id{CVode}, either in \Id{NORMAL} mode to the time 
+  \id{tout} or in \Id{ONE\_STEP} mode inside a loop (if intermediate
+  solutions of the forward problem are desired (see \S\ref{sss:cvodef}).
+  The final value of \id{tout} (or of \id{t}), denoted \id{tlast}, is then
+  the endpoint $t_1$;
+
+\item \label{i:back_start}
+  Set problem dimensions for the backward problem:
+
+  {\s} set \id{NB}, the number of variables in the backward problem;
+  {\p} set \id{NB} and \id{NBlocal};
+
+\item
+  Initialize the machine environment block for the backward problem by calling 
+  the appropriate implementation-dependent {\nvector} routine
+  (typically the same as for the forward problem):
+  
+  {\s} \id{M\_EnvInit\_Serial}; {\p} \id{M\_EnvInit\_Parallel};
+
+\item
+  Set the vector \id{yB0} of final values for the backward problem;
+
+\item
+  Call \Id{CVodeMallocB}, a wrapper around the \id{CVodeMalloc}, to 
+  allocate internal memory and initialize {\cvodes} for the backward problem
+  (see \S\ref{sss:cvodemallocb});
+
+
+\item \label{i:lin_solverB}
+  If Newton iteration is chosen, initialize the linear solver module 
+  for the backward problem, by calling the appropriate wrapper around 
+  the initialization routines \id{CVDenseB}, \id{CVBandB}, \id{CVDiagB},
+  or \id{CVSpgmrB} (see \S\ref{sss:lin_solv_b}). Note that it is not required
+  to use the same linear solver module for both the forward and the 
+  backward problems; for example, the forward problem could be solved
+  with the {\cvdense} linear solver and the backward problem with {\cvspgmr};
+
+\item \label{i:back_end}
+  Call \Id{CVodeB}, a second wrapper around the {\cvodes} main integration
+  routine \id{CVode}, to integrate the backward problem from \id{tlast}
+  to \id{t0}, returning the solution of the backward problem at \id{t0} into
+  \id{yB} (see \S\ref{sss:cvodeb});
+
+\item
+  Upon completion of the backward integration, call all necessary deallocation
+  routines. These include calls to \id{NV\_Free} for the vectors \id{y} and \id{yB},
+  calls to the appropriate implementation-dependent {\nvector} free routine for
+  the forward and backward machine environment blocks, and calls to \id{CVodeFree}
+  to free the {\cvodes} memory block for the forward problem and to
+  \id{CVadjFree} (see \S\ref{sss:cvadjfree}) to free the memory allocated for the 
+  combined problem. Note that \id{CVadjFree} also deallocates the {\cvodes} memory 
+  for the backward problem;
+
+\item
+  {\p} If MPI was initialized by the user main program, call \id{MPI\_Finalize();}.
+
+\end{enumerate}
+
+The above user interface to the adjoint sensitivity module in {\cvodes} was motivated by
+the desire to keep it as close as possible in look and feel to the one for ODE IVP 
+integration. Note that if steps (\ref{i:back_start})-(\ref{i:back_end}) are not present, 
+a program with the above structure will have the same functionality as one described in
+\S\ref{ss:skeleton_sim} for integration of ODEs, albeit with some overhead due to 
+the check pointing scheme.
+
+%-------------------------------------------------------------------------------
+\subsection{User-Callable Routines for Adjoint Sensitivity Analysis}
+%-------------------------------------------------------------------------------
+
+\subsubsection{Adjoint Sensitivity Allocation Routine}\label{sss:cvadjmalloc}
+
+The routine \ID{CVadjMalloc} allocates internal memory for the combined
+forward-backward integration, other than the {\cvodes} memory block. Space is allocated 
+for the $N_d$ interpolation data points and a linked list of check points is 
+initialized.
+The form of the call to this routine is
+\begin{verbatim}
+cadj_mem = CVadjMalloc(cvode_mem, Nd);
+\end{verbatim}
+where \id{cvode\_mem} is the {\cvodes} memory block for the forward problem
+returned by a previous call to \id{CVodeMalloc} and \id{Nd} is the number of
+integration steps between two consecutive check points.
+If successful, \id{CVadjMalloc} returns a pointer of type \id{void *}. The user
+doesn't need to access this memory block but must pass it to other adjoint module
+user-callable routines. In case of failure (\id{cvode\_mem} is \id{NULL}, \id{Nd} is
+non-positive, or a memory request fails), \id{CVadjMalloc} prints an error
+message to the standard output stream \id{stdout} and returns \id{NULL}.
+
+The user must set \id{Nd} so that all data needed for interpolation of the 
+forward problem solution between two check points fits in memory. \id{CVadjMalloc}
+attempts to allocate space for $(2$\id{Nd}$+3)$ vectors of length \id{N}, the
+dimension of the forward problem.
+
+\subsubsection{Forward Integration Routine}\label{sss:cvodef}
+
+The routine \ID{CVodeF} is very similar to the {\cvodes} routine \id{CVode}
+(see \S\ref{sss:cvode}) in that it integrates the solution of the forward
+problem and returns the solution in \id{y}. At the same time,
+however, \id{CVodeF} stores check point data every \id{Nd} integration steps.
+\id{CVodeF} can be called repeatedly by the user. The last value of \id{tout} 
+(or of \id{t}), \id{tlast}, will be used as the starting time for the backward 
+integration.
+
+The call to this routine has the form
+\begin{verbatim}
+ier = CVodeF(cadj_mem, tout, y, &t, itask, &ncheckPtr);
+\end{verbatim}
+Most of its arguments have names and meanings identical to those of \id{CVode}.
+In addition, \id{CVodeF} takes as first argument the memory pointer \id{cvad\_mem}
+returned by \id{CVadjMalloc} and returns in its last argument the final number of 
+check points. If an error occured during the memory allocation of a new check
+point, \id{CVodeF} returns \Id{CVODEF\_MEM\_FAIL} and prints an error message to 
+\id{stdout}. Otherwise, since \id{CVodeF} wraps around \id{CVode}, its return 
+value \id{ier} is the return value of \id{CVode} (see \S\ref{sss:cvode}): 
+\Id{SUCCESS}\id{=0} or \Id{TSTOP\_RETURN}\id{=1} for a successful return, 
+or a negative value in case of failure.
+
+Note that, at this time, \id{CVodeF} stores check point information into memory
+only. Future versions will provide for a safe-guard option of dumping check point
+data to a temporary file as needed. The data stored at each check point is basically
+a snapshot of the {\cvodes} internal memory block and contains enough information
+to restart the integration from that time and proceed with the same stepsize and
+method order sequence as during the forward integration.
+
+\subsubsection{Backward Problem Initialization Routine}\label{sss:cvodemallocb}
+
+The routine \ID{CVodeMallocB} initializes and allocates memory for the backward
+problem. It has the following form
+\begin{verbatim}
+ier = CVodeMallocB(cvadj_mem, NB, fB, yB0, lmmB, iterB, itolB, &rtolB, 
+                   atolB, f_dataB, errfpB, optInB, ioptB, roptB, machEnvB);
+\end{verbatim}
+and is essentially a call to \id{CVodeMalloc} with some particularization for 
+backward integration. First, \id{CVodeMallocB} takes as an argument 
+\id{cvadj\_mem}, the memory pointer returned by \id{CVadjMalloc}.
+Secondly, no integration starting time is required, as the backward integration 
+starts with the \id{tlast} value from the last \id{CVodeF} call. Finally, the 
+argument \id{fB}, the {\C} function to compute the right hand side of the 
+backward problem, must be of type \id{RhsFnB} and
+has the form \id{fB(NB, t, y, yB, yBdot, f\_dataB)} 
+(see \S\ref{ss:user_fct_adj} for details). 
+All other arguments are equivalent to those of \id{CVodeMalloc}.
+The relative and absolute tolerances \id{rtolB} and \id{atolB} for \id{yB} need
+to be set appropriately; this may require some experimentation. Data that could
+help in the selection of appropriate tolerances includes the time scale of the
+forward problem (including the actual initial stepsize used, available in the
+optional I/O real array at \id{ropt[HOU]}), the \id{yB} values at $t_0$ after
+the backward integration phase, and (if an adjoint problem is integrated 
+backwards in time) the value of the gradient $g_y$ at time $t_1$.
+
+The return value of \id{CVodeMallocB} is \Id{SUCCESS} if there were no errors,
+\Id{CVBM\_NO\_MEM} if \id{cvadj\_mem} was \id{NULL}, or \id{CVBM\_MEM\_FAIL}
+if a memory request failed.
+
+\subsubsection{Linear Solver Initialization Routines for Backward Problem}\label{sss:lin_solv_b}
+
+\index{CVODES@{\cvodes} linear solvers!usage with adjoint module|(} 
+The adjoint sensitivity module in {\cvodes} provides interfaces to the initialization
+routines of all supported linear solver modules for the case in which Newton
+iteration is selected for the solution of the backward problem. The initialization
+routines described in \S\ref{sss:lin_solv_init} cannot be directly used since the
+optional user-defined Jacobian-related routines have different prototypes for the
+backward problem than for the forward problem. The initialization routine
+\id{CVDiag} for the diagonal linear solver can be used directly, since {\cvdiag}
+does not provide for a user-defined diagonal Jacobian approximation routine. 
+\index{CVODES@{\cvodes} linear solvers!usage with adjoint module|)} 
+
+\begin{itemize}
+
+\item {\em Dense linear solver initialization}
+  \index{CVDENSE@{\cvdense} linear solver!usage with adjoint module|(}
+
+  In order to use the {\cvdense} solver for the backward problem, after the call to 
+  \id{CVodeMallocB}, the calling program must make the call
+\begin{verbatim}
+ier = CVDenseB(cvadj_mem, djacB, jac_dataB);
+\end{verbatim}
+  The argument \id{cvadj\_mem} is a pointer to the memory block
+  returned by \id{CVadjMalloc}. The {\cvdense} solver routine for computing a
+  dense approximation to the Jacobian matrix of the backward problem must be
+  of type \id{CVDenseJacFnB}, and is communicated through the argument
+  \id{djacB}. The user can supply his/her own dense Jacobian routine
+  (see \S\ref{ss:user_fct_adj}), or use the difference quotient routine 
+  \Id{CVDenseDQJac} that comes with the {\cvdense} solver.  To use 
+  \id{CVDenseDQJac}, the user must pass \id{NULL} for the \id{djacB} parameter.
+  As with \id{CVDense}, \id{jac\_dataB} is a pointer to a user-defined 
+  data structure that the {\cvdense} solver passes to its Jacobian function
+  and which can be used to store data relevant to the Jacobian computation.
+  
+  The possible return values \id{ier} are identical to those of \id{CVDense}
+  (see \S\ref{sss:lin_solv_init}).
+  \index{CVDENSE@{\cvdense} linear solver!usage with adjoint module|)}
+
+\item {\em Banded linear solver initialization}
+  \index{CVBAND@{\cvband} linear solver!usage with adjoint module|(}
+
+  In order to use the {\cvband} solver for the backward problem, after the call to 
+  \id{CVodeMallocB}, the calling program must make the call
+\begin{verbatim}
+ier = CVBandB(cvadj_mem, mupperB, mlowerB, bjacB, jac_dataB);
+\end{verbatim}  
+  The \ID{CVBandB} argument \id{cvadj\_mem} is a pointer to the memory block
+  returned by \id{CVadjMalloc}. The upper and lower bandwidths of the 
+  Jacobian of the backward problem (or its approximation) are specified 
+  in this call through the \id{mupperB} and \id{mlowerB} parameters.
+  The {\cvband} solver routine for computing a
+  banded approximation to the Jacobian matrix of the backward problem must be
+  of type \id{CVBandJacFnB}, and is communicated through the argument
+  \id{bjacB}. The user can supply his/her own banded Jacobian routine
+  (see \S\ref{ss:user_fct_adj}), or use the difference quotient routine 
+  \Id{CVBandDQJac} that comes with the {\cvband} solver.  To use 
+  \id{CVBandDQJac}, the user must pass \id{NULL} for the \id{bjacB} parameter.
+  As before, \id{jac\_dataB} is a pointer to a user-defined 
+  data structure that the {\cvband} solver passes to its Jacobian function
+  and which can be used to store data relevant to the Jacobian computation.
+
+  The possible return values \id{ier} are identical to those of \id{CVBand}
+  (see \S\ref{sss:lin_solv_init}).
+  \index{CVBAND@{\cvband} linear solver!usage with adjoint module|)}
+
+\item {\em {\spgmr} linear solver initialization}
+  \index{CVSPGMR@{\cvspgmr} linear solver!usage with adjoint module|(} 
+  
+  The {\cvspgmr} solver can be linked to {\cvodes} for use during the
+  backward problem solution by calling the routine \ID{CVSpgmrB}. The
+  call to this routine has the following form:
+\begin{verbatim}
+ier = CVSpgmrB(cvadj_mem, pretypeB, gstypeB, maxlB, deltB, PrecondB, 
+               PSolveB, P_dataB, jtimesB, jac_dataB);
+\end{verbatim}
+  The first argument, \id{cvadj\_mem}, is a pointer to the memory block
+  returned by \id{CVadjMalloc}. The rest of the arguments are equivalent 
+  to those of \id{CVSpgmr} (see \S\ref{sss:lin_solv_init}) with the 
+  following exceptions:
+  \begin{itemize}
+  \item \id{PrecondB}, the optional user-defined preconditioner setup
+    routine, must now have function type \id{CVSpgmrPrecondFnB};
+  \item \id{PSolveB}, the user-defined preconditioner solve routine,
+    must now have function type \id{CVSpgmrPSolveFnB};
+  \item \id{jtimesB}, the optional user-defined Jacobian times vector 
+    routine, must now be of type \id{CVSpgmrJtimesFnB}. The user can 
+    supply his/her own Jacobian times vector approximation routine, 
+    or use the difference quotient routine \Id{CVSpgmrDQJtimes}.
+    To use the \id{CVSpgmrDQJtimes}, the user must pass \id{NULL} 
+    for \id{jtimesB}.
+  \end{itemize}
+  For details on the prototypes of these user-defined functions, 
+  see \S\ref{ss:user_fct_adj}.
+  The possible return values \id{ier} are identical to those of \id{CVSpgmr}
+  (see \S\ref{sss:lin_solv_init}).
+  \index{CVSPGMR@{\cvspgmr} linear solver!usage with adjoint module|)} 
+
+
+\end{itemize}
+
+\subsubsection{Backward Integration Routine}\label{sss:cvodeb}
+
+The routine \ID{CVodeB} performs the integration of the backward problem
+from the final to the initial time. It is essentially a wrapper
+around the {\cvodes} main integration routine \id{CVode} and, in the case
+in which check points were needed, it evolves the solution of the backward 
+problem through a sequence of forward-backward integrations between consecutive
+check points. The first run integrates the original IVP forward in time and
+stores interpolation data; the second run integrates the backward problem 
+backward in time and performs Hermite interpolation to provide
+the solution of the IVP to the backward problem.
+
+The call to this routine has the form
+\begin{verbatim}
+ier = CVodeB(cvadj_mem, yB);
+\end{verbatim}
+and loads the solution of the backward problem at the initial time into
+\id{yB}. 
+
+If \id{CVodeB} successfully integrates the backward problem, the return value
+is \Id{TSTOP\_RETURN}=1, as the \id{TSTOP} option is automatically turned on in this
+phase. If an error occurred, \id{CVodeB} prints an error message indicating whether 
+the error occurred during the forward or the backward integration phase and returns 
+\id{ier} from \id{CVode} (see \S\ref{sss:cvode}).
+
+\subsubsection{Adjoint Sensitivity Deallocation Routine}\label{sss:cvadjfree}
+
+To free the \id{cvadj\_mem} memory block allocated by \id{CVadjMalloc}, the
+user must call \ID{CVadjFree}. The call to this routine has the form
+\begin{verbatim}
+CVadjFree(cvadj_mem);
+\end{verbatim}
+and it frees check-point-related memory, as well as the {\cvodes} memory block
+allocated for the integration of the backward problem. There is no return 
+value for \id{CVadjFree}.
+
+\subsubsection{Check Point Listing Routine}
+
+For debugging purposes, {\cvodes} provides a routine \ID{CVadjCheckPointsList} which
+displays partial information from the linked list of check points generated by
+\id{CVodeF}. The call to this routine has the form:
+\begin{verbatim}
+CVadjCheckPointsList(cvadj_mem);
+\end{verbatim}
+For a typical output of \id{CVadjCheckPointsList}, see the example section
+\S\ref{ss:serial_adj_ex}.
+
+%-------------------------------------------------------------------
+\subsection{User-Supplied Routines for Adjoint Sensitivity Analysis}\label{ss:user_fct_adj}
+%-------------------------------------------------------------------
+
+In addition to the required ODE right hand side routine and any optional routines
+for the forward problem, when using the adjoint sensitivity module in {\cvodes},
+the user must supply one function defining the backward problem ODE and, optionally,
+routines to supply Jacobian related information (if Newton iteration is chosen) and
+one or two functions that define the preconditioner (if the {\cvspgmr} solver is
+selected) for the backward problem.
+
+Type definitions for all these user-supplied routines are given below.
+
+\begin{itemize}
+
+\item{\em ODE right hand side for the backward problem}
+  \index{adjoint sensitivity analysis!right hand side evaluation|(}
+  \index{right hand side function!adjoint backward problem|(}
+
+  The user must provide a function of type \ID{RhsFnB} defined by
+\begin{verbatim}
+typedef void (*RhsFnB)(integertype NB, realtype t, N_Vector y, 
+                       N_Vector yB, N_Vector yBdot, void *f_dataB);
+\end{verbatim}
+  to compute the right hand side of the backward problem ODE system.
+  This could be (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}), 
+  possibly with one or more quadrature ODEs appended.
+
+  This function takes as input the size \id{NB} of the backward problem, the 
+  independent variable value \id{t}, and the dependent variable vector \id{yB},
+  as well as the solution of the original IVP \id{y} at time \id{t}.  
+  It must store the backward problem right hand side in the vector \id{yBdot}.  
+  Allocation of memory for \id{yBdot} is handled within {\cvodes}.
+  
+  The \id{y}, \id{yB}, and \id{yBdot} arguments are all of type \id{N\_Vector},
+  but \id{yB} and \id{yBdot}  typically have different internal representations
+  from \id{y}. It is the user's 
+  responsibility to access the vector data consistently (including the use of the 
+  correct accessor macros from each {\nvector} implementation). For the sake of 
+  computational efficiency, the vector kernels in the two {\nvector} implementations 
+  provided with {\cvodes} do not perform any consistency checking for their 
+  \id{N\_Vector} arguments (see \S\ref{ss:nvec_ser} and \S\ref{ss:nvec_par}).
+
+  The \id{f\_dataB} parameter is the same as the \id{f\_dataB} parameter passed by 
+  the user to the \id{CVodeMallocB} routine. This user-supplied pointer is passed to 
+  the user's \id{fB} function every time it is called and can be the same as the 
+  \id{f\_data} pointer used for the forward problem.
+  A \id{RhsFnB} function type does not have a return value.
+  \index{right hand side function!adjoint backward problem|)}
+  \index{adjoint sensitivity analysis!right hand side evaluation|)}
+
+\item {\em Jacobian information for the backward problem
+    (direct method with dense Jacobian)}
+  
+  If the direct linear solver with dense treatment of the Jacobian is selected
+  for the backward problem (i.e. \Id{CVDenseB} is called in step \ref{i:lin_solverB} 
+  of \S\ref{ss:skeleton_adj}), the user may provide a function of type \ID{CVDenseJacFnB} 
+  defined by
+\begin{verbatim}
+typedef void (*CVDenseJacFnB)(integertype NB, DenseMat JB, RhsFnB fB, 
+                           void *f_dataB, realtype t, N_Vector y, 
+                           N_Vector yB, N_Vector fyB, N_Vector ewtB,
+                           realtype hB, realtype uroundB, void *jac_dataB,
+                           long int *nfePtrB, N_Vector vtemp1B,
+                           N_Vector vtemp2B, N_Vector vtemp3B);
+\end{verbatim}
+  to compute the dense Jacobian of the backward problem (or an approximation
+  to it). If the backward problem is the adjoint of the original IVP then
+  this Jacobian is nothing else than the transpose of $J = \dfdyI$ with
+  a change in sign.
+
+  A user-supplied dense Jacobian routine must load the \id{NB} by \id{NB}
+  dense matrix \id{JB} with an approximation to the Jacobian matrix
+  at the point (\id{t},\id{y},\id{yB}), where \id{y} is the solution
+  of the original IVP at time \id{t} and \id{yB} is the solution of the
+  backward problem at the same time.
+  Only nonzero elements need to be loaded into \id{JB} as this matrix 
+  is set to zero before the call to the Jacobian routine. 
+  The type of \id{JB} is \Id{DenseMat}. The user is referred to 
+  \S\ref{ss:user_fct_sim} (page \pageref{p:djac}) for details regarding 
+  accessing a \id{DenseMat} object as well as details on the rest of the 
+  arguments of a function of type \id{CVDenseJacFnB}.
+
+  Typically, a user-supplied Jacobian function \id{djacB} would be
+  expected to access the arguments \id{NB}, \id{t}, \id{y}, \id{yB}, \id{JB}, 
+  \id{f\_dataB}, and \id{jac\_dataB}, at most. The remaining arguments 
+  would not typically be accessed, but appear in the call list because
+  they are needed by the function \id{CVDenseDQJac} that computes a
+  difference quotient dense Jacobian approximation, when the user specifies that
+  option.
+
+\item {\em Jacobian information for the backward problem
+    (direct method with banded Jacobian)}
+
+  If the direct linear solver with banded treatment of the Jacobian is selected
+  for the backward problem (i.e. \Id{CVBandB} is called in step \ref{i:lin_solverB} 
+  of \S\ref{ss:skeleton_adj}), the user may provide a function of type \ID{CVBandJacFnB} 
+  defined by
+\begin{verbatim}
+typedef void (*CVBandJacFnB)(integertype NB, integertype mupperB, 
+                             integertype mlowerB, BandMat JB, RhsFnB fB, 
+                             void *f_dataB, realtype t, N_Vector y, 
+                             N_Vector yB, N_Vector fyB, N_Vector ewtB, 
+                             realtype hB, realtype uroundB, void *jac_dataB, 
+                             long int *nfePtrB, N_Vector vtemp1B, 
+                             N_Vector vtemp2B, N_Vector vtemp3B);
+\end{verbatim}
+  to compute the banded Jacobian of the backward problem (or an approximation
+  to it).
+
+  A user-supplied band Jacobian routine must load the band matrix \id{JB}
+  of type \Id{BandMat} with the elements of the Jacobian at the
+  point (\id{t},\id{y},\id{yB}), where \id{y} is the solution
+  of the original IVP at time \id{t} and \id{yB} is the solution of the
+  backward problem at the same time.  
+  Only nonzero elements need to be loaded into
+  \id{JB} because \id{JB} is preset to zero before the call to the
+  Jacobian routine. More details on the accessor macros provided for
+  a \id{BandMat} object and on the rest of the arguments of a function
+  of type \id{CVBandJacFnB} are given in \S\ref{ss:user_fct_sim} on page
+  \pageref{p:bjac}.
+
+  Typically, a user-supplied Jacobian function \id{bjacB} would be
+  expected to access the arguments \id{NB}, \id{mupperb}, \id{mlowerB},
+  \id{t}, \id{y}, \id{yB}, \id{JB}, \id{f\_dataB}, and \id{jac\_dataB}, at most.
+  The remaining arguments would not typically be accessed, but appear in
+  the call list because they are needed by the function \id{CVBandDQJac}
+  that computes a difference quotient banded Jacobian approximation, when the
+  user specifies that option.
+
+\item {\em Jacobian information for the backward problem
+    ({\spgmr} case)}
+
+  If an iterative {\spgmr} linear solver is selected (\id{CVSpgmrB} is called in step 
+  \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}) the user may provide a function
+  of type \ID{CVSpgmrJtimesFnB} in the form 
+\begin{verbatim}
+typedef int (*CVSpgmrJtimesFnB)(integertype NB, N_Vector vB, N_Vector JvB, 
+                                RhsFnB fB, void *f_dataB, realtype t, 
+                                N_Vector y, N_Vector yB, N_Vector fyB,
+                                realtype vnrmB, N_Vector ewtB, realtype hB, 
+                                realtype uroundB, void *jac_dataB, 
+                                long int *nfePtrB, N_Vector workB);
+\end{verbatim}
+  to compute the action of the Jacobian on a given vector \id{vB} for
+  the backward problem (or an approximation to it).
+  A user-supplied Jacobian times vector routine must load the vector \id{JvB}
+  with the result of the product between the Jacobian of the backward problem 
+  at the point (\id{t},\id{y}, \id{yB}) and the vector \id{vB} of dimension 
+  \id{NB}. Here, \id{y} is the solution of the original IVP at time \id{t} and 
+  \id{yB} is the solution of the backward problem at the same time.  
+  The rest of the arguments are equivalent to those of a function of type
+  \id{CVSpgmrJtimesFn} (see \S\ref{ss:user_fct_sim} on page \pageref{p:jtimes}).
+  If the backward problem is the adjoint of ${\dot y} = f(t, y)$, then this 
+  routine is to compute $-(\dfdyI)^T v_B$.
+
+  The return value of a function of type \id{CVSpgmrJtimesFnB} should be
+  $0$ if successful or non-zero if an error was encountered, in which case
+  the integration is halted.
+
+\item {\em Preconditioning for the backward problem
+    (linear system solution)}
+
+  If preconditioning is used during integration of the backward problem, 
+  then the user must provide a {\C} function to solve the linear system 
+  $Pz = r$ where $P$ may be either a left or a right preconditioner matrix.
+  This function must be of type \ID{CVSpgmrPSolveFnB} defined by
+\begin{verbatim}
+typedef int (*CVSpgmrPSolveFnB)(integertype NB, realtype t, N_Vector y, 
+                                N_Vector yB, N_Vector fyB, 
+                                N_Vector vtempB,  realtype gammaB, 
+                                N_Vector ewtB, realtype deltaB, 
+                                long int *nfePtrB, N_Vector rB, 
+                                int lrB, void *P_dataB, N_Vector zB);
+\end{verbatim}
+  The only difference between this function type and \id{CVSpgmrPSolveFn}
+  (defined in \S\ref{ss:user_fct_sim} on page \pageref{p:psolve}) is that
+  a function of type \id{CVSpgmrPSolveFnB} also receives as an argument
+  \id{y}, the solution of the forward problem at time \id{t}.
+
+  The return value of a preconditioner solve routine for the backward
+  problem should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried),     
+  negative for an unrecoverable error (in which case the integration is halted).
+
+\item {\em Preconditioning for the backward problem
+    (Jacobian data)}
+
+  If the user's preconditioner requires that any Jacobian related data
+  be evaluated or preprocessed, then this needs to be done in a
+  user-supplied {\C} function of type \ID{CVSpgmrPrecondFnB} 
+  as defined by
+\begin{verbatim}
+typedef int (*CVSpgmrPrecondFnB)(integertype NB, realtype t, N_Vector y, 
+                             N_Vector yB, N_Vector fyB, booleantype jokB, 
+                             booleantype *jcurPtrB, realtype gammaB,
+                             N_Vector ewtB, realtype hB, realtype uroundB,
+                             long int *nfePtrB, void *P_dataB,
+                             N_Vector vtemp1B, N_Vector vtemp2B,
+                             N_Vector vtemp3B);
+\end{verbatim}
+  This function type is identical to the type \id{CVSpgmrPrecondFn}
+  (\S\ref{ss:user_fct_sim} on page \pageref{p:precond}) with the exception
+  of the additional argument \id{y} which contains the solution of the 
+  forward problem at time \id{t}.
+
+  The return value of a preconditioner setup routine for the backward
+  problem should be $0$ if successful, 
+  positive for a recoverable error (in which case the step will be retried),     
+  negative for an unrecoverable error (in which case the integration is halted).
+
+\end{itemize}
+
+%-------------------------------------------------------------------
+\subsection{Using the Banded Preconditioner Module for Adjoint Sensitivity Analysis}
+%-------------------------------------------------------------------
+
+\index{CVBANDPRE@{\cvbandpre} preconditioner!usage with adjoint module|(}
+The adjoint sensitivity module in {\cvodes} offers an interface to the banded 
+preconditioner module {\cvbandpre} described in section \S\ref{sss:cvbandpre}.
+This preconditioner provides a band matrix preconditioner based on difference
+quotients of the backward problem right hand side function \id{fB}. It generates
+a banded approximation to the Jacobian with $m_{lB}$ sub-diagonals and $m_{uB}$
+super-diagonals to be used with the Krylov linear solver in {\cvspgmr}.
+
+In order to use the {\cvbandpre} module in the solution of the backward problem,
+the user need not define any additional routines. Before the call to \Id{CVSpgmrB}
+(step \ref{i:lin_solverB} in \S\ref{ss:skeleton_adj}), the user must initialize the
+{\cvbandpre} module by calling
+\begin{verbatim}
+bp_dataB = CVBandPreAllocB(cvadj_mem, NB, muB, mlB);
+\end{verbatim}
+where \id{cvadj\_mem} is the pointer to the memory block allocated by
+\id{CVadjMalloc}, \id{NB} is the size of the backward problem, and \id{muB}
+and \id{mlB} are the upper and lower half-bandwidths, respectively. 
+\id{CVBandPreAlloc} returns an object of type \id{CVBandPreData} which must
+then be passed to \id{CVSpgmrB} as the \id{P\_dataB} argument:
+\begin{verbatim}
+ier = CVSpgmrB(cvadj_mem, pretypeB, gstypeB, maxlB, deltB,
+               CVBandPrecondB, CVBandPSolveB, bp_dataB,
+               jtimesB, jac_dataB);
+\end{verbatim}
+Here the preconditioner setup and solve routines \id{CVBandPSolveB} and 
+\id{CVBandPrecondB} are provided in the interface to the {\cvbandpre} module.
+They are never called by the user explicitly but are simply passed as arguments
+to \id{CVSpgmrB}. 
+Although these functions simply call \id{CVBandPSolve} and \id{CVBandPrecond},
+without any other processing, they need to be defined because they must be
+of the correct function types expected by \id{CVSpgmrB}. For example,
+\id{CVBandPSolveB} must be of type \id{CVSpgmrPSolveFnB} and thus receives
+\id{y}, the solution of the original IVP, as an argument 
+(which is consequently ignored as it is not needed by {\cvbandpre}).
+\index{CVBANDPRE@{\cvbandpre} preconditioner!usage with adjoint module|)}

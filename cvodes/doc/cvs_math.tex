@@ -1,0 +1,637 @@
+%===================================================================================
+\section{Mathematical Considerations}\label{s:math}
+%===================================================================================
+
+{\cvodes} solves initial-value problems (IVPs) for systems of ODEs. 
+Such problems can be stated as
+\begin{equation}\label{e:ivp}
+\begin{split}
+&\dot{y} = f(t,\,y) \\
+&y(t_0) = y_0 \, ,
+\end{split}
+\end{equation}
+where $y \in {\bf R}^N$, $\dot{y}\,=dy/dt$ and ${\bf R}^N$ is the real $N$-dimensional
+vector space. That is, (\ref{e:ivp}) represents a system of $N$ ordinary
+differential equations and their initial conditions at some $t_0$. The
+dependent variable is $y$ and the independent variable is $t$. The
+independent variable need not appear explicitly in the $N$-vector valued
+function $f$.
+
+Additionally, if (\ref{e:ivp}) depends on some parameters $p \in {\bf R}^{N_p}$, i.e.
+\begin{equation}\label{e:ivp_p}
+\begin{split}
+&\dot{y}  = f(t,\,y,\,p) \\
+&y(t_0)  = y_0(p) \, ,
+\end{split}
+\end{equation}
+{\cvodes} can also compute first order derivative information, performing either
+{\em forward sensitivity analysis} or {\em adjoint sensitivity analysis}.
+In the first case, {\cvodes} computes the sensitivities of the solution with respect to the 
+parameters $p$, while in the second case, {\cvodes} computes the gradient of a 
+{\em derived function} with respect to the parameters $p$.
+
+%------------------------
+\subsection{IVP Solution}\label{ss:ivp_sol}
+%------------------------
+
+The IVP is solved by one of two numerical methods. These are the
+backward differentiation formula (BDF) \index{BDF method} and the 
+Adams-Moulton formula \index{Adams method}. 
+Both are implemented in a variable-stepsize, variable-order form. The BDF
+uses a fixed-leading-coefficient form. These formulas can both be
+represented by a linear multistep formula 
+\begin{equation}\label{e:lmm}
+\sum_{i=0}^{K_1}\alpha_{n,i}y_{n-i} + h_n\sum_{i=0}^{K_2}\beta_{n,i} 
+\dot{y}_{n-i}=0
+\end{equation}
+where the $N$-vector $y_n$ is the computed approximation to $y(t_n)$,
+the exact solution of (\ref{e:ivp}) at $t_n$. The stepsize is
+$h_n=t_n-t_{n-1}$.  The coefficients $\alpha_{n,i}$ and $\beta_{n,i}$
+are uniquely determined by the particular integration formula, the
+history of the stepsize, and the normalization $\alpha_{n,0}=-1$. The
+Adams-Moulton \index{Adams method} formula is recommended for nonstiff ODEs and is
+represented by (\ref{e:lmm}) with $K_1=1$ and $K_2=q-1$. The order
+of this formula is $q$ and its values range from 1 through 12. For
+stiff ODEs, BDF \index{BDF method} should be selected and is represented by 
+(\ref{e:lmm}) with $K_1=q$ and $K_2=0$. For BDF, the order $q$ may
+take on values from 1 through 5. In the case of either formula, the
+integration begins with $q=1$, and after that $q$ varies automatically
+and dynamically.
+
+For either BDF or the Adams formula, $\dot{y}_n$ denotes
+$f(t_n,\,y_n)$. That is, (\ref{e:lmm}) is an implicit formula, and 
+the nonlinear equation 
+\begin{equation}\label{e:nonlinear}
+\begin{split}
+G(y_n) &\equiv  y_n-h_n\beta_{n,0}f(t_n,\,y_n) - a_n=0   \\
+a_n &= \sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i}) 
+\end{split}
+\end{equation}
+must be solved for $y_{n}$ at each time step. For nonstiff problems,
+functional (or fixpoint) iteration is normally used and does not
+require the solution of a linear system of equations. For stiff
+problems, a Newton iteration is used and for each iteration an
+underlying linear system must be solved. This linear system of
+equations has the form
+\begin{equation}\label{e:Newton}
+M[y_{n(m+1)}-y_{n(m)}]=-G(y_{n(m)}) \, ,
+\end{equation}
+where $y_{n(m)}$ is the $m$th approximation to $y_n$, and $M$
+approximates $\partial G/ \partial y$:
+\begin{equation} \label{e:N_Matrix}
+M \approx I-\gamma J, ~~~~ J = \frac{\partial f}{\partial y}, ~~~~
+    \gamma = h_n\beta_{n,0} ~.
+\end{equation}
+At present, aside from a diagonal Jacobian approximation, the other
+options implemented in {\cvodes} for solving the linear systems
+(\ref{e:Newton}) are:
+\begin{itemize}
+\item a direct method with dense treatment of the Jacobian;
+\item a direct method with band treatment of the Jacobian;
+\item an iterative method {\spgmr} (scaled, preconditioned
+GMRES) \cite{BrHi89}, which is a Krylov subspace method. In most
+cases, performance of {\spgmr} is improved by user-supplied
+preconditioners. The user may precondition the system on the left, on
+the right, on both the left and right, or use no preconditioner.
+\end{itemize}
+In most cases of interest to the {\cvodes} user, the technique of
+integration will involve BDF and the Newton method coupled with one of the 
+linear solver modules.
+
+\index{error control|(}
+The integrator computes an estimate $E_{n}$ of the local error at each time
+step, and strives to satisfy the following inequality
+\begin{equation*}%\label{e:Err}
+\left\| E_n\right\|_{rms,w} < 1 ~.
+\end{equation*}
+Here the weighted root-mean-square norm is defined by
+\begin{equation}\label{e:rms}
+\left\| E_n\right\|_{rms,w}=\left[ \sum_{i=1}^N\frac{1}{N}\left(
+w_iE_{n,i}\right) ^2\right] ^{1/2} \, ,
+\end{equation}
+where $E_{n,i}$ denotes the $i$th component of $E_n$, and the $i$th 
+component of the weight vector is 
+\begin{equation}\label{e:weight}
+w_i=\frac{1}{rtol|y_i|+atol_i} \,.
+\end{equation}
+This permits an arbitrary combination of relative and absolute error control.
+The user-specified relative error tolerance is the scalar $rtol$ and the
+user-specified absolute error tolerance is $atol$ which may be an $N$-vector
+(as indicated above) or a scalar. The value for $rtol$
+indicates the number of digits of relative accuracy for a single time step.
+The specified value for $atol_{i}\;$indicates the values of the
+corresponding component of the solution vector which may be thought of as
+being zero, or at the noise level. In particular, if we set 
+$atol_i=rtol\times floor_i$ then $floor_i$ represents the floor value for the 
+$i$th component of the solution and is that magnitude of the component for
+which there is a crossover from relative error control to absolute error
+control. Since these tolerances define the allowed error per step, they
+should be chosen conservatively. Experience indicates that a conservative
+choice yields a more economical solution than error tolerances that are too
+large.
+\index{error control|)}
+
+The error control mechanism in {\cvodes} varies the stepsize and order
+in an attempt to take minimum number of steps while satisfying the local
+error test. The order control can be (optionally) modified with an algorithm
+that attempts to detect limitations resulting from BDF stability properties.
+
+%----------------------------------------
+\subsection{Forward Sensitivity Analysis}\label{ss:fwd_sensi}
+%----------------------------------------
+\index{forward sensitivity analysis!mathematical background|(}
+Typically, the governing equations of complex, large-scale models
+depend on various parameters,  through the right-hand side vector 
+and/or through the vector of initial conditions:
+\begin{equation}\label{e:orig_eqns}
+\begin{split}
+&\dot{y}  = f(t,\,y,\,p) \\
+&y(t_0)  = y_0(p) \, ,
+\end{split}
+\end{equation}
+where $y \in {\bf R}^N$ and $p \in {\bf R}^{N_p}$.
+In addition to numerically solving the ODEs, it may be desirable to
+determine the sensitivity of the results with respect to the model
+parameters. 
+Such sensitivity information can be used to estimate which
+parameters are most influential in affecting the behavior of the
+simulation or to evaluate optimization gradients (in the setting of dynamic
+optimization, parameter estimation, optimal control, etc.).
+
+The {\em solution sensitivity} with respect to the model parameter
+$p_i$ is defined as the vector:
+\begin{equation}
+s_i (t) = \frac{\partial y(t)}{\partial p_i}
+\end{equation}
+and satisfies the following {\em forward sensitivity equations}
+(or in short {\em sensitivity equations}):
+\begin{equation}\label{e:sens_eqns}
+\begin{split}
+&\dot{s_i}  = \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \\
+&s_i(t_0)  = \frac{\partial y_{0}(p)}{\partial p_i} \, ,
+\end{split}
+\end{equation}
+which are obtained by applying the chain rule of differentiation to the original
+ODEs (\ref{e:orig_eqns}). The initial sensitivity vector $s_i(t_0)$ is either all zeros 
+(if $p_i$ occurs only in $f$), or has nonzeros according to how $y_{0}(p)$
+depends on $p_{i}$.
+
+When performing forward sensitivity analysis, {\cvodes} carries out the time integration 
+of the combined system, (\ref{e:orig_eqns}) and (\ref{e:sens_eqns}), by viewing it as an ODE
+system of size $N(N_s+1)$, where $N_s$ represents a subset of model parameters $p_i$, 
+with respect to which sensitivities are desired ($N_s \le N_p$). 
+However, major efficiency improvements can be obtained by taking advantage of the special 
+form of the sensitivity equations as linearizations of the original ODEs. 
+In particular, for stiff systems, in which case {\cvodes} employs a Newton iteration, 
+the original ODE system and all sensitivity systems share the same Jacobian matrix, 
+and therefore the same iteration matrix $M$ in (\ref{e:N_Matrix}).
+
+The sensitivity equations are solved with the same linear multistep formula that
+was selected for the original ODEs and, if Newton iteration was selected, the
+same linear solver is used in the correction phase for both state and sensitivity 
+variables. In addition, {\cvodes} offers the option of including \index{error control}
+({\em full error control}) or excluding
+({\em partial error control}) the sensitivity variables from the local 
+error test.
+
+\paragraph{Forward sensitivity methods.}
+\index{forward sensitivity analysis!correction strategies|(}
+In what follows we briefly describe three methods that have been proposed for the 
+solution of the combined ODE and sensitivity system. Due to its inefficiency, 
+especially for large-scale problems, the first approach is not implemented in {\cvodes}.
+
+\begin{itemize}
+
+\item {\em Staggered Direct Method}
+  
+  In this method \cite{CS85}, the nonlinear system (\ref{e:nonlinear}) is first solved and, 
+  once an acceptable numerical solution is obtained, the sensitivity variables 
+  are found by the direct solution of 
+  \begin{equation}\label{e:sensi_syst}
+    \dot{s_i}  - \frac{\partial f}{\partial y} s_i = \frac{\partial f}{\partial p_i} \, ,
+  \end{equation}
+  where the BDF discretization is used to eliminate ${\dot s}_i$. Although the 
+  system matrix of the above linear system is based on the exact same information
+  as the matrix $M$ in (\ref{e:N_Matrix}), it must be updated and factored at every
+  step of the integration as $M$ is updated only ocasionally. The computational cost 
+  associated with these matrix updates and factrorizations makes this method 
+  unattractive when compared with the methods described below and is therefore not
+  implemented in {\cvodes}.
+  
+\item {\em Simultaneous Corrector Method}
+
+  In this method \cite{MP96}, the BDF discretization is applied simultaneously
+  to both the original equations (\ref{e:orig_eqns}) and the sensitivity systems
+  (\ref{e:sens_eqns}) resulting in the following nonlinear system 
+  \begin{equation*}
+    {\hat G}({\hat y}_n) \equiv  
+    {\hat y}_n - h_n\beta_{n,0} {\hat f}(t_n,\,{\hat y}_n) - {\hat a}_n = 0 \, ,
+  \end{equation*}
+  where ${\hat y} = [y, \ldots , s_i, \ldots ]$ and
+  ${\hat f} = [ f(t,y,p), \ldots , (\dfdyI)(t,y,p) s_i + (\dfdpiI)(t,y,p) , \ldots ]$
+  and ${\hat a}_n$ are the terms in the BDF discretization that depend on the
+  solution at previous integration steps.
+  This combined nonlinear system can be solved as in (\ref{e:Newton}) using
+  a modified Newton method by solving the corrector equation
+  \begin{equation}\label{e:Newton_sim}
+    {\hat M}[{\hat y}_{n(m+1)}-{\hat y}_{n(m)}]=-{\hat G}({\hat y}_{n(m)})
+  \end{equation}
+  at each iteration, where 
+  \begin{equation*}
+    {\hat M} = 
+    \begin{bmatrix}
+      M              &        &        &        &   \\
+      \gamma J_1     & M      &        &        &   \\
+      \gamma J_2     & 0      & M      &        &   \\
+      \vdots         & \vdots & \ddots & \ddots &   \\
+      \gamma J_{N_s} & 0      & \ldots & 0      & M 
+    \end{bmatrix} \, ,
+  \end{equation*}
+  $M$ is defined as in (\ref{e:N_Matrix}), and 
+  $J_i = ({\partial}/{\partial y})\left[ (\dfdyI) s_i + (\dfdpiI) \right]$.
+  It can be shown that a 2-step quadratic convergence can be attained by only
+  using the block-diagonal portion of ${\hat M}$ in the corrector equation
+  (\ref{e:Newton_sim}). This results in a decoupling that allows the reuse of 
+  $M$ without additional matrix factorizations. However, the products
+  $(\dfdyI)s_i$ as well as the vectors $\dfdpiI$ must still be reevaluated at 
+  each step of the iterative process (\ref{e:Newton_sim}) to update the 
+  sensitivity portions of the residual ${\hat G}$.
+  
+\item {\em Staggered Corrector Method}
+  
+  In the staggered corrector method \cite{FTB97}, as in the staggered direct method,
+  the nonlinear system (\ref{e:nonlinear}) is solved first using the Newton iteration
+  (\ref{e:Newton}). Then, a separate Newton iteration is used to solve the
+  sensitivity system (\ref{e:sensi_syst}):
+  \begin{equation}\label{e:stgr_iterations}
+    M [s_{i , n(m+1)} - s_{i , n(m)}]=
+    s_{i, n(m)} - 
+    \gamma \left( \dfdy (t_n , y_n, p) s_{i , n(m)} + \dfdpi (t_n , y_n , p) \right)
+    -a_{i,n} \, ,
+  \end{equation}
+  where $a_{i,n} = \sum_{j>0}(\alpha_{n,j}s_{i , n-j}+h_n\beta_{n,j}\dot{s}_{i , n-j})$.
+  In other words, a modified-Newton iteration is used to solve a linear system.
+  In this approach, the vectors $\dfdpiI$ need be updated only once per integration step, 
+  after the state correction phase (\ref{e:Newton}) has converged. Note also that 
+  Jacobian-related data can be reused at all iterations (\ref{e:stgr_iterations})
+  to evaluate the products $(\dfdyI) s_i$.
+  
+\end{itemize}
+
+{\cvodes} implements the simultaneous corrector method and two flavors of the 
+staggered corrector method which differ only if the sensitivity variables are
+included in the error control test. \index{error control} 
+In the {\em full error control} case, 
+the first variant of the staggered corrector method requires the convergence of 
+the iterations (\ref{e:stgr_iterations}) for all $N_s$ sensitivity sytems and then 
+performs the error test on the sensitivity variables. The second variant of the method
+will perform the error test for each sensitivity vector $s_i,\,i=1,2,\ldots,N_s$
+individually, as they pass the convergence test. Differences in performance
+between the two variants may therefore be noticed whenever one of the sensitivity 
+vectors $s_i$ fails a convergence or error test. 
+
+An important observation is that the staggered corrector method, combined with 
+the {\spgmr} linear solver effectively results in a staggered direct method. 
+Indeed, {\spgmr} requires only the action of the matrix $M$ on a vector and
+this can be provided with the current Jacobian information. Therefore, the
+modified Newton procedure (\ref{e:stgr_iterations}) will theoretically converge 
+after one iteration.
+\index{forward sensitivity analysis!correction strategies|)}
+
+\paragraph{Selection of the absolute tolerances for sensitivity variables.}
+\index{forward sensitivity analysis!absolute tolerance selection|(}
+If the sensitivities are considered in the error test, {\cvodes} provides an 
+automated estimation of absolute tolerances for the sensitivity variables 
+based on the absolute tolerance for the corresponding state variable.
+The selection of $atol$ for the sensitivity variables is based on the observation
+that the sensitivity vector $s_i$ will have units of $[y]/[p_i]$.
+With this, the absolute tolerance for the $j$-th component of the sensitivity
+vector $s_i$ is set to
+\begin{equation*}
+atolS_{i,j} = \frac{atol_j}{|{\bar p}_i|} \, ,
+\end{equation*}
+where $atol$ are the absolute tolerances for the state variables and $\bar p$
+is a vector of scaling factors that are dimensionally consistent with
+the model parameters $p$ and give indication of their order of magnitude.
+Typically, if $p_i \ne 0$, then ${\bar p}_i = p_i$. The relative tolerance
+$rtolS$ for sensitivity variables is set to be the same as for the state variables,
+i.e. $rtolS = rtol$. This choice of relative and absolute tolerances is equivalent 
+to requiring that the weighted root-mean-square norm (\ref{e:rms}) of the sensitivity 
+vector $s_i$ with weights (\ref{e:weight}) based on $s_i$ is the same as the
+weighted root-mean-square norm of the vector of scaled sensitivities 
+${\bar s}_i = |{\bar p}_i| s_i$ with weights based on the state variables
+(the scaled sensitivities ${\bar s}_i$ being dimensionally consistent with the
+state variables).
+\index{forward sensitivity analysis!absolute tolerance selection|)}
+
+\paragraph{Evaluation of the sensitivity right-hand side.}
+\index{forward sensitivity analysis!right hand side evaluation|(}
+There are several methods for evaluating the right-hand side of the sensitivity 
+systems $\left[ (\dfdyI) s_i + (\dfdpiI) \right]$: 
+analytic evaluation, automatic differentiation, complex-step approximation, 
+finite differences (or directional derivatives).
+{\cvodes} provides all the software hooks for implementing interfaces to
+automatic differentiation or complex-step approximation and future versions
+will provide these capabilities.
+At the present time, besides the option for analytical sensitivity right hand sides
+(user-provided), {\cvodes} can evaluate these quantities using various
+finite difference-based approximations.
+The first option applies central finite differences to each term separately:
+\begin{gather}
+\dfdy s_i \approx 
+\frac{f(t, y+\delta_y s_i, p)-
+f(t, y-\delta_y s_i, p)}{2\,\delta_y} \label{e:fd2}\\
+\dfdpi \approx 
+\frac{f(t,y,p + \delta_i e_i)-
+f(t,y,p - \delta_i e_i)}{2\,\delta_i} \, .\tag{\ref{e:fd2}'}
+\end{gather}
+As is typical for finite differences, the proper choice of
+perturbations $\delta_y$ and $\delta_i$ is a delicate matter.
+{\cvodes} uses $\delta_y$ and $\delta_i$ that take into account
+several problem-related features;
+namely, the relative ODE error tolerance $rtol$, the machine unit roundoff $\epsilon$,
+the scale factor ${\bar p}_i$, and the weighted root-mean-square norm of the 
+sensitivity vector $s_i$.
+We then define
+\begin{equation*}
+\delta_i = |{\bar p}_i| \sqrt{\max(rtol, \epsilon)};
+\quad
+\delta_y = \frac{|{\bar p}_i|}{\max(1/\delta_i, \|s_i\|_{rms,w})}.
+\end{equation*}
+The terms $\epsilon$ and $1/\delta_i$ are included as
+divide-by-zero safeguards in case $rtol = 0$ or $||s_i|| = 0$.
+Roughly speaking (i.e., if the safeguard terms are ignored),
+$\delta_i$ gives a $\sqrt{rtol}$ relative perturbation to the scaled parameter
+$i$, and $\delta_y$ gives a unit weighted rms norm perturbation to $y$.
+Of course, the main drawback of this approach is that it requires four
+evaluations of $f(t,y,p)$.
+
+Another technique for estimating the scaled sensitivity derivatives
+via centered differences is by using directional derivatives:
+\begin{equation}\label{e:dd2}
+\dfdy s_i + \dfdpi \approx
+\frac{f(t, y+\delta s_i, p + \delta e_i)-
+      f(t, y-\delta s_i, p - \delta e_i)}{2\,\delta} \, ,
+\end{equation}
+in which
+\begin{equation*}
+\delta = \min(\delta_i, \delta_y) \, .
+\end{equation*}
+If $\delta_i = \delta_y = \delta$, a Taylor series analysis shows
+that the sum of~(\ref{e:fd2})--(\ref{e:fd2}')
+and~(\ref{e:dd2}) are equivalent to within $O(\delta^2)$.
+However, the latter approach is half as costly since it only requires
+two evaluations of $f(t,y,p)$.  
+To take advantage of this savings, it may also be desirable to use the
+latter formula when $\delta_i \approx \delta_y$.
+{\cvodes} accommodates this possibility by allowing the user to
+specify a threshold parameter~$\rhomax$.
+In particular, if $\delta_i$ and $\delta_y$ are within a factor of
+$|\rhomax|$ of each other then~(\ref{e:dd2}) is used to estimate the
+scaled sensitivity derivatives.
+Otherwise, the sum of (\ref{e:fd2})--(\ref{e:fd2}') is used since
+$\delta_i$ and $\delta_y$ differ by a relatively large amount and the
+use of separate perturbations is prudent.
+
+These procedures for choosing the perturbations ($\delta_i$,
+$\delta_y$, $\delta$) and switching ($\rhomax$) between
+finite difference and directional derivative formulas have also been implemented 
+for first-order formulas.
+Forward finite differences can be applied to $\dfdy s_i$ and
+$\dfdpi$ separately or the single directional derivative formula
+\begin{equation*}
+\dfdy s_i + \dfdpi \approx
+\frac{f(t, y+\delta s_i, p + \delta e_i) - f(t, y, p)}{\delta}
+\end{equation*}
+can be used.
+In {\cvodes}, the default value of $\rhomax=0$ indicates the use of
+the second-order centered directional derivative formula ~(\ref{e:dd2}) exclusively.
+Otherwise, the magnitude of $\rhomax$ and its sign (positive or
+negative) indicates whether this switching is done with regard to
+(centered or forward) finite differences, respectively.
+\index{forward sensitivity analysis!right hand side evaluation|)}
+\index{forward sensitivity analysis!mathematical background|)}
+
+%----------------------------------------
+\subsection{Adjoint Sensitivity Analysis}\label{ss:adj_sensi}
+%----------------------------------------
+\index{adjoint sensitivity analysis!mathematical background|(}
+In the {\em forward sensitivity approach} described in the previous
+section, obtaining sensitivities with respect to $N_s$ parameters is roughly
+equivalent to solving an ODE system of size $(1+N_s) N$. This can become 
+prohibitively expensive, especially for large-scale problems, if sensitivities
+with respect to many parameters are desired.
+In this situation, the {\em adjoint sensitivity method} is a very
+attractive alternative, provided that we do not need the solution sensitivities
+$s_i$, but rather the gradients with respect to model parameters of a relatively 
+few derived functionals of the solution. In other words, if $y(t)$ is the solution
+of (\ref{e:orig_eqns}), we wish to evaluate the gradient $\frac{dG}{dp}$ 
+with respect to $p$ of
+\begin{equation}\label{e:G}
+G(p) = \int_{t_0}^{t_1} g(t, y, p) dt \, ,
+\end{equation}
+or, alternatively, the gradient $\frac{dg}{dp}$ of the function $g(t, x, p)$ 
+at time $t_1$. The function $g$ must be smooth enough that $g_p$ and $g_x$ 
+exist and are bounded. In what follows, we only sketch the analysis for the 
+sensitivity problem for both $G$ and $g$.
+For details on the derivation see \cite{CLPS02}.
+Introducing a Lagrange multiplier $\lambda$, we form the augmented
+objective function
+\begin{equation}
+I(p) = G(p) - \int_{t_0}^{t_1} \lambda^* 
+\left( {\dot y} - f(t,y,p)\right) dt \, ,
+\end{equation}
+where $*$ denotes the transpose conjugate. The gradient of $G$ with respect to $p$ is
+\begin{equation}
+  \frac{dG}{dp} = \frac{dI}{dp} 
+=\int_{t_0}^{t_1}(g_p + g_y s)dt - \int_{t_0}^{t_1} 
+\lambda^* \left( {\dot s} - f_y s - f_p \right)dt \, ,
+\end{equation}
+where subscripts on functions such as $f$ or $g$ are used to denote partial 
+derivatives and $s = [s_1,\ldots,s_{N_s}]$ is the matrix of solution sensitivities.
+Applying integration by parts to the term $\lambda^* {\dot s}$ and selecting
+$\lambda$ such that
+\begin{equation}\label{e:adj_eqns}
+\begin{split}
+&{\dot \lambda} = -\left( \dfdy \right)^* \lambda - 
+\left( \frac{\partial g}{\partial y} \right)^* \\
+&\lambda(t_1) = 0 \, ,
+\end{split}
+\end{equation}
+the gradient of $G$ with respect to $p$ is nothing but
+\begin{equation}\label{e:dGdp}
+\frac{dG}{dp} = \lambda^*(t_0) s(t_0) + 
+\int_{t_0}^{t_1} \left( g_p + \lambda^* f_p \right) dt \, .
+\end{equation}
+The gradient of $g(t_1,y,p)$ with respect to $p$ can be then obtained
+by using the Leibnitz differentiation rule. Indeed, from (\ref{e:G}),
+\begin{equation*}
+\frac{dg}{dp}(t_1) = \frac{d}{dt_1}\frac{dG}{dp}
+\end{equation*}
+and therefore, taking into account that $dG/dp$ in (\ref{e:dGdp}) depends on $t_1$
+both through the upper integration limit and through $\lambda$ and that $\lambda(t_1) = 0$, 
+\begin{equation}\label{e:dgdp}
+\frac{dg}{dp}(t_1) = \mu^*(t_0) s(t_0) + g_p(t_1) +
+\int_{t_0}^{t_1} \mu^* f_p dt \, ,
+\end{equation}
+where $\mu$ is the sensitivity of $\lambda$ with respect to the final integration 
+limit and thus satisfies the following equation, obtained by taking the total derivative
+with respect to $t_1$ of (\ref{e:adj_eqns}):
+\begin{equation}\label{e:adj1_eqns}
+\begin{split}
+&{\dot \mu} = -\left( \dfdy \right)^* \mu \\ 
+&\mu(t_1) = \left( \frac{\partial g}{\partial y} \right)^* \, .
+\end{split}
+\end{equation}
+The final condition on $\mu(t_1)$ follows from 
+$(\partial\lambda/\partial t) + (\partial\lambda/\partial t_1) = 0$ at $t_1$, and
+therefore, $\mu(t_1) = -{\dot\lambda}(t_1)$. 
+
+The first thing to notice about the adjoint system (\ref{e:adj_eqns}) is that there is 
+no explicit specification of the parameters $p$; this implies that, once the solution
+$\lambda$ is found, the formula (\ref{e:dGdp}) can then be used to find the gradient
+of $G$ with respect to any of the parameters $p$. The same holds true for the system
+(\ref{e:adj1_eqns}) and the formula (\ref{e:dgdp}) for gradients of $g(t_1,y,p)$. 
+The second important remark is that the adjoint systems (\ref{e:adj_eqns}) and
+(\ref{e:adj1_eqns}) are terminal value problems which depend on the solution $y(t)$ 
+of the original IVP (\ref{e:orig_eqns}). Therefore, a procedure is needed for providing 
+the states $y$ obtained during a forward integration phase of (\ref{e:orig_eqns}) to
+{\cvodes} during the backward integration phase of (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}).
+The approach adopted in {\cvodes}, based on {\em check-pointing} is described below.
+
+\paragraph{Check-pointing scheme.}
+\index{adjoint sensitivity analysis!check-pointing}
+During the backward integration, the evaluation of the right hand side 
+of the adjoint system requires, at the current time, the states $y$ which
+were computed in the forward integration phase.
+Since {\cvodes} implements variable-stepsize integration formulas,
+it is unlikely that the states will be available at the desired time and
+therefore some form of interpolation is needed. The {\cvodes} implementation
+being also variable-order, it is possible that during the forward
+integration phase the order may be reduced as low as 1st order,
+which means that there may be points in time where only $y$ and ${\dot y}$
+are available. Therefore, {\cvodes} employs a cubic Hermite interpolation
+algorithm. However, especially for large-scale problems and long integration
+intervals, the number and size of the vectors $y$ and ${\dot y}$ that would 
+need to be stored make this approach computationally intractable. 
+
+{\cvodes} settles for a compromise {\em storage space - execution time} by
+implementing a so-called {\em check-pointing scheme}. At the cost of
+one additional forward integration, this approach offers the best possible 
+estimate of memory requirements for adjoint sensitivity analysis. To begin with,
+based on the problem size $N$ and the available memory, the user decides on 
+the number $N_d$ of data pairs $y$-${\dot y}$ that can be kept in memory for 
+the purpose of interpolation. Then, during the first forward integration stage, 
+every $N_d$ integration steps a check point is formed by saving enough information
+(either in memory or on disk if needed) to allow for a hot restart, that is a restart
+which will exactly reproduce the forward integration. In order to avoid storing
+Jacobina-related data at each check point, a reevaluation of the iteration matrix
+is forced before each check point. At the end of this stage, we are left with $N_c$ 
+check points, including one at $t_0$.
+During the backward integration stage, the adjoint variables are integrated
+from $t_1$ to $t_0$ going from one check point to the previous one.
+The backward integration from check point $i+1$ to check point $i$ is preceeded
+by a forward integration from $i$ to $i+1$ during which $N_d$ data pairs 
+$y$-${\dot y}$ are generated and stored in memory for interpolation.
+
+This approach transfers the uncertainty in the number of integration
+steps in the forward integration phase to uncertainty in the final number of check 
+points. However, $N_c$ is much smaller than the number of steps taken during
+the forward integration and there is no major penalty for writting and then reading
+check point data to/from a temporary file.
+
+\bigskip
+
+\index{adjoint sensitivity analysis!implementation in {\cvodes}|(}
+Finally, we note that the adjoint sensitivity module in {\cvodes} provides the 
+infrastructure to integrate backwards in time any ODE terminal value problem
+dependent on the solution of the IVP (\ref{e:orig_eqns}), including
+adjoint systems (\ref{e:adj_eqns}) or (\ref{e:adj1_eqns}), as well as any other
+quadrature ODEs that may be needed in evaluating the integrals in (\ref{e:dGdp}) 
+or (\ref{e:dgdp}). In particular, for ODE systems arising from semi-discretization
+of time-dependent PDEs, this feature allows for integration of both the 
+discretized adjoint PDE system and the adjoint of the discretized PDE.
+\index{adjoint sensitivity analysis!implementation in {\cvodes}|)}
+\index{adjoint sensitivity analysis!mathematical background|)}
+
+%-----------------------------------------------
+
+\subsection{BDF Stability Limit Detection}
+
+{\cvodes} includes an algorithm, {\stald} (STAbility Limit Detection),
+which provides protection against potentially unstable behavior of the 
+BDF multistep integration methods is certain situations, as described below.
+
+When the BDF option is selected, {\cvodes} uses Backward Differentiation 
+Formula methods of orders 1 to 5.  At order 1 or 2, the BDF
+method is A-stable, meaning that for any complex constant $\lambda$ in
+the open left half-plane, the method is unconditionally stable (for
+any step size) for the standard scalar model problem $dy/dt = \lambda y$.
+For an ODE system, this means that, roughly speaking, as long as all
+modes in the system are stable, the method is also stable for any
+choice of step size, at least in the sense of a local linear stability
+analysis.
+
+At orders 3 to 5, the BDF methods are not A-stable, although they are
+{\em stiffly stable}. In each case, in order for the method to be stable
+at step size $h$ on the scalar model problem, the product $h\lambda$ must
+lie in a {\em region of absolute stability}. 
+That region excludes a portion of the left half-plane that is concentrated 
+near the imaginary axis.  The size of that region of instability grows as the order
+increases from 3 to 5.  What this means is that, when running BDF at
+any of these orders, if an eigenvalue $\lambda$ of the system lies close
+enough to the imaginary axis, the step sizes $h$ for which the method is
+stable are limited (at least according to the linear stability theory)
+to a set that prevents $h\lambda$ from leaving the stability region.
+The meaning of {\em close enough} depends on the order.  
+At order 3, the unstable region is much narrower than at order 5, 
+so the potential for unstable behavior grows with order.
+
+System eigenvalues that are likely to run into this instability are
+ones that correspond to weakly damped oscillations.  A pure undamped
+oscillation corresponds to an eigenvalue on the imaginary axis.
+Problems with modes of that kind call for different considerations,
+since the oscillation generally must be followed by the solver, and
+this requires step sizes ($h \sim 1/\nu$, where $\nu$ is the frequency) 
+that are stable for BDF anyway.  But for a weakly damped oscillatory mode,
+the oscillation in the solution is eventually damped to the noise level, 
+and at that time it is important that the solver not be restricted to step 
+sizes on the order of $1/\nu$.  It is in this situation that the new option may
+be of great value.
+
+In terms of partial differential equations, the typical problems for
+which the stability limit detection option is appropriate are
+semi-discrete ODE systems (i.e. discretized in space) from PDEs with
+advection and diffusion, but with advection dominating over diffusion.
+Diffusion alone produces pure decay modes, while advection tends to
+produce undamped oscillatory modes.  A mix of the two with advection
+dominant will have weakly damped oscillatory modes.
+
+The {\stald} algorithm attempts to detect, in a direct
+manner, the presence of a stability region boundary that is limiting
+the step sizes in the presence of a weakly damped oscillation \cite{Hi92}.
+The algorithm supplements (but differs greatly from) the existing
+algorithms in {\cvodes} for choosing step size and order based on
+estimated local truncation errors.  The {\stald} algorithm works directly
+with history data that is readily available in {\cvodes}.  If it concludes
+that the step size is in fact stability-limited, it dictates a
+reduction in the method order, regardless of the outcome of the
+error-based algorithm.  The {\stald} algorithm has been tested in
+combination with the {\vode} solver on linear advection-dominated
+advection-diffusion problems \cite{Hi95}, where it works well.  The
+implementation in {\cvodes} has been successfully tested on linear 
+and nonlinear advection-diffusion problems, among others.
+
+This stability limit detection option adds some overhead computational
+cost to the {\cvodes} solution.  (In timing tests, these overhead costs
+have ranged from 2\% to 7\% of the total, depending on the size and
+complexity of the problem, with lower relative costs for larger
+problems.)  Therefore, it should be activated only when there is
+reasonable expectation of modes in the user's system for which it is
+appropriate.  In particular, if a {\cvodes} solution with this option
+turned off appears to take an inordinately large number of steps at
+orders 3-5 for no apparent reason in terms of the solution time scale,
+then there is a good chance that step sizes are being limited by
+stability, and that turning on the option will improve the efficiency
+of the solution. 
+
