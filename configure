@@ -868,6 +868,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --disable-examples      disable configuration of examples
 
   --disable-cvode         disable configuration of cvode
   --disable-cvodes        disable configuration of cvodes
@@ -875,7 +876,6 @@ Optional Features:
   --disable-kinsol        disable configuration of kinsol
   --disable-idas          disable configuration of idas
 
-  --disable-examples      disable configuration of examples
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -3228,9 +3228,26 @@ if test "${with_+set}" = set; then
 
 fi;
 
+# TEMP >
+EXAMPLES=yes
+# Check whether --enable-examples or --disable-examples was given.
+if test "${enable_examples+set}" = set; then
+  enableval="$enable_examples"
+
+  if test "X${enableval}" = "Xno"; then
+    EXAMPLES=no
+  fi
+
+fi;
+# TEMP <
+
 F77_ENABLED=no
 if test -d ${srcdir}/cvode || test -d ${srcdir}/kinsol ; then
-  F77_ENABLED=yes
+  if test "X${EXAMPLES}" = "Xno"; then
+    F77_ENABLED=no
+  else
+    F77_ENABLED=yes
+  fi
 fi
 
 # Check whether --with-f77 or --without-f77 was given.
@@ -3363,7 +3380,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3366:" \
+echo "$as_me:3383:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3587,7 +3604,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3590: \"$ac_link\") >&5
+(eval echo $as_me:3607: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3667,7 +3684,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3670: \"$ac_link\") >&5
+(eval echo $as_me:3687: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS

@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2004-05-04 21:48:23 $
+# $Revision: 1.16 $
+# $Date: 2004-06-21 19:15:29 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # ------------------------------------------------------------------------
@@ -265,9 +265,24 @@ AC_DEFUN(SUNDIALS_SET_F77,
 [
 AC_ARG_WITH([],[  ],[])
 
+# TEMP >
+EXAMPLES=yes
+AC_ARG_ENABLE(examples,
+[AC_HELP_STRING([--disable-examples],[disable configuration of examples])],
+[
+  if test "X${enableval}" = "Xno"; then
+    EXAMPLES=no
+  fi
+])
+# TEMP <
+
 F77_ENABLED=no
 if test -d ${srcdir}/cvode || test -d ${srcdir}/kinsol ; then
-  F77_ENABLED=yes
+  if test "X${EXAMPLES}" = "Xno"; then
+    F77_ENABLED=no
+  else
+    F77_ENABLED=yes
+  fi
 fi
 AC_ARG_WITH([f77],
 [AC_HELP_STRING([--without-f77], [skip F77 support])],
