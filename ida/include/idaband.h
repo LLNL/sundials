@@ -3,7 +3,7 @@
  * File          : idaband.h                                      *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and        *
  *                 Radu Serban @ LLNL                             *
- * Version of    : 2 July 2002                                    *
+ * Version of    : 11 July 2002                                   *
  *----------------------------------------------------------------*
  * This is the header file for the IDA band linear solver         *
  * module, IDABAND. It interfaces between the band module and the *
@@ -181,7 +181,7 @@ typedef int (*IDABandJacFn)(integertype Neq, integertype mupper, integertype mlo
  * The return values of IDABand are:                              *
  *    SUCCESS       = 0  if successful                            *
  *    LMEM_FAIL     = -1 if there was a memory allocation failure *
- *    LIN_ILL_INPUT = -2 if there was illegal input.              *
+ *    LIN_ILL_INPUT = -2 if the input was illegal or NVECTOR bad. *
  *                                                                *
  * NOTE: The band linear solver assumes a serial implementation   *
  *       of the NVECTOR package. Therefore, IDABand will first    *
@@ -218,7 +218,7 @@ int IDABand(void *IDA_mem, integertype mupper, integertype mlower,
  * The return values of IDAReInitBand are:                        *
  *    SUCCESS       = 0  if successful                            *
  *    LMEM_FAIL     = -1 if the IDA_mem argument is NULL          *
- *    LIN_ILL_INPUT = -2 if there was illegal input.              *
+ *    LIN_ILL_INPUT = -2 if the input was illegal or NVECTOR bad. *
  *                                                                *
  ******************************************************************/
 
