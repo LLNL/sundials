@@ -3,7 +3,7 @@
  * File          : cvsbandpre.h                                    *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 28 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -91,6 +91,7 @@ extern "C" {
 
 typedef struct {
   /* Data set by user in CVBandPreAlloc: */
+  integertype N;
   RhsFn f;
   void *f_data;
   integertype ml, mu;
@@ -112,7 +113,7 @@ typedef struct {
  *                                                                *
  * The parameters of CVBandPreAlloc are as follows:               *
  *                                                                *
- * N       is the length of all vector arguments.                 *
+ * n       is the length of all vector arguments.                 *
  *                                                                *
  * f       is the right hand side function.                       *
  *                                                                *
@@ -134,7 +135,7 @@ typedef struct {
  *                                                                *
  ******************************************************************/
 
-CVBandPreData CVBandPreAlloc(integertype N, RhsFn f, void *f_data,
+CVBandPreData CVBandPreAlloc(integertype n, RhsFn f, void *f_data,
                              integertype mu, integertype ml, void *cvode_mem);
 
 
@@ -159,7 +160,7 @@ CVBandPreData CVBandPreAlloc(integertype N, RhsFn f, void *f_data,
  * The return value of CVReInitBandPre is 0, indicating success.  *
  ******************************************************************/
 
-int CVReInitBandPre(CVBandPreData bpdata, integertype N, RhsFn f,
+int CVReInitBandPre(CVBandPreData bpdata, RhsFn f,
                     void *f_data, integertype mu, integertype ml);
 
 
@@ -179,14 +180,14 @@ void CVBandPreFree(CVBandPreData pdata);
 /* Prototypes of CVBandPrecond and CVBandPSolve */
 
   
-int CVBandPrecond(integertype N, realtype t, N_Vector y, N_Vector fy, 
+int CVBandPrecond(realtype t, N_Vector y, N_Vector fy, 
                   booleantype jok, booleantype *jcurPtr, 
                   realtype gamma, N_Vector ewt, realtype h,
                   realtype uround, long int *nfePtr, void *bp_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 
-int CVBandPSolve(integertype N, realtype t, N_Vector y, N_Vector fy, 
+int CVBandPSolve(realtype t, N_Vector y, N_Vector fy, 
                  N_Vector vtemp, realtype gamma, N_Vector ewt, 
                  realtype delta, long int *nfePtr,
                  N_Vector r, int lr, void *bp_data, N_Vector z);
