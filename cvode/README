@@ -1,5 +1,5 @@
                               CVODE
-                    Release 2.2.0, December 2004
+                    Release 2.2.1, January 2005
              Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -66,7 +66,14 @@ C. References
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
     to appear.
 
-D.1. Revision History since release 2.0 (August 2002)
+D.1. Revision History since release 2.2.0 (December 2004)
+---------------------------------------------------------
+
+- Changes related to the build system
+   - changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+
+D.2. Revision History since release 2.0 (August 2002)
 -----------------------------------------------------
 
 - New features

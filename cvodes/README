@@ -73,9 +73,13 @@ D.1. Revision History since release 2.1.0 (December 2004)
 
 - Bug fixes
    - fixed bug in CVCompleteStep related to quadrature and sensitivity variables
-     (leading to wrong values at a BDF order increase)
+     (leading to wrong values at a BDF order increase).
    - in CVUpperBoundH0, fixed a potential, although not harmful, use of 
-     uninitialized memory
+     uninitialized memory.
+
+- Changes related to the build system
+   - changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
 
 D.2. Revision History since release 1.0 (July 2002)
 ---------------------------------------------------
