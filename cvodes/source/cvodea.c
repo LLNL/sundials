@@ -37,6 +37,25 @@
 
 /***************** END CVODEA Private Constants ***************/
 
+/**************** BEGIN Error Messages ************************/
+
+#define CVAM                "CVadjMalloc-- "
+#define MSG_CVAM_NO_MEM     CVAM "cvode_mem=NULL illegal.\n\n"
+#define MSG_CVAM_BAD_STEPS  CVAM "steps non-positive illegal.\n\n"
+#define MSG_CVAM_MEM_FAIL   CVAM "a memory request failed.\n\n"
+
+#define CVF                 "CVodeF-- "
+#define MSG_CVODEF_MEM_FAIL CVF "a memory request failed.\n\n"
+
+#define CVBM                "CVodeMallocB-- "
+#define MSG_CVBM_NO_MEM     CVBM "cvadj_mem=NULL illegal.\n\n"
+#define MSG_CVBM_MEM_FAIL   CVBM "a memory request failed.\n\n"
+
+#define CVB                 "CVodeB-- "
+#define MSG_CVODEB_FWD      CVB "an error occured during the forward phase.\n\n"
+#define MSG_CVODEB_BCK      CVB "an error occured during the backward phase.\n\n"
+
+/**************** END Error Messages **************************/
 
 /********* BEGIN Private Helper Functions Prototypes **********/
 
@@ -198,7 +217,22 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
   CVadjMem ca_mem;
   CVodeMem cv_mem;
 
+  /* Check arguments */
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_CVAM_NO_MEM);
+    return (NULL);
+  }
+  if (steps <= 0) {
+    fprintf(stdout, MSG_CVAM_BAD_STEPS);
+    return (NULL);
+  }
+
+  /* Allocate memory block */
   ca_mem = (CVadjMem) malloc(sizeof(struct CVadjMemRec));
+  if (ca_mem == NULL) {
+    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    return(NULL);
+  }
 
   /* Attach CVODE memory for forward runs */
   cv_mem = (CVodeMem)cvode_mem;
@@ -206,14 +240,51 @@ void *CVadjMalloc(void *cvode_mem, long int steps)
 
   /* Initialize Check Points linked list */
   ca_mem->ck_mem = CVAckpntInit(cv_mem);
+  if (ca_mem->ck_mem == NULL) {
+    free(ca_mem);
+    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    return(NULL);
+  }
 
   /* Allocate Data Points memory */
   ca_mem->dt_mem = CVAdataMalloc(cv_mem, steps);
+  if (ca_mem->dt_mem == NULL) {
+    CVAckpntDelete(&(ca_mem->ck_mem));
+    free(ca_mem);
+    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    return(NULL);
+  }
 
   /* Workspace memory */
-  Y0   = N_VNew(N,machenv);
-  Y1   = N_VNew(N,machenv);
+  Y0 = N_VNew(N,machenv);
+  if (Y0 == NULL) {
+    CVAdataFree(ca_mem->dt_mem, nsteps);
+    CVAckpntDelete(&(ca_mem->ck_mem));
+    free(ca_mem);
+    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    return(NULL);
+  }
+
+  Y1 = N_VNew(N,machenv);
+  if (Y1 == NULL) {
+    N_VFree(Y0);
+    CVAdataFree(ca_mem->dt_mem, nsteps);
+    CVAckpntDelete(&(ca_mem->ck_mem));
+    free(ca_mem);
+    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    return(NULL);
+  }
+
   ytmp = N_VNew(N,machenv);
+  if (ytmp == NULL) {
+    N_VFree(Y0);
+    N_VFree(Y1);
+    CVAdataFree(ca_mem->dt_mem, nsteps);
+    CVAckpntDelete(&(ca_mem->ck_mem));
+    free(ca_mem);
+    fprintf(stdout, MSG_CVAM_MEM_FAIL);
+    return(NULL);
+  }
 
   /* Other entries in ca_mem */
   uround   = cv_mem->cv_uround;
@@ -246,6 +317,8 @@ int CVodeF(void *cvadj_mem, real tout, N_Vector yout, real *t,
 
   /* Integrate to tout while loading check points */
   flag = CVAckpntAdd(ca_mem, tout, yout, t, itask);
+  if (flag == CVODEF_MEM_FAIL) 
+    fprintf(stdout, MSG_CVODEF_MEM_FAIL);
 
   /* tfinal is now tout */
   tfinal = tout;
@@ -263,9 +336,7 @@ int CVodeF(void *cvadj_mem, real tout, N_Vector yout, real *t,
   particularizations for backward integration:                   
     - it takes as an argument a pointer to the adjoint memory    
       structure and sets the cvode memory for the backward run   
-      as a field of this structure. CVodeMallocB returns a 
-      pointer to the CVodeMem structure to be used in setting
-      the linear solver;
+      as a field of this structure.
     - no 'initial time' is required as the backward integration  
       starts at the last tout with which CVodeF was called;      
     - the routine that provides the ODE right hand side is of a  
@@ -284,16 +355,29 @@ int CVodeMallocB(void *cvadj_mem, integer NB, RhsFnB fB,
   real tout;
   int j;
 
+  if (cvadj_mem == NULL) {
+    fprintf(stdout, MSG_CVBM_NO_MEM);
+    return(CVBM_NO_MEM);
+  }
+
   ca_mem = (CVadjMem) cvadj_mem;
 
   if (ioptB == NULL) {
     ioptB = (long int *)malloc(OPT_SIZE*sizeof(long int));
+    if (ioptB == NULL) {
+      fprintf(stdout, MSG_CVBM_MEM_FAIL);
+      return(CVBM_MEM_FAIL);
+    }
     ioptBalloc = TRUE;
   } else {
     ioptBalloc = FALSE;
   }
   if (roptB == NULL) {
     roptB = (real *)malloc(OPT_SIZE*sizeof(real));
+    if (roptB == NULL) {
+      fprintf(stdout, MSG_CVBM_MEM_FAIL);
+      return(CVBM_MEM_FAIL);
+    }
     roptBalloc = TRUE;
   } else {
     roptBalloc = FALSE;
@@ -312,6 +396,11 @@ int CVodeMallocB(void *cvadj_mem, integer NB, RhsFnB fB,
   cvode_mem = CVodeMalloc(NB, CVArhs, tout, yB0, lmmB, iterB, 
                           itolB, reltolB, abstolB, cvadj_mem,
                           errfpB, optInB, ioptB, roptB, machEnv);
+
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_CVBM_MEM_FAIL);
+    return(CVBM_MEM_FAIL);
+  }
 
   ca_mem->cvb_mem = (CVodeMem) cvode_mem;
 
@@ -510,9 +599,19 @@ int CVodeB(void *cvadj_mem, N_Vector yB)
     /* Rerun forward from check point 'start' */
     flag = CVAdataStore(ca_mem, start, &t0, &t1, &np_actual);
 
+    if (flag < 0) {
+      fprintf(stdout, MSG_CVODEB_FWD);
+      return(flag);
+    }
+
     /* Run backwards */
     ropt_B[TSTOP] = t0;
     flag = CVode(cvb_mem, t0, yB, &t, NORMAL);
+
+    if (flag < 0) {
+      fprintf(stdout, MSG_CVODEB_BCK);
+      return(flag);
+    }
 
   } 
 
@@ -739,6 +838,7 @@ static int CVAckpntAdd(CVadjMem ca_mem, real tout, N_Vector yout,
     if ( nst % nsteps == 0 ) {
       ca_mem->ck_mem->ck_t1 = *t;
       tmp = CVAckpntNew(cv_mem);
+      if (tmp == NULL) return(CVODEF_MEM_FAIL);
       tmp->ck_next = ca_mem->ck_mem;
       ca_mem->ck_mem = tmp;
       nckpnts++;
@@ -751,6 +851,7 @@ static int CVAckpntAdd(CVadjMem ca_mem, real tout, N_Vector yout,
     }
     if ((itask==NORMAL) && (*t >= tout)) {
       CVodeDky(cv_mem, tout, 0, yout);
+      *t = tout;
       ca_mem->ck_mem->ck_t1 = tout;
       break;
     }
@@ -770,12 +871,19 @@ static int CVAckpntAdd(CVadjMem ca_mem, real tout, N_Vector yout,
 static CkpntMem CVAckpntNew(CVodeMem cv_mem)
 {
   CkpntMem ck_mem;
-  int j;
+  int j, jj;
 
   /* Allocate space for ckdata */
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
-  for (j=0; j<=q; j++)
+  if (ck_mem == NULL) return(NULL);
+
+  for (j=0; j<=q; j++) {
     zn_[j] = N_VNew(N,machenv);
+    if(zn_[j] == NULL) {
+      for(jj=0; jj<j; jj++) N_VFree(zn_[jj]);
+      return(NULL);
+    }
+  }
 
   /* Load ckdata from cv_mem */
   for (j=0; j<=q; j++)         N_VScale(ONE, zn[j], zn_[j]);
