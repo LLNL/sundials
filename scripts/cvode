@@ -48,6 +48,8 @@ tar uf $tarfile $distrobase/cvode/fcmix/fcvbp.h
 tar uf $tarfile $distrobase/cvode/fcmix/fcvbp.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvbbd.h
 tar uf $tarfile $distrobase/cvode/fcmix/fcvbbd.c
+tar uf $tarfile $distrobase/cvode/fcmix/fcvroot.h
+tar uf $tarfile $distrobase/cvode/fcmix/fcvroot.c
 
 tar uf $tarfile $distrobase/cvode/examples_ser/README
 tar uf $tarfile $distrobase/cvode/examples_ser/Makefile.in
