@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-08-25 16:23:40 $
+ * $Revision: 1.15 $
+ * $Date: 2004-10-18 23:38:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,9 +60,10 @@
 #include "nvector_serial.h"
 #include "sundialstypes.h"
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
-#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
+/* Accessor macros */
 
+#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i= 1..NEQ */
+#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix component i,j = 1..NEQ */
 
 /* Problem Constants */
 
@@ -96,45 +97,32 @@ typedef struct {
   realtype p[3];
 } *UserData;
 
-
 /* Functions Called by the CVODES Solver */
 
-/* f is of type RhsFn */
-
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-
-/* Jac is of type CVDenseJacFn */
-
 static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data, 
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
-/* fQ is of type QuadRhsFn */
-
 static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
-
-/* fB is of type RhsFnB */
 
 static void fB(realtype t, N_Vector y, 
                N_Vector yB, N_Vector yBdot, void *f_dataB);
-
-/* JacB is of type CVDenseJacFnB */
-
 static void JacB(long int NB, DenseMat JB, realtype t,
                  N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-
-/* fQB is of type QuadRhsFnB */
-
-static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_dataB);
+static void fQB(realtype t, N_Vector y, N_Vector yB, 
+                N_Vector qBdot, void *fQ_dataB);
 
 
 /* Private function to check function return values */
 
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
-
-/***************************** Main Program ******************************/
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -345,11 +333,11 @@ int main(int argc, char *argv[])
   /* Free memory */
   printf("Free memory\n\n");
   CVodeFree(cvode_mem);
-  N_VDestroy(abstol);
-  N_VDestroy(y); 
-  N_VDestroy(q);
-  N_VDestroy(yB);
-  N_VDestroy(qB);
+  N_VDestroy_Serial(abstol);
+  N_VDestroy_Serial(y); 
+  N_VDestroy_Serial(q);
+  N_VDestroy_Serial(yB);
+  N_VDestroy_Serial(qB);
   CVadjFree(cvadj_mem);
   free(data);
 
@@ -357,10 +345,16 @@ int main(int argc, char *argv[])
 
 }
 
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
 
-/***************** Functions Called by the CVODE Solver ******************/
+/*
+ * f routine. Compute f(t,y). 
+*/
 
-/* f routine. Compute f(t,y). */
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y1, y2, y3, yd1, yd3;
@@ -376,7 +370,10 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
         Ith(ydot,2) = -yd1 - yd3;
 }
 
-/* Jacobian routine. Compute J(t,y). */
+/* 
+ * Jacobian routine. Compute J(t,y). 
+*/
+
 static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data, 
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -394,7 +391,10 @@ static void Jac(long int N, DenseMat J, realtype t,
                       IJth(J,3,2) = 2*p3*y2;
 }
 
-/* fQ routine. Compute fQ(t,y). */
+/* 
+ * fQ routine. Compute fQ(t,y). 
+*/
+
 static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
 {
 
@@ -402,7 +402,10 @@ static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
   
 }
  
-/* fB routine. Compute fB(t,y,yB). */
+/* 
+ * fB routine. Compute fB(t,y,yB). 
+*/
+
 static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB)
 {
   UserData data;
@@ -433,7 +436,10 @@ static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_data
   Ith(yBdot,3) = p2*y2*l21 - 1.0;
 }
 
-/* JacB routine. Compute JB(t,y,yB). */
+/* 
+ * JacB routine. Compute JB(t,y,yB). 
+*/
+
 static void JacB(long int NB, DenseMat JB, realtype t,
                  N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
                  N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -456,8 +462,12 @@ static void JacB(long int NB, DenseMat JB, realtype t,
   IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;
 }
 
-/* fQB routine. Compute integrand for quadratures */
-static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_dataB)
+/*
+ * fQB routine. Compute integrand for quadratures 
+*/
+
+static void fQB(realtype t, N_Vector y, N_Vector yB, 
+                N_Vector qBdot, void *fQ_dataB)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -486,16 +496,21 @@ static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_da
   Ith(qBdot,3) = y2*y2*l32;
 }
 
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
 
-/*********************** Private Helper Function ************************/
-
-/* Check function return value...
-     opt == 0 means SUNDIALS function allocates memory so check if
-              returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
-     opt == 2 means function allocates memory so check if returned
-              NULL pointer */
+/* 
+ * Check function return value.
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns a flag so check if
+ *             flag >= 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
 
 static int check_flag(void *flagvalue, char *funcname, int opt)
 {
