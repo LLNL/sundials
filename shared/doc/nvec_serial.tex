@@ -88,7 +88,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
   This function creates and allocates memory for a serial \id{N\_Vector}.
   Its only argument is the vector length.
 
-  Prototype
+  
 
   \verb|N_Vector N_VNew_Serial(long int vec_length);|
 
@@ -98,7 +98,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
   This function creates a new serial \id{N\_Vector} with an empty (\id{NULL}) data array.
 
-  Prototype
+  
 
   \verb|N_Vector N_VNewEmpty_Serial(long int vec_length);|
 
@@ -109,7 +109,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
   This function creates a new serial \id{N\_Vector} with an empty (\id{NULL}) data array
   by using an existing \id{N\_Vector} as a template.
 
-  Prototype
+  
 
   \verb|N_Vector N_VCloneEmpty_Serial(N_Vector w);|
 
@@ -120,7 +120,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
  This function creates and allocates memory for a serial vector
  with user-provided data array.
 
- Prototype
+ 
 
  \verb|N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);|
 
@@ -130,7 +130,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
  This function creates an array of \id{count} serial vectors.
 
- Prototype
+ 
 
  \verb|N_Vector *N_VNewVectorArray_Serial(int count, long int vec_length);|
 
@@ -141,7 +141,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
  This function creates an array of \id{count} serial vectors, each with an empty (\id{NULL})
  data array.
 
- Prototype
+ 
 
  \verb|N_Vector *N_VNewVectorArrayEmpty_Serial(int count, long int vec_length);|
 
@@ -152,7 +152,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
  This function frees memory allocated for the array of \id{count} serial \id{N\_Vector} 
  created with \id{N\_VNewVectorArray\_Serial} or with \id{N\_VNewVectorArrayEmpty\_Serial}.
 
- Prototype
+ 
 
  \verb|void N_VDestroyVectorArray_Serial(N_Vector *vs, int count);|
 
@@ -162,7 +162,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
  This function prints the content of a serial vector to \id{stdout}.
 
- Prototype
+ 
  
  \verb|void N_VPrint_Serial(N_Vector v);|
 

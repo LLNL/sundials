@@ -122,7 +122,7 @@ A particular implementation of the {\nvector} module must:
 % Table of vector kernels
 %---------------------------------------------------------------------------
 \newpage
-%%\bigskip
+
 \newlength{\colone}
 \settowidth{\colone}{\id{N\_VGetArrayPointer}}
 \newlength{\coltwo}
@@ -137,24 +137,24 @@ A particular implementation of the {\nvector} module must:
 \tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \tablelasttail{\hline}
 \begin{supertabular}{|p{\colone}|p{\coltwo}|}
-%
+&\\
 \id{N\_VClone} & \id{v = N\_Vclone(w);} \\ 
 & Creates a new \id{N\_Vector} of the same type as an existing vector and sets the
 {\em ops} field.
 It does not copy the vector, but rather allocates storage for the new vector.
 \\
-%
+&\\
 \id{N\_VDestroy} & \id{N\_VDestroy(v);} \\
 & Destroys the \id{N\_Vector} \id{v} and frees memory allocated for its
 internal data.
 \\
-%
+&\\
 \id{N\_VSpace} & \id{N\_VSpace(nvSpec, \&lrw, \&liw);} \\
 & Returns storage requirements for one \id{N\_Vector}.
 \id{lrw} contains the number of realtype words and \id{liw}
 contains the number of integer words.
 \\
-%
+&\\
 \id{N\_VGetArrayPointer} & \id{vdata = N\_VGetArrayPointer(v);} \\
 & Returns a pointer to a \id{realtype} array from the \id{N\_Vector} \id{v}.
 Note that this assumes that the internal data in \id{N\_Vector} is
@@ -163,32 +163,32 @@ This routine is only used in the solver-specific interfaces to the
 dense and banded linear solvers, as well as the interfaces to 
 the banded preconditioners provided with {\sundials}.
 \\
-%
-\id{N\_VSetArraypointer} & \id{N\_VSetarrayPointer(vdata, v);} \\
+&\\
+\id{N\_VSetArrayPointer} & \id{N\_VSetArrayPointer(vdata, v);} \\
 & Overwrites the data in an \id{N\_Vector} with a given array to \id{realtype}.
 Note that this assumes that the internal data in \id{N\_Vector} is
 a contiguous array of \id{realtype}.
 This routine is only used in the interfaces to the dense linear
 solver.
 \\
-%
+&\\
 \id{N\_VLinearSum} & \id{N\_VLinearSum(a, x, b, y, z);} \\
 & Performs the operation $z = a x + b y$, where $a$ and $b$ are scalars
 and $x$ and $y$ are \id{N\_Vector}'s:
 $z_i = a x_i + b y_i, \: i=0,\ldots,n-1$.
 \\
-%
+&\\
 \id{N\_VConst} & \id{N\_VConst(c, z);} \\
-& Initializes all components of the \id{N\_Vector} \id{z} to \id{c}:
+& Sets all components of the \id{N\_Vector} \id{z} to \id{c}:
 $z_i = c,\: i=0,\ldots,n-1$.
 \\
-%
+&\\
 \id{N\_VProd} & \id{N\_VProd(x, y, z);} \\
 & Sets the \id{N\_Vector} \id{z} to be the component-wise product of the
 \id{N\_Vector}'s \id{x} and \id{y}:
 $z_i = x_i y_i,\: i=0,\ldots,n-1$.
 \\
-%
+&\\
 \id{N\_VDiv} & \id{N\_VDiv(x, y, z);} \\
 & Sets the \id{N\_Vector} \id{z} to be the component-wise ratio of the
 \id{N\_Vector}'s \id{x} and \id{y}:
@@ -196,19 +196,19 @@ $z_i = x_i / y_i,\: i=0,\ldots,n-1$. The $y_i$ may not be tested
 for $0$ values. It should only be called with an \id{x} that is
 guaranteed to have all nonzero components.
 \\
-%
+&\\
 \id{N\_VScale} & \id{N\_VScale(c, x, z);} \\
 & Scales the \id{N\_Vector} \id{x} by the scalar \id{c} and returns
 the result in \id{z}:
 $z_i = c x_i , \: i=0,\ldots,n-1$.
 \\
-%
+&\\
 \id{N\_VAbs} & \id{N\_VAbs(x, y);} \\
 & Sets the components of the \id{N\_Vector} \id{y} to be the absolute
 values of the components of the \id{N\_Vector} \id{x}:
 $y_i = | x_i | , \: i=0,\ldots,n-1$.
 \\
-%
+&\\
 \id{N\_VInv} & \id{N\_VInv(x, z);} \\
 & Sets the components of the \id{N\_Vector} \id{z} to be the inverses
 of the components of the \id{N\_Vector} \id{x}:
@@ -216,58 +216,58 @@ $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$. This routine
 may not check for division by $0$. It should be called only with an 
 \id{x} which is guaranteed to have all non-zero components.
 \\
-%
+&\\
 \id{N\_VAddConst} & \id{N\_VAddConst(x, b, z);} \\
 & Adds the scalar \id{b} to all components of \id{x} and returns the
 result in the \id{N\_Vector} \id{z}:
 $z_i = x_i + b , \: i=0,\ldots,n-1$.
 \\
-%
+&\\
 \id{N\_VDotProd} & \id{d = N\_VDotProd(x, y);} \\
 & Returns the value of the ordinary dot product of \id{x} and \id{y}:
 $d=\sum_{i=0}^{n-1} x_i y_i$.
 \\
-%
+&\\
 \id{N\_VMaxNorm} & \id{m = N\_VMaxNorm(x);} \\
 & Returns the maximum norm of the \id{N\_Vector} \id{x}:
 $m = \max_{i} | x_i |$.
 \\
-%
+&\\
 \id{N\_VWrmsNorm} & \id{m = N\_VWrmsNorm(x, w)} \\
 & Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
 weight vector \id{w}:
 $m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
 \\
-%
+&\\
 \id{N\_VWrmsNormMask} & \id{m = N\_VWrmsNormMask(x, w, id);} \\
 & Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
 weight vector \id{w} built using only the elements of \id{x} corresponding to
 nonzero elements of the \id{N\_Vector} \id{id}:\\
 &$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i \text{sign}(id_i))^2 \right) / n}$.
 \\
-%
+&\\
 \id{N\_VMin} & \id{m = N\_VMin(x);} \\
 & Returns the smallest element of the \id{N\_Vector} \id{x}:
 $m = \min_i x_i $.
 \\
-%
+&\\
 \id{N\_VWL2Norm} & \id{m = N\_VWL2Norm(x, w);} \\
 & Returns the weighted Euclidean $\ell_2$ norm of the \id{N\_Vector} \id{x}
 with weight vector \id{w}: 
 $m = \sqrt{\sum_{i=0}^{n-1} (x_i w_i)^2}$.
 \\
-%
+&\\
 \id{N\_VL1Norm} & \id{m = N\_VL1Norm(x);} \\
 & Returns the $\ell_1$ norm of the \id{N\_Vector} \id{x}:
 $m = \sum_{i=0}^{n-1} | x_i |$.
 \\
-%
+&\\
 \id{N\_VCompare} & \id{N\_VCompare(c, x, z);} \\
 & Compares the components of the \id{N\_Vector} \id{x} to the scalar
 \id{c} and returns an \id{N\_Vector} \id{z} such that:
 $z_i = 1.0$ if $| x_i | \ge c$ and $z_i = 0.0$ otherwise.
 \\
-%
+&\\
 \id{N\_VInvTest} & \id{t = N\_VInvTest(x, z);} \\
 & Sets the components of the \id{N\_Vector} \id{z} to be the inverses
 of the components of the \id{N\_Vector} \id{x}, with prior testing
@@ -276,7 +276,7 @@ $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$.
 This routine returns \id{TRUE} if all components of \id{x} are
 non-zero (successful inversion) and returns \id{FALSE} otherwise.  
 \\
-%
+&\\
 \id{N\_VConstrMask} & \id{t = N\_VConstrMask(c, x, m);} \\
 & Performs the following constraint tests:
 $x_i > 0$ if $c_i=2$,
@@ -286,12 +286,11 @@ $x_i < 0$ if $c_i=-2$.
 There is no constraint on $x_i$ if $c_i=0$.
 This routine returns \id{FALSE} if any element failed
 the constraint test, \id{TRUE} if all passed.  It also sets a
-mask vector \id{m}, with elements equal to $1.0$ where the
-corresponding constraint test failed, and $0.0$
-where the test passed.
+mask vector \id{m}, with elements equal to $1.0$ where the constraint 
+test failed, and $0.0$ where the test passed.
 This routine is used only for constraint checking.
 \\
-%
+&\\
 \id{N\_VMinQuotient} & \id{minq = N\_VMinQuotient(num, denom);} \\
 & This routine returns the minimum of the quotients obtained   
 by term-wise dividing \id{num}$_i$ by \id{denom}$_i$. 
@@ -300,6 +299,6 @@ If no such quotients are found, then the large value
 \Id{BIG\_REAL} (defined in the header file \id{sundialstypes.h})
 is returned. 
 \\
-%
+&\\
 \end{supertabular}
 \bigskip
