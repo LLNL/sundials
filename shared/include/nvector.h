@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-07-22 22:20:40 $
+ * $Revision: 1.14 $
+ * $Date: 2004-10-12 20:06:55 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban, LLNL                               
  * -----------------------------------------------------------------
@@ -69,8 +69,6 @@ typedef N_Vector *N_Vector_S;
 struct _generic_N_Vector_Ops {
   N_Vector    (*nvclone)(N_Vector);
   void        (*nvdestroy)(N_Vector);
-  N_Vector    (*nvcloneempty)(N_Vector);
-  void        (*nvdestroyempty)(N_Vector);
   void        (*nvspace)(N_Vector, long int *, long int *);
   realtype*   (*nvgetarraypointer)(N_Vector);
   void        (*nvsetarraypointer)(realtype *, N_Vector);
@@ -96,10 +94,9 @@ struct _generic_N_Vector_Ops {
 };
   
 /* 
- * A vector is a structure with an implementation dependent 'spec'
- * representation, an implementation dependent 'data' field, and
- * a pointer to a structure of vector operations corresponding to 
- * that implementation 
+ * A vector is a structure with an implementation dependent 'content',
+ * and a pointer to a structure of vector operations corresponding to 
+ * that implementation.
  */
 struct _generic_N_Vector {
   void *content;
@@ -120,15 +117,7 @@ struct _generic_N_Vector {
  *   the new vector.
  * 
  * N_VDestroy
- *   Destroys a vector (created either with the implementation
- *   specific N_VNew function or with N_VClone).
- *
- * N_VCloneEmpty
- *   Creates a new vector of the same type as an existing vector,
- *   but does not allocate memory for the internal data.
- *
- * N_VDestroyEmpty
- *   Destroys a vector created by N_VCloneEmpty.
+ *   Destroys a vector created with N_VClone.
  *
  * N_VSpace
  *   Returns space requirements for one N_Vector (type real in lrw
@@ -275,10 +264,6 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  * N_VDestroy         S Di I                S I             S I       
  * -----------------------------------------------------------------
- * N_VCloneEmpty      F                                     F
- * -----------------------------------------------------------------
- * N_VDestroyEmpty    F                                     F
- * -----------------------------------------------------------------
  * N_VSpace           S                     S               S         
  * -----------------------------------------------------------------
  * N_VGetArrayPointer D B BP BBDP F         D B BBDP        BBDP F     
@@ -328,8 +313,6 @@ struct _generic_N_Vector {
   
 N_Vector N_VClone(N_Vector w);
 void N_VDestroy(N_Vector v);
-N_Vector N_VCloneEmpty(N_Vector w);
-void N_VDestroyEmpty(N_Vector v);
 void N_VSpace(N_Vector v, long int *lrw, long int *liw);
 realtype *N_VGetArrayPointer(N_Vector v);
 void N_VSetArrayPointer(realtype *v_data, N_Vector v);
@@ -365,9 +348,7 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom);
  *
  * N_VDestroyVectorArray
  *   Frees memory for an array of 'count' N_Vectors that was
- *   created either by cloning with N_VCloneVectorArray
- *   or by an implementation-specific N_VNewVectorArray
- *   function (if provided by that particular NVECTOR module)
+ *   created by cloning with N_VCloneVectorArray
  *
  * These functions are used by the SPGMR iterative linear solver 
  * module and by the CVODES and IDAS solvers.

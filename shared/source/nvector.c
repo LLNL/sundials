@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-07-22 22:20:43 $
+ * $Revision: 1.12 $
+ * $Date: 2004-10-12 20:06:59 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban, LLNL                               
  * -----------------------------------------------------------------
@@ -33,18 +33,6 @@ N_Vector N_VClone(N_Vector w)
 void N_VDestroy(N_Vector v)
 {
   v->ops->nvdestroy(v);
-}
-
-N_Vector N_VCloneEmpty(N_Vector w)
-{
-  N_Vector v;
-  v = w->ops->nvcloneempty(w);
-  return(v);
-}
-
-void N_VDestroyEmpty(N_Vector v)
-{
-  v->ops->nvdestroyempty(v);
 }
 
 void N_VSpace(N_Vector v, long int *lrw, long int *liw)
