@@ -1322,7 +1322,7 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[itol] (\id{int}) 
-    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{SS} indicates scalar
+    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{CV\_SS} indicates scalar
     relative error tolerance and scalar absolute error tolerance, while
     \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
