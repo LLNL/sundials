@@ -2,10 +2,19 @@
 \section{Fortran example problems}\label{s:ex_fortran}
 %===================================================================================
 
-The Fortran example problem programs supplied with the {\cvode}
-package are all written in standard F77 Fortran, with Double Precision
-arithmetic.  Changes needed to convert these to Single Precision (for
-long-wordlength machines) should be straigtforward.
+The {\F} example problem programs supplied with the {\cvode}
+package are all written in standard F77 Fortran and use double-precision
+arithmetic. However, when the {\F} examples are built, the source code is
+automatically modified according to the configure options supplied by the
+user and the system type. Integer variables are declared as {\tt INTEGER*}{\em n},
+where {\em n} denotes the number of bytes in the corresponding {\C} type
+({\tt long int} or {\tt int}). Floating-point variable declarations remain
+unchanged if double-precision is used, but are changed to {\tt REAL*}{\em n},
+where {\em n} denotes the number of bytes in the {\sundials} type {\tt realtype},
+if using single-precision. Also, if using single-precision, then declarations of
+floating-point constants are appropriately modified, e.g.; {\tt 0.5D-4} is
+changed to {\tt 0.5E-4}.
+
 
 \subsection{A serial example: \id{cvkryf}}\label{ss:cvkryf}
 
