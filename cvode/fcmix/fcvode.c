@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-05-17 18:56:06 $
+ * $Revision: 1.20 $
+ * $Date: 2004-05-26 19:52:15 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -247,9 +247,8 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
 
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
-  CVodeMem CV_cvmem;
   realtype h0u;
-  int i, num_components, qu, qcur, flag;
+  int i, qu, qcur, flag;
   int *rootsfound;
 
   /* 
@@ -265,15 +264,12 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 
   y = N_VGetData(CV_yvec);
 
-  CV_cvmem = (CVodeMem) CV_cvodemem;
-
   /* CVode() succeeded and found at least one root */
   if (*ier == ROOT_RETURN) {
     flag = CVodeGetRootInfo(CV_cvodemem, &rootsfound);
     if (flag == SUCCESS) {
-      num_components = CV_cvmem->cv_nrtfn;
       printf("   rootsfound[] = ");
-      for (i = 0; i < num_components; ++i) printf("%d ", *(rootsfound + i));
+      for (i = 0; i < CV_nrtfn; ++i) printf("%d ", *(rootsfound + i));
       printf("\n");
     }
     else {
@@ -305,7 +301,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVodeGetWorkSpace(CV_cvodemem, 
                       &CV_iopt[12],       /* LENIW */
                       &CV_iopt[11]);      /* LENRW */
-    if (CV_cvmem->cv_sldeton)
+    if (CV_iopt[13]>0)
       CVodeGetNumStabLimOrderReds(CV_cvodemem, &CV_iopt[14]); /* NOR */
 
     switch(CV_ls) {

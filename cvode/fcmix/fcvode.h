@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-04-29 22:23:21 $
+ * $Revision: 1.16 $
+ * $Date: 2004-05-26 19:52:15 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -361,8 +361,6 @@
  * ===============================================================================
  */
 
-#include "nvector.h"
-
 /* Definitions of interface function names */
 
 #if defined(SUNDIALS_UNDERSCORE_NONE)
@@ -483,6 +481,7 @@ void *CV_cvodemem;
 N_Vector CV_yvec;
 long int *CV_iopt;
 realtype *CV_ropt;
+int CV_nrtfn;
 int CV_ls;    /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR */
 
 #endif
