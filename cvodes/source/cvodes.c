@@ -3,7 +3,7 @@
  * File          : cvodes.c                                        *
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban  *
  *                 and Dan Shumaker @ LLNL                         *
- * Version of    : 27 June 2002                                    *
+ * Version of    : 25 March 2001                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -16,8 +16,10 @@
  *                                                                 *
  *******************************************************************/
 
-/*=============  CHANGE LOG ===================================
-
+/*==================  CHANGE LOG ==================================*/
+/*
+20020325 Changed CVReInit to CVodeReInit (same for sensitivity)
+20020324 Added quadrature integration capabilities
 20020627 Updated to use new type names (realtype, integertype)
 20020111 Initialize hmax_inv, nscon, and sldeton in CVodeMalloc
          and CVReInit.
@@ -30,21 +32,18 @@
          uses hprime and not h.
          Added TSTOP option (turned on through iopt/ropt - see
          cvodes.h)
+*/
 
-==============================================================*/
-
-/*=============  TO DO LIST ===================================
-
+/*==================  TO DO LIST ==================================*/
+/*
   Add more arguments to CVodeMemExtract, such as estimated
   local errors (which are available in acor and acorS after
   a succesful step)
+*/
 
- =============================================================*/
-
-
-/************************************************************/
-/******************* BEGIN Imports **************************/
-/************************************************************/
+/*=================================================================*/
+/*BEGIN        Import Header Files                                 */
+/*=================================================================*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,28 +52,24 @@
 #include "nvector.h"
 #include "sundialsmath.h"
 
-/************************************************************/
-/******************** END Imports ***************************/
-/************************************************************/
+/*=================================================================*/
+/*END          Import Header Files                                 */
+/*=================================================================*/
 
-
-/************************************************************/
-/*********************** BEGIN Macros ***********************/
-/************************************************************/
+/*=================================================================*/
+/*BEGIN        Macros                                              */
+/*=================================================================*/
 
 /* Macro: loop */
-
 #define loop for(;;)
 
-/************************************************************/
-/************************ END Macros ************************/
-/************************************************************/
+/*=================================================================*/
+/*END          Macros                                              */
+/*=================================================================*/
 
-
-
-/************************************************************/
-/************** BEGIN CVODE Private Constants ***************/
-/************************************************************/
+/*=================================================================*/
+/*BEGIN        CVODES Private Constants                            */
+/*=================================================================*/
 
 #define FOURTH RCONST(0.25)    /* real 0.25    */
 #define THREE  RCONST(3.0)     /* real 3.0     */
@@ -87,24 +82,26 @@
 #define TWO    RCONST(2.0)     /* real 2.0     */
 #define TWELVE RCONST(12.0)    /* real 12.0    */
 
-/************************************************************/
-/************** BEGIN Default Constants *********************/
-/************************************************************/
+/*=================================================================*/
+/*END          CVODES Private Constants                            */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        CVODES Default Constants                            */
+/*=================================================================*/
 
 #define HMIN_DEFAULT     ZERO    /* hmin default value     */
 #define HMAX_INV_DEFAULT ZERO    /* hmax_inv default value */
 #define MXHNIL_DEFAULT   10      /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500     /* mxstep default value   */
 
+/*=================================================================*/
+/*END        CVODES Default Constants                            */
+/*=================================================================*/
 
-/************************************************************/
-/*************** END Default Constants **********************/
-/************************************************************/
-
-
-/************************************************************/
-/************ BEGIN Routine-Specific Constants **************/
-/************************************************************/
+/*=================================================================*/
+/*BEGIN        CVODES Routine-Specific Constants                   */
+/*=================================================================*/
 
 /* CVodeDky and CVStep */
 
@@ -181,22 +178,22 @@
 
 /* CVNls other constants */
 
-#define FUNC_MAXCOR 3  /* maximum no. of corrector iterations
-                          for iter == FUNCTIONAL                */
-#define NEWT_MAXCOR 3  /* maximum no. of corrector iterations
-                          for iter == NEWTON                    */
+#define FUNC_MAXCOR 3       /* maximum no. of corrector iterations
+                               for iter == FUNCTIONAL                      */
+#define NEWT_MAXCOR 3      /* maximum no. of corrector iterations
+                              for iter == NEWTON                           */
 
 #define CRDOWN RCONST(0.3) /* constant used in the estimation of the
                               convergence rate (crate) of the
-                              iterates for the nonlinear equation      */
+                              iterates for the nonlinear equation          */
 #define DGMAX  RCONST(0.3) /* iter == NEWTON, |gamma/gammap-1| > DGMAX
-                              => call lsetup                           */
+                              => call lsetup                               */
 
-#define RDIV      TWO  /* declare divergence if ratio del/delp > RDIV  */
-#define MSBP       20  /* max no. of steps between lsetup calls        */
+#define RDIV      TWO      /* declare divergence if ratio del/delp > RDIV  */
+#define MSBP       20      /* max no. of steps between lsetup calls        */
 
-#define TRY_AGAIN  99  /* control constant for CVNlsNewton - should be
-                          distinct from CVNls return values            */
+#define TRY_AGAIN  99      /* control constant for CVNlsNewton - should be
+                              distinct from CVNls return values            */
 
 /* CVStgrNls constants */
 
@@ -206,26 +203,31 @@
 #define RDIV_S        TWO
 
 /* CVSensRhsDQ finite difference methods */
+
 #define CENTERED1  0
 #define CENTERED2  1
 #define FORWARD1   2
 #define FORWARD2   3
 
 /* CVSensNorm type */
+
 #define MAX_WRMS   TRUE   /* if FALSE use WRMS norm of combined array */
 
-/***************************************************************/
-/*************** END Routine-Specific Constants  ***************/
-/***************************************************************/
+/* CVQuadNorm type */
 
+#define MAX_WRMQ   TRUE   /* if FALSE use WRMS norm of combined array */
 
-/***************************************************************/
-/***************** BEGIN Error Messages ************************/
-/***************************************************************/
+/*=================================================================*/
+/*END          CVODES Routine-Specific Constants                   */
+/*=================================================================*/
 
-/* CVodeMalloc/CVReInit Error Messages */
+/*=================================================================*/
+/*BEGIN        CVODES Error Messages                               */
+/*=================================================================*/
 
-#define CVM                "CVodeMalloc/CVReInit-- "
+/* CVodeMalloc/CVodeReInit Error Messages */
+
+#define CVM                "CVodeMalloc/CVodeReInit-- "
 
 #define MSG_Y0_NULL         CVM "y0=NULL illegal.\n\n"
 
@@ -264,15 +266,15 @@
 
 #define MSG_BAD_EWT         CVM "Some initial ewt component = 0.0 illegal.\n\n"
 
-#define MSG_REI_NO_MEM      "CVReInit-- cvode_mem = NULL illegal.\n\n"
+#define MSG_REI_NO_MEM      "CVodeReInit-- cvode_mem = NULL illegal.\n\n"
 
-#define MSG_REI_MAXORD1     "CVReInit-- Illegal attempt to increase "
+#define MSG_REI_MAXORD1     "CVodeReInit-- Illegal attempt to increase "
 #define MSG_REI_MAXORD2     "maximum method order from %d to %d.\n\n"
 #define MSG_REI_MAXORD      MSG_REI_MAXORD1 MSG_REI_MAXORD2 
 
-/* CVodeSensMalloc/ CVSensReInit error messages */
+/* CVodeSensMalloc/ CVodeSensReInit error messages */
 
-#define SCVM            "CVodeSensMalloc/CVSensReInit-- "
+#define SCVM            "CVodeSensMalloc/CVodeSensReInit-- "
 
 #define MSG_SCVM_NO_MEM SCVM "cvode_mem=NULL illegal.\n\n"
 
@@ -309,9 +311,33 @@
 
 #define MSG_BAD_EWTS    SCVM "Some initial ewtS component = 0.0 illegal.\n\n"
 
-#define MSG_SREI_SENSI_1 "CVSensReInit-- Illegal attempt to call before "
+#define MSG_SREI_SENSI_1 "CVodeSensReInit-- Illegal attempt to call before "
 #define MSG_SREI_SENSI_2 "calling CVodeSensMalloc.\n\n"
 #define MSG_SREI_NO_SENSI   MSG_SREI_SENSI_1 MSG_SREI_SENSI_2
+
+/* CVodeQuadMalloc/ CVodeQuadReInit error messages */
+
+#define QCVM              "CVodeQuadMalloc/CVodeQuadReInit-- "
+
+#define MSG_QCVM_NO_MEM   QCVM "cvode_mem=NULL illegal.\n\n"
+
+#define MSG_QCVM_MEM_FAIL QCVM "A memory request failed.\n\n"
+
+#define MSG_BAD_NQ        QCVM "Nq=%ld<0 illegal.\n\n"
+
+#define MSG_BAD_ECONQ_1   QCVM "errconQ=%d illegal.\n"
+#define MSG_BAD_ECONQ_2   "The legal values are FULL=%d and PARTIAL=%d.\n\n"
+#define MSG_BAD_ECONQ     MSG_BAD_ECONQ_1 MSG_BAD_ECONQ_2
+
+#define MSG_BAD_RELTOLQ   QCVM "*reltolQ=%g < 0.0 illegal.\n\n"
+
+#define MSG_BAD_ABSTOLQ   QCVM "Some abstolQ component < 0.0 illegal.\n\n"  
+
+#define MSG_BAD_EWTQ      QCVM "Some initial ewtQ component = 0.0 illegal.\n\n"
+
+#define MSG_QREI_QUAD_1   "CVodeQuadReInit-- Illegal attempt to call before "
+#define MSG_QREI_QUAD_2   "calling CVodeQuadMalloc.\n\n"
+#define MSG_QREI_NO_QUAD  MSG_QREI_QUAD_1 MSG_QREI_QUAD_2
 
 /* CVode error messages */
 
@@ -362,6 +388,14 @@
 #define MSG_EWT_NOW_BAD_1   CVODE "At t=%g, "
 #define MSG_EWT_NOW_BAD_2   "some ewt component has become <= 0.0.\n\n"
 #define MSG_EWT_NOW_BAD     MSG_EWT_NOW_BAD_1 MSG_EWT_NOW_BAD_2
+
+#define MSG_EWTS_NOW_BAD_1   CVODE "At t=%g, "
+#define MSG_EWTS_NOW_BAD_2   "some ewtS component has become <= 0.0.\n\n"
+#define MSG_EWTS_NOW_BAD     MSG_EWTS_NOW_BAD_1 MSG_EWTS_NOW_BAD_2
+
+#define MSG_EWTQ_NOW_BAD_1  CVODE "At t=%g, "
+#define MSG_EWTQ_NOW_BAD_2  "some ewtQ component has become <= 0.0.\n\n"
+#define MSG_EWTQ_NOW_BAD    MSG_EWTQ_NOW_BAD_1 MSG_EWTQ_NOW_BAD_2
 
 #define MSG_TOO_MUCH_ACC    CVODE "At t=%g, too much accuracy requested.\n\n"
 
@@ -434,24 +468,41 @@
 #define MSG_SBAD_DKYA       SDKY "dkyA=NULL illegal.\n\n"
 #define MSG_SBAD_DKY        SDKY "dky=NULL illegal.\n\n"
 
+/* CVodeQuadExtract, CVodeQuadDky Error Messages */
+
+#define QDKY                "CVodeQuadExtract/CVodeQuadDky-- "
+
+#define MSG_QDKY_NO_MEM     QDKY NO_MEM
+
+#define MSG_QDKY_QUAD_1     "Illegal attempt to call before "
+#define MSG_QDKY_QUAD_2     "calling CVodeQuadMalloc.\n\n"
+#define MSG_QDKY_NO_QUAD    QDKY MSG_QDKY_QUAD_1 MSG_QDKY_QUAD_2
+
+#define MSG_QBAD_DKY        QDKY "dky=NULL illegal.\n\n"
+
+#define MSG_QBAD_K          QDKY "k=%d illegal.\n\n"
+
+#define MSG_QBAD_T_1        QDKY "t=%g illegal.\n"
+#define MSG_QBAD_T_2        "t not in interval tcur-hu=%g to tcur=%g.\n\n"
+#define MSG_QBAD_T          MSG_QBAD_T_1 MSG_QBAD_T_2
+
 /* CVodeMemExtract Error Messages */
 
 #define MEXT                "CVodeMemExtract-- "
 #define MSG_MEXT_NO_MEM     MEXT NO_MEM
 
-/**************************************************************/
-/****************** END Error Messages ************************/
-/**************************************************************/
+/* CVodeEwt/CVodeEwtS Error Messages */
 
+#define GEWT                "CVodeGetEwt/CVodeGetEwtS-- "
+#define MSG_GEWT_NO_MEM     GEWT NO_MEM
 
-/**************************************************************/
-/*************** END CVODE Private Constants ******************/
-/**************************************************************/
+/*=================================================================*/
+/*END          CVODES Error Messages                               */
+/*=================================================================*/
 
-
-/**************************************************************/
-/********* BEGIN Private Helper Functions Prototypes **********/
-/**************************************************************/
+/*=================================================================*/
+/*BEGIN        Private Helper Functions Prototypes                 */
+/*=================================================================*/
 
 static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, int maxord,
                                   M_Env machEnv);
@@ -519,6 +570,31 @@ static int   CVHandleFailure(CVodeMem cv_mem,int kflag);
 
 /*----------------*/
 
+static booleantype CVQuadAllocVectors(CVodeMem cv_mem, integertype nquad, M_Env machEnvQ);
+static booleantype CVQuadEwtSet(CVodeMem cv_mem, realtype *rtolQ, void *atolQ, 
+                                int tol_type, N_Vector qcur, integertype nquad);
+static booleantype CVQuadEwtSetSS(CVodeMem cv_mem, realtype *rtolQ, realtype *atolQ, 
+                                  N_Vector qcur, integertype nquad);
+static booleantype CVQuadEwtSetSV(CVodeMem cv_mem, realtype *rtolQ, N_Vector atolQ,
+                                  N_Vector qcur, integertype nquad);
+static void CVQuadFreeVectors(CVodeMem cv_mem, int maxord);
+
+/*----------------*/
+
+static booleantype CVQuadDoErrorTest(CVodeMem cv_mem, int *nflagPtr, 
+                                     int *kflagPtr, realtype saved_t, 
+                                     int *nefQPtr, realtype *dsmQPtr);
+
+/*----------------*/
+
+static realtype CVQuadUpdateNorm(CVodeMem cv_mem, 
+                                 realtype old_nrm, integertype old_n,
+                                 N_Vector xQ, N_Vector wQ);
+static realtype  CVQuadUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
+                                 integertype old_n, realtype dsmQ);
+
+/*----------------*/
+
 static booleantype CVSensTestAtol(CVodeMem cv_mem, integertype nsens, void *atolS);
 
 static booleantype CVSensAllocAtol(CVodeMem cv_mem, integertype nsens, void **atolSPtr);
@@ -560,10 +636,12 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagP
 
 /*----------------*/
 
-static realtype  CVSensNormAll(N_Vector x, N_Vector w, 
-                               N_Vector *xS, N_Vector *wS, integertype nsens);
-static realtype  CVStgrNormSens(N_Vector *xS, N_Vector *wS, integertype nsens);
-static realtype  CVStgrDsm(CVodeMem cv_mem, realtype dsm, realtype dsmS);
+static realtype CVSensNorm(CVodeMem cv_mem, N_Vector *xS, N_Vector *wS);
+static realtype CVSensUpdateNorm(CVodeMem cv_mem, 
+                                 realtype old_nrm, integertype old_n,
+                                 N_Vector *xS, N_Vector *wS);
+static realtype  CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
+                                 integertype old_n, realtype dsmS);
 
 /*----------------*/
 
@@ -574,150 +652,149 @@ static void CVSensRhs(CVodeMem cv_mem, realtype time,
 
 static void CVSensRhs1(CVodeMem cv_mem, realtype time, 
                        N_Vector ycur, N_Vector fcur, 
-                       integertype is, N_Vector *yScur, N_Vector *fScur,
+                       integertype is, N_Vector yScur, N_Vector fScur,
                        N_Vector temp1, N_Vector temp2);
 
-static void CVSensRhsDQ(RhsFn f, integertype Ns, integertype N, realtype t,
+static void CVSensRhsDQ(integertype Ns, integertype N, realtype t, 
                         N_Vector y, N_Vector ydot, 
-                        N_Vector *s,N_Vector *sdot, 
-                        realtype *p, realtype *pbar, integertype *plist, void *f_data,
-                        N_Vector ewt, N_Vector *ewtS, realtype *reltol, realtype *reltolS,
-                        realtype uround, realtype rhomax, long int *nfePtr,
-                        N_Vector ytemp, N_Vector ftemp);
+                        N_Vector *yS, N_Vector *ySdot, 
+                        void *fS_data,  
+                        N_Vector tempv, N_Vector ftemp);
 
-static void CVSensRhs1DQ(RhsFn f, integertype Ns, integertype N, realtype t,
+static void CVSensRhs1DQ(integertype Ns, integertype N, realtype t, 
                          N_Vector y, N_Vector ydot, 
                          integertype is, N_Vector yS, N_Vector ySdot, 
-                         realtype *p, realtype *pbar, integertype *plist, void *f_data,
-                         N_Vector ewt, N_Vector ewtS, realtype *reltol, realtype *reltolS, 
-                         realtype uround, realtype rhomax, long int *nfePtr,
-                         N_Vector ytemp, N_Vector ftemp);
+                         void *fS_data,
+                         N_Vector tempv, N_Vector ftemp);
 
-/*----------------*/
+/*=================================================================*/
+/*END          Private Helper Functions Prototypes                 */
+/*=================================================================*/
 
-/**************************************************************/
-/********** END Private Helper Functions Prototypes ***********/
-/**************************************************************/
+/*=================================================================*/
+/*BEGIN        Readibility Constants                               */
+/*=================================================================*/
 
+#define uround         (cv_mem->cv_uround)  
+#define zn             (cv_mem->cv_zn) 
+#define ewt            (cv_mem->cv_ewt)  
+#define y              (cv_mem->cv_y)
+#define acor           (cv_mem->cv_acor)
+#define tempv          (cv_mem->cv_tempv)
+#define ftemp          (cv_mem->cv_ftemp) 
+#define q              (cv_mem->cv_q)
+#define qprime         (cv_mem->cv_qprime)
+#define qwait          (cv_mem->cv_qwait)
+#define L              (cv_mem->cv_L)
+#define h              (cv_mem->cv_h)
+#define hprime         (cv_mem->cv_hprime)
+#define eta            (cv_mem->cv_eta) 
+#define etaqm1         (cv_mem->cv_etaqm1) 
+#define etaq           (cv_mem->cv_etaq) 
+#define etaqp1         (cv_mem->cv_etaqp1) 
+#define nscon          (cv_mem->cv_nscon)
+#define ssdat          (cv_mem->cv_ssdat)
+#define hscale         (cv_mem->cv_hscale)
+#define tn             (cv_mem->cv_tn)
+#define tau            (cv_mem->cv_tau)
+#define tq             (cv_mem->cv_tq)
+#define l              (cv_mem->cv_l)
+#define rl1            (cv_mem->cv_rl1)
+#define gamma          (cv_mem->cv_gamma) 
+#define gammap         (cv_mem->cv_gammap) 
+#define gamrat         (cv_mem->cv_gamrat)
+#define crate          (cv_mem->cv_crate)
+#define acnrm          (cv_mem->cv_acnrm)
+#define mnewt          (cv_mem->cv_mnewt)
+#define qmax           (cv_mem->cv_qmax) 
+#define mxstep         (cv_mem->cv_mxstep)
+#define maxcor         (cv_mem->cv_maxcor)
+#define mxhnil         (cv_mem->cv_mxhnil)
+#define hmin           (cv_mem->cv_hmin)
+#define hmax_inv       (cv_mem->cv_hmax_inv)
+#define etamax         (cv_mem->cv_etamax)
+#define nst            (cv_mem->cv_nst)
+#define nfe            (cv_mem->cv_nfe)
+#define ncfn           (cv_mem->cv_ncfn)
+#define netf           (cv_mem->cv_netf)
+#define nni            (cv_mem->cv_nni)
+#define nsetups        (cv_mem->cv_nsetups)
+#define nhnil          (cv_mem->cv_nhnil)
+#define lrw            (cv_mem->cv_lrw)
+#define liw            (cv_mem->cv_liw)
+#define linit          (cv_mem->cv_linit)
+#define lsetup         (cv_mem->cv_lsetup)
+#define lsolve         (cv_mem->cv_lsolve) 
+#define lfree          (cv_mem->cv_lfree) 
+#define lmem           (cv_mem->cv_lmem) 
+#define qu             (cv_mem->cv_qu)          
+#define nstlp          (cv_mem->cv_nstlp)  
+#define h0u            (cv_mem->cv_h0u)
+#define hu             (cv_mem->cv_hu)         
+#define saved_tq5      (cv_mem->cv_saved_tq5)  
+#define jcur           (cv_mem->cv_jcur)         
+#define tolsf          (cv_mem->cv_tolsf)      
+#define setupNonNull   (cv_mem->cv_setupNonNull) 
+#define forceSetup     (cv_mem->cv_forceSetup)
+#define machenv        (cv_mem->cv_machenv)
+#define sldeton        (cv_mem->cv_sldeton)
 
+#define sensi          (cv_mem->cv_sensi)
+#define znS            (cv_mem->cv_znS)
+#define ewtS           (cv_mem->cv_ewtS)
+#define acorS          (cv_mem->cv_acorS)
+#define yS             (cv_mem->cv_yS)
+#define tempvS         (cv_mem->cv_tempvS)
+#define ftempS         (cv_mem->cv_ftempS)
+#define acnrmS         (cv_mem->cv_acnrmS)
+#define maxcorS        (cv_mem->cv_maxcorS)
+#define nfSe           (cv_mem->cv_nfSe)
+#define nniS           (cv_mem->cv_nniS)
+#define ncfnS          (cv_mem->cv_ncfnS)
+#define nniS1          (cv_mem->cv_nniS1)
+#define ncfnS1         (cv_mem->cv_ncfnS1)
+#define ncfS1          (cv_mem->cv_ncfS1)
+#define netfS          (cv_mem->cv_netfS)
+#define lsolveS        (cv_mem->cv_lsolveS) 
+#define abstolSalloc   (cv_mem->cv_abstolSalloc)
+#define stgr1alloc     (cv_mem->cv_stgr1alloc)
 
-/**************************************************************/
-/**************** BEGIN Readability Constants *****************/
-/**************************************************************/
+#define quad           (cv_mem->cv_quad)
+#define znQ            (cv_mem->cv_znQ)
+#define ewtQ           (cv_mem->cv_ewtQ)
+#define acorQ          (cv_mem->cv_acorQ)
+#define yQ             (cv_mem->cv_yQ)
+#define tempvQ         (cv_mem->cv_tempvQ)
+#define acnrmQ         (cv_mem->cv_acnrmQ)
+#define nfQe           (cv_mem->cv_nfQe)
+#define netfQ          (cv_mem->cv_netfQ)
+#define machenvQ       (cv_mem->cv_machenvQ)
 
+#define sensMallocDone (cv_mem->cv_sensMallocDone)
+#define quadMallocDone (cv_mem->cv_quadMallocDone)
 
-#define uround (cv_mem->cv_uround)  
-#define zn     (cv_mem->cv_zn) 
-#define ewt    (cv_mem->cv_ewt)  
-#define y      (cv_mem->cv_y)
-#define acor   (cv_mem->cv_acor)
-#define tempv  (cv_mem->cv_tempv)
-#define ftemp  (cv_mem->cv_ftemp) 
-#define q      (cv_mem->cv_q)
-#define qprime (cv_mem->cv_qprime)
-#define qwait  (cv_mem->cv_qwait)
-#define L      (cv_mem->cv_L)
-#define h      (cv_mem->cv_h)
-#define hprime (cv_mem->cv_hprime)
-#define eta    (cv_mem->cv_eta) 
-#define etaqm1 (cv_mem->cv_etaqm1) 
-#define etaq   (cv_mem->cv_etaq) 
-#define etaqp1 (cv_mem->cv_etaqp1) 
-#define nscon  (cv_mem->cv_nscon)
-#define ssdat  (cv_mem->cv_ssdat)
-#define hscale (cv_mem->cv_hscale)
-#define tn     (cv_mem->cv_tn)
-#define tau    (cv_mem->cv_tau)
-#define tq     (cv_mem->cv_tq)
-#define l      (cv_mem->cv_l)
-#define rl1    (cv_mem->cv_rl1)
-#define gamma  (cv_mem->cv_gamma) 
-#define gammap (cv_mem->cv_gammap) 
-#define gamrat (cv_mem->cv_gamrat)
-#define crate  (cv_mem->cv_crate)
-#define acnrm  (cv_mem->cv_acnrm)
-#define mnewt  (cv_mem->cv_mnewt)
-#define qmax   (cv_mem->cv_qmax) 
-#define mxstep (cv_mem->cv_mxstep)
-#define maxcor (cv_mem->cv_maxcor)
-#define mxhnil (cv_mem->cv_mxhnil)
-#define hmin   (cv_mem->cv_hmin)
-#define hmax_inv (cv_mem->cv_hmax_inv)
-#define etamax (cv_mem->cv_etamax)
-#define nst    (cv_mem->cv_nst)
-#define nfe    (cv_mem->cv_nfe)
-#define ncfn   (cv_mem->cv_ncfn)
-#define netf   (cv_mem->cv_netf)
-#define nni    (cv_mem->cv_nni)
-#define nsetups (cv_mem->cv_nsetups)
-#define nhnil  (cv_mem->cv_nhnil)
-#define lrw    (cv_mem->cv_lrw)
-#define liw    (cv_mem->cv_liw)
-#define linit  (cv_mem->cv_linit)
-#define lsetup (cv_mem->cv_lsetup)
-#define lsolve (cv_mem->cv_lsolve) 
-#define lfree  (cv_mem->cv_lfree) 
-#define lmem   (cv_mem->cv_lmem) 
-#define qu     (cv_mem->cv_qu)          
-#define nstlp  (cv_mem->cv_nstlp)  
-#define h0u    (cv_mem->cv_h0u)
-#define hu     (cv_mem->cv_hu)         
-#define saved_tq5 (cv_mem->cv_saved_tq5)  
-#define jcur   (cv_mem->cv_jcur)         
-#define tolsf  (cv_mem->cv_tolsf)      
-#define setupNonNull (cv_mem->cv_setupNonNull) 
-#define forceSetup   (cv_mem->cv_forceSetup)
-#define machenv (cv_mem->cv_machenv)
-#define sldeton (cv_mem->cv_sldeton)
+/*=================================================================*/
+/*END          Readibility Constants                               */
+/*=================================================================*/
 
-#define sensi   (cv_mem->cv_sensi)
-#define znS     (cv_mem->cv_znS)
-#define ewtS    (cv_mem->cv_ewtS)
-#define acorS   (cv_mem->cv_acorS)
-#define yS      (cv_mem->cv_yS)
-#define tempvS  (cv_mem->cv_tempvS)
-#define ftempS  (cv_mem->cv_ftempS)
-#define acnrmS  (cv_mem->cv_acnrmS)
-#define maxcorS (cv_mem->cv_maxcorS)
-#define nfSe    (cv_mem->cv_nfSe)
-#define nniS    (cv_mem->cv_nniS)
-#define ncfnS   (cv_mem->cv_ncfnS)
-#define nniS1   (cv_mem->cv_nniS1)
-#define ncfnS1  (cv_mem->cv_ncfnS1)
-#define ncfS1   (cv_mem->cv_ncfS1)
-#define netfS   (cv_mem->cv_netfS)
-#define lsolveS (cv_mem->cv_lsolveS) 
-#define abstolSalloc (cv_mem->cv_abstolSalloc)
-#define stgr1alloc   (cv_mem->cv_stgr1alloc)
+/*=================================================================*/
+/*BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION                   */
+/*=================================================================*/
 
-/**************************************************************/
-/***************** END Readability Constants ******************/
-/**************************************************************/
+/*------------------     CVodeMalloc     --------------------------*/
+/* 
+   CVodeMalloc allocates and initializes memory for a problem. All 
+   problem specification inputs are checked for errors. If any 
+   error occurs during initialization, it is reported to the file
+   whose file pointer is errfp and NULL is returned. Otherwise, the
+   pointer to successfully initialized problem memory is returned
+*/
+/*-----------------------------------------------------------------*/
 
-
-/***************************************************************/
-/************* BEGIN CVODE Implementation **********************/
-/***************************************************************/
-
-
-/***************************************************************/
-/********* BEGIN Exported Functions Implementation *************/
-/***************************************************************/
-
-
-/******************** CVodeMalloc *******************************
-
- CVodeMalloc allocates and initializes memory for a problem. All
- problem specification inputs are checked for errors. If any
- error occurs during initialization, it is reported to the file
- whose file pointer is errfp and NULL is returned. Otherwise, the
- pointer to successfully initialized problem memory is returned.
- 
-*****************************************************************/
-
-void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, int lmm, int iter,
-                  int itol, realtype *reltol, void *abstol, void *f_data,
-                  FILE *errfp, booleantype optIn, long int iopt[], realtype ropt[],
+void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, 
+                  int lmm, int iter, int itol, realtype *reltol, 
+                  void *abstol, void *f_data, FILE *errfp, 
+                  booleantype optIn, long int iopt[], realtype ropt[],
                   M_Env machEnv)
 {
   booleantype   allocOK, ioptExists, roptExists, neg_abstol, ewtsetOK;
@@ -931,33 +1008,152 @@ void *CVodeMalloc(integertype N, RhsFn f, realtype t0, N_Vector y0, int lmm, int
       
   /* Initialize sensitivity data; default is NO sensitivity */
   sensi  = FALSE;
+  sensMallocDone = FALSE;
+
+  /* Initialize quadrature data; default is NO quadratures */
+  quad  = FALSE;
+  quadMallocDone = FALSE;
 
   /* Problem has been successfully initialized */
   return ((void *)cv_mem);
 }
 
-/***************** CVodeSensMalloc ******************************
+/*------------------   CVodeQuadMalloc   --------------------------*/
+/*
+  CVodeQuadMalloc allocates and initializes quadrature related 
+  memory for a problem. All problem specification inputs are 
+  checked for errors. If any error occurs during initialization, 
+  it is reported to the file whose file pointer is errfp. 
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
 
- CVodeSensMalloc allocates and initializes sensitivity related 
- memory for a problem. All problem specification inputs are 
- checked for errors. If any error occurs during initialization, 
- it is reported to the file whose file pointer is errfp. 
- The return value is SUCCESS = 0 if no errors occurred, or
- a negative value otherwise.
-
-*****************************************************************/
-
-int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism, 
-                    realtype *p, realtype *pbar, integertype *plist, 
-                    int ifS, void *fS, int errcon, realtype rhomax, 
-                    N_Vector *yS0, realtype *reltolS, void *abstolS)
+int CVodeQuadMalloc(void *cvode_mem, integertype Nq, 
+                    void *fQ, int errconQ,
+                    realtype *reltolQ, void *abstolQ,
+                    void *fQ_data, M_Env machEnvQ)
 {
   CVodeMem cv_mem;
   FILE     *fp;
   int      itol;
-  realtype     *reltol;
+  booleantype  neg_abstol, allocOK, ewtsetOK;
+
+
+  /*----------------------------------- 
+     Check for legal input parameters 
+  -----------------------------------*/
+  
+  /* Was memory initialized? */
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_QCVM_NO_MEM);
+    return (QCVM_NO_MEM);
+  }
+
+  /* Extract stuff from cv_mem */
+  cv_mem = (CVodeMem) cvode_mem;
+  fp     = cv_mem->cv_errfp;
+  itol   = cv_mem->cv_itol;
+
+  /* Check if Nq is legal */
+  if (Nq<0) {
+    fprintf(fp, MSG_BAD_NQ,Nq);
+    return (QCVM_ILL_INPUT);
+  }
+
+  /* Check if errcon is legal */
+  if ((errconQ!=FULL) && (errconQ!=PARTIAL)) {
+    fprintf(fp, MSG_BAD_ECONQ,errconQ,FULL,PARTIAL);
+    return (QCVM_ILL_INPUT);
+  }
+
+  /* Check if reltolQ and abstolQ are non-null and legal */
+  if (errconQ == FULL) {
+    if (*reltolQ < ZERO) {
+      fprintf(fp, MSG_BAD_RELTOLQ, *reltolQ);
+      return (QCVM_ILL_INPUT);
+    }
+    if (itol == SS) {
+      neg_abstol = (*((realtype *)abstolQ) < ZERO);
+    } else {
+      neg_abstol = (N_VMin((N_Vector)abstolQ) < ZERO);
+    }
+    if (neg_abstol) {
+      fprintf(fp, MSG_BAD_ABSTOLQ);
+      return(QCVM_ILL_INPUT);
+    }
+  }
+
+  /* Allocate the vectors */
+  allocOK = CVQuadAllocVectors(cv_mem, Nq, machEnvQ);
+  if (!allocOK) {
+    fprintf(fp, MSG_QCVM_MEM_FAIL);
+    return (QCVM_MEM_FAIL);
+  }
+
+  /* Initialize znQ[0] in the history array */
+  N_VConst(ZERO, znQ[0]);
+
+  /* Set the ewtQ vector */
+  if (errconQ == FULL) {
+    ewtsetOK = CVQuadEwtSet(cv_mem, reltolQ, abstolQ, 
+                            itol, znQ[0], Nq);
+    if (!ewtsetOK) {
+      fprintf(fp, MSG_BAD_EWTQ);
+      CVQuadFreeVectors(cv_mem, qmax);
+      return (QCVM_ILL_INPUT);
+    }
+  }
+
+  /*---------------------------------------------- 
+     All error checking is complete at this point 
+  -----------------------------------------------*/
+
+  /* Copy the input parameters into CVODE state */
+  cv_mem->cv_Nq       = Nq;
+  cv_mem->cv_fQ       = fQ;
+  cv_mem->cv_fQ_data  = fQ_data;
+  cv_mem->cv_errconQ  = errconQ;
+  cv_mem->cv_reltolQ  = reltolQ;
+  cv_mem->cv_abstolQ  = abstolQ;
+  cv_mem->cv_machenvQ = machEnvQ;
+
+  /* Initialize counters */
+  nfQe = 0;
+  netfQ = 0;
+
+  /* Quadrature integration turned ON */
+  quad = TRUE;
+  quadMallocDone = TRUE;
+
+  /* Quadrature initialization was successfull */
+  return(SUCCESS);
+
+}
+
+/*------------------   CVodeSensMalloc   --------------------------*/
+/*
+  CVodeSensMalloc allocates and initializes sensitivity related 
+  memory for a problem. All problem specification inputs are 
+  checked for errors. If any error occurs during initialization, 
+  it is reported to the file whose file pointer is errfp. 
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism, 
+                    realtype *p, realtype *pbar, integertype *plist, 
+                    int ifS, void *fS, int errcon, realtype rhomax, 
+                    N_Vector *yS0, realtype *reltolS, void *abstolS,
+                    void *fS_data)
+{
+  CVodeMem cv_mem;
+  FILE     *fp;
+  int      itol;
+  realtype *reltol;
   long int *iopt;
-  booleantype    neg_abstol, allocOK, tolsetOK, ewtsetOK, ioptExists;
+  booleantype  neg_abstol, allocOK, tolsetOK, ewtsetOK, ioptExists;
   integertype  is;
   
   /*----------------------------------- 
@@ -1025,6 +1221,10 @@ int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism,
     return (SCVM_ILL_INPUT);
   }
   
+  /* NOTE: Even if errcon=PARTIAL, tolerances 
+     are still needed for the convergence test
+     in the nonlinear solver!!! */
+
   /* Check if reltolS is non-null and legal */
   if (reltolS!=NULL) {
     if (*reltolS<ZERO) {
@@ -1118,17 +1318,21 @@ int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism,
   
   cv_mem->cv_fS  = NULL;
   cv_mem->cv_fS1 = NULL;
-  if (fS!=NULL)
+  if (fS!=NULL) {
+    cv_mem->cv_fS_data = fS_data;
     if (ifS==ALLSENS) 
       cv_mem->cv_fS  = (SensRhsFn) fS;
     else
       cv_mem->cv_fS1 = (SensRhs1Fn) fS;
-  else
+  } 
+  else {
+    cv_mem->cv_fS_data = (void *)cv_mem;
     if (ifS==ALLSENS)
       cv_mem->cv_fS  = CVSensRhsDQ;
     else
       cv_mem->cv_fS1 = CVSensRhs1DQ;
-  
+  }  
+
   /* Initialize znS[0] in the history array */
   for (is=0; is<Ns; is++) 
     N_VScale(ONE, yS0[is], znS[0][is]);
@@ -1149,29 +1353,31 @@ int CVodeSensMalloc(void *cvode_mem, integertype Ns, int ism,
 
   /* Sensitivities will be computed */
   sensi = TRUE;
-  
+  sensMallocDone = TRUE;
+
   /* Sensitivity initialization was successfull */
   return (SUCCESS);
 }
 
-/******************** CVReInit **********************************
+/*------------------     CVodeReInit     --------------------------*/
+/*
+  CVodeReInit re-initializes CVODES' memory for a problem, assuming
+  it has already been allocated in a prior CVodeMalloc call.
+  All problem specification inputs are checked for errors.
+  The problem size N is assumed to be unchanged since the call to
+  CVodeMalloc, and the maximum order maxord must not be larger.
+  If any error occurs during initialization, it is reported to the
+  file whose file pointer is errfp.
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
 
- CVReInit re-initializes CVODE's memory for a problem, assuming
- it has already been allocated in a prior CVodeMalloc call.
- All problem specification inputs are checked for errors.
- The problem size N is assumed to be unchanged since the call to
- CVodeMalloc, and the maximum order maxord must not be larger.
- If any error occurs during initialization, it is reported to the
- file whose file pointer is errfp.
- The return value is SUCCESS = 0 if no errors occurred, or
- a negative value otherwise.
- 
-*****************************************************************/
-
-int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
-             int lmm, int iter, int itol, realtype *reltol, void *abstol,
-             void *f_data, FILE *errfp, booleantype optIn, long int iopt[],
-             realtype ropt[], M_Env machEnv)
+int CVodeReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
+                int lmm, int iter, int itol, realtype *reltol, 
+                void *abstol, void *f_data, FILE *errfp, 
+                booleantype optIn, long int iopt[], realtype ropt[], 
+                M_Env machEnv)
 {
   booleantype   ioptExists, roptExists, neg_abstol, ewtsetOK;
   int     maxord;
@@ -1366,41 +1572,154 @@ int CVReInit(void *cvode_mem, RhsFn f, realtype t0, N_Vector y0,
     ropt[TOLSF] = tolsf;
   }
       
-  /* Initialize sensitivity data; default is NO sensitivity */
+  /* Re-initialize sensitivity data; default is NO sensitivity */
   sensi  = FALSE;
+  
+  /* Re-initialize quadrature data; default is NO quadrature */
+  quad  = FALSE;
 
   /* Problem has been successfully re-initialized */
-
   return (SUCCESS);
 }
 
-/******************** CVSensReInit *****************************
+/*------------------  CVodeQuadReInit    --------------------------*/
+/*
+  CVodeQuadReInit re-initializes CVODES' quadrature related memory 
+  for a problem, assuming it has already been allocated in prior 
+  calls to CVodeMalloc and CvodeQuadMalloc. 
+  All problem specification inputs are checked for errors.
+  The number of quadratures Nq is assumed to be unchanged since
+  the previous call to CVodeQuadMalloc.
+  If any error occurs during initialization, it is reported to the
+  file whose file pointer is errfp.
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
 
- CVSensReInit re-initializes CVODE's sensitivity related memory 
- for a problem, assuming it has already been allocated in prior 
- calls to CVodeMalloc and CvodeSensMalloc. 
- All problem specification inputs are checked for errors.
- The number of sensitivities Ns is assumed to be unchanged since
- the previous call to CVodeSensMalloc.
- If any error occurs during initialization, it is reported to the
- file whose file pointer is errfp.
- The return value is SUCCESS = 0 if no errors occurred, or
- a negative value otherwise.
- 
-*****************************************************************/
 
-int CVSensReInit(void *cvode_mem, int ism, 
-                 realtype *p, realtype *pbar, integertype *plist, 
-                 int ifS, void *fS, int errcon, realtype rhomax, 
-                 N_Vector *yS0, realtype *reltolS, void *abstolS)
+int CVodeQuadReInit(void *cvode_mem, void *fQ, int errconQ,
+                    realtype *reltolQ, void *abstolQ, 
+                    void *fQ_data, M_Env machEnvQ)
 {
   CVodeMem cv_mem;
+  integertype Nq;
   FILE     *fp;
   int      itol;
-  realtype     *reltol;
-  long int *iopt;
+  booleantype  neg_abstol, ewtsetOK;
+
+  /*----------------------------------- 
+     Check for legal input parameters 
+  -----------------------------------*/
+  
+  /* Was memory (re)initialized? */
+  if (cvode_mem==NULL) {
+    fprintf(stdout, MSG_QCVM_NO_MEM);
+    return (QCVREI_NO_MEM);
+  }
+
+  /* Extract stuff from cv_mem */
+  cv_mem = (CVodeMem) cvode_mem;
+  fp     = cv_mem->cv_errfp;
+  itol   = cv_mem->cv_itol;
+  Nq     = cv_mem->cv_Nq;
+
+  /* Was quadrature initialized? */
+  if (quadMallocDone == FALSE) {
+    fprintf(fp, MSG_QREI_NO_QUAD);
+    return (QCVREI_NO_QUAD);
+  }
+
+  /* Check if errcon is legal */
+  if ((errconQ!=FULL) && (errconQ!=PARTIAL)) {
+    fprintf(fp, MSG_BAD_ECONQ,errconQ,FULL,PARTIAL);
+    return (QCVREI_ILL_INPUT);
+  }
+
+  /* Check if reltolQ and abstolQ are non-null and legal */
+  if (errconQ == FULL) {
+    if (*reltolQ < ZERO) {
+      fprintf(fp, MSG_BAD_RELTOLQ, *reltolQ);
+      return (QCVREI_ILL_INPUT);
+    }
+    if (itol == SS) {
+      neg_abstol = (*((realtype *)abstolQ) < ZERO);
+    } else {
+      neg_abstol = (N_VMin((N_Vector)abstolQ) < ZERO);
+    }
+    if (neg_abstol) {
+      fprintf(fp, MSG_BAD_ABSTOLQ);
+      return(QCVREI_ILL_INPUT);
+    }
+  }
+
+  /* Initialize znQ[0] in the history array */
+  N_VConst(ZERO, znQ[0]);
+
+  /* Set the ewtQ vector */
+  Nq = cv_mem->cv_Nq;
+  if (errconQ == FULL) {
+    ewtsetOK = CVQuadEwtSet(cv_mem, reltolQ, abstolQ, 
+                            itol, znQ[0], Nq);
+    if (!ewtsetOK) {
+      fprintf(fp, MSG_BAD_EWTQ);
+      CVQuadFreeVectors(cv_mem, qmax);
+      return (QCVREI_ILL_INPUT);
+    }
+  }
+
+  /*---------------------------------------------- 
+     All error checking is complete at this point 
+  -----------------------------------------------*/
+
+  /* Copy the input parameters into CVODE state */
+  cv_mem->cv_fQ       = fQ;
+  cv_mem->cv_fQ_data  = fQ_data;
+  cv_mem->cv_errconQ  = errconQ;
+  cv_mem->cv_reltolQ  = reltolQ;
+  cv_mem->cv_abstolQ  = abstolQ;
+  cv_mem->cv_machenvQ = machEnvQ;
+
+  /* Initialize counters */
+  nfQe = 0;
+  netfQ = 0;
+
+  /* Quadrature integration turned ON */
+  quad = TRUE;
+
+  /* Quadrature re-initialization was successfull */
+  return(SUCCESS);
+}
+
+/*------------------   CVodeSensReInit   --------------------------*/
+/*
+  CVSensReInit re-initializes CVODES' sensitivity related memory 
+  for a problem, assuming it has already been allocated in prior 
+  calls to CVodeMalloc and CvodeSensMalloc. 
+  All problem specification inputs are checked for errors.
+  The number of sensitivities Ns is assumed to be unchanged since
+  the previous call to CVodeSensMalloc.
+  If any error occurs during initialization, it is reported to the
+  file whose file pointer is errfp.
+  The return value is SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+*/ 
+/*-----------------------------------------------------------------*/
+
+
+int CVodeSensReInit(void *cvode_mem, int ism, 
+                    realtype *p, realtype *pbar, integertype *plist, 
+                    int ifS, void *fS, int errcon, realtype rhomax, 
+                    N_Vector *yS0, realtype *reltolS, void *abstolS,
+                    void *fS_data)
+{
+  CVodeMem     cv_mem;
+  FILE        *fp;
+  int          itol;
+  realtype    *reltol;
+  long int    *iopt;
   integertype  Ns, is;  
-  booleantype    neg_abstol, allocOK, tolsetOK, ewtsetOK;
+  booleantype  neg_abstol, allocOK, tolsetOK, ewtsetOK;
 
   /*----------------------------------- 
      Check for legal input parameters 
@@ -1421,7 +1740,7 @@ int CVSensReInit(void *cvode_mem, int ism,
   Ns     = cv_mem->cv_Ns;
 
   /* Was sensitivity initialized? */
-  if (sensi == FALSE) {
+  if (sensMallocDone == FALSE) {
     fprintf(fp, MSG_SREI_NO_SENSI);
     return (SCVREI_NO_SENSI);
   } 
@@ -1556,16 +1875,22 @@ int CVSensReInit(void *cvode_mem, int ism,
 
   cv_mem->cv_fS  = NULL;
   cv_mem->cv_fS1 = NULL;
-  if (fS!=NULL)
+  if (fS!=NULL) {
+    /* User provided sensitivity RHS */
+    cv_mem->cv_fS_data = fS_data;
     if (ifS==ALLSENS) 
       cv_mem->cv_fS  = (SensRhsFn) fS;
     else
       cv_mem->cv_fS1 = (SensRhs1Fn) fS;
-  else
+  }
+  else {
+    /* Internal DQ sensitivity RHS */
+    cv_mem->cv_fS_data = (void *)cv_mem;
     if (ifS==ALLSENS)
       cv_mem->cv_fS  = CVSensRhsDQ;
     else
       cv_mem->cv_fS1 = CVSensRhs1DQ;
+  }
 
   /* Initialize znS[0] in the history array */
   for (is=0; is<Ns; is++) 
@@ -1580,12 +1905,13 @@ int CVSensReInit(void *cvode_mem, int ism,
     }
 
   /* Problem has been successfully re-initialized */
+  sensi = TRUE;
   return (SUCCESS);
 }
 
-/**************************************************************/
-/************** BEGIN More Readability Constants **************/
-/**************************************************************/
+/*=================================================================*/
+/*BEGIN        More Readability Constants                          */
+/*=================================================================*/
 
 #define N      (cv_mem->cv_N)
 #define f      (cv_mem->cv_f)      
@@ -1602,6 +1928,7 @@ int CVSensReInit(void *cvode_mem, int ism,
 
 #define Ns      (cv_mem->cv_Ns)
 #define fS      (cv_mem->cv_fS)
+#define fS_data (cv_mem->cv_fS_data)
 #define fS1     (cv_mem->cv_fS1)
 #define ifS     (cv_mem->cv_ifS)
 #define ism     (cv_mem->cv_ism)
@@ -1613,34 +1940,40 @@ int CVSensReInit(void *cvode_mem, int ism,
 #define rhomax  (cv_mem->cv_rhomax)
 #define errcon  (cv_mem->cv_errcon)
 
-/**************************************************************/
-/*************** END More Readability Constants ***************/
-/**************************************************************/
+#define Nq      (cv_mem->cv_Nq)
+#define fQ      (cv_mem->cv_fQ)
+#define fQ_data (cv_mem->cv_fQ_data)
+#define reltolQ (cv_mem->cv_reltolQ)
+#define abstolQ (cv_mem->cv_abstolQ)
+#define errconQ (cv_mem->cv_errconQ)
 
+/*=================================================================*/
+/*END          More Readability Constants                          */
+/*=================================================================*/
 
-/********************* CVode ****************************************
-
- This routine is the main driver of the CVODE package. 
-
- It integrates over a time interval defined by the user, by calling
- CVStep to do internal time steps.
-
- The first time that CVode is called for a successfully initialized
- problem, it computes a tentative initial step size h.
-
- CVode supports two modes, specified by itask: NORMAL and ONE_STEP.
- In the NORMAL mode, the solver steps until it reaches or passes tout
- and then interpolates to obtain y(tout).
- In the ONE_STEP mode, it takes one internal step and returns.
-
-********************************************************************/
+/*------------------       CVode         --------------------------*/
+/*
+  This routine is the main driver of the CVODE package. 
+  
+  It integrates over a time interval defined by the user, by calling
+  CVStep to do internal time steps.
+  
+  The first time that CVode is called for a successfully initialized
+  problem, it computes a tentative initial step size h.
+  
+  CVode supports two modes, specified by itask: NORMAL and ONE_STEP.
+  In the NORMAL mode, the solver steps until it reaches or passes tout
+  and then interpolates to obtain y(tout).
+  In the ONE_STEP mode, it takes one internal step and returns.
+*/
+/*-----------------------------------------------------------------*/
 
 int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
 {
   int nstloc, kflag, istate, next_q, ier;
-  integertype is;
-  realtype tstop, troundoff, rh, next_h;
-  booleantype istop, hOK, ewtsetOK, ewtSsetOK;
+  integertype is, old_dim;
+  realtype tstop, troundoff, rh, next_h, nrm;
+  booleantype istop, hOK, ewtsetOK, ewtSsetOK, ewtQsetOK;
   N_Vector wrk1, wrk2;
   CVodeMem cv_mem;
 
@@ -1726,10 +2059,14 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
       }
     }
     
-    /* On the first call, call f at (t0,y0), set zn[1] = y'(t0), 
+    /* 
+       On the first call, call f at (t0,y0), set zn[1] = y'(t0), 
        set initial h (from H0 or CVHin), and scale zn[1] by h   
        If computing sensitivities, call fS at (t0,y0,yS0), set
-       znS[1][is] = yS'(t0), is=1,...,Ns, and scale znS[1][is] by h. */
+       znS[1][is] = yS'(t0), is=1,...,Ns, and scale znS[1][is] by h. 
+       If computing any quadratures, call fQ at (t0,znQ[0]), set
+       znQ[1] = fQ, and scale znQ[1] by h.
+    */
     
     f(N, tn, zn[0], zn[1], f_data); 
     nfe++;
@@ -1739,6 +2076,11 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
       wrk2 = ftemp;
       CVSensRhs(cv_mem, tn, zn[0], zn[1], znS[0], znS[1], tempv, ftemp);
     }    
+
+    if (quad) {
+      fQ(Nq, N, tn, zn[0], znQ[1], fQ_data);
+      nfQe++;
+    }
 
     h = ZERO;
     if (ropt != NULL) h = ropt[H0];
@@ -1768,7 +2110,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
         h = tstop - tn;
     }
 
-    hscale = h; 
+    hscale = h;
     h0u    = h;
     hprime = h;
 
@@ -1778,6 +2120,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
       for (is=0; is<Ns; is++) 
         N_VScale(h, znS[1][is], znS[1][is]);
     
+    if (quad)
+      N_VScale(h, znQ[1], znQ[1]);
+
   } /* end first call block */
 
   /* At following steps, perform stop tests */
@@ -1835,23 +2180,27 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
     /* Reset and check ewt */
 
     if (nst > 0) {
+
       ewtsetOK = CVEwtSet(cv_mem, reltol, abstol, itol, zn[0], N);
       if (sensi)
         ewtSsetOK = CVSensEwtSet(cv_mem, reltolS, abstolS, itol, znS[0], Ns);
       else
         ewtSsetOK = TRUE;
-      
-      /* RADU:QUESTION
-         Maybe I should be more specific with this message, i.e. differentiate
-         between failures in ewt and ewtS
-      */
-      if ((!ewtsetOK) || (!ewtSsetOK)) {
-        fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+      if (quad && (errconQ == FULL))
+        ewtQsetOK = CVQuadEwtSet(cv_mem, reltolQ, abstolQ, itol, znQ[0], Nq);
+      else
+        ewtQsetOK = TRUE;
+        
+      if ( (!ewtsetOK) || (!ewtSsetOK) || (!ewtQsetOK) ) {
+        if(!ewtsetOK)  fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+        if(!ewtSsetOK) fprintf(errfp, MSG_EWTS_NOW_BAD, tn);
+        if(!ewtQsetOK) fprintf(errfp, MSG_EWTQ_NOW_BAD, tn);
         istate = ILL_INPUT;
         *t = tn;
         N_VScale(ONE, zn[0], yout);
         break;
       }
+
     }
 
     /* Check for too many steps */
@@ -1866,17 +2215,18 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
 
     /* Check for too much accuracy requested */
 
-    /* RADU:QUESTION
-       Here too, I should probably be more specific. In the FULL error
-       control case, if too much accuracy was requested I should inform 
-       the user if it was due to the states or to the sensitivities.
-    */
-    if ((!sensi) || (errcon == PARTIAL)) {
-      tolsf = uround * N_VWrmsNorm(zn[0], ewt);
-    } else {
-      tolsf = uround * CVSensNormAll(zn[0], ewt, znS[0], ewtS, Ns);
+    nrm = N_VWrmsNorm(zn[0], ewt);
+    old_dim = N;
+    if (quad && (errconQ == FULL)) {
+      nrm = CVQuadUpdateNorm(cv_mem, nrm, old_dim, znQ[0], ewtQ); 
+      old_dim += Nq;
     }
-    
+    if (sensi && (errcon == FULL)) {
+      nrm = CVSensUpdateNorm(cv_mem, nrm, old_dim, znS[0], ewtS);
+      old_dim += Ns*N;
+    }
+    tolsf = uround * nrm;
+
     if (tolsf > ONE) {
       fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
       istate = TOO_MUCH_ACC;
@@ -1971,6 +2321,10 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
         ncfnS += ncfnS1[is];
       }
     }
+    if (quad) {
+      iopt[NFQE]    = nfQe;
+      iopt[NETFQ]   = netfQ;
+    }
     if (sensi) {
       iopt[NFSE]    = nfSe;
       iopt[NNIS]    = nniS;
@@ -1993,21 +2347,21 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout, realtype *t, int itask)
 
 }
 
-/*************** CVodeDky ********************************************
-
- This routine computes the k-th derivative of the interpolating
- polynomial at the time t and stores the result in the vector dky.
- The formula is:
+/*------------------     CVodeDky        --------------------------*/
+/*
+  This routine computes the k-th derivative of the interpolating
+  polynomial at the time t and stores the result in the vector dky.
+  The formula is:
           q 
    dky = SUM c(j,k) * (t - tn)^(j-k) * h^(-j) * zn[j] , 
          j=k 
- where c(j,k) = j*(j-1)*...*(j-k+1), q is the current order, and
- zn[j] is the j-th column of the Nordsieck history array.
+  where c(j,k) = j*(j-1)*...*(j-k+1), q is the current order, and
+  zn[j] is the j-th column of the Nordsieck history array.
 
- This function is called by CVode with k = 0 and t = tout, but
- may also be called directly by the user.
-
-**********************************************************************/
+  This function is called by CVode with k = 0 and t = tout, but
+  may also be called directly by the user.
+*/
+/*-----------------------------------------------------------------*/
 
 int CVodeDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 {
@@ -2063,26 +2417,112 @@ int CVodeDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   return (OKAY);
 }
 
-/************************ CVodeSensExtract ************************
+/*------------------  CVodeQuadExtract   --------------------------*/
+/* 
+   This routine extracts auadrature solution into yQout.
+   This is just a wrapper that calls CvodeQuadDky with k=0                    
+*/
+/*-----------------------------------------------------------------*/
  
- This routine extracts sensitivity solution into ySout.
- This is just a wrapper that calls CvodeSensDkyAll with k=0                    
+int CVodeQuadExtract(void *cvode_mem, realtype t, N_Vector yQout)
+{
+  return (CVodeQuadDky(cvode_mem,t,0,yQout));
+}
 
-*******************************************************************/
+/*------------------     CVodeQuadDky    --------------------------*/
+/*
+  CVodeQuadDky computes the kth derivative of the yQ function at
+  time t, where tn-hu <= t <= tn, tn denotes the current         
+  internal time reached, and hu is the last internal step size   
+  successfully used by the solver. The user may request 
+  k=0, 1, ..., qu, where qu is the current order. 
+  The derivative vector is returned in dky. This vector 
+  must be allocated by the caller. It is only legal to call this         
+  function after a successful return from CVode with quadrature
+  computation enabled.
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeQuadDky(void *cvode_mem, realtype t, int k, N_Vector dky)
+{ 
+  realtype s, c, r;
+  realtype tfuzz, tp, tn1;
+  int i, j;
+  CVodeMem cv_mem;
+  
+  cv_mem = (CVodeMem) cvode_mem;  
+  
+  /* Check all inputs for legality */
+  
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_QDKY_NO_MEM);
+    return (DKY_NO_MEM);
+  }
+
+  if(quad != TRUE) {
+    fprintf(errfp, MSG_QDKY_NO_QUAD);
+    return (DKY_NO_QUAD);
+  }
+
+  if (dky == NULL) {
+    fprintf(stdout, MSG_QBAD_DKY);
+    return (BAD_DKY);
+  }
+  
+  if ((k < 0) || (k > q)) {
+    fprintf(errfp, MSG_QBAD_K, k);
+    return (BAD_K);
+  }
+  
+  /* Allow for some slack */
+  tfuzz = FUZZ_FACTOR * uround * (ABS(tn) + ABS(hu));
+  if (hu < ZERO) tfuzz = -tfuzz;
+  tp = tn - hu - tfuzz;
+  tn1 = tn + tfuzz;
+  if ((t-tp)*(t-tn1) > ZERO) {
+    fprintf(errfp, MSG_QBAD_T, t, tn-hu, tn);
+    return (BAD_T);
+  }
+  
+  /* Sum the differentiated interpolating polynomial */
+  
+  s = (t - tn) / h;
+  for (j=q; j >= k; j--) {
+    c = ONE;
+    for (i=j; i >= j-k+1; i--) c *= i;
+    if (j == q) {
+      N_VScale(c, znQ[q], dky);
+    } else {
+      N_VLinearSum(c, znQ[j], s, dky, dky);
+    }
+  }
+  if (k == 0) return (OKAY);
+  r = RPowerI(h,-k);
+  N_VScale(r, dky, dky);
+  return (OKAY);
+  
+}
+
+/*------------------    CVodeSensExtract --------------------------*/
+/* 
+   This routine extracts sensitivity solution into ySout.
+   This is just a wrapper that calls CvodeSensDkyAll with k=0                    
+*/
+/*-----------------------------------------------------------------*/
  
 int CVodeSensExtract(void *cvode_mem, realtype t, N_Vector *ySout)
 {
   return (CVodeSensDkyAll(cvode_mem,t,0,ySout));
 }
     
-/********************* CVodeSensDkyAll ****************************
-
- If the user calls directly CVodeSensDkyAll then s must be allocated
- prior to this call. When CVodeSensDkyAll is called by 
- CVodeSensExtract, only ier=OKAY, ier=DKY_NO_SENSI, or 
- ier=BAD_T are possible.
-                       
-*******************************************************************/
+/*------------------   CVodeSensDkyAll   --------------------------*/
+/*
+  If the user calls directly CVodeSensDkyAll then s must be allocated
+  prior to this call. When CVodeSensDkyAll is called by 
+  CVodeSensExtract, only ier=OKAY, ier=DKY_NO_SENSI, or 
+  ier=BAD_T are possible.
+*/
+/*-----------------------------------------------------------------*/
 
 int CVodeSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA)
 {
@@ -2110,19 +2550,19 @@ int CVodeSensDkyAll(void *cvode_mem, realtype t, int k, N_Vector *dkyA)
   return (ier);
 }
     
-/********************* CVodeSensDky *******************************
-
- CVodeSensDky computes the kth derivative of the yS[is] function at
- time t, where tn-hu <= t <= tn, tn denotes the current         
- internal time reached, and hu is the last internal step size   
- successfully used by the solver. The user may request 
- is=1, 2, ..., Ns and k=0, 1, ..., qu, where qu is the current
- order. The derivative vector is returned in dky. This vector 
- must be allocated by the caller. It is only legal to call this         
- function after a successful return from CVode with sensitivity 
- computation enabled.
-
-*******************************************************************/
+/*------------------     CVodeSensDky    --------------------------*/
+/*
+  CVodeSensDky computes the kth derivative of the yS[is] function at
+  time t, where tn-hu <= t <= tn, tn denotes the current         
+  internal time reached, and hu is the last internal step size   
+  successfully used by the solver. The user may request 
+  is=1, 2, ..., Ns and k=0, 1, ..., qu, where qu is the current
+  order. The derivative vector is returned in dky. This vector 
+  must be allocated by the caller. It is only legal to call this         
+  function after a successful return from CVode with sensitivity 
+  computation enabled.
+*/
+/*-----------------------------------------------------------------*/
 
 int CVodeSensDky(void *cvode_mem, realtype t, int k, integertype is, N_Vector dky)
 { 
@@ -2191,15 +2631,15 @@ int CVodeSensDky(void *cvode_mem, realtype t, int k, integertype is, N_Vector dk
   
 }
 
-/********************* CVodeFree **********************************
-
- This routine frees the problem memory allocated by CVodeMalloc.
- Such memory includes all the vectors allocated by CVAllocVectors,
- and the memory lmem for the linear solver (deallocated by a call
- to lfree), as well as (if Ns!=0) all memory allocated for 
- sensitivity computations by CVodeSensMalloc.
-
-*******************************************************************/
+/*------------------      CVodeFree      --------------------------*/
+/*
+  This routine frees the problem memory allocated by CVodeMalloc.
+  Such memory includes all the vectors allocated by CVAllocVectors,
+  and the memory lmem for the linear solver (deallocated by a call
+  to lfree), as well as (if Ns!=0) all memory allocated for 
+  sensitivity computations by CVodeSensMalloc.
+*/
+/*-----------------------------------------------------------------*/
 
 void CVodeFree(void *cvode_mem)
 {
@@ -2219,19 +2659,24 @@ void CVodeFree(void *cvode_mem)
     }
     CVSensFreeVectors(cv_mem, qmax, Ns);
   }
+  if(quad)
+    CVQuadFreeVectors(cv_mem, qmax);
+
   if (iter == NEWTON) lfree(cv_mem);
+
   free(cv_mem);
 }
 
-/********************* CVodeMemExtract ****************************
+/*------------------    CVodeMemExtract  --------------------------*/
+/*
+  This routine extracts additional diagnostics information from the
+  CVODE memory. Arrays that were allocated by the user are loaded
+  with the appropriate infromation from cvode_mem.
+*/
+/*-----------------------------------------------------------------*/
 
-This routine extracts additional diagnostics information from the
-CVODE memory. Arrays that were allocated by the user are loaded
-with the appropriate infromation from cvode_mem.
-
-*******************************************************************/
-
-int CVodeMemExtract(void *cvode_mem, long int *n_niS1, long int *n_cfnS1)
+int CVodeMemExtract(void *cvode_mem, long int *n_niS1, 
+                    long int *n_cfnS1)
 {
   integertype is;
   CVodeMem cv_mem;
@@ -2267,28 +2712,73 @@ int CVodeMemExtract(void *cvode_mem, long int *n_niS1, long int *n_cfnS1)
 
 }
 
-/***************************************************************/
-/********** END Exported Functions Implementation **************/
-/***************************************************************/
+/*------------------    CVodeGetEwt   -----------------------------*/
+/*
+  This routine returns the current weight vector for y in weight.
+  Note that weight need not be allocated by the user.
+*/
+/*-----------------------------------------------------------------*/
 
+int CVodeGetEwt(void *cvode_mem, N_Vector weight)
+{
+  CVodeMem cv_mem;
+  
+  cv_mem = (CVodeMem) cvode_mem; 
 
-/*******************************************************************/
-/******** BEGIN Private Helper Functions Implementation ************/
-/*******************************************************************/
- 
-/****************** CVAllocVectors ***********************************
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_GEWT_NO_MEM);
+    return (GEWT_NO_MEM);
+  }
 
- This routine allocates the CVODE vectors ewt, acor, tempv, ftemp, and
- zn[0], ..., zn[maxord]. The length of the vectors is the input
- parameter neq and the maximum order (needed to allocate zn) is the
- input parameter maxord. If all memory allocations are successful,
- CVAllocVectors returns TRUE. Otherwise all allocated memory is freed
- and CVAllocVectors returns FALSE.
- This routine also sets the optional outputs lrw and liw, which are
- (respectively) the lengths of the real and integer work spaces
- allocated here.
+  weight = ewt;
 
-**********************************************************************/
+  return(OKAY);
+}
+
+/*------------------    CVodeGetEwtS  -----------------------------*/
+/*
+  This routine returns the current weight vectors for yS in weightS.
+  Note that weightS need not be allocated by the user.
+*/
+/*-----------------------------------------------------------------*/
+
+int CVodeGetEwtS(void *cvode_mem, N_Vector *weightS)
+{
+  CVodeMem cv_mem;
+  
+  cv_mem = (CVodeMem) cvode_mem; 
+
+  if (cvode_mem == NULL) {
+    fprintf(stdout, MSG_GEWT_NO_MEM);
+    return (GEWT_NO_MEM);
+  }
+
+  weightS = ewtS;
+
+  return(OKAY);
+}
+
+/*=================================================================*/
+/*END          EXPORTED FUNCTIONS IMPLEMENTATION                   */
+/*=================================================================*/
+
+/*=================================================================*/
+/*BEGIN        PRIVATE FUNCTIONS IMPLEMENTATION                    */
+/*=================================================================*/
+
+/*------------------   CVAllocVectors    --------------------------*/
+/*
+  This routine allocates the CVODE vectors ewt, acor, tempv, ftemp, and
+  zn[0], ..., zn[maxord]. The length of the vectors is the input
+  parameter neq and the maximum order (needed to allocate zn) is the
+  input parameter maxord. If all memory allocations are successful,
+  CVAllocVectors returns TRUE. Otherwise all allocated memory is freed
+  and CVAllocVectors returns FALSE.
+  This routine also sets the optional outputs lrw and liw, which are
+  (respectively) the lengths of the real and integer work spaces
+  allocated here.
+*/
+/*-----------------------------------------------------------------*/
 
 static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, int maxord,
                                   M_Env machEnv)
@@ -2340,11 +2830,11 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, integertype neq, int maxord,
   return (TRUE);
 }
 
-/***************** CVFreeVectors *********************************
-  
- This routine frees the CVODE vectors allocated in CVAllocVectors.
-
-******************************************************************/
+/*------------------    CVFreeVectors    --------------------------*/
+/*  
+  This routine frees the CVODE vectors allocated in CVAllocVectors.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVFreeVectors(CVodeMem cv_mem, int maxord)
 {
@@ -2357,25 +2847,26 @@ static void CVFreeVectors(CVodeMem cv_mem, int maxord)
   for (j=0; j <= maxord; j++) N_VFree(zn[j]);
 }
 
-/*********************** CVEwtSet **************************************
-  
- This routine is responsible for setting the error weight vector ewt,
- according to tol_type, as follows:
+/*------------------     CVEwtSet        --------------------------*/
+/*  
+  This routine is responsible for setting the error weight vector ewt,
+  according to tol_type, as follows:
+    
+  (1) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + *atol), i=0,...,neq-1
+      if tol_type = SS
+  (2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,neq-1
+      if tol_type = SV
 
- (1) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + *atol), i=0,...,neq-1
-     if tol_type = SS
- (2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,neq-1
-     if tol_type = SV
+   CVEwtSet returns TRUE if ewt is successfully set as above to a
+   positive vector and FALSE otherwise. In the latter case, ewt is
+   considered undefined after the FALSE return from CVEwtSet.
 
-  CVEwtSet returns TRUE if ewt is successfully set as above to a
-  positive vector and FALSE otherwise. In the latter case, ewt is
-  considered undefined after the FALSE return from CVEwtSet.
+   All the real work is done in the routines CVEwtSetSS, CVEwtSetSV.
+*/
+/*-----------------------------------------------------------------*/
 
-  All the real work is done in the routines CVEwtSetSS, CVEwtSetSV.
- 
-***********************************************************************/
-
-static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol, int tol_type, 
+static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, 
+                            void *atol, int tol_type, 
                             N_Vector ycur, integertype neq)
 {
   booleantype flag;
@@ -2393,17 +2884,18 @@ static booleantype CVEwtSet(CVodeMem cv_mem, realtype *rtol, void *atol, int tol
 
 }
 
-/*********************** CVEwtSetSS *********************************
+/*------------------    CVEwtSetSS       --------------------------*/
+/*
+  This routine sets ewt as decribed above in the case tol_type = SS.
+  It tests for non-positive components before inverting. CVEwtSetSS
+  returns TRUE if ewt is successfully set to a positive vector
+  and FALSE otherwise. In the latter case, ewt is considered
+  undefined after the FALSE return from CVEwtSetSS.
+*/
+/*-----------------------------------------------------------------*/
 
- This routine sets ewt as decribed above in the case tol_type = SS.
- It tests for non-positive components before inverting. CVEwtSetSS
- returns TRUE if ewt is successfully set to a positive vector
- and FALSE otherwise. In the latter case, ewt is considered
- undefined after the FALSE return from CVEwtSetSS.
-
-********************************************************************/
-
-static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol, realtype *atol,
+static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol, 
+                              realtype *atol,
                               N_Vector ycur, integertype neq)
 {
   realtype rtoli, atoli;
@@ -2418,17 +2910,18 @@ static booleantype CVEwtSetSS(CVodeMem cv_mem, realtype *rtol, realtype *atol,
   return (TRUE);
 }
 
-/*********************** CVEwtSetSV *********************************
+/*------------------     CVEwtSetSV      --------------------------*/
+/*
+  This routine sets ewt as decribed above in the case tol_type = SV.
+  It tests for non-positive components before inverting. CVEwtSetSV
+  returns TRUE if ewt is successfully set to a positive vector
+  and FALSE otherwise. In the latter case, ewt is considered
+  undefined after the FALSE return from CVEwtSetSV.
+*/
+/*-----------------------------------------------------------------*/
 
- This routine sets ewt as decribed above in the case tol_type = SV.
- It tests for non-positive components before inverting. CVEwtSetSV
- returns TRUE if ewt is successfully set to a positive vector
- and FALSE otherwise. In the latter case, ewt is considered
- undefined after the FALSE return from CVEwtSetSV.
-
-********************************************************************/
-
-static booleantype CVEwtSetSV(CVodeMem cv_mem, realtype *rtol, N_Vector atol,
+static booleantype CVEwtSetSV(CVodeMem cv_mem, realtype *rtol, 
+                              N_Vector atol,
                               N_Vector ycur, integertype neq)
 {
   realtype rtoli;
@@ -2441,13 +2934,153 @@ static booleantype CVEwtSetSV(CVodeMem cv_mem, realtype *rtol, N_Vector atol,
   return (TRUE);
 }
 
-/******************* CVSensTestAtol *****************************
+/*------------------ CVQuadAllocVectors  --------------------------*/
+/*
+  NOTE: Space for ewtQ is allocated even when errconQ=PARTIAL, 
+  although in this case, ewtQ is never used. The reason for this
+  decision is to allow the user to re-initialize the quadrature
+  computation with errconQ=FULL, after an initialization with
+  errconQ=FALSE, without new memory allocation within 
+  CVodeQuadReInit.
+*/
+/*-----------------------------------------------------------------*/
 
- This routine tests the user provided absolute tolerances for
- sensitivities. If a negative tolerance is detected, it 
- returns TRUE, otherwise it returns FALSE.
+static booleantype CVQuadAllocVectors(CVodeMem cv_mem, integertype nquad, 
+                                      M_Env machEnvQ) 
+{
+  int i, j;
 
-*****************************************************************/
+  /* Allocate ewtQ */
+  ewtQ  = N_VNew(nquad, machEnvQ);
+  if (ewtQ == NULL) {
+    return (FALSE);
+  }
+  
+  /* Allocate acorQ */
+  acorQ = N_VNew(nquad, machEnvQ);
+  if (acorQ == NULL) {
+    N_VFree(ewtQ);
+    return (FALSE);
+  }
+
+  /* Allocate yQ */
+  yQ = N_VNew(nquad, machEnvQ);
+  if (yQ == NULL) {
+    N_VFree(ewtQ);
+    N_VFree(acorQ);
+    return (FALSE);
+  }
+
+  /* Allocate tempvQ */
+  tempvQ = N_VNew(nquad, machEnvQ);
+  if (tempvQ == NULL) {
+    N_VFree(ewtQ);
+    N_VFree(acorQ);
+    N_VFree(yQ);
+    return (FALSE);
+  }
+
+  /* Allocate zQn[0] ... zQn[maxord] */
+
+  for (j=0; j <= qmax; j++) {
+    znQ[j] = N_VNew(nquad, machEnvQ);
+    if (znQ[j] == NULL) {
+      N_VFree(ewtQ);
+      N_VFree(acorQ);
+      N_VFree(yQ);
+      N_VFree(tempvQ);
+      for (i=0; i < j; i++) N_VFree(znQ[i]);
+      return (FALSE);
+    }
+  }
+
+  /* Update solver workspace lengths */
+  lrw += (qmax + 4)*nquad;
+}
+
+/*------------------   CVQuadEwtSet      --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static booleantype CVQuadEwtSet(CVodeMem cv_mem, realtype *rtolQ, 
+                                void *atolQ, int tol_type, 
+                                N_Vector qcur, integertype nquad)
+{
+  booleantype flag;
+
+  switch (tol_type) {
+  case SS: 
+    flag = CVQuadEwtSetSS(cv_mem, rtolQ, (realtype *)atolQ, qcur, nquad);
+    break;
+  case SV: 
+    flag = CVQuadEwtSetSV(cv_mem, rtolQ, (N_Vector)atolQ, qcur, nquad);
+    break;
+  }
+
+  return(flag);
+
+}
+
+/*------------------   CVQuadEwtSetSS    --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static booleantype CVQuadEwtSetSS(CVodeMem cv_mem, realtype *rtolQ, 
+                                  realtype *atolQ, N_Vector qcur, 
+                                  integertype nquad)
+{
+  realtype rtoli, atoli;
+  
+  rtoli = *rtolQ;
+  atoli = *atolQ;
+  N_VAbs(qcur,tempvQ);
+  N_VScale(rtoli,tempvQ,tempvQ);
+  N_VAddConst(tempvQ,atoli,tempvQ);
+  if (N_VMin(tempvQ) <= ZERO) return (FALSE);
+  N_VInv(tempvQ,ewtQ);
+
+  return (TRUE);
+}
+
+/*------------------  CVQuadEwtSetSV     --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static booleantype CVQuadEwtSetSV(CVodeMem cv_mem, realtype *rtolQ, 
+                                  N_Vector atolQ, N_Vector qcur, 
+                                  integertype nquad)
+{
+  realtype rtoli;
+  
+  rtoli = *rtolQ;
+  N_VAbs(qcur, tempvQ);
+  N_VLinearSum(rtoli, tempvQ, ONE, atolQ, tempvQ);
+  if (N_VMin(tempvQ) <= ZERO) return (FALSE);
+  N_VInv(tempvQ, ewtQ);
+
+  return (TRUE);
+}
+
+/*------------------  CVQuadFreeVectors  --------------------------*/
+/*-----------------------------------------------------------------*/
+
+static void CVQuadFreeVectors(CVodeMem cv_mem, int maxord)
+{
+  int j;
+  
+  N_VFree(ewtQ);
+  N_VFree(acorQ);
+  N_VFree(yQ);
+  N_VFree(tempvQ);
+  
+  for (j=0; j<=maxord; j++) N_VFree(znQ[j]);
+  
+}
+
+/*------------------    CVSensTestAtol   --------------------------*/
+/*
+  This routine tests the user provided absolute tolerances for
+  sensitivities. If a negative tolerance is detected, it 
+  returns TRUE, otherwise it returns FALSE.
+*/
+/*-----------------------------------------------------------------*/
 
 static booleantype CVSensTestAtol(CVodeMem cv_mem, integertype nsens, void *atolS)
 {
@@ -2472,9 +3105,8 @@ static booleantype CVSensTestAtol(CVodeMem cv_mem, integertype nsens, void *atol
   
 }
 
-/******************* CVSensAllocAtol ****************************
-
-*****************************************************************/
+/*------------------   CVSensAllocAtol   --------------------------*/
+/*-----------------------------------------------------------------*/
 
 static booleantype CVSensAllocAtol(CVodeMem cv_mem, integertype nsens, 
                                    void **atolSPtr)
@@ -2496,9 +3128,8 @@ static booleantype CVSensAllocAtol(CVodeMem cv_mem, integertype nsens,
   
 }
 
-/******************* CVSensFreeAtol ****************************
-
-*****************************************************************/
+/*------------------   CVSensFreeVectors --------------------------*/
+/*-----------------------------------------------------------------*/
 
 static void CVSensFreeAtol(CVodeMem cv_mem, integertype nsens, 
                            void *atolS)
@@ -2514,17 +3145,18 @@ static void CVSensFreeAtol(CVodeMem cv_mem, integertype nsens,
 
 }
 
-/******************* CVSensSetAtol ******************************
-
- This routine sets the absolute tolerances for sensitivities. 
- It is called only if the user has passed a NULL pointer to
- CVodeSensMalloc.
- If all memory allocation is successfull, it returns TRUE.
-
-*****************************************************************/
+/*------------------   CVSensSetAtol     --------------------------*/
+/*
+  This routine sets the absolute tolerances for sensitivities. 
+  It is called only if the user has passed a NULL pointer to
+  CVodeSensMalloc.
+  If all memory allocation is successfull, it returns TRUE.
+*/
+/*-----------------------------------------------------------------*/
 
 static booleantype CVSensSetAtol(CVodeMem cv_mem, integertype nsens, 
-                                 realtype *prmbar, integertype *prmlist, void *atolS)
+                                 realtype *prmbar, integertype *prmlist, 
+                                 void *atolS)
 {
   booleantype flag;
 
@@ -2541,8 +3173,8 @@ static booleantype CVSensSetAtol(CVodeMem cv_mem, integertype nsens,
 
 }
 
-/******************* CVSensSetAtolSS ****************************
-*****************************************************************/
+/*------------------    CVSensSetAtolSS  --------------------------*/
+/*-----------------------------------------------------------------*/
 
 static booleantype CVSensSetAtolSS(CVodeMem cv_mem, integertype nsens, 
                                    realtype *prmbar, integertype *prmlist, 
@@ -2562,8 +3194,8 @@ static booleantype CVSensSetAtolSS(CVodeMem cv_mem, integertype nsens,
   return (TRUE);
 }
 
-/******************* CVSensSetAtolSV ****************************
-*****************************************************************/
+/*------------------   CVSensSetAtolSV   --------------------------*/
+/*-----------------------------------------------------------------*/
 
 static booleantype CVSensSetAtolSV(CVodeMem cv_mem, integertype nsens,
                                    realtype *prmbar, integertype *prmlist, 
@@ -2583,8 +3215,8 @@ static booleantype CVSensSetAtolSV(CVodeMem cv_mem, integertype nsens,
   return (TRUE);
 }
 
-/******************* CVSensAllocVectors *************************
-*****************************************************************/
+/*------------------  CVSensAllocVectors --------------------------*/
+/*-----------------------------------------------------------------*/
 
 static booleantype CVSensAllocVectors(CVodeMem cv_mem, integertype nsens) 
 {
@@ -2639,10 +3271,11 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, integertype nsens)
   return (TRUE);
 }
 
-/******************* CVSensFreeVectors **************************
-*****************************************************************/
+/*------------------  CVSensFreeVectors  --------------------------*/
+/*-----------------------------------------------------------------*/
 
-static void CVSensFreeVectors(CVodeMem cv_mem, int maxord, integertype nsens)
+static void CVSensFreeVectors(CVodeMem cv_mem, int maxord, 
+                              integertype nsens)
 {
   int j;
   
@@ -2655,11 +3288,12 @@ static void CVSensFreeVectors(CVodeMem cv_mem, int maxord, integertype nsens)
   
 }
 
-/******************* CVSensEwtSet *******************************
-*****************************************************************/
+/*------------------    CVSensEwtSet     --------------------------*/
+/*-----------------------------------------------------------------*/
 
-static booleantype CVSensEwtSet(CVodeMem cv_mem, realtype *rtolS, void *atolS, 
-                                int tol_type, N_Vector *ycur, integertype nsens)
+static booleantype CVSensEwtSet(CVodeMem cv_mem, realtype *rtolS, 
+                                void *atolS, int tol_type, 
+                                N_Vector *ycur, integertype nsens)
 {
   booleantype flag;
 
@@ -2676,11 +3310,12 @@ static booleantype CVSensEwtSet(CVodeMem cv_mem, realtype *rtolS, void *atolS,
 
 }
 
-/******************* CVSensEwtSetSS *****************************
-*****************************************************************/
+/*------------------   CVSensEwtSetSS    --------------------------*/
+/*-----------------------------------------------------------------*/
 
-static booleantype CVSensEwtSetSS(CVodeMem cv_mem, realtype *rtolS, realtype *atolS, 
-                                  N_Vector *ycur, integertype nsens)
+static booleantype CVSensEwtSetSS(CVodeMem cv_mem, realtype *rtolS, 
+                                  realtype *atolS, N_Vector *ycur, 
+                                  integertype nsens)
 {
   integertype is;
   realtype rtoli, atoli;
@@ -2697,11 +3332,12 @@ static booleantype CVSensEwtSetSS(CVodeMem cv_mem, realtype *rtolS, realtype *at
   return (TRUE);
 }
 
-/******************* CVSensEwtSetSS *****************************
-*****************************************************************/
+/*------------------    CVSensEwtSetSV   --------------------------*/
+/*-----------------------------------------------------------------*/
 
-static booleantype CVSensEwtSetSV(CVodeMem cv_mem, realtype *rtolS, N_Vector *atolS, 
-                                  N_Vector *ycur, integertype nsens)
+static booleantype CVSensEwtSetSV(CVodeMem cv_mem, realtype *rtolS, 
+                                  N_Vector *atolS, N_Vector *ycur, 
+                                  integertype nsens)
 {
   integertype is;
   realtype rtoli;
@@ -2716,18 +3352,18 @@ static booleantype CVSensEwtSetSV(CVodeMem cv_mem, realtype *rtolS, N_Vector *at
   return (TRUE);
 }
 
-/******************* CVHin ***************************************
+/*------------------      CVHin          --------------------------*/
+/*
+  This routine computes a tentative initial step size h0. 
+  If tout is too close to tn (= t0), then CVHin returns FALSE and
+  h remains uninitialized. Otherwise, CVHin sets h to the chosen 
+  value h0 and returns TRUE.
 
- This routine computes a tentative initial step size h0. 
- If tout is too close to tn (= t0), then CVHin returns FALSE and
- h remains uninitialized. Otherwise, CVHin sets h to the chosen 
- value h0 and returns TRUE.
-
- The algorithm used seeks to find h0 as a solution of
-       (WRMS norm of (h0^2 ydd / 2)) = 1, 
- where ydd = estimated second derivative of y.
-
-*****************************************************************/
+  The algorithm used seeks to find h0 as a solution of
+        (WRMS norm of (h0^2 ydd / 2)) = 1, 
+  where ydd = estimated second derivative of y.
+*/
+/*-----------------------------------------------------------------*/
 
 static booleantype CVHin(CVodeMem cv_mem, realtype tout)
 {
@@ -2788,24 +3424,31 @@ static booleantype CVHin(CVodeMem cv_mem, realtype tout)
   return (TRUE);
 }
 
-/******************** CVUpperBoundH0 ******************************
-
- This routine sets an upper bound on abs(h0) based on
- tdist = tn - t0 and the values of y[i]/y'[i].
-
-******************************************************************/
+/*------------------   CVUpperBoundH0    --------------------------*/
+/*
+  This routine sets an upper bound on abs(h0) based on
+  tdist = tn - t0 and the values of y[i]/y'[i].
+*/
+/*-----------------------------------------------------------------*/
 
 static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 {
   booleantype vectorAtol;
-  realtype atoli, *atolSS, hub_inv, hubS_inv, hub;
-  N_Vector *atolSV, temp1, temp2;
+
+  realtype atoli, hub_inv, hub;
+  N_Vector temp1, temp2;
+
+  realtype hubQ_inv;
+  N_Vector tempQ1, tempQ2;
+
+  realtype *atolSS, hubS_inv;
+  N_Vector *atolSV;
   integertype is;
     
   vectorAtol = (itol == SV);
+
   temp1 = tempv;
   temp2 = acor;
-
   N_VAbs(zn[0], temp1);
   N_VAbs(zn[1], temp2);
   if (vectorAtol) {
@@ -2818,6 +3461,23 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   N_VDiv(temp2, temp1, temp1);
   hub_inv = N_VMaxNorm(temp1);
   
+  if (quad && (errconQ == FULL)) {
+    tempQ1 = tempvQ;
+    tempQ2 = acorQ;
+    N_VAbs(znQ[0], tempQ1);
+    N_VAbs(znQ[1], tempQ2);
+    if (vectorAtol) {
+      N_VLinearSum(HUB_FACTOR, tempQ1, ONE, (N_Vector)abstolQ, tempQ1);
+    } else {
+      atoli = *((realtype *) abstolQ);
+      N_VScale(HUB_FACTOR, tempQ1, tempQ1);
+      N_VAddConst(tempQ1, atoli, tempQ1);
+    }
+    N_VDiv(tempQ2, tempQ1, tempQ1);
+    hubQ_inv = N_VMaxNorm(tempQ1);
+    if (hubQ_inv > hub_inv) hub_inv = hubQ_inv;
+  }
+
   if (sensi && (errcon == FULL)) {
     if (vectorAtol) atolSV = (N_Vector *)abstolS;
     else            atolSS = (realtype *)abstolS;
@@ -2842,17 +3502,17 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   return (hub);
 }
 
-/****************** CVYddNorm *************************************
-
- This routine computes an estimate of the second derivative of y
- using a difference quotient, and returns its WRMS norm.
-
-******************************************************************/
+/*------------------    CVYddNorm        --------------------------*/
+/*
+  This routine computes an estimate of the second derivative of y
+  using a difference quotient, and returns its WRMS norm.
+*/
+/*-----------------------------------------------------------------*/
 
 static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
 {
   realtype yddnrm;
-  integertype is;
+  integertype is, old_dim;
   N_Vector wrk1, wrk2;
   
   /* y     <- h*y'(t) + y(t) */
@@ -2868,39 +3528,56 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   f(N, tn+hg, y, tempv, f_data);
   nfe++;
 
+  if (quad && (errconQ == FULL)) {
+    fQ(Nq, N, tn+hg, y, tempvQ, fQ_data);
+    nfQe++;
+  }
+
   if (sensi && (errcon == FULL)) {
     wrk1 = ftemp;
     wrk2 = acor;
     CVSensRhs(cv_mem, tn+hg, y, tempv, yS, tempvS, wrk1, wrk2);
   }  
 
-  /* tempv <- f(t+h, h*y'(t)+y(t) - y'(t) */
+  /* tempv <- f(t+h, h*y'(t)+y(t)) - y'(t) */
   /* tempv <- ydd */
   
   N_VLinearSum(ONE, tempv, -ONE, zn[1], tempv);
   N_VScale(ONE/hg, tempv, tempv);
   
+  if (quad && (errconQ == FULL)) {
+    N_VLinearSum(ONE, tempvQ, -ONE, znQ[1], tempvQ);
+    N_VScale(ONE/hg, tempvQ, tempvQ);
+  }
+
   if (sensi && (errcon == FULL))
     for (is=0; is<Ns; is++) {
       N_VLinearSum(ONE, tempvS[is], -ONE, znS[1][is], tempvS[is]);
       N_VScale(ONE/hg, tempvS[is], tempvS[is]);
     }
+
+  /* Estimate ||y''|| */
   
-  if (sensi && (errcon == FULL)) {
-    yddnrm = CVSensNormAll(tempv, ewt, tempvS, ewtS, Ns);
-  } else {
-    yddnrm = N_VWrmsNorm(tempv, ewt);
+  yddnrm = N_VWrmsNorm(tempv, ewt);
+  old_dim = N;
+  if (quad && (errconQ == FULL)) {
+    yddnrm = CVQuadUpdateNorm(cv_mem, yddnrm, old_dim, tempvQ, ewtQ);
+    old_dim += Nq;
   }
-  
+  if (sensi && (errcon == FULL)) {
+    yddnrm = CVSensUpdateNorm(cv_mem, yddnrm, old_dim, tempvS, ewtS);
+    old_dim += Ns*N;
+  }
+
   return (yddnrm);
 }
 
-/********************* CVStep **************************************
- 
- This routine performs one internal cvode step, from tn to tn + h.
- It calls other routines to do all the work.
+/*------------------     CVStep          --------------------------*/
+/* 
+  This routine performs one internal cvode step, from tn to tn + h.
+  It calls other routines to do all the work.
 
- The main operations done here are as follows:
+  The main operations done here are as follows:
   * preliminary adjustments if a new step size was chosen;
   * prediction of the Nordsieck history array zn at tn + h;
   * setting of multistep method coefficients and test quantities;
@@ -2909,22 +3586,25 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   * updating zn and other state data if successful;
   * resetting stepsize and order for the next step.
   * if SLDET is on, check for stability, reduce order if necessary.
- On a failure in the nonlinear system solution or error test, the
- step may be reattempted, depending on the nature of the failure.
-
-********************************************************************/
+  On a failure in the nonlinear system solution or error test, the
+  step may be reattempted, depending on the nature of the failure.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStep(CVodeMem cv_mem)
 {
-  realtype saved_t, dsm, dsmS;
-  int ncf, nef, kflag, nflag, ncfS, nefS;
+  realtype saved_t, dsm, dsmS, dsmQ;
+  int ncf, nef, kflag, nflag, ncfS, nefS, nefQ;
   booleantype do_sensi_stg, do_sensi_stg1, passed;
-  integertype is;
+  integertype is, old_dim;
 
   saved_t = tn;
 
   ncf = nef = 0;
   nflag = FIRST_CALL;
+
+  if (quad)
+    nefQ = 0;
 
   /* Are we computing sensitivities with the STAGGERED approach? */
   do_sensi_stg  = (sensi && (ism==STAGGERED));
@@ -2958,6 +3638,7 @@ static int CVStep(CVodeMem cv_mem)
     if (kflag != DO_ERROR_TEST) return (kflag);
 
     passed = CVDoErrorTest(cv_mem, &nflag, &kflag, saved_t, &nef, &dsm);
+    old_dim = N;
 
     /* Return if error test failed and recovery not possible. */
     if ((!passed) && (kflag == REP_ERR_FAIL)) return (kflag);
@@ -2966,6 +3647,26 @@ static int CVStep(CVodeMem cv_mem)
     if (!passed) continue;
 
     /* passed = TRUE, kflag  = DO_ERROR_TEST, nflag  = SOLVED */
+
+    /* Correct the quadrature variables */
+    if (quad) {
+      /* Save quadrature correction in acorQ */
+      fQ(Nq, N, tn, y, acorQ, fQ_data);
+      N_VLinearSum(h, acorQ, -ONE, znQ[1], acorQ);
+      N_VScale(rl1, acorQ, acorQ);
+      /* Apply correction to quadrature variables */
+      N_VLinearSum(ONE, znQ[0], ONE, acorQ, yQ);
+      /* Error test on quadratures */
+      if (errconQ == FULL) {
+        acnrmQ = N_VWrmsNorm(acorQ, ewtQ);
+        passed = CVQuadDoErrorTest(cv_mem, &nflag, &kflag, saved_t, &nefQ, &dsmQ);
+        if ((!passed) && (kflag == REP_ERR_FAIL)) return (kflag);
+        if (!passed) continue;
+        /* update 'dsm' with 'dsmQ' (to be used in CVPrepareNextStep) */
+        dsm = CVQuadUpdateDsm(cv_mem, dsm, old_dim, dsmQ);
+        old_dim += Nq;
+      }
+    }
 
     /* STAGGERED approach for sensitivities */
     if (do_sensi_stg) {
@@ -2985,7 +3686,8 @@ static int CVStep(CVodeMem cv_mem)
         if ((!passed) && (kflag == REP_ERR_FAIL)) return (kflag);
         if (!passed) continue;
         /* update 'dsm' with 'dsmS' (to be used in CVPrepareNextStep) */
-        dsm = CVStgrDsm(cv_mem, dsm, dsmS);
+        dsm = CVStgrUpdateDsm(cv_mem, dsm, old_dim, dsmS);
+        old_dim += Ns*N;
       }
     }
 
@@ -3006,12 +3708,13 @@ static int CVStep(CVodeMem cv_mem)
       if (kflag != DO_ERROR_TEST) return (kflag);
       /* Error test on sensitivities */
       if (errcon == FULL) {
-        acnrmS = CVStgrNormSens(acorS, ewtS, Ns);
+        acnrmS = CVSensNorm(cv_mem, acorS, ewtS);
         passed = CVStgrDoErrorTest(cv_mem,&nflag,&kflag,saved_t,&nefS,&dsmS);
         if ((!passed) && (kflag == REP_ERR_FAIL)) return (kflag);
         if (!passed) continue;
         /* update 'dsm' with 'dsmS' (to be used in CVPrepareNextStep) */
-        dsm = CVStgrDsm(cv_mem, dsm, dsmS);
+        dsm = CVStgrUpdateDsm(cv_mem, dsm, old_dim, dsmS);
+        old_dim += Ns*N;
       }
     }
     
@@ -3047,15 +3750,15 @@ static int CVStep(CVodeMem cv_mem)
       
 }
 
-/********************* CVAdjustParams ********************************
-
- This routine is called when a change in step size was decided upon,
- and it handles the required adjustments to the history array zn.
- If there is to be a change in order, we call CVAdjustOrder and reset
- q, L = q+1, and qwait.  Then in any case, we call CVRescale, which
- resets h and rescales the Nordsieck array.
-
-**********************************************************************/
+/*------------------   CVAdjustParams    --------------------------*/
+/*
+  This routine is called when a change in step size was decided upon,
+  and it handles the required adjustments to the history array zn.
+  If there is to be a change in order, we call CVAdjustOrder and reset
+  q, L = q+1, and qwait.  Then in any case, we call CVRescale, which
+  resets h and rescales the Nordsieck array.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVAdjustParams(CVodeMem cv_mem)
 {
@@ -3068,15 +3771,15 @@ static void CVAdjustParams(CVodeMem cv_mem)
   CVRescale(cv_mem);
 }
 
-/********************* CVAdjustOrder *****************************
-
- This routine is a high level routine which handles an order
- change by an amount deltaq (= +1 or -1). If a decrease in order
- is requested and q==2, then the routine returns immediately.
- Otherwise CVAdjustAdams or CVAdjustBDF is called to handle the
- order change (depending on the value of lmm).
- 
-******************************************************************/
+/*------------------     CVAdjustOrder   --------------------------*/
+/*
+  This routine is a high level routine which handles an order
+  change by an amount deltaq (= +1 or -1). If a decrease in order
+  is requested and q==2, then the routine returns immediately.
+  Otherwise CVAdjustAdams or CVAdjustBDF is called to handle the
+  order change (depending on the value of lmm).
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVAdjustOrder(CVodeMem cv_mem, int deltaq)
 {
@@ -3092,12 +3795,12 @@ static void CVAdjustOrder(CVodeMem cv_mem, int deltaq)
   }
 }
 
-/*************** CVAdjustAdams ***********************************
-
- This routine adjusts the history array on a change of order q by
- deltaq, in the case that lmm == ADAMS.
-
-*****************************************************************/
+/*------------------     CVAdjustAdams   --------------------------*/
+/*
+  This routine adjusts the history array on a change of order q by
+  deltaq, in the case that lmm == ADAMS.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
 {
@@ -3109,9 +3812,11 @@ static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
   
   if (deltaq==1) {
     N_VConst(ZERO, zn[L]);
+    if (quad)
+      N_VConst(ZERO, znQ[L]);
     if (sensi)
       for (is=0; is<Ns; is++)
-    N_VConst(ZERO, znS[L][is]);
+        N_VConst(ZERO, znS[L][is]);
     return;
   }
 
@@ -3145,6 +3850,10 @@ static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
   for (j=2; j < q; j++)
     N_VLinearSum(-l[j], zn[q], ONE, zn[j], zn[j]);
 
+  if (quad)
+    for (j=2; j < q; j++)
+      N_VLinearSum(-l[j], znQ[q], ONE, znQ[j], znQ[j]);
+
   if (sensi)
     for (is=0; is<Ns; is++)
       for (j=2; j < q; j++)
@@ -3152,14 +3861,14 @@ static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
 
 }
 
-/********************** CVAdjustBDF *******************************
-
- This is a high level routine which handles adjustments to the
- history array on a change of order by deltaq in the case that 
- lmm == BDF.  CVAdjustBDF calls CVIncreaseBDF if deltaq = +1 and 
- CVDecreaseBDF if deltaq = -1 to do the actual work.
-
-******************************************************************/
+/*------------------    CVAdjustBDF      --------------------------*/
+/*
+  This is a high level routine which handles adjustments to the
+  history array on a change of order by deltaq in the case that 
+  lmm == BDF.  CVAdjustBDF calls CVIncreaseBDF if deltaq = +1 and 
+  CVDecreaseBDF if deltaq = -1 to do the actual work.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVAdjustBDF(CVodeMem cv_mem, int deltaq)
 {
@@ -3173,17 +3882,17 @@ static void CVAdjustBDF(CVodeMem cv_mem, int deltaq)
   }
 }
 
-/******************** CVIncreaseBDF **********************************
-
- This routine adjusts the history array on an increase in the 
- order q in the case that lmm == BDF.  
- A new column zn[q+1] is set equal to a multiple of the saved 
- vector (= acor) in zn[qmax].  Then each zn[j] is adjusted by
- a multiple of zn[q+1].  The coefficients in the adjustment are the 
- coefficients of the polynomial x*x*(x+xi_1)*...*(x+xi_j),
- where xi_j = [t_n - t_(n-j)]/h.
-
-*********************************************************************/
+/*------------------   CVIncreaseBDF     --------------------------*/
+/*
+  This routine adjusts the history array on an increase in the 
+  order q in the case that lmm == BDF.  
+  A new column zn[q+1] is set equal to a multiple of the saved 
+  vector (= acor) in zn[qmax].  Then each zn[j] is adjusted by
+  a multiple of zn[q+1].  The coefficients in the adjustment are the 
+  coefficients of the polynomial x*x*(x+xi_1)*...*(x+xi_j),
+  where xi_j = [t_n - t_(n-j)]/h.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVIncreaseBDF(CVodeMem cv_mem)
 {
@@ -3220,24 +3929,31 @@ static void CVIncreaseBDF(CVodeMem cv_mem)
   for (j=2; j <= q; j++)
     N_VLinearSum(l[j], zn[L], ONE, zn[j], zn[j]);
 
-  if (sensi)
+  if (quad) {
+    N_VScale(A1, znQ[qmax], znQ[L]);
+    for (j=2; j <= q; j++)
+      N_VLinearSum(l[j], znQ[L], ONE, znQ[j], znQ[j]);
+  }
+
+  if (sensi) {
     for (is=0; is<Ns; is++) {
       N_VScale(A1, znS[qmax][is], znS[L][is]);
       for (j=2; j <= q; j++)
         N_VLinearSum(l[j], znS[L][is], ONE, znS[j][is], znS[j][is]);
     }
+  }
 
 }
 
-/********************* CVDecreaseBDF ******************************
-
- This routine adjusts the history array on a decrease in the 
- order q in the case that lmm == BDF.  
- Each zn[j] is adjusted by a multiple of zn[q].  The coefficients
- in the adjustment are the coefficients of the polynomial
- x*x*(x+xi_1)*...*(x+xi_j), where xi_j = [t_n - t_(n-j)]/h.
-
-******************************************************************/
+/*------------------    CVDecreaseBDF    --------------------------*/
+/*
+  This routine adjusts the history array on a decrease in the 
+  order q in the case that lmm == BDF.  
+  Each zn[j] is adjusted by a multiple of zn[q].  The coefficients
+  in the adjustment are the coefficients of the polynomial
+  x*x*(x+xi_1)*...*(x+xi_j), where xi_j = [t_n - t_(n-j)]/h.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVDecreaseBDF(CVodeMem cv_mem)
 {
@@ -3257,18 +3973,25 @@ static void CVDecreaseBDF(CVodeMem cv_mem)
   for (j=2; j < q; j++)
     N_VLinearSum(-l[j], zn[q], ONE, zn[j], zn[j]);
 
-  if (sensi)
+  if (quad) {
+    for (j=2; j < q; j++)
+      N_VLinearSum(-l[j], znQ[q], ONE, znQ[j], znQ[j]);
+  }
+
+  if (sensi) {
     for (is=0; is<Ns; is++) 
-      N_VLinearSum(-l[j], znS[q][is], ONE, znS[j][is], znS[j][is]);
+      for (j=2; j < q; j++)
+        N_VLinearSum(-l[j], znS[q][is], ONE, znS[j][is], znS[j][is]);
+  }
 }
 
-/**************** CVRescale ***********************************
-
+/*------------------    CVRescale        --------------------------*/
+/*
   This routine rescales the Nordsieck array by multiplying the
   jth column zn[j] by eta^j, j = 1, ..., q.  Then the value of
   h is rescaled by eta, and hscale is reset to h.
-
-***************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVRescale(CVodeMem cv_mem)
 {
@@ -3281,9 +4004,12 @@ static void CVRescale(CVodeMem cv_mem)
 
     N_VScale(factor, zn[j], zn[j]);
 
+    if (quad)
+      N_VScale(factor, znQ[j], znQ[j]);
+
     if (sensi)
       for (is=0; is<Ns; is++)
-    N_VScale(factor, znS[j][is], znS[j][is]);
+        N_VScale(factor, znS[j][is], znS[j][is]);
 
     factor *= eta;
 
@@ -3293,13 +4019,13 @@ static void CVRescale(CVodeMem cv_mem)
   nscon = 0;
 }
 
-/********************* CVPredict *************************************
-
- This routine advances tn by the tentative step size h, and computes
- the predicted array z_n(0), which is overwritten on zn.  The
- prediction of zn is done by repeated additions.
-
-*********************************************************************/
+/*------------------    CVPredict        --------------------------*/
+/*
+  This routine advances tn by the tentative step size h, and computes
+  the predicted array z_n(0), which is overwritten on zn.  The
+  prediction of zn is done by repeated additions.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVPredict(CVodeMem cv_mem)
 {
@@ -3312,21 +4038,28 @@ static void CVPredict(CVodeMem cv_mem)
     for (j = q; j >= k; j--) 
       N_VLinearSum(ONE, zn[j-1], ONE, zn[j], zn[j-1]); 
 
-  if (sensi)
+  if (quad) {
+    for (k = 1; k <= q; k++)
+      for (j = q; j >= k; j--) 
+        N_VLinearSum(ONE, znQ[j-1], ONE, znQ[j], znQ[j-1]);
+  }
+
+  if (sensi) {
     for (is=0; is<Ns; is++) {
       for (k = 1; k <= q; k++)
-    for (j = q; j >= k; j--) 
-      N_VLinearSum(ONE, znS[j-1][is], ONE, znS[j][is], znS[j-1][is]);
+        for (j = q; j >= k; j--) 
+          N_VLinearSum(ONE, znS[j-1][is], ONE, znS[j][is], znS[j-1][is]);
     }
+  }
 }
 
-/************************** CVSet *********************************
-
- This routine is a high level routine which calls CVSetAdams or
- CVSetBDF to set the polynomial l, the test quantity array tq, 
- and the related variables  rl1, gamma, and gamrat.
-
-******************************************************************/
+/*------------------       CVSet         --------------------------*/
+/*
+  This routine is a high level routine which calls CVSetAdams or
+  CVSetBDF to set the polynomial l, the test quantity array tq, 
+  and the related variables  rl1, gamma, and gamrat.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVSet(CVodeMem cv_mem)
 {
@@ -3344,23 +4077,23 @@ static void CVSet(CVodeMem cv_mem)
   gamrat = (nst > 0) ? gamma / gammap : ONE;  /* protect x / x != 1.0 */
 }
 
-/******************** CVSetAdams *********************************
+/*------------------     CVSetAdams      --------------------------*/
+/*
+  This routine handles the computation of l and tq for the
+  case lmm == ADAMS.
 
- This routine handles the computation of l and tq for the
- case lmm == ADAMS.
+  The components of the array l are the coefficients of a
+  polynomial Lambda(x) = l_0 + l_1 x + ... + l_q x^q, given by
+                           q-1
+  (d/dx) Lambda(x) = c * PRODUCT (1 + x / xi_i) , where
+                           i=1
+   Lambda(-1) = 0, Lambda(0) = 1, and c is a normalization factor.
+   Here xi_i = [t_n - t_(n-i)] / h.
 
- The components of the array l are the coefficients of a
- polynomial Lambda(x) = l_0 + l_1 x + ... + l_q x^q, given by
-                          q-1
- (d/dx) Lambda(x) = c * PRODUCT (1 + x / xi_i) , where
-                          i=1
- Lambda(-1) = 0, Lambda(0) = 1, and c is a normalization factor.
- Here xi_i = [t_n - t_(n-i)] / h.
-
- The array tq is set to test quantities used in the convergence
- test, the error test, and the selection of h at a new order.
-
-*****************************************************************/
+   The array tq is set to test quantities used in the convergence
+   test, the error test, and the selection of h at a new order.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVSetAdams(CVodeMem cv_mem)
 {
@@ -3382,12 +4115,12 @@ static void CVSetAdams(CVodeMem cv_mem)
   CVAdamsFinish(cv_mem, m, M, hsum);
 }
 
-/****************** CVAdamsStart ********************************
-
- This routine generates in m[] the coefficients of the product
- polynomial needed for the Adams l and tq coefficients for q > 1.
-  
-******************************************************************/
+/*------------------    CVAdamsStart     --------------------------*/
+/*
+  This routine generates in m[] the coefficients of the product
+  polynomial needed for the Adams l and tq coefficients for q > 1.
+*/
+/*-----------------------------------------------------------------*/
 
 static realtype CVAdamsStart(CVodeMem cv_mem, realtype m[])
 {
@@ -3410,11 +4143,11 @@ static realtype CVAdamsStart(CVodeMem cv_mem, realtype m[])
   return (hsum);
 }
 
-/****************** CVAdamsFinish  *******************************
-
- This routine completes the calculation of the Adams l and tq.
-
-******************************************************************/
+/*------------------    CVAdamsFinish    --------------------------*/
+/*
+  This routine completes the calculation of the Adams l and tq.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype hsum)
 {
@@ -3440,15 +4173,15 @@ static void CVAdamsFinish(CVodeMem cv_mem, realtype m[], realtype M[], realtype 
   tq[4] = CORTES * tq[2];
 }
 
-/****************** CVAltSum **************************************
-  
- CVAltSum returns the value of the alternating sum
-   sum (i= 0 ... iend) [ (-1)^i * (a[i] / (i + k)) ].
- If iend < 0 then CVAltSum returns 0.
- This operation is needed to compute the integral, from -1 to 0,
- of a polynomial x^(k-1) M(x) given the coefficients of M(x).
-
-******************************************************************/
+/*------------------     CVAltSum        --------------------------*/
+/*  
+  CVAltSum returns the value of the alternating sum
+     sum (i= 0 ... iend) [ (-1)^i * (a[i] / (i + k)) ].
+  If iend < 0 then CVAltSum returns 0.
+  This operation is needed to compute the integral, from -1 to 0,
+  of a polynomial x^(k-1) M(x) given the coefficients of M(x).
+*/
+/*-----------------------------------------------------------------*/
 
 static realtype CVAltSum(int iend, realtype a[], int k)
 {
@@ -3466,24 +4199,23 @@ static realtype CVAltSum(int iend, realtype a[], int k)
   return (sum);
 }
 
-/***************** CVSetBDF **************************************
+/*------------------     CVSetBDF        --------------------------*/
+/*
+  This routine computes the coefficients l and tq in the case
+  lmm == BDF.  CVSetBDF calls CVSetTqBDF to set the test
+  quantity array tq. 
+  
+  The components of the array l are the coefficients of a
+  polynomial Lambda(x) = l_0 + l_1 x + ... + l_q x^q, given by
+                                  q-1
+  Lambda(x) = (1 + x / xi*_q) * PRODUCT (1 + x / xi_i) , where
+                                  i=1
+  xi_i = [t_n - t_(n-i)] / h.
 
- This routine computes the coefficients l and tq in the case
- lmm == BDF.  CVSetBDF calls CVSetTqBDF to set the test
- quantity array tq. 
-
- The components of the array l are the coefficients of a
- polynomial Lambda(x) = l_0 + l_1 x + ... + l_q x^q, given by
-                                 q-1
- Lambda(x) = (1 + x / xi*_q) * PRODUCT (1 + x / xi_i) , where
-                                 i=1
- xi_i = [t_n - t_(n-i)] / h.
-
- The array tq is set to test quantities used in the convergence
- test, the error test, and the selection of h at a new order.
-
-
-*****************************************************************/
+  The array tq is set to test quantities used in the convergence
+  test, the error test, and the selection of h at a new order.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVSetBDF(CVodeMem cv_mem)
 {
@@ -3515,15 +4247,15 @@ static void CVSetBDF(CVodeMem cv_mem)
   CVSetTqBDF(cv_mem, hsum, alpha0, alpha0_hat, xi_inv, xistar_inv);
 }
 
-/****************** CVSetTqBDF ************************************
-
- This routine sets the test quantity array tq in the case
- lmm == BDF.
-
-******************************************************************/
+/*------------------    CVSetTqBDF       --------------------------*/
+/*
+  This routine sets the test quantity array tq in the case
+  lmm == BDF.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
-               realtype alpha0_hat, realtype xi_inv, realtype xistar_inv)
+                       realtype alpha0_hat, realtype xi_inv, realtype xistar_inv)
 {
   realtype A1, A2, A3, A4, A5, A6;
   realtype C, CPrime, CPrimePrime;
@@ -3548,14 +4280,14 @@ static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
   tq[4] = CORTES * tq[2];
 }
 
-/****************** CVNls *****************************************
-
- This routine attempts to solve the nonlinear system associated
- with a single implicit step of the linear multistep method.
- Depending on iter, it calls CVNlsFunctional or CVNlsNewton
- to do the work.
-
-******************************************************************/
+/*------------------       CVNls         --------------------------*/
+/*
+  This routine attempts to solve the nonlinear system associated
+  with a single implicit step of the linear multistep method.
+  Depending on iter, it calls CVNlsFunctional or CVNlsNewton
+  to do the work.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVNls(CVodeMem cv_mem, int nflag)
 {
@@ -3574,16 +4306,16 @@ static int CVNls(CVodeMem cv_mem, int nflag)
 
 }
 
-/***************** CVNlsFunctional ********************************
-
- This routine attempts to solve the nonlinear system using 
- functional iteration (no matrices involved).
-
- This routine also handles the functional iteration of the
- combined system (states + sensitivities) when sensitivities are 
- computed using the SIMULTANEOUS approach.
-
-******************************************************************/
+/*------------------   CVNlsFunctional   --------------------------*/
+/*
+  This routine attempts to solve the nonlinear system using 
+  functional iteration (no matrices involved).
+  
+  This routine also handles the functional iteration of the
+  combined system (states + sensitivities) when sensitivities are 
+  computed using the SIMULTANEOUS approach.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVNlsFunctional(CVodeMem cv_mem)
 {
@@ -3645,7 +4377,7 @@ static int CVNlsFunctional(CVodeMem cv_mem)
 
     del = N_VWrmsNorm(acor, ewt);
     if (do_sensi_sim)
-      delS = CVSensNormAll(acor, ewt, acorS, ewtS, Ns);
+      delS = CVSensUpdateNorm(cv_mem, del, N, acorS, ewtS);
 
     N_VScale(ONE, tempv, acor);
     if (do_sensi_sim) 
@@ -3667,10 +4399,14 @@ static int CVNlsFunctional(CVodeMem cv_mem)
     dcon = Del * MIN(ONE, crate) / tq[4];
 
     if (dcon <= ONE) {
-      if (do_sensi_sim && (errcon == FULL))
-        acnrm = (m == 0) ? delS : CVSensNormAll(acor,ewt,acorS,ewtS,Ns);
-      else
-        acnrm = (m == 0) ? del : N_VWrmsNorm(acor, ewt);
+      if (m == 0)
+        if (do_sensi_sim && (errcon == FULL)) acnrm = delS;
+        else                                  acnrm = del;
+      else {
+        acnrm = N_VWrmsNorm(acor, ewt);
+        if (do_sensi_sim && (errcon == FULL))
+          acnrm = CVSensUpdateNorm(cv_mem, acnrm, N, acorS, ewtS);
+      }
       return (SOLVED);  /* Convergence achieved */
     }
 
@@ -3697,23 +4433,23 @@ static int CVNlsFunctional(CVodeMem cv_mem)
 
 }
 
-/*********************** CVNlsNewton **********************************
-
- This routine handles the Newton iteration. It calls lsetup if 
- indicated, calls CVNewtonIteration to perform the iteration, and 
- retries a failed attempt at Newton iteration if that is indicated.
- See return values at top of this file.
-
- This routine also handles the Newton iteration of the combined 
- system when sensitivities are computed using the SIMULTANEOUS
- approach. Since in that case we use a quasi-Newton on the 
- combined system (by approximating the Jacobian matrix by its
- block diagonal) and thus only solve linear systems with 
- multiple right hand sides (all sharing the same coefficient
- matrix - whatever iteration matrix we decide on) we set-up
- the linear solver to handle N equations at a time.
-
-**********************************************************************/
+/*------------------    CVNlsNewton      --------------------------*/
+/*
+  This routine handles the Newton iteration. It calls lsetup if 
+  indicated, calls CVNewtonIteration to perform the iteration, and 
+  retries a failed attempt at Newton iteration if that is indicated.
+  See return values at top of this file.
+  
+  This routine also handles the Newton iteration of the combined 
+  system when sensitivities are computed using the SIMULTANEOUS
+  approach. Since in that case we use a quasi-Newton on the 
+  combined system (by approximating the Jacobian matrix by its
+  block diagonal) and thus only solve linear systems with 
+  multiple right hand sides (all sharing the same coefficient
+  matrix - whatever iteration matrix we decide on) we set-up
+  the linear solver to handle N equations at a time.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVNlsNewton(CVodeMem cv_mem, int nflag)
 {
@@ -3801,24 +4537,24 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
   }
 }
 
-/********************** CVNewtonIteration ****************************
-
- This routine performs the Newton iteration. If the iteration succeeds,
- it returns the value SOLVED. If not, it may signal the CVNlsNewton 
- routine to call lsetup again and reattempt the iteration, by
- returning the value TRY_AGAIN. (In this case, CVNlsNewton must set 
- convfail to FAIL_BAD_J before calling setup again). 
- Otherwise, this routine returns one of the appropriate values 
- SOLVE_FAIL_UNREC or CONV_FAIL back to CVNlsNewton.
-
- If sensitivities are computed using the SIMULTANEOUS approach, this
- routine performs a quasi-Newton on the combined nonlinear system.
- The iteration matrix of the combined system is block diagonal with
- each block being the iteration matrix of the original system. Thus
- we solve linear systems with the same matrix but different right
- hand sides.
-
-*********************************************************************/
+/*------------------  CVNewtonIteration  --------------------------*/
+/*
+  This routine performs the Newton iteration. If the iteration succeeds,
+  it returns the value SOLVED. If not, it may signal the CVNlsNewton 
+  routine to call lsetup again and reattempt the iteration, by
+  returning the value TRY_AGAIN. (In this case, CVNlsNewton must set 
+  convfail to FAIL_BAD_J before calling setup again). 
+  Otherwise, this routine returns one of the appropriate values 
+  SOLVE_FAIL_UNREC or CONV_FAIL back to CVNlsNewton.
+  
+  If sensitivities are computed using the SIMULTANEOUS approach, this
+  routine performs a quasi-Newton on the combined nonlinear system.
+  The iteration matrix of the combined system is block diagonal with
+  each block being the iteration matrix of the original system. Thus
+  we solve linear systems with the same matrix but different right
+  hand sides.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVNewtonIteration(CVodeMem cv_mem)
 {
@@ -3888,7 +4624,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
     N_VLinearSum(ONE, zn[0], ONE, acor, y);
 
     if (do_sensi_sim) {
-      delS = CVSensNormAll(b, ewt, bS, ewtS, Ns);
+      delS = CVSensUpdateNorm(cv_mem, del, N, bS, ewtS);
       for (is=0; is<Ns; is++) {
         N_VLinearSum(ONE, acorS[is], ONE, bS[is], acorS[is]);
         N_VLinearSum(ONE, znS[0][is], ONE, acorS[is], yS[is]);
@@ -3903,14 +4639,18 @@ static int CVNewtonIteration(CVodeMem cv_mem)
     dcon = Del * MIN(ONE, crate) / tq[4];
     
     if (dcon <= ONE) {
-      if (do_sensi_sim && (errcon == FULL))
-        acnrm = (m == 0) ? delS : CVSensNormAll(acor,ewt,acorS,ewtS,Ns);
-      else
-        acnrm = (m == 0) ? del : N_VWrmsNorm(acor, ewt);
+      if (m == 0)
+        if (do_sensi_sim && (errcon == FULL)) acnrm = delS;
+        else                                  acnrm = del;
+      else {
+        acnrm = N_VWrmsNorm(acor, ewt);
+        if (do_sensi_sim && (errcon == FULL))
+          acnrm = CVSensUpdateNorm(cv_mem, acnrm, N, acorS, ewtS);
+      }
       jcur = FALSE;
-      return (SOLVED); /* Nonlinear system was solved successfully */
+      return (SOLVED);  /* Convergence achieved */
     }
-    
+
     mnewt = ++m;
     
     /* Stop at maxcor iterations or if iter. seems to be diverging.
@@ -3936,32 +4676,32 @@ static int CVNewtonIteration(CVodeMem cv_mem)
 
 }
 
-/********************** CVHandleNFlag *******************************
-
- This routine takes action on the return value nflag = *nflagPtr
- returned by CVNls, as follows:
- 
- If CVNls succeeded in solving the nonlinear system, then
- CVHandleNFlag returns the constant DO_ERROR_TEST, which tells CVStep
- to perform the error test.
-
- If the nonlinear system was not solved successfully, then ncfn and
- ncf = *ncfPtr are incremented and Nordsieck array zn is restored.
-
- If the solution of the nonlinear system failed due to an
- unrecoverable failure by setup, we return the value SETUP_FAILED.
-
- If it failed due to an unrecoverable failure in solve, then we return
- the value SOLVE_FAILED.
-
- Otherwise, a recoverable failure occurred when solving the 
- nonlinear system (CVNls returned nflag == CONV_FAIL). 
-   In this case, we return the value REP_CONV_FAIL if ncf is now
-   equal to MXNCF or |h| = hmin. 
-   If not, we set *nflagPtr = PREV_CONV_FAIL and return the value
-   PREDICT_AGAIN, telling CVStep to reattempt the step.
-
-*********************************************************************/
+/*------------------   CVHandleFlag      --------------------------*/
+/*
+  This routine takes action on the return value nflag = *nflagPtr
+  returned by CVNls, as follows:
+  
+  If CVNls succeeded in solving the nonlinear system, then
+  CVHandleNFlag returns the constant DO_ERROR_TEST, which tells CVStep
+  to perform the error test.
+  
+  If the nonlinear system was not solved successfully, then ncfn and
+  ncf = *ncfPtr are incremented and Nordsieck array zn is restored.
+  
+  If the solution of the nonlinear system failed due to an
+  unrecoverable failure by setup, we return the value SETUP_FAILED.
+  
+  If it failed due to an unrecoverable failure in solve, then we return
+  the value SOLVE_FAILED.
+  
+  Otherwise, a recoverable failure occurred when solving the 
+  nonlinear system (CVNls returned nflag == CONV_FAIL). 
+  In this case, we return the value REP_CONV_FAIL if ncf is now
+  equal to MXNCF or |h| = hmin. 
+  If not, we set *nflagPtr = PREV_CONV_FAIL and return the value
+  PREDICT_AGAIN, telling CVStep to reattempt the step.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *ncfPtr, long int *ncfnPtr)
@@ -3995,13 +4735,14 @@ static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   return (PREDICT_AGAIN);
 }
 
-/********************** CVRestore ************************************
+/*------------------    CVRestore        --------------------------*/
+/*
+  This routine restores the value of tn to saved_t and undoes the
+  prediction.  After execution of CVRestore, the Nordsieck array zn has
+  the same values as before the call to CVPredict.
+*/
+/*-----------------------------------------------------------------*/
 
- This routine restores the value of tn to saved_t and undoes the
- prediction.  After execution of CVRestore, the Nordsieck array zn has
- the same values as before the call to CVPredict.
-
-********************************************************************/
 
 static void CVRestore(CVodeMem cv_mem, realtype saved_t)
 {
@@ -4013,39 +4754,47 @@ static void CVRestore(CVodeMem cv_mem, realtype saved_t)
     for (j = q; j >= k; j--)
       N_VLinearSum(ONE, zn[j-1], -ONE, zn[j], zn[j-1]);
 
-  if (sensi)
+  if (quad) {
+    for (k = 1; k <= q; k++)
+      for (j = q; j >= k; j--)
+        N_VLinearSum(ONE, znQ[j-1], -ONE, znQ[j], znQ[j-1]);
+  }
+
+  if (sensi) {
     for (is=0; is<Ns; is++) {
       for (k = 1; k <= q; k++)
-    for (j = q; j >= k; j--)
-      N_VLinearSum(ONE, znS[j-1][is], -ONE, znS[j][is], znS[j-1][is]);
+        for (j = q; j >= k; j--)
+          N_VLinearSum(ONE, znS[j-1][is], -ONE, znS[j][is], znS[j-1][is]);
     }
-
+  }
 }
 
-/******************* CVDoErrorTest ********************************
+/*------------------    CVDoErrorTest    --------------------------*/
+/*
+  This routine performs the local error test. 
+  The weighted local error norm dsm is loaded into *dsmPtr, and 
+  the test dsm ?<= 1 is made.
+  
+  If the test passes, CVDoErrorTest returns TRUE. 
 
- This routine performs the local error test. 
- The weighted local error norm dsm is loaded into *dsmPtr, and 
- the test dsm ?<= 1 is made.
+  If the test fails, we undo the step just taken (call CVRestore), 
+  set *nflagPtr to PREV_ERR_FAIL, and return FALSE. 
+  
+  If MXNEF error test failures have occurred or if ABS(h) = hmin,
+  we set *kflagPtr = REP_ERR_FAIL. (Otherwise *kflagPtr has the
+  value last returned by CVHandleNflag.)
+  
+  If more than MXNEF1 error test failures have occurred, an order
+  reduction is forced. If already at order 1 restart by reloading 
+  zn from scratch. Note that if sensitivities are computed, znS is
+  also reloaded, no matter what 'ism' or 'errcon' are. Same for 
+  quadratures.
+*/
+/*-----------------------------------------------------------------*/
 
- If the test passes, CVDoErrorTest returns TRUE. 
-
- If the test fails, we undo the step just taken (call CVRestore), 
- set *nflagPtr to PREV_ERR_FAIL, and return FALSE. 
-
- If MXNEF error test failures have occurred or if ABS(h) = hmin,
- we set *kflagPtr = REP_ERR_FAIL. (Otherwise *kflagPtr has the
- value last returned by CVHandleNflag.)
-
- If more than MXNEF1 error test failures have occurred, an order
- reduction is forced. If already at order 1 restart by reloading 
- zn from scratch. Note that if sensitivities are computed, znS is
- also reloaded, no matter what 'ism' or 'errcon' are.
-
-******************************************************************/
-
-static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
-                                 realtype saved_t, int *nefPtr, realtype *dsmPtr)
+static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, 
+                                 int *kflagPtr, realtype saved_t, 
+                                 int *nefPtr, realtype *dsmPtr)
 {
   realtype dsm;
   integertype is;
@@ -4103,6 +4852,12 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
   nfe++;
   N_VScale(h, tempv, zn[1]);
 
+  if (quad) {
+    fQ(Nq, N, tn, zn[0], tempvQ, fQ_data);
+    nfQe++;
+    N_VScale(h, tempvQ, znQ[1]);
+  }
+
   if (sensi) {
     wrk1 = ftemp;
     wrk2 = ftempS[0];
@@ -4110,26 +4865,122 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
     for (is=0; is<Ns; is++) 
       N_VScale(h, tempvS[is], znS[1][is]);
   }
-
+  
   return (FALSE);
 }
 
+/*------------------   CVQuadDoErrorTest --------------------------*/
+/*
+  This routine performs the local error test on quadrature variables. 
+  The weighted local error norm dsm is loaded into *dsmPtr, and 
+  the test dsm ?<= 1 is made.
+  
+  If the test passes, CVDoErrorTest returns TRUE. 
+  
+  If the test fails, we undo the step just taken (call CVRestore), 
+  set *nflagPtr to PREV_ERR_FAIL, and return FALSE. 
+  
+  If MXNEF error test failures have occurred or if ABS(h) = hmin,
+  we set *kflagPtr = REP_ERR_FAIL. (Otherwise *kflagPtr has the
+  value last returned by CVHandleNflag.)
+  
+  If more than MXNEF1 error test failures have occurred, an order
+  reduction is forced. If already at order 1 restart by reloading 
+  zn and znQ from scratch. If sensitivities are computed, znS is
+  also reloaded.
+*/
+/*-----------------------------------------------------------------*/
 
+static booleantype CVQuadDoErrorTest(CVodeMem cv_mem, int *nflagPtr, 
+                                     int *kflagPtr, realtype saved_t, 
+                                     int *nefQPtr, realtype *dsmQPtr)
+{
+  realtype dsmQ;
+  integertype is;
+  N_Vector wrk1, wrk2;
 
-/***************************************************************/
-/**************** BEGIN ROUTINES FOR STAGGERED *****************/
-/***************************************************************/
+  dsmQ = acnrmQ / tq[2];
 
-/***************** CVStgrNls *************************************
+  /* If dsmQ passes the test, return TRUE */
+  *dsmQPtr = dsmQ; 
+  if (dsmQ <= ONE) return (TRUE);
 
- STAGGERED approach
+  /* Test failed; increment counters, set nflag, and restore zn array */
+  (*nefQPtr)++;
+  netfQ++;
+  *nflagPtr = PREV_ERR_FAIL;
+  CVRestore(cv_mem, saved_t);
 
- This is a high-level routine that attempts to solve the 
- sensitivity linear systems using nonlinear iterations (FUNCTIONAL
- or NEWTON - depending on the value of iter) once the states y_n
- were obtained and passed the error test.
+  /* At MXNEF failures or |h| = hmin, return with kflag = REP_ERR_FAIL */
+  if ((ABS(h) <= hmin*ONEPSM) || (*nefQPtr == MXNEF)) {
+    *kflagPtr = REP_ERR_FAIL;
+    return (FALSE);
+  }
 
-******************************************************************/
+  /* Set etamax = 1 to prevent step size increase at end of this step */
+  etamax = ONE;
+
+  /* Set h ratio eta from dsmQ, rescale, and return for retry of step */
+  if (*nefQPtr <= MXNEF1) {
+    eta = ONE / (RPowerR(BIAS2*dsmQ,ONE/L) + ADDON);
+    eta = MAX(ETAMIN, MAX(eta, hmin / ABS(h)));
+    if (*nefQPtr >= SMALL_NEF) eta = MIN(eta, ETAMXF);
+    CVRescale(cv_mem);
+    return (FALSE);
+  }
+
+  /* After MXNEF1 failures, force an order reduction and retry step */
+  if (q > 1) {
+    eta = MAX(ETAMIN, hmin / ABS(h));
+    CVAdjustOrder(cv_mem,-1);
+    L = q;
+    q--;
+    qwait = L;
+    CVRescale(cv_mem);
+    return (FALSE);
+  }
+
+  /* If already at order 1, restart: reload zn and znQ from scratch */
+  eta = MAX(ETAMIN, hmin / ABS(h));
+  h *= eta;
+  hscale = h;
+  qwait = LONG_WAIT;
+  nscon = 0;
+
+  f(N, tn, zn[0], tempv, f_data);
+  nfe++;
+  N_VScale(h, tempv, zn[1]);
+
+  fQ(Nq, N, tn, zn[0], tempvQ, fQ_data);
+  nfQe++;
+  N_VScale(h, tempvQ, znQ[1]);
+
+  if (sensi) {
+    wrk1 = ftemp;
+    wrk2 = ftempS[0];
+    CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
+    for (is=0; is<Ns; is++) 
+      N_VScale(h, tempvS[is], znS[1][is]);
+  }
+  
+  return (FALSE);
+
+}
+
+/*=================================================================*/
+/*BEGIN        Routines for STAGGERED and STAGGERED1               */
+/*=================================================================*/
+
+/*------------------     CVStgrNls       --------------------------*/
+/*
+  STAGGERED approach
+
+  This is a high-level routine that attempts to solve the 
+  sensitivity linear systems using nonlinear iterations (FUNCTIONAL
+  or NEWTON - depending on the value of iter) once the states y_n
+  were obtained and passed the error test.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStgrNls(CVodeMem cv_mem)
 {
@@ -4148,18 +4999,18 @@ static int CVStgrNls(CVodeMem cv_mem)
 
 }
 
-/******************* CVStgrNlsFunctional *************************
+/*------------------  CVStgrNlsFunctional -------------------------*/
+/*
+  STAGGERED approach
 
- STAGGERED approach
-
- This routine attempts to solve the sensitivity linear systems 
- using functional iteration (no matrices involved).
-
- Possible return values:
+  This routine attempts to solve the sensitivity linear systems 
+  using functional iteration (no matrices involved).
+  
+  Possible return values:
     SOLVED
     CONV_FAIL
-
-******************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStgrNlsFunctional(CVodeMem cv_mem)
 {
@@ -4184,9 +5035,9 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
   /* Loop until convergence; accumulate corrections in acorS */
 
   loop {
-
+    
     nniS++;
-
+    
     /* Correct yS from last fS value */
     for (is=0; is<Ns; is++) {
       N_VLinearSum(h, tempvS[is], -ONE, znS[1][is], tempvS[is]);
@@ -4196,7 +5047,7 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
     /* Get norm of current correction to use in convergence test */
     for (is=0; is<Ns; is++)
       N_VLinearSum(ONE, tempvS[is], -ONE, acorS[is], acorS[is]);
-    Del = CVStgrNormSens(acorS, ewtS, Ns);
+    Del = CVSensNorm(cv_mem, acorS, ewtS);
     for (is=0; is<Ns; is++)
       N_VScale(ONE, tempvS[is], acorS[is]);
 
@@ -4206,10 +5057,10 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
        will be used in the error test (if errcon==FULL)                */
     if (m > 0) crate = MAX(CRDOWN_S * crate, Del / Delp);
     dcon = Del * MIN(ONE, crate) / tq[4];
-
+    
     if (dcon <= ONE) {
       if (errcon==FULL)
-        acnrmS = (m==0)? Del : CVStgrNormSens(acorS, ewtS, Ns);
+        acnrmS = (m==0)? Del : CVSensNorm(cv_mem, acorS, ewtS);
       return (SOLVED);  /* Convergence achieved */
     }
 
@@ -4229,23 +5080,23 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
   
 }
 
-/************************** CVStgrNlsNewton ********************************
+/*------------------   CVStgrNlsNewton   --------------------------*/
+/*
+  STAGGERED approach
 
- STAGGERED approach
-
- This routine attempts to solve the sensitivity linear systems using 
- Newton iteration. It calls CVStgrNlsNewton to perform the actual 
- iteration. If the Newton iteration fails with out-of-date Jacobian 
- data (ier=TRY_AGAIN), it calls lsetup and retries the Newton iteration. 
- This second try is unlikely to happen when using a Krylov linear solver.
-
- Possible return values:
+  This routine attempts to solve the sensitivity linear systems using 
+  Newton iteration. It calls CVStgrNlsNewton to perform the actual 
+  iteration. If the Newton iteration fails with out-of-date Jacobian 
+  data (ier=TRY_AGAIN), it calls lsetup and retries the Newton iteration. 
+  This second try is unlikely to happen when using a Krylov linear solver.
+  
+  Possible return values:
     SOLVED
     CONV_FAIL
     SOLVE_FAIL_UNREC
     SETUP_FAIL_UNREC
-
-***************************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStgrNlsNewton(CVodeMem cv_mem)
 {
@@ -4294,7 +5145,7 @@ static int CVStgrNlsNewton(CVodeMem cv_mem)
 
     /* Call linear solver setup at converged y */
     ier = lsetup(cv_mem, convfail, y, ftemp, &jcur, 
-         vtemp1, vtemp2, vtemp3);
+                 vtemp1, vtemp2, vtemp3);
     nsetups++;
     gamrat = ONE;
     crate = saved_crate;
@@ -4310,19 +5161,19 @@ static int CVStgrNlsNewton(CVodeMem cv_mem)
 
 }
 
-/************************** CVStgrNewtonIteration ****************************
+/*------------------ CVstgrNewtonIteration ------------------------*/
+/*
+  STAGGERED approach.
 
- STAGGERED approach.
-
- This routine performs the Newton iteration for all sensitivities. 
- If the iteration succeeds, it returns the value SOLVED. 
- If not, it may signal the CVStgrNlsNewton routine to call lsetup and 
- reattempt the iteration, by returning the value TRY_AGAIN. (In this case, 
- CVStgrNlsNewton must set convfail to FAIL_BAD_J before calling setup again). 
- Otherwise, this routine returns one of the appropriate values 
- SOLVE_FAIL_UNREC or CONV_FAIL back to CVStgrNlsNewton.
-
-*****************************************************************************/
+  This routine performs the Newton iteration for all sensitivities. 
+  If the iteration succeeds, it returns the value SOLVED. 
+  If not, it may signal the CVStgrNlsNewton routine to call lsetup and 
+  reattempt the iteration, by returning the value TRY_AGAIN. (In this case, 
+  CVStgrNlsNewton must set convfail to FAIL_BAD_J before calling setup again). 
+  Otherwise, this routine returns one of the appropriate values 
+  SOLVE_FAIL_UNREC or CONV_FAIL back to CVStgrNlsNewton.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStgrNewtonIteration(CVodeMem cv_mem)
 {
@@ -4366,7 +5217,7 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
     }
  
     /* Get norm of correction; add correction to acorS and yS */
-    Del = CVStgrNormSens(bS, ewtS, Ns);
+    Del = CVSensNorm(cv_mem, bS, ewtS);
     for (is=0; is<Ns; is++) {
       N_VLinearSum(ONE, acorS[is], ONE, bS[is], acorS[is]);
       N_VLinearSum(ONE, znS[0][is], ONE, acorS[is], yS[is]);
@@ -4378,7 +5229,7 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
     dcon = Del * MIN(ONE, crate) / tq[4];
     if (dcon <= ONE) {
       if (errcon==FULL)
-        acnrmS = (m==0) ? Del : CVStgrNormSens(acorS, ewtS, Ns);
+        acnrmS = (m==0) ? Del : CVSensNorm(cv_mem, acorS, ewtS);
       jcur = FALSE;
       return (SOLVED);  /* Convergence achieved */
     }
@@ -4392,28 +5243,28 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
       if ((!jcur) && (setupNonNull)) return (TRY_AGAIN);
       return (CONV_FAIL);
     }
-
+    
     /* Save norm of correction, evaluate fS, and loop again */
     Delp = Del;
-
+    
     wrk1 = tempv;
     wrk2 = tempvS[0];
     CVSensRhs(cv_mem, tn, y, ftemp, yS, ftempS, wrk1, wrk2);
-
+    
   } /* end loop */
 
 }
 
-/***************** CVStgr1Nls *************************************
+/*------------------     CVStgr1Nls      --------------------------*/
+/*
+  STAGGERED1 approach
 
- STAGGERED1 approach
-
- This is a high-level routine that attempts to solve the i-th 
- sensitivity linear system using nonlinear iterations (FUNCTIONAL
- or NEWTON - depending on the value of iter) once the states y_n
- were obtained and passed the error test.
-
-******************************************************************/
+  This is a high-level routine that attempts to solve the i-th 
+  sensitivity linear system using nonlinear iterations (FUNCTIONAL
+  or NEWTON - depending on the value of iter) once the states y_n
+  were obtained and passed the error test.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStgr1Nls(CVodeMem cv_mem, integertype is)
 {
@@ -4432,18 +5283,18 @@ static int CVStgr1Nls(CVodeMem cv_mem, integertype is)
 
 }
 
-/******************* CVStgr1NlsFunctional *************************
+/*------------------ CVStgr1NlsFunctional -------------------------*/
+/*
+  STAGGERED1 approach
 
- STAGGERED1 approach
+  This routine attempts to solve the i-th sensitivity linear system
+  using functional iteration (no matrices involved).
 
- This routine attempts to solve the i-th sensitivity linear system
- using functional iteration (no matrices involved).
-
- Possible return values:
+  Possible return values:
     SOLVED
     CONV_FAIL
-
-******************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStgr1NlsFunctional(CVodeMem cv_mem, integertype is)
 {
@@ -4458,7 +5309,7 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, integertype is)
   /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
   wrk1 = tempv;
   wrk2 = ftempS[0];
-  CVSensRhs1(cv_mem, tn, y, ftemp, is, znS[0], tempvS, wrk1, wrk2);
+  CVSensRhs1(cv_mem, tn, y, ftemp, is, znS[0][is], tempvS[is], wrk1, wrk2);
 
   /* Initialize correction to zero */
   N_VConst(ZERO,acorS[is]);
@@ -4499,29 +5350,30 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, integertype is)
 
     wrk1 = tempv;
     wrk2 = ftempS[0];
-    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS, tempvS, wrk1, wrk2);
+    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], tempvS[is], wrk1, wrk2);
 
   } /* end loop */
   
 }
 
-/************************* CVStgr1NlsNewton ********************************
+/*------------------   CVStgr1NlsNewton  --------------------------*/
+/*
+  STAGGERED1 approach
 
- STAGGERED1 approach
+  This routine attempts to solve the i-th sensitivity linear system 
+  using Newton iteration. It calls CVStgr1NlsNewton to perform the 
+  actual iteration. If the Newton iteration fails with out-of-date 
+  Jacobian data (ier=TRY_AGAIN), it calls lsetup and retries the 
+  Newton iteration. This second try is unlikely to happen when 
+  using a Krylov linear solver.
 
- This routine attempts to solve the i-th sensitivity linear system using 
- Newton iteration. It calls CVStgr1NlsNewton to perform the actual 
- iteration. If the Newton iteration fails with out-of-date Jacobian 
- data (ier=TRY_AGAIN), it calls lsetup and retries the Newton iteration. 
- This second try is unlikely to happen when using a Krylov linear solver.
-
- Possible return values:
+  Possible return values:
     SOLVED
     CONV_FAIL
     SOLVE_FAIL_UNREC
     SETUP_FAIL_UNREC
-
-***************************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStgr1NlsNewton(CVodeMem cv_mem, integertype is)
 {
@@ -4544,7 +5396,7 @@ static int CVStgr1NlsNewton(CVodeMem cv_mem, integertype is)
     /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
     wrk1 = tempv;
     wrk2 = tempvS[0];
-    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS, ftempS, wrk1, wrk2);
+    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], ftempS[is], wrk1, wrk2);
     
     /* Do the Newton iteration */
     ier = CVStgr1NewtonIteration(cv_mem, is);
@@ -4567,7 +5419,7 @@ static int CVStgr1NlsNewton(CVodeMem cv_mem, integertype is)
 
     /* Call linear solver setup at converged y */
     ier = lsetup(cv_mem, convfail, y, ftemp, &jcur, 
-         vtemp1, vtemp2, vtemp3);
+                 vtemp1, vtemp2, vtemp3);
     nsetups++;
     gamrat = ONE;
     crate = saved_crate;
@@ -4583,19 +5435,20 @@ static int CVStgr1NlsNewton(CVodeMem cv_mem, integertype is)
 
 }
 
-/********************** CVStgr1NewtonIteration ********************************
+/*------------------ CVStgr1NewtonIteration -----------------------*/
+/*
+  STAGGERED1 approach.
 
- STAGGERED1 approach.
-
- This routine performs the Newton iteration for the i-th sensitivity. 
- If the iteration succeeds, it returns the value SOLVED. 
- If not, it may signal the CVStgr1NlsNewton routine to call lsetup and 
- reattempt the iteration, by returning the value TRY_AGAIN. (In this case, 
- CVStgr1NlsNewton must set convfail to FAIL_BAD_J before calling setup again). 
- Otherwise, this routine returns one of the appropriate values 
- SOLVE_FAIL_UNREC or CONV_FAIL back to CVStgr1NlsNewton.
-
-******************************************************************************/
+  This routine performs the Newton iteration for the i-th sensitivity. 
+  If the iteration succeeds, it returns the value SOLVED. 
+  If not, it may signal the CVStgr1NlsNewton routine to call lsetup 
+  and reattempt the iteration, by returning the value TRY_AGAIN. 
+  (In this case, CVStgr1NlsNewton must set convfail to FAIL_BAD_J 
+  before calling setup again). Otherwise, this routine returns one 
+  of the appropriate values SOLVE_FAIL_UNREC or CONV_FAIL back to 
+  CVStgr1NlsNewton.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVStgr1NewtonIteration(CVodeMem cv_mem, integertype is)
 {
@@ -4662,29 +5515,30 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, integertype is)
 
     wrk1 = tempv;
     wrk2 = tempvS[0];
-    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS, ftempS, wrk1, wrk2);
+    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], ftempS[is], wrk1, wrk2);
 
   } /* end loop */
 
 }
 
-/*********************** CVStgrDoErrorTest ***************************
- 
- STAGGERED or STAGGERED1 approach
+/*------------------   CVStgrDoErrorTest --------------------------*/
+/* 
+  STAGGERED or STAGGERED1 approach
 
- This routine performs the local error test on the sensitivity vars.
- The local error norm is loaded into dsmS, and the test dsmS ?<= 1 
- is made.
+  This routine performs the local error test on the sensitivity vars.
+  The local error norm is loaded into dsmS, and the test dsmS ?<= 1 
+  is made.
+  
+  If the test passes for all sensitivities, CVStgrDoErrorTest returns 
+  TRUE. 
+  
+  If the test fails, we proceed like in CVDoErrorTest.
+*/
+/*-----------------------------------------------------------------*/
 
- If the test passes for all sensitivities, CVStgrDoErrorTest returns 
- TRUE. 
-
- If the test fails, we proceed like in CVDoErrorTest.
-
-**********************************************************************/
-
-static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr, 
-                                     realtype saved_t, int *nefSPtr, realtype *dsmSPtr)
+static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, 
+                                     int *kflagPtr, realtype saved_t, 
+                                     int *nefSPtr, realtype *dsmSPtr)
 {
   integertype is;
   realtype dsmS;
@@ -4742,6 +5596,12 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagP
   nfe++;
   N_VScale(h, tempv, zn[1]);
   
+  if (quad) {
+    fQ(Nq, N, tn, zn[0], tempvQ, fQ_data);
+    nfQe++;
+    N_VScale(h, tempvQ, znQ[1]);
+  }
+
   wrk1 = ftemp;
   wrk2 = ftempS[0];
   CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
@@ -4750,25 +5610,27 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagP
   
   return (FALSE);
   
-
 }
 
-/***************************************************************/
-/***************** END ROUTINES FOR STAGGERED ******************/
-/***************************************************************/
+/*=================================================================*/
+/*END          Routines for STAGGERED and STAGGERED1               */
+/*=================================================================*/
 
+/*=================================================================*/
+/*BEGIN        Private Routines after succesfull step              */
+/*=================================================================*/
 
-/*************** CVCompleteStep **********************************
-
- This routine performs various update operations when the solution
- to the nonlinear system has passed the local error test. 
- We increment the step counter nst, record the values hu and qu,
- update the tau array, and apply the corrections to the zn array.
- The tau[i] are the last q values of h, with tau[1] the most recent.
- The counter qwait is decremented, and if qwait == 1 (and q < qmax)
- we save acor and tq[5] for a possible order increase.
-
-******************************************************************/
+/*------------------   CVCompleteStep    --------------------------*/
+/*
+  This routine performs various update operations when the solution
+  to the nonlinear system has passed the local error test. 
+  We increment the step counter nst, record the values hu and qu,
+  update the tau array, and apply the corrections to the zn array.
+  The tau[i] are the last q values of h, with tau[1] the most recent.
+  The counter qwait is decremented, and if qwait == 1 (and q < qmax)
+  we save acor and tq[5] for a possible order increase.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVCompleteStep(CVodeMem cv_mem)
 {
@@ -4785,42 +5647,53 @@ static void CVCompleteStep(CVodeMem cv_mem)
   tau[1] = h;
 
   /* Apply correction to column j of zn: l_j * Delta_n */
+
   for (j=0; j <= q; j++) 
     N_VLinearSum(l[j], acor, ONE, zn[j], zn[j]);
 
-  if (sensi)
+  if (quad) {
+    for (j=0; j <= q; j++) 
+      N_VLinearSum(l[j], acorQ, ONE, znQ[j], znQ[j]);
+  }
+
+  if (sensi) {
     for (is=0; is<Ns; is++)
       for (j=0; j <= q; j++) 
         N_VLinearSum(l[j], acorS[is], ONE, znS[j][is], znS[j][is]);
+  }
 
   /* If necessary, store Delta_n in zn[qmax] to be used in order increase
   
      This actually will be Delta_{n-1} in the ELTE at q+1 since it happens at
      the next to last step of order q before a possible one at order q+1
   */
+
   qwait--;
   if ((qwait == 1) && (q != qmax)) {
-
+    
     N_VScale(ONE, acor, zn[qmax]);
+    
+    if (quad && (errconQ == FULL))
+      N_VScale(ONE, acorQ, znQ[qmax]);
 
-    if (sensi && (errcon==FULL))
+    if (sensi && (errcon == FULL))
       for (is=0; is<Ns; is++)
         N_VScale(ONE, acorS[is], znS[qmax][is]);
-
+    
     saved_tq5 = tq[5];
-
+    
   }
 
 }
 
-/************* CVPrepareNextStep **********************************
-
- This routine handles the setting of stepsize and order for the
- next step -- hprime and qprime.  Along with hprime, it sets the
- ratio eta = hprime/h.  It also updates other state variables 
- related to a change of step size or order. 
-
-******************************************************************/
+/*------------------   CVPrepareNextStep --------------------------*/
+/*
+  This routine handles the setting of stepsize and order for the
+  next step -- hprime and qprime.  Along with hprime, it sets the
+  ratio eta = hprime/h.  It also updates other state variables 
+  related to a change of step size or order. 
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVPrepareNextStep(CVodeMem cv_mem, realtype dsm)
 {
@@ -4854,13 +5727,13 @@ static void CVPrepareNextStep(CVodeMem cv_mem, realtype dsm)
   CVSetEta(cv_mem);
 }
 
-/***************** CVSetEta ***************************************
-
- This routine adjusts the value of eta according to the various
- heuristic limits and the optional input hmax.  It also resets
- etamax to be the estimated local error vector.
-
-*******************************************************************/
+/*------------------    CVSetEta         --------------------------*/
+/*
+  This routine adjusts the value of eta according to the various
+  heuristic limits and the optional input hmax.  It also resets
+  etamax to be the estimated local error vector.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVSetEta(CVodeMem cv_mem)
 {
@@ -4880,25 +5753,36 @@ static void CVSetEta(CVodeMem cv_mem)
   /* Reset etamx for the next step size change, and scale acor */
 }
 
-/*************** CVComputeEtaqm1 **********************************
-
- This routine computes and returns the value of etaqm1 for a
- possible decrease in order by 1.
-
-******************************************************************/
+/*------------------   CVComputeEtaqm1   --------------------------*/
+/*
+  This routine computes and returns the value of etaqm1 for a
+  possible decrease in order by 1.
+*/
+/*-----------------------------------------------------------------*/
 
 static realtype CVComputeEtaqm1(CVodeMem cv_mem)
 {
+  integertype old_dim;
   realtype ddn;
   
   etaqm1 = ZERO;
 
   if (q > 1) {
 
-    if ( sensi && (errcon==FULL) )
-      ddn = CVSensNormAll(zn[q], ewt, znS[q], ewtS, Ns) / tq[1];
-    else
-      ddn = N_VWrmsNorm(zn[q], ewt) / tq[1];
+    ddn = N_VWrmsNorm(zn[q], ewt);
+    old_dim = N;
+
+    if ( quad && (errconQ == FULL)) {
+      ddn = CVQuadUpdateNorm(cv_mem, ddn, old_dim, znQ[q], ewtQ);
+      old_dim += Nq;
+    }
+
+    if ( sensi && (errcon == FULL) ) {
+      ddn = CVSensUpdateNorm(cv_mem, ddn, old_dim, znS[q], ewtS);
+      old_dim += Ns*N;
+    }
+
+    ddn = ddn/tq[1];
 
     etaqm1 = ONE/(RPowerR(BIAS1*ddn, ONE/q) + ADDON);
 
@@ -4907,17 +5791,17 @@ static realtype CVComputeEtaqm1(CVodeMem cv_mem)
   return (etaqm1);
 }
 
-/*************** CVComputeEtaqp1 **********************************
-
- This routine computes and returns the value of etaqp1 for a
- possible increase in order by 1.
-
-******************************************************************/
+/*------------------   CVComputeEtaqp1   --------------------------*/
+/*
+  This routine computes and returns the value of etaqp1 for a
+  possible increase in order by 1.
+*/
+/*-----------------------------------------------------------------*/
 
 static realtype CVComputeEtaqp1(CVodeMem cv_mem)
 {
   realtype dup, cquot;
-  integertype is;
+  integertype is, old_dim;
   
   etaqp1 = ZERO;
 
@@ -4927,13 +5811,23 @@ static realtype CVComputeEtaqp1(CVodeMem cv_mem)
 
     N_VLinearSum(-cquot, zn[qmax], ONE, acor, tempv);
 
-    if ( sensi && (errcon==FULL) ) {
+    dup = N_VWrmsNorm(tempv, ewt);
+    old_dim = N;
+
+    if ( quad && (errconQ == FULL)) {
+      N_VLinearSum(-cquot, znQ[qmax], ONE, acorQ, tempvQ);
+      dup = CVQuadUpdateNorm(cv_mem, dup, old_dim, tempvQ, ewtQ);
+      old_dim += Nq;
+    }
+
+    if ( sensi && (errcon == FULL) ) {
       for (is=0; is<Ns; is++) 
         N_VLinearSum(-cquot, znS[qmax][is], ONE, acorS[is], tempvS[is]);
-      dup = CVSensNormAll(tempv, ewt, tempvS, ewtS, Ns) / tq[3];
-    } else {
-      dup = N_VWrmsNorm(tempv, ewt) / tq[3];
+      dup = CVSensUpdateNorm(cv_mem, dup, old_dim, tempvS, ewtS);
+      old_dim += Ns*N;
     }
+
+    dup = dup / tq[3];
 
     etaqp1 = ONE / (RPowerR(BIAS3*dup, ONE/(L+1)) + ADDON);
 
@@ -4942,18 +5836,18 @@ static realtype CVComputeEtaqp1(CVodeMem cv_mem)
   return (etaqp1);
 }
 
-/******************* CVChooseEta **********************************
-
- Given etaqm1, etaq, etaqp1 (the values of eta for qprime =
- q - 1, q, or q + 1, respectively), this routine chooses the 
- maximum eta value, sets eta to that value, and sets qprime to the
- corresponding value of q.  If there is a tie, the preference
- order is to (1) keep the same order, then (2) decrease the order,
- and finally (3) increase the order.  If the maximum eta value
- is below the threshhold THRESH, the order is kept unchanged and
- eta is set to 1.
-
-******************************************************************/
+/*------------------   CVChooseEta       --------------------------*/
+/*
+  Given etaqm1, etaq, etaqp1 (the values of eta for qprime =
+  q - 1, q, or q + 1, respectively), this routine chooses the 
+  maximum eta value, sets eta to that value, and sets qprime to the
+  corresponding value of q.  If there is a tie, the preference
+  order is to (1) keep the same order, then (2) decrease the order,
+  and finally (3) increase the order.  If the maximum eta value
+  is below the threshhold THRESH, the order is kept unchanged and
+  eta is set to 1.
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVChooseEta(CVodeMem cv_mem)
 {
@@ -4986,20 +5880,27 @@ static void CVChooseEta(CVodeMem cv_mem)
     
     N_VScale(ONE, acor, zn[qmax]);
     
-    if (sensi && (errcon==FULL))
+    if (quad && (errconQ == FULL))
+      N_VScale(ONE, acorQ, znQ[qmax]);
+
+    if (sensi && (errcon == FULL))
       for (is=0; is<Ns; is++)
         N_VScale(ONE, acorS[is], znS[qmax][is]);
     
   }
 }
 
-/****************** CVHandleFailure ******************************
+/*=================================================================*/
+/*END          Private Routines after succesfull step              */
+/*=================================================================*/
 
- This routine prints error messages for all cases of failure by
- CVStep. It returns to CVode the value that CVode is to return to
- the user.
-
-*****************************************************************/
+/*------------------  CVHandleFailur     --------------------------*/
+/*
+  This routine prints error messages for all cases of failure by
+  CVStep. It returns to CVode the value that CVode is to return to
+  the user.
+*/
+/*-----------------------------------------------------------------*/
 
 static int CVHandleFailure(CVodeMem cv_mem, int kflag)
 {
@@ -5027,16 +5928,22 @@ static int CVHandleFailure(CVodeMem cv_mem, int kflag)
   return(0);
 
 }
-/****************** CVBDFStab ***********************************
- This routine handles the BDF Stability Limit Detection Algorithm
- STALD.  It is called if lmm = BDF and the SLDET option is on.
- If the order is 3 or more, the required norm data is saved.
- If a decision to reduce order has not already been made, and
- enough data has been saved, CVsldet is called.  If it signals
- a stability limit violation, the order is reduced, and the step
- size is reset accordingly.
 
-*****************************************************************/
+/*=================================================================*/
+/*BEGIN        BDF Stability Limit Detection                       */
+/*=================================================================*/
+
+/*------------------     CVBDFStab       --------------------------*/
+/*
+  This routine handles the BDF Stability Limit Detection Algorithm
+  STALD.  It is called if lmm = BDF and the SLDET option is on.
+  If the order is 3 or more, the required norm data is saved.
+  If a decision to reduce order has not already been made, and
+  enough data has been saved, CVsldet is called.  If it signals
+  a stability limit violation, the order is reduced, and the step
+  size is reset accordingly.
+*/
+/*-----------------------------------------------------------------*/
 
 void CVBDFStab(CVodeMem cv_mem)
 {
@@ -5089,7 +5996,8 @@ void CVBDFStab(CVodeMem cv_mem)
   }
 }
 
-/********************* CVsldet ************************************
+/*------------------     CVsldet         --------------------------*/
+/*
   This routine detects stability limitation using stored scaled 
   derivatives data. CVsldet returns the magnitude of the
   dominate characteristic root, rr. The presents of a stability
@@ -5121,8 +6029,9 @@ void CVBDFStab(CVodeMem cv_mem)
      kflag = -7 -> Trouble solving for sigsq.
      kflag = -8 -> Trouble solving for B, or R via B.
      kflag = -9 -> R via sigsq[k] disagrees with R from data.
+*/
+/*-----------------------------------------------------------------*/
 
-********************************************************************/
 static int CVsldet(CVodeMem cv_mem)
 {
   integertype i, k, j, it, kmin, kflag;
@@ -5401,146 +6310,189 @@ static int CVsldet(CVodeMem cv_mem)
   
 }
 
-/**************************************************************/
-/**************** BEGIN COMBINED NORMS ************************/
-/**************************************************************/
+/*=================================================================*/
+/*END          BDF Stability Limit Detection                       */
+/*=================================================================*/
 
-/********************* CVSensNormAll ******************************
+/*=================================================================*/
+/*BEGIN        Combined norms                                      */
+/*=================================================================*/
 
- Usage    : norm = CVSensNormAll(x, w, xS, wS, Ns); 
- 
- If MAX_WRMS = TRUE, this routine returns the maximum over the 
- weighted root mean square norm of x with weight vector w and 
- xS with weight vectors wS:
+/*------------------  CVQuadUpdateNorm   --------------------------*/
+/*
+ Updates the norm old_nrm to account for all quadratures.
+*/
+/*-----------------------------------------------------------------*/
 
-    max { wrms(x,w), wrms(xS[0],wS[0]) ... wrms(xS[Ns-1],wS[Ns-1]) }    
-
- If MAX_WRMS = FLASE, this routine returns the WRMS norm of the
- combined array [x,xS[0],xS[1],...xS[Ns-1]]:
-
-    wrms( [x,xS[0]...xS[Ns-1]] , [w,wS[0]...wS[Ns-1]] )
-
-********************************************************************/
-
-static realtype CVSensNormAll(N_Vector x, N_Vector w, 
-              N_Vector *xS, N_Vector *wS, integertype nsens)
+static realtype CVQuadUpdateNorm(CVodeMem cv_mem, 
+                                 realtype old_nrm, integertype old_n,
+                                 N_Vector xQ, N_Vector wQ)
 {
-  integertype is;
-  realtype nrm, snrm;
-  
+  realtype new_nrm, qnrm;
+
+  qnrm = N_VWrmsNorm(xQ, wQ);
   if ( MAX_WRMS ) {
-    nrm = N_VWrmsNorm(x,w);
-    for (is=0; is<nsens; is++) {
-      snrm = N_VWrmsNorm(xS[is],wS[is]);
-      if ( snrm > nrm ) nrm = snrm;
-    }
+    new_nrm = (old_nrm > qnrm) ? old_nrm : qnrm;
   } else {
-    nrm = N_VWrmsNorm(x,w);
-    nrm = nrm*nrm;
-    for (is=0; is<nsens; is++) {
-      snrm = N_VWrmsNorm(xS[is],wS[is]);
-      nrm += snrm*snrm;
-    }
-    nrm = RSqrt( nrm/(nsens+1) );
+    new_nrm = old_n*old_nrm*old_nrm + Nq*qnrm*qnrm;
+    new_nrm = RSqrt( new_nrm/(old_n + Nq) );
   }
   
-  return (nrm);
-  
+  return (new_nrm);
 }
 
-/********************* CVStgrNormSens *****************************
+/*------------------   CVQuadUpdateDsm   --------------------------*/
+/*
+  Usage    : dms = CVQuadUpdateDsm(cv_mem, dsm, dsmQ);
 
- Usage    : norm = CVStgrNormSens(xS, wS, nsens); 
- 
- If MAX_WRMS = TRUE, this routine returns the maximum over the 
- weighted root mean square norm of xS with weight vectors wS:
+  This routine updates the local error norm dsm with quadrature
+  related information. Used only if quadratures are computed
+  with FULL error control.
+  
+  If MAX_WRMQ = TRUE, this routine returns the maximum over the 
+  wheighted local error norms.
+  
+  If MAX_WRMQ = FALSE, this routine returns the WRMS norm of the
+  combined array of local errors.
+*/
+/*-----------------------------------------------------------------*/
+
+static realtype CVQuadUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
+                                integertype old_n, realtype dsmQ)
+{
+  realtype dsml;
+
+  if ( MAX_WRMQ ) {
+    if ( old_dsm > dsmQ ) return (old_dsm);
+    else                  return (dsmQ);
+  } else {
+    dsml = old_n*old_dsm*old_dsm + Nq*dsmQ*dsmQ;
+    return ( RSqrt(dsml/(old_n+Nq)) );
+  }
+
+}
+
+/*------------------   CVSensNorm        --------------------------*/
+/*
+  If MAX_WRMS = TRUE, this routine returns the maximum over the 
+  weighted root mean square norm of xS with weight vectors wS:
 
     max { wrms(xS[0],wS[0]) ... wrms(xS[Ns-1],wS[Ns-1]) }    
 
- If MAX_WRMS = FALSE, this routine returns the WRMS norm of the
- combined array [xS[0],xS[1],...xS[Ns-1]]:
+  If MAX_WRMS = FALSE, this routine returns the WRMS norm of the
+  combined array [xS[0],xS[1],...xS[Ns-1]]:
 
       wrms( [xS[0]...xS[Ns-1]] , [w,wS[0]...wS[Ns-1]] )
 
- Used in the STAGGERED approach (during the NLS solution) and
- in the STAGGERED1 approach (before the error test).
+  Called by CVSensUpdateNorm or by itself in the STAGGERED approach 
+  (during the NLS solution) and in the STAGGERED1 approach 
+  (before the error test).
+*/
+/*-----------------------------------------------------------------*/
 
-********************************************************************/
-
-static realtype CVStgrNormSens(N_Vector *xS, N_Vector *wS, integertype nsens)
+static realtype CVSensNorm(CVodeMem cv_mem, N_Vector *xS, N_Vector *wS)
 {
-
   integertype is;
   realtype nrm, snrm;
 
   if ( MAX_WRMS ) {
     nrm = N_VWrmsNorm(xS[0],wS[0]);
-    for (is=1; is<nsens; is++) {
+    for (is=1; is<Ns; is++) {
       snrm = N_VWrmsNorm(xS[is],wS[is]);
       if ( snrm > nrm ) nrm = snrm;
     }
   } else {
     nrm = 0.0;
-    for (is=0; is<nsens; is++) {
+    for (is=0; is<Ns; is++) {
       snrm = N_VWrmsNorm(xS[is],wS[is]);
       nrm += snrm*snrm;
     }
-    nrm = RSqrt( nrm/nsens );
+    nrm = RSqrt( nrm/Ns );
   }
 
   return (nrm);
 
 }
 
-/********************* CVStgrDsm ************************************
+/*------------------  CVSensUpdateNorm   --------------------------*/
+/*
+  Updates the norm old_nrm to account for all sensitivities.
+*/
+/*-----------------------------------------------------------------*/
 
- Usage    : dms = CVStgrDsm(cv_mem, dsm, dsmS);
+static realtype CVSensUpdateNorm(CVodeMem cv_mem, 
+                                 realtype old_nrm, integertype old_n,
+                                 N_Vector *xS, N_Vector *wS)
+{
+  integertype is;
+  realtype new_nrm, snrm;
+  
+  if ( MAX_WRMS ) {
+    new_nrm = old_nrm;
+    for (is=0; is<Ns; is++) {
+      snrm = N_VWrmsNorm(xS[is],wS[is]);
+      if ( snrm > new_nrm ) new_nrm = snrm;
+    }
+  } else {
+    snrm = CVSensNorm(cv_mem, xS, wS);
+    new_nrm = old_n*old_nrm*old_nrm + Ns*N*snrm*snrm;
+    new_nrm = RSqrt( new_nrm/(old_n + Ns*N) );
+  }
+  
+  return (new_nrm);
 
- This routine updates the local error norm dsm with sensitivity 
- related information. Used only in the STAGGERED or STAGGERED1 
- approach with FULL error control.This value is consistent with 
- the one computed in CVDoErrorTest when ism=SIMULTANEOUS and 
- errcon=FULL.
+}
 
- If MAX_WRMS = TRUE, this routine returns the maximum over the 
- wheighted local error norms.
 
- If MAX_WRMS = FALSE, this routine returns the WRMS norm of the
- combined array of local errors.
+/*------------------   CVStgrUpdateNorm  --------------------------*/
+/*
+  Usage    : dms = CVStgrUpdateDsm(cv_mem, old_dsm, old_n, dsmS);
 
-********************************************************************/
+  This routine updates the local error norm old_dsm with sensitivity 
+  related information. Used only in the STAGGERED or STAGGERED1 
+  approach with FULL error control.This value is consistent with 
+  the one computed in CVDoErrorTest when ism=SIMULTANEOUS and 
+  errcon=FULL.
+  
+  If MAX_WRMS = TRUE, this routine returns the maximum over the 
+  wheighted local error norms.
+  
+  If MAX_WRMS = FALSE, this routine returns the WRMS norm of the
+  combined array of local errors.
+*/
+/*-----------------------------------------------------------------*/
 
-static realtype CVStgrDsm(CVodeMem cv_mem, realtype dsm, realtype dsmS)
+static realtype CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm, 
+                                integertype old_n, realtype dsmS)
 {
   realtype dsml;
 
   if ( MAX_WRMS ) {
-    if ( dsm > dsmS ) return (dsm);
-    else              return (dsmS);
+    if ( old_dsm > dsmS ) return (old_dsm);
+    else                  return (dsmS);
   } else {
-    dsml = dsm*dsm + Ns*dsmS*dsmS;
-    return ( RSqrt(dsml/(Ns+1)) );
+    dsml = old_n*old_dsm*old_dsm + Ns*N*dsmS*dsmS;
+    return ( RSqrt(dsml/(old_n + Ns*N)) );
   }
 
 }
 
-/**************************************************************/
-/**************** END COMBINED NORMS **************************/
-/**************************************************************/
+/*=================================================================*/
+/*END          Combined norms                                      */
+/*=================================================================*/
 
+/*=================================================================*/
+/*BEGIN        Sensitivity RHS Routines                            */
+/*=================================================================*/
 
-/**************************************************************/
-/**************** BEGIN SENSITIVITY RHS ROUTINES **************/
-/**************************************************************/
+/*------------------     CVSensRhs       --------------------------*/
+/*
+  CVSensRhs is a high level routine that returns right hand side 
+  of sensitivity equations. Depending on the 'ifS' flag, it either 
+  calls directly the fS routine (ifS=ALLSENS) or (if ifS=ONESENS) 
+  calls the fS1 routine in a loop over all sensitivities.
 
-/********************* CVSensRhs *********************************
-
- CVSensRhs is a high level routine that returns right hand side 
- of sensitivity equations. Depending on the 'ifS' flag, it either 
- calls directly the fS routine (ifS=ALLSENS) or (if ifS=ONESENS) 
- calls the fS1 routine in a loop over all sensitivities.
-
- CVSensRhs is called:
+  CVSensRhs is called:
    (*) by Cvode at the first step
    (*) by CVYddNorm if errcon=FULL
    (*) by CVnlsFunctional, CVnlsNewton, and CVNewtonIteration
@@ -5548,8 +6500,8 @@ static realtype CVStgrDsm(CVodeMem cv_mem, realtype dsm, realtype dsmS)
    (*) by CVDoErrorTest when restarting from scratch
    (*) in the corrector loop if ism=STAGGERED
    (*) by CVStgrDoErrorTest when restarting from scratch 
-
-*****************************************************************/
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVSensRhs(CVodeMem cv_mem, realtype time, 
                       N_Vector ycur, N_Vector fcur, 
@@ -5559,100 +6511,93 @@ static void CVSensRhs(CVodeMem cv_mem, realtype time,
   integertype is;
 
   if (ifS==ALLSENS) {
-    fS(f, Ns, N, time, ycur, fcur, yScur, fScur,
-       p, pbar, plist, f_data, ewt, ewtS, reltol,
-       reltolS, uround, rhomax, &nfe, temp1, temp2);
+    fS(Ns, N, time, ycur, fcur, yScur, fScur, 
+       fS_data, temp1, temp2);
     nfSe++;
   } else {
     for (is=0; is<Ns; is++) {
-      fS1(f, Ns, N, time, ycur, fcur, is, yScur[is], fScur[is],
-          p, pbar, plist, f_data, ewt, ewtS[is], reltol,
-          reltolS, uround, rhomax, &nfe, temp1, temp2);
+      fS1(Ns, N, time, ycur, fcur, is, yScur[is], fScur[is], 
+          fS_data, temp1, temp2);
       nfSe++;
     }
   }
 }
 
-/******************** CVSensRhs1 ********************************
-
- CVSensRhs1 is a high level routine that returns right hand side 
- of the is-th sensitivity equation. 
-
- CVSensRhs1 is called only during the STAGGERED1 corrector loop
- (ifS must be ONESENS, otherwise CVodeSensMalloc would have 
- issued an error message).
-
-*****************************************************************/
+/*------------------    CVSensRhs1       --------------------------*/
+/*
+  CVSensRhs1 is a high level routine that returns right hand side 
+  of the is-th sensitivity equation. 
+  
+  CVSensRhs1 is called only during the STAGGERED1 corrector loop
+  (ifS must be ONESENS, otherwise CVodeSensMalloc would have 
+  issued an error message).
+*/
+/*-----------------------------------------------------------------*/
 
 static void CVSensRhs1(CVodeMem cv_mem, realtype time, 
                        N_Vector ycur, N_Vector fcur, 
-                       integertype is, N_Vector *yScur, N_Vector *fScur,
+                       integertype is, N_Vector yScur, N_Vector fScur,
                        N_Vector temp1, N_Vector temp2)
 {
-  fS1(f, Ns, N, time, ycur, fcur, is, yScur[is], fScur[is],
-      p, pbar, plist, f_data, ewt, ewtS[is], reltol,
-      reltolS, uround, rhomax, &nfe, temp1, temp2);
+  fS1(Ns, N, time, ycur, fcur, is, yScur, fScur, 
+      fS_data, temp1, temp2);
   nfSe++;
 }
 
+/*=================================================================*/
+/*BEGIN        Undefine Readibility Constants                      */
+/*=================================================================*/
 
-/*** BEGIN UNDEF Readability Constants *****/
-#undef f
 #undef Ns
 #undef N
 #undef y
 #undef yS
-#undef p
-#undef pbar
-#undef plist
-#undef f_data
-#undef ewt
-#undef ewtS
-#undef reltol
-#undef reltolS
-#undef uround
-#undef rhomax
-#undef tempv
+#undef fS_data
 #undef ftemp
 
-/******************** CVSensRhsDQ *********************************
+/*=================================================================*/
+/*END          Undefine Readibility Constants                      */
+/*=================================================================*/
 
- CVSensRhsDQ computes right hand side of all sensitivity equations
- by finite differences
+/*=================================================================*/
+/*BEGIN        DQ Approximations for Sensitivity RHS Routines      */
+/*=================================================================*/
 
-*******************************************************************/
+/*------------------    CVSensRhsDQ      --------------------------*/
+/*
+  CVSensRhsDQ computes right hand side of all sensitivity equations
+  by finite differences
+*/
+/*-----------------------------------------------------------------*/
 
-static void CVSensRhsDQ(RhsFn f, integertype Ns, integertype N, realtype t,
-                        N_Vector y, N_Vector ydot, N_Vector *yS, N_Vector *ySdot, 
-                        realtype *p, realtype *pbar, integertype *plist, void *f_data,
-                        N_Vector ewt, N_Vector *ewtS, realtype *reltol, realtype *reltolS, 
-                        realtype uround, realtype rhomax, long int *nfePtr,
+static void CVSensRhsDQ(integertype Ns, integertype N, realtype t, 
+                        N_Vector y, N_Vector ydot, 
+                        N_Vector *yS, N_Vector *ySdot, 
+                        void *fS_data,  
                         N_Vector ytemp, N_Vector ftemp)
 {
   integertype is;
   
   for (is=0; is<Ns; is++)
-    CVSensRhs1DQ(f, Ns, N, t, y, ydot, is, yS[is], ySdot[is],
-                 p, pbar, plist, f_data, ewt, ewtS[is], reltol, reltolS,
-                 uround, rhomax, nfePtr, ytemp, ftemp);
+    CVSensRhs1DQ(Ns, N, t, y, ydot, is, yS[is], ySdot[is],
+                 fS_data, ytemp, ftemp);
   
 }
 
-/********************* CVSensRhs1DQ ********************************
+/*------------------    CVSensRhs1DQ     --------------------------*/
+/*
+  CVSensRhs1DQ computes the right hand side of the is-th sensitivity 
+  equation by finite differences
+*/
+/*-----------------------------------------------------------------*/
 
- CVSensRhs1DQ computes the right hand side of the is-th sensitivity 
- equation by finite differences
-
-********************************************************************/
-
-static void CVSensRhs1DQ(RhsFn f, integertype Ns, integertype N, realtype t,
+static void CVSensRhs1DQ(integertype Ns, integertype N, realtype t, 
                          N_Vector y, N_Vector ydot, 
                          integertype is, N_Vector yS, N_Vector ySdot, 
-                         realtype *p, realtype *pbar, integertype *plist, void *f_data,
-                         N_Vector ewt, N_Vector ewtS, realtype *reltol, realtype *reltolS, 
-                         realtype uround, realtype rhomax, long int *nfePtr,
+                         void *fS_data,
                          N_Vector ytemp, N_Vector ftemp)
 {
+  CVodeMem cv_mem;
   int method;
   integertype nfel = 0, which;
   booleantype skipFP;
@@ -5663,6 +6608,9 @@ static void CVSensRhs1DQ(RhsFn f, integertype Ns, integertype N, realtype t,
   realtype Delta , rDelta , r2Delta ;
   realtype norms, ratio;
   
+  /* fS_data points to cv_mem */
+  cv_mem = (CVodeMem) fS_data;
+
   delta  = RSqrt(MAX(*reltol, uround));
   rdelta = ONE/delta;
   
@@ -5773,19 +6721,19 @@ static void CVSensRhs1DQ(RhsFn f, integertype Ns, integertype N, realtype t,
   
   p[which] = psave;
   
-  /* Increment counter nfe = *nfePtr */
-  *nfePtr += nfel;
+  /* Increment counter nfe */
+  nfe += nfel;
   
 }
 
-/**************************************************************/
-/**************** END SENSITIVITY RHS ROUTINES ****************/
-/**************************************************************/
+/*=================================================================*/
+/*END          DQ Approximations for Sensitivity RHS Routines      */
+/*=================================================================*/
 
-/**************************************************************/
-/********* END Private Helper Functions Implementation ********/
-/**************************************************************/
+/*=================================================================*/
+/*END          Sensitivity RHS Routines                            */
+/*=================================================================*/
 
-/**************************************************************/
-/************** END CVODE Implementation **********************/
-/**************************************************************/
+/*=================================================================*/
+/*END          PRIVATE FUNCTIONS IMPLEMENTATION                    */
+/*=================================================================*/
