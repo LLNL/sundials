@@ -32,7 +32,7 @@ C MESHX and MESHY, for consistency with the output statements below.
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      1     JPRETYPE/1/, IGSTYPE/0/, MAXL/0/, DELT/0.0D0/
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/,
-     1     LQ/11/, LH/5/, LNPE/16/, LNLI/17/, LNPS/18/, LNCFL/19/
+     1     LQ/11/, LH/5/, LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
       INTEGER NEQ
       COMMON /PBDIM/ NEQ
 C

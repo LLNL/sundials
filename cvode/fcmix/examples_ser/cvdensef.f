@@ -23,7 +23,7 @@ C
       DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)
       INTEGER IOPT(40)
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
-     1     LNJE/16/
+     1     LNJE/18/
 C
       NEQ = 3
       T0 = 0.0D0

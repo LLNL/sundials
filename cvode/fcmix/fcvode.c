@@ -271,26 +271,26 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 
     switch(CV_ls) {
     case 1:
-      CVDenseGetNumJacEvals(CV_cvodemem, &CV_iopt[15]);   /* NJE */
-      CVDenseGetRealWorkSpace(CV_cvodemem, &CV_iopt[16]); /* LRW */
-      CVDenseGetIntWorkSpace(CV_cvodemem, &CV_iopt[17]);  /* LIW */
+      CVDenseGetRealWorkSpace(CV_cvodemem, &CV_iopt[15]); /* LRW */
+      CVDenseGetIntWorkSpace(CV_cvodemem, &CV_iopt[16]);  /* LIW */
+      CVDenseGetNumJacEvals(CV_cvodemem, &CV_iopt[17]);   /* NJE */
       break;
     case 2:
-      CVBandGetNumJacEvals(CV_cvodemem, &CV_iopt[15]);    /* NJE */
-      CVBandGetRealWorkSpace(CV_cvodemem, &CV_iopt[16]);  /* LRW */
-      CVBandGetIntWorkSpace(CV_cvodemem, &CV_iopt[17]);   /* LIW */
+      CVBandGetRealWorkSpace(CV_cvodemem, &CV_iopt[15]);  /* LRW */
+      CVBandGetIntWorkSpace(CV_cvodemem, &CV_iopt[16]);   /* LIW */
+      CVBandGetNumJacEvals(CV_cvodemem, &CV_iopt[17]);    /* NJE */
       break;
     case 3:
-      CVDiagGetRealWorkSpace(CV_cvodemem, &CV_iopt[16]);  /* LRW */
-      CVDiagGetIntWorkSpace(CV_cvodemem, &CV_iopt[17]);   /* LIW */
+      CVDiagGetRealWorkSpace(CV_cvodemem, &CV_iopt[15]);  /* LRW */
+      CVDiagGetIntWorkSpace(CV_cvodemem, &CV_iopt[16]);   /* LIW */
       break;
     case 4:
-      CVSpgmrGetNumPrecEvals(CV_cvodemem, &CV_iopt[15]);  /* NPE */
-      CVSpgmrGetNumLinIters(CV_cvodemem, &CV_iopt[16]);   /* NLI */
-      CVSpgmrGetNumPrecSolves(CV_cvodemem, &CV_iopt[17]); /* NPS */
-      CVSpgmrGetNumConvFails(CV_cvodemem, &CV_iopt[18]);  /* NCFL */
-      CVSpgmrGetRealWorkSpace(CV_cvodemem, &CV_iopt[16]); /* LRW */
-      CVSpgmrGetIntWorkSpace(CV_cvodemem, &CV_iopt[17]);  /* LIW */
+      CVSpgmrGetRealWorkSpace(CV_cvodemem, &CV_iopt[15]); /* LRW */
+      CVSpgmrGetIntWorkSpace(CV_cvodemem, &CV_iopt[16]);  /* LIW */
+      CVSpgmrGetNumPrecEvals(CV_cvodemem, &CV_iopt[17]);  /* NPE */
+      CVSpgmrGetNumLinIters(CV_cvodemem, &CV_iopt[18]);   /* NLI */
+      CVSpgmrGetNumPrecSolves(CV_cvodemem, &CV_iopt[19]); /* NPS */
+      CVSpgmrGetNumConvFails(CV_cvodemem, &CV_iopt[20]);  /* NCFL */
       break;
     }
 

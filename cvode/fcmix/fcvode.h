@@ -221,7 +221,7 @@ The argument FLAG=0 specifies using the internal finite differences
 approximation to the Jacobian, while FLAG=1 specifies that CVDJAC is
 provided.
 
-     Optional outputs specific to the DENSE case are NJE, LRW, and LIW,
+     Optional outputs specific to the DENSE case are LRW, LIW, and NJE
 stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
 manual for descriptions.)
 
@@ -241,7 +241,7 @@ The argument FLAG=0 specifies using the internal finite differences
 approximation to the band Jacobian, while FLAG=1 specifies that CVBJAC is
 provided.
 
-     Optional outputs specific to the BAND case are NJE, LRW, and LIW,
+     Optional outputs specific to the BAND case are LRW, LIW, and NJE
 stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
 manual for descriptions.)
 
@@ -298,8 +298,8 @@ Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a
 recoverable error occurred, and set IER negative if a non-recoverable error
 occurred.
 
-     Optional outputs specific to the SPGMR case are NPE, NLI, NPS, NCFL,
-LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
+     Optional outputs specific to the SPGMR case are LRW, LIW, NPE, NLI, NPS, 
+and NCFL, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
 manual for descriptions.)
 
      If a sequence of problems of the same size is being solved using the SPGMR
