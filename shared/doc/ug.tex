@@ -76,6 +76,8 @@
 \newcommand{\Id}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
 \newcommand{\id}[1]{{\tt #1}}
 
+%------ Cross reference to the user guide
+\newcommand{\ugref}[1]{\ref{#1} in the user guide}
 
 %%----- Shortcuts for math formulas
 \newcommand{\mb}[1]{{\mbox{\scriptsize #1}}}
@@ -85,9 +87,8 @@
 \newcommand{\dfdpiI}{\partial f / \partial p_i}
 \newcommand{\rhomax}{\rho_{\max}}
 
-
 %%--------------------------------
-\newcommand{\frontmatter}
+\newcommand{\frontug}
 {
   \maketitle
 
@@ -108,6 +109,25 @@
   \newpage\pagestyle{plain}\pagenumbering{arabic}
 }
 
+%%--------------------------------
+\newcommand{\frontex}
+{
+  \maketitle
+
+  %% Leave an empty page
+  \newpage\thispagestyle{empty}
+  \vspace*{1.0in}
+  
+  %% Start roman numbering
+  \pagestyle{plain}\pagenumbering{roman}
+  \tableofcontents
+  
+  %% Move to new page and start arabic numbering
+  \newpage\pagestyle{plain}\pagenumbering{arabic}
+}
+
+%%---------------------------------
+%% Steps used in scheleton programs
 %%---------------------------------
 \newcounter{Stepsctr}
 \newenvironment{Steps}
@@ -119,7 +139,9 @@
       \settowidth{\labelwidth}{99. }
       \setlength{\leftmargin}{\labelwidth+\labelsep}}}
   {\end{list}}
-%%---------------------------------
+%%-----------------------------------------------------
+%% Underlying list environemnt for function definitions
+%%-----------------------------------------------------
 \newenvironment{Ventry}[1][\quad]
 {\begin{list}{}{
       \setlength{\rightmargin}{0em}
@@ -130,6 +152,8 @@
       \setlength{\leftmargin}{\labelwidth+\labelsep}}}
   {\end{list}}
 %%----------------------------------
+%% List of function arguments
+%%---------------------------------
 \newenvironment{args}[1][\quad]
 {\begin{list}{}{
       \setlength{\rightmargin}{0em}
@@ -140,7 +164,9 @@
       \setlength{\leftmargin}{\labelwidth+\labelsep}}}
   {\end{list}}
 %%---------------------------------
-\newcommand{\function}[6]{
+%% User-callable function
+%%---------------------------------
+\newcommand{\ucfunction}[6]{
   \begin{Ventry}[Return value]
   \item[\fbox{\id{#1}}]{}
   \item[Call]{\id{#2}}
@@ -150,6 +176,20 @@
   \addNotes{#6}
   \end{Ventry}
 }
+%%---------------------------------
+%% User-supplied function
+%%---------------------------------
+\newcommand{\usfunction}[6]{
+  \begin{Ventry}[Return value]
+  \item[\fbox{\id{#1}}]{}
+  \item[Definition]{\id{\begin{tabular}[t]{@{}r@{}l@{}}#2\end{tabular}}}
+  \item[Purpose]{#3}
+  \item[Arguments]{#4}
+  \item[Return value]{#5}
+  \addNotes{#6}
+  \end{Ventry}
+}
+%%---------------------------------
 \makeatletter
 \long\def\addNotes#1{\def\@tempa{#1}\ifx\@tempa\empty\else\item[Notes]{#1}\fi}
 \makeatother
