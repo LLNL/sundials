@@ -333,7 +333,7 @@ $t = t_{\mbox{\scriptsize stop}}$.
 Lastly, CVODE has been augmented to include a rootfinding feature,
 whereby the roots of a set of user-defined functions $g_i(t,y)$
 can be found while integrating the initial value problem for
-$y(t)$.  The algorithm uses checks for changes in sign in the
+$y(t)$.  The algorithm checks for changes in sign in the
 $g_i$ over each time step, and when a sign change is found, it
 homes in on the root(s) with a weighted secant iteration method
 \cite{HeSh:80}. (CVODE also checks for exact zeros of the $g_i$.)
