@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2004-11-15 19:01:54 $
+ * $Revision: 1.9 $
+ * $Date: 2004-11-24 00:20:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -202,9 +202,11 @@ int main(int argc, char *argv[])
   /* following vars for timing purposes only */
   FILE *times;
   double mpi_time, mpi_time_start;
-  
+
+#if PRINT_GRIDINFO == 1
   /* for output of timestep and grid data */
   FILE *timesteps;
+#endif
 
   u = NULL;
   data = NULL;
