@@ -1,24 +1,26 @@
 /****************************************************************
  *                                                              *
  * File          : nvector.c                                    *
- * Programmers   : Scott D. Cohen,  Alan C. Hindmarsh,          *
- *               : Radu Serban, and Allan G. Taylor, LLNL       *
- * Version of    : 30 October 2001                              *
+ * Programmers   : Scott D. Cohen, Alan C. Hindmarsh,           *
+ *                 Radu Serban, and Allan G. Taylor, LLNL       *
+ * Version of    : 26 February 2002                             *
+ *                                                              *
  *--------------------------------------------------------------*
  *                                                              *
- * This is the implementation file for a generic serial NVECTOR *
- * package. It contains the implementation of the N_Vector      *
- * kernels listed in nvector.h.                                 *
+ * This is the implementation file for a serial implementation  *
+ * of the NVECTOR package. It contains the implementation of    *
+ * the serial machine environment intialization and free        *
+ * routines (and of the Fortran callable interfaces to them)    *
+ * and of the N_Vector kernels listed in nvector_serial.h.      *
  *                                                              *
  ****************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
-#include "nvector.h"
+#include <string.h>
+#include "nvector_serial.h"
 #include "llnltyps.h"
 #include "llnlmath.h" 
-
 
 #define ZERO RCONST(0.0)
 #define HALF RCONST(0.5)
@@ -27,59 +29,180 @@
 
 
 /* Private Helper Prototypes */
-
-static void VCopy(N_Vector x, N_Vector z); /* z=x */
-static void VSum(N_Vector x, N_Vector y, N_Vector z); /* z=x+y */
-static void VDiff(N_Vector x, N_Vector y, N_Vector z); /* z=x-y */
-static void VNeg(N_Vector x, N_Vector z); /* z=-x */
+/* z=x */
+static void VCopy_Serial(N_Vector x, N_Vector z);
+/* z=x+y */
+static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z);
+/* z=x-y */
+static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z);
+/* z=-x */
+static void VNeg_Serial(N_Vector x, N_Vector z);
 /* z=c(x+y) */
-static void VScaleSum(real c, N_Vector x, N_Vector y, N_Vector z);
+static void VScaleSum_Serial(real c, N_Vector x, N_Vector y, N_Vector z);
 /* z=c(x-y) */
-static void VScaleDiff(real c, N_Vector x, N_Vector y, N_Vector z); 
-static void VLin1(real a, N_Vector x, N_Vector y, N_Vector z); /* z=ax+y */
-static void VLin2(real a, N_Vector x, N_Vector y, N_Vector z); /* z=ax-y */
-static void Vaxpy(real a, N_Vector x, N_Vector y); /* y <- ax+y */
-static void VScaleBy(real a, N_Vector x); /* x <- ax */
+static void VScaleDiff_Serial(real c, N_Vector x, N_Vector y, N_Vector z); 
+/* z=ax+y */
+static void VLin1_Serial(real a, N_Vector x, N_Vector y, N_Vector z);
+/* z=ax-y */
+static void VLin2_Serial(real a, N_Vector x, N_Vector y, N_Vector z);
+/* y <- ax+y */
+static void Vaxpy_Serial(real a, N_Vector x, N_Vector y);
+/* x <- ax */
+static void VScaleBy_Serial(real a, N_Vector x);
 
 /********************* Exported Functions ************************/
 
+/* Serial implementation of the machine environment 
+   initialization routine */
+
+M_Env M_EnvInit_Serial(integer vec_length)
+{
+  M_Env me;
+
+  /* Create machine environment structure */
+  me = (M_Env) malloc(sizeof *me);
+  if (me == NULL) return(NULL);
+
+  /* Create serial content of machine environment structure */
+  me->content = (M_EnvSerialContent) malloc(sizeof(struct _M_EnvSerialContent));
+  if (me->content == NULL) {
+    free(me);
+    return(NULL);
+  }
+
+  /* Load serial content of machine environment structure */
+  ME_CONTENT_S(me)->length = vec_length;
+
+  /* Attach vector operations */
+  me->ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (me->ops == NULL) {
+    free(me->content);
+    free(me);
+    return(NULL);
+  }
+
+  me->ops->nvnew           = N_VNew_Serial;
+  me->ops->nvnewS          = N_VNew_S_Serial;
+  me->ops->nvfree          = N_VFree_Serial;
+  me->ops->nvfreeS         = N_VFree_S_Serial;
+  me->ops->nvmake          = N_VMake_Serial;
+  me->ops->nvdispose       = N_VDispose_Serial;
+  me->ops->nvgetdata       = N_VGetData_Serial;
+  me->ops->nvsetdata       = N_VSetData_Serial;
+  me->ops->nvlinearsum     = N_VLinearSum_Serial;
+  me->ops->nvconst         = N_VConst_Serial;
+  me->ops->nvprod          = N_VProd_Serial;
+  me->ops->nvdiv           = N_VDiv_Serial;
+  me->ops->nvscale         = N_VScale_Serial;
+  me->ops->nvabs           = N_VAbs_Serial;
+  me->ops->nvinv           = N_VInv_Serial;
+  me->ops->nvaddconst      = N_VAddConst_Serial;
+  me->ops->nvdotprod       = N_VDotProd_Serial;
+  me->ops->nvmaxnorm       = N_VMaxNorm_Serial;
+  me->ops->nvwrmsnorm      = N_VWrmsNorm_Serial;
+  me->ops->nvmin           = N_VMin_Serial;
+  me->ops->nvwl2norm       = N_VWL2Norm_Serial;
+  me->ops->nvl1norm        = N_VL1Norm_Serial;
+  me->ops->nvonemask       = N_VOneMask_Serial;
+  me->ops->nvcompare       = N_VCompare_Serial;
+  me->ops->nvinvtest       = N_VInvTest_Serial;
+  me->ops->nvconstrprodpos = N_VConstrProdPos_Serial;
+  me->ops->nvconstrmask    = N_VConstrMask_Serial;
+  me->ops->nvminquotient   = N_VMinQuotient_Serial;
+  me->ops->nvprint         = N_VPrint_Serial;
+
+  /* Attach ID tag */
+  strcpy(me->tag, ID_TAG_S);
+
+  return(me);
+
+}
  
-N_Vector N_VNew(integer N, void *machEnv)
+/* Serial implementation of the machine environment 
+   free routine */
+
+void M_EnvFree_Serial(M_Env machEnv)
+{
+  if (machEnv == NULL) return;
+
+  free(machEnv->content);
+  free(machEnv->ops);
+  free(machEnv);
+}
+
+
+/* Fortran callable interfaces to M_EnvInit_Serial
+   and M_EnvFree_serial */
+
+void F_MENVINITS(integer *neq, int *ier)
+{
+ F2C_machEnv = M_EnvInit_Serial(*neq);
+
+ *ier = (F2C_machEnv == NULL) ? -1 : 0 ;
+}
+
+
+void F_MENVFREES()
+{
+  M_EnvFree_Serial(F2C_machEnv);
+}
+
+/***************************************************************************/
+
+/* BEGIN implementation of vector operations */
+
+N_Vector N_VNew_Serial(integer n, M_Env machEnv)
 {
   N_Vector v;
+  integer length;
 
-  if (N <= 0) return(NULL);
+  if (n <= 0) return(NULL);
+
+  if (machEnv == NULL) return(NULL);
 
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
-  v->data = (real *) malloc(N * sizeof(real));
-  if (v->data == NULL) {
+  v->content = (N_VectorSerialContent) malloc(sizeof(struct _N_VectorSerialContent));
+  if (v->content == NULL) {
     free(v);
     return(NULL);
   }
 
-  v->length = N;
-  
+  length = ME_CONTENT_S(machEnv)->length;
+
+  NV_CONTENT_S(v)->data = (real *) malloc(length * sizeof(real));
+  if(NV_CONTENT_S(v)->data == NULL) {
+    free(v->content);
+    free(v);
+    return(NULL);
+  }
+
+  NV_CONTENT_S(v)->length = length;
+
+  v->menv = machEnv;
+
   return(v);
 }
 
 
-N_Vector *N_VNew_S(integer Ns, integer N, void *machEnv)
+N_Vector_S N_VNew_S_Serial(integer ns, integer n, M_Env machEnv)
 {
-    N_Vector *vs;
+    N_Vector_S vs;
     integer is, j;
     
 
-    if (Ns <= 0 || N <= 0) return(NULL);
+    if (ns <= 0 || n <= 0) return(NULL);
     
-    vs = (N_Vector *) malloc(Ns * sizeof(N_Vector *));
+    if (machEnv == NULL) return(NULL);
+
+    vs = (N_Vector_S) malloc(ns * sizeof(N_Vector *));
     if (vs == NULL) return(NULL);
 
-    for (is=0; is<Ns; is++) {
-        vs[is] = N_VNew(N,machEnv);
+    for (is=0; is<ns; is++) {
+        vs[is] = N_VNew_Serial(n, machEnv);
         if (vs[is] == NULL) {
-            for (j=0; j<is; j++) N_VFree(vs[j]);
+            for (j=0; j<is; j++) N_VFree_Serial(vs[j]);
             free(vs);
             return(NULL);
         }
@@ -89,23 +212,70 @@ N_Vector *N_VNew_S(integer Ns, integer N, void *machEnv)
 }
 
 
-void N_VFree(N_Vector x)
+void N_VFree_Serial(N_Vector v)
 {
-  free(x->data);
-  free(x);
+  free(NV_DATA_S(v));
+  free(NV_CONTENT_S(v));
+  free(v);
 }
 
 
-void N_VFree_S(integer Ns, N_Vector *vs)
+void N_VFree_S_Serial(integer ns, N_Vector_S vs)
 {
     integer is;
     
-    for (is=0; is<Ns; is++) N_VFree(vs[is]);
+    for (is=0; is<ns; is++) N_VFree_Serial(vs[is]);
     free(vs);
 }
 
+N_Vector N_VMake_Serial(integer n, real *v_data, M_Env machEnv)
+{
+  N_Vector v;
+  integer length;
 
-void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
+  if (n <= 0) return(NULL);
+
+  if (machEnv == NULL) return(NULL);
+
+  v = (N_Vector) malloc(sizeof *v);
+  if (v == NULL) return(NULL);
+  
+  v->content = (N_VectorSerialContent) malloc(sizeof(struct _N_VectorSerialContent));
+  if (v->content == NULL) {
+    free(v);
+    return(NULL);
+  }
+
+  length = ME_CONTENT_S(machEnv)->length;
+
+  NV_CONTENT_S(v)->data = v_data;
+
+  NV_CONTENT_S(v)->length = length;
+
+  v->menv = machEnv;
+
+  return(v);
+}
+
+void N_VDispose_Serial(N_Vector v)
+{
+  free(NV_CONTENT_S(v));
+  free(v);
+}
+
+real *N_VGetData_Serial(N_Vector v)
+{
+  real *v_data;
+  v_data = NV_CONTENT_S(v)->data;
+  return(v_data);
+}
+
+void N_VSetData_Serial(real *v_data, N_Vector v)
+{
+  NV_CONTENT_S(v)->data = v_data;
+}
+
+void N_VLinearSum_Serial(real a, N_Vector x, real b, N_Vector y, N_Vector z)
 {
   integer i, N;
   real c, *xd, *yd, *zd;
@@ -113,19 +283,19 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
   boole test;
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
-    Vaxpy(a,x,y);
+    Vaxpy_Serial(a,x,y);
     return;
   }
 
   if ((a == ONE) && (z == x)) {    /* BLAS usage: axpy x <- by+x */
-    Vaxpy(b,y,x);
+    Vaxpy_Serial(b,y,x);
     return;
   }
 
   /* Case: a == b == 1.0 */
 
   if ((a == ONE) && (b == ONE)) {
-    VSum(x, y, z);
+    VSum_Serial(x, y, z);
     return;
   }
 
@@ -134,7 +304,7 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
   if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VDiff(v2, v1, z);
+    VDiff_Serial(v2, v1, z);
     return;
   }
 
@@ -145,7 +315,7 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
     c = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VLin1(c, v1, v2, z);
+    VLin1_Serial(c, v1, v2, z);
     return;
   }
 
@@ -155,7 +325,7 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
     c = test ? b : a;
     v1 = test ? y : x;
     v2 = test ? x : y;
-    VLin2(c, v1, v2, z);
+    VLin2_Serial(c, v1, v2, z);
     return;
   }
 
@@ -163,14 +333,14 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
   /* catches case both a and b are 0.0 - user should have called N_VConst */
 
   if (a == b) {
-    VScaleSum(a, x, y, z);
+    VScaleSum_Serial(a, x, y, z);
     return;
   }
 
   /* Case: a == -b */
 
   if (a == -b) {
-    VScaleDiff(a, x, y, z);
+    VScaleDiff_Serial(a, x, y, z);
     return;
   }
 
@@ -179,132 +349,134 @@ void N_VLinearSum(real a, N_Vector x, real b, N_Vector y, N_Vector z)
      (2) a == 0.0, b == other - user should have called N_VScale
      (3) a,b == other, a !=b, a != -b */
   
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++) 
     *zd++ = a * (*xd++) + b * (*yd++);
 }
 
 
-void N_VConst(real c, N_Vector z)
+void N_VConst_Serial(real c, N_Vector z)
 {
   integer i, N;
   real *zd;
 
-  N = z->length;
-  zd = z->data;
+  N  = NV_LENGTH_S(z);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++) 
     *zd++ = c;
 }
 
 
-void N_VProd(N_Vector x, N_Vector y, N_Vector z)
+void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = (*xd++) * (*yd++);
 }
 
 
-void N_VDiv(N_Vector x, N_Vector y, N_Vector z)
+void N_VDiv_Serial(N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = (*xd++) / (*yd++);
 }
 
 
-void N_VScale(real c, N_Vector x, N_Vector z)
+void N_VScale_Serial(real c, N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
   if (z == x) {       /* BLAS usage: scale x <- cx */
-    VScaleBy(c, x);
+    VScaleBy_Serial(c, x);
     return;
   }
 
   if (c == ONE) {
-    VCopy(x, z);
+    VCopy_Serial(x, z);
   } else if (c == -ONE) {
-    VNeg(x, z);
+    VNeg_Serial(x, z);
   } else {
-    N = x->length;
-    xd = x->data;
-    zd = z->data;
-    for (i=0; i < N; i++) *zd++ = c * (*xd++);
+    N  = NV_LENGTH_S(x);
+    xd = NV_DATA_S(x);
+    zd = NV_DATA_S(z);
+    for (i=0; i < N; i++) 
+      *zd++ = c * (*xd++);
   }
 }
 
 
-void N_VAbs(N_Vector x, N_Vector z)
+void N_VAbs_Serial(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++, xd++, zd++)
     *zd = ABS(*xd);
 }
 
 
-void N_VInv(N_Vector x, N_Vector z)
+void N_VInv_Serial(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = ONE / (*xd++);
 }
 
 
-void N_VAddConst(N_Vector x, real b, N_Vector z)
+void N_VAddConst_Serial(N_Vector x, real b, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
   
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
-  
-  for (i=0; i < N; i++) *zd++ = (*xd++) + b; 
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  zd = NV_DATA_S(z);
+
+  for (i=0; i < N; i++) 
+    *zd++ = (*xd++) + b; 
 }
 
 
-real N_VDotProd(N_Vector x, N_Vector y)
+real N_VDotProd_Serial(N_Vector x, N_Vector y)
 {
   integer i, N;
   real sum = ZERO, *xd, *yd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+
   for (i=0; i < N; i++)
     sum += (*xd++) * (*yd++);
   
@@ -312,13 +484,13 @@ real N_VDotProd(N_Vector x, N_Vector y)
 }
 
 
-real N_VMaxNorm(N_Vector x)
+real N_VMaxNorm_Serial(N_Vector x)
 {
   integer i, N;
   real max = ZERO, *xd;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
 
   for (i=0; i < N; i++, xd++) {
     if (ABS(*xd) > max) max = ABS(*xd);
@@ -328,14 +500,14 @@ real N_VMaxNorm(N_Vector x)
 }
 
 
-real N_VWrmsNorm(N_Vector x, N_Vector w)
+real N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 {
   integer i, N;
   real sum = ZERO, prodi, *xd, *wd;
 
-  N = x->length;
-  xd = x->data;
-  wd = w->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  wd = NV_DATA_S(w);
 
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
@@ -346,14 +518,14 @@ real N_VWrmsNorm(N_Vector x, N_Vector w)
 }
 
 
-
-real N_VMin(N_Vector x)
+real N_VMin_Serial(N_Vector x)
 {
   integer i, N;
   real min, *xd;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+
   min = xd[0];
 
   xd++;
@@ -365,14 +537,14 @@ real N_VMin(N_Vector x)
 }
 
 
-real N_VWL2Norm(N_Vector x, N_Vector w)
+real N_VWL2Norm_Serial(N_Vector x, N_Vector w)
 {
   integer i, N;
   real sum = ZERO, prodi, *xd, *wd;
 
-  N = x->length;
-  xd = x->data;
-  wd = w->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  wd = NV_DATA_S(w);
 
   for (i=0; i < N; i++) {
     prodi = (*xd++) * (*wd++);
@@ -383,28 +555,28 @@ real N_VWL2Norm(N_Vector x, N_Vector w)
 }
 
 
-real N_VL1Norm(N_Vector x)
+real N_VL1Norm_Serial(N_Vector x)
 {
- integer i, N;
- real sum = ZERO, *xd;
-
-  N = x->length;
-  xd = x->data;
-
+  integer i, N;
+  real sum = ZERO, *xd;
+  
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  
   for (i=0; i<N; i++)  
-   sum += ABS(xd[i]);
+    sum += ABS(xd[i]);
 
- return(sum);
+  return(sum);
 }
 
 
-void N_VOneMask(N_Vector x)
+void N_VOneMask_Serial(N_Vector x)
 {
   integer i, N;
   real *xd;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
 
   for (i=0; i<N; i++,xd++) {
     if (*xd != ZERO) *xd = ONE;
@@ -412,29 +584,29 @@ void N_VOneMask(N_Vector x)
 }
 
 
-void N_VCompare(real c, N_Vector x, N_Vector z)
+void N_VCompare_Serial(real c, N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
   
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
-  
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  zd = NV_DATA_S(z);
+
   for (i=0; i < N; i++, xd++, zd++) {
     *zd = (ABS(*xd) >= c) ? ONE : ZERO;
   }
 }
 
 
-boole N_VInvTest(N_Vector x, N_Vector z)
+boole N_VInvTest_Serial(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++) {
     if (*xd == ZERO) return(FALSE);
@@ -445,21 +617,22 @@ boole N_VInvTest(N_Vector x, N_Vector z)
 }
 
 
-boole N_VConstrProdPos(N_Vector c, N_Vector x)
+boole N_VConstrProdPos_Serial(N_Vector c, N_Vector x)
 {
   integer i, N;
   real  *xd, *cd;
   boole test;
 
-  N = x->length;
-  xd = x->data;
-  cd = c->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  cd = NV_DATA_S(c);
+
   test = TRUE;
 
   for (i=0; i < N; i++, xd++,cd++) {
     if (*cd != ZERO) {
       if ((*xd)*(*cd) <= ZERO) {
-	test = FALSE;
+        test = FALSE;
         break;
       }
     }
@@ -468,17 +641,17 @@ boole N_VConstrProdPos(N_Vector c, N_Vector x)
 }
 
 
-boole N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
+boole N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
 {
   integer i, N;
   boole test;
   real *cd, *xd, *md;
   
-  N = x->length;
-  cd = c->data;
-  xd = x->data;
-  md = m->data;
-  
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  cd = NV_DATA_S(c);
+  md = NV_DATA_S(m);
+
   test = TRUE;
 
   for (i=0; i<N; i++, cd++, xd++, md++) {
@@ -496,26 +669,27 @@ boole N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 }
 
 
-real N_VMinQuotient(N_Vector num, N_Vector denom)
+real N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
 {
   boole notEvenOnce;
   integer i, N;
   real *nd, *dd, min;
 
-  N = num->length;
-  nd = num->data;
-  dd = denom->data;
+  N  = NV_LENGTH_S(num);
+  nd = NV_DATA_S(num);
+  dd = NV_DATA_S(denom);
+
   notEvenOnce = TRUE;
 
   for (i=0; i<N; i++, nd++, dd++) {
     if (*dd == ZERO) continue;
     else {
       if (notEvenOnce) {
-	min = *nd / *dd ;
-	notEvenOnce = FALSE;
+        min = *nd / *dd ;
+        notEvenOnce = FALSE;
       }
       else 
-	min = MIN(min, (*nd)/(*dd));
+        min = MIN(min, (*nd)/(*dd));
     }
   }
   if (notEvenOnce) min = 1.e99;
@@ -524,13 +698,13 @@ real N_VMinQuotient(N_Vector num, N_Vector denom)
 }
 
  
-void N_VPrint(N_Vector x)
+void N_VPrint_Serial(N_Vector x)
 {
   integer i, N;
   real *xd;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
 
   for (i=0; i < N; i++) printf("%11.8g\n", *xd++);
 
@@ -541,131 +715,131 @@ void N_VPrint(N_Vector x)
 /***************** Private Helper Functions **********************/
 
 
-static void VCopy(N_Vector x, N_Vector z)
+static void VCopy_Serial(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = *xd++; 
 }
 
 
-static void VSum(N_Vector x, N_Vector y, N_Vector z)
+static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = (*xd++) + (*yd++);
 }
 
 
-static void VDiff(N_Vector x, N_Vector y, N_Vector z)
+static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
  
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = (*xd++) - (*yd++);
 }
 
 
-static void VNeg(N_Vector x, N_Vector z)
+static void VNeg_Serial(N_Vector x, N_Vector z)
 {
   integer i, N;
   real *xd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  zd = z->data;
-
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  zd = NV_DATA_S(z);
+  
   for (i=0; i < N; i++)
     *zd++ = -(*xd++);
 }
 
 
-static void VScaleSum(real c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleSum_Serial(real c, N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = c * ((*xd++) + (*yd++));
 }
 
 
-static void VScaleDiff(real c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleDiff_Serial(real c, N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = c * ((*xd++) - (*yd++));
 }
 
 
-static void VLin1(real a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin1_Serial(real a, N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = a * (*xd++) + (*yd++);
 }
 
 
-static void VLin2(real a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin2_Serial(real a, N_Vector x, N_Vector y, N_Vector z)
 {
   integer i, N;
   real *xd, *yd, *zd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
-  zd = z->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+  zd = NV_DATA_S(z);
 
   for (i=0; i < N; i++)
     *zd++ = a * (*xd++) - (*yd++);
 }
 
-static void Vaxpy(real a, N_Vector x, N_Vector y)
+static void Vaxpy_Serial(real a, N_Vector x, N_Vector y)
 {
   integer i, N;
   real *xd, *yd;
 
-  N = x->length;
-  xd = x->data;
-  yd = y->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
 
   if (a == ONE) {
     for (i=0; i < N; i++)
@@ -683,13 +857,13 @@ static void Vaxpy(real a, N_Vector x, N_Vector y)
     *yd++ += a * (*xd++);
 }
 
-static void VScaleBy(real a, N_Vector x)
+static void VScaleBy_Serial(real a, N_Vector x)
 {
   integer i, N;
   real *xd;
 
-  N = x->length;
-  xd = x->data;
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
 
   for (i=0; i < N; i++)
     *xd++ *= a;
