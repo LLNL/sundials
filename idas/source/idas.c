@@ -4485,10 +4485,12 @@ static void IDACompleteStep(IDAMem IDA_mem,
   
   if (phase == 0) {
 
-    if(nst>1) kk++;
-    hnew = TWO * hh;
-    hh = hnew;
-    
+    if(nst > 1) {
+      kk++;
+      hnew = TWO * hh;
+      hh = hnew;
+    }
+
   } else {
 
     action = UNSET;

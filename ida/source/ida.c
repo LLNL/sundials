@@ -3650,13 +3650,16 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
   of the neccessary information is available yet.
   */
   
-  if (phase  == 0) {
-    if(nst>1) kk++;
-    hnew = TWO * hh;
-    hh = hnew;
-  }
-  
-  else {
+  if (phase == 0) {
+
+    if (nst > 1) {
+      kk++;
+      hnew = TWO * hh;
+      hh = hnew;
+    }
+
+  } else {
+
     action = UNSET;
     
     /* Set action = LOWER/MAINTAIN/RAISE to specify order decision */
@@ -3720,7 +3723,7 @@ static int IDACompleteStep(IDAMem IDA_mem, realtype *est,
   N_VLinearSum(ONE, ee, ONE, phi[kused], phi[kused]);
   for (j= kused-1; j>=0; j--)
     N_VLinearSum(ONE, phi[j], ONE, phi[j+1], phi[j]);
-  
+
   return (SUCCESS);
 }
 
