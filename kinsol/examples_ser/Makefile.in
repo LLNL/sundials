@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6 $
-# $Date: 2004-11-03 23:27:15 $
+# $Revision: 1.7 $
+# $Date: 2005-02-15 00:10:27 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -46,7 +46,7 @@ all: $(EXEC_FILES)
 
 kinwebs: $(srcdir)/kinwebs.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinwebs.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinwebs $(builddir)/kinwebs.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinwebs $(builddir)/kinwebs.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
 
 clean:
 	rm -rf .libs

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-11-06 00:01:42 $
+# $Revision: 1.10 $
+# $Date: 2005-02-15 00:10:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,22 +48,22 @@ EXEC_FILES = pvdiagnf pvdiagkf pvdiagkbf
 all: $(EXEC_FILES)
 
 fortran_update.sh:
-	@${INSTALL} ${top_builddir}/config/fortran_update ${builddir}/fortran_update.sh
+	@${INSTALL} ${top_builddir}/config/fortran_update.sh ${builddir}
 
 pvdiagnf: $(srcdir)/pvdiagnf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagnf.f
 	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagnf-updated.f
-	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagnf $(builddir)/pvdiagnf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagnf $(builddir)/pvdiagnf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
 
 pvdiagkf: $(srcdir)/pvdiagkf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagkf.f
 	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagkf-updated.f
-	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagkf $(builddir)/pvdiagkf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagkf $(builddir)/pvdiagkf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
 
 pvdiagkbf: $(srcdir)/pvdiagkbf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagkbf.f
 	$(COMPILER_PREFIX) $(MPIF77) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagkbf-updated.f
-	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagkbf $(builddir)/pvdiagkbf-updated.o $(LDFLAGS) $(LIBS) $(FLIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPIF77) -o $(builddir)/pvdiagkbf $(builddir)/pvdiagkbf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
 
 clean:
 	rm -rf .libs

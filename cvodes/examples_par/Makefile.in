@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2004-11-03 23:26:52 $
+# $Revision: 1.10 $
+# $Date: 2005-02-15 00:10:10 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,28 +50,28 @@ all: $(EXEC_FILES)
 
 pvnx: $(srcdir)/pvnx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvnx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvnx $(builddir)/pvnx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvnx $(builddir)/pvnx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 pvkx: $(srcdir)/pvkx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkx $(builddir)/pvkx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkx $(builddir)/pvkx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 pvkxb: $(srcdir)/pvkxb.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkxb.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkxb $(builddir)/pvkxb.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkxb $(builddir)/pvkxb.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 pvfnx: $(srcdir)/pvfnx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfnx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfnx $(builddir)/pvfnx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfnx $(builddir)/pvfnx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 pvfkx: $(srcdir)/pvfkx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvfkx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfkx $(builddir)/pvfkx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvfkx $(builddir)/pvfkx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 pvanx: $(srcdir)/pvanx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvanx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvanx $(builddir)/pvanx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvanx $(builddir)/pvanx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 pvakx: $(srcdir)/pvakx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvakx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvakx $(builddir)/pvakx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvakx $(builddir)/pvakx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 pvakx3D: $(srcdir)/pvakx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -DUSE3D -c $(srcdir)/pvakx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvakx3D $(builddir)/pvakx.o $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvakx3D $(builddir)/pvakx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
 
 clean:
 	rm -rf .libs

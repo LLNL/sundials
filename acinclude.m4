@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2005-01-25 23:51:49 $
+# $Revision: 1.13 $
+# $Date: 2005-02-15 00:09:55 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -2258,11 +2258,11 @@ fi
 
 # Fortran update script
 if test "X${BUILD_F77_UPDATE_SCRIPT}" = "Xyes"; then
-  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/fortran_update"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/fortran_update.sh:config/fortran_update.in"
 fi
 
 # Create sundials_config.h header file
-SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/sundials_config"
+SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/sundials_config.h:config/sundials_config.in"
 
 ]) dnl END SUNDIALS_BUILD_MODULES_LIST
 
@@ -2273,12 +2273,18 @@ SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/sundials_config"
 AC_DEFUN([SUNDIALS_INSTALL_PATH],
 [
 
-# Installation directories are created by 'make install' target
-# in top-level Makefile
+# Test for installation directories.
+# If installing in the build directory (prefix was not specified) and the lib 
+# and/or include dirs. do not exists, create them.
 
 AC_MSG_CHECKING([for 'include' directory])
 if test "X${prefix}" = "XNONE"; then
   SUNDIALS_INC_DIR="${DEFAULT_PREFIX}/include"
+  if test -d ${SUNDIALS_INC_DIR} ; then
+    :
+  else
+    AS_MKDIR_P(${SUNDIALS_INC_DIR})
+  fi
 else
   SUNDIALS_INC_DIR="${prefix}/include"
 fi
@@ -2288,6 +2294,11 @@ AC_MSG_CHECKING([for 'lib' directory])
 if test "X${exec_prefix}" = "XNONE"; then
   if test "X${prefix}" = "XNONE"; then
     SUNDIALS_LIB_DIR="${DEFAULT_PREFIX}/lib"
+    if test -d ${SUNDIALS_LIB_DIR} ; then
+      :
+    else
+      AS_MKDIR_P(${SUNDIALS_LIB_DIR})
+    fi
   else
     SUNDIALS_LIB_DIR="${prefix}/lib"
   fi

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.7 $
-# $Date: 2005-01-25 23:51:49 $
+# $Revision: 1.8 $
+# $Date: 2005-02-15 00:09:55 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -37,7 +37,6 @@ INSTALL = @INSTALL@
 CP_FILE = @INSTALL_DATA@
 
 all:
-	@${CP_FILE} ${abs_builddir}/config/sundials_config ${abs_builddir}/sundials_config.h
 	@for i in ${COMPONENTS} ; do  \
 	   if test -d $${i} ; then    \
 	     echo "Making $${i}..." ; \
@@ -49,16 +48,6 @@ all:
 	 done
 
 install:
-	@if test -d ${prefix}/include ; then  \
-	   : ;                                \
-	 else                                 \
-	   mkdir ${prefix}/include ;          \
-	 fi ;                                 \
-	 if test -d ${exec_prefix}/lib ; then \
-	   : ;                                \
-	 else                                 \
-	   mkdir ${exec_prefix}/lib ;         \
-	 fi
 	@for i in ${COMPONENTS} ; do          \
 	   if test -d $${i} ; then            \
 	     echo "Installing $${i}..." ;     \
