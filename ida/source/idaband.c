@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-11-05 23:35:41 $
+ * $Revision: 1.22 $
+ * $Date: 2004-11-16 21:38:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -109,9 +109,8 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
  *
  * NOTE: The band linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, IDABand will first 
- *       test for compatible a compatible N_Vector internal
- *       representation by checking that the N_VGetArrayPointer
- *       function exists
+ *       test for a compatible N_Vector internal representation by
+ *       checking that the N_VGetArrayPointer function exists
  * -----------------------------------------------------------------
  */
 

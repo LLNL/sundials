@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-11-05 23:35:41 $
+ * $Revision: 1.21 $
+ * $Date: 2004-11-16 21:38:46 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -101,7 +101,7 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
  *
  * NOTE: The dense linear solver assumes a serial implementation
  *       of the NVECTOR package. Therefore, IDADense will first 
- *       test for compatible a compatible N_Vector internal
+ *       test for a compatible N_Vector internal
  *       representation by checking that the functions N_VGetArrayPointer
  *       and N_VSetArrayPointer exist.
  * -----------------------------------------------------------------
