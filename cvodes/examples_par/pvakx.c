@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-10-18 18:40:33 $
+ * $Revision: 1.3 $
+ * $Date: 2004-10-18 23:48:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -47,9 +47,9 @@
 #define NPY  4
 
 #define ZMIN  0.0
-#define ZMAX 16.0
-#define MZ   16
-#define NPZ  1
+#define ZMAX 20.0
+#define MZ   40
+#define NPZ  2
 
 /* Parameters for source Gaussians */
 
@@ -101,12 +101,15 @@
 
 #define FOR_DIM for(dim=0; dim<DIM; dim++)
 
+/* IJth accesses the (i,j)-th solution component */
+/* IJth accesses the (i,j)-th component in the extended array */
+
 #ifdef USE3D
-#define IJth(y,i) ( y[(i[0])+(l_m[0]*((i[1])+(i[2])*l_m[1]))] )
-#define IJth_ext(y,i)     ( y[(i[0]+1)+((l_m[0]+2)*((i[1]+1)+(i[2]+1)*(l_m[1]+2)))] )
+#define IJth(y,i)     ( y[(i[0])+(l_m[0]*((i[1])+(i[2])*l_m[1]))] )
+#define IJth_ext(y,i) ( y[(i[0]+1)+((l_m[0]+2)*((i[1]+1)+(i[2]+1)*(l_m[1]+2)))] )
 #else
-#define IJth(y,i) (y[i[0]+(i[1])*l_m[0]])
-#define IJth_ext(y,i)     (y[ (i[0]+1) + (i[1]+1) * (l_m[0]+2)])
+#define IJth(y,i)     (y[i[0]+(i[1])*l_m[0]])
+#define IJth_ext(y,i) (y[ (i[0]+1) + (i[1]+1) * (l_m[0]+2)])
 #endif
 
 /*
@@ -151,7 +154,6 @@ typedef struct {
 static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 static void f_local(long int Nlocal, realtype t, N_Vector y, 
                     N_Vector ydot, void *f_data);
-static void ucomm(long int Nlocal, realtype t, N_Vector y, void *f_data);
 
 static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
 
@@ -161,9 +163,6 @@ static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
 static void fB_local(long int NlocalB, realtype t, 
                      N_Vector y, N_Vector yB, N_Vector yBdot, 
                      void *f_dataB);
-static void ucommB(long int NlocalB, realtype t, 
-		   N_Vector y, N_Vector yB,
-		   void *f_dataB);
 
 static void fQB(realtype t, N_Vector y, N_Vector yB, 
                 N_Vector qBdot, void *fQ_dataB);
@@ -275,7 +274,7 @@ int main(int argc, char *argv[])
   mudq = mldq = d->l_m[0]+1;
   mukeep = mlkeep = 2;  
   bbdp_data = (void *) CVBBDPrecAlloc(cvode_mem, l_neq, mudq, mldq, 
-                                      mukeep, mlkeep, 0.0, f_local, ucomm);
+                                      mukeep, mlkeep, 0.0, f_local, NULL);
   flag = CVBBDSpgmr(cvode_mem, PREC_LEFT, 0, bbdp_data);
 
   /* Initialize quadrature calculations */
@@ -327,7 +326,7 @@ int main(int argc, char *argv[])
   mudqB = mldqB = d->l_m[0]+1;
   mukeepB = mlkeepB = 2;  
   flag = CVBBDPrecAllocB(cvadj_mem, l_neq, mudqB, mldqB, 
-                         mukeepB, mlkeepB, 0.0, fB_local, ucommB);
+                         mukeepB, mlkeepB, 0.0, fB_local, NULL);
   flag = CVBBDSpgmrB(cvadj_mem, PREC_LEFT, 0); 
 
   /* Initialize quadrature calculations */
@@ -751,17 +750,6 @@ static void f_local(long int Nlocal, realtype t, N_Vector y,
 
 /*
  *------------------------------------------------------------------
- * Communication function for CVBBDPRE for forwardintegration.
- * Nothing is done here, as all necessary communication was already
- * done in f_comm.
- *------------------------------------------------------------------
- */
-
-static void ucomm(long int Nlocal, realtype t, N_Vector y, 
-                  void *f_data){}
-
-/*
- *------------------------------------------------------------------
  * fQ:
  * Right-hand side of quadrature equations on forward integration.
  * The only quadrature on this phase computes the local contribution
@@ -896,18 +884,6 @@ static void fB_local(long int NlocalB, realtype t,
 #endif
 }
 
-/*
- *------------------------------------------------------------------
- * Communication function for CVBBDPRE for backward integration.
- * Nothing is done here, as all necessary communication was already
- * done in f_comm.
- *------------------------------------------------------------------
- */
-
-static void ucommB(long int NlocalB, realtype t, 
-		   N_Vector y, N_Vector yB,
-		   void *f_dataB){}
-  
 /*
  *------------------------------------------------------------------
  * fQB:
@@ -1066,6 +1042,8 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   qBdata = NV_DATA_P(qB);
   pdata  = NV_DATA_P(d->p);
 
+  /* Write matlab files with solutions from each process */
+
   for(i[0]=0; i[0]<l_m[0]; i[0]++) {
     x[0] = xmin[0] + (m_start[0]+i[0]) * dx[0];
     for(i[1]=0; i[1]<l_m[1]; i[1]++) {
@@ -1073,8 +1051,13 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
 #ifdef USE3D
       for(i[2]=0; i[2]<l_m[2]; i[2]++) {
         x[2] = xmin[2] + (m_start[2]+i[2]) * dx[2];
-        
         g = IJth(qBdata, i);
+        p = IJth(pdata, i);;
+        fprintf(fid,"x%d(%d,1) = %e; \n",  myId, i[0]+1,         x[0]);
+        fprintf(fid,"y%d(%d,1) = %e; \n",  myId, i[1]+1,         x[1]);
+        fprintf(fid,"z%d(%d,1) = %e; \n",  myId, i[2]+1,         x[2]);
+        fprintf(fid,"p%d(%d,%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, i[2]+1, p);
+        fprintf(fid,"g%d(%d,%d,%d) = %e; \n", myId, i[1]+1, i[0]+1, i[2]+1, g);
       }
 #else
       g = IJth(qBdata, i);;
@@ -1089,10 +1072,34 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   }
   fclose(fid);
 
+  /* Write matlab driver */
+
   if (myId == 0) {
 
     fid = fopen("grad.m","w");
 
+#ifdef USE3D
+    fprintf(fid,"clear;\nfigure;\nhold on\n");
+    fprintf(fid,"trans = 0.7;\n");
+    fprintf(fid,"ecol  = 'none';\n");
+    fprintf(fid,"xp=[%f %f];\n",G1_X,G2_X);
+    fprintf(fid,"yp=[%f %f];\n",G1_Y,G2_Y);
+    fprintf(fid,"zp=[%f %f];\n",G1_Z,G2_Z);
+    fprintf(fid,"ns = length(xp)*length(yp)*length(zp);\n");
+
+    for (ip=0; ip<d->npes; ip++) {
+      fprintf(fid,"\ngrad%03d;\n",ip);
+      fprintf(fid,"[X,Y,Z]=meshgrid(x%d,y%d,z%d);\n",ip,ip,ip);
+      fprintf(fid,"s%d=slice(X,Y,Z,g%d,xp,yp,zp);\n",ip,ip);
+      fprintf(fid,"for i = 1:ns\n");
+      fprintf(fid,"  set(s%d(i),'FaceAlpha',trans);\n",ip);
+      fprintf(fid,"  set(s%d(i),'EdgeColor',ecol);\n",ip);
+      fprintf(fid,"end\n");
+    }
+    
+    fprintf(fid,"view(3)\n");
+    fprintf(fid,"\nshading interp\naxis equal\n");
+#else
     fprintf(fid,"clear;\nfigure;\n");
     fprintf(fid,"trans = 0.7;\n");
     fprintf(fid,"ecol  = 'none';\n");
@@ -1106,6 +1113,8 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       fprintf(fid,"set(s,'FaceAlpha',trans);\n");
       fprintf(fid,"set(s,'EdgeColor',ecol);\n");
       fprintf(fid,"hold on\n");
+      fprintf(fid,"axis tight\n");
+      fprintf(fid,"box on\n");
       
       fprintf(fid,"\nsubplot(1,2,2)\n");
       fprintf(fid,"s=surf(x%d,y%d,p%d);\n",ip,ip,ip);
@@ -1113,18 +1122,12 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
       fprintf(fid,"set(s,'FaceAlpha',trans);\n");
       fprintf(fid,"set(s,'EdgeColor',ecol);\n");
       fprintf(fid,"hold on\n");
+      fprintf(fid,"axis tight\n");
+      fprintf(fid,"box on\n");
+
     }
-
-    fprintf(fid,"\nsubplot(1,2,1)\n");
-    fprintf(fid,"axis tight\n");
-    fprintf(fid,"box on\n");
-
-    fprintf(fid,"\nsubplot(1,2,2)\n");
-    fprintf(fid,"axis tight\n");
-    fprintf(fid,"box on\n");
-
+#endif
     fclose(fid);
-
   }
     
 }
