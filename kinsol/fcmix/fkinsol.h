@@ -255,41 +255,12 @@ The following optional outputs are specific to the SPGMR module:
 #ifndef _fkinsol_h
 #define _fkinsol_h
 
-#include "fcmixpar.h"
-
+#include "nvector.h"
 
 /* Generic names are translated through the define statements below for a
   specific platform/compiler */
 
-#if (CRAY)
-
-#define F_KINMALLOC      FKINMALLOC
-#define F_KINSPGMR       FKINSPGMR
-#define F_KSPGMRSETJAC   FCVSPGMRSETJAC
-#define F_KSPGMRSETPSOL  FKSPGMRSETPSOL
-#define F_KSPGMRSETPRECO FKSPGMRSETPRECO
-#define F_KINSOL         FKINSOL
-#define F_KINFREE        FKINFREE
-#define K_FUN            KFUN
-#define K_PRECO          KPRECO
-#define K_PSOL           KPSOL
-#define K_JTIMES         KJTIMES
-
-#elif  (UNDERSCORE)
-
-#define F_KINMALLOC      fkinmalloc_
-#define F_KINSPGMR       fkinspgmr_
-#define F_KSPGMRSETJAC   fkspgmrsetjac_
-#define F_KSPGMRSETPSOL  fkspgmrsetpsol_
-#define F_KSPGMRSETPRECO fkspgmrsetpreco_
-#define F_KINSOL         fkinsol_
-#define F_KINFREE        fkinfree_
-#define K_FUN            kfun_
-#define K_PRECO          kpreco_
-#define K_PSOL           kpsol_
-#define K_JTIMES         kjtimes_
-
-#else
+#if SUNDIALS_UNDERSCORE_NONE
 
 #define F_KINMALLOC      fkinmalloc
 #define F_KINSPGMR       fkinspgmr
@@ -302,6 +273,34 @@ The following optional outputs are specific to the SPGMR module:
 #define K_PRECO          kpreco
 #define K_PSOL           kpsol
 #define K_JTIMES         kjtimes
+
+#elif SUNDIALS_UNDERSCORE_TWO
+
+#define F_KINMALLOC      fkinmalloc__
+#define F_KINSPGMR       fkinspgmr__
+#define F_KSPGMRSETJAC   fkspgmrsetjac__
+#define F_KSPGMRSETPSOL  fkspgmrsetpsol__
+#define F_KSPGMRSETPRECO fkspgmrsetpreco__
+#define F_KINSOL         fkinsol__
+#define F_KINFREE        fkinfree__
+#define K_FUN            kfun__
+#define K_PRECO          kpreco__
+#define K_PSOL           kpsol__
+#define K_JTIMES         kjtimes__
+
+#else
+
+#define F_KINMALLOC      fkinmalloc_
+#define F_KINSPGMR       fkinspgmr_
+#define F_KSPGMRSETJAC   fkspgmrsetjac_
+#define F_KSPGMRSETPSOL  fkspgmrsetpsol_
+#define F_KSPGMRSETPRECO fkspgmrsetpreco_
+#define F_KINSOL         fkinsol_
+#define F_KINFREE        fkinfree_
+#define K_FUN            kfun_
+#define K_PRECO          kpreco_
+#define K_PSOL           kpsol_
+#define K_JTIMES         kjtimes_
 
 #endif
 
@@ -333,6 +332,8 @@ int KINJtimes(N_Vector v, N_Vector Jv,
 
 
 /* Declarations for global variables, shared among various routines */
+
+extern NV_Spec F2C_nvspec;
 
 void *KIN_mem;
 int *KIN_iopt;

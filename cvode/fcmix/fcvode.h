@@ -342,59 +342,11 @@ the following calls, in this order:
 
 ******************************************************************************/
 
-#include "fcmixpar.h"   /* parameters for function name definitions */
+#include "nvector.h"
 
 /* Definitions of interface function names */
 
-#if (CRAY)
-
-#define FCV_MALLOC      FCVMALLOC
-#define FCV_REINIT      FCVREINIT
-#define FCV_DIAG        FCVDIAG
-#define FCV_DENSE       FCVDENSE
-#define FCV_DENSESETJAC FCVDENSESETJAC
-#define FCV_BAND        FCVBAND
-#define FCV_BANDSETJAC  FCVBANDSETJAC
-#define FCV_SPGMR       FCVSPGMR
-#define FCV_REINSPGMR   FCVREINSPGMR
-#define FCV_SPGMRSETJAC FCVSPGMRSETJAC
-#define FCV_SPGMRSETPSOL  FCVSPGMRSETPSOL
-#define FCV_SPGMRSETPRECO FCVSPGMRSETPRECO
-#define FCV_CVODE       FCVODE
-#define FCV_DKY         FCVDKY
-#define FCV_FREE        FCVFREE
-#define FCV_FUN         CVFUN
-#define FCV_DJAC        CVDJAC
-#define FCV_BJAC        CVBJAC
-#define FCV_PSOL        CVPSOL
-#define FCV_PRECO       CVPRECO
-#define FCV_JTIMES      CVJTIMES
-
-#elif (UNDERSCORE)
-
-#define FCV_MALLOC      fcvmalloc_
-#define FCV_REINIT      fcvreinit_
-#define FCV_DIAG        fcvdiag_
-#define FCV_DENSE       fcvdense_
-#define FCV_DENSESETJAC fcvdensesetjac_
-#define FCV_BAND        fcvband_
-#define FCV_BANDSETJAC  fcvbandsetjac_
-#define FCV_SPGMR       fcvspgmr_
-#define FCV_REINSPGMR   fcvreinspgmr_
-#define FCV_SPGMRSETJAC fcvspgmrsetjac_
-#define FCV_SPGMRSETPSOL  fcvspgmrsetpsol_
-#define FCV_SPGMRSETPRECO fcvspgmrsetpreco_
-#define FCV_CVODE       fcvode_
-#define FCV_DKY         fcvdky_
-#define FCV_FREE        fcvfree_
-#define FCV_FUN         cvfun_
-#define FCV_DJAC        cvdjac_
-#define FCV_BJAC        cvbjac_
-#define FCV_PSOL        cvpsol_
-#define FCV_PRECO       cvpreco_
-#define FCV_JTIMES      cvjtimes_
-
-#else
+#if SUNDIALS_UNDERSCORE_NONE
 
 #define FCV_MALLOC      fcvmalloc
 #define FCV_REINIT      fcvreinit
@@ -417,6 +369,54 @@ the following calls, in this order:
 #define FCV_PSOL        cvpsol
 #define FCV_PRECO       cvpreco
 #define FCV_JTIMES      cvjtimes
+
+#elif SUNDIALS_UNDERSCORE_TWO
+
+#define FCV_MALLOC      fcvmalloc__
+#define FCV_REINIT      fcvreinit__
+#define FCV_DIAG        fcvdiag__
+#define FCV_DENSE       fcvdense__
+#define FCV_DENSESETJAC fcvdensesetjac__
+#define FCV_BAND        fcvband__
+#define FCV_BANDSETJAC  fcvbandsetjac__
+#define FCV_SPGMR       fcvspgmr__
+#define FCV_REINSPGMR   fcvreinspgmr__
+#define FCV_SPGMRSETJAC fcvspgmrsetjac__
+#define FCV_SPGMRSETPSOL  fcvspgmrsetpsol__
+#define FCV_SPGMRSETPRECO fcvspgmrsetpreco__
+#define FCV_CVODE       fcvode__
+#define FCV_DKY         fcvdky__
+#define FCV_FREE        fcvfree__
+#define FCV_FUN         cvfun__
+#define FCV_DJAC        cvdjac__
+#define FCV_BJAC        cvbjac__
+#define FCV_PSOL        cvpsol__
+#define FCV_PRECO       cvpreco__
+#define FCV_JTIMES      cvjtimes__
+
+#else
+
+#define FCV_MALLOC      fcvmalloc_
+#define FCV_REINIT      fcvreinit_
+#define FCV_DIAG        fcvdiag_
+#define FCV_DENSE       fcvdense_
+#define FCV_DENSESETJAC fcvdensesetjac_
+#define FCV_BAND        fcvband_
+#define FCV_BANDSETJAC  fcvbandsetjac_
+#define FCV_SPGMR       fcvspgmr_
+#define FCV_REINSPGMR   fcvreinspgmr_
+#define FCV_SPGMRSETJAC fcvspgmrsetjac_
+#define FCV_SPGMRSETPSOL  fcvspgmrsetpsol_
+#define FCV_SPGMRSETPRECO fcvspgmrsetpreco_
+#define FCV_CVODE       fcvode_
+#define FCV_DKY         fcvdky_
+#define FCV_FREE        fcvfree_
+#define FCV_FUN         cvfun_
+#define FCV_DJAC        cvdjac_
+#define FCV_BJAC        cvbjac_
+#define FCV_PSOL        cvpsol_
+#define FCV_PRECO       cvpreco_
+#define FCV_JTIMES      cvjtimes_
 
 #endif
 
@@ -457,6 +457,8 @@ int CVJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 
 /* Declarations for global variables, shared among various routines */
+
+extern NV_Spec F2C_nvspec;
 
 void *CV_cvodemem;
 N_Vector CV_yvec;
