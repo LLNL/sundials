@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-12-07 23:55:25 $
+ * $Revision: 1.20 $
+ * $Date: 2005-02-02 22:53:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -60,7 +60,7 @@
  * using the KINBBDPRE module. The half-bandwidths are as follows:
  *
  *   Difference quotient half-bandwidths mldq = mudq = 2*ns - 1
- *   Retained banded blocks have half-bandwidths mlkeep = mukeep = 8.
+ *   Retained banded blocks have half-bandwidths mlkeep = mukeep = ns.
  *
  * -----------------------------------------------------------------
  * References:
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
      needed for the func_local is already done in func). */
   dq_rel_uu = ZERO;
   mudq = mldq = 2*NUM_SPECIES - 1;
-  mukeep = mlkeep = 8;
+  mukeep = mlkeep = NUM_SPECIES;
 
   pdata = KINBBDPrecAlloc(kmem, Nlocal, mudq, mldq, mukeep, mlkeep,
 			  dq_rel_uu, func_local, NULL);
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
                 sc);            /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1, my_pe)) MPI_Abort(comm, 1);
 
-  if (my_pe == 0) printf("\n\n\nComputed equilibrium species concentrations:\n");
+  if (my_pe == 0) printf("\n\nComputed equilibrium species concentrations:\n");
   if (my_pe == 0 || my_pe==npelast) PrintOutput(my_pe, comm, cc);
   
   /* Print final statistics and free memory */
@@ -802,7 +802,7 @@ static void PrintFinalStats(void *kmem)
   flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
   check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1, 0);
 
-  printf("\nFinal Statistics.. \n\n");
+  printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);

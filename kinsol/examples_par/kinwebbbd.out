@@ -12,12 +12,11 @@ Flag globalstrategy = 1 (1 = Inex. Newton, 2 = Linesearch)
 Linear solver is SPGMR with maxl = 20, maxlrst = 2
 Preconditioning uses band-block-diagonal matrix from KINBBDPRE
   Difference quotient half-bandwidths are mudq = 11, mldq = 11
-  Retained band block half-bandwidths are mukeep = 8, mlkeep = 8
+  Retained band block half-bandwidths are mukeep = 6, mlkeep = 6
 Tolerance parameters:  fnormtol = 1e-07   scsteptol = 1e-13
 
 Initial profile of concentration
 At all mesh points:  1 1 1   30000 30000 30000
-
 
 
 Computed equilibrium species concentrations:
@@ -28,9 +27,7 @@ At bottom left:
 At top right:
  1.25552 1.25552 1.25552 37663.2 37663.2 37663.2
 
-
 Final Statistics.. 
-
 nni    =     9    nli   =   464
 nfe    =    10    nfeSG =   473
 nps    =   473    npe   =     1     ncfl  =     6

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2004-11-15 17:28:18 $
+ * $Revision: 1.15 $
+ * $Date: 2005-02-02 22:53:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "KINSol", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) 
-     printf("\n\n\nComputed equilibrium species concentrations:\n");
+     printf("\n\nComputed equilibrium species concentrations:\n");
   if (my_pe == 0 || my_pe == npelast) 
      PrintOutput(my_pe, comm, cc);
 
@@ -774,7 +774,7 @@ static void PrintFinalStats(void *kmem)
   flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
   check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1, 0);
 
-  printf("\nFinal Statistics.. \n\n");
+  printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
