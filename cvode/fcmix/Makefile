@@ -1,56 +1,103 @@
-# File Makefile.  Version of 15 January 2002
+#--------------------------------------------------------------------------------
+# File        : Makefile
+# Programmers : Radu Serban @ LLNL
+# Version of  : 27 March 2002
 #--------------------------------------------------------------------------
-# Makefile for FPVODE, the PVODE Fortran interface package, and the
+# Makefile for FCVODE, the Fortran interface package for CVODE and the
 # associated examples.
 #
-# This makefile invokes fpvode.mk or fpvodex.mk.  In the first case, it 
-# compiles the interface package and adds to the library file libpvode.a;
-# it first copies the parallel version of the NVECTOR module files into
-# place, and then removes these files.  In the second case, it makes
-# all of the FPVODE examples.
 #
 # Type 'make' to see usage instructions.
 #--------------------------------------------------------------------------
 
+SHELL = /bin/sh
 
-#---------------------
-# Path to shared files
-#---------------------
-SHARED_DIR = ../../shared
-INC_SHARED = $(SHARED_DIR)/include
-SRC_SHARED = $(SHARED_DIR)/source
+# Paths to header files
+SHARED_INC_DIR = ../../shared/include
+CVODE_INC_DIR  = ../include
 
+# CVODE library name and location
+ARCH           = `uname -s`.`uname -m`
+CVODE_LIB_DIR  = ../lib
+CVODE_LIB_NAME = libcvode.$(ARCH).a
 
-#==========================================================================
+# Source and object files
+SRC = fcvode.c fcvpreco.c fcvpsol.c fcvjtimes.c fcvbbd.c fcvbbdin1.c \
+      fcvspgmr01.c fcvspgmr11.c fcvspgmr21.c fcvspgmr10.c fcvspgmr20.c
+
+OBJ = ${SRC:.c=.o}
+
+# Compiler and compiler options
+CC     = gcc
+CFLAGS = -Wall -ffloat-store -I$(CVODE_INC_DIR) -I$(SHARED_INC_DIR)
+
+#--------------------------------------------------------------------------------
 # Make rules
-#==========================================================================
+#--------------------------------------------------------------------------------
 
 all:
 	@(echo)
-	@(echo 'Usage: make fpvode  - generate FPVODE (libpvode.a library)')
-	@(echo '       make fpvodex - make all FPVODE examples')
-	@(echo '       make listx   - list FPVODE examples')
-	@(echo '       make purge   - remove example executable files')
+	@(echo 'Makefile for FCVODE module')
+	@(echo)
+	@(echo 'Usage: make lib       - append Fortran interface to CVODE library')
+	@(echo)
+	@(echo '       make purge     - remove Fortran interface from CVODE library')
+	@(echo)
+	@(echo '       make <ex>      - make example <ex>')
+	@(echo '       make fcvx_ser  - make all serial FCVODE examples')
+	@(echo '       make fcvx_par  - make all parallel FCVODE examples')
+	@(echo '       make examples  - make all FCVODE examples')
+	@(echo '       make purgex    - remove example executables')
+	@(echo)
+	@(if test -f fcvx_ser.mk; then make -f fcvx_ser.mk; fi)
+	@(echo)
+	@(if test -f fcvx_par.mk; then make -f fcvx_par.mk; fi)
 	@(echo)
 
+#-----------------------------------------------------------------
+# FCVODE library
 
-
-fpvode:
-	@(cp $(INC_SHARED)/nvector_parallel.h $(INC_SHARED)/nvector.h)
-	@(cp $(SRC_SHARED)/nvector_parallel.c $(SRC_SHARED)/nvector.c)
-	@(make -f fpvode.mk)
-	@(rm $(INC_SHARED)/nvector.h $(SRC_SHARED)/nvector.c)
-
-listx:
-	@(echo 'List of FPVODE examples:')
-	@(echo '  pvdiagnf:  nonstiff diagonal system')
-	@(echo '  pvdiagkf:  stiff diagonal system')
-	@(echo '  pvdiagkbf: stiff diagonal system with BBD preconditioner')
-
-fpvodex:
-	@(make -f fpvodex.mk)
+lib:
+	@(echo 'FCVODE MODULE')
+	@(if test -f $(CVODE_LIB_DIR)/$(CVODE_LIB_NAME); \
+		then \
+			echo '...Compile object files...'; \
+			$(CC) $(CFLAGS) -c $(SRC); \
+			echo '...Append to CVODE library...'; \
+			ar rc $(CVODE_LIB_DIR)/$(CVODE_LIB_NAME) $(OBJ); \
+			rm -f $(OBJ); \
+		else \
+			echo 'ERROR: Library CVODE does not exist'; \
+			echo '       Make the CVODE library first'; \
+	fi)
 
 purge:
-	@(rm -f pvdiagnf)
-	@(rm -f pvdiagkf)
-	@(rm -f pvdiagkbf)
+	@(echo 'FCVODE MODULE')
+	@(if test -f $(CVODe_LIB_DIR)/$(CVODE_LIB_NAME); \
+		then \
+			echo '...Remove fcvode objects from cvode library...'; \
+			ar d $(CVODE_LIB_DIR)/$(CVODE_LIB_NAME) $(OBJ); \
+	fi)
+
+#-----------------------------------------------------------------
+# FCVODE Examples
+
+examples: fcvx_ser fcvx_par
+
+fcvx_ser:
+	@(if test -f fcvx_ser.mk; then make -f fcvx_ser.mk examples; fi)
+
+fcvx_par:
+	@(if test -f fcvx_par.mk; then make -f fcvx_par.mk examples; fi)
+
+#serial_ex:
+#	@(make -f fcvx_ser.mk $@)
+
+pvdiagnf pvdiagkf pvdiagkbf:
+	@(make -f fcvx_par.mk $@)
+
+purgex:
+	@(if test -f fcvx_ser.mk; then make -f fcvx_ser.mk purge; fi)
+	@(if test -f fcvx_par.mk; then make -f fcvx_par.mk purge; fi)
+
+#---End of Makefile---
