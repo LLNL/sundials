@@ -1,13 +1,14 @@
-/***************************************************************************
- * File        : fcvbbd.h                                                  *
- * Programmers : Alan C. Hindmarsh and Radu Serban @ LLNL                  *
- * Version of  : 07 February 2004                                          *
- *-------------------------------------------------------------------------*
- *                                                                         *
- * This is the Fortran interface include file for the BBD preconditioner   *
- * (CVBBDPRE)                                                              *
- *                                                                         *
- ***************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.11 $
+ * $Date: 2004-03-29 20:32:00 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * This is the Fortran interface include file for the BBD
+ * preconditioner (CVBBDPRE)
+ * -----------------------------------------------------------------
+ */
 
 #ifndef _fcvbbd_h
 #define _fcvbbd_h
@@ -266,6 +267,7 @@ FCVMALLOC, and FCVBBDINIT, make the following calls, in this order:
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define FCV_BBDINIT   fcvbbdinit
+#define FCV_BBDSPGMR  fcvbbdspgmr
 #define FCV_BBDREINIT fcvbbdreinit
 #define FCV_BBDOPT    fcvbbdopt
 #define FCV_BBDFREE   fcvbbdfree
@@ -275,6 +277,7 @@ FCVMALLOC, and FCVBBDINIT, make the following calls, in this order:
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define FCV_BBDINIT   fcvbbdinit__
+#define FCV_BBDSPGMR  fcvbbdspgmr__
 #define FCV_BBDREINIT fcvbbdreinit__
 #define FCV_BBDOPT    fcvbbdopt__
 #define FCV_BBDFREE   fcvbbdfree__
@@ -284,6 +287,7 @@ FCVMALLOC, and FCVBBDINIT, make the following calls, in this order:
 #else
 
 #define FCV_BBDINIT   fcvbbdinit_
+#define FCV_BBDSPGMR  fcvbbdspgmr_
 #define FCV_BBDREINIT fcvbbdreinit_
 #define FCV_BBDOPT    fcvbbdopt_
 #define FCV_BBDFREE   fcvbbdfree_

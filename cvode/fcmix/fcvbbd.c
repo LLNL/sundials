@@ -1,15 +1,16 @@
-/****************************************************************************
- * File         : fcvbbd.c                                                  *
- * Programmers  : Alan C. Hindmarsh and Radu Serban @ LLNL                  * 
- * Version of   : 07 February 2004                                          *
- ****************************************************************************
- *                                                                          *
- * This module contains the routines necessary to interface with the        *
- * CVBBDPRE module and user-supplied Fortran routines.                      *
- * The routines here call the generically named routines and provide a      *
- * standard interface to the C code of the CVBBDPRE package.                *
- *                                                                          *
- ***************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.12 $
+ * $Date: 2004-03-29 20:32:00 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * This module contains the routines necessary to interface with the
+ * CVBBDPRE module and user-supplied Fortran routines.
+ * The routines here call the generically named routines and provide
+ * a standard interface to the C code of the CVBBDPRE package.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,8 +32,7 @@ void FCV_COMMFN(long int*, realtype*, realtype*);
 /***************************************************************************/
 
 void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, 
-                 long int *mu, long int *ml, realtype* dqrely,
-                 int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
+                 long int *mu, long int *ml, realtype* dqrely, int *ier)
 {
 
   /* First call CVBBDPrecAlloc to initialize CVBBDPRE module:
@@ -45,8 +45,17 @@ void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
 
   CVBBD_Data = CVBBDPrecAlloc(CV_cvodemem, *Nloc, *mudq, *mldq, *mu, *ml, 
                               *dqrely, FCVgloc, FCVcfn);
-  if (CVBBD_Data == NULL) { *ier = -1; return; }
+  if (CVBBD_Data == NULL) { 
+    *ier = -1; 
+    return; 
+  }
 
+}
+
+/***************************************************************************/
+
+void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
+{
   /* Call CVBBDSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block
      *pretype    is the preconditioner type
@@ -70,11 +79,8 @@ void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
 /***************************************************************************/
 
 void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, 
-                   realtype* dqrely, int *pretype, int *gstype,
-                   realtype *delt, int *ier)
+                   realtype* dqrely, int *ier)
 {
-  int flag;
-
   /* First call CVReInitBBD to re-initialize CVBBDPRE module:
      CVBBD_Data  is the pointer to P_data
      *mudq,*mldq are the half-bandwidths for computing preconditioner blocks
@@ -82,24 +88,8 @@ void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
      FCVgloc     is a pointer to the CVLocalFn function
      FCVcfn      is a pointer to the CVCommFn function */
 
-  flag = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq,
+  *ier = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq,
                          *dqrely, FCVgloc, FCVcfn);
-
-  /* Call CVSetSpgmr* to re-initialize the SPGMR linear solver:
-     *pretype    is the preconditioner type
-     *gstype     is the Gram-Schmidt process type
-     *delt       is the linear convergence tolerance factor */
-   
-  *ier = CVSpgmrResetPrecType(CV_cvodemem, *pretype);
-  if (*ier != 0) return;
-
-  *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
-  if (*ier != 0) return;
-
-  *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != 0) return;
-
-  CV_ls = 4;
 
 }
 

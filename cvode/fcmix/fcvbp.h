@@ -1,13 +1,14 @@
-/***************************************************************************
- * File        : fcvbp.h                                                   *
- * Programmers : Radu Serban @ LLNL                                        *
- * Version of  : 19 February 2004                                          *
- *-------------------------------------------------------------------------*
- *                                                                         *
- * This is the Fortran interface include file for the BAND preconditioner  *
- * (CVBANDPRE)                                                             *
- *                                                                         *
- ***************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2004-03-29 20:32:00 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * This is the Fortran interface include file for the BAND
+ * preconditioner (CVBANDPRE)
+ * -----------------------------------------------------------------
+ */
 
 #ifndef _fcvbp_h
 #define _fcvbp_h
@@ -182,18 +183,21 @@ FCVMALLOC, and FCVBPINIT, make the following calls, in this order:
 #if defined(SUNDIALS_UNDERSCORE_NONE)
 
 #define FCV_BPINIT  fcvbpinit
+#define FCV_BPSPGMR fcvbpspgmr
 #define FCV_BPOPT   fcvbpopt
 #define FCV_BPFREE  fcvbpfree
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO)
 
 #define FCV_BPINIT  fcvbpinit__
+#define FCV_BPSPGMR fcvbpspgmr__
 #define FCV_BPOPT   fcvbpopt__
 #define FCV_BPFREE  fcvbpfree__
 
 #else
 
 #define FCV_BPINIT  fcvbpinit_
+#define FCV_BPSPGMR fcvbpspgmr_
 #define FCV_BPOPT   fcvbpopt_
 #define FCV_BPFREE  fcvbpfree_
 

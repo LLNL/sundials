@@ -1,15 +1,16 @@
-/****************************************************************************
- * File         : fcvbp.c                                                   *
- * Programmers  : Radu Serban @ LLNL                                        *
- * Version of   : 19 February 2004                                          *
- ****************************************************************************
- *                                                                          *
- * This module contains the routines necessary to interface with the        *
- * CVBANDPRE module and user-supplied Fortran routines.                     *
- * The routines here call the generically named routines and provide a      *
- * standard interface to the C code of the CVBANDPRE package.               *
- *                                                                          *
- ***************************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.2 $
+ * $Date: 2004-03-29 20:32:00 $
+ * ----------------------------------------------------------------- 
+ * Programmers: Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * This module contains the routines necessary to interface with the
+ * CVBANDPRE module and user-supplied Fortran routines.
+ * The routines here call the generically named routines and provide 
+ * a standard interface to the C code of the CVBANDPRE package.
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,20 +24,26 @@
 
 /***************************************************************************/
 
-void FCV_BPINIT(long int *N, long int *mu, long int *ml,
-                     int *pretype, int *gstype, int *maxl, realtype *delt, 
-                     int *ier)
+void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
 {
-
   /* 
-     First call CVBandPrecAlloc to initialize the CVBANDPRE module:
+     Call CVBandPrecAlloc to initialize the CVBANDPRE module:
      *N          is the vector size
      *mu, *ml    are the half-bandwidths of the retained preconditioner blocks
      */
 
   CVBP_Data = CVBandPrecAlloc(CV_cvodemem, *N, *mu, *ml);
-  if (CVBP_Data == NULL) { *ier = -1; return; }
+  if (CVBP_Data == NULL) { 
+    *ier = -1; 
+    return; 
+  }
 
+}
+
+/***************************************************************************/
+
+void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
+{
   /* Call CVBPSpgmr to specify the SPGMR linear solver:
      CV_cvodemem is the pointer to the CVODE memory block
      *pretype    is the preconditioner type

@@ -50,10 +50,11 @@ Krylov example problem: Kinetics-transport, NEQ =  200
   c2 (bot.left/middle/top rt.) =   0.335E+12   0.911E+12   0.416E+12
 
 
- final statistics..
+Final statistics..
  number of steps        =  468     number of f evals.     =  591
  number of prec. setups =   80
  number of prec. evals. =    8     number of prec. solves = 1100
  number of nonl. iters. =  588     number of lin. iters.  =  580
  average Krylov subspace dimension (NLI/NNI)  =  0.9864
- number of conv. failures..  nonlinear =  0  linear =  0
+ number of conv. failures..  nonlinear =  0 linear =  0
+ number of error test failures = 26
