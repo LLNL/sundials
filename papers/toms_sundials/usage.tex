@@ -1,13 +1,29 @@
 \section{Usage} 
 \label{s:usage}
 
+The new design and organization of SUNDIALS 
+as described in Section~\ref{s:organization}
+makes the codes surprisingly flexible and easy to use.
+This versatility is primarily due to the control that the user has
+over the modules that comprise SUNDIALS: the specification of vectors;
+the linear solver and preconditioner methods; the basic solvers; and,
+sensitivity analysis.
+Default routines are provided for the NVECTOR specification and
+computing Jacobian-vector approximations, for example. But for these
+routines and other basic operations, SUNDIALS allows the user to provide
+their own variants that may be better suited to their problem-solving
+needs. 
+Additionally, SUNDIALS provides the user with a fine level of control
+over various algorithmic parameters, heuristic values, and data
+structure pointers contained within the codes.
+Finally, SUNDIALS provides optional routines for extracting the
+solution, solver statistics and other useful information from the codes.
+
 A general approach for using SUNDIALS is given below. 
-{\sf The guiding philosophy of using SUNDIALS is ...}
 The outline conveys the basic elements of what is needed to properly
 specify and solve a problem, the order in which certain tasks must be
-done, the options available for modifying certain solver parameters,
-heuristics and algorithms, and the options for extracting the solution
-and/or solver statistics.
+done, indicates the opportunities for providing user-supplied
+routines or input values, and so on.
 Complete details and additional examples are in the documentation that
 accompanies each solver in SUNDIALS.
 
