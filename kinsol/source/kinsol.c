@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2004-10-30 23:30:14 $
+ * $Revision: 1.30 $
+ * $Date: 2004-11-03 22:25:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -43,6 +43,7 @@
 #define ONE            RCONST(1.0)
 #define ONEPT5         RCONST(1.5)
 #define TWO            RCONST(2.0)
+#define THREE          RCONST(3.0)
 #define FIVE           RCONST(5.0)
 #define TEN            RCONST(10.0)
 #define POINT1         RCONST(0.1)
@@ -150,7 +151,7 @@ static int  KINLinSolDrv(KINMem kinmem , N_Vector bb , N_Vector xx );
 static realtype KINScFNorm(N_Vector vv , N_Vector scale , N_Vector wrkv);
 static realtype KINScSteplength(KINMem kin_mem, N_Vector ucur,
 				N_Vector ss, N_Vector usc);
-static int KINStop(KINMem kinmem, booleantype maxStepTaken, int globalstratret);
+static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret);
 
 /*
  * -----------------------------------------------------------------
@@ -1435,7 +1436,7 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
   eta_max  = POINT9;
   eta_min  = POINTOHOHOHONE;
-  eta_safe = 0.5;
+  eta_safe = HALF;
 
   /* choice #1 forcing term */
 
@@ -1539,7 +1540,7 @@ static int KINInexactNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   /* if constraints are active, then constrain the step accordingly */
 
   stepl = pnorm;
-  stepmul = 1.0;
+  stepmul = ONE;
   if (constraintsSet) {
     ret = KINConstraint(kin_mem);  /* Note: This routine changes the step pp. */
     if (ret == 1) {
@@ -1701,22 +1702,22 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
     if (rl != ONE) {
       tmp1 = (*f1normp) - f1norm - (rl * slpi);
       tmp2 = f1nprv - f1norm - (rlprev * slpi);
-      rl_a = ((1.0 / (rl * rl)) * tmp1) - ((1.0 / (rlprev * rlprev)) * tmp2);
+      rl_a = ((ONE / (rl * rl)) * tmp1) - ((ONE / (rlprev * rlprev)) * tmp2);
       rl_b = ((-rlprev / (rl * rl)) * tmp1) + ((rl / (rlprev * rlprev)) * tmp2);
-      tmp1 = 1.0 / (rl - rlprev);
+      tmp1 = ONE / (rl - rlprev);
       rl_a *= tmp1;
       rl_b *= tmp1;
-      disc = (rl_b * rl_b) - (3.0 * rl_a * slpi);
+      disc = (rl_b * rl_b) - (THREE) * rl_a * slpi);
 
       /* cubic is actually just a quadratic (rl_a ~ 0) */
 
-      if (ABS(rl_a) < uround) rltmp = -slpi / (2.0 * rl_b);
+      if (ABS(rl_a) < uround) rltmp = -slpi / (TWO * rl_b);
 
       /* real cubic */
 
-      else rltmp = (-rl_b + RSqrt(disc)) / (3.0 * rl_a);
+      else rltmp = (-rl_b + RSqrt(disc)) / (THREE) * rl_a);
 
-      if (rltmp > (0.5 * rl)) rltmp = 0.5 * rl;
+      if (rltmp > (HALF * rl)) rltmp = HALF * rl;
     }
 
     /* use quadratic fit only for initial backtrack */
@@ -1910,12 +1911,9 @@ static realtype KINScSteplength(KINMem kin_mem, N_Vector ucur,
  * -----------------------------------------------------------------
  */
 
-static int KINStop(KINMem kinmem, booleantype maxStepTaken, int globalstratret)
+static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
 {
   realtype fmax, rlength;
-  KINMem kin_mem;
-
-  kin_mem = kinmem;
 
   if (globalstratret == 1){
 
