@@ -1,130 +1,291 @@
 \section{Sensitivity Analysis}
 
-When solving an ODE or DAE system or a nonlinear algebraic system, in
-addition to the solution $y$ or $u$, we often want its sensitivity
-(first-order) with respect to parameters in the problem (or with
-respect to initial conditions).
+Many times, models depend on parameters, either through their defining
+function --- $f(t,y)$ for the ODE in (\ref{ODE}), $F(t,y,y')$ for the DAE
+(\ref{}), and $F(u)$ for nonlinear systems (\ref{nonlinear_system}) 
+--- or through initial conditions in the case of ODEs and DAEs. 
+In addition to the solution $y$ or $u$, we often want to quantify how 
+the solution (or some other output functional depending on the solution) 
+is influenced by changes in these model parameters.
 
-Consider the different problem types in turn.
+Depending on the dimension of the array of model parameters and the
+dimension of the array of outputs, one of two sensitivity methods
+is more appropriate. 
+%
+The {\em forward sensitivity} method is mostly suitable when we need 
+the gradients of many outputs (for example the entire solution vector) 
+with respect to relatively few parameters.
+In this approach, the model is differentiated with respect to each 
+parameter in turn to yield an additional system of the same size as
+the original one, the solution of which is the solution sensitivity.
+The gradient of any output function depending on the solution can
+then be directly obtained from these sensitivities by applying the
+chain rule of differentiation.
+%
+The {\em adjoint sensitivity} method is more practical than
+the forward approach when the number of parameters is large and
+we need the gradients of only few output functionals.
+In this approach, the solution sensitivities need not be computed
+explicitely. Instead, for each output functional of interest, we form
+and solve an additional system, adjoint to the original one, the 
+solution of which can then be used to evaluate the gradient of the
+output functional with respect to any set of model parameters.
 
-\subsection{ODEs}
+For each of the basic solvers described in \S\ref{s:basic_solvers},
+extensions that are sensitivity enabled are already available (CVODES)
+or under development (IDAS). If demand merits it, a sensitivity
+enabled extension to the nonlinear solver, KINSOLS, will also be
+developed.
+The various algorithmic features of CVODES and IDAS are documented 
+in~\cite{CLPS:03}. A detailed description of the CVODES software package 
+is presented in~\cite{SeHi:03}, while full usage description is given
+in~\cite{HiSe:02}.
+% Note: 
+%
+%==========================================================================
 
-Here the system is assumed to involve a vector of parameters,
-$p = (p_1,\cdots,p_m)$, so that we can write
-\[ \dot{y} = f(t,y,p),~~ y(t_0) = y_0(p) \]
-(including the case where components of the initial value vector $y_0$
-may be parameters).  In addition to $y$ as a function of $t$, we want
-the array $s = \partial y / \partial p ~~ (N \times m)$, whose columns
-are the sensitivities of $y$ with respect to the $p_i$.
+\subsection{CVODES}\label{ss:cvodes}
 
-Each column $s_i = \partial y / \partial p_i$ satisfies another ODE
-\[ \dot{s}_i = J s_i + \partial f / \partial p_i ~~~~
-               (J = \partial f / \partial y) \]
-with initial values $s_i(t_0) = \partial y_0 / \partial p_i$.
+CVODES is an extension of CVODE which, besides solving ODE intial
+value problems of the form (\ref{ODE}), also provides forward and 
+adjoint sensitivity analysis capabilities.
+%
+Here, we assume that the system depends on a vector of parameters,
+$p = [p_1,\cdots,p_{N_p}]$,
+\begin{equation}\label{e:ODE_with_p}
+\dot{y} = f(t,y,p), \quad y(t_0,p) = y_0(p) ~,
+\end{equation}
+including the case where the initial value vector $y_0$ depends on $p$,
+and we consider a scalar output functional of the form $g(t,y,p)$.
+%
+In addition to $y$ as a function of $t$, we want the gradient 
+$d g / d p  = ({\partial g}/{\partial y}) s + {\partial g}/{\partial p}$, 
+where $s \in R^{N \times N_p}$ is the so-called sensitivity matrix.
+%
+Each column $s_i = d y / d p_i$ of $s$ satisfies the sensitivity ODE
+\begin{equation}\label{e:fwdODE}
+\dot{s}_i = J s_i + \partial f / \partial p_i, 
+\quad s_i(t_0) = d y_0 / d p_i ~,
+\end{equation}
+where $J$ is the system Jacobian defined in (\ref{Newtonmat}).
 
-A code called {\bf SensPVODE}, by Lee, Hindmarsh, and Brown, was
-written as an extension of the parallel version of CVODE for this
-situation \cite{LHB:00}.  It integrates the extended ODE system for
-$Y = (y,w_1,\cdots,w_m)$, where $w_i = \bar{p}_i s_i$ and $\bar{p}_i$
-is a scale factor for $p_i$ (it may equal $p_i$ if this is nonzero).
-In SensPVODE, the evaluation of $\dot{w}_i = \bar{p}_i \dot{s}_i$ is
-done by difference quotients, for which there is a range of choices
-in differencing strategy, or by Automatic Differentiation~\cite{LeHo:01}.
+%------------------------------------------------------------------
+\subsubsection{Forward Sensitivity}
+CVODES can be used to integrate an extended system 
+$Y = [y,s_1,\cdots,s_{N_s}]$ forward in time, where
+$[s_1,\cdots,s_{N_s}]$ are a subset of the columns of $s$.
+%
+CVODES provides the following three choices for the sequence in which
+the states and sensitivity variables are advanced in time at each step:
+%
+\begin{itemize}
+\item Simultaneous Corrector: the nonlinear system (\ref{NLS}) is solved
+  simultaneously for the states and all sensitivity variables~\cite{MaPe:97},
+  using a coefficient matrix for the Newton update which is
+  simply the block-diagonal portion of the Newton matrix;
+\item Staggered Corrector 1: the correction stages for the sensitivity 
+  variables take place after the states have been corrected and have passed 
+  the error test. To prevent frequent Jacobian updates, the linear sensitivity 
+  systems are solved with a modified Newton iteration~\cite{FTB:97};
+\item Staggered Corrector 2: a variant of the previous one,
+  in which the error test for the sensitivity variables is also staggered,
+  one sensitivity system at a time.
+\end{itemize}
+%
+The matrices in the {\em staggered corrector} methods and all of the 
+block-diagonal matrices in the {\em simultaneous corrector} method are 
+identical to the matrix $M$ in (\ref{Newtonmat}) and 
+therefore the linear systems corresponding to the sensitivity equations
+are solved using the same preconditioner and/or linear system solver that 
+were specified for the original ODE problem. 
+The sensitivity variables may be suppressed from the step size control
+algorithm but they are always included in the nonlinear system convergence
+test.
 
-For many large-scale applications, implicit time integration methods
-such as Backward Differentiation Formulas are needed. SensPVODE solves
-the nonlinear systems that arise at each time step by using the
-simultaneous corrector method~\cite{MaPe:97}, a type of Newton
-iteration in which the coefficient matrix for the Newton update is
-simply the block-diagonal portion of the Newton matrix. This
-block-diagonal structure results in a decoupling that allows the
-linear system matrix to be used repeatedly in solving the $(m+1)$
-linear systems that arise: one linear system for the Newton update to
-the ODE variables; and $m$ linear systems for updates to the $m$
-scaled sensitivity vectors. Because all of the block-diagonal matrices
-are identical, the linear systems are solved using the same
-preconditioner and/or linear system solver that were specified for the
-original ODE problem. Thus the linear systems for the extended problem
-involve additional solve operations compared to the original problem,
-but no additional matrix setup operations.
+The right-hand side of the sensitivity equations may be supplied by a 
+user routine, or approximated by difference quotients, et the user's option.
+In the latter case, CVODES offers both forward and central finite 
+difference approximations. 
+%
+We use increments that take into account several problem-related features;
+namely, the relative ODE error tolerance $rtol$, 
+the machine unit roundoff $U$,
+scale factors $\bar p$ for the problem parameters $p$, 
+and the weighted root-mean-square norm of the sensitivity vector $s_i$.
+%
+Using central finite differences asd an example, the two terms $J s_i$ 
+and ${\partial f}/{\partial p_i}$ in the right-hand side of (\ref{e:fwdODE}) 
+can be evaluated separately:
+\begin{gather}
+  J s_i \approx \frac{f(t, y+\sigma_y s_i, p)-
+    f(t, y-\sigma_y s_i, p)}{2\,\sigma_y} \, , \label{e:fd2} \\
+  {\partial f}/{\partial p_i} \approx \frac{f(t,y,p + \sigma_i e_i)-
+    f(t,y,p - \sigma_i e_i)}{2\,\sigma_i} \, , \tag{\ref{e:fd2}'} \\
+  \sigma_i = |{\bar p}_i| \sqrt{\max(rtol, U)} \, , \quad
+  \sigma_y = \frac{|{\bar p}_i|}{\max(1/\sigma_i, \|s_i\|_{WRMS})} \, \nonumber,
+\end{gather}
+simultaneously:
+\begin{gather}
+  J s_i + {\partial f}/{\partial p_i} \approx
+  \frac{f(t, y+\sigma s_i, p + \sigma e_i) -
+    f(t, y-\sigma s_i, p - \sigma e_i)}{2\,\sigma} \, , \label{e:dd2} \\
+  \sigma = \min(\sigma_i, \sigma_y) \, , \nonumber
+\end{gather}
+or adaptively switching between (\ref{e:fd2})+(\ref{e:fd2}') and (\ref{e:dd2}), 
+depending on the relative size of the estimated finite difference 
+increments $\sigma_i$ and $\sigma_y$.
 
-%It is important to note that the Jacobian of the extended system, of
-%size $N(m+1)$, is approximated by $diag[J,\cdots,J]$.  So when the
-%linear systems are solved with the SPGMR algorithm, an appropriate
-%preconditioner is the block-diagonal matrix $diag[P,\cdots,P]$, where
-%$P$ is the preconditioner used for the original problem $\dot{y} = f$.
-
-{\sf Think through this carefully and point to CVODES paper as
-appropriate - do not overlap with that paper here except for
-general introductory stuff.}
-
-In a second approach to the ODE sensitivity analysis, a code called
-{\bf CVODES} was written by Serban and Hindmarsh.  It has two
-different modes of operation.  In the first mode, it can be used to
-integrate an extended system $Y = (y,s_1,\cdots,s_m)$ forward.  (Here
-the scale factors $\bar{p}_i$ are not included in $Y$, but are used to
-set tolerances imposed on $Y$.)  This integration also includes two
-new options for the corrector iteration that is done on every step.
-In the second mode, CVODES can be used to carry out adjoint
-sensitivity analysis, in which the original system for $y$ is
-integrated forward, an adjoint system is then integrated backward, and
-finally the desired sensitivities are obtained from the backward
-solution.  This backward (adjoint) approach is more practical than
-the forward approach when the number of parameters $p_i$ is large.
-
+%------------------------------------------------------------------
+\subsubsection{Adjoint Sensitivity}
+CVODES can also be used to carry out adjoint sensitivity analysis, 
+in which the original system for $y$ is integrated forward, 
+an adjoint system is then integrated backward, and finally the desired 
+sensitivities are obtained from the backward solution. 
 To be specific about how the adjoint approach works, we consider
 the following situation.  Assume as before that $f$ and/or $y_0$
 involves the parameter vector $p$, and also that there is a
-function $g(t,y,p)$ such that what we desire in the end is the
-sensitivity array $(dg/dp)|_{t=t_f}$, where $g$ is a vector of
-size $N_g$ and $t_f$ is the final time.  We first integrate the
-original problem $\dot{y} = f$ forward from $t_0$ to $t_f$. The
-next step in the procedure is to integrate from $t_f$ to $t_0$ the
-adjoint system whose size is $N \times N_g$,
-\[ \dot{\mu} = -J^* \mu ~,~~~
-   \mu(t_f) = \left. \left( \frac{\partial g}{\partial y}
-                     \right)^* \right| _{t=t_f} ~. \]
+functional $g(t,y,p)$ such that what we desire in the end is the
+gradient $(dg/dp)|_{t=t_f}$, where $t_f$ is the final time.  
+We first integrate the original problem (\ref{e:ODE_with_p}) forward 
+from $t_0$ to $t_f$. The next step in the procedure is to integrate 
+from $t_f$ to $t_0$ the adjoint system
+\begin{equation}\label{e:ODEadj}
+  \dot{\lambda} = -J^T \lambda \, , \quad
+  \lambda(t_f) = \left. \left( \frac{\partial g}{\partial y}
+    \right)^T \right| _{t=t_f} \, .
+\end{equation}
 When this backward integration is complete, then the desired
 sensitivity array is given by
-\[ (dg/dp)|_{t=t_f} = \mu^*(t_0)s(t_0)
-   ~+~ \int_{t_0}^{t_f} \mu^* f_p dt ~+~ g_p|_{t=t_f} ~. \]
-In the backward integration, we regenerate $y(t)$ values, as needed
-in right-hand side of the adjoint system, using a check-point scheme
-combined with cubic Hermite interpolation.
-
+\begin{equation}\label{e:grad_g}
+  \left. \frac{dg}{dp}\right|_{t=t_f} = 
+  \lambda^T(t_0) \frac{dy_0}{dp}
+  + \int_{t_0}^{t_f} \lambda^T \frac{\partial f}{\partial p} dt + 
+  \left. \frac{\partial g}{\partial p} \right|_{t=t_f} \, . 
+\end{equation}
 Other situations, with different forms for the desired sensitvity
-information, are covered by different adjoint systems.
+information, are covered by different adjoint systems~\cite{CLPS:03}.
 
+For the efficient evaluation of integrals such as the one in (\ref{e:grad_g}),
+CVODES allows for special treatment of quadrature equations by excluding them
+from the nonlinear system solution, while allowing for inclusion or exclusion
+of the corresponding variables from the step size control algorithm.
 
-\subsection{Nonlinear Systems}
+During the backward integration, we regenerate $y(t)$ values, as needed
+in evaluating the right-hand side of the adjoint system.
+%
+CVODES settles for a compromise storage space - execution time by implementing
+a check-point scheme combined with piecewise cubic Hermite interpolation: 
+at the cost of at most one additional forward integration, this approach 
+offers the best possible estimate of memory requirements for adjoint 
+sensitivity analysis.
+%
+Finally, we note that the adjoint sensitivity module in CVODES provides 
+the infrastructure to integrate backwards in time any ODE terminal value 
+problem dependent on the solution of the IVP (\ref{e:ODE_with_p}), 
+in particular adjoint systems such as (\ref{e:ODEadj}). In particular, 
+for ODE systems arising from semi-discretization of time-dependent PDEs, 
+this feature allows for integration of either the discretized adjoint 
+PDE system or the adjoint of the discretized PDE.
+
+%==========================================================================
+
+\subsection{IDAS}\label{ss:idas}
+
+IDAS, an extension to IDA with sensitivity analysis capabilities is 
+currently under development and will be soon released as part of SUNDIALS.
+
+{\em Forward sensitivity analysis} for systems of DAEs system is similar to that 
+for ODEs.  Writing the system as $F(t,y,\dot{y},p)=0$ and defining 
+$s={dy}/{dp}$ as before, we obtain DAEs for the individual sensitivity vectors,
+%
+\begin{equation}\label{e:DAEfwd}
+  \frac{\partial F}{\partial y} s_i + \frac{\partial F}{\partial \dot{y}} \dot{s}_i
+  + \frac{\partial F}{\partial p_i}  = 0 \, , \quad
+  s_i(t_0) = dy_0 / dp_i \, , ~ \dot{s}_i(t_0) = d\dot{y}_0 / dp_i \, .
+\end{equation}
+%
+IDAS implements the same three options for correction of the sensitivity
+variables as CVODES. For the simultaneous corrector approach, the coefficient
+matrix for the Newton update of the extended system (\ref{})+(\ref{e:DAEfwd})
+is again approximated by its diagonal blocks, each of them identical to the
+matrix $J$ of (\ref{}). For the generation of the residuals of the sensitivity
+equations, IDAS provides several difference quotient approximations equivalent 
+to those described in \S\ref{ss:cvodes}.
+
+The use of adjoint DAE systems for {\em adjoint sensitivity} analysis is also
+similar to the ODE case. As an example, if $\lambda$ satisfies 
+\begin{equation}\label{e:DAEadj} 
+  \frac{d}{dt} \left[ \left( \frac{\partial F}{\partial \dot{y}}\right) ^T \lambda \right] 
+  - \left(\frac{\partial F}{\partial y}\right)^T \lambda = - \frac{\partial g}{\partial y} \, ,
+\end{equation}
+with appropriate conditions at $t_f$, then the gradient of 
+$G(p) = \int_{t_0}^{t_f} g(t,y,p) dt$ is obtained as
+\begin{equation*}
+  \frac{dG}{dp} = 
+  \int_{t_0}^{t_f} \left(
+    \frac{\partial g}{\partial p} - \lambda^T \frac{\partial F}{\partial p}
+  \right) dt 
+  - \left.\left( 
+      \lambda^T \frac{\partial F}{\partial \dot{y}} s 
+    \right)\right|_{t_0}^{t_f} . 
+\end{equation*}
+However, unlike the ODE case, homogeneous final conditions for the 
+adjoint variables may not always be enough (such is the case for 
+Hessenberg index-2 DAEs).
+%
+Moreover, for implicit ODEs and index-1 DAEs the adjoint system may not
+be stable to integration from the right, even if the original system (\ref{}) 
+is stable from the left. To circumvent this problem, for such
+systems IDAS integrates backwards in time the so-called 
+{\em augmented adjoint DAE system} defined as
+\begin{equation} \label{e:DAEadj_augmented}
+\left \{
+\begin{array}{rcl}
+\dot {\bar\lambda} - F_y^T \lambda & = &  -g_y^T \\
+\bar \lambda - F_{\dot y}^T \lambda & = & 0 \, ,
+\end{array}
+\right.
+\end{equation}
+which can be shown to preserve stability~\cite{CLPS:03}.
+
+IDAS employs a combination of check-pointing with piecewise cubic Hermite 
+interpolation for generation of the solution $y(t)$ needed during the
+backward integration phase in (\ref{e:DAEadj}) or (\ref{e:DAEadj_augmented}).
+As in CVODES, for efficiency, pure quadrature equations are treated separately
+in that their correction phase does not include a nonlinear system solution.
+At the user's discretion, the quadrature variables can be included or excluded
+from the step size control algorithm.
+ 
+%==========================================================================
+
+\subsection{KINSOLS}
 
 In the case of a nonlinear system, the sensitivity equations are
 considerably simpler.  If the system is written $F(u,p) = 0$ and we
-define $s = \partial u / \partial p$, then for the individual
-sensitivity vectors $s_i$,
+define $s = d u / d p$, then for the individual sensitivity vectors $s_i$,
+\begin{equation}\label{e:NLSfwd}
+  J s_i = -\partial F / \partial p_i \, ,
+\end{equation}
+where $ J = \partial F / \partial u$. 
 
-\[ J s_i = -\partial F / \partial p_i ~~\mbox{where} ~~
-          J = \partial F / \partial u ~. \]
+{\em Forward sensitivity} analysis for nonlinear systems thus reduces to solving a 
+number of linear systems equal to the number of model parameters. 
+The Jacobian-vector product and right-hand side of (\ref{e:NLSfwd}) can be provided 
+by the user or evaluated with directional derivatives. In the latter case
+we approximate $J s_i$ with the formulas presented in \S\ref{ss:kinsol} 
+and ${\partial F}/{\partial p_i}$ with:
+\begin{equation*}
+{\partial F}/{\partial p_i} \approx \frac{F(u,p + \sigma_i e_i)-
+    F(u,p)}{\sigma_i} \, ,
+\end{equation*}
+where $\sigma_i = |{\bar p}_i| \sqrt{U}$.
 
-A code called {\bf SensKINSOL}, by Grant, Hindmarsh, and Taylor
-\cite{GHT:03} solves for $u$ (if not done already by KINSOL), then
-solves linear systems for the scaled sensitivities $w_i = \bar{p}_i s_i$.
-
-
-\subsection{DAEs}
-
-The case of a DAE system is similar to that for ODEs.  Writing the
-system as $F(t,y,y',p) = 0$ and defining $s = \partial y / \partial p$
-as before, we obtain DAEs for the individual sensitivity vectors,
-\[ \frac{\partial F}{\partial y} s_i + \frac{\partial F}{\partial y'} s'_i
-                                 + \frac{\partial F}{\partial p_i}  = 0 \]
-
-By analogy with SensPVODE, a code called {\bf SensIDA}, by Lee and
-Hindmarsh was written to integrate the extended DAE system for
-$Y = (y,w_1,\cdots,w_m)$, where $w_i = \bar{p}_i s_i$.
-
-Also by analogy with the ODE case, the Newton matrix for this extended
-system is approximated by $diag[J,\cdots,J]$, where $J$ is the Newton
-matrix for original system.
-
-
+When the dimension $N_p$ of the problem parameters $p$ is large, the 
+{\em adjoint sensitivity} is again a much more efficient method for computing 
+the gradient of some functional $g(u,p)$. If $\lambda$ is solution of
+the adjoint system
+\begin{equation}\label{e:NLSadj}
+  J^T \lambda = \left( \frac{\partial g}{\partial u} \right)^T
+\end{equation}
+then the desired gradient becomes
+${dg}/{dp} = -\lambda^T ({\partial F}/{\partial p}) + ({\partial g}/{\partial p})$.
