@@ -3,7 +3,7 @@
  * File          : cvbandpre.c                                     *
  * Programmers   : Michael Wittman, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 26 June 2002                                    *
+ * Version of    : 28 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -77,6 +77,7 @@ CVBandPreData CVBandPreAlloc(integertype N, RhsFn f, void *f_data,
   if (pdata == NULL) return(NULL);
 
   /* Load pointers and bandwidths into pdata block. */
+  pdata->N = N;
   pdata->f = f;
   pdata->f_data = f_data;
   pdata->mu = mup = MIN( N-1, MAX(0,mu) );
@@ -110,9 +111,13 @@ CVBandPreData CVBandPreAlloc(integertype N, RhsFn f, void *f_data,
   return(pdata);
 }
 
-int CVReInitBandPre(CVBandPreData pdata, integertype N, RhsFn f, void *f_data,
+int CVReInitBandPre(CVBandPreData pdata, RhsFn f, void *f_data,
                     integertype mu, integertype ml)
 {
+  integertype N;
+
+  N = pdata->N;
+
   /* Load pointers and bandwidths into pdata block. */
   pdata->f = f;
   pdata->f_data = f_data;
@@ -136,6 +141,7 @@ void CVBandPreFree(CVBandPreData pdata)
 
 /* Readability Replacements */
 
+#define N         (pdata->N)
 #define f         (pdata->f)
 #define f_data    (pdata->f_data)
 #define mu        (pdata->mu)
@@ -154,8 +160,6 @@ void CVBandPreFree(CVBandPreData pdata)
  * calculates P = I - gamma*J, and does an LU factorization of P. *
  *                                                                *
  * The parameters of CVBandPrecond are as follows:                *
- *                                                                *
- * N       is the length of all vector arguments.                 *
  *                                                                *
  * t       is the current value of the independent variable.      *
  *                                                                *
@@ -206,7 +210,7 @@ void CVBandPreFree(CVBandPreData pdata)
  *   1  if the band factorization failed.                         *
  ******************************************************************/
 
-int CVBandPrecond(integertype N, realtype t, N_Vector y, N_Vector fy,
+int CVBandPrecond(realtype t, N_Vector y, N_Vector fy,
                   booleantype jok, booleantype *jcurPtr, realtype gamma,
                   N_Vector ewt, realtype h, realtype uround,
                   long int *nfePtr, void *bp_data,
@@ -266,7 +270,7 @@ int CVBandPrecond(integertype N, realtype t, N_Vector y, N_Vector fy,
  *                                                                *
  ******************************************************************/
 
-int CVBandPSolve(integertype N, realtype t, N_Vector y, N_Vector fy,
+int CVBandPSolve(realtype t, N_Vector y, N_Vector fy,
                  N_Vector vtemp, realtype gamma, N_Vector ewt,
                  realtype delta, long int *nfePtr, N_Vector r,
                  int lr, void *bp_data, N_Vector z)
@@ -288,7 +292,7 @@ int CVBandPSolve(integertype N, realtype t, N_Vector y, N_Vector fy,
   return(0);
 }
 
-
+#undef N
 #undef f
 #undef f_data
 #undef mu
@@ -296,9 +300,6 @@ int CVBandPSolve(integertype N, realtype t, N_Vector y, N_Vector fy,
 #undef pivots
 #undef savedJ
 #undef savedP
-
-
-
 
 /*************** CVBandPDQJac ****************************************
 
@@ -349,7 +350,7 @@ static void CVBandPDQJac(integertype N, integertype mupper, integertype mlower,
     }
 
     /* Evaluate f with incremented y. */
-    f(N, tn, ytemp, ftemp, f_data);
+    f(tn, ytemp, ftemp, f_data);
 
     /* Restore ytemp, then form and load difference quotients. */
     for (j = group-1; j < N; j += width) {
