@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.11 $
-C     $Date: 2004-08-05 21:29:36 $
+C     $Revision: 1.12 $
+C     $Date: 2004-09-08 21:05:41 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -41,8 +41,6 @@ C
      1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
       DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/,
      1     LQ/11/, LH/5/, LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
-      INTEGER NEQ
-      COMMON /PBDIM/ NEQ
 C
 C Set mesh sizes
       MESHX = 10
@@ -73,7 +71,7 @@ C
      1                INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
-  30    FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER =',I5)
+ 30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER =',I5)
         CALL FNVFREES
         STOP
         ENDIF
@@ -87,9 +85,9 @@ C
         STOP
       ENDIF
 C
-      CALL FCVSPGMRSETPSOL (1, IER)
-C
       CALL FCVSPGMRSETPSET (1, IER)
+C
+      CALL FCVSPGMRSETPSOL (1, IER)
 C
 C Loop over output points, call FCVODE, print sample solution values.
       TOUT = TWOHR
@@ -146,7 +144,8 @@ C
 C Routine to set problem constants and initial values
       DIMENSION Y0(2, MESHX, MESHZ)
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
-      COMMON /PCOM/ Q1,Q2,Q3,Q4,A3,A4,OM,C3,DZ,HDCO,VDCO,HACO,MX,MZ,MM
+      COMMON /PCOM/ Q1,Q2,Q3,Q4, A3, A4, OM, C3, DZ, HDCO, VDCO, HACO,
+     1              MX, MZ, MM, NEQ
       DOUBLE PRECISION CX, CZ, DKH, DKV0, DX, HALFDA, PI, VEL, 
      1                 X, Y0, Z
       DATA DKH/4.0D-6/, VEL/0.001D0/, DKV0/1.0D-8/, HALFDA/4.32D4/,
@@ -156,6 +155,7 @@ C Load Common block of problem parameters.
       MX = MESHX
       MZ = MESHZ
       MM = MX*MZ
+      NEQ = 2*MM
       Q1 = 1.63D-16
       Q2 = 4.66D-16
       A3 = 22.62D0
@@ -189,7 +189,8 @@ C
 C Routine for right-hand side function f
       DOUBLE PRECISION T, Y(2,*), YDOT(2,*)
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
-      COMMON /PCOM/ Q1,Q2,Q3,Q4,A3,A4,OM,C3,DZ,HDCO,VDCO,HACO,MX,MZ,MM
+      COMMON /PCOM/ Q1,Q2,Q3,Q4, A3, A4, OM, C3, DZ, HDCO, VDCO, HACO,
+     1              MX, MZ, MM, NEQ
       DOUBLE PRECISION C1, C2, C1DN, C2DN, C1UP, C2UP, C1LT, C2LT,
      1    C1RT, C2RT, CZDN, CZUP, HORD1, HORD2, HORAD1, HORAD2,
      2    QQ1, QQ2, QQ3, QQ4, RKIN1, RKIN2, S, VERTD1, VERTD2, ZDN, ZUP
@@ -260,7 +261,8 @@ C Routine to set and preprocess block-diagonal preconditioner.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
       DOUBLE PRECISION T, Y(2,*), GAMMA
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
-      COMMON /PCOM/ Q1,Q2,Q3,Q4,A3,A4,OM,C3,DZ,HDCO,VDCO,HACO,MX,MZ,MM
+      COMMON /PCOM/ Q1,Q2,Q3,Q4, A3, A4, OM, C3, DZ, HDCO, VDCO, HACO,
+     1              MX, MZ, MM, NEQ
       DOUBLE PRECISION BD, P
       COMMON /BDJ/ BD(2,2,100), P(2,2,100), IPP(2,100)
       DOUBLE PRECISION C1, C2, CZDN, CZUP, DIAG, TEMP, ZDN, ZUP
@@ -318,11 +320,10 @@ C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
       DOUBLE PRECISION R(*), Z(2,*)
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3,A4, OM, C3, DZ, HDCO,VDCO,HACO
-      COMMON /PCOM/ Q1,Q2,Q3,Q4,A3,A4,OM,C3,DZ,HDCO,VDCO,HACO,MX,MZ,MM
+      COMMON /PCOM/ Q1,Q2,Q3,Q4, A3, A4, OM, C3, DZ, HDCO, VDCO, HACO,
+     1              MX, MZ, MM, NEQ
       DOUBLE PRECISION BD, P
       COMMON /BDJ/ BD(2,2,100), P(2,2,100), IPP(2,100)
-      INTEGER NEQ
-      COMMON /PBDIM/ NEQ
 C Solve the block-diagonal system Px = r using LU factors stored in P
 C and pivot data in IPP, and return the solution in Z.
       IER = 0
