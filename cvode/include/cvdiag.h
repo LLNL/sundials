@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2004-05-26 19:54:10 $
+ * $Revision: 1.12 $
+ * $Date: 2004-07-22 21:14:47 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -39,8 +39,9 @@ extern "C" {
  *              CVodeCreate.                                      
  *                                                                
  * The return values of CVDiag are:                               
- *    SUCCESS   = 0  if successful                                
- *    LMEM_FAIL = -1 if there was a memory allocation failure     
+ *    SUCCESS       =  0 if successful                                
+ *    LMEM_FAIL     = -1 if there was a memory allocation failure     
+ *    LIN_ILL_INPUT = -2 if a required vector operation is missing
  * -----------------------------------------------------------------
  */                                                                
 
