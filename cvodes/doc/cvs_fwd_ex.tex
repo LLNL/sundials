@@ -44,7 +44,7 @@ ODEs, $\dot{u} = f(t,u)$, can now be written:
   + q_2 \frac{u_{i+1}-u_{i-1}}{2(\Delta x)} \, .
 \end{equation}
 This equation holds for $i=1,2,\ldots ,$ \id{MX}, with the understanding
-that $u_{0} = u_{\id{MX}+1}=0.$
+that $u_{0} = u_{MX+1}=0.$
 
 The sensitivity systems for $s^1 = \partial u / \partial q_1$ and
 $s^2 = \partial u / \partial q_2$ are simply
@@ -119,7 +119,7 @@ for the sensitivity variables.
 Next, in a loop over the \id{NOUT} output times, the program calls the integration
 routine \id{CVode}. On a successful return, the program prints the maximum norm
 of the solution $u$ at the current time and, if sensitivities were also computed, 
-extracts and prints the maximum norms of $s^1(t)$ and $s62(t)$.
+extracts and prints the maximum norms of $s^1(t)$ and $s^2(t)$.
 %%
 The program ends by printing some final integration statistics and freeing all
 allocated memory.
