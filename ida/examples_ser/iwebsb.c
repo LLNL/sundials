@@ -1,15 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-08 15:27:55 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-22 19:49:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example program for IDA/IDAS: Food web, serial, band solve IDABAND.
+ * Example program for IDA: Food web problem.
  *
- * This example program for IDA/IDAS (serial version) uses IDABAND as the
- * linear solver, and IDACalcIC for initial condition calculation.
+ * This example program (serial version) uses the IDABAND linear 
+ * solver, and IDACalcIC for initial condition calculation.
  *
  * The mathematical problem solved in this example is a DAE system
  * that arises from a system of partial differential equations after
@@ -40,17 +40,14 @@
  * prey and the last np being predators. The coefficients a(i,j),
  * b(i), d(i) are:
  *
- *   a(i,i) = -AA   (all i)
- *   a(i,j) = -GG   (i <= np , j >  np)
- *   a(i,j) =  EE   (i >  np, j <= np)
- *   all other a(i,j) = 0
- *   b(i) = BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y))   (i <= np)
- *   b(i) =-BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y))   (i  > np)
- *   d(i) = DPREY   (i <= np)
- *   d(i) = DPRED   (i > np)
- *
- * Note: The above equations are written in 1-based indices,
- * whereas the code has 0-based indices, being written in C.
+ *  a(i,i) = -AA   (all i)
+ *  a(i,j) = -GG   (i <= np , j >  np)
+ *  a(i,j) =  EE   (i >  np, j <= np)
+ *  all other a(i,j) = 0
+ *  b(i) = BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y)) (i <= np)
+ *  b(i) =-BB*(1+ alpha * x*y + beta*sin(4 pi x)*sin(4 pi y)) (i  > np)
+ *  d(i) = DPREY   (i <= np)
+ *  d(i) = DPRED   (i > np)
  *
  * The various scalar parameters required are set using '#define'
  * statements or directly in routine InitUserData. In this program,
@@ -98,38 +95,38 @@
 
 /* Problem Constants. */
 
-#define NPREY       1        /* Number of prey (= number of predators). */
+#define NPREY       1              /* No. of prey (= no. of predators). */
 #define NUM_SPECIES 2*NPREY
 
-#define PI          3.1415926535898   /* pi */ 
-#define FOURPI      (4.0*PI)          /* 4 pi */
+#define PI          3.1415926535898
+#define FOURPI      (4.0*PI)
 
-#define MX          20                /* MX = number of x mesh points */
-#define MY          20                /* MY = number of y mesh points */
+#define MX          20             /* MX = number of x mesh points      */
+#define MY          20             /* MY = number of y mesh points      */
 #define NSMX        (NUM_SPECIES * MX)
-#define NEQ         (NUM_SPECIES*MX*MY) /* Number of equations in system */
-#define AA          RCONST(1.0)    /* Coefficient in above eqns. for a */
-#define EE          RCONST(10000.) /* Coefficient in above eqns. for a */
-#define GG          RCONST(0.5e-6) /* Coefficient in above eqns. for a */
-#define BB          RCONST(1.0)    /* Coefficient in above eqns. for b */
-#define DPREY       RCONST(1.0)    /* Coefficient in above eqns. for d */
-#define DPRED       RCONST(0.05)   /* Coefficient in above eqns. for d */
-#define ALPHA       RCONST(50.)    /* Coefficient alpha in above eqns. */
-#define BETA        RCONST(1000.)  /* Coefficient beta in above eqns. */
-#define AX          RCONST(1.0)    /* Total range of x variable */
-#define AY          RCONST(1.0)    /* Total range of y variable */
-#define RTOL        RCONST(1.e-5)  /*  rtol tolerance */
-#define ATOL        RCONST(1.e-5)  /*  atol tolerance */
-#define ZERO        RCONST(0.)     /* 0. */
-#define ONE         RCONST(1.0)    /* 1. */
-#define NOUT        6
-#define TMULT       RCONST(10.0)   /* Multiplier for tout values */
-#define TADD        RCONST(0.3)    /* Increment for tout values */
+#define NEQ         (NUM_SPECIES*MX*MY)
+#define AA          RCONST(1.0)    /* Coefficient in above eqns. for a  */
+#define EE          RCONST(10000.) /* Coefficient in above eqns. for a  */
+#define GG          RCONST(0.5e-6) /* Coefficient in above eqns. for a  */
+#define BB          RCONST(1.0)    /* Coefficient in above eqns. for b  */
+#define DPREY       RCONST(1.0)    /* Coefficient in above eqns. for d  */
+#define DPRED       RCONST(0.05)   /* Coefficient in above eqns. for d  */
+#define ALPHA       RCONST(50.)    /* Coefficient alpha in above eqns.  */
+#define BETA        RCONST(1000.)  /* Coefficient beta in above eqns.   */
+#define AX          RCONST(1.0)    /* Total range of x variable         */
+#define AY          RCONST(1.0)    /* Total range of y variable         */
+#define RTOL        RCONST(1.e-5)  /* Relative tolerance                */
+#define ATOL        RCONST(1.e-5)  /* Absolute tolerance                */
+#define NOUT        6              /* Number of output times            */
+#define TMULT       RCONST(10.0)   /* Multiplier for tout values        */
+#define TADD        RCONST(0.3)    /* Increment for tout values         */
+#define ZERO        RCONST(0.)     
+#define ONE         RCONST(1.0)    
 
 /* 
  * User-defined vector and accessor macro: IJ_Vptr.
- * IJ_Vptr is defined in order to express the underlying 3-D structure of the 
- * dependent variable vector from its underlying 1-D storage (an N_Vector).
+ * IJ_Vptr is defined in order to express the underlying 3-D structure of 
+ * the dependent variable vector from its underlying 1-D storage (an N_Vector).
  * IJ_Vptr(vv,i,j) returns a pointer to the location in vv corresponding to 
  * species index is = 0, x-index ix = i, and y-index jy = j.                
  */
@@ -145,35 +142,28 @@ typedef struct {
   N_Vector rates;
 } *UserData;
 
-/* Prototypes for private Helper Functions. */
-
-static UserData AllocUserData(long int SystemSize);
-static void InitUserData(UserData webdata);
-static void FreeUserData(UserData webdata);
-static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
-                               UserData webdata);
-static void PrintOutput(void *mem, N_Vector cc, realtype time,
-                        UserData webdata);
-static void PrintFinalStats(void *mem);
-static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
-static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
-                     UserData webdata);
-static realtype dotprod(long int size, realtype *x1, realtype *x2);
-
-
 /* Prototypes for functions called by the IDA Solver. */
 
 static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval, 
                   void *rdata);
 
-/* Private function to check function return values */
+/* Prototypes for private Helper Functions. */
 
+static void InitUserData(UserData webdata);
+static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
+                               UserData webdata);
+static void PrintOutput(void *mem, N_Vector c, realtype t, UserData webdata);
+static void PrintFinalStats(void *mem);
+static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
+static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
+                     UserData webdata);
+static realtype dotprod(long int size, realtype *x1, realtype *x2);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
- *----------------------------
- * Main program
- *----------------------------
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
  */
 
 int main()
@@ -181,19 +171,19 @@ int main()
   void *mem;
   UserData webdata;
   N_Vector cc, cp, id;
-  int iout, flag, retval, itol, itask;
-  long int SystemSize, mu, ml;
+  int iout, retval;
+  long int mu, ml;
   realtype rtol, atol, t0, tout, tret;
 
   mem = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
 
-  /* Set up and load user data block webdata. */
+  /* Allocate and initialize user data block webdata. */
 
-  SystemSize = NEQ;
-  webdata = AllocUserData(SystemSize);
-  if(check_flag((void *)webdata, "AllocUserData", 2)) return(1);
+  webdata = (UserData) malloc(sizeof *webdata);
+  webdata->rates = N_VNew_Serial(NEQ);
+  webdata->acoef = denalloc(NUM_SPECIES);
 
   InitUserData(webdata);
 
@@ -213,7 +203,6 @@ int main()
   /* Set remaining inputs to IDAMalloc. */
   
   t0 = ZERO;
-  itol = IDA_SS; 
   rtol = RTOL; 
   atol = ATOL;
 
@@ -228,13 +217,13 @@ int main()
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1)) return(1);
 
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, itol, &rtol, &atol);
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, &rtol, &atol);
   if(check_flag(&retval, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the IDA linear solver. */
 
   mu = ml = NSMX;
-  retval = IDABand(mem, SystemSize, mu, ml);
+  retval = IDABand(mem, NEQ, mu, ml);
   if(check_flag(&retval, "IDABand", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
@@ -245,64 +234,52 @@ int main()
   
   /* Print heading, basic parameters, and initial values. */
 
-  printf("iwebsb: Predator-prey DAE serial example problem for IDA \n\n");
+  printf("\niwebsb: Predator-prey DAE serial example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     System size: %ld\n",SystemSize);
+  printf("     System size: %ld\n",NEQ);
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
   printf("Linear solver: IDABAND,  Band parameters mu = %ld, ml = %ld\n",mu,ml);
-  printf("CalcIC called to correct initial predator concentrations \n\n");
+  printf("CalcIC called to correct initial predator concentrations.\n\n");
+  printf("-----------------------------------------------------------\n");
+  printf("  t        bottom-left  top-right");
+  printf("    | nst  k      h\n");
+  printf("-----------------------------------------------------------\n\n");
   
   PrintOutput(mem, cc, ZERO, webdata);
   
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
   
-  itask = IDA_NORMAL;
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(mem, tout, &tret, cc, cp, itask);
-    if(check_flag(&flag, "IDASolve", 1)) return(flag);
+    retval = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
+    if(check_flag(&retval, "IDASolve", 1)) return(retval);
     
     PrintOutput(mem, cc, tret, webdata);
     
     if (iout < 3) tout *= TMULT; else tout += TADD;
     
-  } /* End of iout loop. */
+  }
   
   /* Print final statistics and free memory. */  
   
+  printf("-----------------------------------------------------------\n");
   PrintFinalStats(mem);
 
-  N_VDestroy(cc);
-  N_VDestroy(cp);
-  N_VDestroy(id);
+  /* Free memory */
+
   IDAFree(mem);
-  FreeUserData(webdata);
+
+  N_VDestroy_Serial(cc);
+  N_VDestroy_Serial(cp);
+  N_VDestroy_Serial(id);
+
+
+  denfree(webdata->acoef);
+  N_VDestroy_Serial(webdata->rates);
+  free(webdata);
 
   return(0);
-}
-
-/*
- *----------------------------
- * Private Helper Functions
- *----------------------------
- */
-
-/* 
- * AllocUserData: Allocate memory for data structure of type UserData.   
- */
-
-static UserData AllocUserData(long int SystemSize)
-{
-  UserData webdata;
-
-  webdata = (UserData) malloc(sizeof *webdata);
-
-  webdata->rates = N_VNew_Serial(SystemSize);
-
-  webdata->acoef = denalloc(NUM_SPECIES);
- 
-  return(webdata);
 }
 
 /* Define lines for readability in later routines */ 
@@ -311,6 +288,61 @@ static UserData AllocUserData(long int SystemSize)
 #define bcoef  (webdata->bcoef)
 #define cox    (webdata->cox)
 #define coy    (webdata->coy)
+
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
+
+/* 
+ * resweb: System residual function for predator-prey system.
+ * This routine calls Fweb to get all the right-hand sides of the
+ * equations, then loads the residual vector accordingly,
+ * using cp in the case of prey species.                 
+ */
+
+static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
+                  N_Vector res,  void *rdata)
+{
+  long int jx, jy, is, yloc, loc, np;
+  realtype *resv, *cpv;
+  UserData webdata;
+  
+  webdata = (UserData)rdata;
+  
+  cpv = NV_DATA_S(cp);
+  resv = NV_DATA_S(res);
+  np = webdata->np;
+  
+  /* Call Fweb to set res to vector of right-hand sides. */
+  Fweb(tt, cc, res, webdata);
+  
+  /* Loop over all grid points, setting residual values appropriately
+     for differential or algebraic components.                        */
+  
+  for (jy = 0; jy < MY; jy++) {
+    yloc = NSMX * jy;
+    for (jx = 0; jx < MX; jx++) {
+      loc = yloc + NUM_SPECIES * jx;
+      for (is = 0; is < NUM_SPECIES; is++) {
+        if (is < np)
+          resv[loc+is] = cpv[loc+is] - resv[loc+is];
+        else
+          resv[loc+is] = -resv[loc+is];
+      }
+    }
+  }
+  
+  return(0);
+  
+}
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
 
 /*
  * InitUserData: Load problem constants in webdata (of type UserData).   
@@ -355,19 +387,6 @@ static void InitUserData(UserData webdata)
     coy[i] = DPREY/dy2; coy[i+np] = DPRED/dy2;
   }
   
-}
-
-
-/* 
- * FreeUserData: Free webdata memory.
- */
-
-static void FreeUserData(UserData webdata)
-{
-  denfree(acoef);
-  N_VDestroy(webdata->rates);
-  
-  free(webdata);
 }
 
 /* 
@@ -432,44 +451,34 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 
 /* 
  * PrintOutput: Print output values at output time t = tt.
- * Selected run statistics are printed.  Then values of c1 and c2
+ * Selected run statistics are printed.  Then values of the concentrations
  * are printed for the bottom left and top right grid points only.  
- * (NOTE: This routine is specific to the case NUM_SPECIES = 2.)         
  */
 
-static void PrintOutput(void *mem, N_Vector cc, realtype tt,
-                        UserData webdata)
+static void PrintOutput(void *mem, N_Vector c, realtype t, UserData webdata)
 {
-  int jx, jy, kused, flag;
-  long int nst, nni, nje, nre, nreB;
-  realtype *ct, hused;
+  int i, kused, flag;
+  long int nst;
+  realtype *c_bl, *c_tr, hused;
 
   flag = IDAGetLastOrder(mem, &kused);
   check_flag(&flag, "IDAGetLastOrder", 1);
   flag = IDAGetNumSteps(mem, &nst);
   check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDAGetNumNonlinSolvIters(mem, &nni);
-  check_flag(&flag, "IDAGetNumNonlinSolvIters", 1);
-  flag = IDAGetNumResEvals(mem, &nre);
-  check_flag(&flag, "IDAGetNumResEvals", 1);
   flag = IDAGetLastStep(mem, &hused);
   check_flag(&flag, "IDAGetLastStep", 1);
-  flag = IDABandGetNumJacEvals(mem, &nje);
-  check_flag(&flag, "IDABandGetNumJacEvals", 1);
-  flag = IDABandGetNumResEvals(mem, &nreB);
-  check_flag(&flag, "IDABandGetNumResEvals", 1);
   
-  printf("\nTIME t = %e.     NST = %ld, k = %d, h = %e\n",
-         tt, nst, kused, hused);
-  printf("NRE = %ld, NRE_B = %ld, NNI = %ld, NJE = %ld\n", 
-         nre, nreB, nni, nje);
+  c_bl = IJ_Vptr(c,0,0);
+  //  printf("At bottom left:  c1, c2 = %e %e \n",   ct[0],ct[1]);
   
-  jx = 0;    jy = 0;    ct = IJ_Vptr(cc,jx,jy);
-  printf("At bottom left:  c1, c2 = %e %e \n",   ct[0],ct[1]);
-  
-  jx = MX-1; jy = MY-1; ct = IJ_Vptr(cc,jx,jy);
-  printf("At top right:    c1, c2 = %e %e \n\n", ct[0],ct[1]);
-  
+  c_tr = IJ_Vptr(c,MX-1,MY-1);
+  //  printf("At top right:    c1, c2 = %e %e \n\n", ct[0],ct[1]);
+
+  printf("%8.2e %12.4e %12.4e   | %3d  %1d %12.4e\n", 
+         t, c_bl[0], c_tr[1], nst, kused, hused);
+  for (i=1;i<NUM_SPECIES;i++)
+    printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
+  printf("\n");
 }
 
 /* 
@@ -496,54 +505,14 @@ static void PrintFinalStats(void *mem)
   flag = IDABandGetNumResEvals(mem, &nreB);
   check_flag(&flag, "IDABandGetNumResEvals", 1);
 
-  printf("\nFinal run statistics: \n\n");
-  printf("NST  = %5ld     NRE  = %5ld \n", nst, nre+nreB);
-  printf("NNI  = %5ld     NJE  = %5ld \n", nni, nje);
-  printf("NETF = %5ld     NCFN = %5ld \n", netf, ncfn);
-  
-}
+  printf("Final run statistics: \n\n");
+  printf("Number of steps                    = %ld\n", nst);
+  printf("Number of residual evaluations     = %ld\n", nre+nreB);
+  printf("Number of Jacobian evaluations     = %ld\n", nje);
+  printf("Number of nonlinear iterations     = %ld\n", nni);
+  printf("Number of error test failures      = %ld\n", netf);
+  printf("Number of nonlinear conv. failures = %ld\n", ncfn);
 
-/* 
- * resweb: System residual function for predator-prey system.
- * This routine calls Fweb to get all the right-hand sides of the
- * equations, then loads the residual vector accordingly,
- * using cp in the case of prey species.                 
- */
-
-static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
-                  N_Vector res,  void *rdata)
-{
-  long int jx, jy, is, yloc, loc, np;
-  realtype *resv, *cpv;
-  UserData webdata;
-  
-  webdata = (UserData)rdata;
-  
-  cpv = NV_DATA_S(cp);
-  resv = NV_DATA_S(res);
-  np = webdata->np;
-  
-  /* Call Fweb to set res to vector of right-hand sides. */
-  Fweb(tt, cc, res, webdata);
-  
-  /* Loop over all grid points, setting residual values appropriately
-     for differential or algebraic components.                        */
-  
-  for (jy = 0; jy < MY; jy++) {
-    yloc = NSMX * jy;
-    for (jx = 0; jx < MX; jx++) {
-      loc = yloc + NUM_SPECIES * jx;
-      for (is = 0; is < NUM_SPECIES; is++) {
-        if (is < np)
-          resv[loc+is] = cpv[loc+is] - resv[loc+is];
-        else
-          resv[loc+is] = -resv[loc+is];
-      } /* End is (species) loop */
-    } /* End of jx loop */
-  } /* End of jy loop */
-  
-  return(0);
-  
 }
 
 /* 
@@ -649,22 +618,28 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 {
   int *errflag;
 
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
+    /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
+    return(1);
+  } else if (opt == 1) {
+    /* Check if flag < 0 */
     errflag = flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return(1); }
+      fprintf(stderr, 
+              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
+              funcname, *errflag);
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) {
+    /* Check if function returned NULL pointer - no memory allocated */
+    fprintf(stderr, 
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+            funcname);
+    return(1); 
+  }
 
   return(0);
 }
