@@ -7,10 +7,10 @@
 {\cvodes} solves ODE initial value problems (IVPs) in real $N$-space, which we
 write in the abstract form
 \begin{equation}\label{e:ivp} 
-  \dot{y} = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
+  y^\prime = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
 \end{equation}
 where $y \in \mbox{\bf R}^N$.
-Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
+Here we use $y^\prime$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
 not be.  {\cvodes} solves both stiff and non-stiff systems.  Roughly
 speaking, stiffness is characterized by the presence of at least one
@@ -20,7 +20,7 @@ scale of the solution itself.
 Additionally, if (\ref{e:ivp}) depends on some parameters $p \in {\bf R}^{N_p}$, i.e.
 \begin{equation}\label{e:ivp_p}
 \begin{split}
-&\dot{y}  = f(t,\,y,\,p) \\
+&y^\prime  = f(t,\,y,\,p) \\
 &y(t_0)  = y_0(p) \, ,
 \end{split}
 \end{equation}
@@ -39,10 +39,10 @@ parameters $p$, while in the second case, {\cvodes} computes the gradient of a
 The methods used in {\cvodes} are variable-order, variable-step multistep
 methods, based on formulas of the form
 \begin{equation}\label{e:lmm}
- \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} + 
-     h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 \, .
+ \sum_{i = 0}^{K_1} \alpha_{n,i} y^{n-i} + 
+     h_n \sum_{i = 0}^{K_2} \beta_{n,i} {y^\prime}^{n-i} = 0 \, .
 \end{equation}
-Here the $y_n$ are computed approximations to $y(t_n)$, and
+Here the $y^n$ are computed approximations to $y(t_n)$, and
 $h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvodes} must
 appropriately choose one of two multistep methods.  For non-stiff problems,
 {\cvodes} includes the Adams-Moulton formulas \index{Adams method},
@@ -61,18 +61,18 @@ $\alpha_{n,0} = -1$.  See \cite{ByHi:75} and \cite{JaSD:80}.
 \index{nonlinear system!definition|(}
 For either choice of formula, the nonlinear system
 \begin{equation}\label{e:nonlinear}
-  G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0 \, ,
+  G(y_n) \equiv y^n - h_n \beta_{n,0} f(t_n,y^n) - a_n = 0 \, ,
 \end{equation}
-where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$, 
+where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y^{n-i}+h_n\beta_{n,i}{y^\prime}^{n-i})$, 
 must be solved (approximately) at each integration step.  For this, {\cvodes}
 offers the choice of either {\em functional iteration}, suitable only
 for non-stiff systems, and various versions of {\em Newton iteration}.
 Functional iteration, given by
-\[ y_{n(m+1)} = h_n \beta_{n,0} f(t_n,y_{n(m)}) + a_n \, , \]
+\[ y^{n(m+1)} = h_n \beta_{n,0} f(t_n,y^{n(m)}) + a_n \, , \]
 involves evaluations of $f$ only.  In contrast, Newton iteration requires
 the solution of linear systems
 \begin{equation}\label{e:Newton}
-  M [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)}) \, ,
+  M [y^{n(m+1)} - y^{n(m)}] = -G(y^{n(m)}) \, ,
 \end{equation}
 in which
 \begin{equation}\label{e:Newtonmat} 
@@ -81,7 +81,7 @@ in which
   \quad \mbox{and} \quad
   \gamma = h_n \beta_{n,0} \, . 
 \end{equation}
-The initial guess for the iteration is a predicted value $y_{n(0)}$
+The initial guess for the iteration is a predicted value $y^{n(0)}$
 computed explicitly from the available history data.
 \index{nonlinear system!definition|)}
 For the Newton corrections, {\cvodes} provides a choice of four methods:
@@ -109,9 +109,9 @@ solution and on the relative and absolute tolerances input by the
 user, namely
 \index{tolerances}
 \begin{equation}\label{e:errwt}
- W_i = \mbox{\sc rtol} \cdot |y^i| + \mbox{\sc atol}_i \, .
+ W_i = \mbox{\sc rtol} \cdot |y_i| + \mbox{\sc atol}_i \, .
 \end{equation}
-Because $W_i$ represents a tolerance in the component $y^i$, a vector
+Because $W_i$ represents a tolerance in the component $y_i$, a vector
 whose norm is 1 is regarded as ``small.''  For brevity, we will
 usually drop the subscript WRMS on norms in what follows.
 \index{norm!weighted root-mean-square|)}
@@ -158,23 +158,23 @@ satisfies $|\gamma/\bar{\gamma} - 1| < 0.2$, or
 The stopping test for the Newton iteration is related to the
 subsequent local error test, with the goal of keeping the nonlinear
 iteration errors from interfering with local error control.  As
-described below, the final computed value $y_{n(m)}$ will have to
-satisfy a local error test $\|y_{n(m)} - y_{n(0)}\| \leq \epsilon$.
-Letting $y_n$ denote the exact solution of (\ref{e:nonlinear}), we want
-to ensure that the iteration error $y_n - y_{n(m)}$ is small relative
+described below, the final computed value $y^{n(m)}$ will have to
+satisfy a local error test $\|y^{n(m)} - y^{n(0)}\| \leq \epsilon$.
+Letting $y^n$ denote the exact solution of (\ref{e:nonlinear}), we want
+to ensure that the iteration error $y^n - y^{n(m)}$ is small relative
 to $\epsilon$, specifically that it is less than $0.1 \epsilon$.
 (The safety factor $0.1$ can be changed by the user.)  For this, we
 also estimate the linear convergence rate constant $R$ as follows.
 We initialize $R$ to 1, and reset $R = 1$ when $M$ or $P$ is updated.
-After computing a correction $\delta_m = y_{n(m)}-y_{n(m-1)}$, we
+After computing a correction $\delta_m = y^{n(m)}-y^{n(m-1)}$, we
 update $R$ if $m > 1$ as
 \begin{equation*}
   R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} \, . 
 \end{equation*}
 Now we use the estimate
 \begin{equation*}
-  \| y_n - y_{n(m)} \| \approx \| y_{n(m+1)} - y_{n(m)} \| 
-  \approx R \| y_{n(m)} - y_{n(m-1)} \|  =  R \|\delta_m \| \, . 
+  \| y^n - y^{n(m)} \| \approx \| y^{n(m+1)} - y^{n(m)} \| 
+  \approx R \| y^{n(m)} - y^{n(m-1)} \|  =  R \|\delta_m \| \, . 
 \end{equation*}
 Therefore the convergence (stopping) test is 
 \begin{equation*}
@@ -204,9 +204,9 @@ With the direct dense and band methods, the Jacobian may be supplied
 by a user routine, or approximated by difference quotients,
 at the user's option.  In the latter case, we use the usual
 approximation
-\[ J_{ij} = [f^i(t,y+\sigma_j e_j) - f^i(t,y)]/\sigma_j \, . \]
+\[ J_{ij} = [f_i(t,y+\sigma_j e_j) - f_i(t,y)]/\sigma_j \, . \]
 The increments $\sigma_j$ are given by
-\[ \sigma_j = \max\left\{\sqrt{U} \; |y^j| , \sigma_0 W_j \right\} \, , \]
+\[ \sigma_j = \max\left\{\sqrt{U} \; |y_j| , \sigma_0 W_j \right\} \, , \]
 where $U$ is the unit roundoff, $\sigma_0$ is a dimensionless value,
 and $W_j$ is the error weight defined in (\ref{e:errwt}).  In the dense
 case, this scheme requires $N$ evaluations of $f$, one for each column
@@ -236,12 +236,12 @@ error LTE, at order $q$ and step size $h$, satisfies an asymptotic
 relation
 \[ \mbox{LTE} = C h^{q+1} y^{(q+1)} + O(h^{q+2}) \]
 for some constant $C$, under mild assumptions on the step sizes.
-A similar relation holds for the error in the predictor $y_{n(0)}$.
+A similar relation holds for the error in the predictor $y^{n(0)}$.
 These are combined to get a relation
-\[ \mbox{LTE} = C' [y_n - y_{n(0)}] + O(h^{q+2}) \, . \]
+\[ \mbox{LTE} = C' [y^n - y^{n(0)}] + O(h^{q+2}) \, . \]
 The local error test is simply $\|\mbox{LTE}\| \leq 1$.  Using the above,
 it is performed on the predictor-corrector difference 
-$\Delta_n \equiv y_{n(m)} - y_{n(0)}$ (with $y_{n(m)}$ the final
+$\Delta_n \equiv y^{n(m)} - y^{n(0)}$ (with $y^{n(m)}$ the final
 iterate computed), and takes the form
 \[ \|\Delta_n\| \leq \epsilon \equiv 1/|C'| \, . \]
 If this test passes, the step is considered successful.  If it fails,
@@ -327,7 +327,7 @@ $s_i (t) = {\partial y(t)}/{\partial p_i}$
 and satisfies the following {\em forward sensitivity equations}
 (or in short {\em sensitivity equations}):
 \begin{equation}\label{e:sens_eqns}
-\dot{s_i}  = \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \, ,
+{s^\prime_i}  = \frac{\partial f}{\partial y} s_i + \frac{\partial f}{\partial p_i} \, ,
 \quad s_i(t_0)  = \frac{\partial y_{0}(p)}{\partial p_i} \, ,
 \end{equation}
 obtained by applying the chain rule of differentiation to the original
@@ -366,7 +366,7 @@ is not implemented in {\cvodes}.
   In this approach \cite{CaSt:85}, the nonlinear system (\ref{e:nonlinear}) is first 
   solved and, once an acceptable numerical solution is obtained, the sensitivity 
   variables at the new step are found by directly solving (\ref{e:sens_eqns}) 
-  after the (BDF or Adams) discretization is used to eliminate ${\dot s}_i$. 
+  after the (BDF or Adams) discretization is used to eliminate $s^\prime_i$. 
   Although the system matrix of the above linear system is based on exactly the same 
   information as the matrix $M$ in (\ref{e:Newtonmat}), it must be updated and factored 
   at every step of the integration, in contrast to $M$ which is updated only occasionally. 
@@ -420,12 +420,12 @@ is not implemented in {\cvodes}.
   (\ref{e:Newton}). Then a separate Newton iteration is used to solve the
   sensitivity system (\ref{e:sens_eqns}):
   \begin{multline}\label{e:stgr_iterations}
-    M [s_{i , n(m+1)} - s_{i , n(m)}]= \\
-    - \left[ s_{i, n(m)} - 
-    \gamma \left( \dfdy (t_n , y_n, p) s_{i , n(m)} + \dfdpi (t_n , y_n , p) \right)
+    M [s_{i}^{n(m+1)} - s_{i}^{n(m)}]= \\
+    - \left[ s_{i}^{n(m)} - 
+    \gamma \left( \dfdy (t_n , y^n, p) s_{i}^{n(m)} + \dfdpi (t_n , y^n , p) \right)
     -a_{i,n} \right] \, ,
   \end{multline}
-  where $a_{i,n} = \sum_{j>0}(\alpha_{n,j}s_{i , n-j}+h_n\beta_{n,j}\dot{s}_{i , n-j})$.
+  where $a_{i,n} = \sum_{j>0}(\alpha_{n,j}s_{i}^{n-j}+h_n\beta_{n,j}{s^\prime_i}^{n-j})$.
   In other words, a modified Newton iteration is used to solve a linear system.
   In this approach, the vectors $\dfdpiI$ need be updated only once per integration step, 
   after the state correction phase (\ref{e:Newton}) has converged. Note also that 
@@ -569,21 +569,21 @@ Introducing a Lagrange multiplier $\lambda$, we form the augmented
 objective function
 \begin{equation}
 I(p) = G(p) - \int_{t_0}^{t_1} \lambda^* 
-\left( {\dot y} - f(t,y,p)\right) dt \, ,
+\left( y^\prime - f(t,y,p)\right) dt \, ,
 \end{equation}
 where $*$ denotes the conjugate transpose. The gradient of $G$ with respect to $p$ is
 \begin{equation}
   \frac{dG}{dp} = \frac{dI}{dp} 
 =\int_{t_0}^{t_1}(g_p + g_y s)dt - \int_{t_0}^{t_1} 
-\lambda^* \left( {\dot s} - f_y s - f_p \right)dt \, ,
+\lambda^* \left( s^\prime - f_y s - f_p \right)dt \, ,
 \end{equation}
 where subscripts on functions such as $f$ or $g$ are used to denote partial 
 derivatives and $s = [s_1,\ldots,s_{N_s}]$ is the matrix of solution sensitivities.
-Applying integration by parts to the term $\lambda^* {\dot s}$ and selecting
+Applying integration by parts to the term $\lambda^* s^\prime$ and selecting
 $\lambda$ such that
 \begin{equation}\label{e:adj_eqns}
 \begin{split}
-&{\dot \lambda} = -\left( \dfdy \right)^* \lambda - 
+&\lambda^\prime = -\left( \dfdy \right)^* \lambda - 
 \left( \frac{\partial g}{\partial y} \right)^* \\
 &\lambda(t_1) = 0 \, ,
 \end{split}
@@ -609,13 +609,13 @@ limit and thus satisfies the following equation, obtained by taking the total de
 with respect to $t_1$ of (\ref{e:adj_eqns}):
 \begin{equation}\label{e:adj1_eqns}
 \begin{split}
-&{\dot \mu} = -\left( \dfdy \right)^* \mu \\ 
+&\mu^\prime = -\left( \dfdy \right)^* \mu \\ 
 &\mu(t_1) = \left( \frac{\partial g}{\partial y} \right)^*_{t=t_1} \, .
 \end{split}
 \end{equation}
 The final condition on $\mu(t_1)$ follows from 
 $(\partial\lambda/\partial t) + (\partial\lambda/\partial t_1) = 0$ at $t_1$, and
-therefore, $\mu(t_1) = -{\dot\lambda}(t_1)$. 
+therefore, $\mu(t_1) = -\lambda^\prime(t_1)$. 
 
 The first thing to notice about the adjoint system (\ref{e:adj_eqns}) is that there is 
 no explicit specification of the parameters $p$; this implies that, once the solution
@@ -639,10 +639,10 @@ it is unlikely that the states will be available at the desired time and
 so some form of interpolation is needed. The {\cvodes} implementation
 being also variable-order, it is possible that during the forward
 integration phase the order may be reduced as low as first order,
-which means that there may be points in time where only $y$ and ${\dot y}$
+which means that there may be points in time where only $y$ and $y^\prime$
 are available. Therefore, {\cvodes} implements a cubic Hermite interpolation
 algorithm. However, especially for large-scale problems and long integration
-intervals, the number and size of the vectors $y$ and ${\dot y}$ that would 
+intervals, the number and size of the vectors $y$ and $y^\prime$ that would 
 need to be stored make this approach computationally intractable. 
 
 {\cvodes} settles for a compromise between storage space and execution time by
@@ -650,7 +650,7 @@ implementing a so-called {\em checkpointing scheme}. At the cost of
 at most one additional forward integration, this approach offers the best possible 
 estimate of memory requirements for adjoint sensitivity analysis. To begin with,
 based on the problem size $N$ and the available memory, the user decides on 
-the number $N_d$ of data pairs ($y$, ${\dot y}$) that can be kept in memory for 
+the number $N_d$ of data pairs ($y$, $y^\prime$) that can be kept in memory for 
 the purpose of interpolation. Then, during the first forward integration stage, after
 every $N_d$ integration steps a checkpoint is formed by saving enough information
 (either in memory or on disk) to allow for a hot restart, that is a restart
@@ -662,7 +662,7 @@ During the backward integration stage, the adjoint variables are integrated
 from $t_1$ to $t_0$ going from one checkpoint to the previous one.
 The backward integration from checkpoint $i+1$ to checkpoint $i$ is preceded
 by a forward integration from $i$ to $i+1$ during which $N_d$ data pairs 
-($y$, ${\dot y}$) are generated and stored in memory for interpolation.
+($y$, $y^\prime$) are generated and stored in memory for interpolation.
 (see Fig.~\ref{f:ckpnt}).
 %
 \begin{figure}
@@ -679,7 +679,7 @@ the forward integration, and there is no major penalty for writing/reading the c
 data to/from a temporary file.
 %
 Note that, at the end of the first forward integration stage, data pairs 
-($y$, ${\dot y}$) are available from the last checkpoint to the end of the interval of integration.
+($y$, $y^\prime$) are available from the last checkpoint to the end of the interval of integration.
 If no checkpoints are necessary ($N_d$ is larger than the 
 number of integration steps taken in the solution of (\ref{e:ivp_p})),
 the total cost of an adjoint sensitivity computation can be as low as one forward
@@ -717,7 +717,7 @@ When the BDF option is selected, {\cvodes} uses Backward Differentiation
 Formula methods of orders 1 to 5.  At order 1 or 2, the BDF
 method is A-stable, meaning that for any complex constant $\lambda$ in
 the open left half-plane the method is unconditionally stable (for
-any step size) for the standard scalar model problem $dy/dt = \lambda y$.
+any step size) for the standard scalar model problem $y^\prime = \lambda y$.
 For an ODE system, this means that, roughly speaking, as long as all
 modes in the system are stable, the method is also stable for any
 choice of step size, at least in the sense of a local linear stability

@@ -13,9 +13,9 @@ As a first example of using {\cvodes} for adjoint sensitivity analysis
 we examine the chemical kinetics problem 
 \begin{equation}\label{e:cvadx_ODE}
   \begin{split}
-    &{\dot y}_1 = -p_1 y_1 + p_2 y_2 y_3   \\
-    &{\dot y}_2 =  p_1 y_1 - p_2 y_2 y_3 - p_3 y_2^2 \\
-    &{\dot y}_3 =  p_3 y_2^2 \\
+    &y^\prime_1 = -p_1 y_1 + p_2 y_2 y_3   \\
+    &y^\prime_2 =  p_1 y_1 - p_2 y_2 y_3 - p_3 y_2^2 \\
+    &y^\prime_3 =  p_3 y_2^2 \\
     &y(t_0) = y_0 \, ,
   \end{split}
 \end{equation}
@@ -36,7 +36,7 @@ defining the right-hand side of (\ref{e:cvadx_ODE}), and $\lambda$ is
 the solution of the adjoint problem (\ref{e:adj_eqns}),
 \begin{equation}\label{e:cvadx_ADJ}
   \begin{split}
-    &{\dot \lambda} = - (f_y)^T  \lambda - (g_y)^T \\
+    &\lambda^\prime = - (f_y)^T  \lambda - (g_y)^T \\
     &\lambda(t_1) = 0 \, .
   \end{split}
 \end{equation}
@@ -46,7 +46,7 @@ evaluation of the integral in (\ref{e:cvadx_dGdp}), we extend the
 backward problem with the following $N_p$ quadrature equations
 \begin{equation}\label{e:cvadx_XI}
   \begin{split}
-    &{\dot \xi} = g_p^T + f_p^T \lambda \\
+    &\xi^\prime = g_p^T + f_p^T \lambda \\
     &\xi (t_1) = 0 \, ,
   \end{split}
 \end{equation}
@@ -57,7 +57,7 @@ $G = - \zeta(t_0)$, where $\zeta$ is solution of the following quadrature
 equation:
 \begin{equation}\label{e:cvadx_ZETA}
   \begin{split}
-    &{\dot\zeta} = g \\
+    &\zeta^\prime = g \\
     &\zeta(t_1) = 0 \, .
   \end{split}
 \end{equation}
@@ -229,9 +229,9 @@ As always, we deal with the time quadratures in (\ref{e:pvanx:dgdp}) by introduc
 the additional equations
 \begin{equation}\label{e:pvanx:quad}
   \begin{split}
-    &{\dot\xi}_1 = \int_{x_0}^{x_1} dx \mu \frac{\partial^2 u}{\partial x^2} \, , \quad
+    &\xi^\prime_1 = \int_{x_0}^{x_1} dx \mu \frac{\partial^2 u}{\partial x^2} \, , \quad
     \xi_1(t_1) = 0 \, , \\
-    &{\dot\xi}_2 = \int_{x_0}^{x_1} dx \mu \frac{\partial u}{\partial x} \, , \quad
+    &\xi^\prime_2 = \int_{x_0}^{x_1} dx \mu \frac{\partial u}{\partial x} \, , \quad
     \xi_2(t_1) = 0 \, ,
   \end{split}
 \end{equation}
