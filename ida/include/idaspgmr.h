@@ -325,7 +325,7 @@ typedef struct {
   realtype g_dqincfac; /* dqincfac = optional increment factor in Jv   */
   realtype g_epslin;   /* SpgrmSolve tolerance parameter               */
 
-  long int g_resflag;  /* flag from last res call                      */
+  int g_resflag;       /* flag from last res call                      */
   long int g_npe;      /* npe = total number of precond calls          */   
   long int g_nli;      /* nli = total number of linear iterations      */
   long int g_nps;      /* nps = total number of psolve calls           */
