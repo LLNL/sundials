@@ -2,8 +2,8 @@
 \chapter{Generic Linear Solvers in {\sundials}}\label{s:gen_linsolv}
 %===================================================================================
 In this section, we describe three generic linear solver code modules that 
-are included in {\cvodes}, but which are of potential use as generic packages in
-themselves, either in conjunction with the use of {\cvodes} or separately.
+are included in {\sundials}, but which are of potential use as generic packages in
+themselves, either in conjunction with the use of {\kinsol} or separately.
 These modules are:
 \begin{itemize}
 %% \item The {\dense} matrix package, which includes the matrix type \id{DenseMat},
@@ -19,10 +19,10 @@ These modules are:
 For the sake of space, the functions for \id{DenseMat} and
 \id{BandMat} matrices and the functions in {\spgmr} are only summarized
 briefly, since they are less likely to be of direct use in connection
-with {\cvodes}.  The functions for small dense matrices are fully
+with {\kinsol}.  The functions for small dense matrices are fully
 described, because we expect that they will be useful in the
-implementation of preconditioners used with the combination of {\cvodes}
-and the {\cvspgmr} solver.
+implementation of preconditioners used with the combination of {\kinsol}
+and the {\kinspgmr} solver.
 
 %-------------------------------
 %% \section{The {\dense} Module}\label{ss:dense}
