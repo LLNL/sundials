@@ -71,9 +71,9 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   }
 
   if (*optin == 1) {
-    if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, iopt[0]);
+    if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, (int)iopt[0]);
     if (iopt[1]>0)      CVodeSetMaxNumSteps(CV_cvodemem, iopt[1]);
-    if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, iopt[2]);
+    if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, (int)iopt[2]);
     if (iopt[13]>0)     CVodeSetStabLimDet(CV_cvodemem, TRUE);
     if (ropt[0] != 0.0) CVodeSetInitStep(CV_cvodemem, ropt[0]);
     if (ropt[1] > 0.0)  CVodeSetMaxStep(CV_cvodemem, ropt[1]);
@@ -119,9 +119,9 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
      F2C_nvspec is the pointer to the vector specification */
 
   if (*optin == 1) {
-    if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, iopt[0]);
+    if (iopt[0]>0)      CVodeSetMaxOrd(CV_cvodemem, (int)iopt[0]);
     if (iopt[1]>0)      CVodeSetMaxNumSteps(CV_cvodemem, iopt[1]);
-    if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, iopt[2]);
+    if (iopt[2]>0)      CVodeSetMaxHnilWarns(CV_cvodemem, (int)iopt[2]);
     if (iopt[13]>0)     CVodeSetStabLimDet(CV_cvodemem, TRUE);
     if (ropt[0] != 0.0) CVodeSetInitStep(CV_cvodemem, ropt[0]);
     if (ropt[1] > 0.0)  CVodeSetMaxStep(CV_cvodemem, ropt[1]);
@@ -257,8 +257,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                             &CV_ropt[3],  /* HU */ 
                             &CV_ropt[4],  /* HCUR  */ 
                             &CV_ropt[5]); /* TCUR  */ 
-    CV_iopt[9]  = qu;    /* QU  */ 
-    CV_iopt[10] = qcur;  /* QCUR  */ 
+    CV_iopt[9]  = (long int)qu;    /* QU  */ 
+    CV_iopt[10] = (long int)qcur;  /* QCUR  */ 
     CVodeGetTolScaleFactor(CV_cvodemem, &CV_ropt[6]);
     CVodeGetNonlinSolvStats(CV_cvodemem,
                             &CV_iopt[6],  /* NNI */
