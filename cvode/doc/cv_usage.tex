@@ -67,7 +67,7 @@ The header files corresponding to the various linear solver options in {\cvode} 
 \item \Id{cvband.h}, 
   which is used with the band direct linear solver in the
   context of {\cvode}. This in turn includes a header file (\id{band.h})
-  which defines the \Id{BandMat} type and corrsponding accessor macros;
+  which defines the \Id{BandMat} type and corresponding accessor macros;
 \item \Id{cvdiag.h}, which is used with a diagonal linear solver in the
   context of {\cvode};
 \item \Id{cvspgmr.h}, 
@@ -295,7 +295,7 @@ created and allocated by the first two calls.
 {
   If successful, \id{CVodeCreate} returns a pointer to the newly created 
   {\cvode} memory block (of type \id{void *}).
-  If an error occured, \id{CVodeCreate} prints an error message to \id{stderr}
+  If an error occurred, \id{CVodeCreate} prints an error message to \id{stderr}
   and returns \id{NULL}.
 }
 {}
@@ -350,7 +350,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol, nvSpec);
   \end{args}
 }
 {
-  If an error occured, \id{CVodeMalloc} also prints an error message to the
+  If an error occurred, \id{CVodeMalloc} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
 %%
@@ -595,7 +595,7 @@ separately in \S\ref{s:gen_linsolv}.
   rather than using one factor on each side. For specification of preconditioner,
   see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
 
-  If preconditioning is done, user-supplied functionss define left and right 
+  If preconditioning is done, user-supplied functions define left and right 
   preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity matrix),
   such that the product $P_1 P_2$ approximates the Newton matrix $M=I-\gamma J$ of 
   (\ref{e:Newtonmat}).
@@ -923,7 +923,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
 {
   The function \ID{CVodeSetMaxNumSteps} specifies the maximum number
-  of steps to be taken by the solver in its attemt to reach 
+  of steps to be taken by the solver in its attempt to reach 
   the final time.
 }
 {
@@ -1041,7 +1041,7 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
   \end{args}
 }
 {
-  By default, {\cvode} estimates the inital step as solution of 
+  By default, {\cvode} estimates the initial step as solution of 
   $\| 0.5 h^2 \ddot y \|_{\mbox{\scriptsize WRMS}} = 1$,
   where $\ddot y$ is an estimated second derivative of the solution at the
   initial time.
@@ -1288,7 +1288,7 @@ difference quotient function \Id{CVDenseDQJac}
 that comes with the {\cvdense} solver.
 To specify a user-supplied Jacobian function \id{djac} and associated user 
 data \id{jac\_data}, {\cvdense} provides the functions \id{CVDenseSetJacFn}
-and \id{CVDenseSetJacData}, respctively.
+and \id{CVDenseSetJacData}, respectively.
 The {\cvdense} solver passes the pointer it receives through \id{CVDenseSetJacData} 
 to its dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
@@ -1377,9 +1377,9 @@ or use the default difference quotient function \Id{CVBandDQJac}
 that comes with the {\cvband} solver.
 To specify a user-supplied Jacobian function \id{bjac} and associated user 
 data \id{jac\_data}, {\cvband} provides the functions \id{CVBandSetJacFn}
-and \id{CVBandSetJacData}, respctively.
+and \id{CVBandSetJacData}, respectively.
 The {\cvband} solver passes the pointer it receives through \id{CVBandSetJacData} 
-to its banded Jacobian approximaton function. This allows the user to
+to its banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
@@ -1758,7 +1758,7 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
-    specifies the type of prconditioning and may be
+    specifies the type of preconditioning and may be
     \Id{NONE}, \Id{LEFT}, \Id{RIGHT}, or \Id{BOTH}.
   \end{args}
 }
@@ -3317,7 +3317,7 @@ will be reused for the new problem.
   \end{args}
 }
 {
-  If an error occured, \id{CVodeReInit} also prints an error message to the
+  If an error occurred, \id{CVodeReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 }
 %%
@@ -3474,7 +3474,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
     is the problem size.
   \item[mlower]
   \item[mupper]
-    are the lower and upper halh bandwidth of the Jacobian.
+    are the lower and upper half bandwidth of the Jacobian.
   \item[J]
     is the output Jacobian matrix.  
   \item[t]
@@ -3726,7 +3726,7 @@ user-supplied {\C} function of type \ID{CVSpgmrPrecSetupFn}, defined as follows:
 
   Each call to the preconditioner setup function is preceded by a call to     
   the \id{RhsFn} user function with the same \id{(t,y)} arguments.  
-  Thus the preconditoner setup function can use any auxiliary data that is 
+  Thus the preconditioner setup function can use any auxiliary data that is 
   computed and saved during the evaluation of the ODE right hand side.
   
   This function is not called in advance of every call to the preconditioner solve
@@ -3752,7 +3752,7 @@ user-supplied functions.
   flag = CVodeRootInit(cvode\_mem, g, nrtfn);
 }
 {
-  The function \ID{CVodeRootInit} specifies thaqt roots of a set of
+  The function \ID{CVodeRootInit} specifies that roots of a set of
   functions $g_i(t,y)$ are to be found while the IVP is being solved.
 }
 {
@@ -3770,7 +3770,7 @@ user-supplied functions.
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVRT\_MEM\_FAIL]
   \item[SUCCESS]
-    The call to \id{CVodeRootInit} was successfull.
+    The call to \id{CVodeRootInit} was successful.
   \item[CVRT\_NO\_MEM]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[CVRT\_MEM\_FAIL]
@@ -3833,7 +3833,7 @@ There are two optional output functions associated with rootfinding.
     pointer to the {\cvode} memory block.
   \item[rootsfound] (\id{int *})
     pointer to an array of \id{int} of length \id{nrtfn}, showing the
-    indeces of the user functions $g_i$ found to have a root. 
+    indices of the user functions $g_i$ found to have a root. 
     For $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
     has a root, and $=0$ if not.
   \end{args}
@@ -3879,7 +3879,7 @@ There are two optional output functions associated with rootfinding.
 %%
 %%
 
-\subsection{USer-supplied function for rootfinding}\label{ss:root_us}
+\subsection{User-supplied function for rootfinding}\label{ss:root_us}
 
 If a rootfinding problem is to be solved during the integration of the ODE system,
 the user must supply a {\C} function of type \id{RootFn}, defined as follows:
@@ -3941,7 +3941,7 @@ the user and uses this to form a preconditioner for use with the Krylov
 linear solver in {\cvspgmr}.  Although this matrix is intended
 to approximate the Jacobian $\partial f / \partial y$, 
 it may be a very crude approximation.  The true Jacobian need not be banded, or its
-true bandwith may be larger than $m_l + m_u + 1$, as long as the
+true bandwidth may be larger than $m_l + m_u + 1$, as long as the
 banded approximation generated here is sufficiently accurate
 to speed convergence as a preconditioner. 
 
@@ -4069,7 +4069,7 @@ in more detail below.
 {
   If successful, \id{CVBandPrecAlloc} returns a pointer to the newly created 
   {\cvbandpre} memory block (of type \id{void *}).
-  If an error occured, \id{CVBandPrecAlloc} returns \id{NULL}.
+  If an error occurred, \id{CVBandPrecAlloc} returns \id{NULL}.
 }
 {
   The banded approximate Jacobian will have nonzeros only in location $(i,j)$
@@ -4566,14 +4566,14 @@ next.
 {
   If successful, \id{CVBBDPrecAlloc} returns a pointer to the newly created 
   {\cvbbdpre} memory block (of type \id{void *}).
-  If an error occured, \id{CVBBDPrecAlloc} returns \id{NULL}.
+  If an error occurred, \id{CVBBDPrecAlloc} returns \id{NULL}.
 }
 {
   If one of the half-bandwidth \id{mudq} or \id{mldq} to be used in the 
   difference-quotient calculation of the approximate Jacobian is negative or 
   exceeds the value \id{local\_N}$-1$, it is replaced with 0 \id{local\_N}$-1$.
 
-  The half-bandwiths \id{mudq} and \id{mldq} need not be the true 
+  The half-bandwidths \id{mudq} and \id{mldq} need not be the true 
   half-bandwidths of the Jacobian of the local block of $g$,    
   when smaller values may provide a greater efficiency.       
 
@@ -4768,7 +4768,7 @@ the {\cvbbdpre} module:
 {
   The function \ID{CVBBDPrecGetNumGfnEvals} returns the
   number of calls to the user \id{gloc} function due to the 
-  finite difference approximaton of the Jacobian blocks used within
+  finite difference approximation of the Jacobian blocks used within
   {\cvbbdpre}'s preconditioner setup function.
 }
 {
@@ -4944,7 +4944,7 @@ by making the call:
 \end{verbatim}
 where \id{EWT} is an array containing the error weights (which need not be 
 allocated by the user) and \id{IER} is an error return flag which can be 
-$0$ if \id{EWT} was successfully set and non-zero if an error occured.
+$0$ if \id{EWT} was successfully set and non-zero if an error occurred.
 
 \begin{table}
 \centering
@@ -5095,7 +5095,7 @@ apply to {\nvecp}.
 \end{verbatim}
   where \id{NEQ} is the size of vectors and
   \id{IER} is a  return completion flag which is set to $0$ on success and $-1$ 
-  if a failure occured.
+  if a failure occurred.
   
   {\p} To initialize the parallel vector module, the user must make the following call:
   \index{FNVINITP@\texttt{FNVINITP}}
@@ -5175,7 +5175,7 @@ apply to {\nvecp}.
       CALL FCVDIAG(IER)
 \end{verbatim}
   \id{IER} is an error return flag set on $0$ on success or $-1$ if a memory 
-  failure occured.
+  failure occurred.
   There is no additional user-supplied routine. Optional outputs specific
   to the {\diag} case are \id{LRW} and \id{LIW}, stored in \id{IOPT(16)} 
   and \id{IOPT(17)}, respectively.
@@ -5189,7 +5189,7 @@ apply to {\nvecp}.
       CALL FCVDENSE(NEQ, IER)
 \end{verbatim}
   The argument \id{IER} is an error return flag which can be $0$ 
-  for success , $-1$ if a memory allocation failure occured, or $-2$ for illegal input. 
+  for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal input. 
   
   \index{Jacobian approximation function!dense!use in {\fcvode}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -5213,7 +5213,7 @@ apply to {\nvecp}.
 \end{verbatim}
   with \id{FLAG}$\neq 0$ to specify use of the user-supplied Jacobian approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
-  for success or non-zero if an error occured.
+  for success or non-zero if an error occurred.
   
   If the user's \id{FCVDJAC} uses difference quotient approximations,
   it may use the error weights provided as the \id{EWT} argument.
@@ -5233,7 +5233,7 @@ apply to {\nvecp}.
 \end{verbatim}
   The arguments are: \id{MU}, the upper bandwidth; \id{ML}, 
   the lower bandwidth; and \id{IER} an error return flag which can be  
-  $0$ for success , $-1$ if a memory allocation failure occured, or $-2$ 
+  $0$ for success , $-1$ if a memory allocation failure occurred, or $-2$ 
   in case an input has an illegal value.     
   
   \index{Jacobian approximation function!band!use in {\fcvode}}
@@ -5262,7 +5262,7 @@ apply to {\nvecp}.
 \end{verbatim}
   with \id{FLAG}$\neq 0$ to specify use of the user-supplied Jacobian approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
-  for success or non-zero if an error occured.
+  for success or non-zero if an error occurred.
   
   If the user's \id{FCVBJAC} uses difference quotient approximations,
   it may use the error weights provided as the \id{EWT} argument.
@@ -5289,7 +5289,7 @@ apply to {\nvecp}.
   \id{MAXL} is the maximum Krylov subspace dimension ($0$ indicates default).
   \id{DELT} is the linear convergence tolerance factor ($0.0$ indicates default).
   \id{IER} is an error return flag which can be $0$ to indicate success, 
-  $-1$ if a memory allocation failure occured, or $-2$ to indicate an illegal input.
+  $-1$ if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
   
   \index{Jacobian approximation function!Jacobian times vector!use in {\fcvode}}
   As an option when using the {\spgmr} linear solver, the user may supply a 
@@ -5317,7 +5317,7 @@ apply to {\nvecp}.
   with \id{FLAG}$\neq 0$ to specify use of the user-supplied Jacobian times
   vector approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
-  for success or non-zero if an error occured.
+  for success or non-zero if an error occurred.
   
   If the user's \id{FCVJTIMES} uses difference quotient approximations,
   it may use the error weights provided as the \id{EWT} argument.
@@ -5400,8 +5400,8 @@ apply to {\nvecp}.
   (return after each internal step taken), to $3$ for normal mode with
   the additional \id{tstop} constraint, or to $4$ for one-step mode 
   with the additional constraint \id{tstop}.
-  \id{IER} is a completion flag and will be set to a positive value upon successfull return
-  or to a negative value if an error occured. These values corrspond to the
+  \id{IER} is a completion flag and will be set to a positive value upon successful return
+  or to a negative value if an error occurred. These values correspond to the
   \id{CVode} returns (see \S\ref{sss:cvode}) as follows:
   $0$: \Id{SUCCESS}, $1$: \Id{TSTOP\_RETURN}, $2$: \Id{ROOT\_RETURN},
   $-1$: \Id{CVODE\_NO\_MEM}, $-2$: \Id{CVODE\_NO\_MALLOC}, $-3$: \Id{ILL\_INPUT},
@@ -5568,8 +5568,8 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   \id{NEQ} is the problem size.
   \id{MU} and \id{ML} are the upper and lower half-bandwidths of the band matrix that 
   is retained as an approximation of the Jacobian.
-  \id{IER} is a return completion flag.  A value of $0$ inidicates success, while 
-  a value of $-1$ indicates that a memory failure occured.
+  \id{IER} is a return completion flag.  A value of $0$ indicates success, while 
+  a value of $-1$ indicates that a memory failure occurred.
   
   To specify the {\spgmr} linear system solver and use the {\cvbandpre}
   preconditioner, make the following call:
@@ -5664,7 +5664,7 @@ type within {\cvbbdpre} or {\cvode}):
 \end{center}
 As with the rest of the {\fcvode} routines, the names of all user-supplied routines 
 here are fixed, in order to maximize portability for the resulting mixed-language program.
-Additonally, based on the \Id{SUNDIALS\_UNDERSCORE\_NONE} and 
+Additionally, based on the \Id{SUNDIALS\_UNDERSCORE\_NONE} and 
 \Id{SUNDIALS\_UNDERSCORE\_TWO} parameters, the names of the user-supplied routines 
 are mapped to actual values through a series of definitions in the header file 
 \id{fcvbbd.h}.
@@ -5700,8 +5700,8 @@ the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   These may be smaller than \id{MUDQ} and \id{MLDQ}.
   \id{DQRELY} is the relative increment factor in $y$ for difference quotients (optional). 
   A value of $0.0$ indicates the default, $\sqrt{\text{unit roundoff}}$.
-  \id{IER} is a return completion flag.  A value of $0$ inidicates success, a value of
-  $-1$ indicates that a memory failure occured, and a value of $-2$ indicates an 
+  \id{IER} is a return completion flag.  A value of $0$ indicates success, a value of
+  $-1$ indicates that a memory failure occurred, and a value of $-2$ indicates an 
   illegal input.
   
   To specify the {\spgmr} linear system solver and use the {\cvbbdpre}
