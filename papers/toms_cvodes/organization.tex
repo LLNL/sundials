@@ -2,7 +2,7 @@
 
 As mentioned before, the SUNDIALS suite consists of the basic solvers
 CVODE (for ODE systems), KINSOL (for nonlinear algebraic
-systems), and IDA (for DAE systems) and of sensitivity capable variants,
+systems), and IDA (for DAE systems) and of sensitivity-capable variants,
 CVODES, IDAS, and KINSOLS (the last two being currently under development).
 %
 The overall organization of the CVODES package, as well as its relationship
@@ -18,91 +18,47 @@ of linear systems that arise in the case of a stiff system.
   generic solver and auxiliary modules are in square boxes.}
 \label{f:cvsorg}
 \end{figure}
+Modules which are shared across the entire SUNDIALS suite include
+generic linear system solvers, and the NVECTOR modules (described
+further below).
 
-The central integration module deals with the evaluation of integration coefficients,
-the functional or Newton iteration process, estimation of local error,
-selection of stepsize and order, and interpolation to user output
-points, among other issues.  Although this module contains logic for
-the basic Newton iteration algorithm, it has no knowledge of the
-method being used to solve the linear systems that arise.  For any
-given user problem, one of the linear system modules is specified and
-is then invoked as needed during the integration. 
+The central CVODES integration module deals with the evaluation of
+integration coefficients, the functional or Newton iteration process,
+estimation of local error, selection of stepsize and order, and
+interpolation to user output points, among other issues.  Although
+this module contains logic for the basic Newton iteration algorithm,
+it has no knowledge of the method being used to solve the linear
+systems that arise.  For any given user problem, one of the linear
+system modules is specified and is then invoked as needed during the
+integration.
 
-In addition, if forward sensitivity analysis is turned on, the main module 
-will integrate the forward sensitivity equations, simultaneously with the original IVP.
-The sensitivities variables may or may not be included in the local error control
-mechanism of the main integrator.
-CVODES provides three different strategies of dealing with the correction
-stage for the sensitivity variables, simultaneous corrector and
-two variants of staggered corrector (see Section~\ref{ss:fwd_sensitivity}).
-The CVODES package includes an algorithm for the approximation of the sensitivity 
-equations right-hand sides by difference quotients, but the user has the option of 
-supplying these right-hand sides directly.
+In addition, if forward sensitivity analysis is turned on, the main
+module will integrate the forward sensitivity equations,
+simultaneously with the original IVP.  The sensitivities variables may
+or may not be included in the local error control mechanism of the
+main integrator.  CVODES provides three different strategies of
+dealing with the correction stage for the sensitivity variables,
+simultaneous corrector and two variants of staggered corrector (see
+Section~\ref{ss:fwd_sensitivity}).  The CVODES package includes an
+algorithm for the approximation of the sensitivity equations
+right-hand sides by difference quotients, but the user has the option
+of supplying these right-hand sides directly.
 
-The adjoint sensitivity module provides the infrastructure needed for the 
-integration backwards in time of any system of ODEs which depends on the solution 
-of the original IVP, in particular the adjoint system and any quadratures required
-in evaluating the gradient of the objective functional.
-This module deals with the set-up of the check points, interpolation of the forward 
-solution during the backward integration, and backward integration of the adjoint
-equations. 
+The adjoint sensitivity module provides the infrastructure needed for
+the integration backwards in time of any system of ODEs which depends
+on the solution of the original IVP, in particular the adjoint system
+and any quadratures required in evaluating the gradient of the
+objective functional.  This module deals with the set-up of the check
+points, interpolation of the forward solution during the backward
+integration, and backward integration of the adjoint equations.
 
-At present, the package includes the following four CVODES linear system
-modules:
-(a) CVSDENSE (LU factorization and backsolving with dense matrices),
-(b) CVSBAND (LU factorization and backsolving with banded matrices),
-(c) CVSDIAG (an internally generated diagonal approximation to the 
-Jacobian), and
-(d) CVSSPGMR (scaled preconditioned GMRES method).
-This set of linear solver modules is intended to be expanded in the
-future as new algorithms are developed.
-
-In the case of the direct CVSDENSE and CVSBAND methods, the package includes
-an algorithm for the approximation of the Jacobian by difference
-quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly. In the case of the iterative
-CVSSPGMR method, the package includes and algorithm for the approximation
-by difference quotients of the product between the Jacobian matrix and
-a vector of appropriate length. Again, the user has the option of providing
-a routine for this operation.
-In the case of CVSPGMR, the preconditioning must be supplied by the user 
-in two phases: setup (preprocessing of Jacobian data) and solve.
-While there is no default choice of preconditioner analogous to the 
-difference quotient approximation in the direct case, the references
-\cite{BrHi:89,Byr:92}, together with
-the example and demonstration programs included with CVODES, offer
-considerable assistance in building preconditioners.
-
-Each CVODES linear solver module consists of four routines devoted to: (1)
-memory allocation and initialization, (2) setup of the matrix data
-involved, (3) solution of the system, and (4) freeing of memory.  The
-setup and solution phases are separate because the evaluation of
-Jacobians and preconditioners is done only periodically during the
-integration, as required to achieve convergence. The call list within
-the central CVODES module to each of the four associated functions is
-fixed, thus allowing the central module to be completely independent
-of the linear system method.
-
-These modules are also decomposed in another way.
-Each of the modules CVSDENSE, CVSBAND, and CVSSPGMR is a set of 
-interface routines built on top of a generic solver module, 
-named DENSE, BAND, and SPGMR, respectively.  
-The interfaces deal with the use of these methods in the CVODES context, 
-whereas the generic solver is independent of the context.
-While the generic solvers here were generated with SUNDIALS in mind, our
-intention is that they be usable in other applications as
-general-purpose solvers.  This separation also allows for any generic
-solver to be replaced by an improved version, with no necessity to
-revise the CVODES package elsewhere.
-
-CVODES also provides two preconditioner modules. The first one, 
-CVSBANDPRE, is intended to be used on serial computers and provides
-a banded difference quotient Jacobian based preconditioner and solver
-routines for use with CVSPGMR. The second preconditioner module, 
-CVBBDPRE, developed for parallel computers, generates a 
-preconditioner that is a block-diagonal matrix with each block being 
-a band matrix. A detailed description of these two modules, including
-usage guidelines, is given in ~\cite{HBGLSSW:04}.
+At present, the CVODES package includes four linear system solution
+modules, of which three use direct methods, and one uses scaled
+preconditioned GMRES, a Krylov subpsace method.  For the latter, two
+preconditioner modules are also included, one for use on serial
+computers, and one for parallel.  All of these are virtually identical
+to the corresponding modules for CVODE, which are described in detail
+in ~\cite{HBGLSSW:04}.
 
 All state information used by CVODES to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
@@ -114,18 +70,19 @@ by the anticipated multicomputer extension but is also essential
 during adjoint sensitivity analysis where the check-pointing algorithm
 leads to interleaved forward and backward integration passes. 
 
-Figure~\ref{f:cvsorg} does not show any of the user-supplied routines 
-for CVODES. At a minimum, the user must provide a routine for the evaluation 
-of the ODE right-hand side and, if performing adjoint sensitivity analysis,
-a routine for the evaluation of the right-hand side of the adjoint system. 
-Optional user-provided routines include, depending on the options chosen, 
-functions for Jacobian evaluation (direct cases) or Jacobian-vector products 
-(Krylov case), setup and solution of Krylov preconditioners, a function providing 
-the integrand of any additional quadrature equations, and a routine for
-providing the right-hand side of the sensitivity equations (for forward sensitivity
-analysis). Depending on the options selected for the solution of the adjoint
-system, the user may have to provide corresponding Jacobian and/or preconditioner
-routines.
+Figure~\ref{f:cvsorg} does not show any of the user-supplied routines
+for CVODES. At a minimum, the user must provide a routine for the
+evaluation of the ODE right-hand side and, if performing adjoint
+sensitivity analysis, a routine for the evaluation of the right-hand
+side of the adjoint system.  Optional user-provided routines include,
+depending on the options chosen, functions for Jacobian evaluation
+(direct cases) or Jacobian-vector products (Krylov case), setup and
+solution of Krylov preconditioners, a function providing the integrand
+of any additional quadrature equations, and a routine for providing
+the right-hand side of the sensitivity equations (for forward
+sensitivity analysis). Depending on the options selected for the
+solution of the adjoint system, the user may have to provide
+corresponding Jacobian and/or preconditioner routines.
 
 One of the most important characteristics of the design of CVODES 
 (shared by all solvers across SUNDIALS) is the fact that it is implemented 
@@ -133,18 +90,19 @@ in a data-independent manner, in that the solver does not need any information
 regarding the underlying structure of the data on which it operates.
 
 The CVODES solver acts on vectors through a generic NVECTOR module,
-which defines an NVECTOR structure specification, a data-independent NVECTOR type, 
-a set of abstract vector operations, and a set of wrappers for accessing the actual vector
-operations of the implementation under which an NVECTOR was created. Because
-details of vector operations are thus encapsulated within each specific
-NVECTOR implementation, CVODES is thus independent of a specific
+which defines an NVECTOR structure specification, a data-independent
+NVECTOR type, a set of abstract vector operations, and a set of
+wrappers for accessing the actual vector operations of the
+implementation under which an NVECTOR was created. Because details of
+vector operations are thus encapsulated within each specific NVECTOR
+implementation, CVODES is thus independent of a specific
 implementation. This allows the solver to be precompiled as a binary
-library and allows more than one NVECTOR implementation to be used within
-a single program. This feature is essential for the efficient integration of
-quadrature variables (see Section~\ref{ss:integration}) as well as for
-adjoint sensitivity analysis when, for some problems, the adjoint variables
-are more conveniently organized in a structure different from that of
-the variables in the forward problem.
+library and allows more than one NVECTOR implementation to be used
+within a single program. This feature is essential for the efficient
+integration of quadrature variables (see Section~\ref{ss:integration})
+as well as for adjoint sensitivity analysis when, for some problems,
+the adjoint variables are more conveniently organized in a structure
+different from that of the variables in the forward problem.
 
 A particular NVECTOR implementation, such as the serial and parallel 
 implementations included with SUNDIALS or a user-provided implementation,
