@@ -1,18 +1,20 @@
-/*******************************************************************
- *                                                                 *
- * File          : fnvector_serial.h                               *
- * Programmers   : Radu Serban @ LLNL                              *
- * Version of    : 07 February 2004                                *
- *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California *
- * Produced at the Lawrence Livermore National Laboratory          *
- * All rights reserved                                             *
- * For details, see sundials/shared/LICENSE                        *
- *-----------------------------------------------------------------*
- * This file (companion of nvector_serial.h) contains the          *
- * definitions needed for the Fortran callable wrappers to         *
- * NV_SpecInit_Serial and NV_SpecFree_Serial                       *
- *******************************************************************/
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.7 $
+ * $Date: 2004-07-22 21:12:43 $
+ * ----------------------------------------------------------------- 
+ * Programmer: Radu Serban, LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California
+ * Produced at the Lawrence Livermore National Laboratory
+ * All rights reserved
+ * For details, see sundials/shared/LICENSE
+ * -----------------------------------------------------------------
+ * This file (companion of nvector_serial.h) contains the 
+ * definitions needed for the Fortran initialization of serial 
+ * vector operations
+ * -----------------------------------------------------------------
+ */
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
