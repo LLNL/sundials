@@ -115,7 +115,6 @@ M_Env M_EnvInit_Serial(integertype vec_length)
 
   /* Attach ID tag */
   me->tag = ID_TAG_S;
-  //  strcpy(me->tag, ID_TAG_S);
 
   return(me);
 
