@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-07-22 21:25:00 $
+ * $Revision: 1.18 $
+ * $Date: 2004-08-25 16:20:05 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -141,22 +141,22 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSG_NO_PDATA);
-    return(BP_NO_PDATA);
+    return(CVBP_DATA_NULL);
   } 
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
-  if(flag != SUCCESS) return(flag);
+  if(flag != CVSPGMR_SUCCESS) return(flag);
 
   flag = CVSpgmrSetPrecData(cvode_mem, p_data);
-  if(flag != SUCCESS) return(flag);
+  if(flag != CVSPGMR_SUCCESS) return(flag);
 
   flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBandPrecSetup);
-  if(flag != SUCCESS) return(flag);
+  if(flag != CVSPGMR_SUCCESS) return(flag);
 
   flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBandPrecSolve);
-  if(flag != SUCCESS) return(flag);
+  if(flag != CVSPGMR_SUCCESS) return(flag);
 
-  return(SUCCESS);
+  return(CVBP_SUCCESS);
 }
 
 void CVBandPrecFree(void *bp_data)
@@ -172,31 +172,14 @@ void CVBandPrecFree(void *bp_data)
   }
 }
 
-int CVBandPrecGetIntWorkSpace(void *bp_data, long int *leniwBP)
-{
-  CVBandPrecData pdata;
-
-  if ( bp_data == NULL ) {
-    fprintf(stderr, MSG_PDATA_NULL);
-    return(BP_NO_PDATA);
-  } 
-
-  pdata = (CVBandPrecData) bp_data;
-
-  *leniwBP = pdata->N;
-
-  return(OKAY);
-}
-
-
-int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP)
+int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
 {
   CVBandPrecData pdata;
   long int N, ml, mu, smu;
 
   if ( bp_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(BP_NO_PDATA);
+    return(CVBP_DATA_NULL);
   } 
 
   pdata = (CVBandPrecData) bp_data;
@@ -205,9 +188,10 @@ int CVBandPrecGetRealWorkSpace(void *bp_data, long int *lenrwBP)
   ml  = pdata->ml;
   smu = MIN( N-1, mu + ml);
 
+  *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
-  return(OKAY);
+  return(CVBP_SUCCESS);
 }
 
 int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
@@ -216,14 +200,14 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 
   if ( bp_data == NULL ) {
     fprintf(stderr, MSG_PDATA_NULL);
-    return(BP_NO_PDATA);
+    return(CVBP_DATA_NULL);
   } 
 
   pdata = (CVBandPrecData) bp_data;
 
   *nfevalsBP = pdata->nfeBP;
 
-  return(OKAY);
+  return(CVBP_SUCCESS);
 }
 
 /* Readability Replacements */
