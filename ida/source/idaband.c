@@ -3,7 +3,7 @@
  * File          : idaband.c                                       *
  * Programmers   : Allan G. Taylor, Alan C. Hindmarsh, and         *
  *                 Radu Serban @ LLNL                              *
- * Version of    : 11 July 2002                                    *
+ * Version of    : 30 March 2003                                   *
  *-----------------------------------------------------------------*
  * Copyright (c) 2002, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
@@ -65,23 +65,25 @@
 
 typedef struct {
 
-   IDABandJacFn b_jac;   /* jac = banded Jacobian routine to be called   */
+  integertype b_Neq;    /* Neq = problem size                           */
 
-   BandMat b_J;          /* J = dF/dy + cj*dF/dy', banded approximation. */
+  IDABandJacFn b_jac;   /* jac = banded Jacobian routine to be called   */
   
-   integertype b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
-
-   integertype b_mlower;     /* mlower = lower bandwidth of Jacobian matrix. */
-
-   integertype b_storage_mu; /* storage_mu = upper bandwidth with storage for
-                            factoring = min(Neq-1, mupper+mlower).       */
-
-   integertype *b_pivots;    /* pivots = pivot array for PJ = LU        */
-
-   long int b_nje;       /* nje = no. of calls to jac               */
- 
-   void *b_jdata;        /* jdata = data structure required by jac. */
-
+  BandMat b_J;          /* J = dF/dy + cj*dF/dy', banded approximation. */
+  
+  integertype b_mupper;     /* mupper = upper bandwidth of Jacobian matrix. */
+  
+  integertype b_mlower;     /* mlower = lower bandwidth of Jacobian matrix. */
+  
+  integertype b_storage_mu; /* storage_mu = upper bandwidth with storage for
+                               factoring = min(Neq-1, mupper+mlower).       */
+  
+  integertype *b_pivots;    /* pivots = pivot array for PJ = LU        */
+  
+  long int b_nje;       /* nje = no. of calls to jac               */
+  
+  void *b_jdata;        /* jdata = data structure required by jac. */
+  
 } IDABandMemRec, *IDABandMem;
 
 
@@ -98,152 +100,13 @@ static int IDABandSolve(IDAMem ida_mem, N_Vector b, N_Vector ycur,
 
 static int IDABandFree(IDAMem ida_mem);
 
-static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
+static int IDABandDQJac(integertype neq, integertype mupper, integertype mlower,
                         realtype tt, N_Vector yy, N_Vector yp, realtype cj,
-                        N_Vector constraints, ResFn res, void *rdata,
-                        void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
-                        realtype uround, BandMat JJ, long int *nrePtr,
+                        void *jdata, N_Vector resvec, BandMat JJ,
                         N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
-
-/*************** IDABandDQJac ****************************************
-
- This routine generates a banded difference quotient approximation JJ
- to the DAE system Jacobian J.  It assumes that a band matrix of type
- BandMat is stored column-wise, and that elements within each column
- are contiguous.  The address of the jth column of JJ is obtained via
- the macros BAND_COL and BAND_COL_ELEM. The columns of the Jacobian are 
- constructed using mupper + mlower + 1 calls to the res routine, and
- appropriate differencing.
- The return value is either SUCCESS = 0, or the nonzero value returned
- by the res routine, if any.
-**********************************************************************/
-
-static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
-                        realtype tt, N_Vector yy, N_Vector yp, realtype cj,
-                        N_Vector constraints, ResFn res, void *rdata,
-                        void *jdata, N_Vector resvec, N_Vector ewt, realtype hh,
-                        realtype uround, BandMat JJ, long int *nrePtr,
-                        N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
-
-{
-  realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
-  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
-  realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
-  int group, ngroups;
-  
-  N_Vector rtemp, ytemp, yptemp;
-  integertype i, j, i1, i2, width;
-  int retval = SUCCESS;
-
-  rtemp = tempv1; /* Rename work vector for use as the perturbed residual. */
-
-  ytemp = tempv2; /* Rename work vector for use as a temporary for yy. */
-
-
-  yptemp= tempv3; /* Rename work vector for use as a temporary for yp. */
-
-  /* Obtain pointers to the data for all eight vectors used.  */
-
-  ewt_data = N_VGetData(ewt);
-  r_data   = N_VGetData(resvec);
-  y_data   = N_VGetData(yy);
-  yp_data  = N_VGetData(yp);
-
-  rtemp_data   = N_VGetData(rtemp);
-  ytemp_data   = N_VGetData(ytemp);
-  yptemp_data  = N_VGetData(yptemp);
-
-  if (constraints != NULL) cns_data = N_VGetData(constraints);
-
-  /* Initialize ytemp and yptemp. */
-
-  N_VScale(ONE, yy, ytemp);
-  N_VScale(ONE, yp, yptemp);
-
-  /* Compute miscellaneous values for the Jacobian computation. */
-
-  srur = RSqrt(uround);
-  width = mlower + mupper + 1;
-  ngroups = MIN(width, Neq);
-
-  /* Loop over column groups. */
-  for (group=1; group <= ngroups; group++) {
-
-    /* Increment all yy[j] and yp[j] for j in this group. */
-
-    for (j=group-1; j<Neq; j+=width) {
-        yj = y_data[j];
-        ypj = yp_data[j];
-        ewtj = ewt_data[j];
-
-        /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
-        adjustments using ypj and ewtj if this is small, and a further
-        adjustment to give it the same sign as hh*ypj. */
-
-        inc = srur*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
-        if (hh*ypj < ZERO) inc = -inc;
-        inc = (yj + inc) - yj;
-
-        /* Adjust sign(inc) again if yj has an inequality constraint. */
-        if (constraints != NULL) {
-          conj = cns_data[j];
-          if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-          else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-        }
-
-        /* Increment yj and ypj. */
-
-        ytemp_data[j] += inc;
-        yptemp_data[j] += cj*inc;
-    }
-
-    /* Call res routine with incremented arguments. */
-    (*nrePtr)++;
-    retval = res(Neq, tt, ytemp, yptemp, rtemp, rdata);
-    if (retval != SUCCESS) break;
-
-    /* Loop over the indices j in this group again. */
-
-    for (j=group-1; j<Neq; j+=width) {
-
-      /* Reset ytemp and yptemp components that were perturbed. */
-
-      yj = ytemp_data[j]  = y_data[j];
-      ypj = yptemp_data[j] = yp_data[j];
-      col_j = BAND_COL(JJ, j);
-      ewtj = ewt_data[j];
-      
-      
-      /* Set increment inc exactly as above. */
-      
-      inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewtj));
-      if (hh*ypj < ZERO) inc = -inc;
-      inc = (yj + inc) - yj;
-      if (constraints != NULL) {
-        conj = cns_data[j];
-        if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
-        else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
-      }
-      
-      /* Load the difference quotient Jacobian elements for column j. */
-
-      inc_inv = ONE/inc;
-      i1 = MAX(0, j-mupper);
-      i2 = MIN(j+mlower,Neq-1);
-      
-      for (i=i1; i<=i2; i++) 
-            BAND_COL_ELEM(col_j,i,j) = inc_inv*(rtemp_data[i]-r_data[i]);
-    }
-    
-  }
-  
-  return(retval);
-  
-}
 
 /* Readability Replacements */
 
-#define Neq         (ida_mem->ida_Neq)
 #define res         (ida_mem->ida_res)
 #define rdata       (ida_mem->ida_rdata)
 #define uround      (ida_mem->ida_uround)
@@ -265,6 +128,7 @@ static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
 #define machenv     (ida_mem->ida_machenv)
 #define setupNonNull  (ida_mem->ida_setupNonNull)
 
+#define Neq         (idaband_mem->b_Neq)
 #define jac         (idaband_mem->b_jac)
 #define JJ          (idaband_mem->b_J)
 #define storage_mu  (idaband_mem->b_storage_mu)
@@ -300,8 +164,8 @@ static int IDABandDQJac(integertype Neq, integertype mupper, integertype mlower,
 
 **********************************************************************/
 
-int IDABand(void *IDA_mem, integertype mupper, integertype mlower,
-            IDABandJacFn bjac, void *jdata)
+int IDABand(void *IDA_mem, integertype neq, integertype mupper, 
+            integertype mlower, IDABandJacFn bjac, void *jdata)
 {
   IDAMem ida_mem;
   IDABandMem idaband_mem;
@@ -341,10 +205,17 @@ int IDABand(void *IDA_mem, integertype mupper, integertype mlower,
   }
 
   /* Set Jacobian routine field to user's bjac or IDABandDQJac. */
-  if (bjac == NULL) jac = IDABandDQJac;
-  else jac = bjac;
+  if (bjac == NULL) {
+    jac = IDABandDQJac;
+    jacdata = IDA_mem;
+  } else {
+    jac = bjac;
+    jacdata = jdata;
+  }
   setupNonNull = TRUE;
-  jacdata = jdata;
+
+  /* Store problem size */
+  Neq = neq;
 
   /* Test mlower and mupper for legality and load in memory. */
   if ((mlower < 0) || (mupper < 0) || (mlower >= Neq) || (mupper >= Neq)) {
@@ -417,10 +288,14 @@ int IDAReInitBand(void *IDA_mem, integertype mupper, integertype mlower,
   idaband_mem = lmem;  /* Use existing linear solver memory pointer. */
 
   /* Set Jacobian routine field to user's bjac or IDABandDQJac. */
-  if (bjac == NULL) jac = IDABandDQJac;
-  else jac = bjac;
+  if (bjac == NULL) {
+    jac = IDABandDQJac;
+    jacdata = IDA_mem;
+  } else {
+    jac = bjac;
+    jacdata = jdata;
+  }
   setupNonNull = TRUE;
-  jacdata = jdata;
 
   /* Test mlower and mupper for legality and load in memory. */
   if ((mlower < 0) || (mupper < 0) || (mlower >= Neq) || (mupper >= Neq)) {
@@ -496,8 +371,8 @@ static int IDABandSetup(IDAMem ida_mem, N_Vector yyp, N_Vector ypp,
 
   /* Zero out JJ; call Jacobian routine jac; return if it failed. */
   BandZero(JJ);
-  retval = jac(Neq, mupper, mlower, tn, yyp, ypp, cj, constraints, res, 
-    rdata, jacdata, resp, ewt, hh, uround, JJ, &nre, tempv1, tempv2, tempv3);
+  retval = jac(Neq, mupper, mlower, tn, yyp, ypp, cj,
+               jacdata, resp, JJ, tempv1, tempv2, tempv3);
   if (retval < 0) return(LSETUP_ERROR_NONRECVR);
   if (retval > 0) return(LSETUP_ERROR_RECVR);
 
@@ -557,3 +432,147 @@ static int IDABandFree(IDAMem ida_mem)
   return(0);
 
 }
+
+#undef cj
+#undef JJ
+#undef mlower
+#undef mupper
+
+/*************** IDABandDQJac ****************************************
+
+ This routine generates a banded difference quotient approximation JJ
+ to the DAE system Jacobian J.  It assumes that a band matrix of type
+ BandMat is stored column-wise, and that elements within each column
+ are contiguous.  The address of the jth column of JJ is obtained via
+ the macros BAND_COL and BAND_COL_ELEM. The columns of the Jacobian are 
+ constructed using mupper + mlower + 1 calls to the res routine, and
+ appropriate differencing.
+ The return value is either SUCCESS = 0, or the nonzero value returned
+ by the res routine, if any.
+**********************************************************************/
+
+static int IDABandDQJac(integertype neq, integertype mupper, integertype mlower,
+                        realtype tt, N_Vector yy, N_Vector yp, realtype cj,
+                        void *jdata, N_Vector resvec, BandMat JJ,
+                        N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+{
+  realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
+  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
+  int group, ngroups;
+  
+  N_Vector rtemp, ytemp, yptemp;
+  integertype i, j, i1, i2, width;
+  int retval = SUCCESS;
+
+  IDAMem ida_mem;
+
+  /* jdata points to IDA_mem */
+  ida_mem = (IDAMem) jdata;
+
+  rtemp = tempv1; /* Rename work vector for use as the perturbed residual. */
+
+  ytemp = tempv2; /* Rename work vector for use as a temporary for yy. */
+
+
+  yptemp= tempv3; /* Rename work vector for use as a temporary for yp. */
+
+  /* Obtain pointers to the data for all eight vectors used.  */
+
+  ewt_data = N_VGetData(ewt);
+  r_data   = N_VGetData(resvec);
+  y_data   = N_VGetData(yy);
+  yp_data  = N_VGetData(yp);
+
+  rtemp_data   = N_VGetData(rtemp);
+  ytemp_data   = N_VGetData(ytemp);
+  yptemp_data  = N_VGetData(yptemp);
+
+  if (constraints != NULL) cns_data = N_VGetData(constraints);
+
+  /* Initialize ytemp and yptemp. */
+
+  N_VScale(ONE, yy, ytemp);
+  N_VScale(ONE, yp, yptemp);
+
+  /* Compute miscellaneous values for the Jacobian computation. */
+
+  srur = RSqrt(uround);
+  width = mlower + mupper + 1;
+  ngroups = MIN(width, neq);
+
+  /* Loop over column groups. */
+  for (group=1; group <= ngroups; group++) {
+
+    /* Increment all yy[j] and yp[j] for j in this group. */
+
+    for (j=group-1; j<neq; j+=width) {
+        yj = y_data[j];
+        ypj = yp_data[j];
+        ewtj = ewt_data[j];
+
+        /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
+        adjustments using ypj and ewtj if this is small, and a further
+        adjustment to give it the same sign as hh*ypj. */
+
+        inc = srur*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
+        if (hh*ypj < ZERO) inc = -inc;
+        inc = (yj + inc) - yj;
+
+        /* Adjust sign(inc) again if yj has an inequality constraint. */
+        if (constraints != NULL) {
+          conj = cns_data[j];
+          if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
+          else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+        }
+
+        /* Increment yj and ypj. */
+
+        ytemp_data[j] += inc;
+        yptemp_data[j] += cj*inc;
+    }
+
+    /* Call res routine with incremented arguments. */
+    retval = res(tt, ytemp, yptemp, rtemp, rdata);
+    nre++;
+    if (retval != SUCCESS) break;
+
+    /* Loop over the indices j in this group again. */
+
+    for (j=group-1; j<neq; j+=width) {
+
+      /* Reset ytemp and yptemp components that were perturbed. */
+
+      yj = ytemp_data[j]  = y_data[j];
+      ypj = yptemp_data[j] = yp_data[j];
+      col_j = BAND_COL(JJ, j);
+      ewtj = ewt_data[j];
+      
+      
+      /* Set increment inc exactly as above. */
+      
+      inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewtj));
+      if (hh*ypj < ZERO) inc = -inc;
+      inc = (yj + inc) - yj;
+      if (constraints != NULL) {
+        conj = cns_data[j];
+        if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
+        else if (ABS(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+      
+      /* Load the difference quotient Jacobian elements for column j. */
+
+      inc_inv = ONE/inc;
+      i1 = MAX(0, j-mupper);
+      i2 = MIN(j+mlower,neq-1);
+      
+      for (i=i1; i<=i2; i++) 
+            BAND_COL_ELEM(col_j,i,j) = inc_inv*(rtemp_data[i]-r_data[i]);
+    }
+    
+  }
+  
+  return(retval);
+  
+}
+
