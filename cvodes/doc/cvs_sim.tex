@@ -923,7 +923,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 {
   The function \ID{CVodeSetMaxNumSteps} specifies the maximum number
   of steps to be taken by the solver in its attempt to reach 
-  the final time.
+  the next output time.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1341,8 +1341,8 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
 {
   The integration tolerances are initially specified in the call
   to \id{CVodeMalloc} (see \S\ref{sss:cvodemalloc}). This function call is
-  needed only if the tolerances are being changed from their values in the
-  prior call to \id{CVode}.
+  needed only if the tolerances are being changed from their values beween
+  successiv calls to \id{CVode}.
 }
 %%
 
@@ -1541,14 +1541,6 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
-The call to \id{CVSpgmr} is used to communicate both the type of preconditioning 
-(\id{pretype}) and the maximum dimension of the Krylov subspace to be used (\id{maxl}). 
-The \id{pretype} parameter can be \id{PREC\_NONE}, \id{PREC\_LEFT}, \id{PREC\_RIGHT}, or \id{PREC\_BOTH}.
-If no preconditioning is desired, the specify \id{PREC\_NONE}.
-Otherwise, a preconditioner solve function \id{psolve} is required.  
-Regardless of the type of preconditioning, a preconditioner setup function 
-\id{psetup} is sometimes useful, but is {\em not} required. 
-
 If any type of preconditioning is to be done within the {\spgmr} method,
 then the user must supply a preconditioner solve function \id{psolve}
 and specify it through a call to \id{CVSpgmrSetPrecSolveFn}.
@@ -1922,9 +1914,9 @@ The call to the \id{CVodeGetDky} function has the following form:
 }
 {
   It is only legal to call the function \id{CVodeGetDky} after a 
-  successful return from \id{CVode}. Use \id{CVodeGetLastOrder} 
-  and \id{CVodeGetLastStep} from the next section to access 
-  $q_u$ and $h_u$.
+  successful return from \id{CVode}. See \id{CVodeGetCurrentTime},
+  \id{CVodeGetLastOrder}, and \id{CVodeGetLastStep} in the next section for
+  access to $t_n$, $q_u$, and $h_u$, respectively.
 }
 
 %%==============================================================================
