@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2004-08-31 22:52:00 $
+ * $Revision: 1.18 $
+ * $Date: 2004-10-26 20:48:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -290,8 +290,8 @@ int main()
         flag = CVodeReInit(cvode_mem, f, T0, c, ITOL, &reltol, &abstol);
         if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
-        flag = CVSpgmrResetPrecType(cvode_mem, jpre);
-        check_flag(&flag, "CVSpgmrResetPrecType", 1);
+        flag = CVSpgmrSetPrecType(cvode_mem, jpre);
+        check_flag(&flag, "CVSpgmrSetPrecType", 1);
         flag = CVSpgmrSetGSType(cvode_mem, gstype);
         if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
 

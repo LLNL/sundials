@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2004-10-18 21:53:10 $
+ * $Revision: 1.17 $
+ * $Date: 2004-10-26 20:48:29 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -271,8 +271,8 @@ int main(int argc, char *argv[])
     flag = CVBBDPrecReInit(pdata, mudq, mldq, 0.0, flocal, NULL);
     if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVSpgmrResetPrecType(cvode_mem, PREC_RIGHT);
-    check_flag(&flag, "CVSpgmrResetPrecType", 1, my_pe);
+    flag = CVSpgmrSetPrecType(cvode_mem, PREC_RIGHT);
+    check_flag(&flag, "CVSpgmrSetPrecType", 1, my_pe);
 
     if (my_pe == 0) {
       printf("\n\n-------------------------------------------------------");

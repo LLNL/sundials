@@ -808,7 +808,7 @@ Jacobian times vector function & \id{CVSpgmrSetJacTimesVecFn} & internal DQ \\
 Data for Jacobian times vector function &\id{CVSpgmrSetJacData} & NULL \\ 
 Type of Gram-Schmidt orthogonalization & \id{CVSpgmrSetGSType} & classical GS \\
 Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
-Preconditioning type & \id{CVSpgmrResetPrecType} & none \\
+Preconditioning type & \id{CVSpgmrSetPrecType} & none \\
 \hline
 \end{tabular}
 \end{table}
@@ -1831,12 +1831,12 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 }
 %%
 %%
-\ucfunction{CVSpgmrResetPrecType}
+\ucfunction{CVSpgmrSetPrecType}
 {
-  flag = CVSpgmrResetPrecType(cvode\_mem, int pretype);
+  flag = CVSpgmrSetPrecType(cvode\_mem, int pretype);
 }
 {
-  The function \ID{CVSpgmrResetPrecType} resets the type
+  The function \ID{CVSpgmrSetPrecType} resets the type
   of preconditioning to be used.
 }
 {

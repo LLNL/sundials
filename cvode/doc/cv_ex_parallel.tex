@@ -204,7 +204,7 @@ In \id{pvkxb.c}, the problem is solved twice --- first with preconditioning
 on the left, and then on the right.  Thus prior to the second solution, calls
 are made to reset the initial values (\id{SetInitialProfiles}), the main solver
 memory (\id{CVodeReInit}), the CVBBDPRE memory (\id{CVBBDPrecReInit}),
-as well as the preconditioner type (\id{CVSpgmrResetPrecType}).
+as well as the preconditioner type (\id{CVSpgmrSetPrecType}).
 
 Sample output from \id{pvkxb} follows, again using $5 \times 5$ subgrids 
 on a $2 \times 2$ processor grid.  The performance of the preconditioner,
