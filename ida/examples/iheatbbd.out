@@ -8,11 +8,14 @@ Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
 iopt[SUPPRESSALG] = 1 to suppress local error testing on all boundary components. 
 Linear solver: IDASPGMR.    Preconditioner: IDABBDPRE - Banded-block-diagonal.
+
+
+Case 1. 
    Difference quotient half-bandwidths = 5   Retained matrix half-bandwidths = 1 
 
    Output Summary (umax = max-norm of solution) 
 
-  time     umax       k  nst  nni  nli   nre    h      npe nps
+  time     umax       k  nst  nni  nli   nre    h       npe nps
  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
   0.00   9.75461e-01  0    0    0    0     0  0.00e+00    0   0
   0.01   8.24107e-01  2   11   13    7    20  2.56e-03    8  20
@@ -28,3 +31,26 @@ Linear solver: IDASPGMR.    Preconditioner: IDABBDPRE - Banded-block-diagonal.
  10.24   3.06653e-04  1   45   63   82   145  6.06e+00   18 145
 
  netf = 1,   ncfn = 0,   ncfl = 0 
+
+
+Case 2. 
+   Difference quotient half-bandwidths = 1   Retained matrix half-bandwidths = 1 
+
+   Output Summary (umax = max-norm of solution) 
+
+  time     umax       k  nst  nni  nli   nre    h       npe nps
+ .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+  0.00   9.75461e-01  0    0    0    0     0  0.00e+00    0   0
+  0.01   8.24111e-01  2   11   13    7    20  2.56e-03    8  20
+  0.02   6.88118e-01  3   14   17   12    29  5.12e-03    8  29
+  0.04   4.70932e-01  3   18   22   20    42  1.02e-02    9  42
+  0.08   2.16547e-01  3   22   26   32    58  1.02e-02    9  58
+  0.16   4.52247e-02  4   26   32   44    76  2.05e-02   10  76
+  0.32   2.18621e-03  3   33   40   67   107  4.10e-02   11 107
+  0.64   1.55517e-04  1   38   49   89   138  1.64e-01   13 138
+  1.28   5.57494e-05  1   40   52   94   146  6.55e-01   15 146
+  2.56   1.67585e-04  1   41   54   97   151  1.31e+00   16 151
+  5.12   1.52814e-04  1   42   56  102   158  2.62e+00   17 158
+ 10.24   7.19069e-05  1   43   57  103   160  5.24e+00   18 160
+
+ netf = 0,   ncfn = 0,   ncfl = 0 

@@ -1,7 +1,7 @@
 /***********************************************************************
  * File       : iheatbbd.c   
  * Written by : Allan G. Taylor and Alan C. Hindmarsh
- * Version of : 8 March 2002
+ * Version of : 3 July 2002
  *----------------------------------------------------------------------
  * Modified by R. Serban to work with new parallel nvector (8/3/2002)
  *----------------------------------------------------------------------
@@ -34,8 +34,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"
-#include "llnlmath.h"
+#include "sundialstypes.h"
+#include "sundialsmath.h"
 #include "nvector_parallel.h" /* definitions of type N_Vector, macro NV_DATA_P */
 #include "ida.h"
 #include "idaspgmr.h"
@@ -61,16 +61,16 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {  
-  integer   neq, thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
-  real      dx, dy, coeffx, coeffy, coeffxy;
-  real      uext[(MXSUB+2)*(MYSUB+2)];
+  integertype   neq, thispe, mx, my, ixsub, jysub, npex, npey, mxsub, mysub;
+  realtype      dx, dy, coeffx, coeffy, coeffxy;
+  realtype      uext[(MXSUB+2)*(MYSUB+2)];
   MPI_Comm  comm;
 } *UserData;
 
 
 /* Prototypes of private helper functions */
 
-static int InitUserData(integer Neq, int thispe,
+static int InitUserData(integertype Neq, int thispe,
                         MPI_Comm comm, UserData data);
 
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
@@ -79,36 +79,36 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 /* User-supplied residual function and supporting routines */
 
-int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
+int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
             N_Vector res, void *rdata);
 
 static int rescomm(N_Vector uu, N_Vector up, void *rdata);
 
-static int reslocal(real tres, N_Vector uu, N_Vector up, 
+static int reslocal(realtype tres, N_Vector uu, N_Vector up, 
                     N_Vector res,  void *rdata);
 
-static int BSend(MPI_Comm comm, integer thispe, integer ixsub, integer jysub,
-                 integer dsizex, integer dsizey, real uarray[]);
+static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub, integertype jysub,
+                 integertype dsizex, integertype dsizey, realtype uarray[]);
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], integer thispe,
-                     integer ixsub, integer jysub,
-                     integer dsizex, integer dsizey,
-                     real uext[], real buffer[]);
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
+                     integertype ixsub, integertype jysub,
+                     integertype dsizex, integertype dsizey,
+                     realtype uext[], realtype buffer[]);
 
-static int BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
-                     integer dsizex, real uext[], real buffer[]);
+static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub,
+                     integertype dsizex, realtype uext[], realtype buffer[]);
 
 
 int main(int argc, char *argv[])
      
 {
   int npes, thispe;
-  integer i, iout, itol, itask, Neq, local_N, retval;
+  integertype i, iout, itol, itask, Neq, local_N, retval;
   long int iopt[OPT_SIZE];
-  integer mudq, mldq, mukeep, mlkeep;
-  boole optIn;
-  real ropt[OPT_SIZE], rtol, atol;
-  real t0, t1, tout, tret, umax;
+  integertype mudq, mldq, mukeep, mlkeep;
+  booleantype optIn;
+  realtype ropt[OPT_SIZE], rtol, atol;
+  realtype t0, t1, tout, tret, umax;
   UserData data;
   N_Vector uu, up, constraints, id, res;
   void *mem;
@@ -145,10 +145,10 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize the data structure. */
   data = (UserData) malloc(sizeof *data);
-  InitUserData(Neq, thispe, comm, data);
+  retval = InitUserData(Neq, thispe, comm, data);
 
   /* Initialize the uu, up, id, res, and constraints profiles. */
-  SetInitialProfile(uu, up, id, res, data);
+  retval = SetInitialProfile(uu, up, id, res, data);
   N_VConst(ONE, constraints);
 
   t0 = 0.0; t1 = 0.01;
@@ -176,6 +176,8 @@ int main(int argc, char *argv[])
   mukeep = 1;
   mlkeep = 1;
   
+  /* Case 1 -- mldq = mudq = MXSUB */
+
   /* Call IBBDAlloc to initialize BBD preconditioner. */
   P_data = IBBDAlloc(local_N, mudq, mldq, mukeep, mlkeep, ZERO, reslocal, 
                      rescomm, mem, data);
@@ -199,6 +201,7 @@ int main(int argc, char *argv[])
     printf(" polynomial initial conditions.\n");
     printf("          Mesh dimensions: %d x %d", MX, MY);
     printf("         Total system size: %ld\n\n", Neq);
+
     printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
     printf("         Processor array: %d x %d\n", NPEX, NPEY);
     printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
@@ -207,6 +210,7 @@ int main(int argc, char *argv[])
     printf(" all boundary components. \n");
     printf("Linear solver: IDASPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 
+    printf("\n\nCase 1. \n");
     printf("   Difference quotient half-bandwidths = %ld",mudq);
     printf("   Retained matrix half-bandwidths = %ld \n",mukeep);
 
@@ -241,6 +245,82 @@ int main(int argc, char *argv[])
   if (thispe == 0) printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", 
                           iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
 
+  /* Case 2 -- mldq = mudq = 1 */
+
+  mudq = 1;
+  mldq = 1;
+
+  /* Re-initialize the uu and up profiles. */
+  retval = SetInitialProfile(uu, up, id, res, data);
+
+  /* Call IDAReInit to re-initialize IDA. */
+  retval = IDAReInit(mem, heatres, data, t0, uu, up, itol, &rtol, &atol,
+                     id, constraints, NULL, optIn, iopt, ropt,  machEnv);
+  if (retval != SUCCESS) {
+    if (thispe == 0) printf ("IDAReInit failed.   thispe =%d\n", thispe);
+    return(1); 
+  }
+
+  /* Call IDAReInitBBD to re-initialize BBD preconditioner. */
+  retval = IDAReInitBBD(P_data, local_N, mudq, mldq, mukeep, mlkeep, ZERO,
+                        reslocal, rescomm, mem, data);
+  if (retval != SUCCESS) {
+    if (thispe == 0) printf ("IDAReInitBBD failed.   thispe =%d\n", thispe);
+    return(1); 
+  }
+
+  /* Call IDAReInitSpgmr to re-initialize the Spgmr linear solver. */
+  retval = IDAReInitSpgmr(mem, IBBDPrecon, IBBDPSol, MODIFIED_GS,
+                          0, 0, 0., 0., P_data);
+  if (retval != SUCCESS) {
+    if (thispe == 0) printf ("IDAReInitSpgmr failed.   thispe =%d\n", thispe);
+    return(1); }
+  
+  if (retval != SUCCESS) {
+    if (thispe == 0) printf("IDASpgmr failed, returning %d.\n",retval);
+    return(1);
+  }
+  
+  /* Compute the max norm of uu. */
+  umax = N_VMaxNorm(uu);
+  
+  /* Print output heading (on processor 0 only). */
+  if (thispe == 0) { 
+    printf("\n\nCase 2. \n"); 
+    printf("   Difference quotient half-bandwidths = %d",mudq);
+    printf("   Retained matrix half-bandwidths = %d \n",mukeep);
+
+    /* Print output table heading and initial line of table. */
+    printf("\n   Output Summary (umax = max-norm of solution) \n\n");
+    printf("  time     umax       k  nst  nni  nli   nre    h       npe nps\n" );
+    printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
+
+    printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %9.2e  %3d %3d\n",
+           t0, umax, 0, 0, 0, 0, 0, 0.0, 0, 0);
+  }
+
+  /* Loop over tout, call IDASolve, print output. */
+  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
+    
+    retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
+    
+    umax = N_VMaxNorm(uu);
+    if (thispe == 0) printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d %9.2e  %3d %3d\n",
+                            tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
+                            iopt[NRE], ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+    
+    if (retval < 0) {
+      if (thispe == 0) printf("IDASolve returned %d.\n",retval);
+      return(1);
+    }
+    
+  }  /* End of tout loop. */
+  
+  if (thispe == 0) printf("\n netf = %d,   ncfn = %d,   ncfl = %d \n", 
+                          iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
+
+  /* Free Memory */
+
   IBBDFree(P_data);
   IDAFree(mem);
   N_VFree(uu);
@@ -260,7 +340,7 @@ int main(int argc, char *argv[])
 /********************************************************/
 /* InitUserData initializes the user's data block data. */
 
-static int InitUserData(integer Neq, int thispe, MPI_Comm comm, UserData data)
+static int InitUserData(integertype Neq, int thispe, MPI_Comm comm, UserData data)
 {
   data->neq = Neq;
   data->thispe = thispe;
@@ -289,9 +369,9 @@ static int InitUserData(integer Neq, int thispe, MPI_Comm comm, UserData data)
 static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id, 
                              N_Vector res, UserData data)
 {
-  integer i, iloc, j, jloc, offset, loc, ixsub, jysub;
-  integer ixbegin, ixend, jybegin, jyend;
-  real xfact, yfact, *udata, *iddata, dx, dy;
+  integertype i, iloc, j, jloc, offset, loc, ixsub, jysub;
+  integertype ixbegin, ixend, jybegin, jyend;
+  realtype xfact, yfact, *udata, *iddata, dx, dy;
   
   /* Initialize uu. */ 
   
@@ -337,7 +417,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* Copy -res into up to get correct initial up values. */
   N_VScale(-ONE, res, up);
   
-  return(SUCCESS);
+  return(0);
   
 } /* End of SetInitialProfiles. */
 
@@ -360,7 +440,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * BSend, BRecvPost, and BREcvWait handle interprocessor communication
  * of uu required to calculate the residual. */
 
-int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
+int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
             N_Vector res, void *rdata)
 {
   int retval;
@@ -389,9 +469,9 @@ int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
 static int rescomm(N_Vector uu, N_Vector up, void *rdata)
 {
   UserData data;
-  real *uarray, *uext, buffer[2*MYSUB];
+  realtype *uarray, *uext, buffer[2*MYSUB];
   MPI_Comm comm;
-  integer thispe, ixsub, jysub, mxsub, mysub;
+  integertype thispe, ixsub, jysub, mxsub, mysub;
   MPI_Request request[4];
 
   data = (UserData) rdata;
@@ -422,14 +502,14 @@ static int rescomm(N_Vector uu, N_Vector up, void *rdata)
    that all inter-processor communication of data needed to calculate F
     has already been done, and that this data is in the work array uext.  */
 
-static int reslocal(real tres, N_Vector uu, N_Vector up, N_Vector res,
+static int reslocal(realtype tres, N_Vector uu, N_Vector up, N_Vector res,
                     void *rdata)
 {
-  real *uext, *uuv, *upv, *resv;
-  real termx, termy, termctr;
-  integer lx, ly, offsetu, offsetue, locu, locue;
-  integer ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
-  integer ixbegin, ixend, jybegin, jyend;
+  realtype *uext, *uuv, *upv, *resv;
+  realtype termx, termy, termctr;
+  integertype lx, ly, offsetu, offsetue, locu, locue;
+  integertype ixsub, jysub, mxsub, mxsub2, mysub, npex, npey;
+  integertype ixbegin, ixend, jybegin, jyend;
   UserData data;
 
   /* Get subgrid indices, array sizes, extended work array uext. */
@@ -488,11 +568,11 @@ static int reslocal(real tres, N_Vector uu, N_Vector up, N_Vector res,
 /*************************************************************************/
 /* Routine to send boundary data to neighboring PEs.                     */
 
-static int BSend(MPI_Comm comm, integer thispe, integer ixsub, integer jysub,
-                 integer dsizex, integer dsizey, real uarray[])
+static int BSend(MPI_Comm comm, integertype thispe, integertype ixsub, integertype jysub,
+                 integertype dsizex, integertype dsizey, realtype uarray[])
 {
-  integer ly, offsetu;
-  real bufleft[MYSUB], bufright[MYSUB];
+  integertype ly, offsetu;
+  realtype bufleft[MYSUB], bufright[MYSUB];
   
   /* If jysub > 0, send data from bottom x-line of u. */
   
@@ -535,20 +615,20 @@ static int BSend(MPI_Comm comm, integer thispe, integer ixsub, integer jysub,
 /**************************************************************/
 /* Routine to start receiving boundary data from neighboring PEs.
    Notes:
-   1) buffer should be able to hold 2*MYSUB real entries, should be
+   1) buffer should be able to hold 2*MYSUB realtype entries, should be
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in 
    both calls also. */
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], integer thispe,
-                     integer ixsub, integer jysub,
-                     integer dsizex, integer dsizey,
-                     real uext[], real buffer[])
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], integertype thispe,
+                     integertype ixsub, integertype jysub,
+                     integertype dsizex, integertype dsizey,
+                     realtype uext[], realtype buffer[])
 {
-  integer offsetue;
+  integertype offsetue;
   /* Have bufleft and bufright use the same buffer. */
-  real *bufleft = buffer, *bufright = buffer+MYSUB;
+  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0)
@@ -582,17 +662,17 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], integer thispe,
 /****************************************************************/
 /* Routine to finish receiving boundary data from neighboring PEs.
    Notes:
-   1) buffer should be able to hold 2*MYSUB real entries, should be
+   1) buffer should be able to hold 2*MYSUB realtype entries, should be
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have four entries, and should be passed in both 
       calls also. */
 
-static int BRecvWait(MPI_Request request[], integer ixsub, integer jysub,
-                     integer dsizex, real uext[], real buffer[])
+static int BRecvWait(MPI_Request request[], integertype ixsub, integertype jysub,
+                     integertype dsizex, realtype uext[], realtype buffer[])
 {
-  integer ly, dsizex2, offsetue;
-  real *bufleft = buffer, *bufright = buffer+MYSUB;
+  integertype ly, dsizex2, offsetue;
+  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
   MPI_Status status;
   
   dsizex2 = dsizex + 2;

@@ -31,8 +31,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "llnltyps.h"
-#include "llnlmath.h"
+#include "sundialstypes.h"
+#include "sundialsmath.h"
 #include "nvector_serial.h" /* definitions of type N_Vector, macro NV_DATA_S   */
 #include "ida.h"
 #include "idaspgmr.h"
@@ -40,30 +40,30 @@
 
 
 typedef struct {  
-  integer    neq;
-  integer    mm; /* mm is the number of points in the grid. */
-  real       dx;
-  real       coeff;
-  N_Vector   pp; /* pp is the vector of diagonal preconditioner elements. */
+  integertype neq;
+  integertype mm; /* mm is the number of points in the grid. */
+  realtype    dx;
+  realtype    coeff;
+  N_Vector    pp; /* pp is the vector of diagonal preconditioner elements. */
 } *UserData;
 
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res);
 
-int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
+int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
             N_Vector resval, void *rdata);
 
-int PrecondHeateq(integer Neq, real tt, N_Vector uu,
-                  N_Vector up, N_Vector rr, real cj,
+int PrecondHeateq(integertype Neq, realtype tt, N_Vector uu,
+                  N_Vector up, N_Vector rr, realtype cj,
                   ResFn res, void *rdata, void *pdata,
-                  N_Vector ewt, N_Vector constraints, real hh, 
-                  real uround, long int *nrePtr,
+                  N_Vector ewt, N_Vector constraints, realtype hh, 
+                  realtype uround, long int *nrePtr,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-int PSolveHeateq(integer Neq, real tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, real cj, ResFn res, void *rdata,
-                 void *pdata, N_Vector ewt, real delta, N_Vector rvec,
+int PSolveHeateq(integertype Neq, realtype tt, N_Vector uu,
+                 N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
+                 void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
                  N_Vector zvec, long int *nrePtr, N_Vector tempv);
 
 #define NOUT  11
@@ -77,10 +77,10 @@ int PSolveHeateq(integer Neq, real tt, N_Vector uu,
 int main()
 {
   M_Env machEnv;
-  integer retval, iout, itol, itask;
+  int retval, iout, itol, itask;
   long int iopt[OPT_SIZE];
-  boole optIn;
-  real ropt[OPT_SIZE], rtol, atol, t0, t1, tout, tret, umax;
+  booleantype optIn;
+  realtype ropt[OPT_SIZE], rtol, atol, t0, t1, tout, tret, umax;
   N_Vector uu, up, constraints, id, res;
   UserData data;
   void *mem;
@@ -147,15 +147,17 @@ int main()
   printf("Constraints set to force all solution components >= 0. \n");
   printf("Linear solver: IDASPGMR, preconditioner using diagonal elements. \n");
 
+  /* Case 1 */
+
   /* Print output table heading and initial line of table. */
+  printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nli   nre     h       npe nps\n" );
   printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
   umax = N_VMaxNorm(uu);
 
-  printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e  %3ld %3ld\n",
-         t0, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
-         iopt[NRE],  ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %9.2e  %3d %3d\n",
+         t0, umax, 0, 0, 0, 0, 0, 0.0, 0, 0);
 
   /* Loop over output times, call IDASolve, and print results. */
 
@@ -168,15 +170,63 @@ int main()
            tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
            iopt[NRE],  ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
 
-    if (retval < 0) {printf("IDASolve returned %ld.\n",retval); return(1); }
+    if (retval < 0) {printf("IDASolve returned %d.\n",retval); return(1); }
 
     } /* End of tout loop. */
 
-  /* Print remaining counters and free memory. */
+  /* Print remaining counters. */
 
   printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", 
          iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
 
+  
+  /* Case 2. */
+
+  /* Re-initialize uu, up, id. */
+  SetInitialProfile(data, uu, up, id, res);
+  
+  /* Re-initialize IDA and IDASPGMR */
+  retval = IDAReInit(mem, heatres, data , t0, uu, up, itol, &rtol, &atol,
+                     id , constraints , NULL, optIn, iopt, ropt,  NULL);
+  if (retval != SUCCESS) { printf("IDAReInit failed."); return(1); }
+  
+  retval = IDAReInitSpgmr(mem, PrecondHeateq, PSolveHeateq,  CLASSICAL_GS, 
+                          0, 0, 0., 0., data);
+  if (retval != SUCCESS) {printf("IDAReInitSpgmr failed."); return(1); }
+  
+  
+  /* Print case number, output table heading, and initial line of table. */
+  printf("\n\n\n\nCase 2: gstype = CLASSICAL_GS\n");
+  printf("\n   Output Summary (umax = max-norm of solution) \n\n");
+  printf("  time     umax       k  nst  nni  nli   nre     h       npe nps\n" );
+  printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .\n");
+  umax = N_VMaxNorm(uu);
+  
+  printf(" %5.2f %13.5e  %d  %3d  %3d  %3d  %4d  %9.2e  %3d %3d\n",
+         t0, umax, 0, 0, 0, 0, 0, 0.0, 0, 0);
+  
+  /* Loop over output times, call IDASolve, and print results. */
+  
+  for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
+    
+    retval = IDASolve(mem, tout, t0, &tret, uu, up, itask);
+    
+    umax = N_VMaxNorm(uu);
+    printf(" %5.2f %13.5e  %ld  %3ld  %3ld  %3ld  %4ld  %9.2e  %3ld %3ld\n",
+           tret, umax, iopt[KUSED], iopt[NST], iopt[NNI], iopt[SPGMR_NLI], 
+           iopt[NRE],  ropt[HUSED], iopt[SPGMR_NPE], iopt[SPGMR_NPS]);
+    
+    if (retval < 0) {printf("IDASolve returned %d.\n",retval); return(1); }
+    
+  } /* End of tout loop. */
+  
+  /* Print remaining counters. */
+  
+  printf("\n netf = %ld,   ncfn = %ld,   ncfl = %ld \n", 
+         iopt[NETF], iopt[NCFN], iopt[SPGMR_NCFL]);
+  
+  /* Free Memory */
+  
   IDAFree(mem);
   N_VFree(uu);
   N_VFree(up);
@@ -198,8 +248,8 @@ int main()
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res)
 {
-  integer mm, mm1, i, j, offset, loc;
-  real xfact, yfact, *udata, *updata, *iddata;
+  integertype mm, mm1, i, j, offset, loc;
+  realtype xfact, yfact, *udata, *updata, *iddata;
 
   mm = data->mm;
 
@@ -256,11 +306,11 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  *    res_i = u'_i - (central difference)_i                              *
  * while for each boundary point, it is res_i = u_i.                     */
 
-int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
+int heatres(integertype Neq, realtype tres, N_Vector uu, N_Vector up,
             N_Vector res, void *rdata)
 {
-  integer i, j, offset, loc, mm;
-  real *uv, *upv, *resv, coeff;
+  integertype i, j, offset, loc, mm;
+  realtype *uv, *upv, *resv, coeff;
   UserData data;
   
   uv = NV_DATA_S(uu); upv = NV_DATA_S(up); resv = NV_DATA_S(res);
@@ -304,16 +354,16 @@ int heatres(integer Neq, real tres, N_Vector uu, N_Vector up,
  * In this instance, only cj and data (user data structure, with   * 
  * pp etc.) are used from the PrecondHeateq argument list.         */
   
-int PrecondHeateq(integer Neq, real tt, N_Vector uu,
-                  N_Vector up, N_Vector rr, real cj,
+int PrecondHeateq(integertype Neq, realtype tt, N_Vector uu,
+                  N_Vector up, N_Vector rr, realtype cj,
                   ResFn res, void *rdata, void *pdata,
-                  N_Vector ewt, N_Vector constraints, real hh, 
-                  real uround, long int *nrePtr,
+                  N_Vector ewt, N_Vector constraints, realtype hh, 
+                  realtype uround, long int *nrePtr,
                   N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   
-  integer i, j, offset, loc, mm;
-  real *ppv, pelinv;
+  integertype i, j, offset, loc, mm;
+  realtype *ppv, pelinv;
   UserData data;
   
   data = (UserData) rdata;
@@ -347,9 +397,9 @@ int PrecondHeateq(integer Neq, real tt, N_Vector uu,
  * containing the inverse diagonal Jacobian elements (previously  *
  * computed in PrecondHeateq), returning the result in zvec.      */
 
-int PSolveHeateq(integer Neq, real tt, N_Vector uu,
-                 N_Vector up, N_Vector rr, real cj, ResFn res, void *rdata,
-                 void *pdata, N_Vector ewt, real delta, N_Vector rvec,
+int PSolveHeateq(integertype Neq, realtype tt, N_Vector uu,
+                 N_Vector up, N_Vector rr, realtype cj, ResFn res, void *rdata,
+                 void *pdata, N_Vector ewt, realtype delta, N_Vector rvec,
                  N_Vector zvec, long int *nrePtr, N_Vector tempv)
 {
   UserData data;
