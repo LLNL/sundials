@@ -11,10 +11,10 @@ package includes a module called KINBBDPRE, which provides a
 band-block-diagonal preconditioner for the parallel version.
 
 KINSOL can be used both on serial and parallel (MPI) computers.
-The difference is only in the NVECTOR module of vector kernels.
+The difference is only in the NVECTOR module of vector functions.
 The desired version is obtained when compiling the example files
-by linking the appropriate library of NVECTOR kernels.  In the parallel 
-version, communication between processors is done with the MPI 
+by linking with the appropriate library of NVECTOR functions.  In the
+parallel version, communication between processes is done via the MPI 
 (Message Passage Interface) system.
 
 Throughout this document, we will refer to the combination of KINSOL with
@@ -73,27 +73,83 @@ C. References
     Solver for Sequential and Parallel Computers, LLNL technical report UCRL-ID-131185, 
     July 1998.
 
-D. REVISION HISTORY (YYYYMMDD)
-------------------------------
+D.1. Revision History since release 2.0 (July 2002)
+---------------------------------------------------
 
-19980802   Date written.  KINSOL released.
-19981110   README revised, legal notices standardized.
-19981203   Implemented serial Fortran/C interface fkinsols.c; README updated.
+- Bug fixes
+   - fixed constraints-related bug.
+   - fixed bug in implementation of line-search method related to
+     beta-condition.
+   - corrected value of ealpha variable (related to forcing term).
+
+- Changes related to NVECTOR module
+  (see also the file sundials/shared/README)
+   - removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   - all KINSOL functions create new N_Vector variables through cloning,
+     using an N_Vector passed by the user as a template.
+
+- Changes to type names and KINSOL constants
+   - removed type 'integertype'; instead use 'int' or 'long int', as
+     appropriate.
+   - restructured the list of return values from the various KINSOL
+     functions.
+   - changed all KINSOL constants (inputs and return values) to have
+     the prefix 'KIN_' (e.g. KIN_SUCCESS).
+   - renamed function type 'SysFn' to 'KINSysFn'.
+
+- Changes to underlying algorithms
+   - modified line-search backtracking scheme to use cubic interpolation
+     after the first backtrack, if possible.
+   - changed implementation of constraints:
+       if constraints[i] =
+         0  u[i] NOT constrained
+        +1  u[i] >= 0
+        -1  u[i] <= 0
+        +2  u[i] >  0
+        -2  u[i] <  0
+       where u is the solution vector (see the KINSOL User Guide [1] for
+       additional details).
+
+- Changes to optional input/output
+   - added KINSet* and KINGet* functions for optional inputs/outputs,
+     replacing the arrays iopt and ropt.
+   - added new optional inputs (e.g. maximum number of nonlinear iterations
+     between calls to preconditioner setup routine, etc.)
+   - the value of the last return flag from any function within the SPGMR
+     linear solver module can be obtained as an optional output using
+     KINSpgmrGetLastFlag.
+
+- Changes to user-callable functions
+   - added new function KINCreate which initializes the KINSOL solver object
+     and returns a pointer to the KINSOL memory block.
+   - removed N (problem size) from all functions.
+   - shortened argument lists of most KINSOL functions (the arguments that
+     were dropped can now be specified through KINSet* functions).
+   - removed reinitialization functions for SPGMR linear solver (same
+     functionality can be obtained using KINSpgmrSet* functions).
+
+- Changes to user-supplied functions
+   - removed N (problem dimension) from argument lists.
+   - in KINSPGMR, shortened argument lists for user preconditioner functions.
+
+D.2. Previous revisions (YYYYMMDD)
+--------------------------------
+
+19980802   DATE WRITTEN - KINSOL released.
+19981203   Implemented serial Fortran/C interface (fkinsols.c).
 19990120   Minor corrections throughout.
-19990128   Better setting of eps (kinsol.c, kinsol.h).
-19990301   Fix to nbktrk, revised memory allocation in KINSPGMR module.
-19990309   Miscellaneous minor fixes to kinsol.c, kinsol.h, kinspgmr.h, diagsf.f.
-19990325   Removed machEnv as an argument to KINSol, revised examples.
-19991229   Fixed preconditioner evaluation logic; 
+19990128   Better setting of eps (kinsol.c and kinsol.h).
+19990301   Fixed bug in nbktrk and revised memory allocation in KINSPGMR module.
+19990309   Miscellaneous minor fixes to kinsol.c, kinsol.h, kinspgmr.h,
+           and diagsf.f.
+19990325   Removed machEnv as an argument to KINSol and revised examples.
+19991229   Fixed preconditioner evaluation logic;
            revised SPGMR module to treat scalings correctly.
 20000324   Upgraded serial and parallel versions of NVECTOR module to match 
-           versions in IDA package; minor corrections to Makefiles. 
+           versions in IDA package; minor corrections to Makefiles.
 20000706   Fixed bug in use of vtemp1 in KINSpgmrSolve call to KINAtimes etc.
-20000706   Fixed comments in kinxbbd.c; reran all examples.
 20000808   Fixed bug in N_VMin routine.
-20000810   Revised tar-file to create /KINSOL directory.
-20010116   Revised example programs kinxs, kinxp, and kinxbbd.
-20010116   Minor revisions to above Installation Notes.
 20010118   Minor revisions to solver source and header files, notably:
            In kinbbdpre.h, kinbbdpre.c, fkinbbd.c, and fkinbbdinit1.c,
            KBBDAlloc argument uround removed.  In kinbbdpre.c, five
@@ -101,10 +157,6 @@ D. REVISION HISTORY (YYYYMMDD)
            In fkinsol.h, KINUAtimes prototype fixed.  In fkinsols.c and
            fkinsolp.c, N_Vector's disposed with N_VDISPOSE after KINSol call. 
            In all fkin*.c, #include lines for header files corrected.
-           Minor corrections to comments throughout.
-20010118   Notes on KBBDAlloc argument list changed and revisions to examples
-           added to User document Addenda file README.DOC.
-20011119   Renamed FKINSOL examples for uniquiness.
 20011212   Corrected 4 N_VDISPOSE arguments in FKINSOL.
 20011212   Added missing error flag print in KINSol, and changed 5 return
            values in KINStop to enum-defined expressions.
@@ -112,15 +164,12 @@ D. REVISION HISTORY (YYYYMMDD)
 20011220   In parallel nvector.h, PVecInitMPI prototype, corrected type
            (int to integer) of length arguments.
 20011221   In FKINSOL, corrected type (integer) for Neq in KINPreco, KINPSol.
-20020207   This file revised to reflect new package organization.
-20020313   Modified to work with new NVECTOR abstraction. (Radu Serban)
-           Revised this file to reflect new N_Vector usage. (Radu Serban)
-20020627   Modified to reflect type name changes. (Radu Serban)
-20020730   Minor corrections throughout.  Fixed over-long lines.
-           In kinsol.c, eliminated 1-line routine KINInitialConstraint.
+20020313   Modified to work with new NVECTOR abstraction.
+           Revised this file to reflect new N_Vector usage.
+20020627   Modified to reflect type name changes.
+20020730   In kinsol.c, eliminated 1-line routine KINInitialConstraint.
            Changed kinwebs example to use positivity constraints.
            Eliminated use of KINMem type in all C examples.
            In FKINSOL module: corrected usage notes and other comments;
            added error return flag to all fkinspgmr** routines;
            upgraded both examples.
-20020830   Minor revisions to this file kinreadme.
