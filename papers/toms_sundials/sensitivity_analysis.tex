@@ -1,5 +1,4 @@
-\section{Sensitivity Analysis}
-\label{s:sensitivity_analysis}
+\section{Sensitivity Analysis}\label{s:sensitivity_analysis}
 
 Many times, models depend on parameters, either through their defining
 function --- $f(t,y)$ for the ODE in (\ref{ODE}), $F(t,y,y')$ for the DAE
@@ -41,7 +40,7 @@ The various algorithmic features of CVODES and IDAS are documented
 in~\cite{CLPS:03}. A detailed description of the CVODES software package 
 is presented in~\cite{SeHi:03}, while full usage description is given
 in~\cite{HiSe:02}.
-% Note: 
+% Maybe also add an upcoming IDAS user guide?
 %
 %==========================================================================
 
@@ -54,7 +53,7 @@ adjoint sensitivity analysis capabilities.
 Here, we assume that the system depends on a vector of parameters,
 $p = [p_1,\cdots,p_{N_p}]$,
 \begin{equation}\label{e:ODE_with_p}
-\dot{y} = f(t,y,p), \quad y(t_0,p) = y_0(p) ~,
+\dot{y} = f(t,y,p), \quad y(t_0,p) = y_0(p) \, ,
 \end{equation}
 including the case where the initial value vector $y_0$ depends on $p$,
 and we consider a scalar output functional of the form $g(t,y,p)$.
@@ -65,8 +64,8 @@ where $s \in R^{N \times N_p}$ is the so-called sensitivity matrix.
 %
 Each column $s_i = d y / d p_i$ of $s$ satisfies the sensitivity ODE
 \begin{equation}\label{e:fwdODE}
-\dot{s}_i = J s_i + \partial f / \partial p_i, 
-\quad s_i(t_0) = d y_0 / d p_i ~,
+\dot{s}_i = J s_i + \frac{\partial f}{\partial p_i} \, , 
+\quad s_i(t_0) = \frac{d y_0}{d p_i} \, ,
 \end{equation}
 where $J$ is the system Jacobian defined in (\ref{Newtonmat}).
 
@@ -104,7 +103,7 @@ algorithm but they are always included in the nonlinear system convergence
 test.
 
 The right-hand side of the sensitivity equations may be supplied by a 
-user routine, or approximated by difference quotients, et the user's option.
+user routine, or approximated by difference quotients, at the user's option.
 In the latter case, CVODES offers both forward and central finite 
 difference approximations. 
 %
@@ -123,7 +122,7 @@ can be evaluated separately:
   {\partial f}/{\partial p_i} \approx \frac{f(t,y,p + \sigma_i e_i)-
     f(t,y,p - \sigma_i e_i)}{2\,\sigma_i} \, , \tag{\ref{e:fd2}'} \\
   \sigma_i = |{\bar p}_i| \sqrt{\max(rtol, U)} \, , \quad
-  \sigma_y = \frac{|{\bar p}_i|}{\max(1/\sigma_i, \|s_i\|_{WRMS})} \, \nonumber,
+  \sigma_y = \frac{|{\bar p}_i|}{\max(1/\sigma_i, \|s_i\|_{WRMS})} \, , \nonumber
 \end{gather}
 simultaneously:
 \begin{gather}
@@ -143,10 +142,10 @@ in which the original system for $y$ is integrated forward,
 an adjoint system is then integrated backward, and finally the desired 
 sensitivities are obtained from the backward solution. 
 To be specific about how the adjoint approach works, we consider
-the following situation.  Assume as before that $f$ and/or $y_0$
-involves the parameter vector $p$, and also that there is a
-functional $g(t,y,p)$ such that what we desire in the end is the
-gradient $(dg/dp)|_{t=t_f}$, where $t_f$ is the final time.  
+the following situation. We assume as before that $f$ and/or $y_0$
+involves the parameter vector $p$, and that there is a
+functional $g(t,y,p)$ for which we desire the gradient $(dg/dp)|_{t=t_f}$, 
+at the final time $t_f$.
 We first integrate the original problem (\ref{e:ODE_with_p}) forward 
 from $t_0$ to $t_f$. The next step in the procedure is to integrate 
 from $t_f$ to $t_0$ the adjoint system
@@ -228,7 +227,7 @@ $G(p) = \int_{t_0}^{t_f} g(t,y,p) dt$ is obtained as
   \right) dt 
   - \left.\left( 
       \lambda^T \frac{\partial F}{\partial \dot{y}} s 
-    \right)\right|_{t_0}^{t_f} . 
+    \right)\right|_{t_0}^{t_f} \, . 
 \end{equation*}
 However, unlike the ODE case, homogeneous final conditions for the 
 adjoint variables may not always be enough (such is the case for 
@@ -286,7 +285,7 @@ When the dimension $N_p$ of the problem parameters $p$ is large, the
 the gradient of some functional $g(u,p)$. If $\lambda$ is solution of
 the adjoint system
 \begin{equation}\label{e:NLSadj}
-  J^T \lambda = \left( \frac{\partial g}{\partial u} \right)^T
+  J^T \lambda = \left( \frac{\partial g}{\partial u} \right)^T \, ,
 \end{equation}
 then the desired gradient becomes
 ${dg}/{dp} = -\lambda^T ({\partial F}/{\partial p}) + ({\partial g}/{\partial p})$.
