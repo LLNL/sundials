@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-10-08 19:20:57 $
+ * $Revision: 1.21 $
+ * $Date: 2004-10-11 15:59:42 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1180,6 +1180,8 @@ void IDASensFree(void *ida_mem);
  * ----------------------------------------
  */
 
+/* Flags from IDA */
+  
 #define IDA_SUCCESS          0
 #define IDA_TSTOP_RETURN     1
 
@@ -1206,10 +1208,14 @@ void IDASensFree(void *ida_mem);
 #define IDA_LINESEARCH_FAIL -18
 #define IDA_NO_RECOVERY     -19
 
-#define IDA_NO_QUAD         -20
-#define IDA_BAD_IS          -21
-#define IDA_NO_SENS         -22
-#define IDA_NO_STGR1        -23
+#define IDA_PDATA_NULL      -20
+  
+/* Flags specific to IDAS */
+
+#define IDA_NO_QUAD         -21
+#define IDA_BAD_IS          -22
+#define IDA_NO_SENS         -23
+#define IDA_NO_STGR1        -24
 
 /*
  * =================================================================

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2004-10-08 19:20:57 $
+ * $Revision: 1.7 $
+ * $Date: 2004-10-11 15:59:42 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -332,8 +332,6 @@ int IDASpgmrGetLastFlag(void *ida_mem, int *flag);
 #define IDASPGMR_LMEM_NULL  -2 
 #define IDASPGMR_ILL_INPUT  -3
 #define IDASPGMR_MEM_FAIL   -4
-
-#define IDASPGMR_DATA_NULL  -10
 
 #endif
 
