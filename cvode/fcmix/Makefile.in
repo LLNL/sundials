@@ -18,6 +18,7 @@ libdir      = @libdir@
 
 # Path to sources
 srcdir = @srcdir@
+VPATH  = @srcdir@
 
 # Archiver program
 AR = @AR@
@@ -26,6 +27,8 @@ AR = @AR@
 CC       = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS   = @CFLAGS@
+
+FCFLAGS  = @FCFLAGS@
 
 # CVODE and SHARED include directories
 SHARED_INC_DIR = ${srcdir}/../../shared/include
@@ -65,19 +68,7 @@ clean:
 uninstall:
 	rm -f ${libdir}/${FCVODE_LIB}
 
-fcvode.o : ${srcdir}/fcvode.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fcvband.o : ${srcdir}/fcvband.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fcvdense.o : ${srcdir}/fcvdense.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fcvjtimes.o : ${srcdir}/fcvjtimes.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fcvpreco.o : ${srcdir}/fcvpreco.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fcvpsol.o : ${srcdir}/fcvpsol.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
-fcvbbd.o : ${srcdir}/fcvbbd.c
-	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} -o $@ $<
+.c.o:
+	${CC} -c ${CFLAGS} ${CPPFLAGS} ${INCDIRS} ${FCFLAGS} -o $@ $<
 
 #---End of Makefile---
