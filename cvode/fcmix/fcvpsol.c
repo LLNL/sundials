@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2004-07-22 22:54:43 $
+ * $Revision: 1.11 $
+ * $Date: 2004-08-04 22:43:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -42,10 +42,10 @@ void FCV_SPGMRSETPSOL(int *flag, int *ier)
 
 /* C function FCVPSol to interface between CVODE and a Fortran subroutine
    FCVPSOL for solution of a Krylov preconditioner.
-   Addresses of t, gamma, delta, lr, y, fy, vtemp, ewt, r, z, and the
-   address nfePtr, are passed to FCVPSOL, using the routine N_VGetData 
-   from NVECTOR.  A return flag ier from FCVPSOL is returned by FCVPSol.
-   Auxiliary data is assumed to be communicated by common blocks. */
+   Addresses of t, gamma, delta, lr, y, fy, vtemp, ewt, r, and z are
+   passed to FCVPSOL, using the routine N_VGetArrayPointer from NVECTOR.
+   A return flag ier from FCVPSOL is returned by FCVPSol.
+   Auxiliary data is assumed to be communicated by Common blocks. */
 
 int FCVPSol(realtype t, N_Vector y, N_Vector fy, 
             N_Vector r, N_Vector z,
@@ -54,11 +54,9 @@ int FCVPSol(realtype t, N_Vector y, N_Vector fy,
 {
   N_Vector ewt;
   realtype *ydata, *fydata, *vtdata, *ewtdata, *rdata, *zdata;
-  realtype h;
   int ier = 0;
 
   CVodeGetErrWeights(CV_cvodemem, &ewt);
-  CVodeGetLastStep(CV_cvodemem, &h);
 
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
@@ -67,7 +65,7 @@ int FCVPSol(realtype t, N_Vector y, N_Vector fy,
   rdata   = N_VGetArrayPointer(r);
   zdata   = N_VGetArrayPointer(z);
 
-  FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &h, &delta,
+  FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &delta,
            rdata, &lr, zdata, &ier);
 
   return(ier);
