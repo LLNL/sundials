@@ -31,7 +31,7 @@ accompanies each solver in SUNDIALS.
 
 \item \label{sun_headers}
 SUNDIALS contains header files that define various constants,
-enumerations, macros, data types and function prototypes.  At a
+enumerations, macros, data types, and function prototypes.  At a
 minimum, the user must include header files that declare: the SUNDIALS
 data types for real, integer, and boolean variables; the content and
 operations that can be performed on vectors in either a serial or
@@ -62,7 +62,7 @@ structure to be passed in evaluating the user's function.
 \item \label{sun_set}
 At this stage, the default values in the solver memory block can be
 changed if so desired. Choices and default values are given in
-Table~\ref{t:optional_input} for each of the basic solvers, and
+Table~\ref{t:optional_input} for each of the basic solvers and
 are discussed further below.
 
 \item \label{sun_malloc}
@@ -97,12 +97,12 @@ additional problems.
 In order to carry out sensitivity analysis, the above outline
 needs to be modified at several steps. For forward sensitivities,
 Step~\ref{sun_headers} requires that the appropriate header
-file for forward sensitivity analysis is used in place of the header
+file for forward sensitivity analysis be used in place of the header
 file for the basic solver. At Step~\ref{sun_problem}, the user must
-create an array of real parameters upon which the solution depends,
+create an array of real parameters upon which the solution depends
 and attach a pointer to this array to the user-defined data structure
 that is passed to the user's function. Also, the user must specify the
-number of sensitivities to be computed, and provide an array that
+number of sensitivities to be computed and provide an array that
 indicates which solution sensitivities are to be
 computed. Step~\ref{sun_malloc} requires that the user call the memory
 allocation routine for the forward sensitivity version of the basic
@@ -114,7 +114,7 @@ Step~\ref{sun_finalize}. For complete details on performing forward or
 adjoint sensitivity analysis for CVODES, the reader is referred to~\cite{SeHi:03}.
 
 For a parallel machine environment, the MPI header file must be
-specified in Step~\ref{sun_headers} so that in Step~\ref{sun_size}: the MPI
+specified in Step~\ref{sun_headers} so that in Step~\ref{sun_size} the MPI
 communicator can be initialized, the set of active processors can be
 established, and the global and local vector lengths can be set.
 In Step~\ref{sun_finalize}, memory allocated for MPI must be freed.
@@ -127,8 +127,8 @@ codes.
 A key feature of SUNDIALS is that it provides a collection of optional
 input and output routines so that default settings can be changed, or
 various solver statistics and other information can be extracted.
-These ``set'' and ``get'' routines are available for each of the solvers as
-noted as well as for the linear solver and preconditioning methods that
+These ``set'' and ``get'' routines are available for each of the solvers, as
+noted, as well as for the linear solver and preconditioning methods that
 support them.
 
 \subsubsection*{Basic Solvers} 
@@ -153,7 +153,7 @@ Maximum order for Adams method& 12  & - & - \\
 Maximum number of internal steps before $t_{out}$ & 500 & 500 & - \\
 Maximum number of warnings for $h < U$ & 10 & - & - \\
 Flag to activate stability limit detection & FALSE & - & - \\
-Initial step size & estimated & est. & - \\
+Initial step size & est. & est. & - \\
 Minimum absolute step size & 0.0 & - & - \\
 Maximum absolute step size & $\infty$ & $\infty$ & - \\
 Value of $t_{stop}$ & - & $\infty$ & - \\
@@ -177,7 +177,9 @@ Stopping tolerance on residual & - & - & $U^{1/3}$ \\
 Stopping tolerance on max. scaled step & - & - & $U^{2/3}$ \\
 \end{tabular}
 \caption{Optional inputs for the basic solvers in SUNDIALS. 
-The value of unit roundoff for the machine is denoted by $U$.}
+The value of unit roundoff for the machine is denoted by $U$, 
+and ``est.'' indicates that a quantity is automatically 
+estimated by the code.}
 \label{t:optional_input}
 \end{acmtable}
 
@@ -238,33 +240,35 @@ the following can be optionally changed from their default values
 (provided in parentheses): a classical Gram-Schmidt orthogonalization 
 (modified Gram-Schmidt), the factor by which the tolerance on the
 nonlinear iteration is multiplied to get a tolerance on the linear
-iteration (0.05), the preconditioner setup routine (NULL), the
-preconditioner solver routine (NULL), and a pointer to the user
+iteration (0.05); the preconditioner setup routine (NULL); the
+preconditioner solver routine (NULL); and a pointer to the user
 preconditioner data (NULL).
 
 The optional outputs for any of the linear solvers are: the amount of 
 integer and real workspace used; the number of calls made to the user-supplied 
 Jacobian evaluation routine; and the number of calls to the user's function 
 within the default difference quotient routine.
-In addition, for the SPGMR case, the user can obtain the number of preconditioner
+In addition, for the SPGMR case the user can 
+obtain the number of preconditioner
 evaluations, the number of calls made to the preconditioner solve
 routine, the number of linear iterations, and the number of linear
 convergence failures.
 
 For the band-block-diagonal preconditioner, the optional outputs are:
-the amount of integer workspace used, the amount of real workspace
+the amount of integer workspace used; the amount of real workspace
 used; and the number of calls to the local function that approximates
 the user's function.
 
 \subsection{Fortran Usage} 
 \label{ss:Fortran_usage}
 
-Some support is available for using Fortran77 applications with
+Some support is available for using Fortran 77 and Fortran 90
+applications with
 SUNDIALS.  In particular, a Fortran/C interface package is provided
 with CVODE and KINSOL.  Each package is a collection of C header files
-and functions which provide interfaces from user Fortran routines to
+and functions that provide interfaces from user Fortran routines to
 solver C routines, and the reverse.  These enable the user to write a
-main program and all user-supplied routines in Fortran77, and then use
+main program and all user-supplied routines in Fortran, and then use
 either CVODE or KINSOL to solve the problem.  This mixed-language
 capability entails some compromises in portability, such as requiring
 fixed names for the user-supplied routines, but the restrictions are
