@@ -1,57 +1,32 @@
 \subsection{IDA}\label{ss:IDA}
 
-IDA solves the  Initial Value Problem for DAE systems, which we write as
+The IDA code is a C implementation of a previous code, DASPK, a DAE
+system solver written in Fortran by Petzold, Brown, and Hindmarsh
+\cite{BHP:94,BCP:96}.  IDA solves the initial value problem for 
+a DAE system of the general form
 \begin{equation}\label{e:DAE}
   F(t,y,{\dot y}) = 0 \, ,\quad y(t_0) = y_0 \, ,~ {\dot y}(t_0) = {\dot y}_0 \, ,
 \end{equation}
-where  $F:R \times R^N \times R^N \rightarrow R^N$.
-IDA is a rewrite in C of the Fortran solver DASPK by Brown, Hindmarsh,
-and Petzold \cite{BHP:94}.
+where $y$ and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
+variable, ${\dot y} = dy/dt$, 
+and initial conditions $y(t_0) = y_0, {\dot y}(t_0) = {\dot y}_0$ 
+are given.  (Often $t$ is time, but it certainly need not be.)
 
-The integration method in IDA is variable-order variable-coefficient
-BDF, in fixed-leading-coefficient form.  The method is implicit, and
-each step involves a Newton iteration.  The Newton corrections involve
-the Newton matrix
-\begin{equation}\label{e:DAE_Jacobian}
-  J = \frac{\partial F}{\partial y} + \alpha \frac{\partial F}{\partial {\dot y}} \, . 
-\end{equation}
-Here $\alpha$ is related to stepsize $h$ and the leading BDF
-coefficient $\alpha_0$ by the relation $\alpha = \alpha_0/h$.
-
-The linear systems are solved by one three methods:
-\begin{itemize}
-\item direct dense solve (user or internal $J$) (serial version only),
-\item direct banded solve (user or internal $J$) (serial version
-      only), or
-\item SPGMR = Scaled Preconditioned GMRES, with restarts allowed.
-      here preconditioning is allowed only on the left, so that GMRES
-      is applied to systems $(P^{-1}J)(\Delta y) = -P^{-1}F$, and
-      the user must supply routines for the setup and solve phases for
-      the preconditioner $P$.
-\end{itemize}
-
-IDA permits the user to impose four different inequality constraints:
-\begin{equation}
-  y^i > 0~~ \mbox{or} ~~ y^i < 0~~ \mbox{or} ~~y^i \geq 0~~
-  \mbox{or} ~~y^i \leq 0 ~.
-\end{equation}
-Any of these constraints, or no constraint, may be imposed on each
-component of the solution vector $y$.
-
-A difficulty often arises in solving DAE systems, that does arise for
-ODEs -- namely the setting of initial conditions.  The user's input
-values in $y_0, {\dot y}_0$ may or may not be consistent with the given
-system $F = 0$.  But for integration to succeed, these vectors must
-be consistent (or very close to consistent).
-
-IDA provides an optional user-callable routine \cite{BHP:98} which
-solves for consistent initial values, for two classes of problems:
-\begin{itemize}
-\item semi-explicit index-1 systems, where the differential components
-of $y_0$ are known, but the algebraic components are unknown; and
-\item problems with all of $y'_0$ specified and all of $y_0$ unknown.
-\end{itemize}
-
+Unlike the situation for ODE systems, the initial vectors $y_0$ and
+${\dot y}_0$ are not arbitrary, but must be consistent with the system
+(\ref{e:DAE}).  For a class of problems that includes so-called
+semi-explicit index-one systems, IDA includes a routine that computes
+consistent initial conditions from a user's initial guesses
+\cite{BHP:98}.  For this, the user must identify subvectors of $y$
+(not necessarily contiguous), denoted $y_d$ and $y_a$, which are its
+differential and algebraic parts, respectively, such that $F$ depends
+on ${\dot y}_d$ but not on any components of ${\dot y}_a$.  The assumption that
+the system is ``index-one'' means that for a given $t$ and $y_d$, the
+system $F(t,y,{\dot y}) = 0$ defines $y_a$ uniquely.  In this case, a solver
+within IDA computes $y_a$ and ${\dot y}_d$ at $t = t_0$, given $y_d$ and an
+initial guess for $y_a$.  A second available option with this solver
+also computes all of $y(t_0)$ given ${\dot y}(t_0)$; this is intended mainly
+for quasi-steady state problems, where ${\dot y}(t_0) = 0$ is given.
 In both cases, IDA solves the system $F(t_0,y_0, {\dot y}_0) = 0$ for the
 unknown components of $y_0$ and ${\dot y}_0$, using Newton iteration
 augmented with a linesearch global strategy.  In doing this, it makes
@@ -59,5 +34,104 @@ use of the existing machinery that is to be used for solving the
 linear systems during the integration, in combination with certain
 tricks involving the stepsize (which is set artificially for this
 calculation).
+For problems that do not fall into either of these categories, the
+user is responsible for passing consistent values, or risk failure in
+the numerical integration.
+
+The integration method in IDA is variable-order, variable-coefficient
+BDF, in fixed-leading-coefficient form.  {\sf cite a reference here.} 
+The method orders range from 1 to 5, and the BDF of order $k$
+is given by the multistep formula
+\begin{equation}
+\sum_{i=0}^k \alpha_{n,i}y_{n-i} = h_n {\dot y}_n ~,  \label{BDF}
+\end{equation}
+where $y_n$ and ${\dot y}_n$ are the computed approximations to $y(t_n)$
+and ${\dot y}(t_n)$, respectively, and the stepsize is $h_n = t_n - t_{n-1}$.  
+The coefficients $\alpha_{n,i}$ are uniquely determined by the order
+$k$, and the history of the stepsize.  The application of the BDF
+(\ref{BDF}) to the DAE system (\ref{e:DAE}) results in a nonlinear
+algebraic system to be solved at each step:
+\begin{equation}
+G(y_n) \equiv F(t_n, y_n, h_n^{-1} \sum_{i=0}^k \alpha_{n,i}y_{n-i})
+       = 0 ~.                                         \label{nonlinsys}
+\end{equation}
+
+Regardless of the method options, the solution of the nonlinear system
+(\ref{nonlinsys}) is accomplished with some form of Newton iteration.
+This leads to a linear system for each Newton correction, of the form
+\begin{equation}
+J [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)})  ~, \label{DAE_Newtoncorr}
+\end{equation}
+where $y_{n(m)}$ is the $m$th approximation to $y_n$.  Here $J$ is 
+some approximation to the system Jacobian
+\begin{equation}
+J = \frac{\partial G}{\partial y}
+  = \frac{\partial F}{\partial y} + \alpha\frac{\partial F}{\partial {\dot y}}
+                                                     ~, \label{e:DAE_Jacobian}
+\end{equation}
+where $\alpha = \alpha_{n,0}/h_n$.  The scalar $\alpha$ changes 
+whenever the stepsize or method order changes.
+
+During the course of integrating the system, IDA computes an estimate
+$E_n$ of the local truncation error at the $n$th time step, and
+requires this to satisfy the inequality
+\begin{equation}
+  \left\| E_n\right\|_{wrms} < 1 ~.                  \label{Errtest}
+\end{equation}
+This test imposes tolerances on the local errors by way of the weighted
+root-mean-square norm, which is defined by
+\[
+\left\| E_n\right\|_{wrms} = \left[ \frac{1}{N} \sum_{i=1}^N 
+    ( E_n^i / w^i ) ^2 \right] ^{1/2} ~.
+\]
+Here a superscript $i$ denotes the $i$th component, and the $i$th
+weight is 
+\begin{equation}
+w^i = rtol |y^i| + atol^i ~~~ \mbox{or} ~~~ w^i = rtol |y^i| + atol ~.
+                                                    \label{weights}
+\end{equation}
+This permits an arbitrary combination of relative and absolute error
+control. The user specifies a scalar relative error tolerance $rtol$
+and an absolute error tolerance $atol$ which may be either an
+vector or a scalar (as indicated in (\ref{weights}) above).  
+Since these tolerances define the allowed error per step, they should
+be chosen conservatively.
+
+IDA varies both the stepsize $h_n$ and the order $k$ in an attempt to
+produce a solution with the minimum number of steps, but always
+subject to the local error test (\ref{Errtest}).  After a step at
+order $k$, the local truncation errors at orders $k-1$ and (often)
+$k+1$ are also estimated, and a change of order is considered on the
+basis of the three error norms.  See \cite{BCP:96} for details.  
+
+Normally, IDA takes steps until a user-defined output value $t = tout$
+is overtaken, and then computes $y(tout)$ by interpolation.  However,
+a ``one-step'' mode option is available, where control returns to the
+calling program after each step.  There are also options to force IDA
+not to integrate past a given stopping point $t = t_{stop}$.
+
+The linear systems are solved by one of three methods:
+\begin{itemize}
+\item direct dense solve (serial version only),
+\item direct banded solve (serial version only), or
+\item SPGMR = Scaled Preconditioned GMRES, with restarts allowed.
+\end{itemize}
+In the direct cases, the Jacobian
+$J$ defined in (\ref{e:DAE_Jacobian}) can be treated as either dense or banded,
+and in each case, the user can either supply an approximation to $J$
+or have IDA compute one internally by difference quotients.
+For the SPGMR case, preconditioning is allowed only on the left, so that GMRES
+is applied to systems $(P^{-1}J)(\Delta y) = -P^{-1}F$, and
+the user must supply routines for the setup and solve phases for
+the preconditioner $P$.
+
+IDA permits the user to impose four different inequality constraints:
+\begin{equation}
+  y^i > 0~~ \mbox{or} ~~ y^i < 0~~ \mbox{or} ~~y^i \geq 0~~
+  \mbox{or} ~~y^i \leq 0 ~.
+\end{equation}
+Any of these constraints, or no constraint, may be imposed on each
+component of the solution vector $y$.  If needed, IDA will decrease 
+the time step so that all constraints are satisfied.
 
 
