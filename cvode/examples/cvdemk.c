@@ -2,7 +2,7 @@
  *                                                                       *
  * File: cvdemk.c                                                        *
  * Programmers: Scott D. Cohen and Alan C. Hindmarsh @ LLNL              *
- * Version of 11 January 2002                                            * 
+ * Version of 1 March 2002                                               * 
  *-----------------------------------------------------------------------*
  * Demonstration program for CVODE - Krylov linear solver.               *
  * ODE system from ns-species interaction PDE in 2 dimensions.           *
@@ -59,13 +59,15 @@
  * The product preconditoner is applied on the left and on the right.    *
  * In each case, both the modified and classical Gram-Schmidt options    *
  * are tested.                                                           *
- * In the series of runs, CVodeMalloc is called only for the first run,  *
- * whereas CVReInit is called for each of the remaining three runs.      *
+ * In the series of runs, CVodeMalloc and CVSpgmr are called only for    *
+ * the first run, whereas CVReInit and CVReInitSpgmr are called for      *
+ * each of the remaining three runs.                                     *
  *                                                                       *
- * A problem description, performance statistics, and solution profiles  *
- * at selected output times are written to standard output. CVODE error  *
- * and warning messages are written to standard error. There should be   *
- * no such messages.                                                     *
+ * A problem description, performance statistics at selected output      *
+ * times, and final statistics are written to standard output.           *
+ * On the first run, solution values are also printed at output times.   *
+ * CVODE error and warning messages are written to standard error, but   *
+ * there should be no such messages.                                     *
  *                                                                       *
  * Note.. This program requires the "small" dense linear solver routines *
  * denalloc, denallocpiv, denaddI, gefa, gesl, denfreepiv and denfree.   *
@@ -240,16 +242,18 @@ main()
         cvode_mem = CVodeMalloc(NEQ, f, T0, c, LMM, ITER, ITOL, &reltol,
 			  &abstol, wdata, ERRFP, OPTIN, iopt, ropt, NULL);
         if (cvode_mem == NULL) { printf("CVodeMalloc failed.\n"); return(1); }
+        flag = CVSpgmr(cvode_mem, jpre, gstype, MAXL, DELT, Precond, PSolve,
+                       wdata, NULL, NULL);
+        if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
       }
       else {
         flag = CVReInit(cvode_mem, f, T0, c, LMM, ITER, ITOL, &reltol,
 			  &abstol, wdata, ERRFP, OPTIN, iopt, ropt, NULL);
         if (flag != SUCCESS) { printf("CVReInit failed."); return(1); }
+        flag = CVReInitSpgmr(cvode_mem, jpre, gstype, MAXL, DELT,
+                             Precond, PSolve, wdata, NULL, NULL);
+        if (flag != SUCCESS) { printf("CVReInitSpgmr failed."); return(1); }
       }
-
-      flag = CVSpgmr(cvode_mem, jpre, gstype, MAXL, DELT, Precond, PSolve,
-                     wdata, NULL, NULL);
-      if (flag != SUCCESS) { printf("CVSpgmr failed."); return(1); }
  
       /* Print initial values */
       if (firstrun) PrintAllSpecies(c, ns=wdata->ns, mxns=wdata->mxns, T0);
