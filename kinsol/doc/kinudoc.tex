@@ -524,19 +524,17 @@ int KINSol(void *kinmem, integer Neq,
  *         in use for the calculation. (see UnitRoundoff in       *
  *         llnlmath module                                        *
  *                                                                *
- * constraints  is a pointer to an array (type N_Vector) of       *
- *         constraints on uu .  If the pointer passed in is NULL, *
- *         then NO constraints are applied to uu . A NULL pointer *
- *         also stops application of the constraint on the max    *
- *         relative change in uu ,  controlled by the input       *
- *         variable relu which is input via ropt[RELU]            *
- *         a positive value in constraints[i]                     *
- *         implies that the ith* component of uu is to be         *
- *         constrained > 0.                                       *
- *         A negative value in constraints[i] implies that the ith*
- *         component of uu is to be constrained < 0.              *
- *         A zero value in constraints[i] implies there is no     *
- *         constraint on uu[i].                                   *
+ * constraints  is an N_Vector defining inequality constraints    *
+ *         for each component of the solution vector uu.  If      *
+ *         constraints(i) = +2 or -2, then uu(i) will be          *
+ *         constrained to be > 0.0 or < 0.0, respectively.  If    *
+ *         constraints(i) = +1 or -1, then uu(i) will be          *
+ *         constrained to be >= 0.0 or <= 0.0, respectively.  A   *
+ *         zero value in constraints(i) implies there is no       *
+ *         constraint on uu(i).  However, if constraints is a     *
+ *         NULL pointer, then neither uu nor the maximum relative *
+ *         change in uu will be constrained.                      *
+ *                                                                *
  * optIn   is a flag (boole) indicating whether optional inputs   *
  *         from the user in the arrays iopt and ropt are to be    *
  *         used. Pass FALSE to ignore all optional inputs and TRUE*
