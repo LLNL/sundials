@@ -153,7 +153,7 @@ M_Env M_EnvInit_Parallel(MPI_Comm comm,  integertype local_vec_length,
   } 
 
   /* Attach ID tag */
-  strcpy(me->tag, ID_TAG_P);
+  me->tag = ID_TAG_P;
   
   /* Return the machine environment */
   return(me);
