@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.5 $
-# $Date: 2004-09-27 22:50:25 $
+# $Revision: 1.6 $
+# $Date: 2004-10-30 00:23:28 $
 ############################################################################
 #
 # Filename: sundials.sh
@@ -1360,6 +1360,9 @@ NUM_MACHINES=`echo "${REMOTE_MACHINES}" | wc -w`
 ############################################################################
 
 # tar and compress all log files
+if [ "${ERROR_FLAG}" = "no" ]; then
+  echo "No errors were detected :-)" >> "${LOG_DIR}/${MAIL_FILE}"
+fi
 echo -n "Zipping test log files..."
 ( cd "${LOG_DIR}"/examples && rm -f *.tar )
 # tar and compress files with errors separately
@@ -1423,7 +1426,6 @@ if [ "${ERROR_DETECTED}" = "yes" ]; then
 else
   echo -n "E-mailing test completion notification to: ${MAIL_RECIPIENTS}..."
   MAIL_SUBJECT="Autotest Message (${PROJECT_NAME}): OK"
-  echo "No errors were detected :-)" >> "${LOG_DIR}/${MAIL_FILE}"
   STATUS=`"${MAIL_CMD}" -s "${MAIL_SUBJECT}" "${MAIL_RECIPIENTS}" < "${LOG_DIR}/${MAIL_FILE}"`
   if [ "${STATUS}" = "" ]; then
     rm -f "${LOG_DIR}/${MAIL_FILE}"

@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.2 $
-# $Date: 2004-10-22 00:12:40 $
+# $Revision: 1.3 $
+# $Date: 2004-10-30 00:23:28 $
 ############################################################################
 #
 # Filename: sundials_test.sh
@@ -21,6 +21,12 @@ get_example_list()
     if [ "${IN_EXAMPLE_FILE}" != "" ]; then
       # remove *.o file extension
       IN_EXAMPLE_FILE=`basename "${IN_EXAMPLE_FILE}" .o`
+      # remove '-updated' suffix from names of FCMIX examples
+      TEMP_A=`echo "${IN_EXAMPLE_FILE}" | fgrep "updated"`
+      if [ "${TEMP_A}" != "" ]; then
+        IN_EXAMPLE_FILE=`echo "${IN_EXAMPLE_FILE}" | cut -d'-' -f1`
+      fi
+      # update list of executables
       if [ "${TEMP_EXAMPLE_LIST}" = "" ]; then
         TEMP_EXAMPLE_LIST="${IN_EXAMPLE_FILE}"
       else
@@ -220,18 +226,10 @@ run_examples()
               echo "exit 0" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	    # normal examples do not require command-line options
             else
-              if [ "${TEMP_EXAMPLE_FILE}" = "pvakx" ]; then
-                echo "#PSUB -ln 1 -g 8" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-                PSUB_WAIT_TIME=$((${WAIT_TIME} * 4))
-              elif [ "${TEMP_EXAMPLE_FILE}" = "pvakx3D" ]; then
-                echo "#PSUB -ln 1 -g 16" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-                PSUB_WAIT_TIME=$((${WAIT_TIME} * 8))
-              else
-                echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-                PSUB_WAIT_TIME="${WAIT_TIME}"
-              fi
+              echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "#PSUB -c pbatch,${LOCAL_MACHINE}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "#PSUB -s /usr/local/bin/bash" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              PSUB_WAIT_TIME="${WAIT_TIME}"
               echo "#PSUB -tM ${PSUB_WAIT_TIME}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
@@ -492,11 +490,11 @@ while [ $((${NUM_MODULES})) -gt 0 ]; do
       echo "[${STATUS}]"
     fi
 
-      if [ -d "${MODULE_DIR}/test_examples_ser" ]; then
-        echo -ne "\tChecking for dev serial examples..."
-        run_examples ${MODULE_DIR}/test_examples_ser
-        echo "[${STATUS}]"
-      fi
+    if [ -d "${MODULE_DIR}/test_examples_ser" ]; then
+      echo -ne "\tChecking for dev serial examples..."
+      run_examples ${MODULE_DIR}/test_examples_ser
+      echo "[${STATUS}]"
+    fi
 
     if [ -d "${MODULE_DIR}/examples_par" ]; then
       echo -ne "\tChecking for parallel examples..."
@@ -510,31 +508,16 @@ while [ $((${NUM_MODULES})) -gt 0 ]; do
       echo "[${STATUS}]"
     fi
 
-    # skip normal FORTRAN examples on GPS (examples must be modified since sizeof(long int) != sizeof(int))
-    if [ "${MACHINE_TYPE}" != "OSF1" ]; then
-      if [ -d "${MODULE_DIR}/fcmix/examples_ser" ]; then
-        echo -ne "\tChecking serial fcmix examples..."
-        run_examples ${MODULE_DIR}/fcmix/examples_ser
-        echo "[${STATUS}]"
-      fi
-      if [ -d "${MODULE_DIR}/fcmix/examples_par" ]; then
-        echo -ne "\tChecking parallel fcmix examples..."
-        run_examples ${MODULE_DIR}/fcmix/examples_par
-        echo "[${STATUS}]"
-      fi
+    if [ -d "${MODULE_DIR}/fcmix/examples_ser" ]; then
+      echo -ne "\tChecking serial fcmix examples..."
+      run_examples ${MODULE_DIR}/fcmix/examples_ser
+      echo "[${STATUS}]"
     fi
 
-    if [ "${MACHINE_TYPE}" = "OSF1" ]; then
-      if [ -d "${MODULE_DIR}/fcmix/test_examples_ser" ]; then
-        echo -ne "\tChecking serial dev fcmix examples..."
-        run_examples ${MODULE_DIR}/fcmix/test_examples_ser
-        echo "[${STATUS}]"
-      fi
-      if [ -d "${MODULE_DIR}/fcmix/test_examples_par" ]; then
-        echo -ne "\tChecking parallel dev fcmix examples..."
-        run_examples ${MODULE_DIR}/fcmix/test_examples_par
-        echo "[${STATUS}]"
-      fi
+    if [ -d "${MODULE_DIR}/fcmix/examples_par" ]; then
+      echo -ne "\tChecking parallel fcmix examples..."
+      run_examples ${MODULE_DIR}/fcmix/examples_par
+      echo "[${STATUS}]"
     fi
 
   else
