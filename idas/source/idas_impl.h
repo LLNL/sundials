@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2004-07-22 23:07:43 $
+ * $Revision: 1.3 $
+ * $Date: 2004-10-14 22:17:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,6 +37,18 @@ extern "C" {
 /* Basic IDAS constants */
 
 #define MXORDP1 6 /* max. number of vectors kept in the phi array */
+
+/*
+ * ifS:   Type of the function returning the sensitivity residual    
+ *        ifS can be either IDA_ALLSENS if the function    
+ *        (of type SensResFn) returns residuals for all    
+ *        sensitivity systems at once, or IDA_ONESENS if the function 
+ *        (of type SensRes1Fn) returns the residual of one 
+ *        sensitivity system at a time.                           
+ *                                                                
+ */
+#define IDA_ONESENS 1
+#define IDA_ALLSENS 2
 
 /*
  *----------------------------------------------------------------

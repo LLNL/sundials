@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2004-10-08 23:45:31 $
+ * $Revision: 1.28 $
+ * $Date: 2004-10-14 22:17:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -236,7 +236,9 @@
 
 #define MSG_BAD_EWTQ        IDAIS "Some initial ewtQ component = 0.0 illegal.\n\n"
 
-#define MSG_BAD_ISM_IRESS   IDAIS "Illegal combination ism=IDA_STAGGERED1 and iresS=ALLSENS.\n\n"
+#define MSG_BAD_ISM_IRESS1  "Illegal use of ism=IDA_STAGGERED1 "
+#define MSG_BAD_ISM_IRESS2  "with the provided sensitivity residual function.\n\n"
+#define MSG_BAD_ISM_IRESS   IDAIS MSG_BAD_ISM_IRESS1 MSG_BAD_ISM_IRESS2 
 
 #define MSG_PBAR_NULL       IDAIS "pbar is needed, but pbar=NULL illegal.\n\n"
 
@@ -549,7 +551,7 @@ void *IDACreate(void)
   IDA_mem->ida_resS        = IDASensResDQ;
   IDA_mem->ida_resS1       = IDASensRes1DQ;
   IDA_mem->ida_resSDQ      = TRUE;
-  IDA_mem->ida_iresS       = ONESENS;
+  IDA_mem->ida_iresS       = IDA_ONESENS;
   IDA_mem->ida_errconS     = TRUE;
   IDA_mem->ida_rhomax      = ZERO;
   IDA_mem->ida_pbar        = NULL;
@@ -2387,7 +2389,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   if (sensi) {
 
     /* Check if ism and iresS agree */
-    if ((ism==IDA_STAGGERED1) && (iresS==ALLSENS)) {
+    if ((ism==IDA_STAGGERED1) && (iresS==IDA_ALLSENS)) {
       if(errfp!=NULL) fprintf(errfp, MSG_BAD_ISM_IRESS);
       return (IDA_ILL_INPUT);
     } 
@@ -4739,8 +4741,8 @@ static realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
 /*
   IDASensRes is a high level routine that returns the residuals
   of sensitivity equations. Depending on the 'iresS' flag, it either 
-  calls directly the resS routine (iresS=ALLSENS) or (if iresS=ONESENS) 
-  calls the resS1 routine in a loop over all sensitivities.
+  calls directly the resS routine (if iresS=IDA_ALLSENS) or calls the
+  resS1 routine in a loop over all sensitivities (if iresS=IDA_ONESENS).
 */
 /*-----------------------------------------------------------------*/
 
@@ -4751,7 +4753,7 @@ static int IDASensRes(IDAMem IDA_mem, realtype time,
 {
   int ier, is;
 
-  if (iresS==ALLSENS) {
+  if (iresS==IDA_ALLSENS) {
     ier = resS(Ns, time, 
                yycur, ypcur, resvalcur, 
                yyScur, ypScur, resvalScur, 
@@ -4778,7 +4780,7 @@ static int IDASensRes(IDAMem IDA_mem, realtype time,
   of the is-th sensitivity equation. 
   
   IDASensRes1 is called only during the IDA_STAGGERED1 corrector loop
-  (iresS must be ONESENS, otherwise IDASensMalloc would have 
+  (iresS must be IDA_ONESENS, otherwise IDASensMalloc would have 
   issued an error message).
 */
 /*-----------------------------------------------------------------*/

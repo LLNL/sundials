@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-10-11 15:59:42 $
+ * $Revision: 1.22 $
+ * $Date: 2004-10-14 22:17:02 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,13 +63,6 @@ extern "C" {
  *        at the same time. Finally, in the STAGGERED1 approach   *     
  *        all nonlinear systems are solved in a sequence.         *
  *                                                                *
- * ifS:   Type of the function returning the sensitivity right    *
- *        hand side. ifS can be either ALLSENS if the function    *
- *        (of type SensResFn) returns residuals for all           *
- *        sensitivity systems at once, or ONESENS if the function *
- *        (of type SensRes1Fn) returns the residual of one        *
- *        sensitivity system at a time.                           *
- *                                                                *
  * itask: The itask input parameter to IDASolve indicates the job *
  *        of the solver for the next user step. The NORMAL        *
  *        itask is to have the solver take internal steps until   *
@@ -104,9 +97,6 @@ extern "C" {
 #define IDA_SIMULTANEOUS 1
 #define IDA_STAGGERED    2
 #define IDA_STAGGERED1   3
-
-enum { ALLSENS, ONESENS };                                /* ifS */
-
 
 /******************************************************************
  * Type : ResFn                                                   *

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-10-08 15:27:24 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-14 22:17:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -602,7 +602,7 @@ int IDASetSensResFn(void *ida_mem, SensResFn resS)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_iresS = ALLSENS;
+  IDA_mem->ida_iresS = IDA_ALLSENS;
 
   if (resS != NULL) {
     IDA_mem->ida_resS   = resS;
@@ -629,7 +629,7 @@ int IDASetSensRes1Fn(void *ida_mem, SensRes1Fn resS1)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_iresS = ONESENS;
+  IDA_mem->ida_iresS = IDA_ONESENS;
 
   if (resS1 != NULL) {
     IDA_mem->ida_resS1  = resS1;
