@@ -18,7 +18,7 @@ changed to {\tt 0.5E-4}.
 
 The two examples supplied with the {\fkinsol} module are very simple tests 
 of the {\F}-{\C} interface module. 
-They solve the system
+They solve the nonlinear system
 \begin{equation*}
   F(u) = 0 \, , \quad \text{where } f_i(u) = u_i^2 - i^2 \, , 1 \le i \le N \, . 
 \end{equation*}
@@ -33,29 +33,29 @@ The main program begins by calling \id{fnvinits} to initialize computations
 with the serial {\nvecs} module. Next, the array \id{uu} is set to contain
 the initial guess $u_i = 2 i$, the array \id{scale} is set with all 
 components equal to $1.0$ (meaning that no scaling is done), and the array
-\id{constr} is set with all components equal to $0.0$ to inidcate that no 
+\id{constr} is set with all components equal to $0.0$ to indicate that no 
 inequality constraints should be imposed on the solution vector.
 
 The {\kinsol} solver is initialized and memory for it is allocated by
-calling \id{fkinmalloc} which also specifies the maximum number of 
+calling \id{fkinmalloc}, which also specifies the maximum number of 
 iterations between calls to the preconditioner setup routine (\id{msbpre} $=5$),
 the tolerance for stopping based on the function norm (\id{fnormtol} = $10^{-5}$),
 the tolerance for stopping based on the step length (\id{scsteptol} $=10^{-4}$),
 and that no optional inputs are provided (\id{inopt} $=0$).
 
-Next, the {\kinspgmr} linear solver module is attached by calling \id{fkinspgmr} 
+Next, the {\kinspgmr} linear solver module is attached to {\kinsol} by calling \id{fkinspgmr}, 
 which also specifies the maximum Krylov subspace dimension (\id{maxl} $=10$) and the
 maximum number of restarts allowed for {\spgmr} (\id{maxlrst} $=2$).
 The {\kinspgmr} module is directed to use the supplied preconditioner by 
 calling the routines \id{fkinspgmrsetpsol} and \id{fkinspgmrsetpset} with
 a first argument equal to $1$. The solution of the nonlinear system is obtained after
-a successful return from \id{fkinsol} which is then printed to unit 6 (screen).
+a successful return from \id{fkinsol}, which is then printed to unit 6 (stdout).
 
 Memory allocated for the {\kinsol} solver is released by calling \id{fkinfree} and
 computations with the {\nvecs} module are terminated by calling \id{fnvfrees}.
 
 The user-supplied routine \id{fkfun} contains a straightforward transcription
-of the nonlinear system functin $f$, while the routine \id{fkpset} sets the
+of the nonlinear system function $f$, while the routine \id{fkpset} sets the
 array \id{pp} (in the common block \id{pcom}) to contain an approximation to 
 the reciprocals of the Jacobian diagonal elements. The components of \id{pp} are
 then used in \id{fkpsol} to solve the preconditioner linear system $Px=v$
@@ -70,7 +70,7 @@ The following is sample output from \id{kindiagsf}, using $N = 128$.
 \subsection{A parallel example: \id{kindiagpf}}\label{ss:kindiagpf}
 
 The program \id{kindiapf} (listed in Appendix~\ref{s:kindiagpf_f}) is a
-straightforward modification of \id{kindiagsf} to use the MPI parallel
+straightforward modification of \id{kindiagsf} to use the parallel MPI
 {\nvecp} module.
 
 After initialization of MPI, the {\nvecp} module is initialized by calling
@@ -88,7 +88,7 @@ evaluate the nonlinear system function $f$ or the preconditioner.
 As a consequence, the user-supplied routines \id{fkfun}, \id{fkpset}, and
 \id{fkpsol} are basically identical to those in \id{kindiagsf}.
 
-Sample output from \id{kindiapf}, for $N=$, follows.
+Sample output from \id{kindiapf}, for $N=128$, follows.
 
 \includeOutput{kindiagpf}{../fcmix/examples_par/kindiagpf.out}
 
