@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-01-24 22:29:06 $
+ * $Revision: 1.25 $
+ * $Date: 2005-03-02 17:53:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -85,12 +85,12 @@ extern "C" {
  * -----------------------------------------------------------------
  * Enumeration for global strategy
  * -----------------------------------------------------------------
- * Choices are KIN_INEXACT_NEWTON and KIN_LINESEARCH.
+ * Choices are KIN_NONE and KIN_LINESEARCH.
  * -----------------------------------------------------------------
  */
 
-#define KIN_INEXACT_NEWTON 1
-#define KIN_LINESEARCH     2
+#define KIN_NONE       0
+#define KIN_LINESEARCH 1
 
 /*
  * -----------------------------------------------------------------
@@ -167,7 +167,7 @@ void *KINCreate(void);
  *                      |     norm (L2) of the system function
  *                      |     evaluated at the current iterate, the
  *                      |     scaled norm of the Newton step (only if
- *                      |     using KIN_INEXACT_NEWTON), and the
+ *                      |     using KIN_NONE), and the
  *                      |     number of function evaluations performed
  *                      |     thus far
  *                      |
@@ -175,11 +175,11 @@ void *KINCreate(void);
  *                      |     following values for each iteration:
  *                      |
  *                      |       fnorm (L2) = ||fscale*func(u)||_L2
- *                      |       (only for KIN_INEXACT_NEWTON)
+ *                      |       (only for KIN_NONE)
  *                      |
  *                      |       scaled fnorm (for stopping) =
  *                      |       ||fscale*ABS(func(u))||_L-infinity
- *                      |       (for KIN_INEXACT_NEWTON and
+ *                      |       (for KIN_NONE and
  *                      |       KIN_LINESEARCH)
  *                      |
  *                      |  3  display level 2 output plus additional
@@ -190,18 +190,19 @@ void *KINCreate(void);
  *                      | [0]
  *                      |
  * KINSetNumMaxIters    | maximum number of nonlinear iterations
- *                      | [MXITER_DEFAULT] (defined in kinsol.c)
+ *                      | [MXITER_DEFAULT] (defined in kinsol_impl.h)
  *                      |
- * KINSetNoPrecInit     | flag controlling whether or not the
+ * KINSetNoInitSetup    | flag controlling whether or not the
  *                      | KINSol routine makes an initial call
- *                      | to the preconditioner setup routine (pset)
+ *                      | to the inear solver setup routine (lsetup)
  *                      | (possible values are TRUE and FALSE)
  *                      | [FALSE]
  *                      |
- * KINSetMaxPrecCalls   | maximum number of nonlinear iterations
- *                      | that may be performed between calls to
- *                      | the preconditioner setup routine (pset)
- *                      | [MSBPRE] (defined in kinsol.c)
+ * KINSetMaxSetupCalls  | mbset, number of nonlinear iteraions, such 
+ *                      | that a call to the linear solver setup routine
+ *                      | (lsetup) is forced every mbset iterations.
+ *                      | If mbset=1, lsetup s called at every iteration.
+ *                      | [MSBSET_DEFAULT] (defined in kinsol_impl.h)
  *                      |
  * KINSetEtaForm        | flag indicating which method to use to
  *                      | compute the value of the eta coefficient
@@ -264,6 +265,10 @@ void *KINCreate(void);
  *                      | (reset to value of one if user-supplied
  *                      | value is less than one)
  *                      | [1000*||uscale*u_0||_L2]
+ *                      |
+ * KINSetMaxBetaFails   | maximum number of beta condition failures
+ *                      | in the line searc algorithm.
+ *                      | [MXNBCF_DEFAULT] (defined in kinsol_impl.h)
  *                      |
  * KINSetRelErrFunc     | real scalar equal to realative error in
  *                      | computing F(u) (used in difference-
@@ -332,13 +337,14 @@ int KINSetErrFile(void *kinmem, FILE *errfp);
 int KINSetInfoFile(void *kinmem, FILE *infofp);
 int KINSetPrintLevel(void *kinmemm, int printfl);
 int KINSetNumMaxIters(void *kinmem, long int mxiter);
-int KINSetNoPrecInit(void *kinmem, booleantype noPrecInit);
-int KINSetMaxPrecCalls(void *kinmem, long int msbpre);
+int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup);
+int KINSetMaxSetupCalls(void *kinmem, long int msbset);
 int KINSetEtaForm(void *kinmem, int etachoice);
 int KINSetEtaConstValue(void *kinmem, realtype eta);
 int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha);
 int KINSetNoMinEps(void *kinmem, booleantype noMinEps);
 int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep);
+int KINSetMaxBetaFails(void *kinmem, long int mxnbcf);
 int KINSetRelErrFunc(void *kinmem, realtype relfunc);
 int KINSetFuncNormTol(void *kinmem, realtype fnormtol);
 int KINSetScaledStepTol(void *kinmem, realtype scsteptol);
@@ -421,7 +427,7 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl);
  *      the nonlinear system F(u) = 0
  *
  *  strategy  global strategy applied to Newton step if unsatisfactory
- *            (KIN_INEXACT_NEWTON or KIN_LINESEARCH)
+ *            (KIN_NONE or KIN_LINESEARCH)
  *
  *  u_scale  vector containing diagonal elements of scaling matrix
  *           for vector u chosen so that the components of
