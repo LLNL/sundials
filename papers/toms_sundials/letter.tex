@@ -36,7 +36,7 @@ Lawrence Livermore National Laboratory
 \newpage
 \section{Answers to Referee 1 Comments}
 
-General 
+General
 
 This is a clearly written paper setting out the current state of the
 Lawrence Livermore National Laboratory project described in the title.
@@ -46,7 +46,7 @@ variety of linear system solvers both direct and iterative; better
 extraction of software components usable in several solvers; a user
 interface suitable for both `simple' and `expert' use. Also described
 is the partly completed work to add sensitivity analysis to the
-solvers. 
+solvers.
 
 The basic solvers (ODE, DAE, algebraic) are described.  Much of course
 is standard, but there is a wealth of detail about algorithm
@@ -56,7 +56,7 @@ because appearing in the open literature helps protect it from
 interest groups trying to patent common knowledge, as is currently
 happening in some areas of scientific computing.
 
-A detailed description of preconditioning methods and options follows. 
+A detailed description of preconditioning methods and options follows.
 
 Next is a description of the way in which forward and adjoint methods
 are applied to compute sensitivities. It is done at the model level,
@@ -65,17 +65,17 @@ rather than the Automatic Differentiation route of differentiating the
 discretization.
 
 There follow sections on the code organization and on how a user sets
-up the system to solve a problem, and extracts the results. 
+up the system to solve a problem, and extracts the results.
 
 The abstract and conclusions are appropriate. The references cover
 theory, usage and experience with the solvers and run from the
-seventies to the present.  
+seventies to the present.
 
 I recommend publication subject to some minor improvements suggested
 below.  I would not wish to see the revised version before publication.
 
 
-Software architecture 
+Software architecture
 
 In the abstract, the authors say "a highly modular structure to allow
 incorporation of different preconditioning and/or linear solver
@@ -87,28 +87,29 @@ make the solvers reasonably easy to add into existing simulation
 codes".
 
 Designing good interfaces in complex numerical software, such as
-SUNDIALS, is not a trivial task. The authors have accumulated valuable
-experience doing that, and others should benefit from this
-experience. An illustration of how "clear" interfaces are achieved and
-how new methods can be added would be helpful.  A discussion on design
-decisions is valuable too. If it is impractical to add to the present
-paper and is explained elsewhere, references to where the reader can
-find such information should be given.
+SUNDIALS, is not a trivial task. The authors have accumulated
+valuable experience doing that, and others should benefit from
+this experience. An illustration of how ``clear'' interfaces are
+achieved and how new methods can be added would be helpful.  A
+discussion on design decisions is valuable too. If it is
+impractical to add to the present paper and is explained
+elsewhere, references to where the reader can find such
+information should be given.
 
 
-Heuristics 
+Heuristics
 
 Many heuristics are discussed in this paper. The authors give values
 for numerous constants, but do not explain why they chose these
 values.  On p.6, why is the safety factor 1/6? On p.5, the stepsize
 $h_n$ is replaced by $h_n/4$. Why not $h_n/2$ for example? On p.6, the
-safety factor is limited above by 0.2. Why is 0.2 chosen? 
+safety factor is limited above by 0.2. Why is 0.2 chosen?
 
 I accept this paper is not the place to justify `magic numbers' in
 heuristics. But a researcher or a practitioner may be interested in
 knowing the reasons for choosing a certain value of a constant or a
 parameter. If there are technical reports where they are justified, it
-would be useful to have references to them. 
+would be useful to have references to them.
 
 Also, wherever a snippet of rationale is provided, as p.12 `The above
 strategy balances ... ', it immediately makes the text more accessible
@@ -119,7 +120,7 @@ the section.  It discusses the difficulty of explaining the choices of
 heuristic here, but refers to literature on older codes.
 
 
-Specific comments 
+Specific comments
 
 General
 
@@ -128,7 +129,7 @@ suggestions, and leave to the authors to decide on better paragraph
 splitting.
 
 
-Page 4. 
+Page 4.
 
 The notation $y_{n(m)}$ jars. It means the approximation, at the $m$th
 (Newton or other) iteration, to the computed solution $y_n$ at time
@@ -137,21 +138,20 @@ somehow a function of $m$.  I know you use $y^i_n$ to mean the $i$th
 component of $y_n$ so superscript $m$ is out, but I think $y_n(m)$ or
 $y_{n,m}$ reads a lot better.
 
-{\em Response:} Done.  We now use $y_{n,m}$ throughout. 
+{\em Response:} Done.  We now use $y_{n,m}$ throughout.
 
-line -17. A formula for $\|\cdot\|_{WRMS}$ would be helpful. 
+line -17. A formula for $\|\cdot\|_{WRMS}$ would be helpful.
 
 {\em Response:} Done.
 
-Page 5. 
-line 2. What is "non-fatal convergence failure"? 
+Page 5. line 2. What is ``non-fatal convergence failure''?
 
 {\em Response:} Answering this here would be out of place, since it
 involves a user-defined error flag.  We dropped the offending word.
 
-Page 6.  
+Page 6.
 
-line 6. A reference to Curtis-Powell-Reid might be included.  
+line 6. A reference to Curtis-Powell-Reid might be included.
 
 {\em Response:} Done.
 
@@ -171,23 +171,27 @@ line -8. The ratio $h'/h$ is limited above to 0.2. It is not clear if
 the same for 0.1.
 
 {\em Response:} Done.
- 
-Page 7.  
 
-line 1. `on the step just completed ... done'. Would `on the previous step ... 
-done on this step' be clearer?  
+Page 7.
+
+line 1. `on the step just completed ... done'. Would `on the previous step ...
+done on this step' be clearer?
 
 {\em Response:} Done - reworded for clarity.
 
-line 19,22. It is little confusing with LTE denoting two different things. 
-I think a formula for LTE($q'$) would help the reader. 
+line 19,22. It is little confusing with LTE denoting two different things.
+I think a formula for LTE($q'$) would help the reader.
 
 {\em Response:} Fixed ambiguous notation, but a formula is not appropriate.
- 
+
 Page 8.
 
 Inexact Newton Iteration. Using $m$ rather than $n$ fits with earlier
 notation.
+
+{\em Response:} Kept $n$ notation as this leaves the presentation
+consistent with literature on Newton's method.  Added
+clarification of the meaning of $n$ for this iteration.
 
 The assignment $u_{n+1} = u_n + \delta_n$ threw me, when it is clear
 from the next paragraph that a `cautious Newton' $u_{n+1} = u_n +
@@ -195,21 +199,36 @@ from the next paragraph that a `cautious Newton' $u_{n+1} = u_n +
 explained that either of these may be used. Possibly change 2(b) to
 `Set $u_{n+1} = u_n + $ multiple of $\delta_n$'. Alter p9 text accordingly.
 
+{\em Response: } Done. Changed line 2(b) to specify that $\lambda
+\delta_n, \lambda \leq 1$ is used.  Changed following text
+appropriately.
+
 line -13. `These solutions are only approximate ... new approximate
 solution.'  mixes up two meanings of approximate solution. It might
 better read `The update $\delta_n$ is only an approximate solution of
 system 2(a). At each stage in the iteration process, a scalar multiple
 of the update is added to the previous approximate solution, $u_n$, to
 produce a new approximate solution.'
- 
-Page 10.  
+
+{\em Response: } Done. Removed use of approximate solution when
+referring to the iterate.
+
+Page 10.
 
 line 3, 5, 7, 9, 11. The $\eta$ symbol is also used on p. 7, line
 14,16, but for a different purpose.
 
+{\em Response: } Again, here we chose to stay with the $\eta$
+notation to remain consistent with the literature in the area.  We
+do not feel that this re-use of notation in a different context
+will be confusing.
+
 line 13. You should explain what KINSOL does if the solution it is
 seeking violates a constraint such as $u^i > 0$.
- 
+
+{\em Response: } Done.  A brief description of the algorithm for
+scaling steps to satisfy constraints has been added.
+
 Page 13.
 line -18. The strategy for starting IDA is described, but there is no
 corresponding description for CVODE. For consistency, such explanation
@@ -223,31 +242,43 @@ Page 14. The order selection approach may be easier to read if
 presented in the form of an algorithm.
 
 {\em Response:} We considered that but decided to leave it as is.
- 
+
 Page 21. Sect 4.3 and elsewhere. I found it slightly confusing that a
 (purely) algebraic system is referred to as a `non linear system' as
 if `nonlinear' is the key aspect.  I suggest `algebraic system'.
+
+{\em Response: } Added the modifier ``algebraic'' to the system at
+the start of subsectioin 4.3.  As our technology specifically
+targets nonlinear systems, we chose to leave that term in.
 
 Page 22. Sect 5. It would be useful to give reasons for choosing C
 rather than Fortran 90/95, which (as far as I can see) can accommodate
 each of the listed design features.  `Our programmers know C best' is
 an acceptable reason.
 
+{\em Response: } Added two more criteria for doing the C rewrites
+to the list, use of languages with stable compilers and
+facilitation of use with object-oriented codes being written in C
+and C++.  This information was then moved to the introduction to
+satisfy the other referee.
+
 Wording and paragraphs
- 
-Page 2. New paragraph e.g. at "SUNDIALS is being expanded ... ". 
- 
-Page 3.  
 
-line 2, 3. "contained" is redundant.  
+Page 2. New paragraph e.g. at "SUNDIALS is being expanded ... ".
 
-line -22. "which" refers to $N$-space", not "ODE...". Reword.  
+{\em Response: } Done.
 
-line -21. You may omit "abstract".  
+Page 3.
+
+line 2, 3. "contained" is redundant.
+
+line -22. "which" refers to $N$-space", not "ODE...". Reword.
+
+line -21. You may omit "abstract".
 
 {\em Response:} All three done.
 
-line -9. New paragraph at "For nonstiff problems, CVODE...".  
+line -9. New paragraph at "For nonstiff problems, CVODE...".
 
 {\em Response:} We disagree; the paragraph is not that long.
 
@@ -258,71 +289,73 @@ may say which step sizes.
 
 Page 4.
 
-line 3. New paragraph at "Functional iteration...".  
+line 3. New paragraph at "Functional iteration...".
 
 {\em Response:} Given the following change, we feel this paragraph
 break is not needed.
 
-line 18. New paragraph at "For large..."  
+line 18. New paragraph at "For large..."
 
 {\em Response:} Done.
 
-line -5. Comma after "as possible". 
+line -5. Comma after "as possible".
 
 {\em Response:} Done.
- 
+
 Page 5.
 
-line 5, 7. See "reevaluate" and "re-evaluate".  
+line 5, 7. See "reevaluate" and "re-evaluate".
 
 {\em Response:} Done.
 
-line 20. New paragraph at "We initialize..."  
+line 20. New paragraph at "We initialize..."
 
 {\em Response:} We disagree; the paragraph seems better unbroken.
 
 Page 7.
-line -20. Comma before "but instead". 
+line -20. Comma before "but instead".
 
 {\em Response:} Done.
 
-Page 8.  
-line 1. New paragraph at "The implementation...". 
+Page 8.
+line 1. New paragraph at "The implementation...".
 
 {\em Response:} Paragraph broken one sentence earlier.
- 
+
 Page 10.
 
-line 14. You may say that $i$ denotes the $i$th component of $u$.  
+line 14. You may say that $i$ denotes the $i$th component of $u$.
 
-line -5. New paragraph at "A second...".  
+{\em Response: } Done.
+
+line -5. New paragraph at "A second...".
 
 {\em Response:} Done, but this forces another break at page 11, line 3
 (in original manuscript).
 
-Page 13.  
-line 10. For consistency, the subscript WRMS may be omitted. 
+Page 13.
+line 10. For consistency, the subscript WRMS may be omitted.
 
 {\em Response:} Done.
- 
+
 Page 18.
 
-line -9. Period after "...each step".  
+line -9. Period after "...each step".
 
-line -5. Period after "matrix".  
+line -5. Period after "matrix".
 
-line -1. Period after "[Feehery ...]". 
- 
-Page 22.  
-line 14. Remove " " in "NVECTOR". 
+line -1. Period after "[Feehery ...]".
+
+Page 22.
+line 14. Remove " " in "NVECTOR".
 
 {\em Response:} Done.
- 
-Page 29. The formats of the first and the 17th reference are not consistent. 
+
+Page 29. The formats of the first and the 17th reference are not consistent.
 
 {\em Response:} Fixed.
 
-Software 
+Software
 
 The serial version installs nicely on Sun Solaris with the GNU C
 compiler, and all the examples execute without any problems. Since I
@@ -342,7 +375,7 @@ find the main solver files quite long: kinsol.c 1410 lines, cvode.c
 \newpage
 \section{Answers to Referee 2 Comments}
 
-General Comments on the Manuscript 
+General Comments on the Manuscript
 
 This paper provides a comprehensive description of a large software
 modification/development effort involving three codes, CVODE for
@@ -372,20 +405,37 @@ modular fashion that means that it can easily be customized to run e
 ciently in a parallel environment based on a specific parallelization
 facility such as Open MP or MPI, for example.
 
-(II) A second point is that it would be useful to provide a paragraph
-commenting on the numerical performance for each of the SUNDIAL codes
-compared with other available codes, with appropriate references.
+{\em Response: } We have added a paragraph in the introduction
+stating the difference between runnign the codes in serial and
+parallel and why we no longer distinguish between serial and
+parallel versions.
+
+(II) A second point is that it would be useful to provide a
+paragraph commenting on the numerical performance for each of the
+SUNDIAL codes compared with other available codes, with
+appropriate references.
+
+{\em Response: } We have not done such performance comparison
+testing and do not feel that it is within the scope of this paper
+to provide such comparisons.
+
+{\em Response: }
 
 Detailed Comments on the Manuscript
 
-Page 2, Line 8: Add an appropriate reference after "GMRES iteration".  
+Page 2, Line 8: Add an appropriate reference after "GMRES iteration".
+
+{\em Response: } Done.
 
 Page 2, Line 17: After the sentence ending with "rewrite solvers in C",
 I think it would be helpful to the reader to explain why the desire
 for a parallel implementation forces one to choose the C language;
 this would seem to imply that one cannot have a parallel
 implementation unless it is written in C. Perhaps there are additional
-reasons one can mention for providing a C implementation. 
+reasons one can mention for providing a C implementation.
+
+{\em Response: } Moved text from the Code Organization section
+which motivated the C language choice to the Introduction.
 
 Page 2, Lines 21-24: I would suggest a slight rewriting for
 clarification as I am not sure about the serial/parallel capabilities
@@ -397,6 +447,9 @@ respectively, where the new codes are written in C with both serial
 and parallel capabilities? Or is it the case that the new codes are
 simply serial C codes?
 
+{\em Response: } Changes made in answer to the first issue above
+should address these questions.
+
 Page 2, Lines 27-28: These lines appear to say that all three codes,
 CVODE, KINSOL, and IDA, have been augmented to include sensitivity
 analysis capabilities. However, at the bottom of this same page the
@@ -407,13 +460,17 @@ only CVODES is currently available so it would be useful to clarify
 the statement in the introduction. Will the three codes CVODES,
 KINSOLS, and IDAS replace the CVODE, KINSOL, and IDA codes?
 
+{\em Response: } Clarified in these lines that sensitivity solvers
+are either in existence or planned and made more specific status
+comments two paragraphs down.
+
 Page 3, Lines 25-27: Add a reference to further reading after the
 brief explanation of stiffness given here.
 
 Page 3, Lines 32-33: I would suggest changing "one of two multistep
 methods" to "one of two families of multistep formulas".
 
-Page 4, Line 5 and 8: The notation, $y_{n(m+1)}$, has not been defined.  
+Page 4, Line 5 and 8: The notation, $y_{n(m+1)}$, has not been defined.
 
 Page 4, Line 12: Perhaps the phrase "available history data" could be
 explained a bit; this may be more detail than you want to include so
@@ -443,7 +500,7 @@ Page 4, Line 28: In equation (4), define RTOL, ATOL$_i$, and $y^i$.
 {\em Response:} All four done
 
 Page 4, Line 29: Replace "a vector whose norm" with "a vector whose $i$th
-component is an error-like quantity associated with $y^i$ which has a 
+component is an error-like quantity associated with $y^i$ which has a
 $\|\cdot\|_{WRMS}$ norm of".
 
 {\em Response:} Reworded for clarity.
@@ -454,7 +511,7 @@ Page 4, Line -1: Does "steps" here mean "time steps" rather than "iterations"?
 
 Page 5, Line 1: I suggest replacing the current text with "the value
 of $\gamma$ from the last update, which we will call $\bar{\gamma}$,
-and the current $\gamma$ value, which we will call $\gamma$, satisfy 
+and the current $\gamma$ value, which we will call $\gamma$, satisfy
 $|\gamma/\bar{\gamma} - 1| > 0.3 $"
 
 {\em Response:} Reworded.
@@ -478,14 +535,14 @@ Page 5, Line -14,-15: Replace "convergence fails with J or P current" by
 
 Page 5, Line -9: Define the "local error test constant".
 
-Page 6, Line 3: What is $\sigma_ 0$?  
+Page 6, Line 3: What is $\sigma_ 0$?
 
 Page 6, Line 6: Provide a reference for the CPR algorithm.
 
 Page 6, Line 23: After "$ \leq 1$" add "(where we recall that we are
 using the $\|\cdot\|_{WRMS}$ norm)".
 
-Page 6, Line 23-26: I would suggest a rewrite of the sentence beginning 
+Page 6, Line 23-26: I would suggest a rewrite of the sentence beginning
 with "Using the above, ..."  to improve its clarity. Is $C'$ known?
 
 Page 6, Lines 33-34: Please clarify the wording: "limited above to" and
@@ -497,8 +554,14 @@ Page 9, Line 18: Since the reader will not see the details of the
 preconditioning schemes until Section 3, I would recommend deleting
 the sentence beginning with "In this case, ...".
 
+{\em Response: } We chose to leave this sentence in as gives the
+specific form of preconditioning that is applied in KINSOL.
+
 Page 9, Line -12: Give a brief indication of what criterion is used to
 decide when one is close to the solution.
+
+{\em Response: } We have added a reference for further details of
+the line search algorithm.
 
 Page 10, Line -11: Add a reference after "so-called semi-explicit
 index-one systems".
@@ -517,8 +580,9 @@ is better to defer the details of the preconditioning so I would
 recommend leaving out the "so that GMRES is applied ..."  part of this
 sentence. Also I do not understand the footnote.
 
-{\em Response:} We disagree.  This information is needed to understand
-the stopping test described one page later.
+{\em Response:} We disagree.  This information is needed to
+understand the stopping test described one page later. Further
+explanation was added to the footnote.
 
 Page 12, Lines 22, 23: Change "$S = 20$" to "20" and "$S = 100$" to "100".
 
@@ -547,9 +611,13 @@ Page 22, First Paragraph: This material motivating the rewriting of
 the Fortran codes in C is very helpful, a nd I think should be moved
 to the introduction.
 
+{\em Response: } Done.
+
 Page 22, Lines 17-21: The discussion of the NVECTOR implementation and
 NVECTOR structure are not clear.  Reference to Section 5.2 with an
 example provided there might help.
+
+??????
 
 Page 26, Table I: On Page 12 the maximum number of Newton iterations
 for IDA is 4 while in this table it is 3.

@@ -20,12 +20,12 @@ in this tradeoff between rapid convergence and low cost can be very
 difficult.  Good choices are often problem-dependent, but not always,
 as we show below.
 
-The CVODE and CVODES solvers allow for preconditioning either side, or
-on both sides, although we know of no situation where preconditioning
-on both sides clearly superior to preconditioning on one side only
-(with the product $P_L P_R$).  In contrast, as noted in the previous
-section, KINSOL allows only right preconditioning, and IDA allows only
-left preconditioning.
+The CVODE and CVODES solvers allow for preconditioning either
+side, or on both sides, although we know of no situation where
+preconditioning on both sides is clearly superior to
+preconditioning on one side only (with the product $P_L P_R$).  In
+contrast, as noted in the previous section, KINSOL allows only
+right preconditioning, and IDA allows only left preconditioning.
 
 Typical preconditioners used with the solvers in SUNDIALS are based on
 approximations to the Jacobian matrices of the systems involved.
@@ -89,9 +89,9 @@ the nonlinear iteration has the form $I - \gamma J$, where $J$ is the
 ODE system Jacobian $J = \partial f / \partial y$.  Therefore, a
 typical choice for the preconditioner matrix $P$ is
 \begin{equation*}
-  P = I - \gamma \tilde{J} \, , \mbox{ with } \tilde{J} \approx J \, . 
+  P = I - \gamma \tilde{J} \, , \mbox{ with } \tilde{J} \approx J \, .
 \end{equation*}
-As noted above, the approximation may be a crude one.  
+As noted above, the approximation may be a crude one.
 
 The setup phase for $P$ is generally performed only once every several
 time steps, in an attempt to minimize costs.  In addition to
@@ -146,8 +146,8 @@ these matrices
 are computed by a difference quotient scheme.  Then the complete
 preconditioner is given by
 \begin{equation*}
-  P = \mbox{diag}[P_1,\ldots,P_M] \, , \quad 
-  P_m = I_m - \gamma J_m \, . 
+  P = \mbox{diag}[P_1,\ldots,P_M] \, , \quad
+  P_m = I_m - \gamma J_m \, .
 \end{equation*}
 Linear systems $Px = b$ are then solved by banded LU and backsolve
 operations on each processor.  The setup phase consists of the
@@ -164,10 +164,10 @@ is exploited in two different ways.  First, the user supplies a pair of
 half-bandwidths, {\tt ml} and {\tt mu}, that defines the shape of the
 matrix $J_m$.  But the user also supplies a second pair of
 half-bandwidths, {\tt mldq} and {\tt mudq}, for use in the difference
-quotient scheme, in which $J_m$ is computed by way of 
-{\tt mldq+mudq+2} evaluations of $g_m$.  The values {\tt ml} and {\tt mu} 
+quotient scheme, in which $J_m$ is computed by way of
+{\tt mldq+mudq+2} evaluations of $g_m$.  The values {\tt ml} and {\tt mu}
 may be smaller than {\tt mldq} and {\tt mudq}, giving a tradeoff between
-lower matrix costs and slower convergence.  Thus, for example, a matrix 
+lower matrix costs and slower convergence.  Thus, for example, a matrix
 based on 5-point coupling in
 2D ({\tt mldq = mudq = } mesh dimension) might be well approximated by
 a tridiagonal matrix ({\tt ml = mu = 1}).  In any case, for the sake
@@ -198,9 +198,8 @@ function $G \approx F$.  Specifically, the preconditioner is
 \begin{equation*}
   P = \mbox{diag}[P_1,\ldots,P_M] \, ,
   \quad P_m \approx \partial G_m / \partial y_m
-  + \alpha \partial G_m / \partial {\dot y}_m \, . 
+  + \alpha \partial G_m / \partial {\dot y}_m \, .
 \end{equation*}
 Each block $P_m$ is banded, computed using difference quotients, with
 user-supplied half-bandwidths for the difference quotient scheme and
 the retained matrix.
-

@@ -2,9 +2,9 @@
 
 % What does CVODE do?
 %--------------------
-CVODE solves ODE initial value problems in real $N$-space; we write
-such problems in the form
-\begin{equation}\label{ODE} 
+CVODE solves ODE initial value problems in real $N$-space.  We
+write such problems in the form
+\begin{equation}\label{ODE}
   \dot{y} = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
 \end{equation}
 where $y \in \mbox{\bf R}^N$.
@@ -20,7 +20,7 @@ scale of the solution itself.  (See \cite{HaWa:91} for more on stiffness.)
 The methods used in CVODE are variable-order, variable-step multistep
 methods, based on formulas of the form
 \begin{equation*}
- \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} + 
+ \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} +
      h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 \, .
 \end{equation*}
 Here the $y_n$ are computed approximations to $y(t_n)$, and
@@ -42,7 +42,7 @@ For either choice of formula, the nonlinear system
 \begin{equation}\label{NLS}
   G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0 \, ,
 \end{equation}
-where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$, 
+where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$,
 must be solved (approximately) at each integration step.  For this, CVODE
 offers the choice of either {\em functional iteration}, suitable only
 for nonstiff systems, and various versions of {\em Newton iteration}.
@@ -55,11 +55,11 @@ the solution of linear systems
   M [y_{n,m+1} - y_{n,m}] = -G(y_{n,m}) \, ,
 \end{equation*}
 in which
-\begin{equation}\label{Newtonmat} 
+\begin{equation}\label{Newtonmat}
   M \approx I - \gamma J \, ,
   \quad J = \partial f / \partial y \, ,
   \quad \mbox{and} \quad
-  \gamma = h_n \beta_{n,0} \, . 
+  \gamma = h_n \beta_{n,0} \, .
 \end{equation}
 In either case, the initial guess for the iteration is a predicted
 value $y_{n,0}$ computed explicitly from the available history data
@@ -85,8 +85,8 @@ in the form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 % WRMS Norm
 %----------
 In the process of controlling errors at various levels, CVODE uses a
-weighted root-mean-square norm, denoted 
-$\|\cdot\|_{\mbox{\scriptsize WRMS}}$, for all 
+weighted root-mean-square norm, denoted
+$\|\cdot\|_{\mbox{\scriptsize WRMS}}$, for all
 error-like quantities:
 \begin{equation}\label{wrmsnorm}
  \|v\|_{\mbox{\scriptsize WRMS}} = \sqrt{N^{-1}\sum_1^N (v_i/W_i)^2}
@@ -153,19 +153,19 @@ constant $R$ as follows.  We initialize $R$ to 1, and reset $R = 1$
 when $M$ or $P$ is updated.  After computing a correction
 $\delta_m = y_{n,m} - y_{n,m-1}$, we update $R$ if $m > 1$ as
 \begin{equation*}
-  R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} \, . 
+  R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} \, .
 \end{equation*}
 Now we use the estimate
 \begin{equation*}
-  \| y_n - y_{n,m} \| \approx \| y_{n,m+1} - y_{n,m} \| 
-  \approx R \| y_{n,m} - y_{n,m-1} \|  =  R \|\delta_m \| \, . 
+  \| y_n - y_{n,m} \| \approx \| y_{n,m+1} - y_{n,m} \|
+  \approx R \| y_{n,m} - y_{n,m-1} \|  =  R \|\delta_m \| \, .
 \end{equation*}
-Therefore the convergence (stopping) test is 
+Therefore the convergence (stopping) test is
 \begin{equation*}
   R \|\delta_m \| < 0.1 \epsilon \, .
 \end{equation*}
 We allow at most 3 iterations (but this limit can be changed by the
-user).  We also declare the iteration to be diverging if any 
+user).  We also declare the iteration to be diverging if any
 $\|\delta_m\|/\|\delta_{m-1}\| > 2$ with $m > 1$. If the iteration
 fails to converge with a current $J$ or $P$, we are forced to reduce
 the step size, and we replace $h_n$ by $h_n/4$.  The integration is
@@ -204,7 +204,7 @@ setup and solve operations, and optionally also for the required
 matrix-vector products $Jv$.  If a routine for $Jv$ is not supplied,
 these products are computed as
 \begin{equation}\label{jacobv}
-Jv = [f(t,y+\sigma v) - f(t,y)]/\sigma \, . 
+Jv = [f(t,y+\sigma v) - f(t,y)]/\sigma \, .
 \end{equation}
 The increment $\sigma$ is $1/\|v\|$, so that $\sigma v$ has norm 1.
 
@@ -272,7 +272,7 @@ change.  Also, $h'/h$ is always limited to 10, except on the first
 step, when it is limited to $10^4$.
 
 The various algorithmic features of CVODE described above, as
-inherited from VODE and VODPK, are documented in 
+inherited from VODE and VODPK, are documented in
 \cite{BBH:89,Byr:92,Hin:00}.  A full description of the usage
 of CVODE is given in \cite{HiSe:04cvode}.
 
@@ -319,12 +319,12 @@ turned off.
 
 % Output modes
 %-------------
-Normally, CVODE takes steps until a user-defined output value 
+Normally, CVODE takes steps until a user-defined output value
 $t = t_{\mbox{\scriptsize out}}$ is overtaken, and then it computes
 $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
 ``one step'' mode option is available, where control returns to the
 calling program after each step.  There are also options to force
-CVODE not to integrate past a given stopping point 
+CVODE not to integrate past a given stopping point
 $t = t_{\mbox{\scriptsize stop}}$.
 
 % Rootfinding

@@ -1,14 +1,10 @@
 \section{Code Organization}
 \label{s:organization}
 
-The writing of CVODE from the Fortran 77 solvers VODE and VODPK initiated a
-complete redesign and reorganization of the existing LLNL solver coding.
-This was done to: exploit features of C not present in Fortran 77;
-achieve a more object-oriented design; maximize the reuse of code
-modules; and facilitate the extension from a serial to a parallel
-implementation.
-
-The features of the design of CVODE include the following:
+The writing of CVODE from the Fortran 77 solvers VODE and VODPK
+initiated a complete redesign and reorganization of the existing
+LLNL solver coding. The features of the design of CVODE include
+the following:
 \begin{itemize}
 \item Memory allocation is heavily used.
 \item The linear solver modules are separate from the core integrator,
@@ -16,7 +12,7 @@ so that the latter is independent of the method for solving linear
 systems.
 \item Each linear solver module contains  a generic solver, which is
 independent of the ODE context, together with an interface to the CVODE core
-integrator module. 
+integrator module.
 \item The vector operations  (linear sums, dot products, norms, etc.) on
 $N$-vectors are isolated in a separate NVECTOR module.
 \end{itemize}
@@ -48,7 +44,7 @@ mathematical operations are also included.
 \label{fig-sunorg}
 \end{figure}
 
-A number of necessary and optional user-supplied routines for the solvers 
+A number of necessary and optional user-supplied routines for the solvers
 in SUNDIALS
 are not shown in \mbox{Figure \ref{fig-sunorg}}. The user must
 provide a routine for the evaluation of $f$ (CVODE) or $F$ (KINSOL and
@@ -66,11 +62,11 @@ packages are currently included with SUNDIALS: a direct dense matrix solver
 (SPGMR). These are stand-alone packages in their own right.
 
 The shared linear solvers are accessed from SUNDIALS via
-solver-specific wrappers. 
+solver-specific wrappers.
 Thus, SPGMR is accessed via CVSPGMR, IDASPGMR, and
 KINSPGMR, for CVODE (and CVODES), IDA, and KINSOL, respectively. For the
 DENSE solver, the wrappers are CVDENSE and IDADENSE for CVODE/CVODES and
-IDA, respectively. Similar wrappers for BAND are CVBAND and IDABAND. 
+IDA, respectively. Similar wrappers for BAND are CVBAND and IDABAND.
 
 \subsection{Shared Modules - NVECTOR}
 
@@ -80,13 +76,13 @@ structure specification, a data-independent NVECTOR type, a set of abstract
 vector operations, and a set of wrappers for accessing the actual vector
 operations of the implementation under which an NVECTOR was created. Because
 details of vector operations are thus encapsulated within each specific
-NVECTOR implementation, the solvers in SUNDIALS 
+NVECTOR implementation, the solvers in SUNDIALS
 are now independent of a specific
 implementation. This allows the solvers to be precompiled as binary
 libraries and allows more than one NVECTOR implementation to be used within
 a single program.
 
-A particular NVECTOR implementation, such as the serial and parallel 
+A particular NVECTOR implementation, such as the serial and parallel
 implementations included with SUNDIALS or a user-provided implementation,
 must provide certain functionalities. Each implementation must provide a
 specification of the data needed to generate a new NVECTOR and a menu to
