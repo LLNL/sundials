@@ -33,7 +33,7 @@
 #define ZERO        RCONST(0.0)     /* real 0.0 */
 #define ONE         RCONST(1.0)     /* real 1.0 */
 #define TWO         RCONST(2.0)     /* real 2.0 */
-#define FUZZ_FACTOR RCONST(1000.0)  /* fuzz factor for CVadjGetY */
+#define FUZZ_FACTOR RCONST(10000.0) /* fuzz factor for CVadjGetY */
 
 /***************** END CVODEA Private Constants ***************/
 
@@ -277,7 +277,7 @@ int CVodeMallocB(void *cvadj_mem, integer NB, RhsFnB fB,
                  N_Vector yB0, int lmmB, int iterB, int itolB, 
                  real *reltolB, void *abstolB, void *f_dataB, 
                  FILE *errfpB, boole optInB, 
-                 long int ioptB[], real roptB[], void *machEnv)
+                 long int ioptB[], real roptB[], M_Env machEnv)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -387,8 +387,14 @@ int CVBandB(void *cvadj_mem, integer mupperB, integer mlowerB,
 CVBandPreData CVBandPreAllocB(void *cvadj_mem, integer NB, 
                               integer muB, integer mlB)
 {
+  CVadjMem ca_mem;
+  CVodeMem cvb_mem;
   CVBandPreData bpdata;
-  bpdata = CVBandPreAlloc(NB, CVArhs, cvadj_mem, muB, mlB);
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvb_mem = ca_mem->cvb_mem;
+
+  bpdata = CVBandPreAlloc(NB, CVArhs, cvadj_mem, muB, mlB, cvb_mem);
   return(bpdata);
 }
 

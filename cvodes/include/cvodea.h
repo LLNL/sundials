@@ -41,6 +41,7 @@ extern "C" {
 #define _cvodea_h
 
 #include <stdio.h>
+#include "nvector.h"
 #include "cvodes.h"
 #include "cvsdense.h"
 #include "cvsband.h"
@@ -182,7 +183,7 @@ int CVodeMallocB(void *cvadj_mem, integer NB, RhsFnB fB,
                  N_Vector yB0, int lmmB, int iterB, int itolB, 
                  real *reltolB, void *abstolB, void *f_dataB, 
                  FILE *errfpB, boole optInB, 
-                 long int ioptB[], real roptB[], void *machEnv);
+                 long int ioptB[], real roptB[], M_Env machEnv);
 
 /******************************************************************
  *                                                                *
