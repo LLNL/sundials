@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-10-08 23:24:53 $
+ * $Revision: 1.14 $
+ * $Date: 2004-10-21 20:49:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -31,8 +31,8 @@
  * ----------------------------------------------------------------
  */
 
-void FK_PSOL(realtype*, realtype*, realtype*, realtype*, 
-             realtype*, realtype*, int*);
+extern void FK_PSOL(realtype*, realtype*, realtype*, realtype*, 
+		    realtype*, realtype*, int*);
 
 /*
  * ----------------------------------------------------------------
@@ -69,10 +69,8 @@ int FKINPSol(N_Vector uu, N_Vector uscale,
   fscaledata = N_VGetArrayPointer(fscale);
   vvdata     = N_VGetArrayPointer(vv);
   ftemdata   = N_VGetArrayPointer(ftem);
-  
+
   FK_PSOL(udata, uscaledata, fdata, fscaledata, vvdata, ftemdata, &retcode);
- 
-  N_VSetArrayPointer(vvdata, vv);
 
   return(retcode);
 }

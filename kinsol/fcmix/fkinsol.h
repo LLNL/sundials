@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-10-13 17:34:59 $
+ * $Revision: 1.24 $
+ * $Date: 2004-10-21 20:49:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -301,15 +301,32 @@
 #ifndef _FKINSOL_H
 #define _FKINSOL_H
 
+#ifndef _CONFIG_H
+#define _CONFIG_H
+#include <config.h>
+#endif
+
 /*
  * -----------------------------------------------------------------
  * generic names are translated through the define statements below
  * -----------------------------------------------------------------
  */
 
-#if defined(SUNDIALS_UNDERSCORE_NONE)
+#if defined(F77_FUNC)
 
-#if defined(SUNDIALS_CASE_LOWER)
+#define FKIN_MALLOC       F77_FUNC(fkinmalloc, FKINMALLOC)
+#define FKIN_SPGMR        F77_FUNC(fkinspgmr, FKINSPGMR)
+#define FKIN_SPGMRSETJAC  F77_FUNC(fkinspgmrsetjac, FKINSPGMRSETJAC)
+#define FKIN_SPGMRSETPSOL F77_FUNC(fkinspgmrsetpsol, FKINSPGMRSETPSOL)
+#define FKIN_SPGMRSETPSET F77_FUNC(fkinspgmrsetpset, FKINSPGMRSETPSET)
+#define FKIN_SOL          F77_FUNC(fkinsol, FKINSOL)
+#define FKIN_FREE         F77_FUNC(fkinfree, FKINFREE)
+#define FK_FUN            F77_FUNC(fkfun, FKFUN)
+#define FK_PSET           F77_FUNC(fkpset, FKPSET)
+#define FK_PSOL           F77_FUNC(fkpsol, FKPSOL)
+#define FK_JTIMES         F77_FUNC(fkjtimes, FKJTIMES)
+
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC       fkinmalloc
 #define FKIN_SPGMR        fkinspgmr
@@ -323,7 +340,7 @@
 #define FK_PSOL           fkpsol
 #define FK_JTIMES         fkjtimes
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC       FKINMALLOC
 #define FKIN_SPGMR        FKINSPGMR
@@ -337,43 +354,7 @@
 #define FK_PSOL           FKPSOL
 #define FK_JTIMES         FKJTIMES
 
-#endif
-
-#elif defined(SUNDIALS_UNDERSCORE_TWO)
-
-#if defined(SUNDIALS_CASE_LOWER)
-
-#define FKIN_MALLOC       fkinmalloc__
-#define FKIN_SPGMR        fkinspgmr__
-#define FKIN_SPGMRSETJAC  fkinspgmrsetjac__
-#define FKIN_SPGMRSETPSOL fkinspgmrsetpsol__
-#define FKIN_SPGMRSETPSET fkinspgmrsetpset__
-#define FKIN_SOL          fkinsol__
-#define FKIN_FREE         fkinfree__
-#define FK_FUN            fkfun__
-#define FK_PSET           fkpset__
-#define FK_PSOL           fkpsol__
-#define FK_JTIMES         fkjtimes__
-
-#elif defined(SUNDIALS_CASE_UPPER)
-
-#define FKIN_MALLOC       FKINMALLOC__
-#define FKIN_SPGMR        FKINSPGMR__
-#define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC__
-#define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL__
-#define FKIN_SPGMRSETPSET FKINSPGMRSETPSET__
-#define FKIN_SOL          FKINSOL__
-#define FKIN_FREE         FKINFREE__
-#define FK_FUN            FKFUN__
-#define FK_PSET           FKPSET__
-#define FK_PSOL           FKPSOL__
-#define FK_JTIMES         FKJTIMES__
-
-#endif
-
-#else
-
-#if defined(SUNDIALS_CASE_LOWER)
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC       fkinmalloc_
 #define FKIN_SPGMR        fkinspgmr_
@@ -387,7 +368,7 @@
 #define FK_PSOL           fkpsol_
 #define FK_JTIMES         fkjtimes_
 
-#elif defined(SUNDIALS_CASE_UPPER)
+#elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC       FKINMALLOC_
 #define FKIN_SPGMR        FKINSPGMR_
@@ -401,7 +382,33 @@
 #define FK_PSOL           FKPSOL_
 #define FK_JTIMES         FKJTIMES_
 
-#endif
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
+
+#define FKIN_MALLOC       fkinmalloc__
+#define FKIN_SPGMR        fkinspgmr__
+#define FKIN_SPGMRSETJAC  fkinspgmrsetjac__
+#define FKIN_SPGMRSETPSOL fkinspgmrsetpsol__
+#define FKIN_SPGMRSETPSET fkinspgmrsetpset__
+#define FKIN_SOL          fkinsol__
+#define FKIN_FREE         fkinfree__
+#define FK_FUN            fkfun__
+#define FK_PSET           fkpset__
+#define FK_PSOL           fkpsol__
+#define FK_JTIMES         fkjtimes__
+
+#elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
+
+#define FKIN_MALLOC       FKINMALLOC__
+#define FKIN_SPGMR        FKINSPGMR__
+#define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC__
+#define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL__
+#define FKIN_SPGMRSETPSET FKINSPGMRSETPSET__
+#define FKIN_SOL          FKINSOL__
+#define FKIN_FREE         FKINFREE__
+#define FK_FUN            FKFUN__
+#define FK_PSET           FKPSET__
+#define FK_PSOL           FKPSOL__
+#define FK_JTIMES         FKJTIMES__
 
 #endif
 
@@ -438,7 +445,7 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
 
 /*
  * -----------------------------------------------------------------
- * declarations for global variables, shared amongst various
+ * declarations for global variables shared amongst various
  * routines
  * -----------------------------------------------------------------
  */
