@@ -1,12 +1,12 @@
-		   ADDENDUM TO USER'S GUIDE 
-                       20 December 2001
+		   Addendum to KINSOL User's Guide 
+                           30 July 2002
 
 
 Since the KINSOL User Documentation was published, several changes have been
 made in KINSOL. Those changes are described here and will in time be merged 
 into the KINSOL User Documentation.
 
-1. An argument for the function KINSol has been deleted. Please note that machEnv
+1. An argument for the function KINSol has been deleted.  Note that machEnv
 is no longer required by KINSol. The examples have been appropriately modified.
 The routine SpgmrMalloc, from the SPGMR module, is now called by KINSpgmr 
 rather than KINSpgmrInit. Likewise, the argument 'msgfp' has also been deleted 
@@ -80,12 +80,13 @@ as NV_DATA_S, NV_LENGTH_S, NV_Ith_S for the serial NVECTOR (nvector_serial.h)
 and NV_DATA_P, NV_LOCLENGTH_P, NV_GLOBLENGTH_P, NV_Ith_P for the parallel
 NVECTOR (nvector_parallel.h).
 
-14. In using the KINBBDPRE module, the argument machEnv (machine environment) in the
-call to KBBDAlloc has been removed.  (This quantity is available internally.)
+14. In using the KINBBDPRE module, the argument machEnv (machine environment) 
+in the call to KBBDAlloc has been removed.  (This quantity is available
+internally.)
 
-15. For uisers of the FKINSOL package, the first argument of the Fortran user
-routine for the system function F is now the problem size and not the local vector 
-length.
+15. For users of the FKINSOL package, the first argument of the Fortran user
+routine for the system function F is now the problem size and not the
+local vector length.
  
 16. The file llnltyps.h was renamed sundialstypes.h. 
 The constant name
@@ -94,10 +95,15 @@ The constant name
    LLNL_INT        has been changed to  SUNDIALS_INT,    and 
    LLNL_LONG       has been changed to  SUNDIALS_LONG.
 
-To avoid conflicts with C++ methods the following type names have been changed:
+To avoid conflicts with C++ function 'real' the following type names
+have been changed:
    real    has been changed to realtype
    integer has been changed to integertype
    boole   has been changed to bolleantype
 
 17. The files llnlmath.h and llnlmath.c have been renamed sundialsmath.h
 and sundialsmath.c, respectively.
+
+18. In the FKINSOL interface module, the routines FKINSPGMR** all have
+an added argument, IER, a return flag.
+
