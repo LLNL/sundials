@@ -13,8 +13,8 @@
 
 
 \newcommand{\cvsucrl}{UCRL-SM-208115}
-\newcommand{\cvsdate}{November 2004}
-\newcommand{\cvsrelease}{v2.1.0}
+\newcommand{\cvsdate}{January 2005}
+\newcommand{\cvsrelease}{v2.1.1}
 
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
@@ -24,16 +24,16 @@
   {\em Center for Applied Scientific Computing} \\
   {\em Lawrence Livermore National Laboratory}
 }
-\date{}
+\date{\cvsdate \vfill \cvsucrl}
 
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\cvsucrl}%                      UCRL number
-{Example Programs for CVODES {\cvsrelease}}%   Title on cover page
-{Alan C. Hindmarsh and Radu Serban}%           Authors
-{\cvsdate}%                                    Date
-{0in}{0in}
+%\makeLLNLCover{\cvsucrl}%                      UCRL number
+%{Example Programs for CVODES {\cvsrelease}}%   Title on cover page
+%{Alan C. Hindmarsh and Radu Serban}%           Authors
+%{\cvsdate}%                                    Date
+%{0in}{0in}
 
 \frontex
 
@@ -52,6 +52,6 @@
 \include{cvs_ex_codes}
 %===============================================================
 \clearemptydoublepage
-\makeLLNLBackCover
+%\makeLLNLBackCover
 %===============================================================
 \end{document}

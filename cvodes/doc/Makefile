@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2004-11-30 20:15:53 $
+# $Revision: 1.15 $
+# $Date: 2005-01-26 21:35:40 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -85,7 +85,7 @@ ug_pdf: ug cvs_guide.ps
 
 ug_html: ug
 	cp ug_html.tex ug.tex
-	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -local_icons -white -notransparent cvs_guide.tex
+	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -show_section_numbers -local_icons -white -notransparent cvs_guide.tex
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -107,7 +107,7 @@ ex_pdf: ex cvs_examples.ps
 
 ex_html: ex
 	cp ug_html.tex ug.tex
-	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -local_icons -white -notransparent cvs_examples.tex
+	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent cvs_examples.tex
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \
