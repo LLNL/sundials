@@ -1,6 +1,6 @@
 C ------------------------------------------------------------------
-C $Revision: 1.1 $
-C $Date: 2004-03-31 21:25:42 $
+C $Revision: 1.2 $
+C $Date: 2004-04-02 19:00:47 $
 C ------------------------------------------------------------------
 C
 C File cvkrybf.f
@@ -33,15 +33,15 @@ C
 C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNPE, LNLI, LNPS
       INTEGER LNCFL, LH, LQ, METH, ITMETH, IATOL, INOPT, ITASK
-      INTEGER IER, MAXL, JPRETYPE, IGSTYPE, IOUT
+      INTEGER LNETF, IER, MAXL, JPRETYPE, IGSTYPE, IOUT
       INTEGER*8 IOPT(40)
       INTEGER*8 NEQ, MESHX, MESHY, NST, NFE, NPSET, NPE, NPS, NNI
-      INTEGER*8 NLI, NCFN, NCFL, MESHZ, MU, ML
+      INTEGER*8 NLI, NCFN, NCFL, NETF, MESHZ, MU, ML
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
       DOUBLE PRECISION Y(2,10,10), ROPT(40)
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      1     JPRETYPE/1/, IGSTYPE/0/, MAXL/0/, DELT/0.0D0/
-      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/,
+      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
      1     LQ/11/, LH/5/, LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
       COMMON /PBDIM/ NEQ
 C
@@ -138,14 +138,16 @@ C Print final statistics.
       AVDIM = REAL(NLI)/REAL(NNI)
       NCFN = IOPT(LNCF)
       NCFL = IOPT(LNCFL)
-      WRITE (6,80) NST,NFE,NPSET,NPE,NPS,NNI,NLI,AVDIM,NCFN,NCFL
+      NETF = IOPT(LNETF)
+      WRITE (6,80) NST,NFE,NPSET,NPE,NPS,NNI,NLI,AVDIM,NCFN,NCFL,NETF
   80  FORMAT(//' final statistics..'/
      1 ' number of steps        =',I5,5X,'number of f evals.     =',I5/
      2 ' number of prec. setups =',I5/
      3 ' number of prec. evals. =',I5,5X,'number of prec. solves =',I5/
      4 ' number of nonl. iters. =',I5,5X,'number of lin. iters.  =',I5/
      5 ' average Krylov subspace dimension (NLI/NNI)  =',F8.4/
-     6 ' number of conv. failures..  nonlinear =',I3,'  linear =',I3)
+     6 ' number of conv. failures..  nonlinear =',I3,'  linear =',I3/
+     7 ' number of error test failures =',I3)
 C
       CALL FCVBPFREE
       CALL FCVFREE
