@@ -664,7 +664,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype tstop, realtype *tret,
  *                                                                *
  ******************************************************************/
 
-int IDAGetEwt(void *cvode_mem, N_Vector weight);
+int IDAGetEwt(void *ida_mem, N_Vector weight);
  
 /* IDAGetEwt return values */
 

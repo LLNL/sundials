@@ -1443,6 +1443,30 @@ int IDASolve(void *ida_mem, realtype tout, realtype tstop, realtype *tret,
 }
 
 
+/********************* IDAGetEwt *********************************
+ This routine returns the weight vectors for states in weight   
+ It is provided for use in user-defined Jacobian routines       
+ routines based on finite differences. Note that the user need 
+ not allocate space for weight. 
+
+*******************************************************************/
+
+int IDAGetEwt(void *ida_mem, N_Vector weight)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem == NULL) {
+    fprintf(stdout, MSG_GEWT_NO_MEM);
+    return (GEWT_NO_MEM);
+  }
+
+  IDA_mem = (IDAMem) ida_mem; 
+
+  weight = ewt;
+
+  return(SUCCESS);
+}
+
 
 /********************* IDAFree **********************************
 
