@@ -51,10 +51,10 @@ C. References
 -------------
 
 [1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.1.0," 
-    LLNL technical report UCRL-MA-xxxxxx, November 2004.
+    LLNL technical report UCRL-SM-208111, November 2004.
 
 [2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v2.1.0," 
-    LLNL technical report UCRL-MA-xxxxxx, November 2004.
+    LLNL technical report UCRL-SM-208115, November 2004.
 
 [3] R. Serban and A. C. Hindmarsh, "CVODES: An ODE Solver with Sensitivity
     Analysis Capabilities," LLNL technical report UCRL-TR-xxxxxx, November 2004.
