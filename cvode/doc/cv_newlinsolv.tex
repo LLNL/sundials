@@ -1,18 +1,21 @@
 %===================================================================================
-\section{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
+\chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
 The central {\cvode} module interfaces with the linear solver module to be
 used by way of calls to four routines.  These are denoted here by 
 \id{linit}, \id{lsetup}, \id{lsolve}, and \id{lfree}.
 Briefly, their purposes are as follows:
+%%
+%%
 \begin{itemize}
 \item \id{linit}: initialize and allocate memory specific to the
-linear solver;
+  linear solver;
 \item \id{lsetup}: evaluate and preprocess the Jacobian or preconditioner;
 \item \id{lsolve}: solve the linear system;
 \item \id{lfree}: free the linear solver memory.
 \end{itemize}
-
+%%
+%%
 A linear solver module must also provide a user-callable specification routine
 (like those described in \S\ref{sss:lin_solv_init}) which will atach the above five 
 routines to the main {\cvode} memory block. The return value of the specification 
@@ -31,100 +34,162 @@ block are given in the file \id{cvode.h} (but not reproduced here, for
 the sake of space).
 
 %------------------------------------------------------------------------------
+
 \paragraph{Initialization routine.}
-The type definition of \id{linit} is
-\begin{verbatim}
-int (*cv_linit)(CVodeMem cv_mem);
-\end{verbatim}
-The purpose of \id{linit} is to complete initializations for      
-specific linear solver, such as counters and statistics.        
-An \id{linit} function should return \ID{LINIT\_OK} = 0 if it 
-has successfully initialized the {\cvode} linear solver and 
-\ID{LINIT\_ERR} = -1 otherwise. 
-If an error does occur, an appropriate message should be sent 
-to \id{cv\_mem->errfp}.
+The type definition of \ID{linit} is
+\usfunction{linit}
+{
+  int (*linit)(CVodeMem cv\_mem);
+}
+{
+  The purpose of \id{linit} is to complete initializations for      
+  specific linear solver, such as counters and statistics.        
+}
+{
+  \begin{args}[cv\_mem]
+  \item[cv\_mem]
+    is the {\cvode} memory pointer of type \id{CVodeMem}.
+  \end{args}
+}
+{
+  An \id{linit} function should return \ID{LINIT\_OK} = 0 if it 
+  has successfully initialized the {\cvode} linear solver and 
+  \ID{LINIT\_ERR} = -1 otherwise. 
+}
+{
+  If an error does occur, an appropriate message should be sent 
+  to \id{cv\_mem->errfp}.
+}
 
 %------------------------------------------------------------------------------
+
 \paragraph{Setup routine.} 
 The type definition of \id{lsetup} is
-\begin{verbatim}
-int (*cv_lsetup)(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                 N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
-                 N_Vector vtemp2, N_Vector vtemp3); 
-\end{verbatim}
-The job of \id{lsetup} is to prepare the linear solver for subsequent 
-calls to \id{lsolve}. It may re-compute Jacobian-related data is it 
-deems necessary. Its parameters are as follows:
-\begin{itemize}
+\usfunction{lsetup}
+{
+   int (*lsetup)(&CVodeMem cv\_mem, int convfail, N\_Vector ypred, \\
+                 &N\_Vector fpred, booleantype *jcurPtr,           \\
+                 &N\_Vector vtemp1, N\_Vector vtemp2, N\_Vector vtemp3); 
+}
+{
+  The job of \id{lsetup} is to prepare the linear solver for subsequent 
+  calls to \id{lsolve}. It may re-compute Jacobian-related data is it 
+  deems necessary. 
+}
+{
+   \begin{args}[convfail]
   
-\item \id{cv\_mem}: problem memory pointer of type \id{CVodeMem}.
+   \item[cv\_mem] 
+     is the {\cvode} memory pointer of type \id{CVodeMem}.
   
-\item \id{convfail}: a flag to indicate any problem that occurred during  
-  the solution of the nonlinear equation on the current time step for which 
-  the linear solver is being used. This flag can be used to help decide     
-  whether the Jacobian data kept by a {\cvode} linear solver needs to be updated 
-  or not. Its possible values are:
-  \begin{itemize}
-  \item \id{NO\_FAILURES}: this value is passed to \id{lsetup} if 
-    either this is the first call for this step, or the local error test failed on the 
-    previous attempt at this step (but the Newton iteration converged).
-  \item \id{FAIL\_BAD\_J}: this value is passed to \id{lsetup} if
-    (a) the previous Newton corrector iteration did not converge and the linear solver's      
-    setup routine indicated that its Jacobian-related data is not current,
-    or                            
-    (b) during the previous Newton corrector iteration, the linear solver's solve routine  
-    failed in a recoverable manner and the linear solver's setup routine indicated that  
-    its Jacobian-related data is not current.
-  \item \id{FAIL\_OTHER}: this value is passed to \id{lsetup} if 
-    during the current internal step try, the previous Newton iteration failed to 
-    converge even though the linear solver was using current Jacobian-related data.
-  \end{itemize}
+   \item[convfail]
+     is a flag used to indicate any problem that occurred during  
+     the solution of the nonlinear equation on the current time step for which 
+     the linear solver is being used. This flag can be used to help decide     
+     whether the Jacobian data kept by a {\cvode} linear solver needs to be updated 
+     or not. Its possible values are:
+     \begin{itemize}
+     \item \id{NO\_FAILURES}: this value is passed to \id{lsetup} if 
+       either this is the first call for this step, or the local error test failed on the 
+       previous attempt at this step (but the Newton iteration converged).
+     \item \id{FAIL\_BAD\_J}: this value is passed to \id{lsetup} if
+       (a) the previous Newton corrector iteration did not converge and the linear solver's      
+       setup routine indicated that its Jacobian-related data is not current,
+       or                            
+       (b) during the previous Newton corrector iteration, the linear solver's solve routine  
+       failed in a recoverable manner and the linear solver's setup routine indicated that  
+       its Jacobian-related data is not current.
+     \item \id{FAIL\_OTHER}: this value is passed to \id{lsetup} if 
+       during the current internal step try, the previous Newton iteration failed to 
+       converge even though the linear solver was using current Jacobian-related data.
+     \end{itemize}
   
-\item \id{ypred}: the predicted \id{y} vector for the current {\cvode} internal   
-  step.                                                   
+   \item[ypred]
+     is the predicted \id{y} vector for the current {\cvode} internal step.
   
-\item \id{fpred}: the value of the right-hand side at \id{ypred}, 
-  i.e. $f(t_n, y_{pred})$.
+   \item[fpred]
+     is the value of the right-hand side at \id{ypred}, i.e. $f(t_n, y_{pred})$.
   
-\item \id{jcurPtr}: a pointer to a boolean to be filled in by \id{lsetup}.  
-  The function should set \id{*jcurPtr = TRUE} if its Jacobian 
-  data is current after the call and should set         
-  \id{*jcurPtr = FALSE} if its Jacobian data is not current.   
-  If \id{lsetup} calls for re-evaluation of         
-  Jacobian data (based on \id{convfail} and {\cvode} state      
-  data), it should return \id{*jcurPtr = TRUE} unconditionally;
-  otherwise an infinite loop can result.                
+   \item[jcurPtr]
+     is a pointer to a boolean to be filled in by \id{lsetup}.  
+     The function should set \id{*jcurPtr = TRUE} if its Jacobian 
+     data is current after the call and should set         
+     \id{*jcurPtr = FALSE} if its Jacobian data is not current.   
+     If \id{lsetup} calls for re-evaluation of         
+     Jacobian data (based on \id{convfail} and {\cvode} state      
+     data), it should return \id{*jcurPtr = TRUE} unconditionally;
+     otherwise an infinite loop can result.                
+    
+   \item[vtemp1] 
+   \item[vtemp2]
+   \item[vtemp3] 
+     are temporary variables of type \id{N\_Vector} provided for use by \id{lsetup}.      
   
-\item \id{vtemp1}, \id{vtemp2}, \id{vtemp3}: 
-  temporary variables of type \id{N\_Vector} provided for use by \id{lsetup}.      
-  
-\end{itemize}
-
-The \id{lsetup} routine should return \id{0} if successful,            
-a positive value for a recoverable error, and a negative value  
-for an unrecoverable error.  
+   \end{args}
+}
+{
+  The \id{lsetup} routine should return \id{0} if successful,            
+  a positive value for a recoverable error, and a negative value  
+  for an unrecoverable error.  
+}
+{}
 
 %------------------------------------------------------------------------------
+
 \paragraph{Solve routine.}
 The type definition of \id{lsolve} is
-\begin{verbatim}
-int (*cv_lsolve)(CVodeMem cv_mem, N_Vector b, N_Vector ycur, N_Vector fcur);  
-\end{verbatim}
-The routine \id{lsolve} must solve the linear equation $M x = b$, where         
-$M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$  
-and the right-hand side vector \id{b} is input. The vector \id{ycur}
-contains the solver's current approximation to $y(t_n)$ and the vector      
-\id{fcur} contains $f(t_n,y_{cur})$. The solution is to be    
-returned in the vector \id{b}. \id{lsolve} returns a positive value    
-for a recoverable error and a negative value for an             
-unrecoverable error. Success is indicated by a \id{0} return value.
+\usfunction{lsolve}
+{
+  int (*lsolve)(&CVodeMem cv\_mem, N\_Vector b, N\_Vector weight, \\
+                &N\_Vector ycur, N\_Vector fcur);  
+}
+{
+  The routine \id{lsolve} must solve the linear equation $M x = b$, where         
+  $M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$  
+  and the right-hand side vector $b$ is input. 
+}
+{
+  \begin{args}[cv\_mem]
+  \item[cv\_mem]
+    is the {\cvode} memory pointer of type \id{CVodeMem}.
+  \item[b]
+    is the right-hand side vector $b$. The solution is to be    
+    returned in the vector \id{b}.
+  \item[weight]
+    is a vector that contains the error weights.
+    These are the reciprocals of the $W_i$ of (\ref{e:errwt}).
+  \item[ycur]
+    is a vector that contains the solver's current approximation to $y(t_n)$.
+  \item[fcur]
+    is a vector that contains $f(t_n,y_{cur})$. 
+  \end{args}
+}
+{
+  \id{lsolve} returns a positive value    
+  for a recoverable error and a negative value for an             
+  unrecoverable error. Success is indicated by a \id{0} return value.
+}
+{}
 
 %------------------------------------------------------------------------------
+
 \paragraph{Memory deallocation routine.}
 The type definition of \id{lfree} is
-\begin{verbatim}
-void (*cv_lfree)(CVodeMem cv_mem);
-\end{verbatim}
-The routine \id{lfree} should free up any memory allocated by the linear
-solver. This routine is called once a problem has been completed and the 
-linear solver is no longer needed.
+\usfunction{lfree}
+{
+  void (*lfree)(CVodeMem cv\_mem);
+}
+{
+  The routine \id{lfree} should free up any memory allocated by the linear
+  solver.
+}
+{
+  The argument \id{cv\_mem} is the {\cvode} memory pointer of type \id{CVodeMem}.
+}
+{
+  This routine has no return value.
+}
+{
+  This routine is called once a problem has been completed and the 
+  linear solver is no longer needed.
+}

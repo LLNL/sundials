@@ -1,131 +1,298 @@
 %===================================================================================
-\section{Mathematical Considerations}\label{s:math}
+\chapter{Mathematical Considerations}\label{s:math}
 %===================================================================================
 
-{\cvode} solves initial-value problems (IVPs) for systems of ODEs. 
-Such problems can be stated as
-\begin{equation}\label{e:ivp}
-\begin{split}
-&\dot{y} = f(t,\,y) \\
-&y(t_0) = y_0 \, ,
-\end{split}
+% What does CVODE do?
+%--------------------
+{\cvode} solves ODE initial value problems (IVPs) in real $N$-space, which we
+write in the abstract form
+\begin{equation}\label{e:ivp} 
+  \dot{y} = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
 \end{equation}
-where $y \in {\bf R}^N$, $\dot{y}\,=dy/dt$ and ${\bf R}^N$ is the real $N$-dimensional
-vector space. That is, (\ref{e:ivp}) represents a system of $N$ ordinary
-differential equations and their initial conditions at some $t_0$. The
-dependent variable is $y$ and the independent variable is $t$. The
-independent variable need not appear explicitly in the $N$-vector valued
-function $f$.
+where $y \in \mbox{\bf R}^N$.
+Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
+the independent variable, and usually this is time, it certainly need
+not be.  {\cvode} solves both stiff and nonstiff systems.  Roughly
+speaking, stiffness is characterized by the presence of at least one
+rapidly damped mode, whose time constant is small compared to the time
+scale of the solution itself.
 
 %------------------------
-\subsection{IVP Solution}\label{ss:ivp_sol}
+\section{IVP solution}\label{ss:ivp_sol}
 %------------------------
 
-The IVP is solved by one of two numerical methods. These are the
-backward differentiation formula (BDF) \index{BDF method} and the 
-Adams-Moulton formula \index{Adams method}. 
-Both are implemented in a variable-stepsize, variable-order form. The BDF
-uses a fixed-leading-coefficient form. These formulas can both be
-represented by a linear multistep formula 
+% Linear multistep methods
+%-------------------------
+The methods used in {\cvode} are variable-order, variable-step multistep
+methods, based on formulas of the form
 \begin{equation}\label{e:lmm}
-\sum_{i=0}^{K_1}\alpha_{n,i}y_{n-i} + h_n\sum_{i=0}^{K_2}\beta_{n,i} 
-\dot{y}_{n-i}=0
+ \sum_{i = 0}^{K_1} \alpha_{n,i} y_{n-i} + 
+     h_n \sum_{i = 0}^{K_2} \beta_{n,i} \dot{y}_{n-i} = 0 \, .
 \end{equation}
-where the $N$-vector $y_n$ is the computed approximation to $y(t_n)$,
-the exact solution of (\ref{e:ivp}) at $t_n$. The stepsize is
-$h_n=t_n-t_{n-1}$.  The coefficients $\alpha_{n,i}$ and $\beta_{n,i}$
-are uniquely determined by the particular integration formula, the
-history of the stepsize, and the normalization $\alpha_{n,0}=-1$. The
-Adams-Moulton \index{Adams method} formula is recommended for nonstiff ODEs and is
-represented by (\ref{e:lmm}) with $K_1=1$ and $K_2=q-1$. The order
-of this formula is $q$ and its values range from 1 through 12. For
-stiff ODEs, BDF \index{BDF method} should be selected and is represented by 
-(\ref{e:lmm}) with $K_1=q$ and $K_2=0$. For BDF, the order $q$ may
-take on values from 1 through 5. In the case of either formula, the
-integration begins with $q=1$, and after that $q$ varies automatically
-and dynamically.
+Here the $y_n$ are computed approximations to $y(t_n)$, and
+$h_n = t_n - t_{n-1}$ is the step size.  The user of {\cvode} must choose
+appropriately one of two multistep methods.  For nonstiff problems,
+{\cvode} includes the Adams-Moulton formulas \index{Adams method},
+characterized by $K_1 = 1$
+and $K_2 = q$ above, where the order $q$ varies between $1$ and $12$.
+For stiff problems, {\cvode} includes the Backward Differentiation
+Formulas (BDFs)  \index{BDF method} 
+in so-called fixed-leading coefficient form, given by
+$K_1 = q$ and $K_2 = 0$, with order $q$ varying between $1$ and $5$.
+The coefficients are uniquely determined by the method type, its
+order, the recent history of the step sizes, and the normalization
+$\alpha_{n,0} = -1$.  See \cite{ByHi:75} and \cite{JaSD:80}.
 
-For either BDF or the Adams formula, $\dot{y}_n$ denotes
-$f(t_n,\,y_n)$. That is, (\ref{e:lmm}) is an implicit formula, and 
-the nonlinear equation 
+% Nonlinear system
+%-----------------
+\index{nonlinear system!definition|(}
+For either choice of formula, the nonlinear system
 \begin{equation}\label{e:nonlinear}
-\begin{split}
-G(y_n) &\equiv  y_n-h_n\beta_{n,0}f(t_n,\,y_n) - a_n=0   \\
-a_n &= \sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i}) 
-\end{split}
+  G(y_n) \equiv y_n - h_n \beta_{n,0} f(t_n,y_n) - a_n = 0 \, ,
 \end{equation}
-must be solved for $y_{n}$ at each time step. For nonstiff problems,
-functional (or fixpoint) iteration is normally used and does not
-require the solution of a linear system of equations. For stiff
-problems, a Newton iteration is used and for each iteration an
-underlying linear system must be solved. This linear system of
-equations has the form
+where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y_{n-i}+h_n\beta_{n,i}\dot{y}_{n-i})$, 
+must be solved (approximately) at each integration step.  For this, {\cvode}
+offers the choice of either {\em functional iteration}, suitable only
+for nonstiff systems, and various versions of {\em Newton iteration}.
+Functional iteration, given by
+\[ y_{n(m+1)} = h_n \beta_{n,0} f(t_n,y_{n(m)}) + a_n \, , \]
+involves evaluations of $f$ only.  In contrast, Newton iteration requires
+the solution of linear systems
 \begin{equation}\label{e:Newton}
-M[y_{n(m+1)}-y_{n(m)}]=-G(y_{n(m)}) \, ,
+  M [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)}) \, ,
 \end{equation}
-where $y_{n(m)}$ is the $m$th approximation to $y_n$, and $M$
-approximates $\partial G/ \partial y$:
-\begin{equation} \label{e:N_Matrix}
-M \approx I-\gamma J, ~~~~ J = \frac{\partial f}{\partial y}, ~~~~
-    \gamma = h_n\beta_{n,0} ~.
+in which
+\begin{equation}\label{e:Newtonmat} 
+  M \approx I - \gamma J \, ,
+  \quad J = \partial f / \partial y \, ,
+  \quad \mbox{and} \quad
+  \gamma = h_n \beta_{n,0} \, . 
 \end{equation}
-At present, aside from a diagonal Jacobian approximation, the other
-options implemented in {\cvode} for solving the linear systems
-(\ref{e:Newton}) are:
+The initial guess for the iteration is a predicted value $y_{n(0)}$
+computed explicitly from the available history data.
+\index{nonlinear system!definition|)}
+For the Newton corrections, {\cvode} provides a choice of four methods:
 \begin{itemize}
-\item a direct method with dense treatment of the Jacobian;
-\item a direct method with band treatment of the Jacobian;
-\item an iterative method {\spgmr} (scaled, preconditioned
-GMRES) \cite{BrHi89}, which is a Krylov subspace method. In most
-cases, performance of {\spgmr} is improved by user-supplied
-preconditioners. The user may precondition the system on the left, on
-the right, on both the left and right, or use no preconditioner.
+\item a dense direct solver (serial version only),
+\item a band direct solver (serial version only),
+\item a diagonal approximate Jacobian solver, or
+\item {\spgmr} = Scaled Preconditioned GMRES, without restarts.
 \end{itemize}
-In most cases of interest to the {\cvode} user, the technique of
-integration will involve BDF and the Newton method coupled with one of the 
-linear solver modules.
+For large stiff systems, where direct methods are not feasible, the
+combination of a BDF integrator and a preconditioned GMRES algorithm
+yields a powerful tool because it combines established methods for
+stiff integration, nonlinear iteration, and Krylov (linear) iteration
+with a problem-specific treatment of the dominant source of stiffness,
+in the form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 
-\index{error control|(}
-The integrator computes an estimate $E_{n}$ of the local error at each time
-step, and strives to satisfy the following inequality
-\begin{equation*}%\label{e:Err}
-\left\| E_n\right\|_{rms,w} < 1 ~.
+% WRMS Norm
+%----------
+\index{norm!weighted root-mean-square|(}
+In the process of controlling errors at various levels, {\cvode} uses a
+weighted root-mean-square norm, denoted 
+$\|\cdot\|_{\mbox{\scriptsize WRMS}}$, for all 
+error-like quantities.  The weights used are based on the current
+solution and on the relative and absolute tolerances input by the
+user, namely
+\begin{equation}\label{e:errwt}
+ W_i = \mbox{\sc rtol} \cdot |y^i| + \mbox{\sc atol}_i \, .
+\end{equation}
+Because $W_i$ represents a tolerance in the component $y^i$, a vector
+whose norm is 1 is regarded as ``small.''  For brevity, we will
+usually drop the subscript WRMS on norms in what follows.
+\index{norm!weighted root-mean-square|)}
+
+% Newton iteration
+%-----------------
+\index{nonlinear system!Newton iteration|(}
+In the cases of a direct solver (dense, band, or diagonal), the
+iteration is a Modified Newton iteration, in that the iteration matrix
+$M$ is fixed throughout the nonlinear iterations.  However, for SPGMR,
+it is an Inexact Newton iteration, in which $M$ is applied in a
+matrix-free manner, with matrix-vector products $Jv$ obtained by
+either difference quotients or a user-supplied routine.  The matrix
+$M$ (direct cases) or preconditioner matrix $P$ (SPGMR case) is
+updated as infrequently as possible to balance the high costs of
+matrix operations against other costs.  Specifically, this matrix
+update occurs when:
+\begin{itemize}
+\item starting the problem,
+\item more than 20 steps have been taken since the last update,
+\item the value $\bar{\gamma}$ of $\gamma$ at the last update
+satisfies $|\gamma/\bar{\gamma} - 1| > 0.3$,
+\item a non-fatal convergence failure just occurred, or
+\item an error test failure just occurred.
+\end{itemize}
+When forced by a convergence failure, an update of $M$ or $P$ may or
+may not involve a reevaluation of $J$ (in $M$) or of Jacobian data
+(in $P$), depending on whether Jacobian error was the likely cause of
+the failure.  More generally, the decision is made to reevaluate $J$
+(or instruct the user to re-evaluate Jacobian data in $P$) when:
+\begin{itemize}
+\item starting the problem,
+\item more than 50 steps have been taken since the last evaluation,
+\item a convergence failure occurred with an outdated matrix, and
+the value $\bar{\gamma}$ of $\gamma$ at the last update
+satisfies $|\gamma/\bar{\gamma} - 1| < 0.2$, or
+\item a convergence failure occurred that forced a step size reduction.
+\end{itemize}
+\index{nonlinear system!Newton iteration|)}
+
+% Newton convergence test
+%------------------------
+\index{nonlinear system!Newton convergence test|(}
+The stopping test for the Newton iteration is related to the
+subsequent local error test, with the goal of keeping the nonlinear
+iteration errors from interfering with local error control.  As
+described below, the final computed value $y_{n(m)}$ will have to
+satisfy a local error test $\|y_{n(m)} - y_{n(0)}\| \leq \epsilon$.
+Letting $y_n$ denote the exact solution of (\ref{e:nonlinear}), we want
+to ensure that the iteration error $y_n - y_{n(m)}$ is small relative
+to $\epsilon$, specifically that it is less than $0.1 \epsilon$.
+(The safety factor $0.1$ can be changed by the user.)  For this, we
+also estimate the linear convergence rate constant $R$ as follows.
+We initialize $R$ to 1, and reset $R = 1$ when $M$ or $P$ is updated.
+After computing a correction $\delta_m = y_{n(m)}-y_{n(m-1)}$, we
+update $R$ if $m > 1$ as
+\begin{equation*}
+  R \leftarrow \max\{0.3R , \|\delta_m\| / \|\delta_{m-1}\| \} \, . 
 \end{equation*}
-Here the weighted root-mean-square norm is defined by
-\begin{equation}\label{e:rms}
-\left\| E_n\right\|_{rms,w}=\left[ \sum_{i=1}^N\frac{1}{N}\left(
-w_iE_{n,i}\right) ^2\right] ^{1/2} \, ,
-\end{equation}
-where $E_{n,i}$ denotes the $i$th component of $E_n$, and the $i$th 
-component of the weight vector is 
-\begin{equation}\label{e:weight}
-w_i=\frac{1}{rtol|y_i|+atol_i} \,.
-\end{equation}
-This permits an arbitrary combination of relative and absolute error control.
-The user-specified relative error tolerance is the scalar $rtol$ and the
-user-specified absolute error tolerance is $atol$ which may be an $N$-vector
-(as indicated above) or a scalar. The value for $rtol$
-indicates the number of digits of relative accuracy for a single time step.
-The specified value for $atol_{i}\;$indicates the values of the
-corresponding component of the solution vector which may be thought of as
-being zero, or at the noise level. In particular, if we set 
-$atol_i=rtol\times floor_i$ then $floor_i$ represents the floor value for the 
-$i$th component of the solution and is that magnitude of the component for
-which there is a crossover from relative error control to absolute error
-control. Since these tolerances define the allowed error per step, they
-should be chosen conservatively. Experience indicates that a conservative
-choice yields a more economical solution than error tolerances that are too
-large.
-\index{error control|)}
+Now we use the estimate
+\begin{equation*}
+  \| y_n - y_{n(m)} \| \approx \| y_{n(m+1)} - y_{n(m)} \| 
+  \approx R \| y_{n(m)} - y_{n(m-1)} \|  =  R \|\delta_m \| \, . 
+\end{equation*}
+Therefore the convergence (stopping) test is 
+\begin{equation*}
+  R \|\delta_m \| < 0.1 \epsilon \, .
+\end{equation*}
+We allow at most 3 iterations (but this limit can be changed by the
+user).  We also declare the iteration diverged if any $\|\delta_m\| /
+\|\delta_{m-1}\| > 2$ with $m > 1$. If convergence fails with $J$ or
+$P$ current, we are forced to reduce the step size, and we replace
+$h_n$ by $h_n/4$.  The integration is halted after a preset number
+of convergence failures; the default value of this limit is 10, 
+but this can be changed by the user.
+\index{nonlinear system!Newton convergence test|)}
 
-The error control mechanism in {\cvode} varies the stepsize and order
-in an attempt to take minimum number of steps while satisfying the local
-error test. The order control can be (optionally) modified with an algorithm
-that attempts to detect limitations resulting from BDF stability properties.
+When SPGMR is used to solve the linear system, its errors must also be
+controlled, and this also involves the local error test constant.  The
+linear iteration error in the solution vector $\delta_m$ is
+approximated by the preconditioned residual vector.  Thus to ensure
+(or attempt to ensure) that the linear iteration errors do not
+interfere with the nonlinear error and local integration error
+controls, we require that the norm of the preconditioned residual
+in SPGMR is less than $0.05 \cdot (0.1 \epsilon)$.
+
+% Jacobian DQ approximations
+%---------------------------
+With the direct dense and band methods, the Jacobian may be supplied
+by a user routine, or approximated by difference quotients,
+at the user's option.  In the latter case, we use the usual
+approximation
+\[ J_{ij} = [f^i(t,y+\sigma_j e_j) - f^i(t,y)]/\sigma_j \, . \]
+The increments $\sigma_j$ are given by
+\[ \sigma_j = \max\left\{\sqrt{U} \; |y^j| , \sigma_0 W_j \right\} \, , \]
+where $U$ is the unit roundoff, $\sigma_0$ is a dimensionless value,
+and $W_j$ is the error weight defined in (\ref{e:errwt}).  In the dense
+case, this scheme requires $N$ evaluations of $f$, one for each column
+of $J$.  In the band case, the columns of $J$ are computed in groups,
+by the Curtis-Powell-Reid algorithm, with the number of $f$ evaluations
+equal to the bandwidth.
+
+In the case of SPGMR, preconditioning may be used on the left, on the
+right, or both, with user-supplied routines for the preconditioning
+setup and solve operations, and optionally also for the required
+matrix-vector products $Jv$.  If a routine for $Jv$ is not supplied,
+these products are computed as
+\begin{equation}\label{jacobv}
+Jv = [f(t,y+\sigma v) - f(t,y)]/\sigma \, . 
+\end{equation}
+The increment $\sigma$ is $1/\|v\|$, so that $\sigma v$ has norm 1.
+
+% Error test
+%-----------
+\index{error control!step size selection|(}
+A critical part of {\cvode} --- making it an ODE ``solver'' rather than
+just an ODE method, is its control of local error.  At every step, the
+local error is estimated and required to satisfy tolerance conditions,
+and the step is redone with reduced step size whenever that error test
+fails.  As with any linear multistep method, the local truncation
+error LTE, at order $q$ and step size $h$, satisfies an asymptotic
+relation
+\[ \mbox{LTE} = C h^{q+1} y^{(q+1)} + O(h^{q+2}) \]
+for some constant $C$, under mild assumptions on the step sizes.
+A similar relation holds for the error in the predictor $y_{n(0)}$.
+These are combined to get a relation
+\[ \mbox{LTE} = C' [y_n - y_{n(0)}] + O(h^{q+2}) \, . \]
+The local error test is simply $\|\mbox{LTE}\| \leq 1$.  Using the above,
+it is performed on the predictor-corrector difference 
+$\Delta_n \equiv y_{n(m)} - y_{n(0)}$ (with $y_{n(m)}$ the final
+iterate computed), and takes the form
+\[ \|\Delta_n\| \leq \epsilon \equiv 1/|C'| \, . \]
+If this test passes, the step is considered successful.  If it fails,
+the step is rejected and a new step size $h'$ is computed based on the
+asymptotic behavior of the local error, namely by the equation
+\[ (h'/h)^{q+1} \|\Delta_n\| = \epsilon/6 \, . \]
+Here 1/6 is a safety factor.  A new attempt at the step is made,
+and the error test repeated.  If it fails three times, the order $q$
+is reset to 1 (if $q > 1$), or the step is restarted from scratch (if
+$q = 1$).  The ratio $h'/h$ is limited above to 0.2 after two error test
+failures, and limited below to 0.1 after three.  After seven failures,
+{\cvode} returns to the user with a give-up message.
+\index{error control!step size selection|)}
+
+% Step/order control
+%-------------------
+\index{error control!order selection|(}
+In addition to adjusting the step size to meet the local error test,
+{\cvode} periodically adjusts the order, with the goal of maximizing the
+step size.  The integration starts out at order 1 and varies the order
+dynamically after that.  The basic idea is to pick the order $q$ for
+which a polynomial of order $q$ best fits the discrete data involved
+in the multistep method.  However, if either a convergence failure or
+an error test failure occurred on the step just completed, no change
+in step size or order is done.  At the current order $q$, selecting a
+new step size is done exactly as when the error test fails, giving a
+tentative step size ratio
+\[ h'/h = (\epsilon / 6 \|\Delta_n\| )^{1/(q+1)} \equiv \eta_q \, . \]
+We consider changing order only after taking $q+1$ steps at order $q$,
+and then we consider only orders $q' = q - 1$ (if $q > 1$) or
+$q' = q + 1$ (if $q < 5$).  The local truncation error at order $q'$
+is estimated using the history data.  Then a tentative step size ratio
+is computed on the basis that this error, LTE$(q')$, behaves
+asymptotically as $h^{q'+1}$.  With safety factors of 1/6 and
+1/10 respectively, these ratios are:
+\[ h'/h = [1 / 6 \|\mbox{LTE}(q-1)\| ]^{1/q} \equiv \eta_{q-1} \]
+and
+\[ h'/h = [1 / 10 \|\mbox{LTE}(q+1)\| ]^{1/(q+2)} \equiv \eta_{q+1} \, . \]
+The new order and step size are then set according to
+\[ \eta = \max\{\eta_{q-1},\eta_q,\eta_{q+1}\} ~,~~ h' = \eta h \, , \]
+with $q'$ set to the index achieving the above maximum.
+However, if we find that $\eta < 1.5$, we do not bother with the
+change.  Also, $h'/h$ is always limited to 10, except on the first
+step, when it is limited to $10^4$.
+\index{error control!order selection|)}
+
+The various algorithmic features of {\cvode} described above, as
+inherited from VODE and VODPK, are documented in 
+\cite{BBH:89,Byr:92,Hin:00}.
+
+% Output modes
+%-------------
+\index{output mode|(}
+Normally, {\cvode} takes steps until a user-defined output value 
+$t = t_{\mbox{\scriptsize out}}$ is overtaken, and then it computes
+$y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
+``one step'' mode option is available, where control returns to the
+calling program after each step.  There are also options to force
+{\cvode} not to integrate past a given stopping point 
+$t = t_{\mbox{\scriptsize stop}}$.
+\index{output mode|)}
 
 %-----------------------------------------------
 
-\subsection{BDF Stability Limit Detection}
+\section{BDF stability limit detection}\label{s:bdf_stab}
 
 {\cvode} includes an algorithm, {\stald} (STAbility Limit Detection),
 which provides protection against potentially unstable behavior of the 
@@ -178,7 +345,7 @@ dominant will have weakly damped oscillatory modes.
 
 The {\stald} algorithm attempts to detect, in a direct
 manner, the presence of a stability region boundary that is limiting
-the step sizes in the presence of a weakly damped oscillation \cite{Hi92}.
+the step sizes in the presence of a weakly damped oscillation \cite{Hin:92}.
 The algorithm supplements (but differs greatly from) the existing
 algorithms in {\cvode} for choosing step size and order based on
 estimated local truncation errors.  The {\stald} algorithm works directly
@@ -187,7 +354,7 @@ that the step size is in fact stability-limited, it dictates a
 reduction in the method order, regardless of the outcome of the
 error-based algorithm.  The {\stald} algorithm has been tested in
 combination with the {\vode} solver on linear advection-dominated
-advection-diffusion problems \cite{Hi95}, where it works well.  The
+advection-diffusion problems \cite{Hin:95}, where it works well.  The
 implementation in {\cvode} has been successfully tested on linear 
 and nonlinear advection-diffusion problems, among others.
 

@@ -1,14 +1,14 @@
 %===================================================================================
-\section{Code Organization}\label{s:organization}
+\chapter{Code Organization}\label{s:organization}
 %===================================================================================
 
 %----------------------------------
-\subsection{{\sundials} Organization}\label{ss:sun_org}
+\section{{\sundials} organization}\label{ss:sun_org}
 %----------------------------------
 \input{sun_org}
 
 %----------------------------------
-\subsection{{\cvode} Organization}\label{ss:cvodes_org}
+\section{{\cvode} organization}\label{ss:cvode_org}
 %----------------------------------
 
 \index{CVODE@{\cvode}!package structure}
@@ -17,17 +17,17 @@ summarizes the basic structure of the package, although knowledge
 of this structure is not necessary for its use.
 
 The overall organization of the {\cvode} package is shown in Figure
-\ref{f:cvsorg}.  The basic elements of the structure are a module for
+\ref{f:cvorg}.  The basic elements of the structure are a module for
 the basic integration algorithm (including forward sensitivity analysis),
 a module for adjoint sensitivity analysis, and a set of modules for the solution
 of linear systems that arise in the case of a stiff system.  
 \begin{figure}
-\centerline{\psfig{figure=cvorg.eps,height=7.5in}}
+{\centerline{\psfig{figure=cvorg.eps,width=\textwidth}}}
 \caption [Overall structure diagram of the {\cvode} package]
 {Overall structure diagram of the {\cvode} package.
   Modules specific to {\cvode} are distinguished by rounded boxes, while 
   generic solver and auxiliary modules are in unrounded boxes.}
-\label{f:cvsorg}
+\label{f:cvorg}
 \end{figure}
 
 The central integration module, implemented in the files 
@@ -68,8 +68,8 @@ setup (preprocessing of Jacobian data) and solve.
 While\index{preconditioning!advice on} there is no default
 choice of preconditioner analogous to the difference quotient
 approximation in the direct case, the references
-\cite{BrHi89}-\cite{By92}, together with
-the example and demonstration programs included with {\cvodes}, offer
+\cite{BrHi:89}-\cite{Byr:92}, together with
+the example and demonstration programs included with {\cvode}, offer
 considerable assistance in building preconditioners.
 
 \index{CVODE@{\cvode} linear solvers!implementation details|(} 
@@ -90,7 +90,7 @@ These modules are also decomposed in another way.
 Each of the modules {\cvdense}, {\cvband}, and {\cvspgmr} is a set of 
 interface routines built on top of a generic solver module, 
 named {\dense}, {\band}, and {\spgmr}, respectively.  
-The interfaces deal with the use of these methods in the {\cvodes} context, 
+The interfaces deal with the use of these methods in the {\cvode} context, 
 whereas the generic solver is independent of the context.
 While the generic solvers here were generated with {\sundials} in mind, our
 intention is that they be usable in other applications as
@@ -117,31 +117,3 @@ by the anticipated multicomputer extension, but is also essential
 in a uniprocessor setting where two or more problems are solved by
 intermixed calls to the package from one user program.
 
-Table \ref{t:cvfiles} below is a complete list of files in the {\cvode}
-package and the routines in each file. 
-Header and source files are described as a single unit.
-
-\begin{table}[htb]
-\centering
-\caption{List of files in the {\cvode} package}\label{t:cvfiles}
-\medskip
-\begin{tabular}{|l|l|} \hline
-{\bf File(s)}  & {\bf Description and Contents} \\ \hline\hline
-cvode.h, .c    & Central {\cvode} integrator module \\
-               & \id{CVodeMalloc}, \id{CVodeReInit}, \id{CVode}, \id{CVodeFree}, \id{CVodeDky} \\ \hline
-cvdense.h, .c  & {\cvode} dense linear solver {\cvdense} \\
-               & \id{CVDense}, \id{CVReInitDense}, \id{CVDenseDQJac}\\ \hline
-cvband.h, .c   & {\cvode} band linear solver {\cvband} \\
-               & \id{CVBand}, \id{CVReInitBand}, \id{CVBandDQJac} \\ \hline
-cvdiag.h, .c   & {\cvode} diagonal linear solver {\cvdiag} \\
-               & \id{CVDiag} \\ \hline
-cvspgmr.h, .c  & {\cvode} GMRES linear solver {\cvspgmr} \\
-               & \id{CVSpgmr}, \id{CVReInitSpgmr}, \id{CVSpgmrDQJtimes} \\ \hline
-cvbandpre.h, .c & Band preconditioner module {\cvbandpre} \\
-                 & \id{CVBandPreAlloc}, \id{CVReInitBandPre}, \id{CVBandPreFree} \\ 
-                 & \id{CVBandPrecond}, \id{CVBandPSolve} \\ \hline
-cvbbdpre.h, .c  & Band-block-diagonal preconditioner module {\cvbbdpre} \\
-                 & \id{CVBBDAlloc}, \id{CVReInitBBD}, \id{CVBBDFree} \\ 
-                 & \id{CVBBDPrecon}, \id{CVBBDPSol} \\ \hline
-\end{tabular}
-\end{table}

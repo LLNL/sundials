@@ -1,9 +1,10 @@
 SHARED_DOC = ../../shared/doc
 all:
-	@echo 'Usage: make doc   - compile LaTeX files to generate cv_guide.ps and cv_guide.pdf'
+	@echo 'Usage: make ug   - compile LaTeX files to generate cvode user guide'
+	@echo 'Usage: make ex   - compile LaTeX files to generate cvode examples doc'
 	@echo '       make clean - remove temporary files (*.aux, *.log, etc.)'
 	@echo
-doc:
+ug:
 	cp $(SHARED_DOC)/band.tex .
 	cp $(SHARED_DOC)/dense.tex .
 	cp $(SHARED_DOC)/nvec_generic.tex .
@@ -12,31 +13,49 @@ doc:
 	cp $(SHARED_DOC)/spgmr.tex .
 	cp $(SHARED_DOC)/sun_org.tex .
 	cp $(SHARED_DOC)/types.tex .
+	cp $(SHARED_DOC)/ug.tex .
+	cp $(SHARED_DOC)/biblio.bib .
 	cp $(SHARED_DOC)/bandmat.eps .
-	cp $(SHARED_DOC)/sunorg.eps .
+	cp $(SHARED_DOC)/sunorg1.eps .
+	cp $(SHARED_DOC)/sunorg2.eps .
 	cp $(SHARED_DOC)/llnlCoverPage.tex .
 	cp $(SHARED_DOC)/Logo_for_papers.ps .
 	cp $(SHARED_DOC)/Rule_and_address.ps .
 	cp $(SHARED_DOC)/chngpage.sty .
 	latex cv_guide
 	latex cv_guide
+	bibtex cv_guide
 	makeindex -s cv_indx.ist cv_guide
 	latex cv_guide
 	latex cv_guide
 	dvips -Ppdf -o cv_guide.ps cv_guide
 	ps2pdf cv_guide.ps cv_guide.pdf
+ex:
+	cp $(SHARED_DOC)/llnlCoverPage.tex .
+	cp $(SHARED_DOC)/Logo_for_papers.ps .
+	cp $(SHARED_DOC)/Rule_and_address.ps .
+	cp $(SHARED_DOC)/chngpage.sty .
+	cp $(SHARED_DOC)/ug.tex .
+	latex cv_examples
+	latex cv_examples
+	dvips -Ppdf -o cv_examples.ps cv_examples
+	ps2pdf cv_examples.ps cv_examples.pdf
 clean:
 	rm -f bandmat.eps
 	rm -f band.tex
+	rm -f biblio.bib
 	rm -f dense.tex
 	rm -f nvec_generic.tex
 	rm -f nvec_parallel.tex
 	rm -f nvec_serial.tex
 	rm -f spgmr.tex
-	rm -f sunorg.eps
+	rm -f sunorg1.eps
+	rm -f sunorg2.eps
 	rm -f sun_org.tex
 	rm -f types.tex
+	rm -f ug.tex
 	rm -f llnlCoverPage.tex Logo_for_papers.ps Rule_and_address.ps chngpage.sty
-	rm -f *~ *.aux *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
-#	rm -f cvs_guide.ps cvs_guide.pdf
+	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
+#	rm -f cv_guide.ps cv_guide.pdf
+#	rm -f cv_examples.ps cv_examples.pdf
 

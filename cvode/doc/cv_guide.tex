@@ -1,128 +1,47 @@
-\documentclass[11pt]{article}
+%\documentclass[twoside,10pt]{report}
+\documentclass[10pt]{report}
 
-\usepackage{epsfig, supertabular, makeidx}
-\usepackage{amsmath}
+\usepackage{xr}
+\externaldocument{cv_sim_ex}
 
-% Packages needed for the cover page
-\usepackage{calc, epsfig, chngpage}
-\input{pstricks}\input{pst-node}\input{llnlCoverPage}
-
+\usepackage{fancyheadings}
 % Package useful for debuging
 %\usepackage{showlabels}
 
-%----- Page formatting
-\setlength{\oddsidemargin}{0in}
-\setlength{\evensidemargin}{0in}
-\setlength{\textwidth}{6.5in}
-\setlength{\textheight}{8.5in}
+\input{ug.tex}
 
-%----- Date and release info
-\newcommand{\cvucrl}{123456}
-\newcommand{\cvdate}{May 2003}
-\newcommand{\cvrelease}{Version 2.1}
+%===============================================================
 
-%----- SUNDIALS MODULES
-\newcommand{\sundials}{{\normalfont\scshape sundials}}
-\newcommand{\nvector}{{\normalfont\scshape nvector}}
-\newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
-\newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
-\newcommand{\cvode}{{\normalfont\scshape cvode}}
-\newcommand{\pvode}{{\normalfont\scshape pvode}}
-\newcommand{\cvodes}{{\normalfont\scshape cvodes}}
-\newcommand{\ida}{{\normalfont\scshape ida}}
-\newcommand{\idas}{{\normalfont\scshape idas}}
-\newcommand{\kinsol}{{\normalfont\scshape kinsol}}
-\newcommand{\kinsols}{{\normalfont\scshape kinsols}}
+\newcommand{\cvucrl}{000000}
+\newcommand{\cvdate}{February 2004}
+\newcommand{\cvrelease}{v2.1}
 
-%----- OTHER PACKAGES
-\newcommand{\vode}{{\normalfont\scshape vode}}
-\newcommand{\vodpk}{{\normalfont\scshape vodpk}}
-\newcommand{\lsode}{{\normalfont\scshape lsode}}
-
-%----- CVODE COMPONENTS
-\newcommand{\cvdense}{{\normalfont\scshape cvdense}}
-\newcommand{\cvband}{{\normalfont\scshape cvband}}
-\newcommand{\cvdiag}{{\normalfont\scshape cvdiag}}
-\newcommand{\cvspgmr}{{\normalfont\scshape cvspgmr}}
-\newcommand{\cvbandpre}{{\normalfont\scshape cvbandpre}}
-\newcommand{\cvbbdpre}{{\normalfont\scshape cvbbdpre}}
-\newcommand{\fcvode}{{\normalfont\scshape fcmix}}
-\newcommand{\stald}{{\normalfont\scshape stald}}
-
-%----- SHARED COMPONENTS
-\newcommand{\sundialsmath}{{\normalfont\scshape sundialsmath}}
-\newcommand{\dense}{{\normalfont\scshape dense}}
-\newcommand{\band}{{\normalfont\scshape band}}
-\newcommand{\spgmr}{{\normalfont\scshape spgmr}}
-
-%----- C and Fortran languages
-\newcommand{\C}{{\sc C}}
-\newcommand{\CPP}{{\sc C++}}
-\newcommand{\F}{{\sc Fortran}}
-
-%------ Serial or Parallel
-\newcommand{\p}{[{\bf P}]}
-\newcommand{\s}{[{\bf S}]}
-
-%------ Appendix in text
-\newcommand{\A}{App. }
-
-%------ Index entries
-\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
-\newcommand{\Id}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
-\newcommand{\id}[1]{{\tt #1}}
-
-
-%----- Shortcuts for math formulas
-\newcommand{\dfdy}{\frac{\partial f}{\partial y}}
-\newcommand{\dfdyI}{\partial f / \partial y}
-\newcommand{\dfdpi}{\frac{\partial f}{\partial p_i}}
-\newcommand{\dfdpiI}{\partial f / \partial p_i}
-\newcommand{\rhomax}{\rho_{\max}}
-
-\title{User Documentation for \cvode, \\ 
-An ODE Sover for Serial and Parallel Computers \\
-\cvrelease}
-\author{Alan C. Hindmarsh and Radu Serban}
+\title{User Documentation for \cvode \\ \cvrelease}
+\author{
+  Alan C. Hindmarsh and Radu Serban\\
+  {\em Center for Applied Scientific Computing} \\
+  {\em Lawrence Livermore National Laboratory}
+}
 \date{}
 
+%===============================================================
+
 \makeindex
+
+%===============================================================
 
 \begin{document}
 
 %Create the LLNL Cover Page
-\makeLLNLCover{\cvucrl}%                              UCRL number
-{User Documentation for {\cvode} \\ {\cvrelease}}%    Title on cover page
-{Alan C. Hindmarsh and Radu Serban}%                  Authors
-{\cvdate}%                                            Date
+\makeLLNLCover{\cvucrl}%                           UCRL number
+{User Documentation for {\cvode} {\cvrelease}}%    Title on cover page
+{Alan C. Hindmarsh and Radu Serban}%               Authors
+{\cvdate}%                                         Date
 {0in}{0in}
 
-% First a title page without page number
-\maketitle\thispagestyle{empty}
-\vfill
-\noindent
-{\large\em Center for Applied Scientific Computing} \\
-{\large\em Lawrence Livermore National Laboratory}\\
-\vspace{0.1in}\\
-UCRL-MA-{\cvucrl}%
-
-% Leave an empty page
-\newpage\thispagestyle{empty}
-\vspace*{1.0in}
-
-% Move to next page and start roman numbering
-\newpage\pagestyle{plain}\pagenumbering{roman}
-\tableofcontents
-\newpage
-\listoftables
-\newpage
-\listoffigures
-
-% Leave a blank page to get page numbers right for double printing.
-%\newpage\thispagestyle{empty}\vspace*{1in}
-
-% Move to new page and start arabic numbering
-\newpage\pagestyle{plain}\pagenumbering{arabic}
+\frontug
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
 
 %===============================================================
 % Introduction
@@ -134,11 +53,8 @@ UCRL-MA-{\cvucrl}%
 % CVODE Code Organization
 \include{cv_org}
 %===============================================================
-% Using CVODE for IVP Solution
+% Usage
 \include{cv_usage}
-%===============================================================
-% Example Problems
-\include{cv_examples}
 %===============================================================
 % Types realtype and integertype
 \include{cv_types}
@@ -153,18 +69,12 @@ UCRL-MA-{\cvucrl}%
 \include{cv_linsolv}
 %===============================================================
 % References
-\include{cv_biblio}
+\bibliographystyle{plain}
+\bibliography{biblio}
 %===============================================================
 % Index
-\addcontentsline{toc}{section}{Index}
 \printindex
 %===============================================================
-% Start appendices
-\appendix
-\include{cv_codes}
-%===============================================================
-% Leave a blank page to get page numbers right for double printing.
-\newpage\thispagestyle{empty}\vspace*{1in}
 \makeLLNLBackCover
 %===============================================================
 \end{document}

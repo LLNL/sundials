@@ -1,5 +1,5 @@
 %===================================================================================
-\section{Introduction}\label{s:intro}
+\chapter{Introduction}\label{s:intro}
 %===================================================================================
 
 {\cvode} is part of a software family called {\sundials}: 
@@ -8,26 +8,26 @@ This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these
 with sensitivity analysis capabilities.
 %
 %---------------------------------
-\subsection{Historical Background}\label{ss:history}
+\section{Historical Background}\label{ss:history}
 %---------------------------------
 
 \index{CVODE@{\cvode}!relationship to {\vode}, {\vodpk}|(}
 {\F} solvers for ODE initial value problems are widespread and heavily used. 
-Two solvers that have been written at LLNL in the past are {\vode} \cite{BBH89} 
-and {\vodpk} \cite{By92}.
+Two solvers that have been written at LLNL in the past are {\vode} \cite{BBH:89} 
+and {\vodpk} \cite{Byr:92}.
 {\vode}\index{VODE@{\vode}} is a general purpose solver that includes methods for stiff
 and nonstiff systems, and in the stiff case uses direct methods (full or
 banded) for the solution of the linear systems that arise at each implicit
 step. Externally, {\vode} is very similar to the well known solver
-{\lsode}\index{LSODE@{\lsode}} \cite{KH93}.
+{\lsode}\index{LSODE@{\lsode}} \cite{RaHi:94}.
 {\vodpk}\index{VODPK@{\vodpk}} is a variant of {\vode} that uses a preconditioned Krylov 
 (iterative) method for the solution of the linear systems. {\vodpk} is a powerful 
 tool for large stiff systems because it combines established methods for stiff 
 integration, nonlinear iteration, and Krylov (linear) iteration with a problem-specific
 treatment of the dominant source of stiffness, in the form of the user-supplied
-preconditioner matrix \cite{BrHi89}.
+preconditioner matrix \cite{BrHi:89}.
 The capabilities of both {\vode} and {\vodpk} have been combined in the {\C}-language 
-package {\cvode}\index{CVODE@{\cvode}} \cite{CH96}.
+package {\cvode}\index{CVODE@{\cvode}} \cite{CoHi:96}.
 
 In the process of translating the {\vode} and {\vodpk} algorithms into {\C}, the overall 
 {\cvode} organization has been changed considerably.
@@ -36,7 +36,7 @@ layer of code modules that is separated from the integration algorithm, allowing
 easy modification and expansion of the linear solver array.
 A second key feature is a separate module devoted to vector operations; this 
 facilitated the extension to multiprosessor environments with minimal impacts 
-on the rest of the solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByH99}, 
+on the rest of the solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByHi:99}, 
 the parallel variant of {\cvode}.
 \index{CVODE@{\cvode}!relationship to {\vode}, {\vodpk}|)}
 
@@ -66,10 +66,10 @@ in extended {\F}.
 
 \subsection{Aknowledgments}
 We wish to aknowledge the contributions to previous versions of the
-{\cvode} and {\pvode} codes and user guides of Scott D. Cohen \cite{CH94}
-and George D. Byrne \cite{ByH98}.
+{\cvode} and {\pvode} codes and user guides of Scott D. Cohen \cite{CoHi:94}
+and George D. Byrne \cite{ByHi:98}.
 
-\subsection{Reading this User Guide}\label{ss:reading}
+\section{Reading this User Guide}\label{ss:reading}
 
 This user guide is a combination of general usage instructions and
 specific example programs.  We expect that some readers will want to
@@ -80,14 +80,14 @@ accommodate both styles.
 There are different possible levels of usage of {\cvode}. The most casual
 user, with a small IVP problem only, can get by with reading \S\ref{ss:ivp_sol}, 
 then \S\ref{s:simulation} through \S\ref{sss:cvode} only, and looking at examples 
-in \S\ref{s:sim_examples} and \A\ref{s:sim_codes}. 
+in \cite{cvode2.1_ex}. 
 In a different direction, a more expert user with an IVP problem may want
 to (a) use a package preconditioner (\S\ref{ss:preconds}), (b) supply
 his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
-(c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit} and
-\S\ref{sss:lin_solv_reinit}), (d) supply a new {\nvector} module
-(\S\ref{s:nvector}), or even (e) supply a different linear solver module
-(\S\ref{ss:cvodes_org} and \S\ref{s:gen_linsolv}).
+(c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit}), 
+(d) supply a new {\nvector} module (\S\ref{s:nvector}), or even 
+(e) supply a different linear solver module
+(\S\ref{ss:cvode_org} and \S\ref{s:gen_linsolv}).
 
 The structure of this document is as follows:
 \begin{itemize}
@@ -98,21 +98,11 @@ The structure of this document is as follows:
 \item
   The following section describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvode}
-  solver (\S\ref{ss:cvodes_org}). 
+  solver (\S\ref{ss:cvode_org}). 
 \item
   In \S\ref{s:simulation}, we give an overview of the usage of {\cvode},
   as well as a complete description of the user interface and of the 
   user-defined routines for integration of IVP ODEs.
-\item
-  The subsequent sections contain sample programs that illustrate
-  the usage of {\cvode} with different choices of the linear system
-  solvers for integration of IVP ODEs (\S\ref{s:sim_examples}),
-  with code listings provided in Appendix \ref{s:sim_codes}.
-  This sections provides both serial and parallel examples. 
-  In each case, we give the program source, a step-by-step explanation 
-  of the program, and the output. Our intention is that these programs 
-  will enable the user to learn {\cvode} by example, and each can 
-  serve as a template for user programs.
 \item
   Section \ref{s:types} describes the \id{realtype} and \id{integertype} type definitions used 
   across the {\sundials} solvers, as well as instructions on changing these definitions.
@@ -125,9 +115,6 @@ The structure of this document is as follows:
 \item
   Section \ref{s:gen_linsolv} describes in details the generic linear solvers shared 
   by all {\sundials} solvers.
-\item Appendix \ref{s:sim_codes} contains the 
-  code listings of the two {\cvode} sample programs described in detail
-  in this document.
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions
