@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2004-08-25 16:17:13 $
+ * $Revision: 1.29 $
+ * $Date: 2004-10-08 15:21:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *              and Dan Shumaker @ LLNL
@@ -1249,16 +1249,16 @@ void CVodeSensFree(void *cvode_mem);
  *                                                                
  * CV_FAIL_BAD_J  : This value is passed to cv_lsetup if             
  *                                                                
- *               (a) The previous Newton corrector iteration      
- *                   did not converge and the linear solver's     
- *                   setup routine indicated that its Jacobian-   
- *                   related data is not current                  
+ *                  (a) The previous Newton corrector iteration      
+ *                      did not converge and the linear solver's     
+ *                      setup routine indicated that its Jacobian-   
+ *                      related data is not current                  
  *                                   or                           
- *               (b) During the previous Newton corrector         
- *                   iteration, the linear solver's solve routine 
- *                   failed in a recoverable manner and the       
- *                   linear solver's setup routine indicated that 
- *                   its Jacobian-related data is not current.    
+ *                  (b) During the previous Newton corrector         
+ *                      iteration, the linear solver's solve routine 
+ *                      failed in a recoverable manner and the       
+ *                      linear solver's setup routine indicated that 
+ *                      its Jacobian-related data is not current.    
  *                                                                
  * CV_FAIL_OTHER  : During the current internal step try, the        
  *                  previous Newton iteration failed to converge     

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-08-25 16:20:46 $
+ * $Revision: 1.10 $
+ * $Date: 2004-10-08 15:21:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Michael Wittman, Alan C. Hindmarsh, and         
  *              Radu Serban @ LLNL                              
@@ -293,11 +293,6 @@ void CVBBDPrecFree(void *bbd_data);
 
 int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
 int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
-
-/* CVBBDPRE return values */
-
-#define CVBBD_SUCCESS    0
-#define CVBBD_DATA_NULL -11
 
 #endif
 
