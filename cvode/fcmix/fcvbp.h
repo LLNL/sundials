@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-10-26 18:01:27 $
+ * $Revision: 1.7.2.1 $
+ * $Date: 2005-01-24 21:37:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -194,10 +194,10 @@
 #ifndef _FCVBP_H
 #define _FCVBP_H
 
-#ifndef _SUNDIALS_CONFIG_H
-#define _SUNDIALS_CONFIG_H
-#include <sundials_config.h>
-#endif
+/* header files  */
+
+#include "nvector.h"       /* definition of type N_Vector */
+#include "sundialstypes.h" /* definition of type realtype */
 
 /* Definitions of interface function names */
 
@@ -251,11 +251,6 @@
 #define FCV_BPFREE  FCVBPFREE__
 
 #endif
-
-/* header files  */
-
-#include "nvector.h"       /* definition of type N_Vector */
-#include "sundialstypes.h" /* definition of type realtype */
 
 /* Declarations for global variables, shared among various routines */
 
