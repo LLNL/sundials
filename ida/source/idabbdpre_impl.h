@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-10-21 17:49:31 $
+ * $Revision: 1.5 $
+ * $Date: 2004-10-26 20:15:32 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,14 +33,14 @@ extern "C" {
 
 int IDABBDPrecSetup(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
-		    realtype cj, void *p_data,
-		    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+		    realtype c_j, void *prec_data,
+		    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
  
 int IDABBDPrecSolve(realtype tt, 
 		    N_Vector yy, N_Vector yp, N_Vector rr, 
 		    N_Vector rvec, N_Vector zvec,
-		    realtype cj, realtype delta,
-		    void *p_data, N_Vector tempv);
+		    realtype c_j, realtype delta, void *prec_data, 
+                    N_Vector tmp);
 
 /* Definition of IBBDPrecData */
 

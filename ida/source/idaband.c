@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2004-10-22 19:14:39 $
+ * $Revision: 1.20 $
+ * $Date: 2004-10-26 20:15:32 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -60,18 +60,18 @@
 static int IDABandInit(IDAMem IDA_mem);
 
 static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
-                        N_Vector resp, N_Vector tempv1,
-                        N_Vector tempv2, N_Vector tempv3);
+                        N_Vector rrp, N_Vector tmp1,
+                        N_Vector tmp2, N_Vector tmp3);
 
 static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
-                        N_Vector ycur, N_Vector ypcur, N_Vector rescur);
+                        N_Vector ycur, N_Vector ypcur, N_Vector rrcur);
 
 static int IDABandFree(IDAMem IDA_mem);
 
 static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
-                        realtype tt, N_Vector yy, N_Vector yp, realtype c_j,
-                        void *jdata, N_Vector resvec, BandMat Jac,
-                        N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
+                        realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+                        realtype c_j, void *jac_data, BandMat Jac,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Readability Replacements */
 
@@ -241,7 +241,7 @@ int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac)
   return(IDABAND_SUCCESS);
 }
 
-int IDABandSetJacData(void *ida_mem, void *jdata)
+int IDABandSetJacData(void *ida_mem, void *jac_data)
 {
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
@@ -259,7 +259,7 @@ int IDABandSetJacData(void *ida_mem, void *jdata)
   }
   idaband_mem = (IDABandMem) lmem;
 
-  jacdata = jdata;
+  jacdata = jac_data;
 
   return(IDABAND_SUCCESS);
 }
@@ -400,8 +400,8 @@ static int IDABandInit(IDAMem IDA_mem)
 */
 
 static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
-                        N_Vector resp, N_Vector tempv1, N_Vector tempv2,
-                        N_Vector tempv3)
+                        N_Vector rrp, N_Vector tmp1, N_Vector tmp2,
+                        N_Vector tmp3)
 {
   int retval;
   long int retfac;
@@ -414,8 +414,8 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 
   /* Zero out JJ; call Jacobian routine jac; return if it failed. */
   BandZero(JJ);
-  retval = jac(neq, mu, ml, tn, yyp, ypp, cj,
-               jacdata, resp, JJ, tempv1, tempv2, tempv3);
+  retval = jac(neq, mu, ml, tn, yyp, ypp, rrp, cj,
+               jacdata, JJ, tmp1, tmp2, tmp3);
   last_flag = retval;
   if (retval < 0) return(-1);
   if (retval > 0) return(+1);
@@ -437,7 +437,7 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
 */
 
 static int IDABandSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
-                        N_Vector ycur, N_Vector ypcur, N_Vector rescur)
+                        N_Vector ycur, N_Vector ypcur, N_Vector rrcur)
 {
   IDABandMem idaband_mem;
   realtype *bd;
@@ -491,9 +491,9 @@ static int IDABandFree(IDAMem IDA_mem)
 */
 
 static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
-                        realtype tt, N_Vector yy, N_Vector yp, realtype c_j,
-                        void *jdata, N_Vector resvec, BandMat Jac,
-                        N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+                        realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+                        realtype c_j, void *jac_data, BandMat Jac,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
   realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
@@ -507,21 +507,21 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
 
-  /* jdata points to IDA_mem */
-  IDA_mem = (IDAMem) jdata;
+  /* jac_data points to IDA_mem */
+  IDA_mem = (IDAMem) jac_data;
   idaband_mem = lmem;
 
-  rtemp = tempv1; /* Rename work vector for use as the perturbed residual. */
+  rtemp = tmp1; /* Rename work vector for use as the perturbed residual. */
 
-  ytemp = tempv2; /* Rename work vector for use as a temporary for yy. */
+  ytemp = tmp2; /* Rename work vector for use as a temporary for yy. */
 
 
-  yptemp= tempv3; /* Rename work vector for use as a temporary for yp. */
+  yptemp= tmp3; /* Rename work vector for use as a temporary for yp. */
 
   /* Obtain pointers to the data for all eight vectors used.  */
 
   ewt_data = N_VGetArrayPointer(ewt);
-  r_data   = N_VGetArrayPointer(resvec);
+  r_data   = N_VGetArrayPointer(rr);
   y_data   = N_VGetArrayPointer(yy);
   yp_data  = N_VGetArrayPointer(yp);
 
