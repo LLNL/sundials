@@ -83,7 +83,7 @@ void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
 
 /* C function FKINBBDOPT to access optional outputs from KBBD_Data */
 
-void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, int *nge)
+void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
   KBBDPrecGetIntWorkSpace(KBBD_Data, lenipw);
   KBBDPrecGetRealWorkSpace(KBBD_Data, lenrpw);

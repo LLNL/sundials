@@ -278,12 +278,12 @@ int KINSpgmrSetJacData(void *kinmem, void *J_data);
 
 int KINSpgmrGetIntWorkSpace(void *kinmem, long int *leniwSG);
 int KINSpgmrGetRealWorkSpace(void *kinmem, long int *lenrwSG);
-int KINSpgmrGetNumPrecEvals(void *kinmem, int *npevals);
-int KINSpgmrGetNumPrecSolves(void *kinmem, int *npsolves);
-int KINSpgmrGetNumLinIters(void *kinmem, int *nliters);
-int KINSpgmrGetNumConvFails(void *kinmem, int *nlcfails);
-int KINSpgmrGetNumJtimesEvals(void *kinmem, int *njvevals);
-int KINSpgmrGetNumFuncEvals(void *kinmem, int *nfevalsSG); 
+int KINSpgmrGetNumPrecEvals(void *kinmem, long int *npevals);
+int KINSpgmrGetNumPrecSolves(void *kinmem, long int *npsolves);
+int KINSpgmrGetNumLinIters(void *kinmem, long int *nliters);
+int KINSpgmrGetNumConvFails(void *kinmem, long int *nlcfails);
+int KINSpgmrGetNumJtimesEvals(void *kinmem, long int *njvevals);
+int KINSpgmrGetNumFuncEvals(void *kinmem, long int *nfevalsSG); 
 
 /******************************************************************
  *                                                                *           
@@ -304,13 +304,13 @@ typedef struct {
                             user-supplied Jacobian is required */
   int g_maxlrst;      /* max number of linear solver restarts allowed;
                          default is zero  */
-  int g_nli;          /* nli = total number of linear iterations        */
-  int g_npe;          /* npe = total number of precondset calls         */
-  int g_nps;          /* nps = total number of psolve calls             */
-  int g_ncfl;         /* ncfl = total number of convergence failures    */
+  long int g_nli;     /* nli = total number of linear iterations        */
+  long int g_npe;     /* npe = total number of precondset calls         */
+  long int g_nps;     /* nps = total number of psolve calls             */
+  long int g_ncfl;    /* ncfl = total number of convergence failures    */
 
-  int g_nfeSG;        /* nfeSG = total number of calls to func          */    
-  int g_njtimes;      /* njtimes = total number of calls to jtimes      */
+  long int g_nfeSG;   /* nfeSG = total number of calls to func          */    
+  long int g_njtimes; /* njtimes = total number of calls to jtimes      */
 
   KINSpgmrPrecSetupFn g_pset; 
                       /* PrecSetup = user-supplied routine to

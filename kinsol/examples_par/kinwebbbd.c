@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
     printf("Total system size = %d\n\n", NEQ);
     printf("Subgrid dimensions = %d X %d\n", MXSUB, MYSUB);
     printf("Processor array is %d X %d\n\n", NPEX, NPEY);
-    printf("Flag globalstrategy = %ld (0 = Inex. Newton, 1 = Linesearch)\n",
+    printf("Flag globalstrategy = %d (0 = Inex. Newton, 1 = Linesearch)\n",
            globalstrategy);
     printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
            maxl, maxlrst);
@@ -511,7 +511,8 @@ static void PrintOutput(long int my_pe, MPI_Comm comm, N_Vector cc)
 
 static void PrintFinalStats(void *kmem)
 {
-  int nni, nfe, nli, npe, nps, ncfl, nfeSG, flag;
+  long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
+  int flag;
   
   flag = KINGetNumNonlinSolvIters(kmem, &nni);
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1, 0);
@@ -529,9 +530,9 @@ static void PrintFinalStats(void *kmem)
   check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1, 0);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("nni    = %5d    nli   = %5d\n", nni, nli);
-  printf("nfe    = %5d    nfeSG = %5d\n", nfe, nfeSG);
-  printf("nps    = %5d    npe   = %5d     ncfl  = %5d\n", nps, npe, ncfl);
+  printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
+  printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
+  printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
   
 } /* end of routine PrintFinalStats **************************************/
 

@@ -195,7 +195,7 @@ int KBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP)
   return(OKAY);
 }
 
-int KBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP)
+int KBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
 {
   KBBDPrecData pdata;
 

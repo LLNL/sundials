@@ -26,7 +26,7 @@ void FK_FUN(realtype*, realtype*);
 
 /**************************************************************************/
 
-void FKIN_MALLOC(int *msbpre, realtype *fnormtol, realtype *scsteptol,
+void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
                  realtype *constraints, 
                  int *optin, long int *iopt, realtype *ropt,
                  int *ier)
@@ -49,10 +49,10 @@ void FKIN_MALLOC(int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
   if (*optin == 1) {
 
-    if(iopt[0]>0) KINSetPrintLevel(KIN_mem, iopt[0]);
+    if(iopt[0]>0) KINSetPrintLevel(KIN_mem, (int) iopt[0]);
     if(iopt[1]>0) KINSetNumMaxIters(KIN_mem, iopt[1]);
     if(iopt[2]>0) KINSetNoPrecInit(KIN_mem, TRUE);
-    if(iopt[7]>0) KINSetEtaForm(KIN_mem, iopt[7]);
+    if(iopt[7]>0) KINSetEtaForm(KIN_mem, (int) iopt[7]);
     if(iopt[8]>0) KINSetNoMinEps(KIN_mem, TRUE);
 
     if(ropt[0]>0.0) KINSetMaxNewtonStep(KIN_mem, ropt[0]);
@@ -85,8 +85,8 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
 
 { 
   N_Vector uuvec, uscalevec, fscalevec;
-  int nniters, nfevals, nbcfails, nbacktr;
-  int nliters, npevals, npsolves, nlcfails;
+  long int nniters, nfevals, nbcfails, nbacktr;
+  long int nliters, npevals, npsolves, nlcfails;
 
   uuvec     = N_VMake(uu, F2C_nvspec);
   uscalevec = N_VMake(uscale, F2C_nvspec);
@@ -106,10 +106,10 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINGetNumBetaCondFails(KIN_mem, &nbcfails);
     KINGetNumBacktrackOps(KIN_mem, &nbacktr);
 
-    KIN_iopt[3] = (long int) nniters;
-    KIN_iopt[4] = (long int) nfevals;
-    KIN_iopt[5] = (long int) nbcfails;
-    KIN_iopt[6] = (long int) nbacktr;
+    KIN_iopt[3] = nniters;
+    KIN_iopt[4] = nfevals;
+    KIN_iopt[5] = nbcfails;
+    KIN_iopt[6] = nbacktr;
 
     KINGetFuncNorm(KIN_mem, &KIN_ropt[3]);
     KINGetStepLength(KIN_mem, &KIN_ropt[4]);
@@ -119,10 +119,10 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINSpgmrGetNumPrecSolves(KIN_mem, &npsolves);
     KINSpgmrGetNumConvFails(KIN_mem, &nlcfails);
     
-    KIN_iopt[10] = (long int) nliters;
-    KIN_iopt[11] = (long int) npevals;
-    KIN_iopt[12] = (long int) npsolves;
-    KIN_iopt[13] = (long int) nlcfails;
+    KIN_iopt[10] = nliters;
+    KIN_iopt[11] = npevals;
+    KIN_iopt[12] = npsolves;
+    KIN_iopt[13] = nlcfails;
 
   }
 }

@@ -173,7 +173,7 @@ typedef struct {
   /* available for optional output: */
   long int rpwsize;
   long int ipwsize;
-  int nge;
+  long int nge;
 
   /* Pointer to KINSOL memory */
   KINMem kin_mem;
@@ -267,7 +267,7 @@ void KBBDPrecFree(void *p_data);
 
 int KBBDPrecGetIntWorkSpace(void *p_data, long int *leniwBBDP);
 int KBBDPrecGetRealWorkSpace(void *p_data, long int *lenrwBBDP);
-int KBBDPrecGetNumGfnEvals(void *p_data, int *ngevalsBBDP);
+int KBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
 
 /* Return values for KBBDPrecGet* functions */
 /* OKAY = 0 */

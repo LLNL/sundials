@@ -252,9 +252,9 @@ void *KINCreate(void);
 int KINSetFdata(void *kinmem, void *f_data);
 int KINSetErrFile(void *kinmem, FILE *errfp);
 int KINSetPrintLevel(void *kinmemm, int printfl);
-int KINSetNumMaxIters(void *kinmem, int mxiter);
+int KINSetNumMaxIters(void *kinmem, long int mxiter);
 int KINSetNoPrecInit(void *kinmem, booleantype noPrecInit);
-int KINSetMaxPrecCalls(void *kinmem, int msbpre);
+int KINSetMaxPrecCalls(void *kinmem, long int msbpre);
 int KINSetEtaForm(void *kinmem, int etachoice);
 int KINSetEtaConstValue(void *kinmem, realtype eta);
 int KINSetEtaParams(void *kinmem, realtype egamma, realtype eaplpha);
@@ -472,12 +472,12 @@ enum { SUCCESS = 0,
 
 int KINGetIntWorkSpace(void *kinmem, long int *leniw);
 int KINGetRealWorkSpace(void *kinmem, long int *lenrw);
-int KINGetNumNonlinSolvIters(void *kinmem, int *nniters);
-int KINGetNumFuncEvals(void *kinmem, int *nfevals);
-int KINGetNumBetaCondFails(void *kinmem, int *nbcfails); 
-int KINGetNumBacktrackOps(void *kinmem, int *nbacktr);
+int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters);
+int KINGetNumFuncEvals(void *kinmem, long int *nfevals);
+int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails); 
+int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
 int KINGetFuncNorm(void *kinmem, realtype *fnorm);
-int KINGetStepLength(void *kinmem, realtype *stepl);
+int KINGetStepLength(void *kinmem, realtype *steplength);
 
 /* KINGet* return values */
 enum { OKAY=0, KING_NO_MEM=-1 };
@@ -512,8 +512,8 @@ typedef struct KINMemRec {
   realtype kin_scsteptol;      /* ptr to scaled step tolerance                */
   int kin_globalstrategy;      /* choices are INEXACT_NEWTON & LINESEARCH     */
   int kin_printfl;             /* print (output) option selected              */
-  int kin_mxiter;              /* max number of nonlinear iterations          */
-  int kin_msbpre;              /* max number of iterations without calling the
+  long int kin_mxiter;         /* max number of nonlinear iterations          */
+  long int kin_msbpre;         /* max number of iterations without calling the
                                   preconditioner.  this variable set by the
                                   setup routine for the linear solver         */
   int kin_etaflag;             /* eta computation choice                      */
@@ -530,8 +530,8 @@ typedef struct KINMemRec {
   realtype kin_sqrt_relfunc;   /* relative error bound for func(uu) 
                                      (sqrt of error used in the code)         */
   realtype kin_relu;           /* scalar bound on (del(uu)/uu)                */
-  realtype kin_stepl;          /* previous steplength in LineSearch or
-                                  InexactNewton algorithm                     */
+  realtype kin_stepl;          /* step length of current step (w/scaling)     */
+  realtype kin_stepmul;        /* scalar quantity the step was scaled by      */
   realtype kin_eps;            /* current eps value for the iteration         */
   realtype kin_eta;            /* current eta value for the iteration         */
   realtype kin_eta_gamma;      /* gamma value for use in eta calculation      */
@@ -541,14 +541,15 @@ typedef struct KINMemRec {
 
   /* Counters */
 
-  int  kin_nni;                /* number of nonlinear iterations              */
-  int  kin_nfe;                /* number of func references/calls             */
-  int  kin_nnilpre;            /* nni value at last precond call              */
-  int  kin_nbcf;               /* number of times the beta condition could not 
+  long int  kin_nni;           /* number of nonlinear iterations              */
+  long int  kin_nfe;           /* number of func references/calls             */
+  long int  kin_nnilpre;       /* nni value at last precond call              */
+  long int  kin_nbcf;          /* number of times the beta condition could not 
                                   be met in LineSearch                        */
-  int  kin_nbktrk;             /* number of backtracks                        */
-  int  kin_ncscmx;             /* number of consecutive max stepl occurences
-                                  in the global strategy                      */
+  long int  kin_nbktrk;        /* number of backtracks                        */
+  long int  kin_ncscmx;        /* number of consecutive steps of size
+                                  mxnewtstep taken during the last nonlinear
+                                  iteration                                   */
 
   /* Vectors of length Neq */
 

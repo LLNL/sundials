@@ -409,7 +409,7 @@ int KINSpgmrGetRealWorkSpace(void *kinmem, long int *lenrwSG)
 
 /**********************************************************************/
 
-int KINSpgmrGetNumPrecEvals(void *kinmem, int *npevals)
+int KINSpgmrGetNumPrecEvals(void *kinmem, long int *npevals)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -434,7 +434,7 @@ int KINSpgmrGetNumPrecEvals(void *kinmem, int *npevals)
 
 /**********************************************************************/
 
-int KINSpgmrGetNumPrecSolves(void *kinmem, int *npsolves)
+int KINSpgmrGetNumPrecSolves(void *kinmem, long int *npsolves)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -459,7 +459,7 @@ int KINSpgmrGetNumPrecSolves(void *kinmem, int *npsolves)
 
 /**********************************************************************/
 
-int KINSpgmrGetNumLinIters(void *kinmem, int *nliters)
+int KINSpgmrGetNumLinIters(void *kinmem, long int *nliters)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -484,7 +484,7 @@ int KINSpgmrGetNumLinIters(void *kinmem, int *nliters)
 
 /**********************************************************************/
 
-int KINSpgmrGetNumConvFails(void *kinmem, int *nlcfails)
+int KINSpgmrGetNumConvFails(void *kinmem, long int *nlcfails)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -509,7 +509,7 @@ int KINSpgmrGetNumConvFails(void *kinmem, int *nlcfails)
 
 /**********************************************************************/
 
-int KINSpgmrGetNumJtimesEvals(void *kinmem, int *njvevals)
+int KINSpgmrGetNumJtimesEvals(void *kinmem, long int *njvevals)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -534,7 +534,7 @@ int KINSpgmrGetNumJtimesEvals(void *kinmem, int *njvevals)
 
 /**********************************************************************/
 
-int KINSpgmrGetNumFuncEvals(void *kinmem, int *nfevalsSG)
+int KINSpgmrGetNumFuncEvals(void *kinmem, long int *nfevalsSG)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -654,7 +654,8 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
                          realtype *res_norm)
 {
   KINSpgmrMem kinspgmr_mem;
-  int ret, nli_inc, nps_inc;
+  int ret;
+  int nli_inc, nps_inc;
   
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
@@ -671,8 +672,8 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
                    KINSpgmrPSolve, res_norm, &nli_inc, &nps_inc);
   /* Increment counters nli, nps, and ncfl 
      (nni is updated in the KINSol main iteration loop) */
-  nli += nli_inc;
-  nps += nps_inc;
+  nli = nli + (long int) nli_inc;
+  nps = nps + (long int) nps_inc;
 
   if (printfl == 3) fprintf(errfp,"KINSpgmrSolve: nli_inc=%d\n",nli_inc);
 
@@ -841,4 +842,3 @@ static int KINSpgmrDQJtimes(N_Vector v, N_Vector Jv,
 
   return(0);
 }
-
