@@ -30,7 +30,7 @@ of the {\sundials} suite. If the user is only upgrading and the previous
 installation of {\sundials} is not needed, then the user may remove the
 previous installation by issuing 
 \begin{verbatim}
-   % rm -Rf sundials
+   % rm -rf sundials
 \end{verbatim}
 from a shell command prompt.
 
@@ -47,23 +47,24 @@ To install the {\sundials} suite, given a downloaded file named
 {\em sundials\_file}\id{.tar.gz}, issue the following commands from
 a shell command prompt, while within the directory where {\em source\_tree}
 is to be located.  The names of the library and header files
-generated are listed in Table \ref{t:sundials_files} for reference.  Regarding the file
+generated are listed in Table \ref{t:sundials_files} for reference.  (For brevity,
+the corresponding \id{.c} files are not listed.)  Regarding the file
 extension .{\em lib} appearing in Table \ref{t:sundials_files}, shared libraries
 generally have an extension of \id{.so} and static libraries have an extension of
-\id{.a}.  (For brevity, the corresponding \id{.c} files are not listed.)
+\id{.a}.
 \begin{enumerate}
 \item \id{gunzip} {\em sundials\_file}\id{.tar.gz}
-\item \id{tar -xf} {\em sundials\_file}\id{.tar}\hspace{3em} [creates \id{sundials} directory]
+\item \id{tar -xf} {\em sundials\_file}\id{.tar}\hspace{2em} [creates \id{sundials} directory]
 \item \id{cd} {\em build\_tree}
 \item {\em path\_to\_source\_tree}\id{/configure} {\em options}\hspace{2em} [options can be absent]
 \item \id{make}
 \item \id{make install}
 \item \id{make examples}
 \item If system storage space conservation is a priority, then issue \\
-\verb+   % make clean+ \hspace{2em} [removes unneeded object files] \\
+\verb+   % make clean+ \\
 and/or \\
-\verb+   % make examples_clean+ \hspace{2em} [deletes example executables] \\
-from a shell command prompt.
+\verb+   % make examples_clean+ \\
+from a shell command prompt to remove unneeded object files.
 \end{enumerate}
 
 \begin{table}
@@ -185,7 +186,7 @@ options.
 \item \id{--with-cppflags=ARG}
 
   Specify additional {\C} preprocessor flags 
-  ({\em e.g.}, \id{ARG=-I<include\_dir>} if necessary header files are located in nonstandard locations).
+  (e.g., \id{ARG=-I<include\_dir>} if necessary header files are located in nonstandard locations).
 
 \item \id{--with-cflags=ARG}
 
@@ -194,17 +195,17 @@ options.
 \item \id{--with-ldflags=ARG}
 
   Specify additional linker flags 
-  ({\em e.g.}, \id{ARG=-L<lib\_dir>} if required libraries are located in nonstandard locations).
+  (e.g., \id{ARG=-L<lib\_dir>} if required libraries are located in nonstandard locations).
 
 \item \id{--with-libs=ARG}
 
   Specify additional libraries to be used 
-  ({\em e.g.}, \id{ARG=-l<foo>} to link with the library named \id{libfoo.a} or \id{libfoo.so}).
+  (e.g., \id{ARG=-l<foo>} to link with the library named \id{libfoo.a} or \id{libfoo.so}).
 
 \item \id{--with-precision=ARG}
 
   By default, {\sundials} will define a real number (internally referred to as
-  \id{realtype}) to be a double-precision floating-point numeric data (\id{double}
+  \id{realtype}) to be a double-precision floating-point numeric data type (\id{double}
   {\C}-type); however, this option may be used to build {\sundials} with \id{realtype}
   alternatively defined as a single-precision floating-point numeric data type
   (\id{float} {\C}-type) if \id{ARG=single}, or as a \id{long double} {\C}-type
@@ -224,8 +225,8 @@ options.
 
 \item \id{--disable-f77}
 
-  Using this option will disable al {\F} support. If {\cvode} and/or {\kinsol}
-  are present the {\fcvode} and {\fkinsol} modules will not be built.
+  Using this option will disable all {\F} support. The {\fcvode}, {\fkinsol} and
+  {\fnvector} modules will not be built regardless of availability.
 
 \item \id{--with-fflags=ARG}
 
@@ -241,9 +242,9 @@ following two options may be used to override the default behavior.
 
 \item \id{--with-f77underscore=ARG}
 
-  This option pertains to the {\fkinsol} and {\fcvode} {\F}-{\C} interface
-  modules and is used to specify the number of underscores to append to
-  function names so {\F} routines can properly link with the associated
+  This option pertains to the {\fkinsol}, {\fcvode} and {\fnvector} {\F}-{\C}
+  interface modules and is used to specify the number of underscores to append
+  to function names so {\F} routines can properly link with the associated
   {\sundials} libraries. Valid values for \id{ARG} are: \id{none}, \id{one}
   and \id{two}.
 
@@ -251,10 +252,10 @@ following two options may be used to override the default behavior.
 
 \item \id{--with-f77case=ARG}
 
-  Use this option to specify whether the external names of the {\fkinsol} and
-  {\fcvode} {\F}-{\C} interface functions should be lowercase or uppercase so
-  {\F} routines can properly link with the associated {\sundials} libraries. 
-  Valid values for \id{ARG} are: \id{lower} and \id{upper}.
+  Use this option to specify whether the external names of the {\fkinsol},
+  {\fcvode} and {\fnvector} {\F}-{\C} interface functions should be lowercase
+  or uppercase so {\F} routines can properly link with the associated {\sundials}
+  libraries. Valid values for \id{ARG} are: \id{lower} and \id{upper}.
 
   Default: \id{ARG=lower}
 
@@ -271,7 +272,7 @@ following two options may be used to override the default behavior.
 
 \begin{config}
   
-\item \id{--without-mpi}
+\item \id{--disable-mpi}
 
   Using this option will completely disable {\mpi} support.
 
@@ -305,7 +306,7 @@ following two options may be used to override the default behavior.
   {\sundials}.
 
   Often an {\mpi} implementation will have unique library names and so it may
-  be necessary to specify the appropriate libraries to use ({\em e.g.},
+  be necessary to specify the appropriate libraries to use (e.g.,
   \id{LIBS=-lmpich}).
 
   Default: \id{INCDIR=MPIDIR/include}, \id{LIBDIR=MPIDIR/lib} and \id{LIBS=-lmpi}
@@ -389,7 +390,7 @@ during the configuration of {\sundials}. See the next section for illustrations 
 \item \id{FFLAGS}
 
   Use these environment variables to override the default {\C} and {\F}
-  compilation flags defined in the \id{sundials/acinclude.m4} script.
+  compilation flags.
 
 \end{config}
 
@@ -401,14 +402,14 @@ during the configuration of {\sundials}. See the next section for illustrations 
 The following examples are meant to help demonstrate proper usage of the configure options:
 
 \begin{verbatim}
-% configure CC=gcc F77=g77 --with-cflags=-g --with-fflags=-g \
+% configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
             --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
             --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
 \end{verbatim}
 
 \noindent The above example builds {\sundials} using \id{gcc} as the serial {\C}
 compiler, \id{g77} as the serial {\F} compiler, \id{mpicc} as the parallel {\C}
-compiler, \id{mpif77} as the parallel {\F} compiler, and appends the \id{-g}
+compiler, \id{mpif77} as the parallel {\F} compiler, and appends the \id{-g3}
 compilaton flag to the list of default flags.
 
 \begin{verbatim}
@@ -420,9 +421,9 @@ compilaton flag to the list of default flags.
 \noindent This example again builds {\sundials} using \id{gcc} as the serial
 {\C} compiler, but the \id{--with-mpicc=no} option explicitly disables the use
 of the corresponding {\mpi} compiler script. In addition, since the 
-\id{--with-mpi-root} option is given, the compilation flag 
-\id{-I/usr/apps/mpich/1.2.4/include} is passed to \id{gcc} when compiling the
-{\mpi}-enabled functions. 
+\id{--with-mpi-root} option is given, the compilation flags
+\id{-I/usr/apps/mpich/1.2.4/include} and \id{-L/usr/apps/mpich/1.2.4/lib} are passed
+to \id{gcc} when compiling the {\mpi}-enabled functions. 
 The \id{--with-mpi-libs} option is still needed so that the configure
 script can check if \id{gcc} can link with the appropriate {\mpi}
 library as \id{-lmpi} is the internal default.
