@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2004-06-09 18:54:13 $
+ * $Revision: 1.23 $
+ * $Date: 2004-07-22 21:18:10 $
  * ----------------------------------------------------------------- 
  * Programmers   : Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -230,8 +230,7 @@ extern "C" {
 
   int CVodeMallocB(void *cvadj_mem, RhsFnB fB, 
                    realtype tB0, N_Vector yB0,
-                   int itolB, realtype *reltolB, void *abstolB, 
-                   NV_Spec nvspecB);
+                   int itolB, realtype *reltolB, void *abstolB);
 
   int CVodeReInitB(void *cvadj_mem, RhsFnB fB, 
                    realtype tB0, N_Vector yB0,
@@ -248,8 +247,8 @@ extern "C" {
   int CVodeSetQuadErrConB(void *cvadj_mem, int errconQB);
   int CVodeSetQuadTolerancesB(void *cvadj_mem, int itolQB, 
                               realtype *reltolQB, void *abstolQB);
-  int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, NV_Spec nvspecQB);
-  int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB);
+  int CVodeQuadMallocB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0);
+  int CVodeQuadReInitB(void *cvadj_mem, QuadRhsFnB fQB, N_Vector yQB0);
 
   /*
    *                                                                
