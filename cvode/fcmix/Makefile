@@ -44,9 +44,15 @@ all:
 	@(echo '       make purge     - remove Fortran interface CVODE library')
 	@(echo)
 	@(echo '       make <ex>      - make example <ex>')
-	@(echo '       make fcvx_ser  - make all serial FCVODE examples')
-	@(echo '       make fcvx_par  - make all parallel FCVODE examples')
-	@(echo '       make examples  - make all FCVODE examples')
+	@(if test -f fcvx_ser.mk; \
+		then echo '       make fcvx_ser  - make all serial FCVODE examples'; \
+	fi)
+	@(if test -f fcvx_par.mk; \
+		then echo '       make fcvx_par  - make all parallel FCVODE examples'; \
+	fi)
+	@(if (test -f fcvx_ser.mk) && (test -f fcvx_par.mk); \
+		then echo '       make examples  - make all FCVODE examples'; \
+	fi)
 	@(echo '       make purgex    - remove example executables')
 	@(echo)
 	@(if test -f fcvx_ser.mk; then make -f fcvx_ser.mk; fi)
