@@ -92,6 +92,8 @@ The linear systems are solved by one of three methods:
 \item direct banded solve (serial version only), or
 \item SPGMR = Scaled Preconditioned GMRES, with restarts allowed.
 \end{itemize}
+(By ``serial version'' we mean the IDA solver with the serial
+NVECTOR module attached.)
 For the SPGMR case, preconditioning is allowed only on the
 left,\footnote{Left preconditioning is required in order to make the
 norm of the (preconditioned) linear residual in the Newton iteration
