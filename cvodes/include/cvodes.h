@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2004-04-08 21:37:10 $
+ * $Revision: 1.21 $
+ * $Date: 2004-04-28 15:24:45 $
  * ----------------------------------------------------------------- 
  * Programmers   : Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                 and Dan Shumaker @ LLNL
@@ -431,7 +431,7 @@ enum {CVM_NO_MEM = -1, CVM_MEM_FAIL=-2, CVM_ILL_INPUT = -3};
  *                                                                *
  * The first argument to CVodeReInit is:                          *
  *                                                                *
- * cvode_mem = pointer to CVODES memory returned by CVodeMalloc.  *
+ * cvode_mem = pointer to CVODES memory returned by CVodeCreate.  *
  *                                                                *
  * All the remaining arguments to CVodeReInit have names and      *
  * meanings identical to those of CVodeMalloc.                    *
@@ -618,7 +618,7 @@ int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
  * CVodeSensMalloc allocates and initializes memory related to    *
  * sensitivity computations.                                      *
  *                                                                *
- * cvode_mem is a pointer to CVODES memory returned by CVodeMalloc*
+ * cvode_mem is pointer to CVODES memory returned by CVodeCreate  *
  *                                                                *
  * Ns        is the number of sensitivities to be computed.       *
  *                                                                *
@@ -706,7 +706,7 @@ enum {SCVREI_NO_MEM    = -1, SCVREI_NO_SENSI = -2,
  * user is responsible for allocating the memory for this value.  *
  *                                                                *
  * cvode_mem is the pointer to CVODES memory returned by          *
- *              CVodeMalloc.                                      *
+ *              CVodeCreate.                                      *
  *                                                                *
  * tout  is the next time at which a computed solution is desired.*
  *                                                                *
@@ -735,7 +735,7 @@ enum {SCVREI_NO_MEM    = -1, SCVREI_NO_SENSI = -2,
  *                 internal time-stepping. The ILL_INPUT flag     *
  *                 will also be returned if the linear solver     *
  *                 routine CV--- (called by the user after        *
- *                 calling CVodeMalloc) failed to set one of the  *
+ *                 calling CVodeCreate) failed to set one of the  *
  *                 linear solver-related fields in cvode_mem or   *
  *                 if the linear solver's init routine failed. In *
  *                 any case, the user should see the printed      *
