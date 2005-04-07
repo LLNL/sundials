@@ -68,9 +68,10 @@ with emphasis on the aspects particular to adjoint sensitivity calculations.
 
 The calling program includes the {\cvodes} header files \id{cvodes.h} 
 and \id{cvodea.h} for {\cvodes} definitions and interface function prototypes,
-the header file \id{cvdense.h} for the {\cvdense} linear solver module, and
+the header file \id{cvdense.h} for the {\cvdense} linear solver module,
 the header file \id{nvector\_serial.h} for the definition of the serial implementation
-of the {\nvector} module - {\nvecs}.
+of the {\nvector} module - {\nvecs}, and the file \id{sundialsmath.h} for the
+definition of the \id{ABS} macro.
 %% 
 This program also includes two user-defined accessor macros,
 \id{Ith} and \id{IJth}
@@ -90,18 +91,21 @@ allocation and initialization of the user data structure which contains the valu
 of the parameters $p$. Next, it allocates and
 initializes \id{y} with the initial conditions for the forward problem, allocates and 
 initializes \id{q} for the quadrature used in computing the value $G$, and finally
-sets the scalar relative tolerance \id{reltol} and vector absolute tolerance \id{abstol}
-for the state variables as well as the absolute tolerance for the quadrature variable.
+sets the scalar relative tolerance \id{reltolQ} and vector absolute tolerance \id{abstolQ}
+for the quadrature variable. No tolerances for the state variables are defined since
+\id{cvadx} uses its own function to compute the error weights for WRMS norm
+estimates of state solution vectors.
 
 The call to \id{CVodeCreate} creates the main integrator memory block for the 
 forward integration and specifies the \id{CV\_BDF} integration method with 
 \id{CV\_NEWTON} iteration. 
-The next call specifies the optional user data pointer, while the call to \id{CVodeMalloc} 
-initializes the forward integration by specifying the initial conditions and integration 
-tolerances. The linear solver is selected to be {\cvdense} through the call to its 
+The call to \id{CVodeMalloc} initializes the forward integration by specifying the 
+initial conditions and that a function for error weights will be provided (\id{itol=CV\_WF}. 
+The next two calls specify the optional user data pointer and error weight calculation
+function.
+The linear solver is selected to be {\cvdense} through the call to its 
 initialization routine \id{CVDense}. The user provided Jacobian routine \id{Jac}
-and user data structure \id{data} are specified through calls to \id{CVDenseSetJacFn} and
-\id{CVDenseSetJacData}, respectively.
+and user data structure \id{data} are specified through a call to \id{CVDenseSetJacFn}.
 
 The next code block initializes quadrature computations on the forward phase, by
 specifying the user data structure to be passed to the function \id{fQ},
@@ -161,7 +165,9 @@ The main program ends by freeing previously allocated memory by calling
 
 The user-supplied functions \id{f} and \id{Jac} for the right-hand side and
 Jacobian of the forward problem are straightforward expressions of its 
-mathematical formulation (\ref{e:cvadx_ODE}). The fucntion \id{fQ} implements
+mathematical formulation (\ref{e:cvadx_ODE}). 
+The function \id{ewt} is the same as the one for \id{cvdx.c}.
+The function \id{fQ} implements
 (\ref{e:cvadx_ZETA}), while \id{fB}, \id{JacB}, and \id{fQB} are mere translations 
 of the backward problem (\ref{e:cvadx_ADJ}) and (\ref{e:cvadx_XI}).
 
