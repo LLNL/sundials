@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8.2.2 $
- * $Date: 2005-04-06 23:39:12 $
+ * $Revision: 1.8.2.3 $
+ * $Date: 2005-04-07 17:48:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -319,8 +319,8 @@ int CVSpgmrSetPrecType(void *cvode_mem, int pretype);
 
 int CVSpgmrSetGSType(void *cvode_mem, int gstype);
 int CVSpgmrSetDelt(void *cvode_mem, realtype delt);
-int CVSpgmrSetPrecSetupFn(void *cvode_mem, CVSpgmrPrecSetupFn pset, 
-                          CVSpgmrPrecSolveFn psolve, void *P_data);
+int CVSpgmrSetPreconditioner(void *cvode_mem, CVSpgmrPrecSetupFn pset, 
+			     CVSpgmrPrecSolveFn psolve, void *P_data);
 int CVSpgmrSetJacTimesVecFn(void *cvode_mem, 
                             CVSpgmrJacTimesVecFn jtimes, void *jac_data);
 
