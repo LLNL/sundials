@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-03-02 17:53:47 $
+ * $Revision: 1.4 $
+ * $Date: 2005-04-07 20:42:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -39,8 +39,8 @@
  * -----------------------------------------------------------------
  */
 
-#define PRNT_NLI   1
-#define PRNT_EPS   2
+#define PRNT_NLI 1
+#define PRNT_EPS 2
 
 /*
  * -----------------------------------------------------------------
@@ -220,11 +220,14 @@ int KINSpbcg(void *kinmem, int maxl)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSpbcgSetPrecSetupFn
+ * Function : KINSpbcgSetPreconditioner
  * -----------------------------------------------------------------
  */
 
-int KINSpbcgSetPrecSetupFn(void *kinmem, KINSpbcgPrecSetupFn pset)
+int KINSpbcgSetPreconditioner(void *kinmem,
+			      KINSpbcgPrecSetupFn pset,
+			      KINSpbcgPrecSolveFn psolve,
+			      void *P_data)
 {
   KINMem kin_mem;
   KINSpbcgMem kinspbcg_mem;
@@ -242,64 +245,9 @@ int KINSpbcgSetPrecSetupFn(void *kinmem, KINSpbcgPrecSetupFn pset)
     return(KINSPBCG_LMEM_NULL);
   }
   kinspbcg_mem = (KINSpbcgMem) lmem;
-  kinspbcg_mem->b_pset = pset;
 
-  return(KINSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSpbcgSetPrecSolveFn
- * -----------------------------------------------------------------
- */
-
-int KINSpbcgSetPrecSolveFn(void *kinmem, KINSpbcgPrecSolveFn psolve)
-{
-  KINMem kin_mem;
-  KINSpbcgMem kinspbcg_mem;
-
-  /* return immediately if kinmem is NULL */
-
-  if (kinmem == NULL) {
-    fprintf(stderr, MSGB_SETGET_KINMEM_NULL);
-    return(KINSPBCG_MEM_NULL);
-  }
-  kin_mem = (KINMem) kinmem;
-
-  if (lmem == NULL) {
-    fprintf(errfp, MSGB_SETGET_LMEM_NULL);
-    return(KINSPBCG_LMEM_NULL);
-  }
-  kinspbcg_mem = (KINSpbcgMem) lmem;
+  kinspbcg_mem->b_pset   = pset;
   kinspbcg_mem->b_psolve = psolve;
-
-  return(KINSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSpbcgSetPrecData
- * -----------------------------------------------------------------
- */
-
-int KINSpbcgSetPrecData(void *kinmem, void *P_data)
-{
-  KINMem kin_mem;
-  KINSpbcgMem kinspbcg_mem;
-
-  /* return immediately if kinmem is NULL */
-
-  if (kinmem == NULL) {
-    fprintf(stderr, MSGB_SETGET_KINMEM_NULL);
-    return(KINSPBCG_MEM_NULL);
-  }
-  kin_mem = (KINMem) kinmem;
-
-  if (lmem == NULL) {
-    fprintf(errfp, MSGB_SETGET_LMEM_NULL);
-    return(KINSPBCG_LMEM_NULL);
-  }
-  kinspbcg_mem = (KINSpbcgMem) lmem;
   kinspbcg_mem->b_P_data = P_data;
 
   return(KINSPBCG_SUCCESS);
@@ -311,7 +259,9 @@ int KINSpbcgSetPrecData(void *kinmem, void *P_data)
  * -----------------------------------------------------------------
  */
 
-int KINSpbcgSetJacTimesVecFn(void *kinmem, KINSpbcgJacTimesVecFn jtimes)
+int KINSpbcgSetJacTimesVecFn(void *kinmem,
+			     KINSpbcgJacTimesVecFn jtimes,
+			     void *J_data)
 {
   KINMem kin_mem;
   KINSpbcgMem kinspbcg_mem;
@@ -329,35 +279,8 @@ int KINSpbcgSetJacTimesVecFn(void *kinmem, KINSpbcgJacTimesVecFn jtimes)
     return(KINSPBCG_LMEM_NULL);
   }
   kinspbcg_mem = (KINSpbcgMem) lmem;
+
   kinspbcg_mem->b_jtimes = jtimes;
-
-  return(KINSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSpbcgSetJacData
- * -----------------------------------------------------------------
- */
-
-int KINSpbcgSetJacData(void *kinmem, void *J_data)
-{
-  KINMem kin_mem;
-  KINSpbcgMem kinspbcg_mem;
-
-  /* return immediately if kinmem is NULL */
-
-  if (kinmem == NULL) {
-    fprintf(stderr, MSGB_SETGET_KINMEM_NULL);
-    return(KINSPBCG_MEM_NULL);
-  }
-  kin_mem = (KINMem) kinmem;
-
-  if (lmem == NULL) {
-    fprintf(errfp, MSGB_SETGET_LMEM_NULL);
-    return(KINSPBCG_LMEM_NULL);
-  }
-  kinspbcg_mem = (KINSpbcgMem) lmem;
   kinspbcg_mem->b_J_data = J_data;
 
   return(KINSPBCG_SUCCESS);
