@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7.2.1 $
- * $Date: 2005-03-18 23:29:26 $
+ * $Revision: 1.7.2.2 $
+ * $Date: 2005-04-07 00:18:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -48,8 +48,8 @@ extern void FK_JTIMES(realtype*, realtype*, int*, realtype*, int*);
 
 void FKIN_SPGMRSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpgmrSetJacTimesVecFn(KIN_mem, NULL);
-  else KINSpgmrSetJacTimesVecFn(KIN_mem, FKINJtimes);
+  if ((*flag) == 0) KINSpgmrSetJacTimesVecFn(KIN_mem, NULL, NULL);
+  else KINSpgmrSetJacTimesVecFn(KIN_mem, FKINJtimes, NULL);
 }
 
 /*

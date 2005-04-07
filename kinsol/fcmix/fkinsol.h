@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25.2.2 $
- * $Date: 2005-03-18 23:29:26 $
+ * $Revision: 1.25.2.3 $
+ * $Date: 2005-04-07 00:18:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -181,31 +181,14 @@
        approximation to the Jacobian vector product, while FLAG = 1 specifies
        that FKJTIMES is provided.
 
-       Usage of the user-supplied routine FKPSOL for solution of the
-       preconditioned linear system is specified by calling:
+       Usage of the user-supplied routines FKPSET and FKPSOL for the setup and
+       solution of the preconditioned linear system is specified by calling:
 
-         CALL FKINSPGMRSETPSOL(FLAG, IER)
+         CALL FKINSPGMRSETPREC(FLAG, IER)
 
-       where FLAG = 0 indicates no FKPSOL (default) and FLAG = 1 specifies
-       using FKPSOL. The user-supplied routine FKPSOL must be of the form:
-
-         SUBROUTINE FKPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, IER)
-         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
-
-       Typically this routine will use only UU, FVAL, VTEM and FTEM.
-       It must solve the preconditioned linear system Pz = r, where
-       r = VTEM is input, and store the solution z in VTEM as well. Here
-       P is the right preconditioner. If scaling is being used, the
-       routine supplied must also account for scaling on either coordinate
-       or function value.
-
-       Usage of the user-supplied routine FKPSET for construction of the
-       preconditioner is specified by calling:
-
-         CALL FKINSPGMRSETPSET(FLAG, IER)
-
-       where FLAG = 0 indicates no FKPSET (default) and FLAG = 1 specifies
-       using FKPSET. The user-supplied routine FKPSET must be of the form:
+       where FLAG = 0 indicates no FKPSET or FKPSOL (default) and FLAG = 1
+       specifies using FKPSET and FKPSOL. The user-supplied routines FKPSET
+       and FKPSOL must be of the form:
 
          SUBROUTINE FKPSET (UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
          DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
@@ -221,6 +204,16 @@
 
        On return, set IER = 0 if FKPSET was successful, set IER = 1 if
        an error occurred.
+
+         SUBROUTINE FKPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, IER)
+         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
+
+       Typically this routine will use only UU, FVAL, VTEM and FTEM.
+       It must solve the preconditioned linear system Pz = r, where
+       r = VTEM is input, and store the solution z in VTEM as well. Here
+       P is the right preconditioner. If scaling is being used, the
+       routine supplied must also account for scaling on either coordinate
+       or function value.
 
  (5) The solver: FKINSOL
 
@@ -325,8 +318,7 @@ extern "C" {
 #define FKIN_MALLOC       F77_FUNC(fkinmalloc, FKINMALLOC)
 #define FKIN_SPGMR        F77_FUNC(fkinspgmr, FKINSPGMR)
 #define FKIN_SPGMRSETJAC  F77_FUNC(fkinspgmrsetjac, FKINSPGMRSETJAC)
-#define FKIN_SPGMRSETPSOL F77_FUNC(fkinspgmrsetpsol, FKINSPGMRSETPSOL)
-#define FKIN_SPGMRSETPSET F77_FUNC(fkinspgmrsetpset, FKINSPGMRSETPSET)
+#define FKIN_SPGMRSETPREC F77_FUNC(fkinspgmrsetprec, FKINSPGMRSETPREC)
 #define FKIN_SOL          F77_FUNC(fkinsol, FKINSOL)
 #define FKIN_FREE         F77_FUNC(fkinfree, FKINFREE)
 #define FK_FUN            F77_FUNC(fkfun, FKFUN)
@@ -339,8 +331,7 @@ extern "C" {
 #define FKIN_MALLOC       fkinmalloc
 #define FKIN_SPGMR        fkinspgmr
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac
-#define FKIN_SPGMRSETPSOL fkinspgmrsetpsol
-#define FKIN_SPGMRSETPSET fkinspgmrsetpset
+#define FKIN_SPGMRSETPREC fkinspgmrsetprec
 #define FKIN_SOL          fkinsol
 #define FKIN_FREE         fkinfree
 #define FK_FUN            fkfun
@@ -353,8 +344,7 @@ extern "C" {
 #define FKIN_MALLOC       FKINMALLOC
 #define FKIN_SPGMR        FKINSPGMR
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC
-#define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL
-#define FKIN_SPGMRSETPSET FKINSPGMRSETPSET
+#define FKIN_SPGMRSETPREC FKINSPGMRSETPREC
 #define FKIN_SOL          FKINSOL
 #define FKIN_FREE         FKINFREE
 #define FK_FUN            FKFUN
@@ -367,8 +357,7 @@ extern "C" {
 #define FKIN_MALLOC       fkinmalloc_
 #define FKIN_SPGMR        fkinspgmr_
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac_
-#define FKIN_SPGMRSETPSOL fkinspgmrsetpsol_
-#define FKIN_SPGMRSETPSET fkinspgmrsetpset_
+#define FKIN_SPGMRSETPREC fkinspgmrsetprec_
 #define FKIN_SOL          fkinsol_
 #define FKIN_FREE         fkinfree_
 #define FK_FUN            fkfun_
@@ -381,8 +370,7 @@ extern "C" {
 #define FKIN_MALLOC       FKINMALLOC_
 #define FKIN_SPGMR        FKINSPGMR_
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC_
-#define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL_
-#define FKIN_SPGMRSETPSET FKINSPGMRSETPSET_
+#define FKIN_SPGMRSETPREC FKINSPGMRSETPREC_
 #define FKIN_SOL          FKINSOL_
 #define FKIN_FREE         FKINFREE_
 #define FK_FUN            FKFUN_
@@ -395,8 +383,7 @@ extern "C" {
 #define FKIN_MALLOC       fkinmalloc__
 #define FKIN_SPGMR        fkinspgmr__
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac__
-#define FKIN_SPGMRSETPSOL fkinspgmrsetpsol__
-#define FKIN_SPGMRSETPSET fkinspgmrsetpset__
+#define FKIN_SPGMRSETPREC fkinspgmrsetprec__
 #define FKIN_SOL          fkinsol__
 #define FKIN_FREE         fkinfree__
 #define FK_FUN            fkfun__
@@ -409,8 +396,7 @@ extern "C" {
 #define FKIN_MALLOC       FKINMALLOC__
 #define FKIN_SPGMR        FKINSPGMR__
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC__
-#define FKIN_SPGMRSETPSOL FKINSPGMRSETPSOL__
-#define FKIN_SPGMRSETPSET FKINSPGMRSETPSET__
+#define FKIN_SPGMRSETPREC FKINSPGMRSETPREC__
 #define FKIN_SOL          FKINSOL__
 #define FKIN_FREE         FKINFREE__
 #define FK_FUN            FKFUN__
@@ -434,8 +420,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
               realtype *uscale , realtype *fscale, int *ier);
 void FKIN_FREE(void);
 void FKIN_SPGMRSETJAC(int *flag, int *ier);
-void FKIN_SPGMRSETPSET(int *flag, int *ier);
-void FKIN_SPGMRSETPSOL(int *flag, int *ier);
+void FKIN_SPGMRSETPREC(int *flag, int *ier);
 
 /*
  * -----------------------------------------------------------------
