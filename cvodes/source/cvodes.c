@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46.2.8 $
- * $Date: 2005-04-07 15:47:31 $
+ * $Revision: 1.46.2.9 $
+ * $Date: 2005-04-07 17:49:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1662,9 +1662,10 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       if ( (ewtsetOK != 0) || (ewtSsetOK != 0) || (ewtQsetOK != 0) ) {
 
 	if(ewtsetOK != 0)  
-          if(errfp!=NULL) 
+	  if(errfp!=NULL) {
             if (itol == CV_WF) fprintf(errfp, MSGCVS_EWT_NOW_FAIL, tn);
-            else               fprintf(errfp, MSGCVS_EWT_NOW_BAD, tn);
+            else fprintf(errfp, MSGCVS_EWT_NOW_BAD, tn);
+	  }
         if(ewtSsetOK != 0) 
           if(errfp!=NULL) 
             fprintf(errfp, MSGCVS_EWTS_NOW_BAD, tn);
@@ -2348,7 +2349,7 @@ static void CVFreeVectors(CVodeMem cv_mem)
 
 static int CVInitialSetup(CVodeMem cv_mem)
 {
-  int ier, is;
+  int ier;
   int ewtsetOK;
 
   /* Solver initial setup */
@@ -2365,9 +2366,10 @@ static int CVInitialSetup(CVodeMem cv_mem)
 
   ewtsetOK = efun(zn[0], ewt, e_data);
   if (ewtsetOK != 0) {
-    if(errfp!=NULL) 
+    if(errfp!=NULL) {
       if (itol == CV_WF) fprintf(errfp, MSGCVS_FAIL_EWT);
-      else               fprintf(errfp, MSGCVS_BAD_EWT);
+      else fprintf(errfp, MSGCVS_BAD_EWT);
+    }
     return(CV_ILL_INPUT);
   }
   

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1.2.4 $
- * $Date: 2005-04-06 23:39:18 $
+ * $Revision: 1.1.2.5 $
+ * $Date: 2005-04-07 17:49:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -794,8 +794,6 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  //RADU -- test if sensi was malloc'd
-
   Ns = cv_mem->cv_Ns;
 
   /* Parameters */
@@ -843,6 +841,9 @@ int CVodeSetSensTolerances(void *cvode_mem, int itolS,
   realtype *atolSS;
   N_Vector *atolSV;
   int is, Ns;
+
+  atolSS = NULL;
+  atolSV = NULL;
 
   if (cvode_mem==NULL) {
     fprintf(stderr, MSGCVS_SET_NO_MEM);
