@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38.2.4 $
- * $Date: 2005-04-06 23:39:57 $
+ * $Revision: 1.38.2.5 $
+ * $Date: 2005-04-07 15:47:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1104,9 +1104,10 @@ int IDAInitialSetup(IDAMem IDA_mem)
     efun = IDAEwtSet;
     edata = (void *)IDA_mem;
   } else {
-    if (efun == NULL)
+    if (efun == NULL) {
       if (errfp != NULL) fprintf(errfp, MSG_NO_EFUN);
-    return(IDA_ILL_INPUT);
+      return(IDA_ILL_INPUT);
+    }
   }
 
   ewtsetOK = efun(phi[0], ewt, edata);
