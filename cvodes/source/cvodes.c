@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46.2.7 $
- * $Date: 2005-04-06 23:39:18 $
+ * $Revision: 1.46.2.8 $
+ * $Date: 2005-04-07 15:47:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2357,9 +2357,10 @@ static int CVInitialSetup(CVodeMem cv_mem)
     efun = CVEwtSet;
     e_data = (void *)cv_mem;
   } else {
-    if (efun == NULL)
+    if (efun == NULL) {
       if (errfp != NULL) fprintf(errfp, MSGCVS_NO_EFUN);
-    return(CV_ILL_INPUT);
+      return(CV_ILL_INPUT);
+    }
   }
 
   ewtsetOK = efun(zn[0], ewt, e_data);

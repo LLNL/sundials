@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38.2.5 $
- * $Date: 2005-04-06 23:36:58 $
+ * $Revision: 1.38.2.6 $
+ * $Date: 2005-04-07 15:47:21 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -881,7 +881,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if(errfp!=NULL) fprintf(errfp, MSGCV_YOUT_NULL);       
     return(CV_ILL_INPUT);
   }
-  
+
   /* Check for tret != NULL */
   if (tret == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_TRET_NULL);
@@ -1433,9 +1433,10 @@ static int CVInitialSetup(CVodeMem cv_mem)
     efun = CVEwtSet;
     e_data = (void *)cv_mem;
   } else {
-    if (efun == NULL)
+    if (efun == NULL) {
       if (errfp != NULL) fprintf(errfp, MSGCV_NO_EFUN);
-    return(CV_ILL_INPUT);
+      return(CV_ILL_INPUT);
+    }
   }
 
   ewtsetOK = efun(zn[0], ewt, e_data);
@@ -1462,7 +1463,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
       }
     }
   }
-    
+
   return(CV_SUCCESS);
 }
 
