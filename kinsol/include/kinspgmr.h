@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.1 $
- * $Date: 2005-01-24 21:46:02 $
+ * $Revision: 1.18.2.2 $
+ * $Date: 2005-04-07 00:24:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -226,40 +226,42 @@ int KINSpgmr(void *kinmem, int maxl);
  *                           | solver can be restarted
  *                           | [0]
  *                           |
- * KINSpgmrSetPrecSetupFn    | name of user-supplied routine used to
- *                           | compute a preconditioner matrix for
- *                           | the given linear system (pset)
- *                           | [NULL]
+ * KINSpgmrSetPreconditioner | used to set the following:
+ *                           |   (a) name of user-supplied routine
+ *                           |       used to compute a preconditioner
+ *                           |       matrix for the given linear
+ *                           |       system (pset)
+ *                           |       [NULL]
+ *                           |   (b) name of user-supplied routine
+ *                           |       used to apply preconditioner to
+ *                           |       linear system (psolve)
+ *                           |       [NULL]
+ *                           |   (c) pointer to user-allocated system
+ *                           |       memory that is passed to the pset
+ *                           |       and psolve routines
+ *                           |       [NULL]
  *                           |
- * KINSpgmrSetPrecSolveFn    | name of user-supplied routine used to
- *                           | apply preconditioner to linear system
- *                           | (psolve)
- *                           | [NULL]
- *                           |
- * KINSpgmrSetPrecData       | pointer to user-allocated system
- *                           | memory that is passed to the pset
- *                           | and psolve routines
- *                           | [NULL]
- *                           |
- * KINSpgmrSetJacTimesVecFn  | name of user-supplied subroutine used
- *                           | to compute the matrix-vector product
- *                           | J(u)*v, where J denotes the system
- *                           | Jacobian (jtimes)
- *                           | [KINSpgmrDQJtimes] (see kinspgmr.c)
- *                           |
- * KINSpgmrSetJacData        | pointer to a user-allocated memory
- *                           | block that is passed to the jtimes
- *                           | routine
- *                           | [NULL]
+ * KINSpgmrSetJacTimesVecFn  | used to set the following:
+ *                           |   (a) name of user-supplied subroutine
+ *                           |       used to compute the matrix-vector
+ *                           |       product J(u)*v, where J denotes
+ *                           |       the system Jacobian (jtimes)
+ *                           |       [KINSpgmrDQJtimes] (see kinspgmr.c)
+ *                           |   (b) pointer to a user-allocated memory
+ *                           |       block that is passed to the jtimes
+ *                           |       routine
+ *                           |       [NULL]
  * -----------------------------------------------------------------
  */
 
 int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs);
-int KINSpgmrSetPrecSetupFn(void *kinmem, KINSpgmrPrecSetupFn pset);
-int KINSpgmrSetPrecSolveFn(void *kinmem, KINSpgmrPrecSolveFn psolve);
-int KINSpgmrSetPrecData(void *kinmem, void *P_data);
-int KINSpgmrSetJacTimesVecFn(void *kinmem, KINSpgmrJacTimesVecFn jtimes);
-int KINSpgmrSetJacData(void *kinmem, void *J_data);
+int KINSpgmrSetPreconditioner(void *kinmem,
+			      KINSpgmrPrecSetupFn pset,
+			      KINSpgmrPrecSolveFn psolve,
+			      void *P_data);
+int KINSpgmrSetJacTimesVecFn(void *kinmem,
+			     KINSpgmrJacTimesVecFn jtimes,
+			     void *J_data);
 
 /*
  * -----------------------------------------------------------------
