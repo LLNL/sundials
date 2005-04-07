@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2005-04-05 01:59:46 $
+ * $Revision: 1.43 $
+ * $Date: 2005-04-07 18:30:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -313,7 +313,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
                 int itol, realtype reltol, void *abstol)
 {
   CVodeMem cv_mem;
-  booleantype nvectorOK, allocOK, neg_abstol, ewtsetOK;
+  booleantype nvectorOK, allocOK, neg_abstol;
   long int lrw1, liw1;
   int i,k;
   
@@ -335,14 +335,14 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
     if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_ITOL);
     return(CV_ILL_INPUT);
   }
-
+  
   if (f == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_F_NULL);
     return(CV_ILL_INPUT);
   }
-
+  
   /* Test if all required vector operations are implemented */
-
+  
   nvectorOK = CVCheckNvector(y0);
   if(!nvectorOK) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_NVECTOR);
@@ -351,18 +351,18 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   /* Test tolerances */
 
-  if (abstol == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_ABSTOL_NULL);
-    return(CV_ILL_INPUT);
-  }
-
   if (itol != CV_WF) {
+    
+    if (abstol == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSGCV_ABSTOL_NULL);
+      return(CV_ILL_INPUT);
+    }
 
     if (reltol < ZERO) {
       if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_RELTOL);
       return(CV_ILL_INPUT);
     }
-   
+    
     if (itol == CV_SS)
       neg_abstol = (*((realtype *)abstol) < ZERO);
     else 
@@ -372,7 +372,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
       if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_ABSTOL);
       return(CV_ILL_INPUT);
     }
-
+    
   }
 
   /* Set space requirements for one N_Vector */
@@ -393,29 +393,22 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
     if(errfp!=NULL) fprintf(errfp, MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
- 
+  
   /* Copy tolerances into memory */
-
+  
   cv_mem->cv_itol   = itol;
   cv_mem->cv_reltol = reltol;      
-
-  if (itol == CV_WF)
-    cv_mem->cv_efun = (CVEwtFn)abstol;
-  else {
-    cv_mem->cv_efun = CVEwtSet;
-    if (itol == CV_SS)
-      cv_mem->cv_Sabstol = *((realtype *)abstol);
-    else 
-      N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
-  }
-
-  /* All error checking is complete at this point */
+  
+  if (itol == CV_SS)
+    cv_mem->cv_Sabstol = *((realtype *)abstol);
+  else if (itol == CV_SV)
+    N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
 
   /* Copy the input parameters into CVODE state */
 
   cv_mem->cv_f  = f;
   cv_mem->cv_tn = t0;
-
+  
   /* Set step parameters */
 
   cv_mem->cv_q      = 1;
@@ -495,7 +488,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
                 int itol, realtype reltol, void *abstol)
 {
   CVodeMem cv_mem;
-  booleantype neg_abstol, ewtsetOK;
+  booleantype neg_abstol;
   int i,k;
  
   /* Check cvode_mem */
@@ -513,7 +506,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
     return(CV_NO_MALLOC);
   }
 
-  /* Check for legal input parameters */
+/* Check for legal input parameters */
 
   if (y0 == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_Y0_NULL);
@@ -532,12 +525,12 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   /* Test tolerances */
 
-  if (abstol == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_ABSTOL_NULL);
-    return(CV_ILL_INPUT);
-  }
-
   if (itol != CV_WF) {
+
+    if (abstol == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSGCV_ABSTOL_NULL);
+      return(CV_ILL_INPUT);
+    }
 
     if (reltol < ZERO) {
       if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_RELTOL);
@@ -549,7 +542,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
     } else {
       neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
     }
-
+    
     if (neg_abstol) {
       if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_ABSTOL);
       return(CV_ILL_INPUT);
@@ -571,24 +564,17 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   cv_mem->cv_itol   = itol;
   cv_mem->cv_reltol = reltol;    
-
-  if (itol == CV_WF)
-    cv_mem->cv_efun = (CVEwtFn)abstol;
-  else {
-    cv_mem->cv_efun = CVEwtSet;
-    if (itol == CV_SS)
-      cv_mem->cv_Sabstol = *((realtype *)abstol);
-    else
-      N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
-  }
-
-  /* All error checking is complete at this point */
+  
+  if (itol == CV_SS)
+    cv_mem->cv_Sabstol = *((realtype *)abstol);
+  else if (itol == CV_SV)
+    N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
   
   /* Copy the input parameters into CVODE state */
 
   cv_mem->cv_f = f;
   cv_mem->cv_tn = t0;
-
+  
   /* Set step parameters */
 
   cv_mem->cv_q      = 1;
@@ -630,6 +616,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 }
 
 #define gfun   (cv_mem->cv_gfun)
+#define g_data (cv_mem->cv_g_data) 
 #define glo    (cv_mem->cv_glo)
 #define ghi    (cv_mem->cv_ghi)
 #define groot  (cv_mem->cv_groot)
@@ -645,7 +632,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 */
 /*-----------------------------------------------------------------*/
 
-int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
+int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 {
   CVodeMem cv_mem;
   int nrt;
@@ -678,8 +665,12 @@ int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
   if (nrt == 0) {
     cv_mem->cv_nrtfn = nrt;
     gfun = NULL;
+    g_data = NULL;
     return(CV_SUCCESS);
   }
+
+  /* Store user's data pointer */
+  g_data = gdata;
 
   /* If rerunning CVodeRootInit() with the same number of root functions
      (not changing number of gfun components), then check if the root
@@ -753,7 +744,6 @@ int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
 #define f_data         (cv_mem->cv_f_data) 
 #define efun           (cv_mem->cv_efun)
 #define e_data         (cv_mem->cv_e_data) 
-#define g_data         (cv_mem->cv_g_data) 
 #define qmax           (cv_mem->cv_qmax) 
 #define mxstep         (cv_mem->cv_mxstep)
 #define mxhnil         (cv_mem->cv_mxhnil)
@@ -891,7 +881,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if(errfp!=NULL) fprintf(errfp, MSGCV_YOUT_NULL);       
     return(CV_ILL_INPUT);
   }
-  
+
   /* Check for tret != NULL */
   if (tret == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_TRET_NULL);
@@ -1084,7 +1074,10 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (nst > 0) {
       ewtsetOK = efun(zn[0], ewt, e_data);
       if (ewtsetOK != 0) {
-        if(errfp!=NULL) fprintf(errfp, MSGCV_EWT_NOW_BAD, tn);
+	if(errfp!=NULL) {
+          if (itol == CV_WF) fprintf(errfp, MSGCV_EWT_NOW_FAIL, tn);
+          else fprintf(errfp, MSGCV_EWT_NOW_BAD, tn);
+	}
         istate = CV_ILL_INPUT;
         tretlast = *tret = tn;
         N_VScale(ONE, zn[0], yout);
@@ -1437,12 +1430,22 @@ static int CVInitialSetup(CVodeMem cv_mem)
 
   /* Solver initial setup */
 
-  if (itol != CV_WF)
+  if (itol != CV_WF) {
+    efun = CVEwtSet;
     e_data = (void *)cv_mem;
+  } else {
+    if (efun == NULL) {
+      if (errfp != NULL) fprintf(errfp, MSGCV_NO_EFUN);
+      return(CV_ILL_INPUT);
+    }
+  }
 
   ewtsetOK = efun(zn[0], ewt, e_data);
   if (ewtsetOK != 0) {
-    if(errfp!=NULL) fprintf(errfp, MSGCV_BAD_EWT);
+    if(errfp!=NULL) {
+      if (itol == CV_WF) fprintf(errfp, MSGCV_FAIL_EWT);
+      else fprintf(errfp, MSGCV_BAD_EWT);
+    }
     return(CV_ILL_INPUT);
   }
   
@@ -1462,7 +1465,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
       }
     }
   }
-    
+
   return(CV_SUCCESS);
 }
 
