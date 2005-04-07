@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38.2.5 $
- * $Date: 2005-04-07 15:47:43 $
+ * $Revision: 1.38.2.6 $
+ * $Date: 2005-04-07 17:49:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -780,9 +780,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     if (nst > 0) {
       ewtsetOK = efun(phi[0], ewt, edata);
       if (ewtsetOK != 0) {
-        if(errfp!=NULL) 
+	if(errfp!=NULL) {
           if (itol == IDA_WF) fprintf(errfp, MSG_EWT_NOW_FAIL, tn);
-          else                fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+          else fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+	}
         istate = IDA_ILL_INPUT;
         ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
         *tret = tretp = tn;
@@ -1112,9 +1113,10 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   ewtsetOK = efun(phi[0], ewt, edata);
   if (ewtsetOK != 0) {
-    if(errfp!=NULL) 
+    if(errfp!=NULL) {
       if (itol == IDA_WF) fprintf(errfp, MSG_FAIL_EWT);
-      else                fprintf(errfp, MSG_BAD_EWT);
+      else fprintf(errfp, MSG_BAD_EWT);
+    }
     return(IDA_ILL_INPUT);
   }
 
