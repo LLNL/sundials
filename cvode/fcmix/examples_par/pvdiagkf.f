@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.15.2.1 $
-C     $Date: 2005-04-07 17:43:44 $
+C     $Revision: 1.15.2.2 $
+C     $Date: 2005-04-07 18:04:38 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -313,5 +313,13 @@ C
         Z(I) = Z(I) / PSUBI
  20     CONTINUE
 C
+      RETURN
+      END
+
+
+      SUBROUTINE FCVPSET(T, U, FU, JOK, JCUR, GAMMA, EWT, H,
+     1                   V1, V2, V3, IER)
+C     Empty function. Not needed for the preconditioner, but required by the 
+C     FCVODE module.
       RETURN
       END
