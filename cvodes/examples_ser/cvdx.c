@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13.2.3 $
- * $Date: 2005-04-06 23:33:58 $
+ * $Revision: 1.13.2.4 $
+ * $Date: 2005-04-07 15:58:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -42,7 +42,7 @@
                              /* and N_VDestroy                             */
 #include "dense.h"           /* definition of type DenseMat and macro      */
                              /* DENSE_ELEM                                 */
-
+#include "sundialsmath.h"    /* definition of ABS                          */
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 
@@ -89,6 +89,8 @@ static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
+static int ewt(N_Vector y, N_Vector w, void *e_data);
+
 /* Private functions to output results */
 
 static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
@@ -111,32 +113,23 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  realtype reltol, t, tout;
-  N_Vector y, abstol;
+  realtype t, tout;
+  N_Vector y;
   void *cvode_mem;
   int flag, flagr, iout;
   int rootsfound[2];
 
-  y = abstol = NULL;
+  y = NULL;
   cvode_mem = NULL;
 
-  /* Create serial vectors of length NEQ for I.C. and abstol */
+  /* Create serial vector of length NEQ for I.C. */
   y = N_VNew_Serial(NEQ);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
-  abstol = N_VNew_Serial(NEQ); 
-  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
-
-  /* Set the scalar relative tolerance */
-  reltol = RTOL;
-  /* Set the vector absolute tolerance */
-  Ith(abstol,1) = ATOL1;
-  Ith(abstol,2) = ATOL2;
-  Ith(abstol,3) = ATOL3;
 
   /* 
      Call CVodeCreate to create the solver memory:
@@ -157,13 +150,17 @@ int main()
      f         is the user's right hand side function in y'=f(t,y)
      T0        is the initial time
      y         is the initial dependent variable vector
-     CV_SV     specifies scalar relative and vector absolute tolerances
-     reltol    is the scalar relative tolerance
-     abstol    is the absolute tolerance vector
+     CV_WF     specifies scalar relative and vector absolute tolerances
+     reltol    not needed (pass 0.0)
+     abstol    not needed (pass NULL)
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_WF, 0.0, NULL);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
+
+  /* Use private function to compute error weights */
+  flag = CVodeSetEwtFn(cvode_mem, ewt, NULL);
+  if (check_flag(&flag, "CVodeSetEwtFn", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
   flag = CVodeRootInit(cvode_mem, 2, g, NULL);
@@ -204,21 +201,21 @@ int main()
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
 
-  /* Free y and abstol vectors */
+  /* Free y vector */
   N_VDestroy_Serial(y);
-  N_VDestroy_Serial(abstol);
+
   /* Free integrator memory */
   CVodeFree(cvode_mem);
 
   return(0);
 }
 
+
 /*
  *-------------------------------
  * Functions called by the solver
  *-------------------------------
  */
-
 
 /*
  * f routine. Compute function f(t,y). 
@@ -269,6 +266,29 @@ static void Jac(long int N, DenseMat J, realtype t,
   IJth(J,3,2) = RCONST(6.0e7)*y2;
 }
 
+/*
+ * EwtSet function. Computes the error weights at the current solution.
+ */
+
+static int ewt(N_Vector y, N_Vector w, void *e_data)
+{
+  int i;
+  realtype yy, ww, rtol, atol[3];
+
+  rtol    = RTOL;
+  atol[0] = ATOL1;
+  atol[1] = ATOL2;
+  atol[2] = ATOL3;
+
+  for (i=1; i<=3; i++) {
+    yy = Ith(y,i);
+    ww = rtol * ABS(yy) + atol[i-1];  
+    if (ww <= 0.0) return (-1);
+    Ith(w,i) = 1.0/ww;
+  }
+
+  return(0);
+}
 
 /*
  *-------------------------------

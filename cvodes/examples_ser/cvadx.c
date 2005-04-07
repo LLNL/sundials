@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.3 $
- * $Date: 2005-04-06 23:33:57 $
+ * $Revision: 1.18.2.4 $
+ * $Date: 2005-04-07 15:58:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -104,6 +104,7 @@ static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data, 
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
+static int ewt(N_Vector y, N_Vector w, void *e_data);
 
 static void fB(realtype t, N_Vector y, 
                N_Vector yB, N_Vector yBdot, void *f_dataB);
@@ -132,8 +133,8 @@ int main(int argc, char *argv[])
   void *cvadj_mem;
   void *cvode_mem;
 
-  realtype reltol, abstolQ;
-  N_Vector y, q, abstol;
+  realtype abstolQ;
+  N_Vector y, q;
 
   realtype reltolB, abstolB, abstolQB;
   N_Vector yB, qB;
@@ -143,7 +144,7 @@ int main(int argc, char *argv[])
 
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
-  y = abstol = yB = qB = NULL;
+  y = yB = qB = NULL;
 
   /* Print problem description */
   printf("\n\n Adjoint Sensitivity Example for Chemical Kinetics\n");
@@ -175,16 +176,6 @@ int main(int argc, char *argv[])
   if (check_flag((void *)q, "N_VNew_Serial", 0)) return(1);
   Ith(q,1) = ZERO;
 
-  /* Set the scalar relative tolerance reltol */
-  reltol = RTOL;    
-
-  /* Set the vector absolute tolerance abstol */
-  abstol = N_VNew_Serial(NEQ);
-  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
-  Ith(abstol,1) = ATOL1;       
-  Ith(abstol,2) = ATOL2;
-  Ith(abstol,3) = ATOL3;
-
   /* Set the scalar absolute tolerance abstolQ */
   abstolQ = ATOLq;
 
@@ -194,26 +185,33 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_WF, 0.0, NULL);
+  if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
+
+  flag = CVodeSetEwtFn(cvode_mem, ewt, NULL);
+  if (check_flag(&flag, "CVodeSetEwtFn", 1)) return(1);
+
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
-  if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
-
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
+
   flag = CVDenseSetJacFn(cvode_mem, Jac, data);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
 
   flag = CVodeQuadMalloc(cvode_mem, fQ, q);
   if (check_flag(&flag, "CVodeQuadMalloc", 1)) return(1);
+
   flag = CVodeSetQuadFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetQuadFdata", 1)) return(1);
+
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltol, &abstolQ);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
   /* Allocate global memory */
   printf("Allocate global memory\n");
+
   cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
   if (check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
 
@@ -236,6 +234,7 @@ int main(int argc, char *argv[])
 
   /* Test check point linked list */
   printf("\nList of Check Points (ncheck = %d)\n", ncheck);
+
   CVadjGetCheckPointsList(cvadj_mem);
 
   /* Initialize yB */
@@ -263,27 +262,34 @@ int main(int argc, char *argv[])
 
   /* Create and allocate CVODES memory for backward run */
   printf("\nCreate and allocate CVODES memory for backward run\n");
+
   flag = CVodeCreateB(cvadj_mem, CV_BDF, CV_NEWTON);
   if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
-  flag = CVodeSetFdataB(cvadj_mem, data);
-  if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
+
   flag = CVodeMallocB(cvadj_mem, fB, TB1, yB, CV_SS, reltolB, &abstolB);
   if (check_flag(&flag, "CVodeMallocB", 1)) return(1);
 
+  flag = CVodeSetFdataB(cvadj_mem, data);
+  if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
+
   flag = CVDenseB(cvadj_mem, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
+
   flag = CVDenseSetJacFnB(cvadj_mem, JacB, data);
   if (check_flag(&flag, "CVDenseSetJacFnB", 1)) return(1);
 
   flag = CVodeQuadMallocB(cvadj_mem, fQB, qB);
   if (check_flag(&flag, "CVodeQuadMallocB", 1)) return(1);
+
   flag = CVodeSetQuadFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetQuadFdataB", 1)) return(1);
+
   flag = CVodeSetQuadErrConB(cvadj_mem, TRUE, CV_SS, reltolB, &abstolQB);
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Backward Integration */
   printf("Integrate backwards\n");
+
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
@@ -302,13 +308,16 @@ int main(int argc, char *argv[])
   Ith(qB,3) = ZERO;
 
   printf("Re-initialize CVODES memory for backward run\n");
+
   flag = CVodeReInitB(cvadj_mem, fB, TB2, yB, CV_SS, reltolB, &abstolB);
   if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
+
   flag = CVodeQuadReInitB(cvadj_mem, fQB, qB); 
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
   /* Backward Integration */
   printf("Integrate backwards\n");
+
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
@@ -319,8 +328,8 @@ int main(int argc, char *argv[])
 
   /* Free memory */
   printf("Free memory\n\n");
+
   CVodeFree(cvode_mem);
-  N_VDestroy_Serial(abstol);
   N_VDestroy_Serial(y); 
   N_VDestroy_Serial(q);
   N_VDestroy_Serial(yB);
@@ -384,11 +393,33 @@ static void Jac(long int N, DenseMat J, realtype t,
 
 static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
 {
-
-  Ith(qdot,1) = Ith(y,3);
-  
+  Ith(qdot,1) = Ith(y,3);  
 }
  
+/*
+ * EwtSet function. Computes the error weights at the current solution.
+ */
+
+static int ewt(N_Vector y, N_Vector w, void *e_data)
+{
+  int i;
+  realtype yy, ww, rtol, atol[3];
+
+  rtol    = RTOL;
+  atol[0] = ATOL1;
+  atol[1] = ATOL2;
+  atol[2] = ATOL3;
+
+  for (i=1; i<=3; i++) {
+    yy = Ith(y,i);
+    ww = rtol * ABS(yy) + atol[i-1];  
+    if (ww <= 0.0) return (-1);
+    Ith(w,i) = 1.0/ww;
+  }
+
+  return(0);
+}
+
 /* 
  * fB routine. Compute fB(t,y,yB). 
 */
