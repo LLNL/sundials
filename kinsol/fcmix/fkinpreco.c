@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-03-19 00:10:45 $
+ * $Revision: 1.17 $
+ * $Date: 2005-04-07 19:26:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -11,10 +11,16 @@
  * All rights reserved.
  * For details, see sundials/kinsol/LICENSE.
  * -----------------------------------------------------------------
+ * This file contains the interfaces between KINSOL and the
+ * user-supplied Fortran routines FK_PSET and FK_PSOL.
+ *
  * The C function FKINPSet is used to interface between KINSOL and
  * the Fortran user-supplied preconditioner setup routine.
  *
- * Note: The use of the generic name FK_PSET below.
+ * The C function FKINPSol is used to interface between KINSOL and
+ * the Fortran user-supplied preconditioner solve routine.
+ *
+ * Note: The use of the generic names FK_PSET and FK_PSOL below.
  * -----------------------------------------------------------------
  */
 
@@ -40,6 +46,8 @@ extern "C" {
 
 extern void FK_PSET(realtype*, realtype*, realtype*, realtype*, 
 		    realtype*, realtype*, int*);
+extern void FK_PSOL(realtype*, realtype*, realtype*, realtype*, 
+		    realtype*, realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -47,26 +55,28 @@ extern void FK_PSET(realtype*, realtype*, realtype*, realtype*,
 
 /*
  * ----------------------------------------------------------------
- * Function : FKIN_SPBCGSETPSET
+ * Function : FKIN_SPBCGSETPREC
  * ----------------------------------------------------------------
  */
 
-void FKIN_SPBCGSETPSET(int *flag, int *ier)
+void FKIN_SPBCGSETPREC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpbcgSetPrecSetupFn(KIN_mem, NULL);
-  else KINSpbcgSetPrecSetupFn(KIN_mem, FKINPSet);
+  if ((*flag) == 0) KINSpbcgSetPreconditioner(KIN_mem, NULL, NULL, NULL);
+  else              KINSpbcgSetPreconditioner(KIN_mem, FKINPSet, FKINPSol, NULL);
 }
 
 /*
  * ----------------------------------------------------------------
- * Function : FKIN_SPGMRSETPSET
+ * Function : FKIN_SPGMRSETPREC
  * ----------------------------------------------------------------
  */
 
-void FKIN_SPGMRSETPSET(int *flag, int *ier)
+void FKIN_SPGMRSETPREC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpgmrSetPrecSetupFn(KIN_mem, NULL);
-  else KINSpgmrSetPrecSetupFn(KIN_mem, FKINPSet);
+  if ((*flag) == 0) KINSpgmrSetPreconditioner(KIN_mem, NULL, NULL, NULL);
+  else              KINSpgmrSetPreconditioner(KIN_mem, FKINPSet, FKINPSol, NULL);
+
+  return;
 }
 
 /*
@@ -99,4 +109,33 @@ int FKINPSet(N_Vector uu, N_Vector uscale,
     any information that should go into an N_Vector */
 
  return(retcode);
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKINPSol
+ * ----------------------------------------------------------------
+ * C function FKINPSol is used to interface between FK_PSOL and
+ * the user-supplied Fortran preconditioner solve routine.
+ * ----------------------------------------------------------------
+ */
+
+int FKINPSol(N_Vector uu, N_Vector uscale, 
+             N_Vector fval, N_Vector fscale, 
+             N_Vector vv, void *P_data,
+             N_Vector ftem)
+{
+  realtype *udata, *uscaledata, *fdata, *fscaledata, *vvdata, *ftemdata;
+  int retcode;
+
+  udata      = N_VGetArrayPointer(uu);
+  uscaledata = N_VGetArrayPointer(uscale);
+  fdata      = N_VGetArrayPointer(fval);
+  fscaledata = N_VGetArrayPointer(fscale);
+  vvdata     = N_VGetArrayPointer(vv);
+  ftemdata   = N_VGetArrayPointer(ftem);
+
+  FK_PSOL(udata, uscaledata, fdata, fscaledata, vvdata, ftemdata, &retcode);
+
+  return(retcode);
 }

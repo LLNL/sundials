@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2004-12-06 21:31:13 $
+ * $Revision: 1.24 $
+ * $Date: 2005-04-07 19:26:26 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -217,13 +217,10 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
   flag = KINSpgmr(kinmem, maxl);
   if (flag != KINSPGMR_SUCCESS) return(flag);
 
-  flag = KINSpgmrSetPrecData(kinmem, p_data);
-  if (flag != KINSPGMR_SUCCESS) return(flag);
-
-  flag = KINSpgmrSetPrecSetupFn(kinmem, KINBBDPrecSetup);
-  if (flag != KINSPGMR_SUCCESS) return(flag);
-
-  flag = KINSpgmrSetPrecSolveFn(kinmem, KINBBDPrecSolve);
+  flag = KINSpgmrSetPreconditioner(kinmem,
+				   KINBBDPrecSetup,
+				   KINBBDPrecSolve,
+				   p_data);
   if (flag != KINSPGMR_SUCCESS) return(flag);
 
   return(KINSPGMR_SUCCESS);

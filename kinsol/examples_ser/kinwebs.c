@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-03-19 00:10:42 $
+ * $Revision: 1.20 $
+ * $Date: 2005-04-07 19:26:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -175,7 +175,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
  *--------------------------------------------------------------------
  */
 
-int main()
+int main(void)
 {
   int globalstrategy;
   realtype fnormtol, scsteptol;
@@ -229,6 +229,10 @@ int main()
   flag = KINSetScaledStepTol(kmem, scsteptol);
   if (check_flag(&flag, "KINSetScaledStepTol", 1)) return(1);
 
+  /* We no longer need the constraints vector since KINSetConstraints
+     creates a private copy for KINSOL to use. */
+  N_VDestroy_Serial(constraints);
+
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
      routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
   maxl = 15; 
@@ -238,12 +242,11 @@ int main()
 
   flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
   if (check_flag(&flag, "KINSpgmrSetMaxRestarts", 1)) return(1);
-  flag = KINSpgmrSetPrecSetupFn(kmem, PrecSetupBD);
-  if (check_flag(&flag, "KINSpgmrSetPrecSetupFn", 1)) return(1);
-  flag = KINSpgmrSetPrecSolveFn(kmem, PrecSolveBD);
-  if (check_flag(&flag, "KINSpgmrSetPrecSolveFn", 1)) return(1);
-  flag = KINSpgmrSetPrecData(kmem, data);
-  if (check_flag(&flag, "KINSpgmrSetPrecData", 1)) return(1);
+  flag = KINSpgmrSetPreconditioner(kmem,
+				   PrecSetupBD,
+				   PrecSolveBD,
+				   data);
+  if (check_flag(&flag, "KINSpgmrSetPreconditioner", 1)) return(1);
 
   /* Print out the problem size, solution parameters, initial guess. */
   PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol);
@@ -264,7 +267,6 @@ int main()
 
   N_VDestroy_Serial(cc);
   N_VDestroy_Serial(sc);
-  N_VDestroy_Serial(constraints);
   KINFree(kmem);
   FreeUserData(data);
 

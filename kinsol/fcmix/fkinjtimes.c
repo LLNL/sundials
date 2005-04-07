@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-03-19 00:10:45 $
+ * $Revision: 1.10 $
+ * $Date: 2005-04-07 19:26:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -61,8 +61,8 @@ void FKIN_SPBCGSETJAC(int *flag, int *ier)
 
 void FKIN_SPGMRSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpgmrSetJacTimesVecFn(KIN_mem, NULL);
-  else KINSpgmrSetJacTimesVecFn(KIN_mem, FKINJtimes);
+  if ((*flag) == 0) KINSpgmrSetJacTimesVecFn(KIN_mem, NULL, NULL);
+  else KINSpgmrSetJacTimesVecFn(KIN_mem, FKINJtimes, NULL);
 }
 
 /*

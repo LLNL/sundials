@@ -81,7 +81,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.2.3   - Apr. 2005
+v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
 v. 2.2.1   - Jan. 2005
 v. 2.2.0   - Dec. 2004
@@ -92,7 +92,7 @@ v. 1.0     - Aug. 1998 (date written)
 E. Revision History
 -------------------
 
-v. 2.2.3 (Apr. 2005) ---> 
+v. 2.3.0 (Apr. 2005) ---> 
 ------------------------------------------------
 
 - New feature
@@ -126,12 +126,22 @@ v. 2.2.3 (Apr. 2005) --->
      and the retained matrix (mukeep, mlkeep).
    - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
 
-v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
+v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------
 
 - Changes to user interface
    - KINSOL now stores an actual copy of the constraints vector rather than
-     just a pointer
+     just a pointer in order to resolve potential scoping issues
+   - several optional input functions were combined into a single function:
+       - KINSpgmrSetPrecSetupFn, KINSpgmrSetPrecSolveFn and KINSpgmrSetPrecData
+         were combined into KINSpgmrSetPreconditioner
+       - KINSpgmrSetJacTimesVecFn and KINSpgmrSetJacData were combined into
+         KINSpgmrSetJacTimesVecFn
+
+- Changes to FKINSOL module:
+   - FKINSPGMRSETPSET and FKINSPGMRSETPSOL were combined into FKINSPGMRSETPREC
+   - due to changes to the main solver, if FKPSOL is provided, then FKPSET
+     must also be defined, even if it is empty
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-03-02 17:53:47 $
+ * $Revision: 1.28 $
+ * $Date: 2005-04-07 19:26:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -266,11 +266,14 @@ int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSpgmrSetPrecSetupFn
+ * Function : KINSpgmrSetPreconditioner
  * -----------------------------------------------------------------
  */
 
-int KINSpgmrSetPrecSetupFn(void *kinmem, KINSpgmrPrecSetupFn pset)
+int KINSpgmrSetPreconditioner(void *kinmem,
+			      KINSpgmrPrecSetupFn pset,
+			      KINSpgmrPrecSolveFn psolve,
+			      void *P_data)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -288,64 +291,9 @@ int KINSpgmrSetPrecSetupFn(void *kinmem, KINSpgmrPrecSetupFn pset)
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
-  kinspgmr_mem->g_pset = pset;
 
-  return(KINSPGMR_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSpgmrSetPrecSolveFn
- * -----------------------------------------------------------------
- */
-
-int KINSpgmrSetPrecSolveFn(void *kinmem, KINSpgmrPrecSolveFn psolve)
-{
-  KINMem kin_mem;
-  KINSpgmrMem kinspgmr_mem;
-
-  /* return immediately if kinmem is NULL */
-
-  if (kinmem == NULL) {
-    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
-    return(KINSPGMR_MEM_NULL);
-  }
-  kin_mem = (KINMem) kinmem;
-
-  if (lmem == NULL) {
-    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(KINSPGMR_LMEM_NULL);
-  }
-  kinspgmr_mem = (KINSpgmrMem) lmem;
+  kinspgmr_mem->g_pset   = pset;
   kinspgmr_mem->g_psolve = psolve;
-
-  return(KINSPGMR_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSpgmrSetPrecData
- * -----------------------------------------------------------------
- */
-
-int KINSpgmrSetPrecData(void *kinmem, void *P_data)
-{
-  KINMem kin_mem;
-  KINSpgmrMem kinspgmr_mem;
-
-  /* return immediately if kinmem is NULL */
-
-  if (kinmem == NULL) {
-    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
-    return(KINSPGMR_MEM_NULL);
-  }
-  kin_mem = (KINMem) kinmem;
-
-  if (lmem == NULL) {
-    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(KINSPGMR_LMEM_NULL);
-  }
-  kinspgmr_mem = (KINSpgmrMem) lmem;
   kinspgmr_mem->g_P_data = P_data;
 
   return(KINSPGMR_SUCCESS);
@@ -357,7 +305,9 @@ int KINSpgmrSetPrecData(void *kinmem, void *P_data)
  * -----------------------------------------------------------------
  */
 
-int KINSpgmrSetJacTimesVecFn(void *kinmem, KINSpgmrJacTimesVecFn jtimes)
+int KINSpgmrSetJacTimesVecFn(void *kinmem,
+			     KINSpgmrJacTimesVecFn jtimes,
+			     void *J_data)
 {
   KINMem kin_mem;
   KINSpgmrMem kinspgmr_mem;
@@ -375,35 +325,8 @@ int KINSpgmrSetJacTimesVecFn(void *kinmem, KINSpgmrJacTimesVecFn jtimes)
     return(KINSPGMR_LMEM_NULL);
   }
   kinspgmr_mem = (KINSpgmrMem) lmem;
+
   kinspgmr_mem->g_jtimes = jtimes;
-
-  return(KINSPGMR_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSpgmrSetJacData
- * -----------------------------------------------------------------
- */
-
-int KINSpgmrSetJacData(void *kinmem, void *J_data)
-{
-  KINMem kin_mem;
-  KINSpgmrMem kinspgmr_mem;
-
-  /* return immediately if kinmem is NULL */
-
-  if (kinmem == NULL) {
-    fprintf(stderr, MSGS_SETGET_KINMEM_NULL);
-    return(KINSPGMR_MEM_NULL);
-  }
-  kin_mem = (KINMem) kinmem;
-
-  if (lmem == NULL) {
-    fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(KINSPGMR_LMEM_NULL);
-  }
-  kinspgmr_mem = (KINSpgmrMem) lmem;
   kinspgmr_mem->g_J_data = J_data;
 
   return(KINSPGMR_SUCCESS);
