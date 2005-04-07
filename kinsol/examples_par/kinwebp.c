@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14.2.1 $
- * $Date: 2005-03-17 22:50:58 $
+ * $Revision: 1.14.2.2 $
+ * $Date: 2005-04-07 00:15:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -274,7 +274,11 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "KINSetFuncNormTol", 1, my_pe)) MPI_Abort(comm, 1);
   flag = KINSetScaledStepTol(kmem, scsteptol);
   if (check_flag(&flag, "KINSetScaledStepTop", 1, my_pe)) MPI_Abort(comm, 1);
-  
+
+  /* We no longer need the constraints vector since KINSetConstraints
+     creates a private copy for KINSOL to use. */
+  N_VDestroy_Parallel(constraints);
+
   /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
      routines Precondbd and PSolvebd, and the pointer to the user data block. */
   maxl = 20; maxlrst = 2;
@@ -283,13 +287,12 @@ int main(int argc, char *argv[])
 
   flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
   if (check_flag(&flag, "KINSpgmrSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSpgmrSetPrecSetupFn(kmem, Precondbd);
-  if (check_flag(&flag, "KINSpgmrSetPrecSetupFn", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSpgmrSetPrecSolveFn(kmem, PSolvebd);
-  if (check_flag(&flag, "KINSpgmrSetPrecSolveFn", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSpgmrSetPrecData(kmem, data);
-  if (check_flag(&flag, "KINSpgmrSetPrecData", 1, my_pe)) MPI_Abort(comm, 1);
-  
+  flag = KINSpgmrSetPreconditioner(kmem,
+				   Precondbd,
+				   PSolvebd,
+				   data);
+  if (check_flag(&flag, "KINSpgmrSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Print out the problem size, solution parameters, initial guess. */
   if (my_pe == 0) 
     PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol);
@@ -313,7 +316,6 @@ int main(int argc, char *argv[])
 
   N_VDestroy_Parallel(cc);
   N_VDestroy_Parallel(sc);
-  N_VDestroy_Parallel(constraints);
   KINFree(kmem);
   FreeUserData(data);
 

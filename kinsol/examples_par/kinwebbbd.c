@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.1 $
- * $Date: 2005-03-17 22:50:58 $
+ * $Revision: 1.18.2.2 $
+ * $Date: 2005-04-07 00:15:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -262,6 +262,10 @@ int main(int argc, char *argv[])
   flag = KINSetConstraints(kmem, constraints);
   if (check_flag(&flag, "KINSetConstraints", 1, my_pe)) MPI_Abort(comm, 1);
 
+  /* We no longer need the constraints vector since KINSetConstraints
+     creates a private copy for KINSOL to use. */
+  N_VDestroy_Parallel(constraints);
+
   flag = KINSetFuncNormTol(kmem, fnormtol);
   if (check_flag(&flag, "KINSetFuncNormTol", 1, my_pe)) MPI_Abort(comm, 1);
 
@@ -311,7 +315,6 @@ int main(int argc, char *argv[])
 
   N_VDestroy_Parallel(cc);
   N_VDestroy_Parallel(sc);
-  N_VDestroy_Parallel(constraints);
   KINBBDPrecFree(pdata);
   KINFree(kmem);
   FreeUserData(data);
