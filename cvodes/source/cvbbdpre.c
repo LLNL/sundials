@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2004-12-07 23:43:23 $
+ * $Revision: 1.16 $
+ * $Date: 2005-04-07 23:28:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -146,13 +146,7 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   flag = CVSpbcg(cvode_mem, pretype, maxl);
   if(flag != CVSPBCG_SUCCESS) return(flag);
 
-  flag = CVSpbcgSetPrecData(cvode_mem, bbd_data);
-  if(flag != CVSPBCG_SUCCESS) return(flag);
-
-  flag = CVSpbcgSetPrecSetupFn(cvode_mem, CVBBDPrecSetup);
-  if(flag != CVSPBCG_SUCCESS) return(flag);
-
-  flag = CVSpbcgSetPrecSolveFn(cvode_mem, CVBBDPrecSolve);
+  flag = CVSpbcgSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
   if(flag != CVSPBCG_SUCCESS) return(flag);
 
   return(CVSPBCG_SUCCESS);
@@ -170,13 +164,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   flag = CVSpgmr(cvode_mem, pretype, maxl);
   if(flag != CVSPGMR_SUCCESS) return(flag);
 
-  flag = CVSpgmrSetPrecData(cvode_mem, bbd_data);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
-
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, CVBBDPrecSetup);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
-
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, CVBBDPrecSolve);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
   if(flag != CVSPGMR_SUCCESS) return(flag);
 
   return(CVSPGMR_SUCCESS);

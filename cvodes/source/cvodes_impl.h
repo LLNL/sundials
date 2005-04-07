@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-04-05 01:59:52 $
+ * $Revision: 1.15 $
+ * $Date: 2005-04-07 23:28:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -494,7 +494,7 @@ typedef struct CVodeMemRec {
 #define MSGCVS_SET_NO_MALLOC _CVSET_TOL_ "Attempt to call before CVodeMalloc.\n\n"
 
 #define MSGCVS_SET_BAD_ITOL1 _CVSET_TOL_ "Illegal value for itol.\n"
-#define MSGCVS_SET_BAD_ITOL2 "The legal values are CV_SS, CV_SV, and CV_WF.\n\n"
+#define MSGCVS_SET_BAD_ITOL2 "The legal values are CV_SS and CV_SV.\n\n"
 #define MSGCVS_SET_BAD_ITOL  MSGCVS_SET_BAD_ITOL1 MSGCVS_SET_BAD_ITOL2
 
 #define MSGCVS_SET_BAD_RELTOL _CVSET_TOL_ "reltol < 0 illegal.\n\n"
@@ -502,10 +502,6 @@ typedef struct CVodeMemRec {
 #define MSGCVS_SET_ABSTOL_NULL _CVSET_TOL_ "abstol = NULL illegal.\n\n"
 
 #define MSGCVS_SET_BAD_ABSTOL _CVSET_TOL_ "abstol has negative component(s) (illegal).\n\n"
-
-#define MSGCVS_SET_NO_EFUN1 "CVodeSetEdata-- Attempt to set e_data before specifying efun\n"
-#define MSGCVS_SET_NO_EFUN2 "(through CVodeMalloc or CVodeSetTolerances) illegal.\n\n"
-#define MSGCVS_SET_NO_EFUN MSGCVS_SET_NO_EFUN1 MSGCVS_SET_NO_EFUN2
 
 /* CVodeMalloc/CVodeReInit Error Messages */
 
@@ -621,9 +617,11 @@ typedef struct CVodeMemRec {
 
 #define MSGCVS_CVODE_NO_MALLOC _CVODE_ "CVodeMalloc has not been called yet.\n\n"
 
-#define MSGCVS_BAD_EWT _CVODE_ _CVIS_ "Initial ewt has component(s) equal to zero (illegal).\n\n"
+#define MSGCVS_NO_EFUN _CVODE_ _CVIS_ "itol = CV_WF but no EwtSet function was provided.\n\n"
 
-#define MSGCVS_NO_QUADTOL _CVODE_ _CVIS_ "No quad tolerances set. Illegal for errconQ = TRUE.\n\n"
+#define MSGCVS_FAIL_EWT _CVODE_ _CVIS_ "The user-provide EwtSet function failed.\n\n"
+
+#define MSGCVS_BAD_EWT _CVODE_ _CVIS_ "Initial ewt has component(s) equal to zero (illegal).\n\n"
 
 #define MSGCVS_BAD_EWTQ _CVODE_ _CVIS_ "Initial ewtQ has component(s) equal to zero (illegal).\n\n"
 
@@ -662,6 +660,8 @@ typedef struct CVodeMemRec {
 #define MSGCVS_BAD_TOUT   MSGCVS_BAD_TOUT_1 MSGCVS_BAD_TOUT_2
 
 #define MSGCVS_MAX_STEPS _CVODE_ "At " MSG_TIME ", mxstep steps taken before reaching tout.\n\n"
+
+#define MSGCVS_EWT_NOW_FAIL _CVODE_ "At " MSG_TIME ", the user-provide EwtSet function failed.\n\n"
 
 #define MSGCVS_EWT_NOW_BAD _CVODE_ "At " MSG_TIME ", a component of ewt has become <= 0.\n\n"
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2005-04-04 22:53:14 $
+ * $Revision: 1.39 $
+ * $Date: 2005-04-07 23:28:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -49,13 +49,11 @@
  *
  *   FCVSPBCG, FCVSPBCGREINIT interface to CVSpbcg and CVSpbcgSet*
  *   FCVSPBCGSETJAC   interfaces to CVSpbcgSetJacFn
- *   FCVSPBCGSETPSOL  interfaces to CVSpbcgSetPrecSolveFn
- *   FCVSPBCGSETPSET  interfaces to CVSpbcgSetPrecSetupFn
+ *   FCVSPBCGSETPREC  interfaces to CVSpbcgSetPreconditioner
  *
  *   FCVSPGMR, FCVSPGMRREINIT interface to CVSpgmr and CVSpgmrSet*
  *   FCVSPGMRSETJAC   interfaces to CVSpgmrSetJacFn
- *   FCVSPGMRSETPSOL  interfaces to CVSpgmrSetPrecSolveFn
- *   FCVSPGMRSETPSET  interfaces to CVSpgmrSetPrecSetupFn
+ *   FCVSPGMRSETPREC  interfaces to CVSpgmrSetPreconditioner
  * 
  *   FCVODE     interfaces to CVode, CVodeGet*, and CV*Get*
  * 
@@ -300,9 +298,9 @@
  * using and internal finite difference approximation to this product.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
- * Usage of the user-supplied routine FCVPSOL for solution of the preconditioner
- * linear system requires the following call:
- *       CALL FCVSPBCGSETPSOL(FLAG, IER)
+ * Usage of the user-supplied routines FCVPSOL and FCVPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FCVSPBCGSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
  *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, NFE, R, LR, Z, IER)
@@ -314,11 +312,6 @@
  * of the left and right preconditioners if both are nontrivial) should be an 
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
  * 
- * Usage of the user-supplied routine FCVPSET for construction of the
- * preconditioner  is specified by calling
- *       CALL FCVSPBCGSETPPSET(FLAG, IER)
- * with FLAG = 1. (FLAG = 0 specifies no such setup routine.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
  * The user-supplied routine FCVPSET must be of the form:
  *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
  *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
@@ -369,9 +362,9 @@
  * using and internal finite difference approximation to this product.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
- * Usage of the user-supplied routine FCVPSOL for solution of the preconditioner
- * linear system requires the following call:
- *       CALL FCVSPGMRSETPSOL(FLAG, IER)
+ * Usage of the user-supplied routines FCVPSOL and FCVPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FCVSPGMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
  *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, NFE, R, LR, Z, IER)
@@ -382,12 +375,7 @@
  * and the right preconditioner if LR = 2.  The preconditioner (or the product
  * of the left and right preconditioners if both are nontrivial) should be an 
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
- * 
- * Usage of the user-supplied routine FCVPSET for construction of the
- * preconditioner  is specified by calling
- *       CALL FCVSPGMRSETPPSET(FLAG, IER)
- * with FLAG = 1. (FLAG = 0 specifies no such setup routine.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
+ *
  * The user-supplied routine FCVPSET must be of the form:
  *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
  *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
@@ -402,11 +390,11 @@
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
  * 
- *      Optional outputs specific to the SPGMR case are LRW, LIW, NPE, NLI, NPS,
+ * Optional outputs specific to the SPGMR case are LRW, LIW, NPE, NLI, NPS,
  * and NCFL, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
  * manual for descriptions.)
  * 
- *      If a sequence of problems of the same size is being solved using the
+ * If a sequence of problems of the same size is being solved using the
  * SPGMR linear solver, then following the call to FCVREINIT, a call to the
  * FCVSPGMRREINIT routine is needed if any of IPRETYPE, IGSTYPE, DELT is
  * being changed.  In that case, call FCVSPGMRREINIT as follows:
@@ -480,13 +468,11 @@ extern "C" {
 #define FCV_SPBCG        F77_FUNC(fcvspbcg, FCVSPGMR)
 #define FCV_SPBCGREINIT  F77_FUNC(fcvspbcgreinit, FCVSPBCGREINIT)
 #define FCV_SPBCGSETJAC  F77_FUNC(fcvspbcgsetjac, FCVSPBCGSETJAC)
-#define FCV_SPBCGSETPSOL F77_FUNC(fcvspbcgsetpsol, FCVSPBCGSETPSOL)
-#define FCV_SPBCGSETPSET F77_FUNC(fcvspbcgsetpset, FCVSPBCGSETPSET)
+#define FCV_SPBCGSETPREC F77_FUNC(fcvspbcgsetprec, FCVSPBCGSETPREC)
 #define FCV_SPGMR        F77_FUNC(fcvspgmr, FCVSPGMR)
 #define FCV_SPGMRREINIT  F77_FUNC(fcvspgmrreinit, FCVSPGMRREINIT)
 #define FCV_SPGMRSETJAC  F77_FUNC(fcvspgmrsetjac, FCVSPGMRSETJAC)
-#define FCV_SPGMRSETPSOL F77_FUNC(fcvspgmrsetpsol, FCVSPGMRSETPSOL)
-#define FCV_SPGMRSETPSET F77_FUNC(fcvspgmrsetpset, FCVSPGMRSETPSET)
+#define FCV_SPGMRSETPREC F77_FUNC(fcvspgmrsetprec, FCVSPGMRSETPREC)
 #define FCV_CVODE        F77_FUNC(fcvode, FCVODE)
 #define FCV_DKY          F77_FUNC(fcvdky, FCVDKY)
 #define FCV_FREE         F77_FUNC(fcvfree, FCVFREE)
@@ -511,13 +497,11 @@ extern "C" {
 #define FCV_SPBCG        fcvspbcg
 #define FCV_SPBCGREINIT  fcvspbcgreinit
 #define FCV_SPBCGSETJAC  fcvspbcgsetjac
-#define FCV_SPBCGSETPSOL fcvspbcgsetpsol
-#define FCV_SPBCGSETPSET fcvspbcgsetpset
+#define FCV_SPBCGSETPREC fcvspbcgsetprec
 #define FCV_SPGMR        fcvspgmr
 #define FCV_SPGMRREINIT  fcvspgmrreinit
 #define FCV_SPGMRSETJAC  fcvspgmrsetjac
-#define FCV_SPGMRSETPSOL fcvspgmrsetpsol
-#define FCV_SPGMRSETPSET fcvspgmrsetpset
+#define FCV_SPGMRSETPREC fcvspgmrsetprec
 #define FCV_CVODE        fcvode
 #define FCV_DKY          fcvdky
 #define FCV_FREE         fcvfree
@@ -542,13 +526,11 @@ extern "C" {
 #define FCV_SPBCG        FCVSPBCG
 #define FCV_SPBCGREINIT  FCVSPBCGREINIT
 #define FCV_SPBCGSETJAC  FCVSPBCGSETJAC
-#define FCV_SPBCGSETPSOL FCVSPBCGSETPSOL
-#define FCV_SPBCGSETPSET FCVSPBCGSETPSET
+#define FCV_SPBCGSETPREC FCVSPBCGSETPREC
 #define FCV_SPGMR        FCVSPGMR
 #define FCV_SPGMRREINIT  FCVSPGMRREINIT
 #define FCV_SPGMRSETJAC  FCVSPGMRSETJAC
-#define FCV_SPGMRSETPSOL FCVSPGMRSETPSOL
-#define FCV_SPGMRSETPSET FCVSPGMRSETPSET
+#define FCV_SPGMRSETPREC FCVSPGMRSETPREC
 #define FCV_CVODE        FCVODE
 #define FCV_DKY          FCVDKY
 #define FCV_FREE         FCVFREE
@@ -573,13 +555,11 @@ extern "C" {
 #define FCV_SPBCG        fcvspbcg_
 #define FCV_SPBCGREINIT  fcvspbcgreinit_
 #define FCV_SPBCGSETJAC  fcvspbcgsetjac_
-#define FCV_SPBCGSETPSOL fcvspbcgsetpsol_
-#define FCV_SPBCGSETPSET fcvspbcgsetpset_
+#define FCV_SPBCGSETPREC fcvspbcgsetprec_
 #define FCV_SPGMR        fcvspgmr_
 #define FCV_SPGMRREINIT  fcvspgmrreinit_
 #define FCV_SPGMRSETJAC  fcvspgmrsetjac_
-#define FCV_SPGMRSETPSOL fcvspgmrsetpsol_
-#define FCV_SPGMRSETPSET fcvspgmrsetpset_
+#define FCV_SPGMRSETPREC fcvspgmrsetprec_
 #define FCV_CVODE        fcvode_
 #define FCV_DKY          fcvdky_
 #define FCV_FREE         fcvfree_
@@ -604,13 +584,11 @@ extern "C" {
 #define FCV_SPBCG        FCVSPBCG_
 #define FCV_SPBCGREINIT  FCVSPBCGREINIT_
 #define FCV_SPBCGSETJAC  FCVSPBCGSETJAC_
-#define FCV_SPBCGSETPSOL FCVSPBCGSETPSOL_
-#define FCV_SPBCGSETPSET FCVSPBCGSETPSET_
+#define FCV_SPBCGSETPREC FCVSPBCGSETPREC_
 #define FCV_SPGMR        FCVSPGMR_
 #define FCV_SPGMRREINIT  FCVSPGMRREINIT_
 #define FCV_SPGMRSETJAC  FCVSPGMRSETJAC_
-#define FCV_SPGMRSETPSOL FCVSPGMRSETPSOL_
-#define FCV_SPGMRSETPSET FCVSPGMRSETPSET_
+#define FCV_SPGMRSETPREC FCVSPGMRSETPREC_
 #define FCV_CVODE        FCVODE_
 #define FCV_DKY          FCVDKY_
 #define FCV_FREE         FCVFREE_
@@ -635,13 +613,11 @@ extern "C" {
 #define FCV_SPBCG        fcvspbcg__
 #define FCV_SPBCGREINIT  fcvspbcgreinit__
 #define FCV_SPBCGSETJAC  fcvspbcgsetjac__
-#define FCV_SPBCGSETPSOL fcvspbcgsetpsol__
-#define FCV_SPBCGSETPSET fcvspbcgsetpset__
+#define FCV_SPBCGSETPREC fcvspbcgsetprec__
 #define FCV_SPGMR        fcvspgmr__
 #define FCV_SPGMRREINIT  fcvspgmrreinit__
 #define FCV_SPGMRSETJAC  fcvspgmrsetjac__
-#define FCV_SPGMRSETPSOL fcvspgmrsetpsol__
-#define FCV_SPGMRSETPSET fcvspgmrsetpset__
+#define FCV_SPGMRSETPREC fcvspgmrsetprec__
 #define FCV_CVODE        fcvode__
 #define FCV_DKY          fcvdky__
 #define FCV_FREE         fcvfree__
@@ -666,13 +642,11 @@ extern "C" {
 #define FCV_SPBCG        FCVSPBCG__
 #define FCV_SPBCGREINIT  FCVSPBCGREINIT__
 #define FCV_SPBCGSETJAC  FCVSPBCGSETJAC__
-#define FCV_SPBCGSETPSOL FCVSPBCGSETPSOL__
-#define FCV_SPBCGSETPSET FCVSPBCGSETPSET__
+#define FCV_SPBCGSETPREC FCVSPBCGSETPREC__
 #define FCV_SPGMR        FCVSPGMR__
 #define FCV_SPGMRREINIT  FCVSPGMRREINIT__
 #define FCV_SPGMRSETJAC  FCVSPGMRSETJAC__
-#define FCV_SPGMRSETPSOL FCVSPGMRSETPSOL__
-#define FCV_SPGMRSETPSET FCVSPGMRSETPSET__
+#define FCV_SPGMRSETPREC FCVSPGMRSETPREC__
 #define FCV_CVODE        FCVODE__
 #define FCV_DKY          FCVDKY__
 #define FCV_FREE         FCVFREE__
@@ -693,22 +667,35 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
                 realtype *rtol, realtype *atol,
                 int *optin, long int *iopt, realtype *ropt, 
                 int *ier);
+
 void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
                 realtype *atol, int *optin, long int *iopt,
                 realtype *ropt, int *ier);
+
 void FCV_EWTSET(int *flag, int *ier);
+
 void FCV_DIAG(int *ier);
+
 void FCV_DENSE(long int *neq, int *ier);
 void FCV_DENSESETJAC(int *flag, int *ier);
+
 void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FCV_BANDSETJAC(int *flag, int *ier);
+
+void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
+void FCV_SPBCGREINIT(int *pretype, realtype *delt, int *ier);
+void FCV_SPBCGSETJAC(int *flag, int *ier);
+void FCV_SPBCGSETPREC(int *flag, int *ier);
+
 void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
 void FCV_SPGMRSETJAC(int *flag, int *ier);
-void FCV_SPGMRSETPSET(int *flag, int *ier);
-void FCV_SPGMRSETPSOL(int *flag, int *ier);
+void FCV_SPGMRSETPREC(int *flag, int *ier);
+
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
+
 void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier);
+
 void FCV_FREE ();
 
 

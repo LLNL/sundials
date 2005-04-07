@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-04-04 22:53:14 $
+ * $Revision: 1.12 $
+ * $Date: 2005-04-07 23:28:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,8 +43,8 @@ extern "C" {
 
 void FCV_DENSESETJAC(int *flag, int *ier)
 {
-  if (*flag == 0) CVDenseSetJacFn(CV_cvodemem, NULL);
-  else CVDenseSetJacFn(CV_cvodemem, FCVDenseJac);
+  if (*flag == 0) CVDenseSetJacFn(CV_cvodemem, NULL, NULL);
+  else CVDenseSetJacFn(CV_cvodemem, FCVDenseJac, NULL);
 }
 
 /***************************************************************************/

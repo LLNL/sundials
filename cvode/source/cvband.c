@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2004-11-06 01:01:50 $
+ * $Revision: 1.19 $
+ * $Date: 2005-04-07 23:28:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -200,7 +200,7 @@ int CVBand(void *cvode_mem, long int N,
  * -----------------------------------------------------------------
  */
 
-int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac)
+int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac, void *jac_data)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -219,35 +219,7 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac)
   cvband_mem = (CVBandMem) lmem;
 
   jac = bjac;
-
-  return(CVBAND_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVBandSetJacData
- * -----------------------------------------------------------------
- */
-
-int CVBandSetJacData(void *cvode_mem, void *jac_data)
-{
-  CVodeMem cv_mem;
-  CVBandMem cvband_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
-    return(CVBAND_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
-    return(CVBAND_LMEM_NULL);
-  }
-  cvband_mem = (CVBandMem) lmem;
-
-  J_data = jac_data;
+  if (bjac != NULL) J_data = jac_data;
 
   return(CVBAND_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-04-05 01:59:52 $
+ * $Revision: 1.5 $
+ * $Date: 2005-04-07 23:28:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -100,28 +100,6 @@ int CVodeSetFdata(void *cvode_mem, void *f_data)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_f_data = f_data;
-
-  return(CV_SUCCESS);
-}
-
-/* 
- * CVodeSetGdata
- *
- * Specifies the user data pointer for g
- */
-
-int CVodeSetGdata(void *cvode_mem, void *g_data)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCVS_SET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  cv_mem->cv_g_data = g_data;
 
   return(CV_SUCCESS);
 }
@@ -484,7 +462,7 @@ int CVodeSetTolerances(void *cvode_mem,
 
   /* Check inputs */
 
-  if ((itol != CV_SS) && (itol != CV_SV) && (itol != CV_WF)) {
+  if ( (itol != CV_SS) && (itol != CV_SV) ) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_SET_BAD_ITOL);
     return(CV_ILL_INPUT);
   }
@@ -494,23 +472,19 @@ int CVodeSetTolerances(void *cvode_mem,
     return(CV_ILL_INPUT);
   }
 
-  if (itol != CV_WF) {
+  if (reltol < ZERO) {
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_RELTOL);
+    return (CV_ILL_INPUT);
+  }
 
-    if (reltol < ZERO) {
-      if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_RELTOL);
-      return (CV_ILL_INPUT);
-    }
+  if (itol == CV_SS)
+    neg_abstol = (*((realtype *)abstol) < ZERO);
+  else
+    neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
 
-    if (itol == CV_SS)
-      neg_abstol = (*((realtype *)abstol) < ZERO);
-    else
-      neg_abstol = (N_VMin((N_Vector)abstol) < ZERO);
-
-    if (neg_abstol) {
-      if(errfp!=NULL) fprintf(errfp, MSGCVS_SET_BAD_ABSTOL);
-      return(CV_ILL_INPUT);
-    }
-
+  if (neg_abstol) {
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_SET_BAD_ABSTOL);
+    return(CV_ILL_INPUT);
   }
 
   /* Copy tolerances into memory */
@@ -527,28 +501,24 @@ int CVodeSetTolerances(void *cvode_mem,
 
   cv_mem->cv_itol   = itol;
   cv_mem->cv_reltol = reltol;      
+  if (itol == CV_SS)
+    cv_mem->cv_Sabstol = *((realtype *)abstol);
+  else
+    N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
 
-  if (itol == CV_WF)
-    cv_mem->cv_efun = (CVEwtFn)abstol;
-  else {
-    cv_mem->cv_efun = CVEwtSet;
-    cv_mem->cv_e_data = cvode_mem;
-    if (itol == CV_SS)
-      cv_mem->cv_Sabstol = *((realtype *)abstol);
-    else
-      N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
-  }
-
+  cv_mem->cv_efun = CVEwtSet;
+  cv_mem->cv_e_data = cvode_mem;
+  
   return(CV_SUCCESS);
 }
 
 /* 
- * CVodeSetEdata
+ * CVodeSetEwtFn
  *
- * Specifies the user data pointer for e
+ * Specifies the user-provide EwtSet function and data pointer for e
  */
 
-int CVodeSetEdata(void *cvode_mem, void *e_data)
+int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data)
 {
   CVodeMem cv_mem;
 
@@ -559,13 +529,13 @@ int CVodeSetEdata(void *cvode_mem, void *e_data)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  /* To ensure that everything is in place, we enforce
-     that this function is called only if itol=CV_WF */
-  if (cv_mem->cv_itol != CV_WF) {
-    if(errfp!=NULL) fprintf(errfp, MSGCVS_SET_NO_EFUN);
-    return(CV_ILL_INPUT);
+  if ( cv_mem->cv_VabstolMallocDone ) {
+    N_VDestroy(cv_mem->cv_Vabstol);
+    cv_mem->cv_VabstolMallocDone = FALSE;
   }
 
+  cv_mem->cv_itol = CV_WF;
+  cv_mem->cv_efun = efun;
   cv_mem->cv_e_data = e_data;
 
   return(CV_SUCCESS);
@@ -824,8 +794,6 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  //RADU -- test if sensi was malloc'd
-
   Ns = cv_mem->cv_Ns;
 
   /* Parameters */
@@ -873,6 +841,9 @@ int CVodeSetSensTolerances(void *cvode_mem, int itolS,
   realtype *atolSS;
   N_Vector *atolSV;
   int is, Ns;
+
+  atolSS = NULL;
+  atolSV = NULL;
 
   if (cvode_mem==NULL) {
     fprintf(stderr, MSGCVS_SET_NO_MEM);
@@ -1893,34 +1864,4 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
   return(CV_SUCCESS);
 }
 
-/*-----------------------------------------------------------------*/
-
-int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem, long int *nSTGR1niters, 
-                                    long int *nSTGR1ncfails)
-{
-  CVodeMem cv_mem;
-  int is, Ns;
-
-  if (cvode_mem==NULL) {
-    fprintf(stderr, MSGCVS_GET_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  Ns = cv_mem->cv_Ns;
-
-  if (sensi==FALSE) {
-    if(errfp!=NULL) fprintf(errfp, MSGCVS_GET_NO_SENSI);
-    return(CV_NO_SENS);
-  }
-
-  if(ism==CV_STAGGERED1)
-    for(is=0; is<Ns; is++) {
-      nSTGR1niters[is]  = nniS1[is];
-      nSTGR1ncfails[is] = ncfnS1[is];
-    }
-
-  return(CV_SUCCESS);
-}
 

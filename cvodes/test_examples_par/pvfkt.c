@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-04-04 23:07:08 $
+ * $Revision: 1.10 $
+ * $Date: 2005-04-07 23:28:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -272,14 +272,8 @@ int main(int argc, char *argv[])
   flag = CVSpgmr(cvode_mem, PREC_LEFT, MAXL);
   if(check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
-  if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1, my_pe)) MPI_Abort(comm, 1);
-
-  flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
-  if(check_flag(&flag, "CVSpgmrSetPrecSolveFn", 1, my_pe)) MPI_Abort(comm, 1);
-
-  flag = CVSpgmrSetPrecData(cvode_mem, data);
-  if(check_flag(&flag, "CVSpgmrSetPrecData", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, data);
+  if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) {
     printf("MXxMY = %dx%d (%dx%d, %dx%d), PRINT_GRIDINFO = %d, MAXL = %d\n",

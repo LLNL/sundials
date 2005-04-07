@@ -162,13 +162,6 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   \id{IDACreate} returns a pointer to the {\ida} memory structure.
   See \S\ref{sss:idamalloc} for details.
 
-\item
-  {\bf Set optional inputs}
-
-  Call \id{IDASet*} functions to change from their default values any
-  optional inputs that control the behavior of {\ida}.
-  See \S\ref{ss:optional_input} for details.
-
 \item\label{i:ida_malloc} 
   {\bf Allocate internal memory}
 
@@ -179,6 +172,13 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   \id{IDAMalloc} returns an error flag to indicate success or an illegal argument value.
   See \S\ref{sss:idamalloc} for details.
   
+\item
+  {\bf Set optional inputs}
+
+  Call \id{IDASet*} functions to change from their default values any
+  optional inputs that control the behavior of {\ida}.
+  See \S\ref{ss:optional_input} for details.
+
 \item\label{i:lin_solver} 
   {\bf Attach linear solver module}
 
@@ -306,14 +306,17 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
   \item[yp0] (\id{N\_Vector})
     is the initial value of $y^\prime$. 
   \item[itol] (\id{int}) 
-    is either \Id{IDA\_SS} or \Id{IDA\_SV}, where \Id{itol}$=$\id{IDA\_SS} indicates scalar relative error 
+    is one of \Id{IDA\_SS}, \Id{IDA\_SV}, or \ID{IDA\_WF}, where \Id{itol}$=$\id{IDA\_SS} indicates scalar relative error 
     tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{IDA\_SV} indicates scalar
     relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the DAE. 
-  \item[reltol] (\id{realtype *})
+    If \id{itol}$=$\id{IDA\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
+    and the user is expected to provide a function to evaluate the error weight vector
+    $W$ from (\ref{e:errwt}). See \id{IDASetEwtFn} in \S\ref{ss:optional_input}.
+  \item[reltol] (\id{realtype})
     \index{tolerances}
-    is a pointer to the relative error tolerance.
+    is the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS}, \id{abstol}
     must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{IDA\_SV}, \id{abstol}
@@ -337,8 +340,11 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
   If an error occurred, \id{IDAMalloc} also prints an error message to the
   file specified by the optional input \id{errfp}.
 
-  If \id{IDACalcIC} (see \S\ref{ss:idacalcic}) will be called to compute consistent initial
-  conditions, the vectors \id{y0} and \id{yp0} must remain unaltered until after that call.
+  The tolerance values in \id{reltol} and \id{abstol} may be changed between
+  calls to \id{IDASolve} (see \id{IDASetTolerances} in \S\ref{ss:optional_input}).
+
+  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  \id{abstol} arguments.
 }
 %%
 %%
@@ -807,22 +813,16 @@ Lower bound on Newton step & \id{IDASetStepToleranceIC} & $(2/3) \text{uround}$ 
 \hline
 \multicolumn{3}{|c|}{\bf IDADENSE linear solver} \\
 \hline
-Dense Jacobian function & \id{IDADenseSetJacFn} & internal DQ \\
-Data for Jacobian function & \id{IDADenseSetJacData} & NULL \\
+Dense Jacobian function and data & \id{IDADenseSetJacFn} & internal DQ, NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf IDABAND linear solver} \\
 \hline
-Band Jacobian function & \id{IDABandSetJacFn} & internal DQ \\
-Data for Jacobian function & \id{IDABandSetJacData} & NULL \\
+Band Jacobian function and data & \id{IDABandSetJacFn} & internal DQ, NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf IDASPGMR linear solver} \\
 \hline
-Preconditioner solve function & \id{IDASpgmrSetPrecSolveFn} & NULL \\
-Preconditioner setup function & \id{IDASpgmrSetPrecSetupFn} & NULL \\
-Data for preconditioner functions & \id{IDASpgmrSetPrecData} & NULL \\
-Jacobian times vector function & \id{IDASpgmrSetJacTimesVecFn} &
-internal DQ \\
-Data for Jacobian times vector function &\id{IDASpgmrSetJacData} & NULL \\ 
+Preconditioner functions and data & \id{IDASpgmrSetPreconditioner} & NULL, NULL, NULL \\
+Jacobian times vector function and data & \id{IDASpgmrSetJacTimesVecFn} & internal DQ, NULL \\
 Type of Gram-Schmidt orthogonalization & \id{IDASpgmrSetGSType} & classical GS \\
 Maximum no. of restarts & \id{IDASpgmrSetMaxRestarts} & 5 \\
 Factor in linear convergence test & \id{IDASpgmrSetEpsLin} & 0.05 \\
@@ -967,7 +967,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
   \end{args}
 }
 {
-  The default value is $500$.
+  Passing \id{mxsteps}$=0$ results in {\ida} using the default value ($500$).
 }
 %%
 %%
@@ -1032,7 +1032,7 @@ flag = IDASetMaxStep(ida\_mem, hmax);
   \end{args}
 }
 {
-  The default value is $\infty$.
+  Pass \id{hmax}$=0$ to obtain the default value $\infty$.
 }
 \index{step size bounds|)}
 %%
@@ -1312,9 +1312,9 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
     \id{itol}$=$\id{IDA\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
     error tolerance needs to be different for each component of the DAE. 
-  \item[reltol] (\id{realtype *})
+  \item[reltol] (\id{realtype})
     \index{tolerances}
-    is a pointer to the relative error tolerance.
+    is the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS}, \id{abstol}
     must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{IDA\_SV}, \id{abstol}
@@ -1337,7 +1337,50 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
   to \id{IDAMalloc} (see \S\ref{sss:idamalloc}). This function call
   to \id{IDASetTolerances} is needed only if the tolerances are being changed
   from their values between successive calls to \id{IDASolve}.
+
+  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  \id{abstol} arguments.
+
+  {\warn} It is illegal to call \id{IDASetTolerances} before a call to \id{IDAMalloc}.
+
 }
+%%
+%%
+\ucfunction{IDASetEwtFn}
+{
+flag = IDASetEwtFn(ida\_mem, efun, edata);
+}
+{
+  The function \ID{IDASetEwtFn} specifies the user-defined function
+  to be used in computing the error weight vector $W$ in (\ref{e:errwt}).
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[efun] (\id{IDAEwtFn}) 
+    is the {\C} function which defines the \id{ewt} vector (see \S\ref{ss:ewtsetFn}).
+  \item[edata] (\id{void *})
+    pointer to user data passed to \id{efun} every time it is called.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    The function \id{efun} and data pointer \id{edata} have been successfully set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  This function can be called between successive calls to \id{IDASolve}.
+
+  If not needed, pass \id{NULL} for \id{edata}.
+
+  {\warn} It is illegal to call \id{IDASetEwtFn} before a call to \id{IDAMalloc}.
+}
+%%
 %%
 \index{optional input!solver|)}
 %%
@@ -1361,40 +1404,38 @@ difference quotient function \Id{IDADenseDQJac}
 \index{Jacobian approximation function!dense!difference quotient}
 that comes with the {\idadense} solver.
 To specify a user-supplied Jacobian function \id{djac} and associated user 
-data \id{jac\_data}, {\idadense} provides the functions \id{IDADenseSetJacFn}
-and \id{IDADenseSetJacData}, respectively.
-The {\idadense} solver passes the pointer it receives 
-through \id{IDADenseSetJacData} 
+data \id{jac\_data}, {\idadense} provides the function \id{IDADenseSetJacFn}.
+The {\idadense} solver passes the pointer \id{jac\_data} 
 to its dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
-identical to \id{res\_data}, if the latter was 
-specified through \id{IDASetRdata}.
+identical to \id{f\_data}, if the latter was specified through \id{IDASetFdata}.
 %%
 \index{Jacobian approximation function!dense!user-supplied}
 \ucfunction{IDADenseSetJacFn}
 {
-  flag = IDADenseSetJacFn(ida\_mem, djac);
+  flag = IDADenseSetJacFn(ida\_mem, djac, jac\_data);
 }
 {
   The function \ID{IDADenseSetJacFn} specifies the dense Jacobian
-  approximation function to be used.
+  approximation function to be used and the pointer to user data.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[jac\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[djac] (\id{IDADenseJacFn})
-    user-defined dense Jacobian approximation function.  Type described in 
-    \S\ref{ss:djacFn}.
+    user-defined dense Jacobian approximation function.
+  \item[jac\_data] (\id{void *})
+    pointer to the user-defined data structure.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDADENSE\_LMEM\_NULL]
   \item[\Id{IDADENSE\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDADENSE\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDADENSE\_LMEM\_NULL}]
@@ -1407,36 +1448,6 @@ specified through \id{IDASetRdata}.
 
   The function type \id{IDADenseJacFn} is described in \S\ref{ss:djacFn}.
 }
-%%
-\ucfunction{IDADenseSetJacData}
-{
-  flag = IDADenseSetJacData(ida\_mem, jac\_data);
-}
-{
-  The function \ID{IDADenseSetJacData} specifies the data structure
-  to be passed to the user supplied dense Jacobian approximation 
-  function each time it is called.
-}
-{
-  \begin{args}[jac\_data]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[jac\_data] (\id{void *})
-    pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDADENSE\_LMEM\_NULL]
-  \item[\Id{IDADENSE\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDADENSE\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADENSE\_LMEM\_NULL}]
-    The {\idadense} linear solver has not been initialized.
-  \end{args}
-}
-{}
 \index{IDADENSE@{\idadense} linear solver!optional input|)}
 \index{optional input!dense linear solver|)}
 %%
@@ -1453,38 +1464,38 @@ or use the default difference quotient function \Id{IDABandDQJac}
 \index{Jacobian approximation function!band!difference quotient}
 that comes with the {\idaband} solver.
 To specify a user-supplied Jacobian function \id{bjac} and associated user 
-data \id{jac\_data}, {\idaband} provides the functions \id{IDABandSetJacFn}
-and \id{IDABandSetJacData}, respectively.
-The {\idaband} solver passes the pointer it receives through \id{IDABandSetJacData} 
+data \id{jac\_data}, {\idaband} provides the function \id{IDABandSetJacFn}.
+The {\idaband} solver passes the pointer \id{jac\_data}
 to its banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
-identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata}.
+identical to \id{f\_data}, if the latter was specified through \id{IDAodeSetFdata}.
 %%
 \index{Jacobian approximation function!band!user-supplied}
 \ucfunction{IDABandSetJacFn}
 {
-  flag = IDABandSetJacFn(ida\_mem, bjac);
+  flag = IDABandSetJacFn(ida\_mem, bjac, jac\_data);
 }
 {
   The function \ID{IDABandSetJacFn} specifies the banded Jacobian
-  approximation function to be used.
+  approximation function to be used and the pointer to user data.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[jac\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[bjac] (\id{IDABandJacFn})
     user-defined banded Jacobian approximation function.
-    Type described in \S\ref{ss:bjacFn}.
+  \item[jac\_data] (\id{void *})
+    pointer to the user-defined data structure.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDABAND\_LMEM\_NULL]
   \item[\Id{IDABAND\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDABAND\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDABAND\_LMEM\_NULL}]
@@ -1497,36 +1508,6 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 
   The function type \id{IDABandJacFn} is described in \S\ref{ss:bjacFn}.
 }
-%%
-\ucfunction{IDABandSetJacData}
-{
-  flag = IDABandSetJacData(ida\_mem, jac\_data);
-}
-{
-  The function \ID{IDABandSetJacData} specifies the data structure
-  to be passed to the user supplied banded Jacobian approximation 
-  function each time it is called.
-}
-{
-  \begin{args}[jac\_data]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[jac\_data] (\id{void *})
-    pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDABAND\_LMEM\_NULL]
-  \item[\Id{IDABAND\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDABAND\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDABAND\_LMEM\_NULL}]
-    The {\idaband} linear solver has not been initialized.
-  \end{args}
-}
-{}
 \index{IDABAND@{\idaband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
 %%
@@ -1538,19 +1519,19 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetRdata
 \index{preconditioning!user-supplied|(}
 If preconditioning is to be done within the {\spgmr} method, then the user
 must supply a preconditioner solve function, \id{psolve}, and specify its
-name through a call to \id{IDASpgmrSetPrecSolveFn}.
+name through a call to \id{IDASpgmrSetPreconditioner}.
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
 fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should be specified through a call to
-\id{IDASpgmrSetPrecSetupFn}.
+If used, the \id{psetup} function should also be specified in the call to
+\id{IDASpgmrSetPreconditioner}.
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner setup function}
 %%
 Optionally, the {\idaspgmr} solver passes the pointer it receives through 
-\id{IDASpgmrSetPrecData} to the preconditioner setup and solve functions.  
+\id{IDASpgmrSetPreconditioner} to the preconditioner setup and solve functions.  
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
@@ -1559,7 +1540,7 @@ specified through \id{IDASetRdata}.
 
 The \index{IDASPGMR@{\idaspgmr} linear solver!Jacobian approximation used by}
 {\idaspgmr} solver requires a function to compute an approximation to the
-product between the Jacobian matrix $J(t,y,y^\prime)$ and a vector $v$.
+product between the Jacobian matrix $J(t,y)$ and a vector $v$.
 The user can supply his/her own Jacobian times vector approximation function, 
 or use the difference quotient function \Id{IDASpgmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
@@ -1568,96 +1549,31 @@ A user-defined Jacobian-vector function must be of type \id{IDASpgmrJtimesFn} an
 can be specified through a call to \id{IDASpgmrSetJacTimesVecFn} 
 (see \S\ref{ss:user_fct_sim} for specification details).
 %%
-As with the preconditioner user data structure \id{prec\_data}, 
-the user can specify, through a call to \id{IDASpgmrSetJacData}, a pointer to a 
+As with the preconditioner user data structure \id{p\_data}, 
+the user can also specify int the call to \id{IDASpgmrSetJacFn}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
-the {\idaspgmr} solver passes to the Jacobian times vector function \id{jtimes} each
-time it is called.  
-The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_data}.
+the {\idaspgmr} solver passes to the Jacobian times vector function \id{jtimes}
+each time it is called.  
+The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 %%
-\ucfunction{IDASpgmrSetPrecSolveFn}
+\ucfunction{IDASpgmrSetPreconditioner}
 {
-  flag = IDASpgmrSetPrecSolveFn(ida\_mem, psolve);
+  flag = IDASpgmrSetPrecSolveFn(ida\_mem, psolve, psetup, p\_data);
 }
 {
-  The function \ID{IDASpgmrSetPrecSolveFn} specifies the preconditioner
-  solve function.
+  The function \ID{IDASpgmrSet} specifies the preconditioner
+  setup and solve functions and the pointer to user data.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[psolve] (\id{IDASpgmrPrecSolveFn})
-    user-defined preconditioner solve function.  Type is 
-    described in \S\ref{ss:psolveFn}.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASPGMR\_LMEM\_NULL]
-  \item[\Id{IDASPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDASPGMR\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPGMR\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{
-   The function type \id{IDASpgmrPrecSolveFn} 
-   is described in \S\ref{ss:psolveFn}.
-}
-%%
-%%
-\ucfunction{IDASpgmrSetPrecSetupFn}
-{
-  flag = IDASpgmrSetPrecSetupFn(ida\_mem, psetup);
-}
-{
-  The function \ID{IDASpgmrSetPrecSetupFn} specifies the preconditioner
-  preprocessing function.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
+    user-defined preconditioner solve function.
   \item[psetup] (\id{IDASpgmrPrecSetupFn})
-    user-defined preconditioner setup function.  Type is 
-    described in \S\ref{ss:precondFn}.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASPGMR\_LMEM\_NULL]
-  \item[\Id{IDASPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDASPGMR\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPGMR\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{
-   The function type \id{IDASpgmrPrecSetupFn} is 
-   described in \S\ref{ss:precondFn}.
-}
-%%
-%%
-\ucfunction{IDASpgmrSetPrecData}
-{
-  flag = IDASpgmrSetPrecData(ida\_mem, prec\_data);
-}
-{
-  The function \ID{IDASpgmrSetPrecData} specifies the data structure
-  to be passed to the user supplied preconditioner setup and solve
-  functions each time they are called.
-}
-{
-  \begin{args}[prec\_data]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[prec\_data] (\id{void *})
+    user-defined preconditioner setup function.
+  \item[p\_data] (\id{void *})
      pointer to the user-defined data structure.
   \end{args}
 }
@@ -1665,40 +1581,45 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDASPGMR\_LMEM\_NULL]
   \item[\Id{IDASPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPGMR\_LMEM\_NULL}]
     The {\idaspgmr} linear solver has not been initialized.
   \end{args}
 }
-{}
+{
+   The function type \id{IDASpgmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+   The function type \id{IDASpgmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
+}
+%%
 %%
 \index{preconditioning!user-supplied|)}
 %%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
 \ucfunction{IDASpgmrSetJacTimesVecFn}
 {
-  flag = IDASpgmrSetJacTimesVecFn(ida\_mem, jtimes);
+  flag = IDASpgmrSetJacTimesVecFn(ida\_mem, jtimes, jac\_data);
 }
 {
-  The function \ID{IDASpgmrSetJacTimesVecFn} specifies the Jacobian-vector 
-  function to be used.
+  The function \ID{IDASpgmrSetJacTimesFn} specifies the Jacobian-vector 
+  function to be used and the pointer to user data.
 }
 {
-  \begin{args}[ida\_mem]
+  \begin{args}[jac\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[jtimes] (\id{IDASpgmrJacTimesVecFn})
-    user-defined Jacobian-vector product function.  Type is described in
-    \S\ref{ss:jtimesFn}.
+    user-defined Jacobian-vector product function.
+  \item[jac\_data] (\id{void *})
+     pointer to the user-defined data structure.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDASPGMR\_LMEM\_NULL]
   \item[\Id{IDASPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
+    The optional value has been successfully set.
   \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPGMR\_LMEM\_NULL}]
@@ -1712,36 +1633,6 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{res\_d
   The function type \id{IDASpgmrJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
 }
 %%
-%%
-\ucfunction{IDASpgmrSetJacData}
-{
-  flag = IDASpgmrSetJacData(ida\_mem, jac\_data);
-}
-{
-  The function \ID{IDASpgmrSetJacData} specifies the data structure
-  to be passed to the user supplied Jacobian-vector
-  function each time it is called.
-}
-{
-  \begin{args}[jac\_data]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[jac\_data] (\id{void *})
-     pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASPGMR\_LMEM\_NULL]
-  \item[\Id{IDASPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDASPGMR\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPGMR\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{}
 %%
 %%
 \ucfunction{IDASpgmrSetGSType}
@@ -2189,7 +2080,6 @@ Step size to be attempted on the next step & \id{IDAGetCurrentStep} \\
 Current internal time reached by the solver & \id{IDAGetCurrentTime} \\
 Suggested factor for tolerance scaling  & \id{IDAGetTolScaleFactor} \\
 Error weight vector for state variables & \id{IDAGetErrWeights} \\
-Estimated local error vector & \id{IDAGetEstLocalErrors} \\
 No. of nonlinear solver iterations & \id{IDAGetNumNonlinSolvIters} \\
 No. of nonlinear convergence failures & \id{IDAGetNumNonlinSolvConvFails} \\ 
 \hline
@@ -2593,7 +2483,7 @@ These optional output functions are described next.
 %%
 \ucfunction{IDAGetErrWeights}
 {
-  flag = IDAGetErrWeights(ida\_mem, \&eweight);
+  flag = IDAGetErrWeights(ida\_mem, eweight);
 }
 {
   The function \ID{IDAGetErrWeights} returns the solution error weights 
@@ -2617,38 +2507,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  The user need not allocate space for \id{eweight} and should not modify
-  any of its components.
-}
-%%
-%%
-\ucfunction{IDAGetEstLocalErrors}
-{
-  flag = IDAGetEstLocalErrors(ida\_mem, \&ele);
-}
-{
-  The function \ID{IDAGetEstLocalErrors} returns the
-  vector of estimated local errors.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[ele] (\id{N\_Vector})
-    estimated local errors.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_MEM\_NULL]
-  \item[IDA\_SUCCESS] 
-    The optional output value has been successfuly set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  The user need not allocate space for \id{ele}.
+  {\warn} The user must allocate space for \id{eweight}.
 }
 %%
 %%
@@ -3436,13 +3295,16 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
   \item[yp0] (\id{N\_Vector})
     is the initial value of $y^\prime$.   
   \item[itol] (\id{int}) 
-    is either \Id{IDA\_SS} or \Id{IDA\_SV}, where \id{IDA\_SS} indicates scalar relative error 
+    is one of \Id{IDA\_SS}, \Id{IDA\_SV}, or \Id{IDA\_WF}, where \id{IDA\_SS} indicates scalar relative error 
     tolerance and scalar absolute error tolerance, while \id{IDA\_SV} indicates scalar
     relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the DAE. 
-  \item[reltol] (\id{realtype *})
-    is a pointer to the relative error tolerance.
+    If \id{itol}$=$\id{IDA\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
+    and the user is expected to provide a function to evaluate the error weight vector
+    $W$ from (\ref{e:errwt}). See \id{IDASetEwtFn} in \S\ref{ss:optional_input}.
+  \item[reltol] (\id{realtype})
+    is the relative error tolerance.
   \item[abstol] (\id{void *})
     is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS}, \id{abstol}
     must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{IDA\_SV}, \id{abstol}
@@ -3467,6 +3329,9 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
 {
   If an error occurred, \id{IDAReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
+
+  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  \id{abstol} arguments.
 }
 
 
@@ -3474,7 +3339,8 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
 \section{User-supplied functions}\label{ss:user_fct_sim}
 %%===================================================================================
 
-The user-supplied functions consist of one function defining the DAE residual, 
+The user-supplied functions consist of one function defining the DAE residual,
+(optionally) a function that provides the error weight vector,
 (optionally) a function that provides Jacobian related information for the linear 
 solver (if Newton iteration is chosen), and (optionally) one or two functions 
 that define the preconditioner for use in the {\spgmr} algorithm. 
@@ -3518,6 +3384,47 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
 }
 {
   Allocation of memory for \id{yp} is handled within {\ida}.
+}
+%%
+%%--------------
+%%
+\subsection{Error weight function}
+\label{ss:ewtsetFn}
+\index{tolerances}
+As an alternative to providing the relative and absolute tolerances, the user may
+provide a function of type \ID{IDAEwtFn} to compute a vector \id{ewt} containing the
+weights in the WRMS norm 
+$\|\ v \|_{\mbox{\scriptsize WRMS}} = \sqrt{(1/N)\sum_1^N W_i \cdot v_i}$.
+The function type \id{IDAEwtFn} is defined as follows:
+\usfunction{IDAEwtFn}
+{
+  typedef int (*IDAEwtFn)(N\_Vector y, N\_Vector ewt, void *e\_data);
+}
+{
+  This function computes the WRMS error weights for the vector $y$.
+}
+{
+  \begin{args}[e\_data]
+  \item[y]
+    is the value of the vector for which the WRMS norm must be computed.
+  \item[ewt]
+    is the output vector containing the error weights.
+  \item[e\_data]
+    is a pointer to user data --- the same as the \Id{e\_data}      
+    parameter passed to \id{IDASetEwtFn}.   
+  \end{args}
+}
+{
+  An \id{IDAEwtFn} function type must return $0$ if it successfuly set
+  the error weights and $-1$ otherwise. In case of failure, a message is printed
+  and the integration stops.
+}
+{
+  Allocation of memory for \id{ewt} is handled within {\ida}.
+
+  {\warn} The error weight vector must have all components positive. It is the
+  user's responsiblity to perform this test and return $-1$ if it is not 
+  satisfied.
 }
 %%
 %%--------------

@@ -68,6 +68,17 @@ more than one {\nvector} module linked into an executable file.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.3.0}
+
+The user interface has been further refined. Several functions used for setting optional
+inputs were combined into a single one. Additionally, to resolve potential variable scope
+issues, all SUNDIALS solvers release user data right after its use. The build systems has 
+been further improved to make it more robust.
+
+\subsection*{Changes in v2.2.1}
+
+The changes in this minor {\sundials} release affect only the build system.
+
 \subsection*{Changes in v2.2.0}
 
 The major changes from the previous version involve a redesign of
@@ -88,10 +99,6 @@ preconditioner information) were simplified by reducing the number
 of arguments. The same information that was previously accessible
 through such arguments can now be obtained through {\id{set}-type}
 functions.
-
-\subsection*{Changes in v2.2.1}
-
-The changes in this minor {\sundials} release affect only the build system.
 
 \section{Reading this User Guide}\label{ss:reading}
 

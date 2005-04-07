@@ -565,11 +565,8 @@ Nonlinear system function & \id{KINSetSysFunc} & none \\
 \multicolumn{3}{|c|}{\bf KINSPGMR linear solver} \\
 \hline
 Max. number of restarts & \id{KINSpgmrSetMaxRestarts} & 0 \\
-Preconditioner solve function & \id{KINSpgmrSetPrecSolveFn} & \id{NULL} \\
-Preconditioner setup function & \id{KINSpgmrSetPrecSetupFn} & \id{NULL} \\
-Data for preconditioner functions & \id{KINSpgmrSetPrecData} & \id{NULL} \\
-Jacobian-vector product function & \id{KINSpgmrSetJacTimesVecFn} & internal DQ \\
-Data for Jacobian-vector product function &\id{KINSpgmrSetJacData} & \id{NULL} \\ 
+Preconditioner functions and data & \id{KINSpgmrSetPreconditioner} & \id{NULL}, \id{NULL}, \id{NULL} \\
+Jacobian-vector product function and data & \id{KINSpgmrSetJacTimesVecFn} & internal DQ, \id{NULL} \\
 \hline
 \end{tabular}
 \end{table}
@@ -1145,6 +1142,10 @@ flag = KINSetConstraints(kin\_mem, constraints);
 {
   The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
   all components will cause constraint checking to be performed.
+
+  The function creates a private copy of the constraints vector. Consequently,
+  the user-supplied vector can be freed after the function call, and
+  the constraints can only be changed by calling this function.
 }
 %%
 %%
@@ -1267,83 +1268,22 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
 {}
 %%
 %%
-\ucfunction{KINSpgmrSetPrecSolveFn}
+\ucfunction{KINSpgmrSetPreconditioner}
 {
-  flag = KINSpgmrSetPrecSolveFn(kin\_mem, psolve);
+  flag = KINSpgmrSetPreconditioner(kin\_mem, psetup, psolve, prec\_data);
 }
 {
-  The function \ID{KINSpgmrSetPrecSolveFn} specifies the preconditioner
-  solve function.
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[psolve] (\id{KINSpgmrPrecSolveFn})
-    user-defined preconditioner solve function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPGMR\_LMEM\_NULL]
-  \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{KINSPGMR\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPGMR\_LMEM\_NULL}]
-    The {\kinspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{
-   The function type \id{KINSpgmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
-}
-%%
-%%
-\ucfunction{KINSpgmrSetPrecSetupFn}
-{
-  flag = KINSpgmrSetPrecSetupFn(kin\_mem, psetup);
-}
-{
-  The function \ID{KINSpgmrSetPrecSetupFn} specifies the preconditioner
-  preprocessing function.
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[psetup] (\id{KINSpgmrPrecSetupFn})
-    user-defined preconditioner setup function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPGMR\_LMEM\_NULL]
-  \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{KINSPGMR\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPGMR\_LMEM\_NULL}]
-    The {\kinspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{
-   The function type \id{KINSpgmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
-}
-%%
-%%
-\ucfunction{KINSpgmrSetPrecData}
-{
-  flag = KINSpgmrSetPrecData(kin\_mem, prec\_data);
-}
-{
-  The function \ID{KINSpgmrSetPrecData} specifies the data structure
-  to be passed to the user supplied preconditioner setup and solve
-  functions each time they are called.
+  The function \ID{KINSpgmrSetPreconditioner} specifies the preconditioner
+  setup and solve function and the pointer to user data.
 }
 {
   \begin{args}[prec\_data]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
+  \item[psetup] (\id{KINSpgmrPrecSetupFn})
+    user-defined preconditioner setup function.
+  \item[psolve] (\id{KINSpgmrPrecSolveFn})
+    user-defined preconditioner solve function.
   \item[prec\_data] (\id{void *})
      pointer to the user-defined data structure.
   \end{args}
@@ -1359,25 +1299,31 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
     The {\kinspgmr} linear solver has not been initialized.
   \end{args}
 }
-{}
+{
+   The function type \id{KINSpgmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
+   The function type \id{KINSpgmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+}
+%%
 %%
 \index{preconditioning!user-supplied|)}
 %%
 \index{Jacobian-vector product approximation!user-supplied}
 \ucfunction{KINSpgmrSetJacTimesVecFn}
 {
-  flag = KINSpgmrSetJacTimesVecFn(kin\_mem, jtimes);
+  flag = KINSpgmrSetJacTimesVecFn(kin\_mem, jtimes, jac\_data);
 }
 {
   The function \ID{KINSpgmrSetJacTimesVecFn} specifies the Jacobian-vector 
-  product function to be used.
+  product function to be used and the pointer to user data.
 }
 {
-  \begin{args}[kin\_mem]
+  \begin{args}[jac\_data]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[jtimes] (\id{KINSpgmrJacTimesVecFn})
     user-defined Jacobian-vector product function.
+  \item[jac\_data] (\id{void *})
+     pointer to the user-defined data structure.
   \end{args}
 }
 {
@@ -1397,37 +1343,6 @@ The pointer \id{jac\_data} may be identical to \id{prec\_data} and/or \id{f\_dat
 
   The function type \id{KINSpgmrJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
 }
-%%
-%%
-\ucfunction{KINSpgmrSetJacData}
-{
-  flag = KINSpgmrSetJacData(kin\_mem, jac\_data);
-}
-{
-  The function \ID{KINSpgmrSetJacData} specifies the data structure
-  to be passed to the user supplied Jacobian-vector
-  function each time it is called.
-}
-{
-  \begin{args}[jac\_data]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[jac\_data] (\id{void *})
-     pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPGMR\_LMEM\_NULL]
-  \item[\Id{KINSPGMR\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{KINSPGMR\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPGMR\_LMEM\_NULL}]
-    The {\kinspgmr} linear solver has not been initialized.
-  \end{args}
-}
-{}
 %%
 
 
@@ -2663,10 +2578,8 @@ are as follows:
     interfaces to \id{KINSpgmr} and {\spgmr} optional input functions.
   \item \id{FKINSPGMRSETJAC}
    interfaces to \id{KINSpgmrSetJacTimesVecFn}.
- \item \id{FKINSPGMRSETPSOL}
-   interfaces to \id{KINSpgmrSetPrecSolveFn}.
- \item \id{FKINSPGMRSETPSET}
-   interfaces to \id{KINSpgmrSetPrecSetupFn}.
+ \item \id{FKINSPGMRSETPREC}
+   interfaces to \id{KINSpgmrSetPrecSetupFn} and \id{KINSpgmrSetPrecSolveFn}.
  \end{itemize}
 
 \end{itemize}
@@ -2963,11 +2876,11 @@ apply to {\nvecp}.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or nonzero if an error occurred.
   
-  If preconditioning is to be done then, following the
+  If preconditioning is to be done, then, following the
   call to \id{FKINSPGMR}, the user must call
-  \index{FKINSPGMRSETPSOL@\texttt{FKINSPGMRSETPSOL}}
+  \index{FKINSPGMRSETPREC@\texttt{FKINSPGMRSETPREC}}
 \begin{verbatim}
-      CALL FKINSPGMRSETPSOL(FLAG, IER)
+      CALL FKINSPGMRSETPREC(FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$, and the user program must include the following routine
   for solution of the preconditioner linear system:
@@ -2985,13 +2898,8 @@ apply to {\nvecp}.
   \id{FSCALE}, respectively.
   
   If the user's preconditioner requires that any Jacobian-related data be evaluated
-  or preprocessed, then, following the call to \id{FKINSPGMRSETPSOL}, the user must
-  call \index{FKINSPGMRSETPSET@\texttt{FKINSPGMRSETPSET}}
-\begin{verbatim}
-      CALL FKINSPGMRSETPSET(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$. In this case, the user program must also include
-  the following routine for the evaluation and preprocessing of the preconditioner:
+  or preprocessed, then the following routine can be used for the evaluation and
+  preprocessing of the preconditioner:
   \index{FKPSET@\texttt{FKPSET}}
 \begin{verbatim}
       SUBROUTINE FKPSET (U, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
@@ -3010,6 +2918,9 @@ apply to {\nvecp}.
   On return, set \id{IER} $= 0$ if \id{FKPSET} was successful or set \id{IER} $= 1$
   if an error occurred.
   
+  {\warn} If the user calls \id{FKINSPGMRSETPREC}, the routine \id{FKINPSET} must
+  be provided, even if it's empty.
+
 \item {\bf Problem solution}
   Solving the nonlinear system is accomplished by making the following call:
   \index{FKINSOL@\texttt{FKINSOL}}

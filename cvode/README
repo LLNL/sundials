@@ -73,7 +73,7 @@ C. References
 D. Releases
 -----------
 
-v. 2.2.3       - Apr. 2005
+v. 2.3.0       - Apr. 2005
 v. 2.2.2       - Mar. 2005
 v. 2.2.1       - Jan. 2005
 v. 2.2.0       - Dec. 2004
@@ -86,7 +86,7 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 E. Revision History
 -------------------
 
-v. 2.2.3 (Apr. 2005) ---> 
+v. 2.3.0 (Apr. 2005) ---> 
 ---------------------------------------------------------
 
 - New features
@@ -105,11 +105,12 @@ v. 2.2.3 (Apr. 2005) --->
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
 
 
-v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
+v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------
 
 - New features
    - added option for user-provided error weight computation function
+     (of type CVEwtFn specified through CVodeSetEwtFn).
 
 - Changes to user interface
    - CVODE now stores tolerances through values rather than references 
@@ -130,10 +131,17 @@ v. 2.2.2 (Mar. 2005) ---> v. 2.2.3 (Apr. 2005)
    - Passing a value of 0 for the maximum step size, the minimum step
      size, or for maxsteps results in the solver using the corresponding
      default value (infinity, 0, 500, respectively)
+   - Several optional input functions were combined into a single one
+     (CVodeRootInit and CvodeSetGdata, CVDenseSetJacFn and CVDenseSetJacData,
+     CVBandSetJacFn and CVBandSetJacData, CVSpgmrSetPrecSolveFn and 
+     CVSpgmrSetPrecSetFn and CVSpgmrSetPrecData, CVSpgmrSetJacTimesVecFn and
+     CVSpgmrSetJacData).
 
 - Changes to the FCVODE module:
    - Added option for user-supplied error weight computation subroutine
      (FCVEWT). Use FCVEWTSET to indicate that FCVEWT is provided.
+   - Due to the changes to the main solver, if FCVPSOL is provided then
+     FCVPSET must also be defined, even if it is empty.
 
 v. 2.2.1 (Jan. 2005) ---> v. 2.2.2 (Mar. 2005)
 ----------------------------------------------

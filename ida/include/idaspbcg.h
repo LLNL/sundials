@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-01-24 23:54:24 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-07 23:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -227,28 +227,23 @@ int IDASpbcg(void *ida_mem, int maxl);
  * -----------------------------------------------------------------
  * Optional inputs to the IDASPBCG linear solver
  * -----------------------------------------------------------------
- * IDASpbcgSetPrecSolveFn specifies the PrecSolve function.
- *                        Default is NULL.
- * IDASpbcgSetPrecSetupFn specifies the PrecSetup function.
- *                        Default is NULL.
- * IDASpbcgSetPrecData specifies a pointer to user preconditioner
- *                     data. This pointer is passed to PrecSetup and
- *                     PrecSolve every time these routines are called.
- *                     Default is NULL.
- * IDASpbcgSetJacTimesVecFn specifies the jtimes function.
- *                          Default is to use an internal finite
- *                          difference approximation routine.
- * IDASpbcgSetJacData specifies a pointer to user Jacobian data.
- *                    This pointer is passed to jtimes every time this
- *                    routine is called.
- *                    Default is NULL.
+ * IDASpbcgSetPreconditionr specifies the PrecSetup and PrecSolve
+ *                   functions and the pointer to user data that
+ *                   is pased to these functinos whenever they
+ *                   are called.
+ *                   Default is NULL for all three.
+ * IDASpbcgSetJacTimesVecFn specifies the jtimes function and the 
+ *                   pointer to user data that is passed to jtimes
+ *                   whenever it is called.
+ *                   Default is to use an internal finite
+ *                   difference approximation routine.
  * IDASpbcgSetEpsLin specifies the factor in the linear iteration
  *                   convergence test constant.
  *                   Default is 0.05.
  * IDASpbcgSetIncrementFactor specifies a factor in the increments
- *                            to yy used in the difference quotient
- *                            approximations to matrix-vector products Jv.
- *                            Default is 1.0.
+ *                   to yy used in the difference quotient
+ *                   approximations to matrix-vector products Jv.
+ *                   Default is 1.0.
  *
  * The return value of IDASpbcgSet* is one of:
  *    IDASPBCG_SUCCESS   if successful
@@ -257,11 +252,10 @@ int IDASpbcg(void *ida_mem, int maxl);
  * -----------------------------------------------------------------
  */
 
-int IDASpbcgSetPrecSolveFn(void *ida_mem, IDASpbcgPrecSolveFn psolve);
-int IDASpbcgSetPrecSetupFn(void *ida_mem, IDASpbcgPrecSetupFn pset);
-int IDASpbcgSetPrecData(void *ida_mem, void *prec_data);
-int IDASpbcgSetJacTimesVecFn(void *ida_mem, IDASpbcgJacTimesVecFn jtimes);
-int IDASpbcgSetJacData(void *ida_mem, void *jac_data);
+int IDASpbcgSetPreconditioner(void *ida_mem, IDASpbcgPrecSetupFn pset,
+                              IDASpbcgPrecSolveFn psolve, void *prec_data);
+int IDASpbcgSetJacTimesVecFn(void *ida_mem, 
+                             IDASpbcgJacTimesVecFn jtimes, void *jac_data);
 int IDASpbcgSetEpsLin(void *ida_mem, realtype eplifac);
 int IDASpbcgSetIncrementFactor(void *ida_mem, realtype dqincfac);
 

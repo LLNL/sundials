@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.51 $
- * $Date: 2005-04-05 01:59:51 $
+ * $Revision: 1.52 $
+ * $Date: 2005-04-07 23:28:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -251,10 +251,6 @@ static realtype CVQuadUpdateDsm(CVodeMem cv_mem, realtype old_dsm,
 
 /*----------------*/
 
-static booleantype CVSensAllocAtol(CVodeMem cv_mem, void **atolSPtr);
-
-/*----------------*/
-
 static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void CVSensFreeVectors(CVodeMem cv_mem);
 
@@ -438,7 +434,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   /* Check for legal input parameters */
 
-  if (y0==NULL) {
+  if ( y0==NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_Y0_NULL);
     return(CV_ILL_INPUT);
   }
@@ -463,12 +459,12 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   /* Test tolerances */
 
-  if (abstol == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGCVS_ABSTOL_NULL);
-    return(CV_ILL_INPUT);
-  }
-
   if (itol != CV_WF) {
+
+    if (abstol == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSGCVS_ABSTOL_NULL);
+      return(CV_ILL_INPUT);
+    }
 
     if (reltol < ZERO) {
       if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_RELTOL);
@@ -511,15 +507,10 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_itol   = itol;
   cv_mem->cv_reltol = reltol;      
 
-  if (itol == CV_WF)
-    cv_mem->cv_efun = (CVEwtFn)abstol;
-  else {
-    cv_mem->cv_efun = CVEwtSet;
-    if (itol == CV_SS)
-      cv_mem->cv_Sabstol = *((realtype *)abstol);
-    else
-      N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
-  }  
+  if (itol == CV_SS)
+    cv_mem->cv_Sabstol = *((realtype *)abstol);
+  else if (itol == CV_SV)
+    N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
 
   /* All error checking is complete at this point */
 
@@ -649,15 +640,10 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
     return (CV_ILL_INPUT);
   }
 
-  /* Test tolerances */
+/* Test tolerances */
    
-  if (abstol == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGCVS_ABSTOL_NULL);
-    return (CV_ILL_INPUT);
-  }
-
   if (itol != CV_WF) {
-
+    
     if (reltol < ZERO) {
       if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_RELTOL);
       return (CV_ILL_INPUT);
@@ -689,15 +675,10 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_itol   = itol;
   cv_mem->cv_reltol = reltol;
 
-  if (itol == CV_WF)
-    cv_mem->cv_efun = (CVEwtFn)abstol;
-  else {
-    cv_mem->cv_efun = CVEwtSet;
-    if (itol == CV_SS)
-      cv_mem->cv_Sabstol = *((realtype *)abstol);
-    else
-      N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
-  }
+  if (itol == CV_SS)
+    cv_mem->cv_Sabstol = *((realtype *)abstol);
+  else if (itol == CV_SV)
+    N_VScale(ONE, (N_Vector)abstol, cv_mem->cv_Vabstol);
 
   /* All error checking is complete at this point */
   
@@ -753,6 +734,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 /*-----------------------------------------------------------------*/
 
 #define gfun   (cv_mem->cv_gfun)
+#define g_data (cv_mem->cv_g_data) 
 #define glo    (cv_mem->cv_glo)
 #define ghi    (cv_mem->cv_ghi)
 #define groot  (cv_mem->cv_groot)
@@ -770,7 +752,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  * occurred, or a negative value otherwise.
  */
 
-int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
+int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 {
   CVodeMem cv_mem;
   int nrt;
@@ -803,8 +785,12 @@ int CVodeRootInit(void *cvode_mem, CVRootFn g, int nrtfn)
   if (nrt == 0) {
     cv_mem->cv_nrtfn = nrt;
     gfun = NULL;
+    g_data = NULL;
     return(CV_SUCCESS);
   }
+
+  /* Store user's data pointer */
+  g_data = gdata;
 
   /* If rerunning CVodeRootInit() with the same number of root functions
      (not changing number of gfun components), then check if the root
@@ -1023,7 +1009,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, N_Vector *yS0)
   cv_mem->cv_ism = ism;
    
   /* Check if yS0 is non-null */
-  if ((cv_mem->cv_yS = yS0) == NULL) {
+  if (yS0 == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_YS0_NULL);
     return(CV_ILL_INPUT);
   }
@@ -1219,7 +1205,6 @@ int CVodeSensToggle(void *cvode_mem, booleantype sensi)
 #define f_data         (cv_mem->cv_f_data) 
 #define efun           (cv_mem->cv_efun)
 #define e_data         (cv_mem->cv_e_data) 
-#define g_data         (cv_mem->cv_g_data) 
 #define qmax           (cv_mem->cv_qmax) 
 #define mxstep         (cv_mem->cv_mxstep)
 #define mxhnil         (cv_mem->cv_mxhnil)
@@ -1451,11 +1436,27 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   taskc = task;
 
 
-  /* Test if the pointer to parameters is available if needed */
+  /* Sensitivity-specific tests */
 
-  if (sensi && fSDQ && (p == NULL)) {
-    if(errfp!=NULL) fprintf(errfp, MSGCVS_P_NULL);
-    return(CV_ILL_INPUT);
+  if (sensi) {
+
+    /* Test if the pointer to parameters is available if needed */
+    if(fSDQ && (p == NULL)) {
+      if(errfp!=NULL) fprintf(errfp, MSGCVS_P_NULL);
+      return(CV_ILL_INPUT);
+    }
+    
+    /* Set plist if needed and still NULL at this point */
+    if(fSDQ && (plist == NULL)) {
+      for (is=0; is<Ns; is++)
+        plist[is] = is+1;
+    }
+
+    /* Set pbar if needed and still NULL at this point */
+    if ((fSDQ || itolS == CV_EE) && (pbar == NULL))
+      for (is=0; is<Ns; is++)
+        pbar[is] = ONE;
+
   }
 
   /* Begin first call block */
@@ -1660,9 +1661,17 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
         
       if ( (ewtsetOK != 0) || (ewtSsetOK != 0) || (ewtQsetOK != 0) ) {
 
-	if(ewtsetOK != 0)  if(errfp!=NULL) fprintf(errfp, MSGCVS_EWT_NOW_BAD, tn);
-        if(ewtSsetOK != 0) if(errfp!=NULL) fprintf(errfp, MSGCVS_EWTS_NOW_BAD, tn);
-	if(ewtQsetOK != 0) if(errfp!=NULL) fprintf(errfp, MSGCVS_EWTQ_NOW_BAD, tn);
+	if(ewtsetOK != 0)  
+	  if(errfp!=NULL) {
+            if (itol == CV_WF) fprintf(errfp, MSGCVS_EWT_NOW_FAIL, tn);
+            else fprintf(errfp, MSGCVS_EWT_NOW_BAD, tn);
+	  }
+        if(ewtSsetOK != 0) 
+          if(errfp!=NULL) 
+            fprintf(errfp, MSGCVS_EWTS_NOW_BAD, tn);
+	if(ewtQsetOK != 0) 
+          if(errfp!=NULL) 
+            fprintf(errfp, MSGCVS_EWTQ_NOW_BAD, tn);
 
         istate = CV_ILL_INPUT;
         tretlast = *tret = tn;
@@ -2340,28 +2349,33 @@ static void CVFreeVectors(CVodeMem cv_mem)
 
 static int CVInitialSetup(CVodeMem cv_mem)
 {
-  int ier, is;
+  int ier;
   int ewtsetOK;
 
   /* Solver initial setup */
 
-  if (itol != CV_WF)
+  if (itol != CV_WF) {
+    efun = CVEwtSet;
     e_data = (void *)cv_mem;
+  } else {
+    if (efun == NULL) {
+      if (errfp != NULL) fprintf(errfp, MSGCVS_NO_EFUN);
+      return(CV_ILL_INPUT);
+    }
+  }
 
   ewtsetOK = efun(zn[0], ewt, e_data);
   if (ewtsetOK != 0) {
-    if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_EWT);
+    if(errfp!=NULL) {
+      if (itol == CV_WF) fprintf(errfp, MSGCVS_FAIL_EWT);
+      else fprintf(errfp, MSGCVS_BAD_EWT);
+    }
     return(CV_ILL_INPUT);
   }
   
   /* Quadrature initial setup */
 
   if (quadr && errconQ) {
-
-    if ( itolQ == -1 ) {
-      if(errfp!=NULL) fprintf(errfp, MSGCVS_NO_QUADTOL);
-      return(CV_ILL_INPUT);
-    }
 
     /* Load ewtQ */
     ewtsetOK = CVQuadEwtSet(znQ[0], ewtQ, cv_mem);
@@ -2383,16 +2397,6 @@ static int CVInitialSetup(CVodeMem cv_mem)
       if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_ISM_IFS);
       return (CV_ILL_INPUT);
     }    
-
-    /* Set pbar if still NULL at this point */
-    if (pbar == NULL)
-      for (is=0; is<Ns; is++)
-        pbar[is] = ONE;
-
-    /* Set plist if still NULL at this point */
-    if (plist == NULL)
-      for (is=0; is<Ns; is++)
-        plist[is] = is+1;
 
     /* Load ewtS */
     ewtsetOK = CVSensEwtSet(znS[0], ewtS, cv_mem);
@@ -2564,29 +2568,6 @@ static void CVQuadFreeVectors(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
 
-/*-----------------------------------------------------------------*/
-
-static booleantype CVSensAllocAtol(CVodeMem cv_mem, void **atolSPtr)
-{
-
-  switch (itolS) {
-  case CV_SS:
-    *atolSPtr = (void *)malloc(Ns*sizeof(realtype));
-    break;
-  case CV_SV:
-    *atolSPtr = (void *)N_VCloneVectorArray(Ns, tempv);
-    lrw += Ns*lrw1;
-    liw += Ns*liw1;
-    break;
-  }
-  
-  if (*atolSPtr==NULL) return (FALSE);
-  else                 return (TRUE);
-  
-}
-
-/*-----------------------------------------------------------------*/
-
 /*
  * CVSensAllocVectors
  *
@@ -2598,15 +2579,23 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
   
+  /* Allocate yS */
+  yS = N_VCloneVectorArray(Ns, tmpl);
+  if (yS == NULL) {
+    return (FALSE);
+  }
+
   /* Allocate ewtS */
   ewtS = N_VCloneVectorArray(Ns, tmpl);
   if (ewtS == NULL) {
+    N_VDestroyVectorArray(yS, Ns);
     return (FALSE);
   }
   
   /* Allocate acorS */
   acorS = N_VCloneVectorArray(Ns, tmpl);
   if (acorS == NULL) {
+    N_VDestroyVectorArray(yS, Ns);
     N_VDestroyVectorArray(ewtS, Ns);
     return (FALSE);
   }
@@ -2614,6 +2603,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   /* Allocate tempvS */
   tempvS = N_VCloneVectorArray(Ns, tmpl);
   if (tempvS == NULL) {
+    N_VDestroyVectorArray(yS, Ns);
     N_VDestroyVectorArray(ewtS, Ns);
     N_VDestroyVectorArray(acorS, Ns);
     return (FALSE);
@@ -2622,6 +2612,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   /* Allocate ftempS */
   ftempS = N_VCloneVectorArray(Ns, tmpl);
   if (ftempS == NULL) {
+    N_VDestroyVectorArray(yS, Ns);
     N_VDestroyVectorArray(ewtS, Ns);
     N_VDestroyVectorArray(acorS, Ns);
     N_VDestroyVectorArray(tempvS, Ns);
@@ -2632,6 +2623,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   for (j=0; j<=qmax; j++) {
     znS[j] = N_VCloneVectorArray(Ns, tmpl);
     if (znS[j] == NULL) {
+      N_VDestroyVectorArray(yS, Ns);
       N_VDestroyVectorArray(ewtS, Ns);
       N_VDestroyVectorArray(acorS, Ns);
       N_VDestroyVectorArray(tempvS, Ns);
@@ -2644,6 +2636,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   /* Allocate space for pbar and plist */
   pbar = (realtype *)malloc(Ns*sizeof(realtype));
   if (pbar == NULL) {
+    N_VDestroyVectorArray(yS, Ns);
     N_VDestroyVectorArray(ewtS, Ns);
     N_VDestroyVectorArray(acorS, Ns);
     N_VDestroyVectorArray(tempvS, Ns);
@@ -2654,6 +2647,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
   plist = (int *)malloc(Ns*sizeof(int));
   if (plist == NULL) {
+    N_VDestroyVectorArray(yS, Ns);
     N_VDestroyVectorArray(ewtS, Ns);
     N_VDestroyVectorArray(acorS, Ns);
     N_VDestroyVectorArray(tempvS, Ns);
@@ -2664,8 +2658,8 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
 
   /* Update solver workspace lengths */
-  lrw += (qmax + 5)*Ns*lrw1 + Ns;
-  liw += (qmax + 5)*Ns*liw1 + Ns;
+  lrw += (qmax + 6)*Ns*lrw1 + Ns;
+  liw += (qmax + 6)*Ns*liw1 + Ns;
   
   return (TRUE);
 }
@@ -2676,6 +2670,7 @@ static void CVSensFreeVectors(CVodeMem cv_mem)
 {
   int j;
   
+  N_VDestroyVectorArray(yS, Ns);
   N_VDestroyVectorArray(ewtS, Ns);
   N_VDestroyVectorArray(acorS, Ns);
   N_VDestroyVectorArray(tempvS, Ns);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2005-04-04 23:07:06 $
+ * $Revision: 1.44 $
+ * $Date: 2005-04-07 23:28:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -776,7 +776,7 @@ int CVDenseB(void *cvadj_mem, long int nB)
   return(flag);
 }
 
-int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB)
+int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -786,27 +786,13 @@ int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB)
   ca_mem = (CVadjMem) cvadj_mem;
 
   djac_B     = djacB;
+  jac_data_B = jac_dataB;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVDenseSetJacData(cvode_mem, cvadj_mem);
-  if (flag != CVDENSE_SUCCESS) return(flag);
+  flag = CVDenseSetJacFn(cvode_mem, CVAdenseJac, cvadj_mem);
 
-  CVDenseSetJacFn(cvode_mem, CVAdenseJac);
-
-  return(CVDENSE_SUCCESS);
-}
-
-int CVDenseSetJacDataB(void *cvadj_mem, void *jac_dataB)
-{
-  CVadjMem ca_mem;
-
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  jac_data_B = jac_dataB;
-
-  return(CVDENSE_SUCCESS);
+  return(flag);
 }
 
 /*-----------------  CVDiagB    -----------------------------------*/
@@ -848,7 +834,7 @@ int CVBandB(void *cvadj_mem, long int nB,
   return(flag);
 }
 
-int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB)
+int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -857,28 +843,14 @@ int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB)
   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
-  bjac_B = bjacB;
+  bjac_B     = bjacB;
+  jac_data_B = jac_dataB;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVBandSetJacData(cvode_mem, cvadj_mem);
-  if (flag != CVBAND_SUCCESS) return(flag);
+  flag = CVBandSetJacFn(cvode_mem, CVAbandJac, cvadj_mem);
 
-  CVBandSetJacFn(cvode_mem, CVAbandJac);
-
-  return(CVBAND_SUCCESS);
-}
-
-int CVBandSetJacDataB(void *cvadj_mem, void *jac_dataB)
-{ 
-  CVadjMem ca_mem;
-
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  jac_data_B = jac_dataB;
-
-  return(CVBAND_SUCCESS);
+  return(flag);
 }
 
 /*------------   CVSpbcgB and CVSpbcgSet*B    ---------------------*/
@@ -932,7 +904,8 @@ int CVSpbcgSetDeltB(void *cvadj_mem, realtype deltB)
   return(flag);
 }
 
-int CVSpbcgSetPrecSetupFnB(void *cvadj_mem, CVSpbcgPrecSetupFnB psetB)
+int CVSpbcgSetPreconditionerB(void *cvadj_mem, CVSpbcgPrecSetupFnB psetB,
+                              CVSpbcgPrecSolveFnB psolveB, void *P_dataB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -941,40 +914,20 @@ int CVSpbcgSetPrecSetupFnB(void *cvadj_mem, CVSpbcgPrecSetupFnB psetB)
   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
-  bcgpset_B = psetB;
-
-  cvode_mem = (void *) ca_mem->cvb_mem;
-
-  flag = CVSpbcgSetPrecData(cvode_mem, cvadj_mem);
-  if (flag != CVSPBCG_SUCCESS) return(flag);
-
-  CVSpbcgSetPrecSetupFn(cvode_mem, CVAspbcgPrecSetup);
-
-  return(CVSPBCG_SUCCESS);
-}
-
-int CVSpbcgSetPrecSolveFnB(void *cvadj_mem, CVSpbcgPrecSolveFnB psolveB)
-{
-  CVadjMem ca_mem;
-  void *cvode_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-  ca_mem = (CVadjMem) cvadj_mem;
-
+  bcgpset_B   = psetB;
   bcgpsolve_B = psolveB;
+  P_data_B    = P_dataB;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVSpbcgSetPrecData(cvode_mem, cvadj_mem);
-  if (flag != CVSPBCG_SUCCESS) return(flag);
+  flag = CVSpbcgSetPreconditioner(cvode_mem, 
+                                  CVAspbcgPrecSetup, CVAspbcgPrecSolve, cvadj_mem);
 
-  CVSpbcgSetPrecSolveFn(cvode_mem, CVAspbcgPrecSolve);
-
-  return(CVSPBCG_SUCCESS);
+  return(flag);
 }
 
-int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem, CVSpbcgJacTimesVecFnB jtimesB)
+int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem, 
+                             CVSpbcgJacTimesVecFnB jtimesB, void *jac_dataB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -984,39 +937,13 @@ int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem, CVSpbcgJacTimesVecFnB jtimesB)
   ca_mem = (CVadjMem) cvadj_mem;
 
   bcgjtimes_B = jtimesB;
+  jac_data_B  = jac_dataB;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVSpbcgSetJacData(cvode_mem, cvadj_mem);
-  if (flag != CVSPBCG_SUCCESS) return(flag);
+  flag = CVSpbcgSetJacTimesVecFn(cvode_mem, CVAspbcgJacTimesVec, cvadj_mem);
 
-  CVSpbcgSetJacTimesVecFn(cvode_mem, CVAspbcgJacTimesVec);
-
-  return(CVSPBCG_SUCCESS);
-}
-
-int CVSpbcgSetPrecDataB(void *cvadj_mem, void *P_dataB)
-{
-  CVadjMem ca_mem;
-
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  P_data_B = P_dataB;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-int CVSpbcgSetJacDataB(void *cvadj_mem, void *jac_dataB)
-{
-  CVadjMem ca_mem;
-
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  jac_data_B = jac_dataB;
-
-  return(CVSPBCG_SUCCESS);
+  return(flag);
 }
 
 /*------------   CVSpgmrB and CVSpgmrSet*B    ---------------------*/
@@ -1086,7 +1013,8 @@ int CVSpgmrSetDeltB(void *cvadj_mem, realtype deltB)
   return(flag);
 }
 
-int CVSpgmrSetPrecSetupFnB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB)
+int CVSpgmrSetPreconditionerB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB,
+                              CVSpgmrPrecSolveFnB psolveB, void *P_dataB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -1095,40 +1023,19 @@ int CVSpgmrSetPrecSetupFnB(void *cvadj_mem, CVSpgmrPrecSetupFnB psetB)
   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
-  gpset_B = psetB;
-
-  cvode_mem = (void *) ca_mem->cvb_mem;
-
-  flag = CVSpgmrSetPrecData(cvode_mem, cvadj_mem);
-  if (flag != CVSPGMR_SUCCESS) return(flag);
-
-  CVSpgmrSetPrecSetupFn(cvode_mem, CVAspgmrPrecSetup);
-
-  return(CVSPGMR_SUCCESS);
-}
-
-int CVSpgmrSetPrecSolveFnB(void *cvadj_mem, CVSpgmrPrecSolveFnB psolveB)
-{
-  CVadjMem ca_mem;
-  void *cvode_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-  ca_mem = (CVadjMem) cvadj_mem;
-
+  gpset_B   = psetB;
   gpsolve_B = psolveB;
+  P_data_B  = P_dataB;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
-  flag = CVSpgmrSetPrecData(cvode_mem, cvadj_mem);
-  if (flag != CVSPGMR_SUCCESS) return(flag);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, CVAspgmrPrecSetup, CVAspgmrPrecSolve, cvadj_mem);
 
-  CVSpgmrSetPrecSolveFn(cvode_mem, CVAspgmrPrecSolve);
-
-  return(CVSPGMR_SUCCESS);
+  return(flag);
 }
 
-int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB)
+int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB,
+                             void *jac_dataB)
 {
   CVadjMem ca_mem;
   void *cvode_mem;
@@ -1137,40 +1044,14 @@ int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpgmrJacTimesVecFnB jtimesB)
   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
-  gjtimes_B = jtimesB;
-
-  cvode_mem = (void *) ca_mem->cvb_mem;
-
-  flag = CVSpgmrSetJacData(cvode_mem, cvadj_mem);
-  if (flag != CVSPGMR_SUCCESS) return(flag);
-
-  CVSpgmrSetJacTimesVecFn(cvode_mem, CVAspgmrJacTimesVec);
-
-  return(CVSPGMR_SUCCESS);
-}
-
-int CVSpgmrSetPrecDataB(void *cvadj_mem, void *P_dataB)
-{
-  CVadjMem ca_mem;
-
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  P_data_B = P_dataB;
-
-  return(CVSPGMR_SUCCESS);
-}
-
-int CVSpgmrSetJacDataB(void *cvadj_mem, void *jac_dataB)
-{
-  CVadjMem ca_mem;
-
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-  ca_mem = (CVadjMem) cvadj_mem;
-
+  gjtimes_B  = jtimesB;
   jac_data_B = jac_dataB;
 
-  return(CVSPGMR_SUCCESS);
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpgmrSetJacTimesVecFn(cvode_mem, CVAspgmrJacTimesVec, cvadj_mem);
+
+  return(flag);
 }
 
 /*- CVBandPrecAllocB, CVBPSpgmrB, CVBPSpbcgB, CVBandPrecFreeB          -*/
@@ -1903,7 +1784,8 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
   int flag;
   int qmax;
   void *abstol;
-  
+
+  abstol = NULL;
 
   if (next_ == NULL) {
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-03-21 17:24:50 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-07 23:29:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -303,7 +303,8 @@ int IDASpbcgSetIncrementFactor(void *ida_mem, realtype dqincfac)
   return(IDASPBCG_SUCCESS);
 }
 
-int IDASpbcgSetPrecSetupFn(void *ida_mem, IDASpbcgPrecSetupFn pset)
+int IDASpbcgSetPreconditioner(void *ida_mem, IDASpbcgPrecSetupFn pset,
+                              IDASpbcgPrecSolveFn psolve, void *prec_data)
 {
   IDAMem IDA_mem;
   IDASpbcgMem idaspbcg_mem;
@@ -322,57 +323,14 @@ int IDASpbcgSetPrecSetupFn(void *ida_mem, IDASpbcgPrecSetupFn pset)
   idaspbcg_mem = (IDASpbcgMem) lmem;
 
   idaspbcg_mem->b_pset = pset;
-
-  return(IDASPBCG_SUCCESS);
-}
-
-int IDASpbcgSetPrecSolveFn(void *ida_mem, IDASpbcgPrecSolveFn psolve)
-{
-  IDAMem IDA_mem;
-  IDASpbcgMem idaspbcg_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_IDAMEM_NULL);
-    return(IDASPBCG_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
-    return(IDASPBCG_LMEM_NULL);
-  }
-  idaspbcg_mem = (IDASpbcgMem) lmem;
-
   idaspbcg_mem->b_psolve = psolve;
+  if (psolve != NULL) idaspbcg_mem->b_pdata = prec_data;
 
   return(IDASPBCG_SUCCESS);
 }
 
-int IDASpbcgSetPrecData(void *ida_mem, void *prec_data)
-{
-  IDAMem IDA_mem;
-  IDASpbcgMem idaspbcg_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_IDAMEM_NULL);
-    return(IDASPBCG_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
-    return(IDASPBCG_LMEM_NULL);
-  }
-  idaspbcg_mem = (IDASpbcgMem) lmem;
-
-  idaspbcg_mem->b_pdata = prec_data;
-
-  return(IDASPBCG_SUCCESS);
-}
-
-int IDASpbcgSetJacTimesVecFn(void *ida_mem, IDASpbcgJacTimesVecFn jtimes)
+int IDASpbcgSetJacTimesVecFn(void *ida_mem, 
+                             IDASpbcgJacTimesVecFn jtimes, void *jac_data)
 {
   IDAMem IDA_mem;
   IDASpbcgMem idaspbcg_mem;
@@ -391,29 +349,7 @@ int IDASpbcgSetJacTimesVecFn(void *ida_mem, IDASpbcgJacTimesVecFn jtimes)
   idaspbcg_mem = (IDASpbcgMem) lmem;
 
   idaspbcg_mem->b_jtimes = jtimes;
-
-  return(IDASPBCG_SUCCESS);
-}
-
-int IDASpbcgSetJacData(void *ida_mem, void *jac_data)
-{
-  IDAMem IDA_mem;
-  IDASpbcgMem idaspbcg_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_IDAMEM_NULL);
-    return(IDASPBCG_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
-    return(IDASPBCG_LMEM_NULL);
-  }
-  idaspbcg_mem = (IDASpbcgMem) lmem;
-
-  idaspbcg_mem->b_jdata = jac_data;
+  if (jtimes != NULL) idaspbcg_mem->b_jdata = jac_data;
 
   return(IDASPBCG_SUCCESS);
 }

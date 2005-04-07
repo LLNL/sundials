@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2004-11-06 01:01:51 $
+ * $Revision: 1.22 $
+ * $Date: 2005-04-07 23:28:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -183,7 +183,7 @@ int CVDense(void *cvode_mem, long int N)
  * -----------------------------------------------------------------
  */
 
-int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac)
+int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -202,35 +202,7 @@ int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac)
   cvdense_mem = (CVDenseMem) lmem;
 
   jac = djac;
-
-  return(CVDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVDenseSetJacData
- * -----------------------------------------------------------------
- */
-
-int CVDenseSetJacData(void *cvode_mem, void *jac_data)
-{
-  CVodeMem cv_mem;
-  CVDenseMem cvdense_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    fprintf(stderr, MSGDS_SETGET_CVMEM_NULL);
-    return(CVDENSE_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDS_SETGET_LMEM_NULL);
-    return(CVDENSE_LMEM_NULL);
-  }
-  cvdense_mem = (CVDenseMem) lmem;
-
-  J_data = jac_data;
+  if (djac != NULL) J_data = jac_data;
 
   return(CVDENSE_SUCCESS);
 }

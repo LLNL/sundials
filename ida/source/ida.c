@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2005-04-05 01:59:56 $
+ * $Revision: 1.42 $
+ * $Date: 2005-04-07 23:29:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -268,12 +268,12 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
 
   /* Test tolerances */
 
-  if (atol == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
-    return(IDA_ILL_INPUT); 
-  }
-
   if (itol != IDA_WF) {
+
+    if (atol == NULL) { 
+      if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
+      return(IDA_ILL_INPUT); 
+    }
 
     if (rtol < ZERO) { 
       if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
@@ -322,15 +322,10 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   IDA_mem->ida_itol = itol;
   IDA_mem->ida_rtol = rtol;      
 
-  if (itol == IDA_WF)
-    IDA_mem->ida_efun = (IDAEwtFn)atol;
-  else {
-    IDA_mem->ida_efun = IDAEwtSet;
-    if (itol == IDA_SS)
-      IDA_mem->ida_Satol = *((realtype *)atol);
-    else 
-      N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
-  }
+  if (itol == IDA_SS)
+    IDA_mem->ida_Satol = *((realtype *)atol);
+  else if (itol == IDA_SV) 
+    N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
 
   /* Set the linear solver addresses to NULL */
   IDA_mem->ida_linit  = NULL;
@@ -426,12 +421,12 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 
   /* Test tolerances */
 
-  if (atol == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
-    return(IDA_ILL_INPUT); 
-  }
-
   if (itol != IDA_WF) {
+
+    if (atol == NULL) { 
+      if(errfp!=NULL) fprintf(errfp, MSG_ATOL_NULL); 
+      return(IDA_ILL_INPUT); 
+    }
 
     if (rtol < ZERO) {
       if(errfp!=NULL) fprintf(errfp, MSG_BAD_RTOL); 
@@ -450,8 +445,6 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 
   }
 
-  /* All error checking is complete at this point */
-
   /* Copy the input parameters into IDA memory block */
   IDA_mem->ida_res = res;
   IDA_mem->ida_tn  = t0;
@@ -468,16 +461,10 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 
   IDA_mem->ida_itol = itol;
   IDA_mem->ida_rtol = rtol;      
-
-  if (itol == IDA_WF)
-    IDA_mem->ida_efun = (IDAEwtFn)atol;
-  else {
-    IDA_mem->ida_efun = IDAEwtSet;
-    if (itol == IDA_SS)
-      IDA_mem->ida_Satol = *((realtype *)atol);
-    else 
-      N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
-  }
+  if (itol == IDA_SS)
+    IDA_mem->ida_Satol = *((realtype *)atol);
+  else if (itol == IDA_SV)
+    N_VScale(ONE, (N_Vector)atol, IDA_mem->ida_Vatol);
 
   /* Initialize the phi array */
   N_VScale(ONE, yy0, IDA_mem->ida_phi[0]);  
@@ -793,7 +780,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     if (nst > 0) {
       ewtsetOK = efun(phi[0], ewt, edata);
       if (ewtsetOK != 0) {
-        if(errfp!=NULL) fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+	if(errfp!=NULL) {
+          if (itol == IDA_WF) fprintf(errfp, MSG_EWT_NOW_FAIL, tn);
+          else fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+	}
         istate = IDA_ILL_INPUT;
         ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
         *tret = tretp = tn;
@@ -1111,12 +1101,22 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   /* Load ewt */
 
-  if (itol != IDA_WF)
+  if (itol != IDA_WF) {
+    efun = IDAEwtSet;
     edata = (void *)IDA_mem;
+  } else {
+    if (efun == NULL) {
+      if (errfp != NULL) fprintf(errfp, MSG_NO_EFUN);
+      return(IDA_ILL_INPUT);
+    }
+  }
 
   ewtsetOK = efun(phi[0], ewt, edata);
   if (ewtsetOK != 0) {
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_EWT);
+    if(errfp!=NULL) {
+      if (itol == IDA_WF) fprintf(errfp, MSG_FAIL_EWT);
+      else fprintf(errfp, MSG_BAD_EWT);
+    }
     return(IDA_ILL_INPUT);
   }
 

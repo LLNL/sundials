@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-04-04 22:53:14 $
+ * $Revision: 1.17 $
+ * $Date: 2005-04-07 23:28:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -46,16 +46,16 @@ extern "C" {
 
 void FCV_SPBCGSETJAC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL);
-  else CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes);
+  if (*flag == 0) CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+  else            CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
 }
 
 /***************************************************************************/
 
 void FCV_SPGMRSETJAC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL);
-  else CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes);
+  if (*flag == 0) CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+  else CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
 }
 
 /***************************************************************************/

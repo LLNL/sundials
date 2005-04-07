@@ -47,8 +47,8 @@ Next, the {\kinspgmr} linear solver module is attached to {\kinsol} by calling
 \id{fkinspgmr}, which also specifies the maximum Krylov subspace dimension
 (\id{maxl} $=10$) and the maximum number of restarts allowed for {\spgmr}
 (\id{maxlrst} $=2$).  The {\kinspgmr} module is directed to use the supplied
-preconditioner by  calling the routines \id{fkinspgmrsetpsol} and
-\id{fkinspgmrsetpset} with a first argument equal to $1$. The solution of the
+preconditioner by  calling the \id{fkinspgmrsetprec} routine
+with a first argument equal to $1$. The solution of the
 nonlinear system is obtained after a successful return from \id{fkinsol}, which
 is then printed to unit 6 (stdout).
 

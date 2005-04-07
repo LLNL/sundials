@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-04-04 22:53:14 $
+ * $Revision: 1.16 $
+ * $Date: 2005-04-07 23:28:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -29,7 +29,7 @@
 
 /*********************************************************************/
 
-/* Prototype of the Fortran routine */
+/* Prototype of the Fortran routines */
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -37,24 +37,27 @@ extern "C" {
   extern void FCV_PSET(realtype*, realtype*, realtype*, booleantype*, 
                        booleantype*, realtype*, realtype*, realtype*,
                        realtype*, realtype*, realtype*, int*);
+  extern void FCV_PSOL(realtype*, realtype*, realtype*, realtype*, 
+                       realtype*, realtype*, realtype*, 
+                       realtype*, int*, realtype*, int*);
 #ifdef __cplusplus
 }
 #endif
 
 /***************************************************************************/
 
-void FCV_SPBCGSETPSET(int *flag, int *ier)
+void FCV_SPBCGSETPREC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpbcgSetPrecSetupFn(CV_cvodemem, NULL);
-  else CVSpbcgSetPrecSetupFn(CV_cvodemem, FCVPSet);
+  if (*flag == 0) CVSpbcgSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
+  else            CVSpbcgSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, NULL);
 }
 
 /***************************************************************************/
 
-void FCV_SPGMRSETPSET(int *flag, int *ier)
+void FCV_SPGMRSETPREC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpgmrSetPrecSetupFn(CV_cvodemem, NULL);
-  else CVSpgmrSetPrecSetupFn(CV_cvodemem, FCVPSet);
+  if (*flag == 0) CVSpgmrSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
+  else            CVSpgmrSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, NULL);
 }
 
 /***************************************************************************/
@@ -92,6 +95,44 @@ int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
 
   FCV_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
            &h, v1data, v2data, v3data, &ier);
+
+  N_VDestroy(ewt);
+
+  return(ier);
+}
+
+/***************************************************************************/
+
+/* C function FCVPSol to interface between CVODE and a Fortran subroutine
+   FCVPSOL for solution of a Krylov preconditioner.
+   Addresses of t, gamma, delta, lr, y, fy, vtemp, ewt, r, and z are
+   passed to FCVPSOL, using the routine N_VGetArrayPointer from NVECTOR.
+   A return flag ier from FCVPSOL is returned by FCVPSol.
+   Auxiliary data is assumed to be communicated by Common blocks. */
+
+int FCVPSol(realtype t, N_Vector y, N_Vector fy, 
+            N_Vector r, N_Vector z,
+            realtype gamma, realtype delta,
+            int lr, void *P_data, N_Vector vtemp)
+{
+  N_Vector ewt;
+  realtype *ydata, *fydata, *vtdata, *ewtdata, *rdata, *zdata;
+
+  int ier = 0;
+
+  ewt = N_VClone(y);
+
+  CVodeGetErrWeights(CV_cvodemem, ewt);
+
+  ydata   = N_VGetArrayPointer(y);
+  fydata  = N_VGetArrayPointer(fy);
+  vtdata  = N_VGetArrayPointer(vtemp);
+  ewtdata = N_VGetArrayPointer(ewt);
+  rdata   = N_VGetArrayPointer(r);
+  zdata   = N_VGetArrayPointer(z);
+
+  FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &delta,
+           rdata, &lr, zdata, &ier);
 
   N_VDestroy(ewt);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-01-24 23:54:15 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-07 23:28:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -287,25 +287,20 @@ int CVSpbcgSetPrecType(void *cvode_mem, int pretype);
  * Optional inputs to the CVSPBCG linear solver
  * -----------------------------------------------------------------
  * CVSpbcgSetDelt specifies the factor by which the tolerance on
- *                the nonlinear iteration is multiplied to get a
- *                tolerance on the linear iteration. This is an
- *                optional input to the CVSPBCG solver.
- *                Default value is 0.05.
- * CVSpbcgSetPrecSetupFn specifies the PrecSetup function.
- *                       Default is NULL.
- * CVSpbcgSetPrecSolveFn specifies the PrecSolve function.
- *                       Default is NULL.
- * CVSpbcgSetPrecData specifies a pointer to user preconditioner
- *                    data. This pointer is passed to PrecSetup and
- *                    PrecSolve every time these routines are called.
- *                    Default is NULL.
- * CVSpbcgSetJacTimesVecFn specifies the jtimes function.
- *                         Default is to use an internal finite
- *                         difference approximation routine.
- * CVSpbcgSetJacData specifies a pointer to user Jacobian data.
- *                   This pointer is passed to jtimes every time this
- *                   routine is called.
- *                   Default is NULL.
+ *                   the nonlinear iteration is multiplied to get a
+ *                   tolerance on the linear iteration. This is an
+ *                   optional input to the CVSPBCG solver.
+ *                   Default value is 0.05.
+ * CVSpbcgSetPreconditionr specifies the PrecSetup and PrecSolve
+ *                   functions and the pointer to user data that
+ *                   is pased to these functinos whenever they
+ *                   are called.
+ *                   Default is NULL for all three.
+ * CVSpbcgSetJacTimesVecFn specifies the jtimes function and the 
+ *                   pointer to user data that is passed to jtimes
+ *                   whenever it is called.
+ *                   Default is to use an internal finite
+ *                   difference approximation routine.
  *
  * The return value of CVSpbcgSet* is one of:
  *    CVSPBCG_SUCCESS   if successful
@@ -316,11 +311,10 @@ int CVSpbcgSetPrecType(void *cvode_mem, int pretype);
  */
 
 int CVSpbcgSetDelt(void *cvode_mem, realtype delt);
-int CVSpbcgSetPrecSetupFn(void *cvode_mem, CVSpbcgPrecSetupFn pset);
-int CVSpbcgSetPrecSolveFn(void *cvode_mem, CVSpbcgPrecSolveFn psolve);
-int CVSpbcgSetPrecData(void *cvode_mem, void *P_data);
-int CVSpbcgSetJacTimesVecFn(void *cvode_mem, CVSpbcgJacTimesVecFn jtimes);
-int CVSpbcgSetJacData(void *cvode_mem, void *jac_data);
+int CVSpbcgSetPreconditioner(void *cvode_mem, CVSpbcgPrecSetupFn pset,
+                             CVSpbcgPrecSolveFn psolve, void *P_data);
+int CVSpbcgSetJacTimesVecFn(void *cvode_mem, 
+                            CVSpbcgJacTimesVecFn jtimes, void *jac_data);
 
 /*
  * -----------------------------------------------------------------

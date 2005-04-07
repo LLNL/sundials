@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-04-04 22:53:11 $
+ * $Revision: 1.24 $
+ * $Date: 2005-04-07 23:28:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -277,14 +277,8 @@ int main()
         flag = CVSpgmrSetDelt(cvode_mem, DELT);
         if(check_flag(&flag, "CVSpgmrSetDelt", 1)) return(1);
 
-        flag = CVSpgmrSetPrecSetupFn(cvode_mem, Precond);
-        if(check_flag(&flag, "CVSpgmrSetPrecSetupFn", 1)) return(1);
-
-        flag = CVSpgmrSetPrecSolveFn(cvode_mem, PSolve);
-        if(check_flag(&flag, "CVSpgmrSetPrecSolvFn", 1)) return(1);
-
-        flag = CVSpgmrSetPrecData(cvode_mem, wdata);
-        if(check_flag(&flag, "CVSpgmrSetPrecData", 1)) return(1);
+        flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, wdata);
+        if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1)) return(1);
 
       } else {
 

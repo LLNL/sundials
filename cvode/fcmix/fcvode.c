@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2005-04-05 19:37:22 $
+ * $Revision: 1.44 $
+ * $Date: 2005-04-07 23:28:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -73,6 +73,8 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 {
   int lmm, iter, itol;
   void *atolptr;
+
+  atolptr = NULL;
 
   if(F2C_vec->ops->nvgetarraypointer == NULL ||
      F2C_vec->ops->nvsetarraypointer == NULL) {
@@ -181,6 +183,8 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
 {
   int itol;
   void *atolptr;
+
+  atolptr = NULL;
 
   N_VSetArrayPointer(y0, F2C_vec);
 

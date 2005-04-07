@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2004-12-08 19:32:40 $
+ * $Revision: 1.27 $
+ * $Date: 2005-04-07 23:29:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -143,13 +143,7 @@ int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data)
   flag = IDASpbcg(ida_mem, maxl);
   if(flag != IDASPBCG_SUCCESS) return(flag);
 
-  flag = IDASpbcgSetPrecData(ida_mem, bbd_data);
-  if(flag != IDASPBCG_SUCCESS) return(flag);
-
-  flag = IDASpbcgSetPrecSetupFn(ida_mem, IDABBDPrecSetup);
-  if(flag != IDASPBCG_SUCCESS) return(flag);
-
-  flag = IDASpbcgSetPrecSolveFn(ida_mem, IDABBDPrecSolve);
+  flag = IDASpbcgSetPreconditioner(ida_mem, IDABBDPrecSetup, IDABBDPrecSolve, bbd_data);
   if(flag != IDASPBCG_SUCCESS) return(flag);
 
   return(IDASPBCG_SUCCESS);
@@ -167,13 +161,8 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
   flag = IDASpgmr(ida_mem, maxl);
   if(flag != IDASPGMR_SUCCESS) return(flag);
 
-  flag = IDASpgmrSetPrecData(ida_mem, bbd_data);
-  if(flag != IDASPGMR_SUCCESS) return(flag);
-
-  flag = IDASpgmrSetPrecSetupFn(ida_mem, IDABBDPrecSetup);
-  if(flag != IDASPGMR_SUCCESS) return(flag);
-
-  flag = IDASpgmrSetPrecSolveFn(ida_mem, IDABBDPrecSolve);
+  flag = IDASpgmrSetPreconditioner(ida_mem, IDABBDPrecSetup,
+                                   IDABBDPrecSolve, bbd_data);
   if(flag != IDASPGMR_SUCCESS) return(flag);
 
   return(IDASPGMR_SUCCESS);

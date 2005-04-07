@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-01-24 22:28:53 $
+ * $Revision: 1.20 $
+ * $Date: 2005-04-07 23:28:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -144,7 +144,7 @@ int IDADense(void *ida_mem, long int Neq);
  *        be of type IDADenseJacFn.                               
  *        By default, a difference quotient routine IDADenseDQJac,
  *        supplied with this solver is used.                      
- * IDADenseSetJacData specifies a pointer to user data which is   
+ *        It also specifies a pointer to user data which is   
  *        passed to the djac routine every time it is called.     
  *                                                                
  * The return value of IDADenseSet* is one of:
@@ -154,8 +154,7 @@ int IDADense(void *ida_mem, long int Neq);
  * -----------------------------------------------------------------
  */
 
-int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac);
-int IDADenseSetJacData(void *ida_mem, void *jac_data);
+int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac, void *jac_data);
  
 /*
  * -----------------------------------------------------------------

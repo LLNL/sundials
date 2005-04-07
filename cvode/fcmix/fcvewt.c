@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-04-04 22:53:14 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-07 23:28:22 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -29,7 +29,7 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_EWT(realtype*, realtype*);
+  extern void FCV_EWT(realtype*, realtype*, int*);
 #ifdef __cplusplus
 }
 #endif
@@ -39,7 +39,7 @@ extern "C" {
 void FCV_EWTSET(int *flag, int *ier)
 {
   if (*flag == 1)
-    *ier = CVodeSetTolerances(CV_cvodemem, CV_WF, 0.0, FCVEwtSet);
+    *ier = CVodeSetEwtFn(CV_cvodemem, FCVEwtSet, NULL);
 }
 
 /***************************************************************************/
@@ -50,11 +50,13 @@ void FCV_EWTSET(int *flag, int *ier)
 
 int FCVEwtSet(N_Vector y, N_Vector ewt, void *e_data)
 {
-  
+  int ier = 0;
   realtype *ydata, *ewtdata;
 
   ydata  = N_VGetArrayPointer(y);
   ewtdata = N_VGetArrayPointer(ewt);
 
-  FCV_EWT(ydata, ewtdata);
+  FCV_EWT(ydata, ewtdata, &ier);
+
+  return(ier);
 }

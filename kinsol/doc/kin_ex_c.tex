@@ -75,9 +75,9 @@ It calls  \id{KINSpgmr} (see \ugref{ss:lin_solv_init}) to specify the {\kinspgmr
 linear solver, and passes a  value of $15$ as the maximum Krylov subspace dimension,
 \id{maxl}.  Next, a maximum value of \id{maxlrst} $=2$ restarts is imposed and
 the user-supplied preconditioner setup and solve functions, \id{PrecSetupBD} and
-\id{PrecSolveBD}, are specified through calls to \id{KINSpgmrSetPrecSetupFn} and
-\id{KINSpgmrSetPrecSolveFn}, respectively (see \ugref{ss:optional_input}). 
-The \id{data} pointer passed to \id{KINSpgmrSetPrecData} is passed to \id{PrecSetupBD} 
+\id{PrecSolveBD}, and the pointer to user data are specified through a call to
+\id{KINSpgmrSetPreconditioner} (see \ugref{ss:optional_input}).
+The \id{data} pointer passed to \id{KINSpgmrSetPreconditioner} is passed to \id{PrecSetupBD} 
 and \id{PrecSolveBD} whenever these are called. 
 
 Next, \id{KINSol} is called, the return value is tested for error conditions, and

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-04-04 23:07:01 $
+ * $Revision: 1.18 $
+ * $Date: 2005-04-07 23:28:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -179,10 +179,8 @@ int main(void)
   /* Set the user-supplied Jacobian routine Jac and
      the pointer to the user-defined block data. */
 
-  flag = CVBandSetJacFn(cvode_mem, Jac);
+  flag = CVBandSetJacFn(cvode_mem, Jac, data);
   if(check_flag(&flag, "CVBandSetJacFn", 1)) return(1);
-  flag = CVBandSetJacData(cvode_mem, data);
-  if(check_flag(&flag, "CVBandSetJacData", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 

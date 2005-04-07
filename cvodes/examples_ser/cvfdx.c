@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-04-04 23:07:01 $
+ * $Revision: 1.24 $
+ * $Date: 2005-04-07 23:28:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -48,11 +48,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sundialstypes.h"   /* def. of type realtype */
+#include "sundialstypes.h"   /* def. of type realtype                         */
 #include "cvodes.h"          /* prototypes for CVODES functions and constants */
 #include "cvdense.h"         /* prototype for CVDENSE functions and constants */
-#include "nvector_serial.h"  /* defs. of serial NVECTOR functions and macros */
-#include "dense.h"           /* defs. of type DenseMat, macro DENSE_ELEM */
+#include "nvector_serial.h"  /* defs. of serial NVECTOR functions and macros  */
+#include "dense.h"           /* defs. of type DenseMat, macro DENSE_ELEM      */
+#include "sundialsmath.h"    /* definition of ABS                             */
 
 /* Accessor macros */
 
@@ -97,6 +98,8 @@ static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
                int iS, N_Vector yS, N_Vector ySdot, 
                void *fS_data, N_Vector tmp1, N_Vector tmp2);
 
+static int ewt(N_Vector y, N_Vector w, void *e_data);
+
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
@@ -118,8 +121,8 @@ int main(int argc, char *argv[])
 {
   void *cvode_mem;
   UserData data;
-  realtype reltol, t, tout;
-  N_Vector y, abstol;
+  realtype t, tout;
+  N_Vector y;
   int iout, flag;
 
   realtype pbar[NS];
@@ -129,9 +132,9 @@ int main(int argc, char *argv[])
   int sensi_meth;
 
   cvode_mem = NULL;
-  data = NULL;
-  y = abstol = NULL;
-  yS = NULL;
+  data      = NULL;
+  y         =  NULL;
+  yS        = NULL;
 
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
@@ -151,36 +154,28 @@ int main(int argc, char *argv[])
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
 
-  /* Tolerances: 
-     scalar relative tolerance, vector absolute tolerance */
-  reltol = RTOL;               
-
-  abstol = N_VNew_Serial(NEQ);
-  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
-  Ith(abstol,1) = ATOL1;       
-  Ith(abstol,2) = ATOL2;
-  Ith(abstol,3) = ATOL3;
-
   /* Create CVODES object */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
+  /* Allocate space for CVODES */
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_WF, 0.0, NULL);
+  if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
+
+  /* Use private function to compute error weights */
+  flag = CVodeSetEwtFn(cvode_mem, ewt, NULL);
+  if (check_flag(&flag, "CVodeSetEwtFn", 1)) return(1);
+
+  /* Attach user data */
   flag = CVodeSetFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetFdata", 1)) return(1);
-
-  /* Allocate space for CVODES */
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
-  if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
   /* Attach linear solver */
   flag = CVDense(cvode_mem, NEQ);
   if (check_flag(&flag, "CVDense", 1)) return(1);
 
-  flag = CVDenseSetJacFn(cvode_mem, Jac);
+  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
   if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);
-
-  flag = CVDenseSetJacData(cvode_mem, data);
-  if (check_flag(&flag, "CVDenseSetJacData", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -255,7 +250,6 @@ int main(int argc, char *argv[])
   /* Free memory */
 
   N_VDestroy_Serial(y);                    /* Free y vector */
-  N_VDestroy_Serial(abstol);               /* Free abstol vector */
   if (sensi) {
     N_VDestroyVectorArray_Serial(yS, NS);  /* Free yS vector */
   }
@@ -354,6 +348,30 @@ static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
   Ith(ySdot,1) = sd1;
   Ith(ySdot,2) = sd2;
   Ith(ySdot,3) = sd3;
+}
+
+/*
+ * EwtSet function. Computes the error weights at the current solution.
+ */
+
+static int ewt(N_Vector y, N_Vector w, void *e_data)
+{
+  int i;
+  realtype yy, ww, rtol, atol[3];
+
+  rtol    = RTOL;
+  atol[0] = ATOL1;
+  atol[1] = ATOL2;
+  atol[2] = ATOL3;
+
+  for (i=1; i<=3; i++) {
+    yy = Ith(y,i);
+    ww = rtol * ABS(yy) + atol[i-1];  
+    if (ww <= 0.0) return (-1);
+    Ith(w,i) = 1.0/ww;
+  }
+
+  return(0);
 }
 
 /*

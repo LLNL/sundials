@@ -227,7 +227,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
   loop than it is to use \id{NV\_Ith\_P(v,i)} within the loop.        
                                                                
 \item
-  The {\nvecp} constructor functions \id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
+  {\warn} The {\nvecp} constructor functions \id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
   \id{N\_VCloneEmpty\_Parallel}, and \id{N\_VNewVectorArrayEmpty\_Parallel}
   set the field {\em own\_data} $=$ \id{FALSE}. 
   The functions \id{N\_VDestroy\_Parallel} and \id{N\_VDestroyVectorArray\_Parallel}
@@ -236,7 +236,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
   deallocate the {\em data} pointer.
 
 \item
-  To maximize efficiency, vector operations in the {\nvecp} implementation
+  {\warn} To maximize efficiency, vector operations in the {\nvecp} implementation
   that have more than one \id{N\_Vector} argument do not check for
   consistent internal representation of these vectors. It is the user's 
   responsability to ensure that such routines are called with \id{N\_Vector}
