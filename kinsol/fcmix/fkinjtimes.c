@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-04-07 19:26:17 $
+ * $Revision: 1.11 $
+ * $Date: 2005-04-07 20:41:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -49,8 +49,8 @@ extern void FK_JTIMES(realtype*, realtype*, int*, realtype*, int*);
 
 void FKIN_SPBCGSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpbcgSetJacTimesVecFn(KIN_mem, NULL);
-  else KINSpbcgSetJacTimesVecFn(KIN_mem, FKINJtimes);
+  if ((*flag) == 0) KINSpbcgSetJacTimesVecFn(KIN_mem, NULL, NULL);
+  else KINSpbcgSetJacTimesVecFn(KIN_mem, FKINJtimes, NULL);
 }
 
 /*
