@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-01-24 23:55:28 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-07 20:41:38 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -222,39 +222,41 @@ int KINSpbcg(void *kinmem, int maxl);
  *                           |
  * -----------------------------------------------------------------
  *                           |
- * KINSpbcgSetPrecSetupFn    | name of user-supplied routine used to
- *                           | compute a preconditioner matrix for
- *                           | the given linear system (pset)
- *                           | [NULL]
+ * KINSpbcgSetPreconditioner | used to set the following:
+ *                           |   (a) name of user-supplied routine
+ *                           |       used to compute a preconditioner
+ *                           |       matrix for the given linear
+ *                           |       system (pset)
+ *                           |       [NULL]
+ *                           |   (b) name of user-supplied routine
+ *                           |       used to apply preconditioner to
+ *                           |       linear system (psolve)
+ *                           |       [NULL]
+ *                           |   (c) pointer to user-allocated system
+ *                           |       memory that is passed to the pset
+ *                           |       and psolve routines
+ *                           |       [NULL]
  *                           |
- * KINSpbcgSetPrecSolveFn    | name of user-supplied routine used to
- *                           | apply preconditioner to linear system
- *                           | (psolve)
- *                           | [NULL]
- *                           |
- * KINSpbcgSetPrecData       | pointer to user-allocated system
- *                           | memory that is passed to the pset
- *                           | and psolve routines
- *                           | [NULL]
- *                           |
- * KINSpbcgSetJacTimesVecFn  | name of user-supplied subroutine used
- *                           | to compute the matrix-vector product
- *                           | J(u)*v, where J denotes the system
- *                           | Jacobian (jtimes)
- *                           | [KINSpbcgDQJtimes] (see kinspbcg.c)
- *                           |
- * KINSpbcgSetJacData        | pointer to a user-allocated memory
- *                           | block that is passed to the jtimes
- *                           | routine
- *                           | [NULL]
+ * KINSpbcgSetJacTimesVecFn  | used to set the following:
+ *                           |   (a) name of user-supplied subroutine
+ *                           |       used to compute the matrix-vector
+ *                           |       product J(u)*v, where J denotes
+ *                           |       the system Jacobian (jtimes)
+ *                           |       [KINSpbcgDQJtimes] (see kinspbcg.c)
+ *                           |   (b) pointer to a user-allocated memory
+ *                           |       block that is passed to the jtimes
+ *                           |       routine
+ *                           |       [NULL]
  * -----------------------------------------------------------------
  */
 
-int KINSpbcgSetPrecSetupFn(void *kinmem, KINSpbcgPrecSetupFn pset);
-int KINSpbcgSetPrecSolveFn(void *kinmem, KINSpbcgPrecSolveFn psolve);
-int KINSpbcgSetPrecData(void *kinmem, void *P_data);
-int KINSpbcgSetJacTimesVecFn(void *kinmem, KINSpbcgJacTimesVecFn jtimes);
-int KINSpbcgSetJacData(void *kinmem, void *J_data);
+int KINSpbcgSetPreconditioner(void *kinmem,
+			      KINSpbcgPrecSetupFn pset,
+			      KINSpbcgPrecSolveFn psolve,
+			      void *P_data);
+int KINSpbcgSetJacTimesVecFn(void *kinmem,
+			     KINSpbcgJacTimesVecFn jtimes,
+			     void *J_data);
 
 /*
  * -----------------------------------------------------------------
