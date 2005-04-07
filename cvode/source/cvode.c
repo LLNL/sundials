@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38.2.6 $
- * $Date: 2005-04-07 15:47:21 $
+ * $Revision: 1.38.2.7 $
+ * $Date: 2005-04-07 17:47:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -313,7 +313,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
                 int itol, realtype reltol, void *abstol)
 {
   CVodeMem cv_mem;
-  booleantype nvectorOK, allocOK, neg_abstol, ewtsetOK;
+  booleantype nvectorOK, allocOK, neg_abstol;
   long int lrw1, liw1;
   int i,k;
   
@@ -488,7 +488,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
                 int itol, realtype reltol, void *abstol)
 {
   CVodeMem cv_mem;
-  booleantype neg_abstol, ewtsetOK;
+  booleantype neg_abstol;
   int i,k;
  
   /* Check cvode_mem */
@@ -1074,9 +1074,10 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (nst > 0) {
       ewtsetOK = efun(zn[0], ewt, e_data);
       if (ewtsetOK != 0) {
-        if(errfp!=NULL) 
+	if(errfp!=NULL) {
           if (itol == CV_WF) fprintf(errfp, MSGCV_EWT_NOW_FAIL, tn);
-          else               fprintf(errfp, MSGCV_EWT_NOW_BAD, tn);
+          else fprintf(errfp, MSGCV_EWT_NOW_BAD, tn);
+	}
         istate = CV_ILL_INPUT;
         tretlast = *tret = tn;
         N_VScale(ONE, zn[0], yout);
@@ -1441,9 +1442,10 @@ static int CVInitialSetup(CVodeMem cv_mem)
 
   ewtsetOK = efun(zn[0], ewt, e_data);
   if (ewtsetOK != 0) {
-    if(errfp!=NULL) 
+    if(errfp!=NULL) {
       if (itol == CV_WF) fprintf(errfp, MSGCV_FAIL_EWT);
-      else               fprintf(errfp, MSGCV_BAD_EWT);
+      else fprintf(errfp, MSGCV_BAD_EWT);
+    }
     return(CV_ILL_INPUT);
   }
   
