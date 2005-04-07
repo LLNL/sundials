@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.15 $
-C     $Date: 2004-10-21 18:58:44 $
+C     $Revision: 1.15.2.1 $
+C     $Date: 2005-04-07 17:43:44 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -112,7 +112,7 @@ C
         STOP
         ENDIF
 C
-        CALL FCVSPGMRSETPSOL(1, IER)
+        CALL FCVSPGMRSETPREC(1, IER)
 C
 C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
