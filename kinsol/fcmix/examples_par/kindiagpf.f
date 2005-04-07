@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.13 $
-c     $Date: 2004-10-15 00:03:58 $
+c     $Revision: 1.13.2.1 $
+c     $Date: 2005-04-07 00:20:22 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -112,8 +112,7 @@ c     number of this process.
       endif
       
       call fkinspgmr(maxl, maxlrst, ier)
-      call fkinspgmrsetpsol(1, ier)
-      call fkinspgmrsetpset(1, ier)
+      call fkinspgmrsetprec(1, ier)
       
       if (mype .eq. 0) write(6,1240)
  1240 format('Example program kindiagpf:'//' This fkinsol example code',

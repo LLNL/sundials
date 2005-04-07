@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.13 $
-c     $Date: 2004-10-15 00:03:54 $
+c     $Revision: 1.13.2.1 $
+c     $Date: 2005-04-07 00:20:28 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -76,8 +76,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
          stop
       endif
 
-      call fkinspgmrsetpsol(1, ier)
-      call fkinspgmrsetpset(1, ier)
+      call fkinspgmrsetprec(1, ier)
 
       write(6,1240)
  1240 format('Example program kindiagsf:'//' This fkinsol example code',
