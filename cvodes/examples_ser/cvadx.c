@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.5 $
- * $Date: 2005-04-07 17:51:07 $
+ * $Revision: 1.18.2.6 $
+ * $Date: 2005-04-07 19:58:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -59,6 +59,7 @@
 #include "cvdense.h"
 #include "nvector_serial.h"
 #include "sundialstypes.h"
+#include "sundialsmath.h"
 
 /* Accessor macros */
 
