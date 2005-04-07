@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.4 $
- * $Date: 2005-04-07 15:58:52 $
+ * $Revision: 1.18.2.5 $
+ * $Date: 2005-04-07 17:51:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
   void *cvadj_mem;
   void *cvode_mem;
 
-  realtype abstolQ;
+  realtype reltolQ, abstolQ;
   N_Vector y, q;
 
   realtype reltolB, abstolB, abstolQB;
@@ -176,7 +176,8 @@ int main(int argc, char *argv[])
   if (check_flag((void *)q, "N_VNew_Serial", 0)) return(1);
   Ith(q,1) = ZERO;
 
-  /* Set the scalar absolute tolerance abstolQ */
+  /* Set the scalar realtive and absolute tolerances reltolQ and abstolQ */
+  reltolQ = RTOL;
   abstolQ = ATOLq;
 
   /* Create and allocate CVODES memory for forward run */
@@ -206,7 +207,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetQuadFdata(cvode_mem, data);
   if (check_flag(&flag, "CVodeSetQuadFdata", 1)) return(1);
 
-  flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltol, &abstolQ);
+  flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ);
   if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
 
   /* Allocate global memory */
