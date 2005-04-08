@@ -868,6 +868,9 @@ flag = IDASetErrFile(ida\_mem, errfp);
 
   Passing a value \id{NULL} disables all future error message output
   (except for the case in which the {\ida} memory pointer is \id{NULL}).
+
+  {\warn} If \id{IDASetErrFile} is to be called, it should be called before any
+  other optional input functions, in order to take effect for any later error message.
 }
 %%
 %%
@@ -1283,11 +1286,13 @@ flag = IDASetConstraints(ida\_mem, constraints);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_MEM\_NULL]
+  \begin{args}[IDA\_ILL\_INPUT]
   \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfuly set.
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The constraints vector contains illegal values.
   \end{args}
 }
 {
