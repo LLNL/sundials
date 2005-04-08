@@ -38,7 +38,6 @@ tar uf $tarfile $distrobase/kinsol/fcmix/Makefile.in
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.h
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.c
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinpreco.c
-tar uf $tarfile $distrobase/kinsol/fcmix/fkinpsol.c
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinjtimes.c
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.h
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.c
