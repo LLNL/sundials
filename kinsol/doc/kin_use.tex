@@ -609,6 +609,9 @@ flag = KINSetErrFile(kin\_mem, errfp);
 
   Passing a value \id{NULL} disables all future error message output
   (except for the case in which the {\kinsol} memory pointer is \id{NULL}).
+
+  {\warn} If \id{KINSetErrFile} is to be called, it should be called before any
+  other optional input functions, in order to take effect for any later error message.
 }
 %%
 %%
@@ -1132,11 +1135,13 @@ flag = KINSetConstraints(kin\_mem, constraints);
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KIN\_MEM\_NULL]
+  \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The constraint vector contains illegal values.
   \end{args}
 }
 {

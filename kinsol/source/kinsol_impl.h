@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-03-02 17:53:47 $
+ * $Revision: 1.11 $
+ * $Date: 2005-04-08 15:08:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -214,6 +214,7 @@ typedef struct KINMemRec {
 #define MSG_BAD_FNORMTOL   "KINSetFuncNormTol-- fnormtol < 0 illegal.\n\n"
 #define MSG_BAD_SCSTEPTOL  "KINSetScaledStepTol-- scsteptol < 0 illegal.\n\n"
 #define MSG_BAD_MXNBCF     "KINSetMaxBetaFails-- mxbcf < 0 illegal.\n\n"
+#define MSG_BAD_CONSTRAINTS "KINSetConstraints-- illegal values in constraints vector.\n\n"
 
 /* KINMalloc error messages */
 

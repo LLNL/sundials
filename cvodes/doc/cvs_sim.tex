@@ -859,7 +859,7 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
   Passing a value of \id{NULL} disables all future error message output
   (except for the case in which the {\cvodes} memory pointer is \id{NULL}).
 
-  {\warn} \id{CVodeSetErrFile} is to be called, it should be called before any
+  {\warn} If \id{CVodeSetErrFile} is to be called, it should be called before any
   other optional input functions, in order to take effect for any later error message.
 }
 %%
