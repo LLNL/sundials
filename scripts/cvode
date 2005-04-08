@@ -51,7 +51,6 @@ tar uf $tarfile $distrobase/cvode/fcmix/fcvode.h
 tar uf $tarfile $distrobase/cvode/fcmix/fcvode.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvewt.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvpreco.c
-tar uf $tarfile $distrobase/cvode/fcmix/fcvpsol.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvjtimes.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvband.c
 tar uf $tarfile $distrobase/cvode/fcmix/fcvdense.c
