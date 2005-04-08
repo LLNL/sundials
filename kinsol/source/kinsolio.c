@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1.2.1 $
- * $Date: 2005-04-05 19:10:48 $
+ * $Revision: 1.1.2.2 $
+ * $Date: 2005-04-08 14:47:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -24,9 +24,11 @@
 #include "sundialsmath.h"
 
 #define ZERO    RCONST(0.0)
+#define HALF    RCONST(0.5)
 #define POINT9  RCONST(0.9)
 #define ONE     RCONST(1.0)
 #define TWO     RCONST(2.0)
+#define TWOPT5  RCONST(2.5)
 
 /* 
  * =================================================================
@@ -437,6 +439,7 @@ int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
 int KINSetConstraints(void *kinmem, N_Vector constraints)
 {
   KINMem kin_mem;
+  realtype temptest;
 
   if (kinmem == NULL) {
     fprintf(stderr, MSG_KINS_NO_MEM);
@@ -445,11 +448,30 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
 
   kin_mem = (KINMem) kinmem;
 
+  if (constraints == NULL) {
+    if (kin_mem->kin_constraintsSet) {
+      N_VDestroy(kin_mem->kin_constraints);
+    }
+    kin_mem->kin_constraintsSet = FALSE;
+    return(KIN_SUCCESS);
+  }
+
+  /*  Check the constraints vector */
+
+  temptest = N_VMaxNorm(constraints);
+  if((temptest > TWOPT5) || (temptest < HALF)){ 
+    if(errfp!=NULL) fprintf(errfp, MSG_BAD_CONSTRAINTS); 
+    return(KIN_ILL_INPUT); 
+  }
+
   if (!kin_mem->kin_constraintsSet) {
     kin_mem->kin_constraints = N_VClone(constraints);
-    N_VScale(ONE, constraints, kin_mem->kin_constraints);
+    kin_mem->kin_constraintsSet = TRUE;
   }
-  else N_VScale(ONE, constraints, kin_mem->kin_constraints);
+
+  /* Load the constraint vector */
+
+  N_VScale(ONE, constraints, kin_mem->kin_constraints);
 
   return(KIN_SUCCESS);
 }
