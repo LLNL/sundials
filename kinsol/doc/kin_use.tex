@@ -1995,6 +1995,8 @@ typedef int (*KINSpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, \\
 
   If the user-provided \id{KINSpgmrJacTimesVec} function needs the unit roundoff,
   this can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+
+  {\warn} The user is responsible for resetting the value of \id{new\_u} to \id{FALSE}.
 }
 %%
 
@@ -2801,8 +2803,8 @@ apply to {\nvecp}.
     \item[SCSTEPTOL] is the tolerance on minimum scaled step size.
     \item[CONSTRAINTS] is an array of constraint values on the components of the
       solution $u$.
-    \item[INOPT] is an integer flag indicating whether possible
-      input values in IOPT are to be used for input. A value of
+    \item[OPTIN] is an integer flag indicating whether
+      input values in \Id{IOPT} and/or \Id{ROPT} are to be used for input. A value of
       $0$ means {\em no} and a value of $1$ indicates {\em yes}.
     \item[IOPT] is an array of integer optional inputs and outputs
       (must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the
@@ -2819,6 +2821,14 @@ apply to {\nvecp}.
     are listed in Table~\ref{t:fkinsol_io}.
     If any of the optional inputs are used, the others must be set
     to zero to indicate default values.
+
+    Since {\kinsol} maintains a private copy of the constraints vector, the
+    \id{CONSTRAINTS} array passed as an argument to \Id{FKINMALLOC} can be reused
+    after the function call.
+
+    {\warn} If \id{OPTIN} is set to $1$, then \id{FKINSOL} will set the applicable
+    optional outputs before returning, so the \Id{IOPT} and \Id{ROPT} arrays should
+    not be reused.
   }
   
 \item\label{i:fkinsol_lin_solv_spec}{\bf Linear solver specification} 
