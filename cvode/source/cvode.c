@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2005-04-07 18:30:00 $
+ * $Revision: 1.44 $
+ * $Date: 2005-04-12 23:04:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -3116,9 +3116,9 @@ static int CVRcheck1(CVodeMem cv_mem)
   if (!zroot) return(CV_SUCCESS);
 
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
-  smallh = (h > ZERO) ? ttol : -ttol;
+  hratio = MAX(ttol/ABS(h), TENTH);
+  smallh = hratio*h;
   tlo += smallh;
-  hratio = smallh/h;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
   gfun (tlo, y, glo, g_data);  nge++;
   zroot = FALSE;
