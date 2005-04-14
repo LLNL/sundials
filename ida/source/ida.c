@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38.2.6 $
- * $Date: 2005-04-07 17:49:58 $
+ * $Revision: 1.38.2.7 $
+ * $Date: 2005-04-14 20:47:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -195,6 +195,10 @@ void *IDACreate(void)
   IDA_mem->ida_lsoff   = FALSE;
   IDA_mem->ida_steptol = RPowerR(IDA_mem->ida_uround, TWOTHIRDS);
 
+  /* Initialize lrw and liw */
+  IDA_mem->ida_lrw = 25 + 5*MXORDP1;
+  IDA_mem->ida_liw = 38;
+
   /* No mallocs have been done yet */
   IDA_mem->ida_VatolMallocDone = FALSE;
   IDA_mem->ida_constraintsMallocDone = FALSE;
@@ -208,6 +212,8 @@ void *IDACreate(void)
 /*-----------------------------------------------------------------*/
 
 #define errfp (IDA_mem->ida_errfp)
+#define lrw   (IDA_mem->ida_lrw)
+#define liw   (IDA_mem->ida_liw)
 
 /*-----------------------------------------------------------------*/
 
@@ -359,6 +365,9 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   return(IDA_SUCCESS);
 }
 
+#define lrw1 (IDA_mem->ida_lrw1)
+#define liw1 (IDA_mem->ida_liw1)
+
 /*
  * -----------------------------------------------------------------
  * IDAReInit
@@ -451,11 +460,15 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 
   if ( (itol != IDA_SV) && (IDA_mem->ida_VatolMallocDone) ) {
     N_VDestroy(IDA_mem->ida_Vatol);
+    lrw -= lrw1;
+    liw -= liw1;
     IDA_mem->ida_VatolMallocDone = FALSE;
   }
 
   if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
     IDA_mem->ida_Vatol = N_VClone(yy0);
+    lrw += lrw1;
+    liw += liw1;
     IDA_mem->ida_VatolMallocDone = TRUE;
   }
 
@@ -558,10 +571,6 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 #define nni         (IDA_mem->ida_nni)
 #define nsetups     (IDA_mem->ida_nsetups)
 #define ns          (IDA_mem->ida_ns)
-#define lrw1        (IDA_mem->ida_lrw1)
-#define liw1        (IDA_mem->ida_liw1)
-#define lrw         (IDA_mem->ida_lrw)
-#define liw         (IDA_mem->ida_liw)
 #define linit       (IDA_mem->ida_linit)
 #define lsetup      (IDA_mem->ida_lsetup)
 #define lsolve      (IDA_mem->ida_lsolve) 
@@ -1019,6 +1028,10 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
     }
   }
 
+  /* Update solver workspace lengths  */
+  lrw += (maxcol + 6)*lrw1;
+  liw += (maxcol + 6)*liw1;
+
   if (tol == IDA_SV) {
     Vatol = N_VClone(tmpl);
     if (Vatol == NULL) {
@@ -1029,13 +1042,10 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
       N_VDestroy(tempv2);
       for (i=0; i <= maxcol; i++) N_VDestroy(phi[i]);
     }
+    lrw += lrw1;
+    liw += liw1;
     IDA_mem->ida_VatolMallocDone = TRUE;
   }
-
-  /* Set solver workspace lengths  */
-
-  lrw = (maxcol + 6) * lrw1;
-  liw = (maxcol + 6) * liw1;
 
   return(TRUE);
 }
@@ -1059,9 +1069,27 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   N_VDestroy(tempv2);
   maxcol = MAX(maxord,3);
   for(j=0; j <= maxcol; j++) N_VDestroy(phi[j]);
-  if (IDA_mem->ida_VatolMallocDone) N_VDestroy(Vatol);
-  if (IDA_mem->ida_constraintsMallocDone) N_VDestroy(constraints);
-  if (IDA_mem->ida_idMallocDone) N_VDestroy(id);
+
+  lrw -= (maxcol + 6)*lrw1;
+  liw -= (maxcol + 6)*liw1;
+
+  if (IDA_mem->ida_VatolMallocDone) {
+    N_VDestroy(Vatol);
+    lrw -= lrw1;
+    liw -= liw1;
+  }
+
+  if (IDA_mem->ida_constraintsMallocDone) {
+    N_VDestroy(constraints);
+    lrw -= lrw1;
+    liw -= liw1;
+  }
+
+  if (IDA_mem->ida_idMallocDone) {
+    N_VDestroy(id);
+    lrw -= lrw1;
+    liw -= liw1;
+  }
 
 }
 

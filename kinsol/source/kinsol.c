@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36.2.2 $
- * $Date: 2005-04-05 19:10:48 $
+ * $Revision: 1.36.2.3 $
+ * $Date: 2005-04-14 20:47:32 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -164,15 +164,21 @@ void *KINCreate(void)
   kin_mem->kin_fnormtol       = RPowerR(uround,ONETHIRD);
   kin_mem->kin_etaflag        = KIN_ETACHOICE1;
   kin_mem->kin_eta            = POINT1;  /* default for KIN_ETACONSTANT */
-  kin_mem->kin_eta_alpha      = TWO;  /* default for KIN_ETACHOICE2 */
-  kin_mem->kin_eta_gamma      = POINT9;  /* default for KIN_ETACHOICE2 */
+  kin_mem->kin_eta_alpha      = TWO;     /* default for KIN_ETACHOICE2  */
+  kin_mem->kin_eta_gamma      = POINT9;  /* default for KIN_ETACHOICE2  */
   kin_mem->kin_MallocDone     = FALSE;
   kin_mem->kin_setupNonNull   = FALSE;
+
+  /* Initialize lrw and liw */
+  kin_mem->kin_lrw = 17;
+  kin_mem->kin_liw = 22;
 
   return((void *) kin_mem);
 }
 
 #define errfp (kin_mem->kin_errfp)
+#define liw   (kin_mem->kin_liw)
+#define lrw   (kin_mem->kin_lrw)
 
 /*
  * -----------------------------------------------------------------
@@ -313,8 +319,6 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
 #define res_norm (kin_mem->kin_res_norm)
 #define liw1 (kin_mem->kin_liw1)
 #define lrw1 (kin_mem->kin_lrw1)
-#define liw (kin_mem->kin_liw)
-#define lrw (kin_mem->kin_lrw)
 
 /*
  * -----------------------------------------------------------------
@@ -567,8 +571,9 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     return(FALSE);
   }
 
-  liw = 5*liw1;
-  lrw = 5*lrw1;
+  /* Update solver workspace lengths  */
+  liw += 5*liw1;
+  lrw += 5*lrw1;
 
   return(TRUE);
 }
@@ -819,7 +824,16 @@ static void KINFreeVectors(KINMem kin_mem)
   N_VDestroy(pp);
   N_VDestroy(vtemp1);
   N_VDestroy(vtemp2);
-  N_VDestroy(constraints);
+
+  lrw -= 5*lrw1;
+  liw -= 5*liw1;
+
+  if (kin_mem->kin_constraintsSet) {
+    N_VDestroy(constraints);
+    lrw -= lrw1;
+    liw -= liw1;
+  }
+
 }
 
 /*

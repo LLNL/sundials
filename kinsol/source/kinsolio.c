@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1.2.2 $
- * $Date: 2005-04-08 14:47:18 $
+ * $Revision: 1.1.2.3 $
+ * $Date: 2005-04-14 20:47:32 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -29,6 +29,11 @@
 #define ONE     RCONST(1.0)
 #define TWO     RCONST(2.0)
 #define TWOPT5  RCONST(2.5)
+
+#define liw  (kin_mem->kin_liw)
+#define lrw  (kin_mem->kin_lrw)
+#define liw1 (kin_mem->kin_liw1)
+#define lrw1 (kin_mem->kin_lrw1)
 
 /* 
  * =================================================================
@@ -451,6 +456,8 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
   if (constraints == NULL) {
     if (kin_mem->kin_constraintsSet) {
       N_VDestroy(kin_mem->kin_constraints);
+      lrw -= lrw1;
+      liw -= liw1;
     }
     kin_mem->kin_constraintsSet = FALSE;
     return(KIN_SUCCESS);
@@ -466,6 +473,8 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
 
   if (!kin_mem->kin_constraintsSet) {
     kin_mem->kin_constraints = N_VClone(constraints);
+    lrw += lrw1;
+    liw += liw1;
     kin_mem->kin_constraintsSet = TRUE;
   }
 

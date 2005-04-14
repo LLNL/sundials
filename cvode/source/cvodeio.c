@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1.2.3 $
- * $Date: 2005-04-06 23:36:58 $
+ * $Revision: 1.1.2.4 $
+ * $Date: 2005-04-14 20:47:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,11 @@
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
+
+#define lrw (cv_mem->cv_lrw)
+#define liw (cv_mem->cv_liw)
+#define lrw1 (cv_mem->cv_lrw1)
+#define liw1 (cv_mem->cv_liw1)
 
 /* 
  * =================================================================
@@ -490,11 +495,15 @@ int CVodeSetTolerances(void *cvode_mem,
 
   if ( (itol != CV_SV) && (cv_mem->cv_VabstolMallocDone) ) {
     N_VDestroy(cv_mem->cv_Vabstol);
+    lrw -= lrw1;
+    liw -= liw1;
     cv_mem->cv_VabstolMallocDone = FALSE;
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
     cv_mem->cv_Vabstol = N_VClone(cv_mem->cv_ewt);
+    lrw += lrw1;
+    liw += liw1;
     cv_mem->cv_VabstolMallocDone = TRUE;
   }
 
@@ -531,6 +540,8 @@ int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data)
 
   if ( cv_mem->cv_VabstolMallocDone ) {
     N_VDestroy(cv_mem->cv_Vabstol);
+    lrw -= lrw1;
+    liw -= liw1;
     cv_mem->cv_VabstolMallocDone = FALSE;
   }
 

@@ -287,7 +287,20 @@ The form of the call to this routine is as follows:
   file specified by the optional input \id{errfp}.
 }
 %%
-%%
+\index{memory requirements!CVODES@{\cvodes} solver}
+In terms of the problem size $N$, number of sensitivity vectors $N_s$, and maximum method 
+order \id{maxord}, the size of the real workspace is increased by:
+\begin{itemize}
+\item Base value: \id{lenrw} $=$ \id{lenrw} $+$ (\id{maxord+5})$N_s N$
+\item With \id{itolS = CV\_SV} (see \id{CVodeSetSensTolerances}): 
+  \id{lenrw} $=$ \id{lenrw} $+ N_s N$ 
+\end{itemize}
+the size of the integer workspace is increased by:
+\begin{itemize}
+\item Base value: \id{leniw} $=$ \id{leniw} $+$ (\id{maxord+5})$N_s N$
+\item With \id{itolS = CV\_SV}: \id{leniw} $=$ \id{leniw} $+ N_s N$ 
+\end{itemize}
+
 The routine \ID{CVodeSensReInit}, useful during the solution of a sequence of problems of 
 same size, reinitializes the sensitivity-related internal memory 
 and must follow a call to \Id{CVodeSensMalloc} (and maybe a call to \id{CVodeReInit}). 

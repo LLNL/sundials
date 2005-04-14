@@ -546,27 +546,30 @@ then a call to \id{IDACalcIC} is {\em not} necessary.
 A call to \id{IDACalcIC} must be preceded by successful calls to  
 \id{IDACreate} and \id{IDAMalloc}, and by a successful call to the 
 linear system solver specification function.  
-In addition, \id{IDACalcIC} assumes that the vectors \id{y0} and \id{yp0},
-passed to \id{IDAMalloc}, and (if relevant) \id{id} and \id{constraints},
-set through \id{IDASetId} and \id{IDASetConstraints}, respectively
-(see \S\ref{ss:optional_input}), remain unaltered since that call.
-
 The call to \id{IDACalcIC} should precede the call(s) to \id{IDASolve}  
-for the given problem.           
-
+for the given problem.
 %
 \ucfunction{IDACalcIC}
 {
-  flag = IDACalcIC(ida\_mem, icopt, tout1);
+  flag = IDACalcIC(ida\_mem, t0, y0, yp0, icopt, tout1);
 }
 {
-  The function \ID{IDACalcIC} corrects the initial values \id{y0}, \id{yp0}.
+  The function \ID{IDACalcIC} corrects the initial values \id{y0} and \id{yp0} at time \id{t0}.
 }
 {
   \begin{args}[ida\_mem]
 
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
+
+  \item[t0] (\id{realtype})
+    is the initial value of $t$.
+
+  \item[y0] (\id{N\_Vector})
+    is the initial value of $y$. 
+
+  \item[yp0] (\id{N\_Vector})
+    is the initial value of $y^\prime$.   
 
   \item[icopt] (\id{int})
     is the option of IDACalcIC to be used.
@@ -646,9 +649,9 @@ for the given problem.
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDACalcIC} failures.
 
-  After a successful return from \id{IDACalcIC} the pointers to the vectors \id{y0} 
-  and \id{yp0} (passed as arguments to \id{IDAMalloc}) are released and, if so desired,
-  the user can deallocate them.
+  Note that \id{IDACalcIC} is typically called before the first call to \id{IDASolve}
+  and after \id{IDAMalloc} to compute consistent initial conditions for the DAE problem. 
+  However, it can be also called at any other further time to correct a pair $(y, y^\prime)$.
 }
 
 
@@ -2131,7 +2134,6 @@ outputs in groups.
 %%
 These optional output functions are described next.
 %%
-\index{memory requirements!IDA@{\ida} solver|(}
 %%
 \ucfunction{IDAGetWorkSpace}
 {
@@ -2160,9 +2162,32 @@ These optional output functions are described next.
     The \id{ida\_mem} pointer is \id{NULL}.
   \end{args}
 }
-{}
-%%
-\index{memory requirements!IDA@{\ida} solver|)}
+{
+  \index{memory requirements!IDA@{\ida} solver}
+  In terms of the problem size $N$ and maximum method order \id{maxord},
+  the actual size of the real workspace given in \id{realtype} words is:
+  \begin{itemize}
+  \item Base value: \id{lenrw} $=55 + (m+6) N$
+  \item With \id{itol = IDA\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N$
+  \item With constraint checking (see \id{IDASetConstraints}): 
+    \id{lenrw} $=$ \id{lenrw} $+ N$
+  \item With \id{id} specified (see \id{IDASetId}): 
+    \id{lenrw} $=$ \id{lenrw} $+ N$
+  \end{itemize}
+  Here $m = max(3,$\id{maxord}$)$.
+
+  The size of the integer workspace (without distinction between \id{int} 
+  and \id{long int}) is:
+  \begin{itemize}
+  \item Base value: \id{leniw} $=38 + (m+6) N$
+  \item With \id{itol = IDA\_SV}: \id{leniw} $=$ \id{leniw} $+ N$ 
+  \item With constraint checking: \id{lenrw} $=$ \id{lenrw} $+ N$
+  \item With \id{id} specified: \id{lenrw} $=$ \id{lenrw} $+ N$
+  \end{itemize}
+
+  For the default value of \id{maxord}, the base values are
+  \id{lenrw} $=55 + 11N$ and \id{leniw} $=38 + 11N$ 
+}
 %%
 \ucfunction{IDAGetNumSteps}
 {
@@ -2669,8 +2694,6 @@ workspace requirements, number of calls to the Jacobian routine, number of
 calls to the residual routine for finite-difference Jacobian approximation,
 and last return value from a {\idadense} function.
 %%
-\index{IDADENSE@{\idadense} linear solver!memory requirements} 
-\index{memory requirements!IDADENSE@{\idadense} linear solver}
 %%
 \ucfunction{IDADenseGetWorkSpace}
 {
@@ -2702,6 +2725,8 @@ and last return value from a {\idadense} function.
   \end{args}
 }
 {
+  \index{IDADENSE@{\idadense} linear solver!memory requirements} 
+  \index{memory requirements!IDADENSE@{\idadense} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
   is $2N^2$ \id{realtype} words.
 
@@ -2820,8 +2845,6 @@ workspace requirements, number of calls to the Jacobian routine, number of
 calls to the residual routine for finite-difference Jacobian approximation,
 and last return value from a {\idaband} function.
 %%
-\index{IDABAND@{\idaband} linear solver!memory requirements} 
-\index{memory requirements!IDABAND@{\idaband} linear solver}
 %%
 \ucfunction{IDABandGetWorkSpace}
 {
@@ -2853,6 +2876,8 @@ and last return value from a {\idaband} function.
   \end{args}
 }
 {
+  \index{IDABAND@{\idaband} linear solver!memory requirements} 
+  \index{memory requirements!IDABAND@{\idaband} linear solver}
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
   the actual size of the real workspace is
   $N\,(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)$ \id{realtype} words.
@@ -2974,8 +2999,6 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 calls to the residual routine for finite-difference Jacobian-vector product approximation,
 and last return value from an {\idaspgmr} function.
 %%
-\index{IDASPGMR@{\idaspgmr} linear solver!memory requirements} 
-\index{memory requirements!IDASPGMR@{\idaspgmr} linear solver}
 %%
 \ucfunction{IDASpgmrGetWorkSpace}
 {
@@ -3007,6 +3030,8 @@ and last return value from an {\idaspgmr} function.
   \end{args}
 }
 {
+  \index{IDASPGMR@{\idaspgmr} linear solver!memory requirements} 
+  \index{memory requirements!IDASPGMR@{\idaspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is
   $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$ \id{realtype} words.
@@ -4303,7 +4328,6 @@ used in the difference-quotient Jacobian approximations, the relative increment
 The following two optional output functions are available for use with
 the {\idabbdpre} module:
 %%
-\index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
 \ucfunction{IDABBDPrecGetWorkSpace}
 {
   flag = IDABBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
@@ -4332,6 +4356,7 @@ the {\idabbdpre} module:
   \end{args}
 }
 {
+  \index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
   In terms of the local vector dimension $N_l$, the actual size of the real workspace is
   $N_l \,(2$ \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2)$ \id{realtype} words,
   where \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$.

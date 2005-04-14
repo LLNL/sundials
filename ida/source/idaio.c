@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1.2.3 $
- * $Date: 2005-04-06 23:39:58 $
+ * $Revision: 1.1.2.4 $
+ * $Date: 2005-04-14 20:47:32 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,11 @@
 #define HALF    RCONST(0.5)
 #define ONE     RCONST(1.0)
 #define TWOPT5  RCONST(2.5)
+
+#define lrw  (IDA_mem->ida_lrw)
+#define liw  (IDA_mem->ida_liw)
+#define lrw1 (IDA_mem->ida_lrw1)
+#define liw1 (IDA_mem->ida_liw1)
 
 /* 
  * =================================================================
@@ -296,14 +301,19 @@ int IDASetId(void *ida_mem, N_Vector id)
   IDA_mem = (IDAMem) ida_mem;
 
   if (id == NULL) {
-    if (IDA_mem->ida_idMallocDone)
+    if (IDA_mem->ida_idMallocDone) {
       N_VDestroy(IDA_mem->ida_id);
+      lrw -= lrw1;
+      liw -= liw1;
+    }
     IDA_mem->ida_idMallocDone = FALSE;    
     return(IDA_SUCCESS);
   }
 
   if ( !(IDA_mem->ida_idMallocDone) ) {
     IDA_mem->ida_id = N_VClone(id);
+    lrw += lrw1;
+    liw += liw1;
     IDA_mem->ida_idMallocDone = TRUE;
   }
 
@@ -329,8 +339,11 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
   IDA_mem = (IDAMem) ida_mem;
 
   if (constraints == NULL) {
-    if (IDA_mem->ida_constraintsMallocDone)
+    if (IDA_mem->ida_constraintsMallocDone) {
       N_VDestroy(IDA_mem->ida_constraints);
+      lrw -= lrw1;
+      liw -= liw1;
+    }
     IDA_mem->ida_constraintsMallocDone = FALSE;
     IDA_mem->ida_constraintsSet = FALSE;
     return(IDA_SUCCESS);
@@ -357,6 +370,8 @@ int IDASetConstraints(void *ida_mem, N_Vector constraints)
 
   if ( !(IDA_mem->ida_constraintsMallocDone) ) {
     IDA_mem->ida_constraints = N_VClone(constraints);
+    lrw += lrw1;
+    liw += liw1;
     IDA_mem->ida_constraintsMallocDone = TRUE;
   }
 
@@ -424,11 +439,15 @@ int IDASetTolerances(void *ida_mem,
 
   if ( (itol != IDA_SV) && (IDA_mem->ida_VatolMallocDone) ) {
     N_VDestroy(IDA_mem->ida_Vatol);
+    lrw -= lrw1;
+    liw -= liw1;
     IDA_mem->ida_VatolMallocDone = FALSE;
   }
 
   if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
     IDA_mem->ida_Vatol = N_VClone(IDA_mem->ida_ewt);
+    lrw += lrw1;
+    liw += liw1;
     IDA_mem->ida_VatolMallocDone = TRUE;
   }
 
@@ -464,6 +483,8 @@ int IDASetEwtFn(void *ida_mem, IDAEwtFn efun, void *edata)
 
   if ( IDA_mem->ida_VatolMallocDone ) {
     N_VDestroy(IDA_mem->ida_Vatol);
+    lrw -= lrw1;
+    liw -= liw1;
     IDA_mem->ida_VatolMallocDone = FALSE;
   }
 
