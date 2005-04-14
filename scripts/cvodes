@@ -54,6 +54,8 @@ tar uf $tarfile $distrobase/cvodes/examples_ser/Makefile.in
 
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvdx.c
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvdx.out
+tar uf $tarfile $distrobase/cvodes/examples_ser/cvdxe.c
+tar uf $tarfile $distrobase/cvodes/examples_ser/cvdxe.out
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvbx.c
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvbx.out
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvkx.c
