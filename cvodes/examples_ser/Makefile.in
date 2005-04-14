@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.6.2.1 $
-# $Date: 2005-02-14 23:14:59 $
+# $Revision: 1.6.2.2 $
+# $Date: 2005-04-14 22:02:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -40,13 +40,16 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = cvdx cvbx cvkx cvkxb cvdemd cvdemk cvfnx cvfdx cvfkx cvadx cvabx cvakx cvakxb
+EXEC_FILES = cvdx cvdxe cvbx cvkx cvkxb cvdemd cvdemk cvfnx cvfdx cvfkx cvadx cvabx cvakx cvakxb
 
 all: $(EXEC_FILES)
 
 cvdx: $(srcdir)/cvdx.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdx.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdx $(builddir)/cvdx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
+cvdxe: $(srcdir)/cvdxe.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdxe.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdxe $(builddir)/cvdxe.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
 cvbx: $(srcdir)/cvbx.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbx.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvbx $(builddir)/cvbx.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) 
