@@ -1403,7 +1403,6 @@ different quantities that may be of interest to the user, such as solver workspa
 requirements and solver performance statistics.
 These optional output functions are described next.
 %%
-\index{memory requirements!KINSOL@{\kinsol} solver}
 %%
 \ucfunction{KINGetWorkSpace}
 {
@@ -1433,8 +1432,13 @@ These optional output functions are described next.
   \end{args}
 }
 {
+  \index{memory requirements!KINSOL@{\kinsol} solver}
   In terms of the problem size $N$, the actual size of the real workspace 
-  is $5 N$ \id{realtype} words.
+  is $17 + 5 N$ \id{realtype} words. The real workspace is increased by
+  an additional $N$ words if constraint checking is enabled (see \id{KINSetConstraints}).
+
+  The actual size of the integer workspace (without distinction between \id{int} 
+  and \id{long int}) is $22 + 5 N$ (increased by $N$ if constraint checking is enabled).
 }
 %%
 %%
@@ -1617,8 +1621,6 @@ performance of the {\kinspgmr} module are described below.
 \index{optional output!iterative linear solver|(}
 \index{KINSPGMR@{\kinspgmr} linear solver!optional output|(} 
 %%
-\index{KINSPGMR@{\kinspgmr} linear solver!memory requirements|(} 
-\index{memory requirements!KINSPGMR@{\kinspgmr} linear solver|(}
 %%
 \ucfunction{KINSpgmrGetWorkSpace}
 {
@@ -1650,15 +1652,14 @@ performance of the {\kinspgmr} module are described below.
   \end{args}
 }
 {
+  \index{KINSPGMR@{\kinspgmr} linear solver!memory requirements} 
+  \index{memory requirements!KINSPGMR@{\kinspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is
   (\id{maxl}$+ 5)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ \id{realtype}
   words.  (In a parallel setting, this value is global - summed over
   all processes.)
 }
-%%
-\index{KINSPGMR@{\kinspgmr} linear solver!memory requirements|)} 
-\index{memory requirements!KINSPGMR@{\kinspgmr} linear solver|)}
 %%
 %%
 \ucfunction{KINSpgmrGetNumLinIters}
@@ -2467,7 +2468,6 @@ next.
 The following two optional output functions are available for use with
 the {\kinbbdpre} module:
 %%
-\index{memory requirements!KINBBDPRE@{\kinbbdpre} preconditioner}
 \ucfunction{KINBBDPrecGetWorkSpace}
 {
   flag = KINBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
@@ -2495,7 +2495,14 @@ the {\kinbbdpre} module:
     The {\kinbbdpre} preconditioner has not been initialized.
   \end{args}
 }
-{}
+{
+  \index{memory requirements!KINBBDPRE@{\kinbbdpre} preconditioner}
+  In terms of the local vector dimension $N_l$, the actual size of the real workspace is
+  $N_l \,(2$ \id{ml} $+$ \id{mu} $+$ \id{smu} $+2)$ \id{realtype} words,
+  where \id{smu} = $\min ( N_l - 1 ,$ \id{mu} $+$ \id{ml}$)$.
+
+  The actual size of the integer workspace is $N_l$ integer words.
+}
 %%
 %%
 \ucfunction{KINBBDPrecGetNumGfnEvals}

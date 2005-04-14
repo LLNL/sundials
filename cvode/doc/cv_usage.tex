@@ -1933,7 +1933,6 @@ outputs in groups.
 %%
 These optional output functions are described next.
 %%
-\index{memory requirements!CVODE@{\cvode} solver|(}
 %%
 \ucfunction{CVodeGetWorkSpace}
 {
@@ -1963,13 +1962,31 @@ These optional output functions are described next.
   \end{args}
 }
 {
+  \index{memory requirements!CVODE@{\cvode} solver}
   In terms of the problem size $N$ and maximum method order \id{maxord},
-  the actual size of the real workspace is (\id{maxord+5})$N$ \id{realtype}
-  words.  For the default values, this size is $17 N$ for the Adams method
-  and $10 N$ for the BDF method.
+  the actual size of the real workspace given in \id{realtype} words is:
+  \begin{itemize}
+  \item Base value: \id{lenrw} $=89 +$ (\id{maxord+5})$N$
+  \item With \id{itol = CV\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N$ 
+  \item With rootfinding for $N_g$ functions (see \S\ref{s:using_rootfinding}): 
+    \id{lenrw} $=$ \id{lenrw}$+ 3N_g$ 
+  \end{itemize}
+
+  The size of the integer workspace (without distinction between \id{int} 
+  and \id{long int}) is:
+  \begin{itemize}
+  \item Base value: \id{leniw} $=40 +$ (\id{maxord+5})$N$
+  \item With \id{itol = CV\_SV}: \id{leniw} $=$ \id{leniw} $+ N$ 
+  \item With rootfinding for $N_g$ functions: \id{leniw} $=$ \id{leniw}$+ N_g$ 
+  \end{itemize}
+
+  For the default value of \id{maxord}, the base values are:
+  \begin{itemize}
+  \item For the Adams method: \id{lenrw} $=89 + 17N$ and \id{leniw} $=40 + 17N$ 
+  \item For the BDF method: \id{lenrw} $=89 + 10N$ and \id{leniw} $=40 + 10N$ 
+  \end{itemize}
 }
 %%
-\index{memory requirements!CVODE@{\cvode} solver|)}
 %%
 \ucfunction{CVodeGetNumSteps}
 {
@@ -2536,8 +2553,6 @@ workspace requirements, number of calls to the Jacobian routine, number of
 calls to the right-hand side routine for finite-difference Jacobian approximation,
 and last return value from a {\cvdense} function.
 %%
-\index{CVDENSE@{\cvdense} linear solver!memory requirements|(} 
-\index{memory requirements!CVDENSE@{\cvdense} linear solver|(}
 %%
 \ucfunction{CVDenseGetWorkSpace}
 {
@@ -2569,13 +2584,12 @@ and last return value from a {\cvdense} function.
   \end{args}
 }
 {
+  \index{CVDENSE@{\cvdense} linear solver!memory requirements} 
+  \index{memory requirements!CVDENSE@{\cvdense} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
   is $2N^2$ \id{realtype} words, and the actual size of the integer workspace
   is $N$ integer words.
 }
-%%
-\index{CVDENSE@{\cvdense} linear solver!memory requirements|)} 
-\index{memory requirements!CVDENSE@{\cvdense} linear solver|)}
 %%
 %%
 \ucfunction{CVDenseGetNumJacEvals}
@@ -2690,8 +2704,6 @@ workspace requirements, number of calls to the Jacobian routine, number of
 calls to the right-hand side routine for finite-difference Jacobian approximation,
 and last return value from a {\cvband} function.
 %%
-\index{CVBAND@{\cvband} linear solver!memory requirements|(} 
-\index{memory requirements!CVBAND@{\cvband} linear solver|(}
 %%
 \ucfunction{CVBandGetWorkSpace}
 {
@@ -2723,14 +2735,13 @@ and last return value from a {\cvband} function.
   \end{args}
 }
 {
+  \index{CVBAND@{\cvband} linear solver!memory requirements} 
+  \index{memory requirements!CVBAND@{\cvband} linear solver}
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
   the actual size of the real workspace is
   $(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)\, N$ \id{realtype} words,
   and the actual size of the integer workspace is $N$ integer words.
 }
-%%
-\index{CVBAND@{\cvband} linear solver!memory requirements|)} 
-\index{memory requirements!CVBAND@{\cvband} linear solver|)}
 %%
 %%
 \ucfunction{CVBandGetNumJacEvals}
@@ -2845,8 +2856,6 @@ workspace requirements, number of calls to the right-hand side routine for
 finite-difference Jacobian approximation, and last return value from a 
 {\cvdiag} function.
 %%
-\index{CVDIAG@{\cvdiag} linear solver!memory requirements|(} 
-\index{memory requirements!CVDIAG@{\cvdiag} linear solver|(}
 %%
 \ucfunction{CVDiagGetWorkSpace}
 {
@@ -2878,12 +2887,11 @@ finite-difference Jacobian approximation, and last return value from a
   \end{args}
 }
 {
+  \index{CVDIAG@{\cvdiag} linear solver!memory requirements} 
+  \index{memory requirements!CVDIAG@{\cvdiag} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
   is $3 N$ \id{realtype} words.
 }
-%%
-\index{CVDIAG@{\cvdiag} linear solver!memory requirements|)} 
-\index{memory requirements!CVDIAG@{\cvdiag} linear solver|)}
 %%
 %%
 \ucfunction{CVDiagGetNumRhsEvals}
@@ -2973,8 +2981,6 @@ product routine, number of calls to the right-hand side routine for
 finite-difference Jacobian-vector product approximation, and last
 return value from a {\cvspgmr} function.
 %%
-\index{CVSPGMR@{\cvspgmr} linear solver!memory requirements|(} 
-\index{memory requirements!CVSPGMR@{\cvspgmr} linear solver|(}
 %%
 \ucfunction{CVSpgmrGetWorkSpace}
 {
@@ -3006,15 +3012,14 @@ return value from a {\cvspgmr} function.
   \end{args}
 }
 {
+  \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements} 
+  \index{memory requirements!CVSPGMR@{\cvspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is
   (\id{maxl}$+ 5)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ \id{realtype}
   words.  (In a parallel setting, this value is global --- summed over
   all processors.)
 }
-%%
-\index{CVSPGMR@{\cvspgmr} linear solver!memory requirements|)} 
-\index{memory requirements!CVSPGMR@{\cvspgmr} linear solver|)}
 %%
 %%
 \ucfunction{CVSpgmrGetNumLinIters}
@@ -4188,7 +4193,6 @@ in more detail below.
 The following three optional output functions are available for use with 
 the {\cvbandpre} module:
 %%
-\index{memory requirements!CVBANDPRE@{\cvbandpre} preconditioner|(}
 %%
 \ucfunction{CVBandPrecGetWorkSpace}
 {
@@ -4218,13 +4222,13 @@ the {\cvbandpre} module:
   \end{args}
 }
 {
+  \index{memory requirements!CVBANDPRE@{\cvbandpre} preconditioner}
   In terms of problem size $N$, and \id{smu} = $\min(N-1,\,$\id{mu+ml}),
   the actual size of the real workspace is
   $(2$ \id{ml} $+$ \id{mu} $+$ \id{smu} $+2)\, N$ \id{realtype} words,
   and the actual size of the integer workspace is $N$ integer words.
 }
 %%
-\index{memory requirements!CVBANDPRE@{\cvbandpre} preconditioner|)}
 %%
 \ucfunction{CVBandPrecGetNumRhsEvals}
 {
@@ -4705,7 +4709,6 @@ used in the difference-quotient Jacobian approximations, the relative increment
 The following two optional output functions are available for use with
 the {\cvbbdpre} module:
 %%
-\index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner}
 \ucfunction{CVBBDPrecGetWorkSpace}
 {
   flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
@@ -4734,6 +4737,7 @@ the {\cvbbdpre} module:
   \end{args}
 }
 {
+  \index{memory requirements!CVBBDPRE@{\cvbbdpre} preconditioner}
   In terms of \id{local\_N} and
   \id{smu} = $\min$(\id{local\_N - 1, mukeep} $+$ \id{mlkeep}),
   the actual size of the real workspace is

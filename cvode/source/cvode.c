@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.44 $
- * $Date: 2005-04-12 23:04:10 $
+ * $Revision: 1.45 $
+ * $Date: 2005-04-14 20:53:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -288,6 +288,10 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_maxncf   = MXNCF;
   cv_mem->cv_nlscoef  = CORTES;
 
+  /* Initialize lrw and liw */
+  cv_mem->cv_lrw = 58 + 2*L_MAX + NUM_TESTS;
+  cv_mem->cv_liw = 40;
+
   /* CVodeMalloc not done yet */
   cv_mem->cv_VabstolMallocDone = FALSE;
   cv_mem->cv_MallocDone = FALSE;
@@ -296,9 +300,11 @@ void *CVodeCreate(int lmm, int iter)
   return((void *)cv_mem);
 }
 
-#define iter (cv_mem->cv_iter)  
-#define lmm (cv_mem->cv_lmm) 
+#define iter  (cv_mem->cv_iter)  
+#define lmm   (cv_mem->cv_lmm) 
 #define errfp (cv_mem->cv_errfp)
+#define lrw   (cv_mem->cv_lrw)
+#define liw   (cv_mem->cv_liw)
 
 /*------------------     CVodeMalloc     --------------------------*/
 /* 
@@ -472,6 +478,9 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   return(CV_SUCCESS);
 }
 
+#define lrw1 (cv_mem->cv_lrw1)
+#define liw1 (cv_mem->cv_liw1)
+
 /*------------------     CVodeReInit     --------------------------*/
 /*
   CVodeReInit re-initializes CVODE's memory for a problem, assuming
@@ -554,11 +563,15 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   if ( (itol != CV_SV) && (cv_mem->cv_VabstolMallocDone) ) {
     N_VDestroy(cv_mem->cv_Vabstol);
+    lrw -= lrw1;
+    liw -= liw1;
     cv_mem->cv_VabstolMallocDone = FALSE;
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
     cv_mem->cv_Vabstol = N_VClone(y0);
+    lrw += lrw1;
+    liw += liw1;
     cv_mem->cv_VabstolMallocDone = TRUE;
   }
 
@@ -655,6 +668,9 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
     free(groot);
     free(iroots);
 
+    lrw -= 3* (cv_mem->cv_nrtfn);
+    liw -= cv_mem->cv_nrtfn;
+
     /* Linux version of free() routine doesn't set pointer to NULL */
     glo = ghi = groot = NULL;
     iroots = NULL;
@@ -684,6 +700,10 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 	free(ghi);
 	free(groot);
 	free(iroots);
+
+        lrw -= 3*nrt;
+        liw -= nrt;
+
 	fprintf(errfp, MSGCV_ROOT_FUNC_NULL);
 	return(CV_RTFUNC_NULL);
       }
@@ -730,6 +750,9 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
     fprintf(stderr, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
+
+  lrw += 3*nrt;
+  liw += nrt;
 
   return(CV_SUCCESS);
 }
@@ -802,10 +825,6 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 #define nni            (cv_mem->cv_nni)
 #define nsetups        (cv_mem->cv_nsetups)
 #define nhnil          (cv_mem->cv_nhnil)
-#define lrw1           (cv_mem->cv_lrw1)
-#define liw1           (cv_mem->cv_liw1)
-#define lrw            (cv_mem->cv_lrw)
-#define liw            (cv_mem->cv_liw)
 #define linit          (cv_mem->cv_linit)
 #define lsetup         (cv_mem->cv_lsetup)
 #define lsolve         (cv_mem->cv_lsolve) 
@@ -1374,6 +1393,10 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
     }
   }
 
+  /* Update solver workspace lengths  */
+  lrw += (qmax + 5)*lrw1;
+  liw += (qmax + 5)*liw1;
+
   if (tol == CV_SV) {
     Vabstol = N_VClone(tmpl);
     if (Vabstol == NULL) {
@@ -1384,13 +1407,10 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
       for (i=0; i <= qmax; i++) N_VDestroy(zn[i]);
       return(FALSE);
     }
+    lrw += lrw1;
+    liw += liw1;
     cv_mem->cv_VabstolMallocDone = TRUE;
   }
-
-  /* Set solver workspace lengths  */
-
-  lrw = (qmax + 5)*lrw1;
-  liw = (qmax + 5)*liw1;
 
   return(TRUE);
 }
@@ -1410,7 +1430,15 @@ static void CVFreeVectors(CVodeMem cv_mem)
   N_VDestroy(tempv);
   N_VDestroy(ftemp);
   for(j=0; j <= qmax; j++) N_VDestroy(zn[j]);
-  if (cv_mem->cv_VabstolMallocDone) N_VDestroy(Vabstol);
+
+  lrw -= (qmax + 5)*lrw1;
+  liw -= (qmax + 5)*liw1;
+
+  if (cv_mem->cv_VabstolMallocDone) {
+    N_VDestroy(Vabstol);
+    lrw -= lrw1;
+    liw -= liw1;
+  }
 }
 
 /*-----------------------------------------------------------------*/

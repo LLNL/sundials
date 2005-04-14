@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-04-07 23:28:46 $
+ * $Revision: 1.6 $
+ * $Date: 2005-04-14 20:53:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,6 +24,13 @@
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
+
+#define lrw   (cv_mem->cv_lrw)
+#define liw   (cv_mem->cv_liw)
+#define lrw1  (cv_mem->cv_lrw1)
+#define liw1  (cv_mem->cv_liw1)
+#define lrw1Q (cv_mem->cv_lrw1Q)
+#define liw1Q (cv_mem->cv_liw1Q)
 
 /* 
  * =================================================================
@@ -491,11 +498,15 @@ int CVodeSetTolerances(void *cvode_mem,
 
   if ( (itol != CV_SV) && (cv_mem->cv_VabstolMallocDone) ) {
     N_VDestroy(cv_mem->cv_Vabstol);
+    lrw -= lrw1;
+    liw -= liw1;
     cv_mem->cv_VabstolMallocDone = FALSE;
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
     cv_mem->cv_Vabstol = N_VClone(cv_mem->cv_tempv);
+    lrw += lrw1;
+    liw += liw1;
     cv_mem->cv_VabstolMallocDone = TRUE;
   }
 
@@ -531,6 +542,8 @@ int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data)
 
   if ( cv_mem->cv_VabstolMallocDone ) {
     N_VDestroy(cv_mem->cv_Vabstol);
+    lrw -= lrw1;
+    liw -= liw1;
     cv_mem->cv_VabstolMallocDone = FALSE;
   }
 
@@ -594,6 +607,8 @@ int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ,
   if(errconQ == FALSE) {
     if (cv_mem->cv_VabstolQMallocDone) {
       N_VDestroy(cv_mem->cv_VabstolQ);
+      lrw -= lrw1Q;
+      liw -= liw1Q;
       cv_mem->cv_VabstolQMallocDone = FALSE;
     }
     return(CV_SUCCESS);
@@ -628,11 +643,15 @@ int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ,
 
   if ( (itolQ != CV_SV) && (cv_mem->cv_VabstolQMallocDone) ) {
     N_VDestroy(cv_mem->cv_VabstolQ);
+    lrw -= lrw1Q;
+    liw -= liw1Q;
     cv_mem->cv_VabstolQMallocDone = FALSE;
   }
 
   if ( (itolQ == CV_SV) && !(cv_mem->cv_VabstolQMallocDone) ) {
     cv_mem->cv_VabstolQ = N_VClone(cv_mem->cv_tempvQ);
+    lrw += lrw1Q;
+    liw += liw1Q;
     cv_mem->cv_VabstolMallocDone = TRUE;
   }
 
@@ -905,11 +924,14 @@ int CVodeSetSensTolerances(void *cvode_mem, int itolS,
 
   if ( (itolS != CV_SV) && (cv_mem->cv_VabstolSMallocDone) ) {
     N_VDestroyVectorArray(cv_mem->cv_VabstolS, Ns);
+    lrw -= Ns*lrw1;
+    liw -= Ns*liw1;
     cv_mem->cv_VabstolSMallocDone = FALSE;
   }
 
   if ( (itolS != CV_SS) && (cv_mem->cv_SabstolSMallocDone) ) {
     free(cv_mem->cv_SabstolS);
+    lrw -= Ns;
     cv_mem->cv_SabstolSMallocDone = FALSE;
   }
 
@@ -921,18 +943,21 @@ int CVodeSetSensTolerances(void *cvode_mem, int itolS,
 
   if ( (itolS == CV_SV) && !(cv_mem->cv_VabstolSMallocDone) ) {
     cv_mem->cv_VabstolS = N_VCloneVectorArray(Ns, cv_mem->cv_tempv);
+    lrw += Ns*lrw1;
+    liw += Ns*liw1;
     cv_mem->cv_VabstolSMallocDone = TRUE;
   }
 
   if ( (itolS == CV_SS) && !(cv_mem->cv_SabstolSMallocDone) ) {
     cv_mem->cv_SabstolS = (realtype *)malloc(Ns*sizeof(realtype));
+    lrw += Ns;
     cv_mem->cv_SabstolSMallocDone = TRUE;
   }
 
   /* Copy tolerances into memory */
 
-  cv_mem->cv_itolS    = itolS;
-  cv_mem->cv_reltolS  = reltolS;
+  cv_mem->cv_itolS   = itolS;
+  cv_mem->cv_reltolS = reltolS;
 
   if (itolS == CV_SS)
     for (is=0; is<Ns; is++)
