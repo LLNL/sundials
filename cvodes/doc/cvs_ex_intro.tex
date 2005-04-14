@@ -47,8 +47,7 @@ following thirteen serial examples (using the {\nvecs} module):
 
   This program solves the problem with the BDF method and Newton          
   iteration, with the {\cvdense} linear solver and a user-supplied    
-  Jacobian routine.  It also uses the rootfinding  and user-provided
-  error weights features of {\cvodes}.
+  Jacobian routine.  It also uses the rootfinding feature of {\cvodes}.
 
 \item \id{cvbx}
   solves the semi-discrete form of an advection-diffusion equation in 2-D. 
@@ -74,6 +73,10 @@ following thirteen serial examples (using the {\nvecs} module):
 
   The problem is solved twice: with preconditioning on the left,
   then on the right.
+
+\item \id{cvdxe} 
+  is the same as \id{cvdx} but demonstrates the user-supplied error
+  weight function feature of {\cvodes}.
 
 \item \id{cvdemd}
   is a demonstration program for {\cvodes} with direct linear solvers.
@@ -120,7 +123,8 @@ following thirteen serial examples (using the {\nvecs} module):
   to the three reaction rate constants appearing in the model. 
   This program solves the problem with the BDF method, Newton          
   iteration with the {\cvdense} linear solver, and a user-supplied    
-  Jacobian routine.
+  Jacobian routine. It also uses the user-supplied error
+  weight function feature of {\cvodes}.
 
 \item \id{cvfkx}
   solves the semi-discrete form of a two-species diurnal kinetics

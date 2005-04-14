@@ -20,8 +20,7 @@ following six serial examples (using the {\nvecs} module):
   \newline
   This program solves the problem with the BDF method and Newton          
   iteration, with the {\cvdense} linear solver and a user-supplied    
-  Jacobian routine.  It also uses the rootfinding and user-provided
-  error weights features of {\cvode}.
+  Jacobian routine.  It also uses the rootfinding feature of {\cvode}.
 \item \id{cvbx}
   solves the semi-discrete form of an advection-diffusion equation in 2-D. 
   \newline
@@ -44,6 +43,9 @@ following six serial examples (using the {\nvecs} module):
   \newline
   The problem is solved twice: with preconditioning on the left,
   then on the right.
+\item \id{cvdxe} 
+  is the same as \id{cvdx} but demonstrates the user-supplied error
+  weight function feature of {\cvode}.
 \item \id{cvdemd}
   is a demonstration program for {\cvode} with direct linear solvers.
   \newline
