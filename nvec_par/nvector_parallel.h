@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-01-24 22:29:12 $
+ * $Revision: 1.17 $
+ * $Date: 2005-04-14 21:48:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -84,7 +84,7 @@ extern "C" {
 
 /* parallel implementation of the N_Vector 'content' structure
    contains the global and local lengths of the vector, a pointer
-   to an array of realtype components, the MPI communicator,
+   to an array of 'realtype components', the MPI communicator,
    and a flag indicating ownership of the data */
 
 struct _N_VectorContent_Parallel {

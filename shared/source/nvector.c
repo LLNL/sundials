@@ -1,18 +1,18 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-15 17:26:04 $
+ * $Revision: 1.14 $
+ * $Date: 2005-04-14 21:48:16 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban @ LLNL                               
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL                               
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
- * This is the implementation file for a generic NVECTOR package. 
- * It contains the implementation of the N_Vector kernels listed in 
- * nvector.h.
+ * This is the implementation file for a generic NVECTOR package.
+ * It contains the implementation of the N_Vector operations listed
+ * in nvector.h.
  * -----------------------------------------------------------------
  */
 
@@ -28,146 +28,139 @@
 
 N_Vector N_VClone(N_Vector w)
 {
-  N_Vector v;
-  v = w->ops->nvclone(w);
-  return(v);
+  return(w->ops->nvclone(w));
+}
+
+N_Vector N_VCloneEmpty(N_Vector w)
+{
+  return(w->ops->nvcloneempty(w));
 }
 
 void N_VDestroy(N_Vector v)
 {
   v->ops->nvdestroy(v);
+  return;
 }
 
 void N_VSpace(N_Vector v, long int *lrw, long int *liw)
 {
   v->ops->nvspace(v, lrw, liw);
+  return;
 }
 
 realtype *N_VGetArrayPointer(N_Vector v)
 {
-  realtype *data;
-  data = v->ops->nvgetarraypointer(v);
-  return(data);
+  return((realtype *) v->ops->nvgetarraypointer(v));
 }
 
 void N_VSetArrayPointer(realtype *v_data, N_Vector v)
 {
   v->ops->nvsetarraypointer(v_data, v);
+  return;
 }
 
 void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
   z->ops->nvlinearsum(a, x, b, y, z);
+  return;
 }
 
 void N_VConst(realtype c, N_Vector z)
 {
   z->ops->nvconst(c, z);
+  return;
 }
 
 void N_VProd(N_Vector x, N_Vector y, N_Vector z)
 {
   z->ops->nvprod(x, y, z);
+  return;
 }
 
 void N_VDiv(N_Vector x, N_Vector y, N_Vector z)
 {
   z->ops->nvdiv(x, y, z);
+  return;
 }
 
 void N_VScale(realtype c, N_Vector x, N_Vector z) 
 {
   z->ops->nvscale(c, x, z);
+  return;
 }
 
 void N_VAbs(N_Vector x, N_Vector z)
 {
   z->ops->nvabs(x, z);
+  return;
 }
 
 void N_VInv(N_Vector x, N_Vector z)
 {
   z->ops->nvinv(x, z);
+  return;
 }
 
 void N_VAddConst(N_Vector x, realtype b, N_Vector z)
 {
   z->ops->nvaddconst(x, b, z);
+  return;
 }
 
 realtype N_VDotProd(N_Vector x, N_Vector y)
 {
-  realtype prod;
-  prod = y->ops->nvdotprod(x, y);
-  return(prod);
+  return((realtype) y->ops->nvdotprod(x, y));
 }
 
 realtype N_VMaxNorm(N_Vector x)
 {
-  realtype norm;
-  norm = x->ops->nvmaxnorm(x);
-  return(norm);
+  return((realtype) x->ops->nvmaxnorm(x));
 }
 
 realtype N_VWrmsNorm(N_Vector x, N_Vector w)
 {
-  realtype norm;
-  norm = x->ops->nvwrmsnorm(x, w);
-  return(norm);
+  return((realtype) x->ops->nvwrmsnorm(x, w));
 }
 
 realtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
 {
-  realtype norm;
-  norm = x->ops->nvwrmsnormmask(x, w, id);
-  return(norm);
+  return((realtype) x->ops->nvwrmsnormmask(x, w, id));
 }
 
 realtype N_VMin(N_Vector x)
 {
-  realtype minval;
-  minval = x->ops->nvmin(x);
-  return(minval);
+  return((realtype) x->ops->nvmin(x));
 }
 
 realtype N_VWL2Norm(N_Vector x, N_Vector w)
 {
-  realtype norm;
-  norm = x->ops->nvwl2norm(x, w);
-  return(norm);
+  return((realtype) x->ops->nvwl2norm(x, w));
 }
 
 realtype N_VL1Norm(N_Vector x)
 {
-  realtype norm;
-  norm = x->ops->nvl1norm(x);
-  return(norm);
+  return((realtype) x->ops->nvl1norm(x));
 }
 
 void N_VCompare(realtype c, N_Vector x, N_Vector z)
 {
   z->ops->nvcompare(c, x, z);
+  return;
 }
 
 booleantype N_VInvTest(N_Vector x, N_Vector z)
 {
-  booleantype flag;
-  flag = z->ops->nvinvtest(x, z);
-  return(flag);
+  return((booleantype) z->ops->nvinvtest(x, z));
 }
 
 booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 {
-  booleantype flag;
-  flag = x->ops->nvconstrmask(c, x, m);
-  return(flag);
+  return((booleantype) x->ops->nvconstrmask(c, x, m));
 }
 
 realtype N_VMinQuotient(N_Vector num, N_Vector denom)
 {
-  realtype quotient;
-  quotient = num->ops->nvminquotient(num, denom);
-  return(quotient);
+  return((realtype) num->ops->nvminquotient(num, denom));
 }
 
 /*
@@ -183,21 +176,22 @@ N_Vector *N_VCloneVectorArray(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
+  vs = NULL;
+
   if (count <= 0) return(NULL);
 
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
-  for (j=0; j<count; j++) {
+  for (j = 0; j < count; j++) {
     vs[j] = N_VClone(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray(vs, j-1);
       return(NULL);
     }
   }
-  
-  return(vs);
 
+  return(vs);
 }
 
 void N_VDestroyVectorArray(N_Vector *vs, int count)
@@ -207,4 +201,6 @@ void N_VDestroyVectorArray(N_Vector *vs, int count)
   for (j = 0; j < count; j++) N_VDestroy(vs[j]);
 
   free(vs);
+
+  return;
 }

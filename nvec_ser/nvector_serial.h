@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-01-24 22:29:15 $
+ * $Revision: 1.15 $
+ * $Date: 2005-04-14 21:48:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -30,11 +30,11 @@
  *   - The definition of the generic N_Vector structure can be found
  *     in the header file shared/include/nvector.h.
  *
- *   - The definition of the type realtype can be found in the
+ *   - The definition of the type 'realtype' can be found in the
  *     header file shared/include/sundialstypes.h, and it may be
  *     changed (at the configuration stage) according to the user's
  *     needs. The sundialstypes.h file also contains the definition
- *     for the type booleantype.
+ *     for the type 'booleantype'.
  *
  *   - N_Vector arguments to arithmetic vector operations need not
  *     be distinct. For example, the following call:
@@ -64,7 +64,7 @@ extern "C" {
 
 /* serial implementation of the N_Vector 'content' structure
    contains the length of the vector, a pointer to an array
-   of realtype components, and a flag indicating ownership of
+   of 'realtype' components, and a flag indicating ownership of
    the data */
 
 struct _N_VectorContent_Serial {

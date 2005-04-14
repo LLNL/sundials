@@ -65,6 +65,8 @@ E. Revision History
 v. 2.1.0 (Apr. 2005) ---> 
 ----------------------------------------------
 
+- Changes to data structures
+   - added N_VCloneEmpty to global vector operations table
 
 v. 2.0.2 (Mar. 2005) ---> v. 2.1.0 (Apr. 2005)
 ----------------------------------------------
@@ -90,7 +92,6 @@ v. 2.0 (Dec. 2004) ---> v. 2.0.1 (Jan. 2005)
    - changed order of compiler directives in header files to avoid compilation
      errors when using a C++ compiler.
 
-
 v. 1.0 (Jul. 2002) ---> v. 2.0 (Dec. 2004)
 ------------------------------------------
 
@@ -101,4 +102,3 @@ v. 1.0 (Jul. 2002) ---> v. 2.0 (Dec. 2004)
 - Revised the F/C interface to use underscore flags for name mapping
   and to use precision flag from configure.
 - Revised F/C routine NVECTOR names for uniformity.
-

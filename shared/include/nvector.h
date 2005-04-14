@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-01-24 22:29:17 $
+ * $Revision: 1.19 $
+ * $Date: 2005-04-14 21:48:14 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -11,32 +11,32 @@
  * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
  * This is the header file for a generic NVECTOR package.
- * It defines the N_Vector structure which contains:
+ * It defines the N_Vector structure (_generic_N_Vector) which
+ * contains the following fields:
  *   - an implementation-dependent 'content' field which contains
- *     the description and actual data of the nvector
- *   - an implementation-dependent 'data' field
+ *     the description and actual data of the vector
  *   - an 'ops' filed which contains a structure listing operations
- *     acting on such nvectors
+ *     acting on such vectors
  *
  * Part I of this file contains type declarations for the
- * generic_N_Vector and _generic_N_Vector_Ops structures, as well
+ * _generic_N_Vector and _generic_N_Vector_Ops structures, as well
  * as references to pointers to such structures (N_Vector).
  *
  * Part II of this file contains the prototypes for the vector
  * functions which operate on N_Vector.
  *
  * At a minimum, a particular implementation of an NVECTOR must
+ * do the following:
  *  - specify the 'content' field of N_Vector,
  *  - implement the operations on those N_Vectors,
  *  - provide a constructor routine for new vectors
  *
- * Additionally, an NVECTOR implementation may provide
+ * Additionally, an NVECTOR implementation may provide the following:
  *  - macros to access the underlying N_Vector data
  *  - a constructor for an array of N_Vectors
- *  - a constructor for an empty N_Vector (i.e. a new N_Vector with
- *    NULL data).
+ *  - a constructor for an empty N_Vector (i.e., a new N_Vector with
+ *    a NULL data pointer).
  *  - a routine to print the content of an N_Vector
- *  - etc.
  * -----------------------------------------------------------------
  */
 
@@ -67,6 +67,7 @@ typedef N_Vector *N_Vector_S;
 /* Structure containing function pointers to vector operations  */  
 struct _generic_N_Vector_Ops {
   N_Vector    (*nvclone)(N_Vector);
+  N_Vector    (*nvcloneempty)(N_Vector);
   void        (*nvdestroy)(N_Vector);
   void        (*nvspace)(N_Vector, long int *, long int *);
   realtype*   (*nvgetarraypointer)(N_Vector);
@@ -91,14 +92,15 @@ struct _generic_N_Vector_Ops {
   booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
   realtype    (*nvminquotient)(N_Vector, N_Vector);
 };
-  
+
 /*
  * -----------------------------------------------------------------
- * A vector is a structure with an implementation dependent 'content',
- * and a pointer to a structure of vector operations corresponding to 
- * that implementation.
+ * A vector is a structure with an implementation-dependent
+ * 'content' field, and a pointer to a structure of vector
+ * operations corresponding to that implementation.
  * -----------------------------------------------------------------
  */
+
 struct _generic_N_Vector {
   void *content;
   struct _generic_N_Vector_Ops *ops;
@@ -106,7 +108,7 @@ struct _generic_N_Vector {
   
 /*
  * -----------------------------------------------------------------
- * Functions exported by nvector
+ * Functions exported by NVECTOR module
  * -----------------------------------------------------------------
  */
 
@@ -114,51 +116,55 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  * N_VClone
  *   Creates a new vector of the same type as an existing vector.
- *   It does not copy the vector but rather allocates storage for
+ *   It does not copy the vector, but rather allocates storage for
  *   the new vector.
- * 
+ *
+ * N_VCloneEmpty
+ *   Creates a new vector of the same type as an existing vector,
+ *   but does not allocate storage.
+ *
  * N_VDestroy
  *   Destroys a vector created with N_VClone.
  *
  * N_VSpace
- *   Returns space requirements for one N_Vector (type real in lrw
- *   and type integer in liw).
+ *   Returns space requirements for one N_Vector (type 'realtype' in
+ *   lrw and type 'long int' in liw).
  *
  * N_VGetArrayPointer
- *   Returns a pointer to a realtype array from the N_Vector v.
- *   NOTE that this assumes that the internal data in N_Vector is
- *   a contiguous array of realtype.
- *   This routine is only used in the solver-specific interfaces to the 
- *   dense and banded linear solvers, as well as the interfaces to 
- *   the banded preconditioners provided with SUNDIALS.
+ *   Returns a pointer to the data component of the given N_Vector.
+ *   NOTE: This function assumes that the internal data is stored
+ *   as a contiguous 'realtype' array. This routine is only used in
+ *   the solver-specific interfaces to the dense and banded linear
+ *   solvers, as well as the interfaces to  the banded preconditioners
+ *   distributed with SUNDIALS.
  *   
  * N_VSetArrayPointer
- *   Overwrites the data in N_Vector with a given array to realtype
- *   NOTE that this assumes that the internal data in N_Vector is
- *   a contiguous array of realtype.
- *   This routine is only used in the interfaces to the dense linear
- *   solver.
+ *   Overwrites the data field in the given N_Vector with a user-supplied
+ *   array of type 'realtype'.
+ *   NOTE: This function assumes that the internal data is stored
+ *   as a contiguous 'realtype' array. This routine is only used in
+ *   the interfaces to the dense linear solver.
  *
  * N_VLinearSum
- *   Performs the operation z = a x + b y
+ *   Performs the operation z = a*x + b*y
  *
  * N_VConst
- *   Performs the operation z[i] = c for i=0, 1, ..., N-1
+ *   Performs the operation z[i] = c for i = 0, 1, ..., N-1
  *
  * N_VProd
- *   Performs the operation z[i] = x[i] * y[i] for i=0, 1, ..., N-1
+ *   Performs the operation z[i] = x[i]*y[i] for i = 0, 1, ..., N-1
  *
  * N_VDiv
- *   Performs the operation z[i] = x[i] / y[i] for i=0, 1, ..., N-1
+ *   Performs the operation z[i] = x[i]/y[i] for i = 0, 1, ..., N-1
  *
  * N_VScale
- *   Performs the operation z = c x
+ *   Performs the operation z = c*x
  *
  * N_VAbs
- *   Performs the operation z[i] = |x[i]| for i=0, 1, ..., N-1
+ *   Performs the operation z[i] = |x[i]| for i = 0, 1, ..., N-1
  *
  * N_VInv
- *   Performs the operation z[i] = 1.0 / x[i] for i = 0, 1, ..., N-1
+ *   Performs the operation z[i] = 1/x[i] for i = 0, 1, ..., N-1
  *   This routine does not check for division by 0. It should be
  *   called only with an N_Vector x which is guaranteed to have
  *   all non-zero components.
@@ -168,45 +174,45 @@ struct _generic_N_Vector {
  *
  * N_VDotProd
  *   Returns the dot product of two vectors:
- *         sum (i=0 to N-1) {x[i] * y[i]}
+ *         sum (i = 0 to N-1) {x[i]*y[i]}
  *
  * N_VMaxNorm
  *   Returns the maximum norm of x:
- *         max (i=0 to N-1) |x[i]|
+ *         max (i = 0 to N-1) ABS(x[i])
  *
  * N_VWrmsNorm
  *   Returns the weighted root mean square norm of x with weight 
  *   vector w:
- *         sqrt [(sum (i=0 to N-1) {(x[i] * w[i])^2}) / N]
+ *         sqrt [(sum (i = 0 to N-1) {(x[i]*w[i])^2})/N]
  *
  * N_VWrmsNormMask
  *   Returns the weighted root mean square norm of x with weight
  *   vector w, masked by the elements of id:
- *         sqrt [(sum (i=0 to N-1) {(x[i] * w[i] * msk[i])^2}) / N]
+ *         sqrt [(sum (i = 0 to N-1) {(x[i]*w[i]*msk[i])^2})/N]
  *   where msk[i] = 1.0 if id[i] > 0 and
  *         msk[i] = 0.0 if id[i] < 0
  *
  * N_VMin
  *   Returns the smallest element of x:
- *         min (i=0 to N-1) x[i]
+ *         min (i = 0 to N-1) x[i]
  *
  * N_VWL2Norm
  *   Returns the weighted Euclidean L2 norm of x with weight 
  *   vector w:
- *         sqrt [(sum (i=0 to N-1) {(x[i] * w[i])^2}) ]
+ *         sqrt [(sum (i = 0 to N-1) {(x[i]*w[i])^2})]
  *
  * N_VL1Norm
  *   Returns the L1 norm of x:
- *         sum (i=0 to N-1) {ABS(x[i])}
+ *         sum (i = 0 to N-1) {ABS(x[i])}
  *
  * N_VCompare
  *   Performs the operation
- *          z[i] = 1.0 if |x[i]| >= c   i = 0, 1, ..., N-1
+ *          z[i] = 1.0 if ABS(x[i]) >= c   i = 0, 1, ..., N-1
  *                 0.0 otherwise
  *
  * N_VInvTest
- *   Performs the operation z[i] = 1.0 / x[i] with a test for 
- *   x[i]==0.0 before inverting x[i].
+ *   Performs the operation z[i] = 1/x[i] with a test for 
+ *   x[i] == 0.0 before inverting x[i].
  *   This routine returns TRUE if all components of x are non-zero 
  *   (successful inversion) and returns FALSE otherwise.
  *
@@ -215,12 +221,12 @@ struct _generic_N_Vector {
  *       m[i] = 1.0 if constraint test fails for x[i]
  *       m[i] = 0.0 if constraint test passes for x[i]
  *   where the constraint tests are as follows:
- *      If c[i] = 2.0,  then x[i] must be > 0.0.
- *      If c[i] = 1.0,  then x[i] must be >= 0.0.
+ *      If c[i] = +2.0, then x[i] must be >  0.0.
+ *      If c[i] = +1.0, then x[i] must be >= 0.0.
  *      If c[i] = -1.0, then x[i] must be <= 0.0.
- *      If c[i] = -2.0, then x[i] must be < 0.0.
+ *      If c[i] = -2.0, then x[i] must be <  0.0.
  *   This routine returns a boolean FALSE if any element failed
- *   the constraint test, TRUE if all passed.  It also sets a
+ *   the constraint test, TRUE if all passed. It also sets a
  *   mask vector m, with elements equal to 1.0 where the
  *   corresponding constraint test failed, and equal to 0.0
  *   where the constraint test passed.
@@ -234,7 +240,7 @@ struct _generic_N_Vector {
  *   This routine returns the minimum of the quotients obtained
  *   by term-wise dividing num[i] by denom[i]. A zero element
  *   in denom will be skipped. If no such quotients are found,
- *   then the large value 1.0e99 is returned.
+ *   then the large value BIG_REAL is returned.
  *
  * -----------------------------------------------------------------
  *
@@ -256,6 +262,8 @@ struct _generic_N_Vector {
  * FUNCTIONS          CVODE/CVODES          IDA             KINSOL    
  * -----------------------------------------------------------------
  * N_VClone           S Di I                S I BBDP        S I BBDP
+ * -----------------------------------------------------------------
+ * N_VCloneEmpty      F                     F               F
  * -----------------------------------------------------------------
  * N_VDestroy         S Di I                S I BBDP        S I BBDP
  * -----------------------------------------------------------------
@@ -293,7 +301,7 @@ struct _generic_N_Vector {
  * -----------------------------------------------------------------
  * N_VWL2Norm                                               S I       
  * -----------------------------------------------------------------
- * N_VL1Norm                                                
+ * N_VL1Norm                                                I
  * -----------------------------------------------------------------
  * N_VCompare         Di                    S                         
  * -----------------------------------------------------------------
@@ -306,6 +314,7 @@ struct _generic_N_Vector {
  */
   
 N_Vector N_VClone(N_Vector w);
+N_Vector N_VCloneEmpty(N_Vector w);
 void N_VDestroy(N_Vector v);
 void N_VSpace(N_Vector v, long int *lrw, long int *liw);
 realtype *N_VGetArrayPointer(N_Vector v);
@@ -332,18 +341,18 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom);
 
 /*
  * -----------------------------------------------------------------
- * Additional functions exported by nvector
+ * Additional functions exported by NVECTOR module
  * -----------------------------------------------------------------
  */
 
 /*
  * -----------------------------------------------------------------
  * N_VCloneVectorArray
- *   Creates (by cloning from 'w') an array of 'count' N_Vectors 
+ *   Creates (by cloning 'w') an array of 'count' N_Vectors 
  *
  * N_VDestroyVectorArray
  *   Frees memory for an array of 'count' N_Vectors that was
- *   created by cloning with N_VCloneVectorArray
+ *   created by a call to N_VCloneVectorArray
  *
  * These functions are used by the SPGMR iterative linear solver 
  * module and by the CVODES and IDAS solvers.
