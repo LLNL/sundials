@@ -1,0 +1,38 @@
+/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.1 $
+ * $Date: 2005-04-15 00:44:57 $
+ * ----------------------------------------------------------------- 
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
+ * -----------------------------------------------------------------
+ * Copyright (c) 2002, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
+ * -----------------------------------------------------------------
+ * This file (companion of nvector.h) contains definitions 
+ * needed for the initialization of vector operations in Fortran.
+ * -----------------------------------------------------------------
+ */
+
+
+#ifndef _FNVECTOR_H
+#define _FNVECTOR_H
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
+  /* SUNIDALS solver IDs */
+
+#define FCMIX_CVODE   1
+#define FCMIX_CVODES  2
+#define FCMIX_IDA     3
+#define FCMIX_IDAS    4
+#define FCMIX_KINSOL  5
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
