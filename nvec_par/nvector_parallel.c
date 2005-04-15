@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-04-15 00:43:30 $
+ * $Revision: 1.23 $
+ * $Date: 2005-04-15 23:37:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -923,19 +923,18 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   comm = NV_COMM_P(num);
 
   notEvenOnce = TRUE;
+  min = BIG_REAL;
 
   for (i = 0; i < N; i++, nd++, dd++) {
     if (*dd == ZERO) continue;
     else {
-      if (notEvenOnce) {
-        min = *nd / *dd ;
+      if (!notEvenOnce) min = MIN(min, (*nd) / (*dd));
+      else {
+        min = (*nd) / (*dd);
         notEvenOnce = FALSE;
       }
-      else min = MIN(min, (*nd) / (*dd));
     }
   }
-
-  if (notEvenOnce || (N == 0)) min = BIG_REAL;
 
   return(VAllReduce_Parallel(min, 3, comm));
 }
