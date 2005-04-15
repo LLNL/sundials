@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-04-14 21:48:09 $
+ * $Revision: 1.16 $
+ * $Date: 2005-04-15 00:43:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -175,17 +175,6 @@ N_Vector N_VNewEmpty_Serial(long int vec_length);
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VCloneEmpty_Serial
- * -----------------------------------------------------------------
- * This function creates a new serial N_Vector with an empty (NULL)
- * data array.
- * -----------------------------------------------------------------
- */
-
-N_Vector N_VCloneEmpty_Serial(N_Vector w);
-
-/*
- * -----------------------------------------------------------------
  * Function : N_VMake_Serial
  * -----------------------------------------------------------------
  * This function creates and allocates memory for a serial vector
@@ -245,6 +234,7 @@ void N_VPrint_Serial(N_Vector v);
  * -----------------------------------------------------------------
  */
 
+N_Vector N_VCloneEmpty_Serial(N_Vector w);
 N_Vector N_VClone_Serial(N_Vector w);
 void N_VDestroy_Serial(N_Vector v);
 void N_VSpace_Serial(N_Vector v, long int *lrw, long int *liw);
