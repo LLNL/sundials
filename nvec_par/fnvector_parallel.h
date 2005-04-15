@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2005-03-19 00:10:51 $
+ * $Revision: 1.13 $
+ * $Date: 2005-04-15 00:43:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,9 @@
 extern "C" {
 #endif
 
+#include "nvector.h"  
+#include "fnvector.h"
+
 #ifndef _SUNDIALS_CONFIG_H
 #define _SUNDIALS_CONFIG_H
 #include "sundials_config.h"
@@ -30,45 +33,98 @@ extern "C" {
 
 #if defined(F77_FUNC)
 
-#define FNV_INITP F77_FUNC(fnvinitp, FNVINITP)
-#define FNV_FREEP F77_FUNC(fnvfreep, FNVFREEP)
+#define FNV_INITP    F77_FUNC(fnvinitp, FNVINITP)
+#define FNV_INITP_Q  F77_FUNC(fnvinitp_q, FNVINITP_Q)
+#define FNV_INITP_S  F77_FUNC(fnvinitp_s, FNVINITP_S)
+#define FNV_INITP_B  F77_FUNC(fnvinitp_b, FNVINITP_B)
+#define FNV_INITP_QB F77_FUNC(fnvinitp_qb, FNVINITP_QB)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FNV_INITP fnvinitp
-#define FNV_FREEP fnvfreep
+#define FNV_INITP    fnvinitp
+#define FNV_INITP_Q  fnvinitp_q
+#define FNV_INITP_S  fnvinitp_s
+#define FNV_INITP_B  fnvinitp_b
+#define FNV_INITP_QB fnvinitp_qb
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FNV_INITP FNVINITP
-#define FNV_FREEP FNVFREEP
+#define FNV_INITP    FNVINITP
+#define FNV_INITP_Q  FNVINITP_Q
+#define FNV_INITP_S  FNVINITP_S
+#define FNV_INITP_B  FNVINITP_B
+#define FNV_INITP_QB FNVINITP_QB
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FNV_INITP fnvinitp_
-#define FNV_FREEP fnvfreep_
+#define FNV_INITP    fnvinitp_
+#define FNV_INITP_Q  fnvinitp_q_
+#define FNV_INITP_S  fnvinitp_s_
+#define FNV_INITP_B  fnvinitp_b_
+#define FNV_INITP_QB fnvinitp_qb_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FNV_INITP FNVINITP_
-#define FNV_FREEP FNVFREEP_
+#define FNV_INITP    FNVINITP_
+#define FNV_INITP_Q  FNVINITP_Q_
+#define FNV_INITP_S  FNVINITP_S_
+#define FNV_INITP_B  FNVINITP_B_
+#define FNV_INITP_QB FNVINITP_QB_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#define FNV_INITP fnvinitp__
-#define FNV_FREEP fnvfreep__
+#define FNV_INITP    fnvinitp__
+#define FNV_INITP_Q  fnvinitp_q__
+#define FNV_INITP_S  fnvinitp_s__
+#define FNV_INITP_B  fnvinitp_b__
+#define FNV_INITP_QB fnvinitp_qb__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#define FNV_INITP FNVINITP__
-#define FNV_FREEP FNVFREEP__
+#define FNV_INITP    FNVINITP__
+#define FNV_INITP_Q  FNVINITP_Q__
+#define FNV_INITP_S  FNVINITP_S__
+#define FNV_INITP_B  FNVINITP_B__
+#define FNV_INITP_QB FNVINITP_QB__
 
 #endif
 
-/* Prototypes of exported funcions */
+  /* Declarations of global variables */
 
-void FNV_INITP(long int *nlocal, long int *nglobal, int *ier);
-void FNV_FREEP(void);
+  extern N_Vector F2C_CVODE_vec;
+
+  extern N_Vector F2C_CVODES_vec;
+  extern N_Vector F2C_CVODES_vecQ;
+  extern N_Vector *F2C_CVODES_vecS;
+  extern N_Vector F2C_CVODES_vecB;
+  extern N_Vector F2C_CVODES_vecQB;
+
+  extern N_Vector F2C_IDA_vec;
+
+  extern N_Vector F2C_IDAS_vec;
+  extern N_Vector F2C_IDAS_vecQ;
+  extern N_Vector *F2C_IDAS_vecS;
+  extern N_Vector F2C_IDAS_vecB;
+  extern N_Vector F2C_IDAS_vecQB;
+
+  extern N_Vector F2C_KINSOL_vec;
+
+  /* 
+   * Prototypes of exported functions 
+   *
+   * FNV_INITP    - initializes parallel vector operations for main problem
+   * FNV_INITP_Q  - initializes parallel vector operations for quadratures
+   * FNV_INITP_S  - initializes parallel vector operations for sensitivities
+   * FNV_INITP_B  - initializes parallel vector operations for adjoint problem
+   * FNV_INITP_QB - initializes parallel vector operations for adjoint quadratures
+   *
+   */
+
+  void FNV_INITP(int *code, long int *L, long int *N, int *ier);
+  void FNV_INITP_Q(int *code, long int *Lq, long int *Nq, int *ier);
+  void FNV_INITP_S(int *code, int *Ns, long int *L, long int *N, int *ier);
+  void FNV_INITP_B(int *code, long int *LB, long int *NB, int *ier);
+  void FNV_INITP_QB(int *code, long int *LqB, long int *NqB, int *ier);
 
 #ifdef __cplusplus
 }
