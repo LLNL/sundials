@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-04-07 19:26:17 $
+ * $Revision: 1.18 $
+ * $Date: 2005-04-15 23:45:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -61,8 +61,8 @@ extern void FK_PSOL(realtype*, realtype*, realtype*, realtype*,
 
 void FKIN_SPBCGSETPREC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpbcgSetPreconditioner(KIN_mem, NULL, NULL, NULL);
-  else              KINSpbcgSetPreconditioner(KIN_mem, FKINPSet, FKINPSol, NULL);
+  if ((*flag) == 0) KINSpbcgSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
+  else              KINSpbcgSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
 }
 
 /*
@@ -73,8 +73,8 @@ void FKIN_SPBCGSETPREC(int *flag, int *ier)
 
 void FKIN_SPGMRSETPREC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpgmrSetPreconditioner(KIN_mem, NULL, NULL, NULL);
-  else              KINSpgmrSetPreconditioner(KIN_mem, FKINPSet, FKINPSol, NULL);
+  if ((*flag) == 0) KINSpgmrSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
+  else              KINSpgmrSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
 
   return;
 }
@@ -93,8 +93,10 @@ int FKINPSet(N_Vector uu, N_Vector uscale,
              void *P_data,
              N_Vector vtemp1, N_Vector vtemp2)
 {
-  realtype *udata,*uscaledata, *fdata, *fscaledata, *vtemp1data, *vtemp2data;
+  realtype *udata, *uscaledata, *fdata, *fscaledata, *vtemp1data, *vtemp2data;
   int retcode;
+
+  udata = uscaledata = fdata = fscaledata = vtemp1data = vtemp2data = NULL;
 
   udata      = N_VGetArrayPointer(uu);
   uscaledata = N_VGetArrayPointer(uscale);
@@ -127,6 +129,8 @@ int FKINPSol(N_Vector uu, N_Vector uscale,
 {
   realtype *udata, *uscaledata, *fdata, *fscaledata, *vvdata, *ftemdata;
   int retcode;
+
+  udata = uscaledata = fdata = fscaledata = vvdata = ftemdata = NULL;
 
   udata      = N_VGetArrayPointer(uu);
   uscaledata = N_VGetArrayPointer(uscale);

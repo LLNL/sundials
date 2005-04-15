@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2005-04-07 19:26:17 $
+ * $Revision: 1.31 $
+ * $Date: 2005-04-15 23:45:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -38,8 +38,6 @@
    FKINSPBCG : interfaces to KINSpbcg
    FKINSOL : interfaces to KINSol
    FKINFREE : interfaces to KINFree
-   FNVFREES and FNVFREEP : finalize serial and parallel vector
-                           computations, respectively
 
  The user-supplied functions, each with the corresponding interface function
  which calls it (and its type within KINSOL), are as follows:
@@ -108,7 +106,7 @@
  (3.1s) To initialize the serial machine environment, the user must make
         the following call:
 
-          CALL FNVINITS (NEQ, IER)
+          CALL FNVINITS (5, NEQ, IER)
 
         The arguments are:
           NEQ = size of vectors
@@ -117,7 +115,7 @@
  (3.1p) To initialize the parallel machine environment, the user must make 
         the following call:
 
-          CALL FNVINITP (NLOCAL, NGLOBAL, IER)
+          CALL FNVINITP (5, NLOCAL, NGLOBAL, IER)
 
         The arguments are:
           NLOCAL  = local size of vectors for this process
@@ -302,17 +300,12 @@
 
      Note: See KINSOL documentation for detailed information.
 
- (6) Memory freeing: FKINFREE and FNVFREES/FNVFREEP
+ (6) Memory freeing: FKINFREE
 
      To the free the internal memory created by the calls to FKINMALLOC
-     and either FNVINITS or FNVINITP, make the following calls, in this
-     order:
+     and either FNVINITS or FNVINITP, make the following call:
 
- (6.1s) CALL FKINFREE
-        CALL FNVFREES
-
- (6.1p) CALL FKINFREE
-        CALL FNVFREEP
+       CALL FKINFREE
 
  (7) Optional inputs and outputs: IOPT/ROPT
 
@@ -548,12 +541,16 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
  * -----------------------------------------------------------------
  */
 
-extern N_Vector F2C_vec;
-extern realtype *data_F2C_vec;
-extern void *KIN_mem;
+extern N_Vector F2C_KINSOL_vec;
+extern void *KIN_kinmem;
+extern booleantype KIN_optin;
 extern long int *KIN_iopt;
 extern realtype *KIN_ropt;
-extern int KIN_ls;  /* Linear Solver: 1 = SPGMR */
+extern int KIN_ls;
+
+/* Linear solver IDs */
+
+enum { KIN_SPGMR = 1, KIN_SPBCG = 2 };
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2005-04-05 21:23:18 $
+ * $Revision: 1.33 $
+ * $Date: 2005-04-15 23:45:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -15,8 +15,8 @@
  * the KINSOL package. See fkinsol.h for usage.
  *
  * Note: Some routines are necessarily stored elsewhere to avoid
- * linking problems. See also, therefore, fkinpreco.c, fkinpsol.c
- * fkinjtimes.c, and fkinbbd.c.
+ * linking problems. See also, therefore, fkinpreco.c, fkinjtimes.c,
+ * and fkinbbd.c.
  * -----------------------------------------------------------------
  */
 
@@ -37,13 +37,11 @@
  * ----------------------------------------------------------------
  */
 
-realtype *data_F2C_vec;
-void *KIN_mem;
+void *KIN_kinmem;
+booleantype KIN_optin;
 long int *KIN_iopt;
 realtype *KIN_ropt;
 int KIN_ls;
-
-enum { KIN_SPGMR = 1, KIN_SPBCG = 2 };
 
 /*
  * ----------------------------------------------------------------
@@ -79,55 +77,67 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
                  realtype *constraints, int *optin, long int *iopt,
 		 realtype *ropt, int *ier)
 {
-  KIN_mem = KINCreate();
-
-  if (KIN_mem == NULL) {
-    *ier = -1;
-    return;
-  }
-
   /* check for required vector operations */
 
-  if ((F2C_vec->ops->nvgetarraypointer == NULL) ||
-      (F2C_vec->ops->nvsetarraypointer == NULL)) {
+  if ((F2C_KINSOL_vec->ops->nvgetarraypointer == NULL) ||
+      (F2C_KINSOL_vec->ops->nvsetarraypointer == NULL)) {
     *ier = -1;
     printf("A required vector operation is not implemented.\n\n");
     return;
   }
 
-  /* set pointer data_F2C_vec to point to data array from global F2C_vec
-     and then overwrite it with the user-supplied constraints */
+  *ier = 0;
+  KIN_kinmem = NULL;
+  KIN_iopt   = NULL;
+  KIN_ropt   = NULL;
 
-  data_F2C_vec = N_VGetArrayPointer(F2C_vec);
-  N_VSetArrayPointer(constraints, F2C_vec);
+  KIN_kinmem = KINCreate();
 
-  KINSetMaxSetupCalls(KIN_mem, *msbpre);
-  KINSetFuncNormTol(KIN_mem, *fnormtol);
-  KINSetScaledStepTol(KIN_mem, *scsteptol);
-  KINSetConstraints(KIN_mem, F2C_vec);
-
-  if (*optin == 1) {
-
-    if (iopt[0] > 0) KINSetPrintLevel(KIN_mem, (int) iopt[0]);
-    if (iopt[1] > 0) KINSetNumMaxIters(KIN_mem, iopt[1]);
-    if (iopt[2] > 0) KINSetNoInitSetup(KIN_mem, TRUE);
-    if (iopt[7] > 0) KINSetEtaForm(KIN_mem, (int) iopt[7]);
-    if (iopt[8] > 0) KINSetNoMinEps(KIN_mem, TRUE);
-
-    if (ropt[0] > ZERO) KINSetMaxNewtonStep(KIN_mem, ropt[0]);
-    if (ropt[1] > ZERO) KINSetRelErrFunc(KIN_mem, ropt[1]);
-    if (ropt[4] > ZERO) KINSetEtaConstValue(KIN_mem, ropt[4]);
-    if (ropt[5] > ZERO || ropt[6] > ZERO) 
-      KINSetEtaParams(KIN_mem, ropt[5], ropt[6]);
+  if (KIN_kinmem == NULL) {
+    *ier = -1;
+    return;
   }
 
-  /* F2C_vec used as template vector */
+  /* F2C_KINSOL_vec used as template vector */
 
-  *ier = KINMalloc(KIN_mem, FKINfunc, F2C_vec);
+  *ier = KINMalloc(KIN_kinmem, FKINfunc, F2C_KINSOL_vec);
+
+  if (*ier != KIN_SUCCESS) {
+    *ier = -1;
+    return;
+  }
+
+  /* set data pointer in F2C_KINSOL_vec to constraints */
+
+  N_VSetArrayPointer(constraints, F2C_KINSOL_vec);
+  KINSetConstraints(KIN_kinmem, F2C_KINSOL_vec);
+
+  /* set optional inputs controlled by arguments to FKIN_MALLOC routine */
+
+  KINSetMaxSetupCalls(KIN_kinmem, *msbpre);
+  KINSetFuncNormTol(KIN_kinmem, *fnormtol);
+  KINSetScaledStepTol(KIN_kinmem, *scsteptol);
+
+  if (*optin == 1) {
+    KIN_optin = TRUE;
+
+    if (iopt[0] > 0) KINSetPrintLevel(KIN_kinmem, (int) iopt[0]);
+    if (iopt[1] > 0) KINSetNumMaxIters(KIN_kinmem, iopt[1]);
+    if (iopt[2] > 0) KINSetNoInitSetup(KIN_kinmem, TRUE);
+    if (iopt[7] > 0) KINSetEtaForm(KIN_kinmem, (int) iopt[7]);
+    if (iopt[8] > 0) KINSetNoMinEps(KIN_kinmem, TRUE);
+
+    if (ropt[0] > ZERO) KINSetMaxNewtonStep(KIN_kinmem, ropt[0]);
+    if (ropt[1] > ZERO) KINSetRelErrFunc(KIN_kinmem, ropt[1]);
+    if (ropt[4] > ZERO) KINSetEtaConstValue(KIN_kinmem, ropt[4]);
+    if ((ropt[5] > ZERO) || (ropt[6] > ZERO)) 
+      KINSetEtaParams(KIN_kinmem, ropt[5], ropt[6]);
+  }
+  else KIN_optin = FALSE;
 
   /* reset data pointer */
 
-  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
+  N_VSetArrayPointer(NULL, F2C_KINSOL_vec);
 
   KIN_iopt = iopt;
   KIN_ropt = ropt;
@@ -143,7 +153,7 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
 void FKIN_SPBCG(int *maxl, int *ier)
 {
-  *ier = KINSpbcg(KIN_mem, *maxl);
+  *ier = KINSpbcg(KIN_kinmem, *maxl);
 
   KIN_ls = KIN_SPBCG;
 }
@@ -156,8 +166,8 @@ void FKIN_SPBCG(int *maxl, int *ier)
 
 void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
 {
-  *ier = KINSpgmr(KIN_mem, *maxl);
-  KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
+  *ier = KINSpgmr(KIN_kinmem, *maxl);
+  KINSpgmrSetMaxRestarts(KIN_kinmem, *maxlrst);
 
   KIN_ls = KIN_SPGMR;
 
@@ -174,76 +184,62 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
               realtype *uscale , realtype *fscale, int *ier)
 
 {
-  long int nniters, nfevals, nbcfails, nbacktr;
-  long int nliters, npevals, npsolves, nlcfails;
-  int lsflag;
   N_Vector uuvec, uscalevec, fscalevec;
-  realtype *data_uuvec, *data_uscalevec, *data_fscalevec;
 
-  uuvec = F2C_vec;
-  data_uuvec = N_VGetArrayPointer(uuvec);
+  *ier = 0;
+  uuvec = uscalevec = fscalevec = NULL;
+
+  uuvec = F2C_KINSOL_vec;
   N_VSetArrayPointer(uu, uuvec);
 
-  uscalevec = N_VClone(F2C_vec);
-  data_uscalevec = N_VGetArrayPointer(uscalevec);
+  uscalevec = N_VCloneEmpty(F2C_KINSOL_vec);
   N_VSetArrayPointer(uscale, uscalevec);
 
-  fscalevec = N_VClone(F2C_vec);
-  data_fscalevec = N_VGetArrayPointer(fscalevec);
+  fscalevec = N_VCloneEmpty(F2C_KINSOL_vec);
   N_VSetArrayPointer(fscale, fscalevec);
 
-  *ier = KINSol(KIN_mem, uuvec, *globalstrategy, uscalevec, fscalevec);
+  *ier = KINSol(KIN_kinmem, uuvec, *globalstrategy, uscalevec, fscalevec);
 
-  N_VSetArrayPointer(data_uuvec, uuvec);
+  N_VSetArrayPointer(NULL, uuvec);
 
-  N_VSetArrayPointer(data_uscalevec, uscalevec);
+  N_VSetArrayPointer(NULL, uscalevec);
   N_VDestroy(uscalevec);
 
-  N_VSetArrayPointer(data_fscalevec, fscalevec);
+  N_VSetArrayPointer(NULL, fscalevec);
   N_VDestroy(fscalevec);
 
   /* load optional outputs into iopt[] and ropt[] */
 
-  if ( (KIN_iopt != NULL) && (KIN_ropt != NULL) ) {
+  if ((KIN_iopt != NULL) && (KIN_ropt != NULL)) {
 
-    KINGetNumNonlinSolvIters(KIN_mem, &nniters);
-    KINGetNumFuncEvals(KIN_mem, &nfevals);
-    KINGetNumBetaCondFails(KIN_mem, &nbcfails);
-    KINGetNumBacktrackOps(KIN_mem, &nbacktr);
+    KINGetNumNonlinSolvIters(KIN_kinmem, &KIN_iopt[3]);
+    KINGetNumFuncEvals(KIN_kinmem, &KIN_iopt[4]);
+    KINGetNumBetaCondFails(KIN_kinmem, &KIN_iopt[5]);
+    KINGetNumBacktrackOps(KIN_kinmem, &KIN_iopt[6]);
 
-    KIN_iopt[3] = nniters;
-    KIN_iopt[4] = nfevals;
-    KIN_iopt[5] = nbcfails;
-    KIN_iopt[6] = nbacktr;
-
-    KINGetFuncNorm(KIN_mem, &KIN_ropt[2]);
-    KINGetStepLength(KIN_mem, &KIN_ropt[3]);
+    KINGetFuncNorm(KIN_kinmem, &KIN_ropt[2]);
+    KINGetStepLength(KIN_kinmem, &KIN_ropt[3]);
 
     switch(KIN_ls) {
 
     case KIN_SPBCG:
-      KINSpbcgGetNumLinIters(KIN_mem, &nliters);
-      KINSpbcgGetNumPrecEvals(KIN_mem, &npevals);
-      KINSpbcgGetNumPrecSolves(KIN_mem, &npsolves);
-      KINSpbcgGetNumConvFails(KIN_mem, &nlcfails);
-      KINSpbcgGetLastFlag(KIN_mem, &lsflag);
+      KINSpbcgGetNumLinIters(KIN_kinmem, &KIN_iopt[10]);
+      KINSpbcgGetNumPrecEvals(KIN_kinmem, &KIN_iopt[11]);
+      KINSpbcgGetNumPrecSolves(KIN_kinmem, &KIN_iopt[12]);
+      KINSpbcgGetNumConvFails(KIN_kinmem, &KIN_iopt[13]);
+      KINSpbcgGetLastFlag(KIN_kinmem, (int *) &KIN_iopt[14]);
       break;
 
     case KIN_SPGMR:
-      KINSpgmrGetNumLinIters(KIN_mem, &nliters);
-      KINSpgmrGetNumPrecEvals(KIN_mem, &npevals);
-      KINSpgmrGetNumPrecSolves(KIN_mem, &npsolves);
-      KINSpgmrGetNumConvFails(KIN_mem, &nlcfails);
-      KINSpgmrGetLastFlag(KIN_mem, &lsflag);
+      KINSpgmrGetNumLinIters(KIN_kinmem, &KIN_iopt[10]);
+      KINSpgmrGetNumPrecEvals(KIN_kinmem, &KIN_iopt[11]);
+      KINSpgmrGetNumPrecSolves(KIN_kinmem, &KIN_iopt[12]);
+      KINSpgmrGetNumConvFails(KIN_kinmem, &KIN_iopt[13]);
+      KINSpgmrGetLastFlag(KIN_kinmem, (int *) &KIN_iopt[14]);
       break;
 
     }
 
-    KIN_iopt[10] = nliters;
-    KIN_iopt[11] = npevals;
-    KIN_iopt[12] = npsolves;
-    KIN_iopt[13] = nlcfails;
-    KIN_iopt[14] = lsflag;
   }
 
   return;
@@ -258,13 +254,12 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
 void FKIN_FREE(void)
 {
 
-  /* call KINFree: KIN_mem is the pointer to the KINSOL memory block */
+  /* call KINFree: KIN_kinmem is the pointer to the KINSOL memory block */
 
-  KINFree(KIN_mem);
+  KINFree(KIN_kinmem);
 
-  /* restore data array in F2C_vec */
-
-  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
+  N_VSetArrayPointer(NULL , F2C_KINSOL_vec);
+  N_VDestroy(F2C_KINSOL_vec);
 
   return;
 }

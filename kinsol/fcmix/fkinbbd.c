@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-03-19 00:10:45 $
+ * $Revision: 1.23 $
+ * $Date: 2005-04-15 23:45:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -66,7 +66,9 @@ extern void FK_COMMFN(long int*, realtype*);
 void FKIN_BBDINIT(long int *nlocal, long int *mudq, long int *mldq,
 		  long int *mu, long int *ml, int *ier)
 {
-  KBBD_Data = KINBBDPrecAlloc(KIN_mem, *nlocal, *mudq, *mldq,
+  KBBD_Data = NULL;
+
+  KBBD_Data = KINBBDPrecAlloc(KIN_kinmem, *nlocal, *mudq, *mldq,
 			      *mu, *ml, ZERO, FKINgloc, FKINgcomm);
   if (KBBD_Data == NULL) *ier = -1;
   else *ier = 0;
@@ -82,8 +84,11 @@ void FKIN_BBDINIT(long int *nlocal, long int *mudq, long int *mldq,
 
 void FKIN_BBDSPBCG(int *maxl, int *ier)
 {
-  *ier = KINBBDSpbcg(KIN_mem, *maxl, KBBD_Data);
-  if (*ier != KINSPBCG_SUCCESS) return;
+  *ier = 0;
+
+  *ier = KINBBDSpbcg(KIN_kinmem, *maxl, KBBD_Data);
+
+  return;
 }
 
 /*
@@ -94,11 +99,14 @@ void FKIN_BBDSPBCG(int *maxl, int *ier)
 
 void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier)
 {
-  *ier = KINBBDSpgmr(KIN_mem, *maxl, KBBD_Data);
+  *ier = 0;
+
+  *ier = KINBBDSpgmr(KIN_kinmem, *maxl, KBBD_Data);
   if (*ier != KINSPGMR_SUCCESS) return;
 
-  *ier = KINSpgmrSetMaxRestarts(KIN_mem, *maxlrst);
-  if (*ier != KINSPGMR_SUCCESS) return;
+  *ier = KINSpgmrSetMaxRestarts(KIN_kinmem, *maxlrst);
+
+  return;
 }
 
 /*
@@ -114,12 +122,16 @@ void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data)
 {
   realtype *uloc, *gloc;
 
+  uloc = gloc = NULL;
+
   uloc = N_VGetArrayPointer(uu);
   gloc = N_VGetArrayPointer(gval);
 
   FK_LOCFN(&Nloc, uloc, gloc);
 
   N_VSetArrayPointer(gloc, gval);
+
+  return;
 }
 
 /*
@@ -135,9 +147,13 @@ void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
 {
   realtype *uloc;
 
+  uloc = NULL;
+
   uloc = N_VGetArrayPointer(uu);
   
   FK_COMMFN(&Nloc, uloc);
+
+  return;
 }
 
 /*
@@ -153,6 +169,8 @@ void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 {
   KINBBDPrecGetWorkSpace(KBBD_Data, lenrpw, lenipw);
   KINBBDPrecGetNumGfnEvals(KBBD_Data, nge);
+
+  return;
 }
 
 /*
@@ -167,4 +185,6 @@ void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 void FKIN_BBDFREE(void)
 {
   KINBBDPrecFree(KBBD_Data);
+
+  return;
 }

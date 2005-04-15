@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2005-03-21 23:23:44 $
+ * $Revision: 1.26 $
+ * $Date: 2005-04-15 23:45:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -144,7 +144,7 @@
  (4.1) To initialize the parallel machine environment, the user must make the
        following call:
 
-         CALL FNVINITP (NLOCAL, NGLOBAL, IER)
+         CALL FNVINITP (5, NLOCAL, NGLOBAL, IER)
 
        The arguments are:
          NLOCAL  = local size of vectors associated with process
@@ -247,14 +247,13 @@
                 Note: This size is local to the current process.
        NGE    = number of g(u) evaluations (calls to FKLOCFN)
 
- (7) Memory freeing: FKINBBDFREE, FKINFREE and FNVFREEP
+ (7) Memory freeing: FKINBBDFREE and FKINFREE
 
      To the free the internal memory created by the calls to FKINBBDINIT, FNVINITP
      and FKINMALLOC, make the following calls, in this order:
 
        CALL FKINBBDFREE
        CALL FKINFREE
-       CALL FNVFREEP
 
 *******************************************************************************/
 

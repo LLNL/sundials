@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-04-07 20:41:03 $
+ * $Revision: 1.12 $
+ * $Date: 2005-04-15 23:45:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -49,8 +49,10 @@ extern void FK_JTIMES(realtype*, realtype*, int*, realtype*, int*);
 
 void FKIN_SPBCGSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpbcgSetJacTimesVecFn(KIN_mem, NULL, NULL);
-  else KINSpbcgSetJacTimesVecFn(KIN_mem, FKINJtimes, NULL);
+  if ((*flag) == 0) KINSpbcgSetJacTimesVecFn(KIN_kinmem, NULL, NULL);
+  else              KINSpbcgSetJacTimesVecFn(KIN_kinmem, FKINJtimes, NULL);
+
+  return;
 }
 
 /*
@@ -61,8 +63,10 @@ void FKIN_SPBCGSETJAC(int *flag, int *ier)
 
 void FKIN_SPGMRSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpgmrSetJacTimesVecFn(KIN_mem, NULL, NULL);
-  else KINSpgmrSetJacTimesVecFn(KIN_mem, FKINJtimes, NULL);
+  if ((*flag) == 0) KINSpgmrSetJacTimesVecFn(KIN_kinmem, NULL, NULL);
+  else              KINSpgmrSetJacTimesVecFn(KIN_kinmem, FKINJtimes, NULL);
+
+  return;
 }
 
 /*
@@ -79,14 +83,16 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
                N_Vector uu, booleantype *new_uu, 
                void *J_data)
 {
- int retcode;
- realtype *vdata, *Jvdata, *uudata;
- 
- vdata  = N_VGetArrayPointer(v);
- uudata = N_VGetArrayPointer(uu);
- Jvdata = N_VGetArrayPointer(Jv);
- 
- FK_JTIMES(vdata, Jvdata, (int *)new_uu, uudata, &retcode);
+  int retcode;
+  realtype *vdata, *Jvdata, *uudata;
 
- return(retcode);
+  vdata = Jvdata = uudata = NULL;
+
+  vdata  = N_VGetArrayPointer(v);
+  uudata = N_VGetArrayPointer(uu);
+  Jvdata = N_VGetArrayPointer(Jv);
+ 
+  FK_JTIMES(vdata, Jvdata, (int *) new_uu, uudata, &retcode);
+
+  return(retcode);
 }
