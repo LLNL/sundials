@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2004-12-07 19:46:02 $
+ * $Revision: 1.8 $
+ * $Date: 2005-04-15 00:39:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -66,7 +66,7 @@ void FCV_BPSPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
   *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
   if (*ier != CVSPBCG_SUCCESS) return;
 
-  CV_ls = 5;
+  CV_ls = CV_LS_SPBCG;
 }
 
 /***************************************************************************/
@@ -91,7 +91,7 @@ void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
   if (*ier != CVSPGMR_SUCCESS) return;
 
-  CV_ls = 4;
+  CV_ls = CV_LS_SPGMR;
 }
 
 /***************************************************************************/

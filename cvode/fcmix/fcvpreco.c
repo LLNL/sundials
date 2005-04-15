@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-04-07 23:28:22 $
+ * $Revision: 1.17 $
+ * $Date: 2005-04-15 00:39:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -48,16 +48,24 @@ extern "C" {
 
 void FCV_SPBCGSETPREC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpbcgSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
-  else            CVSpbcgSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, NULL);
+  if (*flag == 0) {
+    CVSpbcgSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
+  } else {
+    CVSpbcgSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, NULL);
+    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+  }
 }
 
 /***************************************************************************/
 
 void FCV_SPGMRSETPREC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpgmrSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
-  else            CVSpgmrSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, NULL);
+  if (*flag == 0) {
+    CVSpgmrSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
+  } else {
+    CVSpgmrSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, NULL);
+    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+  }
 }
 
 /***************************************************************************/
@@ -75,28 +83,23 @@ int FCVPSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
             void *P_data,
             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  N_Vector ewt;
   realtype h;
   realtype *ydata, *fydata, *ewtdata, *v1data, *v2data, *v3data;
 
   int ier = 0;
   
-  ewt = N_VClone(y);
-
-  CVodeGetErrWeights(CV_cvodemem, ewt);
+  CVodeGetErrWeights(CV_cvodemem, CV_ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
-  ewtdata = N_VGetArrayPointer(ewt);
+  ewtdata = N_VGetArrayPointer(CV_ewt);
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
 
   FCV_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, ewtdata,
            &h, v1data, v2data, v3data, &ier);
-
-  N_VDestroy(ewt);
 
   return(ier);
 }
@@ -115,26 +118,21 @@ int FCVPSol(realtype t, N_Vector y, N_Vector fy,
             realtype gamma, realtype delta,
             int lr, void *P_data, N_Vector vtemp)
 {
-  N_Vector ewt;
   realtype *ydata, *fydata, *vtdata, *ewtdata, *rdata, *zdata;
 
   int ier = 0;
 
-  ewt = N_VClone(y);
-
-  CVodeGetErrWeights(CV_cvodemem, ewt);
+  CVodeGetErrWeights(CV_cvodemem, CV_ewt);
 
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   vtdata  = N_VGetArrayPointer(vtemp);
-  ewtdata = N_VGetArrayPointer(ewt);
+  ewtdata = N_VGetArrayPointer(CV_ewt);
   rdata   = N_VGetArrayPointer(r);
   zdata   = N_VGetArrayPointer(z);
 
   FCV_PSOL(&t, ydata, fydata, vtdata, &gamma, ewtdata, &delta,
            rdata, &lr, zdata, &ier);
-
-  N_VDestroy(ewt);
 
   return(ier);
 }

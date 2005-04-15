@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2005-04-07 23:28:22 $
+ * $Revision: 1.40 $
+ * $Date: 2005-04-15 00:39:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -60,9 +60,6 @@
  *   FCVDKY     interfaces to CVodeGetDky
  * 
  *   FCVFREE    interfaces to CVodeFree
- * 
- *   FNVFREES and FNVFREEP interface to N_VDestroy_Serial and
- *              N_VDestroy_Parallel, respectively.
  * 
  * The user-supplied functions, each listed with the corresponding interface
  * function which calls it (and its type within CVODE), are as follows:
@@ -158,8 +155,8 @@
  * 
  * (6.1s) To initialize the serial machine environment, the user must make
  * the following call:
- *        CALL FNVINITS (NEQ, IER)
- * The arguments are:
+ *        CALL FNVINITS (1, NEQ, IER)
+ * where the first argument is the CVODE solver ID. The other arguments are:
  * NEQ     = size of vectors
  * IER     = return completion flag. Values are 0 = success, -1 = failure.
  * 
@@ -428,12 +425,10 @@
  * DKY = array containing computed K-th derivative of y on return
  * IER = return flag: = 0 for success, < 0 for illegal argument.
  * 
- * (10) Memory freeing: FCVFREE and FNVFREES/FNVFREEP
- * To the free the internal memory created by the calls to FCVMALLOC and
- * FNVINITS or FNVINITP, depending on the version (serial/parallel), make
- * the following calls, in this order:
+ * (10) Memory freeing: FCVFREE 
+ * To free the internal memory created by the calls to FCVMALLOC and
+ * FNVINITS or FNVINITP, make the call
  *       CALL FCVFREE
- *       CALL FNVFREES or CALL FNVFREEP  
  * 
  * =============================================================================
  */
@@ -660,86 +655,88 @@ extern "C" {
 
 #endif
 
-/* Prototypes of exported functions */
+  /* Prototypes of exported functions */
 
-void FCV_MALLOC(realtype *t0, realtype *y0, 
-                int *meth, int *itmeth, int *iatol, 
-                realtype *rtol, realtype *atol,
-                int *optin, long int *iopt, realtype *ropt, 
-                int *ier);
+  void FCV_MALLOC(realtype *t0, realtype *y0, 
+                  int *meth, int *itmeth, int *iatol, 
+                  realtype *rtol, realtype *atol,
+                  int *optin, long int *iopt, realtype *ropt, 
+                  int *ier);
 
-void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
-                realtype *atol, int *optin, long int *iopt,
-                realtype *ropt, int *ier);
+  void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
+                  realtype *atol, int *optin, long int *iopt,
+                  realtype *ropt, int *ier);
 
-void FCV_EWTSET(int *flag, int *ier);
+  void FCV_EWTSET(int *flag, int *ier);
 
-void FCV_DIAG(int *ier);
+  void FCV_DIAG(int *ier);
 
-void FCV_DENSE(long int *neq, int *ier);
-void FCV_DENSESETJAC(int *flag, int *ier);
+  void FCV_DENSE(long int *neq, int *ier);
+  void FCV_DENSESETJAC(int *flag, int *ier);
 
-void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
-void FCV_BANDSETJAC(int *flag, int *ier);
+  void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+  void FCV_BANDSETJAC(int *flag, int *ier);
 
-void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
-void FCV_SPBCGREINIT(int *pretype, realtype *delt, int *ier);
-void FCV_SPBCGSETJAC(int *flag, int *ier);
-void FCV_SPBCGSETPREC(int *flag, int *ier);
-
-void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
-void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
-void FCV_SPGMRSETJAC(int *flag, int *ier);
-void FCV_SPGMRSETPREC(int *flag, int *ier);
-
-void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
-
-void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier);
-
-void FCV_FREE ();
-
-
-/* Prototypes: Functions Called by the CVODE Solver */
+  void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FCV_SPBCGREINIT(int *pretype, realtype *delt, int *ier);
+  void FCV_SPBCGSETJAC(int *flag, int *ier);
+  void FCV_SPBCGSETPREC(int *flag, int *ier);
   
-void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+  void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
+  void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
+  void FCV_SPGMRSETJAC(int *flag, int *ier);
+  void FCV_SPGMRSETPREC(int *flag, int *ier);
+  
+  void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
 
-void FCVDenseJac(long int N, DenseMat J, realtype t, 
-                 N_Vector y, N_Vector fy, void *jac_data,
-                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier);
 
-void FCVBandJac(long int N, long int mupper, long int mlower,
-                BandMat J, realtype t, N_Vector y, N_Vector fy,
-                void *jac_data,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  void FCV_FREE ();
 
-int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
-            booleantype *jcurPtr, realtype gamma, void *P_data,
-            N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int FCVPSol(realtype tn, N_Vector y, N_Vector fy, 
-            N_Vector r, N_Vector z,
-            realtype gamma, realtype delta,
-            int lr, void *P_data, N_Vector vtemp);
+  /* Prototypes: Functions Called by the CVODE Solver */
+  
+  void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+  
+  void FCVDenseJac(long int N, DenseMat J, realtype t, 
+                   N_Vector y, N_Vector fy, void *jac_data,
+                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  
+  void FCVBandJac(long int N, long int mupper, long int mlower,
+                  BandMat J, realtype t, N_Vector y, N_Vector fy,
+                  void *jac_data,
+                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  
+  int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
+              booleantype *jcurPtr, realtype gamma, void *P_data,
+              N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  
+  int FCVPSol(realtype tn, N_Vector y, N_Vector fy, 
+              N_Vector r, N_Vector z,
+              realtype gamma, realtype delta,
+              int lr, void *P_data, N_Vector vtemp);
+  
+  int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
+                N_Vector y, N_Vector fy,
+                void *jac_data, N_Vector work);
+  
+  int FCVEwtSet(N_Vector y, N_Vector ewt, void *e_data);
 
-int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
-              N_Vector y, N_Vector fy,
-              void *jac_data, N_Vector work);
+  /* Declarations for global variables shared amongst various routines */
 
-int FCVEwtSet(N_Vector y, N_Vector ewt, void *e_data);
+  extern N_Vector F2C_CVODE_vec;
 
-/* Declarations for global variables shared amongst various routines */
+  extern N_Vector CV_ewt;
+  extern void *CV_cvodemem;
+  extern booleantype CV_optin;
+  extern long int *CV_iopt;
+  extern realtype *CV_ropt;
+  extern int CV_nrtfn;
+  extern int CV_ls;
 
-extern N_Vector F2C_vec;
+  /* Linear solver IDs */
 
-extern N_Vector F2C_atolvec;
-extern realtype *data_F2C_vec, *data_F2C_atolvec;
-
-extern void *CV_cvodemem;
-extern booleantype CV_optin;
-extern long int *CV_iopt;
-extern realtype *CV_ropt;
-extern int CV_nrtfn;
-extern int CV_ls;  /* 1 = DENSE, 2 = BAND, 3 = DIAG, 4 = SPGMR */
+  enum { CV_LS_DENSE = 1, CV_LS_BAND = 2, CV_LS_DIAG = 3, CV_LS_SPGMR = 4, CV_LS_SPBCG = 5 };
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.44 $
- * $Date: 2005-04-07 23:28:22 $
+ * $Revision: 1.45 $
+ * $Date: 2005-04-15 00:39:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -36,8 +36,7 @@
 
 /* Definitions for global variables shared amongst various routines */
 
-N_Vector F2C_atolvec;
-realtype *data_F2C_vec, *data_F2C_atolvec;
+N_Vector CV_ewt;
 
 void *CV_cvodemem;
 booleantype CV_optin;
@@ -72,53 +71,50 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
                 int *ier)
 {
   int lmm, iter, itol;
+  N_Vector Vatol;
   void *atolptr;
 
+  Vatol = NULL;
   atolptr = NULL;
 
-  if(F2C_vec->ops->nvgetarraypointer == NULL ||
-     F2C_vec->ops->nvsetarraypointer == NULL) {
+  if(F2C_CVODE_vec->ops->nvgetarraypointer == NULL ||
+     F2C_CVODE_vec->ops->nvsetarraypointer == NULL) {
     *ier = -1;
     printf("A required vector operation is not implemented.\n\n");
     return;
   }
 
-  /* Save the data array in F2C_vec into data_F2C_vec and then 
-     overwrite it with y0 */
-  data_F2C_vec = N_VGetArrayPointer(F2C_vec);
-  N_VSetArrayPointer(y0, F2C_vec);
+  /* Set data in F2C_CVODE_vec to y0 */
+  N_VSetArrayPointer(y0, F2C_CVODE_vec);
 
   lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
   iter = (*itmeth == 1) ? CV_FUNCTIONAL : CV_NEWTON;
   switch (*iatol) {
   case 1:
-    F2C_atolvec = NULL;
     itol = CV_SS; 
     atolptr = (void *) atol; 
     break;
   case 2:
-    F2C_atolvec = N_VClone(F2C_vec);
-    data_F2C_atolvec = N_VGetArrayPointer(F2C_atolvec);
-    N_VSetArrayPointer(atol, F2C_atolvec);
     itol = CV_SV; 
-    atolptr = (void *) F2C_atolvec; 
+    Vatol = N_VCloneEmpty(F2C_CVODE_vec);
+    N_VSetArrayPointer(atol, Vatol);
+    atolptr = (void *) Vatol; 
     break;
   case 3:
-    F2C_atolvec = NULL;
     itol = CV_WF;
     break;
   }
 
   /* 
      Call CVodeCreate, CVodeSet*, and CVodeMalloc to initialize CVODE: 
-     lmm     is the method specifier
-     iter    is the iteration method specifier
-     CVf     is the user's right-hand side function in y'=f(t,y)
-     *t0     is the initial time
-     F2C_vec is the initial dependent variable vector
-     itol    specifies tolerance type
-     rtol    is the scalar relative tolerance
-     atolptr is the absolute tolerance pointer (to scalar or vector or function)
+     lmm           is the method specifier
+     iter          is the iteration method specifier
+     CVf           is the user's right-hand side function in y'=f(t,y)
+     *t0           is the initial time
+     F2C_CVODE_vec is the initial dependent variable vector
+     itol          is the tolerance type
+     rtol          is the scalar relative tolerance
+     atolptr       is the absolute tolerance pointer (to scalar or vector)
 
      A pointer to CVODE problem memory is createded and stored in CV_cvodemem. 
   */
@@ -150,16 +146,11 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     CV_optin = FALSE;
   }
 
-  *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, F2C_vec, itol, *rtol, atolptr);
+  *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
 
-  /* reset data pointer into F2C_vec */
-  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
-
-  /* destroy F2C_atolvec if allocated */
-  if (F2C_atolvec != NULL) {
-    N_VSetArrayPointer(data_F2C_atolvec, F2C_atolvec);
-    N_VDestroy(F2C_atolvec);
-  }
+  /* destroy Vatol if allocated */
+  if (itol == CV_SV)
+    N_VDestroy(Vatol);
 
   if(*ier != CV_SUCCESS) {
     *ier = -1;
@@ -172,6 +163,8 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   CV_iopt = iopt;
   CV_ropt = ropt;
 
+  CV_ewt = NULL;
+
   return;
 }
 
@@ -182,11 +175,14 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
                 realtype *ropt, int *ier)
 {
   int itol;
+  N_Vector Vatol;
   void *atolptr;
 
+  Vatol = NULL;
   atolptr = NULL;
 
-  N_VSetArrayPointer(y0, F2C_vec);
+  /* Set data in F2C_CVODE_vec to y0 */
+  N_VSetArrayPointer(y0, F2C_CVODE_vec);
 
   switch (*iatol) {
   case 1:
@@ -194,24 +190,24 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     atolptr = (void *) atol; 
     break;
   case 2:
-    F2C_atolvec = N_VClone(F2C_vec);
-    data_F2C_atolvec = N_VGetArrayPointer(F2C_atolvec);
-    N_VSetArrayPointer(atol, F2C_atolvec);
     itol = CV_SV; 
-    atolptr = (void *) F2C_atolvec; 
+    Vatol = N_VCloneEmpty(F2C_CVODE_vec);
+    N_VSetArrayPointer(atol, Vatol);
+    atolptr = (void *) Vatol; 
     break;
   case 3:
     itol = CV_WF;
+    break;
   }
 
   /* 
      Call CVodeSet* and CVReInit to re-initialize CVODE: 
-     CVf     is the user's right-hand side function in y'=f(t,y)
-     t0      is the initial time
-     F2C_vec is the initial dependent variable vector
-     itol    specifies tolerance type
-     rtol    is the scalar relative tolerance
-     atolptr is the absolute tolerance pointer (to scalar or vector or function)
+     CVf           is the user's right-hand side function in y'=f(t,y)
+     t0            is the initial time
+     F2C_CVODE_vec is the initial dependent variable vector
+     itol          is the tolerance type
+     rtol          is the scalar relative tolerance
+     atolptr       is the absolute tolerance pointer (to scalar or vector)
   */
 
   if (*optin == 1) {
@@ -232,16 +228,11 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
     CV_optin = FALSE;
   }
 
-  *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_vec, itol, *rtol, atolptr);
+  *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
 
-  /* reset data pointer into F2C_vec */
-  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
-
-  /* destroy F2C_atolvec if allocated */
-  if (F2C_atolvec != NULL) {
-    N_VSetArrayPointer(data_F2C_atolvec, F2C_atolvec);
-    N_VDestroy(F2C_atolvec);
-  }
+  /* destroy Vatol if allocated */
+  if (itol == CV_SV)
+    N_VDestroy(Vatol);
 
   if (*ier != CV_SUCCESS) {
     *ier = -1;
@@ -256,24 +247,13 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
 
 /***************************************************************************/
 
-void FCV_DIAG(int *ier)
-{
-  *ier = CVDiag(CV_cvodemem);
-
-  CV_ls = 3;
-}
-
-/***************************************************************************/
-
 void FCV_DENSE(long int *neq, int *ier)
 {
-  /* 
-     neq  is the problem size
-  */
+  /* neq  is the problem size */
 
   *ier = CVDense(CV_cvodemem, *neq);
 
-  CV_ls = 1;
+  CV_ls = CV_LS_DENSE;
 }
 
 /***************************************************************************/
@@ -288,7 +268,16 @@ void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 
   *ier = CVBand(CV_cvodemem, *neq, *mupper, *mlower);
 
-  CV_ls = 2;
+  CV_ls = CV_LS_BAND;
+}
+
+/***************************************************************************/
+
+void FCV_DIAG(int *ier)
+{
+  *ier = CVDiag(CV_cvodemem);
+
+  CV_ls = CV_LS_DIAG;
 }
 
 /***************************************************************************/
@@ -307,7 +296,7 @@ void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
   *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
   if (*ier != CVSPBCG_SUCCESS) return;
 
-  CV_ls = 5;
+  CV_ls = CV_LS_SPBCG;
 }
 
 /***************************************************************************/
@@ -330,7 +319,7 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
   if (*ier != CVSPGMR_SUCCESS) return;
 
-  CV_ls = 4;
+  CV_ls = CV_LS_SPGMR;
 }
 
 /***************************************************************************/
@@ -348,7 +337,7 @@ void FCV_SPBCGREINIT(int *pretype, realtype *delt, int *ier)
   *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
   if (*ier != CVSPBCG_SUCCESS) return;
 
-  CV_ls = 5;
+  CV_ls = CV_LS_SPBCG;
 }
 
 /***************************************************************************/
@@ -370,7 +359,7 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
   *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
   if (*ier != CVSPGMR_SUCCESS) return;
 
-  CV_ls = 4;
+  CV_ls = CV_LS_SPGMR;
 }
 
 /***************************************************************************/
@@ -381,16 +370,16 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   int qu, qcur;
 
   /* 
-     tout      is the t value where output is desired
-     F2C_vec   is the N_Vector containing the solution on return
-     t         is the returned independent variable value
-     itask     is the task indicator (1 = CV_NORMAL, 2 = CV_ONE_STEP, 
-                                      3 = CV_NORMAL_TSTOP, 4 = CV_ONE_STEP_TSTOP) 
+     tout          is the t value where output is desired
+     F2C_CVODE_vec is the N_Vector containing the solution on return
+     t             is the returned independent variable value
+     itask         is the task indicator (1 = CV_NORMAL, 2 = CV_ONE_STEP, 
+                                          3 = CV_NORMAL_TSTOP, 4 = CV_ONE_STEP_TSTOP) 
   */
 
-  *ier = CVode(CV_cvodemem, *tout, F2C_vec, t, *itask);
+  N_VSetArrayPointer(y, F2C_CVODE_vec);
 
-  y = N_VGetArrayPointer(F2C_vec);
+  *ier = CVode(CV_cvodemem, *tout, F2C_CVODE_vec, t, *itask);
 
   /* Load optional outputs in iopt & ropt */
   if ((CV_iopt != NULL) && (CV_ropt != NULL)) {
@@ -462,14 +451,15 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 {
   /* 
-     t        is the t value where output is desired
-     k        is the derivative order
-     F2C_vec  is the N_Vector containing the solution derivative on return 
+     t             is the t value where output is desired
+     k             is the derivative order
+     F2C_CVODE_vec is the N_Vector containing the solution derivative on return 
   */
 
-  *ier = CVodeGetDky(CV_cvodemem, *t, *k, F2C_vec);
+  N_VSetArrayPointer(dky, F2C_CVODE_vec);
 
-  dky = N_VGetArrayPointer(F2C_vec);
+  *ier = CVodeGetDky(CV_cvodemem, *t, *k, F2C_CVODE_vec);
+
 }
 
 /***************************************************************************/
@@ -477,10 +467,8 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 void FCV_FREE ()
 {
   CVodeFree(CV_cvodemem);
-
-  /* Restore data array in F2C_vec */
-  N_VSetArrayPointer(data_F2C_vec, F2C_vec);
-
+  N_VDestroy(F2C_CVODE_vec);
+  if (CV_ewt != NULL) N_VDestroy(CV_ewt);
 }
 
 /***************************************************************************/

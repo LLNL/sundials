@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-04-07 23:28:22 $
+ * $Revision: 1.18 $
+ * $Date: 2005-04-15 00:39:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -46,16 +46,24 @@ extern "C" {
 
 void FCV_SPBCGSETJAC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
-  else            CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
+  if (*flag == 0) {
+    CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+  } else {
+    CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
+    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+  }
 }
 
 /***************************************************************************/
 
 void FCV_SPGMRSETJAC(int *flag, int *ier)
 {
-  if (*flag == 0) CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
-  else CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
+  if (*flag == 0) {
+    CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+  } else {
+    CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
+    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+  }
 }
 
 /***************************************************************************/
@@ -72,15 +80,12 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
               N_Vector y, N_Vector fy,
               void *jac_data, N_Vector work)
 {
-  N_Vector ewt;
   realtype *vdata, *Jvdata, *ydata, *fydata, *ewtdata, *wkdata;
   realtype h;
 
   int ier = 0;
   
-  ewt = N_VClone(y);
-
-  CVodeGetErrWeights(CV_cvodemem, ewt);
+  CVodeGetErrWeights(CV_cvodemem, CV_ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   vdata   = N_VGetArrayPointer(v);
@@ -88,12 +93,10 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   wkdata  = N_VGetArrayPointer(work);
-  ewtdata = N_VGetArrayPointer(ewt);
+  ewtdata = N_VGetArrayPointer(CV_ewt);
 
   FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, 
               ewtdata, &h, wkdata, &ier);
-
-  N_VDestroy(ewt);
 
   return(ier);
 }
