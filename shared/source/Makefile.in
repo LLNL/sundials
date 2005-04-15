@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-02-15 00:10:42 $
+# $Revision: 1.12 $
+# $Date: 2005-04-15 00:46:35 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -59,6 +59,7 @@ install: update $(SHARED_LIB_FILES)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundialsmath.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundialstypes.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/nvector.h $(includedir)
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/fnvector.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/smalldense.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/spgmr.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/spbcg.h $(includedir)
@@ -78,6 +79,7 @@ uninstall: clean
 	rm -f $(includedir)/sundialsmath.h
 	rm -f $(includedir)/sundialstypes.h
 	rm -f $(includedir)/nvector.h
+	rm -f $(includedir)/fnvector.h
 	rm -f $(includedir)/smalldense.h
 	rm -f $(includedir)/spgmr.h
 	rm -f $(includedir)/spbcg.h
