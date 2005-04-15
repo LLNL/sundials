@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-04-14 20:53:45 $
+ * $Revision: 1.6 $
+ * $Date: 2005-04-15 23:41:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -528,11 +528,11 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
     return(KIN_SUCCESS);
   }
 
-  /*  Check the constraints vector */
+  /* Check the constraints vector */
 
   temptest = N_VMaxNorm(constraints);
-  if((temptest > TWOPT5) || (temptest < HALF)){ 
-    if(errfp!=NULL) fprintf(errfp, MSG_BAD_CONSTRAINTS); 
+  if (temptest > TWOPT5){ 
+    if (errfp != NULL) fprintf(errfp, MSG_BAD_CONSTRAINTS); 
     return(KIN_ILL_INPUT); 
   }
 
