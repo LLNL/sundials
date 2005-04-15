@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-04-14 21:48:14 $
+ * $Revision: 1.20 $
+ * $Date: 2005-04-15 14:09:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -347,6 +347,9 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom);
 
 /*
  * -----------------------------------------------------------------
+ * N_VCloneEmptyVectorArray
+ *   Creates (by cloning 'w') an array of 'count' empty N_Vectors 
+ *
  * N_VCloneVectorArray
  *   Creates (by cloning 'w') an array of 'count' N_Vectors 
  *
@@ -359,6 +362,7 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom);
  * -----------------------------------------------------------------
  */
 
+N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w);
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
 void N_VDestroyVectorArray(N_Vector *vs, int count);
 

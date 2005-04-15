@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-04-14 21:48:16 $
+ * $Revision: 1.15 $
+ * $Date: 2005-04-15 14:09:41 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL                               
  * -----------------------------------------------------------------
@@ -166,10 +166,34 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom)
 /*
  * -----------------------------------------------------------------
  * Additional functions exported by the generic NVECTOR:
+ *   N_VCloneEmptyVectorArray
  *   N_VCloneVectorArray
  *   N_VDestroyVectorArray
  * -----------------------------------------------------------------
  */
+
+N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w)
+{
+  N_Vector *vs;
+  int j;
+
+  vs = NULL;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j = 0; j < count; j++) {
+    vs[j] = N_VCloneEmpty(w);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
 
 N_Vector *N_VCloneVectorArray(int count, N_Vector w)
 {
