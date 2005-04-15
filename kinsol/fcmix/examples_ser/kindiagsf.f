@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.15 $
-c     $Date: 2005-04-07 19:26:21 $
+c     $Revision: 1.16 $
+c     $Date: 2005-04-15 23:46:30 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -45,7 +45,7 @@ c
 
 c * * * * * * * * * * * * * * * * * * * * * *
 
-      call fnvinits(neq, ier)
+      call fnvinits(5, neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
  1220    format('SUNDIALS_ERROR: FNVINITS returned IER = ', i2)
@@ -63,7 +63,6 @@ c * * * * * * * * * * * * * * * * * * * * * *
       if (ier .ne. 0) then
          write(6,1230) ier
  1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ', i2)
-         call fnvfrees
          stop
       endif
 
@@ -72,7 +71,6 @@ c * * * * * * * * * * * * * * * * * * * * * *
          write(6,1235) ier
  1235    format('SUNDIALS_ERROR: FKINSPGMR returned IER = ', i2)
          call fkinfree
-         call fnvfrees
          stop
       endif
 
@@ -91,7 +89,6 @@ c * * * * * * * * * * * * * * * * * * * * * *
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ', i2, /,
      1          '                Linear Solver returned IER = ', i2)
          call fkinfree
-         call fnvfrees
          stop
       endif
 
@@ -113,7 +110,6 @@ c * * * * * * * * * * * * * * * * * * * * * *
      2       ',  npe = ', i4, ',  nps = ', i4, ',  ncfl = ', i4)
 
       call fkinfree
-      call fnvfrees
 
       stop
       end

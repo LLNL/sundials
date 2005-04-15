@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.15 $
-c     $Date: 2005-04-07 19:26:19 $
+c     $Revision: 1.16 $
+c     $Date: 2005-04-15 23:46:32 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -59,7 +59,7 @@ c     number of this process.
          stop
       endif
 
-      call fnvinitp(nlocal, neq, ier)
+      call fnvinitp(5, nlocal, neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
  1220    format('SUNDIALS_ERROR: FNVINITP returned IER = ', i2)
@@ -149,7 +149,6 @@ c     number of this process.
      2       ',  npe = ', i4, ',  nps=', i4, ',  ncfl=', i4)
 
       call fkinfree
-      call fnvfreep
       
 c     An explicit call to mpi_finalize (Fortran binding) is required by 
 c     the constructs used in fkinsol. 
