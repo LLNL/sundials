@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.10 $
-C     $Date: 2004-10-21 18:59:18 $
+C     $Revision: 1.11 $
+C     $Date: 2005-04-15 00:40:44 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -67,7 +67,7 @@ C
      1       ' Kinetics-transport, NEQ = ', I4/)
 C     
 C     Initialize vector specification
-      CALL FNVINITS(NEQ, IER)
+      CALL FNVINITS(1, NEQ, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,20) IER
  20      FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ', I5)
@@ -80,7 +80,6 @@ C     Initialize CVODE
       IF (IER .NE. 0) THEN
          WRITE(6,30) IER
  30      FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
-         CALL FNVFREES
          STOP
       ENDIF
 C     
@@ -91,7 +90,6 @@ C     Initialize band preconditioner
       IF (IER .NE. 0) THEN
          WRITE(6,40) IER
  40      FORMAT(///' SUNDIALS_ERROR: FCVBPINIT returned IER = ', I5)
-         CALL FNVFREES
          CALL FCVFREE
          STOP
       ENDIF
@@ -101,7 +99,6 @@ C     Initialize SPGMR solver with band preconditioner
       IF (IER .NE. 0) THEN
          WRITE(6,45) IER
  45      FORMAT(///' SUNDIALS_ERROR: FCVBPSPGMR returned IER = ', I5)
-         CALL FNVFREES
          CALL FCVFREE
          STOP
       ENDIF
@@ -125,7 +122,6 @@ C
  60         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      1             '                 Linear Solver returned IER = ', I5)
             CALL FCVBPFREE
-            CALL FNVFREES
             CALL FCVFREE
             STOP
          ENDIF
@@ -162,7 +158,6 @@ C     Print final statistics.
 C     
       CALL FCVBPFREE
       CALL FCVFREE
-      CALL FNVFREES
 C     
       STOP
       END

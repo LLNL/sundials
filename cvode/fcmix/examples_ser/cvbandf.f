@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.17 $
-C     $Date: 2004-10-21 18:58:38 $
+C     $Revision: 1.18 $
+C     $Date: 2005-04-15 00:40:44 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -55,7 +55,7 @@ C
  10   FORMAT('Band example problem:'//
      1       ' Advection-diffusion, NEQ = ', I2//)
 C
-      CALL FNVINITS(NEQ, IER)
+      CALL FNVINITS(1, NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
  20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ', I5)
@@ -67,7 +67,6 @@ C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
-        CALL FNVFREES
         STOP
         ENDIF
 C
@@ -75,7 +74,6 @@ C
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
  40     FORMAT(///' SUNDIALS_ERROR: FCVBAND returned IER = ', I5)
-        CALL FNVFREES
         CALL FCVFREE
         STOP
       ENDIF
@@ -100,7 +98,6 @@ C
           WRITE(6,60) IER, IOPT(26)
  60       FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      1           '                 Linear Solver returned IER = ', I5)
-          CALL FNVFREES
           CALL FCVFREE
           STOP
           ENDIF
@@ -118,7 +115,6 @@ C
      5       ' No. error test failures = ', I4)
 C
       CALL FCVFREE
-      CALL FNVFREES
 C
       STOP
       END

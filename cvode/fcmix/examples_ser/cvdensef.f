@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.19 $
-C     $Date: 2004-10-15 00:25:21 $
+C     $Revision: 1.20 $
+C     $Date: 2005-04-15 00:40:44 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -63,27 +63,27 @@ C
  10   FORMAT('Dense example problem:'//
      1       ' Robertson kinetics, NEQ = ', I2//)
 C
-      CALL FNVINITS(NEQ, IER)
+      CALL FNVINITS(1, NEQ, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
  20     FORMAT(///' SUNDIALS_ERROR: FNVINITS returned IER = ', I5)
         STOP
       ENDIF
 C
+
       CALL FCVMALLOC(T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
      1               INOPT, IOPT, ROPT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
-        CALL FNVFREES
         STOP
       ENDIF
 C
+
       CALL FCVROOTINIT(2, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,45) IER
  45      FORMAT(///' SUNDIALS_ERROR: FCVROOTINIT returned IER = ', I5)
-         CALL FNVFREES
          CALL FCVFREE
          STOP
       ENDIF
@@ -92,7 +92,6 @@ C
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
  40     FORMAT(///' SUNDIALS_ERROR: FCVDENSE returned IER = ', I5)
-        CALL FNVFREES
         CALL FCVFREE
         STOP
       ENDIF
@@ -110,7 +109,6 @@ C
            WRITE(6,60) IER, IOPT(26)
  60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      1            '                 Linear Solver returned IER = ', I5)
-           CALL FNVFREES
            CALL FCVROOTFREE
            CALL FCVFREE
            STOP
@@ -122,7 +120,6 @@ C
               WRITE(6,65) IER
  65           FORMAT(///' SUNDIALS_ERROR: FCVROOTINFO returned IER = ',
      1              I5)
-              CALL FNVFREES
               CALL FCVROOTFREE
               CALL FCVFREE
               STOP
@@ -142,7 +139,6 @@ C
       IF (IER .NE. 0) THEN
          WRITE(6,80) IER
  80      FORMAT(///' SUNDIALS_ERROR: FCVDKY returned IER = ', I4)
-         CALL FNVFREES
          CALL FCVROOTFREE
          CALL FCVFREE
          STOP
@@ -162,7 +158,6 @@ C
 C
       CALL FCVROOTFREE
       CALL FCVFREE
-      CALL FNVFREES
 C
       STOP
       END
