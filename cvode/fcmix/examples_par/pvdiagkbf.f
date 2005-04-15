@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.18 $
-C     $Date: 2004-10-21 18:58:44 $
+C     $Revision: 1.19 $
+C     $Date: 2005-04-15 00:40:32 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -80,7 +80,7 @@ C
      &          /' Number of processors = ', I3/)
       ENDIF
 C     
-      CALL FNVINITP(NLOCAL, NEQ, IER)
+      CALL FNVINITP(1, NLOCAL, NEQ, IER)
 C     
       IF (IER .NE. 0) THEN
          WRITE(6,20) IER
@@ -241,7 +241,6 @@ C
 C     Free the memory and finalize MPI.
  99   CALL FCVBBDFREE
       CALL FCVFREE
-      CALL FNVFREEP
       CALL MPI_FINALIZE(IER)
 C     
       STOP

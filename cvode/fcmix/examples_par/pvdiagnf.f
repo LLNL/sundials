@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.11 $
-C     $Date: 2004-10-21 18:58:44 $
+C     $Revision: 1.12 $
+C     $Date: 2005-04-15 00:40:32 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
 C     ----------------------------------------------------------------
@@ -73,7 +73,7 @@ C
   15    FORMAT(' Number of processors = ', I3//)
         ENDIF
 C
-      CALL FNVINITP(NLOCAL, NEQ, IER)
+      CALL FNVINITP(1, NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
@@ -147,7 +147,6 @@ C Print final statistics.
 C
 C Free the memory and finalize MPI.
       CALL FCVFREE
-      CALL FNVFREEP
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,95) IER
