@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.53 $
- * $Date: 2005-04-14 20:53:44 $
+ * $Revision: 1.54 $
+ * $Date: 2005-04-19 21:13:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3849,6 +3849,9 @@ static int CVNlsFunctional(CVodeMem cv_mem)
   crate = ONE;
   m = 0;
 
+  /* Initialize delS and Delp to avoid compiler warning message */
+  delS = Delp = ZERO;
+
   f(tn, zn[0], tempv, f_data);
   nfe++;
 
@@ -4092,7 +4095,10 @@ static int CVNewtonIteration(CVodeMem cv_mem)
   do_sensi_sim = (sensi && (ism==CV_SIMULTANEOUS));
 
   mnewt = m = 0;
-  
+
+  /* Initialize delS and Delp to avoid compiler warning message */
+  delS = Delp = ZERO;
+
   /* At this point, ftemp  <- f(t_n, y_n(0))
                     ftempS <- fS(t_n, y_n(0), s_n(0))
                     acor   <- 0
@@ -4530,6 +4536,9 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
   crateS = ONE;
   m = 0;
 
+  /* Initialize Delp to avoid compiler warning message */
+  Delp = ZERO;
+
   /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
   wrk1 = tempv;
   wrk2 = ftempS[0];
@@ -4688,6 +4697,9 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
 
   m = 0;
 
+  /* Initialize Delp to avoid compiler warning message */
+  Delp = ZERO;
+
   /* ftemp  <- f(t_n, y_n)
      y      <- y_n
      ftempS <- fS(t_n, y_n(0), s_n(0))
@@ -4809,6 +4821,9 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is)
   /* Initialize estimated conv. rate and counter */
   crateS = ONE;
   m = 0;
+
+  /* Initialize Delp to avoid compiler warning message */
+  Delp = ZERO;
 
   /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
   wrk1 = tempv;
@@ -4958,6 +4973,9 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is)
   N_Vector *bS, wrk1, wrk2;
 
   m = 0;
+
+  /* Initialize Delp to avoid compiler warning message */
+  Delp = ZERO;
 
   /* ftemp      <- f(t_n, y_n)
      y          <- y_n
@@ -6078,6 +6096,10 @@ static int CVRootfind(CVodeMem cv_mem)
     }
     return(RTFOUND);
   }
+
+  /* Initialize alpha to avoid compiler warning */
+
+  alpha = ONE;
 
   /* A sign change was found.  Loop to locate nearest root. */
 

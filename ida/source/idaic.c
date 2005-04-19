@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-04-04 22:58:48 $
+ * $Revision: 1.5 $
+ * $Date: 2005-04-19 21:13:58 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -436,6 +436,9 @@ static int IDANewtonIC (IDAMem IDA_mem)
   if (sysindex == 0) fnorm *= tscale*ABS(cj);
   if (fnorm <= epsNewt) return(IDA_SUCCESS);
   fnorm0 = fnorm;
+
+  /* Initialize rate to avoid compiler warning message */
+  rate = ZERO;
 
   /* Newton iteration loop */
 

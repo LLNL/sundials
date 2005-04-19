@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.45 $
- * $Date: 2005-04-15 00:39:31 $
+ * $Revision: 1.46 $
+ * $Date: 2005-04-19 21:13:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -76,6 +76,9 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
   Vatol = NULL;
   atolptr = NULL;
+
+  /* Initialize itol to avoid compiler warning message */
+  itol = -1;
 
   if(F2C_CVODE_vec->ops->nvgetarraypointer == NULL ||
      F2C_CVODE_vec->ops->nvsetarraypointer == NULL) {
@@ -180,6 +183,9 @@ void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
 
   Vatol = NULL;
   atolptr = NULL;
+
+  /* Initialize itol to avoid compiler warning message */
+  itol = -1;
 
   /* Set data in F2C_CVODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_CVODE_vec);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2004-11-23 19:00:58 $
+ * $Revision: 1.13 $
+ * $Date: 2005-04-19 21:14:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -224,6 +224,10 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   *res_norm = r_norm = beta = RSqrt(N_VDotProd(V[0], V[0])); 
   if (r_norm <= delta)
     return(SPGMR_SUCCESS);
+
+  /* Initialize rho to avoid compiler warning message */
+
+  rho = beta;
 
   /* Set xcor = 0. */
 

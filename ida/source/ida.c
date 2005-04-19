@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2005-04-14 20:53:45 $
+ * $Revision: 1.44 $
+ * $Date: 2005-04-19 21:13:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1767,7 +1767,10 @@ static int IDANewtonIter(IDAMem IDA_mem)
 
   /* Initialize counter mnewt and cumulative correction vector ee. */
   mnewt = 0;
-  N_VConst (ZERO, ee);
+  N_VConst(ZERO, ee);
+
+  /* Initialize oldnrm to avoid compiler warning message */
+  oldnrm = ZERO;
 
   /* Looping point for Newton iteration.  Break out on any error. */
   loop {

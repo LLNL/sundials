@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.45 $
- * $Date: 2005-04-14 20:53:44 $
+ * $Revision: 1.46 $
+ * $Date: 2005-04-19 21:13:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -2190,6 +2190,9 @@ static int CVnlsFunctional(CVodeMem cv_mem)
   nfe++;
   N_VConst(ZERO, acor);
 
+  /* Initialize delp to avoid compiler warning message */
+  del = delp = ZERO;
+
   /* Loop until convergence; accumulate corrections in acor */
 
   loop {
@@ -2310,9 +2313,11 @@ static int CVNewtonIteration(CVodeMem cv_mem)
   int m, ret;
   realtype del, delp, dcon;
   N_Vector b;
-  
-  
+
   mnewt = m = 0;
+
+  /* Initialize delp to avoid compiler warning message */
+  del = delp = ZERO;
 
   /* Looping point for Newton iteration */
   loop {
@@ -3370,6 +3375,9 @@ static int CVRootfind(CVodeMem cv_mem)
     }
     return(RTFOUND);
   }
+
+  /* Initialize alpha to avoid compiler warning */
+  alpha = ONE;
 
   /* A sign change was found.  Loop to locate nearest root. */
 

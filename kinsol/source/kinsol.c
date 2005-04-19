@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2005-04-14 20:53:45 $
+ * $Revision: 1.40 $
+ * $Date: 2005-04-19 21:14:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -342,6 +342,10 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
   booleantype maxStepTaken;
 
   globalstratret = 0;
+
+  /* initialize epsmin to avoid compiler warning message */
+
+  epsmin = ZERO;
 
   /* check for kinmem non-NULL */
 
@@ -959,12 +963,18 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   realtype alpha_cond, beta_cond, rl_a, tmp1, rl_b, tmp2, disc;
   long int nfesave, rladjust;
   int ret, ivio;
+  booleantype useCubicBktr;
 
   rladjust = 0;
   *maxStepTaken = FALSE;
   ratio = ONE;
   alpha = POINT0001;
   beta = POINT9;
+  useCubicBktr = FALSE;
+
+  /* initialize rlprev and f1nprv to avoid compiler warning message */
+
+  rlprev = f1nprv = ZERO;
 
   pnorm = N_VWL2Norm(pp, uscale);
   if(pnorm > mxnewtstep ) {
@@ -1040,7 +1050,7 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
     /* use cubic fit for all remaining backtracks */
 
-    if (rl != ONE) {
+    if (useCubicBktr) {
       tmp1 = (*f1normp) - f1norm - (rl * slpi);
       tmp2 = f1nprv - f1norm - (rlprev * slpi);
       rl_a = ((ONE / (rl * rl)) * tmp1) - ((ONE / (rlprev * rlprev)) * tmp2);
@@ -1063,7 +1073,10 @@ static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
 
     /* use quadratic fit only for initial backtrack */
 
-    else if (rl == ONE) rltmp = -slpi / (TWO * ((*f1normp) - f1norm - slpi));
+    else if (!useCubicBktr) {
+      rltmp = -slpi / (TWO * ((*f1normp) - f1norm - slpi));
+      useCubicBktr = TRUE;
+    }
 
     rlprev = rl;
     f1nprv = (*f1normp);
