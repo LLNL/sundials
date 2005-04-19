@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2005-04-15 00:39:31 $
+ * $Revision: 1.41 $
+ * $Date: 2005-04-19 18:27:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -300,7 +300,7 @@
  *       CALL FCVSPBCGSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, NFE, R, LR, Z, IER)
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
  *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
@@ -364,7 +364,7 @@
  *       CALL FCVSPGMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, NFE, R, LR, Z, IER)
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
  *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
