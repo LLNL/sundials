@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-04-14 20:53:44 $
+ * $Revision: 1.6 $
+ * $Date: 2005-04-19 14:31:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -210,7 +210,7 @@ int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if(cv_mem->cv_lmm != CV_BDF) {
+  if( sldet && (cv_mem->cv_lmm != CV_BDF) ) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_SET_SLDET);
     return(CV_ILL_INPUT);
   }
