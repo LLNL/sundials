@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2005-04-15 23:45:58 $
+ * $Revision: 1.32 $
+ * $Date: 2005-04-19 20:40:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -181,10 +181,12 @@
        Usage of the user-supplied routine FKPSOL for solution of the
        preconditioned linear system is specified by calling:
 
-         CALL FKINSPBCGSETPSOL(FLAG, IER)
+         CALL FKINSPBCGSETPREC(FLAG, IER)
 
-       where FLAG = 0 indicates no FKPSOL (default) and FLAG = 1 specifies
-       using FKPSOL. The user-supplied routine FKPSOL must be of the form:
+       where FLAG = 0 indicates no FKPSOL or FKPSET (default) and FLAG = 1
+       specifies using both FKPSOL and FKPSET.
+
+       The user-supplied routine FKPSOL must be of the form:
 
          SUBROUTINE FKPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, IER)
          DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
@@ -196,13 +198,7 @@
        routine supplied must also account for scaling on either coordinate
        or function value.
 
-       Usage of the user-supplied routine FKPSET for construction of the
-       preconditioner is specified by calling:
-
-         CALL FKINSPBCGSETPSET(FLAG, IER)
-
-       where FLAG = 0 indicates no FKPSET (default) and FLAG = 1 specifies
-       using FKPSET. The user-supplied routine FKPSET must be of the form:
+       The user-supplied routine FKPSET must be of the form:
 
          SUBROUTINE FKPSET (UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
          DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
@@ -376,8 +372,7 @@ extern "C" {
 #define FKIN_MALLOC       F77_FUNC(fkinmalloc, FKINMALLOC)
 #define FKIN_SPBCG        F77_FUNC(fkinspbcg, FKINSPBCG)
 #define FKIN_SPBCGSETJAC  F77_FUNC(fkinspbcgsetjac, FKINSPBCGSETJAC)
-#define FKIN_SPBCGSETPSOL F77_FUNC(fkinspbcgsetpsol, FKINSPBCGSETPSOL)
-#define FKIN_SPBCGSETPSET F77_FUNC(fkinspbcgsetpset, FKINSPBCGSETPSET)
+#define FKIN_SPBCGSETPREC F77_FUNC(fkinspbcgsetprec, FKINSPBCGSETPREC)
 #define FKIN_SPGMR        F77_FUNC(fkinspgmr, FKINSPGMR)
 #define FKIN_SPGMRSETJAC  F77_FUNC(fkinspgmrsetjac, FKINSPGMRSETJAC)
 #define FKIN_SPGMRSETPREC F77_FUNC(fkinspgmrsetprec, FKINSPGMRSETPREC)
@@ -393,8 +388,7 @@ extern "C" {
 #define FKIN_MALLOC       fkinmalloc
 #define FKIN_SPBCG        fkinspbcg
 #define FKIN_SPBCGSETJAC  fkinspbcgsetjac
-#define FKIN_SPBCGSETPSOL fkinspbcgsetpsol
-#define FKIN_SPBCGSETPSET fkinspbcgsetpset
+#define FKIN_SPBCGSETPREC fkinspbcgsetprec
 #define FKIN_SPGMR        fkinspgmr
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac
 #define FKIN_SPGMRSETPREC fkinspgmrsetprec
@@ -410,8 +404,7 @@ extern "C" {
 #define FKIN_MALLOC       FKINMALLOC
 #define FKIN_SPBCG        FKINSPBCG
 #define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC
-#define FKIN_SPBCGSETPSOL FKINSPBCGSETPSOL
-#define FKIN_SPBCGSETPSET FKINSPBCGSETPSET
+#define FKIN_SPBCGSETPREC FKINSPBCGSETPREC
 #define FKIN_SPGMR        FKINSPGMR
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC
 #define FKIN_SPGMRSETPREC FKINSPGMRSETPREC
@@ -427,8 +420,7 @@ extern "C" {
 #define FKIN_MALLOC       fkinmalloc_
 #define FKIN_SPBCG        fkinspbcg_
 #define FKIN_SPBCGSETJAC  fkinspbcgsetjac_
-#define FKIN_SPBCGSETPSOL fkinspbcgsetpsol_
-#define FKIN_SPBCGSETPSET fkinspbcgsetpset_
+#define FKIN_SPBCGSETPREC fkinspbcgsetprec_
 #define FKIN_SPGMR        fkinspgmr_
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac_
 #define FKIN_SPGMRSETPREC fkinspgmrsetprec_
@@ -444,8 +436,7 @@ extern "C" {
 #define FKIN_MALLOC       FKINMALLOC_
 #define FKIN_SPBCG        FKINSPBCG_
 #define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC_
-#define FKIN_SPBCGSETPSOL FKINSPBCGSETPSOL_
-#define FKIN_SPBCGSETPSET FKINSPBCGSETPSET_
+#define FKIN_SPBCGSETPREC FKINSPBCGSETPREC_
 #define FKIN_SPGMR        FKINSPGMR_
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC_
 #define FKIN_SPGMRSETPREC FKINSPGMRSETPREC_
@@ -461,8 +452,7 @@ extern "C" {
 #define FKIN_MALLOC       fkinmalloc__
 #define FKIN_SPBCG        fkinspbcg__
 #define FKIN_SPBCGSETJAC  fkinspbcgsetjac__
-#define FKIN_SPBCGSETPSOL fkinspbcgsetpsol__
-#define FKIN_SPBCGSETPSET fkinspbcgsetpset__
+#define FKIN_SPBCGSETPREC fkinspbcgsetprec__
 #define FKIN_SPGMR        fkinspgmr__
 #define FKIN_SPGMRSETJAC  fkinspgmrsetjac__
 #define FKIN_SPGMRSETPREC fkinspgmrsetprec__
@@ -478,8 +468,7 @@ extern "C" {
 #define FKIN_MALLOC       FKINMALLOC__
 #define FKIN_SPBCG        FKINSPBCG__
 #define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC__
-#define FKIN_SPBCGSETPSOL FKINSPBCGSETPSOL__
-#define FKIN_SPBCGSETPSET FKINSPBCGSETPSET__
+#define FKIN_SPBCGSETPREC FKINSPBCGSETPREC__
 #define FKIN_SPGMR        FKINSPGMR__
 #define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC__
 #define FKIN_SPGMRSETPREC FKINSPGMRSETPREC__
@@ -507,8 +496,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
               realtype *uscale , realtype *fscale, int *ier);
 void FKIN_FREE(void);
 void FKIN_SPBCGSETJAC(int *flag, int *ier);
-void FKIN_SPBCGSETPSET(int *flag, int *ier);
-void FKIN_SPBCGSETPSOL(int *flag, int *ier);
+void FKIN_SPBCGSETPREC(int *flag, int *ier);
 void FKIN_SPGMRSETJAC(int *flag, int *ier);
 void FKIN_SPGMRSETPREC(int *flag, int *ier);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-04-15 23:45:58 $
+ * $Revision: 1.19 $
+ * $Date: 2005-04-19 20:40:03 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -63,6 +63,8 @@ void FKIN_SPBCGSETPREC(int *flag, int *ier)
 {
   if ((*flag) == 0) KINSpbcgSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
   else              KINSpbcgSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
+
+  return;
 }
 
 /*
