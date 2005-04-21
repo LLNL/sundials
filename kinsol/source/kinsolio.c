@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-04-15 23:41:41 $
+ * $Revision: 1.7 $
+ * $Date: 2005-04-21 16:33:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -393,9 +393,9 @@ int KINSetMaxBetaFails(void *kinmem, long int mxnbcf)
   }
 
   if (mxnbcf == 0)
-    kin_mem->kin_mxnewtstep = MXNBCF_DEFAULT;
+    kin_mem->kin_mxnbcf = MXNBCF_DEFAULT;
   else
-    kin_mem->kin_mxnewtstep = mxnbcf;
+    kin_mem->kin_mxnbcf = mxnbcf;
 
   return(KIN_SUCCESS);
 
