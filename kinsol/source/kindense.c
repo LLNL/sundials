@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-03-02 17:54:33 $
+ * $Revision: 1.2 $
+ * $Date: 2005-04-21 15:24:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -184,7 +184,7 @@ int KINDense(void *kinmem, long int N)
  * -----------------------------------------------------------------
  */
 
-int KINDenseSetJacFn(void *kinmem, KINDenseJacFn djac)
+int KINDenseSetJacFn(void *kinmem, KINDenseJacFn djac, void *jac_data)
 {
   KINMem kin_mem;
   KINDenseMem kindense_mem;
@@ -203,42 +203,14 @@ int KINDenseSetJacFn(void *kinmem, KINDenseJacFn djac)
   kindense_mem = (KINDenseMem) lmem;
 
   jac = djac;
+  if (djac != NULL) J_data = jac_data;
 
   return(KINDENSE_SUCCESS);
 }
 
 /*
  * -----------------------------------------------------------------
- * KINDenseSetJacData
- * -----------------------------------------------------------------
- */
-
-int KINDenseSetJacData(void *kinmem, void *jac_data)
-{
-  KINMem kin_mem;
-  KINDenseMem kindense_mem;
-
-  /* Return immediately if kinmem is NULL */
-  if (kinmem == NULL) {
-    fprintf(stderr, MSGDS_SETGET_KINMEM_NULL);
-    return(KINDENSE_MEM_NULL);
-  }
-  kin_mem = (KINMem) kinmem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDS_SETGET_LMEM_NULL);
-    return(KINDENSE_LMEM_NULL);
-  }
-  kindense_mem = (KINDenseMem) lmem;
-
-  J_data = jac_data;
-
-  return(KINDENSE_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * CVDenseGetWorkSpace
+ * KINDenseGetWorkSpace
  * -----------------------------------------------------------------
  */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-03-02 17:59:18 $
+ * $Revision: 1.2 $
+ * $Date: 2005-04-21 15:24:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -81,7 +81,6 @@ typedef int (*KINDenseJacFn)(long int N, DenseMat J,
                              N_Vector uu, N_Vector fval, void *jac_data,
                              N_Vector vtemp1, N_Vector vtemp2);
 
-
 /*
  * -----------------------------------------------------------------
  * Function : KINDense
@@ -104,7 +103,6 @@ typedef int (*KINDenseJacFn)(long int N, DenseMat J,
 
 int KINDense(void *kinmem, long int N);
 
-
 /*
  * -----------------------------------------------------------------
  * Optional inputs to the KINDENSE linear solver
@@ -115,8 +113,8 @@ int KINDense(void *kinmem, long int N);
  *                 must be of type KINDenseJacFn. By default, a
  *                 difference quotient routine KINDenseDQJac, supplied
  *                 with this solver is used.                     
- * KINDenseSetJacData specifies a pointer to user data which is
- *                   passed to the djac routine every time it is called.
+ *                 It also specifies a pointer to user data which is
+ *                 passed to the djac routine every time it is called.
  *
  * The return value of KINDenseSet* is one of:
  *    KINDENSE_SUCCESS   if successful
@@ -125,9 +123,7 @@ int KINDense(void *kinmem, long int N);
  * -----------------------------------------------------------------
  */
 
-int KINDenseSetJacFn(void *kinmem, KINDenseJacFn djac);
-int KINDenseSetJacData(void *kinmem, void *jac_data);
-
+int KINDenseSetJacFn(void *kinmem, KINDenseJacFn djac, void *jac_data);
 
 /*
  * -----------------------------------------------------------------
