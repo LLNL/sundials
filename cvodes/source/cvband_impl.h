@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-01-26 22:23:31 $
+ * $Revision: 1.6 $
+ * $Date: 2005-04-26 18:26:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -24,10 +24,7 @@ extern "C" {
 
 #include <stdio.h>
 
-#include "band.h"
 #include "cvband.h"
-#include "nvector.h"
-#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------

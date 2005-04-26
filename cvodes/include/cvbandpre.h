@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-01-24 22:28:51 $
+ * $Revision: 1.14 $
+ * $Date: 2005-04-26 18:26:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -78,6 +78,9 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
+#include "nvector.h"
+#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------

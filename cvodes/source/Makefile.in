@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2005-02-15 00:10:14 $
+# $Revision: 1.16 $
+# $Date: 2005-04-26 18:26:50 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -60,6 +60,7 @@ install: update $(CVODES_LIB_FILES)
 	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvdense.h $(includedir)
 	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvband.h $(includedir)
 	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvdiag.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvspils.h $(includedir)
 	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvspbcg.h $(includedir)
 	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvspgmr.h $(includedir)
 	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvbandpre.h $(includedir)
@@ -78,6 +79,7 @@ uninstall: clean
 	rm -f $(includedir)/cvdense.h
 	rm -f $(includedir)/cvband.h
 	rm -f $(includedir)/cvdiag.h
+	rm -f $(includedir)/cvspils.h
 	rm -f $(includedir)/cvspbcg.h
 	rm -f $(includedir)/cvspgmr.h
 	rm -f $(includedir)/cvbandpre.h

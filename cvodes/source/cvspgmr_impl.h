@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-01-26 22:23:31 $
+ * $Revision: 1.6 $
+ * $Date: 2005-04-26 18:26:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -26,11 +26,7 @@ extern "C" {
 #include <stdio.h>
 
 #include "cvspgmr.h"
-
-#include "spgmr.h"
 #include "iterative.h"
-#include "nvector.h"
-#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------
@@ -65,11 +61,11 @@ typedef struct {
   N_Vector g_ycur;      /* CVODE current y vector in Newton Iteration   */
   N_Vector g_fcur;      /* fcur = f(tn, ycur)                           */
 
-  CVSpgmrPrecSetupFn g_pset; 
+  CVSpilsPrecSetupFn g_pset; 
                         /* pset = user-supplied routine to compute      */
                         /* a preconditioner                             */
 
-  CVSpgmrPrecSolveFn g_psolve;   
+  CVSpilsPrecSolveFn g_psolve;   
                         /* psolve = user-supplied routine to solve      */
                         /* preconditioner linear system                 */
 
@@ -77,7 +73,7 @@ typedef struct {
   SpgmrMem g_spgmr_mem; /* spgmr_mem is memory used by the              */
                         /* generic Spgmr solver                         */
 
-  CVSpgmrJacTimesVecFn g_jtimes;  
+  CVSpilsJacTimesVecFn g_jtimes;  
                         /* jtimes = Jacobian * vector routine           */
   void *g_j_data;       /* j_data is passed to jtimes                   */
 

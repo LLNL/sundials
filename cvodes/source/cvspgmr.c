@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-04-07 23:28:46 $
+ * $Revision: 1.10 $
+ * $Date: 2005-04-26 18:26:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -330,8 +330,8 @@ int CVSpgmrSetDelt(void *cvode_mem, realtype delt)
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrSetPreconditioner(void *cvode_mem, CVSpgmrPrecSetupFn pset, 
-                             CVSpgmrPrecSolveFn psolve, void *P_data)
+int CVSpgmrSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
+                             CVSpilsPrecSolveFn psolve, void *P_data)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -362,7 +362,7 @@ int CVSpgmrSetPreconditioner(void *cvode_mem, CVSpgmrPrecSetupFn pset,
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpgmrJacTimesVecFn jtimes, void *jac_data)
+int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtimes, void *jac_data)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
