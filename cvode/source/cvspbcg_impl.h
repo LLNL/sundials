@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-01-24 23:54:08 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-26 14:24:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -25,11 +25,7 @@ extern "C" {
 #include <stdio.h>
 
 #include "cvspbcg.h"
-
-#include "spbcg.h"
 #include "iterative.h"
-#include "nvector.h"
-#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------
@@ -63,11 +59,11 @@ typedef struct {
   N_Vector b_ycur;      /* CVODE current y vector in Newton Iteration   */
   N_Vector b_fcur;      /* fcur = f(tn, ycur)                           */
 
-  CVSpbcgPrecSetupFn b_pset; 
+  CVSpilsPrecSetupFn b_pset; 
                         /* pset = user-supplied routine to compute      */
                         /* a preconditioner                             */
 
-  CVSpbcgPrecSolveFn b_psolve;   
+  CVSpilsPrecSolveFn b_psolve;   
                         /* psolve = user-supplied routine to solve      */
                         /* preconditioner linear system                 */
 
@@ -75,7 +71,7 @@ typedef struct {
   SpbcgMem b_spbcg_mem; /* spbcg_mem is memory used by the              */
                         /* generic Spbcg solver                         */
 
-  CVSpbcgJacTimesVecFn b_jtimes;  
+  CVSpilsJacTimesVecFn b_jtimes;  
                         /* jtimes = Jacobian * vector routine           */
   void *b_j_data;       /* j_data is passed to jtimes                   */
 

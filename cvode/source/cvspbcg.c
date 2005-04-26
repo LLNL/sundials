@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-04-07 23:28:31 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-26 14:24:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -288,8 +288,8 @@ int CVSpbcgSetDelt(void *cvode_mem, realtype delt)
  * -----------------------------------------------------------------
  */
 
-int CVSpbcgSetPreconditioner(void *cvode_mem, CVSpbcgPrecSetupFn pset,
-                             CVSpbcgPrecSolveFn psolve, void *P_data)
+int CVSpbcgSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
+                             CVSpilsPrecSolveFn psolve, void *P_data)
 {
   CVodeMem cv_mem;
   CVSpbcgMem cvspbcg_mem;
@@ -321,7 +321,7 @@ int CVSpbcgSetPreconditioner(void *cvode_mem, CVSpbcgPrecSetupFn pset,
  */
 
 int CVSpbcgSetJacTimesVecFn(void *cvode_mem, 
-                            CVSpbcgJacTimesVecFn jtimes, void *jac_data)
+                            CVSpilsJacTimesVecFn jtimes, void *jac_data)
 {
   CVodeMem cv_mem;
   CVSpbcgMem cvspbcg_mem;

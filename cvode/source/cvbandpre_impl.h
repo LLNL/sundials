@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-01-26 22:23:29 $
+ * $Revision: 1.5 $
+ * $Date: 2005-04-26 14:24:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -25,8 +25,6 @@ extern "C" {
 #include "cvbandpre.h"
 
 #include "band.h"
-#include "nvector.h"
-#include "sundialstypes.h"
 
 /*
  * -----------------------------------------------------------------
