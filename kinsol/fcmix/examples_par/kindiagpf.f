@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.16 $
-c     $Date: 2005-04-15 23:46:32 $
+c     $Revision: 1.17 $
+c     $Date: 2005-04-26 23:43:24 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -59,7 +59,7 @@ c     number of this process.
          stop
       endif
 
-      call fnvinitp(5, nlocal, neq, ier)
+      call fnvinitp(mpi_comm_world, 5, nlocal, neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
  1220    format('SUNDIALS_ERROR: FNVINITP returned IER = ', i2)
@@ -67,11 +67,11 @@ c     number of this process.
          stop
       endif
       
-      call mpi_comm_size(MPI_COMM_WORLD, size, ier)
+      call mpi_comm_size(mpi_comm_world, size, ier)
       if (ier .ne. 0) then
          write(6,1222) ier
  1222    format('MPI_ERROR: MPI_COMM_SIZE returned IER = ', i2)
-         call mpi_abort(MPI_COMM_WORLD, 1, ier)
+         call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
       
@@ -83,11 +83,11 @@ c     number of this process.
       endif
       npes = size
 
-      call mpi_comm_rank(MPI_COMM_WORLD, rank, ier)
+      call mpi_comm_rank(mpi_comm_world, rank, ier)
       if (ier .ne. 0) then
          write(6,1224) ier
  1224    format('MPI_ERROR: MPI_COMM_RANK returned IER = ', i2)
-         call mpi_abort(MPI_COMM_WORLD, 1, ier)
+         call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
 
@@ -107,7 +107,7 @@ c     number of this process.
       if (ier .ne. 0) then
          write(6,1231)ier
  1231    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ', i2)
-         call mpi_abort(MPI_COMM_WORLD, 1, ier)
+         call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
       
@@ -126,7 +126,7 @@ c     number of this process.
          write(6,1242) ier, iopt(15)
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ', i2, /,
      1          '                Linear Solver returned IER = ', i2)
-         call mpi_abort(MPI_COMM_WORLD, 1, ier)
+         call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
 

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.12 $
-C     $Date: 2005-04-15 00:40:32 $
+C     $Revision: 1.13 $
+C     $Date: 2005-04-26 23:43:21 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
 C     ----------------------------------------------------------------
@@ -73,7 +73,7 @@ C
   15    FORMAT(' Number of processors = ', I3//)
         ENDIF
 C
-      CALL FNVINITP(1, NLOCAL, NEQ, IER)
+      CALL FNVINITP(MPI_COMM_WORLD, 1, NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER

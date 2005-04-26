@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.17 $
-C     $Date: 2005-04-15 00:40:32 $
+C     $Revision: 1.18 $
+C     $Date: 2005-04-26 23:43:21 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -85,7 +85,7 @@ C
   16    FORMAT(//'Preconditioning on left'/)
         ENDIF
 C
-      CALL FNVINITP(1, NLOCAL, NEQ, IER)
+      CALL FNVINITP(MPI_COMM_WORLD, 1, NLOCAL, NEQ, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,20) IER
