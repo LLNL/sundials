@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-03-19 00:10:18 $
+ * $Revision: 1.20 $
+ * $Date: 2005-04-26 14:21:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -393,6 +393,7 @@ extern "C" {
 
 void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, 
                  long int *mu, long int *ml, realtype* dqrely, int *ier);
+void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, 
                    realtype* dqrely, int *ier);
