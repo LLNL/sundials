@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-04-04 23:06:59 $
+ * $Revision: 1.20 $
+ * $Date: 2005-04-26 18:38:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -203,17 +203,12 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeMalloc", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate combined forward/backward memory */
-  cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
+  cvadj_mem = CVadjMalloc(cvode_mem, STEPS, CV_HERMITE);
   if (check_flag((void *)cvadj_mem, "CVadjMalloc", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to TOUT and collect check point information */
   flag = CVodeF(cvadj_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
   if (check_flag(&flag, "CVodeF", 1, my_pe)) MPI_Abort(comm, 1);
-
-  if(my_pe == npes) {
-    printf("(PE# %d) Number of check points: %d\n",my_pe, ncheck);
-    CVadjGetCheckPointsList(cvadj_mem);
-  }
 
   /*---------------------------
     Compute and value of g(t_f)

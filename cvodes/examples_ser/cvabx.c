@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-04-07 23:28:41 $
+ * $Revision: 1.18 $
+ * $Date: 2005-04-26 18:38:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -182,17 +182,13 @@ int main(int argc, char *argv[])
 
   printf("\nAllocate global memory\n");
 
-  cvadj_mem = CVadjMalloc(cvode_mem, NSTEP);
+  cvadj_mem = CVadjMalloc(cvode_mem, NSTEP, CV_HERMITE);
   if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
 
   /* Perform forward run */
   printf("\nForward integration\n");
   flag = CVodeF(cvadj_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
   if(check_flag(&flag, "CVodeF", 1)) return(1);
-
-  /* Test check point linked list */
-  printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-  CVadjGetCheckPointsList(cvadj_mem);
 
   /* Set the tolerances for the backward integration */
   reltolB = RTOLB;

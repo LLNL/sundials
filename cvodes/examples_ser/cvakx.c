@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-04-07 23:28:41 $
+ * $Revision: 1.20 $
+ * $Date: 2005-04-26 18:38:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
   /* Set-up adjoint calculations */
 
   printf("\nAllocate global memory\n");
-  cvadj_mem = CVadjMalloc(cvode_mem, NSTEPS);
+  cvadj_mem = CVadjMalloc(cvode_mem, NSTEPS, CV_HERMITE);
   if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
   wdata->cvadj_mem = cvadj_mem;
 
@@ -292,9 +292,6 @@ int main(int argc, char *argv[])
   printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %f \n\n", 
          ISPEC, NV_DATA_S(c)[NEQ]);
 #endif
-
-  printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-  CVadjGetCheckPointsList(cvadj_mem);
 
   /* Set-up backward problem */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-04-07 23:28:41 $
+ * $Revision: 1.22 $
+ * $Date: 2005-04-26 18:38:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -143,6 +143,10 @@ int main(int argc, char *argv[])
   realtype time;
   int flag, ncheck;
 
+  CheckPointRec *ckpnt;
+  int i;
+  unsigned int addr;
+
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
   y = yB = qB = NULL;
@@ -156,7 +160,6 @@ int main(int argc, char *argv[])
   printf("Find dG/dp for\n");
   printf("     G = int_t0^tB0 g(t,p,y) dt\n");
   printf("     g(t,p,y) = y3\n\n\n");
-
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
@@ -214,7 +217,7 @@ int main(int argc, char *argv[])
   /* Allocate global memory */
   printf("Allocate global memory\n");
 
-  cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
+  cvadj_mem = CVadjMalloc(cvode_mem, STEPS, CV_HERMITE);
   if (check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
 
   /* Perform forward run */
@@ -235,9 +238,18 @@ int main(int argc, char *argv[])
 #endif
 
   /* Test check point linked list */
-  printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-
-  CVadjGetCheckPointsList(cvadj_mem);
+  printf("\nList of Check Points (ncheck = %d)\n\n", ncheck);
+  ckpnt = (CheckPointRec *) malloc ( (ncheck+1)*sizeof(CheckPointRec));
+  CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
+  for (i=0;i<=ncheck;i++) {
+    printf("Address:       %p\n",ckpnt[i].my_addr);
+    printf("Next:          %p\n",ckpnt[i].next_addr);
+    printf("Time interval: %le  %le\n",ckpnt[i].t0, ckpnt[i].t1);
+    printf("Step number:   %ld\n",ckpnt[i].nstep);
+    printf("Order:         %d\n",ckpnt[i].order);
+    printf("Step size:     %le\n",ckpnt[i].step);
+    printf("\n");
+  }
 
   /* Initialize yB */
   yB = N_VNew_Serial(NEQ);
@@ -292,7 +304,12 @@ int main(int argc, char *argv[])
   /* Backward Integration */
   printf("Integrate backwards\n");
 
+  CVadjGetCurrentCheckPoint(cvadj_mem, &addr);
+  printf("Current check point: %p\n",addr);
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
+  printf("Done backward\n");
+  CVadjGetCurrentCheckPoint(cvadj_mem, &addr);
+  printf("Current check point: %p\n",addr);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
