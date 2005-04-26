@@ -66,6 +66,10 @@ E. Revision History
 v. 2.1.0 (Apr. 2005) ---> 
 ----------------------------------------------
 
+- Changes to user interface
+   - added argument to initialization routines to allow user to specify a
+     different MPI communicator
+
 - Changes to data structures
    - added N_VCloneEmpty to global vector operations table
 

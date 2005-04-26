@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-04-15 00:43:30 $
+ * $Revision: 1.14 $
+ * $Date: 2005-04-26 23:42:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,7 @@
 extern "C" {
 #endif
 
+#include "mpi.h"
 #include "nvector.h"  
 #include "fnvector.h"
 
@@ -120,11 +121,23 @@ extern "C" {
    *
    */
 
+#ifdef SUNDIALS_MPI_COMM_F2C
+
+  void FNV_INITP(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier);
+  void FNV_INITP_Q(MPI_Fint *comm, int *code, long int *Lq, long int *Nq, int *ier);
+  void FNV_INITP_S(MPI_Fint *comm, int *code, int *Ns, long int *L, long int *N, int *ier);
+  void FNV_INITP_B(MPI_Fint *comm, int *code, long int *LB, long int *NB, int *ier);
+  void FNV_INITP_QB(MPI_Fint *comm, int *code, long int *LqB, long int *NqB, int *ier);
+
+#else
+
   void FNV_INITP(int *code, long int *L, long int *N, int *ier);
   void FNV_INITP_Q(int *code, long int *Lq, long int *Nq, int *ier);
   void FNV_INITP_S(int *code, int *Ns, long int *L, long int *N, int *ier);
   void FNV_INITP_B(int *code, long int *LB, long int *NB, int *ier);
   void FNV_INITP_QB(int *code, long int *LqB, long int *NqB, int *ier);
+
+#endif
 
 #ifdef __cplusplus
 }

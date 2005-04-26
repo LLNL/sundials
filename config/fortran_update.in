@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2005-01-25 23:51:52 $
+# $Revision: 1.6 $
+# $Date: 2005-04-26 23:42:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -46,6 +46,14 @@ MPI_INC_DIR="@MPI_INC_DIR@"
 EGREP="@EGREP@"
 FGREP="@FGREP@"
 
+MPI_COMM_F2C="@F77_MPI_COMM_F2C@"
+TEMP_A=`echo "${MPI_COMM_F2C}" | ${FGREP} "#define SUNDIALS_MPI_COMM_F2C 1"`
+if test "X${TEMP_A}" = "X"; then
+  USE_MPI_COMM_F2C_EXT="no"
+else
+  USE_MPI_COMM_F2C_EXT="yes"
+fi
+
 INSTALL="@INSTALL@"
 TEMP_INSTALL=`echo "${INSTALL}" | cut -d' ' -f1`
 if test -f ${TEMP_INSTALL} ; then
@@ -64,6 +72,7 @@ F77_KEYWORD_LIST="FLOAT/DBLE/QFLOAT,float/dble/qfloat SIN/DSIN/QSIN,sin/dsin/qsi
 F77_KEYWORD_LIST="${F77_KEYWORD_LIST} EXP/DEXP/QEXP,exp/dexp/qexp"
 F77_KEYWORD_LIST="${F77_KEYWORD_LIST} ABS/DABS/QABS,abs/dabs/qabs"
 F77_KEYWORD_LIST="${F77_KEYWORD_LIST} AMAX1/DMAX1/QMAX1,amax1/dmax1/qmax1"
+
 TEMP_A=`${FGREP} "#define SIZEOF_INT 4" ${abs_top_builddir}/config.h`
 if test "X${TEMP_A}" = "X"; then
   TEMP_A=`${FGREP} "#define SIZEOF_INT 8" ${abs_top_builddir}/config.h`
@@ -433,6 +442,45 @@ if test -f ${srcdir}/${SOURCE_FILE} ; then
       done
     fi
   fi
+
+  F77_MPI_KEYWORD_LIST="FNVINITP,fnvinitp FNVINITPQ,fnvinitpq FNVINITPS,fnvinitps"
+  F77_MPI_KEYWORD_LIST="${F77_MPI_KEYWORD_LIST} FNVINITPB,fnvinitpb FNVINITPQB,fnvinitpqb"
+
+  if test "X${USE_MPI_COMM_F2C_EXT}" = "Xno"; then
+    F77_MPI_KEYWORD=""
+    for z in ${F77_MPI_KEYWORD_LIST} ; do
+      F77_MPI_A=`echo "${z}" | cut -d',' -f1`
+      F77_MPI_B=`echo "${z}" | cut -d',' -f2`
+      TEMP_A=`${FGREP} "${F77_MPI_A}(" ${builddir}/temp1.f`
+      if test "X${TEMP_A}" = "X"; then
+        TEMP_A=`${FGREP} "${F77_MPI_B}(" ${builddir}/temp1.f`
+        if test "X${TEMP_A}" = "X"; then
+          F77_SKIP_MPI_UPDATE="yes"
+        else
+          F77_MPI_KEYWORD="${F77_MPI_B}"
+          F77_MPI_CASE="lower"
+          F77_SKIP_MPI_UPDATE="no"
+        fi
+      else
+        F77_MPI_KEYWORD="${F77_MPI_A}"
+        F77_MPI_CASE="upper"
+        F77_SKIP_MPI_UPDATE="no"
+      fi
+      if test "X${F77_SKIP_MPI_UPDATE}" = "Xno"; then
+        break
+      fi
+    done
+    if test "X${F77_SKIP_MPI_UPDATE}" = "Xno"; then
+      if test "X${F77_MPI_CASE}" = "Xupper"; then
+        sed "s,${F77_MPI_KEYWORD}(MPI\_COMM\_WORLD\, ,${F77_MPI_KEYWORD}(," ${builddir}/temp1.f > ${builddir}/temp2.f
+        ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+      else
+        sed "s,${F77_MPI_KEYWORD}(mpi\_comm\_world\, ,${F77_MPI_KEYWORD}(," ${builddir}/temp1.f > ${builddir}/temp2.f
+        ${CP_FILE} ${builddir}/temp2.f ${builddir}/temp1.f
+      fi
+    fi
+  fi
+
   SOURCE_FILE=`echo "${SOURCE_FILE}" | cut -d'.' -f1`
   SOURCE_FILE="${SOURCE_FILE}-updated.f"
   ${CP_FILE} ${builddir}/temp1.f ${builddir}/${SOURCE_FILE}

@@ -87,6 +87,9 @@
 /* Define SUNDIALS data type 'realtype' as 'long double' */
 #undef SUNDIALS_EXTENDED_PRECISION
 
+/* FNVECTOR: Allow user to specify different MPI communicator */
+#undef SUNDIALS_MPI_COMM_F2C
+
 /* Define SUNDIALS data type 'realtype' as 'float' */
 #undef SUNDIALS_SINGLE_PRECISION
 

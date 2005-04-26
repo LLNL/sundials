@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2005-04-07 23:28:10 $
+# $Revision: 1.19 $
+# $Date: 2005-04-26 23:41:58 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -79,6 +79,7 @@ AC_SUBST(F77_CASE)
 AC_SUBST(F77_UNDERSCORES)
 AC_SUBST(PRECISION_LEVEL)
 AC_SUBST(GENERIC_MATH_LIB)
+AC_SUBST(F77_MPI_COMM_F2C)
 
 # Set installation path
 SUNDIALS_INSTALL_PATH

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2005-03-19 00:09:44 $
+# $Revision: 1.16 $
+# $Date: 2005-04-26 23:41:57 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -116,6 +116,7 @@ F77_CASE=""
 F77_UNDERSCORES=""
 PRECISION_LEVEL=""
 GENERIC_MATH_LIB=""
+F77_MPI_COMM_F2C=""
 
 ]) dnl END SUNDIALS_INITIALIZE
 
@@ -1209,6 +1210,11 @@ else
   SUNDIALS_CHECK_CC_WITH_MPI
 fi
 
+# Determine if MPI_Comm_f2c() from MPI-2 is supported
+if test "X${MPI_C_COMP_OK}" = "Xyes"; then
+  SUNDIALS_CHECK_MPICOMMF2C
+fi
+
 ]) dnl END SUNDIALS_SET_MPICC
 
 #------------------------------------------------------------------
@@ -1433,6 +1439,167 @@ LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
 ]) dnl END SUNDIALS_CHECK_CC_WITH_MPI
+
+#------------------------------------------------------------------
+# TEST MPI-2 FUNCTIONALITY
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_CHECK_MPICOMMF2C],
+[
+
+# Determine if MPI implementation used to build SUNDIALS supports the
+# MPI_Comm_f2c() routine:
+#   (1) NO  : FNVECTOR_PARALLEL module will NOT allow user to specify
+#             an MPI communicator and MPI_COMM_WORLD will be used
+#   (2) YES : FNVECTOR_PARALLEL module will allow user to specify
+#             an MPI communicator
+# Provide variable description templates for config.hin and config.h files
+# Required by autoheader utility
+AH_TEMPLATE([SUNDIALS_MPI_COMM_F2C],
+            [FNVECTOR: Allow user to specify different MPI communicator])
+
+# Save copies of CPPFLAGS, LDFLAGS and LIBS (preserve information)
+# Temporarily overwritten so we can test MPI implementation
+SAVED_CPPFLAGS="${CPPFLAGS}"
+SAVED_LDFLAGS="${LDFLAGS}"
+SAVED_LIBS="${LIBS}"
+
+# Determine location of MPI header files (find MPI include directory)
+MPI_EXISTS="yes"
+
+# MPI include directory was NOT explicitly specified so check if MPI root
+# directory was given by user
+if test "X${MPI_INC_DIR}" = "X"; then
+  # MPI root directory was NOT given so issue a warning message
+  if test "X${MPI_ROOT_DIR}" = "X"; then
+    MPI_EXISTS="no"
+    AC_MSG_WARN([cannot find MPI implementation files])
+    echo ""
+    echo "   Unable to find MPI implementation files."
+    echo ""
+    echo "   Try using --with-mpicc to specify a MPI-C compiler script,"
+    echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+    echo "   to specify the locations of all relevant MPI files, or"
+    echo "   --with-mpi-root to specify the base installation directory"
+    echo "   of the MPI implementation to be used."
+    echo ""
+    echo "   Disabling FNVECTOR_PARALLEL support for user-specified"
+    echo "   MPI communicator..."
+    echo ""
+  # MPI root directory was given so set MPI_INC_DIR accordingly
+  # Update CPPFLAGS
+  else
+    MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+    if test "X${CPPFLAGS}" = "X"; then
+      CPPFLAGS="-I${MPI_INC_DIR}"
+    else
+      CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
+    fi
+    # Add MPI_FLAGS if non-empty
+    if test "X${MPI_FLAGS}" = "X"; then
+      CPPFLAGS="${CPPFLAGS}"
+    else
+      CPPFLAGS="${CPPFLAGS} ${MPI_FLAGS}"
+    fi
+  fi
+# MPI include directory was specified so update CPPFLAGS
+else
+  if test "X${CPPFLAGS}" = "X"; then
+    CPPFLAGS="-I${MPI_INC_DIR}"
+  else
+    CPPFLAGS="${CPPFLAGS} -I${MPI_INC_DIR}"
+  fi
+  # Add MPI_FLAGS if non-empty
+  if test "X${MPI_FLAGS}" = "X"; then
+    CPPFLAGS="${CPPFLAGS}"
+  else
+    CPPFLAGS="${CPPFLAGS} ${MPI_FLAGS}"
+  fi
+fi
+
+# Only continue if found an MPI implementation
+if test "X${MPI_EXISTS}" = "Xyes"; then
+
+  # Determine location of MPI libraries
+  # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
+  # Update LDFLAGS
+  if test "X${MPI_LIB_DIR}" = "X"; then
+    MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+    if test "X${LDFLAGS}" = "X"; then
+      LDFLAGS="-L${MPI_LIB_DIR}"
+    else
+      LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
+    fi
+  # MPI library directory was specified so update LDFLAGS
+  else
+    if test "X${LDFLAGS}" = "X"; then
+      LDFLAGS="-L${MPI_LIB_DIR}"
+    else
+      LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
+    fi
+  fi
+
+  # Check if user specified which MPI libraries must be included
+  # If no libraries are given, then assume libmpi.[a/so] exists
+  if test "X${MPI_LIBS}" = "X"; then
+    MPI_LIBS="-lmpi"
+    if test "X${LIBS}" = "X"; then
+      LIBS="${MPI_LIBS}"
+    else
+      LIBS="${LIBS} ${MPI_LIBS}"
+    fi
+  # MPI libraries were specified so update LIBS
+  else
+    if test "X${LIBS}" = "X"; then
+      LIBS="${MPI_LIBS}"
+    else
+      LIBS="${LIBS} ${MPI_LIBS}"
+    fi
+  fi
+
+  # Since AC_LINK_IFELSE uses CC, set CC = MPICC if using
+  # an MPI compiler script
+  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+    SAVED_CC="${CC}"
+    CC="${MPICC_COMP}"
+  fi
+
+  # Check if MPI implementation supports MPI_Comm_f2c() from
+  # MPI-2 specification
+  AC_MSG_CHECKING([for MPI_Comm_f2c from MPI-2])
+  AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM([[#include "mpi.h"]],
+  [[
+      int c;
+      char **v;
+      MPI_Comm C_comm;
+      MPI_Init(&c, &v);
+      C_comm = MPI_Comm_f2c((MPI_Fint) 1);
+      MPI_Finalize();
+  ]])],
+  [AC_MSG_RESULT(yes)
+   AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[1],[])
+   F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 1"],
+  [AC_MSG_RESULT(no)
+   AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
+   F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
+
+  # Reset CC if necessary
+  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+    CC="${SAVED_CC}"
+  fi
+
+else
+  AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
+  F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"
+fi
+
+# Restore CPPFLAGS, LDFLAGS and LIBS
+CPPFLAGS="${SAVED_CPPFLAGS}"
+LDFLAGS="${SAVED_LDFLAGS}"
+LIBS="${SAVED_LIBS}"
+
+]) dnl END SUNDIALS_CHECK_MPICOMMF2C
 
 #------------------------------------------------------------------
 # CHECK MPI-F77 COMPILER

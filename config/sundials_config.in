@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-01-25 23:51:52 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-26 23:42:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -31,3 +31,6 @@
 
 /* Use generic math functions */
 @GENERIC_MATH_LIB@
+
+/* FNVECTOR: Allow user to specify different MPI communicator */
+@F77_MPI_COMM_F2C@
