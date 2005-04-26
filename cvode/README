@@ -95,11 +95,16 @@ v. 2.3.0 (Apr. 2005) --->
    - added support for SPBCG to the CVBBDPRE and CVBANDPRE preconditioner
      modules.
 
-- Changes to user-callable functions
+- Changes to user interface
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to
      allow CVODE to interface with the shared SPBCG linear solver module.
    - added CVBBDSpbcg function to CVBBDPRE module and CVBPSpbcg function to
      CVBANDPRE module to support SPBCG linear solver module.
+   - Changed function type names (not the actual definition) to accomodate
+     all the Scaled Preconditioned Iterative Linear Solvers now available:
+       CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
+       CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn
+       CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
 
 - Changes to the FCVODE module
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
