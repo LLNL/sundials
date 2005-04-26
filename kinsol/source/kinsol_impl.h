@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-04-08 15:08:05 $
+ * $Revision: 1.12 $
+ * $Date: 2005-04-26 17:31:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -32,10 +32,14 @@ extern "C" {
  * -----------------------------------------------------------------
  */
  
-#define PRINTFL_DEFAULT 0
-#define MXITER_DEFAULT  200
-#define MXNBCF_DEFAULT  10
-#define MSBSET_DEFAULT  10
+#define PRINTFL_DEFAULT    0
+#define MXITER_DEFAULT     200
+#define MXNBCF_DEFAULT     10
+#define MSBSET_DEFAULT     10
+#define MSBSET_SUB_DEFAULT 5
+
+#define OMEGA_MIN RCONST(0.00001)
+#define OMEGA_MAX RCONST(0.9)
 
 /*
  * -----------------------------------------------------------------
@@ -60,25 +64,37 @@ typedef struct KINMemRec {
   realtype kin_fnormtol;       /* stopping tolerance on L2-norm of function
 				  value                                        */
   realtype kin_scsteptol;      /* scaled step length tolerance                 */
-  int kin_globalstrategy;      /* choices are INEXACT_NEWTON and LINESEARCH    */
+  int kin_globalstrategy;      /* choices are KIN_NONE and KIN_LINESEARCH      */
   int kin_printfl;             /* level of verbosity of output                 */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
   long int kin_msbset;         /* maximum number of nonlinear iterations that
 				  may be performed between calls to the
 				  linear solver setup routine (lsetup)         */
+  long int kin_msbset_sub;     /* subinterval length for residual monitoring   */
   long int kin_mxnbcf;         /* maximum number of beta condition failures    */
-  int kin_etaflag;             /* choices are ETACONSTANT, ETACHOICE1 and
-				  ETACHOICE2                                   */
+  int kin_etaflag;             /* choices are KIN_ETACONSTANT, KIN_ETACHOICE1
+				  and KIN_ETACHOICE2                           */
   booleantype kin_noMinEps;    /* flag controlling whether or not the value
 				  of eps is bounded below                      */
   booleantype kin_setupNonNull;   /* flag indicating if linear solver setup
-				     routine is non-null and if setup is used */
+				     routine is non-null and if setup is used  */
   booleantype kin_constraintsSet; /* flag indicating if constraints are being
-				     used                                     */
+				     used                                      */
   booleantype kin_jacCurrent;     /* flag indicating if the Jacobian info. 
-				     used by the linear solver is current     */
-  booleantype kin_callForcingTerm; /* flag set if using either ETACHOICE1 or
-				      ETACHOICE2                               */
+				     used by the linear solver is current      */
+  booleantype kin_callForcingTerm; /* flag set if using either KIN_ETACHOICE1
+				      or KIN_ETACHOICE2                        */
+  booleantype kin_noResMon;         /* flag indicating if the nonlinear
+				       residual monitoring scheme should be
+				       used                                    */
+  booleantype kin_retry_nni;        /* flag indicating if nonlinear iteration
+				       should be retried (set by residual
+				       monitoring algorithm)                   */
+  booleantype kin_update_fnorm_sub; /* flag indicating if the fnorm associated
+				       with the subinterval needs to be
+				       updated (set by residual monitoring
+				       algorithm)                              */
+
   realtype kin_mxnewtstep;     /* maximum allowable scaled step length         */
   realtype kin_sqrt_relfunc;   /* relative error bound for func(u)             */
   realtype kin_stepl;          /* scaled length of current step                */
@@ -97,15 +113,17 @@ typedef struct KINMemRec {
 
   /* counters */
 
-  long int  kin_nni;           /* number of nonlinear iterations               */
-  long int  kin_nfe;           /* number of calls made to func routine         */
-  long int  kin_nnilset;       /* value of nni counter when the linear solver
+  long int kin_nni;            /* number of nonlinear iterations               */
+  long int kin_nfe;            /* number of calls made to func routine         */
+  long int kin_nnilset;        /* value of nni counter when the linear solver
 				  setup was last called                        */
-  long int  kin_nbcf;          /* number of times the beta-condition could not 
+  long int kin_nnilset_sub;    /* value of nni counter when the linear solver
+				  setup was last called (subinterval)          */
+  long int kin_nbcf;           /* number of times the beta-condition could not 
                                   be met in KINLineSearch                      */
-  long int  kin_nbktrk;        /* number of backtracks performed by
-				  KINLineSearch                                */
-  long int  kin_ncscmx;        /* number of consecutive steps of size
+  long int kin_nbktrk;         /* number of backtracks performed by
+		         	  KINLineSearch                                */
+  long int kin_ncscmx;         /* number of consecutive steps of size
                                   mxnewtstep taken                             */
 
   /* vectors */
@@ -148,19 +166,27 @@ typedef struct KINMemRec {
 
   int (*kin_lfree)(struct KINMemRec *kin_mem);
 
-  booleantype kin_inexact_ls; /* Flag, set by the linear solver module (in linit) 
-                                 indicating whether this is an iterative linear 
-                                 solver (TRUE), or a direct linear solver (FALSE) */
+  booleantype kin_inexact_ls; /* flag set by the linear solver module
+				 (in linit) indicating whether this is an
+				 iterative linear solver (TRUE), or a direct
+				 linear solver (FALSE)                         */
 
-  void *kin_lmem;        /* pointer to linear solver memory block              */
+  void *kin_lmem;         /* pointer to linear solver memory block             */
 
-  realtype kin_fnorm;    /* value of L2-norm of fscale*fval                    */
-  realtype kin_f1norm;   /* f1norm = 0.5*(fnorm)^2                             */
-  realtype kin_res_norm; /* value of L2-norm of residual (set by linear
+  realtype kin_fnorm;     /* value of L2-norm of fscale*fval                   */
+  realtype kin_f1norm;    /* f1norm = 0.5*(fnorm)^2                            */
+  realtype kin_res_norm;  /* value of L2-norm of residual (set by linear
 			    solver)                                            */
-  realtype kin_sfdotJp;  /* value of scaled func(u) vector (fscale*fval)
+  realtype kin_sfdotJp;   /* value of scaled func(u) vector (fscale*fval)
 			    dotted with scaled J(u)*pp vector                  */
-  realtype kin_sJpnorm;  /* value of L2-norm of fscale*(J(u)*pp)               */
+  realtype kin_sJpnorm;   /* value of L2-norm of fscale*(J(u)*pp)              */
+  realtype kin_fnorm_sub; /* value of L2-norm of fscale*fval (subinterval)     */
+  realtype kin_omega_min; /* lower bound on real scalar used in test to
+			     determine if reduction of norm of nonlinear
+			     residual is sufficient                            */
+  realtype kin_omega_max; /* upper bound on real scalar used in test to
+			     determine if reduction of norm of nonlinear
+			     residual is sufficient                            */
   
 /*
  * -----------------------------------------------------------------
@@ -201,20 +227,21 @@ typedef struct KINMemRec {
 
 /* KINSet* error messages */
 
-#define MSG_KINS_NO_MEM    "KINSet*-- kin_mem = NULL illegal.\n\n"
-#define MSG_BAD_PRINTFL    "KINSetPrintLevel-- illegal value for printfl.\n\n"
-#define MSG_BAD_MXITER     "KINSetNumMaxIters-- illegal value for mxiter.\n\n"
-#define MSG_BAD_MSBSET     "KINSetMaxSetupCalls-- illegal msbset < 0. \n\n"
-#define MSG_BAD_ETACHOICE  "KINSetEtaForm-- illegal value for etachoice.\n\n"
-#define MSG_BAD_ETACONST   "KINSetEtaConstValue-- eta out of range.\n\n"
-#define MSG_BAD_GAMMA      "KINSetEtaParams-- gamma out of range.\n\n"
-#define MSG_BAD_ALPHA      "KINSetEtaParams-- alpha out of range.\n\n"
-#define MSG_BAD_MXNEWTSTEP "KINSetMaxNewtonStep-- mxnewtstep < 0 illegal.\n\n"
-#define MSG_BAD_RELFUNC    "KINSetRelErrFunc-- relfunc < 0 illegal.\n\n"
-#define MSG_BAD_FNORMTOL   "KINSetFuncNormTol-- fnormtol < 0 illegal.\n\n"
-#define MSG_BAD_SCSTEPTOL  "KINSetScaledStepTol-- scsteptol < 0 illegal.\n\n"
-#define MSG_BAD_MXNBCF     "KINSetMaxBetaFails-- mxbcf < 0 illegal.\n\n"
+#define MSG_KINS_NO_MEM     "KINSet*-- kin_mem = NULL illegal.\n\n"
+#define MSG_BAD_PRINTFL     "KINSetPrintLevel-- illegal value for printfl.\n\n"
+#define MSG_BAD_MXITER      "KINSetNumMaxIters-- illegal value for mxiter.\n\n"
+#define MSG_BAD_MSBSET      "KINSetMaxSetupCalls-- illegal msbset < 0. \n\n"
+#define MSG_BAD_ETACHOICE   "KINSetEtaForm-- illegal value for etachoice.\n\n"
+#define MSG_BAD_ETACONST    "KINSetEtaConstValue-- eta out of range.\n\n"
+#define MSG_BAD_GAMMA       "KINSetEtaParams-- gamma out of range.\n\n"
+#define MSG_BAD_ALPHA       "KINSetEtaParams-- alpha out of range.\n\n"
+#define MSG_BAD_MXNEWTSTEP  "KINSetMaxNewtonStep-- mxnewtstep < 0 illegal.\n\n"
+#define MSG_BAD_RELFUNC     "KINSetRelErrFunc-- relfunc < 0 illegal.\n\n"
+#define MSG_BAD_FNORMTOL    "KINSetFuncNormTol-- fnormtol < 0 illegal.\n\n"
+#define MSG_BAD_SCSTEPTOL   "KINSetScaledStepTol-- scsteptol < 0 illegal.\n\n"
+#define MSG_BAD_MXNBCF      "KINSetMaxBetaFails-- mxbcf < 0 illegal.\n\n"
 #define MSG_BAD_CONSTRAINTS "KINSetConstraints-- illegal values in constraints vector.\n\n"
+#define MSG_BAD_OMEGA       "KINSetResMonParams-- scalars < 0 illegal.\n\n"
 
 /* KINMalloc error messages */
 
@@ -244,7 +271,7 @@ typedef struct KINMemRec {
 
 /* KINGet* error messages */
 
-#define MSG_KING_NO_MEM        "KINGet*-- kin_mem = NULL illegal.\n\n"
+#define MSG_KING_NO_MEM "KINGet*-- kin_mem = NULL illegal.\n\n"
 
 #ifdef __cplusplus
 }

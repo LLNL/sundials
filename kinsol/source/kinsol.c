@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2005-04-19 21:14:00 $
+ * $Revision: 1.41 $
+ * $Date: 2005-04-26 17:31:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <math.h>
 
 #include "kinsol_impl.h"
 #include "sundialsmath.h"
@@ -40,13 +41,14 @@
 #define POINT01        RCONST(0.01)
 #define POINT99        RCONST(0.99)
 #define THOUSAND       RCONST(1000.0)
-#define ONETHIRD       RCONST(.3333333333333333)
-#define TWOTHIRDS      RCONST(.6666666666666667)
+#define ONETHIRD       RCONST(0.3333333333333333)
+#define TWOTHIRDS      RCONST(0.6666666666666667)
 #define POINT9         RCONST(0.9)
 #define POINT0001      RCONST(0.0001)
 
 /* KINStop return value requesting more iterations */
 
+#define RETRY_ITERATION     -998
 #define CONTINUE_ITERATIONS -999
 
 /*
@@ -140,9 +142,11 @@ void *KINCreate(void)
   kin_mem->kin_infofp         = stdout;
   kin_mem->kin_printfl        = PRINTFL_DEFAULT;
   kin_mem->kin_mxiter         = MXITER_DEFAULT;
-  kin_mem->kin_noInitSetup  = FALSE;
-  kin_mem->kin_msbset       = MSBSET_DEFAULT;
-  kin_mem->kin_mxnbcf       = MXNBCF_DEFAULT;
+  kin_mem->kin_noInitSetup    = FALSE;
+  kin_mem->kin_msbset         = MSBSET_DEFAULT;
+  kin_mem->kin_noResMon       = FALSE;
+  kin_mem->kin_msbset_sub     = MSBSET_SUB_DEFAULT;
+  kin_mem->kin_mxnbcf         = MXNBCF_DEFAULT;
   kin_mem->kin_sthrsh         = TWO;
   kin_mem->kin_noMinEps       = FALSE;
   kin_mem->kin_mxnewtstep     = ZERO;
@@ -155,6 +159,8 @@ void *KINCreate(void)
   kin_mem->kin_eta_gamma      = POINT9;  /* default for KIN_ETACHOICE2  */
   kin_mem->kin_MallocDone     = FALSE;
   kin_mem->kin_setupNonNull   = FALSE;
+  kin_mem->kin_omega_min      = OMEGA_MIN;
+  kin_mem->kin_omega_max      = OMEGA_MAX;
 
   /* Initialize lrw and liw */
   kin_mem->kin_lrw = 17;
@@ -257,7 +263,11 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
 #define printfl (kin_mem->kin_printfl)
 #define mxiter (kin_mem->kin_mxiter)
 #define noInitSetup (kin_mem->kin_noInitSetup)
+#define noResMon (kin_mem->kin_noResMon)
+#define retry_nni (kin_mem->kin_retry_nni)
+#define update_fnorm_sub (kin_mem->kin_update_fnorm_sub)
 #define msbset (kin_mem->kin_msbset)
+#define msbset_sub (kin_mem->kin_msbset_sub)
 #define etaflag (kin_mem->kin_etaflag)
 #define eta (kin_mem->kin_eta)
 #define ealpha (kin_mem->kin_eta_alpha)
@@ -286,6 +296,7 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
 #define constraintsSet (kin_mem->kin_constraintsSet) 
 #define jacCurrent (kin_mem->kin_jacCurrent)          
 #define nnilset (kin_mem->kin_nnilset)
+#define nnilset_sub (kin_mem->kin_nnilset_sub)
 #define lmem (kin_mem->kin_lmem)        
 #define inexact_ls (kin_mem->kin_inexact_ls)
 #define setupNonNull (kin_mem->kin_setupNonNull)
@@ -306,6 +317,7 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
 #define vtemp2 (kin_mem->kin_vtemp2)
 #define eps (kin_mem->kin_eps)
 #define res_norm (kin_mem->kin_res_norm)
+#define fnorm_sub (kin_mem->kin_fnorm_sub)
 #define liw1 (kin_mem->kin_liw1)
 #define lrw1 (kin_mem->kin_lrw1)
 
@@ -387,6 +399,8 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
 
   loop{
 
+    retry_nni = FALSE;
+
     nni++;
 
     /* calculate the epsilon (stopping criteria for iterative linear solver)
@@ -396,7 +410,9 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
       eps = (eta + uround) * fnorm;
       if(!noMinEps) eps = MAX(epsmin, eps);
     }
-    
+
+    repeat_nni:
+
     /* call KINLinSolDrv to calculate the (approximate) Newton step, pp */ 
 
     ret = KINLinSolDrv(kin_mem);
@@ -431,6 +447,11 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
     /* call KINStop to check if tolerances where met by this iteration */
 
     ret = KINStop(kin_mem, maxStepTaken, globalstratret); 
+
+    if (ret == RETRY_ITERATION) {
+      retry_nni = TRUE;
+      goto repeat_nni;
+    }
 
     /* update uu after the iteration */
 
@@ -683,6 +704,10 @@ static int KINSolInit(KINMem kin_mem)
 
     if (etaflag != KIN_ETACONSTANT) eta = HALF;
 
+    /* disable residual monitoring if using an inexact linear solver */
+
+    noResMon = TRUE;
+
   } else {
 
     callForcingTerm = FALSE;
@@ -691,7 +716,7 @@ static int KINSolInit(KINMem kin_mem)
 
   /* initialize counters */
 
-  nfe = nnilset = nni = nbcf = nbktrk = 0;
+  nfe = nnilset = nnilset_sub = nni = nbcf = nbktrk = 0;
 
   /* see if the system func(uu) = 0 is satisfied by the initial guess uu */
 
@@ -716,6 +741,8 @@ static int KINSolInit(KINMem kin_mem)
   /* initialize the L2 (Euclidean) norms of f for the linear iteration steps */
   fnorm = N_VWL2Norm(fval, fscale);
   f1norm = HALF * fnorm * fnorm;
+
+  fnorm_sub = fnorm;
 
   if (printfl > 0)
     KINPrintInfo(kin_mem, "KINSolInit", PRNT_NNI, &nni, &nfe, &fnorm);
@@ -1181,7 +1208,10 @@ static int KINLinSolDrv(KINMem kin_mem)
   N_Vector x, b;
   int ret;
 
-  if ((nni - nnilset) >= msbset) sthrsh = TWO;
+  if ((nni - nnilset) >= msbset) {
+    sthrsh = TWO;
+    update_fnorm_sub = TRUE;
+  }
 
   loop{
 
@@ -1191,6 +1221,7 @@ static int KINLinSolDrv(KINMem kin_mem)
       ret = lsetup(kin_mem);
       jacCurrent = TRUE;
       nnilset = nni;
+      nnilset_sub = nni;
       if (ret != 0) return(KIN_LSETUP_FAIL);
     }
 
@@ -1257,6 +1288,9 @@ static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
   return(length);
 }
 
+#define omega_min (kin_mem->kin_omega_min)
+#define omega_max (kin_mem->kin_omega_max)
+
 /*
  * -----------------------------------------------------------------
  * Function : KINStop
@@ -1269,22 +1303,23 @@ static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
 static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
 {
   realtype fmax, rlength;
+  realtype omega;
   N_Vector delta;
 
-  if (globalstratret == 1){
+  if (globalstratret == 1) {
 
     if (setupNonNull && !jacCurrent) {
 
       /* if the globalstratret was caused (potentially) by the 
-	 Jacobian info. being out of date, then update it. */
+	 Jacobian info being out of date, then update it */
 
       sthrsh = TWO;
 
       return(CONTINUE_ITERATIONS);
     }
 
-    else return( (globalstrategy == KIN_NONE) ?
-		 KIN_STEP_LT_STPTOL : KIN_LINESEARCH_NONCONV );
+    else return((globalstrategy == KIN_NONE) ?
+		KIN_STEP_LT_STPTOL : KIN_LINESEARCH_NONCONV);
   }
 
   /* check tolerance on scaled norm of func at the current iterate */
@@ -1297,17 +1332,18 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
   if (fmax <= fnormtol) return(KIN_SUCCESS);
 
   /* check if the scaled distance between the last two steps is too small */
-  /* use pp as work space to store this distance */
+  /* NOTE: pp used as work space to store this distance */
+
   delta = pp;
   N_VLinearSum(ONE, unew, -ONE, uu, delta);
   rlength = KINScSNorm(kin_mem, delta, unew);
 
   if (rlength <= scsteptol) {
 
-    if (!jacCurrent) {
+    if (setupNonNull && !jacCurrent) {
 
-      /* for rlength too small and the Jacobian info. not current,
-         try again with current Jacobian info.*/
+      /* for rlength too small and the Jacobian info not current,
+         try again with current Jacobian info */
 
       sthrsh = TWO;
 
@@ -1333,16 +1369,51 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
  
   if (ncscmx == 5) return(KIN_MXNEWT_5X_EXCEEDED);
 
-  /* load threshold for re-evaluating the Jacobian info. (lsetup) */
+  /* load threshold for reevaluating the Jacobian info (lsetup) */
 
-  sthrsh = rlength;
+  if (inexact_ls) sthrsh = rlength;
+
+  /* residual monitoring scheme for modified Newton method */
+
+  else if (!inexact_ls && !noResMon) {
+    if ((nni - nnilset_sub) >= msbset_sub) {
+      nnilset_sub = nni;
+      omega = MIN(omega_min*exp(MAX(ZERO, (fnorm/fnormtol)-ONE)), omega_max);
+
+      /* check if making satisfactory progress */
+
+      if (fnorm > omega*fnorm_sub) {
+
+	/* update jacobian and retry iteration */
+
+	if (setupNonNull && !jacCurrent) {
+	  sthrsh = TWO;
+	  return(RETRY_ITERATION);
+	}
+
+	/* otherwise, we cannot do anything, so just return */
+
+      }
+      else {
+	fnorm_sub = fnorm;
+	sthrsh = ONE;
+      }
+    }
+
+    /* must reset sthrsh */
+
+    else {
+      if (retry_nni || update_fnorm_sub) fnorm_sub = fnorm;
+      if (update_fnorm_sub) update_fnorm_sub = FALSE;
+      sthrsh = ONE;
+    }
+  }
 
   /* if made it to here, then the iteration process is not finished
      so return CONTINUE_ITERATIONS flag */
 
   return(CONTINUE_ITERATIONS);
 }
-
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2005-03-02 17:53:03 $
+ * $Revision: 1.26 $
+ * $Date: 2005-04-26 17:31:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -249,6 +249,11 @@ void *KINCreate(void);
  *                      | option
  *                      | [0.9 and 2.0]
  *                      |
+ * KINSetResMonParams   | values of omega_min and omega_max scalars
+ *                      | used by nonlinear residual monitoring
+ *                      | algorithm (see KINStop)
+ *                      | [0.00001 and 0.9]
+ *                      |
  * KINSetNoMinEps       | flag controlling whether or not the value
  *                      | of eps is bounded below by 0.01*fnormtol
  *                      | (see KINSetFuncNormTol)
@@ -342,6 +347,7 @@ int KINSetMaxSetupCalls(void *kinmem, long int msbset);
 int KINSetEtaForm(void *kinmem, int etachoice);
 int KINSetEtaConstValue(void *kinmem, realtype eta);
 int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha);
+int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax);
 int KINSetNoMinEps(void *kinmem, booleantype noMinEps);
 int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep);
 int KINSetMaxBetaFails(void *kinmem, long int mxnbcf);

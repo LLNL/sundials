@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2005-04-21 16:33:44 $
+ * $Revision: 1.8 $
+ * $Date: 2005-04-26 17:31:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,9 +25,9 @@
 
 #define ZERO      RCONST(0.0)
 #define POINT1    RCONST(0.1)
-#define ONETHIRD  RCONST(.3333333333333333)
+#define ONETHIRD  RCONST(0.3333333333333333)
 #define HALF      RCONST(0.5)
-#define TWOTHIRDS RCONST(.6666666666666667)
+#define TWOTHIRDS RCONST(0.6666666666666667)
 #define POINT9    RCONST(0.9)
 #define ONE       RCONST(1.0)
 #define TWO       RCONST(2.0)
@@ -315,6 +315,50 @@ int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
     kin_mem->kin_eta_gamma = POINT9;
   else
     kin_mem->kin_eta_gamma = egamma;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetResMonParams
+ * -----------------------------------------------------------------
+ */
+
+int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    fprintf(stderr, MSG_KINS_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  /* check omegamin */
+
+  if (omegamin < ZERO) {
+    fprintf(errfp, MSG_BAD_OMEGA);
+    return(KIN_ILL_INPUT);
+  }
+
+  if (omegamin == ZERO) 
+    kin_mem->kin_omega_min = OMEGA_MIN;
+  else
+    kin_mem->kin_omega_min = omegamin;
+
+  /* check omegamax */
+
+  if (omegamax < ZERO) {
+    fprintf(errfp, MSG_BAD_OMEGA);
+    return(KIN_ILL_INPUT);
+  }
+
+  if (omegamax == ZERO)
+    kin_mem->kin_omega_max = OMEGA_MAX;
+  else
+    kin_mem->kin_omega_max = omegamax;
 
   return(KIN_SUCCESS);
 }
