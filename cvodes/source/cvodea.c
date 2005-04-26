@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.45 $
- * $Date: 2005-04-26 18:32:41 $
+ * $Revision: 1.46 $
+ * $Date: 2005-04-26 23:35:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -1404,7 +1404,6 @@ void CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt)
 void CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
 {
   CVadjMem ca_mem;
-  CkpntMem ck_mem;
 
   ca_mem = (CVadjMem) cvadj_mem;
 
