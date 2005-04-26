@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2005-04-07 19:26:26 $
+ * $Revision: 1.29 $
+ * $Date: 2005-04-26 20:31:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -271,8 +271,8 @@ int KINSpgmrSetMaxRestarts(void *kinmem, int maxrs)
  */
 
 int KINSpgmrSetPreconditioner(void *kinmem,
-			      KINSpgmrPrecSetupFn pset,
-			      KINSpgmrPrecSolveFn psolve,
+			      KINSpilsPrecSetupFn pset,
+			      KINSpilsPrecSolveFn psolve,
 			      void *P_data)
 {
   KINMem kin_mem;
@@ -306,7 +306,7 @@ int KINSpgmrSetPreconditioner(void *kinmem,
  */
 
 int KINSpgmrSetJacTimesVecFn(void *kinmem,
-			     KINSpgmrJacTimesVecFn jtimes,
+			     KINSpilsJacTimesVecFn jtimes,
 			     void *J_data)
 {
   KINMem kin_mem;

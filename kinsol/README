@@ -102,11 +102,14 @@ v. 2.3.0 (Apr. 2005) --->
    - added KINSPBCG interface module to allow KINSOL to interface with the
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
    - added support for SPBCG to the KINBBDPRE preconditioner module.
+   - added KINDENSE module (dense linear solver)
 
 - Changes to underlying algorithms
    - modified the KINBBDPRE preconditioner module to allow the use of
      different half-bandwidths for the difference quotient approximation
      and the retained matrix.
+   - added nonlinear residual monitoring scheme to control Jacobian updating
+     when a direct linear solver is used
 
 - Changes to user-callable functions
    - modified the argument list of KINBBDPrecAlloc to allow specification
@@ -118,6 +121,11 @@ v. 2.3.0 (Apr. 2005) --->
      allow KINSOL to interface with the shared SPBCG linear solver module.
    - added KINBBDSpbcg function to KINBBDPRE module to support SPBCG linear
      solver module.
+   - changed function type names (not the actual definitions) to accomodate
+     all the Scaled Preconditioned Iterative Linear Solvers now available:
+       KINSpgmrJactimesVecFn -> KINSpilsJacTimesVecFn
+       KINSpgmrPrecSetupFn   -> KINSpilsPrecSetupFn
+       KINSpgmrPrecSolveFn   -> KINSpilsPrecSolveFn 
 
 - Changes to the FKINSOL module
    - modified argument list of FKINBBDINIT to accomadate changes made

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2005-03-02 17:53:47 $
+# $Revision: 1.13 $
+# $Date: 2005-04-26 20:31:31 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -60,6 +60,7 @@ install: update $(KINSOL_LIB_FILES)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspgmr.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspbcg.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinbbdpre.h $(includedir)
+	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspils.h $(includedir)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(KINSOL_LIB)
@@ -74,6 +75,7 @@ uninstall: clean
 	rm -f $(includedir)/kinspgmr.h
 	rm -f $(includedir)/kinspbcg.h
 	rm -f $(includedir)/kinbbdpre.h
+	rm -f $(includedir)/kinspils.h
 
 kinsol.lo: $(srcdir)/kinsol.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol.c

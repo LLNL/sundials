@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-01-26 22:23:36 $
+ * $Revision: 1.7 $
+ * $Date: 2005-04-26 20:31:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -82,11 +82,11 @@ typedef struct {
 
   /* functions */
 
-  KINSpgmrPrecSetupFn g_pset;     /* routine called to compute preconditioner
+  KINSpilsPrecSetupFn g_pset;     /* routine called to compute preconditioner
 				     matrix                                    */
-  KINSpgmrPrecSolveFn g_psolve;   /* subroutine called to solve a
+  KINSpilsPrecSolveFn g_psolve;   /* subroutine called to solve a
 				     preconditioned linear system              */ 
-  KINSpgmrJacTimesVecFn g_jtimes; /* function called to compute matrix-vector
+  KINSpilsJacTimesVecFn g_jtimes; /* function called to compute matrix-vector
 				     product J(u)*v                            */
 
   /* memory references (pointers) */

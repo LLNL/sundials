@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-01-24 23:55:50 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-26 20:31:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -76,11 +76,11 @@ typedef struct {
 
   /* functions (pointer) */
 
-  KINSpbcgPrecSetupFn b_pset;     /* routine called to compute preconditioner
+  KINSpilsPrecSetupFn b_pset;     /* routine called to compute preconditioner
 				     matrix                                   */
-  KINSpbcgPrecSolveFn b_psolve;   /* subroutine called to solve a
+  KINSpilsPrecSolveFn b_psolve;   /* subroutine called to solve a
 				     preconditioned linear system             */ 
-  KINSpbcgJacTimesVecFn b_jtimes; /* function called to compute matrix-vector
+  KINSpilsJacTimesVecFn b_jtimes; /* function called to compute matrix-vector
 				     product J(u)*v                           */
 
   /* memory references (pointers) */

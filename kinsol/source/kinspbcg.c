@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-04-07 20:42:50 $
+ * $Revision: 1.5 $
+ * $Date: 2005-04-26 20:31:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -225,8 +225,8 @@ int KINSpbcg(void *kinmem, int maxl)
  */
 
 int KINSpbcgSetPreconditioner(void *kinmem,
-			      KINSpbcgPrecSetupFn pset,
-			      KINSpbcgPrecSolveFn psolve,
+			      KINSpilsPrecSetupFn pset,
+			      KINSpilsPrecSolveFn psolve,
 			      void *P_data)
 {
   KINMem kin_mem;
@@ -260,7 +260,7 @@ int KINSpbcgSetPreconditioner(void *kinmem,
  */
 
 int KINSpbcgSetJacTimesVecFn(void *kinmem,
-			     KINSpbcgJacTimesVecFn jtimes,
+			     KINSpilsJacTimesVecFn jtimes,
 			     void *J_data)
 {
   KINMem kin_mem;
