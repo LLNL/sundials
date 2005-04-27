@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2004-11-16 22:10:21 $
+ * $Revision: 1.10 $
+ * $Date: 2005-04-27 22:51:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -179,7 +179,7 @@ int IDADense(void *ida_mem, long int Neq)
  * -----------------------------------------------------------------
  */
 
-int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac)
+int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac, void *jac_data)
 {
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
@@ -198,29 +198,7 @@ int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac)
   idadense_mem = (IDADenseMem) lmem;
 
   jac = djac;
-
-  return(IDADENSE_SUCCESS);
-}
-
-int IDADenseSetJacData(void *ida_mem, void *jac_data)
-{
-  IDAMem IDA_mem;
-  IDADenseMem idadense_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGD_SETGET_IDAMEM_NULL);
-    return(IDADENSE_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_SETGET_LMEM_NULL);
-    return(IDADENSE_LMEM_NULL);
-  }
-  idadense_mem = (IDADenseMem) lmem;
-
-  jacdata = jac_data;
+  if (djac != NULL) jacdata = jac_data;
 
   return(IDADENSE_SUCCESS);
 }

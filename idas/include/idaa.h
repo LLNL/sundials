@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-01-24 23:54:35 $
+ * $Revision: 1.14 $
+ * $Date: 2005-04-27 22:51:47 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -280,8 +280,7 @@ extern "C" {
   
   int IDADenseB(void *idaadj_mem, long int NeqB);
   
-  int IDADenseSetJacFnB(void *idaadj_mem, IDADenseJacFnB djacB);
-  int IDADenseSetJacDataB(void *idaadj_mem, void *jdataB);
+  int IDADenseSetJacFnB(void *idaadj_mem, IDADenseJacFnB djacB, void *jdataB);
 
   /******************************************************************
    *                                                                *
@@ -295,8 +294,7 @@ extern "C" {
   int IDABandB(void *idaadj_mem, long int NeqB,
                long int mupperB, long int mlowerB);
 
-  int IDABandSetJacFnB(void *idaadj_mem, IDABandJacFnB bjacB);
-  int IDABandSetJacDataB(void *idaadj_mem, void *jdataB);
+  int IDABandSetJacFnB(void *idaadj_mem, IDABandJacFnB bjacB, void *jdataB);
 
   /******************************************************************
    *                                                                *
@@ -313,11 +311,9 @@ extern "C" {
   int IDASpgmrSetMaxRestartsB(void *idaadj_mem, int maxrsB);
   int IDASpgmrSetEpsLinB(void *idaadj_mem, realtype eplifacB);
   int IDASpgmrSetIncrementFactorB(void *idaadj_mem, realtype dqincfacB);
-  int IDASpgmrSetPrecSetupFnB(void *idaadj_mem, IDASpgmrPrecSetupFnB psetB);
-  int IDASpgmrSetPrecSolveFnB(void *idaadj_mem, IDASpgmrPrecSolveFnB psolveB);
-  int IDASpgmrSetJacTimesVecFnB(void *idaadj_mem, IDASpgmrJacTimesVecFnB jtimesB);
-  int IDASpgmrSetPrecDataB(void *idaadj_mem, void *pdataB);
-  int IDASpgmrSetJacDataB(void *idaadj_mem, void *jdataB);
+  int IDASpgmrSetPreconditionerB(void *idaadj_mem, IDASpgmrPrecSetupFnB psetB,
+				 IDASpgmrPrecSolveFnB psolveB, void *pdataB);
+  int IDASpgmrSetJacTimesVecFnB(void *idaadj_mem, IDASpgmrJacTimesVecFnB jtimesB, void *jdataB);
 
   /******************************************************************
    *                                                                *

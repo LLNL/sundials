@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-03-21 17:28:00 $
+ * $Revision: 1.14 $
+ * $Date: 2005-04-27 22:51:50 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -369,7 +369,8 @@ int IDASpgmrSetIncrementFactor(void *ida_mem, realtype dqincfac)
   return(IDASPGMR_SUCCESS);
 }
 
-int IDASpgmrSetPrecSetupFn(void *ida_mem, IDASpgmrPrecSetupFn pset)
+int IDASpgmrSetPreconditioner(void *ida_mem, IDASpgmrPrecSetupFn pset,
+			      IDASpgmrPrecSolveFn psolve, void *prec_data)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -387,58 +388,14 @@ int IDASpgmrSetPrecSetupFn(void *ida_mem, IDASpgmrPrecSetupFn pset)
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
-  idaspgmr_mem->g_pset = pset;
-
-  return(IDASPGMR_SUCCESS);
-}
-
-int IDASpgmrSetPrecSolveFn(void *ida_mem, IDASpgmrPrecSolveFn psolve)
-{
-  IDAMem IDA_mem;
-  IDASpgmrMem idaspgmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGS_SETGET_IDAMEM_NULL);
-    return(IDASPGMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(IDASPGMR_LMEM_NULL);
-  }
-  idaspgmr_mem = (IDASpgmrMem) lmem;
-
+  idaspgmr_mem->g_pset   = pset;
   idaspgmr_mem->g_psolve = psolve;
+  if (psolve != NULL) idaspgmr_mem->g_pdata = prec_data;
 
   return(IDASPGMR_SUCCESS);
 }
 
-int IDASpgmrSetPrecData(void *ida_mem, void *prec_data)
-{
-  IDAMem IDA_mem;
-  IDASpgmrMem idaspgmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGS_SETGET_IDAMEM_NULL);
-    return(IDASPGMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(IDASPGMR_LMEM_NULL);
-  }
-  idaspgmr_mem = (IDASpgmrMem) lmem;
-
-  idaspgmr_mem->g_pdata = prec_data;
-
-  return(IDASPGMR_SUCCESS);
-}
-
-int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes)
+int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes, void *jac_data)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -457,29 +414,7 @@ int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes)
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   idaspgmr_mem->g_jtimes = jtimes;
-
-  return(IDASPGMR_SUCCESS);
-}
-
-int IDASpgmrSetJacData(void *ida_mem, void *jac_data)
-{
-  IDAMem IDA_mem;
-  IDASpgmrMem idaspgmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGS_SETGET_IDAMEM_NULL);
-    return(IDASPGMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGS_SETGET_LMEM_NULL);
-    return(IDASPGMR_LMEM_NULL);
-  }
-  idaspgmr_mem = (IDASpgmrMem) lmem;
-
-  idaspgmr_mem->g_jdata = jac_data;
+  if (jtimes != NULL) idaspgmr_mem->g_jdata = jac_data;
 
   return(IDASPGMR_SUCCESS);
 }

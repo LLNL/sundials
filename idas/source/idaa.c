@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-01-24 23:55:00 $
+ * $Revision: 1.17 $
+ * $Date: 2005-04-27 22:51:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -867,7 +867,7 @@ int IDADenseB(void *idaadj_mem, long int NeqB)
   return(flag);
 }
 
-int IDADenseSetJacFnB(void *idaadj_mem, IDADenseJacFnB djacB)
+int IDADenseSetJacFnB(void *idaadj_mem, IDADenseJacFnB djacB, void *jdataB)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -875,25 +875,14 @@ int IDADenseSetJacFnB(void *idaadj_mem, IDADenseJacFnB djacB)
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  djac_B = djacB;
+  djac_B  = djacB;
+  jdata_B = jdataB;
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
-  flag = IDADenseSetJacData(ida_mem, idaadj_mem);
-  flag = IDADenseSetJacFn(ida_mem, IDAAdenseJac);
+  flag = IDADenseSetJacFn(ida_mem, IDAAdenseJac, idaadj_mem);
 
   return(flag);
-}
-
-int IDADenseSetJacDataB(void *idaadj_mem, void *jdataB)
-{
-  IDAadjMem IDAADJ_mem;
-
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-
-  jdata_B = jdataB;
-
-  return(IDA_SUCCESS);
 }
 
 /*-----------  IDABandB and IDABandSet*B      -----------------------*/
@@ -915,7 +904,7 @@ int IDABandB(void *idaadj_mem, long int NeqB,
   return(flag);
 }
 
-int IDABandSetJacFnB(void *idaadj_mem, IDABandJacFnB bjacB)
+int IDABandSetJacFnB(void *idaadj_mem, IDABandJacFnB bjacB, void *jdataB)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -923,25 +912,14 @@ int IDABandSetJacFnB(void *idaadj_mem, IDABandJacFnB bjacB)
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  bjac_B = bjacB;
+  bjac_B  = bjacB;
+  jdata_B = jdataB;
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
-  flag = IDABandSetJacData(ida_mem, idaadj_mem);
-  flag = IDABandSetJacFn(ida_mem, IDAAbandJac);
+  flag = IDABandSetJacFn(ida_mem, IDAAbandJac, idaadj_mem);
 
   return(flag);
-}
-
-int IDABandSetJacDataB(void *idaadj_mem, void *jdataB)
-{ 
-  IDAadjMem IDAADJ_mem;
-
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-
-  jdata_B = jdataB;
-
-  return(IDA_SUCCESS);
 }
 
 /*------------   IDASpgmrB and IDASpgmrSet*B    ---------------------*/
@@ -1022,7 +1000,8 @@ int IDASpgmrSetIncrementFactorB(void *idaadj_mem, realtype dqincfacB)
   return(flag);
 }
 
-int IDASpgmrSetPrecSetupFnB(void *idaadj_mem, IDASpgmrPrecSetupFnB psetB)
+int IDASpgmrSetPreconditionerB(void *idaadj_mem, IDASpgmrPrecSetupFnB psetB,
+			       IDASpgmrPrecSolveFnB psolveB, void *PdataB)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -1030,35 +1009,18 @@ int IDASpgmrSetPrecSetupFnB(void *idaadj_mem, IDASpgmrPrecSetupFnB psetB)
 
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  pset_B = psetB;
-
-  ida_mem = (void *) IDAADJ_mem->IDAB_mem;
-
-  flag = IDASpgmrSetPrecData(ida_mem, idaadj_mem);
-  flag = IDASpgmrSetPrecSetupFn(ida_mem,IDAAspgmrPrecSetup);
-
-  return(flag);
-}
-
-int IDASpgmrSetPrecSolveFnB(void *idaadj_mem, IDASpgmrPrecSolveFnB psolveB)
-{
-  IDAadjMem IDAADJ_mem;
-  void *ida_mem;
-  int flag;
-
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-
+  pset_B   = psetB;
   psolve_B = psolveB;
+  pdata_B  = PdataB;
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
-  flag = IDASpgmrSetPrecData(ida_mem, idaadj_mem);
-  flag = IDASpgmrSetPrecSolveFn(ida_mem,IDAAspgmrPrecSolve);
+  flag = IDASpgmrSetPreconditioner(ida_mem, IDAAspgmrPrecSetup, IDAAspgmrPrecSolve, idaadj_mem);
 
   return(flag);
 }
 
-int IDASpgmrSetJacTimesVecFnB(void *idaadj_mem, IDASpgmrJacTimesVecFnB jtimesB)
+int IDASpgmrSetJacTimesVecFnB(void *idaadj_mem, IDASpgmrJacTimesVecFnB jtimesB, void *jdataB)
 {
   IDAadjMem IDAADJ_mem;
   void *ida_mem;
@@ -1067,35 +1029,13 @@ int IDASpgmrSetJacTimesVecFnB(void *idaadj_mem, IDASpgmrJacTimesVecFnB jtimesB)
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
   jtimes_B = jtimesB;
+  jdata_B  = jdataB;
 
   ida_mem = (void *) IDAADJ_mem->IDAB_mem;
 
-  flag = IDASpgmrSetJacData(ida_mem, idaadj_mem);
-  flag = IDASpgmrSetJacTimesVecFn(ida_mem,IDAAspgmrJacTimesVec);
+  flag = IDASpgmrSetJacTimesVecFn(ida_mem, IDAAspgmrJacTimesVec, idaadj_mem);
 
   return(flag);
-}
-
-int IDASpgmrSetPrecDataB(void *idaadj_mem, void *PdataB)
-{
-  IDAadjMem IDAADJ_mem;
-
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-
-  pdata_B = PdataB;
-
-  return(IDA_SUCCESS);
-}
-
-int IDASpgmrSetJacDataB(void *idaadj_mem, void *jdataB)
-{
-  IDAadjMem IDAADJ_mem;
-
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
-
-  jdata_B = jdataB;
-
-  return(IDA_SUCCESS);
 }
 
 /*------------------     IDASolveB          --------------------------*/

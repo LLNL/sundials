@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-03-21 17:26:52 $
+ * $Revision: 1.19 $
+ * $Date: 2005-04-27 22:51:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -330,18 +330,10 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "IDASpgmr", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  flag = IDASpgmrSetPrecSetupFn(mem, Precondbd);
-  if (check_flag(&flag, "IDASpgmrSetPrecSetupFn", 1, thispe)) 
+  flag = IDASpgmrSetPreconditioner(mem, Precondbd, PSolvebd, webdata);
+  if (check_flag(&flag, "IDASpgmrSetPreconditioner", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  flag = IDASpgmrSetPrecSolveFn(mem, PSolvebd);
-  if (check_flag(&flag, "IDASpgmrSetPrecSolveFn", 1, thispe)) 
-    MPI_Abort(comm, 1);
-
-  flag = IDASpgmrSetPrecData(mem, webdata);
-  if (check_flag(&flag, "IDASpgmrSetPrecData", 1, thispe)) 
-    MPI_Abort(comm, 1);
-  
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
