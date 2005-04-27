@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-01-26 22:18:55 $
+ * $Revision: 1.3 $
+ * $Date: 2005-04-27 23:27:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -64,17 +64,17 @@ typedef struct {
   N_Vector b_ypcur;    /* current yp vector in Newton iteration         */
   N_Vector b_rcur;     /* rcur = F(tn, ycur, ypcur)                     */
 
-  IDASpbcgPrecSetupFn b_pset;     /* pset = user-supplied routine       */
+  IDASpilsPrecSetupFn b_pset;     /* pset = user-supplied routine       */
                                   /* to compute a preconditioner        */
 
-  IDASpbcgPrecSolveFn b_psolve;   /* psolve = user-supplied routine to  */
+  IDASpilsPrecSolveFn b_psolve;   /* psolve = user-supplied routine to  */
                                   /* solve preconditioner linear system */
 
   void *b_pdata;                  /* pdata passed to psolve and precond */
   SpbcgMem b_spbcg_mem;           /* spbcg_mem is memory used by the    */
                                   /* generic Spbcg solver               */
 
-  IDASpbcgJacTimesVecFn b_jtimes; /* Jacobian*vector routine            */ 
+  IDASpilsJacTimesVecFn b_jtimes; /* Jacobian*vector routine            */ 
   void *b_jdata;                  /* data passed to Jtimes              */
 
   int b_last_flag;                /* last error return flag             */

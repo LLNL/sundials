@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-04-27 22:51:50 $
+ * $Revision: 1.4 $
+ * $Date: 2005-04-27 23:27:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -303,8 +303,8 @@ int IDASpbcgSetIncrementFactor(void *ida_mem, realtype dqincfac)
   return(IDASPBCG_SUCCESS);
 }
 
-int IDASpbcgSetPreconditioner(void *ida_mem, IDASpbcgPrecSetupFn pset,
-			      IDASpbcgPrecSolveFn psolve, void *prec_data)
+int IDASpbcgSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
+			      IDASpilsPrecSolveFn psolve, void *prec_data)
 {
   IDAMem IDA_mem;
   IDASpbcgMem idaspbcg_mem;
@@ -329,7 +329,7 @@ int IDASpbcgSetPreconditioner(void *ida_mem, IDASpbcgPrecSetupFn pset,
   return(IDASPBCG_SUCCESS);
 }
 
-int IDASpbcgSetJacTimesVecFn(void *ida_mem, IDASpbcgJacTimesVecFn jtimes, void *jac_data)
+int IDASpbcgSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtimes, void *jac_data)
 {
   IDAMem IDA_mem;
   IDASpbcgMem idaspbcg_mem;

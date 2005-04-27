@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-01-26 22:18:55 $
+ * $Revision: 1.7 $
+ * $Date: 2005-04-27 23:27:16 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -69,17 +69,17 @@ typedef struct {
   N_Vector g_ypcur;    /* current yp vector in Newton iteration        */
   N_Vector g_rcur;     /* rcur = F(tn, ycur, ypcur)                    */
 
-  IDASpgmrPrecSetupFn g_pset;     /* pset = user-supplied routine      */
+  IDASpilsPrecSetupFn g_pset;     /* pset = user-supplied routine      */
                                   /* to compute a preconditioner       */
 
-  IDASpgmrPrecSolveFn g_psolve;   /* psolve = user-supplied routine to */
+  IDASpilsPrecSolveFn g_psolve;   /* psolve = user-supplied routine to */
                                   /* solve preconditioner linear system*/
 
   void *g_pdata;                  /* pdata passed to psolve and precond*/
   SpgmrMem g_spgmr_mem;           /* spgmr_mem is memory used by the   */
                                   /* generic Spgmr solver              */
 
-  IDASpgmrJacTimesVecFn g_jtimes; /* Jacobian*vector routine           */ 
+  IDASpilsJacTimesVecFn g_jtimes; /* Jacobian*vector routine           */ 
   void *g_jdata;                  /* data passed to Jtimes             */
 
   int g_last_flag;                /* last error return flag            */
