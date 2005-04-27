@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-04-27 21:39:24 $
+ * $Revision: 1.2 $
+ * $Date: 2005-04-27 23:07:54 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -157,7 +157,7 @@ typedef int (*IDASpilsPrecSolveFn)(realtype tt,
 /*
  * -----------------------------------------------------------------
  * Type : IDASpilsJacTimesVecFn
- *,-----------------------------------------------------------------
+ * -----------------------------------------------------------------
  * The user-supplied function jtimes is to generate the product
  * J*v for given v, where J is the Jacobian matrix
  *    J = dF/dy + c_j*dF/dy'
