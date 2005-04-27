@@ -102,6 +102,11 @@ v. 2.3.0 (Apr. 2005) --->
      allow IDA to interface with the shared SPBCG linear solver module.
    - added IDABBDSpbcg function to IDABBDPRE module to support SPBCG linear
      solver module.
+   - changed function type names (not the actual definition) to accomodate
+     all the Scaled Preconditioned Iterative Linear Solvers now available:
+       IDASpgmrJactimesVecFn -> IDASpilsJacTimesVecFn
+       IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn
+       IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn 
 
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------

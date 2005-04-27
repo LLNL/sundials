@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-04-07 23:29:02 $
+ * $Revision: 1.27 $
+ * $Date: 2005-04-27 21:38:03 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -369,8 +369,8 @@ int IDASpgmrSetIncrementFactor(void *ida_mem, realtype dqincfac)
   return(IDASPGMR_SUCCESS);
 }
 
-int IDASpgmrSetPreconditioner(void *ida_mem, IDASpgmrPrecSetupFn pset,
-                              IDASpgmrPrecSolveFn psolve, void *prec_data)
+int IDASpgmrSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
+                              IDASpilsPrecSolveFn psolve, void *prec_data)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -395,8 +395,8 @@ int IDASpgmrSetPreconditioner(void *ida_mem, IDASpgmrPrecSetupFn pset,
   return(IDASPGMR_SUCCESS);
 }
 
-int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpgmrJacTimesVecFn jtimes
-                             , void *jac_data)
+int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtimes,
+			     void *jac_data)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
