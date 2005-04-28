@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3.2.4 $
- * $Date: 2005-04-28 20:06:39 $
+ * $Revision: 1.3.2.5 $
+ * $Date: 2005-04-28 23:31:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -132,10 +132,6 @@ extern "C" {
     N_Vector y;
     N_Vector yd;
   } *HermiteDataMem;
-
-  /* Data for interpolation using the BDF interpolant */
-  typedef struct BDFinterpDataMemRec {
-  } *BDFinterpDataMem;
 
   /*
    * -----------------------------------------------------------------
