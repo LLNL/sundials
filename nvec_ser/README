@@ -58,6 +58,12 @@ v. 1.0   - Jul. 2002 (first SUNDIALS release)
 E. Revision History
 -------------------
 
+v. 2.1.0 (Apr. 2005) ---> 
+----------------------------------------------
+
+- Changes to data structures
+   - added N_VCloneEmpty to global vector operations table
+
 v. 2.0.2 (Mar. 2005) ---> v. 2.1.0 (Apr. 2005)
 ----------------------------------------------
 

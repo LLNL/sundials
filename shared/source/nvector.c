@@ -1,18 +1,18 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-15 17:26:04 $
+ * $Revision: 1.13.2.1 $
+ * $Date: 2005-04-28 21:36:18 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban @ LLNL                               
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
- * This is the implementation file for a generic NVECTOR package. 
- * It contains the implementation of the N_Vector kernels listed in 
- * nvector.h.
+ * This is the implementation file for a generic NVECTOR package.
+ * It contains the implementation of the N_Vector kernels listed
+ * in nvector.h.
  * -----------------------------------------------------------------
  */
 
@@ -31,6 +31,11 @@ N_Vector N_VClone(N_Vector w)
   N_Vector v;
   v = w->ops->nvclone(w);
   return(v);
+}
+
+N_Vector N_VCloneEmpty(N_Vector w)
+{
+  return(w->ops->nvcloneempty(w));
 }
 
 void N_VDestroy(N_Vector v)
@@ -173,10 +178,34 @@ realtype N_VMinQuotient(N_Vector num, N_Vector denom)
 /*
  * -----------------------------------------------------------------
  * Additional functions exported by the generic NVECTOR:
+ *   N_VCloneEmptyVectorArray
  *   N_VCloneVectorArray
  *   N_VDestroyVectorArray
  * -----------------------------------------------------------------
  */
+
+N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w)
+{
+  N_Vector *vs;
+  int j;
+
+  vs = NULL;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  for (j = 0; j < count; j++) {
+    vs[j] = N_VCloneEmpty(w);
+    if (vs[j] == NULL) {
+      N_VDestroyVectorArray(vs, j-1);
+      return(NULL);
+    }
+  }
+
+  return(vs);
+}
 
 N_Vector *N_VCloneVectorArray(int count, N_Vector w)
 {
@@ -197,7 +226,6 @@ N_Vector *N_VCloneVectorArray(int count, N_Vector w)
   }
   
   return(vs);
-
 }
 
 void N_VDestroyVectorArray(N_Vector *vs, int count)

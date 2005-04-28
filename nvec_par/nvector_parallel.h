@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15.2.1 $
- * $Date: 2005-01-24 21:48:43 $
+ * $Revision: 1.15.2.2 $
+ * $Date: 2005-04-28 21:36:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -220,18 +220,6 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VCloneEmpty_Parallel
- * -----------------------------------------------------------------
- * This function creates a new parallel N_Vector with an empty (NULL)
- * data array using the vector w as a template
- * (sets own_data = FALSE).
- * -----------------------------------------------------------------
- */
-
-N_Vector N_VCloneEmpty_Parallel(N_Vector w);
-
-/*
- * -----------------------------------------------------------------
  * Function : N_VMake_Parallel
  * -----------------------------------------------------------------
  * This function creates and allocates memory for a parallel vector
@@ -300,6 +288,7 @@ void N_VPrint_Parallel(N_Vector v);
  * -----------------------------------------------------------------
  */
 
+N_Vector N_VCloneEmpty_Parallel(N_Vector w);
 N_Vector N_VClone_Parallel(N_Vector w);
 void N_VDestroy_Parallel(N_Vector v);
 void N_VSpace_Parallel(N_Vector v, long int *lrw, long int *liw);

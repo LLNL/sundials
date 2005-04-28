@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19.2.1 $
- * $Date: 2005-01-24 21:48:43 $
+ * $Revision: 1.19.2.2 $
+ * $Date: 2005-04-28 21:36:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -95,6 +95,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   if (ops == NULL) { free(v); return(NULL); }
 
   ops->nvclone           = N_VClone_Parallel;
+  ops->nvcloneempty      = N_VCloneEmpty_Parallel;
   ops->nvdestroy         = N_VDestroy_Parallel;
   ops->nvspace           = N_VSpace_Parallel;
   ops->nvgetarraypointer = N_VGetArrayPointer_Parallel;
@@ -163,69 +164,6 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
     NV_DATA_P(v) = data; 
 
   }
-
-  return(v);
-}
-
-/* ----------------------------------------------------------------------------
- * Function to clone from a template a new vector with empty (NULL) data array
- */
-
-N_Vector N_VCloneEmpty_Parallel(N_Vector w)
-{
-  N_Vector v;
-  N_Vector_Ops ops;
-  N_VectorContent_Parallel content;
-
-  if (w == NULL) return(NULL);
-
-  /* Create vector */
-  v = (N_Vector) malloc(sizeof *v);
-  if (v == NULL) return(NULL);
-  
-  /* Create vector operation structure */
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-  
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvlinearsum       = w->ops->nvlinearsum;
-  ops->nvconst           = w->ops->nvconst;  
-  ops->nvprod            = w->ops->nvprod;   
-  ops->nvdiv             = w->ops->nvdiv;
-  ops->nvscale           = w->ops->nvscale; 
-  ops->nvabs             = w->ops->nvabs;
-  ops->nvinv             = w->ops->nvinv;
-  ops->nvaddconst        = w->ops->nvaddconst;
-  ops->nvdotprod         = w->ops->nvdotprod;
-  ops->nvmaxnorm         = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
-  ops->nvmin             = w->ops->nvmin;
-  ops->nvwl2norm         = w->ops->nvwl2norm;
-  ops->nvl1norm          = w->ops->nvl1norm;
-  ops->nvcompare         = w->ops->nvcompare;    
-  ops->nvinvtest         = w->ops->nvinvtest;
-  ops->nvconstrmask      = w->ops->nvconstrmask;
-  ops->nvminquotient     = w->ops->nvminquotient;
-
-  /* Create content */  
-  content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
-
-  /* Attach lengths and communicator */
-  content->local_length  = NV_LOCLENGTH_P(w);
-  content->global_length = NV_GLOBLENGTH_P(w);
-  content->comm = NV_COMM_P(w);
-  content->own_data = FALSE;
-  content->data = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops = ops;
 
   return(v);
 }
@@ -352,6 +290,70 @@ void N_VPrint_Parallel(N_Vector x)
  * implementation of vector operations
  * -----------------------------------------------------------------
  */
+
+N_Vector N_VCloneEmpty_Parallel(N_Vector w)
+{
+  N_Vector v;
+  N_Vector_Ops ops;
+  N_VectorContent_Parallel content;
+
+  v = NULL;
+  ops = NULL;
+  content = NULL;
+
+  if (w == NULL) return(NULL);
+
+  /* Create vector */
+  v = (N_Vector) malloc(sizeof *v);
+  if (v == NULL) return(NULL);
+  
+  /* Create vector operation structure */
+  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
+  if (ops == NULL) { free(v); return(NULL); }
+  
+  ops->nvclone           = w->ops->nvclone;
+  ops->nvcloneempty      = w->ops->nvcloneempty;
+  ops->nvdestroy         = w->ops->nvdestroy;
+  ops->nvspace           = w->ops->nvspace;
+  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
+  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvlinearsum       = w->ops->nvlinearsum;
+  ops->nvconst           = w->ops->nvconst;  
+  ops->nvprod            = w->ops->nvprod;   
+  ops->nvdiv             = w->ops->nvdiv;
+  ops->nvscale           = w->ops->nvscale; 
+  ops->nvabs             = w->ops->nvabs;
+  ops->nvinv             = w->ops->nvinv;
+  ops->nvaddconst        = w->ops->nvaddconst;
+  ops->nvdotprod         = w->ops->nvdotprod;
+  ops->nvmaxnorm         = w->ops->nvmaxnorm;
+  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
+  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
+  ops->nvmin             = w->ops->nvmin;
+  ops->nvwl2norm         = w->ops->nvwl2norm;
+  ops->nvl1norm          = w->ops->nvl1norm;
+  ops->nvcompare         = w->ops->nvcompare;    
+  ops->nvinvtest         = w->ops->nvinvtest;
+  ops->nvconstrmask      = w->ops->nvconstrmask;
+  ops->nvminquotient     = w->ops->nvminquotient;
+
+  /* Create content */  
+  content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
+  if (content == NULL) { free(ops); free(v); return(NULL); }
+
+  /* Attach lengths and communicator */
+  content->local_length  = NV_LOCLENGTH_P(w);
+  content->global_length = NV_GLOBLENGTH_P(w);
+  content->comm          = NV_COMM_P(w);
+  content->own_data      = FALSE;
+  content->data          = NULL;
+
+  /* Attach content and ops */
+  v->content = content;
+  v->ops     = ops;
+
+  return(v);
+}
 
 N_Vector N_VClone_Parallel(N_Vector w)
 {
@@ -822,25 +824,26 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   realtype *nd, *dd, min;
   MPI_Comm comm;
 
+  nd = dd = NULL;
+
   N  = NV_LOCLENGTH_P(num);
   nd = NV_DATA_P(num);
   dd = NV_DATA_P(denom);
   comm = NV_COMM_P(num);
 
   notEvenOnce = TRUE;
+  min = BIG_REAL;
 
   for (i = 0; i < N; i++, nd++, dd++) {
     if (*dd == ZERO) continue;
     else {
-      if (notEvenOnce) {
-        min = *nd / *dd ;
+      if (!notEvenOnce) min = MIN(min, (*nd) / (*dd));
+      else {
+        min = (*nd) / (*dd);
         notEvenOnce = FALSE;
       }
-      else min = MIN(min, (*nd) / (*dd));
     }
   }
-
-  if (notEvenOnce || (N == 0)) min = BIG_REAL;
 
   return(VAllReduce_Parallel(min, 3, comm));
 }
