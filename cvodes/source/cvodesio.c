@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1.2.6 $
- * $Date: 2005-04-14 20:47:31 $
+ * $Revision: 1.1.2.7 $
+ * $Date: 2005-04-28 20:15:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -213,7 +213,7 @@ int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if(cv_mem->cv_lmm != CV_BDF) {
+  if(sldet && (cv_mem->cv_lmm != CV_BDF) ) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_SET_SLDET);
     return(CV_ILL_INPUT);
   }
@@ -985,10 +985,10 @@ int CVodeSetSensTolerances(void *cvode_mem, int itolS,
 #define netf           (cv_mem->cv_netf)
 #define nni            (cv_mem->cv_nni)
 #define nsetups        (cv_mem->cv_nsetups)
-#define q              (cv_mem->cv_q)
+#define qu             (cv_mem->cv_qu)
 #define next_q         (cv_mem->cv_next_q)
 #define ewt            (cv_mem->cv_ewt)  
-#define h              (cv_mem->cv_h)
+#define hu             (cv_mem->cv_hu)
 #define next_h         (cv_mem->cv_next_h)
 #define h0u            (cv_mem->cv_h0u)
 #define tolsf          (cv_mem->cv_tolsf)  
@@ -1106,7 +1106,7 @@ int CVodeGetLastOrder(void *cvode_mem, int *qlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *qlast = q;
+  *qlast = qu;
 
   return(CV_SUCCESS);
 }
@@ -1200,7 +1200,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *hlast = h;
+  *hlast = hu;
 
   return(CV_SUCCESS);
 }
@@ -1363,10 +1363,10 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
   *nfevals = nfe;
   *nlinsetups = nsetups;
   *netfails = netf;
-  *qlast = q;
+  *qlast = qu;
   *qcur = next_q;
   *hinused = h0u;
-  *hlast = h;
+  *hlast = hu;
   *hcur = next_h;
   *tcur = tn;
 
