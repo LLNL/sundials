@@ -1,20 +1,13 @@
-
 Create and allocate CVODES memory for forward runs
-
+ 
 Allocate global memory
-
+ 
 Forward integration
-
-List of Check Points (ncheck = 3)
- 3  addr: 0x8136278  time = [ 3.238e-01 1.035e+00 ]  next: 0x812c738
- 2  addr: 0x812c738  time = [ 4.722e-02 3.238e-01 ]  next: 0x8122bf8
- 1  addr: 0x8122bf8  time = [ 5.429e-03 4.722e-02 ]  next: 0x8077550
- 0  addr: 0x8077550  time = [ 0.000e+00 5.429e-03 ]  next: (nil)
-
+ 
 Create and allocate CVODES memory for backward run
-
+ 
 Backward integration
-
+ 
 Maximum sensitivity
   lambda max = 1.128855e-01
 at

@@ -2,60 +2,47 @@ Create and allocate CVODES memory for forward run
  
 Allocate global memory
  
-Forward integration
+Forward integration ... done (ncheck = 10)
  
    g = int_x int_y c6(Tfinal,x,y) dx dy = 35988.918560
  
- 
-List of Check Points (ncheck = 10)
-10  addr: 0x87af530  time = [ 9.196e+00 1.002e+01 ]  next: 0x8797978
- 9  addr: 0x8797978  time = [ 7.802e+00 9.196e+00 ]  next: 0x877fdc0
- 8  addr: 0x877fdc0  time = [ 6.407e+00 7.802e+00 ]  next: 0x8768208
- 7  addr: 0x8768208  time = [ 5.013e+00 6.407e+00 ]  next: 0x8750650
- 6  addr: 0x8750650  time = [ 3.618e+00 5.013e+00 ]  next: 0x8738a98
- 5  addr: 0x8738a98  time = [ 2.224e+00 3.618e+00 ]  next: 0x8725a70
- 4  addr: 0x8725a70  time = [ 9.022e-01 2.224e+00 ]  next: 0x870deb8
- 3  addr: 0x870deb8  time = [ 3.644e-01 9.022e-01 ]  next: 0x86f1770
- 2  addr: 0x86f1770  time = [ 4.787e-02 3.644e-01 ]  next: 0x86d5028
- 1  addr: 0x86d5028  time = [ 3.341e-05 4.787e-02 ]  next: 0x83bfa70
- 0  addr: 0x83bfa70  time = [ 0.000e+00 3.341e-05 ]  next: (nil)
  
 Create and allocate CVODES memory for backward run
  
 Backward integration
  
 Maximum sensitivity with respect to I.C. of species 1
-  mu max = 5.040058e-04
+  mu max = 5.060721e-04
 at
-  x = 1.000000e+00
-  y = 9.473684e-01
+  x = 9.473684e-01
+  y = 1.000000e+00
  
 Maximum sensitivity with respect to I.C. of species 2
-  mu max = 4.800571e-04
+  mu max = 4.819976e-04
 at
-  x = 1.000000e+00
-  y = 9.473684e-01
+  x = 9.473684e-01
+  y = 1.000000e+00
  
 Maximum sensitivity with respect to I.C. of species 3
-  mu max = 4.579953e-04
+  mu max = 4.598256e-04
 at
-  x = 1.000000e+00
-  y = 9.473684e-01
+  x = 9.473684e-01
+  y = 1.000000e+00
  
 Maximum sensitivity with respect to I.C. of species 4
-  mu max = 3.133801e-11
+  mu max = 1.152169e-11
 at
-  x = 1.000000e+00
-  y = 4.210526e-01
+  x = 0.000000e+00
+  y = 0.000000e+00
  
 Maximum sensitivity with respect to I.C. of species 5
-  mu max = 3.203996e-11
+  mu max = 1.100880e-11
 at
-  x = 1.000000e+00
-  y = 4.210526e-01
+  x = 0.000000e+00
+  y = 0.000000e+00
  
 Maximum sensitivity with respect to I.C. of species 6
-  mu max = 4.554586e-11
+  mu max = 2.099096e-11
 at
   x = 1.000000e+00
-  y = 4.736842e-01
+  y = 1.000000e+00

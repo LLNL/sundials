@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17.2.2 $
- * $Date: 2005-04-01 21:55:24 $
+ * $Revision: 1.17.2.3 $
+ * $Date: 2005-04-28 20:06:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -210,10 +210,8 @@ int main(int argc, char *argv[])
   flag = CVodeF(cvadj_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
   if (check_flag(&flag, "CVodeF", 1, my_pe)) MPI_Abort(comm, 1);
 
-  if(my_pe == npes) {
+  if(my_pe == npes)
     printf("(PE# %d) Number of check points: %d\n",my_pe, ncheck);
-    CVadjGetCheckPointsList(cvadj_mem);
-  }
 
   /*---------------------------
     Compute and value of g(t_f)

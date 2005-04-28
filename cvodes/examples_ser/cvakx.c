@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16.2.4 $
- * $Date: 2005-04-06 23:33:58 $
+ * $Revision: 1.16.2.5 $
+ * $Date: 2005-04-28 20:06:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -281,9 +281,10 @@ int main(int argc, char *argv[])
 
   /* Perform forward run */
 
-  printf("\nForward integration\n");
+  printf("\nForward integration ... ");
   flag = CVodeF(cvadj_mem, TOUT, c, &t, CV_NORMAL, &ncheck);
   if(check_flag(&flag, "CVodeF", 1)) return(1);
+  printf("done (ncheck = %d)\n",ncheck);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %Lf \n\n", 
@@ -292,9 +293,6 @@ int main(int argc, char *argv[])
   printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %f \n\n", 
          ISPEC, NV_DATA_S(c)[NEQ]);
 #endif
-
-  printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-  CVadjGetCheckPointsList(cvadj_mem);
 
   /* Set-up backward problem */
 

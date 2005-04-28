@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18.2.6 $
- * $Date: 2005-04-07 19:58:17 $
+ * $Revision: 1.18.2.7 $
+ * $Date: 2005-04-28 20:06:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -70,7 +70,7 @@
 
 #define NEQ      3             /* number of equations                  */
 
-#define RTOL     RCONST(1e-4)  /* scalar relative tolerance            */
+#define RTOL     RCONST(1e-6)  /* scalar relative tolerance            */
 
 #define ATOL1    RCONST(1e-8)  /* vector absolute tolerance components */
 #define ATOL2    RCONST(1e-14)
@@ -227,17 +227,12 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeGetQuad", 1)) return(1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("G: %12.4Le \n",Ith(q,1));
+  printf("done. ncheck = %d   G: %12.4Le \n",ncheck, Ith(q,1));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("G: %12.4le \n",Ith(q,1));
+  printf("done. ncheck = %d   G: %12.4le \n",ncheck, Ith(q,1));
 #else
-  printf("G: %12.4e \n",Ith(q,1));
+  printf("done. ncheck = %d   G: %12.4e \n",ncheck, Ith(q,1));
 #endif
-
-  /* Test check point linked list */
-  printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-
-  CVadjGetCheckPointsList(cvadj_mem);
 
   /* Initialize yB */
   yB = N_VNew_Serial(NEQ);

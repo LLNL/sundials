@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13.2.4 $
- * $Date: 2005-04-06 23:33:57 $
+ * $Revision: 1.13.2.5 $
+ * $Date: 2005-04-28 20:06:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -189,10 +189,6 @@ int main(int argc, char *argv[])
   printf("\nForward integration\n");
   flag = CVodeF(cvadj_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
   if(check_flag(&flag, "CVodeF", 1)) return(1);
-
-  /* Test check point linked list */
-  printf("\nList of Check Points (ncheck = %d)\n", ncheck);
-  CVadjGetCheckPointsList(cvadj_mem);
 
   /* Set the tolerances for the backward integration */
   reltolB = RTOLB;
