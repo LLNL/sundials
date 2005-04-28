@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2005-04-26 17:31:46 $
+ * $Revision: 1.42 $
+ * $Date: 2005-04-28 20:45:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -1378,7 +1378,9 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
   else if (!inexact_ls && !noResMon) {
     if ((nni - nnilset_sub) >= msbset_sub) {
       nnilset_sub = nni;
-      omega = MIN(omega_min*exp(MAX(ZERO, (fnorm/fnormtol)-ONE)), omega_max);
+
+      if (omega_min == -ONE) omega = omega_max;
+      else omega = MIN(omega_min*exp(MAX(ZERO, (fnorm/fnormtol)-ONE)), omega_max);
 
       /* check if making satisfactory progress */
 

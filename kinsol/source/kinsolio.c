@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-04-26 17:31:46 $
+ * $Revision: 1.9 $
+ * $Date: 2005-04-28 20:45:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -189,6 +189,27 @@ int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINSetNoResMon
+ * -----------------------------------------------------------------
+ */
+
+int KINSetNoResMon(void *kinmem, booleantype noNNIResMon)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    fprintf(stderr, MSG_KINS_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+  kin_mem->kin_noInitSetup = noNNIResMon;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINSetMaxSetupCalls
  * -----------------------------------------------------------------
  */
@@ -213,6 +234,36 @@ int KINSetMaxSetupCalls(void *kinmem, long int msbset)
     kin_mem->kin_msbset = MSBSET_DEFAULT;
   else
     kin_mem->kin_msbset = msbset;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetMaxSubSetupCalls
+ * -----------------------------------------------------------------
+ */
+
+int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    fprintf(stderr, MSG_KINS_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  if (msbsetsub < 0) {
+    fprintf(errfp, MSG_BAD_MSBSETSUB);
+    return(KIN_ILL_INPUT);
+  }
+  
+  if (msbsetsub == 0)
+    kin_mem->kin_msbset_sub = MSBSET_SUB_DEFAULT;
+  else
+    kin_mem->kin_msbset_sub = msbsetsub;
 
   return(KIN_SUCCESS);
 }
@@ -272,7 +323,6 @@ int KINSetEtaConstValue(void *kinmem, realtype eta)
     kin_mem->kin_eta = POINT1;
   else
     kin_mem->kin_eta = eta;
-
 
   return(KIN_SUCCESS);
 }
@@ -355,10 +405,57 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
     return(KIN_ILL_INPUT);
   }
 
-  if (omegamax == ZERO)
+  if (omegamax == ZERO) {
+    if (kin_mem->kin_omega_min > OMEGA_MAX) {
+      fprintf(errfp, MSG_BAD_OMEGA);
+      return(KIN_ILL_INPUT);
+    }
+    else kin_mem->kin_omega_max = OMEGA_MAX;
+  }
+  else {
+    if (kin_mem->kin_omega_min > omegamax) {
+      fprintf(errfp, MSG_BAD_OMEGA);
+      return(KIN_ILL_INPUT);
+    }
+    else kin_mem->kin_omega_max = omegamax;
+  }
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetResMonConstValue
+ * -----------------------------------------------------------------
+ */
+
+int KINSetResMonConstValue(void *kinmem, realtype omegaconst)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    fprintf(stderr, MSG_KINS_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  /* check omegaconst */
+
+  if (omegaconst < ZERO) {
+    fprintf(errfp, MSG_BAD_OMEGA);
+    return(KIN_ILL_INPUT);
+  }
+
+  /* omega_min == -ONE indicates the user specified that
+     omega should be a constant */
+
+  kin_mem->kin_omega_min = -ONE;
+
+  if (omegaconst == ZERO) 
     kin_mem->kin_omega_max = OMEGA_MAX;
   else
-    kin_mem->kin_omega_max = omegamax;
+    kin_mem->kin_omega_max = omegaconst;
 
   return(KIN_SUCCESS);
 }

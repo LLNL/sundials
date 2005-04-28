@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2005-04-15 23:45:58 $
+ * $Revision: 1.34 $
+ * $Date: 2005-04-28 20:45:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -121,17 +121,22 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
   if (*optin == 1) {
     KIN_optin = TRUE;
 
-    if (iopt[0] > 0) KINSetPrintLevel(KIN_kinmem, (int) iopt[0]);
-    if (iopt[1] > 0) KINSetNumMaxIters(KIN_kinmem, iopt[1]);
-    if (iopt[2] > 0) KINSetNoInitSetup(KIN_kinmem, TRUE);
-    if (iopt[7] > 0) KINSetEtaForm(KIN_kinmem, (int) iopt[7]);
-    if (iopt[8] > 0) KINSetNoMinEps(KIN_kinmem, TRUE);
+    if (iopt[0]  > 0) KINSetPrintLevel(KIN_kinmem, (int) iopt[0]);
+    if (iopt[1]  > 0) KINSetNumMaxIters(KIN_kinmem, iopt[1]);
+    if (iopt[2]  > 0) KINSetNoInitSetup(KIN_kinmem, TRUE);
+    if (iopt[7]  > 0) KINSetEtaForm(KIN_kinmem, (int) iopt[7]);
+    if (iopt[8]  > 0) KINSetNoMinEps(KIN_kinmem, TRUE);
+    if (iopt[9]  > 0) KINSetNoResMon(KIN_kinmem, TRUE);
+    if (iopt[15] > 0) KINSetMaxSubSetupCalls(KIN_kinmem, iopt[15]);
 
     if (ropt[0] > ZERO) KINSetMaxNewtonStep(KIN_kinmem, ropt[0]);
     if (ropt[1] > ZERO) KINSetRelErrFunc(KIN_kinmem, ropt[1]);
     if (ropt[4] > ZERO) KINSetEtaConstValue(KIN_kinmem, ropt[4]);
     if ((ropt[5] > ZERO) || (ropt[6] > ZERO)) 
       KINSetEtaParams(KIN_kinmem, ropt[5], ropt[6]);
+    if (ropt[7] > ZERO) KINSetResMonConstValue(KIN_kinmem, ropt[7]);
+    if ((ropt[8] > ZERO) || (ropt[9] > ZERO))
+      KINSetResMonParams(KIN_kinmem, ropt[8], ropt[9]);
   }
   else KIN_optin = FALSE;
 

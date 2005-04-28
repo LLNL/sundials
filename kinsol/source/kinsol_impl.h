@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2005-04-26 17:31:46 $
+ * $Revision: 1.13 $
+ * $Date: 2005-04-28 20:45:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -230,7 +230,8 @@ typedef struct KINMemRec {
 #define MSG_KINS_NO_MEM     "KINSet*-- kin_mem = NULL illegal.\n\n"
 #define MSG_BAD_PRINTFL     "KINSetPrintLevel-- illegal value for printfl.\n\n"
 #define MSG_BAD_MXITER      "KINSetNumMaxIters-- illegal value for mxiter.\n\n"
-#define MSG_BAD_MSBSET      "KINSetMaxSetupCalls-- illegal msbset < 0. \n\n"
+#define MSG_BAD_MSBSET      "KINSetMaxSetupCalls-- illegal msbset < 0.\n\n"
+#define MSG_BAD_MSBSETSUB   "KINSetMaxSubSetupCalls-- illegal msbsetsub < 0.\n\n"
 #define MSG_BAD_ETACHOICE   "KINSetEtaForm-- illegal value for etachoice.\n\n"
 #define MSG_BAD_ETACONST    "KINSetEtaConstValue-- eta out of range.\n\n"
 #define MSG_BAD_GAMMA       "KINSetEtaParams-- gamma out of range.\n\n"

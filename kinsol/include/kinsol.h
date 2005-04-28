@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-04-26 17:31:43 $
+ * $Revision: 1.27 $
+ * $Date: 2005-04-28 20:45:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -138,185 +138,203 @@ void *KINCreate(void);
  * -----------------------------------------------------------------
  * The following functions can be called to set optional inputs:
  *
- *     Function Name    |      Optional Input  [Default Value]
- *                      |
+ *     Function Name      |    Optional Input  [Default Value]
+ *                        |
  * -----------------------------------------------------------------
- *                      |
- * KINSetFdata          | pointer to user-allocated memory that is
- *                      | passed to the user-supplied subroutine
- *                      | implementing the nonlinear system function
- *                      | F(u)
- *                      | [NULL]
- *                      |
- * KINSetErrFile        | pointer (type FILE) indicating where all
- *                      | warning/error messages should be sent
- *                      | [stderr]
- *                      |
- * KINSetInfoFile       | pointer (type FILE) specifying where
- *                      | informative (non-error) messages should
- *                      | be sent (see KINSetPrintLevel)
- *                      | [stdout]
- *                      |
- * KINSetPrintLevel     | level of verbosity of output:
- *                      |
- *                      |  0  no statistical information is
- *                      |     displayed (default level)
- *                      |
- *                      |  1  for each nonlinear iteration display
- *                      |     the following information: the scaled
- *                      |     norm (L2) of the system function
- *                      |     evaluated at the current iterate, the
- *                      |     scaled norm of the Newton step (only if
- *                      |     using KIN_NONE), and the
- *                      |     number of function evaluations performed
- *                      |     thus far
- *                      |
- *                      |  2  display level 1 output and the
- *                      |     following values for each iteration:
- *                      |
- *                      |       fnorm (L2) = ||fscale*func(u)||_L2
- *                      |       (only for KIN_NONE)
- *                      |
- *                      |       scaled fnorm (for stopping) =
- *                      |       ||fscale*ABS(func(u))||_L-infinity
- *                      |       (for KIN_NONE and
- *                      |       KIN_LINESEARCH)
- *                      |
- *                      |  3  display level 2 output plus additional
- *                      |     values used by the global strategy
- *                      |     (only if using KIN_LINESEARCH), and
- *                      |     statistical information for the linear
- *                      |     solver
- *                      | [0]
- *                      |
- * KINSetNumMaxIters    | maximum number of nonlinear iterations
- *                      | [MXITER_DEFAULT] (defined in kinsol_impl.h)
- *                      |
- * KINSetNoInitSetup    | flag controlling whether or not the
- *                      | KINSol routine makes an initial call
- *                      | to the inear solver setup routine (lsetup)
- *                      | (possible values are TRUE and FALSE)
- *                      | [FALSE]
- *                      |
- * KINSetMaxSetupCalls  | mbset, number of nonlinear iteraions, such 
- *                      | that a call to the linear solver setup routine
- *                      | (lsetup) is forced every mbset iterations.
- *                      | If mbset=1, lsetup s called at every iteration.
- *                      | [MSBSET_DEFAULT] (defined in kinsol_impl.h)
- *                      |
- * KINSetEtaForm        | flag indicating which method to use to
- *                      | compute the value of the eta coefficient
- *                      | used in the calculation of the linear
- *                      | solver convergence tolerance:
- *                      |
- *                      |  eps = (eta+uround)*||fscale*func(u)||_L2
- *                      |
- *                      | the linear solver tests for convergence by
- *                      | checking if the following inequality has
- *                      | been satisfied:
- *                      |
- *                      |  ||fscale*(func(u)+J(u)*p)||_L2 <= eps
- *                      |
- *                      | where J(u) is the system Jacobian
- *                      | evaluated at the current iterate, and p
- *                      | denotes the Newton step
- *                      |
- *                      | choices for computing eta are as follows:
- *                      |
- *                      |  KIN_ETACHOICE1  (refer to KINForcingTerm)
- *                      |
- *                      |  eta = ABS(||F(u_k+1)||_L2-||F(u_k)+J(u_k)*p_k||_L2)
- *                      |        ---------------------------------------------
- *                      |                        ||F(u_k)||_L2
- *                      | 
- *                      |  KIN_ETACHOICE2  (refer to KINForcingTerm)
- *                      |
- *                      |                [ ||F(u_k+1)||_L2 ]^alpha
- *                      |  eta = gamma * [ --------------- ]
- *                      |                [  ||F(u_k)||_L2  ]
- *                      |
- *                      |  where gamma = [0,1] and alpha = (1,2]
- *                      |
- *                      |  KIN_ETACONSTANT  use a constant value for eta
- *                      | [KIN_ETACHOICE1]
- *                      |
- * KINSetEtaConstValue  | constant value of eta - use with
- *                      | KIN_ETACONSTANT option
- *                      | [0.1]
- *                      |
- * KINSetEtaParams      | values of eta_gamma (egamma) and eta_alpha
- *                      | (ealpha) coefficients - use with KIN_ETACHOICE2
- *                      | option
- *                      | [0.9 and 2.0]
- *                      |
- * KINSetResMonParams   | values of omega_min and omega_max scalars
- *                      | used by nonlinear residual monitoring
- *                      | algorithm (see KINStop)
- *                      | [0.00001 and 0.9]
- *                      |
- * KINSetNoMinEps       | flag controlling whether or not the value
- *                      | of eps is bounded below by 0.01*fnormtol
- *                      | (see KINSetFuncNormTol)
- *                      |
- *                      |  FALSE  constrain value of eps by setting
- *                      |         to the following:
- *                      |
- *                      |          eps = MAX{0.01*fnormtol, eps}
- *                      |
- *                      |  TRUE  do not constrain value of eps
- *                      | [FALSE]
- *                      |
- * KINSetMaxNewtonStep  | maximum scaled length of Newton step
- *                      | (reset to value of one if user-supplied
- *                      | value is less than one)
- *                      | [1000*||uscale*u_0||_L2]
- *                      |
- * KINSetMaxBetaFails   | maximum number of beta condition failures
- *                      | in the line searc algorithm.
- *                      | [MXNBCF_DEFAULT] (defined in kinsol_impl.h)
- *                      |
- * KINSetRelErrFunc     | real scalar equal to realative error in
- *                      | computing F(u) (used in difference-
- *                      | quotient approximation of matrix-vector
- *                      | product J(u)*v)
- *                      | [(uround)^1/2]
- *                      |
- * KINSetFuncNormTol    | real scalar used as stopping tolerance on
- *                      | ||fscale*ABS(func(u))||_L-infinity (see
- *                      | KINStop and KINInitialStop)
- *                      | [(uround)^1/3]
- *                      |
- * KINSetScaledStepTol  | real scalar used as stopping tolerance on
- *                      | the maximum scaled step length:
- *                      |
- *                      |  ||    u_k+1 - u_k    ||
- *                      |  || ----------------- ||_L-infinity
- *                      |  || ABS(u_k+1)+uscale ||
- *                      |
- *                      | (see KINStop)
- *                      | [(uround)^2/3]
- *                      |
- * KINSetConstraints    | pointer to an array (type N_Vector) of
- *                      | constraints on the solution vector u
- *                      | 
- *                      | if constraints[i] =
- *                      |
- *                      |   0  u[i] not constrained
- *                      |
- *                      |  +1  u[i] constrained to be >= 0
- *                      |  -1  u[i] constrained to be <= 0
- *                      |
- *                      |  +2  u[i] constrained to be > 0
- *                      |  -2  u[i] constrained to be < 0
- *                      |
- *                      | if a NULL pointer is given, then no
- *                      | constraints are applied to vector u
- *                      | [NULL]
- *                      |
- * KINSetSysFunc        | set the user-provided routine which
- *                      | defines the nonlinear problem to be 
- *                      | solved
- *                      | [none]
+ *                        |
+ * KINSetFdata            | pointer to user-allocated memory that is
+ *                        | passed to the user-supplied subroutine
+ *                        | implementing the nonlinear system function
+ *                        | F(u)
+ *                        | [NULL]
+ *                        |
+ * KINSetErrFile          | pointer (type FILE) indicating where all
+ *                        | warning/error messages should be sent
+ *                        | [stderr]
+ *                        |
+ * KINSetInfoFile         | pointer (type FILE) specifying where
+ *                        | informative (non-error) messages should
+ *                        | be sent (see KINSetPrintLevel)
+ *                        | [stdout]
+ *                        |
+ * KINSetPrintLevel       | level of verbosity of output:
+ *                        |
+ *                        |  0  no statistical information is
+ *                        |     displayed (default level)
+ *                        |
+ *                        |  1  for each nonlinear iteration display
+ *                        |     the following information: the scaled
+ *                        |     norm (L2) of the system function
+ *                        |     evaluated at the current iterate, the
+ *                        |     scaled norm of the Newton step (only if
+ *                        |     using KIN_NONE), and the
+ *                        |     number of function evaluations performed
+ *                        |     thus far
+ *                        |
+ *                        |  2  display level 1 output and the
+ *                        |     following values for each iteration:
+ *                        |
+ *                        |       fnorm (L2) = ||fscale*func(u)||_L2
+ *                        |       (only for KIN_NONE)
+ *                        |
+ *                        |       scaled fnorm (for stopping) =
+ *                        |       ||fscale*ABS(func(u))||_L-infinity
+ *                        |       (for KIN_NONE and
+ *                        |       KIN_LINESEARCH)
+ *                        |
+ *                        |  3  display level 2 output plus additional
+ *                        |     values used by the global strategy
+ *                        |     (only if using KIN_LINESEARCH), and
+ *                        |     statistical information for the linear
+ *                        |     solver
+ *                        | [0]
+ *                        |
+ * KINSetNumMaxIters      | maximum number of nonlinear iterations
+ *                        | [MXITER_DEFAULT] (defined in kinsol_impl.h)
+ *                        |
+ * KINSetNoInitSetup      | flag controlling whether or not the
+ *                        | KINSol routine makes an initial call
+ *                        | to the inear solver setup routine (lsetup)
+ *                        | (possible values are TRUE and FALSE)
+ *                        | [FALSE]
+ *                        |
+ * KINSetNoResMon         | flag controlling whether or not the nonlinear
+ *                        | residual monitoring scheme is used to control
+ *                        | Jacobian updating (possible values are TRUE
+ *                        | and FALSE)
+ *                        | [FALSE if using direct linear solver]
+ *                        | [TRUE if using inexact linear solver]
+ *                        |
+ * KINSetMaxSetupCalls    | mbset, number of nonlinear iteraions, such 
+ *                        | that a call to the linear solver setup routine
+ *                        | (lsetup) is forced every mbset iterations.
+ *                        | If mbset=1, lsetup s called at every iteration.
+ *                        | [MSBSET_DEFAULT] (defined in kinsol_impl.h)
+ *                        |
+ * KINSetMaxSubSetupCalls | mbsetsub is the number of nonlinear iterations
+ *                        | between checks by the nonlinear residual
+ *                        | monitoring algorithm (specifies length of
+ *                        | subinterval)
+ *                        | NOTE: mbset should be a multiple of mbsetsub
+ *                        | [MSBSET_SUB_DEFAULT] (defined in kinsol_impl.h)
+ *                        |
+ * KINSetEtaForm          | flag indicating which method to use to
+ *                        | compute the value of the eta coefficient
+ *                        | used in the calculation of the linear
+ *                        | solver convergence tolerance:
+ *                        |
+ *                        |  eps = (eta+uround)*||fscale*func(u)||_L2
+ *                        |
+ *                        | the linear solver tests for convergence by
+ *                        | checking if the following inequality has
+ *                        | been satisfied:
+ *                        |
+ *                        |  ||fscale*(func(u)+J(u)*p)||_L2 <= eps
+ *                        |
+ *                        | where J(u) is the system Jacobian
+ *                        | evaluated at the current iterate, and p
+ *                        | denotes the Newton step
+ *                        |
+ *                        | choices for computing eta are as follows:
+ *                        |
+ *                        |  KIN_ETACHOICE1  (refer to KINForcingTerm)
+ *                        |
+ *                        |  eta = ABS(||F(u_k+1)||_L2-||F(u_k)+J(u_k)*p_k||_L2)
+ *                        |        ---------------------------------------------
+ *                        |                        ||F(u_k)||_L2
+ *                        | 
+ *                        |  KIN_ETACHOICE2  (refer to KINForcingTerm)
+ *                        |
+ *                        |                [ ||F(u_k+1)||_L2 ]^alpha
+ *                        |  eta = gamma * [ --------------- ]
+ *                        |                [  ||F(u_k)||_L2  ]
+ *                        |
+ *                        |  where gamma = [0,1] and alpha = (1,2]
+ *                        |
+ *                        |  KIN_ETACONSTANT  use a constant value for eta
+ *                        | [KIN_ETACHOICE1]
+ *                        |
+ * KINSetEtaConstValue    | constant value of eta - use with
+ *                        | KIN_ETACONSTANT option
+ *                        | [0.1]
+ *                        |
+ * KINSetEtaParams        | values of eta_gamma (egamma) and eta_alpha
+ *                        | (ealpha) coefficients - use with KIN_ETACHOICE2
+ *                        | option
+ *                        | [0.9 and 2.0]
+ *                        |
+ * KINSetResMonParams     | values of omega_min and omega_max scalars
+ *                        | used by nonlinear residual monitoring
+ *                        | algorithm (see KINStop)
+ *                        | [0.00001 and 0.9]
+ *                        |
+ * KINSetResMonConstValue | constant value used by residual monitoring
+ *                        | algorithm
+ *                        | [0.9]
+ *                        |
+ * KINSetNoMinEps         | flag controlling whether or not the value
+ *                        | of eps is bounded below by 0.01*fnormtol
+ *                        | (see KINSetFuncNormTol)
+ *                        |
+ *                        |  FALSE  constrain value of eps by setting
+ *                        |         to the following:
+ *                        |
+ *                        |          eps = MAX{0.01*fnormtol, eps}
+ *                        |
+ *                        |  TRUE  do not constrain value of eps
+ *                        | [FALSE]
+ *                        |
+ * KINSetMaxNewtonStep    | maximum scaled length of Newton step
+ *                        | (reset to value of one if user-supplied
+ *                        | value is less than one)
+ *                        | [1000*||uscale*u_0||_L2]
+ *                        |
+ * KINSetMaxBetaFails     | maximum number of beta condition failures
+ *                        | in the line searc algorithm.
+ *                        | [MXNBCF_DEFAULT] (defined in kinsol_impl.h)
+ *                        |
+ * KINSetRelErrFunc       | real scalar equal to realative error in
+ *                        | computing F(u) (used in difference-
+ *                        | quotient approximation of matrix-vector
+ *                        | product J(u)*v)
+ *                        | [(uround)^1/2]
+ *                        |
+ * KINSetFuncNormTol      | real scalar used as stopping tolerance on
+ *                        | ||fscale*ABS(func(u))||_L-infinity (see
+ *                        | KINStop and KINInitialStop)
+ *                        | [(uround)^1/3]
+ *                        |
+ * KINSetScaledStepTol    | real scalar used as stopping tolerance on
+ *                        | the maximum scaled step length:
+ *                        |
+ *                        |  ||    u_k+1 - u_k    ||
+ *                        |  || ----------------- ||_L-infinity
+ *                        |  || ABS(u_k+1)+uscale ||
+ *                        |
+ *                        | (see KINStop)
+ *                        | [(uround)^2/3]
+ *                        |
+ * KINSetConstraints      | pointer to an array (type N_Vector) of
+ *                        | constraints on the solution vector u
+ *                        | 
+ *                        | if constraints[i] =
+ *                        |
+ *                        |   0  u[i] not constrained
+ *                        |
+ *                        |  +1  u[i] constrained to be >= 0
+ *                        |  -1  u[i] constrained to be <= 0
+ *                        |
+ *                        |  +2  u[i] constrained to be > 0
+ *                        |  -2  u[i] constrained to be < 0
+ *                        |
+ *                        | if a NULL pointer is given, then no
+ *                        | constraints are applied to vector u
+ *                        | [NULL]
+ *                        |
+ * KINSetSysFunc          | set the user-provided routine which
+ *                        | defines the nonlinear problem to be 
+ *                        | solved
+ *                        | [none]
  * -----------------------------------------------------------------
  * The possible return values for the KINSet* subroutines are the
  * following:
@@ -343,11 +361,14 @@ int KINSetInfoFile(void *kinmem, FILE *infofp);
 int KINSetPrintLevel(void *kinmemm, int printfl);
 int KINSetNumMaxIters(void *kinmem, long int mxiter);
 int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup);
+int KINSetNoResMon(void *kinmem, booleantype noNNIResMon);
 int KINSetMaxSetupCalls(void *kinmem, long int msbset);
+int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub);
 int KINSetEtaForm(void *kinmem, int etachoice);
 int KINSetEtaConstValue(void *kinmem, realtype eta);
 int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha);
 int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax);
+int KINSetResMonConstValue(void *kinmem, realtype omegaconst);
 int KINSetNoMinEps(void *kinmem, booleantype noMinEps);
 int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep);
 int KINSetMaxBetaFails(void *kinmem, long int mxnbcf);

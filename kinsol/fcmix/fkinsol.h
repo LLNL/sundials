@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2005-04-19 20:40:03 $
+ * $Revision: 1.33 $
+ * $Date: 2005-04-28 20:45:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -310,19 +310,27 @@
      see the KINSOL documentation. Note: A zero value results in the
      default.
 
-       PRINTFL         = IOPT(1) = optional output print flag
-       MXITER          = IOPT(2) = maximum Newton iterations
-       PRECOND_NO_INIT = IOPT(3) = flag to suppress initial preconditioner
-                                   setup call
-       ETACHOICE       = IOPT(8) = choice of forcing term (1 = Choice 1,
-                                   2 = Choice 2 and 3 = constant)
-       NO_MIN_EPS      = IOPT(9) = flag to suppress minimum tolerance (eps)
-       MXNEWTSTEP      = ROPT(1) = maximum size of Newton step
-       RELFUNC         = ROPT(2) = relative error in computing f(u)
-       ETACONST        = ROPT(5) and
-       ETAGAMMA        = ROPT(6) and
-       ETAALPHA        = ROPT(7) = constants in optional choices of forcing
-                                   terms
+       PRINTFL         = IOPT(1)  = optional output print flag
+       MXITER          = IOPT(2)  = maximum Newton iterations
+       PRECOND_NO_INIT = IOPT(3)  = flag to suppress initial preconditioner
+                                    setup call
+       ETACHOICE       = IOPT(8)  = choice of forcing term (1 = Choice 1,
+                                    2 = Choice 2 and 3 = constant)
+       NO_MIN_EPS      = IOPT(9)  = flag to suppress minimum tolerance (eps)
+       NO_RES_MON      = IOPT(10) = flag to disable residual monitoring if
+                                    using a direct linear solver
+       MSBPRESUB       = IOPT(16) = subinterval length (used by nonlinear
+                                    residual monitoring algorithm)
+       MXNEWTSTEP      = ROPT(1)  = maximum size of Newton step
+       RELFUNC         = ROPT(2)  = relative error in computing f(u)
+       ETACONST        = ROPT(5)  and
+       ETAGAMMA        = ROPT(6)  and
+       ETAALPHA        = ROPT(7)  = constants in optional choices of forcing
+                                    terms
+       OMEGACONST      = ROPT(8)  and
+       OMEGAMIN        = ROPT(9)  and
+       OMEGAMAX        = ROPT(10) = real scalars used by residual monitoring
+                                    algorithm
 
      The optional outputs available by way of IOPT and ROPT have the
      following names, locations, and descriptions. For further details see
