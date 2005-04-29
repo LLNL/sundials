@@ -137,17 +137,6 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   
 %%--------------------------------------
 
-\item \ID{N\_VCloneEmpty\_Parallel}
- 
-  This function creates a new parallel \id{N\_Vector} with an empty (\id{NULL}) data array
-  by using an existing \id{N\_Vector} as a template.
- 
-  
-
-  \verb|N_Vector N_VCloneEmpty_Parallel(N_Vector w);|
-  
-%%--------------------------------------
-
 \item \ID{N\_VMake\_Parallel}
   
   This function creates and allocates memory for a parallel vector
@@ -228,7 +217,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
                                                                
 \item
   {\warn} The {\nvecp} constructor functions \id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
-  \id{N\_VCloneEmpty\_Parallel}, and \id{N\_VNewVectorArrayEmpty\_Parallel}
+  and \id{N\_VNewVectorArrayEmpty\_Parallel}
   set the field {\em own\_data} $=$ \id{FALSE}. 
   The functions \id{N\_VDestroy\_Parallel} and \id{N\_VDestroyVectorArray\_Parallel}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
