@@ -70,6 +70,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.3.0   - May. 2005
 v. 2.2.0   - Apr. 2005
 v. 2.1.2   - Mar. 2005
 v. 2.1.1   - Jan. 2005
@@ -80,7 +81,7 @@ v. 1.0     - Jul. 2002 (first SUNDIALS release)
 E. Revision History
 -------------------
 
-v. 2.2.0 (Apr. 2005) ---> 
+v. 2.3.0 (May. 2005) ---> 
 ---------------------------------------------------------
 
 - New features
@@ -88,12 +89,6 @@ v. 2.2.0 (Apr. 2005) --->
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
    - added support for SPBCG to the CVBBDPRE and CVBANDPRE preconditioner
      modules.
-   - added function CVodeSensToggle to allow activation/deactivation of
-     sensitivity calculations without memory allocation/deallocation.
-
-- Bug fixes
-   - in the adjoint module, fixed bug in storing interpolation data at
-     a point corresponding to a check point (improperly scaled y').
 
 - Changes to user interface
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to
@@ -105,8 +100,18 @@ v. 2.2.0 (Apr. 2005) --->
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
-   - added a new argument to CVadjMalloc to specify the type of interpolation
-     (currently only CV_HERMITE, i.e. cubic Hermite, is implemented)
+   - added a new optional Set function to CVODEA, CVadjStInterpType to 
+     specify the type of interpolation (currently only CV_HERMITE, i.e. 
+     cubic Hermite, is implemented)
+
+v. 2.2.0 (Apr. 2005) ---> v. 2.3.0 (May. 2005)
+----------------------------------------------
+
+- Bug fixes
+   - in the adjoint module, fixed bug in storing interpolation data at
+     a point corresponding to a check point (improperly scaled y').
+
+- Changes to user interface
    - removed CVadjGetcheckPointsList from the list of user-callable functions.
 
 v. 2.1.2 (Mar. 2005) ---> v. 2.2.0 (Apr. 2005)
