@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2005-04-26 23:35:01 $
+ * $Revision: 1.47 $
+ * $Date: 2005-05-04 22:44:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -208,7 +208,7 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
  * structure.
  */
 
-void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
+void *CVadjMalloc(void *cvode_mem, long int steps)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
@@ -235,13 +235,9 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   cv_mem = (CVodeMem)cvode_mem;
   ca_mem->cv_mem = cv_mem;
 
-  /* Copy interpolation type into memory */
+  /* Set interpType to its default value */
 
-  if ( (interp != CV_HERMITE) && (interp != CV_BDFINTERP) ) {
-    fprintf(stderr, MSGAM_BAD_INTERP);
-    return(NULL);
-  } 
-  interpType = interp;
+  interpType = CV_HERMITE;
 
   /* Allocate memory for workspace vectors */
   allocOK = CVAallocVectors(ca_mem);
@@ -304,6 +300,28 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
 
   return((void *)ca_mem);
 } 
+
+/* CvadjSetInterpType
+ *
+ * Set the interpolation type. 
+ * Currently only CV_HERMITE is implemented.
+ */
+
+int CVadjSetInterpType(void *cvadj_mem, int interp)
+{
+  CVadjMem ca_mem;
+  
+  if (cvadj_mem == NULL) return(CV_ILL_INPUT);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  if ( (interp != CV_HERMITE) && (interp != CV_BDFINTERP) ) {
+    fprintf(stderr, MSGAM_BAD_INTERP);
+    return(CV_ILL_INPUT);
+  } 
+  interpType = interp;
+
+
+}
 
 /*
  * CVodeF
@@ -1368,12 +1386,13 @@ void *CVadjGetCVodeBmem(void *cvadj_mem)
  * The user must allocate space for ckpnt.
  */
 
-void CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt)
+int CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt)
 {
   CVadjMem ca_mem;
   CkpntMem ck_mem;
   int i;
 
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
   ck_mem = ca_mem->ck_mem;
   i = 0;
@@ -1393,6 +1412,8 @@ void CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt)
 
   }
 
+  return(CV_SUCCESS);
+
 }
 
 /*
@@ -1401,42 +1422,49 @@ void CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt)
  *  Returns the address of the 'active' check point.
  */
 
-void CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
+int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
 {
   CVadjMem ca_mem;
 
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
   *addr = (unsigned int) ckpntData;
+
+  return(CV_SUCCESS);
 }
 
 /*
- * CVadjGetStoredData
+ * CVadjGetDataPointHermite
  *
  * This routine returns the solution stored in the data structure
- * at the 'which' data point.
- * For debugging....
+ * at the 'which' data point. Cubic Hermite interpolation.
  */
 
-void CVadjGetStoredData(void *cvadj_mem, long int which, 
-                        realtype *t, N_Vector yout, N_Vector ydout)
+int CVadjGetDataPointHermite(void *cvadj_mem, long int which, 
+                             realtype *t, N_Vector y, N_Vector yd)
 {
-  /*
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
+  HermiteDataMem content;
 
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
   dt_mem = ca_mem->dt_mem;
 
+  if (interpType != CV_HERMITE) return(CV_ILL_INPUT);
+
   *t = dt_mem[which]->t;
 
-  if (yout != NULL)
-    N_VScale(ONE, dt_mem[which]->y, yout);
+  content = (HermiteDataMem) (dt_mem[which]->content);
 
-  if (ydout != NULL)
-    N_VScale(ONE, dt_mem[which]->yd, ydout);
-  */
+  if (y != NULL)
+    N_VScale(ONE, content->y, y);
 
+  if (yd != NULL)
+    N_VScale(ONE, content->yd, yd);
+
+  return(CV_SUCCESS);
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2005-04-26 18:32:36 $
+ * $Revision: 1.35 $
+ * $Date: 2005-05-04 22:43:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -22,6 +22,7 @@
  *    CVSpilsJacTimesVecFnB
  * Part II: Exported functions prototypes:
  *    CVadjMalloc
+ *    CVadjSetInterpType
  *    CVodeF
  *    CVodeCreateB
  *    CVodeMallocB
@@ -185,7 +186,18 @@ extern "C" {
    * -----------------------------------------------------------------
    */
   
-  void *CVadjMalloc(void *cvode_mem, long int steps, int interp);
+  void *CVadjMalloc(void *cvode_mem, long int steps);
+
+  /*
+   * -----------------------------------------------------------------
+   * CVadjMalloc
+   * -----------------------------------------------------------------
+   * Set the interpolation type. 
+   * Currently only CV_HERMITE is implemented.
+   * -----------------------------------------------------------------
+   */
+  
+  int CVadjSetInterpType(void *cvadj_mem, int interp);
 
   /*
    * -----------------------------------------------------------------
@@ -401,21 +413,26 @@ extern "C" {
     realtype step;
   } CheckPointRec;
 
-  void CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt);
-  void CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr);
+  int CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt);
+  int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr);
 
   /*
    * -----------------------------------------------------------------
-   * CVadjGetStoredData
-   *    Returns
+   * CVadjGetDataPointHermite
+   *    Returns the 2 vectors stored for cubic Hermite interpolation 
+   *    at the data point 'which'. The user must allocate space for
+   *    y and yd. Returns CVADJ_MEM_NULL if cvadj_mem is NULL.
+   *    Returns CV_ILL_INPUT if interpType != CV_HERMITE.
    * CVadjGetY
-   *    Returns the interpolated forward solution at time t.
+   *    Returns the interpolated forward solution at time t. This
+   *    function is a wrapper around the interpType-dependent internal
+   *    function.
    *    The user must allocate space for y.
    * -----------------------------------------------------------------
    */
-  
-  void CVadjGetStoredData(void *cvadj_mem, long int which,
-                          realtype *t, N_Vector yout, N_Vector ydout);
+
+  int CVadjGetDataPointHermite(void *cvadj_mem, long int which,
+                               realtype *t, N_Vector y, N_Vector yd);
   
   int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
   

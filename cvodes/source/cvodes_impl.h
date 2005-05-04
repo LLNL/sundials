@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-04-07 23:28:46 $
+ * $Revision: 1.16 $
+ * $Date: 2005-05-04 22:44:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -764,6 +764,8 @@ typedef struct CVodeMemRec {
 #define MSGCVS_GET_NO_SENSI1 "CVodeGetSens*-- Illegal attempt to call before "
 #define MSGCVS_GET_NO_SENSI2 "calling CVodeSensMalloc.\n\n"
 #define MSGCVS_GET_NO_SENSI  MSGCVS_GET_NO_SENSI1 MSGCVS_GET_NO_SENSI2
+
+#define MSGCVS_GET_EWT_BAD   "CVodeGetErrWeights--  ewt has component(s) equal to zero.\n\n"
 
 #ifdef __cplusplus
 }

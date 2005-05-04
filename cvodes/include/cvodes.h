@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2005-04-07 23:28:43 $
+ * $Revision: 1.39 $
+ * $Date: 2005-05-04 22:43:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -918,37 +918,35 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  * CVodeGetNumSteps returns the cumulative number of internal
  *                  steps taken by the solver
  * CVodeGetNumRhsEvals returns the number of calls to the user's
- *                     f function
+ *                  f function
  * CVodeGetNumLinSolvSetups returns the number of calls made to
- *                          the linear solver's setup routine
+ *                  the linear solver's setup routine
  * CVodeGetNumErrTestFails returns the number of local error test
- *                         failures that have occured
+ *                  failures that have occured
  * CVodeGetLastOrder returns the order used during the last
- *                   internal step
+ *                  internal step
  * CVodeGetCurrentOrder returns the order to be used on the next
- *                      internal step
+ *                  internal step
  * CVodeGetNumStabLimOrderReds returns the number of order
- *                             reductions due to stability limit
- *                             detection
+ *                  reductions due to stability limit detection
  * CVodeGetActualInitStep returns the actual initial step size
- *                        used by CVODES
+ *                  used by CVODES
  * CVodeGetLastStep returns the step size for the last internal
  *                  step
  * CVodeGetCurrentStep returns the step size to be attempted on
- *                     the next internal step
+ *                  the next internal step
  * CVodeGetCurrentTime returns the current internal time reached
- *                     by the solver
+ *                  by the solver
  * CVodeGetTolScaleFactor returns a suggested factor by which the
- *                        user's tolerances should be scaled when
- *                        too much accuracy has been requested for
- *                        some internal step
+ *                  user's tolerances should be scaled when too
+ *                  much accuracy has been requested for some
+ *                  internal step
  * CVodeGetErrWeights returns the state error weight vector.
- *                    The user must allocate space for ewt.
+ *                  The user must allocate space for eweight.
  * CVodeGetEstLocalErrors returns the vector of estimated local
- *                        errors. The user must allocate space
- *                        for ele.
+ *                  errors. The user must allocate space for ele.
  * CVodeGetNumGEvals returns the number of calls to the user's
- *                   g function (for rootfinding)
+ *                  g function (for rootfinding)
  * CVodeGetRootInfo returns the indices for which g_i was found to 
  *                  have a root. The user must allocate space for 
  *                  rootsfound. For i = 0 ... nrtfn-1, 
@@ -974,7 +972,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
 int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
 int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
 int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac);
-int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight);
+int CVodeGetErrWeights(void *cvode_mem, N_Vector y, N_Vector eweight);
 int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele);
 int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
 int CVodeGetRootInfo(void *cvode_mem, int *rootsfound);
