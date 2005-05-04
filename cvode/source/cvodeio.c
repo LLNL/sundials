@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-04-19 14:31:52 $
+ * $Revision: 1.7 $
+ * $Date: 2005-05-04 22:41:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -564,10 +564,10 @@ int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data)
 #define netf           (cv_mem->cv_netf)
 #define nni            (cv_mem->cv_nni)
 #define nsetups        (cv_mem->cv_nsetups)
-#define q              (cv_mem->cv_q)
+#define qu             (cv_mem->cv_qu)
 #define next_q         (cv_mem->cv_next_q)
 #define ewt            (cv_mem->cv_ewt)  
-#define h              (cv_mem->cv_h)
+#define hu             (cv_mem->cv_hu)
 #define next_h         (cv_mem->cv_next_h)
 #define h0u            (cv_mem->cv_h0u)
 #define tolsf          (cv_mem->cv_tolsf)  
@@ -579,6 +579,8 @@ int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data)
 #define nor            (cv_mem->cv_nor)
 #define sldeton        (cv_mem->cv_sldeton)
 #define tn             (cv_mem->cv_tn)
+#define efun           (cv_mem->cv_efun)
+#define e_data         (cv_mem->cv_e_data) 
 
 /* 
  * =================================================================
@@ -691,7 +693,7 @@ int CVodeGetLastOrder(void *cvode_mem, int *qlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *qlast = q;
+  *qlast = qu;
 
   return(CV_SUCCESS);
 }
@@ -785,7 +787,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *hlast = h;
+  *hlast = hu;
 
   return(CV_SUCCESS);
 }
@@ -859,13 +861,13 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
 /* 
  * CVodeGetErrWeights
  *
- * This routine returns the current weight vector for y in weight.
- * Note that weight need not be allocated by the user.
+ * This routine returns the error weight vector for y in eweight.
  */
 
-int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
+int CVodeGetErrWeights(void *cvode_mem, N_Vector yy, N_Vector eweight)
 {
   CVodeMem cv_mem;
+  int ewtsetOK;
 
   if (cvode_mem==NULL) {
     fprintf(stderr, MSGCV_GET_NO_MEM);
@@ -874,7 +876,12 @@ int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  N_VScale(ONE, ewt, eweight);
+  ewtsetOK = efun(yy, eweight, e_data);
+
+  if (ewtsetOK != 0) {
+    fprintf(stderr, MSGCV_GET_EWT_BAD);
+    return(CV_ILL_INPUT);
+  }
 
   return(CV_SUCCESS);
 }
@@ -948,10 +955,10 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
   *nfevals = nfe;
   *nlinsetups = nsetups;
   *netfails = netf;
-  *qlast = q;
+  *qlast = qu;
   *qcur = next_q;
   *hinused = h0u;
-  *hlast = h;
+  *hlast = hu;
   *hcur = next_h;
   *tcur = tn;
 
