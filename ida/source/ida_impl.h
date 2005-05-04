@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2005-04-07 23:29:01 $
+ * $Revision: 1.13 $
+ * $Date: 2005-05-04 22:45:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -440,6 +440,8 @@ typedef struct IDAMemRec {
 
 #define MSG_IDAG_BAD_T1    "IDAGetSolution-- "
 #define MSG_IDAG_BAD_T     MSG_IDAG_BAD_T1 MSG_TIME MSG_TIME_INT
+
+#define MSG_IDAG_EWT_BAD   "IDAGetErrWeights--  ewt has component(s) equal to zero.\n\n"
 
 #ifdef __cplusplus
 }

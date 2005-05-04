@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2005-04-07 23:28:59 $
+ * $Revision: 1.32 $
+ * $Date: 2005-05-04 22:45:48 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -739,7 +739,7 @@ int IDAGetLastStep(void *ida_mem, realtype *hlast);
 int IDAGetCurrentStep(void *ida_mem, realtype *hcur);
 int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
-int IDAGetErrWeights(void *ida_mem, N_Vector eweight);
+int IDAGetErrWeights(void *ida_mem, N_Vector y, N_Vector eweight);
 
 int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
                           long int *nrevals, long int *nlinsetups, 

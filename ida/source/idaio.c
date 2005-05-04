@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-04-14 20:53:45 $
+ * $Revision: 1.6 $
+ * $Date: 2005-05-04 22:45:52 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -656,6 +656,8 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 #define kused       (IDA_mem->ida_kused)          
 #define hused       (IDA_mem->ida_hused)         
 #define tolsf       (IDA_mem->ida_tolsf) 
+#define efun        (IDA_mem->ida_efun)
+#define edata       (IDA_mem->ida_edata)
 
 /* 
  * =================================================================
@@ -879,10 +881,11 @@ int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
+int IDAGetErrWeights(void *ida_mem, N_Vector y, N_Vector eweight)
 {
   IDAMem IDA_mem;
-  
+  int ewtsetOK;
+
   if (ida_mem == NULL) {
     fprintf(stderr, MSG_IDAG_NO_MEM);
     return (IDA_MEM_NULL);
@@ -890,7 +893,12 @@ int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
 
   IDA_mem = (IDAMem) ida_mem; 
 
-  N_VScale(ONE, ewt, eweight);
+  ewtsetOK = efun(y, eweight, edata);
+
+  if (ewtsetOK != 0) {
+    fprintf(stderr, MSG_IDAG_EWT_BAD);
+    return(IDA_ILL_INPUT);
+  }
 
   return(IDA_SUCCESS);
 }
