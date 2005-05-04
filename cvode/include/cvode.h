@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2005-04-07 23:28:28 $
+ * $Revision: 1.30 $
+ * $Date: 2005-05-04 22:41:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -614,7 +614,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  *                        too much accuracy has been requested for
  *                        some internal step
  * CVodeGetErrWeights returns the state error weight vector.
- *                    The user must allocate space for ewt.
+ *                    The user must allocate space for eweight.
  * CVodeGetEstLocalErrors returns the vector of estimated local
  *                        errors. The user must allocate space
  *                        for ele.
@@ -645,7 +645,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
 int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
 int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
 int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac);
-int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight);
+int CVodeGetErrWeights(void *cvode_mem, N_Vector y, N_Vector eweight);
 int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele);
 int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
 int CVodeGetRootInfo(void *cvode_mem, int *rootsfound);
