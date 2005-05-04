@@ -31,6 +31,7 @@ the various actual vector operations, and is defined as
 \begin{verbatim}
 struct _generic_N_Vector_Ops {
   N_Vector    (*nvclone)(N_Vector);
+  N_Vector    (*nvcloneempty)(N_Vector);
   void        (*nvdestroy)(N_Vector);
   void        (*nvspace)(N_Vector, long int *, long int *);
   realtype*   (*nvgetarraypointer)(N_Vector);
@@ -83,13 +84,16 @@ by the generic {\nvector} module.
 
 
 
-Finally, note that the generic {\nvector} module defines a function \ID{N\_VCloneVectorArray}
-which creates (by cloning) an array of \id{count} variables of type \id{N\_Vector}, each of the 
-same type as an existing \id{N\_Vector}. Its prototype is
+Finally, note that the generic {\nvector} module defines the functions \ID{N\_VCloneVectorArray}
+and \ID{N\_VCloneEmptyVectorArray}.  Both functions create (by cloning) an array of \id{count}
+variables of type \id{N\_Vector}, each of the same type as an existing \id{N\_Vector}. Their
+prototypes are
 \begin{verbatim}
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
+N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w);
 \end{verbatim}
-and its definition is based on the implementation-specific \id{N\_VClone} operation.
+and their definitions are based on the implementation-specific \id{N\_VClone} and \id{N\_VCloneEmpty}
+operations, respectively.
 An array of variables of type \id{N\_Vector} can be destroyed by calling \ID{N\_VDestroyVectorArray},
 whose prototype is
 \begin{verbatim}
@@ -144,6 +148,12 @@ A particular implementation of the {\nvector} module must:
 & Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
 {\em ops} field.
 It does not copy the vector, but rather allocates storage for the new vector.
+\\
+&\\
+\id{N\_VCloneEmpty} & \id{v = N\_VCloneEmpty(w);} \\ 
+& Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
+{\em ops} field.
+It does not allocate storage for the data array.
 \\
 &\\
 \id{N\_VDestroy} & \id{N\_VDestroy(v);} \\

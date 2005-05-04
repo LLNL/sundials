@@ -105,17 +105,6 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
 %%--------------------------------------
 
-\item \ID{N\_VCloneEmpty\_Serial}
-
-  This function creates a new serial \id{N\_Vector} with an empty (\id{NULL}) data array
-  by using an existing \id{N\_Vector} as a template.
-
-  
-
-  \verb|N_Vector N_VCloneEmpty_Serial(N_Vector w);|
-
-%%--------------------------------------
-
 \item \ID{N\_VMake\_Serial}
 
  This function creates and allocates memory for a serial vector
@@ -182,7 +171,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
   loop than it is to use \id{NV\_Ith\_S(v,i)} within the loop.        
 
 \item
-  {\warn} The {\nvecs} constructor functions \id{N\_VNewEmpty\_Serial}, \id{N\_VCloneEmpty\_Serial},
+  {\warn} The {\nvecs} constructor functions \id{N\_VNewEmpty\_Serial},
   \id{N\_VMake\_Serial}, and \id{N\_VNewVectorArrayEmpty\_Serial}
   set the field {\em own\_data} $=$ \id{FALSE}. 
   The functions \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
