@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-04-07 23:28:41 $
+ * $Revision: 1.23 $
+ * $Date: 2005-05-04 22:44:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -759,7 +759,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   cvode_mem = wdata->cvode_mem;
   cdata = NV_DATA_S(c);
   rewt = wdata->rewt;
-  flag = CVodeGetErrWeights(cvode_mem, rewt);
+  flag = CVodeGetErrWeights(cvode_mem, c, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
   rewtdata = NV_DATA_S(rewt);
 

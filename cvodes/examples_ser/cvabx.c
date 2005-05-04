@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-04-26 18:38:15 $
+ * $Revision: 1.19 $
+ * $Date: 2005-05-04 22:44:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 
   printf("\nAllocate global memory\n");
 
-  cvadj_mem = CVadjMalloc(cvode_mem, NSTEP, CV_HERMITE);
+  cvadj_mem = CVadjMalloc(cvode_mem, NSTEP);
   if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
 
   /* Perform forward run */

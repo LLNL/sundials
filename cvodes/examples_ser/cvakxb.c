@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-04-26 18:38:15 $
+ * $Revision: 1.24 $
+ * $Date: 2005-05-04 22:44:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
   /* Set-up adjoint calculations */
 
   printf("\nAllocate global memory\n");
-  cvadj_mem = CVadjMalloc(cvode_mem, NSTEPS, CV_HERMITE);
+  cvadj_mem = CVadjMalloc(cvode_mem, NSTEPS);
   if(check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
   wdata->cvadj_mem = cvadj_mem;
 
@@ -419,7 +419,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
   wdata = (WebData) P_data;
   cvode_mem = wdata->cvode_memF;
   rewt = wdata->rewt;
-  flag = CVodeGetErrWeights(cvode_mem, rewt);
+  flag = CVodeGetErrWeights(cvode_mem, c, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
   cdata = NV_DATA_S(c);
@@ -622,7 +622,7 @@ static int PrecondB(realtype t, N_Vector c,
   cvode_mem = CVadjGetCVodeBmem(wdata->cvadj_mem);
   if(check_flag((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
   rewt = wdata->rewt;
-  flag = CVodeGetErrWeights(cvode_mem, rewt);
+  flag = CVodeGetErrWeights(cvode_mem, cB, rewt);
   if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
 
   cdata = NV_DATA_S(c);

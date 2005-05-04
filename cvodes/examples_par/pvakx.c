@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-04-26 18:38:12 $
+ * $Revision: 1.14 $
+ * $Date: 2005-05-04 22:44:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
   flag = CVodeSetQuadErrCon(cvode_mem, TRUE, CV_SS, reltolQ, &abstolQ); 
 
   /* Allocate space for the adjoint calculation */
-  cvadj_mem = CVadjMalloc(cvode_mem, STEPS, CV_HERMITE);
+  cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
 
   /* Integrate forward in time while storing check points */
   if (myId == 0) printf("Begin forward integration... ");

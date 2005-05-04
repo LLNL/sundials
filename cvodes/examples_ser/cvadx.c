@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-04-26 18:38:15 $
+ * $Revision: 1.23 $
+ * $Date: 2005-05-04 22:44:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -70,7 +70,7 @@
 
 #define NEQ      3             /* number of equations                  */
 
-#define RTOL     RCONST(1e-4)  /* scalar relative tolerance            */
+#define RTOL     RCONST(1e-6)  /* scalar relative tolerance            */
 
 #define ATOL1    RCONST(1e-8)  /* vector absolute tolerance components */
 #define ATOL2    RCONST(1e-14)
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
   /* Allocate global memory */
   printf("Allocate global memory\n");
 
-  cvadj_mem = CVadjMalloc(cvode_mem, STEPS, CV_HERMITE);
+  cvadj_mem = CVadjMalloc(cvode_mem, STEPS);
   if (check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
 
   /* Perform forward run */
@@ -304,11 +304,11 @@ int main(int argc, char *argv[])
   /* Backward Integration */
   printf("Integrate backwards\n");
 
-  CVadjGetCurrentCheckPoint(cvadj_mem, &addr);
+  flag = CVadjGetCurrentCheckPoint(cvadj_mem, &addr);
   printf("Current check point: %p\n",addr);
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   printf("Done backward\n");
-  CVadjGetCurrentCheckPoint(cvadj_mem, &addr);
+  flag = CVadjGetCurrentCheckPoint(cvadj_mem, &addr);
   printf("Current check point: %p\n",addr);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
 
