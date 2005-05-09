@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7.2.3 $
- * $Date: 2005-04-08 14:47:18 $
+ * $Revision: 1.7.2.4 $
+ * $Date: 2005-05-09 19:26:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,6 +25,17 @@ extern "C" {
 #include "kinsol.h"
 #include "nvector.h"
 #include "sundialstypes.h"
+
+/*
+ * -----------------------------------------------------------------
+ * default constants
+ * -----------------------------------------------------------------
+ */
+ 
+#define PRINTFL_DEFAULT    0
+#define MXITER_DEFAULT     200
+#define MXNBCF_DEFAULT     10
+#define MSBSET_DEFAULT     10
 
 /*
  * -----------------------------------------------------------------

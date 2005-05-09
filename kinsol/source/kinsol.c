@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36.2.3 $
- * $Date: 2005-04-14 20:47:32 $
+ * $Revision: 1.36.2.4 $
+ * $Date: 2005-05-09 19:26:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -54,11 +54,6 @@
  * -----------------------------------------------------------------
  */
  
-#define PRINTFL_DEFAULT 0
-#define MXITER_DEFAULT  200
-#define MXNBCF          10
-#define MSBPRE          10
-
 /* KINStop return value requesting more iterations */
 
 #define CONTINUE_ITERATIONS -999
@@ -155,7 +150,7 @@ void *KINCreate(void)
   kin_mem->kin_printfl        = PRINTFL_DEFAULT;
   kin_mem->kin_mxiter         = MXITER_DEFAULT;
   kin_mem->kin_noPrecInit     = FALSE;
-  kin_mem->kin_msbpre         = MSBPRE;
+  kin_mem->kin_msbpre         = MSBSET_DEFAULT;
   kin_mem->kin_pthrsh         = TWO;
   kin_mem->kin_noMinEps       = FALSE;
   kin_mem->kin_mxnewtstep     = ZERO;
@@ -423,7 +418,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
 
     /* if too many beta condition failures, then stop iteration */
 
-    if (nbcf > MXNBCF) {
+    if (nbcf > MXNBCF_DEFAULT) {
       ret = KIN_LINESEARCH_BCFAIL;
       break;
     }
