@@ -68,6 +68,10 @@ v. 2.1.0 (Apr. 2005) ---> v. 2.1.1 (May.2005)
 - Changes to data structures
    - added N_VCloneEmpty to global vector operations table
 
+- Changes related to the build system
+   - updated configure script and Makefiles for Fortran examples to avoid C++
+     compiler errors (now use CC and MPICC to link only if necessary)
+
 v. 2.0.2 (Mar. 2005) ---> v. 2.1.0 (Apr. 2005)
 ----------------------------------------------
 
