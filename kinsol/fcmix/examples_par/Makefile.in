@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-03-19 00:10:47 $
+# $Revision: 1.12 $
+# $Date: 2005-05-11 22:59:12 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -38,6 +38,7 @@ MPI_INC_DIR = @MPI_INC_DIR@
 MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
+MPIF77_LNKR = @MPIF77_LNKR@
 
 COMPILER_PREFIX = @COMPILER_PREFIX@
 LINKER_PREFIX   = @LINKER_PREFIX@
@@ -55,7 +56,7 @@ fortran_update.sh:
 kindiagpf: $(srcdir)/kindiagpf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagpf.f
 	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/kindiagpf-updated.f
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/kindiagpf $(builddir)/kindiagpf-updated.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
+	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/kindiagpf $(builddir)/kindiagpf-updated.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
 
 clean:
 	rm -rf .libs
