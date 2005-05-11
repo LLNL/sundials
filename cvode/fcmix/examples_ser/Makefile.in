@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2005-03-19 00:10:23 $
+# $Revision: 1.13 $
+# $Date: 2005-05-11 22:57:45 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -28,12 +28,13 @@ INSTALL = @INSTALL@
 
 @LIBTOOL_CMD@
 
-F77     = @F77@
-FFLAGS  = @FFLAGS@
-FLIBS   = @FLIBS@
-CC      = @CC@
-LDFLAGS = @LDFLAGS@
-LIBS    = @LIBS@
+F77      = @F77@
+FFLAGS   = @FFLAGS@
+FLIBS    = @FLIBS@
+CC       = @CC@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+F77_LNKR = @F77_LNKR@
 
 COMPILER_PREFIX = @COMPILER_PREFIX@
 LINKER_PREFIX   = @LINKER_PREFIX@
@@ -51,22 +52,22 @@ fortran_update.sh:
 cvdensef: $(srcdir)/cvdensef.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvdensef.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvdensef-updated.f
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdensef $(builddir)/cvdensef-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS) 
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/cvdensef $(builddir)/cvdensef-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS) 
 
 cvbandf: $(srcdir)/cvbandf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvbandf.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvbandf-updated.f
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvbandf $(builddir)/cvbandf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS) 
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/cvbandf $(builddir)/cvbandf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS) 
 
 cvkryf: $(srcdir)/cvkryf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvkryf.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvkryf-updated.f
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvkryf $(builddir)/cvkryf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS) 
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/cvkryf $(builddir)/cvkryf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS) 
 
 cvkrybf: $(srcdir)/cvkrybf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvkrybf.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvkrybf-updated.f
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvkrybf $(builddir)/cvkrybf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS) 
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/cvkrybf $(builddir)/cvkrybf-updated.o $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS) 
 
 clean:
 	rm -rf .libs
