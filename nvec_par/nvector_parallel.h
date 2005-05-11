@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-04-15 00:43:30 $
+ * $Revision: 1.19 $
+ * $Date: 2005-05-11 23:00:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -53,7 +53,7 @@
 extern "C" {
 #endif
 
-#include <mpi.h>
+#include "mpi.h"
 
 #include "nvector.h"
 #include "sundialstypes.h"
