@@ -1,0 +1,87 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2005-05-11 23:10:54 $
+# -----------------------------------------------------------------
+# Programmer(s): Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2005, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/cvode/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for FIDA module
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+srcdir       = @srcdir@
+builddir     = @builddir@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL        = @INSTALL@
+INSTALL_LIB    = @INSTALL_PROGRAM@
+INSTALL_HEADER = @INSTALL_DATA@
+
+LIBTOOL      = @LIBTOOL@
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+
+CPP      = @CPP@
+CPPFLAGS = @CPPFLAGS@
+CC       = @CC@
+CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
+LIBS     = @LIBS@
+
+SHARED_INC_DIR = $(srcdir)/../../shared/include
+IDA_INC_DIR    = $(srcdir)/../include
+FIDA_INC_DIR   = $(srcdir)
+
+FIDA_LIB       = libsundials_fida.la
+FIDA_LIB_FILES = fida.lo fidaband.lo fidabbd.lo fidadense.lo fidajtimes.lo fidapreco.lo fidaewt.lo
+
+OBJECT_FILES = fida.o fidaband.o fidabbd.o fidadense.o fidajtimes.o fidapreco.o fidaewt.o
+
+all: update $(FIDA_LIB_FILES)
+
+update:
+	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
+
+install: update $(FIDA_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FIDA_LIB) $(FIDA_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -avoid-version
+	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FIDA_LIB) $(libdir)
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(FIDA_LIB)
+	rm -f $(FIDA_LIB_FILES)
+	rm -f $(OBJECT_FILES)
+	rm -f sundials_config.h
+
+uninstall: clean
+	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FIDA_LIB)
+
+fida.lo: $(srcdir)/fida.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fida.c
+fidaewt.lo: $(srcdir)/fidaewt.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidaewt.c
+fidaband.lo: $(srcdir)/fidaband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidaband.c
+fidadense.lo: $(srcdir)/fidadense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidadense.c
+fidajtimes.lo: $(srcdir)/fidajtimes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidajtimes.c
+fidapreco.lo: $(srcdir)/fidapreco.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidapreco.c
+fidabbd.lo: $(srcdir)/fidabbd.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidabbd.c
+
+libtool: $(top_builddir)/$(LIBTOOL_DEPS)
+	@cd $(top_builddir) ;                 \
+	 $(SHELL) ./config.status --recheck ; \
+	 cd $(abs_builddir)
