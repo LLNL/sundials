@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2005-04-26 23:41:57 $
+# $Revision: 1.17 $
+# $Date: 2005-05-11 22:54:55 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -255,7 +255,7 @@ if test "X${enableval}" = "Xno"; then
 fi
 ],
 [
-if test "X${CVODE_ENABLED}" = "Xno" && test "X${KINSOL_ENABLED}" = "Xno"; then
+if test "X${CVODE_ENABLED}" = "Xno" && test "X${KINSOL_ENABLED}" = "Xno" && test "X${IDA_ENABLED}" = "Xno"; then
   F77_ENABLED="no"
   FCMIX_ENABLED="no"
 else
@@ -798,9 +798,8 @@ else
     FFLAGS="${FFLAGS} ${USER_FFLAGS}"
   fi
 
-  # Add any required linker flags into FLIBS
+  # Add any required linker flags to FLIBS
   # Note: if FLIBS is defined, it is left unchanged
-
    AC_F77_LIBRARY_LDFLAGS
 
 fi
@@ -814,9 +813,107 @@ if test "X${RUN_F77_WRAPPERS}" = "Xyes"; then
   fi
 fi
 
+# Check if we must use a Fortran compiler to link the Fortran examples
+# (default is to use CC)
+if test "X${F77_OK}" = "Xyes"; then
+  SUNDIALS_F77_LNKR_CHECK
+fi
+
 AC_LANG_POP([Fortran 77])
 
 ]) dnl END SUNDIALS_SET_F77
+
+#------------------------------------------------------------------
+# DETERMINE F77 LINKER
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_F77_LNKR_CHECK],
+[
+
+# Switch working language to C for the next test
+AC_LANG_PUSH([C])
+
+# Check if using a C++ compiler
+AC_RUN_IFELSE(
+[AC_LANG_PROGRAM([[]],
+[[
+#ifdef __cplusplus
+  return(0);
+#else
+  return(1);
+#endif
+]])],
+[
+
+# CC is a C++ compiler so run the next test
+RUN_F77_LNKR_CHECK="yes"
+
+],
+[
+
+# CC is a C compiler so skip the next test
+RUN_F77_LNKR_CHECK="no"
+
+])
+
+# Revert back to previous language (Fortran 77)
+AC_LANG_POP([C])
+
+# Perform the next test only if using a C++ compiler to build SUNDIALS
+if test "X${RUN_F77_LNKR_CHECK}" = "Xyes"; then
+
+  # Compile simple Fortran example, but do NOT link
+  # Note: result stored as conftest.${ac_objext}
+  AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE(
+  [[
+	PROGRAM SUNDIALS
+	WRITE(*,*)'TEST'
+	END
+  ]])],
+  [
+
+  # Temporarily reset LIBS environment variable to perform test
+  SAVED_LIBS="${LIBS}"
+  LIBS="${LIBS} ${FLIBS}"
+
+  # Switch working language to C for next test
+  AC_LANG_PUSH([C])
+
+  # Check if CC can link Fortran example
+  # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
+  # general.m4 and c.m4)
+  AC_LINKONLY_IFELSE([],[F77_LNKR_CHECK_OK="yes"],[F77_LNKR_CHECK_OK="no"])
+
+  # Revert back to previous language (Fortran 77)
+  AC_LANG_POP([C])
+
+  # Set LIBS environment variable back to original value
+  LIBS="${SAVED_LIBS}"
+
+  # Note: F77_LNKR variable is used by serial Fortran example Makefile's
+  if test "X${F77_LNKR_CHECK_OK}" = "Xyes"; then
+    F77_LNKR="\$(CC)"
+  else
+    F77_LNKR="\$(F77)"
+  fi
+
+  ],
+  [
+
+  # If compilation fails, then just use F77
+  F77_LNKR="\$(F77)"
+
+  ])
+
+else
+
+  # Using a C compiler so use F77 to link serial Fortran examples
+  F77_LNKR="\$(F77)"
+
+fi
+
+]) dnl SUNDIALS_F77_LNKR_CHECK
 
 #------------------------------------------------------------------
 # DETERMINE F77 NAME-MANGLING SCHEME
@@ -917,7 +1014,7 @@ else
   echo "   compiler."
   echo ""
   echo "   Try using --with-f77case and --with-f77underscore to explicitly"
-  echo "   specify the appropriate name-mangline scheme."
+  echo "   specify the appropriate name-mangling scheme."
   echo ""
   echo "   Disabling Fortran support..."
   echo ""
@@ -1641,6 +1738,126 @@ fi
 ]) dnl END SUNDIALS_SET_MPIF77
 
 #------------------------------------------------------------------
+# DETERMINE MPI-FORTRAN LINKER
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_MPIF77_LNKR_CHECK],
+[
+
+# Switch working language to C for the next test
+AC_LANG_PUSH([C])
+
+# Temporarily reset CC environment variable to perform next test
+SAVED_CC="${CC}"
+CC="${MPICC_COMP}"
+
+# Check if using a C++ compiler (MPI-C++ script)
+AC_RUN_IFELSE(
+[AC_LANG_PROGRAM([[]],
+[[
+#ifdef __cplusplus
+  return(0);
+#else
+  return(1);
+#endif
+]])],
+[
+
+# MPICC uses a C++ compiler so run the next test
+RUN_MPIF77_LNKR_CHECK="yes"
+
+],
+[
+
+# MPICC uses a C compiler so skip the next test
+RUN_MPIF77_LNKR_CHECK="no"
+
+])
+
+# Reset CC to original value
+CC="${SAVED_CC}"
+
+# Restore the language stack
+AC_LANG_POP([C])
+
+# Perform the next test only if using a C++ compiler to build NVECTOR_PARALLEL
+if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
+
+  # Switch language to "Fortran 77"
+  AC_LANG_PUSH([Fortran 77])
+
+  # Temporarily reset F77 environment variable to perform test
+  SAVED_F77="${F77}"
+  F77="${MPIF77_COMP}"
+
+  # Compile simple Fortran example, but do NOT link
+  # Note: result stored as conftest.${ac_objext}
+  AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE(
+  [[
+	PROGRAM SUNDIALS
+	INTEGER IER
+	CALL MPI_INIT(IER)
+	END
+  ]])],
+  [
+
+  # Reset F77 to original value
+  F77="${SAVED_F77}"
+
+  # Revert to previous language
+  AC_LANG_POP([Fortran 77])
+
+  # Temporarily reset LIBS environment variable to perform test
+  SAVED_LIBS="${LIBS}"
+  LIBS="${LIBS} ${FLIBS}"
+
+  # Switch working language to C for next test
+  AC_LANG_PUSH([C])
+
+  # Temporarily reset CC environment variable to perform next test
+  SAVED_CC="${CC}"
+  CC="${MPICC_COMP}"
+
+  # Check if MPICC_COMP can link Fortran example
+  # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
+  # general.m4 and c.m4)
+  AC_LINKONLY_IFELSE([],[MPIF77_LNKR_CHECK_OK="yes"],[MPIF77_LNKR_CHECK_OK="no"])
+
+  # Reset CC to original value
+  CC="${SAVED_CC}"
+
+  # Revert back to previous language (Fortran 77)
+  AC_LANG_POP([C])
+
+  # Set LIBS environment variable back to original value
+  LIBS="${SAVED_LIBS}"
+
+  # Note: MPIF77_LNKR variable is used by parallel Fortran example Makefile's
+  if test "X${MPIF77_LNKR_CHECK_OK}" = "Xyes"; then
+    MPIF77_LNKR="\$(MPICC)"
+  else
+    MPIF77_LNKR="\$(MPIF77)"
+  fi
+
+  ],
+  [
+
+  # If compilation fails, then just use MPIF77
+  MPIF77_LNKR="\$(MPIF77)"
+
+  ])
+
+else
+
+  # Using a C compiler so use MPIF77 to link parallel Fortran examples
+  MPIF77_LNKR="\$(MPIF77)"
+
+fi
+
+]) dnl SUNDIALS_MPIF77_LNKR_CHECK
+
+#------------------------------------------------------------------
 # TEST MPI-FORTRAN COMPILER
 #------------------------------------------------------------------
 
@@ -1707,6 +1924,10 @@ if test "X${MPIF77_COMP_EXISTS}" = "Xyes"; then
 
   MPIF77="${MPIF77_COMP}"
   MPI_F77_COMP_OK="yes"
+
+  # Check if we must use the MPI-Fortran compiler script (MPIF77) to link
+  # the Fortran examples (default is to use MPICC)
+  SUNDIALS_MPIF77_LNKR_CHECK
 
 else
 
@@ -1851,6 +2072,17 @@ if test "X${F77_OK}" = "Xyes"; then
      echo "   Disabling all parallel Fortran examples..."
      echo ""
      MPI_F77_COMP_OK="no"])
+
+    # Set MPIF77_LNKR based on value of F77_LNKR
+    # Note: setting MPIF77_LNKR is trivial if NOT using the MPI compiler script
+    # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
+    # should be used
+    if test "X${F77_LNKR}" = "X\$(CC)"; then
+      MPIF77_LNKR="\$(MPICC)"
+    elif test "X${F77_LNKR}" = "X\$(F77)"; then
+      MPIF77_LNKR="\$(MPIF77)"
+    fi
+
   else
     MPI_F77_COMP_OK="no"
   fi
@@ -2367,6 +2599,11 @@ if test "X${IDA_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} ida/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/source/Makefile"
 
+  if test "X${FCMIX_ENABLED}" = "Xyes"; then
+    MODULES="${MODULES} ida/fcmix"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/fcmix/Makefile"
+  fi
+
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/examples_ser ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/examples_ser"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/examples_ser/Makefile"
@@ -2375,6 +2612,16 @@ if test "X${IDA_ENABLED}" = "Xyes"; then
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/examples_par ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/examples_par/Makefile"
+  fi
+
+  if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/fcmix/examples_ser ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/fcmix/examples_ser"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/fcmix/examples_ser/Makefile"
+  fi
+
+  if test "X${PARALLEL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/fcmix/examples_par ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/fcmix/examples_par"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/fcmix/examples_par/Makefile"
   fi
 
 fi
