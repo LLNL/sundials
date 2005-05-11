@@ -1,0 +1,69 @@
+# -----------------------------------------------------------------
+# $Revision: 1.1 $
+# $Date: 2005-05-11 23:11:24 $
+# -----------------------------------------------------------------
+# Programmer(s): Aaron Collier @ LLNL
+# -----------------------------------------------------------------
+# Copyright (c) 2005, The Regents of the University of California.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see sundials/cvode/LICENSE.
+# -----------------------------------------------------------------
+# Makefile for FIDA parallel examples
+#
+# @configure_input@
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+srcdir       = @srcdir@
+top_builddir = @top_builddir@
+builddir     = @builddir@
+prefix       = @prefix@
+exec_prefix  = @exec_prefix@
+includedir   = @includedir@
+libdir       = @libdir@
+
+INSTALL = @INSTALL@
+
+@LIBTOOL_CMD@
+
+FFLAGS      = @FFLAGS@
+LDFLAGS     = @LDFLAGS@
+LIBS        = @LIBS@
+FLIBS       = @FLIBS@
+MPIF77      = @MPIF77@
+MPICC       = @MPICC@
+MPI_INC_DIR = @MPI_INC_DIR@
+MPI_LIB_DIR = @MPI_LIB_DIR@
+MPI_LIBS    = @MPI_LIBS@
+MPI_FLAGS   = @MPI_FLAGS@
+MPIF77_LNKR = @MPIF77_LNKR@
+
+COMPILER_PREFIX = @COMPILER_PREFIX@
+LINKER_PREFIX   = @LINKER_PREFIX@
+
+SUNDIALS_LIB_DIR = $(libdir)
+SUNDIALS_LIBS    = -lsundials_fida -lsundials_ida -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared
+
+EXEC_FILES = iheatbbdf
+
+all: $(EXEC_FILES)
+
+fortran_update.sh:
+	@${INSTALL} ${top_builddir}/config/fortran_update.sh ${builddir}
+
+iheatbbdf: $(srcdir)/iheatbbdf.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} iheatbbdf.f
+	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/iheatbbdf-updated.f
+	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/iheatbbdf $(builddir)/iheatbbdf-updated.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
+
+clean:
+	rm -rf .libs
+	rm -f *.lo
+	rm -f *.o
+	rm -f *-updated.f
+	rm -f fortran_update.sh
+
+uninstall: clean
+	rm -f $(EXEC_FILES)
