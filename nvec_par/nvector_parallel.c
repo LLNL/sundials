@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-05-12 21:02:26 $
+ * $Revision: 1.25 $
+ * $Date: 2005-05-12 23:16:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -877,33 +877,36 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
 booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
 {
   long int i, N;
-  booleantype test;
+  realtype temp;
   realtype *cd, *xd, *md;
   MPI_Comm comm;
 
   cd = xd = md = NULL;
- 
+
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   cd = NV_DATA_P(c);
   md = NV_DATA_P(m);
   comm = NV_COMM_P(x);
 
-  test = TRUE;
+  temp = ONE;
 
   for (i = 0; i < N; i++) {
     md[i] = ZERO;
     if (cd[i] == ZERO) continue;
     if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
-      if (xd[i]*cd[i] <= ZERO) { test = FALSE; md[i] = ONE; }
+      if (xd[i]*cd[i] <= ZERO) { temp = ZERO; md[i] = ONE; }
       continue;
     }
     if (cd[i] > HALF || cd[i] < -HALF) {
-      if (xd[i]*cd[i] < ZERO ) { test = FALSE; md[i] = ONE; }
+      if (xd[i]*cd[i] < ZERO ) { temp = ZERO; md[i] = ONE; }
     }
   }
 
-  return((booleantype)VAllReduce_Parallel((realtype)test, 3, comm));
+  temp = VAllReduce_Parallel(temp, 3, comm);
+
+  if (temp == ONE) return(TRUE);
+  else return(FALSE);
 }
 
 realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
