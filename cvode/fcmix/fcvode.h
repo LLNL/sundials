@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2005-04-19 18:27:47 $
+ * $Revision: 1.42 $
+ * $Date: 2005-05-12 21:03:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -689,9 +689,9 @@ extern "C" {
   
   void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
 
-  void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier);
+  void FCV_DKY(realtype *t, int *k, realtype *dky, int *ier);
 
-  void FCV_FREE ();
+  void FCV_FREE(void);
 
 
   /* Prototypes: Functions Called by the CVODE Solver */

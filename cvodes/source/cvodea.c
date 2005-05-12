@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.47 $
- * $Date: 2005-05-04 22:44:01 $
+ * $Revision: 1.48 $
+ * $Date: 2005-05-12 21:03:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -342,7 +342,7 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
   CkpntMem tmp;
   DtpntMem *dt_mem;
   int cv_itask, flag;
-  booleantype iret, istop;
+  booleantype iret;
 
   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
@@ -357,22 +357,18 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
   switch (itask) {
   case CV_NORMAL:
     iret = FALSE;
-    istop = FALSE;
     cv_itask = CV_ONE_STEP;
     break;
   case CV_ONE_STEP:
     iret = TRUE;
-    istop = FALSE;
     cv_itask = CV_ONE_STEP;
     break;
   case CV_NORMAL_TSTOP:
     iret = FALSE;
-    istop = TRUE;
     cv_itask = CV_ONE_STEP_TSTOP;
     break;
   case CV_ONE_STEP_TSTOP:
     iret = TRUE;
-    istop = TRUE;
     cv_itask = CV_ONE_STEP_TSTOP;
     break;
   }
@@ -1200,13 +1196,10 @@ int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
                      realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB)
 {
   CVadjMem ca_mem;
-  void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
-  
-  cvode_mem = (void *) ca_mem->cvb_mem;
   
   gloc_B = glocB;
   cfn_B  = cfnB;

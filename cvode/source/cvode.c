@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2005-04-19 21:13:53 $
+ * $Revision: 1.47 $
+ * $Date: 2005-05-12 21:03:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -2843,9 +2843,9 @@ static int CVsldet(CVodeMem cv_mem)
   realtype drr[4], rrc[4],sqmx[4], qjk[4][4], vrat[5], qc[6][4], qco[6][4];
   realtype rr, rrcut, vrrtol, vrrt2, sqtol, rrtol;
   realtype smink, smaxk, sumrat, sumrsq, vmin, vmax, drrmax, adrr;
-  realtype small, tem, sqmax, saqk, qp, s, sqmaxk, saqj, sqmin;
-  realtype rsa, rsb, rsc, rsd, rse, rd1a, rd1b, rd1c, rd1d;
-  realtype rd2a, rd2b, rd2c, rd3a, rd3b, cest1, corr1; 
+  realtype tem, sqmax, saqk, qp, s, sqmaxk, saqj, sqmin;
+  realtype rsa, rsb, rsc, rsd, rd1a, rd1b, rd1c;
+  realtype rd2a, rd2b, rd3a, cest1, corr1; 
   realtype ratp, ratm, qfac1, qfac2, bb, rrb;
 
   /* The following are cutoffs and tolerances used by this routine */
@@ -2939,7 +2939,6 @@ static int CVsldet(CVodeMem cv_mem)
     /* use the quartics to get rr. */
     
     if (ABS(qco[1][1]) < TINY*ssmax[1]) {
-      small = qco[1][1];
       kflag = -4;    
       return(kflag);
     }
@@ -2957,7 +2956,6 @@ static int CVsldet(CVodeMem cv_mem)
     qco[1][3] = ZERO;
     
     if (ABS(qco[2][2]) < TINY*ssmax[2]) {
-      small = qco[2][2];
       kflag = -4;    
       return(kflag);
     }
@@ -2968,7 +2966,6 @@ static int CVsldet(CVodeMem cv_mem)
     }
     
     if (ABS(qco[4][3]) < TINY*ssmax[3]) {
-      small = qco[4][3];
       kflag = -4;    
       return(kflag);
     }
@@ -3055,16 +3052,12 @@ static int CVsldet(CVodeMem cv_mem)
     rsb = ssdat[2][k]*rr;
     rsc = ssdat[3][k]*rr*rr;
     rsd = ssdat[4][k]*rr*rr*rr;
-    rse = ssdat[5][k]*rr*rr*rr*rr;
     rd1a = rsa - rsb;
     rd1b = rsb - rsc;
     rd1c = rsc - rsd;
-    rd1d = rsd - rse;
     rd2a = rd1a - rd1b;
     rd2b = rd1b - rd1c;
-    rd2c = rd1c - rd1d;
     rd3a = rd2a - rd2b;
-    rd3b = rd2b - rd2c;
     
     if (ABS(rd1b) < TINY*smax[k]) {
       kflag = -7;

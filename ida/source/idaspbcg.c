@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-04-27 21:38:03 $
+ * $Revision: 1.5 $
+ * $Date: 2005-05-12 21:03:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -357,8 +357,6 @@ int IDASpbcgSetJacTimesVecFn(void *ida_mem,
 int IDASpbcgGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
 {
   IDAMem IDA_mem;
-  IDASpbcgMem idaspbcg_mem;
-  int maxl;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
@@ -371,9 +369,7 @@ int IDASpbcgGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
     if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
     return(IDASPBCG_LMEM_NULL);
   }
-  idaspbcg_mem = (IDASpbcgMem) lmem;
 
-  maxl = idaspbcg_mem->b_maxl;
   *lenrwSG = lrw1 * 10;
   *leniwSG = liw1 * 10;
 

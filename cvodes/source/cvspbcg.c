@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-04-26 18:26:50 $
+ * $Revision: 1.4 $
+ * $Date: 2005-05-12 21:03:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -354,8 +354,6 @@ int CVSpbcgSetJacTimesVecFn(void *cvode_mem,
 int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
 {
   CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-  int maxl;
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
@@ -368,9 +366,7 @@ int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
     if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
 
-  maxl = cvspbcg_mem->b_maxl;
   *lenrwSG = lrw1 * 9;
   *leniwSG = liw1 * 9;
 

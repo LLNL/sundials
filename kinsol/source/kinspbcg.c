@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-04-26 20:31:31 $
+ * $Revision: 1.6 $
+ * $Date: 2005-05-12 21:03:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -295,8 +295,6 @@ int KINSpbcgSetJacTimesVecFn(void *kinmem,
 int KINSpbcgGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG)
 {
   KINMem kin_mem;
-  KINSpbcgMem kinspbcg_mem;
-  int maxl;
 
   /* return immediately if kinmem is NULL */
 
@@ -310,9 +308,6 @@ int KINSpbcgGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG)
     fprintf(errfp, MSGB_SETGET_LMEM_NULL);
     return(KINSPBCG_LMEM_NULL);
   }
-  kinspbcg_mem = (KINSpbcgMem) lmem;
-
-  maxl = kinspbcg_mem->b_maxl;
 
   *lenrwSG = lrw1 * 7;
   *leniwSG = liw1 * 7;

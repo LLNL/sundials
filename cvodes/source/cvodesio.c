@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-05-04 22:44:01 $
+ * $Revision: 1.9 $
+ * $Date: 2005-05-12 21:03:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -253,7 +253,6 @@ int CVodeSetInitStep(void *cvode_mem, realtype hin)
 
 int CVodeSetMinStep(void *cvode_mem, realtype hmin)
 {
-  realtype hmax;
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
@@ -275,7 +274,6 @@ int CVodeSetMinStep(void *cvode_mem, realtype hmin)
   }
 
   if (hmin * cv_mem->cv_hmax_inv > ONE) {
-    hmax = ONE/cv_mem->cv_hmax_inv;
     if(errfp!=NULL) fprintf(errfp, MSGCVS_SET_BAD_HMIN_HMAX);
     return(CV_ILL_INPUT);
   }
