@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-05-12 21:02:23 $
+ * $Revision: 1.22 $
+ * $Date: 2005-05-12 23:14:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -702,7 +702,6 @@ realtype N_VMin_Serial(N_Vector x)
 
   min = xd[0];
 
-  xd++;
   for (i = 1; i < N; i++) {
     if (xd[i] < min) min = xd[i];
   }
