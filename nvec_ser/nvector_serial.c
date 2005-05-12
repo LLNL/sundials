@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-04-15 23:37:00 $
+ * $Revision: 1.21 $
+ * $Date: 2005-05-12 21:02:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -256,11 +256,11 @@ void N_VPrint_Serial(N_Vector x)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%11.8Lg\n", *xd++);
+    printf("%11.8Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%11.8lg\n", *xd++);
+    printf("%11.8lg\n", xd[i]);
 #else
-    printf("%11.8g\n", *xd++);
+    printf("%11.8g\n", xd[i]);
 #endif
   }
   printf("\n");
@@ -476,8 +476,8 @@ void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   yd = NV_DATA_S(y);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++) 
-    *zd++ = a * (*xd++) + b * (*yd++);
+  for (i = 0; i < N; i++)
+    zd[i] = (a*xd[i])+(b*yd[i]);
 
   return;
 }
@@ -492,8 +492,7 @@ void N_VConst_Serial(realtype c, N_Vector z)
   N  = NV_LENGTH_S(z);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++) 
-    *zd++ = c;
+  for (i = 0; i < N; i++) zd[i] = c;
 
   return;
 }
@@ -511,7 +510,7 @@ void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = (*xd++) * (*yd++);
+    zd[i] = xd[i]*yd[i];
 
   return;
 }
@@ -529,7 +528,7 @@ void N_VDiv_Serial(N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = (*xd++) / (*yd++);
+    zd[i] = xd[i]/yd[i];
 
   return;
 }
@@ -555,7 +554,7 @@ void N_VScale_Serial(realtype c, N_Vector x, N_Vector z)
     xd = NV_DATA_S(x);
     zd = NV_DATA_S(z);
     for (i = 0; i < N; i++) 
-      *zd++ = c * (*xd++);
+      zd[i] = c*xd[i];
   }
 
   return;
@@ -572,8 +571,8 @@ void N_VAbs_Serial(N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++, xd++, zd++)
-    *zd = ABS(*xd);
+  for (i = 0; i < N; i++)
+    zd[i] = ABS(xd[i]);
 
   return;
 }
@@ -590,7 +589,7 @@ void N_VInv_Serial(N_Vector x, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = ONE / (*xd++);
+    zd[i] = ONE/xd[i];
 
   return;
 }
@@ -607,7 +606,7 @@ void N_VAddConst_Serial(N_Vector x, realtype b, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++) 
-    *zd++ = (*xd++) + b;
+    zd[i] = xd[i]+b;
 
   return;
 }
@@ -625,7 +624,7 @@ realtype N_VDotProd_Serial(N_Vector x, N_Vector y)
   yd = NV_DATA_S(y);
 
   for (i = 0; i < N; i++)
-    sum += (*xd++) * (*yd++);
+    sum += xd[i]*yd[i];
   
   return(sum);
 }
@@ -641,8 +640,8 @@ realtype N_VMaxNorm_Serial(N_Vector x)
   N  = NV_LENGTH_S(x);
   xd = NV_DATA_S(x);
 
-  for (i = 0; i < N; i++, xd++) {
-    if (ABS(*xd) > max) max = ABS(*xd);
+  for (i = 0; i < N; i++) {
+    if (ABS(xd[i]) > max) max = ABS(xd[i]);
   }
 
   return(max);
@@ -661,11 +660,11 @@ realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
   wd = NV_DATA_S(w);
 
   for (i = 0; i < N; i++) {
-    prodi = (*xd++) * (*wd++);
-    sum += prodi * prodi;
+    prodi = xd[i]*wd[i];
+    sum += SQR(prodi);
   }
 
-  return(RSqrt(sum / N));
+  return(RSqrt(sum/N));
 }
 
 realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
@@ -683,8 +682,8 @@ realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
 
   for (i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
-      prodi = xd[i] * wd[i];
-      sum += prodi * prodi;
+      prodi = xd[i]*wd[i];
+      sum += SQR(prodi);
     }
   }
 
@@ -704,8 +703,8 @@ realtype N_VMin_Serial(N_Vector x)
   min = xd[0];
 
   xd++;
-  for (i = 1; i < N; i++, xd++) {
-    if ((*xd) < min) min = *xd;
+  for (i = 1; i < N; i++) {
+    if (xd[i] < min) min = xd[i];
   }
 
   return(min);
@@ -724,8 +723,8 @@ realtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
   wd = NV_DATA_S(w);
 
   for (i = 0; i < N; i++) {
-    prodi = (*xd++) * (*wd++);
-    sum += prodi * prodi;
+    prodi = xd[i]*wd[i];
+    sum += SQR(prodi);
   }
 
   return(RSqrt(sum));
@@ -748,23 +747,6 @@ realtype N_VL1Norm_Serial(N_Vector x)
   return(sum);
 }
 
-void N_VOneMask_Serial(N_Vector x)
-{
-  long int i, N;
-  realtype *xd;
-
-  xd = NULL;
-
-  N  = NV_LENGTH_S(x);
-  xd = NV_DATA_S(x);
-
-  for (i = 0; i < N; i++, xd++) {
-    if (*xd != ZERO) *xd = ONE;
-  }
-
-  return;
-}
-
 void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z)
 {
   long int i, N;
@@ -776,8 +758,8 @@ void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++, xd++, zd++) {
-    *zd = (ABS(*xd) >= c) ? ONE : ZERO;
+  for (i = 0; i < N; i++) {
+    zd[i] = (ABS(xd[i]) >= c) ? ONE : ZERO;
   }
 
   return;
@@ -795,8 +777,8 @@ booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++) {
-    if (*xd == ZERO) return(FALSE);
-    *zd++ = ONE / (*xd++);
+    if (xd[i] == ZERO) return(FALSE);
+    zd[i] = ONE/xd[i];
   }
 
   return(TRUE);
@@ -817,15 +799,15 @@ booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
 
   test = TRUE;
 
-  for (i = 0; i < N; i++, cd++, xd++, md++) {
-    *md = ZERO;
-    if (*cd == ZERO) continue;
-    if (*cd > ONEPT5 || (*cd) < -ONEPT5) {
-      if ( (*xd)*(*cd) <= ZERO) { test = FALSE; *md = ONE; }
+  for (i = 0; i < N; i++) {
+    md[i] = ZERO;
+    if (cd[i] == ZERO) continue;
+    if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
+      if ( xd[i]*cd[i] <= ZERO) { test = FALSE; md[i] = ONE; }
       continue;
     }
-    if ( (*cd) > HALF || (*cd) < -HALF) {
-      if ( (*xd)*(*cd) < ZERO ) { test = FALSE; *md = ONE; }
+    if ( cd[i] > HALF || cd[i] < -HALF) {
+      if (xd[i]*cd[i] < ZERO ) { test = FALSE; md[i] = ONE; }
     }
   }
 
@@ -847,12 +829,12 @@ realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   notEvenOnce = TRUE;
   min = BIG_REAL;
 
-  for (i = 0; i < N; i++, nd++, dd++) {
-    if (*dd == ZERO) continue;
+  for (i = 0; i < N; i++) {
+    if (dd[i] == ZERO) continue;
     else {
-      if (!notEvenOnce) min = MIN(min, (*nd) / (*dd));
+      if (!notEvenOnce) min = MIN(min, nd[i]/dd[i]);
       else {
-	min = (*nd) / (*dd);
+	min = nd[i]/dd[i];
         notEvenOnce = FALSE;
       }
     }
@@ -879,7 +861,7 @@ static void VCopy_Serial(N_Vector x, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = *xd++; 
+    zd[i] = xd[i]; 
 
   return;
 }
@@ -897,7 +879,7 @@ static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = (*xd++) + (*yd++);
+    zd[i] = xd[i]+yd[i];
 
   return;
 }
@@ -915,7 +897,7 @@ static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = (*xd++) - (*yd++);
+    zd[i] = xd[i]-yd[i];
 
   return;
 }
@@ -932,7 +914,7 @@ static void VNeg_Serial(N_Vector x, N_Vector z)
   zd = NV_DATA_S(z);
   
   for (i = 0; i < N; i++)
-    *zd++ = -(*xd++);
+    zd[i] = -xd[i];
 
   return;
 }
@@ -950,7 +932,7 @@ static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = c * ((*xd++) + (*yd++));
+    zd[i] = c*(xd[i]+yd[i]);
 
   return;
 }
@@ -968,7 +950,7 @@ static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = c * ((*xd++) - (*yd++));
+    zd[i] = c*(xd[i]-yd[i]);
 
   return;
 }
@@ -986,7 +968,7 @@ static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = a * (*xd++) + (*yd++);
+    zd[i] = (a*xd[i])+yd[i];
 
   return;
 }
@@ -1004,7 +986,7 @@ static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z)
   zd = NV_DATA_S(z);
 
   for (i = 0; i < N; i++)
-    *zd++ = a * (*xd++) - (*yd++);
+    zd[i] = (a*xd[i])-yd[i];
 
   return;
 }
@@ -1022,18 +1004,18 @@ static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y)
 
   if (a == ONE) {
     for (i = 0; i < N; i++)
-      *yd++ += (*xd++);
+      yd[i] += xd[i];
     return;
   }
 
   if (a == -ONE) {
     for (i = 0; i < N; i++)
-      *yd++ -= (*xd++);
+      yd[i] -= xd[i];
     return;
   }    
 
   for (i = 0; i < N; i++)
-    *yd++ += a * (*xd++);
+    yd[i] += a*xd[i];
 
   return;
 }
@@ -1049,7 +1031,7 @@ static void VScaleBy_Serial(realtype a, N_Vector x)
   xd = NV_DATA_S(x);
 
   for (i = 0; i < N; i++)
-    *xd++ *= a;
+    xd[i] *= a;
 
   return;
 }
