@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-05-16 17:08:17 $
+ * $Revision: 1.25 $
+ * $Date: 2005-05-16 18:29:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -224,7 +224,9 @@ int main(int argc, char *argv[])
 
   steps = STEPS;
   cvadj_mem = CVadjMalloc(cvode_mem, steps, CV_HERMITE);
-  //cvadj_mem = CVadjMalloc(cvode_mem, steps, CV_POLYNOMIAL);
+  /*
+  cvadj_mem = CVadjMalloc(cvode_mem, steps, CV_POLYNOMIAL);
+  */
   if (check_flag((void *)cvadj_mem, "CVadjMalloc", 0)) return(1);
 
   /* Perform forward run */
@@ -297,17 +299,6 @@ int main(int argc, char *argv[])
   flag = CVodeSetFdataB(cvadj_mem, data);
   if (check_flag(&flag, "CVodeSetFdataB", 1)) return(1);
 
-
-
-
-
-  flag = CVodeSetMaxNumStepsB(cvadj_mem, 5000);
-
-
-
-
-
-
   flag = CVDenseB(cvadj_mem, NEQ);
   if (check_flag(&flag, "CVDenseB", 1)) return(1);
 
@@ -324,7 +315,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Backward Integration */
-  printf("Integrate backwards...\n");
+  printf("Backward integration ... ");
 
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
@@ -337,6 +328,7 @@ int main(int argc, char *argv[])
   PrintOutput(yB, qB);
 
   /* Reinitialize backward phase (new tB0) */
+
   Ith(yB,1) = ZERO;
   Ith(yB,2) = ZERO;
   Ith(yB,3) = ZERO;
@@ -353,8 +345,7 @@ int main(int argc, char *argv[])
   flag = CVodeQuadReInitB(cvadj_mem, fQB, qB); 
   if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
 
-  /* Backward Integration */
-  printf("Integrate backwards...\n");
+  printf("Backward integration ... ");
 
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
