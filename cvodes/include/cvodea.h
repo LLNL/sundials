@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2005-05-04 22:43:54 $
+ * $Revision: 1.36 $
+ * $Date: 2005-05-16 17:13:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -76,12 +76,12 @@ extern "C" {
    * interp: Specifies the interpolation type used to evaluate the
    *         forward solution during the backward integration phase.
    *         CV_HERMITE specifies cubic Hermite interpolation.
-   *         CV_BDFINTERP specifies the BDF interpolant
+   *         CV_POYNOMIAL specifies the polynomial interpolation
    * -----------------------------------------------------------------
    */
   
-#define CV_HERMITE   1
-#define CV_BDFINTERP 2
+#define CV_HERMITE    1
+#define CV_POLYNOMIAL 2
 
   /* 
    * ===============================================================
@@ -186,18 +186,18 @@ extern "C" {
    * -----------------------------------------------------------------
    */
   
-  void *CVadjMalloc(void *cvode_mem, long int steps);
+  void *CVadjMalloc(void *cvode_mem, long int steps, int interp);
 
   /*
    * -----------------------------------------------------------------
-   * CVadjMalloc
+   * CVadjResetInterpType
    * -----------------------------------------------------------------
-   * Set the interpolation type. 
-   * Currently only CV_HERMITE is implemented.
+   * Changes the interpolation type. 
+   * Must be called only after CVadjMalloc
    * -----------------------------------------------------------------
    */
   
-  int CVadjSetInterpType(void *cvadj_mem, int interp);
+  int CVadjResetInterpType(void *cvadj_mem, int interp);
 
   /*
    * -----------------------------------------------------------------
@@ -423,6 +423,11 @@ extern "C" {
    *    at the data point 'which'. The user must allocate space for
    *    y and yd. Returns CVADJ_MEM_NULL if cvadj_mem is NULL.
    *    Returns CV_ILL_INPUT if interpType != CV_HERMITE.
+   * CVadjGetDataPointPolynomial
+   *    Returns the vector stored for polynomial interpolation 
+   *    at the data point 'which'. The user must allocate space for
+   *    y. Returns CVADJ_MEM_NULL if cvadj_mem is NULL.
+   *    Returns CV_ILL_INPUT if interpType != CV_POLYNOMIAL.
    * CVadjGetY
    *    Returns the interpolated forward solution at time t. This
    *    function is a wrapper around the interpType-dependent internal
@@ -433,6 +438,9 @@ extern "C" {
 
   int CVadjGetDataPointHermite(void *cvadj_mem, long int which,
                                realtype *t, N_Vector y, N_Vector yd);
+  
+  int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
+                                  realtype *t, int *order, N_Vector y);
   
   int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
   

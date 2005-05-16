@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2005-05-04 22:43:54 $
+ * $Revision: 1.40 $
+ * $Date: 2005-05-16 17:13:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -941,8 +941,10 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  *                  user's tolerances should be scaled when too
  *                  much accuracy has been requested for some
  *                  internal step
- * CVodeGetErrWeights returns the state error weight vector.
- *                  The user must allocate space for eweight.
+ * CVodeGetErrWeights returns the current error weight vector.
+ *                    The user must allocate space for eweight.
+ * CVodeGetErrWeightsAtY returns the error weight vector corresponding
+ *                    to y. The user must allocate space for eweight.
  * CVodeGetEstLocalErrors returns the vector of estimated local
  *                  errors. The user must allocate space for ele.
  * CVodeGetNumGEvals returns the number of calls to the user's
@@ -972,7 +974,8 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
 int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
 int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
 int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac);
-int CVodeGetErrWeights(void *cvode_mem, N_Vector y, N_Vector eweight);
+int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight);
+int CVodeGetErrWeightsAtY(void *cvode_mem, N_Vector y, N_Vector eweight);
 int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele);
 int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
 int CVodeGetRootInfo(void *cvode_mem, int *rootsfound);
