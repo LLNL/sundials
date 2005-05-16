@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-04-26 18:32:41 $
+ * $Revision: 1.10 $
+ * $Date: 2005-05-16 17:13:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -134,9 +134,11 @@ extern "C" {
     N_Vector yd;
   } *HermiteDataMem;
 
-  /* Data for interpolation using the BDF interpolant */
-  typedef struct BDFinterpDataMemRec {
-  } *BDFinterpDataMem;
+  /* Data for polynomial interpolation */
+  typedef struct PolynomialDataMemRec {
+    N_Vector y;
+    int order;
+  } *PolynomialDataMem;
 
   /*
    * -----------------------------------------------------------------
@@ -147,7 +149,7 @@ extern "C" {
    * necessary for adjoint sensitivity analysis.
    * -----------------------------------------------------------------
    */
-  
+
   struct CVadjMemRec {
     
     /* CVODE memory for forward runs */
@@ -235,9 +237,14 @@ extern "C" {
     /* Commonly, np = nsteps+1                              */
     long int ca_np;
     
-    /* Temporary space used by the Hermite interpolation */
-    realtype ca_delta;
-    N_Vector ca_Y0, ca_Y1;
+    /* Workspace used by the Hermite interpolation */
+    N_Vector ca_Y0, ca_Y1;    /* pointers to zn[0] and zn[1] */
+
+    /* Workspace for polynomial interpolation */
+    N_Vector ca_Y[L_MAX];     /* pointers to zn[i] */
+    realtype ca_T[L_MAX];
+
+    /* Workspace for wrapper functions */
     N_Vector ca_ytmp;
     
   };
@@ -249,6 +256,8 @@ extern "C" {
 #define MSGAM_BAD_STEPS _CVAM_ "Steps nonpositive illegal.\n\n"
 #define MSGAM_MEM_FAIL  _CVAM_ "A memory request failed.\n\n"
 #define MSGAM_BAD_INTERP _CVAM_ "Illegal value for interp.\n\n"
+
+#define MSGAS_BAD_INTERP "CVadjResetInterpType-- Illegal value for interp.\n\n"
 
 #ifdef __cplusplus
 }
