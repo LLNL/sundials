@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.49 $
- * $Date: 2005-05-16 17:13:59 $
+ * $Revision: 1.50 $
+ * $Date: 2005-05-16 18:28:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -25,9 +25,6 @@
 #include "cvodea_impl.h"
 #include "sundialsmath.h"
 #include "sundialstypes.h"
-
-#include "../../nvec_ser/nvector_serial.h"
-
 
 /*=================================================================*/
 /*                  Macros                                         */
@@ -2255,7 +2252,7 @@ static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)
   DtpntMem *dt_mem;
   PolynomialDataMem content;
   int flag, dir, order, i, j;
-  long int indx;
+  long int indx, base;
   booleantype new;
   realtype dt, factor;
 
@@ -2281,18 +2278,27 @@ static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)
     return(CV_SUCCESS);
   }
 
+  /* Scaling factor */
+
+  dt = ABS(dt_mem[indx]->t - dt_mem[indx-1]->t);
+
   /* Find the direction of the forward integration */
 
   dir = (tfinal - tinitial > ZERO) ? 1 : -1;
 
-  /* Extract stuff from the appropriate data points */
+  /* Establish the base point depending on the integration direction.
+     Modify the base if there are not enough points for the current order */
 
   if (dir == 1) {
-    content = (PolynomialDataMem) (dt_mem[indx]->content);
-    order = MIN(content->order, indx);
+    base = indx;
+    content = (PolynomialDataMem) (dt_mem[base]->content);
+    order = content->order;
+    if(indx < order) base += order-indx;
   } else {
-    content = (PolynomialDataMem) (dt_mem[indx-1]->content);
-    order = MIN(content->order,np-indx);
+    base = indx-1;
+    content = (PolynomialDataMem) (dt_mem[base]->content);
+    order = content->order;
+    if (np-indx > order) base -= indx+order-np;
   }
 
   /* Recompute Y (divided differences for Newton polynomial) if needed */
@@ -2302,20 +2308,14 @@ static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)
     /* Store 0-th order DD */
     if (dir == 1) {
       for(j=0;j<=order;j++) {
-        T[j] = dt_mem[indx-j]->t;
-        content = (PolynomialDataMem) (dt_mem[indx-j]->content);
+        T[j] = dt_mem[base-j]->t;
+        content = (PolynomialDataMem) (dt_mem[base-j]->content);
         N_VScale(ONE, content->y, Y[j]);
       }
-      /*
-      for(j=0;j<=order;j++) printf("%16.8e  ",T[j]/dt); 
-      printf("\n\n");
-      for(j=0;j<=order;j++) {ydata = NV_DATA_S(Y[j]); printf("%16.8e  ",ydata[2]);}
-      printf("\n");
-      */
     } else {
       for(j=0;j<=order;j++) {
-        T[j] = dt_mem[indx-1+j]->t;
-        content = (PolynomialDataMem) (dt_mem[indx-1+j]->content);
+        T[j] = dt_mem[base-1+j]->t;
+        content = (PolynomialDataMem) (dt_mem[base-1+j]->content);
         N_VScale(ONE, content->y, Y[j]);
       }
     }
@@ -2326,53 +2326,16 @@ static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)
         factor = dt/(T[j]-T[j-i]);
         N_VLinearSum(factor, Y[j], -factor, Y[j-1], Y[j]);
       }
-      /*
-      for(j=i;j<=order;j++) {printf("       %16.8e  ",dt/(T[j]-T[j-1]));}
-      printf("\n");
-      for(j=i;j<=order;j++) {ydata = NV_DATA_S(Y[j]); printf("%16.8e  ",ydata[2]);}
-      printf("\n");
-      */
     }
   }
 
-  dt = ABS(T[1]-T[0]);
-
   /* Perform the actual interpolation using nested multiplications */
 
-  /*
-  printf("\n\n");
-  */
-
-  /* Direct sum */
-  /*
-  N_VScale(ONE, Y[0], y);
-  ydata = NV_DATA_S(y);
-  printf("%16.8e\n",ydata[2]);
-  for (i=1;i<=order;i++) {
-    factor = ONE;
-    for (j=0;j<i;j++) factor *= (t-T[j])/dt;
-    N_VLinearSum(ONE,y,factor,Y[i],y);
-    printf("%16.8e  |  %16.8e\n",ydata[2],factor);
-  }
-  */
-
-  /* Nested multiplications */
   N_VScale(ONE, Y[order], y);
-  /*
-  ydata = NV_DATA_S(y);
-  printf("%16.8e\n",ydata[2]);
-  */
   for (i=order-1; i>=0; i--) {
     factor = (t-T[i])/dt;
     N_VLinearSum(factor, y, ONE, Y[i], y);
-    /*
-    printf("%16.8e  |  %16.8e\n",ydata[2],factor);
-    */
   }
-
-  /*
-  printf("\n");
-  */
 
   return(CV_SUCCESS);
 
