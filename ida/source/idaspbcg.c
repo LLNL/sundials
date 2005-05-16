@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-05-12 21:03:20 $
+ * $Revision: 1.6 $
+ * $Date: 2005-05-16 17:29:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -267,7 +267,7 @@ int IDASpbcgSetEpsLin(void *ida_mem, realtype eplifac)
     return(IDASPBCG_ILL_INPUT);
   }
 
-  if (eplifac == 0)
+  if (eplifac == ZERO)
     idaspbcg_mem->b_eplifac = PT05;
   else
     idaspbcg_mem->b_eplifac = eplifac;
@@ -694,10 +694,10 @@ static int IDASpbcgPerf(IDAMem IDA_mem, int perftask)
 
   nstd = nst - nst0;  nnid = nni - nni0;
   if (nstd == 0 || nnid == 0) return(0);
-  avdim = (nli - nli0)/((realtype) nnid);
-  rcfn = (ncfn - ncfn0)/((realtype) nstd);
-  rcfl = (ncfl - ncfl0)/((realtype) nnid);
-  lavd = (avdim > ((realtype) maxl ));
+  avdim = (realtype) ((nli - nli0)/((realtype) nnid));
+  rcfn = (realtype) ((ncfn - ncfn0)/((realtype) nstd));
+  rcfl = (realtype) ((ncfl - ncfl0)/((realtype) nnid));
+  lavd = (avdim > ((realtype) maxl));
   lcfn = (rcfn > PT9);
   lcfl = (rcfl > PT9);
   if (!(lavd || lcfn || lcfl)) return(0);

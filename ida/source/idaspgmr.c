@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-04-27 21:38:03 $
+ * $Revision: 1.28 $
+ * $Date: 2005-05-16 17:29:24 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -332,7 +332,7 @@ int IDASpgmrSetEpsLin(void *ida_mem, realtype eplifac)
     return(IDASPGMR_ILL_INPUT);
   }
 
-  if (eplifac == 0)
+  if (eplifac == ZERO)
     idaspgmr_mem->g_eplifac = PT05;
   else
     idaspgmr_mem->g_eplifac = eplifac;
@@ -758,10 +758,10 @@ static int IDASpgmrPerf(IDAMem IDA_mem, int perftask)
 
   nstd = nst - nst0;  nnid = nni - nni0;
   if (nstd == 0 || nnid == 0) return(0);
-  avdim = (nli - nli0)/( (realtype) nnid);
-  rcfn = (ncfn - ncfn0)/( (realtype) nstd);
-  rcfl = (ncfl - ncfl0)/( (realtype) nnid);
-  lavd = (avdim > ( (realtype) maxl ) );
+  avdim = (realtype) ((nli - nli0)/((realtype) nnid));
+  rcfn = (realtype) ((ncfn - ncfn0)/((realtype) nstd));
+  rcfl = (realtype) ((ncfl - ncfl0)/((realtype) nnid));
+  lavd = (avdim > ((realtype) maxl ));
   lcfn = (rcfn > PT9);
   lcfl = (rcfl > PT9);
   if (!(lavd || lcfn || lcfl)) return(0);

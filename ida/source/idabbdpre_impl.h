@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-01-31 23:58:12 $
+ * $Revision: 1.10 $
+ * $Date: 2005-05-16 17:29:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -29,23 +29,6 @@ extern "C" {
 #include "iterative.h"
 #include "nvector.h"
 #include "sundialstypes.h"
-
-/*
- * -----------------------------------------------------------------
- * Prototypes of IDABBDPrecSetup and IDABBDPrecSolve
- * -----------------------------------------------------------------
- */
-
-int IDABBDPrecSetup(realtype tt,
-		    N_Vector yy, N_Vector yp, N_Vector rr,
-		    realtype c_j, void *prec_data,
-		    N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
- 
-int IDABBDPrecSolve(realtype tt,
-		    N_Vector yy, N_Vector yp, N_Vector rr,
-		    N_Vector rvec, N_Vector zvec,
-		    realtype c_j, realtype delta, void *prec_data,
-                    N_Vector tmp);
 
 /*
  * -----------------------------------------------------------------
