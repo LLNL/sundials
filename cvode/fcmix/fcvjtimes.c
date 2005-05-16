@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-05-05 13:45:49 $
+ * $Revision: 1.20 $
+ * $Date: 2005-05-16 17:06:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -85,7 +85,7 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   int ier = 0;
   
-  CVodeGetErrWeights(CV_cvodemem, y, CV_ewt);
+  CVodeGetErrWeights(CV_cvodemem, CV_ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   vdata   = N_VGetArrayPointer(v);

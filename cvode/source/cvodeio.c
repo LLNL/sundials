@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-05-12 21:03:14 $
+ * $Revision: 1.9 $
+ * $Date: 2005-05-16 17:06:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -859,10 +859,32 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
 /* 
  * CVodeGetErrWeights
  *
+ * This routine returns the current weight vector.
+ */
+
+int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    fprintf(stderr, MSGCV_GET_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  N_VScale(ONE, ewt, eweight);
+
+  return(CV_SUCCESS);
+}
+
+/* 
+ * CVodeGetErrWeightsAtY
+ *
  * This routine returns the error weight vector for y in eweight.
  */
 
-int CVodeGetErrWeights(void *cvode_mem, N_Vector yy, N_Vector eweight)
+int CVodeGetErrWeightsAtY(void *cvode_mem, N_Vector yy, N_Vector eweight)
 {
   CVodeMem cv_mem;
   int ewtsetOK;
