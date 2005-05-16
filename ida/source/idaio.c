@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-05-04 22:45:52 $
+ * $Revision: 1.7 $
+ * $Date: 2005-05-16 17:04:35 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -881,7 +881,25 @@ int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact)
 
 /*-----------------------------------------------------------------*/
 
-int IDAGetErrWeights(void *ida_mem, N_Vector y, N_Vector eweight)
+int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem == NULL) {
+    fprintf(stderr, MSG_IDAG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem; 
+
+  N_VScale(ONE, ewt, eweight);
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetErrWeightsAtY(void *ida_mem, N_Vector y, N_Vector eweight)
 {
   IDAMem IDA_mem;
   int ewtsetOK;

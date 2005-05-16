@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2005-05-04 22:45:48 $
+ * $Revision: 1.33 $
+ * $Date: 2005-05-16 17:04:26 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -716,8 +716,10 @@ int IDAGetSolution(void *ida_mem, realtype t,
  * IDAGetTolScaleFactor returns a suggested factor by which the   
  *       user's tolerances should be scaled when too much         
  *       accuracy has been requested for some internal step       
- * IDAGetErrWeights returns the state error weight vector.        
+ * IDAGetErrWeights returns the current state error weight vector.        
  *       The user must allocate space for ewt.                
+ * IDAGetErrWeightsAtY returns the error weight vector corresponding 
+ *       to y. The user must allocate space for ewt.                
  *                                                                
  * IDAGet* return values:
  *   IDA_SUCCESS   if succesful
@@ -739,7 +741,8 @@ int IDAGetLastStep(void *ida_mem, realtype *hlast);
 int IDAGetCurrentStep(void *ida_mem, realtype *hcur);
 int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
-int IDAGetErrWeights(void *ida_mem, N_Vector y, N_Vector eweight);
+int IDAGetErrWeights(void *ida_mem, N_Vector eweight);
+int IDAGetErrWeightsAtY(void *ida_mem, N_Vector y, N_Vector eweight);
 
 int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
                           long int *nrevals, long int *nlinsetups, 

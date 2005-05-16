@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-05-04 22:45:23 $
+ * $Revision: 1.24 $
+ * $Date: 2005-05-16 17:04:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -1141,7 +1141,7 @@ static int Precondbd(realtype tt, N_Vector cc,
 
   mem = webdata->ida_mem;
   ewt = webdata->ewt;
-  flag = IDAGetErrWeights(mem, cc, ewt);
+  flag = IDAGetErrWeights(mem, ewt);
   check_flag(&flag, "IDAGetErrWeights", 1, thispe);
   flag = IDAGetCurrentStep(mem, &hh);
   check_flag(&flag, "IDAGetCurrentStep", 1, thispe);

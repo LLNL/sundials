@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-11 23:10:54 $
+ * $Revision: 1.2 $
+ * $Date: 2005-05-16 17:04:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -92,7 +92,7 @@ int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
      value if an error occurred */
   ier = 0;
 
-  IDAGetErrWeights(IDA_idamem, yy, F2C_IDA_ewtvec);
+  IDAGetErrWeights(IDA_idamem, F2C_IDA_ewtvec);
   IDAGetLastStep(IDA_idamem, &h);
 
   /* Get pointers to vector data */

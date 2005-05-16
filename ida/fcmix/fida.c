@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-11 23:10:54 $
+ * $Revision: 1.2 $
+ * $Date: 2005-05-16 17:04:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -604,7 +604,7 @@ void FIDA_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier)
 
   *ier = 0;
 
-  *ier = IDAGetErrWeights(IDA_idamem, F2C_IDA_vec, F2C_IDA_ypvec);
+  *ier = IDAGetErrWeights(IDA_idamem, F2C_IDA_ypvec);
 
   /* Reset data pointers */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
