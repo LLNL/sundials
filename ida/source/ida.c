@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38.2.7 $
- * $Date: 2005-04-14 20:47:31 $
+ * $Revision: 1.38.2.8 $
+ * $Date: 2005-05-18 23:27:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2198,7 +2198,7 @@ static int IDAEwtSetSS(N_Vector ycur, N_Vector weight, IDAMem IDA_mem)
   N_VScale(rtol, tempv1, tempv1);
   N_VAddConst(tempv1, Satol, tempv1);
   if (N_VMin(tempv1) <= ZERO) return(-1);
-  N_VInv(tempv1, ewt);
+  N_VInv(tempv1, weight);
   return(0);
 }
 
@@ -2219,7 +2219,7 @@ static int IDAEwtSetSV(N_Vector ycur, N_Vector weight, IDAMem IDA_mem)
   N_VAbs(ycur, tempv1);
   N_VLinearSum(rtol, tempv1, ONE, Vatol, tempv1);
   if (N_VMin(tempv1) <= ZERO) return(-1);
-  N_VInv(tempv1, ewt);
+  N_VInv(tempv1, weight);
   return(0);
 }
 
