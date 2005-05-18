@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-04-26 14:24:21 $
+ * $Revision: 1.27 $
+ * $Date: 2005-05-18 18:17:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -13,8 +13,8 @@
  * -----------------------------------------------------------------
  * This is the header file for the CVBANDPRE module, which
  * provides a banded difference quotient Jacobian-based
- * preconditioner and solver routines for use with CVSPGMR
- * or CVSPBCG.
+ * preconditioner and solver routines for use with CVSPGMR,
+ * CVSPBCG, or CVSPTFQMR.
  *
  * Summary:
  * These routines provide a band matrix preconditioner based on
@@ -24,8 +24,8 @@
  *   ml = lower half-bandwidth (number of sub-diagonals)
  * The routines generate a band matrix of bandwidth ml + mu + 1
  * and use this to form a preconditioner for use with the Krylov
- * linear solver in CVSPGMR/CVSPBCG. Although this matrix is
- * intended to approximate the Jacobian df/dy, it may be a very crude
+ * linear solver in CVSP*. Although this matrix is intended to
+ * approximate the Jacobian df/dy, it may be a very crude
  * approximation. The true Jacobian need not be banded, or its
  * true bandwith may be larger than ml + mu + 1, as long as the
  * banded approximation generated here is sufficiently accurate
@@ -33,7 +33,7 @@
  *
  * Usage:
  *   The following is a summary of the usage of this module.
- *   Details of the calls to CVodeCreate, CVodeMalloc, CVSpgmr/CVSpbcg,
+ *   Details of the calls to CVodeCreate, CVodeMalloc, CVSp*,
  *   and CVode are available in the User Guide.
  *   To use these routines, the sequence of calls in the user
  *   main program should be as follows:
@@ -50,6 +50,8 @@
  *   ...
  *   bp_data = CVBandPrecAlloc(cvode_mem, N, mu, ml);
  *   ...
+ *   flag = CVBPSptfqmr(cvode_mem, pretype, maxl, bp_data);
+ *     -or-
  *   flag = CVBPSpgmr(cvode_mem, pretype, maxl, bp_data);
  *     -or-
  *   flag = CVBPSpbcg(cvode_mem, pretype, maxl, bp_data);
@@ -66,7 +68,7 @@
  * (1) Include this file for the CVBandPrecData type definition.
  * (2) In the CVBandPrecAlloc call, the arguments N is the same
  *     as in the call to CVodeMalloc.
- * (3) In the CVBPSpgmr/CVBPSpbcg call, the user is free to specify
+ * (3) In the CVBPSp* call, the user is free to specify
  *     the input pretype and the optional input maxl. The last
  *     argument must be the pointer returned by CVBandPrecAlloc.
  * -----------------------------------------------------------------
@@ -87,7 +89,7 @@ extern "C" {
  * Function : CVBandPrecAlloc
  * -----------------------------------------------------------------
  * CVBandPrecAlloc allocates and initializes a CVBandPrecData
- * structure to be passed to CVSpgmr/CVSpbcg (and subsequently used
+ * structure to be passed to CVSp* (and subsequently used
  * by CVBandPrecSetup and CVBandPrecSolve).
  *
  * The parameters of CVBandPrecAlloc are as follows:
@@ -113,6 +115,35 @@ extern "C" {
 
 void *CVBandPrecAlloc(void *cvode_mem, long int N,
                       long int mu, long int ml);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : CVBPSptfqmr
+ * -----------------------------------------------------------------
+ * CVBPSptfqmr links the CVBANDPPRE preconditioner to the CVSPTFQMR
+ * linear solver. It performs the following actions:
+ *  1) Calls the CVSPTFQMR specification routine and attaches the
+ *     CVSPTFQMR linear solver to the integrator memory;
+ *  2) Sets the preconditioner data structure for CVSPTFQMR
+ *  3) Sets the preconditioner setup routine for CVSPTFQMR
+ *  4) Sets the preconditioner solve routine for CVSPTFQMR
+ *
+ * Its first 3 arguments are the same as for CVSptfqmr (see
+ * cvsptfqmr.h). The last argument is the pointer to the CVBANDPPRE
+ * memory block returned by CVBandPrecAlloc. Note that the user need
+ * not call CVSptfqmr.
+ *
+ * Possible return values are:
+ *    CVSPTFQMR_SUCCESS     if successful
+ *    CVSPTFQMR_MEM_NULL    if the cvode memory was NULL
+ *    CVSPTFQMR_LMEM_NULL   if the cvspbcg memory was NULL
+ *    CVSPTFQMR_MEM_FAIL    if there was a memory allocation failure
+ *    CVSPTFQMR_ILL_INPUT   if a required vector operation is missing
+ *    CV_PDATA_NULL         if the bp_data was NULL
+ * -----------------------------------------------------------------
+ */
+
+int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------

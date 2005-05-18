@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-05-16 17:13:59 $
+ * $Revision: 1.11 $
+ * $Date: 2005-05-18 18:17:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -27,6 +27,7 @@ extern "C" {
 #include "cvodes_impl.h"
 #include "cvdense_impl.h"
 #include "cvband_impl.h"
+#include "cvsptfqmr_impl.h"
 #include "cvspbcg_impl.h"
 #include "cvspgmr_impl.h"
 #include "cvbandpre_impl.h"

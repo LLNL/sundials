@@ -94,6 +94,8 @@ v. 2.3.0 (Apr. 2005) --->
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
    - added support for SPBCG to the CVBBDPRE and CVBANDPRE preconditioner
      modules.
+   - added CVSPTFQMR interface module to allow CVODE to interface with
+     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
 
 - Changes to user interface
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to
@@ -108,6 +110,7 @@ v. 2.3.0 (Apr. 2005) --->
 
 - Changes to the FCVODE module
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
+   - added support for CVSPTFQMR/SPTFQMR (added FCV*SPTFQMR* functions).
 
 - Changes related to the build system
    - updated configure script and Makefiles for Fortran examples to avoid C++

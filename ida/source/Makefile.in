@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2005-04-27 21:38:03 $
+# $Revision: 1.13 $
+# $Date: 2005-05-18 18:17:26 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR = $(srcdir)/../../shared/include
 IDA_INC_DIR    = $(srcdir)/../include
 
 IDA_LIB       = libsundials_ida.la
-IDA_LIB_FILES = ida.lo idaic.lo idaio.lo idadense.lo idaband.lo idaspbcg.lo idaspgmr.lo idabbdpre.lo
+IDA_LIB_FILES = ida.lo idaic.lo idaio.lo idadense.lo idaband.lo idaspbcg.lo idaspgmr.lo idasptfqmr.lo idabbdpre.lo
 
-OBJECT_FILES = ida.o idaic.o idaio.o idadense.o idaband.o idaspbcg.o idaspgmr.o idabbdpre.o
+OBJECT_FILES = ida.o idaic.o idaio.o idadense.o idaband.o idaspbcg.o idaspgmr.o idasptfqmr.o idabbdpre.o
 
 all: update $(IDA_LIB_FILES)
 
@@ -60,6 +60,7 @@ install: update $(IDA_LIB_FILES)
 	$(INSTALL_HEADER) $(IDA_INC_DIR)/idaband.h $(includedir)
 	$(INSTALL_HEADER) $(IDA_INC_DIR)/idaspbcg.h $(includedir)
 	$(INSTALL_HEADER) $(IDA_INC_DIR)/idaspgmr.h $(includedir)
+	$(INSTALL_HEADER) $(IDA_INC_DIR)/idasptfqmr.h $(includedir)
 	$(INSTALL_HEADER) $(IDA_INC_DIR)/idabbdpre.h $(includedir)
 	$(INSTALL_HEADER) $(IDA_INC_DIR)/idaspils.h $(includedir)
 
@@ -76,6 +77,7 @@ uninstall: clean
 	rm -f $(includedir)/idaband.h
 	rm -f $(includedir)/idaspbcg.h
 	rm -f $(includedir)/idaspgmr.h
+	rm -f $(includedir)/idasptfqmr.h
 	rm -f $(includedir)/idabbdpre.h
 	rm -f $(includedir)/idaspils.h
 
@@ -93,6 +95,8 @@ idaspbcg.lo: $(srcdir)/idaspbcg.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspbcg.c
 idaspgmr.lo: $(srcdir)/idaspgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspgmr.c
+idasptfqmr.lo: $(srcdir)/idasptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idasptfqmr.c
 idabbdpre.lo: $(srcdir)/idabbdpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/idabbdpre.c
 

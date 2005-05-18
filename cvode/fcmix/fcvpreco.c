@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-05-16 17:06:34 $
+ * $Revision: 1.20 $
+ * $Date: 2005-05-18 18:16:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -11,7 +11,7 @@
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * The C function FCVPSet is to interface between the CVSPGMR/CVSPBCG
+ * The C function FCVPSet is to interface between the CVSP*
  * module and the user-supplied preconditioner setup routine FCVPSET.
  * Note the use of the generic name FCV_PSET below.
  * -----------------------------------------------------------------
@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cvsptfqmr.h"      /* CVSptfqmr prototype                            */
 #include "cvspbcg.h"        /* CVSpbcg prototype                              */
 #include "cvspgmr.h"        /* CVSpgmr prototype                              */
 #include "fcvode.h"         /* actual function names, prototypes and
@@ -34,15 +35,29 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_PSET(realtype*, realtype*, realtype*, booleantype*, 
-                       booleantype*, realtype*, realtype*, realtype*,
-                       realtype*, realtype*, realtype*, int*);
-  extern void FCV_PSOL(realtype*, realtype*, realtype*, realtype*, 
-                       realtype*, realtype*, realtype*, 
-                       realtype*, int*, realtype*, int*);
+
+extern void FCV_PSET(realtype*, realtype*, realtype*, booleantype*, 
+		     booleantype*, realtype*, realtype*, realtype*,
+		     realtype*, realtype*, realtype*, int*);
+extern void FCV_PSOL(realtype*, realtype*, realtype*, realtype*, 
+		     realtype*, realtype*, realtype*, 
+		     realtype*, int*, realtype*, int*);
+
 #ifdef __cplusplus
 }
 #endif
+
+/***************************************************************************/
+
+void FCV_SPTFQMRSETPREC(int *flag, int *ier)
+{
+  if (*flag == 0) {
+    CVSptfqmrSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
+  } else {
+    CVSptfqmrSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, NULL);
+    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+  }
+}
 
 /***************************************************************************/
 

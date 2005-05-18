@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-04-07 23:28:46 $
+ * $Revision: 1.16 $
+ * $Date: 2005-05-18 18:17:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of the banded difference
  * quotient Jacobian-based preconditioner and solver routines for
- * use with CVSpgmr/CVSpbcg.
+ * use with CVSp*.
  * -----------------------------------------------------------------
  */
 
@@ -22,6 +22,7 @@
 
 #include "cvbandpre_impl.h"
 #include "cvodes_impl.h"
+#include "cvsptfqmr_impl.h"
 #include "cvspbcg_impl.h"
 #include "cvspgmr_impl.h"
 
@@ -121,6 +122,24 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   }
 
   return((void *) pdata);
+}
+
+int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data)
+{
+  int flag;
+
+  if ( p_data == NULL ) {
+    fprintf(stderr, MSGBP_NO_PDATA);
+    return(CV_PDATA_NULL);
+  } 
+
+  flag = CVSptfqmr(cvode_mem, pretype, maxl);
+  if(flag != CVSPTFQMR_SUCCESS) return(flag);
+
+  flag = CVSptfqmrSetPreconditioner(cvode_mem, CVBandPrecSetup, CVBandPrecSolve, p_data);
+  if(flag != CVSPTFQMR_SUCCESS) return(flag);
+
+  return(CVSPTFQMR_SUCCESS);
 }
 
 int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data)
@@ -258,7 +277,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
  * gamma   is the scalar appearing in the Newton matrix.
  *
  * bp_data is a pointer to preconditoner data - the same as the
- *         bp_data parameter passed to CVSpgmr/CVSpbcg.
+ *         bp_data parameter passed to CVSp*.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated
  *           for vectors of length N for work space. This
@@ -317,7 +336,7 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
  * r       is the right-hand side vector of the linear system.
  *
  * bp_data is a pointer to preconditioner data - the same as the
- *         bp_data parameter passed to CVSpgmr/CVSpbcg.
+ *         bp_data parameter passed to CVSp*.
  *
  * z       is the output vector computed by CVBandPrecSolve.
  *

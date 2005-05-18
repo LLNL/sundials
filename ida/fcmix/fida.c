@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-05-16 17:04:22 $
+ * $Revision: 1.3 $
+ * $Date: 2005-05-18 18:17:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,7 @@
 #include "idaband.h"        /* prototypes for IDABAND interface routines      */
 #include "idadense.h"       /* prototypes for IDADENSE interface routines     */
 #include "ida.h"            /* IDA constants and prototypes                   */
+#include "idasptfqmr.h"     /* prototypes for IDASPTFQMR interface routines   */
 #include "idaspbcg.h"       /* prototypes for IDASPBCG interface routines     */
 #include "idaspgmr.h"       /* prototypes for IDASPGMR interface routines     */
 #include "fida.h"           /* actual function names, prototypes and global
@@ -369,6 +370,26 @@ void FIDA_CALCIC(realtype *t0, realtype *yy0, realtype *yp0,
 
 /*************************************************/
 
+void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
+{
+  *ier = IDASptfqmr(IDA_idamem, *maxl);
+  if (*ier != IDASPTFQMR_SUCCESS) return;
+
+  *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
+  if (*ier != IDASPTFQMR_SUCCESS) return;
+
+  if (*dqincfac != ZERO) {
+    *ier = IDASptfqmrSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPTFQMR_SUCCESS) return;
+  }
+
+  IDA_ls = IDA_SPTFQMR;
+
+  return;
+}
+
+/*************************************************/
+
 void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
 {
   *ier = IDASpbcg(IDA_idamem, *maxl);
@@ -438,6 +459,23 @@ void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
   *ier = IDABand(IDA_idamem, *neq, *mupper, *mlower);
 
   IDA_ls = IDA_BAND;
+
+  return;
+}
+
+/*************************************************/
+
+void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
+{
+  *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
+  if (*ier != IDASPTFQMR_SUCCESS) return;
+
+  if (*dqincfac != ZERO) {
+    *ier = IDASptfqmrSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPTFQMR_SUCCESS) return;
+  }
+
+  IDA_ls = IDA_SPTFQMR;
 
   return;
 }
@@ -553,6 +591,17 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
       IDASpbcgGetNumJtimesEvals(IDA_idamem, &IDA_iopt[31]);
       IDASpbcgGetNumResEvals(IDA_idamem, &IDA_iopt[32]);
       IDASpbcgGetLastFlag(IDA_idamem, &last_flag);
+      IDA_iopt[33] = (long int) last_flag;
+      break;
+    case IDA_SPTFQMR:
+      IDASptfqmrGetWorkSpace(IDA_idamem, &IDA_iopt[25], &IDA_iopt[26]);
+      IDASptfqmrGetNumPrecEvals(IDA_idamem, &IDA_iopt[27]);
+      IDASptfqmrGetNumPrecSolves(IDA_idamem, &IDA_iopt[28]);
+      IDASptfqmrGetNumLinIters(IDA_idamem, &IDA_iopt[29]);
+      IDASptfqmrGetNumConvFails(IDA_idamem, &IDA_iopt[30]);
+      IDASptfqmrGetNumJtimesEvals(IDA_idamem, &IDA_iopt[31]);
+      IDASptfqmrGetNumResEvals(IDA_idamem, &IDA_iopt[32]);
+      IDASptfqmrGetLastFlag(IDA_idamem, &last_flag);
       IDA_iopt[33] = (long int) last_flag;
       break;
     case IDA_DENSE:

@@ -96,6 +96,9 @@ v. 2.3.0 (Apr. 2005) --->
    - added IDASPBCG interface module to allow IDA to interface with the
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
    - added support for SPBCG to the IDABBDPRE preconditioner module.
+   - added FIDA (Fortran interface to IDA).
+   - added IDASPTFQMR interface module to allow IDA to interface with the
+     shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
 
 - Changes to user-callable functions
    - added IDASPBCG module which defines appropriate IDSpbcg* functions to
@@ -106,7 +109,10 @@ v. 2.3.0 (Apr. 2005) --->
      all the Scaled Preconditioned Iterative Linear Solvers now available:
        IDASpgmrJactimesVecFn -> IDASpilsJacTimesVecFn
        IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn
-       IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn 
+       IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
+
+- Changes to FIDA module
+   - added support for IDASPTFQMR/SPTFQMR (added FIDA*SPTFQMR* functions).
 
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------

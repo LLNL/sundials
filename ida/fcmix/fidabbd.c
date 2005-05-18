@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-11 23:10:54 $
+ * $Revision: 1.2 $
+ * $Date: 2005-05-18 18:17:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -24,6 +24,7 @@
 #include "ida.h"            /* IDA constants and prototypes                 */
 #include "idaspgmr.h"       /* prototypes of IDASPGMR interface routines    */
 #include "idaspbcg.h"       /* prototypes of IDASPBCG interface routines    */
+#include "idasptfqmr.h"     /* prototypes of IDASPTFQMR interface routines  */
 #include "fidabbd.h"        /* prototypes of interfaces to IDABBD           */
 #include "fida.h"           /* actual function names, prototypes and global
 			       variables                                    */
@@ -58,6 +59,28 @@ void FIDA_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
 				*dqrely, (IDABBDLocalFn) FIDAgloc, (IDABBDCommFn) FIDAcfn);
   if (IDABBD_Data == NULL) *ier = -1;
   else *ier = 0;
+
+  return;
+}
+
+/*************************************************/
+
+void FIDA_BBDSPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
+{
+  *ier = 0;
+
+  *ier = IDABBDSptfqmr(IDA_idamem, *maxl, IDABBD_Data);
+  if (*ier != IDASPTFQMR_SUCCESS) return;
+
+  *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
+  if (*ier != IDASPTFQMR_SUCCESS) return;
+
+  if (*dqincfac != ZERO) {
+    *ier = IDASptfqmrSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPTFQMR_SUCCESS) return;
+  }
+
+  IDA_ls = IDA_SPTFQMR;
 
   return;
 }

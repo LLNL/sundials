@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.50 $
- * $Date: 2005-05-16 18:28:00 $
+ * $Revision: 1.51 $
+ * $Date: 2005-05-18 18:17:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -972,6 +972,106 @@ int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB)
 }
 
 /*
+ * CVSptfqmrB and CVSptfqmrSet*B
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVSptfqmr(cvode_mem, pretypeB, maxlB);
+
+  return(flag);
+}
+
+int CVSptfqmrSetPrecTypeB(void *cvadj_mem, int pretypeB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSptfqmrSetPrecType(cvode_mem, pretypeB);
+
+  return(flag);
+}
+
+int CVSptfqmrSetDeltB(void *cvadj_mem, realtype deltB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSptfqmrSetDelt(cvode_mem,deltB);
+
+  return(flag);
+}
+
+int CVSptfqmrSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
+				CVSpilsPrecSolveFnB psolveB, void *P_dataB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  pset_B   = psetB;
+  psolve_B = psolveB;
+  P_data_B = P_dataB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSptfqmrSetPreconditioner(cvode_mem, 
+				    CVAspilsPrecSetup,
+				    CVAspilsPrecSolve,
+				    cvadj_mem);
+
+  return(flag);
+}
+
+int CVSptfqmrSetJacTimesVecFnB(void *cvadj_mem, 
+			       CVSpilsJacTimesVecFnB jtimesB,
+			       void *jac_dataB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  jtimes_B   = jtimesB;
+  jac_data_B = jac_dataB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSptfqmrSetJacTimesVecFn(cvode_mem, CVAspilsJacTimesVec, cvadj_mem);
+
+  return(flag);
+}
+
+/*
  * CVSpbcgB and CVSpbcgSet*B
  *
  * Wrappers for the backward phase around the corresponding 
@@ -1181,7 +1281,7 @@ int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpilsJacTimesVecFnB jtimesB,
 }
 
 /*
- * CVBandPrecAllocB, CVBPSpgmrB, CVBPSpbcgB, CVBandPrecFreeB
+ * CVBandPrecAllocB, CVBPSp*B, CVBandPrecFreeB
  *
  * Wrappers for the backward phase around the corresponding 
  * CVODES functions
@@ -1207,6 +1307,22 @@ int CVBandPrecAllocB(void *cvadj_mem, long int nB,
 
   return(CV_SUCCESS);
 
+}
+
+int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBPSptfqmr(cvode_mem, pretypeB, maxlB, bp_data_B);
+
+  return(flag);
 }
 
 int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
@@ -1242,7 +1358,7 @@ int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
 }
 
 /*
- * CVBBDPrecAllocB, CVBPSpgmrB, CVBPSpbcgB, CVBandPrecFreeB
+ * CVBBDPrecAllocB, CVBPSp*B, CVBandPrecFreeB
  *
  * Wrappers for the backward phase around the corresponding 
  * CVODES functions
@@ -1277,6 +1393,24 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
   bbd_data_B = bbd_dataB;
 
   return(CV_SUCCESS);
+
+}
+
+int CVBBDSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+  
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+  
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBBDSptfqmr(cvode_mem, pretypeB, maxlB, bbd_data_B);
+
+  return(flag);
 
 }
 
@@ -2255,12 +2389,6 @@ static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)
   long int indx, base;
   booleantype new;
   realtype dt, factor;
-
-
-  realtype *ydata, *yldata, *yrdata;
-
-
-
 
   dt_mem = ca_mem->dt_mem;
   

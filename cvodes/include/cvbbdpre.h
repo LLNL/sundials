@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-01-24 22:28:51 $
+ * $Revision: 1.18 $
+ * $Date: 2005-05-18 18:17:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -170,8 +170,8 @@ typedef void (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
  * Function : CVBBDPrecAlloc
  * -----------------------------------------------------------------
  * CVBBDPrecAlloc allocates and initializes a CVBBDData structure
- * to be passed to CVSpgmr/CVSpbcg (and used by CVBBDPrecSetup and
- * and CVBBDPrecSolve).
+ * to be passed to CVSp* (and used by CVBBDPrecSetup and
+ * CVBBDPrecSolve).
  *
  * The parameters of CVBBDPrecAlloc are as follows:
  *
@@ -211,6 +211,35 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
                      long int mukeep, long int mlkeep, 
                      realtype dqrely,
                      CVLocalFn gloc, CVCommFn cfn);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : CVBBDSptfqmr
+ * -----------------------------------------------------------------
+ * CVBBDSptfqmr links the CVBBDPRE preconditioner to the CVSPTFQMR
+ * linear solver. It performs the following actions:
+ *  1) Calls the CVSPTFQMR specification routine and attaches the
+ *     CVSPTFQMR linear solver to the integrator memory;
+ *  2) Sets the preconditioner data structure for CVSPTFQMR
+ *  3) Sets the preconditioner setup routine for CVSPTFQMR
+ *  4) Sets the preconditioner solve routine for CVSPTFQMR
+ *
+ * Its first 3 arguments are the same as for CVSptfqmr (see
+ * cvsptfqmr.h). The last argument is the pointer to the CVBBDPRE
+ * memory block returned by CVBBDPrecAlloc. Note that the user need
+ * not call CVSptfqmr.
+ *
+ * Possible return values are:
+ *    CVSPTFQMR_SUCCESS     if successful
+ *    CVSPTFQMR_MEM_NULL    if the cvode memory was NULL
+ *    CVSPTFQMR_LMEM_NULL   if the cvspbcg memory was NULL
+ *    CVSPTFQMR_MEM_FAIL    if there was a memory allocation failure
+ *    CVSPTFQMR_ILL_INPUT   if a required vector operation is missing
+ *    CV_PDATA_NULL         if the bbd_data was NULL
+ * -----------------------------------------------------------------
+ */
+
+int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
 
 /*
  * -----------------------------------------------------------------

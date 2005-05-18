@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-01-26 22:23:36 $
+ * $Revision: 1.6 $
+ * $Date: 2005-05-18 18:17:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -89,7 +89,7 @@ typedef struct {
 
 /* KINBBDSpgmr/KINBBDSpbcg error message */
 
-#define MSGBBD_NO_PDATA "KINBBDSpgmr/KINBBDSpbcg-- KBBDPrecData is NULL.\n\n"
+#define MSGBBD_NO_PDATA "KINBBDSp*-- KBBDPrecData is NULL.\n\n"
 
 #ifdef __cplusplus
 }

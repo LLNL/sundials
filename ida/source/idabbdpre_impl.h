@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-05-16 17:29:24 $
+ * $Revision: 1.11 $
+ * $Date: 2005-05-18 18:17:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -13,12 +13,12 @@
  * This is the header file (private version) for the IDABBDPRE
  * module, for a band-block-diagonal preconditioner, i.e. a
  * block-diagonal matrix with banded blocks, for use with IDA/IDAS
- * and IDASpgmr/IDASpbcg.
+ * and IDASp*.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IBBDPRE_IMPL_H
-#define _IBBDPRE_IMPL_H
+#ifndef _IDABBDPRE_IMPL_H
+#define _IDABBDPRE_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -83,7 +83,7 @@ typedef struct {
 
 #define MSGBBD_PDATA_NULL "IDABBDPrecGet*-- IBBDPrecData is NULL.\n\n"
 
-#define MSGBBD_NO_PDATA "IDABBDSpgmr/IDABBDSpbcg-- IBBDPrecData is NULL.\n\n"
+#define MSGBBD_NO_PDATA "IDABBDSp*-- IBBDPrecData is NULL.\n\n"
 
 #ifdef __cplusplus
 }

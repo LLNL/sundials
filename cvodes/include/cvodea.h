@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2005-05-16 17:13:34 $
+ * $Revision: 1.37 $
+ * $Date: 2005-05-18 18:17:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -28,13 +28,16 @@
  *    CVodeMallocB
  *    CVDenseB
  *    CVBandB
+ *    CVSptfqmrB
  *    CVSpbcgB
  *    CVSpgmrB
  *    CVBandPrecAllocB
+ *    CVBPSptfqmrB
  *    CVBPSpbcgB
  *    CVBPSpgmrB
  *    CVBBDPrecAllocB
  *    CVBBDPrecReInit
+ *    CVBBDSptfqmrB
  *    CVBBDSpbcgB
  *    CVBBDSpgmrB
  *    CVodeB
@@ -60,6 +63,7 @@ extern "C" {
 
 #include "dense.h"
 #include "band.h"
+#include "sptfqmr.h"
 #include "spbcg.h"
 #include "spgmr.h"
 #include "sundialstypes.h"
@@ -244,6 +248,10 @@ extern "C" {
    *    CVBandB links the main CVODE integrator with the CVBAND
    *    linear solver for the backward integration.
    * -----------------------------------------------------------------
+   * CVSptfqmrB, CVSptfqmrSet*B
+   *    CVSptfqmrB links the main CVODE integrator with the CVSPTFQMR
+   *    linear solver for the backward integration.
+   * -----------------------------------------------------------------
    * CVSpbcgB, CVSpbcgSet*B
    *    CVSpbcgB links the main CVODE integrator with the CVSPBCG
    *    linear solver for the backward integration.
@@ -252,13 +260,13 @@ extern "C" {
    *    CVSpgmrB links the main CVODE integrator with the CVSPGMR
    *    linear solver for the backward integration.
    * -----------------------------------------------------------------
-   * CVBandPrecAllocB, CVBPSpgmrB, CVBPSpbcgB
+   * CVBandPrecAllocB, CVBPSp*B
    *    CVBandPrecAllocB interfaces to the CVBANDPRE preconditioner
    *    for the backward integration. The pointer to the structure
    *    returned by this routine should then be used in the call to
-   *    CVBPSpgmrB/CVBPSpbcgB which interfaces to CVBPSpgmr/CVBPSpbcg.
+   *    CVBPSp*B which interfaces to CVBPSpgmr/CVBPSpbcg.
    * -----------------------------------------------------------------
-   * CVBBDPrecAllocB, CVBBDSpgmrB, CVBBDSpbcgB, CVBBDPrecReInit
+   * CVBBDPrecAllocB, CVBBDSp*B, CVBBDPrecReInit
    *    Interface functions for the BBD preconditioner to be used on
    *    the backward phase.
    * -----------------------------------------------------------------
@@ -302,14 +310,21 @@ extern "C" {
   int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB);
   
   int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
-  
+
+  int CVSptfqmrSetPrecTypeB(void *cvadj_mem, int pretypeB);
+  int CVSptfqmrSetDeltB(void *cvadj_mem, realtype deltB);
+  int CVSptfqmrSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
+                                 CVSpilsPrecSolveFnB psolveB, void *P_dataB);
+  int CVSptfqmrSetJacTimesVecFnB(void *cvadj_mem, 
+                                CVSpilsJacTimesVecFnB jtimesB, void *jac_dataB);
+
   int CVSpbcgSetPrecTypeB(void *cvadj_mem, int pretypeB);
   int CVSpbcgSetDeltB(void *cvadj_mem, realtype deltB);
   int CVSpbcgSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
                                 CVSpilsPrecSolveFnB psolveB, void *P_dataB);
   int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem, 
                                CVSpilsJacTimesVecFnB jtimesB, void *jac_dataB);
-  
+
   int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
   
   int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB);
@@ -322,7 +337,8 @@ extern "C" {
   
   int CVBandPrecAllocB(void *cvadj_mem, long int nB,
                        long int muB, long int mlB);
-  
+
+  int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
   
@@ -331,7 +347,8 @@ extern "C" {
                       long int mukeepB, long int mlkeepB,
                       realtype dqrelyB,
                       CVLocalFnB glocB, CVCommFnB cfnB);
-  
+
+  int CVBBDSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
   

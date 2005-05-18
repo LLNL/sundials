@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2005-05-12 21:03:11 $
+ * $Revision: 1.43 $
+ * $Date: 2005-05-18 18:16:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -47,6 +47,10 @@
  *   FCVBAND    interfaces to CVBand
  *   FCVBANDSETJAC    interfaces to CVBandSetJacFn
  *
+ *   FCVSPTFQMR, FCVSPTFQMRREINIT interface to CVSptfqmr and CVSptfqmrSet*
+ *   FCVSPTFQMRSETJAC   interfaces to CVSptfqmrSetJacFn
+ *   FCVSPTFQMRSETPREC  interfaces to CVSptfqmrSetPreconditioner
+ *
  *   FCVSPBCG, FCVSPBCGREINIT interface to CVSpbcg and CVSpbcgSet*
  *   FCVSPBCGSETJAC   interfaces to CVSpbcgSetJacFn
  *   FCVSPBCGSETPREC  interfaces to CVSpbcgSetPreconditioner
@@ -66,12 +70,9 @@
  *   FCVFUN    is called by the interface function FCVf of type CVRhsFn
  *   FCVDJAC   is called by the interface fn. FCVDenseJac of type CVDenseJacFn
  *   FCVBJAC   is called by the interface fn. FCVBandJac of type CVBandJacFn
- *   FCVPSOL   is called by the interface fn. FCVPSol of type CVSpgmrPrecSolveFn
- *             or CVSpbcgPrecSolveFn
- *   FCVPSET   is called by the interface fn. FCVPSet of type CVSpgmrPrecSetupFn
- *             of CVSpbcgPrecSetupFn
- *   FCVJTIMES is called by interface fn. FCVJtimes of type CVSpgmrJacTimesVecFn
- *             or CVSpbcgJacTimesVecFn
+ *   FCVPSOL   is called by the interface fn. FCVPSol of type CVSpilsPrecSolveFn
+ *   FCVPSET   is called by the interface fn. FCVPSet of type CVSpilsPrecSetupFn
+ *   FCVJTIMES is called by interface fn. FCVJtimes of type CVSpilsJacTimesVecFn
  *   FCVEWT    is called by interface fn. FCVEwtSet of type CVEwtFn
  * In contrast to the case of direct use of CVODE, and of most Fortran ODE
  * solvers, the names of all user-supplied routines here are fixed, in
@@ -132,7 +133,7 @@
  * with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
  * 
  * (4) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
- * As an option when using the SPGMR/SPBCG linear solver, the user may supply
+ * As an option when using the SP* linear solver, the user may supply
  * a routine that computes the product of the system Jacobian J = df/dy and 
  * a given vector v.  If supplied, it must have the following form:
  *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, WORK, IER)
@@ -274,7 +275,68 @@
  * stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
  * manual for descriptions.)
  *
- * (7.4) SPBCG treatment of the linear systems.
+ * (7.4) SPTFQMR treatment of the linear systems.
+ * For the Scaled Preconditioned TFQMR solution of the linear systems,
+ * the user must make the following call:
+ *       CALL FCVSPTFQMR(IPRETYPE, MAXL, DELT, IER)              
+ * The arguments are:
+ * IPRETYPE = preconditioner type: 
+ *              0 = none 
+ *              1 = left only
+ *              2 = right only
+ *              3 = both sides
+ * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT     = linear convergence tolerance factor; 0.0 indicates default.
+ * IER      = error return flag: 0 = success; negative value = an error occured
+ * 
+ * If the user program includes the FCVJTIMES routine for the evaluation of the 
+ * Jacobian vector product, the following call must be made
+ *       CALL FCVSPTFQMRSETJAC(FLAG, IER)
+ * with FLAG = 1 to specify that FCVJTIMES is provided.  (FLAG = 0 specifies
+ * using and internal finite difference approximation to this product.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ * 
+ * Usage of the user-supplied routines FCVPSOL and FCVPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FCVSPTFQMRSETPREC(FLAG, IER)
+ * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
+ * The user-supplied routine FCVPSOL must have the form:
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
+ *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
+ * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
+ * must solve the preconditioner linear system Pz = r, where r = R is input, 
+ * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
+ * and the right preconditioner if LR = 2.  The preconditioner (or the product
+ * of the left and right preconditioners if both are nontrivial) should be an 
+ * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
+ * 
+ * The user-supplied routine FCVPSET must be of the form:
+ *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
+ *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
+ * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
+ * perform any evaluation of Jacobian-related data and preprocessing needed
+ * for the solution of the preconditioner linear systems by FCVPSOL.
+ * The JOK argument allows for Jacobian data to be saved and reused:  If 
+ * JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
+ * copy of it may be reused, and the preconditioner constructed from it.
+ * On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
+ * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
+ * recoverable error occurred, and set IER negative if a non-recoverable error
+ * occurred.
+ * 
+ *      Optional outputs specific to the SPTFQMR case are LRW, LIW, NPE, NLI, NPS,
+ * and NCFL, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
+ * manual for descriptions.)
+ * 
+ *      If a sequence of problems of the same size is being solved using the
+ * SPTFQMR linear solver, then following the call to FCVREINIT, a call to the
+ * FCVSPTFQMRREINIT routine is needed if IPRETYPE or DELT is
+ * being changed.  In that case, call FCVSPTFQMRREINIT as follows:
+ *       CALL FCVSPTFQMRREINIT(IPRETYPE, DELT, IER)              
+ * The arguments have the same meanings as for FCVSPTFQMR.  If MAXL is being
+ * changed, then call FCVSPTFQMR instead.
+ *
+ * (7.5) SPBCG treatment of the linear systems.
  * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
  * the user must make the following call:
  *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)              
@@ -335,7 +397,7 @@
  * The arguments have the same meanings as for FCVSPBCG.  If MAXL is being
  * changed, then call FCVSPBCG instead.
  *
- * (7.5) SPGMR treatment of the linear systems.
+ * (7.6) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
  *       CALL FCVSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)              
@@ -452,206 +514,234 @@ extern "C" {
 
 #if defined(F77_FUNC)
 
-#define FCV_MALLOC       F77_FUNC(fcvmalloc, FCVMALLOC)
-#define FCV_REINIT       F77_FUNC(fcvreinit, FCVREINIT)
-#define FCV_EWTSET       F77_FUNC(fcvewtset, FCVEWTSET)
-#define FCV_DIAG         F77_FUNC(fcvdiag, FCVDIAG)
-#define FCV_DENSE        F77_FUNC(fcvdense, FCVDENSE)
-#define FCV_DENSESETJAC  F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
-#define FCV_BAND         F77_FUNC(fcvband, FCVBAND)
-#define FCV_BANDSETJAC   F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
-#define FCV_SPBCG        F77_FUNC(fcvspbcg, FCVSPGMR)
-#define FCV_SPBCGREINIT  F77_FUNC(fcvspbcgreinit, FCVSPBCGREINIT)
-#define FCV_SPBCGSETJAC  F77_FUNC(fcvspbcgsetjac, FCVSPBCGSETJAC)
-#define FCV_SPBCGSETPREC F77_FUNC(fcvspbcgsetprec, FCVSPBCGSETPREC)
-#define FCV_SPGMR        F77_FUNC(fcvspgmr, FCVSPGMR)
-#define FCV_SPGMRREINIT  F77_FUNC(fcvspgmrreinit, FCVSPGMRREINIT)
-#define FCV_SPGMRSETJAC  F77_FUNC(fcvspgmrsetjac, FCVSPGMRSETJAC)
-#define FCV_SPGMRSETPREC F77_FUNC(fcvspgmrsetprec, FCVSPGMRSETPREC)
-#define FCV_CVODE        F77_FUNC(fcvode, FCVODE)
-#define FCV_DKY          F77_FUNC(fcvdky, FCVDKY)
-#define FCV_FREE         F77_FUNC(fcvfree, FCVFREE)
-#define FCV_FUN          F77_FUNC(fcvfun, FCVFUN)
-#define FCV_DJAC         F77_FUNC(fcvdjac, FCVDJAC)
-#define FCV_BJAC         F77_FUNC(fcvbjac, FCVBJAC)
-#define FCV_PSOL         F77_FUNC(fcvpsol, FCVPSOL)
-#define FCV_PSET         F77_FUNC(fcvpset, FCVPSET)
-#define FCV_JTIMES       F77_FUNC(fcvjtimes, FCVJTIMES)
-#define FCV_EWT          F77_FUNC(fcvewt, FCVEWT)
+#define FCV_MALLOC         F77_FUNC(fcvmalloc, FCVMALLOC)
+#define FCV_REINIT         F77_FUNC(fcvreinit, FCVREINIT)
+#define FCV_EWTSET         F77_FUNC(fcvewtset, FCVEWTSET)
+#define FCV_DIAG           F77_FUNC(fcvdiag, FCVDIAG)
+#define FCV_DENSE          F77_FUNC(fcvdense, FCVDENSE)
+#define FCV_DENSESETJAC    F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
+#define FCV_BAND           F77_FUNC(fcvband, FCVBAND)
+#define FCV_BANDSETJAC     F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
+#define FCV_SPTFQMR        F77_FUNC(fcvsptfqmr, FCVSPTFQMR)
+#define FCV_SPTFQMRREINIT  F77_FUNC(fcvsptfqmrreinit, FCVSPTFQMRREINIT)
+#define FCV_SPTFQMRSETJAC  F77_FUNC(fcvsptfqmrsetjac, FCVSPTFQMRSETJAC)
+#define FCV_SPTFQMRSETPREC F77_FUNC(fcvsptfqmrsetprec, FCVSPTFQMRSETPREC)
+#define FCV_SPBCG          F77_FUNC(fcvspbcg, FCVSPBCG)
+#define FCV_SPBCGREINIT    F77_FUNC(fcvspbcgreinit, FCVSPBCGREINIT)
+#define FCV_SPBCGSETJAC    F77_FUNC(fcvspbcgsetjac, FCVSPBCGSETJAC)
+#define FCV_SPBCGSETPREC   F77_FUNC(fcvspbcgsetprec, FCVSPBCGSETPREC)
+#define FCV_SPGMR          F77_FUNC(fcvspgmr, FCVSPGMR)
+#define FCV_SPGMRREINIT    F77_FUNC(fcvspgmrreinit, FCVSPGMRREINIT)
+#define FCV_SPGMRSETJAC    F77_FUNC(fcvspgmrsetjac, FCVSPGMRSETJAC)
+#define FCV_SPGMRSETPREC   F77_FUNC(fcvspgmrsetprec, FCVSPGMRSETPREC)
+#define FCV_CVODE          F77_FUNC(fcvode, FCVODE)
+#define FCV_DKY            F77_FUNC(fcvdky, FCVDKY)
+#define FCV_FREE           F77_FUNC(fcvfree, FCVFREE)
+#define FCV_FUN            F77_FUNC(fcvfun, FCVFUN)
+#define FCV_DJAC           F77_FUNC(fcvdjac, FCVDJAC)
+#define FCV_BJAC           F77_FUNC(fcvbjac, FCVBJAC)
+#define FCV_PSOL           F77_FUNC(fcvpsol, FCVPSOL)
+#define FCV_PSET           F77_FUNC(fcvpset, FCVPSET)
+#define FCV_JTIMES         F77_FUNC(fcvjtimes, FCVJTIMES)
+#define FCV_EWT            F77_FUNC(fcvewt, FCVEWT)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_MALLOC       fcvmalloc
-#define FCV_REINIT       fcvreinit
-#define FCV_EWTSET       fcvewtset
-#define FCV_DIAG         fcvdiag
-#define FCV_DENSE        fcvdense
-#define FCV_DENSESETJAC  fcvdensesetjac
-#define FCV_BAND         fcvband
-#define FCV_BANDSETJAC   fcvbandsetjac
-#define FCV_SPBCG        fcvspbcg
-#define FCV_SPBCGREINIT  fcvspbcgreinit
-#define FCV_SPBCGSETJAC  fcvspbcgsetjac
-#define FCV_SPBCGSETPREC fcvspbcgsetprec
-#define FCV_SPGMR        fcvspgmr
-#define FCV_SPGMRREINIT  fcvspgmrreinit
-#define FCV_SPGMRSETJAC  fcvspgmrsetjac
-#define FCV_SPGMRSETPREC fcvspgmrsetprec
-#define FCV_CVODE        fcvode
-#define FCV_DKY          fcvdky
-#define FCV_FREE         fcvfree
-#define FCV_FUN          fcvfun
-#define FCV_DJAC         fcvdjac
-#define FCV_BJAC         fcvbjac
-#define FCV_PSOL         fcvpsol
-#define FCV_PSET         fcvpset
-#define FCV_JTIMES       fcvjtimes
-#define FCV_EWT          fcvewt
+#define FCV_MALLOC         fcvmalloc
+#define FCV_REINIT         fcvreinit
+#define FCV_EWTSET         fcvewtset
+#define FCV_DIAG           fcvdiag
+#define FCV_DENSE          fcvdense
+#define FCV_DENSESETJAC    fcvdensesetjac
+#define FCV_BAND           fcvband
+#define FCV_BANDSETJAC     fcvbandsetjac
+#define FCV_SPTFQMR        fcvsptfqmr
+#define FCV_SPTFQMRREINIT  fcvsptfqmrreinit
+#define FCV_SPTFQMRSETJAC  fcvsptfqmrsetjac
+#define FCV_SPTFQMRSETPREC fcvsptfqmrsetprec
+#define FCV_SPBCG          fcvspbcg
+#define FCV_SPBCGREINIT    fcvspbcgreinit
+#define FCV_SPBCGSETJAC    fcvspbcgsetjac
+#define FCV_SPBCGSETPREC   fcvspbcgsetprec
+#define FCV_SPGMR          fcvspgmr
+#define FCV_SPGMRREINIT    fcvspgmrreinit
+#define FCV_SPGMRSETJAC    fcvspgmrsetjac
+#define FCV_SPGMRSETPREC   fcvspgmrsetprec
+#define FCV_CVODE          fcvode
+#define FCV_DKY            fcvdky
+#define FCV_FREE           fcvfree
+#define FCV_FUN            fcvfun
+#define FCV_DJAC           fcvdjac
+#define FCV_BJAC           fcvbjac
+#define FCV_PSOL           fcvpsol
+#define FCV_PSET           fcvpset
+#define FCV_JTIMES         fcvjtimes
+#define FCV_EWT            fcvewt
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_MALLOC       FCVMALLOC
-#define FCV_REINIT       FCVREINIT
-#define FCV_EWTSET       FCVEWTSET
-#define FCV_DIAG         FCVDIAG
-#define FCV_DENSE        FCVDENSE
-#define FCV_DENSESETJAC  FCVDENSESETJAC
-#define FCV_BAND         FCVBAND
-#define FCV_BANDSETJAC   FCVBANDSETJAC
-#define FCV_SPBCG        FCVSPBCG
-#define FCV_SPBCGREINIT  FCVSPBCGREINIT
-#define FCV_SPBCGSETJAC  FCVSPBCGSETJAC
-#define FCV_SPBCGSETPREC FCVSPBCGSETPREC
-#define FCV_SPGMR        FCVSPGMR
-#define FCV_SPGMRREINIT  FCVSPGMRREINIT
-#define FCV_SPGMRSETJAC  FCVSPGMRSETJAC
-#define FCV_SPGMRSETPREC FCVSPGMRSETPREC
-#define FCV_CVODE        FCVODE
-#define FCV_DKY          FCVDKY
-#define FCV_FREE         FCVFREE
-#define FCV_FUN          FCVFUN
-#define FCV_DJAC         FCVDJAC
-#define FCV_BJAC         FCVBJAC
-#define FCV_PSOL         FCVPSOL
-#define FCV_PSET         FCVPSET
-#define FCV_JTIMES       FCVJTIMES
-#define FCV_EWT          FCVEWT
+#define FCV_MALLOC         FCVMALLOC
+#define FCV_REINIT         FCVREINIT
+#define FCV_EWTSET         FCVEWTSET
+#define FCV_DIAG           FCVDIAG
+#define FCV_DENSE          FCVDENSE
+#define FCV_DENSESETJAC    FCVDENSESETJAC
+#define FCV_BAND           FCVBAND
+#define FCV_BANDSETJAC     FCVBANDSETJAC
+#define FCV_SPTFQMR        FCVSPTFQMR
+#define FCV_SPTFQMRREINIT  FCVSPTFQMRREINIT
+#define FCV_SPTFQMRSETJAC  FCVSPTFQMRSETJAC
+#define FCV_SPTFQMRSETPREC FCVSPTFQMRSETPREC
+#define FCV_SPBCG          FCVSPBCG
+#define FCV_SPBCGREINIT    FCVSPBCGREINIT
+#define FCV_SPBCGSETJAC    FCVSPBCGSETJAC
+#define FCV_SPBCGSETPREC   FCVSPBCGSETPREC
+#define FCV_SPGMR          FCVSPGMR
+#define FCV_SPGMRREINIT    FCVSPGMRREINIT
+#define FCV_SPGMRSETJAC    FCVSPGMRSETJAC
+#define FCV_SPGMRSETPREC   FCVSPGMRSETPREC
+#define FCV_CVODE          FCVODE
+#define FCV_DKY            FCVDKY
+#define FCV_FREE           FCVFREE
+#define FCV_FUN            FCVFUN
+#define FCV_DJAC           FCVDJAC
+#define FCV_BJAC           FCVBJAC
+#define FCV_PSOL           FCVPSOL
+#define FCV_PSET           FCVPSET
+#define FCV_JTIMES         FCVJTIMES
+#define FCV_EWT            FCVEWT
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_MALLOC       fcvmalloc_
-#define FCV_REINIT       fcvreinit_
-#define FCV_EWTSET       fcvewtset_
-#define FCV_DIAG         fcvdiag_
-#define FCV_DENSE        fcvdense_
-#define FCV_DENSESETJAC  fcvdensesetjac_
-#define FCV_BAND         fcvband_
-#define FCV_BANDSETJAC   fcvbandsetjac_
-#define FCV_SPBCG        fcvspbcg_
-#define FCV_SPBCGREINIT  fcvspbcgreinit_
-#define FCV_SPBCGSETJAC  fcvspbcgsetjac_
-#define FCV_SPBCGSETPREC fcvspbcgsetprec_
-#define FCV_SPGMR        fcvspgmr_
-#define FCV_SPGMRREINIT  fcvspgmrreinit_
-#define FCV_SPGMRSETJAC  fcvspgmrsetjac_
-#define FCV_SPGMRSETPREC fcvspgmrsetprec_
-#define FCV_CVODE        fcvode_
-#define FCV_DKY          fcvdky_
-#define FCV_FREE         fcvfree_
-#define FCV_FUN          fcvfun_
-#define FCV_DJAC         fcvdjac_
-#define FCV_BJAC         fcvbjac_
-#define FCV_PSOL         fcvpsol_
-#define FCV_PSET         fcvpset_
-#define FCV_JTIMES       fcvjtimes_
-#define FCV_EWT          fcvewt_
+#define FCV_MALLOC         fcvmalloc_
+#define FCV_REINIT         fcvreinit_
+#define FCV_EWTSET         fcvewtset_
+#define FCV_DIAG           fcvdiag_
+#define FCV_DENSE          fcvdense_
+#define FCV_DENSESETJAC    fcvdensesetjac_
+#define FCV_BAND           fcvband_
+#define FCV_BANDSETJAC     fcvbandsetjac_
+#define FCV_SPTFQMR        fcvsptfqmr_
+#define FCV_SPTFQMRREINIT  fcvsptfqmrreinit_
+#define FCV_SPTFQMRSETJAC  fcvsptfqmrsetjac_
+#define FCV_SPTFQMRSETPREC fcvsptfqmrsetprec_
+#define FCV_SPBCG          fcvspbcg_
+#define FCV_SPBCGREINIT    fcvspbcgreinit_
+#define FCV_SPBCGSETJAC    fcvspbcgsetjac_
+#define FCV_SPBCGSETPREC   fcvspbcgsetprec_
+#define FCV_SPGMR          fcvspgmr_
+#define FCV_SPGMRREINIT    fcvspgmrreinit_
+#define FCV_SPGMRSETJAC    fcvspgmrsetjac_
+#define FCV_SPGMRSETPREC   fcvspgmrsetprec_
+#define FCV_CVODE          fcvode_
+#define FCV_DKY            fcvdky_
+#define FCV_FREE           fcvfree_
+#define FCV_FUN            fcvfun_
+#define FCV_DJAC           fcvdjac_
+#define FCV_BJAC           fcvbjac_
+#define FCV_PSOL           fcvpsol_
+#define FCV_PSET           fcvpset_
+#define FCV_JTIMES         fcvjtimes_
+#define FCV_EWT            fcvewt_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_MALLOC       FCVMALLOC_
-#define FCV_REINIT       FCVREINIT_
-#define FCV_EWTSET       FCVEWTSET_
-#define FCV_DIAG         FCVDIAG_
-#define FCV_DENSE        FCVDENSE_
-#define FCV_DENSESETJAC  FCVDENSESETJAC_
-#define FCV_BAND         FCVBAND_
-#define FCV_BANDSETJAC   FCVBANDSETJAC_
-#define FCV_SPBCG        FCVSPBCG_
-#define FCV_SPBCGREINIT  FCVSPBCGREINIT_
-#define FCV_SPBCGSETJAC  FCVSPBCGSETJAC_
-#define FCV_SPBCGSETPREC FCVSPBCGSETPREC_
-#define FCV_SPGMR        FCVSPGMR_
-#define FCV_SPGMRREINIT  FCVSPGMRREINIT_
-#define FCV_SPGMRSETJAC  FCVSPGMRSETJAC_
-#define FCV_SPGMRSETPREC FCVSPGMRSETPREC_
-#define FCV_CVODE        FCVODE_
-#define FCV_DKY          FCVDKY_
-#define FCV_FREE         FCVFREE_
-#define FCV_FUN          FCVFUN_
-#define FCV_DJAC         FCVDJAC_
-#define FCV_BJAC         FCVBJAC_
-#define FCV_PSOL         FCVPSOL_
-#define FCV_PSET         FCVPSET_
-#define FCV_JTIMES       FCVJTIMES_
-#define FCV_EWT          FCVEWT_
+#define FCV_MALLOC         FCVMALLOC_
+#define FCV_REINIT         FCVREINIT_
+#define FCV_EWTSET         FCVEWTSET_
+#define FCV_DIAG           FCVDIAG_
+#define FCV_DENSE          FCVDENSE_
+#define FCV_DENSESETJAC    FCVDENSESETJAC_
+#define FCV_BAND           FCVBAND_
+#define FCV_BANDSETJAC     FCVBANDSETJAC_
+#define FCV_SPTFQMR        FCVSPTFQMR_
+#define FCV_SPTFQMRREINIT  FCVSPTFQMRREINIT_
+#define FCV_SPTFQMRSETJAC  FCVSPTFQMRSETJAC_
+#define FCV_SPTFQMRSETPREC FCVSPTFQMRSETPREC_
+#define FCV_SPBCG          FCVSPBCG_
+#define FCV_SPBCGREINIT    FCVSPBCGREINIT_
+#define FCV_SPBCGSETJAC    FCVSPBCGSETJAC_
+#define FCV_SPBCGSETPREC   FCVSPBCGSETPREC_
+#define FCV_SPGMR          FCVSPGMR_
+#define FCV_SPGMRREINIT    FCVSPGMRREINIT_
+#define FCV_SPGMRSETJAC    FCVSPGMRSETJAC_
+#define FCV_SPGMRSETPREC   FCVSPGMRSETPREC_
+#define FCV_CVODE          FCVODE_
+#define FCV_DKY            FCVDKY_
+#define FCV_FREE           FCVFREE_
+#define FCV_FUN            FCVFUN_
+#define FCV_DJAC           FCVDJAC_
+#define FCV_BJAC           FCVBJAC_
+#define FCV_PSOL           FCVPSOL_
+#define FCV_PSET           FCVPSET_
+#define FCV_JTIMES         FCVJTIMES_
+#define FCV_EWT            FCVEWT_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_MALLOC       fcvmalloc__
-#define FCV_REINIT       fcvreinit__
-#define FCV_EWTSET       fcvewtset__
-#define FCV_DIAG         fcvdiag__
-#define FCV_DENSE        fcvdense__
-#define FCV_DENSESETJAC  fcvdensesetjac__
-#define FCV_BAND         fcvband__
-#define FCV_BANDSETJAC   fcvbandsetjac__
-#define FCV_SPBCG        fcvspbcg__
-#define FCV_SPBCGREINIT  fcvspbcgreinit__
-#define FCV_SPBCGSETJAC  fcvspbcgsetjac__
-#define FCV_SPBCGSETPREC fcvspbcgsetprec__
-#define FCV_SPGMR        fcvspgmr__
-#define FCV_SPGMRREINIT  fcvspgmrreinit__
-#define FCV_SPGMRSETJAC  fcvspgmrsetjac__
-#define FCV_SPGMRSETPREC fcvspgmrsetprec__
-#define FCV_CVODE        fcvode__
-#define FCV_DKY          fcvdky__
-#define FCV_FREE         fcvfree__
-#define FCV_FUN          fcvfun__
-#define FCV_DJAC         fcvdjac__
-#define FCV_BJAC         fcvbjac__
-#define FCV_PSOL         fcvpsol__
-#define FCV_PSET         fcvpset__
-#define FCV_JTIMES       fcvjtimes__
-#define FCV_EWT          fcvewt__
+#define FCV_MALLOC         fcvmalloc__
+#define FCV_REINIT         fcvreinit__
+#define FCV_EWTSET         fcvewtset__
+#define FCV_DIAG           fcvdiag__
+#define FCV_DENSE          fcvdense__
+#define FCV_DENSESETJAC    fcvdensesetjac__
+#define FCV_BAND           fcvband__
+#define FCV_BANDSETJAC     fcvbandsetjac__
+#define FCV_SPTFQMR        fcvsptfqmr__
+#define FCV_SPTFQMRREINIT  fcvsptfqmrreinit__
+#define FCV_SPTFQMRSETJAC  fcvsptfqmrsetjac__
+#define FCV_SPTFQMRSETPREC fcvsptfqmrsetprec__
+#define FCV_SPBCG          fcvspbcg__
+#define FCV_SPBCGREINIT    fcvspbcgreinit__
+#define FCV_SPBCGSETJAC    fcvspbcgsetjac__
+#define FCV_SPBCGSETPREC   fcvspbcgsetprec__
+#define FCV_SPGMR          fcvspgmr__
+#define FCV_SPGMRREINIT    fcvspgmrreinit__
+#define FCV_SPGMRSETJAC    fcvspgmrsetjac__
+#define FCV_SPGMRSETPREC   fcvspgmrsetprec__
+#define FCV_CVODE          fcvode__
+#define FCV_DKY            fcvdky__
+#define FCV_FREE           fcvfree__
+#define FCV_FUN            fcvfun__
+#define FCV_DJAC           fcvdjac__
+#define FCV_BJAC           fcvbjac__
+#define FCV_PSOL           fcvpsol__
+#define FCV_PSET           fcvpset__
+#define FCV_JTIMES         fcvjtimes__
+#define FCV_EWT            fcvewt__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_MALLOC       FCVMALLOC__
-#define FCV_REINIT       FCVREINIT__
-#define FCV_EWTSET       FCVEWTSET__
-#define FCV_DIAG         FCVDIAG__
-#define FCV_DENSE        FCVDENSE__
-#define FCV_DENSESETJAC  FCVDENSESETJAC__
-#define FCV_BAND         FCVBAND__
-#define FCV_BANDSETJAC   FCVBANDSETJAC__
-#define FCV_SPBCG        FCVSPBCG__
-#define FCV_SPBCGREINIT  FCVSPBCGREINIT__
-#define FCV_SPBCGSETJAC  FCVSPBCGSETJAC__
-#define FCV_SPBCGSETPREC FCVSPBCGSETPREC__
-#define FCV_SPGMR        FCVSPGMR__
-#define FCV_SPGMRREINIT  FCVSPGMRREINIT__
-#define FCV_SPGMRSETJAC  FCVSPGMRSETJAC__
-#define FCV_SPGMRSETPREC FCVSPGMRSETPREC__
-#define FCV_CVODE        FCVODE__
-#define FCV_DKY          FCVDKY__
-#define FCV_FREE         FCVFREE__
-#define FCV_FUN          FCVFUN__
-#define FCV_DJAC         FCVDJAC__
-#define FCV_BJAC         FCVBJAC__
-#define FCV_PSOL         FCVPSOL__
-#define FCV_PSET         FCVPSET__
-#define FCV_JTIMES       FCVJTIMES__
-#define FCV_EWT          FCVEWT__
+#define FCV_MALLOC         FCVMALLOC__
+#define FCV_REINIT         FCVREINIT__
+#define FCV_EWTSET         FCVEWTSET__
+#define FCV_DIAG           FCVDIAG__
+#define FCV_DENSE          FCVDENSE__
+#define FCV_DENSESETJAC    FCVDENSESETJAC__
+#define FCV_BAND           FCVBAND__
+#define FCV_BANDSETJAC     FCVBANDSETJAC__
+#define FCV_SPTFQMR        FCVSPTFQMR__
+#define FCV_SPTFQMRREINIT  FCVSPTFQMRREINIT__
+#define FCV_SPTFQMRSETJAC  FCVSPTFQMRSETJAC__
+#define FCV_SPTFQMRSETPREC FCVSPTFQMRSETPREC__
+#define FCV_SPBCG          FCVSPBCG__
+#define FCV_SPBCGREINIT    FCVSPBCGREINIT__
+#define FCV_SPBCGSETJAC    FCVSPBCGSETJAC__
+#define FCV_SPBCGSETPREC   FCVSPBCGSETPREC__
+#define FCV_SPGMR          FCVSPGMR__
+#define FCV_SPGMRREINIT    FCVSPGMRREINIT__
+#define FCV_SPGMRSETJAC    FCVSPGMRSETJAC__
+#define FCV_SPGMRSETPREC   FCVSPGMRSETPREC__
+#define FCV_CVODE          FCVODE__
+#define FCV_DKY            FCVDKY__
+#define FCV_FREE           FCVFREE__
+#define FCV_FUN            FCVFUN__
+#define FCV_DJAC           FCVDJAC__
+#define FCV_BJAC           FCVBJAC__
+#define FCV_PSOL           FCVPSOL__
+#define FCV_PSET           FCVPSET__
+#define FCV_JTIMES         FCVJTIMES__
+#define FCV_EWT            FCVEWT__
 
 #endif
 
@@ -676,6 +766,11 @@ extern "C" {
 
   void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
+
+  void FCV_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FCV_SPTFQMRREINIT(int *pretype, realtype *delt, int *ier);
+  void FCV_SPTFQMRSETJAC(int *flag, int *ier);
+  void FCV_SPTFQMRSETPREC(int *flag, int *ier);
 
   void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
   void FCV_SPBCGREINIT(int *pretype, realtype *delt, int *ier);
@@ -736,7 +831,8 @@ extern "C" {
 
   /* Linear solver IDs */
 
-  enum { CV_LS_DENSE = 1, CV_LS_BAND = 2, CV_LS_DIAG = 3, CV_LS_SPGMR = 4, CV_LS_SPBCG = 5 };
+  enum { CV_LS_DENSE = 1, CV_LS_BAND = 2, CV_LS_DIAG = 3,
+	 CV_LS_SPGMR = 4, CV_LS_SPBCG = 5, CV_LS_SPTFQMR = 6 };
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-11 23:10:54 $
+ * $Revision: 1.2 $
+ * $Date: 2005-05-18 18:17:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -24,21 +24,23 @@
  * together with the FIDA Interface Package, support the use of the
  * IDA solver (parallel MPI version) with the IDABBDPRE preconditioner module,
  * for the solution of DAE systems in a mixed Fortran/C setting.  The
- * combination of IDA and IDABBDPRE solves DAE systems with either
- * the SPGMR (scaled preconditioned GMRES) or SPBCG (scaled preconditioned
- * Bi-CGSTAB) method for the linear systems that arise, and with a preconditioner
- * that is block-diagonal with banded blocks.  While IDA and IDABBDPRE are written
- * in C, it is assumed here that the user's calling program and user-supplied
- * problem-defining routines are written in Fortran.
+ * combination of IDA and IDABBDPRE solves DAE systems with the SPGMR
+ * (scaled preconditioned GMRES), SPBCG (scaled preconditioned Bi-CGSTAB), or
+ * SPTFQMR (scaled preconditioned TFQMR) method for the linear systems that arise,
+ * and with a preconditioner that is block-diagonal with banded blocks.  While
+ * IDA and IDABBDPRE are written in C, it is assumed here that the user's
+ * calling program and user-supplied problem-defining routines are written in
+ * Fortran.
  *
  * The user-callable functions in this package, with the corresponding
  * IDA and IDABBDPRE functions, are as follows: 
- *   FIDABBDININT  interfaces to IDABBDPrecAlloc
- *   FIDABBDSPGMR  interfaces to IDABBDSpgmr and IDASpgmrSet*
- *   FIDABBDSPBCG  interfaces to IDABBDSpbcg and IDASpbcgSet*
- *   FIDABBDREINIT interfaces to IDABBDPrecReInit
- *   FIDABBDOPT    accesses optional outputs
- *   FIDABBDFREE   interfaces to IDABBDPrecFree
+ *   FIDABBDININT   interfaces to IDABBDPrecAlloc
+ *   FIDABBDSPGMR   interfaces to IDABBDSpgmr and IDASpgmrSet*
+ *   FIDABBDSPBCG   interfaces to IDABBDSpbcg and IDASpbcgSet*
+ *   FIDABBDSPTFQMR interfaces to IDABBDSptfqmr and IDASptfqmrSet*
+ *   FIDABBDREINIT  interfaces to IDABBDPrecReInit
+ *   FIDABBDOPT     accesses optional outputs
+ *   FIDABBDFREE    interfaces to IDABBDPrecFree
  *
  * In addition to the Fortran residual function FIDARESFUN, the
  * user-supplied functions used by this package, are listed below,
@@ -238,7 +240,17 @@
  *             (optional). 0.0 indicates the default, sqrt(UNIT_ROUNDOFF).
  * IER       = return completion flag: IER=0: success, IER<0: an error occured
  *
- * (4.4A) To specify the SPBCG linear system solver and use it with the IDABBDPRE
+ * (4.4A) To specify the SPTFQMR linear system solver and use it with the IDABBDPRE
+ * preconditioner, make the following call:
+ *       CALL FIDABBDSPTFQMR(MAXL, EPLIFAC, DQINCFAC, IER)
+ * the arguments are:
+ * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
+ * EPLIFAC   = factor in the linear iteration convergence test constant
+ * DQINCFAC  = factor in the increments to y used in the difference quotient
+ *             approximations to matrix-vector products Jv
+ * IER       = return completion flag: IER=0: success, IER<0: an error occured
+ *
+ * (4.4B) To specify the SPBCG linear system solver and use it with the IDABBDPRE
  * preconditioner, make the following call:
  *       CALL FIDABBDSPBCG(MAXL, EPLIFAC, DQINCFAC, IER)
  * the arguments are:
@@ -248,7 +260,7 @@
  *             approximations to matrix-vector products Jv
  * IER       = return completion flag: IER=0: success, IER<0: an error occured
  *
- * (4.4B) To specify the SPGMR linear system solver and use it with the IDABBDPRE
+ * (4.4C) To specify the SPGMR linear system solver and use it with the IDABBDPRE
  * preconditioner, make the following call:
  *       CALL FIDABBDSPGMR(MAXL, GSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
  *
@@ -261,13 +273,19 @@
  *             approximations to matrix-vector products Jv
  * IER       = return completion flag: IER=0: success, IER<0: an error occured
  *
- * (4.5A) To specify whether Bi-CGSTAB should use the supplied FIDAJTIMES or the 
+ * (4.5A) To specify whether TFQMR should use the supplied FIDAJTIMES or the 
+ * internal finite difference approximation, make the call
+ *        CALL FIDASPTFQMRSETJAC(FLAG, IER)
+ * where FLAG=0 for finite differences approxaimtion or
+ *       FLAG=1 to use the supplied routine FIDAJTIMES
+ *
+ * (4.5B) To specify whether Bi-CGSTAB should use the supplied FIDAJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FIDASPBCGSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
  *       FLAG=1 to use the supplied routine FIDAJTIMES
  *
- * (4.5B) To specify whether GMRES should use the supplied FIDAJTIMES or the 
+ * (4.5C) To specify whether GMRES should use the supplied FIDAJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FIDASPGMRSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
@@ -310,7 +328,18 @@
  * The current values of the optional outputs are available in IOPT and ROPT.
  *
  * (7) Optional outputs: FIDABBDOPT
- * Optional outputs specific to the SPGMR/SPBCG solver are:
+ * Optional outputs specific to the SPGMR/SPBCG/SPTFQMR solver are:
+ *
+ *   SPTFQMR:
+ *        LENRWC = IOPT(26) -> IDASptfqmrGetWorkSpace
+ *        LENIWC = IOPT(27) -> IDASptfqmrGetWorkSpace
+ *        NPE    = IOPT(28) -> IDASptfqmrGetPrecEvals
+ *        NPS    = IOPT(29) -> IDASptfqmrGetPrecSolves
+ *        NLI    = IOPT(30) -> IDASptfqmrGetLinIters
+ *        NLCF   = IOPT(31) -> IDASptfqmrGetConvFails
+ *        NJE    = IOPT(32) -> IDASptfqmrGetJtimesEvals
+ *        NRE    = IOPT(33) -> IDASptfqmrGetResEvals
+ *        LSTF   = IOPT(34) -> IDASptfqmrGetLastFlag
  *
  *   SPBCG:
  *        LENRWC = IOPT(26) -> IDASpbcgGetWorkSpace
@@ -365,80 +394,87 @@ extern "C" {
 
 #if defined(F77_FUNC)
 
-#define FIDA_BBDINIT   F77_FUNC(fidabbdinit, FIDABBDINIT)
-#define FIDA_BBDSPBCG  F77_FUNC(fidabbdspbcg, FIDABBDSPBCG)
-#define FIDA_BBDSPGMR  F77_FUNC(fidabbdspgmr, FIDABBDSPGMR)
-#define FIDA_BBDREINIT F77_FUNC(fidabbdreinit, FIDABBDREINIT)
-#define FIDA_BBDOPT    F77_FUNC(fidabbdopt, FIDABBDOPT)
-#define FIDA_BBDFREE   F77_FUNC(fidabbdfree, FIDABBDFREE)
-#define FIDA_GLOCFN    F77_FUNC(fidaglocfn, FIDAGLOCFN)
-#define FIDA_COMMFN    F77_FUNC(fidacommfn, FIDACOMMFN)
+#define FIDA_BBDINIT    F77_FUNC(fidabbdinit, FIDABBDINIT)
+#define FIDA_BBDSPTFQMR F77_FUNC(fidabbdsptfqmr, FIDABBDSPTFQMR)
+#define FIDA_BBDSPBCG   F77_FUNC(fidabbdspbcg, FIDABBDSPBCG)
+#define FIDA_BBDSPGMR   F77_FUNC(fidabbdspgmr, FIDABBDSPGMR)
+#define FIDA_BBDREINIT  F77_FUNC(fidabbdreinit, FIDABBDREINIT)
+#define FIDA_BBDOPT     F77_FUNC(fidabbdopt, FIDABBDOPT)
+#define FIDA_BBDFREE    F77_FUNC(fidabbdfree, FIDABBDFREE)
+#define FIDA_GLOCFN     F77_FUNC(fidaglocfn, FIDAGLOCFN)
+#define FIDA_COMMFN     F77_FUNC(fidacommfn, FIDACOMMFN)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FIDA_BBDINIT   fidabbdinit
-#define FIDA_BBDSPBCG  fidabbdspbcg
-#define FIDA_BBDSPGMR  fidabbdspgmr
-#define FIDA_BBDREINIT fidabbdreinit
-#define FIDA_BBDOPT    fidabbdopt
-#define FIDA_BBDFREE   fidabbdfree
-#define FIDA_GLOCFN    fidaglocfn
-#define FIDA_COMMFN    fidacommfn
+#define FIDA_BBDINIT    fidabbdinit
+#define FIDA_BBDSPTFQMR fidabbdsptfqmr
+#define FIDA_BBDSPBCG   fidabbdspbcg
+#define FIDA_BBDSPGMR   fidabbdspgmr
+#define FIDA_BBDREINIT  fidabbdreinit
+#define FIDA_BBDOPT     fidabbdopt
+#define FIDA_BBDFREE    fidabbdfree
+#define FIDA_GLOCFN     fidaglocfn
+#define FIDA_COMMFN     fidacommfn
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FIDA_BBDINIT   FIDABBDINIT
-#define FIDA_BBDSPBCG  FIDABBDSPBCG
-#define FIDA_BBDSPGMR  FIDABBDSPGMR
-#define FIDA_BBDREINIT FIDABBDREINIT
-#define FIDA_BBDOPT    FIDABBDOPT
-#define FIDA_BBDFREE   FIDABBDFREE
-#define FIDA_GLOCFN    FIDAGLOCFN
-#define FIDA_COMMFN    FIDACOMMFN
+#define FIDA_BBDINIT    FIDABBDINIT
+#define FIDA_BBDSPTFQMR FIDABBDSPTFQMR
+#define FIDA_BBDSPBCG   FIDABBDSPBCG
+#define FIDA_BBDSPGMR   FIDABBDSPGMR
+#define FIDA_BBDREINIT  FIDABBDREINIT
+#define FIDA_BBDOPT     FIDABBDOPT
+#define FIDA_BBDFREE    FIDABBDFREE
+#define FIDA_GLOCFN     FIDAGLOCFN
+#define FIDA_COMMFN     FIDACOMMFN
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FIDA_BBDINIT   fidabbdinit_
-#define FIDA_BBDSPBCG  fidabbdspbcg_
-#define FIDA_BBDSPGMR  fidabbdspgmr_
-#define FIDA_BBDREINIT fidabbdreinit_
-#define FIDA_BBDOPT    fidabbdopt_
-#define FIDA_BBDFREE   fidabbdfree_
-#define FIDA_GLOCFN    fidaglocfn_
-#define FIDA_COMMFN    fidacommfn_
+#define FIDA_BBDINIT    fidabbdinit_
+#define FIDA_BBDSPTFQMR fidabbdsptfqmr_
+#define FIDA_BBDSPBCG   fidabbdspbcg_
+#define FIDA_BBDSPGMR   fidabbdspgmr_
+#define FIDA_BBDREINIT  fidabbdreinit_
+#define FIDA_BBDOPT     fidabbdopt_
+#define FIDA_BBDFREE    fidabbdfree_
+#define FIDA_GLOCFN     fidaglocfn_
+#define FIDA_COMMFN     fidacommfn_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FIDA_BBDINIT   FIDABBDINIT_
-#define FIDA_BBDSPBCG  FIDABBDSPBCG_
-#define FIDA_BBDSPGMR  FIDABBDSPGMR_
-#define FIDA_BBDREINIT FIDABBDREINIT_
-#define FIDA_BBDOPT    FIDABBDOPT_
-#define FIDA_BBDFREE   FIDABBDFREE_
-#define FIDA_GLOCFN    FIDAGLOCFN_
-#define FIDA_COMMFN    FIDACOMMFN_
+#define FIDA_BBDINIT    FIDABBDINIT_
+#define FIDA_BBDSPTFQMR FIDABBDSPTFQMR_
+#define FIDA_BBDSPBCG   FIDABBDSPBCG_
+#define FIDA_BBDSPGMR   FIDABBDSPGMR_
+#define FIDA_BBDREINIT  FIDABBDREINIT_
+#define FIDA_BBDOPT     FIDABBDOPT_
+#define FIDA_BBDFREE    FIDABBDFREE_
+#define FIDA_GLOCFN     FIDAGLOCFN_
+#define FIDA_COMMFN     FIDACOMMFN_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#define FIDA_BBDINIT   fidabbdinit__
-#define FIDA_BBDSPBCG  fidabbdspbcg__
-#define FIDA_BBDSPGMR  fidabbdspgmr__
-#define FIDA_BBDREINIT fidabbdreinit__
-#define FIDA_BBDOPT    fidabbdopt__
-#define FIDA_BBDFREE   fidabbdfree__
-#define FIDA_GLOCFN    fidaglocfn__
-#define FIDA_COMMFN    fidacommfn__
+#define FIDA_BBDINIT    fidabbdinit__
+#define FIDA_BBDSPTFQMR fidabbdsptfqmr__
+#define FIDA_BBDSPBCG   fidabbdspbcg__
+#define FIDA_BBDSPGMR   fidabbdspgmr__
+#define FIDA_BBDREINIT  fidabbdreinit__
+#define FIDA_BBDOPT     fidabbdopt__
+#define FIDA_BBDFREE    fidabbdfree__
+#define FIDA_GLOCFN     fidaglocfn__
+#define FIDA_COMMFN     fidacommfn__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#define FIDA_BBDINIT   FIDABBDINIT__
-#define FIDA_BBDSPBCG  FIDABBDSPBCG__
-#define FIDA_BBDSPGMR  FIDABBDSPGMR__
-#define FIDA_BBDREINIT FIDABBDREINIT__
-#define FIDA_BBDOPT    FIDABBDOPT__
-#define FIDA_BBDFREE   FIDABBDFREE__
-#define FIDA_GLOCFN    FIDAGLOCFN__
-#define FIDA_COMMFN    FIDACOMMFN__
+#define FIDA_BBDINIT    FIDABBDINIT__
+#define FIDA_BBDSPTFQMR FIDABBDSPTFQMR__
+#define FIDA_BBDSPBCG   FIDABBDSPBCG__
+#define FIDA_BBDSPGMR   FIDABBDSPGMR__
+#define FIDA_BBDREINIT  FIDABBDREINIT__
+#define FIDA_BBDOPT     FIDABBDOPT__
+#define FIDA_BBDFREE    FIDABBDFREE__
+#define FIDA_GLOCFN     FIDAGLOCFN__
+#define FIDA_COMMFN     FIDACOMMFN__
 
 #endif
 
@@ -446,6 +482,7 @@ extern "C" {
 
 void FIDA_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
 		  long int *mu, long int *ml, realtype *dqrely, int *ier);
+void FIDA_BBDSPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_BBDSPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_BBDSPGMR(int *maxl, int *gstype, int *maxrs,
 		   realtype *eplifac, realtype *dqincfac, int *ier);

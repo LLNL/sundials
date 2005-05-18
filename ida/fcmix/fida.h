@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-11 23:10:54 $
+ * $Revision: 1.2 $
+ * $Date: 2005-05-18 18:17:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -47,6 +47,10 @@
  *
  *   FIDABAND        interfaces to IDABand
  *   FIDABANDSETJAC  interfaces to IDABandSetJacFn
+ *
+ *   FIDASPTFQMR/FIDASPTFQMRREINIT  interface to IDASptfqmr and IDASptfqmrSet*
+ *   FIDASPTFQMRSETJAC              interfaces to IDASptfqmrSetJacFn
+ *   FIDASPTFQMRSETPREC             interfaces to IDASptfqmrSetPreconditioner
  *
  *   FIDASPBCG/FIDASPBCGREINIT  interface to IDASpbcg and IDASpbcgSet*
  *   FIDASPBCGSETJAC            interfaces to IDASpbcgSetJacFn
@@ -338,7 +342,66 @@
  *        NREB   = IOPT(29) -> IDABandGetNumResEvals
  *        LSTF   = IOPT(30) -> IDABandGetLastFlag
  *
- * (7.4) SPBCG treatment of the linear systems.
+ * (7.4) SPTFQMR treatment of the linear systems.
+ * For the Scaled Preconditioned TFQMR solution of the linear systems,
+ * the user must make the following call:
+ *       CALL FIDASPTFQMR (MAXL, EPLIFAC, DQINCFAC, IER)              
+ * The arguments are:
+ * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+ * EPLIFAC  = factor in the linear iteration convergence test constant
+ * DQINCFAC = factor in the increments to y used in the difference quotient
+ *            approximations to matrix-vector products Jv
+ * IER      = error return flag: 0 = success; negative value = an error occured
+ *
+ * If the user program includes the FIDAJTIMES routine for the evaluation of the 
+ * Jacobian vector product, the following call must be made
+ *       CALL FIDASPTFQMRSETJAC (FLAG, IER)
+ * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
+ * using and internal finite difference approximation to this product.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ *
+ * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FIDASPTFQMRSETPREC (FLAG, IER)
+ * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
+ * The user-supplied routine FIDAPSOL must have the form:
+ *       SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WRK, IER)
+ *       INTEGER IER
+ *       DIMENSION T, Y(*), YP(*), R(*), RV(*), ZV(*), CJ, DELTA, EWT(*), WRK(*)
+ * This routine must solve the preconditioner linear system Pz = r, where r = RV
+ * is input, and store the solution z in ZV.
+ *
+ * The user-supplied routine FIDAPSET must be of the form:
+ *       SUBROUTINE FIDAPSET (T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
+ *       INTEGER IER
+ *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, WK1(*), WK2(*), WK3(*)
+ * This routine must perform any evaluation of Jacobian-related data and
+ * preprocessing needed for the solution of the preconditioner linear systems
+ * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
+ * positive if a recoverable error occurred, and set IER negative if a
+ * non-recoverable error occurred.
+ *
+ *      Optional outputs specific to the SPTFQMR case are:
+ *
+ *        LENRWC = IOPT(26) -> IDASptfqmrGetWorkSpace
+ *        LENIWC = IOPT(27) -> IDASptfqmrGetWorkSpace
+ *        NPE    = IOPT(28) -> IDASptfqmrGetPrecEvals
+ *        NPS    = IOPT(29) -> IDASptfqmrGetPrecSolves
+ *        NLI    = IOPT(30) -> IDASptfqmrGetLinIters
+ *        NLCF   = IOPT(31) -> IDASptfqmrGetConvFails
+ *        NJE    = IOPT(32) -> IDASptfqmrGetJtimesEvals
+ *        NRE    = IOPT(33) -> IDASptfqmrGetResEvals
+ *        LSTF   = IOPT(34) -> IDASptfqmrGetLastFlag
+ *
+ *      If a sequence of problems of the same size is being solved using the
+ * SPTFQMR linear solver, then following the call to FIDAREINIT, a call to the
+ * FIDASPTFQMRREINIT routine is needed if EPLIFAC or DQINCFAC is
+ * being changed.  In that case, call FIDASPTFQMRREINIT as follows:
+ *       CALL FIDASPTFQMRREINIT (EPLIFAC, DQINCFAC, IER)
+ * The arguments have the same meanings as for FIDASPTFQMR.  If MAXL is being
+ * changed, then call FIDASPTFQMR instead.
+ *
+ * (7.5) SPBCG treatment of the linear systems.
  * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
  * the user must make the following call:
  *       CALL FIDASPBCG (MAXL, EPLIFAC, DQINCFAC, IER)              
@@ -397,7 +460,7 @@
  * The arguments have the same meanings as for FIDASPBCG.  If MAXL is being
  * changed, then call FIDASPBCG instead.
  *
- * (7.5) SPGMR treatment of the linear systems.
+ * (7.6) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
  *       CALL FIDASPGMR (MAXL, GSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
@@ -509,213 +572,241 @@ extern "C" {
 
 #if defined(F77_FUNC)
 
-#define FIDA_MALLOC        F77_FUNC(fidamalloc, FIDAMALLOC)
-#define FIDA_REINIT        F77_FUNC(fidareinit, FIDAREINIT)
-#define FIDA_TOLREINIT     F77_FUNC(fidatolreinit, FIDATOLREINIT)
-#define FIDA_SOLVE         F77_FUNC(fidasolve, FIDASOLVE)
-#define FIDA_FREE          F77_FUNC(fidafree, FIDAFREE)
-#define FIDA_CALCIC        F77_FUNC(fidacalcic, FIDACALCIC)
-#define FIDA_SPBCG         F77_FUNC(fidaspbcg, FIDASPBCG)
-#define FIDA_SPGMR         F77_FUNC(fidaspgmr, FIDASPGMR)
-#define FIDA_SPBCGREINIT   F77_FUNC(fidaspbcgreinit, FIDASPBCGREINIT)
-#define FIDA_SPGMRREINIT   F77_FUNC(fidaspgmrreinit, FIDASPGMRREINIT)
-#define FIDA_BAND          F77_FUNC(fidaband, FIDABAND)
-#define FIDA_BJAC          F77_FUNC(fidabjac, FIDABJAC)
-#define FIDA_BANDSETJAC    F77_FUNC(fidabandsetjac, FIDABANDSETJAC)
-#define FIDA_DENSE         F77_FUNC(fidadense, FIDADENSE)
-#define FIDA_DENSESETJAC   F77_FUNC(fidadensesetjac, FIDADENSESETJAC)
-#define FIDA_DJAC          F77_FUNC(fidadjac, FIDADJAC)
-#define FIDA_SPBCGSETJAC   F77_FUNC(fidaspbcgsetjac, FIDASPBCGSETJAC)
-#define FIDA_SPGMRSETJAC   F77_FUNC(fidaspgmrsetjac, FIDASPGMRSETJAC)
-#define FIDA_JTIMES        F77_FUNC(fidajtimes, FIDAJTIMES)
-#define FIDA_SPBCGSETPREC  F77_FUNC(fidaspbcgsetprec, FIDASPBCGSETPREC)
-#define FIDA_SPGMRSETPREC  F77_FUNC(fidaspgmrsetprec, FIDASPGMRSETPREC)
-#define FIDA_PSET          F77_FUNC(fidapset, FIDAPSET)
-#define FIDA_PSOL          F77_FUNC(fidapsol, FIDAPSOL)
-#define FIDA_RESFUN        F77_FUNC(fidaresfun, FIDARESFUN)
-#define FIDA_EWT           F77_FUNC(fidaewt, FIDAEWT)
-#define FIDA_GETSOL        F77_FUNC(fidagetsol, FIDAGETSOL)
-#define FIDA_GETERRWEIGHTS F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
+#define FIDA_MALLOC         F77_FUNC(fidamalloc, FIDAMALLOC)
+#define FIDA_REINIT         F77_FUNC(fidareinit, FIDAREINIT)
+#define FIDA_TOLREINIT      F77_FUNC(fidatolreinit, FIDATOLREINIT)
+#define FIDA_SOLVE          F77_FUNC(fidasolve, FIDASOLVE)
+#define FIDA_FREE           F77_FUNC(fidafree, FIDAFREE)
+#define FIDA_CALCIC         F77_FUNC(fidacalcic, FIDACALCIC)
+#define FIDA_SPTFQMR        F77_FUNC(fidasptfqmr, FIDASPTFQMR)
+#define FIDA_SPBCG          F77_FUNC(fidaspbcg, FIDASPBCG)
+#define FIDA_SPGMR          F77_FUNC(fidaspgmr, FIDASPGMR)
+#define FIDA_SPTFQMRREINIT  F77_FUNC(fidasptfqmrreinit, FIDASPTFQMRREINIT)
+#define FIDA_SPBCGREINIT    F77_FUNC(fidaspbcgreinit, FIDASPBCGREINIT)
+#define FIDA_SPGMRREINIT    F77_FUNC(fidaspgmrreinit, FIDASPGMRREINIT)
+#define FIDA_BAND           F77_FUNC(fidaband, FIDABAND)
+#define FIDA_BJAC           F77_FUNC(fidabjac, FIDABJAC)
+#define FIDA_BANDSETJAC     F77_FUNC(fidabandsetjac, FIDABANDSETJAC)
+#define FIDA_DENSE          F77_FUNC(fidadense, FIDADENSE)
+#define FIDA_DENSESETJAC    F77_FUNC(fidadensesetjac, FIDADENSESETJAC)
+#define FIDA_DJAC           F77_FUNC(fidadjac, FIDADJAC)
+#define FIDA_SPTFQMRSETJAC  F77_FUNC(fidasptfqmrsetjac, FIDASPTFQMRSETJAC)
+#define FIDA_SPBCGSETJAC    F77_FUNC(fidaspbcgsetjac, FIDASPBCGSETJAC)
+#define FIDA_SPGMRSETJAC    F77_FUNC(fidaspgmrsetjac, FIDASPGMRSETJAC)
+#define FIDA_JTIMES         F77_FUNC(fidajtimes, FIDAJTIMES)
+#define FIDA_SPTFQMRSETPREC F77_FUNC(fidasptfqmrsetprec, FIDASPTFQMRSETPREC)
+#define FIDA_SPBCGSETPREC   F77_FUNC(fidaspbcgsetprec, FIDASPBCGSETPREC)
+#define FIDA_SPGMRSETPREC   F77_FUNC(fidaspgmrsetprec, FIDASPGMRSETPREC)
+#define FIDA_PSET           F77_FUNC(fidapset, FIDAPSET)
+#define FIDA_PSOL           F77_FUNC(fidapsol, FIDAPSOL)
+#define FIDA_RESFUN         F77_FUNC(fidaresfun, FIDARESFUN)
+#define FIDA_EWT            F77_FUNC(fidaewt, FIDAEWT)
+#define FIDA_GETSOL         F77_FUNC(fidagetsol, FIDAGETSOL)
+#define FIDA_GETERRWEIGHTS  F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FIDA_MALLOC        fidamalloc
-#define FIDA_REINIT        fidareinit
-#define FIDA_TOLREINIT     fidatolreinit
-#define FIDA_SOLVE         fidasolve
-#define FIDA_FREE          fidafree
-#define FIDA_CALCIC        fidacalcic
-#define FIDA_SPBCG         fidaspbcg
-#define FIDA_SPGMR         fidaspgmr
-#define FIDA_SPBCGREINIT   fidaspbcgreinit
-#define FIDA_SPGMRREINIT   fidaspgmrreinit
-#define FIDA_BAND          fidaband
-#define FIDA_BJAC          fidabjac
-#define FIDA_BANDSETJAC    fidabandsetjac
-#define FIDA_DENSE         fidadense
-#define FIDA_DENSESETJAC   fidadensesetjac
-#define FIDA_DJAC          fidadjac
-#define FIDA_SPBCGSETJAC   fidaspbcgsetjac
-#define FIDA_SPGMRSETJAC   fidaspgmrsetjac
-#define FIDA_JTIMES        fidajtimes
-#define FIDA_SPBCGSETPREC  fidaspbcgsetprec
-#define FIDA_SPGMRSETPREC  fidaspgmrsetprec
-#define FIDA_PSET          fidapset
-#define FIDA_PSOL          fidapsol
-#define FIDA_RESFUN        fidaresfun
-#define FIDA_EWT           fidaewt
-#define FIDA_GETSOL        fidagetsol
-#define FIDA_GETERRWEIGHTS fidageterrweights
+#define FIDA_MALLOC         fidamalloc
+#define FIDA_REINIT         fidareinit
+#define FIDA_TOLREINIT      fidatolreinit
+#define FIDA_SOLVE          fidasolve
+#define FIDA_FREE           fidafree
+#define FIDA_CALCIC         fidacalcic
+#define FIDA_SPTFQMR        fidasptfqmr
+#define FIDA_SPBCG          fidaspbcg
+#define FIDA_SPGMR          fidaspgmr
+#define FIDA_SPTFQMRREINIT  fidasptfqmrreinit
+#define FIDA_SPBCGREINIT    fidaspbcgreinit
+#define FIDA_SPGMRREINIT    fidaspgmrreinit
+#define FIDA_BAND           fidaband
+#define FIDA_BJAC           fidabjac
+#define FIDA_BANDSETJAC     fidabandsetjac
+#define FIDA_DENSE          fidadense
+#define FIDA_DENSESETJAC    fidadensesetjac
+#define FIDA_DJAC           fidadjac
+#define FIDA_SPTFQMRSETJAC  fidasptfqmrsetjac
+#define FIDA_SPBCGSETJAC    fidaspbcgsetjac
+#define FIDA_SPGMRSETJAC    fidaspgmrsetjac
+#define FIDA_JTIMES         fidajtimes
+#define FIDA_SPTFQMRSETPREC fidasptfqmrsetprec
+#define FIDA_SPBCGSETPREC   fidaspbcgsetprec
+#define FIDA_SPGMRSETPREC   fidaspgmrsetprec
+#define FIDA_PSET           fidapset
+#define FIDA_PSOL           fidapsol
+#define FIDA_RESFUN         fidaresfun
+#define FIDA_EWT            fidaewt
+#define FIDA_GETSOL         fidagetsol
+#define FIDA_GETERRWEIGHTS  fidageterrweights
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FIDA_MALLOC        FIDAMALLOC
-#define FIDA_REINIT        FIDAREINIT
-#define FIDA_TOLREINIT     FIDATOLREINIT
-#define FIDA_SOLVE         FIDASOLVE
-#define FIDA_FREE          FIDAFREE
-#define FIDA_CALCIC        FIDACALCIC
-#define FIDA_SPBCG         FIDASPBCG
-#define FIDA_SPGMR         FIDASPGMR
-#define FIDA_SPBCGREINIT   FIDASPBCGREINIT
-#define FIDA_SPGMRREINIT   FIDASPGMRREINIT
-#define FIDA_BAND          FIDABAND
-#define FIDA_BJAC          FIDABJAC
-#define FIDA_BANDSETJAC    FIDABANDSETJAC
-#define FIDA_DENSE         FIDADENSE
-#define FIDA_DENSESETJAC   FIDADENSESETJAC
-#define FIDA_DJAC          FIDADJAC
-#define FIDA_SPBCGSETJAC   FIDASPBCGSETJAC
-#define FIDA_SPGMRSETJAC   FIDASPGMRSETJAC
-#define FIDA_JTIMES        FIDAJTIMES
-#define FIDA_SPBCGSETPREC  FIDASPBCGSETPREC
-#define FIDA_SPGMRSETPREC  FIDASPGMRSETPREC
-#define FIDA_PSET          FIDAPSET
-#define FIDA_PSOL          FIDAPSOL
-#define FIDA_RESFUN        FIDARESFUN
-#define FIDA_EWT           FIDAEWT
-#define FIDA_GETSOL        FIDAGETSOL
-#define FIDA_GETERRWEIGHTS FIDAGETERRWEIGHTS
+#define FIDA_MALLOC         FIDAMALLOC
+#define FIDA_REINIT         FIDAREINIT
+#define FIDA_TOLREINIT      FIDATOLREINIT
+#define FIDA_SOLVE          FIDASOLVE
+#define FIDA_FREE           FIDAFREE
+#define FIDA_CALCIC         FIDACALCIC
+#define FIDA_SPTFQMR        FIDASPTFQMR
+#define FIDA_SPBCG          FIDASPBCG
+#define FIDA_SPGMR          FIDASPGMR
+#define FIDA_SPTFQMRREINIT  FIDASPTFQMRREINIT
+#define FIDA_SPBCGREINIT    FIDASPBCGREINIT
+#define FIDA_SPGMRREINIT    FIDASPGMRREINIT
+#define FIDA_BAND           FIDABAND
+#define FIDA_BJAC           FIDABJAC
+#define FIDA_BANDSETJAC     FIDABANDSETJAC
+#define FIDA_DENSE          FIDADENSE
+#define FIDA_DENSESETJAC    FIDADENSESETJAC
+#define FIDA_DJAC           FIDADJAC
+#define FIDA_SPTFQMRSETJAC  FIDASPTFQMRSETJAC
+#define FIDA_SPBCGSETJAC    FIDASPBCGSETJAC
+#define FIDA_SPGMRSETJAC    FIDASPGMRSETJAC
+#define FIDA_JTIMES         FIDAJTIMES
+#define FIDA_SPTFQMRSETPREC FIDASPTFQMRSETPREC
+#define FIDA_SPBCGSETPREC   FIDASPBCGSETPREC
+#define FIDA_SPGMRSETPREC   FIDASPGMRSETPREC
+#define FIDA_PSET           FIDAPSET
+#define FIDA_PSOL           FIDAPSOL
+#define FIDA_RESFUN         FIDARESFUN
+#define FIDA_EWT            FIDAEWT
+#define FIDA_GETSOL         FIDAGETSOL
+#define FIDA_GETERRWEIGHTS  FIDAGETERRWEIGHTS
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FIDA_MALLOC        fidamalloc_
-#define FIDA_REINIT        fidareinit_
-#define FIDA_TOLREINIT     fidatolreinit_
-#define FIDA_SOLVE         fidasolve_
-#define FIDA_FREE          fidafree_
-#define FIDA_CALCIC        fidacalcic_
-#define FIDA_SPBCG         fidaspbcg_
-#define FIDA_SPGMR         fidaspgmr_
-#define FIDA_SPBCGREINIT   fidaspbcgreinit_
-#define FIDA_SPGMRREINIT   fidaspgmrreinit_
-#define FIDA_BAND          fidaband_
-#define FIDA_BJAC          fidabjac_
-#define FIDA_BANDSETJAC    fidabandsetjac_
-#define FIDA_DENSE         fidadense_
-#define FIDA_DENSESETJAC   fidadensesetjac_
-#define FIDA_DJAC          fidadjac_
-#define FIDA_SPBCGSETJAC   fidaspbcgsetjac_
-#define FIDA_SPGMRSETJAC   fidaspgmrsetjac_
-#define FIDA_JTIMES        fidajtimes_
-#define FIDA_SPBCGSETPREC  fidaspbcgsetprec_
-#define FIDA_SPGMRSETPREC  fidaspgmrsetprec_
-#define FIDA_PSET          fidapset_
-#define FIDA_PSOL          fidapsol_
-#define FIDA_RESFUN        fidaresfun_
-#define FIDA_EWT           fidaewt_
-#define FIDA_GETSOL        fidagetsol_
-#define FIDA_GETERRWEIGHTS fidageterrweights_
+#define FIDA_MALLOC         fidamalloc_
+#define FIDA_REINIT         fidareinit_
+#define FIDA_TOLREINIT      fidatolreinit_
+#define FIDA_SOLVE          fidasolve_
+#define FIDA_FREE           fidafree_
+#define FIDA_CALCIC         fidacalcic_
+#define FIDA_SPTFQMR        fidasptfqmr_
+#define FIDA_SPBCG          fidaspbcg_
+#define FIDA_SPGMR          fidaspgmr_
+#define FIDA_SPTFQMRREINIT  fidasptfqmrreinit_
+#define FIDA_SPBCGREINIT    fidaspbcgreinit_
+#define FIDA_SPGMRREINIT    fidaspgmrreinit_
+#define FIDA_BAND           fidaband_
+#define FIDA_BJAC           fidabjac_
+#define FIDA_BANDSETJAC     fidabandsetjac_
+#define FIDA_DENSE          fidadense_
+#define FIDA_DENSESETJAC    fidadensesetjac_
+#define FIDA_DJAC           fidadjac_
+#define FIDA_SPTFQMRSETJAC  fidasptfqmrsetjac_
+#define FIDA_SPBCGSETJAC    fidaspbcgsetjac_
+#define FIDA_SPGMRSETJAC    fidaspgmrsetjac_
+#define FIDA_JTIMES         fidajtimes_
+#define FIDA_SPTFQMRSETPREC fidasptfqmrsetprec_
+#define FIDA_SPBCGSETPREC   fidaspbcgsetprec_
+#define FIDA_SPGMRSETPREC   fidaspgmrsetprec_
+#define FIDA_PSET           fidapset_
+#define FIDA_PSOL           fidapsol_
+#define FIDA_RESFUN         fidaresfun_
+#define FIDA_EWT            fidaewt_
+#define FIDA_GETSOL         fidagetsol_
+#define FIDA_GETERRWEIGHTS  fidageterrweights_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FIDA_MALLOC        FIDAMALLOC_
-#define FIDA_REINIT        FIDAREINIT_
-#define FIDA_TOLREINIT     FIDATOLREINIT_
-#define FIDA_SOLVE         FIDASOLVE_
-#define FIDA_FREE          FIDAFREE_
-#define FIDA_CALCIC        FIDACALCIC_
-#define FIDA_SPBCG         FIDASPBCG_
-#define FIDA_SPGMR         FIDASPGMR_
-#define FIDA_SPBCGREINIT   FIDASPBCGREINIT_
-#define FIDA_SPGMRREINIT   FIDASPGMRREINIT_
-#define FIDA_BAND          FIDABAND_
-#define FIDA_BJAC          FIDABJAC_
-#define FIDA_BANDSETJAC    FIDABANDSETJAC_
-#define FIDA_DENSE         FIDADENSE_
-#define FIDA_DENSESETJAC   FIDADENSESETJAC_
-#define FIDA_DJAC          FIDADJAC_
-#define FIDA_SPBCGSETJAC   FIDASPBCGSETJAC_
-#define FIDA_SPGMRSETJAC   FIDASPGMRSETJAC_
-#define FIDA_JTIMES        FIDAJTIMES_
-#define FIDA_SPBCGSETPREC  FIDASPBCGSETPREC_
-#define FIDA_SPGMRSETPREC  FIDASPGMRSETPREC_
-#define FIDA_PSET          FIDAPSET_
-#define FIDA_PSOL          FIDAPSOL_
-#define FIDA_RESFUN        FIDARESFUN_
-#define FIDA_EWT           FIDAEWT_
-#define FIDA_GETSOL        FIDAGETSOL_
-#define FIDA_GETERRWEIGHTS FIDAGETERRWEIGHTS_
+#define FIDA_MALLOC         FIDAMALLOC_
+#define FIDA_REINIT         FIDAREINIT_
+#define FIDA_TOLREINIT      FIDATOLREINIT_
+#define FIDA_SOLVE          FIDASOLVE_
+#define FIDA_FREE           FIDAFREE_
+#define FIDA_CALCIC         FIDACALCIC_
+#define FIDA_SPTFQMR        FIDASPTFQMR_
+#define FIDA_SPBCG          FIDASPBCG_
+#define FIDA_SPGMR          FIDASPGMR_
+#define FIDA_SPTFQMRREINIT  FIDASPTFQMRREINIT_
+#define FIDA_SPBCGREINIT    FIDASPBCGREINIT_
+#define FIDA_SPGMRREINIT    FIDASPGMRREINIT_
+#define FIDA_BAND           FIDABAND_
+#define FIDA_BJAC           FIDABJAC_
+#define FIDA_BANDSETJAC     FIDABANDSETJAC_
+#define FIDA_DENSE          FIDADENSE_
+#define FIDA_DENSESETJAC    FIDADENSESETJAC_
+#define FIDA_DJAC           FIDADJAC_
+#define FIDA_SPTFQMRSETJAC  FIDASPTFQMRSETJAC_
+#define FIDA_SPBCGSETJAC    FIDASPBCGSETJAC_
+#define FIDA_SPGMRSETJAC    FIDASPGMRSETJAC_
+#define FIDA_JTIMES         FIDAJTIMES_
+#define FIDA_SPTFQMRSETPREC FIDASPTFQMRSETPREC_
+#define FIDA_SPBCGSETPREC   FIDASPBCGSETPREC_
+#define FIDA_SPGMRSETPREC   FIDASPGMRSETPREC_
+#define FIDA_PSET           FIDAPSET_
+#define FIDA_PSOL           FIDAPSOL_
+#define FIDA_RESFUN         FIDARESFUN_
+#define FIDA_EWT            FIDAEWT_
+#define FIDA_GETSOL         FIDAGETSOL_
+#define FIDA_GETERRWEIGHTS  FIDAGETERRWEIGHTS_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#define FIDA_MALLOC        fidamalloc__
-#define FIDA_REINIT        fidareinit__
-#define FIDA_TOLREINIT     fidatolreinit__
-#define FIDA_SOLVE         fidasolve__
-#define FIDA_FREE          fidafree__
-#define FIDA_CALCIC        fidacalcic__
-#define FIDA_SPBCG         fidaspbcg__
-#define FIDA_SPGMR         fidaspgmr__
-#define FIDA_SPBCGREINIT   fidaspbcgreinit__
-#define FIDA_SPGMRREINIT   fidaspgmrreinit__
-#define FIDA_BAND          fidaband__
-#define FIDA_BJAC          fidabjac__
-#define FIDA_BANDSETJAC    fidabandsetjac__
-#define FIDA_DENSE         fidadense__
-#define FIDA_DENSESETJAC   fidadensesetjac__
-#define FIDA_DJAC          fidadjac__
-#define FIDA_SPBCGSETJAC   fidaspbcgsetjac__
-#define FIDA_SPGMRSETJAC   fidaspgmrsetjac__
-#define FIDA_JTIMES        fidajtimes__
-#define FIDA_SPBCGSETPREC  fidaspbcgsetprec__
-#define FIDA_SPGMRSETPREC  fidaspgmrsetprec__
-#define FIDA_PSET          fidapset__
-#define FIDA_PSOL          fidapsol__
-#define FIDA_RESFUN        fidaresfun__
-#define FIDA_EWT           fidaewt__
-#define FIDA_GETSOL        fidagetsol__
-#define FIDA_GETERRWEIGHTS fidageterrweights__
+#define FIDA_MALLOC         fidamalloc__
+#define FIDA_REINIT         fidareinit__
+#define FIDA_TOLREINIT      fidatolreinit__
+#define FIDA_SOLVE          fidasolve__
+#define FIDA_FREE           fidafree__
+#define FIDA_CALCIC         fidacalcic__
+#define FIDA_SPTFQMR        fidasptfqmr__
+#define FIDA_SPBCG          fidaspbcg__
+#define FIDA_SPGMR          fidaspgmr__
+#define FIDA_SPTFQMRREINIT  fidasptfqmrreinit__
+#define FIDA_SPBCGREINIT    fidaspbcgreinit__
+#define FIDA_SPGMRREINIT    fidaspgmrreinit__
+#define FIDA_BAND           fidaband__
+#define FIDA_BJAC           fidabjac__
+#define FIDA_BANDSETJAC     fidabandsetjac__
+#define FIDA_DENSE          fidadense__
+#define FIDA_DENSESETJAC    fidadensesetjac__
+#define FIDA_DJAC           fidadjac__
+#define FIDA_SPTFQMRSETJAC  fidasptfqmrsetjac__
+#define FIDA_SPBCGSETJAC    fidaspbcgsetjac__
+#define FIDA_SPGMRSETJAC    fidaspgmrsetjac__
+#define FIDA_JTIMES         fidajtimes__
+#define FIDA_SPTFQMRSETPREC fidasptfqmrsetprec__
+#define FIDA_SPBCGSETPREC   fidaspbcgsetprec__
+#define FIDA_SPGMRSETPREC   fidaspgmrsetprec__
+#define FIDA_PSET           fidapset__
+#define FIDA_PSOL           fidapsol__
+#define FIDA_RESFUN         fidaresfun__
+#define FIDA_EWT            fidaewt__
+#define FIDA_GETSOL         fidagetsol__
+#define FIDA_GETERRWEIGHTS  fidageterrweights__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#define FIDA_MALLOC        FIDAMALLOC__
-#define FIDA_REINIT        FIDAREINIT__
-#define FIDA_TOLREINIT     FIDATOLREINIT__
-#define FIDA_SOLVE         FIDASOLVE__
-#define FIDA_FREE          FIDAFREE__
-#define FIDA_CALCIC        FIDACALCIC__
-#define FIDA_SPBCG         FIDASPBCG__
-#define FIDA_SPGMR         FIDASPGMR__
-#define FIDA_SPBCGREINIT   FIDASPBCGREINIT__
-#define FIDA_SPGMRREINIT   FIDASPGMRREINIT__
-#define FIDA_BAND          FIDABAND__
-#define FIDA_BJAC          FIDABJAC__
-#define FIDA_BANDSETJAC    FIDABANDSETJAC__
-#define FIDA_DENSE         FIDADENSE__
-#define FIDA_DENSESETJAC   FIDADENSESETJAC__
-#define FIDA_DJAC          FIDADJAC__
-#define FIDA_SPBCGSETJAC   FIDASPBCGSETJAC__
-#define FIDA_SPGMRSETJAC   FIDASPGMRSETJAC__
-#define FIDA_JTIMES        FIDAJTIMES__
-#define FIDA_SPBCGSETPREC  FIDASPBCGSETPREC__
-#define FIDA_SPGMRSETPREC  FIDASPGMRSETPREC__
-#define FIDA_PSET          FIDAPSET__
-#define FIDA_PSOL          FIDAPSOL__
-#define FIDA_RESFUN        FIDARESFUN__
-#define FIDA_EWT           FIDAEWT__
-#define FIDA_GETSOL        FIDAGETSOL__
-#define FIDA_GETERRWEIGHTS FIDAGETERRWEIGHTS__
+#define FIDA_MALLOC         FIDAMALLOC__
+#define FIDA_REINIT         FIDAREINIT__
+#define FIDA_TOLREINIT      FIDATOLREINIT__
+#define FIDA_SOLVE          FIDASOLVE__
+#define FIDA_FREE           FIDAFREE__
+#define FIDA_CALCIC         FIDACALCIC__
+#define FIDA_SPTFQMR        FIDASPTFQMR__
+#define FIDA_SPBCG          FIDASPBCG__
+#define FIDA_SPGMR          FIDASPGMR__
+#define FIDA_SPTFQMRREINIT  FIDASPTFQMRREINIT__
+#define FIDA_SPBCGREINIT    FIDASPBCGREINIT__
+#define FIDA_SPGMRREINIT    FIDASPGMRREINIT__
+#define FIDA_BAND           FIDABAND__
+#define FIDA_BJAC           FIDABJAC__
+#define FIDA_BANDSETJAC     FIDABANDSETJAC__
+#define FIDA_DENSE          FIDADENSE__
+#define FIDA_DENSESETJAC    FIDADENSESETJAC__
+#define FIDA_DJAC           FIDADJAC__
+#define FIDA_SPTFQMRSETJAC  FIDASPTFQMRSETJAC__
+#define FIDA_SPBCGSETJAC    FIDASPBCGSETJAC__
+#define FIDA_SPGMRSETJAC    FIDASPGMRSETJAC__
+#define FIDA_JTIMES         FIDAJTIMES__
+#define FIDA_SPTFQMRSETPREC FIDASPTFQMRSETPREC__
+#define FIDA_SPBCGSETPREC   FIDASPBCGSETPREC__
+#define FIDA_SPGMRSETPREC   FIDASPGMRSETPREC__
+#define FIDA_PSET           FIDAPSET__
+#define FIDA_PSOL           FIDAPSOL__
+#define FIDA_RESFUN         FIDARESFUN__
+#define FIDA_EWT            FIDAEWT__
+#define FIDA_GETSOL         FIDAGETSOL__
+#define FIDA_GETERRWEIGHTS  FIDAGETERRWEIGHTS__
 
 #endif
 
@@ -734,11 +825,13 @@ void FIDA_REINIT(realtype *t0, realtype *yy0, realtype *yp0,
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier);
 void FIDA_CALCIC(realtype *t0, realtype *yy0, realtype *yp0,
 		 int *icopt, realtype *tout1, int *ier);
+void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs, realtype *eplifac,
 		realtype *dqincfac, int *ier);
 void FIDA_DENSE(long int *neq, int *ier);
 void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPBCGREINIT(realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPGMRREINIT(int *gstype, realtype *eplifac,
 		      realtype *dqincfac, int *ier);
@@ -749,8 +842,10 @@ void FIDA_BANDSETJAC(int *flag, int *ier);
 void FIDA_DENSESETJAC(int *flag, int *ier);
 void FIDA_SPGMRSETJAC(int *flag, int *ier);
 void FIDA_SPBCGSETJAC(int *flag, int *ier);
+void FIDA_SPTFQMRSETJAC(int *flag, int *ier);
 void FIDA_SPGMRSETPREC(int *flag, int *ier);
 void FIDA_SPBCGSETPREC(int *flag, int *ier);
+void FIDA_SPTFQMRSETPREC(int *flag, int *ier);
 void FIDA_EWTSET(int *flag, int *ier);
 void FIDA_GETSOL(realtype *t, realtype *yret, realtype *ypret, int *ier);
 void FIDA_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier);
@@ -798,7 +893,7 @@ extern int IDA_ls;
 
 /* Linear solver IDs */
 
-enum { IDA_SPGMR = 1, IDA_SPBCG = 2, IDA_BAND = 3, IDA_DENSE = 4 };
+enum { IDA_SPGMR = 1, IDA_SPBCG = 2, IDA_BAND = 3, IDA_DENSE = 4, IDA_SPTFQMR };
 
 #ifdef __cplusplus
 }

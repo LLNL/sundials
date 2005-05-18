@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-04-26 14:21:29 $
+ * $Revision: 1.12 $
+ * $Date: 2005-05-18 18:16:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -24,20 +24,23 @@
  * together with the FCVODE Interface Package, support the use of the
  * CVODE solver (serial version) with the CVBANDPRE preconditioner module,
  * for the solution of ODE systems in a mixed Fortran/C setting.  The
- * combination of CVODE and CVBANDPRE solves systems dy/dt = f(t,y) with either
- * the SPGMR (scaled preconditioned GMRES) or SPBCG (scaled preconditioned
- * Bi-CGSTAB) method for the linear systems that arise, and with a banded
- * difference quotient Jacobian-based preconditioner.
+ * combination of CVODE and CVBANDPRE solves systems dy/dt = f(t,y) with the
+ * SPGMR (scaled preconditioned GMRES), SPTFQMR (scaled preconditioned TFQMR),
+ *  or SPBCG (scaled preconditioned Bi-CGSTAB) method for the linear systems
+ * that arise, and with a banded difference quotient Jacobian-based preconditioner.
  * 
  * The user-callable functions in this package, with the corresponding
  * CVODE and CVBBDPRE functions, are as follows: 
- *   FCVBPINIT  interfaces to CVBandPrecAlloc and CVSpgmr/CVSpbcg
- *   FCVBPOPT   accesses optional outputs
- *   FCVBPFREE  interfaces to CVBandPrecFree
+ *   FCVBPINIT    interfaces to CVBandPrecAlloc
+ *   FCVBPSPTFQMR interfaces to CVBPSptfqmr
+ *   FCVBPSPBCG   interfaces to CVBPSpbcg
+ *   FCVBPSPGMR   interfaces to CVBPSpgmr
+ *   FCVBPOPT     accesses optional outputs
+ *   FCVBPFREE    interfaces to CVBandPrecFree
  * 
  * In addition to the Fortran right-hand side function FCVFUN, the
  * user may (optionally) supply a routine FCVJTIMES which is called by 
- * the interface function FCVJtimes of type CVSpgmrJtimesFn or CVSpbcgJtimesFn.
+ * the interface function FCVJtimes of type CVSpilsJtimesFn.
  * (The names of all user-supplied routines here are fixed, in order to
  * maximize portability for the resulting mixed-language program.)
  * 
@@ -123,7 +126,21 @@
  *             is retained as an approximation of the Jacobian.
  * IER       = return completion flag: IER=0: success, IER<0: and error occured
  *
- * (3.4A) To specify the SPBCG linear solver with the CVBANDPRE preconditioner,
+ * (3.4A) To specify the SPTFQMR linear solver with the CVBANDPRE preconditioner,
+ * make the following call
+ *       CALL FCVBPSPTFQMR(IPRETYPE, MAXL, DELT, IER)
+ * 
+ * The arguments are:
+ * IPRETYPE  = preconditioner type: 
+ *            0 = none
+ *            1 = left only
+ *            2 = right only
+ *            3 = both sides.
+ * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT      = linear convergence tolerance factor; 0.0 indicates default.
+ * IER       = return completion flag: IER=0: success, IER<0: ans error occured
+ *
+ * (3.4B) To specify the SPBCG linear solver with the CVBANDPRE preconditioner,
  * make the following call
  *       CALL FCVBPSPBCG(IPRETYPE, MAXL, DELT, IER)
  * 
@@ -137,7 +154,7 @@
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
  * IER       = return completion flag: IER=0: success, IER<0: ans error occured
  *
- * (3.4B) To specify the SPGMR linear solver with the CVBANDPRE preconditioner,
+ * (3.4C) To specify the SPGMR linear solver with the CVBANDPRE preconditioner,
  * make the following call
  *       CALL FCVBPSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
  * 
@@ -152,13 +169,19 @@
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
  * IER       = return completion flag: IER=0: success, IER<0: ans error occured
  *
- * (3.5A) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
+ * (3.5A) To specify whether TFQMR should use the supplied FCVJTIMES or the 
+ * internal finite difference approximation, make the call
+ *        CALL FCVSPTFQMRSETJAC(FLAG, IER)
+ * where FLAG=0 for finite differences approxaimtion or
+ *       FLAG=1 to use the supplied routine FCVJTIMES
+ *
+ * (3.5B) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FCVSPBCGSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
  *       FLAG=1 to use the supplied routine FCVJTIMES
  *
- * (3.5B) To specify whether GMRES should use the supplied FCVJTIMES or the 
+ * (3.5C) To specify whether GMRES should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FCVSPGMRSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
@@ -178,7 +201,7 @@
  * The current values of the optional outputs are available in IOPT and ROPT.
  * 
  * (5) Optional outputs: FCVBPOPT
- * Optional outputs specific to the SPGMR/SPBCG solver are NPE, NLI, NPS, NCFL,
+ * Optional outputs specific to the SP* solver are NPE, NLI, NPS, NCFL,
  * LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.
  * To obtain the optional outputs associated with the CVBANDPRE module, make
  * the following call:
@@ -199,12 +222,11 @@
  * K   = derivative order (0 .le. K .le. QU)
  * DKY = array containing computed K-th derivative of y on return
  * 
- * (7) Memory freeing: FCVBPFREE, FCVFREE, and FNVFREES
+ * (7) Memory freeing: FCVBPFREE and FCVFREE
  *   To the free the internal memory created by the calls to FNVINITS,
  * FCVMALLOC, and FCVBPINIT, make the following calls, in this order:
  *       CALL FCVBPFREE
  *       CALL FCVFREE
- *       CALL FNVFREES
  * 
  * ==============================================================================
  */
@@ -225,64 +247,72 @@ extern "C" {
 
 #if defined(F77_FUNC)
 
-#define FCV_BPINIT  F77_FUNC(fcvbpinit, FCVBPINIT)
-#define FCV_BPSPBCG F77_FUNC(fcvbpspbcg, FCVBPSPBCG)
-#define FCV_BPSPGMR F77_FUNC(fcvbpspgmr, FCVBPSPGMR)
-#define FCV_BPOPT   F77_FUNC(fcvbpopt, FCVBPOPT)
-#define FCV_BPFREE  F77_FUNC(fcvbpfree, FCVBPFREE)
+#define FCV_BPINIT    F77_FUNC(fcvbpinit, FCVBPINIT)
+#define FCV_BPSPTFQMR F77_FUNC(fcvbpsptfqmr, FCVBPSPTFQMR)
+#define FCV_BPSPBCG   F77_FUNC(fcvbpspbcg, FCVBPSPBCG)
+#define FCV_BPSPGMR   F77_FUNC(fcvbpspgmr, FCVBPSPGMR)
+#define FCV_BPOPT     F77_FUNC(fcvbpopt, FCVBPOPT)
+#define FCV_BPFREE    F77_FUNC(fcvbpfree, FCVBPFREE)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_BPINIT  fcvbpinit
-#define FCV_BPSPBCG fcvbpspbcg
-#define FCV_BPSPGMR fcvbpspgmr
-#define FCV_BPOPT   fcvbpopt
-#define FCV_BPFREE  fcvbpfree
+#define FCV_BPINIT    fcvbpinit
+#define FCV_BPSPTFQMR fcvbpsptfqmr
+#define FCV_BPSPBCG   fcvbpspbcg
+#define FCV_BPSPGMR   fcvbpspgmr
+#define FCV_BPOPT     fcvbpopt
+#define FCV_BPFREE    fcvbpfree
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_BPINIT  FCVBPINIT
-#define FCV_BPSPBCG FCVBPSPBCG
-#define FCV_BPSPGMR FCVBPSPGMR
-#define FCV_BPOPT   FCVBPOPT
-#define FCV_BPFREE  FCVBPFREE
+#define FCV_BPINIT    FCVBPINIT
+#define FCV_BPSPTFQMR FCVBPSPTFQMR
+#define FCV_BPSPBCG   FCVBPSPBCG
+#define FCV_BPSPGMR   FCVBPSPGMR
+#define FCV_BPOPT     FCVBPOPT
+#define FCV_BPFREE    FCVBPFREE
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_BPINIT  fcvbpinit_
-#define FCV_BPSPBCG fcvbpspbcg_
-#define FCV_BPSPGMR fcvbpspgmr_
-#define FCV_BPOPT   fcvbpopt_
-#define FCV_BPFREE  fcvbpfree_
+#define FCV_BPINIT    fcvbpinit_
+#define FCV_BPSPTFQMR fcvbpsptfqmr_
+#define FCV_BPSPBCG   fcvbpspbcg_
+#define FCV_BPSPGMR   fcvbpspgmr_
+#define FCV_BPOPT     fcvbpopt_
+#define FCV_BPFREE    fcvbpfree_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_BPINIT  FCVBPINIT_
-#define FCV_BPSPBCG FCVBPSPBCG_
-#define FCV_BPSPGMR FCVBPSPGMR_
-#define FCV_BPOPT   FCVBPOPT_
-#define FCV_BPFREE  FCVBPFREE_
+#define FCV_BPINIT    FCVBPINIT_
+#define FCV_BPSPTFQMR FCVBPSPTFQMR_
+#define FCV_BPSPBCG   FCVBPSPBCG_
+#define FCV_BPSPGMR   FCVBPSPGMR_
+#define FCV_BPOPT     FCVBPOPT_
+#define FCV_BPFREE    FCVBPFREE_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_BPINIT  fcvbpinit__
-#define FCV_BPSPBCG fcvbpspbcg__
-#define FCV_BPSPGMR fcvbpspgmr__
-#define FCV_BPOPT   fcvbpopt__
-#define FCV_BPFREE  fcvbpfree__
+#define FCV_BPINIT    fcvbpinit__
+#define FCV_BPSPTFQMR fcvbpsptfqmr__
+#define FCV_BPSPBCG   fcvbpspbcg__
+#define FCV_BPSPGMR   fcvbpspgmr__
+#define FCV_BPOPT     fcvbpopt__
+#define FCV_BPFREE    fcvbpfree__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_BPINIT  FCVBPINIT__
-#define FCV_BPSPBCG FCVBPSPBCG__
-#define FCV_BPSPGMR FCVBPSPGMR__
-#define FCV_BPOPT   FCVBPOPT__
-#define FCV_BPFREE  FCVBPFREE__
+#define FCV_BPINIT    FCVBPINIT__
+#define FCV_BPSPTFQMR FCVBPSPTFQMR__
+#define FCV_BPSPBCG   FCVBPSPBCG__
+#define FCV_BPSPGMR   FCVBPSPGMR__
+#define FCV_BPOPT     FCVBPOPT__
+#define FCV_BPFREE    FCVBPFREE__
 
 #endif
 
 /* Prototypes of exported function */
 void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier);
+void FCV_BPSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BPSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_BPOPT(long int *lenrpw, long int *lenipw, long int *nfe);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-04-07 23:28:31 $
+ * $Revision: 1.27 $
+ * $Date: 2005-05-18 18:17:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with CVODE, CVSpgmr/CVSpbcg,
+ * matrix with banded blocks, for use with CVODE, CVSp*,
  * and the parallel implementation of NVECTOR.
  * -----------------------------------------------------------------
  */
@@ -23,6 +23,7 @@
 
 #include "cvbbdpre_impl.h"
 #include "cvode_impl.h"
+#include "cvsptfqmr_impl.h"
 #include "cvspbcg_impl.h"
 #include "cvspgmr_impl.h"
 
@@ -132,6 +133,24 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   pdata->nge = 0;
 
   return((void *)pdata);
+}
+
+int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
+{
+  int flag;
+
+  if (bbd_data == NULL) {
+    fprintf(stderr, MSGBBDP_NO_PDATA);
+    return(CV_PDATA_NULL);
+  } 
+
+  flag = CVSptfqmr(cvode_mem, pretype, maxl);
+  if(flag != CVSPTFQMR_SUCCESS) return(flag);
+
+  flag = CVSptfqmrSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
+  if(flag != CVSPTFQMR_SUCCESS) return(flag);
+
+  return(CVSPTFQMR_SUCCESS);
 }
 
 int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
@@ -304,7 +323,7 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
  * gamma   is the scalar appearing in the Newton matrix.
  *
  * bbd_data  is a pointer to user data - the same as the P_data
- *           parameter passed to CVSpgmr/CVSpbcg. For CVBBDPrecon,
+ *           parameter passed to CVSp*. For CVBBDPrecon,
  *           this should be of type CVBBDData.
  *
  * tmp1, tmp2, and tmp3 are pointers to memory allocated

@@ -65,6 +65,10 @@ E. Revision History
 v. 2.1.0 (Apr. 2005) ---> v. 2.1.1 (May.2005)
 ----------------------------------------------
 
+- New features
+   - added SPBCG (scaled preconditioned Bi-CGStab) linear solver module
+   - added SPTFQMR (scaled preconditioned TFQMR) linear solver module
+
 - Changes to data structures
    - added N_VCloneEmpty to global vector operations table
 

@@ -103,6 +103,8 @@ v. 2.3.0 (Apr. 2005) --->
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
    - added support for SPBCG to the KINBBDPRE preconditioner module.
    - added KINDENSE module (dense linear solver)
+   - added KINSPTFQMR interface module to allow KINSOL to interface with
+     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module
 
 - Changes to underlying algorithms
    - modified the KINBBDPRE preconditioner module to allow the use of
@@ -133,6 +135,7 @@ v. 2.3.0 (Apr. 2005) --->
      half-bandwidths for the difference quotient approximation (mudq, mldq)
      and the retained matrix (mukeep, mlkeep).
    - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
+   - added support for KINSPTFQMR/SPTFQMR (added FKIN*SPTFQMR* functions).
 
 - Changes related to the build system
    - updated configure script and Makefiles for Fortran examples to avoid C++

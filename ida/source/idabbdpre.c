@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2005-05-16 17:29:24 $
+ * $Revision: 1.29 $
+ * $Date: 2005-05-18 18:17:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with IDA and IDASpgmr/IDASpbcg.
+ * matrix with banded blocks, for use with IDA and IDASp*.
  *
  * NOTE: With only one processor in use, a banded matrix results
  * rather than a block-diagonal matrix with banded blocks.
@@ -27,13 +27,14 @@
 
 #include "ida_impl.h"
 #include "idabbdpre_impl.h"
+#include "idasptfqmr_impl.h"
 #include "idaspbcg_impl.h"
 #include "idaspgmr_impl.h"
 #include "sundialsmath.h"
 
-#define ZERO         RCONST(0.0)
-#define ONE          RCONST(1.0)
-#define TWO          RCONST(2.0)
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
 /* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
 
@@ -142,6 +143,24 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   pdata->nge = 0;
 
   return((void *)pdata);
+}
+
+int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data)
+{
+  int flag;
+
+  if (bbd_data == NULL) {
+    fprintf(stderr, MSGBBD_NO_PDATA);
+    return(IDA_PDATA_NULL);
+  }
+
+  flag = IDASptfqmr(ida_mem, maxl);
+  if(flag != IDASPTFQMR_SUCCESS) return(flag);
+
+  flag = IDASptfqmrSetPreconditioner(ida_mem, IDABBDPrecSetup, IDABBDPrecSolve, bbd_data);
+  if(flag != IDASPTFQMR_SUCCESS) return(flag);
+
+  return(IDASPTFQMR_SUCCESS);
 }
 
 int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data)
@@ -258,17 +277,17 @@ int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 
 /* Readability Replacements */
 
-#define Nlocal      (pdata->n_local)
-#define mudq        (pdata->mudq)
-#define mldq        (pdata->mldq)
-#define mukeep      (pdata->mukeep)
-#define mlkeep      (pdata->mlkeep)
-#define glocal      (pdata->glocal)
-#define gcomm       (pdata->gcomm)
-#define pivots      (pdata->pivots)
-#define PP          (pdata->PP)
-#define nge         (pdata->nge)
-#define rel_yy      (pdata->rel_yy)
+#define Nlocal (pdata->n_local)
+#define mudq   (pdata->mudq)
+#define mldq   (pdata->mldq)
+#define mukeep (pdata->mukeep)
+#define mlkeep (pdata->mlkeep)
+#define glocal (pdata->glocal)
+#define gcomm  (pdata->gcomm)
+#define pivots (pdata->pivots)
+#define PP     (pdata->PP)
+#define nge    (pdata->nge)
+#define rel_yy (pdata->rel_yy)
 
 /*
  * -----------------------------------------------------------------
@@ -294,7 +313,7 @@ int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *
  * prec_data is a pointer to user preconditioner data - the same as
- *           the p_data parameter passed to IDASpgmr/IDASpbcg.
+ *           the p_data parameter passed to IDASp*.
  *
  * tmp1, tmp2, tmp3 are pointers to vectors of type
  *                  N_Vector, used for temporary storage or
@@ -352,7 +371,7 @@ int IDABBDPrecSetup(realtype tt,
  * zvec is the computed solution vector z.
  *
  * prec_data is a pointer to user preconditioner data - the same as
- *           the p_data parameter passed to IDASpgmr/IDASpbcg.
+ *           the p_data parameter passed to IDASp*.
  *
  * The arguments tt, yy, yp, rr, c_j, delta, and tmp are NOT used.
  *

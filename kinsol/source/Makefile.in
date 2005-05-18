@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-04-26 20:31:31 $
+# $Revision: 1.14 $
+# $Date: 2005-05-18 18:17:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR   = $(srcdir)/../../shared/include
 KINSOL_INC_DIR   = $(srcdir)/../include
 
 KINSOL_LIB       = libsundials_kinsol.la
-KINSOL_LIB_FILES = kinsol.lo kinsolio.lo kindense.lo kinspgmr.lo kinspbcg.lo kinbbdpre.lo
+KINSOL_LIB_FILES = kinsol.lo kinsolio.lo kindense.lo kinspgmr.lo kinspbcg.lo kinsptfqmr.lo kinbbdpre.lo
 
-OBJECT_FILES = kinsol.o kinsolio.o kindense.o kinspgmr.o kinspbcg.o kinbbdpre.o
+OBJECT_FILES = kinsol.o kinsolio.o kindense.o kinspgmr.o kinspbcg.o kinsptfqmr.o kinbbdpre.o
 
 all: update $(KINSOL_LIB_FILES)
 
@@ -59,6 +59,7 @@ install: update $(KINSOL_LIB_FILES)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kindense.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspgmr.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspbcg.h $(includedir)
+	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinsptfqmr.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinbbdpre.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspils.h $(includedir)
 
@@ -74,6 +75,7 @@ uninstall: clean
 	rm -f $(includedir)/kindense.h
 	rm -f $(includedir)/kinspgmr.h
 	rm -f $(includedir)/kinspbcg.h
+	rm -f $(includedir)/kinsptfqmr.h
 	rm -f $(includedir)/kinbbdpre.h
 	rm -f $(includedir)/kinspils.h
 
@@ -87,6 +89,8 @@ kinspgmr.lo: $(srcdir)/kinspgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
 kinspbcg.lo: $(srcdir)/kinspbcg.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspbcg.c
+kinsptfqmr.lo: $(srcdir)/kinsptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsptfqmr.c
 kinbbdpre.lo: $(srcdir)/kinbbdpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinbbdpre.c
 

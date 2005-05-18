@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-04-15 23:45:58 $
+ * $Revision: 1.24 $
+ * $Date: 2005-05-18 18:17:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -27,6 +27,7 @@
                                variables                                    */
 #include "kinbbdpre.h"      /* prototypes of KINBBDPRE functions and macros */
 #include "kinsol.h"         /* KINSOL constants and prototypes              */
+#include "kinsptfqmr.h"     /* prototypes of KINSPTFQMR interface routines  */
 #include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines    */
 #include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines    */
 #include "nvector.h"        /* definition of type N_Vector                  */
@@ -72,6 +73,21 @@ void FKIN_BBDINIT(long int *nlocal, long int *mudq, long int *mldq,
 			      *mu, *ml, ZERO, FKINgloc, FKINgcomm);
   if (KBBD_Data == NULL) *ier = -1;
   else *ier = 0;
+
+  return;
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_BBDSPTFQMR
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_BBDSPTFQMR(int *maxl, int *ier)
+{
+  *ier = 0;
+
+  *ier = KINBBDSptfqmr(KIN_kinmem, *maxl, KBBD_Data);
 
   return;
 }

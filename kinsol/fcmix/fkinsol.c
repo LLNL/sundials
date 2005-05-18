@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2005-04-28 20:45:18 $
+ * $Revision: 1.35 $
+ * $Date: 2005-05-18 18:17:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,6 +25,7 @@
 
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
 #include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinsptfqmr.h"     /* prototypes of KINSPTFQMR interface routines   */
 #include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
 #include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
 #include "nvector.h"        /* definition of type N_Vector and prototypes
@@ -152,6 +153,19 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
 /*
  * ----------------------------------------------------------------
+ * Function : FKIN_SPTFQMR
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SPTFQMR(int *maxl, int *ier)
+{
+  *ier = KINSptfqmr(KIN_kinmem, *maxl);
+
+  KIN_ls = KIN_SPTFQMR;
+}
+
+/*
+ * ----------------------------------------------------------------
  * Function : FKIN_SPBCG
  * ----------------------------------------------------------------
  */
@@ -226,6 +240,14 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINGetStepLength(KIN_kinmem, &KIN_ropt[3]);
 
     switch(KIN_ls) {
+
+    case KIN_SPTFQMR:
+      KINSptfqmrGetNumLinIters(KIN_kinmem, &KIN_iopt[10]);
+      KINSptfqmrGetNumPrecEvals(KIN_kinmem, &KIN_iopt[11]);
+      KINSptfqmrGetNumPrecSolves(KIN_kinmem, &KIN_iopt[12]);
+      KINSptfqmrGetNumConvFails(KIN_kinmem, &KIN_iopt[13]);
+      KINSptfqmrGetLastFlag(KIN_kinmem, (int *) &KIN_iopt[14]);
+      break;
 
     case KIN_SPBCG:
       KINSpbcgGetNumLinIters(KIN_kinmem, &KIN_iopt[10]);

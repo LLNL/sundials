@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-04-26 14:24:53 $
+# $Revision: 1.14 $
+# $Date: 2005-05-18 18:17:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -43,9 +43,9 @@ SHARED_INC_DIR = $(srcdir)/../../shared/include
 CVODE_INC_DIR  = $(srcdir)/../include
 
 CVODE_LIB       = libsundials_cvode.la
-CVODE_LIB_FILES = cvode.lo cvodeio.lo cvband.lo cvdense.lo cvdiag.lo cvspbcg.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo
+CVODE_LIB_FILES = cvode.lo cvodeio.lo cvband.lo cvdense.lo cvdiag.lo cvspbcg.lo cvspgmr.lo cvsptfqmr.lo cvbandpre.lo cvbbdpre.lo
 
-OBJECT_FILES = cvode.o cvodeio.o cvband.o cvdense.o cvdiag.o cvspbcg.o cvspgmr.o cvbandpre.o cvbbdpre.o
+OBJECT_FILES = cvode.o cvodeio.o cvband.o cvdense.o cvdiag.o cvspbcg.o cvspgmr.o cvsptfqmr.o cvbandpre.o cvbbdpre.o
 
 all: update $(CVODE_LIB_FILES)
 
@@ -62,6 +62,7 @@ install: update $(CVODE_LIB_FILES)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvspils.h $(includedir)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvspbcg.h $(includedir)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvspgmr.h $(includedir)
+	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvsptfqmr.h $(includedir)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvbandpre.h $(includedir)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvbbdpre.h $(includedir)
 
@@ -80,6 +81,7 @@ uninstall: clean
 	rm -f $(includedir)/cvspils.h
 	rm -f $(includedir)/cvspbcg.h
 	rm -f $(includedir)/cvspgmr.h
+	rm -f $(includedir)/cvsptfqmr.h
 	rm -f $(includedir)/cvbandpre.h
 	rm -f $(includedir)/cvbbdpre.h
 
@@ -97,6 +99,8 @@ cvspbcg.lo: $(srcdir)/cvspbcg.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvspbcg.c
 cvspgmr.lo: $(srcdir)/cvspgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvspgmr.c
+cvsptfqmr.lo: $(srcdir)/cvsptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsptfqmr.c
 cvbandpre.lo: $(srcdir)/cvbandpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbandpre.c
 cvbbdpre.lo: $(srcdir)/cvbbdpre.c

@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2005-04-07 20:42:50 $
+ * $Revision: 1.26 $
+ * $Date: 2005-05-18 18:17:44 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -13,7 +13,7 @@
  *-----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with KINSol, KINSpgmr/KINSpbcg
+ * matrix with banded blocks, for use with KINSol, KINSp*
  * and the parallel implementation of NVECTOR.
  *
  * Note: With only one process, a banded matrix results
@@ -27,6 +27,7 @@
 
 #include "iterative.h"
 #include "kinbbdpre_impl.h"
+#include "kinsptfqmr_impl.h"
 #include "kinspbcg_impl.h"
 #include "kinspgmr_impl.h"
 #include "sundialsmath.h"
@@ -161,6 +162,36 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   pdata->nge = 0;
 
   return((void *) pdata);
+}
+
+/*
+ *-----------------------------------------------------------------
+ * Function : KINBBDSptfqmr
+ *-----------------------------------------------------------------
+ */
+
+int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data)
+{
+  KINMem kin_mem;
+  int flag;
+
+  kin_mem = (KINMem) kinmem;
+
+  if (p_data == NULL) {
+    fprintf(errfp, MSGBBD_NO_PDATA);
+    return(KIN_PDATA_NULL);
+  }
+
+  flag = KINSptfqmr(kinmem, maxl);
+  if (flag != KINSPTFQMR_SUCCESS) return(flag);
+
+  flag = KINSptfqmrSetPreconditioner(kinmem,
+				     KINBBDPrecSetup,
+				     KINBBDPrecSolve,
+				     p_data);
+  if (flag != KINSPTFQMR_SUCCESS) return(flag);
+
+  return(KINSPTFQMR_SUCCESS);
 }
 
 /*
@@ -335,7 +366,7 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
  * fscale  is the function scaling vector
  *
  * p_data  is a pointer to user data - the same as the p_data
- *         parameter passed to KINSpgmr/KINSpbcg. For KINBBDPrecSetup,
+ *         parameter passed to KINSp*. For KINBBDPrecSetup,
  *         this should be of type KBBDData.
  *
  * vtemp1, vtemp2 are pointers to memory allocated for vectors of
@@ -401,11 +432,12 @@ int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
  *        function scaling matrix
  *
  * p_data is a pointer to user data - the same as the P_data
- *        parameter passed to KINSpgmr/KINSpbcg. For KINBBDPrecSolve,
+ *        parameter passed to KINSp*. For KINBBDPrecSolve,
  *        this should be of type KBBDData.
  *
  * vtemp  an N_Vector (temporary storage), usually the scratch
- *        vector vtemp from SPGMR/SPBCG (typical calling routine)
+ *        vector vtemp from SPGMR/SPBCG/SPTFQMR (typical calling
+ *        routine)
  *
  * Note: The value returned by the KINBBDPrecSolve function is a
  * flag indicating whether it was successful. Here this value is

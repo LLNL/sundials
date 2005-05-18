@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-04-19 20:40:03 $
+ * $Revision: 1.20 $
+ * $Date: 2005-05-18 18:17:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -29,6 +29,7 @@
 
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
 #include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinsptfqmr.h"     /* prototypes of KINSPTFQMR interface routines   */
 #include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
 #include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
 #include "nvector.h"        /* definition of type N_Vector                   */
@@ -52,6 +53,20 @@ extern void FK_PSOL(realtype*, realtype*, realtype*, realtype*,
 #ifdef __cplusplus
 }
 #endif
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_SPTFQMRSETPREC
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SPTFQMRSETPREC(int *flag, int *ier)
+{
+  if ((*flag) == 0) KINSptfqmrSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
+  else              KINSptfqmrSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
+
+  return;
+}
 
 /*
  * ----------------------------------------------------------------

@@ -89,6 +89,8 @@ v. 2.3.0 (May. 2005) --->
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
    - added support for SPBCG to the CVBBDPRE and CVBANDPRE preconditioner
      modules.
+   - added CVSPTFQMR interface module to allow CVODES to interface with
+     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
 
 - Changes to user interface
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to

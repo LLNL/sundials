@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-04-27 23:27:14 $
+ * $Revision: 1.2 $
+ * $Date: 2005-05-18 18:17:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -9,7 +9,7 @@
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
  * All rights reserved
- * For details, see sundials/ida/LICENSE
+ * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
  * This is the common header file for the Scaled and Preconditioned
  * Iterative Linear Solvers in IDA/IDAS.
@@ -71,7 +71,7 @@ extern "C" {
  * c_j is the scalar in the system Jacobian, proportional to 1/hh.
  *
  * prec_data is a pointer to user preconditioner data - the same as
- *     the pdata parameter passed to IDASpgmr.
+ *     the pdata parameter passed to IDASp*.
  *
  * tmp1, tmp2, tmp3 are pointers to vectors of type N_Vector
  *     which can be used by an IDASpilsPrecSetupFn routine
@@ -106,7 +106,7 @@ typedef int (*IDASpilsPrecSetupFn)(realtype tt,
  * The optional user-supplied function PrecSolve must compute a
  * solution to the linear system P z = r, where P is the left
  * preconditioner defined by the user.  If no preconditioning
- * is desired, pass NULL for PrecSolve to IDASpgmr.
+ * is desired, pass NULL for PrecSolve to IDASp*.
  *
  * A preconditioner solve function PrecSolve must have the
  * prototype given below.  Its parameters are as follows:
@@ -134,7 +134,7 @@ typedef int (*IDASpilsPrecSetupFn)(realtype tt,
  *     through a call to the routine IDAGetErrWeights.
  *
  * prec_data is a pointer to user preconditioner data - the same as
- *     the pdata parameter passed to IDASpgmr.
+ *     the pdata parameter passed to IDASp*.
  *
  * tmp is an N_Vector which can be used by the PrecSolve
  *     routine as temporary storage or work space.
@@ -186,7 +186,7 @@ typedef int (*IDASpilsPrecSolveFn)(realtype tt,
  *        to 1/hh.
  *
  *   jac_data is a pointer to user Jacobian data, the same as the
- *        pointer passed to IDASpgmr.
+ *        pointer passed to IDASp*.
  *
  *   tmp1, tmp2 are two N_Vectors which can be used by Jtimes for
  *         work space.

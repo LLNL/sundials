@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-04-26 18:26:50 $
+ * $Revision: 1.7 $
+ * $Date: 2005-05-18 18:17:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -71,9 +71,9 @@ typedef struct {
 
 #define MSGBP_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL.\n\n"
 
-/* CVBPSpgmr/CVBPSpbcg error message */
+/* CVBPSp* error message */
 
-#define MSGBP_NO_PDATA "CVBPSpgmr/CVBPSpbcg-- BandPrecData is NULL.\n\n"
+#define MSGBP_NO_PDATA "CVBPSp*-- BandPrecData is NULL.\n\n"
 
 #ifdef __cplusplus
 }

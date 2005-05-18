@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-04-26 14:21:29 $
+ * $Revision: 1.21 $
+ * $Date: 2005-05-18 18:16:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -25,19 +25,23 @@
  * together with the FCVODE Interface Package, support the use of the
  * CVODE solver (parallel MPI version) with the CVBBDPRE preconditioner module,
  * for the solution of ODE systems in a mixed Fortran/C setting.  The
- * combination of CVODE and CVBBDPRE solves systems dy/dt = f(t,y) with either
- * the SPGMR (scaled preconditioned GMRES) or SPBCG (scaled preconditioned
- * Bi-CGSTAB) method for the linear systems that arise, and with a preconditioner
- * that is block-diagonal with banded blocks.  While CVODE and CVBBDPRE are written
- * in C, it is assumed here that the user's calling program and user-supplied
- * problem-defining routines are written in Fortran.
+ * combination of CVODE and CVBBDPRE solves systems dy/dt = f(t,y) with
+ * the SPGMR (scaled preconditioned GMRES), SPTFQMR (scaled preconditioned TFQMR),
+ * or SPBCG (scaled preconditioned Bi-CGSTAB) method for the linear systems that
+ * arise, and with a preconditioner that is block-diagonal with banded blocks.
+ * While CVODE and CVBBDPRE are written in C, it is assumed here that the user's
+ * calling program and user-supplied problem-defining routines are written in
+ * Fortran.
  * 
  * The user-callable functions in this package, with the corresponding
  * CVODE and CVBBDPRE functions, are as follows: 
- *   FCVBBDININT  interfaces to CVBBDPrecAlloc and CVSpgmr/CVSpbcg
- *   FCVBBDREINIT interfaces to CVBBDPrecReInit
- *   FCVBBDOPT    accesses optional outputs
- *   FCVBBDFREE   interfaces to CVBBDPrecFree
+ *   FCVBBDININT   interfaces to CVBBDPrecAlloc
+ *   FCVBBDSPTFQMR interfaces to CVBBDSptfqmr
+ *   FCVBBDSPBCG   interfaces to CVBBDSpbcg
+ *   FCVBBDPSGMR   interfaces to CVBBDSpgmr
+ *   FCVBBDREINIT  interfaces to CVBBDPrecReInit
+ *   FCVBBDOPT     accesses optional outputs
+ *   FCVBBDFREE    interfaces to CVBBDPrecFree
  * 
  * In addition to the Fortran right-hand side function FCVFUN, the
  * user-supplied functions used by this package, are listed below,
@@ -46,7 +50,7 @@
  *   FCVLOCFN  is called by the interface function FCVgloc of type CVLocalFn
  *   FCVCOMMF  is called by the interface function FCVcfn of type CVCommFn
  *   FCVJTIMES (optional) is called by the interface function FCVJtimes of 
- *             type CVSpgmrJtimesFn or CVSpbcgJtimesFn
+ *             type CVSpilsJtimesFn
  * (The names of all user-supplied routines here are fixed, in order to
  * maximize portability for the resulting mixed-language program.)
  * 
@@ -185,7 +189,21 @@
  *             (optional). 0.0 indicates the default, sqrt(unit roundoff).
  * IER       = return completion flag: IER=0: success, IER<0: an error occured
  *
- * (4.4A) To specify the SPBCG linear system solver and use it with the CVBBDPRE
+ * (4.4A) To specify the SPTFQMR linear system solver and use it with the CVBBDPRE
+ * preconditioner, make the following call:
+ *       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
+ *
+ * the arguments are:
+ * IPRETYPE  = preconditioner type: 
+ *             0 = none
+ *             1 = left only
+ *             2 = right only
+ *             3 = both sides.
+ * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT      = linear convergence tolerance factor; 0.0 indicates default.
+ * IER       = return completion flag: IER=0: success, IER<0: an error occured
+ *
+ * (4.4B) To specify the SPBCG linear system solver and use it with the CVBBDPRE
  * preconditioner, make the following call:
  *       CALL FCVBBDSPBCG(IPRETYPE, MAXL, DELT, IER)
  *
@@ -199,7 +217,7 @@
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
  * IER       = return completion flag: IER=0: success, IER<0: an error occured
  *
- * (4.4B) To specify the SPGMR linear system solver and use it with the CVBBDPRE
+ * (4.4C) To specify the SPGMR linear system solver and use it with the CVBBDPRE
  * preconditioner, make the following call:
  *       CALL FCVBBDSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
  *
@@ -214,21 +232,27 @@
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
  * IER       = return completion flag: IER=0: success, IER<0: an error occured
  *
- * (4.5A) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
+ * (4.5A) To specify whether TFQMR should use the supplied FCVJTIMES or the 
+ * internal finite difference approximation, make the call
+ *        CALL FCVSPTFQMRSETJAC(FLAG, IER)
+ * where FLAG=0 for finite differences approxaimtion or
+ *       FLAG=1 to use the supplied routine FCVJTIMES
+ *
+ * (4.5B) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FCVSPBCGSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
  *       FLAG=1 to use the supplied routine FCVJTIMES
  *
- * (4.5B) To specify whether GMRES should use the supplied FCVJTIMES or the 
+ * (4.5C) To specify whether GMRES should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FCVSPGMRSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
  *       FLAG=1 to use the supplied routine FCVJTIMES
  * 
  * (5) Re-initialization: FCVREINIT, FCVBBDREINIT
- * If a sequence of problems of the same size is being solved using the SPGMR or
- * SPBCG linear solver in combination with the CVBBDPRE preconditioner, then the
+ * If a sequence of problems of the same size is being solved using the SPGMR, SPBCG,
+ * SPTFQMR linear solver in combination with the CVBBDPRE preconditioner, then the
  * CVODE package can be reinitialized for the second and subsequent problems
  * so as to avoid further memory allocation.  First, in place of the call
  * to FCVMALLOC, make the following call:
@@ -242,11 +266,11 @@
  * Following the call to FCVREINIT, a call to FCVBBDINIT may or may not be needed.
  * If the input arguments are the same, no FCVBBDINIT call is needed.
  * If there is a change in input arguments other than MU, ML or MAXL, then 
- * the user program should call FCVBBDREINIT.  This reinitializes the SPGMR or SPBCG
+ * the user program should call FCVBBDREINIT.  This reinitializes the SP*
  * linear solver, but without reallocating its memory.  The arguments of the
  * FCVBBDREINIT routine have the same names and meanings as FCVBBDINIT.  
  * Finally, if the value of MU, ML, or MAXL is being changed, then a call to 
- * FCVBBDINIT must be made; in this case the SPGMR memory is reallocated.
+ * FCVBBDINIT must be made.
  * 
  * (6) The integrator: FCVODE
  * Carrying out the integration is accomplished by making calls as follows:
@@ -265,7 +289,7 @@
  * The current values of the optional outputs are available in IOPT and ROPT.
  * 
  * (7) Optional outputs: FCVBBDOPT
- * Optional outputs specific to the SPGMR/SPBCG solver are NPE, NLI, NPS, NCFL,
+ * Optional outputs specific to the SP* solver are NPE, NLI, NPS, NCFL,
  * LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.
  * To obtain the optional outputs associated with the CVBBDPRE module, make
  * the following call:
@@ -286,13 +310,12 @@
  * K   = derivative order (0 .le. K .le. QU)
  * DKY = array containing computed K-th derivative of y on return
  * 
- * (9) Memory freeing: FCVBBDFREE, FCVFREE, and FNVFREEP
+ * (9) Memory freeing: FCVBBDFREE and FCVFREE
  *   To the free the internal memory created by the calls to FNVINITP,
  * FCVMALLOC, and FCVBBDINIT, make the following calls, in this order:
  *       CALL FCVBBDFREE
  *       CALL FCVFREE
- *       CALL FNVFREEP
- * 
+ *
  * ==============================================================================
  */
 
@@ -312,80 +335,87 @@ extern "C" {
 
 #if defined(F77_FUNC)
 
-#define FCV_BBDINIT   F77_FUNC(fcvbbdinit, FCVBBDINIT)
-#define FCV_BBDSPBCG  F77_FUNC(fcvbbdspbcg, FCVBBDSPBCG)
-#define FCV_BBDSPGMR  F77_FUNC(fcvbbdspgmr, FCVBBDSPGMR)
-#define FCV_BBDREINIT F77_FUNC(fcvbbdreinit, FCVBBDREINIT)
-#define FCV_BBDOPT    F77_FUNC(fcvbbdopt, FCVBBDOPT)
-#define FCV_BBDFREE   F77_FUNC(fcvbbdfree, FCVBBDFREE)
-#define FCV_GLOCFN    F77_FUNC(fcvglocfn, FCVGLOCFN)
-#define FCV_COMMFN    F77_FUNC(fcvcommfn, FCVCOMMFN)
+#define FCV_BBDINIT    F77_FUNC(fcvbbdinit, FCVBBDINIT)
+#define FCV_BBDSPTFQMR F77_FUNC(fcvbbdsptfqmr, FCVBBDSPTFQMR)
+#define FCV_BBDSPBCG   F77_FUNC(fcvbbdspbcg, FCVBBDSPBCG)
+#define FCV_BBDSPGMR   F77_FUNC(fcvbbdspgmr, FCVBBDSPGMR)
+#define FCV_BBDREINIT  F77_FUNC(fcvbbdreinit, FCVBBDREINIT)
+#define FCV_BBDOPT     F77_FUNC(fcvbbdopt, FCVBBDOPT)
+#define FCV_BBDFREE    F77_FUNC(fcvbbdfree, FCVBBDFREE)
+#define FCV_GLOCFN     F77_FUNC(fcvglocfn, FCVGLOCFN)
+#define FCV_COMMFN     F77_FUNC(fcvcommfn, FCVCOMMFN)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_BBDINIT   fcvbbdinit
-#define FCV_BBDSPBCG  fcvbbdspbcg
-#define FCV_BBDSPGMR  fcvbbdspgmr
-#define FCV_BBDREINIT fcvbbdreinit
-#define FCV_BBDOPT    fcvbbdopt
-#define FCV_BBDFREE   fcvbbdfree
-#define FCV_GLOCFN    fcvglocfn
-#define FCV_COMMFN    fcvcommfn
+#define FCV_BBDINIT    fcvbbdinit
+#define FCV_BBDSPTFQMR fcvbbdsptfqmr
+#define FCV_BBDSPBCG   fcvbbdspbcg
+#define FCV_BBDSPGMR   fcvbbdspgmr
+#define FCV_BBDREINIT  fcvbbdreinit
+#define FCV_BBDOPT     fcvbbdopt
+#define FCV_BBDFREE    fcvbbdfree
+#define FCV_GLOCFN     fcvglocfn
+#define FCV_COMMFN     fcvcommfn
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_BBDINIT   FCVBBDINIT
-#define FCV_BBDSPBCG  FCVBBDSPBCG
-#define FCV_BBDSPGMR  FCVBBDSPGMR
-#define FCV_BBDREINIT FCVBBDREINIT
-#define FCV_BBDOPT    FCVBBDOPT
-#define FCV_BBDFREE   FCVBBDFREE
-#define FCV_GLOCFN    FCVGLOCFN
-#define FCV_COMMFN    FCVCOMMFN
+#define FCV_BBDINIT    FCVBBDINIT
+#define FCV_BBDSPTFQMR FCVBBDSPTFQMR
+#define FCV_BBDSPBCG   FCVBBDSPBCG
+#define FCV_BBDSPGMR   FCVBBDSPGMR
+#define FCV_BBDREINIT  FCVBBDREINIT
+#define FCV_BBDOPT     FCVBBDOPT
+#define FCV_BBDFREE    FCVBBDFREE
+#define FCV_GLOCFN     FCVGLOCFN
+#define FCV_COMMFN     FCVCOMMFN
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_BBDINIT   fcvbbdinit_
-#define FCV_BBDSPBCG  fcvbbdspbcg_
-#define FCV_BBDSPGMR  fcvbbdspgmr_
-#define FCV_BBDREINIT fcvbbdreinit_
-#define FCV_BBDOPT    fcvbbdopt_
-#define FCV_BBDFREE   fcvbbdfree_
-#define FCV_GLOCFN    fcvglocfn_
-#define FCV_COMMFN    fcvcommfn_
+#define FCV_BBDINIT    fcvbbdinit_
+#define FCV_BBDSPTFQMR fcvbbdsptfqmr_
+#define FCV_BBDSPBCG   fcvbbdspbcg_
+#define FCV_BBDSPGMR   fcvbbdspgmr_
+#define FCV_BBDREINIT  fcvbbdreinit_
+#define FCV_BBDOPT     fcvbbdopt_
+#define FCV_BBDFREE    fcvbbdfree_
+#define FCV_GLOCFN     fcvglocfn_
+#define FCV_COMMFN     fcvcommfn_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_BBDINIT   FCVBBDINIT_
-#define FCV_BBDSPBCG  FCVBBDSPBCG_
-#define FCV_BBDSPGMR  FCVBBDSPGMR_
-#define FCV_BBDREINIT FCVBBDREINIT_
-#define FCV_BBDOPT    FCVBBDOPT_
-#define FCV_BBDFREE   FCVBBDFREE_
-#define FCV_GLOCFN    FCVGLOCFN_
-#define FCV_COMMFN    FCVCOMMFN_
+#define FCV_BBDINIT    FCVBBDINIT_
+#define FCV_BBDSPTFQMR FCVBBDSPTFQMR_
+#define FCV_BBDSPBCG   FCVBBDSPBCG_
+#define FCV_BBDSPGMR   FCVBBDSPGMR_
+#define FCV_BBDREINIT  FCVBBDREINIT_
+#define FCV_BBDOPT     FCVBBDOPT_
+#define FCV_BBDFREE    FCVBBDFREE_
+#define FCV_GLOCFN     FCVGLOCFN_
+#define FCV_COMMFN     FCVCOMMFN_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#define FCV_BBDINIT   fcvbbdinit__
-#define FCV_BBDSPBCG  fcvbbdspbcg__
-#define FCV_BBDSPGMR  fcvbbdspgmr__
-#define FCV_BBDREINIT fcvbbdreinit__
-#define FCV_BBDOPT    fcvbbdopt__
-#define FCV_BBDFREE   fcvbbdfree__
-#define FCV_GLOCFN    fcvglocfn__
-#define FCV_COMMFN    fcvcommfn__
+#define FCV_BBDINIT    fcvbbdinit__
+#define FCV_BBDSPTFQMR fcvbbdsptfqmr__
+#define FCV_BBDSPBCG   fcvbbdspbcg__
+#define FCV_BBDSPGMR   fcvbbdspgmr__
+#define FCV_BBDREINIT  fcvbbdreinit__
+#define FCV_BBDOPT     fcvbbdopt__
+#define FCV_BBDFREE    fcvbbdfree__
+#define FCV_GLOCFN     fcvglocfn__
+#define FCV_COMMFN     fcvcommfn__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#define FCV_BBDINIT   FCVBBDINIT__
-#define FCV_BBDSPBCG  FCVBBDSPBCG__
-#define FCV_BBDSPGMR  FCVBBDSPGMR__
-#define FCV_BBDREINIT FCVBBDREINIT__
-#define FCV_BBDOPT    FCVBBDOPT__
-#define FCV_BBDFREE   FCVBBDFREE__
-#define FCV_GLOCFN    FCVGLOCFN__
-#define FCV_COMMFN    FCVCOMMFN__
+#define FCV_BBDINIT    FCVBBDINIT__
+#define FCV_BBDSPTFQMR FCVBBDSPTFQMR__
+#define FCV_BBDSPBCG   FCVBBDSPBCG__
+#define FCV_BBDSPGMR   FCVBBDSPGMR__
+#define FCV_BBDREINIT  FCVBBDREINIT__
+#define FCV_BBDOPT     FCVBBDOPT__
+#define FCV_BBDFREE    FCVBBDFREE__
+#define FCV_GLOCFN     FCVGLOCFN__
+#define FCV_COMMFN     FCVCOMMFN__
 
 #endif
 
@@ -393,6 +423,7 @@ extern "C" {
 
 void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq, 
                  long int *mu, long int *ml, realtype* dqrely, int *ier);
+void FCV_BBDSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, 

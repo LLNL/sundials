@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-03-21 22:15:02 $
+ * $Revision: 1.28 $
+ * $Date: 2005-05-18 18:17:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -14,7 +14,7 @@
  * This is the header file for the IDABBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
  * matrix with banded blocks, for use with IDA/IDAS and
- * IDASpgmr/IDASpbcg.
+ * IDASpgmr/IDASpbcg/IDASptfqmr.
  *
  * Summary:
  *
@@ -45,6 +45,8 @@
  *   ...
  *   p_data = IDABBDPrecAlloc(ida_mem, Nlocal, mudq, mldq,
  *                            mukeep, mlkeep, dq_rel_yy, Gres, Gcomm);
+ *   flag = IDABBDSptfqmr(ida_mem, maxl, p_data);
+ *       -or-
  *   flag = IDABBDSpgmr(ida_mem, maxl, p_data);
  *       -or-
  *   flag = IDABBDSpbcg(ida_mem, maxl, p_data);
@@ -101,8 +103,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _IBBDPRE_H
-#define _IBBDPRE_H
+#ifndef _IDABBDPRE_H
+#define _IDABBDPRE_H
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -180,8 +182,8 @@ typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt,
  * Function : IDABBDPrecAlloc
  * -----------------------------------------------------------------
  * IDABBDPrecAlloc allocates and initializes an IBBDPrecData
- * structure to be passed to IDASpgmr/IDASpbcg (and used by
- * IDABBDPrecSetup and IDABBDPrecSol).
+ * structure to be passed to IDASp* (and used by IDABBDPrecSetup
+ * and IDABBDPrecSol).
  *
  * The parameters of IDABBDPrecAlloc are as follows:
  *
@@ -221,6 +223,34 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 		      long int mukeep, long int mlkeep,
 		      realtype dq_rel_yy,
 		      IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : IDABBDSptfqmr
+ * -----------------------------------------------------------------
+ * IDABBDSptfqmr links the IDABBDPRE preconditioner to the IDASPTFQMR
+ * linear solver. It performs the following actions:
+ *  1) Calls the IDASPTFQMR specification routine and attaches the
+ *     IDASPTFQMR linear solver to the IDA solver;
+ *  2) Sets the preconditioner data structure for IDASPTFQMR
+ *  3) Sets the preconditioner setup routine for IDASPTFQMR
+ *  4) Sets the preconditioner solve routine for IDASPTFQMR
+ *
+ * Its first 2 arguments are the same as for IDASptfqmr (see
+ * idasptfqmr.h). The last argument is the pointer to the IDABBDPRE
+ * memory block returned by IDABBDPrecAlloc. Note that the user need
+ * not call IDASptfqmr anymore.
+ *
+ * Possible return values are:
+ *    IDASPTFQMR_SUCCESS    if successful
+ *    IDASPTFQMR_MEM_NULL   if the IDA memory was NULL
+ *    IDASPTFQMR_MEM_FAIL   if there was a memory allocation failure
+ *    IDASPTFQMR_ILL_INPUT  if there was illegal input
+ *    IDA_PDATA_NULL        if bbd_data was NULL
+ * -----------------------------------------------------------------
+ */
+
+int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data);
 
 /*
  * -----------------------------------------------------------------
@@ -284,13 +314,10 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data);
  * -----------------------------------------------------------------
  * IDABBDPrecReInit reinitializes the IDABBDPRE module when
  * solving a sequence of problems of the same size with
- * IDASPGMR/IDABBDPRE or IDASPBCG/IDABBDPRE provided there is no
- * change in Nlocal, mukeep, or mlkeep. After solving one problem,
- * and after calling IDAReInit to reinitialize the integrator for a
- * subsequent problem, call IDABBDPrecReInit. Then call IDAReInitSpgmr
- * or IDASpgmr, or IDAReInitSpbcg or IDASpbcg, if necessary, to
- * reinitialize the Spgmr or Spbcg linear solver, depending on changes
- * made in its input parameters, before calling IDASolve.
+ * IDASPGMR/IDABBDPRE, IDASPBCG/IDABBDPRE, or IDASPTFQMR/IDABBDPRE
+ * provided there is no change in Nlocal, mukeep, or mlkeep. After
+ * solving one problem, and after calling IDAReInit to reinitialize
+ * the integrator for a subsequent problem, call IDABBDPrecReInit.
  *
  * The first argument to IDABBDPrecReInit must be the pointer
  * bbd_data that was returned by IDABBDPrecAlloc. All other

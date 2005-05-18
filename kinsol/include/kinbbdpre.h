@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-01-24 22:29:06 $
+ * $Revision: 1.22 $
+ * $Date: 2005-05-18 18:17:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This is the header file for the KINBBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with KINSol, KINSpgmr/KINSpbcg,
+ * matrix with banded blocks, for use with KINSol, KINSp*,
  * and the parallel implementaion of the NVECTOR module.
  *
  * Summary:
@@ -49,6 +49,8 @@
  *   ...
  *   p_data = KINBBDPrecAlloc(kin_mem,...);
  *   ...
+ *   KINBBDSptfqmr(kin_mem,...,p_data);
+ *         -or-
  *   KINBBDSpbcg(kin_mem,...,p_data);
  *         -or-
  *   KINBBDSpgmr(kin_mem,...,p_data);
@@ -206,6 +208,36 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 		      long int mukeep, long int mlkeep,
 		      realtype dq_rel_uu, 
 		      KINLocalFn gloc, KINCommFn gcomm);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINBBDSptfqmr
+ * -----------------------------------------------------------------
+ * KINBBDSptfqmr links the KINBBDPRE preconditioner to the KINSPTFQMR
+ * linear solver. It performs the following actions:
+ *  1) Calls the KINSPTFQMR specification routine and attaches the
+ *     KINSPTFQMR linear solver to the KINSOL solver;
+ *  2) Sets the preconditioner data structure for KINSPTFQMR
+ *  3) Sets the preconditioner setup routine for KINSPTFQMR
+ *  4) Sets the preconditioner solve routine for KINSPTFQMR
+ *
+ * Its first 2 arguments are the same as for KINSptfqmr (see
+ * kinsptfqmr.h). The last argument is the pointer to the KBBDPRE
+ * memory block returned by KINBBDPrecAlloc.
+ *
+ * Possible return values are:
+ *   (from kinsptfqmr.h) KINSPTFQMR_SUCCESS
+ *                       KINSPTFQMR_MEM_NULL
+ *                       KINSPTFQMR_LMEM_NULL
+ *                       KINSPTFQMR_MEM_FAIL
+ *                       KINSPTFQMR_ILL_INPUT
+ *
+ *   Additionaly, if KINBBDPrecAlloc was not previously called,
+ *   KINBBDSptfqmr returns KIN_PDATA_NULL (defined in kinsol.h).
+ * -----------------------------------------------------------------
+ */
+
+int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data);
 
 /*
  * -----------------------------------------------------------------

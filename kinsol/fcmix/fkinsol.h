@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2005-04-28 20:45:19 $
+ * $Revision: 1.34 $
+ * $Date: 2005-05-18 18:17:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -33,7 +33,8 @@
 
    FNVINITS and FNVINITP : initialize serial and parallel vector
                            computations, respectively
-   FKINMALLOC :  interfaces to KINMalloc 
+   FKINMALLOC :  interfaces to KINMalloc
+   FKINSPTFQMR : interfaces to KINSptfqmr
    FKINSPGMR : interfaces to KINSpgmr
    FKINSPBCG : interfaces to KINSpbcg
    FKINSOL : interfaces to KINSol
@@ -155,7 +156,67 @@
      The solution method in KINSOL involves the solution of linear systems 
      related to the Jacobian J = dF/du of the nonlinear system.
 
- (4.1) SPBCG treatment of the linear systems:
+ (4.1) SPTFQMR treatment of the linear systems:
+
+       For the Scaled Preconditioned TFQMR solution of the linear systems,
+       the user must make the call:
+
+         CALL FKINSPTFQMR(MAXL, IER)
+
+       In the above routine, the arguments are as follows:
+         MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+         IER      = return completion flag.  Values are 0 = succes, and
+                    -1 = failure.
+
+       Note: See printed message for details in case of failure.
+
+       If the user program includes the FKJTIMES routine for the evaluation
+       of the Jacobian-vector product, the following call must be made:
+
+         CALL FKINSPTFQMRSETJAC(FLAG, IER)
+
+       The argument FLAG = 0 specifies using the internal finite differences
+       approximation to the Jacobian-vector product, while FLAG = 1 specifies
+       that FKJTIMES is provided.
+
+       Usage of the user-supplied routine FKPSOL for solution of the
+       preconditioned linear system is specified by calling:
+
+         CALL FKINSPTFQMRSETPREC(FLAG, IER)
+
+       where FLAG = 0 indicates no FKPSOL or FKPSET (default) and FLAG = 1
+       specifies using both FKPSOL and FKPSET.
+
+       The user-supplied routine FKPSOL must be of the form:
+
+         SUBROUTINE FKPSOL (UU, USCALE, FVAL, FSCALE, VTEM, FTEM, IER)
+         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEM(*), FTEM(*)
+
+       Typically this routine will use only UU, FVAL, VTEM and FTEM.
+       It must solve the preconditioned linear system Pz = r, where
+       r = VTEM is input, and store the solution z in VTEM as well. Here
+       P is the right preconditioner. If scaling is being used, the
+       routine supplied must also account for scaling on either coordinate
+       or function value.
+
+       The user-supplied routine FKPSET must be of the form:
+
+         SUBROUTINE FKPSET (UU, USCALE, FVAL, FSCALE, VTEMP1, VTEMP2, IER)
+         DIMENSION UU(*), USCALE(*), FVAL(*), FSCALE(*), VTEMP1(*), VTEMP2(*)
+
+       It must perform any evaluation of Jacobian-related data and
+       preprocessing needed for the solution of the preconditioned linear
+       systems by FKPSOL. The variables UU through FSCALE are for use in the
+       preconditioning setup process. Typically, the system function FKFUN is
+       called, so that FVAL will have been updated. UU is the current solution
+       iterate. VTEMP1 and VTEMP2 are available for work space. If scaling is
+       being used, USCALE and FSCALE are available for those operatins
+       requiring scaling. NEQ is the (global) problem size.
+
+       On return, set IER = 0 if FKPSET was successful, set IER = 1 if
+       an error occurred.
+
+ (4.2) SPBCG treatment of the linear systems:
 
        For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
        the user must make the call:
@@ -343,7 +404,8 @@
        FNORM  = ROPT(3) = final scaled norm of f(u)
        STEPL  = ROPT(4) = scaled last step length
 
-     The following optional outputs are specific to the SPGMR/SPBCG module:
+     The following optional outputs are specific to the SPGMR/SPBCG/SPTFQMR
+     module:
 
        NLI    = IOPT(11) = number of linear (Krylov) iterations
        NPE    = IOPT(12) = number of preconditioner evaluations
@@ -377,115 +439,136 @@ extern "C" {
 
 #if defined(F77_FUNC)
 
-#define FKIN_MALLOC       F77_FUNC(fkinmalloc, FKINMALLOC)
-#define FKIN_SPBCG        F77_FUNC(fkinspbcg, FKINSPBCG)
-#define FKIN_SPBCGSETJAC  F77_FUNC(fkinspbcgsetjac, FKINSPBCGSETJAC)
-#define FKIN_SPBCGSETPREC F77_FUNC(fkinspbcgsetprec, FKINSPBCGSETPREC)
-#define FKIN_SPGMR        F77_FUNC(fkinspgmr, FKINSPGMR)
-#define FKIN_SPGMRSETJAC  F77_FUNC(fkinspgmrsetjac, FKINSPGMRSETJAC)
-#define FKIN_SPGMRSETPREC F77_FUNC(fkinspgmrsetprec, FKINSPGMRSETPREC)
-#define FKIN_SOL          F77_FUNC(fkinsol, FKINSOL)
-#define FKIN_FREE         F77_FUNC(fkinfree, FKINFREE)
-#define FK_FUN            F77_FUNC(fkfun, FKFUN)
-#define FK_PSET           F77_FUNC(fkpset, FKPSET)
-#define FK_PSOL           F77_FUNC(fkpsol, FKPSOL)
-#define FK_JTIMES         F77_FUNC(fkjtimes, FKJTIMES)
+#define FKIN_MALLOC         F77_FUNC(fkinmalloc, FKINMALLOC)
+#define FKIN_SPTFQMR        F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
+#define FKIN_SPTFQMRSETJAC  F77_FUNC(fkinsptfqmrsetjac, FKINSPTFQMRSETJAC)
+#define FKIN_SPTFQMRSETPREC F77_FUNC(fkinsptfqmrsetprec, FKINSPTFQMRSETPREC)
+#define FKIN_SPBCG          F77_FUNC(fkinspbcg, FKINSPBCG)
+#define FKIN_SPBCGSETJAC    F77_FUNC(fkinspbcgsetjac, FKINSPBCGSETJAC)
+#define FKIN_SPBCGSETPREC   F77_FUNC(fkinspbcgsetprec, FKINSPBCGSETPREC)
+#define FKIN_SPGMR          F77_FUNC(fkinspgmr, FKINSPGMR)
+#define FKIN_SPGMRSETJAC    F77_FUNC(fkinspgmrsetjac, FKINSPGMRSETJAC)
+#define FKIN_SPGMRSETPREC   F77_FUNC(fkinspgmrsetprec, FKINSPGMRSETPREC)
+#define FKIN_SOL            F77_FUNC(fkinsol, FKINSOL)
+#define FKIN_FREE           F77_FUNC(fkinfree, FKINFREE)
+#define FK_FUN              F77_FUNC(fkfun, FKFUN)
+#define FK_PSET             F77_FUNC(fkpset, FKPSET)
+#define FK_PSOL             F77_FUNC(fkpsol, FKPSOL)
+#define FK_JTIMES           F77_FUNC(fkjtimes, FKJTIMES)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FKIN_MALLOC       fkinmalloc
-#define FKIN_SPBCG        fkinspbcg
-#define FKIN_SPBCGSETJAC  fkinspbcgsetjac
-#define FKIN_SPBCGSETPREC fkinspbcgsetprec
-#define FKIN_SPGMR        fkinspgmr
-#define FKIN_SPGMRSETJAC  fkinspgmrsetjac
-#define FKIN_SPGMRSETPREC fkinspgmrsetprec
-#define FKIN_SOL          fkinsol
-#define FKIN_FREE         fkinfree
-#define FK_FUN            fkfun
-#define FK_PSET           fkpset
-#define FK_PSOL           fkpsol
-#define FK_JTIMES         fkjtimes
+#define FKIN_MALLOC         fkinmalloc
+#define FKIN_SPTFQMR        fkinsptfqmr
+#define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac
+#define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec
+#define FKIN_SPBCG          fkinspbcg
+#define FKIN_SPBCGSETJAC    fkinspbcgsetjac
+#define FKIN_SPBCGSETPREC   fkinspbcgsetprec
+#define FKIN_SPGMR          fkinspgmr
+#define FKIN_SPGMRSETJAC    fkinspgmrsetjac
+#define FKIN_SPGMRSETPREC   fkinspgmrsetprec
+#define FKIN_SOL            fkinsol
+#define FKIN_FREE           fkinfree
+#define FK_FUN              fkfun
+#define FK_PSET             fkpset
+#define FK_PSOL             fkpsol
+#define FK_JTIMES           fkjtimes
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FKIN_MALLOC       FKINMALLOC
-#define FKIN_SPBCG        FKINSPBCG
-#define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC
-#define FKIN_SPBCGSETPREC FKINSPBCGSETPREC
-#define FKIN_SPGMR        FKINSPGMR
-#define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC
-#define FKIN_SPGMRSETPREC FKINSPGMRSETPREC
-#define FKIN_SOL          FKINSOL
-#define FKIN_FREE         FKINFREE
-#define FK_FUN            FKFUN
-#define FK_PSET           FKPSET
-#define FK_PSOL           FKPSOL
-#define FK_JTIMES         FKJTIMES
+#define FKIN_MALLOC         FKINMALLOC
+#define FKIN_SPTFQMR        FKINSPTFQMR
+#define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC
+#define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC
+#define FKIN_SPBCG          FKINSPBCG
+#define FKIN_SPBCGSETJAC    FKINSPBCGSETJAC
+#define FKIN_SPBCGSETPREC   FKINSPBCGSETPREC
+#define FKIN_SPGMR          FKINSPGMR
+#define FKIN_SPGMRSETJAC    FKINSPGMRSETJAC
+#define FKIN_SPGMRSETPREC   FKINSPGMRSETPREC
+#define FKIN_SOL            FKINSOL
+#define FKIN_FREE           FKINFREE
+#define FK_FUN              FKFUN
+#define FK_PSET             FKPSET
+#define FK_PSOL             FKPSOL
+#define FK_JTIMES           FKJTIMES
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
-#define FKIN_MALLOC       fkinmalloc_
-#define FKIN_SPBCG        fkinspbcg_
-#define FKIN_SPBCGSETJAC  fkinspbcgsetjac_
-#define FKIN_SPBCGSETPREC fkinspbcgsetprec_
-#define FKIN_SPGMR        fkinspgmr_
-#define FKIN_SPGMRSETJAC  fkinspgmrsetjac_
-#define FKIN_SPGMRSETPREC fkinspgmrsetprec_
-#define FKIN_SOL          fkinsol_
-#define FKIN_FREE         fkinfree_
-#define FK_FUN            fkfun_
-#define FK_PSET           fkpset_
-#define FK_PSOL           fkpsol_
-#define FK_JTIMES         fkjtimes_
+#define FKIN_MALLOC         fkinmalloc_
+#define FKIN_SPTFQMR        fkinsptfqmr_
+#define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac_
+#define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec_
+#define FKIN_SPBCG          fkinspbcg_
+#define FKIN_SPBCGSETJAC    fkinspbcgsetjac_
+#define FKIN_SPBCGSETPREC   fkinspbcgsetprec_
+#define FKIN_SPGMR          fkinspgmr_
+#define FKIN_SPGMRSETJAC    fkinspgmrsetjac_
+#define FKIN_SPGMRSETPREC   fkinspgmrsetprec_
+#define FKIN_SOL            fkinsol_
+#define FKIN_FREE           fkinfree_
+#define FK_FUN              fkfun_
+#define FK_PSET             fkpset_
+#define FK_PSOL             fkpsol_
+#define FK_JTIMES           fkjtimes_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
-#define FKIN_MALLOC       FKINMALLOC_
-#define FKIN_SPBCG        FKINSPBCG_
-#define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC_
-#define FKIN_SPBCGSETPREC FKINSPBCGSETPREC_
-#define FKIN_SPGMR        FKINSPGMR_
-#define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC_
-#define FKIN_SPGMRSETPREC FKINSPGMRSETPREC_
-#define FKIN_SOL          FKINSOL_
-#define FKIN_FREE         FKINFREE_
-#define FK_FUN            FKFUN_
-#define FK_PSET           FKPSET_
-#define FK_PSOL           FKPSOL_
-#define FK_JTIMES         FKJTIMES_
+#define FKIN_MALLOC         FKINMALLOC_
+#define FKIN_SPTFQMR        FKINSPTFQMR_
+#define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC_
+#define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC_
+#define FKIN_SPBCG          FKINSPBCG_
+#define FKIN_SPBCGSETJAC    FKINSPBCGSETJAC_
+#define FKIN_SPBCGSETPREC   FKINSPBCGSETPREC_
+#define FKIN_SPGMR          FKINSPGMR_
+#define FKIN_SPGMRSETJAC    FKINSPGMRSETJAC_
+#define FKIN_SPGMRSETPREC   FKINSPGMRSETPREC_
+#define FKIN_SOL            FKINSOL_
+#define FKIN_FREE           FKINFREE_
+#define FK_FUN              FKFUN_
+#define FK_PSET             FKPSET_
+#define FK_PSOL             FKPSOL_
+#define FK_JTIMES           FKJTIMES_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
-#define FKIN_MALLOC       fkinmalloc__
-#define FKIN_SPBCG        fkinspbcg__
-#define FKIN_SPBCGSETJAC  fkinspbcgsetjac__
-#define FKIN_SPBCGSETPREC fkinspbcgsetprec__
-#define FKIN_SPGMR        fkinspgmr__
-#define FKIN_SPGMRSETJAC  fkinspgmrsetjac__
-#define FKIN_SPGMRSETPREC fkinspgmrsetprec__
-#define FKIN_SOL          fkinsol__
-#define FKIN_FREE         fkinfree__
-#define FK_FUN            fkfun__
-#define FK_PSET           fkpset__
-#define FK_PSOL           fkpsol__
-#define FK_JTIMES         fkjtimes__
+#define FKIN_MALLOC         fkinmalloc__
+#define FKIN_SPTFQMR        fkinsptfqmr__
+#define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac__
+#define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec__
+#define FKIN_SPBCG          fkinspbcg__
+#define FKIN_SPBCGSETJAC    fkinspbcgsetjac__
+#define FKIN_SPBCGSETPREC   fkinspbcgsetprec__
+#define FKIN_SPGMR          fkinspgmr__
+#define FKIN_SPGMRSETJAC    fkinspgmrsetjac__
+#define FKIN_SPGMRSETPREC   fkinspgmrsetprec__
+#define FKIN_SOL            fkinsol__
+#define FKIN_FREE           fkinfree__
+#define FK_FUN              fkfun__
+#define FK_PSET             fkpset__
+#define FK_PSOL             fkpsol__
+#define FK_JTIMES           fkjtimes__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
-#define FKIN_MALLOC       FKINMALLOC__
-#define FKIN_SPBCG        FKINSPBCG__
-#define FKIN_SPBCGSETJAC  FKINSPBCGSETJAC__
-#define FKIN_SPBCGSETPREC FKINSPBCGSETPREC__
-#define FKIN_SPGMR        FKINSPGMR__
-#define FKIN_SPGMRSETJAC  FKINSPGMRSETJAC__
-#define FKIN_SPGMRSETPREC FKINSPGMRSETPREC__
-#define FKIN_SOL          FKINSOL__
-#define FKIN_FREE         FKINFREE__
-#define FK_FUN            FKFUN__
-#define FK_PSET           FKPSET__
-#define FK_PSOL           FKPSOL__
-#define FK_JTIMES         FKJTIMES__
+#define FKIN_MALLOC         FKINMALLOC__
+#define FKIN_SPTFQMR        FKINSPTFQMR__
+#define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC__
+#define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC__
+#define FKIN_SPBCG          FKINSPBCG__
+#define FKIN_SPBCGSETJAC    FKINSPBCGSETJAC__
+#define FKIN_SPBCGSETPREC   FKINSPBCGSETPREC__
+#define FKIN_SPGMR          FKINSPGMR__
+#define FKIN_SPGMRSETJAC    FKINSPGMRSETJAC__
+#define FKIN_SPGMRSETPREC   FKINSPGMRSETPREC__
+#define FKIN_SOL            FKINSOL__
+#define FKIN_FREE           FKINFREE__
+#define FK_FUN              FKFUN__
+#define FK_PSET             FKPSET__
+#define FK_PSOL             FKPSOL__
+#define FK_JTIMES           FKJTIMES__
 
 #endif
 
@@ -498,11 +581,14 @@ extern "C" {
 void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 		 realtype *constraints, int *optin, long int *iopt,
 		 realtype *ropt, int *ier);
+void FKIN_SPTFQMR(int *maxl, int *ier);
 void FKIN_SPBCG(int *maxl, int *ier);
 void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier);
 void FKIN_SOL(realtype *uu, int *globalstrategy, 
               realtype *uscale , realtype *fscale, int *ier);
 void FKIN_FREE(void);
+void FKIN_SPTFQMRSETJAC(int *flag, int *ier);
+void FKIN_SPTFQMRSETPREC(int *flag, int *ier);
 void FKIN_SPBCGSETJAC(int *flag, int *ier);
 void FKIN_SPBCGSETPREC(int *flag, int *ier);
 void FKIN_SPGMRSETJAC(int *flag, int *ier);
@@ -546,7 +632,7 @@ extern int KIN_ls;
 
 /* Linear solver IDs */
 
-enum { KIN_SPGMR = 1, KIN_SPBCG = 2 };
+enum { KIN_SPGMR = 1, KIN_SPBCG = 2, KIN_SPTFQMR = 3 };
 
 #ifdef __cplusplus
 }

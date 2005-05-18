@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-04-15 00:39:31 $
+ * $Revision: 1.9 $
+ * $Date: 2005-05-18 18:16:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -22,6 +22,7 @@
 
 #include "cvbandpre.h"      /* prototypes of CVBANDPRE functions and macros */
 #include "cvode.h"          /* CVODE constants and prototypes               */
+#include "cvsptfqmr.h"      /* prototypes of CVSPTFQMR interface routines   */
 #include "cvspbcg.h"        /* prototypes of CVSPBCG interface routines     */
 #include "cvspgmr.h"        /* prototypes of CVSPGMR interface routines     */
 #include "fcvbp.h"          /* prototypes of interfaces to CVBANDPRE        */
@@ -46,6 +47,27 @@ void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
   else                   *ier = 0;
 
   return;
+}
+
+/***************************************************************************/
+
+void FCV_BPSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
+{
+  /* 
+     Call CVBPSptfqmr to specify the SPTFQMR linear solver:
+     CV_cvodemem is the pointer to the CVODE memory block
+     pretype    is the preconditioner type
+     maxl       is the maximum Krylov dimension
+     delt       is the linear convergence tolerance factor 
+  */
+
+  *ier = CVBPSptfqmr(CV_cvodemem, *pretype, *maxl, CVBP_Data);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  CV_ls = CV_LS_SPTFQMR;
 }
 
 /***************************************************************************/

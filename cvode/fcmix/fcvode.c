@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2005-04-19 21:13:49 $
+ * $Revision: 1.47 $
+ * $Date: 2005-05-18 18:16:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -26,6 +26,7 @@
 #include "cvdense.h"        /* prototypes for CVDENSE interface routines       */
 #include "cvdiag.h"         /* prototypes for CVDIAG interface routines        */
 #include "cvode.h"          /* CVODE constants and prototypes                  */
+#include "cvsptfqmr.h"      /* prototypes for CVSPTFQMR interface routines     */
 #include "cvspbcg.h"        /* prototypes for CVSPBCG interface routines       */
 #include "cvspgmr.h"        /* prototypes for CVSPGMR interface routines       */
 #include "fcvode.h"         /* actual function names, prototypes, global vars. */
@@ -288,6 +289,25 @@ void FCV_DIAG(int *ier)
 
 /***************************************************************************/
 
+void FCV_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
+{
+  /* 
+     pretype    the preconditioner type
+     maxl       the maximum Krylov dimension
+     delt       the linear convergence tolerance factor 
+  */
+
+  *ier = CVSptfqmr(CV_cvodemem, *pretype, *maxl);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  CV_ls = CV_LS_SPTFQMR;
+}
+
+/***************************************************************************/
+
 void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
 {
   /* 
@@ -326,6 +346,24 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
   if (*ier != CVSPGMR_SUCCESS) return;
 
   CV_ls = CV_LS_SPGMR;
+}
+
+/***************************************************************************/
+
+void FCV_SPTFQMRREINIT(int *pretype, realtype *delt, int *ier)
+{
+  /* 
+     pretype    the preconditioner type
+     delt       the linear convergence tolerance factor 
+  */
+
+  *ier = CVSptfqmrSetPrecType(CV_cvodemem, *pretype);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  CV_ls = CV_LS_SPTFQMR;
 }
 
 /***************************************************************************/
@@ -418,21 +456,21 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
       CVodeGetNumGEvals(CV_cvodemem, &CV_iopt[24]);
 
     switch(CV_ls) {
-    case 1:
+    case CV_LS_DENSE:
       CVDenseGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
       CVDenseGetNumJacEvals(CV_cvodemem, &CV_iopt[17]);  /* NJE */
       CVDenseGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
       break;
-    case 2:
+    case CV_LS_BAND:
       CVBandGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
       CVBandGetNumJacEvals(CV_cvodemem, &CV_iopt[17]);  /* NJE */
       CVBandGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
       break;
-    case 3:
+    case CV_LS_DIAG:
       CVDiagGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
       CVDiagGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
       break;
-    case 4:
+    case CV_LS_SPGMR:
       CVSpgmrGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
       CVSpgmrGetNumPrecEvals(CV_cvodemem, &CV_iopt[17]);  /* NPE */
       CVSpgmrGetNumLinIters(CV_cvodemem, &CV_iopt[18]);  /* NLI */
@@ -440,13 +478,21 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
       CVSpgmrGetNumConvFails(CV_cvodemem, &CV_iopt[20]);  /* NCFL */
       CVSpgmrGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
       break;
-    case 5:
+    case CV_LS_SPBCG:
       CVSpbcgGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
       CVSpbcgGetNumPrecEvals(CV_cvodemem, &CV_iopt[17]);  /* NPE */
       CVSpbcgGetNumLinIters(CV_cvodemem, &CV_iopt[18]);  /* NLI */
       CVSpbcgGetNumPrecSolves(CV_cvodemem, &CV_iopt[19]);  /* NPS */
       CVSpbcgGetNumConvFails(CV_cvodemem, &CV_iopt[20]);  /* NCFL */
       CVSpbcgGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
+      break;
+    case CV_LS_SPTFQMR:
+      CVSptfqmrGetWorkSpace(CV_cvodemem, &CV_iopt[15], &CV_iopt[16]);  /* LRW and LIW */
+      CVSptfqmrGetNumPrecEvals(CV_cvodemem, &CV_iopt[17]);  /* NPE */
+      CVSptfqmrGetNumLinIters(CV_cvodemem, &CV_iopt[18]);  /* NLI */
+      CVSptfqmrGetNumPrecSolves(CV_cvodemem, &CV_iopt[19]);  /* NPS */
+      CVSptfqmrGetNumConvFails(CV_cvodemem, &CV_iopt[20]);  /* NCFL */
+      CVSptfqmrGetLastFlag(CV_cvodemem, (int *) &CV_iopt[25]);  /* last linear solver flag */
       break;
     }
   }

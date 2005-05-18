@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-05-16 17:04:22 $
+ * $Revision: 1.3 $
+ * $Date: 2005-05-18 18:17:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -11,7 +11,7 @@
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
  * The C function FCVJtimes is to interface between the
- * IDASPGMR/IDASPBCG module and the user-supplied Jacobian-vector
+ * IDASP* modules and the user-supplied Jacobian-vector
  * product routine FIDAJTIMES. Note the use of the generic name
  * FIDA_JTIMES below.
  * -----------------------------------------------------------------
@@ -22,6 +22,7 @@
 
 #include "idaspgmr.h"       /* IDASPGMR prototypes                            */
 #include "idaspbcg.h"       /* IDASPBCG prototypes                            */
+#include "idasptfqmr.h"     /* IDASPTFQMR prototypes                          */
 #include "fida.h"           /* actual function names, prototypes and global
 			       variables                                      */
 #include "nvector.h"        /* definitions of type N_Vector and vector macros */
@@ -65,6 +66,21 @@ void FIDA_SPBCGSETJAC(int *flag, int *ier)
   if (*flag == 0) IDASpbcgSetJacTimesVecFn(IDA_idamem, NULL, NULL);
   else {
     IDASpbcgSetJacTimesVecFn(IDA_idamem, (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
+    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+  }
+
+  return;
+}
+
+/*************************************************/
+
+void FIDA_SPTFQMRSETJAC(int *flag, int *ier)
+{
+  *ier = 0;
+
+  if (*flag == 0) IDASptfqmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+  else {
+    IDASptfqmrSetJacTimesVecFn(IDA_idamem, (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 

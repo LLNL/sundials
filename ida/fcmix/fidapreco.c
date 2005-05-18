@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-05-16 17:04:22 $
+ * $Revision: 1.3 $
+ * $Date: 2005-05-18 18:17:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -10,8 +10,8 @@
  * All rights reserved.
  * For details, see sundials/cvode/LICENSE.
  * -----------------------------------------------------------------
- * The C function FIDAPSet is to interface between the IDASPGMR/IDASPBCG
- * module and the user-supplied preconditioner setup routine FIDAPSET.
+ * The C function FIDAPSet is to interface between the IDASP*
+ * modules and the user-supplied preconditioner setup routine FIDAPSET.
  * Note the use of the generic name FIDA_PSET below.
  * -----------------------------------------------------------------
  */
@@ -21,6 +21,7 @@
 
 #include "idaspgmr.h"       /* IDASPGMR prototypes                            */
 #include "idaspbcg.h"       /* IDASPBCG prototypes                            */
+#include "idasptfqmr.h"     /* IDASPTFQMR prototypes                          */
 #include "fida.h"           /* actual function names, prototypes and global
 			       variables                                      */
 #include "nvector.h"        /* definitions of type N_Vector and vector macros */
@@ -70,6 +71,22 @@ void FIDA_SPBCGSETPREC(int *flag, int *ier)
   else {
     IDASpbcgSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
 			      (IDASpilsPrecSolveFn) FIDAPSol, NULL);
+    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+  }
+
+  return;
+}
+
+/*************************************************/
+
+void FIDA_SPTFQMRSETPREC(int *flag, int *ier)
+{
+  *ier = 0;
+
+  if (*flag == 0) IDASptfqmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
+  else {
+    IDASptfqmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
+				(IDASpilsPrecSolveFn) FIDAPSol, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 

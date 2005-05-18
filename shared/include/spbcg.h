@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-01-24 23:55:54 $
+ * $Revision: 1.4 $
+ * $Date: 2005-05-18 18:17:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -181,14 +181,16 @@ void SpbcgFree(SpbcgMem mem);
  * -----------------------------------------------------------------
  * Macro : SPBCG_VTEMP
  * -----------------------------------------------------------------
- * This macro provides access to the work vector vtemp in the
+ * This macro provides access to the vector r in the
  * memory block of the SPBCG module. The argument mem is the
  * memory pointer returned by SpbcgMalloc, of type SpbcgMem,
  * and the macro value is of type N_Vector.
+ *
+ * Note: Only used by IDA (r contains P_inverse F if nli_inc == 0).
  * -----------------------------------------------------------------
  */
 
-#define SPBCG_VTEMP(mem) (mem->vtemp)
+#define SPBCG_VTEMP(mem) (mem->r)
 
 #ifdef __cplusplus
 }

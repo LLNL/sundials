@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-04-15 00:39:31 $
+ * $Revision: 1.22 $
+ * $Date: 2005-05-18 18:16:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -23,6 +23,7 @@
 
 #include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions and macros */
 #include "cvode.h"         /* CVODE constants and prototypes              */
+#include "cvsptfqmr.h"     /* prototypes of CVSPTFQMR interface routines  */
 #include "cvspbcg.h"       /* prototypes of CVSPBCG interface routines    */
 #include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines    */
 #include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE        */
@@ -38,8 +39,10 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_GLOCFN(long int*, realtype*, realtype*, realtype*);
-  extern void FCV_COMMFN(long int*, realtype*, realtype*);
+
+extern void FCV_GLOCFN(long int*, realtype*, realtype*, realtype*);
+extern void FCV_COMMFN(long int*, realtype*, realtype*);
+
 #ifdef __cplusplus
 }
 #endif
@@ -66,6 +69,26 @@ void FCV_BBDINIT(long int *Nloc, long int *mudq, long int *mldq,
   else                    *ier = 0;
 
   return; 
+}
+
+/***************************************************************************/
+
+void FCV_BBDSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
+{
+  /* 
+     Call CVBBDSptfqmr to specify the SPTFQMR linear solver:
+     pretype    is the preconditioner type
+     maxl       is the maximum Krylov dimension
+     delt       is the linear convergence tolerance factor 
+  */
+
+  *ier = CVBBDSptfqmr(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  CV_ls = CV_LS_SPTFQMR;
 }
 
 /***************************************************************************/
