@@ -92,6 +92,10 @@ mcr_icc_mpiicc) # MCR with Intel compilers and Quadrics MPI compiler scripts
 echo 'CC=icc CPPFLAGS=-no-gcc F77=ifc --with-mpicc=mpiicc --with-mpif77=mpiifc'
 ;;
 
+thunder_icc_mpiicc) # Thunder with Intel compilers and MPI compiler scripts
+echo 'CC=icc CPPFLAGS="-no-gcc" CFLAGS="-O2 -mp -IPF_fma- -IPF_flt_eval_method0 -tpp2" F77=ifort FFLAGS="-mp -O2 -align all -IPF_flt_eval_method0 -tpp2" --with-mpicc=mpiicc --with-mpif77=mpiifort'
+;;
+
 *) # Bad index or no index given, so provide help message.
 cat <<-EOF
 	Usage: $0 <index>
