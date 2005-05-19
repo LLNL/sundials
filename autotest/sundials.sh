@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.6 $
-# $Date: 2004-10-30 00:23:28 $
+# $Revision: 1.7 $
+# $Date: 2005-05-19 22:52:49 $
 ############################################################################
 #
 # Filename: sundials.sh
@@ -32,6 +32,7 @@ ERROR_DETECTED="no"
 ERROR_0="error"
 ERROR_1="failed"
 ERROR_2="warning"
+ERROR_2="error"
 ERROR_3="illegal"
 ERROR_4="failure"
 ERROR_5="cannot"
@@ -1024,7 +1025,12 @@ while [ $((${NUM_MACHINES})) -gt 0 ]; do
   # case-insensitive keyword search (-i flag)
   STATUS_0=`fgrep -i "${ERROR_0}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
   STATUS_1=`fgrep -i "${ERROR_1}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
-  STATUS_2=`fgrep -i "${ERROR_2}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
+  # Thunder displays a trivial error that can safely be ignored
+  if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+    :
+  else
+    STATUS_2=`fgrep -i "${ERROR_2}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
+  fi
   STATUS_3=`fgrep -i "${ERROR_3}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
   STATUS_4=`fgrep -i "${ERROR_4}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`
   STATUS_5=`fgrep -i "${ERROR_5}" "${LOG_DIR}/${TEMP_REMOTE}"-build.log`

@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.3 $
-# $Date: 2004-10-30 00:23:28 $
+# $Revision: 1.4 $
+# $Date: 2005-05-19 22:52:49 $
 ############################################################################
 #
 # Filename: sundials_test.sh
@@ -100,6 +100,7 @@ run_examples()
             echo "${TEMP_EXAMPLE_FILE}" >> "${KILL_INFO}"
             echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${SCRIPT_NAME}"
           fi
+# ----------------------------
 	# if using PSUB then generate job submission script
 	# each example program has a separate job script which is called by the master job submission script
         else
@@ -111,11 +112,18 @@ run_examples()
 	  # execute each such example with all possible combinations of options
           if [ "${TEMP_MODULE}" = "cvodes" ]; then
             if [ "${TEMP_EXAMPLE_FILE}" = "cvfdx" -o "${TEMP_EXAMPLE_FILE}" = "cvfkx" -o "${TEMP_EXAMPLE_FILE}" = "cvfnx" -o "${TEMP_EXAMPLE_FILE}" = "pvfkt" ]; then
-              echo "#PSUB -ln 1 -g 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "#PSUB -ln 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              else
+                echo "#PSUB -ln 1 -g 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "#PSUB -c pbatch,${LOCAL_MACHINE}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "#PSUB -s /usr/local/bin/bash" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	      PSUB_WAIT_TIME=$((${WAIT_TIME} * 7))
               echo "#PSUB -tM ${PSUB_WAIT_TIME}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "#PSUB -b casc" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -nosensi &> a.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi sim t &> b.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
@@ -132,11 +140,18 @@ run_examples()
               echo "exit 0" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	    # allow for normal example programs (meaning no command-line options) in subdirectories containing examples with sensitivity options
             else
-              echo "#PSUB -ln 1 -g 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "#PSUB -ln 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              else
+                echo "#PSUB -ln 1 -g 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "#PSUB -c pbatch,${LOCAL_MACHINE}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "#PSUB -s /usr/local/bin/bash" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	      PSUB_WAIT_TIME=$((${WAIT_TIME}))
               echo "#PSUB -tM ${PSUB_WAIT_TIME}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "#PSUB -b casc" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
@@ -144,11 +159,18 @@ run_examples()
             fi
 	  # if normal example program then just add execution commands to job script
           else
-            echo "#PSUB -ln 1 -g 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+              echo "#PSUB -ln 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            else
+              echo "#PSUB -ln 1 -g 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            fi
             echo "#PSUB -c pbatch,${LOCAL_MACHINE}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
             echo "#PSUB -s /usr/local/bin/bash" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	    PSUB_WAIT_TIME="${WAIT_TIME}"
             echo "#PSUB -tM ${WAIT_TIME}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+              echo "#PSUB -b casc" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            fi
             echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
             echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
             echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
@@ -156,6 +178,7 @@ run_examples()
           fi
           chmod +x "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
         fi
+# ----------------------------
       # parallel examples have different execution commands
       elif [ "${EXEC_TYPE}" = "examples_par" -o "${EXEC_TYPE}" = "test_examples_par" ]; then
         STATUS="OK"
@@ -197,6 +220,7 @@ run_examples()
             echo "${TEMP_EXAMPLE_FILE}" >> "${KILL_INFO}"
             echo "cd ${EXAMPLES_DIR} && ${MPI_CMD} ${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${SCRIPT_NAME}"
           fi
+# ----------------------------
 	# if using PSUB then generate job scripts and master job submission script
         else
           echo "echo \"Submitting ${EXAMPLES_DIR}/${TEMP_EXAMPLE_FILE}...\"" >> "${SCRIPT_NAME}"
@@ -206,19 +230,36 @@ run_examples()
 	  # recognize sensitivity examples which require command-line options
           if [ "${TEMP_MODULE}" = "cvodes" ]; then
             if [ "${TEMP_EXAMPLE_FILE}" = "pvfkx" -o "${TEMP_EXAMPLE_FILE}" = "pvfnx" -o "${TEMP_EXAMPLE_FILE}" = "pvfkt" ]; then
-              echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "#PSUB -ln 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              else
+                echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "#PSUB -c pbatch,${LOCAL_MACHINE}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "#PSUB -s /usr/local/bin/bash" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	      PSUB_WAIT_TIME=$((${WAIT_TIME} * 7))
               echo "#PSUB -tM ${PSUB_WAIT_TIME}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "#PSUB -b casc" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -nosensi &> a.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi sim t &> b.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi sim f &> c.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi stg t &> d.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi stg f &> e.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi stg1 t &> f.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi stg1 f &> g.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} -nosensi &> a.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} -sensi sim t &> b.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} -sensi sim f &> c.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} -sensi stg t &> d.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} -sensi stg f &> e.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} -sensi stg1 t &> f.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} -sensi stg1 f &> g.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              else
+                echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -nosensi &> a.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi sim t &> b.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi sim f &> c.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi stg t &> d.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi stg f &> e.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi stg1 t &> f.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+                echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} -sensi stg1 f &> g.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "sync" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "cd ${EXAMPLES_DIR} && cat a.log b.log c.log d.log e.log f.log g.log > ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
@@ -226,30 +267,53 @@ run_examples()
               echo "exit 0" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	    # normal examples do not require command-line options
             else
-              echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "#PSUB -ln 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              else
+                echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "#PSUB -c pbatch,${LOCAL_MACHINE}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "#PSUB -s /usr/local/bin/bash" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               PSUB_WAIT_TIME="${WAIT_TIME}"
               echo "#PSUB -tM ${PSUB_WAIT_TIME}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "#PSUB -b casc" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+                echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              else
+                echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+              fi
               echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
               echo "exit 0" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
             fi
 	  # normal examples do not require command-line options
           else
-            echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+              echo "#PSUB -ln 1" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            else
+              echo "#PSUB -ln 1 -g 4" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            fi
             echo "#PSUB -c pbatch,${LOCAL_MACHINE}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
             echo "#PSUB -s /usr/local/bin/bash" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
 	    PSUB_WAIT_TIME="${WAIT_TIME}"
             echo "#PSUB -tM ${PSUB_WAIT_TIME}" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+              echo "#PSUB -b casc" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            fi
             echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
-            echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            if [ "${LOCAL_MACHINE}" = "thunder" ]; then
+              echo "cd ${EXAMPLES_DIR} && srun -n4 ${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            else
+              echo "cd ${EXAMPLES_DIR} && ./${TEMP_EXAMPLE_FILE} &> ${BASE_DIR}/${LOCAL_MACHINE}-${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.log" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
+            fi
             echo "" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
             echo "exit 0" >> "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
           fi
           chmod +x "${TEMP_MODULE}-${TEMP_EXAMPLE_FILE}.job"
         fi
+# ----------------------------
       else
         STATUS="FAILED"
       fi
@@ -379,7 +443,7 @@ elif [ "${LOCAL_MACHINE}" = "tc2k" ]; then
   fi
 
 # force use of PSUB on blue and frost
-elif [ "${LOCAL_MACHINE}" = "blue" -o "${LOCAL_MACHINE}" = "frost" ]; then
+elif [ "${LOCAL_MACHINE}" = "blue" -o "${LOCAL_MACHINE}" = "frost" -o "${LOCAL_MACHINE}" = "thunder" ]; then
   PARALLEL_EXEC_CMD=""
   USE_PSUB="yes"
 
