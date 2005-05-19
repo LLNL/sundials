@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2005-05-11 23:11:24 $
+c     $Revision: 1.2 $
+c     $Date: 2005-05-19 20:35:34 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -36,9 +36,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -47,13 +47,12 @@ c
 c
 c local variables
 c
-      integer ier
+      integer*4 mudq, mldq, mukeep, mlkeep
       integer*4 iopt(40)
       double precision ropt(40)
-      integer nout
+      integer nout, ier
       parameter (nout = 11)
       integer npes, inopt, maxl, gstype, maxrs, itask, iatol
-      integer mudq, mldq, mukeep, mlkeep
       double precision t0, t1, tout, tret, dqrely, eplifac, dqincfac
       double precision atol, rtol
       double precision constr(nlocalg), uu(nlocalg), up(nlocalg)
@@ -288,9 +287,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -299,9 +298,9 @@ c
 c
 c local variables
 c
+      integer*4 i, iloc, j, jloc, offset, loc
+      integer*4 ixbegin, ixend, jybegin, jyend
       integer reserr
-      integer i, iloc, j, jloc, offset, loc
-      integer ixbegin, ixend, jybegin, jyend
       double precision xfact, yfact
       double precision uu(*), up(*), id(*), res(*), constr(*)
 c
@@ -365,9 +364,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -399,9 +398,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -410,8 +409,8 @@ c
 c
 c local variables
 c
+      integer*4 nloc
       integer reserr
-      integer nloc
       double precision tres, u(*), up(*)
 c
       integer request(mpi_status_size)
@@ -436,9 +435,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -447,12 +446,12 @@ c
 c
 c local variables
 c
+      integer*4 nloc
       integer reserr
-      integer nloc
       double precision tres, u(*), up(*), res(*)
 c
-      integer i, lx, ly, offsetu, offsetue, locu, locue
-      integer ixbegin, ixend, jybegin, jyend, mxsub2
+      integer*4 i, lx, ly, offsetu, offsetue, locu, locue
+      integer*4 ixbegin, ixend, jybegin, jyend, mxsub2
       double precision termx, termy, termctr
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
@@ -514,9 +513,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -525,7 +524,7 @@ c
 c
 c local variables
 c
-      integer dsizex, dsizey
+      integer*4 dsizex, dsizey
       double precision uarray(*)
 c
       integer ier
@@ -575,9 +574,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -586,12 +585,12 @@ c
 c
 c local variables
 c
+      integer*4 dsizex, dsizey
       integer request(*)
-      integer dsizex, dsizey
       double precision buffer(*)
 c
       integer ier
-      integer offsetue
+      integer*4 offsetue
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
      &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
@@ -633,9 +632,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -645,11 +644,11 @@ c
 c local variables
 c
       integer request(*)
-      integer dsizex
+      integer*4 dsizex
       double precision buffer(*)
 c
+      integer*4 ly, dsizex2, offsetue
       integer ier, status(mpi_status_size)
-      integer ly, dsizex2, offsetue
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
      &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
@@ -690,9 +689,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -701,7 +700,7 @@ c
 c
 c  local variables
 c
-      integer iopt(*)
+      integer*4 iopt(*)
       double precision tret, umax, u(*), ropt(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
@@ -712,8 +711,8 @@ c
 c
       if (thispe .eq. 0) then
          write(*,28) tret, umax, iopt(19), iopt(15), iopt(21),
-     &                iopt(30), iopt(16), iopt(33), ropt(16),
-     &                iopt(28), iopt(29)
+     &               iopt(30), iopt(16), iopt(33), ropt(16),
+     &               iopt(28), iopt(29)
  28      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i3,
      &          '  ', i3, '  ', i3, '  ', i3, ' ', i4, '  ',
      &          e9.2, '  ', i3, ' ', i3)
@@ -730,9 +729,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -741,7 +740,8 @@ c
 c
 c local variables
 c
-      integer i, ier
+      integer*4 i
+      integer ier
       double precision temp, unorm, u(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
@@ -768,9 +768,9 @@ c
 c
 c global variables
 c
+      integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
+      integer*4 ixsub, jysub
       integer thispe
-      integer mx, my, ixsub, jysub, npex, npey, mxsub
-      integer mysub, nlocal, neq
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
@@ -810,7 +810,8 @@ c
 c
 c local variables
 c
-      integer num, mudq, mukeep
+      integer*4 mudq, mukeep
+      integer num
 c
       write(*,31) num, mudq, mukeep
  31   format(//, 'Case ', i2, /, '   Difference quotient half-',
