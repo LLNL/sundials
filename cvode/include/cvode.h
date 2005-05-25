@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2005-05-16 17:06:37 $
+ * $Revision: 1.32 $
+ * $Date: 2005-05-25 21:43:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -144,7 +144,7 @@ typedef void (*CVRhsFn)(realtype t, N_Vector y,
  * values g_i(t,y) in the realtype array gout.
  * (Allocation of memory for gout is handled within CVODE.)
  * The g_data parameter is the same as that passed by the user
- * to the CVodeSetGdata routine.  This user-supplied pointer is
+ * to the CVodeRootInit routine.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
  * A CVRootFn g does not have a return value.
  * -----------------------------------------------------------------
@@ -434,6 +434,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  *
  * g         = name of user-supplied function, of type CVRootFn,
  *             defining the functions g_i whose roots are sought.
+ *
  * g_data    = a pointer to user data that will be passed to the 
  *             user's g function every time g is called.
  *
@@ -465,8 +466,11 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *g_data);
  * takes one internal time step and returns in yout the value of
  * y at the new internal time. In this case, tout is used only
  * during the first call to CVode to determine the direction of
- * integration and the rough scale of the t variable. In either
- * case, the time reached by the solver is placed in (*tret). The
+ * integration and the rough scale of the t variable.  If itask is
+ * CV_NORMAL_TSTOP or CV_ONE_STEP_TSTOP, then CVode returns the
+ * solution at tstop if that comes sooner than tout or the end of
+ * the next internal step, respectively.  In any case,
+ * the time reached by the solver is placed in (*tret). The
  * user is responsible for allocating the memory for this value.
  *
  * cvode_mem is the pointer to CVODE memory returned by
@@ -686,7 +690,7 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails);
 /*
  * -----------------------------------------------------------------
  * As a convenience, the following function provides the
- * optional outputs in a group.
+ * nonlinear solver optional outputs in a group.
  * -----------------------------------------------------------------
  */
 
