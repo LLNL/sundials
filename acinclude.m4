@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2005-05-11 22:54:55 $
+# $Revision: 1.18 $
+# $Date: 2005-06-02 21:05:11 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -409,15 +409,12 @@ PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
 
 AC_ARG_WITH([],[ ],[])
 
-USER_CC="${CC}"
-# unset is NOT portable so just undefine/unset CC by setting to "" (NULL)
-CC=""
-
-# Defines CC and sets GCC="yes" if CC="gcc"
+# Sets GCC="yes" if CC="gcc"
 # Search for C compiler given by user first
-AC_PROG_CC(${USER_CC} cc gcc)
+AC_PROG_CC(${CC} cc gcc)
 
 # If CC="" then abort (means did NOT find a valid C compiler)
+# Note: This check may no longer be needed
 if test "X${CC}" = "X"; then
   AC_MSG_ERROR([cannot find C compiler])
 fi
@@ -661,14 +658,11 @@ AC_LANG_PUSH([Fortran 77])
 
 F77_OK="yes"
 
-USER_F77="${F77}"
-# unset is NOT portable so just undefine/unset F77 by setting to "" (NULL)
-F77=""
-
-# Defines F77 and sets G77="yes" if F77="g77"
+# Sets G77="yes" if F77="g77"
 # Search for Fortran compiler given by user first
-AC_PROG_F77(${USER_F77} f77 g77)
+AC_PROG_F77(${F77} f77 g77)
 
+# Note: This check may no longer be needed
 if test "X${F77}" = "X"; then
 
   # If F77="" then issue warning (means did NOT find a valid Fortran compiler)
@@ -800,7 +794,7 @@ else
 
   # Add any required linker flags to FLIBS
   # Note: if FLIBS is defined, it is left unchanged
-   AC_F77_LIBRARY_LDFLAGS
+  AC_F77_LIBRARY_LDFLAGS
 
 fi
 
@@ -1107,18 +1101,15 @@ CXX_OK="yes"
 # CXX and CCC are common so check both
 if test "X${CXX}" = "X"; then
   if test "X${CCC}" = "X"; then
-    USER_CXX=""
+    CXX=""
   else
-    USER_CXX="${CCC}"
+    CXX="${CCC}"
   fi
-else
-  USER_CXX="${CXX}"
 fi
-# unset is NOT portable so just undefine/unset CXX by setting to "" (NULL)
-CXX=""
 
-# Defines CXX and sets GXX="yes" if CXX="g++" (GNU C++ compiler)
-AC_PROG_CXX(${USER_CXX} g++ CC gcc c++ cxx)
+# Sets GXX="yes" if CXX="g++" (GNU C++ compiler)
+# Search for C++ compiler given by user first
+AC_PROG_CXX(${CXX} g++ CC gcc c++ cxx)
 
 # If CXX="" then issue warning (means did NOT find a valid C++ compiler)
 # Do NOT abort since C++ compiler is NOT required
