@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2005-06-02 21:05:11 $
+# $Revision: 1.19 $
+# $Date: 2005-06-02 22:16:36 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -2534,7 +2534,7 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} cvode/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/source/Makefile"
 
-  if test "X${FCMIX_ENABLED}" = "Xyes"; then
+  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/cvode/fcmix ; then
     MODULES="${MODULES} cvode/fcmix"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/fcmix/Makefile"
   fi
@@ -2590,7 +2590,7 @@ if test "X${IDA_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} ida/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/source/Makefile"
 
-  if test "X${FCMIX_ENABLED}" = "Xyes"; then
+  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/ida/fcmix ; then
     MODULES="${MODULES} ida/fcmix"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/fcmix/Makefile"
   fi
@@ -2641,7 +2641,7 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
   MODULES="${MODULES} kinsol/source"
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/source/Makefile"
 
-  if test "X${FCMIX_ENABLED}" = "Xyes"; then
+  if test "X${FCMIX_ENABLED}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix ; then
     MODULES="${MODULES} kinsol/fcmix"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/fcmix/Makefile"
   fi
