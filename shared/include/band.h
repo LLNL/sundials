@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-01-24 22:29:17 $
+ * $Revision: 1.9 $
+ * $Date: 2005-06-02 13:27:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -138,7 +138,7 @@ typedef struct _BandMat {
  * -----------------------------------------------------------------
  */
 
-#define BAND_ELEM(A,i,j) ((A->data)[j][i-j+(A->smu)])
+#define BAND_ELEM(A,i,j) ((A->data)[j][(i)-(j)+(A->smu)])
 
 /*
  * -----------------------------------------------------------------
@@ -170,7 +170,7 @@ typedef struct _BandMat {
  * -----------------------------------------------------------------
  */
 
-#define BAND_COL_ELEM(col_j,i,j) (col_j[i-j])
+#define BAND_COL_ELEM(col_j,i,j) (col_j[(i)-(j)])
 
 /* Functions that use the BandMat representation for a band matrix */
 
