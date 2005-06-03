@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-04-21 15:24:20 $
+ * $Revision: 1.3 $
+ * $Date: 2005-06-03 16:59:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -516,7 +516,6 @@ static int KINDenseDQJac(long int n, DenseMat J,
     inc_inv = ONE/inc;
     N_VLinearSum(inc_inv, ftemp, -inc_inv, fu, jthCol);
 
-    DENSE_COL(J,j) = N_VGetArrayPointer(jthCol);
   }
 
   /* Restore original array pointer in tmp2 */
