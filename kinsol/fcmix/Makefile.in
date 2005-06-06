@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-04-07 19:26:17 $
+# $Revision: 1.12 $
+# $Date: 2005-06-06 21:34:51 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,9 +44,9 @@ KINSOL_INC_DIR   = $(srcdir)/../include
 FKINSOL_INC_DIR  = $(srcdir)
 
 FKINSOL_LIB       = libsundials_fkinsol.la
-FKINSOL_LIB_FILES = fkinsol.lo fkinpreco.lo fkinjtimes.lo fkinbbd.lo
+FKINSOL_LIB_FILES = fkinsol.lo fkinpreco.lo fkinjtimes.lo fkinbbd.lo fkindense.lo
 
-OBJECT_FILES = fkinsol.o fkinpreco.o fkinjtimes.o fkinbbd.o
+OBJECT_FILES = fkinsol.o fkinpreco.o fkinjtimes.o fkinbbd.o fkindense.o
 
 all: update $(FKINSOL_LIB_FILES)
 
@@ -74,6 +74,8 @@ fkinjtimes.lo: $(srcdir)/fkinjtimes.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinjtimes.c
 fkinbbd.lo: $(srcdir)/fkinbbd.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinbbd.c
+fkindense.lo: $(srcdir)/fkindense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkindense.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

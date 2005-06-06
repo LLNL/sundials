@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2005-05-18 18:17:39 $
+ * $Revision: 1.36 $
+ * $Date: 2005-06-06 21:34:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,6 +25,7 @@
 
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
 #include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kindense.h"       /* prototypes of KINDENSE interface routines     */
 #include "kinsptfqmr.h"     /* prototypes of KINSPTFQMR interface routines   */
 #include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
 #include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
@@ -153,6 +154,19 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 
 /*
  * ----------------------------------------------------------------
+ * Function : FKIN_DENSE
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_DENSE(long int *neq, int *ier)
+{
+  *ier = KINDense(KIN_kinmem, *neq);
+
+  KIN_ls = KIN_DENSE;
+}
+
+/*
+ * ----------------------------------------------------------------
  * Function : FKIN_SPTFQMR
  * ----------------------------------------------------------------
  */
@@ -240,6 +254,11 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINGetStepLength(KIN_kinmem, &KIN_ropt[3]);
 
     switch(KIN_ls) {
+
+    case KIN_DENSE:
+      KINDenseGetNumJacEvals(KIN_kinmem, &KIN_iopt[10]);
+      KINDenseGetNumFuncEvals(KIN_kinmem, &KIN_iopt[11]);
+      KINDenseGetLastFlag(KIN_kinmem, (int *) &KIN_iopt[12]);
 
     case KIN_SPTFQMR:
       KINSptfqmrGetNumLinIters(KIN_kinmem, &KIN_iopt[10]);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2005-05-18 18:17:39 $
+ * $Revision: 1.35 $
+ * $Date: 2005-06-06 21:34:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -33,23 +33,26 @@
 
    FNVINITS and FNVINITP : initialize serial and parallel vector
                            computations, respectively
-   FKINMALLOC :  interfaces to KINMalloc
+   FKINMALLOC  :  interfaces to KINMalloc
+   FKINDENSE   : interfaces to KINDense
    FKINSPTFQMR : interfaces to KINSptfqmr
-   FKINSPGMR : interfaces to KINSpgmr
-   FKINSPBCG : interfaces to KINSpbcg
-   FKINSOL : interfaces to KINSol
-   FKINFREE : interfaces to KINFree
+   FKINSPGMR   : interfaces to KINSpgmr
+   FKINSPBCG   : interfaces to KINSpbcg
+   FKINSOL     : interfaces to KINSol
+   FKINFREE    : interfaces to KINFree
 
  The user-supplied functions, each with the corresponding interface function
  which calls it (and its type within KINSOL), are as follows:
 
-   FKFUN : called by the interface function FKINfunc of type SysFn
+   FKFUN    : called by the interface function FKINfunc of type SysFn
+   FKDJAC   : called by the interface function FKINDenseJac of type
+              KINDenseJacFn
    FKJTIMES : called by the interface function FKINJtimes of type
-              KINSpgmrJacTimesVecFn
-   FKPSOL : called by the interface function FKINPSol of type
-            KINSpgmrPrecSolveFn
-   FKPSET : called by the interface function FKINPSet of type
-            KINSpgmrPrecSetupFn
+              KINSpilsJacTimesVecFn
+   FKPSOL   : called by the interface function FKINPSol of type
+              KINSpilsPrecSolveFn
+   FKPSET   : called by the interface function FKINPSet of type
+              KINSpilsPrecSetupFn
 
  In contrast to the case of direct use of KINSOL, the names of all 
  user-supplied routines here are fixed, in order to maximize portability for
@@ -156,7 +159,33 @@
      The solution method in KINSOL involves the solution of linear systems 
      related to the Jacobian J = dF/du of the nonlinear system.
 
- (4.1) SPTFQMR treatment of the linear systems:
+ (4.1s) DENSE treatment of the linear systems (NVECTOR_SERIAL only):
+
+       The user must make the following call:
+
+         CALL FKINDENSE(NEQ, IER)
+
+       In the above routine, the arguments are as follows:
+         NEQ = problem size.
+         IER = return completion flag.
+
+       If the user program includes the FKDJAC routine for the evaluation
+       of the dense approximation to the system Jacobian, the following call
+       must be made:
+
+         CALL FKINDENSESETJAC(FLAG, IER)
+
+       with FLAG = 1 to specify that FKDJAC is provided.  (FLAG = 0 specifies
+       using the internal finite difference approximation to the Jacobian.)
+
+       The user-supplied routine FKDJAC must be of the form:
+
+         SUBROUTINE FKDJAC (NEQ, UU, FVAL, DJAC, V1TMP, V2TMP, IER)
+         DIMENSION UU(*), FVAL(*), V1TMP(*), v2TMP(*), DJAC(NEQ,*)
+
+       This routine must compute the Jacobian and store it columnwise in DJAC.
+
+ (4.2) SPTFQMR treatment of the linear systems:
 
        For the Scaled Preconditioned TFQMR solution of the linear systems,
        the user must make the call:
@@ -216,7 +245,7 @@
        On return, set IER = 0 if FKPSET was successful, set IER = 1 if
        an error occurred.
 
- (4.2) SPBCG treatment of the linear systems:
+ (4.3) SPBCG treatment of the linear systems:
 
        For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
        the user must make the call:
@@ -276,7 +305,7 @@
        On return, set IER = 0 if FKPSET was successful, set IER = 1 if
        an error occurred.
 
- (4.2) SPGMR treatment of the linear systems:
+ (4.4) SPGMR treatment of the linear systems:
 
        For the Scaled Preconditioned GMRES solution of the linear systems,
        the user must make the call:
@@ -413,6 +442,12 @@
        NCFL   = IOPT(14) = number of linear convergence failures
        LSFLAG = IOPT(15) = last flag returned by linear solver
 
+     The following optional outputs are specific to the DENSE module:
+
+       NJE    = IOPT(11) = number of Jacobian evaluations (calls to FKDJAC)
+       NFE    = IOPT(12) = number of f evaluations
+       LSFLAG = IOPT(13) = last flag returned by linear solver
+
 *******************************************************************************/
 
 #ifndef _FKINSOL_H
@@ -428,6 +463,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
+#include "dense.h"          /* definition of DenseMat      */
 #include "nvector.h"        /* definition of type N_Vector */
 #include "sundialstypes.h"  /* definition of type realtype */
 
@@ -440,6 +476,8 @@ extern "C" {
 #if defined(F77_FUNC)
 
 #define FKIN_MALLOC         F77_FUNC(fkinmalloc, FKINMALLOC)
+#define FKIN_DENSE          F77_FUNC(fkindense, FKINDENSE)
+#define FKIN_DENSESETJAC    F77_FUNC(fkindensesetjac, FKINDENSESETJAC)
 #define FKIN_SPTFQMR        F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
 #define FKIN_SPTFQMRSETJAC  F77_FUNC(fkinsptfqmrsetjac, FKINSPTFQMRSETJAC)
 #define FKIN_SPTFQMRSETPREC F77_FUNC(fkinsptfqmrsetprec, FKINSPTFQMRSETPREC)
@@ -459,6 +497,8 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC         fkinmalloc
+#define FKIN_DENSE          fkindense
+#define FKIN_DENSESETJAC    fkindensesetjac
 #define FKIN_SPTFQMR        fkinsptfqmr
 #define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac
 #define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec
@@ -478,6 +518,8 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC         FKINMALLOC
+#define FKIN_DENSE          FKINDENSE
+#define FKIN_DENSESETJAC    FKINDENSESETJAC
 #define FKIN_SPTFQMR        FKINSPTFQMR
 #define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC
 #define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC
@@ -497,6 +539,8 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC         fkinmalloc_
+#define FKIN_DENSE          fkindense_
+#define FKIN_DENSESETJAC    fkindensesetjac_
 #define FKIN_SPTFQMR        fkinsptfqmr_
 #define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac_
 #define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec_
@@ -516,6 +560,8 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC         FKINMALLOC_
+#define FKIN_DENSE          FKINDENSE_
+#define FKIN_DENSESETJAC    FKINDENSESETJAC_
 #define FKIN_SPTFQMR        FKINSPTFQMR_
 #define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC_
 #define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC_
@@ -535,6 +581,8 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC         fkinmalloc__
+#define FKIN_DENSE          fkindense__
+#define FKIN_DENSESETJAC    fkindensesetjac__
 #define FKIN_SPTFQMR        fkinsptfqmr__
 #define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac__
 #define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec__
@@ -554,6 +602,8 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC         FKINMALLOC__
+#define FKIN_DENSE          FKINDENSE__
+#define FKIN_DENSESETJAC    FKINDENSESETJAC__
 #define FKIN_SPTFQMR        FKINSPTFQMR__
 #define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC__
 #define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC__
@@ -581,6 +631,8 @@ extern "C" {
 void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 		 realtype *constraints, int *optin, long int *iopt,
 		 realtype *ropt, int *ier);
+void FKIN_DENSE(long int *new, int *ier);
+void FKIN_DENSESETJAC(int *flag, int *ier);
 void FKIN_SPTFQMR(int *maxl, int *ier);
 void FKIN_SPBCG(int *maxl, int *ier);
 void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier);
@@ -601,6 +653,9 @@ void FKIN_SPGMRSETPREC(int *flag, int *ier);
  */
 
 void FKINfunc(N_Vector uu, N_Vector fval, void *f_data);
+
+int FKINDenseJac(long int N, DenseMat J, N_Vector uu, N_Vector fval,
+		 void *jac_data, N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINPSet(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
@@ -632,7 +687,7 @@ extern int KIN_ls;
 
 /* Linear solver IDs */
 
-enum { KIN_SPGMR = 1, KIN_SPBCG = 2, KIN_SPTFQMR = 3 };
+enum { KIN_SPGMR = 1, KIN_SPBCG = 2, KIN_SPTFQMR = 3, KIN_DENSE = 4 };
 
 #ifdef __cplusplus
 }
