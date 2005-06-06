@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.19 $
-# $Date: 2005-06-02 22:16:36 $
+# $Revision: 1.20 $
+# $Date: 2005-06-06 18:49:28 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -2675,6 +2675,12 @@ fi
 
 # Create sundials_config.h header file
 SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/sundials_config.h:config/sundials_config.in"
+
+# If examples are NOT to be built, then set EXAMPLE_MODULES to "no"
+# Note: This is required since some shells do NOT like empty variables
+if test "X${EXAMPLE_MODULES}" = "X"; then
+  EXAMPLE_MODULES="no"
+fi
 
 ]) dnl END SUNDIALS_BUILD_MODULES_LIST
 

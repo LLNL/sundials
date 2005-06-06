@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2005-02-15 00:09:55 $
+# $Revision: 1.9 $
+# $Date: 2005-06-06 18:49:29 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,14 +48,14 @@ all:
 	 done
 
 install:
-	@for i in ${COMPONENTS} ; do          \
-	   if test -d $${i} ; then            \
-	     echo "Installing $${i}..." ;     \
-	     cd $${i} ;                       \
-	     ${MAKE} install ;                \
-	     cd ${abs_builddir} ;             \
-	     echo "" ;                        \
-	   fi ;                               \
+	@for i in ${COMPONENTS} ; do      \
+	   if test -d $${i} ; then        \
+	     echo "Installing $${i}..." ; \
+	     cd $${i} ;                   \
+	     ${MAKE} install ;            \
+	     cd ${abs_builddir} ;         \
+	     echo "" ;                    \
+	   fi ;                           \
 	 done
 
 clean:

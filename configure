@@ -15647,6 +15647,12 @@ fi
 # Create sundials_config.h header file
 SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} config/sundials_config.h:config/sundials_config.in"
 
+# If examples are NOT to be built, then set EXAMPLE_MODULES to "no"
+# Note: This is required since some shells do NOT like empty variables
+if test "X${EXAMPLE_MODULES}" = "X"; then
+  EXAMPLE_MODULES="no"
+fi
+
 
           ac_config_files="$ac_config_files ${SUNDIALS_MAKEFILES}"
 
