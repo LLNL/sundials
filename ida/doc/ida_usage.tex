@@ -205,6 +205,14 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   \id{y0} and \id{yp0}.
 
 \item
+  {\bf Specify rootfinding problem}
+  \index{Rootfinding}
+
+  Optionally, call \id{IDARootInit} to initialize a rootfinding problem
+  to be solved during the integration of the DAE system.
+  See \S\ref{ss:root_uc} for details.
+
+\item
   {\bf Advance solution in time}
 
   For each point at which output is desired, call
@@ -219,7 +227,7 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   {\bf Get optional outputs}
 
   Call \id{IDA*Get*} functions to obtain optional output.
-  See \S\ref{ss:optional_output} for details.
+  See \S\ref{ss:optional_output} and \S\ref{ss:root_uc} for details.
 
 \item
   {\bf Deallocate memory for solution vector}
@@ -257,6 +265,7 @@ starting with \S\ref{ss:optional_input}, the functions listed involve
 optional inputs/outputs or restarting, and those paragraphs can be
 skipped for a casual use of {\ida}. In any case, refer to
 \S\ref{ss:skeleton_sim} for the correct order of these calls.
+Calls related to rootfinding are described in \S\ref{s:using_rootfinding}.
 
 \subsection{IDA initialization and deallocation functions}
 \label{sss:idamalloc}
@@ -701,7 +710,7 @@ of the DAE.
   independent variable value $t=$\id{*tret}, such that (\id{yret}, \id{ypret}) are 
   the computed values of ($y(t)$, $y^\prime(t)$).
 
-  In \id{NORMAL} mode with no errors, \id{*tret} will be equal to \id{tout} 
+  In \id{IDA\_NORMAL} mode with no errors, \id{*tret} will be equal to \id{tout} 
   and \id{yret} = $y($\id{tout}$)$, \id{ypret} = $y^\prime($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
@@ -711,10 +720,16 @@ of the DAE.
   \item[\Id{IDA\_TSTOP\_RETURN}]
     \id{IDASolve} succeeded by reaching the stop point specified through
     the optional input function \id{IDASetStopTime} (see \S\ref{ss:optional_input}).
+  \item[\Id{IDA\_ROOT\_RETURN}]
+    \id{IDASolve} succeeded and found one or more roots.  If \id{nrtfn}
+     $>1$, call \id{IDAGetRootInfo} to see which $g_i$ were found to
+     have a root.  See \S\ref{s:using_rootfinding} for more information.
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} argument was \id{NULL}.
   \item[\Id{IDA\_ILL\_INPUT}]
-    One of the inputs to \id{IDASolve} is illegal. This includes the situation when a 
+    One of the inputs to \id{IDASolve} is illegal. This includes the situation where
+    a root of one of the root functions was found both at a point $t$ and also
+    very near $t$.  It also includes the situation when a 
     component of the error weight vectors becomes negative during internal 
     time-stepping. The \id{IDA\_ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
@@ -759,6 +774,12 @@ of the DAE.
 
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDASolve} failures.
+
+  On any error return in which one or more internal steps were taken by
+  \id{IDASolve}, the returned values of \id{tret},\id{yret}, and \id{ypret}
+  correspond to the farthest point reached in the integration.
+  On all other error returns, these values are left unchanged from the
+  previous \id{IDASolve} return.
 }
 
 %%===================================================================================
@@ -2090,6 +2111,8 @@ Suggested factor for tolerance scaling  & \id{IDAGetTolScaleFactor} \\
 Error weight vector for state variables & \id{IDAGetErrWeights} \\
 No. of nonlinear solver iterations & \id{IDAGetNumNonlinSolvIters} \\
 No. of nonlinear convergence failures & \id{IDAGetNumNonlinSolvConvFails} \\ 
+Array showing roots found & \id{IDAGetRootInfo} \\
+No. of calls to user root function & \id{IDAGetNumGEvals} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDADENSE linear solver} \\
 \hline
@@ -3857,6 +3880,163 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   \S\ref{ss:optional_output}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 
+}
+
+%%==============================================================================
+\section{Rootfinding}\label{s:using_rootfinding}
+%%==============================================================================
+\index{Rootfinding}
+
+While integrating the IVP, {\ida} has the capability of finding the
+roots of a set of user-defined functions. This section describes the
+user-callable functions used to initialize and define the rootfinding
+problem and obtain solution information, and it also describes the
+required additional user-supplied function.
+
+%%==============================================================================
+\subsection{User-callable functions for rootfinding}\label{ss:root_uc}
+%%==============================================================================
+
+\ucfunction{IDARootInit}
+{
+  flag = IDARootInit(ida\_mem, nrtfn, g, g\_data);
+}
+{
+  The function \ID{IDARootInit} specifies that the roots of a set of
+  functions $g_i(t,y,y')$ are to be found while the IVP is being solved.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block returned by \id{IDACreate}.
+  \item[nrtfn] (\id{int})
+    is the number of root functions $g_i$.
+  \item[g] (\id{IDARootFn})
+    is the {\C} function which defines the \id{nrtfn} functions $g_i(t,y,y')$
+    whose roots are sought. See \S\ref{ss:root_us} for details.
+  \item[g\_data] (\id{void *})
+    pointer to the user data for use by the user's root function $g$.
+ \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_RTFUNC\_NULL]
+  \item[IDA\_SUCCESS]
+    The call to \id{IDARootInit} was successful.
+  \item[IDA\_MEM\_NULL]
+    The \id{ida\_mem} argument was \id{NULL}.
+  \item[IDA\_MEM\_FAIL]
+    A memory allocation failed.
+  \item[IDA\_RTFUNC\_NULL]
+    The function \id{g} is \id{NULL}, but \id{nrtfn}$>0$.
+  \end{args}
+}
+{
+  If a new IVP is to be solved with a call to \id{IDAReInit}, where the new
+  IVP has no rootfinding problem but the prior one did, then call
+  \id{IDARootInit} with \id{nrtfn}$=0$.
+}
+%%
+%%
+There are two optional output functions associated with rootfinding.
+%%
+%%
+\ucfunction{IDAGetRootInfo}
+{
+  flag = IDAGetRootInfo(ida\_mem, rootsfound);
+}
+{
+  The function \ID{IDAGetRootInfo} returns an array showing which 
+  functions were found to have a root.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[rootsfound] (\id{int *})
+    the indices of the user functions $g_i$ found to have a root.  For
+    $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
+    has a root, and $=0$ if not.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional output values have been successfully set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  {\warn} The user must allocate memory for the vector \id{rootsfound}.
+}
+%%
+%%
+\ucfunction{IDAGetNumGEvals}
+{
+  flag = IDAGetNumGEvals(ida\_mem, \&ngevals);
+}
+{
+  The function \ID{IDAGetNumGEvals} returns the cumulative
+  number of calls to the user root function $g$.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[ngevals] (\id{long int})
+    number of calls to the user's function \id{g} so far.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+
+%%==============================================================================
+\subsection{User-supplied function for rootfinding}\label{ss:root_us}
+%%==============================================================================
+
+If a rootfinding problem is to be solved during the integration of the ODE system,
+the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
+%%
+\usfunction{IDARootFn}
+{
+  typedef void (*IDARootFn)(&realtype t, N\_Vector y, N\_Vector yp, \\
+                           &realtype *gout, void *g\_data);
+}
+{
+  This function computes a vector-valued function $g(t,y,y')$ such that the
+  roots of the \id{nrtfn} components $g_i(t,y,y')$ are to be found during
+  the integration.
+}
+{
+  \begin{args}[g\_data]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[yp]
+    is the current value of $y'(t)$, the $t-$derivative of $y$.
+  \item[gout]
+    is the output array, of length \id{nrtfn}, with components $g_i(t,y,y')$.
+  \item[g\_data]
+    is a pointer to user data --- the same as the \Id{g\_data}      
+    parameter passed to \id{IDASetGdata}.   
+  \end{args}
+}
+{
+  A \id{IDARootFn} function type does not have a return value.
+}
+{
+  Allocation of memory for \id{gout} is handled within {\ida}.
 }
 
 %%===================================================================================

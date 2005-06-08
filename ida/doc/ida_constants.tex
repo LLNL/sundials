@@ -68,6 +68,7 @@ description of their meaning.
 \begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{IDA\_SUCCESS}         &  0  & Successful function return. \\
 \id{IDA\_TSTOP\_RETURN}   &  1  & \id{IDASolve} succeeded by reaching the specified stopping point. \\
+\id{IDA\_ROOT\_RETURN}    &  2  & \id{IDASolve} succeeded and found one or more roots. \\
 \id{IDA\_MEM\_NULL}       & -1  & The \id{ida\_mem} argument was \id{NULL}. \\
 \id{IDA\_ILL\_INPUT}      & -2  & One of the function inputs is illegal. \\
 \id{IDA\_NO\_MALLOC}      & -3  & The {\ida} memory was not allocated by a call to \id{IDAMalloc}. \\
@@ -88,6 +89,9 @@ description of their meaning.
 \id{IDA\_LINESEARCH\_FAIL}& -18 & The line search failed. \\
 \id{IDA\_NO\_RECOVERY}    & -19 & The residual function, linear solver setup function, or linear solver solve function had a recoverable failure, but \id{IDACalcIC} could not recover. \\
 \id{IDA\_PDATA\_NULL}     & -20 & The preconditioner module has not been initialized. \\
+
+\id{IDA\_RTFUNC\_NULL}    & -21 & The user-supplied root function is \id{NULL}.\\
+
 \end{supertabular*} 
 \vspace{0.1in}
 
