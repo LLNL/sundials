@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-05-04 22:41:26 $
+ * $Revision: 1.12 $
+ * $Date: 2005-06-08 19:00:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -123,13 +123,14 @@ typedef struct CVodeMemRec {
                     /* considering a change in q               */
   int cv_L;         /* L = q + 1                               */
 
-  realtype cv_hin;
-  realtype cv_h;      /* current step size                     */
-  realtype cv_hprime; /* step size to be used on the next step */ 
-  realtype cv_next_h; /* step size to be used on the next step */ 
-  realtype cv_eta;    /* eta = hprime / h                      */
-  realtype cv_hscale; /* value of h used in zn                 */
-  realtype cv_tn;     /* current internal value of t           */
+  realtype cv_hin;    /* initial step size                      */
+  realtype cv_h;      /* current step size                      */
+  realtype cv_hprime; /* step size to be used on the next step  */ 
+  realtype cv_next_h; /* step size to be used on the next step  */ 
+  realtype cv_eta;    /* eta = hprime / h                       */
+  realtype cv_hscale; /* value of h used in zn                  */
+  realtype cv_tn;     /* current internal value of t            */
+  realtype cv_tretlast; /* value of tret last returned by CVode */
 
   realtype cv_tau[L_MAX+1];    /* array of previous q+1 successful step     */
                                /* sizes indexed from 1 to q+1               */
@@ -137,7 +138,7 @@ typedef struct CVodeMemRec {
                                /* 1 to NUM_TESTS(=5)                        */
   realtype cv_l[L_MAX];        /* coefficients of l(x) (degree q poly)      */
 
-  realtype cv_rl1;     /* 1 / l[1]                     */
+  realtype cv_rl1;     /* the scalar 1/l[1]            */
   realtype cv_gamma;   /* gamma = h * rl1              */
   realtype cv_gammap;  /* gamma at the last setup call */
   realtype cv_gamrat;  /* gamma / gammap               */
@@ -253,16 +254,15 @@ typedef struct CVodeMemRec {
   int *cv_iroots;       /* int array for root information                  */
   realtype cv_tlo;      /* nearest endpoint of interval in root search     */
   realtype cv_thi;      /* farthest endpoint of interval in root search    */
-  realtype cv_troot;    /* approximate root location                       */
+  realtype cv_trout;    /* t value returned by rootfinding routine         */
   realtype *cv_glo;     /* saved array of g values at t = tlo              */
   realtype *cv_ghi;     /* saved array of g values at t = thi              */
-  realtype *cv_groot;   /* array of g values at t = troot                  */
-  realtype cv_tretlast; /* last value of t returned                        */
+  realtype *cv_grout;   /* array of g values at t = trout                  */
   realtype cv_toutc;    /* copy of tout (if NORMAL mode)                   */
-  realtype cv_ttol;     /* tolerance on root location troot                */
+  realtype cv_ttol;     /* tolerance on root location                      */
   int cv_taskc;         /* copy of parameter task                          */
   int cv_irfnd;         /* flag showing whether last step had a root       */
-  int cv_nge;           /* counter for g evaluations                       */
+  long int cv_nge;      /* counter for g evaluations                       */
 
 } *CVodeMem;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.47 $
- * $Date: 2005-05-12 21:03:14 $
+ * $Revision: 1.48 $
+ * $Date: 2005-06-08 19:00:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -456,7 +456,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 
   cv_mem->cv_glo    = NULL;
   cv_mem->cv_ghi    = NULL;
-  cv_mem->cv_groot  = NULL;
+  cv_mem->cv_grout  = NULL;
   cv_mem->cv_iroots = NULL;
   cv_mem->cv_gfun   = NULL;
   cv_mem->cv_g_data = NULL;
@@ -632,7 +632,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 #define g_data (cv_mem->cv_g_data) 
 #define glo    (cv_mem->cv_glo)
 #define ghi    (cv_mem->cv_ghi)
-#define groot  (cv_mem->cv_groot)
+#define grout  (cv_mem->cv_grout)
 #define iroots (cv_mem->cv_iroots)
 
 /*------------------     CVodeRootInit     ------------------------*/
@@ -665,14 +665,14 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   if ((nrt != cv_mem->cv_nrtfn) && (cv_mem->cv_nrtfn > 0)) {
     free(glo);
     free(ghi);
-    free(groot);
+    free(grout);
     free(iroots);
 
     lrw -= 3* (cv_mem->cv_nrtfn);
     liw -= cv_mem->cv_nrtfn;
 
     /* Linux version of free() routine doesn't set pointer to NULL */
-    glo = ghi = groot = NULL;
+    glo = ghi = grout = NULL;
     iroots = NULL;
   }
 
@@ -698,7 +698,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
       if (g == NULL) {
 	free(glo);
 	free(ghi);
-	free(groot);
+	free(grout);
 	free(iroots);
 
         lrw -= 3*nrt;
@@ -737,8 +737,8 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
     return(CV_MEM_FAIL);
   }
 
-  groot = (realtype *) malloc(nrt*sizeof(realtype));
-  if (groot == NULL) {
+  grout = (realtype *) malloc(nrt*sizeof(realtype));
+  if (grout == NULL) {
     free(glo); free(ghi);
     fprintf(stderr, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
@@ -746,7 +746,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 
   iroots = (int *) malloc(nrt*sizeof(int));
   if (iroots == NULL) {
-    free(glo); free(ghi); free(groot);
+    free(glo); free(ghi); free(grout);
     fprintf(stderr, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
@@ -845,7 +845,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 #define thi            (cv_mem->cv_thi)
 #define tretlast       (cv_mem->cv_tretlast)
 #define toutc          (cv_mem->cv_toutc)
-#define troot          (cv_mem->cv_troot)
+#define trout          (cv_mem->cv_trout)
 #define ttol           (cv_mem->cv_ttol)
 #define taskc          (cv_mem->cv_taskc)
 #define irfnd          (cv_mem->cv_irfnd)
@@ -1302,7 +1302,7 @@ void CVodeFree(void *cvode_mem)
   if (nrtfn > 0) {
     free(glo);
     free(ghi);
-    free(groot);
+    free(grout);
     free(iroots); 
   }
 
@@ -3258,14 +3258,14 @@ static int CVRcheck3(CVodeMem cv_mem)
   gfun (thi, y, ghi, g_data);  nge++;
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
   ier = CVRootfind(cv_mem);
-  tlo = troot;
-  for (i = 0; i < nrtfn; i++) glo[i] = groot[i];
+  tlo = trout;
+  for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
 
   /* If no root found, return CV_SUCCESS. */  
   if (ier == CV_SUCCESS) return(CV_SUCCESS);
 
-  /* If a root was found, interpolate to get y(troot) and return.  */
-  (void) CVodeGetDky(cv_mem, troot, 0, y);
+  /* If a root was found, interpolate to get y(trout) and return.  */
+  (void) CVodeGetDky(cv_mem, trout, 0, y);
   return(RTFOUND);
 
 }
@@ -3293,8 +3293,8 @@ static int CVRcheck3(CVodeMem cv_mem)
 
  nge      = cumulative counter for gfun calls.
 
- ttol     = a convergence tolerance for troot.  Input only.
-            When a root at troot is found, it is located only to
+ ttol     = a convergence tolerance for trout.  Input only.
+            When a root at trout is found, it is located only to
             within a tolerance of ttol.  Typically, ttol should
             be set to a value on the order of
                100 * UROUND * max (ABS(tlo), ABS(thi))
@@ -3310,16 +3310,16 @@ static int CVRcheck3(CVodeMem cv_mem)
             and g(thi) respectively.  Input and output.  On input,
             none of the glo[i] should be zero.
 
- troot    = root location, if a root was found, or thi if not.
+ trout    = root location, if a root was found, or thi if not.
             Output only.  If a root was found other than an exact
-            zero of g, troot is the endpoint thi of the final
+            zero of g, trout is the endpoint thi of the final
             interval bracketing the root, with size at most ttol.
 
- groot    = array of length nrtfn containing g(troot) on return.
+ grout    = array of length nrtfn containing g(trout) on return.
 
  iroots   = int array of length nrtfn with root information.
             Output only.  If a root was found, iroots indicates
-            which components g_i have a root at troot.  For
+            which components g_i have a root at trout.  For
             i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
             and iroots[i] = 0 otherwise.
 
@@ -3356,11 +3356,11 @@ static int CVRootfind(CVodeMem cv_mem)
     }
   }
 
-  /* If no sign change was found, reset troot and groot.  Then return
+  /* If no sign change was found, reset trout and grout.  Then return
      CV_SUCCESS if no zero was found, or set iroots and return RTFOUND.  */ 
   if (!sgnchg) {
-    troot = thi;
-    for (i = 0; i < nrtfn; i++) groot[i] = ghi[i];
+    trout = thi;
+    for (i = 0; i < nrtfn; i++) grout[i] = ghi[i];
     if (!zroot) return(CV_SUCCESS);
     for (i = 0; i < nrtfn; i++) {
       iroots[i] = 0;
@@ -3409,7 +3409,7 @@ static int CVRootfind(CVodeMem cv_mem)
     }
 
     (void) CVodeGetDky(cv_mem, tmid, 0, y);
-    gfun (tmid, y, groot, g_data);  nge++;
+    gfun (tmid, y, grout, g_data);  nge++;
 
     /* Check to see in which subinterval g changes sign, and reset imax.
        Set side = 1 if sign change is on low side, or 2 if on high side.  */  
@@ -3418,11 +3418,11 @@ static int CVRootfind(CVodeMem cv_mem)
     sgnchg = FALSE;
     sideprev = side;
     for (i = 0;  i < nrtfn; i++) {
-      if (ABS(groot[i]) == ZERO) {
+      if (ABS(grout[i]) == ZERO) {
         zroot = TRUE;
       } else {
-        if (glo[i]*groot[i] < ZERO) {
-          gfrac = ABS(groot[i]/(groot[i] - glo[i]));
+        if (glo[i]*grout[i] < ZERO) {
+          gfrac = ABS(grout[i]/(grout[i] - glo[i]));
           if (gfrac > maxfrac) {
             sgnchg = TRUE;
             maxfrac = gfrac;
@@ -3434,7 +3434,7 @@ static int CVRootfind(CVodeMem cv_mem)
     if (sgnchg) {
       /* Sign change found in (tlo,tmid); replace thi with tmid. */
       thi = tmid;
-      for (i = 0; i < nrtfn; i++) ghi[i] = groot[i];
+      for (i = 0; i < nrtfn; i++) ghi[i] = grout[i];
       side = 1;
       /* Stop at root thi if converged; otherwise loop. */
       if (ABS(thi - tlo) <= ttol) break;
@@ -3444,24 +3444,24 @@ static int CVRootfind(CVodeMem cv_mem)
     if (zroot) {
       /* No sign change in (tlo,tmid), but g = 0 at tmid; return root tmid. */
       thi = tmid;
-      for (i = 0; i < nrtfn; i++) ghi[i] = groot[i];
+      for (i = 0; i < nrtfn; i++) ghi[i] = grout[i];
       break;
     }
 
     /* No sign change in (tlo,tmid), and no zero at tmid.
        Sign change must be in (tmid,thi).  Replace tlo with tmid. */
     tlo = tmid;
-    for (i = 0; i < nrtfn; i++) glo[i] = groot[i];
+    for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
     side = 2;
     /* Stop at root thi if converged; otherwise loop back. */
     if (ABS(thi - tlo) <= ttol) break;
 
   } /* End of root-search loop */
 
-  /* Reset troot and groot, set iroots, and return RTFOUND. */
-  troot = thi;
+  /* Reset trout and grout, set iroots, and return RTFOUND. */
+  trout = thi;
   for (i = 0; i < nrtfn; i++) {
-    groot[i] = ghi[i];
+    grout[i] = ghi[i];
     iroots[i] = 0;
     if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
     if (glo[i]*ghi[i] < ZERO) iroots[i] = 1;
