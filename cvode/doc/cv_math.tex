@@ -404,12 +404,12 @@ in on the root (or roots) with a modified secant method \cite{HeSh:80}.
 In addition, each time $g$ is computed, {\cvode} checks to see if 
 $g_i(t) = 0$ exactly, and if so it reports this as a root.  However,
 if an exact zero of any $g_i$ is found at a point $t$, {\cvode}
-computes $g$ at $t + \tau$ for a small (near roundoff level) increment
-$\tau$, slightly further in the direction of integration, and if any
-$g_i(t + \tau) = 0$ also, {\cvode} stops and reports an error.  This
-way, each time {\cvode} takes a time step, it is guaranteed that the
-values of all $g_i$ are nonzero at some past value of $t$, beyond
-which a search for roots is to be done.
+computes $g$ at $t + \delta$ for a small increment $\delta$, slightly
+further in the direction of integration, and if any $g_i(t + \delta)=0$ 
+also, {\cvode} stops and reports an error.  This way, each time
+{\cvode} takes a time step, it is guaranteed that the values of all
+$g_i$ are nonzero at some past value of $t$, beyond which a search for
+roots is to be done.
 
 At any given time in the course of the time-stepping, after suitable
 checking and adjusting has been done, {\cvode} has an interval
