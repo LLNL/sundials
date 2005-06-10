@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.20 $
-# $Date: 2005-06-06 18:49:28 $
+# $Revision: 1.21 $
+# $Date: 2005-06-10 16:55:28 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -2469,6 +2469,7 @@ if test "X${CXX_EXAMPLES}" = "Xyes"; then
 fi
 
 # Disable developer examples be default so output logic still works
+SERIAL_DEV_C_EXAMPLES="no"
 PARALLEL_DEV_C_EXAMPLES="no"
 
 RAN_ENABLE_DEV_EXAMPLES="no"
@@ -2485,10 +2486,15 @@ AC_DEFUN([SUNDIALS_ENABLE_DEV_EXAMPLES],
 RAN_ENABLE_DEV_EXAMPLES="yes"
 
 # Check if developer examples can actually be built
+SERIAL_DEV_C_EXAMPLES="no"
 PARALLEL_DEV_C_EXAMPLES="no"
 
-# Check C developer examples
+# Check CVODES developer examples
 if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; then
+
+  AC_MSG_CHECKING([if we can build serial C developer examples])
+  SERIAL_DEV_C_EXAMPLES="yes"
+  AC_MSG_RESULT([${SERIAL_DEV_C_EXAMPLES}])
 
   if test "X${MPI_ENABLED}" = "Xyes"; then
     AC_MSG_CHECKING([if we can build parallel C developer examples])
@@ -2570,6 +2576,11 @@ if test "X${CVODES_ENABLED}" = "Xyes"; then
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_ser ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} cvodes/examples_ser"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/examples_ser/Makefile"
+  fi
+
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/test_examples_ser ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvodes/test_examples_ser"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/test_examples_ser/Makefile"
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_par ; then

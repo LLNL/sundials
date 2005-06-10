@@ -15331,6 +15331,7 @@ echo "${ECHO_T}${PARALLEL_CXX_EXAMPLES}" >&6
 fi
 
 # Disable developer examples be default so output logic still works
+SERIAL_DEV_C_EXAMPLES="no"
 PARALLEL_DEV_C_EXAMPLES="no"
 
 RAN_ENABLE_DEV_EXAMPLES="no"
@@ -15341,10 +15342,17 @@ RAN_ENABLE_DEV_EXAMPLES="no"
 RAN_ENABLE_DEV_EXAMPLES="yes"
 
 # Check if developer examples can actually be built
+SERIAL_DEV_C_EXAMPLES="no"
 PARALLEL_DEV_C_EXAMPLES="no"
 
-# Check C developer examples
+# Check CVODES developer examples
 if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; then
+
+  echo "$as_me:$LINENO: checking if we can build serial C developer examples" >&5
+echo $ECHO_N "checking if we can build serial C developer examples... $ECHO_C" >&6
+  SERIAL_DEV_C_EXAMPLES="yes"
+  echo "$as_me:$LINENO: result: ${SERIAL_DEV_C_EXAMPLES}" >&5
+echo "${ECHO_T}${SERIAL_DEV_C_EXAMPLES}" >&6
 
   if test "X${MPI_ENABLED}" = "Xyes"; then
     echo "$as_me:$LINENO: checking if we can build parallel C developer examples" >&5
@@ -15541,6 +15549,11 @@ if test "X${CVODES_ENABLED}" = "Xyes"; then
   if test "X${SERIAL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_ser ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} cvodes/examples_ser"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/examples_ser/Makefile"
+  fi
+
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/test_examples_ser ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvodes/test_examples_ser"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvodes/test_examples_ser/Makefile"
   fi
 
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvodes/examples_par ; then
