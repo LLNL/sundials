@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-05-16 17:13:59 $
+ * $Revision: 1.11 $
+ * $Date: 2005-06-10 16:51:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -120,6 +120,7 @@ int CVodeSetFdata(void *cvode_mem, void *f_data)
 int CVodeSetMaxOrd(void *cvode_mem, int maxord)
 {
   CVodeMem cv_mem;
+  int qmax_alloc;
 
   if (cvode_mem==NULL) {
     fprintf(stderr, MSGCVS_SET_NO_MEM);
@@ -133,7 +134,13 @@ int CVodeSetMaxOrd(void *cvode_mem, int maxord)
     return(CV_ILL_INPUT);
   }
   
-  if (maxord > cv_mem->cv_qmax) {
+  /* Cannot increase maximum order beyond the value that
+     was used when allocating memory */
+  qmax_alloc = cv_mem->cv_qmax_alloc;
+  qmax_alloc = MIN(qmax_alloc, cv_mem->cv_qmax_allocQ);
+  qmax_alloc = MIN(qmax_alloc, cv_mem->cv_qmax_allocS);
+
+  if (maxord > qmax_alloc) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_SET_BAD_MAXORD);
     return(CV_ILL_INPUT);
   }

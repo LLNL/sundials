@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.55 $
- * $Date: 2005-05-12 21:03:17 $
+ * $Revision: 1.56 $
+ * $Date: 2005-06-10 16:51:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -383,6 +383,11 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_ncfnS1   = NULL;
   cv_mem->cv_nniS1    = NULL;
   cv_mem->cv_itolS    = CV_EE;
+
+  /* Set the saved values for qmax_alloc */
+  cv_mem->cv_qmax_alloc  = maxord;
+  cv_mem->cv_qmax_allocQ = maxord;
+  cv_mem->cv_qmax_allocS = maxord;
 
   /* Initialize lrw and liw */
   cv_mem->cv_lrw = 65 + 2*L_MAX + NUM_TESTS;
@@ -1322,6 +1327,7 @@ int CVodeSensToggle(void *cvode_mem, booleantype sensi)
 #define h0u            (cv_mem->cv_h0u)
 #define hu             (cv_mem->cv_hu)         
 #define saved_tq5      (cv_mem->cv_saved_tq5)  
+#define indx_acor      (cv_mem->cv_indx_acor)
 #define jcur           (cv_mem->cv_jcur)         
 #define tolsf          (cv_mem->cv_tolsf)      
 #define setupNonNull   (cv_mem->cv_setupNonNull) 
@@ -2332,6 +2338,9 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
     cv_mem->cv_VabstolMallocDone = TRUE;
   }  
 
+  /* Store the value of qmax used here */
+  cv_mem->cv_qmax_alloc = qmax;
+
   return (TRUE);
 }
 
@@ -2345,15 +2354,19 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
 
 static void CVFreeVectors(CVodeMem cv_mem)
 {
-  int j;
+  int j, maxord;
   
+  maxord = cv_mem->cv_qmax_alloc;
+
   N_VDestroy(ewt);
   N_VDestroy(acor);
   N_VDestroy(tempv);
   N_VDestroy(ftemp);
-  for (j=0; j <= qmax; j++) N_VDestroy(zn[j]);
-  lrw -= (qmax + 5)*lrw1;
-  liw -= (qmax + 5)*liw1;
+  for (j=0; j <= maxord; j++) N_VDestroy(zn[j]);
+
+  lrw -= (maxord + 5)*lrw1;
+  liw -= (maxord + 5)*liw1;
+
   if (cv_mem->cv_VabstolMallocDone) {
     N_VDestroy(Vabstol);
     lrw -= lrw1;
@@ -2518,6 +2531,9 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
     }
   }
 
+  /* Store the value of qmax used here */
+  cv_mem->cv_qmax_allocQ = qmax;
+
   /* Update solver workspace lengths */
   lrw += (qmax + 5)*lrw1Q;
   liw += (qmax + 5)*liw1Q;
@@ -2573,17 +2589,19 @@ static int CVQuadEwtSetSV(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem)
 
 static void CVQuadFreeVectors(CVodeMem cv_mem)
 {
-  int j;
+  int j, maxord;
   
+  maxord = cv_mem->cv_qmax_allocQ;
+
   N_VDestroy(ewtQ);
   N_VDestroy(acorQ);
   N_VDestroy(yQ);
   N_VDestroy(tempvQ);
   
-  for (j=0; j<=qmax; j++) N_VDestroy(znQ[j]);
+  for (j=0; j<=maxord; j++) N_VDestroy(znQ[j]);
 
-  lrw -= (qmax + 5)*lrw1Q;
-  liw -= (qmax + 5)*liw1Q;
+  lrw -= (maxord + 5)*lrw1Q;
+  liw -= (maxord + 5)*liw1Q;
 
   if (cv_mem->cv_VabstolQMallocDone) {
     N_VDestroy(VabstolQ);
@@ -2693,6 +2711,9 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   lrw += (qmax + 6)*Ns*lrw1 + Ns;
   liw += (qmax + 6)*Ns*liw1 + Ns;
   
+  /* Store the value of qmax used here */
+  cv_mem->cv_qmax_allocS = qmax;
+
   return (TRUE);
 }
 
@@ -2700,21 +2721,23 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 
 static void CVSensFreeVectors(CVodeMem cv_mem) 
 {
-  int j;
+  int j, maxord;
   
+  maxord = cv_mem->cv_qmax_allocS;
+
   N_VDestroyVectorArray(yS, Ns);
   N_VDestroyVectorArray(ewtS, Ns);
   N_VDestroyVectorArray(acorS, Ns);
   N_VDestroyVectorArray(tempvS, Ns);
   N_VDestroyVectorArray(ftempS, Ns);
   
-  for (j=0; j<=qmax; j++) N_VDestroyVectorArray(znS[j], Ns);  
+  for (j=0; j<=maxord; j++) N_VDestroyVectorArray(znS[j], Ns);  
 
   free(pbar);
   free(plist);
 
-  lrw -= (qmax + 6)*Ns*lrw1 + Ns;
-  liw -= (qmax + 6)*Ns*liw1 + Ns;
+  lrw -= (maxord + 6)*Ns*lrw1 + Ns;
+  liw -= (maxord + 6)*Ns*liw1 + Ns;
 
   if (cv_mem->cv_VabstolSMallocDone) {
     N_VDestroyVectorArray(VabstolS, Ns);
@@ -3378,7 +3401,7 @@ static void CVAdjustBDF(CVodeMem cv_mem, int deltaq)
  * This routine adjusts the history array on an increase in the 
  * order q in the case that lmm == CV_BDF.  
  * A new column zn[q+1] is set equal to a multiple of the saved 
- * vector (= acor) in zn[qmax].  Then each zn[j] is adjusted by
+ * vector (= acor) in zn[indx_acor].  Then each zn[j] is adjusted by
  * a multiple of zn[q+1].  The coefficients in the adjustment are the 
  * coefficients of the polynomial x*x*(x+xi_1)*...*(x+xi_j),
  * where xi_j = [t_n - t_(n-j)]/h.
@@ -3408,26 +3431,26 @@ static void CVIncreaseBDF(CVodeMem cv_mem)
   A1 = (-alpha0 - alpha1) / prod;
 
   /* 
-     zn[qmax] contains the value Delta_n = y_n - y_n(0) 
+     zn[indx_acor] contains the value Delta_n = y_n - y_n(0) 
      This value was stored there at the previous successful
      step (in CVCompleteStep) 
      
      A1 contains dbar = (1/xi* - 1/xi_q)/prod(xi_j)
   */
   
-  N_VScale(A1, zn[qmax], zn[L]);
+  N_VScale(A1, zn[indx_acor], zn[L]);
   for (j=2; j <= q; j++)
     N_VLinearSum(l[j], zn[L], ONE, zn[j], zn[j]);
 
   if (quadr) {
-    N_VScale(A1, znQ[qmax], znQ[L]);
+    N_VScale(A1, znQ[indx_acor], znQ[L]);
     for (j=2; j <= q; j++)
       N_VLinearSum(l[j], znQ[L], ONE, znQ[j], znQ[j]);
   }
 
   if (sensi) {
     for (is=0; is<Ns; is++) {
-      N_VScale(A1, znS[qmax][is], znS[L][is]);
+      N_VScale(A1, znS[indx_acor][is], znS[L][is]);
       for (j=2; j <= q; j++)
         N_VLinearSum(l[j], znS[L][is], ONE, znS[j][is], znS[j][is]);
     }
@@ -5185,7 +5208,7 @@ static void CVCompleteStep(CVodeMem cv_mem)
         N_VScale(ONE, acorS[is], znS[qmax][is]);
     
     saved_tq5 = tq[5];
-    
+    indx_acor = qmax;
   }
 
 }

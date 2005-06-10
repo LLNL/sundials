@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2005-06-08 19:00:58 $
+ * $Revision: 1.13 $
+ * $Date: 2005-06-10 16:51:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -216,15 +216,16 @@ typedef struct CVodeMemRec {
     Saved Values
     ------------*/
 
-  int cv_qu;             /* last successful q value used   */
-  long int cv_nstlp;          /* step number of last setup call */
-  realtype cv_h0u;       /* actual initial stepsize        */
-  realtype cv_hu;        /* last successful h value used   */
-  realtype cv_saved_tq5; /* saved value of tq[5]           */
-  booleantype cv_jcur;   /* Is the Jacobian info used by   */
-                         /* linear solver current?         */
-  realtype cv_tolsf;     /* tolerance scale factor         */
-  booleantype cv_setupNonNull; /* Does setup do something? */
+  int cv_qu;             /* last successful q value used                        */
+  long int cv_nstlp;     /* step number of last setup call                      */
+  realtype cv_h0u;       /* actual initial stepsize                             */
+  realtype cv_hu;        /* last successful h value used                        */
+  realtype cv_saved_tq5; /* saved value of tq[5]                                */
+  booleantype cv_jcur;   /* Is the Jacobian info used by linear solver current? */
+  realtype cv_tolsf;     /* tolerance scale factor                              */
+  int cv_qmax_alloc;     /* value of qmax used when allocating memory           */
+  int cv_indx_acor;      /* index of the zn vector in which acor is saved       */
+  booleantype cv_setupNonNull; /* Does setup do something?                      */
 
   booleantype cv_VabstolMallocDone;
   booleantype cv_MallocDone;  

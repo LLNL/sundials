@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-05-04 22:44:01 $
+ * $Revision: 1.17 $
+ * $Date: 2005-06-10 16:51:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -347,15 +347,18 @@ typedef struct CVodeMemRec {
     Saved Values
     ------------*/
 
-  int cv_qu;               /* last successful q value used                 */
-  long int cv_nstlp;       /* step number of last setup call               */
-  realtype cv_h0u;         /* actual initial stepsize                      */
-  realtype cv_hu;          /* last successful h value used                 */
-  realtype cv_saved_tq5;   /* saved value of tq[5]                         */
-  booleantype cv_jcur;     /* Is the Jacobian info used by
-                              linear solver current?                       */
-  realtype cv_tolsf;       /* tolerance scale factor                       */
-  booleantype cv_setupNonNull;  /* Does setup do something?                */
+  int cv_qu;             /* last successful q value used                        */
+  long int cv_nstlp;     /* step number of last setup call                      */
+  realtype cv_h0u;       /* actual initial stepsize                             */
+  realtype cv_hu;        /* last successful h value used                        */
+  realtype cv_saved_tq5; /* saved value of tq[5]                                */
+  booleantype cv_jcur;   /* Is the Jacobian info used by linear solver current? */
+  realtype cv_tolsf;     /* tolerance scale factor                              */
+  int cv_qmax_alloc;     /* value of qmax used when allocating memory           */
+  int cv_qmax_allocQ;    /* value of qmax used when allocating quad. memory     */
+  int cv_qmax_allocS;    /* value of qmax used when allocating sensi. memory    */
+  int cv_indx_acor;      /* index of the zn vector in which acor is saved       */
+  booleantype cv_setupNonNull; /* Does setup do something?                      */
 
   /*--------------------------------------------------------------------
     Flags turned ON by CVodeMalloc, CVodeSensMalloc, and CVodeQuadMalloc 
