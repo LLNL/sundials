@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.21 $
-# $Date: 2005-06-10 16:55:28 $
+# $Revision: 1.22 $
+# $Date: 2005-06-14 19:02:19 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -299,7 +299,7 @@ if test "X${enableval}" = "Xno"; then
 fi
 ],
 [
-if test -d ${srcdir}/nvec_par ; then
+if test -d ${srcdir}/nvec_par || test -d ${srcdir}/nvec_spcpar; then
   MPI_ENABLED="yes"
 else
   MPI_ENABLED="no"
@@ -2534,6 +2534,11 @@ if test -d ${srcdir}/nvec_par && test "X${MPI_C_COMP_OK}" = "Xyes"; then
   SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} nvec_par/Makefile"
 fi
 
+if test -d ${srcdir}/nvec_spcpar && test "X${MPI_C_COMP_OK}" = "Xyes"; then
+  NVEC_MODULES="${NVEC_MODULES} nvec_spcpar"
+  SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} nvec_spcpar/Makefile"
+fi
+
 # CVODE module
 if test "X${CVODE_ENABLED}" = "Xyes"; then
 
@@ -2848,6 +2853,11 @@ elif test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xno"; then
   C_PARALLEL_BOX="NO "
 fi
 C_DEV_SERIAL_BOX="N/A"
+if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes"; then
+  C_DEV_SERIAL_BOX="YES"
+elif test "X${CVODES_ENABLED}" = "Xyes"; then
+  C_DEV_SERIAL_BOX="NO "
+fi
 C_DEV_PARALLEL_BOX="N/A"
 if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes"; then
   C_DEV_PARALLEL_BOX="YES"
