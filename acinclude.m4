@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.22 $
-# $Date: 2005-06-14 19:02:19 $
+# $Revision: 1.23 $
+# $Date: 2005-06-16 18:08:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -118,6 +118,10 @@ PRECISION_LEVEL=""
 GENERIC_MATH_LIB=""
 F77_MPI_COMM_F2C=""
 
+# This variable is set to "yes" if an AC_MSG_WARN statement
+# was executed
+SUNDIALS_WARN_FLAG="no"
+
 ]) dnl END SUNDIALS_INITIALIZE
 
 #------------------------------------------------------------------
@@ -154,6 +158,7 @@ AC_CHECK_TOOL([RANLIB],[ranlib],["none"])
 
 if test "X${RANLIB}" = "Xnone"; then
   AC_MSG_WARN([cannot find ranlib])
+  SUNDIALS_WARN_FLAG="yes"
 fi
 
 ]) dnl END SUNDIALS_CHECK_RANLIB
@@ -674,6 +679,7 @@ if test "X${F77}" = "X"; then
   echo "   Disabling Fortran support..."
   echo ""
   F77_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 
 else
 
@@ -1013,6 +1019,7 @@ else
   echo "   Disabling Fortran support..."
   echo ""
   F77_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 fi
 
 # Set LIBS environment variable back to original value
@@ -1122,6 +1129,7 @@ if test "X${CXX}" = "X"; then
   echo "   Disabling dependent modules..."
   echo ""
   CXX_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 
 else
 
@@ -1252,7 +1260,7 @@ MPI_LIB_DIR=""
 
 # MPI libraries
 AC_ARG_WITH(mpi-libs,
-[AC_HELP_STRING([--with-mpi-libs=ARG],[MPI libraries @<:@-lmpi@:>@])],
+[AC_HELP_STRING([--with-mpi-libs=ARG],[MPI libraries])],
 [
 MPI_LIBS="${withval}"
 ],
@@ -1388,6 +1396,7 @@ else
   echo ""
   MPICC=""
   MPI_C_COMP_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 
 fi
 
@@ -1427,6 +1436,7 @@ if test "X${MPI_INC_DIR}" = "X"; then
     echo ""
     echo "   Disabling the parallel NVECTOR module and all parallel examples..."
     echo ""
+    SUNDIALS_WARN_FLAG="yes"
   # MPI root directory was given so set MPI_INC_DIR accordingly
   # Update CPPFLAGS
   else
@@ -1481,45 +1491,61 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
   fi
 
   # Check if user specified which MPI libraries must be included
-  # If no libraries are given, then assume libmpi.[a/so] exists
+  # If no libraries are given, then issue a warning message
+  AC_MSG_CHECKING([for MPI libraries])
   if test "X${MPI_LIBS}" = "X"; then
-    MPI_LIBS="-lmpi"
-    if test "X${LIBS}" = "X"; then
-      LIBS="${MPI_LIBS}"
-    else
-      LIBS="${LIBS} ${MPI_LIBS}"
-    fi
+    AC_MSG_RESULT(none)
+    AC_MSG_WARN([no MPI libraries were given])
+    echo ""
+    echo "   Unable to compile MPI program using C compiler because"
+    echo "   MPI libraries were not specified."
+    echo ""
+    echo "   Try using --with-mpi-libdir and --with-mpi-libs to"
+    echo "   specify the location and names of the MPI libraries."
+    echo ""
+    echo "   Disabling the parallel NVECTOR module and all parallel examples..."
+    echo ""
+    MPI_C_COMP_OK="no"
+    SUNDIALS_WARN_FLAG="yes"
   # MPI libraries were specified so update LIBS
   else
+    AC_MSG_RESULT([${MPI_LIBS}])
     if test "X${LIBS}" = "X"; then
       LIBS="${MPI_LIBS}"
     else
       LIBS="${LIBS} ${MPI_LIBS}"
     fi
+    # Set the MPI_C_COMP_OK variable to NULL so we can conditionally execute
+    # the next test
+    MPI_C_COMP_OK=""
   fi
 
-  AC_MSG_CHECKING([if C compiler can compile MPI programs])
-  AC_LINK_IFELSE(
-  [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; char **v; MPI_Init(&c,&v);]])],
-  [AC_MSG_RESULT(yes)
-   MPI_C_COMP_OK="yes"],
-  [AC_MSG_RESULT(no)
-   AC_MSG_WARN([C compiler cannot compile MPI programs])
-   echo ""
-   echo "   Unable to compile MPI program using C compiler."
-   echo ""
-   echo "   Try using --with-mpicc to specify a MPI-C compiler script,"
-   echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-   echo "   to specify the locations of all relevant MPI files, or"
-   echo "   --with-mpi-root to specify the base installation directory"
-   echo "   of the MPI implementation to be used."
-   echo ""
-   echo "   Disabling the parallel NVECTOR module and all parallel examples..."
-   echo ""
-   MPI_C_COMP_OK="no"])
+  if test "X${MPI_C_COMP_OK}" = "X"; then
+    AC_MSG_CHECKING([if C compiler can compile MPI programs])
+    AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; char **v; MPI_Init(&c,&v);]])],
+    [AC_MSG_RESULT(yes)
+     MPI_C_COMP_OK="yes"],
+    [AC_MSG_RESULT(no)
+     AC_MSG_WARN([C compiler cannot compile MPI programs])
+     echo ""
+     echo "   Unable to compile MPI program using C compiler."
+     echo ""
+     echo "   Try using --with-mpicc to specify a MPI-C compiler script,"
+     echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+     echo "   to specify the locations of all relevant MPI files, or"
+     echo "   --with-mpi-root to specify the base installation directory"
+     echo "   of the MPI implementation to be used."
+     echo ""
+     echo "   Disabling the parallel NVECTOR module and all parallel examples..."
+     echo ""
+     MPI_C_COMP_OK="no"
+     SUNDIALS_WARN_FLAG="yes"])
+  fi
 else
   MPI_C_COMP_OK="no"
 fi
+  
 
 # Restore CPPFLAGS, LDFLAGS and LIBS
 CPPFLAGS="${SAVED_CPPFLAGS}"
@@ -1574,6 +1600,7 @@ if test "X${MPI_INC_DIR}" = "X"; then
     echo "   Disabling FNVECTOR_PARALLEL support for user-specified"
     echo "   MPI communicator..."
     echo ""
+    SUNDIALS_WARN_FLAG="yes"
   # MPI root directory was given so set MPI_INC_DIR accordingly
   # Update CPPFLAGS
   else
@@ -1628,53 +1655,58 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
   fi
 
   # Check if user specified which MPI libraries must be included
-  # If no libraries are given, then assume libmpi.[a/so] exists
+  # If no libraries are given, then disable support for this feature
+  # Note: We already checked for MPI_LIBS, so we can go ahead and
+  # disable support for the MPI_Comm_f2c function if the variable
+  # is empty
   if test "X${MPI_LIBS}" = "X"; then
-    MPI_LIBS="-lmpi"
-    if test "X${LIBS}" = "X"; then
-      LIBS="${MPI_LIBS}"
-    else
-      LIBS="${LIBS} ${MPI_LIBS}"
-    fi
-  # MPI libraries were specified so update LIBS
+    F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"
+  # MPI libraries were specified so update LIBS and continue test
   else
     if test "X${LIBS}" = "X"; then
       LIBS="${MPI_LIBS}"
     else
       LIBS="${LIBS} ${MPI_LIBS}"
     fi
+    # Set F77_MPI_COMM_F2C variable to NULL so we can conditionally
+    # execute the next test
+    F77_MPI_COMM_F2C=""
   fi
 
-  # Since AC_LINK_IFELSE uses CC, set CC = MPICC if using
-  # an MPI compiler script
-  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
-    SAVED_CC="${CC}"
-    CC="${MPICC_COMP}"
-  fi
+  if test "X${F77_MPI_COMM_F2C}" = "X"; then
 
-  # Check if MPI implementation supports MPI_Comm_f2c() from
-  # MPI-2 specification
-  AC_MSG_CHECKING([for MPI_Comm_f2c from MPI-2])
-  AC_LINK_IFELSE(
-  [AC_LANG_PROGRAM([[#include "mpi.h"]],
-  [[
-      int c;
-      char **v;
-      MPI_Comm C_comm;
-      MPI_Init(&c, &v);
-      C_comm = MPI_Comm_f2c((MPI_Fint) 1);
-      MPI_Finalize();
-  ]])],
-  [AC_MSG_RESULT(yes)
-   AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[1],[])
-   F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 1"],
-  [AC_MSG_RESULT(no)
-   AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
-   F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
+    # Since AC_LINK_IFELSE uses CC, set CC = MPICC if using
+    # an MPI compiler script
+    if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+      SAVED_CC="${CC}"
+      CC="${MPICC_COMP}"
+    fi
 
-  # Reset CC if necessary
-  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
-    CC="${SAVED_CC}"
+    # Check if MPI implementation supports MPI_Comm_f2c() from
+    # MPI-2 specification
+    AC_MSG_CHECKING([for MPI_Comm_f2c from MPI-2])
+    AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM([[#include "mpi.h"]],
+    [[
+        int c;
+        char **v;
+        MPI_Comm C_comm;
+        MPI_Init(&c, &v);
+        C_comm = MPI_Comm_f2c((MPI_Fint) 1);
+        MPI_Finalize();
+    ]])],
+    [AC_MSG_RESULT(yes)
+     AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[1],[])
+     F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 1"],
+    [AC_MSG_RESULT(no)
+     AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
+     F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
+
+    # Reset CC if necessary
+    if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+      CC="${SAVED_CC}"
+    fi
+
   fi
 
 else
@@ -1936,6 +1968,7 @@ else
   echo ""
   MPIF77=""
   MPI_F77_COMP_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 
 fi
 
@@ -1981,6 +2014,7 @@ if test "X${F77_OK}" = "Xyes"; then
       echo ""
       echo "   Disabling all parallel Fortran examples..."
       echo ""
+      SUNDIALS_WARN_FLAG="yes"
     # MPI root directory was given so set MPI_INC_DIR accordingly
     # Update FFLAGS
     else
@@ -2023,14 +2057,18 @@ if test "X${F77_OK}" = "Xyes"; then
     fi
 
     # Check if user specified which MPI libraries must be included
-    # If no libraries are given, then assume libmpi.[a/so] exists
+    # If no libraries are given, then issue a warning message
     if test "X${MPI_LIBS}" = "X"; then
-      MPI_LIBS="-lmpi"
-      if test "X${LIBS}" = "X"; then
-        LIBS="${MPI_LIBS}"
-      else
-        LIBS="${LIBS} ${MPI_LIBS}"
-      fi
+      echo ""
+      echo "   Unable to compile MPI program using Fortran compiler because"
+      echo "   MPI libraries were not specified."
+      echo ""
+      echo "   Try using --with-mpi-libdir and --with-mpi-libs to"
+      echo "   specify the location and names of the MPI libraries."
+      echo ""
+      echo "   Disabling all parallel Fortran examples..."
+      echo ""
+      MPI_F77_COMP_OK="no"
     # MPI libraries were specified so update LIBS
     else
       if test "X${LIBS}" = "X"; then
@@ -2038,40 +2076,46 @@ if test "X${F77_OK}" = "Xyes"; then
       else
         LIBS="${LIBS} ${MPI_LIBS}"
       fi
+      # Set the MPI_F77_COMP_OK variable to NULL so we can conditionally execute
+      # the next test
+      MPI_F77_COMP_OK=""
     fi
 
-    AC_MSG_CHECKING([if Fortran compiler can compile MPI programs])
-    AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM([],
-    [      
+    if test "X${MPI_F77_COMP_OK}" = "X"; then
+      AC_MSG_CHECKING([if Fortran compiler can compile MPI programs])
+      AC_LINK_IFELSE(
+      [AC_LANG_PROGRAM([],
+      [      
           INCLUDE "mpif.h"
           CALL MPI_INIT(IER)
-    ])],
-    [AC_MSG_RESULT(yes)
-     MPI_F77_COMP_OK="yes"],
-    [AC_MSG_RESULT(no)
-     AC_MSG_WARN([Fortran compiler cannot compile MPI programs])
-     echo ""
-     echo "   Unable to compile MPI program using Fortran compiler."
-     echo ""
-     echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
-     echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-     echo "   to specify the locations of all relevant MPI files, or"
-     echo "   --with-mpi-root to specify the base installation directory"
-     echo "   of the MPI implementation to be used."
-     echo ""
-     echo "   Disabling all parallel Fortran examples..."
-     echo ""
-     MPI_F77_COMP_OK="no"])
+      ])],
+      [AC_MSG_RESULT(yes)
+       MPI_F77_COMP_OK="yes"],
+      [AC_MSG_RESULT(no)
+       AC_MSG_WARN([Fortran compiler cannot compile MPI programs])
+       echo ""
+       echo "   Unable to compile MPI program using Fortran compiler."
+       echo ""
+       echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
+       echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+       echo "   to specify the locations of all relevant MPI files, or"
+       echo "   --with-mpi-root to specify the base installation directory"
+       echo "   of the MPI implementation to be used."
+       echo ""
+       echo "   Disabling all parallel Fortran examples..."
+       echo ""
+       MPI_F77_COMP_OK="no"
+       SUNDIALS_WARN_FLAG="yes"])
 
-    # Set MPIF77_LNKR based on value of F77_LNKR
-    # Note: setting MPIF77_LNKR is trivial if NOT using the MPI compiler script
-    # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
-    # should be used
-    if test "X${F77_LNKR}" = "X\$(CC)"; then
-      MPIF77_LNKR="\$(MPICC)"
-    elif test "X${F77_LNKR}" = "X\$(F77)"; then
-      MPIF77_LNKR="\$(MPIF77)"
+      # Set MPIF77_LNKR based on value of F77_LNKR
+      # Note: setting MPIF77_LNKR is trivial if NOT using the MPI compiler script
+      # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
+      # should be used
+      if test "X${F77_LNKR}" = "X\$(CC)"; then
+        MPIF77_LNKR="\$(MPICC)"
+      elif test "X${F77_LNKR}" = "X\$(F77)"; then
+        MPIF77_LNKR="\$(MPIF77)"
+      fi
     fi
 
   else
@@ -2080,6 +2124,7 @@ if test "X${F77_OK}" = "Xyes"; then
 else
   AC_MSG_WARN([cannot find Fortran compiler])
   MPI_F77_COMP_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 fi
 
 # Restore FFLAGS, LDFLAGS and LIBS
@@ -2208,6 +2253,7 @@ else
   echo ""
   MPICXX=""
   MPI_CXX_COMP_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 fi
 
 ]) dnl END SUNDIALS_CHECK_MPICXX
@@ -2253,6 +2299,7 @@ if test "X${CXX_OK}" = "Xyes"; then
       echo ""
       echo "   Disabling dependent modules..."
       echo ""
+      SUNDIALS_WARN_FLAG="yes"
     # MPI root directory was given so set MPI_INC_DIR accordingly
     # Update CPPFLAGS
     else
@@ -2295,14 +2342,18 @@ if test "X${CXX_OK}" = "Xyes"; then
     fi
 
     # Check if user specified which MPI libraries must be included
-    # If no libraries are given, then assume libmpi.[a/so] exists
+    # If no libraries are given, then issue a warning message
     if test "X${MPI_LIBS}" = "X"; then
-      MPI_LIBS="-lmpi"
-      if test "X${LIBS}" = "X"; then
-        LIBS="${MPI_LIBS}"
-      else
-        LIBS="${LIBS} ${MPI_LIBS}"
-      fi
+      echo ""
+      echo "   Unable to compile MPI program using C++ compiler because"
+      echo "   MPI libraries were not specified."
+      echo ""
+      echo "   Try using --with-mpi-libdir and --with-mpi-libs to"
+      echo "   specify the location and names of the MPI libraries."
+      echo ""
+      echo "   Disabling dependent modules..."
+      echo ""
+      MPI_CXX_COMP_OK="no"
     # MPI libraries were specified so update LIBS
     else
       if test "X${LIBS}" = "X"; then
@@ -2310,33 +2361,41 @@ if test "X${CXX_OK}" = "Xyes"; then
       else
         LIBS="${LIBS} ${MPI_LIBS}"
       fi
+      # Set the MPI_CXX_COMP_OK variable to NULL so we can conditionally execute
+      # the next test
+      MPI_CXX_COMP_OK=""
     fi
 
-    AC_MSG_CHECKING([if C++ compiler can compile MPI programs])
-    AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; car **v; MPI_Init(&c,&v);]])],
-    [AC_MSG_RESULT(yes)
-     MPI_CXX_COMP_OK="yes"],
-    [AC_MSG_RESULT(no)
-     AC_MSG_WARN([C++ compiler cannot compile MPI programs])
-     echo ""
-     echo "   Unable to compile MPI program using C++ compiler."
-     echo ""
-     echo "   Try using --with-mpicxx to specify a MPI-C++ compiler script,"
-     echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-     echo "   to specify the locations of all relevant MPI files, or"
-     echo "   --with-mpi-root to specify the base installation directory"
-     echo "   of the MPI implementation to be used."
-     echo ""
-     echo "   Disabling dependent modules..."
-     echo ""
-     MPI_CXX_COMP_OK="no"])
+    if test "X${MPI_CXX_COMP_OK}" = "X"; then
+      AC_MSG_CHECKING([if C++ compiler can compile MPI programs])
+      AC_LINK_IFELSE(
+      [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; car **v; MPI_Init(&c,&v);]])],
+      [AC_MSG_RESULT(yes)
+       MPI_CXX_COMP_OK="yes"],
+      [AC_MSG_RESULT(no)
+       AC_MSG_WARN([C++ compiler cannot compile MPI programs])
+       echo ""
+       echo "   Unable to compile MPI program using C++ compiler."
+       echo ""
+       echo "   Try using --with-mpicxx to specify a MPI-C++ compiler script,"
+       echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+       echo "   to specify the locations of all relevant MPI files, or"
+       echo "   --with-mpi-root to specify the base installation directory"
+       echo "   of the MPI implementation to be used."
+       echo ""
+       echo "   Disabling dependent modules..."
+       echo ""
+       MPI_CXX_COMP_OK="no"
+       SUNDIALS_WARN_FLAG="yes"])
+    fi
+
   else
     MPI_CXX_COMP_OK="no"
   fi
 else
   AC_MSG_WARN([cannot find C++ compiler])
   MPI_CXX_COMP_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
 fi
 
 # Restore CPPFLAGS, LDFLAGS and LIBS
@@ -2364,6 +2423,7 @@ if test "X${enable_shared}" = "Xyes"; then
   LIBTOOL_CMD="LIBTOOL = ${LIBTOOL}"
   COMPILER_PREFIX="\$(LIBTOOL) --mode=compile"
   LINKER_PREFIX="\$(LIBTOOL) --mode=link"
+  OBJ_EXT="lo"
 
 # If building static libraries, then use regular C compiler
 else
@@ -2371,6 +2431,7 @@ else
   LIBTOOL_CMD=""
   COMPILER_PREFIX=""
   LINKER_PREFIX=""
+  OBJ_EXT="o"
 
 fi
 
