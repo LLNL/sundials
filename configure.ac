@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.21 $
-# $Date: 2005-05-18 18:08:24 $
+# $Revision: 1.22 $
+# $Date: 2005-06-16 18:17:06 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -60,6 +60,7 @@ SUNDIALS_ENABLE_DEV_EXAMPLES
 # Substitute variables
 AC_SUBST(COMPILER_PREFIX)
 AC_SUBST(LINKER_PREFIX)
+AC_SUBST(OBJ_EXT)
 AC_SUBST(MPICC)
 AC_SUBST(MPICXX)
 AC_SUBST(MPIF77)

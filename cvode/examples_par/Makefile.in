@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2005-03-19 00:10:14 $
+# $Revision: 1.9 $
+# $Date: 2005-06-16 18:17:10 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -38,6 +38,8 @@ MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
+OBJ_EXT = @OBJ_EXT@
+
 COMPILER_PREFIX = @COMPILER_PREFIX@
 LINKER_PREFIX   = @LINKER_PREFIX@
 
@@ -51,13 +53,13 @@ all: $(EXEC_FILES)
 
 pvnx: $(srcdir)/pvnx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvnx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvnx $(builddir)/pvnx.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvnx $(builddir)/pvnx.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 pvkx: $(srcdir)/pvkx.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkx.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkx $(builddir)/pvkx.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkx $(builddir)/pvkx.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 pvkxb: $(srcdir)/pvkxb.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/pvkxb.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkxb $(builddir)/pvkxb.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/pvkxb $(builddir)/pvkxb.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs

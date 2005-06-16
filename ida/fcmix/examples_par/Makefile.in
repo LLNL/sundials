@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2005-05-11 23:11:24 $
+# $Revision: 1.2 $
+# $Date: 2005-06-16 18:17:33 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -40,6 +40,8 @@ MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 MPIF77_LNKR = @MPIF77_LNKR@
 
+OBJ_EXT = @OBJ_EXT@
+
 COMPILER_PREFIX = @COMPILER_PREFIX@
 LINKER_PREFIX   = @LINKER_PREFIX@
 
@@ -56,7 +58,7 @@ fortran_update.sh:
 iheatbbdf: $(srcdir)/iheatbbdf.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} iheatbbdf.f
 	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/iheatbbdf-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/iheatbbdf $(builddir)/iheatbbdf-updated.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS) 
+	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/iheatbbdf $(builddir)/iheatbbdf-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
 
 clean:
 	rm -rf .libs

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2005-03-19 00:10:40 $
+# $Revision: 1.9 $
+# $Date: 2005-06-16 18:17:45 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -38,6 +38,8 @@ MPI_LIB_DIR = @MPI_LIB_DIR@
 MPI_LIBS    = @MPI_LIBS@
 MPI_FLAGS   = @MPI_FLAGS@
 
+OBJ_EXT = @OBJ_EXT@
+
 COMPILER_PREFIX = @COMPILER_PREFIX@
 LINKER_PREFIX   = @LINKER_PREFIX@
 
@@ -51,10 +53,10 @@ all: $(EXEC_FILES)
 
 kinwebp: $(srcdir)/kinwebp.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/kinwebp.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/kinwebp $(builddir)/kinwebp.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/kinwebp $(builddir)/kinwebp.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 kinwebbbd: $(srcdir)/kinwebbbd.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/kinwebbbd.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/kinwebbbd $(builddir)/kinwebbbd.o $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) 
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/kinwebbbd $(builddir)/kinwebbbd.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
