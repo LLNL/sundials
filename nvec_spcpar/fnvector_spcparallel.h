@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-06-14 19:00:57 $
+ * $Revision: 1.2 $
+ * $Date: 2005-06-20 17:24:26 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -35,10 +35,10 @@ extern "C" {
 #if defined(F77_FUNC)
 
 #define FNV_INITSPCP    F77_FUNC(fnvinitspcp, FNVINITSPCP)
-#define FNV_INITSPCP_Q  F77_FUNC(fnvinitspcp_q, FNVINITSPCP_Q)
-#define FNV_INITSPCP_S  F77_FUNC(fnvinitspcp_s, FNVINITSPCP_S)
-#define FNV_INITSPCP_B  F77_FUNC(fnvinitspcp_b, FNVINITSPCP_B)
-#define FNV_INITSPCP_QB F77_FUNC(fnvinitspcp_qb, FNVINITSPCP_QB)
+#define FNV_INITSPCP_Q  F77_FUNC_(fnvinitspcp_q, FNVINITSPCP_Q)
+#define FNV_INITSPCP_S  F77_FUNC_(fnvinitspcp_s, FNVINITSPCP_S)
+#define FNV_INITSPCP_B  F77_FUNC_(fnvinitspcp_b, FNVINITSPCP_B)
+#define FNV_INITSPCP_QB F77_FUNC_(fnvinitspcp_qb, FNVINITSPCP_QB)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 

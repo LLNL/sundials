@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.23 $
-# $Date: 2005-06-16 18:08:30 $
+# $Revision: 1.24 $
+# $Date: 2005-06-20 17:24:14 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -111,7 +111,8 @@ else
 fi
 
 # Set defaults for config/sundials_config.in file
-F77_MANGLE_MACRO=""
+F77_MANGLE_MACRO1=""
+F77_MANGLE_MACRO2=""
 F77_CASE=""
 F77_UNDERSCORES=""
 PRECISION_LEVEL=""
@@ -984,24 +985,30 @@ if test "X${F77_WRAPPER_CHECK_OK}" = "Xyes"; then
   if test "X${F77_FUNC_CASE}" = "Xlowercase"; then
     if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[name],[])
-      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) name"
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name"
     elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[name ## _],[])
-      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) name ## _"
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## _"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## _"
     elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[name ## __],[])
-      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) name ## __"
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) name ## __"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) name ## __"
     fi
   elif test "X${F77_FUNC_CASE}" = "Xuppercase"; then
     if test "X${F77_FUNC_UNDERSCORES}" = "Xno underscores"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[NAME],[])
-      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) NAME"
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME"
     elif test "X${F77_FUNC_UNDERSCORES}" = "Xone underscore"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## _],[])
-      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) NAME ## _"
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## _"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## _"
     elif test "X${F77_FUNC_UNDERSCORES}" = "Xtwo underscores"; then
       AC_DEFINE(F77[_FUNC(name,NAME)],[NAME ## __],[])
-      F77_MANGLE_MACRO="#define F77_FUNC(name,NAME) NAME ## __"
+      F77_MANGLE_MACRO1="#define F77_FUNC(name,NAME) NAME ## __"
+      F77_MANGLE_MACRO2="#define F77_FUNC_(name,NAME) NAME ## __"
     fi
   fi
 # If test failed, then tell user to use '--with-f77case' and '--with-f77underscore'

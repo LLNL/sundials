@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-04-26 23:42:05 $
+ * $Revision: 1.15 $
+ * $Date: 2005-06-20 17:24:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -35,10 +35,10 @@ extern "C" {
 #if defined(F77_FUNC)
 
 #define FNV_INITP    F77_FUNC(fnvinitp, FNVINITP)
-#define FNV_INITP_Q  F77_FUNC(fnvinitp_q, FNVINITP_Q)
-#define FNV_INITP_S  F77_FUNC(fnvinitp_s, FNVINITP_S)
-#define FNV_INITP_B  F77_FUNC(fnvinitp_b, FNVINITP_B)
-#define FNV_INITP_QB F77_FUNC(fnvinitp_qb, FNVINITP_QB)
+#define FNV_INITP_Q  F77_FUNC_(fnvinitp_q, FNVINITP_Q)
+#define FNV_INITP_S  F77_FUNC_(fnvinitp_s, FNVINITP_S)
+#define FNV_INITP_B  F77_FUNC_(fnvinitp_b, FNVINITP_B)
+#define FNV_INITP_QB F77_FUNC_(fnvinitp_qb, FNVINITP_QB)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 

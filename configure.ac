@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.22 $
-# $Date: 2005-06-16 18:17:06 $
+# $Revision: 1.23 $
+# $Date: 2005-06-20 17:24:15 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -75,7 +75,8 @@ AC_SUBST(FCMIX_ENABLED)
 AC_SUBST(FLOAT_TYPE)
 AC_SUBST(LIBTOOL_CMD)
 AC_SUBST(LIBTOOL_DEPS)
-AC_SUBST(F77_MANGLE_MACRO)
+AC_SUBST(F77_MANGLE_MACRO1)
+AC_SUBST(F77_MANGLE_MACRO2)
 AC_SUBST(F77_CASE)
 AC_SUBST(F77_UNDERSCORES)
 AC_SUBST(PRECISION_LEVEL)

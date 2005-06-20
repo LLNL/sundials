@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-04-26 23:42:02 $
+ * $Revision: 1.4 $
+ * $Date: 2005-06-20 17:24:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,7 +18,8 @@
 #define SUNDIALS_PACKAGE_VERSION "@PACKAGE_VERSION@"
 
 /* FCMIX: Define Fortran name-mangling macro */
-@F77_MANGLE_MACRO@
+@F77_MANGLE_MACRO1@
+@F77_MANGLE_MACRO2@
 
 /* FCMIX: Define case of function names */
 @F77_CASE@
