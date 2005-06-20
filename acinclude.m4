@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.24 $
-# $Date: 2005-06-20 17:24:14 $
+# $Revision: 1.25 $
+# $Date: 2005-06-20 17:36:36 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -1667,6 +1667,7 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
   # disable support for the MPI_Comm_f2c function if the variable
   # is empty
   if test "X${MPI_LIBS}" = "X"; then
+    AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
     F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"
   # MPI libraries were specified so update LIBS and continue test
   else
