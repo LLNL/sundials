@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2005-05-16 17:04:35 $
+ * $Revision: 1.8 $
+ * $Date: 2005-06-20 20:31:13 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -658,6 +658,8 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 #define tolsf       (IDA_mem->ida_tolsf) 
 #define efun        (IDA_mem->ida_efun)
 #define edata       (IDA_mem->ida_edata)
+#define nge         (IDA_mem->ida_nge)
+#define iroots      (IDA_mem->ida_iroots)
 
 /* 
  * =================================================================
@@ -965,6 +967,45 @@ int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, long int *nrevals,
   *hlast      = hused;
   *hcur       = hh;  
   *tcur       = tn;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetNumGEvals(void *ida_mem, long int *ngevals)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    fprintf(stderr, MSG_IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *ngevals = nge;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetRootInfo(void *ida_mem, int *rootsfound)
+{
+  IDAMem IDA_mem;
+  int i, nrt;
+
+  if (ida_mem==NULL) {
+    fprintf(stderr, MSG_IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  nrt = IDA_mem->ida_nrtfn;
+
+  for (i=0; i<nrt; i++) rootsfound[i] = iroots[i];
 
   return(IDA_SUCCESS);
 }
