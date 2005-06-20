@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.45 $
- * $Date: 2005-05-16 17:04:35 $
+ * $Revision: 1.46 $
+ * $Date: 2005-06-20 20:27:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -34,6 +34,7 @@
 #define ONE        RCONST(1.0)    /* real 1.0    */
 #define ONEPT5     RCONST(1.5)    /* real 1.5    */
 #define TWO        RCONST(2.0)    /* real 2.0    */
+#define FIVE       RCONST(5.0)    /* real 5.0    */
 #define TEN        RCONST(10.0)   /* real 10.0   */
 #define TWELVE     RCONST(12.0)   /* real 12.0   */
 #define TWENTY     RCONST(20.0)   /* real 20.0   */
@@ -95,6 +96,13 @@
 
 #define ERROR_TEST_FAIL +7
 
+/* IDARcheck* return values */
+
+#define INITROOT -1
+#define CLOSERT  -2
+#define RTFOUND   1
+
+
 /* Macro: loop */
 
 #define loop for(;;)
@@ -134,6 +142,11 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
                           int *ncfPtr, int *nefPtr, realtype *est);
 static int IDACompleteStep(IDAMem IDA_mem, realtype *est, 
                            realtype *terk, realtype *terkm1, realtype *erkm1);
+
+static int IDARcheck1(IDAMem IDA_mem);
+static int IDARcheck2(IDAMem IDA_mem);
+static int IDARcheck3(IDAMem IDA_mem);
+static int IDARootfind(IDAMem IDA_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -357,6 +370,18 @@ int IDAMalloc(void *ida_mem, IDAResFn res,
   IDA_mem->ida_hused = ZERO;
   IDA_mem->ida_tolsf = ONE;
 
+  IDA_mem->ida_nge     = 0;
+
+  /* Initialize root-finding variables */
+
+  IDA_mem->ida_glo    = NULL;
+  IDA_mem->ida_ghi    = NULL;
+  IDA_mem->ida_grout  = NULL;
+  IDA_mem->ida_iroots = NULL;
+  IDA_mem->ida_gfun   = NULL;
+  IDA_mem->ida_g_data = NULL;
+  IDA_mem->ida_nrtfn  = 0;
+
   /* Initial setup not done yet */
   IDA_mem->ida_SetupDone = FALSE;
 
@@ -496,10 +521,141 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_hused = ZERO;
   IDA_mem->ida_tolsf = ONE;
 
+  IDA_mem->ida_nge     = 0;
+
   /* Initial setup not done yet */
   IDA_mem->ida_SetupDone = FALSE;
       
   /* Problem has been successfully re-initialized */
+
+  return(IDA_SUCCESS);
+}
+
+#define gfun   (IDA_mem->ida_gfun)
+#define g_data (IDA_mem->ida_g_data) 
+#define glo    (IDA_mem->ida_glo)
+#define ghi    (IDA_mem->ida_ghi)
+#define grout  (IDA_mem->ida_grout)
+#define iroots (IDA_mem->ida_iroots)
+
+/*------------------     IDARootInit     --------------------------*/
+/*
+  IDARootInit initializes a rootfinding problem to be solved
+  during the integration of the DAE system.  It loads the root
+  function pointer and the number of root functions, and allocates
+  workspace memory.  The return value is IDA_SUCCESS = 0 if no
+  errors occurred, or a negative value otherwise.
+*/
+/*-----------------------------------------------------------------*/
+
+int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
+{
+  IDAMem IDA_mem;
+  int nrt;
+
+  /* Check ida_mem pointer */
+  if (ida_mem == NULL) {
+    fprintf(stderr, MSG_ROOT_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  nrt = (nrtfn < 0) ? 0 : nrtfn;
+
+  /* If rerunning IDARootInit() with a different number of root
+     functions (changing number of gfun components), then free
+     currently held memory resources */
+  if ((nrt != IDA_mem->ida_nrtfn) && (IDA_mem->ida_nrtfn > 0)) {
+    free(glo);
+    free(ghi);
+    free(grout);
+    free(iroots);
+
+    lrw -= 3* (IDA_mem->ida_nrtfn);
+    liw -= IDA_mem->ida_nrtfn;
+
+    /* Linux version of free() routine doesn't set pointer to NULL */
+    glo = ghi = grout = NULL;
+    iroots = NULL;
+  }
+
+  /* If IDARootInit() was called with nrtfn == 0, then set ida_nrtfn to
+     zero and ida_gfun to NULL before returning */
+  if (nrt == 0) {
+    IDA_mem->ida_nrtfn = nrt;
+    gfun = NULL;
+    g_data = NULL;
+    return(IDA_SUCCESS);
+  }
+
+  /* Store user's data pointer */
+  g_data = gdata;
+
+  /* If rerunning IDARootInit() with the same number of root functions
+     (not changing number of gfun components), then check if the root
+     function argument has changed */
+  /* If g != NULL then return as currently reserved memory resources
+     will suffice */
+  if (nrt == IDA_mem->ida_nrtfn) {
+    if (g != gfun) {
+      if (g == NULL) {
+	free(glo);
+	free(ghi);
+	free(grout);
+	free(iroots);
+
+        lrw -= 3*nrt;
+        liw -= nrt;
+
+	fprintf(errfp, MSG_ROOT_FUNC_NULL);
+	return(IDA_RTFUNC_NULL);
+      }
+      else {
+	gfun = g;
+	return(IDA_SUCCESS);
+      }
+    }
+    else return(IDA_SUCCESS);
+  }
+
+  /* Set variable values in IDA memory block */
+  IDA_mem->ida_nrtfn = nrt;
+  if (g == NULL) {
+    fprintf(errfp, MSG_ROOT_FUNC_NULL);
+    return(IDA_RTFUNC_NULL);
+  }
+  else gfun = g;
+
+  /* Allocate necessary memory and return */
+  glo = (realtype *) malloc(nrt*sizeof(realtype));
+  if (glo == NULL) {
+    fprintf(stderr, MSG_ROOT_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
+
+  ghi = (realtype *) malloc(nrt*sizeof(realtype));
+  if (ghi == NULL) {
+    free(glo);
+    fprintf(stderr, MSG_ROOT_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
+
+  grout = (realtype *) malloc(nrt*sizeof(realtype));
+  if (grout == NULL) {
+    free(glo); free(ghi);
+    fprintf(stderr, MSG_ROOT_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
+
+  iroots = (int *) malloc(nrt*sizeof(int));
+  if (iroots == NULL) {
+    free(glo); free(ghi); free(grout);
+    fprintf(stderr, MSG_ROOT_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
+
+  lrw += 3*nrt;
+  liw += nrt;
 
   return(IDA_SUCCESS);
 }
@@ -558,7 +714,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 #define hh          (IDA_mem->ida_hh)
 #define h0u         (IDA_mem->ida_h0u)
 #define tn          (IDA_mem->ida_tn)
-#define tretp       (IDA_mem->ida_tretp)
+#define tretlast    (IDA_mem->ida_tretlast)
 #define cj          (IDA_mem->ida_cj)
 #define cjold       (IDA_mem->ida_cjold)
 #define cjratio     (IDA_mem->ida_cjratio)
@@ -593,6 +749,15 @@ int IDAReInit(void *ida_mem, IDAResFn res,
 #define gamma       (IDA_mem->ida_gamma)
 #define setupNonNull (IDA_mem->ida_setupNonNull) 
 #define constraintsSet (IDA_mem->ida_constraintsSet)
+#define nrtfn        (IDA_mem->ida_nrtfn)
+#define tlo          (IDA_mem->ida_tlo)
+#define thi          (IDA_mem->ida_thi)
+#define toutc        (IDA_mem->ida_toutc)
+#define trout        (IDA_mem->ida_trout)
+#define ttol         (IDA_mem->ida_ttol)
+#define taskc        (IDA_mem->ida_taskc)
+#define irfnd        (IDA_mem->ida_irfnd)
+#define nge          (IDA_mem->ida_nge)
 
 /*
  * -----------------------------------------------------------------
@@ -641,7 +806,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
   long int nstloc;
-  int sflag, istate, ier;
+  int sflag, istate, ier, task, irfndp;
   realtype tdist, troundoff, ypnorm, rh, nrm;
   booleantype istop;
   int ewtsetOK;
@@ -680,13 +845,13 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     if(errfp!=NULL) fprintf(errfp, MSG_TRET_NULL);
     return(IDA_ILL_INPUT);
   }
-  *tret = tretp = tn; /* Set tret now in case of illegal-input return. */
 
   if ((itask < IDA_NORMAL) || (itask > IDA_ONE_STEP_TSTOP)) {
     if(errfp!=NULL) fprintf(errfp, MSG_BAD_ITASK);
     return(IDA_ILL_INPUT);
   }
   
+  /* Split itask into task and istop */
   if ( (itask == IDA_NORMAL_TSTOP) || (itask == IDA_ONE_STEP_TSTOP) ) {
     if ( tstopset == FALSE ) {
       if(errfp!=NULL) fprintf(errfp, MSG_NO_TSTOP);
@@ -694,13 +859,19 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     }
     istop = TRUE;
   } else {
-      istop = FALSE;
+    istop = FALSE;
   }
+  if ( (itask == IDA_NORMAL) || (itask == IDA_NORMAL_TSTOP) ) {
+    task = IDA_NORMAL; toutc = tout;
+  } else {
+    task = IDA_ONE_STEP;
+  }
+  taskc = task;
 
 
-  if (nst == 0) {       /* THIS IS THE FIRST CALL */
+  if (nst == 0) {       /* This is the first call */
 
-    /* Check inputs to the IDA for correctness and consistency */
+    /* Check inputs to IDA for correctness and consistency */
 
     if (IDA_mem->ida_SetupDone == FALSE) {
       ier = IDAInitialSetup(IDA_mem);
@@ -708,9 +879,9 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       IDA_mem->ida_SetupDone = TRUE;
     }
 
-    /* On the first call, check for tout - tn too small,
-       set initial hh,
-       check for approach to tstop, and scale phi[1] by hh. */
+    /* On first call, check for tout - tn too small, set initial hh,
+       check for approach to tstop, and scale phi[1] by hh.
+       Also check for zeros of root function g at and near t0.    */
 
     tdist = ABS(tout - tn);
     troundoff = TWO*uround*(ABS(tn) + ABS(tout));    
@@ -744,12 +915,20 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     }
 
     h0u = hh;
-
-    N_VScale(hh, phi[1], phi[1]);
     kk = 0; kused = 0;  /* set in case of an error return before a step */
 
-    /* Set the convergence test constants epsNewt and toldel */
+    /* Check for exact zeros of the root functions at or near t0. */
+    if (nrtfn > 0) {
+      ier = IDARcheck1(IDA_mem);
+      if (ier != IDA_SUCCESS) {
+        if(errfp!=NULL) fprintf(errfp, MSG_BAD_INIT_ROOT);
+        return(IDA_ILL_INPUT);
+      }
+    }
 
+    N_VScale(hh, phi[1], phi[1]);  /* set phi[1] = hh*y' */
+
+    /* Set the convergence test constants epsNewt and toldel */
     epsNewt = epcon;
     toldel = PT0001 * epsNewt;
 
@@ -760,9 +939,52 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   if (lperf != NULL) lperf(IDA_mem, 0);
   nstloc = 0;
 
-  /* If not the first call, check for stop conditions. */
+  /* If not the first call, perform all stopping tests. */
 
   if (nst > 0) {
+
+    /* First, check for a root in the last step taken, other than the
+       last root found, if any.  If task = IDA_ONE_STEP and y(tn) was not
+       returned because of an intervening root, return y(tn) now.     */
+
+    if (nrtfn > 0) {
+
+      irfndp = irfnd;
+      
+      ier = IDARcheck2(IDA_mem);
+
+      if (ier == CLOSERT) {
+        if(errfp!=NULL) fprintf(errfp, MSG_CLOSE_ROOTS, tlo);
+        return(IDA_ILL_INPUT);
+      }
+
+      if (ier == RTFOUND) {
+        tretlast = *tret = tlo;
+        return(IDA_ROOT_RETURN);
+      }
+
+      if (tn != tretlast) {       /* Check remaining interval for roots */
+        ier = IDARcheck3(IDA_mem);
+        if (ier == IDA_SUCCESS) {     /* no root found */
+          irfnd = 0;
+          if ((irfndp == 1) && (task == IDA_ONE_STEP)) {
+            tretlast = *tret = tn;
+            ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
+            return(IDA_SUCCESS);
+          }
+        }
+        if (ier == RTFOUND) {  /* a new root was found */
+          irfnd = 1;
+          tretlast = *tret = tlo;
+          return(IDA_ROOT_RETURN);
+        }
+      }
+
+    } /* end of root stop check */
+
+
+  /* Now test for all other stop conditions. */
+
     istate = IDAStopTest1(IDA_mem, tout, tret, yret, ypret, itask);
     if (istate != CONTINUE_STEPS) return(istate);
   }
@@ -776,7 +998,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     if (nstloc >= mxstep) {
       if(errfp!=NULL) fprintf(errfp, MSG_MAX_STEPS, tn);
       istate = IDA_TOO_MUCH_WORK;
-      *tret = tretp = tn;
+      *tret = tretlast = tn;
       break; /* Here yy=yret and yp=ypret already have the current solution. */
     }
 
@@ -795,7 +1017,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 	}
         istate = IDA_ILL_INPUT;
         ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
-        *tret = tretp = tn;
+        *tret = tretlast = tn;
         break;
       }
     }
@@ -808,7 +1030,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       tolsf *= TEN;
       if(errfp!=NULL) fprintf(errfp, MSG_TOO_MUCH_ACC, tn);
       istate = IDA_TOO_MUCH_ACC;
-      *tret = tretp = tn;
+      *tret = tretlast = tn;
       if (nst > 0) ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
       break;
     }
@@ -821,7 +1043,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
    
     if (sflag != IDA_SUCCESS) {
       istate = IDAHandleFailure(IDA_mem, sflag);
-      *tret = tretp = tn;
+      *tret = tretlast = tn;
       ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
       break;
     }
@@ -829,6 +1051,22 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     nstloc++;
 
     /* After successful step, check for stop conditions; continue or break. */
+
+    /* First check for root in the last step taken. */
+
+    if (nrtfn > 0) {
+
+      ier = IDARcheck3(IDA_mem);
+
+      if (ier == RTFOUND) {  /* A new root was found */
+        irfnd = 1;
+        istate = IDA_ROOT_RETURN;
+        tretlast = *tret = tlo;
+        break;
+      }
+    }
+
+    /* Now check all other stop conditions. */
 
     istate = IDAStopTest2(IDA_mem, tout, tret, yret, ypret, itask);
     if (istate != CONTINUE_STEPS) break;
@@ -871,7 +1109,8 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
   IDA_mem = (IDAMem) ida_mem; 
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
  
-  tfuzz = HUNDRED * uround * (tn + hh);
+  tfuzz = HUNDRED * uround * (ABS(tn) + ABS(hh));
+  if (hh < ZERO) tfuzz = - tfuzz;
   tp = tn - hused - tfuzz;
   if ( (t - tp)*hh < ZERO) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAG_BAD_T, t, tn-hused, tn);
@@ -1183,7 +1422,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  * This routine tests for stop conditions before taking a step.
  * The tests depend on the value of itask.
- * The variable tretp is the previously returned value of tret.
+ * The variable tretlast is the previously returned value of tret.
  *
  * The return values are:
  * CONTINUE_STEPS       if no stop conditions were found
@@ -1206,9 +1445,9 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
   switch (itask) {
     
   case IDA_NORMAL:  
-    /* Test for tout = tretp, and for tn past tout. */
-    if (tout == tretp) {
-      *tret = tretp = tout;
+    /* Test for tout = tretlast, and for tn past tout. */
+    if (tout == tretlast) {
+      *tret = tretlast = tout;
       return(IDA_SUCCESS);
     }
     if ( (tn - tout)*hh >= ZERO) {
@@ -1217,28 +1456,28 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
         if(errfp!=NULL) fprintf(errfp, MSG_BAD_TOUT, tout);
         return(IDA_ILL_INPUT);
       }
-      *tret = tretp = tout;
+      *tret = tretlast = tout;
       return(IDA_SUCCESS);
     }
     return(CONTINUE_STEPS);
     
   case IDA_ONE_STEP:
-    /* Test for tn past tretp. */
-    if ( (tn - tretp)*hh > ZERO) {
+    /* Test for tn past tretlast. */
+    if ( (tn - tretlast)*hh > ZERO) {
       ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
-      *tret = tretp = tn;
+      *tret = tretlast = tn;
       return(IDA_SUCCESS);
     }
     return(CONTINUE_STEPS);
     
   case IDA_NORMAL_TSTOP:
-    /* Test for tn past tstop, tn = tretp, tn past tout, tn near tstop. */
+    /* Test for tn past tstop, tn = tretlast, tn past tout, tn near tstop. */
     if ( (tn - tstop)*hh > ZERO) {
       if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
       return(IDA_ILL_INPUT);
     }
-    if (tout == tretp) {
-      *tret = tretp = tout;
+    if (tout == tretlast) {
+      *tret = tretlast = tout;
       return(IDA_SUCCESS);
     }
     if ( (tn - tout)*hh >= ZERO) {
@@ -1247,7 +1486,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
         if(errfp!=NULL) fprintf(errfp, MSG_BAD_TOUT, tout);
         return(IDA_ILL_INPUT);
       }
-      *tret = tretp = tout;
+      *tret = tretlast = tout;
       return(IDA_SUCCESS);
     }
     troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
@@ -1257,21 +1496,21 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
 	  if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
         return(IDA_ILL_INPUT);
       }
-      *tret = tretp = tstop;
+      *tret = tretlast = tstop;
       return(IDA_TSTOP_RETURN);
     }
     if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
     return(CONTINUE_STEPS);
     
   case IDA_ONE_STEP_TSTOP:
-    /* Test for tn past tstop, tn past tretp, and tn near tstop. */
+    /* Test for tn past tstop, tn past tretlast, and tn near tstop. */
     if ( (tn - tstop)*hh > ZERO) {
       if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
       return(IDA_ILL_INPUT);
     }
-    if ( (tn - tretp)*hh > ZERO) {
+    if ( (tn - tretlast)*hh > ZERO) {
       ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
-      *tret = tretp = tn;
+      *tret = tretlast = tn;
       return(IDA_SUCCESS);
     }
     troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
@@ -1281,7 +1520,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
         if(errfp!=NULL) fprintf(errfp, MSG_BAD_TSTOP, tn);
         return(IDA_ILL_INPUT);
       }
-      *tret = tretp = tstop;
+      *tret = tretlast = tstop;
       return(IDA_TSTOP_RETURN);
     }
     if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
@@ -1327,13 +1566,13 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
       /* Test for tn past tout. */
       if ( (tn - tout)*hh >= ZERO) {
         ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
-        *tret = tretp = tout;
+        *tret = tretlast = tout;
         return(IDA_SUCCESS);
       }
       return(CONTINUE_STEPS);
 
     case IDA_ONE_STEP:
-      *tret = tretp = tn;
+      *tret = tretlast = tn;
       return(IDA_SUCCESS);
 
     case IDA_NORMAL_TSTOP:
@@ -1341,12 +1580,12 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
       troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
       if ( ABS(tn - tstop) <= troundoff) {
         ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
-        *tret = tretp = tstop;
+        *tret = tretlast = tstop;
         return(IDA_TSTOP_RETURN);
       }
       if ( (tn - tout)*hh >= ZERO) {
         ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
-        *tret = tretp = tout;
+        *tret = tretlast = tout;
         return(IDA_SUCCESS);
       }
       if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
@@ -1357,11 +1596,11 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
       troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
       if ( ABS(tn - tstop) <= troundoff) {
         ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
-        *tret = tretp = tstop;
+        *tret = tretlast = tstop;
         return(IDA_TSTOP_RETURN);
       }
       if ( (tn + hh - tstop)*hh > ZERO) hh = tstop - tn;
-      *tret = tretp = tn;
+      *tret = tretlast = tn;
       return(IDA_SUCCESS);
 
   }
@@ -2140,9 +2379,8 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
 
 
 /*=================================================================*/
-/*      Internal EWT function                                      */
+/*      Internal EWT functions                                     */
 /*=================================================================*/
-
 
 /*  
  * -----------------------------------------------------------------
@@ -2226,3 +2464,369 @@ static int IDAEwtSetSV(N_Vector ycur, N_Vector weight, IDAMem IDA_mem)
   return(0);
 }
 
+/*=================================================================*/
+/*      Rootfinding routines                                       */
+/*=================================================================*/
+
+/*
+ * -----------------------------------------------------------------
+ * IDARcheck1
+ * -----------------------------------------------------------------
+ * This routine completes the initialization of rootfinding memory
+ * information, and checks whether g has a zero both at and very near
+ * the initial point of the IVP.
+ *
+ * This routine returns an int equal to:
+ *   INITROOT = -1 if a close pair of zeros was found, and
+ *   IDA_SUCCESS     =  0 otherwise.
+ * -----------------------------------------------------------------
+ */
+
+static int IDARcheck1(IDAMem IDA_mem)
+{
+  int i;
+  realtype smallh, hratio;
+  booleantype zroot;
+
+  for (i = 0; i < nrtfn; i++) iroots[i] = 0;
+  tlo = tn;
+  ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
+
+  /* Evaluate g at initial t and check for zero values. */
+  gfun (tlo, phi[0], phi[1], glo, g_data);
+  nge = 1;
+  zroot = FALSE;
+  for (i = 0; i < nrtfn; i++) {
+    if (ABS(glo[i]) == ZERO) zroot = TRUE;
+  }
+  if (!zroot) return(IDA_SUCCESS);
+
+  /* Some g_i is zero at t0; look at g at t0+(small increment). */
+  hratio = MAX(ttol/ABS(hh), PT1);
+  smallh = hratio*hh;
+  tlo += smallh;
+  N_VLinearSum(ONE, phi[0], smallh, phi[1], yy);
+  gfun (tlo, yy, phi[1], glo, g_data);  nge++;
+  zroot = FALSE;
+  for (i = 0; i < nrtfn; i++) {
+    if (ABS(glo[i]) == ZERO) {
+      zroot = TRUE;
+      iroots[i] = 1;
+    }
+  }
+  if (zroot) return(INITROOT);
+  return(IDA_SUCCESS);
+
+}
+
+/*
+ * -----------------------------------------------------------------
+ * IDARcheck2
+ * -----------------------------------------------------------------
+ * This routine checks for exact zeros of g at the last root found,
+ * if the last return was a root.  It then checks for a close
+ * pair of zeros (an error condition), and for a new root at a
+ * nearby point.  The left endpoint (tlo) of the search interval
+ * is adjusted if necessary to assure that all g_i are nonzero
+ * there, before returning to do a root search in the interval.
+ *
+ * On entry, tlo = tretlast is the last value of tret returned by
+ * IDASolve.  This may be the previous tn, the previous tout value,
+ * or the last root location.
+ *
+ * This routine returns an int equal to:
+ *     CLOSERT = -2 if a close pair of zeros was found,
+ *     RTFOUND =  1 if a new zero of g was found near tlo, or
+ *     IDA_SUCCESS    =  0 otherwise.
+ * -----------------------------------------------------------------
+ */
+
+static int IDARcheck2(IDAMem IDA_mem)
+{
+  int i;
+  realtype smallh, hratio;
+  booleantype zroot;
+
+  if (irfnd == 0) return(IDA_SUCCESS);
+
+  (void) IDAGetSolution(IDA_mem, tlo, yy, yp);
+  gfun (tlo, yy, yp, glo, g_data);  nge++;
+  zroot = FALSE;
+  for (i = 0; i < nrtfn; i++) iroots[i] = 0;
+  for (i = 0; i < nrtfn; i++) {
+    if (ABS(glo[i]) == ZERO) {
+      zroot = TRUE;
+      iroots[i] = 1;
+    }
+  }
+  if (!zroot) return(IDA_SUCCESS);
+
+  /* One or more g_i has a zero at tlo.  Check g at tlo+smallh. */
+  ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
+  smallh = (hh > ZERO) ? ttol : -ttol;
+  tlo += smallh;
+  if ( (tlo - tn)*hh >= ZERO) {
+    hratio = smallh/hh;
+    N_VLinearSum(ONE, yy, hratio, phi[1], yy);
+  } else {
+    (void) IDAGetSolution(IDA_mem, tlo, yy, yp);
+  }
+  gfun (tlo, yy, yp, glo, g_data);  nge++;
+  zroot = FALSE;
+  for (i = 0; i < nrtfn; i++) {
+    if (ABS(glo[i]) == ZERO) {
+      if (iroots[i] == 1) return(CLOSERT);
+      zroot = TRUE;
+      iroots[i] = 1;
+    }
+  }
+  if (zroot) return(RTFOUND);
+  return(IDA_SUCCESS);
+
+}
+
+/*
+ * -----------------------------------------------------------------
+ * IDARcheck3
+ * -----------------------------------------------------------------
+ * This routine interfaces to IDARootfind to look for a root of g
+ * between tlo and either tn or tout, whichever comes first.
+ * Only roots beyond tlo in the direction of integration are sought.
+ *
+ * This routine returns an int equal to:
+ *     RTFOUND =  1 if a root of g was found, or
+ *     IDA_SUCCESS    =  0 otherwise.
+ * -----------------------------------------------------------------
+ */
+
+static int IDARcheck3(IDAMem IDA_mem)
+{
+  int i, ier;
+
+  /* Set thi = tn or tout, whichever comes first. */
+  if (taskc == IDA_ONE_STEP) thi = tn;
+  if (taskc == IDA_NORMAL) {
+    thi = ( (toutc - tn)*hh >= ZERO) ? tn : toutc;
+  }
+
+  /* Get y and y' at thi. */
+  (void) IDAGetSolution(IDA_mem, thi, yy, yp);
+
+
+  /* Set ghi = g(thi) and call IDARootfind to search (tlo,thi) for roots. */
+  gfun (thi, yy, yp, ghi, g_data);  nge++;
+  ttol = (ABS(tn) + ABS(hh))*uround*HUNDRED;
+  ier = IDARootfind(IDA_mem);
+  tlo = trout;
+  for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
+
+  /* If no root found, return IDA_SUCCESS. */  
+  if (ier == IDA_SUCCESS) return(IDA_SUCCESS);
+
+  /* If a root was found, interpolate to get y(trout) and return.  */
+  (void) IDAGetSolution(IDA_mem, trout, yy, yp);
+  return(RTFOUND);
+
+}
+
+/*
+ * -----------------------------------------------------------------
+ * IDARootfind
+ * -----------------------------------------------------------------
+ * This routine solves for a root of g(t) between tlo and thi, if
+ * one exists.  Only roots of odd multiplicity (i.e. with a change
+ * of sign in one of the g_i), or exact zeros, are found.
+ * Here the sign of tlo - thi is arbitrary, but if multiple roots
+ * are found, the one closest to tlo is returned.
+ *
+ *  The method used is the Illinois algorithm, a modified secant method.
+ * Reference: Kathie L. Hiebert and Lawrence F. Shampine, Implicitly
+ * Defined Output Points for Solutions of ODEs, Sandia National
+ * Laboratory Report SAND80-0180, February 1980.
+ *
+ * This routine uses the following parameters for communication:
+ *
+ * nrtfn    = number of functions g_i, or number of components of
+ *            the vector-valued function g(t).  Input only.
+ *
+ * gfun     = user-defined function for g(t).  Its form is
+ *           (void) gfun(t, y, yp, gt, g_data)
+ *
+ * nge      = cumulative counter for gfun calls.
+ *
+ * ttol     = a convergence tolerance for trout.  Input only.
+ *            When a root at trout is found, it is located only to
+ *            within a tolerance of ttol.  Typically, ttol should
+ *            be set to a value on the order of
+ *              100 * UROUND * max (ABS(tlo), ABS(thi))
+ *            where UROUND is the unit roundoff of the machine.
+ *
+ * tlo, thi = endpoints of the interval in which roots are sought.
+ *            On input, and must be distinct, but tlo - thi may
+ *            be of either sign.  The direction of integration is
+ *            assumed to be from tlo to thi.  On return, tlo and thi
+ *            are the endpoints of the final relevant interval.
+ *
+ * glo, ghi = arrays of length nrtfn containing the vectors g(tlo)
+ *            and g(thi) respectively.  Input and output.  On input,
+ *            none of the glo[i] should be zero.
+ *
+ * trout    = root location, if a root was found, or thi if not.
+ *            Output only.  If a root was found other than an exact
+ *            zero of g, trout is the endpoint thi of the final
+ *            interval bracketing the root, with size at most ttol.
+ *
+ * grout    = array of length nrtfn containing g(trout) on return.
+ *
+ * iroots   = int array of length nrtfn with root information.
+ *            Output only.  If a root was found, iroots indicates
+ *            which components g_i have a root at trout.  For
+ *            i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
+ *            and iroots[i] = 0 otherwise.
+ *
+ * This routine returns an int equal to:
+ *      RTFOUND = 1 if a root of g was found, or
+ *      IDA_SUCCESS = 0 otherwise.
+ *
+ * -----------------------------------------------------------------
+ */
+
+static int IDARootfind(IDAMem IDA_mem)
+{
+  realtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
+  int i, imax, side, sideprev;
+  booleantype zroot, sgnchg;
+
+  imax = 0;
+
+  /* First check for change in sign in ghi or for a zero in ghi. */
+  maxfrac = ZERO;
+  zroot = FALSE;
+  sgnchg = FALSE;
+  for (i = 0;  i < nrtfn; i++) {
+    if (ABS(ghi[i]) == ZERO) {
+      zroot = TRUE;
+    } else {
+      if (glo[i]*ghi[i] < ZERO) {
+        gfrac = ABS(ghi[i]/(ghi[i] - glo[i]));
+        if (gfrac > maxfrac) {
+          sgnchg = TRUE;
+          maxfrac = gfrac;
+          imax = i;
+        }
+      }
+    }
+  }
+
+  /* If no sign change was found, reset trout and grout.  Then return
+     IDA_SUCCESS if no zero was found, or set iroots and return RTFOUND.  */ 
+  if (!sgnchg) {
+    trout = thi;
+    for (i = 0; i < nrtfn; i++) grout[i] = ghi[i];
+    if (!zroot) return(IDA_SUCCESS);
+    for (i = 0; i < nrtfn; i++) {
+      iroots[i] = 0;
+      if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
+    }
+    return(RTFOUND);
+  }
+
+  /* Initialize alph to avoid compiler warning */
+  alph = ONE;
+
+  /* A sign change was found.  Loop to locate nearest root. */
+
+  side = 0;  sideprev = -1;
+  loop {                                    /* Looping point */
+
+    /* Set weight alph.
+       On the first two passes, set alph = 1.  Thereafter, reset alph
+       according to the side (low vs high) of the subinterval in which
+       the sign change was found in the previous two passes.
+       If the sides were opposite, set alph = 1.
+       If the sides were the same, then double alph (if high side),
+       or halve alph (if low side).
+       The next guess tmid is the secant method value if alph = 1, but
+       is closer to tlo if alph < 1, and closer to thi if alph > 1.    */
+
+    if (sideprev == side) {
+      alph = (side == 2) ? alph*TWO : alph*HALF;
+    } else {
+      alph = ONE;
+    }
+
+    /* Set next root approximation tmid and get g(tmid).
+       If tmid is too close to tlo or thi, adjust it inward,
+       by a fractional distance that is between 0.1 and 0.5.  */
+    tmid = thi - (thi - tlo)*ghi[imax]/(ghi[imax] - alph*glo[imax]);
+    if (ABS(tmid - tlo) < HALF*ttol) {
+      fracint = ABS(thi - tlo)/ttol;
+      fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
+      tmid = tlo + fracsub*(thi - tlo);
+    }
+    if (ABS(thi - tmid) < HALF*ttol) {
+      fracint = ABS(thi - tlo)/ttol;
+      fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
+      tmid = thi - fracsub*(thi - tlo);
+    }
+
+    (void) IDAGetSolution(IDA_mem, tmid, yy, yp);
+    gfun (tmid, yy, yp, grout, g_data);  nge++;
+
+    /* Check to see in which subinterval g changes sign, and reset imax.
+       Set side = 1 if sign change is on low side, or 2 if on high side.  */  
+    maxfrac = ZERO;
+    zroot = FALSE;
+    sgnchg = FALSE;
+    sideprev = side;
+    for (i = 0;  i < nrtfn; i++) {
+      if (ABS(grout[i]) == ZERO) {
+        zroot = TRUE;
+      } else {
+        if (glo[i]*grout[i] < ZERO) {
+          gfrac = ABS(grout[i]/(grout[i] - glo[i]));
+          if (gfrac > maxfrac) {
+            sgnchg = TRUE;
+            maxfrac = gfrac;
+            imax = i;
+          }
+        }
+      }
+    }
+    if (sgnchg) {
+      /* Sign change found in (tlo,tmid); replace thi with tmid. */
+      thi = tmid;
+      for (i = 0; i < nrtfn; i++) ghi[i] = grout[i];
+      side = 1;
+      /* Stop at root thi if converged; otherwise loop. */
+      if (ABS(thi - tlo) <= ttol) break;
+    continue;  /* Return to looping point. */
+    }
+
+    if (zroot) {
+      /* No sign change in (tlo,tmid), but g = 0 at tmid; return root tmid. */
+      thi = tmid;
+      for (i = 0; i < nrtfn; i++) ghi[i] = grout[i];
+      break;
+    }
+
+    /* No sign change in (tlo,tmid), and no zero at tmid.
+       Sign change must be in (tmid,thi).  Replace tlo with tmid. */
+    tlo = tmid;
+    for (i = 0; i < nrtfn; i++) glo[i] = grout[i];
+    side = 2;
+    /* Stop at root thi if converged; otherwise loop back. */
+    if (ABS(thi - tlo) <= ttol) break;
+
+  } /* End of root-search loop */
+
+  /* Reset trout and grout, set iroots, and return RTFOUND. */
+  trout = thi;
+  for (i = 0; i < nrtfn; i++) {
+    grout[i] = ghi[i];
+    iroots[i] = 0;
+    if (ABS(ghi[i]) == ZERO) iroots[i] = 1;
+    if (glo[i]*ghi[i] < ZERO) iroots[i] = 1;
+  }
+  return(RTFOUND);
+}
