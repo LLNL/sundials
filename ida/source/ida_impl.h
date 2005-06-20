@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-05-04 22:45:52 $
+ * $Revision: 1.14 $
+ * $Date: 2005-06-20 20:30:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -135,7 +135,7 @@ typedef struct IDAMemRec {
   realtype ida_hused;    /* step size used on last successful step            */
   realtype ida_rr;       /* rr = hnext / hused                                */
   realtype ida_tn;       /* current internal value of t                       */
-  realtype ida_tretp;    /* value of tret previously returned by IDASolve     */
+  realtype ida_tretlast; /* value of tret previously returned by IDASolve     */
   realtype ida_cj;       /* current value of scalar (-alphas/hh) in Jacobian  */
   realtype ida_cjlast;   /* cj value saved from last successful step          */
   realtype ida_cjold;    /* cj value saved from last call to lsetup           */
@@ -212,6 +212,25 @@ typedef struct IDAMemRec {
   /* Flag to indicate successful ida_linit call */
 
   booleantype ida_linitOK;
+
+  /* Rootfinding Data */
+
+  IDARootFn ida_gfun;    /* Function g for roots sought                     */
+  int ida_nrtfn;         /* number of components of g                       */
+  void *ida_g_data;      /* pointer to user data for g                      */
+  int *ida_iroots;       /* int array for root information                  */
+  realtype ida_tlo;      /* nearest endpoint of interval in root search     */
+  realtype ida_thi;      /* farthest endpoint of interval in root search    */
+  realtype ida_trout;    /* t return value from rootfinder routine          */
+  realtype *ida_glo;     /* saved array of g values at t = tlo              */
+  realtype *ida_ghi;     /* saved array of g values at t = thi              */
+  realtype *ida_grout;   /* array of g values at t = trout                  */
+  realtype ida_toutc;    /* copy of tout (if NORMAL mode)                   */
+  realtype ida_ttol;     /* tolerance on root location                      */
+  int ida_taskc;         /* copy of parameter task                          */
+  int ida_irfnd;         /* flag showing whether last step had a root       */
+  long int ida_nge;      /* counter for g evaluations                       */
+
 
 } *IDAMem;
 
@@ -292,6 +311,16 @@ typedef struct IDAMemRec {
 
 #define MSG_LINIT_FAIL      _IDAIS_ "the linear solver's init routine failed.\n\n"
 
+/* IDARootInit Error Messages */
+
+#define _IDART_ "IDARootInit-- "
+
+#define MSG_ROOT_NO_MEM _IDART_ "ida_mem = NULL illegal.\n\n"
+
+#define MSG_ROOT_MEM_FAIL _IDART_ "A memory request failed.\n\n"
+
+#define MSG_ROOT_FUNC_NULL _IDART_ "g = NULL illegal.\n\n"
+
 /* IDASolve error messages */
 
 #define _IDASLV_             "IDASolve-- "
@@ -330,6 +359,8 @@ typedef struct IDAMemRec {
 
 #define MSG_TOO_CLOSE      _IDASLV_ "tout too close to t0 to start integration.\n\n"
 
+#define MSG_BAD_INIT_ROOT  _IDASLV_ "Root found at and very near initial t.\n\n"
+
 #define MSG_YRET_NULL      _IDASLV_ "yret = NULL illegal.\n\n"
 #define MSG_YPRET_NULL     _IDASLV_ "ypret = NULL illegal.\n\n"
 #define MSG_TRET_NULL      _IDASLV_ "tret = NULL illegal.\n\n"
@@ -337,6 +368,8 @@ typedef struct IDAMemRec {
 #define MSG_BAD_ITASK      _IDASLV_ "itask has an illegal value.\n\n"
 
 #define MSG_NO_TSTOP       _IDASLV_ "tstop not set for this itask. \n\n"
+
+#define MSG_CLOSE_ROOTS    _IDASLV_ "Root found at and very near " MSG_TIME ".\n\n"
 
 #define MSG_REP_RES_ERR1   "repeated recoverable residual errors.\n\n"
 #define MSG_REP_RES_ERR    _IDASLV_ MSG_TIME MSG_REP_RES_ERR1
