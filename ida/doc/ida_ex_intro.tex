@@ -13,8 +13,9 @@ directory, the following four serial examples (using the {\nvecs} module):
 \begin{itemize}
 
 \item \id{irobx}
-  solves the Robertson chemical kinetics problem~\cite{Rob:66} which consists
-  of two differential equations and one algebraic constraint.
+  solves the Robertson chemical kinetics problem~\cite{Rob:66}, which consists
+  of two differential equations and one algebraic constraint.  It also uses
+  the rootfinding feature of {\ida}.
 
   The problem is solved with the {\idadense} linear solver using
   a user-supplied Jacobian.
