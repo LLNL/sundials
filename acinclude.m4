@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.25 $
-# $Date: 2005-06-20 17:36:36 $
+# $Revision: 1.26 $
+# $Date: 2005-06-20 20:35:19 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -1661,60 +1661,48 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
     fi
   fi
 
-  # Check if user specified which MPI libraries must be included
-  # If no libraries are given, then disable support for this feature
-  # Note: We already checked for MPI_LIBS, so we can go ahead and
-  # disable support for the MPI_Comm_f2c function if the variable
-  # is empty
+  # Check if user specified which MPI libraries linker should be use
   if test "X${MPI_LIBS}" = "X"; then
-    AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
-    F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"
-  # MPI libraries were specified so update LIBS and continue test
+    :
+  # MPI libraries were specified so update LIBS
   else
     if test "X${LIBS}" = "X"; then
       LIBS="${MPI_LIBS}"
     else
       LIBS="${LIBS} ${MPI_LIBS}"
     fi
-    # Set F77_MPI_COMM_F2C variable to NULL so we can conditionally
-    # execute the next test
-    F77_MPI_COMM_F2C=""
   fi
 
-  if test "X${F77_MPI_COMM_F2C}" = "X"; then
+  # Since AC_LINK_IFELSE uses CC, set CC = MPICC if using
+  # an MPI compiler script
+  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+    SAVED_CC="${CC}"
+    CC="${MPICC_COMP}"
+  fi
 
-    # Since AC_LINK_IFELSE uses CC, set CC = MPICC if using
-    # an MPI compiler script
-    if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
-      SAVED_CC="${CC}"
-      CC="${MPICC_COMP}"
-    fi
+  # Check if MPI implementation supports MPI_Comm_f2c() from
+  # MPI-2 specification
+  AC_MSG_CHECKING([for MPI_Comm_f2c from MPI-2])
+  AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM([[#include "mpi.h"]],
+  [[
+      int c;
+      char **v;
+      MPI_Comm C_comm;
+      MPI_Init(&c, &v);
+      C_comm = MPI_Comm_f2c((MPI_Fint) 1);
+      MPI_Finalize();
+  ]])],
+  [AC_MSG_RESULT(yes)
+   AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[1],[])
+   F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 1"],
+  [AC_MSG_RESULT(no)
+   AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
+   F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
 
-    # Check if MPI implementation supports MPI_Comm_f2c() from
-    # MPI-2 specification
-    AC_MSG_CHECKING([for MPI_Comm_f2c from MPI-2])
-    AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM([[#include "mpi.h"]],
-    [[
-        int c;
-        char **v;
-        MPI_Comm C_comm;
-        MPI_Init(&c, &v);
-        C_comm = MPI_Comm_f2c((MPI_Fint) 1);
-        MPI_Finalize();
-    ]])],
-    [AC_MSG_RESULT(yes)
-     AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[1],[])
-     F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 1"],
-    [AC_MSG_RESULT(no)
-     AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
-     F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
-
-    # Reset CC if necessary
-    if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
-      CC="${SAVED_CC}"
-    fi
-
+  # Reset CC if necessary
+  if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
+    CC="${SAVED_CC}"
   fi
 
 else
