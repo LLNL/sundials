@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.4 $
-# $Date: 2005-05-19 22:52:49 $
+# $Revision: 1.5 $
+# $Date: 2005-06-20 20:52:38 $
 ############################################################################
 #
 # Filename: sundials_test.sh
@@ -509,7 +509,11 @@ TEMP_SCRIPT_NAME=`echo "${LOCAL_MACHINE}" | cut -c1-5`
 SCRIPT_NAME="${TEMP_SCRIPT_NAME}.sh"
 touch "${SCRIPT_NAME}"
 # must use a login shell
-echo "#!/bin/bash --login" > "${SCRIPT_NAME}"
+if [ "${MACHINE_TYPE}" = "Linux" ]; then
+  echo "#!/bin/sh --login" > "${SCRIPT_NAME}"
+else
+  echo "#!/bin/bash --login" > "${SCRIPT_NAME}"
+fi
 echo "" >> "${SCRIPT_NAME}"
 echo "touch script_running.info" >> "${SCRIPT_NAME}"
 echo "" >> "${SCRIPT_NAME}"
@@ -537,7 +541,11 @@ if [ "${USE_PSUB}" = "no" ]; then
 fi
 
 # make certain script has correct path to BASH shell interpreter
-./${IN_FIX_BASH} "${SCRIPT_NAME}" yes
+if [ "${MACHINE_TYPE}" = "Linux" ]; then
+  :
+else
+  ./${IN_FIX_BASH} "${SCRIPT_NAME}" yes
+fi
 
 # search all relevant directories for examples and generate script
 NUM_MODULES=`echo "${MODULE_LIST}" | wc -w`

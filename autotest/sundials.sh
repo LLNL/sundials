@@ -2,8 +2,8 @@
 
 
 ############################################################################
-# $Revision: 1.7 $
-# $Date: 2005-05-19 22:52:49 $
+# $Revision: 1.8 $
+# $Date: 2005-06-20 20:52:37 $
 ############################################################################
 #
 # Filename: sundials.sh
@@ -974,7 +974,7 @@ while [ $((${NUM_MACHINES})) -gt 0 ]; do
   # if local system then just change to appropriate directory and build software
   else
     cd "${LOCAL_DIR}/${LOCAL_MACHINE}" && \
-    ./"${FIX_BASH}" "${BUILD_SCRIPT}" yes && \
+    ./"${FIX_BASH}" "${BUILD_SCRIPT}" no && \
     ./"${BUILD_SCRIPT}" "${EXEC_NAME}" &> "${LOG_DIR}/${LOCAL_MACHINE}"-build.log
     echo -e "[DONE]\n"
   fi
