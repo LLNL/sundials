@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-04-07 23:28:57 $
+ * $Revision: 1.21 $
+ * $Date: 2005-06-20 20:37:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * This simple example problem for IDA/IDAS, due to Robertson, 
+ * This simple example problem for IDA, due to Robertson, 
  * is from chemical kinetics, and consists of the following three 
  * equations:
  *
@@ -17,7 +17,11 @@
  * on the interval from t = 0.0 to t = 4.e10, with initial
  * conditions: y1 = 1, y2 = y3 = 0.
  *
- * The problem is solved with IDA/IDAS using IDADENSE for the linear
+ * While integrating the system, we also use the rootfinding
+ * feature to find the points at which y1 = 1e-4 or at which
+ * y3 = 0.01.
+ *
+ * The problem is solved with IDA using IDADENSE for the linear
  * solver, with a user-supplied Jacobian. Output is printed at
  * t = .4, 4, 40, ..., 4e10.
  * -----------------------------------------------------------------
@@ -48,6 +52,9 @@
 int resrob(realtype tres, N_Vector yy, N_Vector yp, 
            N_Vector resval, void *rdata);
 
+static void grob(realtype t, N_Vector yy, N_Vector yp,
+                 realtype *gout, void *g_data);
+
 int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
            N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -55,12 +62,13 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 /* Prototypes of private functions */
 static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
+static void PrintRootInfo(int root_f1, int root_f2);
 static void PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
- * MAIN PROGRAM
+ * Main Program
  *--------------------------------------------------------------------
  */
 
@@ -69,15 +77,15 @@ int main(void)
   void *mem;
   N_Vector yy, yp, avtol;
   realtype rtol, *yval, *ypval, *atval;
-  realtype t0, t1, tout, tret;
-  int iout, retval;
+  realtype t0, tout1, tout, tret;
+  int iout, retval, retvalr;
+  int rootsfound[2];
 
   mem = NULL;
   yy = yp = avtol = NULL;
   yval = ypval = atval = NULL;
 
   /* Allocate N-vectors. */
-
   yy = N_VNew_Serial(NEQ);
   if(check_flag((void *)yy, "N_VNew_Serial", 0)) return(1);
   yp = N_VNew_Serial(NEQ);
@@ -86,7 +94,6 @@ int main(void)
   if(check_flag((void *)avtol, "N_VNew_Serial", 0)) return(1);
 
   /* Create and initialize  y, y', and absolute tolerance vectors. */
-
   yval  = NV_DATA_S(yy);
   yval[0] = ONE;
   yval[1] = ZERO;
@@ -100,19 +107,17 @@ int main(void)
   rtol = RCONST(1.0e-4);
 
   atval = NV_DATA_S(avtol);
-  atval[0] = RCONST(1.0e-6);
-  atval[1] = RCONST(1.0e-10);
+  atval[0] = RCONST(1.0e-8);
+  atval[1] = RCONST(1.0e-14);
   atval[2] = RCONST(1.0e-6);
 
   /* Integration limits */
-
   t0 = ZERO;
-  t1 = RCONST(0.4);
+  tout1 = RCONST(0.4);
 
   PrintHeader(rtol, avtol, yy);
 
   /* Call IDACreate and IDAMalloc to initialize IDA memory */
-
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
   retval = IDAMalloc(mem, resrob, t0, yy, yp, IDA_SV, rtol, avtol);
@@ -121,19 +126,40 @@ int main(void)
   /* Free avtol */
   N_VDestroy_Serial(avtol);
 
-  /* Call IDADense and set up the linear solver. */
+  /* Call IDARootInit to specify the root function grob with 2 components */
+  retval = IDARootInit(mem, 2, grob, NULL);
+  if (check_flag(&retval, "IDARootInit", 1)) return(1);
 
+  /* Call IDADense and set up the linear solver. */
   retval = IDADense(mem, NEQ);
   if(check_flag(&retval, "IDADense", 1)) return(1);
   retval = IDADenseSetJacFn(mem, jacrob, NULL);
   if(check_flag(&retval, "IDADenseSetJacFn", 1)) return(1);
 
-  /* Loop over tout values and call IDASolve. */
+  /* In loop, call IDASolve, print results, and test for error.
+     Break out of loop when NOUT preset output times have been reached. */
 
-  for (tout = t1, iout = 1; iout <= NOUT ; iout++, tout *= RCONST(10.0)) {
-    retval=IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
-    if(check_flag(&retval, "IDASolve", 1)) return(1);
+  iout = 0; tout = tout1;
+  while(1) {
+
+    retval = IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
+
     PrintOutput(mem,tret,yy);
+
+    if(check_flag(&retval, "IDASolve", 1)) return(1);
+
+    if (retval == IDA_ROOT_RETURN) {
+      retvalr = IDAGetRootInfo(mem, rootsfound);
+      check_flag(&retvalr, "IDAGetRootInfo", 1);
+      PrintRootInfo(rootsfound[0],rootsfound[1]);
+    }
+
+    if (retval == IDA_SUCCESS) {
+      iout++;
+      tout *= RCONST(10.0);
+    }
+
+    if (iout == NOUT) break;
   }
 
   PrintFinalStats(mem);
@@ -150,7 +176,7 @@ int main(void)
 
 /*
  *--------------------------------------------------------------------
- * FUNCTIONS CALLED BY IDA
+ * Functions called by IDA
  *--------------------------------------------------------------------
  */
 
@@ -172,7 +198,21 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
   rval[2]  =  yval[0] + yval[1] + yval[2] - ONE;
 
   return(0);
+}
 
+/*
+ * Root function routine. Compute functions g_i(t,y) for i = 0,1. 
+ */
+
+static void grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
+                 void *g_data)
+{
+  realtype *yval, y1, y3;
+
+  yval = NV_DATA_S(yy); 
+  y1 = yval[0]; y3 = yval[2];
+  gout[0] = y1 - RCONST(0.0001);
+  gout[1] = y3 - RCONST(0.01);
 }
 
 /*
@@ -183,7 +223,6 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
            N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-
   realtype *yval;
   
   yval = NV_DATA_S(yy);
@@ -199,12 +238,11 @@ int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
   IJth(JJ,3,3) = ONE;
 
   return(0);
-
 }
 
 /*
  *--------------------------------------------------------------------
- * PRIVATE FUNCTIONS
+ * Private functions
  *--------------------------------------------------------------------
  */
 
@@ -239,11 +277,10 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
          yval[0], yval[1], yval[2]);
 #endif
   printf("Constraints and id not used.\n\n");
-  printf("---------------------------------------------------------------------\n");
-  printf("  t           y1           y2           y3");
+  printf("-----------------------------------------------------------------------\n");
+  printf("  t             y1           y2           y3");
   printf("      | nst  k      h\n");
-  printf("---------------------------------------------------------------------\n");
-
+  printf("-----------------------------------------------------------------------\n");
 }
 
 /*
@@ -266,15 +303,21 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   retval = IDAGetLastStep(mem, &hused);
   check_flag(&retval, "IDAGetLastStep", 1);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("%8.2Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", 
+  printf("%10.4Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%8.2le %12.4le %12.4le %12.4le | %3ld  %1d %12.4le\n", 
+  printf("%10.4le %12.4le %12.4le %12.4le | %3ld  %1d %12.4le\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #else
-  printf("%8.2e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
+  printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #endif
+}
+
+static void PrintRootInfo(int root_f1, int root_f2)
+{
+  printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
+  return;
 }
 
 /*
@@ -284,7 +327,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
 static void PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, njeD, nre, nreD, netf, ncfn;
+  long int nst, nni, njeD, nre, nreD, netf, ncfn, nge;
 
   retval = IDAGetNumSteps(mem, &nst);
   check_flag(&retval, "IDAGetNumSteps", 1);
@@ -300,6 +343,8 @@ static void PrintFinalStats(void *mem)
   check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
   retval = IDADenseGetNumResEvals(mem, &nreD);
   check_flag(&retval, "IDADenseGetNumResEvals", 1);
+  retval = IDAGetNumGEvals(mem, &nge);
+  check_flag(&retval, "IDAGetNumGEvals", 1);
 
   printf("\nFinal Run Statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
@@ -308,7 +353,7 @@ static void PrintFinalStats(void *mem)
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
-
+  printf("Number of root fn. evaluations     = %ld\n", nge);
 }
 
 /*
