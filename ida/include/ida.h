@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2005-05-16 17:04:26 $
+ * $Revision: 1.34 $
+ * $Date: 2005-06-20 20:23:00 $
  * ----------------------------------------------------------------- 
  * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
  *              Radu Serban @ LLNL
@@ -63,11 +63,28 @@ extern "C" {
  * ----------------------------------------------------------------
  */
 
-typedef int (*IDAResFn)(realtype tt, 
-                        N_Vector yy, N_Vector yp, N_Vector rr, 
-                        void *res_data);
+typedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp,
+                        N_Vector rr, void *res_data);
 
+/*
+ * -----------------------------------------------------------------
+ * Type : IDARootFn
+ * -----------------------------------------------------------------
+ * A function g, which defines a set of functions g_i(t,y,y') whose
+ * roots are sought during the integration, must have type IDARootFn.
+ * The function g takes as input the independent variable value t,
+ * the dependent variable vector y, and its t-derivative yp (= y').
+ * It stores the nrtfn values g_i(t,y,y') in the realtype array gout.
+ * (Allocation of memory for gout is handled within IDA.)
+ * The g_data parameter is the same as that passed by the user
+ * to the IDARootInit routine.  This user-supplied pointer is
+ * passed to the user's g function every time it is called.
+ * A IDARootFn g does not have a return value.
+ * -----------------------------------------------------------------
+ */
 
+typedef void (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
+                          realtype *gout, void *g_data);
 
 /*
  * -----------------------------------------------------------------
@@ -443,6 +460,42 @@ int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff);
 int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
 
 /*
+ * -----------------------------------------------------------------
+ * Function : IDARootInit
+ * -----------------------------------------------------------------
+ * IDARootInit initializes a rootfinding problem to be solved
+ * during the integration of the DAE system.  It must be called
+ * after IDACreate, and before IDASolve.  The arguments are:
+ *
+ * ida_mem = pointer to IDA memory returned by IDACreate.
+ *
+ * nrtfn   = number of functions g_i, an int >= 0.
+ *
+ * g       = name of user-supplied function, of type IDARootFn,
+ *           defining the functions g_i whose roots are sought.
+ *
+ * g_data  = a pointer to user data that will be passed to the 
+ *           user's g function every time g is called.
+ *
+ * If a new problem is to be solved with a call to IDAReInit,
+ * where the new problem has no root functions but the prior one
+ * did, then call IDARootInit with nrtfn = 0.
+ *
+ * The return value of IDARootInit is IDA_SUCCESS = 0 if there were
+ * no errors; otherwise it is a negative int equal to:
+ *   IDA_MEM_NULL     indicating ida_mem was NULL, or
+ *   IDA_MEM_FAIL     indicating a memory allocation failed.
+ *                    (including an attempt to increase maxord).
+ *   IDA_RTFUNC_NULL  indicating nrtfn > 0 but g = NULL.
+ * In case of an error return, an error message is also printed.
+ * -----------------------------------------------------------------
+ */
+
+int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *g_data);
+
+
+
+/*
  * ----------------------------------------------------------------
  * Function : IDACalcIC                                           
  * ----------------------------------------------------------------
@@ -492,7 +545,7 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  * tout1  is the first value of t at which a soluton will be      
  *        requested (from IDASolve).  (This is needed here to     
  *        determine the direction of integration and rough scale  
- *        in the independent variable t.                          
+ *        in the independent variable t.)                          
  *                                                                
  *                                                                
  * IDACalcIC returns an int flag.  Its symbolic values and their  
@@ -554,29 +607,34 @@ int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0,
  * Function : IDASolve                                            
  * ----------------------------------------------------------------
  * IDASolve integrates the DAE over an interval in t, the         
- * independent variable. If itask is NORMAL, then the solver      
+ * independent variable. If itask is IDA_NORMAL, then the solver      
  * integrates from its current internal t value to a point at or  
  * beyond tout, then interpolates to t = tout and returns y(tret) 
  * in the user-allocated vector yret. In general, tret = tout.    
- * If itask is ONE_STEP, then the solver takes one internal step  
- * of the independent variable and returns in yret the value of y 
- * at the new internal independent variable value. In this case,  
- * tout is used only during the first call to IDASolve to         
+ * If itask is IDA_ONE_STEP, then the solver takes one internal
+ * step of the independent variable and returns in yret the value
+ * of y at the new internal independent variable value. In this
+ * case, tout is used only during the first call to IDASolve to         
  * determine the direction of integration and the rough scale of  
- * the problem. In either case, the independent variable value    
- * reached by the solver is placed in (*tret). The user is         
- * responsible for allocating the memory for this value.          
+ * the problem. If itask is IDA_NORMAL_TSTOP or IDA_ONE_STEP_TSTOP,
+ * then IDA returns the solution at tstop if that comes sooner than
+ * tout or the end of the next internal step, respectively.
+ * In any case, the independent variable value reached by the solver
+ * is placed in (*tret).  The user is responsible for allocating the
+ * memory for this value.          
  *                                                                
- * IDA_mem is the pointer (void) to IDA memory returned by        
- *         IDACreate.                                             
+ * ida_mem is the pointer (void) to IDA memory returned by        
+ *         IDACreate.
  *                                                                
  * tout    is the next independent variable value at which a      
  *         computed solution is desired.                          
  *                                                                
- * *tret   is the actual independent variable value corresponding 
- *         to the solution vector yret.                           
- *                                                                
- * yret    is the computed solution vector.  With no errors,      
+ * tret    is a pointer to a real location.  IDASolve sets (*tret)
+ *         to the actual t value reached, corresponding to the
+ *         solution vector yret.  In IDA_NORMAL mode, with no
+ *         errors and no roots found, (*tret) = tout.
+ *
+ * yret    is the computed solution vector.  With no errors,
  *         yret = y(tret).                                        
  *                                                                
  * ypret   is the derivative of the computed solution at t = tret.
@@ -584,17 +642,21 @@ int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0,
  * Note: yret and ypret may be the same N_Vectors as y0 and yp0   
  * in the call to IDAMalloc or IDAReInit.                         
  *                                                                
- * itask   is NORMAL, NORMAL_TSTOP, ONE_STEP, or ONE_STEP_TSTOP.  
- *         These modes are described above.                       
- *                                                                
- *                                                                
+ * itask   is IDA_NORMAL, IDA_NORMAL_TSTOP, IDA_ONE_STEP, or
+ *         IDA_ONE_STEP_TSTOP.   These modes are described above.
+ *
+ *
  * The return values for IDASolve are described below.            
  * (The numerical return values are defined above in this file.)  
  * All unsuccessful returns give a negative return value.         
  *                                                                
  * IDA_SUCCESS
- *   IDASolve succeeded.                       
- *                                                                
+ *   IDASolve succeeded and no roots were found.                       
+ *
+ * IDA_ROOT_RETURN:  IDASolve succeeded, and found one or more roots.
+ *   If nrtfn > 1, call IDAGetRootInfo to see which g_i were found
+ *   to have a root at (*tret).
+ *
  * IDA_TSTOP_RETURN: 
  *   IDASolve returns computed results for the independent variable 
  *   value tstop. That is, tstop was reached.                            
@@ -605,10 +667,12 @@ int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0,
  * IDA_ILL_INPUT: 
  *   One of the inputs to IDASolve is illegal. This includes the 
  *   situation when a component of the error weight vectors 
- *   becomes < 0 during internal stepping. The ILL_INPUT flag          
- *   will also be returned if the linear solver function IDA
+ *   becomes < 0 during internal stepping.  It also includes the
+ *   situation where a root of one of the root functions was found
+ *   both at t0 and very near t0.  The ILL_INPUT flag          
+ *   will also be returned if the linear solver function IDA---
  *   (called by the user after calling IDACreate) failed to set one 
- *   of the linear solver-related fields in IDA_mem or if the linear 
+ *   of the linear solver-related fields in ida_mem or if the linear 
  *   solver's init routine failed. In any case, the user should see 
  *   the printed error message for more details.                
  *                                                                
@@ -720,6 +784,12 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       The user must allocate space for ewt.                
  * IDAGetErrWeightsAtY returns the error weight vector corresponding 
  *       to y. The user must allocate space for ewt.                
+ * IDAGetNumGEvals returns the number of calls to the user's
+ *       g function (for rootfinding)
+ * IDAGetRootInfo returns the indices for which g_i was found to 
+ *       have a root. The user must allocate space for rootsfound.
+ *       For i = 0 ... nrtfn-1, rootsfound[i] = 1 if g_i has a root,
+ *       and rootsfound[i]= 0 if not.
  *                                                                
  * IDAGet* return values:
  *   IDA_SUCCESS   if succesful
@@ -743,6 +813,15 @@ int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
 int IDAGetErrWeights(void *ida_mem, N_Vector eweight);
 int IDAGetErrWeightsAtY(void *ida_mem, N_Vector y, N_Vector eweight);
+int IDAGetNumGEvals(void *ida_mem, long int *ngevals);
+int IDAGetRootInfo(void *ida_mem, int *rootsfound);
+
+/*
+ * ----------------------------------------------------------------
+ * As a convenience, the following function provides the          
+ * optional outputs in a group.                                   
+ * ----------------------------------------------------------------
+ */
 
 int IDAGetIntegratorStats(void *ida_mem, long int *nsteps, 
                           long int *nrevals, long int *nlinsetups, 
@@ -773,7 +852,7 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails);
 /*
  * ----------------------------------------------------------------
  * As a convenience, the following function provides the          
- * optional outputs in a group.                                   
+ * nonlinear solver optional outputs in a group.                                   
  * ----------------------------------------------------------------
  */
 
@@ -801,6 +880,7 @@ void IDAFree(void *ida_mem);
 
 #define IDA_SUCCESS          0
 #define IDA_TSTOP_RETURN     1
+#define IDA_ROOT_RETURN      2
 
 #define IDA_MEM_NULL        -1
 #define IDA_ILL_INPUT       -2
@@ -826,6 +906,9 @@ void IDAFree(void *ida_mem);
 #define IDA_NO_RECOVERY     -19
 
 #define IDA_PDATA_NULL      -20
+
+#define IDA_RTFUNC_NULL     -21
+
 
 /*
  * =================================================================
