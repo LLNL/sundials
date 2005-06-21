@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2005-06-20 20:27:49 $
+ * $Revision: 1.47 $
+ * $Date: 2005-06-21 23:58:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -199,6 +199,9 @@ void *IDACreate(void)
   IDA_mem->ida_constraints = NULL;
   IDA_mem->ida_constraintsSet = FALSE;
   IDA_mem->ida_tstopset    = FALSE;
+
+  /* set the saved value maxord_alloc */
+  IDA_mem->ida_maxord_alloc = MAXORD_DEFAULT;
 
   /* Set default values for IC optional inputs */
   IDA_mem->ida_epiccon = PT01 * EPCON;
@@ -1286,6 +1289,9 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
     IDA_mem->ida_VatolMallocDone = TRUE;
   }
 
+  /* Store the value of maxord used here */
+  IDA_mem->ida_maxord_alloc = maxord;
+
   return(TRUE);
 }
 
@@ -1306,7 +1312,7 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   N_VDestroy(delta);
   N_VDestroy(tempv1);
   N_VDestroy(tempv2);
-  maxcol = MAX(maxord,3);
+  maxcol = MAX(IDA_mem->ida_maxord_alloc,3);
   for(j=0; j <= maxcol; j++) N_VDestroy(phi[j]);
 
   lrw -= (maxcol + 6)*lrw1;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-06-20 20:30:11 $
+ * $Revision: 1.15 $
+ * $Date: 2005-06-21 23:58:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -152,6 +152,7 @@ typedef struct IDAMemRec {
   int ida_maxnef;        /* max number of error test failures                 */
 
   int ida_maxord;        /* max value of method order k:                      */
+  int ida_maxord_alloc;  /* value of maxord used when allocating memory       */
   long int ida_mxstep;   /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
 

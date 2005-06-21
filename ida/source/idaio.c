@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-06-20 20:31:13 $
+ * $Revision: 1.9 $
+ * $Date: 2005-06-21 23:58:06 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -76,6 +76,7 @@ int IDASetRdata(void *ida_mem, void *res_data)
 int IDASetMaxOrd(void *ida_mem, int maxord)
 {
   IDAMem IDA_mem;
+  int maxord_alloc;
 
   if (ida_mem==NULL) {
     fprintf(stderr, MSG_IDAS_NO_MEM);
@@ -89,7 +90,11 @@ int IDASetMaxOrd(void *ida_mem, int maxord)
     return(IDA_ILL_INPUT);
   }
 
-  if (maxord > IDA_mem->ida_maxord) {
+  /* Cannot increase maximum order beyond the value that
+     was used when allocating memory */
+  maxord_alloc = IDA_mem->ida_maxord_alloc;
+
+  if (maxord > maxord_alloc) {
     if(errfp!=NULL) fprintf(errfp, MSG_IDAS_BAD_MAXORD);
     return(IDA_ILL_INPUT);
   }  
