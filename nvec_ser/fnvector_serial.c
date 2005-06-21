@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-04-15 00:43:59 $
+ * $Revision: 1.10 $
+ * $Date: 2005-06-21 19:13:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,20 +26,16 @@
 /* Define global vector variables */
 
 N_Vector F2C_CVODE_vec;
-
-N_Vector F2C_CVODES_vec;
-N_Vector F2C_CVODES_vecQ;
-N_Vector *F2C_CVODES_vecS;
-N_Vector F2C_CVODES_vecB;
-N_Vector F2C_CVODES_vecQB;
+N_Vector F2C_CVODE_vecQ;
+N_Vector *F2C_CVODE_vecS;
+N_Vector F2C_CVODE_vecB;
+N_Vector F2C_CVODE_vecQB;
 
 N_Vector F2C_IDA_vec;
-
-N_Vector F2C_IDAS_vec;
-N_Vector F2C_IDAS_vecQ;
-N_Vector *F2C_IDAS_vecS;
-N_Vector F2C_IDAS_vecB;
-N_Vector F2C_IDAS_vecQB;
+N_Vector F2C_IDA_vecQ;
+N_Vector *F2C_IDA_vecS;
+N_Vector F2C_IDA_vecB;
+N_Vector F2C_IDA_vecQB;
 
 N_Vector F2C_KINSOL_vec;
 
@@ -54,17 +50,9 @@ void FNV_INITS(int *code, long int *N, int *ier)
     F2C_CVODE_vec = N_VNewEmpty_Serial(*N);
     if (F2C_CVODE_vec == NULL) *ier = -1;
     break;
-  case FCMIX_CVODES:
-    F2C_CVODES_vec = N_VNewEmpty_Serial(*N);
-    if (F2C_CVODES_vec == NULL) *ier = -1;
-    break;
   case FCMIX_IDA:
     F2C_IDA_vec = N_VNewEmpty_Serial(*N);
     if (F2C_IDA_vec == NULL) *ier = -1;
-    break;
-  case FCMIX_IDAS:
-    F2C_IDAS_vec = N_VNewEmpty_Serial(*N);
-    if (F2C_IDAS_vec == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
     F2C_KINSOL_vec = N_VNewEmpty_Serial(*N);
@@ -80,50 +68,31 @@ void FNV_INITS_Q(int *code, long int *Nq, int *ier)
   *ier = 0;
 
   switch(*code) {
-  case FCMIX_CVODES:
-    F2C_CVODES_vecQ = N_VNewEmpty_Serial(*Nq);
-    if (F2C_CVODES_vecQ == NULL) *ier = -1;
+  case FCMIX_CVODE:
+    F2C_CVODE_vecQ = N_VNewEmpty_Serial(*Nq);
+    if (F2C_CVODE_vecQ == NULL) *ier = -1;
     break;
-  case FCMIX_IDAS:
-    F2C_IDAS_vecQ = N_VNewEmpty_Serial(*Nq);
-    if (F2C_IDAS_vecQ == NULL) *ier = -1;
-    break;
-  default:
-    *ier = -1;
-  }
-}
-
-void FNV_INITS_S(int *code, int *Ns, long int *N, int *ier)
-{
-  *ier = 0;
-
-  switch(*code) {
-  case FCMIX_CVODES:
-    F2C_CVODES_vecS = N_VNewVectorArrayEmpty_Serial(*Ns, *N);
-    if (F2C_CVODES_vecS == NULL) *ier = -1;
-    break;
-  case FCMIX_IDAS:
-    F2C_IDAS_vecS = N_VNewVectorArrayEmpty_Serial(*Ns, *N);
-    if (F2C_IDAS_vecS == NULL) *ier = -1;
+  case FCMIX_IDA:
+    F2C_IDA_vecQ = N_VNewEmpty_Serial(*Nq);
+    if (F2C_IDA_vecQ == NULL) *ier = -1;
     break;
   default:
     *ier = -1;
   }
 }
-
 
 void FNV_INITS_B(int *code, long int *NB, int *ier)
 {
   *ier = 0;
 
   switch(*code) {
-  case FCMIX_CVODES:
-    F2C_CVODES_vecB = N_VNewEmpty_Serial(*NB);
-    if (F2C_CVODES_vecB == NULL) *ier = -1;
+  case FCMIX_CVODE:
+    F2C_CVODE_vecB = N_VNewEmpty_Serial(*NB);
+    if (F2C_CVODE_vecB == NULL) *ier = -1;
     break;
-  case FCMIX_IDAS:
-    F2C_IDAS_vecB = N_VNewEmpty_Serial(*NB);
-    if (F2C_IDAS_vecB == NULL) *ier = -1;
+  case FCMIX_IDA:
+    F2C_IDA_vecB = N_VNewEmpty_Serial(*NB);
+    if (F2C_IDA_vecB == NULL) *ier = -1;
     break;
   default:
     *ier = -1;
@@ -135,15 +104,35 @@ void FNV_INITS_QB(int *code, long int *NqB, int *ier)
   *ier = 0;
 
   switch(*code) {
-  case FCMIX_CVODES:
-    F2C_CVODES_vecQB = N_VNewEmpty_Serial(*NqB);
-    if (F2C_CVODES_vecQB == NULL) *ier = -1;
+  case FCMIX_CVODE:
+    F2C_CVODE_vecQB = N_VNewEmpty_Serial(*NqB);
+    if (F2C_CVODE_vecQB == NULL) *ier = -1;
     break;
-  case FCMIX_IDAS:
-    F2C_IDAS_vecQB = N_VNewEmpty_Serial(*NqB);
-    if (F2C_IDAS_vecQB == NULL) *ier = -1;
+  case FCMIX_IDA:
+    F2C_IDA_vecQB = N_VNewEmpty_Serial(*NqB);
+    if (F2C_IDA_vecQB == NULL) *ier = -1;
     break;
   default:
     *ier = -1;
   }
 }
+
+void FNV_INITS_S(int *code, int *Ns, int *ier)
+{
+  *ier = 0;
+
+  switch(*code) {
+  case FCMIX_CVODE:
+    F2C_CVODE_vecS = N_VCloneVectorArrayEmpty_Serial(*Ns, F2C_CVODE_vec);
+    if (F2C_CVODE_vecS == NULL) *ier = -1;
+    break;
+  case FCMIX_IDA:
+    F2C_IDA_vecS = N_VCloneVectorArrayEmpty_Serial(*Ns, F2C_IDA_vec);
+    if (F2C_IDA_vecS == NULL) *ier = -1;
+    break;
+  default:
+    *ier = -1;
+  }
+}
+
+

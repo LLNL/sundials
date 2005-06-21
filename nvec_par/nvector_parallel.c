@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2005-05-12 23:16:11 $
+ * $Revision: 1.26 $
+ * $Date: 2005-06-21 19:13:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -204,10 +204,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
  * Function to create an array of new parallel vectors. 
  */
 
-N_Vector *N_VNewVectorArray_Parallel(int count, 
-                                     MPI_Comm comm, 
-                                     long int local_length,
-                                     long int global_length)
+N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w)
 {
   N_Vector *vs;
   int j;
@@ -220,7 +217,7 @@ N_Vector *N_VNewVectorArray_Parallel(int count,
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
-    vs[j] = N_VNew_Parallel(comm, local_length, global_length);
+    vs[j] = N_VClone_Parallel(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Parallel(vs, j-1);
       return(NULL);
@@ -235,10 +232,7 @@ N_Vector *N_VNewVectorArray_Parallel(int count,
  * (NULL) data array.
  */
 
-N_Vector *N_VNewVectorArrayEmpty_Parallel(int count, 
-                                          MPI_Comm comm, 
-                                          long int local_length,
-                                          long int global_length)
+N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 {
   N_Vector *vs;
   int j;
@@ -251,7 +245,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
-    vs[j] = N_VNewEmpty_Parallel(comm, local_length, global_length);
+    vs[j] = N_VCloneEmpty_Parallel(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Parallel(vs, j-1);
       return(NULL);
@@ -262,7 +256,7 @@ N_Vector *N_VNewVectorArrayEmpty_Parallel(int count,
 }
 
 /* ----------------------------------------------------------------
- * Function to free an array created with N_VNewVectorArray_Parallel
+ * Function to free an array created with N_VCloneVectorArray_Parallel
  */
 
 void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count)

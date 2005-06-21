@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-04-07 23:28:41 $
+ * $Revision: 1.25 $
+ * $Date: 2005-06-21 19:12:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -186,8 +186,8 @@ int main(int argc, char *argv[])
     pbar[1] = data->p[1];
     pbar[2] = data->p[2];
 
-    yS = N_VNewVectorArray_Serial(NS, NEQ);
-    if (check_flag((void *)yS, "N_VNewVectorArray_Serial", 0)) return(1);
+    yS = N_VCloneVectorArray_Serial(NS, y);
+    if (check_flag((void *)yS, "N_VCloneVectorArray_Serial", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
 
     flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, yS);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-04-07 23:28:41 $
+ * $Revision: 1.21 $
+ * $Date: 2005-06-21 19:12:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -237,8 +237,8 @@ int main(int argc, char *argv[])
     if(check_flag((void *)pbar, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]-1];
 
-    uS = N_VNewVectorArray_Serial(NS, NEQ);
-    if(check_flag((void *)uS, "N_VNewVectorArray_Serial", 0)) return(1);
+    uS = N_VCloneVectorArray_Serial(NS, y);
+    if(check_flag((void *)uS, "N_VCloneVectorArray_Serial", 0)) return(1);
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-04-15 00:43:59 $
+ * $Revision: 1.17 $
+ * $Date: 2005-06-21 19:13:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -186,33 +186,32 @@ N_Vector N_VMake_Serial(long int vec_length, realtype *v_data);
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNewVectorArray_Serial
+ * Function : N_VCloneVectorArray_Serial
  * -----------------------------------------------------------------
- * This function creates an array of 'count' serial vectors. This
- * array of N_Vectors can be freed using N_VDestroyVectorArray
- * (defined by the generic NVECTOR module).
+ * This function creates an array of SERIAL vectors by cloning
+ * from a given vector w
  * -----------------------------------------------------------------
  */
 
-N_Vector *N_VNewVectorArray_Serial(int count, long int vec_length);
+N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w);
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNewVectorArrayEmpty_Serial
+ * Function : N_VCloneVectorArrayEmpty_Serial
  * -----------------------------------------------------------------
  * This function creates an array of 'count' serial vectors each
- * with an empty (NULL) data array.
+ * with an empty (NULL) data array by cloning from w.
  * -----------------------------------------------------------------
  */
 
-N_Vector *N_VNewVectorArrayEmpty_Serial(int count, long int vec_length);
+N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VDestroyVectorArray_Serial
  * -----------------------------------------------------------------
- * This function frees an array of N_Vector created with 
- * N_VNewVectorArray_Serial.
+ * This function frees an array of SERIAL vectors created with 
+ * N_VCloneVectorArray_Serial.
  * -----------------------------------------------------------------
  */
 

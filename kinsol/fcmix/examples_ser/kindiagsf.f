@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.16 $
-c     $Date: 2005-04-15 23:46:30 $
+c     $Revision: 1.17 $
+c     $Date: 2005-06-21 19:13:17 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -45,7 +45,7 @@ c
 
 c * * * * * * * * * * * * * * * * * * * * * *
 
-      call fnvinits(5, neq, ier)
+      call fnvinits(3, neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
  1220    format('SUNDIALS_ERROR: FNVINITS returned IER = ', i2)

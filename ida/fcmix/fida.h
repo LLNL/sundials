@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-05-18 18:17:19 $
+ * $Revision: 1.3 $
+ * $Date: 2005-06-21 19:12:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -171,7 +171,7 @@
  * the following call:
  *        CALL FNVINITS (KEY, NEQ, IER)
  * The arguments are:
- * KEY = 3 for IDA
+ * KEY = 2 for IDA
  * NEQ = size of vectors
  * IER = return completion flag. Values are 0 = success, -1 = failure.
  *
@@ -182,7 +182,7 @@
  *        CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
  * The arguments are:
  * COMM = MPI communicator (e.g., MPI_COMM_WORLD)
- * KEY = 3 for IDA
+ * KEY = 2 for IDA
  * NLOCAL  = local size of vectors on this processor
  * NGLOBAL = the system size, and the global size of vectors (the sum 
  *           of all values of NLOCAL)

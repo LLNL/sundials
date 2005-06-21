@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-06-20 17:24:23 $
+ * $Revision: 1.16 $
+ * $Date: 2005-06-21 19:13:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -92,20 +92,16 @@ extern "C" {
   /* Declarations of global variables */
 
   extern N_Vector F2C_CVODE_vec;
-
-  extern N_Vector F2C_CVODES_vec;
-  extern N_Vector F2C_CVODES_vecQ;
-  extern N_Vector *F2C_CVODES_vecS;
-  extern N_Vector F2C_CVODES_vecB;
-  extern N_Vector F2C_CVODES_vecQB;
+  extern N_Vector F2C_CVODE_vecQ;
+  extern N_Vector *F2C_CVODE_vecS;
+  extern N_Vector F2C_CVODE_vecB;
+  extern N_Vector F2C_CVODE_vecQB;
 
   extern N_Vector F2C_IDA_vec;
-
-  extern N_Vector F2C_IDAS_vec;
-  extern N_Vector F2C_IDAS_vecQ;
-  extern N_Vector *F2C_IDAS_vecS;
-  extern N_Vector F2C_IDAS_vecB;
-  extern N_Vector F2C_IDAS_vecQB;
+  extern N_Vector F2C_IDA_vecQ;
+  extern N_Vector *F2C_IDA_vecS;
+  extern N_Vector F2C_IDA_vecB;
+  extern N_Vector F2C_IDA_vecQB;
 
   extern N_Vector F2C_KINSOL_vec;
 
@@ -122,7 +118,7 @@ extern "C" {
 
   void FNV_INITS(int *code, long int *neq, int *ier);
   void FNV_INITS_Q(int *code, long int *Nq, int *ier);
-  void FNV_INITS_S(int *code, int *Ns, long int *N, int *ier);
+  void FNV_INITS_S(int *code, int *Ns, int *ier);
   void FNV_INITS_B(int *code, long int *NB, int *ier);
   void FNV_INITS_QB(int *code, long int *NqB, int *ier);
 

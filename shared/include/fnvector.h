@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-04-15 00:44:57 $
+ * $Revision: 1.2 $
+ * $Date: 2005-06-21 19:12:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -23,13 +23,11 @@
 extern "C" {
 #endif
 
-  /* SUNIDALS solver IDs */
+/* SUNIDALS solver IDs */
 
 #define FCMIX_CVODE   1
-#define FCMIX_CVODES  2
-#define FCMIX_IDA     3
-#define FCMIX_IDAS    4
-#define FCMIX_KINSOL  5
+#define FCMIX_IDA     2
+#define FCMIX_KINSOL  3
 
 #ifdef __cplusplus
 }

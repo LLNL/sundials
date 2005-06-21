@@ -5073,9 +5073,11 @@ apply to {\nvecp}.
   following call:
   \index{FNVINITS@\texttt{FNVINITS}}
 \begin{verbatim}
-      CALL FNVINITS(NEQ, IER)
+      CALL FNVINITS(KEY, NEQ, IER)
 \end{verbatim}
-  where \id{NEQ} is the size of vectors and
+  where 
+  \id{KEY} is the solver id (\id{KEY}=1 for {\cvode}),
+  \id{NEQ} is the size of vectors, and
   \id{IER} is a  return completion flag which is set to $0$ on success and $-1$ 
   if a failure occurred.
   
@@ -5083,9 +5085,9 @@ apply to {\nvecp}.
   following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
-      CALL FNVINITP(NLOCAL, NGLOBAL, IER)
+      CALL FNVINITP(KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{NLOCAL} the local size of vectors on this
+  in which the arguments are: \id{KEY} = 1, \id{NLOCAL} the local size of vectors on this
   processor, \id{NGLOBAL} the system size (and the global size of vectors, that
   is the sum of all values of NLOCAL). The return completion flag \id{IER} is
   set on $0$ upon successful return and on $-1$ otherwise.

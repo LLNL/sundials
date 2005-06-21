@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-05-11 23:00:40 $
+ * $Revision: 1.20 $
+ * $Date: 2005-06-21 19:13:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -234,39 +234,32 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNewVectorArray_Parallel
+ * Function : N_VCloneVectorArray_Parallel
  * -----------------------------------------------------------------
- * This function creates an array of 'count' parallel vectors. This
- * array of N_Vectors can be freed using N_VDestroyVectorArray
- * (defined by the generic NVECTOR module).
+ * This function creates an array of 'count' PARALLEL vectors by
+ * cloning from w
  * -----------------------------------------------------------------
  */
 
-N_Vector *N_VNewVectorArray_Parallel(int count, 
-                                     MPI_Comm comm, 
-                                     long int local_length,
-                                     long int global_length);
+N_Vector *N_VcloneVectorArray_Parallel(int count, N_Vector w);
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNewVectorArrayEmpty_Parallel
+ * Function : N_VCloneVectorArrayEmpty_Parallel
  * -----------------------------------------------------------------
- * This function creates an array of 'count' parallel vectors each 
- * with an empty (NULL) data array.
+ * This function creates an array of 'count' PARALLEL vectors each 
+ * with an empty (NULL) data array by cloning from w.
  * -----------------------------------------------------------------
  */
 
-N_Vector *N_VNewVectorArrayEmpty_Parallel(int count, 
-                                          MPI_Comm comm, 
-                                          long int local_length,
-                                          long int global_length);
+N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VDestroyVectorArray_Parallel
  * -----------------------------------------------------------------
  * This function frees an array of N_Vector created with 
- * N_VNewVectorArray_Parallel.
+ * N_VCloneVectorArray_Parallel.
  * -----------------------------------------------------------------
  */
 

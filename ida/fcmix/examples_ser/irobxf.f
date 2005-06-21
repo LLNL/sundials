@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2005-05-11 23:11:14 $
+c     $Revision: 1.2 $
+c     $Date: 2005-06-21 19:12:56 $
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, 
 c     is from chemical kinetics, and consists of the following three 
@@ -60,7 +60,7 @@ c
 c
 c Initialize IDA vector environment
 c
-      call fnvinits(3, neq, ier)
+      call fnvinits(2, neq, ier)
       if (ier .ne. 0) then
          write(6,10) ier
  10      format(///' SUNDIALS_ERROR: FNVINITS returned IER = ', i5)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-06-20 17:24:21 $
+ * $Revision: 1.16 $
+ * $Date: 2005-06-21 19:13:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -93,20 +93,16 @@ extern "C" {
   /* Declarations of global variables */
 
   extern N_Vector F2C_CVODE_vec;
-
-  extern N_Vector F2C_CVODES_vec;
-  extern N_Vector F2C_CVODES_vecQ;
-  extern N_Vector *F2C_CVODES_vecS;
-  extern N_Vector F2C_CVODES_vecB;
-  extern N_Vector F2C_CVODES_vecQB;
+  extern N_Vector F2C_CVODE_vecQ;
+  extern N_Vector *F2C_CVODE_vecS;
+  extern N_Vector F2C_CVODE_vecB;
+  extern N_Vector F2C_CVODE_vecQB;
 
   extern N_Vector F2C_IDA_vec;
-
-  extern N_Vector F2C_IDAS_vec;
-  extern N_Vector F2C_IDAS_vecQ;
-  extern N_Vector *F2C_IDAS_vecS;
-  extern N_Vector F2C_IDAS_vecB;
-  extern N_Vector F2C_IDAS_vecQB;
+  extern N_Vector F2C_IDA_vecQ;
+  extern N_Vector *F2C_IDA_vecS;
+  extern N_Vector F2C_IDA_vecB;
+  extern N_Vector F2C_IDA_vecQB;
 
   extern N_Vector F2C_KINSOL_vec;
 
@@ -125,7 +121,6 @@ extern "C" {
 
   void FNV_INITP(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier);
   void FNV_INITP_Q(MPI_Fint *comm, int *code, long int *Lq, long int *Nq, int *ier);
-  void FNV_INITP_S(MPI_Fint *comm, int *code, int *Ns, long int *L, long int *N, int *ier);
   void FNV_INITP_B(MPI_Fint *comm, int *code, long int *LB, long int *NB, int *ier);
   void FNV_INITP_QB(MPI_Fint *comm, int *code, long int *LqB, long int *NqB, int *ier);
 
@@ -133,11 +128,13 @@ extern "C" {
 
   void FNV_INITP(int *code, long int *L, long int *N, int *ier);
   void FNV_INITP_Q(int *code, long int *Lq, long int *Nq, int *ier);
-  void FNV_INITP_S(int *code, int *Ns, long int *L, long int *N, int *ier);
   void FNV_INITP_B(int *code, long int *LB, long int *NB, int *ier);
   void FNV_INITP_QB(int *code, long int *LqB, long int *NqB, int *ier);
 
 #endif
+
+  void FNV_INITP_S(int *code, int *Ns, int *ier);
+
 
 #ifdef __cplusplus
 }

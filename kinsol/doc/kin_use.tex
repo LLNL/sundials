@@ -2772,9 +2772,11 @@ apply to {\nvecp}.
   following call:
   \index{FNVINITS@\texttt{FNVINITS}}
 \begin{verbatim}
-      CALL FNVINITS(NEQ, IER)
+      CALL FNVINITS(KEY, NEQ, IER)
 \end{verbatim}
-  where \id{NEQ} is the size of vectors and
+  where 
+  \id{KEY} is the solver id (\id{KEY} = 3 for {\kinsol}),
+  \id{NEQ} is the size of vectors, and
   \id{IER} is a return completion flag which is set to $0$ on success and $-1$ 
   if a failure occurred.
   
@@ -2782,9 +2784,9 @@ apply to {\nvecp}.
   following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
-      CALL FNVINITP(NLOCAL, NGLOBAL, IER)
+      CALL FNVINITP(KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{NLOCAL} the local size of vectors for this
+  in which the arguments are: \id{KEY} = 3, \id{NLOCAL} the local size of vectors for this
   process, \id{NGLOBAL} the system size (and the global size of vectors, that
   is the sum of all values of NLOCAL). The return completion flag \id{IER} is
   set to $0$ upon successful return and to $-1$ otherwise.

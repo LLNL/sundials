@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2005-05-18 18:16:59 $
+ * $Revision: 1.44 $
+ * $Date: 2005-06-21 19:12:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -163,7 +163,7 @@
  * 
  * (6.1p) To initialize the parallel machine environment, the user must make 
  * the following call:
- *        CALL FNVINITP (NLOCAL, NGLOBAL, IER)
+ *        CALL FNVINITP (1, NLOCAL, NGLOBAL, IER)
  * The arguments are:
  * NLOCAL  = local size of vectors on this processor
  * NGLOBAL = the system size, and the global size of vectors (the sum 

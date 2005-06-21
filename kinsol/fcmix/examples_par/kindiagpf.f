@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.17 $
-c     $Date: 2005-04-26 23:43:24 $
+c     $Revision: 1.18 $
+c     $Date: 2005-06-21 19:13:12 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -59,7 +59,7 @@ c     number of this process.
          stop
       endif
 
-      call fnvinitp(mpi_comm_world, 5, nlocal, neq, ier)
+      call fnvinitp(mpi_comm_world, 3, nlocal, neq, ier)
       if (ier .ne. 0) then
          write(6,1220) ier
  1220    format('SUNDIALS_ERROR: FNVINITP returned IER = ', i2)

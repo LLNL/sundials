@@ -101,7 +101,7 @@ sensitivity variables.
 The flags in \id{plist} are set to indicate that sensitivities with respect to both 
 problem parameters are desired.
 The array of \id{NS} $=2$ vectors \id{uS} for the sensitivity variables is created
-by calling \id{N\_VNewVectorArray\_Serial} and set to contain the initial values
+by calling \id{N\_VCloneVectorArray\_Serial} and set to contain the initial values
 ($s^1_i(0) = 0.0$, $s^2_i(0) = 0.0$).
 
 The next three calls set optional inputs for sensitivity calculations: the sensitivity
@@ -256,7 +256,7 @@ the main program will then set the scaling parameters
 \id{pbar} (\id{pbar}$_i$ = \id{p}$_i$, which can typically be used for 
 nonzero model parameters). 
 Next, the program allocates memory for \id{yS}, by calling the {\nvecs} function 
-\id{N\_VNewVectorArray\_Serial}, and initializaes all sensitivity variables to $0.0$.
+\id{N\_VCloneVectorArray\_Serial}, and initializaes all sensitivity variables to $0.0$.
 
 The call to \id{CVodeSensMalloc} specifies the sensitivity solution method through 
 \id{sensi\_meth} (read from the command line arguments) as \id{CV\_SIMULTANEOUS}, 

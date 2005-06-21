@@ -116,31 +116,31 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
 %%--------------------------------------
 
-\item \ID{N\_VNewVectorArray\_Serial}
+\item \ID{N\_VCloneVectorArray\_Serial}
 
- This function creates an array of \id{count} serial vectors.
+ This function creates (by cloning) an array of \id{count} serial vectors.
 
  
 
- \verb|N_Vector *N_VNewVectorArray_Serial(int count, long int vec_length);|
+ \verb|N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w);|
 
 %%--------------------------------------
 
-\item \ID{N\_VNewVectorArrayEmpty\_Serial}
+\item \ID{N\_VCloneVectorArrayEmpty\_Serial}
 
- This function creates an array of \id{count} serial vectors, each with an empty (\id{NULL})
+ This function creates (by cloning) an array of \id{count} serial vectors, each with an empty (\id{NULL})
  data array.
 
  
 
- \verb|N_Vector *N_VNewVectorArrayEmpty_Serial(int count, long int vec_length);|
+ \verb|N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);|
 
 %%--------------------------------------
 
 \item \ID{N\_VDestroyVectorArray\_Serial}
 
  This function frees memory allocated for the array of \id{count} variables of type \id{N\_Vector}
- created with \id{N\_VNewVectorArray\_Serial} or with \id{N\_VNewVectorArrayEmpty\_Serial}.
+ created with \id{N\_VCloneVectorArray\_Serial} or with \id{N\_VCloneVectorArrayEmpty\_Serial}.
 
  
 
@@ -172,7 +172,7 @@ in Table \ref{t:nvecops} and provides the following user-callable routines:
 
 \item
   {\warn} The {\nvecs} constructor functions \id{N\_VNewEmpty\_Serial},
-  \id{N\_VMake\_Serial}, and \id{N\_VNewVectorArrayEmpty\_Serial}
+  \id{N\_VMake\_Serial}, and \id{N\_VCloneVectorArrayEmpty\_Serial}
   set the field {\em own\_data} $=$ \id{FALSE}. 
   The functions \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with

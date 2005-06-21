@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-05-12 23:14:51 $
+ * $Revision: 1.23 $
+ * $Date: 2005-06-21 19:13:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -175,7 +175,7 @@ N_Vector N_VMake_Serial(long int length, realtype *v_data)
  * Function to create an array of new serial vectors. 
  */
 
-N_Vector *N_VNewVectorArray_Serial(int count, long int length)
+N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w)
 {
   N_Vector *vs;
   int j;
@@ -188,7 +188,7 @@ N_Vector *N_VNewVectorArray_Serial(int count, long int length)
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
-    vs[j] = N_VNew_Serial(length);
+    vs[j] = N_VClone_Serial(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Serial(vs, j-1);
       return(NULL);
@@ -202,7 +202,7 @@ N_Vector *N_VNewVectorArray_Serial(int count, long int length)
  * Function to create an array of new serial vectors with NULL data array. 
  */
 
-N_Vector *N_VNewVectorArrayEmpty_Serial(int count, long int length)
+N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
 {
   N_Vector *vs;
   int j;
@@ -215,7 +215,7 @@ N_Vector *N_VNewVectorArrayEmpty_Serial(int count, long int length)
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
-    vs[j] = N_VNewEmpty_Serial(length);
+    vs[j] = N_VCloneEmpty_Serial(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Serial(vs, j-1);
       return(NULL);
@@ -226,7 +226,7 @@ N_Vector *N_VNewVectorArrayEmpty_Serial(int count, long int length)
 }
 
 /* ----------------------------------------------------------------------------
- * Function to free an array created with N_VNewVectorArray_Serial
+ * Function to free an array created with N_VCloneVectorArray_Serial
  */
 
 void N_VDestroyVectorArray_Serial(N_Vector *vs, int count)

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2005-06-06 21:34:51 $
+ * $Revision: 1.36 $
+ * $Date: 2005-06-21 19:13:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -110,7 +110,7 @@
  (3.1s) To initialize the serial machine environment, the user must make
         the following call:
 
-          CALL FNVINITS (5, NEQ, IER)
+          CALL FNVINITS (3, NEQ, IER)
 
         The arguments are:
           NEQ = size of vectors
@@ -119,7 +119,7 @@
  (3.1p) To initialize the parallel machine environment, the user must make 
         the following call:
 
-          CALL FNVINITP (5, NLOCAL, NGLOBAL, IER)
+          CALL FNVINITP (3, NLOCAL, NGLOBAL, IER)
 
         The arguments are:
           NLOCAL  = local size of vectors for this process

@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.2 $
-c     $Date: 2005-05-19 20:35:34 $
+c     $Revision: 1.3 $
+c     $Date: 2005-06-21 19:12:52 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -132,7 +132,7 @@ c
          endif
       endif
 c
-      call fnvinitp(mpi_comm_world, 3, nlocal, neq, ier)
+      call fnvinitp(mpi_comm_world, 2, nlocal, neq, ier)
       if (ier .ne. 0) then
          write(*,6) ier
  6       format(///' SUNDIALS_ERROR: FNVINITP returned IER = ', i5)
