@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-06-14 19:00:57 $
+ * $Revision: 1.2 $
+ * $Date: 2005-06-21 19:22:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -29,6 +29,8 @@
 
 /* Private function prototypes */
 
+/* attach data and set pointers in data */
+static void VAttach_Data(N_Vector v, realtype *data);
 /* z=x */
 static void VCopy_SpcParallel(N_Vector x, N_Vector z);
 /* z=x+y */
@@ -61,38 +63,25 @@ static void VScaleBy_SpcParallel(realtype a, N_Vector x);
  * Create a new spc_parallel vector with empty data array
  */
 
-N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int nspc,
+N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
                                  long int Nx,  long int Ny,  long int Nz, 
                                  long int NGx, long int NGy, long int NGz) 
 {
   N_Vector v;
   N_Vector_Ops ops;
   N_VectorContent_SpcParallel content;
-
-  long int n1, n1g, n, ng, Ng;
+  int ig;
+  long int tmp, n, N;
 
   v = NULL;
   ops = NULL;
   content = NULL;
   
-  /* Compute various local lengths */
-
-  n1  = Nx * Ny * Nz;
-  n1g = (Nx+2*NGx) * (Ny+2*NGy) * (Nz+2*NGz);
-  n   = nspc * n1;
-  ng  = nspc * n1g;
-
-  /* Compute global length */
-
-  MPI_Allreduce(&ng, &Ng, 1, SPVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
-
-  /* Create vector */
-
+  /* Create the new vector */
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
 
   /* Create vector operation structure */
-
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) {
     free(v); 
@@ -100,7 +89,6 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int nspc,
   }
 
   /* Attach custom vector routines to N_Vector_Ops structure */
-
   ops->nvclone           = N_VClone_SpcParallel;
   ops->nvcloneempty      = N_VCloneEmpty_SpcParallel;
   ops->nvdestroy         = N_VDestroy_SpcParallel;
@@ -128,37 +116,40 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int nspc,
   ops->nvminquotient     = N_VMinQuotient_SpcParallel;
 
   /* Create content */
-
   content = (N_VectorContent_SpcParallel) malloc(sizeof(struct _N_VectorContent_SpcParallel));
   if (content == NULL) {free(ops); free(v); return(NULL);}
 
+  /* Allocate space for arrays in content */
+  content->Nspc  = (int *)malloc(Ngrp*sizeof(int));
+  content->n1    = (long int *)malloc(Ngrp*sizeof(long int));
+  content->gdata = (realtype **)malloc(Ngrp*sizeof(realtype *));
+
   /* Attach lengths and communicator to N_Vector_Content_SpcParallel structure */
+  content->Ngrp = Ngrp;
+  tmp = (Nx+2*NGx) * (Ny+2*NGy) * (Nz+2*NGz);
+  n = 0;
+  for(ig=0; ig<Ngrp; ig++) {
+    content->Nspc[ig] = Nspc[ig];
+    content->n1[ig] = Nspc[ig] * tmp;
+    n += Nspc[ig] * tmp;
+  }
+  MPI_Allreduce(&n, &N, 1, SPVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
 
-  content->nspc   = nspc;
-
+  content->n    = n;
+  content->N    = N;
   content->Nx   = Nx;
   content->Ny   = Ny;
   content->Nz   = Nz;
   content->NGx  = NGx;
   content->NGy  = NGy;
   content->NGz  = NGz;
-
-  content->n1   = n1;
-  content->n1g  = n1g;
-  content->n    = n;
-  content->ng   = ng;
-
-  content->Ng   = Ng;
-
   content->comm = comm;
 
   /* Attach empty data array to content structure */
-
   content->data     = NULL;
   content->own_data = FALSE;
 
   /* Attach content and ops to generic N_Vector */
-
   v->content = content;
   v->ops     = ops;
 
@@ -169,41 +160,35 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int nspc,
  * Create a new spc_parallel vector
  */
 
-N_Vector N_VNew_SpcParallel(MPI_Comm comm, int nspc, 
+N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc, 
                             long int Nx,  long int Ny,  long int Nz, 
                             long int NGx, long int NGy, long int NGz)
 {
   N_Vector v;
   realtype *data;
-  long int ng;
+  long int n;
 
   v = NULL;
   data = NULL;
 
-  /* Create the new N_Vector */
-
-  v = N_VNewEmpty_SpcParallel(comm, nspc, Nx, Ny, Nz, NGx, NGy, NGz);
+  /* Create the new vector */
+  v = N_VNewEmpty_SpcParallel(comm, Ngrp, Nspc, Nx, Ny, Nz, NGx, NGy, NGz);
   if (v == NULL) return(NULL);
 
-  /* Compute local length */
-
-  ng = nspc * (Nx+2*NGx) * (Ny+2*NGy) * (Nz+2*NGz);
+  /* Get local length */
+  n = SPV_LOCLENGTH(v);
 
   /* Create data */
-
-  if ( ng > 0 ) {
-
+  if ( n > 0 ) {
     /* Allocate memory */
-    data = (realtype *) malloc(ng * sizeof(realtype *));
-    if(data == NULL) { 
+    data = (realtype *) malloc(n * sizeof(realtype *));
+    if(data == NULL) {
       N_VDestroy_SpcParallel(v); 
       return(NULL); 
     }
-
     /* Attach data */
+    VAttach_Data(v,data);
     SPV_OWN_DATA(v) = TRUE;
-    SPV_DATA(v)     = data;
-  
   }
 
   return(v);
@@ -213,88 +198,67 @@ N_Vector N_VNew_SpcParallel(MPI_Comm comm, int nspc,
  * Function to create a parallel N_Vector and attach to it the
  * user data, which must be a contiguous array and include the ghost
  * boundaries. In other words, data must have length
- *    nspc * (Nx+2*NGx) * (Ny+2*NGy) * (Nz+2*NGz);
+ *    sum(Nspc(igrp)) * (Nx+2*NGx) * (Ny+2*NGy) * (Nz+2*NGz);
  */
 
-N_Vector N_VAttach_SpcParallel(MPI_Comm comm, int nspc, 
-                               long int Nx,  long int Ny,  long int Nz, 
-                               long int NGx, long int NGy, long int NGz,
-                               realtype *data)
+N_Vector N_VMake_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc, 
+                             long int Nx,  long int Ny,  long int Nz, 
+                             long int NGx, long int NGy, long int NGz,
+                             realtype *data)
 {
   N_Vector v;
 
   v = NULL;
 
   /* Create the new N_Vector */
-  v = N_VNewEmpty_SpcParallel(comm, nspc, Nx, Ny, Nz, NGx, NGy, NGz);
+  v = N_VNewEmpty_SpcParallel(comm, Ngrp, Nspc, Nx, Ny, Nz, NGx, NGy, NGz);
   if (v == NULL) return(NULL);
 
   /* Attach data if it has nonzero size*/
   if ( SPV_LOCLENGTH(v) > 0 ) {
+    VAttach_Data(v,data);
     SPV_OWN_DATA(v) = FALSE;
-    SPV_DATA(v)     = data;
   }
   
   return(v);
 }
 
 /* ---------------------------------------------------------------- 
- * Function to create a parallel N_Vector and copy into it some
- * user data (which must be an array of nspc vectors, each of length
- * Nx*Ny*Nz)
+ * Function to copy into a given SPCPARALLEL N_Vector the data for
+ * one species. The user must indicate the group index and the
+ * species index within that group. The data must be a realtype 
+ * array of length Nx * Ny * Nz
  */
 
-N_Vector N_VLoad_SpcParallel(MPI_Comm comm, int nspc, 
-                             long int Nx,  long int Ny,  long int Nz, 
-                             long int NGx, long int NGy, long int NGz,
-                             realtype **data)
+void N_VLoad_SpcParallel(N_Vector v, int igrp, int ispc, realtype *data)
 {
-  N_Vector v;
-  realtype *vd, *sdata;
-  int s;
-  long int i, j, k, Yblock, Zblock, loc;
+  realtype *vd;
+  int Ns;
+  long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  long int Yblock, Zblock, Xblock;
 
-  v = NULL;
+  vd = SPV_GDATA(v,igrp);
+  Ns = SPV_NSPECIES(v,igrp);
 
-  /* Create the new N_Vector */
-  v = N_VNew_SpcParallel(comm, nspc, Nx, Ny, Nz, NGx, NGy, NGz);
-  if (v == NULL) return(NULL);
-
-  /* If data has nonzero size, copy user data */
-
-  if ( SPV_DATA(v) != NULL ) {
-
-    for(s=0; s<nspc; s++) {
-
-      vd = SPV_SDATA(v,s);
-      sdata = data[s];
-
-      for (k=NGz; k<Nz+NGz; k++) {
-        Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
-        for (j=NGy; j<Ny+NGy; j++) { 
-          Yblock = j * (Nx + 2*NGx);
-          for (i=NGx; i<Nx+NGx; i++) {
-            loc = Zblock + Yblock + i;
-            vd[loc] = *(sdata++);
-          }
-        }
+  for (k=NGz; k<Nz+NGz; k++) {
+    Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
+    for (j=NGy; j<Ny+NGy; j++) { 
+      Yblock = j * (Nx + 2*NGx) * Ns;
+      for (i=NGx; i<Nx+NGx; i++) {
+        Xblock = i * Ns;
+        vd[Zblock+Yblock+Xblock+ispc] = *(data++);
       }
-
     }
-      
   }
   
-  return(v);
 }
 
 /* ---------------------------------------------------------------- 
- * Function to create an array of new spcparallel vectors. 
+ * Function to create an array of SPCPARALLEL vectors with empty
+ * (NULL) data array by cloning from a given vector w.
  */
 
-N_Vector *N_VNewVectorArray_SpcParallel(int count, 
-                                        MPI_Comm comm, int nspc,
-                                        long int Nx,  long int Ny,  long int Nz, 
-                                        long int NGx, long int NGy, long int NGz)
+N_Vector *N_VCloneVectorArrayEmpty_SpcParallel(int count, N_Vector w)
 {
   N_Vector *vs;
   int j;
@@ -307,7 +271,7 @@ N_Vector *N_VNewVectorArray_SpcParallel(int count,
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
-    vs[j] = N_VNew_SpcParallel(comm, nspc, Nx, Ny, Nz, NGx, NGy, NGz);
+    vs[j] = N_VCloneEmpty_SpcParallel(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Parallel(vs, j-1);
       return(NULL);
@@ -318,14 +282,11 @@ N_Vector *N_VNewVectorArray_SpcParallel(int count,
 }
 
 /* ---------------------------------------------------------------- 
- * Function to create an array of new spcparallel vectors with empty
- * (NULL) data array.
+ * Function to create an array of SPCPARALLEL vectors by cloning
+ * from a given vector w
  */
 
-N_Vector *N_VNewVectorArrayEmpty_SpcParallel(int count, 
-                                             MPI_Comm comm, int nspc, 
-                                             long int Nx,  long int Ny,  long int Nz, 
-                                             long int NGx, long int NGy, long int NGz) 
+N_Vector *N_VCloneVectorArray_SpcParallel(int count, N_Vector w) 
 {
   N_Vector *vs;
   int j;
@@ -338,7 +299,7 @@ N_Vector *N_VNewVectorArrayEmpty_SpcParallel(int count,
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
-    vs[j] = N_VNewEmpty_SpcParallel(comm, nspc, Nx, Ny, Nz, NGx, NGy, NGz);
+    vs[j] = N_VClone_SpcParallel(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Parallel(vs, j-1);
       return(NULL);
@@ -349,7 +310,8 @@ N_Vector *N_VNewVectorArrayEmpty_SpcParallel(int count,
 }
 
 /* ----------------------------------------------------------------
- * Function to free an array created with N_VNewVectorArray_SpcParallel
+ * Function to free an array of SPCPARALLEL vectors created with 
+ * N_VCloneVectorArray_SpcParallel
  */
 
 void N_VDestroyVectorArray_SpcParallel(N_Vector *vs, int count)
@@ -364,88 +326,54 @@ void N_VDestroyVectorArray_SpcParallel(N_Vector *vs, int count)
 }
 
 /* ---------------------------------------------------------------- 
- * Function to print a parallel vector to stdout
+ * Function to print a parallel vector to stdout or to a file
  */
 
-void N_VPrint_SpcParallel(N_Vector v)
-{
-  int nspc, s;
-  long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, loc;
-  realtype *vd;
-
-  vd = NULL;
-
-  /* Get mesh info & data from vector */
-  nspc  = SPV_NSPECIES(v);
-  Nx  = SPV_XLENGTH(v);
-  Ny  = SPV_YLENGTH(v);
-  Nz  = SPV_ZLENGTH(v);
-  NGx = SPV_XGHOST(v);
-  NGy = SPV_YGHOST(v);
-  NGz = SPV_ZGHOST(v);
-
-  for (s=0; s<nspc; s++) {
-    vd = SPV_SDATA(v,s);
-    printf("\nSpecies %d\n\n",s+1);
-    for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
-      for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
-	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Zblock + Yblock + i;
-	  printf("(%ld,%ld,%ld,%d) = %e\n", 
-                 i-NGx+1, j-NGy+1, k-NGz+1, s+1, vd[loc]);
-	}
-      }
-    }
-  }
-
-  printf("\n");
-}
-
-/* ---------------------------------------------------------------- 
- * Function to print a parallel vector to a file
- */
-
-void N_VPrintFile_SpcParallel(char *fname, N_Vector v)
+void N_VPrint_SpcParallel(N_Vector v, char *fname)
 {
   FILE *fp;
-  int nspc, s;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *vd;
 
   vd = NULL;
 
   /* Get mesh info & data from vector */
-  nspc  = SPV_NSPECIES(v);
-  Nx  = SPV_XLENGTH(v);
-  Ny  = SPV_YLENGTH(v);
-  Nz  = SPV_ZLENGTH(v);
-  NGx = SPV_XGHOST(v);
-  NGy = SPV_YGHOST(v);
-  NGz = SPV_ZGHOST(v);
+  Ngrp = SPV_NGROUPS(v);
+  Nx   = SPV_XLENGTH(v);
+  Ny   = SPV_YLENGTH(v);
+  Nz   = SPV_ZLENGTH(v);
+  NGx  = SPV_XGHOST(v);
+  NGy  = SPV_YGHOST(v);
+  NGz  = SPV_ZGHOST(v);
 
   /* open output file */
-  fp = fopen(fname, "w");
+  if (fname[0] == '\0')
+    fp = stdout;
+  else
+    fp = fopen(fname, "w");
 
-  for (s=0; s<nspc; s++) {
-    vd = SPV_SDATA(v,s);
+  for (ig=0; ig<Ngrp; ig++) {
+    vd = SPV_GDATA(v,ig);
+    Ns = SPV_NSPECIES(v,ig);
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Zblock + Yblock + i;
-	  fprintf(fp, "(%ld,%ld,%ld,%d) = %e\n", 
-		  i-NGx+1, j-NGy+1, k-NGz+1, s+1, vd[loc]);
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            fprintf(fp, "(%d,%ld,%ld,%ld,%d) = %e\n", 
+                    ig, i-NGx+1, j-NGy+1, k-NGz+1, is, vd[loc]);
+          }
+        }
       }
     }
   }
 
-  fclose(fp);
+  if (fname[0] != '\0') fclose(fp);
 }
 
 /*
@@ -464,10 +392,7 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
   N_Vector v;
   N_Vector_Ops ops;
   N_VectorContent_SpcParallel content;
-
-  int nspc;
-  long int Nx, Ny, Nz, NGx, NGy, NGz;
-  long int n1, n1g, n, ng;
+  int ig, Ngrp;
 
   v = NULL;
   ops = NULL;
@@ -476,7 +401,7 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
   /* Check that w has been created */
   if (w == NULL) return(NULL);
 
-  /* Create vector */
+  /* Create the new vector */
   v = (N_Vector) malloc(sizeof *w);
   if (v == NULL) return(NULL);
 
@@ -512,50 +437,35 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
   ops->nvminquotient     = w->ops->nvminquotient;
 
   /* Create content */
-
   content = (N_VectorContent_SpcParallel) malloc(sizeof(struct _N_VectorContent_SpcParallel));
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
-  /* Obtain various dimensions from w */
+  Ngrp = SPV_NGROUPS(w);
 
-  nspc = SPV_NSPECIES(w);
-
-  Nx = SPV_XLENGTH(w);
-  Ny = SPV_YLENGTH(w);
-  Nz = SPV_ZLENGTH(w);
-
-  NGx = SPV_XGHOST(w);
-  NGy = SPV_YGHOST(w);
-  NGz = SPV_ZGHOST(w);
-
-  n1  = Nx * Ny * Nz;
-  n1g = (Nx+2*NGx) * (Ny+2*NGy) * (Nz+2*NGz);
-  n   = nspc * n1;
-  ng  = nspc * n1g;
+  /* Allocate space for arrays in content */  
+  content->Nspc  = (int *)malloc(Ngrp*sizeof(int));
+  content->n1    = (long int *)malloc(Ngrp*sizeof(long int));
+  content->gdata = (realtype **)malloc(Ngrp*sizeof(realtype *));
 
   /* Attach lengths and communicator to content structure */
-
-  content->nspc   = nspc;
-
-  content->Nx   = Nx;
-  content->Ny   = Ny;
-  content->Nz   = Nz;
-  content->NGx  = NGx;
-  content->NGy  = NGy;
-  content->NGz  = NGz;
-
-  content->n1   = n1;
-  content->n1g  = n1g;
-  content->n    = n;
-  content->ng   = ng;
-
-  content->Ng   = SPV_GLOBLENGTH(w);
-
+  content->Ngrp = SPV_NGROUPS(w);
+  content->Nx   = SPV_XLENGTH(w);
+  content->Ny   = SPV_YLENGTH(w);
+  content->Nz   = SPV_ZLENGTH(w);
+  content->NGx  = SPV_XGHOST(w);
+  content->NGy  = SPV_YGHOST(w);
+  content->NGz  = SPV_ZGHOST(w);
+  for(ig=0; ig<Ngrp; ig++) {
+    content->Nspc[ig] = SPV_NSPECIES(w,ig);
+    content->n1[ig]   = SPV_LOCLENGTH1(w,ig);
+  }
+  content->n    = SPV_LOCLENGTH(w);
+  content->N    = SPV_GLOBLENGTH(w);
   content->comm = SPV_COMM(w);
 
-  /* set data arrays to null */
-  content->own_data = FALSE;
+  /* Attach empty data array to content structure */
   content->data     = NULL;
+  content->own_data = FALSE;
 
   /* Attach content and ops to generic N_Vector */
   v->content = content;
@@ -573,34 +483,29 @@ N_Vector N_VClone_SpcParallel(N_Vector w)
 {
   N_Vector v;
   realtype *data;
-  long int ng;
+  long int n;
 
   v = NULL;
   data = NULL;
 
   /* Create vector */
-
   v = N_VCloneEmpty_SpcParallel(w);
   if (v == NULL) return(NULL);
 
   /* Get local length */
-
-  ng  = SPV_LOCLENGTH(w);
+  n  = SPV_LOCLENGTH(w);
 
   /* Create data */
-
-  if ( ng > 0 ) {
-
+  if ( n > 0 ) {
     /* Allocate memory */
-    data = (realtype *) malloc(ng * sizeof(realtype *));
+    data = (realtype *) malloc(n * sizeof(realtype *));
     if(data == NULL) { 
       N_VDestroy_SpcParallel(v); 
       return(NULL); 
     }
-
     /* Attach data */
+    VAttach_Data(v,data);
     SPV_OWN_DATA(v) = TRUE;
-    SPV_DATA(v)     = data;
   }
 
   return(v);
@@ -612,33 +517,33 @@ N_Vector N_VClone_SpcParallel(N_Vector w)
 
 void N_VDestroy_SpcParallel(N_Vector v)
 {
+  N_VectorContent_SpcParallel content;
+
   if ( SPV_OWN_DATA(v) == TRUE ) 
     if (SPV_DATA(v) != NULL) free(SPV_DATA(v));
 
-  free(v->content);
+  content = SPV_CONTENT(v);
+
+  free(content->Nspc);
+  free(content->n1);
+  free(content->gdata);
+  free(content);
+
   free(v->ops);
+
   free(v);
 }
 
 /* 
- * N_VSpace_SpcParallel returns the space requirements for one N_Vector. 
+ * N_VSpace_SpcParallel returns the local space requirements for one N_Vector. 
  * The amount of realtype data is given in lrw, and long int data in liw.  
  * Note: this includes ghost cell data storage as well 
  */
 
 void N_VSpace_SpcParallel(N_Vector v, long int *lrw, long int *liw)
 {
-  MPI_Comm comm;
-  int npes;
-
-  int NGlobal, NxLoc, NyLoc, NzLoc, NSpecies;
-  int NProcs, NLoc;
-
-  comm = SPV_COMM(v);
-  MPI_Comm_size(comm, &npes);
-
-  *lrw = SPV_GLOBLENGTH(v);
-  *liw = 14*npes;
+  *lrw = SPV_LOCLENGTH(v);
+  *liw = 11 + 3*SPV_NGROUPS(v);
 }
 
 /* 
@@ -651,7 +556,6 @@ realtype *N_VGetArrayPointer_SpcParallel(N_Vector v)
   return((realtype *) SPV_DATA(v));
 }
 
-
 /* 
  * N_VSetArrayPointer_SpcParallel attaches the data component array 
  * v_data to the N_Vector v
@@ -659,21 +563,19 @@ realtype *N_VGetArrayPointer_SpcParallel(N_Vector v)
 
 void N_VSetArrayPointer_SpcParallel(realtype *v_data, N_Vector v)
 {
-  if (SPV_LOCLENGTH(v) > 0) 
-    SPV_DATA(v) = v_data;
+  SPV_DATA(v) = v_data;
 }
-
 
 /* 
  * N_VLinearSum_SpcParallel calculates z = a*x + b*y 
 */
 
 void N_VLinearSum_SpcParallel(realtype a, N_Vector x, realtype b, 
-		      N_Vector y, N_Vector z)
+                              N_Vector y, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
   booleantype test;
@@ -747,31 +649,34 @@ void N_VLinearSum_SpcParallel(realtype a, N_Vector x, realtype b,
      (3) a,b == other, a !=b, a != -b */  
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  /* Calculates:  for (i=0; i < N; i++),  *zd++ = a*(*xd++) + b*(*yd++); */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = a * xd[loc] + b * yd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = a * xd[loc] + b * yd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /* 
@@ -780,37 +685,40 @@ void N_VLinearSum_SpcParallel(realtype a, N_Vector x, realtype b,
 
 void N_VConst_SpcParallel(realtype c, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *zd;
 
   zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(z);
-  Ny  = SPV_YLENGTH(z);
-  Nz  = SPV_ZLENGTH(z);
-  nspc  = SPV_NSPECIES(z);
-  NGx = SPV_XGHOST(z);
-  NGy = SPV_YGHOST(z);
-  NGz = SPV_ZGHOST(z);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(z);
+  Nx   = SPV_XLENGTH(z);
+  Ny   = SPV_YLENGTH(z);
+  Nz   = SPV_ZLENGTH(z);
+  NGx  = SPV_XGHOST(z);
+  NGy  = SPV_YGHOST(z);
+  NGz  = SPV_ZGHOST(z);
 
-  /*  Calculates:  for (i=0; i < N; i++),  *zd++ = c; */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(z,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = c;
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = c;
+          }
+        }
       }
     }
   }
+
 }
 
 /* 
@@ -819,39 +727,42 @@ void N_VConst_SpcParallel(realtype c, N_Vector z)
 
 void N_VProd_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  /*  Calculates:  for (i=0; i < N; i++),  *zd++ = (*xd++) * (*yd++); */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = xd[loc] * yd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = xd[loc] * yd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /* 
@@ -860,39 +771,42 @@ void N_VProd_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VDiv_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);  
 
-  /*  for (i=0; i < N; i++),  *zd++ = (*xd++) / (*yd++); */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = xd[loc] / yd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = xd[loc] / yd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /* 
@@ -901,9 +815,9 @@ void N_VDiv_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 
 void N_VScale_SpcParallel(realtype c, N_Vector x, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
@@ -915,37 +829,45 @@ void N_VScale_SpcParallel(realtype c, N_Vector x, N_Vector z)
   }
 
   if (c == ONE) {
+
     VCopy_SpcParallel(x, z);
+
   } else if (c == -ONE) {
+
     VNeg_SpcParallel(x, z);
+
   } else {
 
     /* Get mesh info & data from vector */
-    Nx  = SPV_XLENGTH(x);
-    Ny  = SPV_YLENGTH(x);
-    Nz  = SPV_ZLENGTH(x);
-    nspc  = SPV_NSPECIES(x);
-    NGx = SPV_XGHOST(x);
-    NGy = SPV_YGHOST(x);
-    NGz = SPV_ZGHOST(x);
-    xd  = SPV_DATA(x);
-    zd  = SPV_DATA(z);
+    Ngrp = SPV_NGROUPS(x);
+    Nx   = SPV_XLENGTH(x);
+    Ny   = SPV_YLENGTH(x);
+    Nz   = SPV_ZLENGTH(x);
+    NGx  = SPV_XGHOST(x);
+    NGy  = SPV_YGHOST(x);
+    NGz  = SPV_ZGHOST(x);
 
-    /*  for (i=0; i < N; i++),  *zd++ = c * (*xd++); */
-    for (l=0; l<nspc; l++) {
-      Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+    for(ig=0; ig<Ngrp; ig++) {
+      xd = SPV_GDATA(x,ig);
+      zd = SPV_GDATA(z,ig);
+      Ns  = SPV_NSPECIES(x,ig);   
       for (k=NGz; k<Nz+NGz; k++) {
-	Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
-	for (j=NGy; j<Ny+NGy; j++) { 
-	  Yblock = j * (Nx + 2*NGx);
-	  for (i=NGx; i<Nx+NGx; i++) {
-	    loc = Sblock + Zblock + Yblock + i;
-	    zd[loc] = c * xd[loc];
-	  }
-	}
+        Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
+        for (j=NGy; j<Ny+NGy; j++) { 
+          Yblock = j * (Nx + 2*NGx) * Ns;
+          for (i=NGx; i<Nx+NGx; i++) {
+            Xblock = i * Ns;
+            for (is=0; is<Ns; is++) {
+              loc = Zblock + Yblock + Xblock + is;
+              zd[loc] = c * xd[loc];
+            }
+          }
+        }
       }
     }
+
   }
+
 }
 
 /* 
@@ -954,38 +876,41 @@ void N_VScale_SpcParallel(realtype c, N_Vector x, N_Vector z)
 
 void N_VAbs_SpcParallel(N_Vector x, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);  
 
-  /*  for (i=0; i < N; i++, xd++, zd++),  *zd = ABS(*xd); */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = ABS(xd[loc]);
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = ABS(xd[loc]);
+          }
+        }
       }
     }
   }
+
 }
 
 /* 
@@ -996,38 +921,41 @@ void N_VAbs_SpcParallel(N_Vector x, N_Vector z)
 
 void N_VInv_SpcParallel(N_Vector x, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  /*  for (i=0; i < N; i++),  *zd++ = ONE / (*xd++); */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = ONE / xd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = ONE / xd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /* 
@@ -1036,38 +964,41 @@ void N_VInv_SpcParallel(N_Vector x, N_Vector z)
 
 void N_VAddConst_SpcParallel(N_Vector x, realtype b, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
   
   xd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  zd  = SPV_DATA(z);
-  
-  /*  for (i=0; i < N; i++) *zd++ = (*xd++) + b; */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
+
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = xd[loc] + b;
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = xd[loc] + b;
+          }
+        }
       }
     }
   }
+
 }
 
 /* 
@@ -1077,43 +1008,45 @@ void N_VAddConst_SpcParallel(N_Vector x, realtype b, N_Vector z)
 
 realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
-  realtype sum, *xd, *yd, gsum;
+  long int Yblock, Zblock, Xblock, loc;
+  realtype sum, gsum, *xd, *yd;
   MPI_Comm comm;
 
-  sum = ZERO;
   xd = yd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  comm = SPV_COMM(x);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  /*  for (i=0; i < N; i++) sum += xd[i] * yd[i]; */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  sum = ZERO;
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  sum += xd[loc] * yd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            sum += xd[loc] * yd[loc];
+          }
+        }
       }
     }
   }
 
   /* obtain global sum from local sums */
+  gsum = ZERO;
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   return(gsum);
@@ -1126,42 +1059,45 @@ realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
 
 realtype N_VMaxNorm_SpcParallel(N_Vector x)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype max, *xd, gmax;
   MPI_Comm comm;
 
-  max = gmax = ZERO;
   xd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
   comm = SPV_COMM(x);
 
-  /*  for (i=0; i < N; i++, xd++),  if (ABS(*xd) > max) max = ABS(*xd); */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  max = ZERO;
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  if (ABS(xd[loc]) > max) max = ABS(xd[loc]);
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            if (ABS(xd[loc]) > max) max = ABS(xd[loc]);
+          }
+        }
       }
     }
   }
-   
+
   /* Obtain global max from local maxima */
+  gmax = ZERO;  
   MPI_Allreduce(&max, &gmax, 1, SPVEC_REAL_MPI_TYPE, MPI_MAX, comm);
 
   return(gmax);
@@ -1175,48 +1111,52 @@ realtype N_VMaxNorm_SpcParallel(N_Vector x)
 
 realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
 {
-  int l, nspc;
-  long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc, N_global;
-  realtype sum, prodi, *xd, *wd, gsum;
+  int ig, Ngrp, is, Ns;
+  long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz, Nglobal;
+  long int Yblock, Zblock, Xblock, loc;
+  realtype sum, gsum, prodi, *xd, *wd;
   MPI_Comm comm;
 
-  sum = ZERO;
   xd = wd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  wd  = SPV_DATA(w);
-  N_global = SPV_GLOBLENGTH(x);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
+  Nglobal = SPV_GLOBLENGTH(x);
   comm = SPV_COMM(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  sum = ZERO;
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    wd = SPV_GDATA(w,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  prodi = xd[loc] * wd[loc];
-	  sum += prodi * prodi;
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            prodi = xd[loc] * wd[loc];
+            sum += prodi * prodi;
+          }
+        }
       }
     }
   }
-  
+
   /* Obtain global sum from local sums */
+  gsum = ZERO;
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   /* scale correctly and return */
-  return(RSqrt(gsum / N_global));
+  return(RSqrt(gsum / Nglobal));
 }
 
 /* 
@@ -1225,51 +1165,55 @@ realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
 {
-  int l, nspc;
-  long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc, N_global;
-  realtype sum, prodi, *xd, *wd, *idd, gsum;
+  int ig, Ngrp, is, Ns;
+  long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz, Nglobal;
+  long int Yblock, Zblock, Xblock, loc;
+  realtype sum, gsum, prodi, *xd, *wd, *idd;
   MPI_Comm comm;
 
-  sum = ZERO;
   xd = wd = idd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  wd  = SPV_DATA(w);
-  idd = SPV_DATA(id);
-  N_global = SPV_GLOBLENGTH(x);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x); 
+  Nglobal = SPV_GLOBLENGTH(x);
   comm = SPV_COMM(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  sum = ZERO;
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    wd = SPV_GDATA(w,ig);
+    idd = SPV_GDATA(id,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  if (idd[loc] > ZERO) {
-	    prodi = xd[loc] * wd[loc];
-	    sum += prodi * prodi;
-	  }
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            if (idd[loc] > ZERO) {
+              prodi = xd[loc] * wd[loc];
+              sum += prodi * prodi;
+            }
+          }
+        }
       }
     }
   }
 
   /* Obtain global sum from local sums */
+  gsum = ZERO;
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   /* scale result and return */
-  return(RSqrt(gsum / N_global));
+  return(RSqrt(gsum / Nglobal));
 }
 
 /* 
@@ -1278,41 +1222,44 @@ realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VMin_SpcParallel(N_Vector x)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
-  realtype min, *xd, gmin; 
+  long int Yblock, Zblock, Xblock, loc;
+  realtype min, gmin, *xd; 
   MPI_Comm comm;
 
-  gmin = min = BIG_REAL;
   xd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);  
   comm = SPV_COMM(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  min = BIG_REAL;
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  if (xd[loc] < min) min = xd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            if (xd[loc] < min) min = xd[loc];
+          }
+        }
       }
     }
   }
 
   /* Obtain global min from local mins */
+  gmin = BIG_REAL;
   MPI_Allreduce(&min, &gmin, 1, SPVEC_REAL_MPI_TYPE, MPI_MIN, comm);
 
   return(gmin);
@@ -1326,43 +1273,47 @@ realtype N_VMin_SpcParallel(N_Vector x)
 
 realtype N_VWL2Norm_SpcParallel(N_Vector x, N_Vector w)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype sum, prodi, *xd, *wd, gsum;
   MPI_Comm comm;
 
-  sum = ZERO;
   xd = wd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  wd  = SPV_DATA(w);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);  
   comm = SPV_COMM(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  sum = ZERO;
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    wd = SPV_GDATA(w,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  prodi = xd[loc] * wd[loc];
-	  sum += prodi * prodi;
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            prodi = xd[loc] * wd[loc];
+            sum += prodi * prodi;
+          }
+        }
       }
     }
   }
 
   /* Obtain global sum from local sums */
+  gsum = ZERO;
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   return(RSqrt(gsum));
@@ -1375,41 +1326,45 @@ realtype N_VWL2Norm_SpcParallel(N_Vector x, N_Vector w)
 
 realtype N_VL1Norm_SpcParallel(N_Vector x)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype sum, gsum, *xd;
   MPI_Comm comm;
 
-  gsum = sum = ZERO;
   xd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
   comm = SPV_COMM(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  sum = ZERO;
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  sum += ABS(xd[loc]);
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            sum += ABS(xd[loc]);
+          }
+        }
       }
     }
   }
 
   /* Obtain global sum from local sums */
+  gsum = ZERO;
   MPI_Allreduce(&sum, &gsum, 1, SPVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 
   return(gsum);
@@ -1421,37 +1376,41 @@ realtype N_VL1Norm_SpcParallel(N_Vector x)
 
 void N_VCompare_SpcParallel(realtype c, N_Vector x, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
   
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = (ABS(xd[loc]) >= c) ? ONE : ZERO;
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = (ABS(xd[loc]) >= c) ? ONE : ZERO;
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1462,40 +1421,42 @@ void N_VCompare_SpcParallel(realtype c, N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd, val, gval;
   MPI_Comm comm;
 
   xd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
   comm = SPV_COMM(x);
 
   /* Initialize return value */
   val = ONE;
-
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  if (xd[loc] == ZERO)  val = ZERO;
-	  else  zd[loc] = ONE / xd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            if (xd[loc] == ZERO) val = ZERO;
+            else                 zd[loc] = ONE / xd[loc];
+          }
+        }
       }
     }
   }
@@ -1504,7 +1465,7 @@ booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
   MPI_Allreduce(&val, &gval, 1, SPVEC_REAL_MPI_TYPE, MPI_MIN, comm);
 
   if (gval == ZERO)  return(FALSE);
-  else  return(TRUE);
+  else               return(TRUE);
 }
 
 /* 
@@ -1523,9 +1484,9 @@ booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   booleantype test, alltest;
   realtype *cd, *xd, *md;
   MPI_Comm comm;
@@ -1533,49 +1494,51 @@ booleantype N_VConstrMask_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
   cd = xd = md = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  cd  = SPV_DATA(c);
-  md  = SPV_DATA(m);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
   comm = SPV_COMM(x);
 
   /* Initialize output variable */
   test = TRUE;
-
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    cd = SPV_GDATA(c,ig);
+    md = SPV_GDATA(m,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  md[loc] = ZERO;
-	  if (cd[loc] == ZERO) continue;
-	  if (cd[loc] > ONEPT5 || cd[loc] < -ONEPT5) {
-	    if (xd[loc]*cd[loc] <= ZERO) {
-	      test = FALSE; 
-	      md[loc] = ONE; 
-	    }
-	    continue;
-	  }
-	  if (cd[loc] > HALF || cd[loc] < -HALF) {
-	    if (xd[loc]*cd[loc] < ZERO) {
-	      test = FALSE;
-	      md[loc] = ONE;
-	    }
-	  }
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            md[loc] = ZERO;
+            if (cd[loc] == ZERO) continue;
+            if (cd[loc] > ONEPT5 || cd[loc] < -ONEPT5) {
+              if (xd[loc]*cd[loc] <= ZERO) {
+                test = FALSE; 
+                md[loc] = ONE; 
+              }
+              continue;
+            }
+            if (cd[loc] > HALF || cd[loc] < -HALF) {
+              if (xd[loc]*cd[loc] < ZERO) {
+                test = FALSE;
+                md[loc] = ONE;
+              }
+            }
+          }
+        }
       }
     }
   }
-  
+
   /* Obtain global return value from local return values */
   MPI_Allreduce(&test, &alltest, 1, MPI_INT, MPI_MIN, comm);
 
@@ -1583,59 +1546,62 @@ booleantype N_VConstrMask_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
 }
 
 /* 
- * N_VMinQuotient_SpcParallel returns min(num[i]/denom[i]) over all i 
+ * N_VMinQuotient_SpcParallel returns min(x[i]/y[i]) over all i 
  * such that denom[i] != 0. 
  */
 
-realtype N_VMinQuotient_SpcParallel(N_Vector num, N_Vector denom)
+realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
 {
-  booleantype notEvenOnce;
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
-  realtype *nd, *dd, min, gmin;
+  long int Yblock, Zblock, Xblock, loc;
+  booleantype notEvenOnce;
+  realtype *xd, *yd, min, gmin;
   MPI_Comm comm;
 
-  nd = dd = NULL;
+  xd = yd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(num);
-  Ny  = SPV_YLENGTH(num);
-  Nz  = SPV_ZLENGTH(num);
-  nspc  = SPV_NSPECIES(num);
-  NGx = SPV_XGHOST(num);
-  NGy = SPV_YGHOST(num);
-  NGz = SPV_ZGHOST(num);
-  nd  = SPV_DATA(num);
-  dd  = SPV_DATA(denom);
-  comm = SPV_COMM(num);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
+  comm = SPV_COMM(x);
 
   /* Initialize output value, minimum */
   notEvenOnce = TRUE;
   min = BIG_REAL;
-
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  if (dd[loc] == ZERO) continue;
-	  else {
-	    if (!notEvenOnce) min = MIN(min, nd[loc] / dd[loc]);
-	    else {
-	      min = nd[loc] / dd[loc] ;
-	      notEvenOnce = FALSE;
-	    }
-	  }
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            if (yd[loc] == ZERO) continue;
+            else {
+              if (!notEvenOnce) min = MIN(min, xd[loc] / yd[loc]);
+              else {
+                min = xd[loc] / yd[loc] ;
+                notEvenOnce = FALSE;
+              }
+            }
+          }
+        }
       }
     }
   }
 
   /* Obtain global min from local minima */
+  gmin = BIG_REAL;
   MPI_Allreduce(&min, &gmin, 1, SPVEC_REAL_MPI_TYPE, MPI_MIN, comm);
 
   return(gmin);
@@ -1648,6 +1614,25 @@ realtype N_VMinQuotient_SpcParallel(N_Vector num, N_Vector denom)
  */
 
 /*
+ * Attach data to a vector and set pointers to start points of 
+ * group data
+ */
+
+static void VAttach_Data(N_Vector v, realtype *data)
+{
+  int ig, Ngrp;
+
+  SPV_DATA(v) = data;
+  Ngrp = SPV_NGROUPS(v);
+
+  SPV_GDATA(v,0) = SPV_DATA(v);
+  for (ig=1; ig<Ngrp; ig++)
+    SPV_GDATA(v,ig) = SPV_GDATA(v,ig-1) + SPC_LOCLENGTH1(v,ig-1);
+
+}
+
+
+/*
  * VCopy_SpcParallel is a private helper function that copies the 
  * local parts of the vector x into the local parts of the vector z. 
  * Note: the mesh dimensions must match. 
@@ -1655,37 +1640,41 @@ realtype N_VMinQuotient_SpcParallel(N_Vector num, N_Vector denom)
 
 static void VCopy_SpcParallel(N_Vector x, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = xd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = xd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1695,38 +1684,42 @@ static void VCopy_SpcParallel(N_Vector x, N_Vector z)
 
 static void VSum_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = xd[loc] + yd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = xd[loc] + yd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1736,38 +1729,42 @@ static void VSum_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 
 static void VDiff_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
  
   xd = yd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = xd[loc] - yd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = xd[loc] - yd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1777,37 +1774,41 @@ static void VDiff_SpcParallel(N_Vector x, N_Vector y, N_Vector z)
 
 static void VNeg_SpcParallel(N_Vector x, N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *zd;
 
   xd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = -xd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = -xd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1816,41 +1817,44 @@ static void VNeg_SpcParallel(N_Vector x, N_Vector z)
  */
 
 static void VScaleSum_SpcParallel(realtype c, N_Vector x, N_Vector y, 
-				   N_Vector z)
+                                  N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  /*  for (i=0; i < N; i++),  *zd++ = c * ((*xd++) + (*yd++)); */
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = c * (xd[loc] + yd[loc]);
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = c * (xd[loc] + yd[loc]);
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1862,38 +1866,42 @@ static void VScaleSum_SpcParallel(realtype c, N_Vector x, N_Vector y,
 static void VScaleDiff_SpcParallel(realtype c, N_Vector x, N_Vector y, 
 				    N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = c * (xd[loc] - yd[loc]);
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = c * (xd[loc] - yd[loc]);
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1904,38 +1912,42 @@ static void VScaleDiff_SpcParallel(realtype c, N_Vector x, N_Vector y,
 static void VLin1_SpcParallel(realtype a, N_Vector x, N_Vector y, 
 			       N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = a*xd[loc] + yd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = a*xd[loc] + yd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1946,38 +1958,42 @@ static void VLin1_SpcParallel(realtype a, N_Vector x, N_Vector y,
 static void VLin2_SpcParallel(realtype a, N_Vector x, N_Vector y, 
 			       N_Vector z)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd, *zd;
 
   xd = yd = zd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
-  zd  = SPV_DATA(z);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    zd = SPV_GDATA(z,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  zd[loc] = a*xd[loc] - yd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            zd[loc] = a*xd[loc] - yd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -1987,71 +2003,91 @@ static void VLin2_SpcParallel(realtype a, N_Vector x, N_Vector y,
 
 static void Vaxpy_SpcParallel(realtype a, N_Vector x, N_Vector y)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd, *yd;
 
   xd = yd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
-  yd  = SPV_DATA(y);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
   if (a == ONE) {
-    for (l=0; l<nspc; l++) {
-      Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+
+    for(ig=0; ig<Ngrp; ig++) {
+      xd = SPV_GDATA(x,ig);
+      yd = SPV_GDATA(y,ig);
+      Ns  = SPV_NSPECIES(x,ig);   
       for (k=NGz; k<Nz+NGz; k++) {
-	Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
-	for (j=NGy; j<Ny+NGy; j++) { 
-	  Yblock = j * (Nx + 2*NGx);
-	  for (i=NGx; i<Nx+NGx; i++) {
-	    loc = Sblock + Zblock + Yblock + i;
-	    yd[loc] += xd[loc];
-	  }
-	}
+        Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
+        for (j=NGy; j<Ny+NGy; j++) { 
+          Yblock = j * (Nx + 2*NGx) * Ns;
+          for (i=NGx; i<Nx+NGx; i++) {
+            Xblock = i * Ns;
+            for (is=0; is<Ns; is++) {
+              loc = Zblock + Yblock + Xblock + is;
+              yd[loc] += xd[loc];
+            }
+          }
+        }
       }
     }
+
     return;
+
   }
 
   if (a == -ONE) {
-    for (l=0; l<nspc; l++) {
-      Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+
+    for(ig=0; ig<Ngrp; ig++) {
+      xd = SPV_GDATA(x,ig);
+      yd = SPV_GDATA(y,ig);
+      Ns  = SPV_NSPECIES(x,ig);   
       for (k=NGz; k<Nz+NGz; k++) {
-	Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
-	for (j=NGy; j<Ny+NGy; j++) { 
-	  Yblock = j * (Nx + 2*NGx);
-	  for (i=NGx; i<Nx+NGx; i++) {
-	    loc = Sblock + Zblock + Yblock + i;
-	    yd[loc] -= xd[loc];
-	  }
-	}
+        Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
+        for (j=NGy; j<Ny+NGy; j++) { 
+          Yblock = j * (Nx + 2*NGx) * Ns;
+          for (i=NGx; i<Nx+NGx; i++) {
+            Xblock = i * Ns;
+            for (is=0; is<Ns; is++) {
+              loc = Zblock + Yblock + Xblock + is;
+              yd[loc] -= xd[loc];
+            }
+          }
+        }
       }
     }
+
     return;
+
   }
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    yd = SPV_GDATA(y,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  yd[loc] += a * xd[loc];
-	}
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            yd[loc] += a * xd[loc];
+          }
+        }
       }
     }
   }
+
 }
 
 /*
@@ -2061,35 +2097,38 @@ static void Vaxpy_SpcParallel(realtype a, N_Vector x, N_Vector y)
 
 static void VScaleBy_SpcParallel(realtype a, N_Vector x)
 {
-  int l, nspc;
+  int ig, Ngrp, is, Ns;
   long int i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  long int Yblock, Zblock, Sblock, loc;
+  long int Yblock, Zblock, Xblock, loc;
   realtype *xd;
 
   xd = NULL;
 
   /* Get mesh info & data from vector */
-  Nx  = SPV_XLENGTH(x);
-  Ny  = SPV_YLENGTH(x);
-  Nz  = SPV_ZLENGTH(x);
-  nspc  = SPV_NSPECIES(x);
-  NGx = SPV_XGHOST(x);
-  NGy = SPV_YGHOST(x);
-  NGz = SPV_ZGHOST(x);
-  xd  = SPV_DATA(x);
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
 
-  for (l=0; l<nspc; l++) {
-    Sblock = l * (Nx + 2*NGx) * (Ny + 2*NGy) * (Nz + 2*NGz);
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    Ns = SPV_NSPECIES(x,ig);   
     for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy);
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
       for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx);
+	Yblock = j * (Nx + 2*NGx) * Ns;
 	for (i=NGx; i<Nx+NGx; i++) {
-	  loc = Sblock + Zblock + Yblock + i;
-	  xd[loc] *= a;
-	} 
-      } 
-    } 
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            xd[loc] *= a;
+          }
+        }
+      }
+    }
   }
-}
 
+}

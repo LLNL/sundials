@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-06-14 19:00:57 $
+ * $Revision: 1.2 $
+ * $Date: 2005-06-21 19:22:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -11,10 +11,21 @@
  * For details, see sundials/shared/LICENSE.
  *-----------------------------------------------------------------
  * This is the header file for an implementation of an NVECTOR
- * package for which the local data consists of 3 space dimensions 
- * + nspc species i.e. u(Xlo:Xhi, Ylo:Yhi, Zlo:Zhi, 1:nspc),
- * and the indices Xlo:Xhi, etc. may include ghost data for the
- * local domain.
+ * package for for semi-discretized 2D or 3D PDEs and for which the 
+ * local data is organized in several groups of variables, igrp=1..Ngrps. 
+ * Each group consists of 1...Nspc(igrp). The spatial indexes may also
+ * include ghost data points.
+ * In other words, the data is organized as a multi-dimensional array,
+ * in which the indexes vary (from the slowest to the fastest) as follows:
+ *   igrp ( = 0...Ngrp-1)
+ *   iz   ( = 0...Nz+2*NGz-1)
+ *   iy   ( = 0...Ny+2*NGy-1)
+ *   ix   ( = 0...Nx+2*NGx-1)
+ *   ispc ( = 0...Nspc(igrp)-1)
+ * For 2D PDEs, the user should specify Nz=1, NGz=0.
+ *
+ * It is assumed that the spatial domain is partitioned over several
+ * processes defined by the MPI communicator comm.
  *
  * Part I contains declarations specific to the spcparallel
  * implementation of the supplied NVECTOR module.
@@ -87,21 +98,21 @@ extern "C" {
  */
 
 struct _N_VectorContent_SpcParallel {
-  int nspc;                /* number of species                               */
-  long int Nx;           /* local x-mesh vector length                      */
-  long int Ny;           /* local y-mesh vector length                      */
-  long int Nz;           /* local z-mesh vector length                      */
-  long int NGx;          /* x-width of ghost boundary                       */
-  long int NGy;          /* y-width of ghost boundary                       */
-  long int NGz;          /* z-width of ghost boundary                       */
-  long int n1;           /* local computational vector length for 1 species */
-  long int n1g;          /* local vector vector for 1 species               */
-  long int n;            /* local computational vector length               */
-  long int ng;           /* local vector length                             */
-  long int Ng;           /* global vector length                            */
-  realtype *data;        /* local data array                                */
-  booleantype own_data;  /* flag for ownership of data                      */
-  MPI_Comm comm;         /* pointer to MPI communicator                     */
+  int Ngrp;              /* number of variable groups                        */
+  int *Nspc;             /* number of species in each group                  */
+  long int Nx;           /* local x-mesh vector length                       */
+  long int Ny;           /* local y-mesh vector length                       */
+  long int Nz;           /* local z-mesh vector length                       */
+  long int NGx;          /* x-width of ghost boundary                        */
+  long int NGy;          /* y-width of ghost boundary                        */
+  long int NGz;          /* z-width of ghost boundary                        */
+  long int *n1;          /* local vector lengths for each group              */
+  long int n;            /* local vector length                              */
+  long int N;            /* global vector length                             */
+  realtype *data;        /* local data array                                 */
+  realtype **gdata;      /* pointers in data at start of group data          */
+  booleantype own_data;  /* flag for ownership of data                       */
+  MPI_Comm comm;         /* pointer to MPI communicator                      */
 };
   
 typedef struct _N_VectorContent_SpcParallel *N_VectorContent_SpcParallel;
@@ -125,9 +136,13 @@ typedef struct _N_VectorContent_SpcParallel *N_VectorContent_SpcParallel;
 
 #define SPV_CONTENT(v) ( (N_VectorContent_SpcParallel)(v->content) )
 
-  /* Number of species */
+  /* Number of groups */
 
-#define SPV_NSPECIES(v) (SPV_CONTENT(v)->nspc)
+#define SPV_NGROUPS(v) (SPV_CONTENT(v)->Ngrp)
+
+  /* Number of species in group ig */
+
+#define SPV_NSPECIES(v,ig) (SPV_CONTENT(v)->Nspc[ig])
 
   /* Local grid dimensions */
 
@@ -143,24 +158,27 @@ typedef struct _N_VectorContent_SpcParallel *N_VectorContent_SpcParallel;
 #define SPV_YGLENGTH(v) (SPV_YLENGTH(v)+2*SPV_YGHOST(v))
 #define SPV_ZGLENGTH(v) (SPV_ZLENGTH(v)+2*SPV_ZGHOST(v))
 
-  /* Local vector lengths */
+  /* Local data dimension for group ig */
 
-#define SPV_LOCLENGTH1(v) (SPV_CONTENT(v)->n1g)
-#define SPV_LOCLENGTH(v)  (SPV_CONTENT(v)->ng)
+#define SPV_LOCLENGTH1(v,ig) (SPV_CONTENT(v)->n1[ig])
 
-  /* Global length */
+  /* Local data dimension */
 
-#define SPV_GLOBLENGTH(v) (SPV_CONTENT(v)->Ng)
+#define SPV_LOCLENGTH(v)  (SPV_CONTENT(v)->n)
+
+  /* Global data dimension */
+
+#define SPV_GLOBLENGTH(v) (SPV_CONTENT(v)->N)
 
   /* Data access */
 
 #define SPV_DATA(v) (SPV_CONTENT(v)->data)
 
-#define SPV_SDATA(v,s) (SPV_DATA(v) + ((s)*SPV_LOCLENGTH1(v)))
+#define SPV_GDATA(v,ig) (SPV_CONTENT(v)->gdata[ig])
 
-#define SPV_Ith(v,s,i) (SPV_SDATA(v,s)[i])
+#define SPV_Ith(v,ig,i) (SPV_DATA(v)[i])
 
-#define SPV_IJKth(v,s,i,j,k) (SPV_Ith(v,s,(i)+SPV_XGLENGTH(v)*((j)+SPV_YGLENGTH(v)*(k))))
+#define SPV_GIth(v,ig,i) (SPV_GDATA(v,ig)[i])
 
   /* MPI communicator */
 
@@ -198,7 +216,7 @@ typedef struct _N_VectorContent_SpcParallel *N_VectorContent_SpcParallel;
  * -----------------------------------------------------------------
  */
 
-N_Vector N_VNew_SpcParallel(MPI_Comm comm, int nspc, 
+N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc, 
                             long int Nx,  long int Ny,  long int Nz, 
                             long int NGx, long int NGy, long int NGz);
 /*
@@ -210,73 +228,65 @@ N_Vector N_VNew_SpcParallel(MPI_Comm comm, int nspc,
  * -----------------------------------------------------------------
  */
 
-N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm,  int nspc,
+N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm,  int Ngrp, int *Nspc,
                                  long int Nx,  long int Ny,  long int Nz, 
                                  long int NGx, long int NGy, long int NGz);
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VAttach_SpcParallel
+ * Function : N_VMake_SpcParallel
  * -----------------------------------------------------------------
  * This function creates an SPCPARALLEL vector and attaches to it
  * the user-supplied data (which must be a contiguous array)
  * -----------------------------------------------------------------
  */
 
-N_Vector N_VAttach_SpcParallel(MPI_Comm comm, int nspc, 
-                               long int Nx,  long int Ny,  long int Nz, 
-                               long int NGx, long int NGy, long int NGz,
-                               realtype *data);
+N_Vector N_VMake_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc, 
+                             long int Nx,  long int Ny,  long int Nz, 
+                             long int NGx, long int NGy, long int NGz,
+                             realtype *data);
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VLoad_SpcParallel
  * -----------------------------------------------------------------
- * This function creates an SPCPARALLEL vector and copiesinto it
- * the user-supplied data (which must be an array of nspc vectors)
+ * This function copies into a given SPCPARALLEL N_Vector the data
+ * for one species. The user must indicate the group index and the
+ * species index within that group.
+ * The data must be a realtype array in the correct order.
  * -----------------------------------------------------------------
  */
 
-N_Vector N_VLoad_SpcParallel(MPI_Comm comm, int nspc, 
-                             long int Nx,  long int Ny,  long int Nz, 
-                             long int NGx, long int NGy, long int NGz,
-                             realtype **data);
+void N_VLoad_SpcParallel(N_Vector v, int igrp, int ispc, realtype *data);
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNewVectorArray_SpcParallel
+ * Function : N_VCloneVectorArray_SpcParallel
  * -----------------------------------------------------------------
- * This function creates an array of 'count' parallel vectors. This
- * array of N_Vectors can be freed using N_VDestroyVectorArray
- * (defined by the generic NVECTOR module).
+ * This function creates an array of SPCPARALLEL vectors by cloning
+ * from a given vector w
  * -----------------------------------------------------------------
  */
 
-N_Vector *N_VNewVectorArray_SpcParallel(int count, 
-                                        MPI_Comm comm, int nspc, 
-                                        long int Nx,  long int Ny,  long int Nz, 
-                                        long int NGx, long int NGy, long int NGz);
+N_Vector *N_VCloneVectorArray_SpcParallel(int count, N_Vector w);
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNewVectorArrayEmpty_SpcParallel
+ * Function : N_VCloneVectorArrayEmpty_SpcParallel
  * -----------------------------------------------------------------
- * This function creates an array of 'count' parallel vectors each 
- * with an empty (NULL) data array.
+ * This function creates an array of SPCPARALLEL vectors with empty
+ * (NULL) data array by cloning from a given vector w.
  * -----------------------------------------------------------------
  */
 
-N_Vector *N_VNewVectorArrayEmpty_SpcParallel(int count, 
-                                             MPI_Comm comm, int nspc, 
-                                             long int Nx,  long int Ny,  long int Nz, 
-                                             long int NGx, long int NGy, long int NGz);
+N_Vector *N_VCloneVectorArrayEmpty_SpcParallel(int count, N_Vector w);
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VDestroyVectorArray_SpcParallel
  * -----------------------------------------------------------------
  * This function frees an array of N_Vector created with 
- * N_VNewVectorArray_SpcParallel.
+ * N_VCloneVectorArray_SpcParallel.
  * -----------------------------------------------------------------
  */
 
@@ -287,22 +297,11 @@ void N_VDestroyVectorArray_SpcParallel(N_Vector *vs, int count);
  * Function : N_VPrint_SpcParallel
  * -----------------------------------------------------------------
  * This function prints the content of an SPCPARALLEL vector 
- * to stdout.
+ * to a file or to stdout (if fname=="")
  * -----------------------------------------------------------------
  */
 
-void N_VPrint_SpcParallel(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrintFile_SpcParallel
- * -----------------------------------------------------------------
- * This function prints the content of an SPCPARALLEL vector 
- * to a file.
- * -----------------------------------------------------------------
- */
-
-void N_VPrintFile_SpcParallel(char *fname, N_Vector v);
+void N_VPrint_SpcParallel(N_Vector v, char *fname);
 
 /*
  * -----------------------------------------------------------------

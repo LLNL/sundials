@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-06-20 17:24:26 $
+ * $Revision: 1.3 $
+ * $Date: 2005-06-21 19:22:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -93,20 +93,16 @@ extern "C" {
   /* Declarations of global variables */
 
   extern N_Vector F2C_CVODE_vec;
-
-  extern N_Vector F2C_CVODES_vec;
-  extern N_Vector F2C_CVODES_vecQ;
-  extern N_Vector *F2C_CVODES_vecS;
-  extern N_Vector F2C_CVODES_vecB;
-  extern N_Vector F2C_CVODES_vecQB;
+  extern N_Vector F2C_CVODE_vecQ;
+  extern N_Vector *F2C_CVODE_vecS;
+  extern N_Vector F2C_CVODE_vecB;
+  extern N_Vector F2C_CVODE_vecQB;
 
   extern N_Vector F2C_IDA_vec;
-
-  extern N_Vector F2C_IDAS_vec;
-  extern N_Vector F2C_IDAS_vecQ;
-  extern N_Vector *F2C_IDAS_vecS;
-  extern N_Vector F2C_IDAS_vecB;
-  extern N_Vector F2C_IDAS_vecQB;
+  extern N_Vector F2C_IDA_vecQ;
+  extern N_Vector *F2C_IDA_vecS;
+  extern N_Vector F2C_IDA_vecB;
+  extern N_Vector F2C_IDA_vecQB;
 
   extern N_Vector F2C_KINSOL_vec;
 
@@ -124,28 +120,22 @@ extern "C" {
 #ifdef SUNDIALS_MPI_COMM_F2C
 
   void FNV_INITSPCP(MPI_Fint *comm, int *code, 
-                    int *nspc,
+                    int *Ngrp, int *Nspc,
                     long int *Nx, long int *Ny, long int *Nz,
                     long int *NGx, long int *NGy, long int *NGz,
                     int *ier);
   void FNV_INITSPCP_Q(MPI_Fint *comm, int *code, 
-                      int *nspcQ,
+                      int *NgrpQ, int *NspcQ,
                       long int *NxQ, long int *NyQ, long int *NzQ,
                       long int *NGxQ, long int *NGyQ, long int *NGzQ,
                       int *ier);
-  void FNV_INITSPCP_S(MPI_Fint *comm, int *code, 
-                      int *Ns, 
-                      int *nspc,
-                      long int *Nx, long int *Ny, long int *Nz,
-                      long int *NGx, long int *NGy, long int *NGz,
-                      int *ier);
   void FNV_INITSPCP_B(MPI_Fint *comm, int *code, 
-                      int *nspcB,
+                      int *NgrpB, int *NspcB,
                       long int *NxB, long int *NyB, long int *NzB,
                       long int *NGxB, long int *NGyB, long int *NGzB,
                       int *ier);
   void FNV_INITSPCP_QB(MPI_Fint *comm, int *code, 
-                       int *nspcQB,
+                       int *NgrpQB, int *NspcQB,
                        long int *NxQB, long int *NyQB, long int *NzQB,
                        long int *NGxQB, long int *NGyQB, long int *NGzQB,
                        int *ier);
@@ -153,33 +143,29 @@ extern "C" {
 #else
 
   void FNV_INITSPCP(int *code, 
-                    int *nspc,
+                    int *Ngrp, int *Nspc,
                     long int *Nx, long int *Ny, long int *Nz,
                     long int *NGx, long int *NGy, long int *NGz,
                     int *ier);
   void FNV_INITSPCP_Q(int *code, 
-                      int *nspcQ,
+                      int *NgrpQ, int *NspcQ,
                       long int *NxQ, long int *NyQ, long int *NzQ,
                       long int *NGxQ, long int *NGyQ, long int *NGzQ,
                       int *ier);
-  void FNV_INITSPCP_S(int *code, 
-                      int *Ns, 
-                      int *nspc,
-                      long int *Nx, long int *Ny, long int *Nz,
-                      long int *NGx, long int *NGy, long int *NGz,
-                      int *ier);
   void FNV_INITSPCP_B(int *code, 
-                      int *nspcB,
+                      int *NgrpB, int *NspcB,
                       long int *NxB, long int *NyB, long int *NzB,
                       long int *NGxB, long int *NGyB, long int *NGzB,
                       int *ier);
   void FNV_INITSPCP_QB(int *code, 
-                       int *nspcQB,
+                       int *NgrpQB, int *NspcQB,
                        long int *NxQB, long int *NyQB, long int *NzQB,
                        long int *NGxQB, long int *NGyQB, long int *NGzQB,
                        int *ier);
 
 #endif
+
+  void FNV_INITSPCP_S(int *code, int *Ns, int *ier);
 
 #ifdef __cplusplus
 }
