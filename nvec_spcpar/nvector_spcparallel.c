@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-06-21 19:22:51 $
+ * $Revision: 1.3 $
+ * $Date: 2005-06-22 21:02:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -273,7 +273,7 @@ N_Vector *N_VCloneVectorArrayEmpty_SpcParallel(int count, N_Vector w)
   for (j = 0; j < count; j++) {
     vs[j] = N_VCloneEmpty_SpcParallel(w);
     if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Parallel(vs, j-1);
+      N_VDestroyVectorArray_SpcParallel(vs, j-1);
       return(NULL);
     }
   }
@@ -301,7 +301,7 @@ N_Vector *N_VCloneVectorArray_SpcParallel(int count, N_Vector w)
   for (j = 0; j < count; j++) {
     vs[j] = N_VClone_SpcParallel(w);
     if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Parallel(vs, j-1);
+      N_VDestroyVectorArray_SpcParallel(vs, j-1);
       return(NULL);
     }
   }
@@ -1627,7 +1627,7 @@ static void VAttach_Data(N_Vector v, realtype *data)
 
   SPV_GDATA(v,0) = SPV_DATA(v);
   for (ig=1; ig<Ngrp; ig++)
-    SPV_GDATA(v,ig) = SPV_GDATA(v,ig-1) + SPC_LOCLENGTH1(v,ig-1);
+    SPV_GDATA(v,ig) = SPV_GDATA(v,ig-1) + SPV_LOCLENGTH1(v,ig-1);
 
 }
 
