@@ -82,8 +82,11 @@ from a shell command prompt to remove unneeded object files.
           &                                       & \id{smalldense.h}       \\
           &                                       & \id{band.h}             \\
           &                                       & \id{spgmr.h}            \\
+          &                                       & \id{spbcg.h}            \\
+          &                                       & \id{sptfqmr.h}          \\
           &                                       & \id{iterative.h}        \\
           &                                       & \id{nvector.h}          \\
+          &                                       & \id{fnvector.h}         \\
 \hline
 {\nvecs}  & \id{libsundials\_nvecserial.{\em lib}}   & \id{nvector\_serial.h} \\
           & \id{libsundials\_fnvecserial.a}          &                          \\
@@ -91,11 +94,17 @@ from a shell command prompt to remove unneeded object files.
 {\nvecp}  & \id{libsundials\_nvecparallel.{\em lib}} & \id{nvector\_parallel.h} \\
           & \id{libsundials\_fnvecparallel.a}        &                            \\
 \hline
+{\nvecspc}  & \id{libsundials\_nvecspcparallel.{\em lib}} & \id{nvector\_spcparallel.h} \\
+            & \id{libsundials\_fnvecspcparallel.a}          &                             \\
+\hline
 {\cvode} & \id{libsundials\_cvode.{\em lib}} & \id{cvode.h}     \\
          & \id{libsundials\_fcvode.a}          & \id{cvdense.h}   \\
          &                                     & \id{cvband.h}    \\
          &                                     & \id{cvdiag.h}    \\
+         &                                     & \id{cvspils.h}   \\
          &                                     & \id{cvspgmr.h}   \\
+         &                                     & \id{cvspbcg.h}   \\
+         &                                     & \id{cvsptfqmr.h} \\
          &                                     & \id{cvbandpre.h} \\
          &                                     & \id{cvbbdpre.h}  \\
 \hline
@@ -104,19 +113,29 @@ from a shell command prompt to remove unneeded object files.
           &                                      & \id{cvdense.h}   \\
           &                                      & \id{cvband.h}    \\
           &                                      & \id{cvdiag.h}    \\
+          &                                      & \id{cvspils.h}   \\
           &                                      & \id{cvspgmr.h}   \\
+          &                                      & \id{cvspbcg.h}   \\
+          &                                      & \id{cvsptfmqr.h} \\
           &                                      & \id{cvbandpre.h} \\
           &                                      & \id{cvbbdpre.h}  \\
 \hline
-{\ida} & \id{libsundials\_ida.{\em lib}} & \id{ida.h}       \\
-       &                                   & \id{idadense.h}  \\
-       &                                   & \id{idaband.h}   \\
-       &                                   & \id{idaspgmr.h}  \\
-       &                                   & \id{idabbdpre.h} \\
+{\ida} & \id{libsundials\_ida.{\em lib}}  & \id{ida.h}        \\
+       & \id{libsundials\_fida.a}           & \id{idadense.h}   \\
+       &                                    & \id{idaband.h}    \\
+       &                                    & \id{idaspils.h}   \\
+       &                                    & \id{idaspgmr.h}   \\
+       &                                    & \id{idaspbcg.h}   \\
+       &                                    & \id{idasptfqmr.h} \\
+       &                                    & \id{idabbdpre.h}  \\
 \hline
-{\kinsol} & \id{libsundials\_kinsol.{\em lib}} & \id{kinsol.h}    \\
-          & \id{libsundials\_fkinsol.a}          & \id{kinspgmr.h}  \\
-          &                                      & \id{kinbbdpre.h} \\
+{\kinsol} & \id{libsundials\_kinsol.{\em lib}} & \id{kinsol.h}     \\
+          & \id{libsundials\_fkinsol.a}          & \id{kinspils.h}   \\
+          &                                      & \id{kinspgmr.h}   \\
+          &                                      & \id{kinspbcg.h}   \\
+          &                                      & \id{kinsptfqmr.h} \\
+          &                                      & \id{kinbbdpre.h}  \\
+          &                                      & \id{kindense.h}   \\
 \hline
 \end{tabular}
 
@@ -312,7 +331,7 @@ following two options may be used to override the default behavior.
   be necessary to specify the appropriate libraries to use (e.g.,
   \id{LIBS=-lmpich}).
 
-  Default: \id{INCDIR=MPIDIR/include}, \id{LIBDIR=MPIDIR/lib} and \id{LIBS=-lmpi}
+  Default: \id{INCDIR=MPIDIR/include} and \id{LIBDIR=MPIDIR/lib}
 
 \item \id{--with-mpi-flags=ARG}
 
@@ -433,6 +452,6 @@ of the corresponding {\mpi} compiler script. In addition, since the
 to \id{gcc} when compiling the {\mpi}-enabled functions. 
 The \id{--disable-examples} option disables the examples (which means
 a {\F} compiler is not required).
-The \id{--with-mpi-libs} option is still needed so that the configure
+The \id{--with-mpi-libs} option is required so that the configure
 script can check if \id{gcc} can link with the appropriate {\mpi}
-library as \id{-lmpi} is the internal default.
+library.
