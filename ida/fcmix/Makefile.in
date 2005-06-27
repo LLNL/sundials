@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2005-05-11 23:10:54 $
+# $Revision: 1.2 $
+# $Date: 2005-06-27 19:46:25 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,9 +44,9 @@ IDA_INC_DIR    = $(srcdir)/../include
 FIDA_INC_DIR   = $(srcdir)
 
 FIDA_LIB       = libsundials_fida.la
-FIDA_LIB_FILES = fida.lo fidaband.lo fidabbd.lo fidadense.lo fidajtimes.lo fidapreco.lo fidaewt.lo
+FIDA_LIB_FILES = fida.lo fidaband.lo fidabbd.lo fidadense.lo fidajtimes.lo fidapreco.lo fidaewt.lo fidaroot.lo
 
-OBJECT_FILES = fida.o fidaband.o fidabbd.o fidadense.o fidajtimes.o fidapreco.o fidaewt.o
+OBJECT_FILES = fida.o fidaband.o fidabbd.o fidadense.o fidajtimes.o fidapreco.o fidaewt.o fidaroot.o
 
 all: update $(FIDA_LIB_FILES)
 
@@ -80,6 +80,8 @@ fidapreco.lo: $(srcdir)/fidapreco.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidapreco.c
 fidabbd.lo: $(srcdir)/fidabbd.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidabbd.c
+fidaroot.lo: $(srcdir)/fidaroot.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(FIDA_INC_DIR) $(CFLAGS) -c $(srcdir)/fidaroot.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \
