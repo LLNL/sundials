@@ -1,10 +1,9 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.2 $
-c     $Date: 2005-06-21 19:12:56 $
+c     $Revision: 1.3 $
+c     $Date: 2005-06-27 19:47:25 $
 c     ----------------------------------------------------------------
-c     This simple example problem for FIDA, due to Robertson, 
-c     is from chemical kinetics, and consists of the following three 
-c     equations:
+c     This simple example problem for FIDA, due to Robertson, is from 
+c     chemical kinetics, and consists of the following three equations:
 c
 c          dy1/dt = -.04*y1 + 1.e4*y2*y3
 c          dy2/dt =  .04*y1 - 1.e4*y2*y3 - 3.e7*y2**2
@@ -12,6 +11,9 @@ c             0   = y1 + y2 + y3 - 1
 c
 c     on the interval from t = 0.0 to t = 4.e10, with initial
 c     conditions: y1 = 1, y2 = y3 = 0.
+c
+c     While integrating the system, we also use the rootfinding feature
+c     to find the points at which y1 = 1.e-4 or at which y3 = 0.01.
 c
 c     The problem is solved using a dense linear solver, with a
 c     user-supplied Jacobian. Output is printed at
@@ -22,7 +24,7 @@ c
 c
       implicit none
 c
-      integer ier
+      integer ier, ierroot, info(2)
       integer*4 iopt(40)
       double precision ropt(40)
 c
@@ -75,6 +77,16 @@ c
          stop
       endif
 c
+c Initialize rootfinding problem
+
+      call fidarootinit(2, ier)
+      if (ier .ne. 0) then
+         write(6,25) ier
+ 25      format(///' SUNDIALS_ERROR: FIDAROOTINIT returned IER = ', i5)
+         call fidafree
+         stop
+      endif
+c
 c Attach dense linear solver
 c
       call fidadense(neq, ier)
@@ -85,23 +97,45 @@ c
       call prntintro(rtol, atol, y)
 c
       tout = t1
-      do 30 iout = 1, nout
 c
-         call fidasolve(tout, tret, y, yp, itask, ier)
 c
-         write(6,40) tret, (y(i), i = 1,3), iopt(nst), iopt(kused),
-     &               ropt(hused)
- 40       format(e8.2, 3(1x,e12.4), i5, i3, e12.4)
+      do while(iout .lt. nout)
 c
-         if (ier .ne. 0) then
-            write(6,50) ier
- 50         format(///' SUNDIALS_ERROR: FIDASOLVE returned IER = ', i5)
+        call fidasolve(tout, tret, y, yp, itask, ier)
+c
+        write(6,40) tret, (y(i), i = 1,3), iopt(nst), iopt(kused),
+     &              ropt(hused)
+ 40     format(e10.4, 3(1x,e12.4), i5, i3, e12.4)
+c
+        if (ier .lt. 0) then
+           write(6,50) ier, iopt(30)
+ 50        format(///' SUNDIALS_ERROR: FIDASOLVE returned IER = ',i5,/,
+     1            '                 Linear Solver returned IER = ',i5)
+           call fidarootfree
+           call fidafree
+           stop
+        endif
+c
+        if (ier .eq. 2) then
+          call fidarootinfo(2, info, ierroot)
+          if (ierroot .lt. 0) then
+            write(6,55) ier
+ 55         format(///' SUNDIALS_ERROR: FIDAROOTINFO returned IER = ',
+     1             i5)
+            call fidarootfree
             call fidafree
             stop
-         endif
+          endif
+          write(6,60) (info(i), i = 1,2)
+ 60       format(5x, 'Above is a root, INFO() = ', 2i3)
+        endif                   
 c
-         tout = tout*10.0d0
- 30   continue
+        if (ier .eq. 0) then
+           tout = tout * 10.0d0
+           iout = iout + 1
+        endif
+c
+      ENDDO
 c
 c Print final statistics
 c
@@ -109,6 +143,7 @@ c
 c
 c Free IDA memory
 c
+      call fidarootfree
       call fidafree
 c
       stop
@@ -160,6 +195,19 @@ c
 c
 c ==========
 c
+      subroutine fidarootfn(t, y, yp, g)
+c Fortran routine for rootfinding
+      implicit none
+c
+      double precision t, y(*), yp(*), g(*)
+c
+      g(1) = y(1) - 1.0d-4
+      g(2) = y(3) - 1.0d-2
+      return
+      end
+c
+c ==========
+c
       subroutine prntintro(rtol, atol, y)
 c
       implicit none
@@ -175,7 +223,7 @@ c
      &       '   atol = ', 3(1x,e8.2), /,
      &       'Initial conditions y0 = (', 3(1x,e8.2), ')', /,
      &       'Constraints and id not used.', //,
-     &       '  t          y1           y2           y3        nst',
+     &       '  t            y1           y2           y3        nst',
      &       '  k    h')
 c
       return
@@ -188,20 +236,21 @@ c
       implicit none
 c
       integer*4 iopt(40)
-      integer nst, reseval, jaceval, nni, ncf, netf
+      integer nst, reseval, jaceval, nni, ncf, netf, nge
 c
       data nst/15/, reseval/16/, jaceval/28/, nni/21/, netf/18/,
-     &     ncf/22/
+     &     ncf/22/, nge/35/
 c
       write(6,70) iopt(nst), iopt(reseval), iopt(jaceval),
-     &             iopt(nni), iopt(netf), iopt(ncf)
+     &             iopt(nni), iopt(netf), iopt(ncf), iopt(nge)
  70   format(/'Final Run Statistics:', //,
      &         'Number of steps                    = ', i3, /,
      &         'Number of residual evaluations     = ', i3, /,
      &         'Number of Jacobian evaluations     = ', i3, /,
      &         'Number of nonlinear iterations     = ', i3, /,
      &         'Number of error test failures      = ', i3, /,
-     &         'Number of nonlinear conv. failures = ', i3)
+     &         'Number of nonlinear conv. failures = ', i3, /,
+     &         'Number of root function evals.     = ', i3)
 c
       return
       end
