@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-03-19 00:10:19 $
+ * $Revision: 1.11 $
+ * $Date: 2005-06-27 20:47:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -24,13 +24,14 @@
  * use the rootfinding feature of the CVODE solver module.
  *
  * The user-callable functions constituting the FCVROOT package are the
- * following: FCVROOTINIT and FCVROOTFREE. The corresponding
+ * following: FCVROOTINIT, FCVROOTINFO, and FCVROOTFREE. The corresponding
  * CVODE subroutine called by each interface function is given below.
  *
  *   -----------------      -----------------------
  *  | FCVROOT routine |    | CVODE function called |
  *   -----------------      -----------------------
  *      FCVROOTINIT     ->     CVodeRootInit
+ *      FCVROOTINFO     ->     CVodeGetRootInfo
  *      FCVROOTFREE     ->     CVodeRootInit
  *
  * FCVROOTFN is a user-supplied subroutine defining the functions whose
@@ -60,7 +61,7 @@
  * The arguments are:
  *   NRTFN = total number of root functions  [input]
  *   IER   = return completion flag (0 = success, -1 = CVODE memory NULL and
- *           -4 = memory allocation error)  [output]
+ *           -11  memory allocation error)  [output]
  *
  * 3. After calling FCVODE, to see whether a root was found, test the FCVODE
  * return flag IER.  The value IER = 2 means one or more roots were found.
@@ -74,8 +75,8 @@
  *           For i = 1,...,NRTFN, G(i) was found to have a root if INFO(i) = 1.
  *   IER   = completion flag (0 = success,  negative = failure)
  *
- * 5. The total number of calls made to the root function (FCVROOTFN)
- * can be obtained from IOPT[]
+ * 5. The total number of calls made to the root function (FCVROOTFN), NGE,
+ * can be obtained from IOPT(25).
  *
  * If the FCVODE/CVODE memory block is reinitialized to solve a different
  * problem via a call to FCVREINIT, then the counter variable NGE is cleared
@@ -83,9 +84,7 @@
  *
  * 6. To free the memory resources allocated by a prior call to FCVROOTINIT make
  * the following call:
- *
  *   CALL FCVROOTFREE
- *
  * See the CVODE documentation for additional information.
  *
  * ==============================================================================
@@ -162,7 +161,7 @@ void FCV_ROOTINIT(int *nrtfn, int *ier);
 void FCV_ROOTINFO(int *nrtfn, int *info, int *ier);
 void FCV_ROOTFREE(void);
 
-/* Prototype of function called by CVROOT module */
+/* Prototype of function called by CVODE module */
 
 void FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data);
 
