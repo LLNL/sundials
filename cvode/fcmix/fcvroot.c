@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-04-07 23:28:22 $
+ * $Revision: 1.15 $
+ * $Date: 2005-06-27 20:48:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -22,7 +22,7 @@
 #include "cvode.h"          /* CVODE constants and prototypes        */
 #include "fcvode.h"         /* actual function names, prototypes and
 			       global variables                      */
-#include "fcvroot.h"        /* prototypes of interfaces to CVROOT    */
+#include "fcvroot.h"        /* prototypes of interfaces to CVODE     */
 #include "nvector.h"        /* definition of type N_Vector           */
 #include "sundialstypes.h"  /* definition of SUNDIALS type realtype  */
 
