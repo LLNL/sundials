@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-06-21 19:12:47 $
+ * $Revision: 1.4 $
+ * $Date: 2005-06-27 19:45:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -246,6 +246,7 @@
  *           NBCKTRK = IOPT(23) -> IDAGetNumBacktrackOps
  *           LENRW   = IOPT(24) -> IDAGetWorkSpace
  *           LENIW   = IOPT(25) -> IDAGetWorkSpace
+ *           NGE     = IOPT(35) -> IDAGetNumGEvals
  *
  *           UNITRND = ROPT(15) -> UNIT_ROUNDOFF
  *           HLAST   = ROPT(16) -> IDAGetLastStep
@@ -890,6 +891,7 @@ extern booleantype IDA_optin;
 extern long int *IDA_iopt;
 extern realtype *IDA_ropt;
 extern int IDA_ls;
+extern int IDA_nrtfn;
 
 /* Linear solver IDs */
 

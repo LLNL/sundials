@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-05-18 18:17:19 $
+ * $Revision: 1.4 $
+ * $Date: 2005-06-27 19:45:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -42,11 +42,11 @@ booleantype IDA_optin;
 long int *IDA_iopt;
 realtype *IDA_ropt;
 int IDA_ls;
+int IDA_nrtfn;
 
 /*************************************************/
 
 /* private constant(s) */
-
 #define ZERO RCONST(0.0)
 
 /*************************************************/
@@ -569,6 +569,10 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
     IDAGetWorkSpace(IDA_idamem,
 		    &IDA_iopt[23],
 		    &IDA_iopt[24]);
+
+    /* Root finding is on */
+    if (IDA_nrtfn != 0)
+      IDAGetNumGEvals(IDA_idamem, &IDA_iopt[34]);
 
     switch(IDA_ls) {
     case IDA_SPGMR:
