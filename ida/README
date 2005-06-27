@@ -99,6 +99,7 @@ v. 2.3.0 (Apr. 2005) --->
    - added FIDA (Fortran interface to IDA).
    - added IDASPTFQMR interface module to allow IDA to interface with the
      shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
+   - added rootfinding feature in IDA; modified irobx example problem.
 
 - Changes to user-callable functions
    - added IDASPBCG module which defines appropriate IDSpbcg* functions to
@@ -113,6 +114,7 @@ v. 2.3.0 (Apr. 2005) --->
 
 - Changes to FIDA module
    - added support for IDASPTFQMR/SPTFQMR (added FIDA*SPTFQMR* functions).
+   - added interface to the rootfinding feature; modified irobxf example.
 
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------
