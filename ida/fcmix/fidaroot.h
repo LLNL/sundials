@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-06-27 19:44:01 $
+ * $Revision: 1.2 $
+ * $Date: 2005-06-27 20:44:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -24,7 +24,7 @@
  * use the rootfinding feature of the IDA solver module.
  *
  * The user-callable functions constituting the FIDAROOT package are the
- * following: FIDAROOTINIT and FIDAROOTFREE. The corresponding
+ * following: FIDAROOTINIT, FIDAROOTINFO, and FIDAROOTFREE. The corresponding
  * IDA subroutine called by each interface function is given below.
  *
  *   ------------------      ---------------------
