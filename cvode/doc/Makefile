@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2005-02-11 17:30:13 $
+# $Revision: 1.17 $
+# $Date: 2005-06-28 23:49:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -36,6 +36,8 @@ nvec_generic.tex \
 nvec_parallel.tex \
 nvec_serial.tex \
 spgmr.tex \
+spbcg.tex \
+sptfqmr.tex \
 sun_org.tex \
 types.tex \
 ug.tex \

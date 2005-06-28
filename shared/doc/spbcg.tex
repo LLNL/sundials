@@ -1,0 +1,19 @@
+% This is a shared SUNDIALS TEX file with description of
+% the generic spbcg linear solver
+%
+\index{generic linear solvers!SPBCG@{\spbcg}}
+\index{SPBCG@{\spbcg} generic linear solver!description of|(} 
+The {\spbcg} package, in the files \id{spbcg.h} and \id{spbcg.c}, includes an
+implementation of the scaled preconditioned Bi-CGStab\index{Bi-CGStab method} method.  
+For full details, including usage instructions, see the file \id{spbcg.h}.
+\index{SPBCG@{\spbcg} generic linear solver!description of|)}
+
+\paragraph*{Functions.}
+\index{SPBCG@{\spbcg} generic linear solver!functions|(}
+The following functions are available in the {\spbcg} package:  
+\begin{itemize}
+\item \id{SpbcgMalloc}: allocation of memory for \id{SpbcgSolve};
+\item \id{SpbcgSolve}: solution of $Ax = b$ by the {\spbcg} method;
+\item \id{SpbcgFree}: free memory allocated by \id{SpbcgMalloc}.
+\end{itemize}
+\index{SPBCG@{\spbcg} generic linear solver!functions|)}

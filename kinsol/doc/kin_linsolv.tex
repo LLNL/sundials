@@ -1,7 +1,7 @@
 %===================================================================================
 \chapter{Generic Linear Solvers in SUNDIALS}\label{s:gen_linsolv}
 %===================================================================================
-In this chapter, we describe two generic linear solver code modules that 
+In this chapter, we describe four generic linear solver code modules that 
 are included in {\sundials}, but which are of potential use as generic packages in
 themselves, either in conjunction with the use of {\kinsol} or separately.
 These modules are:
@@ -10,12 +10,16 @@ These modules are:
       for small dense matrices treated as simple array types.
 \item The {\spgmr} package, which includes a solver for the scaled
       preconditioned GMRES method.
+\item The {\spbcg} package, which includes a solver for the scaled
+      preconditioned Bi-CGStab method.
+\item The {\sptfqmr} package, which includes a solver for the scaled
+      preconditioned TFQMR method.
 \end{itemize}
 
 The functions for small dense matrices are fully
 described here because we expect that they will be useful in the
 implementation of preconditioners used with the combination of {\kinsol}
-and the {\kinspgmr} solver.
+and the {\kinspgmr}, {\kinspbcg} or {\kinsptfqmr} solver.
 
 %-------------------------------
 \section{The DENSE module}\label{ss:dense}
@@ -24,5 +28,13 @@ and the {\kinspgmr} solver.
 %-------------------------------
 \section{The SPGMR Module}\label{ss:spgmr}
 \input{spgmr}
+
+%-------------------------------
+\section{The SPBCG Module}\label{ss:spbcg}
+\input{spbcg}
+
+%-------------------------------
+\section{The SPTFQMR Module}\label{ss:sptfqmr}
+\input{sptfqmr}
 
 %-------------------------------

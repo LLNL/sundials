@@ -1,7 +1,7 @@
 %===================================================================================
 \chapter{Generic Linear Solvers in SUNDIALS}\label{s:gen_linsolv}
 %===================================================================================
-In this section, we describe three generic linear solver code modules that 
+In this section, we describe five generic linear solver code modules that 
 are included in {\ida}, but which are of potential use as generic packages in
 themselves, either in conjunction with the use of {\ida} or separately.
 These modules are:
@@ -14,15 +14,19 @@ These modules are:
       for small band matrices treated as simple array types.
 \item The {\spgmr} package, which includes a solver for the scaled
       preconditioned GMRES method.
+\item The {\spbcg} package, which includes a solver for the scaled
+      preconditioned Bi-CGStab method.
+\item The {\sptfqmr} package, which includes a solver for the scaled
+      preconditioned TFQMR method.
 \end{itemize}
 
 For the sake of space, the functions for \id{DenseMat} and
-\id{BandMat} matrices and the functions in {\spgmr} are only summarized
-briefly, since they are less likely to be of direct use in connection
-with {\ida}.  The functions for small dense matrices are fully
+\id{BandMat} matrices and the functions in {\spgmr}, {\spbcg} and {\sptfqmr}
+are only summarized briefly, since they are less likely to be of direct use
+in connection with {\ida}.  The functions for small dense matrices are fully
 described, because we expect that they will be useful in the
 implementation of preconditioners used with the combination of {\ida}
-and the {\idaspgmr} solver.
+and the {\idaspgmr}, {\idaspbcg} or {\idasptfqmr} solver.
 
 %-------------------------------
 \section{The DENSE module}\label{ss:dense}
@@ -35,5 +39,13 @@ and the {\idaspgmr} solver.
 %-------------------------------
 \section{The SPGMR module}\label{ss:spgmr}
 \input{spgmr}
+
+%-------------------------------
+\section{The SPBCG module}\label{ss:spbcg}
+\input{spbcg}
+
+%-------------------------------
+\section{The SPTFQMR module}\label{ss:sptfqmr}
+\input{sptfqmr}
 
 %-------------------------------
