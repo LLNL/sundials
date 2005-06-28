@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-06-27 19:45:54 $
+ * $Revision: 1.5 $
+ * $Date: 2005-06-28 21:46:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -42,6 +42,8 @@
  *
  *   FIDACALCIC  interfaces to IDACalcIC
  *
+ *   FIDAEWTSET  interfaces to IDASetEwtFn
+ *
  *   FIDADENSE        interfaces to IDADense
  *   FIDADENSESETJAC  interfaces to IDADenseSetJacFn
  *
@@ -67,9 +69,6 @@
  *   FIDAGETERRWEIGHTS  interfaces to IDAGetErrWeights
  *
  *   FIDAFREE  interfaces to IDAFree
- *
- *   FNVFREES and FNVFREEP interface to N_VDestroy_Serial and
- *                         N_VDestroy_Parallel, respectively.
  *
  * The user-supplied functions, each listed with the corresponding interface
  * function which calls it (and its type within IDA), are as follows:
@@ -158,7 +157,7 @@
  * As an option to providing the relative and absolute tolerances, the user
  * may supply a routine that computes the weights used in the WRMS norms.
  * If supplied, it must have the following form:
- *       SUBROUTINE FIDAEWT (Y, EWT, IER)
+ *       SUBROUTINE FIDAEWT (FLAG, IER)
  *       INTEGER IER
  *       DIMENSION Y(*), EWT(*)
  * It must store the error weights in EWT, given the current solution vector Y.
