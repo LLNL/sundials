@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-06-22 21:02:43 $
+ * $Revision: 1.4 $
+ * $Date: 2005-06-29 17:24:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -51,7 +51,6 @@ static void VLin2_SpcParallel(realtype a, N_Vector x, N_Vector y, N_Vector z);
 static void Vaxpy_SpcParallel(realtype a, N_Vector x, N_Vector y);
 /* x <- ax */
 static void VScaleBy_SpcParallel(realtype a, N_Vector x);
-
 
 /*
  * -----------------------------------------------------------------
@@ -120,9 +119,9 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   if (content == NULL) {free(ops); free(v); return(NULL);}
 
   /* Allocate space for arrays in content */
-  content->Nspc  = (int *)malloc(Ngrp*sizeof(int));
-  content->n1    = (long int *)malloc(Ngrp*sizeof(long int));
-  content->gdata = (realtype **)malloc(Ngrp*sizeof(realtype *));
+  content->Nspc  = (int *) malloc(Ngrp*sizeof(int));
+  content->n1    = (long int *) malloc(Ngrp*sizeof(long int));
+  content->gdata = (realtype **) malloc(Ngrp*sizeof(realtype *));
 
   /* Attach lengths and communicator to N_Vector_Content_SpcParallel structure */
   content->Ngrp = Ngrp;
@@ -181,7 +180,7 @@ N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   /* Create data */
   if ( n > 0 ) {
     /* Allocate memory */
-    data = (realtype *) malloc(n * sizeof(realtype *));
+    data = (realtype *) calloc(n, sizeof(realtype *));
     if(data == NULL) {
       N_VDestroy_SpcParallel(v); 
       return(NULL); 
@@ -443,9 +442,9 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
   Ngrp = SPV_NGROUPS(w);
 
   /* Allocate space for arrays in content */  
-  content->Nspc  = (int *)malloc(Ngrp*sizeof(int));
-  content->n1    = (long int *)malloc(Ngrp*sizeof(long int));
-  content->gdata = (realtype **)malloc(Ngrp*sizeof(realtype *));
+  content->Nspc  = (int *) malloc(Ngrp*sizeof(int));
+  content->n1    = (long int *) malloc(Ngrp*sizeof(long int));
+  content->gdata = (realtype **) malloc(Ngrp*sizeof(realtype *));
 
   /* Attach lengths and communicator to content structure */
   content->Ngrp = SPV_NGROUPS(w);
@@ -498,7 +497,7 @@ N_Vector N_VClone_SpcParallel(N_Vector w)
   /* Create data */
   if ( n > 0 ) {
     /* Allocate memory */
-    data = (realtype *) malloc(n * sizeof(realtype *));
+    data = (realtype *) calloc(n, sizeof(realtype *));
     if(data == NULL) { 
       N_VDestroy_SpcParallel(v); 
       return(NULL); 
