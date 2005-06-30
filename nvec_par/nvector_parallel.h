@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-06-21 19:13:28 $
+ * $Revision: 1.21 $
+ * $Date: 2005-06-30 23:59:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -241,7 +241,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
  * -----------------------------------------------------------------
  */
 
-N_Vector *N_VcloneVectorArray_Parallel(int count, N_Vector w);
+N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w);
 
 /*
  * -----------------------------------------------------------------
