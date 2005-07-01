@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2005-05-16 18:29:29 $
+ * $Revision: 1.26 $
+ * $Date: 2005-07-01 00:00:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -133,7 +133,6 @@ int main(int argc, char *argv[])
 
   void *cvadj_mem;
   void *cvode_mem;
-  void *cvode_memB;
 
   realtype reltolQ, abstolQ;
   N_Vector y, q;
@@ -150,7 +149,6 @@ int main(int argc, char *argv[])
 
   CheckPointRec *ckpnt;
   int i;
-  unsigned int addr;
 
   data = NULL;
   cvadj_mem = cvode_mem = NULL;
@@ -255,8 +253,8 @@ int main(int argc, char *argv[])
   ckpnt = (CheckPointRec *) malloc ( (ncheck+1)*sizeof(CheckPointRec));
   CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
   for (i=0;i<=ncheck;i++) {
-    printf("Address:       %p\n",ckpnt[i].my_addr);
-    printf("Next:          %p\n",ckpnt[i].next_addr);
+    printf("Address:       %u\n",ckpnt[i].my_addr);
+    printf("Next:          %u\n",ckpnt[i].next_addr);
     printf("Time interval: %le  %le\n",ckpnt[i].t0, ckpnt[i].t1);
     printf("Step number:   %ld\n",ckpnt[i].nstep);
     printf("Order:         %d\n",ckpnt[i].order);
@@ -320,7 +318,7 @@ int main(int argc, char *argv[])
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
   CVodeGetNumSteps(CVadjGetCVodeBmem(cvadj_mem), &nstB);
-  printf("done ( nst = %d )\n",nstB);
+  printf("done ( nst = %ld )\n", nstB);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
@@ -350,7 +348,7 @@ int main(int argc, char *argv[])
   flag = CVodeB(cvadj_mem, T0, yB, &time, CV_NORMAL);
   if (check_flag(&flag, "CVodeB", 1)) return(1);
   CVodeGetNumSteps(CVadjGetCVodeBmem(cvadj_mem), &nstB);
-  printf("done ( nst = %d )\n",nstB);
+  printf("done ( nst = %ld )\n", nstB);
 
   flag = CVodeGetQuadB(cvadj_mem, qB);
   if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-06-10 16:54:31 $
+ * $Revision: 1.2 $
+ * $Date: 2005-07-01 00:00:30 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -118,10 +118,10 @@ int main(int argc, char *argv[])
   plist = (int *) malloc(NS * sizeof(int));
   for (is=0; is<NS; is++) plist[is] = is+1;
 
-  yS0 = N_VNewVectorArray_Serial(NS, NEQ);
+  yS0 = N_VCloneVectorArray_Serial(NS, y);
   for (is=0;is<NS;is++) N_VConst(ZERO, yS0[is]);
 
-  yS = N_VNewVectorArray_Serial(NS, NEQ);
+  yS = N_VCloneVectorArray_Serial(NS, y);
   
   flag = CVodeSensMalloc(cvode_mem, NS, CV_SIMULTANEOUS, yS0);
 

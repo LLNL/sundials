@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-04-07 23:28:48 $
+ * $Revision: 1.11 $
+ * $Date: 2005-07-01 00:00:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -293,8 +293,8 @@ int main(int argc, char *argv[])
     if (check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for (is=0; is<NS; is++) pbar[is] = ABS(data->p[plist[is]-1]);
 
-    uS = N_VNewVectorArray_Parallel(NS, comm, local_N, neq);
-    if (check_flag((void *)uS, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+    uS = N_VCloneVectorArray_Parallel(NS, u);
+    if (check_flag((void *)uS, "N_VCloneVectorArray", 0, my_pe)) MPI_Abort(comm, 1);
     for (is = 0; is < NS; is++)
       N_VConst(ZERO,uS[is]);
 
