@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-11 23:10:54 $
+ * $Revision: 1.2 $
+ * $Date: 2005-07-05 22:22:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -39,16 +39,24 @@ extern void FIDA_EWT(realtype*, realtype*, int*);
 
 /*************************************************/
 
+/* 
+ * User-callable function to interface to IDASetEwtFn.
+ */
+
 void FIDA_EWTSET(int *flag, int *ier)
 {
   *ier = 0;
 
-  if (*flag == 1) *ier = IDASetEwtFn(IDA_idamem, (IDAEwtFn) FIDAEwtSet, NULL);
+  if (*flag != 0) *ier = IDASetEwtFn(IDA_idamem, (IDAEwtFn) FIDAEwtSet, NULL);
 
   return;
 }
 
 /*************************************************/
+
+/* 
+ * C function to interface between IDA and a Fortran subroutine FIDAVEWT.
+ */
 
 int FIDAEwtSet(N_Vector y, N_Vector ewt, void *e_data)
 {
