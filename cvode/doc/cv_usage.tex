@@ -4815,10 +4815,6 @@ are as follows:
     interfaces to \id{NV\_New\_Serial}.
   \item \id{FNVINITP} (defined by {\nvecp}) 
     interfaces to \id{NV\_New\_Parallel}.
-  \item \id{FNVFREES} (defined by {\nvecs})
-    interface to \id{NV\_Destroy\_Serial}.
-  \item \id{FNVFREEP}  (defined by {\nvecp})
-    interfaces to \id{NV\_Destroy\_Parallel}.
   \end{itemize}
 \item Interface to the main {\cvode} module
   \begin{itemize}
@@ -5466,17 +5462,6 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVFREE
 \end{verbatim}
-  and then, depending on the {\nvector} version (serial or parallel), either
-  \index{FNVFREES@\texttt{FNVFREES}}
-\begin{verbatim}
-      CALL FNVFREES
-\end{verbatim}
-  or
-  \index{FNVFREEP@\texttt{FNVFREEP}}
-\begin{verbatim}
-      CALL FNVFREEP  
-\end{verbatim}
-  respectively.
 
 \end{Steps}
 \index{FCVODE@{\fcvode} interface module!usage|)}
@@ -5645,7 +5630,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \item {\bf Memory deallocation}
 
   To free the internal memory created by the call to \id{FCVBPINIT}, before
-  calling \id{FCVFREE} and \id{FNVFREEP}, the user must call
+  calling \id{FCVFREE}, the user must make the call
   \index{FCVBPFREE@\texttt{FCVBPFREE}}
 \begin{verbatim}
       CALL FCVBPFREE
@@ -5798,7 +5783,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \item {\bf Memory deallocation}
 
   To free the internal memory created by the call to \id{FCVBBDINIT}, before
-  calling \id{FCVFREE} and \id{FNVFREEP}, the user must call
+  calling \id{FCVFREE}, the user must make the call
   \index{FCVBBDFREE@\texttt{FCVBBDFREE}}
 \begin{verbatim}
       CALL FCVBBDFREE

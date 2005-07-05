@@ -31,7 +31,7 @@ to specify user-supplied preconditioner setup and solve routines.
 It calls \id{FCVODE} in a loop over \id{TOUT} values, with printing of
 selected solution values and performance data (from the \id{IOPT}  and \id{ROPT}
 arrays).  At the end, it prints a number of performance counters, and
-frees memory with calls to \id{FCVFREE} and \id{FNVFREES}.
+frees memory with calls to \id{FCVFREE}.
 
 In \id{cvkryf.c}, the \id{FCVFUN} routine is a straghtforward implementation
 of the discretized form of Eqns. (\ref{cvkxpde}).  In \id{FCVPSET}, the
