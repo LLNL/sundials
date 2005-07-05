@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-04-07 23:28:22 $
+ * $Revision: 1.4 $
+ * $Date: 2005-07-05 21:59:18 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -36,9 +36,13 @@ extern "C" {
 
 /***************************************************************************/
 
+/* 
+ * User-callable function to interface to CVodeSetEwtFn.
+ */
+
 void FCV_EWTSET(int *flag, int *ier)
 {
-  if (*flag == 1)
+  if (*flag != 0)
     *ier = CVodeSetEwtFn(CV_cvodemem, FCVEwtSet, NULL);
 }
 
