@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.44 $
- * $Date: 2005-06-21 19:12:24 $
+ * $Revision: 1.45 $
+ * $Date: 2005-07-05 21:50:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -38,6 +38,8 @@
  *   FCVMALLOC  interfaces to CVodeCreate, CVodeSet*, and CVodeMalloc
  * 
  *   FCVREINIT  interfaces to CVReInit, CVodeSet*
+ * 
+ *   FCVEWTSET  interfaces to CVodeSetEwtFn
  * 
  *   FCVDIAG    interfaces to CVDiag
  * 
