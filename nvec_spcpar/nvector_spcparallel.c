@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-06-29 17:24:34 $
+ * $Revision: 1.5 $
+ * $Date: 2005-07-05 23:50:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -180,7 +180,7 @@ N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   /* Create data */
   if ( n > 0 ) {
     /* Allocate memory */
-    data = (realtype *) calloc(n, sizeof(realtype *));
+    data = (realtype *) calloc(n, sizeof(realtype));
     if(data == NULL) {
       N_VDestroy_SpcParallel(v); 
       return(NULL); 
@@ -497,7 +497,7 @@ N_Vector N_VClone_SpcParallel(N_Vector w)
   /* Create data */
   if ( n > 0 ) {
     /* Allocate memory */
-    data = (realtype *) calloc(n, sizeof(realtype *));
+    data = (realtype *) calloc(n, sizeof(realtype));
     if(data == NULL) { 
       N_VDestroy_SpcParallel(v); 
       return(NULL); 
