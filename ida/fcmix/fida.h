@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-06-28 21:46:46 $
+ * $Revision: 1.6 $
+ * $Date: 2005-07-05 22:35:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/cvode/LICENSE.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * This is the header file for FIDA, the Fortran interface to
  * the IDA package.
@@ -157,7 +157,7 @@
  * As an option to providing the relative and absolute tolerances, the user
  * may supply a routine that computes the weights used in the WRMS norms.
  * If supplied, it must have the following form:
- *       SUBROUTINE FIDAEWT (FLAG, IER)
+ *       SUBROUTINE FIDAEWT (Y, EWT, IER)
  *       INTEGER IER
  *       DIMENSION Y(*), EWT(*)
  * It must store the error weights in EWT, given the current solution vector Y.

@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-05-16 17:04:22 $
+ * $Revision: 1.3 $
+ * $Date: 2005-07-05 22:35:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/cvode/LICENSE.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * Fortran/C interface routines for IDA/IDABAND, for the case of
  * a user-supplied Jacobian approximation routine.

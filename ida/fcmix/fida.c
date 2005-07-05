@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-06-27 19:45:54 $
+ * $Revision: 1.5 $
+ * $Date: 2005-07-05 22:35:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/cvode/LICENSE.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * This is the implementation file for the Fortran interface to
  * the IDA package. See fida.h for usage.

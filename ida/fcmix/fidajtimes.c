@@ -1,16 +1,16 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-05-18 18:17:19 $
+ * $Revision: 1.4 $
+ * $Date: 2005-07-05 22:35:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/cvode/LICENSE.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
- * The C function FCVJtimes is to interface between the
+ * The C function FIDAJtimes is to interface between the
  * IDASP* modules and the user-supplied Jacobian-vector
  * product routine FIDAJTIMES. Note the use of the generic name
  * FIDA_JTIMES below.
