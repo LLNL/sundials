@@ -5516,6 +5516,68 @@ apply to {\nvecp}.
 \index{FIDA@{\fida} interface module!rootfinding|(}
 \index{Rootfinding}
 
+The {\fidaroot} interface package allows programs written in {\F} to
+use the rootfinding feature of the {\ida} solver module.
+%%
+The user-callable functions in {\fidaroot}, with the corresponding
+{\ida} functions, are as follows: 
+\begin{itemize}
+  \item \id{FIDAROOTINIT} interfaces to \id{IDARootInit}.
+  \item \id{FIDAROOTINFO} interfaces to \id{IDAGetRootInfo}.
+  \item \id{FIDAROOTFREE} interfaces to \id{IDARootFree}.
+\end{itemize}
+%%
+In order to use the rootfinding feature of {\ida}, the following call must
+be made, after calling \id{FIDAMALLOC} but prior to calling \id{FIDASOLVE},
+to allocate and initialize memory for the \id{FIDAROOT} module:
+\begin{verbatim}
+      CALL FIDAROOTINIT (NRTFN, IER)
+\end{verbatim}
+The arguments are as follows:
+\id{NRTFN} is the number of root functions.
+\id{IER} is a return completion flag; its values are $0$ for success, $-1$ 
+if the \id{IDA} memory was \id{NULL}, and $-14$ if a memory allocation failed.
+
+To specifiy the functions whose roots are to be found, the user must
+define the following routine:
+\begin{verbatim}
+      SUBROUTINE FIDAROOTFN (T, Y, YP, G)
+      DIMENSION Y(*), YP(*), G(*)
+\end{verbatim}
+It must set the \id{G} array, of length \id{NRTFN}, with components
+$g_i(t,y,y')$, as a function of \id{T} $= t$ and the arrays \id{Y} $= y$
+and \id{YP} $= y'$.
+
+When making calls to \id{FIDASOLVE} to solve the DAE system, the occurrence
+of a root is flagged by the return value \id{IER} = 2.  In that case, if
+\id{NRTFN} $> 1$, the functions $g_i$ which were found to have a root can
+be identified by making the following call:
+\begin{verbatim}
+      CALL FIDAROOTINFO (NRTFN, INFO, IER)
+\end{verbatim}
+The arguments are as follows: \id{NRTFN} is the number of root functions.
+\id{INFO} is an integer array of length \id{NRTFN} with root information.
+\id{IER} is a return completion flag; its values are $0$ for success, 
+negative if there was a memory failure.  The returned values of \id{INFO(i)}
+(\id{i}$ = 1,\ldots,$ \id{NRTFN}) are 0 or 1, such that \id{INFO(i)} $ = 1$
+if $g_{\id{i}}$ was found to have a root, and \id{INFO(i)} $ = 0$ otherwise.
+
+The total number of calls made to the root function \id{FIDAROOTFN},
+denoted \id{NGE}, can be obtained from \id{IOPT(35)}.
+%%
+If the {\fida}/{\ida} memory block is reinitialized to solve a
+different problem via a call to \id{FIDAREINIT}, then the counter
+\id{NGE} is reset to zero.
+
+To free the memory resources allocated by a prior call to \id{FIDAROOTINIT} make
+the following call:
+\begin{verbatim}
+      CALL FIDAROOTFREE
+\end{verbatim}
+See \S\ref{s:using_rootfinding} for additional information on the
+rootfinding feature.
+\index{FIDA@{\fida} interface module!rootfinding|)}
+
 
 
 %%==============================================================================
