@@ -5480,7 +5480,7 @@ The user-callable functions in {\fcvroot}, with the corresponding
 \begin{itemize}
   \item \id{FCVROOTINIT} interfaces to \id{CVodeRootInit}.
   \item \id{FCVROOTINFO} interfaces to \id{CVodeGetRootInfo}.
-  \item \id{FCVROOTFREE} interfaces to \id{CVodeRootInit}.
+  \item \id{FCVROOTFREE} interfaces to \id{CVodeRootFree}.
 \end{itemize}
 %%
 In order to use the rootfinding feature of {\cvode}, the following
@@ -5501,7 +5501,7 @@ define the following routine:
       DIMENSION Y(*), G(*)
 \end{verbatim}
 It must set the \id{G} array, of length \id{NRTFN}, with components $g_i(t,y)$,
-as a function of \id{T}$=t$ and the array \id{Y}$=y$.  
+as a function of \id{T} $= t$ and the array \id{Y} $= y$.  
 
 When making calls to \id{FCVODE} to solve the ODE system, the occurrence of
 a root is flagged by the return value \id{IER} = 2.  In that case, if
