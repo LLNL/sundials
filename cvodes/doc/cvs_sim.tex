@@ -1587,20 +1587,20 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
 \ucfunction{CVSpgmrSetPreconditioner}
 {
-  flag = CVSpgmrSetPrecSolveFn(cvode\_mem, psolve, psetup, p\_data);
+  flag = CVSpgmrSetPreconditioner(cvode\_mem, psetup, psolve, p\_data);
 }
 {
-  The function \ID{CVSpgmrSet} specifies the preconditioner
+  The function \ID{CVSpgmrSetPreconditioner} specifies the preconditioner
   setup and solve functions and the pointer to user data.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[psolve] (\id{CVSpgmrPrecSolveFn})
-    user-defined preconditioner solve function.
   \item[psetup] (\id{CVSpgmrPrecSetupFn})
     user-defined preconditioner setup function.
+  \item[psolve] (\id{CVSpgmrPrecSolveFn})
+    user-defined preconditioner solve function.
   \item[p\_data] (\id{void *})
      pointer to the user-defined data structure.
   \end{args}
