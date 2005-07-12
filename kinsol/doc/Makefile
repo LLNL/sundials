@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-06-28 23:49:28 $
+# $Revision: 1.12 $
+# $Date: 2005-07-12 23:56:10 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -95,7 +95,7 @@ copy_ug:
 	done
 
 kin_guide.aux: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2pdf ${QUIET} kin_guide.tex
+	texi2dvi ${QUIET} kin_guide.tex
 
 kin_guide.ps: kin_guide.dvi
 	dvips ${QUIET} -Ppdf kin_guide
@@ -117,7 +117,7 @@ copy_ex:
 	done
 
 kin_examples.aux: ${EX_FILES} ${EX_SHARED_FILES:%=${SHARED_DOC}/%}
-	texi2pdf ${QUIET} kin_examples.tex
+	texi2dvi ${QUIET} kin_examples.tex
 
 kin_examples.ps: kin_examples.dvi
 	dvips ${QUIET} -Ppdf kin_examples
