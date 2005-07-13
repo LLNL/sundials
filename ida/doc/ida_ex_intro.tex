@@ -7,6 +7,10 @@ Documentation of {\ida} \cite{ida2.2.0_ug}.  It provides details, with
 listings, on the example programs supplied with the {\ida} distribution
 package.
 
+The {\ida} distribution contains examples of four types: serial
+{\C} examples, parallel {\C} examples, and serial and parallel {\F}
+examples.  The following lists summarize all of these examples.
+
 The {\ida} distribution contains, in the \id{sundials/ida/examples\_ser}
 directory, the following four serial examples (using the {\nvecs} module):
 %%
@@ -76,6 +80,20 @@ distribution contains the following four parallel examples
 
 \end{itemize}
 
+With the {\fida} module, in the directories 
+\id{sundials/ida/fcmix/examples\_ser} and
+\newline \id{sundials/ida/fcmix/examples\_par}, are the following
+examples for the {\F}-{\C} interface:
+%
+\begin{itemize}
+\item \id{irobxf} is a serial chemical kinetics example (\id{BDF}/{\dense})
+       with rootfinding, equivalent to \id{irobx}.
+
+\item \id{iheatbbdf} is a parallel example (\id{BDF}/{\spgmr}/{\idabbdpre})
+       equivalent to \id{iheatbbd}.
+
+\end{itemize}
+
 \vspace{0.2in}\noindent 
 In the following sections, we give detailed descriptions of some (but
 not all) of these examples.  The Appendices contain complete listings
@@ -99,4 +117,7 @@ they contain portions of code that will not be typically present in a
 user program. For example, all example programs make use of the
 variable \id{SUNDIALS\_EXTENDED\_PRECISION} to test if the solver libraries
 were built in extended precision and use the appropriate conversion 
-specifiers in \id{printf} functions.
+specifiers in \id{printf} functions.  Similarly, the {\F} examples in
+{\fida} are automatically pre-processed to generate source code that
+corresponds to the manner in which the {\ida} libraries were built
+(see \ugref{s:ex_fortran} in this document for more details).
