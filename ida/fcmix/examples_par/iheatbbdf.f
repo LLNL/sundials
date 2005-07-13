@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.3 $
-c     $Date: 2005-06-21 19:12:52 $
+c     $Revision: 1.4 $
+c     $Date: 2005-07-13 21:13:46 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -189,8 +189,6 @@ c
          call prntcase(1, mudq, mukeep)
       endif
 c
-      call mpi_barrier(mpi_comm_world, ier)
-c
       tout = t1
       do 10 iout = 1, nout
 c
@@ -244,8 +242,6 @@ c
       if (thispe .eq. 0) then
          call prntcase(2, mudq, mukeep)
       endif
-c
-      call mpi_barrier(mpi_comm_world, ier)
 c
       tout = t1
       do 12 iout = 1, nout
