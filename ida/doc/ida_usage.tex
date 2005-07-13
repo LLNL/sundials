@@ -23,6 +23,42 @@ The preconditioner module {\idabbdpre} can only be used with {\nvecp}.
 defined as needed in this chapter, but for convenience are also listed
 separately in Chapter \ref{c:constants}.
 
+%%==============================================================================
+\section{Access to library and header files}\label{ss:file_access}
+%%==============================================================================
+
+At this point, it is assumed that the installation of {\ida},
+following the procedure described in Chapter \ref{s:install}, has
+been completed successfully.
+
+Regardless of where the user's application program resides, its
+associated compilation and load commands must make reference to the
+appropriate locations for the library and header files required by
+{\ida}.  In terms of the directory {\em build\_tree} defined in
+Chapter \ref{s:install}, the relevant library files are
+\begin{itemize}
+\item {\em build\_tree}\id{/lib/libsundials\_ida.}{\em lib},
+\item {\em build\_tree}\id{/lib/libsundials\_fida.a},
+\item {\em build\_tree}\id{/lib/libsundials\_shared.}{\em lib},
+\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to two files), and
+\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to two files),
+\end{itemize}
+where the file extension .{\em lib} is typically \id{.so} for shared libraries
+and \id{.a} for static libraries. The relevant header files are all located in
+the subdirectory
+\begin{itemize}
+\item {\em build\_tree}\id{/include}
+\end{itemize}
+
+%For an application that contains both a {\ida} problem (IVP) and a
+%{\idas} problem (IVP with sensitivity analysis), \index{IDAS@{\idas}}
+%references to the library files must be made carefully, because both
+%of the associated solver library files contain a user-callable
+%function called \Id{IDASolve}, although the version in {\idas} is fully
+%compatible with that in {\ida}.  In this case, the loader command
+%must reference {\em build\_tree}\id{/lib/libsundials\_idas.}{\em lib}, and
+%not {\em build\_tree}\id{/lib/libsundials\_ida.}{\em lib}.
+
 %%===================================================================================
 \section{Data types}\label{s:types}
 %%===================================================================================
@@ -315,9 +351,10 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
   \item[yp0] (\id{N\_Vector})
     is the initial value of $y^\prime$. 
   \item[itol] (\id{int}) 
-    is one of \Id{IDA\_SS}, \Id{IDA\_SV}, or \ID{IDA\_WF}, where \Id{itol}$=$\id{IDA\_SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{IDA\_SV} indicates scalar
-    relative error tolerance and vector absolute error tolerance. 
+    is one of \Id{IDA\_SS}, \Id{IDA\_SV}, or \ID{IDA\_WF}, where \Id{itol}$=$\id{IDA\_SS}
+    indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{IDA\_SV}
+    indicates scalar relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the DAE. 
     If \id{itol}$=$\id{IDA\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
@@ -638,7 +675,7 @@ for the given problem.
     The user's residual function returned a nonrecoverable error flag.
 
   \item[\Id{IDA\_NO\_RECOVERY}]
-    The user's residual function, or the linear solver's setup or solve function had a      
+    The user's residual function, or the linear solver's setup or solve function had a
     recoverable error, but \id{IDACalcIC} was unable to recover.
                                                                  
   \item[\Id{IDA\_CONSTR\_FAIL}]
@@ -2849,10 +2886,10 @@ and last return value from a {\idadense} function.
   \end{args}
 }
 {
-  If the {\idadense} setup function failed (\id{IDASolve} returned \id{IDA\_LSETUP\_FAIL}),
-  the value \id{flag} is equal to the column index (numbered from one) at which
-  a zero diagonal element was encountered during the LU factorization of the 
-  dense Jacobian matrix.
+  If the {\idadense} setup function failed (\id{IDASolve} returned
+  \id{IDA\_LSETUP\_FAIL}), the value \id{flag} is equal to the column index
+  (numbered from one) at which a zero diagonal element was encountered during
+  the LU factorization of the dense Jacobian matrix.
 }
 %%
 \index{IDADENSE@{\idadense} linear solver!optional output|)}
@@ -3001,10 +3038,10 @@ and last return value from a {\idaband} function.
   \end{args}
 }
 {
-  If the {\idaband} setup function failed (\id{IDASolve} returned \id{IDA\_LSETUP\_FAIL}),
-  the value \id{flag} is equal to the column index (numbered from one) at which
-  a zero diagonal element was encountered during the LU factorization of the 
-  banded Jacobian matrix.
+  If the {\idaband} setup function failed (\id{IDASolve} returned
+  \id{IDA\_LSETUP\_FAIL}), the value \id{flag} is equal to the column index
+  (numbered from one) at which a zero diagonal element was encountered during
+  the LU factorization of the banded Jacobian matrix.
 }
 %%
 \index{IDABAND@{\idaband} linear solver!optional output|)}
@@ -3018,9 +3055,9 @@ and last return value from a {\idaband} function.
 The following optional outputs are available from the {\idaspgmr} module:
 workspace requirements, number of linear iterations,
 number of linear convergence failures, number of calls to the preconditioner
-setup and solve routines, number of calls to the Jacobian-vector product routine, number of 
-calls to the residual routine for finite-difference Jacobian-vector product approximation,
-and last return value from an {\idaspgmr} function.
+setup and solve routines, number of calls to the Jacobian-vector product routine,
+ number of calls to the residual routine for finite-difference  Jacobian-vector
+ product approximation, and last return value from an {\idaspgmr} function.
 %%
 %%
 \ucfunction{IDASpgmrGetWorkSpace}
@@ -3348,20 +3385,20 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
   \item[yp0] (\id{N\_Vector})
     is the initial value of $y^\prime$.   
   \item[itol] (\id{int}) 
-    is one of \Id{IDA\_SS}, \Id{IDA\_SV}, or \Id{IDA\_WF}, where \id{IDA\_SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{IDA\_SV} indicates scalar
-    relative error tolerance and vector absolute error tolerance. 
-    The latter choice is important when the absolute error tolerance needs to
-    be different for each component of the DAE. 
+    is one of \Id{IDA\_SS}, \Id{IDA\_SV}, or \Id{IDA\_WF}, where \id{IDA\_SS}
+    indicates scalar relative error tolerance and scalar absolute error tolerance, 
+    while \id{IDA\_SV} indicates scalar relative error tolerance and vector 
+    absolute error tolerance.  The latter choice is important when the absolute 
+    error tolerance needs to be different for each component of the DAE. 
     If \id{itol}$=$\id{IDA\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
     and the user is expected to provide a function to evaluate the error weight vector
     $W$ from (\ref{e:errwt}). See \id{IDASetEwtFn} in \S\ref{ss:optional_input}.
   \item[reltol] (\id{realtype})
     is the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS}, \id{abstol}
-    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{IDA\_SV}, \id{abstol}
-    must be an \id{N\_Vector} variable.
+    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS},
+    \id{abstol} must be a pointer to a \id{realtype} variable. If
+   \id{itol}$=$\id{IDA\_SV}, \id{abstol} must be an \id{N\_Vector} variable.
   \end{args}
 }
 {
@@ -4372,8 +4409,8 @@ next.
     the {\C} function which computes the local residual approximation 
     $G(t,y,y^\prime)$.
   \item[Gcomm] (\id{IDABBDCommFn})
-    the optional {\C} function which performs all inter-process communication required for
-    the computation of $G(t,y,y^\prime)$.
+    the optional {\C} function which performs all inter-process communication required
+    for the computation of $G(t,y,y^\prime)$.
   \end{args}
 }
 {
@@ -4486,8 +4523,8 @@ used in the difference-quotient Jacobian approximations, the relative increment
     the {\C} function which computes the local residual approximation 
     $G(t,y,y^\prime)$.
   \item[Gcomm] (\id{IDABBDCommFn})
-    the optional {\C} function which performs all inter-process communication required for
-    the computation of $G(t,y,y^\prime)$.
+    the optional {\C} function which performs all inter-process communication required
+    for the computation of $G(t,y,y^\prime)$.
   \end{args}
 }
 {
@@ -5084,12 +5121,11 @@ apply to {\nvecp}.
      &                     EWT, H, WK1, WK2, WK3, IER)
       DIMENSION Y(*), YP(*), R(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
-  This routine must load the \id{MDIM} by \id{NEQ} array \id{BJAC} with the Jacobian matrix
-  at the current ($t$,$y$,$y'$) in band form.  Store in \id{BJAC}(k,j) the Jacobian
-  element $J_{i,j}$ with $k = i - j + MU + 1$, $k = 1 \cdots ML+MU+1$ and
-  $j = 1 \cdots N$. The vectors \id{WK1}, \id{WK2},
-  and \id{WK3} of length \id{NEQ} are provided as work space for use in
-  \id{FIDABJAC}.
+  This routine must load the \id{MDIM} by \id{NEQ} array \id{BJAC} with the Jacobian
+  matrix at the current ($t$,$y$,$y'$) in band form.  Store in \id{BJAC}(k,j)
+  the Jacobian element $J_{i,j}$ with $k = i - j + MU + 1$, $k = 1 \cdots ML+MU+1$
+  and $j = 1 \cdots N$. The vectors \id{WK1}, \id{WK2}, and \id{WK3} of length
+  \id{NEQ} are provided as work space for use in \id{FIDABJAC}.
 
   If the user's \id{FIDABJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -5455,22 +5491,23 @@ apply to {\nvecp}.
   with the additional constraint \id{tstop}.
   \id{IER} is a completion flag and will be set to a positive value upon
   successful return or to a negative value if an error occurred. These values
-  correspond to the \id{IDASolve} returns (see \S\ref{sss:ida}) as follows:
+  correspond to the \id{IDASolve} returns (see \S\ref{sss:idasolve}) as follows:
   $0$: \Id{IDA\_SUCCESS}, $1$: \Id{IDA\_TSTOP\_RETURN}, $2$: \Id{IDA\_ROOT\_RETURN},
   $-1$: \Id{IDA\_MEM\_NULL}, $-2$: \Id{IDA\_ILL\_INPUT}, $-3$: \Id{IDA\_NO\_MALLOC},
   $-4$: \Id{IDA\_TOO\_MUCH\_WORK}, $-5$: \Id{IDA\_TOO\_MUCH\_ACC},
   $-6$: \Id{IDA\_ERR\_FAIL}, $-7$: \Id{IDA\_CONV\_FAIL},
   $-8$: \Id{IDA\_LINIT\_FAIL}, $-9$: \Id{IDA\_LSETUP\_FAIL},
-  $-10$: \Id{IDA\_LSOLVE\_FAIL}, $-11$: \Id{IDA\_RES\_FAIL}, $-12$: \Id{IDA\_CONSTR\_FAIL},
-  and $-13$: \Id{IDA\_REP\_RES\_ERR} from \id{IDASolve} (see \S\ref{sss:ida}).
+  $-10$: \Id{IDA\_LSOLVE\_FAIL}, $-11$: \Id{IDA\_RES\_FAIL},
+  $-12$: \Id{IDA\_CONSTR\_FAIL}, and
+  $-13$: \Id{IDA\_REP\_RES\_ERR} from \id{IDASolve} (see \S\ref{sss:idasolve}).
   The current values of the optional outputs are available in \id{IOPT} and
   \id{ROPT} (see Table~\ref{t:fida_io}).
   
 \item {\bf Additional solution output}
 
-  After a successful return from \id{FIDASOLVE}, the routine \id{FIDAGETSOL} may be called
-  to get interpolated values of $y$ and $y'$ for any value of $t$ in the last internal step
-  taken by {\ida}.
+  After a successful return from \id{FIDASOLVE}, the routine \id{FIDAGETSOL} may
+  be called to get interpolated values of $y$ and $y'$ for any value of $t$ in
+  the last internal step taken by {\ida}.
   \index{FIDAGETSOL@\texttt{FIDAGETSOL}}
 \begin{verbatim}
       CALL FIDAGETSOL (T, Y, YP, IER)
@@ -5750,10 +5787,10 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
 \item {\bf Problem reinitialization}
   
   If a sequence of problems of the same size is being solved using the {\spgmr},
-  {\spbcg} or {\sptfqmr} linear solver in combination with the {\idabbdpre} preconditioner,
-  then the {\ida} package can be re-initialized for the second and subsequent problems
-  by calling \id{FIDAREINIT}, following which, a call to \id{FIDABBDINIT} may or 
-  may not be needed.
+  {\spbcg} or {\sptfqmr} linear solver in combination with the {\idabbdpre}
+  preconditioner, then the {\ida} package can be re-initialized for the second
+  and subsequent problems by calling \id{FIDAREINIT}, following which, a call
+  to \id{FIDABBDINIT} may or  may not be needed.
   If the input arguments are the same, no \id{FIDABBDINIT} call is needed.
   If there is a change in input arguments other than \id{MU}, \id{ML}, or
   \id{MAXL}, then the user program should make the call 
