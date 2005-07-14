@@ -4778,19 +4778,19 @@ variable, as well as the {\ida} optional function which is actually called.
 For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
 and \S\ref{ss:optional_output}.
 
-\begin{table}
-\centering
-\caption{Description of the {\fida} optional input-output arrays \Id{IOPT} and \Id{ROPT}}
+\tablecaption{Description of the {\fida} optional input-output arrays \Id{IOPT} and \Id{ROPT}}
 \label{t:fida_io}
-\medskip
-\begin{tabular}{|r|c|c|l|}
-\multicolumn{4}{c}{Integer input-output array \id{IOPT}}\\
-\hline
-{\bf Index} & {\bf Optional input} & {\bf Optional output} & {\cvode} {\bf function} \\ 
+\tablefirsthead{\multicolumn{4}{c}{Integer input-output array \id{IOPT}} \\
+                \hline {\bf Index} & {\bf Optional input} & {\bf Optional output} & {\ida} {\bf function} \\}
+\tablehead{\hline \multicolumn{4}{|l|}{\small\slshape continued from last page} \\
+           \hline {\bf Index} & {\bf Optional input} & {\bf Optional output} & {\ida} {\bf function} \\ \hline}
+\tabletail{\hline \multicolumn{4}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+%%\begin{supertabular}{|p{\colA}|p{\colB}|p{\colC}|p{\colD}|}
+\begin{supertabular}{|r|c|c|l|}
 \hline
 \multicolumn{4}{|c|}{{\ida} main solver}\\
 \hline
-%
 1  & \id{MAXORD}          &  & \id{IDASetMaxOrd} \\
 %
 2  & \id{MXSTEP}          &  & \id{IDASetMaxNumSteps} \\
@@ -4798,7 +4798,7 @@ and \S\ref{ss:optional_output}.
 3  & \id{MXERRTESTFAILS}  &  & \id{IDASetMaxErrTestFails} \\
 %
 4  & \id{MAXNONLINITERS}  &  & \id{IDASetMaxNonlinIters} \\
-%                                                                
+%
 5  & \id{MAXCONVFAILS}    &  & \id{IDASetMaxConvFails} \\
 %
 6  & \id{SUPPRESSALG}     &  & \id{IDASetSuppressAlg} \\
@@ -4815,25 +4815,25 @@ and \S\ref{ss:optional_output}.
 %
 12 & \id{LINSRCH}         &  & \id{IDASetLineSearchOffIC} \\
 %
-15 &                      & \id{NST}            & \id{IDAGetNumSteps} \\
+15 &                      & \id{NST}               & \id{IDAGetNumSteps} \\
 %
-16 &                      & \id{NRE}            & \id{IDAGetNumResEvals} \\
+16 &                      & \id{NRE}               & \id{IDAGetNumResEvals} \\
 %
-17 &                      & \id{NSETUPS}        & \id{IDAGetNumLinSolvSetups} \\
+17 &                      & \id{NSETUPS}           & \id{IDAGetNumLinSolvSetups} \\
 %
-18 &                      & \id{NETF}           & \id{IDAGetNumErrTestFails} \\
+18 &                      & \id{NETF}              & \id{IDAGetNumErrTestFails} \\
 %
-19 &                      & \id{QLAST}          & \id{IDAGetLastOrder} \\
+19 &                      & \id{QLAST}             & \id{IDAGetLastOrder} \\
 %
-20 &                      & \id{QCUR}           & \id{IDAGetCurrentOrder} \\
+20 &                      & \id{QCUR}              & \id{IDAGetCurrentOrder} \\
 %
-21 &                      & \id{NNI}            & \id{IDAGetNumNonlinSolvIters} \\
+21 &                      & \id{NNI}               & \id{IDAGetNumNonlinSolvIters} \\
 %
-22 &                      & \id{NNCFAILS}       & \id{IDAGetNonlinSolvConvFails} \\
+22 &                      & \id{NNCFAILS}          & \id{IDAGetNonlinSolvConvFails} \\
 %
-23 &                      & \id{NBCKTRKOPS}     & \id{IDAGetNumBacktrackOps} \\
+23 &                      & \id{NBCKTRKOPS}        & \id{IDAGetNumBacktrackOps} \\
 %
-24, 25 &                      & \id{LENRW}, \id{LENIW} & \id{IDAGetWorkSpace} \\
+24, 25 &                  & \id{LENRW}, \id{LENIW} & \id{IDAGetWorkSpace} \\
 \hline
 \multicolumn{4}{|c|}{{\idadense} linear solver}\\
 \hline
@@ -4858,7 +4858,7 @@ and \S\ref{ss:optional_output}.
 31     &  &  \id{NCFL}             & \id{IDASpgmrGetNumConvFails} \\
 32     &  &  \id{NJE}              & \id{IDASpgmrGetNumJtimesEvals} \\
 33     &  &  \id{NRE}              & \id{IDASpgmrGetNumResEvals} \\
-34     &  &  \id{LS\_FLAG}         & \id{CVSpgmrGetLastFlag} \\ 
+34     &  &  \id{LS\_FLAG}         & \id{IDASpgmrGetLastFlag} \\ 
 \hline
 \multicolumn{4}{|c|}{{\idaspbcg} linear solver}\\
 \hline
@@ -4869,7 +4869,7 @@ and \S\ref{ss:optional_output}.
 31     &  &  \id{NCFL}             & \id{IDASpbcgGetNumConvFails} \\
 32     &  &  \id{NJE}              & \id{IDASpbcgGetNumJtimesEvals} \\
 33     &  &  \id{NRE}              & \id{IDASpbcgGetNumResEvals} \\
-34     &  &  \id{LS\_FLAG}         & \id{CVSpbcgGetLastFlag} \\ 
+34     &  &  \id{LS\_FLAG}         & \id{IDASpbcgGetLastFlag} \\ 
 \hline
 \multicolumn{4}{|c|}{{\idasptfqmr} linear solver}\\
 \hline
@@ -4880,7 +4880,7 @@ and \S\ref{ss:optional_output}.
 31     &  &  \id{NCFL}             & \id{IDASptfqmrGetNumConvFails} \\
 32     &  &  \id{NJE}              & \id{IDASptfqmrGetNumJtimesEvals} \\
 33     &  &  \id{NRE}              & \id{IDASptfqmrGetNumResEvals} \\
-34     &  &  \id{LS\_FLAG}         & \id{CVSptfqmrGetLastFlag} \\ 
+34     &  &  \id{LS\_FLAG}         & \id{IDASptfqmrGetLastFlag} \\ 
 \hline
 \multicolumn{4}{c}{}\\
 \multicolumn{4}{c}{Real input-output array \id{ROPT}}\\\hline
@@ -4910,10 +4910,7 @@ and \S\ref{ss:optional_output}.
 19 &                     & \id{H0\_USED} & \id{IDAGetActualInitStep} \\
 %
 20 &                     & \id{TOLFACT}  & \id{IDAGetTolScaleFactor} \\
-\hline
-%
-\end{tabular}
-\end{table}                                                                  
+\end{supertabular}
 
 %%==============================================================================
 \subsection{Usage of the FIDA interface module}\label{ss:fida_usage}
