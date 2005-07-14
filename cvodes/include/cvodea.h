@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29.2.4 $
- * $Date: 2005-04-28 20:06:35 $
+ * $Revision: 1.29.2.5 $
+ * $Date: 2005-07-14 23:59:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -230,13 +230,13 @@ extern "C" {
    *    CVSpgmrB links the main CVODE integrator with the CVSPGMR
    *    linear solver for the backward integration.
    * -----------------------------------------------------------------
-   * CVBandPrecAllocB, CVBPSpgmrB, CVBPSpbcgB
+   * CVBandPrecAllocB, CVBPSpgmrB
    *    CVBandPrecAllocB interfaces to the CVBANDPRE preconditioner
    *    for the backward integration. The pointer to the structure
    *    returned by this routine should then be used in the call to
-   *    CVBPSpgmrB/CVBPSpbcgB which interfaces to CVBPSpgmr/CVBPSpbcg.
+   *    CVBPSpgmrB which interfaces to CVBPSpgmr.
    * -----------------------------------------------------------------
-   * CVBBDPrecAllocB, CVBBDSpgmrB, CVBBDSpbcgB, CVBBDPrecReInit
+   * CVBBDPrecAllocB, CVBBDSpgmrB, CVBBDPrecReInit
    *    Interface functions for the BBD preconditioner to be used on
    *    the backward phase.
    * -----------------------------------------------------------------
@@ -292,7 +292,6 @@ extern "C" {
   int CVBandPrecAllocB(void *cvadj_mem, long int nB,
                        long int muB, long int mlB);
   
-  int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
   
   int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
@@ -301,7 +300,6 @@ extern "C" {
                       realtype dqrelyB,
                       CVLocalFnB glocB, CVCommFnB cfnB);
   
-  int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
   
   int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
