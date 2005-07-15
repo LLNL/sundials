@@ -1,9 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-06-21 23:58:06 $
+ * $Revision: 1.10 $
+ * $Date: 2005-07-15 23:28:08 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
+ * Programmer(s): Alan Hindmarsh, Radu Serban and
+ *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
@@ -665,6 +666,7 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
 #define edata       (IDA_mem->ida_edata)
 #define nge         (IDA_mem->ida_nge)
 #define iroots      (IDA_mem->ida_iroots)
+#define ee          (IDA_mem->ida_ee)
 
 /* 
  * =================================================================
@@ -924,6 +926,23 @@ int IDAGetErrWeightsAtY(void *ida_mem, N_Vector y, N_Vector eweight)
     fprintf(stderr, MSG_IDAG_EWT_BAD);
     return(IDA_ILL_INPUT);
   }
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    fprintf(stderr, MSG_IDAG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VScale(ONE, ee, ele);
 
   return(IDA_SUCCESS);
 }

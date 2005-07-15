@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-06-21 23:58:06 $
+ * $Revision: 1.16 $
+ * $Date: 2005-07-15 23:28:08 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
+ *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -57,7 +57,7 @@ typedef struct IDAMemRec {
   IDAResFn       ida_res;            /* F(t,y(t),y'(t))=0; the function F  */
   void          *ida_rdata;          /* user pointer passed to res         */
 
-  int            ida_itol;           /* itol = SS or SV                    */
+  int            ida_itol;           /* itol = IDA_SS, IDA_SV or IDA_WF    */
   realtype       ida_rtol;           /* relative tolerance                 */
   realtype       ida_Satol;          /* scalar absolute tolerance          */  
   N_Vector       ida_Vatol;          /* vector absolute tolerance          */  
@@ -90,7 +90,9 @@ typedef struct IDAMemRec {
   N_Vector ida_id;          /* bit vector for diff./algebraic components     */
   N_Vector ida_constraints; /* vector of inequality constraint options       */
   N_Vector ida_savres;      /* saved residual vector (= tempv1)              */
-  N_Vector ida_ee;          /* accumulated corrections to y                  */
+  N_Vector ida_ee;          /* accumulated corrections to y vector, but
+			       set equal to estimated local errors upon
+			       successful return                             */
   N_Vector ida_mm;          /* mask vector in constraints tests (= tempv2)   */
   N_Vector ida_tempv1;      /* work space vector                             */
   N_Vector ida_tempv2;      /* work space vector                             */

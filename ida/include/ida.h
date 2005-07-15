@@ -1,10 +1,10 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2005-06-20 20:23:00 $
+ * $Revision: 1.35 $
+ * $Date: 2005-07-15 23:28:02 $
  * ----------------------------------------------------------------- 
- * Programmers: Allan G. Taylor, Alan C. Hindmarsh, and
- *              Radu Serban @ LLNL
+ * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
+ *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
@@ -781,9 +781,11 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       user's tolerances should be scaled when too much         
  *       accuracy has been requested for some internal step       
  * IDAGetErrWeights returns the current state error weight vector.        
- *       The user must allocate space for ewt.                
+ *       The user must allocate space for eweight.
  * IDAGetErrWeightsAtY returns the error weight vector corresponding 
- *       to y. The user must allocate space for ewt.                
+ *       to y. The user must allocate space for eweight.
+ * IDAGetEstLocalErrors returns the estimated local errors. The user
+ *       must allocate space for the vector ele.
  * IDAGetNumGEvals returns the number of calls to the user's
  *       g function (for rootfinding)
  * IDAGetRootInfo returns the indices for which g_i was found to 
@@ -813,6 +815,7 @@ int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
 int IDAGetErrWeights(void *ida_mem, N_Vector eweight);
 int IDAGetErrWeightsAtY(void *ida_mem, N_Vector y, N_Vector eweight);
+int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele);
 int IDAGetNumGEvals(void *ida_mem, long int *ngevals);
 int IDAGetRootInfo(void *ida_mem, int *rootsfound);
 

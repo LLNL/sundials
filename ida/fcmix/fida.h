@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-07-05 22:35:14 $
+ * $Revision: 1.7 $
+ * $Date: 2005-07-15 23:27:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -67,6 +67,8 @@
  *   FIDAGETSOL  interfaces to IDAGetSolution
  *
  *   FIDAGETERRWEIGHTS  interfaces to IDAGetErrWeights
+ *
+ *   FIDAGETESTLOCALERR  interfaces to IDAGetEstLocalErrors
  *
  *   FIDAFREE  interfaces to IDAFree
  *
@@ -603,6 +605,7 @@ extern "C" {
 #define FIDA_EWT            F77_FUNC(fidaewt, FIDAEWT)
 #define FIDA_GETSOL         F77_FUNC(fidagetsol, FIDAGETSOL)
 #define FIDA_GETERRWEIGHTS  F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
+#define FIDA_GETESTLOCALERR F77_FUNC(fidagetestlocalerr, FIDAGETESTLOCALERR)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -637,6 +640,7 @@ extern "C" {
 #define FIDA_EWT            fidaewt
 #define FIDA_GETSOL         fidagetsol
 #define FIDA_GETERRWEIGHTS  fidageterrweights
+#define FIDA_GETESTLOCALERR fidagetestlocalerr
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -671,6 +675,7 @@ extern "C" {
 #define FIDA_EWT            FIDAEWT
 #define FIDA_GETSOL         FIDAGETSOL
 #define FIDA_GETERRWEIGHTS  FIDAGETERRWEIGHTS
+#define FIDA_GETESTLOCALERR FIDAGETESTLOCALERR
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -705,6 +710,7 @@ extern "C" {
 #define FIDA_EWT            fidaewt_
 #define FIDA_GETSOL         fidagetsol_
 #define FIDA_GETERRWEIGHTS  fidageterrweights_
+#define FIDA_GETESTLOCALERR fidagetestlocalerr_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
@@ -739,6 +745,7 @@ extern "C" {
 #define FIDA_EWT            FIDAEWT_
 #define FIDA_GETSOL         FIDAGETSOL_
 #define FIDA_GETERRWEIGHTS  FIDAGETERRWEIGHTS_
+#define FIDA_GETESTLOCALERR FIDAGETESTLOCALERR_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
@@ -773,6 +780,7 @@ extern "C" {
 #define FIDA_EWT            fidaewt__
 #define FIDA_GETSOL         fidagetsol__
 #define FIDA_GETERRWEIGHTS  fidageterrweights__
+#define FIDA_GETESTLOCALERR fidagetestlocalerr__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
@@ -807,6 +815,7 @@ extern "C" {
 #define FIDA_EWT            FIDAEWT__
 #define FIDA_GETSOL         FIDAGETSOL__
 #define FIDA_GETERRWEIGHTS  FIDAGETERRWEIGHTS__
+#define FIDA_GETESTLOCALERR FIDAGETESTLOCALERR__
 
 #endif
 
@@ -849,6 +858,7 @@ void FIDA_SPTFQMRSETPREC(int *flag, int *ier);
 void FIDA_EWTSET(int *flag, int *ier);
 void FIDA_GETSOL(realtype *t, realtype *yret, realtype *ypret, int *ier);
 void FIDA_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier);
+void FIDA_GETESTLOCALERR(realtype *ele, int *ier);
 
 /* Prototypes: Functions Called by the IDA Solver */
 

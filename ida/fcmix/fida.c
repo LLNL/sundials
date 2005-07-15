@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-07-05 22:35:14 $
+ * $Revision: 1.6 $
+ * $Date: 2005-07-15 23:27:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -662,6 +662,23 @@ void FIDA_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier)
   /* Reset data pointers */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
   N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
+
+  return;
+}
+
+/*************************************************/
+
+void FIDA_GETESTLOCALERR(realtype *ele, int *ier)
+{
+  /* Attach user data to vector */
+  N_VSetArrayPointer(ele, F2C_IDA_vec);
+
+  *ier = 0;
+
+  *ier = IDAGetEstLocalErrors(IDA_idamem, F2C_IDA_vec);
+
+  /* Reset data pointers */
+  N_VSetArrayPointer(NULL, F2C_IDA_vec);
 
   return;
 }
