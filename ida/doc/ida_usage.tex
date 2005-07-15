@@ -2146,6 +2146,8 @@ Step size to be attempted on the next step & \id{IDAGetCurrentStep} \\
 Current internal time reached by the solver & \id{IDAGetCurrentTime} \\
 Suggested factor for tolerance scaling  & \id{IDAGetTolScaleFactor} \\
 Error weight vector for state variables & \id{IDAGetErrWeights} \\
+Error weight vector corresponding to $y$ & \id{IDAGetErrWeightsAtY} \\
+Estimated local errors & \id{IDAGetEstLocalErrors} \\
 No. of nonlinear solver iterations & \id{IDAGetNumNonlinSolvIters} \\
 No. of nonlinear convergence failures & \id{IDAGetNumNonlinSolvConvFails} \\ 
 Array showing roots found & \id{IDAGetRootInfo} \\
@@ -2598,6 +2600,69 @@ These optional output functions are described next.
 }
 {
   {\warn} The user must allocate space for \id{eweight}.
+}
+%%
+%%
+\ucfunction{IDAGetErrWeightsAtY}
+{
+  flag = IDAGetErrWeightsAtY(ida\_mem, y, eweight);
+}
+{
+  The function \ID{IDAGetErrWeightsAtY} returns the solution error weights 
+  corresponding to $y$.
+}
+{
+  \begin{args}[eweight]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[y] (\id{N\_Vector})
+    $y$ for which error weights are sought.
+  \item[eweight] (\id{N\_Vector})
+    solution error weights at the current time.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  {\warn} The user must allocate space for \id{eweight}.
+}
+%%
+%%
+\ucfunction{IDAGetEstLocalErrors}
+{
+  flag = IDAGetEstLocalErrors(ida\_mem, ele);
+}
+{
+  The function \ID{IDAGetEstLocalErrors} returns the estimated local errors.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[eweight] (\id{N\_Vector})
+    estimated local errors at the current time.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[IDA\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  {\warn} The user must allocate space for \id{ele}. \\
+  {\warn} The values returned in \id{ele} are only valid if
+  \id{IDASolve} returned a positive value.
 }
 %%
 %%
@@ -4668,6 +4733,8 @@ are as follows:
     interfaces to \id{IDAGetSolution}.
   \item \id{FIDAGETERRWEIGHTS}
     interfaces to \id{IDAGetErrWeights}.
+  \item \id{FIDAGETESTLOCALERR}
+    interfaces to \id{IDAGetEstLocalErrors}.
   \item \id{FIDAFREE}    
     interfaces to \id{IDAFree}.
   \end{itemize}
