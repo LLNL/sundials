@@ -1,16 +1,16 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-06-21 19:22:51 $
+ * $Revision: 1.4 $
+ * $Date: 2005-07-18 17:23:40 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
- * This file (companion of nvector_spcparallel.h) contains the
+ * This file (companion of nvector_spcparallel.c) contains the
  * definitions needed for the initialization of the spcparallel
  * vector operations in Fortran.
  * -----------------------------------------------------------------
@@ -117,7 +117,9 @@ extern "C" {
    *
    */
 
-#ifdef SUNDIALS_MPI_COMM_F2C
+#ifndef SUNDIALS_MPI_COMM_F2C
+#define MPI_Fint int
+#endif
 
   void FNV_INITSPCP(MPI_Fint *comm, int *code, 
                     int *Ngrp, int *Nspc,
@@ -139,32 +141,6 @@ extern "C" {
                        long int *NxQB, long int *NyQB, long int *NzQB,
                        long int *NGxQB, long int *NGyQB, long int *NGzQB,
                        int *ier);
-
-#else
-
-  void FNV_INITSPCP(int *code, 
-                    int *Ngrp, int *Nspc,
-                    long int *Nx, long int *Ny, long int *Nz,
-                    long int *NGx, long int *NGy, long int *NGz,
-                    int *ier);
-  void FNV_INITSPCP_Q(int *code, 
-                      int *NgrpQ, int *NspcQ,
-                      long int *NxQ, long int *NyQ, long int *NzQ,
-                      long int *NGxQ, long int *NGyQ, long int *NGzQ,
-                      int *ier);
-  void FNV_INITSPCP_B(int *code, 
-                      int *NgrpB, int *NspcB,
-                      long int *NxB, long int *NyB, long int *NzB,
-                      long int *NGxB, long int *NGyB, long int *NGzB,
-                      int *ier);
-  void FNV_INITSPCP_QB(int *code, 
-                       int *NgrpQB, int *NspcQB,
-                       long int *NxQB, long int *NyQB, long int *NzQB,
-                       long int *NGxQB, long int *NGyQB, long int *NGzQB,
-                       int *ier);
-
-#endif
-
   void FNV_INITSPCP_S(int *code, int *Ns, int *ier);
 
 #ifdef __cplusplus

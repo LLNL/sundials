@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-06-21 19:13:27 $
+ * $Revision: 1.17 $
+ * $Date: 2005-07-18 17:23:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -10,7 +10,7 @@
  * All rights reserved.
  * For details, see sundials/shared/LICENSE.
  * -----------------------------------------------------------------
- * This file (companion of nvector_serial.h) contains the
+ * This file (companion of nvector_parallel.c) contains the
  * definitions needed for the initialization of parallel
  * vector operations in Fortran.
  * -----------------------------------------------------------------
@@ -117,24 +117,15 @@ extern "C" {
    *
    */
 
-#ifdef SUNDIALS_MPI_COMM_F2C
+#ifndef SUNDIALS_MPI_COMM_F2C
+#define MPI_Fint int
+#endif
 
   void FNV_INITP(MPI_Fint *comm, int *code, long int *L, long int *N, int *ier);
   void FNV_INITP_Q(MPI_Fint *comm, int *code, long int *Lq, long int *Nq, int *ier);
   void FNV_INITP_B(MPI_Fint *comm, int *code, long int *LB, long int *NB, int *ier);
   void FNV_INITP_QB(MPI_Fint *comm, int *code, long int *LqB, long int *NqB, int *ier);
-
-#else
-
-  void FNV_INITP(int *code, long int *L, long int *N, int *ier);
-  void FNV_INITP_Q(int *code, long int *Lq, long int *Nq, int *ier);
-  void FNV_INITP_B(int *code, long int *LB, long int *NB, int *ier);
-  void FNV_INITP_QB(int *code, long int *LqB, long int *NqB, int *ier);
-
-#endif
-
   void FNV_INITP_S(int *code, int *Ns, int *ier);
-
 
 #ifdef __cplusplus
 }
