@@ -67,14 +67,35 @@ and/or \\
 from a shell command prompt to remove unneeded object files.
 \end{enumerate}
 
-\begin{table}
-\centering
-\caption{SUNDIALS libraries and header files}
+%% >>>>
+
+\newlength{\colA}
+\settowidth{\colA}{{\nvecspc}}
+\newlength{\colB}
+\settowidth{\colB}{\id{libsundials\_nvecspcparallel.{\em lib}}}
+\newlength{\colC}
+\settowidth{\colC}{\id{nvector\_spcparallel.h}}
+
+\tablecaption{SUNDIALS libraries and header files}
 \label{t:sundials_files}
-\medskip
-\begin{tabular}{|l|l|l|}\hline
-{\bf Module} & {\bf Libraries} & {\bf Header files} \\
+\tablefirsthead{\hline {\bf Module} & {\bf Libraries} & {\bf Header files} \\}
+\tablehead{\hline \multicolumn{3}{|l|}{\small\slshape continued from last page} \\
+           \hline {\bf Module} & {\bf Libraries} & {\bf Header files} \\ \hline}
+\tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+
+\begin{supertabular}{|p{\colA}|p{\colB}|p{\colC}|}
 \hline
+%% <<<<
+%%
+%%\begin{table}
+%%\centering
+%%\caption{SUNDIALS libraries and header files}
+%%\label{t:sundials_files}
+%%\medskip
+%%\begin{tabular}{|l|l|l|}\hline
+%%{\bf Module} & {\bf Libraries} & {\bf Header files} \\
+%%\hline
 {\shared} &  \id{libsundials\_shared.{\em lib}} & \id{sundialstypes.h}    \\
           &                                       & \id{sundialsmath.h}     \\
           &                                       & \id{sundials\_config.h} \\
@@ -88,8 +109,8 @@ from a shell command prompt to remove unneeded object files.
           &                                       & \id{nvector.h}          \\
           &                                       & \id{fnvector.h}         \\
 \hline
-{\nvecs}  & \id{libsundials\_nvecserial.{\em lib}}   & \id{nvector\_serial.h} \\
-          & \id{libsundials\_fnvecserial.a}          &                          \\
+{\nvecs}  & \id{libsundials\_nvecserial.{\em lib}} & \id{nvector\_serial.h}  \\
+          & \id{libsundials\_fnvecserial.a}          &                         \\
 \hline
 {\nvecp}  & \id{libsundials\_nvecparallel.{\em lib}} & \id{nvector\_parallel.h} \\
           & \id{libsundials\_fnvecparallel.a}        &                            \\
@@ -136,10 +157,11 @@ from a shell command prompt to remove unneeded object files.
           &                                      & \id{kinsptfqmr.h} \\
           &                                      & \id{kinbbdpre.h}  \\
           &                                      & \id{kindense.h}   \\
-\hline
-\end{tabular}
-
-\end{table}
+%%\hline
+%%\end{tabular}
+%%
+%%\end{table}
+\end{supertabular}
 
 %%===============================================================================
 
