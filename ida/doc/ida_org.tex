@@ -27,7 +27,7 @@ The overall organization of the {\ida} package is shown in Figure
 \label{f:idaorg}
 \end{figure}
 The central integration module, implemented in the files 
-\id{ida.h} and \id{ida.c}, deals with the evaluation of integration coefficients,
+\id{ida.h}, \id{ida\_impl.h} and \id{ida.c}, deals with the evaluation of integration coefficients,
 the Newton iteration process, estimation of local error,
 selection of stepsize and order, and interpolation to user output
 points, among other issues.  Although this module contains logic for
@@ -37,12 +37,14 @@ given user problem, one of the linear system modules is specified, and
 is then invoked as needed during the integration. 
 
 \index{IDA@{\ida} linear solvers!list of|(} 
-At present, the package includes the following three {\ida} linear system
+At present, the package includes the following five {\ida} linear system
 modules:
 \begin{itemize} 
 \item {\idadense}: LU factorization and backsolving with dense matrices; 
 \item {\idaband}: LU factorization and backsolving with banded matrices; 
-\item {\idaspgmr}: scaled preconditioned GMRES method.
+\item {\idaspgmr}: scaled preconditioned GMRES method;
+\item {\idaspbcg}: scaled preconditioned Bi-CGStab method;
+\item {\idasptfqmr}: scaled preconditioned TFQMR method.
 \end{itemize}
 This set of linear solver modules is intended to be expanded in the
 future as new algorithms are developed.
@@ -52,12 +54,12 @@ In the case of the direct {\idadense} and {\idaband} methods, the package includ
 an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
 (or an approximation to it) directly. In the case of the iterative
-{\idaspgmr} method, the package includes an algorithm for the approximation
-by difference quotients of the product between the Jacobian matrix and
+methods {\idaspgmr}, {\idaspbcg} and {\idasptfqmr}, the package includes an algorithm for
+the approximation by difference quotients of the product between the Jacobian matrix and
 a vector of appropriate length. Again, the user has the option of providing
 a routine for this operation.
-In \index{preconditioning!setup and solve phases} the case of {\idaspgmr}, 
-the preconditioning must be supplied by the user in two phases: 
+In \index{preconditioning!setup and solve phases} the case of {\idaspgmr}, {\idaspbcg} and
+{\idasptfqmr}, the preconditioning must be supplied by the user in two phases: 
 setup (preprocessing of Jacobian data) and solve.
 While\index{preconditioning!advice on} there is no default
 choice of preconditioner analogous to the difference quotient
@@ -81,9 +83,9 @@ of the linear system method.
 
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\ida}|(} 
-Each of the modules {\idadense}, {\idaband}, and {\idaspgmr} is a set of 
-interface routines built on top of a generic solver module, 
-named {\dense}, {\band}, and {\spgmr}, respectively.  
+Each of the modules {\idadense}, {\idaband}, {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}
+is a set of interface routines built on top of a generic solver module, 
+named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.  
 The interfaces deal with the use of these methods in the {\ida} context, 
 whereas the generic solver is independent of the context.
 While the generic solvers here were generated with {\sundials} in mind, our

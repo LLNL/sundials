@@ -114,6 +114,14 @@ The header files corresponding to the various linear solver options in {\ida} ar
   context of {\ida}. This in turn includes a header file (\id{iterative.h})
   which enumerates the kind of preconditioning and the choices for the
   Gram-Schmidt process.
+\item \Id{idaspbcg.h}, 
+  which is used with the Krylov solver {\spbcg} in the
+  context of {\ida}. This in turn includes a header file (\id{iterative.h})
+  which enumerates the kind of preconditioning.
+\item \Id{idaspgmr.h}, 
+  which is used with the Krylov solver {\sptfqmr} in the
+  context of {\ida}. This in turn includes a header file (\id{iterative.h})
+  which enumerates the kind of preconditioning.
 \end{itemize}
 
 %%===================================================================================
@@ -226,7 +234,11 @@ two implementations provided with {\ida}: steps marked with {\p} correspond to
   {\s} \id{flag = }\Id{IDABand}\id{(...);}
 
   \id{flag = }\Id{IDASpgmr}\id{(...);}
-  
+
+  \id{flag = }\Id{IDASpbcg}\id{(...);}
+
+  \id{flag = }\Id{IDASptfqmr}\id{(...);}
+
 \item
   {\bf Set linear solver optional inputs}
 
@@ -353,7 +365,8 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
   \item[itol] (\id{int}) 
     is one of \Id{IDA\_SS}, \Id{IDA\_SV}, or \ID{IDA\_WF}, where \Id{itol}$=$\id{IDA\_SS}
     indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{itol}$=$\id{IDA\_SV}
+    tolerance and scalar absolute error tolerance, while \\
+    \id{itol}$=$\id{IDA\_SV}
     indicates scalar relative error tolerance and vector absolute error tolerance. 
     The latter choice is important when the absolute error tolerance needs to
     be different for each component of the DAE. 
@@ -415,21 +428,21 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
 \subsection{Linear solver specification functions}\label{sss:lin_solv_init}
 
 As previously explained, Newton iteration requires the solution of
-linear systems of the form (\ref{e:DAE_Newtoncorr}).  There are three {\ida} linear
+linear systems of the form (\ref{e:DAE_Newtoncorr}).  There are five {\ida} linear
 solvers currently available for this task: {\idadense}, {\idaband}, 
 and {\idaspgmr}.  The first two are direct solvers and derive their name
 from the type of approximation used for the Jacobian 
 $J = \partial{F}/\partial{y} + c_j \partial{F}/\partial{y^\prime}$.
 {\idadense} and {\idaband} work with
-dense and banded approximations to $J$, respectively.  The
-third {\ida} linear solver, {\idaspgmr}, is an iterative solver.  
-The {\spgmr} in the name indicates that it uses a scaled preconditioned
-GMRES method.
+dense and banded approximations to $J$, respectively.  The reamaining three
+{\ida} linear solvers, {\idaspgmr}, {\idaspbcg} and {\idasptfqmr}, are iterative solvers.
+The {\spgmr}, {\spbcg} and {\sptfqmr} in the names indicate that they use the scaled preconditioned
+GMRES, scaled preconditioned Bi-CGStab, and scaled preconditioned TFQMR methods, respectively.
 
 \index{IDA@{\ida} linear solvers!selecting one|(} 
 To specify an {\ida} linear solver, after the call to \id{IDACreate}
 but before any calls to \id{IDASolve}, the user's program must call one
-of the functions \Id{IDADense}, \Id{IDABand}, \Id{IDASpgmr},
+of the functions \Id{IDADense}, \Id{IDABand}, \Id{IDASpgmr}, \Id{IDASpbcg}, \Id{IDASptfqmr},
 as documented below. The first argument passed to these functions is the {\ida}
 memory pointer returned by \id{IDACreate}.  A call to one of these
 functions links the main {\ida} integrator to a linear solver and
@@ -446,7 +459,7 @@ solver, as specified below.
 In each case the linear
 solver module used by {\ida} is actually built on top of a generic
 linear system solver, which may be of interest in itself.  These
-generic solvers, denoted {\dense}, {\band}, and {\spgmr}, are described
+generic solvers, denoted {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, are described
 separately in Chapter \ref{s:gen_linsolv}.
 \index{IDA@{\ida} linear solvers!built on generic solvers|)}
 %%
@@ -572,6 +585,78 @@ separately in Chapter \ref{s:gen_linsolv}.
   \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPGMR\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \end{args}
+}
+{}
+%%
+%%
+%%
+\index{IDA@{\ida} linear solvers!IDASPBCG@{\idaspbcg}}
+\index{IDASPBCG@{\idaspbcg} linear solver!selection of} 
+\ucfunction{IDASpbcg}
+{
+  flag = IDASpbcg(ida\_mem, maxl);
+}
+{
+  The function \ID{IDASpbcg} selects the {\idaspbcg} linear solver. 
+
+  The user's main function must include the \id{idaspbcg.h} header file.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDA\_SPBCG\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_MEM\_NULL]
+  \item[\Id{IDASPBCG\_SUCCESS}] 
+    The {\idaspbcg} initialization was successful.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \end{args}
+}
+{}
+%%
+%%
+%%
+\index{IDA@{\ida} linear solvers!IDASPTFQMR@{\idasptfqmr}}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!selection of} 
+\ucfunction{IDASptfqmr}
+{
+  flag = IDASptfqmr(ida\_mem, maxl);
+}
+{
+  The function \ID{IDASptfqmr} selects the {\idasptfqmr} linear solver. 
+
+  The user's main function must include the \id{idasptfqmr.h} header file.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDA\_SPTFQMR\_MAXL}$=5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_MEM\_NULL]
+  \item[\Id{IDASPTFQMR\_SUCCESS}] 
+    The {\idasptfqmr} initialization was successful.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_MEM\_FAIL}]
     A memory allocation request failed.
   \end{args}
 }
@@ -888,6 +973,20 @@ Type of Gram-Schmidt orthogonalization & \id{IDASpgmrSetGSType} & classical GS \
 Maximum no. of restarts & \id{IDASpgmrSetMaxRestarts} & 5 \\
 Factor in linear convergence test & \id{IDASpgmrSetEpsLin} & 0.05 \\
 Factor in DQ increment calculation & \id{IDASpgmrSetIncrementFactor} & 1.0 \\
+\hline
+\multicolumn{3}{|c|}{\bf IDASPBCG linear solver} \\
+\hline
+Preconditioner functions and data & \id{IDASpbcgSetPreconditioner} & NULL, NULL, NULL \\
+Jacobian times vector function and data & \id{IDASpbcgSetJacTimesVecFn} & internal DQ, NULL \\
+Factor in linear convergence test & \id{IDASpbcgSetEpsLin} & 0.05 \\
+Factor in DQ increment calculation & \id{IDASpbcgSetIncrementFactor} & 1.0 \\
+\hline
+\multicolumn{3}{|c|}{\bf IDASPTFQMR linear solver} \\
+\hline
+Preconditioner functions and data & \id{IDASptfqmrSetPreconditioner} & NULL, NULL, NULL \\
+Jacobian times vector function and data & \id{IDASptfqmrSetJacTimesVecFn} & internal DQ, NULL \\
+Factor in linear convergence test & \id{IDASptfqmrSetEpsLin} & 0.05 \\
+Factor in DQ increment calculation & \id{IDASptfqmrSetIncrementFactor} & 1.0 \\
 \hline
 \end{tabular}
 \end{table}
@@ -1601,7 +1700,7 @@ Optionally, the {\idaspgmr} solver passes the pointer it receives through
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
-The pointer \id{prec\_data} may be identical to \id{res\_data}, if the latter was 
+The pointer \id{p\_data} may be identical to \id{res\_data}, if the latter was 
 specified through \id{IDASetRdata}.
 
 The \index{IDASPGMR@{\idaspgmr} linear solver!Jacobian approximation used by}
@@ -1611,34 +1710,34 @@ The user can supply his/her own Jacobian times vector approximation function,
 or use the difference quotient function \Id{IDASpgmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\idaspgmr} solver.
-A user-defined Jacobian-vector function must be of type \id{IDASpgmrJtimesFn} and 
+A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn} and 
 can be specified through a call to \id{IDASpgmrSetJacTimesVecFn} 
 (see \S\ref{ss:user_fct_sim} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
-the user can also specify int the call to \id{IDASpgmrSetJacFn}, a pointer to a 
+the user can also specify in the call to \id{IDASpgmrSetJacTimesVecFn}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
 the {\idaspgmr} solver passes to the Jacobian times vector function \id{jtimes}
 each time it is called.  
-The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
 %%
 \ucfunction{IDASpgmrSetPreconditioner}
 {
-  flag = IDASpgmrSetPrecSolveFn(ida\_mem, psolve, psetup, p\_data);
+  flag = IDASpgmrSetPreconditioner(ida\_mem, psetup, psolve, p\_data);
 }
 {
-  The function \ID{IDASpgmrSet} specifies the preconditioner
+  The function \ID{IDASpgmrSetPreconditioner} specifies the preconditioner
   setup and solve functions and the pointer to user data.
 }
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[psolve] (\id{IDASpgmrPrecSolveFn})
-    user-defined preconditioner solve function.
-  \item[psetup] (\id{IDASpgmrPrecSetupFn})
+  \item[psetup] (\id{IDASpilsPrecSetupFn})
     user-defined preconditioner setup function.
+  \item[psolve] (\id{IDASpilsPrecSolveFn})
+    user-defined preconditioner solve function.
   \item[p\_data] (\id{void *})
      pointer to the user-defined data structure.
   \end{args}
@@ -1655,8 +1754,8 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
   \end{args}
 }
 {
-   The function type \id{IDASpgmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
-   The function type \id{IDASpgmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
+   The function type \id{IDASpilsPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+   The function type \id{IDASpilsPrecSetupFn} is described in \S\ref{ss:precondFn}.
 }
 %%
 %%
@@ -1846,7 +1945,400 @@ The pointer \id{jac\_data} may be identical to \id{P\_data} and/or \id{f\_data}.
 %%
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
+%%
+%%---------------------------------------------------------
+%%
+\noindent\paragraph{\bf SPBCG Linear solver.}
+\index{optional input!iterative linear solver|(}
+\index{IDASPBCG@{\idaspbcg} linear solver!optional input|(}
+\index{preconditioning!user-supplied|(}
+If preconditioning is to be done within the {\spbcg} method, then the user
+must supply a preconditioner solve function, \id{psolve}, and specify its
+name through a call to \id{IDASpbcgSetPreconditioner}.
+\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner solve function}
+%%
+The evaluation and preprocessing of any Jacobian-related data needed
+by the user's preconditioner solve function is done in the optional
+user-supplied function \id{psetup}. Both of these functions are
+fully specified in \S\ref{ss:user_fct_sim}.
+If used, the \id{psetup} function should also be specified in the call to
+\id{IDASpbcgSetPreconditioner}.
+\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner setup function}
+%%
+Optionally, the {\idaspbcg} solver passes the pointer it receives through 
+\id{IDASpbcgSetPreconditioner} to the preconditioner setup and solve functions.  
+This allows the user to create an arbitrary structure with relevant problem data 
+and access it during the execution of the user-supplied preconditioner functions
+without using global data in the program.  
+The pointer \id{p\_data} may be identical to \id{res\_data}, if the latter was 
+specified through \id{IDASetRdata}.
 
+The \index{IDASPBCG@{\idaspbcg} linear solver!Jacobian approximation used by}
+{\idaspbcg} solver requires a function to compute an approximation to the
+product between the Jacobian matrix $J(t,y)$ and a vector $v$.
+The user can supply his/her own Jacobian times vector approximation function, 
+or use the difference quotient function \Id{IDASpbcgDQJtimes} 
+\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+that comes with the {\idaspbcg} solver.
+A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn} and 
+can be specified through a call to \id{IDASpbcgSetJacTimesVecFn} 
+(see \S\ref{ss:user_fct_sim} for specification details).
+%%
+As with the preconditioner user data structure \id{p\_data}, 
+the user can also specify in the call to \id{IDASpbcgSetJacTimesVecFn}, a pointer to a 
+user-defined data structure, \id{jac\_data}, which
+the {\idaspbcg} solver passes to the Jacobian times vector function \id{jtimes}
+each time it is called.  
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
+%%
+%%
+\ucfunction{IDASpbcgSetPreconditioner}
+{
+  flag = IDASpbcgSetPreconditioner(ida\_mem, psetup, psolve, p\_data);
+}
+{
+  The function \ID{IDASpbcgSetPreconditioner} specifies the preconditioner
+  setup and solve functions and the pointer to user data.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[psetup] (\id{IDASpilsPrecSetupFn})
+    user-defined preconditioner setup function.
+  \item[psolve] (\id{IDASpilsPrecSolveFn})
+    user-defined preconditioner solve function.
+  \item[p\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[\Id{IDASPBCG\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+   The function type \id{IDASpilsPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+   The function type \id{IDASpilsPrecSetupFn} is described in \S\ref{ss:precondFn}.
+}
+%%
+%%
+\index{preconditioning!user-supplied|)}
+%%
+\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\ucfunction{IDASpbcgSetJacTimesVecFn}
+{
+  flag = IDASpbcgSetJacTimesVecFn(ida\_mem, jtimes, jac\_data);
+}
+{
+  The function \ID{IDASpbcgSetJacTimesFn} specifies the Jacobian-vector 
+  function to be used and the pointer to user data.
+}
+{
+  \begin{args}[jac\_data]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[jtimes] (\id{IDASpilsJacTimesVecFn})
+    user-defined Jacobian-vector product function.
+  \item[jac\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[\Id{IDASPBCG\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  By default, {\idaspbcg} uses the difference quotient function \id{IDASpbcgDQJtimes}.
+  If \id{NULL} is passed to \id{jtimes}, this default function is used.
+
+  The function type \id{IDASpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+}
+%%
+%%
+\ucfunction{IDASpbcgSetEpsLin}
+{
+  flag = IDASpbcgSetEpsLin(ida\_mem, eplifac);
+}
+{
+  The function \ID{IDASpbcgSetEpsLin} specifies the factor by
+  which the Bi-CGStab\index{Bi-CGStab method} convergence test constant is reduced
+  from the Newton iteration test constant. (See \S\ref{s:math}).
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[eplifac] (\id{realtype})
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_ILL\_INPUT]
+  \item[\Id{IDASPBCG\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPBCG\_ILL\_INPUT}]
+    The factor \id{eplifac} is negative.  
+  \end{args}
+}
+{
+  The default value is $0.05$.
+
+  Passing a value \id{eplifac}$ = 0.0$ also indicates using the default value.
+}
+%%
+%%
+\ucfunction{IDASpbcgSetIncrementFactor}
+{
+  flag = IDASpbcgSetIncrementFactor(ida\_mem, dqincfac);
+}
+{
+  The function \ID{IDASpbcgSetIncrementFactor} specifies a factor in the 
+  increments to $y$ used in the difference quotient approximations 
+  to the Jacobian-vector products.  (See \S\ref{s:math}).
+}
+{
+  \begin{args}[dqincfac]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[dqincfac] (\id{realtype})
+    difference quotient increment factor.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_ILL\_INPUT]
+  \item[\Id{IDASPBCG\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPBCG\_ILL\_INPUT}]
+    The increment factor was non-positive.
+  \end{args}
+}
+{
+  The default value is \id{dqincfac} $=1.0$.
+}
+%%
+\index{IDASPBCG@{\idaspbcg} linear solver!optional input|)}
+\index{optional input!iterative linear solver|)}
+%%
+%%---------------------------------------------------------
+%%
+\noindent\paragraph{\bf SPTFQMR Linear solver.}
+\index{optional input!iterative linear solver|(}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!optional input|(}
+\index{preconditioning!user-supplied|(}
+If preconditioning is to be done within the {\sptfqmr} method, then the user
+must supply a preconditioner solve function, \id{psolve}, and specify its
+name through a call to \id{IDASptfqmrSetPreconditioner}.
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner solve function}
+%%
+The evaluation and preprocessing of any Jacobian-related data needed
+by the user's preconditioner solve function is done in the optional
+user-supplied function \id{psetup}. Both of these functions are
+fully specified in \S\ref{ss:user_fct_sim}.
+If used, the \id{psetup} function should also be specified in the call to
+\id{IDASptfqmrSetPreconditioner}.
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
+%%
+Optionally, the {\idasptfqmr} solver passes the pointer it receives through 
+\id{IDASptfqmrSetPreconditioner} to the preconditioner setup and solve functions.  
+This allows the user to create an arbitrary structure with relevant problem data 
+and access it during the execution of the user-supplied preconditioner functions
+without using global data in the program.  
+The pointer \id{p\_data} may be identical to \id{res\_data}, if the latter was 
+specified through \id{IDASetRdata}.
+
+The \index{IDASPTFQMR@{\idasptfqmr} linear solver!Jacobian approximation used by}
+{\idasptfqmr} solver requires a function to compute an approximation to the
+product between the Jacobian matrix $J(t,y)$ and a vector $v$.
+The user can supply his/her own Jacobian times vector approximation function, 
+or use the difference quotient function \Id{IDASptfqmrDQJtimes} 
+\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+that comes with the {\idasptfqmr} solver.
+A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn} and 
+can be specified through a call to \id{IDASptfqmrSetJacTimesVecFn} 
+(see \S\ref{ss:user_fct_sim} for specification details).
+%%
+As with the preconditioner user data structure \id{p\_data}, 
+the user can also specify in the call to \id{IDASptfqmrSetJacTimesVecFn}, a pointer to a 
+user-defined data structure, \id{jac\_data}, which
+the {\idasptfqmr} solver passes to the Jacobian times vector function \id{jtimes}
+each time it is called.  
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
+%%
+%%
+\ucfunction{IDASptfqmrSetPreconditioner}
+{
+  flag = IDASptfqmrSetPreconditioner(ida\_mem, psetup, psolve, p\_data);
+}
+{
+  The function \ID{IDASptfqmrSetPreconditioner} specifies the preconditioner
+  setup and solve functions and the pointer to user data.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[psetup] (\id{IDASpilsPrecSetupFn})
+    user-defined preconditioner setup function.
+  \item[psolve] (\id{IDASpilsPrecSolveFn})
+    user-defined preconditioner solve function.
+  \item[p\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[\Id{IDASPTFQMR\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+   The function type \id{IDASpilsPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+   The function type \id{IDASpilsPrecSetupFn} is described in \S\ref{ss:precondFn}.
+}
+%%
+%%
+\index{preconditioning!user-supplied|)}
+%%
+\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\ucfunction{IDASptfqmrSetJacTimesVecFn}
+{
+  flag = IDASptfqmrSetJacTimesVecFn(ida\_mem, jtimes, jac\_data);
+}
+{
+  The function \ID{IDASptfqmrSetJacTimesFn} specifies the Jacobian-vector 
+  function to be used and the pointer to user data.
+}
+{
+  \begin{args}[jac\_data]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[jtimes] (\id{IDASpilsJacTimesVecFn})
+    user-defined Jacobian-vector product function.
+  \item[jac\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[\Id{IDASPTFQMR\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  By default, {\idasptfqmr} uses the difference quotient function \id{IDASptfqmrDQJtimes}.
+  If \id{NULL} is passed to \id{jtimes}, this default function is used.
+
+  The function type \id{IDASpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+}
+%%
+%%
+\ucfunction{IDASptfqmrSetEpsLin}
+{
+  flag = IDASptfqmrSetEpsLin(ida\_mem, eplifac);
+}
+{
+  The function \ID{IDASptfqmrSetEpsLin} specifies the factor by
+  which the TFQMR\index{TFQMR method} convergence test constant is reduced
+  from the Newton iteration test constant. (See \S\ref{s:math}).
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[eplifac] (\id{realtype})
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_ILL\_INPUT]
+  \item[\Id{IDASPTFQMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPTFQMR\_ILL\_INPUT}]
+    The factor \id{eplifac} is negative.  
+  \end{args}
+}
+{
+  The default value is $0.05$.
+
+  Passing a value \id{eplifac}$ = 0.0$ also indicates using the default value.
+}
+%%
+%%
+\ucfunction{IDASptfqmrSetIncrementFactor}
+{
+  flag = IDASptfqmrSetIncrementFactor(ida\_mem, dqincfac);
+}
+{
+  The function \ID{IDASptfqmrSetIncrementFactor} specifies a factor in the 
+  increments to $y$ used in the difference quotient approximations 
+  to the Jacobian-vector products.  (See \S\ref{s:math}).
+}
+{
+  \begin{args}[dqincfac]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[dqincfac] (\id{realtype})
+    difference quotient increment factor.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_ILL\_INPUT]
+  \item[\Id{IDASPTFQMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \item[\Id{IDASPTFQMR\_ILL\_INPUT}]
+    The increment factor was non-positive.
+  \end{args}
+}
+{
+  The default value is \id{dqincfac} $=1.0$.
+}
+%%
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!optional input|)}
+\index{optional input!iterative linear solver|)}
 %%
 %%
 %%===================================================================================
@@ -2122,13 +2614,21 @@ solver performance information.
 Table \ref{t:optional_output} lists all optional output functions in {\ida},
 which are then described in detail in the remainder of this section.
 
-\begin{table}
-\centering
-\caption{Optional outputs from {\ida}, {\idadense}, {\idaband}, and {\idaspgmr}}
+\newlength{\colAA}
+\settowidth{\colAA}{No. of residual calls for finite diff. Jacobian-vector evals.}
+\newlength{\colBB}
+\settowidth{\colBB}{\id{IDAGetNumNonlinSolvConvFails}}
+
+\tablecaption{Optional outputs from {\ida}, {\idadense}, {\idaband}, {\idaspgmr},
+              {\idaspbcg}, and {\idasptfqmr}}
 \label{t:optional_output}
-\medskip
-\begin{tabular}{|l|l|}\hline
-{\bf Optional output} & {\bf Function name} \\
+\tablefirsthead{\hline {\bf Optional output} & {\bf Function name} \\}
+\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
+           \hline {\bf Optional output} & {\bf Function name} \\ \hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+
+\begin{supertabular}{|p{\colAA}|p{\colBB}|}
 \hline
 \multicolumn{2}{|c|}{\bf IDA main solver} \\
 \hline
@@ -2175,12 +2675,31 @@ No. of linear convergence failures & \id{IDASpgmrGetNumConvFails} \\
 No. of preconditioner evaluations & \id{IDASpgmrGetNumPrecEvals} \\
 No. of preconditioner solves & \id{IDASpgmrGetNumPrecSolves} \\
 No. of Jacobian-vector product evaluations & \id{IDASpgmrGetNumJtimesEvals} \\
-No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASpgmrGetNumResEvals} \\ 
-Last return from a {\idaspgmr} function & \id{IDASpgmrGetLastFlag} \\ 
+No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASpgmrGetNumResEvals} \\
+Last return from a {\idaspgmr} function & \id{IDASpgmrGetLastFlag} \\
 \hline
-\end{tabular}
-\end{table}
-
+\multicolumn{2}{|c|}{\bf IDASPBCG linear solver} \\
+\hline
+Size of {\idaspbcg} real and integer workspace & \id{IDASpbcgGetWorkSpace} \\
+No. of linear iterations & \id{IDASpbcgGetNumLinIters} \\
+No. of linear convergence failures & \id{IDASpbcgGetNumConvFails} \\
+No. of preconditioner evaluations & \id{IDASpbcgGetNumPrecEvals} \\
+No. of preconditioner solves & \id{IDASpbcgGetNumPrecSolves} \\
+No. of Jacobian-vector product evaluations & \id{IDASpbcgGetNumJtimesEvals} \\
+No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASpbcgGetNumResEvals} \\
+Last return from a {\idaspbcg} function & \id{IDASpbcgGetLastFlag} \\
+\hline
+\multicolumn{2}{|c|}{\bf IDASPTFQMR linear solver} \\
+\hline
+Size of {\idasptfqmr} real and integer workspace & \id{IDASptfqmrGetWorkSpace} \\
+No. of linear iterations & \id{IDASptfqmrGetNumLinIters} \\
+No. of linear convergence failures & \id{IDASptfqmrGetNumConvFails} \\
+No. of preconditioner evaluations & \id{IDASptfqmrGetNumPrecEvals} \\
+No. of preconditioner solves & \id{IDASptfqmrGetNumPrecSolves} \\
+No. of Jacobian-vector product evaluations & \id{IDASptfqmrGetNumJtimesEvals} \\
+No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASptfqmrGetNumResEvals} \\
+Last return from a {\idasptfqmr} function & \id{IDASptfqmrGetLastFlag} \\
+\end{supertabular}
 
 \subsubsection{Main solver optional output functions}
 \index{optional output!solver|(}
@@ -3336,7 +3855,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDASPGMR\_LMEM\_NULL]
-  \item[IDA\_SUCCESS] 
+  \item[IDASPGMR\_SUCCESS] 
     The optional output value has been successfuly set.
   \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
@@ -3403,8 +3922,579 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %%
 \index{IDASPGMR@{\idaspgmr} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
+%
+%--------------------------------
+%
+\noindent\paragraph{\bf SPBCG Linear solver.}
+\index{optional output!iterative linear solver|(}
+\index{IDASPBCG@{\idaspbcg} linear solver!optional output|(} 
+The following optional outputs are available from the {\idaspbcg} module:
+workspace requirements, number of linear iterations,
+number of linear convergence failures, number of calls to the preconditioner
+setup and solve routines, number of calls to the Jacobian-vector product routine,
+ number of calls to the residual routine for finite-difference  Jacobian-vector
+ product approximation, and last return value from an {\idaspbcg} function.
 %%
 %%
+\ucfunction{IDASpbcgGetWorkSpace}
+{
+  flag = IDASpbcgGetWorkSpace(ida\_mem, \&lenrwSG, \&leniwSG);
+}
+{
+  The function \ID{IDASpbcgGetWorkSpace} returns the global sizes of
+  the {\idaspbcg} real and integer workspaces.
+}
+{
+  \begin{args}[lenrwSG]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[lenrwSG] (\id{long int})
+    global number of real values in the {\idaspbcg} workspace.
+  \item[leniwSG] (\id{long int})
+    global number of integer values in the {\idaspbcg} workspace.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[IDASPBCG\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  \index{IDASPBCG@{\idaspbcg} linear solver!memory requirements} 
+  \index{memory requirements!IDASPBCG@{\idaspbcg} linear solver}
+  In terms of the problem size $N$, the actual size of the real workspace is
+  $N*10$ \id{realtype} words.
+}
+%%
+%%
+\ucfunction{IDASpbcgGetNumLinIters}
+{
+  flag = IDASpbcgGetNumLinIters(ida\_mem, \&nliters);
+}
+{
+  The function \ID{IDASpbcgGetNumLinIters} returns the
+  cumulative number of linear iterations.
+}
+{
+  \begin{args}[nliters]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[nliters] (\id{long int})
+    the current number of linear iterations.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[IDASPBCG\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASpbcgGetNumConvFails}
+{
+  flag = IDASpbcgGetNumConvFails(ida\_mem, \&nlcfails);
+}
+{
+  The function \ID{IDASpbcgGetNumConvFails} returns the
+  cumulative number of linear convergence failures.
+}
+{
+  \begin{args}[nlcfails]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[nlcfails] (\id{long int})
+    the current number of linear convergence failures.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[IDASPBCG\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASpbcgGetNumPrecEvals}
+{
+  flag = IDASpbcgGetNumPrecEvals(ida\_mem, \&npevals);
+}
+{
+  The function \ID{IDASpbcgGetNumPrecEvals} returns the
+  cumulative number of preconditioner evaluations, i.e., the number of 
+  calls made to \id{psetup} with \id{jok=FALSE}.
+}
+{
+  \begin{args}[npevals]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[npevals] (\id{long int})
+    the cumulative number of calls to \id{psetup}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[IDASPBCG\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASpbcgGetNumPrecSolves}
+{
+  flag = IDASpbcgGetNumPrecSolves(ida\_mem, \&npsolves);
+}
+{
+  The function \ID{IDASpbcgGetNumPrecSolves} returns the
+  cumulative number of calls made to the preconditioner 
+  solve function, \id{psolve}.
+}
+{
+  \begin{args}[npsolves]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[npsolves] (\id{long int})
+    the cumulative number of calls to \id{psolve}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[IDASPBCG\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASpbcgGetNumJtimesEvals}
+{
+  flag = IDASpbcgGetNumJtimesEvals(ida\_mem, \&njvevals);
+}
+{
+  The function \ID{IDASpbcgGetNumJtimesEvals} returns the
+  cumulative number of calls made to the Jacobian-vector function,
+  \id{jtimes}.
+}
+{
+  \begin{args}[njvevals]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[njvevals] (\id{long int})
+    the cumulative number of calls to \id{jtimes}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[IDASPBCG\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASpbcgGetNumResEvals}
+{
+  flag = IDASpbcgGetNumResEvals(ida\_mem, \&nrevalsSG);
+}
+{
+  The function \ID{IDASpbcgGetNumResEvals} returns the
+  cumulative number of calls to the user residual function for
+  finite difference Jacobian-vector product approximation.
+}
+{
+  \begin{args}[nrevalsSG]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[nrevalsSG] (\id{long int})
+    the cumulative number of calls to the user residual function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[IDASPBCG\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The value \id{nrevalsSG} is incremented only if the default 
+  \id{IDASpbcgDQJtimes} difference quotient function is used.
+}
+%%
+%%
+\ucfunction{IDASpbcgGetLastFlag}
+{
+  flag = IDASpbcgGetLastFlag(ida\_mem, \&flag);
+}
+{
+  The function \ID{IDASpbcgGetLastFlag} returns the
+  last return value from an {\idaspbcg} routine. 
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from an {\idaspbcg} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_LMEM\_NULL]
+  \item[\Id{IDASPBCG\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\idaspbcg} setup function failed (\id{IDASolve} 
+  returned \id{IDA\_LSETUP\_FAIL}),
+  \id{flag} contains the return value of the preconditioner 
+  setup function \id{psetup}.
+
+  If the {\idaspbcg} solve function failed (\id{IDASolve} returned 
+  \id{IDA\_LSETUP\_FAIL}), \id{flag} contains the error return flag from
+  \id{SpbcgSolve} and will be one of:
+  \id{SPBCG\_CONV\_FAIL}, indicating a failure to converge;
+  \id{SPBCG\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve
+  function \id{psolve} failed recoverably;
+  \id{SPBCG\_MEM\_NULL}, indicating that the {\spbcg} memory is \id{NULL};
+  \id{SPBCG\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector 
+  function; or
+  \id{SPBCG\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+  function \id{psolve} failed unrecoverably.
+}
+%%
+\index{IDASPBCG@{\idaspbcg} linear solver!optional output|)} 
+\index{optional output!iterative linear solver|)}
+%
+%--------------------------------
+%
+\noindent\paragraph{\bf SPTFQMR Linear solver.}
+\index{optional output!iterative linear solver|(}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!optional output|(} 
+The following optional outputs are available from the {\idasptfqmr} module:
+workspace requirements, number of linear iterations,
+number of linear convergence failures, number of calls to the preconditioner
+setup and solve routines, number of calls to the Jacobian-vector product routine,
+ number of calls to the residual routine for finite-difference  Jacobian-vector
+ product approximation, and last return value from an {\idasptfqmr} function.
+%%
+%%
+\ucfunction{IDASptfqmrGetWorkSpace}
+{
+  flag = IDASptfqmrGetWorkSpace(ida\_mem, \&lenrwSG, \&leniwSG);
+}
+{
+  The function \ID{IDASptfqmrGetWorkSpace} returns the global sizes of
+  the {\idasptfqmr} real and integer workspaces.
+}
+{
+  \begin{args}[lenrwSG]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[lenrwSG] (\id{long int})
+    global number of real values in the {\idasptfqmr} workspace.
+  \item[leniwSG] (\id{long int})
+    global number of integer values in the {\idasptfqmr} workspace.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[IDASPTFQMR\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idaspgmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  \index{IDASPTFQMR@{\idasptfqmr} linear solver!memory requirements} 
+  \index{memory requirements!IDASPTFQMR@{\idasptfqmr} linear solver}
+  In terms of the problem size $N$, the actual size of the real workspace is
+  $N*13$ \id{realtype} words.
+}
+%%
+%%
+\ucfunction{IDASptfqmrGetNumLinIters}
+{
+  flag = IDASptfqmrGetNumLinIters(ida\_mem, \&nliters);
+}
+{
+  The function \ID{IDASptfqmrGetNumLinIters} returns the
+  cumulative number of linear iterations.
+}
+{
+  \begin{args}[nliters]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[nliters] (\id{long int})
+    the current number of linear iterations.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[IDASPTFQMR\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idasptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASptfqmrGetNumConvFails}
+{
+  flag = IDASptfqmrGetNumConvFails(ida\_mem, \&nlcfails);
+}
+{
+  The function \ID{IDASptfqmrGetNumConvFails} returns the
+  cumulative number of linear convergence failures.
+}
+{
+  \begin{args}[nlcfails]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[nlcfails] (\id{long int})
+    the current number of linear convergence failures.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[IDASPTFQMR\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idasptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASptfqmrGetNumPrecEvals}
+{
+  flag = IDASptfqmrGetNumPrecEvals(ida\_mem, \&npevals);
+}
+{
+  The function \ID{IDASptfqmrGetNumPrecEvals} returns the
+  cumulative number of preconditioner evaluations, i.e., the number of 
+  calls made to \id{psetup} with \id{jok=FALSE}.
+}
+{
+  \begin{args}[npevals]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[npevals] (\id{long int})
+    the cumulative number of calls to \id{psetup}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[IDASPTFQMR\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idasptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASptfqmrGetNumPrecSolves}
+{
+  flag = IDASptfqmrGetNumPrecSolves(ida\_mem, \&npsolves);
+}
+{
+  The function \ID{IDASptfqmrGetNumPrecSolves} returns the
+  cumulative number of calls made to the preconditioner 
+  solve function, \id{psolve}.
+}
+{
+  \begin{args}[npsolves]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[npsolves] (\id{long int})
+    the cumulative number of calls to \id{psolve}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[IDASPTFQMR\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idasptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASptfqmrGetNumJtimesEvals}
+{
+  flag = IDASptfqmrGetNumJtimesEvals(ida\_mem, \&njvevals);
+}
+{
+  The function \ID{IDASptfqmrGetNumJtimesEvals} returns the
+  cumulative number of calls made to the Jacobian-vector function,
+  \id{jtimes}.
+}
+{
+  \begin{args}[njvevals]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[njvevals] (\id{long int})
+    the cumulative number of calls to \id{jtimes}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[IDASPTFQMR\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idasptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDASptfqmrGetNumResEvals}
+{
+  flag = IDASptfqmrGetNumResEvals(ida\_mem, \&nrevalsSG);
+}
+{
+  The function \ID{IDASptfqmrGetNumResEvals} returns the
+  cumulative number of calls to the user residual function for
+  finite difference Jacobian-vector product approximation.
+}
+{
+  \begin{args}[nrevalsSG]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[nrevalsSG] (\id{long int})
+    the cumulative number of calls to the user residual function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[IDASPTFQMR\_SUCCESS] 
+    The optional output value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idasptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The value \id{nrevalsSG} is incremented only if the default 
+  \id{IDASptfqmrDQJtimes} difference quotient function is used.
+}
+%%
+%%
+\ucfunction{IDASptfqmrGetLastFlag}
+{
+  flag = IDASptfqmrGetLastFlag(ida\_mem, \&flag);
+}
+{
+  The function \ID{IDASptfqmrGetLastFlag} returns the
+  last return value from an {\idasptfqmr} routine. 
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[flag] (\id{int})
+    the value of the last return flag from an {\idasptfqmr} function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_LMEM\_NULL]
+  \item[\Id{IDASPTFQMR\_SUCCESS}] 
+    The optional output value has been successfully set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idasptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  If the {\idasptfqmr} setup function failed (\id{IDASolve} 
+  returned \id{IDA\_LSETUP\_FAIL}),
+  \id{flag} contains the return value of the preconditioner 
+  setup function \id{psetup}.
+
+  If the {\idasptfqmr} solve function failed (\id{IDASolve} returned 
+  \id{IDA\_LSETUP\_FAIL}), \id{flag} contains the error return flag from
+  \id{SptfqmrSolve} and will be one of:
+  \id{SPTFQMR\_CONV\_FAIL}, indicating a failure to converge;
+  \id{SPTFQMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve
+  function \id{psolve} failed recoverably;
+  \id{SPTFQMR\_MEM\_NULL}, indicating that the {\sptfqmr} memory is \id{NULL};
+  \id{SPTFQMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector 
+  function; or
+  \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
+  function \id{psolve} failed unrecoverably.
+}
+%%
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!optional output|)} 
+\index{optional output!iterative linear solver|)}
+
 %%===================================================================================
 
 \subsection{IDA reinitialization function}\label{sss:idareinit}
@@ -3787,15 +4877,15 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
 %%
 %%----------------
 %%
-\subsection{Jacobian information (SPGMR matrix-vector product)}
+\subsection{Jacobian information (matrix-vector product)}
 \label{ss:jtimesFn}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|(}
-If an iterative {\spgmr} linear solver is selected (\id{IDASpgmr} is called in step 
+If an iterative {\spgmr}, {\spbcg} or {\sptfqmr} linear solver is selected (\id{IDASp*} is called in step 
 \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}) the user may provide a function
-of type \ID{IDASpgmrJacTimesVecFn} in the following form:
-\usfunction{IDASpgmrJacTimesVecFn}
+of type \ID{IDASpilsJacTimesVecFn} in the following form:
+\usfunction{IDASpilsJacTimesVecFn}
 {
-  typedef int (*IDASpgmrJacTimesVecFn)(&realtype tt, \\
+  typedef int (*IDASpilsJacTimesVecFn)(&realtype tt, \\
                                        &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
                                        &N\_Vector v, N\_Vector Jv, \\
                                        &realtype c\_j, void *jac\_data, \\
@@ -3824,18 +4914,18 @@ of type \ID{IDASpgmrJacTimesVecFn} in the following form:
     step size.
   \item[jac\_data]
     is a pointer to user data - the same as the \id{jac\_data}      
-    parameter passed to \id{IDASpgmrSetJacData}.   
+    parameter passed to \id{IDASp*SetJacTimesVecFn}.   
   \item[tmp1]
   \item[tmp2]
     are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by \id{IDASpgmrJacTimesVecFn} as temporary storage or work space.
+    which can be used by \id{IDASpilsJacTimesVecFn} as temporary storage or work space.
   \end{args}
 }
-{  
+{
   The value to be returned by the Jacobian times vector function should be 0 if
   successful.  A nonzero value indicates that a nonrecoverable error occurred. 
 
-  If the user's \id{IDASpgmrJacTimesVecFn} function uses difference quotient
+  If the user's \id{IDASpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{IDAGet*} functions described in
@@ -3848,19 +4938,21 @@ of type \ID{IDASpgmrJacTimesVecFn} in the following form:
 %%
 %%--------------
 %%
-\subsection{Preconditioning (SPGMR linear system solution)}
+\subsection{Preconditioning (linear system solution)}
 \label{ss:psolveFn}
 \index{preconditioning!user-supplied}
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner solve function}
+\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner solve function}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner solve function}
 If preconditioning is used, then the user must provide a {\C} function to
 solve the linear system $Pz = r$ where $P$ may be either a left or a
 right preconditioner matrix.
-This function must be of type \ID{IDASpgmrPrecSolveFn}, defined as follows:
+This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
 %%
 %%
-\usfunction{IDASpgmrPrecSolveFn}
+\usfunction{IDASpilsPrecSolveFn}
 {
-  typedef int (*IDASpgmrPrecSolveFn)(&realtype tt, \\
+  typedef int (*IDASpilsPrecSolveFn)(&realtype tt, \\
                                      &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
                                      &N\_Vector rvec, N\_Vector zvec, \\ 
                                      &realtype c\_j, realtype delta, \\
@@ -3896,7 +4988,7 @@ This function must be of type \ID{IDASpgmrPrecSolveFn}, defined as follows:
     (see \S\ref{ss:optional_output}).
   \item[prec\_data]
     is a pointer to user data - the same as the \id{prec\_data}      
-    parameter passed to the function \id{IDASpgmrSetPrecData}.
+    parameter passed to the function \id{IDASp*SetPreconditioner}.
   \item[tmp]
     is a pointer to memory allocated for a variable of type    
     \id{N\_Vector} which can be used for work space.
@@ -3912,16 +5004,18 @@ This function must be of type \ID{IDASpgmrPrecSolveFn}, defined as follows:
 %%
 %%-----------------
 %%
-\subsection{Preconditioning (SPGMR Jacobian data)}
+\subsection{Preconditioning (Jacobian data)}
 \label{ss:precondFn}
 \index{preconditioning!user-supplied}
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner setup function}
+\index{IDASPBCG@{\idaspbcg} linear solver!preconditioner setup function}
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian related data
 be evaluated or preprocessed, then this needs to be done in a
-user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows:
-\usfunction{IDASpgmrPrecSetupFn}
+user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows:
+\usfunction{IDASpilsPrecSetupFn}
 {
-  typedef int (*IDASpgmrPrecSetupFn)(&realtype tt, \\
+  typedef int (*IDASpilsPrecSetupFn)(&realtype tt, \\
                                      &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
                                      &realtype c\_j, void *prec\_data,\\
                                      &N\_Vector tmp1, N\_Vector tmp2,\\
@@ -3932,7 +5026,7 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   by the preconditioner.
 }
 {
-  The arguments of an \id{IDASpgmrPrecSetupFn} are as follows:
+  The arguments of an \id{IDASpilsPrecSetupFn} are as follows:
   \begin{args}[prec\_data]
   \item[tt]
     is the current value of the independent variable.
@@ -3947,12 +5041,12 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
     step size.
   \item[prec\_data]
     is a pointer to user data, the same as the \id{prec\_data}      
-    parameter passed to \id{IDASpgmrSetPrecData}.
+    parameter passed to \id{IDASp*SetPreconditioner}.
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
     are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by \id{IDASpgmrPrecSetupFn} as temporary storage or work space.
+    which can be used by \id{IDASpilsPrecSetupFn} as temporary storage or work space.
   \end{args}
 }
 {
@@ -3975,7 +5069,7 @@ user-supplied {\C} function of type \ID{IDASpgmrPrecSetupFn}, defined as follows
   function, but rather is called only as often as needed to achieve convergence in the
   Newton iteration.
 
-  If the user's \id{IDASpgmrPrecSetupFn} function uses difference quotient
+  If the user's \id{IDASpilsPrecSetupFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{IDAGet*} functions described in
@@ -4390,14 +5484,18 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   are the two user-supplied functions described above.
 
 \item \label{i:bbdpre_attach}
-  {\bf Attach the {\idaspgmr} linear solver}
+  {\bf Attach iterative linear solver}
 
-  \id{flag = IDABBDSpgmr(ida\_mem, maxl, bbd\_data);}
-
-  The function \Id{IDABBDSpgmr} is a wrapper around the {\idaspgmr} specification
-  function \id{IDASpgmr} and performs the following actions:
   \begin{itemize}
-    \item Attaches the {\idaspgmr} linear solver to the main {\ida} solver memory;
+  \item[(a) ] \id{flag = IDABBDSpgmr(ida\_mem, maxl, bbd\_data);}
+  \item[(b) ] \id{flag = IDABBDSpbcg(ida\_mem, maxl, bbd\_data);}
+  \item[(c) ] \id{flag = IDABBDSptfqmr(ida\_mem, maxl, bbd\_data);}
+  \end{itemize}
+
+  The function \Id{IDABBDSp*} is a wrapper around the specification
+  function \id{IDASp*} and performs the following actions:
+  \begin{itemize}
+    \item Attaches the {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr} linear solver to the main {\ida} solver memory;
     \item Sets the preconditioner data structure for {\idabbdpre};
     \item Sets the preconditioner setup function for {\idabbdpre};
     \item Sets the preconditioner solve function for {\idabbdpre};
@@ -4407,7 +5505,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
   Note that the user should not overwrite the preconditioner data, setup function, 
-  or solve function through calls to {\idaspgmr} optional input functions.
+  or solve function through calls to {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr} optional
+  input functions.
 
 \item
   \textcolor{gray}{\bf Advance solution in time}
@@ -4518,7 +5617,7 @@ next.
   \item[maxl] (\id{int})
     \index{maxl@\texttt{maxl}}
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{IDASPGMR\_MAXL}$=5$.
+    default value \id{IDA\_SPGMR\_MAXL}$=5$.
   \item[bbd\_data] (\id{void *})
     pointer to the {\idabbdpre} data structure.
   \end{args}
@@ -4531,6 +5630,80 @@ next.
   \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPGMR\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDA\_PDATA\_NULL}]
+    The {\idabbdpre} preconditioner has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDABBDSpbcg}
+{
+  flag = IDABBDSpbcg(ida\_mem, maxl, bbd\_data);
+}
+{
+  The function \ID{IDABBDSpbcg} links the {\idabbdpre} data to the
+  {\idaspbcg} linear solver and attaches the latter to the {\ida}
+  memory block.
+}
+{
+  \begin{args}[bbd\_data]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDA\_SPBCG\_MAXL}$=5$.
+  \item[bbd\_data] (\id{void *})
+    pointer to the {\idabbdpre} data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_ILL\_INPUT]
+  \item[\Id{IDASPBCG\_SUCCESS}] 
+    The {\idaspbcg} initialization was successful.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \item[\Id{IDA\_PDATA\_NULL}]
+    The {\idabbdpre} preconditioner has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{IDABBDSptfqmr}
+{
+  flag = IDABBDSptfqmr(ida\_mem, maxl, bbd\_data);
+}
+{
+  The function \ID{IDABBDSptfqmr} links the {\idabbdpre} data to the
+  {\idasptfqmr} linear solver and attaches the latter to the {\ida}
+  memory block.
+}
+{
+  \begin{args}[bbd\_data]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{IDA\_SPTFQMR\_MAXL}$=5$.
+  \item[bbd\_data] (\id{void *})
+    pointer to the {\idabbdpre} data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_ILL\_INPUT]
+  \item[\Id{IDASPTFQMR\_SUCCESS}] 
+    The {\idasptfqmr} initialization was successful.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_MEM\_FAIL}]
     A memory allocation request failed.
   \item[\Id{IDA\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
@@ -4557,7 +5730,8 @@ next.
 %%
 The {\idabbdpre} module also provides a reinitialization function to allow
 solving  a sequence of problems of the same size with {\idaspgmr}/{\idabbdpre},
-provided there is no change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
+{\idaspbcg}/{\idabbdpre}, or {\idasptfqmr}/{\idabbdpre}, provided there is no
+change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
 After solving one problem, and after calling \id{IDAReInit} to re-initialize 
 {\ida} for a subsequent problem, a call to \id{IDABBDPrecReInit} can be made
 to change any of the following: the half-bandwidths \id{mudq} and \id{mldq} 
@@ -5031,14 +6205,15 @@ apply to {\nvecp}.
   following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
-      CALL FNVINITP (KEY, NLOCAL, NGLOBAL, IER)
+      CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{KEY} = 1, \id{NLOCAL} the local size of vectors on this
+  in which the arguments are: \id{COMM} = {\mpi} communicator, \id{KEY} = 1, \id{NLOCAL} the local size of vectors on this
   processor, \id{NGLOBAL} the system size (and the global size of vectors, that
   is the sum of all values of NLOCAL). The return completion flag \id{IER} is
   set on $0$ upon successful return and on $-1$ otherwise.
-  Note that if MPI was initialized by the user, the communicator must be
-  set to \id{MPI\_COMM\_WORLD}.
+
+  {\warn} If the header file \id{sundials\_config.h} defines \id{SUNDIALS\_MPI\_COMM\_F2C} to be $0$, then the argument
+  \id{COMM} is ignored and \id{MPI\_COMM\_WORLD} is used.
   
 \item {\bf Problem specification}
 

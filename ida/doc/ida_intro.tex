@@ -21,11 +21,12 @@ equation (ODE) solvers {\cvode} \cite{cvode2.2.0_ug,CoHi:96} and {\pvode}
 \cite{kinsol2.2.0_ug}.
 
 The Newton/Krylov method uses the GMRES (Generalized Minimal RESidual)
-linear iterative method \cite{SaSc:86}, and requires almost no matrix
-storage for solving the Newton equations as compared to direct
-methods.  However, the GMRES algorithm allows for a user-supplied
-preconditioner matrix, and for most problems preconditioning is
-essential for an efficient solution.
+\cite{SaSc:86}, Bi-CGStab (Bi-Conjugate Gradient Stabilized), or TFQMR
+(Transpose Free Quasi-Minimal Residual) linear iterative methods, and
+requires almost no matrix storage for solving the Newton equations as
+compared to direct methods.  However, the GMRES, Bi-CGStand and TFQMR algorithms
+allow for a user-supplied preconditioner matrix, and for most problems
+preconditioning is essential for an efficient solution.
 
 \index{IDA@{\ida}!motivation for writing in C|(}
 There are several motivations for choosing the {\C} language for {\ida}.
@@ -41,12 +42,14 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v2.3.0}
+\subsection*{Changes in vx.y.z}
 
-The user interface has been further refined. Several functions used for setting optional
-inputs were combined into a single one. Additionally, to resolve potential variable scope
-issues, all SUNDIALS solvers release user data right after its use. The build systems has 
-been further improved to make it more robust.
+{\fida}, a {\F}-{\C} interface module, was added (for details see \S\ref{ss:fcmix}).
+
+{\idaspbcg} and {\idasptfqmr} modules have been added to interface with the
+Scaled and Preconditioned Bi-CGstab ({\spbcg}) and Scaled and Preconditioned
+Transpose Free Quasi-Minimal Residual ({\sptfqmr}) linear solver modules,
+respectively (for details see Chapter \ref{s:simulation}).
 
 \subsection*{Changes in v2.2.0}
 
@@ -76,6 +79,12 @@ redesigned and is now based on configure scripts.
 
 The changes in this minor {\sundials} release affect only the build system.
 
+\subsection*{Changes in v2.3.0}
+
+The user interface has been further refined. Several functions used for setting optional
+inputs were combined into a single one. Additionally, to resolve potential variable scope
+issues, all SUNDIALS solvers release user data right after its use. The build systems has 
+been further improved to make it more robust.
 
 \section{Reading this User Guide}\label{ss:reading}
 
