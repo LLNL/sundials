@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.49 $
- * $Date: 2005-06-10 16:51:17 $
+ * $Revision: 1.50 $
+ * $Date: 2005-07-18 22:52:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1919,6 +1919,8 @@ static void CVRescale(CVodeMem cv_mem)
  This routine advances tn by the tentative step size h, and computes
  the predicted array z_n(0), which is overwritten on zn.  The
  prediction of zn is done by repeated additions.
+ In TSTOP mode, it is possible for tn + h to be past tstop by roundoff,
+ and in that case, we reset tn (after incrementing by h) to tstop.
 
 *********************************************************************/
 
@@ -1927,6 +1929,9 @@ static void CVPredict(CVodeMem cv_mem)
   int j, k;
   
   tn += h;
+  if (tstopset) {
+    if ((tn - tstop)*h > ZERO) tn = tstop;
+  }
   for (k = 1; k <= q; k++)
     for (j = q; j >= k; j--) 
       N_VLinearSum(ONE, zn[j-1], ONE, zn[j], zn[j-1]); 
