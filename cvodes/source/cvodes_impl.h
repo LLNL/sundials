@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-06-27 21:38:29 $
+ * $Revision: 1.19 $
+ * $Date: 2005-07-19 20:57:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -207,6 +207,7 @@ typedef struct CVodeMemRec {
   /*-----------------
     Tstop information
     -----------------*/
+  booleantype cv_istop;
   booleantype cv_tstopset;
   realtype cv_tstop;
 

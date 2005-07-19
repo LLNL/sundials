@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.57 $
- * $Date: 2005-06-27 21:38:29 $
+ * $Revision: 1.58 $
+ * $Date: 2005-07-19 20:57:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1243,6 +1243,7 @@ int CVodeSensToggle(void *cvode_mem, booleantype sensi)
 #define hin            (cv_mem->cv_hin)
 #define hmin           (cv_mem->cv_hmin)
 #define hmax_inv       (cv_mem->cv_hmax_inv)
+#define istop          (cv_mem->cv_istop)
 #define tstop          (cv_mem->cv_tstop)
 #define tstopset       (cv_mem->cv_tstopset)
 #define maxnef         (cv_mem->cv_maxnef)
@@ -1404,7 +1405,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   CVodeMem cv_mem;
   long int nstloc; 
   int kflag, istate, ier, task, irfndp;
-  booleantype istop, hOK;
+  booleantype hOK;
   int ewtsetOK, ewtSsetOK, ewtQsetOK;
   int is;
   realtype troundoff, rh, nrm;
@@ -3544,6 +3545,8 @@ static void CVRescale(CVodeMem cv_mem)
  * This routine advances tn by the tentative step size h, and computes
  * the predicted array z_n(0), which is overwritten on zn.  The
  * prediction of zn is done by repeated additions.
+ * In TSTOP mode, it is possible for tn + h to be past tstop by roundoff,
+ * and in that case, we reset tn (after incrementing by h) to tstop.
  */
 
 static void CVPredict(CVodeMem cv_mem)
@@ -3552,6 +3555,9 @@ static void CVPredict(CVodeMem cv_mem)
   int is;
 
   tn += h;
+  if (istop) {
+    if ((tn - tstop)*h > ZERO) tn = tstop;
+  }
 
   for (k = 1; k <= q; k++)
     for (j = q; j >= k; j--) 
