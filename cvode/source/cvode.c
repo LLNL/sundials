@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.50 $
- * $Date: 2005-07-18 22:52:54 $
+ * $Revision: 1.51 $
+ * $Date: 2005-07-19 20:51:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -777,6 +777,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 #define hin            (cv_mem->cv_hin)
 #define hmin           (cv_mem->cv_hmin)
 #define hmax_inv       (cv_mem->cv_hmax_inv)
+#define istop          (cv_mem->cv_istop)
 #define tstop          (cv_mem->cv_tstop)
 #define tstopset       (cv_mem->cv_tstopset)
 #define maxnef         (cv_mem->cv_maxnef)
@@ -883,7 +884,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   long int nstloc;
   int kflag, istate, ier, task, irfndp;
   realtype troundoff, rh;
-  booleantype istop, hOK;
+  booleantype hOK;
   int ewtsetOK;
 
   /* Check if cvode_mem exists */
@@ -1929,7 +1930,7 @@ static void CVPredict(CVodeMem cv_mem)
   int j, k;
   
   tn += h;
-  if (tstopset) {
+  if (istop) {
     if ((tn - tstop)*h > ZERO) tn = tstop;
   }
   for (k = 1; k <= q; k++)
