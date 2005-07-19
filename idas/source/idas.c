@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2004-11-30 21:07:12 $
+ * $Revision: 1.37 $
+ * $Date: 2005-07-19 21:48:41 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -997,6 +997,7 @@ int IDASensReInit(void *ida_mem, int ism,
 #define mxstep   (IDA_mem->ida_mxstep)
 #define hin      (IDA_mem->ida_hin)
 #define hmax_inv (IDA_mem->ida_hmax_inv)
+#define istop    (IDA_mem->ida_istop)
 #define tstop    (IDA_mem->ida_tstop)
 #define tstopset (IDA_mem->ida_tstopset)
 #define epcon    (IDA_mem->ida_epcon)
@@ -1177,7 +1178,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   long int nstloc;
   int is, sflag, istate, ier;
   realtype tdist, troundoff, ypnorm, rh, nrm;
-  booleantype istop, ewtsetOK, ewtQsetOK, ewtSsetOK;
+  booleantype ewtsetOK, ewtQsetOK, ewtSsetOK;
   IDAMem IDA_mem;
 
   /* Check for legal inputs in all cases. */
@@ -2885,6 +2886,16 @@ static int IDAStep(IDAMem IDA_mem)
     IDASetCoeffs(IDA_mem, &ck);
 
     kflag = IDA_SUCCESS;
+
+    /*----------------------------------------------------
+      Update the independent variable
+      If tn is past tstop (by roundoff), reset it to tstop.
+      -----------------------------------------------------*/
+  
+    tn = tn + hh;
+    if (istop) {
+      if ((tn - tstop)*hh > ZERO) tn = tstop;
+    }
     
     /*-----------------------
       Advance state variables
@@ -3121,9 +3132,6 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
       for(i=ns;i<=kk;i++)
         N_VScale(beta[i], phiS[i][is], phiS[i][is]);
 
-  /* update independent variable */
-  
-  tn = tn + hh;
 }
 
 
