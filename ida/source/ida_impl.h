@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-07-15 23:28:08 $
+ * $Revision: 1.17 $
+ * $Date: 2005-07-19 21:35:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -120,6 +120,7 @@ typedef struct IDAMemRec {
 
   /* Tstop information */
 
+  booleantype ida_istop;
   booleantype ida_tstopset;
   realtype ida_tstop;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.48 $
- * $Date: 2005-07-15 23:28:08 $
+ * $Revision: 1.49 $
+ * $Date: 2005-07-19 21:35:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -686,6 +686,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
 #define mxstep      (IDA_mem->ida_mxstep)
 #define hin         (IDA_mem->ida_hin)
 #define hmax_inv    (IDA_mem->ida_hmax_inv)
+#define istop       (IDA_mem->ida_istop)
 #define tstop       (IDA_mem->ida_tstop)
 #define tstopset    (IDA_mem->ida_tstopset)
 #define epcon       (IDA_mem->ida_epcon)
@@ -812,7 +813,6 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   long int nstloc;
   int sflag, istate, ier, task, irfndp;
   realtype tdist, troundoff, ypnorm, rh, nrm;
-  booleantype istop;
   int ewtsetOK;
   IDAMem IDA_mem;
 
@@ -1737,6 +1737,13 @@ static int IDAStep(IDAMem IDA_mem)
     IDASetCoeffs(IDA_mem, &ck);
     kflag = IDA_SUCCESS;
 
+    /* Update the independent variable */
+    tn = tn + hh;
+    /* If tn is past tstop (by roundoff), reset it to tstop. */
+    if (istop) {
+      if ((tn - tstop)*hh > ZERO) tn = tstop;
+    }
+
     nflag = IDAnls(IDA_mem);
 
     if (nflag == IDA_SUCCESS) 
@@ -1830,9 +1837,6 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 
   for(i=ns;i<=kk;i++) N_VScale(beta[i], phi[i], phi[i]);
 
-  /* update independent variable */
-
-  tn = tn + hh;
 }
 
 
