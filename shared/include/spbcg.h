@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-05-18 18:17:51 $
+ * $Revision: 1.5 $
+ * $Date: 2005-07-20 20:58:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -28,7 +28,7 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Types: strcut SpbcgMemRec and struct *SpbcgMem
+ * Types: struct SpbcgMemRec and struct *SpbcgMem
  * -----------------------------------------------------------------
  * A variable declaration of type struct *SpbcgMem denotes a pointer
  * to a data structure of type struct SpbcgMemRec. The SpbcgMemRec

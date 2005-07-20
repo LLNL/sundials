@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-18 18:17:52 $
+ * $Revision: 1.2 $
+ * $Date: 2005-07-20 20:58:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -81,7 +81,7 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Types: strcut SptfqmrMemRec and struct *SptfqmrMem
+ * Types: struct SptfqmrMemRec and struct *SptfqmrMem
  * -----------------------------------------------------------------
  * A variable declaration of type struct *SptfqmrMem denotes a pointer
  * to a data structure of type struct SptfqmrMemRec. The SptfqmrMemRec
