@@ -26,9 +26,9 @@ The overall organization of the {\ida} package is shown in Figure
   generic solver and auxiliary modules are in square boxes.}
 \label{f:idaorg}
 \end{figure}
-The central integration module, implemented in the files 
-\id{ida.h}, \id{ida\_impl.h} and \id{ida.c}, deals with the evaluation of integration coefficients,
-the Newton iteration process, estimation of local error,
+The central integration module, implemented in the files \id{ida.h},
+\id{ida\_impl.h}, and \id{ida.c}, deals with the evaluation of integration 
+coefficients, the Newton iteration process, estimation of local error,
 selection of stepsize and order, and interpolation to user output
 points, among other issues.  Although this module contains logic for
 the basic Newton iteration algorithm, it has no knowledge of the
@@ -50,17 +50,17 @@ This set of linear solver modules is intended to be expanded in the
 future as new algorithms are developed.
 \index{IDA@{\ida} linear solvers!list of|)} 
 
-In the case of the direct {\idadense} and {\idaband} methods, the package includes
+In the case of the direct methods {\idadense} and {\idaband}, the package includes
 an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly. In the case of the iterative
-methods {\idaspgmr}, {\idaspbcg} and {\idasptfqmr}, the package includes an algorithm for
-the approximation by difference quotients of the product between the Jacobian matrix and
-a vector of appropriate length. Again, the user has the option of providing
+(or an approximation to it) directly. In the case of the Krylov iterative methods
+{\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}, the package includes an algorithm for
+the approximation by difference quotients of the product between the Jacobian matrix
+and a vector of appropriate length. Again, the user has the option of providing
 a routine for this operation.
-In \index{preconditioning!setup and solve phases} the case of {\idaspgmr}, {\idaspbcg} and
-{\idasptfqmr}, the preconditioning must be supplied by the user in two phases: 
-setup (preprocessing of Jacobian data) and solve.
+When \index{preconditioning!setup and solve phases} using any of the Krylov
+methods, the user must supply the preconditioning in two phases: 
+a setup phase (preprocessing of Jacobian data) and a solve phase.
 While\index{preconditioning!advice on} there is no default
 choice of preconditioner analogous to the difference quotient
 approximation in the direct case, the references
