@@ -40,8 +40,8 @@ Chapter \ref{s:install}, the relevant library files are
 \item {\em build\_tree}\id{/lib/libsundials\_ida.}{\em lib},
 \item {\em build\_tree}\id{/lib/libsundials\_fida.a},
 \item {\em build\_tree}\id{/lib/libsundials\_shared.}{\em lib},
-\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to two files), and
-\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to two files),
+\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to three files), and
+\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to three files),
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
 and \id{.a} for static libraries. The relevant header files are all located in
@@ -118,7 +118,7 @@ The header files corresponding to the various linear solver options in {\ida} ar
   which is used with the Krylov solver {\spbcg} in the
   context of {\ida}. This in turn includes a header file (\id{iterative.h})
   which enumerates the kind of preconditioning.
-\item \Id{idaspgmr.h}, 
+\item \Id{idasptfqmr.h}, 
   which is used with the Krylov solver {\sptfqmr} in the
   context of {\ida}. This in turn includes a header file (\id{iterative.h})
   which enumerates the kind of preconditioning.
@@ -429,15 +429,15 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
 
 As previously explained, Newton iteration requires the solution of
 linear systems of the form (\ref{e:DAE_Newtoncorr}).  There are five {\ida} linear
-solvers currently available for this task: {\idadense}, {\idaband}, 
-and {\idaspgmr}.  The first two are direct solvers and derive their name
-from the type of approximation used for the Jacobian 
+solvers currently available for this task: {\idadense}, {\idaband}, {\idaspgmr},
+{\idaspbcg}, and {\idasptfqmr}.  The first two are direct solvers and derive their
+name from the type of approximation used for the Jacobian 
 $J = \partial{F}/\partial{y} + c_j \partial{F}/\partial{y^\prime}$.
-{\idadense} and {\idaband} work with
-dense and banded approximations to $J$, respectively.  The reamaining three
-{\ida} linear solvers, {\idaspgmr}, {\idaspbcg} and {\idasptfqmr}, are iterative solvers.
-The {\spgmr}, {\spbcg} and {\sptfqmr} in the names indicate that they use the scaled preconditioned
-GMRES, scaled preconditioned Bi-CGStab, and scaled preconditioned TFQMR methods, respectively.
+{\idadense} and {\idaband} work with dense and banded approximations to $J$,
+respectively.  The remaining three {\ida} linear solvers, {\idaspgmr}, {\idaspbcg},
+and {\idasptfqmr}, are Krylov iterative solvers. The {\spgmr}, {\spbcg} and
+{\sptfqmr} in the names indicate the scaled preconditioned GMRES, scaled
+preconditioned Bi-CGStab, and scaled preconditioned TFQMR methods, respectively.
 
 \index{IDA@{\ida} linear solvers!selecting one|(} 
 To specify an {\ida} linear solver, after the call to \id{IDACreate}
@@ -923,7 +923,8 @@ so a test \id{flag} $<0$ will catch any error.
 
 \begin{table}
 \centering
-\caption{Optional inputs for {\ida}, {\idadense}, {\idaband}, and {\idaspgmr}}
+\caption{Optional inputs for {\ida}, {\idadense}, {\idaband}, {\idaspgmr},
+{\idaspbcg}, {\idasptfqmr}}
 \label{t:optional_input}
 \medskip
 \begin{tabular}{|l|l|l|}\hline
@@ -955,7 +956,7 @@ Maximum no. of steps & \id{IDASetMaxNumStepsIC} & 5 \\
 Maximum no. of Jacobian/precond. evals. & \id{IDASetMaxNumJacsIC} & 4 \\
 Maximum no. of Newton iterations & \id{IDASetMaxNumItersIC} & 10 \\
 Turn off linesearch & \id{IDASetLineSearchOffIC} & \id{FALSE} \\
-Lower bound on Newton step & \id{IDASetStepToleranceIC} & $(2/3) \text{uround}$ \\ 
+Lower bound on Newton step & \id{IDASetStepToleranceIC} &  uround$^2/3$ \\ 
 \hline
 \multicolumn{3}{|c|}{\bf IDADENSE linear solver} \\
 \hline
@@ -968,7 +969,7 @@ Band Jacobian function and data & \id{IDABandSetJacFn} & internal DQ, NULL \\
 \multicolumn{3}{|c|}{\bf IDASPGMR linear solver} \\
 \hline
 Preconditioner functions and data & \id{IDASpgmrSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian times vector function and data & \id{IDASpgmrSetJacTimesVecFn} & internal DQ, NULL \\
+Jacobian-times-vector function and data & \id{IDASpgmrSetJacTimesVecFn} & internal DQ, NULL \\
 Type of Gram-Schmidt orthogonalization & \id{IDASpgmrSetGSType} & classical GS \\
 Maximum no. of restarts & \id{IDASpgmrSetMaxRestarts} & 5 \\
 Factor in linear convergence test & \id{IDASpgmrSetEpsLin} & 0.05 \\
@@ -977,14 +978,14 @@ Factor in DQ increment calculation & \id{IDASpgmrSetIncrementFactor} & 1.0 \\
 \multicolumn{3}{|c|}{\bf IDASPBCG linear solver} \\
 \hline
 Preconditioner functions and data & \id{IDASpbcgSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian times vector function and data & \id{IDASpbcgSetJacTimesVecFn} & internal DQ, NULL \\
+Jacobian-times-vector function and data & \id{IDASpbcgSetJacTimesVecFn} & internal DQ, NULL \\
 Factor in linear convergence test & \id{IDASpbcgSetEpsLin} & 0.05 \\
 Factor in DQ increment calculation & \id{IDASpbcgSetIncrementFactor} & 1.0 \\
 \hline
 \multicolumn{3}{|c|}{\bf IDASPTFQMR linear solver} \\
 \hline
 Preconditioner functions and data & \id{IDASptfqmrSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian times vector function and data & \id{IDASptfqmrSetJacTimesVecFn} & internal DQ, NULL \\
+Jacobian-times-vector function and data & \id{IDASptfqmrSetJacTimesVecFn} & internal DQ, NULL \\
 Factor in linear convergence test & \id{IDASptfqmrSetEpsLin} & 0.05 \\
 Factor in DQ increment calculation & \id{IDASptfqmrSetIncrementFactor} & 1.0 \\
 \hline
@@ -1575,7 +1576,7 @@ to its dense Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
-identical to \id{f\_data}, if the latter was specified through \id{IDASetFdata}.
+identical to \id{res\_data}, if the latter was specified through \id{IDASetFdata}.
 %%
 \index{Jacobian approximation function!dense!user-supplied}
 \ucfunction{IDADenseSetJacFn}
@@ -1635,7 +1636,7 @@ to its banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
 using global data in the program.  The pointer \id{jac\_data} may be
-identical to \id{f\_data}, if the latter was specified through \id{IDAodeSetFdata}.
+identical to \id{res\_data}, if the latter was specified through \id{IDAodeSetFdata}.
 %%
 \index{Jacobian approximation function!band!user-supplied}
 \ucfunction{IDABandSetJacFn}
@@ -1695,8 +1696,9 @@ If used, the \id{psetup} function should also be specified in the call to
 \id{IDASpgmrSetPreconditioner}.
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner setup function}
 %%
-Optionally, the {\idaspgmr} solver passes the pointer it receives through 
-\id{IDASpgmrSetPreconditioner} to the preconditioner setup and solve functions.  
+Optionally, the {\idaspgmr} solver passes the pointer \id{p\_data} it receives
+through \id{IDASpgmrSetPreconditioner} to the preconditioner \id{psetup} and
+\id{psolve} functions.  
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
@@ -1706,20 +1708,20 @@ specified through \id{IDASetRdata}.
 The \index{IDASPGMR@{\idaspgmr} linear solver!Jacobian approximation used by}
 {\idaspgmr} solver requires a function to compute an approximation to the
 product between the Jacobian matrix $J(t,y)$ and a vector $v$.
-The user can supply his/her own Jacobian times vector approximation function, 
+The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{IDASpgmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\idaspgmr} solver.
-A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn} and 
-can be specified through a call to \id{IDASpgmrSetJacTimesVecFn} 
+A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn}
+and can be specified through a call to \id{IDASpgmrSetJacTimesVecFn}
 (see \S\ref{ss:user_fct_sim} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
-the user can also specify in the call to \id{IDASpgmrSetJacTimesVecFn}, a pointer to a 
-user-defined data structure, \id{jac\_data}, which
-the {\idaspgmr} solver passes to the Jacobian times vector function \id{jtimes}
+the user can also specify in the call to \id{IDASpgmrSetJacTimesVecFn}, a pointer
+to a user-defined data structure, \id{jac\_data}, which
+the {\idaspgmr} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
-The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data}.
 %%
 %%
 \ucfunction{IDASpgmrSetPreconditioner}
@@ -1774,7 +1776,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \begin{args}[jac\_data]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[jtimes] (\id{IDASpgmrJacTimesVecFn})
+  \item[jtimes] (\id{IDASpilsJacTimesVecFn})
     user-defined Jacobian-vector product function.
   \item[jac\_data] (\id{void *})
      pointer to the user-defined data structure.
@@ -1795,7 +1797,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   By default, {\idaspgmr} uses the difference quotient function \id{IDASpgmrDQJtimes}.
   If \id{NULL} is passed to \id{jtimes}, this default function is used.
 
-  The function type \id{IDASpgmrJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+  The function type \id{IDASpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
 }
 %%
 %%
@@ -1965,8 +1967,9 @@ If used, the \id{psetup} function should also be specified in the call to
 \id{IDASpbcgSetPreconditioner}.
 \index{IDASPBCG@{\idaspbcg} linear solver!preconditioner setup function}
 %%
-Optionally, the {\idaspbcg} solver passes the pointer it receives through 
-\id{IDASpbcgSetPreconditioner} to the preconditioner setup and solve functions.  
+Optionally, the {\idaspbcg} solver passes the pointer \id{p\_data} it receives
+through \id{IDASpbcgSetPreconditioner} to the preconditioner \id{psetup} and
+\id{psolve} functions.  
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
@@ -1976,7 +1979,7 @@ specified through \id{IDASetRdata}.
 The \index{IDASPBCG@{\idaspbcg} linear solver!Jacobian approximation used by}
 {\idaspbcg} solver requires a function to compute an approximation to the
 product between the Jacobian matrix $J(t,y)$ and a vector $v$.
-The user can supply his/her own Jacobian times vector approximation function, 
+The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{IDASpbcgDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\idaspbcg} solver.
@@ -1987,9 +1990,9 @@ can be specified through a call to \id{IDASpbcgSetJacTimesVecFn}
 As with the preconditioner user data structure \id{p\_data}, 
 the user can also specify in the call to \id{IDASpbcgSetJacTimesVecFn}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
-the {\idaspbcg} solver passes to the Jacobian times vector function \id{jtimes}
+the {\idaspbcg} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
-The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data}.
 %%
 %%
 \ucfunction{IDASpbcgSetPreconditioner}
@@ -2162,8 +2165,9 @@ If used, the \id{psetup} function should also be specified in the call to
 \id{IDASptfqmrSetPreconditioner}.
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
 %%
-Optionally, the {\idasptfqmr} solver passes the pointer it receives through 
-\id{IDASptfqmrSetPreconditioner} to the preconditioner setup and solve functions.  
+Optionally, the {\idasptfqmr} solver passes the pointer \id{p\_data} it receives
+through \id{IDASptfqmrSetPreconditioner} to the preconditioner \id{psetup} and
+\id{psolve} functions.  
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
@@ -2173,7 +2177,7 @@ specified through \id{IDASetRdata}.
 The \index{IDASPTFQMR@{\idasptfqmr} linear solver!Jacobian approximation used by}
 {\idasptfqmr} solver requires a function to compute an approximation to the
 product between the Jacobian matrix $J(t,y)$ and a vector $v$.
-The user can supply his/her own Jacobian times vector approximation function, 
+The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{IDASptfqmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\idasptfqmr} solver.
@@ -2184,9 +2188,9 @@ can be specified through a call to \id{IDASptfqmrSetJacTimesVecFn}
 As with the preconditioner user data structure \id{p\_data}, 
 the user can also specify in the call to \id{IDASptfqmrSetJacTimesVecFn}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
-the {\idasptfqmr} solver passes to the Jacobian times vector function \id{jtimes}
+the {\idasptfqmr} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
-The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data}.
 %%
 %%
 \ucfunction{IDASptfqmrSetPreconditioner}
@@ -3911,7 +3915,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \id{SPGMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve
   function \id{psolve} failed recoverably;
   \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
-  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector 
+  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian-times-vector 
   function;
   \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
@@ -4200,7 +4204,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \id{SPBCG\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve
   function \id{psolve} failed recoverably;
   \id{SPBCG\_MEM\_NULL}, indicating that the {\spbcg} memory is \id{NULL};
-  \id{SPBCG\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector 
+  \id{SPBCG\_ATIMES\_FAIL}, indicating a failure in the Jacobian-times-vector 
   function; or
   \id{SPBCG\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably.
@@ -4486,7 +4490,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \id{SPTFQMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve
   function \id{psolve} failed recoverably;
   \id{SPTFQMR\_MEM\_NULL}, indicating that the {\sptfqmr} memory is \id{NULL};
-  \id{SPTFQMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector 
+  \id{SPTFQMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian-times-vector 
   function; or
   \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably.
@@ -4922,7 +4926,7 @@ of type \ID{IDASpilsJacTimesVecFn} in the following form:
   \end{args}
 }
 {
-  The value to be returned by the Jacobian times vector function should be 0 if
+  The value to be returned by the Jacobian-times-vector function should be 0 if
   successful.  A nonzero value indicates that a nonrecoverable error occurred. 
 
   If the user's \id{IDASpilsJacTimesVecFn} function uses difference quotient
@@ -6296,7 +6300,7 @@ apply to {\nvecp}.
   a specific name to make the desired choice.
 
   {\s} {\bf Dense treatment of the linear system}
-  \index{IDADENSE@{\cvdense} linear solver!use in {\fida}}
+  \index{IDADENSE@{\idadense} linear solver!use in {\fida}}
   
   The user must make the call:
   \index{FIDADENSE@\texttt{FIDADENSE}}
@@ -6431,8 +6435,8 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDASPGMRSETJAC (FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian times
-  vector approximation.
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
+  Jacobian-times-vector approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
@@ -6539,8 +6543,8 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDASPBCGSETJAC (FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian times
-  vector approximation.
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
+  Jacobian-times-vector approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
@@ -6647,8 +6651,8 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDASPTFQMRSETJAC (FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian times
-  vector approximation.
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
+  Jacobian-times-vector approximation.
   The argument \id{IER} is an error return flag which can be $0$ 
   for success or non-zero if an error occurred.
   
