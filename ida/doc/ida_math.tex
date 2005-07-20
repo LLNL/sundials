@@ -93,7 +93,7 @@ The linear systems are solved by one of five methods:
 \item {\spbcg} = Scaled Preconditioned Bi-CGStab, or
 \item {\sptfqmr} = Scaled Preconditioned TFQMR.
 \end{itemize}
-For the {\spgmr}, {\spbcg} and {\sptfqmr} cases, preconditioning is allowed
+For the {\spgmr}, {\spbcg}, and {\sptfqmr} cases, preconditioning is allowed
 only on the left,\footnote{Left preconditioning is required to make the norm of
 the linear residual in the Newton iteration meaningful; in general,
 $\| J \Delta y + G \|$ is meaningless, since the weights used in 
@@ -122,11 +122,11 @@ usually drop the subscript WRMS on norms in what follows.
 %-----------------
 In the case of a direct linear solver (dense or banded), the nonlinear 
 iteration (\ref{e:DAE_Newtoncorr}) is a Modified Newton iteration, in
-that the Jacobian $J$ is fixed (and usually out of date), with
-a coefficient $\bar\alpha$ in place of $\alpha$ in $J$. When using
-{\spgmr}, {\spbcg} or {\sptfqmr} as the linear solver, the iteration is an
-Inexact Newton iteration, using the current Jacobian (through matrix-free products $Jv$),
-in which the linear residual $J\Delta y + G$ is nonzero but controlled.
+that the Jacobian $J$ is fixed (and usually out of date), with a coefficient 
+$\bar\alpha$ in place of $\alpha$ in $J$. When using one of the Krylov methods
+{\spgmr}, {\spbcg}, or {\sptfqmr} as the linear solver, the iteration is an
+Inexact Newton iteration, using the current Jacobian (through matrix-free products
+$Jv$), in which the linear residual $J\Delta y + G$ is nonzero but controlled.
 The Jacobian matrix $J$ (direct cases) or preconditioner matrix $P$ 
 ({\spgmr}/{\spbcg}/{\sptfqmr} case) is updated when:
 \begin{itemize}
