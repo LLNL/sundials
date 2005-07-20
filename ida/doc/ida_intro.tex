@@ -12,19 +12,19 @@ systems of differential-algebraic equations (DAEs).  The name IDA
 stands for Implicit Differential-Algebraic solver.  IDA is based on
 DASPK \cite{BHP:94,BHP:98}, but is written in ANSI-standard C
 rather than Fortran 77.  Its most notable feature is that, in the
-solution of the underlying nonlinear system at each time step, it
-offers a choice of Newton/direct methods or an Inexact Newton/Krylov
-(iterative) method.  Thus {\ida} shares significant modules previously
+solution of the underlying nonlinear system at each time step, it offers
+a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
+(iterative) methods.  Thus {\ida} shares significant modules previously
 written within CASC at LLNL to support the ordinary differential
 equation (ODE) solvers {\cvode} \cite{cvode2.2.0_ug,CoHi:96} and {\pvode}
 \cite{ByHi:98,ByHi:99}, and also the nonlinear system solver {\kinsol}
 \cite{kinsol2.2.0_ug}.
 
-The Newton/Krylov method uses the GMRES (Generalized Minimal RESidual)
-\cite{SaSc:86}, Bi-CGStab (Bi-Conjugate Gradient Stabilized), or TFQMR
-(Transpose Free Quasi-Minimal Residual) linear iterative methods, and
-requires almost no matrix storage for solving the Newton equations as
-compared to direct methods.  However, the GMRES, Bi-CGStand and TFQMR algorithms
+The Newton/Krylov method in {\ida} are: the GMRES (Generalized Minimal RESidual)
+\cite{SaSc:86}, Bi-CGStab (Bi-Conjugate Gradient Stabilized), and TFQMR
+(Transpose-Free Quasi-Minimal Residual) linear iterative methods.  These
+require almost no matrix storage for solving the Newton equations as
+compared to direct methods.  However, these algorithms
 allow for a user-supplied preconditioner matrix, and for most problems
 preconditioning is essential for an efficient solution.
 
@@ -42,13 +42,13 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in vx.y.z}
+\subsection*{Changes in v2.3.0}
 
 {\fida}, a {\F}-{\C} interface module, was added (for details see \S\ref{ss:fcmix}).
 
 {\idaspbcg} and {\idasptfqmr} modules have been added to interface with the
-Scaled and Preconditioned Bi-CGstab ({\spbcg}) and Scaled and Preconditioned
-Transpose Free Quasi-Minimal Residual ({\sptfqmr}) linear solver modules,
+Scaled Preconditioned Bi-CGstab ({\spbcg}) and Scaled Preconditioned
+Transpose-Free Quasi-Minimal Residual ({\sptfqmr}) linear solver modules,
 respectively (for details see Chapter \ref{s:simulation}).
 
 \subsection*{Changes in v2.2.0}
