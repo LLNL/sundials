@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.26 $
-# $Date: 2005-06-20 20:35:19 $
+# $Revision: 1.27 $
+# $Date: 2005-07-21 00:28:36 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -2764,37 +2764,83 @@ fi
 AC_DEFUN([SUNDIALS_INSTALL_PATH],
 [
 
-# Test for installation directories.
-# If installing in the build directory (prefix was not specified) and the lib 
-# and/or include dirs. do not exists, create them.
+# Test for installation/destination directories...
 
+# Check for 'include' directory...
 AC_MSG_CHECKING([for 'include' directory])
+# If user did NOT specify prefix via --prefix=<dir> flag, then continue checks
 if test "X${prefix}" = "XNONE"; then
-  SUNDIALS_INC_DIR="${DEFAULT_PREFIX}/include"
+  # If user did NOT specify includedir via --includedir=<dir> flag, then
+  # use default prefix and create directory if necessary
+  if test "X${includedir}" = "X\${prefix}/include"; then
+    SUNDIALS_INC_DIR="${DEFAULT_PREFIX}/include"
+    if test -d ${SUNDIALS_INC_DIR} ; then
+      :
+    else
+      AS_MKDIR_P(${SUNDIALS_INC_DIR})
+    fi
+  # User specified includedir, but create directory if necessary
+  else
+    SUNDIALS_INC_DIR="${includedir}"
+    if test -d ${SUNDIALS_INC_DIR} ; then
+      :
+    else
+      AS_MKDIR_P(${SUNDIALS_INC_DIR})
+    fi
+  fi
+# User specified prefix, but create 'include' directory if necessary
+else
+  SUNDIALS_INC_DIR="${prefix}/include"
   if test -d ${SUNDIALS_INC_DIR} ; then
     :
   else
     AS_MKDIR_P(${SUNDIALS_INC_DIR})
   fi
-else
-  SUNDIALS_INC_DIR="${prefix}/include"
 fi
 AC_MSG_RESULT([${SUNDIALS_INC_DIR}])
 
+# Check for 'lib' directory...
 AC_MSG_CHECKING([for 'lib' directory])
+# If user did NOT specify exec_prefix via --exec-prefix=<dir> flag, then continue checks
 if test "X${exec_prefix}" = "XNONE"; then
+  # If user did NOT specify prefix via --prefix=<dir> flag, then continue checks
+  # Note: this check is unusual...
   if test "X${prefix}" = "XNONE"; then
-    SUNDIALS_LIB_DIR="${DEFAULT_PREFIX}/lib"
+    # If user did NOT specify libdir via --libdir=<dir> flag, then use
+    # default prefix and create directory if necessary
+    if test "X${libdir}" = "X\${exec_prefix}/lib"; then
+      SUNDIALS_LIB_DIR="${DEFAULT_PREFIX}/lib"
+      if test -d ${SUNDIALS_LIB_DIR} ; then
+        :
+      else
+        AS_MKDIR_P(${SUNDIALS_LIB_DIR})
+      fi
+    # User specified libdir, but create directory if necessary
+    else
+      SUNDIALS_LIB_DIR="${libdir}"
+      if test -d ${SUNDIALS_LIB_DIR} ; then
+        :
+      else
+        AS_MKDIR_P(${SUNDIALS_LIB_DIR})
+      fi
+    fi
+  # User specified prefix, but create 'lib' directory if necessry
+  else
+    SUNDIALS_LIB_DIR="${prefix}/lib"
     if test -d ${SUNDIALS_LIB_DIR} ; then
       :
     else
       AS_MKDIR_P(${SUNDIALS_LIB_DIR})
     fi
-  else
-    SUNDIALS_LIB_DIR="${prefix}/lib"
   fi
+# User specified exec_prefix, but create 'lib' directory if necessary
 else
   SUNDIALS_LIB_DIR="${exec_prefix}/lib"
+  if test -d ${SUNDIALS_LIB_DIR} ; then
+    :
+  else
+    AS_MKDIR_P(${SUNDIALS_LIB_DIR})
+  fi
 fi
 AC_MSG_RESULT([${SUNDIALS_LIB_DIR}])
 

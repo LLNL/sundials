@@ -15459,14 +15459,82 @@ fi
 # Set installation path
 
 
-# Test for installation directories.
-# If installing in the build directory (prefix was not specified) and the lib
-# and/or include dirs. do not exists, create them.
+# Test for installation/destination directories...
 
+# Check for 'include' directory...
 echo "$as_me:$LINENO: checking for 'include' directory" >&5
 echo $ECHO_N "checking for 'include' directory... $ECHO_C" >&6
+# If user did NOT specify prefix via --prefix=<dir> flag, then continue checks
 if test "X${prefix}" = "XNONE"; then
-  SUNDIALS_INC_DIR="${DEFAULT_PREFIX}/include"
+  # If user did NOT specify includedir via --includedir=<dir> flag, then
+  # use default prefix and create directory if necessary
+  if test "X${includedir}" = "X\${prefix}/include"; then
+    SUNDIALS_INC_DIR="${DEFAULT_PREFIX}/include"
+    if test -d ${SUNDIALS_INC_DIR} ; then
+      :
+    else
+      { if $as_mkdir_p; then
+    mkdir -p ${SUNDIALS_INC_DIR}
+  else
+    as_dir=${SUNDIALS_INC_DIR}
+    as_dirs=
+    while test ! -d "$as_dir"; do
+      as_dirs="$as_dir $as_dirs"
+      as_dir=`(dirname "$as_dir") 2>/dev/null ||
+$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$as_dir" : 'X\(//\)[^/]' \| \
+	 X"$as_dir" : 'X\(//\)$' \| \
+	 X"$as_dir" : 'X\(/\)' \| \
+	 .     : '\(.\)' 2>/dev/null ||
+echo X"$as_dir" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
+  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
+  	  /^X\(\/\/\)$/{ s//\1/; q; }
+  	  /^X\(\/\).*/{ s//\1/; q; }
+  	  s/.*/./; q'`
+    done
+    test ! -n "$as_dirs" || mkdir $as_dirs
+  fi || { { echo "$as_me:$LINENO: error: cannot create directory ${SUNDIALS_INC_DIR}" >&5
+echo "$as_me: error: cannot create directory ${SUNDIALS_INC_DIR}" >&2;}
+   { (exit 1); exit 1; }; }; }
+
+    fi
+  # User specified includedir, but create directory if necessary
+  else
+    SUNDIALS_INC_DIR="${includedir}"
+    if test -d ${SUNDIALS_INC_DIR} ; then
+      :
+    else
+      { if $as_mkdir_p; then
+    mkdir -p ${SUNDIALS_INC_DIR}
+  else
+    as_dir=${SUNDIALS_INC_DIR}
+    as_dirs=
+    while test ! -d "$as_dir"; do
+      as_dirs="$as_dir $as_dirs"
+      as_dir=`(dirname "$as_dir") 2>/dev/null ||
+$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$as_dir" : 'X\(//\)[^/]' \| \
+	 X"$as_dir" : 'X\(//\)$' \| \
+	 X"$as_dir" : 'X\(/\)' \| \
+	 .     : '\(.\)' 2>/dev/null ||
+echo X"$as_dir" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
+  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
+  	  /^X\(\/\/\)$/{ s//\1/; q; }
+  	  /^X\(\/\).*/{ s//\1/; q; }
+  	  s/.*/./; q'`
+    done
+    test ! -n "$as_dirs" || mkdir $as_dirs
+  fi || { { echo "$as_me:$LINENO: error: cannot create directory ${SUNDIALS_INC_DIR}" >&5
+echo "$as_me: error: cannot create directory ${SUNDIALS_INC_DIR}" >&2;}
+   { (exit 1); exit 1; }; }; }
+
+    fi
+  fi
+# User specified prefix, but create 'include' directory if necessary
+else
+  SUNDIALS_INC_DIR="${prefix}/include"
   if test -d ${SUNDIALS_INC_DIR} ; then
     :
   else
@@ -15496,17 +15564,87 @@ echo "$as_me: error: cannot create directory ${SUNDIALS_INC_DIR}" >&2;}
    { (exit 1); exit 1; }; }; }
 
   fi
-else
-  SUNDIALS_INC_DIR="${prefix}/include"
 fi
 echo "$as_me:$LINENO: result: ${SUNDIALS_INC_DIR}" >&5
 echo "${ECHO_T}${SUNDIALS_INC_DIR}" >&6
 
+# Check for 'lib' directory...
 echo "$as_me:$LINENO: checking for 'lib' directory" >&5
 echo $ECHO_N "checking for 'lib' directory... $ECHO_C" >&6
+# If user did NOT specify exec_prefix via --exec-prefix=<dir> flag, then continue checks
 if test "X${exec_prefix}" = "XNONE"; then
+  # If user did NOT specify prefix via --prefix=<dir> flag, then continue checks
+  # Note: this check is unusual...
   if test "X${prefix}" = "XNONE"; then
-    SUNDIALS_LIB_DIR="${DEFAULT_PREFIX}/lib"
+    # If user did NOT specify libdir via --libdir=<dir> flag, then use
+    # default prefix and create directory if necessary
+    if test "X${libdir}" = "X\${exec_prefix}/lib"; then
+      SUNDIALS_LIB_DIR="${DEFAULT_PREFIX}/lib"
+      if test -d ${SUNDIALS_LIB_DIR} ; then
+        :
+      else
+        { if $as_mkdir_p; then
+    mkdir -p ${SUNDIALS_LIB_DIR}
+  else
+    as_dir=${SUNDIALS_LIB_DIR}
+    as_dirs=
+    while test ! -d "$as_dir"; do
+      as_dirs="$as_dir $as_dirs"
+      as_dir=`(dirname "$as_dir") 2>/dev/null ||
+$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$as_dir" : 'X\(//\)[^/]' \| \
+	 X"$as_dir" : 'X\(//\)$' \| \
+	 X"$as_dir" : 'X\(/\)' \| \
+	 .     : '\(.\)' 2>/dev/null ||
+echo X"$as_dir" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
+  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
+  	  /^X\(\/\/\)$/{ s//\1/; q; }
+  	  /^X\(\/\).*/{ s//\1/; q; }
+  	  s/.*/./; q'`
+    done
+    test ! -n "$as_dirs" || mkdir $as_dirs
+  fi || { { echo "$as_me:$LINENO: error: cannot create directory ${SUNDIALS_LIB_DIR}" >&5
+echo "$as_me: error: cannot create directory ${SUNDIALS_LIB_DIR}" >&2;}
+   { (exit 1); exit 1; }; }; }
+
+      fi
+    # User specified libdir, but create directory if necessary
+    else
+      SUNDIALS_LIB_DIR="${libdir}"
+      if test -d ${SUNDIALS_LIB_DIR} ; then
+        :
+      else
+        { if $as_mkdir_p; then
+    mkdir -p ${SUNDIALS_LIB_DIR}
+  else
+    as_dir=${SUNDIALS_LIB_DIR}
+    as_dirs=
+    while test ! -d "$as_dir"; do
+      as_dirs="$as_dir $as_dirs"
+      as_dir=`(dirname "$as_dir") 2>/dev/null ||
+$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$as_dir" : 'X\(//\)[^/]' \| \
+	 X"$as_dir" : 'X\(//\)$' \| \
+	 X"$as_dir" : 'X\(/\)' \| \
+	 .     : '\(.\)' 2>/dev/null ||
+echo X"$as_dir" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
+  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
+  	  /^X\(\/\/\)$/{ s//\1/; q; }
+  	  /^X\(\/\).*/{ s//\1/; q; }
+  	  s/.*/./; q'`
+    done
+    test ! -n "$as_dirs" || mkdir $as_dirs
+  fi || { { echo "$as_me:$LINENO: error: cannot create directory ${SUNDIALS_LIB_DIR}" >&5
+echo "$as_me: error: cannot create directory ${SUNDIALS_LIB_DIR}" >&2;}
+   { (exit 1); exit 1; }; }; }
+
+      fi
+    fi
+  # User specified prefix, but create 'lib' directory if necessry
+  else
+    SUNDIALS_LIB_DIR="${prefix}/lib"
     if test -d ${SUNDIALS_LIB_DIR} ; then
       :
     else
@@ -15536,11 +15674,39 @@ echo "$as_me: error: cannot create directory ${SUNDIALS_LIB_DIR}" >&2;}
    { (exit 1); exit 1; }; }; }
 
     fi
-  else
-    SUNDIALS_LIB_DIR="${prefix}/lib"
   fi
+# User specified exec_prefix, but create 'lib' directory if necessary
 else
   SUNDIALS_LIB_DIR="${exec_prefix}/lib"
+  if test -d ${SUNDIALS_LIB_DIR} ; then
+    :
+  else
+    { if $as_mkdir_p; then
+    mkdir -p ${SUNDIALS_LIB_DIR}
+  else
+    as_dir=${SUNDIALS_LIB_DIR}
+    as_dirs=
+    while test ! -d "$as_dir"; do
+      as_dirs="$as_dir $as_dirs"
+      as_dir=`(dirname "$as_dir") 2>/dev/null ||
+$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$as_dir" : 'X\(//\)[^/]' \| \
+	 X"$as_dir" : 'X\(//\)$' \| \
+	 X"$as_dir" : 'X\(/\)' \| \
+	 .     : '\(.\)' 2>/dev/null ||
+echo X"$as_dir" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
+  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
+  	  /^X\(\/\/\)$/{ s//\1/; q; }
+  	  /^X\(\/\).*/{ s//\1/; q; }
+  	  s/.*/./; q'`
+    done
+    test ! -n "$as_dirs" || mkdir $as_dirs
+  fi || { { echo "$as_me:$LINENO: error: cannot create directory ${SUNDIALS_LIB_DIR}" >&5
+echo "$as_me: error: cannot create directory ${SUNDIALS_LIB_DIR}" >&2;}
+   { (exit 1); exit 1; }; }; }
+
+  fi
 fi
 echo "$as_me:$LINENO: result: ${SUNDIALS_LIB_DIR}" >&5
 echo "${ECHO_T}${SUNDIALS_LIB_DIR}" >&6
