@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2005-06-21 19:13:08 $
+ * $Revision: 1.37 $
+ * $Date: 2005-07-21 00:28:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -631,7 +631,7 @@ extern "C" {
 void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
 		 realtype *constraints, int *optin, long int *iopt,
 		 realtype *ropt, int *ier);
-void FKIN_DENSE(long int *new, int *ier);
+void FKIN_DENSE(long int *neq, int *ier);
 void FKIN_DENSESETJAC(int *flag, int *ier);
 void FKIN_SPTFQMR(int *maxl, int *ier);
 void FKIN_SPBCG(int *maxl, int *ier);
