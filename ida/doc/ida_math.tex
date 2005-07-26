@@ -196,17 +196,13 @@ by difference quotients. In the latter case, we use the approximation
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current step size, and $W_j$ is 
 the error weight for the component $y_j$ defined by (\ref{e:errwt}).
-In the {\spgmr}/{\spbcg}/{\sptfqmr} case, if a routine for $Jv$ is not supplied, such products are
-approximated by
+In the {\spgmr}/{\spbcg}/{\sptfqmr} case, if a routine for $Jv$ is not
+supplied, such products are approximated by
 \begin{equation*}
 Jv = [F(t,y+\sigma v,y^\prime+\alpha\sigma v) - F(t,y,y^\prime)]/\sigma \, ,
 \end{equation*}
-where the increment $\sigma$ is $1/\|v\|$.\footnote{All vectors $v$ 
-occurring here have been divided by the weights $W_i$ and then scaled 
-so as to have $L_2$ norm equal to 1. 
-Thus, in fact $\sigma = 1/\|v\|_{\mbox{\scriptsize WRMS}}=\sqrt{N}$.}
-As an option, the user can specify a constant factor that is inserted
-into this expression for $\sigma$.
+where the increment $\sigma$ is $1/\|v\|$.  As an option, the user can
+specify a constant factor that is inserted into this expression for \sigma$.
 
 % Error control
 %--------------
