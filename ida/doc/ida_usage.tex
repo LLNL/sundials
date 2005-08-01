@@ -437,7 +437,7 @@ name from the type of approximation used for the Jacobian
 $J = \partial{F}/\partial{y} + c_j \partial{F}/\partial{y^\prime}$.
 {\idadense} and {\idaband} work with dense and banded approximations to $J$,
 respectively.  The remaining three {\ida} linear solvers, {\idaspgmr}, {\idaspbcg},
-and {\idasptfqmr}, are Krylov iterative solvers. The {\spgmr}, {\spbcg} and
+and {\idasptfqmr}, are Krylov iterative solvers. The {\spgmr}, {\spbcg}, and
 {\sptfqmr} in the names indicate the scaled preconditioned GMRES, scaled
 preconditioned Bi-CGStab, and scaled preconditioned TFQMR methods, respectively.
 
@@ -707,7 +707,7 @@ for the given problem.
     is the initial value of $y^\prime$.   
 
   \item[icopt] (\id{int})
-    is the option of IDACalcIC to be used.
+    is one of two options for the initial condition calculation.
     
     \id{icopt}$=$\ID{IDA\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
     the algebraic components of $y$ and differential components of $y^\prime$, 
@@ -1522,8 +1522,8 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
 flag = IDASetEwtFn(ida\_mem, efun, edata);
 }
 {
-  The function \ID{IDASetEwtFn} specifies the user-defined function
-  to be used in computing the error weight vector $W$ in (\ref{e:errwt}).
+  The function \ID{IDASetEwtFn} specifies the user-defined function to be
+  used in computing the error weight vector $W$ defined in Eq. (\ref{e:errwt}).
 }
 {
   \begin{args}[ida\_mem]
@@ -2028,7 +2028,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   \item[\Id{IDASPBCG\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPBCG\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idaspbcg} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -2066,7 +2066,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   \item[\Id{IDASPBCG\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPBCG\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idaspbcg} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -2102,7 +2102,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   \item[\Id{IDASPBCG\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPBCG\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idaspbcg} linear solver has not been initialized.
   \item[\Id{IDASPBCG\_ILL\_INPUT}]
     The factor \id{eplifac} is negative.  
   \end{args}
@@ -2139,7 +2139,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   \item[\Id{IDASPBCG\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPBCG\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idaspbcg} linear solver has not been initialized.
   \item[\Id{IDASPBCG\_ILL\_INPUT}]
     The increment factor was non-positive.
   \end{args}
@@ -2226,7 +2226,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   \item[\Id{IDASPTFQMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idasptfqmr} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -2264,7 +2264,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   \item[\Id{IDASPTFQMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idasptfqmr} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -2300,7 +2300,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   \item[\Id{IDASPTFQMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idasptfqmr} linear solver has not been initialized.
   \item[\Id{IDASPTFQMR\_ILL\_INPUT}]
     The factor \id{eplifac} is negative.  
   \end{args}
@@ -2337,7 +2337,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   \item[\Id{IDASPTFQMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idasptfqmr} linear solver has not been initialized.
   \item[\Id{IDASPTFQMR\_ILL\_INPUT}]
     The increment factor was non-positive.
   \end{args}
@@ -3970,7 +3970,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \item[\Id{IDASPBCG\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPBCG\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idaspbcg} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -4256,7 +4256,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \item[\Id{IDASPTFQMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
-    The {\idaspgmr} linear solver has not been initialized.
+    The {\idasptfqmr} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -5992,7 +5992,7 @@ order to maximize portability for the resulting mixed-language program.
 In this package, the names of the interface functions, and the names of
 the {\F} user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
-header files \id{fida.h} and \id{fidabbd.h}.
+header files \id{fida.h}, \id{fidaroot.h}, and \id{fidabbd.h}.
 By default, those mapping definitions depend in turn on the {\C} macros
 \id{F77\_FUNC} and \id{F77\_FUNC\_} defined in the header file
 \id{sundials\_config.h} by \id{configure}. However,
@@ -6008,14 +6008,14 @@ The user must also ensure that variables in the user {\F} code are
 declared in a manner consistent with their counterparts in {\ida}.
 All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
 or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
-depending on whether {\ida} was built in single, double or extended precision 
+depending on whether {\ida} was built in single, double, or extended precision 
 (see Chapter \ref{s:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
-{\C} type \id{long int}. These integer variables include: the array
-of integer optional inputs and outputs (\id{IOPT}), problem dimensions (\id{NEQ},
-\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU} and \id{ML}).
-This is particularly important when using
-{\ida} and the {\fida} package on 64-bit architectures.
+{\C} type \id{long int}. These integer variables include: the array of
+integer optional inputs and outputs (\id{IOPT}), problem dimensions (\id{NEQ},
+\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU}, \id{ML}, etc.).
+This is particularly important when using {\ida} and the {\fida}
+package on 64-bit architectures.
 
 %%==============================================================================
 \subsection{FIDA optional input and output}
@@ -6027,11 +6027,12 @@ a minimum, optional inputs and outputs to the {\ida} solver and to related
 modules are not accessed through individual functions, but rather through a
 pair of arrays, \Id{IOPT} of integer type and \Id{ROPT} of real type.
 Table \ref{t:fida_io} lists the entries in these two arrays and specifies the
-{\fida} user-callable routine which sets/accesses the corresponding optional
+{\fida} user-callable routine which sets or accesses the corresponding optional
 variable, as well as the {\ida} optional function which is actually called.
 For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
 and \S\ref{ss:optional_output}.
 
+\vspace*{.3in}
 \tablecaption{Description of the {\fida} optional input-output arrays \Id{IOPT} and \Id{ROPT}}
 \label{t:fida_io}
 \tablefirsthead{\multicolumn{4}{c}{Integer input-output array \id{IOPT}} \\
@@ -6171,7 +6172,7 @@ and \S\ref{ss:optional_output}.
 %%==============================================================================
 \index{FIDA@{\fida} interface module!usage|(}
 
-The usage of {\fida} requires calls to five or six interface
+The usage of {\fida} requires calls to five or more interface
 functions, depending on the method options selected, and one or more
 user-supplied routines which define the problem to be solved.  These
 function calls and user routines are summarized separately below.
@@ -6179,8 +6180,8 @@ Some details are omitted, and the user is referred to the description
 of the corresponding {\ida} functions for information on the arguments 
 of any given user-callable interface routine, or of a given user-supplied 
 function called by an interface function.
-The usage of {\fida} with preconditioner modules is described in later
-subsections.
+The usage of {\fida} for rootfinding, and usage of {\fida} with
+preconditioner modules, are each described in later subsections.
 
 Steps marked with {\s} in the instructions below apply to the serial
 {\nvector} implementation ({\nvecs}) only, while those marked with {\p}
@@ -6189,7 +6190,7 @@ apply to {\nvecp}.
 \index{User main program!FIDA@{\fida} usage}
 \begin{Steps}
   
-\item {\bf Right-hand side specification}
+\item {\bf Residual function specification}
   
   The user must in all cases supply the following Fortran routine
   \index{FIDARESFUN@\texttt{FIDARESFUN}}
@@ -6197,7 +6198,7 @@ apply to {\nvecp}.
       SUBROUTINE FIDARESFUN (T, Y, YP, R, IER)
       DIMENSION Y(*), YP(*), R(*)
 \end{verbatim}
-  It must set the \id{R} array to $F(t,y,y')$, the right-hand side of the DAE
+  It must set the \id{R} array to $F(t,y,y')$, the residual function of the DAE
   system, as a function of \id{T}$=t$ and the arrays \id{Y}$=y$ and \id{YP}$=y'$.
   
 \item  {\bf {\nvector} module initialization}
@@ -6211,7 +6212,7 @@ apply to {\nvecp}.
   where 
   \id{KEY} is the solver id (\id{KEY}=1 for {\ida}),
   \id{NEQ} is the size of vectors, and
-  \id{IER} is a  return completion flag which is set to $0$ on success and $-1$ 
+  \id{IER} is a  return completion flag, which is set to $0$ on success and $-1$ 
   if a failure occurred.
   
   {\p} To initialize the parallel vector module, the user must make the
@@ -6220,11 +6221,11 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{COMM} = {\mpi} communicator, \id{KEY} = 1,
-  \id{NLOCAL} the local size of vectors on this processor,
-  \id{NGLOBAL} the system size (and the global size of vectors, that
-  is the sum of all values of NLOCAL). The return completion flag \id{IER} is
-  set on $0$ upon successful return and on $-1$ otherwise.
+  in which the arguments are: \id{COMM} = {\mpi} communicator; \id{KEY} = 1;
+  \id{NLOCAL} the local size of vectors on this processor;
+  \id{NGLOBAL} the system size (and the global size of vectors, that is, the
+  sum of all values of \id{NLOCAL}). The return completion flag \id{IER} is
+  set to $0$ upon successful return and on $-1$ otherwise.
 
   {\warn} If the header file \id{sundials\_config.h} defines
   \id{SUNDIALS\_MPI\_COMM\_F2C} to be $0$, then the argument
@@ -6260,8 +6261,9 @@ apply to {\nvecp}.
     \item[ATOL] is the absolute tolerance (scalar or array).
     \item[ID] is an array indicating algebraic/differential components in the
       $y$ vector. A value of $1.0$ indicates a differential variable, while
-      $0.0$ indicates an algebraic variable.
-    \item[CONSTR] is an array of constraints.
+      $0.0$ indicates an algebraic variable. Required contionally.
+    \item[CONSTR] is an array of constraints.  Optional (see
+      \id{IDASetConstraints}).
     \item[OPTIN] is the optional input flag: $0$ if none or $1$ if optional 
       inputs are used.
     \item[IOPT] is an array of length 40 for integer optional inputs and outputs.
@@ -6273,6 +6275,9 @@ apply to {\nvecp}.
     and $-1$ otherwise. See printed message for details in case of failure.
   }
   {
+    The \id{ID} argument is required only if \id{FIDACALCIC} is to be called
+    with \id{ICOPT = 1}, if the optional input \id{SUPPRESSALG} is used.
+
     The optional inputs and outputs associated with the main {\ida} integrator
     are listed in Table~\ref{t:fida_io}.
     If any of the optional inputs are used, the others must be set
@@ -6298,15 +6303,15 @@ apply to {\nvecp}.
       CALL FIDAEWTSET (FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied error weight routine.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
 
 \item\label{i:fida_lin_solv_spec} {\bf Linear solver specification} 
   
   The variable-order, variable-coefficient \id{BDF} method used by {\ida} involves
   the solution of linear systems related to the system Jacobian
-  $J = \partial F / \partial y + \alpha \partial F / \partial y^\prime$,
-  where $\alpha = \alpha_{n,o}/h_{n}$.  {\ida} presently includes five choices for
+  $J = \partial F / \partial y + \alpha \partial F / \partial y^\prime$.
+  See Eq. (\ref{e:DAE_Newtoncorr}).  {\ida} presently includes five choices for
   the treatment of these systems, and the user of {\fida} must call a routine with
   a specific name to make the desired choice.
 
@@ -6318,7 +6323,8 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FIDADENSE (NEQ, IER)
 \end{verbatim}
-  The argument \id{IER} is an error return flag which can be $0$ 
+  where \id{NEQ} is the size of the DAE system.
+  The argument \id{IER} is an error return flag, which is $0$ 
   for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal
   input.  \index{Jacobian approximation function!dense!use in {\fida}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -6333,6 +6339,8 @@ apply to {\nvecp}.
   This routine must compute the Jacobian and store it columnwise in \id{DJAC}.
   The vectors \id{WK1}, \id{WK2}, and \id{WK3} of length \id{NEQ} are provided
   as work space for use in \id{FIDADJAC}.
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
   
   If the user's \id{FIDADJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -6347,7 +6355,7 @@ apply to {\nvecp}.
       CALL FIDADENSESETJAC (FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
-  approximation.  The argument \id{IER} is an error return flag which can be $0$ 
+  approximation.  The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
   
   Optional outputs specific to the {\dense} case are listed in
@@ -6362,7 +6370,7 @@ apply to {\nvecp}.
       CALL FIDABAND (NEQ, MU, ML, IER)
 \end{verbatim}
   The arguments are: \id{MU}, the upper half-bandwidth; \id{ML}, 
-  the lower half-bandwidth; and \id{IER} an error return flag which can be  
+  the lower half-bandwidth; and \id{IER} an error return flag, which is  
   $0$ for success , $-1$ if a memory allocation failure occurred, or $-2$ 
   in case an input has an illegal value.     
   
@@ -6381,6 +6389,8 @@ apply to {\nvecp}.
   the Jacobian element $J_{i,j}$ with $k = i - j + MU + 1$, $k = 1 \cdots ML+MU+1$
   and $j = 1 \cdots N$. The vectors \id{WK1}, \id{WK2}, and \id{WK3} of length
   \id{NEQ} are provided as work space for use in \id{FIDABJAC}.
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
 
   If the user's \id{FIDABJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -6395,7 +6405,7 @@ apply to {\nvecp}.
       CALL FIDABANDSETJAC (FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
-  approximation.  The argument \id{IER} is an error return flag which can be $0$ 
+  approximation.  The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
   
   Optional outputs specific to the {\band} case are listed in Table~\ref{t:fida_io}.
@@ -6407,16 +6417,18 @@ apply to {\nvecp}.
   the user must make the call
   \index{FIDASPGMR@\texttt{FIDASPGMR}}
 \begin{verbatim}
-      CALL FIDASPGMR (MAXL, IGSTYPE, MAXRS, DELT, DQINCFAC, IER)
+      CALL FIDASPGMR (MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
 \end{verbatim}
   The arguments are as follows.
-  \id{MAXL} is the maximum Krylov subspace dimension ($0$ indicates default).
-  \id{IGSTYPE} indicates the Gram-Schmidt process type: 
-  $1$ for modified G-S or $2$ for classical G-S.
+  \id{MAXL} is the maximum Krylov subspace dimension.
+  \id{IGSTYPE} indicates the Gram-Schmidt process type: $1$ for modified,
+   or $2$ for classical.
   \id{MAXRS} maximum number of restarts.
-  \id{DELT} is the linear convergence tolerance factor ($0.0$ indicates default).
+  \id{EPLIFAC} is the linear convergence tolerance factor.
   \id{DQINCFAC} is the optional increment factor used in the matrix-vector product
-  $Jv$.  \id{IER} is an error return flag which can be $0$ to indicate success, $-1$
+  $Jv$.
+  For all the input arguments, a value of 0 or $0.0$ indicates the default.
+  \id{IER} is an error return flag, which is $0$ to indicate success, $-1$
   if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
   
   \index{Jacobian approximation function!Jacobian times vector!use in {\fida}}
@@ -6426,14 +6438,16 @@ apply to {\nvecp}.
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FIDAJTIMES@\texttt{FIDAJTIMES}}
 \begin{verbatim}
-      SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, JV, CJ, EWT, H, WK1, WK2, IER)
-      DIMENSION Y(*), YP(*), R(*), V(*), JV(*), EWT(*), WK1(*), WK2(*)
+      SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, FJV, CJ, EWT, H, WK1, WK2, IER)
+      DIMENSION Y(*), YP(*), R(*), V(*), FJV(*), EWT(*), WK1(*), WK2(*)
 \end{verbatim}
   This routine must compute the product vector $Jv$, where the vector $v$ is
-  stored in \id{V}, and store the product in \id{JV}.  On return, set
+  stored in \id{V}, and store the product in \id{FJV}.  On return, set
   \id{IER=0} if \id{FIDAJTIMES} was successful, and nonzero otherwise.
   The vectors \id{W1K} and \id{WK2}, of length \id{NEQ}, are
   provided as work space for use in \id{FIDAJTIMES}.
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
 
   If the user's \id{FIDAJTIMES} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -6449,7 +6463,7 @@ apply to {\nvecp}.
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied
   Jacobian-times-vector approximation.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
   
   If preconditioning is to be done, then, following the
@@ -6468,7 +6482,9 @@ apply to {\nvecp}.
   It must solve the preconditioner linear system $Pz = r$, where $r =$ \id{RV} 
   is input, and store the solution $z$ in \id{ZV}. Here $P$ is the left 
   preconditioner if \id{LR=1} and the right preconditioner if \id{LR=2}.
-  
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
+
   The arguments \id{EWT} and \id{DELTA} are input and provide the error weight
   array and a scalar tolerance, respectively, for use by \id{FIDAPSOL} if it uses
   an iterative method in its solution.  In that case, the residual vector
@@ -6490,7 +6506,9 @@ apply to {\nvecp}.
   On return, set \id{IER=0} if \id{FIDAPSET} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
-  
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
+
   If the user's \id{FIDAPSET} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
   in the calculation of suitable increments.  It may also need the unit
@@ -6519,13 +6537,15 @@ apply to {\nvecp}.
   the user must make the call
   \index{FIDASPBCG@\texttt{FIDASPBCG}}
 \begin{verbatim}
-      CALL FIDASPBCG (MAXL, DELT, DQINCFAC, IER)
+      CALL FIDASPBCG (MAXL, EPLIFAC, DQINCFAC, IER)
 \end{verbatim}
   The arguments are as follows.
-  \id{MAXL} is the maximum Krylov subspace dimension ($0$ indicates default).
-  \id{DELT} is the linear convergence tolerance factor ($0.0$ indicates default).
+  \id{MAXL} is the maximum Krylov subspace dimension.
+  \id{EPLIFAC} is the linear convergence tolerance factor.
   \id{DQINCFAC} is the optional increment factor used in the matrix-vector product
-  $Jv$. \id{IER} is an error return flag which can be $0$ to indicate success, $-1$
+  $Jv$.
+  For all the input arguments, a value of 0 or $0.0$ indicates the default.
+  \id{IER} is an error return flag, which is $0$ to indicate success, $-1$
   if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
   
   \index{Jacobian approximation function!Jacobian times vector!use in {\fida}}
@@ -6535,14 +6555,16 @@ apply to {\nvecp}.
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FIDAJTIMES@\texttt{FIDAJTIMES}}
 \begin{verbatim}
-      SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, JV, CJ, EWT, H, WK1, WK2, IER)
-      DIMENSION Y(*), YP(*), R(*), V(*), JV(*), EWT(*), WK1(*), WK2(*)
+      SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, FJV, CJ, EWT, H, WK1, WK2, IER)
+      DIMENSION Y(*), YP(*), R(*), V(*), FJV(*), EWT(*), WK1(*), WK2(*)
 \end{verbatim}
   This routine must compute the product vector $Jv$, where the vector $v$ is
-  stored in \id{V}, and store the product in \id{JV}.  On return, set
+  stored in \id{V}, and store the product in \id{FJV}.  On return, set
   \id{IER=0} if \id{FIDAJTIMES} was successful, and nonzero otherwise.
   The vectors \id{W1K} and \id{WK2}, of length \id{NEQ}, are
   provided as work space for use in \id{FIDAJTIMES}.
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
 
   If the user's \id{FIDAJTIMES} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -6558,7 +6580,7 @@ apply to {\nvecp}.
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied
   Jacobian-times-vector approximation.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
   
   If preconditioning is to be done, then, following the
@@ -6577,7 +6599,9 @@ apply to {\nvecp}.
   It must solve the preconditioner linear system $Pz = r$, where $r =$ \id{RV} 
   is input, and store the solution $z$ in \id{ZV}. Here $P$ is the left 
   preconditioner if \id{LR=1} and the right preconditioner if \id{LR=2}.
-  
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
+
   The arguments \id{EWT} and \id{DELTA} are input and provide the error weight
   array and a scalar tolerance, respectively, for use by \id{FIDAPSOL} if it uses
   an iterative method in its solution.  In that case, the residual vector
@@ -6599,7 +6623,9 @@ apply to {\nvecp}.
   On return, set \id{IER=0} if \id{FIDAPSET} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
-  
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
+
   If the user's \id{FIDAPSET} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
   in the calculation of suitable increments.  It may also need the unit
@@ -6628,13 +6654,15 @@ apply to {\nvecp}.
   the linear systems, the user must make the call
   \index{FIDASPTFQMR@\texttt{FIDASPTFQMR}}
 \begin{verbatim}
-      CALL FIDASPTFQMR (MAXL, DELT, DQINCFAC, IER)
+      CALL FIDASPTFQMR (MAXL, EPLIFAC, DQINCFAC, IER)
 \end{verbatim}
   The arguments are as follows.
-  \id{MAXL} is the maximum Krylov subspace dimension ($0$ indicates default).
-  \id{DELT} is the linear convergence tolerance factor ($0.0$ indicates default).
+  \id{MAXL} is the maximum Krylov subspace dimension.
+  \id{EPLIFAC} is the linear convergence tolerance factor.
   \id{DQINCFAC} is the optional increment factor used in the matrix-vector product
-  $Jv$. \id{IER} is an error return flag which can be $0$ to indicate success, $-1$
+  $Jv$.
+  For all the input arguments, a value of 0 or $0.0$ indicates the default.
+  \id{IER} is an error return flag, which is $0$ to indicate success, $-1$
   if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
   
   \index{Jacobian approximation function!Jacobian times vector!use in {\fida}}
@@ -6644,14 +6672,16 @@ apply to {\nvecp}.
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FIDAJTIMES@\texttt{FIDAJTIMES}}
 \begin{verbatim}
-      SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, JV, CJ, EWT, H, WK1, WK2, IER)
-      DIMENSION Y(*), YP(*), R(*), V(*), JV(*), EWT(*), WK1(*), WK2(*)
+      SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, FJV, CJ, EWT, H, WK1, WK2, IER)
+      DIMENSION Y(*), YP(*), R(*), V(*), FJV(*), EWT(*), WK1(*), WK2(*)
 \end{verbatim}
   This routine must compute the product vector $Jv$, where the vector $v$ is
-  stored in \id{V}, and store the product in \id{JV}.  On return, set
+  stored in \id{V}, and store the product in \id{FJV}.  On return, set
   \id{IER=0} if \id{FIDAJTIMES} was successful, and nonzero otherwise.
   The vectors \id{W1K} and \id{WK2}, of length \id{NEQ}, are
   provided as work space for use in \id{FIDAJTIMES}.
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
 
   If the user's \id{FIDAJTIMES} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -6667,7 +6697,7 @@ apply to {\nvecp}.
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied
   Jacobian-times-vector approximation.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  The argument \id{IER} is an error return flag, which is $0$ 
   for success or non-zero if an error occurred.
   
   If preconditioning is to be done, then, following the
@@ -6686,7 +6716,9 @@ apply to {\nvecp}.
   It must solve the preconditioner linear system $Pz = r$, where $r =$ \id{RV} 
   is input, and store the solution $z$ in \id{ZV}. Here $P$ is the left 
   preconditioner if \id{LR=1} and the right preconditioner if \id{LR=2}.
-  
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
+
   The arguments \id{EWT} and \id{DELTA} are input and provide the error weight
   array and a scalar tolerance, respectively, for use by \id{FIDAPSOL} if it uses
   an iterative method in its solution.  In that case, the residual vector
@@ -6708,7 +6740,9 @@ apply to {\nvecp}.
   On return, set \id{IER=0} if \id{FIDAPSET} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
-  
+  The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
+  current values of $t$, $y$, $y'$, $F(t,y,t')$, and $\alpha$, respectively.
+
   If the user's \id{FIDAPSET} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
   in the calculation of suitable increments.  It may also need the unit
@@ -6729,6 +6763,20 @@ apply to {\nvecp}.
   routine have the same names and meanings as those of \id{FIDASPTFQMR} routine.
   Finally, if the value of \id{MAXL} is being changed, then a call to
   \id{FIDASPTFQMR} must be made.
+
+\item {\bf Correct initial values}
+
+  Optionally, to correct the initial values $y$ and/or $y'$, make the call
+\begin{verbatim}
+      CALL FIDACALCIC (T0, Y0, YP0, ICOPT, TOUT1, IER)
+\end{verbatim}
+  The arguments are as follows.
+  \id{T0} is $t_0$. \id{Y0} and \id{YP0} are the initial guesses for $y$
+  and $y'$ at $t_0$.
+  \id{ICOPT} is 1 for initializing the algebraic components of $y$ and
+  differential components of $y'$, or 2 for initializing all of $y$.
+  \id{IER} is an error return flag, which is 0 for success, or negative
+  for a failure (see \id{IDACalcIC} return values).
 
 \item {\bf Problem solution}
 
@@ -6963,7 +7011,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FIDABBDSPGMR@\texttt{FIDABBDSPGMR}}
 \begin{verbatim}
-       CALL FIDABBDSPGMR (MAXL, IGSTYPE, MAXRS, DELT, DQINCFAC, IER)
+       CALL FIDABBDSPGMR (MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FIDASPGMR}
   (see step \ref{i:fida_lin_solv_spec} in \S\ref{ss:fida_usage}).
@@ -6982,7 +7030,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FIDABBDSPBCG@\texttt{FIDABBDSPBCG}}
 \begin{verbatim}
-       CALL FIDABBDSPBCG (MAXL, DELT, DQINCFAC, IER)
+       CALL FIDABBDSPBCG (MAXL, EPLIFAC, DQINCFAC, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FIDASPBCG}
   (see step \ref{i:fida_lin_solv_spec} in \S\ref{ss:fida_usage}).
@@ -7001,7 +7049,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FIDABBDSPTFQMR@\texttt{FIDABBDSPTFQMR}}
 \begin{verbatim}
-       CALL FIDABBDSPTFQMR (MAXL, DELT, DQINCFAC, IER)
+       CALL FIDABBDSPTFQMR (MAXL, EPLIFAC, DQINCFAC, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FIDASPTFQMR}
   (see step \ref{i:fida_lin_solv_spec} in \S\ref{ss:fida_usage}).
