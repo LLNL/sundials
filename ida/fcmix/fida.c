@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2005-08-02 22:39:57 $
+ * $Revision: 1.8 $
+ * $Date: 2005-08-02 22:52:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -358,7 +358,6 @@ void FIDA_CALCIC(realtype *t0, realtype *yy0, realtype *yp0,
   if (*ier != IDA_SUCCESS) {
     N_VSetArrayPointer(NULL, F2C_IDA_vec);
     N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
-    *ier = -1;
   }
 
   /* Reset data pointers */
