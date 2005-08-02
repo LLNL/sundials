@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-05-16 17:29:24 $
+ * $Revision: 1.7 $
+ * $Date: 2005-08-02 23:08:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -803,7 +803,7 @@ static int IDASpbcgDQJtimes(realtype tt,
                             N_Vector yy, N_Vector yp, N_Vector rr,
                             N_Vector v, N_Vector Jv, 
                             realtype c_j, void *jac_data, 
-                            N_Vector tmp1, N_Vector tmp2)
+                            N_Vector work1, N_Vector work2)
 {
   IDAMem IDA_mem;
   IDASpbcgMem idaspbcg_mem;
@@ -815,15 +815,15 @@ static int IDASpbcgDQJtimes(realtype tt,
   IDA_mem = (IDAMem) jac_data;
   idaspbcg_mem = (IDASpbcgMem) lmem;
 
-  sig = sqrtN*dqincfac;
+  sig = dqincfac/N_VWrmsNorm(v, ewt);
 
   /* Rename tmp1 and tmp2 for readibility */
-  y_tmp  = tmp1;
-  yp_tmp = tmp2;
+  y_tmp  = work1;
+  yp_tmp = work2;
 
   /* Set y_tmp = yy + sig*v, yp_tmp = yp + cj*sig*v. */
-  N_VLinearSum(sig, v, ONE, yy, ytemp);
-  N_VLinearSum(c_j*sig, v, ONE, yp, yptemp);
+  N_VLinearSum(sig, v, ONE, yy, y_tmp);
+  N_VLinearSum(c_j*sig, v, ONE, yp, yp_tmp);
 
   /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
   ires = res(tt, y_tmp, yp_tmp, Jv, rdata); 
