@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2005-07-15 23:27:55 $
+ * $Revision: 1.8 $
+ * $Date: 2005-08-02 22:29:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -115,7 +115,7 @@
  *       SUBROUTINE FIDARESFUN (T, Y, YP, R, IER)
  *       INTEGER IER
  *       DIMENSION T, Y(*), YP(*), R(*)
- * It must set the R array to f(t,y,y'), the residual of the DAE 
+ * It must set the R array to F(t,y,y'), the residual of the DAE 
  * system, as a function of T = t, the array Y = y, and the array YP = y'.
  * Here Y, YP and R are distributed vectors.
  *
@@ -144,15 +144,15 @@
  * with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
  *
  * (4) Optional user-supplied Jacobian-vector product routine: FIDAJTIMES
- * As an option when using the SPGMR/SPBCG linear solver, the user may supply
- * a routine that computes the product of the system Jacobian J = df/dy and 
- * a given vector v.  If supplied, it must have the following form:
- *       SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, JV, CJ, EWT, H, WK1, WK2, IER)
+ * As an option when using the SPGMR/SPBCG/SPTFQMR linear solver, the user may
+ * supply a routine that computes the product of the system Jacobian J = df/dy
+ * and a given vector v.  If supplied, it must have the following form:
+ *       SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, FJV, CJ, EWT, H, WK1, WK2, IER)
  *       INTEGER IER
- *       DIMENSION T, V(*), JV(*), Y(*), YP(*), R(*), CJ, H, EWT(*),
+ *       DIMENSION T, V(*), FJV(*), Y(*), YP(*), R(*), CJ, H, EWT(*),
  *      1          WK1(*), WK2(*)
  * This routine must compute the product vector Jv, where the vector v is stored
- * in V, and store the product in JV.  On return, set IER = 0 if FIDAJTIMES was
+ * in V, and store the product in FJV.  On return, set IER = 0 if FIDAJTIMES was
  * successful, and nonzero otherwise.
  *
  * (5) Optional user-supplied error weight vector routine: FIDAEWT
@@ -465,10 +465,10 @@
  * (7.6) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
- *       CALL FIDASPGMR (MAXL, GSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
+ *       CALL FIDASPGMR (MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
  * The arguments are:
  * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
- * GSTYPE   = specifies the type of Gram-Schmidt orthogonalization to be used:
+ * IGSTYPE  = specifies the type of Gram-Schmidt orthogonalization to be used:
  *            1 = MODIFIED_GS, 2 = CLASSICAL_GS
  * EPLIFAC  = factor in the linear iteration convergence test constant
  * DQINCFAC = factor in the increments to y used in the difference quotient
@@ -517,9 +517,9 @@
  *
  * If a sequence of problems of the same size is being solved using the
  * SPGMR linear solver, then following the call to FIDAREINIT, a call to the
- * FIDASPGMRREINIT routine is needed if any of GSTYPE, EPLIFAC, or DQINCFAC is
+ * FIDASPGMRREINIT routine is needed if any of IGSTYPE, EPLIFAC, or DQINCFAC is
  * being changed.  In that case, call FIDASPGMRREINIT as follows:
- *       CALL FIDASPGMRREINIT (GSTYPE, EPLIFAC, DQINCFAC, IER)              
+ *       CALL FIDASPGMRREINIT (IGSTYPE, EPLIFAC, DQINCFAC, IER)              
  * The arguments have the same meanings as for FIDASPGMR.  If MAXL is being
  * changed, then call FIDASPGMR instead.
  *
@@ -904,7 +904,7 @@ extern int IDA_nrtfn;
 
 /* Linear solver IDs */
 
-enum { IDA_SPGMR = 1, IDA_SPBCG = 2, IDA_BAND = 3, IDA_DENSE = 4, IDA_SPTFQMR };
+enum { IDA_DENSE = 1, IDA_BAND = 2, IDA_SPGMR = 3, IDA_SPBCG = 4,  IDA_SPTFQMR = 5 };
 
 #ifdef __cplusplus
 }
