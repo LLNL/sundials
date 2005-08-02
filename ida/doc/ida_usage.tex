@@ -5287,15 +5287,18 @@ function. This requires the definition of a new function $G(t,y,y^\prime)$
 which approximates the function $F(t, y, y^\prime)$ in the definition of the DAE
 system (\ref{e:DAE}). However, the user may set $G = F$.  Corresponding
 to the domain decomposition, there is a decomposition of the solution
-vector $y$ into $M$ disjoint blocks $y_m$, and a decomposition of $G$
-into blocks $G_m$.  The block $G_m$ depends on $y_m$ and also on
-components of $y_{m'}$ associated with neighboring sub-domains
-(so-called ghost-cell data).  Let $\bar{y}_m$ denote $y_m$ augmented
+vectors $y$ and $y'$ into $M$ disjoint blocks $y_m$ and $y'_m$, and a
+decomposition of $G$ into blocks $G_m$.  The block $G_m$ depends on $y_m$
+and $y'_m$, and also on components of $y_{m'}$ and $y'_{m'}$ associated with
+neighboring sub-domains (so-called ghost-cell data).  Let $\bar{y}_m$
+and $\bar{y'}_m$ denote $y_m$ and $y'_m$ (respectively) augmented
 with those other components on which $G_m$ depends.  Then we have
 \begin{equation}
-  G(t,y) = [G_1(t,\bar{y}_1), G_2(t,\bar{y}_2), \ldots, G_M(t,\bar{y}_M)]^T
+  G(t,y,y') = [G_1(t,\bar{y}_1,\bar{y}'_1), G_2(t,\bar{y}_2),\bar{y}'_2
+               \ldots, G_M(t,\bar{y}_M,\bar{y}'_M)]^T ~,
 \end{equation}
-and each of the blocks $G_m(t, \bar{y}_m)$ is uncoupled from the others.
+and each of the blocks $G_m(t,\bar{y}_m,\bar{y}'_m)$ is uncoupled from
+the others.
 
 The preconditioner associated with this decomposition has the form 
 \begin{equation}
@@ -5347,7 +5350,7 @@ an iterative method could be used instead of banded LU factorization.
 %%
 The {\idabbdpre} module calls two user-provided functions to construct $P$: 
 a required function \id{Gres} (of type \id{IDABBDLocalFn}) which approximates
-the residual function $G(t,y) \approx F(t,y)$ and which is computed locally,
+the residual function $G(t,y,y') \approx F(t,y,y')$ and which is computed locally,
 and an optional function \id{Gcomm} (of type \id{IDABBDCommFn}) which performs
 all inter-process communication necessary to evaluate the approximate residual $G$.
 These are in addition to the user-supplied residual function \id{res}.
@@ -5361,7 +5364,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
 %%
 \usfunction{IDABBDLocalFn}
 {
-  typedef void (*IDABBDLocalFn)(&long int Nlocal, realtype tt,  \\
+  typedef int (*IDABBDLocalFn)(&long int Nlocal, realtype tt,  \\
                                 &N\_Vector yy, N\_Vector yp, N\_Vector gval, \\
                                 &void *res\_data);
 }
@@ -5387,7 +5390,8 @@ are then used by \id{Gres}, which is not expected to do any communication.
   \end{args}
 }
 {
-  An \id{IDABBDLocalFn} function type does not have a return value.
+  An \id{IDABBDLocalFn} function type should return 0 to indicate success,
+  1 for a recoverable error, or -1 for a non-recoverable error.
 }
 {
   This function assumes that all inter-processor communication of data needed to 
@@ -5400,7 +5404,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
 %%
 \usfunction{IDABBDCommFn}
 {
-  typedef void (*IDABBDCommFn)(&long int Nlocal, realtype tt,  \\
+  typedef int (*IDABBDCommFn)(&long int Nlocal, realtype tt,  \\
                                &N\_Vector yy, N\_Vector yp, void *res\_data);
 }
 {
@@ -5424,7 +5428,8 @@ are then used by \id{Gres}, which is not expected to do any communication.
   \end{args}
 }
 {
-  An \id{IDABBDCommFn} function type does not have a return value.
+  An \id{IDABBDCommFn} function type should return 0 to indicate success,
+  1 for a recoverable error, or -1 for a non-recoverable error.
 }
 {
   The \id{Gcomm} function is expected to save communicated data in space defined
@@ -5432,8 +5437,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
 
   Each call to the \id{Gcomm} function is preceded by a call to the residual
   function \id{res} with the same (\id{tt}, \id{yy}, \id{yp}) arguments.  
-  Thus \id{Gcomm} can omit 
-  any communications done by \id{res} if relevant to the 
+  Thus \id{Gcomm} can omit any communications done by \id{res} if relevant to the 
   evaluation of \id{Gres}.  
   If all necessary comunication was done in \id{res}, then \id{Gcomm} $=$ \id{NULL}
   can be passed in the call to \id{IDABBDPrecAlloc} (see below).
@@ -6199,7 +6203,10 @@ apply to {\nvecp}.
       DIMENSION Y(*), YP(*), R(*)
 \end{verbatim}
   It must set the \id{R} array to $F(t,y,y')$, the residual function of the DAE
-  system, as a function of \id{T}$=t$ and the arrays \id{Y}$=y$ and \id{YP}$=y'$.
+  system, as a function of \id{T} $ = t$ and the arrays \id{Y} $ = y$ and
+  \id{YP} $ = y'$.  It should return \id{IER} = 0 if it was successful,
+  \id{IER} = 1 if it had a recoverable failure, or
+  \id{IER} = -1 if it had a non-recoverable failure.
   
 \item  {\bf {\nvector} module initialization}
 
@@ -6819,12 +6826,11 @@ apply to {\nvecp}.
       CALL FIDAGETSOL (T, Y, YP, IER)
 \end{verbatim}
   where
-  \id{T} is the value of $t$ at which solution derivative is desired,
-  \id{K} is the derivative order ($0 \le$ \id{K} $\le$ \id{QU}), and
-  \id{DKY} is an array containing the computed \id{K}-th derivative of $y$
-  on return.  The value \id{T} must lie between \id{TCUR-HU} and \id{TCUR}.
-  The return flag \id{IER} is set to $0$ upon successful return or to a negative
-  value to indicate an illegal input.
+  \id{T} is the input value of $t$ at which solution derivative is desired, and
+  \id{Y} and \id{YP} are arrays containing the computed vectors $y$ and $y'$
+  on return.  The value \id{T} must lie between \id{TCUR-HLAST} and \id{TCUR}.
+  The return flag \id{IER} is set to $0$ upon successful return, or to a
+  negative value to indicate an illegal input.
   
 \item {\bf Problem reinitialization}
 
@@ -6928,11 +6934,11 @@ rootfinding feature.
 %%==============================================================================
 \index{FIDA@{\fida} interface module!interface to the {\idabbdpre} module|(}
 
-The {\fidabbd} interface sub-module is a package of {\C} functions which,
-as part of the {\fida} interface module, support the use of the
-{\ida} solver with the parallel {\nvecp} module and the {\idabbdpre} 
-preconditioner module (see \S\ref{sss:idabbdpre}), for the solution of 
-DAE systems in a mixed {\F}/{\C} setting.  
+The {\fidabbd} interface sub-module is a package of {\C} functions
+which, as part of the {\fida} interface module, support the use of the
+{\ida} solver with the parallel {\nvecp} module, in a combination of
+the {\idabbdpre} preconditioner module (see \S\ref{sss:idabbdpre}),
+with one of the Krylov iterative solver modules.
 
 The user-callable functions in this package, with the corresponding
 {\ida} and {\idabbdpre} functions, are as follows: 
@@ -6996,7 +7002,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   \id{MUDQ} and \id{MLDQ} are the upper and lower half-bandwidths to be used in 
   the computation of the local Jacobian blocks by difference quotients.
   These may be smaller than the true half-bandwidths of the
-  Jacobian of the local block of $g$, when smaller values may
+  Jacobian of the local block of $G$, when smaller values may
   provide greater efficiency.
   \id{MU} and \id{ML} are the upper and lower half-bandwidths of the band matrix
   that  is retained as an approximation of the local Jacobian block.
@@ -7068,34 +7074,27 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   
 \item {\bf {\idabbdpre} Optional outputs}
 
-  Optional outputs specific to the {\spgmr} solver are \id{LRW}, \id{LIW}, \id{NPE},
-  \id{NPS}, \id{NLI}, \id{NCF}, \id{NJE}, \id{NRE}, and \id{LAST\_FLAG}, stored in
-  \id{IOPT(26)} $\cdots$ \id{IOPT(34)}, respectively.
-  Optional outputs specific to the {\spbcg} solver are \id{LRW}, \id{LIW}, \id{NPE},
-  \id{NPS}, \id{NLI}, \id{NCF}, \id{NJE}, \id{NRE}, and \id{LAST\_FLAG}, stored in
-  \id{IOPT(26)} $\cdots$ \id{IOPT(34)}, respectively.
-  Optional outputs specific to the {\sptfqmr} solver are \id{LRW}, \id{LIW},
-  \id{NPE}, \id{NPS}, \id{NLI}, \id{NCF}, \id{NJE}, \id{NRE}, and \id{LAST\_FLAG},
-  stored in \id{IOPT(26)} $\cdots$ \id{IOPT(34)}, respectively.
-  To obtain the optional outputs associated with the {\idabbdpre} module, make
-  the following call:
+  Optional outputs specific to the {\spgmr}, {\spbcg}, or {\sptfqmr} solver are 
+  \id{LRW}, \id{LIW}, \id{NPE}, \id{NPS}, \id{NLI}, \id{NCF}, \id{NJE}, \id{NRE},
+  and \id{LAST\_FLAG}.  These are stored in \id{IOPT(26)} $\cdots$ \id{IOPT(34)},
+  respectively.   To obtain the optional outputs associated with the {\idabbdpre}
+  module, make the following call:
   \index{FIDABBDOPT@\texttt{FIDABBDOPT}}
 \begin{verbatim}
        CALL FIDABBDOPT (LENRPW, LENIPW, NGE)
 \end{verbatim}
   The arguments returned are as follows.
   \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
-  words.  This size is local to the current processor.
-  \id{LENIPW} is the length of integer preconditioner work space, in integer
-  words.  This size is local to the current processor.  \id{NGE}
-  is the number of $g(t,y,y')$ evaluations (calls to \id{FIDALOCFN}) so far.
+  words.  \id{LENIPW} is the length of integer preconditioner work space, in
+  integer words.  Both of these sizes are local to the current processor.  \id{NGE}
+  is the number of $G(t,y,y')$ evaluations (calls to \id{FIDALOCFN}) so far.
   
 \item {\bf Problem reinitialization}
   
   If a sequence of problems of the same size is being solved using the {\spgmr},
-  {\spbcg} or {\sptfqmr} linear solver in combination with the {\idabbdpre}
+  {\spbcg}, or {\sptfqmr} linear solver in combination with the {\idabbdpre}
   preconditioner, then the {\ida} package can be re-initialized for the second
-  and subsequent problems by calling \id{FIDAREINIT}, following which, a call
+  and subsequent problems by calling \id{FIDAREINIT}, following which a call
   to \id{FIDABBDINIT} may or  may not be needed.
   If the input arguments are the same, no \id{FIDABBDINIT} call is needed.
   If there is a change in input arguments other than \id{MU}, \id{ML}, or
@@ -7108,9 +7107,9 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   reallocating its memory.  The arguments of the \id{FIDABBDREINIT}
   routine have the same names and meanings as those of \id{FIDABBDINIT}.
   If the value of \id{MU} or \id{ML} is being changed, then a call to
-  \id{FIDABBDINIT} must be made.  Finally, if \id{MAXL} is being
-  changed, then a call to \id{FIDABBDSPGMR}, \id{FIDABBDSPBCG} or \id{FIDASPTFQMR}
-  must be made; in this case the solver memory is reallocated.
+  \id{FIDABBDINIT} must be made.  Finally, if \id{MAXL} is being  changed,
+  then a call to \id{FIDABBDSPGMR}, \id{FIDABBDSPBCG}, or \id{FIDASPTFQMR}
+  must be made; in this case the linear solver memory is reallocated.
 
 \item {\bf Memory deallocation}
 
@@ -7121,5 +7120,41 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
       CALL FIDABBDFREE
 \end{verbatim}
 \index{FIDA@{\fida} interface module!interface to the {\idabbdpre} module|)}
+
+\item {\bf User-supplied routines}
+
+  The following two routines must be supplied for the use of the {\idabbdpre}
+  module:
+  \index{FIDAGLOCFN@\texttt{FIDAGLOCFN}}
+\begin{verbatim}
+      SUBROUTINE FIDAGLOCFN (NLOC, T, YLOC, YPLOC, GLOC, IER)
+      DIMENSION YLOC(*), YPLOC(*), GLOC(*)
+\end{verbatim}
+  This routine is to evaluate the function $G(t,y,y')$ approximating $F$
+  (possibly identical to $F$), in terms of \id{T} $ = t$, and the arrays
+  \id{YLOC} and \id{YPLOC} (of length \id{NLOC}), which are the sub-vectors
+  of $y$ and $y'$ local to this processor.  The resulting (local) sub-vector
+  is to be stored in the array \id{GLOC}.  \id{IER} is a return flag that
+  should be set to 0 if successful, to 1 (for a recoverable error), or to
+  -1 (for a non-recoverable error).
+
+  \index{FIDACOMMFN@\texttt{FIDACOMMFN}}
+\begin{verbatim}
+      SUBROUTINE FIDACOMMFN (NLOC, T, YLOC, YPLOC, IER)
+      DIMENSION YLOC(*), YPLOC(*)
+\end{verbatim}
+  This routine is to perform the inter-processor communication necessary
+  for the \id{FIDAGLOCFN} routine.
+  Each call to \id{FIDACOMMFN} is preceded by a call to the residual routine
+  \id{FIDARESFUN} with the same arguments \id{T}, \id{YLOC}, and \id{YPLOC}.
+  Thus \id{FIDACOMMFN} can omit any communications done by \id{FIDARESFUN} if
+  relevant to the evaluation of \id{GLOC}.  
+  \id{IER} is a return flag that should be set to 0 if successful, to 1
+  (for a recoverable error), or to -1 (for a non-recoverable error).
+
+  \index{FIDAJTIMES@\texttt{FIDAJTIMES}}
+  Optionally, the user can supply a routine \id{FIDAJTIMES} for the evaluation of
+  Jacobian-vector products, as described above in step \ref{i:fida_lin_solv_spec}
+  in \S\ref{ss:fida_usage}.
 
 \end{Steps}
