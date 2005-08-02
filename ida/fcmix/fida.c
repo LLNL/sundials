@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-07-15 23:27:55 $
+ * $Revision: 1.7 $
+ * $Date: 2005-08-02 22:39:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -372,11 +372,14 @@ void FIDA_CALCIC(realtype *t0, realtype *yy0, realtype *yp0,
 
 void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
 {
+
   *ier = IDASptfqmr(IDA_idamem, *maxl);
   if (*ier != IDASPTFQMR_SUCCESS) return;
 
-  *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPTFQMR_SUCCESS) return;
+  if (*eplifac != ZERO) {
+    *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPTFQMR_SUCCESS) return;
+  }
 
   if (*dqincfac != ZERO) {
     *ier = IDASptfqmrSetIncrementFactor(IDA_idamem, *dqincfac);
@@ -395,8 +398,10 @@ void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
   *ier = IDASpbcg(IDA_idamem, *maxl);
   if (*ier != IDASPBCG_SUCCESS) return;
 
-  *ier = IDASpbcgSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPBCG_SUCCESS) return;
+  if (*eplifac != ZERO) {
+    *ier = IDASpbcgSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPBCG_SUCCESS) return;
+  }
 
   if (*dqincfac != ZERO) {
     *ier = IDASpbcgSetIncrementFactor(IDA_idamem, *dqincfac);
@@ -426,8 +431,10 @@ void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs,
     if (*ier != IDASPGMR_SUCCESS) return;
   }
 
-  *ier = IDASpgmrSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPGMR_SUCCESS) return;
+  if (*eplifac != ZERO) {
+    *ier = IDASpgmrSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPGMR_SUCCESS) return;
+  }
 
   if (*dqincfac != ZERO) {
     *ier = IDASpgmrSetIncrementFactor(IDA_idamem, *dqincfac);
@@ -467,8 +474,13 @@ void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 
 void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
 {
-  *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPTFQMR_SUCCESS) return;
+
+  *ier = 0;
+
+  if (*eplifac != ZERO) {
+    *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPTFQMR_SUCCESS) return;
+  }
 
   if (*dqincfac != ZERO) {
     *ier = IDASptfqmrSetIncrementFactor(IDA_idamem, *dqincfac);
@@ -484,8 +496,13 @@ void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
 
 void FIDA_SPBCGREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
 {
-  *ier = IDASpbcgSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPBCG_SUCCESS) return;
+
+  *ier = 0;
+
+  if (*eplifac != ZERO) {
+    *ier = IDASpbcgSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPBCG_SUCCESS) return;
+  }
 
   if (*dqincfac != ZERO) {
     *ier = IDASpbcgSetIncrementFactor(IDA_idamem, *dqincfac);
@@ -502,13 +519,18 @@ void FIDA_SPBCGREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
 void FIDA_SPGMRREINIT(int *gstype, realtype *eplifac,
 		      realtype *dqincfac, int *ier)
 {
+
+  *ier = 0;
+
   if (*gstype != 0) {
     *ier = IDASpgmrSetGSType(IDA_idamem, *gstype);
     if (*ier != IDASPGMR_SUCCESS) return;
   }
 
-  *ier = IDASpgmrSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPGMR_SUCCESS) return;
+  if (*eplifac != ZERO) {
+    *ier = IDASpgmrSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPGMR_SUCCESS) return;
+  }
 
   if (*dqincfac != ZERO) {
     *ier = IDASpgmrSetIncrementFactor(IDA_idamem, *dqincfac);
