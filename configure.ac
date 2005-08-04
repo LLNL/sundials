@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.23 $
-# $Date: 2005-06-20 17:24:15 $
+# $Revision: 1.24 $
+# $Date: 2005-08-04 19:01:15 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -29,7 +29,7 @@ SUNDIALS_DEV_ENABLES
 SUNDIALS_SET_CC
 
 # Set Fortran compilation (Optional)
-if test "X${F77_ENABLED}" = "Xyes"; then
+if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
   SUNDIALS_SET_F77
 fi
 

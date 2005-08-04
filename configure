@@ -1983,7 +1983,7 @@ fi
 
 else
 
-if test -d ${srcdir}/nvec_par || test -d ${srcdir}/nvec_spcpar; then
+if test -d ${srcdir}/nvec_par || test -d ${srcdir}/nvec_spcpar ; then
   MPI_ENABLED="yes"
 else
   MPI_ENABLED="no"
@@ -6877,7 +6877,7 @@ echo "${ECHO_T}$ac_cv_prog_fgrep" >&6
 
 
 # Set Fortran compilation (Optional)
-if test "X${F77_ENABLED}" = "Xyes"; then
+if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
 
 
 
