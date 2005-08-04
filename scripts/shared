@@ -18,7 +18,7 @@ tar uf $tarfile $distrobase/config/fortran_update.in
 tar uf $tarfile $distrobase/Makefile.in
 tar uf $tarfile $distrobase/config.hin
 
-tar uf $tarfile $distrobase/INSTALL
+tar uf $tarfile $distrobase/INSTALL_NOTES
 tar uf $tarfile $distrobase/README
 
 echo ""
@@ -30,10 +30,13 @@ tar uf $tarfile $distrobase/shared/README
 tar uf $tarfile $distrobase/shared/include/sundialstypes.h
 tar uf $tarfile $distrobase/shared/include/sundialsmath.h
 tar uf $tarfile $distrobase/shared/include/nvector.h
+tar uf $tarfile $distrobase/shared/include/fnvector.h
 tar uf $tarfile $distrobase/shared/include/dense.h
 tar uf $tarfile $distrobase/shared/include/smalldense.h
 tar uf $tarfile $distrobase/shared/include/band.h
 tar uf $tarfile $distrobase/shared/include/spgmr.h
+tar uf $tarfile $distrobase/shared/include/spbcg.h
+tar uf $tarfile $distrobase/shared/include/sptfqmr.h
 tar uf $tarfile $distrobase/shared/include/iterative.h
 
 tar uf $tarfile $distrobase/shared/source/Makefile.in
@@ -43,8 +46,9 @@ tar uf $tarfile $distrobase/shared/source/dense.c
 tar uf $tarfile $distrobase/shared/source/smalldense.c
 tar uf $tarfile $distrobase/shared/source/band.c
 tar uf $tarfile $distrobase/shared/source/spgmr.c
+tar uf $tarfile $distrobase/shared/source/spbcg.c
+tar uf $tarfile $distrobase/shared/source/sptfqmr.c
 tar uf $tarfile $distrobase/shared/source/iterative.c
-
 
 tar uf $tarfile $distrobase/nvec_ser/README
 
@@ -65,5 +69,13 @@ then
     tar uf $tarfile $distrobase/nvec_par/Makefile.in
     tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
     tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
-fi
 
+    tar uf $tarfile $distrobase/nvec_spcpar/README
+
+    tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.h
+    tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.h
+
+    tar uf $tarfile $distrobase/nvec_spcpar/Makefile.in
+    tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.c
+    tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.c
+fi

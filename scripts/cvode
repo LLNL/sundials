@@ -26,6 +26,9 @@ tar uf $tarfile $distrobase/cvode/include/cvdense.h
 tar uf $tarfile $distrobase/cvode/include/cvband.h
 tar uf $tarfile $distrobase/cvode/include/cvdiag.h
 tar uf $tarfile $distrobase/cvode/include/cvspgmr.h
+tar uf $tarfile $distrobase/cvode/include/cvspbcg.h
+tar uf $tarfile $distrobase/cvode/include/cvsptfqmr.h
+tar uf $tarfile $distrobase/cvode/include/cvspils.h
 tar uf $tarfile $distrobase/cvode/include/cvbandpre.h
 tar uf $tarfile $distrobase/cvode/include/cvbbdpre.h
 
@@ -36,6 +39,8 @@ tar uf $tarfile $distrobase/cvode/source/cvdense.c
 tar uf $tarfile $distrobase/cvode/source/cvband.c
 tar uf $tarfile $distrobase/cvode/source/cvdiag.c
 tar uf $tarfile $distrobase/cvode/source/cvspgmr.c
+tar uf $tarfile $distrobase/cvode/source/cvspbcg.c
+tar uf $tarfile $distrobase/cvode/source/cvsptfqmr.c
 tar uf $tarfile $distrobase/cvode/source/cvbandpre.c
 tar uf $tarfile $distrobase/cvode/source/cvbbdpre.c
 tar uf $tarfile $distrobase/cvode/source/cvode_impl.h
@@ -43,6 +48,8 @@ tar uf $tarfile $distrobase/cvode/source/cvdense_impl.h
 tar uf $tarfile $distrobase/cvode/source/cvband_impl.h
 tar uf $tarfile $distrobase/cvode/source/cvdiag_impl.h
 tar uf $tarfile $distrobase/cvode/source/cvspgmr_impl.h
+tar uf $tarfile $distrobase/cvode/source/cvspbcg_impl.h
+tar uf $tarfile $distrobase/cvode/source/cvsptfqmr_impl.h
 tar uf $tarfile $distrobase/cvode/source/cvbandpre_impl.h
 tar uf $tarfile $distrobase/cvode/source/cvbbdpre_impl.h
 

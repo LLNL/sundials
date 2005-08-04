@@ -25,6 +25,9 @@ tar uf $tarfile $distrobase/ida/include/ida.h
 tar uf $tarfile $distrobase/ida/include/idadense.h
 tar uf $tarfile $distrobase/ida/include/idaband.h
 tar uf $tarfile $distrobase/ida/include/idaspgmr.h
+tar uf $tarfile $distrobase/ida/include/idaspbcg.h
+tar uf $tarfile $distrobase/ida/include/idasptfqmr.h
+tar uf $tarfile $distrobase/ida/include/idaspils.h
 tar uf $tarfile $distrobase/ida/include/idabbdpre.h
 
 tar uf $tarfile $distrobase/ida/source/Makefile.in
@@ -34,12 +37,29 @@ tar uf $tarfile $distrobase/ida/source/idaic.c
 tar uf $tarfile $distrobase/ida/source/idadense.c
 tar uf $tarfile $distrobase/ida/source/idaband.c
 tar uf $tarfile $distrobase/ida/source/idaspgmr.c
+tar uf $tarfile $distrobase/ida/source/idaspbcg.c
+tar uf $tarfile $distrobase/ida/source/idasptfqmr.c
 tar uf $tarfile $distrobase/ida/source/idabbdpre.c
 tar uf $tarfile $distrobase/ida/source/ida_impl.h
 tar uf $tarfile $distrobase/ida/source/idadense_impl.h
 tar uf $tarfile $distrobase/ida/source/idaband_impl.h
 tar uf $tarfile $distrobase/ida/source/idaspgmr_impl.h
+tar uf $tarfile $distrobase/ida/source/idaspbcg_impl.h
+tar uf $tarfile $distrobase/ida/source/idasptfqmr_impl.h
 tar uf $tarfile $distrobase/ida/source/idabbdpre_impl.h
+
+tar uf $tarfile $distrobase/ida/fcmix/Makefile.in
+tar uf $tarfile $distrobase/ida/fcmix/fidaband.c
+tar uf $tarfile $distrobase/ida/fcmix/fidabbd.c
+tar uf $tarfile $distrobase/ida/fcmix/fidabbd.h
+tar uf $tarfile $distrobase/ida/fcmix/fida.c
+tar uf $tarfile $distrobase/ida/fcmix/fidadense.c
+tar uf $tarfile $distrobase/ida/fcmix/fidaewt.c
+tar uf $tarfile $distrobase/ida/fcmix/fida.h
+tar uf $tarfile $distrobase/ida/fcmix/fidajtimes.c
+tar uf $tarfile $distrobase/ida/fcmix/fidapreco.c
+tar uf $tarfile $distrobase/ida/fcmix/fidaroot.c
+tar uf $tarfile $distrobase/ida/fcmix/fidaroot.h
 
 tar uf $tarfile $distrobase/ida/examples_ser/README
 tar uf $tarfile $distrobase/ida/examples_ser/Makefile.in
@@ -51,6 +71,11 @@ tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.c
 tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.out
 tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.c
 tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.out
+
+tar uf $tarfile $distrobase/ida/fcmix/examples_ser/README
+tar uf $tarfile $distrobase/ida/fcmix/examples_ser/Makefile.in
+tar uf $tarfile $distrobase/ida/fcmix/examples_ser/irobxf.f
+tar uf $tarfile $distrobase/ida/fcmix/examples_ser/irobxf.out
 
 if [ $par = "T" ]
 then
@@ -64,4 +89,9 @@ then
     tar uf $tarfile $distrobase/ida/examples_par/iwebpk.out
     tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.c
     tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.out
+
+    tar uf $tarfile $distrobase/ida/fcmix/examples_par/README
+    tar uf $tarfile $distrobase/ida/fcmix/examples_par/Makefile.in
+    tar uf $tarfile $distrobase/ida/fcmix/examples_par/iheatbbdf.f
+    tar uf $tarfile $distrobase/ida/fcmix/examples_par/iheatbbdf.out
 fi

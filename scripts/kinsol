@@ -23,20 +23,31 @@ tar uf $tarfile $distrobase/kinsol/doc/kin_examples.pdf
 
 tar uf $tarfile $distrobase/kinsol/include/kinsol.h
 tar uf $tarfile $distrobase/kinsol/include/kinspgmr.h
+tar uf $tarfile $distrobase/kinsol/include/kinspbcg.h
+tar uf $tarfile $distrobase/kinsol/include/kinsptfqmr.h
+tar uf $tarfile $distrobase/kinsol/include/kindense.h
+tar uf $tarfile $distrobase/kinsol/include/kinspils.h
 tar uf $tarfile $distrobase/kinsol/include/kinbbdpre.h
 
 tar uf $tarfile $distrobase/kinsol/source/Makefile.in
 tar uf $tarfile $distrobase/kinsol/source/kinsol.c
 tar uf $tarfile $distrobase/kinsol/source/kinsolio.c
 tar uf $tarfile $distrobase/kinsol/source/kinspgmr.c
+tar uf $tarfile $distrobase/kinsol/source/kinspbcg.c
+tar uf $tarfile $distrobase/kinsol/source/kinsptfqmr.c
+tar uf $tarfile $distrobase/kinsol/source/kindense.c
 tar uf $tarfile $distrobase/kinsol/source/kinbbdpre.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_impl.h
 tar uf $tarfile $distrobase/kinsol/source/kinspgmr_impl.h
+tar uf $tarfile $distrobase/kinsol/source/kinspbcg_impl.h
+tar uf $tarfile $distrobase/kinsol/source/kinsptfqmr_impl.h
+tar uf $tarfile $distrobase/kinsol/source/kindense_impl.h
 tar uf $tarfile $distrobase/kinsol/source/kinbbdpre_impl.h
 
 tar uf $tarfile $distrobase/kinsol/fcmix/Makefile.in
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.h
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinsol.c
+tar uf $tarfile $distrobase/kinsol/fcmix/fkindense.c
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinpreco.c
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinjtimes.c
 tar uf $tarfile $distrobase/kinsol/fcmix/fkinbbd.h
@@ -46,6 +57,8 @@ tar uf $tarfile $distrobase/kinsol/examples_ser/README
 tar uf $tarfile $distrobase/kinsol/examples_ser/Makefile.in
 tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.c
 tar uf $tarfile $distrobase/kinsol/examples_ser/kinwebs.out
+tar uf $tarfile $distrobase/kinsol/examples_ser/kinft.c
+tar uf $tarfile $distrobase/kinsol/examples_ser/kinft.out
 
 tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/README
 tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/Makefile.in
@@ -66,4 +79,3 @@ then
     tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.f
     tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.out
 fi
-
