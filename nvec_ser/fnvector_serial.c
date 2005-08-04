@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-06-21 19:13:21 $
+ * $Revision: 1.11 $
+ * $Date: 2005-08-04 18:13:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -123,11 +123,11 @@ void FNV_INITS_S(int *code, int *Ns, int *ier)
 
   switch(*code) {
   case FCMIX_CVODE:
-    F2C_CVODE_vecS = N_VCloneVectorArrayEmpty_Serial(*Ns, F2C_CVODE_vec);
+    F2C_CVODE_vecS = (N_Vector *) N_VCloneVectorArrayEmpty_Serial(*Ns, F2C_CVODE_vec);
     if (F2C_CVODE_vecS == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
-    F2C_IDA_vecS = N_VCloneVectorArrayEmpty_Serial(*Ns, F2C_IDA_vec);
+    F2C_IDA_vecS = (N_Vector *) N_VCloneVectorArrayEmpty_Serial(*Ns, F2C_IDA_vec);
     if (F2C_IDA_vecS == NULL) *ier = -1;
     break;
   default:
