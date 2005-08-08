@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-07-05 22:35:14 $
+ * $Revision: 1.4 $
+ * $Date: 2005-08-08 22:45:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -44,13 +44,13 @@ void FIDA_DENSESETJAC(int *flag, int *ier)
 {
   *ier = 0;
 
-  if (*flag == 0) IDADenseSetJacFn(IDA_idamem, NULL, NULL);
+  if (*flag == 0) *ier = IDADenseSetJacFn(IDA_idamem, NULL, NULL);
   else {
-    IDADenseSetJacFn(IDA_idamem, (IDADenseJacFn) FIDADenseJac, NULL);
+    *ier = IDADenseSetJacFn(IDA_idamem, (IDADenseJacFn) FIDADenseJac, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return;
+  return(*ier);
 }
 
 /*************************************************/

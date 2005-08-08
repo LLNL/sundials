@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-07-05 22:35:14 $
+ * $Revision: 1.5 $
+ * $Date: 2005-08-08 22:45:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -48,13 +48,14 @@ void FIDA_SPGMRSETJAC(int *flag, int *ier)
 {
   *ier = 0;
 
-  if (*flag == 0) IDASpgmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+  if (*flag == 0) *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
   else {
-    IDASpgmrSetJacTimesVecFn(IDA_idamem, (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
+    *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem,
+                                   (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return;
+  return(*ier);
 }
 
 /*************************************************/
@@ -63,13 +64,14 @@ void FIDA_SPBCGSETJAC(int *flag, int *ier)
 {
   *ier = 0;
 
-  if (*flag == 0) IDASpbcgSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+  if (*flag == 0) *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem, NULL, NULL);
   else {
-    IDASpbcgSetJacTimesVecFn(IDA_idamem, (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
+    *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem,
+                                   (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return;
+  return(*ier);
 }
 
 /*************************************************/
@@ -78,13 +80,14 @@ void FIDA_SPTFQMRSETJAC(int *flag, int *ier)
 {
   *ier = 0;
 
-  if (*flag == 0) IDASptfqmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+  if (*flag == 0) *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
   else {
-    IDASptfqmrSetJacTimesVecFn(IDA_idamem, (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
+    *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem,
+                                     (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return;
+  return(*ier);
 }
 
 /*************************************************/

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-07-05 22:35:14 $
+ * $Revision: 1.5 $
+ * $Date: 2005-08-08 22:45:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -51,14 +51,14 @@ void FIDA_SPGMRSETPREC(int *flag, int *ier)
 {
   *ier = 0;
 
-  if (*flag == 0) IDASpgmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
+  if (*flag == 0) *ier = IDASpgmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
   else {
-    IDASpgmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-			      (IDASpilsPrecSolveFn) FIDAPSol, NULL);
+    *ier = IDASpgmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
+                                    (IDASpilsPrecSolveFn) FIDAPSol, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_ewtvec);
   }
 
-  return;
+  return(*ier);
 }
 
 /*************************************************/
@@ -67,14 +67,14 @@ void FIDA_SPBCGSETPREC(int *flag, int *ier)
 {
   *ier = 0;
 
-  if (*flag == 0) IDASpbcgSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
+  if (*flag == 0) *ier = IDASpbcgSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
   else {
-    IDASpbcgSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-			      (IDASpilsPrecSolveFn) FIDAPSol, NULL);
+    *ier = IDASpbcgSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
+                                    (IDASpilsPrecSolveFn) FIDAPSol, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return;
+  return(*ier);
 }
 
 /*************************************************/
@@ -83,14 +83,14 @@ void FIDA_SPTFQMRSETPREC(int *flag, int *ier)
 {
   *ier = 0;
 
-  if (*flag == 0) IDASptfqmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
+  if (*flag == 0) *ier = IDASptfqmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
   else {
-    IDASptfqmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-				(IDASpilsPrecSolveFn) FIDAPSol, NULL);
+    *ier = IDASptfqmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
+                                       (IDASpilsPrecSolveFn) FIDAPSol, NULL);
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return;
+  return(*ier);
 }
 
 /*************************************************/
