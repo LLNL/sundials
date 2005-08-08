@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2005-07-21 00:28:57 $
+ * $Revision: 1.38 $
+ * $Date: 2005-08-08 20:44:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -493,6 +493,7 @@ extern "C" {
 #define FK_PSET             F77_FUNC(fkpset, FKPSET)
 #define FK_PSOL             F77_FUNC(fkpsol, FKPSOL)
 #define FK_JTIMES           F77_FUNC(fkjtimes, FKJTIMES)
+#define FK_DJAC             F77_FUNC(fkdjac, FKDJAC)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -514,6 +515,7 @@ extern "C" {
 #define FK_PSET             fkpset
 #define FK_PSOL             fkpsol
 #define FK_JTIMES           fkjtimes
+#define FK_DJAC             fkdjac
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
@@ -535,6 +537,7 @@ extern "C" {
 #define FK_PSET             FKPSET
 #define FK_PSOL             FKPSOL
 #define FK_JTIMES           FKJTIMES
+#define FK_DJAC             FKDJAC
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -556,6 +559,7 @@ extern "C" {
 #define FK_PSET             fkpset_
 #define FK_PSOL             fkpsol_
 #define FK_JTIMES           fkjtimes_
+#define FK_DJAC             fkdjac_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
@@ -577,6 +581,7 @@ extern "C" {
 #define FK_PSET             FKPSET_
 #define FK_PSOL             FKPSOL_
 #define FK_JTIMES           FKJTIMES_
+#define FK_DJAC             FKDJAC_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
@@ -598,6 +603,7 @@ extern "C" {
 #define FK_PSET             fkpset__
 #define FK_PSOL             fkpsol__
 #define FK_JTIMES           fkjtimes__
+#define FK_DJAC             fkdjac__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
@@ -619,6 +625,7 @@ extern "C" {
 #define FK_PSET             FKPSET__
 #define FK_PSOL             FKPSOL__
 #define FK_JTIMES           FKJTIMES__
+#define FK_DJAC             FKDJAC__
 
 #endif
 
