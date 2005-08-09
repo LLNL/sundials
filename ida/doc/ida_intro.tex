@@ -20,13 +20,24 @@ equation (ODE) solvers {\cvode} \cite{cvode2.2.0_ug,CoHi:96} and {\pvode}
 \cite{ByHi:98,ByHi:99}, and also the nonlinear system solver {\kinsol}
 \cite{kinsol2.2.0_ug}.
 
-The Newton/Krylov method in {\ida} are: the GMRES (Generalized Minimal RESidual)
-\cite{SaSc:86}, Bi-CGStab (Bi-Conjugate Gradient Stabilized), and TFQMR
-(Transpose-Free Quasi-Minimal Residual) linear iterative methods.  These
-require almost no matrix storage for solving the Newton equations as
-compared to direct methods.  However, these algorithms
-allow for a user-supplied preconditioner matrix, and for most problems
-preconditioning is essential for an efficient solution.
+The Newton/Krylov method in {\ida} are:
+the GMRES (Generalized Minimal RESidual) \cite{SaSc:86},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized) \cite{}, and
+TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative methods
+\cite{}.  As Krylov methods, these require almost no matrix storage
+for solving the Newton equations as compared to direct methods.
+However, the algorithms allow for a user-supplied preconditioner
+matrix, and for most problems preconditioning is essential for an
+efficient solution.
+
+For very large DAE systems, the Krylov methods are preferable over
+direct linear solver methods, and are often the only feasible choice.
+Among the three Krylov methods in {\ida}, we recommend GMRES as the
+best overall choice.  However, users are encouraged to compare all
+three, especially if encountering convergence failures with GMRES.
+Bi-CGFStab and TFQMR have an advantage in storage requirements, in
+that the number of workspace vectors they require is fixed, while that
+number for GMRES depends on the desired Krylov subspace size.
 
 \index{IDA@{\ida}!motivation for writing in C|(}
 There are several motivations for choosing the {\C} language for {\ida}.
@@ -81,10 +92,11 @@ The changes in this minor {\sundials} release affect only the build system.
 
 \subsection*{Changes in v2.3.0}
 
-The user interface has been further refined. Several functions used for setting optional
-inputs were combined into a single one. Additionally, to resolve potential variable scope
-issues, all SUNDIALS solvers release user data right after its use. The build systems has 
-been further improved to make it more robust.
+The user interface has been further refined. Several functions used
+for setting optional inputs were combined into a single one.
+Additionally, to resolve potential variable scope issues, all
+SUNDIALS solvers release user data right after its use. The build
+systems has been further improved to make it more robust.
 
 \section{Reading this User Guide}\label{ss:reading}
 
@@ -104,12 +116,15 @@ The structure of this document is as follows:
 \item
   In Chapter \ref{s:simulation}, we give an overview of the usage of {\ida},
   as well as a complete description of the user interface and of the 
-  user-defined routines for integration of IVP DAEs.
+  user-defined routines for integration of DAE initial value problems.
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
   shared among the various components of {\sundials}, as well as details on the two
   {\nvector} implementations provided with {\sundials}: a serial implementation
   (\S\ref{ss:nvec_ser}) and a parallel MPI implementation (\S\ref{ss:nvec_par}).
+\item
+  Chapter \ref{s:new_linsolv} describes the interfaces to the linear solver
+  modules, so that a user can provide his/her own such module.
 \item
   Chapter \ref{s:gen_linsolv} describes in detail the generic linear solvers shared 
   by all {\sundials} solvers.
