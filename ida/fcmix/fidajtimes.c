@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-08-08 22:45:37 $
+ * $Revision: 1.6 $
+ * $Date: 2005-08-09 22:39:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -55,7 +55,7 @@ void FIDA_SPGMRSETJAC(int *flag, int *ier)
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return(*ier);
+  return;
 }
 
 /*************************************************/
@@ -71,7 +71,7 @@ void FIDA_SPBCGSETJAC(int *flag, int *ier)
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return(*ier);
+  return;
 }
 
 /*************************************************/
@@ -87,7 +87,7 @@ void FIDA_SPTFQMRSETJAC(int *flag, int *ier)
     if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
-  return(*ier);
+  return;
 }
 
 /*************************************************/
