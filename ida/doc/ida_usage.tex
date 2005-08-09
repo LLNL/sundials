@@ -6178,6 +6178,40 @@ and \S\ref{ss:optional_output}.
 20 &                     & \id{TOLFACT}  & \id{IDAGetTolScaleFactor} \\
 \end{supertabular}
 
+In addition to optional inputs and outputs communicated through \id{IOPT}
+and \id{ROPT}, the following user-callable routines are available:
+
+To reset the tolerances at any time, make the following call:
+\index{FIDATOLREINIT@\texttt{FIDATOLREINIT}}
+\begin{verbatim}
+      CALL FIDATOLREINIT (IATOL, RTOL, ATOL, IER)
+\end{verbatim}
+The tolerance arguments have the same names and meanings as those of
+\id{FIDAMALLOC}.  The error return flag \id{IER} is 0 if successful,
+and negative if there was a memory failure or illegal input.
+
+To obtain the error weight array \id{EWT}, containing the multiplicative
+error weights used the WRMS norms, make the following call:
+\index{FIDAGETERRWEIGHTS@\texttt{FIDAGETERRWEIGHTS}}
+\begin{verbatim}
+      CALL FIDAGETERRWEIGHTS (Y, EWT, IER)
+\end{verbatim}
+This computes the \id{EWT} array as a function of the input \id{Y} array.
+The array \id{EWT}, of length \id{NEQ} or \id{NLOCAL}, must already have been
+declared by the user.  The error return flag \id{IER} is zero if successful,
+and negative if there was a memory error.
+
+To obtain the estimated local errors, following a successful call to
+\id{FIDASOLVE}, make the following call:
+\index{FIDAGETESTLOCALERR@\texttt{FIDAGETESTLOCALERR}}
+\begin{verbatim}
+      CALL FIDAGETESTLOCALERR (ELE, IER)
+\end{verbatim}
+This computes the \id{ELE} array of estimated local errors as of the last
+step taken.  The array \id{ELE} must already have been declared by the user.
+The error return flag \id{IER} is zero if successful, and negative if there
+was a memory error.
+
 %%==============================================================================
 \subsection{Usage of the FIDA interface module}\label{ss:fida_usage}
 %%==============================================================================
@@ -6473,12 +6507,15 @@ apply to {\nvecp}.
   If a sequence of problems of the same size is being solved using the {\spgmr}
   linear solver, then following the call to \id{FIDAREINIT} (see below), a call to
   the \id{FIDASPGMR} routine may or may not be needed.  If there is a change in
-  input arguments other than \id{MAXL}, then the user program should call the
-  routine \id{FIDASPGMRREINIT} which reinitializes the {\spgmr} linear solver,
-  but without reallocating its memory. The arguments of \id{FIDASPGMRREINIT}
-  routine have the same names and meanings as those of \id{FIDASPGMR} routine.
-  Finally, if the value of \id{MAXL} is being changed, then a call to \id{FIDASPGMR}
-  must be made.
+  input arguments other than \id{MAXL}, then the user program should make the call
+  \index{FIDASPGMRREINIT@\texttt{FIDASPGMRREINIT}}
+\begin{verbatim}
+      CALL FIDASPGMRREINIT (IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
+\end{verbatim}
+  which reinitializes the {\spgmr} linear solver, but without reallocating its
+  memory.  The arguments of \id{FIDASPGMRREINIT} have the same names and meanings
+  as those of \id{FIDASPGMR}.  Finally, if the value of \id{MAXL} is being changed,
+  then a call to \id{FIDASPGMR} must be made.
 
   For descriptions of the relevant optional user-supplied routines, see 
   {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
@@ -6523,16 +6560,18 @@ apply to {\nvecp}.
 
   Optional outputs specific to the {\spbcg} case are listed in
   Table~\ref{t:fida_io}.
-  
+
   If a sequence of problems of the same size is being solved using the {\spbcg}
   linear solver, then following the call to \id{FIDAREINIT} (see below), a call to
-  the \id{FIDASPBCG} routine may or may not be needed.  If there is a change in
-  input arguments other than \id{MAXL}, then the user program should call the
-  routine \id{FIDASPBCGREINIT} which reinitializes the {\spbcg} linear solver,
-  but without reallocating its memory. The arguments of \id{FIDASPBCGREINIT}
-  routine have the same names and meanings as those of \id{FIDASPBCG} routine.
-  Finally, if the value of \id{MAXL} is being changed, then a call to \id{FIDASPBCG}
-  must be made.
+  the \id{FIDASPBCGREINIT} routine may or may not be needed.  If there is a change
+  in any of the input arguments, then the user program should make the call
+  \index{FIDASPBCGREINIT@\texttt{FIDASPBCGREINIT}}
+\begin{verbatim}
+      CALL FIDASPBCGREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
+\end{verbatim}
+  which reinitializes the {\spbcg} linear solver, but without reallocating its
+  memory.  The arguments of this routine have the same names and meanings as
+  those of \id{FIDASPBCG}.
 
   For descriptions of the relevant optional user-supplied routines, see 
   {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
@@ -6577,16 +6616,18 @@ apply to {\nvecp}.
 
   Optional outputs specific to the {\sptfqmr} case are listed in
   Table~\ref{t:fida_io}.
-  
+
   If a sequence of problems of the same size is being solved using the {\sptfqmr}
   linear solver, then following the call to \id{FIDAREINIT} (see below), a call to
-  the \id{FIDASPTFQMR} routine may or may not be needed.  If there is a change in
-  input arguments other than \id{MAXL}, then the user program should call the
-  routine \id{FIDASPTFQMRREINIT} which reinitializes the {\sptfqmr} linear solver,
-  but without reallocating its memory. The arguments of \id{FIDASPTFQMRREINIT}
-  routine have the same names and meanings as those of \id{FIDASPTFQMR} routine.
-  Finally, if the value of \id{MAXL} is being changed, then a call to
-  \id{FIDASPTFQMR} must be made.
+  the \id{FIDASPTFQMRREINIT} routine may or may not be needed.  If there is a change
+  in any of the input arguments, then the user program should make the call
+  \index{FIDASPTFQMRREINIT@\texttt{FIDASPTFQMRREINIT}}
+\begin{verbatim}
+      CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
+\end{verbatim}
+  which reinitializes the {\sptfqmr} linear solver, but without reallocating its
+  memory.  The arguments of this routine have the same names and meanings as
+  those of \id{FIDASPTFQMR}.
 
   For descriptions of the relevant optional user-supplied routines, see 
   {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
