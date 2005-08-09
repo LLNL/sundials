@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-08-02 22:52:23 $
+ * $Revision: 1.9 $
+ * $Date: 2005-08-09 22:44:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -337,8 +337,6 @@ void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier)
   if (itol == IDA_SV) N_VSetArrayPointer(NULL, F2C_IDA_atolvec);
   else if (itol == IDA_SS) atolptr = NULL;
 
-  if (*ier != IDA_SUCCESS) *ier = -1;
-
   return;
 }
 
@@ -515,7 +513,7 @@ void FIDA_SPBCGREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
 
 /*************************************************/
 
-void FIDA_SPGMRREINIT(int *gstype, realtype *eplifac,
+void FIDA_SPGMRREINIT(int *gstype, int *maxrs, realtype *eplifac,
 		      realtype *dqincfac, int *ier)
 {
 
@@ -523,6 +521,11 @@ void FIDA_SPGMRREINIT(int *gstype, realtype *eplifac,
 
   if (*gstype != 0) {
     *ier = IDASpgmrSetGSType(IDA_idamem, *gstype);
+    if (*ier != IDASPGMR_SUCCESS) return;
+  }
+
+  if (*maxrs != 0) {
+    *ier = IDASpgmrSetMaxRestarts(IDA_idamem, *maxrs);
     if (*ier != IDASPGMR_SUCCESS) return;
   }
 

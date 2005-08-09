@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-08-02 22:29:50 $
+ * $Revision: 1.9 $
+ * $Date: 2005-08-09 22:44:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -517,9 +517,9 @@
  *
  * If a sequence of problems of the same size is being solved using the
  * SPGMR linear solver, then following the call to FIDAREINIT, a call to the
- * FIDASPGMRREINIT routine is needed if any of IGSTYPE, EPLIFAC, or DQINCFAC is
- * being changed.  In that case, call FIDASPGMRREINIT as follows:
- *       CALL FIDASPGMRREINIT (IGSTYPE, EPLIFAC, DQINCFAC, IER)              
+ * FIDASPGMRREINIT routine is needed if any of IGSTYPE, MAXRS, EPLIFAC, or
+ * DQINCFAC is being changed.  In that case, call FIDASPGMRREINIT as follows:
+ *       CALL FIDASPGMRREINIT (IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)              
  * The arguments have the same meanings as for FIDASPGMR.  If MAXL is being
  * changed, then call FIDASPGMR instead.
  *
@@ -842,7 +842,7 @@ void FIDA_DENSE(long int *neq, int *ier);
 void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPBCGREINIT(realtype *eplifac, realtype *dqincfac, int *ier);
-void FIDA_SPGMRREINIT(int *gstype, realtype *eplifac,
+void FIDA_SPGMRREINIT(int *gstype, int *maxrs, realtype *eplifac,
 		      realtype *dqincfac, int *ier);
 void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
 		realtype *ypret, int *itask, int *ier);
