@@ -49,8 +49,9 @@ the numerical integration.
 
 % Integration method and nonlinear system
 %----------------------------------------
-The integration method in {\ida} is variable-order, variable-coefficient
-BDF, in fixed-leading-coefficient form~\cite{BCP:96}.
+The integration method used in {\ida} is the variable-order, variable-coefficient
+BDF (Backward Differentiation Formula), in fixed-leading-coefficient
+form~\cite{BCP:96}.
 The method order ranges from 1 to 5, with the BDF of order $q$
 given by the multistep formula
 \begin{equation}\label{e:BDF}
