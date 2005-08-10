@@ -4904,8 +4904,8 @@ selected (\id{IDASp*} is called in step \ref{i:lin_solver} of
 of type \ID{IDASpilsJacTimesVecFn} in the following form:
 \usfunction{IDASpilsJacTimesVecFn}
 {
-  typedef int (*IDASpilsJacTimesVecFn)(&realtype tt, \\
-                                       &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
+  typedef int (*IDASpilsJacTimesVecFn)(&realtype tt, N\_Vector yy, \\
+                                       &N\_Vector yp, N\_Vector rr, \\
                                        &N\_Vector v, N\_Vector Jv, \\
                                        &realtype c\_j, void *jac\_data, \\
                                        &N\_Vector tmp1, N\_Vector tmp2);
@@ -4972,8 +4972,8 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
 %%
 \usfunction{IDASpilsPrecSolveFn}
 {
-  typedef int (*IDASpilsPrecSolveFn)(&realtype tt, \\
-                                     &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
+  typedef int (*IDASpilsPrecSolveFn)(&realtype tt, N\_Vector yy, \\
+                                     &N\_Vector yp, N\_Vector rr, \\
                                      &N\_Vector rvec, N\_Vector zvec, \\ 
                                      &realtype c\_j, realtype delta, \\
                                      &void *prec\_data, N\_Vector tmp);
@@ -5035,8 +5035,8 @@ be evaluated or preprocessed, then this needs to be done in a
 user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows:
 \usfunction{IDASpilsPrecSetupFn}
 {
-  typedef int (*IDASpilsPrecSetupFn)(&realtype tt, \\
-                                     &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
+  typedef int (*IDASpilsPrecSetupFn)(&realtype tt, N\_Vector yy, \\
+                                     &N\_Vector yp, N\_Vector rr, \\
                                      &realtype c\_j, void *prec\_data,\\
                                      &N\_Vector tmp1, N\_Vector tmp2,\\
                                      &N\_Vector tmp3);
