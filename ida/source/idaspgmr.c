@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2005-08-02 23:08:07 $
+ * $Revision: 1.30 $
+ * $Date: 2005-08-10 21:43:22 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -652,8 +652,7 @@ static int IDASpgmrInit(IDAMem IDA_mem)
 
 static int IDASpgmrSetup(IDAMem IDA_mem, 
                          N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
-                         N_Vector tmp1, N_Vector tmp2,
-                         N_Vector tmp3)
+                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int retval;
   IDASpgmrMem idaspgmr_mem;
@@ -870,7 +869,7 @@ static int IDASpgmrDQJtimes(realtype tt,
 
   sig = sqrtN*dqincfac;
 
-  /* Rename tmp1 and tmp2 for readibility */
+  /* Rename work1 and work2 for readibility */
   y_tmp  = work1;
   yp_tmp = work2;
 
