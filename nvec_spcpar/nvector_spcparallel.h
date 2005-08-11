@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-06-21 19:22:51 $
+ * $Revision: 1.3 $
+ * $Date: 2005-08-11 15:10:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -196,14 +196,14 @@ typedef struct _N_VectorContent_SpcParallel *N_VectorContent_SpcParallel;
  *    N_VNew_SpcParallel
  *    N_VNewEmpty_SpcParallel
  *    N_VMake_SpcParallel
- *    N_VNewVectorArray_SpcParallel        NYI
- *    N_VNewVectorArrayEmpty_SpcParallel   NYI
+ *    N_VLoad_SpcParallel
+ *    N_VCloneVectorArray_SpcParallel        
+ *    N_VCloneVectorArrayEmpty_SpcParallel   
  * DESTRUCTORS:
  *    N_VDestroy_SpcParallel              
- *    N_VDestroyVectorArray_SpcParallel    NYI
+ *    N_VDestroyVectorArray_SpcParallel    
  * OTHER:
  *    N_VPrint_SpcParallel
- *    N_VPrintFile_SpcParallel
  * -----------------------------------------------------------------
  */
   
