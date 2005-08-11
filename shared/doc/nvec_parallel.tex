@@ -208,10 +208,10 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
   loop than it is to use \id{NV\_Ith\_P(v,i)} within the loop.        
                                                                
 \item
-  {\warn} The {\nvecp} constructor functions \id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
-  and \id{N\_VCloneVectorArrayEmpty\_Parallel}
-  set the field {\em own\_data} $=$ \id{FALSE}. 
-  The functions \id{N\_VDestroy\_Parallel} and \id{N\_VDestroyVectorArray\_Parallel}
+  {\warn} \id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
+  and \id{N\_VCloneVectorArrayEmpty\_Parallel} set the field 
+  {\em own\_data} $=$ \id{FALSE}. 
+  \id{N\_VDestroy\_Parallel} and \id{N\_VDestroyVectorArray\_Parallel}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
   {\em own\_data} set to \id{FALSE}. In such a case, it is the user's responsibility to
   deallocate the {\em data} pointer.
