@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.45 $
- * $Date: 2005-07-05 21:50:13 $
+ * $Revision: 1.46 $
+ * $Date: 2005-08-12 23:34:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -518,6 +518,8 @@ extern "C" {
 
 #define FCV_MALLOC         F77_FUNC(fcvmalloc, FCVMALLOC)
 #define FCV_REINIT         F77_FUNC(fcvreinit, FCVREINIT)
+#define FCV_SETIIN         F77_FUNC(fcvsetiin, FCVSETIIN)
+#define FCV_SETRIN         F77_FUNC(fcvsetrin, FCVSETRIN)
 #define FCV_EWTSET         F77_FUNC(fcvewtset, FCVEWTSET)
 #define FCV_DIAG           F77_FUNC(fcvdiag, FCVDIAG)
 #define FCV_DENSE          F77_FUNC(fcvdense, FCVDENSE)
@@ -551,6 +553,8 @@ extern "C" {
 
 #define FCV_MALLOC         fcvmalloc
 #define FCV_REINIT         fcvreinit
+#define FCV_SETIIN         fcvsetiin
+#define FCV_SETRIN         fcvsetrin
 #define FCV_EWTSET         fcvewtset
 #define FCV_DIAG           fcvdiag
 #define FCV_DENSE          fcvdense
@@ -584,6 +588,8 @@ extern "C" {
 
 #define FCV_MALLOC         FCVMALLOC
 #define FCV_REINIT         FCVREINIT
+#define FCV_SETIIN         FCVSETIIN
+#define FCV_SETRIN         FCVSETRIN
 #define FCV_EWTSET         FCVEWTSET
 #define FCV_DIAG           FCVDIAG
 #define FCV_DENSE          FCVDENSE
@@ -617,6 +623,8 @@ extern "C" {
 
 #define FCV_MALLOC         fcvmalloc_
 #define FCV_REINIT         fcvreinit_
+#define FCV_SETIIN         fcvsetiin_
+#define FCV_SETRIN         fcvsetrin_
 #define FCV_EWTSET         fcvewtset_
 #define FCV_DIAG           fcvdiag_
 #define FCV_DENSE          fcvdense_
@@ -650,6 +658,8 @@ extern "C" {
 
 #define FCV_MALLOC         FCVMALLOC_
 #define FCV_REINIT         FCVREINIT_
+#define FCV_SETIIN         FCVSETIIN_
+#define FCV_SETRIN         FCVSETRIN_
 #define FCV_EWTSET         FCVEWTSET_
 #define FCV_DIAG           FCVDIAG_
 #define FCV_DENSE          FCVDENSE_
@@ -683,6 +693,8 @@ extern "C" {
 
 #define FCV_MALLOC         fcvmalloc__
 #define FCV_REINIT         fcvreinit__
+#define FCV_SETIIN         fcvsetiin__
+#define FCV_SETRIN         fcvsetrin__
 #define FCV_EWTSET         fcvewtset__
 #define FCV_DIAG           fcvdiag__
 #define FCV_DENSE          fcvdense__
@@ -716,6 +728,8 @@ extern "C" {
 
 #define FCV_MALLOC         FCVMALLOC__
 #define FCV_REINIT         FCVREINIT__
+#define FCV_SETIIN         FCVSETIIN__
+#define FCV_SETRIN         FCVSETRIN__
 #define FCV_EWTSET         FCVEWTSET__
 #define FCV_DIAG           FCVDIAG__
 #define FCV_DENSE          FCVDENSE__
@@ -752,12 +766,16 @@ extern "C" {
   void FCV_MALLOC(realtype *t0, realtype *y0, 
                   int *meth, int *itmeth, int *iatol, 
                   realtype *rtol, realtype *atol,
-                  int *optin, long int *iopt, realtype *ropt, 
+                  long int *iout, realtype *rout, 
                   int *ier);
 
-  void FCV_REINIT(realtype *t0, realtype *y0, int *iatol, realtype *rtol,
-                  realtype *atol, int *optin, long int *iopt,
-                  realtype *ropt, int *ier);
+  void FCV_REINIT(realtype *t0, realtype *y0, 
+                  int *iatol, realtype *rtol, realtype *atol, 
+                  int *ier);
+
+  void FCV_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
+
+  void FCV_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
 
   void FCV_EWTSET(int *flag, int *ier);
 
@@ -825,9 +843,8 @@ extern "C" {
 
   extern N_Vector CV_ewt;
   extern void *CV_cvodemem;
-  extern booleantype CV_optin;
-  extern long int *CV_iopt;
-  extern realtype *CV_ropt;
+  extern long int *CV_iout;
+  extern realtype *CV_rout;
   extern int CV_nrtfn;
   extern int CV_ls;
 
