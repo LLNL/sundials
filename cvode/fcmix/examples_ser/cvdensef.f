@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.20 $
-C     $Date: 2005-04-15 00:40:44 $
+C     $Revision: 1.21 $
+C     $Date: 2005-08-12 23:35:18 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -30,16 +30,17 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER IER, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, I
-      INTEGER METH, ITMETH, ITOL, INOPT, ITASK, IOUT, NOUT, IERROOT
+      INTEGER IER, I 
+      INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, LNGE
+      INTEGER METH, ITMETH, ITOL, ITASK, JOUT, NOUT, IERROOT
       INTEGER INFO(2)
-      INTEGER*4 IOPT(40)
-      INTEGER*4 NEQ, NGE
+      INTEGER*4 IOUT(25)
+      INTEGER*4 NEQ
       DOUBLE PRECISION RTOL, T, T0, TOUT
-      DOUBLE PRECISION Y(3), ATOL(3), ROPT(40)
+      DOUBLE PRECISION Y(3), ATOL(3), ROUT(10)
 C
-      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
-     1     LNJE/18/, NGE/25/
+      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
+     1     LNGE/12/, LNJE/17/
 C
       NEQ = 3
       T0 = 0.0D0
@@ -53,10 +54,9 @@ C
       ATOL(1) = 1.0D-8
       ATOL(2) = 1.0D-14
       ATOL(3) = 1.0D-6
-      INOPT = 0
       TOUT = 0.4D0
       ITASK = 1
-      IOUT = 0
+      JOUT = 0
       NOUT = 12
 C
       WRITE(6,10) NEQ
@@ -72,7 +72,7 @@ C
 C
 
       CALL FCVMALLOC(T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+     1               IOUT, ROUT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
@@ -98,7 +98,7 @@ C
 C
       CALL FCVDENSESETJAC(1, IER)
 C
-      DO WHILE(IOUT .LT. NOUT)
+      DO WHILE(JOUT .LT. NOUT)
 C
         CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
@@ -106,7 +106,7 @@ C
  50     FORMAT('At t = ', E12.4, '   y = ', 3E14.6)
 C
         IF (IER .LT. 0) THEN
-           WRITE(6,60) IER, IOPT(26)
+           WRITE(6,60) IER, IOUT(15)
  60        FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      1            '                 Linear Solver returned IER = ', I5)
            CALL FCVROOTFREE
@@ -130,7 +130,7 @@ C
 C
         IF (IER .EQ. 0) THEN
            TOUT = TOUT * 10.0D0
-           IOUT = IOUT + 1
+           JOUT = JOUT + 1
         ENDIF
 C
       ENDDO
@@ -146,8 +146,8 @@ C
       WRITE(6,85) Y(1), Y(2), Y(3)
  85   FORMAT(/'Final value of ydot = ', 3E14.6)
 C
-      WRITE(6,90) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
-     1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF), IOPT(NGE)
+      WRITE(6,90) IOUT(LNST), IOUT(LNFE), IOUT(LNJE), IOUT(LNSETUP),
+     1            IOUT(LNNI), IOUT(LNCF), IOUT(LNETF), IOUT(LNGE)
  90   FORMAT(//'Final statistics:'//
      1       ' No. steps = ', I4, '   No. f-s = ', I4,
      2       '   No. J-s = ', I4, '   No. LU-s = ', I4/

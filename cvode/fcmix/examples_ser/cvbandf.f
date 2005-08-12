@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.18 $
-C     $Date: 2005-04-15 00:40:44 $
+C     $Revision: 1.19 $
+C     $Date: 2005-08-12 23:35:18 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -25,15 +25,15 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER IER, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
-      INTEGER METH, ITMETH, IATOL, INOPT, ITASK, IOUT
-      INTEGER*4 IOPT(40)
+      INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
+      INTEGER IER, METH, ITMETH, IATOL, INOPT, ITASK, JOUT
+      INTEGER*4 IOUT(25)
       INTEGER*4 NEQ, MU, ML, MX, MY
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
-      DOUBLE PRECISION U(50), ROPT(40)
+      DOUBLE PRECISION U(50), ROUT(10)
 C
-      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
-     1     LNJE/18/
+      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
+     1     LNJE/17/
 C
       MX = 10
       MY = 5
@@ -45,7 +45,6 @@ C
       IATOL = 1
       RTOL = 0.0D0
       ATOL = 1.0D-5
-      INOPT = 0
       MU = MY
       ML = MY
       DTOUT = 0.1D0
@@ -63,7 +62,7 @@ C
       ENDIF
 C
       CALL FCVMALLOC(T0, U, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+     1               IOUT, ROUT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
@@ -85,17 +84,17 @@ C
  45   FORMAT(' At t = ', F6.2, '  max.norm(u) = ', E14.6)
 C
       TOUT = DTOUT
-      DO 70 IOUT = 1, 10
+      DO 70 JOUT = 1, 10
 C
         CALL FCVODE(TOUT, T, U, ITASK, IER)
 C
         CALL MAXNORM(NEQ, U, UNORM)
-        WRITE(6,50) T, UNORM, IOPT(LNST)
+        WRITE(6,50) T, UNORM, IOUT(LNST)
  50     FORMAT(' At t = ', F6.2, '  max.norm(u) = ', E14.6,
      1         '  NST = ', I4)
 C
         IF (IER .NE. 0) THEN
-          WRITE(6,60) IER, IOPT(26)
+          WRITE(6,60) IER, IOUT(15)
  60       FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      1           '                 Linear Solver returned IER = ', I5)
           CALL FCVFREE
@@ -105,8 +104,8 @@ C
           TOUT = TOUT + DTOUT
  70    CONTINUE
 C
-      WRITE(6,80) IOPT(LNST), IOPT(LNFE), IOPT(LNJE), IOPT(LNSETUP),
-     1            IOPT(LNNI), IOPT(LNCF), IOPT(LNETF)
+      WRITE(6,80) IOUT(LNST), IOUT(LNFE), IOUT(LNJE), IOUT(LNSETUP),
+     1            IOUT(LNNI), IOUT(LNCF), IOUT(LNETF)
  80   FORMAT(//'Final statistics:'//
      1       ' No. steps = ', I4, '  No. f-s = ', I4,
      2       '  No. J-s = ', I4, '   No. LU-s = ', I4/

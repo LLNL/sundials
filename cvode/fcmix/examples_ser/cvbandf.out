@@ -1,8 +1,8 @@
 Band example problem:
-
+                                                                                                                                                                                                                           
  Advection-diffusion, NEQ = 50
-
-
+                                                                                                                                                                                                                           
+                                                                                                                                                                                                                           
  At t =   0.00  max.norm(u) =   0.895472E+02
  At t =   0.10  max.norm(u) =   0.413289E+01  NST =   85
  At t =   0.20  max.norm(u) =   0.103929E+01  NST =  103
@@ -14,10 +14,10 @@ Band example problem:
  At t =   0.80  max.norm(u) =   0.695343E-03  NST =  137
  At t =   0.90  max.norm(u) =   0.211598E-03  NST =  140
  At t =   1.00  max.norm(u) =   0.655685E-04  NST =  142
-
-
+                                                                                                                                                                                                                           
+                                                                                                                                                                                                                           
 Final statistics:
-
+                                                                                                                                                                                                                           
  No. steps =  142  No. f-s =  173  No. J-s =    3   No. LU-s =   23
  No. nonlinear iterations =  170
  No. nonlinear convergence failures =    0

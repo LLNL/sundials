@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.11 $
-C     $Date: 2005-04-15 00:40:44 $
+C     $Revision: 1.12 $
+C     $Date: 2005-08-12 23:35:18 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -33,18 +33,20 @@ C
       IMPLICIT NONE
 C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNPE, LNLI, LNPS
-      INTEGER LNCFL, LH, LQ, METH, ITMETH, IATOL, INOPT, ITASK
-      INTEGER LNETF, IER, MAXL, JPRETYPE, IGSTYPE, IOUT
-      INTEGER*4 IOPT(40)
+      INTEGER LNCFL, LH, LQ, METH, ITMETH, IATOL, ITASK
+      INTEGER LNETF, IER, MAXL, JPRETYPE, IGSTYPE, JOUT
+      INTEGER*4 IOUT(25)
       INTEGER*4 NEQ, MESHX, MESHY, NST, NFE, NPSET, NPE, NPS, NNI
       INTEGER*4 NLI, NCFN, NCFL, NETF, MU, ML
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
-      DOUBLE PRECISION ROPT(40), U(2,10,10)
+      DOUBLE PRECISION ROUT(10), U(2,10,10)
 C
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
-      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
-     1     LQ/11/, LH/5/, LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
+      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
+     1     LQ/9/, LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
+      DATA LH/2/
+C
       COMMON /PBDIM/ NEQ
 C     
 C     Set mesh sizes
@@ -59,7 +61,6 @@ C     Set other input arguments.
       ITMETH = 2
       IATOL = 1
       ATOL = RTOL * FLOOR
-      INOPT = 0
       ITASK = 1
 C
       WRITE(6,10) NEQ
@@ -76,7 +77,7 @@ C     Initialize vector specification
 C     
 C     Initialize CVODE
       CALL FCVMALLOC(T, U, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+     1               IOUT, ROUT, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,30) IER
  30      FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
@@ -105,11 +106,11 @@ C     Initialize SPGMR solver with band preconditioner
 C     
 C     Loop over output points, call FCVODE, print sample solution values.
       TOUT = TWOHR
-      DO 70 IOUT = 1, 12
+      DO 70 JOUT = 1, 12
 C
          CALL FCVODE(TOUT, T, U, ITASK, IER)
 C     
-         WRITE(6,50) T, IOPT(LNST), IOPT(LQ), ROPT(LH)
+         WRITE(6,50) T, IOUT(LNST), IOUT(LQ), ROUT(LH)
  50      FORMAT(/' t = ', E14.6, 5X, 'no. steps = ', I5,
      1        '   order = ', I3, '   stepsize = ', E14.6)
          WRITE(6,55) U(1,1,1), U(1,5,5), U(1,10,10),
@@ -118,7 +119,7 @@ C
      1        '  c2 (bot.left/middle/top rt.) = ', 3E14.6)
 C     
          IF (IER .NE. 0) THEN
-            WRITE(6,60) IER, IOPT(26)
+            WRITE(6,60) IER, IOUT(15)
  60         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      1             '                 Linear Solver returned IER = ', I5)
             CALL FCVBPFREE
@@ -130,17 +131,17 @@ C
  70   CONTINUE
       
 C     Print final statistics.
-      NST = IOPT(LNST)
-      NFE = IOPT(LNFE)
-      NPSET = IOPT(LNSETUP)
-      NPE = IOPT(LNPE)
-      NPS = IOPT(LNPS)
-      NNI = IOPT(LNNI)
-      NLI = IOPT(LNLI)
+      NST = IOUT(LNST)
+      NFE = IOUT(LNFE)
+      NPSET = IOUT(LNSETUP)
+      NPE = IOUT(LNPE)
+      NPS = IOUT(LNPS)
+      NNI = IOUT(LNNI)
+      NLI = IOUT(LNLI)
       AVDIM = DBLE(NLI) / DBLE(NNI)
-      NCFN = IOPT(LNCF)
-      NCFL = IOPT(LNCFL)
-      NETF = IOPT(LNETF)
+      NCFN = IOUT(LNCF)
+      NCFL = IOUT(LNCFL)
+      NETF = IOUT(LNETF)
       WRITE(6,80) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
      1     NCFL, NETF
  80   FORMAT(//'Final statistics:'//

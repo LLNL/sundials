@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.22 $
-C     $Date: 2005-04-15 00:40:44 $
+C     $Revision: 1.23 $
+C     $Date: 2005-08-12 23:35:18 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -36,19 +36,21 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
-      INTEGER METH, ITMETH, IATOL, INOPT, ITASK, IER, LNCFL, LNPS
-      INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LQ, LH, LNPE, LNLI
-      INTEGER IOUT, JPRETYPE, IGSTYPE, MAXL
-      INTEGER*4 IOPT(40)
-      INTEGER*4 NEQ, MESHX, MESHY, NST, NFE, NPSET, NPE, NPS, NNI
-      INTEGER*4 NLI, NCFN, NCFL
-      DOUBLE PRECISION ATOL, AVDIM, T, TOUT, TWOHR, RTOL, FLOOR, DELT
-      DOUBLE PRECISION U(2,10,10), ROPT(40)
+      INTEGER METH,ITMETH,IATOL,ITASK,IER,LNCFL,LNPS
+      INTEGER LNST,LNFE,LNSETUP,LNNI,LNCF,LQ,LH,LNPE,LNLI,LNETF
+      INTEGER JOUT,JPRETYPE,IGSTYPE,MAXL
+      INTEGER*4 IOUT(25)
+      INTEGER*4 NEQ,MESHX,MESHY,NST,NFE,NPSET,NPE,NPS,NNI,NETF
+      INTEGER*4 NLI,NCFN,NCFL
+      DOUBLE PRECISION ATOL,AVDIM,T,TOUT,TWOHR,RTOL,FLOOR,DELT
+      DOUBLE PRECISION U(2,10,10),ROUT(10)
 C
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
-      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/,
-     1     LQ/11/, LH/5/, LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
+      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
+     1     LQ/9/, LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
+      DATA LH/2/
+C
       COMMON /PBDIM/ NEQ
 C
 C Set mesh sizes
@@ -63,7 +65,6 @@ C Set other input arguments.
       ITMETH = 2
       IATOL = 1
       ATOL = RTOL * FLOOR
-      INOPT = 0
       ITASK = 1
 C
       WRITE(6,10) NEQ
@@ -78,7 +79,7 @@ C
       ENDIF
 C
       CALL FCVMALLOC(T, U, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+     1               IOUT, ROUT, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
@@ -97,11 +98,11 @@ C
 C
 C Loop over output points, call FCVODE, print sample solution values.
       TOUT = TWOHR
-      DO 70 IOUT = 1, 12
+      DO 70 JOUT = 1, 12
 C
         CALL FCVODE(TOUT, T, U, ITASK, IER)
 C
-        WRITE(6,50) T, IOPT(LNST), IOPT(LQ), ROPT(LH)
+        WRITE(6,50) T, IOUT(LNST), IOUT(LQ), ROUT(LH)
  50     FORMAT(/' t = ', E11.3, 5X, 'no. steps = ', I5,
      1         '   order = ', I3, '   stepsize = ', E14.6)
         WRITE(6,55) U(1,1,1), U(1,5,5), U(1,10,10),
@@ -110,7 +111,7 @@ C
      1         '  c2 (bot.left/middle/top rt.) = ', 3E14.6)
 C
         IF (IER .NE. 0) THEN
-          WRITE(6,60) IER, IOPT(26)
+          WRITE(6,60) IER, IOUT(15)
  60       FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      1           '                 Linear Solver returned IER = ', I5)
           CALL FCVFREE
@@ -121,28 +122,31 @@ C
  70     CONTINUE
 
 C Print final statistics.
-      NST = IOPT(LNST)
-      NFE = IOPT(LNFE)
-      NPSET = IOPT(LNSETUP)
-      NPE = IOPT(LNPE)
-      NPS = IOPT(LNPS)
-      NNI = IOPT(LNNI)
-      NLI = IOPT(LNLI)
+      NST = IOUT(LNST)
+      NFE = IOUT(LNFE)
+      NPSET = IOUT(LNSETUP)
+      NPE = IOUT(LNPE)
+      NPS = IOUT(LNPS)
+      NNI = IOUT(LNNI)
+      NLI = IOUT(LNLI)
       AVDIM = DBLE(NLI) / DBLE(NNI)
-      NCFN = IOPT(LNCF)
-      NCFL = IOPT(LNCFL)
+      NCFN = IOUT(LNCF)
+      NCFL = IOUT(LNCFL)
+      NETF = IOUT(LNETF)
       WRITE(6,80) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
-     1     NCFL
+     1     NCFL, NETF
   80  FORMAT(//'Final statistics:'//
-     1 ' number of steps        = ', I5, 5X,
-     2 'number of f evals.     =', I5/
-     3 ' number of prec. setups = ', I5/
-     4 ' number of prec. evals. = ', I5, 5X,
-     5 'number of prec. solves = ', I5/
-     6 ' number of nonl. iters. = ', I5, 5X,
-     7 'number of lin. iters.  = ', I5/
-     8 ' average Krylov subspace dimension (NLI/NNI)  = ', E14.6/
-     9 ' number of conv. failures.. nonlinear = ', I3,'  linear = ', I3)
+     &     ' number of steps        = ', I5, 5X,
+     &     ' number of f evals.     =', I5/
+     &     ' number of prec. setups = ', I5/
+     &     ' number of prec. evals. = ', I5, 5X,
+     &     ' number of prec. solves = ', I5/
+     &     ' number of nonl. iters. = ', I5, 5X,
+     &     ' number of lin. iters.  = ', I5/
+     &     ' average Krylov subspace dimension (NLI/NNI)  = ', E14.6/
+     &     ' number of conv. failures.. nonlinear = ', I3,
+     &     ' linear = ', I3/
+     &     ' number of error test failures = ', I3)
 C
       CALL FCVFREE
 C
