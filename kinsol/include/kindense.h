@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-04-21 15:24:20 $
+ * $Revision: 1.3 $
+ * $Date: 2005-08-12 19:29:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,14 +63,14 @@ extern "C" {
  *
  * uu   current iterate (unscaled) [input]
  *
- * fval  vector (type N_Vector) containing result of nonliear
+ * fval  vector (type N_Vector) containing result of nonlinear
  *     system function evaluated at current iterate:
- *     fy = F(y) [input]
+ *     fval = F(uu) [input]
  *
  * jac_data is a pointer to user data - the same as the jac_data
- *          parameter passed to KINDense.
+ *          parameter passed to KINDenseSetJacFn.
  *
- * vtemp1  available scratch vector (volatile storage)
+ * vtemp1, vtemp2  available scratch vectors (volatile storage)
  *
  * If successful, the function should return 0 (zero). If an error
  * occurs, then the routine should return a non-zero integer value.
@@ -116,7 +116,7 @@ int KINDense(void *kinmem, long int N);
  *                 It also specifies a pointer to user data which is
  *                 passed to the djac routine every time it is called.
  *
- * The return value of KINDenseSet* is one of:
+ * The return value of KINDenseSetJacFn is one of:
  *    KINDENSE_SUCCESS   if successful
  *    KINDENSE_MEM_NULL  if the kinsol memory was NULL
  *    KINDENSE_LMEM_NULL if the kindense memory was NULL
