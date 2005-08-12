@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-07-19 20:51:01 $
+ * $Revision: 1.15 $
+ * $Date: 2005-08-12 23:30:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -488,10 +488,6 @@ typedef struct CVodeMemRec {
 /* CVodeGet* Error Messages */
 
 #define MSGCV_GET_NO_MEM "cvode_mem = NULL in a CVodeGet routine illegal.\n\n"
-
-#define MSGCV_GET_NO_SLDET1 "CVodeGetNumStabLimOrderReds-- Illegal attempt "
-#define MSGCV_GET_NO_SLDET2 "to call without enabling SLDET.\n\n"
-#define MSGCV_GET_NO_SLDET  MSGCV_GET_NO_SLDET1 MSGCV_GET_NO_SLDET2
 
 #define MSGCV_GET_EWT_BAD   "CVodeGetErrWeights--  ewt has component(s) equal to zero.\n\n"
 
