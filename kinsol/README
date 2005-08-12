@@ -95,23 +95,24 @@ E. Revision History
 v. 2.3.0 (Apr. 2005) ---> 
 ------------------------------------------------
 
-- New feature
+- New features
    - added option to KINBBDPRE preconditioner module to allow specification
      of different half-bandwidths for difference quotient approximation and
      retained matrix.
    - added KINSPBCG interface module to allow KINSOL to interface with the
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
    - added support for SPBCG to the KINBBDPRE preconditioner module.
-   - added KINDENSE module (dense linear solver)
    - added KINSPTFQMR interface module to allow KINSOL to interface with
      the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module
+   - added KINDENSE interface module (dense linear solver)
+   - added KINBAND interface module (band linear solver)
 
 - Changes to underlying algorithms
    - modified the KINBBDPRE preconditioner module to allow the use of
      different half-bandwidths for the difference quotient approximation
      and the retained matrix.
    - added nonlinear residual monitoring scheme to control Jacobian updating
-     when a direct linear solver is used
+     when a direct linear solver is used (modified Newton iteration)
 
 - Changes to user-callable functions
    - modified the argument list of KINBBDPrecAlloc to allow specification
