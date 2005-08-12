@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2005-08-12 23:34:28 $
+ * $Revision: 1.47 $
+ * $Date: 2005-08-12 23:59:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -35,10 +35,12 @@
  *   FNVINITS and FNVINITP interface to N_VNew_Serial and
  *               N_VNew_Parallel, respectively
  * 
- *   FCVMALLOC  interfaces to CVodeCreate, CVodeSet*, and CVodeMalloc
+ *   FCVMALLOC  interfaces to CVodeCreate and CVodeMalloc
  * 
- *   FCVREINIT  interfaces to CVReInit, CVodeSet*
+ *   FCVREINIT  interfaces to CVReInit
  * 
+ *   FCVSETIIN, FCVSETRIN interface to CVodeSet*
+ *
  *   FCVEWTSET  interfaces to CVodeSetEwtFn
  * 
  *   FCVDIAG    interfaces to CVDiag
@@ -177,8 +179,8 @@
  * 
  * (6.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
- *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
- *      1               IOPT, ROPT, IER)
+ *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL,
+ *      1               IOUT, ROUT, IER)
  * The arguments are:
  * T0     = initial value of t
  * Y0     = array of initial conditions
@@ -189,25 +191,18 @@
  *          the error weight vector.
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
- * INOPT  = optional input flag: 0 = none, 1 = inputs used
- * IOPT   = array of length 40 for integer optional inputs and outputs
+ * IOUT   = array of length 25 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- * ROPT   = array of length 40 for real optional inputs and outputs
- *             The optional inputs are MAXORD, MXSTEP, MXHNIL, SLDET, 
- *          MAXERRTESTFAILS, MAXNONLINITERS, MAXCONVFAILS, H0, HMAX,
- *          HMIN, TSTOP, NONLINCONVCOEF, stored in IOPT(1), IOPT(2),
- *          IOPT(3), IOPT(14), IOPT(22), IOPT(23), IOPT(24), ROPT(1), ROPT(2),
- *          ROPT(3), ROPT(8), ROPT(9), respectively.  If any of these optional
- *          inputs are used, set the others to zero to indicate default values.
- *             The optional outputs are NST, NFE, NSETUPS, NNI, NCFN, NETF, QU,
- *          QCUR, LENRW, LENIW, NOR, NGE, HU, HCUR, TCUR, TOLSF, UROUND, stored
- *          in IOPT(4) .. IOPT(13), IOPT(15), IOPT(25), ROPT(4) .. ROPT(7),
- *          and ROPT(10), respectively. Also, the last flag returned by the
- *          linear solver is stored in IOPT(26). See the CVODE manual for
- *          details. 
+ * ROUT   = array of length 10 for real optional outputs
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
+ * The optional integer outputs are LENRW, LENIW, NST, NFE, NETF, NCFN, NNI,
+ * NSETUPS, QU, QCUR, NOR, NGE, stored in IOUT(1)...IOUT(12)
+ * The optinal real outputs are H0U, HU, HCUR, TCUR, TOLSF, UROUND, stored
+ * in ROUT(1) .. ROUT(6).
+ * See the CVODE manual for details. 
+ *
  * If the user program includes the FCVEWT routine for the evaluation of the 
  * error weights, the following call must be made
  *       CALL FCVEWTSET(FLAG, IER)
@@ -216,7 +211,7 @@
  *
  * (6.3) To re-initialize the CVODE solver for the solution of a new problem
  * of the same size as one already solved, make the following call:
- *       CALL FCVREINIT(T0, Y0, IATOL, RTOL, ATOL, INOPT, IOPT, ROPT, IER)
+ *       CALL FCVREINIT(T0, Y0, IATOL, RTOL, ATOL, IER)
  * The arguments have the same names and meanings as those of FCVMALLOC,
  * except that NEQ, METH, and ITMETH  have been omitted from the argument list 
  * (being unchanged for the new problem).  
@@ -225,6 +220,23 @@
  * previous  FCVMALLOC call.  The call to specify the linear system solution
  * method may or  may not be needed; see paragraph (6) below.
  * 
+ * (6.4) To set various integer optional inputs, make the folowing call:
+ *       CALL FCVSETIIN(KEY, VALUE, IER)
+ * to set the integer value VAL to the optional input specified by the
+ * character key KEY.
+ * KEY is one of the following: MAX_ORD, MAX_NSTEPS, MAX_ERRFAIL, MAX_NITERS, 
+ * MAX_CONVFAIL, HNIL_WARNS, STAB_LIM.
+ *
+ * To set various real optional inputs, make the folowing call:
+ *       CALL FCVSETRIN(KEY, VALUE, IER)
+ * to set the real value VAL to the optional input specified by the
+ * character key KEY.
+ * KEY is one of the following: INIT_STEP, MAX_STEP, MIIN_STEP, STOP_TIME,
+ * NLCONV_COEF.
+ *
+ * FCVSETIIN and FCVSETRIN return IER=0 if successful and IER<0 if an 
+ * error occured.
+ *
  * (7) Specification of linear system solution method.
  * In the case of a stiff system, the implicit BDF method involves the solution
  * of linear systems related to the Jacobian J = df/dy of the ODE system.
@@ -237,9 +249,11 @@
  * a diagonal matrix.  The user must make the call:
  *       CALL FCVDIAG(IER)
  * IER is an error return flag: 0 = success, negative value = error.
- * There is no additional user-supplied routine.  Optional outputs specific
- * to the approximate diagonal Jacobian case are LRW and LIW, stored in
- * IOPT(16) and IOPT(17), respectively.  See the CVODE manual for descriptions.
+ * There is no additional user-supplied routine.  
+ *
+ *   Optional outputs specific to the approximate diagonal Jacobian case are 
+ * LRW, LIW, LFLG, NFEDQ stored in IOUT(13)...IOUT(16).  
+ * See the CVODE manual for descriptions.
  * 
  * (7.2s) DENSE treatment of the linear system.
  * The user must make the call
@@ -254,9 +268,9 @@
  * using the internal finite differences approximation to the Jacobian.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
- *      Optional outputs specific to the DENSE case are LRW, LIW, and NJE
- * stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
- * manual for descriptions.)
+ *   Optional outputs specific to the DENSE case are LRW, LIW, LFLG, NFEDQ, 
+ * and NJE stored in IOUT(13)...IOUT(17).
+ * See the CVODE manual for descriptions.
  * 
  * (7.3s) BAND treatment of the linear system
  * The user must make the call
@@ -273,9 +287,9 @@
  * using the internal finite differences approximation to the Jacobian.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
- *      Optional outputs specific to the BAND case are LRW, LIW, and NJE
- * stored in IOPT(16), IOPT(17), and IOPT(18), respectively.  (See the CVODE
- * manual for descriptions.)
+ *   Optional outputs specific to the BAND case are LRW, LIW, LFLG, NFEDQ, 
+ * and NJE stored in IOUT(13)...IOUT(17).
+ * See the CVODE manual for descriptions.
  *
  * (7.4) SPTFQMR treatment of the linear systems.
  * For the Scaled Preconditioned TFQMR solution of the linear systems,
@@ -326,10 +340,10 @@
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
  * 
- *      Optional outputs specific to the SPTFQMR case are LRW, LIW, NPE, NLI, NPS,
- * and NCFL, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
- * manual for descriptions.)
- * 
+ *   Optional outputs specific to the SPTFQMR case are LRW, LIW, LFLG, NFEDQ, NJTV,
+ * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
+ * See the CVODE manual for descriptions.
+ *
  *      If a sequence of problems of the same size is being solved using the
  * SPTFQMR linear solver, then following the call to FCVREINIT, a call to the
  * FCVSPTFQMRREINIT routine is needed if IPRETYPE or DELT is
@@ -387,9 +401,9 @@
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
  * 
- *      Optional outputs specific to the SPBCG case are LRW, LIW, NPE, NLI, NPS,
- * and NCFL, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
- * manual for descriptions.)
+ *   Optional outputs specific to the SPBCG case are LRW, LIW, LFLG, NFEDQ, NJTV,
+ * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
+ * See the CVODE manual for descriptions.
  * 
  *      If a sequence of problems of the same size is being solved using the
  * SPBCG linear solver, then following the call to FCVREINIT, a call to the
@@ -451,9 +465,9 @@
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
  * 
- * Optional outputs specific to the SPGMR case are LRW, LIW, NPE, NLI, NPS,
- * and NCFL, stored in IOPT(16) ... IOPT(21), respectively.  (See the CVODE
- * manual for descriptions.)
+ *   Optional outputs specific to the SPGMR case are LRW, LIW, LFLG, NFEDQ, NJTV,
+ * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
+ * See the CVODE manual for descriptions.
  * 
  * If a sequence of problems of the same size is being solved using the
  * SPGMR linear solver, then following the call to FCVREINIT, a call to the
@@ -473,11 +487,12 @@
  * ITASK = task indicator: 1 = normal mode (overshoot TOUT and interpolate)
  *         2 = one-step mode (return after each internal step taken)
  *         3 = normal tstop mode (like 1, but integration never proceeds past 
- *             TSTOP, which must be specified through the user input ROPT(8))
+ *             TSTOP, which must be specified through a call to FCVSETRIN
+ *             using the key 'STOP_TIME')
  *         4 = one step tstop (like 2, but integration never goes past TSTOP)
  * IER   = completion flag: 0 = success, 1 = tstop return, 2 = root return, 
  *         values -1 ... -10 are various failure modes (see CVODE manual).
- * The current values of the optional outputs are available in IOPT and ROPT.
+ * The current values of the optional outputs are available in IOUT and ROUT.
  * 
  * (9) Computing solution derivatives: FCVDKY
  * To obtain a derivative of the solution, of order up to the current method

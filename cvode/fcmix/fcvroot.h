@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-06-27 20:47:57 $
+ * $Revision: 1.12 $
+ * $Date: 2005-08-12 23:59:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -76,7 +76,7 @@
  *   IER   = completion flag (0 = success,  negative = failure)
  *
  * 5. The total number of calls made to the root function (FCVROOTFN), NGE,
- * can be obtained from IOPT(25).
+ * can be obtained from IOUT(12).
  *
  * If the FCVODE/CVODE memory block is reinitialized to solve a different
  * problem via a call to FCVREINIT, then the counter variable NGE is cleared

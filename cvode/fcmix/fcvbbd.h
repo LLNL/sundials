@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-05-18 18:16:58 $
+ * $Revision: 1.22 $
+ * $Date: 2005-08-12 23:59:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -147,8 +147,8 @@
  * 
  * (4.2) To set various problem and solution parameters and allocate
  * internal memory for CVODE, make the following call:
- *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
- *      1               IOPT, ROPT, IER)
+ *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL,
+ *      1               IOUT, ROUT, IER)
  * The arguments are:
  * T0     = initial value of t
  * Y0     = array of initial conditions
@@ -157,17 +157,9 @@
  * IATOL  = type for absolute tolerance ATOL: 1 = scalar, 2 = array
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
- * INOPT  = optional input flag: 0 = none, 1 = inputs used
- * IOPT   = array of length 40 for integer optional inputs and outputs
+ * IOUT   = array of length 25 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- * ROPT   = array of length 40 for real optional inputs and outputs
- *          The optional inputs are MAXORD, MXSTEP, MXHNIL, SLDET, H0, HMAX,
- *          HMIN, stored in IOPT(1), IOPT(2), IOPT(3), IOPT(14), ROPT(1),
- *          ROPT(2), ROPT(3), respectively.  If any of these optional inputs
- *          are used, set the others to zero to indicate default values.
- *          The optional outputs are NST, NFE, NSETUPS, NNI, NCFN, NETF, QU, QCUR,
- *          LENRW, LENIW, NOR, HU, HCUR, TCUR, TOLSF, stored in IOPT(4) .. IOPT(13),
- *          IOPT(15), ROPT(4) .. ROPT(7), resp.  See the CVODE manual for details. 
+ * ROUT   = array of length 10 for real optional outputs
  * IER    = return completion flag.  Values are 0 = success, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
@@ -256,8 +248,7 @@
  * CVODE package can be reinitialized for the second and subsequent problems
  * so as to avoid further memory allocation.  First, in place of the call
  * to FCVMALLOC, make the following call:
- *       CALL FCVREINIT(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, INOPT,
- *      1               IOPT, ROPT, IER)
+ *       CALL FCVREINIT(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, IER)
  * The arguments have the same names and meanings as those of FCVMALLOC,
  * except that NEQ has been omitted from the argument list (being unchanged
  * for the new problem).  FCVREINIT performs the same initializations as
@@ -286,11 +277,11 @@
  *         4 = one-step mode with TSTOP check
  * IER   = completion flag: 0 = success, values -1 ... -8 are various
  *         failure modes (see CVODE User Guide).
- * The current values of the optional outputs are available in IOPT and ROPT.
+ * The current values of the optional outputs are available in IOUT and ROUT.
  * 
  * (7) Optional outputs: FCVBBDOPT
- * Optional outputs specific to the SP* solver are NPE, NLI, NPS, NCFL,
- * LRW, and LIW, stored in IOPT(16) ... IOPT(21), respectively.
+ * Optional outputs specific to the SP* solver are LRW, LIW, LFLG, NFEDQ, NJTV,
+ * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
  * To obtain the optional outputs associated with the CVBBDPRE module, make
  * the following call:
  *       CALL FCVBBDOPT (LENRPW, LENIPW, NGE)
