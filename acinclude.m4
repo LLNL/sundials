@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.27 $
-# $Date: 2005-07-21 00:28:36 $
+# $Revision: 1.28 $
+# $Date: 2005-08-12 19:38:48 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -2546,8 +2546,8 @@ RAN_ENABLE_DEV_EXAMPLES="yes"
 SERIAL_DEV_C_EXAMPLES="no"
 PARALLEL_DEV_C_EXAMPLES="no"
 
-# Check CVODES developer examples
-if test "X${EXAMPLES_ENABLED}" = "Xyes" && test "X${CVODES_ENABLED}" = "Xyes"; then
+# Check developer examples
+if test "X${EXAMPLES_ENABLED}" = "Xyes" ; then
 
   AC_MSG_CHECKING([if we can build serial C developer examples])
   SERIAL_DEV_C_EXAMPLES="yes"
@@ -2612,9 +2612,19 @@ if test "X${CVODE_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/examples_ser/Makefile"
   fi
 
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/test_examples_ser ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/test_examples_ser"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/test_examples_ser/Makefile"
+  fi
+
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/examples_par ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/examples_par/Makefile"
+  fi
+
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/test_examples_par ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} cvode/test_examples_par"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} cvode/test_examples_par/Makefile"
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/cvode/fcmix/examples_ser ; then
@@ -2673,9 +2683,19 @@ if test "X${IDA_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/examples_ser/Makefile"
   fi
 
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/test_examples_ser ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/test_examples_ser"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/test_examples_ser/Makefile"
+  fi
+
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/examples_par ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/examples_par/Makefile"
+  fi
+
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/test_examples_par ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} ida/test_examples_par"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} ida/test_examples_par/Makefile"
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/ida/fcmix/examples_ser ; then
@@ -2701,9 +2721,19 @@ if test "X${IDAS_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/examples_ser/Makefile"
   fi
 
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/idas/test_examples_ser ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} idas/test_examples_ser"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/test_examples_ser/Makefile"
+  fi
+
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/idas/examples_par ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} idas/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/examples_par/Makefile"
+  fi
+
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/idas/test_examples_par ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} idas/test_examples_par"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} idas/test_examples_par/Makefile"
   fi
 
 fi
@@ -2724,9 +2754,19 @@ if test "X${KINSOL_ENABLED}" = "Xyes"; then
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/examples_ser/Makefile"
   fi
 
+  if test "X${SERIAL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/test_examples_ser ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/test_examples_ser"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/test_examples_ser/Makefile"
+  fi
+
   if test "X${PARALLEL_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/examples_par ; then
     EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/examples_par"
     SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/examples_par/Makefile"
+  fi
+
+  if test "X${PARALLEL_DEV_C_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/test_examples_par ; then
+    EXAMPLE_MODULES="${EXAMPLE_MODULES} kinsol/test_examples_par"
+    SUNDIALS_MAKEFILES="${SUNDIALS_MAKEFILES} kinsol/test_examples_par/Makefile"
   fi
 
   if test "X${SERIAL_F77_EXAMPLES}" = "Xyes" && test -d ${srcdir}/kinsol/fcmix/examples_ser ; then
