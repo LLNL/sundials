@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.18 $
-C     $Date: 2005-04-26 23:43:21 $
+C     $Revision: 1.19 $
+C     $Date: 2005-08-12 23:34:59 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -9,21 +9,23 @@ C     ----------------------------------------------------------------
 C
 C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
 C
+      IMPLICIT NONE
+C
       INCLUDE "mpif.h"
 C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE, LNLI, LNPS
-      INTEGER LNCFL, NOUT, MYPE, NPES, IER, METH, ITMETH, IATOL, INOPT
-      INTEGER ITASK, IPRE, IGS, IOUT
-      INTEGER*4 IOPT(40)
+      INTEGER LNCFL, NOUT, MYPE, NPES, IER, METH, ITMETH, IATOL
+      INTEGER ITASK, IPRE, IGS, JOUT
+      INTEGER*4 IOUT(25)
       INTEGER*4 NEQ, NLOCAL, I, NST, NFE, NPSET, NPE, NPS, NNI, NLI
       INTEGER*4 NCFL, NETF, NCFN
-      DOUBLE PRECISION Y(1024), ROPT(40)
+      DOUBLE PRECISION Y(1024), ROUT(10)
       DOUBLE PRECISION ATOL, DTOUT, T, ALPHA, RTOL, TOUT, ERMAX, ERRI
       DOUBLE PRECISION GERMAX, AVDIM
 C
       DATA ATOL/1.0D-10/, RTOL/1.0D-5/, DTOUT/0.1D0/, NOUT/10/
-      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
-     1     LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
+      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
+     1     LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
 C
       COMMON /PCOM/ ALPHA, NLOCAL, MYPE
 C
@@ -56,7 +58,6 @@ C Set input arguments.
       METH = 2
       ITMETH = 2
       IATOL = 1
-      INOPT = 0
       ITASK = 1
       IPRE = 1
       IGS = 1
@@ -95,7 +96,7 @@ C
         ENDIF
 C
       CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+     1               IOUT, ROUT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -116,16 +117,16 @@ C
 C
 C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
-      DO 70 IOUT = 1, NOUT
+      DO 70 JOUT = 1, NOUT
 C
         CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
-        IF (MYPE .EQ. 0) WRITE(6,40) T, IOPT(LNST), IOPT(LNFE)
+        IF (MYPE .EQ. 0) WRITE(6,40) T, IOUT(LNST), IOUT(LNFE)
   40    FORMAT(' t = ', E10.2, 5X, 'no. steps = ', I5,
      &         '   no. f-s = ', I5)
 C
         IF (IER .NE. 0) THEN
-          WRITE(6,60) IER, IOPT(26)
+          WRITE(6,60) IER, IOUT(15)
   60      FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      &           '                 Linear Solver returned IER = ', I5)
           CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
@@ -153,17 +154,17 @@ C Get global max. error from MPI_REDUCE call.
   85  FORMAT(/'Max. absolute error is ', E10.2/)
 C
 C Print final statistics.
-      NST = IOPT(LNST)
-      NFE = IOPT(LNFE)
-      NPSET = IOPT(LNSETUP)
-      NPE = IOPT(LNPE)
-      NPS = IOPT(LNPS)
-      NNI = IOPT(LNNI)
-      NLI = IOPT(LNLI)
+      NST = IOUT(LNST)
+      NFE = IOUT(LNFE)
+      NPSET = IOUT(LNSETUP)
+      NPE = IOUT(LNPE)
+      NPS = IOUT(LNPS)
+      NNI = IOUT(LNNI)
+      NLI = IOUT(LNLI)
       AVDIM = DBLE(NLI) / DBLE(NNI)
-      NCFN = IOPT(LNCF)
-      NCFL = IOPT(LNCFL)
-      NETF = IOPT(LNETF)
+      NCFN = IOUT(LNCF)
+      NCFL = IOUT(LNCFL)
+      NETF = IOUT(LNETF)
       IF (MYPE .EQ. 0)
      1  WRITE (6,90) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
      &               NCFL, NETF
@@ -189,8 +190,7 @@ C
       IF (MYPE .EQ. 0)  WRITE(6,111) 
  111  FORMAT(//60('-')///'Preconditioning on right'/)
 C
-      CALL FCVREINIT(T, Y, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+      CALL FCVREINIT(T, Y, IATOL, RTOL, ATOL, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,130) IER
@@ -209,11 +209,11 @@ C
 C
 C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
-      DO 170 IOUT = 1, NOUT
+      DO 170 JOUT = 1, NOUT
 C
         CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
-        IF (MYPE .EQ. 0) WRITE(6,40) T, IOPT(LNST), IOPT(LNFE)
+        IF (MYPE .EQ. 0) WRITE(6,40) T, IOUT(LNST), IOUT(LNFE)
 C
         IF (IER .NE. 0) THEN
           WRITE(6,60) IER
@@ -240,17 +240,17 @@ C Get global max. error from MPI_REDUCE call.
       IF (MYPE .EQ. 0) WRITE(6,85) GERMAX
 C
 C Print final statistics.
-      NST = IOPT(LNST)
-      NFE = IOPT(LNFE)
-      NPSET = IOPT(LNSETUP)
-      NPE = IOPT(LNPE)
-      NPS = IOPT(LNPS)
-      NNI = IOPT(LNNI)
-      NLI = IOPT(LNLI)
+      NST = IOUT(LNST)
+      NFE = IOUT(LNFE)
+      NPSET = IOUT(LNSETUP)
+      NPE = IOUT(LNPE)
+      NPS = IOUT(LNPS)
+      NNI = IOUT(LNNI)
+      NLI = IOUT(LNLI)
       AVDIM = DBLE(NLI) / DBLE(NNI)
-      NCFN = IOPT(LNCF)
-      NCFL = IOPT(LNCFL)
-      NETF = IOPT(LNETF)
+      NCFN = IOUT(LNCF)
+      NCFL = IOUT(LNCFL)
+      NETF = IOUT(LNETF)
       IF (MYPE .EQ. 0)
      1  WRITE (6,90) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
      &               NCFL, NETF

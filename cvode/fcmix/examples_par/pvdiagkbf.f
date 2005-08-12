@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.20 $
-C     $Date: 2005-04-26 23:43:21 $
+C     $Revision: 1.21 $
+C     $Date: 2005-08-12 23:34:59 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -9,22 +9,25 @@ C     ----------------------------------------------------------------
 C     
 C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
       
+      IMPLICIT NONE
+C
       INCLUDE "mpif.h"
-C     
+     
+C
       INTEGER NOUT, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE
       INTEGER LNLI, LNPS, LNCFL, MYPE, IER, NPES, METH, ITMETH
-      INTEGER IATOL, INOPT, ITASK, IPRE, IGS, IOUT
-      INTEGER*4 IOPT(40)
+      INTEGER IATOL, ITASK, IPRE, IGS, JOUT
+      INTEGER*4 IOUT(25)
       INTEGER*4 NEQ, NLOCAL, I, MUDQ, MLDQ, MU, ML, NETF
       INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL
       INTEGER*4 LENRPW, LENIPW, NGE
       DOUBLE PRECISION ALPHA, TOUT, ERMAX, AVDIM
-      DOUBLE PRECISION ATOL, ERRI, RTOL, GERMAX, DTOUT, Y, ROPT, T
-      DIMENSION Y(1024), ROPT(40)
+      DOUBLE PRECISION ATOL, ERRI, RTOL, GERMAX, DTOUT, Y, ROUT, T
+      DIMENSION Y(1024), ROUT(10)
 C     
       DATA ATOL/1.0D-10/, RTOL/1.0D-5/, DTOUT/0.1D0/, NOUT/10/
-      DATA LNST/4/, LNFE/5/, LNSETUP/6/, LNNI/7/, LNCF/8/, LNETF/9/,
-     1     LNPE/18/, LNLI/19/, LNPS/20/, LNCFL/21/
+      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
+     1     LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
 C
       COMMON /PCOM/ ALPHA, NLOCAL, MYPE
 C     
@@ -58,7 +61,6 @@ C     Set input arguments.
       METH = 2
       ITMETH = 2
       IATOL = 1
-      INOPT = 0
       ITASK = 1
       IPRE = 1
       IGS = 1
@@ -90,7 +92,7 @@ C
       ENDIF
 C     
       CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     &               INOPT, IOPT, ROPT, IER)
+     &               IOUT, ROUT, IER)
 C     
       IF (IER .NE. 0) THEN
          WRITE(6,30) IER
@@ -128,16 +130,16 @@ C
 C     
 C     Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
-      DO 60 IOUT = 1, NOUT
+      DO 60 JOUT = 1, NOUT
 C     
          CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C     
-         IF (MYPE .EQ. 0) WRITE(6,45) T, IOPT(LNST), IOPT(LNFE)
+         IF (MYPE .EQ. 0) WRITE(6,45) T, IOUT(LNST), IOUT(LNFE)
  45      FORMAT(' t = ', E10.2, 5X, 'no. steps = ', I5,
      &          '   no. f-s = ', I5)
 C     
          IF (IER .NE. 0) THEN
-            WRITE(6,50) IER, IOPT(26)
+            WRITE(6,50) IER, IOUT(15)
  50         FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      &             '                 Linear Solver returned IER = ', I5)
             CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
@@ -167,17 +169,17 @@ C     Get global max. error from MPI_REDUCE call.
 C     
 C     Print final statistics.
       IF (MYPE .EQ. 0) THEN
-         NST = IOPT(LNST)
-         NFE = IOPT(LNFE)
-         NPSET = IOPT(LNSETUP)
-         NPE = IOPT(LNPE)
-         NPS = IOPT(LNPS)
-         NNI = IOPT(LNNI)
-         NLI = IOPT(LNLI)
+         NST = IOUT(LNST)
+         NFE = IOUT(LNFE)
+         NPSET = IOUT(LNSETUP)
+         NPE = IOUT(LNPE)
+         NPS = IOUT(LNPS)
+         NNI = IOUT(LNNI)
+         NLI = IOUT(LNLI)
          AVDIM = DBLE(NLI) / DBLE(NNI)
-         NCFN = IOPT(LNCF)
-         NCFL = IOPT(LNCFL)
-         NETF = IOPT(LNETF)
+         NCFN = IOUT(LNCF)
+         NCFL = IOUT(LNCFL)
+         NETF = IOUT(LNETF)
          WRITE(6,80) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
      &               NCFL, NETF
  80      FORMAT(/'Final statistics:'//
@@ -208,7 +210,7 @@ C
          Y(I) = 1.0D0
       ENDDO         
 C
-      CALL FCVREINIT(T, Y, IATOL, RTOL, ATOL,INOPT, IOPT, ROPT, IER)
+      CALL FCVREINIT(T, Y, IATOL, RTOL, ATOL, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,91) IER
  91      FORMAT(///' SUNDIALS_ERROR: FCVREINIT returned IER = ', I5)

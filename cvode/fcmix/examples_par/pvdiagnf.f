@@ -1,24 +1,26 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.13 $
-C     $Date: 2005-04-26 23:43:21 $
+C     $Revision: 1.14 $
+C     $Date: 2005-08-12 23:34:59 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
 C     ----------------------------------------------------------------
 C
 C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
 C
+      IMPLICIT NONE
+C
       INCLUDE "mpif.h"
 C
       INTEGER IER, MYPE, NPES, NOUT, LNST, LNFE, LNNI, LNCF, LNETF
-      INTEGER METH, ITMETH, IATOL, INOPT, ITASK, IOUT
+      INTEGER METH, ITMETH, IATOL, ITASK, JOUT
       INTEGER*4 NEQ, NLOCAL, I, NST, NFE, NNI, NCFN, NETF
-      INTEGER*4 IOPT(40)
-      DOUBLE PRECISION Y, ROPT, ATOL, RTOL, DTOUT, T, ALPHA, TOUT
+      INTEGER*4 IOUT(25)
+      DOUBLE PRECISION Y, ROUT, ATOL, RTOL, DTOUT, T, ALPHA, TOUT
       DOUBLE PRECISION ERMAX, ERRI, GERMAX
-      DIMENSION Y(128), ROPT(40)
+      DIMENSION Y(128), ROUT(10)
 C
       DATA ATOL/1.0D-10/, RTOL/1.0D-5/, DTOUT/0.1D0/, NOUT/10/
-      DATA LNST/4/, LNFE/5/, LNNI/7/, LNCF/8/, LNETF/9/
+      DATA LNST/3/, LNFE/4/, LNNI/7/, LNCF/6/, LNETF/5/
 C
       COMMON /PCOM/ ALPHA, NLOCAL, MYPE
 C
@@ -51,7 +53,6 @@ C Set input arguments.
       METH = 1
       ITMETH = 1
       IATOL = 1
-      INOPT = 0
       ITASK = 1
 c Set parameter ALPHA
       ALPHA  = 10.0D0 / NEQ
@@ -83,7 +84,7 @@ C
         ENDIF
 C
       CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               INOPT, IOPT, ROPT, IER)
+     1               IOUT, ROUT, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -94,16 +95,16 @@ C
 C
 C Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
-      DO 70 IOUT = 1, NOUT
+      DO 70 JOUT = 1, NOUT
 C
         CALL FCVODE(TOUT, T, Y, ITASK, IER)
 C
-        IF (MYPE .EQ. 0) WRITE(6,40) T, IOPT(LNST), IOPT(LNFE)
+        IF (MYPE .EQ. 0) WRITE(6,40) T, IOUT(LNST), IOUT(LNFE)
   40    FORMAT(' t = ', D10.2, 5X, 'no. steps = ', I5,
      &         '   no. f-s = ', I5)
 C
         IF (IER .NE. 0) THEN
-          WRITE(6,60) IER, IOPT(26)
+          WRITE(6,60) IER, IOUT(15)
   60      FORMAT(///' SUNDIALS_ERROR: FCVODE returned IER = ', I5, /,
      &           '                 Linear Solver returned IER = ', I5)
           CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
@@ -132,11 +133,11 @@ C Get global max. error from MPI_REDUCE call.
   85  FORMAT(/'Max. absolute error is ', E10.2/)
 C
 C Print final statistics.
-      NST = IOPT(LNST)
-      NFE = IOPT(LNFE)
-      NNI = IOPT(LNNI)
-      NCFN = IOPT(LNCF)
-      NETF = IOPT(LNETF)
+      NST = IOUT(LNST)
+      NFE = IOUT(LNFE)
+      NNI = IOUT(LNNI)
+      NCFN = IOUT(LNCF)
+      NETF = IOUT(LNETF)
       IF (MYPE .EQ. 0) WRITE (6,90) NST, NFE, NNI, NCFN, NETF
   90  FORMAT(/'Final statistics:'//
      &       ' number of steps = ', I5, 5X, /,
