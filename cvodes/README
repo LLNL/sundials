@@ -87,24 +87,26 @@ v. 2.3.0 (May. 2005) --->
 - New features
    - added CVSPBCG interface module to allow CVODES to interface with the
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
-   - added support for SPBCG to the CVBBDPRE and CVBANDPRE preconditioner
-     modules.
    - added CVSPTFQMR interface module to allow CVODES to interface with
      the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
+   - added support for SPBCG and SPTFQMR to the CVBBDPRE and CVBANDPRE 
+     preconditioner modules.
 
 - Changes to user interface
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to
      allow CVODES to interface with the shared SPBCG linear solver module.
    - added CVBBDSpbcg function to CVBBDPRE module and CVBPSpbcg function to
      CVBANDPRE module to support SPBCG linear solver module.
+   - added CVBBDSptfqmr function to CVBBDPRE module and CVBPSptfqmr function to
+     CVBANDPRE module to support SPTFQMR linear solver module.
    - Changed function type names (not the actual definition) to accomodate
      all the Scaled Preconditioned Iterative Linear Solvers now available:
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
-   - added a new optional Set function to CVODEA, CVadjStInterpType to 
-     specify the type of interpolation (currently only CV_HERMITE, i.e. 
-     cubic Hermite, is implemented)
+   - added a argument to CVadjMalloc to specify the type of interpolation 
+     (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
+     for variable-order polynomial interpolation)
 
 v. 2.2.0 (Apr. 2005) ---> v. 2.3.0 (May. 2005)
 ----------------------------------------------

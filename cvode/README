@@ -92,16 +92,18 @@ v. 2.3.0 (Apr. 2005) --->
 - New features
    - added CVSPBCG interface module to allow CVODE to interface with the
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
-   - added support for SPBCG to the CVBBDPRE and CVBANDPRE preconditioner
-     modules.
    - added CVSPTFQMR interface module to allow CVODE to interface with
      the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
+   - added support for SPBCG and SPTFQMR to the CVBBDPRE and CVBANDPRE 
+     preconditioner modules.
 
 - Changes to user interface
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to
      allow CVODE to interface with the shared SPBCG linear solver module.
    - added CVBBDSpbcg function to CVBBDPRE module and CVBPSpbcg function to
      CVBANDPRE module to support SPBCG linear solver module.
+   - added CVBBDSptfqmr function to CVBBDPRE module and CVBPSptfqmr function to
+     CVBANDPRE module to support SPTFQMR linear solver module.
    - Changed function type names (not the actual definition) to accomodate
      all the Scaled Preconditioned Iterative Linear Solvers now available:
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
@@ -111,6 +113,12 @@ v. 2.3.0 (Apr. 2005) --->
 - Changes to the FCVODE module
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
    - added support for CVSPTFQMR/SPTFQMR (added FCV*SPTFQMR* functions).
+   - Optional inputs are now set using routines FCVSETIIN (integer inputs)
+     and FCVSETRIN (real inputs) through pairs key-value. Optional outputs
+     are still obtained from two arrays (IOUT and ROUT), owned by the user
+     and passed as arguments to FCVMALLOC. Note that the argument OPTIN
+     was removed from FCVMALLOC.
+   - The arguments OPTIN, IOPT, and ROPT were removed from FCVREINIT
 
 - Changes related to the build system
    - updated configure script and Makefiles for Fortran examples to avoid C++
