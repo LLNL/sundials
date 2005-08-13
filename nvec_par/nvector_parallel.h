@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-06-30 23:59:15 $
+ * $Revision: 1.22 $
+ * $Date: 2005-08-13 01:17:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -182,14 +182,14 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  * CONSTRUCTORS:
  *    N_VNew_Parallel
  *    N_VNewEmpty_Parallel
- *    N_VClone_Parallel
- *    N_VCloneEmpty_Parallel
  *    N_VMake_Parallel
  *    N_VNewVectorArray_Parallel
  *    N_VNewVectorArrayEmpty_Parallel
  * DESTRUCTORS:
  *    N_VDestroy_Parallel
  *    N_VDestroyVectorArray_Parallel
+ * OTHER:
+ *    N_VPrint_Parallel
  * -----------------------------------------------------------------
  */
 

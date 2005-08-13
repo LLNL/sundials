@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-06-21 19:13:22 $
+ * $Revision: 1.18 $
+ * $Date: 2005-08-13 01:17:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -141,14 +141,14 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
  * CONSTRUCTORS:
  *    N_VNew_Serial
  *    N_VNewEmpty_Serial
- *    N_VClone_Serial
- *    N_VCloneEmpty_Serial
  *    N_VMake_Serial
  *    N_VNewVectorArray_Serial
  *    N_VNewVectorArrayEmpty_Serial
  * DESTRUCTORS:
  *    N_VDestroy_Serial
  *    N_VDestroyVectorArray_Serial
+ * OTHER:
+ *    N_VPrint_Serial
  * -----------------------------------------------------------------
  */
 
