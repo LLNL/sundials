@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-06-10 16:51:22 $
+ * $Revision: 1.12 $
+ * $Date: 2005-08-13 01:15:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1158,12 +1158,10 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (sldeton==FALSE) {
-    if(errfp!=NULL) fprintf(errfp, MSGCVS_GET_NO_SLDET);
-    return(CV_NO_SLDET);
-  }
-
-  *nslred = nor;
+  if (sldeton==FALSE)
+    *nslred = 0;
+  else
+    *nslred = nor;
 
   return(CV_SUCCESS);
 }

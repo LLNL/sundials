@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-07-19 20:57:30 $
+ * $Revision: 1.20 $
+ * $Date: 2005-08-13 01:15:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -756,10 +756,6 @@ typedef struct CVodeMemRec {
 /* CVodeGet* Error Messages */
 
 #define MSGCVS_GET_NO_MEM    "cvode_mem = NULL in a CVodeGet routine illegal. \n\n"
-
-#define MSGCVS_GET_NO_SLDET1 "CVodeGetNumStabLimOrderReds-- Illegal attempt "
-#define MSGCVS_GET_NO_SLDET2 "to call without enabling SLDET.\n\n"
-#define MSGCVS_GET_NO_SLDET  MSGCVS_GET_NO_SLDET1 MSGCVS_GET_NO_SLDET2
 
 #define MSGCVS_GET_NO_QUAD1  "CVodeGetQuad*-- Illegal attempt to call before "
 #define MSGCVS_GET_NO_QUAD2  "calling CVodeQuadMalloc.\n\n"
