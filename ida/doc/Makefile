@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-06-28 23:49:34 $
+# $Revision: 1.12 $
+# $Date: 2005-08-15 19:33:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -22,6 +22,7 @@ ida_intro.tex \
 ida_install.tex \
 ida_math.tex \
 ida_usage.tex \
+ida_fcmix.tex \
 ida_nvec.tex \
 ida_org.tex \
 ida_newlinsolv.tex \
