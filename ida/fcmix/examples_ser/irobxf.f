@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.3 $
-c     $Date: 2005-06-27 19:47:25 $
+c     $Revision: 1.4 $
+c     $Date: 2005-08-15 18:07:35 $
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -25,17 +25,17 @@ c
       implicit none
 c
       integer ier, ierroot, info(2)
-      integer*4 iopt(40)
-      double precision ropt(40)
+      integer*4 iout(25)
+      double precision rout(10)
 c
-      integer iatol, inopt, nout, iout, itask
+      integer iatol, inopt, nout, jout, itask
       integer nst, kused
       integer*4 neq, i
       double precision t0, t1, rtol, tout, tret
       double precision hused
-      double precision y(3), yp(3), atol(3), id(3), constr(3)
+      double precision y(3), yp(3), atol(3)
 c
-      data nst/15/, kused/19/, hused/16/
+      data nst/3/, kused/9/, hused/2/
 c
 c Initialize variables
 c
@@ -45,7 +45,6 @@ c
       t0 = 0.0d0
       t1 = 0.4d0
       iatol = 2
-      inopt = 0
       itask = 1
 c
       y(1) = 1.0d0
@@ -69,8 +68,8 @@ c
          stop
       endif
 c
-      call fidamalloc(t0, y, yp, iatol, rtol, atol, id, constr, inopt,
-     &                iopt, ropt, ier)
+      call fidamalloc(t0, y, yp, iatol, rtol, atol, 
+     &                iout, rout, ier)
       if (ier .ne. 0) then
          write(6,20) ier
  20      format(///' SUNDIALS_ERROR: FIDAMALLOC returned IER = ', i5)
@@ -99,16 +98,17 @@ c
       tout = t1
 c
 c
-      do while(iout .lt. nout)
+      jout = 1;
+      do while(jout .lt. nout)
 c
         call fidasolve(tout, tret, y, yp, itask, ier)
 c
-        write(6,40) tret, (y(i), i = 1,3), iopt(nst), iopt(kused),
-     &              ropt(hused)
+        write(6,40) tret, (y(i), i = 1,3), iout(nst), iout(kused),
+     &              rout(hused)
  40     format(e10.4, 3(1x,e12.4), i5, i3, e12.4)
 c
         if (ier .lt. 0) then
-           write(6,50) ier, iopt(30)
+           write(6,50) ier, iout(15)
  50        format(///' SUNDIALS_ERROR: FIDASOLVE returned IER = ',i5,/,
      1            '                 Linear Solver returned IER = ',i5)
            call fidarootfree
@@ -132,14 +132,14 @@ c
 c
         if (ier .eq. 0) then
            tout = tout * 10.0d0
-           iout = iout + 1
+           jout = jout + 1
         endif
 c
       ENDDO
 c
 c Print final statistics
 c
-      call prntstats(iopt)
+      call prntstats(iout)
 c
 c Free IDA memory
 c
@@ -221,8 +221,7 @@ c
      &       'kinetics problem.', //,
      &       'Tolerance parameters:  rtol = ', e8.2,
      &       '   atol = ', 3(1x,e8.2), /,
-     &       'Initial conditions y0 = (', 3(1x,e8.2), ')', /,
-     &       'Constraints and id not used.', //,
+     &       'Initial conditions y0 = (', 3(1x,e8.2), ')', //,
      &       '  t            y1           y2           y3        nst',
      &       '  k    h')
 c
@@ -231,18 +230,18 @@ c
 c
 c ==========
 c
-      subroutine prntstats(iopt)
+      subroutine prntstats(iout)
 c
       implicit none
 c
-      integer*4 iopt(40)
+      integer*4 iout(25)
       integer nst, reseval, jaceval, nni, ncf, netf, nge
 c
-      data nst/15/, reseval/16/, jaceval/28/, nni/21/, netf/18/,
-     &     ncf/22/, nge/35/
+      data nst/3/, reseval/4/, jaceval/17/, nni/7/, netf/5/,
+     &     ncf/6/, nge/12/
 c
-      write(6,70) iopt(nst), iopt(reseval), iopt(jaceval),
-     &             iopt(nni), iopt(netf), iopt(ncf), iopt(nge)
+      write(6,70) iout(nst), iout(reseval), iout(jaceval),
+     &             iout(nni), iout(netf), iout(ncf), iout(nge)
  70   format(/'Final Run Statistics:', //,
      &         'Number of steps                    = ', i3, /,
      &         'Number of residual evaluations     = ', i3, /,

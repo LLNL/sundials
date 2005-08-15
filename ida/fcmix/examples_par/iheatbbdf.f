@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.4 $
-c     $Date: 2005-07-13 21:13:46 $
+c     $Revision: 1.5 $
+c     $Date: 2005-08-15 18:07:31 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -48,8 +48,8 @@ c
 c local variables
 c
       integer*4 mudq, mldq, mukeep, mlkeep
-      integer*4 iopt(40)
-      double precision ropt(40)
+      integer*4 iout(25)
+      double precision rout(10)
       integer nout, ier
       parameter (nout = 11)
       integer npes, inopt, maxl, gstype, maxrs, itask, iatol
@@ -89,13 +89,6 @@ c
       dqincfac = 0.0d0
       itask = 1
       iatol = 1
-c
-c Initialize iopt and ropt arrays
-c
-      do 1 i = 1, 40
-         iopt(i) = 0
-         ropt(i) = 0.0d0
- 1    continue
 c
 c Initialize MPI environment
 c
@@ -147,22 +140,22 @@ c Initialize problem data
 c
       call setinitprofile(uu, up, id, res, constr)
 c
-c Set flags in iopt
-c
-      iopt(6) = 1
-      iopt(7) = 1
-      iopt(8) = 1
-c
 c Initialize IDA environment
 c
-      call fidamalloc(t0, uu, up, iatol, rtol, atol, id, constr, inopt,
-     &                iopt, ropt, ier)
+      call fidamalloc(t0, uu, up, iatol, rtol, atol, iout, rout, ier)
       if (ier .ne. 0) then
          write(*,7) ier
  7       format(///' SUNDIALS_ERROR: FIDAMALLOC returned IER = ', i5)
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
+c
+c     Set optional inputs
+c
+      call fidasetiin('SUPPRESS_ALG', 1, ier)
+      call fidasetvin('ID_VEC', id, ier)
+      call fidasetvin('CONSTR_VEC', constr, ier)
+
 c
 c Initialize and attach BBDSPGMR module
 c
@@ -190,11 +183,11 @@ c
       endif
 c
       tout = t1
-      do 10 iout = 1, nout
+      do 10 jout = 1, nout
 c
          call fidasolve(tout, tret, uu, up, itask, ier)
 c
-         call prntoutput(tret, uu, iopt, ropt)
+         call prntoutput(tret, uu, iout, rout)
 c
          if (ier .ne. 0) then
             write(*,11) ier
@@ -210,7 +203,7 @@ c
 c Print statistics
 c
       if (thispe .eq. 0) then
-         call prntfinalstats(iopt)
+         call prntfinalstats(iout)
       endif
 c
 c Reinitialize variables and data for second problem
@@ -222,8 +215,7 @@ c
 c
       call setinitprofile(uu, up, id, res, constr)
 c
-      call fidareinit(t0, uu, up, iatol, rtol, atol, id, constr, inopt,
-     &                iopt, ropt, ier)
+      call fidareinit(t0, uu, up, iatol, rtol, atol, ier)
       if (ier .ne. 0) then
          write(*,33) ier
  33      format(///' SUNDIALS_ERROR: FIDAREINIT returned IER = ', i5)
@@ -244,11 +236,11 @@ c
       endif
 c
       tout = t1
-      do 12 iout = 1, nout
+      do 12 jout = 1, nout
 c
          call fidasolve(tout, tret, uu, up, itask, ier)
 c
-         call prntoutput(tret, uu, iopt, ropt)
+         call prntoutput(tret, uu, iout, rout)
 c
          if (ier .ne. 0) then
             write(*,13) ier
@@ -264,7 +256,7 @@ c
 c Print statistics
 c
       if (thispe .eq. 0) then
-         call prntfinalstats(iopt)
+         call prntfinalstats(iout)
       endif
 c
 c Free memory
@@ -681,7 +673,7 @@ c
 c
 c ==========
 c
-      subroutine prntoutput(tret, u, iopt, ropt)
+      subroutine prntoutput(tret, u, iout, rout)
 c
 c global variables
 c
@@ -696,8 +688,8 @@ c
 c
 c  local variables
 c
-      integer*4 iopt(*)
-      double precision tret, umax, u(*), ropt(*)
+      integer*4 iout(*)
+      double precision tret, umax, u(*), rout(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
      &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
@@ -706,9 +698,9 @@ c
       call maxnorm(u, umax)
 c
       if (thispe .eq. 0) then
-         write(*,28) tret, umax, iopt(19), iopt(15), iopt(21),
-     &               iopt(30), iopt(16), iopt(33), ropt(16),
-     &               iopt(28), iopt(29)
+         write(*,28) tret, umax, iout(9), iout(3), iout(7),
+     &               iout(20), iout(4), iout(16), rout(2),
+     &               iout(18), iout(19)
  28      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i3,
      &          '  ', i3, '  ', i3, '  ', i3, ' ', i4, '  ',
      &          e9.2, '  ', i3, ' ', i3)
@@ -823,13 +815,13 @@ c
 c
 c ==========
 c
-      subroutine prntfinalstats(iopt)
+      subroutine prntfinalstats(iout)
 c
 c local variables
 c
-      integer*4 iopt(*)
+      integer*4 iout(*)
 c
-      write(*,32) iopt(18), iopt(22), iopt(31)
+      write(*,32) iout(5), iout(6), iout(21)
  32   format(/, 'Error test failures            =', i3, /,
      &       'Nonlinear convergence failures =', i3, /,
      &       'Linear convergence failures    =', i3)
