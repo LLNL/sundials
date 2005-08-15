@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.48 $
- * $Date: 2005-08-12 23:34:28 $
+ * $Revision: 1.49 $
+ * $Date: 2005-08-15 18:01:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -75,12 +75,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   N_Vector Vatol;
   void *atolptr;
 
-  Vatol = NULL;
-  atolptr = NULL;
-
-  /* Initialize itol to avoid compiler warning message */
-  itol = -1;
-
+  /* Check for required vector operations */
   if(F2C_CVODE_vec->ops->nvgetarraypointer == NULL ||
      F2C_CVODE_vec->ops->nvsetarraypointer == NULL) {
     *ier = -1;
@@ -88,11 +83,26 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     return;
   }
 
+  /* Initialize all pointers to NULL */
+  CV_cvodemem = NULL;
+  Vatol = NULL;
+  atolptr = NULL;
+  CV_ewt = NULL;
+
+  /* Create CVODE object */
+  lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
+  iter = (*itmeth == 1) ? CV_FUNCTIONAL : CV_NEWTON;
+  CV_cvodemem = CVodeCreate(lmm, iter);
+  if (CV_cvodemem == NULL) {
+    *ier = -1;
+    return;
+  }
+
   /* Set data in F2C_CVODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_CVODE_vec);
 
-  lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
-  iter = (*itmeth == 1) ? CV_FUNCTIONAL : CV_NEWTON;
+  /* Treat absolute tolerances */
+  itol = -1;
   switch (*iatol) {
   case 1:
     itol = CV_SS; 
@@ -109,49 +119,28 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     break;
   }
 
-  /* 
-     Call CVodeCreate and CVodeMalloc to initialize CVODE: 
-     lmm           is the method specifier
-     iter          is the iteration method specifier
-     CVf           is the user's right-hand side function in y'=f(t,y)
-     *t0           is the initial time
-     F2C_CVODE_vec is the initial dependent variable vector
-     itol          is the tolerance type
-     rtol          is the scalar relative tolerance
-     atolptr       is the absolute tolerance pointer (to scalar or vector)
-
-     A pointer to CVODE problem memory is createded and stored in CV_cvodemem. 
-  */
-
+  /* Call CVodeMalloc */
   *ier = 0;
-
-  CV_cvodemem = CVodeCreate(lmm, iter);
-
-  if (CV_cvodemem == NULL) {
-    *ier = -1;
-    return;
-  }
-
   *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
 
   /* destroy Vatol if allocated */
-  if (itol == CV_SV)
-    N_VDestroy(Vatol);
+  if (itol == CV_SV) N_VDestroy(Vatol);
 
+  /* Reset data pointers */
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
+
+  /* On failure, exit */
   if(*ier != CV_SUCCESS) {
     *ier = -1;
     return;
   }
 
   /* Grab optional output arrays and store them in global vriables */
-
   CV_iout = iout;
   CV_rout = rout;
 
   /* Store the unit roundoff in rout for user access */
   CV_rout[5] = UNIT_ROUNDOFF;
-
-  CV_ewt = NULL;
 
   return;
 }
@@ -166,15 +155,15 @@ void FCV_REINIT(realtype *t0, realtype *y0,
   N_Vector Vatol;
   void *atolptr;
 
+  /* Initialize all pointers to NULL */
   Vatol = NULL;
   atolptr = NULL;
-
-  /* Initialize itol to avoid compiler warning message */
-  itol = -1;
 
   /* Set data in F2C_CVODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_CVODE_vec);
 
+  /* Treat absolute tolerances */
+  itol = -1;
   switch (*iatol) {
   case 1:
     itol = CV_SS; 
@@ -191,22 +180,17 @@ void FCV_REINIT(realtype *t0, realtype *y0,
     break;
   }
 
-  /* 
-     Call CVReInit to re-initialize CVODE: 
-     CVf           is the user's right-hand side function in y'=f(t,y)
-     t0            is the initial time
-     F2C_CVODE_vec is the initial dependent variable vector
-     itol          is the tolerance type
-     rtol          is the scalar relative tolerance
-     atolptr       is the absolute tolerance pointer (to scalar or vector)
-  */
-
+  /* Call CVReInit */
+  *ier = 0;
   *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
 
   /* destroy Vatol if allocated */
-  if (itol == CV_SV)
-    N_VDestroy(Vatol);
+  if (itol == CV_SV) N_VDestroy(Vatol);
 
+  /* Reset data pointers */
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
+
+  /* On failure, exit */
   if (*ier != CV_SUCCESS) {
     *ier = -1;
     return;
@@ -219,27 +203,19 @@ void FCV_REINIT(realtype *t0, realtype *y0,
 
 void FCV_SETIIN(char key_name[], long int *ival, int *ier, int key_len)
 {
-
-  char key[20];
-
-  strncpy(key, key_name, key_len);
-
-  printf("KEY: >>%s<<    LEN:%d     NEW_KEY: >>%s<<\n",key_name,key_len,key);
-  printf("VAL: %ld\n",*ival);
-
-  if (!strcmp(key,"MAX_ORD")) 
+  if (!strncmp(key_name,"MAX_ORD", (size_t)key_len)) 
     *ier = CVodeSetMaxOrd(CV_cvodemem, (int) *ival);
-  else if (!strcmp(key,"MAX_NSTEPS")) 
+  else if (!strncmp(key_name,"MAX_NSTEPS", (size_t)key_len)) 
     *ier = CVodeSetMaxNumSteps(CV_cvodemem, (int) *ival);
-  else if (!strcmp(key,"MAX_ERRFAIL")) 
+  else if (!strncmp(key_name,"MAX_ERRFAIL", (size_t)key_len)) 
     *ier = CVodeSetMaxErrTestFails(CV_cvodemem, (int) *ival);
-  else if (!strcmp(key,"MAX_NITERS")) 
+  else if (!strncmp(key_name,"MAX_NITERS", (size_t)key_len)) 
     *ier = CVodeSetMaxNonlinIters(CV_cvodemem, (int) *ival);
-  else if (!strcmp(key,"MAX_CONVFAIL")) 
+  else if (!strncmp(key_name,"MAX_CONVFAIL", (size_t)key_len)) 
     *ier = CVodeSetMaxConvFails(CV_cvodemem, (int) *ival);
-  else if (!strcmp(key,"HNIL_WARNS")) 
+  else if (!strncmp(key_name,"HNIL_WARNS", (size_t)key_len)) 
     *ier = CVodeSetMaxHnilWarns(CV_cvodemem, (int) *ival);
-  else if (!strcmp(key,"STAB_LIM")) 
+  else if (!strncmp(key_name,"STAB_LIM", (size_t)key_len)) 
     *ier = CVodeSetStabLimDet(CV_cvodemem, (int) *ival);
   else {
     *ier = -99;
@@ -252,19 +228,15 @@ void FCV_SETIIN(char key_name[], long int *ival, int *ier, int key_len)
 
 void FCV_SETRIN(char key_name[], realtype *rval, int *ier, int key_len)
 {
-  char key[20];
-
-  strncpy(key, key_name, key_len);
-
-  if (!strcmp(key,"INIT_STEP")) 
+  if (!strncmp(key_name,"INIT_STEP", (size_t)key_len)) 
     *ier = CVodeSetInitStep(CV_cvodemem, *rval);
-  else if (!strcmp(key,"MAX_STEP")) 
+  else if (!strncmp(key_name,"MAX_STEP", (size_t)key_len)) 
     *ier = CVodeSetMaxStep(CV_cvodemem, *rval);
-  else if (!strcmp(key,"MIN_STEP")) 
+  else if (!strncmp(key_name,"MIN_STEP", (size_t)key_len)) 
     *ier = CVodeSetMinStep(CV_cvodemem, *rval);
-  else if (!strcmp(key,"STOP_TIME")) 
+  else if (!strncmp(key_name,"STOP_TIME", (size_t)key_len)) 
     *ier = CVodeSetStopTime(CV_cvodemem, *rval);
-  else if (!strcmp(key,"NLCONV_COEF")) 
+  else if (!strncmp(key_name,"NLCONV_COEF", (size_t)key_len)) 
     *ier = CVodeSetNonlinConvCoef(CV_cvodemem, *rval);
   else {
     *ier = -99;
@@ -431,8 +403,6 @@ void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
 
 void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
 {
-  realtype h0u;
-
   /* 
      tout          is the t value where output is desired
      F2C_CVODE_vec is the N_Vector containing the solution on return
@@ -444,6 +414,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   N_VSetArrayPointer(y, F2C_CVODE_vec);
 
   *ier = CVode(CV_cvodemem, *tout, F2C_CVODE_vec, t, *itask);
+
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
 
   /* Load optional outputs in iout & rout */
   CVodeGetWorkSpace(CV_cvodemem,
@@ -460,7 +432,8 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
                           &CV_rout[1],                    /* HU      */ 
                           &CV_rout[2],                    /* HCUR    */ 
                           &CV_rout[3]);                   /* TCUR    */ 
-  CVodeGetTolScaleFactor(CV_cvodemem, &CV_rout[4]);       /* TOLSFAC */
+  CVodeGetTolScaleFactor(CV_cvodemem, 
+                         &CV_rout[4]);                    /* TOLSFAC */
   CVodeGetNonlinSolvStats(CV_cvodemem,
                           &CV_iout[6],                    /* NNI     */
                           &CV_iout[5]);                   /* NCFN    */
@@ -473,24 +446,24 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   switch(CV_ls) {
   case CV_LS_DENSE:
     CVDenseGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LRW and LIW */
-    CVDenseGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* last linear solver flag */
+    CVDenseGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* LSTF */
     CVDenseGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFE */
     CVDenseGetNumJacEvals(CV_cvodemem, &CV_iout[16]);              /* NJE */
     break;
   case CV_LS_BAND:
     CVBandGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LRW and LIW */
-    CVBandGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);          /* last linear solver flag */
+    CVBandGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);          /* LSTF */
     CVBandGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFE */
     CVBandGetNumJacEvals(CV_cvodemem, &CV_iout[16]);               /* NJE */
     break;
   case CV_LS_DIAG:
     CVDiagGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LRW and LIW */
-    CVDiagGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);          /* last linear solver flag */
+    CVDiagGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);          /* LSTF */
     CVDiagGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFE */
     break;
   case CV_LS_SPGMR:
     CVSpgmrGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LRW and LIW */
-    CVSpgmrGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* last linear solver flag */
+    CVSpgmrGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* LSTF */
     CVSpgmrGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFE */
     CVSpgmrGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);           /* NJTV */
     CVSpgmrGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);             /* NPE */
@@ -500,7 +473,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     break;
   case CV_LS_SPBCG:
     CVSpbcgGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LRW and LIW */
-    CVSpbcgGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* last linear solver flag */
+    CVSpbcgGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* LSTF */
     CVSpbcgGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFE */
     CVSpbcgGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);           /* NJTV */
     CVSpbcgGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);             /* NPE */
@@ -510,7 +483,7 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     break;
   case CV_LS_SPTFQMR:
     CVSptfqmrGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]); /* LRW and LIW */
-    CVSptfqmrGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);        /* last linear solver flag */
+    CVSptfqmrGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);        /* LSTF */
     CVSptfqmrGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);             /* NFE */
     CVSptfqmrGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);          /* NJTV */
     CVSptfqmrGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);            /* NPE */
@@ -533,7 +506,10 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 
   N_VSetArrayPointer(dky, F2C_CVODE_vec);
 
+  *ier = 0;
   *ier = CVodeGetDky(CV_cvodemem, *t, *k, F2C_CVODE_vec);
+
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
 
 }
 
@@ -542,6 +518,7 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 void FCV_FREE ()
 {
   CVodeFree(CV_cvodemem);
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
   N_VDestroy(F2C_CVODE_vec);
   if (CV_ewt != NULL) N_VDestroy(CV_ewt);
 }
