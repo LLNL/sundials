@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-06-27 20:44:55 $
+ * $Revision: 1.3 $
+ * $Date: 2005-08-15 18:06:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -77,7 +77,7 @@
  *   IER   = completion flag (0 = success,  negative = failure)
  *
  * 5. The total number of calls made to the root function (FIDAROOTFN),
- * NGE, can be obtained from IOPT(35).
+ * NGE, can be obtained from IOUT(12).
  *
  * If the FIDA/IDA memory block is reinitialized to solve a different
  * problem via a call to FIDAREINIT, then the counter variable NGE is cleared

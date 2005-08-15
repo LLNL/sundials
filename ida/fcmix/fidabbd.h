@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-08-02 22:48:46 $
+ * $Revision: 1.5 $
+ * $Date: 2005-08-15 18:06:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -155,8 +155,8 @@
  *
  * (4.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
- *       CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, INOPT,
- *      1                IOPT, ROPT, IER)
+ *       CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR,
+ *      1                IOUT, ROUT, IER)
  * The arguments are:
  * T0    = initial value of t
  * Y0    = array of initial conditions, y(t0)
@@ -166,53 +166,31 @@
  *         the error weight vector.
  * RTOL  = relative tolerance (scalar)
  * ATOL  = absolute tolerance (scalar or array)
- * INOPT = optional input flag: 0 = none, 1 = inputs used
- * IOPT  = array of length 40 for integer optional inputs and outputs
+ * IOUT  = array of length at least 21 for integer optional inputs and outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- * ROPT  = array of length 40 for real optional inputs and outputs
- *
- *         The optional inputs are:
- *
- *           MAXORD  = IOPT(1)  -> IDASetMaxOrd
- *           MXSTEPS = IOPT(2)  -> IDASetMaxNumSteps
- *           MAXNEF  = IOPT(3)  -> IDASetMaxErrTestFails
- *           MAXCOR  = IOPT(4)  -> IDASetMaxNonlinIters
- *           MAXNCF  = IOPT(5)  -> IDASetMaxConvFails
- *           SUPALG  = IOPT(6)  -> IDASetSuppressAlg
- *           USEID   = IOPT(7)  -> IDASetId
- *           CONSTR  = IOPT(8)  -> IDASetConstraints
- *           MAXNH   = IOPT(9)  -> IDASetMaxNumStepsIC
- *           MAXNJ   = IOPT(10) -> IDASetMaxNumJacsIC
- *           MAXNIT  = IOPT(11) -> IDASetMaxNumItersIC
- *           LNSRCH  = IOPT(12) -> IDASetLineSearchOffIC
- *
- *           HIN     = ROPT(1)  -> IDASetInitStep
- *           HMAX    = ROPT(2)  -> IDASetMaxStep
- *           TSTOP   = ROPT(3)  -> IDASetStopTime
- *           EPCON   = ROPT(4)  -> IDASetNonlinConvCoef
- *           EPICCON = ROPT(5)  -> IDASetNonlinConvCoefIC
- *           STEPTOL = ROPT(6)  -> IDASetStepToleranceIC
+ * ROUT  = array of length 6 for real optional inputs and outputs
  *
  *         The optional outputs are:
  *
- *           NST     = IOPT(15) -> IDAGetNumSteps
- *           NRE     = IOPT(16) -> IDAGetNumResEvals
- *           NSETUPS = IOPT(17) -> IDAGetNumLinSolvSetups
- *           NETF    = IOPT(18) -> IDAGetNumErrTestFails
- *           KLAST   = IOPT(19) -> IDAGetLastOrder
- *           KCUR    = IOPT(20) -> IDAGetCurrentOrder
- *           NNI     = IOPT(21) -> IDAGetNumNonlinSolvIters
- *           NCFN    = IOPT(22) -> IDAGetNumNonlinSolvConvFails
- *           NBCKTRK = IOPT(23) -> IDAGetNumBacktrackOps
- *           LENRW   = IOPT(24) -> IDAGetWorkSpace
- *           LENIW   = IOPT(25) -> IDAGetWorkSpace
+ *           LENRW   = IOUT( 1) -> IDAGetWorkSpace
+ *           LENIW   = IOUT( 2) -> IDAGetWorkSpace
+ *           NST     = IOUT( 3) -> IDAGetNumSteps
+ *           NRE     = IOUT( 4) -> IDAGetNumResEvals
+ *           NETF    = IOUT( 5) -> IDAGetNumErrTestFails
+ *           NCFN    = IOUT( 6) -> IDAGetNumNonlinSolvConvFails
+ *           NNI     = IOUT( 7) -> IDAGetNumNonlinSolvIters
+ *           NSETUPS = IOUT( 8) -> IDAGetNumLinSolvSetups
+ *           KLAST   = IOUT( 9) -> IDAGetLastOrder
+ *           KCUR    = IOUT(10) -> IDAGetCurrentOrder
+ *           NBCKTRK = IOUT(11) -> IDAGetNumBacktrackOps
+ *           NGE     = IOUT(12) -> IDAGetNumGEvals
  *
- *           UNITRND = ROPT(15) -> UNIT_ROUNDOFF
- *           HLAST   = ROPT(16) -> IDAGetLastStep
- *           HCUR    = ROPT(17) -> IDAGetCurrentStep
- *           TCUR    = ROPT(18) -> IDAGetCurrentTime
- *           HINUSED = ROPT(19) -> IDAGetActualInitStep
- *           TOLSFAC = ROPT(20) -> IDAGetTolScaleFactor
+ *           HINUSED = ROUT( 1) -> IDAGetActualInitStep
+ *           HLAST   = ROUT( 2) -> IDAGetLastStep
+ *           HCUR    = ROUT( 3) -> IDAGetCurrentStep
+ *           TCUR    = ROUT( 4) -> IDAGetCurrentTime
+ *           TOLSFAC = ROUT( 5) -> IDAGetTolScaleFactor
+ *           UNITRND = ROUT( 6) -> UNIT_ROUNDOFF
  *
  * IER   = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *         See printed message for details in case of failure.
@@ -297,8 +275,7 @@
  * IDA package can be reinitialized for the second and subsequent problems
  * so as to avoid further memory allocation.  First, in place of the call
  * to FIDAMALLOC, make the following call:
- *       CALL FIDAREINIT(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, INOPT,
- *      1               IOPT, ROPT, IER)
+ *       CALL FIDAREINIT(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, IER)
  * The arguments have the same names and meanings as those of FIDAMALLOC.
  * FIDAREINIT performs the same initializations as FIDAMALLOC, but does no
  * memory allocation for IDA data structures, using instead the existing
@@ -321,47 +298,16 @@
  * ITASK = task indicator: 1 = normal mode (overshoot TOUT and interpolate)
  *         2 = one-step mode (return after each internal step taken)
  *         3 = normal tstop mode (like 1, but integration never proceeds past 
- *             TSTOP, which must be specified through the user input ROPT(3))
+ *             TSTOP,  which must be specified through a call to FIDASETRIN
+ *             using the key 'STOP_TIME'
  *         4 = one step tstop (like 2, but integration never goes past TSTOP)
  * IER   = completion flag: 0 = success, 1 = tstop return, 2 = root return, 
  *         values -1 ... -10 are various failure modes (see IDA manual).
- * The current values of the optional outputs are available in IOPT and ROPT.
+ * The current values of the optional outputs are available in IOUT and ROUT.
  *
  * (7) Optional outputs: FIDABBDOPT
- * Optional outputs specific to the SPGMR/SPBCG/SPTFQMR solver are:
- *
- *   SPTFQMR:
- *        LENRWC = IOPT(26) -> IDASptfqmrGetWorkSpace
- *        LENIWC = IOPT(27) -> IDASptfqmrGetWorkSpace
- *        NPE    = IOPT(28) -> IDASptfqmrGetPrecEvals
- *        NPS    = IOPT(29) -> IDASptfqmrGetPrecSolves
- *        NLI    = IOPT(30) -> IDASptfqmrGetLinIters
- *        NLCF   = IOPT(31) -> IDASptfqmrGetConvFails
- *        NJE    = IOPT(32) -> IDASptfqmrGetJtimesEvals
- *        NRE    = IOPT(33) -> IDASptfqmrGetResEvals
- *        LSTF   = IOPT(34) -> IDASptfqmrGetLastFlag
- *
- *   SPBCG:
- *        LENRWC = IOPT(26) -> IDASpbcgGetWorkSpace
- *        LENIWC = IOPT(27) -> IDASpbcgGetWorkSpace
- *        NPE    = IOPT(28) -> IDASpbcgGetPrecEvals
- *        NPS    = IOPT(29) -> IDASpbcgGetPrecSolves
- *        NLI    = IOPT(30) -> IDASpbcgGetLinIters
- *        NLCF   = IOPT(31) -> IDASpbcgGetConvFails
- *        NJE    = IOPT(32) -> IDASpbcgGetJtimesEvals
- *        NRE    = IOPT(33) -> IDASpbcgGetResEvals
- *        LSTF   = IOPT(34) -> IDASpbcgGetLastFlag
- *
- *   SPGMR:
- *        LENRWG = IOPT(26) -> IDASpgmrGetWorkSpace
- *        LENIWG = IOPT(27) -> IDASpgmrGetWorkSpace
- *        NPE    = IOPT(28) -> IDASpgmrGetPrecEvals
- *        NPS    = IOPT(29) -> IDASpgmrGetPrecSolves
- *        NLI    = IOPT(30) -> IDASpgmrGetLinIters
- *        NLCF   = IOPT(31) -> IDASpgmrGetConvFails
- *        NJE    = IOPT(32) -> IDASpgmrGetJtimesEvals
- *        NRE    = IOPT(33) -> IDASpgmrGetResEvals
- *        LSTF   = IOPT(34) -> IDASpgmrGetLastFlag
+ * Optional outputs specific to the SPGMR/SPBCG/SPTFQMR solver are available 
+ * in IOUT(13)...IOUT(21)
  *
  * To obtain the optional outputs associated with the IDABBDPRE module, make
  * the following call:

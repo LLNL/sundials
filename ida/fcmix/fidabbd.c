@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-07-05 22:35:14 $
+ * $Revision: 1.4 $
+ * $Date: 2005-08-15 18:06:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -80,7 +80,7 @@ void FIDA_BBDSPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
     if (*ier != IDASPTFQMR_SUCCESS) return;
   }
 
-  IDA_ls = IDA_SPTFQMR;
+  IDA_ls = IDA_LS_SPTFQMR;
 
   return;
 }
@@ -102,7 +102,7 @@ void FIDA_BBDSPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
     if (*ier != IDASPBCG_SUCCESS) return;
   }
 
-  IDA_ls = IDA_SPBCG;
+  IDA_ls = IDA_LS_SPBCG;
 
   return;
 }
@@ -135,7 +135,7 @@ void FIDA_BBDSPGMR(int *maxl, int *gstype, int *maxrs,
     if (*ier != IDASPGMR_SUCCESS) return;
   }
 
-  IDA_ls = IDA_SPGMR;
+  IDA_ls = IDA_LS_SPGMR;
 
   return;
 }

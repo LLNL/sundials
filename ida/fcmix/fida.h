@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-08-09 22:44:54 $
+ * $Revision: 1.10 $
+ * $Date: 2005-08-15 18:06:46 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier @ LLNL
+ * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -34,9 +34,11 @@
  *   FNVINITS* and FNVINITP*  interface to N_VNew_Serial and
  *                            N_VNew_Parallel, respectively
  *
- *   FIDAMALLOC  interfaces to IDACreate, IDASet*, and IDAMalloc
+ *   FIDAMALLOC  interfaces to IDACreate and IDAMalloc
  *
- *   FIDAREINIT  interfaces to IDAReInit, IDASet*
+ *   FIDAREINIT  interfaces to IDAReInit
+ *
+ *   FIDASETIIN, FIDASETRIN, FIDASETVIN interface to IDASet*
  *
  *   FIDATOLREINIT  interfaces to IDASetTolerances
  *
@@ -196,8 +198,7 @@
  *
  * (6.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
- *       CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, INOPT,
- *      1                IOPT, ROPT, IER)
+ *       CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, IOUT, ROUT, IER)
  * The arguments are:
  * T0    = initial value of t
  * Y0    = array of initial conditions, y(t0)
@@ -207,54 +208,31 @@
  *         the error weight vector.
  * RTOL  = relative tolerance (scalar)
  * ATOL  = absolute tolerance (scalar or array)
- * INOPT = optional input flag: 0 = none, 1 = inputs used
- * IOPT  = array of length 40 for integer optional inputs and outputs
+ * IOUT  = array of length at least 21 for integer optional inputs and outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- * ROPT  = array of length 40 for real optional inputs and outputs
- *
- *         The optional inputs are:
- *
- *           MAXORD  = IOPT(1)  -> IDASetMaxOrd
- *           MXSTEPS = IOPT(2)  -> IDASetMaxNumSteps
- *           MAXNEF  = IOPT(3)  -> IDASetMaxErrTestFails
- *           MAXCOR  = IOPT(4)  -> IDASetMaxNonlinIters
- *           MAXNCF  = IOPT(5)  -> IDASetMaxConvFails
- *           SUPALG  = IOPT(6)  -> IDASetSuppressAlg
- *           USEID   = IOPT(7)  -> IDASetId
- *           CONSTR  = IOPT(8)  -> IDASetConstraints
- *           MAXNH   = IOPT(9)  -> IDASetMaxNumStepsIC
- *           MAXNJ   = IOPT(10) -> IDASetMaxNumJacsIC
- *           MAXNIT  = IOPT(11) -> IDASetMaxNumItersIC
- *           LNSRCH  = IOPT(12) -> IDASetLineSearchOffIC
- *
- *           HIN     = ROPT(1)  -> IDASetInitStep
- *           HMAX    = ROPT(2)  -> IDASetMaxStep
- *           TSTOP   = ROPT(3)  -> IDASetStopTime
- *           EPCON   = ROPT(4)  -> IDASetNonlinConvCoef
- *           EPICCON = ROPT(5)  -> IDASetNonlinConvCoefIC
- *           STEPTOL = ROPT(6)  -> IDASetStepToleranceIC
+ * ROUT  = array of length at least 6 for real optional inputs and outputs
  *
  *         The optional outputs are:
  *
- *           NST     = IOPT(15) -> IDAGetNumSteps
- *           NRE     = IOPT(16) -> IDAGetNumResEvals
- *           NSETUPS = IOPT(17) -> IDAGetNumLinSolvSetups
- *           NETF    = IOPT(18) -> IDAGetNumErrTestFails
- *           KLAST   = IOPT(19) -> IDAGetLastOrder
- *           KCUR    = IOPT(20) -> IDAGetCurrentOrder
- *           NNI     = IOPT(21) -> IDAGetNumNonlinSolvIters
- *           NCFN    = IOPT(22) -> IDAGetNumNonlinSolvConvFails
- *           NBCKTRK = IOPT(23) -> IDAGetNumBacktrackOps
- *           LENRW   = IOPT(24) -> IDAGetWorkSpace
- *           LENIW   = IOPT(25) -> IDAGetWorkSpace
- *           NGE     = IOPT(35) -> IDAGetNumGEvals
+ *           LENRW   = IOUT( 1) -> IDAGetWorkSpace
+ *           LENIW   = IOUT( 2) -> IDAGetWorkSpace
+ *           NST     = IOUT( 3) -> IDAGetNumSteps
+ *           NRE     = IOUT( 4) -> IDAGetNumResEvals
+ *           NETF    = IOUT( 5) -> IDAGetNumErrTestFails
+ *           NCFN    = IOUT( 6) -> IDAGetNumNonlinSolvConvFails
+ *           NNI     = IOUT( 7) -> IDAGetNumNonlinSolvIters
+ *           NSETUPS = IOUT( 8) -> IDAGetNumLinSolvSetups
+ *           KLAST   = IOUT( 9) -> IDAGetLastOrder
+ *           KCUR    = IOUT(10) -> IDAGetCurrentOrder
+ *           NBCKTRK = IOUT(11) -> IDAGetNumBacktrackOps
+ *           NGE     = IOUT(12) -> IDAGetNumGEvals
  *
- *           UNITRND = ROPT(15) -> UNIT_ROUNDOFF
- *           HLAST   = ROPT(16) -> IDAGetLastStep
- *           HCUR    = ROPT(17) -> IDAGetCurrentStep
- *           TCUR    = ROPT(18) -> IDAGetCurrentTime
- *           HINUSED = ROPT(19) -> IDAGetActualInitStep
- *           TOLSFAC = ROPT(20) -> IDAGetTolScaleFactor
+ *           HINUSED = ROUT( 1) -> IDAGetActualInitStep
+ *           HLAST   = ROUT( 2) -> IDAGetLastStep
+ *           HCUR    = ROUT( 3) -> IDAGetCurrentStep
+ *           TCUR    = ROUT( 4) -> IDAGetCurrentTime
+ *           TOLSFAC = ROUT( 5) -> IDAGetTolScaleFactor
+ *           UNITRND = ROUT( 6) -> UNIT_ROUNDOFF
  *
  * IER   = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *         See printed message for details in case of failure.
@@ -265,22 +243,43 @@
  * with FLAG = 1 to specify that FIDAEWT is provided.
  * The return flag IER is 0 if successful, and nonzero otherwise.
  *
- * (6.3) To re-initialize the FIDA solver for the solution of a new problem
+ * (6.3) To set various integer optional inputs, make the folowing call:
+ *       CALL FIDASETIIN(KEY, VALUE, IER)
+ * to set the optional input specified by the character key KEY to the 
+ * integer value VAL.
+ * KEY is one of the following: MAX_ORD, MAX_NSTEPS, MAX_ERRFAIL, MAX_NITERS, 
+ * MAX_CONVFAIL, SUPPRESS_ALG, MAX_NSTEPS_IC, MAX_NITERS_IC, MAX_NJE_IC, LS_OFF_IC.
+ *
+ * To set various real optional inputs, make the folowing call:
+ *       CALL FIDASETRIN(KEY, VALUE, IER)
+ * to set the optional input specified by the character key KEY to the
+ * real value VAL.
+ * KEY is one of the following: INIT_STEP, MAX_STEP, MIIN_STEP, STOP_TIME,
+ * NLCONV_COEF.
+ *
+ * To set the vector of variable IDs or the vector of constraints, make
+ * the following call:
+ *       CALL FIDASETVIN(KEY, ARRAY, IER)
+ * where ARRAY is an array of reals and KEY is 'ID_VEC' or 'CONSTR_VEC'.
+ *
+ * FIDASETIIN, FIDASETRIN, and FIDASETVIN return IER=0 if successful and 
+ * IER<0 if an error occured.
+ *
+ * (6.4) To re-initialize the FIDA solver for the solution of a new problem
  * of the same size as one already solved, make the following call:
- *       CALL FIDAREINIT (T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, INOPT,
-        1                 IOPT, ROPT, IER)
+ *       CALL FIDAREINIT (T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, IER)
  * The arguments have the same names and meanings as those of FIDAMALLOC.
  * FIDAREINIT performs the same initializations as FIDAMALLOC, but does no memory 
  * allocation for IDA data structures, using instead the existing internal memory
  * created by the previous FIDAMALLOC call.  The call to specify the linear system
  * solution method may or may not be needed.  See below.
  *
- * (6.4) To modify the tolerance parameters, make the following call:
+ * (6.5) To modify the tolerance parameters, make the following call:
  *       CALL FIDATOLREINIT (IATOL, RTOL, ATOL, IER)
  * The arguments have the same names and meanings as those of FIDAMALLOC.
  * FIDATOLREINIT simple calls IDASetTolerances with the given arguments.
  *
- * (6.5) To compute consistent initial conditions for an index-one DAE system,
+ * (6.6) To compute consistent initial conditions for an index-one DAE system,
  * make the following call:
  *       CALL FIDACALCIC(T0, Y0, YP0, ICOPT, TOUT, IER)
  * The arguments are:
@@ -314,11 +313,11 @@
  * 
  *      Optional outputs specific to the DENSE case are:
  *
- *        LENRWD = IOPT(26) -> IDADenseGetWorkSpace
- *        LENIWD = IOPT(27) -> IDADenseGetWorkSpace
- *        NJED   = IOPT(28) -> IDADenseGetNumJacEvals
- *        NRED   = IOPT(29) -> IDADenseGetNumResEvals
- *        LSTF   = IOPT(30) -> IDADenseGetLastFlag
+ *        LENRWD = IOUT(13) -> IDADenseGetWorkSpace
+ *        LENIWD = IOUT(14) -> IDADenseGetWorkSpace
+ *        LSTF   = IOUT(15) -> IDADenseGetLastFlag
+ *        NRED   = IOUT(16) -> IDADenseGetNumResEvals
+ *        NJED   = IOUT(17) -> IDADenseGetNumJacEvals
  *
  * (7.3s) BAND treatment of the linear system
  * The user must make the call
@@ -338,11 +337,11 @@
  *
  *      Optional outputs specific to the BAND case are:
  *
- *        LENRWB = IOPT(26) -> IDABandGetWorkSpace
- *        LENIWB = IOPT(27) -> IDABandGetWorkSpace
- *        NJEB   = IOPT(28) -> IDABandGetNumJacEvals
- *        NREB   = IOPT(29) -> IDABandGetNumResEvals
- *        LSTF   = IOPT(30) -> IDABandGetLastFlag
+ *        LENRWB = IOUT(13) -> IDABandGetWorkSpace
+ *        LENIWB = IOUT(14) -> IDABandGetWorkSpace
+ *        LSTF   = IOUT(15) -> IDABandGetLastFlag
+ *        NREB   = IOUT(16) -> IDABandGetNumResEvals
+ *        NJEB   = IOUT(17) -> IDABandGetNumJacEvals
  *
  * (7.4) SPTFQMR treatment of the linear systems.
  * For the Scaled Preconditioned TFQMR solution of the linear systems,
@@ -385,15 +384,15 @@
  *
  *      Optional outputs specific to the SPTFQMR case are:
  *
- *        LENRWC = IOPT(26) -> IDASptfqmrGetWorkSpace
- *        LENIWC = IOPT(27) -> IDASptfqmrGetWorkSpace
- *        NPE    = IOPT(28) -> IDASptfqmrGetPrecEvals
- *        NPS    = IOPT(29) -> IDASptfqmrGetPrecSolves
- *        NLI    = IOPT(30) -> IDASptfqmrGetLinIters
- *        NLCF   = IOPT(31) -> IDASptfqmrGetConvFails
- *        NJE    = IOPT(32) -> IDASptfqmrGetJtimesEvals
- *        NRE    = IOPT(33) -> IDASptfqmrGetResEvals
- *        LSTF   = IOPT(34) -> IDASptfqmrGetLastFlag
+ *        LENRWC = IOUT(13) -> IDASptfqmrGetWorkSpace
+ *        LENIWC = IOUT(14) -> IDASptfqmrGetWorkSpace
+ *        LSTF   = IOUT(15) -> IDASptfqmrGetLastFlag
+ *        NRE    = IOUT(16) -> IDASptfqmrGetResEvals
+ *        NJE    = IOUT(17) -> IDASptfqmrGetJtimesEvals
+ *        NPE    = IOUT(18) -> IDASptfqmrGetPrecEvals
+ *        NPS    = IOUT(19) -> IDASptfqmrGetPrecSolves
+ *        NLI    = IOUT(20) -> IDASptfqmrGetLinIters
+ *        NLCF   = IOUT(21) -> IDASptfqmrGetConvFails
  *
  *      If a sequence of problems of the same size is being solved using the
  * SPTFQMR linear solver, then following the call to FIDAREINIT, a call to the
@@ -444,15 +443,15 @@
  *
  *      Optional outputs specific to the SPBCG case are:
  *
- *        LENRWC = IOPT(26) -> IDASpbcgGetWorkSpace
- *        LENIWC = IOPT(27) -> IDASpbcgGetWorkSpace
- *        NPE    = IOPT(28) -> IDASpbcgGetPrecEvals
- *        NPS    = IOPT(29) -> IDASpbcgGetPrecSolves
- *        NLI    = IOPT(30) -> IDASpbcgGetLinIters
- *        NLCF   = IOPT(31) -> IDASpbcgGetConvFails
- *        NJE    = IOPT(32) -> IDASpbcgGetJtimesEvals
- *        NRE    = IOPT(33) -> IDASpbcgGetResEvals
- *        LSTF   = IOPT(34) -> IDASpbcgGetLastFlag
+ *        LENRWC = IOUT(13) -> IDASpbcgGetWorkSpace
+ *        LENIWC = IOUT(14) -> IDASpbcgGetWorkSpace
+ *        LSTF   = IOUT(15) -> IDASpbcgGetLastFlag
+ *        NRE    = IOUT(16) -> IDASpbcgGetResEvals
+ *        NJE    = IOUT(17) -> IDASpbcgGetJtimesEvals
+ *        NPE    = IOUT(18) -> IDASpbcgGetPrecEvals
+ *        NPS    = IOUT(19) -> IDASpbcgGetPrecSolves
+ *        NLI    = IOUT(20) -> IDASpbcgGetLinIters
+ *        NLCF   = IOUT(21) -> IDASpbcgGetConvFails
  *
  *      If a sequence of problems of the same size is being solved using the
  * SPBCG linear solver, then following the call to FIDAREINIT, a call to the
@@ -505,15 +504,15 @@
  *
  * Optional outputs specific to the SPGMR case are:
  *
- *        LENRWG = IOPT(26) -> IDASpgmrGetWorkSpace
- *        LENIWG = IOPT(27) -> IDASpgmrGetWorkSpace
- *        NPE    = IOPT(28) -> IDASpgmrGetPrecEvals
- *        NPS    = IOPT(29) -> IDASpgmrGetPrecSolves
- *        NLI    = IOPT(30) -> IDASpgmrGetLinIters
- *        NLCF   = IOPT(31) -> IDASpgmrGetConvFails
- *        NJE    = IOPT(32) -> IDASpgmrGetJtimesEvals
- *        NRE    = IOPT(33) -> IDASpgmrGetResEvals
- *        LSTF   = IOPT(34) -> IDASpgmrGetLastFlag
+ *        LENRWG = IOUT(13) -> IDASpgmrGetWorkSpace
+ *        LENIWG = IOUT(14) -> IDASpgmrGetWorkSpace
+ *        LSTF   = IOUT(15) -> IDASpgmrGetLastFlag
+ *        NRE    = IOUT(16) -> IDASpgmrGetResEvals
+ *        NJE    = IOUT(17) -> IDASpgmrGetJtimesEvals
+ *        NPE    = IOUT(18) -> IDASpgmrGetPrecEvals
+ *        NPS    = IOUT(19) -> IDASpgmrGetPrecSolves
+ *        NLI    = IOUT(20) -> IDASpgmrGetLinIters
+ *        NLCF   = IOUT(21) -> IDASpgmrGetConvFails
  *
  * If a sequence of problems of the same size is being solved using the
  * SPGMR linear solver, then following the call to FIDAREINIT, a call to the
@@ -534,11 +533,12 @@
  * ITASK = task indicator: 1 = normal mode (overshoot TOUT and interpolate)
  *         2 = one-step mode (return after each internal step taken)
  *         3 = normal tstop mode (like 1, but integration never proceeds past 
- *             TSTOP, which must be specified through the user input ROPT(3))
+ *             TSTOP, which must be specified through a call to FIDASETRIN
+ *             using the key 'STOP_TIME'
  *         4 = one step tstop (like 2, but integration never goes past TSTOP)
  * IER   = completion flag: 0 = success, 1 = tstop return, 2 = root return, 
  *         values -1 ... -10 are various failure modes (see IDA manual).
- * The current values of the optional outputs are available in IOPT and ROPT.
+ * The current values of the optional outputs are available in IOUT and ROUT.
  *
  * (9) Getting current solution: FIDAGETSOL
  * To obtain interpolated values of y and y' for any value of t in the last
@@ -576,6 +576,9 @@ extern "C" {
 
 #define FIDA_MALLOC         F77_FUNC(fidamalloc, FIDAMALLOC)
 #define FIDA_REINIT         F77_FUNC(fidareinit, FIDAREINIT)
+#define FIDA_SETIIN         F77_FUNC(fidasetiin, FIDASETIIN)
+#define FIDA_SETRIN         F77_FUNC(fidasetrin, FIDASETRIN)
+#define FIDA_SETVIN         F77_FUNC(fidasetvin, FIDASETVIN)
 #define FIDA_TOLREINIT      F77_FUNC(fidatolreinit, FIDATOLREINIT)
 #define FIDA_SOLVE          F77_FUNC(fidasolve, FIDASOLVE)
 #define FIDA_FREE           F77_FUNC(fidafree, FIDAFREE)
@@ -611,6 +614,9 @@ extern "C" {
 
 #define FIDA_MALLOC         fidamalloc
 #define FIDA_REINIT         fidareinit
+#define FIDA_SETIIN         fidasetiin
+#define FIDA_SETRIN         fidasetrin
+#define FIDA_SETVIN         fidasetvin
 #define FIDA_TOLREINIT      fidatolreinit
 #define FIDA_SOLVE          fidasolve
 #define FIDA_FREE           fidafree
@@ -646,6 +652,9 @@ extern "C" {
 
 #define FIDA_MALLOC         FIDAMALLOC
 #define FIDA_REINIT         FIDAREINIT
+#define FIDA_SETIIN         FIDASETIIN
+#define FIDA_SETRIN         FIDASETRIN
+#define FIDA_SETVIN         FIDASETVIN
 #define FIDA_TOLREINIT      FIDATOLREINIT
 #define FIDA_SOLVE          FIDASOLVE
 #define FIDA_FREE           FIDAFREE
@@ -681,6 +690,9 @@ extern "C" {
 
 #define FIDA_MALLOC         fidamalloc_
 #define FIDA_REINIT         fidareinit_
+#define FIDA_SETIIN         fidasetiin_
+#define FIDA_SETRIN         fidasetrin_
+#define FIDA_SETVIN         fidasetvin_
 #define FIDA_TOLREINIT      fidatolreinit_
 #define FIDA_SOLVE          fidasolve_
 #define FIDA_FREE           fidafree_
@@ -716,6 +728,9 @@ extern "C" {
 
 #define FIDA_MALLOC         FIDAMALLOC_
 #define FIDA_REINIT         FIDAREINIT_
+#define FIDA_SETIIN         FIDASETIIN_
+#define FIDA_SETRIN         FIDASETRIN_
+#define FIDA_SETVIN         FIDASETVIN_
 #define FIDA_TOLREINIT      FIDATOLREINIT_
 #define FIDA_SOLVE          FIDASOLVE_
 #define FIDA_FREE           FIDAFREE_
@@ -751,6 +766,9 @@ extern "C" {
 
 #define FIDA_MALLOC         fidamalloc__
 #define FIDA_REINIT         fidareinit__
+#define FIDA_SETIIN         fidasetiin__
+#define FIDA_SETRIN         fidasetrin__
+#define FIDA_SETVIN         fidasetvin__
 #define FIDA_TOLREINIT      fidatolreinit__
 #define FIDA_SOLVE          fidasolve__
 #define FIDA_FREE           fidafree__
@@ -786,6 +804,9 @@ extern "C" {
 
 #define FIDA_MALLOC         FIDAMALLOC__
 #define FIDA_REINIT         FIDAREINIT__
+#define FIDA_SETIIN         FIDASTIIN__
+#define FIDA_SETRIN         FIDASETRIN__
+#define FIDA_SETVIN         FIDASETVIN__
 #define FIDA_TOLREINIT      FIDATOLREINIT__
 #define FIDA_SOLVE          FIDASOLVE__
 #define FIDA_FREE           FIDAFREE__
@@ -822,30 +843,34 @@ extern "C" {
 /* Prototypes of exported functions */
 
 void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
-		 int *iatol, realtype *rtol, realtype *atol,
-		 realtype *id, realtype *constr,
-                 int *optin, long int *iopt, realtype *ropt,
-		 int *ier);
+                 int *iatol, realtype *rtol, realtype *atol,
+                 long int *iout, realtype *rout,
+                 int *ier);
 void FIDA_REINIT(realtype *t0, realtype *yy0, realtype *yp0,
-		 int *iatol, realtype *rtol, realtype *atol,
-		 realtype *id, realtype *constr,
-		 int *optin, long int *iopt, realtype *ropt,
-		 int *ier);
+                 int *iatol, realtype *rtol, realtype *atol,
+                 int *ier);
+
+void FIDA_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
+
+void FIDA_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
+
+void FIDA_SETVIN(char key_name[], realtype *vval, int *ier, int key_len);
+
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier);
 void FIDA_CALCIC(realtype *t0, realtype *yy0, realtype *yp0,
-		 int *icopt, realtype *tout1, int *ier);
+                 int *icopt, realtype *tout1, int *ier);
 void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs, realtype *eplifac,
-		realtype *dqincfac, int *ier);
+                realtype *dqincfac, int *ier);
 void FIDA_DENSE(long int *neq, int *ier);
 void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
 void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPBCGREINIT(realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPGMRREINIT(int *gstype, int *maxrs, realtype *eplifac,
-		      realtype *dqincfac, int *ier);
+                      realtype *dqincfac, int *ier);
 void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
-		realtype *ypret, int *itask, int *ier);
+                realtype *ypret, int *itask, int *ier);
 void FIDA_FREE(void);
 void FIDA_BANDSETJAC(int *flag, int *ier);
 void FIDA_DENSESETJAC(int *flag, int *ier);
@@ -865,46 +890,47 @@ void FIDA_GETESTLOCALERR(realtype *ele, int *ier);
 int FIDAresfn(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *res_data);
 
 int FIDADenseJac(long int N, realtype t,
-		 N_Vector yy, N_Vector yp, N_Vector rr,
-		 realtype c_j, void *jac_data, DenseMat Jac,
-		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                 N_Vector yy, N_Vector yp, N_Vector rr,
+                 realtype c_j, void *jac_data, DenseMat Jac,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDABandJac(long int N, long int mupper, long int mlower,
-		BandMat J, realtype t,
-		N_Vector yy, N_Vector yp, N_Vector rr,
-		realtype c_j, void *jac_data, BandMat Jac,
-		N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+                BandMat J, realtype t,
+                N_Vector yy, N_Vector yp, N_Vector rr,
+                realtype c_j, void *jac_data, BandMat Jac,
+                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
-	       N_Vector v, N_Vector Jv,
-	       realtype c_j, void *jac_data,
-	       N_Vector vtemp1, N_Vector vtemp2);
+               N_Vector v, N_Vector Jv,
+               realtype c_j, void *jac_data,
+               N_Vector vtemp1, N_Vector vtemp2);
 
 int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
-	     realtype c_j, void *prec_data,
-	     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+             realtype c_j, void *prec_data,
+             N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
-	     N_Vector rvec, N_Vector zvec,
-	     realtype c_j, realtype delta, void *prec_data,
-	     N_Vector vtemp1);
+             N_Vector rvec, N_Vector zvec,
+             realtype c_j, realtype delta, void *prec_data,
+             N_Vector vtemp1);
 
 int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *e_data);
 
 /* Declarations for global variables shared amongst various routines */
 
-extern N_Vector F2C_IDA_vec, F2C_IDA_ypvec, F2C_IDA_atolvec, F2C_IDA_ewtvec;
+extern N_Vector F2C_IDA_vec;
 
+extern N_Vector F2C_IDA_ypvec, F2C_IDA_ewtvec;
 extern void *IDA_idamem;
-extern booleantype IDA_optin;
-extern long int *IDA_iopt;
-extern realtype *IDA_ropt;
+extern long int *IDA_iout;
+extern realtype *IDA_rout;
 extern int IDA_ls;
 extern int IDA_nrtfn;
 
 /* Linear solver IDs */
 
-enum { IDA_DENSE = 1, IDA_BAND = 2, IDA_SPGMR = 3, IDA_SPBCG = 4,  IDA_SPTFQMR = 5 };
+enum { IDA_LS_DENSE = 1, IDA_LS_BAND = 2, IDA_LS_SPGMR = 3, 
+       IDA_LS_SPBCG = 4, IDA_LS_SPTFQMR = 5 };
 
 #ifdef __cplusplus
 }
