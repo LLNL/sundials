@@ -965,7 +965,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   Its arguments are the same as those of \id{FCVSPGMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
   
-
   Optionally, to specify that {\spgmr} should use the supplied \id{FCVJTIMES}, 
   make the call
   \index{FCVSPGMRSETJAC@\texttt{FCVSPGMRSETJAC}}
@@ -975,6 +974,45 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
   
+
+  To specify the {\spbcg} linear system solver and use the {\cvbandpre}
+  preconditioner, make the following call:
+  \index{FCVBPSPBCG@\texttt{FCVBPSPBCG}}
+\begin{verbatim}
+       CALL FCVBPSPBCG(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+\end{verbatim}
+  Its arguments are the same as those of \id{FCVSPBCG}
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
+  
+  Optionally, to specify that {\spbcg} should use the supplied \id{FCVJTIMES}, 
+  make the call
+  \index{FCVSPBCGSETJAC@\texttt{FCVSPBCGSETJAC}}
+\begin{verbatim}
+       CALL FCVSPBCGSETJAC(FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$ 
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
+
+
+  To specify the {\spbcg} linear system solver and use the {\cvbandpre}
+  preconditioner, make the following call:
+  \index{FCVBPSPTFQMR@\texttt{FCVBPSPTFQMR}}
+\begin{verbatim}
+       CALL FCVBPSPTFQMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+\end{verbatim}
+  Its arguments are the same as those of \id{FCVSPTFQMR}
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
+  
+  Optionally, to specify that {\sptfqmr} should use the supplied \id{FCVJTIMES}, 
+  make the call
+  \index{FCVSPTFQMRSETJAC@\texttt{FCVSPTFQMRSETJAC}}
+\begin{verbatim}
+       CALL FCVSPTFQMRSETJAC(FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$ 
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
+
+
 \item \textcolor{gray}{\bf Problem solution}
   
 \item {\bf {\cvbbdpre} Optional outputs}
@@ -1094,7 +1132,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   Its arguments are the same as those of \id{FCVSPGMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
   
-
   Optionally, to specify that {\spgmr} should use the supplied \id{FCVJTIMES}, 
   make the call
   \index{FCVSPGMRSETJAC@\texttt{FCVSPGMRSETJAC}}
@@ -1104,6 +1141,44 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
   
+
+  To specify the {\spbcg} linear system solver and use the {\cvbbdpre}
+  preconditioner, make the following call:
+  \index{FCVBBDSPBCG@\texttt{FCVBBDSPBCG}}
+\begin{verbatim}
+       CALL FCVBBDSPBCG(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+\end{verbatim}
+  Its arguments are the same as those of \id{FCVSPBCG}
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
+  
+  Optionally, to specify that {\spbcg} should use the supplied \id{FCVJTIMES}, 
+  make the call
+  \index{FCVSPBCGSETJAC@\texttt{FCVSPBCGSETJAC}}
+\begin{verbatim}
+       CALL FCVSPBCGSETJAC(FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$ 
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
+
+
+  To specify the {\sptfqmr} linear system solver and use the {\cvbbdpre}
+  preconditioner, make the following call:
+  \index{FCVBBDSPTFQMR@\texttt{FCVBBDSPTFQMR}}
+\begin{verbatim}
+       CALL FCVBBDSPTFQMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+\end{verbatim}
+  Its arguments are the same as those of \id{FCVSPTFQMR}
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
+  
+  Optionally, to specify that {\sptfqmr} should use the supplied \id{FCVJTIMES}, 
+  make the call
+  \index{FCVSPTFQMRSETJAC@\texttt{FCVSPTFQMRSETJAC}}
+\begin{verbatim}
+       CALL FCVSPTFQMRSETJAC(FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$ 
+  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
+
 \item \textcolor{gray}{\bf Problem solution}
   
 \item {\bf {\cvbbdpre} Optional outputs}
@@ -1125,8 +1200,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   
 \item {\bf Problem reinitialization}
   
-  If a sequence of problems of the same size is being solved using the {\spgmr}
-  linear solver in combination with the {\cvbbdpre} preconditioner, then the
+  If a sequence of problems of the same size is being solved using the {\spgmr},
+  {\spbcg}, or {\sptfqmr} linear solver in combination with the {\cvbbdpre} preconditioner, then the
   {\cvode} package can be re-initialized for the second and subsequent problems
   by calling \id{FCVREINIT}, following which, a call to \id{FCVBBDINIT} may or 
   may not be needed.
@@ -1142,8 +1217,9 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   routine have the same names and meanings as those of \id{FCVBBDINIT}.
   If the value of \id{MU} or \id{ML} is being changed, then a call to
   \id{FCVBBDINIT} must be made.  Finally, if \id{MAXL} is being
-  changed, then a call to \id{FCVBBDSPGMR} must be made; in this case
-  the {\spgmr} memory is reallocated.
+  changed, then a call to \id{FCVBBDSPGMR}, \id{FCVBBDSPBCG}, or
+  \id{FCVBBDSPTFQMR} must be made; in this case
+  the linear solver memory is reallocated.
   
 \item {\bf Memory deallocation}
 
