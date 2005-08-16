@@ -113,11 +113,6 @@ v. 2.3.0 (Apr. 2005) --->
        IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
    - added IDAGetEstLocalErrors() to return estimated local errors.
 
-- Changes to FIDA module
-   - added support for IDASPTFQMR/SPTFQMR (added FIDA*SPTFQMR* functions).
-   - added interface to the rootfinding feature; modified irobxf example.
-   - added FIDAGETESTLOCALERR() to interface with IDAGetEstLocalErrors().
-
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------
 
