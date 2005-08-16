@@ -1,7 +1,7 @@
       program kindiagpf
 c     ----------------------------------------------------------------
-c     $Revision: 1.18 $
-c     $Date: 2005-06-21 19:13:12 $
+c     $Revision: 1.19 $
+c     $Date: 2005-08-16 16:48:38 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -21,14 +21,17 @@ c
 c      Execution command: mpirun -np 4 kindiagpf
 c     ----------------------------------------------------------------
 c
+      implicit none
+
       include "mpif.h"
 
-      integer ier, size, globalstrat, rank, inopt, mype, npes
+      integer ier, size, globalstrat, rank, mype, npes
       integer maxl, maxlrst
       integer*4 localsize
       parameter(localsize=32)
       integer*4 neq, nlocal, msbpre, baseadd, i, ii
-      integer*4 iopt(40)
+      integer*4 iout(15)
+      double precision rout(2)
       double precision pp, fnormtol, scsteptol
       double precision uu(localsize), scale(localsize)
       double precision constr(localsize)
@@ -40,7 +43,6 @@ c
       globalstrat = 0
       fnormtol = 1.0d-5
       scsteptol = 1.0d-4
-      inopt = 0
       maxl = 10
       maxlrst = 2
       msbpre  = 5
@@ -101,8 +103,7 @@ c     number of this process.
          constr(ii) = 0.0d0
  20   continue
       
-      call fkinmalloc(msbpre, fnormtol, scsteptol, 
-     &                constr, inopt, iopt, ropt, ier)
+      call fkinmalloc(iout, rout, ier)
       
       if (ier .ne. 0) then
          write(6,1231)ier
@@ -111,6 +112,11 @@ c     number of this process.
          stop
       endif
       
+      call fkinsetiin('MAX_SETUPS', msbpre, ier)
+      call fkinsetrin('FNORM_TOL', fnormtol, ier)
+      call fkinsetrin('SSTEP_TOL', scsteptol, ier)
+      call fkinsetvin('CONSTR_VEC', constr, ier)
+
       call fkinspgmr(maxl, maxlrst, ier)
       call fkinspgmrsetprec(1, ier)
       
@@ -123,7 +129,7 @@ c     number of this process.
 
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
-         write(6,1242) ier, iopt(15)
+         write(6,1242) ier, iout(9)
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ', i2, /,
      1          '                Linear Solver returned IER = ', i2)
          call mpi_abort(mpi_comm_world, 1, ier)
@@ -142,8 +148,8 @@ c     number of this process.
  1256    format(i4, 4(1x, f10.6))
  30   continue
 
-      if (mype .eq. 0) write(6,1267) iopt(4), iopt(11), iopt(5),
-     1                               iopt(12), iopt(13), iopt(14)
+      if (mype .eq. 0) write(6,1267) iout(3), iout(14), iout(4),
+     1                               iout(12), iout(13), iout(15)
  1267 format(//'Final statistics:'//
      1       ' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
      2       ',  npe = ', i4, ',  nps=', i4, ',  ncfl=', i4)

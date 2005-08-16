@@ -1,7 +1,7 @@
       program kindiagsf
 c     ----------------------------------------------------------------
-c     $Revision: 1.17 $
-c     $Date: 2005-06-21 19:13:17 $
+c     $Revision: 1.18 $
+c     $Date: 2005-08-16 16:48:41 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -26,9 +26,9 @@ c
       integer*4 PROBSIZE
       parameter(PROBSIZE=128)
       integer*4 neq, i, msbpre
-      integer*4 iopt(40)
+      integer*4 iout(15)
       double precision pp, fnormtol, scsteptol
-      double precision ropt(40), uu(PROBSIZE), scale(PROBSIZE)
+      double precision rout(2), uu(PROBSIZE), scale(PROBSIZE)
       double precision constr(PROBSIZE)
 
       common /pcom/ pp(PROBSIZE)
@@ -38,7 +38,6 @@ c
       globalstrat = 0
       fnormtol = 1.0d-5
       scsteptol = 1.0d-4
-      inopt = 0
       maxl = 10
       maxlrst = 2
       msbpre  = 5
@@ -58,13 +57,17 @@ c * * * * * * * * * * * * * * * * * * * * * *
          constr(i) = 0.0d0
   20  continue
 
-      call fkinmalloc(msbpre, fnormtol, scsteptol, 
-     &                constr, inopt, iopt, ropt, ier)
+      call fkinmalloc(iout, rout, ier)
       if (ier .ne. 0) then
          write(6,1230) ier
  1230    format('SUNDIALS_ERROR: FKINMALLOC returned IER = ', i2)
          stop
       endif
+
+      call fkinsetiin('MAX_SETUPS', msbpre, ier)
+      call fkinsetrin('FNORM_TOL', fnormtol, ier)
+      call fkinsetrin('SSTEP_TOL', scsteptol, ier)
+      call fkinsetvin('CONSTR_VEC', constr, ier)
 
       call fkinspgmr(maxl, maxlrst, ier)
       if (ier .ne. 0) then
@@ -85,7 +88,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
 
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
-         write(6,1242) ier, iopt(15)
+         write(6,1242) ier, iout(9)
  1242    format('SUNDIALS_ERROR: FKINSOL returned IER = ', i2, /,
      1          '                Linear Solver returned IER = ', i2)
          call fkinfree
@@ -103,8 +106,8 @@ c * * * * * * * * * * * * * * * * * * * * * *
  1256    format(i4, 4(1x, f10.6))
  30   continue
 
-      write(6,1267) iopt(4), iopt(11), iopt(5), iopt(12), iopt(13),
-     1              iopt(14)
+      write(6,1267) iout(3), iout(14), iout(4), iout(12), iout(13),
+     1              iout(15)
  1267 format(//'Final statistics:'//
      1       ' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
      2       ',  npe = ', i4, ',  nps = ', i4, ',  ncfl = ', i4)
