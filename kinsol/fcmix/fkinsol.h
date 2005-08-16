@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2005-08-08 20:44:44 $
+ * $Revision: 1.39 $
+ * $Date: 2005-08-16 16:48:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -31,15 +31,16 @@
  The user-callable functions, with the corresponding KINSOL functions,
  are as follows:
 
-   FNVINITS and FNVINITP : initialize serial and parallel vector
-                           computations, respectively
-   FKINMALLOC  :  interfaces to KINMalloc
-   FKINDENSE   : interfaces to KINDense
-   FKINSPTFQMR : interfaces to KINSptfqmr
-   FKINSPGMR   : interfaces to KINSpgmr
-   FKINSPBCG   : interfaces to KINSpbcg
-   FKINSOL     : interfaces to KINSol
-   FKINFREE    : interfaces to KINFree
+   FNVINITS and FNVINITP initialize serial and parallel vector
+                         computations, respectively
+   FKINMALLOC interfaces to KINMalloc
+   FKINSETIIN, FKINSETRIN, FKINSETVIN interface to KINSet* functions
+   FKINDENSE interfaces to KINDense
+   FKINSPTFQMR interfaces to KINSptfqmr
+   FKINSPGMR interfaces to KINSpgmr
+   FKINSPBCG interfaces to KINSpbcg
+   FKINSOL interfaces to KINSol and KINGet* functions
+   FKINFREE interfaces to KINFree
 
  The user-supplied functions, each with the corresponding interface function
  which calls it (and its type within KINSOL), are as follows:
@@ -47,6 +48,8 @@
    FKFUN    : called by the interface function FKINfunc of type SysFn
    FKDJAC   : called by the interface function FKINDenseJac of type
               KINDenseJacFn
+   FKBJAC   : called by the interface function FKINBandJac of type
+              KINBandJacFn
    FKJTIMES : called by the interface function FKINJtimes of type
               KINSpilsJacTimesVecFn
    FKPSOL   : called by the interface function FKINPSol of type
@@ -87,7 +90,31 @@
      function of the array UU = u. Here UU and FVAL are arrays representing
      vectors, which are distributed vectors in the parallel case.
 
- (2) Optional user-supplied Jacobian-vector product routine: FKJTIMES
+ (2s) Optional user-supplied dense Jacobian approximation routine: FKDJAC
+  
+     As an option when using the DENSE linear solver, the user may supply a
+     routine that computes a dense approximation of the system Jacobian 
+     J = df/dy. If supplied, it must have the following form:
+        
+       SUBROUTINE FKDJAC(N, UU, FU, DJAC, WK1, WK2, IER)
+       DIMENSION UU(*), FU(*), DJAC(N,*), WK1(*), WK2(*)
+
+     This routine must compute the Jacobian and store it columnwise in DJAC.
+     FKDJAC should return IER = 0 if successful, or a nonzero IER otherwise.
+
+ (3s) Optional user-supplied band Jacobian approximation routine: FKBJAC
+  
+     As an option when using the BAND linear solver, the user may supply a
+     routine that computes a band approximation of the system Jacobian 
+     J = df/dy. If supplied, it must have the following form:
+        
+       SUBROUTINE FKBJAC(N, MU, ML, MDIM, UU, FU, BJAC, WK1, WK2, IER)
+       DIMENSION UU(*), FU(*), BJAC(MDIM,*), WK1(*), WK2(*)
+
+     This routine must load the MDIM by N array BJAC with the Jacobian matrix.
+     FKBJAC should return IER = 0 if successful, or a nonzero IER otherwise.
+
+ (4) Optional user-supplied Jacobian-vector product routine: FKJTIMES
 
      As an option, the user may supply a routine that computes the product
      of the system Jacobian and a given vector. This has the following form:
@@ -105,9 +132,9 @@
      distributed vectors in the parallel case. FKJTIMES should return IER = 0 
      if successful, or a nonzero IER otherwise.
 
- (3) Initialization:  FNVINITS/FNVINITP and FKINMALLOC
+ (5) Initialization:  FNVINITS/FNVINITP and FKINMALLOC
 
- (3.1s) To initialize the serial machine environment, the user must make
+ (5.1s) To initialize the serial machine environment, the user must make
         the following call:
 
           CALL FNVINITS (3, NEQ, IER)
@@ -116,7 +143,7 @@
           NEQ = size of vectors
           IER = return completion flag. Values are 0 = success, -1 = failure.
 
- (3.1p) To initialize the parallel machine environment, the user must make 
+ (5.1p) To initialize the parallel machine environment, the user must make 
         the following call:
 
           CALL FNVINITP (3, NLOCAL, NGLOBAL, IER)
@@ -128,38 +155,55 @@
           IER     = return completion flag. Values are 0 = success,
                     -1 = failure.
 
- (3.2) To set various problem and solution parameters and allocate
-       internal memory, make the following call:
+ (5.2) To allocate internal memory, make the following call:
 
-         CALL FKINMALLOC(MSBPRE, FNORMTOL, SCSTEPTOL, CONSTRAINTS,
-                         OPTIN, IOPT, ROPT, IER)
+         CALL FKINMALLOC(IOUT, ROUT, IER)
 
        The arguments are:
-         MSBPRE      = maximum number of preconditioning solve calls
-                       without calling the preconditioning setup routine;
-                       0 indicates default.
-         FNORMTOL    = tolerance on the norm of f(u) to accept convergence
-         SCSTEPTOL   = tolerance on minimum scaled step size
-         CONSTRAINTS = array of constraint values, on components of the
-                       solution UU
-         INOPT       = integer used as a flag to indicate whether possible
-                       input values in IOPT are to be used for input:
-                       0 = no, 1 = yes.
-         IOPT        = array for integer optional inputs and outputs
+         IOUT        = array of length at least 15 for integer optional outputs
                        (declare as INTEGER*4 or INTEGER*8 according to
                        C type long int)
-         ROPT        = array of real optional inputs and outputs
+         ROUT        = array of length at least 2 for real optional outputs
          IER         = return completion flag. Values are 0 = success, and
                        -1 = failure.
 
        Note: See printed message for details in case of failure.
 
- (4) Specification of linear system solution method:
+ (5.3) To set various integer optional inputs, make the folowing call:
+
+          CALL FKINSETIIN(KEY, VALUE, IER)
+
+       to set the optional input specified by the character key KEY to the 
+       integer value VALUE.
+       KEY is one of the following: PRNT_LEVEL, MAX_NITERS, ETA_FORM, 
+       MAX_SETUPS, MAX_SP_SETUPS, NO_INIT_SETUP, NO_MIN_EPS, NO_RES_MON.
+
+       To set various real optional inputs, make the folowing call:
+
+         CALL FKINSETRIN(KEY, VALUE, IER)
+
+      to set the optional input specified by the character key KEY to the
+      real value VALUE.
+      KEY is one of the following: FNORM_TOL, SSTEP_TOL, MAX_STEP, RERR_FUNC,
+      ETA_CONST, ETA_PARAMS, RMON_CONST, RMON_PARAMS.
+      Note that if KEY is ETA_PARAMS or RMON_PARAMS, then VALUE must be an
+      array of dimension 2.
+
+      To set the vector of constraints on the solution, make the following call:
+
+        CALL FKINSETVIN(KEY, ARRAY, IER)
+
+      where ARRAY is an array of reals and KEY is 'CONSTR_VEC'.
+
+      FKINSETIIN, FKINSETRIN, and FKINSETVIN return IER=0 if successful and 
+      IER<0 if an error occured.
+
+ (6) Specification of linear system solution method:
 
      The solution method in KINSOL involves the solution of linear systems 
      related to the Jacobian J = dF/du of the nonlinear system.
 
- (4.1s) DENSE treatment of the linear systems (NVECTOR_SERIAL only):
+ (6.1s) DENSE treatment of the linear systems (NVECTOR_SERIAL only):
 
        The user must make the following call:
 
@@ -178,14 +222,28 @@
        with FLAG = 1 to specify that FKDJAC is provided.  (FLAG = 0 specifies
        using the internal finite difference approximation to the Jacobian.)
 
-       The user-supplied routine FKDJAC must be of the form:
+ (6.2s) BAND treatment of the linear systems (NVECTOR_SERIAL only):
 
-         SUBROUTINE FKDJAC (NEQ, UU, FVAL, DJAC, V1TMP, V2TMP, IER)
-         DIMENSION UU(*), FVAL(*), V1TMP(*), v2TMP(*), DJAC(NEQ,*)
+       The user must make the following call:
 
-       This routine must compute the Jacobian and store it columnwise in DJAC.
+         CALL FKINBAND(NEQ, MU, ML, IER)
 
- (4.2) SPTFQMR treatment of the linear systems:
+       In the above routine, the arguments are as follows:
+         NEQ = problem size.
+         MU  = upper half-bandwidth
+         ML  = lower half-bandwidth
+         IER = return completion flag.
+
+       If the user program includes the FKBJAC routine for the evaluation
+       of the band approximation to the system Jacobian, the following call
+       must be made:
+
+         CALL FKINBANDSETJAC(FLAG, IER)
+
+       with FLAG = 1 to specify that FKBJAC is provided.  (FLAG = 0 specifies
+       using the internal finite difference approximation to the Jacobian.)
+
+ (6.3) SPTFQMR treatment of the linear systems:
 
        For the Scaled Preconditioned TFQMR solution of the linear systems,
        the user must make the call:
@@ -245,7 +303,7 @@
        On return, set IER = 0 if FKPSET was successful, set IER = 1 if
        an error occurred.
 
- (4.3) SPBCG treatment of the linear systems:
+ (6.4) SPBCG treatment of the linear systems:
 
        For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
        the user must make the call:
@@ -305,7 +363,7 @@
        On return, set IER = 0 if FKPSET was successful, set IER = 1 if
        an error occurred.
 
- (4.4) SPGMR treatment of the linear systems:
+ (6.5) SPGMR treatment of the linear systems:
 
        For the Scaled Preconditioned GMRES solution of the linear systems,
        the user must make the call:
@@ -364,7 +422,7 @@
        routine supplied must also account for scaling on either coordinate
        or function value.
 
- (5) The solver: FKINSOL
+ (7) The solver: FKINSOL
 
      Solving the nonlinear system is accomplished by making the following
      call:
@@ -386,67 +444,49 @@
 
      Note: See KINSOL documentation for detailed information.
 
- (6) Memory freeing: FKINFREE
+ (8) Memory freeing: FKINFREE
 
      To the free the internal memory created by the calls to FKINMALLOC
      and either FNVINITS or FNVINITP, make the following call:
 
        CALL FKINFREE
 
- (7) Optional inputs and outputs: IOPT/ROPT
+ (9) Optional outputs: IOUT/ROUT
 
-     The optional inputs available by way of IOPT and ROPT have the
-     following names, locations, and descriptions. For further details
-     see the KINSOL documentation. Note: A zero value results in the
-     default.
-
-       PRINTFL         = IOPT(1)  = optional output print flag
-       MXITER          = IOPT(2)  = maximum Newton iterations
-       PRECOND_NO_INIT = IOPT(3)  = flag to suppress initial preconditioner
-                                    setup call
-       ETACHOICE       = IOPT(8)  = choice of forcing term (1 = Choice 1,
-                                    2 = Choice 2 and 3 = constant)
-       NO_MIN_EPS      = IOPT(9)  = flag to suppress minimum tolerance (eps)
-       NO_RES_MON      = IOPT(10) = flag to disable residual monitoring if
-                                    using a direct linear solver
-       MSBPRESUB       = IOPT(16) = subinterval length (used by nonlinear
-                                    residual monitoring algorithm)
-       MXNEWTSTEP      = ROPT(1)  = maximum size of Newton step
-       RELFUNC         = ROPT(2)  = relative error in computing f(u)
-       ETACONST        = ROPT(5)  and
-       ETAGAMMA        = ROPT(6)  and
-       ETAALPHA        = ROPT(7)  = constants in optional choices of forcing
-                                    terms
-       OMEGACONST      = ROPT(8)  and
-       OMEGAMIN        = ROPT(9)  and
-       OMEGAMAX        = ROPT(10) = real scalars used by residual monitoring
-                                    algorithm
-
-     The optional outputs available by way of IOPT and ROPT have the
+     The optional outputs available by way of IOUT and ROUT have the
      following names, locations, and descriptions. For further details see
      the KINSOL documentation.
  
-       NNI    = IOPT(4) = number of Newton iterations
-       NFE    = IOPT(5) = number of f evaluations
-       NBCF   = IOPT(6) = number of line search beta condition failures
-       NBKTRK = IOPT(7) = number of line search backtracks
-       FNORM  = ROPT(3) = final scaled norm of f(u)
-       STEPL  = ROPT(4) = scaled last step length
+       LENRW  = IOUT(1) = real workspace size
+       LENRW  = IOUT(2) = real workspace size
+       NNI    = IOuT(3) = number of Newton iterations
+       NFE    = IOUT(4) = number of f evaluations
+       NBCF   = IOUT(5) = number of line search beta condition failures
+       NBKTRK = IOUT(6) = number of line search backtracks
+
+       FNORM  = ROUT(1) = final scaled norm of f(u)
+       STEPL  = ROUT(2) = scaled last step length
 
      The following optional outputs are specific to the SPGMR/SPBCG/SPTFQMR
      module:
 
-       NLI    = IOPT(11) = number of linear (Krylov) iterations
-       NPE    = IOPT(12) = number of preconditioner evaluations
-       NPS    = IOPT(13) = number of preconditioner solves
-       NCFL   = IOPT(14) = number of linear convergence failures
-       LSFLAG = IOPT(15) = last flag returned by linear solver
+       LRW    = IOUT( 7) = real workspace size for the linear solver module
+       LIW    = IOUT( 8) = integer workspace size for the linear solver module
+       LSTF   = IOUT( 9) = last flag returned by linear solver
+       NFE    = IOUT(10) = number of f evaluations for DQ Jacobian
+       NJE    = IOUT(11) = number of Jacobian-vector product evaluations
+       NPE    = IOUT(12) = number of preconditioner evaluations
+       NPS    = IOUT(13) = number of preconditioner solves
+       NLI    = IOUT(14) = number of linear (Krylov) iterations
+       NCFL   = IOUT(15) = number of linear convergence failures
 
-     The following optional outputs are specific to the DENSE module:
+     The following optional outputs are specific to the DENSE/BAND module:
 
-       NJE    = IOPT(11) = number of Jacobian evaluations (calls to FKDJAC)
-       NFE    = IOPT(12) = number of f evaluations
-       LSFLAG = IOPT(13) = last flag returned by linear solver
+       LRW    = IOUT( 7) = real workspace size for the linear solver module
+       LIW    = IOUT( 8) = integer workspace size for the linear solver module
+       LSTF   = IOUT( 9) = last flag returned by linear solver
+       NFE    = IOUT(10) = number of f evaluations for DQ Jacobian
+       NJE    = IOUT(11) = number of Jacobian evaluations
 
 *******************************************************************************/
 
@@ -464,6 +504,7 @@ extern "C" {
  */
 
 #include "dense.h"          /* definition of DenseMat      */
+#include "band.h"           /* definition of BandMat      */
 #include "nvector.h"        /* definition of type N_Vector */
 #include "sundialstypes.h"  /* definition of type realtype */
 
@@ -476,8 +517,13 @@ extern "C" {
 #if defined(F77_FUNC)
 
 #define FKIN_MALLOC         F77_FUNC(fkinmalloc, FKINMALLOC)
+#define FKIN_SETIIN         F77_FUNC(fkinsetiin, FKINSETIIN)
+#define FKIN_SETRIN         F77_FUNC(fkinsetrin, FKINSETRIN)
+#define FKIN_SETVIN         F77_FUNC(fkinsetvin, FKINSETVIN)
 #define FKIN_DENSE          F77_FUNC(fkindense, FKINDENSE)
 #define FKIN_DENSESETJAC    F77_FUNC(fkindensesetjac, FKINDENSESETJAC)
+#define FKIN_BAND           F77_FUNC(fkinband, FKINBAND)
+#define FKIN_BANDSETJAC     F77_FUNC(fkinbandsetjac, FKINBANDSETJAC)
 #define FKIN_SPTFQMR        F77_FUNC(fkinsptfqmr, FKINSPTFQMR)
 #define FKIN_SPTFQMRSETJAC  F77_FUNC(fkinsptfqmrsetjac, FKINSPTFQMRSETJAC)
 #define FKIN_SPTFQMRSETPREC F77_FUNC(fkinsptfqmrsetprec, FKINSPTFQMRSETPREC)
@@ -498,8 +544,13 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC         fkinmalloc
+#define FKIN_SETIIN         fkinsetiin
+#define FKIN_SETRIN         fkinsetrin
+#define FKIN_SETVIN         fkinsetvin
 #define FKIN_DENSE          fkindense
 #define FKIN_DENSESETJAC    fkindensesetjac
+#define FKIN_BAND           fkinband
+#define FKIN_BANDSETJAC     fkinbandsetjac
 #define FKIN_SPTFQMR        fkinsptfqmr
 #define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac
 #define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec
@@ -520,8 +571,13 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC         FKINMALLOC
+#define FKIN_SETIIN         FKINSETIIN
+#define FKIN_SETRIN         FKINSETRIN
+#define FKIN_SETVIN         FKINSETVIN
 #define FKIN_DENSE          FKINDENSE
 #define FKIN_DENSESETJAC    FKINDENSESETJAC
+#define FKIN_BAND           FKINBAND
+#define FKIN_BANDSETJAC     FKINBANDSETJAC
 #define FKIN_SPTFQMR        FKINSPTFQMR
 #define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC
 #define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC
@@ -542,8 +598,13 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC         fkinmalloc_
+#define FKIN_SETIIN         fkinsetiin_
+#define FKIN_SETRIN         fkinsetrin_
+#define FKIN_SETVIN         fkinsetvin_
 #define FKIN_DENSE          fkindense_
 #define FKIN_DENSESETJAC    fkindensesetjac_
+#define FKIN_BAND           fkinband_
+#define FKIN_BANDSETJAC     fkinbandsetjac_
 #define FKIN_SPTFQMR        fkinsptfqmr_
 #define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac_
 #define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec_
@@ -564,8 +625,13 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC         FKINMALLOC_
+#define FKIN_SETIIN         FKINSETIIN_
+#define FKIN_SETRIN         FKINSETRIN_
+#define FKIN_SETVIN         FKINSETVIN_
 #define FKIN_DENSE          FKINDENSE_
 #define FKIN_DENSESETJAC    FKINDENSESETJAC_
+#define FKIN_BAND           FKINBAND_
+#define FKIN_BANDSETJAC     FKINBANDSETJAC_
 #define FKIN_SPTFQMR        FKINSPTFQMR_
 #define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC_
 #define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC_
@@ -586,8 +652,13 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
 #define FKIN_MALLOC         fkinmalloc__
+#define FKIN_SETIIN         fkinsetiin__
+#define FKIN_SETRIN         fkinsetrin__
+#define FKIN_SETVIN         fkinsetvin__
 #define FKIN_DENSE          fkindense__
 #define FKIN_DENSESETJAC    fkindensesetjac__
+#define FKIN_BAND           fkinband__
+#define FKIN_BANDSETJAC     fkinbandsetjac__
 #define FKIN_SPTFQMR        fkinsptfqmr__
 #define FKIN_SPTFQMRSETJAC  fkinsptfqmrsetjac__
 #define FKIN_SPTFQMRSETPREC fkinsptfqmrsetprec__
@@ -608,8 +679,13 @@ extern "C" {
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
 #define FKIN_MALLOC         FKINMALLOC__
+#define FKIN_SETIIN         FKINSETIIN__
+#define FKIN_SETRIN         FKINSETRIN__
+#define FKIN_SETVIN         FKINSETVIN__
 #define FKIN_DENSE          FKINDENSE__
 #define FKIN_DENSESETJAC    FKINDENSESETJAC__
+#define FKIN_BAND           FKINBAND__
+#define FKIN_BANDSETJAC     FKINBANDSETJAC__
 #define FKIN_SPTFQMR        FKINSPTFQMR__
 #define FKIN_SPTFQMRSETJAC  FKINSPTFQMRSETJAC__
 #define FKIN_SPTFQMRSETPREC FKINSPTFQMRSETPREC__
@@ -635,11 +711,14 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
-		 realtype *constraints, int *optin, long int *iopt,
-		 realtype *ropt, int *ier);
+void FKIN_MALLOC(long int *iout, realtype *rout, int *ier);
+void FKIN_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
+void FKIN_SETRIN(char key_name[], realtype *rval, int *ier, int key_len);
+void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len);
 void FKIN_DENSE(long int *neq, int *ier);
 void FKIN_DENSESETJAC(int *flag, int *ier);
+void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
+void FKIN_BANDSETJAC(int *flag, int *ier);
 void FKIN_SPTFQMR(int *maxl, int *ier);
 void FKIN_SPBCG(int *maxl, int *ier);
 void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier);
@@ -662,7 +741,11 @@ void FKIN_SPGMRSETPREC(int *flag, int *ier);
 void FKINfunc(N_Vector uu, N_Vector fval, void *f_data);
 
 int FKINDenseJac(long int N, DenseMat J, N_Vector uu, N_Vector fval,
-		 void *jac_data, N_Vector vtemp1, N_Vector vtemp2);
+                 void *jac_data, N_Vector vtemp1, N_Vector vtemp2);
+
+int FKINBandJac(long int N, long int mupper, long int mlower,
+                BandMat J, N_Vector uu, N_Vector fval, void *jac_data,
+                N_Vector vtemp1, N_Vector vtemp2);
 
 int FKINPSet(N_Vector uu, N_Vector uscale,
              N_Vector fval, N_Vector fscale,
@@ -687,14 +770,14 @@ int FKINJtimes(N_Vector v, N_Vector Jv,
 
 extern N_Vector F2C_KINSOL_vec;
 extern void *KIN_kinmem;
-extern booleantype KIN_optin;
-extern long int *KIN_iopt;
-extern realtype *KIN_ropt;
+extern long int *KIN_iout;
+extern realtype *KIN_rout;
 extern int KIN_ls;
 
 /* Linear solver IDs */
 
-enum { KIN_SPGMR = 1, KIN_SPBCG = 2, KIN_SPTFQMR = 3, KIN_DENSE = 4 };
+enum { KIN_LS_SPGMR = 1, KIN_LS_SPBCG = 2, KIN_LS_SPTFQMR = 3, 
+       KIN_LS_DENSE = 4, KIN_LS_BAND  = 5 };
 
 #ifdef __cplusplus
 }

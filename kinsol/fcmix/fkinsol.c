@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2005-06-06 21:34:51 $
+ * $Revision: 1.37 $
+ * $Date: 2005-08-16 16:48:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
 #include "kinsol.h"         /* KINSOL constants and prototypes               */
@@ -40,9 +41,8 @@
  */
 
 void *KIN_kinmem;
-booleantype KIN_optin;
-long int *KIN_iopt;
-realtype *KIN_ropt;
+long int *KIN_iout;
+realtype *KIN_rout;
 int KIN_ls;
 
 /*
@@ -75,12 +75,10 @@ extern void FK_FUN(realtype*, realtype*);
  * ----------------------------------------------------------------
  */
 
-void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
-                 realtype *constraints, int *optin, long int *iopt,
-		 realtype *ropt, int *ier)
+void FKIN_MALLOC(long int *iout, realtype *rout, int *ier)
 {
+  
   /* check for required vector operations */
-
   if ((F2C_KINSOL_vec->ops->nvgetarraypointer == NULL) ||
       (F2C_KINSOL_vec->ops->nvsetarraypointer == NULL)) {
     *ier = -1;
@@ -88,68 +86,116 @@ void FKIN_MALLOC(long int *msbpre, realtype *fnormtol, realtype *scsteptol,
     return;
   }
 
-  *ier = 0;
+  /* Initialize pointers to NULL */
   KIN_kinmem = NULL;
-  KIN_iopt   = NULL;
-  KIN_ropt   = NULL;
 
+  /* Create KINSOL object */
   KIN_kinmem = KINCreate();
-
   if (KIN_kinmem == NULL) {
     *ier = -1;
     return;
   }
 
-  /* F2C_KINSOL_vec used as template vector */
-
+  /* Call KINMalloc */
+  *ier = 0;
   *ier = KINMalloc(KIN_kinmem, FKINfunc, F2C_KINSOL_vec);
 
+  /* On failure, exit */
   if (*ier != KIN_SUCCESS) {
     *ier = -1;
     return;
   }
 
-  /* set data pointer in F2C_KINSOL_vec to constraints */
-
-  N_VSetArrayPointer(constraints, F2C_KINSOL_vec);
-  KINSetConstraints(KIN_kinmem, F2C_KINSOL_vec);
-
-  /* set optional inputs controlled by arguments to FKIN_MALLOC routine */
-
-  KINSetMaxSetupCalls(KIN_kinmem, *msbpre);
-  KINSetFuncNormTol(KIN_kinmem, *fnormtol);
-  KINSetScaledStepTol(KIN_kinmem, *scsteptol);
-
-  if (*optin == 1) {
-    KIN_optin = TRUE;
-
-    if (iopt[0]  > 0) KINSetPrintLevel(KIN_kinmem, (int) iopt[0]);
-    if (iopt[1]  > 0) KINSetNumMaxIters(KIN_kinmem, iopt[1]);
-    if (iopt[2]  > 0) KINSetNoInitSetup(KIN_kinmem, TRUE);
-    if (iopt[7]  > 0) KINSetEtaForm(KIN_kinmem, (int) iopt[7]);
-    if (iopt[8]  > 0) KINSetNoMinEps(KIN_kinmem, TRUE);
-    if (iopt[9]  > 0) KINSetNoResMon(KIN_kinmem, TRUE);
-    if (iopt[15] > 0) KINSetMaxSubSetupCalls(KIN_kinmem, iopt[15]);
-
-    if (ropt[0] > ZERO) KINSetMaxNewtonStep(KIN_kinmem, ropt[0]);
-    if (ropt[1] > ZERO) KINSetRelErrFunc(KIN_kinmem, ropt[1]);
-    if (ropt[4] > ZERO) KINSetEtaConstValue(KIN_kinmem, ropt[4]);
-    if ((ropt[5] > ZERO) || (ropt[6] > ZERO)) 
-      KINSetEtaParams(KIN_kinmem, ropt[5], ropt[6]);
-    if (ropt[7] > ZERO) KINSetResMonConstValue(KIN_kinmem, ropt[7]);
-    if ((ropt[8] > ZERO) || (ropt[9] > ZERO))
-      KINSetResMonParams(KIN_kinmem, ropt[8], ropt[9]);
-  }
-  else KIN_optin = FALSE;
-
-  /* reset data pointer */
-
-  N_VSetArrayPointer(NULL, F2C_KINSOL_vec);
-
-  KIN_iopt = iopt;
-  KIN_ropt = ropt;
+  /* Grab optional output arrays and store them in global variables */
+  KIN_iout = iout;
+  KIN_rout = rout;
 
   return;
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_SETIIN
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SETIIN(char key_name[], long int *ival, int *ier, int key_len)
+{
+  if (!strncmp(key_name,"PRNT_LEVEL", (size_t)key_len)) 
+    *ier = KINSetPrintLevel(KIN_kinmem, (int) *ival);
+  else if (!strncmp(key_name,"MAX_NITERS", (size_t)key_len)) 
+    *ier = KINSetNumMaxIters(KIN_kinmem, (int) *ival);
+  else if (!strncmp(key_name,"ETA_FORM", (size_t)key_len)) 
+    *ier = KINSetEtaForm(KIN_kinmem, (int) *ival);
+  else if (!strncmp(key_name,"MAX_SETUPS", (size_t)key_len)) 
+    *ier = KINSetMaxSetupCalls(KIN_kinmem, (int) *ival);
+  else if (!strncmp(key_name,"MAX_SP_SETUPS", (size_t)key_len)) 
+    *ier = KINSetMaxSubSetupCalls(KIN_kinmem, (int) *ival);
+  else if (!strncmp(key_name,"NO_INIT_SETUP", (size_t)key_len)) 
+    *ier = KINSetNoInitSetup(KIN_kinmem, (int) *ival);
+  else if (!strncmp(key_name,"NO_MIN_EPS", (size_t)key_len)) 
+    *ier = KINSetNoMinEps(KIN_kinmem, (int) *ival);
+  else if (!strncmp(key_name,"NO_RES_MON", (size_t)key_len)) 
+    *ier = KINSetNoResMon(KIN_kinmem, (int) *ival);
+  else {
+    *ier = -99;
+    printf("FKINSETIIN: Unrecognized key.\n\n");
+  }
+
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_SETRIN
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SETRIN(char key_name[], realtype *rval, int *ier, int key_len)
+{
+
+  if (!strncmp(key_name,"FNORM_TOL", (size_t)key_len)) 
+    *ier = KINSetFuncNormTol(KIN_kinmem, *rval);
+  else if (!strncmp(key_name,"SSTEP_TOL", (size_t)key_len)) 
+    *ier = KINSetScaledStepTol(KIN_kinmem, *rval);
+  else if (!strncmp(key_name,"MAX_STEP", (size_t)key_len)) 
+    *ier = KINSetMaxNewtonStep(KIN_kinmem, *rval);
+  else if (!strncmp(key_name,"RERR_FUNC", (size_t)key_len)) 
+    *ier = KINSetRelErrFunc(KIN_kinmem, *rval);
+  else if (!strncmp(key_name,"ETA_CONST", (size_t)key_len)) 
+    *ier = KINSetEtaConstValue(KIN_kinmem, *rval);
+  else if (!strncmp(key_name,"ETA_PARAMS", (size_t)key_len)) 
+    *ier = KINSetEtaParams(KIN_kinmem, rval[0], rval[1]);
+  else if (!strncmp(key_name,"RMON_CONST", (size_t)key_len)) 
+    *ier = KINSetResMonConstValue(KIN_kinmem, *rval);
+  else if (!strncmp(key_name,"RMON_PARAMS", (size_t)key_len)) 
+    *ier = KINSetResMonParams(KIN_kinmem, rval[0], rval[1]);
+  else {
+    *ier = -99;
+    printf("FKINSETRIN: Unrecognized key.\n\n");
+  }
+
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_SETVIN
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len)
+{
+  N_Vector Vec;
+
+  if (!strncmp(key_name,"CONSTR_VEC", (size_t)key_len)) {
+    Vec = N_VCloneEmpty(F2C_KINSOL_vec);
+    N_VSetArrayPointer(vval, Vec);
+    KINSetConstraints(KIN_kinmem, Vec);
+    N_VDestroy(Vec);
+  } else {
+    *ier = -99;
+    printf("FKINSETVIN: Unrecognized key.\n\n");
+  }
+
 }
 
 /*
@@ -162,7 +208,20 @@ void FKIN_DENSE(long int *neq, int *ier)
 {
   *ier = KINDense(KIN_kinmem, *neq);
 
-  KIN_ls = KIN_DENSE;
+  KIN_ls = KIN_LS_DENSE;
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Function : FKIN_BAND
+ * ----------------------------------------------------------------
+ */
+
+void FKIN_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
+{
+  *ier = KINBand(KIN_kinmem, *neq, *mupper, *mlower);
+
+  KIN_ls = KIN_LS_BAND;
 }
 
 /*
@@ -175,7 +234,7 @@ void FKIN_SPTFQMR(int *maxl, int *ier)
 {
   *ier = KINSptfqmr(KIN_kinmem, *maxl);
 
-  KIN_ls = KIN_SPTFQMR;
+  KIN_ls = KIN_LS_SPTFQMR;
 }
 
 /*
@@ -188,7 +247,7 @@ void FKIN_SPBCG(int *maxl, int *ier)
 {
   *ier = KINSpbcg(KIN_kinmem, *maxl);
 
-  KIN_ls = KIN_SPBCG;
+  KIN_ls = KIN_LS_SPBCG;
 }
 
 /*
@@ -202,7 +261,7 @@ void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
   *ier = KINSpgmr(KIN_kinmem, *maxl);
   KINSpgmrSetMaxRestarts(KIN_kinmem, *maxlrst);
 
-  KIN_ls = KIN_SPGMR;
+  KIN_ls = KIN_LS_SPGMR;
 
   return;
 }
@@ -231,6 +290,7 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   fscalevec = N_VCloneEmpty(F2C_KINSOL_vec);
   N_VSetArrayPointer(fscale, fscalevec);
 
+  /* Call main solver function */
   *ier = KINSol(KIN_kinmem, uuvec, *globalstrategy, uscalevec, fscalevec);
 
   N_VSetArrayPointer(NULL, uuvec);
@@ -241,50 +301,62 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   N_VSetArrayPointer(NULL, fscalevec);
   N_VDestroy(fscalevec);
 
-  /* load optional outputs into iopt[] and ropt[] */
+  /* load optional outputs into iout[] and rout[] */
+  KINGetWorkSpace(KIN_kinmem, &KIN_iout[0], &KIN_iout[1]);   /* LENRW & LENIW */
+  KINGetNumNonlinSolvIters(KIN_kinmem, &KIN_iout[2]);        /* NNI */
+  KINGetNumFuncEvals(KIN_kinmem, &KIN_iout[3]);              /* NFE */
+  KINGetNumBetaCondFails(KIN_kinmem, &KIN_iout[4]);          /* NBCF */
+  KINGetNumBacktrackOps(KIN_kinmem, &KIN_iout[5]);           /* NBCKTRK */
 
-  if ((KIN_iopt != NULL) && (KIN_ropt != NULL)) {
+  KINGetFuncNorm(KIN_kinmem, &KIN_rout[0]);                  /* FNORM */
+  KINGetStepLength(KIN_kinmem, &KIN_rout[1]);                /* SSTEP */
 
-    KINGetNumNonlinSolvIters(KIN_kinmem, &KIN_iopt[3]);
-    KINGetNumFuncEvals(KIN_kinmem, &KIN_iopt[4]);
-    KINGetNumBetaCondFails(KIN_kinmem, &KIN_iopt[5]);
-    KINGetNumBacktrackOps(KIN_kinmem, &KIN_iopt[6]);
+  switch(KIN_ls) {
 
-    KINGetFuncNorm(KIN_kinmem, &KIN_ropt[2]);
-    KINGetStepLength(KIN_kinmem, &KIN_ropt[3]);
-
-    switch(KIN_ls) {
-
-    case KIN_DENSE:
-      KINDenseGetNumJacEvals(KIN_kinmem, &KIN_iopt[10]);
-      KINDenseGetNumFuncEvals(KIN_kinmem, &KIN_iopt[11]);
-      KINDenseGetLastFlag(KIN_kinmem, (int *) &KIN_iopt[12]);
-
-    case KIN_SPTFQMR:
-      KINSptfqmrGetNumLinIters(KIN_kinmem, &KIN_iopt[10]);
-      KINSptfqmrGetNumPrecEvals(KIN_kinmem, &KIN_iopt[11]);
-      KINSptfqmrGetNumPrecSolves(KIN_kinmem, &KIN_iopt[12]);
-      KINSptfqmrGetNumConvFails(KIN_kinmem, &KIN_iopt[13]);
-      KINSptfqmrGetLastFlag(KIN_kinmem, (int *) &KIN_iopt[14]);
-      break;
-
-    case KIN_SPBCG:
-      KINSpbcgGetNumLinIters(KIN_kinmem, &KIN_iopt[10]);
-      KINSpbcgGetNumPrecEvals(KIN_kinmem, &KIN_iopt[11]);
-      KINSpbcgGetNumPrecSolves(KIN_kinmem, &KIN_iopt[12]);
-      KINSpbcgGetNumConvFails(KIN_kinmem, &KIN_iopt[13]);
-      KINSpbcgGetLastFlag(KIN_kinmem, (int *) &KIN_iopt[14]);
-      break;
-
-    case KIN_SPGMR:
-      KINSpgmrGetNumLinIters(KIN_kinmem, &KIN_iopt[10]);
-      KINSpgmrGetNumPrecEvals(KIN_kinmem, &KIN_iopt[11]);
-      KINSpgmrGetNumPrecSolves(KIN_kinmem, &KIN_iopt[12]);
-      KINSpgmrGetNumConvFails(KIN_kinmem, &KIN_iopt[13]);
-      KINSpgmrGetLastFlag(KIN_kinmem, (int *) &KIN_iopt[14]);
-      break;
-
-    }
+  case KIN_LS_DENSE:
+    KINDenseGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
+    KINDenseGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);        /* LSTF */
+    KINDenseGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
+    KINDenseGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);            /* NJE */
+    
+  case KIN_LS_BAND:
+    KINBandGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]);  /* LRW & LIW */
+    KINBandGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);         /* LSTF */
+    KINBandGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);             /* NFE */
+    KINBandGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);             /* NJE */
+    
+  case KIN_LS_SPTFQMR:
+    KINSptfqmrGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
+    KINSptfqmrGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);        /* LSTF */
+    KINSptfqmrGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
+    KINSptfqmrGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);         /* NJE */
+    KINSptfqmrGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);           /* NPE */
+    KINSptfqmrGetNumPrecSolves(KIN_kinmem, &KIN_iout[12]);          /* NPS */
+    KINSptfqmrGetNumLinIters(KIN_kinmem, &KIN_iout[13]);            /* NLI */
+    KINSptfqmrGetNumConvFails(KIN_kinmem, &KIN_iout[14]);           /* NCFL */
+    break;
+    
+  case KIN_LS_SPBCG:
+    KINSpbcgGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]);  /* LRW & LIW */
+    KINSpbcgGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);         /* LSTF */
+    KINSpbcgGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);             /* NFE */
+    KINSpbcgGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);          /* NJE */
+    KINSpbcgGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);            /* NPE */
+    KINSpbcgGetNumPrecSolves(KIN_kinmem, &KIN_iout[12]);           /* NPS */
+    KINSpbcgGetNumLinIters(KIN_kinmem, &KIN_iout[13]);             /* NLI */
+    KINSpbcgGetNumConvFails(KIN_kinmem, &KIN_iout[14]);            /* NCFL */
+    break;
+    
+  case KIN_LS_SPGMR:
+    KINSpgmrGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]);  /* LRW & LIW */
+    KINSpgmrGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);         /* LSTF */
+    KINSpgmrGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);             /* NFE */
+    KINSpgmrGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);          /* NJE */
+    KINSpgmrGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);            /* NPE */
+    KINSpgmrGetNumPrecSolves(KIN_kinmem, &KIN_iout[12]);           /* NPS */
+    KINSpgmrGetNumLinIters(KIN_kinmem, &KIN_iout[13]);             /* NLI */
+    KINSpgmrGetNumConvFails(KIN_kinmem, &KIN_iout[14]);            /* NCFL */
+    break;
 
   }
 
