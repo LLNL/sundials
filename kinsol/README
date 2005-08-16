@@ -137,6 +137,12 @@ v. 2.3.0 (Apr. 2005) --->
      and the retained matrix (mukeep, mlkeep).
    - added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
    - added support for KINSPTFQMR/SPTFQMR (added FKIN*SPTFQMR* functions).
+   - added support for KINDENSE/DENSE (added FKIN*DENSE* functions).
+   - added support for KINBAND/BAND (added FKIN*DENSE* functions).
+   - Optional inputs are now set using routines FKINSETIIN (integer inputs),
+     FKINSETRIN (real inputs), and FKINSETVIN (vector inputs) through pairs 
+     key-value. Optional outputs are still obtained from two arrays (IOUT and 
+     ROUT), owned by the user and passed as arguments to FKINMALLOC.
 
 - Changes related to the build system
    - updated configure script and Makefiles for Fortran examples to avoid C++
