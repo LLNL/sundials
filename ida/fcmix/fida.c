@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-08-15 18:06:46 $
+ * $Revision: 1.11 $
+ * $Date: 2005-08-22 22:52:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -452,10 +452,15 @@ void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier)
 
 /*************************************************/
 
-void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
+void FIDA_SPTFQMRREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
 {
 
   *ier = 0;
+
+  if (*maxl > 0) {
+    *ier = IDASptfqmrSetMaxl(IDA_idamem, *maxl);
+    if (*ier != IDASPTFQMR_SUCCESS) return;
+  }
 
   if (*eplifac != ZERO) {
     *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
@@ -474,10 +479,15 @@ void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
 
 /*************************************************/
 
-void FIDA_SPBCGREINIT(realtype *eplifac, realtype *dqincfac, int *ier)
+void FIDA_SPBCGREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
 {
 
   *ier = 0;
+
+  if (*maxl > 0) {
+    *ier = IDASptfqmrSetMaxl(IDA_idamem, *maxl);
+    if (*ier != IDASPTFQMR_SUCCESS) return;
+  }
 
   if (*eplifac != ZERO) {
     *ier = IDASpbcgSetEpsLin(IDA_idamem, *eplifac);

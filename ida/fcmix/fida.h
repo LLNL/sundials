@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-08-15 18:06:46 $
+ * $Revision: 1.11 $
+ * $Date: 2005-08-22 22:52:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -396,9 +396,9 @@
  *
  *      If a sequence of problems of the same size is being solved using the
  * SPTFQMR linear solver, then following the call to FIDAREINIT, a call to the
- * FIDASPTFQMRREINIT routine is needed if EPLIFAC or DQINCFAC is
+ * FIDASPTFQMRREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
  * being changed.  In that case, call FIDASPTFQMRREINIT as follows:
- *       CALL FIDASPTFQMRREINIT (EPLIFAC, DQINCFAC, IER)
+ *       CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
  * The arguments have the same meanings as for FIDASPTFQMR.  If MAXL is being
  * changed, then call FIDASPTFQMR instead.
  *
@@ -455,9 +455,9 @@
  *
  *      If a sequence of problems of the same size is being solved using the
  * SPBCG linear solver, then following the call to FIDAREINIT, a call to the
- * FIDASPBCGREINIT routine is needed if EPLIFAC or DQINCFAC is
+ * FIDASPBCGREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
  * being changed.  In that case, call FIDASPBCGREINIT as follows:
- *       CALL FIDASPBCGREINIT (EPLIFAC, DQINCFAC, IER)
+ *       CALL FIDASPBCGREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
  * The arguments have the same meanings as for FIDASPBCG.  If MAXL is being
  * changed, then call FIDASPBCG instead.
  *
@@ -865,8 +865,8 @@ void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs, realtype *eplifac,
                 realtype *dqincfac, int *ier);
 void FIDA_DENSE(long int *neq, int *ier);
 void FIDA_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
-void FIDA_SPTFQMRREINIT(realtype *eplifac, realtype *dqincfac, int *ier);
-void FIDA_SPBCGREINIT(realtype *eplifac, realtype *dqincfac, int *ier);
+void FIDA_SPTFQMRREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
+void FIDA_SPBCGREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_SPGMRREINIT(int *gstype, int *maxrs, realtype *eplifac,
                       realtype *dqincfac, int *ier);
 void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
