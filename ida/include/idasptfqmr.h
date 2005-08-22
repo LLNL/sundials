@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-18 18:17:23 $
+ * $Revision: 1.2 $
+ * $Date: 2005-08-22 22:46:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -64,6 +64,8 @@ int IDASptfqmr(void *ida_mem, int maxl);
  *                   pointer to user data that is passed to jtimes
  *                   whenever it is called.
  *                   [IDASptfqmrDQJtimes/NULL]
+ * IDASptfqmrSetMaxl specifies the maximum Krylov subspace size.
+ *                   [5]
  * IDASptfqmrSetEpsLin specifies the factor in the linear iteration
  *                   convergence test constant.
  *                   [0.05]
@@ -83,6 +85,7 @@ int IDASptfqmrSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
 				IDASpilsPrecSolveFn psolve, void *prec_data);
 int IDASptfqmrSetJacTimesVecFn(void *ida_mem, 
 			       IDASpilsJacTimesVecFn jtimes, void *jac_data);
+int IDASptfqmrSetMaxl(void *ida_mem, int maxl);
 int IDASptfqmrSetEpsLin(void *ida_mem, realtype eplifac);
 int IDASptfqmrSetIncrementFactor(void *ida_mem, realtype dqincfac);
 

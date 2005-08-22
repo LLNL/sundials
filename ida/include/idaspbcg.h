@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-04-27 21:38:01 $
+ * $Revision: 1.5 $
+ * $Date: 2005-08-22 22:46:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -65,6 +65,8 @@ int IDASpbcg(void *ida_mem, int maxl);
  *                   whenever it is called.
  *                   Default is to use an internal finite
  *                   difference approximation routine.
+ * IDASpbcgSetMaxl   specifies the maximum Krylov subspace size. 
+ *                   Default is 5.
  * IDASpbcgSetEpsLin specifies the factor in the linear iteration
  *                   convergence test constant.
  *                   Default is 0.05.
@@ -84,6 +86,7 @@ int IDASpbcgSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
                               IDASpilsPrecSolveFn psolve, void *prec_data);
 int IDASpbcgSetJacTimesVecFn(void *ida_mem, 
                              IDASpilsJacTimesVecFn jtimes, void *jac_data);
+int IDASpbcgSetMaxl(void *ida_mem, int maxl);
 int IDASpbcgSetEpsLin(void *ida_mem, realtype eplifac);
 int IDASpbcgSetIncrementFactor(void *ida_mem, realtype dqincfac);
 
