@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2005-08-10 21:43:22 $
+ * $Revision: 1.9 $
+ * $Date: 2005-08-22 22:47:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -243,6 +243,29 @@ int IDASpbcg(void *ida_mem, int maxl)
  * Function : IDASpbcgSet* and IDASpbcgGet*
  * -----------------------------------------------------------------
  */
+
+int IDASpbcgSetMaxl(void *ida_mem, int maxl)
+{
+  IDAMem IDA_mem;
+  IDASpbcgMem idaspbcg_mem;
+
+  /* Return immediately if ida_mem is NULL */
+  if (ida_mem == NULL) {
+    fprintf(stderr, MSGBCG_SETGET_IDAMEM_NULL);
+    return(IDASPBCG_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (lmem == NULL) {
+    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    return(IDASPBCG_LMEM_NULL);
+  }
+  idaspbcg_mem = (IDASpbcgMem) lmem;
+
+  idaspbcg_mem->b_maxl = (maxl <= 0) ? IDA_SPBCG_MAXL : maxl;
+
+  return(IDASPBCG_SUCCESS);
+}
 
 int IDASpbcgSetEpsLin(void *ida_mem, realtype eplifac)
 {
