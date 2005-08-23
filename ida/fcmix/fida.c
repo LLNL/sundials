@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-08-22 22:52:10 $
+ * $Revision: 1.12 $
+ * $Date: 2005-08-23 18:45:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -485,8 +485,8 @@ void FIDA_SPBCGREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier
   *ier = 0;
 
   if (*maxl > 0) {
-    *ier = IDASptfqmrSetMaxl(IDA_idamem, *maxl);
-    if (*ier != IDASPTFQMR_SUCCESS) return;
+    *ier = IDASpbcgSetMaxl(IDA_idamem, *maxl);
+    if (*ier != IDASPBCG_SUCCESS) return;
   }
 
   if (*eplifac != ZERO) {
