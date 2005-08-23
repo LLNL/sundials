@@ -147,9 +147,67 @@ description of their meaning.
 \id{SPGMR\_QRFACT\_FAIL}       &  3 & A singular matrix was found during the QR factorization. \\
 \id{SPGMR\_PSOLVE\_FAIL\_REC}  &  4 & The preconditioner solve function failed recoverably.\\
 \id{SPGMR\_MEM\_NULL}          & -1 & The {\spgmr} memory is \id{NULL}\\
-\id{SPGMR\_ATIMES\_FAIL}       & -2 & The Jacobian tims vector function failed. \\
+\id{SPGMR\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
 \id{SPGMR\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPGMR\_GS\_FAIL}           & -4 & Failure in the Gram-Schmidt procedure. \\
 \id{SPGMR\_QRSOL\_FAIL}        & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
+\end{supertabular*} 
+\vspace{0.1in}
+
+
+\noindent {\bf {\idaspbcg} linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{IDASPBCG\_SUCCESS}    &  0 & Successful function return. \\
+\id{IDASPBCG\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
+\id{IDASPBCG\_LMEM\_NULL} & -2 & The {\idaspbcg} linear solver has not been initialized.\\
+\id{IDASPBCG\_ILL\_INPUT} & -3 & The {\idaspbcg} solver is not compatible with the current {\nvector} module.\\
+\id{IDASPBCG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\spbcg} generic linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{SPBCG\_SUCCESS}            &  0 & Converged. \\
+\id{SPBCG\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
+\id{SPBCG\_CONV\_FAIL}         &  2 & Failure to converge. \\
+\id{SPBCG\_PSOLVE\_FAIL\_REC}  &  3 & The preconditioner solve function failed recoverably.\\
+\id{SPBCG\_MEM\_NULL}          & -1 & The {\spbcg} memory is \id{NULL}\\
+\id{SPBCG\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
+\id{SPBCG\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
+\end{supertabular*} 
+\vspace{0.1in}
+
+
+\noindent {\bf {\idasptfqmr} linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{IDASPTFQMR\_SUCCESS}    &  0 & Successful function return. \\
+\id{IDASPTFQMR\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
+\id{IDASPTFQMR\_LMEM\_NULL} & -2 & The {\idasptfqmr} linear solver has not been initialized.\\
+\id{IDASPTFQMR\_ILL\_INPUT} & -3 & The {\idasptfqmr} solver is not compatible with the current {\nvector} module.\\
+\id{IDASPTFQMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\sptfqmr} generic linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{SPTFQMR\_SUCCESS}            &  0 & Converged. \\
+\id{SPTFQMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
+\id{SPTFQMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
+\id{SPTFQMR\_PSOLVE\_FAIL\_REC}  &  3 & The preconditioner solve function failed recoverably.\\
+\id{SPTFQMR\_MEM\_NULL}          & -1 & The {\sptfqmr} memory is \id{NULL}\\
+\id{SPTFQMR\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
+\id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
 \end{supertabular*} 
 \vspace{0.1in}
