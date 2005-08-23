@@ -1,5 +1,5 @@
 %%===================================================================================
-\chapter{Using IDA}\label{s:simulation}
+\chapter{Using IDA for {\C} Applications}\label{s:simulation}
 %%===================================================================================
 
 This chapter is concerned with the use of {\ida} for the integration of DAEs.
@@ -834,9 +834,9 @@ integration of the DAE.
   \end{args}
 }
 {
-  On return, \id{IDASolve} returns vectors \id{yret} and \id{ypret} and a corresponding 
-  independent variable value $t=$\id{*tret}, such that (\id{yret}, \id{ypret}) are 
-  the computed values of ($y(t)$, $y^\prime(t)$).
+  On return, \id{IDASolve} returns vectors \id{yret} and \id{ypret} and a
+  corresponding  independent variable value $t=$\id{*tret}, such that (\id{yret},
+  \id{ypret}) are the computed values of ($y(t)$, $y^\prime(t)$).
 
   In \id{IDA\_NORMAL} mode with no errors, \id{*tret} will be equal to \id{tout} 
   and \id{yret} = $y($\id{tout}$)$, \id{ypret} = $y^\prime($\id{tout}$)$.
@@ -985,6 +985,7 @@ Factor in DQ increment calculation & \id{IDASpgmrSetIncrementFactor} & 1.0 \\
 \hline
 Preconditioner functions and data & \id{IDASpbcgSetPreconditioner} & NULL, NULL, NULL \\
 Jacobian-times-vector function and data & \id{IDASpbcgSetJacTimesVecFn} & internal DQ, NULL \\
+Maximum Krylov subspace size & \id{IDASpbcgSetMaxl} & 5 \\
 Factor in linear convergence test & \id{IDASpbcgSetEpsLin} & 0.05 \\
 Factor in DQ increment calculation & \id{IDASpbcgSetIncrementFactor} & 1.0 \\
 \hline
@@ -992,6 +993,7 @@ Factor in DQ increment calculation & \id{IDASpbcgSetIncrementFactor} & 1.0 \\
 \hline
 Preconditioner functions and data & \id{IDASptfqmrSetPreconditioner} & NULL, NULL, NULL \\
 Jacobian-times-vector function and data & \id{IDASptfqmrSetJacTimesVecFn} & internal DQ, NULL \\
+Maximum Krylov subspace size & \id{IDASptfqmrSetMaxl} & 5 \\
 Factor in linear convergence test & \id{IDASptfqmrSetEpsLin} & 0.05 \\
 Factor in DQ increment calculation & \id{IDASptfqmrSetIncrementFactor} & 1.0 \\
 \hline
@@ -1037,7 +1039,8 @@ flag = IDASetErrFile(ida\_mem, errfp);
   (except for the case in which the {\ida} memory pointer is \id{NULL}).
 
   {\warn} If \id{IDASetErrFile} is to be called, it should be called before any
-  other optional input functions, in order to take effect for any later error message.
+  other optional input functions, in order to take effect for any later error
+  message.
 }
 %%
 %%
@@ -1198,7 +1201,8 @@ flag = IDASetMaxStep(ida\_mem, hmax);
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDA\_ILL\_INPUT}]
-    Either \id{hmax} is not positive or it is smaller than the minimum allowable step.
+    Either \id{hmax} is not positive or it is smaller than the minimum allowable
+    step.
   \end{args}
 }
 {
@@ -1488,9 +1492,9 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
     \index{tolerances}
     is the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS}, \id{abstol}
-    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{IDA\_SV}, \id{abstol}
-    must be an \id{N\_Vector} variable.
+    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{IDA\_SS},
+    \id{abstol} must be a pointer to a \id{realtype} variable. If
+    \id{itol} $ = $ \id{IDA\_SV}, \id{abstol} must be an \id{N\_Vector} variable.
   \end{args}
 }
 {
@@ -1513,7 +1517,8 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
   {\warn} It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
-  {\warn} It is illegal to call \id{IDASetTolerances} before a call to \id{IDAMalloc}.
+  {\warn} It is illegal to call \id{IDASetTolerances} before a call to
+  \id{IDAMalloc}.
 
 }
 %%
@@ -1532,7 +1537,8 @@ flag = IDASetEwtFn(ida\_mem, efun, edata);
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[efun] (\id{IDAEwtFn}) 
-    is the {\C} function which defines the \id{ewt} vector (see \S\ref{ss:ewtsetFn}).
+    is the {\C} function which defines the \id{ewt} vector (see
+    \S\ref{ss:ewtsetFn}).
   \item[edata] (\id{void *})
     pointer to user data passed to \id{efun} every time it is called.
   \end{args}
@@ -1630,8 +1636,8 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetFdata
 \index{optional input!band linear solver|(}
 \index{IDABAND@{\idaband} linear solver!optional input|(}
 The \index{IDABAND@{\idaband} linear solver!Jacobian approximation used by}
-{\idaband} solver needs a function to compute a banded approximation to
-the Jacobian matrix $J(t,y,y^\prime)$.  This function must be of type \id{IDABandJacFn}. 
+{\idaband} solver needs a function to compute a banded approximation to the
+Jacobian matrix $J(t,y,y^\prime)$. This function must be of type \id{IDABandJacFn}. 
 The user can supply his/her own banded Jacobian approximation function, 
 or use the default difference quotient function \Id{IDABandDQJac} 
 \index{Jacobian approximation function!band!difference quotient}
@@ -1641,9 +1647,9 @@ data \id{jac\_data}, {\idaband} provides the function \id{IDABandSetJacFn}.
 The {\idaband} solver passes the pointer \id{jac\_data}
 to its banded Jacobian approximation function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
-during the execution of the user-supplied Jacobian function, without
-using global data in the program.  The pointer \id{jac\_data} may be
-identical to \id{res\_data}, if the latter was specified through \id{IDAodeSetFdata}.
+during the execution of the user-supplied Jacobian function, without using
+global data in the program.  The pointer \id{jac\_data} may be identical
+to \id{res\_data}, if the latter was specified through \id{IDAodeSetFdata}.
 %%
 \index{Jacobian approximation function!band!user-supplied}
 \ucfunction{IDABandSetJacFn}
@@ -1990,13 +1996,13 @@ The user can supply his/her own Jacobian-times-vector approximation function,
 or use the difference quotient function \Id{IDASpbcgDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\idaspbcg} solver.
-A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn} and 
-can be specified through a call to \id{IDASpbcgSetJacTimesVecFn} 
+A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn}
+and can be specified through a call to \id{IDASpbcgSetJacTimesVecFn} 
 (see \S\ref{ss:user_fct_sim} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
-the user can also specify in the call to \id{IDASpbcgSetJacTimesVecFn}, a pointer to a 
-user-defined data structure, \id{jac\_data}, which
+the user can also specify in the call to \id{IDASpbcgSetJacTimesVecFn}, a pointer
+to a user-defined data structure, \id{jac\_data}, which
 the {\idaspbcg} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
 The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data}.
@@ -2076,6 +2082,39 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   If \id{NULL} is passed to \id{jtimes}, this default function is used.
 
   The function type \id{IDASpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+}
+%%
+%%
+\ucfunction{IDASpbcgSetMaxl}
+{
+  flag = IDASpbcgSetMaxl(ida\_mem, maxl);
+}
+{
+  The function \ID{IDASpbcgSetMaxl} specifies maximum of the Krylov subspace
+  dimension for the Bi-CGStab\index{Bi-CGStab method} method.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxl] (\id{int})
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPBCG\_ILL\_INPUT]
+  \item[\Id{IDASPBCG\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPBCG\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPBCG\_LMEM\_NULL}]
+    The {\idaspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The default value is 5.  Passing \id{maxl} $= 0$ also results in the
+  default value. 
 }
 %%
 %%
@@ -2188,13 +2227,13 @@ The user can supply his/her own Jacobian-times-vector approximation function,
 or use the difference quotient function \Id{IDASptfqmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\idasptfqmr} solver.
-A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn} and 
-can be specified through a call to \id{IDASptfqmrSetJacTimesVecFn} 
+A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn}
+and can be specified through a call to \id{IDASptfqmrSetJacTimesVecFn} 
 (see \S\ref{ss:user_fct_sim} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
-the user can also specify in the call to \id{IDASptfqmrSetJacTimesVecFn}, a pointer to a 
-user-defined data structure, \id{jac\_data}, which
+the user can also specify in the call to \id{IDASptfqmrSetJacTimesVecFn}, a pointer
+to a user-defined data structure, \id{jac\_data}, which
 the {\idasptfqmr} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
 The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data}.
@@ -2274,6 +2313,39 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
   If \id{NULL} is passed to \id{jtimes}, this default function is used.
 
   The function type \id{IDASpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+}
+%%
+%%
+\ucfunction{IDASptfqmrSetMaxl}
+{
+  flag = IDASptfqmrSetMaxl(ida\_mem, maxl);
+}
+{
+  The function \ID{IDASptfqmrSetMaxl} specifies maximum of the Krylov subspace
+  dimension for the TFQMR\index{TFQMR method} method.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxl] (\id{int})
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDASPTFQMR\_ILL\_INPUT]
+  \item[\Id{IDASPTFQMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDASPTFQMR\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDASPTFQMR\_LMEM\_NULL}]
+    The {\idasptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The default value is 5.  Passing \id{maxl} $= 0$ also results in the
+  default value. 
 }
 %%
 %%
@@ -4635,8 +4707,8 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
 }
 {
   An \id{IDAResFn} function type should return a value of $0$ if successful, 
-  a positive value if a recoverable error occured (e.g. \id{yy} has an illegal value),
-  or a negative value if a nonrecoverable error occured. 
+  a positive value if a recoverable error occured (e.g. \id{yy} has an illegal
+  value), or a negative value if a nonrecoverable error occured. 
 
   In the latter case, the integrator halts. 
   If a recoverable error occured, the integrator will attempt to correct and retry.
@@ -4692,8 +4764,8 @@ The function type \id{IDAEwtFn} is defined as follows:
 \subsection{Jacobian information (direct method with dense Jacobian)}
 \label{ss:djacFn}
 \index{Jacobian approximation function!dense!user-supplied|(}
-If the direct linear solver with dense treatment of the Jacobian is used 
-(i.e. \Id{IDADense} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
+If the direct linear solver with dense treatment of the Jacobian is used (i.e. 
+\Id{IDADense} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
 the user may provide a function of type \ID{IDADenseJacFn} defined by
 \usfunction{IDADenseJacFn}
 {
@@ -4790,8 +4862,8 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
 \label{ss:bjacFn}
 \index{Jacobian approximation function!band!user-supplied|(}
 \index{half-bandwidths|(}
-If the direct linear solver with banded treatment of the Jacobian is used 
-(i.e. \Id{IDABand} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
+If the direct linear solver with banded treatment of the Jacobian is used (i.e.
+\Id{IDABand} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
 the user may provide a function of type \ID{IDABandJacFn} defined as follows:
 \usfunction{IDABandJacFn}
 {
@@ -4937,8 +5009,8 @@ of type \ID{IDASpilsJacTimesVecFn} in the following form:
     parameter passed to \id{IDASp*SetJacTimesVecFn}.   
   \item[tmp1]
   \item[tmp2]
-    are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by \id{IDASpilsJacTimesVecFn} as temporary storage or work space.
+    are pointers to memory allocated for variables of type \id{N\_Vector} which
+    can be used by \id{IDASpilsJacTimesVecFn} as temporary storage or work space.
   \end{args}
 }
 {
@@ -5015,8 +5087,8 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
   \end{args}
 }
 {
-  The value to be returned by the preconditioner solve function is a flag indicating 
-  whether it was successful.  This value should be $0$ if successful, 
+  The value to be returned by the preconditioner solve function is a flag
+  indicating whether it was successful.  This value should be $0$ if successful, 
   positive for a recoverable error (in which case the step will be retried),     
   negative for an unrecoverable error (in which case the integration is halted). 
 }
@@ -5070,8 +5142,8 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
   \end{args}
 }
 {
-  The value to be returned by the preconditioner setup function is a flag indicating 
-  whether it was successful.  This value should be $0$ if successful, 
+  The value to be returned by the preconditioner setup function is a flag
+  indicating whether it was successful.  This value should be $0$ if successful, 
   positive for a recoverable error (in which case the step will be retried),     
   negative for an unrecoverable error (in which case the integration is halted). 
 }
@@ -5519,7 +5591,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   The function \Id{IDABBDSp*} is a wrapper around the specification
   function \id{IDASp*} and performs the following actions:
   \begin{itemize}
-    \item Attaches the {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr} linear solver to the main {\ida} solver memory;
+    \item Attaches the {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr} linear solver
+     to the main {\ida} solver memory;
     \item Sets the preconditioner data structure for {\idabbdpre};
     \item Sets the preconditioner setup function for {\idabbdpre};
     \item Sets the preconditioner solve function for {\idabbdpre};
@@ -5529,8 +5602,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
   Note that the user should not overwrite the preconditioner data, setup function, 
-  or solve function through calls to {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr} optional
-  input functions.
+  or solve function through calls to {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr}
+  optional input functions.
 
 \item
   \textcolor{gray}{\bf Advance solution in time}
