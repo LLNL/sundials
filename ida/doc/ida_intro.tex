@@ -55,7 +55,7 @@ in extended {\F}.
 
 \subsection*{Changes in v2.3.0}
 
-{\fida}, a {\F}-{\C} interface module, was added (for details see \S\ref{ss:fcmix}).
+{\fida}, a {\F}-{\C} interface module, was added (for details see \S\ref{s:fcmix}).
 
 {\idaspbcg} and {\idasptfqmr} modules have been added to interface with the
 Scaled Preconditioned Bi-CGstab ({\spbcg}) and Scaled Preconditioned
@@ -114,9 +114,12 @@ The structure of this document is as follows:
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\ida}
   solver (\S\ref{ss:ida_org}). 
 \item
-  In Chapter \ref{s:simulation}, we give an overview of the usage of {\ida},
-  as well as a complete description of the user interface and of the 
-  user-defined routines for integration of DAE initial value problems.
+  Chapter \ref{s:simulation} is the main usage document for {\ida} for
+  {\C} applications.  It includes a complete description of the user interface
+  for the integration of DAE initial value problems.
+\item
+  In Chapter \ref{s:fcmix}, we describe {\fida}, an interface module
+  for the use of {\ida} with {\F} applications.
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic {\nvector} module 
   shared among the various components of {\sundials}, as well as details on the two
