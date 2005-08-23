@@ -53,14 +53,44 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v2.3.0}
+\subsection*{Changes in v2.4.0}
 
-{\fida}, a {\F}-{\C} interface module, was added (for details see \S\ref{s:fcmix}).
+{\fida}, a {\F}-{\C} interface module, was added (for details see Chapter
+\ref{s:fcmix}).
 
 {\idaspbcg} and {\idasptfqmr} modules have been added to interface with the
 Scaled Preconditioned Bi-CGstab ({\spbcg}) and Scaled Preconditioned
 Transpose-Free Quasi-Minimal Residual ({\sptfqmr}) linear solver modules,
 respectively (for details see Chapter \ref{s:simulation}).
+At the same time, function type names for Scaled Preconditioned Iterative
+Linear Solvers were added for the user-supplied Jacobian-times-vector and
+preconditioner setup and solve functions.
+
+The rootfinding feature was added, whereby the roots of a set of given
+functions may be computed during the integration of the DAE system.
+
+A user-callable routine was added to access the estimated local error
+vector.
+
+\subsection*{Changes in v2.3.0}
+
+The user interface has been further refined. Several functions used
+for setting optional inputs were combined into a single one.
+An optional user-supplied routine for setting the error weight
+vector was added.
+Additionally, to resolve potential variable scope issues, all
+SUNDIALS solvers release user data right after its use. The build
+systems has been further improved to make it more robust.
+
+\subsection*{Changes in v2.2.2}
+
+Minor corrections and improvements were made to the build system.
+A new chapter in the User Guide was added --- with constants that
+appear in the user interface.
+
+\subsection*{Changes in v2.2.1}
+
+The changes in this minor {\sundials} release affect only the build system.
 
 \subsection*{Changes in v2.2.0}
 
@@ -86,17 +116,6 @@ functions.
 Installation of {\ida} (and all of {\sundials}) has been completely 
 redesigned and is now based on configure scripts.
 
-\subsection*{Changes in v2.2.1}
-
-The changes in this minor {\sundials} release affect only the build system.
-
-\subsection*{Changes in v2.3.0}
-
-The user interface has been further refined. Several functions used
-for setting optional inputs were combined into a single one.
-Additionally, to resolve potential variable scope issues, all
-SUNDIALS solvers release user data right after its use. The build
-systems has been further improved to make it more robust.
 
 \section{Reading this User Guide}\label{ss:reading}
 
