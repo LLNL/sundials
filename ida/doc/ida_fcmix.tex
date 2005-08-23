@@ -1,5 +1,5 @@
 %%==============================================================================
-\chapter{FIDA, a {\F}-{\C} interface module}\label{ss:fcmix}
+\chapter{FIDA, an Interface Module for {\F} Applications}\label{s:fcmix}
 %%==============================================================================
 
 The {\fida} interface module is a package of {\C} functions which support
@@ -230,7 +230,7 @@ and \S\ref{ss:optional_output}.
 \hline
 {\bf Key} & {\bf Optional input} & Default value \\ 
 \hline
-\Id{ID\_VEC}   & Variable types & undefined\\
+\Id{ID\_VEC}   & Differential/algebraic component types & undefined\\
 \Id{CONSTR\_VEC}   & Inequality constraints on solution & undefined \\
 \hline
 \end{tabular}
@@ -301,7 +301,7 @@ and \S\ref{ss:optional_output}.
 \end{table}
 
 In addition to the optional inputs communicated through \id{FIDASET*}
-calls and to te optional outputs extracted in \id{IOUT}
+calls and the optional outputs extracted in \id{IOUT}
 and \id{ROUT}, the following user-callable routines are available:
 
 To reset the tolerances at any time, make the following call:
