@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-08-22 22:52:10 $
+ * $Revision: 1.12 $
+ * $Date: 2005-08-24 22:09:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -208,12 +208,11 @@
  *         the error weight vector.
  * RTOL  = relative tolerance (scalar)
  * ATOL  = absolute tolerance (scalar or array)
- * IOUT  = array of length at least 21 for integer optional inputs and outputs
+ * IOUT  = array of length at least 21 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- * ROUT  = array of length at least 6 for real optional inputs and outputs
+ * ROUT  = array of length at least 6 for real optional outputs
  *
- *         The optional outputs are:
- *
+ * The optional outputs are:
  *           LENRW   = IOUT( 1) -> IDAGetWorkSpace
  *           LENIW   = IOUT( 2) -> IDAGetWorkSpace
  *           NST     = IOUT( 3) -> IDAGetNumSteps
@@ -311,15 +310,14 @@
  * using the internal finite differences approximation to the Jacobian.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
- *      Optional outputs specific to the DENSE case are:
- *
+ * Optional outputs specific to the DENSE case are:
  *        LENRWD = IOUT(13) -> IDADenseGetWorkSpace
  *        LENIWD = IOUT(14) -> IDADenseGetWorkSpace
  *        LSTF   = IOUT(15) -> IDADenseGetLastFlag
  *        NRED   = IOUT(16) -> IDADenseGetNumResEvals
  *        NJED   = IOUT(17) -> IDADenseGetNumJacEvals
  *
- * (7.3s) BAND treatment of the linear system
+ * (7.2s) BAND treatment of the linear system
  * The user must make the call
  *       CALL FIDABAND (NEQ, MU, ML, IER)
  * The arguments are:
@@ -335,133 +333,14 @@
  * using the internal finite differences approximation to the Jacobian.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  *
- *      Optional outputs specific to the BAND case are:
- *
+ * Optional outputs specific to the BAND case are:
  *        LENRWB = IOUT(13) -> IDABandGetWorkSpace
  *        LENIWB = IOUT(14) -> IDABandGetWorkSpace
  *        LSTF   = IOUT(15) -> IDABandGetLastFlag
  *        NREB   = IOUT(16) -> IDABandGetNumResEvals
  *        NJEB   = IOUT(17) -> IDABandGetNumJacEvals
  *
- * (7.4) SPTFQMR treatment of the linear systems.
- * For the Scaled Preconditioned TFQMR solution of the linear systems,
- * the user must make the following call:
- *       CALL FIDASPTFQMR (MAXL, EPLIFAC, DQINCFAC, IER)              
- * The arguments are:
- * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
- * EPLIFAC  = factor in the linear iteration convergence test constant
- * DQINCFAC = factor in the increments to y used in the difference quotient
- *            approximations to matrix-vector products Jv
- * IER      = error return flag: 0 = success; negative value = an error occured
- *
- * If the user program includes the FIDAJTIMES routine for the evaluation of the 
- * Jacobian vector product, the following call must be made
- *       CALL FIDASPTFQMRSETJAC (FLAG, IER)
- * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
- * using and internal finite difference approximation to this product.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
- *
- * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
- * preconditioner linear system requires the following call:
- *       CALL FIDASPTFQMRSETPREC (FLAG, IER)
- * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FIDAPSOL must have the form:
- *       SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WRK, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), RV(*), ZV(*), CJ, DELTA, EWT(*), WRK(*)
- * This routine must solve the preconditioner linear system Pz = r, where r = RV
- * is input, and store the solution z in ZV.
- *
- * The user-supplied routine FIDAPSET must be of the form:
- *       SUBROUTINE FIDAPSET (T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, WK1(*), WK2(*), WK3(*)
- * This routine must perform any evaluation of Jacobian-related data and
- * preprocessing needed for the solution of the preconditioner linear systems
- * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
- * positive if a recoverable error occurred, and set IER negative if a
- * non-recoverable error occurred.
- *
- *      Optional outputs specific to the SPTFQMR case are:
- *
- *        LENRWC = IOUT(13) -> IDASptfqmrGetWorkSpace
- *        LENIWC = IOUT(14) -> IDASptfqmrGetWorkSpace
- *        LSTF   = IOUT(15) -> IDASptfqmrGetLastFlag
- *        NRE    = IOUT(16) -> IDASptfqmrGetResEvals
- *        NJE    = IOUT(17) -> IDASptfqmrGetJtimesEvals
- *        NPE    = IOUT(18) -> IDASptfqmrGetPrecEvals
- *        NPS    = IOUT(19) -> IDASptfqmrGetPrecSolves
- *        NLI    = IOUT(20) -> IDASptfqmrGetLinIters
- *        NLCF   = IOUT(21) -> IDASptfqmrGetConvFails
- *
- *      If a sequence of problems of the same size is being solved using the
- * SPTFQMR linear solver, then following the call to FIDAREINIT, a call to the
- * FIDASPTFQMRREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
- * being changed.  In that case, call FIDASPTFQMRREINIT as follows:
- *       CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
- * The arguments have the same meanings as for FIDASPTFQMR.  If MAXL is being
- * changed, then call FIDASPTFQMR instead.
- *
- * (7.5) SPBCG treatment of the linear systems.
- * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
- * the user must make the following call:
- *       CALL FIDASPBCG (MAXL, EPLIFAC, DQINCFAC, IER)              
- * The arguments are:
- * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
- * EPLIFAC  = factor in the linear iteration convergence test constant
- * DQINCFAC = factor in the increments to y used in the difference quotient
- *            approximations to matrix-vector products Jv
- * IER      = error return flag: 0 = success; negative value = an error occured
- *
- * If the user program includes the FIDAJTIMES routine for the evaluation of the 
- * Jacobian vector product, the following call must be made
- *       CALL FIDASPBCGSETJAC (FLAG, IER)
- * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
- * using and internal finite difference approximation to this product.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
- *
- * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
- * preconditioner linear system requires the following call:
- *       CALL FIDASPBCGSETPREC (FLAG, IER)
- * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FIDAPSOL must have the form:
- *       SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WRK, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), RV(*), ZV(*), CJ, DELTA, EWT(*), WRK(*)
- * This routine must solve the preconditioner linear system Pz = r, where r = RV
- * is input, and store the solution z in ZV.
- *
- * The user-supplied routine FIDAPSET must be of the form:
- *       SUBROUTINE FIDAPSET (T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, WK1(*), WK2(*), WK3(*)
- * This routine must perform any evaluation of Jacobian-related data and
- * preprocessing needed for the solution of the preconditioner linear systems
- * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
- * positive if a recoverable error occurred, and set IER negative if a
- * non-recoverable error occurred.
- *
- *      Optional outputs specific to the SPBCG case are:
- *
- *        LENRWC = IOUT(13) -> IDASpbcgGetWorkSpace
- *        LENIWC = IOUT(14) -> IDASpbcgGetWorkSpace
- *        LSTF   = IOUT(15) -> IDASpbcgGetLastFlag
- *        NRE    = IOUT(16) -> IDASpbcgGetResEvals
- *        NJE    = IOUT(17) -> IDASpbcgGetJtimesEvals
- *        NPE    = IOUT(18) -> IDASpbcgGetPrecEvals
- *        NPS    = IOUT(19) -> IDASpbcgGetPrecSolves
- *        NLI    = IOUT(20) -> IDASpbcgGetLinIters
- *        NLCF   = IOUT(21) -> IDASpbcgGetConvFails
- *
- *      If a sequence of problems of the same size is being solved using the
- * SPBCG linear solver, then following the call to FIDAREINIT, a call to the
- * FIDASPBCGREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
- * being changed.  In that case, call FIDASPBCGREINIT as follows:
- *       CALL FIDASPBCGREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
- * The arguments have the same meanings as for FIDASPBCG.  If MAXL is being
- * changed, then call FIDASPBCG instead.
- *
- * (7.6) SPGMR treatment of the linear systems.
+ * (7.3) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
  *       CALL FIDASPGMR (MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
@@ -503,7 +382,6 @@
  * non-recoverable error occurred.
  *
  * Optional outputs specific to the SPGMR case are:
- *
  *        LENRWG = IOUT(13) -> IDASpgmrGetWorkSpace
  *        LENIWG = IOUT(14) -> IDASpgmrGetWorkSpace
  *        LSTF   = IOUT(15) -> IDASpgmrGetLastFlag
@@ -521,6 +399,122 @@
  *       CALL FIDASPGMRREINIT (IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)              
  * The arguments have the same meanings as for FIDASPGMR.  If MAXL is being
  * changed, then call FIDASPGMR instead.
+ *
+ * (7.4) SPBCG treatment of the linear systems.
+ * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
+ * the user must make the following call:
+ *       CALL FIDASPBCG (MAXL, EPLIFAC, DQINCFAC, IER)              
+ * The arguments are:
+ * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+ * EPLIFAC  = factor in the linear iteration convergence test constant
+ * DQINCFAC = factor in the increments to y used in the difference quotient
+ *            approximations to matrix-vector products Jv
+ * IER      = error return flag: 0 = success; negative value = an error occured
+ *
+ * If the user program includes the FIDAJTIMES routine for the evaluation of the 
+ * Jacobian vector product, the following call must be made
+ *       CALL FIDASPBCGSETJAC (FLAG, IER)
+ * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
+ * using and internal finite difference approximation to this product.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ *
+ * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FIDASPBCGSETPREC (FLAG, IER)
+ * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
+ * The user-supplied routine FIDAPSOL must have the form:
+ *       SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WRK, IER)
+ *       INTEGER IER
+ *       DIMENSION T, Y(*), YP(*), R(*), RV(*), ZV(*), CJ, DELTA, EWT(*), WRK(*)
+ * This routine must solve the preconditioner linear system Pz = r, where r = RV
+ * is input, and store the solution z in ZV.
+ *
+ * The user-supplied routine FIDAPSET must be of the form:
+ *       SUBROUTINE FIDAPSET (T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
+ *       INTEGER IER
+ *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, WK1(*), WK2(*), WK3(*)
+ * This routine must perform any evaluation of Jacobian-related data and
+ * preprocessing needed for the solution of the preconditioner linear systems
+ * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
+ * positive if a recoverable error occurred, and set IER negative if a
+ * non-recoverable error occurred.
+ *
+ * Optional outputs specific to the SPBCG case are:
+ *        LENRWC = IOUT(13) -> IDASpbcgGetWorkSpace
+ *        LENIWC = IOUT(14) -> IDASpbcgGetWorkSpace
+ *        LSTF   = IOUT(15) -> IDASpbcgGetLastFlag
+ *        NRE    = IOUT(16) -> IDASpbcgGetResEvals
+ *        NJE    = IOUT(17) -> IDASpbcgGetJtimesEvals
+ *        NPE    = IOUT(18) -> IDASpbcgGetPrecEvals
+ *        NPS    = IOUT(19) -> IDASpbcgGetPrecSolves
+ *        NLI    = IOUT(20) -> IDASpbcgGetLinIters
+ *        NLCF   = IOUT(21) -> IDASpbcgGetConvFails
+ *
+ *      If a sequence of problems of the same size is being solved using the
+ * SPBCG linear solver, then following the call to FIDAREINIT, a call to the
+ * FIDASPBCGREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
+ * being changed.  In that case, call FIDASPBCGREINIT as follows:
+ *       CALL FIDASPBCGREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
+ * The arguments have the same meanings as for FIDASPBCG.  If MAXL is being
+ * changed, then call FIDASPBCG instead.
+ *
+ * (7.5) SPTFQMR treatment of the linear systems.
+ * For the Scaled Preconditioned TFQMR solution of the linear systems,
+ * the user must make the following call:
+ *       CALL FIDASPTFQMR (MAXL, EPLIFAC, DQINCFAC, IER)              
+ * The arguments are:
+ * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+ * EPLIFAC  = factor in the linear iteration convergence test constant
+ * DQINCFAC = factor in the increments to y used in the difference quotient
+ *            approximations to matrix-vector products Jv
+ * IER      = error return flag: 0 = success; negative value = an error occured
+ *
+ * If the user program includes the FIDAJTIMES routine for the evaluation of the 
+ * Jacobian vector product, the following call must be made
+ *       CALL FIDASPTFQMRSETJAC (FLAG, IER)
+ * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
+ * using and internal finite difference approximation to this product.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ *
+ * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FIDASPTFQMRSETPREC (FLAG, IER)
+ * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
+ * The user-supplied routine FIDAPSOL must have the form:
+ *       SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WRK, IER)
+ *       INTEGER IER
+ *       DIMENSION T, Y(*), YP(*), R(*), RV(*), ZV(*), CJ, DELTA, EWT(*), WRK(*)
+ * This routine must solve the preconditioner linear system Pz = r, where r = RV
+ * is input, and store the solution z in ZV.
+ *
+ * The user-supplied routine FIDAPSET must be of the form:
+ *       SUBROUTINE FIDAPSET (T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
+ *       INTEGER IER
+ *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, WK1(*), WK2(*), WK3(*)
+ * This routine must perform any evaluation of Jacobian-related data and
+ * preprocessing needed for the solution of the preconditioner linear systems
+ * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
+ * positive if a recoverable error occurred, and set IER negative if a
+ * non-recoverable error occurred.
+ *
+ * Optional outputs specific to the SPTFQMR case are:
+ *        LENRWC = IOUT(13) -> IDASptfqmrGetWorkSpace
+ *        LENIWC = IOUT(14) -> IDASptfqmrGetWorkSpace
+ *        LSTF   = IOUT(15) -> IDASptfqmrGetLastFlag
+ *        NRE    = IOUT(16) -> IDASptfqmrGetResEvals
+ *        NJE    = IOUT(17) -> IDASptfqmrGetJtimesEvals
+ *        NPE    = IOUT(18) -> IDASptfqmrGetPrecEvals
+ *        NPS    = IOUT(19) -> IDASptfqmrGetPrecSolves
+ *        NLI    = IOUT(20) -> IDASptfqmrGetLinIters
+ *        NLCF   = IOUT(21) -> IDASptfqmrGetConvFails
+ *
+ *      If a sequence of problems of the same size is being solved using the
+ * SPTFQMR linear solver, then following the call to FIDAREINIT, a call to the
+ * FIDASPTFQMRREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
+ * being changed.  In that case, call FIDASPTFQMRREINIT as follows:
+ *       CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
+ * The arguments have the same meanings as for FIDASPTFQMR.  If MAXL is being
+ * changed, then call FIDASPTFQMR instead.
  *
  * (8) The solver: FIDASOLVE
  * To solve the DAE system, make the following call:
