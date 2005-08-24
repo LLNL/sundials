@@ -28,7 +28,7 @@ solver memory, the rootfinding module, and the {\idadense} module, and
 to specify user-supplied Jacobian routine.
 It calls \id{FIDASOLVE} in a loop over \id{TOUT} values, with printing of
 the solution values and performance data (current order and step count
-from the \id{IOPT} array, and current step size from the \id{ROPT} array).
+from the \id{IOUT} array, and current step size from the \id{ROUT} array).
 In the case of a root return, an extra line is printed with the root
 information from \id{FIDAROOTINFO}.  At the end, it prints a number of
 performance counters, and frees memory with calls to \id{FIDAROOTFREE}
@@ -64,7 +64,7 @@ Appendix \ref{s:iheatbbdf_f}.
 
 The problem is solved twice --- once with half-bandwidths of 5 in the
 difference-quotient banded preconditioner blocks, and once with
-half-bandwideths of 1 (which results in lumping of Jacobian values).
+half-bandwidths of 1 (which results in lumping of Jacobian values).
 In both cases, the retained banded blocks are tridiagonal, even though
 the true Jacobian is not.
 
@@ -73,12 +73,12 @@ a call to \id{FNVINITP} to initialize {\nvecp}, and a call to
 \id{SETINITPROFILE} to initialize the \id{UU}, \id{UP}, \id{ID}, and
 \id{CONSTR} arrays (containing the solution vector, solution derivative vector,
 the differential/algebraic bit vector, and the contraint specification
-vector, respectively).  Flags in the \id{IOPT} array are set to suppress error
-control on the algebraic variables, and to signal the presence of the \id{ID}
-array and of constraints (making the computed solution non-negative).
-The call to \id{FIDAMALLOC} initializes the {\fida} main memory, and
-the calls to \id{FIDABBDINIT} and \id{FIDABBDSPGMR} initialize the
-{\fidabbd} module.
+vector, respectively).  A call to \id{FIDASETIIN} and two calls to
+\id{FIDASETVIN} are made to suppress error control on the algebraic
+variables, and to supply the \id{ID} array and constraints array (making
+the computed solution non-negative).  The call to \id{FIDAMALLOC}
+initializes the {\fida} main memory, and the calls to \id{FIDABBDINIT}
+and \id{FIDABBDSPGMR} initialize the {\fidabbd} module.
 
 In the first loop over \id{TOUT} values, the main program calls \id{FIDASOLVE}
 and prints the max-norm of the solution and selected counters.  When finished,
