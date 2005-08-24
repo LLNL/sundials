@@ -1,9 +1,10 @@
+
 irobxf: Robertson kinetics DAE serial exampleproblem for IDA
         Three equation chemicalkinetics problem.
- 
+
 Tolerance parameters:  rtol = 0.10E-03   atol =  0.10E-05 0.10E-09 0.10E-05
 Initial conditions y0 = ( 0.10E+01 0.00E+00 0.00E+00)
- 
+
   t            y1           y2           y3        nst  k    h
 0.2640E+00   0.9900E+00   0.3471E-04   0.1000E-01   75  2  0.5716E-01
      Above is a root, INFO() =   0  1
@@ -20,13 +21,14 @@ Initial conditions y0 = ( 0.10E+01 0.00E+00 0.00E+00)
 0.4000E+08   0.5191E-04   0.2076E-09   0.9999E+00  380  3  0.6366E+07
 0.4000E+09   0.5882E-05   0.2353E-10   0.1000E+01  394  1  0.9167E+08
 0.4000E+10   0.7054E-06   0.2822E-11   0.1000E+01  402  1  0.1467E+10
- 
+0.4000E+11  -0.7300E-06  -0.2920E-11   0.1000E+01  407  1  0.2347E+11
+
 Final Run Statistics:
- 
-Number of steps                    = 402
-Number of residual evaluations     = 548
-Number of Jacobian evaluations     =  61
-Number of nonlinear iterations     = 548
+
+Number of steps                    = 407
+Number of residual evaluations     = 557
+Number of Jacobian evaluations     =  65
+Number of nonlinear iterations     = 557
 Number of error test failures      =   6
 Number of nonlinear conv. failures =   0
-Number of root function evals.     = 431
+Number of root function evals.     = 437
