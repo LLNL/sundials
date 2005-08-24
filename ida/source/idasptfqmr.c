@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-08-22 22:47:03 $
+ * $Revision: 1.5 $
+ * $Date: 2005-08-24 18:30:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -264,7 +264,7 @@ int IDASptfqmrSetMaxl(void *ida_mem, int maxl)
   }
   idasptfqmr_mem = (IDASptfqmrMem) lmem;
 
-  idasptfqmr_mem->b_maxl = (maxl <= 0) ? IDA_SPTFQMR_MAXL : maxl;
+  idasptfqmr_mem->q_maxl = (maxl <= 0) ? IDA_SPTFQMR_MAXL : maxl;
 
   return(IDASPTFQMR_SUCCESS);
 }
