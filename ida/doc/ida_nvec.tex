@@ -31,7 +31,7 @@ the implementation files \id{spgmr.c} and \id{iterative.c} for the generic
 \id{N\_VDiv} and \id{N\_VProd} are not called within the implementation file
 \id{idaspgmr.c}, they are called within the implementation file
 \id{spgmr.c} and so are required by the {\idaspgmr} solver module.
-This issue does not arise for the other two {\ida} linear solvers because
+This issue does not arise for the direct {\ida} linear solvers because
 the generic {\dense} and {\band} solvers (used in the implementation of
 {\idadense} and {\idaband}) do not make calls to any vector functions.
 
