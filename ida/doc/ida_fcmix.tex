@@ -151,41 +151,41 @@ package on 64-bit architectures.
 In order to keep the number of user-callable {\fida} interface routines to
 a minimum, optional inputs to the {\ida} solver are passed through only
 three routines: \Id{FIDASETIIN} for integer optional inputs, \Id{FIDASETRIN}
-for real optional inputs, and \Id{FIDASETVIN} for real vector optional inputs. 
-These functions should be called as follows:
+for real optional inputs, and \Id{FIDASETVIN} for real vector (array) optional
+inputs.  These functions should be called as follows:
 \begin{verbatim}
       CALL FIDASETIIN(KEY, IVAL, IER)
       CALL FIDASETRIN(KEY, RVAL, IER)
       CALL FIDASETVIN(KEY, VVAL, IER)
 \end{verbatim}
-where 
-\id{KEY} indicates which optoinal input is set (see Table \ref{t:fida_in}),
-\id{IVAL} is the integer value to be used,
-\id{RVAL} is the real value to be used,
-\id{VVAL} is the real vector to be used, and
-\id{IER} is an integer return completion flag which is set to $0$ on success and on 
+where \id{KEY} is a quoted string indicating which optoinal input is set
+(see Table \ref{t:fida_in}), \id{IVAL} is the input integer value,
+\id{RVAL} is the input real value (scalar),
+\id{VVAL} is the input real array, and
+\id{IER} is an integer return flag which is set to $0$ on success and
 a negative value if a failure occurred.
 
-When using \id{FIDASETVIN} to specify the variable types (\id{KEY='ID\_VEC'})
-the components in the vector \id{VVAL} must be $1.0$ to indicate a differential 
+When using \id{FIDASETVIN} to specify the variable types (\id{KEY = 'ID\_VEC'})
+the components in the array \id{VVAL} must be $1.0$ to indicate a differential 
 variable, or $0.0$ to indicate an algebraic variable.
-Note that this vector is required only if \id{FIDACALCIC} is to be called
+Note that this array is required only if \id{FIDACALCIC} is to be called
 with \id{ICOPT = 1}, or if algebraic variables are suppressed from the error
-test (indicated using \id{FIDASETIIN} with \id{KEY='SUPPRESS\_ALG'}).
+test (indicated using \id{FIDASETIIN} with \id{KEY = 'SUPPRESS\_ALG'}).
 %
-When using \id{FIDASETVIN} to specify optional constraints on the solution vector
-(\id{KEY='CONSTR\_VEC'}) the components in the vector \id{VVAL} should be one of
-$-2.0$, $-1.0$, $0.0$, $1.0$, or $2.0$. See the description of \id{IDASetConstraints}
+When using \id{FIDASETVIN} to specify optional constraints on the
+solution vector (\id{KEY = 'CONSTR\_VEC'}) the components in the
+array \id{VVAL} should be one of $-2.0$, $-1.0$, $0.0$, $1.0$, or $2.0$.
+See the description of \id{IDASetConstraints} (\S\ref{ss:optional_input})
 for more details.
 
-The optional outputs from the {\ida} solver are accessed not through individual
-functions, but rather through a pair of arrays, \Id{IOUT} of dimension at least $21$ 
-and  integer type and \Id{ROUT} of dimension at least $6$ and real type. 
-These arrays are owned (and allocated) by the user and are passed as arguments to 
-\id{FIDAMALLOC}.
-Table \ref{t:fida_out} lists the entries in these two arrays and specifies the
-optional variable as well as the {\ida} function which is actually called to
-extract the optional output.
+The optional outputs from the {\ida} solver are accessed not through
+individual functions, but rather through a pair of arrays, \Id{IOUT}
+(integer type) of dimension at least $21$, and \Id{ROUT} (real type) of
+dimension at least $6$.  These arrays are owned (and allocated) by
+the user and are passed as arguments to \id{FIDAMALLOC}.  Table
+\ref{t:fida_out} lists the entries in these two arrays and specifies
+the optional variable as well as the {\ida} function which is actually
+called to extract the optional output.
 
 For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
 and \S\ref{ss:optional_output}.
@@ -201,15 +201,17 @@ and \S\ref{ss:optional_output}.
 {\bf Key} & {\bf Optional input} & Default value \\ 
 \hline
 \Id{MAX\_ORD}      & Maximum LMM method order & $5$  \\
-\Id{MAX\_NSTEPS}   & Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & $500$  \\
+\Id{MAX\_NSTEPS}   & Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$
+                   & $500$  \\
 \Id{MAX\_ERRFAIL}  & Maximum no. of error test failures & $10$  \\
 \Id{MAX\_NITERS}   & Maximum no. of nonlinear iterations & $4$  \\
 \Id{MAX\_CONVFAIL} & Maximum no. of convergence failures & $10$  \\
-\Id{SUPPRESS\_ALG}   & Suppress alg. vars. from error test  & FALSE  \\
+\Id{SUPPRESS\_ALG}   & Suppress alg. vars. from error test (1 = TRUE)
+                     & 0 (= FALSE)  \\
 \Id{MAX\_NSTEPS\_IC}   & Maximum no. of steps for IC calc. & $5$  \\
 \Id{MAX\_NITERS\_IC}   & Maximum no. of Newton iterations for IC calc.& $10$  \\
 \Id{MAX\_NJE\_IC}  & Maximum no. of Jac. evals fo IC calc. & $4$  \\
-\Id{LS\_OFF\_IC}  & Turn off line search & FALSE  \\
+\Id{LS\_OFF\_IC}  & Turn off line search (1 = TRUE) & 0 (= FALSE)  \\
 
 
 \hline
@@ -223,7 +225,7 @@ and \S\ref{ss:optional_output}.
 \Id{STOP\_TIME}   & Value of $t_{stop}$ & undefined \\
 \Id{NLCONV\_COEF} & Coeff. in the nonlinear conv. test & $0.33$ \\
 \Id{NLCONV\_COEF\_IC} & Coeff. in the nonlinear conv. test for IC calc.& $0.0033$ \\
-\Id{STEP\_TOL\_IC} & Lower bound on Newton step for IC calc. & $(2/3) \cdot$ uround \\
+\Id{STEP\_TOL\_IC} & Lower bound on Newton step for IC calc. & uround$^{2/3}$ \\
 \hline
 \multicolumn{3}{c}{}\\
 \multicolumn{3}{c}{Real vector optional inputs (\id{FIDASETVIN})}\\
@@ -242,6 +244,8 @@ and \S\ref{ss:optional_output}.
 \label{t:fida_out}
 \medskip
 \begin{tabular}{|r|c|l|}
+\multicolumn{3}{c}{Integer output array \id{IOUT}}\\\hline
+{\bf Index} & {\bf Optional output} & {\ida} {\bf function} \\ 
 \hline
 \multicolumn{3}{|c|}{{\ida} main solver}\\
 \hline
@@ -409,10 +413,7 @@ apply to {\nvecp}.
   \index{FIDAMALLOC@\texttt{FIDAMALLOC}}
   \ucfunction{FIDAMALLOC}
   {
-    \begin{tabular}[t]{@{}r@{}l@{}l}
-        &CALL FIDAMALLOC (&T0, Y0, YP0, IATOL, RTOL, ATOL, \\
-    {\&}&                 &IOUT, ROUT, IER)
-    \end{tabular}
+     CALL FIDAMALLOC (T0, Y0, YP0, IATOL, RTOL, ATOL, IOUT, ROUT, IER)
   }
   {
     This function provides required problem and solution specifications, 
@@ -430,8 +431,9 @@ apply to {\nvecp}.
       subsequently call \id{FIDAEWTSET} and provide the function \id{FIDAEWT}.
     \item[RTOL] is the relative tolerance (scalar).
     \item[ATOL] is the absolute tolerance (scalar or array).
-    \item[IOUT] is an array of length at least 21 for integer optional outputs.
-    \item[ROUT] is an array of length at least 6 for real optional outputs.
+    \item[IOUT] is an integer array of length at least 21 for integer optional
+                outputs.
+    \item[ROUT] is a real array of length at least 6 for real optional outputs.
     \end{args}
   }
   {
@@ -621,19 +623,6 @@ apply to {\nvecp}.
   Optional outputs specific to the {\spgmr} case are listed in
   Table~\ref{t:fida_out}.
 
-  If a sequence of problems of the same size is being solved using the {\spgmr}
-  linear solver, then following the call to \id{FIDAREINIT} (see below), a call to
-  the \id{FIDASPGMR} routine may or may not be needed.  If there is a change in
-  input arguments other than \id{MAXL}, then the user program should make the call
-  \index{FIDASPGMRREINIT@\texttt{FIDASPGMRREINIT}}
-\begin{verbatim}
-      CALL FIDASPGMRREINIT (IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
-\end{verbatim}
-  which reinitializes the {\spgmr} linear solver, but without reallocating its
-  memory.  The arguments of \id{FIDASPGMRREINIT} have the same names and meanings
-  as those of \id{FIDASPGMR}.  Finally, if the value of \id{MAXL} is being changed,
-  then a call to \id{FIDASPGMR} must be made.
-
   For descriptions of the relevant optional user-supplied routines, see 
   {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
 
@@ -679,18 +668,6 @@ apply to {\nvecp}.
 
   Optional outputs specific to the {\spbcg} case are listed in
   Table~\ref{t:fida_out}.
-
-  If a sequence of problems of the same size is being solved using the {\spbcg}
-  linear solver, then following the call to \id{FIDAREINIT} (see below), a call to
-  the \id{FIDASPBCGREINIT} routine may or may not be needed.  If there is a change
-  in any of the input arguments, then the user program should make the call
-  \index{FIDASPBCGREINIT@\texttt{FIDASPBCGREINIT}}
-\begin{verbatim}
-      CALL FIDASPBCGREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
-\end{verbatim}
-  which reinitializes the {\spbcg} linear solver, but without reallocating its
-  memory.  The arguments of this routine have the same names and meanings as
-  those of \id{FIDASPBCG}.
 
   For descriptions of the relevant optional user-supplied routines, see 
   {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
@@ -738,20 +715,8 @@ apply to {\nvecp}.
   Optional outputs specific to the {\sptfqmr} case are listed in
   Table~\ref{t:fida_out}.
 
-  If a sequence of problems of the same size is being solved using the {\sptfqmr}
-  linear solver, then following the call to \id{FIDAREINIT} (see below), a call to
-  the \id{FIDASPTFQMRREINIT} routine may or may not be needed.  If there is a change
-  in any of the input arguments, then the user program should make the call
-  \index{FIDASPTFQMRREINIT@\texttt{FIDASPTFQMRREINIT}}
-\begin{verbatim}
-      CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
-\end{verbatim}
-  which reinitializes the {\sptfqmr} linear solver, but without reallocating its
-  memory.  The arguments of this routine have the same names and meanings as
-  those of \id{FIDASPTFQMR}.
-
   For descriptions of the relevant optional user-supplied routines, see 
-  {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
+  below.
 
   %%-------------------------------------------------
 
@@ -906,10 +871,43 @@ apply to {\nvecp}.
       CALL FIDAREINIT (T0, Y0, YP0, IATOL, RTOL, ATOL, IER)
 \end{verbatim}
   The arguments have the same names and meanings as those of \id{FIDAMALLOC}.
-  \id{FIDAREINIT} performs the same initializations as
-  \id{FIDAMALLOC}, but does no memory allocation, using instead the existing
-  internal memory created by the previous \id{FIDAMALLOC} call.  The call to
-  specify the linear system solution method may or may not be needed.
+  \id{FIDAREINIT} performs the same initializations as \id{FIDAMALLOC}, but
+  does no memory allocation, using instead the existing internal memory
+  created by the previous \id{FIDAMALLOC} call.
+
+  Following this call, a call to specify the linear system solver must be
+  made if the choice of linear solver is being changed.  Otherwise, a call
+  to reinitialize the linear solver last used may or may not be needed,
+  depending on changes in the inputs to it.
+
+  In the case of the {\band} solver, for any change in the half-bandwidths,
+  call \id{FIDABAND} as described above.
+
+  In the case of {\spgmr}, for a change of inputs other than \id{MAXL},
+  make the call
+  \index{FIDASPGMRREINIT@\texttt{FIDASPGMRREINIT}}
+\begin{verbatim}
+      CALL FIDASPGMRREINIT (IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
+\end{verbatim}
+  which reinitializes {\spgmr} without reallocating its memory.
+  The arguments have the same names and meanings as those of \id{FIDASPGMR}.
+  If \id{MAXL} is being changed, then call \id{FIDASPGMR}.
+
+  In the case of {\spbcg}, for a change in any inputs, make the call
+  \index{FIDASPBCGREINIT@\texttt{FIDASPBCGREINIT}}
+\begin{verbatim}
+      CALL FIDASPBCGREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
+\end{verbatim}
+  which reinitializes {\spbcg} without reallocating its memory.
+  The arguments have the same names and meanings as those of \id{FIDASPBCG}.
+
+  In the case of {\sptfqmr}, for a change in any inputs, make the call
+  \index{FIDASPTFQMRREINIT@\texttt{FIDASPTFQMRREINIT}}
+\begin{verbatim}
+      CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
+\end{verbatim}
+  which reinitializes {\sptfqmr} without reallocating its memory.
+  The arguments have the same names and meanings as those of \id{FIDASPTFQMR}.
 
 \item {\bf Memory deallocation}
 
