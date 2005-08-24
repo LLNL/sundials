@@ -708,16 +708,16 @@ for the given problem.
     is the initial value of $y^\prime$.   
 
   \item[icopt] (\id{int})
-    is one of two options for the initial condition calculation.
+    is one of the following two options for the initial condition calculation.
     
-    \id{icopt}$=$\ID{IDA\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
+    \id{icopt}$ = $\ID{IDA\_YA\_YDP\_INIT} directs \id{IDACalcIC} to compute 
     the algebraic components of $y$ and differential components of $y^\prime$, 
     given the differential components of $y$.  
     This option requires that the \id{N\_Vector} \id{id} was set through 
     \id{IDASetId}, specifying the differential and algebraic components.  
     
-    \id{icopt}$=$\ID{IDA\_Y\_INIT} directs \id{IDACalcIC} to compute all  
-    components of $y$, given $y^\prime$.  \id{id} is not required.
+    \id{icopt}$ = $\ID{IDA\_Y\_INIT} directs \id{IDACalcIC} to compute all  
+    components of $y$, given $y^\prime$.  In this case, \id{id} is not required.
 
   \item[tout1] (\id{realtype})
     is the first value of $t$ at which a solution will be requested (from
@@ -5556,10 +5556,10 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Create {\ida} object}
 
 \item
-  \textcolor{gray}{\bf Set optional inputs}
+  \textcolor{gray}{\bf Allocate internal memory}
 
 \item
-  \textcolor{gray}{\bf Allocate internal memory}
+  \textcolor{gray}{\bf Set optional inputs}
 
 \item \label{i:bbdpre_init}
   {\bf Initialize the {\idabbdpre} preconditioner module}
@@ -5606,7 +5606,20 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   optional input functions.
 
 \item
+  \textcolor{gray}{\bf Correct initial values}
+
+\item
+  \textcolor{gray}{\bf Specify rootfinding problem}
+
+\item
   \textcolor{gray}{\bf Advance solution in time}
+
+\item
+  {\bf Get optional outputs}
+
+  Additional optional outputs associated with {\idabbdpre} are available by 
+  way of two routines described below --
+  \id{IDABBDPreconGetWorkSpace} and \id{IDABBDPreconGetNumGfnEvals}.
 
 \item
   \textcolor{gray}{\bf Deallocate memory for solution vector}
