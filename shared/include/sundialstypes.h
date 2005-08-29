@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-06-02 13:27:43 $
+ * $Revision: 1.12 $
+ * $Date: 2005-08-29 20:35:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -55,7 +55,7 @@ extern "C" {
 #if defined(SUNDIALS_SINGLE_PRECISION)
 
 typedef float realtype;
-#define RCONST(x) (x)##F
+#define RCONST(x) x##F
 #define BIG_REAL FLT_MAX
 #define SMALL_REAL FLT_MIN
 #define UNIT_ROUNDOFF FLT_EPSILON
@@ -71,7 +71,7 @@ typedef double realtype;
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 
 typedef long double realtype;
-#define RCONST(x) (x)##L
+#define RCONST(x) x##L
 #define BIG_REAL LDBL_MAX
 #define SMALL_REAL LDBL_MIN
 #define UNIT_ROUNDOFF LDBL_EPSILON
