@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2005-08-16 16:48:15 $
+ * $Revision: 1.38 $
+ * $Date: 2005-08-29 20:07:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -26,6 +26,7 @@
 
 #include "fkinsol.h"        /* prototypes of interfaces and global variables */
 #include "kinsol.h"         /* KINSOL constants and prototypes               */
+#include "kinband.h"        /* prototypes of KINBAND interface routines      */
 #include "kindense.h"       /* prototypes of KINDENSE interface routines     */
 #include "kinsptfqmr.h"     /* prototypes of KINSPTFQMR interface routines   */
 #include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
