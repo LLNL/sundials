@@ -45,7 +45,7 @@ Guide [1] (cvs_guide.ps and cvs_guide.pdf) and the CVODES Examples [2]
 B. Installation
 ---------------
 
-For basic installation instructions see /sundials/INSTALL. 
+For basic installation instructions see /sundials/INSTALL_NOTES. 
 For complete installation instructions see the "CVODES Installation Procedure"
 chapter in the CVODES User Guide.
 
