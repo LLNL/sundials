@@ -49,7 +49,7 @@ Examples [2] (kin_examples.ps and kin_examples.pdf) documents.
 B. Installation
 ---------------
 
-For basic installation instructions see the file /sundials/INSTALL. 
+For basic installation instructions see the file /sundials/INSTALL_NOTES. 
 For complete installation instructions see the "KINSOL Installation Procedure"
 chapter in the KINSOL User Guide [1].
 
