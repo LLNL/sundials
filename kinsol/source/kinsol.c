@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2005-04-28 20:45:27 $
+ * $Revision: 1.43 $
+ * $Date: 2005-08-31 00:20:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -30,21 +30,21 @@
  * -----------------------------------------------------------------
  */
 
-#define HALF           RCONST(0.5)
-#define ZERO           RCONST(0.0)
-#define ONE            RCONST(1.0)
-#define ONEPT5         RCONST(1.5)
-#define TWO            RCONST(2.0)
-#define THREE          RCONST(3.0)
-#define FIVE           RCONST(5.0)
-#define POINT1         RCONST(0.1)
-#define POINT01        RCONST(0.01)
-#define POINT99        RCONST(0.99)
-#define THOUSAND       RCONST(1000.0)
-#define ONETHIRD       RCONST(0.3333333333333333)
-#define TWOTHIRDS      RCONST(0.6666666666666667)
-#define POINT9         RCONST(0.9)
-#define POINT0001      RCONST(0.0001)
+#define HALF      RCONST(0.5)
+#define ZERO      RCONST(0.0)
+#define ONE       RCONST(1.0)
+#define ONEPT5    RCONST(1.5)
+#define TWO       RCONST(2.0)
+#define THREE     RCONST(3.0)
+#define FIVE      RCONST(5.0)
+#define POINT1    RCONST(0.1)
+#define POINT01   RCONST(0.01)
+#define POINT99   RCONST(0.99)
+#define THOUSAND  RCONST(1000.0)
+#define ONETHIRD  RCONST(0.3333333333333333)
+#define TWOTHIRDS RCONST(0.6666666666666667)
+#define POINT9    RCONST(0.9)
+#define POINT0001 RCONST(0.0001)
 
 /* KINStop return value requesting more iterations */
 
@@ -57,18 +57,18 @@
  * -----------------------------------------------------------------
  */
 
-#define PRNT_RETVAL      1
-#define PRNT_NNI         2
-#define PRNT_TOL         3
-#define PRNT_FMAX        4
-#define PRNT_PNORM       5
-#define PRNT_PNORM1      6
-#define PRNT_FNORM       7
-#define PRNT_LAM         8
-#define PRNT_ALPHA       9
-#define PRNT_BETA       10
-#define PRNT_ALPHABETA  11
-#define PRNT_ADJ        12
+#define PRNT_RETVAL     1
+#define PRNT_NNI        2
+#define PRNT_TOL        3
+#define PRNT_FMAX       4
+#define PRNT_PNORM      5
+#define PRNT_PNORM1     6
+#define PRNT_FNORM      7
+#define PRNT_LAM        8
+#define PRNT_ALPHA      9
+#define PRNT_BETA      10
+#define PRNT_ALPHABETA 11
+#define PRNT_ADJ       12
 
 /*
  * -----------------------------------------------------------------
@@ -162,7 +162,8 @@ void *KINCreate(void)
   kin_mem->kin_omega_min      = OMEGA_MIN;
   kin_mem->kin_omega_max      = OMEGA_MAX;
 
-  /* Initialize lrw and liw */
+  /* initialize lrw and liw */
+
   kin_mem->kin_lrw = 17;
   kin_mem->kin_liw = 22;
 
@@ -257,69 +258,69 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
  * -----------------------------------------------------------------
  */
 
-#define func (kin_mem->kin_func)
-#define f_data (kin_mem->kin_f_data)
-#define infofp (kin_mem->kin_infofp)
-#define printfl (kin_mem->kin_printfl)
-#define mxiter (kin_mem->kin_mxiter)
-#define noInitSetup (kin_mem->kin_noInitSetup)
-#define noResMon (kin_mem->kin_noResMon)
-#define retry_nni (kin_mem->kin_retry_nni)
+#define func             (kin_mem->kin_func)
+#define f_data           (kin_mem->kin_f_data)
+#define infofp           (kin_mem->kin_infofp)
+#define printfl          (kin_mem->kin_printfl)
+#define mxiter           (kin_mem->kin_mxiter)
+#define noInitSetup      (kin_mem->kin_noInitSetup)
+#define noResMon         (kin_mem->kin_noResMon)
+#define retry_nni        (kin_mem->kin_retry_nni)
 #define update_fnorm_sub (kin_mem->kin_update_fnorm_sub)
-#define msbset (kin_mem->kin_msbset)
-#define msbset_sub (kin_mem->kin_msbset_sub)
-#define etaflag (kin_mem->kin_etaflag)
-#define eta (kin_mem->kin_eta)
-#define ealpha (kin_mem->kin_eta_alpha)
-#define egamma (kin_mem->kin_eta_gamma)
-#define noMinEps (kin_mem->kin_noMinEps)
-#define mxnewtstep (kin_mem->kin_mxnewtstep)
-#define mxnbcf (kin_mem->kin_mxnbcf)
-#define relfunc (kin_mem->kin_sqrt_relfunc)
-#define fnormtol (kin_mem->kin_fnormtol)
-#define scsteptol (kin_mem->kin_scsteptol)
-#define constraints (kin_mem->kin_constraints)
+#define msbset           (kin_mem->kin_msbset)
+#define msbset_sub       (kin_mem->kin_msbset_sub)
+#define etaflag          (kin_mem->kin_etaflag)
+#define eta              (kin_mem->kin_eta)
+#define ealpha           (kin_mem->kin_eta_alpha)
+#define egamma           (kin_mem->kin_eta_gamma)
+#define noMinEps         (kin_mem->kin_noMinEps)
+#define mxnewtstep       (kin_mem->kin_mxnewtstep)
+#define mxnbcf           (kin_mem->kin_mxnbcf)
+#define relfunc          (kin_mem->kin_sqrt_relfunc)
+#define fnormtol         (kin_mem->kin_fnormtol)
+#define scsteptol        (kin_mem->kin_scsteptol)
+#define constraints      (kin_mem->kin_constraints)
 
-#define uround (kin_mem->kin_uround)
-#define nni (kin_mem->kin_nni)
-#define nfe (kin_mem->kin_nfe)
-#define nbcf (kin_mem->kin_nbcf)  
-#define nbktrk (kin_mem->kin_nbktrk)
-#define ncscmx (kin_mem->kin_ncscmx)
-#define stepl (kin_mem->kin_stepl)
-#define stepmul (kin_mem->kin_stepmul)
-#define sthrsh (kin_mem->kin_sthrsh)
-#define linit (kin_mem->kin_linit)
-#define lsetup (kin_mem->kin_lsetup)
-#define lsolve (kin_mem->kin_lsolve) 
-#define lfree (kin_mem->kin_lfree)
-#define constraintsSet (kin_mem->kin_constraintsSet) 
-#define jacCurrent (kin_mem->kin_jacCurrent)          
-#define nnilset (kin_mem->kin_nnilset)
-#define nnilset_sub (kin_mem->kin_nnilset_sub)
-#define lmem (kin_mem->kin_lmem)        
-#define inexact_ls (kin_mem->kin_inexact_ls)
-#define setupNonNull (kin_mem->kin_setupNonNull)
-#define fval (kin_mem->kin_fval)      
-#define fnorm (kin_mem->kin_fnorm)
-#define f1norm (kin_mem->kin_f1norm)
-#define etaflag (kin_mem->kin_etaflag)
+#define uround          (kin_mem->kin_uround)
+#define nni             (kin_mem->kin_nni)
+#define nfe             (kin_mem->kin_nfe)
+#define nbcf            (kin_mem->kin_nbcf)  
+#define nbktrk          (kin_mem->kin_nbktrk)
+#define ncscmx          (kin_mem->kin_ncscmx)
+#define stepl           (kin_mem->kin_stepl)
+#define stepmul         (kin_mem->kin_stepmul)
+#define sthrsh          (kin_mem->kin_sthrsh)
+#define linit           (kin_mem->kin_linit)
+#define lsetup          (kin_mem->kin_lsetup)
+#define lsolve          (kin_mem->kin_lsolve) 
+#define lfree           (kin_mem->kin_lfree)
+#define constraintsSet  (kin_mem->kin_constraintsSet) 
+#define jacCurrent      (kin_mem->kin_jacCurrent)          
+#define nnilset         (kin_mem->kin_nnilset)
+#define nnilset_sub     (kin_mem->kin_nnilset_sub)
+#define lmem            (kin_mem->kin_lmem)        
+#define inexact_ls      (kin_mem->kin_inexact_ls)
+#define setupNonNull    (kin_mem->kin_setupNonNull)
+#define fval            (kin_mem->kin_fval)      
+#define fnorm           (kin_mem->kin_fnorm)
+#define f1norm          (kin_mem->kin_f1norm)
+#define etaflag         (kin_mem->kin_etaflag)
 #define callForcingTerm (kin_mem->kin_callForcingTerm)
-#define uu (kin_mem->kin_uu)
-#define uscale (kin_mem->kin_uscale)
-#define fscale (kin_mem->kin_fscale)
-#define globalstrategy (kin_mem->kin_globalstrategy)     
-#define sJpnorm (kin_mem->kin_sJpnorm)
-#define sfdotJp (kin_mem->kin_sfdotJp)
-#define unew (kin_mem->kin_unew)
-#define pp (kin_mem->kin_pp)
-#define vtemp1 (kin_mem->kin_vtemp1)
-#define vtemp2 (kin_mem->kin_vtemp2)
-#define eps (kin_mem->kin_eps)
-#define res_norm (kin_mem->kin_res_norm)
-#define fnorm_sub (kin_mem->kin_fnorm_sub)
-#define liw1 (kin_mem->kin_liw1)
-#define lrw1 (kin_mem->kin_lrw1)
+#define uu              (kin_mem->kin_uu)
+#define uscale          (kin_mem->kin_uscale)
+#define fscale          (kin_mem->kin_fscale)
+#define globalstrategy  (kin_mem->kin_globalstrategy)     
+#define sJpnorm         (kin_mem->kin_sJpnorm)
+#define sfdotJp         (kin_mem->kin_sfdotJp)
+#define unew            (kin_mem->kin_unew)
+#define pp              (kin_mem->kin_pp)
+#define vtemp1          (kin_mem->kin_vtemp1)
+#define vtemp2          (kin_mem->kin_vtemp2)
+#define eps             (kin_mem->kin_eps)
+#define res_norm        (kin_mem->kin_res_norm)
+#define fnorm_sub       (kin_mem->kin_fnorm_sub)
+#define liw1            (kin_mem->kin_liw1)
+#define lrw1            (kin_mem->kin_lrw1)
 
 /*
  * -----------------------------------------------------------------
@@ -389,11 +390,12 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
 
   /* Note: The following logic allows the choice of whether or not
      to force a call to the linear solver setup upon a given call to
-     KINSol. */
+     KINSol */
 
   if (noInitSetup) sthrsh = ONE;
+  else             sthrsh = TWO;
 
-  /* If eps is to be bounded from below, set the bound */
+  /* if eps is to be bounded from below, set the bound */
 
   if (inexact_ls && !noMinEps) epsmin = POINT01 * fnormtol;
 
@@ -586,12 +588,12 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     return(FALSE);
   }
 
-  /* Update solver workspace lengths  */
+  /* rpdate solver workspace lengths */
+
   liw += 5*liw1;
   lrw += 5*lrw1;
 
   return(TRUE);
-
 }
 
 /*
@@ -688,7 +690,7 @@ static int KINSolInit(KINMem kin_mem)
   if (mxnewtstep < ONE) mxnewtstep = ONE;
 
 
-  /* Additional Set-up for ineact linear solvers */
+  /* additional set-up for inexact linear solvers */
 
   if (inexact_ls) {
 
@@ -739,6 +741,7 @@ static int KINSolInit(KINMem kin_mem)
   }
 
   /* initialize the L2 (Euclidean) norms of f for the linear iteration steps */
+
   fnorm = N_VWL2Norm(fval, fscale);
   f1norm = HALF * fnorm * fnorm;
 
@@ -859,23 +862,23 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
 
 static void KINFreeVectors(KINMem kin_mem)
 {
-  N_VDestroy(unew);
-  N_VDestroy(fval);
-  N_VDestroy(pp);
-  N_VDestroy(vtemp1);
-  N_VDestroy(vtemp2);
+  if (unew != NULL)   N_VDestroy(unew);
+  if (fval != NULL)   N_VDestroy(fval);
+  if (pp != NULL)     N_VDestroy(pp);
+  if (vtemp1 != NULL) N_VDestroy(vtemp1);
+  if (vtemp2 != NULL) N_VDestroy(vtemp2);
 
   lrw -= 5*lrw1;
   liw -= 5*liw1;
 
   if (kin_mem->kin_constraintsSet) {
-    N_VDestroy(constraints);
+    if (constraints != NULL) N_VDestroy(constraints);
     lrw -= lrw1;
     liw -= liw1;
   }
 
+  return;
 }
-
 
 /*
  * -----------------------------------------------------------------
@@ -912,7 +915,7 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   stepl = pnorm;
   stepmul = ONE;
   if (constraintsSet) {
-    ret = KINConstraint(kin_mem);  /* Note: This routine changes the step pp. */
+    ret = KINConstraint(kin_mem);  /* Note: This routine changes the step pp */
     if (ret == 1) {
       ratio *= stepmul;
       N_VScale(stepmul, pp, pp);
@@ -945,7 +948,6 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
   if (pnorm > (POINT99 * mxnewtstep)) *maxStepTaken = TRUE; 
 
   return(0);
-
 }
 
 /*
@@ -1216,7 +1218,7 @@ static int KINLinSolDrv(KINMem kin_mem)
   loop{
 
     jacCurrent = FALSE;
-    
+
     if ((sthrsh > ONEPT5) && setupNonNull) {
       ret = lsetup(kin_mem);
       jacCurrent = TRUE;
@@ -1225,26 +1227,31 @@ static int KINLinSolDrv(KINMem kin_mem)
       if (ret != 0) return(KIN_LSETUP_FAIL);
     }
 
-    /* Rename vectors for readability */
+    /* rename vectors for readability */
+
     b = unew;
     x = pp;
 
     /* load b with the current value of -fval */
+
     N_VScale(-ONE, fval, b);
 
     /* call the generic 'lsolve' routine to solve the system Jx = b */
+
     ret = lsolve(kin_mem, x, b, &res_norm);
-    
+
     if (ret == 0) return(0);
     else if (ret < 0) return(KIN_LSOLVE_FAIL);
     else if ((!setupNonNull) || (jacCurrent)) return(KIN_LINSOLV_NO_RECOVERY);
-    
+
     /* loop back only if the linear solver setup is in use and Jacobian information
        is not current */
-    
+
     sthrsh = TWO;
-    
+
   }
+
+  return;
 }
 
 /*
