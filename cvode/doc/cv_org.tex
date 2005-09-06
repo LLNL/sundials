@@ -26,10 +26,10 @@ The overall organization of the {\cvode} package is shown in Figure
   generic solver and auxiliary modules are in rectangular boxes.}
 \label{f:cvorg}
 \end{figure}
-The central integration module, implemented in the files 
-\id{cvode.h} and \id{cvode.c}, deals with the evaluation of integration coefficients,
-the functional or Newton iteration process, estimation of local error,
-selection of stepsize and order, and interpolation to user output
+The central integration module, implemented in the files \id{cvode.h},
+\id{cvode\_impl.h}, and \id{cvode.c}, deals with the evaluation of integration
+coefficients, the functional or Newton iteration process, estimation of local
+error, selection of stepsize and order, and interpolation to user output
 points, among other issues.  Although this module contains logic for
 the basic Newton iteration algorithm, it has no knowledge of the
 method being used to solve the linear systems that arise.  For any
@@ -44,21 +44,23 @@ modules:
 \item {\cvband}: LU factorization and backsolving with banded matrices; 
 \item {\cvdiag}: an internally generated diagonal approximation to the 
 Jacobian; 
-\item {\cvspgmr}: scaled preconditioned GMRES method.
+\item {\cvspgmr}: scaled preconditioned GMRES method;
+\item {\cvspbcg}: scaled preconditioned Bi-CGStab method;
+\item {\cvsptfqmr}: scaled preconditioned TFQMR method.
 \end{itemize}
 This set of linear solver modules is intended to be expanded in the
 future as new algorithms are developed.
 \index{CVODE@{\cvode} linear solvers!list of|)} 
 
-In the case of the direct {\cvdense} and {\cvband} methods, the package includes
+In the case of the direct methods {\cvdense} and {\cvband}, the package includes
 an algorithm for the approximation of the Jacobian by difference
 quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly. In the case of the iterative
-{\cvspgmr} method, the package includes an algorithm for the approximation
-by difference quotients of the product between the Jacobian matrix and
-a vector of appropriate length. Again, the user has the option of providing
-a routine for this operation.
-In \index{preconditioning!setup and solve phases} the case of {\cvspgmr}, 
+(or an approximation to it) directly. In the case of the Krylov methods
+{\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}, the package includes an algorithm for
+the approximation by difference quotients of the product between the Jacobian
+matrix and a vector of appropriate length. Again, the user has the option of
+providing a routine for this operation.
+For the Krylov methods, \index{preconditioning!setup and solve phases}
 the preconditioning must be supplied by the user, in two phases: 
 setup (preprocessing of Jacobian data) and solve.
 While\index{preconditioning!advice on} there is no default
@@ -82,9 +84,9 @@ of the linear system method.
 
 These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\cvode}|(} 
-Each of the modules {\cvdense}, {\cvband}, and {\cvspgmr} is a set of 
-interface routines built on top of a generic solver module, 
-named {\dense}, {\band}, and {\spgmr}, respectively.  
+Each of the modules {\cvdense}, {\cvband}, {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}
+is a set of  interface routines built on top of a generic solver module, 
+named {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.  
 The interfaces deal with the use of these methods in the {\cvode} context, 
 whereas the generic solver is independent of the context.
 While the generic solvers here were generated with {\sundials} in mind, our
@@ -94,13 +96,14 @@ solver to be replaced by an improved version, with no necessity to
 revise the {\cvode} package elsewhere.
 \index{generic linear solvers!use in {\cvode}|)}
 
-{\cvode} also provides two preconditioner modules. The first one, 
-{\cvbandpre}, is intended to be used with {\nvecs} and provides
-a banded difference quotient Jacobian based preconditioner and solver
-routines for use with {\cvspgmr}. The second preconditioner module, 
-{\cvbbdpre}, works in conjunction with {\nvecp} and generates a 
-preconditioner that is a block-diagonal matrix with each block being 
-a band matrix.
+{\cvode} also provides two preconditioner modules, for use with any of
+the Krylov iterative linear solvers. The first one, {\cvbandpre},
+is intended to be used with {\nvecs} and provides a banded
+difference-quotient Jacobian-based preconditioner, with corresponding
+setup and solve routines.
+The second preconditioner module, {\cvbbdpre}, works in conjunction
+with {\nvecp} and generates a preconditioner that is a block-diagonal
+matrix with each block being a band matrix.
 
 All state information used by {\cvode} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the
