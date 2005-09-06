@@ -15,41 +15,62 @@ with sensitivity analysis capabilities.
 {\F} solvers for ODE initial value problems are widespread and heavily used. 
 Two solvers that have been written at LLNL in the past are {\vode} \cite{BBH:89} 
 and {\vodpk} \cite{Byr:92}.
-{\vode}\index{VODE@{\vode}} is a general purpose solver that includes methods for stiff
-and nonstiff systems, and in the stiff case uses direct methods (full or
+{\vode}\index{VODE@{\vode}} is a general purpose solver that includes methods for
+stiff and nonstiff systems, and in the stiff case uses direct methods (full or
 banded) for the solution of the linear systems that arise at each implicit
 step. Externally, {\vode} is very similar to the well known solver
-{\lsode}\index{LSODE@{\lsode}} \cite{RaHi:94}.
-{\vodpk}\index{VODPK@{\vodpk}} is a variant of {\vode} that uses a preconditioned Krylov 
-(iterative) method for the solution of the linear systems. {\vodpk} is a powerful 
-tool for large stiff systems because it combines established methods for stiff 
-integration, nonlinear iteration, and Krylov (linear) iteration with a problem-specific
-treatment of the dominant source of stiffness, in the form of the user-supplied
-preconditioner matrix \cite{BrHi:89}.
-The capabilities of both {\vode} and {\vodpk} have been combined in the {\C}-language 
-package {\cvode}\index{CVODE@{\cvode}} \cite{CoHi:96}.
+{\lsode}\index{LSODE@{\lsode}} \cite{RaHi:94}. {\vodpk}\index{VODPK@{\vodpk}}
+is a variant of {\vode} that uses a preconditioned Krylov (iterative)
+method, namely GMRES, for the solution of the linear systems. {\vodpk}
+is a powerful tool for large stiff systems because it combines
+established methods for stiff integration, nonlinear iteration, and
+Krylov (linear) iteration with a problem-specific treatment of the
+dominant source of stiffness, in the form of the user-supplied
+preconditioner matrix \cite{BrHi:89}.  The capabilities of both
+{\vode} and {\vodpk} have been combined in the {\C}-language package
+{\cvode}\index{CVODE@{\cvode}} \cite{CoHi:96}.
 
-In the process of translating the {\vode} and {\vodpk} algorithms into {\C}, the overall 
-{\cvode} organization has been changed considerably.
-One key feature of the {\cvode} organization is that the linear system solvers comprise a
-layer of code modules that is separated from the integration algorithm, allowing for 
-easy modification and expansion of the linear solver array.
-A second key feature is a separate module devoted to vector operations; this 
-facilitated the extension to multiprosessor environments with minimal impacts 
-on the rest of the solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByHi:99}, 
-the parallel variant of {\cvode}.
-\index{CVODE@{\cvode}!relationship to {\vode}, {\vodpk}|)}
+At present, {\cvode} contains three Newton/Krylov methods:
+the GMRES (Generalized Minimal RESidual) \cite{SaSc:86},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized) \cite{}, and
+TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative methods
+\cite{}.  As Krylov methods, these require almost no matrix storage
+for solving the Newton equations as compared to direct methods.
+However, the algorithms allow for a user-supplied preconditioner
+matrix, and for most problems preconditioning is essential for an
+efficient solution.
+For very large stiff ODE systems, the Krylov methods are preferable over
+direct linear solver methods, and are often the only feasible choice.
+Among the three Krylov methods in {\cvode}, we recommend GMRES as the
+best overall choice.  However, users are encouraged to compare all
+three, especially if encountering convergence failures with GMRES.
+Bi-CGFStab and TFQMR have an advantage in storage requirements, in
+that the number of workspace vectors they require is fixed, while that
+number for GMRES depends on the desired Krylov subspace size.
 
-\index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|(}
-Recently, the functionality of {\cvode} and {\pvode} has been combined into
-one single code, simply called {\cvode}. Development of the new version of
-{\cvode} was concurrent with a redesign of the vector operations module
-across the {\sundials} suite. The key feature of the new {\nvector} module is that it
-is written in terms of abstract vector operations with the actual vector kernels attached
-by a particular implementation (such as serial or parallel) of {\nvector}. This allows
-writing the {\sundials} solvers in a manner independent of the actual {\nvector} 
-implementation (which can be user-supplied), as well as allowing more than one 
-{\nvector} module linked into an executable file.
+In the process of translating the {\vode} and {\vodpk} algorithms into
+{\C}, the overall {\cvode} organization has been changed considerably.
+One key feature of the {\cvode} organization is that the linear system
+solvers comprise a layer of code modules that is separated from the
+integration algorithm, allowing for easy modification and expansion of
+the linear solver array.  A second key feature is a separate module
+devoted to vector operations; this facilitated the extension to
+multiprosessor environments with minimal impacts on the rest of the
+solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByHi:99},
+the parallel variant of {\cvode}.  \index{CVODE@{\cvode}!relationship
+to {\vode}, {\vodpk}|)}
+
+\index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|(} Recently,
+the functionality of {\cvode} and {\pvode} has been combined into one
+single code, simply called {\cvode}. Development of the new version of
+{\cvode} was concurrent with a redesign of the vector operations
+module across the {\sundials} suite. The key feature of the new
+{\nvector} module is that it is written in terms of abstract vector
+operations with the actual vector kernels attached by a particular
+implementation (such as serial or parallel) of {\nvector}. This allows
+writing the {\sundials} solvers in a manner independent of the actual
+{\nvector} implementation (which can be user-supplied), as well as
+allowing more than one {\nvector} module linked into an executable file.
 \index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|)}
 
 \index{CVODE@{\cvode}!motivation for writing in C|(}
@@ -66,12 +87,29 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.4.0}
+
+{\cvspbcg} and {\cvsptfqmr} modules have been added to interface with the
+Scaled Preconditioned Bi-CGstab ({\spbcg}) and Scaled Preconditioned
+Transpose-Free Quasi-Minimal Residual ({\sptfqmr}) linear solver modules,
+respectively (for details see Chapter \ref{s:simulation}). Corresponding
+additions were made to the {\F} interface module {\fcvode}.
+At the same time, function type names for Scaled Preconditioned Iterative
+Linear Solvers were added for the user-supplied Jacobian-times-vector and
+preconditioner setup and solve functions.
+
 \subsection*{Changes in v2.3.0}
 
-The user interface has been further refined. Several functions used for setting optional
-inputs were combined into a single one. Additionally, to resolve potential variable scope
-issues, all SUNDIALS solvers release user data right after its use. The build systems has 
-been further improved to make it more robust.
+The user interface has been further refined. Several functions used
+for setting optional inputs were combined into a single one.  An optional
+user-supplied routine for setting the error weight vector was added.
+Additionally, to resolve potential variable scope issues, all
+SUNDIALS solvers release user data right after its use. The build
+systems has been further improved to make it more robust.
+
+\subsection*{Changes in v2.2.1}
+
+The changes in this minor {\sundials} release affect only the build system.
 
 \subsection*{Changes in v2.2.0}
 
@@ -94,12 +132,11 @@ of arguments. The same information that was previously accessible
 through such arguments can now be obtained through {\id{Get}-type}
 functions.
 
+The rootfinding feature was added, whereby the roots of a set of given
+functions may be computed during the integration of the ODE system.
+
 Installation of {\cvode} (and all of {\sundials}) has been completely 
 redesigned and is now based on configure scripts.
-
-\subsection*{Changes in v2.2.1}
-
-The changes in this minor {\sundials} release affect only the build system.
 
 
 \section{Reading this User Guide}\label{ss:reading}
@@ -136,9 +173,12 @@ The structure of this document is as follows:
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvode}
   solver (\S\ref{ss:cvode_org}). 
 \item
-  In Chapter \ref{s:simulation}, we give an overview of the usage of
-  {\cvode}, as well as a complete description of the user interface
-  and of the user-defined routines for integration of IVP ODEs.
+  Chapter \ref{s:simulation} is the main usage document for {\cvode} for
+  {\C} applications.  It includes a complete description of the user interface
+  for the integration of ODE initial value problems.
+\item
+  In Chapter \ref{s:fcmix}, we describe {\fcvode}, an interface module
+  for the use of {\cvode} with {\F} applications.
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic
   {\nvector} module shared among the various components of
