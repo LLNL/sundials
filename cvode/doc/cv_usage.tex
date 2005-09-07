@@ -42,8 +42,9 @@ Chapter \ref{s:install}, the relevant library files are
 \item {\em build\_tree}\id{/lib/libsundials\_cvode.}{\em lib},
 \item {\em build\_tree}\id{/lib/libsundials\_fcvode.a},
 \item {\em build\_tree}\id{/lib/libsundials\_shared.}{\em lib},
-\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to two files), and
-\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to two files),
+\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to three files),
+  and
+\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to three files),
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
 and \id{.a} for static libraries. The relevant header files are all located in
@@ -120,6 +121,14 @@ The header files corresponding to the various linear solver options in
   context of {\cvode}. This in turn includes a header file (\id{iterative.h})
   which enumerates the kind of preconditioning and the choices for the
   Gram-Schmidt process.
+\item \Id{cvspbcg.h}, 
+  which is used with the Krylov solver {\spbcg} in the
+  context of {\cvode}. This in turn includes a header file (\id{iterative.h})
+  which enumerates the kind of preconditioning.
+\item \Id{cvsptfqmr.h}, 
+  which is used with the Krylov solver {\sptfqmr} in the
+  context of {\cvode}. This in turn includes a header file (\id{iterative.h})
+  which enumerates the kind of preconditioning.
 \end{itemize}
 
 Other headers may be needed, according as to the choice of preconditioner,
@@ -237,6 +246,10 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
   \id{ier = }\Id{CVDiag}\id{(...);}
 
   \id{ier = }\Id{CVSpgmr}\id{(...);}
+  
+  \id{ier = }\Id{CVSpbcg}\id{(...);}
+  
+  \id{ier = }\Id{CVSptfqmr}\id{(...);}
   
 \item
   {\bf Set linear solver optional inputs}
@@ -362,21 +375,22 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is one of \ID{CV\_SS}, \ID{CV\_SV}, or \ID{CV\_WF}, where \ID{itol}$=$\id{SS} indicates
-    scalar relative error tolerance and scalar absolute error tolerance, while
-    \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
-    absolute error tolerance.  The latter choice is important when the absolute
-    error tolerance needs to be different for each component of the ODE. 
-    If \id{itol}$=$\id{CV\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
-    and the user is expected to provide a function to evaluate the error weight vector
-    $W$ from (\ref{e:errwt}). See \id{CVodeSetEwtFn} in \S\ref{ss:optional_input}.
+    is one of \ID{CV\_SS}, \ID{CV\_SV}, or \ID{CV\_WF}. Here \ID{itol} $=$ \id{SS}
+    indicates scalar relative error tolerance and scalar absolute error tolerance,
+    while \id{itol} $=$ \id{CV\_SV} indicates scalar relative error tolerance and
+    vector absolute error tolerance.  The latter choice is important when the
+    absolute error tolerance needs to be different for each component of the ODE. 
+    If \id{itol}$=$\id{CV\_WF}, the arguments \id{reltol} and \id{abstol} are
+    ignored and the user is expected to provide a function to evaluate the error
+    weight vector $W$, replacing Eq.(\ref{e:errwt}). See \id{CVodeSetEwtFn} in
+    \S\ref{ss:optional_input}.
   \item[reltol] (\id{realtype})
     \index{tolerances}
     is the relative error tolerance.
   \item[abstol] (\id{void *})
-    is a pointer to the absolute error tolerance. If \id{itol}$=$\id{CV\_SS}, \id{abstol}
-    must be a pointer to a \id{realtype} variable. If \id{itol}$=$\id{CV\_SV}, \id{abstol}
-    must be an \id{N\_Vector} variable.
+    is a pointer to the absolute error tolerance. If \id{itol} $=$ \id{CV\_SS},
+    \id{abstol} must be a pointer to a \id{realtype} variable. If
+    \id{itol} $=$ \id{CV\_SV}, \id{abstol} must be an \id{N\_Vector} variable.
   \end{args}
 }
 {
@@ -426,21 +440,40 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 %%==============================================================================
 
 As previously explained, Newton iteration requires the solution of
-linear systems of the form (\ref{e:Newton}).  There are four {\cvode} linear
+linear systems of the form (\ref{e:Newton}).  There are six {\cvode} linear
 solvers currently available for this task: {\cvdense}, {\cvband}, {\cvdiag},
-and {\cvspgmr}.  The first three are direct solvers and derive their name
-from the type of approximation used for the Jacobian 
-$J = \partial{f}/\partial{y}$.  {\cvdense}, {\cvband}, and {\cvdiag} work with
-dense, banded, and diagonal approximations to $J$, respectively.  The
-fourth {\cvode} linear solver, {\cvspgmr}, is an iterative solver.  The {\spgmr}
-in the name indicates that it uses a scaled preconditioned
-GMRES method.
+{\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}.  The first three are direct solvers
+and their names indicate the type of approximation used for the Jacobian 
+$J = \partial{f}/\partial{y}$; {\cvdense}, {\cvband}, and {\cvdiag} work with
+dense, banded, and diagonal approximations to $J$, respectively.  The last
+three {\cvode} linear solvers --- {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr} ---
+are Krylov iterative solvers, which use scaled preconditioned GMRES, scaled
+preconditioned Bi-CGStab, and scaled preconditioned TFQMR, respectively.
+
+\index{preconditioning!advice on|(}With any of the Krylov methods, preconditioning 
+can be done on the left only, on the right only, on both the left and the right, 
+or not at all.  For a given preconditioner matrix, the merits of left vs. right
+preconditioning are unclear in general, and the user should experiment
+with both choices.  Performance will differ because the inverse of the
+left preconditioner is included in the linear system residual whose
+norm is being tested in the Krylov algorithm.  As a rule, however, if
+the preconditioner is the product of two matrices, we recommend that
+preconditioning be done either on the left only or the right only,
+rather than using one factor on each side. For specification of preconditioner,
+see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
+
+If preconditioning is done, user-supplied functions define left and right 
+preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity
+matrix), such that the product $P_1 P_2$ approximates the Newton matrix
+$M = I - \gamma J$ of (\ref{e:Newtonmat}).
+\index{preconditioning!advice on|)}
 
 \index{CVODE@{\cvode} linear solvers!selecting one|(} 
 To specify a {\cvode} linear solver, after the call to \id{CVodeCreate}
 but before any calls to \id{CVode}, the user's program must call one
 of the functions \Id{CVDense}, \Id{CVBand}, \Id{CVDiag}, \Id{CVSpgmr},
-as documented below. The first argument passed to these functions is the {\cvode}
+{\cvspbcg}, or {\cvsptfqmr}, as documented below.
+The first argument passed to these functions is the {\cvode}
 memory pointer returned by \id{CVodeCreate}.  A call to one of these
 functions links the main {\cvode} integrator to a linear solver and
 allows the user to specify parameters which are specific to a
@@ -455,9 +488,9 @@ solver, as specified below.
 \index{CVODE@{\cvode} linear solvers!built on generic solvers|(} 
 In each case except the diagonal approximation case {\cvdiag}, the linear
 solver module used by {\cvode} is actually built on top of a generic
-linear system solver, which may be of interest in itself.  These
-generic solvers, denoted {\dense}, {\band}, and {\spgmr}, are described
-separately in Chapter \ref{s:gen_linsolv}.
+linear system solver, which may be of interest in itself.  These generic
+solvers, denoted {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr},
+are described separately in Chapter \ref{s:gen_linsolv}.
 \index{CVODE@{\cvode} linear solvers!built on generic solvers|)}
 %%
 %%
@@ -636,23 +669,98 @@ separately in Chapter \ref{s:gen_linsolv}.
 {
   The {\cvspgmr} solver uses a scaled preconditioned GMRES\index{GMRES method}
   iterative method to solve the linear system (\ref{e:Newton}).\\
-  \index{preconditioning!advice on|(}With this {\spgmr} method, preconditioning 
-  can be done on the left only, on the right only, on both the left and the right, 
-  or not at all.  For a given preconditioner matrix, the merits of left vs. right
-  preconditioning are unclear in general, and the user should experiment
-  with both choices.  Performance will differ because the inverse of the
-  left preconditioner is included in the linear system residual whose
-  norm is being tested in the {\spgmr} algorithm.  As a rule, however, if
-  the preconditioner is the product of two matrices, we recommend that
-  preconditioning be done either on the left only or the right only,
-  rather than using one factor on each side. For specification of preconditioner,
-  see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
+}
+%%
+%%
+%%
+\index{CVODE@{\cvode} linear solvers!CVSPBCG@{\cvspbcg}}
+\index{CVSPBCG@{\cvspbcg} linear solver!selection of} 
+\ucfunction{CVSpbcg}
+{
+  flag = CVSpbcg(cvode\_mem, pretype, maxl);
+}
+{
+  The function \ID{CVSpbcg} selects the {\cvspbcg} linear solver. 
 
-  If preconditioning is done, user-supplied functions define left and right 
-  preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity
-  matrix), such that the product $P_1 P_2$ approximates the Newton matrix
-  $M=I-\gamma J$ of (\ref{e:Newtonmat}).
-  \index{preconditioning!advice on|)}
+  The user's main function must include the \id{cvspbcg.h} header file.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[pretype] (\id{int})
+    \index{pretype@\texttt{pretype}|textbf}
+    specifies the preconditioning type and must be one of: 
+    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
+  \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{CVSPBCG\_MAXL} $= 5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPBCG\_ILL\_INPUT]
+  \item[\Id{CVSPBCG\_SUCCESS}] 
+    The {\cvspbcg} initialization was successful.
+  \item[\Id{CVSPBCG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPBCG\_ILL\_INPUT}]
+    The preconditioner type \id{pretype} is not valid.
+  \item[\Id{CVSPBCG\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \end{args}
+}
+{
+  The {\cvspbcg} solver uses a scaled preconditioned Bi-CGStab
+  \index{Bi-CGStab method}
+  iterative method to solve the linear system (\ref{e:Newton}).\\
+}
+%%
+%%
+%%
+\index{CVODE@{\cvode} linear solvers!CVSPTFQMR@{\cvsptfqmr}}
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!selection of} 
+\ucfunction{CVSPtfqmr}
+{
+  flag = CVSPtfqmr(cvode\_mem, pretype, maxl);
+}
+{
+  The function \ID{CVSPtfqmr} selects the {\cvsptfqmr} linear solver. 
+
+  The user's main function must include the \id{cvsptfqmr.h} header file.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[pretype] (\id{int})
+    \index{pretype@\texttt{pretype}|textbf}
+    specifies the preconditioning type and must be one of: 
+    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
+  \item[maxl] (\id{int})
+    \index{maxl@\texttt{maxl}}
+    maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
+    default value \id{CVSPTFQMR\_MAXL} $= 5$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPTFQMR\_ILL\_INPUT]
+  \item[\Id{CVSPTFQMR\_SUCCESS}] 
+    The {\cvsptfqmr} initialization was successful.
+  \item[\Id{CVSPTFQMR\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPTFQMR\_ILL\_INPUT}]
+    The preconditioner type \id{pretype} is not valid.
+  \item[\Id{CVSPTFQMR\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \end{args}
+}
+{
+  The {\cvsptfqmr} solver uses a scaled preconditioned TFQMR
+  \index{TFQMR method}
+  iterative method to solve the linear system (\ref{e:Newton}).\\
 }
 
 %%==============================================================================
@@ -783,7 +891,8 @@ will catch any error.
 
 \begin{table}
 \centering
-\caption{Optional inputs for {\cvode}, {\cvdense}, {\cvband}, and {\cvspgmr}}
+\caption{Optional inputs for {\cvode}, {\cvdense}, {\cvband}, {\cvspgmr},
+   {\cvspbcg}, and {\cvsptfqmr}}
 \label{t:optional_input}
 \medskip
 \begin{tabular}{|l|l|l|}\hline
@@ -822,10 +931,26 @@ Band Jacobian function and data & \id{CVBandSetJacFn} & internal DQ, NULL \\
 \multicolumn{3}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
 Preconditioner functions and data & \id{CVSpgmrSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian times vector function and data & \id{CVSpgmrSetJacTimesVecFn} & internal DQ, NULL \\
+Jacobian-times-vector function and data & \id{CVSpgmrSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioning type & \id{CVSpgmrSetPrecType} & none \\
 Type of Gram-Schmidt orthogonalization & \id{CVSpgmrSetGSType} & classical GS \\
 Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
-Preconditioning type & \id{CVSpgmrSetPrecType} & none \\
+\hline
+\multicolumn{3}{|c|}{\bf CVSPBCG linear solver} \\
+\hline
+Preconditioner functions and data & \id{CVSpbcgSetPreconditioner} & NULL, NULL, NULL \\
+Jacobian-times-vector function and data & \id{CVSpbcgSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioning type & \id{CVSpbcgSetPrecType} & none \\
+Maximum Krylov subspace size & \id{CVSpbcgSetMaxl} & 5 \\
+Ratio between linear and nonlinear tolerances & \id{CVSpbcgSetDelt} & 0.05 \\
+\hline
+\multicolumn{3}{|c|}{\bf CVSPTFQMR linear solver} \\
+\hline
+Preconditioner functions and data & \id{CVSptfqmrSetPreconditioner} & NULL, NULL, NULL \\
+Jacobian-times-vector function and data & \id{CVSptfqmrSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioning type & \id{CVSptfqmrSetPrecType} & none \\
+Maximum Krylov subspace size & \id{CVSptfqmrSetMaxl} & 5 \\
+Ratio between linear and nonlinear tolerances & \id{CVSptfqmrSetDelt} & 0.05 \\
 \hline
 \end{tabular}
 \end{table}
@@ -1384,7 +1509,8 @@ flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
 }
 {
   The function \ID{CVodeSetEwtFn} specifies the user-defined function
-  to be used in computing the error weight vector $W$ in (\ref{e:errwt}).
+  to be used in computing the error weight vector $W$, which is normally
+  defined by Eq.(\ref{e:errwt}).
 }
 {
   \begin{args}[cvode\_mem]
@@ -1561,18 +1687,18 @@ If used, the \id{psetup} function should also be specified in the call to
 \id{CVSpgmrSetPreconditioner}.
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup function}
 %%
-Optionally, the {\cvspgmr} solver passes the pointer it receives through 
-\id{CVSpgmrSetPreconditioner} to the preconditioner setup and solve functions.  
-This allows the user to create an arbitrary structure with relevant problem data 
-and access it during the execution of the user-supplied preconditioner functions
-without using global data in the program.  
-The pointer \id{p\_data} may be identical to \id{f\_data}, if the latter was 
-specified through \id{CVodeSetFdata}.
+Optionally, the {\cvspgmr} solver passes the pointer \id{p\_data} it
+receives through \id{CVSpgmrSetPreconditioner} to the preconditioner
+\id{psetup} and \id{psolve} functions.  This allows the user to create
+an arbitrary structure with relevant problem data and access it during
+the execution of the user-supplied preconditioner functions without using
+global data in the program.  The pointer \id{p\_data} may be identical
+to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata}.
 
 The \index{CVSPGMR@{\cvspgmr} linear solver!Jacobian approximation used by}
 {\cvspgmr} solver requires a function to compute an approximation to the
 product between the Jacobian matrix $J(t,y)$ and a vector $v$.
-The user can supply his/her own Jacobian times vector approximation function, 
+The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{CVSpgmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\cvspgmr} solver.
@@ -1581,9 +1707,9 @@ can be specified through a call to \id{CVSpgmrSetJacTimesVecFn}
 (see \S\ref{ss:user_fct_sim} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
-the user can also specify int the call to \id{CVSpgmrSetJacFn}, a pointer to a 
+the user can also specify, in the call to \id{CVSpgmrSetJacFn}, a pointer to a 
 user-defined data structure, \id{jac\_data}, which
-the {\cvspgmr} solver passes to the Jacobian times vector function \id{jtimes}
+the {\cvspgmr} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
 The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
@@ -1626,7 +1752,6 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
 %%
 \index{preconditioning!user-supplied|)}
-%%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
 \ucfunction{CVSpgmrSetJacTimesVecFn}
 {
@@ -1640,7 +1765,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[jtimes] (\id{CVSpgmrJacTimesVecFn})
+  \item[jtimes] (\id{CVSpilsJacTimesVecFn})
     user-defined Jacobian-vector product function.
   \item[jac\_data] (\id{void *})
      pointer to the user-defined data structure.
@@ -1661,7 +1786,46 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   By default, {\cvspgmr} uses the difference quotient function \id{CVSpgmrDQJtimes}.
   If \id{NULL} is passed to \id{jtimes}, this default function is used.
 
-  The function type \id{CVSpgmrJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+  The function type \id{CVSpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+}
+%%
+%%
+\ucfunction{CVSpgmrSetPrecType}
+{
+  flag = CVSpgmrSetPrecType(cvode\_mem, pretype);
+}
+{
+  The function \ID{CVSpgmrSetPrecType} resets the type
+  of preconditioning to be used.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[pretype] (\id{int})
+    \index{pretype@\texttt{pretype}}
+    specifies the type of preconditioning and must be one of:
+    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \item[\Id{CVSPGMR\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPGMR\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPGMR\_LMEM\_NULL}]
+    The {\cvspgmr} linear solver has not been initialized.
+  \item[\Id{CVSPGMR\_ILL\_INPUT}]
+    The preconditioner type \id{pretype} is not valid.
+  \end{args}
+}
+{
+  The preconditioning type is initially specified in the call
+  to \id{CVSpgmr} (see \S\ref{sss:lin_solv_init}). This function call is
+  needed only if \id{pretype} is being changed from its value in the
+  previous call to \id{CVSpgmr}.
 }
 %%
 %%
@@ -1739,13 +1903,137 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   Passing a value \id{delt}$ = 0.0$ also indicates using the default value.
 }
 %%
+\index{CVSPGMR@{\cvspgmr} linear solver!optional input|)}
+\index{optional input!iterative linear solver|)}
 %%
-\ucfunction{CVSpgmrSetPrecType}
+%%------------------------------------------------------------------------------
+%%
+\noindent\paragraph{\bf SPBCG Linear solver.}
+\index{optional input!iterative linear solver|(}
+\index{CVSPBCG@{\cvspbcg} linear solver!optional input|(}
+\index{preconditioning!user-supplied|(}
+If any type of preconditioning is to be done within the {\spbcg} method,
+then the user must supply a preconditioner solve function \id{psolve}
+and specify its name through a call to \id{CVSpbcgSetPreconditioner}.
+\index{CVSPBCG@{\cvspbcg} linear solver!preconditioner solve function}
+%%
+The evaluation and preprocessing of any Jacobian-related data needed
+by the user's preconditioner solve function is done in the optional
+user-supplied function \id{psetup}. Both of these functions are
+fully specified in \S\ref{ss:user_fct_sim}.
+If used, the \id{psetup} function should also be specified in the call to
+\id{CVSpbcgSetPreconditioner}.
+\index{CVSPBCG@{\cvspbcg} linear solver!preconditioner setup function}
+%%
+Optionally, the {\cvspbcg} solver passes the pointer \id{p\_data} it
+receives through \id{CVSpbcgSetPreconditioner} to the preconditioner
+\id{psetup} and \id{psolve} functions.  This allows the user to create
+an arbitrary structure with relevant problem data and access it during
+the execution of the user-supplied preconditioner functions without using
+global data in the program.  The pointer \id{p\_data} may be identical
+to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata}.
+
+The \index{CVSPBCG@{\cvspbcg} linear solver!Jacobian approximation used by}
+{\cvspbcg} solver requires a function to compute an approximation to the
+product between the Jacobian matrix $J(t,y)$ and a vector $v$.
+The user can supply his/her own Jacobian-times-vector approximation function, 
+or use the difference quotient function \Id{CVSpbcgDQJtimes} 
+\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+that comes with the {\cvspbcg} solver.
+A user-defined Jacobian-vector function must be of type \id{CVSpbcgJtimesFn} and 
+can be specified through a call to \id{CVSpbcgSetJacTimesVecFn} 
+(see \S\ref{ss:user_fct_sim} for specification details).
+%%
+As with the preconditioner user data structure \id{p\_data}, 
+the user can also specify, in the call to \id{CVSpbcgSetJacFn}, a pointer to a 
+user-defined data structure, \id{jac\_data}, which
+the {\cvspbcg} solver passes to the Jacobian-times-vector function \id{jtimes}
+each time it is called.  
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
+%%
+%%
+\ucfunction{CVSpbcgSetPreconditioner}
 {
-  flag = CVSpgmrSetPrecType(cvode\_mem, pretype);
+  flag = CVSpbcgSetPreconditioner(cvode\_mem, psetup, psolve, p\_data);
 }
 {
-  The function \ID{CVSpgmrSetPrecType} resets the type
+  The function \ID{CVSpbcgSetPreconditioner} specifies the preconditioner
+  setup and solve functions and the pointer to user data.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[psetup] (\id{CVSpbcgPrecSetupFn})
+    user-defined preconditioner setup function.
+  \item[psolve] (\id{CVSpbcgPrecSolveFn})
+    user-defined preconditioner solve function.
+  \item[p\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPBCG\_LMEM\_NULL]
+  \item[\Id{CVSPBCG\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPBCG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPBCG\_LMEM\_NULL}]
+    The {\cvspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{
+   The function type \id{CVSpbcgPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+   The function type \id{CVSpbcgPrecSetupFn} is described in \S\ref{ss:precondFn}.
+}
+%%
+%%
+\index{preconditioning!user-supplied|)}
+\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\ucfunction{CVSpbcgSetJacTimesVecFn}
+{
+  flag = CVSpbcgSetJacTimesVecFn(cvode\_mem, jtimes, jac\_data);
+}
+{
+  The function \ID{CVSpbcgSetJacTimesFn} specifies the Jacobian-vector 
+  function to be used and the pointer to user data.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[jtimes] (\id{CVSpilsJacTimesVecFn})
+    user-defined Jacobian-vector product function.
+  \item[jac\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPBCG\_LMEM\_NULL]
+  \item[\Id{CVSPBCG\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPBCG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPBCG\_LMEM\_NULL}]
+    The {\cvspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{
+  By default, {\cvspbcg} uses the difference quotient function \id{CVSpbcgDQJtimes}.
+  If \id{NULL} is passed to \id{jtimes}, this default function is used.
+
+  The function type \id{CVSpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+}
+%%
+%%
+\ucfunction{CVSpbcgSetPrecType}
+{
+  flag = CVSpbcgSetPrecType(cvode\_mem, pretype);
+}
+{
+  The function \ID{CVSpbcgSetPrecType} resets the type
   of preconditioning to be used.
 }
 {
@@ -1760,25 +2048,326 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPGMR\_ILL\_INPUT]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
+  \begin{args}[CVSPBCG\_ILL\_INPUT]
+  \item[\Id{CVSPBCG\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
+  \item[\Id{CVSPBCG\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
+  \item[\Id{CVSPBCG\_LMEM\_NULL}]
+    The {\cvspbcg} linear solver has not been initialized.
+  \item[\Id{CVSPBCG\_ILL\_INPUT}]
     The preconditioner type \id{pretype} is not valid.
   \end{args}
 }
 {
   The preconditioning type is initially specified in the call
-  to \id{CVSpgmr} (see \S\ref{sss:lin_solv_init}). This function call is
+  to \id{CVSpbcg} (see \S\ref{sss:lin_solv_init}). This function call is
   needed only if \id{pretype} is being changed from its value in the
-  previous call to \id{CVSpgmr}.
+  previous call to \id{CVSpbcg}.
 }
 %%
-\index{CVSPGMR@{\cvspgmr} linear solver!optional input|)}
+%%
+\ucfunction{CVSpbcgSetMaxl}
+{
+  flag = CVSpbcgSetMaxl(cv\_mem, maxl);
+}
+{
+  The function \ID{CVSpbcgSetMaxl} specifies maximum of the Krylov subspace
+  dimension for the Bi-CGStab\index{Bi-CGStab method} method.
+}
+{
+  \begin{args}[cv\_mem]
+  \item[cv\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[maxl] (\id{int})
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPBCG\_ILL\_INPUT]
+  \item[\Id{CVSPBCG\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{CVSPBCG\_MEM\_NULL}]
+    The \id{cv\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPBCG\_LMEM\_NULL}]
+    The {\cvspbcg} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The default value is 5.  Passing \id{maxl} $= 0$ also results in the
+  default value. 
+}
+%%
+%%
+\ucfunction{CVSpbcgSetDelt}
+{
+  flag = CVSpbcgSetDelt(cvode\_mem, delt);
+}
+{
+  The function \ID{CVSpbcgSetDelt} specifies the factor by which the
+  Bi-CGStab\index{Bi-CGStab method} convergence test constant is reduced
+  from the Newton iteration test constant.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[delt] (\id{realtype})
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPBCG\_ILL\_INPUT]
+  \item[\Id{CVSPBCG\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPBCG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPBCG\_LMEM\_NULL}]
+    The {\cvspbcg} linear solver has not been initialized.
+  \item[\Id{CVSPBCG\_ILL\_INPUT}]
+    The factor \id{delt} is negative.  
+  \end{args}
+}
+{
+  The default value is $0.05$.
+
+  Passing a value \id{delt}$ = 0.0$ also indicates using the default value.
+}
+\index{CVSPBCG@{\cvspbcg} linear solver!optional input|)}
+\index{optional input!iterative linear solver|)}
+%%
+%%------------------------------------------------------------------------------
+%%
+\noindent\paragraph{\bf SPTFQMR Linear solver.}
+\index{optional input!iterative linear solver|(}
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|(}
+\index{preconditioning!user-supplied|(}
+If any type of preconditioning is to be done within the {\sptfqmr} method,
+then the user must supply a preconditioner solve function \id{psolve}
+and specify its name through a call to \id{CVSptfqmrSetPreconditioner}.
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner solve function}
+%%
+The evaluation and preprocessing of any Jacobian-related data needed
+by the user's preconditioner solve function is done in the optional
+user-supplied function \id{psetup}. Both of these functions are
+fully specified in \S\ref{ss:user_fct_sim}.
+If used, the \id{psetup} function should also be specified in the call to
+\id{CVSptfqmrSetPreconditioner}.
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner setup function}
+%%
+Optionally, the {\cvsptfqmr} solver passes the pointer \id{p\_data} it
+receives through \id{CVSptfqmrSetPreconditioner} to the preconditioner
+\id{psetup} and \id{psolve} functions.  This allows the user to create
+an arbitrary structure with relevant problem data and access it during
+the execution of the user-supplied preconditioner functions without using
+global data in the program.  The pointer \id{p\_data} may be identical
+to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata}.
+
+The \index{CVSPTFQMR@{\cvsptfqmr} linear solver!Jacobian approximation used by}
+{\cvsptfqmr} solver requires a function to compute an approximation to the
+product between the Jacobian matrix $J(t,y)$ and a vector $v$.
+The user can supply his/her own Jacobian-times-vector approximation function, 
+or use the difference quotient function \Id{CVSptfqmrDQJtimes} 
+\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+that comes with the {\cvsptfqmr} solver.
+A user-defined Jacobian-vector function must be of type \id{CVSptfqmrJtimesFn} and 
+can be specified through a call to \id{CVSptfqmrSetJacTimesVecFn} 
+(see \S\ref{ss:user_fct_sim} for specification details).
+%%
+As with the preconditioner user data structure \id{p\_data}, 
+the user can also specify, in the call to \id{CVSptfqmrSetJacFn}, a pointer to a 
+user-defined data structure, \id{jac\_data}, which
+the {\cvsptfqmr} solver passes to the Jacobian-times-vector function \id{jtimes}
+each time it is called.  
+The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
+%%
+%%
+\ucfunction{CVSptfqmrSetPreconditioner}
+{
+  flag = CVSptfqmrSetPreconditioner(cvode\_mem, psetup, psolve, p\_data);
+}
+{
+  The function \ID{CVSptfqmrSetPreconditioner} specifies the preconditioner
+  setup and solve functions and the pointer to user data.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[psetup] (\id{CVSptfqmrPrecSetupFn})
+    user-defined preconditioner setup function.
+  \item[psolve] (\id{CVSptfqmrPrecSolveFn})
+    user-defined preconditioner solve function.
+  \item[p\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPTFQMR\_LMEM\_NULL]
+  \item[\Id{CVSPTFQMR\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPTFQMR\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPTFQMR\_LMEM\_NULL}]
+    The {\cvsptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+   The function type \id{CVSptfqmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+   The function type \id{CVSptfqmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
+}
+%%
+%%
+\index{preconditioning!user-supplied|)}
+\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\ucfunction{CVSptfqmrSetJacTimesVecFn}
+{
+  flag = CVSptfqmrSetJacTimesVecFn(cvode\_mem, jtimes, jac\_data);
+}
+{
+  The function \ID{CVSptfqmrSetJacTimesFn} specifies the Jacobian-vector 
+  function to be used and the pointer to user data.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[jtimes] (\id{CVSpilsJacTimesVecFn})
+    user-defined Jacobian-vector product function.
+  \item[jac\_data] (\id{void *})
+     pointer to the user-defined data structure.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPTFQMR\_LMEM\_NULL]
+  \item[\Id{CVSPTFQMR\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPTFQMR\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPTFQMR\_LMEM\_NULL}]
+    The {\cvsptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  By default, {\cvsptfqmr} uses the difference quotient function \id{CVSptfqmrDQJtimes}.
+  If \id{NULL} is passed to \id{jtimes}, this default function is used.
+
+  The function type \id{CVSpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+}
+%%
+%%
+\ucfunction{CVSptfqmrSetPrecType}
+{
+  flag = CVSptfqmrSetPrecType(cvode\_mem, pretype);
+}
+{
+  The function \ID{CVSptfqmrSetPrecType} resets the type
+  of preconditioning to be used.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[pretype] (\id{int})
+    \index{pretype@\texttt{pretype}}
+    specifies the type of preconditioning and must be one of:
+    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPTFQMR\_ILL\_INPUT]
+  \item[\Id{CVSPTFQMR\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPTFQMR\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPTFQMR\_LMEM\_NULL}]
+    The {\cvsptfqmr} linear solver has not been initialized.
+  \item[\Id{CVSPTFQMR\_ILL\_INPUT}]
+    The preconditioner type \id{pretype} is not valid.
+  \end{args}
+}
+{
+  The preconditioning type is initially specified in the call
+  to \id{CVSptfqmr} (see \S\ref{sss:lin_solv_init}). This function call is
+  needed only if \id{pretype} is being changed from its value in the
+  previous call to \id{CVSptfqmr}.
+}
+%%
+%%
+\ucfunction{CVSptfqmrSetMaxl}
+{
+  flag = CVSptfqmrSetMaxl(cv\_mem, maxl);
+}
+{
+  The function \ID{CVSptfqmrSetMaxl} specifies maximum of the Krylov subspace
+  dimension for the TFQMR\index{TFQMR method} method.
+}
+{
+  \begin{args}[cv\_mem]
+  \item[cv\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[maxl] (\id{int})
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPTFQMR\_ILL\_INPUT]
+  \item[\Id{CVSPTFQMR\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{CVSPTFQMR\_MEM\_NULL}]
+    The \id{cv\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPTFQMR\_LMEM\_NULL}]
+    The {\cvsptfqmr} linear solver has not been initialized.
+  \end{args}
+}
+{
+  The default value is 5.  Passing \id{maxl} $= 0$ also results in the
+  default value. 
+}
+%%
+%%
+\ucfunction{CVSptfqmrSetDelt}
+{
+  flag = CVSptfqmrSetDelt(cvode\_mem, delt);
+}
+{
+  The function \ID{CVSptfqmrSetDelt} specifies the factor by
+  which the TFQMR\index{TFQMR method} convergence test constant is reduced
+  from the Newton iteration test constant.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[delt] (\id{realtype})
+
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVSPTFQMR\_ILL\_INPUT]
+  \item[\Id{CVSPTFQMR\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVSPTFQMR\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVSPTFQMR\_LMEM\_NULL}]
+    The {\cvsptfqmr} linear solver has not been initialized.
+  \item[\Id{CVSPTFQMR\_ILL\_INPUT}]
+    The factor \id{delt} is negative.  
+  \end{args}
+}
+{
+  The default value is $0.05$.
+
+  Passing a value \id{delt}$ = 0.0$ also indicates using the default value.
+}
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
 
 %%==============================================================================
@@ -1851,8 +2440,8 @@ which are then described in detail in the remainder of this section.
 
 \begin{table}
 \centering
-\caption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag}, and
- {\cvspgmr}}
+\caption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag},
+ {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}}
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|l|l|}\hline
@@ -1913,6 +2502,28 @@ No. of Jacobian-vector product evaluations & \id{CVSpgmrGetNumJtimesEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{CVSpgmrGetNumRhsEvals} \\ 
 Last return from a {\cvspgmr} function & \id{CVSpgmrGetLastFlag} \\ 
 \hline
+\multicolumn{2}{|c|}{\bf CVSPBCG linear solver} \\
+\hline
+Size of {\cvspbcg} real and integer workspaces & \id{CVSpbcgGetWorkSpace} \\
+No. of linear iterations & \id{CVSpbcgGetNumLinIters} \\
+No. of linear convergence failures & \id{CVSpbcgGetNumConvFails} \\
+No. of preconditioner evaluations & \id{CVSpbcgGetNumPrecEvals} \\
+No. of preconditioner solves & \id{CVSpbcgGetNumPrecSolves} \\
+No. of Jacobian-vector product evaluations & \id{CVSpbcgGetNumJtimesEvals} \\
+No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{CVSpbcgGetNumRhsEvals} \\ 
+Last return from a {\cvspbcg} function & \id{CVSpbcgGetLastFlag} \\ 
+\hline
+\multicolumn{2}{|c|}{\bf CVSPTFQMR linear solver} \\
+\hline
+Size of {\cvsptfqmr} real and integer workspaces & \id{CVSptfqmrGetWorkSpace} \\
+No. of linear iterations & \id{CVSptfqmrGetNumLinIters} \\
+No. of linear convergence failures & \id{CVSptfqmrGetNumConvFails} \\
+No. of preconditioner evaluations & \id{CVSptfqmrGetNumPrecEvals} \\
+No. of preconditioner solves & \id{CVSptfqmrGetNumPrecSolves} \\
+No. of Jacobian-vector product evaluations & \id{CVSptfqmrGetNumJtimesEvals} \\
+No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{CVSptfqmrGetNumRhsEvals} \\ 
+Last return from a {\cvsptfqmr} function & \id{CVSptfqmrGetLastFlag} \\ 
+\hline
 \end{tabular}
 \end{table}
 
@@ -1964,7 +2575,8 @@ These optional output functions are described next.
 {
   \index{memory requirements!CVODE@{\cvode} solver}
   In terms of the problem size $N$ and maximum method order \id{maxord},
-  the actual size of the real workspace given in \id{realtype} words is:
+  the actual size of the real workspace, in \id{realtype} words, is
+  given by the following:
   \begin{itemize}
   \item Base value: \id{lenrw} $=89 +$ (\id{maxord+5})$N$
   \item With \id{itol = CV\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N$ 
@@ -1973,17 +2585,16 @@ These optional output functions are described next.
   \end{itemize}
 
   The size of the integer workspace (without distinction between \id{int} 
-  and \id{long int}) is:
+  and \id{long int} words) is given by the following:
   \begin{itemize}
-  \item Base value: \id{leniw} $=40 +$ (\id{maxord+5})$N$
-  \item With \id{itol = CV\_SV}: \id{leniw} $=$ \id{leniw} $+ N$ 
+  \item Base value: \id{leniw} $=40$
   \item With rootfinding for $N_g$ functions: \id{leniw} $=$ \id{leniw}$+ N_g$ 
   \end{itemize}
 
   For the default value of \id{maxord}, the base values are:
   \begin{itemize}
-  \item For the Adams method: \id{lenrw} $=89 + 17N$ and \id{leniw} $=40 + 17N$ 
-  \item For the BDF method: \id{lenrw} $=89 + 10N$ and \id{leniw} $=40 + 10N$ 
+  \item For the Adams method: \id{lenrw} $=89 + 17N$ and \id{leniw} $=40$ 
+  \item For the BDF method: \id{lenrw} $=89 + 10N$ and \id{leniw} $=40$ 
   \end{itemize}
 }
 %%
@@ -3250,7 +3861,7 @@ return value from a {\cvspgmr} function.
  \id{SPGMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve function
  \id{psolve} failed recoverably;
   \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
-  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian times vector
+  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian-times-vector
   function;
   \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
@@ -3623,10 +4234,10 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
 
 If an iterative {\spgmr} linear solver is selected (\id{CVSpgmr} is called in step 
 \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}) the user may provide a function
-of type \ID{CVSpgmrJacTimesVecFn} in the following form:
-\usfunction{CVSpgmrJacTimesVecFn}
+of type \ID{CVSpilsJacTimesVecFn} in the following form:
+\usfunction{CVSpilsJacTimesVecFn}
 {
-  typedef int (*CVSpgmrJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, realtype t, \\
+  typedef int (*CVSpilsJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, realtype t, \\
                                       &N\_Vector y, N\_Vector fy, \\
                                       &void *jac\_data, N\_Vector tmp);
 }
@@ -3655,12 +4266,12 @@ of type \ID{CVSpgmrJacTimesVecFn} in the following form:
   \end{args}
 }
 {  
-  The value to be returned by the Jacobian times vector function should be
+  The value to be returned by the Jacobian-times-vector function should be
   $0$ if successful. Any other return value will result in an unrecoverable
   error of the {\spgmr} generic solver, in which case the integration is halted.
 }
 {
-  If the user's \id{CVSpgmrJacTimesVecFn} function uses difference quotient
+  If the user's \id{CVSpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
