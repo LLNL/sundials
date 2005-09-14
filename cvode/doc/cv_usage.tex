@@ -231,7 +231,7 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
 
   Call \id{CVodeSet*} functions to change from their default values any
   optional inputs that control the behavior of {\cvode}.
-  See \S\ref{ss:optional_input} for details.
+  See \S\ref{sss:optin_main} for details.
 
 \item\label{i:lin_solver} 
   {\bf Attach linear solver module}
@@ -256,7 +256,7 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
 
   Call \id{CV*Set*} functions from the selected linear solver module to
   change optional inputs specific to that linear solver.
-  See \S\ref{ss:optional_input} for details.
+  See \S\ref{sss:optin_linsol} for details.
 
 \item
   {\bf Specify rootfinding problem}
@@ -279,7 +279,7 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
 \item
   {\bf Get optional outputs}
 
-  Call \id{CV*Get*} functions to obtain optional output.
+  Call \id{CVodeGet*} and \id{CV*Get*} functions to obtain optional output.
   See \S\ref{ss:optional_output} and \S\ref{ss:root_uc} for details.
 
 \item
@@ -383,7 +383,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
     If \id{itol}$=$\id{CV\_WF}, the arguments \id{reltol} and \id{abstol} are
     ignored and the user is expected to provide a function to evaluate the error
     weight vector $W$, replacing Eq.(\ref{e:errwt}). See \id{CVodeSetEwtFn} in
-    \S\ref{ss:optional_input}.
+    \S\ref{sss:optin_main}.
   \item[reltol] (\id{realtype})
     \index{tolerances}
     is the relative error tolerance.
@@ -412,7 +412,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   file specified by the optional input \id{errfp}.
 
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
-  calls to \id{CVode} (see \id{CVodeSetTolerances} in \S\ref{ss:optional_input}).
+  calls to \id{CVode} (see \id{CVodeSetTolerances} in \S\ref{sss:optin_main}).
 
   {\warn} It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
@@ -460,7 +460,7 @@ norm is being tested in the Krylov algorithm.  As a rule, however, if
 the preconditioner is the product of two matrices, we recommend that
 preconditioning be done either on the left only or the right only,
 rather than using one factor on each side. For specification of preconditioner,
-see \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
+see \S\ref{sss:optin_linsol} and \S\ref{ss:user_fct_sim}.
 
 If preconditioning is done, user-supplied functions define left and right 
 preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity
@@ -816,7 +816,7 @@ perform the integration of the IVP.
     \id{CVode} succeeded and no root was found.
   \item[\Id{CV\_TSTOP\_RETURN}]
     \id{CVode} succeeded by reaching the stopping point specified through
-    the optional input function \id{CVodeSetStopTime} (see \S\ref{ss:optional_input}).
+    the optional input function \id{CVodeSetStopTime} (see \S\ref{sss:optin_main}).
   \item[\Id{CV\_ROOT\_RETURN}]
     \id{CVode} succeeded and found one or more roots.  If \id{nrtfn}
      $>1$, call \id{CVodeGetRootInfo} to see which $g_i$ were found to
@@ -956,7 +956,7 @@ Ratio between linear and nonlinear tolerances & \id{CVSptfqmrSetDelt} & 0.05 \\
 \end{table}
 
 %%==============================================================================
-\subsubsection{Main solver optional input functions}
+\subsubsection{Main solver optional input functions}\label{sss:optin_main}
 %%==============================================================================
 \index{optional input!solver|(}
 
@@ -1542,7 +1542,7 @@ flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
 \index{optional input!solver|)}
 
 %%==============================================================================
-\subsubsection{Linear solver optional input functions}
+\subsubsection{Linear solver optional input functions}\label{sss:optin_linsol}
 %%==============================================================================
 
 The linear solver modules, with one exception, allow for various optional 
@@ -1550,7 +1550,7 @@ inputs, which are described here. The diagonal linear solver module has no
 optional inputs.
 %%
 
-\noindent\paragraph{\bf Dense Linear solver.}
+\subsubsection{Dense linear solver.}\label{sss:optin_dense}
 \index{optional input!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional input|(}
 The \index{CVDENSE@{\cvdense} linear solver!Jacobian approximation used by}
@@ -1607,10 +1607,8 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 }
 \index{CVDENSE@{\cvdense} linear solver!optional input|)}
 \index{optional input!dense linear solver|)}
-%%
-%%------------------------------------------------------------------------------
-%%
-\noindent\paragraph{\bf Band Linear solver.}
+
+\subsubsection{Band linear solver.}\label{sss:optin_band}
 \index{optional input!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional input|(}
 The \index{CVBAND@{\cvband} linear solver!Jacobian approximation used by}
@@ -1667,16 +1665,14 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 }
 \index{CVBAND@{\cvband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
-%%
-%%------------------------------------------------------------------------------
-%%
-\noindent\paragraph{\bf SPGMR Linear solver.}
+
+\subsubsection{SPGMR linear solver.}\label{sss:optin_spgmr}
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
-If any type of preconditioning is to be done within the {\spgmr} method,
+If any preconditioning is to be done within the {\spgmr} method,
 then the user must supply a preconditioner solve function \id{psolve}
-and specify its name through a call to \id{CVSpgmrSetPreconditioner}.
+and specify its name in a call to \id{CVSpgmrSetPreconditioner}.
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
@@ -1905,16 +1901,14 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
-%%
-%%------------------------------------------------------------------------------
-%%
-\noindent\paragraph{\bf SPBCG Linear solver.}
+
+\subsubsection{SPBCG linear solver.}\label{sss:optin_spbcg}
 \index{optional input!iterative linear solver|(}
 \index{CVSPBCG@{\cvspbcg} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
-If any type of preconditioning is to be done within the {\spbcg} method,
+If any preconditioning is to be done within the {\spbcg} method,
 then the user must supply a preconditioner solve function \id{psolve}
-and specify its name through a call to \id{CVSpbcgSetPreconditioner}.
+and specify its name in a call to \id{CVSpbcgSetPreconditioner}.
 \index{CVSPBCG@{\cvspbcg} linear solver!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
@@ -2137,16 +2131,14 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 }
 \index{CVSPBCG@{\cvspbcg} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
-%%
-%%------------------------------------------------------------------------------
-%%
-\noindent\paragraph{\bf SPTFQMR Linear solver.}
+
+\subsubsection{SPTFQMR linear solver.}\label{sss:optin_sptfqmr}
 \index{optional input!iterative linear solver|(}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
-If any type of preconditioning is to be done within the {\sptfqmr} method,
+If any preconditioning is to be done within the {\sptfqmr} method,
 then the user must supply a preconditioner solve function \id{psolve}
-and specify its name through a call to \id{CVSptfqmrSetPreconditioner}.
+and specify its name in a call to \id{CVSptfqmrSetPreconditioner}.
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner solve function}
 %%
 The evaluation and preprocessing of any Jacobian-related data needed
@@ -2529,7 +2521,7 @@ Last return from a {\cvsptfqmr} function & \id{CVSptfqmrGetLastFlag} \\
 
 
 %%==============================================================================
-\subsubsection{Main solver optional output functions}
+\subsubsection{Main solver optional output functions}\label{sss:optout_main}
 %%==============================================================================
 \index{optional output!solver|(}
 %%
@@ -3149,14 +3141,14 @@ These optional output functions are described next.
 \index{optional output!solver|)}
 
 %%==============================================================================
-\subsubsection{Linear solver optional output functions}\label{sss:linsolv_io}
+\subsubsection{Linear solver optional output functions}\label{sss:optout_linsol}
 %%==============================================================================
 
 For each of the linear system solver modules, there are various optional 
 outputs that describe the performance of the module. The functions available 
 to access these are described below.
 
-\noindent\paragraph{\bf Dense Linear solver.}
+\subsubsection{Dense linear solver.}\label{sss:optout_dense}
 \index{optional output!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional output|(}
 The following optional outputs are available from the {\cvdense} module:
@@ -3304,10 +3296,8 @@ and last return value from a {\cvdense} function.
 %%
 \index{CVDENSE@{\cvdense} linear solver!optional output|)}
 \index{optional output!dense linear solver|)}
-%
-%-------------------------------------------------------------------------------
-%
-\noindent\paragraph{\bf Band Linear solver.}
+
+\subsubsection{Band linear solver.}\label{sss:optout_band}
 \index{optional output!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional output|(}
 The following optional outputs are available from the {\cvband} module:
@@ -3456,10 +3446,8 @@ and last return value from a {\cvband} function.
 %%
 \index{CVBAND@{\cvband} linear solver!optional output|)}
 \index{optional output!band linear solver|)}
-%
-%--------------------------------
-%
-\noindent\paragraph{\bf Diagonal Linear solver.}
+
+\subsubsection{Diagonal linear solver.}\label{sss:optout_diag}
 \index{optional output!diagonal linear solver|(}
 \index{CVDIAG@{\cvdiag} linear solver!optional output|(}
 The following optional outputs are available from the {\cvdiag} module:
@@ -3578,10 +3566,8 @@ finite-difference Jacobian approximation, and last return value from a
 %%
 \index{CVDIAG@{\cvdiag} linear solver!optional output|)}
 \index{optional output!diagonal linear solver|)}
-%
-%--------------------------------
-%
-\noindent\paragraph{\bf SPGMR Linear solver.}
+
+\subsubsection{SPGMR linear solver.}\label{sss:optout_spgmr}
 \index{optional output!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvspgmr}
@@ -3873,10 +3859,8 @@ return value from a {\cvspgmr} function.
 %%
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
-%
-%--------------------------------
-%
-\noindent\paragraph{\bf SPBCG Linear solver.}
+
+\subsubsection{SPBCG linear solver.}\label{sss:optout_spbcg}
 \index{optional output!iterative linear solver|(}
 \index{CVSPBCG@{\cvspbcg} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvspbcg}
@@ -4161,10 +4145,8 @@ return value from a {\cvspbcg} function.
 %%
 \index{CVSPBCG@{\cvspbcg} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
-%
-%--------------------------------
-%
-\noindent\paragraph{\bf SPTFQMR Linear solver.}
+
+\subsubsection{SPTFQMR linear solver.}\label{sss:optout_sptfqmr}
 \index{optional output!iterative linear solver|(}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvsptfqmr}
@@ -4501,7 +4483,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
     error tolerance needs to be different for each component of the ODE. 
     If \id{itol}$=$\id{CV\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
     and the user is expected to provide a function to evaluate the error weight vector
-    $W$ from (\ref{e:errwt}). See \id{CVodeSetEwtFn} in \S\ref{ss:optional_input}.
+    $W$ from (\ref{e:errwt}). See \id{CVodeSetEwtFn} in \S\ref{sss:optin_main}.
   \item[reltol] (\id{realtype})
     is the relative error tolerance.
   \item[abstol] (\id{void *})
@@ -4702,7 +4684,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
-  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
@@ -4797,7 +4779,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   If the user's \id{CVBandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet*}
-  functions described in \S\ref{ss:optional_output}. The unit roundoff can be
+  functions described in \S\ref{sss:optout_main}. The unit roundoff can be
   accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 \index{half-bandwidths|)}
@@ -4853,7 +4835,7 @@ is selected (\id{CVSp*} is called in step  \ref{i:lin_solver} of
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
-  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
@@ -4903,7 +4885,7 @@ This function must be of type \ID{CVSpilsPrecSolveFn}, defined as follows:
     \id{delta} in weighted $l_2$ norm,     
     i.e., $\sqrt{\sum_i (Res_i \cdot ewt_i)^2 } < $ \id{delta}.
     To obtain the \id{N\_Vector} \id{ewt}, call \id{CVodeGetErrWeights} 
-    (see \S\ref{ss:optional_output}).
+    (see \S\ref{sss:optout_main}).
   \item[lr]
     is an input flag indicating whether the preconditioner solve
     function is to use the left preconditioner (\id{lr=1}) or 
@@ -5010,7 +4992,7 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFn}, defined as follows:
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
-  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 }
 
@@ -5238,7 +5220,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \id{bp\_data = CVBandPrecAlloc(cvode\_mem, N, mu, ml);} 
 
   to allocate memory for and initialize a data structure \id{bp\_data} to be 
-  passed to the appropriate {\cvsp}* linear solver.
+  passed to the appropriate {\cvsp} linear solver.
 
 \item \label{i:bandpre_attach}
   {\bf Attach the Krylov linear solver, one of:}
@@ -5252,7 +5234,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   Each function \Id{CVBPSp*} is a wrapper around the corresponding
   specification function \id{CVSp*} and performs the following actions:
   \begin{itemize}
-    \item Attaches the {\cvsp}* linear solver to the main {\cvode} solver memory;
+    \item Attaches the {\cvsp} linear solver to the main {\cvode} solver memory;
     \item Sets the preconditioner data structure for {\cvbandpre};
     \item Sets the preconditioner setup function for {\cvbandpre};
     \item Sets the preconditioner solve function for {\cvbandpre};
@@ -5265,7 +5247,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
   Note that the user should not overwrite the preconditioner data, setup function,
-  or solve function through calls to {\cvsp}* optional input functions.
+  or solve function through calls to {\cvsp} optional input functions.
 
 \item
   \textcolor{gray}{\bf Advance solution in time}
@@ -5782,7 +5764,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   The function \Id{CVBPSp*} is a wrapper around the corresponding specification
   function \id{CVSp*} and performs the following actions:
   \begin{itemize}
-    \item Attaches the {\cvsp}* linear solver to the main {\cvode} solver memory;
+    \item Attaches the {\cvsp} linear solver to the main {\cvode} solver memory;
     \item Sets the preconditioner data structure for {\cvbbdpre};
     \item Sets the preconditioner setup function for {\cvbbdpre};
     \item Sets the preconditioner solve function for {\cvbbdpre};
@@ -5795,7 +5777,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
   Note that the user should not overwrite the preconditioner data, setup function,
-  or solve function through calls to {\cvsp}* optional input functions.
+  or solve function through calls to {\cvsp} optional input functions.
 
 \item
   \textcolor{gray}{\bf Advance solution in time}
