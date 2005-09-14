@@ -34,15 +34,19 @@ are as follows:
     interfaces to \id{CVodeReInit}.
   \item \id{FCVSETIIN} and \id{FCVSETRIN}
     interface to \id{CVodeSet*} functions.
+  \item \id{FCVEWTSET}    
+    interfaces to \id{CVodeSetEwtFn}.
   \item \id{FCVODE}
     interfaces to \id{CVode}, \id{CVodeGet*} functions, and to the optional
     output functions for the selected linear solver module.
   \item \id{FCVDKY}     
     interfaces to the interpolated output function \id{CVodeGetDky}.
+  \item \id{FCVGETERRWT}
+    interfaces to \id{CVodeGetErrWeights}.
+  \item \id{FCVGETESTLOCALERR}
+    interfaces to \id{CVodeGetEstLocalErrors}.
   \item \id{FCVFREE}    
     interfaces to \id{CVodeFree}.
-  \item \id{FCVEWTSET}    
-    interfaces to \id{CVodeSetEwtFn}.
   \end{itemize}  
 \item Interface to the linear solver modules
   \begin{itemize}
@@ -61,9 +65,25 @@ are as follows:
   \item \id{FCVSPGMRREINIT} 
     interfaces to {\spgmr} optional input functions.
   \item \id{FCVSPGMRSETJAC}
-   interfaces to \id{CVSpgmrSetJacTimesVecFn}.
- \item \id{FCVSPGMRSETPREC}
-   interfaces to \id{CVSpgmrSetPreconditioner}.
+    interfaces to \id{CVSpgmrSetJacTimesVecFn}.
+  \item \id{FCVSPGMRSETPREC}
+    interfaces to \id{CVSpgmrSetPreconditioner}.
+  \item \id{FCVSPBCG}
+    interfaces to \id{CVSpbcg} and {\spbcg} optional input functions.
+  \item \id{FCVSPBCGREINIT} 
+    interfaces to {\spbcg} optional input functions.
+  \item \id{FCVSPBCGSETJAC}
+    interfaces to \id{CVSpbcgSetJacTimesVecFn}.
+  \item \id{FCVSPBCGSETPREC}
+    interfaces to \id{CVSpbcgSetPreconditioner}.
+  \item \id{FCVSPTFQMR}
+    interfaces to \id{CVSptfqmr} and {\sptfqmr} optional input functions.
+  \item \id{FCVSPTFQMRREINIT} 
+    interfaces to {\sptfqmr} optional input functions.
+  \item \id{FCVSPTFQMRSETJAC}
+    interfaces to \id{CVSptfqmrSetJacTimesVecFn}.
+  \item \id{FCVSPTFQMRSETPREC}
+    interfaces to \id{CVSptfqmrSetPreconditioner}.
  \end{itemize}
 
 \end{itemize}
@@ -80,9 +100,9 @@ function which calls it (and its type within {\cvode}), are as follows:
 \id{FCVEWT}    & \id{FCVEwtSet}   & \id{CVEwtFn} \\
 \id{FCVDJAC}   & \id{FCVDenseJac} & \id{CVDenseJacFn} \\
 \id{FCVBJAC}   & \id{FCVBandJac}  & \id{CVBandJacFn} \\
-\id{FCVPSOL}   & \id{FCVPSol}     & \id{CVSpgmrPrecSolveFn} \\
-\id{FCVPSET}   & \id{FCVPSet}     & \id{CVSpgmrPrecSetupFn} \\
-\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpgmrJacTimesVecFn} \\\hline
+\id{FCVPSOL}   & \id{FCVPSol}     & \id{CVSpilsPrecSolveFn} \\
+\id{FCVPSET}   & \id{FCVPSet}     & \id{CVSpilsPrecSetupFn} \\
+\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\\hline
 \end{tabular}
 \end{center}
 In contrast to the case of direct use of {\cvode}, and of most {\F} ODE
@@ -97,7 +117,7 @@ order to maximize portability for the resulting mixed-language program.
 In this package, the names of the interface functions, and the names of
 the {\F} user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
-header files \id{fcvode.h} and \id{fcvbbd.h}.
+header files \id{fcvode.h}, \id{fcvroot.h}, \id{fcvbp.h}, and \id{fcvbbd.h}.
 By default, those mapping definitions depend in turn on the {\C} macro
 \id{F77\_FUNC} defined in the header file \id{config.h} by \id{configure}. However,
 the set of flags --- \Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
@@ -112,13 +132,13 @@ The user must also ensure that variables in the user {\F} code are
 declared in a manner consistent with their counterparts in {\cvode}.
 All real variables must be declared as \id{REAL}, \id{DOUBLE PRECISION},
 or perhaps as \id{REAL*}{\em n}, where {\em n} denotes the number of bytes,
-depending on whether {\cvode} was built in single, double or extended precision 
+depending on whether {\cvode} was built in single, double, or extended precision 
 (see Chapter \ref{s:install}). Moreover, some of the {\F} integer variables
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
 {\C} type \id{long int}. These integer variables include: the array
 of integer optional outputs (\id{IOUT}), problem dimensions (\id{NEQ},
 \id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU}, \id{ML},
-\id{MUDQ}, and \id{MLDQ}). This is particularly important when using
+etc.). This is particularly important when using
 {\cvode} and the {\fcvode} package on 64-bit architectures.
 
 %%==============================================================================
@@ -134,19 +154,18 @@ for real optional inputs. These functions should be called as follows:
       CALL FCVSETIIN(KEY, IVAL, IER)
       CALL FCVSETRIN(KEY, RVAL, IER)
 \end{verbatim}
-where 
-\id{KEY} indicates which optoinal input is set (see Table \ref{t:fcvode_in}),
-\id{IVAL} is the integer value to be used,
-\id{RVAL} is the real value to be used, and
-\id{IER} is an integer return completion flag which is set to $0$ on success and on 
+where \id{KEY} is a quoted string indicating which optoinal input is set
+(see Table \ref{t:fcvode_in}),
+\id{IVAL} is the integer input value to be used,
+\id{RVAL} is the real input value to be used, and
+\id{IER} is an integer return flag which is set to $0$ on success and 
 a negative value if a failure occurred.
 
-
-The optional outputs from the {\cvode} solver are accessed not through individual
-functions, but rather through a pair of arrays, \Id{IOUT} of dimension at least $21$ 
-and  integer type and \Id{ROUT} of dimension at least $6$ and real type. 
-These arrays are owned (and allocated) by the user and are passed as arguments to 
-\id{FCVMALLOC}.
+The optional outputs from the {\cvode} solver are accessed not through
+individual functions, but rather through a pair of arrays, \Id{IOUT}
+(integer type) of dimension at least $21$, and \Id{ROUT} (real type) of
+dimension at least $6$.  These arrays are owned (and allocated) by the user
+and are passed as arguments to \id{FCVMALLOC}.
 Table \ref{t:fcvode_out} lists the entries in these two arrays and specifies the
 optional variable as well as the {\cvode} function which is actually called to
 extract the optional output.
@@ -263,6 +282,33 @@ and \S\ref{ss:optional_output}.
 \end{tabular}
 \end{table}                                                                  
 
+In addition to the optional inputs communicated through \id{FCVSET*}
+calls and the optional outputs extracted from \id{IOUT} and \id{ROUT},
+the following user-callable routines are available:
+
+To obtain the error weight array \id{EWT}, containing the multiplicative
+error weights used the WRMS norms, make the following call:
+\index{FCVGETERRWEIGHTS@\texttt{FCVGETERRWEIGHTS}}
+\begin{verbatim}
+      CALL FCVGETERRWEIGHTS (Y, EWT, IER)
+\end{verbatim}
+This computes the \id{EWT} array as a function of the input \id{Y} array.
+The array \id{EWT}, of length \id{NEQ} or \id{NLOCAL}, must already have been
+declared by the user.  The error return flag \id{IER} is zero if successful,
+and negative if there was a memory error.
+
+To obtain the estimated local errors, following a successful call to
+\id{FCVSOLVE}, make the following call:
+\index{FCVGETESTLOCALERR@\texttt{FCVGETESTLOCALERR}}
+\begin{verbatim}
+      CALL FCVGETESTLOCALERR (ELE, IER)
+\end{verbatim}
+This computes the \id{ELE} array of estimated local errors as of the last
+step taken.  The array \id{ELE} must already have been declared by the user.
+The error return flag \id{IER} is zero if successful, and negative if there
+was a memory error.
+
+
 %%==============================================================================
 \section{Usage of the FCVODE interface module}\label{ss:fcvode_usage}
 %%==============================================================================
@@ -276,8 +322,8 @@ Some details are omitted, and the user is referred to the description
 of the corresponding {\cvode} functions for information on the arguments 
 of any given user-callable interface routine, or of a given user-supplied 
 function called by an interface function.
-The usage of {\fcvode} with preconditioner modules is described in later
-subsections.
+The usage of {\fcvode} for rootfinding and with preconditioner modules is
+described in later subsections.
 
 Steps marked with {\s} in the instructions below apply to the serial
 {\nvector} implementation ({\nvecs}) only, while those marked with {\p}
@@ -310,7 +356,7 @@ apply to {\nvecp}.
       CALL FNVINITS(KEY, NEQ, IER)
 \end{verbatim}
   where 
-  \id{KEY} is the solver id (\id{KEY}=1 for {\cvode}),
+  \id{KEY} is the solver id (\id{KEY} = 1 for {\cvode}),
   \id{NEQ} is the size of vectors, and
   \id{IER} is a  return completion flag which is set to $0$ on success and $-1$ 
   if a failure occurred.
@@ -321,10 +367,11 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FNVINITP(KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{KEY} = 1, \id{NLOCAL} the local size of vectors on this
-  processor, \id{NGLOBAL} the system size (and the global size of vectors, that
-  is the sum of all values of NLOCAL). The return completion flag \id{IER} is
-  set on $0$ upon successful return and on $-1$ otherwise.
+  in which the arguments are: \id{KEY} = 1, \id{NLOCAL} = the local size of
+  vectors on this processor, and \id{NGLOBAL} = the system size (and the global
+  size of all vectors, equal to the sum of all values of \id{NLOCAL}).
+  The return flag \id{IER} is set to $0$ on a successful return and to $-1$
+  otherwise.
   Note that if MPI was initialized by the user, the communicator must be
   set to \id{MPI\_COMM\_WORLD}.  If not, this routine initializes MPI and sets
   the communicator equal to \id{MPI\_COMM\_WORLD}.
@@ -362,8 +409,8 @@ apply to {\nvecp}.
       subsequently call \id{FCVEWTSET} and provide the function \id{FCVEWT}.
     \item[RTOL] is the relative tolerance (scalar).
     \item[ATOL] is the absolute tolerance (scalar or array).
-    \item[IOUT] is an array of length 21 for integer optional outputs.
-    \item[ROUT] is an array of length 6 for real optional outputs.
+    \item[IOUT] is an integer array of length 21 for integer optional outputs.
+    \item[ROUT] is a real array of length 6 for real optional outputs.
     \end{args}
   }
   {
@@ -385,7 +432,7 @@ apply to {\nvecp}.
 \end{verbatim}
   It must set the positive components of the error weight vector \id{EWT} for
   the calculation of the WRMS norm of \id{Y}. On return, set
-  \id{IER=0} if \id{FCVEWT} was successful, and nonzero otherwise.
+  \id{IER = 0} if \id{FCVEWT} was successful, and nonzero otherwise.
 
   If the \id{FCVEWT} routine is provided, then, 
   following the call to \id{FCVMALOC}, the user must make the call:
@@ -394,7 +441,7 @@ apply to {\nvecp}.
       CALL FCVEWTSET (FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied error weight routine.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
 
 %%====================
@@ -433,7 +480,8 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVDENSE(NEQ, IER)
 \end{verbatim}
-  The argument \id{IER} is an error return flag which can be $0$ 
+  where \id{NEQ} is the size of the ODE system.
+  The argument \id{IER} is an error return flag which is $0$ 
   for success , $-1$ if a memory allocation failure occurred, or $-2$ for illegal
   input.  \index{Jacobian approximation function!dense!use in {\fcvode}}
   As an option when using the {\dense} linear solver, the user may supply a
@@ -446,7 +494,9 @@ apply to {\nvecp}.
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, and \id{DJAC}. 
   It must compute the Jacobian and store it columnwise in \id{DJAC}.
-  \id{FY} contains $f(t,y)$. The vectors \id{WK1}, \id{WK2}, and \id{WK3}
+  The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
+  values of $t$, $y$, and $f(t,y)$, respectively.
+  The vectors \id{WK1}, \id{WK2}, and \id{WK3}
   of length \id{NEQ} are provided as work space for use in \id{FCVDJAC}.
   
   If the user's \id{FCVDJAC} uses difference quotient approximations, it
@@ -462,7 +512,7 @@ apply to {\nvecp}.
       CALL FCVDENSESETJAC (FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian approximation.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
   
   Optional outputs specific to the {\dense} case are listed in Table~\ref{t:fcvode_out}.
@@ -478,7 +528,7 @@ apply to {\nvecp}.
       CALL FCVBAND (NEQ, MU, ML, IER)
 \end{verbatim}
   The arguments are: \id{MU}, the upper half-bandwidth; \id{ML}, 
-  the lower half-bandwidth; and \id{IER} an error return flag which can be  
+  the lower half-bandwidth; and \id{IER} an error return flag which is 
   $0$ for success , $-1$ if a memory allocation failure occurred, or $-2$ 
   in case an input has an illegal value.     
   
@@ -493,11 +543,14 @@ apply to {\nvecp}.
       DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{MU}, \id{ML}, \id{T}, 
-  \id{Y}, and \id{BJAC}. 
+  \id{Y}, and \id{BJAC}.
   It must load the \id{MDIM} by \id{N} array \id{BJAC} with the Jacobian matrix
-  at the current ($t$,$y$) in band form.  Store in \id{BJAC}(k,j) the Jacobian
-  element $J_{i,j}$ with $k = i - j + MU + 1$, $k = 1 \cdots ML+MU+1$ and
-  $j = 1 \cdots N$. \id{FY} contains $f(t,y)$. The vectors \id{WK1}, \id{WK2},
+  at the current ($t$,$y$) in band form.  Store in \id{BJAC}$(k,j)$ the Jacobian
+  element $J_{i,j}$ with $k = i - j + $ \id{MU} $ + 1$ ($k = 1 \cdots $
+  \id{ML + MU + 1}) and $j = 1 \cdots N$.
+  The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
+  values of $t$, $y$, and $f(t,y)$, respectively.
+  The vectors \id{WK1}, \id{WK2},
   and \id{WK3} of length \id{NEQ} are provided as work space for use in
   \id{FCVBJAC}.
 
@@ -514,7 +567,7 @@ apply to {\nvecp}.
       CALL FCVBANDSETJAC(FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian approximation.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
   
   Optional outputs specific to the {\band} case are listed in Table~\ref{t:fcvode_out}.
@@ -535,9 +588,10 @@ apply to {\nvecp}.
   $0$ for no preconditioning, $1$ for left only, $2$ for right only, or $3$ for
   both sides. \id{IGSTYPE} indicates the Gram-Schmidt process type: 
   $1$ for modified G-S or $2$ for classical G-S.
-  \id{MAXL} is the maximum Krylov subspace dimension ($0$ indicates default).
-  \id{DELT} is the linear convergence tolerance factor ($0.0$ indicates default).
-  \id{IER} is an error return flag which can be $0$ to indicate success, $-1$
+  \id{MAXL} is the maximum Krylov subspace dimension.
+  \id{DELT} is the linear convergence tolerance factor.
+  For all of the input arguments, a value of $0$ or $0.0$ indicates the default.
+  \id{IER} is an error return flag which is $0$ to indicate success, $-1$
   if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
   
   An optional user-supplied routine, \id{FCVJTIMES} (see below), can be provided for
@@ -547,9 +601,9 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVSPGMRSETJAC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian times
-  vector approximation.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
+  Jacobian-times-vector approximation.
+  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
   
   If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then, following the
@@ -558,24 +612,13 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVSPGMRSETPREC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$, and the user program must include preconditioner routines
-  \id{FCVPSOL} and \id{FCVPSET} (see below).
+  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if
+  successful, or negative if a memory error occurred.
+  In addition, the user program must include
+  preconditioner routines \id{FCVPSOL} and \id{FCVPSET} (see below).
 
   Optional outputs specific to the {\spgmr} case are listed in Table~\ref{t:fcvode_out}.
   
-  If a sequence of problems of the same size is being solved using the {\spgmr}
-  linear solver, then following the call to \id{FCVREINIT} (see below), a call
-  to the \id{FCVSPGMR} routine may or may not be needed.  
-  If there is a change in input arguments other than \id{MAXL}, then the user 
-  program should call
-\begin{verbatim}
-      CALL FCVSPGMRREINIT(IPRETYPE, IGSTYPE, DELT, IER)
-\end{verbatim}
-  which reinitializes the {\spgmr} linear solver, but without reallocating its memory.
-  The arguments of \id{FCVSPGMRREINIT} routine have the same names and meanings
-  as those of \id{FCVSPGMR} routine.  Finally, if the value of \id{MAXL} is
-  being changed, then a call to \id{FCVSPGMR} must be made.
-
   %%-------------------------------------------------
   
   {\s}{\p} {\bf SPBCG treatment of the linear systems}
@@ -585,9 +628,9 @@ apply to {\nvecp}.
   the user must make the call
   \index{FCVSPBCG@\texttt{FCVSPBCG}}
 \begin{verbatim}
-      CALL FCVSPBCG(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+      CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)
 \end{verbatim}
-  Its arguments are the same as thost of \id{FCVSPGMR}.
+  Its arguments are the same as those with the same names for \id{FCVSPGMR}.
 
   If the optional function \id{FCVJTIMES} is provided, then, following the call to
   \id{FCVSPBCG}, the user must make the call:
@@ -595,9 +638,9 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVSPBCGSETJAC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian times
-  vector approximation.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
+  Jacobian-times-vector approximation.
+  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
   
   If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then, following the
@@ -609,21 +652,9 @@ apply to {\nvecp}.
   with \id{FLAG} $\neq 0$, and the user program must include preconditioner routines
   \id{FCVPSOL} and \id{FCVPSET} (see below).
 
-  Optional outputs specific to the {\spbcg} case are listed in Table~\ref{t:fcvode_out}.
+  Optional outputs specific to the {\spbcg} case are listed in
+  Table~\ref{t:fcvode_out}.
   
-  If a sequence of problems of the same size is being solved using the {\spbcg}
-  linear solver, then following the call to \id{FCVREINIT} (see below), a call
-  to the \id{FCVSPBCG} routine may or may not be needed.  
-  If there is a change in input arguments other than \id{MAXL}, then the user 
-  program should call
-\begin{verbatim}
-      CALL FCVSPBCGREINIT(IPRETYPE, IGSTYPE, DELT, IER)
-\end{verbatim}
-  which reinitializes the {\spbcg} linear solver, but without reallocating its memory.
-  The arguments of \id{FCVSPBCGREINIT} routine have the same names and meanings
-  as those of \id{FCVSPBCG} routine.  Finally, if the value of \id{MAXL} is
-  being changed, then a call to \id{FCVSPBCG} must be made.
-
   %%-------------------------------------------------
   
   {\s}{\p} {\bf SPTFQMR treatment of the linear systems}
@@ -633,9 +664,9 @@ apply to {\nvecp}.
   of the linear systems, the user must make the call
   \index{FCVSPTFQMR@\texttt{FCVSPTFQMR}}
 \begin{verbatim}
-      CALL FCVSPTFQMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+      CALL FCVSPTFQMR(IPRETYPE, MAXL, DELT, IER)
 \end{verbatim}
-  Its arguments are the same as thost of \id{FCVSPGMR}.
+  Its arguments are the same as those with the same names for \id{FCVSPGMR}.
 
   If the optional function \id{FCVJTIMES} is provided, then, following the call to
   \id{FCVSPTFQMR}, the user must make the call:
@@ -643,9 +674,9 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVSPTFQMRSETJAC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian times
-  vector approximation.
-  The argument \id{IER} is an error return flag which can be $0$ 
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
+  Jacobian-times-vector approximation.
+  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
   
   If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then, following the
@@ -657,21 +688,9 @@ apply to {\nvecp}.
   with \id{FLAG} $\neq 0$, and the user program must include preconditioner routines
   \id{FCVPSOL} and \id{FCVPSET} (see below).
 
-  Optional outputs specific to the {\sptfqmr} case are listed in Table~\ref{t:fcvode_out}.
+  Optional outputs specific to the {\sptfqmr} case are listed in
+  Table~\ref{t:fcvode_out}.
   
-  If a sequence of problems of the same size is being solved using the {\sptfqmr}
-  linear solver, then following the call to \id{FCVREINIT} (see below), a call
-  to the \id{FCVSPTFQMR} routine may or may not be needed.  
-  If there is a change in input arguments other than \id{MAXL}, then the user 
-  program should call
-\begin{verbatim}
-      CALL FCVSPTFQMRREINIT(IPRETYPE, IGSTYPE, DELT, IER)
-\end{verbatim}
-  which reinitializes the {\spbcg} linear solver, but without reallocating its memory.
-  The arguments of \id{FCVSPTFQMRREINIT} routine have the same names and meanings
-  as those of \id{FCVSPTFQMR} routine.  Finally, if the value of \id{MAXL} is
-  being changed, then a call to \id{FCVSPTFQMR} must be made.
-
   %%-------------------------------------------------
 
  {\s}{\p} {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR}
@@ -693,9 +712,11 @@ apply to {\nvecp}.
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, \id{V}, and
   \id{FJV}.  It must compute the product vector $Jv$, where the vector $v$ is
-  stored in \id{V}, and store the product in \id{FJV}.  On return, set
-  \id{IER=0} if \id{FCVJTIMES} was successful, and nonzero otherwise.
-  \id{FY} contains $f(t,y)$. The vector \id{WORK}, of length \id{NEQ}, is
+  stored in \id{V}, and store the product in \id{FJV}.  
+  The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
+  values of $t$, $y$, and $f(t,y)$, respectively.  On return, set
+  \id{IER = 0} if \id{FCVJTIMES} was successful, and nonzero otherwise.
+  The vector \id{WORK}, of length \id{NEQ}, is
   provided as work space for use in \id{FCVJTIMES}.
 
   If the user's \id{FCVJTIMES} uses difference quotient approximations, it
@@ -718,7 +739,12 @@ apply to {\nvecp}.
   if both are nontrivial) should be an  approximation to the matrix 
   $I - \gamma J$, where $I$ is the identity matrix, $J$ is the system Jacobian,
   and $\gamma =$ \id{GAMMA}.
-  
+  The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
+  values of $t$, $y$, and $f(t,y)$, respectively.
+  On return, set \id{IER = 0} if \id{FCVPSOL} was successful, set \id{IER}
+  positive if a recoverable error occurred, and set \id{IER} negative if a 
+  non-recoverable error occurred.
+
   The arguments \id{EWT} and \id{DELTA} are input and provide the error weight
   array and a scalar tolerance, respectively, for use by \id{FCVPSOL} if it uses
   an iterative method in its solution.  In that case, the residual vector
@@ -738,10 +764,12 @@ apply to {\nvecp}.
   It must perform any evaluation of Jacobian-related data and preprocessing needed
   for the solution of the preconditioner linear systems by \id{FCVPSOL}.
   The input argument \id{JOK} allows for Jacobian data to be saved and reused:
-  If \id{JOK=0}, this data should be recomputed from scratch. If \id{JOK=1},
+  If \id{JOK = 0}, this data should be recomputed from scratch. If \id{JOK = 1},
   a saved copy of it may be reused, and the preconditioner constructed from it.
-  On return, set \id{JCUR=1} if Jacobian data was computed, and \id{0} otherwise.
-  Also on return, set \id{IER=0} if \id{FCVPSET} was successful, set \id{IER}
+  The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
+  values of $t$, $y$, and $f(t,y)$, respectively.
+  On return, set \id{JCUR = 1} if Jacobian data was computed, and \id{0} otherwise.
+  Also on return, set \id{IER = 0} if \id{FCVPSET} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
   
@@ -797,9 +825,9 @@ apply to {\nvecp}.
 \end{verbatim}
   where
   \id{T} is the value of $t$ at which solution derivative is desired,
-  \id{K} is the derivative order ($0 \le$ \id{K} $\le$ \id{QU}), and
-  \id{DKY} is an array containing the computed \id{K}-th derivative of $y$
-  on return.  The value \id{T} must lie between \id{TCUR-HU} and \id{TCUR}.
+  \id{K} is the derivative order ($0 \le$ \id{K} $\le$ \id{QU}).
+  On return, \id{DKY} is an array containing the computed \id{K}-th derivative
+  of $y$.  The value \id{T} must lie between \id{TCUR - HU} and \id{TCUR}.
   The return flag \id{IER} is set to $0$ upon successful return or to a negative
   value to indicate an illegal input.
   
@@ -818,6 +846,41 @@ apply to {\nvecp}.
   \id{FCVMALLOC}, but does no memory allocation, using instead the existing
   internal memory created by the previous \id{FCVMALLOC} call.  The call to
   specify the linear system solution method may or may not be needed.
+
+  Following this call, a call to specify the linear system solver must be
+  made if the choice of linear solver is being changed.  Otherwise, a call
+  to reinitialize the linear solver last used may or may not be needed,
+  depending on changes in the inputs to it.
+
+  In the case of the {\band} solver, for any change in the half-bandwidths,
+  call \id{FCVBAND} as described above.
+
+  In the case of {\spgmr}, for a change of inputs other than \id{MAXL},
+  make the call
+  \index{FCVSPGMRREINIT@\texttt{FCVSPGMRREINIT}}
+\begin{verbatim}
+      CALL FCVSPGMRREINIT (IPRETYPE, IGSTYPE, DELT, IER)
+\end{verbatim}
+  which reinitializes {\spgmr} without reallocating its memory.
+  The arguments have the same names and meanings as those of \id{FCVSPGMR}.
+  If \id{MAXL} is being changed, then call \id{FCVSPGMR} instead.
+
+  In the case of {\spbcg}, for a change in any inputs, make the call
+  \index{FCVSPBCGREINIT@\texttt{FCVSPBCGREINIT}}
+\begin{verbatim}
+      CALL FCVSPBCGREINIT (IPRETYPE, MAXL, DELT, IER)
+\end{verbatim}
+  which reinitializes {\spbcg} without reallocating its memory.
+  The arguments have the same names and meanings as those of \id{FCVSPBCG}.
+
+  In the case of {\sptfqmr}, for a change in any inputs, make the call
+  \index{FCVSPTFQMRREINIT@\texttt{FCVSPTFQMRREINIT}}
+\begin{verbatim}
+      CALL FCVSPTFQMRREINIT (IPRETYPE, MAXL, DELT, IER)
+\end{verbatim}
+  which reinitializes {\sptfqmr} without reallocating its memory.
+  The arguments have the same names and meanings as those of \id{FCVSPTFQMR}.
+
 
 %%====================
 \item {\bf Memory deallocation}
@@ -907,9 +970,9 @@ rootfinding feature.
 
 The {\fcvbp} interface sub-module is a package of {\C} functions which,
 as part of the {\fcvode} interface module, support the use of the
-{\cvode} solver with the serial {\nvecs} module and the {\cvbandpre} 
-preconditioner module (see \S\ref{sss:cvbandpre}), for the solution of 
-ODE systems in a mixed {\F}/{\C} setting.  
+{\cvode} solver with the serial {\nvecs} module and the combination of
+the {\cvbandpre} preconditioner module (see \S\ref{sss:cvbandpre}) and
+any of the Krylov iterative linear solvers.
 
 The user-callable functions in this package, with the corresponding
 {\cvode} and {\cvbandpre} functions, are as follows: 
@@ -979,7 +1042,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FCVBPSPBCG@\texttt{FCVBPSPBCG}}
 \begin{verbatim}
-       CALL FCVBPSPBCG(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+       CALL FCVBPSPBCG(IPRETYPE, MAXL, DELT, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FCVSPBCG}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
@@ -998,7 +1061,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FCVBPSPTFQMR@\texttt{FCVBPSPTFQMR}}
 \begin{verbatim}
-       CALL FCVBPSPTFQMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+       CALL FCVBPSPTFQMR(IPRETYPE, MAXL, DELT, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FCVSPTFQMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
@@ -1015,7 +1078,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 \item \textcolor{gray}{\bf Problem solution}
   
-\item {\bf {\cvbbdpre} Optional outputs}
+\item {\bf {\cvbandpre} Optional outputs}
   
   Optional outputs specific to the {\spgmr}, {\spbcg}, or {\sptfqmr} solver are 
   listed in Table \ref{t:fcvode_out}.
@@ -1050,9 +1113,9 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 The {\fcvbbd} interface sub-module is a package of {\C} functions which,
 as part of the {\fcvode} interface module, support the use of the
-{\cvode} solver with the parallel {\nvecp} module and the {\cvbbdpre} 
-preconditioner module (see \S\ref{sss:cvbbdpre}), for the solution of 
-ODE systems in a mixed {\F}/{\C} setting.  
+{\cvode} solver with the serial {\nvecp} module and the combination of
+the {\cvbbdpre} preconditioner module (see \S\ref{sss:cvbbdpre}) and
+any of the Krylov iterative linear solvers.
 
 The user-callable functions in this package, with the corresponding
 {\cvode} and {\cvbbdpre} functions, are as follows: 
@@ -1146,7 +1209,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FCVBBDSPBCG@\texttt{FCVBBDSPBCG}}
 \begin{verbatim}
-       CALL FCVBBDSPBCG(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+       CALL FCVBBDSPBCG(IPRETYPE, MAXL, DELT, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FCVSPBCG}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
@@ -1165,7 +1228,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   preconditioner, make the following call:
   \index{FCVBBDSPTFQMR@\texttt{FCVBBDSPTFQMR}}
 \begin{verbatim}
-       CALL FCVBBDSPTFQMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
+       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
 \end{verbatim}
   Its arguments are the same as those of \id{FCVSPTFQMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
@@ -1193,9 +1256,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \end{verbatim}
   The arguments returned are as follows.
   \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
-  words.  This size is local to the current processor.
-  \id{LENIPW} is the length of integer preconditioner work space, in integer
-  words.  This size is local to the current processor.
+  words. \id{LENIPW} is the length of integer preconditioner work space, in integer
+  words.  These size are local to the current processor.
   \id{NGE} is the number of $g(t,y)$ evaluations (calls to \id{FCVLOCFN}) so far.
   
 \item {\bf Problem reinitialization}
@@ -1203,7 +1265,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   If a sequence of problems of the same size is being solved using the {\spgmr},
   {\spbcg}, or {\sptfqmr} linear solver in combination with the {\cvbbdpre} preconditioner, then the
   {\cvode} package can be re-initialized for the second and subsequent problems
-  by calling \id{FCVREINIT}, following which, a call to \id{FCVBBDINIT} may or 
+  by calling \id{FCVREINIT}, following which a call to \id{FCVBBDINIT} may or 
   may not be needed.
   If the input arguments are the same, no \id{FCVBBDINIT} call is needed.
   If there is a change in input arguments other than \id{MU}, \id{ML}, or
@@ -1231,4 +1293,38 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \end{verbatim}
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbbdpre} module|)}
 
+\item {\bf User-supplied routines}
+
+  The following two routines must be supplied for use with the {\cvbbdpre}
+  module:
+  \index{FCVGLOCFN@\texttt{FCVGLOCFN}}
+\begin{verbatim}
+      SUBROUTINE FCVGLOCFN (NLOC, T, YLOC, GLOC)
+      DIMENSION YLOC(*), GLOC(*)
+\end{verbatim}
+  This routine is to evaluate the function $g(t,y)$ approximating $f$
+  (possibly identical to $f$), in terms of \id{T} $ = t$, and the array
+  \id{YLOC} (of length \id{NLOC}), which is the sub-vector
+  of $y$ local to this processor.  The resulting (local) sub-vector
+  is to be stored in the array \id{GLOC}.
+
+  \index{FCVCOMMFN@\texttt{FCVCOMMFN}}
+\begin{verbatim}
+      SUBROUTINE FCVCOMMFN (NLOC, T, YLOC)
+      DIMENSION YLOC(*)
+\end{verbatim}
+  This routine is to perform the inter-processor communication necessary
+  for the \id{FCVGLOCFN} routine.
+  Each call to \id{FCVCOMMFN} is preceded by a call to the right-hand side
+  routine \id{FCVFUN} with the same arguments \id{T} and \id{YLOC}.
+  Thus \id{FCVCOMMFN} can omit any communications done by \id{FCVFUN} if
+  relevant to the evaluation of \id{GLOC}.
+  (This subroutine must be supplied even if it is empty.)
+
+  \index{FCVJTIMES@\texttt{FCVJTIMES}}
+  Optionally, the user can supply a routine \id{FCVJTIMES} for the evaluation of
+  Jacobian-vector products, as described above in step \ref{i:fcv_lin_solv_spec}
+  in \S\ref{ss:fcv_usage}.
+
 \end{Steps}
+
