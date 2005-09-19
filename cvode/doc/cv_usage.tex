@@ -2430,15 +2430,23 @@ solver performance information.
 Table \ref{t:optional_output} lists all optional output functions in {\cvode},
 which are then described in detail in the remainder of this section.
 
-\begin{table}
-\centering
-\caption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag},
+\newlength{\colABC}
+\settowidth{\colABC}{No. of r.h.s. calls for finite diff. Jacobian-vector evals.}
+\newlength{\colDEF}
+\settowidth{\colDEF}{\id{CVodeGetNumNonlinSolvConvFails}}
+
+\tablecaption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag},
  {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}}
 \label{t:optional_output}
-\medskip
-\begin{tabular}{|l|l|}\hline
-{\bf Optional output} & {\bf Function name} \\
+\tablefirsthead{\hline {\bf Optional output} & {\bf Function name} \\}
+\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
+	   \hline {\bf Optional output} & {\bf Function name} \\ \hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+
+\begin{supertabular}{|p{\colABC}|p{\colDEF}|}
 \hline
+
 \multicolumn{2}{|c|}{\bf CVODE main solver} \\
 \hline
 Size of {\cvode} real and integer workspaces & \id{CVodeGetWorkSpace} \\
@@ -2515,9 +2523,8 @@ No. of preconditioner solves & \id{CVSptfqmrGetNumPrecSolves} \\
 No. of Jacobian-vector product evaluations & \id{CVSptfqmrGetNumJtimesEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{CVSptfqmrGetNumRhsEvals} \\ 
 Last return from a {\cvsptfqmr} function & \id{CVSptfqmrGetLastFlag} \\ 
-\hline
-\end{tabular}
-\end{table}
+
+\end{supertabular}
 
 
 %%==============================================================================
