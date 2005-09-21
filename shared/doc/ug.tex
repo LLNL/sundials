@@ -37,9 +37,10 @@
 \setlength{\oddsidemargin}{0.5in}
 \setlength{\evensidemargin}{0.0in}
 \setlength{\paperwidth}{8.5in}
+\setlength{\topmargin}{0in}
 \setlength{\hoffset}{0in}
 \setlength{\textwidth}{\paperwidth-(1in+\hoffset)*2-\oddsidemargin-\evensidemargin}
-\setlength{\textheight}{9.0in}
+\setlength{\textheight}{8.5in}
 
 %----- SUNDIALS MODULES
 \newcommand{\sundials}{{\normalfont\scshape sundials}}
@@ -91,7 +92,6 @@
 \newcommand{\fkinband}{{\normalfont\scshape fkinband}}
 \newcommand{\fkinsol}{{\normalfont\scshape fkinsol}}
 
-
 %----- IDA and IDAS COMPONENTS
 \newcommand{\idadense}{{\normalfont\scshape idadense}}
 \newcommand{\idaband}{{\normalfont\scshape idaband}}
@@ -132,7 +132,9 @@
 \newcommand{\A}{App. }
 
 %------ Index entries
-\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
+\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
+%\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
+% NOTE: the above version confuses hyperref...
 \newcommand{\Id}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
 \newcommand{\id}[1]{{\tt #1}}
 
@@ -145,6 +147,13 @@
 \newcommand{\rhomax}{\rho_{\max}}
 
 \newcommand{\cm}{$\checkmark$}
+
+%%------ Specify depths for section numbering and TOC
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+
+%%-------
 
 \newcommand{\includeCode}[1]
 {
@@ -160,9 +169,15 @@
                  fontsize=\small]{#2}
 }
 
+%%-------
+
 \newcommand{\ugref}[1]{\S\ref{#1}}
 
+%%-------
+
 \newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
+
+%%-------
 
 \newcommand{\disclaimer}{%
 \changetext{.625in}{}{}{}{}
@@ -200,6 +215,7 @@ Approved for public release; further dissemination unlimited
 
 
 %%--------------------------------
+
 \newcommand{\frontug}
 {
 
@@ -328,3 +344,23 @@ Approved for public release; further dissemination unlimited
 \makeatletter
 \long\def\addNotes#1{\def\@tempa{#1}\ifx\@tempa\empty\else\item[Notes]{#1}\fi}
 \makeatother
+
+
+
+%%---------------------------------
+%% Finally, use hyperref package to include links in the PDF
+%% Note that since hyperref redefines a bunch of LaTeX commands,
+%% to give it a fighting chance, it MUST be included last.
+
+\usepackage[
+letterpaper=true, 
+dvips, 
+ps2pdf, 
+hyperindex=true, 
+linktocpage=true,
+colorlinks=true, 
+linkcolor=blue,
+citecolor=blue,
+bookmarks=true]
+{hyperref}
+
