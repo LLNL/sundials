@@ -922,32 +922,40 @@ Ewt compuation function & \id{CVodeSetEwtFn} & internal fn. \\
 \hline
 \multicolumn{3}{|c|}{\bf CVDENSE linear solver} \\
 \hline
-Dense Jacobian function and data & \id{CVDenseSetJacFn} & internal DQ, NULL \\
+Dense Jacobian function and data & \id{CVDenseSetJacFn} & internal DQ, \\
+&&NULL\\
 \hline
 \multicolumn{3}{|c|}{\bf CVBAND linear solver} \\
 \hline
-Band Jacobian function and data & \id{CVBandSetJacFn} & internal DQ, NULL \\
+Band Jacobian function and data & \id{CVBandSetJacFn} & internal DQ, \\
+&&NULL\\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSpgmrSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian-times-vector function and data & \id{CVSpgmrSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioner functions and data & \id{CVSpgmrSetPreconditioner} & NULL, NULL, \\
+&&NULL\\
+Jacobian-times-vector function and data & \id{CVSpgmrSetJacTimesVecFn} & internal DQ, \\
+&&NULL\\
 Preconditioning type & \id{CVSpgmrSetPrecType} & none \\
 Type of Gram-Schmidt orthogonalization & \id{CVSpgmrSetGSType} & classical GS \\
 Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPBCG linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSpbcgSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian-times-vector function and data & \id{CVSpbcgSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioner functions and data & \id{CVSpbcgSetPreconditioner} & NULL, NULL, \\
+&&NULL\\
+Jacobian-times-vector function and data & \id{CVSpbcgSetJacTimesVecFn} & internal DQ, \\
+&&NULL\\
 Preconditioning type & \id{CVSpbcgSetPrecType} & none \\
 Maximum Krylov subspace size & \id{CVSpbcgSetMaxl} & 5 \\
 Ratio between linear and nonlinear tolerances & \id{CVSpbcgSetDelt} & 0.05 \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPTFQMR linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSptfqmrSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian-times-vector function and data & \id{CVSptfqmrSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioner functions and data & \id{CVSptfqmrSetPreconditioner} & NULL, NULL, \\
+&&NULL\\
+Jacobian-times-vector function and data & \id{CVSptfqmrSetJacTimesVecFn} & internal DQ, \\
+&&NULL\\
 Preconditioning type & \id{CVSptfqmrSetPrecType} & none \\
 Maximum Krylov subspace size & \id{CVSptfqmrSetMaxl} & 5 \\
 Ratio between linear and nonlinear tolerances & \id{CVSptfqmrSetDelt} & 0.05 \\
@@ -1542,7 +1550,7 @@ flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
 \index{optional input!solver|)}
 
 %%==============================================================================
-\subsubsection{Linear solver optional input functions}\label{sss:optin_linsol}
+\subsubsection*{Linear solver optional input functions}\label{sss:optin_linsol}
 %%==============================================================================
 
 The linear solver modules, with one exception, allow for various optional 
@@ -1550,7 +1558,7 @@ inputs, which are described here. The diagonal linear solver module has no
 optional inputs.
 %%
 
-\subsubsection{Dense linear solver.}\label{sss:optin_dense}
+\subsubsection{Dense linear solver}\label{sss:optin_dense}
 \index{optional input!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional input|(}
 The \index{CVDENSE@{\cvdense} linear solver!Jacobian approximation used by}
@@ -1608,7 +1616,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{CVDENSE@{\cvdense} linear solver!optional input|)}
 \index{optional input!dense linear solver|)}
 
-\subsubsection{Band linear solver.}\label{sss:optin_band}
+\subsubsection{Band linear solver}\label{sss:optin_band}
 \index{optional input!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional input|(}
 The \index{CVBAND@{\cvband} linear solver!Jacobian approximation used by}
@@ -1666,7 +1674,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{CVBAND@{\cvband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
 
-\subsubsection{SPGMR linear solver.}\label{sss:optin_spgmr}
+\subsubsection{SPGMR linear solver}\label{sss:optin_spgmr}
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -1902,7 +1910,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
 
-\subsubsection{SPBCG linear solver.}\label{sss:optin_spbcg}
+\subsubsection{SPBCG linear solver}\label{sss:optin_spbcg}
 \index{optional input!iterative linear solver|(}
 \index{CVSPBCG@{\cvspbcg} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -2132,7 +2140,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 \index{CVSPBCG@{\cvspbcg} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
 
-\subsubsection{SPTFQMR linear solver.}\label{sss:optin_sptfqmr}
+\subsubsection{SPTFQMR linear solver}\label{sss:optin_sptfqmr}
 \index{optional input!iterative linear solver|(}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -2435,12 +2443,13 @@ which are then described in detail in the remainder of this section.
 \newlength{\colDEF}
 \settowidth{\colDEF}{\id{CVodeGetNumNonlinSolvConvFails}}
 
+\newpage
 \tablecaption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag},
  {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}}
 \label{t:optional_output}
 \tablefirsthead{\hline {\bf Optional output} & {\bf Function name} \\}
 \tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
-	   \hline {\bf Optional output} & {\bf Function name} \\ \hline}
+           \hline {\bf Optional output} & {\bf Function name} \\ \hline}
 \tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \tablelasttail{\hline}
 
@@ -3148,14 +3157,14 @@ These optional output functions are described next.
 \index{optional output!solver|)}
 
 %%==============================================================================
-\subsubsection{Linear solver optional output functions}\label{sss:optout_linsol}
+\subsubsection*{Linear solver optional output functions}\label{sss:optout_linsol}
 %%==============================================================================
 
 For each of the linear system solver modules, there are various optional 
 outputs that describe the performance of the module. The functions available 
 to access these are described below.
 
-\subsubsection{Dense linear solver.}\label{sss:optout_dense}
+\subsubsection{Dense linear solver}\label{sss:optout_dense}
 \index{optional output!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional output|(}
 The following optional outputs are available from the {\cvdense} module:
@@ -3304,7 +3313,7 @@ and last return value from a {\cvdense} function.
 \index{CVDENSE@{\cvdense} linear solver!optional output|)}
 \index{optional output!dense linear solver|)}
 
-\subsubsection{Band linear solver.}\label{sss:optout_band}
+\subsubsection{Band linear solver}\label{sss:optout_band}
 \index{optional output!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional output|(}
 The following optional outputs are available from the {\cvband} module:
@@ -3454,7 +3463,7 @@ and last return value from a {\cvband} function.
 \index{CVBAND@{\cvband} linear solver!optional output|)}
 \index{optional output!band linear solver|)}
 
-\subsubsection{Diagonal linear solver.}\label{sss:optout_diag}
+\subsubsection{Diagonal linear solver}\label{sss:optout_diag}
 \index{optional output!diagonal linear solver|(}
 \index{CVDIAG@{\cvdiag} linear solver!optional output|(}
 The following optional outputs are available from the {\cvdiag} module:
@@ -3574,7 +3583,7 @@ finite-difference Jacobian approximation, and last return value from a
 \index{CVDIAG@{\cvdiag} linear solver!optional output|)}
 \index{optional output!diagonal linear solver|)}
 
-\subsubsection{SPGMR linear solver.}\label{sss:optout_spgmr}
+\subsubsection{SPGMR linear solver}\label{sss:optout_spgmr}
 \index{optional output!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvspgmr}
@@ -3867,7 +3876,7 @@ return value from a {\cvspgmr} function.
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
 
-\subsubsection{SPBCG linear solver.}\label{sss:optout_spbcg}
+\subsubsection{SPBCG linear solver}\label{sss:optout_spbcg}
 \index{optional output!iterative linear solver|(}
 \index{CVSPBCG@{\cvspbcg} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvspbcg}
@@ -4153,7 +4162,7 @@ return value from a {\cvspbcg} function.
 \index{CVSPBCG@{\cvspbcg} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
 
-\subsubsection{SPTFQMR linear solver.}\label{sss:optout_sptfqmr}
+\subsubsection{SPTFQMR linear solver}\label{sss:optout_sptfqmr}
 \index{optional output!iterative linear solver|(}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvsptfqmr}
