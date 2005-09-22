@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-08-13 01:17:05 $
+ * $Revision: 1.23 $
+ * $Date: 2005-09-22 16:09:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -183,8 +183,8 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  *    N_VNew_Parallel
  *    N_VNewEmpty_Parallel
  *    N_VMake_Parallel
- *    N_VNewVectorArray_Parallel
- *    N_VNewVectorArrayEmpty_Parallel
+ *    N_VCloneVectorArray_Parallel
+ *    N_VCloneVectorArrayEmpty_Parallel
  * DESTRUCTORS:
  *    N_VDestroy_Parallel
  *    N_VDestroyVectorArray_Parallel
@@ -237,7 +237,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
  * Function : N_VCloneVectorArray_Parallel
  * -----------------------------------------------------------------
  * This function creates an array of 'count' PARALLEL vectors by
- * cloning from w
+ * cloning a given vector w.
  * -----------------------------------------------------------------
  */
 
@@ -248,7 +248,7 @@ N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w);
  * Function : N_VCloneVectorArrayEmpty_Parallel
  * -----------------------------------------------------------------
  * This function creates an array of 'count' PARALLEL vectors each 
- * with an empty (NULL) data array by cloning from w.
+ * with an empty (NULL) data array by cloning w.
  * -----------------------------------------------------------------
  */
 
@@ -259,7 +259,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
  * Function : N_VDestroyVectorArray_Parallel
  * -----------------------------------------------------------------
  * This function frees an array of N_Vector created with 
- * N_VCloneVectorArray_Parallel.
+ * N_VCloneVectorArray_Parallel or N_VCloneVectorArrayEmpty_Parallel.
  * -----------------------------------------------------------------
  */
 
