@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-06-03 16:59:35 $
+ * $Revision: 1.4 $
+ * $Date: 2005-09-22 23:12:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -464,7 +464,9 @@ static int KINDenseFree(KINMem kin_mem)
  * The increment used in the finitie-difference approximation
  *   J_ij = ( F_i(u+sigma_j * e_j) - F_i(u)  ) / sigma_j
  * is
- *  sigma_j = max{|u_j|, |uscale_j|} * sqrt(uround)
+ *  sigma_j = max{|u_j|, |1/uscale_j|} * sqrt(uround)
+ *
+ * Note: uscale_j = 1/typ(u_j)
  * -----------------------------------------------------------------
  */
 
@@ -475,7 +477,7 @@ static int KINDenseDQJac(long int n, DenseMat J,
                          N_Vector u, N_Vector fu, void *jac_data,
                          N_Vector tmp1, N_Vector tmp2)
 {
-  realtype inc, inc_inv, ujsaved, ujscale;
+  realtype inc, inc_inv, ujsaved, ujscale, sign;
   realtype *tmp2_data, *u_data, *uscale_data;
   N_Vector ftemp, jthCol;
   long int j;
@@ -507,8 +509,9 @@ static int KINDenseDQJac(long int n, DenseMat J,
     N_VSetArrayPointer(DENSE_COL(J,j), jthCol);
 
     ujsaved = u_data[j];
-    ujscale = uscale_data[j];
-    inc = sqrt_relfunc*MAX(ABS(ujsaved), ABS(ujscale));
+    ujscale = ONE/uscale_data[j];
+    sign = (ujsaved >= ZERO) ? ONE : -ONE;
+    inc = sqrt_relfunc*MAX(ABS(ujsaved), ujscale)*sign;
     u_data[j] += inc;
     func(u, ftemp, f_data);
     u_data[j] = ujsaved;
