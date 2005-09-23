@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2005-07-15 23:28:02 $
+ * $Revision: 1.36 $
+ * $Date: 2005-09-23 19:14:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -872,7 +872,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
  * ----------------------------------------------------------------
  */
 
-void IDAFree(void *ida_mem);
+void IDAFree(void **ida_mem);
 
 /* 
  * ----------------------------------------

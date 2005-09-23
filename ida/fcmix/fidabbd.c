@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-08-15 18:06:46 $
+ * $Revision: 1.5 $
+ * $Date: 2005-09-23 19:13:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -222,7 +222,7 @@ void FIDA_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 
 void FIDA_BBDFREE(void)
 {
-  IDABBDPrecFree(IDABBD_Data);
+  IDABBDPrecFree(&IDABBD_Data);
 
   return;
 }

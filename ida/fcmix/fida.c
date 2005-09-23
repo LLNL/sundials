@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2005-08-23 18:45:46 $
+ * $Revision: 1.13 $
+ * $Date: 2005-09-23 19:13:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -688,7 +688,7 @@ void FIDA_GETESTLOCALERR(realtype *ele, int *ier)
 
 void FIDA_FREE(void)
 {
-  if (IDA_idamem != NULL) IDAFree(IDA_idamem);
+  if (IDA_idamem != NULL) IDAFree(&IDA_idamem);
 
   /* Detach user data from F2C_IDA_vec */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);

@@ -293,7 +293,7 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
 \item
   {\bf Free solver memory}
 
-  \Id{IDAFree}\id{(ida\_mem);} to free the memory allocated for {\ida}.
+  \Id{IDAFree}\id{(\&ida\_mem);} to free the memory allocated for {\ida}.
   
 \item 
   {\bf {\p} Finalize MPI}
@@ -411,7 +411,7 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
 %%
 \ucfunction{IDAFree}
 {
-  IDAFree(ida\_mem);
+  IDAFree(\&ida\_mem);
 }
 {
   The function \ID{IDAFree} frees the pointer allocated by
@@ -5627,7 +5627,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item \label{i:bbdpre_free}
   {\bf Free the {\idabbdpre} data structure}
 
-  \id{IDABBDPrecFree(bbd\_data);}
+  \id{IDABBDPrecFree(\&bbd\_data);}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
@@ -5823,7 +5823,7 @@ next.
 %%
 \ucfunction{IDABBDPrecFree}
 {
-  IDABBDPrecFree(bbd\_data);
+  IDABBDPrecFree(\&bbd\_data);
 }
 {
   The function \ID{IDABBDPrecFree} frees the pointer allocated by

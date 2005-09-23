@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.49 $
- * $Date: 2005-07-19 21:35:40 $
+ * $Revision: 1.50 $
+ * $Date: 2005-09-23 19:14:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -1153,17 +1153,19 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
  * -----------------------------------------------------------------
  */
 
-void IDAFree(void *ida_mem)
+void IDAFree(void **ida_mem)
 {
   IDAMem IDA_mem;
 
-  if (ida_mem == NULL) return;
+  if (*ida_mem == NULL) return;
 
-  IDA_mem = (IDAMem) ida_mem;
+  IDA_mem = (IDAMem) (*ida_mem);
   
   IDAFreeVectors(IDA_mem);
   if (lfree != NULL) lfree(IDA_mem);
-  free(IDA_mem);
+
+  free(*ida_mem);
+  *ida_mem = NULL;
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-04-04 22:58:42 $
+ * $Revision: 1.19 $
+ * $Date: 2005-09-23 19:13:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
   if (thispe == 0) PrintFinalStats(mem);
 
   /* Free Memory */
-  IDABBDPrecFree(P_data);
-  IDAFree(mem);
+  IDABBDPrecFree(&P_data);
+  IDAFree(&mem);
   free(data);
   N_VDestroy_Parallel(id);
   N_VDestroy_Parallel(res);
