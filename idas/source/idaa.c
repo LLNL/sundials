@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-04-27 22:51:49 $
+ * $Revision: 1.18 $
+ * $Date: 2005-09-23 19:23:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -333,11 +333,14 @@ void *IDAAdjMalloc(void *ida_mem, long int steps)
 */
 /*-----------------------------------------------------------------*/
 
-void IDAAdjFree(void *idaadj_mem)
+void IDAAdjFree(void **idaadj_mem)
 {
+  void *ida_bmem;
   IDAadjMem IDAADJ_mem;
 
-  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  if (*idaadj_mem == NULL) return;
+
+  IDAADJ_mem = (IDAadjMem) (*idaadj_mem);
 
   /* Delete check points one by one */
   while (IDAADJ_mem->ck_mem != NULL) {
@@ -355,10 +358,12 @@ void IDAAdjFree(void *idaadj_mem)
   N_VDestroy(yptmp);
 
   /* Free IDAS memory for backward run */
-  IDAFree(IDAADJ_mem->IDAB_mem);
+  ida_bmem = (void *)(IDAADJ_mem->IDAB_mem);
+  IDAFree(&ida_bmem);
 
   /* Free IDAA memory */
-  free(IDAADJ_mem);
+  free(*idaadj_mem);
+  *idaadj_mem = NULL;
 
 }
 

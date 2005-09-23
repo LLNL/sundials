@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-04-27 22:51:43 $
+ * $Revision: 1.16 $
+ * $Date: 2005-09-23 19:23:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
 
   /* Free memory */
 
-  IDAFree(mem);
+  IDAFree(&mem);
 
   N_VDestroy_Parallel(id);
   N_VDestroy_Parallel(constraints);

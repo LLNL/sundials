@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-04-27 22:51:46 $
+ * $Revision: 1.17 $
+ * $Date: 2005-09-23 19:23:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -261,7 +261,7 @@ int main()
 
   /* Free Memory */
 
-  IDAFree(mem);
+  IDAFree(&mem);
 
   N_VDestroy_Serial(uu);
   N_VDestroy_Serial(up);

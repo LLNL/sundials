@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-05-18 18:17:33 $
+ * $Revision: 1.16 $
+ * $Date: 2005-09-23 19:23:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -229,17 +229,20 @@ int IDABBDPrecReInit(void *bbd_data,
   return(0);
 }
 
-void IDABBDPrecFree(void *bbd_data)
+void IDABBDPrecFree(void **bbd_data)
 {
   IBBDPrecData pdata;
   
-  if (bbd_data != NULL) {
-    pdata = (IBBDPrecData) bbd_data;
-    BandFreeMat(pdata->PP);
-    BandFreePiv(pdata->pivots);
-    N_VDestroy(pdata->tempv4);
-    free(pdata);
-  }
+  if (*bbd_data != NULL) return;
+
+  pdata = (IBBDPrecData) (*bbd_data);
+  BandFreeMat(pdata->PP);
+  BandFreePiv(pdata->pivots);
+  N_VDestroy(pdata->tempv4);
+
+  free(*bbd_data);
+  *bbd_data = NULL;
+
 }
 
 int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP)

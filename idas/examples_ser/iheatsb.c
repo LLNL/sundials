@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-03-21 17:27:23 $
+ * $Revision: 1.14 $
+ * $Date: 2005-09-23 19:23:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -167,7 +167,7 @@ int main(void)
   check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
-  IDAFree(mem);
+  IDAFree(&mem);
   N_VDestroy_Serial(uu);
   N_VDestroy_Serial(up);
   N_VDestroy_Serial(constraints);

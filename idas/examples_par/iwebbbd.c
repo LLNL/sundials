@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-03-21 17:26:52 $
+ * $Revision: 1.20 $
+ * $Date: 2005-09-23 19:23:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -362,9 +362,9 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(cp);
   N_VDestroy_Parallel(id);
 
-  IDABBDPrecFree(P_data);
+  IDABBDPrecFree(&P_data);
 
-  IDAFree(mem);
+  IDAFree(&mem);
 
   denfree(webdata->acoef);
   N_VDestroy_Parallel(webdata->rates);

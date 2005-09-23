@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2005-07-19 21:48:41 $
+ * $Revision: 1.38 $
+ * $Date: 2005-09-23 19:23:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1665,13 +1665,13 @@ int IDAGetSens1(void *ida_mem, realtype t, int is,
 
 *******************************************************************/
 
-void IDAFree(void *ida_mem)
+void IDAFree(void **ida_mem)
 {
   IDAMem IDA_mem;
 
-  if (ida_mem == NULL) return;
+  if (*ida_mem == NULL) return;
 
-  IDA_mem = (IDAMem) ida_mem;
+  IDA_mem = (IDAMem) (*ida_mem);
   
   IDAFreeVectors(IDA_mem);
 
@@ -1681,7 +1681,8 @@ void IDAFree(void *ida_mem)
 
   if (lfree != NULL) lfree(IDA_mem);
 
-  free(IDA_mem);
+  free(*ida_mem);
+  *ida_mem = NULL;
 }
 
 /*------------------  IDAQuadFree      --------------------------*/
