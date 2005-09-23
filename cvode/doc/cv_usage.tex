@@ -5274,7 +5274,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item \label{i:bandpre_free}
   {\bf Free the {\cvbandpre} data structure}
 
-  \id{CVBandPrecFree(bp\_data);}
+  \id{CVBandPrecFree(\&bp\_data);}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
@@ -5449,7 +5449,7 @@ in more detail below.
 %%
 \ucfunction{CVBandPrecFree}
 {
-  CVBandPrecFree(bp\_data);
+  CVBandPrecFree(\&bp\_data);
 }
 {
   The function \ID{CVBandPrecFree} frees the pointer allocated by
@@ -5804,7 +5804,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 \item \label{i:bbdpre_free}
   {\bf Free the {\cvbbdpre} data structure}
 
-  \id{CVBBDPrecFree(bbd\_data);}
+  \id{CVBBDPrecFree(\&bbd\_data);}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
@@ -6011,7 +6011,7 @@ next.
 %%
 \ucfunction{CVBBDPrecFree}
 {
-  CVBBDPrecFree(bbd\_data);
+  CVBBDPrecFree(\&bbd\_data);
 }
 {
   The function \ID{CVBBDPrecFree} frees the pointer allocated by

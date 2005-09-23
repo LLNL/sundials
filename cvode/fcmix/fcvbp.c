@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-05-18 18:16:59 $
+ * $Revision: 1.10 $
+ * $Date: 2005-09-23 16:59:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -133,5 +133,5 @@ void FCV_BPOPT(long int *lenrpw, long int *lenipw, long int *nfe)
 
 void FCV_BPFREE(void)
 {
-  CVBandPrecFree(CVBP_Data);
+  CVBandPrecFree(&CVBP_Data);
 }

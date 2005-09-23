@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-05-18 18:16:58 $
+ * $Revision: 1.23 $
+ * $Date: 2005-09-23 16:59:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -203,5 +203,5 @@ void FCV_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 
 void FCV_BBDFREE(void)
 {
-  CVBBDPrecFree(CVBBD_Data);
+  CVBBDPrecFree(&CVBBD_Data);
 }
