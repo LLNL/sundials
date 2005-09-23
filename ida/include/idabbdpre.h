@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2005-09-23 19:14:01 $
+ * $Revision: 1.30 $
+ * $Date: 2005-09-23 19:47:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -53,7 +53,7 @@
  *   ...
  *   ier = IDASolve(...);
  *   ...
- *   IDABBDFree(p_data);
+ *   IDABBDFree(&p_data);
  *   ...
  *   IDAFree(...);
  *
