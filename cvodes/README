@@ -93,6 +93,9 @@ v. 2.3.0 (May. 2005) --->
      preconditioner modules.
 
 - Changes to user interface
+   - changed argument of CVodeFree, CVBandPrecFree, CVBBDPrecFree, and 
+     CVadjFree to be the address of the respective memory block pointer, 
+     so that its NULL value is propagated back to the calling function.
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to
      allow CVODES to interface with the shared SPBCG linear solver module.
    - added CVBBDSpbcg function to CVBBDPRE module and CVBPSpbcg function to
@@ -126,9 +129,9 @@ v. 2.1.2 (Mar. 2005) ---> v. 2.2.0 (Apr. 2005)
      the solution vector (of type CVEwtFn specified through CVodeSetEwtFn).
 
 - Changes to user interface
-   - CVODE now stores tolerances through values rather than references 
+   - CVODES now stores tolerances through values rather than references 
      (to resolve potential scoping issues). 
-   - CVODE now passes information back to the user through values rather
+   - CVODES now passes information back to the user through values rather
      than references (error weights, estimated local errors, root info,
      STAGGERED1 statistics, etc.)
    - CVodeMalloc, CVodeReInit, CVodeSetTolerances: added option itol=CV_WF 

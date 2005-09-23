@@ -98,13 +98,16 @@ v. 2.3.0 (Apr. 2005) --->
      preconditioner modules.
 
 - Changes to user interface
+   - changed argument of CVodeFree, CVBandPrecFree, and CVBBDPrecFree to
+     be the address of the respective memory block pointer, so that its
+     NULL value is propagated back to the calling function.
    - added CVSPBCG module which defines appropriate CVSpbcg* functions to
      allow CVODE to interface with the shared SPBCG linear solver module.
    - added CVBBDSpbcg function to CVBBDPRE module and CVBPSpbcg function to
      CVBANDPRE module to support SPBCG linear solver module.
    - added CVBBDSptfqmr function to CVBBDPRE module and CVBPSptfqmr function to
      CVBANDPRE module to support SPTFQMR linear solver module.
-   - Changed function type names (not the actual definition) to accomodate
+   - changed function type names (not the actual definition) to accomodate
      all the Scaled Preconditioned Iterative Linear Solvers now available:
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn
@@ -118,7 +121,7 @@ v. 2.3.0 (Apr. 2005) --->
      are still obtained from two arrays (IOUT and ROUT), owned by the user
      and passed as arguments to FCVMALLOC. Note that the argument OPTIN
      was removed from FCVMALLOC.
-   - The arguments OPTIN, IOPT, and ROPT were removed from FCVREINIT
+   - the arguments OPTIN, IOPT, and ROPT were removed from FCVREINIT
 
 - Changes related to the build system
    - updated configure script and Makefiles for Fortran examples to avoid C++
