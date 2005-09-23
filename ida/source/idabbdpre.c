@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2005-09-23 19:14:03 $
+ * $Revision: 1.31 $
+ * $Date: 2005-09-23 19:47:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -233,7 +233,7 @@ void IDABBDPrecFree(void **bbd_data)
 {
   IBBDPrecData pdata;
   
-  if (*bbd_data != NULL) return;
+  if (*bbd_data == NULL) return;
 
   pdata = (IBBDPrecData) (*bbd_data);
   BandFreeMat(pdata->PP);
