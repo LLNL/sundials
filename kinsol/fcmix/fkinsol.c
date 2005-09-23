@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2005-08-29 20:07:43 $
+ * $Revision: 1.39 $
+ * $Date: 2005-09-23 19:41:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -375,7 +375,7 @@ void FKIN_FREE(void)
 
   /* call KINFree: KIN_kinmem is the pointer to the KINSOL memory block */
 
-  KINFree(KIN_kinmem);
+  KINFree(&KIN_kinmem);
 
   N_VSetArrayPointer(NULL , F2C_KINSOL_vec);
   N_VDestroy(F2C_KINSOL_vec);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2005-08-31 00:20:24 $
+ * $Revision: 1.44 $
+ * $Date: 2005-09-23 19:42:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -491,20 +491,21 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
  * -----------------------------------------------------------------
  */
 
-void KINFree(void *kinmem)
+void KINFree(void **kinmem)
 {
   KINMem kin_mem;
 
-  if (kinmem == NULL) return;
+  if (*kinmem == NULL) return;
 
-  kin_mem = (KINMem) kinmem;
+  kin_mem = (KINMem) (*kinmem);
   KINFreeVectors(kin_mem);
 
   /* call lfree if non-NULL */
 
   if (lfree != NULL) lfree(kin_mem);
 
-  free(kin_mem);
+  free(*kinmem);
+  *kinmem = NULL;
 }
 
 /*

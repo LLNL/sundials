@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-04-07 19:26:15 $
+ * $Revision: 1.21 $
+ * $Date: 2005-09-23 19:41:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -267,7 +267,7 @@ int main(void)
 
   N_VDestroy_Serial(cc);
   N_VDestroy_Serial(sc);
-  KINFree(kmem);
+  KINFree(&kmem);
   FreeUserData(data);
 
   return(0);

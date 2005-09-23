@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-08-11 22:29:33 $
+ * $Revision: 1.2 $
+ * $Date: 2005-09-23 19:41:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -148,7 +148,7 @@ int main()
   N_VDestroy_Serial(y);
   N_VDestroy_Serial(scale);
   N_VDestroy_Serial(constraints);
-  KINFree(kmem);
+  KINFree(&kmem);
 
   return(0);
 }

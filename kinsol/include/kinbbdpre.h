@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-05-18 18:17:42 $
+ * $Revision: 1.23 $
+ * $Date: 2005-09-23 19:41:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -57,7 +57,7 @@
  *   ...
  *   KINSol(kin_mem,...);
  *   ...
- *   KINBBDPrecFree(p_data);
+ *   KINBBDPrecFree(&p_data);
  *   ...
  *   KINFree(kin_mem);
  *   ...
@@ -308,7 +308,7 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-void KINBBDPrecFree(void *p_data);
+void KINBBDPrecFree(void **p_data);
 
 /*
  * -----------------------------------------------------------------

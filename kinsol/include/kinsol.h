@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-04-28 20:45:23 $
+ * $Revision: 1.28 $
+ * $Date: 2005-09-23 19:41:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -656,7 +656,7 @@ int KINGetStepLength(void *kinmem, realtype *steplength);
  * -----------------------------------------------------------------
  */
 
-void KINFree(void *kinmem);
+void KINFree(void **kinmem);
 
 /*
  * -----------------------------------------------------------------

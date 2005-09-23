@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-05-18 18:17:39 $
+ * $Revision: 1.25 $
+ * $Date: 2005-09-23 19:41:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -200,7 +200,7 @@ void FKIN_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
 
 void FKIN_BBDFREE(void)
 {
-  KINBBDPrecFree(KBBD_Data);
+  KINBBDPrecFree(&KBBD_Data);
 
   return;
 }

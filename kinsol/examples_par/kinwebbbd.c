@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-04-07 19:26:13 $
+ * $Revision: 1.24 $
+ * $Date: 2005-09-23 19:41:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -321,8 +321,8 @@ int main(int argc, char *argv[])
 
   N_VDestroy_Parallel(cc);
   N_VDestroy_Parallel(sc);
-  KINBBDPrecFree(pdata);
-  KINFree(kmem);
+  KINBBDPrecFree(&pdata);
+  KINFree(&kmem);
   FreeUserData(data);
 
   MPI_Finalize();

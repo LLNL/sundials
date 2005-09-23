@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-05-18 18:17:44 $
+ * $Revision: 1.27 $
+ * $Date: 2005-09-23 19:42:02 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -260,17 +260,20 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
  *-----------------------------------------------------------------
  */
 
-void KINBBDPrecFree(void *p_data)
+void KINBBDPrecFree(void **p_data)
 {
   KBBDPrecData pdata;
 
-  if (p_data != NULL) {
-    pdata = (KBBDPrecData) p_data;
-    N_VDestroy(pdata->vtemp3);
-    BandFreeMat(pdata->PP);
-    BandFreePiv(pdata->pivots);
-    free(pdata);
-  }
+  if (*p_data == NULL) return;
+
+  pdata = (KBBDPrecData) (*p_data);
+  N_VDestroy(pdata->vtemp3);
+  BandFreeMat(pdata->PP);
+  BandFreePiv(pdata->pivots);
+
+  free(*p_data);
+  *p_data = NULL;
+
 }
 
 /*
