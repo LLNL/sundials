@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-05-16 17:08:16 $
+ * $Revision: 1.21 $
+ * $Date: 2005-09-23 19:00:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -226,10 +226,11 @@ int main(int argc, char *argv[])
 
   PrintOutput(uB, data);
 
-  N_VDestroy_Serial(u);  /* Free the u vector */
-  N_VDestroy_Serial(uB); /* Free the uB vector */
-  CVodeFree(cvode_mem);  /* Free the CVODE problem memory */
-  free(data);            /* Free the user data */
+  N_VDestroy_Serial(u);   /* Free the u vector */
+  N_VDestroy_Serial(uB);  /* Free the uB vector */
+  CVodeFree(&cvode_mem);  /* Free the CVODE problem memory */
+  CVadjFree(&cvadj_mem);  /* Free adjoint memory block */
+  free(data);             /* Free the user data */
 
   return(0);
 }

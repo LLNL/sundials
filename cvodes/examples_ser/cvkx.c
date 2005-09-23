@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-04-07 23:28:41 $
+ * $Revision: 1.20 $
+ * $Date: 2005-09-23 19:00:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -223,7 +223,7 @@ int main()
   /* Free memory */
   N_VDestroy_Serial(u);
   FreeUserData(data);
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
 
   return(0);
 }

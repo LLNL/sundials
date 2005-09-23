@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-06-21 19:12:36 $
+ * $Revision: 1.25 $
+ * $Date: 2005-09-23 19:00:01 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
   free(data->p);  
   free(data);
   FreePreconData(predata);
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
 
   MPI_Finalize();
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-04-07 23:28:41 $
+ * $Revision: 1.19 $
+ * $Date: 2005-09-23 19:00:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -198,7 +198,7 @@ int main(void)
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
 
   N_VDestroy_Serial(u);  /* Free the u vector */
-  CVodeFree(cvode_mem);  /* Free the integrator memory */
+  CVodeFree(&cvode_mem); /* Free the integrator memory */
   free(data);            /* Free the user data */
 
   return(0);

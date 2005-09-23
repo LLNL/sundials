@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-05-18 18:17:11 $
+ * $Revision: 1.16 $
+ * $Date: 2005-09-23 19:00:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -212,7 +212,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data);
  * -----------------------------------------------------------------
  */
 
-void CVBandPrecFree(void *bp_data);
+void CVBandPrecFree(void **bp_data);
 
 /*
  * -----------------------------------------------------------------

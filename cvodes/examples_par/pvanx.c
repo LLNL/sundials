@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-05-16 17:07:26 $
+ * $Revision: 1.23 $
+ * $Date: 2005-09-23 19:00:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -258,8 +258,8 @@ int main(int argc, char *argv[])
   /* Free memory */
   N_VDestroy_Parallel(u);
   N_VDestroy_Parallel(uB);
-  CVodeFree(cvode_mem);  
-  CVadjFree(cvadj_mem);
+  CVodeFree(&cvode_mem);  
+  CVadjFree(&cvadj_mem);
   if (my_pe != npes) {
     free(data->z1);
     free(data->z2);

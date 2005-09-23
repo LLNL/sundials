@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-05-18 18:17:13 $
+ * $Revision: 1.17 $
+ * $Date: 2005-09-23 19:00:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -178,17 +178,20 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   return(CVSPGMR_SUCCESS);
 }
 
-void CVBandPrecFree(void *bp_data)
+void CVBandPrecFree(void **bp_data)
 {
   CVBandPrecData pdata;
 
-  if (bp_data != NULL) {
-    pdata = (CVBandPrecData) bp_data;
-    BandFreeMat(pdata->savedJ);
-    BandFreeMat(pdata->savedP);
-    BandFreePiv(pdata->pivots);
-    free(pdata);
-  }
+  if (*bp_data == NULL) return;
+
+  pdata = (CVBandPrecData) (*bp_data);
+  BandFreeMat(pdata->savedJ);
+  BandFreeMat(pdata->savedP);
+  BandFreePiv(pdata->pivots);
+
+  free(*bp_data);
+  *bp_data = NULL;
+
 }
 
 int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)

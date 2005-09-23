@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.58 $
- * $Date: 2005-07-19 20:57:30 $
+ * $Revision: 1.59 $
+ * $Date: 2005-09-23 19:00:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2155,14 +2155,14 @@ int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is,
  * sensitivity computations by CVodeSensMalloc.
  */
 
-void CVodeFree(void *cvode_mem)
+void CVodeFree(void **cvode_mem)
 {
   CVodeMem cv_mem;
 
-  cv_mem = (CVodeMem) cvode_mem;
-  
-  if (cvode_mem == NULL) return;
+  if (*cvode_mem == NULL) return;
 
+  cv_mem = (CVodeMem) (*cvode_mem);
+  
   CVFreeVectors(cv_mem);
 
   CVodeQuadFree(cv_mem);
@@ -2178,7 +2178,8 @@ void CVodeFree(void *cvode_mem)
     free(iroots);
   }
 
-  free(cv_mem);
+  free(*cvode_mem);
+  *cvode_mem = NULL;
 }
 
 /*-----------------------------------------------------------------*/

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-07-01 00:00:30 $
+ * $Revision: 1.3 $
+ * $Date: 2005-09-23 19:00:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -190,7 +190,7 @@ int main()
   N_VDestroy_Serial(atolT);
   N_VDestroy_Serial(atolL);
   free_data(data);
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
 
   return(0);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-07-01 00:00:25 $
+ * $Revision: 1.22 $
+ * $Date: 2005-09-23 19:00:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
     free(pbar);
   }
   free(data);
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
 
   return(0);
 }

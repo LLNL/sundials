@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-05-18 18:17:11 $
+ * $Revision: 1.19 $
+ * $Date: 2005-09-23 19:00:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -333,7 +333,7 @@ int CVBBDPrecReInit(void *bbd_data, long int mudq, long int mldq,
  * -----------------------------------------------------------------
  */
 
-void CVBBDPrecFree(void *bbd_data);
+void CVBBDPrecFree(void **bbd_data);
 
 /*
  * -----------------------------------------------------------------

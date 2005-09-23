@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.51 $
- * $Date: 2005-05-18 18:17:13 $
+ * $Revision: 1.52 $
+ * $Date: 2005-09-23 19:00:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -404,14 +404,15 @@ int CVadjResetInterpType(void *cvadj_mem, int interp)
  * This routine frees the memory allocated by CVadjMalloc.
  */
 
-void CVadjFree(void *cvadj_mem)
+void CVadjFree(void **cvadj_mem)
 {
+  void * cvode_bmem;
   CVadjMem ca_mem;
   long int i;
 
-  if (cvadj_mem == NULL) return;
+  if (*cvadj_mem == NULL) return;
 
-  ca_mem = (CVadjMem) cvadj_mem;
+  ca_mem = (CVadjMem) (*cvadj_mem);
 
   /* Delete check points one by one */
   while (ca_mem->ck_mem != NULL) {
@@ -434,14 +435,16 @@ void CVadjFree(void *cvadj_mem)
   CVAfreeVectors(ca_mem);
 
   /* Free CVODES memory for backward run */
-  CVodeFree(ca_mem->cvb_mem);
+  cvode_bmem = (void *)ca_mem->cvb_mem;
+  CVodeFree(&cvode_bmem);
 
   /* Free preconditioner data (the routines below check for non-NULL data) */
-  CVBandPrecFree(bp_data_B);
-  CVBBDPrecFree(bbd_data_B);
+  CVBandPrecFree(&bp_data_B);
+  CVBBDPrecFree(&bbd_data_B);
 
   /* Free CVODEA memory */
-  free(ca_mem);
+  free(*cvadj_mem);
+  *cvadj_mem = NULL;
 }
 
 
@@ -1281,7 +1284,7 @@ int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpilsJacTimesVecFnB jtimesB,
 }
 
 /*
- * CVBandPrecAllocB, CVBPSp*B, CVBandPrecFreeB
+ * CVBandPrecAllocB, CVBPSp*B
  *
  * Wrappers for the backward phase around the corresponding 
  * CVODES functions
@@ -1358,7 +1361,7 @@ int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
 }
 
 /*
- * CVBBDPrecAllocB, CVBPSp*B, CVBandPrecFreeB
+ * CVBBDPrecAllocB, CVBPSp*B
  *
  * Wrappers for the backward phase around the corresponding 
  * CVODES functions

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-05-18 18:17:13 $
+ * $Revision: 1.18 $
+ * $Date: 2005-09-23 19:00:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -222,17 +222,20 @@ int CVBBDPrecReInit(void *bbd_data,
   return(CV_SUCCESS);
 }
 
-void CVBBDPrecFree(void *bbd_data)
+void CVBBDPrecFree(void **bbd_data)
 {
   CVBBDPrecData pdata;
   
-  if (bbd_data != NULL) {
-    pdata = (CVBBDPrecData) bbd_data;
-    BandFreeMat(pdata->savedJ);
-    BandFreeMat(pdata->savedP);
-    BandFreePiv(pdata->pivots);
-    free(pdata);
-  }
+  if (*bbd_data == NULL) return;
+
+  pdata = (CVBBDPrecData) (*bbd_data);
+  BandFreeMat(pdata->savedJ);
+  BandFreeMat(pdata->savedP);
+  BandFreePiv(pdata->pivots);
+
+  free(*bbd_data);
+  *bbd_data = NULL;
+
 }
 
 int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP)

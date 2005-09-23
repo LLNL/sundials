@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-07-01 00:00:25 $
+ * $Revision: 1.27 $
+ * $Date: 2005-09-23 19:00:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -358,12 +358,12 @@ int main(int argc, char *argv[])
   /* Free memory */
   printf("Free memory\n\n");
 
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
   N_VDestroy_Serial(y); 
   N_VDestroy_Serial(q);
   N_VDestroy_Serial(yB);
   N_VDestroy_Serial(qB);
-  CVadjFree(cvadj_mem);
+  CVadjFree(&cvadj_mem);
   free(data);
 
   return(0);

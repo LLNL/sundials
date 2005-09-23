@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2005-06-21 19:12:42 $
+ * $Revision: 1.26 $
+ * $Date: 2005-09-23 19:00:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
     N_VDestroyVectorArray_Serial(yS, NS);  /* Free yS vector */
   }
   free(data);                              /* Free user data */
-  CVodeFree(cvode_mem);                    /* Free CVODES memory */
+  CVodeFree(&cvode_mem);                   /* Free CVODES memory */
 
   return(0);
 }

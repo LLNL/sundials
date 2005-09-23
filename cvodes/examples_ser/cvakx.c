@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-05-16 17:08:17 $
+ * $Revision: 1.23 $
+ * $Date: 2005-09-23 19:00:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -325,8 +325,8 @@ int main(int argc, char *argv[])
   PrintOutput(cB, NS, MXNS, wdata);
 
   /* Free all memory */
-  CVodeFree(cvode_mem);
-  CVadjFree(cvadj_mem);
+  CVodeFree(&cvode_mem);
+  CVadjFree(&cvadj_mem);
   N_VDestroy_Serial(c);
   N_VDestroy_Serial(cB);
   FreeUserData(wdata);

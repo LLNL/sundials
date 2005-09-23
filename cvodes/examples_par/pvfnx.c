@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-06-21 19:12:37 $
+ * $Revision: 1.18 $
+ * $Date: 2005-09-23 19:00:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
     N_VDestroyVectorArray(uS, NS); /* Free the uS vectors            */
   free(data->p);                   /* Free the p vector              */
   free(data);                      /* Free block of UserData         */
-  CVodeFree(cvode_mem);            /* Free the CVODES problem memory */
+  CVodeFree(&cvode_mem);           /* Free the CVODES problem memory */
   free(pbar);
   if(sensi) free(plist);
 

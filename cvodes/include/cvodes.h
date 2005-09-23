@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2005-06-27 21:36:14 $
+ * $Revision: 1.42 $
+ * $Date: 2005-09-23 19:00:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -1202,7 +1202,7 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
  * -----------------------------------------------------------------
  */
 
-void CVodeFree(void *cvode_mem);
+void CVodeFree(void **cvode_mem);
 
 /*
  * -----------------------------------------------------------------
