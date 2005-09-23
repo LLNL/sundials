@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.52 $
- * $Date: 2005-09-23 19:00:10 $
+ * $Revision: 1.53 $
+ * $Date: 2005-09-23 19:46:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -406,7 +406,7 @@ int CVadjResetInterpType(void *cvadj_mem, int interp)
 
 void CVadjFree(void **cvadj_mem)
 {
-  void * cvode_bmem;
+  void *cvode_bmem;
   CVadjMem ca_mem;
   long int i;
 
