@@ -102,6 +102,9 @@ v. 2.3.0 (Apr. 2005) --->
    - added rootfinding feature in IDA; modified irobx example problem.
 
 - Changes to user-callable functions
+   - changed argument of IDAFree and IDABBDPrecFree to be the address 
+     of the respective memory block pointer, so that its NULL value is 
+     propagated back to the calling function.
    - added IDASPBCG module which defines appropriate IDSpbcg* functions to
      allow IDA to interface with the shared SPBCG linear solver module.
    - added IDABBDSpbcg function to IDABBDPRE module to support SPBCG linear
