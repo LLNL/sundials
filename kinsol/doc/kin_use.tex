@@ -69,14 +69,14 @@ preconditioning is done with a block-diagonal matrix. For this, the header
 \section{A Skeleton of the User's Main Program}\label{s:skeleton_sol}
 %-------------------------------------------------
 
-A high-level view of the combined user program and {\kinsol} package is
-shown in Figure~\ref{f:sim_overview}.
+%% A high-level view of the combined user program and {\kinsol} package is
+%% shown in Figure~\ref{f:sim_overview}.
 %%
-\begin{figure}
-\centerline{\psfig{figure=kinsim.eps,width=\textwidth}}
-\caption {Diagram of the user program and 
-  KINSOL package for the solution of nonlinear systems}\label{f:sim_overview}
-\end{figure}
+%% \begin{figure}
+%% \centerline{\psfig{figure=kinsim.eps,width=\textwidth}}
+%% \caption {Diagram of the user program and 
+%%   KINSOL package for the solution of nonlinear systems}\label{f:sim_overview}
+%% \end{figure}
 %%
 The following is a skeleton of the user's main program (or calling
 program) for the solution of a nonlinear problem. 
@@ -196,7 +196,7 @@ provided with {\kinsol}: steps marked with {\p} correspond to
 \item
   {\bf Free solver memory}
 
-  Call \id{KINFree(kin\_mem);} to free the memory allocated for {\kinsol}.
+  Call \id{KINFree(\&kin\_mem);} to free the memory allocated for {\kinsol}.
   
 \item 
   {\bf {\p} Finalize MPI}
@@ -286,7 +286,7 @@ flag = KINMalloc(kin\_mem, func, tmpl);
 %%
 \ucfunction{KINFree}
 {
-  KINFree(kin\_mem);
+  KINFree(\&kin\_mem);
 }
 {
   The function \ID{KINFree} frees the pointer allocated by
@@ -2333,7 +2333,7 @@ program presented in \S\ref{s:skeleton_sol} are grayed out.
 \item \label{i:bbdpre_free}
   {\bf Free the {\kinbbdpre} data structure}
 
-  \id{KINBBDPrecFree(bbd\_data);}
+  \id{KINBBDPrecFree(\&bbd\_data);}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
@@ -2446,7 +2446,7 @@ next.
 %%
 \ucfunction{KINBBDPrecFree}
 {
-  KINBBDPrecFree(bbd\_data);
+  KINBBDPrecFree(\&bbd\_data);
 }
 {
   The function \ID{KINBBDPrecFree} frees the pointer allocated by
