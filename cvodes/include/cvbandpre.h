@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-09-23 19:00:07 $
+ * $Revision: 1.17 $
+ * $Date: 2005-09-23 19:46:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -58,7 +58,7 @@
  *   ...
  *   flag = CVode(...);
  *   ...
- *   CVBandPrecFree(bp_data);
+ *   CVBandPrecFree(&bp_data);
  *   ...
  *   Free y0
  *   ...

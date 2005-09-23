@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-09-23 19:00:07 $
+ * $Revision: 1.20 $
+ * $Date: 2005-09-23 19:46:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -51,7 +51,7 @@
  *   ...
  *   ier = CVode(...);
  *   ...
- *   CVBBDPrecFree(bbd_data);
+ *   CVBBDPrecFree(&bbd_data);
  *   ...                                                           
  *   CVodeFree(...);
  * 
