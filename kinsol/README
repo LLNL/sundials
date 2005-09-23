@@ -120,6 +120,9 @@ v. 2.3.0 (Apr. 2005) --->
      when a direct linear solver is used (modified Newton iteration)
 
 - Changes to user-callable functions
+   - changed argument of KINFree and KINBBDPrecFree to be the address of 
+     the respective memory block pointer, so that its NULL value is 
+     propagated back to the calling function.
    - modified the argument list of KINBBDPrecAlloc to allow specification
      of the upper and lower half-bandwidths to be used in the computation
      of the local Jacobian blocks (mudq, mldq), and the half-bandwidths
