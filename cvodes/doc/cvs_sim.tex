@@ -120,15 +120,15 @@ is done with a block-diagonal matrix. For this, the header
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
 %%===================================================================================
 
-A high-level overview of the combined user program and {\cvodes} package is
-shown in Figure~\ref{f:sim_overview}.
-%%
-\begin{figure}
-\centerline{\psfig{figure=cvssim.eps,width=\textwidth}}
-\caption {Diagram of user program and 
-  CVODES package for integration of IVP}\label{f:sim_overview}
-\end{figure}
-%%
+%% A high-level overview of the combined user program and {\cvodes} package is
+%% shown in Figure~\ref{f:sim_overview}.
+
+%% \begin{figure}
+%% \centerline{\psfig{figure=cvssim.eps,width=\textwidth}}
+%% \caption {Diagram of user program and 
+%%   CVODES package for integration of IVP}\label{f:sim_overview}
+%% \end{figure}
+
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP. Some steps are independent of the {\nvector}
 implementation used; where this is not the case, usage specifications are given for the
@@ -269,7 +269,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 \item
   {\bf Free solver memory}
 
-  Call \Id{CVodeFree}\id{(cvode\_mem);} to free the memory allocated for {\cvodes}.
+  Call \Id{CVodeFree}\id{(\&cvode\_mem);} to free the memory allocated for {\cvodes}.
   
 \item 
   {\bf {\p} Finalize MPI}
@@ -395,7 +395,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 %%
 \ucfunction{CVodeFree}
 {
-  CVodeFree(cvode\_mem);
+  CVodeFree(\&cvode\_mem);
 }
 {
   The function \ID{CVodeFree} frees the memory allocated by
@@ -4651,7 +4651,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed out.
 \item \label{i:bandpre_free}
   {\bf Free the {\cvbandpre} data structure}
 
-  \id{CVBandPrecFree(bp\_data);}
+  \id{CVBandPrecFree(\&bp\_data);}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
@@ -4743,7 +4743,7 @@ in more detail below.
 %%
 \ucfunction{CVBandPrecFree}
 {
-  CVBandPrecFree(bp\_data);
+  CVBandPrecFree(\&bp\_data);
 }
 {
   The function \ID{CVBandPrecFree} frees the pointer allocated by
@@ -5083,7 +5083,7 @@ unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are gra
 \item \label{i:bbdpre_free}
   {\bf Free the {\cvbbdpre} data structure}
 
-  \id{CVBBDPrecFree(bbd\_data);}
+  \id{CVBBDPrecFree(\&bbd\_data);}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
@@ -5206,7 +5206,7 @@ next.
 %%
 \ucfunction{CVBBDPrecFree}
 {
-  CVBBDPrecFree(bbd\_data);
+  CVBBDPrecFree(\&bbd\_data);
 }
 {
   The function \ID{CVBBDPrecFree} frees the pointer allocated by
