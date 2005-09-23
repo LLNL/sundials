@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-04-04 22:53:09 $
+ * $Revision: 1.15 $
+ * $Date: 2005-09-23 16:41:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
   N_VDestroy_Parallel(u);        /* Free the u vector */
-  CVodeFree(cvode_mem);          /* Free the integrator memory */
+  CVodeFree(&cvode_mem);         /* Free the integrator memory */
   free(data);                    /* Free user data */
 
   MPI_Finalize();

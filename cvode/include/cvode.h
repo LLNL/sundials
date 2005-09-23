@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2005-05-25 21:43:44 $
+ * $Revision: 1.33 $
+ * $Date: 2005-09-23 16:41:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -707,7 +707,7 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
  * -----------------------------------------------------------------
  */
 
-void CVodeFree(void *cvode_mem);
+void CVodeFree(void **cvode_mem);
 
 /*
  * ----------------------------------------

@@ -140,14 +140,14 @@ with a block-diagonal matrix. For this, the header
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
 %%==============================================================================
 
-A high-level view of the combined user program and {\cvode} package is
-shown in Figure~\ref{f:sim_overview}.
+%%A high-level view of the combined user program and {\cvode} package is
+%%shown in Figure~\ref{f:sim_overview}.
 %%
-\begin{figure}
-\centerline{\psfig{figure=cvsim.eps,width=\textwidth}}
-\caption {Diagram of the user program and 
-  {\cvode} package for integration of IVP}\label{f:sim_overview}
-\end{figure}
+%%\begin{figure}
+%%\centerline{\psfig{figure=cvsim.eps,width=\textwidth}}
+%%\caption {Diagram of the user program and 
+%%  {\cvode} package for integration of IVP}\label{f:sim_overview}
+%%\end{figure}
 %%
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP. Some steps are independent
@@ -295,7 +295,7 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
 \item
   {\bf Free solver memory}
 
-  \Id{CVodeFree}\id{(cvode\_mem);} to free the memory allocated for {\cvode}.
+  \Id{CVodeFree}\id{(\&cvode\_mem);} to free the memory allocated for {\cvode}.
   
 \item 
   {\bf {\p} Finalize MPI}
@@ -421,7 +421,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 %%
 \ucfunction{CVodeFree}
 {
-  CVodeFree(cvode\_mem);
+  CVodeFree(\&cvode\_mem);
 }
 {
   The function \ID{CVodeFree} frees the pointer allocated by

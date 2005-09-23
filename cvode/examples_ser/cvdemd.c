@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-04-07 23:28:20 $
+ * $Revision: 1.20 $
+ * $Date: 2005-09-23 16:41:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -217,7 +217,7 @@ static int Problem1(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
 
   cvode_mem = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -268,7 +268,7 @@ static int Problem1(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
   N_VDestroy_Serial(y);
 
   return(nerr);
@@ -404,7 +404,7 @@ static int Problem2(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
 
   cvode_mem = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -455,7 +455,7 @@ static int Problem2(void)
     PrintFinalStats(cvode_mem, miter, ero);
   }
 
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
   N_VDestroy_Serial(y);
 
   return(nerr);

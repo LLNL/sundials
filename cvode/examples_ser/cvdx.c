@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-04-14 21:39:04 $
+ * $Revision: 1.24 $
+ * $Date: 2005-09-23 16:41:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -187,7 +187,7 @@ int main()
 
     if (flag == CV_ROOT_RETURN) {
       flagr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      check_flag(&flagr, "CVodeGetRootInfo", 1);
+      if (check_flag(&flagr, "CVodeGetRootInfo", 1)) return(1);
       PrintRootInfo(rootsfound[0],rootsfound[1]);
     }
 
@@ -207,7 +207,7 @@ int main()
   N_VDestroy_Serial(y);
 
   /* Free integrator memory */
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
 
   return(0);
 }

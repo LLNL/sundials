@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.51 $
- * $Date: 2005-07-19 20:51:01 $
+ * $Revision: 1.52 $
+ * $Date: 2005-09-23 16:41:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1292,14 +1292,14 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 
 *******************************************************************/
 
-void CVodeFree(void *cvode_mem)
+void CVodeFree(void **cvode_mem)
 {
   CVodeMem cv_mem;
 
-  cv_mem = (CVodeMem) cvode_mem;
-  
-  if (cvode_mem == NULL) return;
+  if (*cvode_mem == NULL) return;
 
+  cv_mem = (CVodeMem) (*cvode_mem);
+  
   CVFreeVectors(cv_mem);
 
   if (iter == CV_NEWTON && lfree != NULL) lfree(cv_mem);
@@ -1311,7 +1311,8 @@ void CVodeFree(void *cvode_mem)
     free(iroots); 
   }
 
-  free(cv_mem);
+  free(*cvode_mem);
+  *cvode_mem = NULL;
 }
 
 /* 

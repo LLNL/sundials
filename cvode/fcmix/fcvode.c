@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.49 $
- * $Date: 2005-08-15 18:01:58 $
+ * $Revision: 1.50 $
+ * $Date: 2005-09-23 16:41:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -517,7 +517,7 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 
 void FCV_FREE ()
 {
-  CVodeFree(CV_cvodemem);
+  CVodeFree(&CV_cvodemem);
   N_VSetArrayPointer(NULL, F2C_CVODE_vec);
   N_VDestroy(F2C_CVODE_vec);
   if (CV_ewt != NULL) N_VDestroy(CV_ewt);

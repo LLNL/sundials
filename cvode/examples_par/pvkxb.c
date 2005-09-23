@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-04-04 22:53:09 $
+ * $Revision: 1.22 $
+ * $Date: 2005-09-23 16:41:10 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(u);
   CVBBDPrecFree(pdata);
   free(data);
-  CVodeFree(cvode_mem);
+  CVodeFree(&cvode_mem);
 
   MPI_Finalize();
 
