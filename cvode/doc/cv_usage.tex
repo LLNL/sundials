@@ -424,11 +424,12 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   CVodeFree(\&cvode\_mem);
 }
 {
-  The function \ID{CVodeFree} frees the pointer allocated by
+  The function \ID{CVodeFree} frees the memory allocated by
   a previous call to \id{CVodeMalloc}.
 }
 {
-  The argument is the pointer to the {\cvode} memory block (of type \id{void *}).
+  The argument is the address of the pointer to the {\cvode} memory block
+  returned by \id{CVodeCreate} (of type \id{void *}).
 }
 {
   The function \id{CVodeFree} has no return value.
@@ -1550,7 +1551,7 @@ flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
 \index{optional input!solver|)}
 
 %%==============================================================================
-\subsubsection*{Linear solver optional input functions}\label{sss:optin_linsol}
+\subsubsection{Linear solver optional input functions}\label{sss:optin_linsol}
 %%==============================================================================
 
 The linear solver modules, with one exception, allow for various optional 
@@ -3157,7 +3158,7 @@ These optional output functions are described next.
 \index{optional output!solver|)}
 
 %%==============================================================================
-\subsubsection*{Linear solver optional output functions}\label{sss:optout_linsol}
+\subsubsection{Linear solver optional output functions}\label{sss:optout_linsol}
 %%==============================================================================
 
 For each of the linear system solver modules, there are various optional 
@@ -5452,12 +5453,12 @@ in more detail below.
   CVBandPrecFree(\&bp\_data);
 }
 {
-  The function \ID{CVBandPrecFree} frees the pointer allocated by
+  The function \ID{CVBandPrecFree} frees the memory allocated by
   \id{CVBandPrecAlloc}.
 }
 {
-  The only argument of \id{CVBandPrecFree} is the pointer to the {\cvbandpre} 
-  data structure (of type \id{void *}).
+  The only argument of \id{CVBandPrecFree} is the address of the pointer to the
+  {\cvbandpre} data structure (of type \id{void *}).
 }
 {
   The function \id{CVBandPrecFree} has no return value.
@@ -6014,12 +6015,12 @@ next.
   CVBBDPrecFree(\&bbd\_data);
 }
 {
-  The function \ID{CVBBDPrecFree} frees the pointer allocated by
+  The function \ID{CVBBDPrecFree} frees the memory allocated by
   \id{CVBBDPrecAlloc}.
 }
 {
-  The only argument of \id{CVBBDPrecFree} is the pointer to the {\cvbbdpre} 
-  data structure (of type \id{void *}).
+  The only argument of \id{CVBBDPrecFree} is the address of the pointer to the
+  {\cvbbdpre} data structure (of type \id{void *}).
 }
 {
   The function \id{CVBBDPrecFree} has no return value.
