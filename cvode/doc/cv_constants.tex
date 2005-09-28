@@ -113,7 +113,8 @@ description of their meaning.
 \id{CVBAND\_SUCCESS}    &  0 & Successful function return. \\
 \id{CVBAND\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
 \id{CVBAND\_LMEM\_NULL} & -2 & The {\cvband} linear solver has not been initialized.\\
-\id{CVBAND\_ILL\_INPUT} & -3 & The {\cvband} solver is not compatible with the current {\nvector} module.\\
+\id{CVBAND\_ILL\_INPUT} & -3 & The {\cvband} solver is not compatible with the
+                        current {\nvector} module, or an input value was illegal.\\
 \id{CVBAND\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \end{supertabular*} 
 \vspace{0.1in}
@@ -139,7 +140,8 @@ description of their meaning.
 \id{CVSPGMR\_SUCCESS}    &  0 & Successful function return. \\
 \id{CVSPGMR\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
 \id{CVSPGMR\_LMEM\_NULL} & -2 & The {\cvspgmr} linear solver has not been initialized.\\
-\id{CVSPGMR\_ILL\_INPUT} & -3 & The {\cvspgmr} solver is not compatible with the current {\nvector} module.\\
+\id{CVSPGMR\_ILL\_INPUT} & -3 & The {\cvspgmr} solver is not compatible with the
+                        current {\nvector} module, or an input value was illegal.\\
 \id{CVSPGMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \end{supertabular*} 
 \vspace{0.1in}
@@ -159,5 +161,63 @@ description of their meaning.
 \id{SPGMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPGMR\_GS\_FAIL}           & -4 & Failure in the Gram-Schmidt procedure. \\
 \id{SPGMR\_QRSOL\_FAIL}        & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\cvspbcg} linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CVSPBCG\_SUCCESS}    &  0 & Successful function return. \\
+\id{CVSPBCG\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVSPBCG\_LMEM\_NULL} & -2 & The {\cvspbcg} linear solver has not been initialized.\\
+\id{CVSPBCG\_ILL\_INPUT} & -3 & The {\cvspbcg} solver is not compatible with the
+                        current {\nvector} module, or an input value was illegal.\\
+\id{CVSPBCG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\spbcg} generic linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{SPBCG\_SUCCESS}            &  0 & Converged. \\
+\id{SPBCG\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
+\id{SPBCG\_CONV\_FAIL}         &  2 & Failure to converge. \\
+\id{SPBCG\_PSOLVE\_FAIL\_REC}  &  3 & The preconditioner solve function failed recoverably.\\
+\id{SPBCG\_MEM\_NULL}          & -1 & The {\spbcg} memory is \id{NULL}\\
+\id{SPBCG\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
+\id{SPBCG\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\cvsptfqmr} linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CVSPTFQMR\_SUCCESS}    &  0 & Successful function return. \\
+\id{CVSPTFQMR\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVSPTFQMR\_LMEM\_NULL} & -2 & The {\cvsptfqmr} linear solver has not been initialized.\\
+\id{CVSPTFQMR\_ILL\_INPUT} & -3 & The {\cvsptfqmr} solver is not compatible with the
+                        current {\nvector} module, or an input value was illegal.\\
+\id{CVSPTFQMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\sptfqmr} generic linear solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{SPTFQMR\_SUCCESS}            &  0 & Converged. \\
+\id{SPTFQMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
+\id{SPTFQMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
+\id{SPTFQMR\_PSOLVE\_FAIL\_REC}  &  3 & The preconditioner solve function failed recoverably.\\
+\id{SPTFQMR\_MEM\_NULL}          & -1 & The {\sptfqmr} memory is \id{NULL}\\
+\id{SPTFQMR\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
+\id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
 \end{supertabular*} 
 \vspace{0.1in}
