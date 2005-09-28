@@ -123,8 +123,8 @@ By default, those mapping definitions depend in turn on the {\C} macro
 the set of flags --- \Id{SUNDIALS\_CASE\_UPPER}, \Id{SUNDIALS\_CASE\_LOWER},
 \Id{SUNDIALS\_UNDERSCORE\_NONE}, \Id{SUNDIALS\_UNDERSCORE\_ONE}, and
 \Id{SUNDIALS\_UNDERSCORE\_TWO} can be explicitly defined in \id{config.h} when
-configuring {\sundials} via the \id{--with-f77underscore} and
-\id{--with-f77case} options to override the default behavior if necessary
+configuring {\sundials} via the options \id{--with-f77underscore} and
+\id{--with-f77case} to override the default behavior if necessary
 (see Chapter \ref{s:install}). Either way, the names into which the dummy names
 are mapped are in upper or lower case and have up to two underscores appended.
 
@@ -292,7 +292,8 @@ error weights used the WRMS norms, make the following call:
 \begin{verbatim}
       CALL FCVGETERRWEIGHTS (Y, EWT, IER)
 \end{verbatim}
-This computes the \id{EWT} array as a function of the input \id{Y} array.
+This computes the \id{EWT} array as a function of the input \id{Y} array,
+normally defined by Eq. (\ref{e:errwt}).
 The array \id{EWT}, of length \id{NEQ} or \id{NLOCAL}, must already have been
 declared by the user.  The error return flag \id{IER} is zero if successful,
 and negative if there was a memory error.
@@ -617,7 +618,11 @@ apply to {\nvecp}.
   In addition, the user program must include
   preconditioner routines \id{FCVPSOL} and \id{FCVPSET} (see below).
 
-  Optional outputs specific to the {\spgmr} case are listed in Table~\ref{t:fcvode_out}.
+  Optional outputs specific to the {\spgmr} case are listed in
+  Table~\ref{t:fcvode_out}.
+
+  For descriptions of the relevant optional user-supplied routines, see 
+  {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
   
   %%-------------------------------------------------
   
@@ -654,6 +659,9 @@ apply to {\nvecp}.
 
   Optional outputs specific to the {\spbcg} case are listed in
   Table~\ref{t:fcvode_out}.
+
+  For descriptions of the relevant optional user-supplied routines, see 
+  {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR} below.
   
   %%-------------------------------------------------
   
@@ -690,6 +698,8 @@ apply to {\nvecp}.
 
   Optional outputs specific to the {\sptfqmr} case are listed in
   Table~\ref{t:fcvode_out}.
+
+  For descriptions of the relevant optional user-supplied routines, see below.
   
   %%-------------------------------------------------
 
@@ -768,7 +778,8 @@ apply to {\nvecp}.
   a saved copy of it may be reused, and the preconditioner constructed from it.
   The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
   values of $t$, $y$, and $f(t,y)$, respectively.
-  On return, set \id{JCUR = 1} if Jacobian data was computed, and \id{0} otherwise.
+  On return, set \id{JCUR = 1} if Jacobian data was computed, and set
+  \id{JCUR = 0} otherwise.
   Also on return, set \id{IER = 0} if \id{FCVPSET} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
@@ -824,7 +835,7 @@ apply to {\nvecp}.
       CALL FCVDKY(T, K, DKY, IER)
 \end{verbatim}
   where
-  \id{T} is the value of $t$ at which solution derivative is desired,
+  \id{T} is the value of $t$ at which solution derivative is desired, and
   \id{K} is the derivative order ($0 \le$ \id{K} $\le$ \id{QU}).
   On return, \id{DKY} is an array containing the computed \id{K}-th derivative
   of $y$.  The value \id{T} must lie between \id{TCUR - HU} and \id{TCUR}.
@@ -970,8 +981,8 @@ rootfinding feature.
 
 The {\fcvbp} interface sub-module is a package of {\C} functions which,
 as part of the {\fcvode} interface module, support the use of the
-{\cvode} solver with the serial {\nvecs} module and the combination of
-the {\cvbandpre} preconditioner module (see \S\ref{sss:cvbandpre}) and
+{\cvode} solver with the serial {\nvecs} module, and the combination of
+the {\cvbandpre} preconditioner module (see \S\ref{sss:cvbandpre}) with
 any of the Krylov iterative linear solvers.
 
 The user-callable functions in this package, with the corresponding
@@ -1092,7 +1103,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
   words. \id{LENIPW} is the length of integer preconditioner work space, in
   integer words. \id{NFE} is the number of $f(t,y)$ evaluations (calls to
-  \id{FCVFUN}) for finite difference banded Jacobian approximation.
+  \id{FCVFUN}) for difference-quotient banded Jacobian approximation.
   
 \item {\bf Memory deallocation}
 
@@ -1113,8 +1124,8 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 The {\fcvbbd} interface sub-module is a package of {\C} functions which,
 as part of the {\fcvode} interface module, support the use of the
-{\cvode} solver with the serial {\nvecp} module and the combination of
-the {\cvbbdpre} preconditioner module (see \S\ref{sss:cvbbdpre}) and
+{\cvode} solver with the serial {\nvecp} module, and the combination of
+the {\cvbbdpre} preconditioner module (see \S\ref{sss:cvbbdpre}) with
 any of the Krylov iterative linear solvers.
 
 The user-callable functions in this package, with the corresponding
@@ -1257,19 +1268,19 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   The arguments returned are as follows.
   \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
   words. \id{LENIPW} is the length of integer preconditioner work space, in integer
-  words.  These size are local to the current processor.
+  words.  These sizes are local to the current processor.
   \id{NGE} is the number of $g(t,y)$ evaluations (calls to \id{FCVLOCFN}) so far.
   
 \item {\bf Problem reinitialization}
   
-  If a sequence of problems of the same size is being solved using the {\spgmr},
-  {\spbcg}, or {\sptfqmr} linear solver in combination with the {\cvbbdpre} preconditioner, then the
-  {\cvode} package can be re-initialized for the second and subsequent problems
-  by calling \id{FCVREINIT}, following which a call to \id{FCVBBDINIT} may or 
-  may not be needed.
+  If a sequence of problems of the same size is being solved using the same
+  linear solver ({\spgmr}, {\spbcg}, or {\sptfqmr})  in combination with the
+  {\cvbbdpre} preconditioner, then the {\cvode} package can be re-initialized
+  for the second and subsequent problems by calling \id{FCVREINIT},
+  following which a call to \id{FCVBBDINIT} may or may not be needed.
   If the input arguments are the same, no \id{FCVBBDINIT} call is needed.
-  If there is a change in input arguments other than \id{MU}, \id{ML}, or
-  \id{MAXL}, then the user program should make the call 
+  If there is a change in input arguments other than \id{MU} or \id{ML},
+  then the user program should make the call 
   \index{FCVBBDREINIT@\texttt{FCVBBDREINIT}}
 \begin{verbatim}
        CALL FCVBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IER)
@@ -1278,10 +1289,10 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   reallocating its memory.  The arguments of the \id{FCVBBDREINIT}
   routine have the same names and meanings as those of \id{FCVBBDINIT}.
   If the value of \id{MU} or \id{ML} is being changed, then a call to
-  \id{FCVBBDINIT} must be made.  Finally, if \id{MAXL} is being
-  changed, then a call to \id{FCVBBDSPGMR}, \id{FCVBBDSPBCG}, or
-  \id{FCVBBDSPTFQMR} must be made; in this case
-  the linear solver memory is reallocated.
+  \id{FCVBBDINIT} must be made.  Finally, if there is a change in any of the
+  linear solver inputs, then a call to \id{FCVBBDSPGMR}, \id{FCVBBDSPBCG}, or
+  \id{FCVBBDSPTFQMR} must be made; in this case the linear solver memory is
+  reallocated.
   
 \item {\bf Memory deallocation}
 
