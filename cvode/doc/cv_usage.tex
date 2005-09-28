@@ -4633,7 +4633,7 @@ If the direct linear solver with dense treatment of the Jacobian is used
 the user may provide a function of type \ID{CVDenseJacFn} defined by
 \usfunction{CVDenseJacFn}
 {
-  typedef void (*CVDenseJacFn)(&long int N, DenseMat J, realtype t, \\
+  typedef void (*CVDenseJacFn&)(long int N, DenseMat J, realtype t, \\
                                &N\_Vector y, N\_Vector fy, void *jac\_data, \\
                                &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
@@ -4718,7 +4718,7 @@ If the direct linear solver with banded treatment of the Jacobian is used
 the user may provide a function of type \ID{CVBandJacFn} defined as follows:
 \usfunction{CVBandJacFn}
 {
- typedef void (*CVBandJacFn)(&long int N, long int mupper, \\
+ typedef void (*CVBandJacFn)&(long int N, long int mupper, \\
                              &long int mlower, BandMat J, realtype t, \\ 
                              &N\_Vector y, N\_Vector fy, void *jac\_data, \\
                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4814,8 +4814,8 @@ is selected (\id{CVSp*} is called in step  \ref{i:lin_solver} of
 \ID{CVSpilsJacTimesVecFn} in the following form:
 \usfunction{CVSpilsJacTimesVecFn}
 {
-  typedef int (*CVSpilsJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, realtype t, \\
-                                      &N\_Vector y, N\_Vector fy, \\
+  typedef int (*CVSpilsJacTimesVecFn)&(N\_Vector v, N\_Vector Jv, \\
+                                      &realtype t, N\_Vector y, N\_Vector fy,\\
                                       &void *jac\_data, N\_Vector tmp);
 }
 {
@@ -6027,14 +6027,18 @@ next.
 }
 {}
 %%
+\vspace*{.3in}
 The {\cvbbdpre} module also provides a reinitialization function to allow
-solving  a sequence of problems of the same size,
-provided there is no change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
-After solving one problem, and after calling \id{CVodeReInit} to re-initialize 
-{\cvode} for a subsequent problem, a call to \id{CVBBDPrecReInit} can be made
-to change any of the following: the half-bandwidths \id{mudq} and \id{mldq} 
-used in the difference-quotient Jacobian approximations, the relative increment
-\id{dqrely}, or one of the user-supplied functions \id{gloc} and \id{cfn}.
+solving  a sequence of problems of the same size, with the same linear solver
+choice, provided there is no change in \id{local\_N}, \id{mukeep}, or \id{mlkeep}.
+After solving one problem, and after calling \id{CVodeReInit} to
+re-initialize {\cvode} for a subsequent problem, a call to \id{CVBBDPrecReInit}
+can be made to change any of the following: the half-bandwidths \id{mudq} and
+\id{mldq} used in the difference-quotient Jacobian approximations, the relative
+increment \id{dqrely}, or one of the user-supplied functions \id{gloc} and \id{cfn}.
+If there is a change in any of the linear solver inputs, an additional call
+to \id{CVSpgmr}, \id{CVSpbcg}, or \id{CVSptfqmr}, and/or one or more of
+the corresponding \id{CVSp***Set***} functions, must also be made.
 %%
 \ucfunction{CVBBDPrecReInit}
 {
