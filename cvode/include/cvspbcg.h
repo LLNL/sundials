@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-04-26 14:24:21 $
+ * $Revision: 1.5 $
+ * $Date: 2005-10-03 22:39:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -96,6 +96,18 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl);
  */
 
 int CVSpbcgSetPrecType(void *cvode_mem, int pretype);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: CVSpbcgSetMaxl
+ * -----------------------------------------------------------------
+ * CVSpbcgSetMaxl     resets the maximum Krylov subspace size, maxl,
+ *                    from the value set in a prior call to CVSpbcg.
+ *                    An input value <= 0, gives the default value.
+ * -----------------------------------------------------------------
+ */
+
+int CVSpbcgSetMaxl(void *cvode_mem, int maxl);
 
 /*
  * -----------------------------------------------------------------

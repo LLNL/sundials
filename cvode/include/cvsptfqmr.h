@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-18 18:17:02 $
+ * $Revision: 1.2 $
+ * $Date: 2005-10-03 22:39:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -96,6 +96,18 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl);
  */
 
 int CVSptfqmrSetPrecType(void *cvode_mem, int pretype);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: CVSptfqmrSetMaxl
+ * -----------------------------------------------------------------
+ * CVSptfqmrSetMaxl   resets the maximum Krylov subspace size, maxl,
+ *                    from the value set in a prior call to CVSptfqmr.
+ *                    An input value <= 0, gives the default value.
+ * -----------------------------------------------------------------
+ */
+
+int CVSptfqmrSetMaxl(void *cvode_mem, int maxl);
 
 /*
  * -----------------------------------------------------------------
