@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-10-03 22:25:38 $
+ * $Revision: 1.3 $
+ * $Date: 2005-10-03 23:14:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -86,7 +86,7 @@ static int CVSptfqmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define ncfl        (cvsptfqmr_mem->q_ncfl)
 #define nstlpre     (cvsptfqmr_mem->q_nstlpre)
 #define njtimes     (cvsptfqmr_mem->q_njtimes)
-#define nfeSG       (cvsptfqmr_mem->q_nfeSG)
+#define nfeSQ       (cvsptfqmr_mem->q_nfeSQ)
 #define sptfqmr_mem (cvsptfqmr_mem->q_sptfqmr_mem)
 #define last_flag   (cvsptfqmr_mem->q_last_flag)
 
@@ -385,7 +385,7 @@ int CVSptfqmrSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
+int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSQ, long int *leniwSQ)
 {
   CVodeMem cv_mem;
 
@@ -401,13 +401,8 @@ int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
     return(CVSPTFQMR_LMEM_NULL);
   }
 
-#ifdef DEBUG
-  *lenrwSG = lrw1*12;
-  *leniwSG = liw1*12;
-#else
-  *lenrwSG = lrw1*11;
-  *leniwSG = liw1*11;
-#endif
+  *lenrwSQ = lrw1*11;
+  *leniwSQ = liw1*11;
 
   return(CVSPTFQMR_SUCCESS);
 }
@@ -563,7 +558,7 @@ int CVSptfqmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
  * -----------------------------------------------------------------
  */
 
-int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
+int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSQ)
 {
   CVodeMem cv_mem;
   CVSptfqmrMem cvsptfqmr_mem;
@@ -581,7 +576,7 @@ int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
 
-  *nfevalsSG = nfeSG;
+  *nfevalsSQ = nfeSQ;
 
   return(CVSPTFQMR_SUCCESS);
 }
@@ -643,7 +638,7 @@ static int CVSptfqmrInit(CVodeMem cv_mem)
 
   /* Initialize counters */
   npe = nli = nps = ncfl = nstlpre = 0;
-  njtimes = nfeSG = 0;
+  njtimes = nfeSQ = 0;
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {
@@ -899,7 +894,7 @@ static int CVSptfqmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   /* Set Jv = f(tn, work) */
   f(t, work, Jv, f_data); 
-  nfeSG++;
+  nfeSQ++;
 
   /* Replace Jv by vnrm*(Jv - fy) */
   N_VLinearSum(ONE, Jv, -ONE, fy, Jv);
