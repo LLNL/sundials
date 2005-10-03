@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-05-12 21:03:14 $
+ * $Revision: 1.5 $
+ * $Date: 2005-10-03 22:25:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -243,6 +243,38 @@ int CVSpbcgSetPrecType(void *cvode_mem, int pretype)
   }
 
   cvspbcg_mem->b_pretype = pretype;
+
+  return(CVSPBCG_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : CVSpbcgSetMaxl
+ * -----------------------------------------------------------------
+ */
+
+int CVSpbcgSetMaxl(void *cvode_mem, int maxl)
+{
+  CVodeMem cv_mem;
+  CVSpbcgMem cvspbcg_mem;
+  int mxl;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    return(CVSPBCG_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    return(CVSPBCG_LMEM_NULL);
+  }
+  cvspbcg_mem = (CVSpbcgMem) lmem;
+
+  mxl = (maxl <= 0) ? CVSPBCG_MAXL : maxl;
+  cvspbcg_mem->b_maxl = mxl;
+  spbcg_mem->l_max  = mxl;
 
   return(CVSPBCG_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-18 18:17:05 $
+ * $Revision: 1.2 $
+ * $Date: 2005-10-03 22:25:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -242,6 +242,38 @@ int CVSptfqmrSetPrecType(void *cvode_mem, int pretype)
   }
 
   cvsptfqmr_mem->q_pretype = pretype;
+
+  return(CVSPTFQMR_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : CVSptfqmrSetMaxl
+ * -----------------------------------------------------------------
+ */
+
+int CVSptfqmrSetMaxl(void *cvode_mem, int maxl)
+{
+  CVodeMem cv_mem;
+  CVSptfqmrMem cvsptfqmr_mem;
+  int mxl;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    return(CVSPTFQMR_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    return(CVSPTFQMR_LMEM_NULL);
+  }
+  cvsptfqmr_mem = (CVSptfqmrMem) lmem;
+
+  mxl = (maxl <= 0) ? CVSPTFQMR_MAXL : maxl;
+  cvsptfqmr_mem->q_maxl = mxl;
+  sptfqmr_mem->l_max  = mxl;
 
   return(CVSPTFQMR_SUCCESS);
 }
