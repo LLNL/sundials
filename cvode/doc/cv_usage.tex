@@ -2075,7 +2075,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpbcgSetMaxl(cv\_mem, maxl);
 }
 {
-  The function \ID{CVSpbcgSetMaxl} specifies maximum of the Krylov subspace
+  The function \ID{CVSpbcgSetMaxl} resets maximum Krylov subspace
   dimension for the Bi-CGStab\index{Bi-CGStab method} method.
 }
 {
@@ -2098,8 +2098,10 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \end{args}
 }
 {
-  The default value is 5.  Passing \id{maxl} $= 0$ also results in the
-  default value. 
+  The maximum subspace dimension is initially specified in the call
+  to \id{CVSpbcg} (see \S\ref{sss:lin_solv_init}). This function call is
+  needed only if \id{maxl} is being changed from its value in the
+  previous call to \id{CVSpbcg}.
 }
 %%
 %%
@@ -2305,7 +2307,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSptfqmrSetMaxl(cv\_mem, maxl);
 }
 {
-  The function \ID{CVSptfqmrSetMaxl} specifies maximum of the Krylov subspace
+  The function \ID{CVSptfqmrSetMaxl} resets maximum Krylov subspace
   dimension for the TFQMR\index{TFQMR method} method.
 }
 {
@@ -2328,8 +2330,10 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \end{args}
 }
 {
-  The default value is 5.  Passing \id{maxl} $= 0$ also results in the
-  default value. 
+  The maximum subspace dimension is initially specified in the call
+  to \id{CVSptfqmr} (see \S\ref{sss:lin_solv_init}). This function call is
+  needed only if \id{maxl} is being changed from its value in the
+  previous call to \id{CVSptfqmr}.
 }
 %%
 %%
