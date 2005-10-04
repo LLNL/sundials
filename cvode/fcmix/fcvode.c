@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.51 $
- * $Date: 2005-10-04 22:34:16 $
+ * $Revision: 1.52 $
+ * $Date: 2005-10-04 22:46:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -27,9 +27,9 @@
 #include "cvdense.h"        /* prototypes for CVDENSE interface routines       */
 #include "cvdiag.h"         /* prototypes for CVDIAG interface routines        */
 #include "cvode.h"          /* CVODE constants and prototypes                  */
-#include "cvsptfqmr.h"      /* prototypes for CVSPTFQMR interface routines     */
-#include "cvspbcg.h"        /* prototypes for CVSPBCG interface routines       */
 #include "cvspgmr.h"        /* prototypes for CVSPGMR interface routines       */
+#include "cvspbcg.h"        /* prototypes for CVSPBCG interface routines       */
+#include "cvsptfqmr.h"      /* prototypes for CVSPTFQMR interface routines     */
 #include "fcvode.h"         /* actual function names, prototypes, global vars. */
 #include "nvector.h"        /* definitions of type N_Vector and vector macros  */
 #include "sundialstypes.h"  /* definition of type realtype                     */
@@ -282,44 +282,6 @@ void FCV_DIAG(int *ier)
 
 /***************************************************************************/
 
-void FCV_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
-{
-  /* 
-     pretype    the preconditioner type
-     maxl       the maximum Krylov dimension
-     delt       the linear convergence tolerance factor 
-  */
-
-  *ier = CVSptfqmr(CV_cvodemem, *pretype, *maxl);
-  if (*ier != CVSPTFQMR_SUCCESS) return;
-
-  *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPTFQMR_SUCCESS) return;
-
-  CV_ls = CV_LS_SPTFQMR;
-}
-
-/***************************************************************************/
-
-void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
-{
-  /* 
-     pretype    the preconditioner type
-     maxl       the maximum Krylov dimension
-     delt       the linear convergence tolerance factor 
-  */
-
-  *ier = CVSpbcg(CV_cvodemem, *pretype, *maxl);
-  if (*ier != CVSPBCG_SUCCESS) return;
-
-  *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPBCG_SUCCESS) return;
-
-  CV_ls = CV_LS_SPBCG;
-}
-
-/***************************************************************************/
-
 void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 {
   /* 
@@ -343,24 +305,62 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_SPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier)
+void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
 {
   /* 
      pretype    the preconditioner type
-     maxl       the maximum Krylov subspace dimension
+     maxl       the maximum Krylov dimension
      delt       the linear convergence tolerance factor 
   */
 
-  *ier = CVSptfqmrSetPrecType(CV_cvodemem, *pretype);
-  if (*ier != CVSPTFQMR_SUCCESS) return;
+  *ier = CVSpbcg(CV_cvodemem, *pretype, *maxl);
+  if (*ier != CVSPBCG_SUCCESS) return;
 
-  *ier = CVSptfqmrSetMaxl(CV_cvodemem, *maxl);
+  *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPBCG_SUCCESS) return;
+
+  CV_ls = CV_LS_SPBCG;
+}
+
+/***************************************************************************/
+
+void FCV_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
+{
+  /* 
+     pretype    the preconditioner type
+     maxl       the maximum Krylov dimension
+     delt       the linear convergence tolerance factor 
+  */
+
+  *ier = CVSptfqmr(CV_cvodemem, *pretype, *maxl);
   if (*ier != CVSPTFQMR_SUCCESS) return;
 
   *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
   if (*ier != CVSPTFQMR_SUCCESS) return;
 
   CV_ls = CV_LS_SPTFQMR;
+}
+
+/***************************************************************************/
+
+void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
+{
+  /* 
+     pretype    the preconditioner type
+     gstype     the Gram-Schmidt process type
+     delt       the linear convergence tolerance factor 
+  */
+
+  *ier = CVSpgmrSetPrecType(CV_cvodemem, *pretype);
+  if (*ier != CVSPGMR_SUCCESS) return;
+
+  *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
+  if (*ier != CVSPGMR_SUCCESS) return;
+
+  *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPGMR_SUCCESS) return;
+
+  CV_ls = CV_LS_SPGMR;
 }
 
 /***************************************************************************/
@@ -387,24 +387,24 @@ void FCV_SPBCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier)
+void FCV_SPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier)
 {
   /* 
      pretype    the preconditioner type
-     gstype     the Gram-Schmidt process type
+     maxl       the maximum Krylov subspace dimension
      delt       the linear convergence tolerance factor 
   */
 
-  *ier = CVSpgmrSetPrecType(CV_cvodemem, *pretype);
-  if (*ier != CVSPGMR_SUCCESS) return;
+  *ier = CVSptfqmrSetPrecType(CV_cvodemem, *pretype);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
 
-  *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
-  if (*ier != CVSPGMR_SUCCESS) return;
+  *ier = CVSptfqmrSetMaxl(CV_cvodemem, *maxl);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
 
-  *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPGMR_SUCCESS) return;
+  *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
 
-  CV_ls = CV_LS_SPGMR;
+  CV_ls = CV_LS_SPTFQMR;
 }
 
 /***************************************************************************/

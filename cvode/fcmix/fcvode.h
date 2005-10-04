@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.48 $
- * $Date: 2005-10-04 22:34:16 $
+ * $Revision: 1.49 $
+ * $Date: 2005-10-04 22:46:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -51,18 +51,18 @@
  *   FCVBAND    interfaces to CVBand
  *   FCVBANDSETJAC    interfaces to CVBandSetJacFn
  *
- *   FCVSPTFQMR, FCVSPTFQMRREINIT interface to CVSptfqmr and CVSptfqmrSet*
- *   FCVSPTFQMRSETJAC   interfaces to CVSptfqmrSetJacFn
- *   FCVSPTFQMRSETPREC  interfaces to CVSptfqmrSetPreconditioner
- *
- *   FCVSPBCG, FCVSPBCGREINIT interface to CVSpbcg and CVSpbcgSet*
- *   FCVSPBCGSETJAC   interfaces to CVSpbcgSetJacFn
- *   FCVSPBCGSETPREC  interfaces to CVSpbcgSetPreconditioner
- *
  *   FCVSPGMR, FCVSPGMRREINIT interface to CVSpgmr and CVSpgmrSet*
  *   FCVSPGMRSETJAC   interfaces to CVSpgmrSetJacFn
  *   FCVSPGMRSETPREC  interfaces to CVSpgmrSetPreconditioner
  * 
+ *   FCVSPBCG, FCVSPBCGREINIT interface to CVSpbcg and CVSpbcgSet*
+ *   FCVSPBCGSETJAC   interfaces to CVSpbcgSetJacFn
+ *   FCVSPBCGSETPREC  interfaces to CVSpbcgSetPreconditioner
+ *
+ *   FCVSPTFQMR, FCVSPTFQMRREINIT interface to CVSptfqmr and CVSptfqmrSet*
+ *   FCVSPTFQMRSETJAC   interfaces to CVSptfqmrSetJacFn
+ *   FCVSPTFQMRSETPREC  interfaces to CVSptfqmrSetPreconditioner
+ *
  *   FCVODE     interfaces to CVode, CVodeGet*, and CV*Get*
  * 
  *   FCVDKY     interfaces to CVodeGetDky
@@ -291,127 +291,7 @@
  * and NJE stored in IOUT(13)...IOUT(17).
  * See the CVODE manual for descriptions.
  *
- * (7.4) SPTFQMR treatment of the linear systems.
- * For the Scaled Preconditioned TFQMR solution of the linear systems,
- * the user must make the following call:
- *       CALL FCVSPTFQMR(IPRETYPE, MAXL, DELT, IER)              
- * The arguments are:
- * IPRETYPE = preconditioner type: 
- *              0 = none 
- *              1 = left only
- *              2 = right only
- *              3 = both sides
- * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
- * DELT     = linear convergence tolerance factor; 0.0 indicates default.
- * IER      = error return flag: 0 = success; negative value = an error occured
- * 
- * If the user program includes the FCVJTIMES routine for the evaluation of the 
- * Jacobian vector product, the following call must be made
- *       CALL FCVSPTFQMRSETJAC(FLAG, IER)
- * with FLAG = 1 to specify that FCVJTIMES is provided.  (FLAG = 0 specifies
- * using and internal finite difference approximation to this product.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
- * 
- * Usage of the user-supplied routines FCVPSOL and FCVPSET for solution of the 
- * preconditioner linear system requires the following call:
- *       CALL FCVSPTFQMRSETPREC(FLAG, IER)
- * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
- *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
- * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
- * must solve the preconditioner linear system Pz = r, where r = R is input, 
- * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
- * and the right preconditioner if LR = 2.  The preconditioner (or the product
- * of the left and right preconditioners if both are nontrivial) should be an 
- * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
- * 
- * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
- *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
- * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
- * perform any evaluation of Jacobian-related data and preprocessing needed
- * for the solution of the preconditioner linear systems by FCVPSOL.
- * The JOK argument allows for Jacobian data to be saved and reused:  If 
- * JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
- * copy of it may be reused, and the preconditioner constructed from it.
- * On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
- * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
- * recoverable error occurred, and set IER negative if a non-recoverable error
- * occurred.
- * 
- *   Optional outputs specific to the SPTFQMR case are LRW, LIW, LFLG, NFEDQ, NJTV,
- * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
- * See the CVODE manual for descriptions.
- *
- *      If a sequence of problems of the same size is being solved using the
- * SPTFQMR linear solver, then following the call to FCVREINIT, a call to the
- * FCVSPTFQMRREINIT routine is needed if IPRETYPE or DELT is
- * being changed.  In that case, call FCVSPTFQMRREINIT as follows:
- *       CALL FCVSPTFQMRREINIT(IPRETYPE, MAXL, DELT, IER)              
- * The arguments have the same meanings as for FCVSPTFQMR.
- *
- * (7.5) SPBCG treatment of the linear systems.
- * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
- * the user must make the following call:
- *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)              
- * The arguments are:
- * IPRETYPE = preconditioner type: 
- *              0 = none 
- *              1 = left only
- *              2 = right only
- *              3 = both sides
- * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
- * DELT     = linear convergence tolerance factor; 0.0 indicates default.
- * IER      = error return flag: 0 = success; negative value = an error occured
- * 
- * If the user program includes the FCVJTIMES routine for the evaluation of the 
- * Jacobian vector product, the following call must be made
- *       CALL FCVSPBCGSETJAC(FLAG, IER)
- * with FLAG = 1 to specify that FCVJTIMES is provided.  (FLAG = 0 specifies
- * using and internal finite difference approximation to this product.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
- * 
- * Usage of the user-supplied routines FCVPSOL and FCVPSET for solution of the 
- * preconditioner linear system requires the following call:
- *       CALL FCVSPBCGSETPREC(FLAG, IER)
- * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
- *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
- * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
- * must solve the preconditioner linear system Pz = r, where r = R is input, 
- * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
- * and the right preconditioner if LR = 2.  The preconditioner (or the product
- * of the left and right preconditioners if both are nontrivial) should be an 
- * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
- * 
- * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
- *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
- * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
- * perform any evaluation of Jacobian-related data and preprocessing needed
- * for the solution of the preconditioner linear systems by FCVPSOL.
- * The JOK argument allows for Jacobian data to be saved and reused:  If 
- * JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
- * copy of it may be reused, and the preconditioner constructed from it.
- * On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
- * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
- * recoverable error occurred, and set IER negative if a non-recoverable error
- * occurred.
- * 
- *   Optional outputs specific to the SPBCG case are LRW, LIW, LFLG, NFEDQ, NJTV,
- * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
- * See the CVODE manual for descriptions.
- * 
- *      If a sequence of problems of the same size is being solved using the
- * SPBCG linear solver, then following the call to FCVREINIT, a call to the
- * FCVSPBCGREINIT routine is needed if IPRETYPE or DELT is
- * being changed.  In that case, call FCVSPBCGREINIT as follows:
- *       CALL FCVSPBCGREINIT(IPRETYPE, MAXL, DELT, IER)              
- * The arguments have the same meanings as for FCVSPBCG.
- *
- * (7.6) SPGMR treatment of the linear systems.
+ * (7.4) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
  *       CALL FCVSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)              
@@ -475,6 +355,126 @@
  * The arguments have the same meanings as for FCVSPGMR.  If MAXL is being
  * changed, then call FCVSPGMR instead.
  * 
+ * (7.5) SPBCG treatment of the linear systems.
+ * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
+ * the user must make the following call:
+ *       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)              
+ * The arguments are:
+ * IPRETYPE = preconditioner type: 
+ *              0 = none 
+ *              1 = left only
+ *              2 = right only
+ *              3 = both sides
+ * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT     = linear convergence tolerance factor; 0.0 indicates default.
+ * IER      = error return flag: 0 = success; negative value = an error occured
+ * 
+ * If the user program includes the FCVJTIMES routine for the evaluation of the 
+ * Jacobian vector product, the following call must be made
+ *       CALL FCVSPBCGSETJAC(FLAG, IER)
+ * with FLAG = 1 to specify that FCVJTIMES is provided.  (FLAG = 0 specifies
+ * using and internal finite difference approximation to this product.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ * 
+ * Usage of the user-supplied routines FCVPSOL and FCVPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FCVSPBCGSETPREC(FLAG, IER)
+ * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
+ * The user-supplied routine FCVPSOL must have the form:
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
+ *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
+ * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
+ * must solve the preconditioner linear system Pz = r, where r = R is input, 
+ * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
+ * and the right preconditioner if LR = 2.  The preconditioner (or the product
+ * of the left and right preconditioners if both are nontrivial) should be an 
+ * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
+ * 
+ * The user-supplied routine FCVPSET must be of the form:
+ *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
+ *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
+ * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
+ * perform any evaluation of Jacobian-related data and preprocessing needed
+ * for the solution of the preconditioner linear systems by FCVPSOL.
+ * The JOK argument allows for Jacobian data to be saved and reused:  If 
+ * JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
+ * copy of it may be reused, and the preconditioner constructed from it.
+ * On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
+ * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
+ * recoverable error occurred, and set IER negative if a non-recoverable error
+ * occurred.
+ * 
+ *   Optional outputs specific to the SPBCG case are LRW, LIW, LFLG, NFEDQ, NJTV,
+ * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
+ * See the CVODE manual for descriptions.
+ * 
+ *      If a sequence of problems of the same size is being solved using the
+ * SPBCG linear solver, then following the call to FCVREINIT, a call to the
+ * FCVSPBCGREINIT routine is needed if IPRETYPE or DELT is
+ * being changed.  In that case, call FCVSPBCGREINIT as follows:
+ *       CALL FCVSPBCGREINIT(IPRETYPE, MAXL, DELT, IER)              
+ * The arguments have the same meanings as for FCVSPBCG.
+ *
+ * (7.6) SPTFQMR treatment of the linear systems.
+ * For the Scaled Preconditioned TFQMR solution of the linear systems,
+ * the user must make the following call:
+ *       CALL FCVSPTFQMR(IPRETYPE, MAXL, DELT, IER)              
+ * The arguments are:
+ * IPRETYPE = preconditioner type: 
+ *              0 = none 
+ *              1 = left only
+ *              2 = right only
+ *              3 = both sides
+ * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT     = linear convergence tolerance factor; 0.0 indicates default.
+ * IER      = error return flag: 0 = success; negative value = an error occured
+ * 
+ * If the user program includes the FCVJTIMES routine for the evaluation of the 
+ * Jacobian vector product, the following call must be made
+ *       CALL FCVSPTFQMRSETJAC(FLAG, IER)
+ * with FLAG = 1 to specify that FCVJTIMES is provided.  (FLAG = 0 specifies
+ * using and internal finite difference approximation to this product.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ * 
+ * Usage of the user-supplied routines FCVPSOL and FCVPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FCVSPTFQMRSETPREC(FLAG, IER)
+ * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
+ * The user-supplied routine FCVPSOL must have the form:
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
+ *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
+ * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
+ * must solve the preconditioner linear system Pz = r, where r = R is input, 
+ * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
+ * and the right preconditioner if LR = 2.  The preconditioner (or the product
+ * of the left and right preconditioners if both are nontrivial) should be an 
+ * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
+ * 
+ * The user-supplied routine FCVPSET must be of the form:
+ *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
+ *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
+ * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
+ * perform any evaluation of Jacobian-related data and preprocessing needed
+ * for the solution of the preconditioner linear systems by FCVPSOL.
+ * The JOK argument allows for Jacobian data to be saved and reused:  If 
+ * JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
+ * copy of it may be reused, and the preconditioner constructed from it.
+ * On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
+ * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
+ * recoverable error occurred, and set IER negative if a non-recoverable error
+ * occurred.
+ * 
+ *   Optional outputs specific to the SPTFQMR case are LRW, LIW, LFLG, NFEDQ, NJTV,
+ * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
+ * See the CVODE manual for descriptions.
+ *
+ *      If a sequence of problems of the same size is being solved using the
+ * SPTFQMR linear solver, then following the call to FCVREINIT, a call to the
+ * FCVSPTFQMRREINIT routine is needed if IPRETYPE or DELT is
+ * being changed.  In that case, call FCVSPTFQMRREINIT as follows:
+ *       CALL FCVSPTFQMRREINIT(IPRETYPE, MAXL, DELT, IER)              
+ * The arguments have the same meanings as for FCVSPTFQMR.
+ *
  * (8) The integrator: FCVODE
  * Carrying out the integration is accomplished by making calls as follows:
  *       CALL FCVODE (TOUT, T, Y, ITASK, IER)
@@ -800,21 +800,21 @@ extern "C" {
   void FCV_BAND(long int *neq, long int *mupper, long int *mlower, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
 
-  void FCV_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
-  void FCV_SPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
-  void FCV_SPTFQMRSETJAC(int *flag, int *ier);
-  void FCV_SPTFQMRSETPREC(int *flag, int *ier);
-
-  void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
-  void FCV_SPBCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
-  void FCV_SPBCGSETJAC(int *flag, int *ier);
-  void FCV_SPBCGSETPREC(int *flag, int *ier);
-  
   void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
   void FCV_SPGMRREINIT(int *pretype, int *gstype, realtype *delt, int *ier);
   void FCV_SPGMRSETJAC(int *flag, int *ier);
   void FCV_SPGMRSETPREC(int *flag, int *ier);
   
+  void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FCV_SPBCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FCV_SPBCGSETJAC(int *flag, int *ier);
+  void FCV_SPBCGSETPREC(int *flag, int *ier);
+  
+  void FCV_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FCV_SPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
+  void FCV_SPTFQMRSETJAC(int *flag, int *ier);
+  void FCV_SPTFQMRSETPREC(int *flag, int *ier);
+
   void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
 
   void FCV_DKY(realtype *t, int *k, realtype *dky, int *ier);
