@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-04-26 14:24:53 $
+ * $Revision: 1.4 $
+ * $Date: 2005-10-04 21:59:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -51,7 +51,7 @@ typedef struct {
   long int b_nps;       /* nps = total number of psolve calls           */
   long int b_ncfl;      /* ncfl = total number of convergence failures  */
   long int b_njtimes;   /* njtimes = total number of calls to jtimes    */
-  long int b_nfeSG;     /* nfeSG = total number of calls to f for     
+  long int b_nfeSB;     /* nfeSB = total number of calls to f for     
                            difference quotient Jacobian-vector products */
 
   N_Vector b_ytemp;     /* temp vector passed to jtimes and psolve      */
