@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.47 $
- * $Date: 2005-08-12 23:59:39 $
+ * $Revision: 1.48 $
+ * $Date: 2005-10-04 22:34:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -348,9 +348,8 @@
  * SPTFQMR linear solver, then following the call to FCVREINIT, a call to the
  * FCVSPTFQMRREINIT routine is needed if IPRETYPE or DELT is
  * being changed.  In that case, call FCVSPTFQMRREINIT as follows:
- *       CALL FCVSPTFQMRREINIT(IPRETYPE, DELT, IER)              
- * The arguments have the same meanings as for FCVSPTFQMR.  If MAXL is being
- * changed, then call FCVSPTFQMR instead.
+ *       CALL FCVSPTFQMRREINIT(IPRETYPE, MAXL, DELT, IER)              
+ * The arguments have the same meanings as for FCVSPTFQMR.
  *
  * (7.5) SPBCG treatment of the linear systems.
  * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
@@ -409,9 +408,8 @@
  * SPBCG linear solver, then following the call to FCVREINIT, a call to the
  * FCVSPBCGREINIT routine is needed if IPRETYPE or DELT is
  * being changed.  In that case, call FCVSPBCGREINIT as follows:
- *       CALL FCVSPBCGREINIT(IPRETYPE, DELT, IER)              
- * The arguments have the same meanings as for FCVSPBCG.  If MAXL is being
- * changed, then call FCVSPBCG instead.
+ *       CALL FCVSPBCGREINIT(IPRETYPE, MAXL, DELT, IER)              
+ * The arguments have the same meanings as for FCVSPBCG.
  *
  * (7.6) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
@@ -803,12 +801,12 @@ extern "C" {
   void FCV_BANDSETJAC(int *flag, int *ier);
 
   void FCV_SPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
-  void FCV_SPTFQMRREINIT(int *pretype, realtype *delt, int *ier);
+  void FCV_SPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
   void FCV_SPTFQMRSETJAC(int *flag, int *ier);
   void FCV_SPTFQMRSETPREC(int *flag, int *ier);
 
   void FCV_SPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
-  void FCV_SPBCGREINIT(int *pretype, realtype *delt, int *ier);
+  void FCV_SPBCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier);
   void FCV_SPBCGSETJAC(int *flag, int *ier);
   void FCV_SPBCGSETPREC(int *flag, int *ier);
   

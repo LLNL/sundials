@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.50 $
- * $Date: 2005-09-23 16:41:17 $
+ * $Revision: 1.51 $
+ * $Date: 2005-10-04 22:34:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -343,14 +343,18 @@ void FCV_SPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_SPTFQMRREINIT(int *pretype, realtype *delt, int *ier)
+void FCV_SPTFQMRREINIT(int *pretype, int *maxl, realtype *delt, int *ier)
 {
   /* 
      pretype    the preconditioner type
+     maxl       the maximum Krylov subspace dimension
      delt       the linear convergence tolerance factor 
   */
 
   *ier = CVSptfqmrSetPrecType(CV_cvodemem, *pretype);
+  if (*ier != CVSPTFQMR_SUCCESS) return;
+
+  *ier = CVSptfqmrSetMaxl(CV_cvodemem, *maxl);
   if (*ier != CVSPTFQMR_SUCCESS) return;
 
   *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
@@ -361,14 +365,18 @@ void FCV_SPTFQMRREINIT(int *pretype, realtype *delt, int *ier)
 
 /***************************************************************************/
 
-void FCV_SPBCGREINIT(int *pretype, realtype *delt, int *ier)
+void FCV_SPBCGREINIT(int *pretype, int *maxl, realtype *delt, int *ier)
 {
   /* 
      pretype    the preconditioner type
+     maxl       the maximum Krylov subspace dimension
      delt       the linear convergence tolerance factor 
   */
 
   *ier = CVSpbcgSetPrecType(CV_cvodemem, *pretype);
+  if (*ier != CVSPBCG_SUCCESS) return;
+
+  *ier = CVSpbcgSetMaxl(CV_cvodemem, *maxl);
   if (*ier != CVSPBCG_SUCCESS) return;
 
   *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
