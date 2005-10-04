@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.49 $
- * $Date: 2005-10-04 22:46:25 $
+ * $Revision: 1.50 $
+ * $Date: 2005-10-04 23:23:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -67,6 +67,10 @@
  * 
  *   FCVDKY     interfaces to CVodeGetDky
  * 
+ *   FCVGETERRWEIGHTS  interfaces to CVodeGetErrWeights
+ *
+ *   FCVGETESTLOCALERR  interfaces to CVodeGetEstLocalErrors
+ *
  *   FCVFREE    interfaces to CVodeFree
  * 
  * The user-supplied functions, each listed with the corresponding interface
@@ -561,6 +565,8 @@ extern "C" {
 #define FCV_PSET           F77_FUNC(fcvpset, FCVPSET)
 #define FCV_JTIMES         F77_FUNC(fcvjtimes, FCVJTIMES)
 #define FCV_EWT            F77_FUNC(fcvewt, FCVEWT)
+#define FCV_GETERRWEIGHTS  F77_FUNC(fcvgeterrweights, FCVGETERRWEIGHTS)
+#define FCV_GETESTLOCALERR F77_FUNC(fcvgetestlocalerr, FCVGETESTLOCALERR)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -596,6 +602,8 @@ extern "C" {
 #define FCV_PSET           fcvpset
 #define FCV_JTIMES         fcvjtimes
 #define FCV_EWT            fcvewt
+#define FCV_GETERRWEIGHTS  fcvgeterrweights
+#define FCV_GETESTLOCALERR fcvgetestlocalerr
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
@@ -631,6 +639,8 @@ extern "C" {
 #define FCV_PSET           FCVPSET
 #define FCV_JTIMES         FCVJTIMES
 #define FCV_EWT            FCVEWT
+#define FCV_GETERRWEIGHTS  FCVGETERRWEIGHTS
+#define FCV_GETESTLOCALERR FCVGETESTLOCALERR
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -666,6 +676,8 @@ extern "C" {
 #define FCV_PSET           fcvpset_
 #define FCV_JTIMES         fcvjtimes_
 #define FCV_EWT            fcvewt_
+#define FCV_GETERRWEIGHTS  fcvgeterrweights_
+#define FCV_GETESTLOCALERR fcvgetestlocalerr_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
@@ -701,6 +713,8 @@ extern "C" {
 #define FCV_PSET           FCVPSET_
 #define FCV_JTIMES         FCVJTIMES_
 #define FCV_EWT            FCVEWT_
+#define FCV_GETERRWEIGHTS  FCVGETERRWEIGHTS_
+#define FCV_GETESTLOCALERR FCVGETESTLOCALERR_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
@@ -736,6 +750,8 @@ extern "C" {
 #define FCV_PSET           fcvpset__
 #define FCV_JTIMES         fcvjtimes__
 #define FCV_EWT            fcvewt__
+#define FCV_GETERRWEIGHTS  fcvgeterrweights__
+#define FCV_GETESTLOCALERR fcvgetestlocalerr__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
@@ -771,6 +787,8 @@ extern "C" {
 #define FCV_PSET           FCVPSET__
 #define FCV_JTIMES         FCVJTIMES__
 #define FCV_EWT            FCVEWT__
+#define FCV_GETERRWEIGHTS  FCVGETERRWEIGHTS__
+#define FCV_GETESTLOCALERR FCVGETESTLOCALERR__
 
 #endif
 
@@ -818,6 +836,9 @@ extern "C" {
   void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
 
   void FCV_DKY(realtype *t, int *k, realtype *dky, int *ier);
+
+  void FCV_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier);
+  void FCV_GETESTLOCALERR(realtype *ele, int *ier);
 
   void FCV_FREE(void);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.52 $
- * $Date: 2005-10-04 22:46:25 $
+ * $Revision: 1.53 $
+ * $Date: 2005-10-04 23:23:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -519,6 +519,38 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 
   N_VSetArrayPointer(NULL, F2C_CVODE_vec);
 
+}
+
+/*************************************************/
+
+void FCV_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier)
+{
+  /* Attach user data to vectors */
+  N_VSetArrayPointer(y, F2C_CVODE_vec);
+
+  *ier = 0;
+  *ier = CVodeGetErrWeights(CV_cvodemem, F2C_CVODE_vec);
+
+  /* Reset data pointers */
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
+
+  return;
+}
+
+/*************************************************/
+
+void FCV_GETESTLOCALERR(realtype *ele, int *ier)
+{
+  /* Attach user data to vector */
+  N_VSetArrayPointer(ele, F2C_CVODE_vec);
+
+  *ier = 0;
+  *ier = CVodeGetEstLocalErrors(CV_cvodemem, F2C_CVODE_vec);
+
+  /* Reset data pointers */
+  N_VSetArrayPointer(NULL, F2C_CVODE_vec);
+
+  return;
 }
 
 /***************************************************************************/
