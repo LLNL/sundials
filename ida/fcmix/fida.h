@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.12 $
- * $Date: 2005-08-24 22:09:04 $
+ * $Revision: 1.13 $
+ * $Date: 2005-10-05 21:54:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -455,8 +455,7 @@
  * FIDASPBCGREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
  * being changed.  In that case, call FIDASPBCGREINIT as follows:
  *       CALL FIDASPBCGREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
- * The arguments have the same meanings as for FIDASPBCG.  If MAXL is being
- * changed, then call FIDASPBCG instead.
+ * The arguments have the same meanings as for FIDASPBCG.
  *
  * (7.5) SPTFQMR treatment of the linear systems.
  * For the Scaled Preconditioned TFQMR solution of the linear systems,
@@ -513,8 +512,7 @@
  * FIDASPTFQMRREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
  * being changed.  In that case, call FIDASPTFQMRREINIT as follows:
  *       CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
- * The arguments have the same meanings as for FIDASPTFQMR.  If MAXL is being
- * changed, then call FIDASPTFQMR instead.
+ * The arguments have the same meanings as for FIDASPTFQMR.
  *
  * (8) The solver: FIDASOLVE
  * To solve the DAE system, make the following call:
