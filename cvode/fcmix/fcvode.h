@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.51 $
- * $Date: 2005-10-05 20:31:20 $
+ * $Revision: 1.52 $
+ * $Date: 2005-10-05 22:51:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -147,7 +147,7 @@
  *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, H, WORK, IER)
  *       DIMENSION V(*), FJV(*), Y(*), FY(*), WORK(*)
  * Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
- * compute the product vector Jv, where the vector v is stored in V, and store
+ * compute the product vector Jv where the vector v is stored in V, and store
  * the product in FJV.  On return, set IER = 0 if FCVJTIMES was successful,
  * and nonzero otherwise.
  * 
@@ -195,16 +195,32 @@
  *          the error weight vector.
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
- * IOUT   = array of length 25 for integer optional outputs
+ * IOUT   = array of length 21 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
  * ROUT   = array of length 10 for real optional outputs
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
- * The optional integer outputs are LENRW, LENIW, NST, NFE, NETF, NCFN, NNI,
- * NSETUPS, QU, QCUR, NOR, NGE, stored in IOUT(1)...IOUT(12)
- * The optinal real outputs are H0U, HU, HCUR, TCUR, TOLSF, UROUND, stored
- * in ROUT(1) .. ROUT(6).
+ * The optional outputs are:
+ *           LENRW   = IOUT( 1) from CVodeGetWorkSpace
+ *           LENIW   = IOUT( 2) from CVodeGetWorkSpace
+ *           NST     = IOUT( 3) from CVodeGetNumSteps
+ *           NFE     = IOUT( 4) from CVodeGetNumRhsEvals
+ *           NETF    = IOUT( 5) from CVodeGetNumErrTestFails
+ *           NCFN    = IOUT( 6) from CVodeGetNumNonlinSolvConvFails
+ *           NNI     = IOUT( 7) from CVodeGetNumNonlinSolvIters
+ *           NSETUPS = IOUT( 8) from CVodeGetNumLinSolvSetups
+ *           QU      = IOUT( 9) from CVodeGetLastOrder
+ *           QCUR    = IOUT(10) from CVodeGetCurrentOrder
+ *           NOR     = IOUT(11) from CVodeGetNumStabLimOrderReds
+ *           NGE     = IOUT(12) from CVodeGetNumGEvals
+ *
+ *           H0U     = ROUT( 1) from CVodeGetActualInitStep
+ *           HU      = ROUT( 2) from CVodeGetLastStep
+ *           HCUR    = ROUT( 3) from CVodeGetCurrentStep
+ *           TCUR    = ROUT( 4) from CVodeGetCurrentTime
+ *           TOLSF   = ROUT( 5) from CVodeGetTolScaleFactor
+ *           UROUND  = ROUT( 6) from UNIT_ROUNDOFF
  * See the CVODE manual for details. 
  *
  * If the user program includes the FCVEWT routine for the evaluation of the 
@@ -217,28 +233,28 @@
  * of the same size as one already solved, make the following call:
  *       CALL FCVREINIT(T0, Y0, IATOL, RTOL, ATOL, IER)
  * The arguments have the same names and meanings as those of FCVMALLOC,
- * except that NEQ, METH, and ITMETH  have been omitted from the argument list 
+ * except that METH and ITMETH  have been omitted from the argument list 
  * (being unchanged for the new problem).  
  * FCVREINIT performs the same initializations as FCVMALLOC, but does no memory 
  * allocation, using instead the existing internal memory created by the
  * previous  FCVMALLOC call.  The call to specify the linear system solution
- * method may or  may not be needed; see paragraph (6) below.
+ * method may or may not be needed; see paragraph (6) below.
  * 
  * (6.4) To set various integer optional inputs, make the folowing call:
  *       CALL FCVSETIIN(KEY, VALUE, IER)
  * to set the integer value VAL to the optional input specified by the
- * character key KEY.
+ * quoted character string KEY.
  * KEY is one of the following: MAX_ORD, MAX_NSTEPS, MAX_ERRFAIL, MAX_NITERS, 
  * MAX_CONVFAIL, HNIL_WARNS, STAB_LIM.
  *
  * To set various real optional inputs, make the folowing call:
  *       CALL FCVSETRIN(KEY, VALUE, IER)
  * to set the real value VAL to the optional input specified by the
- * character key KEY.
- * KEY is one of the following: INIT_STEP, MAX_STEP, MIIN_STEP, STOP_TIME,
+ * quoted character string KEY.
+ * KEY is one of the following: INIT_STEP, MAX_STEP, MIN_STEP, STOP_TIME,
  * NLCONV_COEF.
  *
- * FCVSETIIN and FCVSETRIN return IER=0 if successful and IER<0 if an 
+ * FCVSETIIN and FCVSETRIN return IER = 0 if successful and IER < 0 if an 
  * error occured.
  *
  * (7) Specification of linear system solution method.
@@ -255,8 +271,11 @@
  * IER is an error return flag: 0 = success, negative value = error.
  * There is no additional user-supplied routine.  
  *
- *   Optional outputs specific to the approximate diagonal Jacobian case are 
- * LRW, LIW, LFLG, NFEDQ stored in IOUT(13)...IOUT(16).  
+ * Optional outputs specific to the DIAG case are:
+ *        LENRWD = IOUT(13) from CVDiagGetWorkSpace
+ *        LENIWD = IOUT(14) from CVDiagGetWorkSpace
+ *        LSTF   = IOUT(15) from CVDiagGetLastFlag
+ *        NFEDQ  = IOUT(16) from CVDiagGetNumRhsEvals
  * See the CVODE manual for descriptions.
  * 
  * (7.2s) DENSE treatment of the linear system.
@@ -272,8 +291,12 @@
  * using the internal finite differences approximation to the Jacobian.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
- *   Optional outputs specific to the DENSE case are LRW, LIW, LFLG, NFEDQ, 
- * and NJE stored in IOUT(13)...IOUT(17).
+ * Optional outputs specific to the DENSE case are:
+ *        LENRWD = IOUT(13) from CVDenseGetWorkSpace
+ *        LENIWD = IOUT(14) from CVDenseGetWorkSpace
+ *        LSTF   = IOUT(15) from CVDenseGetLastFlag
+ *        NFEDQ  = IOUT(16) from CVDenseGetNumRhsEvals
+ *        NJED   = IOUT(17) from CVDenseGetNumJacEvals
  * See the CVODE manual for descriptions.
  * 
  * (7.3s) BAND treatment of the linear system
@@ -291,9 +314,13 @@
  * using the internal finite differences approximation to the Jacobian.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
- *   Optional outputs specific to the BAND case are LRW, LIW, LFLG, NFEDQ, 
- * and NJE stored in IOUT(13)...IOUT(17).
- * See the CVODE manual for descriptions.
+ * Optional outputs specific to the BAND case are:
+ *        LENRWB = IOUT(13) from CVBandGetWorkSpace
+ *        LENIWB = IOUT(14) from CVBandGetWorkSpace
+ *        LSTF   = IOUT(15) from CVBandGetLastFlag
+ *        NFEDQ  = IOUT(16) from CVBandGetNumRhsEvals
+ *        NJEB   = IOUT(17) from CVBandGetNumJacEvals
+  * See the CVODE manual for descriptions.
  *
  * (7.4) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
@@ -347,8 +374,16 @@
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
  * 
- *   Optional outputs specific to the SPGMR case are LRW, LIW, LFLG, NFEDQ, NJTV,
- * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
+ * Optional outputs specific to the SPGMR case are:
+ *        LENRWG = IOUT(13) from CVSpgmrGetWorkSpace
+ *        LENIWG = IOUT(14) from CVSpgmrGetWorkSpace
+ *        LSTF   = IOUT(15) from CVSpgmrGetLastFlag
+ *        NFEDQ  = IOUT(16) from CVSpgmrGetRhsEvals
+ *        NJTV   = IOUT(17) from CVSpgmrGetJtimesEvals
+ *        NPE    = IOUT(18) from CVSpgmrGetPrecEvals
+ *        NPS    = IOUT(19) from CVSpgmrGetPrecSolves
+ *        NLI    = IOUT(20) from CVSpgmrGetLinIters
+ *        NCFL   = IOUT(21) from CVSpgmrGetConvFails
  * See the CVODE manual for descriptions.
  * 
  * If a sequence of problems of the same size is being solved using the
@@ -408,14 +443,22 @@
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
  * 
- *   Optional outputs specific to the SPBCG case are LRW, LIW, LFLG, NFEDQ, NJTV,
- * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
- * See the CVODE manual for descriptions.
+ * Optional outputs specific to the SPBCG case are:
+ *        LENRWB = IOUT(13) from CVSpbcgGetWorkSpace
+ *        LENIWB = IOUT(14) from CVSpbcgGetWorkSpace
+ *        LSTF   = IOUT(15) from CVSpbcgGetLastFlag
+ *        NFEDQ  = IOUT(16) from CVSpbcgGetRhsEvals
+ *        NJTV   = IOUT(17) from CVSpbcgGetJtimesEvals
+ *        NPE    = IOUT(18) from CVSpbcgGetPrecEvals
+ *        NPS    = IOUT(19) from CVSpbcgGetPrecSolves
+ *        NLI    = IOUT(20) from CVSpbcgGetLinIters
+ *        NCFL   = IOUT(21) from CVSpbcgGetConvFails
+  * See the CVODE manual for descriptions.
  * 
- *      If a sequence of problems of the same size is being solved using the
+ * If a sequence of problems of the same size is being solved using the
  * SPBCG linear solver, then following the call to FCVREINIT, a call to the
- * FCVSPBCGREINIT routine is needed if IPRETYPE or DELT is
- * being changed.  In that case, call FCVSPBCGREINIT as follows:
+ * FCVSPBCGREINIT routine is needed if any of its arguments is
+ * being changed.  The call is:
  *       CALL FCVSPBCGREINIT(IPRETYPE, MAXL, DELT, IER)              
  * The arguments have the same meanings as for FCVSPBCG.
  *
@@ -468,14 +511,22 @@
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
  * 
- *   Optional outputs specific to the SPTFQMR case are LRW, LIW, LFLG, NFEDQ, NJTV,
- * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
+ * Optional outputs specific to the SPTFQMR case are:
+ *        LENRWQ = IOUT(13) from CVSptfqmrGetWorkSpace
+ *        LENIWQ = IOUT(14) from CVSptfqmrGetWorkSpace
+ *        LSTF   = IOUT(15) from CVSptfqmrGetLastFlag
+ *        NFEDQ  = IOUT(16) from CVSptfqmrGetRhsEvals
+ *        NJTV   = IOUT(17) from CVSptfqmrGetJtimesEvals
+ *        NPE    = IOUT(18) from CVSptfqmrGetPrecEvals
+ *        NPS    = IOUT(19) from CVSptfqmrGetPrecSolves
+ *        NLI    = IOUT(20) from CVSptfqmrGetLinIters
+ *        NCFL   = IOUT(21) from CVSptfqmrGetConvFails
  * See the CVODE manual for descriptions.
  *
- *      If a sequence of problems of the same size is being solved using the
+ * If a sequence of problems of the same size is being solved using the
  * SPTFQMR linear solver, then following the call to FCVREINIT, a call to the
- * FCVSPTFQMRREINIT routine is needed if IPRETYPE or DELT is
- * being changed.  In that case, call FCVSPTFQMRREINIT as follows:
+ * FCVSPTFQMRREINIT routine is needed if any of its arguments is
+ * being changed.  The call is:
  *       CALL FCVSPTFQMRREINIT(IPRETYPE, MAXL, DELT, IER)              
  * The arguments have the same meanings as for FCVSPTFQMR.
  *

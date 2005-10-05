@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-08-12 23:59:39 $
+ * $Revision: 1.23 $
+ * $Date: 2005-10-05 22:51:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -157,9 +157,9 @@
  * IATOL  = type for absolute tolerance ATOL: 1 = scalar, 2 = array
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
- * IOUT   = array of length 25 for integer optional outputs
+ * IOUT   = array of length 21 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- * ROUT   = array of length 10 for real optional outputs
+ * ROUT   = array of length 6 for real optional outputs
  * IER    = return completion flag.  Values are 0 = success, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
@@ -179,41 +179,12 @@
  *             These may be smaller than MUDQ and MLDQ.
  * DQRELY    = relative increment factor in y for difference quotients
  *             (optional). 0.0 indicates the default, sqrt(unit roundoff).
- * IER       = return completion flag: IER=0: success, IER<0: an error occured
+ * IER       = return completion flag: IER=0: success, IER<0: an error occurred
  *
- * (4.4A) To specify the SPTFQMR linear system solver and use it with the CVBBDPRE
- * preconditioner, make the following call:
- *       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
- *
- * the arguments are:
- * IPRETYPE  = preconditioner type: 
- *             0 = none
- *             1 = left only
- *             2 = right only
- *             3 = both sides.
- * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
- * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: an error occured
- *
- * (4.4B) To specify the SPBCG linear system solver and use it with the CVBBDPRE
- * preconditioner, make the following call:
- *       CALL FCVBBDSPBCG(IPRETYPE, MAXL, DELT, IER)
- *
- * the arguments are:
- * IPRETYPE  = preconditioner type: 
- *             0 = none
- *             1 = left only
- *             2 = right only
- *             3 = both sides.
- * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
- * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: an error occured
- *
- * (4.4C) To specify the SPGMR linear system solver and use it with the CVBBDPRE
+ * (4.4A) To specify the SPGMR linear system solver and use it with the CVBBDPRE
  * preconditioner, make the following call:
  *       CALL FCVBBDSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
- *
- * the arguments are:
+ * The arguments are:
  * IPRETYPE  = preconditioner type: 
  *             0 = none
  *             1 = left only
@@ -222,46 +193,74 @@
  * IGSTYPE   = Gram-schmidt process type: 1 = modified G-S, 1 = classical G-S.
  * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: an error occured
+ * IER       = return completion flag: IER=0: success, IER<0: an error occurred
  *
- * (4.5A) To specify whether TFQMR should use the supplied FCVJTIMES or the 
+ * (4.4B) To specify the SPBCG linear system solver and use it with the CVBBDPRE
+ * preconditioner, make the following call:
+ *       CALL FCVBBDSPBCG(IPRETYPE, MAXL, DELT, IER)
+ * The arguments are:
+ * IPRETYPE  = preconditioner type: 
+ *             0 = none
+ *             1 = left only
+ *             2 = right only
+ *             3 = both sides.
+ * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT      = linear convergence tolerance factor; 0.0 indicates default.
+ * IER       = return completion flag: IER=0: success, IER<0: an error occurred
+ *
+ * (4.4C) To specify the SPTFQMR linear system solver and use it with the CVBBDPRE
+ * preconditioner, make the following call:
+ *       CALL FCVBBDSPTFQMR(IPRETYPE, MAXL, DELT, IER)
+ * The arguments are:
+ * IPRETYPE  = preconditioner type: 
+ *             0 = none
+ *             1 = left only
+ *             2 = right only
+ *             3 = both sides.
+ * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT      = linear convergence tolerance factor; 0.0 indicates default.
+ * IER       = return completion flag: IER=0: success, IER<0: an error occurred
+ *
+ * (4.5A) To specify whether GMRES should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
- *        CALL FCVSPTFQMRSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
+ *        CALL FCVSPGMRSETJAC(FLAG, IER)
+ * where FLAG=0 for finite differences approximation or
  *       FLAG=1 to use the supplied routine FCVJTIMES
- *
+ * 
  * (4.5B) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FCVSPBCGSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
+ * where FLAG=0 for finite differences approximation or
  *       FLAG=1 to use the supplied routine FCVJTIMES
  *
- * (4.5C) To specify whether GMRES should use the supplied FCVJTIMES or the 
+ * (4.5C) To specify whether TFQMR should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
- *        CALL FCVSPGMRSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
+ *        CALL FCVSPTFQMRSETJAC(FLAG, IER)
+ * where FLAG=0 for finite differences approximation or
  *       FLAG=1 to use the supplied routine FCVJTIMES
- * 
+ *
  * (5) Re-initialization: FCVREINIT, FCVBBDREINIT
  * If a sequence of problems of the same size is being solved using the SPGMR, SPBCG,
  * SPTFQMR linear solver in combination with the CVBBDPRE preconditioner, then the
  * CVODE package can be reinitialized for the second and subsequent problems
  * so as to avoid further memory allocation.  First, in place of the call
  * to FCVMALLOC, make the following call:
- *       CALL FCVREINIT(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, IER)
- * The arguments have the same names and meanings as those of FCVMALLOC,
- * except that NEQ has been omitted from the argument list (being unchanged
+ *       CALL FCVREINIT(T0, Y0, IATOL, RTOL, ATOL, IER)
+ * The arguments have the same names and meanings as those of FCVMALLOC, except
+ * that METH and ITMETH have been omitted from the argument list (being unchanged
  * for the new problem).  FCVREINIT performs the same initializations as
  * FCVMALLOC, but does no memory allocation, using instead the existing
  * internal memory created by the previous FCVMALLOC call.
  * Following the call to FCVREINIT, a call to FCVBBDINIT may or may not be needed.
  * If the input arguments are the same, no FCVBBDINIT call is needed.
- * If there is a change in input arguments other than MU, ML or MAXL, then 
- * the user program should call FCVBBDREINIT.  This reinitializes the SP*
- * linear solver, but without reallocating its memory.  The arguments of the
- * FCVBBDREINIT routine have the same names and meanings as FCVBBDINIT.  
- * Finally, if the value of MU, ML, or MAXL is being changed, then a call to 
- * FCVBBDINIT must be made.
+ * If there is a change in input arguments, then make the call
+ *      CALL FCVBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IER)
+ * This reinitializes the SP* linear solver, but without reallocating its memory.
+ * The arguments of the have the same names and meanings as FCVBBDINIT.  
+ * If the value of MU or ML is being changed, then a call to FCVBBDINIT must
+ * be made.  If there is a change in any of the linear solver arguments, then
+ * a call to FCVBBDSPGMR, FCVBBDSPBCG, or FCVBBDSPTFQMR must also be made;
+ * in this case the linear solver memory is reallocated. 
  * 
  * (6) The integrator: FCVODE
  * Carrying out the integration is accomplished by making calls as follows:
@@ -275,8 +274,8 @@
  *         2 = one-step mode (return after each internal step taken)
  *         3 = normal mode with TSTOP check
  *         4 = one-step mode with TSTOP check
- * IER   = completion flag: 0 = success, values -1 ... -8 are various
- *         failure modes (see CVODE User Guide).
+ * IER   = completion flag: 0 = success, 1 = TSTOP return, 2 = root return,
+ *         negative values are various failure modes (see CVODE User Guide).
  * The current values of the optional outputs are available in IOUT and ROUT.
  * 
  * (7) Optional outputs: FCVBBDOPT

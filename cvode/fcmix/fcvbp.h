@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-08-12 23:59:39 $
+ * $Revision: 1.14 $
+ * $Date: 2005-10-05 22:51:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -102,54 +102,24 @@
  * IATOL  = type for absolute tolerance ATOL: 1 = scalar, 2 = array
  * RTOL   = relative tolerance (scalar)
  * ATOL   = absolute tolerance (scalar or array)
- * IOUT   = array of length 25 for integer optional outputs
+ * IOUT   = array of length 21 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- * ROUT   = array of length 10 for real optional outputs
+ * ROUT   = array of length 6 for real optional outputs
  * IER    = return completion flag.  Values are 0 = success, and -1 = failure.
  *          See printed message for details in case of failure.
  * 
  * (3.3) To allocate memory and initialize data associated with the CVBANDPRE
  * preconditioner, make the following call:
  *       CALL FCVBPINIT(NEQ, MU, ML, IER)
- * 
  * The arguments are:
  * NEQ       = problem size
  * MU, ML    = upper and lower half-bandwidths of the band matrix that 
  *             is retained as an approximation of the Jacobian.
- * IER       = return completion flag: IER=0: success, IER<0: and error occured
+ * IER       = return completion flag: IER=0: success, IER<0: and error occurred
  *
- * (3.4A) To specify the SPTFQMR linear solver with the CVBANDPRE preconditioner,
- * make the following call
- *       CALL FCVBPSPTFQMR(IPRETYPE, MAXL, DELT, IER)
- * 
- * The arguments are:
- * IPRETYPE  = preconditioner type: 
- *            0 = none
- *            1 = left only
- *            2 = right only
- *            3 = both sides.
- * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
- * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: ans error occured
- *
- * (3.4B) To specify the SPBCG linear solver with the CVBANDPRE preconditioner,
- * make the following call
- *       CALL FCVBPSPBCG(IPRETYPE, MAXL, DELT, IER)
- * 
- * The arguments are:
- * IPRETYPE  = preconditioner type: 
- *            0 = none
- *            1 = left only
- *            2 = right only
- *            3 = both sides.
- * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
- * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: ans error occured
- *
- * (3.4C) To specify the SPGMR linear solver with the CVBANDPRE preconditioner,
+ * (3.4A) To specify the SPGMR linear solver with the CVBANDPRE preconditioner,
  * make the following call
  *       CALL FCVBPSPGMR(IPRETYPE, IGSTYPE, MAXL, DELT, IER)
- * 
  * The arguments are:
  * IPRETYPE  = preconditioner type: 
  *            0 = none
@@ -159,26 +129,52 @@
  * IGSTYPE   = Gram-schmidt process type: 0 = modified G-S, 1 = classical G-S.
  * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
- * IER       = return completion flag: IER=0: success, IER<0: ans error occured
+ * IER       = return completion flag: IER=0: success, IER<0: ans error occurred
  *
- * (3.5A) To specify whether TFQMR should use the supplied FCVJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FCVSPTFQMRSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
- *       FLAG=1 to use the supplied routine FCVJTIMES
+ * (3.4B) To specify the SPBCG linear solver with the CVBANDPRE preconditioner,
+ * make the following call
+ *       CALL FCVBPSPBCG(IPRETYPE, MAXL, DELT, IER)
+ * The arguments are:
+ * IPRETYPE  = preconditioner type: 
+ *            0 = none
+ *            1 = left only
+ *            2 = right only
+ *            3 = both sides.
+ * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT      = linear convergence tolerance factor; 0.0 indicates default.
+ * IER       = return completion flag: IER=0: success, IER<0: ans error occurred
  *
- * (3.5B) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FCVSPBCGSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
- *       FLAG=1 to use the supplied routine FCVJTIMES
+ * (3.4C) To specify the SPTFQMR linear solver with the CVBANDPRE preconditioner,
+ * make the following call
+ *       CALL FCVBPSPTFQMR(IPRETYPE, MAXL, DELT, IER)
+ * The arguments are:
+ * IPRETYPE  = preconditioner type: 
+ *            0 = none
+ *            1 = left only
+ *            2 = right only
+ *            3 = both sides.
+ * MAXL      = maximum Krylov subspace dimension; 0 indicates default.
+ * DELT      = linear convergence tolerance factor; 0.0 indicates default.
+ * IER       = return completion flag: IER=0: success, IER<0: ans error occurred
  *
- * (3.5C) To specify whether GMRES should use the supplied FCVJTIMES or the 
+ * (3.5A) To specify whether GMRES should use the supplied FCVJTIMES or the 
  * internal finite difference approximation, make the call
  *        CALL FCVSPGMRSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
  *       FLAG=1 to use the supplied routine FCVJTIMES
  * 
+ * (3.5B) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
+ * internal finite difference approximation, make the call
+ *        CALL FCVSPBCGSETJAC(FLAG, IER)
+ * where FLAG=0 for finite differences approxaimtion or
+ *       FLAG=1 to use the supplied routine FCVJTIMES
+ * 
+ * (3.5C) To specify whether TFQMR should use the supplied FCVJTIMES or the 
+ * internal finite difference approximation, make the call
+ *        CALL FCVSPTFQMRSETJAC(FLAG, IER)
+ * where FLAG=0 for finite differences approxaimtion or
+ *       FLAG=1 to use the supplied routine FCVJTIMES
+ *
  * (4) The integrator: FCVODE
  * Carrying out the integration is accomplished by making calls as follows:
  *       CALL FCVODE (TOUT, T, Y, ITASK, IER)
@@ -186,10 +182,11 @@
  * TOUT  = next value of t at which a solution is desired (input)
  * T     = value of t reached by the solver on output
  * Y     = array containing the computed solution on output
- * ITASK = task indicator: 0 = normal mode (overshoot TOUT and interpolate)
- *         1 = one-step mode (return after each internal step taken)
- * IER   = completion flag: 0 = success, values -1 ... -8 are various
- *         failure modes (see CVODE User Guide).
+ * ITASK = task indicator: 1 = normal mode (overshoot TOUT and interpolate);
+ *         2 = one-step mode (return after each internal step taken);
+ *         3 = normal mode with TSTOP; 4 = one-step mode with TSTOP.
+ * IER   = completion flag: 0 = success, 1 = TSTOP return, 2 = root return,
+ *         negative values are various failure modes (see CVODE User Guide).
  * The current values of the optional outputs are available in IOUT and ROUT.
  * 
  * (5) Optional outputs: FCVBPOPT
