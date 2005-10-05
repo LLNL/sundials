@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-09-23 16:59:12 $
+ * $Revision: 1.24 $
+ * $Date: 2005-10-05 20:31:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -149,8 +149,7 @@ void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
      FCVcfn      is a pointer to the CVCommFn function 
   */
 
-  *ier = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq,
-                         *dqrely, FCVgloc, FCVcfn);
+  *ier = CVBBDPrecReInit(CVBBD_Data, *mudq, *mldq, *dqrely, FCVgloc, FCVcfn);
 }
 
 /***************************************************************************/

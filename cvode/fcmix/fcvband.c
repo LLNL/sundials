@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-05-16 17:06:34 $
+ * $Revision: 1.16 $
+ * $Date: 2005-10-05 20:31:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,8 +33,7 @@ extern "C" {
 #endif
   extern void FCV_BJAC(long int*, long int*, long int*, long int*, 
                        realtype*, realtype*, realtype*, realtype*,
-                       realtype*, realtype*, realtype*, realtype*,
-                       realtype*);
+                       realtype*, realtype*, realtype*, realtype*);
 #ifdef __cplusplus
 }
 #endif
@@ -44,10 +43,9 @@ extern "C" {
 void FCV_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    CVBandSetJacFn(CV_cvodemem, NULL, NULL);
+    *ier = CVBandSetJacFn(CV_cvodemem, NULL, NULL);
   } else {
-    CVBandSetJacFn(CV_cvodemem, FCVBandJac, NULL);
-    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+    *ier = CVBandSetJacFn(CV_cvodemem, FCVBandJac, NULL);
   }
 }
 
@@ -67,11 +65,10 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  realtype *ydata, *fydata, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
+  realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
   long int eband;
 
-  CVodeGetErrWeights(CV_cvodemem, CV_ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   ydata   = N_VGetArrayPointer(y);
@@ -79,14 +76,11 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
   v3data  = N_VGetArrayPointer(vtemp3);
-  ewtdata = N_VGetArrayPointer(CV_ewt);
 
   eband = (J->smu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;
 
-
-  FCV_BJAC(&N, &mupper, &mlower, &eband, 
-           &t, ydata, fydata, jacdata, 
-           ewtdata, &h, v1data, v2data, v3data);
+  FCV_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, jacdata, 
+           &h, v1data, v2data, v3data);
 
 }

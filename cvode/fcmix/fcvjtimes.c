@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-05-18 18:16:59 $
+ * $Revision: 1.22 $
+ * $Date: 2005-10-05 20:31:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -38,8 +38,7 @@ extern "C" {
 #endif
 
 extern void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*, 
-		       realtype*, realtype*, realtype*, realtype*,
-		       int*);
+		       realtype*, realtype*, realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -47,13 +46,12 @@ extern void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*,
 
 /***************************************************************************/
 
-void FCV_SPTFQMRSETJAC(int *flag, int *ier)
+void FCV_SPGMRSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    CVSptfqmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+    *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
-    CVSptfqmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
-    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+    *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
   }
 }
 
@@ -62,22 +60,20 @@ void FCV_SPTFQMRSETJAC(int *flag, int *ier)
 void FCV_SPBCGSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+    *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
-    CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
-    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+    *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
   }
 }
 
 /***************************************************************************/
 
-void FCV_SPGMRSETJAC(int *flag, int *ier)
+void FCV_SPTFQMRSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+    *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
-    CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
-    if (CV_ewt == NULL) CV_ewt = N_VClone(F2C_CVODE_vec);
+    *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
   }
 }
 
@@ -85,22 +81,20 @@ void FCV_SPGMRSETJAC(int *flag, int *ier)
 
 /* C function  FCVJtimes to interface between CVODE and  user-supplied
    Fortran routine FCVJTIMES for Jacobian * vector product.
-   Addresses of v, Jv, t, y, fy, vnrm, ewt, h, uround, ytemp, and
-   the address nfePtr, are passed to FCVJTIMES, using the routine
-   N_VGetArrayPointer from NVECTOR. A return flag ier from FCVJTIMES is 
-   returned by FCVJtimes.
+   Addresses of v, Jv, t, y, fy, h, and work are passed to FCVJTIMES,
+   using the routine N_VGetArrayPointer from NVECTOR.
+   A return flag ier from FCVJTIMES is returned by FCVJtimes.
    Auxiliary data is assumed to be communicated by common blocks. */
 
 int FCVJtimes(N_Vector v, N_Vector Jv, realtype t, 
               N_Vector y, N_Vector fy,
               void *jac_data, N_Vector work)
 {
-  realtype *vdata, *Jvdata, *ydata, *fydata, *ewtdata, *wkdata;
+  realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
   realtype h;
 
   int ier = 0;
   
-  CVodeGetErrWeights(CV_cvodemem, CV_ewt);
   CVodeGetLastStep(CV_cvodemem, &h);
 
   vdata   = N_VGetArrayPointer(v);
@@ -108,10 +102,8 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   wkdata  = N_VGetArrayPointer(work);
-  ewtdata = N_VGetArrayPointer(CV_ewt);
 
-  FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, 
-              ewtdata, &h, wkdata, &ier);
+  FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, &h, wkdata, &ier);
 
   return(ier);
 }

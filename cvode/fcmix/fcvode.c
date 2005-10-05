@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.53 $
- * $Date: 2005-10-04 23:23:02 $
+ * $Revision: 1.54 $
+ * $Date: 2005-10-05 20:31:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -37,8 +37,6 @@
 /***************************************************************************/
 
 /* Definitions for global variables shared amongst various routines */
-
-N_Vector CV_ewt;
 
 void *CV_cvodemem;
 long int *CV_iout;
@@ -87,7 +85,6 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   CV_cvodemem = NULL;
   Vatol = NULL;
   atolptr = NULL;
-  CV_ewt = NULL;
 
   /* Create CVODE object */
   lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
@@ -560,7 +557,6 @@ void FCV_FREE ()
   CVodeFree(&CV_cvodemem);
   N_VSetArrayPointer(NULL, F2C_CVODE_vec);
   N_VDestroy(F2C_CVODE_vec);
-  if (CV_ewt != NULL) N_VDestroy(CV_ewt);
 }
 
 /***************************************************************************/

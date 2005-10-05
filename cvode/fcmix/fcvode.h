@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.50 $
- * $Date: 2005-10-04 23:23:02 $
+ * $Revision: 1.51 $
+ * $Date: 2005-10-05 20:31:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -123,8 +123,8 @@
  * As an option when using the DENSE linear solver, the user may supply a
  * routine that computes a dense approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
- *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, H, WK1, WK2, WK3)
- *       DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
+ *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, H, WK1, WK2, WK3)
+ *       DIMENSION Y(*), FY(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
  * the Jacobian and store it columnwise in DJAC.
  * 
@@ -133,8 +133,8 @@
  * routine that computes a band approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
  *       SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY,
- *      1                    BJAC, EWT, H, WK1, WK2, WK3)
- *       DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
+ *      1                    BJAC, H, WK1, WK2, WK3)
+ *       DIMENSION Y(*), FY(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
  * It must load the MDIM by N array BJAC with the Jacobian matrix at the
  * current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element J(i,j)
@@ -144,8 +144,8 @@
  * As an option when using the SP* linear solver, the user may supply
  * a routine that computes the product of the system Jacobian J = df/dy and 
  * a given vector v.  If supplied, it must have the following form:
- *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, WORK, IER)
- *       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
+ *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, H, WORK, IER)
+ *       DIMENSION V(*), FJV(*), Y(*), FY(*), WORK(*)
  * Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
  * compute the product vector Jv, where the vector v is stored in V, and store
  * the product in FJV.  On return, set IER = 0 if FCVJTIMES was successful,
@@ -324,8 +324,8 @@
  *       CALL FCVSPGMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
- *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, DELTA, R, LR, Z, IER)
+ *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*),
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
  * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
@@ -334,8 +334,8 @@
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
  *
  * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
- *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
+ *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H, V1, V2, V3, IER)
+ *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*) 
  * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
  * perform any evaluation of Jacobian-related data and preprocessing needed
  * for the solution of the preconditioner linear systems by FCVPSOL.
@@ -385,8 +385,8 @@
  *       CALL FCVSPBCGSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
- *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, DELTA, R, LR, Z, IER)
+ *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*),
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
  * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
@@ -395,8 +395,8 @@
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
  * 
  * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
- *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
+ *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H, V1, V2, V3, IER)
+ *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*) 
  * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
  * perform any evaluation of Jacobian-related data and preprocessing needed
  * for the solution of the preconditioner linear systems by FCVPSOL.
@@ -445,8 +445,8 @@
  *       CALL FCVSPTFQMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
- *       DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*),
+ *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, DELTA, R, LR, Z, IER)
+ *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*),
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
  * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
@@ -455,8 +455,8 @@
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
  * 
  * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
- *       DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
+ *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H, V1, V2, V3, IER)
+ *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*) 
  * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
  * perform any evaluation of Jacobian-related data and preprocessing needed
  * for the solution of the preconditioner linear systems by FCVPSOL.
@@ -875,7 +875,6 @@ extern "C" {
 
   extern N_Vector F2C_CVODE_vec;
 
-  extern N_Vector CV_ewt;
   extern void *CV_cvodemem;
   extern long int *CV_iout;
   extern realtype *CV_rout;
