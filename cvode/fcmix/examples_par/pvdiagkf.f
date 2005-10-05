@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.19 $
-C     $Date: 2005-08-12 23:34:59 $
+C     $Revision: 1.20 $
+C     $Date: 2005-10-05 20:37:49 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -284,8 +284,7 @@ C
       RETURN
       END
 C
-      SUBROUTINE FCVPSOL(T, Y, FY, VT, GAMMA, EWT, DELTA,
-     1                   R, LR, Z, IER)
+      SUBROUTINE FCVPSOL(T, Y, FY, VT, GAMMA, DELTA, R, LR, Z, IER)
 C Routine to solve preconditioner linear system
 C This routine uses a diagonal preconditioner P = I - gamma*J,
 C where J is a diagonal approximation to the true Jacobian, given by:
@@ -296,7 +295,7 @@ C local vector segment) is applied to the vector z.
 C
       INTEGER IER, MYPE
       INTEGER*4 I, NLOCAL, ISTART, IBASE, LR
-      DOUBLE PRECISION PSUBI, GAMMA, ALPHA, Y, T, FY, VT, EWT, DELTA
+      DOUBLE PRECISION PSUBI, GAMMA, ALPHA, Y, T, FY, VT, DELTA
       DOUBLE PRECISION Z, R
       DIMENSION Y(*), R(*), Z(*)
 C
@@ -316,9 +315,8 @@ C
       END
 
 
-      SUBROUTINE FCVPSET(T, U, FU, JOK, JCUR, GAMMA, EWT, H,
-     1                   V1, V2, V3, IER)
-C     Empty function. Not needed for the preconditioner, but required by the 
-C     FCVODE module.
+      SUBROUTINE FCVPSET(T, U, FU, JOK, JCUR, GAMMA, H, V1, V2, V3, IER)
+C     Empty function. Not needed for the preconditioner, but required
+C     by the  FCVODE module.
       RETURN
       END
