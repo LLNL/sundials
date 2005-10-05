@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.23 $
-C     $Date: 2005-08-12 23:35:18 $
+C     $Revision: 1.24 $
+C     $Date: 2005-10-05 20:34:28 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -283,7 +283,7 @@ C Load all terms into UDOT.
       RETURN
       END
 
-      SUBROUTINE FCVPSET(T, U, FU, JOK, JCUR, GAMMA, EWT, H,
+      SUBROUTINE FCVPSET(T, U, FU, JOK, JCUR, GAMMA, H,
      1                   V1, V2, V3, IER)
 C Routine to set and preprocess block-diagonal preconditioner.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
@@ -296,7 +296,7 @@ C
       DOUBLE PRECISION T, U(2,*), GAMMA
       DOUBLE PRECISION Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY, HDCO
       DOUBLE PRECISION VDCO, HACO
-      DOUBLE PRECISION BD, P, FU, EWT, V1, V2, V3
+      DOUBLE PRECISION BD, P, FU, V1, V2, V3
       DOUBLE PRECISION C1, C2, CYDN, CYUP, DIAG, TEMP, YDN, YUP
 C
       COMMON /PCOM/ Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY
@@ -350,7 +350,7 @@ C
       RETURN
       END
 
-      SUBROUTINE FCVPSOL(T, U, FU, VTEMP, GAMMA, EWT, DELTA,
+      SUBROUTINE FCVPSOL(T, U, FU, VTEMP, GAMMA, DELTA,
      1                   R, LR, Z, IER)
 C Routine to solve preconditioner linear system.
 C Note: The dimensions in /BDJ/ below assume at most 100 mesh points.
@@ -362,7 +362,7 @@ C
       DOUBLE PRECISION R(*), Z(2,*)
       DOUBLE PRECISION Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY, HDCO
       DOUBLE PRECISION VDCO, HACO
-      DOUBLE PRECISION BD, P, T, U, FU, VTEMP, EWT, DELTA, GAMMA
+      DOUBLE PRECISION BD, P, T, U, FU, VTEMP, DELTA, GAMMA
 C
       COMMON /PCOM/ Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY
       COMMON /PCOM/ HDCO, VDCO, HACO, MX, MY, MM

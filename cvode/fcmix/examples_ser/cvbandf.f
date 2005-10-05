@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.19 $
-C     $Date: 2005-08-12 23:35:18 $
+C     $Revision: 1.20 $
+C     $Date: 2005-10-05 20:34:28 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -208,7 +208,7 @@ C
       END
 
       SUBROUTINE FCVBJAC(N, MU, ML, MDIM, T, U, FU,
-     1                   BJAC, EWT, H, V1, V2, V3)
+     1                   BJAC, H, V1, V2, V3)
 C Load banded Jacobian
       IMPLICIT NONE
 C
@@ -216,7 +216,7 @@ C
       INTEGER*4 I, J, K, IOFF, MU1, MU2, MU, ML
       DOUBLE PRECISION BJAC(MDIM,*)
       DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
-      DOUBLE PRECISION T, U, FU, EWT, V1, V2, V3, H
+      DOUBLE PRECISION T, U, FU, V1, V2, V3, H
 C
       COMMON /PAR/ DX, DY, HDCOEF, HACOEF, VDCOEF, MX, MY
 C
