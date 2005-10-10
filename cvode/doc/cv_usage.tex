@@ -2591,7 +2591,7 @@ These optional output functions are described next.
   the actual size of the real workspace, in \id{realtype} words, is
   given by the following:
   \begin{itemize}
-  \item Base value: \id{lenrw} $= 89 +$ (\id{maxord+5})$* N$
+  \item Base value: \id{lenrw} $= 89 + $ (\id{maxord+5})$* N$
   \item With \id{itol = CV\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N$ 
   \item With rootfinding for $N_g$ functions (see \S\ref{s:using_rootfinding}): 
     \id{lenrw} $=$ \id{lenrw}$+ 3N_g$ 
@@ -2600,11 +2600,16 @@ These optional output functions are described next.
   The size of the integer workspace (without distinction between \id{int} 
   and \id{long int} words) is given by the following:
   \begin{itemize}
-  \item Base value: \id{leniw} $=40$
+  \item Base value: \id{leniw} $= 40$
   \item With rootfinding for $N_g$ functions: \id{leniw} $=$ \id{leniw}$+ N_g$ 
   \end{itemize}
 
-  For the default value of \id{maxord}, the base values are:
+  The actual lengths \id{lenrw} and \id{leniw} are increased from these base values
+  by small amounts that depend on the particular version of the {\nvector} module
+  used.  The same is true for all other work array lengths described below.
+
+  For the default value of \id{maxord}, and with no rootfinding, the base
+  values are:
   \begin{itemize}
   \item For the Adams method: \id{lenrw} $=89 + 17N$ and \id{leniw} $=40$ 
   \item For the BDF method: \id{lenrw} $=89 + 10N$ and \id{leniw} $=40$ 
@@ -2970,7 +2975,7 @@ These optional output functions are described next.
 }
 {
   The function \ID{CVodeGetErrWeights} returns the solution error weights 
-  at the current time. These are the reciprocals of the $W_i$ of (\ref{e:errwt}).
+  at the current time. These are normally the $W_i$ of (\ref{e:errwt}).
 }
 {
   \begin{args}[cvode\_mem]
@@ -3021,6 +3026,15 @@ These optional output functions are described next.
 }
 {
   {\warn} The user must allocate memory for \id{ele}.
+
+  The \id{ele} vector, togther with the \id{eweight} vector from
+  \id{CVodeGetErrWeights}, can be used to determine how the various
+  components of the system contributed to the estimated local error
+  test.  Specifically, that error test uses the RMS norm of a vector
+  whose components are the products of the components of the two vectors.
+  Thus, for example, if there were recent error test failures, the components
+  causing the failures are those with largest values for the products,
+  denoted roughly as \id{eweight[i]*ele[i]}.
 }
 %%
 %%
