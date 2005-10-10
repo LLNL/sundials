@@ -125,7 +125,7 @@ Finally, the main program calls \id{PrintFinalStats} to extract and
 print several relevant statistical quantities, such as the total
 number of steps, the number of residual and Jacobian evaluations, and
 the number of error test and convergence test failures.  It then calls
-\id{IDAFree} to free the {\ida} memory block and \id{NV\_Destroy\_Serial}
+\id{IDAFree} to free the {\ida} memory block and \id{N\_VDestroy\_Serial}
 to free the vectors \id{yy}, \id{yp}, and \id{avtol}.
 
 The function \id{PrintFinalStats} used here is actually suitable for
@@ -292,7 +292,7 @@ top-right corners is printed, along with the cumulative number of time
 steps, current method order, and current step size.
 
 Finally, the main program calls \id{PrintFinalStats} to get and print
-all of the relevant statistical quantities.  It then calls \id{NV\_Destroy\_Serial}
+all of the relevant statistical quantities.  It then calls \id{N\_VDestroy\_Serial}
 to free the vectors \id{cc}, \id{cp}, and \id{id}, and \id{IDAFree} to free the 
 {\ida} memory block.
 

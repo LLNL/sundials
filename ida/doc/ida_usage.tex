@@ -175,15 +175,15 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
   array  \id{ydata}
   already exists, containing the initial values of $y$, make the call:
 
-  {\s} \id{y0 = NV\_Make\_Serial(N, ydata);}
+  {\s} \id{y0 = N\_VMake\_Serial(N, ydata);}
 
-  {\p} \id{y0 = NV\_Make\_Parallel(comm, Nlocal, N, ydata);}
+  {\p} \id{y0 = N\_VMake\_Parallel(comm, Nlocal, N, ydata);}
 
   Otherwise, make the call:
 
-  {\s} \id{y0 = NV\_New\_Serial(N);}
+  {\s} \id{y0 = N\_VNew\_Serial(N);}
 
-  {\p} \id{y0 = NV\_New\_Parallel(comm, Nlocal, N);}
+  {\p} \id{y0 = N\_VNew\_Parallel(comm, Nlocal, N);}
 
   and load initial values into the structure defined by:
 
@@ -284,9 +284,9 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
   and \id{ypret} by calling the destructor function defined by the {\nvector} 
   implementation:
 
-  {\s} \id{NV\_Destroy\_Serial(yret);}
+  {\s} \id{N\_VDestroy\_Serial(yret);}
 
-  {\p} \id{NV\_Destroy\_Parallel(yret);}
+  {\p} \id{N\_VDestroy\_Parallel(yret);}
   
   and similarly for \id{ypret}.
   
