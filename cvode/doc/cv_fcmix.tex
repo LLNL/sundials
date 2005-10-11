@@ -142,174 +142,6 @@ etc.), as well as the array of user integer data, \id{IPAR}.
 This is particularly important when using {\cvode} and the {\fcvode} package 
 on 64-bit architectures.
 
-%%==============================================================================
-\section{FCVODE optional input and output}
-%%==============================================================================
-\index{FCVODE@{\fcvode} interface module!optional input and output}
-
-In order to keep the number of user-callable {\fcvode} interface routines to
-a minimum, optional inputs to the {\cvode} solver are passed through only
-two routines: \Id{FCVSETIIN} for integer optional inputs and \Id{FCVSETRIN}
-for real optional inputs. These functions should be called as follows:
-\begin{verbatim}
-      CALL FCVSETIIN(KEY, IVAL, IER)
-      CALL FCVSETRIN(KEY, RVAL, IER)
-\end{verbatim}
-where \id{KEY} is a quoted string indicating which optoinal input is set
-(see Table \ref{t:fcvode_in}),
-\id{IVAL} is the integer input value to be used,
-\id{RVAL} is the real input value to be used, and
-\id{IER} is an integer return flag which is set to $0$ on success and 
-a negative value if a failure occurred.
-
-The optional outputs from the {\cvode} solver are accessed not through
-individual functions, but rather through a pair of arrays, \Id{IOUT}
-(integer type) of dimension at least $21$, and \Id{ROUT} (real type) of
-dimension at least $6$.  These arrays are owned (and allocated) by the user
-and are passed as arguments to \id{FCVMALLOC}.
-Table \ref{t:fcvode_out} lists the entries in these two arrays and specifies the
-optional variable as well as the {\cvode} function which is actually called to
-extract the optional output.
-
-For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
-and \S\ref{ss:optional_output}.
-
-\begin{table}
-\centering
-\caption{Keys for setting {\fcvode} optional inputs}
-\label{t:fcvode_in}
-\medskip
-\begin{tabular}{|r|c|l|}
-\multicolumn{3}{c}{Integer optional inputs (\id{FCVSETIIN})}\\
-\hline
-{\bf Key} & {\bf Optional input} & Default value \\ 
-\hline
-\Id{MAX\_ORD}      & Maximum LMM method order & $5$ (BDF), $12$ (Adams)  \\
-\Id{MAX\_NSTEPS}   & Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & $500$  \\
-\Id{MAX\_ERRFAIL}  & Maximum no. of error test failures & $7$  \\
-\Id{MAX\_NITERS}   & Maximum no. of nonlinear iterations & $3$  \\
-\Id{MAX\_CONVFAIL} & Maximum no. of convergence failures & $10$  \\
-\Id{HNIL\_WARNS}   & Maximum no. of warnings for $t_n+h=t_n$  & $10$  \\
-\Id{STAB\_LIM}     & Flag to activate stability limit detection & $0$  \\
-\hline
-\multicolumn{3}{c}{}\\
-\multicolumn{3}{c}{Real optional inputs (\id{FCVSETRIN})}\\
-\hline
-{\bf Key} & {\bf Optional input} & Default value \\ 
-\hline
-\Id{INIT\_STEP}   & Initial step size & estimated \\
-\Id{MAX\_STEP}    & Maximum absolute step size & $\infty$ \\
-\Id{MIN\_STEP}    & Minimum absolute step size & $0.0$ \\
-\Id{STOP\_TIME}   & Value of $t_{stop}$ & undefined \\
-\Id{NLCONV\_COEF} & Coefficient in the nonlinear convergence test & $0.1$ \\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{table}
-\centering
-\caption{Description of the {\fcvode} optional output arrays \Id{IOUT} and \Id{ROUT}}
-\label{t:fcvode_out}
-\medskip
-\begin{tabular}{|r|c|l|}
-\multicolumn{3}{c}{Integer output array \id{IOUT}}\\
-\hline
-{\bf Index} & {\bf Optional output} & {\cvode} {\bf function} \\ 
-\hline
-\multicolumn{3}{|c|}{{\cvode} main solver}\\
-\hline
-1  &  \id{LENRW}   & \id{CVodeGetWorkSpace} \\
-2  &  \id{LENIW}   & \id{CVodeGetWorkSpace} \\
-4  &  \id{NST}     & \id{CVodeGetNumSteps} \\
-5  &  \id{NFE}     & \id{CVodeGetNumRhsEvals} \\
-9  &  \id{NETF}    & \id{CVodeGetNumErrTestFails} \\
-8  &  \id{NCFN}    & \id{CVodeGetNumNonlinSolvConvFails} \\
-7  &  \id{NNI}     & \id{CVodeGetNumNonlinSolvIters} \\
-8  &  \id{NSETUPS} & \id{CVodeGetNumLinSolvSetups} \\
-9  &  \id{QU}      & \id{CVodeGetLastOrder} \\
-10 &  \id{QCUR}    & \id{CVodeGetCurrentOrder} \\
-11 &  \id{NOR}     & \id{CVodeGetNumStabLimOrderReds} \\ 
-12 &  \id{NGE}     & \id{CVodeGetNumGEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\cvdense} linear solver}\\
-\hline
-13 & \id{LRW}      & \id{CVDenseGetWorkSpace} \\ 
-14 & \id{LIW}      & \id{CVDenseGetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVDenseGetLastFlag} \\ 
-16 & \id{NFE\_DQ}  & \id{CVDenseGetNumRhsEvals} \\ 
-17 & \id{NJE}      & \id{CVDenseGetNumJacEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\cvband} linear solver}\\
-\hline
-13 & \id{LRW}      & \id{CVBandGetWorkSpace} \\ 
-14 & \id{LIW}      & \id{CVBandGetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVBandGetLastFlag} \\ 
-16 & \id{NFE\_DQ}  & \id{CVBandGetNumRhsEvals} \\ 
-17 & \id{NJE}      & \id{CVBandGetNumJacEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\cvdiag} linear solver}\\
-\hline
-13 & \id{LRW}      & \id{CVDiagGetWorkSpace} \\ 
-14 & \id{LIW}      & \id{CVDiagGetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVDiagGetLastFlag} \\ 
-16 & \id{NFE\_DQ}  & \id{CVDiagGetNumRhsEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\cvspgmr}, {\cvspbcg}, {\cvsptfqmr} linear solvers}\\
-\hline
-13 & \id{LRW}      & \id{CVSp*GetWorkSpace} \\ 
-14 & \id{LIW}      & \id{CVSp*GetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVSp*GetLastFlag} \\ 
-16 & \id{NFE\_DQ}  & \id{CVSp*GetNumRhsEvals} \\ 
-17 & \id{NJTV}     & \id{CVSp*GetNumJacEvals} \\ 
-18 & \id{NPE}      & \id{CVSp*GetNumPrecEvals} \\ 
-19 & \id{NPS}      & \id{CVSp*GetNumPrecSolves} \\ 
-20 & \id{NLI}      & \id{CVSp*GetNumLinIters} \\ 
-21 & \id{NCFL}     & \id{CVSp*GetNumConvFails} \\
-\hline
-\multicolumn{3}{c}{}\\
-\multicolumn{3}{c}{Real input-output array \id{ROUT}}\\
-\hline
-{\bf Index} & {\bf Optional output} & {\cvode} {\bf function} \\ 
-\hline
-%
-1  & \id{H0U}     & \id{CVodeGetActualInitStep} \\
-2  & \id{HU}      & \id{CVodeGetLastStep} \\
-3  & \id{HCUR}    & \id{CVodeGetCurrentStep} \\
-4  & \id{TCUR}    & \id{CVodeGetCurrentTime} \\
-5  & \id{TOLSF}   & \id{CVodeGetTolScaleFactor} \\
-6  & \id{UROUND}  & unit roundoff \\
-\hline
-%
-\end{tabular}
-\end{table}                                                                  
-
-In addition to the optional inputs communicated through \id{FCVSET*}
-calls and the optional outputs extracted from \id{IOUT} and \id{ROUT},
-the following user-callable routines are available:
-
-To obtain the error weight array \id{EWT}, containing the multiplicative
-error weights used the WRMS norms, make the following call:
-\index{FCVGETERRWEIGHTS@\texttt{FCVGETERRWEIGHTS}}
-\begin{verbatim}
-      CALL FCVGETERRWEIGHTS (Y, EWT, IER)
-\end{verbatim}
-This computes the \id{EWT} array as a function of the input \id{Y} array,
-normally defined by Eq. (\ref{e:errwt}).
-The array \id{EWT}, of length \id{NEQ} or \id{NLOCAL}, must already have been
-declared by the user.  The error return flag \id{IER} is zero if successful,
-and negative if there was a memory error.
-
-To obtain the estimated local errors, following a successful call to
-\id{FCVSOLVE}, make the following call:
-\index{FCVGETESTLOCALERR@\texttt{FCVGETESTLOCALERR}}
-\begin{verbatim}
-      CALL FCVGETESTLOCALERR (ELE, IER)
-\end{verbatim}
-This computes the \id{ELE} array of estimated local errors as of the last
-step taken.  The array \id{ELE} must already have been declared by the user.
-The error return flag \id{IER} is zero if successful, and negative if there
-was a memory error.
-
 
 %%==============================================================================
 \section{Usage of the FCVODE interface module}\label{ss:fcvode_usage}
@@ -532,11 +364,12 @@ apply to {\nvecp}.
 \begin{verbatim}
       CALL FCVDENSESETJAC (FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian approximation.
-  The argument \id{IER} is an error return flag which is $0$ 
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian
+  approximation.  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
   
-  Optional outputs specific to the {\dense} case are listed in Table~\ref{t:fcvode_out}.
+  Optional outputs specific to the {\dense} case are listed in
+  Table~\ref{t:fcvode_out}.
 
   %%-------------------------------------------------
 
@@ -861,7 +694,7 @@ apply to {\nvecp}.
   $-4$: \Id{CV\_TOO\_MUCH\_WORK}, $-5$: \Id{CV\_TOO\_MUCH\_ACC},
   $-6$: \Id{CV\_ERR\_FAILURE}, $-7$: \Id{CV\_CONV\_FAILURE},
   $-8$: \Id{CV\_LINIT\_FAIL}, $-9$: \Id{CV\_LSETUP\_FAIL}, and
-  $-10$: \Id{CV\_LSOLVE\_FAIL} from \id{CVode} (see \S\ref{sss:cvode}).
+  $-10$: \Id{CV\_LSOLVE\_FAIL} from \id{CVode}.
   The current values of the optional outputs are available in \id{IOUT} and
   \id{ROUT} (see Table~\ref{t:fcvode_out}).
   
@@ -948,6 +781,176 @@ apply to {\nvecp}.
 \end{Steps}
 \index{FCVODE@{\fcvode} interface module!usage|)}
 
+
+%%==============================================================================
+\section{FCVODE optional input and output}
+%%==============================================================================
+\index{FCVODE@{\fcvode} interface module!optional input and output}
+
+In order to keep the number of user-callable {\fcvode} interface routines to
+a minimum, optional inputs to the {\cvode} solver are passed through only
+two routines: \Id{FCVSETIIN} for integer optional inputs and \Id{FCVSETRIN}
+for real optional inputs. These functions should be called as follows:
+\begin{verbatim}
+      CALL FCVSETIIN(KEY, IVAL, IER)
+      CALL FCVSETRIN(KEY, RVAL, IER)
+\end{verbatim}
+where \id{KEY} is a quoted string indicating which optoinal input is set
+(see Table \ref{t:fcvode_in}),
+\id{IVAL} is the integer input value to be used,
+\id{RVAL} is the real input value to be used, and
+\id{IER} is an integer return flag which is set to $0$ on success and 
+a negative value if a failure occurred.
+
+The optional outputs from the {\cvode} solver are accessed not through
+individual functions, but rather through a pair of arrays, \Id{IOUT}
+(integer type) of dimension at least $21$, and \Id{ROUT} (real type) of
+dimension at least $6$.  These arrays are owned (and allocated) by the user
+and are passed as arguments to \id{FCVMALLOC}.
+Table \ref{t:fcvode_out} lists the entries in these two arrays and specifies the
+optional variable as well as the {\cvode} function which is actually called to
+extract the optional output.
+
+For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
+and \S\ref{ss:optional_output}.
+
+\begin{table}
+\centering
+\caption{Keys for setting {\fcvode} optional inputs}
+\label{t:fcvode_in}
+\medskip
+\begin{tabular}{|r|c|l|}
+\multicolumn{3}{c}{Integer optional inputs (\id{FCVSETIIN})}\\
+\hline
+{\bf Key} & {\bf Optional input} & Default value \\ 
+\hline
+\Id{MAX\_ORD}      & Maximum LMM method order & $5$ (BDF), $12$ (Adams)  \\
+\Id{MAX\_NSTEPS}   & Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$ & $500$  \\
+\Id{MAX\_ERRFAIL}  & Maximum no. of error test failures & $7$  \\
+\Id{MAX\_NITERS}   & Maximum no. of nonlinear iterations & $3$  \\
+\Id{MAX\_CONVFAIL} & Maximum no. of convergence failures & $10$  \\
+\Id{HNIL\_WARNS}   & Maximum no. of warnings for $t_n+h=t_n$  & $10$  \\
+\Id{STAB\_LIM}     & Flag to activate stability limit detection & $0$  \\
+\hline
+\multicolumn{3}{c}{}\\
+\multicolumn{3}{c}{Real optional inputs (\id{FCVSETRIN})}\\
+\hline
+{\bf Key} & {\bf Optional input} & Default value \\ 
+\hline
+\Id{INIT\_STEP}   & Initial step size & estimated \\
+\Id{MAX\_STEP}    & Maximum absolute step size & $\infty$ \\
+\Id{MIN\_STEP}    & Minimum absolute step size & $0.0$ \\
+\Id{STOP\_TIME}   & Value of $t_{stop}$ & undefined \\
+\Id{NLCONV\_COEF} & Coefficient in the nonlinear convergence test & $0.1$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}
+\centering
+\caption{Description of the {\fcvode} optional output arrays \Id{IOUT} and \Id{ROUT}}
+\label{t:fcvode_out}
+\medskip
+\begin{tabular}{|r|c|l|}
+\multicolumn{3}{c}{Integer output array \id{IOUT}}\\
+\hline
+{\bf Index} & {\bf Optional output} & {\cvode} {\bf function} \\ 
+\hline
+\multicolumn{3}{|c|}{{\cvode} main solver}\\
+\hline
+1  &  \id{LENRW}   & \id{CVodeGetWorkSpace} \\
+2  &  \id{LENIW}   & \id{CVodeGetWorkSpace} \\
+3  &  \id{NST}     & \id{CVodeGetNumSteps} \\
+4  &  \id{NFE}     & \id{CVodeGetNumRhsEvals} \\
+5  &  \id{NETF}    & \id{CVodeGetNumErrTestFails} \\
+6  &  \id{NCFN}    & \id{CVodeGetNumNonlinSolvConvFails} \\
+7  &  \id{NNI}     & \id{CVodeGetNumNonlinSolvIters} \\
+8  &  \id{NSETUPS} & \id{CVodeGetNumLinSolvSetups} \\
+9  &  \id{QU}      & \id{CVodeGetLastOrder} \\
+10 &  \id{QCUR}    & \id{CVodeGetCurrentOrder} \\
+11 &  \id{NOR}     & \id{CVodeGetNumStabLimOrderReds} \\ 
+12 &  \id{NGE}     & \id{CVodeGetNumGEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\cvdense} linear solver}\\
+\hline
+13 & \id{LRW}      & \id{CVDenseGetWorkSpace} \\ 
+14 & \id{LIW}      & \id{CVDenseGetWorkSpace} \\ 
+15 & \id{LS\_FLAG} & \id{CVDenseGetLastFlag} \\ 
+16 & \id{NFE\_DQ}  & \id{CVDenseGetNumRhsEvals} \\ 
+17 & \id{NJE}      & \id{CVDenseGetNumJacEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\cvband} linear solver}\\
+\hline
+13 & \id{LRW}      & \id{CVBandGetWorkSpace} \\ 
+14 & \id{LIW}      & \id{CVBandGetWorkSpace} \\ 
+15 & \id{LS\_FLAG} & \id{CVBandGetLastFlag} \\ 
+16 & \id{NFE\_DQ}  & \id{CVBandGetNumRhsEvals} \\ 
+17 & \id{NJE}      & \id{CVBandGetNumJacEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\cvdiag} linear solver}\\
+\hline
+13 & \id{LRW}      & \id{CVDiagGetWorkSpace} \\ 
+14 & \id{LIW}      & \id{CVDiagGetWorkSpace} \\ 
+15 & \id{LS\_FLAG} & \id{CVDiagGetLastFlag} \\ 
+16 & \id{NFE\_DQ}  & \id{CVDiagGetNumRhsEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\cvspgmr}, {\cvspbcg}, {\cvsptfqmr} linear solvers}\\
+\hline
+13 & \id{LRW}      & \id{CVSp*GetWorkSpace} \\ 
+14 & \id{LIW}      & \id{CVSp*GetWorkSpace} \\ 
+15 & \id{LS\_FLAG} & \id{CVSp*GetLastFlag} \\ 
+16 & \id{NFE\_DQ}  & \id{CVSp*GetNumRhsEvals} \\ 
+17 & \id{NJTV}     & \id{CVSp*GetNumJacEvals} \\ 
+18 & \id{NPE}      & \id{CVSp*GetNumPrecEvals} \\ 
+19 & \id{NPS}      & \id{CVSp*GetNumPrecSolves} \\ 
+20 & \id{NLI}      & \id{CVSp*GetNumLinIters} \\ 
+21 & \id{NCFL}     & \id{CVSp*GetNumConvFails} \\
+\hline
+\multicolumn{3}{c}{}\\
+\multicolumn{3}{c}{Real input-output array \id{ROUT}}\\
+\hline
+{\bf Index} & {\bf Optional output} & {\cvode} {\bf function} \\ 
+\hline
+%
+1  & \id{H0U}     & \id{CVodeGetActualInitStep} \\
+2  & \id{HU}      & \id{CVodeGetLastStep} \\
+3  & \id{HCUR}    & \id{CVodeGetCurrentStep} \\
+4  & \id{TCUR}    & \id{CVodeGetCurrentTime} \\
+5  & \id{TOLSF}   & \id{CVodeGetTolScaleFactor} \\
+6  & \id{UROUND}  & unit roundoff \\
+\hline
+%
+\end{tabular}
+\end{table}                                                                  
+
+In addition to the optional inputs communicated through \id{FCVSET*}
+calls and the optional outputs extracted from \id{IOUT} and \id{ROUT},
+the following user-callable routines are available:
+
+To obtain the error weight array \id{EWT}, containing the multiplicative
+error weights used the WRMS norms, make the following call:
+\index{FCVGETERRWEIGHTS@\texttt{FCVGETERRWEIGHTS}}
+\begin{verbatim}
+      CALL FCVGETERRWEIGHTS (Y, EWT, IER)
+\end{verbatim}
+This computes the \id{EWT} array as a function of the input \id{Y} array,
+normally defined by Eq. (\ref{e:errwt}).
+The array \id{EWT}, of length \id{NEQ} or \id{NLOCAL}, must already have been
+declared by the user.  The error return flag \id{IER} is zero if successful,
+and negative if there was a memory error.
+
+To obtain the estimated local errors, following a successful call to
+\id{FCVSOLVE}, make the following call:
+\index{FCVGETESTLOCALERR@\texttt{FCVGETESTLOCALERR}}
+\begin{verbatim}
+      CALL FCVGETESTLOCALERR (ELE, IER)
+\end{verbatim}
+This computes the \id{ELE} array of estimated local errors as of the last
+step taken.  The array \id{ELE} must already have been declared by the user.
+The error return flag \id{IER} is zero if successful, and negative if there
+was a memory error.
+
+
 %%==============================================================================
 \section{Usage of the FCVROOT interface to rootfinding}
 %%==============================================================================
@@ -1016,6 +1019,7 @@ the following call:
 See \S\ref{s:using_rootfinding} for additional information on the
 rootfinding feature.
 \index{FCVODE@{\fcvode} interface module!rootfinding|)}
+
 
 %%==============================================================================
 \section{Usage of the FCVBP interface to CVBANDPRE}
@@ -1159,6 +1163,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|)}
 
 \end{Steps}
+
 
 %%==============================================================================
 \section{Usage of the FCVBBD interface to CVBBDPRE}
