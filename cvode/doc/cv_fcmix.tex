@@ -338,10 +338,10 @@ apply to {\nvecp}.
   $J = \partial f / \partial y$. If supplied, it must have the following form:
   \index{FCVDJAC@\texttt{FCVDJAC}}
 \begin{verbatim}
-      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, H, 
-     &                    IPAR, RPAR, WK1, WK2, WK3)
-      DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), 
-     &          IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
+      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, H, IPAR, RPAR,
+     &                    WK1, WK2, WK3)
+      DIMENSION Y(*), FY(*), DJAC(NEQ,*), IPAR(*), RPAR(*),
+     &          WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, and \id{DJAC}. 
   It must compute the Jacobian and store it columnwise in \id{DJAC}.
@@ -354,9 +354,11 @@ apply to {\nvecp}.
   
   If the user's \id{FCVDJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
-  in the calculation of suitable increments.  It may also need the unit
-  roundoff, which can be obtained as the optional output \id{ROUT(6)},
-  passed from the calling program to this routine using \id{COMMON}.
+  in the calculation of suitable increments.  The array \id{EWT} can be
+  obtained by calling \id{FCVGETERRWEIGHTS} using one of the work arrays as
+  temporary storage for \id{EWT}.  It may also need the unit roundoff,
+  which can be obtained as the optional output \id{ROUT(6)}, passed from
+  the calling program to this routine using either \id{RPAR} or Common.
 
   If the \id{FCVDJAC} routine is provided, then, 
   following the call to \id{FCVDENSE}, the user must make the call:
@@ -392,10 +394,10 @@ apply to {\nvecp}.
   $J = \partial f / \partial y$. If supplied, it must have the following form:
   \index{FCVBJAC@\texttt{FCVBJAC}}
 \begin{verbatim}
-      SUBROUTINE FCVBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC,
-     &                   EWT, H, IPAR, RPAR, WK1, WK2, WK3)
-      DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), 
-     &                IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
+      SUBROUTINE FCVBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H, IPAR, RPAR,
+     &                   WK1, WK2, WK3)
+      DIMENSION Y(*), FY(*), BJAC(MDIM,*), IPAR(*), RPAR(*),
+     &                WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{MU}, \id{ML}, \id{T}, 
   \id{Y}, and \id{BJAC}.
@@ -413,9 +415,11 @@ apply to {\nvecp}.
 
   If the user's \id{FCVBJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
-  in the calculation of suitable increments.  It may also need the unit
-  roundoff, which can be obtained as the optional output \id{ROUT(6)},
-  passed from the calling program to this routine using \id{COMMON}.
+  in the calculation of suitable increments.  The array \id{EWT} can be
+  obtained by calling \id{FCVGETERRWEIGHTS} using one of the work arrays as
+  temporary storage for \id{EWT}.  It may also need the unit roundoff,
+  which can be obtained as the optional output \id{ROUT(6)}, passed from
+  the calling program to this routine using either \id{RPAR} or Common.
 
   If the \id{FCVBJAC} routine is provided, then, following the call to \id{FCVBAND},
   the user must make the call:
@@ -573,8 +577,8 @@ apply to {\nvecp}.
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FCVJTIMES@\texttt{FCVJTIMES}}
 \begin{verbatim}
-      SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, IPAR, RPAR, WORK, IER)
-      DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), IPAR(*), RPAR(*), WORK(*)
+      SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, H, IPAR, RPAR, WORK, IER)
+      DIMENSION V(*), FJV(*), Y(*), FY(*), IPAR(*), RPAR(*), WORK(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, \id{V}, and
   \id{FJV}.  It must compute the product vector $Jv$, where the vector $v$ is
@@ -587,18 +591,12 @@ apply to {\nvecp}.
   The vector \id{WORK}, of length \id{NEQ}, is
   provided as work space for use in \id{FCVJTIMES}.
 
-  If the user's \id{FCVJTIMES} uses difference quotient approximations, it
-  may need to use the error weight array \id{EWT} and current stepsize \id{H}
-  in the calculation of suitable increments.  It may also need the unit
-  roundoff, which can be obtained as the optional output \id{ROUT(6)},
-  passed from the calling program to this routine using \id{COMMON}.
-
   If preconditioning is to be included, the following routine must be
   supplied, for solution of the preconditioner linear system:
   \index{FCVPSOL@\texttt{FCVPSOL}}
 \begin{verbatim}
-      SUBROUTINE FCVPSOL(T, Y, FY, R, Z, GAMMA, DELTA, LR, 
-     &                   IPAR, RPAR, WORK, IER)
+      SUBROUTINE FCVPSOL(T, Y, FY, R, Z, GAMMA, DELTA, LR, IPAR, RPAR,
+     &                   WORK, IER)
       DIMENSION Y(*), FY(*), R(*), Z(*), IPAR(*), RPAR(*), WORK(*)
 \end{verbatim}
   It must solve the preconditioner linear system $Pz = r$, where $r =$ \id{R} 
@@ -649,24 +647,25 @@ apply to {\nvecp}.
 
   {\warn} If the user calls \id{FCVSPGMRSETPREC}, \id{FCVSPBCGSETPREC}, or 
   \id{FCVSPTFQMRSETPREC}, the routine \id{FCVPSET} must
-  be provided, even if it's empty.
+  be provided, even if it is empty.
 
-  {\bf Note} 
-
-  \begin{description}
-  \item[] If the user's \id{FCVPSET} uses difference quotient approximations, 
-    it may need to use the error weight array \id{EWT} and current stepsize \id{H}
-    in the calculation of suitable increments and it may also need the unit
-    roundoff. If \id{FCVPSOL} uses an iterative method in its solution, the residual 
-    vector $\rho = r - Pz$ of the system should be made less than \id{DELTA} in weighted
-    $\ell_2$ norm, i.e. $\sqrt{\sum(\rho_i * \id{EWT}[i])^2} < $ \id{DELTA}.
-  \item[] If needed, the unit roundoff can be obtained as the optional output \id{ROUT(6)}
-    (available after the call to \id{FCVMALLOC}) and can be passed to \id{FCVPSET}
-    using either the \id{RPAR} user data array or a common block.
-  \item[] If needed, the error weight array \id{EWT} can be obtained by calling
-    \id{FCVGETERRWEIGHTS} using one of the work arrays as temporary storage for
-    \id{EWT}.
-  \end{description}
+  {\bf Notes} 
+  \begin{itemize}
+  \item[(a) ] If the user's \id{FCVJTIMES} or \id{FCVPSET} routine uses difference
+    quotient approximations, it may need to use the error weight array \id{EWT},
+    the current stepsize \id{H}, and/or the unit roundoff, in the calculation of
+    suitable increments.  Also, If \id{FCVPSOL} uses an iterative method in its
+    solution, the residual vector $\rho = r - Pz$ of the system should be made
+    less than \id{DELTA} in weighted $\ell_2$ norm, i.e.
+    $\sqrt{\sum(\rho_i * \id{EWT}[i])^2} < $ \id{DELTA}.
+  \item[(b) ] If needed in \id{FCVJTIMES}, \id{FCVPSOL}, or \id{FCVPSET}, the
+    error weight array \id{EWT} can be obtained by calling \id{FCVGETERRWEIGHTS}
+    using one of the work arrays as temporary storage for \id{EWT}.
+  \item[(c) ] If needed in \id{FCVJTIMES}, \id{FCVPSOL}, or \id{FCVPSET}, the
+    unit roundoff can be obtained as the optional output \id{ROUT(6)}
+    (available after the call to \id{FCVMALLOC}) and can be passed
+    using either the \id{RPAR} user data array or a Common block.
+  \end{itemize}
 
 %%====================
 \item {\bf Problem solution}
