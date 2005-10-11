@@ -1,25 +1,28 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.20 $
-C     $Date: 2005-10-05 20:37:49 $
+C     $Revision: 1.21 $
+C     $Date: 2005-10-11 16:04:24 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
 C     preconditioning on right.
 C     ----------------------------------------------------------------
 C
-C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
+C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
 C
       IMPLICIT NONE
 C
       INCLUDE "mpif.h"
 C
+      INTEGER*4 NLOCAL
+      PARAMETER (NLOCAL=10)
+C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE, LNLI, LNPS
       INTEGER LNCFL, NOUT, MYPE, NPES, IER, METH, ITMETH, IATOL
       INTEGER ITASK, IPRE, IGS, JOUT
-      INTEGER*4 IOUT(25)
-      INTEGER*4 NEQ, NLOCAL, I, NST, NFE, NPSET, NPE, NPS, NNI, NLI
+      INTEGER*4 IOUT(25), IPAR(2)
+      INTEGER*4 NEQ, I, NST, NFE, NPSET, NPE, NPS, NNI, NLI
       INTEGER*4 NCFL, NETF, NCFN
-      DOUBLE PRECISION Y(1024), ROUT(10)
+      DOUBLE PRECISION Y(1024), ROUT(10), RPAR(1)
       DOUBLE PRECISION ATOL, DTOUT, T, ALPHA, RTOL, TOUT, ERMAX, ERRI
       DOUBLE PRECISION GERMAX, AVDIM
 C
@@ -27,9 +30,7 @@ C
       DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
      1     LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
 C
-      COMMON /PCOM/ ALPHA, NLOCAL, MYPE
-C
-C Get NPES and MYPE.  Requires initialization of MPI.
+C     Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,5) IER
@@ -51,8 +52,7 @@ C Get NPES and MYPE.  Requires initialization of MPI.
         STOP
         ENDIF
 C
-C Set input arguments.
-      NLOCAL = 10
+C     Set input arguments.
       NEQ = NPES * NLOCAL
       T = 0.0D0
       METH = 2
@@ -61,10 +61,15 @@ C Set input arguments.
       ITASK = 1
       IPRE = 1
       IGS = 1
-C Set parameter alpha.
+C     Set parameter alpha.
       ALPHA  = 10.0D0
 C
-C Do remaining initializations for first case: IPRE = 1 (prec. on left).
+C     Load IPAR and RPAR
+      IPAR(1) = NLOCAL
+      IPAR(2) = MYPE
+      RPAR(1) = ALPHA
+C
+C     Do remaining initializations for first case: IPRE = 1 (prec. on left).
 C
       DO 10 I = 1, NLOCAL
   10    Y(I) = 1.0D0
@@ -96,7 +101,7 @@ C
         ENDIF
 C
       CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               IOUT, ROUT, IER)
+     1               IOUT, ROUT, IPAR, RPAR, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -115,7 +120,7 @@ C
 C
         CALL FCVSPGMRSETPREC(1, IER)
 C
-C Loop through tout values, call solver, print output, test for failure.
+C     Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 70 JOUT = 1, NOUT
 C
@@ -136,12 +141,12 @@ C
         TOUT = TOUT + DTOUT
   70    CONTINUE
 C
-C Get max. absolute error in the local vector.
+C     Get max. absolute error in the local vector.
       ERMAX = 0.0D0
       DO 75 I = 1, NLOCAL
         ERRI  = Y(I) - EXP(-ALPHA * (MYPE * NLOCAL + I) * T)
   75    ERMAX = MAX(ERMAX, ABS(ERRI))
-C Get global max. error from MPI_REDUCE call.
+C     Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
      1                0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
@@ -153,7 +158,7 @@ C Get global max. error from MPI_REDUCE call.
       IF (MYPE .EQ. 0) WRITE(6,85) GERMAX
   85  FORMAT(/'Max. absolute error is ', E10.2/)
 C
-C Print final statistics.
+C     Print final statistics.
       NST = IOUT(LNST)
       NFE = IOUT(LNFE)
       NPSET = IOUT(LNSETUP)
@@ -181,7 +186,7 @@ C Print final statistics.
      &       '  linear = ', I3/
      &       ' number of error test failures = ', I3)
 C
-C Re-initialize to run second case: IPRE = 2 (prec. on right).
+C     Re-initialize to run second case: IPRE = 2 (prec. on right).
       IPRE = 2
       T = 0.0D0
       DO 110 I = 1, NLOCAL
@@ -207,7 +212,7 @@ C
          STOP
       ENDIF
 C
-C Loop through tout values, call solver, print output, test for failure.
+C     Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 170 JOUT = 1, NOUT
 C
@@ -224,12 +229,12 @@ C
         TOUT = TOUT + DTOUT
  170    CONTINUE
 C
-C Get max. absolute error in the local vector.
+C     Get max. absolute error in the local vector.
       ERMAX = 0.0D0
       DO 175 I = 1, NLOCAL
         ERRI  = Y(I) - EXP(-ALPHA * (MYPE * NLOCAL + I) * T)
  175    ERMAX = MAX(ERMAX, ABS(ERRI))
-C Get global max. error from MPI_REDUCE call.
+C     Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
      1                0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
@@ -238,8 +243,8 @@ C Get global max. error from MPI_REDUCE call.
         STOP
       ENDIF
       IF (MYPE .EQ. 0) WRITE(6,85) GERMAX
-C
-C Print final statistics.
+C     
+C     Print final statistics.
       NST = IOUT(LNST)
       NFE = IOUT(LNFE)
       NPSET = IOUT(LNSETUP)
@@ -255,7 +260,7 @@ C Print final statistics.
      1  WRITE (6,90) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
      &               NCFL, NETF
 C
-C Free the memory and finalize MPI.
+C     Free the memory and finalize MPI.
       CALL FCVFREE
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
@@ -267,55 +272,72 @@ C
       STOP
       END
 C
-      SUBROUTINE FCVFUN(T, Y, YDOT)
-C Routine for right-hand side function f
+C     ------------------------------------------------------------------------
+C
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+C     Routine for right-hand side function f
       IMPLICIT NONE
 C
-      INTEGER MYPE
-      INTEGER*4 I, NLOCAL
-      DOUBLE PRECISION YDOT, ALPHA, Y, T
-      DIMENSION Y(*), YDOT(*)
+      INTEGER*4 IPAR(*)
+      DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
-      COMMON /PCOM/ ALPHA, NLOCAL, MYPE
+      INTEGER*4 I, MYPE, NLOCAL
+      DOUBLE PRECISION ALPHA
 C
-      DO 10 I = 1, NLOCAL
-  10    YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
+      NLOCAL = IPAR(1)
+      MYPE = IPAR(2)
+      ALPHA = RPAR(1)
+C
+      DO I = 1, NLOCAL
+         YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
+      ENDDO
 C
       RETURN
       END
 C
-      SUBROUTINE FCVPSOL(T, Y, FY, VT, GAMMA, DELTA, R, LR, Z, IER)
-C Routine to solve preconditioner linear system
-C This routine uses a diagonal preconditioner P = I - gamma*J,
-C where J is a diagonal approximation to the true Jacobian, given by:
-C J = diag(0, 0, 0, -4*alpha, ..., -N*alpha).
-C The vector r is copied to z, and the inverse of P (restricted to the
-C local vector segment) is applied to the vector z.
+C     ------------------------------------------------------------------------
+C
+      SUBROUTINE FCVPSOL(T, Y, FY, R, Z, GAMMA, DELTA, LR,
+     &                   IPAR, RPAR, VTEMP, IER)
+C     Routine to solve preconditioner linear system
+C     This routine uses a diagonal preconditioner P = I - gamma*J,
+C     where J is a diagonal approximation to the true Jacobian, given by:
+C     J = diag(0, 0, 0, -4*alpha, ..., -N*alpha).
+C     The vector r is copied to z, and the inverse of P (restricted to the
+C     local vector segment) is applied to the vector z.
       IMPLICIT NONE
 C
-      INTEGER IER, MYPE
-      INTEGER*4 I, NLOCAL, ISTART, IBASE, LR
-      DOUBLE PRECISION PSUBI, GAMMA, ALPHA, Y, T, FY, VT, DELTA
-      DOUBLE PRECISION Z, R
-      DIMENSION Y(*), R(*), Z(*)
+      INTEGER IER, LR
+      INTEGER*4 IPAR(*)
+      DOUBLE PRECISION T, Y(*), FY(*), R(*), Z(*)
+      DOUBLE PRECISION GAMMA, DELTA, RPAR(*)
+      DOUBLE PRECISION VTEMP(*)
 C
-      COMMON /PCOM/ ALPHA, NLOCAL, MYPE
+      INTEGER*4 I, MYPE, NLOCAL, ISTART, IBASE
+      DOUBLE PRECISION PSUBI, ALPHA
 C
-      DO 10 I = 1, NLOCAL
- 10     Z(I) = R(I)
+      NLOCAL = IPAR(1)
+      MYPE = IPAR(2)
+      ALPHA = RPAR(1)
+C
+      DO I = 1, NLOCAL
+         Z(I) = R(I)
+      ENDDO
 C
       IBASE = MYPE * NLOCAL
       ISTART = MAX(1, 4 - IBASE)
-      DO 20 I = ISTART, NLOCAL
+      DO I = ISTART, NLOCAL
         PSUBI = 1.0D0 + GAMMA * ALPHA * (IBASE + I)
         Z(I) = Z(I) / PSUBI
- 20     CONTINUE
+      ENDDO
 C
       RETURN
       END
-
-
-      SUBROUTINE FCVPSET(T, U, FU, JOK, JCUR, GAMMA, H, V1, V2, V3, IER)
+C
+C     ------------------------------------------------------------------------
+C
+      SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H,
+     &                   IPAR, RPAR, V1, V2, V3, IER)
 C     Empty function. Not needed for the preconditioner, but required
 C     by the  FCVODE module.
       RETURN

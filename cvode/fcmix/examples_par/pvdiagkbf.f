@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.21 $
-C     $Date: 2005-08-12 23:34:59 $
+C     $Revision: 1.22 $
+C     $Date: 2005-10-11 16:04:24 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -12,25 +12,25 @@ C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
       IMPLICIT NONE
 C
       INCLUDE "mpif.h"
-     
+C
+      INTEGER*4 NLOCAL
+      PARAMETER (NLOCAL=10)   
 C
       INTEGER NOUT, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE
       INTEGER LNLI, LNPS, LNCFL, MYPE, IER, NPES, METH, ITMETH
       INTEGER IATOL, ITASK, IPRE, IGS, JOUT
-      INTEGER*4 IOUT(25)
-      INTEGER*4 NEQ, NLOCAL, I, MUDQ, MLDQ, MU, ML, NETF
+      INTEGER*4 IOUT(25), IPAR(2)
+      INTEGER*4 NEQ, I, MUDQ, MLDQ, MU, ML, NETF
       INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL
       INTEGER*4 LENRPW, LENIPW, NGE
+      DOUBLE PRECISION Y(1024), ROUT(10), RPAR(1)
       DOUBLE PRECISION ALPHA, TOUT, ERMAX, AVDIM
-      DOUBLE PRECISION ATOL, ERRI, RTOL, GERMAX, DTOUT, Y, ROUT, T
-      DIMENSION Y(1024), ROUT(10)
+      DOUBLE PRECISION ATOL, ERRI, RTOL, GERMAX, DTOUT, T
 C     
       DATA ATOL/1.0D-10/, RTOL/1.0D-5/, DTOUT/0.1D0/, NOUT/10/
       DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
      1     LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
 C
-      COMMON /PCOM/ ALPHA, NLOCAL, MYPE
-C     
 C     Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
       IF (IER .NE. 0) THEN
@@ -51,11 +51,9 @@ C     Get NPES and MYPE.  Requires initialization of MPI.
  7       FORMAT(///' MPI_ERROR: MPI_COMM_RANK returned IER = ', I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
-      ENDIF
-      
+      ENDIF      
 C     
 C     Set input arguments.
-      NLOCAL = 10
       NEQ = NPES * NLOCAL
       T = 0.0D0
       METH = 2
@@ -66,6 +64,11 @@ C     Set input arguments.
       IGS = 1
 C     Set parameter alpha
       ALPHA  = 10.0D0
+C
+C     Load IPAR and RPAR
+      IPAR(1) = NLOCAL
+      IPAR(2) = MYPE
+      RPAR(1) = ALPHA
 C     
       DO I = 1, NLOCAL
          Y(I) = 1.0D0
@@ -92,7 +95,7 @@ C
       ENDIF
 C     
       CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     &               IOUT, ROUT, IER)
+     &               IOUT, ROUT, IPAR, RPAR, IER)
 C     
       IF (IER .NE. 0) THEN
          WRITE(6,30) IER
@@ -248,18 +251,23 @@ C
       STOP
       END
 C
-      SUBROUTINE FCVFUN(T, Y, YDOT)
-C     Routine for right-hand side function f
+C     ------------------------------------------------------------------------
 C
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+C     Routine for right-hand side function f
       IMPLICIT NONE
+C
+      INTEGER*4 IPAR(*)
+      DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       INTEGER MYPE
       INTEGER*4 I, NLOCAL
-      DOUBLE PRECISION Y, YDOT, ALPHA, T
-      DIMENSION Y(*), YDOT(*)
-C
-      COMMON /PCOM/ ALPHA, NLOCAL, MYPE
+      DOUBLE PRECISION ALPHA
 C     
+      NLOCAL = IPAR(1)
+      MYPE = IPAR(2)
+      ALPHA = RPAR(1)
+C
       DO I = 1, NLOCAL
          YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
       ENDDO
@@ -267,20 +275,23 @@ C
       RETURN
       END
 C
-      SUBROUTINE FCVGLOCFN(NLOC, T, YLOC, GLOC)
+C     ------------------------------------------------------------------------
+C
+      SUBROUTINE FCVGLOCFN(NLOC, T, YLOC, GLOC, IPAR, RPAR)
 C     Routine to define local approximate function g, here the same as f. 
       IMPLICIT NONE
 C
-      INTEGER*4 NLOC
-      DOUBLE PRECISION YLOC, GLOC, T
-      DIMENSION YLOC(*), GLOC(*)
+      INTEGER*4 NLOC, IPAR(*)
+      DOUBLE PRECISION T, YLOC(*), GLOC(*), RPAR(*)
 C     
-      CALL FCVFUN(T, YLOC, GLOC)
+      CALL FCVFUN(T, YLOC, GLOC, IPAR, RPAR)
 C     
       RETURN
       END
-      
-      SUBROUTINE FCVCOMMFN(NLOC, T, YLOC)
+C
+C     ------------------------------------------------------------------------
+C      
+      SUBROUTINE FCVCOMMFN(NLOC, T, YLOC, IPAR, RPAR)
 C     Routine to perform communication required for evaluation of g.
       RETURN
       END

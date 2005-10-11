@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.22 $
-C     $Date: 2005-10-05 20:34:28 $
+C     $Revision: 1.23 $
+C     $Date: 2005-10-11 16:04:31 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -34,10 +34,10 @@ C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, LNGE
       INTEGER METH, ITMETH, ITOL, ITASK, JOUT, NOUT, IERROOT
       INTEGER INFO(2)
-      INTEGER*4 IOUT(25)
+      INTEGER*4 IOUT(25), IPAR
       INTEGER*4 NEQ
       DOUBLE PRECISION RTOL, T, T0, TOUT
-      DOUBLE PRECISION Y(3), ATOL(3), ROUT(10)
+      DOUBLE PRECISION Y(3), ATOL(3), ROUT(10), RPAR
 C
       DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
      1     LNGE/12/, LNJE/17/
@@ -72,7 +72,7 @@ C
 C
 
       CALL FCVMALLOC(T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
-     1               IOUT, ROUT, IER)
+     1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
@@ -162,11 +162,14 @@ C
       STOP
       END
 
-      SUBROUTINE FCVFUN(T, Y, YDOT)
+C     ----------------------------------------------------------------
+
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
 C Fortran routine for right-hand side function.
       IMPLICIT NONE
 C
-      DOUBLE PRECISION T, Y(*), YDOT(*)
+      INTEGER*4 IPAR(*)
+      DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       YDOT(1) = -0.04D0 * Y(1) + 1.0D4 * Y(2) * Y(3)
       YDOT(3) = 3.0D7 * Y(2) * Y(2)
@@ -174,24 +177,31 @@ C
       RETURN
       END
 
-      SUBROUTINE FCVROOTFN(T, Y, G)
+C     ----------------------------------------------------------------
+
+      SUBROUTINE FCVROOTFN(T, Y, G, IPAR, RPAR)
 C Fortran routine for root finding
       IMPLICIT NONE
 C
-      DOUBLE PRECISION T, Y(*), G(*)
+      DOUBLE PRECISION T, Y(*), G(*), RPAR(*)
+      INTEGER*4 IPAR(*)
 C
       G(1) = Y(1) - 1.0D-4
       G(2) = Y(3) - 1.0D-2
       RETURN
       END
 
-      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, H, V1, V2, V3)
+C     ----------------------------------------------------------------
+
+      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR, V1, V2, V3)
 C Fortran routine for dense user-supplied Jacobian.
       IMPLICIT NONE
 C
-      INTEGER*4 N
-      DOUBLE PRECISION T, Y(*), JAC(N,*), Y1, Y2, Y3
-      DOUBLE PRECISION FY, V1, V2, V3, H
+      INTEGER*4 N, IPAR(*)
+      DOUBLE PRECISION T, Y(*), FY(*), JAC(N,*), H, RPAR(*)
+      DOUBLE PRECISION V1(*), V2(*), V3(*)
+C
+      DOUBLE PRECISION  Y1, Y2, Y3
 C
       Y1 = Y(1)
       Y2 = Y(2)

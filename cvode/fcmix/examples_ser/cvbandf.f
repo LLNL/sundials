@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.20 $
-C     $Date: 2005-10-05 20:34:28 $
+C     $Revision: 1.21 $
+C     $Date: 2005-10-11 16:04:31 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -25,21 +25,26 @@ C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
+      INTEGER*4 MX, MY, NEQ
+      PARAMETER (MX=10, MY=5)
+      PARAMETER (NEQ=MX*MY)
+C     
+      DOUBLE PRECISION XMAX, YMAX
+      DATA XMAX/2.0D0/, YMAX/1.0D0/
+C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
       INTEGER IER, METH, ITMETH, IATOL, INOPT, ITASK, JOUT
-      INTEGER*4 IOUT(25)
-      INTEGER*4 NEQ, MU, ML, MX, MY
+      INTEGER*4 IOUT(25), IPAR(2)
+      INTEGER*4 MU, ML
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
-      DOUBLE PRECISION U(50), ROUT(10)
+      DOUBLE PRECISION U(NEQ), ROUT(10), RPAR(5)
 C
       DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
      1     LNJE/17/
 C
-      MX = 10
-      MY = 5
-      NEQ = MX * MY
+      CALL INITBX(XMAX, YMAX, MX, MY, U, IPAR, RPAR)
+C     
       T0 = 0.0D0
-      CALL INITBX(MX, MY, U)
       METH = 2
       ITMETH = 2
       IATOL = 1
@@ -62,7 +67,7 @@ C
       ENDIF
 C
       CALL FCVMALLOC(T0, U, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               IOUT, ROUT, IER)
+     1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
  30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
@@ -118,27 +123,32 @@ C
       STOP
       END
 
-      SUBROUTINE INITBX(MESHX, MESHY, U0)
-C Load Common with problem constants and U0 with initial values
+C     ----------------------------------------------------------------
+
+      SUBROUTINE INITBX(XMAX, YMAX, MX, MY, U0, IPAR, RPAR)
+C Load IPAR and RPAR with problem constants and U0 with initial values
       IMPLICIT NONE
 C
-      INTEGER*4 I, J, MX, MY
-      INTEGER*4 MESHX, MESHY
-      DOUBLE PRECISION U0(MESHY,MESHX)
-      DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
-      DOUBLE PRECISION XMAX, YMAX, X, Y
+      INTEGER*4 MX, MY, IPAR(*)
+      DOUBLE PRECISION XMAX, YMAX, U0(MY,MX), RPAR(*)
 C
-      DATA XMAX/2.0D0/, YMAX/1.0D0/
-      COMMON /PAR/ DX, DY, HDCOEF, HACOEF, VDCOEF, MX, MY
+      INTEGER*4 I, J
+      DOUBLE PRECISION DX, DY, X, Y, HDCOEF, HACOEF, VDCOEF
 C
-C Load constants in Common.
-      MX = MESHX
-      MY = MESHY
+C Problem constants
       DX = XMAX / (MX + 1)
       DY = YMAX / (MY + 1)
       HDCOEF = 1.0D0 / (DX * DX)
       HACOEF = 0.5D0 / (2.0D0 * DX)
       VDCOEF = 1.0D0 / (DY * DY)
+C Load constants in IPAR and RPAR
+      IPAR(1) = MX
+      IPAR(2) = MY
+      RPAR(1) = DX
+      RPAR(2) = DY
+      RPAR(3) = HDCOEF
+      RPAR(4) = HACOEF
+      RPAR(5) = VDCOEF
 C
 C Loop over grid and load initial values.
       DO 20 I = 1, MX
@@ -168,16 +178,27 @@ C
       RETURN
       END
 
-      SUBROUTINE FCVFUN(T, U, UDOT)
+C     ----------------------------------------------------------------
+
+      SUBROUTINE FCVFUN(T, U, UDOT, IPAR, RPAR)
 C Right-hand side routine
       IMPLICIT NONE
 C
+      DOUBLE PRECISION T, U(*), UDOT(*), RPAR(*)
+      INTEGER*4 IPAR(*)
+C
       INTEGER*4 I, MX, IOFF, MY, J, IJ
-      DOUBLE PRECISION T, U(*), UDOT(*)
       DOUBLE PRECISION UIJ, UDN, UUP, ULT, URT, HDIFF, HADV, VDIFF
       DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
 C
-      COMMON /PAR/ DX, DY, HDCOEF, HACOEF, VDCOEF, MX, MY
+C Exract constants from IPAR and RPAR
+      MX     = IPAR(1)
+      MY     = IPAR(2)
+      DX     = RPAR(1)
+      DY     = RPAR(2)
+      HDCOEF = RPAR(3)
+      HACOEF = RPAR(4)
+      VDCOEF = RPAR(5)
 C
 C Loop over all grid points.
       DO 20 I = 1, MX
@@ -207,18 +228,29 @@ C
       RETURN
       END
 
+C     ----------------------------------------------------------------
+
       SUBROUTINE FCVBJAC(N, MU, ML, MDIM, T, U, FU,
-     1                   BJAC, H, V1, V2, V3)
+     1                   BJAC, H, IPAR, RPAR, V1, V2, V3)
 C Load banded Jacobian
       IMPLICIT NONE
 C
-      INTEGER*4 MDIM, MBAND, MX, MY, N
-      INTEGER*4 I, J, K, IOFF, MU1, MU2, MU, ML
-      DOUBLE PRECISION BJAC(MDIM,*)
-      DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
-      DOUBLE PRECISION T, U, FU, V1, V2, V3, H
+      INTEGER*4 N, MU, ML, MDIM, IPAR(*)
+      DOUBLE PRECISION T, U(*), FU(*), BJAC(MDIM,*), H, RPAR(*)
+      DOUBLE PRECISION V1(*), V2(*), V3(*)
 C
-      COMMON /PAR/ DX, DY, HDCOEF, HACOEF, VDCOEF, MX, MY
+      INTEGER*4 MBAND, MX, MY
+      INTEGER*4 I, J, K, IOFF, MU1, MU2
+      DOUBLE PRECISION DX, DY, HDCOEF, HACOEF, VDCOEF
+C
+C Exract constants from IPAR and RPAR
+      MX     = IPAR(1)
+      MY     = IPAR(2)
+      DX     = RPAR(1)
+      DY     = RPAR(2)
+      HDCOEF = RPAR(3)
+      HACOEF = RPAR(4)
+      VDCOEF = RPAR(5)
 C
       MU1 = MU + 1
       MU2 = MU + 2

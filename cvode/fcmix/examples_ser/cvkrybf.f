@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.12 $
-C     $Date: 2005-08-12 23:35:18 $
+C     $Revision: 1.13 $
+C     $Date: 2005-10-11 16:04:31 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -27,19 +27,23 @@ C     The problem is solved with CVODE, with the BDF/GMRES method and
 C     using the FCVBP banded preconditioner module
 C     
 C     The second and third dimensions of U here must match the values of
-C     MESHX and MESHY, for consistency with the output statements below.
+C     MX and MY, for consistency with the output statements below.
 C     ----------------------------------------------------------------
 C
       IMPLICIT NONE
 C
+      INTEGER*4 MX, MY, NEQ
+      PARAMETER (MX=10, MY=10)
+      PARAMETER (NEQ=2*MX*MY)
+C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNPE, LNLI, LNPS
       INTEGER LNCFL, LH, LQ, METH, ITMETH, IATOL, ITASK
       INTEGER LNETF, IER, MAXL, JPRETYPE, IGSTYPE, JOUT
-      INTEGER*4 IOUT(25)
-      INTEGER*4 NEQ, MESHX, MESHY, NST, NFE, NPSET, NPE, NPS, NNI
+      INTEGER*4 IOUT(25), IPAR(4)
+      INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI
       INTEGER*4 NLI, NCFN, NCFL, NETF, MU, ML
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
-      DOUBLE PRECISION ROUT(10), U(2,10,10)
+      DOUBLE PRECISION ROUT(10), U(2,MX,MY), RPAR(12)
 C
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
@@ -47,15 +51,10 @@ C
      1     LQ/9/, LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
       DATA LH/2/
 C
-      COMMON /PBDIM/ NEQ
-C     
-C     Set mesh sizes
-      MESHX = 10
-      MESHY = 10
-C     Load Common and initial values in Subroutine INITKX
-      CALL INITKX(MESHX, MESHY, U)
+C Load IPAR, RPAR, and initial values
+      CALL INITKX(MX, MY, U, IPAR, RPAR)
+C
 C     Set other input arguments.
-      NEQ = 2 * MESHX * MESHY
       T = 0.0D0
       METH = 2
       ITMETH = 2
@@ -77,7 +76,7 @@ C     Initialize vector specification
 C     
 C     Initialize CVODE
       CALL FCVMALLOC(T, U, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               IOUT, ROUT, IER)
+     1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
          WRITE(6,30) IER
  30      FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
@@ -163,26 +162,29 @@ C
       STOP
       END
 
-      SUBROUTINE INITKX(MESHX, MESHY, U0)
-C     Routine to set problem constants and initial values
+C     ----------------------------------------------------------------
+
+      SUBROUTINE INITKX(MX, MY, U0, IPAR, RPAR)
+C Routine to set problem constants and initial values
+C
       IMPLICIT NONE
 C
-      INTEGER*4 MX, MY, MM, JX, JY, MESHX, MESHY
-      DOUBLE PRECISION DKV0
+      INTEGER*4 MX, MY, IPAR(*)
+      DOUBLE PRECISION RPAR(*)
+C
+      INTEGER*4 MM, JY, JX, NEQ
+      DOUBLE PRECISION U0
+      DIMENSION U0(2,MX,MY)
       DOUBLE PRECISION Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY, HDCO
       DOUBLE PRECISION VDCO, HACO, X, Y
-      DOUBLE PRECISION CX, CY, DKH, DX, HALFDA, PI, VEL
-      DOUBLE PRECISION U0(2,10,10)
+      DOUBLE PRECISION CX, CY, DKH, DKV0, DX, HALFDA, PI, VEL
 C
-      COMMON /PCOM/ Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY
-      COMMON /PCOM/ HDCO, VDCO, HACO, MX, MY, MM
       DATA DKH/4.0D-6/, VEL/0.001D0/, DKV0/1.0D-8/, HALFDA/4.32D4/,
      1     PI/3.1415926535898D0/
-C     
-C     Load Common block of problem parameters.
-      MX = MESHX
-      MY = MESHY
+C
+C Problem constants
       MM = MX * MY
+      NEQ = 2 * MM
       Q1 = 1.63D-16
       Q2 = 4.66D-16
       A3 = 22.62D0
@@ -194,39 +196,76 @@ C     Load Common block of problem parameters.
       HDCO = DKH / DX**2
       HACO = VEL / (2.0D0 * DX)
       VDCO = (1.0D0 / DY**2) * DKV0
-C     
-C     Set initial profiles.
+C Load constants in IPAR and RPAR
+      IPAR(1) = MX
+      IPAR(2) = MY
+      IPAR(3) = MM
+      IPAR(4) = NEQ
+C
+      RPAR(1)  = Q1
+      RPAR(2)  = Q2
+      RPAR(3)  = Q3
+      RPAR(4)  = Q4
+      RPAR(5)  = A3
+      RPAR(6)  = A4
+      RPAR(7)  = OM
+      RPAR(8)  = C3
+      RPAR(9)  = DY
+      RPAR(10) = HDCO
+      RPAR(11) = VDCO
+      RPAR(12) = HACO
+C
+C Set initial profiles.
       DO 20 JY = 1, MY
-         Y = 30.0D0 + (JY - 1.0D0) * DY
-         CY = (0.1D0 * (Y - 40.0D0))**2
-         CY = 1.0D0 - CY + 0.5D0 * CY**2
-         DO 10 JX = 1, MX
-            X = (JX - 1.0D0) * DX
-            CX = (0.1D0 * (X - 10.0D0))**2
-            CX = 1.0D0 - CX + 0.5D0 * CX**2
-            U0(1,JX,JY) = 1.0D6 * CX * CY
-            U0(2,JX,JY) = 1.0D12 * CX * CY
- 10      CONTINUE
- 20   CONTINUE
-C     
+        Y = 30.0D0 + (JY - 1.0D0) * DY
+        CY = (0.1D0 * (Y - 40.0D0))**2
+        CY = 1.0D0 - CY + 0.5D0 * CY**2
+        DO 10 JX = 1, MX
+          X = (JX - 1.0D0) * DX
+          CX = (0.1D0 * (X - 10.0D0))**2
+          CX = 1.0D0 - CX + 0.5D0 * CX**2
+          U0(1,JX,JY) = 1.0D6 * CX * CY
+          U0(2,JX,JY) = 1.0D12 * CX * CY
+ 10       CONTINUE
+ 20     CONTINUE
+C
       RETURN
       END
       
-      SUBROUTINE FCVFUN(T, U, UDOT)
+C     ----------------------------------------------------------------
+
+      SUBROUTINE FCVFUN(T, U, UDOT, IPAR, RPAR)
 C     Routine for right-hand side function f
       IMPLICIT NONE
 C
+      INTEGER*4 IPAR(*)
+      DOUBLE PRECISION T, U(2,*), UDOT(2,*), RPAR(*)
+C
       INTEGER ILEFT, IRIGHT
       INTEGER*4 MX, MY, MM, JY, JX, IBLOK0, IDN, IUP, IBLOK
-      DOUBLE PRECISION T, UDOT(2,*), U(2,*)
       DOUBLE PRECISION Q1,Q2,Q3,Q4, A3, A4, OM, C3, DY, HDCO, VDCO, HACO
       DOUBLE PRECISION C1, C2, C1DN, C2DN, C1UP, C2UP, C1LT, C2LT
       DOUBLE PRECISION C1RT, C2RT, CYDN, CYUP, HORD1, HORD2, HORAD1
       DOUBLE PRECISION HORAD2, QQ1, QQ2, QQ3, QQ4, RKIN1, RKIN2, S
       DOUBLE PRECISION VERTD1, VERTD2, YDN, YUP
 C
-      COMMON /PCOM/ Q1, Q2, Q3, Q4, A3, A4, OM, C3, DY
-      COMMON /PCOM/ HDCO, VDCO, HACO, MX, MY, MM
+C     Extract constants from IPAR and RPAR
+      MX = IPAR(1)
+      MY = IPAR(2)
+      MM = IPAR(3)
+C
+      Q1 = RPAR(1)
+      Q2 = RPAR(2)
+      Q3 = RPAR(3)
+      Q4 = RPAR(4)
+      A3 = RPAR(5)
+      A4 = RPAR(6)
+      OM = RPAR(7)
+      C3 = RPAR(8)
+      DY = RPAR(9)
+      HDCO = RPAR(10)
+      VDCO = RPAR(11)
+      HACO = RPAR(12)
 C     
 C     Set diurnal rate coefficients.
       S = SIN(OM * T)

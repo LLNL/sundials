@@ -1,30 +1,31 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.14 $
-C     $Date: 2005-08-12 23:34:59 $
+C     $Revision: 1.15 $
+C     $Date: 2005-10-11 16:04:24 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
 C     ----------------------------------------------------------------
 C
-C Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
+C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
 C
       IMPLICIT NONE
 C
       INCLUDE "mpif.h"
 C
+      INTEGER*4 NLOCAL
+      PARAMETER (NLOCAL=2)
+C
       INTEGER IER, MYPE, NPES, NOUT, LNST, LNFE, LNNI, LNCF, LNETF
       INTEGER METH, ITMETH, IATOL, ITASK, JOUT
-      INTEGER*4 NEQ, NLOCAL, I, NST, NFE, NNI, NCFN, NETF
-      INTEGER*4 IOUT(25)
-      DOUBLE PRECISION Y, ROUT, ATOL, RTOL, DTOUT, T, ALPHA, TOUT
+      INTEGER*4 NEQ, I, NST, NFE, NNI, NCFN, NETF
+      INTEGER*4 IOUT(25), IPAR(2)
+      DOUBLE PRECISION Y(128), ROUT(10), RPAR(1)
+      DOUBLE PRECISION ATOL, RTOL, DTOUT, T, ALPHA, TOUT
       DOUBLE PRECISION ERMAX, ERRI, GERMAX
-      DIMENSION Y(128), ROUT(10)
 C
       DATA ATOL/1.0D-10/, RTOL/1.0D-5/, DTOUT/0.1D0/, NOUT/10/
       DATA LNST/3/, LNFE/4/, LNNI/7/, LNCF/6/, LNETF/5/
 C
-      COMMON /PCOM/ ALPHA, NLOCAL, MYPE
-C
-C Get NPES and MYPE.  Requires initialization of MPI.
+C     Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,5) IER
@@ -46,16 +47,20 @@ C Get NPES and MYPE.  Requires initialization of MPI.
         STOP
         ENDIF
 C
-C Set input arguments.
-      NLOCAL = 2
+C     Set input arguments.
       NEQ = NPES * NLOCAL
       T = 0.0D0
       METH = 1
       ITMETH = 1
       IATOL = 1
       ITASK = 1
-c Set parameter ALPHA
+c     Set parameter ALPHA
       ALPHA  = 10.0D0 / NEQ
+C
+C     Load IPAR and RPAR
+      IPAR(1) = NLOCAL
+      IPAR(2) = MYPE
+      RPAR(1) = ALPHA
 C
       DO 10 I = 1, NLOCAL
   10    Y(I) = 1.0D0
@@ -84,7 +89,7 @@ C
         ENDIF
 C
       CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
-     1               IOUT, ROUT, IER)
+     1               IOUT, ROUT, IPAR, RPAR, IER)
 C
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -93,7 +98,7 @@ C
         STOP
         ENDIF
 C
-C Loop through tout values, call solver, print output, test for failure.
+C     Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT
       DO 70 JOUT = 1, NOUT
 C
@@ -114,13 +119,13 @@ C
         TOUT = TOUT + DTOUT
   70    CONTINUE
 C
-C Get max. absolute error in the local vector.
+C     Get max. absolute error in the local vector.
       ERMAX = 0.0D0
       DO 75 I = 1, NLOCAL
         ERRI  = Y(I) - EXP(-ALPHA * (MYPE * NLOCAL + I) * T)
         ERMAX = MAX(ERMAX, ABS(ERRI))
   75    CONTINUE
-C Get global max. error from MPI_REDUCE call.
+C     Get global max. error from MPI_REDUCE call.
       CALL MPI_REDUCE(ERMAX, GERMAX, 1, MPI_DOUBLE_PRECISION, MPI_MAX,
      1                0, MPI_COMM_WORLD, IER)
       IF (IER .NE. 0) THEN
@@ -132,7 +137,7 @@ C Get global max. error from MPI_REDUCE call.
       IF (MYPE .EQ. 0) WRITE(6,85) GERMAX
   85  FORMAT(/'Max. absolute error is ', E10.2/)
 C
-C Print final statistics.
+C     Print final statistics.
       NST = IOUT(LNST)
       NFE = IOUT(LNFE)
       NNI = IOUT(LNNI)
@@ -146,7 +151,7 @@ C Print final statistics.
      &       ' number of nonlinear conv. failures = ', I3/
      &       ' number of error test failures = ', I3)
 C
-C Free the memory and finalize MPI.
+C     Free the memory and finalize MPI.
       CALL FCVFREE
       CALL MPI_FINALIZE(IER)
       IF (IER .NE. 0) THEN
@@ -158,19 +163,27 @@ C
       STOP
       END
 C
-      SUBROUTINE FCVFUN(T, Y, YDOT)
-C Routine for right-hand side function f
+C     ------------------------------------------------------------------------
+C
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+C     Routine for right-hand side function f
+C
       IMPLICIT NONE
+C
+      INTEGER*4 IPAR(*)
+      DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       INTEGER MYPE
       INTEGER*4 NLOCAL, I
-      DOUBLE PRECISION Y, YDOT, ALPHA, T
-      DIMENSION Y(*), YDOT(*)
+      DOUBLE PRECISION ALPHA
 C
-      COMMON /PCOM/ ALPHA, NLOCAL, MYPE
+      NLOCAL = IPAR(1)
+      MYPE = IPAR(2)
+      ALPHA = RPAR(1)
 C
-      DO 10 I = 1, NLOCAL
-  10    YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
+      DO I = 1, NLOCAL
+         YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
+      ENDDO
 C
       RETURN
       END
