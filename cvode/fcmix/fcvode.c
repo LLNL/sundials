@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.54 $
- * $Date: 2005-10-05 20:31:20 $
+ * $Revision: 1.55 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -33,6 +33,7 @@
 #include "fcvode.h"         /* actual function names, prototypes, global vars. */
 #include "nvector.h"        /* definitions of type N_Vector and vector macros  */
 #include "sundialstypes.h"  /* definition of type realtype                     */
+#include "cvode_impl.h"     /* definition of CVodeMem type                     */
 
 /***************************************************************************/
 
@@ -56,7 +57,11 @@ int CV_ls;
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_FUN(realtype*, realtype*, realtype*);
+  extern void FCV_FUN(realtype*,     /* T    */
+                      realtype*,     /* Y    */
+                      realtype*,     /* YDOT */
+                      long int*,     /* IPAR */
+                      realtype*);    /* RPAR */
 #ifdef __cplusplus
 }
 #endif
@@ -66,12 +71,16 @@ extern "C" {
 void FCV_MALLOC(realtype *t0, realtype *y0, 
                 int *meth, int *itmeth, int *iatol, 
                 realtype *rtol, realtype *atol,
-                long int *iout, realtype *rout, 
+                long int *iout, realtype *rout,
+                long int *ipar, realtype *rpar,
                 int *ier)
 {
   int lmm, iter, itol;
   N_Vector Vatol;
   void *atolptr;
+  FCVUserData CV_userdata;
+
+  *ier = 0;
 
   /* Check for required vector operations */
   if(F2C_CVODE_vec->ops->nvgetarraypointer == NULL ||
@@ -91,6 +100,17 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   iter = (*itmeth == 1) ? CV_FUNCTIONAL : CV_NEWTON;
   CV_cvodemem = CVodeCreate(lmm, iter);
   if (CV_cvodemem == NULL) {
+    *ier = -1;
+    return;
+  }
+
+  /* Set and attach user data */
+  CV_userdata = (FCVUserData) malloc(sizeof *CV_userdata);
+  CV_userdata->rpar = rpar;
+  CV_userdata->ipar = ipar;
+
+  *ier = CVodeSetFdata(CV_cvodemem, CV_userdata);
+  if(*ier != CV_SUCCESS) {
     *ier = -1;
     return;
   }
@@ -117,7 +137,6 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   }
 
   /* Call CVodeMalloc */
-  *ier = 0;
   *ier = CVodeMalloc(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
 
   /* destroy Vatol if allocated */
@@ -132,7 +151,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     return;
   }
 
-  /* Grab optional output arrays and store them in global vriables */
+  /* Grab optional output arrays and store them in global variables */
   CV_iout = iout;
   CV_rout = rout;
 
@@ -151,6 +170,8 @@ void FCV_REINIT(realtype *t0, realtype *y0,
   int itol;
   N_Vector Vatol;
   void *atolptr;
+
+  *ier = 0;
 
   /* Initialize all pointers to NULL */
   Vatol = NULL;
@@ -178,7 +199,6 @@ void FCV_REINIT(realtype *t0, realtype *y0,
   }
 
   /* Call CVReInit */
-  *ier = 0;
   *ier = CVodeReInit(CV_cvodemem, FCVf, *t0, F2C_CVODE_vec, itol, *rtol, atolptr);
 
   /* destroy Vatol if allocated */
@@ -520,10 +540,10 @@ void FCV_DKY (realtype *t, int *k, realtype *dky, int *ier)
 
 /*************************************************/
 
-void FCV_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier)
+void FCV_GETERRWEIGHTS(realtype *eweight, int *ier)
 {
-  /* Attach user data to vectors */
-  N_VSetArrayPointer(y, F2C_CVODE_vec);
+  /* Attach user data to vector */
+  N_VSetArrayPointer(eweight, F2C_CVODE_vec);
 
   *ier = 0;
   *ier = CVodeGetErrWeights(CV_cvodemem, F2C_CVODE_vec);
@@ -554,6 +574,11 @@ void FCV_GETESTLOCALERR(realtype *ele, int *ier)
 
 void FCV_FREE ()
 {
+  CVodeMem cv_mem;
+
+  cv_mem = (CVodeMem) CV_cvodemem;
+  free(cv_mem->cv_f_data);
+
   CVodeFree(&CV_cvodemem);
   N_VSetArrayPointer(NULL, F2C_CVODE_vec);
   N_VDestroy(F2C_CVODE_vec);
@@ -571,9 +596,12 @@ void FCV_FREE ()
 void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype *ydata, *dydata;
+  FCVUserData CV_userdata;
 
   ydata  = N_VGetArrayPointer(y);
   dydata = N_VGetArrayPointer(ydot);
 
-  FCV_FUN(&t, ydata, dydata);
+  CV_userdata = (FCVUserData) f_data;
+
+  FCV_FUN(&t, ydata, dydata, CV_userdata->ipar, CV_userdata->rpar);
 }

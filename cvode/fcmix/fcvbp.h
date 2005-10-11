@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-10-05 22:51:52 $
+ * $Revision: 1.15 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -65,8 +65,8 @@
  * 
  * (1) User-supplied right-hand side routine: FCVFUN
  * The user must in all cases supply the following Fortran routine
- *       SUBROUTINE FCVFUN (T, Y, YDOT)
- *       DIMENSION Y(*), YDOT(*)
+ *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR)
+ *       DIMENSION Y(*), YDOT(*), IPAR(*), RPAR(*)
  * It must set the YDOT array to f(t,y), the right-hand side of the ODE
  * system, as function of T = t and the array Y = y.  Here Y and YDOT
  * are distributed vectors.
@@ -75,8 +75,8 @@
  * As an option, the user may supply a routine that computes the product
  * of the system Jacobian J = df/dy and a given vector v.  If supplied, it
  * must have the following form:
- *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, WORK, IER)
- *       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
+ *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, IPAR, RPAR, WORK, IER)
+ *       DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), IPAR(*), RPAR(*), WORK(*)
  * Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
  * compute the product vector Jv, where the vector v is stored in V, and store
  * the product in FJV.  On return, set IER = 0 if FCVJTIMES was successful,
@@ -93,7 +93,7 @@
  * (3.2) To set various problem and solution parameters and allocate
  * internal memory for CVODE, make the following call:
  *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL,
- *      1               IOUT, ROUT, IER)
+ *      1               IOUT, ROUT, IPAR, RPAR, IER)
  * The arguments are:
  * T0     = initial value of t
  * Y0     = array of initial conditions
@@ -105,6 +105,9 @@
  * IOUT   = array of length 21 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
  * ROUT   = array of length 6 for real optional outputs
+ * IPAR   = array with user integer data
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ * RPAR   = array with user real data
  * IER    = return completion flag.  Values are 0 = success, and -1 = failure.
  *          See printed message for details in case of failure.
  * 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-10-05 20:31:20 $
+ * $Revision: 1.23 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -24,10 +24,10 @@
 #include "cvsptfqmr.h"      /* CVSptfqmr prototype                            */
 #include "cvspbcg.h"        /* CVSpbcg prototype                              */
 #include "cvspgmr.h"        /* CVSpgmr prototype                              */
-#include "fcvode.h"         /* actual function names, prototypes and
-			       global variables                               */
+#include "fcvode.h"         /* actual fn. names, prototypes and global vars.  */
 #include "nvector.h"        /* definitions of type N_Vector and vector macros */
 #include "sundialstypes.h"  /* definition of type realtype                    */
+#include "cvode_impl.h"     /* definition of CVodeMem type                    */
 
 /***************************************************************************/
 
@@ -37,8 +37,12 @@
 extern "C" {
 #endif
 
-extern void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*, 
-		       realtype*, realtype*, realtype*, int*);
+  extern void FCV_JTIMES(realtype*, realtype*,            /* V, JV */
+                         realtype*, realtype*, realtype*, /* T, Y, FY */
+                         realtype*,                       /* H */
+                         long int*, realtype*,            /* IPAR, RPAR */
+                         realtype*,                       /* WRK */
+                         int*);
 
 #ifdef __cplusplus
 }
@@ -48,9 +52,12 @@ extern void FCV_JTIMES(realtype*, realtype*, realtype*, realtype*,
 
 void FCV_SPGMRSETJAC(int *flag, int *ier)
 {
+  CVodeMem cv_mem;
+
   if (*flag == 0) {
     *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
+    cv_mem = (CVodeMem) CV_cvodemem;
     *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
   }
 }
@@ -59,9 +66,12 @@ void FCV_SPGMRSETJAC(int *flag, int *ier)
 
 void FCV_SPBCGSETJAC(int *flag, int *ier)
 {
+  CVodeMem cv_mem;
+
   if (*flag == 0) {
     *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
+    cv_mem = (CVodeMem) CV_cvodemem;
     *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
   }
 }
@@ -70,9 +80,12 @@ void FCV_SPBCGSETJAC(int *flag, int *ier)
 
 void FCV_SPTFQMRSETJAC(int *flag, int *ier)
 {
+  CVodeMem cv_mem;
+
   if (*flag == 0) {
     *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
+    cv_mem = (CVodeMem) CV_cvodemem;
     *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
   }
 }
@@ -92,6 +105,7 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
 {
   realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
   realtype h;
+  FCVUserData CV_userdata;
 
   int ier = 0;
   
@@ -103,7 +117,10 @@ int FCVJtimes(N_Vector v, N_Vector Jv, realtype t,
   fydata  = N_VGetArrayPointer(fy);
   wkdata  = N_VGetArrayPointer(work);
 
-  FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, &h, wkdata, &ier);
+  CV_userdata = (FCVUserData) jac_data;
+ 
+  FCV_JTIMES (vdata, Jvdata, &t, ydata, fydata, &h, 
+              CV_userdata->ipar, CV_userdata->rpar, wkdata, &ier);
 
   return(ier);
 }

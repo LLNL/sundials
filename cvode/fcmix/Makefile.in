@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2005-04-07 23:28:22 $
+# $Revision: 1.15 $
+# $Date: 2005-10-11 16:02:39 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,7 +41,10 @@ LIBS     = @LIBS@
 
 SHARED_INC_DIR   = $(srcdir)/../../shared/include
 CVODE_INC_DIR    = $(srcdir)/../include
+CVODE_SRC_DIR    = $(srcdir)/../source
 FCVODE_INC_DIR   = $(srcdir)
+
+INCLUDES = -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(CVODE_SRC_DIR) -I$(FCVODE_INC_DIR)
 
 FCVODE_LIB       = libsundials_fcvode.la
 FCVODE_LIB_FILES = fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo fcvpreco.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo
@@ -67,23 +70,23 @@ uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FCVODE_LIB)
 
 fcvode.lo: $(srcdir)/fcvode.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvode.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvode.c
 fcvewt.lo: $(srcdir)/fcvewt.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvewt.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvewt.c
 fcvband.lo: $(srcdir)/fcvband.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvband.c
 fcvdense.lo: $(srcdir)/fcvdense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvdense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvdense.c
 fcvjtimes.lo: $(srcdir)/fcvjtimes.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvjtimes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvjtimes.c
 fcvpreco.lo: $(srcdir)/fcvpreco.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvpreco.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvpreco.c
 fcvbbd.lo: $(srcdir)/fcvbbd.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvbbd.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvbbd.c
 fcvbp.lo: $(srcdir)/fcvbp.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvbp.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvbp.c
 fcvroot.lo: $(srcdir)/fcvroot.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) -I$(FCVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/fcvroot.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. $(INCLUDES) $(CFLAGS) -c $(srcdir)/fcvroot.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

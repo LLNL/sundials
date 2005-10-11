@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-10-05 20:31:20 $
+ * $Revision: 1.17 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -19,12 +19,10 @@
 #include <stdlib.h>
 
 #include "cvdense.h"        /* CVDense prototype and type DenseMat            */
-#include "fcvode.h"         /* actual function names, prototypes and
-			       global variables                               */
+#include "fcvode.h"         /* actual fn. names, prototypes and global vars.  */
 #include "nvector.h"        /* definitions of type N_Vector and vector macros */
 #include "sundialstypes.h"  /* definition of type realtype                    */
-
-
+#include "cvode_impl.h"     /* definition of CVodeMem type                    */
 
 /***************************************************************************/
 
@@ -33,8 +31,12 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_DJAC(long int*, realtype*, realtype*, realtype*, realtype*, 
-                       realtype*, realtype*, realtype*, realtype*);
+  extern void FCV_DJAC(long int*,                                  /* N */
+                       realtype*, realtype*, realtype*,            /* T, Y, FY */
+                       realtype*,                                  /* DJAC */
+                       realtype*,                                  /* H */ 
+                       long int*, realtype*,                       /* IPAR, RPAR */
+                       realtype*, realtype*, realtype*);           /* V1, V2, V3 */
 #ifdef __cplusplus
 }
 #endif
@@ -43,10 +45,13 @@ extern "C" {
 
 void FCV_DENSESETJAC(int *flag, int *ier)
 {
+  CVodeMem cv_mem;
+
   if (*flag == 0) {
     *ier = CVDenseSetJacFn(CV_cvodemem, NULL, NULL);
   } else {
-    *ier = CVDenseSetJacFn(CV_cvodemem, FCVDenseJac, NULL);
+    cv_mem = (CVodeMem) CV_cvodemem;
+    *ier = CVDenseSetJacFn(CV_cvodemem, FCVDenseJac, cv_mem->cv_f_data);
   }
 }
 
@@ -64,6 +69,7 @@ void FCVDenseJac(long int N, DenseMat J, realtype t,
 {
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
+  FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);
 
@@ -75,7 +81,10 @@ void FCVDenseJac(long int N, DenseMat J, realtype t,
 
   jacdata = DENSE_COL(J,0);
 
-  FCV_DJAC(&N, &t, ydata, fydata, jacdata, &h, v1data, v2data, v3data); 
+  CV_userdata = (FCVUserData) jac_data;
+
+  FCV_DJAC(&N, &t, ydata, fydata, jacdata, &h, 
+           CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data); 
 
 }
 

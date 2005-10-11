@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-06-27 20:48:44 $
+ * $Revision: 1.16 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -19,12 +19,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvode.h"          /* CVODE constants and prototypes        */
-#include "fcvode.h"         /* actual function names, prototypes and
-			       global variables                      */
-#include "fcvroot.h"        /* prototypes of interfaces to CVODE     */
-#include "nvector.h"        /* definition of type N_Vector           */
-#include "sundialstypes.h"  /* definition of SUNDIALS type realtype  */
+#include "cvode.h"          /* CVODE constants and prototypes                    */
+#include "fcvode.h"         /* actual fn. names, prototypes and global variables */
+#include "fcvroot.h"        /* prototypes of interfaces to CVODE                 */
+#include "nvector.h"        /* definition of type N_Vector                       */
+#include "sundialstypes.h"  /* definition of SUNDIALS type realtype              */
+#include "cvode_impl.h"     /* definition of CVodeMem type                       */
 
 /***************************************************************************/
 
@@ -33,7 +33,8 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_ROOTFN(realtype *, realtype*, realtype*);
+  extern void FCV_ROOTFN(realtype *, realtype*, realtype*,  /* T, Y, G */
+                         long int*, realtype*);             /* IPAR, RPAR */
 #ifdef __cplusplus
 }
 #endif
@@ -42,7 +43,10 @@ extern "C" {
 
 void FCV_ROOTINIT(int *nrtfn, int *ier)
 {
-  *ier = CVodeRootInit(CV_cvodemem, *nrtfn, (CVRootFn) FCVrootfunc, NULL);
+  CVodeMem cv_mem;
+  
+  cv_mem = (CVodeMem) CV_cvodemem;
+  *ier = CVodeRootInit(CV_cvodemem, *nrtfn, (CVRootFn) FCVrootfunc, cv_mem->cv_f_data);
   CV_nrtfn = *nrtfn;
 
   return;
@@ -70,10 +74,13 @@ void FCV_ROOTFREE(void)
 void FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
 {
   realtype *ydata;
+  FCVUserData CV_userdata;
 
   ydata = N_VGetArrayPointer(y);
 
-  FCV_ROOTFN(&t, ydata, gout);
+  CV_userdata = (FCVUserData) g_data;
+
+  FCV_ROOTFN(&t, ydata, gout, CV_userdata->ipar, CV_userdata->rpar);
 
   return;
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.52 $
- * $Date: 2005-10-05 22:51:52 $
+ * $Revision: 1.53 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -113,18 +113,19 @@
  *
  * (1) User-supplied right-hand side routine: FCVFUN
  * The user must in all cases supply the following Fortran routine
- *       SUBROUTINE FCVFUN (T, Y, YDOT)
- *       DIMENSION Y(*), YDOT(*)
+ *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAr, RPAR)
+ *       DIMENSION Y(*), YDOT(*), IPAR(*), RPAR(*)
  * It must set the YDOT array to f(t,y), the right-hand side of the ODE 
  * system, as function of T = t and the array Y = y.  Here Y and YDOT
- * are distributed vectors.
+ * are distributed vectors. IPAR and RPAR are arrays of integer and real user 
+ * data, respectively as passed to FCVMALLOC.
  * 
  * (2s) Optional user-supplied dense Jacobian approximation routine: FCVDJAC
  * As an option when using the DENSE linear solver, the user may supply a
  * routine that computes a dense approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
- *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, H, WK1, WK2, WK3)
- *       DIMENSION Y(*), FY(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
+ *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2, WK3)
+ *       DIMENSION Y(*), FY(*), DJAC(NEQ,*), IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
  * the Jacobian and store it columnwise in DJAC.
  * 
@@ -133,8 +134,8 @@
  * routine that computes a band approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
  *       SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY,
- *      1                    BJAC, H, WK1, WK2, WK3)
- *       DIMENSION Y(*), FY(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
+ *      1                    BJAC, H, IPAR, RPAR, WK1, WK2, WK3)
+ *       DIMENSION Y(*), FY(*), BJAC(MDIM,*), IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
  * It must load the MDIM by N array BJAC with the Jacobian matrix at the
  * current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element J(i,j)
@@ -144,8 +145,8 @@
  * As an option when using the SP* linear solver, the user may supply
  * a routine that computes the product of the system Jacobian J = df/dy and 
  * a given vector v.  If supplied, it must have the following form:
- *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, H, WORK, IER)
- *       DIMENSION V(*), FJV(*), Y(*), FY(*), WORK(*)
+ *       SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, H, IPAR, RPAR, WORK, IER)
+ *       DIMENSION V(*), FJV(*), Y(*), FY(*), IPAR(*), RPAR(*), WORK(*)
  * Typically this routine will use only NEQ, T, Y, V, and FJV.  It must
  * compute the product vector Jv where the vector v is stored in V, and store
  * the product in FJV.  On return, set IER = 0 if FCVJTIMES was successful,
@@ -155,8 +156,8 @@
  * As an option to providing the relative and absolute tolerances, the user
  * may supply a routine that computes the weights used in the WRMS norms.
  * If supplied, it must have the following form:
- *       SUBROUTINE FCVEWT (Y, EWT, IER)
- *       DIMENSION Y(*), EWT(*)
+ *       SUBROUTINE FCVEWT (Y, EWT, IPAR, RPAR, IER)
+ *       DIMENSION Y(*), EWT(*), IPAR(*), RPAR(*)
  * It must store the error weights in EWT, given the current solution vector Y.
  * On return, set IER = 0 if successful, and nonzero otherwise.
  *
@@ -184,7 +185,7 @@
  * (6.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
  *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL,
- *      1               IOUT, ROUT, IER)
+ *      1               IOUT, ROUT, IPAR, RPAR, IER)
  * The arguments are:
  * T0     = initial value of t
  * Y0     = array of initial conditions
@@ -198,8 +199,16 @@
  * IOUT   = array of length 21 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
  * ROUT   = array of length 10 for real optional outputs
+ * IPAR   = array with user integer data
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ * RPAR   = array with user real data
  * IER    = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *          See printed message for details in case of failure.
+ *
+ * The user data arrays IPAR and RPAR are passed unmodified to all subsequent
+ * calls to user-provided routines. Modifications to either array inside a user-provided 
+ * routine will be propagated. Using these two arrays, the user can dispense with using
+ * common blocks to pass data betwen user-provided routines.
  * 
  * The optional outputs are:
  *           LENRW   = IOUT( 1) from CVodeGetWorkSpace
@@ -351,8 +360,8 @@
  *       CALL FCVSPGMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, DELTA, R, LR, Z, IER)
- *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*),
+ *       SUBROUTINE FCVPSOL (T,Y,FY,R,Z,GAMMA,DELTA,LR,IPAR,RPAR,VT,IER)
+ *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*), IPAR(*), RPAR(*)
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
  * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
@@ -361,8 +370,8 @@
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
  *
  * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H, V1, V2, V3, IER)
- *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*) 
+ *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
+ *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*), IPAR(*), RPAR(*)
  * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
  * perform any evaluation of Jacobian-related data and preprocessing needed
  * for the solution of the preconditioner linear systems by FCVPSOL.
@@ -420,8 +429,8 @@
  *       CALL FCVSPBCGSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, DELTA, R, LR, Z, IER)
- *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*),
+ *       SUBROUTINE FCVPSOL (T,Y,FY,R,Z,GAMMA,DELTA,LR,IPAR,RPAR,VT,IER)
+ *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*), IPAR(*), RPAR(*)
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
  * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
@@ -430,8 +439,8 @@
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
  * 
  * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H, V1, V2, V3, IER)
- *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*) 
+ *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
+ *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*), IPAR(*), RPAR(*) 
  * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
  * perform any evaluation of Jacobian-related data and preprocessing needed
  * for the solution of the preconditioner linear systems by FCVPSOL.
@@ -488,8 +497,8 @@
  *       CALL FCVSPTFQMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T, Y,FY, VT, GAMMA, DELTA, R, LR, Z, IER)
- *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*),
+ *       SUBROUTINE FCVPSOL (T,Y,FY,R,Z,GAMMA,DELTA,LR,IPAR,RPAR,VT,IER)
+ *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*), IPAR(*), RPAR(*)
  * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
  * must solve the preconditioner linear system Pz = r, where r = R is input, 
  * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
@@ -498,8 +507,8 @@
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
  * 
  * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H, V1, V2, V3, IER)
- *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*) 
+ *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
+ *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*), IPAR(*), RPAR(*)
  * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
  * perform any evaluation of Jacobian-related data and preprocessing needed
  * for the solution of the preconditioner linear systems by FCVPSOL.
@@ -843,16 +852,23 @@ extern "C" {
 
 #endif
 
+  /* Type for user data */
+  typedef struct {
+    realtype *rpar;
+    long int *ipar;
+  } *FCVUserData;
+
   /* Prototypes of exported functions */
 
-  void FCV_MALLOC(realtype *t0, realtype *y0, 
-                  int *meth, int *itmeth, int *iatol, 
+  void FCV_MALLOC(realtype *t0, realtype *y0,
+                  int *meth, int *itmeth, int *iatol,
                   realtype *rtol, realtype *atol,
-                  long int *iout, realtype *rout, 
+                  long int *iout, realtype *rout,
+                  long int *ipar, realtype *rpar,
                   int *ier);
 
-  void FCV_REINIT(realtype *t0, realtype *y0, 
-                  int *iatol, realtype *rtol, realtype *atol, 
+  void FCV_REINIT(realtype *t0, realtype *y0,
+                  int *iatol, realtype *rtol, realtype *atol,
                   int *ier);
 
   void FCV_SETIIN(char key_name[], long int *ival, int *ier, int key_len);
@@ -888,7 +904,7 @@ extern "C" {
 
   void FCV_DKY(realtype *t, int *k, realtype *dky, int *ier);
 
-  void FCV_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier);
+  void FCV_GETERRWEIGHTS(realtype *eweight, int *ier);
   void FCV_GETESTLOCALERR(realtype *ele, int *ier);
 
   void FCV_FREE(void);
@@ -924,13 +940,13 @@ extern "C" {
 
   /* Declarations for global variables shared amongst various routines */
 
-  extern N_Vector F2C_CVODE_vec;
+  extern N_Vector F2C_CVODE_vec;   /* defined in FNVECTOR module */
 
-  extern void *CV_cvodemem;
-  extern long int *CV_iout;
-  extern realtype *CV_rout;
-  extern int CV_nrtfn;
-  extern int CV_ls;
+  extern void *CV_cvodemem;        /* defined in fcvode.c */
+  extern long int *CV_iout;        /* defined in fcvode.c */
+  extern realtype *CV_rout;        /* defined in fcvode.c */
+  extern int CV_nrtfn;             /* defined in fcvode.c */
+  extern int CV_ls;                /* defined in fcvode.c */
 
   /* Linear solver IDs */
 

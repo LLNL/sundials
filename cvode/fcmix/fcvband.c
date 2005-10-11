@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-10-05 20:31:20 $
+ * $Revision: 1.17 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -19,10 +19,10 @@
 #include <stdlib.h>
 
 #include "cvband.h"         /* CVBand prototype                               */
-#include "fcvode.h"         /* actual function names, prototypes and
-			       global variables                               */
+#include "fcvode.h"         /* actual fn. names, prototypes and global vars.  */
 #include "nvector.h"        /* definitions of type N_Vector and vector macros */
 #include "sundialstypes.h"  /* definition of type realtype                    */
+#include "cvode_impl.h"     /* definition of CVodeMem type                    */
 
 /******************************************************************************/
 
@@ -31,9 +31,12 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_BJAC(long int*, long int*, long int*, long int*, 
-                       realtype*, realtype*, realtype*, realtype*,
-                       realtype*, realtype*, realtype*, realtype*);
+  extern void FCV_BJAC(long int*, long int*, long int*, long int*, /* N, MU, ML, EBAND */
+                       realtype*, realtype*, realtype*,            /* T, Y, FY */
+                       realtype*,                                  /* BJAC */
+                       realtype*,                                  /* H */
+                       long int*, realtype*,                       /* IPAR, RPAR */
+                       realtype*, realtype*, realtype*);           /* V1, V2, V3 */
 #ifdef __cplusplus
 }
 #endif
@@ -42,10 +45,13 @@ extern "C" {
 
 void FCV_BANDSETJAC(int *flag, int *ier)
 {
+  CVodeMem cv_mem;
+
   if (*flag == 0) {
     *ier = CVBandSetJacFn(CV_cvodemem, NULL, NULL);
   } else {
-    *ier = CVBandSetJacFn(CV_cvodemem, FCVBandJac, NULL);
+    cv_mem = (CVodeMem) CV_cvodemem;
+    *ier = CVBandSetJacFn(CV_cvodemem, FCVBandJac, cv_mem->cv_f_data);
   }
 }
 
@@ -68,6 +74,7 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
   long int eband;
+  FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);
 
@@ -80,7 +87,9 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
   eband = (J->smu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;
 
-  FCV_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, jacdata, 
-           &h, v1data, v2data, v3data);
+  CV_userdata = (FCVUserData) jac_data;
+
+  FCV_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, jacdata, &h,
+           CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data);
 
 }

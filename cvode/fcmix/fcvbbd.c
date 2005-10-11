@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-10-05 20:31:20 $
+ * $Revision: 1.25 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -21,16 +21,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions and macros */
-#include "cvode.h"         /* CVODE constants and prototypes              */
-#include "cvsptfqmr.h"     /* prototypes of CVSPTFQMR interface routines  */
-#include "cvspbcg.h"       /* prototypes of CVSPBCG interface routines    */
-#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines    */
-#include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE        */
-#include "fcvode.h"        /* actual function names, prototypes and
-			      global variables                            */
-#include "nvector.h"       /* definition of type N_Vector                 */
-#include "sundialstypes.h" /* definition of type realtype                 */
+#include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions and macros    */
+#include "cvode.h"         /* CVODE constants and prototypes                 */
+#include "cvsptfqmr.h"     /* prototypes of CVSPTFQMR interface routines     */
+#include "cvspbcg.h"       /* prototypes of CVSPBCG interface routines       */
+#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines       */
+#include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE           */
+#include "fcvode.h"        /* actual function names, prototypes, global vars.*/
+#include "nvector.h"       /* definition of type N_Vector                    */
+#include "sundialstypes.h" /* definition of type realtype                    */
 
 /***************************************************************************/
 
@@ -40,8 +39,13 @@
 extern "C" {
 #endif
 
-extern void FCV_GLOCFN(long int*, realtype*, realtype*, realtype*);
-extern void FCV_COMMFN(long int*, realtype*, realtype*);
+  extern void FCV_GLOCFN(long int*,                        /* NLOC */
+                         realtype*, realtype*, realtype*,  /* T, YLOC, GLOC */
+                         long int*, realtype*);            /* IPAR, RPAR */
+
+  extern void FCV_COMMFN(long int*,                        /* NLOC */
+                         realtype*, realtype*,             /* T, Y */
+                         long int*, realtype*);            /* IPAR, RPAR */
 
 #ifdef __cplusplus
 }
@@ -161,11 +165,14 @@ void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
              void *f_data)
 {
   realtype *yloc_data, *gloc_data;
-  
+  FCVUserData CV_userdata;
+
   yloc_data = N_VGetArrayPointer(yloc);
   gloc_data = N_VGetArrayPointer(gloc);
 
-  FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data);
+  CV_userdata = (FCVUserData) f_data;
+
+  FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data, CV_userdata->ipar, CV_userdata->rpar);
 }
 
 /***************************************************************************/
@@ -177,10 +184,13 @@ void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
 void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 {
   realtype *yloc;
+  FCVUserData CV_userdata;
 
   yloc = N_VGetArrayPointer(y);
 
-  FCV_COMMFN(&Nloc, &t, yloc);
+  CV_userdata = (FCVUserData) f_data;
+
+  FCV_COMMFN(&Nloc, &t, yloc, CV_userdata->ipar, CV_userdata->rpar);
 
 }
 

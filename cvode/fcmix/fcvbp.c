@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-09-23 16:59:13 $
+ * $Revision: 1.11 $
+ * $Date: 2005-10-11 16:02:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -26,8 +26,7 @@
 #include "cvspbcg.h"        /* prototypes of CVSPBCG interface routines     */
 #include "cvspgmr.h"        /* prototypes of CVSPGMR interface routines     */
 #include "fcvbp.h"          /* prototypes of interfaces to CVBANDPRE        */
-#include "fcvode.h"         /* actual function names, prototypes and
-			       global variables                             */
+#include "fcvode.h"         /* actual fn. names, prototypes and global vars.*/
 #include "nvector.h"        /* definition of type N_Vector                  */
 #include "sundialstypes.h"  /* definition of type realtype                  */
 
