@@ -29,7 +29,7 @@ are as follows:
 \item Interface to the main {\cvode} module
   \begin{itemize}
   \item \id{FCVMALLOC}
-    interfaces to \id{CVodeCreate} and \id{CVodeMalloc}.
+    interfaces to \id{CVodeCreate}, \id{CVodeSetFdata}, and \id{CVodeMalloc}.
   \item \id{FCVREINIT}  
     interfaces to \id{CVodeReInit}.
   \item \id{FCVSETIIN} and \id{FCVSETRIN}
@@ -41,7 +41,7 @@ are as follows:
     output functions for the selected linear solver module.
   \item \id{FCVDKY}     
     interfaces to the interpolated output function \id{CVodeGetDky}.
-  \item \id{FCVGETERRWT}
+  \item \id{FCVGETERRWEIGHTS}
     interfaces to \id{CVodeGetErrWeights}.
   \item \id{FCVGETESTLOCALERR}
     interfaces to \id{CVodeGetEstLocalErrors}.
@@ -137,9 +137,10 @@ depending on whether {\cvode} was built in single, double, or extended precision
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
 {\C} type \id{long int}. These integer variables include: the array
 of integer optional outputs (\id{IOUT}), problem dimensions (\id{NEQ},
-\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU}, \id{ML},
-etc.). This is particularly important when using
-{\cvode} and the {\fcvode} package on 64-bit architectures.
+\id{NLOCAL}, \id{NGLOBAL}), Jacobian half-bandwidths (\id{MU}, \id{ML},
+etc.), as well as the array of user integer data, \id{IPAR}.
+This is particularly important when using {\cvode} and the {\fcvode} package 
+on 64-bit architectures.
 
 %%==============================================================================
 \section{FCVODE optional input and output}
@@ -340,12 +341,14 @@ apply to {\nvecp}.
   The user must in all cases supply the following Fortran routine
   \index{FCVFUN@\texttt{FCVFUN}}
 \begin{verbatim}
-      SUBROUTINE FCVFUN(T, Y, YDOT)
-      DIMENSION Y(*), YDOT(*)
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+      DIMENSION Y(*), YDOT(*), IPAR(*), RPAR(*)
 \end{verbatim}
   It must set the \id{YDOT} array to $f(t,y)$, the right-hand side of the ODE
   system, as function of \id{T}$=t$ and the array \id{Y}$=y$.  
-  
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
+
 %%====================
 \item  {\bf {\nvector} module initialization}
 %%====================
@@ -388,7 +391,7 @@ apply to {\nvecp}.
   {
     \begin{tabular}[t]{@{}r@{}l@{}l}
         &CALL FCVMALLOC(&T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, \\
-    {\&}&               &IOUT, ROUT, IER)
+    {\&}&               &IOUT, ROUT, IPAR, RPAR, IER)
     \end{tabular}
   }
   {
@@ -412,6 +415,10 @@ apply to {\nvecp}.
     \item[ATOL] is the absolute tolerance (scalar or array).
     \item[IOUT] is an integer array of length 21 for integer optional outputs.
     \item[ROUT] is a real array of length 6 for real optional outputs.
+    \item[IPAR] is an integer array of user data which will be passed
+      unmodified to all user-provided routines.
+    \item[RPAR] is a real array of user data which will be passed
+      unmodified to all user-provided routines.
     \end{args}
   }
   {
@@ -419,6 +426,13 @@ apply to {\nvecp}.
     and $-1$ otherwise. See printed message for details in case of failure.
   }
   {
+    The user intger data array \id{IPAR} must be declared as \id{INTEGER*4} or 
+    \id{INTEGER*8} according to the {\C} type \id{long int}.
+
+    Modifications to the user data arrays \id{IPAR} and \id{RPAR} inside a 
+    user-provided routine will be propagated to all subsequent calls to
+    such routines.
+
     The optional outputs associated with the main {\cvode} integrator
     are listed in Table~\ref{t:fcvode_out}.
   }
@@ -428,12 +442,14 @@ apply to {\nvecp}.
   evaluations. If supplied, it must have the following form:
   \index{FCVEWT@\texttt{FCVEWT}}
 \begin{verbatim}
-      SUBROUTINE FCVEWT (Y, EWT, IER)
-      DIMENSION Y(*), EWT(*)
+      SUBROUTINE FCVEWT (Y, EWT, IER, IPAR, RPAR)
+      DIMENSION Y(*), EWT(*), IPAR(*), RPAR(*)
 \end{verbatim}
   It must set the positive components of the error weight vector \id{EWT} for
   the calculation of the WRMS norm of \id{Y}. On return, set
   \id{IER = 0} if \id{FCVEWT} was successful, and nonzero otherwise.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
 
   If the \id{FCVEWT} routine is provided, then, 
   following the call to \id{FCVMALOC}, the user must make the call:
@@ -490,13 +506,17 @@ apply to {\nvecp}.
   $J = \partial f / \partial y$. If supplied, it must have the following form:
   \index{FCVDJAC@\texttt{FCVDJAC}}
 \begin{verbatim}
-      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, H, WK1, WK2, WK3)
-      DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
+      SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, EWT, H, 
+     &                    IPAR, RPAR, WK1, WK2, WK3)
+      DIMENSION Y(*), FY(*), EWT(*), DJAC(NEQ,*), 
+     &          IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, and \id{DJAC}. 
   It must compute the Jacobian and store it columnwise in \id{DJAC}.
   The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
   values of $t$, $y$, and $f(t,y)$, respectively.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
   The vectors \id{WK1}, \id{WK2}, and \id{WK3}
   of length \id{NEQ} are provided as work space for use in \id{FCVDJAC}.
   
@@ -540,8 +560,9 @@ apply to {\nvecp}.
   \index{FCVBJAC@\texttt{FCVBJAC}}
 \begin{verbatim}
       SUBROUTINE FCVBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC,
-     &                   EWT, H, WK1, WK2, WK3)
-      DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
+     &                   EWT, H, IPAR, RPAR, WK1, WK2, WK3)
+      DIMENSION Y(*), FY(*), EWT(*), BJAC(MDIM,*), 
+     &                IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{MU}, \id{ML}, \id{T}, 
   \id{Y}, and \id{BJAC}.
@@ -551,6 +572,8 @@ apply to {\nvecp}.
   \id{ML + MU + 1}) and $j = 1 \cdots N$.
   The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
   values of $t$, $y$, and $f(t,y)$, respectively.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
   The vectors \id{WK1}, \id{WK2},
   and \id{WK3} of length \id{NEQ} are provided as work space for use in
   \id{FCVBJAC}.
@@ -717,8 +740,8 @@ apply to {\nvecp}.
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FCVJTIMES@\texttt{FCVJTIMES}}
 \begin{verbatim}
-      SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, WORK, IER)
-      DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), WORK(*)
+      SUBROUTINE FCVJTIMES (V, FJV, T, Y, FY, EWT, H, IPAR, RPAR, WORK, IER)
+      DIMENSION V(*), FJV(*), Y(*), FY(*), EWT(*), IPAR(*), RPAR(*), WORK(*)
 \end{verbatim}
   Typically this routine will use only \id{NEQ}, \id{T}, \id{Y}, \id{V}, and
   \id{FJV}.  It must compute the product vector $Jv$, where the vector $v$ is
@@ -726,6 +749,8 @@ apply to {\nvecp}.
   The input arguments \id{T}, \id{Y}, and \id{FY} contain the current
   values of $t$, $y$, and $f(t,y)$, respectively.  On return, set
   \id{IER = 0} if \id{FCVJTIMES} was successful, and nonzero otherwise.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
   The vector \id{WORK}, of length \id{NEQ}, is
   provided as work space for use in \id{FCVJTIMES}.
 
@@ -739,8 +764,9 @@ apply to {\nvecp}.
   supplied, for solution of the preconditioner linear system:
   \index{FCVPSOL@\texttt{FCVPSOL}}
 \begin{verbatim}
-      SUBROUTINE FCVPSOL(T, Y, FY, VT, GAMMA, EWT, DELTA, R, LR, Z, IER)
-      DIMENSION Y(*), FY(*), VT(*), EWT(*), R(*), Z(*)
+      SUBROUTINE FCVPSOL(T, Y, FY, R, Z, GAMMA, DELTA, LR, 
+     &                   IPAR, RPAR, WORK, IER)
+      DIMENSION Y(*), FY(*), R(*), Z(*), IPAR(*), RPAR(*), WORK(*)
 \end{verbatim}
   It must solve the preconditioner linear system $Pz = r$, where $r =$ \id{R} 
   is input, and store the solution $z$ in \id{Z}. Here $P$ is the left 
@@ -755,12 +781,9 @@ apply to {\nvecp}.
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
 
-  The arguments \id{EWT} and \id{DELTA} are input and provide the error weight
-  array and a scalar tolerance, respectively, for use by \id{FCVPSOL} if it uses
-  an iterative method in its solution.  In that case, the residual vector
-  $\rho = r - Pz$ of the system should be made less than \id{DELTA} in weighted
-  $\ell_2$ norm, i.e. $\sqrt{\sum(\rho_i * \id{EWT}[i])^2} < $ \id{DELTA}.
-  The argument \id{VT} is a work array of length \id{NEQ} for use by this
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
+  The argument \id{WORK} is a work array of length \id{NEQ} for use by this
   routine.
 
   If the user's preconditioner requires that any Jacobian related data be evaluated
@@ -768,8 +791,10 @@ apply to {\nvecp}.
   preprocessing of the preconditioner:
   \index{FCVPSET@\texttt{FCVPSET}}
 \begin{verbatim}
-      SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, EWT, H, V1, V2, V3, IER)
-      DIMENSION Y(*), FY(*), EWT(*), V1(*), V2(*), V3(*) 
+      SUBROUTINE FCVPSET(T, Y, FY, JOK, JCUR, GAMMA, H, IPAR, RPAR,
+     &                   WORK1, WORK2, WORK3, IER)
+      DIMENSION Y(*), FY(*), EWT(*), IPAR(*), RPAR(*), 
+     &          WORK1(*), WORK2(*), WORK3(*) 
 \end{verbatim}
   It must perform any evaluation of Jacobian-related data and preprocessing needed
   for the solution of the preconditioner linear systems by \id{FCVPSOL}.
@@ -784,15 +809,31 @@ apply to {\nvecp}.
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
   
-  If the user's \id{FCVPSET} uses difference quotient approximations, it
-  may need to use the error weight array \id{EWT} and current stepsize \id{H}
-  in the calculation of suitable increments.  It may also need the unit
-  roundoff, which can be obtained as the optional output \id{ROUT(6)},
-  passed from the calling program to this routine using \id{COMMON}.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
+  The arguments \id{WORK1}, \id{WORK2}, \id{WORK3} are work arrays of length 
+  \id{NEQ} for use by this routine.
 
   {\warn} If the user calls \id{FCVSPGMRSETPREC}, \id{FCVSPBCGSETPREC}, or 
   \id{FCVSPTFQMRSETPREC}, the routine \id{FCVPSET} must
   be provided, even if it's empty.
+
+  {\bf Note} 
+
+  \begin{description}
+  \item[] If the user's \id{FCVPSET} uses difference quotient approximations, 
+    it may need to use the error weight array \id{EWT} and current stepsize \id{H}
+    in the calculation of suitable increments and it may also need the unit
+    roundoff. If \id{FCVPSOL} uses an iterative method in its solution, the residual 
+    vector $\rho = r - Pz$ of the system should be made less than \id{DELTA} in weighted
+    $\ell_2$ norm, i.e. $\sqrt{\sum(\rho_i * \id{EWT}[i])^2} < $ \id{DELTA}.
+  \item[] If needed, the unit roundoff can be obtained as the optional output \id{ROUT(6)}
+    (available after the call to \id{FCVMALLOC}) and can be passed to \id{FCVPSET}
+    using either the \id{RPAR} user data array or a common block.
+  \item[] If needed, the error weight array \id{EWT} can be obtained by calling
+    \id{FCVGETERRWEIGHTS} using one of the work arrays as temporary storage for
+    \id{EWT}.
+  \end{description}
 
 %%====================
 \item {\bf Problem solution}
@@ -938,11 +979,13 @@ if the \id{CVODE} memory was \id{NULL}, and $-11$ if a memory allocation failed.
 To specifiy the functions whose roots are to be found, the user must
 define the following routine:
 \begin{verbatim}
-      SUBROUTINE FCVROOTFN (T, Y, G)
-      DIMENSION Y(*), G(*)
+      SUBROUTINE FCVROOTFN (T, Y, G, IPAR, RPAR)
+      DIMENSION Y(*), G(*), IPAR(*), RPAR(*)
 \end{verbatim}
 It must set the \id{G} array, of length \id{NRTFN}, with components $g_i(t,y)$,
 as a function of \id{T} $= t$ and the array \id{Y} $= y$.  
+The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+and are the same as those passed to \id{FCVMALLOC}.
 
 When making calls to \id{FCVODE} to solve the ODE system, the occurrence of
 a root is flagged by the return value \id{IER} = 2.  In that case, if
@@ -1310,24 +1353,28 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   module:
   \index{FCVGLOCFN@\texttt{FCVGLOCFN}}
 \begin{verbatim}
-      SUBROUTINE FCVGLOCFN (NLOC, T, YLOC, GLOC)
-      DIMENSION YLOC(*), GLOC(*)
+      SUBROUTINE FCVGLOCFN (NLOC, T, YLOC, GLOC, IPAR, RPAR)
+      DIMENSION YLOC(*), GLOC(*), IPAR(*), RPAR(*)
 \end{verbatim}
   This routine is to evaluate the function $g(t,y)$ approximating $f$
   (possibly identical to $f$), in terms of \id{T} $ = t$, and the array
   \id{YLOC} (of length \id{NLOC}), which is the sub-vector
   of $y$ local to this processor.  The resulting (local) sub-vector
   is to be stored in the array \id{GLOC}.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
 
   \index{FCVCOMMFN@\texttt{FCVCOMMFN}}
 \begin{verbatim}
-      SUBROUTINE FCVCOMMFN (NLOC, T, YLOC)
-      DIMENSION YLOC(*)
+      SUBROUTINE FCVCOMMFN (NLOC, T, YLOC, IPAR, RPAR)
+      DIMENSION YLOC(*), IPAR(*), RPAR(*)
 \end{verbatim}
   This routine is to perform the inter-processor communication necessary
   for the \id{FCVGLOCFN} routine.
   Each call to \id{FCVCOMMFN} is preceded by a call to the right-hand side
   routine \id{FCVFUN} with the same arguments \id{T} and \id{YLOC}.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FCVMALLOC}.
   Thus \id{FCVCOMMFN} can omit any communications done by \id{FCVFUN} if
   relevant to the evaluation of \id{GLOC}.
   (This subroutine must be supplied even if it is empty.)
