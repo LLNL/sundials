@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2005-09-23 19:23:31 $
+ * $Revision: 1.39 $
+ * $Date: 2005-10-11 21:49:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1672,12 +1672,12 @@ void IDAFree(void **ida_mem)
   if (*ida_mem == NULL) return;
 
   IDA_mem = (IDAMem) (*ida_mem);
-  
+
   IDAFreeVectors(IDA_mem);
 
-  IDAQuadFree(ida_mem);
+  IDAQuadFree(IDA_mem);
 
-  IDASensFree(ida_mem);
+  IDASensFree(IDA_mem);
 
   if (lfree != NULL) lfree(IDA_mem);
 
@@ -1699,7 +1699,6 @@ void IDAQuadFree(void *ida_mem)
   
   if (ida_mem == NULL) return;
   IDA_mem = (IDAMem) ida_mem;
-
   if(quad) {
     IDAQuadFreeVectors(IDA_mem);
     quad = FALSE;
