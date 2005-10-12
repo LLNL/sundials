@@ -3191,7 +3191,7 @@ and last return value from a {\cvdense} function.
 %%
 \ucfunction{CVDenseGetWorkSpace}
 {
-  flag = CVDenseGetWorkSpace(cvode\_mem, \&lenrwD, \&leniwD);
+  flag = CVDenseGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{CVDenseGetWorkSpace} returns the
@@ -3201,9 +3201,9 @@ and last return value from a {\cvdense} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwD] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvdense} workspace.
-  \item[leniwD] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvdense} workspace.
   \end{args}
 }
@@ -3229,7 +3229,7 @@ and last return value from a {\cvdense} function.
 %%
 \ucfunction{CVDenseGetNumJacEvals}
 {
-  flag = CVDenseGetNumJacEvals(cvode\_mem, \&njevalsD);
+  flag = CVDenseGetNumJacEvals(cvode\_mem, \&njevals);
 }
 {
   The function \ID{CVDenseGetNumJacEvals} returns the
@@ -3239,7 +3239,7 @@ and last return value from a {\cvdense} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[njevalsD] (\id{long int})
+  \item[njevals] (\id{long int})
     the number of calls to the Jacobian function.
   \end{args}
 }
@@ -3259,7 +3259,7 @@ and last return value from a {\cvdense} function.
 %%
 \ucfunction{CVDenseGetNumRhsEvals}
 {
-  flag = CVDenseGetNumRhsEvals(cvode\_mem, \&nfevalsD);
+  flag = CVDenseGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
   The function \ID{CVDenseGetNumRhsEvals} returns the
@@ -3270,7 +3270,7 @@ and last return value from a {\cvdense} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsD] (\id{long int})
+  \item[nfevalsLS] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -3286,7 +3286,7 @@ and last return value from a {\cvdense} function.
   \end{args}
 }
 {
-  The value \id{nfevalsD} is incremented only if the default 
+  The value \id{nfevalsLS} is incremented only if the default 
   \id{CVDenseDQJac} difference quotient function is used.
 }
 %%
@@ -3340,7 +3340,7 @@ and last return value from a {\cvband} function.
 %%
 \ucfunction{CVBandGetWorkSpace}
 {
-  flag = CVBandGetWorkSpace(cvode\_mem, \&lenrwB, \&leniwB);
+  flag = CVBandGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{CVBandGetWorkSpace} returns the
@@ -3350,9 +3350,9 @@ and last return value from a {\cvband} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwB] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvband} workspace.
-  \item[leniwB] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvband} workspace.
   \end{args}
 }
@@ -3379,7 +3379,7 @@ and last return value from a {\cvband} function.
 %%
 \ucfunction{CVBandGetNumJacEvals}
 {
-  flag = CVBandGetNumJacEvals(cvode\_mem, \&njevalsB);
+  flag = CVBandGetNumJacEvals(cvode\_mem, \&njevals);
 }
 {
   The function \ID{CVBandGetNumJacEvals} returns the
@@ -3389,7 +3389,7 @@ and last return value from a {\cvband} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[njevalsB] (\id{long int})
+  \item[njevals] (\id{long int})
     the number of calls to the Jacobian function.
   \end{args}
 }
@@ -3409,7 +3409,7 @@ and last return value from a {\cvband} function.
 %%
 \ucfunction{CVBandGetNumRhsEvals}
 {
-  flag = CVBandGetNumRhsEvals(cvode\_mem, \&nfevalsB);
+  flag = CVBandGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
   The function \ID{CVBandGetNumRhsEvals} returns the
@@ -3420,7 +3420,7 @@ and last return value from a {\cvband} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsB] (\id{long int})
+  \item[nfevalsLS] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -3436,7 +3436,7 @@ and last return value from a {\cvband} function.
   \end{args}
 }
 {
-  The value \id{nfevalsB} is incremented only if the default 
+  The value \id{nfevalsLS} is incremented only if the default 
   \id{CVBandDQJac} difference quotient function is used.
 }
 %%
@@ -3490,7 +3490,7 @@ finite-difference Jacobian approximation, and last return value from a
 %%
 \ucfunction{CVDiagGetWorkSpace}
 {
-  flag = CVDiagGetWorkSpace(cvode\_mem, \&lenrwDI, \&leniwDI);
+  flag = CVDiagGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{CVDiagGetWorkSpace} returns the
@@ -3500,9 +3500,9 @@ finite-difference Jacobian approximation, and last return value from a
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwDI] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvdiag} workspace.
-  \item[leniwDI] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvdiag} workspace.
   \end{args}
 }
@@ -3527,7 +3527,7 @@ finite-difference Jacobian approximation, and last return value from a
 %%
 \ucfunction{CVDiagGetNumRhsEvals}
 {
-  flag = CVDiagGetNumRhsEvals(cvode\_mem, \&nfevalsDI);
+  flag = CVDiagGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
   The function \ID{CVDiagGetNumRhsEvals} returns the
@@ -3538,7 +3538,7 @@ finite-difference Jacobian approximation, and last return value from a
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsDI] (\id{long int})
+  \item[nfevalsLS] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -3613,7 +3613,7 @@ return value from a {\cvspgmr} function.
 %%
 \ucfunction{CVSpgmrGetWorkSpace}
 {
-  flag = CVSpgmrGetWorkSpace(cvode\_mem, \&lenrwSG, \&leniwSG);
+  flag = CVSpgmrGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{CVSpgmrGetWorkSpace} returns the global sizes of the
@@ -3623,9 +3623,9 @@ return value from a {\cvspgmr} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwSG] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvspgmr} workspace.
-  \item[leniwSG] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvspgmr} workspace.
   \end{args}
 }
@@ -3806,7 +3806,7 @@ return value from a {\cvspgmr} function.
 %%
 \ucfunction{CVSpgmrGetNumRhsEvals}
 {
-  flag = CVSpgmrGetNumRhsEvals(cvode\_mem, \&nfevalsSG);
+  flag = CVSpgmrGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
   The function \ID{CVSpgmrGetNumRhsEvals} returns the
@@ -3817,7 +3817,7 @@ return value from a {\cvspgmr} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsSG] (\id{long int})
+  \item[nfevalsLS] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -3833,7 +3833,7 @@ return value from a {\cvspgmr} function.
   \end{args}
 }
 {
-  The value \id{nfevalsSG} is incremented only if the default 
+  The value \id{nfevalsLS} is incremented only if the default 
   \id{CVSpgmrDQJtimes} difference quotient function is used.
 }
 %%
@@ -3906,7 +3906,7 @@ return value from a {\cvspbcg} function.
 %%
 \ucfunction{CVSpbcgGetWorkSpace}
 {
-  flag = CVSpbcgGetWorkSpace(cvode\_mem, \&lenrwSB, \&leniwSB);
+  flag = CVSpbcgGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{CVSpbcgGetWorkSpace} returns the global sizes of the
@@ -3916,9 +3916,9 @@ return value from a {\cvspbcg} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwSB] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvspbcg} workspace.
-  \item[leniwSB] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvspbcg} workspace.
   \end{args}
 }
@@ -4097,7 +4097,7 @@ return value from a {\cvspbcg} function.
 %%
 \ucfunction{CVSpbcgGetNumRhsEvals}
 {
-  flag = CVSpbcgGetNumRhsEvals(cvode\_mem, \&nfevalsSB);
+  flag = CVSpbcgGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
   The function \ID{CVSpbcgGetNumRhsEvals} returns the
@@ -4108,7 +4108,7 @@ return value from a {\cvspbcg} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsSB] (\id{long int})
+  \item[nfevalsLS] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -4124,7 +4124,7 @@ return value from a {\cvspbcg} function.
   \end{args}
 }
 {
-  The value \id{nfevalsSB} is incremented only if the default 
+  The value \id{nfevalsLS} is incremented only if the default 
   \id{CVSpbcgDQJtimes} difference quotient function is used.
 }
 %%
@@ -4192,7 +4192,7 @@ return value from a {\cvsptfqmr} function.
 %%
 \ucfunction{CVSptfqmrGetWorkSpace}
 {
-  flag = CVSptfqmrGetWorkSpace(cvode\_mem, \&lenrwSQ, \&leniwSQ);
+  flag = CVSptfqmrGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{CVSptfqmrGetWorkSpace} returns the global sizes of the
@@ -4202,9 +4202,9 @@ return value from a {\cvsptfqmr} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[lenrwSQ] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvsptfqmr} workspace.
-  \item[leniwSQ] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvsptfqmr} workspace.
   \end{args}
 }
@@ -4383,7 +4383,7 @@ return value from a {\cvsptfqmr} function.
 %%
 \ucfunction{CVSptfqmrGetNumRhsEvals}
 {
-  flag = CVSptfqmrGetNumRhsEvals(cvode\_mem, \&nfevalsSQ);
+  flag = CVSptfqmrGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
   The function \ID{CVSptfqmrGetNumRhsEvals} returns the
@@ -4394,7 +4394,7 @@ return value from a {\cvsptfqmr} function.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[nfevalsSQ] (\id{long int})
+  \item[nfevalsLS] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -4410,7 +4410,7 @@ return value from a {\cvsptfqmr} function.
   \end{args}
 }
 {
-  The value \id{nfevalsSQ} is incremented only if the default 
+  The value \id{nfevalsLS} is incremented only if the default 
   \id{CVSptfqmrDQJtimes} difference quotient function is used.
 }
 %%
@@ -5491,19 +5491,19 @@ the {\cvbandpre} module:
 %%
 \ucfunction{CVBandPrecGetWorkSpace}
 {
-  flag = CVBandPrecGetWorkSpace(bp\_data, \&lenrwBP, \&leniwBP);
+  flag = CVBandPrecGetWorkSpace(bp\_data, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{CVBandPrecGetWorkSpace} returns the
   {\cvbandpre} real and integer workspace sizes.
 }
 {
-  \begin{args}[lenrwBP]
+  \begin{args}[lenrwLS]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[lenrwBP] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     the number of \id{realtype} values in the {\cvbandpre} workspace.
-  \item[leniwBP] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\cvbandpre} workspace.
   \end{args}
 }
@@ -5527,7 +5527,7 @@ the {\cvbandpre} module:
 %%
 \ucfunction{CVBandPrecGetNumRhsEvals}
 {
-  flag = CVBandPrecGetNumRhsEvals(bp\_data, \&nfevalsBP);
+  flag = CVBandPrecGetNumRhsEvals(bp\_data, \&nfevalsLS);
 }
 {
   The function \ID{CVBandPrecGetNumRhsEvals} returns the
@@ -5536,10 +5536,10 @@ the {\cvbandpre} module:
   {\cvbandpre}'s preconditioner setup function.
 }
 {
-  \begin{args}[nfevalsBP]
+  \begin{args}[nfevalsLS]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[nfevalsBP] (\id{long int})
+  \item[nfevalsLS] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -6099,19 +6099,19 @@ the {\cvbbdpre} module:
 %%
 \ucfunction{CVBBDPrecGetWorkSpace}
 {
-  flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
+  flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{CVBBDPrecGetWorkSpace} returns the local
   {\cvbbdpre} real and integer workspace sizes.
 }
 {
-  \begin{args}[lenrwBBDP]
+  \begin{args}[lenrwLS]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
-  \item[lenrwBBDP] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     local number of \id{realtype} values in the {\cvbbdpre} workspace.
-  \item[leniwBBDP] (\id{long int})
+  \item[leniwLS] (\id{long int})
     local number of integer values in the {\cvbbdpre} workspace.
   \end{args}
 }
