@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-10-03 23:14:35 $
+ * $Revision: 1.7 $
+ * $Date: 2005-10-12 22:59:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -383,7 +383,7 @@ int CVSpbcgSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwSB, long int *leniwSB)
+int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
 
@@ -399,8 +399,8 @@ int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwSB, long int *leniwSB)
     return(CVSPBCG_LMEM_NULL);
   }
 
-  *lenrwSB = lrw1 * 9;
-  *leniwSB = liw1 * 9;
+  *lenrwLS = lrw1 * 9;
+  *leniwLS = liw1 * 9;
 
   return(CVSPBCG_SUCCESS);
 }
@@ -556,7 +556,7 @@ int CVSpbcgGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
  * -----------------------------------------------------------------
  */
 
-int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsSB)
+int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVSpbcgMem cvspbcg_mem;
@@ -574,7 +574,7 @@ int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsSB)
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
 
-  *nfevalsSB = nfeSB;
+  *nfevalsLS = nfeSB;
 
   return(CVSPBCG_SUCCESS);
 }

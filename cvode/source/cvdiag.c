@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2004-11-06 01:01:51 $
+ * $Revision: 1.14 $
+ * $Date: 2005-10-12 22:59:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -159,7 +159,7 @@ int CVDiag(void *cvode_mem)
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwDI, long int *leniwDI)
+int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
 
@@ -170,8 +170,8 @@ int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwDI, long int *leniwDI)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  *lenrwDI = 3*lrw1;
-  *leniwDI = 3*liw1;
+  *lenrwLS = 3*lrw1;
+  *leniwLS = 3*liw1;
 
   return(CVDIAG_SUCCESS);
 }
@@ -182,7 +182,7 @@ int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwDI, long int *leniwDI)
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI)
+int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVDiagMem cvdiag_mem;
@@ -200,7 +200,7 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI)
   }
   cvdiag_mem = (CVDiagMem) lmem;
 
-  *nfevalsDI = nfeDI;
+  *nfevalsLS = nfeDI;
 
   return(CVDIAG_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-10-03 23:14:35 $
+ * $Revision: 1.4 $
+ * $Date: 2005-10-12 22:59:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -385,7 +385,7 @@ int CVSptfqmrSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSQ, long int *leniwSQ)
+int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
 
@@ -401,8 +401,8 @@ int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSQ, long int *leniwSQ)
     return(CVSPTFQMR_LMEM_NULL);
   }
 
-  *lenrwSQ = lrw1*11;
-  *leniwSQ = liw1*11;
+  *lenrwLS = lrw1*11;
+  *leniwLS = liw1*11;
 
   return(CVSPTFQMR_SUCCESS);
 }
@@ -558,7 +558,7 @@ int CVSptfqmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
  * -----------------------------------------------------------------
  */
 
-int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSQ)
+int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVSptfqmrMem cvsptfqmr_mem;
@@ -576,7 +576,7 @@ int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSQ)
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
 
-  *nfevalsSQ = nfeSQ;
+  *nfevalsLS = nfeSQ;
 
   return(CVSPTFQMR_SUCCESS);
 }

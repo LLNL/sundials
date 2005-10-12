@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-04-26 14:24:53 $
+ * $Revision: 1.22 $
+ * $Date: 2005-10-12 22:59:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -392,7 +392,7 @@ int CVSpgmrSetJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jtimes, void *
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
+int CVSpgmrGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -412,8 +412,8 @@ int CVSpgmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
   cvspgmr_mem = (CVSpgmrMem) lmem;
 
   maxl = cvspgmr_mem->g_maxl;
-  *lenrwSG = lrw1*(maxl + 5) + maxl*(maxl + 4) + 1;
-  *leniwSG = liw1*(maxl + 5);
+  *lenrwLS = lrw1*(maxl + 5) + maxl*(maxl + 4) + 1;
+  *leniwLS = liw1*(maxl + 5);
 
   return(CVSPGMR_SUCCESS);
 }
@@ -569,7 +569,7 @@ int CVSpgmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
+int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVSpgmrMem cvspgmr_mem;
@@ -587,7 +587,7 @@ int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
   }
   cvspgmr_mem = (CVSpgmrMem) lmem;
 
-  *nfevalsSG = nfeSG;
+  *nfevalsLS = nfeSG;
 
   return(CVSPGMR_SUCCESS);
 }
