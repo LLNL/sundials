@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.8 $
-# $Date: 2005-06-16 18:17:42 $
+# $Revision: 1.9 $
+# $Date: 2005-10-12 22:51:01 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,7 +42,7 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_idas -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = irobx iheatsb iheatsk iwebsb
+EXEC_FILES = irobx iheatsb iheatsk iwebsb iheatskt
 
 all: $(EXEC_FILES)
 
@@ -58,6 +58,9 @@ iheatsk: $(srcdir)/iheatsk.c
 iwebsb: $(srcdir)/iwebsb.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iwebsb.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/iwebsb $(builddir)/iwebsb.$(OBJ_EXT) $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
+iheatskt: $(srcdir)/iheatskt.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatskt.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatskt $(builddir)/iheatskt.$(OBJ_EXT) $(LDFLAGS) $(LIBS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS)
 
 clean:
 	rm -rf .libs
