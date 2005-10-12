@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-10-12 22:59:46 $
+ * $Revision: 1.24 $
+ * $Date: 2005-10-12 23:01:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -243,7 +243,7 @@ int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
  * -----------------------------------------------------------------
  */
 
-int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
+int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevals)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -261,7 +261,7 @@ int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
   }
   cvdense_mem = (CVDenseMem) lmem;
 
-  *njevalsD = nje;
+  *njevals = nje;
 
   return(CVDENSE_SUCCESS);
 }

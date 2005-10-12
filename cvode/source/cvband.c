@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-10-12 22:59:46 $
+ * $Revision: 1.21 $
+ * $Date: 2005-10-12 23:01:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -260,7 +260,7 @@ int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
  * -----------------------------------------------------------------
  */
 
-int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
+int CVBandGetNumJacEvals(void *cvode_mem, long int *njevals)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -278,7 +278,7 @@ int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
   }
   cvband_mem = (CVBandMem) lmem;
 
-  *njevalsB = nje;
+  *njevals = nje;
 
   return(CVBAND_SUCCESS);
 }
