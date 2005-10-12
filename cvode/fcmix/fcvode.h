@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.53 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.54 $
+ * $Date: 2005-10-12 21:12:12 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -35,11 +35,11 @@
  *   FNVINITS and FNVINITP interface to N_VNew_Serial and
  *               N_VNew_Parallel, respectively
  * 
- *   FCVMALLOC  interfaces to CVodeCreate and CVodeMalloc
+ *   FCVMALLOC  interfaces to CVodeCreate, CVodeSetFdata, and CVodeMalloc
  * 
  *   FCVREINIT  interfaces to CVReInit
  * 
- *   FCVSETIIN, FCVSETRIN interface to CVodeSet*
+ *   FCVSETIIN and FCVSETRIN interface to CVodeSet*
  *
  *   FCVEWTSET  interfaces to CVodeSetEwtFn
  * 
@@ -51,16 +51,16 @@
  *   FCVBAND    interfaces to CVBand
  *   FCVBANDSETJAC    interfaces to CVBandSetJacFn
  *
- *   FCVSPGMR, FCVSPGMRREINIT interface to CVSpgmr and CVSpgmrSet*
- *   FCVSPGMRSETJAC   interfaces to CVSpgmrSetJacFn
+ *   FCVSPGMR and FCVSPGMRREINIT interface to CVSpgmr and CVSpgmrSet*
+ *   FCVSPGMRSETJAC   interfaces to CVSpgmrSetJacTimesVecFn
  *   FCVSPGMRSETPREC  interfaces to CVSpgmrSetPreconditioner
  * 
  *   FCVSPBCG, FCVSPBCGREINIT interface to CVSpbcg and CVSpbcgSet*
- *   FCVSPBCGSETJAC   interfaces to CVSpbcgSetJacFn
+ *   FCVSPBCGSETJAC   interfaces to CVSpbcgSetJacTimesVecFn
  *   FCVSPBCGSETPREC  interfaces to CVSpbcgSetPreconditioner
  *
  *   FCVSPTFQMR, FCVSPTFQMRREINIT interface to CVSptfqmr and CVSptfqmrSet*
- *   FCVSPTFQMRSETJAC   interfaces to CVSptfqmrSetJacFn
+ *   FCVSPTFQMRSETJAC   interfaces to CVSptfqmrSetJacTimesVecFn
  *   FCVSPTFQMRSETPREC  interfaces to CVSptfqmrSetPreconditioner
  *
  *   FCVODE     interfaces to CVode, CVodeGet*, and CV*Get*
@@ -90,7 +90,7 @@
  * In this package, the names of the interface functions, and the names of
  * the Fortran user routines called by them, appear as dummy names
  * which are mapped to actual values by a series of definitions, in this
- * header file (fcvode.h).
+ * and other header files.
  * 
  * =============================================================================
  * 
@@ -113,7 +113,7 @@
  *
  * (1) User-supplied right-hand side routine: FCVFUN
  * The user must in all cases supply the following Fortran routine
- *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAr, RPAR)
+ *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR)
  *       DIMENSION Y(*), YDOT(*), IPAR(*), RPAR(*)
  * It must set the YDOT array to f(t,y), the right-hand side of the ODE 
  * system, as function of T = t and the array Y = y.  Here Y and YDOT
@@ -128,18 +128,20 @@
  *       DIMENSION Y(*), FY(*), DJAC(NEQ,*), IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
  * the Jacobian and store it columnwise in DJAC.
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * (3s) Optional user-supplied band Jacobian approximation routine: FCVBJAC
  * As an option when using the BAND linear solver, the user may supply a
  * routine that computes a band approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
- *       SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY,
- *      1                    BJAC, H, IPAR, RPAR, WK1, WK2, WK3)
+ *       SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H,
+ *      1                    IPAR, RPAR, WK1, WK2, WK3)
  *       DIMENSION Y(*), FY(*), BJAC(MDIM,*), IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
  * It must load the MDIM by N array BJAC with the Jacobian matrix at the
  * current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element J(i,j)
  * with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * (4) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
  * As an option when using the SP* linear solver, the user may supply
@@ -151,6 +153,7 @@
  * compute the product vector Jv where the vector v is stored in V, and store
  * the product in FJV.  On return, set IER = 0 if FCVJTIMES was successful,
  * and nonzero otherwise.
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * (5) Optional user-supplied error weight vector routine: FCVEWT
  * As an option to providing the relative and absolute tolerances, the user
@@ -160,6 +163,7 @@
  *       DIMENSION Y(*), EWT(*), IPAR(*), RPAR(*)
  * It must store the error weights in EWT, given the current solution vector Y.
  * On return, set IER = 0 if successful, and nonzero otherwise.
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  *
  * (6) Initialization:  FNVINITS / FNVINITP , FCVMALLOC, FCVREINIT
  * 
@@ -198,7 +202,7 @@
  * ATOL   = absolute tolerance (scalar or array)
  * IOUT   = array of length 21 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
- * ROUT   = array of length 10 for real optional outputs
+ * ROUT   = array of length 6 for real optional outputs
  * IPAR   = array with user integer data
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
  * RPAR   = array with user real data
@@ -206,9 +210,9 @@
  *          See printed message for details in case of failure.
  *
  * The user data arrays IPAR and RPAR are passed unmodified to all subsequent
- * calls to user-provided routines. Modifications to either array inside a user-provided 
- * routine will be propagated. Using these two arrays, the user can dispense with using
- * common blocks to pass data betwen user-provided routines.
+ * calls to user-provided routines. Modifications to either array inside a
+ * user-provided routine will be propagated. Using these two arrays, the user
+ * can dispense with Common blocks to pass data betwen user-provided routines.
  * 
  * The optional outputs are:
  *           LENRW   = IOUT( 1) from CVodeGetWorkSpace
@@ -247,7 +251,7 @@
  * FCVREINIT performs the same initializations as FCVMALLOC, but does no memory 
  * allocation, using instead the existing internal memory created by the
  * previous  FCVMALLOC call.  The call to specify the linear system solution
- * method may or may not be needed; see paragraph (6) below.
+ * method may or may not be needed; see paragraph (7) below.
  * 
  * (6.4) To set various integer optional inputs, make the folowing call:
  *       CALL FCVSETIIN(KEY, VALUE, IER)
@@ -368,6 +372,7 @@
  * and the right preconditioner if LR = 2.  The preconditioner (or the product
  * of the left and right preconditioners if both are nontrivial) should be an 
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  *
  * The user-supplied routine FCVPSET must be of the form:
  *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
@@ -382,6 +387,7 @@
  * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * Optional outputs specific to the SPGMR case are:
  *        LENRWG = IOUT(13) from CVSpgmrGetWorkSpace
@@ -437,6 +443,7 @@
  * and the right preconditioner if LR = 2.  The preconditioner (or the product
  * of the left and right preconditioners if both are nontrivial) should be an 
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * The user-supplied routine FCVPSET must be of the form:
  *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
@@ -451,6 +458,7 @@
  * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * Optional outputs specific to the SPBCG case are:
  *        LENRWB = IOUT(13) from CVSpbcgGetWorkSpace
@@ -505,6 +513,7 @@
  * and the right preconditioner if LR = 2.  The preconditioner (or the product
  * of the left and right preconditioners if both are nontrivial) should be an 
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * The user-supplied routine FCVPSET must be of the form:
  *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
@@ -519,6 +528,7 @@
  * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
  * recoverable error occurred, and set IER negative if a non-recoverable error
  * occurred.
+ * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * Optional outputs specific to the SPTFQMR case are:
  *        LENRWQ = IOUT(13) from CVSptfqmrGetWorkSpace
