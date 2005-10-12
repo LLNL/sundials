@@ -3178,7 +3178,10 @@ These optional output functions are described next.
 
 For each of the linear system solver modules, there are various optional 
 outputs that describe the performance of the module. The functions available 
-to access these are described below.
+to access these are described below.  Where the name of an output would
+otherwise conflict with the name of an optional output from the main
+solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
+\id{lenrwLS}).
 
 \subsubsection{Dense linear solver}\label{sss:optout_dense}
 \index{optional output!dense linear solver|(}
