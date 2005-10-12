@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.11 $
-# $Date: 2005-08-12 19:28:46 $
+# $Revision: 1.12 $
+# $Date: 2005-10-12 22:06:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,26 +42,25 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_kinsol -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = kinwebs kinft kinrob kinell
+EXEC_FILES = kinwebs kinft kinrob kinell kinwebst
 
 all: $(EXEC_FILES)
 
 kinwebs: $(srcdir)/kinwebs.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinwebs.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinwebs $(builddir)/kinwebs.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-
 kinft: $(srcdir)/kinft.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinft.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinft $(builddir)/kinft.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-
 kinrob: $(srcdir)/kinrob.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinrob.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinrob $(builddir)/kinrob.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-
 kinell: $(srcdir)/kinell.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinell.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinell $(builddir)/kinell.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-
+kinwebst: $(srcdir)/kinwebst.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/kinwebst.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinwebst $(builddir)/kinwebst.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
