@@ -2587,32 +2587,29 @@ These optional output functions are described next.
 }
 {
   \index{memory requirements!CVODE@{\cvode} solver}
-  In terms of the problem size $N$ and maximum method order \id{maxord},
+  In terms of the problem size $N$, the maximum method order \id{maxord}, and
+  the number \id{nrtfn} of root functions (see \S\ref{s:using_rootfinding}),
   the actual size of the real workspace, in \id{realtype} words, is
   given by the following:
   \begin{itemize}
-  \item Base value: \id{lenrw} $= 89 + $ (\id{maxord+5})$* N$
-  \item With \id{itol = CV\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N$ 
-  \item With rootfinding for $N_g$ functions (see \S\ref{s:using_rootfinding}): 
-    \id{lenrw} $=$ \id{lenrw}$+ 3N_g$ 
+  \item base value: \id{lenrw} $= 89 + ($\id{maxord+5}$)*N_r + 3*$\id{nrtfn};
+  \item if \id{itol = CV\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \end{itemize}
+  where $N_r$ is the number of real words in one \id{N\_Vector} ($\approx N$).
 
   The size of the integer workspace (without distinction between \id{int} 
-  and \id{long int} words) is given by the following:
+  and \id{long int} words) is given by:
   \begin{itemize}
-  \item Base value: \id{leniw} $= 40$
-  \item With rootfinding for $N_g$ functions: \id{leniw} $=$ \id{leniw}$+ N_g$ 
+  \item \id{leniw} $= 40 + ($\id{maxord+5}$)*N_i ~ + ~ $\id{nrtfn},  
   \end{itemize}
+  where $N_i$ is the number of integer words in one \id{N\_Vector}
+  (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} and \id{npes} processors).
 
-  The actual lengths \id{lenrw} and \id{leniw} are increased from these base values
-  by small amounts that depend on the particular version of the {\nvector} module
-  used.  The same is true for all other work array lengths described below.
-
-  For the default value of \id{maxord}, and with no rootfinding, the base
-  values are:
+  For the default value of \id{maxord}, with no rootfinding, and with
+  \id{itol} $\neq$ \id{CV\_SV}, these lengths are given roughly by:
   \begin{itemize}
-  \item For the Adams method: \id{lenrw} $=89 + 17N$ and \id{leniw} $=40$ 
-  \item For the BDF method: \id{lenrw} $=89 + 10N$ and \id{leniw} $=40$ 
+  \item For the Adams method: \id{lenrw} $= 89 + 17N$ and \id{leniw} $= 57$ 
+  \item For the BDF method: \id{lenrw} $= 89 + 10N$ and \id{leniw} $= 50$ 
   \end{itemize}
 }
 %%
@@ -3524,7 +3521,7 @@ finite-difference Jacobian approximation, and last return value from a
   \index{CVDIAG@{\cvdiag} linear solver!memory requirements} 
   \index{memory requirements!CVDIAG@{\cvdiag} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
-  is $3 N$ \id{realtype} words.
+  is roughly $3 N$ \id{realtype} words.
 }
 %%
 %%
@@ -3647,7 +3644,7 @@ return value from a {\cvspgmr} function.
   \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements} 
   \index{memory requirements!CVSPGMR@{\cvspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  the actual size of the real workspace is
+  the actual size of the real workspace is roughly
   (\id{maxl}$+ 5)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ \id{realtype}
   words.  (In a parallel setting, this value is global --- summed over
   all processors.)
@@ -3940,7 +3937,7 @@ return value from a {\cvspbcg} function.
   \index{CVSPBCG@{\cvspbcg} linear solver!memory requirements} 
   \index{memory requirements!CVSPBCG@{\cvspbcg} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  the actual size of the real workspace is $10*N$ \id{realtype} words.
+  the actual size of the real workspace is roughly $9*N$ \id{realtype} words.
   (In a parallel setting, this value is global --- summed over all processors.)
 }
 %%
@@ -4226,7 +4223,7 @@ return value from a {\cvsptfqmr} function.
   \index{CVSPTFQMR@{\cvsptfqmr} linear solver!memory requirements} 
   \index{memory requirements!CVSPTFQMR@{\cvsptfqmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  the actual size of the real workspace is $13*N$ \id{realtype} words.
+  the actual size of the real workspace is rougly  $11*N$ \id{realtype} words.
   (In a parallel setting, this value is global --- summed over all processors.)
 }
 %%
