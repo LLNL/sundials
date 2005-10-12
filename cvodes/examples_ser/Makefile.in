@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2005-06-16 18:17:21 $
+# $Revision: 1.10 $
+# $Date: 2005-10-12 01:44:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,7 +42,7 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = cvdx cvdxe cvbx cvkx cvkxb cvdemd cvdemk cvfnx cvfdx cvfkx cvadx cvabx cvakx cvakxb
+EXEC_FILES = cvdx cvdxe cvbx cvkx cvkxb cvdemd cvdemk cvfnx cvfdx cvfkx cvadx cvabx cvakx cvakxb cvkxt
 
 all: $(EXEC_FILES)
 
@@ -88,6 +88,9 @@ cvakx: $(srcdir)/cvakx.c
 cvakxb: $(srcdir)/cvakxb.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvakxb.c
 	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvakxb $(builddir)/cvakxb.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvkxt: $(srcdir)/cvkxt.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkxt.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvkxt $(builddir)/cvkxt.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
