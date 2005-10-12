@@ -930,10 +930,9 @@ To obtain the error weight array \id{EWT}, containing the multiplicative
 error weights used the WRMS norms, make the following call:
 \index{FCVGETERRWEIGHTS@\texttt{FCVGETERRWEIGHTS}}
 \begin{verbatim}
-      CALL FCVGETERRWEIGHTS (Y, EWT, IER)
+      CALL FCVGETERRWEIGHTS (EWT, IER)
 \end{verbatim}
-This computes the \id{EWT} array as a function of the input \id{Y} array,
-normally defined by Eq. (\ref{e:errwt}).
+This computes the \id{EWT} array normally defined by Eq. (\ref{e:errwt}).
 The array \id{EWT}, of length \id{NEQ} or \id{NLOCAL}, must already have been
 declared by the user.  The error return flag \id{IER} is zero if successful,
 and negative if there was a memory error.
