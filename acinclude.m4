@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.28 $
-# $Date: 2005-08-12 19:38:48 $
+# $Revision: 1.29 $
+# $Date: 2005-10-13 21:26:29 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -415,16 +415,6 @@ PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
 
 AC_ARG_WITH([],[ ],[])
 
-# Sets GCC="yes" if CC="gcc"
-# Search for C compiler given by user first
-AC_PROG_CC(${CC} cc gcc)
-
-# If CC="" then abort (means did NOT find a valid C compiler)
-# Note: This check may no longer be needed
-if test "X${CC}" = "X"; then
-  AC_MSG_ERROR([cannot find C compiler])
-fi
-
 # Determine absolute pathname for specified C compiler
 CC_TEMP1="${CC}"
 CC_TEMP2=`basename "${CC}"`
@@ -517,7 +507,6 @@ AC_MSG_RESULT([none])
 # stdarg.h, string.h, and float.h
 # We really only need stdlib.h and float.h
 AC_HEADER_STDC
-
 AC_CHECK_HEADERS([stdlib.h float.h math.h])
 
 # Set flag indicating if generic function names should be used

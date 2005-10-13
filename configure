@@ -2037,188 +2037,6 @@ fi;
 
 
 # Set C compilation (Required)
-
-
-echo "$as_me:$LINENO: checking for egrep" >&5
-echo $ECHO_N "checking for egrep... $ECHO_C" >&6
-if test "${ac_cv_prog_egrep+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if echo a | (grep -E '(a|b)') >/dev/null 2>&1
-    then ac_cv_prog_egrep='grep -E'
-    else ac_cv_prog_egrep='egrep'
-    fi
-fi
-echo "$as_me:$LINENO: result: $ac_cv_prog_egrep" >&5
-echo "${ECHO_T}$ac_cv_prog_egrep" >&6
- EGREP=$ac_cv_prog_egrep
-
-
-# On IRIX 5.3, sys/types and inttypes.h are conflicting.
-
-
-
-
-
-
-
-
-
-for ac_header in sys/types.h sys/stat.h stdlib.h string.h memory.h strings.h \
-		  inttypes.h stdint.h unistd.h
-do
-as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $ac_header" >&5
-echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6
-if eval "test \"\${$as_ac_Header+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-$ac_includes_default
-
-#include <$ac_header>
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_Header=yes"
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-eval "$as_ac_Header=no"
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_Header'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
-if test `eval echo '${'$as_ac_Header'}'` = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
-
-
-
-
-# Default is C programming language (initialize language stack)
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-
-# Check whether --with- or --without- was given.
-if test "${with_+set}" = set; then
-  withval="$with_"
-
-fi;
-
-# Set floating-point precision: single   [C type 'float']
-#                               double   [C type 'double'] (default)
-#                               extended [C type 'long double']
-# Provide variable description templates for config.hin and config.h files
-# Required by autoheader utility
-
-
-
-
-
-
-
-echo "$as_me:$LINENO: checking floating-point data type to use" >&5
-echo $ECHO_N "checking floating-point data type to use... $ECHO_C" >&6
-
-# Check whether --with-precision or --without-precision was given.
-if test "${with_precision+set}" = set; then
-  withval="$with_precision"
-
-if test "X${withval}" = "Xsingle"; then
-  echo "$as_me:$LINENO: result: float" >&5
-echo "${ECHO_T}float" >&6
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_SINGLE_PRECISION 1
-_ACEOF
-
-  FLOAT_TYPE="single"
-  PRECISION_LEVEL="#define SUNDIALS_SINGLE_PRECISION 1"
-elif test "X${withval}" = "Xdouble"; then
-  echo "$as_me:$LINENO: result: double" >&5
-echo "${ECHO_T}double" >&6
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_DOUBLE_PRECISION 1
-_ACEOF
-
-  FLOAT_TYPE="double"
-  PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
-elif test "X${withval}" = "Xextended"; then
-  echo "$as_me:$LINENO: result: long double" >&5
-echo "${ECHO_T}long double" >&6
-  cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_EXTENDED_PRECISION 1
-_ACEOF
-
-  FLOAT_TYPE="extended"
-  PRECISION_LEVEL="#define SUNDIALS_EXTENDED_PRECISION 1"
-else
-  { { echo "$as_me:$LINENO: error: invalid input" >&5
-echo "$as_me: error: invalid input" >&2;}
-   { (exit 1); exit 1; }; }
-fi
-
-else
-
-# Use 'double' by default
-echo "$as_me:$LINENO: result: double" >&5
-echo "${ECHO_T}double" >&6
-cat >>confdefs.h <<\_ACEOF
-#define SUNDIALS_DOUBLE_PRECISION 1
-_ACEOF
-
-FLOAT_TYPE="double"
-PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
-
-fi;
-
-
-# Check whether --with- or --without- was given.
-if test "${with_+set}" = set; then
-  withval="$with_"
-
-fi;
-
-# Sets GCC="yes" if CC="gcc"
-# Search for C compiler given by user first
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2935,13 +2753,184 @@ ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_o
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-# If CC="" then abort (means did NOT find a valid C compiler)
-# Note: This check may no longer be needed
-if test "X${CC}" = "X"; then
-  { { echo "$as_me:$LINENO: error: cannot find C compiler" >&5
-echo "$as_me: error: cannot find C compiler" >&2;}
+
+echo "$as_me:$LINENO: checking for egrep" >&5
+echo $ECHO_N "checking for egrep... $ECHO_C" >&6
+if test "${ac_cv_prog_egrep+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if echo a | (grep -E '(a|b)') >/dev/null 2>&1
+    then ac_cv_prog_egrep='grep -E'
+    else ac_cv_prog_egrep='egrep'
+    fi
+fi
+echo "$as_me:$LINENO: result: $ac_cv_prog_egrep" >&5
+echo "${ECHO_T}$ac_cv_prog_egrep" >&6
+ EGREP=$ac_cv_prog_egrep
+
+
+# On IRIX 5.3, sys/types and inttypes.h are conflicting.
+
+
+
+
+
+
+
+
+
+for ac_header in sys/types.h sys/stat.h stdlib.h string.h memory.h strings.h \
+		  inttypes.h stdint.h unistd.h
+do
+as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $ac_header" >&5
+echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Header+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+
+#include <$ac_header>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  eval "$as_ac_Header=yes"
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+eval "$as_ac_Header=no"
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
+if test `eval echo '${'$as_ac_Header'}'` = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+
+
+
+# Default is C programming language (initialize language stack)
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
+# Check whether --with- or --without- was given.
+if test "${with_+set}" = set; then
+  withval="$with_"
+
+fi;
+
+# Set floating-point precision: single   [C type 'float']
+#                               double   [C type 'double'] (default)
+#                               extended [C type 'long double']
+# Provide variable description templates for config.hin and config.h files
+# Required by autoheader utility
+
+
+
+
+
+
+
+echo "$as_me:$LINENO: checking floating-point data type to use" >&5
+echo $ECHO_N "checking floating-point data type to use... $ECHO_C" >&6
+
+# Check whether --with-precision or --without-precision was given.
+if test "${with_precision+set}" = set; then
+  withval="$with_precision"
+
+if test "X${withval}" = "Xsingle"; then
+  echo "$as_me:$LINENO: result: float" >&5
+echo "${ECHO_T}float" >&6
+  cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_SINGLE_PRECISION 1
+_ACEOF
+
+  FLOAT_TYPE="single"
+  PRECISION_LEVEL="#define SUNDIALS_SINGLE_PRECISION 1"
+elif test "X${withval}" = "Xdouble"; then
+  echo "$as_me:$LINENO: result: double" >&5
+echo "${ECHO_T}double" >&6
+  cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_DOUBLE_PRECISION 1
+_ACEOF
+
+  FLOAT_TYPE="double"
+  PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
+elif test "X${withval}" = "Xextended"; then
+  echo "$as_me:$LINENO: result: long double" >&5
+echo "${ECHO_T}long double" >&6
+  cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_EXTENDED_PRECISION 1
+_ACEOF
+
+  FLOAT_TYPE="extended"
+  PRECISION_LEVEL="#define SUNDIALS_EXTENDED_PRECISION 1"
+else
+  { { echo "$as_me:$LINENO: error: invalid input" >&5
+echo "$as_me: error: invalid input" >&2;}
    { (exit 1); exit 1; }; }
 fi
+
+else
+
+# Use 'double' by default
+echo "$as_me:$LINENO: result: double" >&5
+echo "${ECHO_T}double" >&6
+cat >>confdefs.h <<\_ACEOF
+#define SUNDIALS_DOUBLE_PRECISION 1
+_ACEOF
+
+FLOAT_TYPE="double"
+PRECISION_LEVEL="#define SUNDIALS_DOUBLE_PRECISION 1"
+
+fi;
+
+
+# Check whether --with- or --without- was given.
+if test "${with_+set}" = set; then
+  withval="$with_"
+
+fi;
 
 # Determine absolute pathname for specified C compiler
 CC_TEMP1="${CC}"
@@ -3529,7 +3518,6 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 fi
-
 
 
 
@@ -6983,7 +6971,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:6986:" \
+echo "$as_me:6974:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -7435,7 +7423,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:7438: \"$ac_link\") >&5
+(eval echo $as_me:7426: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -7517,7 +7505,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:7520: \"$ac_link\") >&5
+(eval echo $as_me:7508: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -11948,7 +11936,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 11951 "configure"' > conftest.$ac_ext
+  echo '#line 11939 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -12508,7 +12496,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:12511: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:12499: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -14434,7 +14422,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 14437 "configure"
+#line 14425 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -14532,7 +14520,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 14535 "configure"
+#line 14523 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H

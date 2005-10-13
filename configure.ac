@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.24 $
-# $Date: 2005-08-04 19:01:15 $
+# $Revision: 1.25 $
+# $Date: 2005-10-13 21:26:29 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -26,6 +26,7 @@ SUNDIALS_MPI_ENABLES
 SUNDIALS_DEV_ENABLES
 
 # Set C compilation (Required)
+AC_PROG_CC(${CC} cc gcc)
 SUNDIALS_SET_CC
 
 # Set Fortran compilation (Optional)
