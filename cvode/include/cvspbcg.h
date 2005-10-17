@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-10-03 22:39:45 $
+ * $Revision: 1.6 $
+ * $Date: 2005-10-17 21:50:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -171,13 +171,13 @@ int CVSpbcgSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG);
+int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 int CVSpbcgGetNumPrecEvals(void *cvode_mem, long int *npevals);
 int CVSpbcgGetNumPrecSolves(void *cvode_mem, long int *npsolves);
 int CVSpbcgGetNumLinIters(void *cvode_mem, long int *nliters);
 int CVSpbcgGetNumConvFails(void *cvode_mem, long int *nlcfails);
 int CVSpbcgGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG); 
+int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
 int CVSpbcgGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVSPBCG return values */

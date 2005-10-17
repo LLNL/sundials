@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-04-07 23:28:28 $
+ * $Revision: 1.22 $
+ * $Date: 2005-10-17 21:50:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -199,9 +199,9 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac, void *jac_data);
  * -----------------------------------------------------------------
  */
 
-int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwB, long int *leniwB);
-int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB);
-int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB);
+int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
+int CVBandGetNumJacEvals(void *cvode_mem, long int *njevals);
+int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 int CVBandGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVBAND return values */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-04-07 23:28:28 $
+ * $Revision: 1.20 $
+ * $Date: 2005-10-17 21:50:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -171,9 +171,9 @@ int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac, void *jac_data);
  * -----------------------------------------------------------------
  */
 
-int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwD, long int *leniwD);
-int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD);
-int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD);
+int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
+int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevals);
+int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 int CVDenseGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVDENSE return values */

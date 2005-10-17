@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-10-03 22:39:45 $
+ * $Revision: 1.3 $
+ * $Date: 2005-10-17 21:50:04 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -173,13 +173,13 @@ int CVSptfqmrSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG);
+int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 int CVSptfqmrGetNumPrecEvals(void *cvode_mem, long int *npevals);
 int CVSptfqmrGetNumPrecSolves(void *cvode_mem, long int *npsolves);
 int CVSptfqmrGetNumLinIters(void *cvode_mem, long int *nliters);
 int CVSptfqmrGetNumConvFails(void *cvode_mem, long int *nlcfails);
 int CVSptfqmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG); 
+int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
 int CVSptfqmrGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVSPTFQMR return values */
