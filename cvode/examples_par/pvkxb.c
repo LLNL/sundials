@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-09-23 16:59:07 $
+ * $Revision: 1.24 $
+ * $Date: 2005-10-18 22:15:33 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -459,10 +459,10 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
 static void PrintFinalStats(void *cvode_mem, void *pdata)
 {
   long int lenrw, leniw ;
-  long int lenrwSPGMR, leniwSPGMR;
+  long int lenrwLS, leniwLS;
   long int lenrwBBDP, leniwBBDP, ngevalsBBDP;
   long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeSPGMR;
+  long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -480,7 +480,7 @@ static void PrintFinalStats(void *cvode_mem, void *pdata)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
   check_flag(&flag, "CVSpgmrGetWorkSpace", 1, 0);
   flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
   check_flag(&flag, "CVSpgmrGetNumLinIters", 1, 0);
@@ -490,18 +490,18 @@ static void PrintFinalStats(void *cvode_mem, void *pdata)
   check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1, 0);
   flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
   check_flag(&flag, "CVSpgmrGetNumConvFails", 1, 0);
-  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
   check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
-  printf("llrw    = %5ld     lliw  = %5ld\n", lenrwSPGMR, leniwSPGMR);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
   printf("nst     = %5ld\n"                  , nst);
-  printf("nfe     = %5ld     nfel  = %5ld\n"  , nfe, nfeSPGMR);
-  printf("nni     = %5ld     nli   = %5ld\n"  , nni, nli);
-  printf("nsetups = %5ld     netf  = %5ld\n"  , nsetups, netf);
-  printf("npe     = %5ld     nps   = %5ld\n"  , npe, nps);
-  printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl);
+  printf("nfe     = %5ld     nfels   = %5ld\n"  , nfe, nfeLS);
+  printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
+  printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
+  printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
+  printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
 
   flag = CVBBDPrecGetWorkSpace(pdata, &lenrwBBDP, &leniwBBDP);
   check_flag(&flag, "CVBBDPrecGetWorkSpace", 1, 0);
