@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.54 $
- * $Date: 2005-10-12 21:12:12 $
+ * $Revision: 1.55 $
+ * $Date: 2005-10-18 23:21:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -285,10 +285,10 @@
  * There is no additional user-supplied routine.  
  *
  * Optional outputs specific to the DIAG case are:
- *        LENRWD = IOUT(13) from CVDiagGetWorkSpace
- *        LENIWD = IOUT(14) from CVDiagGetWorkSpace
- *        LSTF   = IOUT(15) from CVDiagGetLastFlag
- *        NFEDQ  = IOUT(16) from CVDiagGetNumRhsEvals
+ *        LENRWLS = IOUT(13) from CVDiagGetWorkSpace
+ *        LENIWLS = IOUT(14) from CVDiagGetWorkSpace
+ *        LSTF    = IOUT(15) from CVDiagGetLastFlag
+ *        NFELS   = IOUT(16) from CVDiagGetNumRhsEvals
  * See the CVODE manual for descriptions.
  * 
  * (7.2s) DENSE treatment of the linear system.
@@ -305,11 +305,11 @@
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
  * Optional outputs specific to the DENSE case are:
- *        LENRWD = IOUT(13) from CVDenseGetWorkSpace
- *        LENIWD = IOUT(14) from CVDenseGetWorkSpace
- *        LSTF   = IOUT(15) from CVDenseGetLastFlag
- *        NFEDQ  = IOUT(16) from CVDenseGetNumRhsEvals
- *        NJED   = IOUT(17) from CVDenseGetNumJacEvals
+ *        LENRWLS = IOUT(13) from CVDenseGetWorkSpace
+ *        LENIWLS = IOUT(14) from CVDenseGetWorkSpace
+ *        LSTF    = IOUT(15) from CVDenseGetLastFlag
+ *        NFELS   = IOUT(16) from CVDenseGetNumRhsEvals
+ *        NJED    = IOUT(17) from CVDenseGetNumJacEvals
  * See the CVODE manual for descriptions.
  * 
  * (7.3s) BAND treatment of the linear system
@@ -328,11 +328,11 @@
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
  * Optional outputs specific to the BAND case are:
- *        LENRWB = IOUT(13) from CVBandGetWorkSpace
- *        LENIWB = IOUT(14) from CVBandGetWorkSpace
- *        LSTF   = IOUT(15) from CVBandGetLastFlag
- *        NFEDQ  = IOUT(16) from CVBandGetNumRhsEvals
- *        NJEB   = IOUT(17) from CVBandGetNumJacEvals
+ *        LENRWLS = IOUT(13) from CVBandGetWorkSpace
+ *        LENIWLS = IOUT(14) from CVBandGetWorkSpace
+ *        LSTF    = IOUT(15) from CVBandGetLastFlag
+ *        NFELS   = IOUT(16) from CVBandGetNumRhsEvals
+ *        NJEB    = IOUT(17) from CVBandGetNumJacEvals
   * See the CVODE manual for descriptions.
  *
  * (7.4) SPGMR treatment of the linear systems.
@@ -390,15 +390,15 @@
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * Optional outputs specific to the SPGMR case are:
- *        LENRWG = IOUT(13) from CVSpgmrGetWorkSpace
- *        LENIWG = IOUT(14) from CVSpgmrGetWorkSpace
- *        LSTF   = IOUT(15) from CVSpgmrGetLastFlag
- *        NFEDQ  = IOUT(16) from CVSpgmrGetRhsEvals
- *        NJTV   = IOUT(17) from CVSpgmrGetJtimesEvals
- *        NPE    = IOUT(18) from CVSpgmrGetPrecEvals
- *        NPS    = IOUT(19) from CVSpgmrGetPrecSolves
- *        NLI    = IOUT(20) from CVSpgmrGetLinIters
- *        NCFL   = IOUT(21) from CVSpgmrGetConvFails
+ *        LENRWLS = IOUT(13) from CVSpgmrGetWorkSpace
+ *        LENIWLS = IOUT(14) from CVSpgmrGetWorkSpace
+ *        LSTF    = IOUT(15) from CVSpgmrGetLastFlag
+ *        NFELS   = IOUT(16) from CVSpgmrGetRhsEvals
+ *        NJTV    = IOUT(17) from CVSpgmrGetJtimesEvals
+ *        NPE     = IOUT(18) from CVSpgmrGetPrecEvals
+ *        NPS     = IOUT(19) from CVSpgmrGetPrecSolves
+ *        NLI     = IOUT(20) from CVSpgmrGetLinIters
+ *        NCFL    = IOUT(21) from CVSpgmrGetConvFails
  * See the CVODE manual for descriptions.
  * 
  * If a sequence of problems of the same size is being solved using the
@@ -461,15 +461,15 @@
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * Optional outputs specific to the SPBCG case are:
- *        LENRWB = IOUT(13) from CVSpbcgGetWorkSpace
- *        LENIWB = IOUT(14) from CVSpbcgGetWorkSpace
- *        LSTF   = IOUT(15) from CVSpbcgGetLastFlag
- *        NFEDQ  = IOUT(16) from CVSpbcgGetRhsEvals
- *        NJTV   = IOUT(17) from CVSpbcgGetJtimesEvals
- *        NPE    = IOUT(18) from CVSpbcgGetPrecEvals
- *        NPS    = IOUT(19) from CVSpbcgGetPrecSolves
- *        NLI    = IOUT(20) from CVSpbcgGetLinIters
- *        NCFL   = IOUT(21) from CVSpbcgGetConvFails
+ *        LENRWLS = IOUT(13) from CVSpbcgGetWorkSpace
+ *        LENIWLS = IOUT(14) from CVSpbcgGetWorkSpace
+ *        LSTF    = IOUT(15) from CVSpbcgGetLastFlag
+ *        NFELS   = IOUT(16) from CVSpbcgGetRhsEvals
+ *        NJTV    = IOUT(17) from CVSpbcgGetJtimesEvals
+ *        NPE     = IOUT(18) from CVSpbcgGetPrecEvals
+ *        NPS     = IOUT(19) from CVSpbcgGetPrecSolves
+ *        NLI     = IOUT(20) from CVSpbcgGetLinIters
+ *        NCFL    = IOUT(21) from CVSpbcgGetConvFails
   * See the CVODE manual for descriptions.
  * 
  * If a sequence of problems of the same size is being solved using the
@@ -531,15 +531,15 @@
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
  * 
  * Optional outputs specific to the SPTFQMR case are:
- *        LENRWQ = IOUT(13) from CVSptfqmrGetWorkSpace
- *        LENIWQ = IOUT(14) from CVSptfqmrGetWorkSpace
- *        LSTF   = IOUT(15) from CVSptfqmrGetLastFlag
- *        NFEDQ  = IOUT(16) from CVSptfqmrGetRhsEvals
- *        NJTV   = IOUT(17) from CVSptfqmrGetJtimesEvals
- *        NPE    = IOUT(18) from CVSptfqmrGetPrecEvals
- *        NPS    = IOUT(19) from CVSptfqmrGetPrecSolves
- *        NLI    = IOUT(20) from CVSptfqmrGetLinIters
- *        NCFL   = IOUT(21) from CVSptfqmrGetConvFails
+ *        LENRWLS = IOUT(13) from CVSptfqmrGetWorkSpace
+ *        LENIWLS = IOUT(14) from CVSptfqmrGetWorkSpace
+ *        LSTF    = IOUT(15) from CVSptfqmrGetLastFlag
+ *        NFELS   = IOUT(16) from CVSptfqmrGetRhsEvals
+ *        NJTV    = IOUT(17) from CVSptfqmrGetJtimesEvals
+ *        NPE     = IOUT(18) from CVSptfqmrGetPrecEvals
+ *        NPS     = IOUT(19) from CVSptfqmrGetPrecSolves
+ *        NLI     = IOUT(20) from CVSptfqmrGetLinIters
+ *        NCFL    = IOUT(21) from CVSptfqmrGetConvFails
  * See the CVODE manual for descriptions.
  *
  * If a sequence of problems of the same size is being solved using the

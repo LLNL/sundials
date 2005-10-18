@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.12 $
+ * $Date: 2005-10-18 23:21:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -119,10 +119,10 @@ void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier)
 
 /* C function FCVBPOPT to access optional outputs from CVBANDPRE_Data */
 
-void FCV_BPOPT(long int *lenrpw, long int *lenipw, long int *nfe)
+void FCV_BPOPT(long int *lenrwbp, long int *leniwbp, long int *nfebp)
 {
-  CVBandPrecGetWorkSpace(CVBP_Data, lenrpw, lenipw);
-  CVBandPrecGetNumRhsEvals(CVBP_Data, nfe);
+  CVBandPrecGetWorkSpace(CVBP_Data, lenrwbp, leniwbp);
+  CVBandPrecGetNumRhsEvals(CVBP_Data, nfebp);
 }
 
 /***************************************************************************/

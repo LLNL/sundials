@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.55 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.56 $
+ * $Date: 2005-10-18 23:21:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -470,26 +470,26 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
   
   switch(CV_ls) {
   case CV_LS_DENSE:
-    CVDenseGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LRW and LIW */
+    CVDenseGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LENRWLS,LENIWLS */
     CVDenseGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* LSTF */
-    CVDenseGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFE */
+    CVDenseGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFELS */
     CVDenseGetNumJacEvals(CV_cvodemem, &CV_iout[16]);              /* NJE */
     break;
   case CV_LS_BAND:
-    CVBandGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LRW and LIW */
+    CVBandGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LENRWLS,LENIWLS */
     CVBandGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);          /* LSTF */
-    CVBandGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFE */
+    CVBandGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFELS */
     CVBandGetNumJacEvals(CV_cvodemem, &CV_iout[16]);               /* NJE */
     break;
   case CV_LS_DIAG:
-    CVDiagGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LRW and LIW */
+    CVDiagGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LENRWLS,LENIWLS */
     CVDiagGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);          /* LSTF */
-    CVDiagGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFE */
+    CVDiagGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFELS */
     break;
   case CV_LS_SPGMR:
-    CVSpgmrGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LRW and LIW */
+    CVSpgmrGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LENRWLS,LENIWLS */
     CVSpgmrGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* LSTF */
-    CVSpgmrGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFE */
+    CVSpgmrGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFELS */
     CVSpgmrGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);           /* NJTV */
     CVSpgmrGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);             /* NPE */
     CVSpgmrGetNumPrecSolves(CV_cvodemem, &CV_iout[18]);            /* NPS */
@@ -497,9 +497,9 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVSpgmrGetNumConvFails(CV_cvodemem, &CV_iout[20]);             /* NCFL */
     break;
   case CV_LS_SPBCG:
-    CVSpbcgGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LRW and LIW */
+    CVSpbcgGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LENRWLS,LENIWLS */
     CVSpbcgGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);         /* LSTF */
-    CVSpbcgGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFE */
+    CVSpbcgGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);              /* NFELS */
     CVSpbcgGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);           /* NJTV */
     CVSpbcgGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);             /* NPE */
     CVSpbcgGetNumPrecSolves(CV_cvodemem, &CV_iout[18]);            /* NPS */
@@ -507,9 +507,9 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVSpbcgGetNumConvFails(CV_cvodemem, &CV_iout[20]);             /* NCFL */
     break;
   case CV_LS_SPTFQMR:
-    CVSptfqmrGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]); /* LRW and LIW */
+    CVSptfqmrGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]); /* LENRWLS,LENIWLS */
     CVSptfqmrGetLastFlag(CV_cvodemem, (int *) &CV_iout[14]);        /* LSTF */
-    CVSptfqmrGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);             /* NFE */
+    CVSptfqmrGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);             /* NFELS */
     CVSptfqmrGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);          /* NJTV */
     CVSptfqmrGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);            /* NPE */
     CVSptfqmrGetNumPrecSolves(CV_cvodemem, &CV_iout[18]);           /* NPS */

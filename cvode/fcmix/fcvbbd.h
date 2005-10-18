@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.25 $
+ * $Date: 2005-10-18 23:21:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -282,17 +282,17 @@
  * The current values of the optional outputs are available in IOUT and ROUT.
  * 
  * (7) Optional outputs: FCVBBDOPT
- * Optional outputs specific to the SP* solver are LRW, LIW, LFLG, NFEDQ, NJTV,
+ * Optional outputs specific to the SP* solver are LRW, LIW, LFLG, NFELS, NJTV,
  * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
  * To obtain the optional outputs associated with the CVBBDPRE module, make
  * the following call:
- *       CALL FCVBBDOPT (LENRPW, LENIPW, NGE)
+ *       CALL FCVBBDOPT (LENRWBBD, LENIWBBD, NGEBBD)
  * The arguments returned are:
- * LENRPW = length of real preconditioner work space, in realtype words.
- *          This size is local to the current processor.
- * LENIPW = length of integer preconditioner work space, in integer words.
- *          This size is local to the current processor.
- * NGE    = number of g(t,y) evaluations (calls to CVLOCFN) so far.
+ * LENRWBBD = length of real preconditioner work space, in realtype words.
+ *            This size is local to the current processor.
+ * LENIWBBD = length of integer preconditioner work space, in integer words.
+ *            This size is local to the current processor.
+ * NGEBBD   = number of g(t,y) evaluations (calls to CVLOCFN) so far.
  * 
  * (8) Computing solution derivatives: FCVDKY
  * To obtain a derivative of the solution (optionally), of order up to
@@ -421,7 +421,7 @@ void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
 void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq, 
                    realtype* dqrely, int *ier);
-void FCV_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
+void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 void FCV_BBDFREE(void);
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */

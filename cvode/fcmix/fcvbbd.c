@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.26 $
+ * $Date: 2005-10-18 23:21:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -198,10 +198,10 @@ void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 
 /* C function FCVBBDOPT to access optional outputs from CVBBD_Data */
 
-void FCV_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
+void FCV_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd)
 {
-  CVBBDPrecGetWorkSpace(CVBBD_Data, lenrpw, lenipw);
-  CVBBDPrecGetNumGfnEvals(CVBBD_Data, nge);
+  CVBBDPrecGetWorkSpace(CVBBD_Data, lenrwbbd, leniwbbd);
+  CVBBDPrecGetNumGfnEvals(CVBBD_Data, ngebbd);
 }
 
 

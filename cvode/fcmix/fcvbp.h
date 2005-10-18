@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.16 $
+ * $Date: 2005-10-18 23:21:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -193,17 +193,17 @@
  * The current values of the optional outputs are available in IOUT and ROUT.
  * 
  * (5) Optional outputs: FCVBPOPT
- * Optional outputs specific to the SP* solver are LRW, LIW, LFLG, NFEDQ, NJTV,
+ * Optional outputs specific to the SP* solver are LRW, LIW, LFLG, NFELS, NJTV,
  * NPE, NPS, NLI, NCFL, stored in IOUT(13)...IOUT(21).
  * To obtain the optional outputs associated with the CVBANDPRE module, make
  * the following call:
- *       CALL FCVBPOPT(LENRPW, LENIPW, NFE)
+ *       CALL FCVBPOPT(LENRWBP, LENIWBP, NFEBP)
  * The arguments returned are:
- * LENRPW = length of real preconditioner work space, in realtype words.
- *          This size is local to the current processor.
- * LENIPW = length of integer preconditioner work space, in integer words.
- *          This size is local to the current processor.
- * NGE    = number of f(t,y) evaluations for CVBANDPRE
+ * LENRWBP = length of real preconditioner work space, in realtype words.
+ *           This size is local to the current processor.
+ * LENIWBP = length of integer preconditioner work space, in integer words.
+ *           This size is local to the current processor.
+ * NFEBP   = number of f(t,y) evaluations for CVBANDPRE
  * 
  * (6) Computing solution derivatives: FCVDKY
  * To obtain a derivative of the solution (optionally), of order up to
@@ -307,7 +307,7 @@ void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier);
 void FCV_BPSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BPSPBCG(int *pretype, int *maxl, realtype *delt, int *ier);
 void FCV_BPSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier);
-void FCV_BPOPT(long int *lenrpw, long int *lenipw, long int *nfe);
+void FCV_BPOPT(long int *lenrwbp, long int *leniwbp, long int *nfebp);
 void FCV_BPFREE(void);
 
 /* Declarations for global variables, shared among various routines */
