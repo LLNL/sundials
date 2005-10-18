@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-09-23 16:41:14 $
+ * $Revision: 1.21 $
+ * $Date: 2005-10-18 21:25:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -656,7 +656,7 @@ static void PrintErrOutput(realtype tol_factor)
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 {
   long int lenrw, leniw, nst, nfe, nsetups, nni, ncfn, netf;
-  long int lenrwL, leniwL, nje, nfeL;
+  long int lenrwLS, leniwLS, nje, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -690,32 +690,32 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
     case DENSE_DQ   :
       flag = CVDenseGetNumJacEvals(cvode_mem, &nje);
       check_flag(&flag, "CVDenseGetNumJacEvals", 1);
-      flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeL);
+      flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeLS);
       check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
-      flag = CVDenseGetWorkSpace(cvode_mem, &lenrwL, &leniwL);
+      flag = CVDenseGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
       check_flag(&flag, "CVDenseGetWorkSpace", 1);
       break;
     case BAND_USER  :
     case BAND_DQ    :
       flag = CVBandGetNumJacEvals(cvode_mem, &nje);
       check_flag(&flag, "CVBandGetNumJacEvals", 1);
-      flag = CVBandGetNumRhsEvals(cvode_mem, &nfeL);
+      flag = CVBandGetNumRhsEvals(cvode_mem, &nfeLS);
       check_flag(&flag, "CVBandGetNumRhsEvals", 1);
-      flag = CVBandGetWorkSpace(cvode_mem, &lenrwL, &leniwL);
+      flag = CVBandGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
       check_flag(&flag, "CVBandGetWorkSpace", 1);
       break;  
     case DIAG       :
       nje = nsetups;
-      flag = CVDiagGetNumRhsEvals(cvode_mem, &nfeL);
+      flag = CVDiagGetNumRhsEvals(cvode_mem, &nfeLS);
       check_flag(&flag, "CVDiagGetNumRhsEvals", 1);
-      flag = CVDiagGetWorkSpace(cvode_mem, &lenrwL, &leniwL);
+      flag = CVDiagGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
       check_flag(&flag, "CVDiagGetWorkSpace", 1);
       break;
     }
-    printf(" Linear solver real workspace length      = %4ld \n", lenrwL);
-    printf(" Linear solver integer workspace length   = %4ld \n", leniwL);
+    printf(" Linear solver real workspace length      = %4ld \n", lenrwLS);
+    printf(" Linear solver integer workspace length   = %4ld \n", leniwLS);
     printf(" Number of Jacobian evaluations           = %4ld  \n", nje);
-    printf(" Number of f-s evaluations                = %4ld \n\n", nfeL);
+    printf(" Number of f-s evaluations                = %4ld \n\n", nfeLS);
   }
   
 #if defined(SUNDIALS_EXTENDED_PRECISION)

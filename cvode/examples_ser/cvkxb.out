@@ -56,16 +56,15 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.162e+11
 
 Final Statistics.. 
 
-lenrw   =  2089     leniw  =    50
-llrw    =  2046     lliw   =    10
-llrw    =  2400     lliw   =   200
+lenrw   =  2089     leniw   =    50
+lenrwls =  2400     leniwls =   200
 nst     =   503
-nfe     =   643     nfetot =  1323
-nfeSPGMR=   635     nfeBP  =    45
-nni     =   640     nli    =   635
-nsetups =    85     netf   =    29
-npe     =     9     nps    =  1195
-ncfn    =     0     ncfl   =     0
+nfe     =   643     nfetot  =  1323
+nfeLS   =   635     nfeBP   =    45
+nni     =   640     nli     =   635
+nsetups =    85     netf    =    29
+npe     =     9     nps     =  1195
+ncfn    =     0     ncfl    =     0
 
 
 
@@ -125,14 +124,13 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
 
 Final Statistics.. 
 
-lenrw   =  2089     leniw  =    50
-llrw    =  2046     lliw   =    10
-llrw    =  2400     lliw   =   200
+lenrw   =  2089     leniw   =    50
+lenrwls =  2400     leniwls =   200
 nst     =   464
-nfe     =   570     nfetot =  1308
-nfeSPGMR=   653     nfeBP  =    85
-nni     =   567     nli    =   653
-nsetups =    71     netf   =    20
-npe     =     8     nps    =  1136
-ncfn    =     0     ncfl   =     0
+nfe     =   570     nfetot  =  1308
+nfeLS   =   653     nfeBP   =    85
+nni     =   567     nli     =   653
+nsetups =    71     netf    =    20
+npe     =     8     nps     =  1136
+ncfn    =     0     ncfl    =     0
 

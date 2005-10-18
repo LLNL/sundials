@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-09-23 16:41:14 $
+ * $Revision: 1.28 $
+ * $Date: 2005-10-18 21:25:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -570,9 +570,9 @@ static void PrintOutput(void *cvode_mem, realtype t)
 static void PrintFinalStats(void *cvode_mem)
 {
   long int lenrw, leniw ;
-  long int lenrwSPGMR, leniwSPGMR;
+  long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeSPGMR;
+  long int nli, npe, nps, ncfl, nfeLS;
   int flag;
   realtype avdim;
   
@@ -591,7 +591,7 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
   check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
   flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
   check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
@@ -601,18 +601,18 @@ static void PrintFinalStats(void *cvode_mem)
   check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
   flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
   check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
   check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length           = %4ld \n", lenrw);
   printf(" CVode integer workspace length        = %4ld \n", leniw);
-  printf(" CVSPGMR real workspace length         = %4ld \n", lenrwSPGMR);
-  printf(" CVSPGMR integer workspace length      = %4ld \n", leniwSPGMR);
+  printf(" CVSPGMR real workspace length         = %4ld \n", lenrwLS);
+  printf(" CVSPGMR integer workspace length      = %4ld \n", leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s                         = %4ld \n", nfe);
-  printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeSPGMR);
-  printf(" Number of f-s (TOTAL)                 = %4ld \n", nfe + nfeSPGMR);
+  printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeLS);
+  printf(" Number of f-s (TOTAL)                 = %4ld \n", nfe + nfeLS);
   printf(" Number of setups                      = %4ld \n", nsetups);
   printf(" Number of nonlinear iterations        = %4ld \n", nni);
   printf(" Number of linear iterations           = %4ld \n", nli);
