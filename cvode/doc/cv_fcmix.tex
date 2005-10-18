@@ -872,33 +872,33 @@ and \S\ref{ss:optional_output}.
 \hline
 \multicolumn{3}{|c|}{{\cvdense} linear solver}\\
 \hline
-13 & \id{LRW}      & \id{CVDenseGetWorkSpace} \\ 
-14 & \id{LIW}      & \id{CVDenseGetWorkSpace} \\ 
+13 & \id{LENRWLS}  & \id{CVDenseGetWorkSpace} \\ 
+14 & \id{LENIWLS}  & \id{CVDenseGetWorkSpace} \\ 
 15 & \id{LS\_FLAG} & \id{CVDenseGetLastFlag} \\ 
-16 & \id{NFE\_DQ}  & \id{CVDenseGetNumRhsEvals} \\ 
+16 & \id{NFELS}    & \id{CVDenseGetNumRhsEvals} \\ 
 17 & \id{NJE}      & \id{CVDenseGetNumJacEvals} \\ 
 \hline
 \multicolumn{3}{|c|}{{\cvband} linear solver}\\
 \hline
-13 & \id{LRW}      & \id{CVBandGetWorkSpace} \\ 
-14 & \id{LIW}      & \id{CVBandGetWorkSpace} \\ 
+13 & \id{LENRWLS}  & \id{CVBandGetWorkSpace} \\ 
+14 & \id{LENIWLS}  & \id{CVBandGetWorkSpace} \\ 
 15 & \id{LS\_FLAG} & \id{CVBandGetLastFlag} \\ 
-16 & \id{NFE\_DQ}  & \id{CVBandGetNumRhsEvals} \\ 
+16 & \id{NFELS}    & \id{CVBandGetNumRhsEvals} \\ 
 17 & \id{NJE}      & \id{CVBandGetNumJacEvals} \\ 
 \hline
 \multicolumn{3}{|c|}{{\cvdiag} linear solver}\\
 \hline
-13 & \id{LRW}      & \id{CVDiagGetWorkSpace} \\ 
-14 & \id{LIW}      & \id{CVDiagGetWorkSpace} \\ 
+13 & \id{LENRWLS}  & \id{CVDiagGetWorkSpace} \\ 
+14 & \id{LENIWLS}  & \id{CVDiagGetWorkSpace} \\ 
 15 & \id{LS\_FLAG} & \id{CVDiagGetLastFlag} \\ 
-16 & \id{NFE\_DQ}  & \id{CVDiagGetNumRhsEvals} \\ 
+16 & \id{NFELS}    & \id{CVDiagGetNumRhsEvals} \\ 
 \hline
 \multicolumn{3}{|c|}{{\cvspgmr}, {\cvspbcg}, {\cvsptfqmr} linear solvers}\\
 \hline
-13 & \id{LRW}      & \id{CVSp*GetWorkSpace} \\ 
-14 & \id{LIW}      & \id{CVSp*GetWorkSpace} \\ 
+13 & \id{LENRWLS}  & \id{CVSp*GetWorkSpace} \\ 
+14 & \id{LENIWLS}  & \id{CVSp*GetWorkSpace} \\ 
 15 & \id{LS\_FLAG} & \id{CVSp*GetLastFlag} \\ 
-16 & \id{NFE\_DQ}  & \id{CVSp*GetNumRhsEvals} \\ 
+16 & \id{NFELS}    & \id{CVSp*GetNumRhsEvals} \\ 
 17 & \id{NJTV}     & \id{CVSp*GetNumJacEvals} \\ 
 18 & \id{NPE}      & \id{CVSp*GetNumPrecEvals} \\ 
 19 & \id{NPS}      & \id{CVSp*GetNumPrecSolves} \\ 
@@ -1142,13 +1142,13 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   the following call:
   \index{FCVBPOPT@\texttt{FCVBPOPT}}
 \begin{verbatim}
-       CALL FCVBPOPT(LENRPW, LENIPW, NFE)
+       CALL FCVBPOPT(LENRWBP, LENIWBP, NFEBP)
 \end{verbatim}
   The arguments returned are as follows.
-  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
-  words. \id{LENIPW} is the length of integer preconditioner work space, in
-  integer words. \id{NFE} is the number of $f(t,y)$ evaluations (calls to
-  \id{FCVFUN}) for difference-quotient banded Jacobian approximation.
+  \id{LENRWBP} is the length of real preconditioner work space, in \id{realtype}
+  words. \id{LENIWBP} is the length of integer preconditioner work space, in
+  integer words. \id{NFEBP} is the number of $f(t,y)$ evaluations (calls to
+  \id{FCVFUN}) for difference-quotient banded Jacobian approximations.
   
 \item {\bf Memory deallocation}
 
@@ -1309,13 +1309,13 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   the following call:
   \index{FCVBBDOPT@\texttt{FCVBBDOPT}}
 \begin{verbatim}
-       CALL FCVBBDOPT(LENRPW, LENIPW, NGE)
+       CALL FCVBBDOPT(LENRWBBD, LENIWBBD, NGEBBD)
 \end{verbatim}
   The arguments returned are as follows.
-  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
-  words. \id{LENIPW} is the length of integer preconditioner work space, in integer
-  words.  These sizes are local to the current processor.
-  \id{NGE} is the number of $g(t,y)$ evaluations (calls to \id{FCVLOCFN}) so far.
+  \id{LENRWBBD} is the length of real preconditioner work space, in \id{realtype}
+  words. \id{LENIWBBD} is the length of integer preconditioner work space, in
+  integer words.  These sizes are local to the current processor.
+  \id{NGEBBD} is the number of $g(t,y)$ evaluations (calls to \id{FCVLOCFN}) so far.
   
 \item {\bf Problem reinitialization}
   
