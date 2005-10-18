@@ -5530,7 +5530,7 @@ the {\cvbandpre} module:
 %%
 \ucfunction{CVBandPrecGetNumRhsEvals}
 {
-  flag = CVBandPrecGetNumRhsEvals(bp\_data, \&nfevalsLS);
+  flag = CVBandPrecGetNumRhsEvals(bp\_data, \&nfevalsBP);
 }
 {
   The function \ID{CVBandPrecGetNumRhsEvals} returns the
@@ -5539,10 +5539,10 @@ the {\cvbandpre} module:
   {\cvbandpre}'s preconditioner setup function.
 }
 {
-  \begin{args}[nfevalsLS]
+  \begin{args}[nfevalsBP]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[nfevalsLS] (\id{long int})
+  \item[nfevalsBP] (\id{long int})
     the number of calls to the user right-hand side function.
   \end{args}
 }
@@ -5555,7 +5555,13 @@ the {\cvbandpre} module:
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
-{}
+{
+The counter \id{nfevalsBP} is distinct from the counter \id{nfevalsLS}
+returned by the corresponding \id{CVSp***GetNumRhsEvals} function, and
+also from \id{nfevals}, returned by \id{CVodeGetNumRhsEvals}.
+The total number of right-hand side function evaluations is the
+sum of all three of these counters.
+}
 %%
 \index{CVBANDPRE@{\cvbandpre} preconditioner!optional output|)}
 \index{optional output!banded preconditioner|)}
@@ -5647,6 +5653,10 @@ reduces to solving each of the equations
 and this is done by banded LU factorization of $P_m$ followed by a banded
 backsolve.
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!description|)}
+
+Similar block-diagonal preconditioners could be considered with different
+treatment of the blocks $P_m$. For example, incomplete LU factorization or
+an iterative method could be used instead of banded LU factorization.
 
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|(}
 The {\cvbbdpre} module calls two user-provided functions to construct $P$: 
@@ -6171,10 +6181,8 @@ the {\cvbbdpre} module:
 \index{optional output!band-block-diagonal preconditioner|)}
 
 The costs associated with {\cvbbdpre} also include \id{nlinsetups} LU
-factorizations, \id{nlinsetups} calls to \id{cfn}, and \id{npsolves} banded
-backsolve calls, where \id{nlinsetups} and \id{npsolves} are optional {\cvode}
-outputs (see \S\ref{ss:optional_output}).
-
-Similar block-diagonal preconditioners could be considered with different
-treatment of the blocks $P_m$. For example, incomplete LU factorization or
-an iterative method could be used instead of banded LU factorization.
+factorizations, \id{nlinsetups} calls to \id{cfn}, \id{npsolves} banded
+backsolve calls, and \id{nfevalsLS} right-hand side function evaluations,
+where \id{nlinsetups} is an optional {\cvode} output (see
+\S\ref{sss:optout_main}), and \id{npsolves} and \id{nfevalsLS} are
+linear solver optional outputs (see \S\ref{sss:optout_linsol}).
