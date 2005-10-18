@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2005-10-12 22:59:46 $
+ * $Revision: 1.29 $
+ * $Date: 2005-10-18 18:39:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -217,7 +217,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS)
   return(CV_SUCCESS);
 }
 
-int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsLS)
+int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 {
   CVBandPrecData pdata;
 
@@ -228,7 +228,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsLS)
 
   pdata = (CVBandPrecData) bp_data;
 
-  *nfevalsLS = pdata->nfeBP;
+  *nfevalsBP = pdata->nfeBP;
 
   return(CV_SUCCESS);
 }

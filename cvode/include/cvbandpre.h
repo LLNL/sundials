@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2005-10-17 21:50:04 $
+ * $Revision: 1.31 $
+ * $Date: 2005-10-18 18:38:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -231,7 +231,7 @@ void CVBandPrecFree(void **bp_data);
  */
 
 int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
-int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsLS);
+int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
 #ifdef __cplusplus
 }
