@@ -57,7 +57,8 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.162e+11
 Final Statistics.. 
 
 lenrw   =  2089     leniw   =    50
-lenrwls =  2400     leniwls =   200
+lenrwls =  2046     leniwls =    10
+lenrwbp =  2400     leniwbp =   200
 nst     =   503
 nfe     =   643     nfetot  =  1323
 nfeLS   =   635     nfeBP   =    45
@@ -125,7 +126,8 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
 Final Statistics.. 
 
 lenrw   =  2089     leniw   =    50
-lenrwls =  2400     leniwls =   200
+lenrwls =  2046     leniwls =    10
+lenrwbp =  2400     leniwbp =   200
 nst     =   464
 nfe     =   570     nfetot  =  1308
 nfeLS   =   653     nfeBP   =    85

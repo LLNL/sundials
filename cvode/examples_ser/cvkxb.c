@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-10-18 21:25:42 $
+ * $Revision: 1.22 $
+ * $Date: 2005-10-18 21:59:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -350,6 +350,7 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata)
 {
   long int lenrw, leniw ;
   long int lenrwLS, leniwLS;
+  long int lenrwBP, leniwBP;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   long int nfeBP;
@@ -370,6 +371,8 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
+  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
   flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
   check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
   flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
@@ -381,7 +384,7 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata)
   flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
   check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
 
-  flag = CVBandPrecGetWorkSpace(bpdata, &lenrwLS, &leniwLS);
+  flag = CVBandPrecGetWorkSpace(bpdata, &lenrwBP, &leniwBP);
   check_flag(&flag, "CVBandPrecGetWorkSpace", 1);
   flag = CVBandPrecGetNumRhsEvals(bpdata, &nfeBP);
   check_flag(&flag, "CVBandPrecGetNumRhsEvals", 1);
@@ -389,6 +392,7 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata)
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
   printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrwbp = %5ld     leniwbp = %5ld\n", lenrwBP, leniwBP);
   printf("nst     = %5ld\n"                  , nst);
   printf("nfe     = %5ld     nfetot  = %5ld\n"  , nfe, nfe+nfeLS+nfeBP);
   printf("nfeLS   = %5ld     nfeBP   = %5ld\n"  , nfeLS, nfeBP);
