@@ -5494,19 +5494,19 @@ the {\cvbandpre} module:
 %%
 \ucfunction{CVBandPrecGetWorkSpace}
 {
-  flag = CVBandPrecGetWorkSpace(bp\_data, \&lenrwLS, \&leniwLS);
+  flag = CVBandPrecGetWorkSpace(bp\_data, \&lenrwBP, \&leniwBP);
 }
 {
   The function \ID{CVBandPrecGetWorkSpace} returns the
   {\cvbandpre} real and integer workspace sizes.
 }
 {
-  \begin{args}[lenrwLS]
+  \begin{args}[lenrwBP]
   \item[bp\_data] (\id{void *})
     pointer to the {\cvbandpre} data structure.
-  \item[lenrwLS] (\id{long int})
+  \item[lenrwBP] (\id{long int})
     the number of \id{realtype} values in the {\cvbandpre} workspace.
-  \item[leniwLS] (\id{long int})
+  \item[leniwBP] (\id{long int})
     the number of integer values in the {\cvbandpre} workspace.
   \end{args}
 }
@@ -5525,6 +5525,9 @@ the {\cvbandpre} module:
   the actual size of the real workspace is
   $(2$ \id{ml} $+$ \id{mu} $+$ \id{smu} $+2)\, N$ \id{realtype} words,
   and the actual size of the integer workspace is $N$ integer words.
+
+  The workspaces referred to here exist in addition to those given by the
+  corresponding \id{CVSp***GetWorkSpace} function.
 }
 %%
 %%
@@ -6112,19 +6115,19 @@ the {\cvbbdpre} module:
 %%
 \ucfunction{CVBBDPrecGetWorkSpace}
 {
-  flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwLS, \&leniwLS);
+  flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
 }
 {
   The function \ID{CVBBDPrecGetWorkSpace} returns the local
   {\cvbbdpre} real and integer workspace sizes.
 }
 {
-  \begin{args}[lenrwLS]
+  \begin{args}[lenrwBBDP]
   \item[bbd\_data] (\id{void *})
     pointer to the {\cvbbdpre} data structure.
-  \item[lenrwLS] (\id{long int})
+  \item[lenrwBBDP] (\id{long int})
     local number of \id{realtype} values in the {\cvbbdpre} workspace.
-  \item[leniwLS] (\id{long int})
+  \item[leniwBBDP] (\id{long int})
     local number of integer values in the {\cvbbdpre} workspace.
   \end{args}
 }
@@ -6145,6 +6148,9 @@ the {\cvbbdpre} module:
   (2 \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2) \, $\id{local\_N} $~$
   \id{realtype} words, and the actual size of the integer workspace is
   \id{local\_N} integer words.  These values are local to the current processor.
+
+  The workspaces referred to here exist in addition to those given by the
+  corresponding \id{CVSp***GetWorkSpace} function.
 }
 %%
 %%
