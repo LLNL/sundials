@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.13 $
-C     $Date: 2005-10-11 16:04:31 $
+C     $Revision: 1.14 $
+C     $Date: 2005-10-19 18:53:27 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -39,16 +39,19 @@ C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNPE, LNLI, LNPS
       INTEGER LNCFL, LH, LQ, METH, ITMETH, IATOL, ITASK
       INTEGER LNETF, IER, MAXL, JPRETYPE, IGSTYPE, JOUT
+      INTEGER LLENRW, LLENIW, LLENRWLS, LLENIWLS
       INTEGER*4 IOUT(25), IPAR(4)
       INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI
       INTEGER*4 NLI, NCFN, NCFL, NETF, MU, ML
+      INTEGER*4 LENRW, LENIW, LENRWLS, LENIWLS, LENRWBP, LENIWBP, NFEBP
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
       DOUBLE PRECISION ROUT(10), U(2,MX,MY), RPAR(12)
 C
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
-      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
-     1     LQ/9/, LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
+      DATA LLENRW/1/, LLENIW/2/, LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/,
+     1     LNNI/7/, LNSETUP/8/, LQ/9/, LLENRWLS/13/, LLENIWLS/14/,
+     1     LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
       DATA LH/2/
 C
 C Load IPAR, RPAR, and initial values
@@ -141,8 +144,12 @@ C     Print final statistics.
       NCFN = IOUT(LNCF)
       NCFL = IOUT(LNCFL)
       NETF = IOUT(LNETF)
+      LENRW = IOUT(LLENRW)
+      LENIW = IOUT(LLENIW)
+      LENRWLS = IOUT(LLENRWLS)
+      LENIWLS = IOUT(LLENIWLS)
       WRITE(6,80) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
-     1     NCFL, NETF
+     1     NCFL, NETF, LENRW, LENIW, LENRWLS, LENIWLS
  80   FORMAT(//'Final statistics:'//
      &   ' number of steps        = ', I5, 4X,
      &   ' number of f evals.     = ', I5/
@@ -154,7 +161,14 @@ C     Print final statistics.
      &   ' average Krylov subspace dimension (NLI/NNI) = ', E14.6/
      &   ' number of conv. failures.. nonlinear =', I3,
      &   ' linear = ', I3/
-     &   ' number of error test failures = ', I3)
+     &   ' number of error test failures = ', I3/
+     &   ' main solver real/int workspace sizes   = ',2I5/
+     &   ' linear solver real/int workspace sizes = ',2I5)
+      CALL FCVBPOPT(LENRWBP, LENIWBP, NFEBP)
+      WRITE(6,82) LENRWBP, LENIWBP, NFEBP
+ 82   FORMAT('In CVBANDPRE:'/
+     &        ' real/int workspace sizes = ', 2I5/
+     &        ' number of f evaluations  = ', I5)
 C     
       CALL FCVBPFREE
       CALL FCVFREE
