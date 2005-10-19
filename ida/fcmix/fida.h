@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-10-05 21:54:58 $
+ * $Revision: 1.14 $
+ * $Date: 2005-10-19 20:23:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -874,7 +874,7 @@ void FIDA_SPBCGSETPREC(int *flag, int *ier);
 void FIDA_SPTFQMRSETPREC(int *flag, int *ier);
 void FIDA_EWTSET(int *flag, int *ier);
 void FIDA_GETSOL(realtype *t, realtype *yret, realtype *ypret, int *ier);
-void FIDA_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier);
+void FIDA_GETERRWEIGHTS(realtype *eweight, int *ier);
 void FIDA_GETESTLOCALERR(realtype *ele, int *ier);
 
 /* Prototypes: Functions Called by the IDA Solver */

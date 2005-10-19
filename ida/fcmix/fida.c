@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-09-23 19:13:58 $
+ * $Revision: 1.14 $
+ * $Date: 2005-10-19 20:23:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -654,15 +654,15 @@ void FIDA_GETSOL(realtype *t, realtype *yret, realtype *ypret, int *ier)
 
 /*************************************************/
 
-void FIDA_GETERRWEIGHTS(realtype *y, realtype *eweight, int *ier)
+void FIDA_GETERRWEIGHTS(realtype *eweight, int *ier)
 {
-  /* Attach user data to vectors */
-  N_VSetArrayPointer(y, F2C_IDA_vec);
+  /* Attach user data to vector */
+  N_VSetArrayPointer(ewight, F2C_IDA_vec);
 
   *ier = 0;
   *ier = IDAGetErrWeights(IDA_idamem, F2C_IDA_vec);
 
-  /* Reset data pointers */
+  /* Reset data pointer */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
 
   return;
