@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.22 $
-C     $Date: 2005-10-11 16:04:24 $
+C     $Revision: 1.23 $
+C     $Date: 2005-10-19 19:09:46 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -18,17 +18,19 @@ C
 C
       INTEGER NOUT, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE
       INTEGER LNLI, LNPS, LNCFL, MYPE, IER, NPES, METH, ITMETH
+      INTEGER LLENRW, LLENIW, LLENRWLS, LLENIWLS
       INTEGER IATOL, ITASK, IPRE, IGS, JOUT
       INTEGER*4 IOUT(25), IPAR(2)
       INTEGER*4 NEQ, I, MUDQ, MLDQ, MU, ML, NETF
-      INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL
-      INTEGER*4 LENRPW, LENIPW, NGE
+      INTEGER*4 NST, NFE, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL, NGEBBD
+      INTEGER*4 LENRW, LENIW, LENRWLS, LENIWLS, LENRWBBD, LENIWBBD
       DOUBLE PRECISION Y(1024), ROUT(10), RPAR(1)
       DOUBLE PRECISION ALPHA, TOUT, ERMAX, AVDIM
       DOUBLE PRECISION ATOL, ERRI, RTOL, GERMAX, DTOUT, T
 C     
       DATA ATOL/1.0D-10/, RTOL/1.0D-5/, DTOUT/0.1D0/, NOUT/10/
-      DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
+      DATA LLENRW/1/, LLENIW/2/, LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/,
+     1     LNNI/7/, LNSETUP/8/, LLENRWLS/13/, LLENIWLS/14/,
      1     LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
 C
 C     Get NPES and MYPE.  Requires initialization of MPI.
@@ -183,8 +185,12 @@ C     Print final statistics.
          NCFN = IOUT(LNCF)
          NCFL = IOUT(LNCFL)
          NETF = IOUT(LNETF)
+         LENRW = IOUT(LLENRW)
+         LENIW = IOUT(LLENIW)
+         LENRWLS = IOUT(LLENRWLS)
+         LENIWLS = IOUT(LLENIWLS)
          WRITE(6,80) NST, NFE, NPSET, NPE, NPS, NNI, NLI, AVDIM, NCFN,
-     &               NCFL, NETF
+     &               NCFL, NETF, LENRW, LENIW, LENRWLS, LENIWLS
  80      FORMAT(/'Final statistics:'//
      &          ' number of steps        = ', I5, 4X,
      &          ' number of f evals.     = ', I5/
@@ -193,19 +199,21 @@ C     Print final statistics.
      &          ' number of prec. solves = ', I5/
      &          ' number of nonl. iters. = ', I5, 4X,
      &          ' number of lin. iters.  = ', I5/
-     &          ' average Krylov subspace dimension (NLI/NNI) = ', F8.4/
+     &          ' average Krylov subspace dimension (NLI/NNI) = ',F8.4/
      &          ' number of conv. failures.. nonlinear = ', I3,
      &          '  linear = ', I3/
-     &          ' number of error test failures = ', I3/)
-         CALL FCVBBDOPT(LENRPW, LENIPW, NGE)
-         WRITE(6,82) LENRPW, LENIPW, NGE
- 82      FORMAT('In CVBBDPRE:'//
+     &          ' number of error test failures = ', I3/
+     &          ' main solver real/int workspace sizes   = ',2I5/
+     &          ' linear solver real/int workspace sizes = ',2I5)
+         CALL FCVBBDOPT(LENRWBBD, LENIWBBD, NGEBBD)
+         WRITE(6,82) LENRWBBD, LENIWBBD, NGEBBD
+ 82      FORMAT('In CVBBDPRE:'/
      &          ' real/int local workspace = ', 2I5/
      &          ' number of g evals. = ', I5)
       ENDIF
 C     
-C     If IPRE = 1, re-initialize T, Y, and the solver, and loop for case IPRE = 2.
-C     Otherwise jump to final block.
+C     If IPRE = 1, re-initialize T, Y, and the solver, and loop for
+C     case IPRE = 2.  Otherwise jump to final block.
       IF (IPRE .EQ. 2) GO TO 99
 C
       T = 0.0D0
