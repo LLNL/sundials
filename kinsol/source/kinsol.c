@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.44 $
- * $Date: 2005-09-23 19:42:02 $
+ * $Revision: 1.45 $
+ * $Date: 2005-10-20 22:56:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -1251,8 +1251,6 @@ static int KINLinSolDrv(KINMem kin_mem)
     sthrsh = TWO;
 
   }
-
-  return;
 }
 
 /*
