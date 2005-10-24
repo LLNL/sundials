@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-08-24 18:30:43 $
+ * $Revision: 1.6 $
+ * $Date: 2005-10-24 22:44:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -397,14 +397,8 @@ int IDASptfqmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
     return(IDASPTFQMR_LMEM_NULL);
   }
-
-#ifdef DEBUG
-  *lenrwSG = lrw1*14;
-  *leniwSG = liw1*14;
-#else
   *lenrwSG = lrw1*13;
   *leniwSG = liw1*13;
-#endif
 
   return(IDASPTFQMR_SUCCESS);
 }
