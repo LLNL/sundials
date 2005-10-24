@@ -372,7 +372,7 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
     be different for each component of the DAE. 
     If \id{itol} $=$ \id{IDA\_WF}, the arguments \id{reltol} and \id{abstol} are
     ignored and the user is expected to provide a function to evaluate the error
-    weight vector $W$ from (\ref{e:errwt}). See \id{IDASetEwtFn} in
+    weight vector $W$, replacing (\ref{e:errwt}). See \id{IDASetEwtFn} in
     \S\ref{ss:optional_input}.
   \item[reltol] (\id{realtype})
     \index{tolerances}
@@ -3271,6 +3271,16 @@ These optional output functions are described next.
   {\warn} The user must allocate space for \id{ele}. \\
   {\warn} The values returned in \id{ele} are only valid if
   \id{IDASolve} returned a positive value.
+
+  The \id{ele} vector, togther with the \id{eweight} vector from
+  \id{IDAGetErrWeights}, can be used to determine how the various
+  components of the system contributed to the estimated local error
+  test.  Specifically, that error test uses the RMS norm of a vector
+  whose components are the products of the components of the two vectors.
+  Thus, for example, if there were recent error test failures, the components
+  causing the failures are those with largest values for the products,
+  denoted loosely as \id{eweight[i]*ele[i]}.
+
 }
 %%
 %%
@@ -3763,7 +3773,9 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \index{memory requirements!IDASPGMR@{\idaspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is
-  $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$ \id{realtype} words.
+  $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$
+  \id{realtype} words.  (In a parallel setting, this value is global ---
+  summed over all processors.)
 }
 %%
 %%
@@ -4054,7 +4066,8 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \index{IDASPBCG@{\idaspbcg} linear solver!memory requirements} 
   \index{memory requirements!IDASPBCG@{\idaspbcg} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace is
-  $N*10$ \id{realtype} words.
+  $10*N$ \id{realtype} words.  (In a parallel setting, this value is global ---
+  summed over all processors.)
 }
 %%
 %%
@@ -4340,7 +4353,8 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \index{IDASPTFQMR@{\idasptfqmr} linear solver!memory requirements} 
   \index{memory requirements!IDASPTFQMR@{\idasptfqmr} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace is
-  $N*13$ \id{realtype} words.
+  $13*N$ \id{realtype} words.  (In a parallel setting, this value is global ---
+  summed over all processors.)
 }
 %%
 %%
@@ -4771,10 +4785,8 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
 {
   typedef int (*IDADenseJacFn)(&long int Neq, realtype tt, \\
                                &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
-                               &realtype c\_j, void *jac\_data, \\
-                               &DenseMat Jac, \\
-                               &N\_Vector tmp1, N\_Vector tmp2, \\
-                               &N\_Vector tmp3);
+                               &realtype c\_j, void *jac\_data, DenseMat Jac, \\
+                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the dense Jacobian $J$ of the DAE system (or an
@@ -4870,10 +4882,8 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
  typedef int (*IDABandJacFn)(&long int Neq, long int mupper, \\
                              &long int mlower, realtype tt, \\ 
                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\
-                             &realtype c\_j, void *jac\_data, \\
-                             &BandMat Jac, \\
-                             &N\_Vector tmp1, N\_Vector tmp2, \\
-                             &N\_Vector tmp3);
+                             &realtype c\_j, void *jac\_data, BandMat Jac,\\
+                             &N\_Vector tmp1, N\_Vector tmp2,N\_Vector tmp3);
 }
 {
   This function computes the banded Jacobian $J$ of the DAE system (or a banded
@@ -5048,13 +5058,13 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
                                      &N\_Vector yp, N\_Vector rr, \\
                                      &N\_Vector rvec, N\_Vector zvec, \\ 
                                      &realtype c\_j, realtype delta, \\
-                                     &void *prec\_data, N\_Vector tmp);
+                                     &void *p\_data, N\_Vector tmp);
 }
 {
   This function solves the preconditioning system $Pz = r$.
 }
 {  
-  \begin{args}[prec\_data]
+  \begin{args}[p\_data]
   \item[tt]
     is the current value of the independent variable.
   \item[yy]
@@ -5078,8 +5088,8 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
     i.e., $\sqrt{\sum_i (Res_i \cdot ewt_i)^2 } <$ \id{delta}.
     To obtain the \id{N\_Vector} \id{ewt}, call \id{IDAGetErrWeights} 
     (see \S\ref{ss:optional_output}).
-  \item[prec\_data]
-    is a pointer to user data --- the same as the \id{prec\_data}      
+  \item[p\_data]
+    is a pointer to user data --- the same as the \id{p\_data}      
     parameter passed to the function \id{IDASp*SetPreconditioner}.
   \item[tmp]
     is a pointer to memory allocated for a variable of type    
@@ -5109,7 +5119,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
 {
   typedef int (*IDASpilsPrecSetupFn)(&realtype tt, N\_Vector yy, \\
                                      &N\_Vector yp, N\_Vector rr, \\
-                                     &realtype c\_j, void *prec\_data,\\
+                                     &realtype c\_j, void *p\_data,\\
                                      &N\_Vector tmp1, N\_Vector tmp2,\\
                                      &N\_Vector tmp3);
 }
@@ -5119,7 +5129,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
 }
 {
   The arguments of an \id{IDASpilsPrecSetupFn} are as follows:
-  \begin{args}[prec\_data]
+  \begin{args}[p\_data]
   \item[tt]
     is the current value of the independent variable.
   \item[yy]
@@ -5131,9 +5141,9 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
   \item[c\_j]
     is the scalar in the system Jacobian, proportional to the inverse of the
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
-  \item[prec\_data]
-    is a pointer to user data, the same as the \id{prec\_data}      
-    parameter passed to \id{IDASp*SetPreconditioner}.
+  \item[p\_data]
+    is a pointer to user data --- the same as the \id{p\_data}      
+    parameter passed to the function \id{IDASp*SetPreconditioner}.
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
@@ -5643,7 +5653,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|(}
 %%
-The three user-callable functions that initialize, attach, and deallocate
+The user-callable functions that initialize, attach, and deallocate
 the {\idabbdpre} preconditioner module (steps \ref{i:bbdpre_init},
 \ref{i:bbdpre_attach}, and \ref{i:bbdpre_free} above) are described
 next.
