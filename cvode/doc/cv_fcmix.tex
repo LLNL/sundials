@@ -170,7 +170,7 @@ apply to {\nvecp}.
 \item {\bf Right-hand side specification}
 %%====================
   
-  The user must in all cases supply the following Fortran routine
+  The user must in all cases supply the following {\F} routine
   \index{FCVFUN@\texttt{FCVFUN}}
 \begin{verbatim}
       SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
@@ -1189,7 +1189,7 @@ The user-callable functions in this package, with the corresponding
   interfaces to \id{CVBBDPrecFree}.
 \end{itemize}
 
-In addition to the Fortran right-hand side function \id{FCVFUN}, the
+In addition to the {\F} right-hand side function \id{FCVFUN}, the
 user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within {\cvbbdpre} or {\cvode}):
