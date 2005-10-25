@@ -221,7 +221,7 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
 
   Call \id{IDASet*} functions to change from their default values any
   optional inputs that control the behavior of {\ida}.
-  See \S\ref{ss:optional_input} for details.
+  See \S\ref{sss:optin_main} for details.
 
 \item\label{i:lin_solver} 
   {\bf Attach linear solver module}
@@ -244,13 +244,14 @@ correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
 
   Call \id{IDA*Set*} functions from the selected linear solver module to
   change optional inputs specific to that linear solver.
-  See \S\ref{ss:optional_input} for details.
+  See \S\ref{sss:optin_linsol} for details.
 
 \item 
   {\bf Correct initial values}
 
   Optionally, call \id{IDACalcIC} to correct the initial values
-  \id{y0} and \id{yp0}.
+  \id{y0} and \id{yp0}.  See \S\ref{ss:idacalcic}.
+  Also see \S\ref{sss:optin_iccalc} for relevant optional input calls.
 
 \item
   {\bf Specify rootfinding problem}
@@ -373,7 +374,7 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
     If \id{itol} $=$ \id{IDA\_WF}, the arguments \id{reltol} and \id{abstol} are
     ignored and the user is expected to provide a function to evaluate the error
     weight vector $W$, replacing (\ref{e:errwt}). See \id{IDASetEwtFn} in
-    \S\ref{ss:optional_input}.
+    \S\ref{sss:optin_main}.
   \item[reltol] (\id{realtype})
     \index{tolerances}
     is the relative error tolerance.
@@ -402,7 +403,7 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
   file specified by the optional input \id{errfp}.
 
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
-  calls to \id{IDASolve} (see \id{IDASetTolerances} in \S\ref{ss:optional_input}).
+  calls to \id{IDASolve} (see \id{IDASetTolerances} in \S\ref{sss:optin_main}).
 
   {\warn} It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
@@ -440,6 +441,12 @@ respectively.  The remaining three {\ida} linear solvers, {\idaspgmr}, {\idaspbc
 and {\idasptfqmr}, are Krylov iterative solvers. The {\spgmr}, {\spbcg}, and
 {\sptfqmr} in the names indicate the scaled preconditioned GMRES, scaled
 preconditioned Bi-CGStab, and scaled preconditioned TFQMR methods, respectively.
+
+When using any of the Krylov linear solvers, preconditioning (on the left)
+is permitted, and in fact encouraged, for the sake of efficiency.
+A preconditioner matrix $P$ must approximate the Jacobian $J$, at least
+crudely.  For specification of a preconditioner, see \S\ref{sss:optin_linsol}
+and \S\ref{ss:user_fct_sim}.
 
 \index{IDA@{\ida} linear solvers!selecting one|(} 
 To specify an {\ida} linear solver, after the call to \id{IDACreate} but
@@ -829,8 +836,8 @@ integration of the DAE.
     and return the solution at the point reached by that step. 
     The \Id{IDA\_NORMAL\_TSTOP} and \Id{IDA\_ONE\_STEP\_TSTOP} modes are     
     similar to \id{IDA\_NORMAL} and \id{IDA\_ONE\_STEP}, respectively, except    
-    that the integration never proceeds past the value      
-    \id{tstop} (specified through the function \id{IDASetStopTime}).
+    that the integration never proceeds past the value \id{tstop}, specified
+    through the function \id{IDASetStopTime} (see \S\ref{sss:optin_main}).
   \end{args}
 }
 {
@@ -847,7 +854,7 @@ integration of the DAE.
     \id{IDASolve} succeeded.
   \item[\Id{IDA\_TSTOP\_RETURN}]
     \id{IDASolve} succeeded by reaching the stop point specified through
-    the optional input function \id{IDASetStopTime} (see \S\ref{ss:optional_input}).
+    the optional input function \id{IDASetStopTime}.
   \item[\Id{IDA\_ROOT\_RETURN}]
     \id{IDASolve} succeeded and found one or more roots.  If \id{nrtfn}
      $>1$, call \id{IDAGetRootInfo} to see which $g_i$ were found to
@@ -1000,7 +1007,7 @@ Factor in DQ increment calculation & \id{IDASptfqmrSetIncrementFactor} & 1.0 \\
 \end{tabular}
 \end{table}
 
-\subsubsection{Main solver optional input functions}
+\subsubsection{Main solver optional input functions}\label{sss:optin_main}
 \index{optional input!solver|(}
 The calls listed here can be executed in any order. However, if \id{IDASetErrFile} 
 is to be called, that call should be first, in order to take effect for any later 
@@ -1562,16 +1569,226 @@ flag = IDASetEwtFn(ida\_mem, efun, edata);
 %%
 %%
 \index{optional input!solver|)}
+
 %%
 %%
-%%===================================================================================
+%%==================================================================================
 %%
-\subsubsection{Linear solver optional input functions}
+\subsubsection{Initial condition calculation optional input functions}\label{sss:optin_iccalc}
+\index{optional input!initial condition calculation|(}
+
+The following functions can be called to set optional inputs to control the initial 
+condition calculations.
+%%
+\ucfunction{IDASetNonlinConvCoefIC}
+{
+flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
+}
+{
+  The function \ID{IDASetNonlinConvCoefIC} specifies the positive constant in
+  the Newton iteration convergence test within the initial condition calculation.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[epiccon] (\id{realtype})
+    coefficient in the Newton convergence test.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The \id{epiccon} factor is negative (illegal).
+  \end{args}
+}
+{
+  The default value is $0.01 \cdot 0.33$.
+
+  This test uses a weighted RMS norm (with weights defined by the tolerances).
+  For new initial value vectors $y$ and $y^\prime$ to be accepted, the norm
+  of $J^{-1}F(t_0, y, y^\prime)$ must be $\le$ \id{epiccon}, where $J$ is the
+  system Jacobian.
+}
+%%
+\ucfunction{IDASetMaxNumStepsIC}
+{
+flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
+}
+{
+  The function \ID{IDASetMaxNumStepsIC} specifies the maximum number
+  of steps allowed when \id{icopt}$=$\id{IDA\_YA\_YDP\_INIT}
+  in \id{IDACalcIC}, where $h$ appears in the system Jacobian,
+  $J = \partial F / \partial y + (1/h) \partial F / \partial y^\prime$.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxnh] (\id{int})
+    maximum allowed number of values for $h$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    \id{maxnh} is non-positive.
+  \end{args}
+}
+{
+  The default value is $5$.
+}
+%%
+%%
+\ucfunction{IDASetMaxNumJacsIC}
+{
+flag = IDASetMaxNumJacsIC(ida\_mem, maxnj);
+}
+{
+  The function \ID{IDASetMaxNumJacsIC} specifies the maximum number
+  of the approximate Jacobian or preconditioner evaluations allowed 
+  when the Newton iteration appears to be slowly converging.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxnj] (\id{int})
+    maximum allowed number of Jacobian or preconditioner evaluations.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    \id{maxnj} is non-positive.
+  \end{args}
+}
+{
+  The default value is $4$.
+}
+%%
+%%
+\ucfunction{IDASetMaxNumItersIC}
+{
+flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
+}
+{
+  The function \ID{IDASetMaxNumItersIC} specifies the maximum
+  number of Newton iterations allowed in any one attempt to solve
+  the initial conditions calculation problem.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[maxnit] (\id{int})
+    maximum number of Newton iterations.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    \id{maxnit} is non-positive.
+  \end{args}
+}
+{
+  The default value is $10$.
+}
+%%
+%%
+\ucfunction{IDASetLineSearchOffIC}
+{
+flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
+}
+{
+  The function \ID{IDASetLineSearchOffIC} specifies whether to turn
+  on or off the linesearch algorithm.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[lsoff] (\id{booleantype})
+    a flag to turn off (\id{TRUE}) or keep (\id{FALSE}) the linesearch
+    algorithm.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_MEM\_NULL]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The default value is \id{FALSE}.
+}
+%%
+%%
+\ucfunction{IDASetStepToleranceIC}
+{
+flag = IDASetStepToleranceIC(ida\_mem, steptol);
+}
+{
+  The function \ID{IDASetStepToleranceIC} specifies a positive lower bound
+  on the Newton step.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[steptol] (\id{int})
+    Newton step tolerance.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The \id{steptol} tolerance is negative (illegal).
+  \end{args}
+}
+{
+  The default value is (unit roundoff)$^{2/3}$.
+}
+%%
+\index{optional input!initial condition calculation|)}
+%%
+%%
+%%==================================================================================
+%%
+\subsubsection{Linear solver optional input functions}\label{sss:optin_linsol}
 %%
 The linear solver modules allow for various optional inputs, which are
 described here.
 %%
-\noindent\paragraph{\bf Dense Linear solver.}
+\subsubsection{Dense linear solver}\label{sss:optin_dense}
 \index{optional input!dense linear solver|(}
 \index{IDADENSE@{\idadense} linear solver!optional input|(}
 The \index{IDADENSE@{\idadense} linear solver!Jacobian approximation used by}
@@ -1632,7 +1849,7 @@ identical to \id{res\_data}, if the latter was specified through \id{IDASetFdata
 %%
 %%---------------------------------------------------------
 %%
-\noindent\paragraph{\bf Band Linear solver.}
+\subsubsection{Band linear solver}\label{sss:optin_band}
 \index{optional input!band linear solver|(}
 \index{IDABAND@{\idaband} linear solver!optional input|(}
 The \index{IDABAND@{\idaband} linear solver!Jacobian approximation used by}
@@ -1692,7 +1909,7 @@ to \id{res\_data}, if the latter was specified through \id{IDAodeSetFdata}.
 %%
 %%---------------------------------------------------------
 %%
-\noindent\paragraph{\bf SPGMR Linear solver.}
+\subsubsection{SPGMR Linear solver}\label{sss:optin_spgmr}
 \index{optional input!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -1963,7 +2180,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
 %%
 %%---------------------------------------------------------
 %%
-\noindent\paragraph{\bf SPBCG Linear solver.}
+\subsubsection{SPBCG linear solver}\label{sss:optin_spbcg}
 \index{optional input!iterative linear solver|(}
 \index{IDASPBCG@{\idaspbcg} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -2194,7 +2411,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
 %%
 %%---------------------------------------------------------
 %%
-\noindent\paragraph{\bf SPTFQMR Linear solver.}
+\subsubsection{SPTFQMR linear solver}\label{sss:optin_sptfqmr}
 \index{optional input!iterative linear solver|(}
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -2422,215 +2639,6 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{res\_data
 %%
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
-%%
-%%
-%%===================================================================================
-%%
-\subsubsection{Initial condition calculation optional input functions}
-\index{optional input!initial condition calculation|(}
-
-The following functions can be called to set optional inputs to control the initial 
-conditions calculations.
-%%
-\ucfunction{IDASetNonlinConvCoefIC}
-{
-flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
-}
-{
-  The function \ID{IDASetNonlinConvCoefIC} specifies the positive constant in
-  the Newton iteration convergence test within the initial condition calculation.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[epiccon] (\id{realtype})
-    coefficient in the Newton convergence test.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_ILL\_INPUT]
-  \item[\Id{IDA\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    The \id{epiccon} factor is negative (illegal).
-  \end{args}
-}
-{
-  The default value is $0.01 \cdot 0.33$.
-
-  This test uses a weighted RMS norm (with weights defined by the tolerances).
-  For new initial value vectors $y$ and $y^\prime$ to be accepted, the norm
-  of $J^{-1}F(t_0, y, y^\prime)$ must be $\le$ \id{epiccon}, where $J$ is the
-  system Jacobian.
-}
-%%
-\ucfunction{IDASetMaxNumStepsIC}
-{
-flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
-}
-{
-  The function \ID{IDASetMaxNumStepsIC} specifies the maximum number
-  of steps allowed when \id{icopt}$=$\id{IDA\_YA\_YDP\_INIT}
-  in \id{IDACalcIC}, where $h$ appears in the system Jacobian,
-  $J = \partial F / \partial y + (1/h) \partial F / \partial y^\prime$.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[maxnh] (\id{int})
-    maximum allowed number of values for $h$.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_ILL\_INPUT]
-  \item[\Id{IDA\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    \id{maxnh} is non-positive.
-  \end{args}
-}
-{
-  The default value is $5$.
-}
-%%
-%%
-\ucfunction{IDASetMaxNumJacsIC}
-{
-flag = IDASetMaxNumJacsIC(ida\_mem, maxnj);
-}
-{
-  The function \ID{IDASetMaxNumJacsIC} specifies the maximum number
-  of the approximate Jacobian or preconditioner evaluations allowed 
-  when the Newton iteration appears to be slowly converging.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[maxnj] (\id{int})
-    maximum allowed number of Jacobian or preconditioner evaluations.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_ILL\_INPUT]
-  \item[\Id{IDA\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    \id{maxnj} is non-positive.
-  \end{args}
-}
-{
-  The default value is $4$.
-}
-%%
-%%
-\ucfunction{IDASetMaxNumItersIC}
-{
-flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
-}
-{
-  The function \ID{IDASetMaxNumItersIC} specifies the maximum
-  number of Newton iterations allowed in any one attempt to solve
-  the initial conditions calculation problem.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[maxnit] (\id{int})
-    maximum number of Newton iterations.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_ILL\_INPUT]
-  \item[\Id{IDA\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    \id{maxnit} is non-positive.
-  \end{args}
-}
-{
-  The default value is $10$.
-}
-%%
-%%
-\ucfunction{IDASetLineSearchOffIC}
-{
-flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
-}
-{
-  The function \ID{IDASetLineSearchOffIC} specifies whether to turn
-  on or off the linesearch algorithm.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[lsoff] (\id{booleantype})
-    a flag to turn off (\id{TRUE}) or keep (\id{FALSE}) the linesearch
-    algorithm.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_MEM\_NULL]
-  \item[\Id{IDA\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  The default value is \id{FALSE}.
-}
-%%
-%%
-\ucfunction{IDASetStepToleranceIC}
-{
-flag = IDASetStepToleranceIC(ida\_mem, steptol);
-}
-{
-  The function \ID{IDASetStepToleranceIC} specifies a positive lower bound
-  on the Newton step.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
-  \item[steptol] (\id{int})
-    Newton step tolerance.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_ILL\_INPUT]
-  \item[\Id{IDA\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_ILL\_INPUT}]
-    The \id{steptol} tolerance is negative (illegal).
-  \end{args}
-}
-{
-  The default value is (unit roundoff)$^{2/3}$.
-}
-%%
-\index{optional input!initial condition calculation|)}
 
 %%
 %%===================================================================================
@@ -2786,7 +2794,7 @@ No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASptfqmrGe
 Last return from a {\idasptfqmr} function & \id{IDASptfqmrGetLastFlag} \\
 \end{supertabular}
 
-\subsubsection{Main solver optional output functions}
+\subsubsection{Main solver optional output functions}\label{sss:optout_main}
 \index{optional output!solver|(}
 %%
 {\ida} provides several user-callable functions that can be used to obtain
@@ -3421,15 +3429,15 @@ These optional output functions are described next.
 %%
 \index{optional output!solver|)}
 %%
-%%===================================================================================
-
-\subsubsection{Linear solver optional output functions}
+%%==================================================================================
+%%
+\subsubsection{Linear solver optional output functions}\label{sss:optout_linsol}
 
 For each of the linear system solver modules, there are various optional 
 outputs that describe the performance of the module. The functions available 
 to access these are described below.
 
-\noindent\paragraph{\bf Dense Linear solver.}
+\subsubsection{Dense linear solver}\label{sss:optout_dense}
 \index{optional output!dense linear solver|(}
 \index{IDADENSE@{\idadense} linear solver!optional output|(}
 The following optional outputs are available from the {\idadense} module:
@@ -3578,7 +3586,7 @@ and last return value from a {\idadense} function.
 %
 %--------------------------------
 %
-\noindent\paragraph{\bf Band Linear solver.}
+\subsubsection{Band linear solver}\label{sss:optout_band}
 \index{optional output!band linear solver|(}
 \index{IDABAND@{\idaband} linear solver!optional output|(}
 The following optional outputs are available from the {\idaband} module:
@@ -3728,7 +3736,7 @@ and last return value from a {\idaband} function.
 %
 %--------------------------------
 %
-\noindent\paragraph{\bf SPGMR Linear solver.}
+\subsubsection{SPGMR linear solver}\label{sss:optout_spgmr}
 \index{optional output!iterative linear solver|(}
 \index{IDASPGMR@{\idaspgmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\idaspgmr} module:
@@ -4022,7 +4030,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %
 %--------------------------------
 %
-\noindent\paragraph{\bf SPBCG Linear solver.}
+\subsubsection{SPBCG linear solver}\label{sss:optout_spbcg}
 \index{optional output!iterative linear solver|(}
 \index{IDASPBCG@{\idaspbcg} linear solver!optional output|(} 
 The following optional outputs are available from the {\idaspbcg} module:
@@ -4309,7 +4317,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %
 %--------------------------------
 %
-\noindent\paragraph{\bf SPTFQMR Linear solver.}
+\subsubsection{SPTFQMR linear solver}\label{sss:optout_sptfqmr}
 \index{optional output!iterative linear solver|(}
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\idasptfqmr} module:
@@ -4647,7 +4655,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
     \id{itol}$=$\id{IDA\_WF}, the arguments \id{reltol} and \id{abstol} are ignored
     and the user is expected to provide a function to evaluate the error weight
     vector $W$ as an alternative to Eq. (\ref{e:errwt}).
-    See \id{IDASetEwtFn} in \S\ref{ss:optional_input}.
+    See \id{IDASetEwtFn} in \S\ref{sss:optin_main}.
   \item[reltol] (\id{realtype})
     is the relative error tolerance.
   \item[abstol] (\id{void *})
@@ -4862,7 +4870,7 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
   If the user's \id{IDADenseJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
-  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  described in \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 
 }
@@ -4968,7 +4976,7 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
   If the user's \id{IDABandJacFn} function uses difference quotient approximations,
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
-  described in \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  described in \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 
 }
@@ -5031,7 +5039,7 @@ of type \ID{IDASpilsJacTimesVecFn} in the following form:
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{IDAGet*} functions described in
-  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 
 }
@@ -5047,8 +5055,9 @@ of type \ID{IDASpilsJacTimesVecFn} in the following form:
 \index{IDASPBCG@{\idaspbcg} linear solver!preconditioner solve function}
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner solve function}
 If preconditioning is used, then the user must provide a {\C} function to
-solve the linear system $Pz = r$ where $P$ may be either a left or a
-right preconditioner matrix.
+solve the linear system $Pz = r$ where $P$ is a left preconditioner
+matrix which approximates (at least crudely) the Jacobian matrix 
+$J = \partial{F}/\partial{y} + c_j \partial{F}/\partial{y^\prime}$.
 This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
 %%
 %%
@@ -5087,7 +5096,7 @@ This function must be of type \ID{IDASpilsPrecSolveFn}, defined as follows:
     \id{delta} in weighted $l_2$ norm,     
     i.e., $\sqrt{\sum_i (Res_i \cdot ewt_i)^2 } <$ \id{delta}.
     To obtain the \id{N\_Vector} \id{ewt}, call \id{IDAGetErrWeights} 
-    (see \S\ref{ss:optional_output}).
+    (see \S\ref{sss:optout_main}).
   \item[p\_data]
     is a pointer to user data --- the same as the \id{p\_data}      
     parameter passed to the function \id{IDASp*SetPreconditioner}.
@@ -5175,7 +5184,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{IDAGet*} functions described in
-  \S\ref{ss:optional_output}. The unit roundoff can be accessed
+  \S\ref{sss:optout_main}. The unit roundoff can be accessed
   as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 
 }
@@ -5969,15 +5978,15 @@ the {\idabbdpre} module:
   \end{args}
 }
 {}
+
+In addition to the \id{ngevalsBBDP} \id{Gres} function evaluations,
+the costs associated with {\idabbdpre} also include \id{nlinsetups} LU
+factorizations, \id{nlinsetups} calls to \id{Gcomm}, and \id{npsolves} banded
+backsolve calls, where \id{nlinsetups} is an optional {\ida} output (see
+\S\ref{sss:optout_main}), and \id{npsolves} is a linear solver optional
+output (see \S\ref{sss:optout_linsol}).
+
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!optional output|)}
 \index{optional output!band-block-diagonal preconditioner|)}
 %%
-%%
-%-------------------------------------------------------
-
-The costs associated with {\idabbdpre} also include \id{nlinsetups} LU
-factorizations, \id{nlinsetups} calls to \id{Gcomm}, and \id{npsolves} banded
-backsolve calls, where \id{nlinsetups} and \id{npsolves} are optional {\ida}
-outputs (see \S\ref{ss:optional_output}).
-
