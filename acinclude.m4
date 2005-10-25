@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.29 $
-# $Date: 2005-10-13 21:26:29 $
+# $Revision: 1.30 $
+# $Date: 2005-10-25 15:32:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -652,10 +652,6 @@ AC_DEFUN([SUNDIALS_SET_F77],
 AC_LANG_PUSH([Fortran 77])
 
 F77_OK="yes"
-
-# Sets G77="yes" if F77="g77"
-# Search for Fortran compiler given by user first
-AC_PROG_F77(${F77} f77 g77)
 
 # Note: This check may no longer be needed
 if test "X${F77}" = "X"; then

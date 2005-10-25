@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.25 $
-# $Date: 2005-10-13 21:26:29 $
+# $Revision: 1.26 $
+# $Date: 2005-10-25 15:32:10 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -31,6 +31,7 @@ SUNDIALS_SET_CC
 
 # Set Fortran compilation (Optional)
 if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
+  AC_PROG_F77(${F77} f77 g77)
   SUNDIALS_SET_F77
 fi
 
