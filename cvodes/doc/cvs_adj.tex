@@ -1199,7 +1199,7 @@ one or two functions that define the preconditioner (if the {\cvspgmr} solver is
 selected) for the backward problem.
 Type definitions for all these user-supplied functions are given below.
 
-\subsubsection{ODE right-hand side for the backward problem}
+\subsection{ODE right-hand side for the backward problem}
 \index{adjoint sensitivity analysis!right-hand side evaluation}
 \index{right-hand side function!backward problem}
 
@@ -1249,7 +1249,7 @@ The user must provide a function of type \ID{CVRhsFnB} defined as follows:
 }
 
 %%-------------------------------------------------------------------------------------
-\subsubsection{Quadrature right-hand side for the backward problem}
+\subsection{Quadrature right-hand side for the backward problem}
 \index{right-hand side function!quadrature backward problem}
 \index{adjoint sensitivity analysis!quadrature evaluation}
 The user must provide a function of type \ID{CVQuadRhsFnB} defined by
@@ -1297,7 +1297,7 @@ The user must provide a function of type \ID{CVQuadRhsFnB} defined by
 }
 
 %%-------------------------------------------------------------------------------------
-\subsubsection{Jacobian information for the backward problem 
+\subsection{Jacobian information for the backward problem 
   (direct method with dense Jacobian)}
   
 If the direct linear solver with dense treatment of the Jacobian is selected
@@ -1359,7 +1359,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDense
 }
 
 %%-------------------------------------------------------------------------------------
-\subsubsection{Jacobian information for the backward problem
+\subsection{Jacobian information for the backward problem
   (direct method with banded Jacobian)}
 
 If the direct linear solver with banded treatment of the Jacobian is selected
@@ -1425,8 +1425,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVBandS
 }
 
 %%-------------------------------------------------------------------------------------
-\subsubsection{Jacobian information for the backward problem
-  ({\spgmr} case)}
+\subsection{Jacobian information for the backward problem (SPGMR case)}
 
 If an iterative {\spgmr} linear solver is selected (\id{CVSpgmrB} is called in step 
 \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), the user may provide, through a call 
@@ -1483,7 +1482,7 @@ of the following type:
 }
 
 %%-------------------------------------------------------------------------------------
-\subsubsection{Preconditioning for the backward problem (linear system solution)}
+\subsection{Preconditioning for the backward problem (linear system solution)}
 
 If preconditioning is used during integration of the backward problem, 
 then the user must provide a {\C} function to solve the linear system 
@@ -1540,7 +1539,7 @@ This function must be of type \ID{CVSpgmrPSolveFnB} defined by
 {}
 
 %%-------------------------------------------------------------------------------------
-\subsubsection{Preconditioning for the backward problem (Jacobian data)}
+\subsection{Preconditioning for the backward problem (Jacobian data)}
 
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
@@ -1717,7 +1716,7 @@ and with the parallel vector module {\nvecp}.
 In order to use the {\cvbbdpre} module in the solution of the backward problem,
 the user must define one or two additional functions, described at the end of this section. 
 
-\subsubsection{Usage of {\cvbbdpre} for the backward problem}
+\subsubsection{Usage of CVBBDPRE for the backward problem}
 %%
 The {\cvbbdpre} module is initialized by calling
 %%
@@ -1866,7 +1865,7 @@ Note that memory allocated by \id{CVBBDPrecAllocB} is deallocated
 by the function \id{CVadjFree}.
 For more details on {\cvbbdpre} see \S\ref{sss:cvbbdpre}.
 
-\subsubsection{User-supplied functions for {\cvbbdpre}}
+\subsubsection{User-supplied functions for CVBBDPRE}
 To use the {\cvbbdpre} module, the user must supply one or two functions which the
 module calls to construct the preconditioner: a required function \id{glocB} 
 (of type \id{CVLocalFnB}) which approximates the right-hand side of the backward
