@@ -364,7 +364,7 @@ apply to {\nvecp}.
   
 \item {\bf Residual function specification}
   
-  The user must in all cases supply the following Fortran routine
+  The user must in all cases supply the following {\F} routine
   \index{FIDARESFUN@\texttt{FIDARESFUN}}
 \begin{verbatim}
       SUBROUTINE FIDARESFUN (T, Y, YP, R, IER)
@@ -1021,7 +1021,7 @@ The user-callable functions in this package, with the corresponding
   interfaces to \id{IDABBDPrecFree}.
 \end{itemize}
 
-In addition to the Fortran right-hand side function \id{FIDARESFUN}, the
+In addition to the {\F} right-hand side function \id{FIDARESFUN}, the
 user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within {\idabbdpre} or {\ida}):
