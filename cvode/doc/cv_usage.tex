@@ -3031,7 +3031,7 @@ These optional output functions are described next.
   whose components are the products of the components of the two vectors.
   Thus, for example, if there were recent error test failures, the components
   causing the failures are those with largest values for the products,
-  denoted roughly as \id{eweight[i]*ele[i]}.
+  denoted loosely as \id{eweight[i]*ele[i]}.
 }
 %%
 %%
@@ -6186,9 +6186,9 @@ the {\cvbbdpre} module:
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!optional output|)}
 \index{optional output!band-block-diagonal preconditioner|)}
 
-The costs associated with {\cvbbdpre} also include \id{nlinsetups} LU
-factorizations, \id{nlinsetups} calls to \id{cfn}, \id{npsolves} banded
-backsolve calls, and \id{nfevalsLS} right-hand side function evaluations,
-where \id{nlinsetups} is an optional {\cvode} output (see
-\S\ref{sss:optout_main}), and \id{npsolves} and \id{nfevalsLS} are
-linear solver optional outputs (see \S\ref{sss:optout_linsol}).
+In addition to the \id{ngevalsBBDP} \id{gloc} evaluations,
+the costs associated with {\cvbbdpre} also include \id{nlinsetups} LU
+factorizations, \id{nlinsetups} calls to \id{cfn}, and \id{npsolves} banded
+backsolve calls,  where \id{nlinsetups} is an optional {\cvode} output (see
+\S\ref{sss:optout_main}), and \id{npsolves} is a linear solver optional
+output (see \S\ref{sss:optout_linsol}).
