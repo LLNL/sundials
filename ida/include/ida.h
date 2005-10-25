@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2005-09-23 19:14:01 $
+ * $Revision: 1.37 $
+ * $Date: 2005-10-25 22:54:42 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -782,8 +782,6 @@ int IDAGetSolution(void *ida_mem, realtype t,
  *       accuracy has been requested for some internal step       
  * IDAGetErrWeights returns the current state error weight vector.        
  *       The user must allocate space for eweight.
- * IDAGetErrWeightsAtY returns the error weight vector corresponding 
- *       to y. The user must allocate space for eweight.
  * IDAGetEstLocalErrors returns the estimated local errors. The user
  *       must allocate space for the vector ele.
  * IDAGetNumGEvals returns the number of calls to the user's
@@ -814,7 +812,6 @@ int IDAGetCurrentStep(void *ida_mem, realtype *hcur);
 int IDAGetCurrentTime(void *ida_mem, realtype *tcur);
 int IDAGetTolScaleFactor(void *ida_mem, realtype *tolsfact);
 int IDAGetErrWeights(void *ida_mem, N_Vector eweight);
-int IDAGetErrWeightsAtY(void *ida_mem, N_Vector y, N_Vector eweight);
 int IDAGetEstLocalErrors(void *ida_mem, N_Vector ele);
 int IDAGetNumGEvals(void *ida_mem, long int *ngevals);
 int IDAGetRootInfo(void *ida_mem, int *rootsfound);

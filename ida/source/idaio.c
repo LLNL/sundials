@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-07-15 23:28:08 $
+ * $Revision: 1.11 $
+ * $Date: 2005-10-25 22:55:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -902,30 +902,6 @@ int IDAGetErrWeights(void *ida_mem, N_Vector eweight)
   IDA_mem = (IDAMem) ida_mem; 
 
   N_VScale(ONE, ewt, eweight);
-
-  return(IDA_SUCCESS);
-}
-
-/*-----------------------------------------------------------------*/
-
-int IDAGetErrWeightsAtY(void *ida_mem, N_Vector y, N_Vector eweight)
-{
-  IDAMem IDA_mem;
-  int ewtsetOK;
-
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSG_IDAG_NO_MEM);
-    return (IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem; 
-
-  ewtsetOK = efun(y, eweight, edata);
-
-  if (ewtsetOK != 0) {
-    fprintf(stderr, MSG_IDAG_EWT_BAD);
-    return(IDA_ILL_INPUT);
-  }
 
   return(IDA_SUCCESS);
 }
