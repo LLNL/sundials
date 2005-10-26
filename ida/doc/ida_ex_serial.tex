@@ -94,7 +94,7 @@ $y_3 - 0.01$, respectively.
 See \ugref{ss:root_uc} for a detailed description of this call.
 
 The calls to \id{IDADense} (see \ugref{sss:lin_solv_init}) and 
-\id{IDADenseSetJacFn} (see \ugref{ss:optional_input}) specify the {\idadense}
+\id{IDADenseSetJacFn} (see \ugref{sss:optin_dense}) specify the {\idadense}
 linear solver with an analytic Jacobian supplied by the user-supplied function
 \id{jacrob}.
 
@@ -135,8 +135,8 @@ functions to obtain the relevant counters, and then prints them.
 Specifically, these are: the cumulative number of steps (\id{nst}), 
 the number of residual evaluations (\id{nre}) (excluding those for
 difference-quotient Jacobian evaluations),
-the number of residual evaluations for Jacobian evaluations (\id{nreD}),
-the number of Jacobian evaluations (\id{njeD}),
+the number of residual evaluations for Jacobian evaluations (\id{nreLS}),
+the number of Jacobian evaluations (\id{nje}),
 the number of nonlinear (Newton) iterations (\id{nni}),
 the number of local error test failures (\id{netf}),
 the number of nonlinear convergence failures (\id{ncfn}),
@@ -303,8 +303,8 @@ functions to obtain the relevant counters, and then prints them.
 Specifically, these are: the cumulative number of steps (\id{nst}), 
 the number of residual evaluations (\id{nre}) (excluding those for
 difference-quotient Jacobian evaluations),
-the number of residual evaluations for Jacobian evaluations (\id{nreB}),
-the number of Jacobian evaluations (\id{njeB}),
+the number of residual evaluations for Jacobian evaluations (\id{nreLS}),
+the number of Jacobian evaluations (\id{nje}),
 the number of nonlinear (Newton) iterations (\id{nni}),
 the number of local error test failures (\id{netf}),
 and the number of nonlinear convergence failures (\id{ncfn}).
