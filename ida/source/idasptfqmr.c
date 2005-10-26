@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-10-24 22:44:35 $
+ * $Revision: 1.7 $
+ * $Date: 2005-10-26 23:08:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -105,7 +105,7 @@ static int IDASptfqmrDQJtimes(realtype tt,
 #define ncfl0       (idasptfqmr_mem->q_ncfl0)
 #define nwarn       (idasptfqmr_mem->q_nwarn)
 #define njtimes     (idasptfqmr_mem->q_njtimes)
-#define nreSG       (idasptfqmr_mem->q_nreSG)
+#define nreSQ       (idasptfqmr_mem->q_nreSQ)
 #define sptfqmr_mem (idasptfqmr_mem->q_sptfqmr_mem)
 #define last_flag   (idasptfqmr_mem->q_last_flag)
 
@@ -382,7 +382,7 @@ int IDASptfqmrSetJacTimesVecFn(void *ida_mem,
   return(IDASPTFQMR_SUCCESS);
 }
 
-int IDASptfqmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
+int IDASptfqmrGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 {
   IDAMem IDA_mem;
 
@@ -397,8 +397,8 @@ int IDASptfqmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
     return(IDASPTFQMR_LMEM_NULL);
   }
-  *lenrwSG = lrw1*13;
-  *leniwSG = liw1*13;
+  *lenrwLS = lrw1*13;
+  *leniwLS = liw1*13;
 
   return(IDASPTFQMR_SUCCESS);
 }
@@ -518,7 +518,7 @@ int IDASptfqmrGetNumJtimesEvals(void *ida_mem, long int *njvevals)
   return(IDASPTFQMR_SUCCESS);
 }
 
-int IDASptfqmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
+int IDASptfqmrGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 {
   IDAMem IDA_mem;
   IDASptfqmrMem idasptfqmr_mem;
@@ -536,7 +536,7 @@ int IDASptfqmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
   }
   idasptfqmr_mem = (IDASptfqmrMem) lmem;
 
-  *nrevalsSG = nreSG;
+  *nrevalsLS = nreSQ;
 
   return(IDASPTFQMR_SUCCESS);
 }
@@ -589,7 +589,7 @@ static int IDASptfqmrInit(IDAMem IDA_mem)
 
   /* Initialize counters */
   npe = nli = nps = ncfl = 0;
-  njtimes = nreSG = 0;
+  njtimes = nreSQ = 0;
 
   /* Set setupNonNull to TRUE iff there is preconditioning with setup */
   setupNonNull = (psolve != NULL) && (pset != NULL);
@@ -854,7 +854,7 @@ static int IDASptfqmrDQJtimes(realtype tt,
 
   /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
   ires = res(tt, y_tmp, yp_tmp, Jv, rdata); 
-  nreSG++;
+  nreSQ++;
   resflag = ires;
   if (ires != 0) return(ires);
 

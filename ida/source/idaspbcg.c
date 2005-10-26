@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2005-08-22 22:47:03 $
+ * $Revision: 1.10 $
+ * $Date: 2005-10-26 23:08:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -105,7 +105,7 @@ static int IDASpbcgDQJtimes(realtype tt,
 #define ncfl0     (idaspbcg_mem->b_ncfl0)
 #define nwarn     (idaspbcg_mem->b_nwarn)
 #define njtimes   (idaspbcg_mem->b_njtimes)
-#define nreSG     (idaspbcg_mem->b_nreSG)
+#define nreSB     (idaspbcg_mem->b_nreSB)
 #define spbcg_mem (idaspbcg_mem->b_spbcg_mem)
 #define last_flag (idaspbcg_mem->b_last_flag)
 
@@ -377,7 +377,7 @@ int IDASpbcgSetJacTimesVecFn(void *ida_mem,
   return(IDASPBCG_SUCCESS);
 }
 
-int IDASpbcgGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
+int IDASpbcgGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 {
   IDAMem IDA_mem;
 
@@ -393,8 +393,8 @@ int IDASpbcgGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
     return(IDASPBCG_LMEM_NULL);
   }
 
-  *lenrwSG = lrw1 * 10;
-  *leniwSG = liw1 * 10;
+  *lenrwLS = lrw1 * 10;
+  *leniwLS = liw1 * 10;
 
   return(IDASPBCG_SUCCESS);
 }
@@ -514,7 +514,7 @@ int IDASpbcgGetNumJtimesEvals(void *ida_mem, long int *njvevals)
   return(IDASPBCG_SUCCESS);
 }
 
-int IDASpbcgGetNumResEvals(void *ida_mem, long int *nrevalsSG)
+int IDASpbcgGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 {
   IDAMem IDA_mem;
   IDASpbcgMem idaspbcg_mem;
@@ -532,7 +532,7 @@ int IDASpbcgGetNumResEvals(void *ida_mem, long int *nrevalsSG)
   }
   idaspbcg_mem = (IDASpbcgMem) lmem;
 
-  *nrevalsSG = nreSG;
+  *nrevalsLS = nreSB;
 
   return(IDASPBCG_SUCCESS);
 }
@@ -585,7 +585,7 @@ static int IDASpbcgInit(IDAMem IDA_mem)
 
   /* Initialize counters */
   npe = nli = nps = ncfl = 0;
-  njtimes = nreSG = 0;
+  njtimes = nreSB = 0;
 
   /* Set setupNonNull to TRUE iff there is preconditioning with setup */
   setupNonNull = (psolve != NULL) && (pset != NULL);
@@ -849,7 +849,7 @@ static int IDASpbcgDQJtimes(realtype tt,
 
   /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
   ires = res(tt, y_tmp, yp_tmp, Jv, rdata); 
-  nreSG++;
+  nreSB++;
   resflag = ires;
   if (ires != 0) return(ires);
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-04-07 23:29:02 $
+ * $Revision: 1.27 $
+ * $Date: 2005-10-26 23:08:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -221,7 +221,7 @@ int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac, void *jac_data)
   return(IDABAND_SUCCESS);
 }
 
-int IDABandGetWorkSpace(void *ida_mem, long int *lenrwB, long int *leniwB)
+int IDABandGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 {
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
@@ -239,13 +239,13 @@ int IDABandGetWorkSpace(void *ida_mem, long int *lenrwB, long int *leniwB)
   }
   idaband_mem = (IDABandMem) lmem;
 
-  *lenrwB = neq*(storage_mu + ml + 1);
-  *leniwB = neq;
+  *lenrwLS = neq*(storage_mu + ml + 1);
+  *leniwLS = neq;
 
   return(IDABAND_SUCCESS);
 }
 
-int IDABandGetNumJacEvals(void *ida_mem, long int *njevalsB)
+int IDABandGetNumJacEvals(void *ida_mem, long int *njevals)
 {
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
@@ -263,12 +263,12 @@ int IDABandGetNumJacEvals(void *ida_mem, long int *njevalsB)
   }
   idaband_mem = (IDABandMem) lmem;
 
-  *njevalsB = nje;
+  *njevals = nje;
 
   return(IDABAND_SUCCESS);
 }
 
-int IDABandGetNumResEvals(void *ida_mem, long int *nrevalsB)
+int IDABandGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 {
   IDAMem IDA_mem;
   IDABandMem idaband_mem;
@@ -286,7 +286,7 @@ int IDABandGetNumResEvals(void *ida_mem, long int *nrevalsB)
   }
   idaband_mem = (IDABandMem) lmem;
 
-  *nrevalsB = nreB;
+  *nrevalsLS = nreB;
 
   return(IDABAND_SUCCESS);
 }

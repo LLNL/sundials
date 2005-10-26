@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-04-27 21:38:03 $
+ * $Revision: 1.4 $
+ * $Date: 2005-10-26 23:08:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -47,7 +47,7 @@ typedef struct {
   long int b_nli;      /* nli = total number of linear iterations       */
   long int b_nps;      /* nps = total number of psolve calls            */
   long int b_ncfl;     /* ncfl = total number of convergence failures   */
-  long int b_nreSG;    /* nreSG = total number of calls to res          */    
+  long int b_nreLS;    /* nreLS = total number of calls to res          */    
   long int b_njtimes;  /* njtimes = total number of calls to jtimes     */
 
   long int b_nst0;     /* nst0 = saved nst (for performance monitor)    */   

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2005-08-10 21:43:22 $
+ * $Revision: 1.31 $
+ * $Date: 2005-10-26 23:08:08 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -420,7 +420,7 @@ int IDASpgmrSetJacTimesVecFn(void *ida_mem, IDASpilsJacTimesVecFn jtimes,
   return(IDASPGMR_SUCCESS);
 }
 
-int IDASpgmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
+int IDASpgmrGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -440,8 +440,8 @@ int IDASpgmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
   maxl = idaspgmr_mem->g_maxl;
-  *lenrwSG = lrw1*(maxl + 6) + maxl*(maxl + 4) + 1;
-  *leniwSG = liw1*(maxl + 6);
+  *lenrwLS = lrw1*(maxl + 6) + maxl*(maxl + 4) + 1;
+  *leniwLS = liw1*(maxl + 6);
 
   return(IDASPGMR_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-04-07 23:29:02 $
+ * $Revision: 1.24 $
+ * $Date: 2005-10-26 23:08:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -203,7 +203,7 @@ int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac, void *jac_data)
   return(IDADENSE_SUCCESS);
 }
 
-int IDADenseGetWorkSpace(void *ida_mem, long int *lenrwD, long int *leniwD)
+int IDADenseGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 {
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
@@ -221,13 +221,13 @@ int IDADenseGetWorkSpace(void *ida_mem, long int *lenrwD, long int *leniwD)
   }
   idadense_mem = (IDADenseMem) lmem;
 
-  *lenrwD = neq*neq;
-  *leniwD = neq;
+  *lenrwLS = neq*neq;
+  *leniwLS = neq;
  
   return(IDADENSE_SUCCESS);
 }
 
-int IDADenseGetNumJacEvals(void *ida_mem, long int *njevalsD)
+int IDADenseGetNumJacEvals(void *ida_mem, long int *njevals)
 {
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
@@ -245,12 +245,12 @@ int IDADenseGetNumJacEvals(void *ida_mem, long int *njevalsD)
   }
   idadense_mem = (IDADenseMem) lmem;
 
-  *njevalsD = nje;
+  *njevals = nje;
 
   return(IDADENSE_SUCCESS);
 }
 
-int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsD)
+int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 {
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
@@ -268,7 +268,7 @@ int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsD)
   }
   idadense_mem = (IDADenseMem) lmem;
 
-  *nrevalsD = nreD;
+  *nrevalsLS = nreD;
 
   return(IDADENSE_SUCCESS);
 }
