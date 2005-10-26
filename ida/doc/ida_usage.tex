@@ -4759,10 +4759,10 @@ If the direct linear solver with dense treatment of the Jacobian is used (i.e.
 the user may provide a function of type \ID{IDADenseJacFn} defined by
 \usfunction{IDADenseJacFn}
 {
-  typedef int (*IDADenseJacFn)(&long int Neq, realtype tt, \\
-                               &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
-                               &realtype c\_j, void *jac\_data, DenseMat Jac, \\
-                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+  typedef int (*IDADenseJacFn)&(long int Neq, realtype tt, \\
+                              &N\_Vector yy, N\_Vector yp, N\_Vector rr, \\ 
+                              &realtype c\_j, void *jac\_data, DenseMat Jac, \\
+                              &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the dense Jacobian $J$ of the DAE system (or an
