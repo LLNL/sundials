@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-04-27 21:38:01 $
+ * $Revision: 1.22 $
+ * $Date: 2005-10-26 22:45:08 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -132,13 +132,13 @@ int IDASpgmrSetIncrementFactor(void *ida_mem, realtype dqincfac);
  * -----------------------------------------------------------------
  */                                                                
 
-int IDASpgmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG);
+int IDASpgmrGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
 int IDASpgmrGetNumPrecEvals(void *ida_mem, long int *npevals);
 int IDASpgmrGetNumPrecSolves(void *ida_mem, long int *npsolves);
 int IDASpgmrGetNumLinIters(void *ida_mem, long int *nliters);
 int IDASpgmrGetNumConvFails(void *ida_mem, long int *nlcfails);
 int IDASpgmrGetNumJtimesEvals(void *ida_mem, long int *njvevals);
-int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG); 
+int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsLS); 
 int IDASpgmrGetLastFlag(void *ida_mem, int *flag);
 
 /* IDASPGMR return values */

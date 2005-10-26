@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-08-22 22:46:04 $
+ * $Revision: 1.3 $
+ * $Date: 2005-10-26 22:45:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -117,13 +117,13 @@ int IDASptfqmrSetIncrementFactor(void *ida_mem, realtype dqincfac);
  * -----------------------------------------------------------------
  */
 
-int IDASptfqmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG);
+int IDASptfqmrGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
 int IDASptfqmrGetNumPrecEvals(void *ida_mem, long int *npevals);
 int IDASptfqmrGetNumPrecSolves(void *ida_mem, long int *npsolves);
 int IDASptfqmrGetNumLinIters(void *ida_mem, long int *nliters);
 int IDASptfqmrGetNumConvFails(void *ida_mem, long int *nlcfails);
 int IDASptfqmrGetNumJtimesEvals(void *ida_mem, long int *njvevals);
-int IDASptfqmrGetNumResEvals(void *ida_mem, long int *nrevalsSG); 
+int IDASptfqmrGetNumResEvals(void *ida_mem, long int *nrevalsLS); 
 int IDASptfqmrGetLastFlag(void *ida_mem, int *flag);
 
 /* IDASPTFQMR return values */

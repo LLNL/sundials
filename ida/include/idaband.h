@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-04-07 23:28:59 $
+ * $Revision: 1.22 $
+ * $Date: 2005-10-26 22:45:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -187,9 +187,9 @@ int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac, void *jac_data);
  * -----------------------------------------------------------------
  */
 
-int IDABandGetWorkSpace(void *ida_mem, long int *lenrwB, long int *leniwB);
-int IDABandGetNumJacEvals(void *ida_mem, long int *njevalsB);
-int IDABandGetNumResEvals(void *ida_mem, long int *nrevalsB);
+int IDABandGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
+int IDABandGetNumJacEvals(void *ida_mem, long int *njevals);
+int IDABandGetNumResEvals(void *ida_mem, long int *nrevalsLS);
 int IDABandGetLastFlag(void *ida_mem, int *flag);
 
 /* IDABAND return values */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-04-07 23:28:59 $
+ * $Revision: 1.21 $
+ * $Date: 2005-10-26 22:45:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -176,9 +176,9 @@ int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac, void *jac_data);
  * -----------------------------------------------------------------
  */
 
-int IDADenseGetWorkSpace(void *ida_mem, long int *lenrwD, long int *leniwD);
-int IDADenseGetNumJacEvals(void *ida_mem, long int *njevalsD);
-int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsD);
+int IDADenseGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
+int IDADenseGetNumJacEvals(void *ida_mem, long int *njevals);
+int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsLS);
 int IDADenseGetLastFlag(void *ida_mem, int *flag);
 
 /* IDADENSE return values */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-08-22 22:46:04 $
+ * $Revision: 1.6 $
+ * $Date: 2005-10-26 22:45:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -118,13 +118,13 @@ int IDASpbcgSetIncrementFactor(void *ida_mem, realtype dqincfac);
  * -----------------------------------------------------------------
  */
 
-int IDASpbcgGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG);
+int IDASpbcgGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
 int IDASpbcgGetNumPrecEvals(void *ida_mem, long int *npevals);
 int IDASpbcgGetNumPrecSolves(void *ida_mem, long int *npsolves);
 int IDASpbcgGetNumLinIters(void *ida_mem, long int *nliters);
 int IDASpbcgGetNumConvFails(void *ida_mem, long int *nlcfails);
 int IDASpbcgGetNumJtimesEvals(void *ida_mem, long int *njvevals);
-int IDASpbcgGetNumResEvals(void *ida_mem, long int *nrevalsSG); 
+int IDASpbcgGetNumResEvals(void *ida_mem, long int *nrevalsLS); 
 int IDASpbcgGetLastFlag(void *ida_mem, int *flag);
 
 /* IDASPBCG return values */
