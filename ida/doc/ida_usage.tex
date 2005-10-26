@@ -3400,7 +3400,10 @@ These optional output functions are described next.
 
 For each of the linear system solver modules, there are various optional 
 outputs that describe the performance of the module. The functions available 
-to access these are described below.
+to access these are described below.  Where the name of an output would
+otherwise conflict with the name of an optional output from the main
+solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
+\id{lenrwLS}).
 
 \subsubsection{Dense linear solver}\label{sss:optout_dense}
 \index{optional output!dense linear solver|(}
@@ -3413,7 +3416,7 @@ and last return value from a {\idadense} function.
 %%
 \ucfunction{IDADenseGetWorkSpace}
 {
-  flag = IDADenseGetWorkSpace(ida\_mem, \&lenrwD, \&leniwD);
+  flag = IDADenseGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{IDADenseGetWorkSpace} returns the sizes of
@@ -3423,9 +3426,9 @@ and last return value from a {\idadense} function.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrwD] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     the number of real values in the {\idadense} workspace.
-  \item[leniwD] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\idadense} workspace.
   \end{args}
 }
@@ -3451,17 +3454,17 @@ and last return value from a {\idadense} function.
 %%
 \ucfunction{IDADenseGetNumJacEvals}
 {
-  flag = IDADenseGetNumJacEvals(ida\_mem, \&njevalsD);
+  flag = IDADenseGetNumJacEvals(ida\_mem, \&njevals);
 }
 {
   The function \ID{IDADenseGetNumJacEvals} returns the
   cumulative number of calls to the dense Jacobian approximation function.
 }
 {
-  \begin{args}[njevalsD]
+  \begin{args}[njevals]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[njevalsD] (\id{long int})
+  \item[njevals] (\id{long int})
     the cumulative number of calls to the Jacobian function (total so far).
   \end{args}
 }
@@ -3481,7 +3484,7 @@ and last return value from a {\idadense} function.
 %%
 \ucfunction{IDADenseGetNumResEvals}
 {
-  flag = IDADenseGetNumResEvals(ida\_mem, \&nrevalsD);
+  flag = IDADenseGetNumResEvals(ida\_mem, \&nrevalsLS);
 }
 {
   The function \ID{IDADenseGetNumResEvals} returns the
@@ -3489,10 +3492,10 @@ and last return value from a {\idadense} function.
   finite difference dense Jacobian approximation.
 }
 {
-  \begin{args}[nrevalsD]
+  \begin{args}[nrevalsLS]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nrevalsD] (\id{long int})
+  \item[nrevalsLS] (\id{long int})
     the cumulative number of calls to the user residual function.
   \end{args}
 }
@@ -3508,7 +3511,7 @@ and last return value from a {\idadense} function.
   \end{args}
 }
 {
-  The value \id{nrevalsD} is incremented only if the default 
+  The value \id{nrevalsLS} is incremented only if the default 
   \id{IDADenseDQJac} difference quotient function is used.
 }
 %%
@@ -3562,7 +3565,7 @@ and last return value from a {\idaband} function.
 %%
 \ucfunction{IDABandGetWorkSpace}
 {
-  flag = IDABandGetWorkSpace(ida\_mem, \&lenrwB, \&leniwB);
+  flag = IDABandGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{IDABandGetWorkSpace} returns the sizes of
@@ -3572,9 +3575,9 @@ and last return value from a {\idaband} function.
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrwB] (\id{long int})
+  \item[lenrwKS] (\id{long int})
     the number of real values in the {\idaband} workspace.
-  \item[leniwB] (\id{long int})
+  \item[leniwLS] (\id{long int})
     the number of integer values in the {\idaband} workspace.
   \end{args}
 }
@@ -3601,17 +3604,17 @@ and last return value from a {\idaband} function.
 %%
 \ucfunction{IDABandGetNumJacEvals}
 {
-  flag = IDABandGetNumJacEvals(ida\_mem, \&njevalsB);
+  flag = IDABandGetNumJacEvals(ida\_mem, \&njevals);
 }
 {
   The function \ID{IDABandGetNumJacEvals} returns the
   cumulative number of calls to the banded Jacobian approximation function.
 }
 {
-  \begin{args}[njevalsB]
+  \begin{args}[njevals]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[njevalsB] (\id{long int})
+  \item[njevals] (\id{long int})
     the cumulative number of calls to the Jacobian function.
   \end{args}
 }
@@ -3631,7 +3634,7 @@ and last return value from a {\idaband} function.
 %%
 \ucfunction{IDABandGetNumResEvals}
 {
-  flag = IDABandGetNumResEvals(ida\_mem, \&nrevalsB);
+  flag = IDABandGetNumResEvals(ida\_mem, \&nrevalsLS);
 }
 {
   The function \ID{IDABandGetNumResEvals} returns the
@@ -3639,10 +3642,10 @@ and last return value from a {\idaband} function.
   finite difference banded Jacobian approximation.
 }
 {
-  \begin{args}[nrevalsB]
+  \begin{args}[nrevalsLS]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nrevalsB] (\id{long int})
+  \item[nrevalsLS] (\id{long int})
     the cumulative number of calls to the user residual function.
   \end{args}
 }
@@ -3658,7 +3661,7 @@ and last return value from a {\idaband} function.
   \end{args}
 }
 {
-  The value \id{nrevalsB} is incremented only if the default 
+  The value \id{nrevalsLS} is incremented only if the default 
   \id{IDABandDQJac} difference quotient function is used.
 }
 %%
@@ -3714,19 +3717,19 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %%
 \ucfunction{IDASpgmrGetWorkSpace}
 {
-  flag = IDASpgmrGetWorkSpace(ida\_mem, \&lenrwSG, \&leniwSG);
+  flag = IDASpgmrGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{IDASpgmrGetWorkSpace} returns the global sizes of
   the {\idaspgmr} real and integer workspaces.
 }
 {
-  \begin{args}[lenrwSG]
+  \begin{args}[lenrwLS]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrwSG] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     global number of real values in the {\idaspgmr} workspace.
-  \item[leniwSG] (\id{long int})
+  \item[leniwLS] (\id{long int})
     global number of integer values in the {\idaspgmr} workspace.
   \end{args}
 }
@@ -3907,7 +3910,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %%
 \ucfunction{IDASpgmrGetNumResEvals}
 {
-  flag = IDASpgmrGetNumResEvals(ida\_mem, \&nrevalsSG);
+  flag = IDASpgmrGetNumResEvals(ida\_mem, \&nrevalsLS);
 }
 {
   The function \ID{IDASpgmrGetNumResEvals} returns the
@@ -3915,10 +3918,10 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   finite difference Jacobian-vector product approximation.
 }
 {
-  \begin{args}[nrevalsSG]
+  \begin{args}[nrevalsLS]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nrevalsSG] (\id{long int})
+  \item[nrevalsLS] (\id{long int})
     the cumulative number of calls to the user residual function.
   \end{args}
 }
@@ -3934,7 +3937,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \end{args}
 }
 {
-  The value \id{nrevalsSG} is incremented only if the default 
+  The value \id{nrevalsLS} is incremented only if the default 
   \id{IDASpgmrDQJtimes} difference quotient function is used.
 }
 %%
@@ -4008,19 +4011,19 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %%
 \ucfunction{IDASpbcgGetWorkSpace}
 {
-  flag = IDASpbcgGetWorkSpace(ida\_mem, \&lenrwSB, \&leniwSB);
+  flag = IDASpbcgGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{IDASpbcgGetWorkSpace} returns the global sizes of
   the {\idaspbcg} real and integer workspaces.
 }
 {
-  \begin{args}[lenrwSB]
+  \begin{args}[lenrwLS]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrwSB] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     global number of real values in the {\idaspbcg} workspace.
-  \item[leniwSB] (\id{long int})
+  \item[leniwLS] (\id{long int})
     global number of integer values in the {\idaspbcg} workspace.
   \end{args}
 }
@@ -4199,7 +4202,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %%
 \ucfunction{IDASpbcgGetNumResEvals}
 {
-  flag = IDASpbcgGetNumResEvals(ida\_mem, \&nrevalsSB);
+  flag = IDASpbcgGetNumResEvals(ida\_mem, \&nrevalsLS);
 }
 {
   The function \ID{IDASpbcgGetNumResEvals} returns the
@@ -4207,10 +4210,10 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   finite difference Jacobian-vector product approximation.
 }
 {
-  \begin{args}[nrevalsSB]
+  \begin{args}[nrevalsLS]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nrevalsSB] (\id{long int})
+  \item[nrevalsLS] (\id{long int})
     the cumulative number of calls to the user residual function.
   \end{args}
 }
@@ -4226,7 +4229,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \end{args}
 }
 {
-  The value \id{nrevalsSB} is incremented only if the default 
+  The value \id{nrevalsLS} is incremented only if the default 
   \id{IDASpbcgDQJtimes} difference quotient function is used.
 }
 %%
@@ -4295,19 +4298,19 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %%
 \ucfunction{IDASptfqmrGetWorkSpace}
 {
-  flag = IDASptfqmrGetWorkSpace(ida\_mem, \&lenrwST, \&leniwST);
+  flag = IDASptfqmrGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
 {
   The function \ID{IDASptfqmrGetWorkSpace} returns the global sizes of
   the {\idasptfqmr} real and integer workspaces.
 }
 {
-  \begin{args}[lenrwST]
+  \begin{args}[lenrwLS]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[lenrwST] (\id{long int})
+  \item[lenrwLS] (\id{long int})
     global number of real values in the {\idasptfqmr} workspace.
-  \item[leniwST] (\id{long int})
+  \item[leniwLS] (\id{long int})
     global number of integer values in the {\idasptfqmr} workspace.
   \end{args}
 }
@@ -4486,7 +4489,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
 %%
 \ucfunction{IDASptfqmrGetNumResEvals}
 {
-  flag = IDASptfqmrGetNumResEvals(ida\_mem, \&nrevalsST);
+  flag = IDASptfqmrGetNumResEvals(ida\_mem, \&nrevalsLS);
 }
 {
   The function \ID{IDASptfqmrGetNumResEvals} returns the
@@ -4494,10 +4497,10 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   finite difference Jacobian-vector product approximation.
 }
 {
-  \begin{args}[nrevalsST]
+  \begin{args}[nrevalsLS]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[nrevalsST] (\id{long int})
+  \item[nrevalsLS] (\id{long int})
     the cumulative number of calls to the user residual function.
   \end{args}
 }
@@ -4513,7 +4516,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \end{args}
 }
 {
-  The value \id{nrevalsST} is incremented only if the default 
+  The value \id{nrevalsLS} is incremented only if the default 
   \id{IDASptfqmrDQJtimes} difference quotient function is used.
 }
 %%
@@ -5943,15 +5946,14 @@ the {\idabbdpre} module:
   \end{args}
 }
 {}
-
-In addition to the \id{ngevalsBBDP} \id{Gres} function evaluations,
-the costs associated with {\idabbdpre} also include \id{nlinsetups} LU
-factorizations, \id{nlinsetups} calls to \id{Gcomm}, and \id{npsolves} banded
-backsolve calls, where \id{nlinsetups} is an optional {\ida} output (see
-\S\ref{sss:optout_main}), and \id{npsolves} is a linear solver optional
-output (see \S\ref{sss:optout_linsol}).
-
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!optional output|)}
 \index{optional output!band-block-diagonal preconditioner|)}
-%%
+
+In addition to the \id{ngevalsBBDP} \id{Gres} evaluations,
+the costs associated with {\idabbdpre} also include \id{nlinsetups} LU
+factorizations, \id{nlinsetups} calls to \id{Gcomm}, \id{npsolves} banded
+backsolve calls, and \id{nrevalsLS} residual function evaluations,
+where \id{nlinsetups} is an optional {\ida} output (see
+\S\ref{sss:optout_main}), and \id{npsolves} and \id{nrevalsLS} are
+linear solver optional outputs (see \S\ref{sss:optout_linsol}).
