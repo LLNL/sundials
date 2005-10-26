@@ -6189,6 +6189,7 @@ the {\cvbbdpre} module:
 In addition to the \id{ngevalsBBDP} \id{gloc} evaluations,
 the costs associated with {\cvbbdpre} also include \id{nlinsetups} LU
 factorizations, \id{nlinsetups} calls to \id{cfn}, and \id{npsolves} banded
-backsolve calls,  where \id{nlinsetups} is an optional {\cvode} output (see
-\S\ref{sss:optout_main}), and \id{npsolves} is a linear solver optional
-output (see \S\ref{sss:optout_linsol}).
+backsolve calls, and \id{nfevalsLS} right-hand side function evaluations,
+where \id{nlinsetups} is an optional {\cvode} output (see
+\S\ref{sss:optout_main}), and \id{npsolves} and \id{nfevalsLS} are
+linear solver optional outputs (see \S\ref{sss:optout_linsol}).
