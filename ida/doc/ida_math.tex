@@ -2,15 +2,14 @@
 \chapter{Mathematical Considerations}\label{s:math}
 %===================================================================================
 
-{\ida} solves the initial-value problem for 
-a DAE system of the general form
+{\ida} solves the initial-value problem (IVP) for a DAE system of the
+general form
 \begin{equation}\label{e:DAE}
   F(t,y,y^\prime) = 0 \, ,
   \quad y(t_0) = y_0 \, ,~ y^\prime(t_0) = y^\prime_0 \, ,
 \end{equation}
 where $y$, $y^\prime$, and $F$ are vectors in ${\bf R}^N$, $t$ is the independent
-variable, $y^\prime = dy/dt$, 
-and initial conditions $y(t_0) = y_0$, $y^\prime(t_0) = y^\prime_0$ 
+variable, $y^\prime = dy/dt$, and initial values $y_0$, $y^\prime_0$ 
 are given.  (Often $t$ is time, but it certainly need not be.)
 
 
