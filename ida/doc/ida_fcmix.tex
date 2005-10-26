@@ -144,202 +144,6 @@ This is particularly important when using {\ida} and the {\fida}
 package on 64-bit architectures.
 
 %%==============================================================================
-\section{FIDA optional input and output}
-%%==============================================================================
-\index{FIDA@{\fida} interface module!optional input and output}
-
-In order to keep the number of user-callable {\fida} interface routines to
-a minimum, optional inputs to the {\ida} solver are passed through only
-three routines: \Id{FIDASETIIN} for integer optional inputs, \Id{FIDASETRIN}
-for real optional inputs, and \Id{FIDASETVIN} for real vector (array) optional
-inputs.  These functions should be called as follows:
-\begin{verbatim}
-      CALL FIDASETIIN(KEY, IVAL, IER)
-      CALL FIDASETRIN(KEY, RVAL, IER)
-      CALL FIDASETVIN(KEY, VVAL, IER)
-\end{verbatim}
-where \id{KEY} is a quoted string indicating which optoinal input is set
-(see Table \ref{t:fida_in}), \id{IVAL} is the input integer value,
-\id{RVAL} is the input real value (scalar),
-\id{VVAL} is the input real array, and
-\id{IER} is an integer return flag which is set to $0$ on success and
-a negative value if a failure occurred.
-
-When using \id{FIDASETVIN} to specify the variable types (\id{KEY = 'ID\_VEC'})
-the components in the array \id{VVAL} must be $1.0$ to indicate a differential 
-variable, or $0.0$ to indicate an algebraic variable.
-Note that this array is required only if \id{FIDACALCIC} is to be called
-with \id{ICOPT = 1}, or if algebraic variables are suppressed from the error
-test (indicated using \id{FIDASETIIN} with \id{KEY = 'SUPPRESS\_ALG'}).
-%
-When using \id{FIDASETVIN} to specify optional constraints on the
-solution vector (\id{KEY = 'CONSTR\_VEC'}) the components in the
-array \id{VVAL} should be one of $-2.0$, $-1.0$, $0.0$, $1.0$, or $2.0$.
-See the description of \id{IDASetConstraints} (\S\ref{ss:optional_input})
-for more details.
-
-The optional outputs from the {\ida} solver are accessed not through
-individual functions, but rather through a pair of arrays, \Id{IOUT}
-(integer type) of dimension at least $21$, and \Id{ROUT} (real type) of
-dimension at least $6$.  These arrays are owned (and allocated) by
-the user and are passed as arguments to \id{FIDAMALLOC}.  Table
-\ref{t:fida_out} lists the entries in these two arrays and specifies
-the optional variable as well as the {\ida} function which is actually
-called to extract the optional output.
-
-For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
-and \S\ref{ss:optional_output}.
-
-\begin{table}
-\centering
-\caption{Keys for setting {\fida} optional inputs}
-\label{t:fida_in}
-\medskip
-\begin{tabular}{|r|c|l|}
-\multicolumn{3}{c}{Integer optional inputs (\id{FIDASETIIN})}\\
-\hline
-{\bf Key} & {\bf Optional input} & Default value \\ 
-\hline
-\Id{MAX\_ORD}      & Maximum LMM method order & $5$  \\
-\Id{MAX\_NSTEPS}   & Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$
-                   & $500$  \\
-\Id{MAX\_ERRFAIL}  & Maximum no. of error test failures & $10$  \\
-\Id{MAX\_NITERS}   & Maximum no. of nonlinear iterations & $4$  \\
-\Id{MAX\_CONVFAIL} & Maximum no. of convergence failures & $10$  \\
-\Id{SUPPRESS\_ALG}   & Suppress alg. vars. from error test (1 = TRUE)
-                     & 0 (= FALSE)  \\
-\Id{MAX\_NSTEPS\_IC}   & Maximum no. of steps for IC calc. & $5$  \\
-\Id{MAX\_NITERS\_IC}   & Maximum no. of Newton iterations for IC calc.& $10$  \\
-\Id{MAX\_NJE\_IC}  & Maximum no. of Jac. evals fo IC calc. & $4$  \\
-\Id{LS\_OFF\_IC}  & Turn off line search (1 = TRUE) & 0 (= FALSE)  \\
-
-
-\hline
-\multicolumn{3}{c}{}\\
-\multicolumn{3}{c}{Real optional inputs (\id{FIDASETRIN})}\\
-\hline
-{\bf Key} & {\bf Optional input} & Default value \\ 
-\hline
-\Id{INIT\_STEP}   & Initial step size & estimated \\
-\Id{MAX\_STEP}    & Maximum absolute step size & $\infty$ \\
-\Id{STOP\_TIME}   & Value of $t_{stop}$ & undefined \\
-\Id{NLCONV\_COEF} & Coeff. in the nonlinear conv. test & $0.33$ \\
-\Id{NLCONV\_COEF\_IC} & Coeff. in the nonlinear conv. test for IC calc.& $0.0033$ \\
-\Id{STEP\_TOL\_IC} & Lower bound on Newton step for IC calc. & uround$^{2/3}$ \\
-\hline
-\multicolumn{3}{c}{}\\
-\multicolumn{3}{c}{Real vector optional inputs (\id{FIDASETVIN})}\\
-\hline
-{\bf Key} & {\bf Optional input} & Default value \\ 
-\hline
-\Id{ID\_VEC}   & Differential/algebraic component types & undefined\\
-\Id{CONSTR\_VEC}   & Inequality constraints on solution & undefined \\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{table}
-\centering
-\caption{Description of the {\fida} optional output arrays \Id{IOUT} and \Id{ROUT}}
-\label{t:fida_out}
-\medskip
-\begin{tabular}{|r|c|l|}
-\multicolumn{3}{c}{Integer output array \id{IOUT}}\\\hline
-{\bf Index} & {\bf Optional output} & {\ida} {\bf function} \\ 
-\hline
-\multicolumn{3}{|c|}{{\ida} main solver}\\
-\hline
- 1 & \id{LENRW}     & \id{IDAGetWorkSpace} \\
- 2 & \id{LENIW}     & \id{IDAGetWorkSpace} \\
- 3 & \id{NST}       & \id{IDAGetNumSteps} \\
- 4 & \id{NRE}       & \id{IDAGetNumResEvals} \\
- 5 & \id{NETF}      & \id{IDAGetNumErrTestFails} \\
- 6 & \id{NNCFAILS}  & \id{IDAGetNonlinSolvConvFails} \\
- 7 & \id{NNI}       & \id{IDAGetNumNonlinSolvIters} \\
- 8 & \id{NSETUPS}   & \id{IDAGetNumLinSolvSetups} \\
- 9 & \id{QLAST}     & \id{IDAGetLastOrder} \\
-10 & \id{QCUR}      & \id{IDAGetCurrentOrder} \\
-11 & \id{NBCKTRKOPS}& \id{IDAGetNumBacktrackOps} \\
-12 & \id{NGE}       & \id{IDAGetNumGEvals} \\
-\hline
-\multicolumn{3}{|c|}{{\idadense} linear solver}\\
-\hline
-13 &  \id{LRW}      & \id{IDADenseGetWorkSpace} \\ 
-14 &  \id{LIW}      & \id{IDADenseGetWorkSpace} \\ 
-15 &  \id{LS\_FLAG} & \id{IDADenseGetLastFlag} \\
-16 &  \id{NRE}      & \id{IDADenseGetNumResEvals} \\
-17 &  \id{NJE}      & \id{IDADenseGetNumJacEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\idaband} linear solver}\\
-\hline
-13 &  \id{LRW}      & \id{IDABandGetWorkSpace} \\ 
-14 &  \id{LIW}      & \id{IDABandGetWorkSpace} \\ 
-15 &  \id{LS\_FLAG} & \id{IDABandGetLastFlag} \\ 
-16 &  \id{NRE}      & \id{IDABandGetNumResEvals} \\
-17 &  \id{NJE}      & \id{IDABandGetNumJacEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\idaspgmr}, {\idaspbcg}, {\idasptfqmr} linear solvers}\\
-\hline
-13 &  \id{LRW}      & \id{IDASp*GetWorkSpace} \\ 
-14 &  \id{LIW}      & \id{IDASp*GetWorkSpace} \\ 
-15 &  \id{LS\_FLAG} & \id{IDASp*GetLastFlag} \\ 
-16 &  \id{NRE}      & \id{IDASp*GetNumResEvals} \\
-17 &  \id{NJE}      & \id{IDASp*GetNumJtimesEvals} \\
-18 &  \id{NPE}      & \id{IDASp*GetNumPrecEvals} \\ 
-19 &  \id{NPS}      & \id{IDASp*GetNumPrecSolves} \\ 
-20 &  \id{NLI}      & \id{IDASp*GetNumLinIters} \\ 
-21 &  \id{NCFL}     & \id{IDASp*GetNumConvFails} \\
-\hline
-\multicolumn{3}{c}{}\\
-\multicolumn{3}{c}{Real output array \id{ROUT}}\\\hline
-{\bf Index} & {\bf Optional output} & {\ida} {\bf function} \\ 
-\hline
- 1 & \id{H0\_USED} & \id{IDAGetActualInitStep} \\
- 2 & \id{HLAST}    & \id{IDAGetLastStep} \\
- 3 & \id{HCUR}     & \id{IDAGetCurrentStep} \\
- 4 & \id{TCUR}     & \id{IDAGetCurrentTime} \\
- 5 & \id{TOLFACT}  & \id{IDAGetTolScaleFactor} \\
- 6 & \id{UROUND}   & unit roundoff \\
-\hline
-\end{tabular}
-\end{table}
-
-In addition to the optional inputs communicated through \id{FIDASET*}
-calls and the optional outputs extracted in \id{IOUT}
-and \id{ROUT}, the following user-callable routines are available:
-
-To reset the tolerances at any time, make the following call:
-\index{FIDATOLREINIT@\texttt{FIDATOLREINIT}}
-\begin{verbatim}
-      CALL FIDATOLREINIT (IATOL, RTOL, ATOL, IER)
-\end{verbatim}
-The tolerance arguments have the same names and meanings as those of
-\id{FIDAMALLOC}.  The error return flag \id{IER} is 0 if successful,
-and negative if there was a memory failure or illegal input.
-
-To obtain the error weight array \id{EWT}, containing the multiplicative
-error weights used the WRMS norms, make the following call:
-\index{FIDAGETERRWEIGHTS@\texttt{FIDAGETERRWEIGHTS}}
-\begin{verbatim}
-      CALL FIDAGETERRWEIGHTS (Y, EWT, IER)
-\end{verbatim}
-This computes the \id{EWT} array as a function of the input \id{Y} array.
-The array \id{EWT}, of length \id{NEQ} or \id{NLOCAL}, must already have been
-declared by the user.  The error return flag \id{IER} is zero if successful,
-and negative if there was a memory error.
-
-To obtain the estimated local errors, following a successful call to
-\id{FIDASOLVE}, make the following call:
-\index{FIDAGETESTLOCALERR@\texttt{FIDAGETESTLOCALERR}}
-\begin{verbatim}
-      CALL FIDAGETESTLOCALERR (ELE, IER)
-\end{verbatim}
-This computes the \id{ELE} array of estimated local errors as of the last
-step taken.  The array \id{ELE} must already have been declared by the user.
-The error return flag \id{IER} is zero if successful, and negative if there
-was a memory error.
-
-%%==============================================================================
 \section{Usage of the FIDA interface module}\label{ss:fida_usage}
 %%==============================================================================
 \index{FIDA@{\fida} interface module!usage|(}
@@ -387,7 +191,7 @@ apply to {\nvecp}.
   where 
   \id{KEY} is the solver id (\id{KEY}=1 for {\ida}),
   \id{NEQ} is the size of vectors, and
-  \id{IER} is a  return completion flag, which is set to $0$ on success and $-1$ 
+  \id{IER} is a return flag, which is set to $0$ on success and $-1$ 
   if a failure occurred.
   
   {\p} To initialize the parallel vector module, the user must make the
@@ -397,10 +201,10 @@ apply to {\nvecp}.
       CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
   in which the arguments are: \id{COMM} = {\mpi} communicator, \id{KEY} = 1,
-  \id{NLOCAL} = the local size of vectors on this processor, and
+  \id{NLOCAL} = the local size of all vectors on this processor, and
   \id{NGLOBAL} = the system size (and the global size of vectors, equal to the
-  sum of all values of \id{NLOCAL}). The return completion flag \id{IER} is
-  set to $0$ upon successful return and on $-1$ otherwise.
+  sum of all values of \id{NLOCAL}). The return flag \id{IER} is
+  set to $0$ on a successful return and to $-1$ otherwise.
 
   {\warn} If the header file \id{sundials\_config.h} defines
   \id{SUNDIALS\_MPI\_COMM\_F2C} to be $0$, then the argument
@@ -922,6 +726,202 @@ apply to {\nvecp}.
 \index{FIDA@{\fida} interface module!usage|)}
 
 %%==============================================================================
+\section{FIDA optional input and output}
+%%==============================================================================
+\index{FIDA@{\fida} interface module!optional input and output}
+
+In order to keep the number of user-callable {\fida} interface routines to
+a minimum, optional inputs to the {\ida} solver are passed through only
+three routines: \Id{FIDASETIIN} for integer optional inputs, \Id{FIDASETRIN}
+for real optional inputs, and \Id{FIDASETVIN} for real vector (array) optional
+inputs.  These functions should be called as follows:
+\begin{verbatim}
+      CALL FIDASETIIN(KEY, IVAL, IER)
+      CALL FIDASETRIN(KEY, RVAL, IER)
+      CALL FIDASETVIN(KEY, VVAL, IER)
+\end{verbatim}
+where \id{KEY} is a quoted string indicating which optoinal input is set
+(see Table \ref{t:fida_in}), \id{IVAL} is the input integer value,
+\id{RVAL} is the input real value (scalar),
+\id{VVAL} is the input real array, and
+\id{IER} is an integer return flag which is set to $0$ on success and
+a negative value if a failure occurred.
+
+When using \id{FIDASETVIN} to specify the variable types (\id{KEY = 'ID\_VEC'})
+the components in the array \id{VVAL} must be $1.0$ to indicate a differential 
+variable, or $0.0$ to indicate an algebraic variable.
+Note that this array is required only if \id{FIDACALCIC} is to be called
+with \id{ICOPT = 1}, or if algebraic variables are suppressed from the error
+test (indicated using \id{FIDASETIIN} with \id{KEY = 'SUPPRESS\_ALG'}).
+%
+When using \id{FIDASETVIN} to specify optional constraints on the
+solution vector (\id{KEY = 'CONSTR\_VEC'}) the components in the
+array \id{VVAL} should be one of $-2.0$, $-1.0$, $0.0$, $1.0$, or $2.0$.
+See the description of \id{IDASetConstraints} (\S\ref{sss:optin_main})
+for details.
+
+The optional outputs from the {\ida} solver are accessed not through
+individual functions, but rather through a pair of arrays, \Id{IOUT}
+(integer type) of dimension at least $21$, and \Id{ROUT} (real type) of
+dimension at least $6$.  These arrays are owned (and allocated) by
+the user and are passed as arguments to \id{FIDAMALLOC}.  Table
+\ref{t:fida_out} lists the entries in these two arrays and specifies
+the optional variable as well as the {\ida} function which is actually
+called to extract the optional output.
+
+For more details on the optional inputs and outputs, see \S\ref{ss:optional_input}
+and \S\ref{ss:optional_output}.
+
+\begin{table}
+\centering
+\caption{Keys for setting {\fida} optional inputs}
+\label{t:fida_in}
+\medskip
+\begin{tabular}{|r|c|l|}
+\multicolumn{3}{c}{Integer optional inputs (\id{FIDASETIIN})}\\
+\hline
+{\bf Key} & {\bf Optional input} & Default value \\ 
+\hline
+\Id{MAX\_ORD}      & Maximum LMM method order & $5$  \\
+\Id{MAX\_NSTEPS}   & Maximum no. of internal steps before $t_{\mbox{\scriptsize out}}$
+                   & $500$  \\
+\Id{MAX\_ERRFAIL}  & Maximum no. of error test failures & $10$  \\
+\Id{MAX\_NITERS}   & Maximum no. of nonlinear iterations & $4$  \\
+\Id{MAX\_CONVFAIL} & Maximum no. of convergence failures & $10$  \\
+\Id{SUPPRESS\_ALG}   & Suppress alg. vars. from error test (1 = TRUE)
+                     & 0 (= FALSE)  \\
+\Id{MAX\_NSTEPS\_IC}   & Maximum no. of steps for IC calc. & $5$  \\
+\Id{MAX\_NITERS\_IC}   & Maximum no. of Newton iterations for IC calc.& $10$  \\
+\Id{MAX\_NJE\_IC}  & Maximum no. of Jac. evals fo IC calc. & $4$  \\
+\Id{LS\_OFF\_IC}  & Turn off line search (1 = TRUE) & 0 (= FALSE)  \\
+
+
+\hline
+\multicolumn{3}{c}{}\\
+\multicolumn{3}{c}{Real optional inputs (\id{FIDASETRIN})}\\
+\hline
+{\bf Key} & {\bf Optional input} & Default value \\ 
+\hline
+\Id{INIT\_STEP}   & Initial step size & estimated \\
+\Id{MAX\_STEP}    & Maximum absolute step size & $\infty$ \\
+\Id{STOP\_TIME}   & Value of $t_{stop}$ & undefined \\
+\Id{NLCONV\_COEF} & Coeff. in the nonlinear conv. test & $0.33$ \\
+\Id{NLCONV\_COEF\_IC} & Coeff. in the nonlinear conv. test for IC calc.& $0.0033$ \\
+\Id{STEP\_TOL\_IC} & Lower bound on Newton step for IC calc. & uround$^{2/3}$ \\
+\hline
+\multicolumn{3}{c}{}\\
+\multicolumn{3}{c}{Real vector optional inputs (\id{FIDASETVIN})}\\
+\hline
+{\bf Key} & {\bf Optional input} & Default value \\ 
+\hline
+\Id{ID\_VEC}   & Differential/algebraic component types & undefined\\
+\Id{CONSTR\_VEC}   & Inequality constraints on solution & undefined \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}
+\centering
+\caption{Description of the {\fida} optional output arrays \Id{IOUT} and \Id{ROUT}}
+\label{t:fida_out}
+\medskip
+\begin{tabular}{|r|c|l|}
+\multicolumn{3}{c}{Integer output array \id{IOUT}}\\\hline
+{\bf Index} & {\bf Optional output} & {\ida} {\bf function} \\ 
+\hline
+\multicolumn{3}{|c|}{{\ida} main solver}\\
+\hline
+ 1 & \id{LENRW}     & \id{IDAGetWorkSpace} \\
+ 2 & \id{LENIW}     & \id{IDAGetWorkSpace} \\
+ 3 & \id{NST}       & \id{IDAGetNumSteps} \\
+ 4 & \id{NRE}       & \id{IDAGetNumResEvals} \\
+ 5 & \id{NETF}      & \id{IDAGetNumErrTestFails} \\
+ 6 & \id{NNCFAILS}  & \id{IDAGetNonlinSolvConvFails} \\
+ 7 & \id{NNI}       & \id{IDAGetNumNonlinSolvIters} \\
+ 8 & \id{NSETUPS}   & \id{IDAGetNumLinSolvSetups} \\
+ 9 & \id{QLAST}     & \id{IDAGetLastOrder} \\
+10 & \id{QCUR}      & \id{IDAGetCurrentOrder} \\
+11 & \id{NBCKTRKOPS}& \id{IDAGetNumBacktrackOps} \\
+12 & \id{NGE}       & \id{IDAGetNumGEvals} \\
+\hline
+\multicolumn{3}{|c|}{{\idadense} linear solver}\\
+\hline
+13 &  \id{LENRWLS}  & \id{IDADenseGetWorkSpace} \\ 
+14 &  \id{LENIWLS}  & \id{IDADenseGetWorkSpace} \\ 
+15 &  \id{LS\_FLAG} & \id{IDADenseGetLastFlag} \\
+16 &  \id{NRELS}    & \id{IDADenseGetNumResEvals} \\
+17 &  \id{NJE}      & \id{IDADenseGetNumJacEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\idaband} linear solver}\\
+\hline
+13 &  \id{LENRWLS}  & \id{IDABandGetWorkSpace} \\ 
+14 &  \id{LENIWLS}  & \id{IDABandGetWorkSpace} \\ 
+15 &  \id{LS\_FLAG} & \id{IDABandGetLastFlag} \\ 
+16 &  \id{NRELS}    & \id{IDABandGetNumResEvals} \\
+17 &  \id{NJE}      & \id{IDABandGetNumJacEvals} \\ 
+\hline
+\multicolumn{3}{|c|}{{\idaspgmr}, {\idaspbcg}, {\idasptfqmr} linear solvers}\\
+\hline
+13 &  \id{LENRWLS}  & \id{IDASp*GetWorkSpace} \\ 
+14 &  \id{LENIWLS}  & \id{IDASp*GetWorkSpace} \\ 
+15 &  \id{LS\_FLAG} & \id{IDASp*GetLastFlag} \\ 
+16 &  \id{NRELS}    & \id{IDASp*GetNumResEvals} \\
+17 &  \id{NJE}      & \id{IDASp*GetNumJtimesEvals} \\
+18 &  \id{NPE}      & \id{IDASp*GetNumPrecEvals} \\ 
+19 &  \id{NPS}      & \id{IDASp*GetNumPrecSolves} \\ 
+20 &  \id{NLI}      & \id{IDASp*GetNumLinIters} \\ 
+21 &  \id{NCFL}     & \id{IDASp*GetNumConvFails} \\
+\hline
+\multicolumn{3}{c}{}\\
+\multicolumn{3}{c}{Real output array \id{ROUT}}\\\hline
+{\bf Index} & {\bf Optional output} & {\ida} {\bf function} \\ 
+\hline
+ 1 & \id{H0\_USED} & \id{IDAGetActualInitStep} \\
+ 2 & \id{HLAST}    & \id{IDAGetLastStep} \\
+ 3 & \id{HCUR}     & \id{IDAGetCurrentStep} \\
+ 4 & \id{TCUR}     & \id{IDAGetCurrentTime} \\
+ 5 & \id{TOLFACT}  & \id{IDAGetTolScaleFactor} \\
+ 6 & \id{UROUND}   & unit roundoff \\
+\hline
+\end{tabular}
+\end{table}
+
+In addition to the optional inputs communicated through \id{FIDASET*}
+calls and the optional outputs extracted from \id{IOUT}
+and \id{ROUT}, the following user-callable routines are available:
+
+To reset the tolerances at any time, make the following call:
+\index{FIDATOLREINIT@\texttt{FIDATOLREINIT}}
+\begin{verbatim}
+      CALL FIDATOLREINIT (IATOL, RTOL, ATOL, IER)
+\end{verbatim}
+The tolerance arguments have the same names and meanings as those of
+\id{FIDAMALLOC}.  The error return flag \id{IER} is 0 if successful,
+and negative if there was a memory failure or illegal input.
+
+To obtain the error weight array \id{EWT}, containing the multiplicative
+error weights used the WRMS norms, make the following call:
+\index{FIDAGETERRWEIGHTS@\texttt{FIDAGETERRWEIGHTS}}
+\begin{verbatim}
+      CALL FIDAGETERRWEIGHTS (EWT, IER)
+\end{verbatim}
+This computes the \id{EWT} array, normally defined by Eq. (\ref{e:errwt}). 
+The array \id{EWT}, of length \id{NEQ} or \id{NLOCAL}, must already have been
+declared by the user.  The error return flag \id{IER} is zero if successful,
+and negative if there was a memory error.
+
+To obtain the estimated local errors, following a successful call to
+\id{FIDASOLVE}, make the following call:
+\index{FIDAGETESTLOCALERR@\texttt{FIDAGETESTLOCALERR}}
+\begin{verbatim}
+      CALL FIDAGETESTLOCALERR (ELE, IER)
+\end{verbatim}
+This computes the \id{ELE} array of estimated local errors as of the last
+step taken.  The array \id{ELE} must already have been declared by the user.
+The error return flag \id{IER} is zero if successful, and negative if there
+was a memory error.
+
+%%==============================================================================
 \section{Usage of the FIDAROOT interface to rootfinding}
 %%==============================================================================
 \index{FIDA@{\fida} interface module!rootfinding|(}
@@ -1021,7 +1021,7 @@ The user-callable functions in this package, with the corresponding
   interfaces to \id{IDABBDPrecFree}.
 \end{itemize}
 
-In addition to the {\F} right-hand side function \id{FIDARESFUN}, the
+In addition to the {\F} residual function \id{FIDARESFUN}, the
 user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within {\idabbdpre} or {\ida}):
@@ -1046,7 +1046,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
 \index{User main program!FIDABBD@{\fidabbd} usage}
 \begin{Steps}
   
-\item \textcolor{gray}{\bf Right-hand side specification}
+\item \textcolor{gray}{\bf Residual function specification}
 
 \item \textcolor{gray}{\bf {\nvector} module initialization}
 
@@ -1141,13 +1141,14 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   module, make the following call:
   \index{FIDABBDOPT@\texttt{FIDABBDOPT}}
 \begin{verbatim}
-       CALL FIDABBDOPT (LENRPW, LENIPW, NGE)
+       CALL FIDABBDOPT (LENRWBBD, LENIWBBD, NGEBBD)
 \end{verbatim}
   The arguments returned are as follows.
-  \id{LENRPW} is the length of real preconditioner work space, in \id{realtype}
-  words.  \id{LENIPW} is the length of integer preconditioner work space, in
-  integer words.  Both of these sizes are local to the current processor.  \id{NGE}
-  is the number of $G(t,y,y')$ evaluations (calls to \id{FIDALOCFN}) so far.
+  \id{LENRWBBD} is the length of real preconditioner work space, in \id{realtype}
+  words.  \id{LENIWBBD} is the length of integer preconditioner work space, in
+  integer words.  Both of these sizes are local to the current processor.
+  \id{NGEBBD} is the number of $G(t,y,y')$ evaluations (calls to \id{FIDALOCFN})
+  so far.
   
 \item {\bf Problem reinitialization}
   
