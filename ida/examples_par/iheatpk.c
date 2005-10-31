@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-09-23 19:13:53 $
+ * $Revision: 1.20 $
+ * $Date: 2005-10-31 23:00:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -777,7 +777,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
   
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nli   nre   nreS     h      npe nps\n");
+  printf("  time     umax       k  nst  nni  nli   nre   nreLS    h      npe nps\n");
   printf("----------------------------------------------------------------------\n");
 }
 
@@ -788,7 +788,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype hused, umax;
-  long int nst, nni, nje, nre, nreS, nli, npe, nps;
+  long int nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, ier;
 
   umax = N_VMaxNorm(uu);
@@ -809,7 +809,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
     check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1, id);
     ier = IDASpgmrGetNumLinIters(mem, &nli);
     check_flag(&ier, "IDASpgmrGetNumLinIters", 1, id);
-    ier = IDASpgmrGetNumResEvals(mem, &nreS);
+    ier = IDASpgmrGetNumResEvals(mem, &nreLS);
     check_flag(&ier, "IDASpgmrGetNumResEvals", 1, id);
     ier = IDASpgmrGetNumPrecEvals(mem, &npe);
     check_flag(&ier, "IDASpgmrGetPrecEvals", 1, id);
@@ -818,13 +818,13 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)  
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)  
     printf(" %5.2f %13.5le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2le  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #else
     printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #endif
 
   }
