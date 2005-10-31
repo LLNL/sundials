@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-10-26 23:08:08 $
+ * $Revision: 1.3 $
+ * $Date: 2005-10-31 22:02:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -47,7 +47,7 @@ typedef struct {
   long int q_nli;      /* nli = total number of linear iterations       */
   long int q_nps;      /* nps = total number of psolve calls            */
   long int q_ncfl;     /* ncfl = total number of convergence failures   */
-  long int q_nreLS;    /* nreLS = total number of calls to res          */    
+  long int q_nreSQ;    /* nreSQ = total number of calls to res          */    
   long int q_njtimes;  /* njtimes = total number of calls to jtimes     */
 
   long int q_nst0;     /* nst0 = saved nst (for performance monitor)    */   

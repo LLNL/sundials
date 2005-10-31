@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2005-10-26 23:08:08 $
+ * $Revision: 1.32 $
+ * $Date: 2005-10-31 22:02:53 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -561,7 +561,7 @@ int IDASpgmrGetNumJtimesEvals(void *ida_mem, long int *njvevals)
   return(IDASPGMR_SUCCESS);
 }
 
-int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
+int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 {
   IDAMem IDA_mem;
   IDASpgmrMem idaspgmr_mem;
@@ -579,7 +579,7 @@ int IDASpgmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
   }
   idaspgmr_mem = (IDASpgmrMem) lmem;
 
-  *nrevalsSG = nreSG;
+  *nrevalsLS = nreSG;
 
   return(IDASPGMR_SUCCESS);
 }
