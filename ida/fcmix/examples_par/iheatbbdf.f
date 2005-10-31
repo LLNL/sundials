@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.5 $
-c     $Date: 2005-08-15 18:07:31 $
+c     $Revision: 1.6 $
+c     $Date: 2005-10-31 23:46:54 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -688,7 +688,7 @@ c
 c
 c  local variables
 c
-      integer*4 iout(*)
+      integer*4 iout(*), lenrwbbd, leniwbbd, ngebbd
       double precision tret, umax, u(*), rout(*)
 c
       common /pcom/ dx, dy, coeffx, coeffy, coeffxy, uext,
@@ -698,8 +698,9 @@ c
       call maxnorm(u, umax)
 c
       if (thispe .eq. 0) then
+         call fidabbdopt(lenrwbbd, leniwbbd, ngebbd)
          write(*,28) tret, umax, iout(9), iout(3), iout(7),
-     &               iout(20), iout(4), iout(16), rout(2),
+     &               iout(20), iout(4), iout(16), ngebbd, rout(2),
      &               iout(18), iout(19)
  28      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i3,
      &          '  ', i3, '  ', i3, '  ', i3, ' ', i4, '  ',
@@ -806,9 +807,9 @@ c
      &       'bandwidths =', i2, '   Retained matrix half-bandwidths =',
      &       i2, //, '   Output Summary (umax = max-norm of solution)',
      &       //, '   time         umax       k   nst  nni  nli  nre',
-     &       '  nreS   h        npe nps', /,
+     &       ' nreLS nge   h        npe nps', /,
      &       ' .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ',
-     &       '.  .  .  .  .  .')
+     &       '.  .  .  .  .  .  .  .')
 c
       return
       end
