@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-10-20 22:55:23 $
+ * $Revision: 1.16 $
+ * $Date: 2005-10-31 23:31:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -587,19 +587,19 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
   
   switch(IDA_ls) {
   case IDA_LS_DENSE:
-    IDADenseGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LRW and LIW */
+    IDADenseGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
     IDADenseGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
     IDADenseGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
     IDADenseGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                /* NJE */
     break;
   case IDA_LS_BAND:
-    IDABandGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);    /* LRW and LIW */
+    IDABandGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);    /* LENRWLS, LENIWLS */
     IDABandGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);            /* LSTF */
     IDABandGetNumResEvals(IDA_idamem, &IDA_iout[15]);                 /* NRE */
     IDABandGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                 /* NJE */
     break;
   case IDA_LS_SPGMR:
-    IDASpgmrGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LRW and LIW */
+    IDASpgmrGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
     IDASpgmrGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
     IDASpgmrGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
     IDASpgmrGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);             /* NJE */
@@ -609,7 +609,7 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
     IDASpgmrGetNumConvFails(IDA_idamem, &IDA_iout[20]);               /* NCFL */
     break;
   case IDA_LS_SPBCG:
-    IDASpbcgGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LRW and LIW */
+    IDASpbcgGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
     IDASpbcgGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
     IDASpbcgGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
     IDASpbcgGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);             /* NJE */
@@ -619,7 +619,7 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
     IDASpbcgGetNumConvFails(IDA_idamem, &IDA_iout[20]);               /* NCFL */
     break;
   case IDA_LS_SPTFQMR:
-    IDASptfqmrGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]); /* LRW and LIW */
+    IDASptfqmrGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]); /* LENRWLS, LENIWLS */
     IDASptfqmrGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);         /* LSTF */
     IDASptfqmrGetNumResEvals(IDA_idamem, &IDA_iout[15]);              /* NRE */
     IDASptfqmrGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);           /* NJE */

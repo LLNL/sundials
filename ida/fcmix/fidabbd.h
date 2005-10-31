@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-08-15 18:06:46 $
+ * $Revision: 1.6 $
+ * $Date: 2005-10-31 23:31:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -311,13 +311,13 @@
  *
  * To obtain the optional outputs associated with the IDABBDPRE module, make
  * the following call:
- *       CALL FIDABBDOPT (LENRPW, LENIPW, NGE)
+ *       CALL FIDABBDOPT (LENRWBBD, LENIWBBD, NGEBBD)
  * The arguments returned are:
- * LENRPW = length of real preconditioner work space, in realtype words.
- *          This size is local to the current process.
- * LENIPW = length of integer preconditioner work space, in integer words.
- *          This size is local to the current process.
- * NGE    = number of G(t,y,y') evaluations (calls to FIDAGLOCFN) so far.
+ * LENRWBBD = length of real preconditioner work space, in realtype words.
+ *            This size is local to the current process.
+ * LENIWBBD = length of integer preconditioner work space, in integer words.
+ *            This size is local to the current process.
+ * NGEBBD   = number of G(t,y,y') evaluations (calls to FIDAGLOCFN) so far.
  *
  * (8) Memory freeing: FIDABBDFREE and FIDAFREE
  * To the free the internal memory created by the calls to FNVINITP,
@@ -434,7 +434,7 @@ void FIDA_BBDSPGMR(int *maxl, int *gstype, int *maxrs,
 		   realtype *eplifac, realtype *dqincfac, int *ier);
 void FIDA_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
 		    realtype *dqrely, int *ier);
-void FIDA_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge);
+void FIDA_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd);
 void FIDA_BBDFREE(void);
 
 /* Prototypes: Functions Called by the IDABBD Module */

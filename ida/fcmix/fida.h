@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-10-19 20:23:11 $
+ * $Revision: 1.15 $
+ * $Date: 2005-10-31 23:31:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -311,11 +311,11 @@
  * The return flag IER is 0 if successful, and nonzero otherwise.
  * 
  * Optional outputs specific to the DENSE case are:
- *        LENRWD = IOUT(13) -> IDADenseGetWorkSpace
- *        LENIWD = IOUT(14) -> IDADenseGetWorkSpace
- *        LSTF   = IOUT(15) -> IDADenseGetLastFlag
- *        NRED   = IOUT(16) -> IDADenseGetNumResEvals
- *        NJED   = IOUT(17) -> IDADenseGetNumJacEvals
+ *        LENRWLS = IOUT(13) -> IDADenseGetWorkSpace
+ *        LENIWLS = IOUT(14) -> IDADenseGetWorkSpace
+ *        LSTF    = IOUT(15) -> IDADenseGetLastFlag
+ *        NRELS   = IOUT(16) -> IDADenseGetNumResEvals
+ *        NJE     = IOUT(17) -> IDADenseGetNumJacEvals
  *
  * (7.2s) BAND treatment of the linear system
  * The user must make the call
@@ -334,11 +334,11 @@
  * The return flag IER is 0 if successful, and nonzero otherwise.
  *
  * Optional outputs specific to the BAND case are:
- *        LENRWB = IOUT(13) -> IDABandGetWorkSpace
- *        LENIWB = IOUT(14) -> IDABandGetWorkSpace
- *        LSTF   = IOUT(15) -> IDABandGetLastFlag
- *        NREB   = IOUT(16) -> IDABandGetNumResEvals
- *        NJEB   = IOUT(17) -> IDABandGetNumJacEvals
+ *        LENRWLS = IOUT(13) -> IDABandGetWorkSpace
+ *        LENIWLS = IOUT(14) -> IDABandGetWorkSpace
+ *        LSTF    = IOUT(15) -> IDABandGetLastFlag
+ *        NRELS   = IOUT(16) -> IDABandGetNumResEvals
+ *        NJE     = IOUT(17) -> IDABandGetNumJacEvals
  *
  * (7.3) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
@@ -382,15 +382,15 @@
  * non-recoverable error occurred.
  *
  * Optional outputs specific to the SPGMR case are:
- *        LENRWG = IOUT(13) -> IDASpgmrGetWorkSpace
- *        LENIWG = IOUT(14) -> IDASpgmrGetWorkSpace
- *        LSTF   = IOUT(15) -> IDASpgmrGetLastFlag
- *        NRE    = IOUT(16) -> IDASpgmrGetResEvals
- *        NJE    = IOUT(17) -> IDASpgmrGetJtimesEvals
- *        NPE    = IOUT(18) -> IDASpgmrGetPrecEvals
- *        NPS    = IOUT(19) -> IDASpgmrGetPrecSolves
- *        NLI    = IOUT(20) -> IDASpgmrGetLinIters
- *        NLCF   = IOUT(21) -> IDASpgmrGetConvFails
+ *        LENRWLS = IOUT(13) -> IDASpgmrGetWorkSpace
+ *        LENIWLS = IOUT(14) -> IDASpgmrGetWorkSpace
+ *        LSTF    = IOUT(15) -> IDASpgmrGetLastFlag
+ *        NRELS   = IOUT(16) -> IDASpgmrGetResEvals
+ *        NJE     = IOUT(17) -> IDASpgmrGetJtimesEvals
+ *        NPE     = IOUT(18) -> IDASpgmrGetPrecEvals
+ *        NPS     = IOUT(19) -> IDASpgmrGetPrecSolves
+ *        NLI     = IOUT(20) -> IDASpgmrGetLinIters
+ *        NLCF    = IOUT(21) -> IDASpgmrGetConvFails
  *
  * If a sequence of problems of the same size is being solved using the
  * SPGMR linear solver, then following the call to FIDAREINIT, a call to the
@@ -440,15 +440,15 @@
  * non-recoverable error occurred.
  *
  * Optional outputs specific to the SPBCG case are:
- *        LENRWC = IOUT(13) -> IDASpbcgGetWorkSpace
- *        LENIWC = IOUT(14) -> IDASpbcgGetWorkSpace
- *        LSTF   = IOUT(15) -> IDASpbcgGetLastFlag
- *        NRE    = IOUT(16) -> IDASpbcgGetResEvals
- *        NJE    = IOUT(17) -> IDASpbcgGetJtimesEvals
- *        NPE    = IOUT(18) -> IDASpbcgGetPrecEvals
- *        NPS    = IOUT(19) -> IDASpbcgGetPrecSolves
- *        NLI    = IOUT(20) -> IDASpbcgGetLinIters
- *        NLCF   = IOUT(21) -> IDASpbcgGetConvFails
+ *        LENRWLS = IOUT(13) -> IDASpbcgGetWorkSpace
+ *        LENIWLS = IOUT(14) -> IDASpbcgGetWorkSpace
+ *        LSTF    = IOUT(15) -> IDASpbcgGetLastFlag
+ *        NRELS   = IOUT(16) -> IDASpbcgGetResEvals
+ *        NJE     = IOUT(17) -> IDASpbcgGetJtimesEvals
+ *        NPE     = IOUT(18) -> IDASpbcgGetPrecEvals
+ *        NPS     = IOUT(19) -> IDASpbcgGetPrecSolves
+ *        NLI     = IOUT(20) -> IDASpbcgGetLinIters
+ *        NLCF    = IOUT(21) -> IDASpbcgGetConvFails
  *
  *      If a sequence of problems of the same size is being solved using the
  * SPBCG linear solver, then following the call to FIDAREINIT, a call to the
@@ -497,15 +497,15 @@
  * non-recoverable error occurred.
  *
  * Optional outputs specific to the SPTFQMR case are:
- *        LENRWC = IOUT(13) -> IDASptfqmrGetWorkSpace
- *        LENIWC = IOUT(14) -> IDASptfqmrGetWorkSpace
- *        LSTF   = IOUT(15) -> IDASptfqmrGetLastFlag
- *        NRE    = IOUT(16) -> IDASptfqmrGetResEvals
- *        NJE    = IOUT(17) -> IDASptfqmrGetJtimesEvals
- *        NPE    = IOUT(18) -> IDASptfqmrGetPrecEvals
- *        NPS    = IOUT(19) -> IDASptfqmrGetPrecSolves
- *        NLI    = IOUT(20) -> IDASptfqmrGetLinIters
- *        NLCF   = IOUT(21) -> IDASptfqmrGetConvFails
+ *        LENRWLS = IOUT(13) -> IDASptfqmrGetWorkSpace
+ *        LENIWLS = IOUT(14) -> IDASptfqmrGetWorkSpace
+ *        LSTF    = IOUT(15) -> IDASptfqmrGetLastFlag
+ *        NRELS   = IOUT(16) -> IDASptfqmrGetResEvals
+ *        NJE     = IOUT(17) -> IDASptfqmrGetJtimesEvals
+ *        NPE     = IOUT(18) -> IDASptfqmrGetPrecEvals
+ *        NPS     = IOUT(19) -> IDASptfqmrGetPrecSolves
+ *        NLI     = IOUT(20) -> IDASptfqmrGetLinIters
+ *        NLCF    = IOUT(21) -> IDASptfqmrGetConvFails
  *
  *      If a sequence of problems of the same size is being solved using the
  * SPTFQMR linear solver, then following the call to FIDAREINIT, a call to the

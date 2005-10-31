@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-09-23 19:13:58 $
+ * $Revision: 1.6 $
+ * $Date: 2005-10-31 23:31:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -210,10 +210,10 @@ int FIDAcfn(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
 
 /*************************************************/
 
-void FIDA_BBDOPT(long int *lenrpw, long int *lenipw, long int *nge)
+void FIDA_BBDOPT(long int *lenrwbbd, long int *leniwbbd, long int *ngebbd)
 {
-  IDABBDPrecGetWorkSpace(IDABBD_Data, lenrpw, lenipw);
-  IDABBDPrecGetNumGfnEvals(IDABBD_Data, nge);
+  IDABBDPrecGetWorkSpace(IDABBD_Data, lenrwbbd, leniwbbd);
+  IDABBDPrecGetNumGfnEvals(IDABBD_Data, ngebbd);
 
   return;
 }
