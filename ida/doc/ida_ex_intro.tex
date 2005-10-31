@@ -46,6 +46,11 @@ directory, the following four serial examples (using the {\nvecs} module):
   using the {\idaband} linear solver with the default difference-quotient 
   Jacobian approximation.
 
+\item \id{iheatskt}
+  solves the same problem as \id{iheatsk}, with three Krylov linear solvers
+  {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}.  The preconditioner uses only
+  the diagonal elements of the Jacobian.
+
 \end{itemize}
 
 In the \id{sundials/ida/examples\_par} directory, the {\ida} 
