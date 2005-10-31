@@ -13,7 +13,7 @@ Linear solver: IDASPGMR, preconditioner using diagonal elements.
 
    Output Summary (umax = max-norm of solution) 
 
-  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps
+  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps
 ----------------------------------------------------------------------
   0.01   8.24106e-01  2   12   14    7    14     7   2.56e-03    8  21
   0.02   6.88134e-01  3   15   18   12    18    12   5.12e-03    8  30
@@ -48,7 +48,7 @@ Linear solver: IDASPBCG, preconditioner using diagonal elements.
 
    Output Summary (umax = max-norm of solution) 
 
-  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps
+  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps
 ----------------------------------------------------------------------
   0.01   8.24105e-01  2   12   14    8    14     8   2.56e-03    8  22
   0.02   6.88129e-01  3   15   18   14    18    14   5.12e-03    8  32
@@ -83,7 +83,7 @@ Linear solver: IDASPTFQMR, preconditioner using diagonal elements.
 
    Output Summary (umax = max-norm of solution) 
 
-  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps
+  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps
 ----------------------------------------------------------------------
   0.01   8.24104e-01  2   12   14   11    14    11   2.56e-03    8  28
   0.02   6.88133e-01  3   15   18   19    18    19   5.12e-03    8  42

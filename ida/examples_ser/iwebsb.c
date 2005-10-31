@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-09-23 19:13:56 $
+ * $Revision: 1.22 $
+ * $Date: 2005-10-31 22:31:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -511,7 +511,7 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
 
 static void PrintFinalStats(void *mem)
 { 
-  long int nst, nre, nreB, nni, nje, netf, ncfn;
+  long int nst, nre, nreLS, nni, nje, netf, ncfn;
   int flag;
 
   flag = IDAGetNumSteps(mem, &nst);
@@ -526,13 +526,13 @@ static void PrintFinalStats(void *mem)
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
   flag = IDABandGetNumJacEvals(mem, &nje);
   check_flag(&flag, "IDABandGetNumJacEvals", 1);
-  flag = IDABandGetNumResEvals(mem, &nreB);
+  flag = IDABandGetNumResEvals(mem, &nreLS);
   check_flag(&flag, "IDABandGetNumResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreB);
+  printf("Number of residual evaluations     = %ld\n", nre+nreLS);
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-09-23 19:13:56 $
+ * $Revision: 1.23 $
+ * $Date: 2005-10-31 22:31:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -327,13 +327,13 @@ static void PrintRootInfo(int root_f1, int root_f2)
 static void PrintFinalStats(void *mem)
 {
   int retval;
-  long int nst, nni, njeD, nre, nreD, netf, ncfn, nge;
+  long int nst, nni, nje, nre, nreLS, netf, ncfn, nge;
 
   retval = IDAGetNumSteps(mem, &nst);
   check_flag(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetNumResEvals(mem, &nre);
   check_flag(&retval, "IDAGetNumResEvals", 1);
-  retval = IDADenseGetNumJacEvals(mem, &njeD);
+  retval = IDADenseGetNumJacEvals(mem, &nje);
   check_flag(&retval, "IDADenseGetNumJacEvals", 1);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   check_flag(&retval, "IDAGetNumNonlinSolvIters", 1);
@@ -341,15 +341,15 @@ static void PrintFinalStats(void *mem)
   check_flag(&retval, "IDAGetNumErrTestFails", 1);
   retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_flag(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDADenseGetNumResEvals(mem, &nreD);
+  retval = IDADenseGetNumResEvals(mem, &nreLS);
   check_flag(&retval, "IDADenseGetNumResEvals", 1);
   retval = IDAGetNumGEvals(mem, &nge);
   check_flag(&retval, "IDAGetNumGEvals", 1);
 
   printf("\nFinal Run Statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreD);
-  printf("Number of Jacobian evaluations     = %ld\n", njeD);
+  printf("Number of residual evaluations     = %ld\n", nre+nreLS);
+  printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);

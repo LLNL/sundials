@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-10-12 01:44:04 $
+ * $Revision: 1.2 $
+ * $Date: 2005-10-31 22:31:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -246,7 +246,7 @@ int main(void)
     /* Print output table heading, and initial line of table. */
 
     printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-    printf("  time     umax       k  nst  nni  nje   nre   nreS     h      npe nps\n" );
+    printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
     printf("----------------------------------------------------------------------\n");
 
     /* Loop over output times, call IDASolve, and print results. */
@@ -530,7 +530,7 @@ static void PrintHeader(realtype rtol, realtype atol, int linsolver)
 static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
 {
   realtype hused, umax;
-  long int nst, nni, nje, nre, nreS, nli, npe, nps;
+  long int nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, ier;
   
   umax = N_VMaxNorm(uu);
@@ -553,7 +553,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
     check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1);
     ier = IDASpgmrGetNumLinIters(mem, &nli);
     check_flag(&ier, "IDASpgmrGetNumLinIters", 1);
-    ier = IDASpgmrGetNumResEvals(mem, &nreS);
+    ier = IDASpgmrGetNumResEvals(mem, &nreLS);
     check_flag(&ier, "IDASpgmrGetNumResEvals", 1);
     ier = IDASpgmrGetNumPrecEvals(mem, &npe);
     check_flag(&ier, "IDASpgmrGetPrecEvals", 1);
@@ -566,7 +566,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
     check_flag(&ier, "IDASpbcgGetNumJtimesEvals", 1);
     ier = IDASpbcgGetNumLinIters(mem, &nli);
     check_flag(&ier, "IDASpbcgGetNumLinIters", 1);
-    ier = IDASpbcgGetNumResEvals(mem, &nreS);
+    ier = IDASpbcgGetNumResEvals(mem, &nreLS);
     check_flag(&ier, "IDASpbcgGetNumResEvals", 1);
     ier = IDASpbcgGetNumPrecEvals(mem, &npe);
     check_flag(&ier, "IDASpbcgGetPrecEvals", 1);
@@ -579,7 +579,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
     check_flag(&ier, "IDASptfqmrGetNumJtimesEvals", 1);
     ier = IDASptfqmrGetNumLinIters(mem, &nli);
     check_flag(&ier, "IDASptfqmrGetNumLinIters", 1);
-    ier = IDASptfqmrGetNumResEvals(mem, &nreS);
+    ier = IDASptfqmrGetNumResEvals(mem, &nreLS);
     check_flag(&ier, "IDASptfqmrGetNumResEvals", 1);
     ier = IDASptfqmrGetNumPrecEvals(mem, &npe);
     check_flag(&ier, "IDASptfqmrGetPrecEvals", 1);
@@ -591,13 +591,13 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
-         t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
   printf(" %5.2f %13.5le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2le  %3ld %3ld\n",
-         t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #else
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
-         t, umax, kused, nst, nni, nje, nre, nreS, hused, npe, nps);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #endif
 }
 

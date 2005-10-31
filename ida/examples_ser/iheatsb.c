@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2005-09-23 19:13:56 $
+ * $Revision: 1.15 $
+ * $Date: 2005-10-31 22:31:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -318,7 +318,7 @@ static void PrintHeader(realtype rtol, realtype atol)
 #endif
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time       umax     k  nst  nni  nje   nre   nreB     h      \n" );
+  printf("  time       umax     k  nst  nni  nje   nre   nreLS    h      \n" );
   printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n");
 }
 
@@ -330,7 +330,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
   int ier;
   realtype umax, hused;
-  long int nst, nni, nje, nre, nreB;
+  long int nst, nni, nje, nre, nreLS;
   int kused;
 
   umax = N_VMaxNorm(uu);
@@ -347,18 +347,18 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetLastStep", 1);
   ier = IDABandGetNumJacEvals(mem, &nje);
   check_flag(&ier, "IDABandGetNumJacEvals", 1);
-  ier = IDABandGetNumResEvals(mem, &nreB);
+  ier = IDABandGetNumResEvals(mem, &nreLS);
   check_flag(&ier, "IDABandGetNumResEvals", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",
-         t, umax, kused, nst, nni, nje, nre, nreB, hused);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
   printf(" %5.2f %13.5le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2le \n",
-         t, umax, kused, nst, nni, nje, nre, nreB, hused);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
 #else
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
-         t, umax, kused, nst, nni, nje, nre, nreB, hused);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
 #endif
 
 }
