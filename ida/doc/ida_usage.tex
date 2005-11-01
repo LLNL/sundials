@@ -2705,7 +2705,7 @@ solver performance information.  Table \ref{t:optional_output} lists all optiona
 output functions in {\ida}, which are then described in detail in the remainder
 of this section.
 
-\vspace*{.6in}
+\vspace*{.2in}
 
 \newlength{\colAA}
 \settowidth{\colAA}{No. of residual calls for finite diff. Jacobian-vector evals.}
@@ -2837,30 +2837,35 @@ These optional output functions are described next.
 }
 {
   \index{memory requirements!IDA@{\ida} solver}
-  In terms of the problem size $N$ and maximum method order \id{maxord},
+  In terms of the problem size $N$, the maximum method order \id{maxord}, and
+  the number \id{nrtfn} of root functions (see \S\ref{s:using_rootfinding}),
   the actual size of the real workspace, in \id{realtype} words, is
   given by the following:
   \begin{itemize}
-  \item Base value: \id{lenrw} $=55 + (m+6) N$
-  \item With \id{itol = IDA\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N$
-  \item With constraint checking (see \id{IDASetConstraints}): 
-    \id{lenrw} $=$ \id{lenrw} $+ N$
-  \item With \id{id} specified (see \id{IDASetId}): 
-    \id{lenrw} $=$ \id{lenrw} $+ N$
+  \item base value: \id{lenrw} $= 55 + (m + 6)*N_r + 3*$\id{nrtfn};
+  \item with \id{itol = IDA\_SV}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
+  \item with constraint checking (see \id{IDASetConstraints}): 
+    \id{lenrw} $=$ \id{lenrw} $+ N_r$;
+  \item with \id{id} specified (see \id{IDASetId}): 
+    \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \end{itemize}
-  Here $m = max(3,$\id{maxord}$)$.
+  where $m = \max($\id{maxord}$,3)$, and
+  $N_r$ is the number of real words in one \id{N\_Vector} ($\approx N$).
 
   The size of the integer workspace (without distinction between \id{int} 
-  and \id{long int}) is given by the following:
+  and \id{long int} words) is given by:
   \begin{itemize}
-  \item Base value: \id{leniw} $=38 + (m+6) N$
-  \item With \id{itol = IDA\_SV}: \id{leniw} $=$ \id{leniw} $+ N$ 
-  \item With constraint checking: \id{lenrw} $=$ \id{lenrw} $+ N$
-  \item With \id{id} specified: \id{lenrw} $=$ \id{lenrw} $+ N$
+  \item base value: \id{leniw} $= 38 + (m + 6)*N_i ~ + ~ $\id{nrtfn};  
+  \item with \id{itol = IDA\_SV}: \id{leniw} $=$ \id{leniw} $+ N_i$;
+  \item with constraint checking: \id{lenrw} $=$ \id{lenrw} $+ N_i$;
+  \item with \id{id} specified: \id{lenrw} $=$ \id{lenrw} $+ N_i$;
   \end{itemize}
+  where $N_i$ is the number of integer words in one \id{N\_Vector}
+  (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} on \id{npes} processors).
 
-  For the default value of \id{maxord}, the base values are
-  \id{lenrw} $=55 + 11N$ and \id{leniw} $=38 + 11N$ 
+  For the default value of \id{maxord}, with no rootfinding, no \id{id},
+  no constraints, and with \id{itol} $\neq$ \id{IDA\_SV}, these lengths are
+  given roughly by: \id{lenrw} $= 55 + 11N$, \id{leniw} $= 38$.
 }
 %%
 \ucfunction{IDAGetNumSteps}
@@ -3748,7 +3753,7 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \index{IDASPGMR@{\idaspgmr} linear solver!memory requirements} 
   \index{memory requirements!IDASPGMR@{\idaspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  the actual size of the real workspace is
+  the actual size of the real workspace is roughly
   $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$
   \id{realtype} words.  (In a parallel setting, this value is global ---
   summed over all processors.)
@@ -4042,8 +4047,8 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \index{IDASPBCG@{\idaspbcg} linear solver!memory requirements} 
   \index{memory requirements!IDASPBCG@{\idaspbcg} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace is
-  $10*N$ \id{realtype} words.  (In a parallel setting, this value is global ---
-  summed over all processors.)
+  roughly $10*N$ \id{realtype} words.  (In a parallel setting, this value
+  is global --- summed over all processors.)
 }
 %%
 %%
@@ -4329,8 +4334,8 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \index{IDASPTFQMR@{\idasptfqmr} linear solver!memory requirements} 
   \index{memory requirements!IDASPTFQMR@{\idasptfqmr} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace is
-  $13*N$ \id{realtype} words.  (In a parallel setting, this value is global ---
-  summed over all processors.)
+  roughly $13*N$ \id{realtype} words.  (In a parallel setting, this value
+  is global --- summed over all processors.)
 }
 %%
 %%
