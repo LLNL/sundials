@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2005-05-18 18:17:05 $
+# $Revision: 1.15 $
+# $Date: 2005-11-01 14:43:04 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -53,7 +53,7 @@ update:
 	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(CVODE_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES) -rpath $(libdir) $(LDLFAGS) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODE_LIB) $(libdir)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvode.h $(includedir)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvdense.h $(includedir)
