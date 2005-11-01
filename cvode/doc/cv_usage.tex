@@ -2600,7 +2600,8 @@ These optional output functions are described next.
   The size of the integer workspace (without distinction between \id{int} 
   and \id{long int} words) is given by:
   \begin{itemize}
-  \item \id{leniw} $= 40 + ($\id{maxord+5}$)*N_i ~ + ~ $\id{nrtfn},  
+  \item base value: \id{leniw} $= 40 + ($\id{maxord+5}$)*N_i ~ + ~ $\id{nrtfn};  
+  \item if \id{itol = CV\_SV}: \id{leniw} $=$ \id{leniw} $+ N_i$;
   \end{itemize}
   where $N_i$ is the number of integer words in one \id{N\_Vector}
   (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} and \id{npes} processors).
