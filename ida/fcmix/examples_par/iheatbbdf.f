@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.6 $
-c     $Date: 2005-10-31 23:46:54 $
+c     $Revision: 1.7 $
+c     $Date: 2005-11-03 00:17:10 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -704,7 +704,7 @@ c
      &               iout(18), iout(19)
  28      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i3,
      &          '  ', i3, '  ', i3, '  ', i3, ' ', i4, '  ',
-     &          e9.2, '  ', i3, ' ', i3)
+     &          i3, '  ', e9.2, '  ', i3, '  ', i3)
       endif
 c
       return
@@ -807,9 +807,9 @@ c
      &       'bandwidths =', i2, '   Retained matrix half-bandwidths =',
      &       i2, //, '   Output Summary (umax = max-norm of solution)',
      &       //, '   time         umax       k   nst  nni  nli  nre',
-     &       ' nreLS nge   h        npe nps', /,
+     &       ' nreLS nge    h        npe nps', /,
      &       ' .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ',
-     &       '.  .  .  .  .  .  .  .')
+     &       '.  .  .  .  .  .  .  .  .')
 c
       return
       end
