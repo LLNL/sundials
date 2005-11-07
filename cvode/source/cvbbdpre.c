@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2005-10-12 22:59:46 $
+ * $Revision: 1.30 $
+ * $Date: 2005-11-07 23:52:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -238,7 +238,7 @@ void CVBBDPrecFree(void **bbd_data)
 
 }
 
-int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwLS, long int *leniwLS)
+int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP)
 {
   CVBBDPrecData pdata;
 
@@ -249,8 +249,8 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwLS, long int *leniwLS)
 
   pdata = (CVBBDPrecData) bbd_data;
 
-  *lenrwLS = pdata->rpwsize;
-  *leniwLS = pdata->ipwsize;
+  *lenrwBBDP = pdata->rpwsize;
+  *leniwBBDP = pdata->ipwsize;
 
   return(CV_SUCCESS);
 }

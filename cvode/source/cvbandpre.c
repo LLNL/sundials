@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2005-10-18 18:39:23 $
+ * $Revision: 1.30 $
+ * $Date: 2005-11-07 23:52:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -194,7 +194,7 @@ void CVBandPrecFree(void **bp_data)
 
 }
 
-int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS)
+int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
 {
   CVBandPrecData pdata;
   long int N, ml, mu, smu;
@@ -211,8 +211,8 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS)
   ml  = pdata->ml;
   smu = MIN( N-1, mu + ml);
 
-  *leniwLS = pdata->N;
-  *lenrwLS = N * ( 2*ml + smu + mu + 2 );
+  *leniwBP = pdata->N;
+  *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
   return(CV_SUCCESS);
 }
