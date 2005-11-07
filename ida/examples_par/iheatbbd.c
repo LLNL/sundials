@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-10-31 23:00:56 $
+ * $Revision: 1.21 $
+ * $Date: 2005-11-07 20:23:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -108,7 +108,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol);
 
 static void PrintCase(int case_number, long int mudq, long int mukeep);
 
-static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
+static void PrintOutput(int id, void *mem, void *P_data, realtype t, N_Vector uu);
 
 static void PrintFinalStats(void *mem);
 
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
     ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(thispe, mem, tret, uu);
+    PrintOutput(thispe, mem, P_data, tret, uu);
     
   }
 
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
     ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
-    PrintOutput(thispe, mem, tret, uu);
+    PrintOutput(thispe, mem, P_data, tret, uu);
     
   }
   
@@ -740,7 +740,7 @@ static void PrintCase(int case_number, long int mudq, long int mukeep)
  * Print integrator statistics and max-norm of solution
  */
 
-static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
+static void PrintOutput(int id, void *mem, void *P_data, realtype t, N_Vector uu)
 {
   realtype umax, hused;
   int kused, ier;
@@ -764,7 +764,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
     check_flag(&ier, "IDASpgmrGetNumLinIters", 1, id);
     ier = IDASpgmrGetNumResEvals(mem, &nreLS);
     check_flag(&ier, "IDASpgmrGetNumResEvals", 1, id);
-    ier = IDABBDPrecGetNumGfnEvals(mem, &nge);
+    ier = IDABBDPrecGetNumGfnEvals(P_data, &nge);
     check_flag(&ier, "IDABBDPrecGetNumGfnEvals", 1, id);
     ier = IDASpgmrGetNumPrecEvals(mem, &npe);
     check_flag(&ier, "IDASpgmrGetPrecEvals", 1, id);
