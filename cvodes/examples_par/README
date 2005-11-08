@@ -5,7 +5,6 @@ List of parallel CVODES examples
   pvnx  : 1-D advection-diffusion (nonstiff)
   pvkx  : 2-D 2-species diurnal advection-diffusion
   pvkxb : pvkx problem with BBD preconditioner
-  pvkt  : modified pvkx problem (upwind spacial discretization)
 
 
 (2) Forward sensitivity
