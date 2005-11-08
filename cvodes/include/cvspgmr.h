@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-04-26 18:26:44 $
+ * $Revision: 1.12 $
+ * $Date: 2005-11-08 19:52:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -167,13 +167,13 @@ int CVSpgmrSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSpgmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG);
+int CVSpgmrGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 int CVSpgmrGetNumPrecEvals(void *cvode_mem, long int *npevals);
 int CVSpgmrGetNumPrecSolves(void *cvode_mem, long int *npsolves);
 int CVSpgmrGetNumLinIters(void *cvode_mem, long int *nliters);
 int CVSpgmrGetNumConvFails(void *cvode_mem, long int *nlcfails);
 int CVSpgmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG); 
+int CVSpgmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
 int CVSpgmrGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVSPGMR return values */

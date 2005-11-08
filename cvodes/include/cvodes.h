@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2005-09-23 19:00:07 $
+ * $Revision: 1.43 $
+ * $Date: 2005-11-08 19:52:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -947,8 +947,6 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky);
  *                  internal step
  * CVodeGetErrWeights returns the current error weight vector.
  *                    The user must allocate space for eweight.
- * CVodeGetErrWeightsAtY returns the error weight vector corresponding
- *                    to y. The user must allocate space for eweight.
  * CVodeGetEstLocalErrors returns the vector of estimated local
  *                  errors. The user must allocate space for ele.
  * CVodeGetNumGEvals returns the number of calls to the user's
@@ -979,7 +977,6 @@ int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
 int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
 int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac);
 int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight);
-int CVodeGetErrWeightsAtY(void *cvode_mem, N_Vector y, N_Vector eweight);
 int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele);
 int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
 int CVodeGetRootInfo(void *cvode_mem, int *rootsfound);

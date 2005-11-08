@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-04-26 18:26:44 $
+ * $Revision: 1.5 $
+ * $Date: 2005-11-08 19:52:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -99,6 +99,18 @@ int CVSpbcgSetPrecType(void *cvode_mem, int pretype);
 
 /*
  * -----------------------------------------------------------------
+ * Function: CVSpbcgSetMaxl
+ * -----------------------------------------------------------------
+ * CVSpbcgSetMaxl     resets the maximum Krylov subspace size, maxl,
+ *                    from the value set in a prior call to CVSpbcg.
+ *                    An input value <= 0, gives the default value.
+ * -----------------------------------------------------------------
+ */
+
+int CVSpbcgSetMaxl(void *cvode_mem, int maxl);
+
+/*
+ * -----------------------------------------------------------------
  * Optional inputs to the CVSPBCG linear solver
  * -----------------------------------------------------------------
  * CVSpbcgSetDelt specifies the factor by which the tolerance on
@@ -159,13 +171,13 @@ int CVSpbcgSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG);
+int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 int CVSpbcgGetNumPrecEvals(void *cvode_mem, long int *npevals);
 int CVSpbcgGetNumPrecSolves(void *cvode_mem, long int *npsolves);
 int CVSpbcgGetNumLinIters(void *cvode_mem, long int *nliters);
 int CVSpbcgGetNumConvFails(void *cvode_mem, long int *nlcfails);
 int CVSpbcgGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG); 
+int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
 int CVSpbcgGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVSPBCG return values */

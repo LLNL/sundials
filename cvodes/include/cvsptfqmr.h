@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-18 18:17:11 $
+ * $Revision: 1.2 $
+ * $Date: 2005-11-08 19:52:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -99,6 +99,18 @@ int CVSptfqmrSetPrecType(void *cvode_mem, int pretype);
 
 /*
  * -----------------------------------------------------------------
+ * Function: CVSptfqmrSetMaxl
+ * -----------------------------------------------------------------
+ * CVSptfqmrSetMaxl   resets the maximum Krylov subspace size, maxl,
+ *                    from the value set in a prior call to CVSptfqmr.
+ *                    An input value <= 0, gives the default value.
+ * -----------------------------------------------------------------
+ */
+
+int CVSptfqmrSetMaxl(void *cvode_mem, int maxl);
+
+/*
+ * -----------------------------------------------------------------
  * Optional inputs to the CVSPTFQMR linear solver
  * -----------------------------------------------------------------
  * CVSptfqmrSetDelt specifies the factor by which the tolerance on
@@ -161,13 +173,13 @@ int CVSptfqmrSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG);
+int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 int CVSptfqmrGetNumPrecEvals(void *cvode_mem, long int *npevals);
 int CVSptfqmrGetNumPrecSolves(void *cvode_mem, long int *npsolves);
 int CVSptfqmrGetNumLinIters(void *cvode_mem, long int *nliters);
 int CVSptfqmrGetNumConvFails(void *cvode_mem, long int *nlcfails);
 int CVSptfqmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG); 
+int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
 int CVSptfqmrGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVSPTFQMR return values */

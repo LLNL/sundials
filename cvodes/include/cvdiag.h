@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2005-01-24 22:28:51 $
+ * $Revision: 1.8 $
+ * $Date: 2005-11-08 19:52:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -72,8 +72,8 @@ int CVDiag(void *cvode_mem);
  * -----------------------------------------------------------------
  */
 
-int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwDI, long int *leniwDI);
-int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsDI);
+int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
+int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 int CVDiagGetLastFlag(void *cvode_mem, int *flag);
 
 #define CVDIAG_SUCCESS    0
