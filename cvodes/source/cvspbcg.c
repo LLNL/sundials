@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-05-12 21:03:17 $
+ * $Revision: 1.5 $
+ * $Date: 2005-11-08 19:47:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -87,7 +87,7 @@ static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define ncfl      (cvspbcg_mem->b_ncfl)
 #define nstlpre   (cvspbcg_mem->b_nstlpre)
 #define njtimes   (cvspbcg_mem->b_njtimes)
-#define nfeSG     (cvspbcg_mem->b_nfeSG)
+#define nfeSB     (cvspbcg_mem->b_nfeSB)
 #define spbcg_mem (cvspbcg_mem->b_spbcg_mem)
 #define last_flag (cvspbcg_mem->b_last_flag)
 
@@ -249,6 +249,38 @@ int CVSpbcgSetPrecType(void *cvode_mem, int pretype)
 
 /*
  * -----------------------------------------------------------------
+ * Function : CVSpbcgSetMaxl
+ * -----------------------------------------------------------------
+ */
+
+int CVSpbcgSetMaxl(void *cvode_mem, int maxl)
+{
+  CVodeMem cv_mem;
+  CVSpbcgMem cvspbcg_mem;
+  int mxl;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    return(CVSPBCG_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    return(CVSPBCG_LMEM_NULL);
+  }
+  cvspbcg_mem = (CVSpbcgMem) lmem;
+
+  mxl = (maxl <= 0) ? CVSPBCG_MAXL : maxl;
+  cvspbcg_mem->b_maxl = mxl;
+  spbcg_mem->l_max  = mxl;
+
+  return(CVSPBCG_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : CVSpbcgSetDelt
  * -----------------------------------------------------------------
  */
@@ -351,7 +383,7 @@ int CVSpbcgSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
+int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
 
@@ -367,8 +399,8 @@ int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
     return(CVSPBCG_LMEM_NULL);
   }
 
-  *lenrwSG = lrw1 * 9;
-  *leniwSG = liw1 * 9;
+  *lenrwLS = lrw1 * 9;
+  *leniwLS = liw1 * 9;
 
   return(CVSPBCG_SUCCESS);
 }
@@ -524,7 +556,7 @@ int CVSpbcgGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
  * -----------------------------------------------------------------
  */
 
-int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
+int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVSpbcgMem cvspbcg_mem;
@@ -542,7 +574,7 @@ int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
 
-  *nfevalsSG = nfeSG;
+  *nfevalsLS = nfeSB;
 
   return(CVSPBCG_SUCCESS);
 }
@@ -604,7 +636,7 @@ static int CVSpbcgInit(CVodeMem cv_mem)
 
   /* Initialize counters */
   npe = nli = nps = ncfl = nstlpre = 0;
-  njtimes = nfeSG = 0;
+  njtimes = nfeSB = 0;
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {
@@ -858,7 +890,7 @@ static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   /* Set Jv = f(tn, work) */
   f(t, work, Jv, f_data); 
-  nfeSG++;
+  nfeSB++;
 
   /* Replace Jv by vnrm*(Jv - fy) */
   N_VLinearSum(ONE, Jv, -ONE, fy, Jv);

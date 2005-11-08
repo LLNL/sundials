@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-04-07 23:28:46 $
+ * $Revision: 1.11 $
+ * $Date: 2005-11-08 19:47:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -213,7 +213,7 @@ int CVDenseSetJacFn(void *cvode_mem, CVDenseJacFn djac, void *jac_data)
  * -----------------------------------------------------------------
  */
 
-int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwD, long int *leniwD)
+int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -231,8 +231,8 @@ int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwD, long int *leniwD)
   }
   cvdense_mem = (CVDenseMem) lmem;
 
-  *lenrwD = 2*n*n;
-  *leniwD = n;
+  *lenrwLS = 2*n*n;
+  *leniwLS = n;
 
   return(CVDENSE_SUCCESS);
 }
@@ -243,7 +243,7 @@ int CVDenseGetWorkSpace(void *cvode_mem, long int *lenrwD, long int *leniwD)
  * -----------------------------------------------------------------
  */
 
-int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
+int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevals)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -261,7 +261,7 @@ int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
   }
   cvdense_mem = (CVDenseMem) lmem;
 
-  *njevalsD = nje;
+  *njevals = nje;
 
   return(CVDENSE_SUCCESS);
 }
@@ -272,7 +272,7 @@ int CVDenseGetNumJacEvals(void *cvode_mem, long int *njevalsD)
  * -----------------------------------------------------------------
  */
 
-int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD)
+int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVDenseMem cvdense_mem;
@@ -290,7 +290,7 @@ int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsD)
   }
   cvdense_mem = (CVDenseMem) lmem;
 
-  *nfevalsD = nfeD;
+  *nfevalsLS = nfeD;
 
   return(CVDENSE_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-05-18 18:17:14 $
+ * $Revision: 1.2 $
+ * $Date: 2005-11-08 19:47:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -86,7 +86,7 @@ static int CVSptfqmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define ncfl        (cvsptfqmr_mem->q_ncfl)
 #define nstlpre     (cvsptfqmr_mem->q_nstlpre)
 #define njtimes     (cvsptfqmr_mem->q_njtimes)
-#define nfeSG       (cvsptfqmr_mem->q_nfeSG)
+#define nfeSQ       (cvsptfqmr_mem->q_nfeSQ)
 #define sptfqmr_mem (cvsptfqmr_mem->q_sptfqmr_mem)
 #define last_flag   (cvsptfqmr_mem->q_last_flag)
 
@@ -248,6 +248,38 @@ int CVSptfqmrSetPrecType(void *cvode_mem, int pretype)
 
 /*
  * -----------------------------------------------------------------
+ * Function : CVSptfqmrSetMaxl
+ * -----------------------------------------------------------------
+ */
+
+int CVSptfqmrSetMaxl(void *cvode_mem, int maxl)
+{
+  CVodeMem cv_mem;
+  CVSptfqmrMem cvsptfqmr_mem;
+  int mxl;
+
+  /* Return immediately if cvode_mem is NULL */
+  if (cvode_mem == NULL) {
+    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    return(CVSPTFQMR_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (lmem == NULL) {
+    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    return(CVSPTFQMR_LMEM_NULL);
+  }
+  cvsptfqmr_mem = (CVSptfqmrMem) lmem;
+
+  mxl = (maxl <= 0) ? CVSPTFQMR_MAXL : maxl;
+  cvsptfqmr_mem->q_maxl = mxl;
+  sptfqmr_mem->l_max  = mxl;
+
+  return(CVSPTFQMR_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : CVSptfqmrSetDelt
  * -----------------------------------------------------------------
  */
@@ -353,7 +385,7 @@ int CVSptfqmrSetJacTimesVecFn(void *cvode_mem,
  * -----------------------------------------------------------------
  */
 
-int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
+int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
 
@@ -370,11 +402,11 @@ int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwSG, long int *leniwSG)
   }
 
 #ifdef DEBUG
-  *lenrwSG = lrw1*12;
-  *leniwSG = liw1*12;
+  *lenrwLS = lrw1*12;
+  *leniwLS = liw1*12;
 #else
-  *lenrwSG = lrw1*11;
-  *leniwSG = liw1*11;
+  *lenrwLS = lrw1*11;
+  *leniwLS = liw1*11;
 #endif
 
   return(CVSPTFQMR_SUCCESS);
@@ -531,7 +563,7 @@ int CVSptfqmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
  * -----------------------------------------------------------------
  */
 
-int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
+int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVSptfqmrMem cvsptfqmr_mem;
@@ -549,7 +581,7 @@ int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsSG)
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
 
-  *nfevalsSG = nfeSG;
+  *nfevalsLS = nfeSQ;
 
   return(CVSPTFQMR_SUCCESS);
 }
@@ -611,7 +643,7 @@ static int CVSptfqmrInit(CVodeMem cv_mem)
 
   /* Initialize counters */
   npe = nli = nps = ncfl = nstlpre = 0;
-  njtimes = nfeSG = 0;
+  njtimes = nfeSQ = 0;
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {
@@ -867,7 +899,7 @@ static int CVSptfqmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   /* Set Jv = f(tn, work) */
   f(t, work, Jv, f_data); 
-  nfeSG++;
+  nfeSQ++;
 
   /* Replace Jv by vnrm*(Jv - fy) */
   N_VLinearSum(ONE, Jv, -ONE, fy, Jv);

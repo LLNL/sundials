@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2005-04-07 23:28:46 $
+ * $Revision: 1.11 $
+ * $Date: 2005-11-08 19:47:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -230,7 +230,7 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac, void *jac_data)
  * -----------------------------------------------------------------
  */
 
-int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwB, long int *leniwB)
+int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -248,8 +248,8 @@ int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwB, long int *leniwB)
   }
   cvband_mem = (CVBandMem) lmem;
 
-  *lenrwB = n*(storage_mu + mu + 2*ml + 2);
-  *leniwB = n;
+  *lenrwLS = n*(storage_mu + mu + 2*ml + 2);
+  *leniwLS = n;
 
   return(CVBAND_SUCCESS);
 }
@@ -260,7 +260,7 @@ int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwB, long int *leniwB)
  * -----------------------------------------------------------------
  */
 
-int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
+int CVBandGetNumJacEvals(void *cvode_mem, long int *njevals)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -278,7 +278,7 @@ int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
   }
   cvband_mem = (CVBandMem) lmem;
 
-  *njevalsB = nje;
+  *njevals = nje;
 
   return(CVBAND_SUCCESS);
 }
@@ -289,7 +289,7 @@ int CVBandGetNumJacEvals(void *cvode_mem, long int *njevalsB)
  * -----------------------------------------------------------------
  */
 
-int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB)
+int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 {
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -307,7 +307,7 @@ int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsB)
   }
   cvband_mem = (CVBandMem) lmem;
 
-  *nfevalsB = nfeB;
+  *nfevalsLS = nfeB;
 
   return(CVBAND_SUCCESS);
 }
