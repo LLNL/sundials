@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.26 $
-# $Date: 2005-10-25 15:32:10 $
+# $Revision: 1.27 $
+# $Date: 2005-11-08 16:41:19 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -53,6 +53,7 @@ fi
 
 # Run libtool checks
 AC_DISABLE_SHARED
+AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
 # Set examples modules
