@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-09-23 19:00:04 $
+ * $Revision: 1.20 $
+ * $Date: 2005-11-08 23:41:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -369,7 +369,7 @@ static void PrintOutput(realtype t, realtype umax, long int nst)
 static void PrintFinalStats(void *cvode_mem)
 {
   int flag;
-  long int nst, nfe, nsetups, netf, nni, ncfn, njeB, nfeB;
+  long int nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
@@ -384,14 +384,14 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVBandGetNumJacEvals(cvode_mem, &njeB);
+  flag = CVBandGetNumJacEvals(cvode_mem, &nje);
   check_flag(&flag, "CVBandGetNumJacEvals", 1);
-  flag = CVBandGetNumRhsEvals(cvode_mem, &nfeB);
+  flag = CVBandGetNumRhsEvals(cvode_mem, &nfeLS);
   check_flag(&flag, "CVBandGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeB = %-6ld njeB = %ld\n",
-	 nst, nfe, nsetups, nfeB, njeB);
+  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
+	 nst, nfe, nsetups, nfeLS, nje);
   printf("nni = %-6ld ncfn = %-6ld netf = %ld\n \n",
 	 nni, ncfn, netf);
 

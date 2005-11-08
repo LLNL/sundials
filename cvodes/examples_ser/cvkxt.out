@@ -55,14 +55,14 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
 
 Final Statistics.. 
 
-lenrw   =  2096     leniw =    62
-llrw    =  2046     lliw  =    10
+lenrw   =  2096     leniw   =    62
+lenrwLS =  2046     leniwLS =    10
 nst     =   490
-nfe     =   633     nfel  =   662
-nni     =   630     nli   =   662
-nsetups =    80     netf  =    29
-npe     =     9     nps   =  1240
-ncfn    =     0     ncfl  =     1
+nfe     =   633     nfeLS   =   662
+nni     =   630     nli     =   662
+nsetups =    80     netf    =    29
+npe     =     9     nps     =  1240
+ncfn    =     0     ncfl    =     1
 
 ======================================================================
 
@@ -123,14 +123,14 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
 
 Final Statistics.. 
 
-lenrw   =  2096     leniw =    62
-llrw    =  1800     lliw  =     9
+lenrw   =  2096     leniw   =    62
+lenrwLS =  1800     leniwLS =     9
 nst     =   448
-nfe     =   570     nfel  =   966
-nni     =   567     nli   =   483
-nsetups =    72     netf  =    25
-npe     =     8     nps   =  1456
-ncfn    =     0     ncfl  =     0
+nfe     =   570     nfeLS   =   966
+nni     =   567     nli     =   483
+nsetups =    72     netf    =    25
+npe     =     8     nps     =  1456
+ncfn    =     0     ncfl    =     0
 
 ======================================================================
 
@@ -191,12 +191,12 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
 
 Final Statistics.. 
 
-lenrw   =  2096     leniw =    62
-llrw    =  2200     lliw  =    11
+lenrw   =  2096     leniw   =    62
+lenrwLS =  2200     leniwLS =    11
 nst     =   492
-nfe     =   623     nfel  =  1219
-nni     =   620     nli   =   531
-nsetups =    82     netf  =    26
-npe     =     9     nps   =  1905
-ncfn    =     0     ncfl  =     0
+nfe     =   623     nfeLS   =  1219
+nni     =   620     nli     =   531
+nsetups =    82     netf    =    26
+npe     =     9     nps     =  1905
+ncfn    =     0     ncfl    =     0
 

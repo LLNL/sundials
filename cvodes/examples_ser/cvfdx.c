@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-09-23 19:00:04 $
+ * $Revision: 1.27 $
+ * $Date: 2005-11-08 23:41:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -523,7 +523,7 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;
   long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  long int njeD, nfeD;
+  long int nje, nfeLS;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
@@ -554,9 +554,9 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
     check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1);
   }
 
-  flag = CVDenseGetNumJacEvals(cvode_mem, &njeD);
+  flag = CVDenseGetNumJacEvals(cvode_mem, &nje);
   check_flag(&flag, "CVDenseGetNumJacEvals", 1);
-  flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
+  flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeLS);
   check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics\n\n");
@@ -573,7 +573,7 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   }
 
   printf("\n");
-  printf("njeD    = %5ld    nfeD     = %5ld\n", njeD, nfeD);
+  printf("nje    = %5ld    nfeLS     = %5ld\n", nje, nfeLS);
 
 }
 

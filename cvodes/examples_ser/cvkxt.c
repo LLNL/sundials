@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-10-12 01:44:02 $
+ * $Revision: 1.2 $
+ * $Date: 2005-11-08 23:41:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -446,7 +446,7 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
   long int lenrw, leniw ;
   long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
-  long int nli, npe, nps, ncfl, nfeSPGMR;
+  long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
   flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
@@ -477,7 +477,7 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
     check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
     flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
     check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-    flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+    flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
     check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
     break;
 
@@ -492,7 +492,7 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
     check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
     flag = CVSpbcgGetNumConvFails(cvode_mem, &ncfl);
     check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-    flag = CVSpbcgGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+    flag = CVSpbcgGetNumRhsEvals(cvode_mem, &nfeLS);
     check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
     break;
 
@@ -507,21 +507,21 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
     check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
     flag = CVSptfqmrGetNumConvFails(cvode_mem, &ncfl);
     check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-    flag = CVSptfqmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+    flag = CVSptfqmrGetNumRhsEvals(cvode_mem, &nfeLS);
     check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
     break;
 
   }
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
-  printf("llrw    = %5ld     lliw  = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
+  printf("lenrwLS = %5ld     leniwLS = %5ld\n", lenrwLS, leniwLS);
   printf("nst     = %5ld\n"                  , nst);
-  printf("nfe     = %5ld     nfel  = %5ld\n"  , nfe, nfeSPGMR);
-  printf("nni     = %5ld     nli   = %5ld\n"  , nni, nli);
-  printf("nsetups = %5ld     netf  = %5ld\n"  , nsetups, netf);
-  printf("npe     = %5ld     nps   = %5ld\n"  , npe, nps);
-  printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl);
+  printf("nfe     = %5ld     nfeLS   = %5ld\n"  , nfe, nfeLS);
+  printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
+  printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
+  printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
+  printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
 
   if (linsolver < 2)
     printf("======================================================================\n\n");

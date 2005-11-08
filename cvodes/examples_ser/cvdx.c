@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-09-23 19:00:04 $
+ * $Revision: 1.19 $
+ * $Date: 2005-11-08 23:41:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -187,7 +187,7 @@ int main()
 
     if (flag == CV_ROOT_RETURN) {
       flagr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      check_flag(&flagr, "CVodeGetRootInfo", 1);
+      if (check_flag(&flagr, "CVodeGetRootInfo", 1)) return(1);
       PrintRootInfo(rootsfound[0],rootsfound[1]);
     }
 
@@ -300,7 +300,7 @@ static void PrintRootInfo(int root_f1, int root_f2)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nsetups, njeD, nfeD, nni, ncfn, netf, nge;
+  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
@@ -316,17 +316,17 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVDenseGetNumJacEvals(cvode_mem, &njeD);
+  flag = CVDenseGetNumJacEvals(cvode_mem, &nje);
   check_flag(&flag, "CVDenseGetNumJacEvals", 1);
-  flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
+  flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeLS);
   check_flag(&flag, "CVDenseGetNumRhsEvals", 1);
 
   flag = CVodeGetNumGEvals(cvode_mem, &nge);
   check_flag(&flag, "CVodeGetNumGEvals", 1);
 
   printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeD = %-6ld njeD = %ld\n",
-	 nst, nfe, nsetups, nfeD, njeD);
+  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
+	 nst, nfe, nsetups, nfeLS, nje);
   printf("nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n \n",
 	 nni, ncfn, netf, nge);
 }
