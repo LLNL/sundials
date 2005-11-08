@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-10-18 21:25:42 $
+ * $Revision: 1.3 $
+ * $Date: 2005-11-08 23:08:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -514,14 +514,14 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
   }
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %5ld     leniw = %5ld\n", lenrw, leniw);
-  printf("llrw    = %5ld     lliw  = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
+  printf("lenrwLS = %5ld     leniwLS = %5ld\n", lenrwLS, leniwLS);
   printf("nst     = %5ld\n"                  , nst);
-  printf("nfe     = %5ld     nfels = %5ld\n"  , nfe, nfeLS);
-  printf("nni     = %5ld     nli   = %5ld\n"  , nni, nli);
-  printf("nsetups = %5ld     netf  = %5ld\n"  , nsetups, netf);
-  printf("npe     = %5ld     nps   = %5ld\n"  , npe, nps);
-  printf("ncfn    = %5ld     ncfl  = %5ld\n\n", ncfn, ncfl);
+  printf("nfe     = %5ld     nfeLS   = %5ld\n"  , nfe, nfeLS);
+  printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
+  printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
+  printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
+  printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
 
   if (linsolver < 2)
     printf("======================================================================\n\n");

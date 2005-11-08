@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-10-18 21:25:42 $
+ * $Revision: 1.22 $
+ * $Date: 2005-11-08 23:08:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -715,7 +715,7 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
     printf(" Linear solver real workspace length      = %4ld \n", lenrwLS);
     printf(" Linear solver integer workspace length   = %4ld \n", leniwLS);
     printf(" Number of Jacobian evaluations           = %4ld  \n", nje);
-    printf(" Number of f-s evaluations                = %4ld \n\n", nfeLS);
+    printf(" Number of f evals. in linear solver      = %4ld \n\n", nfeLS);
   }
   
 #if defined(SUNDIALS_EXTENDED_PRECISION)

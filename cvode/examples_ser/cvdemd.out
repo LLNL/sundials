@@ -56,7 +56,7 @@ Linear Solver           : Dense, User-Supplied Jacobian
  Linear solver real workspace length      =    8 
  Linear solver integer workspace length   =    2 
  Number of Jacobian evaluations           =    5  
- Number of f-s evaluations                =    0 
+ Number of f evals. in linear solver      =    0 
 
  Error overrun = 19.908 
 
@@ -87,7 +87,7 @@ Linear Solver           : Dense, Difference Quotient Jacobian
  Linear solver real workspace length      =    8 
  Linear solver integer workspace length   =    2 
  Number of Jacobian evaluations           =    4  
- Number of f-s evaluations                =    8 
+ Number of f evals. in linear solver      =    8 
 
  Error overrun = 22.805 
 
@@ -118,7 +118,7 @@ Linear Solver           : Diagonal Jacobian
  Linear solver real workspace length      =    6 
  Linear solver integer workspace length   =    3 
  Number of Jacobian evaluations           =   39  
- Number of f-s evaluations                =   39 
+ Number of f evals. in linear solver      =   39 
 
  Error overrun = 69.742 
 
@@ -174,7 +174,7 @@ Linear Solver           : Dense, User-Supplied Jacobian
  Linear solver real workspace length      =    8 
  Linear solver integer workspace length   =    2 
  Number of Jacobian evaluations           =    5  
- Number of f-s evaluations                =    0 
+ Number of f evals. in linear solver      =    0 
 
  Error overrun = 154.312 
 
@@ -205,7 +205,7 @@ Linear Solver           : Dense, Difference Quotient Jacobian
  Linear solver real workspace length      =    8 
  Linear solver integer workspace length   =    2 
  Number of Jacobian evaluations           =    6  
- Number of f-s evaluations                =   12 
+ Number of f evals. in linear solver      =   12 
 
  Error overrun = 96.174 
 
@@ -236,7 +236,7 @@ Linear Solver           : Diagonal Jacobian
  Linear solver real workspace length      =    6 
  Linear solver integer workspace length   =    3 
  Number of Jacobian evaluations           =   39  
- Number of f-s evaluations                =   39 
+ Number of f evals. in linear solver      =   39 
 
  Error overrun = 166.643 
 
@@ -305,7 +305,7 @@ Linear Solver           : Diagonal Jacobian
  Linear solver real workspace length      =   75 
  Linear solver integer workspace length   =    3 
  Number of Jacobian evaluations           =   33  
- Number of f-s evaluations                =   33 
+ Number of f evals. in linear solver      =   33 
 
  Error overrun = 4.233 
 
@@ -337,7 +337,7 @@ Linear Solver           : Band, User-Supplied Jacobian
  Linear solver real workspace length      =  425 
  Linear solver integer workspace length   =   25 
  Number of Jacobian evaluations           =    3  
- Number of f-s evaluations                =    0 
+ Number of f evals. in linear solver      =    0 
 
  Error overrun = 0.608 
 
@@ -369,7 +369,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
  Linear solver real workspace length      =  425 
  Linear solver integer workspace length   =   25 
  Number of Jacobian evaluations           =    3  
- Number of f-s evaluations                =   18 
+ Number of f evals. in linear solver      =   18 
 
  Error overrun = 0.733 
 
@@ -427,7 +427,7 @@ Linear Solver           : Diagonal Jacobian
  Linear solver real workspace length      =   75 
  Linear solver integer workspace length   =    3 
  Number of Jacobian evaluations           =   58  
- Number of f-s evaluations                =   58 
+ Number of f evals. in linear solver      =   58 
 
  Error overrun = 12.184 
 
@@ -459,7 +459,7 @@ Linear Solver           : Band, User-Supplied Jacobian
  Linear solver real workspace length      =  425 
  Linear solver integer workspace length   =   25 
  Number of Jacobian evaluations           =    3  
- Number of f-s evaluations                =    0 
+ Number of f evals. in linear solver      =    0 
 
  Error overrun = 5.278 
 
@@ -491,7 +491,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
  Linear solver real workspace length      =  425 
  Linear solver integer workspace length   =   25 
  Number of Jacobian evaluations           =    3  
- Number of f-s evaluations                =   18 
+ Number of f evals. in linear solver      =   18 
 
  Error overrun = 5.997 
 
