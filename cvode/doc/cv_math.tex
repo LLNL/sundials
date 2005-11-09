@@ -76,7 +76,7 @@ For the Newton corrections, {\cvode} provides a choice of four methods:
 \item a dense direct solver (serial version only),
 \item a band direct solver (serial version only),
 \item a diagonal approximate Jacobian solver,
-\item {\spgmr} = Scaled Preconditioned GMRES, without restarts.
+\item {\spgmr} = Scaled Preconditioned GMRES, without restarts,
 \item {\spbcg} = Scaled Preconditioned Bi-CGStab, or
 \item {\sptfqmr} = Scaled Preconditioned TFQMR.
 \end{itemize}
@@ -185,7 +185,7 @@ approximated by the preconditioned residual vector.  Thus to ensure
 (or attempt to ensure) that the linear iteration errors do not
 interfere with the nonlinear error and local integration error
 controls, we require that the norm of the preconditioned residual
-is less than $0.05 \cdot (0.1 \epsilon)$.
+be less than $0.05 \cdot (0.1 \epsilon)$.
 
 % Jacobian DQ approximations
 %---------------------------
