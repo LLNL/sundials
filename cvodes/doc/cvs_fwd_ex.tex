@@ -158,7 +158,7 @@ method and partial error control (\id{cvfnx -sensi stg1 f}) is:
 \label{ss:cvfdx}
 
 This example is a modification of the chemical kinetics problem described 
-in~\cite{cvode2.2.0_ex} which computes, in addition to the solution of the
+in~\cite{cvode2.4.0_ex} which computes, in addition to the solution of the
 IVP, sensitivities of the solution with respect to the three reaction rates 
 involved in the model. The ODEs are written as:
 \begin{equation}\label{e:cvfdx_ode}
@@ -192,7 +192,7 @@ The sensitivity systems that are solved together with (\ref{e:cvfdx_ode}) are
 The source code for this example is listed in \A\ref{s:cvfdx_c}. The main program is described 
 below with emphasis on the sensitivity related components. 
 These explanations, together with those given for the code \id{cvdx}
-in~\cite{cvode2.2.0_ex}, will also provide the user with a template for instrumenting 
+in~\cite{cvode2.4.0_ex}, will also provide the user with a template for instrumenting 
 an existing simulation code to perform forward sensitivity analysis.
 As will be seen from this example, an existing simulation code can be modified to compute 
 sensitivity variables (in addition to state variables) by only inserting a few {\cvodes} 
@@ -244,7 +244,7 @@ turned on and with different selections for the sensitivity method and error con
 The user's data structure is then allocated and its field {\em p} is set to contain
 the values of the three problem parameters.
 %%
-The next block of code is identical to that in \id{cvdx.c} (see \cite{cvode2.2.0_ex})
+The next block of code is identical to that in \id{cvdx.c} (see \cite{cvode2.4.0_ex})
 and involves allocation and initialization of the state variables and creation and 
 initialization of \id{cvode\_mem}, the {\cvodes} solver memory. It specifies that
 a user-provided function (\id{ewt}) is to be used for computing the error weights.
@@ -426,7 +426,7 @@ On the other hand, the user-supplied routines in \id{pvfkx},
 \id{f} for the right-hand side of the original system,
 \id{Precond} for the preconditioner setup, and \id{PSolve} for the
 preconditioner solve, are identical to those defined for the sample program
-\id{pvkx} described in \cite{cvode2.2.0_ex}. The only difference is in the
+\id{pvkx} described in \cite{cvode2.4.0_ex}. The only difference is in the
 routine \id{fcalc}, which operates on local data only and contains the actual 
 calculation of $f(t,u)$, where the problem parameters are first extracted from
 the user data structure \id{data}. The program \id{pvfkx} defines no additional
