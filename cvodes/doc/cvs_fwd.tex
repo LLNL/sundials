@@ -359,7 +359,7 @@ The call to the \id{CVodeSensReInit} function has the form:
 }
 %%
 %%
-To deallocate all forward sensitivity-related memory (allocated through a preious call
+To deallocate all forward sensitivity-related memory (allocated in a prior call
 to \id{CVodeSensMalloc}), the user must call
 %%
 \ucfunction{CVodeSensFree}
@@ -746,9 +746,9 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
   If \id{fS\_data} is not specified, a \id{NULL} pointer is
   passed to the user-supplied sensitivity right-hand side function.
 
-  The pointer \id{fS\_data} can be the same as the pointer \id{f\_data}
-  specified through \id{CVodeSetFdata} (see \S\ref{ss:optional_input})
-  and passed to the user-supplied right-hand side function $f$.
+  The pointer \id{fS\_data} can be the same as the pointer \id{f\_data},
+  specified in a prior call to \id{CVodeSetFdata} (see \S\ref{sss:optin_main})
+  and passed to the user's right-hand side function \id{f}.
 }
 %%
 %%
@@ -890,11 +890,12 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     is the relative error tolerance.
   \item[abstolS] (\id{void *})
     is a pointer to the absolute error tolerance. 
-    If \id{itolS}$=$\id{CV\_SS}, \id{abstolS} must be a pointer to an array of \id{realtype} 
-    variables. 
-    If \id{itolS}$=$\id{CV\_SV}, \id{abstolS} must be an array of \id{Ns} variables of type 
-    \id{N\_Vector}. In the latter case, \id{abstolS} should be created and set in the same 
-    manner as the vectors of initial values for the sensitivity variables (see \S\ref{s:forward_usage}).
+    If \id{itolS} $=$ \id{CV\_SS}, then \id{abstolS} must be a pointer to an array
+    of \id{realtype} variables. 
+    If \id{itolS} $=$ \id{CV\_SV}, then \id{abstolS} must be an array of \id{Ns}
+    variables of type  \id{N\_Vector}. In the latter case, \id{abstolS} should be
+    created and set in the same manner as the vectors of initial values for the
+    sensitivity variables (see \S\ref{s:forward_usage}).
   \end{args}
 }
 {

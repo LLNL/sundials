@@ -146,7 +146,7 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
 \item \label{i:quadB}
   {\bf Initialize quadrature calculation}
 
-  If additional quadrature equations must be evaluated , 
+  If additional quadrature equations must be evaluated, 
   call \id{CVodeQuadMallocB}, a wrapper for \id{CVodeQuadMalloc},
   to initialize and allocate memory for quadrature integration.
   Optionally, call \id{CVodeSetQuad*B} functions to change from their
@@ -391,10 +391,10 @@ and allocate internal memory for the backward problem.
   \item[cvadj\_mem] (\id{void *})
     pointer to the adjoint memory block returned by \id{CVadjMalloc}.
   \item[lmm] (\id{int})
-    specifies the linear multistep method and may be one of two
+    specifies the linear multistep method and must be one of two
     possible values: \Id{CV\_ADAMS} or \Id{CV\_BDF}.     
   \item[iter] (\id{int})
-    specifies the type of nonlinear solver iteration and may be
+    specifies the type of nonlinear solver iteration and must be
     either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
   \end{args}
 }
@@ -682,9 +682,9 @@ The call to this function has the form
 \subsubsection{Optional input functions}
 %%
 The adjoint module in {\cvodes} provides wrappers for most of the optional 
-input functions defined in \S\ref{ss:optional_input}. The only difference is 
+input functions defined in \S\ref{sss:optin_main}. The only difference is 
 that the first argument of the optional input functions for the backward problem
-is the pointer to the adjoint memory block, \id{cvadj\_mem} of type \id{void *},
+is the pointer to the adjoint memory block, \id{cvadj\_mem}, of type \id{void *},
 returned by \id{CVadjMalloc}. 
 The optional input functions defined for the backward problem are:
 \begin{verbatim}
@@ -951,7 +951,7 @@ problem through the following functions:
     pointer to the adjoint memory block.
   \item[pretypeB] (\id{int})
     \index{pretypeB@\texttt{pretypeB}}
-    specifies the type of prconditioning and may be
+    specifies the type of prconditioning and must be one of:
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \end{args}
 }
