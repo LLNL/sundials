@@ -90,7 +90,7 @@ the corresponding header files are:
 \item \Id{nvector\_serial.h}, 
   which defines the serial implementation {\nvecs};
 \item \Id{nvector\_parallel.h}, 
-  which defines the parallel ({\mpi}-based) implementation, {\nvecp}.
+  which defines the parallel ({\mpi}) implementation, {\nvecp}.
 \end{itemize}
 %%
 Note that both these files in turn include the header file \Id{nvector.h} which 
@@ -808,7 +808,7 @@ perform the integration of the IVP.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[\Id{CV\_NO\_MALLOC}]
-    The {\cvodes} memory block was not allocated by a call to \id{CVodeMalloc}.
+    The {\cvodes} memory was not allocated by a call to \id{CVodeMalloc}.
   \item[\Id{CV\_ILL\_INPUT}]
     One of the inputs to \id{CVode} is illegal. This includes the situation where
     a root of one of the root functions was found both at a point $t$ and also
@@ -907,24 +907,26 @@ Ewt compuation function & \id{CVodeSetEwtFn} & internal fn. \\
 \hline
 \multicolumn{3}{|c|}{\bf CVDENSE linear solver} \\
 \hline
-Dense Jacobian function and data & \id{CVDenseSetJacFn} & internal DQ, NULL \\
+Dense Jacobian function and data & \id{CVDenseSetJacFn} & internal DQ, \\
+&&NULL\\
 \hline
 \multicolumn{3}{|c|}{\bf CVBAND linear solver} \\
 \hline
-Band Jacobian function and data & \id{CVBandSetJacFn} & internal DQ, NULL \\
+Band Jacobian function and data & \id{CVBandSetJacFn} & internal DQ, \\
+&&NULL\\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSpgmrSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian-times-vector function and data & \id{CVSpgmrSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioner functions and data & \id{CVSpgmrSetPreconditioner} & all NULL \\
+Jacobian-times-vector function and data & \id{CVSpgmrSetJacTimesVecFn} & internal DQ,\\
+&&NULL\\
 Preconditioning type & \id{CVSpgmrSetPrecType} & none \\
 Type of Gram-Schmidt orthogonalization & \id{CVSpgmrSetGSType} & classical GS \\
 Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPBCG linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSpbcgSetPreconditioner} & NULL, NULL, \\
-&&NULL\\
+Preconditioner functions and data & \id{CVSpbcgSetPreconditioner} & all NULL, \\
 Jacobian-times-vector function and data & \id{CVSpbcgSetJacTimesVecFn} & internal DQ, \\
 &&NULL\\
 Preconditioning type & \id{CVSpbcgSetPrecType} & none \\
@@ -933,8 +935,7 @@ Ratio between linear and nonlinear tolerances & \id{CVSpbcgSetDelt} & 0.05 \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPTFQMR linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSptfqmrSetPreconditioner} & NULL, NULL, \\
-&&NULL\\
+Preconditioner functions and data & \id{CVSptfqmrSetPreconditioner} & all NULL, \\
 Jacobian-times-vector function and data & \id{CVSptfqmrSetJacTimesVecFn} & internal DQ, \\
 &&NULL\\
 Preconditioning type & \id{CVSptfqmrSetPrecType} & none \\
@@ -1185,9 +1186,8 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
 }
 {
   By default, {\cvodes} estimates the initial step size to be the solution $h$ 
-  of $\| 0.5 h^2 {\ddot y} \|_{\mbox{\scriptsize WRMS}} = 1$,
-  where ${\ddot y}$ is an estimated second derivative of the solution at the
-  initial time.
+  of the equation $\| 0.5 h^2 {\ddot y} \|_{\mbox{\scriptsize WRMS}} = 1$,
+  where ${\ddot y}$ is an estimated second derivative of the solution at \id{t0}.
 }
 %%
 %%
@@ -1795,7 +1795,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
     pointer to the {\cvodes} memory block.
   \item[pretype] (\id{int})
     \index{pretype@\texttt{pretype}}
-    specifies the type of preconditioning and must be:
+    specifies the type of preconditioning and must be one of:
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \end{args}
 }
@@ -4628,9 +4628,9 @@ If the direct linear solver with dense treatment of the Jacobian is used
 the user may provide a function of type \ID{CVDenseJacFn} defined by:
 \usfunction{CVDenseJacFn}
 {
-  typedef void (*CVDenseJacFn)(&long int N, DenseMat J, realtype t, \\
-                               &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                               &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+  typedef void (*CVDenseJacFn&)(long int N, DenseMat J, realtype t, \\
+                             &N\_Vector y, N\_Vector fy, void *jac\_data, \\
+                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the dense Jacobian $J = \partial f / \partial y$ 
@@ -4693,7 +4693,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by:
   \id{DENSE\_COL} are documented in \S\ref{ss:dense}.
 
   If the user's \id{CVDenseJacFn} function uses difference quotient
-  approximations, it may need to access quantities not in the argument
+  approximations, then it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
@@ -4713,10 +4713,10 @@ If the direct linear solver with banded treatment of the Jacobian is used
 the user may provide a function of type \ID{CVBandJacFn} defined as follows:
 \usfunction{CVBandJacFn}
 {
- typedef void (*CVBandJacFn)(&long int N, long int mupper, \\
-                             &long int mlower, BandMat J, realtype t, \\ 
-                             &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+ typedef void (*CVBandJacFn)&(long int N, long int mupper, \\
+                            &long int mlower, BandMat J, realtype t, \\ 
+                            &N\_Vector y, N\_Vector fy, void *jac\_data, \\
+                            &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the banded Jacobian $J = \partial f / \partial y$ 
@@ -4808,9 +4808,9 @@ is selected (\id{CVSp*} is called in step \ref{i:lin_solver} of
 \ID{CVSpilsJacTimesVecFn} in the following form:
 \usfunction{CVSpilsJacTimesVecFn}
 {
-  typedef int (*CVSpilsJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, realtype t, \\
-                                      &N\_Vector y, N\_Vector fy, \\
-                                      &void *jac\_data, N\_Vector tmp);
+  typedef int (*CVSpilsJacTimesVecFn)&(N\_Vector v, N\_Vector Jv, \\
+                                     &realtype t, N\_Vector y, N\_Vector fy,\\
+                                     &void *jac\_data, N\_Vector tmp);
 }
 {
   This function computes the product $J v = (\partial f / \partial y) v$ 
@@ -5144,7 +5144,7 @@ flag = CVodeQuadMalloc(cvode\_mem, fQ, yQ0);
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeQuadMalloc} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
-    The {\cvodes} memory block was not initialized by a prior call to \id{CVodeCreate}.
+    The {\cvodes} memory was not initialized by a prior call to \id{CVodeCreate}.
   \item[\Id{CV\_MEM\_FAIL}] 
     A memory allocation request failed.
   \end{args}
@@ -5201,8 +5201,7 @@ The call to the \id{CVodeQuadReInit} function has the form:
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeReInit} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
-    The {\cvodes} memory block was not initialized by a prior
-    call to \id{CVodeCreate}.
+    The {\cvodes} memory was not initialized by a prior call to \id{CVodeCreate}.
   \item[\Id{CV\_NO\_QUAD}] 
     Memory space for the quadrature integration was not allocated by a prior
     call to \id{CVodeQuadMalloc}.
@@ -5356,12 +5355,13 @@ of quadrature equations.
 %%
 \ucfunction{CVodeSetQuadErrCon}
 {
-  flag = CVodeSetQuadErrCon(cvode\_mem, errconQ, itolQ, reltolQ, abstolQ);
+ flag = CVodeSetQuadErrCon(cvode\_mem, errconQ, itolQ, reltolQ, abstolQ);
 }
 {
-  The function \ID{CVodeSetQuadErrCon} specifies whether or not quadrature variables
-  shoule be used in the step size control mechanism, and if so, specifies the integration 
-  tolerances for quadrature variables.
+  The function \ID{CVodeSetQuadErrCon} specifies whether or not the
+  quadrature variables should be used in the step size control
+  mechanism, and if so, specifies the integration tolerances for the
+  quadrature variables.  
 }
 {
   \begin{args}[cvode\_mem]
@@ -5382,9 +5382,9 @@ of quadrature equations.
     \index{tolerances}
     is a pointer to the relative error tolerance.
   \item[abstolQ] (\id{void *})
-    is a pointer to the absolute error tolerance.  If \id{itolQ}$=$\id{CV\_SS}, \id{abstolQ}
-    must be a pointer to a \id{realtype} variable. If \id{itolQ}$=$\id{CV\_SV}, \id{abstolQ}
-    must be an \id{N\_Vector} variable.
+    is a pointer to the absolute error tolerance.  If \id{itolQ}$=$\id{CV\_SS},
+    \id{abstolQ} must be a pointer to a \id{realtype} variable. If
+    \id{itolQ} $=$ \id{CV\_SV}, \id{abstolQ} must be an \id{N\_Vector} variable.
   \item
   \end{args}
 }
