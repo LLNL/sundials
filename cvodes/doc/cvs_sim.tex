@@ -3012,6 +3012,15 @@ These optional output functions are described next.
 }
 {
   {\warn} The user must allocate memory for \id{ele}.
+
+  The \id{ele} vector, togther with the \id{eweight} vector from
+  \id{CVodeGetErrWeights}, can be used to determine how the various
+  components of the system contributed to the estimated local error
+  test.  Specifically, that error test uses the RMS norm of a vector
+  whose components are the products of the components of the two vectors.
+  Thus, for example, if there were recent error test failures, the components
+  causing the failures are those with largest values for the products,
+  denoted loosely as \id{eweight[i]*ele[i]}.
 }
 %%
 %%
@@ -6085,6 +6094,9 @@ the {\cvbandpre} module:
   the actual size of the real workspace is
   $(2$ \id{ml} $+$ \id{mu} $+$ \id{smu} $+2)\, N$ \id{realtype} words,
   and the actual size of the integer workspace is $N$ integer words.
+
+  The workspaces referred to here exist in addition to those given by the
+  corresponding \id{CVSp***GetWorkSpace} function.
 }
 %%
 %%
@@ -6115,7 +6127,14 @@ the {\cvbandpre} module:
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
-{}
+{
+The counter \id{nfevalsBP} is distinct from the counter \id{nfevalsLS}
+returned by the corresponding \id{CVSp***GetNumRhsEvals} function, and
+also from \id{nfevals}, returned by \id{CVodeGetNumRhsEvals}.
+The total number of right-hand side function evaluations is the
+sum of all three of these counters.
+}
+
 %%
 \index{CVBANDPRE@{\cvbandpre} preconditioner!optional output|)}
 \index{optional output!banded preconditioner|)}
@@ -6366,7 +6385,7 @@ unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are gra
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
   Note that the user should not overwrite the preconditioner data, setup function, 
-  or solve function through calls to {\cvspgmr} optional input functions.
+  or solve function through calls to {\cvsp} optional input functions.
 
 \item
   \textcolor{gray}{\bf Advance solution in time}
@@ -6391,7 +6410,7 @@ unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are gra
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-callable functions|(}
 %%
-The three user-callable functions that initialize, attach, and deallocate
+The user-callable functions that initialize, attach, and deallocate
 the {\cvbbdpre} preconditioner module (steps \ref{i:bbdpre_init},
 \ref{i:bbdpre_attach}, and \ref{i:bbdpre_free} above) are described
 next.
@@ -6587,12 +6606,12 @@ next.
   CVBBDPrecFree(\&bbd\_data);
 }
 {
-  The function \ID{CVBBDPrecFree} frees the pointer allocated by
+  The function \ID{CVBBDPrecFree} frees the memory allocated by
   \id{CVBBDPrecAlloc}.
 }
 {
-  The only argument passed to \id{CVBBDPrecFree} is the pointer to the {\cvbbdpre} 
-  data structure (of type \id{void *}).
+  The only argument passed to \id{CVBBDPrecFree} is the address of the pointer
+  to the {\cvbbdpre} data structure (of type \id{void *}).
 }
 {
   The function \id{CVBBDPrecFree} has no return value.
@@ -6688,6 +6707,9 @@ the {\cvbbdpre} module:
   (2 \id{mlkeep} $+$ \id{mukeep} $+$ \id{smu} $+2) \, $\id{local\_N}
   \id{realtype} words, and the actual size of the integer workspace is
   \id{local\_N} integer words.  These values are local to each process.
+
+  The workspaces referred to here exist in addition to those given by the
+  corresponding \id{CVSp***GetWorkSpace} function.
 }
 %%
 %%
