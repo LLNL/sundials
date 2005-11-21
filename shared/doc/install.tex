@@ -255,8 +255,9 @@ options.
 
 \item \id{--disable-f77}
 
-  Using this option will disable all {\F} support. The {\fcvode}, {\fkinsol} and
-  {\fnvector} modules will not be built regardless of availability.
+  Using this option will disable all {\F} support. The {\fcvode},
+ {\fkinsol}, {\fida}, and {\fnvector} modules will not be built,
+ regardless of availability.
 
 \item \id{--with-fflags=ARG}
 
@@ -272,9 +273,9 @@ following two options may be used to override the default behavior.
 
 \item \id{--with-f77underscore=ARG}
 
-  This option pertains to the {\fkinsol}, {\fcvode} and {\fnvector} {\F}-{\C}
-  interface modules and is used to specify the number of underscores to append
-  to function names so {\F} routines can properly link with the associated
+  This option pertains to the {\fcvode}, {\fkinsol}, {\fida}, and {\fnvector}
+  {\F}-{\C} interface modules and is used to specify the number of underscores to
+  append to function names so {\F} routines can properly link with the associated
   {\sundials} libraries. Valid values for \id{ARG} are: \id{none}, \id{one}
   and \id{two}.
 
@@ -282,10 +283,10 @@ following two options may be used to override the default behavior.
 
 \item \id{--with-f77case=ARG}
 
-  Use this option to specify whether the external names of the {\fkinsol},
-  {\fcvode} and {\fnvector} {\F}-{\C} interface functions should be lowercase
-  or uppercase so {\F} routines can properly link with the associated {\sundials}
-  libraries. Valid values for \id{ARG} are: \id{lower} and \id{upper}.
+  Use this option to specify whether the external names of the {\fcvode},
+  {\fkinsol}, {\fida}, and {\fnvector} {\F}-{\C} interface functions should be
+  lowercase or uppercase so {\F} routines can properly link with the associated
+  {\sundials} libraries. Valid values for \id{ARG} are: \id{lower} and \id{upper}.
 
   Default: \id{ARG=lower}
 
@@ -364,10 +365,10 @@ may be used to build shared libraries on supported platforms.
   of the available {\sundials} libraries being built if the system supports
   shared libraries. To build only shared libraries also specify \id{--disable-static}.
 
-  {\em Note}: The {\fcvode} and {\fkinsol} libraries can only be built as static
-  libraries because they contain references to externally defined symbols, namely
-  user-supplied {\F} subroutines.  Although the {\F} interfaces to the serial and
-  parallel implementations of the supplied {\nvector} module do not contain any
+  {\em Note}: The {\fcvode}, {\fkinsol}, and {\fida} libraries can only be built as
+  static libraries because they contain references to externally defined symbols,
+  namely user-supplied {\F} subroutines.  Although the {\F} interfaces to the serial
+  and parallel implementations of the supplied {\nvector} module do not contain any
   unresolvable external symbols, the libraries are still built as static libraries
   for the purpose of consistency.
 
