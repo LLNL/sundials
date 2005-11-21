@@ -882,7 +882,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     is one of \Id{CV\_SS}, \Id{CV\_SV}, or \ID{CV\_EE}, where \Id{itolS}$=$\id{CV\_SS} indicates scalar relative error 
     tolerance and scalar absolute error tolerance, while \id{itolS}$=$\id{CV\_SV} indicates scalar
     relative error tolerance and vector absolute error tolerance.
-    \id{itolS}$=$\id{CV\_EE}, the arguments \id{reltolS} and \id{abstolS} are ignored and
+    If \id{itolS}$=$\id{CV\_EE}, the arguments \id{reltolS} and \id{abstolS} are ignored and
     {\cvodes} will estimate tolerances for the sensitivity variables based on the state
     tolerances and the scaling factors $\bar p$.
   \item[reltolS] (\id{realtype})
