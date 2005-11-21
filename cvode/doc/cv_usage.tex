@@ -8,7 +8,7 @@ the user's main program, description of the {\cvode} user-callable
 functions, and user-supplied functions.  The final section describes
 the {\F}/{\C} interface module, which supports users with applications
 written in {\F}77.  The listings of the example programs in the
-companion document \cite{cvode2.2.0_ex} may also be helpful.  Those
+companion document \cite{cvode2.4.0_ex} may also be helpful.  Those
 codes may be used as templates (with the removal of some lines involved
 in testing), and are included in the {\cvode} package.
 
@@ -120,11 +120,11 @@ The header files corresponding to the various linear solver options in
   which is used with the Krylov solver {\spgmr} in the
   context of {\cvode}. This in turn includes a header file (\id{iterative.h})
   which enumerates the kind of preconditioning and the choices for the
-  Gram-Schmidt process.
+  Gram-Schmidt process;
 \item \Id{cvspbcg.h}, 
   which is used with the Krylov solver {\spbcg} in the
   context of {\cvode}. This in turn includes a header file (\id{iterative.h})
-  which enumerates the kind of preconditioning.
+  which enumerates the kind of preconditioning;
 \item \Id{cvsptfqmr.h}, 
   which is used with the Krylov solver {\sptfqmr} in the
   context of {\cvode}. This in turn includes a header file (\id{iterative.h})
@@ -132,7 +132,7 @@ The header files corresponding to the various linear solver options in
 \end{itemize}
 
 Other headers may be needed, according as to the choice of preconditioner,
-etc. In one of the examples in \cite{cvode2.2.0_ex}, preconditioning is done
+etc. In one of the examples in \cite{cvode2.4.0_ex}, preconditioning is done
 with a block-diagonal matrix. For this, the header
 \id{smalldense.h} is included.
 
@@ -460,8 +460,8 @@ left preconditioner is included in the linear system residual whose
 norm is being tested in the Krylov algorithm.  As a rule, however, if
 the preconditioner is the product of two matrices, we recommend that
 preconditioning be done either on the left only or the right only,
-rather than using one factor on each side. For specification of preconditioner,
-see \S\ref{sss:optin_linsol} and \S\ref{ss:user_fct_sim}.
+rather than using one factor on each side. For the specification of a
+preconditioner, see \S\ref{sss:optin_linsol} and \S\ref{ss:user_fct_sim}.
 
 If preconditioning is done, user-supplied functions define left and right 
 preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity
@@ -916,7 +916,6 @@ Maximum no. of error test failures & \id{CVodeSetMaxErrTestFails} & 7 \\
 Maximum no. of nonlinear iterations & \id{CVodeSetMaxNonlinIters} & 3 \\
 Maximum no. of convergence failures & \id{CVodeSetMaxConvFails} & 10 \\
 Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.1 \\
-Data for rootfinding function & \id{CVodeSetGdata} & NULL \\
 Nonlinear iteration type & \id{CVodeSetIterType} & none \\
 Integration tolerances & \id{CVodeSetTolerances} & none \\
 Ewt compuation function & \id{CVodeSetEwtFn} & internal fn. \\
@@ -933,8 +932,7 @@ Band Jacobian function and data & \id{CVBandSetJacFn} & internal DQ, \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPGMR linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSpgmrSetPreconditioner} & NULL, NULL, \\
-&&NULL\\
+Preconditioner functions and data & \id{CVSpgmrSetPreconditioner} & all NULL \\
 Jacobian-times-vector function and data & \id{CVSpgmrSetJacTimesVecFn} & internal DQ, \\
 &&NULL\\
 Preconditioning type & \id{CVSpgmrSetPrecType} & none \\
@@ -943,8 +941,7 @@ Ratio between linear and nonlinear tolerances & \id{CVSpgmrSetDelt} & 0.05 \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPBCG linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSpbcgSetPreconditioner} & NULL, NULL, \\
-&&NULL\\
+Preconditioner functions and data & \id{CVSpbcgSetPreconditioner} & all NULL \\
 Jacobian-times-vector function and data & \id{CVSpbcgSetJacTimesVecFn} & internal DQ, \\
 &&NULL\\
 Preconditioning type & \id{CVSpbcgSetPrecType} & none \\
@@ -953,8 +950,7 @@ Ratio between linear and nonlinear tolerances & \id{CVSpbcgSetDelt} & 0.05 \\
 \hline
 \multicolumn{3}{|c|}{\bf CVSPTFQMR linear solver} \\
 \hline
-Preconditioner functions and data & \id{CVSptfqmrSetPreconditioner} & NULL, NULL, \\
-&&NULL\\
+Preconditioner functions and data & \id{CVSptfqmrSetPreconditioner} & all NULL \\
 Jacobian-times-vector function and data & \id{CVSptfqmrSetJacTimesVecFn} & internal DQ, \\
 &&NULL\\
 Preconditioning type & \id{CVSptfqmrSetPrecType} & none \\
@@ -1472,7 +1468,7 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
+    pointer to the {\cvode} memory block.
   \item[itol] (\id{int}) 
     is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol}$=$\id{CV\_SS} indicates
     scalar relative error tolerance and scalar absolute error tolerance, while
@@ -1524,7 +1520,7 @@ flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
+    pointer to the {\cvode} memory block.
   \item[efun] (\id{CVEwtFn}) 
     is the {\C} function which defines the \id{ewt} vector (see \S\ref{ss:ewtsetFn}).
   \item[e\_data] (\id{void *})
@@ -1706,14 +1702,14 @@ product between the Jacobian matrix $J(t,y)$ and a vector $v$.
 The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{CVSpgmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\cvspgmr} solver.
-A user-defined Jacobian-vector function must be of type \id{CVSpgmrJtimesFn} and 
+that comes with the {\cvspgmr} solver.  A user-defined Jacobian-vector
+function must be of type \id{CVSpilsJacTimesVecFn} and 
 can be specified through a call to \id{CVSpgmrSetJacTimesVecFn} 
-(see \S\ref{ss:user_fct_sim} for specification details).
+(see \S\ref{ss:jtimesFn} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
-the user can also specify, in the call to \id{CVSpgmrSetJacFn}, a pointer to a 
-user-defined data structure, \id{jac\_data}, which
+the user can also specify, in the call to \id{CVSpgmrSetJacTimesVecFn}, a
+pointer to a user-defined data structure, \id{jac\_data}, which
 the {\cvspgmr} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
 The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
@@ -1942,14 +1938,14 @@ product between the Jacobian matrix $J(t,y)$ and a vector $v$.
 The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{CVSpbcgDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\cvspbcg} solver.
-A user-defined Jacobian-vector function must be of type \id{CVSpbcgJtimesFn} and 
+that comes with the {\cvspbcg} solver.  A user-defined Jacobian-vector
+function must be of type \id{CVSpilsJacTimesVecFn} and 
 can be specified through a call to \id{CVSpbcgSetJacTimesVecFn} 
-(see \S\ref{ss:user_fct_sim} for specification details).
+(see \S\ref{ss:jtimesFn} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
-the user can also specify, in the call to \id{CVSpbcgSetJacFn}, a pointer to a 
-user-defined data structure, \id{jac\_data}, which
+the user can also specify, in the call to \id{CVSpbcgSetJacTimesVecFn}, a
+pointer to a user-defined data structure, \id{jac\_data}, which
 the {\cvspbcg} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
 The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
@@ -2174,14 +2170,14 @@ product between the Jacobian matrix $J(t,y)$ and a vector $v$.
 The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{CVSptfqmrDQJtimes} 
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\cvsptfqmr} solver.
-A user-defined Jacobian-vector function must be of type \id{CVSptfqmrJtimesFn} and 
+that comes with the {\cvsptfqmr} solver. A user-defined Jacobian-vector
+function must be of type \id{CVSpilsJacTimesVecFn} and 
 can be specified through a call to \id{CVSptfqmrSetJacTimesVecFn} 
-(see \S\ref{ss:user_fct_sim} for specification details).
+(see \S\ref{ss:jtimesFn} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
-the user can also specify, in the call to \id{CVSptfqmrSetJacFn}, a pointer to a 
-user-defined data structure, \id{jac\_data}, which
+the user can also specify, in the call to \id{CVSptfqmrSetJacTimesVecFn}, a
+pointer to a user-defined data structure, \id{jac\_data}, which
 the {\cvsptfqmr} solver passes to the Jacobian-times-vector function \id{jtimes}
 each time it is called.  
 The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
@@ -4227,7 +4223,7 @@ return value from a {\cvsptfqmr} function.
   \index{CVSPTFQMR@{\cvsptfqmr} linear solver!memory requirements} 
   \index{memory requirements!CVSPTFQMR@{\cvsptfqmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  the actual size of the real workspace is rougly  $11*N$ \id{realtype} words.
+  the actual size of the real workspace is roughly  $11*N$ \id{realtype} words.
   (In a parallel setting, this value is global --- summed over all processors.)
 }
 %%
@@ -4557,7 +4553,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
 
 The user-supplied functions consist of one function defining the ODE,
 (optionally) a function that provides the error weight vector,
-(optionally) a function that provides Jacobian related information for the linear
+(optionally) a function that provides Jacobian-related information for the linear
 solver (if Newton iteration is chosen), and (optionally) one or two functions 
 that define the preconditioner for use in the any of the Krylov iterative
 algorithms. 
@@ -4829,7 +4825,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
 
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
 is selected (\id{CVSp*} is called in step  \ref{i:lin_solver} of
-\S\ref{ss:skeleton_sim}) the user may provide a function of type
+\S\ref{ss:skeleton_sim}), the user may provide a function of type
 \ID{CVSpilsJacTimesVecFn} in the following form:
 \usfunction{CVSpilsJacTimesVecFn}
 {
@@ -4924,8 +4920,8 @@ This function must be of type \ID{CVSpilsPrecSolveFn}, defined as follows:
     (see \S\ref{sss:optout_main}).
   \item[lr]
     is an input flag indicating whether the preconditioner solve
-    function is to use the left preconditioner (\id{lr=1}) or 
-    the right preconditioner (\id{lr=2});
+    function is to use the left preconditioner (\id{lr = 1}) or 
+    the right preconditioner (\id{lr = 2});
   \item[p\_data]
     is a pointer to user data --- the same as the \id{p\_data}      
     parameter passed to the function \id{CVSp*SetPreconditioner}.
@@ -4950,7 +4946,7 @@ This function must be of type \ID{CVSpilsPrecSolveFn}, defined as follows:
 \index{CVSPBCG@{\cvspbcg} linear solver!preconditioner setup function}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner setup function}
 
-If the user's preconditioner requires that any Jacobian related data
+If the user's preconditioner requires that any Jacobian-related data
 be evaluated or preprocessed, then this needs to be done in a
 user-supplied {\C} function of type \ID{CVSpilsPrecSetupFn}, defined as follows:
 \usfunction{CVSpilsPrecSetupFn}
@@ -4962,7 +4958,7 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFn}, defined as follows:
                                   &N\_Vector tmp3);
 }
 {
-  This function evaluates and/or preprocesses Jacobian related data needed
+  This function evaluates and/or preprocesses Jacobian-related data needed
   by the preconditioner.
 }
 {
@@ -5104,9 +5100,9 @@ There are two optional output functions associated with rootfinding.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[rootsfound] (\id{int *})
-    the indices of the user functions $g_i$ found to have a root.  For
-    $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
-    has a root, and $=0$ if not.
+    array of length \id{nrtfn} with the indices of the user functions $g_i$ found
+    to have a root.  For $i = 0,\ldots, $\id{nrtfn} $-1$, \id{rootsfound}[$i$]$ = 1$
+    if $g_i$ has a root, and $= 0$ if not.
   \end{args}
 }
 {
@@ -5176,7 +5172,7 @@ the user must supply a {\C} function of type \ID{CVRootFn}, defined as follows:
     is the output array, of length \id{nrtfn}, with components $g_i(t,y)$.
   \item[g\_data]
     is a pointer to user data --- the same as the \Id{g\_data}      
-    parameter passed to \id{CVodeSetGdata}.   
+    parameter passed to \id{CVodeRootInit}.   
   \end{args}
 }
 {
@@ -5255,8 +5251,8 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 
   \id{bp\_data = CVBandPrecAlloc(cvode\_mem, N, mu, ml);} 
 
-  to allocate memory for and initialize a data structure \id{bp\_data} to be 
-  passed to the appropriate {\cvsp} linear solver.
+  to allocate memory for and initialize a data structure \id{bp\_data}
+  (of type \id{void *}) to be passed to the appropriate {\cvsp} linear solver.
 
 \item \label{i:bandpre_attach}
   {\bf Attach the Krylov linear solver, one of:}
@@ -5796,10 +5792,10 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
      \end{tabular}
    }
 
-  to allocate memory for and initialize a data structure \id{bbd\_data} to be 
-  passed to the Krylov linear solver selected (in the next step). The last two
-  arguments of \id{CVBBDPrecAlloc} are the two user-supplied functions described
-  above.
+  to allocate memory for and initialize a data structure \id{bbd\_data}
+  (of type \id{void *}) to be passed to the Krylov linear solver selected
+  (in the next step). The last two arguments of \id{CVBBDPrecAlloc} are the two
+  user-supplied functions described above.
 
 \item \label{i:bbdpre_attach}
   {\bf Attach the Krylov linear solver, one of:}
