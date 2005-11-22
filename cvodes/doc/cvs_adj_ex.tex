@@ -2,15 +2,15 @@
 \section{Adjoint sensitivity analysis example problems}\label{s:adj_examples}
 %===================================================================================
 
-The next two sections describe in detail a serial example (\id{cvadx}) and
-a parallel one (\id{pvanx}). For details on the other examples, the reader is
-directed to the comments in their source files.
+The next three sections describe in detail a serial example (\id{cvadx}) and
+two parallel examples (\id{pvanx} and \id{pvakx}). For details on the other
+examples, the reader is directed to the comments in their source files.
 
 %------------------------------------------------------------------------
 \subsection{A serial dense example: \id{cvadx}}\label{ss:cvadx}
 
 As a first example of using {\cvodes} for adjoint sensitivity analysis
-we examine the chemical kinetics problem 
+we examine the chemical kinetics problem (from \id{cvfdx}) 
 \begin{equation}\label{e:cvadx_ODE}
   \begin{split}
     &{\dot y}_1 = -p_1 y_1 + p_2 y_2 y_3   \\
@@ -192,7 +192,7 @@ equation
     & 0 = t_0 \le t \le t_1 = 2.5 \, ,
   \end{split}
 \end{equation}
-with boundary conditions $u(t,x_0) = u(t,x_1) = 0 ,\, \forall t$
+with boundary conditions $u(t,x_0) = u(t,x_1) = 0 ,\, \forall t$,
 and initial condition $u(t_0 , x) = u_0(x) = x(2-x)e^{2x}$. Also
 consider the function
 \begin{equation*}
@@ -329,7 +329,7 @@ Given a known velocity field $v(t,x)$, the transport equation for
 the cncentration $c(t,x)$ in a domain $\Omega$ is given by
 \begin{equation}\label{e:pvakx_PDE}
   \begin{split}
-    \frac{\partial c}{\partial t} - k \delta c + v \cdot \nabla c + f = 0 \, , 
+    \frac{\partial c}{\partial t} - k \nabla^2 c + v \cdot \nabla c + f = 0 \, , 
     &\text{ in } (0,T) \times \Omega \\
     \frac{\partial c}{\partial n} = g \, ,
     &\text{ on } (0,T) \times \partial\Omega \\
@@ -372,7 +372,7 @@ in every direction. If the direction $x^i$ of $\Omega$ is discretized into $m_i$
 intervals, this leads to a system of ODEs of dimension 
 $N = \prod_1^d (m_i+1)$, with $d=2$, or $d=3$.
 The source term $f$ is parameterized as a piecewise constant function and yielding
-$N$ parameters in the problem. The nominal values of the source parameters corrspond
+$N$ parameters in the problem. The nominal values of the source parameters correspond
 to two Gaussian sources.
 
 The adjoint PDE (\ref{e:pvakx_ADJ}) is discretized to a system of ODEs in a similar fashion.
