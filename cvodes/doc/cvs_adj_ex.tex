@@ -326,7 +326,7 @@ release with an advection-diffusion PDE in 2-D or 3-D and computes the gradient
 with respect to source parameters of the space-time average of the squared norm
 of the concentration.
 Given a known velocity field $v(t,x)$, the transport equation for
-the cncentration $c(t,x)$ in a domain $\Omega$ is given by
+the concentration $c(t,x)$ in a domain $\Omega$ is given by
 \begin{equation}\label{e:pvakx_PDE}
   \begin{split}
     \frac{\partial c}{\partial t} - k \nabla^2 c + v \cdot \nabla c + f = 0 \, , 
@@ -350,14 +350,14 @@ Using adjoint sensitivity analysis, the gradient of
 \end{equation}
 is obtained as
 \begin{equation}\label{e:pvakx_dGdp}
-  \frac{dG}{dp_i} = \int_t \int_\Omega \lambda(t,x) \delta(x_i) \, d\Omega \, dt
+  \frac{dG}{dp_i} = \int_t \int_\Omega \lambda(t,x) \delta(x-x_i) \, d\Omega \, dt
   = \int_t \lambda(t,x_i) \, dt \, ,
 \end{equation}
 where $x_i$ is the location of the source of intensity $p_i$ and $\lambda$
 is solution of the adjoint PDE
 \begin{equation}\label{e:pvakx_ADJ}
   \begin{split}
-    - \frac{\partial\lambda}{\partial t} - k \Delta\lambda - v \cdot \lambda = c(t,x)  \, ,
+    - \frac{\partial\lambda}{\partial t} - k \nabla^2\lambda - v \cdot \lambda = c(t,x)  \, ,
     &\text{ in } (T,0) \times \Omega \\
     (k \nabla\lambda + v \lambda) \cdot n = 0 \, ,
     &\text{ on } (0,T) \times \partial\Omega \\
