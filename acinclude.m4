@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.30 $
-# $Date: 2005-10-25 15:32:09 $
+# $Revision: 1.31 $
+# $Date: 2005-11-28 22:08:59 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -37,6 +37,11 @@ AC_DEFUN([SUNDIALS_INITIALIZE],
 
 # Specify directory containing auxillary build tools and M4 files
 AC_CONFIG_AUX_DIR([config])
+
+# Reference custom macros
+m4_include([config/mod_fortran.m4])
+m4_include([config/mod_c.m4])
+m4_include([config/cust_general.m4])
 
 # Make input filename DOS compatible (change config.h.in to config.hin)
 AC_CONFIG_HEADERS([config.h:config.hin])
@@ -365,6 +370,7 @@ AC_DEFUN([SUNDIALS_SET_CC],
 [
 
 # Default is C programming language (initialize language stack)
+#AC_LANG([C])
 AC_LANG([C])
 
 AC_ARG_WITH([],[],[])
@@ -868,7 +874,7 @@ if test "X${RUN_F77_LNKR_CHECK}" = "Xyes"; then
 
   # Check if CC can link Fortran example
   # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
-  # general.m4 and c.m4)
+  # general.m4 and c.m4) (see config/cust_general.m4 and config/mod_c.m4)
   AC_LINKONLY_IFELSE([],[F77_LNKR_CHECK_OK="yes"],[F77_LNKR_CHECK_OK="no"])
 
   # Revert back to previous language (Fortran 77)

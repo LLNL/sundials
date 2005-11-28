@@ -1521,7 +1521,6 @@ ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
@@ -1591,6 +1590,208 @@ fi
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"
 ac_configure="$SHELL $ac_aux_dir/configure" # This should be Cygnus configure.
+
+
+# Reference custom macros
+# This file is part of Autoconf.                       -*- Autoconf -*-
+# Fortran languages support.
+# Copyright (C) 2001, 2003
+# Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+#
+# As a special exception, the Free Software Foundation gives unlimited
+# permission to copy, distribute and modify the configure scripts that
+# are the output of Autoconf.  You need not follow the terms of the GNU
+# General Public License when using or distributing such scripts, even
+# though portions of the text of Autoconf appear in them.  The GNU
+# General Public License (GPL) does govern all other use of the material
+# that constitutes the Autoconf program.
+#
+# Certain portions of the Autoconf source text are designed to be copied
+# (in certain cases, depending on the input) into the output of
+# Autoconf.  We call these the "data" portions.  The rest of the Autoconf
+# source text consists of comments plus executable code that decides which
+# of the data portions to output in any given case.  We call these
+# comments and executable code the "non-data" portions.  Autoconf never
+# copies any of the non-data portions into its output.
+#
+# This special exception to the GPL applies to versions of Autoconf
+# released by the Free Software Foundation.  When you make and
+# distribute a modified version of Autoconf, you may extend this special
+# exception to the GPL to apply to your modified version as well, *unless*
+# your modified version has the potential to copy into its output some
+# of the text that was the non-data portion of the version that you started
+# with.  (In other words, unless your change moves or copies text from
+# the non-data portions to the data portions.)  If your modification has
+# such potential, you must delete any notice of this special exception
+# to the GPL from your modified version.
+#
+# Written by David MacKenzie, with help from
+# Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
+# Roland McGrath, Noah Friedman, david d zuhn, and many others.
+
+# Fortran vs. Fortran 77:
+#   This file contains macros for both "Fortran 77" and "Fortran", where
+# the former is the "classic" autoconf Fortran interface and is intended
+# for legacy F77 codes, while the latter is intended to support newer Fortran
+# dialects.  Fortran 77 uses environment variables F77, FFLAGS, and FLIBS,
+# while Fortran uses FC, FCFLAGS, and FCLIBS.  For each user-callable AC_*
+# macro, there is generally both an F77 and an FC version, where both versions
+# share the same _AC_*_FC_* backend.  This backend macro requires that
+# the appropriate language be AC_LANG_PUSH'ed, and uses _AC_LANG_ABBREV and
+# _AC_LANG_PREFIX in order to name cache and environment variables, etc.
+
+
+# _AC_PROG_FC_V_OUTPUT([FLAG = $ac_cv_prog_{f77/fc}_v])
+# -------------------------------------------------
+# Link a trivial Fortran program, compiling with a verbose output FLAG
+# (whose default value, $ac_cv_prog_{f77/fc}_v, is computed by
+# _AC_PROG_FC_V), and return the output in $ac_{f77/fc}_v_output.  This
+# output is processed in the way expected by _AC_FC_LIBRARY_LDFLAGS,
+# so that any link flags that are echoed by the compiler appear as
+# space-separated items.
+# _AC_PROG_FC_V_OUTPUT
+
+# This file is part of Autoconf.                       -*- Autoconf -*-
+# Programming languages support.
+# Copyright (C) 2001, 2002, 2003 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+#
+# As a special exception, the Free Software Foundation gives unlimited
+# permission to copy, distribute and modify the configure scripts that
+# are the output of Autoconf.  You need not follow the terms of the GNU
+# General Public License when using or distributing such scripts, even
+# though portions of the text of Autoconf appear in them.  The GNU
+# General Public License (GPL) does govern all other use of the material
+# that constitutes the Autoconf program.
+#
+# Certain portions of the Autoconf source text are designed to be copied
+# (in certain cases, depending on the input) into the output of
+# Autoconf.  We call these the "data" portions.  The rest of the Autoconf
+# source text consists of comments plus executable code that decides which
+# of the data portions to output in any given case.  We call these
+# comments and executable code the "non-data" portions.  Autoconf never
+# copies any of the non-data portions into its output.
+#
+# This special exception to the GPL applies to versions of Autoconf
+# released by the Free Software Foundation.  When you make and
+# distribute a modified version of Autoconf, you may extend this special
+# exception to the GPL to apply to your modified version as well, *unless*
+# your modified version has the potential to copy into its output some
+# of the text that was the non-data portion of the version that you started
+# with.  (In other words, unless your change moves or copies text from
+# the non-data portions to the data portions.)  If your modification has
+# such potential, you must delete any notice of this special exception
+# to the GPL from your modified version.
+#
+# Written by David MacKenzie, with help from
+# Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
+# Roland McGrath, Noah Friedman, david d zuhn, and many others.
+
+
+# AC_LANG(C)
+# ----------
+# CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+
+
+# This file is part of Autoconf.                       -*- Autoconf -*-
+# Parameterized macros.
+# Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001,
+# 2002, 2003, Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# As a special exception, the Free Software Foundation gives unlimited
+# permission to copy, distribute and modify the configure scripts that
+# are the output of Autoconf.  You need not follow the terms of the GNU
+# General Public License when using or distributing such scripts, even
+# though portions of the text of Autoconf appear in them.  The GNU
+# General Public License (GPL) does govern all other use of the material
+# that constitutes the Autoconf program.
+#
+# Certain portions of the Autoconf source text are designed to be copied
+# (in certain cases, depending on the input) into the output of
+# Autoconf.  We call these the "data" portions.  The rest of the Autoconf
+# source text consists of comments plus executable code that decides which
+# of the data portions to output in any given case.  We call these
+# comments and executable code the "non-data" portions.  Autoconf never
+# copies any of the non-data portions into its output.
+#
+# This special exception to the GPL applies to versions of Autoconf
+# released by the Free Software Foundation.  When you make and
+# distribute a modified version of Autoconf, you may extend this special
+# exception to the GPL to apply to your modified version as well, *unless*
+# your modified version has the potential to copy into its output some
+# of the text that was the non-data portion of the version that you started
+# with.  (In other words, unless your change moves or copies text from
+# the non-data portions to the data portions.)  If your modification has
+# such potential, you must delete any notice of this special exception
+# to the GPL from your modified version.
+#
+# Written by David MacKenzie, with help from
+# Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
+# Roland McGrath, Noah Friedman, david d zuhn, and many others.
+
+
+# _AC_MSG_LOG_CONFTEST_GENERAL
+# ----------------------------
+
+
+
+# _AC_LINKONLY_IFELSE(PROGRAM, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+# ------------------------------------------------------------------
+# Try to link PROGRAM (empty).
+# This macro can be used during the selection of a compiler.
+# _AC_LINKONLY_IFELSE
+
+
+# AC_LINKONLY_IFELSE(PROGRAM, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+# -----------------------------------------------------------------
+# Try to link PROGRAM.  Requires that the compiler for the current
+# language was checked for, hence do not use this macro in macros looking
+# for a compiler.
+
 
 
 # Make input filename DOS compatible (change config.h.in to config.hin)
@@ -2844,6 +3045,7 @@ done
 
 
 # Default is C programming language (initialize language stack)
+#AC_LANG([C])
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -6958,7 +7160,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:6961:" \
+echo "$as_me:7163:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -7422,7 +7624,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:7425: \"$ac_link\") >&5
+(eval echo $as_me:7627: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -7504,7 +7706,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:7507: \"$ac_link\") >&5
+(eval echo $as_me:7709: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -8076,7 +8278,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
   # Check if CC can link Fortran example
   # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
-  # general.m4 and c.m4)
+  # general.m4 and c.m4) (see config/cust_general.m4 and config/mod_c.m4)
   if { (eval echo "$as_me:$LINENO: \"$ac_linkonly\"") >&5
   (eval $ac_linkonly) 2>conftest.er1
   ac_status=$?
@@ -11936,7 +12138,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 11939 "configure"' > conftest.$ac_ext
+  echo '#line 12141 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -12496,7 +12698,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:12499: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:12701: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -14422,7 +14624,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 14425 "configure"
+#line 14627 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -14520,7 +14722,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 14523 "configure"
+#line 14725 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
