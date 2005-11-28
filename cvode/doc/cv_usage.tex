@@ -447,15 +447,15 @@ For many users, the appropriate choices for tolerance values in
 advice are relevant.
 
 (1) The scalar relative tolerance \id{reltol} is to be set to control relative
-errors.  So \id{reltol} = 1.0E-4 means error is controlled to .01\%.  We do
-not recommending using \id{reltol} larger than 1.0E-3, and \id{reltol} should
-not be so small that is comparable to the unit roundoff of the machine
-arithmetic (generally around 1.0E-15).
+errors.  So \id{reltol} = 1.0E-4 means that errors are controlled to .01\%.  We
+do not recommend using \id{reltol} larger than 1.0E-3.  On the other hand,
+\id{reltol} should not be so small that it is comparable to the unit roundoff
+of the machine arithmetic (generally around 1.0E-15).
 
 (2) The absolute tolerances \id{abstol} (whether scalar or vector) need to
 be set to control absolute errors when any components of the solution
 vector \id{y} may be so small that pure relative error control is
-meaningless.  For example, if \id{y[i]} starts at about 1, but in time
+meaningless.  For example, if \id{y[i]} starts at some nonzero value, but in time
 decays to zero, then pure relative error control on \id{y[i]} makes no sense
 (and is overly costly) after \id{y[i]} is below some noise level.  Then
 \id{abstol} (if scalar) or \id{abstol[i]} (if a vector) needs to be set to that
@@ -471,7 +471,7 @@ some idea as to what those noise levels are.
 
 (3) Finally, it is important to pick all the tolerance values conservately,
 because they control the error committed on each individual time step.
-The final (global) errors may be some sort of accumulation of those
+The final (global) errors are some sort of accumulation of those
 per-step errors.  A good rule of thumb is to reduce the tolerances by a
 factor of .01 from the actual desired limits on errors.  So if you
 want .01\% accuracy (globally), a good choice is \id{reltol} = 1.0E-6.
@@ -479,6 +479,7 @@ But in any case, it is a good idea to do a few experiments with
 the tolerances to see how the computed solution values vary as
 tolerances are reduced.
 
+\vspace{0.1in}
 {\bf Advice on controlling unphysical negative values.}
 In many applications, some components in the true solution are always
 positive or non-negative, though at times very small, but in the
@@ -496,7 +497,7 @@ needed.
 (2) If output plots or tables are being generated, and it is important
 to avoid having negative numbers appear there (for the sake of
 avoiding a long explanation of them, if nothing else), then eliminate
-them, but only in the context of the output medium.  The internal
+them, but only in the context of the output medium.  Then the internal
 values carried by the solver are unaffected.
 
 (3) The user's right-hand side routine \id{f} should never change a
