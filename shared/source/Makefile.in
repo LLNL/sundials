@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-05-18 18:17:54 $
+# $Revision: 1.14 $
+# $Date: 2005-11-28 21:30:36 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -51,7 +51,7 @@ update:
 	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(SHARED_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(SHARED_LIB) $(SHARED_LIB_FILES) -rpath $(libdir) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(SHARED_LIB) $(SHARED_LIB_FILES) -rpath $(libdir) $(LIBS) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(SHARED_LIB) $(libdir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/band.h $(includedir)
 	$(INSTALL_HEADER) $(SHARED_INC_DIR)/dense.h $(includedir)

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2005-05-18 18:17:33 $
+# $Revision: 1.15 $
+# $Date: 2005-11-28 21:30:16 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -53,7 +53,7 @@ update:
 	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(IDAS_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -avoid-version
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDAS_LIB) $(libdir)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas.h $(includedir)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaa.h $(includedir)

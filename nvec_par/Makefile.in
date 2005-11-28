@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2005-06-16 18:11:22 $
+# $Revision: 1.16 $
+# $Date: 2005-11-28 21:30:26 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -60,14 +60,14 @@ update:
 	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(NVECTOR_PARALLEL_LIB_FILES) $(FNVECTOR_PARALLEL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECTOR_PARALLEL_LIB) $(NVECTOR_PARALLEL_LIB_FILES) $(LDFLAGS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) -rpath $(libdir) -avoid-version
+	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECTOR_PARALLEL_LIB) $(NVECTOR_PARALLEL_LIB_FILES) $(LDFLAGS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) -rpath $(libdir) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_PARALLEL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_PARALLEL_INC_DIR)/nvector_parallel.h $(includedir)
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                           \
-	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECTOR_PARALLEL_LIB} ${FNVECTOR_PARALLEL_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -avoid-version" ; \
-	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECTOR_PARALLEL_LIB} ${FNVECTOR_PARALLEL_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -avoid-version ;        \
-	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_PARALLEL_LIB} ${libdir}" ;                                                                                                                               \
-	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_PARALLEL_LIB} ${libdir} ;                                                                                                                                      \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                                \
+	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECTOR_PARALLEL_LIB} ${FNVECTOR_PARALLEL_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info 0:0:0" ; \
+	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECTOR_PARALLEL_LIB} ${FNVECTOR_PARALLEL_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info 0:0:0 ;        \
+	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_PARALLEL_LIB} ${libdir}" ;                                                                                                                                    \
+	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_PARALLEL_LIB} ${libdir} ;                                                                                                                                           \
 	 fi
 
 clean:
