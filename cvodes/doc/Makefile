@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2005-06-28 23:49:32 $
+# $Revision: 1.18 $
+# $Date: 2005-11-29 23:15:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -129,7 +129,7 @@ cvs_examples.ps: cvs_examples.dvi
 clean:
 	rm -rf ${UG_SHARED_FILES}
 	rm -rf ${EX_SHARED_FILES}
-	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
+	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi *.out
 purge:  clean
 	rm -f cvs_guide.ps cvs_guide.pdf
 	rm -f cvs_examples.ps cvs_examples.pdf

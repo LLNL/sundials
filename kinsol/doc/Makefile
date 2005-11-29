@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2005-07-12 23:56:10 $
+# $Revision: 1.13 $
+# $Date: 2005-11-29 23:15:34 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -128,7 +128,7 @@ kin_examples.ps: kin_examples.dvi
 clean:
 	rm -rf ${UG_SHARED_FILES}
 	rm -rf ${EX_SHARED_FILES}
-	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
+	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi *.out
 purge:  clean
 	rm -f kin_guide.ps kin_guide.pdf
 	rm -f kin_examples.ps kin_examples.pdf

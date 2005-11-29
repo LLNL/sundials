@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2005-08-15 19:33:02 $
+# $Revision: 1.13 $
+# $Date: 2005-11-29 23:15:32 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -129,7 +129,7 @@ ida_examples.ps: ida_examples.dvi
 clean:
 	rm -rf ${UG_SHARED_FILES}
 	rm -rf ${EX_SHARED_FILES}
-	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi
+	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi *.out
 purge:  clean
 	rm -f ida_guide.ps ida_guide.pdf
 	rm -f ida_examples.ps ida_examples.pdf
