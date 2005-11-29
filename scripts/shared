@@ -2,7 +2,6 @@
 
 tarfile=$1
 distrobase=$2
-par=$3
 
 echo ""
 echo "  Add top-level files"
@@ -14,6 +13,9 @@ tar uf $tarfile $distrobase/config/install-sh
 tar uf $tarfile $distrobase/config/ltmain.sh
 tar uf $tarfile $distrobase/config/sundials_config.in
 tar uf $tarfile $distrobase/config/fortran_update.in
+tar uf $tarfile $distrobase/config/mod_c.m4
+tar uf $tarfile $distrobase/config/mod_fortran.m4
+tar uf $tarfile $distrobase/config/cust_general.m4
 
 tar uf $tarfile $distrobase/Makefile.in
 tar uf $tarfile $distrobase/config.hin
@@ -59,23 +61,20 @@ tar uf $tarfile $distrobase/nvec_ser/Makefile.in
 tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
 tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
 
-if [ $par = "T" ]
-then
-    tar uf $tarfile $distrobase/nvec_par/README
+tar uf $tarfile $distrobase/nvec_par/README
 
-    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
-    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
+tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
+tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
 
-    tar uf $tarfile $distrobase/nvec_par/Makefile.in
-    tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
-    tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
+tar uf $tarfile $distrobase/nvec_par/Makefile.in
+tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
+tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
 
-    tar uf $tarfile $distrobase/nvec_spcpar/README
+tar uf $tarfile $distrobase/nvec_spcpar/README
 
-    tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.h
-    tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.h
+tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.h
+tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.h
 
-    tar uf $tarfile $distrobase/nvec_spcpar/Makefile.in
-    tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.c
-    tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.c
-fi
+tar uf $tarfile $distrobase/nvec_spcpar/Makefile.in
+tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.c
+tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.c

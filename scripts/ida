@@ -2,7 +2,6 @@
 
 tarfile=$1
 distrobase=$2
-par=$3
 
 echo ""
 echo "  Generate ida documentation"
@@ -77,21 +76,18 @@ tar uf $tarfile $distrobase/ida/fcmix/examples_ser/Makefile.in
 tar uf $tarfile $distrobase/ida/fcmix/examples_ser/irobxf.f
 tar uf $tarfile $distrobase/ida/fcmix/examples_ser/irobxf.out
 
-if [ $par = "T" ]
-then
-    tar uf $tarfile $distrobase/ida/examples_par/README
-    tar uf $tarfile $distrobase/ida/examples_par/Makefile.in
-    tar uf $tarfile $distrobase/ida/examples_par/iheatpk.c
-    tar uf $tarfile $distrobase/ida/examples_par/iheatpk.out
-    tar uf $tarfile $distrobase/ida/examples_par/iheatbbd.c
-    tar uf $tarfile $distrobase/ida/examples_par/iheatbbd.out
-    tar uf $tarfile $distrobase/ida/examples_par/iwebpk.c
-    tar uf $tarfile $distrobase/ida/examples_par/iwebpk.out
-    tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.c
-    tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.out
+tar uf $tarfile $distrobase/ida/examples_par/README
+tar uf $tarfile $distrobase/ida/examples_par/Makefile.in
+tar uf $tarfile $distrobase/ida/examples_par/iheatpk.c
+tar uf $tarfile $distrobase/ida/examples_par/iheatpk.out
+tar uf $tarfile $distrobase/ida/examples_par/iheatbbd.c
+tar uf $tarfile $distrobase/ida/examples_par/iheatbbd.out
+tar uf $tarfile $distrobase/ida/examples_par/iwebpk.c
+tar uf $tarfile $distrobase/ida/examples_par/iwebpk.out
+tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.c
+tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.out
 
-    tar uf $tarfile $distrobase/ida/fcmix/examples_par/README
-    tar uf $tarfile $distrobase/ida/fcmix/examples_par/Makefile.in
-    tar uf $tarfile $distrobase/ida/fcmix/examples_par/iheatbbdf.f
-    tar uf $tarfile $distrobase/ida/fcmix/examples_par/iheatbbdf.out
-fi
+tar uf $tarfile $distrobase/ida/fcmix/examples_par/README
+tar uf $tarfile $distrobase/ida/fcmix/examples_par/Makefile.in
+tar uf $tarfile $distrobase/ida/fcmix/examples_par/iheatbbdf.f
+tar uf $tarfile $distrobase/ida/fcmix/examples_par/iheatbbdf.out

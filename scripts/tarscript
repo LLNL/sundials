@@ -2,7 +2,7 @@
 #
 # File tarscript: Script to build SUNDIALS tar-files.
 # Author: Radu Serban @ LLNL
-# Version of 08 August 2003
+# Version of 29 November 2005
 #
 
 #==============================================================================
@@ -14,17 +14,13 @@
 function print_usage
 {
     echo ""
-    echo "Usage: tarscript [-fhs] [module]"
-    echo "   -f       : full version"
+    echo "Usage: tarscript [-h] [module]"
     echo "   -h       : help"
-    echo "   -s       : serial only version"
     echo "   module   : all, sundials, cvode, cvodes, ida, kinsol"
     echo ""
-    echo "Note1: If neither 'f', or 's' is specified, both tar files"
-    echo "       are created for this module."
-    echo "Note2: If the module is not specified, tar files are created"
+    echo "Note1: If the module is not specified, tar files are created"
     echo "       for all of them."
-    echo "Note3: This script must be executed from within its directory" 
+    echo "Note2: This script must be executed from within its directory" 
     echo "       Default file will be created in $distrodir."
     echo ""
     exit 1
@@ -39,21 +35,13 @@ function print_usage
 function create_file
 {
     what=$1
-    par=$2
 
     cd ..
 
-    if [ $par = "F" ];   then
-        aclocal
-        autoconf -f -o configure configure-rel-serial.ac
-        autoheader
-        tail="_ser.tar"
-    else
-        aclocal
-        autoconf -f -o configure configure-rel-full.ac
-        autoheader
-        tail=".tar"
-    fi
+    aclocal
+    autoconf -f -o configure configure-rel.ac
+    autoheader
+    tail=".tar"
 
     tarfile=$distrodir$what$tail
 
@@ -61,22 +49,22 @@ function create_file
 
     echo "Generate $distrobase distribution tar-file $tarfile"
 
-    $distrobase/scripts/shared $tarfile $distrobase $par 
+    $distrobase/scripts/shared $tarfile $distrobase
     
     if [ $what = "cvode" -o $what = "sundials" ];  then
-        $distrobase/scripts/cvode $tarfile $distrobase $par 
+        $distrobase/scripts/cvode $tarfile $distrobase
     fi
     
     if [ $what = "cvodes" -o $what = "sundials" ]; then
-        $distrobase/scripts/cvodes $tarfile $distrobase $par 
+        $distrobase/scripts/cvodes $tarfile $distrobase
     fi
 
     if [ $what = "ida" -o $what = "sundials" ];    then
-        $distrobase/scripts/ida $tarfile $distrobase $par 
+        $distrobase/scripts/ida $tarfile $distrobase
     fi
 
     if [ $what = "kinsol" -o $what = "sundials" ]; then
-        $distrobase/scripts/kinsol $tarfile $distrobase $par 
+        $distrobase/scripts/kinsol $tarfile $distrobase
     fi
 
     gzip $tarfile
@@ -95,13 +83,7 @@ function create_module
 {
     module=$1
 
-    if [ $both = "F" ]
-    then
-        create_file $module $par
-    else
-        create_file $module "F"
-        create_file $module "T"
-    fi
+    create_file $module
 }
 
 #==============================================================================
@@ -123,26 +105,16 @@ fi
 #-------------
 err=F   # Error flag
 hlp=F   # Help flag
-par=F   # Parallel flag
-full=F
-serial=F
-both=T  # generate both tarballs
 
 #----------------
 # Process options
 #----------------
-while getopts ":fhs" name ; do
+while getopts ":h" name ; do
     case $name in
-        f) both=F;full=T;par=T;;
-        s) both=F;serial=T;par=F;;
         h) hlp=T;;
         ?) err=T;;
     esac
 done
-
-if [ $full = "T" -a $serial = "T" ]; then
- both=T
-fi
 
 #------------------------------
 # Extract argument (module name)

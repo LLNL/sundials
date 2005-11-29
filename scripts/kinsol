@@ -2,7 +2,6 @@
 
 tarfile=$1
 distrobase=$2
-par=$3
 
 echo ""
 echo "  Generate kinsol documentation"
@@ -64,18 +63,15 @@ tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/README
 tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/Makefile.in
 tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.f
 tar uf $tarfile $distrobase/kinsol/fcmix/examples_ser/kindiagsf.out
+
+tar uf $tarfile $distrobase/kinsol/examples_par/README
+tar uf $tarfile $distrobase/kinsol/examples_par/Makefile.in
+tar uf $tarfile $distrobase/kinsol/examples_par/kinwebp.c
+tar uf $tarfile $distrobase/kinsol/examples_par/kinwebp.out
+tar uf $tarfile $distrobase/kinsol/examples_par/kinwebbbd.c
+tar uf $tarfile $distrobase/kinsol/examples_par/kinwebbbd.out
     
-if [ $par = "T" ]
-then
-    tar uf $tarfile $distrobase/kinsol/examples_par/README
-    tar uf $tarfile $distrobase/kinsol/examples_par/Makefile.in
-    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebp.c
-    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebp.out
-    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebbbd.c
-    tar uf $tarfile $distrobase/kinsol/examples_par/kinwebbbd.out
-    
-    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/README
-    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/Makefile.in
-    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.f
-    tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.out
-fi
+tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/README
+tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/Makefile.in
+tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.f
+tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/kindiagpf.out

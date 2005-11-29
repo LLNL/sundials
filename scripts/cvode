@@ -2,7 +2,6 @@
 
 tarfile=$1
 distrobase=$2
-par=$3
 
 echo ""
 echo "  Generate cvode documentation"
@@ -96,23 +95,20 @@ tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkryf.out
 tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkrybf.f
 tar uf $tarfile $distrobase/cvode/fcmix/examples_ser/cvkrybf.out
 
-if [ $par = "T" ]
-then
-    tar uf $tarfile $distrobase/cvode/examples_par/README
-    tar uf $tarfile $distrobase/cvode/examples_par/Makefile.in
-    tar uf $tarfile $distrobase/cvode/examples_par/pvnx.c
-    tar uf $tarfile $distrobase/cvode/examples_par/pvnx.out
-    tar uf $tarfile $distrobase/cvode/examples_par/pvkx.c
-    tar uf $tarfile $distrobase/cvode/examples_par/pvkx.out
-    tar uf $tarfile $distrobase/cvode/examples_par/pvkxb.c
-    tar uf $tarfile $distrobase/cvode/examples_par/pvkxb.out
+tar uf $tarfile $distrobase/cvode/examples_par/README
+tar uf $tarfile $distrobase/cvode/examples_par/Makefile.in
+tar uf $tarfile $distrobase/cvode/examples_par/pvnx.c
+tar uf $tarfile $distrobase/cvode/examples_par/pvnx.out
+tar uf $tarfile $distrobase/cvode/examples_par/pvkx.c
+tar uf $tarfile $distrobase/cvode/examples_par/pvkx.out
+tar uf $tarfile $distrobase/cvode/examples_par/pvkxb.c
+tar uf $tarfile $distrobase/cvode/examples_par/pvkxb.out
 
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/README
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/Makefile.in
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagnf.f
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagnf.out
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagkf.f
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagkf.out
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagkbf.f
-    tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagkbf.out
-fi
+tar uf $tarfile $distrobase/cvode/fcmix/examples_par/README
+tar uf $tarfile $distrobase/cvode/fcmix/examples_par/Makefile.in
+tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagnf.f
+tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagnf.out
+tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagkf.f
+tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagkf.out
+tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagkbf.f
+tar uf $tarfile $distrobase/cvode/fcmix/examples_par/pvdiagkbf.out

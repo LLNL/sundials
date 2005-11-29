@@ -2,7 +2,6 @@
 
 tarfile=$1
 distrobase=$2
-par=$3
 
 echo ""
 echo "  Generate cvodes documentation"
@@ -93,29 +92,25 @@ tar uf $tarfile $distrobase/cvodes/examples_ser/cvakx.out
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvakxb.c
 tar uf $tarfile $distrobase/cvodes/examples_ser/cvakxb.out
 
+tar uf $tarfile $distrobase/cvodes/examples_par/README
+tar uf $tarfile $distrobase/cvodes/examples_par/Makefile.in
 
-if [ $par = "T" ]
-then
-    tar uf $tarfile $distrobase/cvodes/examples_par/README
-    tar uf $tarfile $distrobase/cvodes/examples_par/Makefile.in
+tar uf $tarfile $distrobase/cvodes/examples_par/pvakx.c
+tar uf $tarfile $distrobase/cvodes/examples_par/pvakx.out
 
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvakx.c
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvakx.out
+tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.c
+tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.out
+tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.c
+tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.out
+tar uf $tarfile $distrobase/cvodes/examples_par/pvkxb.c
+tar uf $tarfile $distrobase/cvodes/examples_par/pvkxb.out
 
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.c
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.out
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.c
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvkx.out
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvkxb.c
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvkxb.out
+tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.c
+tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.out1
+tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.out2
+tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.c
+tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.out1
+tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.out2
 
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.c
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.out1
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvfnx.out2
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.c
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.out1
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvfkx.out2
-
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvanx.c
-    tar uf $tarfile $distrobase/cvodes/examples_par/pvanx.out
-fi
+tar uf $tarfile $distrobase/cvodes/examples_par/pvanx.c
+tar uf $tarfile $distrobase/cvodes/examples_par/pvanx.out
