@@ -22,9 +22,9 @@ equation (ODE) solvers {\cvode} \cite{cvode2.4.0_ug,CoHi:96} and {\pvode}
 
 The Newton/Krylov method in {\ida} are:
 the GMRES (Generalized Minimal RESidual) \cite{SaSc:86},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized) \cite{}, and
+Bi-CGStab (Bi-Conjugate Gradient Stabilized) \cite{Van:92}, and
 TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative methods
-\cite{}.  As Krylov methods, these require almost no matrix storage
+\cite{Fre:93}.  As Krylov methods, these require almost no matrix storage
 for solving the Newton equations as compared to direct methods.
 However, the algorithms allow for a user-supplied preconditioner
 matrix, and for most problems preconditioning is essential for an
