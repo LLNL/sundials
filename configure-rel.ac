@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2005-10-25 15:33:20 $
+# $Revision: 1.1 $
+# $Date: 2005-11-29 23:18:41 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -22,6 +22,7 @@ SUNDIALS_INITIALIZE
 
 # Test enable/disable features
 SUNDIALS_ENABLES
+SUNDIALS_MPI_ENABLES
 
 # Set C compilation
 AC_PROG_CC(${CC} cc gcc)
@@ -31,6 +32,14 @@ SUNDIALS_SET_CC
 if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
   AC_PROG_F77(${F77} f77 g77)
   SUNDIALS_SET_F77
+fi
+
+# Set MPI support (Optional)
+if test "X${MPI_ENABLED}" = "Xyes"; then
+  SUNDIALS_SET_MPICC
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    SUNDIALS_SET_MPIF77
+  fi
 fi
 
 # Run libtool checks
@@ -44,6 +53,12 @@ SUNDIALS_ENABLE_EXAMPLES
 AC_SUBST(COMPILER_PREFIX)
 AC_SUBST(LINKER_PREFIX)
 AC_SUBST(OBJ_EXT)
+AC_SUBST(MPICC)
+AC_SUBST(MPIF77)
+AC_SUBST(MPI_INC_DIR)
+AC_SUBST(MPI_LIB_DIR)
+AC_SUBST(MPI_LIBS)
+AC_SUBST(MPI_FLAGS)
 AC_SUBST(MODULES)
 AC_SUBST(NVEC_MODULES)
 AC_SUBST(EXAMPLE_MODULES)
@@ -59,6 +74,7 @@ AC_SUBST(PRECISION_LEVEL)
 AC_SUBST(GENERIC_MATH_LIB)
 AC_SUBST(F77_MPI_COMM_F2C)
 AC_SUBST(F77_LNKR)
+AC_SUBST(MPIF77_LNKR)
 
 # Set installation path
 SUNDIALS_INSTALL_PATH
