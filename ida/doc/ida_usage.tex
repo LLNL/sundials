@@ -399,14 +399,16 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
   \end{args}
 }
 {
-  If an error occurred, \id{IDAMalloc} also prints an error message to the
-  file specified by the optional input \id{errfp}.
+  See also \S\ref{sss:tol_advice} for advice on tolerances.
 
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
   calls to \id{IDASolve} (see \id{IDASetTolerances} in \S\ref{sss:optin_main}).
 
   {\warn} It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
+
+  If an error occurred, \id{IDAMalloc} also prints an error message to the
+  file specified by the optional input \id{errfp}.
 }
 %%
 %%
@@ -431,6 +433,7 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
 \subsection{Advice on choice and use of tolerances}\label{sss:tol_advice}
 %%==============================================================================
 
+\index{tolerances}
 {\bf General advice on choice of tolerances.}
 For many users, the appropriate choices for tolerance values in
 \id{reltol} and \id{abstol} are a concern.  The following pieces of
@@ -450,8 +453,8 @@ decays to zero, then pure relative error control on \id{y[i]} makes no sense
 (and is overly costly) after \id{y[i]} is below some noise level.  Then
 \id{abstol} (if scalar) or \id{abstol[i]} (if a vector) needs to be set to that
 noise level.  If the different components have different noise levels,
-then \id{abstol} should be a vector.  See the example \id{irobx} in the {\ida}
-package, and the discussion of it in the {\ida} Examples document
+then \id{abstol} should be a vector.  See the example \id{irobx} in the
+{\ida} package, and the discussion of it in the {\ida} Examples document
 \cite{ida2.4.0_ex}.
 In that problem, the three components vary betwen 0 and 1, and have
 different noise levels; hence the \id{abstol} vector.  It is impossible to
@@ -470,13 +473,13 @@ the tolerances to see how the computed solution values vary as
 tolerances are reduced.
 
 \vspace{0.1in}
+\index{tolerances}
 {\bf Advice on controlling unphysical negative values.}
 In many applications, some components in the true solution are always
-positive or non-negative, though at times very small, but in the
-numerical solution small negative (hence unphysical) values can then
+positive or non-negative, though at times very small.  In the numerical
+solution, however, small negative (hence unphysical) values can then
 occur.  In most cases, these values are harmless, and simply need to
-be controlled, not eliminated. The following pieces of advice are
-relevant.
+be controlled, not eliminated. The following pieces of advice are relevant.
 
 (1) The way to control the size of unwanted negative computed values
 is with tighter absolute tolerances.  Again this requires some
@@ -485,18 +488,25 @@ be different for different components.  Some experimentation may be
 needed.
 
 (2) If output plots or tables are being generated, and it is important
-to avoid having negative numbers appear there (for the sake of
-avoiding a long explanation of them, if nothing else), then eliminate
-them, but only in the context of the output medium.  Then the internal
-values carried by the solver are unaffected.
+to avoid having negative numbers appear there (for the sake of avoiding
+a long explanation of them, if nothing else), then eliminate them, but
+only in the context of the output medium.  Then the internal values carried
+by the solver are unaffected.  Remember that a small negative value in \id{yret}
+returned by {\ida}, with magnitude comparable to \id{abstol} or less,
+is equivalent to zero as far as the computation is concerned.
 
 (3) The user's residual routine \id{res} should never change a
-negative value to zero or small positive number, as a "solution" to
-this problem.  This can cause instability.  If the \id{res} routine
-cannot tolerate a zero or negative value (e.g. because there is a
-square root or log of it), then the offending value should be changed
-to zero or a tiny positive number in a temporary variable (not in the
-input \id{yy} vector) for the purposes of computing $F(t,y)$.
+negative value in the solution vector \id{yy} to a non-negative value,
+as a "solution" to this problem.  This can cause instability.  If the
+\id{res} routine cannot tolerate a zero or negative value (e.g. because
+there is a square root or log of it), then the offending value should
+be changed to zero or a tiny positive number in a temporary variable
+(not in the input \id{yy} vector) for the purposes of computing $F(t,y)$.
+
+(4) {\ida} provides the option of enforcing positivity or non-negativity
+on components.  But these constraint options should only be exercised if
+the use of absolute tolerances to control the computed values is
+unsuccessful, because they involve some extra overhead cost.
 
 
 %%
