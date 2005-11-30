@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2005-11-28 21:30:33 $
+# $Revision: 1.3 $
+# $Date: 2005-11-30 19:47:22 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -37,6 +37,7 @@ MPI_LIBS  = @MPI_LIBS@
 MPI_FLAGS = @MPI_FLAGS@
 CPPFLAGS  = @CPPFLAGS@
 CFLAGS    = @CFLAGS@
+LDFLAGS   = @LDFLAGS@
 LIBS      = @LIBS@
 
 FCMIX_ENABLED = @FCMIX_ENABLED@
@@ -57,12 +58,12 @@ update:
 	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(NVECTOR_SPCPARALLEL_LIB_FILES) $(FNVECTOR_SPCPARALLEL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECTOR_SPCPARALLEL_LIB) $(NVECTOR_SPCPARALLEL_LIB_FILES) -rpath $(libdir) $(LIBS) $(MPI_LIBS) -version-info 0:0:0
+	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECTOR_SPCPARALLEL_LIB) $(NVECTOR_SPCPARALLEL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) $(MPI_LIBS) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_SPCPARALLEL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_SPCPARALLEL_INC_DIR)/nvector_spcparallel.h $(includedir)
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                              \
-	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECTOR_SPCPARALLEL_LIB} ${FNVECTOR_SPCPARALLEL_LIB_FILES} -rpath ${libdir} ${LIBS} -static -version-info 0:0:0" ; \
-	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECTOR_SPCPARALLEL_LIB} ${FNVECTOR_SPCPARALLEL_LIB_FILES} -rpath ${libdir} ${LIBS} -static -version-info 0:0:0 ;        \
+	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECTOR_SPCPARALLEL_LIB} ${FNVECTOR_SPCPARALLEL_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info 0:0:0" ; \
+	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECTOR_SPCPARALLEL_LIB} ${FNVECTOR_SPCPARALLEL_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info 0:0:0 ;        \
 	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_SPCPARALLEL_LIB} ${libdir}" ;                                                                                               \
 	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_SPCPARALLEL_LIB} ${libdir} ;                                                                                                      \
 	 fi

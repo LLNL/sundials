@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2005-11-28 21:30:30 $
+# $Revision: 1.16 $
+# $Date: 2005-11-30 19:47:19 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -36,6 +36,7 @@ CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CC       = @CC@
 CFLAGS   = @CFLAGS@
+LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
 FCMIX_ENABLED = @FCMIX_ENABLED@
@@ -55,12 +56,12 @@ update:
 	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
 
 install: update $(NVECTOR_SERIAL_LIB_FILES) $(FNVECTOR_SERIAL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECTOR_SERIAL_LIB) $(NVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LIBS) -version-info 0:0:0
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECTOR_SERIAL_LIB) $(NVECTOR_SERIAL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECTOR_SERIAL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECTOR_SERIAL_INC_DIR)/nvector_serial.h $(includedir)
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                    \
-	   echo "${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECTOR_SERIAL_LIB} ${FNVECTOR_SERIAL_LIB_FILES} -rpath ${libdir} ${LIBS} -static -version-info 0:0:0" ; \
-	   ${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECTOR_SERIAL_LIB} ${FNVECTOR_SERIAL_LIB_FILES} -rpath ${libdir} ${LIBS} -static -version-info 0:0:0 ;        \
+	   echo "${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECTOR_SERIAL_LIB} ${FNVECTOR_SERIAL_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info 0:0:0" ; \
+	   ${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECTOR_SERIAL_LIB} ${FNVECTOR_SERIAL_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info 0:0:0 ;        \
 	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_SERIAL_LIB} ${libdir}" ;                                                                          \
 	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECTOR_SERIAL_LIB} ${libdir} ;                                                                                 \
 	 fi
