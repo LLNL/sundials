@@ -128,22 +128,11 @@ as follows:
 %%===================================================================================
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
 %%===================================================================================
-
-%A high-level view of the combined user program and {\ida} package is
-%shown in Figure~\ref{f:sim_overview}.
-%%
-%\begin{figure}
-%\centerline{\psfig{figure=idasim.eps,width=\textwidth}}
-%\caption {Diagram of the user program and 
-%  {\ida} package for integration of DAE}\label{f:sim_overview}
-%\end{figure}
-%%
 The following is a skeleton of the user's main program (or calling
 program) for the integration of a DAE IVP. Some steps are independent of the
 {\nvector} implementation used; where this is not the case, usage specifications
 are given for the two implementations provided with {\ida}: steps marked with {\p}
 correspond to {\nvecp}, while steps marked with {\s} correspond to {\nvecs}.
-%%
 %%
 %%
 \index{User main program!IDA@{\ida} usage}
