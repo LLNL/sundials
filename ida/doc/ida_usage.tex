@@ -98,7 +98,8 @@ defines the abstract \Id{N\_Vector} type.
 
 Finally, a linear solver module header file is required. 
 \index{IDA@{\ida} linear solvers!header files}
-The header files corresponding to the various linear solver options in {\ida} are:
+The header files corresponding to the various linear solver options in {\ida} are
+as follows:
 %%
 \begin{itemize}
 \item \Id{idadense.h}, 
@@ -113,11 +114,11 @@ The header files corresponding to the various linear solver options in {\ida} ar
   which is used with the Krylov solver {\spgmr} in the
   context of {\ida}. This in turn includes a header file (\id{iterative.h})
   which enumerates the kind of preconditioning and the choices for the
-  Gram-Schmidt process.
+  Gram-Schmidt process;
 \item \Id{idaspbcg.h}, 
   which is used with the Krylov solver {\spbcg} in the
   context of {\ida}. This in turn includes a header file (\id{iterative.h})
-  which enumerates the kind of preconditioning.
+  which enumerates the kind of preconditioning;
 \item \Id{idasptfqmr.h}, 
   which is used with the Krylov solver {\sptfqmr} in the
   context of {\ida}. This in turn includes a header file (\id{iterative.h})
@@ -529,7 +530,7 @@ preconditioned Bi-CGStab, and scaled preconditioned TFQMR methods, respectively.
 When using any of the Krylov linear solvers, preconditioning (on the left)
 is permitted, and in fact encouraged, for the sake of efficiency.
 A preconditioner matrix $P$ must approximate the Jacobian $J$, at least
-crudely.  For specification of a preconditioner, see \S\ref{sss:optin_linsol}
+crudely.  For the specification of a preconditioner, see \S\ref{sss:optin_linsol}
 and \S\ref{ss:user_fct_sim}.
 
 \index{IDA@{\ida} linear solvers!selecting one|(} 
@@ -1057,16 +1058,19 @@ Lower bound on Newton step & \id{IDASetStepToleranceIC} &  uround$^{2/3}$ \\
 \hline
 \multicolumn{3}{|c|}{\bf IDADENSE linear solver} \\
 \hline
-Dense Jacobian function and data & \id{IDADenseSetJacFn} & internal DQ, NULL \\
+Dense Jacobian function and data & \id{IDADenseSetJacFn} & internal DQ,\\
+&&NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf IDABAND linear solver} \\
 \hline
-Band Jacobian function and data & \id{IDABandSetJacFn} & internal DQ, NULL \\
+Band Jacobian function and data & \id{IDABandSetJacFn} & internal DQ,\\
+&& NULL \\
 \hline
 \multicolumn{3}{|c|}{\bf IDASPGMR linear solver} \\
 \hline
-Preconditioner functions and data & \id{IDASpgmrSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian-times-vector function and data & \id{IDASpgmrSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioner functions and data & \id{IDASpgmrSetPreconditioner} & all NULL \\
+Jacobian-times-vector function and data & \id{IDASpgmrSetJacTimesVecFn} & internal DQ,\\
+&&NULL \\
 Type of Gram-Schmidt orthogonalization & \id{IDASpgmrSetGSType} & classical GS \\
 Maximum no. of restarts & \id{IDASpgmrSetMaxRestarts} & 5 \\
 Factor in linear convergence test & \id{IDASpgmrSetEpsLin} & 0.05 \\
@@ -1074,16 +1078,18 @@ Factor in DQ increment calculation & \id{IDASpgmrSetIncrementFactor} & 1.0 \\
 \hline
 \multicolumn{3}{|c|}{\bf IDASPBCG linear solver} \\
 \hline
-Preconditioner functions and data & \id{IDASpbcgSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian-times-vector function and data & \id{IDASpbcgSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioner functions and data & \id{IDASpbcgSetPreconditioner} & all NULL \\
+Jacobian-times-vector function and data & \id{IDASpbcgSetJacTimesVecFn} & internal DQ,\\
+&&NULL \\
 Maximum Krylov subspace size & \id{IDASpbcgSetMaxl} & 5 \\
 Factor in linear convergence test & \id{IDASpbcgSetEpsLin} & 0.05 \\
 Factor in DQ increment calculation & \id{IDASpbcgSetIncrementFactor} & 1.0 \\
 \hline
 \multicolumn{3}{|c|}{\bf IDASPTFQMR linear solver} \\
 \hline
-Preconditioner functions and data & \id{IDASptfqmrSetPreconditioner} & NULL, NULL, NULL \\
-Jacobian-times-vector function and data & \id{IDASptfqmrSetJacTimesVecFn} & internal DQ, NULL \\
+Preconditioner functions and data & \id{IDASptfqmrSetPreconditioner} & all NULL \\
+Jacobian-times-vector function and data & \id{IDASptfqmrSetJacTimesVecFn} & internal DQ,\\
+&& NULL \\
 Maximum Krylov subspace size & \id{IDASptfqmrSetMaxl} & 5 \\
 Factor in linear convergence test & \id{IDASptfqmrSetEpsLin} & 0.05 \\
 Factor in DQ increment calculation & \id{IDASptfqmrSetIncrementFactor} & 1.0 \\
@@ -2028,7 +2034,7 @@ or use the difference quotient function \Id{IDASpgmrDQJtimes}
 that comes with the {\idaspgmr} solver.
 A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn}
 and can be specified through a call to \id{IDASpgmrSetJacTimesVecFn}
-(see \S\ref{ss:user_fct_sim} for specification details).
+(see \S\ref{ss:jtimesFn} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
 the user can also specify in the call to \id{IDASpgmrSetJacTimesVecFn}, a pointer
@@ -2299,7 +2305,7 @@ or use the difference quotient function \Id{IDASpbcgDQJtimes}
 that comes with the {\idaspbcg} solver.
 A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn}
 and can be specified through a call to \id{IDASpbcgSetJacTimesVecFn} 
-(see \S\ref{ss:user_fct_sim} for specification details).
+(see \S\ref{ss:jtimesFn} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
 the user can also specify in the call to \id{IDASpbcgSetJacTimesVecFn}, a pointer
@@ -2530,7 +2536,7 @@ or use the difference quotient function \Id{IDASptfqmrDQJtimes}
 that comes with the {\idasptfqmr} solver.
 A user-defined Jacobian-vector function must be of type \id{IDASpilsJacTimesVecFn}
 and can be specified through a call to \id{IDASptfqmrSetJacTimesVecFn} 
-(see \S\ref{ss:user_fct_sim} for specification details).
+(see \S\ref{ss:jtimesFn} for specification details).
 %%
 As with the preconditioner user data structure \id{p\_data}, 
 the user can also specify in the call to \id{IDASptfqmrSetJacTimesVecFn}, a pointer
@@ -5318,9 +5324,9 @@ There are two optional output functions associated with rootfinding.
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[rootsfound] (\id{int *})
-    the indices of the user functions $g_i$ found to have a root.  For
-    $i=0,\ldots,$\id{nrtfn}$-1$, \id{rootsfound}[$i$]$=1$ if $g_i$
-    has a root, and $=0$ if not.
+    array of length \id{nrtfn} with the indices of the user functions $g_i$ found
+    to have a root.  For $i = 0,\ldots, $\id{nrtfn} $-1$,
+   \id{rootsfound}[$i$] $ = 1$ if $g_i$ has a root, and $ = 0$ if not.
   \end{args}
 }
 {
@@ -5393,7 +5399,7 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
     is the output array, of length \id{nrtfn}, with components $g_i(t,y,y')$.
   \item[g\_data]
     is a pointer to user data --- the same as the \Id{g\_data}      
-    parameter passed to \id{IDASetGdata}.   
+    parameter passed to \id{IDARootInit}.   
   \end{args}
 }
 {
