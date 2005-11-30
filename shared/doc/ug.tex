@@ -6,16 +6,15 @@
 % but not the TOC itself :-)
 \usepackage[nottoc]{tocbibind}
 
+\usepackage{calc}
 \usepackage{hangcaption}
 \usepackage{subfigure}
 \usepackage{color}
+\usepackage{epsfig}
+\input{pstricks}\input{pst-node}\input{llnlCoverPage}
 
 % Needed for sideways
 \usepackage{rotating}
-
-% Packages needed for the cover page
-\usepackage{calc, epsfig, chngpage}
-\input{pstricks}\input{pst-node}\input{llnlCoverPage}
 
 % Package used for code listings
 \usepackage{fancyvrb}
@@ -180,7 +179,6 @@
 %%-------
 
 \newcommand{\disclaimer}{%
-\changetext{.625in}{}{}{}{}
 \thispagestyle{empty}% no number of this page
 \vglue5\baselineskip
 \begin{center}
@@ -210,7 +208,6 @@ contract No.  W-7405-Eng-48.
 Approved for public release; further dissemination unlimited
 \end{center}
 \clearpage
-\changetext{-.625in}{}{}{}{}
 }
 
 

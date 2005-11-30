@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.19 $
-# $Date: 2005-11-29 23:15:28 $
+# $Revision: 1.20 $
+# $Date: 2005-11-30 19:45:03 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -47,10 +47,7 @@ biblio.bib \
 bandmat.eps \
 sunorg1.eps \
 sunorg2.eps \
-llnlCoverPage.tex \
-Logo_for_papers.ps \
-Rule_and_address.ps \
-chngpage.sty
+processHTML
 
 EX_FILES = \
 cv_examples.tex \
@@ -62,13 +59,24 @@ cv_ex_codes.tex \
 cv_ex_tests.tex   
 
 EX_SHARED_FILES = \
-llnlCoverPage.tex \
-Logo_for_papers.ps \
-Rule_and_address.ps \
-chngpage.sty \
 ug.tex \
 ug_html.tex \
-biblio.bib
+biblio.bib \
+processHTML
+
+HTML_BUTTONS =\
+back.png \
+contents.png \
+index.png \
+next.png \
+next_g.png \
+prev.png \
+prev_g.png \
+up.png \
+up_g.png
+
+
+EX_DIR = cv_examples
 
 #-------------------------------------------------------------------------------
 
@@ -91,6 +99,11 @@ ug_pdf: ug cv_guide.ps
 ug_html: ug
 	cp ug_html.tex ug.tex
 	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -show_section_numbers -local_icons -white -notransparent cv_guide.tex
+	@for i in ${HTML_BUTTONS} ; do \
+	cp ${SHARED_DOC}/buttons/$${i} cv_guide/ ;\
+	done
+	@cp ${SHARED_DOC}/l2h_styles.css cv_guide/cv_guide.css
+	processHTML cv_guide
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -113,6 +126,11 @@ ex_pdf: ex cv_examples.ps
 ex_html: ex
 	cp ug_html.tex ug.tex
 	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent cv_examples.tex
+	@for i in ${HTML_BUTTONS} ; do \
+	cp ${SHARED_DOC}/buttons/$${i} cv_examples/ ;\
+	done
+	@cp ${SHARED_DOC}/l2h_styles.css cv_examples/cv_examples.css
+	processHTML cv_examples
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \

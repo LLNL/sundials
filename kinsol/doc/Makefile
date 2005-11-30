@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-11-29 23:15:34 $
+# $Revision: 1.14 $
+# $Date: 2005-11-30 19:45:11 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -46,10 +46,7 @@ biblio.bib \
 bandmat.eps \
 sunorg1.eps \
 sunorg2.eps \
-llnlCoverPage.tex \
-Logo_for_papers.ps \
-Rule_and_address.ps \
-chngpage.sty
+processHTML
 
 EX_FILES = \
 kin_examples.tex \
@@ -59,13 +56,21 @@ kin_ex_fortran.tex \
 kin_ex_codes.tex
 
 EX_SHARED_FILES = \
-llnlCoverPage.tex \
-Logo_for_papers.ps \
-Rule_and_address.ps \
-chngpage.sty \
 ug.tex \
 ug_html.tex \
-biblio.bib
+biblio.bib \
+processHTML
+
+HTML_BUTTONS =\
+back.png \
+contents.png \
+index.png \
+next.png \
+next_g.png \
+prev.png \
+prev_g.png \
+up.png \
+up_g.png
 
 #-------------------------------------------------------------------------------
 
@@ -88,6 +93,11 @@ ug_pdf: ug kin_guide.ps
 ug_html: ug
 	cp ug_html.tex ug.tex
 	latex2html -split 3 -link 3 -info 1 -no_math -html_version 3.2,math -short_index -show_section_numbers -local_icons -white -notransparent kin_guide.tex
+	@for i in ${HTML_BUTTONS} ; do \
+	cp ${SHARED_DOC}/buttons/$${i} kin_guide/ ;\
+	done
+	@cp ${SHARED_DOC}/l2h_styles.css kin_guide/kin_guide.css
+	processHTML kin_guide
 
 copy_ug:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -110,6 +120,11 @@ ex_pdf: ex kin_examples.ps
 ex_html: ex
 	cp ug_html.tex ug.tex
 	latex2html -split 4 -link 4 -info 1 -no_math -html_version 3.2,math -show_section_numbers -local_icons -white -notransparent kin_examples.tex
+	@for i in ${HTML_BUTTONS} ; do \
+	cp ${SHARED_DOC}/buttons/$${i} kin_examples/ ;\
+	done
+	@cp ${SHARED_DOC}/l2h_styles.css kin_examples/kin_examples.css
+	processHTML kin_examples
 
 copy_ex:
 	@for i in ${EX_SHARED_FILES} ; do \
