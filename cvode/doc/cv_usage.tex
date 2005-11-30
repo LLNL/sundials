@@ -140,22 +140,12 @@ with a block-diagonal matrix. For this, the header
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
 %%==============================================================================
 
-%%A high-level view of the combined user program and {\cvode} package is
-%%shown in Figure~\ref{f:sim_overview}.
-%%
-%%\begin{figure}
-%%\centerline{\psfig{figure=cvsim.eps,width=\textwidth}}
-%%\caption {Diagram of the user program and 
-%%  {\cvode} package for integration of IVP}\label{f:sim_overview}
-%%\end{figure}
-%%
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP. Some steps are independent
 of the {\nvector} implementation used; where this is not the case, usage
 specifications are given for the two implementations provided with {\cvode}:
 Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
 {\s} correspond to {\nvecs}.
-%%
 %%
 %%
 \index{User main program!CVODE@{\cvode} usage}
