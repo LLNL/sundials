@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-11-08 23:41:52 $
+ * $Revision: 1.21 $
+ * $Date: 2005-11-30 23:23:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -391,8 +391,8 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata)
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwLS = %5ld     leniwLS = %5ld\n", lenrwLS, leniwLS);
-  printf("lenrwBP = %5ld     leniwBP = %5ld\n", lenrwBP, leniwBP);
+  printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
+  printf("lenrwbp = %5ld     leniwbp = %5ld\n", lenrwBP, leniwBP);
   printf("nst     = %5ld\n"                  , nst);
   printf("nfe     = %5ld     nfetot  = %5ld\n"  , nfe, nfe+nfeLS+nfeBP);
   printf("nfeLS   = %5ld     nfeBP   = %5ld\n"  , nfeLS, nfeBP);
