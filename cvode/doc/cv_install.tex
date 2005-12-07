@@ -4,5 +4,16 @@ The installation of {\cvode} is accomplished by installing the
 {\sundials} suite as a whole, according to the instructions that
 follow.   The same procedure applies whether or not the downloaded
 file contains solvers other than {\cvode}.
+\footnote{Files for both the serial and parallel versions of {\cvode}
+are included in the distribution.  For users in a serial computing
+environment, the files specific to the parallel version may be deleted. 
+These files are as follows:
+all files in \id{nvec\_par/}; all files in \id{nvec\_spcpar/};
+\id{cvbbdpre.c, cvbbdpre\_impl.h} (in \id{cvode/source/});
+\id{cvode/include/cvbbdpre.h}; 
+\id{fcvbbd.c, fcvbbd.h} (in \id{cvode/fcmix/});
+all files in \id{cvode/examples\_par/}.}
+
+
 
 \input{install}
