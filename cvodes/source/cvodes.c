@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.59 $
- * $Date: 2005-09-23 19:00:10 $
+ * $Revision: 1.60 $
+ * $Date: 2005-12-07 16:52:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1466,16 +1466,24 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   if (sensi) {
 
-    /* Test if the pointer to parameters is available if needed */
-    if(fSDQ && (p == NULL)) {
-      if(errfp!=NULL) fprintf(errfp, MSGCVS_P_NULL);
-      return(CV_ILL_INPUT);
-    }
-    
-    /* Set plist if needed and still NULL at this point */
-    if(fSDQ && (plist == NULL)) {
-      for (is=0; is<Ns; is++)
-        plist[is] = is+1;
+    /* If using internal DQ functions for sensitivity RHS */
+    if(fSDQ) {
+
+      /* Make sure we have the right 'user data' */
+      fS_data = cvode_mem;
+
+      /* Test if we have the problem parameters */
+      if(p == NULL) {
+        if(errfp!=NULL) fprintf(errfp, MSGCVS_P_NULL);
+        return(CV_ILL_INPUT);
+      }
+
+      /* If we do not have plist, use the default */
+      if(plist == NULL) {
+        for (is=0; is<Ns; is++)
+          plist[is] = is;
+      }
+
     }
 
     /* Set pbar if needed and still NULL at this point */
@@ -6534,7 +6542,7 @@ void CVSensRhs1DQ(int Ns, realtype t,
   
   pbari = pbar[is];
 
-  which = plist[is] - 1;
+  which = plist[is];
 
   psave = p[which];
   

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-09-23 19:00:04 $
+ * $Revision: 1.23 $
+ * $Date: 2005-12-07 16:52:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -156,11 +156,11 @@ int main(int argc, char *argv[])
 
     plist = (int *) malloc(NS * sizeof(int));
     if(check_flag((void *)plist, "malloc", 2)) return(1);
-    for(is=0; is<NS; is++) plist[is] = is+1;
+    for(is=0; is<NS; is++) plist[is] = is;
 
     pbar  = (realtype *) malloc(NS * sizeof(realtype));
     if(check_flag((void *)pbar, "malloc", 2)) return(1);
-    for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]-1];
+    for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
     uS = N_VCloneVectorArray_Serial(NS, u);
     if(check_flag((void *)uS, "N_VCloneVectorArray_Serial", 0)) return(1);

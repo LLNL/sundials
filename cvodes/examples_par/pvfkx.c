@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2005-09-23 19:00:01 $
+ * $Revision: 1.26 $
+ * $Date: 2005-12-07 16:52:49 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -292,11 +292,11 @@ int main(int argc, char *argv[])
 
     plist = (int *) malloc(NS * sizeof(int));
     if (check_flag((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-    for (is=0; is<NS; is++) plist[is] = is+1;
+    for (is=0; is<NS; is++) plist[is] = is;
 
     pbar = (realtype *) malloc(NS*sizeof(realtype));
     if (check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-    for (is=0; is<NS; is++) pbar[is] = data->p[plist[is]-1]; 
+    for (is=0; is<NS; is++) pbar[is] = data->p[plist[is]]; 
 
     uS = N_VCloneVectorArray_Parallel(NS, u);
     if (check_flag((void *)uS, "N_VCloneVectorArray_Parallel", 0, my_pe)) MPI_Abort(comm, 1);

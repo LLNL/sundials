@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-08-13 01:15:28 $
+ * $Revision: 1.21 $
+ * $Date: 2005-12-07 16:52:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -584,7 +584,7 @@ typedef struct CVodeMemRec {
 #define MSGCVS_BAD_ABSTOLS _CVSET_STOL_ "abstolS has negative component(s) (illegal).\n\n"  
 
 #define MSGCVS_BAD_PBAR "CVodeSetSensParams-- pbar has zero component(s) (illegal).\n\n"
-#define MSGCVS_BAD_PLIST "CVodeSetSensParams-- plist has nonpositive component(s) (illegal).\n\n"
+#define MSGCVS_BAD_PLIST "CVodeSetSensParams-- plist has negative component(s) (illegal).\n\n"
 
 #define _SCVM_ "CVodeSensMalloc/CVodeSensReInit-- "
 

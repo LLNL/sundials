@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-11-08 23:41:52 $
+ * $Revision: 1.28 $
+ * $Date: 2005-12-07 16:52:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
     flag = CVodeSetSensRhs1Fn(cvode_mem, fS);
     if (check_flag(&flag, "CVodeSetSensRhs1Fn", 1)) return(1);
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
-    if (check_flag(&flag, "CVodeSetSensFdata", 1)) return(1);
+    if (check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
     flag = CVodeSetSensFdata(cvode_mem, data);
     if (check_flag(&flag, "CVodeSetSensFdata", 1)) return(1);
     flag = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);

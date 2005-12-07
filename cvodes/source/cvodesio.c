@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-11-08 19:47:54 $
+ * $Revision: 1.14 $
+ * $Date: 2005-12-07 16:52:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -818,6 +818,13 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  /* Was sensitivity initialized? */
+
+  if (cv_mem->cv_sensMallocDone == FALSE) {
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_SET_NO_SENSI);
+    return(CV_NO_SENS);
+  }
+
   Ns = cv_mem->cv_Ns;
 
   /* Parameters */
@@ -842,7 +849,7 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
 
   if (plist != NULL)
     for (is=0; is<Ns; is++) {
-      if ( plist[is] <1 ) {
+      if ( plist[is] < 0 ) {
         if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_PLIST);
         return(CV_ILL_INPUT);
       }
@@ -850,7 +857,7 @@ int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
     }
   else
     for (is=0; is<Ns; is++)
-      cv_mem->cv_plist[is] = is+1;
+      cv_mem->cv_plist[is] = is;
 
   return(CV_SUCCESS);
 }
