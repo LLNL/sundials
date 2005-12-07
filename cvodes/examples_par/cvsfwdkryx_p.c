@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-12-07 16:52:49 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-07 19:14:03 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -56,9 +56,9 @@
  *       the MPI script mpirun is used to run a paralles
  *       application.
  * If no sensitivities are desired:
- *    % mpirun -np N pvfkx -nosensi
+ *    % mpirun -np N cvsfwdkryx_p -nosensi
  * If sensitivities are to be computed:
- *    % mpirun -np N pvfkx -sensi sensi_meth err_con
+ *    % mpirun -np N cvsfwdkryx_p -sensi sensi_meth err_con
  * where sensi_meth is one of {sim, stg, stg1} and err_con is one of
  * {t, f}.
  * -----------------------------------------------------------------
@@ -547,7 +547,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
  */
 
 /* 
- * Process and verify arguments to pvfkx.
+ * Process and verify arguments to cvsfwdkryx_p.
  */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,

@@ -2,16 +2,16 @@
 \section{Adjoint sensitivity analysis example problems}\label{s:adj_examples}
 %===================================================================================
 
-The next three sections describe in detail a serial example (\id{cvadx}) and
-two parallel examples (\id{pvanx} and \id{pvakx}). For details on the other
+The next three sections describe in detail a serial example (\id{cvsadjdenx}) and
+two parallel examples (\id{cvsadjnonx_p} and \id{cvsadjkryx_p}). For details on the other
 examples, the reader is directed to the comments in their source files.
 
 %------------------------------------------------------------------------
-\subsection{A serial dense example: \id{cvadx}}\label{ss:cvadx}
+\subsection{A serial dense example: \id{cvsadjdenx}}\label{ss:cvsadjdenx}
 
 As a first example of using {\cvodes} for adjoint sensitivity analysis
-we examine the chemical kinetics problem (from \id{cvfdx}) 
-\begin{equation}\label{e:cvadx_ODE}
+we examine the chemical kinetics problem (from \id{cvsfwddenx}) 
+\begin{equation}\label{e:cvsadjdenx_ODE}
   \begin{split}
     &{\dot y}_1 = -p_1 y_1 + p_2 y_2 y_3   \\
     &{\dot y}_2 =  p_1 y_1 - p_2 y_2 y_3 - p_3 y_2^2 \\
@@ -20,21 +20,21 @@ we examine the chemical kinetics problem (from \id{cvfdx})
   \end{split}
 \end{equation}
 for which we want to compute the gradient with respect to $p$ of 
-\begin{equation}\label{e:cvadx_G}
+\begin{equation}\label{e:cvsadjdenx_G}
   G(p) = \int_{t_0}^{t_1}  y_3  dt ,
 \end{equation}
 without having to compute the solution sensitivities ${dy}/{dp}$.
 Following the derivation in \ugref{ss:adj_sensi}, and taking into account
-the fact that the initial values of (\ref{e:cvadx_ODE}) do not depend on 
+the fact that the initial values of (\ref{e:cvsadjdenx_ODE}) do not depend on 
 the parameters $p$, by (\ref{e:dGdp}) this gradient is simply
-\begin{equation}\label{e:cvadx_dGdp}
+\begin{equation}\label{e:cvsadjdenx_dGdp}
 \frac{dG}{dp} = \int_{t_0}^{t_1} 
 \left( g_p + \lambda^T f_p \right) dt \, ,
 \end{equation}
 where $g(t,y,p) = y_3$, $f$ is the vector-valued function 
-defining the right-hand side of (\ref{e:cvadx_ODE}), and $\lambda$ is 
+defining the right-hand side of (\ref{e:cvsadjdenx_ODE}), and $\lambda$ is 
 the solution of the adjoint problem (\ref{e:adj_eqns}),
-\begin{equation}\label{e:cvadx_ADJ}
+\begin{equation}\label{e:cvsadjdenx_ADJ}
   \begin{split}
     &{\dot\lambda} = - (f_y)^T  \lambda - (g_y)^T \\
     &\lambda(t_1) = 0 \, .
@@ -42,9 +42,9 @@ the solution of the adjoint problem (\ref{e:adj_eqns}),
 \end{equation}
 
 In order to avoid saving intermediate $\lambda$ values just for the
-evaluation of the integral in (\ref{e:cvadx_dGdp}), we extend the
+evaluation of the integral in (\ref{e:cvsadjdenx_dGdp}), we extend the
 backward problem with the following $N_p$ quadrature equations
-\begin{equation}\label{e:cvadx_XI}
+\begin{equation}\label{e:cvsadjdenx_XI}
   \begin{split}
     &{\dot\xi} = g_p^T + f_p^T \lambda \\
     &\xi (t_1) = 0 \, ,
@@ -52,17 +52,17 @@ backward problem with the following $N_p$ quadrature equations
 \end{equation}
 which yield $\xi(t_0) = - \int_{t_0}^{t_1} ( g_p^T + f_p^T \lambda) dt$
 and thus ${dG}/{dp} = -\xi^T(t_0)$.
-Similarly, the value of $G$ in (\ref{e:cvadx_G}) can be obtained as
+Similarly, the value of $G$ in (\ref{e:cvsadjdenx_G}) can be obtained as
 $G = - \zeta(t_0)$, where $\zeta$ is solution of the following quadrature
 equation:
-\begin{equation}\label{e:cvadx_ZETA}
+\begin{equation}\label{e:cvsadjdenx_ZETA}
   \begin{split}
     &{\dot\zeta} = g \\
     &\zeta(t_1) = 0 \, .
   \end{split}
 \end{equation}
 
-The source code for this example is listed in \A\ref{s:cvadx_c}.
+The source code for this example is listed in \A\ref{s:cvsadjdenx_c}.
 The main program and the user-defined routines are described below, 
 with emphasis on the aspects particular to adjoint sensitivity calculations.
 
@@ -93,7 +93,7 @@ initializes \id{y} with the initial conditions for the forward problem, allocate
 initializes \id{q} for the quadrature used in computing the value $G$, and finally
 sets the scalar relative tolerance \id{reltolQ} and vector absolute tolerance \id{abstolQ}
 for the quadrature variable. No tolerances for the state variables are defined since
-\id{cvadx} uses its own function to compute the error weights for WRMS norm
+\id{cvsadjdenx} uses its own function to compute the error weights for WRMS norm
 estimates of state solution vectors.
 
 The call to \id{CVodeCreate} creates the main integrator memory block for the 
@@ -165,26 +165,26 @@ The main program ends by freeing previously allocated memory by calling
 
 The user-supplied functions \id{f} and \id{Jac} for the right-hand side and
 Jacobian of the forward problem are straightforward expressions of its 
-mathematical formulation (\ref{e:cvadx_ODE}). 
-The function \id{ewt} is the same as the one for \id{cvdx.c}.
+mathematical formulation (\ref{e:cvsadjdenx_ODE}). 
+The function \id{ewt} is the same as the one for \id{cvsdenx.c}.
 The function \id{fQ} implements
-(\ref{e:cvadx_ZETA}), while \id{fB}, \id{JacB}, and \id{fQB} are mere translations 
-of the backward problem (\ref{e:cvadx_ADJ}) and (\ref{e:cvadx_XI}).
+(\ref{e:cvsadjdenx_ZETA}), while \id{fB}, \id{JacB}, and \id{fQB} are mere translations 
+of the backward problem (\ref{e:cvsadjdenx_ADJ}) and (\ref{e:cvsadjdenx_XI}).
 
-The output generated by \id{cvadx} is shown below.
+The output generated by \id{cvsadjdenx} is shown below.
 
-\includeOutput{cvadx}{../examples_ser/cvadx.out}
+\includeOutput{cvsadjdenx}{../examples_ser/cvsadjdenx.out}
 
 %--------------------------------------------------------------------------
 \newpage
-\subsection{A parallel nonstiff example: \id{pvanx}}
-\label{ss:pvanx}
+\subsection{A parallel nonstiff example: \id{cvsadjnonx_p}}
+\label{ss:cvsadjnonx_p}
 
 As an example of using the {\cvodes} adjoint sensitivity module with
 the parallel vector module {\nvecp}, we describe a sample program
 that solves the following problem: consider the 1-D advection-diffusion
 equation
-\begin{equation}\label{e:pvanx:orig_pde}
+\begin{equation}\label{e:cvsadjnonx_p:orig_pde}
   \begin{split}
     & \frac{\partial u}{\partial t} = p_1 \frac{\partial^2 u}{\partial x^2} 
     + p_2 \frac{\partial u}{\partial x} \\
@@ -202,11 +202,11 @@ We wish to find, through adjoint sensitivity analysis, the gradient of
 $g(t_1)$ with respect to $p = [p_1 ; p_2]$ and the perturbation in $g(t_1)$
 due to a perturbation $\delta u_0$ in $u_0$.
 
-The approach we take in the program \id{pvanx} is to first derive an 
+The approach we take in the program \id{cvsadjnonx_p} is to first derive an 
 adjoint PDE which is then discretized in space and integrated backwards
 in time to yield the desired sensitivities. A straightforward extension 
 to PDEs of the derivation given in \ugref{ss:adj_sensi} gives
-\begin{equation}\label{e:pvanx:dgdp}
+\begin{equation}\label{e:cvsadjnonx_p:dgdp}
   \frac{dg}{dp} (t_1) = \int_{t_0}^{t_1} dt 
   \int_{x_0}^{x_1} dx \mu \cdot 
   \left[
@@ -215,11 +215,11 @@ to PDEs of the derivation given in \ugref{ss:adj_sensi} gives
   \right ]
 \end{equation}
 and
-\begin{equation}\label{e:pvanx:delg}
+\begin{equation}\label{e:cvsadjnonx_p:delg}
   \delta g |_{t_1} = \int_{x_0}^{x_1} \mu(t_0,x) \delta u_0(x) dx \, , 
 \end{equation}
 where $\mu$ is the solution of the adjoint PDE
-\begin{equation}\label{e:pvanx:adj_pde}
+\begin{equation}\label{e:cvsadjnonx_p:adj_pde}
   \begin{split}
     & \frac{\partial \mu}{\partial t} + p_1 \frac{\partial^2 \mu}{\partial x^2} 
     - p_2 \frac{\partial \mu}{\partial x} = 0 \\
@@ -227,13 +227,13 @@ where $\mu$ is the solution of the adjoint PDE
     & \mu(t , x_0) = \mu( t , x_1 ) = 0 \, .
   \end{split}
 \end{equation}
-Both the forward problem (\ref{e:pvanx:orig_pde}) and the backward problem 
-(\ref{e:pvanx:adj_pde}) are discretized on a uniform spatial grid of size
+Both the forward problem (\ref{e:cvsadjnonx_p:orig_pde}) and the backward problem 
+(\ref{e:cvsadjnonx_p:adj_pde}) are discretized on a uniform spatial grid of size
 $M_x + 2$ with central differencing and with boundary values eliminated,
 leaving ODE systems of size $N = M_x$ each. 
-As always, we deal with the time quadratures in (\ref{e:pvanx:dgdp}) by introducing
+As always, we deal with the time quadratures in (\ref{e:cvsadjnonx_p:dgdp}) by introducing
 the additional equations
-\begin{equation}\label{e:pvanx:quad}
+\begin{equation}\label{e:cvsadjnonx_p:quad}
   \begin{split}
     &{\dot\xi}_1 = \int_{x_0}^{x_1} dx \mu \frac{\partial^2 u}{\partial x^2} \, , \quad
     \xi_1(t_1) = 0 \, , \\
@@ -245,7 +245,7 @@ yielding
 \begin{equation*}
   \frac{dg}{dp} (t_1) = \left[ \xi_1(t_0) ; \xi_2(t_0) \right ]
 \end{equation*}
-The space integrals in (\ref{e:pvanx:delg}) and (\ref{e:pvanx:quad}) are
+The space integrals in (\ref{e:cvsadjnonx_p:delg}) and (\ref{e:cvsadjnonx_p:quad}) are
 evaluated numerically, on the given spatial mesh, using the trapezoidal rule.
 
 Note that $\mu(t_0 , x^*)$ is nothing but the perturbation in $g(t_1)$
@@ -253,38 +253,38 @@ due to a perturbation $\delta u_0(x) = \delta(x-x^*)$ in the initial conditions.
 Therefore, $\mu(t_0,x)$ completely describes $\delta g(t_1)$ for any
 perturbation $\delta u_0$.
 
-The source code for this example is listed in \A\ref{s:pvanx_c}. Both the forward
+The source code for this example is listed in \A\ref{s:cvsadjnonx_p_c}. Both the forward
 and the backward problems are solved with the option for nonstiff systems,
 i.e. using the Adams method with functional iteration for the solution of
 the nonlinear systems. The overall structure of the \id{main} function is very
-similar to that of the code \id{cvadx} discussed previously with 
+similar to that of the code \id{cvsadjdenx} discussed previously with 
 differences arising from the use of the parallel {\nvector} module. Unlike 
-\id{cvadx}, the example \id{pvanx} illustrates computation of the additional
+\id{cvsadjdenx}, the example \id{cvsadjnonx_p} illustrates computation of the additional
 quadrature variables by appending \id{NP} equations to the adjoint system.
 This approach can be a better alternative to using special treatment
 of the quadrature equations when their number is too small for parallel 
 treatment.
 
 Besides the parallelism implemented by {\cvodes} at the {\nvector} level,
-\id{pvanx} uses {\mpi} calls to parallelize the calculations of the right-hand side
+\id{cvsadjnonx_p} uses {\mpi} calls to parallelize the calculations of the right-hand side
 routines \id{f} and \id{fB} and of the spatial integrals involved.
 The forward problem has size \id{NEQ = MX}, while the backward problem has
 size \id{NB = NEQ + NP}, where \id{NP = 2} is the number of quadrature equations
-in (\ref{e:pvanx:quad}).
+in (\ref{e:cvsadjnonx_p:quad}).
 The use of the total number of available processes on two problems of different 
 sizes deserves some comments, as this is typical in adjoint sensitivity 
 analysis. Out of the total number of available processes, namely \id{nprocs},
 the first \id{npes = nprocs - 1} processes are dedicated to the integration of
 the ODEs arising from the semi-discretization of the PDEs 
-(\ref{e:pvanx:orig_pde}) and (\ref{e:pvanx:adj_pde}) and receive
+(\ref{e:cvsadjnonx_p:orig_pde}) and (\ref{e:cvsadjnonx_p:adj_pde}) and receive
 the same load on both the forward and backward integration phases. 
 The last process is reserved for the integration of the quadrature equations 
-(\ref{e:pvanx:quad}), and is therefore inactive during the forward phases.
+(\ref{e:cvsadjnonx_p:quad}), and is therefore inactive during the forward phases.
 Of course, for problems involving a much larger number of quadrature equations,
 more than one process could be reserved for their integration. 
 An alternative would be to redistribute the \id{NB} backward problem variables 
 over all available processes, without any relationship to the load distribution 
-of the forward phase. However, the approach taken in \id{pvanx} has the 
+of the forward phase. However, the approach taken in \id{cvsadjnonx_p} has the 
 advantage that the communication strategy adopted for the forward problem 
 can be directly transfered to communication among the first \id{npes}
 processes during the backward integration phase. 
@@ -299,35 +299,35 @@ only during the forward phase.
 Using \id{MX} $=40$ on 4 proceses, the gradient of $g(t_f)$ with respect to 
 the two problem parameters is obtained as $dg/dp(t_f) = [ -1.13856; -1.01023]$.
 The gradient of $g(t_f)$ with respect to the initial conditions is shown in
-Fig.~\ref{f:pvanx}. The gradient is plotted superimposed over the initial conditions.
+Fig.~\ref{f:cvsadjnonx_p}. The gradient is plotted superimposed over the initial conditions.
 %%
 \begin{figure}
-%%  {\centerline{\psfig{figure=pvanx.eps,width=0.75\textwidth}}}
-  {\centerline{\epsfig{file=pvanx.eps,width=0.75\textwidth}}}
-  \caption{Results for the \id{pvanx} example problem.
+%%  {\centerline{\psfig{figure=cvsadjnonx_p.eps,width=0.75\textwidth}}}
+  {\centerline{\epsfig{file=cvsadjnonx_p.eps,width=0.75\textwidth}}}
+  \caption{Results for the \id{cvsadjnonx_p} example problem.
     The gradient of $g(t_f)$ with respect to the initial conditions $u_0$ 
     is shown superimposed over the values $u_0$.}
-  \label{f:pvanx}
+  \label{f:cvsadjnonx_p}
 \end{figure}
 %%
-Sample output generated by \id{pvanx}, for \id{MX} $=20$, is shown below.
+Sample output generated by \id{cvsadjnonx_p}, for \id{MX} $=20$, is shown below.
 
-\includeOutput{pvanx}{../examples_par/pvanx.out}
+\includeOutput{cvsadjnonx_p}{../examples_par/cvsadjnonx_p.out}
 
 
 %--------------------------------------------------------------------------
 \newpage
-\subsection{An SPGMR parallel example using the CVBBDPRE module: \id{pvakx}}
-\label{ss:pvakx}
+\subsection{An SPGMR parallel example using the CVBBDPRE module: \id{cvsadjkryx_p}}
+\label{ss:cvsadjkryx_p}
 
 As a more elaborated adjoint sensitivity parallel example we describe next
-the \id{pvakx} code provided with {\cvodes}. This example models an atmospheric 
+the \id{cvsadjkryx_p} code provided with {\cvodes}. This example models an atmospheric 
 release with an advection-diffusion PDE in 2-D or 3-D and computes the gradient 
 with respect to source parameters of the space-time average of the squared norm
 of the concentration.
 Given a known velocity field $v(t,x)$, the transport equation for
 the concentration $c(t,x)$ in a domain $\Omega$ is given by
-\begin{equation}\label{e:pvakx_PDE}
+\begin{equation}\label{e:cvsadjkryx_p_PDE}
   \begin{split}
     \frac{\partial c}{\partial t} - k \nabla^2 c + v \cdot \nabla c + f = 0 \, , 
     &\text{ in } (0,T) \times \Omega \\
@@ -345,17 +345,17 @@ nonzero component in the $x$ direction given by a Poiseuille profile along the
 direction $y$.
 
 Using adjoint sensitivity analysis, the gradient of
-\begin{equation}\label{e:pvakx_G}
+\begin{equation}\label{e:cvsadjkryx_p_G}
   G(p) = \frac{1}{2} \int_0^T \int_\Omega \| c(t,x) \|^2 \, d\Omega \, dt
 \end{equation}
 is obtained as
-\begin{equation}\label{e:pvakx_dGdp}
+\begin{equation}\label{e:cvsadjkryx_p_dGdp}
   \frac{dG}{dp_i} = \int_t \int_\Omega \lambda(t,x) \delta(x-x_i) \, d\Omega \, dt
   = \int_t \lambda(t,x_i) \, dt \, ,
 \end{equation}
 where $x_i$ is the location of the source of intensity $p_i$ and $\lambda$
 is solution of the adjoint PDE
-\begin{equation}\label{e:pvakx_ADJ}
+\begin{equation}\label{e:cvsadjkryx_p_ADJ}
   \begin{split}
     - \frac{\partial\lambda}{\partial t} - k \nabla^2\lambda - v \cdot \lambda = c(t,x)  \, ,
     &\text{ in } (T,0) \times \Omega \\
@@ -366,7 +366,7 @@ is solution of the adjoint PDE
   \end{split}
 \end{equation}
 %%
-The PDE (\ref{e:pvakx_PDE}) is semi-discretized in space with central finite differences,
+The PDE (\ref{e:cvsadjkryx_p_PDE}) is semi-discretized in space with central finite differences,
 with the boundary conditions explicitely taken into account by using layers of ghost cells 
 in every direction. If the direction $x^i$ of $\Omega$ is discretized into $m_i$
 intervals, this leads to a system of ODEs of dimension 
@@ -375,12 +375,12 @@ The source term $f$ is parameterized as a piecewise constant function and yieldi
 $N$ parameters in the problem. The nominal values of the source parameters correspond
 to two Gaussian sources.
 
-The adjoint PDE (\ref{e:pvakx_ADJ}) is discretized to a system of ODEs in a similar fashion.
-The space integrals in (\ref{e:pvakx_G}) and (\ref{e:pvakx_dGdp}) are simply approximated
+The adjoint PDE (\ref{e:cvsadjkryx_p_ADJ}) is discretized to a system of ODEs in a similar fashion.
+The space integrals in (\ref{e:cvsadjkryx_p_G}) and (\ref{e:cvsadjkryx_p_dGdp}) are simply approximated
 by their Riemann sums, while the time integrals are resolved by appending pure quadrature
 equations to the systems of ODEs.
 
-The code for this example is listed in \A\ref{s:pvakx_c}. It uses BDF with the {\cvspgmr}
+The code for this example is listed in \A\ref{s:cvsadjkryx_p_c}. It uses BDF with the {\cvspgmr}
 linear solver and the {\cvbbdpre} preconditioner for both the forward and the backward
 integration phases. The value of $G$ is computed on the forward phase as a quadrature,
 while the components of the gradient $dG/dP$ are computed as quadratures during the
@@ -395,45 +395,45 @@ components. Since there is no additional communication required for the {\cvbbdp
 preconditioner, a \id{NULL} pointer is passed for \id{gloc} and \id{glocB} in the
 calls to \id{CVBBSPrecAlloc} and \id{CVBBDPrecAllocB}, respectivley.
 
-For the sake of clarity, the \id{pvakx} example does not use the most 
+For the sake of clarity, the \id{cvsadjkryx_p} example does not use the most 
 memory-efficient implementation possible, as the local segment of the 
 solution vectors (\id{y} on the forward phase and \id{yB} on the backward phase)
 and the data received from neighboring processes is loaded into a temporary 
 array \id{y\_ext} which is then used exclusively in computing the local components
 of the right-hand sides.
 
-Note that if \id{pvakx} is given any command line argument, it will generate
+Note that if \id{cvsadjkryx_p} is given any command line argument, it will generate
 a series of MATLAB files which can be used to visualize the solution.
-Results for a 2-D simulation and adjoint sensitivity analysis with \id{pvakx}
-on a $80 \times 80$ grid and $2 \times 4 = 8$ processes are shown in Fig.~\ref{f:pvakx2D}.
-Results in 3-D \footnote{The name of executable for the 3-D version is \id{pvakx3D}.}, 
+Results for a 2-D simulation and adjoint sensitivity analysis with \id{cvsadjkryx_p}
+on a $80 \times 80$ grid and $2 \times 4 = 8$ processes are shown in Fig.~\ref{f:cvsadjkryx_p2D}.
+Results in 3-D \footnote{The name of executable for the 3-D version is \id{cvsadjkryx_p3D}.}, 
 on a $80 \times 80 \times 40$ grid and $2 \times 4 \times 2= 16$ processes
-are shown in Figs.~\ref{f:pvakx3D_a} and \ref{f:pvakx3D_b}.
+are shown in Figs.~\ref{f:cvsadjkryx_p3D_a} and \ref{f:cvsadjkryx_p3D_b}.
 %%
 \begin{figure}
-  {\centerline{\epsfig{file=pvakx2D.eps,width=\textwidth}}}
-  \caption{Results for the \id{pvakx} example problem in 2D. 
+  {\centerline{\epsfig{file=cvsadjkryx_p2D.eps,width=\textwidth}}}
+  \caption{Results for the \id{cvsadjkryx_p} example problem in 2D. 
     The gradient with respect to the source parameters is pictured on the left. 
     On the right, the gradient was color coded and superimposed over the nominal value 
     of the source parameters.}
-  \label{f:pvakx2D}
+  \label{f:cvsadjkryx_p2D}
 \end{figure}
 %%
 %%
 \begin{figure}
-  {\centerline{\epsfig{file=pvakx3Dcf.eps,width=0.75\textwidth}}}
-  \caption{Results for the \id{pvakx} example problem in 3D.
-  Nominal values of the source parameters.}\label{f:pvakx3D_a}
+  {\centerline{\epsfig{file=cvsadjkryx_p3Dcf.eps,width=0.75\textwidth}}}
+  \caption{Results for the \id{cvsadjkryx_p} example problem in 3D.
+  Nominal values of the source parameters.}\label{f:cvsadjkryx_p3D_a}
 \end{figure}
 %%
 \begin{figure}
-  {\centerline{\epsfig{file=pvakx3Dgrad.eps,width=0.75\textwidth}}}
-  \caption{Results for the \id{pvakx} example problem in 3D.
+  {\centerline{\epsfig{file=cvsadjkryx_p3Dgrad.eps,width=0.75\textwidth}}}
+  \caption{Results for the \id{cvsadjkryx_p} example problem in 3D.
   Two isosurfaces of the gradient with respect to the source parameters.
-  They correspond to values of $0.25$ (green) and $0.4$ (blue).}\label{f:pvakx3D_b}  
+  They correspond to values of $0.25$ (green) and $0.4$ (blue).}\label{f:cvsadjkryx_p3D_b}  
 \end{figure}
 %%
-A sample output generated by \id{pvakx} for a 2D calculation is shown below.
+A sample output generated by \id{cvsadjkryx_p} for a 2D calculation is shown below.
 
-\includeOutput{pvakx}{../examples_par/pvakx.out}
+\includeOutput{cvsadjkryx_p}{../examples_par/cvsadjkryx_p.out}
 

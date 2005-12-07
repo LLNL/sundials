@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-12-07 16:52:53 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-07 19:14:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -560,7 +560,7 @@ static int PSolve(realtype tn, N_Vector y, N_Vector fy,
  */
 
 /* 
- * Process and verify arguments to cvfkx.
+ * Process and verify arguments to cvsfwdkryx.
  */
 
 static void ProcessArgs(int argc, char *argv[], 

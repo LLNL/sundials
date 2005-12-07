@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2005-12-07 16:52:53 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-07 19:14:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -381,7 +381,7 @@ static int ewt(N_Vector y, N_Vector w, void *e_data)
  */
 
 /*
- * Process and verify arguments to cvfdx.
+ * Process and verify arguments to cvsfwddenx.
  */
 
 static void ProcessArgs(int argc, char *argv[], 

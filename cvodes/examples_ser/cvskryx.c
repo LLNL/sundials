@@ -1,16 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-11-08 23:41:52 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-07 19:14:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
- *
- * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- * This example (a modified version of cvkx.c) loops through the
- * available iterative linear solvers: SPGMR, SPBCG and SPTFQMR.
- * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- *
+ * -----------------------------------------------------------------
  * Example problem:
  *
  * An ODE system is generated from the following 2-species diurnal
@@ -28,12 +23,12 @@
  *   0 <= t <= 86400 sec (1 day).
  * The PDE system is treated by central differences on a uniform
  * 10 x 10 mesh, with simple polynomial initial profiles.
- * The problem is solved with CVODES, with the BDF/GMRES,
- * BDF/Bi-CGStab, and BDF/TFQMR methods (i.e. using the CVSPGMR,
- * CVSPBCG and CVSPTFQMR linear solvers) and the block-diagonal
- * part of the Newton matrix as a left preconditioner. A copy of
- * the block-diagonal part of the Jacobian is saved and
- * conditionally reused within the Precond routine.
+ * The problem is solved with CVODES, with the BDF/GMRES
+ * method (i.e. using the CVSPGMR linear solver) and the
+ * block-diagonal part of the Newton matrix as a left
+ * preconditioner. A copy of the block-diagonal part of the
+ * Jacobian is saved and conditionally reused within the Precond
+ * routine.
  * -----------------------------------------------------------------
  */
 
@@ -43,8 +38,6 @@
 #include "sundialstypes.h"  /* definitions of realtype, TRUE and FALSE     */
 #include "cvodes.h"         /* CVode* prototypes and various constants     */
 #include "cvspgmr.h"        /* prototypes & constants for CVSPGMR solver   */
-#include "cvspbcg.h"        /* prototypes & constants for CVSPBCG solver   */
-#include "cvsptfqmr.h"      /* prototypes & constants for CVSPTFQMR solver */
 #include "smalldense.h"     /* use generic DENSE solver in preconditioning */
 #include "nvector_serial.h" /* definitions of type N_Vector and macro      */
                             /* NV_DATA_S                                   */
@@ -94,12 +87,6 @@
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 #define NEQ     (NUM_SPECIES*MM)  /* NEQ = number of equations */
 
-/* Linear Solver Loop Constants */
-
-#define USE_SPGMR   0
-#define USE_SPBCG   1
-#define USE_SPTFQMR 2
-
 /* User-defined vector and matrix accessor macros: IJKth, IJth */
 
 /* IJKth is defined in order to isolate the translation from the
@@ -139,7 +126,7 @@ static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
 static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
-static void PrintFinalStats(void *cvode_mem, int linsolver);
+static void PrintFinalStats(void *cvode_mem);
 static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Functions Called by the Solver */
@@ -163,13 +150,13 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
  *-------------------------------
  */
 
-int main(void)
+int main()
 {
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int linsolver, iout, flag;
+  int iout, flag;
 
   u = NULL;
   data = NULL;
@@ -209,102 +196,29 @@ int main(void)
   flag = CVodeMalloc(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
   if(check_flag(&flag, "CVodeMalloc", 1)) return(1);
 
-  /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
-  for (linsolver = 0; linsolver < 3; ++linsolver) {
+  /* Call CVSpgmr to specify the linear solver CVSPGMR 
+     with left preconditioning and the maximum Krylov dimension maxl */
+  flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
+  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
-    if (linsolver != 0) {
+  /* Set modified Gram-Schmidt orthogonalization, preconditioner 
+     setup and solve routines Precond and PSolve, and the pointer 
+     to the user-defined block data */
+  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
+  if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
 
-      /* Re-initialize user data */
-      InitUserData(data);
-      SetInitialProfiles(u, data->dx, data->dy);
+  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, data);
+  if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1)) return(1);
 
-    /* Re-initialize CVode for the solution of the same problem, but
-       using a different linear solver module */
-      flag = CVodeReInit(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
-      if (check_flag(&flag, "CVodeReInit", 1)) return(1);
+  /* In loop over output points, call CVode, print results, test for error */
+  printf(" \n2-species diurnal advection-diffusion problem\n\n");
+  for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    PrintOutput(cvode_mem, u, t);
+    if(check_flag(&flag, "CVode", 1)) break;
+  }
 
-    }
-
-    /* Attach a linear solver module */
-    switch(linsolver) {
-
-    /* (a) SPGMR */
-    case(USE_SPGMR):
-
-      /* Print header */
-      printf(" -------");
-      printf(" \n| SPGMR |\n");
-      printf(" -------\n");
-
-      /* Call CVSpgmr to specify the linear solver CVSPGMR 
-	 with left preconditioning and the maximum Krylov dimension maxl */
-      flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
-      if(check_flag(&flag, "CVSpgmr", 1)) return(1);
-
-      /* Set modified Gram-Schmidt orthogonalization, preconditioner 
-	 setup and solve routines Precond and PSolve, and the pointer 
-	 to the user-defined block data */
-      flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
-      if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
-
-      flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, data);
-      if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1)) return(1);
-
-      break;
-
-    /* (b) SPBCG */
-    case(USE_SPBCG):
-
-      /* Print header */
-      printf(" -------");
-      printf(" \n| SPBCG |\n");
-      printf(" -------\n");
-
-      /* Call CVSpbcg to specify the linear solver CVSPBCG 
-	 with left preconditioning and the maximum Krylov dimension maxl */
-      flag = CVSpbcg(cvode_mem, PREC_LEFT, 0);
-      if(check_flag(&flag, "CVSpbcg", 1)) return(1);
-
-      /* Set preconditioner setup and solve routines Precond and PSolve,
-	 and the pointer to the user-defined block data */
-      flag = CVSpbcgSetPreconditioner(cvode_mem, Precond, PSolve, data);
-      if(check_flag(&flag, "CVSpbcgSetPreconditioner", 1)) return(1);
-
-      break;
-
-    /* (c) SPTFQMR */
-    case(USE_SPTFQMR):
-
-      /* Print header */
-      printf(" ---------");
-      printf(" \n| SPTFQMR |\n");
-      printf(" ---------\n");
-
-      /* Call CVSptfqmr to specify the linear solver CVSPTFQMR 
-	 with left preconditioning and the maximum Krylov dimension maxl */
-      flag = CVSptfqmr(cvode_mem, PREC_LEFT, 0);
-      if(check_flag(&flag, "CVSptfqmr", 1)) return(1);
-
-      /* Set preconditioner setup and solve routines Precond and PSolve,
-	 and the pointer to the user-defined block data */
-      flag = CVSptfqmrSetPreconditioner(cvode_mem, Precond, PSolve, data);
-      if(check_flag(&flag, "CVSptfqmrSetPreconditioner", 1)) return(1);
-
-      break;
-
-    }
-
-    /* In loop over output points, call CVode, print results, test for error */
-    printf(" \n2-species diurnal advection-diffusion problem\n\n");
-    for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-      flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-      PrintOutput(cvode_mem, u, t);
-      if(check_flag(&flag, "CVode", 1)) break;
-    }
-
-    PrintFinalStats(cvode_mem, linsolver);
-
-  }  /* END: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
+  PrintFinalStats(cvode_mem);
 
   /* Free memory */
   N_VDestroy_Serial(u);
@@ -441,7 +355,7 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 /* Get and print final statistics */
 
-static void PrintFinalStats(void *cvode_mem, int linsolver)
+static void PrintFinalStats(void *cvode_mem)
 {
   long int lenrw, leniw ;
   long int lenrwLS, leniwLS;
@@ -464,54 +378,18 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  switch(linsolver) {
-
-  case USE_SPGMR:
-    flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-    check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
-    flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
-    check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
-    flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-    check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
-    flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-    check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
-    flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-    check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-    flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
-    check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
-    break;
-
-  case USE_SPBCG:
-    flag = CVSpbcgGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-    check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
-    flag = CVSpbcgGetNumLinIters(cvode_mem, &nli);
-    check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
-    flag = CVSpbcgGetNumPrecEvals(cvode_mem, &npe);
-    check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
-    flag = CVSpbcgGetNumPrecSolves(cvode_mem, &nps);
-    check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
-    flag = CVSpbcgGetNumConvFails(cvode_mem, &ncfl);
-    check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-    flag = CVSpbcgGetNumRhsEvals(cvode_mem, &nfeLS);
-    check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
-    break;
-
-  case USE_SPTFQMR:
-    flag = CVSptfqmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-    check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
-    flag = CVSptfqmrGetNumLinIters(cvode_mem, &nli);
-    check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
-    flag = CVSptfqmrGetNumPrecEvals(cvode_mem, &npe);
-    check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
-    flag = CVSptfqmrGetNumPrecSolves(cvode_mem, &nps);
-    check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
-    flag = CVSptfqmrGetNumConvFails(cvode_mem, &ncfl);
-    check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-    flag = CVSptfqmrGetNumRhsEvals(cvode_mem, &nfeLS);
-    check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
-    break;
-
-  }
+  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
+  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
+  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
+  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
+  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
+  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
@@ -522,9 +400,6 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
   printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
   printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
   printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
-
-  if (linsolver < 2)
-    printf("======================================================================\n\n");
 }
 
 /* Check function return value...

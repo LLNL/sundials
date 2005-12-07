@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2005-10-12 01:44:02 $
+# $Revision: 1.11 $
+# $Date: 2005-12-07 19:14:05 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,55 +42,55 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = cvdx cvdxe cvbx cvkx cvkxb cvdemd cvdemk cvfnx cvfdx cvfkx cvadx cvabx cvakx cvakxb cvkxt
+EXEC_FILES = cvsdenx cvsdenxe cvsbanx cvskryx cvskryxb cvsdirectdem cvskrydem_pre cvsfwdnonx cvsfwddenx cvsfwdkryx cvsadjdenx cvsadjbanx cvsadjkryx_int cvsadjkryx_intb cvskryxt
 
 all: $(EXEC_FILES)
 
-cvdx: $(srcdir)/cvdx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdx $(builddir)/cvdx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvdxe: $(srcdir)/cvdxe.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdxe.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdxe $(builddir)/cvdxe.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvbx: $(srcdir)/cvbx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvbx $(builddir)/cvbx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvkx: $(srcdir)/cvkx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvkx $(builddir)/cvkx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvkxb: $(srcdir)/cvkxb.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkxb.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvkxb $(builddir)/cvkxb.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvdemd: $(srcdir)/cvdemd.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdemd.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdemd $(builddir)/cvdemd.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvdemk: $(srcdir)/cvdemk.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdemk.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvdemk $(builddir)/cvdemk.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvfnx: $(srcdir)/cvfnx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfnx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvfnx $(builddir)/cvfnx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvfdx: $(srcdir)/cvfdx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfdx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvfdx $(builddir)/cvfdx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvfkx: $(srcdir)/cvfkx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvfkx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvfkx $(builddir)/cvfkx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvadx: $(srcdir)/cvadx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvadx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvadx $(builddir)/cvadx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvabx: $(srcdir)/cvabx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvabx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvabx $(builddir)/cvabx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvakx: $(srcdir)/cvakx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvakx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvakx $(builddir)/cvakx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvakxb: $(srcdir)/cvakxb.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvakxb.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvakxb $(builddir)/cvakxb.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-cvkxt: $(srcdir)/cvkxt.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkxt.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvkxt $(builddir)/cvkxt.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsdenx: $(srcdir)/cvsdenx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsdenx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsdenx $(builddir)/cvsdenx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsdenxe: $(srcdir)/cvsdenxe.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsdenxe.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsdenxe $(builddir)/cvsdenxe.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsbanx: $(srcdir)/cvsbanx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsbanx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsbanx $(builddir)/cvsbanx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvskryx: $(srcdir)/cvskryx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskryx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvskryx $(builddir)/cvskryx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvskryxb: $(srcdir)/cvskryxb.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskryxb.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvskryxb $(builddir)/cvskryxb.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsdirectdem: $(srcdir)/cvsdirectdem.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsdirectdem.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsdirectdem $(builddir)/cvsdirectdem.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvskrydem_pre: $(srcdir)/cvskrydem_pre.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskrydem_pre.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvskrydem_pre $(builddir)/cvskrydem_pre.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwdnonx: $(srcdir)/cvsfwdnonx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsfwdnonx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsfwdnonx $(builddir)/cvsfwdnonx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwddenx: $(srcdir)/cvsfwddenx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsfwddenx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsfwddenx $(builddir)/cvsfwddenx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsfwdkryx: $(srcdir)/cvsfwdkryx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsfwdkryx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsfwdkryx $(builddir)/cvsfwdkryx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjdenx: $(srcdir)/cvsadjdenx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsadjdenx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsadjdenx $(builddir)/cvsadjdenx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjbanx: $(srcdir)/cvsadjbanx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsadjbanx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsadjbanx $(builddir)/cvsadjbanx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjkryx_int: $(srcdir)/cvsadjkryx_int.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsadjkryx_int.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsadjkryx_int $(builddir)/cvsadjkryx_int.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvsadjkryx_intb: $(srcdir)/cvsadjkryx_intb.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsadjkryx_intb.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvsadjkryx_intb $(builddir)/cvsadjkryx_intb.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+cvskryxt: $(srcdir)/cvskryxt.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskryxt.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/cvskryxt $(builddir)/cvskryxt.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
