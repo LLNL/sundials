@@ -2,7 +2,7 @@
 \section{Parallel example problems}\label{s:ex_parallel}
 %===============================================================================
 
-\subsection{A nonstiff example: \id{pvnx}}\label{ss:pvnx}
+\subsection{A nonstiff example: \id{cvnonx\_p}}\label{ss:cvnonx_p}
 
 This problem begins with a simple diffusion-advection equation
 for $u=u(t,x)$
@@ -25,7 +25,7 @@ $x_{i} = i(\Delta x)$, and $\Delta x = 2/($\id{MX}$+1)$, the resulting system of
 ODEs, $\dot{u} = f(t,u)$, can now be written:
 \begin{equation}
 \dot{u}_i=\frac{u_{i+1}-2u_{i}+u_{i-1}}{(\Delta x)^{2}}
-  + 0.5 \frac{u_{i+1}-u_{i-1}}{2(\Delta x)} ~. \label{pvnxode}
+  + 0.5 \frac{u_{i+1}-u_{i-1}}{2(\Delta x)} ~. \label{cvnonx_pode}
 \end{equation}
 This equation holds for $i=1,2,\ldots ,$ \id{MX}, with the understanding
 that $u_{0} = u_{\id{MX}+1}=0.$
@@ -33,7 +33,7 @@ that $u_{0} = u_{\id{MX}+1}=0.$
 In the parallel processing environment, we may think of the several
 processors as being laid out on a straight line with each processor to
 compute its contiguous subset of the solution vector.  Consequently
-the computation of the right hand side of Eq. (\ref{pvnxode}) requires
+the computation of the right hand side of Eq. (\ref{cvnonx_pode}) requires
 that each interior processor must pass the first component of its block of
 the solution vector to its left-hand neighbor, acquire the last component of
 that neighbor's block, pass the last component of its block of the solution
@@ -41,12 +41,12 @@ vector to its right-hand neighbor, and acquire the first component of that
 neighbor's block. If the processor is the first ($0$th) or last processor,
 then communication to the left or right (respectively) is not required.
 
-The source file for this problem, \id{pvnx.c}, is listed in Appendix
-\ref{s:pvnx_c}.  It uses the Adams (non-stiff) integration formula and
+The source file for this problem, \id{cvnonx\_p.c}, is listed in Appendix
+\ref{s:cvnonx_p_c}.  It uses the Adams (non-stiff) integration formula and
 functional iteration.  This problem is unrealistically simple, but
 serves to illustrate use of the parallel version of CVODE.
 
-The \id{pvnx.c} file begins with \id{\#include} lines, which include lines for
+The \id{cvnonx\_p.c} file begins with \id{\#include} lines, which include lines for
 \id{nvector\_parallel} to access the parallel \id{N\_Vector} type and related
 macros, and for \id{mpi.h} to access MPI types and constants. Following
 that are definitions of problem constants and a data block for communication
@@ -81,7 +81,7 @@ The counters are: \id{nst} (number of steps), \id{nfe} (number of
 nonlinear convergence failures).  This routine is suitable for general use
 with {\cvode} applications to nonstiff problems.
 
-The \id{f} function is an implementation of Eq. (\ref{pvnxode}), but preceded
+The \id{f} function is an implementation of Eq. (\ref{cvnonx_pode}), but preceded
 by communication operations appropriate for the parallel setting.
 It copies the local vector \id{u} into a larger array \id{z}, shifted by 1
 to allow for the storage of immediate neighbor components.  The first and last
@@ -92,29 +92,29 @@ or \id{z[my\_length+1]} instead if at the actual boundary.  Then the central
 difference expressions are easily formed from the \id{z} array, and loaded into
 the data array of the \id{udot} vector.
 
-The \id{pvnx.c} file includes a routine \id{check\_flag} that checks the
+The \id{cvnonx\_p.c} file includes a routine \id{check\_flag} that checks the
 return values from calls in \id{main}.  This routine was written to be used
 by any parallel {\sundials} application.
 
-The output below is for \id{pvnx} with \id{MX} = 10 and four processors. 
+The output below is for \id{cvnonx\_p} with \id{MX} = 10 and four processors. 
 Varying the number of processors will alter the output, only because
 of roundoff-level differences in various vector operations.  The fairly
 high value of \id{ncfn} indicates that this problem is on the borderline
 of being stiff.
 
 %%
-\includeOutput{pvnx}{../examples_par/pvnx.out}
+\includeOutput{cvnonx\_p}{../examples_par/cvnonx_p.out}
 %%
 
 %-------------------------------------------------------------------------------
 
-\subsection{A user preconditioner example: \id{pvkx}}\label{ss:pvkx}
+\subsection{A user preconditioner example: \id{cvkry\_p}}\label{ss:cvkry_p}
 
 As an example of using {\cvode} with the Krylov linear solver
 {\cvspgmr} and the parallel MPI {\nvecp} module, we describe a test
-problem based on the system PDEs given above for the \id{cvkx} example.  
+problem based on the system PDEs given above for the \id{cvkryx} example.  
 As before, we discretize the PDE system with central differencing, to
-obtain an ODE system $\dot{u} = f(t,u)$ representing (\ref{cvkxpde}).  
+obtain an ODE system $\dot{u} = f(t,u)$ representing (\ref{cvkryxpde}).  
 But in this case, the discrete solution vector is distributed over
 many processors.  Specifically, we may think of the processors as
 being laid out in a rectangle, and each processor being assigned a
@@ -141,16 +141,16 @@ edge of the processor is similar. If this is the last processor in a
 particular direction, then message passing and receiving are bypassed
 for that direction.
 
-The code listing for this example is given in Appendix \ref{s:pvkx_c}.
+The code listing for this example is given in Appendix \ref{s:cvkry_p_c}.
 The purpose of this code is to provide a more realistic example than
-that in \id{pvnx}, and to provide a template for a stiff ODE system
+that in \id{cvnonx\_p}, and to provide a template for a stiff ODE system
 arising from a PDE system. The solution method is BDF with Newton
 iteration and {\spgmr}. The left preconditioner is the block-diagonal
 part of the Newton matrix, with $2 \times 2$ blocks, and the
 corresponding diagonal blocks of the Jacobian are saved each time the
 preconditioner is generated, for re-use later under certain conditions.
 
-The organization of the \id{pvkx} program deserves some comments. The
+The organization of the \id{cvkry\_p} program deserves some comments. The
 right-hand side routine \id{f} calls two other routines: \id{ucomm}, which
 carries out inter-processor communication; and \id{fcalc}, which operates on
 local data only and contains the actual calculation of $f(t,u)$. The 
@@ -160,22 +160,22 @@ receive-waiting. All three use MPI, and transmit data from the local \id{u}
 vector into a local working array \id{uext}, an extended copy of \id{u}.
 The \id{fcalc} function copies \id{u} into \id{uext}, so that the
 calculation of $f(t,u)$ can be done conveniently by operations on 
-\id{uext} only.  Most other features of \id{pvkx.c} are the same as in
-\id{cvkx.c}.
+\id{uext} only.  Most other features of \id{cvkry\_p.c} are the same as in
+\id{cvkryx.c}.
 
-The following is a sample output from \id{pvkx}, for four processors
+The following is a sample output from \id{cvkry\_p}, for four processors
 (in a $2 \times 2$ array) with a $5 \times 5$ subgrid on each.
 The output will vary slightly if the number of processors is changed.
 
 %%
-\includeOutput{pvkx}{../examples_par/pvkx.out}
+\includeOutput{cvkry\_p}{../examples_par/cvkry_p.out}
 %%
 
 %-------------------------------------------------------------------------------
 
-\subsection{A CVBBDPRE preconditioner example: \id{pvkxb}}\label{ss:pvkxb}
+\subsection{A CVBBDPRE preconditioner example: \id{cvkry\_bbd\_p}}\label{ss:cvkry_bbd_p}
 
-In this example, \id{pvkxb}, we solve the same problem in \id{pvkx} above,
+In this example, \id{cvkry\_bbd\_p}, we solve the same problem in \id{cvkry\_p} above,
 but instead of supplying the preconditioner, we use the {\cvbbdpre} module,
 which generates and uses a band-block-diagonal preconditioner.  The
 half-bandwidths of the Jacobian block on each processor are both equal to
@@ -186,9 +186,9 @@ costs for preconditioning, we supply the values \id{mukeep} = \id{mlkeep} = 2
 This means that the Jacobian elements are computed with a difference quotient
 scheme using the true bandwidth of the block, but only a narrow band matrix
 (bandwidth 5) is kept as the preconditioner.  The source is listed in
-Appendix \ref{s:pvkxb_c}. 
+Appendix \ref{s:cvkry_bbd_p_c}. 
 
-As in \id{pvkx.c}, the \id{f} routine in \id{pvkxb.c} simply calls a communication
+As in \id{cvkry\_p.c}, the \id{f} routine in \id{cvkry\_bbd\_p.c} simply calls a communication
 routine, \id{fucomm}, and then a strictly computational routine, \id{flocal}.  
 However, the call to \id{CVBBDPrecAlloc} specifies the pair of routines to
 be called as \id{ucomm} and \id{flocal}, where \id{ucomm} is an {\em empty} routine.
@@ -196,20 +196,20 @@ This is because each call by the solver to \id{ucomm} is preceded by a call
 to \id{f} with the same \id{(t,u)} arguments, and therefore the communication
 needed for \id{flocal} in the solver's calls to it have already been done.
 
-In \id{pvkxb.c}, the problem is solved twice --- first with preconditioning
+In \id{cvkry\_bbd\_p.c}, the problem is solved twice --- first with preconditioning
 on the left, and then on the right.  Thus prior to the second solution, calls
 are made to reset the initial values (\id{SetInitialProfiles}), the main solver
 memory (\id{CVodeReInit}), the {\cvbbdpre} memory (\id{CVBBDPrecReInit}),
 as well as the preconditioner type (\id{CVSpgmrSetPrecType}).
 
-Sample output from \id{pvkxb} follows, again using $5 \times 5$ subgrids 
+Sample output from \id{cvkry\_bbd\_p} follows, again using $5 \times 5$ subgrids 
 on a $2 \times 2$ processor grid.  The performance of the preconditioner,
 as measured by the number of Krylov iterations per Newton iteration,
-\id{nli/nni}, is very close to that of \id{pvkx} when preconditioning is on
+\id{nli/nni}, is very close to that of \id{cvkry\_p} when preconditioning is on
 the left, but slightly poorer when it is on the right.
 
 %%
-\includeOutput{pvkxb}{../examples_par/pvkxb.out}
+\includeOutput{cvkry\_bbd\_p}{../examples_par/cvkry_bbd_p.out}
 %%
 
 %-------------------------------------------------------------------------------
