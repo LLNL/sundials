@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-10-18 21:32:19 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-07 20:20:52 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -43,7 +43,7 @@
  *
  * This version uses MPI for user routines.
  * 
- * Execution: mpirun -np N pvkx   with N = NPEX*NPEY (see constants
+ * Execution: mpirun -np N cvkry_p   with N = NPEX*NPEY (see constants
  * below).
  * -----------------------------------------------------------------
  */

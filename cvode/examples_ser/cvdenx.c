@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2005-11-08 23:08:09 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-07 20:20:51 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -22,16 +22,15 @@
  * y3 = 0.01. This program solves the problem with the BDF method,
  * Newton iteration with the CVDENSE dense linear solver, and a
  * user-supplied Jacobian routine.
- * It uses a user-supplied function to compute the error weights
- * required for the WRMS norm calculations.
- * Output is printed in decades from t = .4 to t = 4.e10.
+ * It uses a scalar relative tolerance and a vector absolute
+ * tolerance. Output is printed in decades from t = .4 to t = 4.e10.
  * Run statistics (optional outputs) are printed at the end.
  * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 
-/* Header files with a description of contents used in cvdx.c */
+/* Header files with a description of contents used in cvdenx.c */
 
 #include "sundialstypes.h"   /* definition of type realtype                */
 #include "cvode.h"           /* prototypes for CVode* functions and        */
@@ -43,7 +42,6 @@
                              /* and N_VDestroy                             */
 #include "dense.h"           /* definition of type DenseMat and macro      */
                              /* DENSE_ELEM                                 */
-#include "sundialsmath.h"    /* definition of ABS                          */
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 
@@ -90,8 +88,6 @@ static void Jac(long int N, DenseMat J, realtype t,
                 N_Vector y, N_Vector fy, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int ewt(N_Vector y, N_Vector w, void *e_data);
-
 /* Private functions to output results */
 
 static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
@@ -114,23 +110,32 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  realtype t, tout;
-  N_Vector y;
+  realtype reltol, t, tout;
+  N_Vector y, abstol;
   void *cvode_mem;
   int flag, flagr, iout;
   int rootsfound[2];
 
-  y = NULL;
+  y = abstol = NULL;
   cvode_mem = NULL;
 
-  /* Create serial vector of length NEQ for I.C. */
+  /* Create serial vector of length NEQ for I.C. and abstol */
   y = N_VNew_Serial(NEQ);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  abstol = N_VNew_Serial(NEQ); 
+  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
+
+  /* Set the scalar relative tolerance */
+  reltol = RTOL;
+  /* Set the vector absolute tolerance */
+  Ith(abstol,1) = ATOL1;
+  Ith(abstol,2) = ATOL2;
+  Ith(abstol,3) = ATOL3;
 
   /* 
      Call CVodeCreate to create the solver memory:
@@ -151,17 +156,13 @@ int main()
      f         is the user's right hand side function in y'=f(t,y)
      T0        is the initial time
      y         is the initial dependent variable vector
-     CV_WF     specifies scalar relative and vector absolute tolerances
-     reltol    not needed (pass 0.0)
-     abstol    not needed (pass NULL)
+     CV_SV     specifies scalar relative and vector absolute tolerances
+     &reltol   is a pointer to the scalar relative tolerance
+     abstol    is the absolute tolerance vector
   */
 
-  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_WF, 0.0, NULL);
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
   if (check_flag(&flag, "CVodeMalloc", 1)) return(1);
-
-  /* Use private function to compute error weights */
-  flag = CVodeSetEwtFn(cvode_mem, ewt, NULL);
-  if (check_flag(&flag, "CVodeSetEwtFn", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
   flag = CVodeRootInit(cvode_mem, 2, g, NULL);
@@ -186,7 +187,7 @@ int main()
 
     if (flag == CV_ROOT_RETURN) {
       flagr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      check_flag(&flagr, "CVodeGetRootInfo", 1);
+      if (check_flag(&flagr, "CVodeGetRootInfo", 1)) return(1);
       PrintRootInfo(rootsfound[0],rootsfound[1]);
     }
 
@@ -265,30 +266,6 @@ static void Jac(long int N, DenseMat J, realtype t,
   IJth(J,2,2) = RCONST(-1.0e4)*y3-RCONST(6.0e7)*y2;
   IJth(J,2,3) = RCONST(-1.0e4)*y2;
   IJth(J,3,2) = RCONST(6.0e7)*y2;
-}
-
-/*
- * EwtSet function. Computes the error weights at the current solution.
- */
-
-static int ewt(N_Vector y, N_Vector w, void *e_data)
-{
-  int i;
-  realtype yy, ww, rtol, atol[3];
-
-  rtol    = RTOL;
-  atol[0] = ATOL1;
-  atol[1] = ATOL2;
-  atol[2] = ATOL3;
-
-  for (i=1; i<=3; i++) {
-    yy = Ith(y,i);
-    ww = rtol * ABS(yy) + atol[i-1];  
-    if (ww <= 0.0) return (-1);
-    Ith(w,i) = 1.0/ww;
-  }
-
-  return(0);
 }
 
 /*

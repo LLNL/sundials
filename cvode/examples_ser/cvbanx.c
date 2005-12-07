@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.22 $
- * $Date: 2005-11-08 23:08:09 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-07 20:20:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Header files with a description of contents used in cvbx.c */
+/* Header files with a description of contents used in cvbanx.c */
 
 #include "sundialstypes.h"   /* definition of type realtype                   */
 #include "cvode.h"           /* prototypes for CVode* functions and constants */
