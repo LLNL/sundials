@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.23 $
-C     $Date: 2005-10-19 19:09:46 $
+C     $Revision: 1.1 $
+C     $Date: 2005-12-07 20:35:46 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.

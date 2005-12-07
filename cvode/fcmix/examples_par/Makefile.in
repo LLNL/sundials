@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-06-16 18:17:14 $
+# $Revision: 1.14 $
+# $Date: 2005-12-07 20:35:46 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,27 +48,27 @@ LINKER_PREFIX   = @LINKER_PREFIX@
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared
 
-EXEC_FILES = pvdiagnf pvdiagkf pvdiagkbf
+EXEC_FILES = fcvnonx_p fcvkry_p fcvkryx_bbd_p
 
 all: $(EXEC_FILES)
 
 fortran_update.sh:
 	@${INSTALL} ${top_builddir}/config/fortran_update.sh ${builddir}
 
-pvdiagnf: $(srcdir)/pvdiagnf.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagnf.f
-	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagnf-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/pvdiagnf $(builddir)/pvdiagnf-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+fcvnonx_p: $(srcdir)/fcvnonx_p.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvnonx_p.f
+	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvnonx_p-updated.f
+	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvnonx_p $(builddir)/fcvnonx_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
 
-pvdiagkf: $(srcdir)/pvdiagkf.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagkf.f
-	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagkf-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/pvdiagkf $(builddir)/pvdiagkf-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+fcvkry_p: $(srcdir)/fcvkry_p.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkry_p.f
+	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvkry_p-updated.f
+	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvkry_p $(builddir)/fcvkry_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
 
-pvdiagkbf: $(srcdir)/pvdiagkbf.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} pvdiagkbf.f
-	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/pvdiagkbf-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/pvdiagkbf $(builddir)/pvdiagkbf-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+fcvkryx_bbd_p: $(srcdir)/fcvkryx_bbd_p.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx_bbd_p.f
+	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvkryx_bbd_p-updated.f
+	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvkryx_bbd_p $(builddir)/fcvkryx_bbd_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
 
 clean:
 	rm -rf .libs

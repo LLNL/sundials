@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2005-06-16 18:17:17 $
+# $Revision: 1.15 $
+# $Date: 2005-12-07 20:35:45 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,32 +44,32 @@ LINKER_PREFIX   = @LINKER_PREFIX@
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_fcvode -lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = cvdensef cvbandf cvkryf cvkrybf
+EXEC_FILES = fcvdenx fcvbanx fcvkryx fcvkryx_bp
 
 all: $(EXEC_FILES)
 
 fortran_update.sh:
 	@${INSTALL} ${top_builddir}/config/fortran_update.sh ${builddir}
 
-cvdensef: $(srcdir)/cvdensef.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvdensef.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvdensef-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/cvdensef $(builddir)/cvdensef-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+fcvdenx: $(srcdir)/fcvdenx.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvdenx.f
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fcvdenx-updated.f
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fcvdenx $(builddir)/fcvdenx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
 
-cvbandf: $(srcdir)/cvbandf.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvbandf.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvbandf-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/cvbandf $(builddir)/cvbandf-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+fcvbanx: $(srcdir)/fcvbanx.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvbanx.f
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fcvbanx-updated.f
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fcvbanx $(builddir)/fcvbanx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
 
-cvkryf: $(srcdir)/cvkryf.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvkryf.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvkryf-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/cvkryf $(builddir)/cvkryf-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+fcvkryx: $(srcdir)/fcvkryx.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx.f
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fcvkryx-updated.f
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fcvkryx $(builddir)/fcvkryx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
 
-cvkrybf: $(srcdir)/cvkrybf.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} cvkrybf.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/cvkrybf-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/cvkrybf $(builddir)/cvkrybf-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+fcvkryx_bp: $(srcdir)/fcvkryx_bp.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx_bp.f
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fcvkryx_bp-updated.f
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fcvkryx_bp $(builddir)/fcvkryx_bp-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
 
 clean:
 	rm -rf .libs
