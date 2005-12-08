@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-06-16 18:17:52 $
+# $Revision: 1.14 $
+# $Date: 2005-12-08 21:05:39 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,17 +44,17 @@ LINKER_PREFIX   = @LINKER_PREFIX@
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = kindiagsf
+EXEC_FILES = fkinkryx
 
 all: $(EXEC_FILES)
 
 fortran_update.sh:
 	@${INSTALL} ${top_builddir}/config/fortran_update.sh ${builddir}
 
-kindiagsf: $(srcdir)/kindiagsf.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagsf.f
-	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/kindiagsf-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/kindiagsf $(builddir)/kindiagsf-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+fkinkryx: $(srcdir)/fkinkryx.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fkinkryx.f
+	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fkinkryx-updated.f
+	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fkinkryx $(builddir)/fkinkryx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
 
 clean:
 	rm -rf .libs

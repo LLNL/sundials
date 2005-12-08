@@ -1,7 +1,7 @@
-      program kindiagsf
+      program fkinkryx
 c     ----------------------------------------------------------------
-c     $Revision: 1.18 $
-c     $Date: 2005-08-16 16:48:41 $
+c     $Revision: 1.1 $
+c     $Date: 2005-12-08 21:05:39 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -17,7 +17,7 @@ c
 c     No scaling is done.
 c     An approximate diagonal preconditioner is used.
 c
-c     Execution command: kindiagsf
+c     Execution command: fkinkryx
 c     ----------------------------------------------------------------
 c
       implicit none
@@ -80,7 +80,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
       call fkinspgmrsetprec(1, ier)
 
       write(6,1240)
- 1240 format('Example program kindiagsf:'//' This fkinsol example code',
+ 1240 format('Example program fkinkryx:'//' This fkinsol example code',
      1       ' solves a 128 eqn diagonal algebraic system.'/
      2       ' Its purpose is to demonstrate the use of the Fortran',
      3       ' interface'/' in a serial environment.'///

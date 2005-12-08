@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-06-16 18:17:49 $
+# $Revision: 1.14 $
+# $Date: 2005-12-08 21:05:39 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,17 +48,17 @@ LINKER_PREFIX   = @LINKER_PREFIX@
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_fkinsol -lsundials_kinsol -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared
 
-EXEC_FILES = kindiagpf
+EXEC_FILES = fkinkryx_p
 
 all: $(EXEC_FILES)
 
 fortran_update.sh:
 	@${INSTALL} ${top_builddir}/config/fortran_update.sh ${builddir}
 
-kindiagpf: $(srcdir)/kindiagpf.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} kindiagpf.f
-	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/kindiagpf-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/kindiagpf $(builddir)/kindiagpf-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+fkinkryx_p: $(srcdir)/fkinkryx_p.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fkinkryx_p.f
+	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fkinkryx_p-updated.f
+	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fkinkryx_p $(builddir)/fkinkryx_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
 
 clean:
 	rm -rf .libs

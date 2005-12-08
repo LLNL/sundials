@@ -1,7 +1,7 @@
-      program kindiagpf
+      program fkinkryx_p
 c     ----------------------------------------------------------------
-c     $Revision: 1.19 $
-c     $Date: 2005-08-16 16:48:38 $
+c     $Revision: 1.1 $
+c     $Date: 2005-12-08 21:05:40 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -18,7 +18,7 @@ c
 c      No scaling is done.
 c      An approximate diagonal preconditioner is used.
 c
-c      Execution command: mpirun -np 4 kindiagpf
+c      Execution command: mpirun -np 4 fkinkryx_p
 c     ----------------------------------------------------------------
 c
       implicit none
@@ -121,7 +121,7 @@ c     number of this process.
       call fkinspgmrsetprec(1, ier)
       
       if (mype .eq. 0) write(6,1240)
- 1240 format('Example program kindiagpf:'//' This fkinsol example code',
+ 1240 format('Example program fkinkryx_p:'//' This fkinsol example code',
      1       ' solves a 128 eqn diagonal algebraic system.'/
      2       ' Its purpose is to demonstrate the use of the Fortran',
      3       ' interface'/' in a parallel environment.'///
