@@ -1,11 +1,17 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-09-23 19:41:54 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-08 21:03:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ *
+ * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ * This example (a modified version of kinwebs.c) loops through the
+ * available iterative linear solvers: SPGMR, SPBCG and SPTFQMR.
+ * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ *
  * Example (serial):
  *
  * This example solves a nonlinear system that arises from a system
@@ -82,6 +88,8 @@
 #include <math.h>
 #include "kinsol.h"         /* main KINSOL header file                        */
 #include "kinspgmr.h"       /* use KINSPGMR linear solver                     */
+#include "kinspbcg.h"       /* use KINSPBCG linear solver                     */
+#include "kinsptfqmr.h"     /* use KINSPTFQMR linear solver                   */
 #include "sundialstypes.h"  /* def's of realtype and booleantype              */
 #include "nvector_serial.h" /* definitions of type N_Vector and access macros */
 #include "iterative.h"      /* contains the enum for types of preconditioning */
@@ -95,8 +103,8 @@
 
 #define PI       RCONST(3.1415926535898)   /* pi */ 
 
-#define MX          8              /* MX = number of x mesh points */
-#define MY          8              /* MY = number of y mesh points */
+#define MX          5              /* MX = number of x mesh points */
+#define MY          5              /* MY = number of y mesh points */
 #define NSMX        (NUM_SPECIES * MX)
 #define NEQ         (NSMX * MY)    /* number of equations in the system */
 #define AA          RCONST(1.0)    /* value of coefficient AA in above eqns */
@@ -116,6 +124,12 @@
 #define TWO         RCONST(2.0)    /* 2. */
 #define PREYIN      RCONST(1.0)    /* initial guess for prey concentrations. */
 #define PREDIN      RCONST(30000.0)/* initial guess for predator concs.      */
+
+/* Linear Solver Loop Constants */
+
+#define USE_SPGMR   0
+#define USE_SPBCG   1
+#define USE_SPTFQMR 2
 
 /* User-defined vector access macro: IJ_Vptr */
 
@@ -161,9 +175,10 @@ static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst, 
-                        realtype fnormtol, realtype scsteptol);
+                        realtype fnormtol, realtype scsteptol,
+			int linsolver);
 static void PrintOutput(N_Vector cc);
-static void PrintFinalStats(void *kmem);
+static void PrintFinalStats(void *kmem, int linsolver);
 static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                     void *f_data);
 static realtype DotProd(long int size, realtype *x1, realtype *x2);
@@ -177,7 +192,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main(void)
 {
-  int globalstrategy;
+  int globalstrategy, linsolver;
   realtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
@@ -233,37 +248,104 @@ int main(void)
      creates a private copy for KINSOL to use. */
   N_VDestroy_Serial(constraints);
 
-  /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
-     routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
-  maxl = 15; 
-  maxlrst = 2;
-  flag = KINSpgmr(kmem, maxl);
-  if (check_flag(&flag, "KINSpgmr", 1)) return(1);
+  /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
+  for (linsolver = 0; linsolver < 3; ++linsolver) {
 
-  flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
-  if (check_flag(&flag, "KINSpgmrSetMaxRestarts", 1)) return(1);
-  flag = KINSpgmrSetPreconditioner(kmem,
-				   PrecSetupBD,
-				   PrecSolveBD,
-				   data);
-  if (check_flag(&flag, "KINSpgmrSetPreconditioner", 1)) return(1);
+    /* Re-initialize user data */
+    if (linsolver != 0) SetInitialProfiles(cc, sc);
 
-  /* Print out the problem size, solution parameters, initial guess. */
-  PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol);
+    /* Attach a linear solver module */
+    switch(linsolver) {
 
-  /* Call KINSol and print output concentration profile */
-  flag = KINSol(kmem,           /* KINSol memory block */
-                cc,             /* initial guess on input; solution vector */
-                globalstrategy, /* global stragegy choice */
-                sc,             /* scaling vector, for the variable cc */
-                sc);            /* scaling vector for function values fval */
-  if (check_flag(&flag, "KINSol", 1)) return(1);
+    /* (a) SPGMR */
+    case(USE_SPGMR):
 
-  printf("\n\nComputed equilibrium species concentrations:\n");
-  PrintOutput(cc);
+      /* Print header */
+      printf(" -------");
+      printf(" \n| SPGMR |\n");
+      printf(" -------\n");
 
-  /* Print final statistics and free memory */  
-  PrintFinalStats(kmem);
+      /* Call KINSpgmr to specify the linear solver KINSPGMR with preconditioner
+	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+      maxl = 15; 
+      maxlrst = 2;
+      flag = KINSpgmr(kmem, maxl);
+      if (check_flag(&flag, "KINSpgmr", 1)) return(1);
+
+      flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
+      if (check_flag(&flag, "KINSpgmrSetMaxRestarts", 1)) return(1);
+      flag = KINSpgmrSetPreconditioner(kmem,
+				       PrecSetupBD,
+				       PrecSolveBD,
+				       data);
+      if (check_flag(&flag, "KINSpgmrSetPreconditioner", 1)) return(1);
+
+      break;
+
+    /* (b) SPBCG */
+    case(USE_SPBCG):
+
+      /* Print header */
+      printf(" -------");
+      printf(" \n| SPBCG |\n");
+      printf(" -------\n");
+
+      /* Call KINSpbcg to specify the linear solver KINSPBCG with preconditioner
+	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+      maxl = 15; 
+      flag = KINSpbcg(kmem, maxl);
+      if (check_flag(&flag, "KINSpbcg", 1)) return(1);
+
+      flag = KINSpbcgSetPreconditioner(kmem,
+				       PrecSetupBD,
+				       PrecSolveBD,
+				       data);
+      if (check_flag(&flag, "KINSpbcgSetPreconditioner", 1)) return(1);
+
+      break;
+
+    /* (c) SPTFQMR */
+    case(USE_SPTFQMR):
+
+      /* Print header */
+      printf(" ---------");
+      printf(" \n| SPTFQMR |\n");
+      printf(" ---------\n");
+
+      /* Call KINSptfqmr to specify the linear solver KINSPTFQMR with preconditioner
+	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
+      maxl = 20; 
+      flag = KINSptfqmr(kmem, maxl);
+      if (check_flag(&flag, "KINSptfqmr", 1)) return(1);
+
+      flag = KINSptfqmrSetPreconditioner(kmem,
+					 PrecSetupBD,
+					 PrecSolveBD,
+					 data);
+      if (check_flag(&flag, "KINSptfqmrSetPreconditioner", 1)) return(1);
+
+      break;
+
+    }
+
+    /* Print out the problem size, solution parameters, initial guess. */
+    PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol, linsolver);
+
+    /* Call KINSol and print output concentration profile */
+    flag = KINSol(kmem,           /* KINSol memory block */
+		  cc,             /* initial guess on input; solution vector */
+		  globalstrategy, /* global stragegy choice */
+		  sc,             /* scaling vector, for the variable cc */
+		  sc);            /* scaling vector for function values fval */
+    if (check_flag(&flag, "KINSol", 1)) return(1);
+
+    printf("\n\nComputed equilibrium species concentrations:\n");
+    PrintOutput(cc);
+
+    /* Print final statistics and free memory */  
+    PrintFinalStats(kmem, linsolver);
+
+  }  /* END: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
 
   N_VDestroy_Serial(cc);
   N_VDestroy_Serial(sc);
@@ -630,7 +712,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
  */
 
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst, 
-                        realtype fnormtol, realtype scsteptol)
+                        realtype fnormtol, realtype scsteptol,
+			int linsolver)
 {
   printf("\nPredator-prey test problem --  KINSol (serial version)\n\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
@@ -638,8 +721,24 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
   printf("Total system size = %d\n\n", NEQ);
   printf("Flag globalstrategy = %d (0 = None, 1 = Linesearch)\n",
          globalstrategy);
-  printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
-         maxl, maxlrst);
+
+  switch(linsolver) {
+
+  case(USE_SPGMR):
+    printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
+	   maxl, maxlrst);
+    break;
+
+  case(USE_SPBCG):
+    printf("Linear solver is SPBCG with maxl = %d\n", maxl);
+    break;
+
+  case(USE_SPTFQMR):
+    printf("Linear solver is SPTFQMR with maxl = %d\n", maxl);
+    break;
+
+  }
+
   printf("Preconditioning uses interaction-only block-diagonal matrix\n");
   printf("Positivity constraints imposed on all components \n");
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
@@ -716,7 +815,7 @@ static void PrintOutput(N_Vector cc)
  * Print final statistics contained in iopt 
  */
 
-static void PrintFinalStats(void *kmem)
+static void PrintFinalStats(void *kmem, int linsolver)
 {
   long int nni, nfe, nli, npe, nps, ncfl, nfeSG;
   int flag;
@@ -725,22 +824,57 @@ static void PrintFinalStats(void *kmem)
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
-  flag = KINSpgmrGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINSpgmrGetNumLinIters", 1);
-  flag = KINSpgmrGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINSpgmrGetNumPrecEvals", 1);
-  flag = KINSpgmrGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINSpgmrGetNumPrecSolves", 1);
-  flag = KINSpgmrGetNumConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINSpgmrGetNumConvFails", 1);
-  flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1);
+
+  switch(linsolver) {
+
+  case(USE_SPGMR):
+    flag = KINSpgmrGetNumLinIters(kmem, &nli);
+    check_flag(&flag, "KINSpgmrGetNumLinIters", 1);
+    flag = KINSpgmrGetNumPrecEvals(kmem, &npe);
+    check_flag(&flag, "KINSpgmrGetNumPrecEvals", 1);
+    flag = KINSpgmrGetNumPrecSolves(kmem, &nps);
+    check_flag(&flag, "KINSpgmrGetNumPrecSolves", 1);
+    flag = KINSpgmrGetNumConvFails(kmem, &ncfl);
+    check_flag(&flag, "KINSpgmrGetNumConvFails", 1);
+    flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
+    check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1);
+    break;
+
+  case(USE_SPBCG):
+    flag = KINSpbcgGetNumLinIters(kmem, &nli);
+    check_flag(&flag, "KINSpbcgGetNumLinIters", 1);
+    flag = KINSpbcgGetNumPrecEvals(kmem, &npe);
+    check_flag(&flag, "KINSpbcgGetNumPrecEvals", 1);
+    flag = KINSpbcgGetNumPrecSolves(kmem, &nps);
+    check_flag(&flag, "KINSpbcgGetNumPrecSolves", 1);
+    flag = KINSpbcgGetNumConvFails(kmem, &ncfl);
+    check_flag(&flag, "KINSpbcgGetNumConvFails", 1);
+    flag = KINSpbcgGetNumFuncEvals(kmem, &nfeSG);
+    check_flag(&flag, "KINSpbcgGetNumFuncEvals", 1);
+    break;
+
+  case(USE_SPTFQMR):
+    flag = KINSptfqmrGetNumLinIters(kmem, &nli);
+    check_flag(&flag, "KINSptfqmrGetNumLinIters", 1);
+    flag = KINSptfqmrGetNumPrecEvals(kmem, &npe);
+    check_flag(&flag, "KINSptfqmrGetNumPrecEvals", 1);
+    flag = KINSptfqmrGetNumPrecSolves(kmem, &nps);
+    check_flag(&flag, "KINSptfqmrGetNumPrecSolves", 1);
+    flag = KINSptfqmrGetNumConvFails(kmem, &ncfl);
+    check_flag(&flag, "KINSptfqmrGetNumConvFails", 1);
+    flag = KINSptfqmrGetNumFuncEvals(kmem, &nfeSG);
+    check_flag(&flag, "KINSptfqmrGetNumFuncEvals", 1);
+    break;
+
+  }
 
   printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);
-  
+
+  if (linsolver < 2) printf("\n=========================================================\n\n");
+
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2005-09-23 19:41:51 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-08 21:03:17 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -72,7 +72,7 @@
  *    description of the time-dependent version of this test
  *    problem.)
  * -----------------------------------------------------------------
- *  Run command line: mpirun -np N -machinefile machines kinwebp
+ *  Run command line: mpirun -np N -machinefile machines kinkryx_p
  *  where N = NPEX * NPEY is the number of processors.
  * -----------------------------------------------------------------
  */
