@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.7 $
-c     $Date: 2005-11-03 00:17:10 $
+c     $Revision: 1.1 $
+c     $Date: 2005-12-08 20:44:42 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -30,7 +30,7 @@ c     components. Local error testing on the boundary values is
 c     suppressed. Output is taken at t = 0, .01, .02, .04, ..., 10.24.
 c     ----------------------------------------------------------------
 c
-      program iheatbbdf
+      program fidakryx_bbd_p
 c
       include "mpif.h"
 c
@@ -775,7 +775,7 @@ c
      &              ixsub, jysub, thispe
 c
       write(*,30) mx, my, neq, mxsub, mysub, npex, npey, rtol, atol
- 30   format(/'iheatbbdf: Heat equation, parallel example problem',
+ 30   format(/'fidakryx_bbd_p: Heat equation, parallel example problem',
      &       ' for FIDA', /, '           Discretized heat equation',
      &       ' on 2D unit square.', /, '           Zero boundary',
      &       ' conditions, polynomial conditions.', /,

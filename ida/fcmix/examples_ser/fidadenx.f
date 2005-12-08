@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.5 $
-c     $Date: 2005-08-24 22:25:12 $
+c     $Revision: 1.1 $
+c     $Date: 2005-12-08 20:44:41 $
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -20,7 +20,7 @@ c     user-supplied Jacobian. Output is printed at
 c     t = .4, 4, 40, ..., 4e10.
 c     ----------------------------------------------------------------
 c
-      program irobxf
+      program fidadenx
 c
       implicit none
 c
@@ -216,7 +216,7 @@ c
       double precision rtol, atol(*), y(*)
 c
       write(6,60) rtol, (atol(i), i = 1,3), (y(i), i = 1,3)
- 60   format(/'irobxf: Robertson kinetics DAE serial example',
+ 60   format(/'fidadenx: Robertson kinetics DAE serial example',
      &       'problem for IDA', /,'        Three equation chemical',
      &       'kinetics problem.', //,
      &       'Tolerance parameters:  rtol = ', e8.2,
