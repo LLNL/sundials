@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.9 $
-# $Date: 2005-10-12 01:44:04 $
+# $Revision: 1.10 $
+# $Date: 2005-12-08 20:40:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,25 +42,25 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_ida -lsundials_nvecserial -lsundials_shared
 
-EXEC_FILES = irobx iheatsb iheatsk iwebsb iheatskt
+EXEC_FILES = idadenx idabanx1 idakryx idabanx2 idakrydem_lin
 
 all: $(EXEC_FILES)
 
-irobx: $(srcdir)/irobx.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/irobx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/irobx $(builddir)/irobx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-iheatsb: $(srcdir)/iheatsb.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsb.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatsb $(builddir)/iheatsb.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-iheatsk: $(srcdir)/iheatsk.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatsk.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatsk $(builddir)/iheatsk.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-iwebsb: $(srcdir)/iwebsb.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iwebsb.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/iwebsb $(builddir)/iwebsb.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
-iheatskt: $(srcdir)/iheatskt.c
-	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/iheatskt.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/iheatskt $(builddir)/iheatskt.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+idadenx: $(srcdir)/idadenx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/idadenx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idadenx $(builddir)/idadenx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+idabanx1: $(srcdir)/idabanx1.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/idabanx1.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idabanx1 $(builddir)/idabanx1.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+idakryx: $(srcdir)/idakryx.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/idakryx.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idakryx $(builddir)/idakryx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+idabanx2: $(srcdir)/idabanx2.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/idabanx2.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idabanx2 $(builddir)/idabanx2.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+idakrydem_lin: $(srcdir)/idakrydem_lin.c
+	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) -I$(SUNDIALS_INC_DIR) $(CFLAGS) -c $(srcdir)/idakrydem_lin.c
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idakrydem_lin $(builddir)/idakrydem_lin.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs

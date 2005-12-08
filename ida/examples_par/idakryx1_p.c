@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2005-10-31 23:00:56 $
+ * $Revision: 1.1 $
+ * $Date: 2005-12-08 20:40:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -754,7 +754,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
 static void PrintHeader(long int Neq, realtype rtol, realtype atol)
 { 
-  printf("\niheatpk: Heat equation, parallel example problem for IDA \n");
+  printf("\nidakryx1_p: Heat equation, parallel example problem for IDA \n");
   printf("         Discretized heat equation on 2D unit square. \n");
   printf("         Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
