@@ -16,10 +16,10 @@ floating-point constants are appropriately modified; e.g. {\tt 0.5D-4} is
 changed to {\tt 0.5E-4}.
 
 
-\subsection{A serial example: irobxf}\label{ss:irobxf}
+\subsection{A serial example: fidadenx}\label{ss:fidadenx}
 
-The \id{irobxf} example is a {\F} equivalent of the \id{irobx} problem.
-The source program \id{irobxf.c} is listed in Appendix \ref{s:irobxf_f}.
+The \id{fidadenx} example is a {\F} equivalent of the \id{idadenx} problem.
+The source program \id{fidadenx.c} is listed in Appendix \ref{s:fidadenx_f}.
 
 The main program begins with declarations and initializations.  It calls 
 \id{FNVINITS}, \id{FIDAMALLOC}, \id{FIDAROOTINIT}, \id{FIDADENSE}, and
@@ -34,33 +34,33 @@ information from \id{FIDAROOTINFO}.  At the end, it prints a number of
 performance counters, and frees memory with calls to \id{FIDAROOTFREE}
 and \id{FIDAFREE}.
 
-In \id{irobxf.c}, the \id{FIDARESFUN} routine is a straghtforward
-implementation of Eqns. (\ref{e:irobx_DAE}).  In \id{FIDADJAC}, the 
+In \id{fidadenx.c}, the \id{FIDARESFUN} routine is a straghtforward
+implementation of Eqns. (\ref{e:idadenx_DAE}).  In \id{FIDADJAC}, the 
 $3 \times 3$ system Jacobian is supplied.  The \id{FIDAROOTFN} routine
 defines the two root functions, which are set to determine the points at which
 $y_1 = 10^{-4}$ or $y_3 = .01$.  The final two routines are for the
 printing of a header and of the final run statistics.
 
-The following is sample output from \id{irobxf}.
+The following is sample output from \id{fidadenx}.
 The performance of {\fida} here is similar to that of {\ida} on
-the \id{irobx} problem, with somewhat lower cost counters owing to
+the \id{idadenx} problem, with somewhat lower cost counters owing to
 the larger absolute error tolerances.
 
 %%
-\includeOutput{irobxf}{../fcmix/examples_ser/irobxf.out}
+\includeOutput{fidadenx}{../fcmix/examples_ser/fidadenx.out}
 %%
 
 %-----------------------------------------------------------------------------------
 
-\subsection{A parallel example: iheatbbdf}\label{ss:iheatbbdf}
+\subsection{A parallel example: fidakryx\_bbd\_p}\label{ss:fidakryx_bbd_p}
 
-This example, \id{iheatbbdf}, is the {\F} equivalent of the \id{iheatbbd}
+This example, \id{fidakryx\_bbd\_p}, is the {\F} equivalent of the \id{idakryx1\_bbd\_p}
 example.  The heat equation problem is described under the \id{iheatsk}
 example above, but here it is solved in parallel, using the {\idabbdpre}
 (band-block-diagonal) preconditioner module.  The decomposition of the
 problem onto a processor array is identical to that in the \id{iheatpk}
-example above.  The source file, \id{iheatbbdf.f}, is listed in
-Appendix \ref{s:iheatbbdf_f}.
+example above.  The source file, \id{fidakryx\_bbd\_p.f}, is listed in
+Appendix \ref{s:fidakryx_bbd_p}.
 
 The problem is solved twice --- once with half-bandwidths of 5 in the
 difference-quotient banded preconditioner blocks, and once with
@@ -93,13 +93,13 @@ to communicate boundary needed data from \id{U} to an extension of it called
 \id{UEXT}; and \id{FIDAGLOCFN}, to compute the residuals in terms of
 \id{UEXT} and \id{UP}.
 
-The following is a sample output from \id{iheatbbdf}, with a $10 \times 10$
+The following is a sample output from \id{fidakryx\_bbd\_p}, with a $10 \times 10$
 mesh and \id{NPES} = 4 processors.  The performance is similar for the two
 solutions.  The second case requires more linear iterations, as expected, 
 but their cost is offset by the much cheaper preconditioner evaluations.
 
 %%
-\includeOutput{iheatbbdf}{../fcmix/examples_par/iheatbbdf.out}
+\includeOutput{fidakryx\_bbd\_p}{../fcmix/examples_par/fidakryx_bbd_p.out}
 %%
 
 %-----------------------------------------------------------------------------------
