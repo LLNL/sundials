@@ -108,7 +108,7 @@ of being stiff.
 
 %-------------------------------------------------------------------------------
 
-\subsection{A user preconditioner example: cvkry\_p}\label{ss:cvkry_p}
+\subsection{A user preconditioner example: cvkryx\_p}\label{ss:cvkryx_p}
 
 As an example of using {\cvode} with the Krylov linear solver
 {\cvspgmr} and the parallel MPI {\nvecp} module, we describe a test
@@ -141,7 +141,7 @@ edge of the processor is similar. If this is the last processor in a
 particular direction, then message passing and receiving are bypassed
 for that direction.
 
-The code listing for this example is given in Appendix \ref{s:cvkry_p_c}.
+The code listing for this example is given in Appendix \ref{s:cvkryx_p_c}.
 The purpose of this code is to provide a more realistic example than
 that in \id{cvnonx\_p}, and to provide a template for a stiff ODE system
 arising from a PDE system. The solution method is BDF with Newton
@@ -150,7 +150,7 @@ part of the Newton matrix, with $2 \times 2$ blocks, and the
 corresponding diagonal blocks of the Jacobian are saved each time the
 preconditioner is generated, for re-use later under certain conditions.
 
-The organization of the \id{cvkry\_p} program deserves some comments. The
+The organization of the \id{cvkryx\_p} program deserves some comments. The
 right-hand side routine \id{f} calls two other routines: \id{ucomm}, which
 carries out inter-processor communication; and \id{fcalc}, which operates on
 local data only and contains the actual calculation of $f(t,u)$. The 
@@ -160,23 +160,23 @@ receive-waiting. All three use MPI, and transmit data from the local \id{u}
 vector into a local working array \id{uext}, an extended copy of \id{u}.
 The \id{fcalc} function copies \id{u} into \id{uext}, so that the
 calculation of $f(t,u)$ can be done conveniently by operations on 
-\id{uext} only.  Most other features of \id{cvkry\_p.c} are the same as in
+\id{uext} only.  Most other features of \id{cvkryx\_p.c} are the same as in
 \id{cvkryx.c}.
 
-The following is a sample output from \id{cvkry\_p}, for four processors
+The following is a sample output from \id{cvkryx\_p}, for four processors
 (in a $2 \times 2$ array) with a $5 \times 5$ subgrid on each.
 The output will vary slightly if the number of processors is changed.
 
 %%
-\includeOutput{cvkry\_p}{../examples_par/cvkry_p.out}
+\includeOutput{cvkryx\_p}{../examples_par/cvkryx_p.out}
 %%
 
 %-------------------------------------------------------------------------------
 
-\subsection{A CVBBDPRE preconditioner example: cvkry\_bbd\_p}\label{ss:cvkry_bbd_p}
+\subsection{A CVBBDPRE preconditioner example: cvkryx\_bbd\_p}\label{ss:cvkryx_bbd_p}
 
-In this example, \id{cvkry\_bbd\_p}, we solve the same problem in \id{cvkry\_p} above,
-but instead of supplying the preconditioner, we use the {\cvbbdpre} module,
+In this example, \id{cvkryx\_bbd\_p}, we solve the same problem in \id{cvkryx\_p}
+above, but instead of supplying the preconditioner, we use the {\cvbbdpre} module,
 which generates and uses a band-block-diagonal preconditioner.  The
 half-bandwidths of the Jacobian block on each processor are both equal to
 $2\cdot$\id{MXSUB}, and that is the value supplied as \id{mudq} and \id{mldq}
@@ -186,30 +186,32 @@ costs for preconditioning, we supply the values \id{mukeep} = \id{mlkeep} = 2
 This means that the Jacobian elements are computed with a difference quotient
 scheme using the true bandwidth of the block, but only a narrow band matrix
 (bandwidth 5) is kept as the preconditioner.  The source is listed in
-Appendix \ref{s:cvkry_bbd_p_c}. 
+Appendix \ref{s:cvkryx_bbd_p_c}. 
 
-As in \id{cvkry\_p.c}, the \id{f} routine in \id{cvkry\_bbd\_p.c} simply calls a communication
-routine, \id{fucomm}, and then a strictly computational routine, \id{flocal}.  
-However, the call to \id{CVBBDPrecAlloc} specifies the pair of routines to
-be called as \id{ucomm} and \id{flocal}, where \id{ucomm} is an {\em empty} routine.
-This is because each call by the solver to \id{ucomm} is preceded by a call
-to \id{f} with the same \id{(t,u)} arguments, and therefore the communication
-needed for \id{flocal} in the solver's calls to it have already been done.
+As in \id{cvkryx\_p.c}, the \id{f} routine in \id{cvkryx\_bbd\_p.c} simply calls a
 
-In \id{cvkry\_bbd\_p.c}, the problem is solved twice --- first with preconditioning
+communication routine, \id{fucomm}, and then a strictly computational routine,
+\id{flocal}.  However, the call to \id{CVBBDPrecAlloc} specifies the pair of
+routines to be called as \id{ucomm} and \id{flocal}, where \id{ucomm} is an
+{\em empty} routine.  This is because each call by the solver to \id{ucomm} is
+preceded by a call to \id{f} with the same \id{(t,u)} arguments, and therefore the
+communication needed for \id{flocal} in the solver's calls to it have already been
+done.
+
+In \id{cvkryx\_bbd\_p.c}, the problem is solved twice --- first with preconditioning
 on the left, and then on the right.  Thus prior to the second solution, calls
 are made to reset the initial values (\id{SetInitialProfiles}), the main solver
 memory (\id{CVodeReInit}), the {\cvbbdpre} memory (\id{CVBBDPrecReInit}),
 as well as the preconditioner type (\id{CVSpgmrSetPrecType}).
 
-Sample output from \id{cvkry\_bbd\_p} follows, again using $5 \times 5$ subgrids 
+Sample output from \id{cvkryx\_bbd\_p} follows, again using $5 \times 5$ subgrids 
 on a $2 \times 2$ processor grid.  The performance of the preconditioner,
 as measured by the number of Krylov iterations per Newton iteration,
-\id{nli/nni}, is very close to that of \id{cvkry\_p} when preconditioning is on
+\id{nli/nni}, is very close to that of \id{cvkryx\_p} when preconditioning is on
 the left, but slightly poorer when it is on the right.
 
 %%
-\includeOutput{cvkry\_bbd\_p}{../examples_par/cvkry_bbd_p.out}
+\includeOutput{cvkryx\_bbd\_p}{../examples_par/cvkryx_bbd_p.out}
 %%
 
 %-------------------------------------------------------------------------------
