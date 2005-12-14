@@ -1,6 +1,6 @@
 
-irobx: Robertson kinetics DAE serial example problem for IDA 
-       Three equation chemical kinetics problem. 
+idadenx: Robertson kinetics DAE serial example problem for IDA
+         Three equation chemical kinetics problem.
 
 Linear solver: IDADENSE, with user-supplied Jacobian.
 Tolerance parameters:  rtol = 0.0001   atol = 1e-08 1e-14 1e-06 
