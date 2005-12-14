@@ -235,13 +235,19 @@ options.
 \item \id{--with-precision=ARG}
 
   By default, {\sundials} will define a real number (internally referred to as
-  \id{realtype}) to be a double-precision floating-point numeric data type (\id{double}
-  {\C}-type); however, this option may be used to build {\sundials} with \id{realtype}
-  alternatively defined as a single-precision floating-point numeric data type
-  (\id{float} {\C}-type) if \id{ARG=single}, or as a \id{long double} {\C}-type
-  if \\ \id{ARG=extended}.
+  \id{realtype}) to be a double-precision floating-point numeric data type
+  (\id{double} {\C}-type); however, this option may be used to build {\sundials}
+  with \id{realtype} alternatively defined as a single-precision floating-point
+  numeric data type (\id{float} {\C}-type) if \id{ARG=single}, or as a
+  \id{long double} {\C}-type if \\ \id{ARG=extended}.
 
   Default: \id{ARG=double}
+
+  {\warn} Users should {\em not} install {\sundials} in single precision 
+  on a 32-bit (or similar) machine.  This will almost certainly result in
+  unreliable numerical solutions.  The option \id{ARG=single} is intended for
+  machines on which single precision arithmetic involves at least 14 decimal
+  digits.
 
 \end{config}
 
