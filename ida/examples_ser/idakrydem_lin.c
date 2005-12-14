@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-08 20:40:01 $
+ * $Revision: 1.2 $
+ * $Date: 2005-12-14 23:43:05 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  *
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- * This example (a modified version of iheatsk.c) loops through the
+ * This example (a modified version of idakryx.c) loops through the
  * available iterative linear solvers: SPGMR, SPBCG and SPTFQMR.
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  *
@@ -365,7 +365,7 @@ int resHeat(realtype tt,
 }
 
 /*
- * PsetupHeat: setup for diagonal preconditioner for iheatsk.   
+ * PsetupHeat: setup for diagonal preconditioner.   
  *                                                                 
  * The optional user-supplied functions PsetupHeat and          
  * PsolveHeat together must define the left preconditoner        
@@ -492,12 +492,12 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 static void PrintHeader(realtype rtol, realtype atol, int linsolver)
 {
-  printf("\niheatsk: Heat equation, serial example problem for IDA \n");
-  printf("         Discretized heat equation on 2D unit square. \n");
-  printf("         Zero boundary conditions,");
+  printf("\nidakrydem_lin: Heat equation, serial example problem for IDA\n");
+  printf("               Discretized heat equation on 2D unit square.\n");
+  printf("               Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
   printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
-  printf("        Total system size: %d\n\n", NEQ);
+  printf("       Total system size: %d\n\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
