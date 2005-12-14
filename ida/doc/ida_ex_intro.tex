@@ -34,9 +34,9 @@ directory, the following four serial examples (using the {\nvecs} module):
   $u > 0.0$ is imposed for all components.
 
 \item \id{idakryx}
-  solves the same problem as \id{idabanx1}, with the Krylov linear solver
-  {\idaspgmr}. The preconditioner uses only the diagonal elements of the 
-  Jacobian.
+  solves the same 2-D heat equation problem as \id{idabanx1}, with the Krylov
+  linear solver {\idaspgmr}. The preconditioner uses only the diagonal elements
+  of the Jacobian.
 
 \item \id{idabanx2}
   solves a system of PDEs modelling a food web problem, with predator-prey
@@ -60,32 +60,33 @@ distribution contains the following four parallel examples
 \begin{itemize}
 
 \item \id{idakryx1\_p}
-  solves the same problem as \id{idakryx1\_bbd\_p} with a user-supplied preconditioner
-  which uses the diagonal elements of the Jacobian only.
+  solves the same 2-D heat equation problem as \id{idakryx}, with {\idaspgmr}
+  in parallel, and with a user-supplied diagonal preconditioner,
   
 \item \id{idakryx1\_bbd\_p}
-  is a parallel implementation of the 2-D heat equation.
+  solves the same problem as \id{idakryx1\_p}.
 
   This program solves the problem in parallel, using the Krylov linear solver
   {\idaspgmr} and the band-block diagonal preconditioner {\idabbdpre} with
   half-bandwidths equal to $1$.
 
 \item \id{idakryx2\_p}
-  solves the same problem as \id{idakryx2\_bbd\_p} with a user-supplied preconditioner.
+  solves the same food web problem as \id{idabanx2}, but with {\idaspgmr}
+  and a user-supplied preconditioner.
   
-  The precondtioner supplied to {\idaspgmr} is the block-diagonal part of 
+  The preconditioner supplied to {\idaspgmr} is the block-diagonal part of 
   the Jacobian with $n_s \times n_s$ blocks arising from the reaction terms only
   ($n_s$ is the number of species in the model).
 
 \item \id{idakryx2\_bbd\_p}
-  is a parallel implementation of the predator-prey problem.
+  solves the same food web problem as \id{idakryx2\_p}.
 
-  The problem is solved in parallel using the {\idaspgmr} linear
-  solver and the {\idabbdpre} preconditioner.
+  This program solves the problem using {\idaspgmr} in parallel and the
+  {\idabbdpre} preconditioner.
 
 \end{itemize}
 
-With the {\fida} module, in the directories 
+With the {\fida} module, in the two directories
 \id{sundials/ida/fcmix/examples\_ser} and
 \newline \id{sundials/ida/fcmix/examples\_par}, are the following
 examples for the {\F}-{\C} interface:
@@ -95,7 +96,7 @@ examples for the {\F}-{\C} interface:
        with rootfinding, equivalent to \id{idadenx}.
 
 \item \id{fidakryx\_bbd\_p} is a parallel example (\id{BDF}/{\spgmr}/{\idabbdpre})
-       equivalent to \id{idakryx1\_bbd\_p}.
+       equivalent to the example \id{idakryx1\_bbd\_p}.
 
 \end{itemize}
 
