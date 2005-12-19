@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2005-12-08 20:44:41 $
+c     $Revision: 1.2 $
+c     $Date: 2005-12-19 22:12:14 $
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -217,7 +217,7 @@ c
 c
       write(6,60) rtol, (atol(i), i = 1,3), (y(i), i = 1,3)
  60   format(/'fidadenx: Robertson kinetics DAE serial example',
-     &       'problem for IDA', /,'        Three equation chemical',
+     &       'problem for IDA', /,'          Three equation chemical',
      &       'kinetics problem.', //,
      &       'Tolerance parameters:  rtol = ', e8.2,
      &       '   atol = ', 3(1x,e8.2), /,

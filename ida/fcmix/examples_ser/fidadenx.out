@@ -1,6 +1,6 @@
 
-irobxf: Robertson kinetics DAE serial exampleproblem for IDA
-        Three equation chemicalkinetics problem.
+fidadenx: Robertson kinetics DAE serial exampleproblem for IDA
+          Three equation chemicalkinetics problem.
 
 Tolerance parameters:  rtol = 0.10E-03   atol =  0.10E-05 0.10E-09 0.10E-05
 Initial conditions y0 = ( 0.10E+01 0.00E+00 0.00E+00)
