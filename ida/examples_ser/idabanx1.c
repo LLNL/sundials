@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-12-14 23:54:42 $
+ * $Revision: 1.3 $
+ * $Date: 2005-12-19 22:04:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -297,7 +297,7 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf("          Discretized heat equation on 2D unit square.\n");
   printf("          Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
-  printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
+  printf("          Mesh dimensions: %d x %d", MGRID, MGRID);
   printf("        Total system size: %d\n\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);

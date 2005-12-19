@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-12-15 00:00:44 $
+ * $Revision: 1.3 $
+ * $Date: 2005-12-19 22:08:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -758,7 +758,7 @@ static void PrintHeader(long int Neq, realtype rtol, realtype atol)
   printf("            Discretized heat equation on 2D unit square.\n");
   printf("            Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
-  printf("         Mesh dimensions: %d x %d", MX, MY);
+  printf("            Mesh dimensions: %d x %d", MX, MY);
   printf("        Total system size: %ld\n\n", Neq);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("        Processor array: %d x %d\n", NPEX, NPEY);
