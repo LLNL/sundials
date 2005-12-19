@@ -1,13 +1,13 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 19:14:07 $
+ * $Revision: 1.2 $
+ * $Date: 2005-12-19 22:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  *
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- * This example (a modified version of cvkx.c) loops through the
+ * This example (a modified version of cvkryx.c) loops through the
  * available iterative linear solvers: SPGMR, SPBCG and SPTFQMR.
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  *
