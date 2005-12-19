@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2005-12-08 20:44:42 $
+c     $Revision: 1.2 $
+c     $Date: 2005-12-19 22:16:53 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -776,10 +776,10 @@ c
 c
       write(*,30) mx, my, neq, mxsub, mysub, npex, npey, rtol, atol
  30   format(/'fidakryx_bbd_p: Heat equation, parallel example problem',
-     &       ' for FIDA', /, '           Discretized heat equation',
-     &       ' on 2D unit square.', /, '           Zero boundary',
+     &       ' for FIDA', /, 16x,'Discretized heat equation',
+     &       ' on 2D unit square.', /, 16x,'Zero boundary',
      &       ' conditions, polynomial conditions.', /,
-     &       '           Mesh dimensions: ', i2, ' x ', i2,
+     &       16x,'Mesh dimensions: ', i2, ' x ', i2,
      &       '         Total system size: ', i3, //,
      &       'Subgrid dimensions: ', i2, ' x ', i2,
      &       '           Processor array: ', i2, ' x ', i2, /,
