@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 19:14:03 $
+ * $Revision: 1.2 $
+ * $Date: 2005-12-19 22:44:24 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -40,9 +40,9 @@
  *       the MPI script mpirun is used to run a parallel
  *       application.
  * If no sensitivities are desired:
- *    % mpirun -np N pvsnx -nosensi
+ *    % mpirun -np N cvsfwdnonx_p -nosensi
  * If sensitivities are to be computed:
- *    % mpirun -np N pvsnx -sensi sensi_meth err_con
+ *    % mpirun -np N cvsfwdnonx_p -sensi sensi_meth err_con
  * where sensi_meth is one of {sim, stg, stg1} and err_con is one of
  * {t, f}.
  * -----------------------------------------------------------------
