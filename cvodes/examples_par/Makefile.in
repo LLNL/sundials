@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-12-07 19:14:03 $
+# $Revision: 1.14 $
+# $Date: 2005-12-21 23:43:25 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -47,19 +47,19 @@ SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared
 
-EXEC_FILES = cvsnonx_p cvskry_p cvskry_bbd_p cvsfwdnonx_p cvsfwdkryx_p cvsadjnonx_p cvsadjkryx_p cvsadjkryx_p3D
+EXEC_FILES = cvsnonx_p cvskryx_p cvskryx_bbd_p cvsfwdnonx_p cvsfwdkryx_p cvsadjnonx_p cvsadjkryx_p cvsadjkryx_p3D
 
 all: $(EXEC_FILES)
 
 cvsnonx_p: $(srcdir)/cvsnonx_p.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsnonx_p.c
 	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvsnonx_p $(builddir)/cvsnonx_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvskry_p: $(srcdir)/cvskry_p.c
-	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskry_p.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvskry_p $(builddir)/cvskry_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
-cvskry_bbd_p: $(srcdir)/cvskry_bbd_p.c
-	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskry_bbd_p.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvskry_bbd_p $(builddir)/cvskry_bbd_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvskryx_p: $(srcdir)/cvskryx_p.c
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskryx_p.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvskryx_p $(builddir)/cvskryx_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+cvskryx_bbd_p: $(srcdir)/cvskryx_bbd_p.c
+	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvskryx_bbd_p.c
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvskryx_bbd_p $(builddir)/cvskryx_bbd_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 cvsfwdnonx_p: $(srcdir)/cvsfwdnonx_p.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(SUNDIALS_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsfwdnonx_p.c
 	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvsfwdnonx_p $(builddir)/cvsfwdnonx_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
