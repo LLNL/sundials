@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2005-12-07 20:35:46 $
+# $Revision: 1.15 $
+# $Date: 2005-12-21 23:41:10 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -48,7 +48,7 @@ LINKER_PREFIX   = @LINKER_PREFIX@
 SUNDIALS_LIB_DIR = $(libdir)
 SUNDIALS_LIBS    = -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared
 
-EXEC_FILES = fcvnonx_p fcvkry_p fcvkryx_bbd_p
+EXEC_FILES = fcvnonx_p fcvkryx_p fcvkryx_bbd_p
 
 all: $(EXEC_FILES)
 
@@ -60,10 +60,10 @@ fcvnonx_p: $(srcdir)/fcvnonx_p.f fortran_update.sh
 	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvnonx_p-updated.f
 	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvnonx_p $(builddir)/fcvnonx_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
 
-fcvkry_p: $(srcdir)/fcvkry_p.f fortran_update.sh
-	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkry_p.f
-	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvkry_p-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvkry_p $(builddir)/fcvkry_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+fcvkryx_p: $(srcdir)/fcvkryx_p.f fortran_update.sh
+	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx_p.f
+	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvkryx_p-updated.f
+	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvkryx_p $(builddir)/fcvkryx_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
 
 fcvkryx_bbd_p: $(srcdir)/fcvkryx_bbd_p.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx_bbd_p.f
