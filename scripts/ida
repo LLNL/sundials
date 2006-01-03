@@ -3,14 +3,13 @@
 tarfile=$1
 distrobase=$2
 
-echo ""
-echo "  Generate ida documentation"
+echo "  >>> Generate ida documentation"
 cd $distrobase/ida/doc
 make QUIET=-q ug_pdf
 make QUIET=-q ex_pdf
 cd -
 
-echo "  Add ida module"
+echo "  >>> Add ida module"
 
 tar uf $tarfile $distrobase/ida/LICENSE
 tar uf $tarfile $distrobase/ida/README
@@ -62,32 +61,34 @@ tar uf $tarfile $distrobase/ida/fcmix/fidaroot.h
 
 tar uf $tarfile $distrobase/ida/examples_ser/README
 tar uf $tarfile $distrobase/ida/examples_ser/Makefile.in
-tar uf $tarfile $distrobase/ida/examples_ser/irobx.c
-tar uf $tarfile $distrobase/ida/examples_ser/irobx.out
-tar uf $tarfile $distrobase/ida/examples_ser/iheatsb.c
-tar uf $tarfile $distrobase/ida/examples_ser/iheatsb.out
-tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.c
-tar uf $tarfile $distrobase/ida/examples_ser/iheatsk.out
-tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.c
-tar uf $tarfile $distrobase/ida/examples_ser/iwebsb.out
+tar uf $tarfile $distrobase/ida/examples_ser/idabanx1.c
+tar uf $tarfile $distrobase/ida/examples_ser/idabanx1.out
+tar uf $tarfile $distrobase/ida/examples_ser/idabanx2.c
+tar uf $tarfile $distrobase/ida/examples_ser/idabanx2.out
+tar uf $tarfile $distrobase/ida/examples_ser/idadenx.c
+tar uf $tarfile $distrobase/ida/examples_ser/idadenx.out
+tar uf $tarfile $distrobase/ida/examples_ser/idakrydem_lin.c
+tar uf $tarfile $distrobase/ida/examples_ser/idakrydem_lin.out
+tar uf $tarfile $distrobase/ida/examples_ser/idakryx.c
+tar uf $tarfile $distrobase/ida/examples_ser/idakryx.out
 
 tar uf $tarfile $distrobase/ida/fcmix/examples_ser/README
 tar uf $tarfile $distrobase/ida/fcmix/examples_ser/Makefile.in
-tar uf $tarfile $distrobase/ida/fcmix/examples_ser/irobxf.f
-tar uf $tarfile $distrobase/ida/fcmix/examples_ser/irobxf.out
+tar uf $tarfile $distrobase/ida/fcmix/examples_ser/fidadenx.f
+tar uf $tarfile $distrobase/ida/fcmix/examples_ser/fidadenx.out
 
 tar uf $tarfile $distrobase/ida/examples_par/README
 tar uf $tarfile $distrobase/ida/examples_par/Makefile.in
-tar uf $tarfile $distrobase/ida/examples_par/iheatpk.c
-tar uf $tarfile $distrobase/ida/examples_par/iheatpk.out
-tar uf $tarfile $distrobase/ida/examples_par/iheatbbd.c
-tar uf $tarfile $distrobase/ida/examples_par/iheatbbd.out
-tar uf $tarfile $distrobase/ida/examples_par/iwebpk.c
-tar uf $tarfile $distrobase/ida/examples_par/iwebpk.out
-tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.c
-tar uf $tarfile $distrobase/ida/examples_par/iwebbbd.out
+tar uf $tarfile $distrobase/ida/examples_par/idakryx1_bbd_p.c
+tar uf $tarfile $distrobase/ida/examples_par/idakryx1_bbd_p.out
+tar uf $tarfile $distrobase/ida/examples_par/idakryx1_p.c
+tar uf $tarfile $distrobase/ida/examples_par/idakryx1_p.out
+tar uf $tarfile $distrobase/ida/examples_par/idakryx2_bbd_p.c
+tar uf $tarfile $distrobase/ida/examples_par/idakryx2_bbd_p.out
+tar uf $tarfile $distrobase/ida/examples_par/idakryx2_p.c
+tar uf $tarfile $distrobase/ida/examples_par/idakryx2_p.out
 
 tar uf $tarfile $distrobase/ida/fcmix/examples_par/README
 tar uf $tarfile $distrobase/ida/fcmix/examples_par/Makefile.in
-tar uf $tarfile $distrobase/ida/fcmix/examples_par/iheatbbdf.f
-tar uf $tarfile $distrobase/ida/fcmix/examples_par/iheatbbdf.out
+tar uf $tarfile $distrobase/ida/fcmix/examples_par/fidakryx_bbd_p.f
+tar uf $tarfile $distrobase/ida/fcmix/examples_par/fidakryx_bbd_p.out

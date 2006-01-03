@@ -28,41 +28,35 @@ function print_usage
 
 #==============================================================================
 #
-# Generates one tar file for the given $module, accordingly to the $par flag
+# Generates the tarball file for the given module
 #
 #==============================================================================
 
-function create_file
+function create_module
 {
     what=$1
 
-    cd ..
+    tail=".tar"
+    tarfile=$distrodir$what$tail
+    echo ">>> Generate $distrobase distribution tar-file $tarfile"
 
+    cd ..
+    echo "  >>> Create configure script"
     aclocal
     autoconf -f -o configure configure-rel.ac
     autoheader
-    tail=".tar"
-
-    tarfile=$distrodir$what$tail
 
     cd ..
-
-    echo "Generate $distrobase distribution tar-file $tarfile"
-
     $distrobase/scripts/shared $tarfile $distrobase
-    
     if [ $what = "cvode" -o $what = "sundials" ];  then
         $distrobase/scripts/cvode $tarfile $distrobase
     fi
-    
     if [ $what = "cvodes" -o $what = "sundials" ]; then
         $distrobase/scripts/cvodes $tarfile $distrobase
     fi
-
     if [ $what = "ida" -o $what = "sundials" ];    then
         $distrobase/scripts/ida $tarfile $distrobase
     fi
-
     if [ $what = "kinsol" -o $what = "sundials" ]; then
         $distrobase/scripts/kinsol $tarfile $distrobase
     fi
@@ -70,20 +64,6 @@ function create_file
     gzip $tarfile
     
     cd $scriptdir
-}
-
-#==============================================================================
-#
-# This function decides how many files need to be created for the current
-# module
-#
-#==============================================================================
-
-function create_module
-{
-    module=$1
-
-    create_file $module
 }
 
 #==============================================================================

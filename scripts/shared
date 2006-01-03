@@ -3,8 +3,7 @@
 tarfile=$1
 distrobase=$2
 
-echo ""
-echo "  Add top-level files"
+echo "  >>> Add top-level files"
     
 tar cf $tarfile $distrobase/configure
 tar uf $tarfile $distrobase/config/config.guess
@@ -23,8 +22,7 @@ tar uf $tarfile $distrobase/config.hin
 tar uf $tarfile $distrobase/INSTALL_NOTES
 tar uf $tarfile $distrobase/README
 
-echo ""
-echo "  Add shared module"
+echo "  >>> Add shared module"
 
 tar uf $tarfile $distrobase/shared/LICENSE
 tar uf $tarfile $distrobase/shared/README
@@ -53,28 +51,22 @@ tar uf $tarfile $distrobase/shared/source/sptfqmr.c
 tar uf $tarfile $distrobase/shared/source/iterative.c
 
 tar uf $tarfile $distrobase/nvec_ser/README
-
 tar uf $tarfile $distrobase/nvec_ser/nvector_serial.h
 tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.h
-
 tar uf $tarfile $distrobase/nvec_ser/Makefile.in
 tar uf $tarfile $distrobase/nvec_ser/nvector_serial.c
 tar uf $tarfile $distrobase/nvec_ser/fnvector_serial.c
 
 tar uf $tarfile $distrobase/nvec_par/README
-
 tar uf $tarfile $distrobase/nvec_par/nvector_parallel.h
 tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.h
-
 tar uf $tarfile $distrobase/nvec_par/Makefile.in
 tar uf $tarfile $distrobase/nvec_par/nvector_parallel.c
 tar uf $tarfile $distrobase/nvec_par/fnvector_parallel.c
 
-tar uf $tarfile $distrobase/nvec_spcpar/README
-
-tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.h
-tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.h
-
-tar uf $tarfile $distrobase/nvec_spcpar/Makefile.in
-tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.c
-tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.c
+#tar uf $tarfile $distrobase/nvec_spcpar/README
+#tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.h
+#tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.h
+#tar uf $tarfile $distrobase/nvec_spcpar/Makefile.in
+#tar uf $tarfile $distrobase/nvec_spcpar/nvector_spcparallel.c
+#tar uf $tarfile $distrobase/nvec_spcpar/fnvector_spcparallel.c
