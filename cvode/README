@@ -1,5 +1,5 @@
                               CVODE
-                    Release x.x.x, Month YYYY
+                    Release 2.4.0, Month 2006
              Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
               Center for Applied Scientific Computing, LLNL
 
@@ -14,11 +14,13 @@ communication between processors is done with the MPI (Message Passage
 Interface) system. 
 
 When used with the serial NVECTOR module, CVODE provides both direct (dense 
-and band) and a preconditioned Krylov (iterative) linear solvers. When CVODE 
-is used with the parallel NVECTOR module, only the Krylov linear solver is 
-available. (An approximate diagonal Jacobian option is available with both 
+and band) and preconditioned Krylov (iterative) linear solvers. Three different
+iterative solvers are available: scaled preconditioned GMRES (SPGMR), scaled 
+preconditioned BiCGStab (SPBCG), and scaled preconditioned TFQMR (SPTFQMR). 
+When CVODE is used with the parallel NVECTOR module, only the Krylov linear solvers 
+are available. (An approximate diagonal Jacobian option is available with both 
 versions.)  For the serial version, there is a banded preconditioner module 
-called CVBANDPRE available for use with the Krylov solver, while for the parallel 
+called CVBANDPRE available for use with the Krylov solvers, while for the parallel 
 version there is a preconditioner module called CVBBDPRE which provides a
 band-block-diagonal preconditioner.
 
@@ -55,10 +57,10 @@ chapter in the CVODE User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.2.0," 
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.4.0," 
     LLLNL technical report UCRL-SM-208108, November 2004.
 
-[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.2.0," 
+[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v2.4.0," 
     LLNL technical report UCRL-SM-208110, November 2004.
 
 [3] S.D. Cohen and A.C. Hindmarsh, "CVODE, a Stiff/nonstiff ODE Solver in C,"
@@ -67,12 +69,13 @@ C. References
 [4] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
-    to appear.
+    31(3), pp. 363-396, 2005.
 
 
 D. Releases
 -----------
 
+v. 2.4.0       - ???. 2006
 v. 2.3.0       - Apr. 2005
 v. 2.2.2       - Mar. 2005
 v. 2.2.1       - Jan. 2005
@@ -86,7 +89,7 @@ v. 1.0 (CVODE) - Sep. 1994 (date written)
 E. Revision History
 -------------------
 
-v. 2.3.0 (Apr. 2005) ---> 
+v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
 ---------------------------------------------------------
 
 - New features
@@ -112,6 +115,7 @@ v. 2.3.0 (Apr. 2005) --->
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   - changed naming scheme for CVODE examples
 
 - Changes to the FCVODE module
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).

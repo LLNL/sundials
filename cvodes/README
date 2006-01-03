@@ -1,5 +1,5 @@
                            CVODES 
-                 Release x.x.x, Month YYYY
+                 Release 2.4.0, Month 2006
                Alan C. Hindmarsh and Radu Serban
           Center for Applied Scientific Computing, LLNL
 
@@ -16,11 +16,13 @@ communication between processors is done with the MPI (Message Passage
 Interface) system.
 
 When used with the serial NVECTOR module, CVODES provides both direct (dense 
-and band) and a preconditioned Krylov (iterative) linear solvers. When CVODES 
-is used with the parallel NVECTOR module, only the Krylov linear solver is 
-available. (An approximate diagonal Jacobian option is available with both 
+and band) and preconditioned Krylov (iterative) linear solvers. Three different
+iterative solvers are available: scaled preconditioned GMRES (SPGMR), scaled 
+preconditioned BiCGStab (SPBCG), and scaled preconditioned TFQMR (SPTFQMR). 
+When CVODES is used with the parallel NVECTOR module, only the Krylov linear solvers 
+are available. (An approximate diagonal Jacobian option is available with both 
 versions.)  For the serial version, there is a banded preconditioner module 
-called CVBANDPRE available for use with the Krylov solver, while for the parallel 
+called CVBANDPRE available for use with the Krylov solvers, while for the parallel 
 version there is a preconditioner module called CVBBDPRE which provides a
 band-block-diagonal preconditioner.
 
@@ -53,23 +55,25 @@ chapter in the CVODES User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.1.0," 
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.4.0," 
     LLNL technical report UCRL-SM-208111, November 2004.
 
-[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v2.1.0," 
+[2] A. C. Hindmarsh and R. Serban, "Example Programs for CVODES v2.4.0," 
     LLNL technical report UCRL-SM-208115, November 2004.
 
-[3] R. Serban and A. C. Hindmarsh, "CVODES: An ODE Solver with Sensitivity
-    Analysis Capabilities," LLNL technical report UCRL-TR-xxxxxx, November 2004.
+[3] R. Serban and A. C. Hindmarsh, "CVODES: the Sensitivity-Enabled ODE 
+    solver in SUNDIALS," Proceedings of IDETC/CIE 2005, Sept. 2005, 
+    Long Beach, CA.
 
 [4] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
-    accepted, 2004.
+    31(3), pp. 363-396, 2005.
 
 D. Releases
 -----------
 
+v. 2.4.0   - ???. 2006
 v. 2.3.0   - May. 2005
 v. 2.2.0   - Apr. 2005
 v. 2.1.2   - Mar. 2005
@@ -81,7 +85,7 @@ v. 1.0     - Jul. 2002 (first SUNDIALS release)
 E. Revision History
 -------------------
 
-v. 2.3.0 (May. 2005) ---> 
+v. 2.3.0 (May. 2005) ---> v. 2.4.0 (???. 2006)
 ---------------------------------------------------------
 
 - New features
@@ -110,6 +114,7 @@ v. 2.3.0 (May. 2005) --->
    - added a argument to CVadjMalloc to specify the type of interpolation 
      (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
      for variable-order polynomial interpolation)
+   - changed naming scheme for CVODES examples
 
 v. 2.2.0 (Apr. 2005) ---> v. 2.3.0 (May. 2005)
 ----------------------------------------------

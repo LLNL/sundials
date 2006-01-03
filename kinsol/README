@@ -1,14 +1,12 @@
                              KINSOL
-                      Release x.x.x, Month YYYY
+                      Release 2.4.0, Month 2006
             Allan G. Taylor, Alan C. Hindmarsh, Radu Serban
              Center for Applied Scientific Computing, LLNL
 
 KINSOL is a solver for nonlinear algebraic systems which can be
 described as F(u) = 0.  It is newly rewritten in the C language and based
 on the previous Fortran package NKSOL [4], written by Peter Brown and
-Youcef Saad.  In addition to the basic solver, this
-package includes a module called KINBBDPRE, which provides a
-band-block-diagonal preconditioner for the parallel version.
+Youcef Saad.
 
 KINSOL can be used both on serial and parallel (MPI) computers.
 The difference is only in the NVECTOR module of vector functions.
@@ -17,12 +15,16 @@ by linking with the appropriate library of NVECTOR functions.  In the
 parallel version, communication between processes is done via the MPI 
 (Message Passage Interface) system.
 
+When used with the serial NVECTOR module, KINSOL provides both direct (dense 
+and band) and preconditioned Krylov (iterative) linear solvers. Three different
+iterative solvers are available: scaled preconditioned GMRES (SPGMR), scaled 
+preconditioned BiCGStab (SPBCG), and scaled preconditioned TFQMR (SPTFQMR). 
 When used with the parallel NVECTOR module, KINSOL provides a
 preconditioner module called KINBBDPRE, which provides a
 band-block-diagonal preconditioner for use with the Krylov linear
-solver.  However, within KINSOL any NVECTOR module may be combined
+solvers. However, within KINSOL any NVECTOR module may be combined
 with an appropriate user-supplied preconditioning module for
-acceleration of the Krylov solver.
+acceleration of the Krylov solvers.
 
 KINSOL is part of a software family called SUNDIALS: SUite of Nonlinear
 and DIfferential/ALgebraic equation Solvers.  This suite consists of
@@ -58,16 +60,16 @@ C. References
 -------------
 
 [1] A. M. Collier, A. C. Hindmarsh, R. Serban, and C. S. Woodward,
-    "User Documentation for KINSOL v2.2.0," LLNL technical report
+    "User Documentation for KINSOL v2.4.0," LLNL technical report
     UCRL-SM-208116, November 2004. 
 
-[2] A. M. Collier and R. Serban, "Example Programs for KINSOL v2.2.0,"
+[2] A. M. Collier and R. Serban, "Example Programs for KINSOL v2.4.0,"
     LLNL technical report UCRL-SM-208114, November 2004.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
-    to appear.
+    31(3), pp. 363-396, 2005.
 
 [4] Peter N. Brown and Youcef Saad, "Hybrid Krylov Methods for
     Nonlinear Systems of Equations," SIAM J. Sci. Stat. Comput., 
@@ -81,6 +83,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.4.0   - ???. 2006
 v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
 v. 2.2.1   - Jan. 2005
@@ -92,7 +95,7 @@ v. 1.0     - Aug. 1998 (date written)
 E. Revision History
 -------------------
 
-v. 2.3.0 (Apr. 2005) ---> 
+v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
 ------------------------------------------------
 
 - Bug fixes
@@ -137,6 +140,7 @@ v. 2.3.0 (Apr. 2005) --->
        KINSpgmrJactimesVecFn -> KINSpilsJacTimesVecFn
        KINSpgmrPrecSetupFn   -> KINSpilsPrecSetupFn
        KINSpgmrPrecSolveFn   -> KINSpilsPrecSolveFn 
+   - changed naming scheme for KINSOL examples
 
 - Changes to the FKINSOL module
    - modified argument list of FKINBBDINIT to accomadate changes made

@@ -1,5 +1,5 @@
                                IDA
-                    Release x.x.x, Month YYYY
+                    Release 2.4.0, Month 2006
              Alan C. Hindmarsh, Allan G. Taylor, Radu Serban 
               Center for Applied Scientific Computing, LLNL
 
@@ -16,16 +16,23 @@ communication between processors is done with the MPI (Message Passage
 Interface) system.
 
 When used with the serial NVECTOR module, IDA provides both direct 
-(dense and band) linear solvers and a preconditioned Krylov (iterative) 
-linear solver. When IDA is used with the parallel NVECTOR module, only the 
-Krylov linear solver is available.  For the latter case, in addition to the 
-basic solver, the IDA package also contains a preconditioner module called 
-IDABBDPRE, which provides a band-block-diagonal preconditioner.
+(dense and band) linear solvers and preconditioned Krylov (iterative) 
+linear solvers. Three different iterative solvers are available: scaled 
+preconditioned GMRES (SPGMR), scaled preconditioned BiCGStab (SPBCG), and 
+scaled preconditioned TFQMR (SPTFQMR). When IDA is used with the parallel 
+NVECTOR module, only the Krylov linear solvers are available.  For the 
+latter case, in addition to the basic solver, the IDA package also contains 
+a preconditioner module called IDABBDPRE, which provides a band-block-diagonal 
+preconditioner.
 
 IDA is part of a software family called SUNDIALS: SUite of Nonlinear and 
 DIfferential/ALgebraic equation Solvers [3].  This suite consists of CVODE, 
 CVODES, IDA, and KINSOL.  The directory structure of the package supplied 
 reflects this family relationship.
+
+For use with Fortran applications, a set of Fortran/C interface routines,
+called FIDA, is also supplied.  These are written in C, but assume that
+the user calling program and all user-supplied routines are in Fortran.
 
 Several examples problem programs are included, covering both serial
 and parallel cases, both small and large problem sizes, and both
@@ -55,16 +62,16 @@ chapter in the IDA User Guide.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.2.0," 
+[1] A. C. Hindmarsh, R. Serban, and A. Collier, "User Documentation for IDA v2.4.0," 
     LLNL technical report UCRL-SM-208112, November 2004.
 
-[2] A. C. Hindmarsh and R. Serban, "Example Programs for IDA v2.2.0," 
+[2] A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v2.4.0," 
     LLNL technical report UCRL-SM-208113, November 2004.
 
 [3] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
     D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
     Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
-    to appear.
+    31(3), pp. 363-396, 2005.
 
 [4] P. N. Brown, A. C. Hindmarsh, and L. R. Petzold, Using Krylov Methods 
     in the Solution of Large-Scale Differential-Algebraic Systems, 
@@ -78,6 +85,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.4.0   - ???. 2006
 v. 2.3.0   - Apr. 2005
 v. 2.2.2   - Mar. 2005
 v. 2.2.1   - Jan. 2005
@@ -89,7 +97,7 @@ v. 1.0     - Feb. 1999 (date written)
 E. Revision History
 -------------------
 
-v. 2.3.0 (Apr. 2005) ---> 
+v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
 ---------------------------------------------------------
 
 - New features
@@ -115,6 +123,7 @@ v. 2.3.0 (Apr. 2005) --->
        IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn
        IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
    - added IDAGetEstLocalErrors() to return estimated local errors.
+   - changed naming scheme for IDA examples
 
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------
