@@ -1,6 +1,6 @@
 List of serial KINSOL FCMIX examples
 
-  kindiagsf : simple diagonal test with Fortran interface
+  fkinkryx : simple diagonal test with Fortran interface
 
 Sample result:
 
