@@ -1,6 +1,6 @@
                            SUNDIALS 
                         Shared Module
-                  Release x.x.x, Month YYYY
+                  Release 2.2.0, Month 2006
 
 
 The family of solvers referred to as SUNDIALS consists of solvers CVODE 
@@ -11,7 +11,7 @@ algebraic systems),
 The various solvers of this family share many subordinate modules contained
 in this module:
 - generic NVECTOR module
-- generic linear solver modules (band, dense, smalldense, spgmr)
+- generic linear solver modules (band, dense, smalldense, spgmr, bcg, tfqmr)
 - definitions of SUNDIALS types (realtype, booleantype)
 - common math functions (RpowerI, RPowerR, RSqrt, RAbs,...)
 
@@ -33,23 +33,24 @@ For complete installation instructions see any of the user guides.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.2.0," 
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.4.0," 
     LLLNL technical report UCRL-MA-208108, November 2004.
 
-[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.1.0," 
+[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.4.0," 
     LLNL technical report UCRL-MA-208111, November 2004.
 
-[3] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.2.0," 
+[3] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.4.0," 
     LLNL technical report UCRL-MA-208112, November 2004.
 
 [4] A. M. Collier, A. C. Hindmarsh, R. Serban,and C. S. Woodward, "User 
-    Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
+    Documentation for KINSOL v2.4.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
 
 D. Releases
 -----------
 
+v. 2.2.0 - ???. 2006
 v. 2.1.1 - May. 2005
 v. 2.1.0 - Apr. 2005
 v. 2.0.2 - Mar. 2005
@@ -62,19 +63,22 @@ v. 0.0   - Mar. 2002
 E. Revision History
 -------------------
 
-v. 2.1.0 (Apr. 2005) ---> v. 2.1.1 (May.2005)
+v. 2.1.1 (May 2005) ---> v. 2.2.0 (??? 2006)
 ----------------------------------------------
 
 - New features
    - added SPBCG (scaled preconditioned Bi-CGStab) linear solver module
    - added SPTFQMR (scaled preconditioned TFQMR) linear solver module
 
-- Changes to data structures
-   - added N_VCloneEmpty to global vector operations table
-
 - Changes related to the build system
    - updated configure script and Makefiles for Fortran examples to avoid C++
      compiler errors (now use CC and MPICC to link only if necessary)
+
+v. 2.1.0 (Apr. 2005) ---> v. 2.1.1 (May.2005)
+----------------------------------------------
+
+- Changes to data structures
+   - added N_VCloneEmpty to global vector operations table
 
 v. 2.0.2 (Mar. 2005) ---> v. 2.1.0 (Apr. 2005)
 ----------------------------------------------

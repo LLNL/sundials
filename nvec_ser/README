@@ -1,5 +1,5 @@
                      NVECTOR_SERIAL
-                Release x.x.x, Month YYYY
+                Release 2.2.0, Month 2006
 
 Serial implementation of the NVECTOR module for SUNDIALS. 
 
@@ -35,23 +35,24 @@ For complete installation instructions see any of the user guides.
 C. References
 -------------
 
-[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.2.0," 
+[1] A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v2.4.0," 
     LLLNL technical report UCRL-MA-208108, November 2004.
 
-[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.1.0," 
+[2] A. C. Hindmarsh and R. Serban, "User Documentation for CVODES v2.4.0," 
     LLNL technical report UCRL-MA-208111, November 2004.
 
-[3] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.2.0," 
+[3] A. C. Hindmarsh and R. Serban, "User Documentation for IDA v2.4.0," 
     LLNL technical report UCRL-MA-208112, November 2004.
 
 [4] A. M. Collier, A. C. Hindmarsh, R. Serban,and C. S. Woodward, "User 
-    Documentation for KINSOL v2.2.0," LLNL technical report UCRL-MA-208116, 
+    Documentation for KINSOL v2.4.0," LLNL technical report UCRL-MA-208116, 
     November 2004.
 
 
 D. Releases
 -----------
 
+v. 2.2.0 - ???. 2006
 v. 2.1.1 - May. 2005
 v. 2.1.0 - Apr. 2005
 v. 2.0.2 - Mar. 2005
@@ -63,7 +64,12 @@ v. 1.0   - Jul. 2002 (first SUNDIALS release)
 E. Revision History
 -------------------
 
-v. 2.1.0 (Apr. 2005) ---> v. 2.1.1 (May.2005)
+v. 2.1.1 (May. 2005) ---> v. 2.2.0 (???. 2006)
+----------------------------------------------
+
+- none
+
+v. 2.1.0 (Apr. 2005) ---> v. 2.1.1 (May. 2005)
 ----------------------------------------------
 
 - Changes to data structures
