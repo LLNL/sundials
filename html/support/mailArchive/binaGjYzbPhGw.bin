@@ -1,0 +1,162 @@
+Making examples in cvode/examples_ser...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvode/examples_ser'
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_ser/cvdx.c
+/usr/bin/gcc -o ./cvdx ./cvdx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_ser/cvdxe.c
+/usr/bin/gcc -o ./cvdxe ./cvdxe.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_ser/cvbx.c
+/usr/bin/gcc -o ./cvbx ./cvbx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_ser/cvkx.c
+/usr/bin/gcc -o ./cvkx ./cvkx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_ser/cvkxb.c
+/usr/bin/gcc -o ./cvkxb ./cvkxb.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_ser/cvdemd.c
+/usr/bin/gcc -o ./cvdemd ./cvdemd.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_ser/cvdemk.c
+/usr/bin/gcc -o ./cvdemk ./cvdemk.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecserial -lsundials_shared -lm  
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvode/examples_ser'
+
+Making examples in cvode/examples_par...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvode/examples_par'
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_par/pvnx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvnx ./pvnx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_par/pvkx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvkx ./pvkx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvode/examples_par/pvkxb.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvkxb ./pvkxb.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvode -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvode/examples_par'
+
+Making examples in cvode/fcmix/examples_ser...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvode/fcmix/examples_ser'
+Updating cvdensef.f...
+/opt/absoft/bin/f90 -g -O2 -ffloat-store -B108 -YEXT_NAMES=LCS -c ./cvdensef-updated.f
+cf90-78 f90fe: ERROR in command line
+  -f option has an illegal argument "float-store".
+f90fe-912: 1 Errors found in command line.  Compilation aborted.
+
+make[1]: *** [cvdensef] Error 1
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvode/fcmix/examples_ser'
+
+Making examples in cvode/fcmix/examples_par...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvode/fcmix/examples_par'
+Updating pvdiagnf.f...
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpif77  -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -B108 -YEXT_NAMES=LCS -c ./pvdiagnf-updated.f
+cf90-78 f90fe: ERROR in command line
+  -f option has an illegal argument "float-store".
+f90fe-912: 1 Errors found in command line.  Compilation aborted.
+
+make[1]: *** [pvdiagnf] Error 1
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvode/fcmix/examples_par'
+
+Making examples in cvodes/examples_ser...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvodes/examples_ser'
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvdx.c
+/usr/bin/gcc -o ./cvdx ./cvdx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvdxe.c
+/usr/bin/gcc -o ./cvdxe ./cvdxe.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvbx.c
+/usr/bin/gcc -o ./cvbx ./cvbx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvkx.c
+/usr/bin/gcc -o ./cvkx ./cvkx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvkxb.c
+/usr/bin/gcc -o ./cvkxb ./cvkxb.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvdemd.c
+/usr/bin/gcc -o ./cvdemd ./cvdemd.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvdemk.c
+/usr/bin/gcc -o ./cvdemk ./cvdemk.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvfnx.c
+/usr/bin/gcc -o ./cvfnx ./cvfnx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvfdx.c
+/usr/bin/gcc -o ./cvfdx ./cvfdx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvfkx.c
+/usr/bin/gcc -o ./cvfkx ./cvfkx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvadx.c
+/usr/bin/gcc -o ./cvadx ./cvadx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvabx.c
+/usr/bin/gcc -o ./cvabx ./cvabx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvakx.c
+/usr/bin/gcc -o ./cvakx ./cvakx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_ser/cvakxb.c
+/usr/bin/gcc -o ./cvakxb ./cvakxb.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecserial -lsundials_shared -lm  
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvodes/examples_ser'
+
+Making examples in cvodes/examples_par...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvodes/examples_par'
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_par/pvnx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvnx ./pvnx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_par/pvkx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvkx ./pvkx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_par/pvkxb.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvkxb ./pvkxb.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_par/pvfnx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvfnx ./pvfnx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_par/pvfkx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvfkx ./pvfkx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_par/pvanx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvanx ./pvanx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/cvodes/examples_par/pvakx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvakx ./pvakx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -DUSE3D -c /home/software/compileHere/sundials/cvodes/examples_par/pvakx.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./pvakx3D ./pvakx.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_cvodes -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/cvodes/examples_par'
+
+Making examples in ida/examples_ser...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/ida/examples_ser'
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/ida/examples_ser/irobx.c
+/usr/bin/gcc -o ./irobx ./irobx.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_ida -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/ida/examples_ser/iheatsb.c
+/usr/bin/gcc -o ./iheatsb ./iheatsb.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_ida -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/ida/examples_ser/iheatsk.c
+/usr/bin/gcc -o ./iheatsk ./iheatsk.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_ida -lsundials_nvecserial -lsundials_shared -lm  
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/ida/examples_ser/iwebsb.c
+/usr/bin/gcc -o ./iwebsb ./iwebsb.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_ida -lsundials_nvecserial -lsundials_shared -lm  
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/ida/examples_ser'
+
+Making examples in ida/examples_par...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/ida/examples_par'
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/ida/examples_par/iheatpk.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./iheatpk ./iheatpk.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_ida -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/ida/examples_par/iheatbbd.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./iheatbbd ./iheatbbd.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_ida -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/ida/examples_par/iwebpk.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./iwebpk ./iwebpk.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_ida -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/ida/examples_par/iwebbbd.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./iwebbbd ./iwebbbd.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_ida -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/ida/examples_par'
+
+Making examples in kinsol/examples_ser...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/kinsol/examples_ser'
+/usr/bin/gcc  -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/kinsol/examples_ser/kinwebs.c
+/usr/bin/gcc -o ./kinwebs ./kinwebs.o  -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_kinsol -lsundials_nvecserial -lsundials_shared -lm  
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/kinsol/examples_ser'
+
+Making examples in kinsol/examples_par...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/kinsol/examples_par'
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/kinsol/examples_par/kinwebp.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./kinwebp ./kinwebp.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_kinsol -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc   -I/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -c /home/software/compileHere/sundials/kinsol/examples_par/kinwebbbd.c
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc -o ./kinwebbbd ./kinwebbbd.o   -L/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib -lsundials_kinsol -lsundials_nvecparallel -lsundials_shared -L/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../lib  -lm  
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/kinsol/examples_par'
+
+Making examples in kinsol/fcmix/examples_ser...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/kinsol/fcmix/examples_ser'
+Updating kindiagsf.f...
+/opt/absoft/bin/f90 -g -O2 -ffloat-store -B108 -YEXT_NAMES=LCS -c ./kindiagsf-updated.f
+cf90-78 f90fe: ERROR in command line
+  -f option has an illegal argument "float-store".
+f90fe-912: 1 Errors found in command line.  Compilation aborted.
+
+make[1]: *** [kindiagsf] Error 1
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/kinsol/fcmix/examples_ser'
+
+Making examples in kinsol/fcmix/examples_par...
+make[1]: Entering directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/kinsol/fcmix/examples_par'
+Updating kindiagpf.f...
+/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpif77  -I/home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/../include -g -O2 -ffloat-store -B108 -YEXT_NAMES=LCS -c ./kindiagpf-updated.f
+cf90-78 f90fe: ERROR in command line
+  -f option has an illegal argument "float-store".
+f90fe-912: 1 Errors found in command line.  Compilation aborted.
+
+make[1]: *** [kindiagpf] Error 1
+make[1]: Leaving directory `/home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/kinsol/fcmix/examples_par'
+

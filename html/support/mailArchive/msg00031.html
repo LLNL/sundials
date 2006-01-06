@@ -1,0 +1,474 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: changing dependent variable mid&#45;run -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Fri, 01 Apr 2005 08:17:25 &#45;0800 (PST) -->
+<!--X-Message-Id: 424D73FF.3050804@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 8B8B9A8EAFB80D4783EC4EE210951B45011E516E@ccexchange&#45;3.cns.cranfield.ac.uk -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: changing dependent variable mid-run</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00030.html">Date Prev</a>] [<a href="msg00032.html">Date Next</a>] [<a href="msg00032.html">Thread Prev</a>] [<a href="msg00030.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00031">Date Index</a></b>]
+[<b><a href="threads.html#00031">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: changing dependent variable mid-run</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Fri, 01 Apr 2005 08:17:03 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<tt>Jordan,<br>
+You are not the first to be a bit confused on how CVODE works in NORMAL vs. ONE_STEP mode. I thought I'll give a 
+lengthier explanation of this first, before showing you how to properly code your restarting logic.<br>
+--Radu</tt><br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+<tt>First of all, you need to understand the distinction between tout and tret: tout is the time at which you require output 
+(in NORMAL mode) or the time towards which the integrator should proceed (in ONE_STEP mode). tret is the time at which 
+Cvode returns at report the solution y. In other words, in NORMAL mode tret=tout, while in ONE_STEP mode, tret&lt;tout.</tt><br>
+<br>
+<tt>Maybe the figure below (use fixed fonts for it to make sense) will help. Suppose you want the solution at the time 
+tout=T marked with 'tout' below and you initialize the solver at the time 't0'. Whether you call CVode in ONE_STEP or 
+NORMAL mode, the integrator will proceed towards tout by stepping to t1, t2, ..., t6, using steps of sizes h1, h2, ...., 
+h6. Note that, except for a freaky coincidence, tout itself is never an internal time for the integrator (i.e., CVODE 
+does not step exactly to tout -- well, unless you set tstop=tout using CVodeSetStopTime, but that's another story). </tt><br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">t0____t1_____t2_______t3________t4_________________t5_________tout________t6_________
+ |     |      |        |         |                  |                      |
+ |     |      |        |         |                  |                      |
+   h1    h2      h3         h4            h5                   h6</pre><br>
+<pre style="margin: 0em;"><br>(A) Now, say you want to get the solution at tout using NORMAL mode. Your 
+code will look something like this</pre><br>
+<pre style="margin: 0em;">--------------------------------------------------------------------------
+realtype tret, tout;
+......
+tout = T;
+flag = CVode(cvode_mem, tout, y, &amp;tret, CV_NORMAL);
+printf(&quot;tout = %e  tret = %e   y = .... \n&quot;,tout,tret,y);
+--------------------------------------------------------------------------</pre><br>
+<pre style="margin: 0em;">and your output will be
+tout = T  tret = T   y = y(T)</pre><br>
+<tt>Internally, CVODE has actually reached t6, but since you requested output at tout, it will find the solution at tout by 
+interpolating its internal state using y(t6), y(t5), y(t4),... -- the number of past values used depends on what the 
+current method order is -- and return tret=tout and y=y(tout).</tt><br>
+<br>
+<pre style="margin: 0em;">(B) Now, if you were to call CVode in ONE_STEP mode, you should do something 
+like:</pre><br>
+<pre style="margin: 0em;">--------------------------------------------------------------------------
+realtype tret, tout;
+....
+tout = T;
+do {
+  flag = CVode(cvode_mem, tout, y, &amp;tret, CV_ONE_STEP);
+  printf(&quot;tout = %e  tret = %e\n  y = ....&quot;,tout,tret,y);
+} while (tret&lt;tout);
+CVodeGetDky(cvode_mem, tout, 0, y);
+printf(&quot;y = ...&quot;,y);
+--------------------------------------------------------------------------</pre><br>
+<pre style="margin: 0em;">and your output will look like
+tout = T  tret = t1   y = y(t1)
+tout = T  tret = t2   y = y(t2)
+tout = T  tret = t3   y = y(t3)
+tout = T  tret = t4   y = y(t4)
+tout = T  tret = t5   y = y(t5)
+tout = T  tret = t6   y = y(t6)
+y = y(T)</pre><br>
+<pre style="margin: 0em;"><br>Note the way to extract the solution at exactly tout in the case you use 
+ONE_STEP mode (using CVodeGetDky).</pre><br>
+<pre style="margin: 0em;"><br>Now you should be able to code correctly your logic for reinitializing 
+CVode at disctime.</pre><br>
+<pre style="margin: 0em;">(A) NORMAL mode:</pre><br>
+<pre style="margin: 0em;">--------------------------------------------------------------------------
+void *cvode_mem;
+N_Vector y;
+realtype t_init=0.0, tout, tret, disctime=2.0;</pre><br>
+<pre style="margin: 0em;">// initialize y = y(t_init);</pre><br>
+<pre style="margin: 0em;">cvode_mem = CvodeCreate(...);
+flag = CVodeMalloc(cvode_mem,...,t_init,y,...);</pre><br>
+<pre style="margin: 0em;">for(tout=0.1; tout&lt;4.0; tout += .1) {
+  flag = CVode(cvode_mem, tout, y, &amp;tret, CV_NORMAL);
+  // here tret=tout and y=y(tout)
+  if (disctime == tout) {
+     N_VScale(4., y, y);
+     flag = CVodeReInit(cvode_mem,...,disctime,y,...);
+  }
+}
+--------------------------------------------------------------------------</pre><br>
+<pre style="margin: 0em;">Alternatively, if you only want the solution at time 4.0, after a rescaling 
+happens at time 2.0, you could just do:</pre><br>
+<pre style="margin: 0em;">--------------------------------------------------------------------------
+void *cvode_mem;
+N_Vector y;
+realtype t_init=0.0, tout=4.0, tret, disctime=2.0;</pre><br>
+<pre style="margin: 0em;">// initialize y = y(t_init);</pre><br>
+<pre style="margin: 0em;">cvode_mem = CvodeCreate(...);
+flag = CVodeMalloc(cvode_mem,...,t_init,y,...);</pre><br>
+<pre style="margin: 0em;">flag = CVode(cvode_mem, disctime, y, &amp;tret, CV_NORMAL);
+// here tret=disctime and y=y(disctime)
+N_VScale(4., y, y);
+flag = CVodeReInit(cvode_mem,...,disctime,y,...);
+flag = CVode(cvode_mem, tout, y, &amp;tret, CV_NORMAL);
+// here tret=tout and y=y(tout)
+--------------------------------------------------------------------------</pre><br>
+<pre style="margin: 0em;"><br>(B) ONE_STEP mode:</pre><br>
+<pre style="margin: 0em;">--------------------------------------------------------------------------
+void *cvode_mem;
+N_Vector y;
+realtype t_init=0.0, tout, tret, disctime=2.0;</pre><br>
+<pre style="margin: 0em;">// initialize y = y(t_init);</pre><br>
+<pre style="margin: 0em;">cvode_mem = CvodeCreate(...);
+flag = CVodeMalloc(cvode_mem,...,t_init,y,...);</pre><br>
+<pre style="margin: 0em;">tout = 4.0;
+do {
+  flag = CVode(cvode_mem, tout, y, &amp;tret, CV_ONE_STEP);
+  // here tret != tout  and y=y(tret)
+  if (tret &gt;= disctime) {
+     CVodeGetDky(cvode_mem, disctime, 0, y);
+     // here y=y(disctime)
+     N_VScale(4., y, y);
+     flag = CVodeReInit(cvode_mem,...,disctime,y,...);
+  }
+} while(tret&lt;tout);
+--------------------------------------------------------------------------</pre><br>
+<pre style="margin: 0em;"><br>I hope this helps -- Radu</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<tt>Cao, Yi wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">It seems that in you CV_NORMAL code, tout is increasing. Hence after
+CVodeReInit, you still have tout &gt; tret (which becomes new initial
+time), so still get positive steps. But in CV_ONE_STEP code, t_init is
+fixed. At some stage, t_init+0.01 &lt; tret, you will get a negative step.</pre><br>
+<pre style="margin: 0em;">Yi</pre><br>
+<pre style="margin: 0em;">-----Original Message-----
+From: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Jordan Atlas
+Sent: 01 April 2005 04:28
+To: sundials-users@llnl.gov
+Subject: Re: changing dependent variable mid-run</pre><br>
+<pre style="margin: 0em;">Hello,</pre><br>
+<pre style="margin: 0em;">      I'm trying to use CVodeReInit to reinitialize an integration after
+a step change in some of the dependent variables that occurs after some
+arbitrary length of time.  When I try to use CVodeReInit on a simple
+system of 2 differential equations using the CV_NORMAL task, it proceeds
+as expected.  If I use CVodeReInit on the same system while using the
+CV_ONE_STEP task, I end up having negative step sizes after the
+integration restarts.</pre><br>
+<pre style="margin: 0em;">      Is it possible to reinitialize an integration when you are using
+CV_ONE_STEP?</pre><br>
+<tt>     I'll paste some pseudo code below to try and illustrate what I'm<br>
+doing. 
+  Hopefully it helps explain it but please let me know if it's not<br>
+clear.</tt><br>
+<br>
+<pre style="margin: 0em;">Thank you!
+-Jordan</pre><br>
+<pre style="margin: 0em;"><br>// Using CV_NORMAL
+        double t_init = 0.0;
+        double disctime = 2.0;    // when to have the step change happen</pre><br>
+<pre style="margin: 0em;">        for (tout = 0.1; tout &lt; 4; tout += .1)
+        {
+                flag = CVode(cvode_mem, tout, y, &amp;tret, CV_NORMAL);
+                checkFlag(flag);</pre><br>
+<pre style="margin: 0em;">                // This loop changes the internal state of the solver
+variable every</pre><br>
+<pre style="margin: 0em;">                if (disctime &lt;= tret)
+                {
+                        N_VScale(4, y, y);
+                        disctime += disctime;
+                        flag = CVodeReInit(cvode_mem, f, tret, y, CV_SS,
+&amp;reltol, &amp;abstol);
+                        checkFlag(flag);
+                }
+        }
+}</pre><br>
+<pre style="margin: 0em;">// Using CV_ONE_STEP -- results in negative step sizes after integrator
+reinitializes
+        double t_init = 0.0;
+        double disctime = 2.0;    // when to have the step change happen</pre><br>
+<pre style="margin: 0em;">        for (int steps = 1; steps &lt; 200; steps++)
+        {
+                flag = CVode(cvode_mem, t_init+0.01, y, &amp;tret,
+CV_ONE_STEP);
+                checkFlag(flag);</pre><br>
+<pre style="margin: 0em;">                if (disctime &lt;= tret)
+                {
+                        N_VScale(4, y, y);
+                        disctime += disctime;
+                        flag = CVodeReInit(cvode_mem, f, tret, y, CV_SS,
+&amp;reltol, &amp;abstol);
+                        checkFlag(flag);
+                }
+        }</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">From: Radu Serban &lt;serban1@llnl.gov&gt;
+Reply-To: sundials-users@llnl.gov
+To: sundials-users@llnl.gov
+Subject: Re: changing dependent variable mid-run
+Date: Thu, 17 Mar 2005 12:39:28 -0800</pre><br>
+<pre style="margin: 0em;">Jordan:
+A couple of points:
+1) To reinitialize CVODE, use CVodeReInit instead of CVodeMalloc, since
+</pre></blockquote><pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>the problem size remains the same. You do not need to reallocate memory
+</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>for cvode_mem...<br>
+2) After reinitialization, the integrator will restart from order 1. 
+Although we do provide a function to set the initial step size 
+(CVodeSetInitStep), keep in mind that the step size before the 
+reinitialization is based on whatever the current method order was at 
+that time and could therefore be too large. Better let CVODE select it.<br>
+--Radu</tt><br>
+<br>
+<pre style="margin: 0em;">Jordan Atlas wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">James,</pre><br>
+<tt>    As you suggested, I was able to do what I needed by 
+reinitializing the solver using CVodeMalloc(...) and calling 
+CVDense(...).  I still have to take a look at getting the current step
+</tt></blockquote></blockquote><pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">size and using that when I reinitialize.  Thanks for the suggestions!</pre><br>
+<pre style="margin: 0em;">--Jordan--</pre><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">From: James Holloway &lt;hagar@umich.edu&gt;
+Reply-To: sundials-users@llnl.gov
+To: sundials-users@llnl.gov
+Subject: Re: changing dependent variable mid-run
+Date: Thu, 17 Mar 2005 14:16:46 -0500</pre><br>
+<tt>As far as I know, in order to do this you have to reinitialize the 
+solver.   The vector y returned by your call to CVode(mem, t, y, 
+&amp;treturn, itask) is not the state vector internally maintained by the
+</tt></blockquote></blockquote></blockquote><pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>solver.   The solver may have proceeded past your integration time t,
+</tt></blockquote></blockquote></blockquote><tt><br>and </tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>is giving you an interpolation back to the time requested, so its 
+internal state may already be into the future.    You want to change
+</tt></blockquote></blockquote></blockquote><tt><br>the </tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>internal state of the solver, and this requires initialization.   You
+</tt></blockquote></blockquote></blockquote><pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>might want to get the current internal step size of the solver and 
+use that when you reinitialize.</tt><br>
+<br>
+<pre style="margin: 0em;">JPH</pre><br>
+<pre style="margin: 0em;">On Mar 17, 2005, at 1:41 PM, Jordan Atlas wrote:</pre><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
+<tt>   Using CVODE integration, is it possible to make step changes in
+</tt></blockquote></blockquote></blockquote></blockquote><pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>an independent variable between between specific time steps?  For 
+example, if one of the variables is y0, I would like y0 to 
+automatically double (as a step change) every 5 time units, 
+independent of the equation for dy0/dt.</tt><br>
+<br>
+<tt>   In my loop that calls CVode(...), I tried to do this using 
+something like:</tt><br>
+<br>
+<tt>              // If the time is less than the time for the step
+</tt></blockquote></blockquote></blockquote></blockquote><pre style="margin: 0em;"><br>change</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">   if (tout &gt;= stepTime)
+   {
+       N_VPrint_Serial(y);</pre><br>
+<pre style="margin: 0em;">       N_VScale(2, y, y);</pre><br>
+<pre style="margin: 0em;">   //    Another way that I tried
+   //    NV_Ith_S(y,0) = (NV_Ith_S(y,0)*2.0);
+   //    NV_Ith_S(y,1) = (NV_Ith_S(y,1)*2.0);</pre><br>
+<pre style="margin: 0em;">       stepTime += stepTime;
+       N_VPrint_Serial(y);
+   }</pre><br>
+<tt>   The print statements show y as doubling, but the changes are 
+not reflected in the time course produced by CVode (elsewhere in the
+</tt></blockquote></blockquote></blockquote></blockquote><pre style="margin: 0em;"><br>code).</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Is there anyway to access the independent variable during the 
+integration like this?</tt><br>
+<br>
+<pre style="margin: 0em;">Thank you,</pre><br>
+<pre style="margin: 0em;">--Jordan Atlas--</pre><br>
+<tt>_________________________________________________________________<br>
+Don't just search. Find. Check out the new MSN Search! 
+<a  href="http://search.msn.click-url.com/go/onm00200636ave/direct/01/">http://search.msn.click-url.com/go/onm00200636ave/direct/01/</a></tt><br>
+<br>
+<br>
+</blockquote><pre style="margin: 0em;"><br>--
+James Paul Holloway
+hagar@umich.edu
+734-936-3126
+Preferred Attachment Format: PDF</pre><br>
+<br>
+</blockquote><tt><br>_________________________________________________________________<br>
+Is your PC infected? Get a FREE online computer virus scan from 
+McAfee(r) Security. 
+<a  href="http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963">http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963</a></tt><br>
+<br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">--
+  Radu Serban
+  Center for Applied Scientific Computing   [email] radu@llnl.gov
+  Lawrence Livermore National Laboratory    [phone] 925-424-4852
+  P.O. Box 808, L-560                       [fax]   925-422-6287
+  Livermore, CA 94551
+</pre></blockquote><pre style="margin: 0em;"><br></pre><br>
+<tt>_________________________________________________________________<br>
+Express yourself instantly with MSN Messenger! Download today - it's<br>
+FREE! 
+<a  href="http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/">http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/</a></tt><br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00028" href="msg00028.html">RE: changing dependent variable mid-run</a></strong>
+<ul><li><em>From:</em> &quot;Cao, Yi&quot; &lt;Y.Cao@cranfield.ac.uk&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00030.html">Enforcing a minimum time step</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00032.html">Re: changing dependent variable mid-run</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00032.html">Re: changing dependent variable mid-run</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00030.html">Enforcing a minimum time step</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00031">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00031">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

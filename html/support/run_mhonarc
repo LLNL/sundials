@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+
+#inbox='/home/radu/.mozilla/radu/3zv0ca2o.slt/Mail/Local Folders/Inbox.sbd/SUNDIALS.sbd/Mailing Lists.sbd/users'
+inbox='/home/radu/.thunderbird/e9wnmawn.default/Mail/Local Folders/Inbox.sbd/SUNDIALS.sbd/Mailing Lists.sbd/users'
+
+cp "$inbox" inbox
+#cp inbox inbox_fmt
+#fmt -s -w 150 inbox > inbox_fmt
+
+
+outdir=mailArchive
+
+title='The sundials-users List Archive'
+ttitle='The sundials-users Thread List Archive'
+
+mhonarc \
+    -add \
+    -outdir $outdir \
+    -title "$title" \
+    -ttitle "$ttitle" \
+    -reverse -treverse \
+    -rcfile resources.mrc \
+    -nodoc \
+    inbox
+
+#mhonarc \
+#    -add \
+#    -outdir $outdir \
+#    -title "$title" \
+#    -ttitle "$ttitle" \
+#    -reverse -treverse \
+#    -rcfile resources.mrc \
+#    -nodoc \
+#    inbox
+
+rm -f inbox inbox_fmt

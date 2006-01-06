@@ -1,0 +1,202 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: does a sparse NVECTOR implementation make sense? -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 24 Aug 2005 08:52:08 &#45;0700 (PDT) -->
+<!--X-Message-Id: 430C9655.40006@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 200508232249.30248.andrey@enginum.com -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: does a sparse NVECTOR implementation make sense?</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00113.html">Date Prev</a>] [<a href="msg00115.html">Date Next</a>] [<a href="msg00113.html">Thread Prev</a>] [<a href="msg00116.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00114">Date Index</a></b>]
+[<b><a href="threads.html#00114">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: does a sparse NVECTOR implementation make sense?</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 24 Aug 2005 08:46:29 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<tt>Andrey Romanenko wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
+<tt>Will it make any sense to try to implement a sparse version of the NVECTOR 
+module? I have looked at the Meschach library and it seems that it should be 
+doable to write up the stubs. Don't know if this can be potentially useful in 
+the SUNDIALS solvers, though. Thank you.</tt><br>
+<br>
+<pre style="margin: 0em;">Regards,
+Andrey Romanenko</pre><br>
+</blockquote><pre style="margin: 0em;"><br>Andrey,</pre><br>
+<tt>I assume you mean a sparse linear solver, not a sparse vector module... Yes, a sparse linear solver does make a lot of 
+sense and Fortran predecessors of the SUNDIALS solvers (GEARS and LSODES) have such an option. As an example, such a 
+solver would be very useful for large-scale problems for which a preconditioner is hard to construct (e.g. chemical 
+kinetics problems).</tt><br>
+<br>
+<tt>The challenge however is in designing a sparse linear solver module which would work with a parallel NVECTOR 
+implementation. The difficulty is not the linear solver per-se (there are several which we could interface to) but 
+rather the generation of a sparse Jacobian using difference-quotient approximations. As you have probably noticed, none 
+of the linear solver modules in SUNDIALS require the user to provide a Jacobian function; they all provide the default 
+option of estimating the Jacobian matrix or matrix-vector products by finite differences. For a large, sparse Jacobian, 
+one needs to find sets of variables that can be perturbed simultaneously for the FD Jacobian approximation. This can be 
+posed as a graph coloring problem and doing this in a distributed parallel environment is not a resolved problem.</tt><br>
+<br>
+<tt>The good news is, I am currently working on exactly this problem. We've made some progress and, hopefully, SUNDIALS will 
+provide a sparse linear solver module soon. However, if you are only interested in serial computations, it should be no 
+problem interfacing any sparse solver to one of the SUNDIALS solvers, especially if you can also provide a Jacobian 
+function.</tt><br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<pre style="margin: 0em;"><br>--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00116" href="msg00116.html">Re: does a sparse NVECTOR implementation make sense?</a></strong>
+<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00113" href="msg00113.html">does a sparse NVECTOR implementation make sense?</a></strong>
+<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00113.html">does a sparse NVECTOR implementation make sense?</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00115.html">Re: sparse NVECTOR</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00113.html">does a sparse NVECTOR implementation make sense?</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00116.html">Re: does a sparse NVECTOR implementation make sense?</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00114">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00114">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

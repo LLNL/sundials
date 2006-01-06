@@ -1,0 +1,475 @@
+<html>
+
+<head>
+
+<title>SUNDIALS FAQ</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../graphics/support_button.png";
+//-->
+</script>
+<script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+
+</head>
+
+<!-- ******************************************************************************** -->
+
+<body>
+
+
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+
+  <tr valign="top">
+  <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><a href="http://www.llnl.gov/CASC/people/serban/"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/head_support_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="127" background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+
+  <tr valign="top">
+  <td background="../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../graphics/table_bck5.gif">
+    <a href="../sitemap.html"><img SRC="../graphics/sitemap.png" border="0"></a><img SRC="../graphics/logo.png" border="0">
+  </td>
+
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+
+<!-- Start content for this page -->
+
+<div class="title">Frequently Asked Questions</div>
+
+<!-- ------ -->
+
+<h1>Contents</h1>
+<div class="frame">
+<ul>
+<li><a href="#inst">Installation</a>
+  <ul>
+  <li><a href="#inst_path">I got the tarball. What do I do next?</a></li>
+  <li><a href="#inst_linux">What configure flags do I really need?</a></li>
+  <li><a href="#inst_win">How do I install SUNDIALS under Windows?</a></li>
+  <li><a href="#inst_cygwin">How can I generate shared libraries under cygwin?</a></li>
+  </ul>
+<li><a href="#cvode">CVODE</a>
+  <ul>
+  <li><a href="#cvode_tols">How do I choose tolerances in CVODE?</a></li>
+  <li><a href="#cvode_negvals">How do I control unphysical negative values in CVODE?</a></li>
+  <li></li>
+  <li></li>
+  </ul>
+<li><a href="#cvodes">CVODES</a>
+  <ul>
+  <li><a href="#cvodes_tols">How do I choose tolerances in CVODES?</a></li>
+  <li><a href="#cvodes_negvals">How do I control unphysical negative values in CVODES?</a></li>
+  <li></li>
+  <li></li>
+  </ul>
+<li><a href="#ida">IDA</a>
+  <ul>
+  <li><a href="#ida_tols">How do I choose tolerances in IDA?</a></li>
+  <li><a href="#ida_negvals">How do I control unphysical negative values in IDA?</a></li>
+  <li></li>
+  <li></li>
+  <li></li>
+  </ul>
+<li><a href="#kinsol">KINSOL</a>
+  <ul>
+  <li></li>
+  <li></li>
+  <li></li>
+  </ul>
+<li><a href="#stb">sundialsTB</a>
+  <ul>
+  <li></li>
+  <li></li>
+  <li></li>
+  </ul>
+</ul>
+
+</div>
+
+<!-- ================ INSTALLATION ===========================  -->
+
+<a name="inst"></a>
+<h1>Installation</h1>
+<div class="frame">
+
+<a name="inst_path"></a>
+<div class="faq_q">I got the tarball. What do I do next?</div>
+<div class="faq_a">
+Let's assume you downloaded <tt>sundials.tar.gz</tt>.
+First, you'll have to uncompress and unpack it:
+<pre>
+% tar -xzf sundials.tar
+</pre>
+This will create a directory <tt>sundials</tt>, which we will call the <em>source tree</em>.
+<br><br>
+Next, you need to configure and build the SUNDIALS libraries. You can get some information 
+on how to do this here, but more details are available in the user guides 
+(e.g. <tt>sundials/cvode/doc/cv_guide.pdf</tt>).
+<br><br>
+Note that, since we expect most of our users to do local installs of the SUNIDALS packages,
+our build system does not respect the usual *NIX convention of installing by
+default in <tt>/usr/local</tt>. Instead, the default is to install the libraries and
+header files in two directories, <tt>lib</tt> and <tt>include</tt>, respectively,
+which are automatically created in the directory from where <tt>configure</tt> was invoked.
+<br><br>
+It is not recommended to build SUNDIALS in its source directory. Instead, create a separate <tt>build</tt>
+directory (for example as a subdirectory of <tt>sundials</tt>) and invoke <tt>configure</tt> from there.
+This way, you could maintain several different installations, using different compilers, 
+options (e.g. debug and optimized), etc. 
+</div>
+
+<a name="inst_linux"></a>
+<div class="faq_q">What configure flags do I really need?</div>
+<div class="faq_a">
+That depends a lot on how your system is configured. If all compilers, libraries, and system 
+header files are in the usual places, configuring SUNDIALS can be as simple as:
+<pre>
+% /path/to/sundials/source/tree/configure
+% make
+% make install
+</pre>
+In certain circumstances, more sophisticated configure lines may be needed, especially
+when building SUNDIALS with MPI support and/or the Fortran-C interfaces. For example, 
+to build SUNDILAS using <tt>gcc</tt> as the serial C compiler, <tt>g77</tt> as the 
+serial Fortran compiler, using the MPI compiler scripts <tt>mpicc</tt> and
+<tt>mpif77</tt> from a particular MPICH distribution, and using the additional 
+compiler flag <tt>-g3</tt>, you would use:
+<pre>
+% configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
+      --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
+      --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+</pre>
+
+</div>
+
+<a name="inst_win"></a>
+<div class="faq_q">How do I install SUNDIALS under Windows?</div>
+<div class="faq_a">
+The easiest way of obtaining Windows libraries for the SUNDIALS solvers is probably
+to use <tt>cygwin</tt> (<a href="http://www.cygwin.com" target="_blank">www.cygwin.com</a>),
+in which case the installation procedure is the same as for any other *NIX system.
+<br><br>
+Several of our users have reported successfuly building the SUNDIALS libraries using
+various IDEs (Borland C++, Visual C++, etc.). For more details, browse the
+<a href="mailArchive/maillist.html" target="_blank">sundials-users</a> mailing list.
+<br><br>
+Instructions to compile SUNDIALS with VC8 - Visual Studio C++ Express 2005
+(courtesy of Andreas Nicolai)
+
+<pre>
+1. extract SUNDIALS archive (I use sundials_ser.tar.gz as example here)
+2. copy config.hin to sundials_config.h
+3. edit sundials_config.h and change it so that the following defines are present:
+   #define HAVE_FLOAT_H
+   #define HAVE_MATH_H
+   #define HAVE_MEMORY_H
+   #define HAVE_STDINT_H
+   #define HAVE_STDLIB_H
+   #define HAVE_STRING_H
+   #define HAVE_SYS_STAT_H
+   #define HAVE_SYS_TYPES_H
+   #define SUNDIALS_DOUBLE_PRECISION
+   #define SUNDIALS_USE_GENERIC_MATH
+
+4. create a subdirectory 'projects', 'includes' and 'libs'
+4.1 copy all include files from the various subdirectories in sundials into
+    the 'includes' folder (Windows doesn't have softlinks unfortunately)
+
+5. create the SUNDIALS libraries that you need, here is the general
+   procedure that you have to follow for all libraries
+5.1 start VC
+5.2 create new project:
+    Type: Win32 Console Application
+    Name: libXXX
+    Place: in directory 'projects'
+    In New Project Wizard, select application settings page and choose:
+    - static library
+    - uncheck 'precompiled headers'
+5.3 add existings source files to Sources and Headers
+    (files are in the appropriate SUNDIALS subdirs)
+5.4 open project properties and modify settings:
+    "Configuration properties" - "General"
+    - change "Output Directory" to "../../libs"
+    "Configuration properties" - "C++" : "Additional Include Directories"
+    - add appropriate include directories here (see below)
+    "Configuration properties" - "C++" : "Code generation"
+    - change "Runtime Library" to "Multi-threaded (/MT)"
+      (links to the static runtime library)
+    "Configuration properties" - "C++" : "Preprocessor"
+    - add "HAVE_CONFIG_H" to "Preprocessor Definitions"
+
+6. specific settings for various libraries
+6.1 libNVector:
+    source to add: 'nvector_serial.c' to Sources and 'nvector_serial.h' to Headers
+                  (files are in subdir 'nvec_ser')
+    includes: "../..;../../shared/include"
+6.2 libSundialsShared:
+    sources to add: all in subdirs shared/include and shared/source
+    includes: "../..;../../shared/include"
+6.3 libCVode:
+    source to add: all in subdirs cvode/include and cvode/source
+    includes: "../..;../../shared/include;../../cvode/include;../../cvode/source"
+6.4 for all other solver libs use similar settings as for libCVode
+
+7. linking programs to SUNDIALS libs
+7.1 once all libraries have been created, the corresponding lib-files should 
+    be in the 'libs' subdir, all header files should be copied to 'includes'
+7.2 external SUNDIALS users must add the include directory and link to all used
+    libraries, typically libNVector, libSundialsShared and one of the solver libs
+</pre>
+
+</div>
+
+<a name="inst_cygwin"></a>
+<div class="faq_q">How can I generate shared libraries under cygwin?</div>
+<div class="faq_a">
+In order to create shared libraries (DLLs) under <tt>cygwin</tt>, you must regenerate the
+<tt>configure</tt> script using <tt>cygwin</tt>'s autotools and use the <tt>-no-undefined</tt>
+option to <tt>libtool</tt>.
+<ol>
+<li>
+Remove, if they exist, the <tt>aclocal.m4</tt> file and <tt>autom4te.cache</tt>
+directory:
+<pre>
+% rm -rf aclocal.m4 autom4te.cache
+</pre>
+</li>
+<li>
+Regenerate the <tt>configure</tt> script:
+<pre>
+% aclocal
+% autoconf
+% autoheader
+</pre>
+</li>
+<li>
+Configure SUNDIALS, enabling creation of shared libraries and using the required
+flag:
+<pre>
+% /path/to/sundials/source/tree/configure --enable-shared --with-ldflags=-no-undefined
+</pre>
+</li>
+</ol>
+</div>
+
+</div>
+
+<!-- ================= CVODE ===================== -->
+
+<a name="cvode"></a>
+<h1>CVODE</h1>
+<div class="frame">
+
+<a name="cvode_tols"></a>
+<div class="faq_q">How do I choose tolerances in CVODE?</div>
+<div class="faq_a">
+For many users, the appropriate choices for tolerance values are a
+concern.  The following pieces of advice are relevant.
+<ol>
+<li> The scalar relative tolerance reltol is to be set to control relative
+errors.  So reltol = 1.0E-4 means that errors are controlled to .01%.  We
+do not recommend using reltol larger than 1.0E-3.  On the other hand,
+reltol should not be so small that it is comparable to the unit roundoff
+of the machine arithmetic (generally around 1.0E-15).</li>
+<li> The absolute tolerances abstol (whether scalar or vector) need to
+be set to control absolute errors when any components of the solution
+vector y may be so small that pure relative error control is
+meaningless.  For example, if y[i] starts at some nonzero value, but in time
+decays to zero, then pure relative error control on y[i] makes no sense
+(and is overly costly) after y[i] is below some noise level.  Then
+abstol (if scalar) or abstol[i] (if a vector) needs to be set to that
+noise level.  If the different components have different noise levels,
+then abstol should be a vector.  See the example cvdx in the CVODE
+package, and the discussion of it in the CVODE Examples document.
+In that problem, the three components vary betwen 0 and 1, and have
+different noise levels; hence the abstol vector.  It is impossible to
+give any general advice on abstol values, because the appropriate noise
+levels are completely problem-dependent.  The user or modeler hopefully has
+some idea as to what those noise levels are.</li>
+<li> Finally, it is important to pick all the tolerance values conservately,
+because they control the error committed on each individual time step.
+The final (global) errors are some sort of accumulation of those
+per-step errors.  A good rule of thumb is to reduce the tolerances by a
+factor of .01 from the actual desired limits on errors.  So if you
+want .01% accuracy (globally), a good choice is reltol = 1.0E-6.
+But in any case, it is a good idea to do a few experiments with
+the tolerances to see how the computed solution values vary as
+tolerances are reduced.</li>
+</ol>
+</div>
+
+<a name="cvode_negvals"></a>
+<div class="faq_q">How do I control unphysical negative values in CVODE?</div>
+<div class="faq_a">
+In many applications, some components in the true solution are always
+positive or non-negative, though at times very small.  In the numerical
+solution, however, small negative (hence unphysical) values can then
+occur.  In most cases, these values are harmless, and simply need to
+be controlled, not eliminated. The following pieces of advice are relevant.
+<ol>
+<li> The way to control the size of unwanted negative computed values
+is with tighter absolute tolerances.  Again this requires some
+knowledge of the noise level of these components, which may or may not
+be different for different components.  Some experimentation may be
+needed.</li>
+<li> If output plots or tables are being generated, and it is important
+to avoid having negative numbers appear there (for the sake of avoiding
+a long explanation of them, if nothing else), then eliminate them, but
+only in the context of the output medium.  Then the internal values carried
+by the solver are unaffected.  Remember that a small negative value in y
+returned by CVODE, with magnitude comparable to abstol or less,
+is equivalent to zero as far as the computation is concerned.</li>
+<li> The user's right-hand side routine f should never change a
+negative value in the solution vector y to a non-negative value,
+as a "solution" to this problem.  This can cause instability.  If the
+f routine cannot tolerate a zero or negative value (e.g. because
+there is a square root or log of it), then the offending value should
+be changed to zero or a tiny positive number in a temporary variable
+(not in the input y vector) for the purposes of computing f(t,y).</li>
+</ol>
+</div>
+
+</div>
+
+<!-- ============== CVODES =============== -->
+
+<a name="cvodes"></a>
+<h1>CVODES</h1>
+<div class="frame">
+
+<a name="cvodes_tols"></a>
+<div class="faq_q">How do I choose tolerances in CVODES?</div>
+<div class="faq_a">
+See <a href="#cvode_tols">How do I choose tolerances in CVODE?</a>
+</div>
+
+<a name="cvodes_negvals"></a>
+<div class="faq_q">How do I control unphysical negative values in CVODES?</div>
+<div class="faq_a">
+See <a href="#cvode_negvals">How do I control unphysical negative values in CVODE?</a>
+</div>
+
+
+</div>
+
+<!-- ================ IDA =================== -->
+
+<a name="ida"></a>
+<h1>IDA</h1>
+<div class="frame">
+
+<a name="ida_tols"></a>
+<div class="faq_q">How do I choose tolerances in IDA?</div>
+<div class="faq_a">
+See <a href="#cvode_tols">How do I choose tolerances in CVODE?</a>
+</div>
+
+<a name="ida_negvals"></a>
+<div class="faq_q">How do I control unphysical negative values in IDA?</div>
+<div class="faq_a">
+See <a href="#cvode_negvals">How do I control unphysical negative values in CVODE?</a>
+<br>
+IDA provides the option of enforcing positivity or non-negativity
+on components.  But these constraint options should only be exercised if
+the use of absolute tolerances to control the computed values is
+unsuccessful, because they involve some extra overhead cost.
+</div>
+
+</div>
+
+<!-- ================ KINSOL ================== -->
+
+<a name="kinsol"></a>
+<h1>KINSOL</h1>
+<div class="frame">
+
+<a name=""></a>
+<div class="faq_q">Q?</div>
+<div class="faq_a">
+a
+</div>
+
+<a name=""></a>
+<div class="faq_q">Q?</div>
+<div class="faq_a">
+a
+</div>
+
+</div>
+
+<!-- =============== sundialsTB ================== -->
+
+<a name="stb"></a>
+<h1>sundialsTB</h1>
+<div class="frame">
+
+<a name=""></a>
+<div class="faq_q">Q?</div>
+<div class="faq_a">
+a
+</div>
+
+<a name=""></a>
+<div class="faq_q">Q?</div>
+<div class="faq_a">
+a
+</div>
+
+</div>
+
+<!-- ------ -->
+
+<!-- End content for this page -->
+  </div>
+  </td>
+
+  <td background="../graphics/table_bck3.gif"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="17" background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+
+  </table>
+
+</body>
+</html>

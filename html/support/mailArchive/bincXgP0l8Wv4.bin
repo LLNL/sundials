@@ -1,0 +1,172 @@
+
+---------------------------------
+Running SUNDIALS Configure Script
+---------------------------------
+
+checking build system type... i686-pc-linux-gnu
+checking host system type... i686-pc-linux-gnu
+checking whether make sets $(MAKE)... yes
+checking for a BSD-compatible install... /usr/bin/install -c
+checking for egrep... grep -E
+checking for sys/types.h... no
+checking for sys/stat.h... no
+checking for stdlib.h... no
+checking for string.h... no
+checking for memory.h... no
+checking for strings.h... no
+checking for inttypes.h... no
+checking for stdint.h... no
+checking for unistd.h... no
+checking floating-point data type to use... double
+checking for cc... cc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether cc accepts -g... yes
+checking for cc option to accept ANSI C... none needed
+checking for cc... /usr/bin/cc
+checking for extra C compiler flags... none
+checking how to run the C preprocessor... /usr/bin/cc -E
+checking for extra C/C++ preprocessor flags... none
+checking for extra linker flags... none
+checking for extra libraries... none
+checking for ANSI C header files... yes
+checking for stdlib.h... (cached) no
+checking float.h usability... yes
+checking float.h presence... yes
+checking for float.h... yes
+checking math.h usability... yes
+checking math.h presence... yes
+checking for math.h... yes
+checking for abs in -lm... yes
+checking for fabs in -lm... yes
+checking for pow in -lm... yes
+checking for sqrt in -lm... yes
+checking for additional required C libraries... -lm 
+checking for int... yes
+checking size of int... 4
+checking for long int... yes
+checking size of long int... 4
+checking for double... yes
+checking size of double... 8
+checking for egrep... (cached) grep -E
+checking for fgrep... grep -F
+checking for f77... f77
+checking whether we are using the GNU Fortran 77 compiler... yes
+checking whether f77 accepts -g... yes
+checking for f77... /opt/absoft/bin/f77
+checking for extra Fortran compiler flags... none
+checking how to get verbose linking output from /opt/absoft/bin/f77... configure: WARNING: compilation failed
+
+checking for Fortran libraries of /opt/absoft/bin/f77... 
+checking Fortran name-mangling scheme... ERROR
+
+   Unable to compile test program using given Fortran compiler.
+
+   Disabling Fortran support...
+
+checking for mpicc... /home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc
+checking for ld used by GCC... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for BSD-compatible nm... /usr/bin/nm -B
+checking for a sed that does not truncate output... /bin/sed
+checking whether ln -s works... yes
+checking how to recognise dependent libraries... pass_all
+checking command to parse /usr/bin/nm -B output... ok
+checking dlfcn.h usability... yes
+checking dlfcn.h presence... yes
+checking for dlfcn.h... yes
+checking for ranlib... ranlib
+checking for strip... strip
+checking for objdir... .libs
+checking for /usr/bin/cc option to produce PIC... -fPIC
+checking if /usr/bin/cc PIC flag -fPIC works... yes
+checking if /usr/bin/cc static flag -static works... yes
+checking if /usr/bin/cc supports -c -o file.o... yes
+checking if /usr/bin/cc supports -c -o file.lo... yes
+checking if /usr/bin/cc supports -fno-rtti -fno-exceptions... no
+checking whether the linker (/usr/bin/ld) supports shared libraries... yes
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+creating libtool
+checking if we can build serial C examples... yes
+checking if we can build parallel C examples... yes
+checking if we can build serial Fortran examples... no
+checking if we can build parallel Fortran examples... no
+checking for 'include' directory... /home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include
+checking for 'lib' directory... /home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating shared/source/Makefile
+config.status: creating nvec_ser/Makefile
+config.status: creating nvec_par/Makefile
+config.status: creating cvode/source/Makefile
+config.status: creating cvode/fcmix/Makefile
+config.status: creating cvode/examples_ser/Makefile
+config.status: creating cvode/examples_par/Makefile
+config.status: creating cvodes/source/Makefile
+config.status: creating cvodes/examples_ser/Makefile
+config.status: creating cvodes/examples_par/Makefile
+config.status: creating ida/source/Makefile
+config.status: creating ida/examples_ser/Makefile
+config.status: creating ida/examples_par/Makefile
+config.status: creating kinsol/source/Makefile
+config.status: creating kinsol/fcmix/Makefile
+config.status: creating kinsol/examples_ser/Makefile
+config.status: creating kinsol/examples_par/Makefile
+config.status: creating config/sundials_config.h
+config.status: creating config.h
+
+------------------------------
+SUNDIALS Configuration Summary
+------------------------------
+
+Configuration:
+--------------
+
+  Host System:             i686-pc-linux-gnu
+  Build System:            i686-pc-linux-gnu
+  Source Code Location:    /home/software/compileHere/sundials
+  Install Path (include):  /home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/include
+  Install Path (lib):      /home/software/compiledLibs/sundials_2.1.1_gcc_4.0.2_absoft_8.0_mpich2_1.0.1/lib
+
+  C Preprocessor:          /usr/bin/cc -E 
+  C Compiler:	           /usr/bin/cc -g -O2 -ffloat-store
+  C Linker:                /usr/bin/cc  -lm 
+
+  MPI-C:                   /home/software/compiledLibs/mpich2_1.0.1_gcc_4.1.0_absoft_8.0/bin/mpicc
+
+  Type 'make' and then 'make install' to build and install SUNDIALS 2.1.1
+
+Modules:
+--------
+
+  KINSOL
+  CVODE
+  CVODES
+  IDA
+
+Examples:
+---------
+
+  Type 'make examples' to build the following examples:
+
+            SERIAL    PARALLEL
+          ---------------------
+ C       |    YES   |    YES   |
+          ---------------------
+ Fortran |    NO    |    NO    |
+          ---------------------
+
+----------------------------------
+Finished SUNDIALS Configure Script
+----------------------------------
+

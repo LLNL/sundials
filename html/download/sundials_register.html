@@ -1,0 +1,151 @@
+<html>
+<head>
+<title>Software User Registration (SUNDIALS)</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../sundials_styles.css" rel="stylesheet" type="text/css">
+<script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+
+<body>
+
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+
+  <tr valign="top">
+  <td height="17" background="../graphics/table_bck6.gif"><img src="../graphics/table_bck6.gif" width="5" height="17"></td>
+  <td height="17" width="720" background="../graphics/table_bck6.gif"><img src="../graphics/table_bck6.gif" width="5" height="17"></td>
+  <td background="../graphics/table_bck6.gif"><img src="../graphics/table_bck6.gif" width="5" height="17"></td>
+  </tr>
+
+  <tr valign="top">
+  <td background="../graphics/table_bck3.gif"></td>
+  <td width="720">
+  <div id="content">   
+<!-- Start content for this page -->
+
+<h1>SUNDIALS Software Download Registration</h1>
+
+<div class="frame">
+
+<FORM NAME="sunRegForm" ACTION="../cgi/handleform.cgi" METHOD="post">
+
+<br>
+<p class="emph" style="text-align:center;">
+Please fill out this form, then click the "<b>Submit</b>" button.<br>
+You will then be taken back to the download page where you will have access
+to all SUNDIALS files.
+</p>
+<br>
+
+<table width=500 border=0 cellspacing=3>
+<tr>
+ <td width=100 align="right" valign="middle"><IMG align=bottom border=0 height=9 src="img/redarrowr.gif" alt="required" width=8> <B>Name</B></td>
+ <td align="left" valign="middle"><INPUT TYPE="text" NAME="realname" SIZE=40 MAXLENGTH=40></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><IMG align=bottom border=0 height=9 src="img/redarrowr.gif" alt="required" width=8> <B>Email</B></td>
+ <td align="left" valign="middle"><INPUT TYPE="text" NAME="email" SIZE=40 MAXLENGTH=40></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>Institution/Company</B></td>
+ <td align="left" valign="middle"><INPUT TYPE="text" NAME="facility" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>Address</B></td>
+ <td align="left" valign="middle"><INPUT TYPE="text" NAME="mail_addr1" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+  <td width=100 ></td>
+  <td align="left" valign="middle"><INPUT TYPE="text" NAME="mail_addr2" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>City</B></td>
+ <td align="left" valign="middle"><INPUT TYPE="text" NAME="city" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+  <td width=100 align="right" valign="middle"><B>State</B></td>
+  <td align="left" valign="middle"><INPUT TYPE="text" NAME="state" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>ZIP code</B></td>
+ <td align="left" valign="middle"><INPUT TYPE="text" NAME="zip" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>Country</B></td>
+  <td align="left" valign="middle"><INPUT TYPE="text" NAME="country" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>Phone</B></td>
+ <td align="left" valign="middle"><INPUT TYPE="text" NAME="phone" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>Fax</B></td>
+ <td align="left" valign="middle"><INPUT TYPE="text" NAME="fax" SIZE=40 MAXLENGTH=80></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>Intended platform</B></td>
+ <td align="left" valign="middle"><input type="text" NAME="platform" VALUE="" SIZE=40 MAXLENGTH=100></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>Intended use</B></td>
+ <td align="left" valign="middle"><input type="text" NAME="intended_use" VALUE="" SIZE=40 MAXLENGTH=300></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="middle"><B>Comments</B></td>
+ <td align="left" valign="middle"><TEXTAREA NAME="comments" WRAP="soft" ROWS=5 COLS=40></TEXTAREA></td>
+</tr>
+<tr>
+ <td width=100 align="right" valign="top"><B>Subscribe to<br>mailing list(s)</B></td>
+ <td align="left" valign="middle">
+   <INPUT TYPE="checkbox" NAME="sundials-announce" VALUE="sundials-announce"><b>sundials-announce</b> (sundials-announce@llnl.gov)<br>
+   <INPUT TYPE="checkbox" NAME="sundials-users" VALUE="sundials-users"><b>sundials-users</b> (sundials-users@llnl.gov)
+ </td>
+</tr>
+</table>
+
+<p>
+<IMG align=bottom border=0 height=9 src="img/redarrowr.gif" alt="required" width=8> indicates required fields.
+</p>
+
+
+<p>
+<INPUT style="font-weight:bold;" TYPE="submit" NAME="register" VALUE="Submit" onClick="javascript:setFormValues()">
+<INPUT TYPE="reset" VALUE="Clear Form">
+</p>
+
+<INPUT TYPE="hidden" NAME="required" VALUE="realname,email">
+<INPUT TYPE="hidden" NAME="field_names" VALUE="realname=Your Name&email=Your Email Address&mail_addr1=Your Mailing Address&city=City&country=Country&facility=Your Company Name&platform=Platform(s) You Will Run On">
+<INPUT TYPE="hidden" NAME="redirect" VALUE="">
+<INPUT TYPE="hidden" NAME="subject" VALUE="">
+<INPUT TYPE="hidden" NAME="packageName" VALUE="">
+
+
+</FORM>
+
+
+</div>
+
+
+
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../graphics/table_bck3.gif"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="17" background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="720"><img SRC="../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+
+
+</table>
+
+</body>
+</html>

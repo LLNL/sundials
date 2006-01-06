@@ -1,0 +1,1145 @@
+<html>
+
+<head>
+
+<title>SUNDIALS - What's New?</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../graphics/support_button.png";
+//-->
+</script>
+<script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+
+</head>
+
+<!-- ******************************************************************************** -->
+
+<body>
+<A NAME="top"></A>
+
+
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+
+  <tr valign="top">
+  <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><a href="http://www.llnl.gov/CASC/people/serban/"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/head_whatsnew_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="127" background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+
+  <tr valign="top">
+  <td background="../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../graphics/table_bck5.gif">
+    <a href="../sitemap.html"><img SRC="../graphics/sitemap.png" border="0"></a><img SRC="../graphics/logo.png" border="0">
+  </td>
+
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+
+<!-- Start content for this page -->
+
+
+<div class="title">What's new in the latest release?</div>
+<br>
+
+<!-- ******************************************************************************** -->
+
+<p class="links">
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- ******************************************************************************** -->
+
+<A NAME="whatsnew_cvode"></A>
+<h1>CVODE</h1>
+<div class="frame">
+<UL>
+
+<LI class="title">What's new in v2.4.0?
+<LI> New features
+   <UL class="second">
+   <LI> added CVSPBCG interface module to allow CVODE to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+   <LI> added CVSPTFQMR interface module to allow CVODE to interface with
+     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
+   <LI> added support for SPBCG and SPTFQMR to the CVBBDPRE and CVBANDPRE 
+     preconditioner modules.
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> changed argument of CVodeFree, CVBandPrecFree, and CVBBDPrecFree to
+     be the address of the respective memory block pointer, so that its
+     NULL value is propagated back to the calling function.
+   <LI> added CVSPBCG module which defines appropriate CVSpbcg* functions to
+     allow CVODE to interface with the shared SPBCG linear solver module.
+   <LI> added CVBBDSpbcg function to CVBBDPRE module and CVBPSpbcg function to
+     CVBANDPRE module to support SPBCG linear solver module.
+   <LI> added CVBBDSptfqmr function to CVBBDPRE module and CVBPSptfqmr function to
+     CVBANDPRE module to support SPTFQMR linear solver module.
+   <LI> changed function type names to accomodate
+     all the Scaled Preconditioned Iterative Linear Solvers now available:<BR>
+       CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn<BR>
+       CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn<BR>
+       CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   <LI> changed naming scheme for CVODE examples
+   </UL>
+<LI> Changes to the FCVODE module
+   <UL class="second">
+   <LI> added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
+   <LI> added support for CVSPTFQMR/SPTFQMR (added FCV*SPTFQMR* functions).
+   <LI> Optional inputs are now set using routines FCVSETIIN (integer inputs)
+     and FCVSETRIN (real inputs) through pairs key-value. Optional outputs
+     are still obtained from two arrays (IOUT and ROUT), owned by the user
+     and passed as arguments to FCVMALLOC. Note that the argument OPTIN
+     was removed from FCVMALLOC.
+   <LI> the arguments OPTIN, IOPT, and ROPT were removed from FCVREINIT
+   </UL>
+
+
+<LI class="title">What's new in v2.3.0?
+<LI> New features
+   <UL class="second">
+   <LI> added option for user-provided error weight computation function
+     (of type CVEwtFn specified through CVodeSetEwtFn).
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> CVODE now stores tolerances through values rather than references 
+     (to resolve potential scoping issues). 
+   <LI> CVODE now passes information back to the user through values rather
+     than references (error weights, estimated local errors, root info)
+   <LI> CVodeMalloc, CVodeReInit, CVodeSetTolerances: added option itol=CV_WF 
+     to indicate user-supplied function for computing the error weights; 
+     reltol is now declared as realtype. Note that it is now illegal to call
+     CVodeSetTolerances before CVodeMalloc. It is now legal to deallocate
+     the absolute tolerance N_Vector right after its use.
+   <LI> CVodeGetErrorWeights: the user is now responsible for allocating space
+     for the N_Vector in which error weights will be copied.
+   <LI> CVodeGetEstLocalErrors: the user is now responsible for allocating space
+     for the N_Vector in which estimated local errors will be copied.
+   <LI> CVodeGetRootInfo: the user is now responsible for allocating space
+     for the int array in which root information will be copied.
+   <LI> Passing a value of 0 for the maximum step size, the minimum step
+     size, or for maxsteps results in the solver using the corresponding
+     default value (infinity, 0, 500, respectively)
+   <LI> Several optional input functions were combined into a single one
+     (CVodeRootInit and CvodeSetGdata, CVDenseSetJacFn and CVDenseSetJacData,
+     CVBandSetJacFn and CVBandSetJacData, CVSpgmrSetPrecSolveFn and 
+     CVSpgmrSetPrecSetFn and CVSpgmrSetPrecData, CVSpgmrSetJacTimesVecFn and
+     CVSpgmrSetJacData).
+   </UL>
+<LI> Changes to the FCVODE module
+   <UL class="second">
+   <LI> Added option for user-supplied error weight computation subroutine
+     (FCVEWT). Use FCVEWTSET to indicate that FCVEWT is provided.
+   <LI> Due to the changes to the main solver, if FCVPSOL is provided then
+     FCVPSET must also be defined, even if it is empty.
+   </UL>
+
+<LI class="title">What's new in v2.2.2?
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed bug in CVode function: Initial setting of tretlast = *tret = tn removed
+  (correcting erroneous behavior at first call to the rootfinding function CVRcheck3).
+   <LI> Removed redundant setting of tretlast = *tret = tn at CLOSE_ROOTS return from CVode.
+   </UL>
+<LI> Changes to documentation
+   <UL class="second">
+   <LI> added section with numerical values of all input and output solver constants
+   <LI> added more detailed notes on the type of absolute tolerances
+   <LI> added more details on ownership of memory for the array returned by CVodeGetRootInfo
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   <LI> modified to use customized detection of the Fortran name mangling scheme (autoconf's AC_F77_WRAPPERS
+   routine is problematic on some platforms)
+   <LI> added --with-mpi-flags as a configure option to allow user to specify MPI-specific flags
+   <LI> updated Makefiles for Fortran examples to avoid C++ compiler errors (now use CC and MPICC to link)
+   </UL>
+<LI class="title">What's new in v2.2.1?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+   <LI> changed method of generating sundials_config.h to avoid potential warnings of
+     redefinition of preprocessor symbols.
+   </UL>
+<li class="title">What's new in v2.2.0?</li>
+<li> New features
+   <UL class="second">
+   <LI> added option to specify a value of the independent variable (time)
+     past which the integration is never to proceed.
+   <LI> added root finding capabilities.
+   <LI> added option to disable all error messages.
+   </UL>
+
+<LI> Changes related to the NVECTOR module
+   <UL class="second">
+   <LI> removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   <LI> all CVODE functions create new N_Vector variables through cloning, using
+     an N_Vector passed by the user as a template.
+   </UL>
+</li> 
+
+<LI> Changes to type names and CVODE constants
+   <UL class="second">
+   <LI> removed type 'integertype'; instead use int or long int, as appropriate.
+   <LI> restructured the list of return values from the various CVODE functions.
+   <LI> changed all CVODE constants (inputs and return values) to have the
+     prefix 'CV_' (e.g. CV_SUCCESS).
+   <LI> renamed various function types to have the prefix 'CV' (e.g. CVRhsFn).
+   </UL>
+ 
+<LI> Changes to optional input/ouput
+   <UL class="second">
+   <LI> added CVodeSet* and CVodeGet* functions for optional inputs/outputs,
+     replacing the arrays iopt and ropt.
+   <LI> added new optional inputs (e.g. maximum number of Newton iterations,
+     maximum number of convergence failures, etc).
+   <LI> the value of the last return flag from any function within a linear
+     solver module can be obtained as an optional output (e.g. CVDenseGetLastFlag).
+   </UL>
+   
+<LI> Changes to user-callable functions
+   <UL class="second">
+   <LI> added new function CVodeCreate which initializes the CVODE solver
+     object and returns a pointer to the CVODE memory block.
+   <LI> removed N (problem size) from all functions except the initialization
+     functions for the direct linear solvers (CVDense and CVBand).
+   <LI> shortened argument lists of most CVODE functions (the arguments that
+     were dropped can now be specified through CVodeSet* functions).
+   <LI> removed reinitialization functions for band/dense/SPGMR linear
+     solvers (same functionality can be obtained using CV*Set* functions).
+   <LI> in CVBBDPRE, added a new function, CVBBDSpgmr to initialize the
+     SPGMR linear solver with the BBD preconditioner.
+   <LI> function names changed in CVBANDPRE and CVBBDPRE for uniformity.
+   </UL>
+ 
+<LI> Changes to user-supplied functions
+   <UL class="second">
+   <LI> removed N (probem dimension) from argument lists.
+   <LI> shortened argument lists for user dense/band/SPGMR Jacobian routines.
+   <LI> in CVSPGMR, shortened argument lists for user preconditioner functions.
+   </UL>
+ 
+<LI> Changes to the FCVODE module
+   <UL class="second">
+   <LI> revised to use underscore and precision flags at compile time (from configure)
+   <LI> reorganized FCVODE into fewer files
+   <LI> added tstop, one-step, and STALD options, and interfaces to CVBANDPRE
+     and rootfinding capabilities.
+   <LI> use CV*Set* and CV*Get* functions from CVODE (although the optional I/O
+     is still communicated to the user of FCVODE through arrays IOPT and ROPT)
+   <LI> added new optional inputs and outputs (e.g.tstop, nlscoef, maxnef, maxcor,
+     maxncf, etc.) and rearranged locations in IOPT and ROPT for uniformity
+   </UL>
+
+</UL>
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<A HREF="#top">Top</A>
+]<br>
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- ******************************************************************************** -->
+
+<A NAME="whatsnew_cvodes"></A>
+<H1>CVODES</H1>
+<div class="frame">
+<UL>
+
+<LI class="title">What's new in v2.4.0?
+<LI> New features
+   <UL class="second">
+   <LI> added CVSPBCG interface module to allow CVODES to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+   <LI> added CVSPTFQMR interface module to allow CVODES to interface with
+     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
+   <LI> added support for SPBCG and SPTFQMR to the CVBBDPRE and CVBANDPRE 
+     preconditioner modules.
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> changed argument of CVodeFree, CVBandPrecFree, CVBBDPrecFree, and 
+     CVadjFree to be the address of the respective memory block pointer, 
+     so that its NULL value is propagated back to the calling function.
+   <LI> added CVSPBCG module which defines appropriate CVSpbcg* functions to
+     allow CVODES to interface with the shared SPBCG linear solver module.
+   <LI> added CVBBDSpbcg function to CVBBDPRE module and CVBPSpbcg function to
+     CVBANDPRE module to support SPBCG linear solver module.
+   <LI> added CVBBDSptfqmr function to CVBBDPRE module and CVBPSptfqmr function to
+     CVBANDPRE module to support SPTFQMR linear solver module.
+   <LI> Changed function type names to accomodate
+     all the Scaled Preconditioned Iterative Linear Solvers now available:<BR>
+       CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn<BR>
+       CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn<BR>
+       CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   <LI> added a argument to CVadjMalloc to specify the type of interpolation 
+     (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
+     for variable-order polynomial interpolation)
+   <LI> changed naming scheme for CVODES examples
+   </UL>
+
+
+<LI class="title">What's new in v2.3.0?
+<LI> Bug fixes
+   <UL class="second">
+   <LI> In the adjoint module, fixed bug in storing interpolation data at
+     a point corresponding to a check point (improperly scaled y').
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> Removed CVadjGetCheckPointsList from the list of user-callable functions.
+   </UL>
+
+<LI class="title">What's new in v2.2.0?
+<LI> New features
+   <UL class="second">
+   <LI> added option for user-provided error weight computation function for
+     the solution vector (of type CVEwtFn specified through CVodeSetEwtFn).
+   </UL>
+<LI> Changes to user interface
+    <UL class="second">
+   <LI> CVODE now stores tolerances through values rather than references 
+     (to resolve potential scoping issues). 
+   <LI> CVODE now passes information back to the user through values rather
+     than references (error weights, estimated local errors, root info,
+     STAGGERED1 statistics, etc.)
+   <LI> CVodeMalloc, CVodeReInit, CVodeSetTolerances: added option itol=CV_WF 
+     to indicate user-supplied function for computing the error weights; 
+     reltol is now declared as realtype. Note that it is now illegal to call
+     CVodeSetTolerances before CVodeMalloc. It is now legal to deallocate
+     the absolute tolerance N_Vector right after its use.
+   <LI> Several optional input functions were combined into a single one
+     (CVodeRootInit and CvodeSetGdata, CVDenseSetJacFn and CVDenseSetJacData,
+     CVBandSetJacFn and CVBandSetJacData, CVSpgmrSetPrecSolveFn and 
+     CVSpgmrSetPrecSetFn and CVSpgmrSetPrecData, CVSpgmrSetJacTimesVecFn and
+     CVSpgmrSetJacData).
+   <LI> Removed CVodeSetQuadtolerances. CVodeSetQuadErrCon now sets both the
+     error control flag and the tolerances for quadratures.
+   <LI> CVodeSetQuadErrCon, CVodeSetSensTolerances: the relative tolerance
+     must now be passed as a realtype. It is now illegal to call 
+     CVodeSetQuadErrCon before CVodeQuadMalloc or to call CVodeSetSensTolerances
+     before CVodeSensMalloc.
+   <LI> CvodeSensMalloc: removed p and plist from argument list.
+   <LI> CVodeSensParams replaces CVodeSensPbar and sets p, pbar, and plist. NULL
+     can be passed for any of them if it will not be needed given the current
+     set of options. The array pbar must now contain Ns non-zero realtype
+     values giving order of magnitude for the parameters with respect to which
+     sensitivities will be computed. The array plist can now only have positive 
+     entries. 
+   <LI> CVodeGetErrorWeights, CVodeGetQuadErrorWeights: the user is now responsible 
+     for allocating space for the N_Vector in which error weights will be copied.
+   <LI> CVodeGetEstLocalErrors: the user is now responsible for allocating space
+     for the N_Vector in which estimated local errors will be copied.
+   <LI> CVodeGetRootInfo: the user is now responsible for allocating space
+     for the int array in which root information will be copied.
+   <LI> CVodeGetNumStgrSensNonlinSolvIters, CVodeGetNumStgrSensNonlinSolvConvFails:
+     the user is now responsible for allocating space for the long int arrays 
+     in which STAGGERED1 statistics will be copied.
+   <LI> CVodeMallocB, CVodeReInitB, CVodeSetQuadErrConB: the relative tolerance
+     for the backward integration must now be passed as a realtype. It is now
+     illegal to call CVodeSetQuadErrConB before CVQuadMallocB.
+   <LI> Passing a value of 0 for the maximum step size, the minimum step
+     size, or for maxsteps results in the solver using the corresponding
+     default value (infinity, 0, 500, respectively)
+   <LI> User-callable functions in the adjoint module were modified similarly
+     to their corresponding counterparts for forward simulation.
+   </UL>
+
+<LI class="title">What's new in v2.1.2?
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed bug in CVode function: Initial setting of tretlast = *tret = tn removed
+  (correcting erroneous behavior at first call to the rootfinding function CVRcheck3).
+   <LI> Removed redundant setting of tretlast = *tret = tn at CLOSE_ROOTS return from CVode.
+   </UL>
+<LI> Changes to documentation
+   <UL class="second">
+   <LI> added section with numerical values of all input and output solver constants
+   <LI> added more detailed notes on the type of absolute tolerances
+   <LI> added more details on ownership of memory for the array returned by CVodeGetRootInfo
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   <LI> modified to use customized detection of the Fortran name mangling scheme (autoconf's AC_F77_WRAPPERS
+   routine is problematic on some platforms)
+   <LI> added --with-mpi-flags as a configure option to allow user to specify MPI-specific flags
+   </UL>
+
+<LI class="title">What's new in v2.1.1?
+<LI> New features
+   <UL class="second">
+   <LI> added function CVodeSensToggle to allow activation/deactivation of
+     sensitivity calculations without memory allocation/deallocation.
+   </UL>
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed bug in sensitivity computations on an order increase (when using BDF).
+   <LI> fixed a potential, although not harmful, use of uninitialized memory in the
+     calculation of initial step size.
+   <LI> fixed logic in testing for negative values of user-supplied absolute tolerances
+     for sensitivity variables.
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+   <LI> changed method of generating sundials_config.h to avoid potential warnings of
+     redefinition of preprocessor symbols.
+   </UL>
+
+<LI class="title">What's new in v2.1.0?
+<LI> New features
+   <UL class="second">
+   <LI> added quadrature integration capabilities.
+   <LI> added root finding capabilities.
+   <LI> added option for different user data structures for ODE r.h.s.
+     and sensitivity r.h.s.
+   <LI> in adjoint module, added interface to CVBBDPRE for the backward 
+     phase.
+   <LI> in adjoint module, added option for using CVDIAG during backward 
+     phase.
+   <LI> in adjoint module, added option for ONE_STEP integration during 
+     backward phase.
+   <LI> in adjoint module, added option to reinitialize the backward 
+     integration phase (and perform a new backward integration using
+     the same check points).
+   <LI> in adjoint module, relaxed assumption that t_final > t_0 (now
+     accepts t_final < t_0).
+   <LI> added option to disable all error messages.
+   </UL>
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed bug in adjustment of sensitivity Nordsieck history array on an
+     order decrease (when using BDF).
+   <LI> in adjoint module, fixed a potential use of memory before being set.
+   <LI> in adjoint module, fixed a bug related to data saved at check points.
+     This addresses the case in which an order increase is deemed necessary
+     at the very first step after a check-point.
+   </UL>
+<LI> Changes related to the NVECTOR module 
+   <UL class="second">
+   <LI> removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   <LI> all CVODES functions create new N_Vector variables through cloning, using
+     an N_Vector passed by the user as a template.
+   </UL>
+<LI> Changes to type names and CVODES constants
+   <UL class="second">
+   <LI> removed type 'integertype'; instead use int or long int, as appropriate.
+   <LI> restructured the list of return values from the various CVODEs functions.
+   <LI> changed all CVODES constants (inputs and return values) to have the
+     prefix 'CV_' (e.g. CV_SUCCESS).
+   <LI> renamed various function types to have the prefix 'CV' (e.g. CVRhsFn).
+   </UL>
+<LI> Changes to optional input/ouput
+   <UL class="second">
+   <LI> added CVodeSet* and CVodeGet* functions for optional inputs/outputs, 
+     replacing the arrays iopt and ropt.
+   <LI> added new optional inputs (e.g. maximum number of Newton iterations,
+     maximum number of convergence failures, etc).
+   <LI> the value of the last return flag from any function within a linear
+     solver module can be obtained as an optional output (e.g. CVDenseGetLastFlag).
+   </UL>
+<LI> Changes to user-callable functions
+   <UL class="second">
+   <LI> renamed header files to have prefix 'cv' instead of 'cvs' (e.g. cvdense.h
+     replaces cvsdense.h).
+   <LI> added new function CVodeCreate which initializes the CVODES solver
+     object and returns a pointer to the CVODES memory block.
+   <LI> removed N (problem size) from all functions except the initialization
+     functions for the direct linear solvers (CVDense and CVBand).
+   <LI> shortened argument lists of most CVODES functions (the arguments that
+     were dropped can now be specified through CVodeSet* functions).
+   <LI> removed reinitialization functions for band/dense/SPGMR linear
+     solvers (same functionality can be obtained using CV*Set* functions).
+   <LI> in CVBBDPRE, added a new function, CVBBDSpgmr to initialize the
+     SPGMR linear solver with the BBD preconditioner.
+   <LI> function names changed in CVBANDPRE and CVBBDPRE for uniformity.
+   </UL>
+<LI> Changes to user-supplied functions
+   <UL class="second">
+   <LI> removed N (probem dimension) from argument lists.
+   <LI> shortened argument lists for user dense/band/SPGMR Jacobian routines.
+   <LI> in CVSPGMR, shortened argument lists for user preconditioner functions.
+   </UL>
+
+</UL>
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<A HREF="#top">Top</A>
+]<br>
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<A NAME="whatsnew_ida"></A>
+<H1>IDA</H1>
+<div class="frame">
+<UL>
+
+<LI class="title">What's new in v2.4.0?
+<LI> New features
+  <UL class="second">
+   <LI> added IDASPBCG interface module to allow IDA to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+   <LI> added support for SPBCG to the IDABBDPRE preconditioner module.
+   <LI> added FIDA (Fortran interface to IDA).
+   <LI> added IDASPTFQMR interface module to allow IDA to interface with the
+     shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
+   <LI> added rootfinding feature in IDA; modified irobx example problem.
+  </UL>
+<LI> Changes to user interface
+  <UL class="second">
+   <LI> changed argument of IDAFree and IDABBDPrecFree to be the address 
+     of the respective memory block pointer, so that its NULL value is 
+     propagated back to the calling function.
+   <LI> added IDASPBCG module which defines appropriate IDSpbcg* functions to
+     allow IDA to interface with the shared SPBCG linear solver module.
+   <LI> added IDABBDSpbcg function to IDABBDPRE module to support SPBCG linear
+     solver module.
+   <LI> changed function type names to accomodate
+     all the Scaled Preconditioned Iterative Linear Solvers now available:<BR>
+       IDASpgmrJactimesVecFn -> IDASpilsJacTimesVecFn<BR>
+       IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn<BR>
+       IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
+   <LI> added IDAGetEstLocalErrors() to return estimated local errors.
+   <LI> changed naming scheme for IDA examples
+  </UL>
+
+<LI class="title">What's new in v2.3.0?
+<LI> New features
+  <UL class="second">
+   <LI> added option for user-provided error weight computation function
+     (of type IDAEwtFn specified through IDASetEwtFn).
+  </UL>
+<LI> Changes to user interface
+  <UL class="second">
+   <LI> IDA now stores tolerances through values rather than references 
+     (to resolve potential scoping issues). 
+   <LI> IDA now stores the constraints and id vectors (if defined) through
+     values ratherthan references.
+   <LI> IDA now passes information back to the user through values rather
+     than references (error weights)
+   <LI> IDAMalloc, IDAReInit, IDASetTolerances: added option itol=IDA_WF 
+     to indicate user-supplied function for computing the error weights; 
+     reltol is now declared as realtype. Note that it is now illegal to call
+     IDASetTolerances before IDAMalloc. It is now legal to deallocate
+     the absolute tolerance N_Vector right after its use.
+   <LI> IDAGetErrorWeights: the user is now responsible for allocating space
+     for the N_Vector in which error weights will be copied.
+   <LI> IDACalcIC takes as additional arguments (t0,y0,yp0). As a consequence,
+     it can be called at any time to correct a pair (y,y').
+   <LI> Passing a value of 0 for the maximum step size or for maxsteps results 
+     in the solver using the corresponding default value (infinity, and 500, 
+     respectively)
+   <LI> Several optional input functions were combined into a single one
+     (IDADenseSetJacFn and IDADenseSetJacData, IDABandSetJacFn and IDABandSetJacData, 
+     IDASpgmrSetPrecSolveFn and IDASpgmrSetPrecSetFn and IDASpgmrSetPrecData, 
+     IDASpgmrSetJacTimesVecFn and IDASpgmrSetJacData).
+   </UL>
+
+<LI class="title">What's new in v2.2.2?
+<LI> Changes to documentation
+   <UL class="second">
+   <LI> added section with numerical values of all input and output solver constants
+   <LI> added more detailed notes on the type of absolute tolerances
+   <LI> fixed several typos and removed reference to inexistent function IDASetMinStep
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   <LI> modified to use customized detection of the Fortran name mangling scheme (autoconf's AC_F77_WRAPPERS
+   routine is problematic on some platforms)
+   <LI> added --with-mpi-flags as a configure option to allow user to specify MPI-specific flags
+   </UL>
+
+<LI class="title">What's new in v2.2.1?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+   <LI> changed method of generating sundials_config.h to avoid potential warnings of
+     redefinition of preprocessor symbols.
+   </UL>
+<LI> Changes to documentation
+   <UL class="second">
+   <LI> fixed various mistakes and typos in the user guide and example programs
+     documents.
+   </UL>
+
+<LI class="title">What's new in v2.2.0?
+<LI> New feature
+   <UL class="second">
+   <LI> added option to disable all error messages.
+   </UL>
+<LI> Bug fixes
+   <UL class="second">
+   <LI> in the solution of the nonlinear system, the correction for small constraint 
+     violation is to ee, not y.
+   <LI> besides delaying the order increase until the 2nd step, we now also delay
+     doubling the step size, to avoid using information from times before t0.
+   </UL>
+<LI> Changes related to the NVECTOR module 
+   <UL class="second">
+   <LI> removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   <LI> all IDA functions create new N_Vector variables through cloning, using
+     an N_Vector passed by the user as a template.
+   </UL>
+<LI> Changes to type names and IDA constants
+   <UL class="second">
+   <LI> removed type 'integertype'; instead use int or long int, as appropriate.
+   <LI> restructured the list of return values from the various IDA functions.
+   <LI> changed all IDA constants (inputs and return values) to have the
+     prefix 'IDA_' (e.g. IDA_SUCCESS).
+   <LI> renamed various function types to have the prefix 'IDA' (e.g. IDAResFn).
+   </UL>
+<LI> Changes to optional input/ouput
+   <UL class="second">
+   <LI> added IDASet* and IDAGet* functions for optional inputs/outputs, 
+     replacing the arrays iopt and ropt.
+   <LI> added new optional inputs (e.g. maximum number of Newton iterations,
+     maximum number of convergence failures, etc).
+   <LI> added new function IDAGetSolution for dense output.
+   <LI> the value of the last return flag from any function within a linear
+     solver module can be obtained as an optional output (e.g. IDADenseGetLastFlag).
+   </UL>
+<LI> Changes to user-callable functions
+   <UL class="second">
+   <LI> added new function IDACreate which initializes the IDA solver
+     object and returns a pointer to the IDA memory block.
+   <LI> removed N (problem size) from all functions except the initialization
+     functions for the direct linear solvers (IDADense and IDABand).
+   <LI> shortened argument lists of most IDA functions (the arguments that
+     were dropped can now be specified through IDASet* functions).
+   <LI> removed reinitialization functions for band/dense/SPGMR linear
+     solvers (same functionality can be obtained using IDA*Set* functions).
+   <LI> in IDABBDPRE, added a new function, IDABBDSpgmr to initialize the
+     SPGMR linear solver with the BBD preconditioner.
+   <LI> function names changed in IDABBDPRE for uniformity.
+   </UL>
+<LI> Changes to user-supplied functions
+   <UL class="second">
+   <LI> removed N (probem dimension) from argument lists.
+   <LI> shortened argument lists for user dense/band/SPGMR Jacobian routines.
+   <LI> in IDASPGMR, shortened argument lists for user preconditioner functions.
+   <LI> in IDABBDPRE, added Nlocal, the local vector size, as an argument to 
+     IDABBDLocalFn and IDABBDCommFn.
+   </UL>
+
+</UL>
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<A HREF="#top">Top</A>
+]<br>
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<A NAME="whatsnew_kinsol"></A>
+<H1>KINSOL</H1>
+<div class="frame">
+<UL>
+
+<LI class="title">What's new in v2.4.0?
+<LI> New features
+   <UL class="second">
+   <LI> added option to KINBBDPRE preconditioner module to allow specification
+     of different half-bandwidths for difference quotient approximation and
+     retained matrix.
+   <LI> added KINSPBCG interface module to allow KINSOL to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+   <LI> added support for SPBCG to the KINBBDPRE preconditioner module.
+   <LI> added KINSPTFQMR interface module to allow KINSOL to interface with
+     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module
+   <LI> added KINDENSE interface module (dense linear solver)
+   <LI> added KINBAND interface module (band linear solver)
+   </UL>
+<LI> Changes to underlying algorithm
+   <UL class="second">
+   <LI> modified the KINBBDPRE preconditioner module to allow the use of
+     different half-bandwidths for the difference quotient approximation
+     and the retained matrix.
+   <LI> added nonlinear residual monitoring scheme to control Jacobian updating
+     when a direct linear solver is used (modified Newton iteration)
+   </UL>
+<LI> Bug fixes
+   <UL class="second">
+   <LI> corrected a bug in the preconditioner logic that caused the initial call
+     to the preconditioner setup routine (controlled by KINSetNoInitSetup) to
+     be skipped during subsequent calls to KINSol.
+   </UL>
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> changed argument of KINFree and KINBBDPrecFree to be the address of 
+     the respective memory block pointer, so that its NULL value is 
+     propagated back to the calling function.
+   <LI> modified the argument list of KINBBDPrecAlloc to allow specification
+     of the upper and lower half-bandwidths to be used in the computation
+     of the local Jacobian blocks (mudq, mldq), and the half-bandwidths
+     of the retained banded approximation to the local Jacobian block
+     (mukeep, mlkeep).
+   <LI> added KINSPBCG module which defines appropriate KINSpbcg* functions to
+     allow KINSOL to interface with the shared SPBCG linear solver module.
+   <LI> added KINBBDSpbcg function to KINBBDPRE module to support SPBCG linear
+     solver module.
+   <LI> changed function type names to accomodate
+     all the Scaled Preconditioned Iterative Linear Solvers now available:<BR>
+       KINSpgmrJactimesVecFn -> KINSpilsJacTimesVecFn<BR>
+       KINSpgmrPrecSetupFn   -> KINSpilsPrecSetupFn<BR>
+       KINSpgmrPrecSolveFn   -> KINSpilsPrecSolveFn 
+   <LI> changed naming scheme for KINSOL examples
+   </UL>
+<LI> Changes to FKINSOL module:
+   <UL class="second">
+   <LI> modified argument list of FKINBBDINIT to accomadate changes made
+     to KINBBDPRE module, so now user must specify the upper and lower
+     half-bandwidths for the difference quotient approximation (mudq, mldq)
+     and the retained matrix (mukeep, mlkeep).
+   <LI> added support for KINSPBCG/SPBCG (added FKIN*SPBCG* functions).
+   <LI> added support for KINSPTFQMR/SPTFQMR (added FKIN*SPTFQMR* functions).
+   <LI> added support for KINDENSE/DENSE (added FKIN*DENSE* functions).
+   <LI> added support for KINBAND/BAND (added FKIN*DENSE* functions).
+   <LI> Optional inputs are now set using routines FKINSETIIN (integer inputs),
+     FKINSETRIN (real inputs), and FKINSETVIN (vector inputs) through pairs 
+     key-value. Optional outputs are still obtained from two arrays (IOUT and 
+     ROUT), owned by the user and passed as arguments to FKINMALLOC.
+   </UL>
+
+<LI class="title">What's new in v2.3.0?
+<LI> Changes to user interface
+   <UL class="second">
+   <LI> KINSOL now stores an actual copy of the constraints vector rather than
+     just a pointer in order to resolve potential scoping issues
+   <LI> several optional input functions were combined into a single function:<br>
+       - KINSpgmrSetPrecSetupFn, KINSpgmrSetPrecSolveFn and KINSpgmrSetPrecData
+         were combined into KINSpgmrSetPreconditioner<br>
+       - KINSpgmrSetJacTimesVecFn and KINSpgmrSetJacData were combined into
+         KINSpgmrSetJacTimesVecFn
+   </UL>
+<LI> Changes to FKINSOL module:
+   <UL class="second">
+   <LI> FKINSPGMRSETPSET and FKINSPGMRSETPSOL were combined into FKINSPGMRSETPREC
+   <LI> due to changes to the main solver, if FKPSOL is provided, then FKPSET
+     must also be defined, even if it is empty
+   </UL>
+
+<LI class="title">What's new in v2.2.2?
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed bug in computation of the scaled step length
+   <LI> fixed bug in logic for disabling the call to the preconditioner setup function
+   at the first iteration
+   </UL>
+<LI> Changes to documentation
+   <UL class="second">
+   <LI> added section with numerical values of all input and output solver constants
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   <LI> modified to use customized detection of the Fortran name mangling scheme (autoconf's AC_F77_WRAPPERS
+   routine is problematic on some platforms)
+   <LI> added --with-mpi-flags as a configure option to allow user to specify MPI-specific flags
+   <LI> updated Makefiles for Fortran examples to avoid C++ compiler errors (now use CC and MPICC to link)
+   </UL>
+
+<LI class="title">What's new in v2.2.1?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+   <LI> changed method of generating sundials_config.h to avoid potential warnings of
+     redefinition of preprocessor symbols.
+   </UL>
+
+<LI class="title">What's new in v2.2.0?
+<LI> New feature
+   <UL class="second">
+   <LI> added option to disable all error messages.
+   </UL>
+<LI> Bug fixes
+   <UL class="second">
+   <LI> fixed constraints-related bug.
+   <LI> fixed bug in implementation of line-search method related to
+     beta-condition.
+   <LI> corrected value of ealpha variable (related to forcing term).
+   </UL>
+<LI> Changes related to NVECTOR module
+   <UL class="second">
+   <LI> removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   <LI> all KINSOL functions create new N_Vector variables through cloning,
+     using an N_Vector passed by the user as a template.
+   </UL>
+<LI> Changes to type names and KINSOL constants
+   <UL class="second">
+   <LI> removed type 'integertype'; instead use 'int' or 'long int', as
+     appropriate.
+   <LI> restructured the list of return values from the various KINSOL
+     functions.
+   <LI> changed all KINSOL constants (inputs and return values) to have
+     the prefix 'KIN_' (e.g. KIN_SUCCESS).
+   <LI> renamed function type 'SysFn' to 'KINSysFn'.
+   </UL>
+<LI> Changes to underlying algorithms
+   <UL class="second">
+   <LI> modified line-search backtracking scheme to use cubic interpolation
+     after the first backtrack, if possible.
+   <LI> changed implementation of constraints:<br>
+        constraints[i] =  0 then u[i] NOT constrained <br>
+        constraints[i] = +1 then u[i] >= 0 <br>
+        constraints[i] = -1 then u[i] <= 0 <br>
+        constraints[i] = +2 then u[i] >  0 <br>
+        constraints[i] = -2 then u[i] <  0 <br>
+       where u is the solution vector (see the KINSOL User Guide [1] for
+       additional details).
+   </UL>
+<LI> Changes to optional input/output
+   <UL class="second">
+   <LI> added KINSet* and KINGet* functions for optional inputs/outputs,
+     replacing the arrays iopt and ropt.
+   <LI> added new optional inputs (e.g. maximum number of nonlinear iterations
+     between calls to preconditioner setup routine, etc.)
+   <LI> the value of the last return flag from any function within the SPGMR
+     linear solver module can be obtained as an optional output using
+     KINSpgmrGetLastFlag.
+   </UL>
+<LI> Changes to user-callable functions
+   <UL class="second">
+   <LI> added new function KINCreate which initializes the KINSOL solver object
+     and returns a pointer to the KINSOL memory block.
+   <LI> removed N (problem size) from all functions.
+   <LI> shortened argument lists of most KINSOL functions (the arguments that
+     were dropped can now be specified through KINSet* functions).
+   <LI> removed reinitialization functions for SPGMR linear solver (same
+     functionality can be obtained using KINSpgmrSet* functions).
+   </UL>
+<LI> Changes to user-supplied functions
+   <UL class="second">
+   <LI> removed N (problem dimension) from argument lists.
+   <LI> in KINSPGMR, shortened argument lists for user preconditioner functions.
+   </UL>
+
+</UL>
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<A HREF="#top">Top</A>
+]<br>
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<A NAME="whatsnew_shared"></A>
+<H1>SHARED</H1>
+<div class="frame">
+<UL>
+
+<LI class="title">What's new in v2.2.0?
+<LI> New features
+   <UL class="second">
+   <LI> added SPBCG (scaled preconditioned Bi-CGStab) linear solver module
+   <LI> added SPTFQMR (scaled preconditioned TFQMR) linear solver module
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> updated configure script and Makefiles for Fortran examples to avoid C++
+     compiler errors (now use CC and MPICC to link only if necessary)
+   </UL>
+
+<LI class="title">What's new in v2.1.1?
+<LI> Changes to the generic NVECTOR module
+   <UL class="second">
+   <LI> N_VCloneEmpty was added to the global vector operations table
+   </UL>
+
+<LI class="title">What's new in v2.1.0?
+<LI> No changes
+</LI>
+
+<LI class="title">What's new in v2.0.2?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+   <LI> modified to use customized detection of the Fortran name mangling scheme (autoconf's AC_F77_WRAPPERS
+   routine is problematic on some platforms)
+   </UL>
+
+<LI class="title">What's new in v2.0.1?
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+   <LI> changed method of generating sundials_config.h to avoid potential warnings of
+     redefinition of preprocessor symbols.
+   </UL>
+
+<LI class="title">What's new in v2.0?
+<LI> Changes to the generic NVECTOR module
+   <UL class="second">
+   <LI> removed machEnv, redefined table of vector operations (now contained
+     in the N_Vector structure itself).
+   <LI> all SUNDIALS functions create new N_Vector variables through cloning, using
+     an N_Vector passed by the user as a template.
+   <LI> a particular NVECTOR implementation is supposed to provide user-callable 
+     constructor and destructor functions.
+   <LI> removed from structure of vector operations the following functions:
+     N_VNew, N_VNew_S, N_VFree, N_VFree_S, N_VMake, N_VDispose, N_VGetData,
+     N_VSetData, N_VConstrProdPos, and N_VOneMask.
+   <LI> added in structure of vector operations the following functions:
+     N_VClone, N_VDestroy, N_VSpace, N_VGetArrayPointer, N_VSetArrayPointer,
+     and N_VWrmsNormMask.
+   <LI> Note that nvec_ser and nvec_par are now separate modules outside the 
+     shared SUNDIALS module.
+   </UL>
+<LI> Changes to the generic linear solvers
+   <UL class="second">
+   <LI> in SPGMR, added a dummy N_Vector argument to be used as a template
+     for cloning.
+   <LI> in SPGMR, removed N (problem dimension) from argument list of SpgmrMalloc.
+   <LI> iterative.{c,h} replace iterativ.{c,h}
+   <LI> modified constant names in iterative.h (preconditioner types are prefixed
+     with 'PREC_').
+   <LI> changed numerical values for MODIFIED_GS (from 0 to 1) and CLASSICAL_GS
+     (from 1 to 2).
+   </UL>
+<LI> Changes to sundialsmath submodule
+   <UL class="second">
+   <LI> replaced internal routine for estimation of unit roundoff with definition
+     of unit roundoff from float.h
+   <LI> modified functions to call appropriate math routines given the precision 
+     level specified by the user.
+   </UL>
+<LI> Changes to sundialstypes submodule
+   <UL class="second">
+   <LI> removed type 'integertype'.
+   <LI> added definitions for 'BIG_REAL', 'SMALL_REAL', and 'UNIT_ROUNDOFF' using
+     values from float.h based on the precision.
+   <LI> changed definition of macro RCONST to depend on precision.
+   </UL>
+
+</UL>
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<A HREF="#top">Top</A>
+]<br>
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<A NAME="whatsnew_nvecser"></A>
+<H1>NVECTOR_SERIAL</H1>
+<div class="frame">
+<UL>
+
+<LI class="title">What's new in v2.2.0?
+<LI> No changes
+
+<LI class="title">What's new in v2.1.1?
+<LI> N_VCloneEmpty_Serial is now linked to N_VCloneEmpty in the global vector operations table
+
+<LI class="title">What's new in v2.1.0?
+<LI> No changes
+
+<LI class="title">What's new in v2.0.2?
+<LI> Fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+<LI> Modified to use customized detection of the Fortran name mangling scheme (autoconf's AC_F77_WRAPPERS
+routine is problematic on some platforms)
+
+<LI class="title">What's new in v2.0.1?
+<LI> Changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+<LI> Changed method of generating sundials_config.h to avoid potential warnings of
+     redefinition of preprocessor symbols.
+
+<LI class="title">What's new in v2.0?
+<LI> Revised to correspond to new generic NVECTOR module
+<LI> Extended the list of user-callable functions provided by NVECTOR_SERIAL
+  outside the table of vector operations.
+<LI> Revised the F/C interface to use underscore flags for name mapping
+  and to use precision flag from configure.
+<LI> Revised F/C routine NVECTOR names for uniformity.
+
+</UL>
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<A HREF="#top">Top</A>
+]<br>
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- ******************************************************************************* -->
+
+<A NAME="whatsnew_nvecpar"></A>
+<H1>NVECTOR_PARALLEL</H1>
+<div class="frame">
+<UL>
+
+<LI class="title">What's new in v2.2.0?
+<LI> No changes
+
+<LI class="title">What's new in v2.1.1?
+<LI> N_VCloneEmpty_Parallel is now linked to N_VCloneEmpty in the global vector operations table
+
+<LI class="title">What's new in v2.1.0?
+<LI> No changes
+
+<LI class="title">What's new in v2.0.2?
+<LI> Fixed autoconf-related bug to allow configuration with the PGI Fortran compiler
+<LI> Modified to use customized detection of the Fortran name mangling scheme (autoconf's AC_F77_WRAPPERS
+routine is problematic on some platforms)
+<LI> Added --with-mpi-flags as a configure option to allow user to specify MPI-specific flags
+
+<LI class="title">What's new in v2.0.1?
+<LI> Changed order of compiler directives in header files to avoid compilation
+     errors when using a C++ compiler.
+<LI> Changed method of generating sundials_config.h to avoid potential warnings of
+     redefinition of preprocessor symbols.
+
+<LI class="title">What's new in v2.0?
+<LI> Revised to correspond to new generic NVECTOR module
+<LI> Extended the list of user-callable functions provided by NVECTOR_PARALLEL
+  outside the table of vector operations.
+<LI> Revised parallel N_VMin and N_VMinQuotient to use BIG_REAL if
+  local N is 0 or no quotients found.
+<LI> Revised the F/C interface to use underscore flags for name mapping
+  and to use precision flag from configure.
+<LI> Revised F/C routine NVECTOR names for uniformity.
+
+</UL>
+</div>
+
+<!-- ******************************************************************************* -->
+
+<p class="links">
+[
+<A HREF="#top">Top</A>
+]<br>
+[
+<A HREF="#whatsnew_cvode">CVODE</A>::<A HREF="#whatsnew_cvodes">CVODES</A>::<A HREF="#whatsnew_ida">IDA</A>::<A HREF="#whatsnew_kinsol">KINSOL</A>
+]<br>
+[
+<A HREF="#whatsnew_shared">SHARED</A>::<A HREF="#whatsnew_nvecser">NVECTOR_SERIAL</A>::<A HREF="#whatsnew_nvecpar">NVECTOR_PARALLEL</A> 
+]
+</p>
+
+<!-- End content for this page -->
+  </div>
+  </td>
+
+  <td background="../graphics/table_bck3.gif"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="17" background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+
+  </table>
+
+</body>
+</html>

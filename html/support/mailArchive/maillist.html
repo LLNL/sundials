@@ -1,0 +1,1514 @@
+<!-- MHonArc v2.6.10 -->
+<html>
+<head>
+<title>SUNDIALS :: sundials-users archive</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><a href="http://www.llnl.gov/CASC/people/serban/"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<br>
+<table frame="below" width="95%"><tr valign=bottom>
+  <td align=left><b>Date Index | <a href="threads.html">Thread Index</a></b></td>
+  <td align=right>
+    <form method=GET action=http://www.google.com/search>
+      <table bgcolor=#FFFFFF cellspacing=0 border=0><tr valign=top>
+        <td><img src=http://www.google.com/logos/Logo_25wht.gif border=0 alt=Google></td>
+        <td> 
+          <input type=text name=q size=31 maxlength=255 value="">
+          <input type=submit name=sa value="Search archive">
+          <input type=hidden name=domains value="www.llnl.gov/CASC/sundials/support/mailArchive">
+          <input type=hidden name=sitesearch value="www.llnl.gov/CASC/sundials/support/mailArchive" checked>
+        </td>
+      </tr></table>
+    </form>
+  </td>
+</tr></table>
+<div class="container">
+<table width="95%" border="0">
+<tr><td colspan=4><strong>December 27, 05</strong></td></tr>
+<tr valign=top>
+<td>08:20</td>
+<td><b><a name="00211" href="msg00211.html">Re: Debian package of SUNDIALS 2.1.1</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>02:44</td>
+<td><b><a name="00210" href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>December 20, 05</strong></td></tr>
+<tr valign=top>
+<td>14:01</td>
+<td><b><a name="00209" href="msg00209.html">Re: about your solver CVode</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>December 19, 05</strong></td></tr>
+<tr valign=top>
+<td>19:25</td>
+<td><b><a name="00208" href="msg00208.html">Re: Difficulty building sundials on windows</a></b></td>
+<td>mike cantor</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>December 13, 05</strong></td></tr>
+<tr valign=top>
+<td>15:08</td>
+<td><b><a name="00207" href="msg00207.html">Re: Difficulty building sundials on windows</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:06</td>
+<td><b><a name="00206" href="msg00206.html">Re: Difficulty building sundials on windows</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:02</td>
+<td><b><a name="00205" href="msg00205.html">Re: Difficulty building sundials on windows</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:08</td>
+<td><b><a name="00204" href="msg00204.html">Re: User access to c_j?</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:31</td>
+<td><b><a name="00203" href="msg00203.html">Re: Difficulty building sundials on windows</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>00:22</td>
+<td><b><a name="00202" href="msg00202.html">Re: Difficulty building sundials on windows</a></b></td>
+<td>Michael Nathaniel Cantor</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>December 12, 05</strong></td></tr>
+<tr valign=top>
+<td>18:21</td>
+<td><b><a name="00201" href="msg00201.html">Re: Difficulty building sundials on windows</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>17:12</td>
+<td><b><a name="00200" href="msg00200.html">Difficulty building sundials on windows</a></b></td>
+<td>mike cantor</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:21</td>
+<td><b><a name="00199" href="msg00199.html">Re: User access to c_j?</a></b></td>
+<td>Kevin Long</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:33</td>
+<td><b><a name="00198" href="msg00198.html">Re: User access to c_j?</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:06</td>
+<td><b><a name="00197" href="msg00197.html">Re: N_Vector &amp; solver module unit test suite?</a></b></td>
+<td>Kevin Long</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>14:47</td>
+<td><b><a name="00196" href="msg00196.html">Re: must N_VSpace return an exact result?</a></b></td>
+<td>Kevin Long</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:36</td>
+<td><b><a name="00195" href="msg00195.html">Re: N_Vector &amp; solver module unit test suite?</a></b></td>
+<td>Aaron Collier</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:35</td>
+<td><b><a name="00194" href="msg00194.html">Re: must N_VSpace return an exact result?</a></b></td>
+<td>Aaron Collier</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>December 11, 05</strong></td></tr>
+<tr valign=top>
+<td>01:40</td>
+<td><b><a name="00193" href="msg00193.html">User access to c_j?</a></b></td>
+<td>Kevin Long</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>December 09, 05</strong></td></tr>
+<tr valign=top>
+<td>16:52</td>
+<td><b><a name="00192" href="msg00192.html">N_Vector &amp; solver module unit test suite?</a></b></td>
+<td>Kevin Long</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:40</td>
+<td><b><a name="00191" href="msg00191.html">must N_VSpace return an exact result?</a></b></td>
+<td>Kevin Long</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>December 01, 05</strong></td></tr>
+<tr valign=top>
+<td>09:21</td>
+<td><b><a name="00190" href="msg00190.html">Re: yout in CVode()</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>November 30, 05</strong></td></tr>
+<tr valign=top>
+<td>09:28</td>
+<td><b><a name="00188" href="msg00188.html">Root finding ok</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>November 29, 05</strong></td></tr>
+<tr valign=top>
+<td>18:22</td>
+<td><b><a name="00189" href="msg00189.html">Re: Re: What's wrong with 'libsundials_cvodes.la'?</a></b></td>
+<td>aendey</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:15</td>
+<td><b><a name="00181" href="msg00181.html">Re: What's wrong with 'libsundials_cvodes.la'?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>November 28, 05</strong></td></tr>
+<tr valign=top>
+<td>22:19</td>
+<td><b><a name="00179" href="msg00179.html">RE: Root finding</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>19:56</td>
+<td><b><a name="00178" href="msg00178.html">Re: What's wrong with 'libsundials_cvodes.la'?</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>19:19</td>
+<td><b><a name="00177" href="msg00177.html">What's wrong with 'libsundials_cvodes.la'?</a></b></td>
+<td>aendey</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:32</td>
+<td><b><a name="00176" href="msg00176.html">Re: Root finding</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:24</td>
+<td><b><a name="00180" href="msg00180.html">Re: Root finding</a></b></td>
+<td>Emery Conrad</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:00</td>
+<td><b><a name="00183" href="msg00183.html">RE:</a></b></td>
+<td>Alan Garny</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>07:29</td>
+<td><b><a name="00182" href="msg00182.html">[no subject]</a></b></td>
+<td>Ivan Ivanov</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>November 27, 05</strong></td></tr>
+<tr valign=top>
+<td>08:55</td>
+<td><b><a name="00184" href="msg00184.html">RE: mex files for windows</a></b></td>
+<td>Nauta, K.M.</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>06:57</td>
+<td><b><a name="00185" href="msg00185.html">Re: mex files for windows</a></b></td>
+<td>Litvinov Sergey</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>06:49</td>
+<td><b><a name="00186" href="msg00186.html">mex files for windows</a></b></td>
+<td>Litvinov Sergey</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>November 26, 05</strong></td></tr>
+<tr valign=top>
+<td>16:23</td>
+<td><b><a name="00187" href="msg00187.html">Re: Compiling Sundials while using Intel's improved math functions</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>November 23, 05</strong></td></tr>
+<tr valign=top>
+<td>16:21</td>
+<td><b><a name="00175" href="msg00175.html">RE: Root finding</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:37</td>
+<td><b><a name="00174" href="msg00174.html">Re: Root finding</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:28</td>
+<td><b><a name="00173" href="msg00173.html">Root finding</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>14:06</td>
+<td><b><a name="00172" href="msg00172.html">Re: Compiling Sundials while using Intel's improved math functions</a></b></td>
+<td>Aaron Collier</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:55</td>
+<td><b><a name="00171" href="msg00171.html">Compiling Sundials while using Intel's improved math functions</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>November 14, 05</strong></td></tr>
+<tr valign=top>
+<td>12:41</td>
+<td><b><a name="00170" href="msg00170.html">Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:19</td>
+<td><b><a name="00169" href="msg00169.html">Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></b></td>
+<td>Rainer Machne</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:44</td>
+<td><b><a name="00168" href="msg00168.html">Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>10:54</td>
+<td><b><a name="00167" href="msg00167.html">Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></b></td>
+<td>Rainer Machne</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>10:03</td>
+<td><b><a name="00166" href="msg00166.html">Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>November 11, 05</strong></td></tr>
+<tr valign=top>
+<td>03:56</td>
+<td><b><a name="00165" href="msg00165.html">using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></b></td>
+<td>Andrew Finney</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>October 28, 05</strong></td></tr>
+<tr valign=top>
+<td>14:27</td>
+<td><b><a name="00164" href="msg00164.html">Re: are there any fortran examples?</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>10:31</td>
+<td><b><a name="00163" href="msg00163.html">Re: are there any fortran examples?</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:24</td>
+<td><b><a name="00162" href="msg00162.html">Re: are there any fortran examples?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>October 27, 05</strong></td></tr>
+<tr valign=top>
+<td>20:04</td>
+<td><b><a name="00161" href="msg00161.html">Re: are there any fortran examples?</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>October 26, 05</strong></td></tr>
+<tr valign=top>
+<td>17:20</td>
+<td><b><a name="00160" href="msg00160.html">Re: are there any fortran examples?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:53</td>
+<td><b><a name="00159" href="msg00159.html">Re: are there any fortran examples?</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:34</td>
+<td><b><a name="00158" href="msg00158.html">Re: are there any fortran examples?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:22</td>
+<td><b><a name="00157" href="msg00157.html">are there any fortran examples?</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>October 24, 05</strong></td></tr>
+<tr valign=top>
+<td>14:08</td>
+<td><b><a name="00156" href="msg00156.html">Re: Query regarding IDA</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>October 20, 05</strong></td></tr>
+<tr valign=top>
+<td>09:55</td>
+<td><b><a name="00155" href="msg00155.html">RE: Problem in porting Model based on CVODE to UNIX (Problem Solved!!)</a></b></td>
+<td>Mukesh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:37</td>
+<td><b><a name="00154" href="msg00154.html">RE: Problem in porting Model based on CVODE to UNIX</a></b></td>
+<td>Mukesh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:00</td>
+<td><b><a name="00153" href="msg00153.html">Re: Problem in porting Model based on CVODE to UNIX</a></b></td>
+<td>Simon Chong-Wee See, Ph.D</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>07:05</td>
+<td><b><a name="00152" href="msg00152.html">RE: Problem in porting Model based on CVODE to UNIX</a></b></td>
+<td>Mukesh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>06:19</td>
+<td><b><a name="00151" href="msg00151.html">Re: Problem in porting Model based on CVODE to UNIX</a></b></td>
+<td>See Chong-Wee Simon, Ph.D</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>October 19, 05</strong></td></tr>
+<tr valign=top>
+<td>21:02</td>
+<td><b><a name="00150" href="msg00150.html">Re: Problem in porting Model based on CVODE to UNIX</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>19:25</td>
+<td><b><a name="00149" href="msg00149.html">Re: Problem in porting Model based on CVODE to UNIX</a></b></td>
+<td>Mukesh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:01</td>
+<td><b><a name="00148" href="msg00148.html">Re: where is cj defined?</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:59</td>
+<td><b><a name="00147" href="msg00147.html">Re: where is cj defined?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:31</td>
+<td><b><a name="00146" href="msg00146.html">where is cj defined?</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>October 14, 05</strong></td></tr>
+<tr valign=top>
+<td>15:46</td>
+<td><b><a name="00145" href="msg00145.html">Re: cannont compile the examples due to float-store</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>14:28</td>
+<td><b><a name="00144" href="msg00144.html">Re: not able to include absoft fortran support</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>14:04</td>
+<td><b><a name="00143" href="msg00143.html">Re: not able to include absoft fortran support</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:27</td>
+<td><b><a name="00142" href="msg00142.html">Re: not able to include absoft fortran support</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:25</td>
+<td><b><a name="00141" href="msg00141.html">Re: configure script is not recognizing many files</a></b></td>
+<td>John W. Eaton</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:22</td>
+<td><b><a name="00140" href="msg00140.html">Re: cannont compile the examples due to float-store</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:57</td>
+<td><b><a name="00139" href="msg00139.html">Re: configure script is not recognizing many files</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:45</td>
+<td><b><a name="00138" href="msg00138.html">Re: not able to include absoft fortran support</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:39</td>
+<td><b><a name="00137" href="msg00137.html">Re: configure script is not recognizing many files</a></b></td>
+<td>John W. Eaton</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:23</td>
+<td><b><a name="00136" href="msg00136.html">Re: configure script is not recognizing many files</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:20</td>
+<td><b><a name="00135" href="msg00135.html">Re: mailing list archives - some suggestions</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>10:04</td>
+<td><b><a name="00134" href="msg00134.html">cannont compile the examples due to float-store</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:22</td>
+<td><b><a name="00133" href="msg00133.html">Re: configure script is not recognizing many files</a></b></td>
+<td>John W. Eaton</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>07:50</td>
+<td><b><a name="00132" href="msg00132.html">mailing list archives - some suggestions</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>05:32</td>
+<td><b><a name="00131" href="msg00131.html">Re: configure script is not recognizing many files</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>October 13, 05</strong></td></tr>
+<tr valign=top>
+<td>17:35</td>
+<td><b><a name="00130" href="msg00130.html">Re: configure script is not recognizing many files</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>17:35</td>
+<td><b><a name="00129" href="msg00129.html">Re: not able to include absoft fortran support</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:52</td>
+<td><b><a name="00128" href="msg00128.html">Re: configure script is not recognizing many files</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:45</td>
+<td><b><a name="00127" href="msg00127.html">Re: not able to include absoft fortran support</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:07</td>
+<td><b><a name="00126" href="msg00126.html">not able to include absoft fortran support</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>14:05</td>
+<td><b><a name="00125" href="msg00125.html">Re: configure script is not recognizing many files</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:31</td>
+<td><b><a name="00124" href="msg00124.html">Re: configure script is not recognizing many files</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:47</td>
+<td><b><a name="00123" href="msg00123.html">configure script is not recognizing many files</a></b></td>
+<td>Kamaraju Kusumanchi</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>September 09, 05</strong></td></tr>
+<tr valign=top>
+<td>16:53</td>
+<td><b><a name="00122" href="msg00122.html">Re: SUNDIALS, Visual C++, and Java</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>September 02, 05</strong></td></tr>
+<tr valign=top>
+<td>10:18</td>
+<td><b><a name="00121" href="msg00121.html">Re: make examples problem.</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:08</td>
+<td><b><a name="00120" href="msg00120.html">Re: make examples problem.</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:53</td>
+<td><b><a name="00119" href="msg00119.html">make examples problem.</a></b></td>
+<td>nwew</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>August 25, 05</strong></td></tr>
+<tr valign=top>
+<td>04:07</td>
+<td><b><a name="00118" href="msg00118.html">Re: does a sparse NVECTOR implementation make sense?</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>August 24, 05</strong></td></tr>
+<tr valign=top>
+<td>13:30</td>
+<td><b><a name="00117" href="msg00117.html">Re: does a sparse NVECTOR implementation make sense?</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:13</td>
+<td><b><a name="00116" href="msg00116.html">Re: does a sparse NVECTOR implementation make sense?</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:23</td>
+<td><b><a name="00115" href="msg00115.html">Re: sparse NVECTOR</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:52</td>
+<td><b><a name="00114" href="msg00114.html">Re: does a sparse NVECTOR implementation make sense?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>August 23, 05</strong></td></tr>
+<tr valign=top>
+<td>14:55</td>
+<td><b><a name="00113" href="msg00113.html">does a sparse NVECTOR implementation make sense?</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>14:17</td>
+<td><b><a name="00112" href="msg00112.html">Re: Re 3 Questions on CVODE</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>August 22, 05</strong></td></tr>
+<tr valign=top>
+<td>14:08</td>
+<td><b><a name="00111" href="msg00111.html">Re 3 Questions on CVODE</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>August 19, 05</strong></td></tr>
+<tr valign=top>
+<td>12:56</td>
+<td><b><a name="00109" href="msg00109.html">Any way to implement Fixed Step Solver?</a></b></td>
+<td>Hang Su</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:43</td>
+<td><b><a name="00110" href="msg00110.html">How to configure CVBBDPRE preconditioner in parallel environment</a></b></td>
+<td>Hang Su</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>July 25, 05</strong></td></tr>
+<tr valign=top>
+<td>12:40</td>
+<td><b><a name="00108" href="msg00108.html">RE: CVODE with Delphi</a></b></td>
+<td>Alan Garny</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:35</td>
+<td><b><a name="00107" href="msg00107.html">RE: CVODE with Delphi</a></b></td>
+<td>Alan Garny</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:08</td>
+<td><b><a name="00106" href="msg00106.html">RE: CVODE with Delphi</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:55</td>
+<td><b><a name="00105" href="msg00105.html">Re: CVODE with Delphi</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:53</td>
+<td><b><a name="00104" href="msg00104.html">RE: CVODE with Delphi</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:54</td>
+<td><b><a name="00103" href="msg00103.html">RE: CVODE with Delphi</a></b></td>
+<td>Alan Garny</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:47</td>
+<td><b><a name="00102" href="msg00102.html">RE: CVODE with Delphi</a></b></td>
+<td>Alan Garny</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>July 20, 05</strong></td></tr>
+<tr valign=top>
+<td>08:15</td>
+<td><b><a name="00101" href="msg00101.html">Re: odepack-&gt;cvode(s)</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>07:39</td>
+<td><b><a name="00100" href="msg00100.html">Re: odepack-&gt;cvode(s)</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>06:17</td>
+<td><b><a name="00099" href="msg00099.html">odepack-&gt;cvode(s)</a></b></td>
+<td>David Halpern</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>06:12</td>
+<td><b><a name="00098" href="msg00098.html">Re: from sundials import ida?</a></b></td>
+<td>Philip Sackinger</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>01:26</td>
+<td><b><a name="00097" href="msg00097.html">Re: CVODE with Delphi</a></b></td>
+<td>Heiko Fechner</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>July 19, 05</strong></td></tr>
+<tr valign=top>
+<td>17:30</td>
+<td><b><a name="00096" href="msg00096.html">Re: from sundials import ida?</a></b></td>
+<td>Keith Eric Grant</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:39</td>
+<td><b><a name="00095" href="msg00095.html">Re: CVODE with Delphi</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:31</td>
+<td><b><a name="00094" href="msg00094.html">Re: Scalar relative tolerance and vector absolute tolerance in CVODE</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:23</td>
+<td><b><a name="00093" href="msg00093.html">Scalar relative tolerance and vector absolute tolerance in CVODE (fwd)</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:28</td>
+<td><b><a name="00092" href="msg00092.html">CVODE with Delphi</a></b></td>
+<td>Alan Garny</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>July 18, 05</strong></td></tr>
+<tr valign=top>
+<td>10:10</td>
+<td><b><a name="00091" href="msg00091.html">RE: from sundials import ida?</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:52</td>
+<td><b><a name="00090" href="msg00090.html">RE: from sundials import ida?</a></b></td>
+<td>Philip Sackinger</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>July 15, 05</strong></td></tr>
+<tr valign=top>
+<td>12:15</td>
+<td><b><a name="00089" href="msg00089.html">RE: from sundials import ida?</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>10:29</td>
+<td><b><a name="00088" href="msg00088.html">from sundials import ida?</a></b></td>
+<td>Philip Sackinger</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>July 11, 05</strong></td></tr>
+<tr valign=top>
+<td>14:39</td>
+<td><b><a name="00087" href="msg00087.html">Re: CVodeSetMaxStep and rhs evaluation</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>July 08, 05</strong></td></tr>
+<tr valign=top>
+<td>22:54</td>
+<td><b><a name="00086" href="msg00086.html">R: C++ wrapper for IDA</a></b></td>
+<td>Paolo Greppi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:00</td>
+<td><b><a name="00085" href="msg00085.html">C++ wrapper for IDA</a></b></td>
+<td>Paolo Greppi</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>July 06, 05</strong></td></tr>
+<tr valign=top>
+<td>16:19</td>
+<td><b><a name="00084" href="msg00084.html">CVodeSetMaxStep and rhs evaluation</a></b></td>
+<td>Sze-Ping Wong</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>June 28, 05</strong></td></tr>
+<tr valign=top>
+<td>13:35</td>
+<td><b><a name="00083" href="msg00083.html">Re: convergence failure help</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:40</td>
+<td><b><a name="00082" href="msg00082.html">Re: convergence failure help</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:26</td>
+<td><b><a name="00081" href="msg00081.html">convergence failure help</a></b></td>
+<td>woochang hwang</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>June 14, 05</strong></td></tr>
+<tr valign=top>
+<td>17:27</td>
+<td><b><a name="00080" href="msg00080.html">RE: CVODE reenterant?</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>17:26</td>
+<td><b><a name="00079" href="msg00079.html">Re: CVODE reenterant?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>17:00</td>
+<td><b><a name="00078" href="msg00078.html">Re: CVODE reenterant?</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>June 13, 05</strong></td></tr>
+<tr valign=top>
+<td>16:49</td>
+<td><b><a name="00077" href="msg00077.html">RE: CVODE reenterant?</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:08</td>
+<td><b><a name="00076" href="msg00076.html">Re: CVODE reenterant?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:05</td>
+<td><b><a name="00075" href="msg00075.html">Re: NV_DATA_S vs N_VGetArrayPointer</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:17</td>
+<td><b><a name="00074" href="msg00074.html">NV_DATA_S vs N_VGetArrayPointer</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:36</td>
+<td><b><a name="00073" href="msg00073.html">CVODE reenterant?</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>04:28</td>
+<td><b><a name="00072" href="msg00072.html">Re: SUNDIALS applications</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>June 10, 05</strong></td></tr>
+<tr valign=top>
+<td>10:21</td>
+<td><b><a name="00071" href="msg00071.html">Re: Enforcing a minimum time step</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>June 08, 05</strong></td></tr>
+<tr valign=top>
+<td>20:22</td>
+<td><b><a name="00070" href="msg00070.html">Re: SUNDIALS applications</a></b></td>
+<td>magpar</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>June 06, 05</strong></td></tr>
+<tr valign=top>
+<td>17:21</td>
+<td><b><a name="00069" href="msg00069.html">SUNDIALS applications</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 25, 05</strong></td></tr>
+<tr valign=top>
+<td>11:53</td>
+<td><b><a name="00068" href="msg00068.html">Re: CVODE and DAE systems</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:28</td>
+<td><b><a name="00067" href="msg00067.html">CVODE and DAE systems</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 19, 05</strong></td></tr>
+<tr valign=top>
+<td>08:24</td>
+<td><b><a name="00066" href="msg00066.html">Re: Slow performance when solution is not changing</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 18, 05</strong></td></tr>
+<tr valign=top>
+<td>12:48</td>
+<td><b><a name="00065" href="msg00065.html">Re: Slow performance when solution is not changing</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 17, 05</strong></td></tr>
+<tr valign=top>
+<td>19:47</td>
+<td><b><a name="00064" href="msg00064.html">Re: Slow performance when solution is not changing</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>14:00</td>
+<td><b><a name="00063" href="msg00063.html">RE: SUNDIALS, Visual C++, and Java</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:27</td>
+<td><b><a name="00062" href="msg00062.html">Re: Slow performance when solution is not changing</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:22</td>
+<td><b><a name="00061" href="msg00061.html">Shared library under VC++</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:14</td>
+<td><b><a name="00060" href="msg00060.html">Re: SUNDIALS, Visual C++, and Java</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:11</td>
+<td><b><a name="00059" href="msg00059.html">SUNDIALS, Visual C++, and Java</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:05</td>
+<td><b><a name="00058" href="msg00058.html">Re: How does the solver guarantie accuracy in time?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 16, 05</strong></td></tr>
+<tr valign=top>
+<td>19:42</td>
+<td><b><a name="00057" href="msg00057.html">Re: How does the solver guarantie accuracy in time?</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>18:10</td>
+<td><b><a name="00056" href="msg00056.html">Re: How does the solver guarantie accuracy in time?</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>17:01</td>
+<td><b><a name="00055" href="msg00055.html">How does the solver guarantie accuracy in time?</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:57</td>
+<td><b><a name="00054" href="msg00054.html">RE: CVODE</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:53</td>
+<td><b><a name="00053" href="msg00053.html">Re: Slow performance when solution is not changing</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:03</td>
+<td><b><a name="00052" href="msg00052.html">Re: CVODE</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:49</td>
+<td><b><a name="00051" href="msg00051.html">Re: Slow performance when solution is not changing</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 15, 05</strong></td></tr>
+<tr valign=top>
+<td>19:10</td>
+<td><b><a name="00050" href="msg00050.html">Slow performance when solution is not changing</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 11, 05</strong></td></tr>
+<tr valign=top>
+<td>16:28</td>
+<td><b><a name="00049" href="msg00049.html">Restarting CVODE</a></b></td>
+<td>Herbert Sauro</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 09, 05</strong></td></tr>
+<tr valign=top>
+<td>07:46</td>
+<td><b><a name="00048" href="msg00048.html">RE: Event handling</a></b></td>
+<td>Stuart Thorncraft</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>07:23</td>
+<td><b><a name="00047" href="msg00047.html">Re: Event handling</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>May 08, 05</strong></td></tr>
+<tr valign=top>
+<td>04:51</td>
+<td><b><a name="00046" href="msg00046.html">Event handling</a></b></td>
+<td>Stuart Thorncraft</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>April 21, 05</strong></td></tr>
+<tr valign=top>
+<td>14:05</td>
+<td><b><a name="00045" href="msg00045.html">Re: Shared libs</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:43</td>
+<td><b><a name="00044" href="msg00044.html">Re: Shared libs</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:32</td>
+<td><b><a name="00043" href="msg00043.html">Re: Shared libs</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>April 19, 05</strong></td></tr>
+<tr valign=top>
+<td>11:54</td>
+<td><b><a name="00042" href="msg00042.html">Re: Shared libs</a></b></td>
+<td>Aaron Collier</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>April 18, 05</strong></td></tr>
+<tr valign=top>
+<td>14:39</td>
+<td><b><a name="00041" href="msg00041.html">Shared libs</a></b></td>
+<td>Andrey Romanenko</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:54</td>
+<td><b><a name="00040" href="msg00040.html">Re: Prefered way to &quot;tell the solver&quot; that he should retry with smaller timesteps...</a></b></td>
+<td>Alan Hindmarsh</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>April 16, 05</strong></td></tr>
+<tr valign=top>
+<td>11:00</td>
+<td><b><a name="00039" href="msg00039.html">Prefered way to &quot;tell the solver&quot; that he should retry with smaller timesteps...</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>April 15, 05</strong></td></tr>
+<tr valign=top>
+<td>11:12</td>
+<td><b><a name="00038" href="msg00038.html">Re: how to write functions lsetup and lsove</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:59</td>
+<td><b><a name="00037" href="msg00037.html">Re: how to write functions lsetup and lsove</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>07:37</td>
+<td><b><a name="00036" href="msg00036.html">how to write functions lsetup and lsove</a></b></td>
+<td>Mzolisi Shezi</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>April 01, 05</strong></td></tr>
+<tr valign=top>
+<td>17:48</td>
+<td><b><a name="00035" href="msg00035.html">Re: Enforcing a minimum time step</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>13:41</td>
+<td><b><a name="00034" href="msg00034.html">Re: Enforcing a minimum time step</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:12</td>
+<td><b><a name="00033" href="msg00033.html">Re: Enforcing a minimum time step</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:40</td>
+<td><b><a name="00032" href="msg00032.html">Re: changing dependent variable mid-run</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:17</td>
+<td><b><a name="00031" href="msg00031.html">Re: changing dependent variable mid-run</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:02</td>
+<td><b><a name="00030" href="msg00030.html">Enforcing a minimum time step</a></b></td>
+<td>Andreas Nicolai</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>06:19</td>
+<td><b><a name="00029" href="msg00029.html">RE: changing dependent variable mid-run</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>March 31, 05</strong></td></tr>
+<tr valign=top>
+<td>23:59</td>
+<td><b><a name="00028" href="msg00028.html">RE: changing dependent variable mid-run</a></b></td>
+<td>Cao, Yi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>19:29</td>
+<td><b><a name="00027" href="msg00027.html">Re: changing dependent variable mid-run</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>01:27</td>
+<td><b><a name="00026" href="msg00026.html">RE: CVODES error</a></b></td>
+<td>Cao, Yi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>00:38</td>
+<td><b><a name="00025" href="msg00025.html">RE: CVODES error</a></b></td>
+<td>Cao, Yi</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>March 30, 05</strong></td></tr>
+<tr valign=top>
+<td>16:13</td>
+<td><b><a name="00024" href="msg00024.html">Re: CVODES error</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:23</td>
+<td><b><a name="00023" href="msg00023.html">RE: CVODES error</a></b></td>
+<td>Cao, Yi</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>15:06</td>
+<td><b><a name="00022" href="msg00022.html">CVODES error</a></b></td>
+<td>Cao, Yi</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>March 21, 05</strong></td></tr>
+<tr valign=top>
+<td>05:23</td>
+<td><b><a name="00021" href="msg00021.html">Re: Using a class member function as the RhsFn in CVODE</a></b></td>
+<td>James Holloway</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>04:05</td>
+<td><b><a name="00020" href="msg00020.html">Re: Using a class member function as the RhsFn in CVODE</a></b></td>
+<td>Jens Bastian</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>March 18, 05</strong></td></tr>
+<tr valign=top>
+<td>14:00</td>
+<td><b><a name="00019" href="msg00019.html">Using a class member function as the RhsFn in CVODE</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>March 17, 05</strong></td></tr>
+<tr valign=top>
+<td>14:36</td>
+<td><b><a name="00018" href="msg00018.html">download of old PVODE/CVODE/SUNDIALS versions</a></b></td>
+<td>magpar</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:39</td>
+<td><b><a name="00017" href="msg00017.html">Re: changing dependent variable mid-run</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>12:31</td>
+<td><b><a name="00016" href="msg00016.html">Re: changing dependent variable mid-run</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>11:17</td>
+<td><b><a name="00015" href="msg00015.html">Re: changing dependent variable mid-run</a></b></td>
+<td>James Holloway</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>10:42</td>
+<td><b><a name="00014" href="msg00014.html">changing dependent variable mid-run</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>March 16, 05</strong></td></tr>
+<tr valign=top>
+<td>16:49</td>
+<td><b><a name="00013" href="msg00013.html">Re: CVODE in windows</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>16:29</td>
+<td><b><a name="00012" href="msg00012.html">Re: CVODE in windows</a></b></td>
+<td>ruizvial</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>14:48</td>
+<td><b><a name="00011" href="msg00011.html">Re: CVODE in windows</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>March 14, 05</strong></td></tr>
+<tr valign=top>
+<td>19:18</td>
+<td><b><a name="00010" href="msg00010.html">Re: CVODE in windows</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:56</td>
+<td><b><a name="00009" href="msg00009.html">Re: CVODE in windows</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:48</td>
+<td><b><a name="00008" href="msg00008.html">Re: CVODE in windows</a></b></td>
+<td>Andr&#xE9; Schneider</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:04</td>
+<td><b><a name="00007" href="msg00007.html">Re: CVODE in windows</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>05:44</td>
+<td><b><a name="00006" href="msg00006.html">CVODE in windows</a></b></td>
+<td>Jordan Atlas</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>February 08, 05</strong></td></tr>
+<tr valign=top>
+<td>10:55</td>
+<td><b><a name="00005" href="msg00005.html">Re: FKinsol error</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>10:55</td>
+<td><b><a name="00004" href="msg00004.html">Re: FKinsol error</a></b></td>
+<td>Marcel Aguilella Arzo</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>10:33</td>
+<td><b><a name="00003" href="msg00003.html">Re: FKinsol error</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>09:57</td>
+<td><b><a name="00002" href="msg00002.html">FKinsol error</a></b></td>
+<td>Marcel Aguilella Arzo</td>
+<td></td>
+</tr>
+
+<tr><td colspan=4><strong>January 31, 05</strong></td></tr>
+<tr valign=top>
+<td>08:41</td>
+<td><b><a name="00001" href="msg00001.html">Re: Sundials compile problem</a></b></td>
+<td>Radu Serban</td>
+<td></td>
+</tr>
+<tr valign=top>
+<td>08:30</td>
+<td><b><a name="00000" href="msg00000.html">Sundials compile problem</a></b></td>
+<td>Marcel Aguilella Arzo</td>
+<td></td>
+</tr>
+
+
+<tr><td colspan=4></td></tr>
+
+</table>
+</div>
+
+<table frame="above" width="95%">
+<tr><td>
+Mail converted by <img src="../img/monicon.png" alt="MHonArc" border=0 align="middle">
+<a href="http://www.mhonarc.org/">MHonArc</a> 2.6.10
+<br>
+Tue Jan 03 18:30:54 GMT 2006
+</td></tr></table>
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
+<!-- MHonArc v2.6.10 -->

@@ -1,0 +1,286 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: RE: Root finding -->
+<!--X-From-R13: Vreoreg Enheb <Vreoreg_EnhebNxtv.rqh> -->
+<!--X-Date: Mon, 28 Nov 2005 22:19:50 &#45;0800 (PST) -->
+<!--X-Message-Id: 601BBB4D9640CB4693A2384E4B37872E01D621EA@dell2650&#45;0550.kgi.edu -->
+<!--X-Content-Type: text/plain -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>RE: Root finding</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00178.html">Date Prev</a>] [<a href="msg00181.html">Date Next</a>] [<a href="msg00176.html">Thread Prev</a>] [<a href="msg00186.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00179">Date Index</a></b>]
+[<b><a href="threads.html#00179">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>RE: Root finding</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Herbert Sauro &lt;<a href="mailto:Herbert_Sauro%40kgi.edu">Herbert_Sauro@kgi.edu</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 28 Nov 2005 22:14:19 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>
+Thanks for the info Emery. I will try increasing the integration tolerances 
+tomorrow. Although 0.096 may not seem a large error, it means we fail the SBML 
+semantic tests. 
+
+Herbert
+
+-----Original Message-----
+From:   Emery Conrad [<a  href="mailto:econrad@vt.edu">mailto:econrad@vt.edu</a>]
+Sent:   Mon 11/28/2005 9:18 AM
+To:     sundials-users@llnl.gov
+Cc:     
+Subject:        Re: Root finding
+
+Herbert,
+
+In case Alan hasn't already responded directly to you, the tolerances are 
+relative and absolute tolerances, and have nothing to do with your step size. 
+The fact that you got a better estimate with smaller step size is only a side 
+effect, since that essentially sets the tolerance lower than you had it 
+originally.
+
+The step size can be quite large, but tolerances for some models (especially in 
+the biological community) really need to be down around 1e-8 or lower (for both 
+relative and absolute), otherwise you will get spurious results. NOTE however, 
+that if you set these too low, like 1e-11 for both, the root finder can barf 
+and you'll have problems because the root tolerance gets computed from a 
+combination of the the relative and absolute tolerances which can be invalid.
+
+Alan, if you're interested in seeing when the root finder fails, I'd be happy 
+to send and example, but I think you can just set them to 1e-14 each in your 
+samples and you'll see what happens. This is a bug, but I've never actually 
+submitted it!
+
+Emery
+
+
+
+Herbert Sauro wrote: 
+
+Thanks for the reply. We were out a bit with the root finding, the event
+
+occurred as a variable passed 0.1 but the root finder reported it at
+
+0.096. This was for a step size of 0.1, if we decreased the step size to
+
+0.01 it found the root at 0.9991.  When you refer to tolerances do you
+
+mean the integration tolerances or are there some others I should be
+
+looking at, I looked through the docs but didn't find anything?
+
+
+
+Herbert
+
+
+
+-----Original Message-----
+
+From: Alan Hindmarsh [ <a  href="mailto:alanh@llnl.gov">mailto:alanh@llnl.gov</a>] 
+
+Sent: Wednesday, November 23, 2005 3:33 PM
+
+To:  sundials-users@llnl.gov
+
+Subject: Re: Root finding
+
+
+
+Hello Herbert,
+
+
+
+The computation of the root location is done to within a tolerance that
+
+is very close to the roundoff level.  So nothing can be done about that,
+
+as such.  However, that computation depends entirely on the
+
+interpolatory polynomial representing the solution over the last step
+
+taken, and the accuracy of that of course varies with the tolerances.
+
+So if you see the root locations changing too much, then your tolerances
+
+are probably too loose.
+
+
+
+-Alan
+
+
+
+
+
+On Wed, 23 Nov 2005, Herbert Sauro wrote:
+
+
+
+  
+
+I've a question about the root finding facility of CVODE. We noticed 
+
+that the location of a root as reported by CVODE varies according to 
+
+the size of the step size, thus the smaller the step size the more 
+
+accurate it is about the location of the root. Is there anyway to ask 
+
+CVODe for the actual location of the root rather than an 
+
+approximation, no matter what the step size?
+
+
+
+Herbert Sauro
+
+    
+
+
+
+
+
+  
+
+
+
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00178.html">Re: What's wrong with 'libsundials_cvodes.la'?</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00181.html">Re: What's wrong with 'libsundials_cvodes.la'?</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00176.html">Re: Root finding</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00186.html">mex files for windows</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00179">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00179">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

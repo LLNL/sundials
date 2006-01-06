@@ -1,0 +1,620 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Mon, 14 Nov 2005 10:03:36 &#45;0800 (PST) -->
+<!--X-Message-Id: 4378D01A.6060404@llnl.gov -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: C3B5FCC014972B42BAF524423D8DAE9E044BCF@physbs01.Physiomics&#45;plc.local -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00165.html">Date Prev</a>] [<a href="msg00167.html">Date Next</a>] [<a href="msg00165.html">Thread Prev</a>] [<a href="msg00167.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00166">Date Index</a></b>]
+[<b><a href="threads.html#00166">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 14 Nov 2005 09:57:46 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<tt>Hi Andrew,<br>
+I am aware that the use of p, plist, and pbar can be confusing. I would 
+like to clean that up and feedback from users such as yourself would be 
+very welcome. In the next SUNDIALS release, I will try to make that a 
+bit more intuitive (or at least provide more details in the documentation).<br>
+In the meanwhile, see the answers below.<br>
+Thanks,<br>
+--Radu</tt><br>
+<br>
+<tt>Andrew Finney wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Does anyone know the answer to the following question?
+</tt></blockquote><pre style="margin: 0em;"><br>Yes :-)</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">We are passing a non null fS argument to CVodeSetSensRhs1Fn.
+Is that compatible with passing a non null plist argument to
+CVodeSetSensParams?
+</pre></blockquote><tt><br>Yes, a non-NULL plist can be passed but will NOT be used when a 
+user-provided sensitivity RHS function (of either type: CVSensRhsFn or 
+CVSensRhs1Fn) is used.</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">If yes please explain the effect of the plist argument and how it should
+be constructed.
+</pre></blockquote><tt><br>plist is used ONLY if the sensitivity right-hand sides are evaluated 
+using the internal difference-quotient approximations. In that case, 
+plist should contain the indeces in the array of problem parameters (p) 
+with respect to which sensitivities are desired. Note that, in the 
+current CVODES release (I am thinking of changing this for consistency), 
+the plist values start at 1: if you want to compute sensitivities with 
+respect to the first parameter in the p array, p[0], you need to set one 
+of the components of plist to 1.</tt><br>
+<br>
+<tt>As always, an actual example is better than anything else. I attached a 
+modification of the cvfdx CVODES example that uses a user-provided 
+sensitivity RHS function (of type CVSensRhs1Fn) to compute sensitivities 
+with respect to two problem parameters (NS=2). To emphasize that the p 
+array is not needed in this case, the three problem parameters are 
+stored as three separate doubles in the user data structure (not as an 
+array in the original cvfdx example). The example computes sensitivities 
+with respect to the problem parameters p1 and p3. As such, pbar is set 
+to be an array of dimension NS=2 with components pbar[0]=|p1| and 
+pbar[1]=|p3| (see below why pbar is needed), while the function fS1 
+computes the RHS of the sensitivity system with respect to p1 if iS=0 
+and with respect to p3 if iS=1.</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Specifically we'd be interested whether the indices in plist are also
+passed to the Rhs1 function (as int iS).
+</pre></blockquote><tt><br>No, iS does not represent a plist value, but just the index of the 
+current sensitivity RHS to be evaluated (see the explanation above). As 
+mentioned before, in this case plist is not needed (moreover, p itself 
+is not needed so plist would have no meaning).</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">If we can not provide a Rhs1 function, we understand that we need to set
+p (and use it's contents in the ODE evaluation function f), and
+optionally plist and pbar:
+What else should be set for using the internal approximation method
+instead of a Rhs function?
+</pre></blockquote><tt><br>That's it. Note that if plist is not provided, CVODES will compute 
+sensitivities with respect to the first NS parameters in the array p 
+(i.e. it will automatically set plist to: plist[i]=i+1, i=0,1,...Ns). 
+Also, if pbar is not provided, CVODES will use pbar[i]=1, i=0,1,...Ns.</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>What and how important are pbar values?
+</tt></blockquote><tt><br>The pbar values are needed in two places:<br>
+1) when the internal difference-quotient functions are used for the 
+evaluation of the sensitivity RHS, pbar is used in computing an 
+appropriate perturbation for the finite-difference approximation (see 
+Eqs. 3.12-3.13 in the user guide).<br>
+2) unless the user explicitly specifies tolerances for the sensitivity 
+variables, appropriate values for them are estimated from the tolerances 
+specified for the state variables and pbar values (see Section 3.2.2 in 
+the user guide).</tt><br>
+<br>
+<tt>Therefore, pbar is used (possibly the default value of 1.0 if the user 
+does not provide other values) for the second item even when supplying a 
+sensitivity RHS function.</tt><br>
+<br>
+<tt>Providing good pbar values is important when the problem is not scaled 
+(i.e. the parameters with respect to which sensitivities are computed 
+are either very small or very large, i.e. far from unity). Appropriate 
+pbar values will result in finite-difference perturbations that strike a 
+better balance between truncation and round-off errors (item 1 above) 
+and in more accurate noise levels for the sensitivity variables (i.e. 
+absolute tolerances for the sensitivity variables).</tt><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Many thanks</pre><br>
+<pre style="margin: 0em;">Andrew Finney PhD
+Physiomics PLC</pre><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br>Cheers,
+--Radu</pre><br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551
+</pre><pre>/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.1 $
+ * $Date: 2006-01-06 19:15:43 $
+ * -----------------------------------------------------------------
+ * Programmer(s): Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Example problem:
+ *   Modification of the cvfdx.c example to better illustrate the
+ *   use of  CVSensRhs1Fn.
+ * -----------------------------------------------------------------
+ */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;sundialstypes.h&quot;   /* def. of type realtype                         */
+#include &quot;cvodes.h&quot;          /* prototypes for CVODES functions and constants */
+#include &quot;cvdense.h&quot;         /* prototype for CVDENSE functions and constants */
+#include &quot;nvector_serial.h&quot;  /* defs. of serial NVECTOR functions and macros  */
+#include &quot;dense.h&quot;           /* defs. of type DenseMat, macro DENSE_ELEM      */
+#include &quot;sundialsmath.h&quot;    /* definition of ABS                             */
+
+/* Accessor macros */
+
+#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i=1..NEQ */
+#define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1) /* (i,j)-th matrix component 
+i,j=1..NEQ */
+
+/* Problem Constants */
+
+#define NEQ   3             /* number of equations  */
+#define Y1    RCONST(1.0)   /* initial y components */
+#define Y2    RCONST(0.0)
+#define Y3    RCONST(0.0)
+#define RTOL  RCONST(1e-4)  /* scalar relative tolerance */
+#define ATOL1 RCONST(1e-8)  /* vector absolute tolerance components */
+#define ATOL2 RCONST(1e-14)
+#define ATOL3 RCONST(1e-6)
+#define T0    RCONST(0.0)   /* initial time */
+#define T1    RCONST(0.4)   /* first output time */
+#define TMULT RCONST(10.0)  /* output time factor */
+#define NOUT  12            /* number of output times */
+
+#define NP    3             /* number of problem parameters */
+#define NS    2             /* number of sensitivities computed */
+
+#define ZERO  RCONST(0.0)
+
+/* Type : UserData */
+
+typedef struct {
+  realtype p1;
+  realtype p2;
+  realtype p3;
+} *UserData;
+
+/* Prototypes of functions by CVODES */
+
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+
+static void Jac(long int N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data, 
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
+               int iS, N_Vector yS, N_Vector ySdot, 
+               void *fS_data, N_Vector tmp1, N_Vector tmp2);
+
+/* Prototypes of private functions */
+
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
+static void PrintOutputS(N_Vector *uS, int Ns);
+static void PrintFinalStats(void *cvode_mem);
+
+/*
+ *--------------------------------------------------------------------
+ * MAIN PROGRAM
+ *--------------------------------------------------------------------
+ */
+
+int main(int argc, char *argv[])
+{
+  void *cvode_mem;
+  UserData data;
+  realtype t, tout, rtol;
+  N_Vector y, atol;
+  int iout, flag;
+
+  realtype pbar[NS];
+  int is; 
+  N_Vector *yS;
+  booleantype err_con;
+  int sensi_meth;
+
+  /* User data structure */
+  data = (UserData) malloc(sizeof *data);
+  data-&gt;p1 = RCONST(0.04);
+  data-&gt;p2 = RCONST(1.0e4);
+  data-&gt;p3 = RCONST(3.0e7);
+
+  /* Initial conditions */
+  y = N_VNew_Serial(NEQ);
+  Ith(y,1) = Y1;
+  Ith(y,2) = Y2;
+  Ith(y,3) = Y3;
+
+  /* Relative tolerance */
+  rtol = RTOL;
+
+  /* Absolute tolerance vector */
+  atol = N_VNew_Serial(NEQ);
+  Ith(atol,1) = ATOL1;
+  Ith(atol,2) = ATOL2;
+  Ith(atol,3) = ATOL3;
+
+  /* Create CVODES object */
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+
+  /* Allocate space for CVODES */
+  flag = CVodeMalloc(cvode_mem, f, T0, y, CV_SV, rtol, atol);
+
+  /* Attach user data */
+  flag = CVodeSetFdata(cvode_mem, data);
+
+  /* Attach linear solver */
+  flag = CVDense(cvode_mem, NEQ);
+  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
+
+  printf(&quot;\n3-species chemical kinetics problem\n&quot;);
+
+  /* Sensitivity-related settings */
+
+  sensi_meth = CV_SIMULTANEOUS;
+  err_con = TRUE;
+
+  /* We will compute sensitivities with respect to p1 and p3 */
+  /* pbar is needed to estimate appropriate absolute tolerances for 
+     the sensitivity variables */
+  pbar[0] = data-&gt;p1;
+  pbar[1] = data-&gt;p3;
+
+  /* Initial conditions for sensitivity variables */  
+  yS = N_VCloneVectorArray_Serial(NS, y);
+  for (is=0;is&lt;NS;is++) N_VConst(ZERO, yS[is]);
+
+  /* Initialize sensitivity computations */
+  flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, yS);
+
+  flag = CVodeSetSensRhs1Fn(cvode_mem, fS);
+  flag = CVodeSetSensErrCon(cvode_mem, err_con);
+  flag = CVodeSetSensFdata(cvode_mem, data);
+  flag = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
+  
+  /* In loop over output points, call CVode, print results, test for error */
+  
+  printf(&quot;\n\n&quot;);
+  printf(&quot;===================================================&quot;);
+  printf(&quot;============================\n&quot;);
+  printf(&quot;     T     Q       H      NST                    y1&quot;);
+  printf(&quot;           y2           y3    \n&quot;);
+  printf(&quot;===================================================&quot;);
+  printf(&quot;============================\n&quot;);
+
+  for (iout=1, tout=T1; iout &lt;= NOUT; iout++, tout *= TMULT) {
+
+    flag = CVode(cvode_mem, tout, y, &amp;t, CV_NORMAL);
+
+    PrintOutput(cvode_mem, t, y);
+
+    flag = CVodeGetSens(cvode_mem, t, yS);
+    PrintOutputS(yS, NS);
+
+    printf(&quot;-------------------------------------------------&quot;);
+    printf(&quot;------------------------------\n&quot;);
+
+  }
+
+  /* Print final statistics */
+  PrintFinalStats(cvode_mem);
+
+  /* Free memory */
+  N_VDestroy_Serial(y);
+  N_VDestroy_Serial(atol);
+  N_VDestroyVectorArray_Serial(yS, NS);
+  free(data);
+  CVodeFree(&amp;cvode_mem);
+
+  return(0);
+}
+
+/*
+ *--------------------------------------------------------------------
+ * FUNCTIONS CALLED BY CVODES
+ *--------------------------------------------------------------------
+ */
+
+/* f routine. Compute f(t,y) */
+
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  realtype y1, y2, y3, yd1, yd3;
+  UserData data;
+  realtype p1, p2, p3;
+
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  data = (UserData) f_data;
+  p1 = data-&gt;p1; p2 = data-&gt;p2; p3 = data-&gt;p3;
+
+  yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
+  yd3 = Ith(ydot,3) = p3*y2*y2;
+        Ith(ydot,2) = -yd1 - yd3;
+}
+
+
+/* Jacobian routine. Compute J(t,y) */
+
+static void Jac(long int N, DenseMat J, realtype t,
+                N_Vector y, N_Vector fy, void *jac_data, 
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  realtype y1, y2, y3;
+  UserData data;
+  realtype p1, p2, p3;
+ 
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  data = (UserData) jac_data;
+  p1 = data-&gt;p1; p2 = data-&gt;p2; p3 = data-&gt;p3;
+ 
+  IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
+  IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
+                      IJth(J,3,2) = 2*p3*y2;
+}
+ 
+/* fS routine. Compute sensitivity r.h.s. */
+
+static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
+               int iS, N_Vector yS, N_Vector ySdot, 
+               void *fS_data, N_Vector tmp1, N_Vector tmp2)
+{
+  UserData data;
+  realtype p1, p2, p3;
+  realtype y1, y2, y3;
+  realtype s1, s2, s3;
+  realtype sd1, sd2, sd3;
+
+  data = (UserData) fS_data;
+  p1 = data-&gt;p1; p2 = data-&gt;p2; p3 = data-&gt;p3;
+
+  y1 = Ith(y,1);  y2 = Ith(y,2);  y3 = Ith(y,3);
+  s1 = Ith(yS,1); s2 = Ith(yS,2); s3 = Ith(yS,3);
+
+  sd1 = -p1*s1 + p2*y3*s2 + p2*y2*s3;
+  sd3 = 2*p3*y2*s2;
+  sd2 = -sd1-sd3;
+
+  switch (iS) {
+  case 0:    /* sensitivity w.r.t. p1 */
+    sd1 += -y1;
+    sd2 +=  y1;
+    break;
+  case 1:    /* sensitivity w.r.t. p3 */
+    sd2 += -y2*y2;
+    sd3 +=  y2*y2;
+    break;
+  }
+  
+  Ith(ySdot,1) = sd1;
+  Ith(ySdot,2) = sd2;
+  Ith(ySdot,3) = sd3;
+}
+
+/*
+ *--------------------------------------------------------------------
+ * PRIVATE FUNCTIONS
+ *--------------------------------------------------------------------
+ */
+
+/* Print current t, step count, order, stepsize, and solution */
+
+static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
+{
+  long int nst;
+  int qu, flag;
+  realtype hu, *udata;
+  
+  udata = NV_DATA_S(u);
+
+  flag = CVodeGetNumSteps(cvode_mem, &amp;nst);
+  flag = CVodeGetLastOrder(cvode_mem, &amp;qu);
+  flag = CVodeGetLastStep(cvode_mem, &amp;hu);
+
+  printf(&quot;%8.3le %2d  %8.3le %5ld\n&quot;, t, qu, hu, nst);
+
+  printf(&quot;                          Solution       &quot;);
+
+  printf(&quot;%12.4le %12.4le %12.4le \n&quot;, udata[0], udata[1], udata[2]);
+
+}
+
+/* Print sensitivities */
+
+static void PrintOutputS(N_Vector *uS, int Ns)
+{
+  realtype *sdata;
+  int iS;
+
+  for (iS=0; iS&lt;Ns; iS++) {
+    sdata = NV_DATA_S(uS[iS]);
+    printf(&quot;                          Sensitivity %1d  &quot;,iS+1);
+    printf(&quot;%12.4le %12.4le %12.4le \n&quot;, sdata[0], sdata[1], sdata[2]);
+  }  
+}
+
+/* Print some final statistics from the CVODES memory */
+
+static void PrintFinalStats(void *cvode_mem)
+{
+  long int nst;
+  long int nfe, nsetups, nni, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nje, nfeLS;
+  int flag;
+
+  flag = CVodeGetNumSteps(cvode_mem, &amp;nst);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &amp;nfe);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &amp;nsetups);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &amp;netf);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &amp;nni);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &amp;ncfn);
+
+  flag = CVodeGetNumSensRhsEvals(cvode_mem, &amp;nfSe);
+  flag = CVodeGetNumRhsEvalsSens(cvode_mem, &amp;nfeS);
+  flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &amp;nsetupsS);
+  flag = CVodeGetNumSensErrTestFails(cvode_mem, &amp;netfS);
+  flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &amp;nniS);
+  flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &amp;ncfnS);
+
+  flag = CVDenseGetNumJacEvals(cvode_mem, &amp;nje);
+
+  flag = CVDenseGetNumRhsEvals(cvode_mem, &amp;nfeLS);
+
+  printf(&quot;\nFinal Statistics\n\n&quot;);
+  printf(&quot;nst     = %5ld\n\n&quot;, nst);
+  printf(&quot;nfe     = %5ld\n&quot;,   nfe);
+  printf(&quot;netf    = %5ld    nsetups  = %5ld\n&quot;, netf, nsetups);
+  printf(&quot;nni     = %5ld    ncfn     = %5ld\n&quot;, nni, ncfn);
+
+  printf(&quot;\n&quot;);
+  printf(&quot;nfSe    = %5ld    nfeS     = %5ld\n&quot;, nfSe, nfeS);
+  printf(&quot;netfs   = %5ld    nsetupsS = %5ld\n&quot;, netfS, nsetupsS);
+  printf(&quot;nniS    = %5ld    ncfnS    = %5ld\n&quot;, nniS, ncfnS);
+
+  printf(&quot;\n&quot;);
+  printf(&quot;nje    = %5ld    nfeLS     = %5ld\n&quot;, nje, nfeLS);
+
+}
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00167" href="msg00167.html">Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></strong>
+<ul><li><em>From:</em> Rainer Machne &lt;raim@tbi.univie.ac.at&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00165" href="msg00165.html">using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></strong>
+<ul><li><em>From:</em> Andrew Finney &lt;afinney@physiomics-plc.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00165.html">using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00167.html">Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00165.html">using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00167.html">Re: using CVODES with CVodeSetSensRhS1Fn and CVodeSetSensParams</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00166">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00166">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

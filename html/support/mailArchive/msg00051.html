@@ -1,0 +1,229 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: Slow performance when solution is not changing -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Mon, 16 May 2005 15:49:35 &#45;0700 (PDT) -->
+<!--X-Message-Id: Pine.LNX.4.58.0505161544560.27111@tux64.llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: opsquiwflzt8lo91@smtp.kuleuven.ac.be -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: Slow performance when solution is not changing</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00050.html">Date Prev</a>] [<a href="msg00052.html">Date Next</a>] [<a href="msg00050.html">Thread Prev</a>] [<a href="msg00053.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00051">Date Index</a></b>]
+[<b><a href="threads.html#00051">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: Slow performance when solution is not changing</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 16 May 2005 15:48:25 -0700 (PDT)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hello Andreas,
+
+Probably the most common reason for the unexpected slowdown of an ODE
+solution is the introduction of stiffness into the system while using
+a nonstiff method (or using the wrong stiff method).  What are your
+method options (lmm, iter)?  Is it possible that the added 3rd
+equation has some stiffness that is not being properly treated?
+
+Another possibility is a low-amplitude high-frequency oscillation that
+was introduced with the 3rd equation.  Unless the tolerances are
+loosened alot, the solver could be following this oscillation, and yet
+it may be largely invisible to you in the solution.
+
+A detailed determination of these possibilities would require some
+knowledge of the eigenvalues of the Jacobian of your system. If you
+don't find any easy fixes, you might want to calculate that spectrum
+at various times during the solution, for further insight.
+
+-Alan Hindmarsh
+
+
+
+On Sun, 15 May 2005, Andreas Nicolai wrote:
+
+&gt;<i> Hi there,</i>
+&gt;<i></i>
+&gt;<i> I have a problem with one of my simulations. I calculate a 2D system with 3 </i>
+&gt;<i> balance equations. If I run the solver with 2 balance equations it runs very </i>
+&gt;<i> fast. However, when I add another balance equation, having boundary </i>
+&gt;<i> conditions the same as initial conditions for this quantity, I get a very </i>
+&gt;<i> very poor performance. The calculated state variable of the third balance </i>
+&gt;<i> equation does not change after the first second or so. But after that initial </i>
+&gt;<i> change, the solver just gets very very slow. When I change the boundary </i>
+&gt;<i> conditions, so that the field changes, the performance improves drastically.</i>
+&gt;<i></i>
+&gt;<i> I tried varying the tolerances but neighter increasing nor decreasing brought </i>
+&gt;<i> any improvement. I also tried to restrict the solver to first order BDF </i>
+&gt;<i> scheme, but that also didn't help much. When I monitor the automatically </i>
+&gt;<i> chosen order, the solver sticks to first or at max second order while having </i>
+&gt;<i> very very small time steps.</i>
+&gt;<i></i>
+&gt;<i>  From other users of CVODE I heard similar reports, as soon as there is not </i>
+&gt;<i> much change in a state variable the solver gets very slow.</i>
+&gt;<i></i>
+&gt;<i> I suspect a stability problem, but then again when I fix the first order </i>
+&gt;<i> scheme the solver really shouldn't have any stability issues.</i>
+&gt;<i></i>
+&gt;<i> Is there any trick that helps here or what should I try to do to get the </i>
+&gt;<i> solver to run faster?</i>
+&gt;<i></i>
+&gt;<i> Bye,</i>
+&gt;<i> Andreas</i>
+&gt;<i></i>
+&gt;<i> --</i>
+&gt;<i> Andreas Nicolai                   Andreas.Nicolai@gmx.net</i>
+&gt;<i> Syracuse University               +01 (315) 443 1099</i>
+&gt;<i> 151 E.A.Link Hall</i>
+&gt;<i> Syracuse NY 13244-1240</i>
+&gt;<i></i>
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00055" href="msg00055.html">How does the solver guarantie accuracy in time?</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00053" href="msg00053.html">Re: Slow performance when solution is not changing</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00050" href="msg00050.html">Slow performance when solution is not changing</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00050.html">Slow performance when solution is not changing</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00052.html">Re: CVODE</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00050.html">Slow performance when solution is not changing</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00053.html">Re: Slow performance when solution is not changing</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00051">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00051">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

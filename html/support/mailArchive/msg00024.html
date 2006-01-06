@@ -1,0 +1,267 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: CVODES error -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 30 Mar 2005 16:13:26 &#45;0800 (PST) -->
+<!--X-Message-Id: 424B408D.6090505@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 8B8B9A8EAFB80D4783EC4EE210951B454E65FD@ccexchange&#45;3.cns.cranfield.ac.uk -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: CVODES error</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00023.html">Date Prev</a>] [<a href="msg00025.html">Date Next</a>] [<a href="msg00023.html">Thread Prev</a>] [<a href="msg00025.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00024">Date Index</a></b>]
+[<b><a href="threads.html#00024">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: CVODES error</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 30 Mar 2005 16:13:01 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">ewt is the weight vector for the solution vector. Depending on itol, its 
+components are</pre><br>
+<pre style="margin: 0em;">(1) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + *atol), i=0,...,neq-1
+    if itol = CV_SS
+(2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,neq-1
+    if itol = CV_SV</pre><br>
+<pre style="margin: 0em;">ewtS is an array of such vectors for the sensitivity variables.</pre><br>
+<tt>The error message you see indicates that there is a component in one of the ewtS vectors for which the denominator is 
+nonpositive. Since you do not specify your own sensitivity tolerances, CVODES sets the vector of absolute tolerances for 
+the is-th sensitivity to a multiple of the vector of absolute tolerances for the solution variables, the scaling factor 
+being 1/|pbar_is|. The relative tolerance is set to be equal to that for the solution, i.e. reltolS=1e-6.</tt><br>
+<br>
+<tt>You say that pbar is a vector of ones. So you should end up with abstolS = 1e-8 for all sensitivities, so there should 
+be no way for that error to occur. Unless you have some bug in your code so that some tolerances are overwritten. The 
+other reason for me to suspect this, is that ewtS is also computed and tested at the very first step (nst=0) and it 
+seems you did not get an error at that point -- you would have seen the following error message: &quot;Initial ewtS has 
+component(s) equal to zero (illegal)&quot;.</tt><br>
+<br>
+<pre style="margin: 0em;">Here are a few simple tests you can do:
+1) Try itol=CV_SS (since you anyway do not have different absolute tolerances)
+2) Try to run the code without sensitivity calculations enabled.
+3) Remove the call to CVodeSetSensPbar (the default is to use pbar all ones).</pre><br>
+<pre style="margin: 0em;">Let me know what happens.</pre><br>
+<pre style="margin: 0em;">By the way, how recent is your version of CVODES?</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<tt>P.S. I did try to set a parameter to 0.0 in the cvfdx example (which is part of the distribution) and everything worked 
+fine just fine.</tt><br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+<tt>Cao, Yi wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>I just found this is caused by some zeros in parameters. If I replace these zeros with very small number, say 1e-15, then, everything is fine. Does CVODES not support parameters with zero values? Note, I choose scaling vector, Pbar = 1.<br>
+ 
+Yi Cao</tt><br>
+<br>
+<pre style="margin: 0em;">________________________________</pre><br>
+<pre style="margin: 0em;">From: owner-sundials-users@lists.llnl.gov on behalf of Cao, Yi
+Sent: Thu 31/03/2005 00:04
+To: sundials-users@llnl.gov
+Subject: CVODES error</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">Radu,</pre><br>
+<pre style="margin: 0em;">Thank you for your reply. Here are some settings I used:</pre><br>
+<pre style="margin: 0em;">1. RTol = 1e-6, ATol = 1e-8. ATol is a vector but with equal values.
+2. plist is set to 1 to NS (in this case, 6)
+3. Initial conditions for sensitivity variables are [I 0], where I is unitary 
+matrix.
+4. I do not specify tol for sensitivity variables. Yes, I set pbar to 1 through 
+CVodeSetSensPbar.</pre><br>
+<pre style="margin: 0em;">But what is ewtS anyway? I cannot find it from the manual.</pre><br>
+<pre style="margin: 0em;">Regards,</pre><br>
+<pre style="margin: 0em;">Yi Cao</pre><br>
+<pre style="margin: 0em;">________________________________</pre><br>
+<pre style="margin: 0em;">From: Radu Serban [<a  href="mailto:serban1@llnl.gov">mailto:serban1@llnl.gov</a>]
+Sent: Wed 30/03/2005 20:55
+To: Cao, Yi
+Cc: Radu Serban
+Subject: Re: Updated SUNDIALS web pages</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">Dear Yi,</pre><br>
+<pre style="margin: 0em;">Please post questions like this one on the sundials-users mailing list (to 
+which I see you've subscribed). This way,
+everybody can take advantage of the information shared. Also, you may get an 
+answer from somebody else, other than me.</pre><br>
+<pre style="margin: 0em;">In conclusion, please email this question to sundials-users@llnl.gov and also 
+provide some more information:
+- what are the integration tolerances? Is atol a scalar or a vector?
+- what is plist in the call to CVodeSensMalloc? Is it NULL?
+- what are the initial conditions for the sensitivity variables? All zeros?
+- do you specify tolerances for the sensitivity variables or not (and leave it 
+to CVODES to estimate them)? If yes, what
+are they? If not, do you set pbar through CVodeSetSensPbar? To what values?</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<pre style="margin: 0em;">Cao, Yi wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu,</pre><br>
+<pre style="margin: 0em;">I got the following error message when I run with CVODES,</pre><br>
+<pre style="margin: 0em;">CVode-- At t = 7.98025e-011, a component of ewtS has become &lt;= 0.</pre><br>
+<pre style="margin: 0em;">SUNDIALS_ERROR: CVode() failed with flag = -2</pre><br>
+<pre style="margin: 0em;">Final Statistics</pre><br>
+<pre style="margin: 0em;">nst     =     1</pre><br>
+<pre style="margin: 0em;">nfe     =     4
+netf    =     0    nsetups  =     1
+nni     =     1    ncfn     =     0</pre><br>
+<pre style="margin: 0em;">nfSe    =    24    nfeS     =     0
+netfs   =     0    nsetupsS =     0
+nniS    =     0    ncfnS    =     0</pre><br>
+<pre style="margin: 0em;">njeD    =     1    nfeD     =     0</pre><br>
+<pre style="margin: 0em;">Could you help me what is ewtS and how to avoid this error?</pre><br>
+<pre style="margin: 0em;">Regards,</pre><br>
+<tt>Yi Cao
+</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br>--
+    Radu Serban
+    Center for Applied Scientific Computing   [email] radu@llnl.gov
+    Lawrence Livermore National Laboratory    [phone] 925-424-4852
+    P.O. Box 808, L-560                       [fax]   925-422-6287
+    Livermore, CA 94551</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00023" href="msg00023.html">RE: CVODES error</a></strong>
+<ul><li><em>From:</em> &quot;Cao, Yi&quot; &lt;Y.Cao@cranfield.ac.uk&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00023.html">RE: CVODES error</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00025.html">RE: CVODES error</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00023.html">RE: CVODES error</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00025.html">RE: CVODES error</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00024">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00024">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

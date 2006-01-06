@@ -1,0 +1,355 @@
+<html>
+
+<head>
+
+<title>SUNDIALS description</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../graphics/support_button.png";
+//-->
+</script>
+<script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+
+</head>
+
+<!-- ******************************************************************************** -->
+
+<body>
+<A NAME="top"></A>
+
+
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+
+  <tr valign="top">
+  <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><a href="http://www.llnl.gov/CASC/people/serban/"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/head_description_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="127" background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+
+  <tr valign="top">
+  <td background="../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../graphics/table_bck5.gif">
+    <a href="../sitemap.html"><img SRC="../graphics/sitemap.png" border="0"></a><img SRC="../graphics/logo.png" border="0">
+  </td>
+
+
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+
+<!-- Start content for this page -->
+
+
+
+<p class="links">
+[
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+]
+</p>
+
+<!-- ---------------------- -->
+
+<A NAME="descr_sundials"></A>
+<h1>Description of SUNDIALS</h1>
+
+<div class="frame">
+<font color="#ff0000"><B>SUNDIALS</B></font>
+was implemented with the goal
+of providing robust time integrators and nonlinear solvers that
+can easily be incorporated into existing simulation codes.  The
+primary design goals were to require minimal information from the
+user, allow users to easily supply their own data structures
+underneath the solvers, and allow for easy incorporation of
+user-supplied linear solvers and preconditioners.
+<br><br>
+The main numerical operations performed in these codes are
+operations on data vectors, and the codes have been written in
+terms of interfaces to these vector operations.  The result of
+this design is that users can relatively easily provide their own
+data structures to the solvers by telling the solver about their
+structures and providing the required operations on them. The
+codes also come with default vector structures
+with pre-defined operation implementations for both serial and
+distributed memory parallel environments in case a user prefers not to
+supply their own structures. In addition, all parallelism is
+contained within specific vector operations (norms, dot products,
+etc.)  No other operations within the solvers require knowledge of
+parallelism. Thus, using a solver in parallel consists of using
+a parallel vector implementation, either the one provided with
+SUNDIALS, or the user's own parallel vector structure, 
+underneath the solver.  
+Hence, we do not make a distinction between parallel and serial 
+versions of the codes.
+<br><br>
+<center>
+<img src="img/sunorg.png" alt="SUNDIALS organization">
+</center>
+<br>
+</div>
+
+<!-- ---------------------- -->
+
+<p class="links">
+[ <A HREF="#top">Top</A> ]<BR>
+[
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+]
+</p>
+
+<!-- ------------------------- -->
+
+<A NAME="descr_cvode"></A>
+<h1>Description of CVODE</h1>
+<div class="frame">
+<font color="#ff0000"><B>CVODE</B></font>
+is a solver for stiff and nonstiff ordinary differential equation (ODE)
+systems (initial value problem) given in explicit form <B>y' = f(t,y)</B>.
+<br><br>
+The methods used in CVODE are variable-order, variable-step multistep
+methods. 
+For nonstiff problems, CVODE includes the Adams-Moulton formulas,
+with the order varying between 1 and 12.
+For stiff problems, CVODE includes the Backward Differentiation Formulas (BDFs) in
+so-called fixed-leading coefficient form, with order varying between 1 and 5.
+For either choice of formula, the resulting nonlinear system is solved (approximately)
+at each integration step.
+For this, CVODE offers the choice of either <I>functional iteration</I>, 
+suitable only for nonstiff systems, and various versions of <I>Newton iteration</I>.
+In the cases of a direct linear solver (dense or banded), the Newton 
+iteration is a Modified Newton iteration, in
+that the Jacobian is fixed (and usually out of date). When using
+SPGMR as the linear solver, the iteration is an Inexact Newton iteration,
+using the current Jacobian (through matrix-free products), in 
+which the linear residual is nonzero but controlled.
+<br><br>
+When used in conjunction with the serial NVECTOR module,
+CVODE provides both direct
+(dense and band) solvers and a preconditioned Krylov (iterative)
+solver. In the parallel version (CVODE used with a parallel 
+NVECTOR module) only the Krylov solver is available.  
+An approximate diagonal Jacobian option is available with both versions.  
+For the serial version, there is a banded preconditioner module called 
+CVBANDPRE for use with the Krylov solver, while for the 
+parallel version there is a preconditioner module called 
+CVBBDPRE which provides a band-block-diagonal preconditioner.
+<br><br>
+For use with Fortran applications, a set of Fortran/C interface routines,
+called FCVODE, is also supplied.  These are written in C, 
+but assume that the user calling program and all user-supplied routines 
+are in Fortran.
+<br><br>
+<center>
+<img src="img/cvorg.png" alt="CVODE organization">
+</center>
+<br>
+</div>
+
+<!-- ------------------------------------- -->
+
+<p class="links">
+[ <A HREF="#top">Top</A> ]<BR>
+[
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+]
+</p>
+
+<!-- ---------------------------------- -->
+
+<A NAME="descr_cvodes"></A>
+<h1>Description of CVODES</h1>
+<div class="frame">
+<font color="#ff0000"><B>CVODES</B></font>
+is a solver for stiff and nonstiff ODE systems (initial value problem) 
+given in explicit form <b>y' = f(t,y,p)</b> with sensitivity analysis capabilities 
+(both forward and adjoint modes).
+<br><br>
+CVODES is a supraset of CVODE and hence all options available
+to CVODE (with the exception of the FCVODE interface module)
+are also available for CVODES. Both integration methods (Adams-Moulton
+and BDF) and the corresponding nonlinear iteration methods, as well as all linear
+solver and preconditioner modules are available for the integration of the original ODEs, 
+the sensitivity systems, or the adjoint system.
+<br><br>
+Depending on the number of model parameters and the
+number of functional outputs, one of two sensitivity methods
+is more appropriate.
+The <I>forward sensitivity analysis</I> (FSA) method is mostly suitable when
+the gradients of many outputs (for example the entire solution vector)
+with respect to relatively few parameters are needed.
+In this approach, the model is differentiated with respect to each
+parameter in turn to yield an additional system of the same size as
+the original one, the result of which is the solution sensitivity.
+The gradient of any output function depending on the solution can
+then be directly obtained from these sensitivities by applying the
+chain rule of differentiation.
+
+The <I>adjoint sensitivity analysis</I> (ASA) method is more practical than
+the forward approach when the number of parameters is large and
+the gradients of only few output functionals are needed.
+In this approach, the solution sensitivities need not be computed
+explicitly. Instead, for each output functional of interest, 
+an additional system, adjoint to the original one, is formed and solved.
+The solution of the adjoint system can then be used to evaluate the gradient of the
+output functional with respect to any set of model parameters.
+<br><br>
+The FSA module in CVODES implements a simultaneous 
+corrector method as well as two flavors of staggered corrector methods -- for the case when sensitivity right hand
+sides are generated all at once or separated for each model parameter. 
+The ASA module provides the infrastructure required for the backward integration in time
+of systems of differential equations dependent on the solution of the original ODEs.
+It employs a checkpointing scheme for efficient Hermite interpolation of forward
+solutions during the backward integration.
+
+<br><br>
+<center>
+<img src="img/cvsorg.png" alt="CVODES organization">
+</center>
+<br>
+
+</div>
+
+<!-- -------------------------------- -->
+
+<p class="links">
+[ <A HREF="#top">Top</A> ]<BR>
+[
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+]
+</p>
+
+<!-- -------------------------------- -->
+
+<A NAME="descr_ida"></A>
+<h1>Description of IDA</h1>
+<div class="frame">
+<font color="#ff0000"><B>IDA</B></font>
+is a package for the solution of differential-algebraic equation
+(DAE) systems in the form <b>F(t,y,y')=0</b>.
+It is written in C, but derived from the package DASPK
+which is written in Fortran. 
+<br><br>
+The integration method in IDA is variable-order, variable-coefficient
+BDF, in fixed-leading-coefficient form. The method order varying between 1 and 5.
+The solution of the resulting nonlinear system is accomplished with some form of 
+Newton iteration.
+In the cases of a direct linear solver (dense or banded), the nonlinear 
+iteration is a Modified Newton iteration, in
+that the Jacobian is fixed (and usually out of date). When using
+SPGMR as the linear solver, the iteration is an Inexact Newton iteration,
+using the current Jacobian (through matrix-free products), in 
+which the linear residual is nonzero but controlled.<br><br>
+With the serial version of NVECTOR, IDA provides
+both direct (dense and band) solvers and a preconditioned Krylov (iterative) solver. 
+In the parallel version (IDA used with a parallel 
+NVECTOR module) only the Krylov solver is available.  
+In addition to the basic IDASPGMR solver, the IDA 
+package also contains a preconditioner module called IDABBDPRE, 
+which provides a band-block-diagonal preconditioner for use with the parallel version.
+<br><br>
+<center>
+<img src="img/idaorg.png" alt="IDA organization">
+</center>
+<br>
+
+</div>
+
+<!-- ------------------------------------ -->
+
+<p class="links">
+[ <A HREF="#top">Top</A> ]<BR>
+[
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+]
+</p>
+
+<!-- ------------------------------------ -->
+
+<A NAME="descr_kinsol"></A>
+<h1>Description of KINSOL</h1>
+<div class="frame">
+<font color="#ff0000"><B>KINSOL</B></font>
+is a solver for nonlinear algebraic systems  based on Newton-Krylov solver technology.
+It is newly rewritten in the C language, based on the previous Fortran package 
+NKSOL of Brown and Saad.  
+<br><br>
+KINSOL employs the <I>Inexact Newton</I> method. As this code module is 
+anticipated for use on large systems, at this time, only iterative methods are provided 
+to solve the resulting linear systems. The linear iterative method currently implemented 
+is one of the class of Krylov methods, GMRES, provided through the SPGMR 
+module common to all SUNDIALS codes.
+<br><br>
+In addition to the basic linear solver KINSPGMR, this package also includes 
+a module called KINBBDPRE, which provides a band-block-diagonal preconditioner 
+for the parallel version.
+<br><br>
+For use with Fortran applications, a set of Fortran/C interface routines,
+called FKINSOL, is also supplied.  These are written in C, but assume that
+the user calling program and all user-supplied routines are in Fortran.
+<br><br>
+<center>
+<img src="img/kinorg.png" alt="KINSOL organization">
+</center>
+<br>
+</div>
+
+<!-- ----------------------------------------- -->
+
+<p class="links">
+[ <A HREF="#top">Top</A> ]<BR>
+[
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+]
+</p>
+
+<!-- End content for this page -->
+  </div>
+  </td>
+
+  <td background="../graphics/table_bck3.gif"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="17" background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+
+  </table>
+
+</body>
+</html>
+

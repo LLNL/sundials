@@ -1,0 +1,217 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: odepack&#45;>cvode(s) -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 20 Jul 2005 08:15:21 &#45;0700 (PDT) -->
+<!--X-Message-Id: 42DE683D.1070503@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: Pine.GSO.4.58.0507200750120.12961@obelix.math.ua.edu -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: odepack-&gt;cvode(s)</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00100.html">Date Prev</a>] [<a href="msg00102.html">Date Next</a>] [<a href="msg00100.html">Thread Prev</a>] [<a href="msg00110.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00101">Date Index</a></b>]
+[<b><a href="threads.html#00101">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: odepack-&gt;cvode(s)</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 20 Jul 2005 08:05:33 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<tt>David Halpern wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Over the last few years I have been solving nonlinear partial differential
+equations of the form</pre><br>
+<pre style="margin: 0em;">u_t = F(t,u,u_x,u_xx,u_xxx,u_xxxx)</pre><br>
+<pre style="margin: 0em;">subject to periodic boundary conditions. Here u_t denotes the partial
+derivative of a function u(x,t) with respect to t.
+The numerical procedure involves discretizing the right hand side of the
+pde with 4th order finite differences, and then using an ode solver to do
+the time marching. Because the Jacobian of the resulting system is sparse
+but not banded (because of the periodic boundary conditions), I have used
+the solver LSODES which is part of ODEPACK. Also, I haven't provided an
+analytical Jacobian.</pre><br>
+<pre style="margin: 0em;">I am thinking about converting my program from FORTRAN to C. Does CVODE
+(or CVODES) have similar capabilities to LSODES? I am wondering how much
+work will be involved in migrating from FORTRAN to C.</pre><br>
+<pre style="margin: 0em;">Also does CVODE have capabilities to tackle implicit PDES of the form
+u_t=F(t,x,u_t,u_txx,u_x,u_xx,u_xx,u_xxx,u_xxxx)?</pre><br>
+<pre style="margin: 0em;">I would appreciate any input.</pre><br>
+<pre style="margin: 0em;">Yours sincerely,
+David Halpern
+Department of Mathematics
+University of Alabama</pre><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">Hi David,</pre><br>
+<tt>1) Direct Sparse Linear Solver:<br>
+Unlike the pair LSODE-LSODES, the 'S' in CVODES stands for sensitivity, not sparse. At this time, we do not have a 
+sparse direct linear solver module in the SUNDIALS distribution. As it just happens, these past weeks we've been talking 
+again about this, but the major obstacle is the absence of an algorithm to generate the sparse Jacobian in parallel, 
+given only the user's RHS function as input. Although we are constrained by the requirement of 'generality' (in this 
+case, something that would work with both serial and parallel N_Vectors), you could always put together your own linear 
+solver module following the interface that CVODE(S) expects. For more details, see the documentation (Chapter 7 in the 
+CVODE User Guide).</tt><br>
+<br>
+<tt>2) Converting from Fortran to C:<br>
+The linear solver issue aside, you can try to use the FCMIX interface provided with CVODE (See Section 5.9 in the CVODE 
+User Guide). If the routine defining the right-hand side of your ODE (the semi-discretized PDE) is not too complicated, 
+you may want to consider rewriting it in C to overcome some of the limitations of the FCMIX interface (such as fixed 
+routine names, the use of some global variables, the inability of changing some optional inputs on the fly, etc).</tt><br>
+<br>
+<tt>3) Implicit PDE:<br>
+CVODE(S) solves ODE system in explicit form; i.e. y'=f(t,y). To solve an ODE in implicit form (F(t,y',y)=0), such as 
+would result from the semi-discretization in space of your implicit PDE, you'll have to use IDA. You'll find that the 
+user interface to IDA (especially for the type of problem you have) is very close to that of CVODE. Note however, the 
+current release of SUNDIALS does not contain an FCMIX interface for IDA (it will be most likely available in the next 
+release).</tt><br>
+<br>
+<pre style="margin: 0em;">Hope that this helps,
+-Radu</pre><br>
+<pre style="margin: 0em;"><br>--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00099" href="msg00099.html">odepack-&gt;cvode(s)</a></strong>
+<ul><li><em>From:</em> David Halpern &lt;dhalpern@obelix.math.ua.edu&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00100.html">Re: odepack-&gt;cvode(s)</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00102.html">RE: CVODE with Delphi</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00100.html">Re: odepack-&gt;cvode(s)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00110.html">How to configure CVBBDPRE preconditioner in parallel environment</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00101">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00101">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

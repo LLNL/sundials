@@ -1,0 +1,217 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: Slow performance when solution is not changing -->
+<!--X-From-R13: Oaqernf @vpbynv <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Tue, 17 May 2005 19:47:01 &#45;0700 (PDT) -->
+<!--X-Message-Id: opsqx9w8r2t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: opsquiwflzt8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: Pine.LNX.4.58.0505161544560.27111@tux64.llnl.gov -->
+<!--X-Reference: opsqv69e0rt8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: Pine.LNX.4.58.0505171324150.27111@tux64.llnl.gov -->
+<!--X-Reference: opsqxt2jfxt8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: Pine.LNX.4.58.0505171530490.27111@tux64.llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: Slow performance when solution is not changing</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00063.html">Date Prev</a>] [<a href="msg00065.html">Date Next</a>] [<a href="msg00062.html">Thread Prev</a>] [<a href="msg00065.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00064">Date Index</a></b>]
+[<b><a href="threads.html#00064">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: Slow performance when solution is not changing</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Andreas Nicolai &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 17 May 2005 22:44:58 -0400</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Hi Alan,</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Yes, you definitely have a problem of stiffness coupled with failure
+of the corrector iterations to handle it. ...
+What this means is that the band matrix being generated is too
+inaccurate for some reason.
+  (1) The first thing to check is the values of the half-bandwidths
+supplied.  Did you increase those appropriately when you went from 2
+equations to 3?  If your problem size is not too large, you might try
+the dense linear solver as a test to confirm this error.
+  (2) If it is not the half-bandwidths, it could possibly be that the
+difference quotient J values suffer too much from truncation error.
+There is no magic fix here; you may have to experiment with different
+modifications within CVBandDQJac (see inc = ... lines).
+  (3) In any case, you are better off supplying the banded Jacobian
+analytically if you can -- both for speed and for accuracy.
+</pre></blockquote><pre style="margin: 0em;"><br>Thanks again for the suggestions. Checked bandwith (Ok) and tried CVDense 
+to make sure but test gave same results (I was actually surprised because I 
+expected different rounding errors in the dense and banded matrix decomposition 
+would cause a slightly different solution and therefore different time steps 
+after a while). Btw, big compliment about the well designed interface which 
+makes switching solvers as easy as it gets!</pre><br>
+<pre style="margin: 0em;">I looked at CVBandDQJac but this looks a bit too complicated still so I better 
+leave it alone. I have, however, a question about supplying the Jacobian myself.</pre><br>
+<pre style="margin: 0em;">When I evaluate the changes of all state variables versus the others, do I have 
+to take all derivatives into account? Some of them lead to nasty expressions 
+and most of my material functions are available as splines or weird functions 
+only. When I look at the equation system I'm solving: M|y_m+1 - y_m| = -G  I 
+would think that as long as G is evaluated correctly, I may be a bit lazy with 
+M, after all M just stears the solution into the right direction. But wouldn't 
+I run into the same problems as I wanted to avoid by getting rid of the 
+difference quotient Jacobien?</pre><br>
+<pre style="margin: 0em;">- Andreas</pre><br>
+<pre style="margin: 0em;">--
+Andreas Nicolai                   Andreas.Nicolai@gmx.net
+Syracuse University               +01 (315) 443 1099
+151 E.A.Link Hall
+Syracuse NY 13244-1240</pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00066" href="msg00066.html">Re: Slow performance when solution is not changing</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00065" href="msg00065.html">Re: Slow performance when solution is not changing</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00050" href="msg00050.html">Slow performance when solution is not changing</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00051" href="msg00051.html">Re: Slow performance when solution is not changing</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00053" href="msg00053.html">Re: Slow performance when solution is not changing</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00062" href="msg00062.html">Re: Slow performance when solution is not changing</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00063.html">RE: SUNDIALS, Visual C++, and Java</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00065.html">Re: Slow performance when solution is not changing</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00062.html">Re: Slow performance when solution is not changing</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00065.html">Re: Slow performance when solution is not changing</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00064">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00064">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

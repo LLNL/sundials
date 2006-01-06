@@ -1,0 +1,179 @@
+<html>
+
+<head>
+
+<title>SUNDIALS support</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../graphics/support_button.png";
+//-->
+</script>
+<script src="../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+
+</head>
+
+<!-- ******************************************************************************** -->
+
+<body>
+
+
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+
+  <tr valign="top">
+  <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><a href="http://www.llnl.gov/CASC/people/serban/"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/head_support_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="127" background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../graphics/table_bck2.gif"><img src="../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+
+  <tr valign="top">
+  <td background="../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../graphics/table_bck5.gif">
+    <a href="../sitemap.html"><img SRC="../graphics/sitemap.png" border="0"></a><img SRC="../graphics/logo.png" border="0">
+  </td>
+
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+
+<!-- Start content for this page -->
+
+<h1>FAQ</h1>
+
+<div class="frame">
+Answers to some of the most frequent user questions, as well as several tips on installing and using SUNDIALS 
+can be found in the <a href="faq.html"><b>FAQ</b></a> section.
+</div>
+
+
+<h1>
+Mailing Lists
+</h1>
+
+<div class="frame">
+
+<FORM METHOD=POST ACTION="../cgi/handleform.cgi">
+
+Choose from the following lists:
+
+<table frame="below" width="600" cellpadding="2">
+<tr><td>
+ <INPUT TYPE="checkbox" NAME="sundials-announce" VALUE="sundials-announce"><b>sundials-announce (sundials-announce@llnl.gov)</b>
+ <div style="margin-left: 30px">
+ Low-volume, moderated list for announcements of new SUNDIALS releases.<br>
+ It cannot be posted to by users.
+ </div>
+</td></tr>
+<tr><td>
+ <INPUT TYPE="checkbox" NAME="sundials-users" VALUE="sundials-users"><b>sundials-users (sundials-users@llnl.gov)</b>
+ <div style="margin-left: 30px">
+ Unmoderated discussion group for user-user and user-developer discussions.<br>
+ It can be posted to by any member of the list.
+ </div>
+</td></tr>
+</table>
+
+<table frame="below" width="600" cellpadding="2">
+<tr><td>
+  <INPUT TYPE="radio" CHECKED NAME="action" VALUE="subscribe"><b>Subscribe</b>
+  <INPUT TYPE="radio" NAME="action" VALUE="unsubscribe"><b>Unsubscribe</b>
+</td></tr>
+</table>
+
+<table width="500" border="0" cellpadding="4">
+<tr><td>
+  <B>Email address:</B> <INPUT TYPE="text" NAME="email" MAXLEN="40" SIZE="30">
+  <INPUT TYPE="submit" NAME="subscribe" VALUE="Submit">
+  <INPUT TYPE="reset" VALUE="Clear Form">
+</td></tr>
+</table>
+
+<INPUT TYPE="hidden" NAME="required" VALUE="email,action">
+<INPUT TYPE="hidden" NAME="field_names" VALUE="email=Your Email Address">
+
+</FORM>
+
+<p class="emph">
+<b>Archived messages: <a HREF="mailArchive/maillist.html">sundials-users</a></b>
+</p>
+</div>
+
+<h1>
+Bugzilla Bug Tracking
+</h1>
+
+<div class="frame">
+SUNDIALS uses a system called Bugzilla to keep track of bugs. 
+Bugzilla is easy to use and makes it easy to see how your bug has progressed, 
+and when it is resolved.
+<br><br>
+To report a bug, you first must 
+<a href="http://www-casc.llnl.gov/bugs/createaccount.cgi" target="_blank">create a Bugzilla account</a> 
+(link will open in new window). 
+This is easy and only requires a valid email address. Once you create your account, a password 
+will be mailed to the email address you specified. You only need to create an account once, 
+and you can use it from then on out to report as many bugs as you can find.
+<br><br>
+Once you receive the password, you can 
+<a href="http://www-casc.llnl.gov/bugs/enter_bug.cgi?product=SUNDIALS" target="_blank">
+enter a new bug report</a> (new window).
+</div>
+
+<!-- ******************************************************************************** -->
+<div id="contact">
+For further information, contact<BR>
+Radu Serban <A HREF="mailto:radu@llnl.gov">radu@llnl.gov</A>, (925) 424-4852<BR>
+Carol Woodward <A HREF="mailto:cswoodward@llnl.gov">cswoodward@llnl.gov</A>, (925) 424-6013<BR>
+Alan Hindmarsh <A HREF="mailto:alanh@llnl.gov">alanh@llnl.gov</A>, (925) 422-4276<BR>
+</div>
+
+<!-- End content for this page -->
+  </div>
+  </td>
+
+  <td background="../graphics/table_bck3.gif"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="17" background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../graphics/table_bck4.gif"><img src="../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+
+  </table>
+
+</body>
+</html>
