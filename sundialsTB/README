@@ -92,6 +92,18 @@ sundialsTB comes with a startup_STB.m file in the top subdirectory
      first linking startup_STB.m to the destination subdir and then
      editing ~/matlab/startup.m to run startup_STB.m
 
+3.3  Since symbolic links do not work well with Matlab under Windows,
+     a different alternative of setting-up the startup is as follows:
+
+     Copy startup_STB next to MATLAB's startup.m and add these lines
+     to startup.m
+
+     % SUNDIALS Toolbox startup M-file
+     startup('path_to_sundialsTB')
+
+     using the optional argument of startup_STB to explicitly spceify
+     the location of sundialsTB.
+
 4. Compiling MEX files
 ----------------------
 
