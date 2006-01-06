@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>User Guide for sundialsTB</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+
+</head>
+
+<!-- ******************************************************************************** -->
+
+<body>
+
+
+<table width="100%" height="99%" border="0" cellpadding="0" cellspacing="0">
+
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_documentation_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0">
+  </td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0">
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0">
+  </td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+
+
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+
+<!-- Start content for this page -->
+
+
+<div class="title">sundialsTB, a Matlab Interface to SUNDIALS</div>
+
+
+<h1>Modules</h1>
+<div class="frame">
+<table>
+<tr>
+<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
+<td><a href="cvodes.html">cvodes</a></td>
+</tr>
+<tr>
+<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
+<td><a href="kinsol.html">kinsol</a></td>
+</tr>
+<tr>
+<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
+<td><a href="nvector.html">nvector</a></td>
+</tr>
+<tr>
+<td><img src="matlabicon.gif" alt="matlab" border=0 align="middle"></td>
+<td><a href="putils.html">putils</a></td>
+</tr>
+</table>
+</div>
+
+
+<h1>Requirements</h1>
+<div class="frame">
+Current release of SUNDIALS
+<br>
+Optionally, MPITB with LAM 7.1.1 (for MPI-2 features)
+</div>
+
+<h1>Installation</h1>
+<div class="frame">
+Install SUNDIALS
+<br>
+Modify Makefile (SUNDIALS location) in the mex directory and compile
+<br>
+Optionally, for parallel support, install LAM (local copy, since typical 
+installations only install static libraries) and MPITB
+<br>
+Add the following paths to your MATLAB startup.m script:
+<p style="padding-left:20px; margin:0px;">
+     <tt>sundialsTB/cvodes</tt> and <tt>sundialsTB/mex/cvm</tt> for CVODES<br>
+     <tt>sundialsTB/kinsol</tt> and <tt>sundialsTB/mex/kim</tt> for KINSOL<br>
+     <tt>sundialsTB/nvector</tt> and <tt>sundialsTB/mex/nvm</tt> for NVECTOR operations<br>
+     <tt>sundialsTB/putils</tt> for mpirun function
+</p>
+In matlab, try:
+<p style="padding-left:20px; margin:0px;">
+     <tt>help cvodes</tt><br>
+     <tt>help kinsol</tt><br>
+     <tt>help nvector</tt><br>
+     <tt>help putils</tt>
+</p>
+</div>
+
+<h1>Links</h1>
+<div class="frame">
+<table border="0" cellspacing="0" cellpadding="0" style="font-size: 1.2em;">
+<tr>
+ <td><a href="http://www.mathworks.com"><img src="matlab.png" alt="matlab" border=0 align="middle"></a></td>
+ <td width="30"></td>
+ <td><a href="http://atc.ugr.es/javier-bin/mpitb_eng"><img src="mpi.png" alt="mpitb" border=0 align="middle"></a></td>
+ <td width="30"></td>
+ <td><a href="http://www.lam-mpi.org"><img src="lam.png" alt="lam" border=0 align="middle"></a></td>
+</tr>
+<tr>
+ <td align="center"><a href="http://www.mathworks.com">Matlab</a></td>
+ <td></td>
+ <td align="center"><a href="http://atc.ugr.es/javier-bin/mpitb_eng">mpiTB</a></td>
+ <td></td>
+ <td align="center"><a href="http://www.lam-mpi.org">LAM</a></td>
+</tr>
+</table>
+</div>
+
+<div id="contact">
+For further information, contact <br> 
+Radu Serban <a href="mailto:radu@llnl.gov">radu@llnl.gov</a>, (925) 424-4852 <br> 
+</div>
+
+
+<!-- End content for this page -->
+  </div>
+  </td>
+
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+
+  </table>
+
+</body>
+</html>
+

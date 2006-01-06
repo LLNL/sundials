@@ -1,0 +1,53 @@
+\newpage
+\section{{\matlab} Interface to {\cvodes}}
+
+The {\matlab} interface to {\cvodes} provides access to all functionality of the 
+{\cvodes} solver, including IVP simulation and sensitvity analysis (both forward 
+and adjoint).
+
+The interface consists of 9 user-callable functions. The user must provide
+several required and optional user-supplied functions which define the problem to be solved.
+The user-callable functions and the types of user-supplied functions are listed in
+Table \ref{t:cvodes_fct} and fully documented later in this section.
+For more in depth details, consult also the {\cvodes} user guide~\cite{cvodes_ug}.
+
+To illustrate the use of the {\cvodes} {\matlab} interface, several example problems are provided
+with {\sundialsTB}, both for serial and parallel computations. Most of them are {\matlab} translations of example
+problems provided with {\cvodes}.
+
+\begin{table}[h]
+\centering
+\caption{{\cvodes} {\matlab} interface functions}
+\label{t:cvodes_fct}
+\medskip
+\begin{tabular}{|c||r|l|}
+  \hline
+  \multirow{9}{*}{\begin{sideways} Functions  \end{sideways}}
+  &  CVodeSetOptions & creates an options structure for {\cvodes}. \\
+  &  CVodeMalloc     & allocates and initializes memory for {\cvodes}. \\
+  &  CVodeMallocB    & allocates and initializes backward memory for {\cvodes}. \\
+  &  CVode           & integrates the ODE. \\
+  &  CVodeB          & integrates the backward ODE. \\
+  &  CVodeGetStats   & returns statistics for the {\cvodes} solver. \\
+  &  CVodeGetStatsB  & returns statistics for the backward {\cvodes} solver. \\
+  &  CVodeGet        & extracts data from {\cvodes} memory. \\
+  &  CVodeFree       & deallocates memory for the {\cvodes} solver. \\
+  &  CVodeMonitor    & sample monitoring function. \\
+  \hline
+  \multirow{13}{*}{\begin{sideways} Function types  \end{sideways}}
+  &  CVRhsFn         &  RHS function \\
+  &  CVRootFn        &  root-finding function  \\
+  &  CVQuadRhsFn     &  quadrature RHS function \\
+  &  CVDenseJacFn    &  dense Jacobian function \\
+  &  CVBandJacFn     &  banded Jacobian function \\
+  &  CVJacTimesVecFn &  Jacobian times vector function \\
+  &  CVPrecSetupFn   &  preconditioner setup function \\
+  &  CVPrecSolveFn   &  preconditioner solve function \\
+  &  CVGlocalFn      &  RHS approximation function (BBDPre) \\
+  &  CVGcommFn       &  communication function (BBDPre) \\
+  &  CVSensRhsFn     &  sensitivity RHS function \\
+  &  CVSensRhs1Fn    &  sensitivity RHS function (single) \\
+  &  CVMonitorFn     &  monitoring function \\
+ \hline
+\end{tabular}
+\end{table}
