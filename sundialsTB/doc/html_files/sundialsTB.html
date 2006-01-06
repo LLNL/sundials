@@ -103,31 +103,6 @@ Current release of SUNDIALS
 Optionally, MPITB with LAM 7.1.1 (for MPI-2 features)
 </div>
 
-<h1>Installation</h1>
-<div class="frame">
-Install SUNDIALS
-<br>
-Modify Makefile (SUNDIALS location) in the mex directory and compile
-<br>
-Optionally, for parallel support, install LAM (local copy, since typical 
-installations only install static libraries) and MPITB
-<br>
-Add the following paths to your MATLAB startup.m script:
-<p style="padding-left:20px; margin:0px;">
-     <tt>sundialsTB/cvodes</tt> and <tt>sundialsTB/mex/cvm</tt> for CVODES<br>
-     <tt>sundialsTB/kinsol</tt> and <tt>sundialsTB/mex/kim</tt> for KINSOL<br>
-     <tt>sundialsTB/nvector</tt> and <tt>sundialsTB/mex/nvm</tt> for NVECTOR operations<br>
-     <tt>sundialsTB/putils</tt> for mpirun function
-</p>
-In matlab, try:
-<p style="padding-left:20px; margin:0px;">
-     <tt>help cvodes</tt><br>
-     <tt>help kinsol</tt><br>
-     <tt>help nvector</tt><br>
-     <tt>help putils</tt>
-</p>
-</div>
-
 <h1>Links</h1>
 <div class="frame">
 <table border="0" cellspacing="0" cellpadding="0" style="font-size: 1.2em;">
