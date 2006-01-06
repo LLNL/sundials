@@ -21,6 +21,7 @@ echo $distrobase
 # README file, documentation
 
 tar cf $tarfile $distrobase/README
+tar cf $tarfile $distrobase/LICENSE
 tar uf $tarfile $distrobase/doc/sundialsTB.pdf
 tar uf $tarfile $distrobase/doc/sundialsTB.ps
 
