@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2005-11-30 19:45:11 $
+# $Revision: 1.15 $
+# $Date: 2006-01-06 20:50:35 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -15,6 +15,8 @@
 QUIET =
 
 SHARED_DOC = ../../shared/doc
+
+HTML_DIR = ../../html/documentation
 
 UG_FILES = \
 kin_guide.tex \
@@ -84,6 +86,14 @@ all:
 	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
 
+install: ug_pdf ex_pdf ug_html ex_html
+	cp kin_guide.ps $(HTML_DIR)
+	cp kin_guide.pdf $(HTML_DIR)
+	cp -r kin_guide $(HTML_DIR)
+	cp kin_examples.ps $(HTML_DIR)
+	cp kin_examples.pdf $(HTML_DIR)
+	cp -r kin_examples $(HTML_DIR)
+
 #-------------------------------------------------------------------------------
 
 ug: 	copy_ug kin_guide.aux
@@ -147,3 +157,4 @@ clean:
 purge:  clean
 	rm -f kin_guide.ps kin_guide.pdf
 	rm -f kin_examples.ps kin_examples.pdf
+	rm -rf kin_guide kin_examples

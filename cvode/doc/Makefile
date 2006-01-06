@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.20 $
-# $Date: 2005-11-30 19:45:03 $
+# $Revision: 1.21 $
+# $Date: 2006-01-06 20:50:29 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -15,6 +15,8 @@
 QUIET =
 
 SHARED_DOC = ../../shared/doc
+
+HTML_DIR = ../../html/documentation
 
 UG_FILES = \
 cv_guide.tex \
@@ -75,9 +77,6 @@ prev_g.png \
 up.png \
 up_g.png
 
-
-EX_DIR = cv_examples
-
 #-------------------------------------------------------------------------------
 
 all:
@@ -89,6 +88,14 @@ all:
 	@echo "  make clean  - remove all temporary files"
 	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
+
+install: ug_pdf ex_pdf ug_html ex_html
+	cp cv_guide.ps $(HTML_DIR)
+	cp cv_guide.pdf $(HTML_DIR)
+	cp -r cv_guide $(HTML_DIR)
+	cp cv_examples.ps $(HTML_DIR)
+	cp cv_examples.pdf $(HTML_DIR)
+	cp -r cv_examples $(HTML_DIR)
 
 #-------------------------------------------------------------------------------
 
@@ -150,6 +157,8 @@ clean:
 	rm -rf ${UG_SHARED_FILES}
 	rm -rf ${EX_SHARED_FILES}
 	rm -f *~ *.aux *.bbl *.blg *.log *.toc *.lot *.lof *.ind *.ilg *.idx *.dvi *.out
+
 purge:  clean
 	rm -f cv_guide.ps cv_guide.pdf
 	rm -f cv_examples.ps cv_examples.pdf
+	rm -rf cv_guide cv_examples

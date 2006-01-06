@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.14 $
-# $Date: 2005-11-30 19:45:09 $
+# $Revision: 1.15 $
+# $Date: 2006-01-06 20:50:33 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -15,6 +15,8 @@
 QUIET =
 
 SHARED_DOC = ../../shared/doc
+
+HTML_DIR = ../../html/documentation
 
 UG_FILES = \
 ida_guide.tex \
@@ -85,6 +87,14 @@ all:
 	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
 
+install: ug_pdf ex_pdf ug_html ex_html
+	cp ida_guide.ps $(HTML_DIR)
+	cp ida_guide.pdf $(HTML_DIR)
+	cp -r ida_guide $(HTML_DIR)
+	cp ida_examples.ps $(HTML_DIR)
+	cp ida_examples.pdf $(HTML_DIR)
+	cp -r ida_examples $(HTML_DIR)
+
 #-------------------------------------------------------------------------------
 
 ug: 	copy_ug ida_guide.aux
@@ -148,4 +158,4 @@ clean:
 purge:  clean
 	rm -f ida_guide.ps ida_guide.pdf
 	rm -f ida_examples.ps ida_examples.pdf
-
+	rm -rf ida_guide ida_examples

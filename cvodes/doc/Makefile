@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.19 $
-# $Date: 2005-11-30 19:45:06 $
+# $Revision: 1.20 $
+# $Date: 2006-01-06 20:50:31 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -15,6 +15,8 @@
 QUIET =
 
 SHARED_DOC = ../../shared/doc
+
+HTML_DIR = ../../html/documentation
 
 UG_FILES = \
 cvs_guide.tex \
@@ -85,6 +87,15 @@ all:
 	@echo "  make purge  - remove temporary files + PS + PDF files"
 	@echo ""
 
+install: ug_pdf ex_pdf ug_html ex_html
+	cp cvs_guide.ps $(HTML_DIR)
+	cp cvs_guide.pdf $(HTML_DIR)
+	cp -r cvs_guide $(HTML_DIR)
+	cp cvs_examples.ps $(HTML_DIR)
+	cp cvs_examples.pdf $(HTML_DIR)
+	cp -r cvs_examples $(HTML_DIR)
+
+
 #-------------------------------------------------------------------------------
 
 ug: 	copy_ug cvs_guide.aux
@@ -148,3 +159,4 @@ clean:
 purge:  clean
 	rm -f cvs_guide.ps cvs_guide.pdf
 	rm -f cvs_examples.ps cvs_examples.pdf
+	rm -rf cvs_guide cvs_examples
