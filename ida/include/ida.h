@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2005-10-25 22:54:42 $
+ * $Revision: 1.38 $
+ * $Date: 2006-01-10 16:14:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -315,10 +315,11 @@ int IDASetTolerances(void *ida_mem, int itol, realtype rtol, void *atol);
  *                                                                
  * itol    is the type of tolerances to be used.                  
  *            The legal values are:                               
- *               SS (scalar relative and absolute  tolerances),   
- *               SV (scalar relative tolerance and vector         
- *                   absolute tolerance).                         
- *                                                                
+ *               IDA_SS (scalar relative and absolute  tolerances),   
+ *               IDA_SV (scalar relative tolerance and vector         
+ *                       absolute tolerance).                         
+ *               IDA_WF (user-provided weight function)                       
+ *                                         
  * rtol    is the relative tolerance scalar.         
  *                                                                
  * atol    is a pointer (void) to the absolute tolerance scalar or
