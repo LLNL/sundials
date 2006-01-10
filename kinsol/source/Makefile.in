@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2006-01-10 00:50:38 $
+# $Revision: 1.18 $
+# $Date: 2006-01-10 01:39:19 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -77,7 +77,7 @@ install: shared $(KINSOL_LIB_FILES)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspils.h $(includedir)
 
 shared:
-	@cd $(SRC_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(KINSOL_LIB)

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2006-01-10 00:50:40 $
+# $Revision: 1.18 $
+# $Date: 2006-01-10 01:39:22 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -15,6 +15,8 @@
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
+
+@SET_MAKE@
 
 srcdir       = @srcdir@
 builddir     = @builddir@
@@ -44,6 +46,8 @@ LIBS        = @LIBS@
 
 FCMIX_ENABLED = @FCMIX_ENABLED@
 
+SHARED_BUILD_DIR = $(top_builddir)/shared/source
+
 MPI_INC_DIR     = @MPI_INC_DIR@
 CONFIG_INC_DIR  = $(top_builddir)/config
 SHARED_INC_DIR  = $(srcdir)/../shared/include
@@ -55,18 +59,23 @@ NVECPAR_LIB_FILES = nvector_parallel.lo
 FNVECPAR_LIB       = libsundials_fnvecparallel.la
 FNVECPAR_LIB_FILES = fnvector_parallel.lo
 
+SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundialsmath.lo
+
 all: $(NVECPAR_LIB_FILES) $(FNVECPAR_LIB_FILES)
 
-install: $(NVECPAR_LIB_FILES) $(FNVECPAR_LIB_FILES)
-	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECPAR_LIB) $(NVECPAR_LIB_FILES) $(LDFLAGS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) -rpath $(libdir) -version-info 0:0:0
+install: shared $(NVECPAR_LIB_FILES) $(FNVECPAR_LIB_FILES)
+	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECPAR_LIB) $(NVECPAR_LIB_FILES) $(SHARED_LIB_FILES) $(LDFLAGS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) -rpath $(libdir) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECPAR_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECPAR_INC_DIR)/nvector_parallel.h $(includedir)
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                                \
-	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPAR_LIB} ${FNVECPAR_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info 0:0:0" ; \
-	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPAR_LIB} ${FNVECPAR_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info 0:0:0 ;        \
+	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPAR_LIB} ${FNVECPAR_LIB_FILES} $(SHARED_LIB_FILES) ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info 0:0:0" ; \
+	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPAR_LIB} ${FNVECPAR_LIB_FILES} $(SHARED_LIB_FILES) ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info 0:0:0 ;        \
 	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECPAR_LIB} ${libdir}" ;                                                                                                                                    \
 	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECPAR_LIB} ${libdir} ;                                                                                                                                           \
 	 fi
+
+shared:
+	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(NVECPAR_LIB)

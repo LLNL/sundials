@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2006-01-10 00:50:22 $
+# $Revision: 1.17 $
+# $Date: 2006-01-10 01:39:17 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -78,7 +78,7 @@ install: shared $(IDAS_LIB_FILES)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaspils.h $(includedir)
 
 shared:
-	@cd $(SRC_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(IDAS_LIB)

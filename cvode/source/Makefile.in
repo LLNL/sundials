@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2006-01-10 00:49:47 $
+# $Revision: 1.18 $
+# $Date: 2006-01-10 01:39:07 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -79,7 +79,7 @@ install: shared $(CVODE_LIB_FILES)
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvbbdpre.h $(includedir)
 
 shared:
-	@cd $(SRC_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(CVODE_LIB)

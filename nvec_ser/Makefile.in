@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2006-01-10 00:50:43 $
+# $Revision: 1.18 $
+# $Date: 2006-01-10 01:39:24 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -15,6 +15,8 @@
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
+
+@SET_MAKE@
 
 srcdir       = @srcdir@
 builddir     = @builddir@
@@ -41,6 +43,8 @@ LIBS     = @LIBS@
 
 FCMIX_ENABLED = @FCMIX_ENABLED@
 
+SHARED_BUILD_DIR = $(top_builddir)/shared/source
+
 CONFIG_INC_DIR  = $(top_builddir)/config
 SHARED_INC_DIR  = $(srcdir)/../shared/include
 NVECSER_INC_DIR = $(srcdir)
@@ -51,18 +55,23 @@ NVECSER_LIB_FILES = nvector_serial.lo
 FNVECSER_LIB       = libsundials_fnvecserial.la
 FNVECSER_LIB_FILES = fnvector_serial.lo
 
+SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundialsmath.lo
+
 all: $(NVECSER_LIB_FILES) $(FNVECSER_LIB_FILES)
 
-install: $(NVECSER_LIB_FILES) $(FNVECSER_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECSER_LIB) $(NVECSER_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
+install: shared $(NVECSER_LIB_FILES) $(FNVECSER_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(NVECSER_LIB) $(NVECSER_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECSER_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECSER_INC_DIR)/nvector_serial.h $(includedir)
 	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                    \
-	   echo "${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECSER_LIB} ${FNVECSER_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info 0:0:0" ; \
-	   ${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECSER_LIB} ${FNVECSER_LIB_FILES} -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info 0:0:0 ;        \
+	   echo "${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECSER_LIB} ${FNVECSER_LIB_FILES} $(SHARED_LIB_FILES) -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info 0:0:0" ; \
+	   ${LIBTOOL} --mode=link ${CC} ${CFLAGS} -o ${FNVECSER_LIB} ${FNVECSER_LIB_FILES} $(SHARED_LIB_FILES) -rpath ${libdir} $(LDFLAGS) ${LIBS} -static -version-info 0:0:0 ;        \
 	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECSER_LIB} ${libdir}" ;                                                                          \
 	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECSER_LIB} ${libdir} ;                                                                                 \
 	 fi
+
+shared:
+	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(NVECSER_LIB)
