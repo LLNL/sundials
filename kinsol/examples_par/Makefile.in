@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.10 $
-# $Date: 2005-12-08 21:03:17 $
+# $Revision: 1.11 $
+# $Date: 2006-01-10 00:50:25 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -17,8 +17,8 @@
 SHELL = @SHELL@
 
 srcdir       = @srcdir@
-builddir     = @builddir@
 top_builddir = @top_builddir@
+builddir     = @builddir@
 prefix       = @prefix@
 exec_prefix  = @exec_prefix@
 includedir   = @includedir@
@@ -45,7 +45,7 @@ LINKER_PREFIX   = @LINKER_PREFIX@
 
 SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
-SUNDIALS_LIBS    = -lsundials_kinsol -lsundials_nvecparallel -lsundials_shared
+SUNDIALS_LIBS    = -lsundials_kinsol -lsundials_nvecparallel
 
 EXEC_FILES = kinkryx_p kinkry_bbd_p
 

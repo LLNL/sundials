@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.2 $
-# $Date: 2005-06-16 18:17:26 $
+# $Revision: 1.3 $
+# $Date: 2006-01-10 00:49:59 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -40,7 +40,7 @@ LINKER_PREFIX   = @LINKER_PREFIX@
 
 SUNDIALS_INC_DIR = $(includedir)
 SUNDIALS_LIB_DIR = $(libdir)
-SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecserial -lsundials_shared
+SUNDIALS_LIBS    = -lsundials_cvodes -lsundials_nvecserial
 
 EXEC_FILES = cvdx1 cvfdx1
 

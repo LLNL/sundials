@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2005-11-28 21:30:23 $
+# $Revision: 1.17 $
+# $Date: 2006-01-10 00:50:38 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -15,6 +15,8 @@
 # -----------------------------------------------------------------
 
 SHELL = @SHELL@
+
+@SET_MAKE@
 
 srcdir       = @srcdir@
 builddir     = @builddir@
@@ -39,21 +41,31 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-SHARED_INC_DIR   = $(srcdir)/../../shared/include
-KINSOL_INC_DIR   = $(srcdir)/../include
+SHARED_BUILD_DIR = $(top_builddir)/shared/source
+
+CONFIG_INC_DIR = $(top_builddir)/config
+SHARED_INC_DIR = $(srcdir)/../../shared/include
+KINSOL_INC_DIR = $(srcdir)/../include
 
 KINSOL_LIB       = libsundials_kinsol.la
+
 KINSOL_LIB_FILES = kinsol.lo kinsolio.lo kindense.lo kinband.lo kinspgmr.lo kinspbcg.lo kinsptfqmr.lo kinbbdpre.lo
+KINSOL_OBJ_FILES = kinsol.o kinsolio.o kindense.o kinband.o kinspgmr.o kinspbcg.o kinsptfqmr.o kinbbdpre.o
 
-OBJECT_FILES = kinsol.o kinsolio.o kindense.o kinband.o kinspgmr.o kinspbcg.o kinsptfqmr.o kinbbdpre.o
+SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/band.lo \
+                   $(SHARED_BUILD_DIR)/dense.lo \
+                   $(SHARED_BUILD_DIR)/iterative.lo \
+                   $(SHARED_BUILD_DIR)/sundialsmath.lo \
+                   $(SHARED_BUILD_DIR)/nvector.lo \
+                   $(SHARED_BUILD_DIR)/smalldense.lo \
+                   $(SHARED_BUILD_DIR)/spgmr.lo \
+                   $(SHARED_BUILD_DIR)/spbcg.lo \
+                   $(SHARED_BUILD_DIR)/sptfqmr.lo
 
-all: update $(KINSOL_LIB_FILES)
+all: $(KINSOL_LIB_FILES)
 
-update:
-	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
-
-install: update $(KINSOL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
+install: shared $(KINSOL_LIB_FILES)
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_LIB) $(libdir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinsol.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kindense.h $(includedir)
@@ -64,11 +76,13 @@ install: update $(KINSOL_LIB_FILES)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinbbdpre.h $(includedir)
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinspils.h $(includedir)
 
+shared:
+	@cd $(SRC_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(KINSOL_LIB)
 	rm -f $(KINSOL_LIB_FILES)
-	rm -f $(OBJECT_FILES)
-	rm -f sundials_config.h
+	rm -f $(KINSOL_OBJ_FILES)
 
 uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(KINSOL_LIB)
@@ -82,21 +96,21 @@ uninstall: clean
 	rm -f $(includedir)/kinspils.h
 
 kinsol.lo: $(srcdir)/kinsol.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol.c
 kinsolio.lo: $(srcdir)/kinsolio.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsolio.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsolio.c
 kindense.lo: $(srcdir)/kindense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kindense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kindense.c
 kinband.lo: $(srcdir)/kinband.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinband.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinband.c
 kinspgmr.lo: $(srcdir)/kinspgmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspgmr.c
 kinspbcg.lo: $(srcdir)/kinspbcg.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspbcg.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinspbcg.c
 kinsptfqmr.lo: $(srcdir)/kinsptfqmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsptfqmr.c
 kinbbdpre.lo: $(srcdir)/kinbbdpre.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinbbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinbbdpre.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

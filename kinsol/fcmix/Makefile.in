@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2005-11-28 21:30:18 $
+# $Revision: 1.14 $
+# $Date: 2006-01-10 00:50:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,21 +39,22 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
-SHARED_INC_DIR   = $(srcdir)/../../shared/include
-KINSOL_INC_DIR   = $(srcdir)/../include
-FKINSOL_INC_DIR  = $(srcdir)
+CONFIG_INC_DIR  = $(top_builddir)/config
+SHARED_INC_DIR  = $(srcdir)/../../shared/include
+KINSOL_INC_DIR  = $(srcdir)/../include
+KINSOL_SRC_DIR  = $(srcdir)/../source
+FKINSOL_INC_DIR = $(srcdir)
+
+INCLUDES = -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(KINSOL_SRC_DIR) -I$(FKINSOL_INC_DIR)
 
 FKINSOL_LIB       = libsundials_fkinsol.la
 FKINSOL_LIB_FILES = fkinsol.lo fkinpreco.lo fkinjtimes.lo fkinbbd.lo fkindense.lo
 
 OBJECT_FILES = fkinsol.o fkinpreco.o fkinjtimes.o fkinbbd.o fkindense.o
 
-all: update $(FKINSOL_LIB_FILES)
+all: $(FKINSOL_LIB_FILES)
 
-update:
-	${INSTALL_HEADER} ${top_builddir}/config/sundials_config.h ${builddir}
-
-install: update $(FKINSOL_LIB_FILES)
+install: $(FKINSOL_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FKINSOL_LIB) $(FKINSOL_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FKINSOL_LIB) $(libdir)
 
@@ -61,21 +62,20 @@ clean:
 	$(LIBTOOL) --mode=clean rm -f $(FKINSOL_LIB)
 	rm -f $(FKINSOL_LIB_FILES)
 	rm -f $(OBJECT_FILES)
-	rm -f sundials_config.h
 
 uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FKINSOL_LIB)
 
 fkinsol.lo: $(srcdir)/fkinsol.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinsol.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinsol.c
 fkinpreco.lo: $(srcdir)/fkinpreco.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinpreco.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinpreco.c
 fkinjtimes.lo: $(srcdir)/fkinjtimes.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinjtimes.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinjtimes.c
 fkinbbd.lo: $(srcdir)/fkinbbd.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkinbbd.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkinbbd.c
 fkindense.lo: $(srcdir)/fkindense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I. -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) -I$(FKINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/fkindense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fkindense.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \
