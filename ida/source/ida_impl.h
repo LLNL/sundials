@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2005-07-19 21:35:40 $
+ * $Revision: 1.18 $
+ * $Date: 2006-01-11 21:13:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -22,12 +22,7 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-
 #include "ida.h"
-
-#include "sundialstypes.h"
-#include "nvector.h"
 
 /* Prototype of internal ewtSet function */
 

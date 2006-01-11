@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-08 21:03:17 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -80,14 +80,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"    /* def's of realtype and booleantype            */
-#include "kinsol.h"           /* main KINSol header file                      */
-#include "iterative.h"        /* enum for types of preconditioning            */
-#include "kinspgmr.h"         /* use KINSpgmr linear solver                   */
-#include "smalldense.h"       /* use generic DENSE solver for preconditioning */
-#include "nvector_parallel.h" /* definitions of type N_Vector, access macros  */
-#include "sundialsmath.h"     /* contains RSqrt routine                       */
-#include "mpi.h"              /* MPI include file                             */
+
+#include "kinsol.h"              /* main KINSol header file                      */
+#include "nvector_parallel.h"    /* definitions of type N_Vector, access macros  */
+#include "kinsol_spgmr.h"        /* use KINSpgmr linear solver                   */
+#include "sundials_smalldense.h" /* use generic DENSE solver for preconditioning */
+#include "sundials_types.h"      /* def's of realtype and booleantype            */
+#include "sundials_math.h"       /* contains RSqrt routine                       */
+
+#include "mpi.h"                 /* MPI include file                             */
 
 
 /* Problem Constants */

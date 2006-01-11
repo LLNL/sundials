@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-05-18 18:17:39 $
+ * $Revision: 1.14 $
+ * $Date: 2006-01-11 21:13:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -19,13 +19,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fkinsol.h"        /* prototypes of interfaces and global variables */
-#include "kinsol.h"         /* KINSOL constants and prototypes               */
-#include "kinsptfqmr.h"     /* prototypes of KINSPTFQMR interface routines   */
-#include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
-#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
-#include "nvector.h"        /* definition of type N_Vector                   */
-#include "sundialstypes.h"  /* definition of type realtype                   */
+#include "fkinsol.h"          /* prototypes of interfaces and global variables */
+#include "kinsol.h"           /* KINSOL constants and prototypes               */
+#include "kinsol_sptfqmr.h"   /* prototypes of KINSPTFQMR interface routines   */
+#include "kinsol_spbcgs.h"    /* prototypes of KINSPBCG interface routines     */
+#include "kinsol_spgmr.h"     /* prototypes of KINSPGMR interface routines     */
+#include "sundials_nvector.h" /* definition of type N_Vector                   */
+#include "sundials_types.h"   /* definition of type realtype                   */
 
 /*
  * ----------------------------------------------------------------

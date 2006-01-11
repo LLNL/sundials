@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2005-09-23 19:41:57 $
+ * $Revision: 1.40 $
+ * $Date: 2006-01-11 21:13:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -24,16 +24,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fkinsol.h"        /* prototypes of interfaces and global variables */
-#include "kinsol.h"         /* KINSOL constants and prototypes               */
-#include "kinband.h"        /* prototypes of KINBAND interface routines      */
-#include "kindense.h"       /* prototypes of KINDENSE interface routines     */
-#include "kinsptfqmr.h"     /* prototypes of KINSPTFQMR interface routines   */
-#include "kinspbcg.h"       /* prototypes of KINSPBCG interface routines     */
-#include "kinspgmr.h"       /* prototypes of KINSPGMR interface routines     */
-#include "nvector.h"        /* definition of type N_Vector and prototypes
-                               of related routines                           */
-#include "sundialstypes.h"  /* definition of type realtype                   */
+#include "fkinsol.h"          /* prototypes of interfaces and global variables */
+#include "kinsol.h"           /* KINSOL constants and prototypes               */
+#include "kinsol_band.h"      /* prototypes of KINBAND interface routines      */
+#include "kinsol_dense.h"     /* prototypes of KINDENSE interface routines     */
+#include "kinsol_sptfqmr.h"   /* prototypes of KINSPTFQMR interface routines   */
+#include "kinsol_spbcgs.h"    /* prototypes of KINSPBCG interface routines     */
+#include "kinsol_spgmr.h"     /* prototypes of KINSPGMR interface routines     */
+#include "sundials_nvector.h" /* definition of type N_Vector and prototypes
+                                 of related routines                           */
+#include "sundials_types.h"   /* definition of type realtype                   */
 
 /*
  * ----------------------------------------------------------------

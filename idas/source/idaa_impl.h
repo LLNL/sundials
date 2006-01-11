@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-01-26 22:18:55 $
+ * $Revision: 1.6 $
+ * $Date: 2006-01-11 21:13:56 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,13 +26,13 @@ extern "C" {
 #include "idaa.h"
 
 #include "idas_impl.h"
-#include "idadense_impl.h"
-#include "idaband_impl.h"
-#include "idaspgmr_impl.h"
-#include "idabbdpre_impl.h"
+#include "idas_dense_impl.h"
+#include "idas_band_impl.h"
+#include "idas_spgmr_impl.h"
+#include "idas_bbdpre_impl.h"
 
-#include "nvector.h"
-#include "sundialstypes.h"
+#include "sundials_nvector.h"
+#include "sundials_types.h"
 
   /*
    *                                                                

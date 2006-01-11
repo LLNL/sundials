@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-09-23 19:23:29 $
+ * $Revision: 1.16 $
+ * $Date: 2006-01-11 21:13:55 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -22,12 +22,14 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include "dense.h"
-#include "band.h"
-#include "spgmr.h"
-#include "sundialstypes.h"
-#include "nvector.h"
-  
+
+#include "sundials_dense.h"
+#include "sundials_band.h"
+#include "sundials_sptfqmr.h"
+#include "sundials_spbcgs.h"
+#include "sundials_spgmr.h"
+#include "sundials_nvector.h"
+
   /******************************************************************
    *                                                                *
    * Type : IDAResFnB                                                  *

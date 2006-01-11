@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-09-23 19:00:15 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-11 21:13:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -28,10 +28,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "sundialstypes.h"
+
 #include "cvodes.h"
-#include "cvdense.h"
 #include "nvector_serial.h"
+#include "cvodes_dense.h"
+#include "sundials_types.h"
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 #define Ith(v,i)    NV_Ith_S(v,i-1)

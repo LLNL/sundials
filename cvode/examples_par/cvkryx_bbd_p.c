@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-13 23:20:28 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:45 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -54,14 +54,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"     /* definition of type realtype                 */
-#include "sundialsmath.h"      /* definition of macro SQR                     */
-#include "cvode.h"             /* prototypes for CVode* and various constants */
-#include "cvspgmr.h"           /* prototypes and constants for CVSPGMR solver */
-#include "cvbbdpre.h"          /* prototypes for CVBBDPRE module              */
-#include "nvector_parallel.h"  /* definition of type N_Vector and macro       */
-                               /* NV_DATA_P                                   */
-#include "mpi.h"               /* MPI constants and types                     */
+
+#include "cvode.h"            /* prototypes for CVode* and various constants     */
+#include "nvector_parallel.h" /* definition of type N_Vector and macro NV_DATA_P */
+#include "cvode_spgmr.h"      /* prototypes and constants for CVSPGMR solver     */
+#include "cvode_bbdpre.h"     /* prototypes for CVBBDPRE module                  */
+#include "sundials_types.h"   /* definitions of realtype, booleantype            */
+#include "sundials_math.h"    /* definition of macro SQR                         */
+
+#include "mpi.h"              /* MPI constants and types                         */
 
 
 /* Problem Constants */

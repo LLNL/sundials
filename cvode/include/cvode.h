@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2005-11-07 22:28:39 $
+ * $Revision: 1.35 $
+ * $Date: 2006-01-11 21:13:46 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -24,8 +24,7 @@ extern "C" {
 
 #include <stdio.h>
 
-#include "nvector.h"
-#include "sundialstypes.h"
+#include "sundials_nvector.h"
 
 /*
  * -----------------------------------------------------------------

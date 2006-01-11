@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 19:14:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -47,9 +47,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "sundialstypes.h"
+
 #include "cvodes.h"
 #include "nvector_serial.h"
+#include "sundials_types.h"
 
 /* Problem Constants */
 #define XMAX  RCONST(2.0)   /* domain boundary           */

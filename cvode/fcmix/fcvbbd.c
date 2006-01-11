@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2005-10-18 23:21:51 $
+ * $Revision: 1.27 $
+ * $Date: 2006-01-11 21:13:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -21,15 +21,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvbbdpre.h"      /* prototypes of CVBBDPRE functions and macros    */
-#include "cvode.h"         /* CVODE constants and prototypes                 */
-#include "cvsptfqmr.h"     /* prototypes of CVSPTFQMR interface routines     */
-#include "cvspbcg.h"       /* prototypes of CVSPBCG interface routines       */
-#include "cvspgmr.h"       /* prototypes of CVSPGMR interface routines       */
-#include "fcvbbd.h"        /* prototypes of interfaces to CVBBDPRE           */
-#include "fcvode.h"        /* actual function names, prototypes, global vars.*/
-#include "nvector.h"       /* definition of type N_Vector                    */
-#include "sundialstypes.h" /* definition of type realtype                    */
+#include "fcvbbd.h"           /* prototypes of interfaces to CVBBDPRE           */
+#include "fcvode.h"           /* actual function names, prototypes, global vars.*/
+#include "cvode.h"            /* CVODE constants and prototypes                 */
+#include "cvode_bbdpre.h"     /* prototypes of CVBBDPRE functions and macros    */
+#include "cvode_sptfqmr.h"    /* prototypes of CVSPTFQMR interface routines     */
+#include "cvode_spbcgs.h"     /* prototypes of CVSPBCG interface routines       */
+#include "cvode_spgmr.h"      /* prototypes of CVSPGMR interface routines       */
+#include "sundials_nvector.h" /* definition of type N_Vector                    */
+#include "sundials_types.h"   /* definition of type realtype                    */
 
 /***************************************************************************/
 

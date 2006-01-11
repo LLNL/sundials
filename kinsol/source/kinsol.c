@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.45 $
- * $Date: 2005-10-20 22:56:56 $
+ * $Revision: 1.46 $
+ * $Date: 2006-01-11 21:14:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -22,7 +22,7 @@
 #include <math.h>
 
 #include "kinsol_impl.h"
-#include "sundialsmath.h"
+#include "sundials_math.h"
 
 /*
  * -----------------------------------------------------------------

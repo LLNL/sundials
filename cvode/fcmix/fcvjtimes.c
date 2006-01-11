@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.24 $
+ * $Date: 2006-01-11 21:13:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -21,13 +21,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvsptfqmr.h"      /* CVSptfqmr prototype                            */
-#include "cvspbcg.h"        /* CVSpbcg prototype                              */
-#include "cvspgmr.h"        /* CVSpgmr prototype                              */
-#include "fcvode.h"         /* actual fn. names, prototypes and global vars.  */
-#include "nvector.h"        /* definitions of type N_Vector and vector macros */
-#include "sundialstypes.h"  /* definition of type realtype                    */
-#include "cvode_impl.h"     /* definition of CVodeMem type                    */
+#include "cvode_sptfqmr.h"    /* CVSptfqmr prototype                            */
+#include "cvode_spbcgs.h"     /* CVSpbcg prototype                              */
+#include "cvode_spgmr.h"      /* CVSpgmr prototype                              */
+#include "fcvode.h"           /* actual fn. names, prototypes and global vars.  */
+#include "cvode_impl.h"       /* definition of CVodeMem type                    */
+#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
+#include "sundials_types.h"   /* definition of type realtype                    */
 
 /***************************************************************************/
 

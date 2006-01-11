@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-03 20:53:24 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for KINSol (parallel machine case) using the BBD
+ * Example problem for KINSOL (parallel machine case) using the BBD
  * preconditioner.
  *
  * This example solves a nonlinear system that arises from a system
@@ -85,15 +85,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"     /* def's of realtype and booleantype           */
-#include "kinsol.h"            /* main KINSol header file                     */
-#include "iterative.h"         /* enum for types of preconditioning           */
-#include "kinspgmr.h"          /* use KINSpgmr linear solver                  */
-#include "smalldense.h"        /* use generic DENSE solver for preconditioning*/
-#include "nvector_parallel.h"  /* def's of type N_Vector, macro NV_DATA_P     */
-#include "sundialsmath.h"      /* contains RSqrt routine                      */
-#include "mpi.h"               /* MPI include file                            */
-#include "kinbbdpre.h"         /* band preconditioner function prototypes     */
+
+#include "kinsol.h"              /* main KINSol header file                     */
+#include "nvector_parallel.h"    /* def's of type N_Vector, macro NV_DATA_P     */
+#include "kinsol_spgmr.h"        /* use KINSpgmr linear solver                  */
+#include "kinsol_bbdpre.h"       /* band preconditioner function prototypes     */
+#include "sundials_smalldense.h" /* Definition of denalloc                      */
+#include "sundials_math.h"       /* contains RSqrt routine                      */
+#include "sundials_types.h"      /* def's of realtype and booleantype           */
+
+#include "mpi.h"                 /* MPI include file                            */
+
 
 /* Problem Constants */
 

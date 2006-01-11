@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2005-08-16 16:48:15 $
+ * $Revision: 1.40 $
+ * $Date: 2006-01-11 21:13:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -503,10 +503,10 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#include "dense.h"          /* definition of DenseMat      */
-#include "band.h"           /* definition of BandMat      */
-#include "nvector.h"        /* definition of type N_Vector */
-#include "sundialstypes.h"  /* definition of type realtype */
+#include "sundials_dense.h"   /* definition of DenseMat      */
+#include "sundials_band.h"    /* definition of BandMat      */
+#include "sundials_nvector.h" /* definition of type N_Vector */
+#include "sundials_types.h"   /* definition of type realtype */
 
 /*
  * -----------------------------------------------------------------

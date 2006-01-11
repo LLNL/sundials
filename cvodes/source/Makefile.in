@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.20 $
-# $Date: 2006-01-10 01:39:12 $
+# $Revision: 1.21 $
+# $Date: 2006-01-11 21:13:50 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,35 +49,38 @@ CVODES_INC_DIR = $(srcdir)/../include
 
 CVODES_LIB = libsundials_cvodes.la
 
-CVODES_LIB_FILES = cvodes.lo cvodesio.lo cvodea.lo cvband.lo cvdense.lo cvdiag.lo cvspbcg.lo cvspgmr.lo cvsptfqmr.lo cvbandpre.lo cvbbdpre.lo
-CVODES_OBJ_FILES = cvodes.o cvodesio.o cvodea.o cvband.o cvdense.o cvdiag.o cvspbcg.o cvspgmr.o cvsptfqmr.o cvbandpre.o cvbbdpre.o
+CVODES_LIB_FILES = cvodes.lo cvodes_io.lo cvodea.lo cvodes_band.lo cvodes_dense.lo cvodes_diag.lo cvodes_spbcgs.lo cvodes_spgmr.lo cvodes_sptfqmr.lo cvodes_bandpre.lo cvodes_bbdpre.lo
+CVODES_OBJ_FILES = cvodes.o cvodes_io.o cvodea.o cvodes_band.o cvodes_dense.o cvodes_diag.o cvodes_spbcgs.o cvodes_spgmr.o cvodes_sptfqmr.o cvodes_bandpre.o cvodes_bbdpre.o
 
-SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/band.lo \
-                   $(SHARED_BUILD_DIR)/dense.lo \
-                   $(SHARED_BUILD_DIR)/iterative.lo \
-                   $(SHARED_BUILD_DIR)/sundialsmath.lo \
-                   $(SHARED_BUILD_DIR)/nvector.lo \
-                   $(SHARED_BUILD_DIR)/smalldense.lo \
-                   $(SHARED_BUILD_DIR)/spgmr.lo \
-                   $(SHARED_BUILD_DIR)/spbcg.lo \
-                   $(SHARED_BUILD_DIR)/sptfqmr.lo
+SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
+                   $(SHARED_BUILD_DIR)/sundials_dense.lo \
+                   $(SHARED_BUILD_DIR)/sundials_iterative.lo \
+                   $(SHARED_BUILD_DIR)/sundials_math.lo \
+                   $(SHARED_BUILD_DIR)/sundials_nvector.lo \
+                   $(SHARED_BUILD_DIR)/sundials_smalldense.lo \
+                   $(SHARED_BUILD_DIR)/sundials_spgmr.lo \
+                   $(SHARED_BUILD_DIR)/sundials_spbcgs.lo \
+                   $(SHARED_BUILD_DIR)/sundials_sptfqmr.lo
 
 all: $(CVODES_LIB_FILES)
 
 install: shared $(CVODES_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODES_LIB) $(CVODES_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODES_LIB) $(libdir)
+	$(INSTALL) -d $(includedir)/cvodes
 	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes.h $(includedir)
 	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodea.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvdense.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvband.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvdiag.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvspils.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvspbcg.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvspgmr.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvsptfqmr.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvbandpre.h $(includedir)
-	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvbbdpre.h $(includedir)
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_dense.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_band.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_diag.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_spils.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_spbcgs.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_spgmr.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_sptfqmr.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_bandpre.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(CVODES_INC_DIR)/cvodes_bbdpre.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(srcdir)/cvodes_impl.h $(includedir)/cvodes
+	$(INSTALL_HEADER) $(srcdir)/cvodea_impl.h $(includedir)/cvodes
 
 shared:
 	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
@@ -91,38 +94,43 @@ uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(CVODES_LIB)
 	rm -f $(includedir)/cvodes.h
 	rm -f $(includedir)/cvodea.h
-	rm -f $(includedir)/cvdense.h
-	rm -f $(includedir)/cvband.h
-	rm -f $(includedir)/cvdiag.h
-	rm -f $(includedir)/cvspils.h
-	rm -f $(includedir)/cvspbcg.h
-	rm -f $(includedir)/cvspgmr.h
-	rm -f $(includedir)/cvsptfqmr.h
-	rm -f $(includedir)/cvbandpre.h
-	rm -f $(includedir)/cvbbdpre.h
+	rm -f $(includedir)/cvodes/cvodes_dense.h
+	rm -f $(includedir)/cvodes/cvodes_band.h
+	rm -f $(includedir)/cvodes/cvodes_diag.h
+	rm -f $(includedir)/cvodes/cvodes_spils.h
+	rm -f $(includedir)/cvodes/cvodes_spbcgs.h
+	rm -f $(includedir)/cvodes/cvodes_spgmr.h
+	rm -f $(includedir)/cvodes/cvodes_sptfqmr.h
+	rm -f $(includedir)/cvodes/cvodes_bandpre.h
+	rm -f $(includedir)/cvodes/cvodes_bbdpre.h
+	rm -f $(includedir)/cvodes/cvodes_impl.h
+	rm -f $(includedir)/cvodes/cvodea_impl.h
+	@if test -d $(includedir)/cvodes ; then \
+	   rmdir $(includedir)/cvodes ;         \
+	fi
 
 cvodes.lo: $(srcdir)/cvodes.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes.c
-cvodesio.lo: $(srcdir)/cvodesio.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodesio.c
+cvodes_io.lo: $(srcdir)/cvodes_io.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_io.c
 cvodea.lo: $(srcdir)/cvodea.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodea.c
-cvdense.lo: $(srcdir)/cvdense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdense.c
-cvband.lo: $(srcdir)/cvband.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvband.c
-cvdiag.lo: $(srcdir)/cvdiag.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvdiag.c
-cvspbcg.lo: $(srcdir)/cvspbcg.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvspbcg.c
-cvspgmr.lo: $(srcdir)/cvspgmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvspgmr.c
-cvsptfqmr.lo: $(srcdir)/cvsptfqmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvsptfqmr.c
-cvbandpre.lo: $(srcdir)/cvbandpre.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbandpre.c
-cvbbdpre.lo: $(srcdir)/cvbbdpre.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvbbdpre.c
+cvodes_dense.lo: $(srcdir)/cvodes_dense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_dense.c
+cvodes_band.lo: $(srcdir)/cvodes_band.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_band.c
+cvodes_diag.lo: $(srcdir)/cvodes_diag.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_diag.c
+cvodes_spbcgs.lo: $(srcdir)/cvodes_spbcgs.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_spbcgs.c
+cvodes_spgmr.lo: $(srcdir)/cvodes_spgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_spgmr.c
+cvodes_sptfqmr.lo: $(srcdir)/cvodes_sptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_sptfqmr.c
+cvodes_bandpre.lo: $(srcdir)/cvodes_bandpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_bandpre.c
+cvodes_bbdpre.lo: $(srcdir)/cvodes_bbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_bbdpre.c
 
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)

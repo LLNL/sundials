@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-13 23:41:22 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:48 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -24,7 +24,7 @@
  * The PDE system is treated by central differences on a uniform
  * mesh, with simple polynomial initial profiles.
  *
- * The problem is solved by CVODE on NPE processors, treated
+ * The problem is solved by CVODES on NPE processors, treated
  * as a rectangular process grid of size NPEX by NPEY, with
  * NPE = NPEX*NPEY. Each processor contains a subgrid of size MXSUB
  * by MYSUB of the (x,y) mesh.  Thus the actual mesh sizes are
@@ -51,15 +51,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"     /* definitions of realtype, booleantype, TRUE, */
-                               /* and FALSE                                   */
-#include "sundialsmath.h"      /* definition of macro SQR                     */
-#include "cvodes.h"            /* prototypes for CVode* and various constants */
-#include "cvspgmr.h"           /* prototypes and constants for CVSPGMR solver */
-#include "smalldense.h"        /* prototypes for small dense matrix functions */
-#include "nvector_parallel.h"  /* definition of type N_Vector and macro       */
-                               /* NV_DATA_P                                   */
-#include "mpi.h"               /* MPI constants and types                     */
+
+#include "cvodes.h"              /* prototypes for CVode* and various constants     */
+#include "nvector_parallel.h"    /* definition of type N_Vector and macro NV_DATA_P */
+#include "cvodes_spgmr.h"        /* prototypes and constants for CVSPGMR solver     */
+#include "sundials_smalldense.h" /* prototypes for small dense matrix functions     */
+#include "sundials_types.h"      /* definitions of realtype, booleantype            */
+#include "sundials_math.h"       /* definition of macro SQR                         */
+
+#include "mpi.h"                 /* MPI constants and types                         */
 
 /* Problem Constants */
 

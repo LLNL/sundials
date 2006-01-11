@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-09-23 19:23:29 $
+ * $Revision: 1.28 $
+ * $Date: 2006-01-11 21:13:56 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -22,8 +22,8 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include "sundialstypes.h"
-#include "nvector.h"
+
+#include "sundials_nvector.h"
 
 /******************************************************************
  * IDAS is used to solve numerically the initial value problem    *

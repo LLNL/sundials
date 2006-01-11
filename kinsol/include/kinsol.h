@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2005-09-23 19:41:59 $
+ * $Revision: 1.29 $
+ * $Date: 2006-01-11 21:13:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -22,8 +22,9 @@
 extern "C" {
 #endif
 
-#include "nvector.h"
-#include "sundialstypes.h"
+#include <stdio.h>
+
+#include "sundials_nvector.h"
 
 /*
  * -----------------------------------------------------------------

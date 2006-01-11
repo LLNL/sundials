@@ -73,6 +73,13 @@ v. 2.1.1 (May 2005) ---> v. 2.2.0 (??? 2006)
 - Changes related to the build system
    - updated configure script and Makefiles for Fortran examples to avoid C++
      compiler errors (now use CC and MPICC to link only if necessary)
+   - SUNDIALS shared header files are installed under a 'sundials' subdirectory
+     of the install include directory
+   - the shared object files are now linked into each SUNDIALS library rather
+     than into a separate libsundials_shared library
+
+- Changes to the user interface
+   - added prefix 'sundials_' to all shared header files
 
 v. 2.1.0 (Apr. 2005) ---> v. 2.1.1 (May.2005)
 ----------------------------------------------

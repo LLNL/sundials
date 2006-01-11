@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.6 $
+ * $Date: 2006-01-11 21:13:45 $
  * ----------------------------------------------------------------- 
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -18,10 +18,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fcvode.h"         /* actual fn. names, prototypes and global vars.  */
-#include "nvector.h"        /* definitions of type N_Vector and vector macros */
-#include "sundialstypes.h"  /* definition of type realtype                    */
-#include "cvode_impl.h"     /* definition of CVodeMem type                    */
+#include "fcvode.h"           /* actual fn. names, prototypes and global vars.  */
+#include "cvode_impl.h"       /* definition of CVodeMem type                    */
+#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
+#include "sundials_types.h"   /* definition of type realtype                    */
 
 /***************************************************************************/
 

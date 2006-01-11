@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 20:20:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -34,15 +34,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"  /* definition of realtype                      */
-#include "cvode.h"          /* CVode* prototypes and various constants     */
-#include "cvspgmr.h"        /* prototypes & constants for CVSPGMR solver   */
-#include "cvbandpre.h"      /* prototypes & constants for CVBANDPRE module */
-#include "smalldense.h"     /* use generic DENSE solver in preconditioning */
-#include "nvector_serial.h" /* definitions of type N_Vector and macro      */
-                            /* NV_DATA_S                                   */
-#include "sundialsmath.h"   /* contains SQR macro                          */
 
+#include "cvode.h"          /* main integrator header file                 */
+#include "nvector_serial.h" /* serial N_Vector types, fct. and macros      */
+#include "cvode_spgmr.h"    /* prototypes & constants for CVSPGMR solver   */
+#include "cvode_bandpre.h"  /* prototypes & constants for CVBANDPRE module */
+#include "sundials_types.h" /* definition of realtype                      */
+#include "sundials_math.h"  /* contains the macros ABS and SQR             */
 
 /* Problem Constants */
 

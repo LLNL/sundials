@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 19:14:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -51,13 +51,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "sundialstypes.h"     /* definition of realtype                          */
-#include "cvodes.h"            /* main CVODES header file                         */
-#include "iterative.h"         /* contains the enum for types of preconditioning  */
-#include "cvspgmr.h"           /* use CVSPGMR linear solver each internal step    */
-#include "smalldense.h"        /* use generic DENSE solver for preconditioning    */
-#include "nvector_serial.h"    /* definitions of type N_Vector, macro NV_DATA_S   */
-#include "sundialsmath.h"      /* contains SQR macro                              */
+
+#include "cvodes.h"              /* main CVODES header file                         */
+#include "nvector_serial.h"      /* definitions of type N_Vector, macro NV_DATA_S   */
+#include "cvodes_spgmr.h"        /* use CVSPGMR linear solver each internal step    */
+#include "sundials_smalldense.h" /* use generic DENSE solver for preconditioning    */
+#include "sundials_types.h"      /* definition of realtype                          */
+#include "sundials_math.h"       /* contains SQR macro                              */
 
 /* Problem Constants */
 

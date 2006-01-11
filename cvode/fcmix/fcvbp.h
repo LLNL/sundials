@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-10-18 23:21:51 $
+ * $Revision: 1.17 $
+ * $Date: 2006-01-11 21:13:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -232,8 +232,8 @@ extern "C" {
 
 /* header files  */
 
-#include "nvector.h"       /* definition of type N_Vector */
-#include "sundialstypes.h" /* definition of type realtype */
+#include "sundials_nvector.h" /* definition of type N_Vector */
+#include "sundials_types.h"   /* definition of type realtype */
 
 /* Definitions of interface function names */
 

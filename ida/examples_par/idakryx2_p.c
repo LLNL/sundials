@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-08 20:40:01 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -100,15 +100,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"     /* Definition of realtype                        */
-#include "iterative.h"         /* Contains the types of preconditioning         */
-#include "ida.h"               /* Main IDA header file                          */
-#include "idaspgmr.h"          /* Use IDASPGMR linear solver                    */
-#include "nvector_parallel.h"  /* Definitions of type N_Vector, macro NV_DATA_P */
-#include "sundialsmath.h"      /* Contains RSqrt routine                        */
-#include "smalldense.h"        /* Contains definitions for denalloc routine     */
-#include "mpi.h"               /* MPI library routines                          */
 
+#include "ida.h"                 /* Main header file                              */
+#include "nvector_parallel.h"    /* Definitions of type N_Vector, macro NV_DATA_P */
+#include "ida_spgmr.h"           /* Use IDASPGMR linear solver                    */
+#include "sundials_smalldense.h" /* Contains definitions for denalloc routine     */
+#include "sundials_types.h"      /* Definitions of realtype and booleantype       */
+#include "sundials_math.h"       /* Contains RSqrt routine                        */
+
+#include "mpi.h"                 /* MPI library routines                          */
 
 /* Problem Constants. */
 

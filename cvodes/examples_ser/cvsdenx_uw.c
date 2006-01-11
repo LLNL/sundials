@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-12-19 22:37:23 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-11 21:13:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -33,17 +33,12 @@
 
 /* Header files with a description of contents used here */
 
-#include "sundialstypes.h"   /* definition of type realtype                */
-#include "cvodes.h"          /* prototypes for CVode* functions and        */
-                             /* constants CV_BDF, CV_NEWTON, CV_SV,        */
-                             /* CV_NORMAL, CV_SUCCESS, and CV_ROOT_RETURN  */
-#include "cvdense.h"         /* prototype for CVDense                      */
-#include "nvector_serial.h"  /* definitions of type N_Vector, macro        */
-                             /* NV_Ith_S, and prototypes for N_VNew_Serial */
-                             /* and N_VDestroy                             */
-#include "dense.h"           /* definition of type DenseMat and macro      */
-                             /* DENSE_ELEM                                 */
-#include "sundialsmath.h"    /* definition of ABS                          */
+#include "cvodes.h"         /* prototypes for CVODES functions and constants     */
+#include "nvector_serial.h" /* serial N_Vector types, functions, and macros      */
+#include "cvodes_dense.h"   /* prototype for CVDense                             */
+#include "sundials_dense.h" /* definitions of type DenseMat and macro DENSE_ELEM */
+#include "sundials_types.h" /* definition of type realtype                       */
+#include "sundials_math.h"  /* definition of ABS                                 */
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 

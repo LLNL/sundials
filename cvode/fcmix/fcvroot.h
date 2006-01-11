@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.14 $
+ * $Date: 2006-01-11 21:13:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -100,8 +100,8 @@ extern "C" {
 
 /* header files */
 
-#include "nvector.h"        /* definition of type N_Vector          */
-#include "sundialstypes.h"  /* definition of SUNDIALS type realtype */
+#include "sundials_nvector.h" /* definition of type N_Vector          */
+#include "sundials_types.h"   /* definition of SUNDIALS type realtype */
 
 /* Definitions of interface function names */
 

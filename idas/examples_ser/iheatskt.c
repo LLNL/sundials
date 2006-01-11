@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-10-12 22:51:01 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -39,12 +39,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "nvector_serial.h"
+
 #include "idas.h"
-#include "idaspgmr.h"
-#include "idaspbcg.h"
-#include "idasptfqmr.h"
+#include "nvector_serial.h"
+#include "idas_spgmr.h"
+#include "idas_spbcgs.h"
+#include "idas_sptfqmr.h"
+#include "sundials_types.h"
 
 /* Problem Constants */
 

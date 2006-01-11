@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2005-09-23 19:23:24 $
+ * $Revision: 1.19 $
+ * $Date: 2006-01-11 21:13:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -38,13 +38,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "sundialsmath.h"
-#include "nvector_parallel.h"
+
 #include "idas.h"
-#include "idaspgmr.h"
-#include "iterative.h"
-#include "idabbdpre.h"
+#include "nvector_parallel.h"
+#include "idas_spgmr.h"
+#include "idas_bbdpre.h"
+#include "sundials_types.h"
+#include "sundials_math.h"
+
 #include "mpi.h"
 
 #define ZERO  RCONST(0.0)

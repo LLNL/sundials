@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 19:14:03 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:48 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -68,13 +68,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "sundialstypes.h"    /* def. of realtype                             */
-#include "cvodes.h"           /* main CVODES header file                      */
-#include "iterative.h"        /* types of preconditioning                     */
-#include "cvspgmr.h"          /* defs. for CVSPGMR functions and constants    */
-#include "smalldense.h"       /* generic DENSE solver used in preconditioning */
-#include "nvector_parallel.h" /* defs of paralel NVECTOR functions and macros */
-#include "sundialsmath.h"     /* contains SQR macro                           */
+
+#include "cvodes.h"              /* main CVODES header file                      */
+#include "nvector_parallel.h"    /* defs of paralel NVECTOR functions and macros */
+#include "cvodes_spgmr.h"        /* defs. for CVSPGMR functions and constants    */
+#include "sundials_smalldense.h" /* generic DENSE solver used in preconditioning */
+#include "sundials_math.h"       /* contains SQR macro                           */
+#include "sundials_types.h"      /* def. of realtype                             */
+
 #include "mpi.h"
 
 

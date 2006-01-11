@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.52 $
- * $Date: 2005-09-23 16:41:24 $
+ * $Revision: 1.53 $
+ * $Date: 2006-01-11 21:13:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -24,8 +24,8 @@
 #include <stdlib.h>
 
 #include "cvode_impl.h"
-#include "sundialsmath.h"
-#include "sundialstypes.h"
+#include "sundials_math.h"
+#include "sundials_types.h"
 
 /* 
  * Macro: loop 

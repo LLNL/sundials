@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-08-16 16:49:46 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -18,11 +18,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fkinsol.h"        /* prototypes of standard interfaces and global
-			       variables                                    */
-#include "kinband.h"        /* KINBAND prototypes and types                 */
-#include "nvector.h"        /* definitions of type N_Vector and macros      */
-#include "sundialstypes.h"  /* definition of type realtype                  */
+#include "fkinsol.h"          /* standard interfaces and global variables */
+#include "kinsol_band.h"      /* KINBAND prototypes and types             */
+#include "sundials_nvector.h" /* definitions of type N_Vector and macros  */
+#include "sundials_types.h"   /* definition of type realtype              */
 
 /*
  * ----------------------------------------------------------------

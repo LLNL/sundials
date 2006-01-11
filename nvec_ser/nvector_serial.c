@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2005-06-21 19:13:22 $
+ * $Revision: 1.24 $
+ * $Date: 2006-01-11 21:14:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -20,8 +20,7 @@
 #include <stdlib.h>
 
 #include "nvector_serial.h"
-#include "sundialsmath.h"
-#include "sundialstypes.h"
+#include "sundials_math.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)

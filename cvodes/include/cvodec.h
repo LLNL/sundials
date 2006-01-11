@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2004-04-29 19:17:02 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-11 21:13:49 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL                              
  * -----------------------------------------------------------------
@@ -24,13 +24,14 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "cvodes.h"
-#include "cvdense.h"
-#include "cvband.h"
-#include "cvspgmr.h"
-#include "nvector.h"
-#include "sundialstypes.h"
-#include "sundialsmath.h"
+#include "cvodes_dense.h"
+#include "cvodes_band.h"
+#include "cvodes_spgmr.h"
+#include "sundials_nvector.h"
+#include "sundials_types.h"
+#include "sundials_math.h"
 
 /*----------------------------------------------------------------*
  *                                                                *

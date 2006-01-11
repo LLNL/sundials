@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2005-08-04 18:13:24 $
+ * $Revision: 1.14 $
+ * $Date: 2006-01-11 21:14:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,9 +20,7 @@
 #include <stdlib.h>
 
 #include "fnvector_parallel.h"
-#include "mpi.h"
 #include "nvector_parallel.h"
-#include "sundialstypes.h"
 
 /* Define global vector variables */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-09-23 19:23:27 $
+ * $Revision: 1.17 $
+ * $Date: 2006-01-11 21:13:55 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -86,11 +86,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"   /* Definitions of realtype and booleantype       */
-#include "idas.h"            /* Main header file                              */
-#include "idaband.h"         /* Use IDABAND linear solver                     */
-#include "nvector_serial.h"  /* Definitions of type N_Vector, macro NV_DATA_S */
-#include "smalldense.h"      /* Contains definitions for denalloc routine     */
+
+#include "idas.h"                /* Main header file                              */
+#include "nvector_serial.h"      /* Definitions of type N_Vector, macro NV_DATA_S */
+#include "idas_band.h"           /* Use IDABAND linear solver                     */
+#include "sundials_smalldense.h" /* Contains definitions for denalloc routine     */
+#include "sundials_types.h"      /* Definitions of realtype and booleantype       */
 
 /* Problem Constants. */
 

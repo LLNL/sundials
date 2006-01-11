@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-07-05 23:50:04 $
+ * $Revision: 1.6 $
+ * $Date: 2006-01-11 21:14:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -19,8 +19,7 @@
 #include <stdlib.h>
 
 #include "nvector_spcparallel.h"
-#include "sundialstypes.h"
-#include "sundialsmath.h" 
+#include "sundials_math.h" 
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)

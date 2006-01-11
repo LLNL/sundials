@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2005-08-09 22:39:58 $
+ * $Revision: 1.6 $
+ * $Date: 2006-01-11 21:13:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,11 +18,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "idadense.h"       /* IDADENSE prototypes and type DenseMat          */
-#include "fida.h"           /* actual function names, prototypes and global
-			       variables                                      */
-#include "nvector.h"        /* definitions of type N_Vector and vector macros */
-#include "sundialstypes.h"  /* definition of type realtype                    */
+#include "ida_dense.h"        /* IDADENSE prototypes and type DenseMat          */
+#include "fida.h"             /* actual function names, prototypes and global
+			         variables                                      */
+#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
+#include "sundials_types.h"   /* definition of type realtype                    */
 
 /*************************************************/
 

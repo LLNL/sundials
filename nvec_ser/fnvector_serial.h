@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-06-21 19:13:21 $
+ * $Revision: 1.17 $
+ * $Date: 2006-01-11 21:14:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -23,8 +23,8 @@
 extern "C" {
 #endif
 
-#include "nvector.h"  
-#include "fnvector.h"
+#include "sundials_nvector.h"  
+#include "sundials_fnvector.h"
 
 #ifndef _SUNDIALS_CONFIG_H
 #define _SUNDIALS_CONFIG_H

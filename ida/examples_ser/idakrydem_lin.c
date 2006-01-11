@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-12-14 23:43:05 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-11 21:13:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -12,7 +12,7 @@
  * available iterative linear solvers: SPGMR, SPBCG and SPTFQMR.
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  *
- * Example problem for IDA/IDAS: 2D heat equation, serial, GMRES.
+ * Example problem for IDA: 2D heat equation, serial, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version loops through the Krylov solvers IDASpgmr, IDASpbcg
@@ -39,12 +39,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "nvector_serial.h"
+
 #include "ida.h"
-#include "idaspgmr.h"
-#include "idaspbcg.h"
-#include "idasptfqmr.h"
+#include "nvector_serial.h"
+#include "ida_spgmr.h"
+#include "ida_spbcgs.h"
+#include "ida_sptfqmr.h"
+#include "sundials_types.h"
 
 /* Problem Constants */
 

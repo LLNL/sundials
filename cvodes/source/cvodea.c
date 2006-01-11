@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.53 $
- * $Date: 2005-09-23 19:46:23 $
+ * $Revision: 1.54 $
+ * $Date: 2006-01-11 21:13:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -21,10 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvdiag.h"
 #include "cvodea_impl.h"
-#include "sundialsmath.h"
-#include "sundialstypes.h"
+#include "sundials_math.h"
+#include "sundials_types.h"
 
 /*=================================================================*/
 /*                  Macros                                         */

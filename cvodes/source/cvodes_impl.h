@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2005-12-07 16:52:56 $
+ * $Revision: 1.22 $
+ * $Date: 2006-01-11 21:13:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -22,11 +22,7 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-
 #include "cvodes.h"
-#include "nvector.h"
-#include "sundialstypes.h"
 
 /* Prototype of internal ewtSet function */
 

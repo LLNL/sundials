@@ -434,7 +434,7 @@ PACKAGE_VERSION='2.2.0'
 PACKAGE_STRING='SUNDIALS 2.2.0'
 PACKAGE_BUGREPORT='radu@llnl.gov'
 
-ac_unique_file="shared/source/nvector.c"
+ac_unique_file="shared/source/sundials_nvector.c"
 ac_default_prefix=`pwd`
 # Factoring default headers for most tests.
 ac_includes_default="\

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.60 $
- * $Date: 2005-12-07 16:52:56 $
+ * $Revision: 1.61 $
+ * $Date: 2006-01-11 21:13:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,8 +24,8 @@
 #include <stdlib.h>
 
 #include "cvodes_impl.h"
-#include "sundialsmath.h"
-#include "sundialstypes.h"
+#include "sundials_math.h"
+#include "sundials_types.h"
 
 /*=================================================================*/
 /*             Macros                                              */

@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-08 20:40:01 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for IDA/IDAS: 2D heat equation, serial, GMRES.
+ * Example problem for IDA: 2D heat equation, serial, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the Krylov solver IDASpgmr.
@@ -34,10 +34,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "nvector_serial.h"
+
 #include "ida.h"
-#include "idaspgmr.h"
+#include "nvector_serial.h"
+#include "ida_spgmr.h"
+#include "sundials_types.h"
 
 /* Problem Constants */
 

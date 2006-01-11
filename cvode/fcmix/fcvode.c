@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.56 $
- * $Date: 2005-10-18 23:21:50 $
+ * $Revision: 1.57 $
+ * $Date: 2006-01-11 21:13:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -23,17 +23,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cvband.h"         /* prototypes for CVBAND interface routines        */
-#include "cvdense.h"        /* prototypes for CVDENSE interface routines       */
-#include "cvdiag.h"         /* prototypes for CVDIAG interface routines        */
-#include "cvode.h"          /* CVODE constants and prototypes                  */
-#include "cvspgmr.h"        /* prototypes for CVSPGMR interface routines       */
-#include "cvspbcg.h"        /* prototypes for CVSPBCG interface routines       */
-#include "cvsptfqmr.h"      /* prototypes for CVSPTFQMR interface routines     */
-#include "fcvode.h"         /* actual function names, prototypes, global vars. */
-#include "nvector.h"        /* definitions of type N_Vector and vector macros  */
-#include "sundialstypes.h"  /* definition of type realtype                     */
-#include "cvode_impl.h"     /* definition of CVodeMem type                     */
+#include "fcvode.h"           /* actual function names, prototypes, global vars. */
+#include "cvode.h"            /* CVODE constants and prototypes                  */
+#include "cvode_band.h"       /* prototypes for CVBAND interface routines        */
+#include "cvode_dense.h"      /* prototypes for CVDENSE interface routines       */
+#include "cvode_diag.h"       /* prototypes for CVDIAG interface routines        */
+#include "cvode_spgmr.h"      /* prototypes for CVSPGMR interface routines       */
+#include "cvode_spbcgs.h"     /* prototypes for CVSPBCG interface routines       */
+#include "cvode_sptfqmr.h"    /* prototypes for CVSPTFQMR interface routines     */
+#include "cvode_impl.h"       /* definition of CVodeMem type                     */
+#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros  */
+#include "sundials_types.h"   /* definition of type realtype                     */
 
 /***************************************************************************/
 

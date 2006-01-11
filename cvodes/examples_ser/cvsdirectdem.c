@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 19:14:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -58,14 +58,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "sundialstypes.h"   /* definition of realtype              */
-#include "cvodes.h"          /* main integrator header file         */
-#include "cvdense.h"         /* use CVDENSE linear solver           */
-#include "cvband.h"          /* use CVBAND linear solver            */
-#include "cvdiag.h"          /* use CVDIAG linear solver            */
-#include "nvector_serial.h"  /* definition of type N_Vector and the */
-                             /* macro NV_Ith_S                      */
-#include "sundialsmath.h"    /* contains the macros ABS and SQR     */
+#include "cvodes.h"         /* main integrator header file            */
+#include "nvector_serial.h" /* serial N_Vector types, fct. and macros */
+#include "cvodes_dense.h"   /* use CVDENSE linear solver              */
+#include "cvodes_band.h"    /* use CVBAND linear solver               */
+#include "cvodes_diag.h"    /* use CVDIAG linear solver               */
+#include "sundials_types.h" /* definition of realtype                 */
+#include "sundials_math.h"  /* contains the macros ABS and SQR        */
 
 /* Shared Problem Constants */
 

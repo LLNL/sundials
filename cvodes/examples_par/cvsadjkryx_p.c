@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 19:14:03 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -13,14 +13,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include <limits.h>
-#include "mpi.h"
+
 #include "cvodes.h"
 #include "cvodea.h"
-#include "cvspgmr.h" 
-#include "cvbbdpre.h"
 #include "nvector_parallel.h"
-#include "sundialstypes.h"
-#include "sundialsmath.h"
+#include "cvodes_spgmr.h" 
+#include "cvodes_bbdpre.h"
+#include "sundials_types.h"
+#include "sundials_math.h"
+
+#include "mpi.h"
 
 /*
  *------------------------------------------------------------------

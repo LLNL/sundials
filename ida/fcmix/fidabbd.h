@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-10-31 23:31:31 $
+ * $Revision: 1.7 $
+ * $Date: 2006-01-11 21:13:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -335,8 +335,8 @@
 extern "C" {
 #endif
 
-#include "nvector.h"
-#include "sundialstypes.h"
+#include "sundials_nvector.h"
+#include "sundials_types.h"
 
 #if defined(F77_FUNC)
 

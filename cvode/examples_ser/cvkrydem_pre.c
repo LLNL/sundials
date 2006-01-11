@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-07 20:20:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -92,13 +92,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "sundialstypes.h"  /* definition of type realtype      */
-#include "cvode.h"          /* main integrator header file      */
-#include "cvspgmr.h"        /* use CVSPGMR linear solver        */
-#include "smalldense.h"     /* use small dense matrix functions */
-#include "nvector_serial.h" /* definition of type N_Vector and  */
-                            /* macro NV_DATA_S                  */
-#include "sundialsmath.h"   /* contains the macros ABS and SQR  */
+#include "cvode.h"               /* main integrator header file                 */
+#include "nvector_serial.h"      /* serial N_Vector types, fct. and macros      */
+#include "cvode_spgmr.h"         /* prototypes & constants for CVSPGMR solver   */
+#include "sundials_smalldense.h" /* use generic DENSE solver in preconditioning */
+#include "sundials_types.h"      /* definition of realtype                      */
+#include "sundials_math.h"       /* contains the macros ABS and SQR             */
 
 /* Constants */
 

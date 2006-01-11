@@ -123,7 +123,16 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
        IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn
        IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
    - added IDAGetEstLocalErrors() to return estimated local errors.
+   - renamed all exported header files (except for ida.h, all header files
+     have the prefix 'ida_')
    - changed naming scheme for IDA examples
+
+- Changes related to the build system
+   - the main IDA header file (ida.h) is still exported to the install include
+     directory. However, all other IDA header files are exported into an 'ida'
+     subdirectory of the install include directory.
+   - the IDA library now contains all shared object files (there is no separate
+     libsundials_shared library anymore)
 
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------

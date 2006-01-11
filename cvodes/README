@@ -114,7 +114,16 @@ v. 2.3.0 (May. 2005) ---> v. 2.4.0 (???. 2006)
    - added a argument to CVadjMalloc to specify the type of interpolation 
      (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
      for variable-order polynomial interpolation)
+   - renamed all exported header files (except for cvodes.h and cvodea.h all 
+     header files have the prefix 'cvodes_')
    - changed naming scheme for CVODES examples
+
+- Changes related to the build system
+   - the main CVODES header files (cvodes.h and cvodea.h) are still exported to 
+     the install include directory. However, all other CVODES header files are 
+     exported into a 'cvodes' subdirectory of the install include directory.
+   - the CVODES library now contains all shared object files (there is no separate
+     libsundials_shared library anymore)
 
 v. 2.2.0 (Apr. 2005) ---> v. 2.3.0 (May. 2005)
 ----------------------------------------------

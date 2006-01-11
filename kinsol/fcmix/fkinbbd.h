@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2005-05-18 18:17:39 $
+ * $Revision: 1.28 $
+ * $Date: 2006-01-11 21:13:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -283,8 +283,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#include "nvector.h"        /* definition of type N_Vector */
-#include "sundialstypes.h"  /* definition of type realtype */
+#include "sundials_nvector.h" /* definition of type N_Vector */
+#include "sundials_types.h"   /* definition of type realtype */
 
 /*
  * -----------------------------------------------------------------

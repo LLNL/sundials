@@ -115,6 +115,8 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   - renamed all exported header files (except for cvode.h, all header files
+     have the prefix 'cvode_')
    - changed naming scheme for CVODE examples
 
 - Changes to the FCVODE module
@@ -130,6 +132,11 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
 - Changes related to the build system
    - updated configure script and Makefiles for Fortran examples to avoid C++
      compiler errors (now use CC and MPICC to link only if necessary)
+   - the main CVODE header file (cvode.h) is still exported to the install include
+     directory. However, all other CVODE header files are exported into a 'cvode'
+     subdirectory of the install include directory.
+   - the CVODE library now contains all shared object files (there is no separate
+     libsundials_shared library anymore)
 
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------

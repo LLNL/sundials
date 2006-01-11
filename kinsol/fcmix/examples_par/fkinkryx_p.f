@@ -1,7 +1,7 @@
       program fkinkryx_p
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2005-12-08 21:05:40 $
+c     $Revision: 1.2 $
+c     $Date: 2006-01-11 21:13:58 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -121,11 +121,12 @@ c     number of this process.
       call fkinspgmrsetprec(1, ier)
       
       if (mype .eq. 0) write(6,1240)
- 1240 format('Example program fkinkryx_p:'//' This fkinsol example code',
-     1       ' solves a 128 eqn diagonal algebraic system.'/
-     2       ' Its purpose is to demonstrate the use of the Fortran',
-     3       ' interface'/' in a parallel environment.'///
-     4       ' globalstrategy = KIN_INEXACT_NEWTON')
+ 1240 format('Example program fkinkryx_p:'//
+     1       ' This fkinsol example code',
+     2       ' solves a 128 eqn diagonal algebraic system.'/
+     3       ' Its purpose is to demonstrate the use of the Fortran',
+     4       ' interface'/' in a parallel environment.'///
+     5       ' globalstrategy = KIN_INEXACT_NEWTON')
 
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then

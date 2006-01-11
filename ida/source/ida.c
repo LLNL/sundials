@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.50 $
- * $Date: 2005-09-23 19:14:03 $
+ * $Revision: 1.51 $
+ * $Date: 2006-01-11 21:13:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 #include "ida_impl.h"
-#include "sundialsmath.h"
+#include "sundials_math.h"
 
 /*
  * -----------------------------------------------------------------

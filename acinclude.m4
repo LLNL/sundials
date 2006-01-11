@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.31 $
-# $Date: 2005-11-28 22:08:59 $
+# $Revision: 1.32 $
+# $Date: 2006-01-11 21:13:43 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -57,7 +57,7 @@ For details, see sundials/shared/LICENSE.
 
 # Specify root of source tree
 # Given file is guaranteed to exist in all SUNDIALS packages
-AC_CONFIG_SRCDIR([shared/source/nvector.c])
+AC_CONFIG_SRCDIR([shared/source/sundials_nvector.c])
 
 # Get host information
 # AC_CANONICAL_BUILD defines the following variables: build, build_cpu,

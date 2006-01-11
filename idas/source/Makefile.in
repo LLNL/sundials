@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2006-01-10 01:39:17 $
+# $Revision: 1.18 $
+# $Date: 2006-01-11 21:13:56 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,33 +49,36 @@ IDAS_INC_DIR   = $(srcdir)/../include
 
 IDAS_LIB = libsundials_idas.la
 
-IDAS_LIB_FILES   = idas.lo idaa.lo idasic.lo idasio.lo idaband.lo idadense.lo idaspbcg.lo idaspgmr.lo idasptfqmr.lo idabbdpre.lo
-IDAS_OBJ_FILES   = idas.o idaa.o idasic.o idasio.o idaband.o idadense.o idaspbcg.o idaspgmr.o idasptfqmr.o idabbdpre.o
+IDAS_LIB_FILES   = idas.lo idaa.lo idas_ic.lo idas_io.lo idas_band.lo idas_dense.lo idas_spbcgs.lo idas_spgmr.lo idas_sptfqmr.lo idas_bbdpre.lo
+IDAS_OBJ_FILES   = idas.o idaa.o idas_ic.o idas_io.o idas_band.o idas_dense.o idas_spbcgs.o idas_spgmr.o idas_sptfqmr.o idas_bbdpre.o
 
-SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/band.lo \
-                   $(SHARED_BUILD_DIR)/dense.lo \
-                   $(SHARED_BUILD_DIR)/iterative.lo \
-                   $(SHARED_BUILD_DIR)/sundialsmath.lo \
-                   $(SHARED_BUILD_DIR)/nvector.lo \
-                   $(SHARED_BUILD_DIR)/smalldense.lo \
-                   $(SHARED_BUILD_DIR)/spgmr.lo \
-                   $(SHARED_BUILD_DIR)/spbcg.lo \
-                   $(SHARED_BUILD_DIR)/sptfqmr.lo
+SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
+                   $(SHARED_BUILD_DIR)/sundials_dense.lo \
+                   $(SHARED_BUILD_DIR)/sundials_iterative.lo \
+                   $(SHARED_BUILD_DIR)/sundials_math.lo \
+                   $(SHARED_BUILD_DIR)/sundials_nvector.lo \
+                   $(SHARED_BUILD_DIR)/sundials_smalldense.lo \
+                   $(SHARED_BUILD_DIR)/sundials_spgmr.lo \
+                   $(SHARED_BUILD_DIR)/sundials_spbcgs.lo \
+                   $(SHARED_BUILD_DIR)/sundials_sptfqmr.lo
 
 all: $(IDAS_LIB_FILES)
 
 install: shared $(IDAS_LIB_FILES)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDAS_LIB) $(libdir)
+	$(INSTALL) -d $(includedir)/idas
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas.h $(includedir)
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaa.h $(includedir)
-	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idadense.h $(includedir)
-	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaband.h $(includedir)
-	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaspbcg.h $(includedir)
-	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaspgmr.h $(includedir)
-	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idasptfqmr.h $(includedir)
-	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idabbdpre.h $(includedir)
-	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idaspils.h $(includedir)
+	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas_dense.h $(includedir)/idas
+	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas_band.h $(includedir)/idas
+	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas_spbcgs.h $(includedir)/idas
+	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas_spgmr.h $(includedir)/idas
+	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas_sptfqmr.h $(includedir)/idas
+	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas_bbdpre.h $(includedir)/idas
+	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas_spils.h $(includedir)/idas
+	$(INSTALL_HEADER) $(srcdir)/idas_impl.h $(includedir)/idas
+	$(INSTALL_HEADER) $(srcdir)/idaa_impl.h $(includedir)/idas
 
 shared:
 	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
@@ -89,34 +92,39 @@ uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(IDAS_LIB)
 	rm -f $(includedir)/idas.h
 	rm -f $(includedir)/idaa.h
-	rm -f $(includedir)/idadense.h
-	rm -f $(includedir)/idaband.h
-	rm -f $(includedir)/idaspbcg.h
-	rm -f $(includedir)/idaspgmr.h
-	rm -f $(includedir)/idasptfqmr.h
-	rm -f $(includedir)/idabbdpre.h
-	rm -f $(includedir)/idaspils.h
+	rm -f $(includedir)/idas/idas_dense.h
+	rm -f $(includedir)/idas/idas_band.h
+	rm -f $(includedir)/idas/idas_spbcgs.h
+	rm -f $(includedir)/idas/idas_spgmr.h
+	rm -f $(includedir)/idas/idas_sptfqmr.h
+	rm -f $(includedir)/idas/idas_bbdpre.h
+	rm -f $(includedir)/idas/idas_spils.h
+	rm -f $(includedir)/idas/idas_impl.h
+	rm -f $(includedir)/idas/idaa_impl.h
+	@if test -d $(includedir)/idas ; then \
+	   rmdir $(includedir)/idas ;         \
+	fi
 
 idas.lo: $(srcdir)/idas.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas.c
 idaa.lo: $(srcdir)/idaa.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idaa.c
-idasic.lo: $(srcdir)/idasic.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idasic.c
-idasio.lo: $(srcdir)/idasio.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idasio.c
-idaband.lo: $(srcdir)/idaband.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idaband.c
-idadense.lo: $(srcdir)/idadense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idadense.c
-idaspbcg.lo: $(srcdir)/idaspbcg.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspbcg.c
-idaspgmr.lo: $(srcdir)/idaspgmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idaspgmr.c
-idasptfqmr.lo: $(srcdir)/idasptfqmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idasptfqmr.c
-idabbdpre.lo: $(srcdir)/idabbdpre.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idabbdpre.c
+idas_ic.lo: $(srcdir)/idas_ic.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas_ic.c
+idas_io.lo: $(srcdir)/idas_io.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas_io.c
+idas_band.lo: $(srcdir)/idas_band.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas_band.c
+idas_dense.lo: $(srcdir)/idas_dense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas_dense.c
+idas_spbcgs.lo: $(srcdir)/idas_spbcgs.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas_spbcgs.c
+idas_spgmr.lo: $(srcdir)/idas_spgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas_spgmr.c
+idas_sptfqmr.lo: $(srcdir)/idas_sptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas_sptfqmr.c
+idas_bbdpre.lo: $(srcdir)/idas_bbdpre.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDAS_INC_DIR) $(CFLAGS) -c $(srcdir)/idas_bbdpre.c
 
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)

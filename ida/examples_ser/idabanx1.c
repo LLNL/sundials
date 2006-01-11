@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-12-19 22:04:07 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-11 21:13:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example problem for IDA/IDAS: 2D heat equation, serial, banded.
+ * Example problem for IDA: 2D heat equation, serial, banded.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the band solver IDABand, and IDACalcIC.
@@ -34,11 +34,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "sundialstypes.h"
-#include "sundialsmath.h"
-#include "nvector_serial.h"
-#include "ida.h"
-#include "idaband.h"
+
+#include "ida.h"            /* Main header file                              */
+#include "nvector_serial.h" /* Definitions of type N_Vector, macro NV_DATA_S */
+#include "ida_band.h"       /* Use IDABAND linear solver                     */
+#include "sundials_types.h" /* Definitions of realtype and booleantype       */
 
 /* Problem Constants */
 

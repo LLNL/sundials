@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2006-01-10 01:39:24 $
+# $Revision: 1.19 $
+# $Date: 2006-01-11 21:14:01 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -55,7 +55,7 @@ NVECSER_LIB_FILES = nvector_serial.lo
 FNVECSER_LIB       = libsundials_fnvecserial.la
 FNVECSER_LIB_FILES = fnvector_serial.lo
 
-SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundialsmath.lo
+SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_math.lo
 
 all: $(NVECSER_LIB_FILES) $(FNVECSER_LIB_FILES)
 

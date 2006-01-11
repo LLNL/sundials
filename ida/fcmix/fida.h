@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2005-10-31 23:31:31 $
+ * $Revision: 1.16 $
+ * $Date: 2006-01-11 21:13:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -558,11 +558,11 @@
 extern "C" {
 #endif
 
-#include "band.h"           /* definition of type BandMat  */
-#include "ida.h"            /* definition of type IDAResFn */
-#include "dense.h"          /* definition of type DenseMat */
-#include "nvector.h"        /* definition of type N_Vector */
-#include "sundialstypes.h"  /* definition of type realtype */
+#include "ida.h"              /* definition of type IDAResFn */
+#include "sundials_band.h"    /* definition of type BandMat  */
+#include "sundials_dense.h"   /* definition of type DenseMat */
+#include "sundials_nvector.h" /* definition of type N_Vector */
+#include "sundials_types.h"   /* definition of type realtype */
 
 #if defined(F77_FUNC)
 

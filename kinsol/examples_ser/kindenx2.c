@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-12-08 21:03:16 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,11 +23,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
 #include "kinsol.h"
-#include "kindense.h"
-#include "sundialstypes.h"
 #include "nvector_serial.h"
-#include "sundialsmath.h"
+#include "kinsol_dense.h"
+#include "sundials_types.h"
+#include "sundials_math.h"
 
 /* Problem Constants */
 

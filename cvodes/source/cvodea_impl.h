@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-05-18 18:17:13 $
+ * $Revision: 1.12 $
+ * $Date: 2006-01-11 21:13:51 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -25,16 +25,18 @@ extern "C" {
 
 #include "cvodea.h"
 #include "cvodes_impl.h"
-#include "cvdense_impl.h"
-#include "cvband_impl.h"
-#include "cvsptfqmr_impl.h"
-#include "cvspbcg_impl.h"
-#include "cvspgmr_impl.h"
-#include "cvbandpre_impl.h"
-#include "cvbbdpre_impl.h"
 
-#include "nvector.h"
-#include "sundialstypes.h"
+#include "cvodes_dense_impl.h"
+#include "cvodes_band_impl.h"
+#include "cvodes_diag_impl.h"
+#include "cvodes_sptfqmr_impl.h"
+#include "cvodes_spbcgs_impl.h"
+#include "cvodes_spgmr_impl.h"
+#include "cvodes_bandpre_impl.h"
+#include "cvodes_bbdpre_impl.h"
+
+#include "sundials_nvector.h"
+#include "sundials_types.h"
 
   /*
    * -----------------------------------------------------------------

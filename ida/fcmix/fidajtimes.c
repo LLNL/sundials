@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-08-09 22:39:58 $
+ * $Revision: 1.7 $
+ * $Date: 2006-01-11 21:13:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -20,13 +20,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "idaspgmr.h"       /* IDASPGMR prototypes                            */
-#include "idaspbcg.h"       /* IDASPBCG prototypes                            */
-#include "idasptfqmr.h"     /* IDASPTFQMR prototypes                          */
-#include "fida.h"           /* actual function names, prototypes and global
-			       variables                                      */
-#include "nvector.h"        /* definitions of type N_Vector and vector macros */
-#include "sundialstypes.h"  /* definition of type realtype                    */
+#include "ida_spgmr.h"        /* IDASPGMR prototypes                            */
+#include "ida_spbcgs.h"       /* IDASPBCG prototypes                            */
+#include "ida_sptfqmr.h"      /* IDASPTFQMR prototypes                          */
+#include "fida.h"             /* actual function names, prototypes and global
+			         variables                                      */
+#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
+#include "sundials_types.h"   /* definition of type realtype                    */
 
 /*************************************************/
 

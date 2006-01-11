@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2006-01-10 00:50:46 $
+# $Revision: 1.17 $
+# $Date: 2006-01-11 21:14:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -42,63 +42,63 @@ LIBS     = @LIBS@
 CONFIG_INC_DIR = $(top_builddir)/config
 SHARED_INC_DIR = $(srcdir)/../include
 
-SHARED_LIB_FILES = band.lo dense.lo iterative.lo sundialsmath.lo nvector.lo smalldense.lo spgmr.lo spbcg.lo sptfqmr.lo
-SHARED_OBJ_FILES = band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o spgmr.o spbcg.o sptfqmr.o
+SHARED_LIB_FILES = sundials_band.lo sundials_dense.lo sundials_iterative.lo sundials_math.lo sundials_nvector.lo sundials_smalldense.lo sundials_spgmr.lo sundials_spbcgs.lo sundials_sptfqmr.lo
+SHARED_OBJ_FILES = sundials_band.o sundials_dense.o sundials_iterative.o sundials_math.o sundials_nvector.o sundials_smalldense.o sundials_spgmr.o sundials_spbcgs.o sundials_sptfqmr.o
 
 all: $(SHARED_LIB_FILES)
 
 install: $(SHARED_LIB_FILES)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/band.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/dense.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/iterative.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundialsmath.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundialstypes.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/nvector.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/fnvector.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/smalldense.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/spgmr.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/spbcg.h $(includedir)
-	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sptfqmr.h $(includedir)
-	$(INSTALL_HEADER) $(CONFIG_INC_DIR)/sundials_config.h $(includedir)
+	$(INSTALL) -d $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_band.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_dense.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_iterative.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_math.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_types.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_nvector.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_smalldense.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_spgmr.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_spbcgs.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(SHARED_INC_DIR)/sundials_sptfqmr.h $(includedir)/sundials
+	$(INSTALL_HEADER) $(CONFIG_INC_DIR)/sundials_config.h $(includedir)/sundials
 
 clean:
 	rm -f $(SHARED_LIB_FILES)
 	rm -f $(SHARED_OBJ_FILES)
 
 uninstall: clean
-	rm -f $(includedir)/band.h
-	rm -f $(includedir)/dense.h
-	rm -f $(includedir)/iterative.h
-	rm -f $(includedir)/sundialsmath.h
-	rm -f $(includedir)/sundialstypes.h
-	rm -f $(includedir)/nvector.h
-	rm -f $(includedir)/fnvector.h
-	rm -f $(includedir)/smalldense.h
-	rm -f $(includedir)/spgmr.h
-	rm -f $(includedir)/spbcg.h
-	rm -f $(includedir)/sptfqmr.h
-	rm -f $(includedir)/sundials_config.h
+	rm -f $(includedir)/sundials/sundials_band.h
+	rm -f $(includedir)/sundials/sundials_dense.h
+	rm -f $(includedir)/sundials/sundials_iterative.h
+	rm -f $(includedir)/sundials/sundials_math.h
+	rm -f $(includedir)/sundials/sundials_types.h
+	rm -f $(includedir)/sundials/sundials_nvector.h
+	rm -f $(includedir)/sundials/sundials_smalldense.h
+	rm -f $(includedir)/sundials/sundials_spgmr.h
+	rm -f $(includedir)/sundials/sundials_spbcgs.h
+	rm -f $(includedir)/sundials/sundials_sptfqmr.h
+	rm -f $(includedir)/sundials/sundials_config.h
+	@if test -d $(includedir)/sundials ; then \
+	   rmdir $(includedir)/sundials ;         \
+	fi
 
-band.lo: $(srcdir)/band.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/band.c
-dense.lo: $(srcdir)/dense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/dense.c
-iterative.lo: $(srcdir)/iterative.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/iterative.c
-sundialsmath.lo: $(srcdir)/sundialsmath.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundialsmath.c
-sundialstypes.lo: $(srcdir)/sundialstypes.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundialstypes.c
-nvector.lo: $(srcdir)/nvector.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector.c
-smalldense.lo: $(srcdir)/smalldense.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/smalldense.c
-spgmr.lo: $(srcdir)/spgmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/spgmr.c
-spbcg.lo: $(srcdir)/spbcg.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/spbcg.c
-sptfqmr.lo: $(srcdir)/sptfqmr.c
-	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sptfqmr.c
+sundials_band.lo: $(srcdir)/sundials_band.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_band.c
+sundials_dense.lo: $(srcdir)/sundials_dense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_dense.c
+sundials_iterative.lo: $(srcdir)/sundials_iterative.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_iterative.c
+sundials_math.lo: $(srcdir)/sundials_math.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_math.c
+sundials_nvector.lo: $(srcdir)/sundials_nvector.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_nvector.c
+sundials_smalldense.lo: $(srcdir)/sundials_smalldense.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_smalldense.c
+sundials_spgmr.lo: $(srcdir)/sundials_spgmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_spgmr.c
+sundials_spbcgs.lo: $(srcdir)/sundials_spbcgs.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_spbcgs.c
+sundials_sptfqmr.lo: $(srcdir)/sundials_sptfqmr.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_sptfqmr.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
 	@cd $(top_builddir) ;                 \

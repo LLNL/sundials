@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.11 $
- * $Date: 2005-08-04 18:13:30 $
+ * $Revision: 1.12 $
+ * $Date: 2006-01-11 21:14:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,7 +21,6 @@
 
 #include "fnvector_serial.h"
 #include "nvector_serial.h"
-#include "sundialstypes.h"
 
 /* Define global vector variables */
 

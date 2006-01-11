@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2005-07-18 17:23:40 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-11 21:14:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -21,7 +21,6 @@
 
 #include "fnvector_spcparallel.h"
 #include "nvector_spcparallel.h"
-#include "sundialstypes.h"
 
 /* Define global vector variables */
 

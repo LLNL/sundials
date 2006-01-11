@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-06-06 21:34:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,11 +18,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fkinsol.h"        /* prototypes of standard interfaces and global
-			       variables                                    */
-#include "kindense.h"       /* KINDENSE prototypes and types                */
-#include "nvector.h"        /* definitions of type N_Vector and macros      */
-#include "sundialstypes.h"  /* definition of type realtype                  */
+#include "fkinsol.h"          /* prototypes of standard interfaces and global
+			         variables                                    */
+#include "kinsol_dense.h"     /* KINDENSE prototypes and types                */
+#include "sundials_nvector.h" /* definitions of type N_Vector and macros      */
+#include "sundials_types.h"   /* definition of type realtype                  */
 
 /*
  * ----------------------------------------------------------------

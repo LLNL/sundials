@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-10-31 23:31:31 $
+ * $Revision: 1.17 $
+ * $Date: 2006-01-11 21:13:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,16 +21,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "idaband.h"        /* prototypes for IDABAND interface routines      */
-#include "idadense.h"       /* prototypes for IDADENSE interface routines     */
-#include "ida.h"            /* IDA constants and prototypes                   */
-#include "idasptfqmr.h"     /* prototypes for IDASPTFQMR interface routines   */
-#include "idaspbcg.h"       /* prototypes for IDASPBCG interface routines     */
-#include "idaspgmr.h"       /* prototypes for IDASPGMR interface routines     */
-#include "fida.h"           /* actual function names, prototypes and global
-			       variables                                      */
-#include "nvector.h"        /* definitions of type N_Vector and vector macros */
-#include "sundialstypes.h"  /* definition of type realtype                    */
+#include "fida.h"             /* function names, prototypes, global variables   */
+#include "ida.h"              /* IDA constants and prototypes                   */
+#include "ida_band.h"         /* prototypes for IDABAND interface routines      */
+#include "ida_dense.h"        /* prototypes for IDADENSE interface routines     */
+#include "ida_sptfqmr.h"      /* prototypes for IDASPTFQMR interface routines   */
+#include "ida_spbcgs.h"       /* prototypes for IDASPBCG interface routines     */
+#include "ida_spgmr.h"        /* prototypes for IDASPGMR interface routines     */
+#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
+#include "sundials_types.h"   /* definition of type realtype                    */
 
 /*************************************************/
 

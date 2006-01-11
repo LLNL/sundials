@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.55 $
- * $Date: 2005-10-18 23:21:50 $
+ * $Revision: 1.56 $
+ * $Date: 2006-01-11 21:13:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -593,11 +593,11 @@ extern "C" {
 
 /* header files  */
 
-#include "band.h"           /* definition of BandMat       */
-#include "cvode.h"          /* definition of type CVRhsFn  */
-#include "dense.h"          /* definition of DenseMat      */
-#include "nvector.h"        /* definition of type N_Vector */
-#include "sundialstypes.h"  /* definition of type realtype */
+#include "cvode.h"            /* definition of type CVRhsFn  */
+#include "sundials_band.h"    /* definition of BandMat       */
+#include "sundials_dense.h"   /* definition of DenseMat      */
+#include "sundials_nvector.h" /* definition of type N_Vector */
+#include "sundials_types.h"   /* definition of type realtype */
 
 /* Definitions of interface function names */
 

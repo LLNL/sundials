@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2005-10-11 16:02:39 $
+ * $Revision: 1.17 $
+ * $Date: 2006-01-11 21:13:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -19,12 +19,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvode.h"          /* CVODE constants and prototypes                    */
-#include "fcvode.h"         /* actual fn. names, prototypes and global variables */
-#include "fcvroot.h"        /* prototypes of interfaces to CVODE                 */
-#include "nvector.h"        /* definition of type N_Vector                       */
-#include "sundialstypes.h"  /* definition of SUNDIALS type realtype              */
-#include "cvode_impl.h"     /* definition of CVodeMem type                       */
+#include "cvode.h"            /* CVODE constants and prototypes                    */
+#include "fcvode.h"           /* actual fn. names, prototypes and global variables */
+#include "fcvroot.h"          /* prototypes of interfaces to CVODE                 */
+#include "cvode_impl.h"       /* definition of CVodeMem type                       */
+#include "sundials_nvector.h" /* definition of type N_Vector                       */
+#include "sundials_types.h"   /* definition of SUNDIALS type realtype              */
 
 /***************************************************************************/
 

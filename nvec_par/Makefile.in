@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2006-01-10 01:39:22 $
+# $Revision: 1.19 $
+# $Date: 2006-01-11 21:14:01 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -59,7 +59,7 @@ NVECPAR_LIB_FILES = nvector_parallel.lo
 FNVECPAR_LIB       = libsundials_fnvecparallel.la
 FNVECPAR_LIB_FILES = fnvector_parallel.lo
 
-SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundialsmath.lo
+SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_math.lo
 
 all: $(NVECPAR_LIB_FILES) $(FNVECPAR_LIB_FILES)
 

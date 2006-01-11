@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2005-06-27 19:44:01 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:13:53 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -19,12 +19,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ida.h"            /* IDA constants and prototypes          */
-#include "fida.h"           /* actual function names, prototypes and
-			       global variables                      */
-#include "fidaroot.h"       /* prototypes of interfaces to IDA       */
-#include "nvector.h"        /* definition of type N_Vector           */
-#include "sundialstypes.h"  /* definition of SUNDIALS type realtype  */
+#include "ida.h"              /* IDA constants and prototypes          */
+#include "fida.h"             /* actual function names, prototypes and
+			         global variables                      */
+#include "fidaroot.h"         /* prototypes of interfaces to IDA       */
+#include "sundials_nvector.h" /* definition of type N_Vector           */
+#include "sundials_types.h"   /* definition of SUNDIALS type realtype  */
 
 /***************************************************************************/
 

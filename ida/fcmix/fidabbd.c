@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2005-10-31 23:31:31 $
+ * $Revision: 1.7 $
+ * $Date: 2006-01-11 21:13:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -20,16 +20,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "idabbdpre.h"      /* prototypes of IDABBDPRE functions and macros */
-#include "ida.h"            /* IDA constants and prototypes                 */
-#include "idaspgmr.h"       /* prototypes of IDASPGMR interface routines    */
-#include "idaspbcg.h"       /* prototypes of IDASPBCG interface routines    */
-#include "idasptfqmr.h"     /* prototypes of IDASPTFQMR interface routines  */
-#include "fidabbd.h"        /* prototypes of interfaces to IDABBD           */
-#include "fida.h"           /* actual function names, prototypes and global
-			       variables                                    */
-#include "nvector.h"        /* definition of type N_Vector                  */
-#include "sundialstypes.h"  /* definition of type realtype                  */
+#include "fida.h"             /* function names, prototypes, global variables */
+#include "fidabbd.h"          /* prototypes of interfaces to IDABBD           */
+#include "ida.h"              /* IDA constants and prototypes                 */
+#include "ida_bbdpre.h"       /* prototypes of IDABBDPRE functions and macros */
+#include "ida_spgmr.h"        /* prototypes of IDASPGMR interface routines    */
+#include "ida_spbcgs.h"       /* prototypes of IDASPBCG interface routines    */
+#include "ida_sptfqmr.h"      /* prototypes of IDASPTFQMR interface routines  */
+#include "sundials_nvector.h" /* definition of type N_Vector                  */
+#include "sundials_types.h"   /* definition of type realtype                  */
 
 /*************************************************/
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2005-12-19 22:44:24 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-11 21:13:48 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -52,9 +52,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "sundialstypes.h"
+
 #include "cvodes.h"
 #include "nvector_parallel.h"
+#include "sundials_types.h"
+
 #include "mpi.h"
 
 /* Problem Constants */
