@@ -27,9 +27,9 @@ At top right:
  1.2637 1.2637 1.2637 37908.7 37908.7 37908.7
 
 Final Statistics.. 
-nni    =     5    nli   =    90
-nfe    =     6    nfeSG =    95
-nps    =    95    npe   =     1     ncfl  =     0
+nni    =     5    nli   =   115
+nfe    =     6    nfeSG =   120
+nps    =   120    npe   =     1     ncfl  =     2
 
 =========================================================
 
@@ -79,7 +79,7 @@ Number of species = 6
 Total system size = 150
 
 Flag globalstrategy = 0 (0 = None, 1 = Linesearch)
-Linear solver is SPTFQMR with maxl = 20
+Linear solver is SPTFQMR with maxl = 25
 Preconditioning uses interaction-only block-diagonal matrix
 Positivity constraints imposed on all components 
 Tolerance parameters:  fnormtol = 1e-07   scsteptol = 1e-13
@@ -97,6 +97,6 @@ At top right:
  1.2637 1.2637 1.2637 37908.7 37908.7 37908.7
 
 Final Statistics.. 
-nni    =     9    nli   =   156
-nfe    =    10    nfeSG =   638
-nps    =   638    npe   =     1     ncfl  =     7
+nni    =     7    nli   =   140
+nfe    =     8    nfeSG =   567
+nps    =   567    npe   =     1     ncfl  =     4

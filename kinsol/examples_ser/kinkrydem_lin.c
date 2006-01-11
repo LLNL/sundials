@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-11 22:50:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -314,7 +314,7 @@ int main(void)
 
       /* Call KINSptfqmr to specify the linear solver KINSPTFQMR with preconditioner
 	 routines PrecSetupBD and PrecSolveBD, and the pointer to the user block data. */
-      maxl = 20; 
+      maxl = 25; 
       flag = KINSptfqmr(kmem, maxl);
       if (check_flag(&flag, "KINSptfqmr", 1)) return(1);
 
