@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:38 $
 
 % Location of sundialsTB
 
@@ -89,17 +89,17 @@ libraries = '';
 
 % Add CVODES sources and header files
 
-cvodes_src = {'cvband.c'
-              'cvbandpre.c'
-              'cvbbdpre.c'
-              'cvdense.c'
-              'cvdiag.c'
+cvodes_src = {'cvodes_band.c'
+              'cvodes_bandpre.c'
+              'cvodes_bbdpre.c'
+              'cvodes_dense.c'
+              'cvodes_diag.c'
               'cvodea.c'
               'cvodes.c'
-              'cvodesio.c'
-              'cvspbcg.c'
-              'cvspgmr.c'
-              'cvsptfqmr.c'};
+              'cvodes_io.c'
+              'cvodes_spbcgs.c'
+              'cvodes_spgmr.c'
+              'cvodes_sptfqmr.c'};
 
 for i=1:length(cvodes_src)
   tmp = strcat(sun,'/cvodes/source/',cvodes_src{i});
@@ -110,15 +110,15 @@ includes = sprintf('%s -I%s/cvodes/include -I%s/cvodes/source',includes,sun,sun)
 
 % Add SHARED sources and header files
 
-shared_src = {'band.c'
-              'dense.c'
-              'iterative.c'
-              'nvector.c'
-              'smalldense.c'
-              'spbcg.c'
-              'spgmr.c'
-              'sptfqmr.c'
-              'sundialsmath.c'};
+shared_src = {'sundials_band.c'
+              'sundials_dense.c'
+              'sundials_iterative.c'
+              'sundials_nvector.c'
+              'sundials_smalldense.c'
+              'sundials_spbcgs.c'
+              'sundials_spgmr.c'
+              'sundials_sptfqmr.c'
+              'sundials_math.c'};
 
 for i=1:length(shared_src)
   tmp = strcat(sun,'/shared/source/',shared_src{i});
@@ -191,14 +191,14 @@ libraries = '';
 
 % Add KINSOL sources and header files
 
-kinsol_src = {'kinband.c'
-              'kinbbdpre.c'
-              'kindense.c'
+kinsol_src = {'kinsol_band.c'
+              'kinsol_bbdpre.c'
+              'kinsol_dense.c'
               'kinsol.c'
-              'kinsolio.c'
-              'kinspbcg.c'
-              'kinspgmr.c'
-              'kinsptfqmr.c'};
+              'kinsol_io.c'
+              'kinsol_spbcgs.c'
+              'kinsol_spgmr.c'
+              'kinsol_sptfqmr.c'};
 
 for i=1:length(kinsol_src)
   tmp = strcat(sun,'/kinsol/source/',kinsol_src{i});
@@ -209,15 +209,15 @@ includes = sprintf('%s -I%s/kinsol/include -I%s/kinsol/source',includes,sun,sun)
 
 % Add SHARED sources and header files
 
-shared_src = {'band.c'
-              'dense.c'
-              'iterative.c'
-              'nvector.c'
-              'smalldense.c'
-              'spbcg.c'
-              'spgmr.c'
-              'sptfqmr.c'
-              'sundialsmath.c'};
+shared_src = {'sundials_band.c'
+              'sundials_dense.c'
+              'sundials_iterative.c'
+              'sundials_nvector.c'
+              'sundials_smalldense.c'
+              'sundials_spbcgs.c'
+              'sundials_spgmr.c'
+              'sundials_sptfqmr.c'
+              'sundials_math.c'};
 
 for i=1:length(shared_src)
   tmp = strcat(sun,'/shared/source/',shared_src{i});

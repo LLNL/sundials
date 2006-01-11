@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:23 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:40:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,11 +25,11 @@ extern "C" {
 #include <stdlib.h>
 #include "mex.h"
 #include "kinsol.h"
-#include "kindense.h"
-#include "kinspgmr.h"
-#include "kinspbcg.h"
-#include "kinbbdpre.h"
-#include "nvector.h"
+#include "kinsol_dense.h"
+#include "kinsol_spgmr.h"
+#include "kinsol_spbcgs.h"
+#include "kinsol_bbdpre.h"
+#include "sundials_nvector.h"
 
   /*
    * ---------------------------------------------------------------------------------

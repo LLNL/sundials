@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:21 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-11 21:40:27 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,14 +26,14 @@ extern "C" {
 #include "mex.h"
 #include "cvodes.h"
 #include "cvodea.h"
-#include "cvdense.h"
-#include "cvdiag.h"
-#include "cvband.h"
-#include "cvspgmr.h"
-#include "cvspbcg.h"
-#include "cvbandpre.h"
-#include "cvbbdpre.h"
-#include "nvector.h"
+#include "cvodes_dense.h"
+#include "cvodes_diag.h"
+#include "cvodes_band.h"
+#include "cvodes_spgmr.h"
+#include "cvodes_spbcgs.h"
+#include "cvodes_bandpre.h"
+#include "cvodes_bbdpre.h"
+#include "sundials_nvector.h"
 
   /*
    * ---------------------------------------------------------------------------------
