@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 22:53:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -24,12 +24,14 @@
 /* Readability replacements */
 
 #define ytmp        (ca_mem->ca_ytmp)
-#define P_data_B    (ca_mem->ca_P_dataB)
-#define jac_data_B  (ca_mem->ca_jac_dataB)
-#define pset_B      (ca_mem->ca_psetB)
-#define psolve_B    (ca_mem->ca_psolveB)
-#define jtimes_B    (ca_mem->ca_jtimesB)
 #define getY        (ca_mem->ca_getY)
+#define lmemB       (ca_mem->ca_lmemB)
+
+#define pset_B      (cvspilsB_mem->s_psetB)
+#define psolve_B    (cvspilsB_mem->s_psolveB)
+#define jtimes_B    (cvspilsB_mem->s_jtimesB)
+#define P_data_B    (cvspilsB_mem->s_P_dataB)
+#define jac_data_B  (cvspilsB_mem->s_jac_dataB)
 
 /*
  * CVAspilsPrecSetup
@@ -46,9 +48,11 @@ int CVAspilsPrecSetup(realtype t, N_Vector yB,
                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
+  CVSpilsMemB cvspilsB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvspilsB_mem = (CVSpilsMemB) lmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
@@ -79,9 +83,11 @@ int CVAspilsPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
                       int lrB, void *cvadj_mem, N_Vector tmpB)
 {
   CVadjMem ca_mem;
+  CVSpilsMemB cvspilsB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvspilsB_mem = (CVSpilsMemB) lmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
@@ -111,9 +117,11 @@ int CVAspilsJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
                         void *cvadj_mem, N_Vector tmpB)
 {
   CVadjMem ca_mem;
+  CVSpilsMemB cvspilsB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvspilsB_mem = (CVSpilsMemB) lmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);

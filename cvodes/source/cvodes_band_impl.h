@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-12 22:53:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -29,6 +29,8 @@ extern "C" {
    * -----------------------------------------------------------------
    * The type CVBandMem is pointer to a CVBandMemRec.
    * This structure contains CVBand solver-specific data.                
+   *
+   * CVBand attaches such a structure to the lmem field of CVodeMem
    * -----------------------------------------------------------------
    */                                                                
 
@@ -63,7 +65,28 @@ extern "C" {
   
   } CVBandMemRec, *CVBandMem;
 
-  /* Error Messages */
+
+  /*
+   * -----------------------------------------------------------------
+   * Types : CVBandMemRecB, CVBandMemB       
+   * -----------------------------------------------------------------
+   * CVBandB attaches such a structure to the lmemB filed of CVadjMem
+   * -----------------------------------------------------------------
+   */
+
+  typedef struct {
+
+    CVBandJacFnB b_bjacB;
+    void *b_jac_dataB;
+
+  } CVBandMemRecB, *CVBandMemB;
+
+
+  /*
+   * -----------------------------------------------------------------
+   * Error Messages 
+   * -----------------------------------------------------------------
+   */
 
 #define _CVBAND_         "CVBand-- "
 #define MSGB_MEM_FAIL    _CVBAND_ "A memory request failed.\n\n"

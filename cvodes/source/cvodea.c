@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.55 $
- * $Date: 2006-01-12 20:24:06 $
+ * $Revision: 1.56 $
+ * $Date: 2006-01-12 22:53:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -95,12 +95,12 @@ static void CVArhsQ(realtype t, N_Vector yB,
 #define fQ_data_B   (ca_mem->ca_fQ_dataB)
 #define t_for_quad  (ca_mem->ca_t_for_quad)
 
-#define jac_data_B  (ca_mem->ca_jac_dataB)
+
+
 #define bbd_data_B  (ca_mem->ca_bbd_dataB)
 #define bp_data_B   (ca_mem->ca_bp_dataB)
-#define pset_B      (ca_mem->ca_psetB)
-#define psolve_B    (ca_mem->ca_psolveB)
-#define jtimes_B    (ca_mem->ca_jtimesB)
+
+
 
 #define Y0          (ca_mem->ca_Y0)
 #define Y1          (ca_mem->ca_Y1)
@@ -295,21 +295,6 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
 
   ca_mem->ca_f_dataB = NULL;
   ca_mem->ca_fQ_dataB = NULL;
-
-
-
-
-  ca_mem->ca_jac_dataB = NULL;
-  ca_mem->ca_P_dataB = NULL;
-  ca_mem->ca_bp_dataB = NULL;
-  ca_mem->ca_bbd_dataB = NULL;
-
-  ca_mem->ca_jtimesB = NULL;
-  ca_mem->ca_psetB = NULL;
-  ca_mem->ca_psolveB = NULL;
-
-
-
 
   return((void *)ca_mem);
 } 

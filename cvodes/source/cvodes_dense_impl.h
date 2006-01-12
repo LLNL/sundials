@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-12 22:53:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -28,7 +28,9 @@ extern "C" {
    * Types : CVDenseMemRec, CVDenseMem                             
    * -----------------------------------------------------------------
    * The type CVDenseMem is pointer to a CVDenseMemRec.
-   * This structure contains CVDense solver-specific data. 
+   * This structure contains CVDense solver-specific data.
+   *
+   * CVDense attaches such a structure to the lmem field of CVodeMem
    * -----------------------------------------------------------------
    */
 
@@ -57,7 +59,27 @@ extern "C" {
   
   } CVDenseMemRec, *CVDenseMem;
 
-  /* Error Messages */
+
+  /*
+   * -----------------------------------------------------------------
+   * Types : CVDenseMemRecB, CVDenseMemB       
+   * -----------------------------------------------------------------
+   * CVDenseB attaches such a structure to the lmemB filed of CVadjMem
+   * -----------------------------------------------------------------
+   */
+
+  typedef struct {
+
+    CVDenseJacFnB d_djacB;
+    void *d_jac_dataB;
+
+  } CVDenseMemRecB, *CVDenseMemB;
+
+  /*
+   * -----------------------------------------------------------------
+   * Error Messages 
+   * -----------------------------------------------------------------
+   */
 
 #define _CVDENSE_         "CVDense-- "
 #define MSGDS_CVMEM_NULL  _CVDENSE_ "Integrator memory is NULL.\n\n"

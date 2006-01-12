@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-12 22:53:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -366,10 +366,12 @@ int CVBandGetLastFlag(void *cvode_mem, int *flag)
 
 /* Additional readability replacements */
 
-#define bjac_B      (ca_mem->ca_bjacB)
-#define jac_data_B  (ca_mem->ca_jac_dataB)
 #define ytmp        (ca_mem->ca_ytmp)
 #define getY        (ca_mem->ca_getY)
+#define lmemB       (ca_mem->ca_lmemB)
+
+#define bjac_B      (cvbandB_mem->b_bjacB)
+#define jac_data_B  (cvbandB_mem->b_jac_dataB)
 
 /*
  * CVBandB and CVBandSet*B
@@ -382,11 +384,22 @@ int CVBandB(void *cvadj_mem, long int nB,
             long int mupperB, long int mlowerB)
 {
   CVadjMem ca_mem;
+  CVBandMemB cvbandB_mem;
   void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) return(CVBAND_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
+
+  /* Get memory for CVBandMemRecB */
+  cvbandB_mem = (CVBandMemB) malloc(sizeof(CVBandMemRecB));
+  if (cvbandB_mem == NULL) return(CVBAND_MEM_FAIL);
+
+  bjac_B = NULL;
+  jac_data_B = NULL;
+
+  /* attach lmemB */
+  lmemB = cvbandB_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
   
@@ -398,11 +411,15 @@ int CVBandB(void *cvadj_mem, long int nB,
 int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB)
 {
   CVadjMem ca_mem;
+  CVBandMemB cvbandB_mem;
   void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) return(CVBAND_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
+
+  if (lmemB == NULL) return(CVBAND_LMEMB_NULL);
+  cvbandB_mem = (CVBandMemB) lmemB;
 
   bjac_B     = bjacB;
   jac_data_B = jac_dataB;
@@ -428,9 +445,11 @@ static void CVAbandJac(long int nB, long int mupperB,
                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
+  CVBandMemB cvbandB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvbandB_mem = (CVBandMemB) lmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);

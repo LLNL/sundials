@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-12 22:53:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -625,11 +625,13 @@ int CVSpbcgGetLastFlag(void *cvode_mem, int *flag)
 
 /* Additional readability replacements */
 
-#define pset_B      (ca_mem->ca_psetB)
-#define psolve_B    (ca_mem->ca_psolveB)
-#define jtimes_B    (ca_mem->ca_jtimesB)
-#define P_data_B    (ca_mem->ca_P_dataB)
-#define jac_data_B  (ca_mem->ca_jac_dataB)
+#define lmemB       (ca_mem->ca_lmemB)
+
+#define pset_B      (cvspilsB_mem->s_psetB)
+#define psolve_B    (cvspilsB_mem->s_psolveB)
+#define jtimes_B    (cvspilsB_mem->s_jtimesB)
+#define P_data_B    (cvspilsB_mem->s_P_dataB)
+#define jac_data_B  (cvspilsB_mem->s_jac_dataB)
 
 /*
  * CVSpbcgB and CVSpbcgSet*B
@@ -641,11 +643,25 @@ int CVSpbcgGetLastFlag(void *cvode_mem, int *flag)
 int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
 {
   CVadjMem ca_mem;
+  CVSpilsMemB cvspilsB_mem;
   void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) return(CVSPBCG_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
+
+  /* Get memory for CVSpilsMemRecB */
+  cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
+  if (cvspilsB_mem == NULL) return(CVSPBCG_MEM_FAIL);
+
+  pset_B = NULL;
+  psolve_B = NULL;
+  jtimes_B = NULL;
+  P_data_B = NULL;
+  jac_data_B = NULL;
+
+  /* attach lmemB */
+  lmemB = cvspilsB_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
   
@@ -690,11 +706,15 @@ int CVSpbcgSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
                               CVSpilsPrecSolveFnB psolveB, void *P_dataB)
 {
   CVadjMem ca_mem;
+  CVSpilsMemB cvspilsB_mem; 
   void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) return(CVSPBCG_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
+
+  if (lmemB == NULL) return(CVSPBCG_LMEMB_NULL);
+  cvspilsB_mem = (CVSpilsMemB) lmemB;
 
   pset_B   = psetB;
   psolve_B = psolveB;
@@ -712,12 +732,16 @@ int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem,
                              CVSpilsJacTimesVecFnB jtimesB, void *jac_dataB)
 {
   CVadjMem ca_mem;
+  CVSpilsMemB cvspilsB_mem; 
   void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) return(CVSPBCG_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
+  if (lmemB == NULL) return(CVSPBCG_LMEMB_NULL);
+  cvspilsB_mem = (CVSpilsMemB) lmemB;
+  
   jtimes_B   = jtimesB;
   jac_data_B = jac_dataB;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 22:53:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -59,7 +59,27 @@ extern "C" {
   int CVAspilsJacTimesVec(N_Vector vB, N_Vector JvB, realtype t, 
                           N_Vector yB, N_Vector fyB, 
                           void *cvadj_mem, N_Vector tmpB);
-  
+
+  /*
+   * -----------------------------------------------------------------
+   * Types : CVSpilsMemRecB, CVSpilsMemB       
+   * -----------------------------------------------------------------
+   * CVSpgmrB, CVSpbcgB, and CVSptfqmr attach such a structure to the 
+   * lmemB filed of CVadjMem
+   * -----------------------------------------------------------------
+   */
+
+  typedef struct {
+
+    CVSpilsJacTimesVecFnB s_jtimesB;
+    CVSpilsPrecSetupFnB s_psetB;
+    CVSpilsPrecSolveFnB s_psolveB;
+    void *s_P_dataB;
+    void *s_jac_dataB;
+
+  } CVSpilsMemRecB, *CVSpilsMemB;
+
+
 #ifdef __cplusplus
 }
 #endif

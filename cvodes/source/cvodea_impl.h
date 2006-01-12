@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2006-01-12 20:24:06 $
+ * $Revision: 1.14 $
+ * $Date: 2006-01-12 22:53:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -45,6 +45,7 @@ extern "C" {
    */
 
   typedef struct CVadjMemRec *CVadjMem;
+  typedef struct CkpntMemRec *CkpntMem;
   typedef struct DtpntMemRec *DtpntMem;
 
   /*
@@ -71,7 +72,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef struct CkpntMemRec {
+  struct CkpntMemRec {
 
     /* Integration limits */
     realtype ck_t0;
@@ -114,7 +115,7 @@ extern "C" {
     /* Pointer to next structure in list */
     struct CkpntMemRec *ck_next;
     
-  } *CkpntMem;
+  };
   
   /*
    * -----------------------------------------------------------------
@@ -179,41 +180,34 @@ extern "C" {
     
     /* Right hand side quadrature function (fQB) for backward run */
     CVQuadRhsFnB ca_fQB;
-    
-    /* Dense Jacobian function (djacB) for backward run */
-    CVDenseJacFnB ca_djacB;
-    
-    /* Banded Jacobian function (bjacB) for backward run */
-    CVBandJacFnB ca_bjacB;
-    
-    /* Jac times vec routine (jtimesB) for backward run */
-    CVSpilsJacTimesVecFnB ca_jtimesB;
-    
-    /* Preconditioner routines (precondB and psolveB) for backward run */
-    CVSpilsPrecSetupFnB ca_psetB;
-    CVSpilsPrecSolveFnB ca_psolveB;
-    
-    /* BBD user functions (glocB and cfnB) for backward run */
-    CVLocalFnB ca_glocB;
-    CVCommFnB  ca_cfnB;
-    
+
     /* User f_dataB */
     void *ca_f_dataB;
     
     /* User fQ_dataB */
     void *ca_fQ_dataB;
     
-    /* User jac_dataB */
-    void *ca_jac_dataB;
-    
-    /* User P_dataB */
-    void *ca_P_dataB;
+    /* Memory block for a linear solver's interface to CVODEA */
+    void *ca_lmemB;
+
+    /* Memory block for a preconditioner's module interface to CVODEA */ 
+    void *ca_pmemB;
+
+
+
+
+    /* BBD user functions (glocB and cfnB) for backward run */
+    CVLocalFnB ca_glocB;
+    CVCommFnB  ca_cfnB;
     
     /* BP prec data */
     void *ca_bp_dataB;
     
     /* BBD prec data */
     void *ca_bbd_dataB;
+
+
+
     
     /* Unit roundoff */
     realtype ca_uround;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-12 22:53:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -346,10 +346,13 @@ int CVDenseGetLastFlag(void *cvode_mem, int *flag)
 
 /* Additional readability replacements */
 
-#define djac_B      (ca_mem->ca_djacB)
-#define jac_data_B  (ca_mem->ca_jac_dataB)
 #define ytmp        (ca_mem->ca_ytmp)
 #define getY        (ca_mem->ca_getY)
+#define lmemB       (ca_mem->ca_lmemB)
+
+#define djac_B      (cvdenseB_mem->d_djacB)
+#define jac_data_B  (cvdenseB_mem->d_jac_dataB)
+
 
 /*
  * CVDenseB and CVdenseSet*B
@@ -361,11 +364,22 @@ int CVDenseGetLastFlag(void *cvode_mem, int *flag)
 int CVDenseB(void *cvadj_mem, long int nB)
 {
   CVadjMem ca_mem;
+  CVDenseMemB cvdenseB_mem;
   void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) return(CVDENSE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
+
+  /* Get memory for CVDenseMemRecB */
+  cvdenseB_mem = (CVDenseMemB) malloc(sizeof(CVDenseMemRecB));
+  if (cvdenseB_mem == NULL) return(CVDENSE_MEM_FAIL);
+
+  djac_B = NULL;
+  jac_data_B = NULL;
+
+  /* attach lmemB */
+  lmemB = cvdenseB_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
   
@@ -377,11 +391,15 @@ int CVDenseB(void *cvadj_mem, long int nB)
 int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
 {
   CVadjMem ca_mem;
+  CVDenseMemB cvdenseB_mem;
   void *cvode_mem;
   int flag;
 
   if (cvadj_mem == NULL) return(CVDENSE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
+
+  if (lmemB == NULL) return(CVDENSE_LMEMB_NULL);
+  cvdenseB_mem = (CVDenseMemB) lmemB;
 
   djac_B     = djacB;
   jac_data_B = jac_dataB;
@@ -406,9 +424,11 @@ static void CVAdenseJac(long int nB, DenseMat JB, realtype t,
                         N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
+  CVDenseMemB cvdenseB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvdenseB_mem = (CVDenseMemB) lmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
