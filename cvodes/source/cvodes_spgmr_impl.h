@@ -1,12 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -16,8 +15,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVSPGMR_IMPL_H
-#define _CVSPGMR_IMPL_H
+#ifndef _CVSSPGMR_IMPL_H
+#define _CVSSPGMR_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -25,60 +24,60 @@ extern "C" {
 
 #include "cvodes_spgmr.h"
 
-/*
- * -----------------------------------------------------------------
- * Types : CVSpgmrMemRec, CVSpgmrMem
- * -----------------------------------------------------------------
- * The type CVSpgmrMem is pointer to a CVSpgmrMemRec.
- * This structure contains CVSpgmr solver-specific data.
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Types : CVSpgmrMemRec, CVSpgmrMem
+   * -----------------------------------------------------------------
+   * The type CVSpgmrMem is pointer to a CVSpgmrMemRec.
+   * This structure contains CVSpgmr solver-specific data.
+   * -----------------------------------------------------------------
+   */
 
-typedef struct {
+  typedef struct {
 
-  int  g_pretype;       /* type of preconditioning                      */
-  int  g_gstype;        /* type of Gram-Schmidt orthogonalization       */
-  realtype g_sqrtN;     /* sqrt(N)                                      */
-  realtype g_delt;      /* delt = user specified or DELT_DEFAULT        */
-  realtype g_deltar;    /* deltar = delt * tq4                          */
-  realtype g_delta;     /* delta = deltar * sqrtN                       */
-  int  g_maxl;          /* maxl = maximum dimension of the Krylov space */
+    int  g_pretype;       /* type of preconditioning                      */
+    int  g_gstype;        /* type of Gram-Schmidt orthogonalization       */
+    realtype g_sqrtN;     /* sqrt(N)                                      */
+    realtype g_delt;      /* delt = user specified or DELT_DEFAULT        */
+    realtype g_deltar;    /* deltar = delt * tq4                          */
+    realtype g_delta;     /* delta = deltar * sqrtN                       */
+    int  g_maxl;          /* maxl = maximum dimension of the Krylov space */
 
-  long int g_nstlpre;   /* value of nst at the last pset call           */
-  long int g_npe;       /* npe = total number of pset calls             */
-  long int g_nli;       /* nli = total number of linear iterations      */
-  long int g_nps;       /* nps = total number of psolve calls           */
-  long int g_ncfl;      /* ncfl = total number of convergence failures  */
-  long int g_njtimes;   /* njtimes = total number of calls to jtimes    */
-  long int g_nfeSG;     /* nfeSG = total number of calls to f for     
-                           difference quotient Jacobian-vector products */
+    long int g_nstlpre;   /* value of nst at the last pset call           */
+    long int g_npe;       /* npe = total number of pset calls             */
+    long int g_nli;       /* nli = total number of linear iterations      */
+    long int g_nps;       /* nps = total number of psolve calls           */
+    long int g_ncfl;      /* ncfl = total number of convergence failures  */
+    long int g_njtimes;   /* njtimes = total number of calls to jtimes    */
+    long int g_nfeSG;     /* nfeSG = total number of calls to f for     
+                             difference quotient Jacobian-vector products */
 
-  N_Vector g_ytemp;     /* temp vector passed to jtimes and psolve      */
-  N_Vector g_x;         /* temp vector used by CVSpgmrSolve             */
-  N_Vector g_ycur;      /* CVODE current y vector in Newton Iteration   */
-  N_Vector g_fcur;      /* fcur = f(tn, ycur)                           */
+    N_Vector g_ytemp;     /* temp vector passed to jtimes and psolve      */
+    N_Vector g_x;         /* temp vector used by CVSpgmrSolve             */
+    N_Vector g_ycur;      /* CVODE current y vector in Newton Iteration   */
+    N_Vector g_fcur;      /* fcur = f(tn, ycur)                           */
 
-  CVSpilsPrecSetupFn g_pset; 
-                        /* pset = user-supplied routine to compute      */
-                        /* a preconditioner                             */
+    CVSpilsPrecSetupFn g_pset; 
+    /* pset = user-supplied routine to compute      */
+    /* a preconditioner                             */
 
-  CVSpilsPrecSolveFn g_psolve;   
-                        /* psolve = user-supplied routine to solve      */
-                        /* preconditioner linear system                 */
+    CVSpilsPrecSolveFn g_psolve;   
+    /* psolve = user-supplied routine to solve      */
+    /* preconditioner linear system                 */
 
-  void *g_P_data;       /* P_data passed to psolve and pset             */
-  SpgmrMem g_spgmr_mem; /* spgmr_mem is memory used by the              */
-                        /* generic Spgmr solver                         */
+    void *g_P_data;       /* P_data passed to psolve and pset             */
+    SpgmrMem g_spgmr_mem; /* spgmr_mem is memory used by the              */
+    /* generic Spgmr solver                         */
 
-  CVSpilsJacTimesVecFn g_jtimes;  
-                        /* jtimes = Jacobian * vector routine           */
-  void *g_j_data;       /* j_data is passed to jtimes                   */
+    CVSpilsJacTimesVecFn g_jtimes;  
+    /* jtimes = Jacobian * vector routine           */
+    void *g_j_data;       /* j_data is passed to jtimes                   */
 
-  int g_last_flag;      /* last error flag returned by any function     */
+    int g_last_flag;      /* last error flag returned by any function     */
 
-} CVSpgmrMemRec, *CVSpgmrMem;
+  } CVSpgmrMemRec, *CVSpgmrMem;
 
-/* Error Messages */
+  /* Error Messages */
 
 #define _CVSPGMR_         "CVSpgmr-- "
 #define MSGS_CVMEM_NULL   _CVSPGMR_ "Integrator memory is NULL.\n\n"

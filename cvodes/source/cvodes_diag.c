@@ -1,12 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -20,6 +19,7 @@
 
 #include "cvodes_diag_impl.h"
 #include "cvodes_impl.h"
+#include "cvodea_impl.h"
 
 /* Other Constants */
   
@@ -68,6 +68,13 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define bitcomp   (cvdiag_mem->di_bitcomp)
 #define nfeDI     (cvdiag_mem->di_nfeDI)
 #define last_flag (cvdiag_mem->di_last_flag)
+
+
+/* 
+ * =================================================================
+ * PART I - forward problems
+ * =================================================================
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -233,6 +240,43 @@ int CVDiagGetLastFlag(void *cvode_mem, int *flag)
 
   return(CVDIAG_SUCCESS);
 }
+
+
+/* 
+ * =================================================================
+ * PART II - backward problems
+ * =================================================================
+ */
+
+/*
+ * CVDiagB
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVDiagB(void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVDIAG_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVDiag(cvode_mem);
+
+  return(flag);
+}
+
+/* 
+ * =================================================================
+ * PART III - private functions
+ * =================================================================
+ */
+
 
 /*
  * -----------------------------------------------------------------

@@ -1,12 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
- *                and Aaron Collier @ LLNL
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -24,7 +23,9 @@
 #include "cvodes_sptfqmr_impl.h"
 #include "cvodes_spbcgs_impl.h"
 #include "cvodes_spgmr_impl.h"
+
 #include "cvodes_impl.h"
+#include "cvodea_impl.h"
 
 #include "sundials_math.h"
 
@@ -54,6 +55,13 @@ static void CVBandPDQJac(CVBandPrecData pdata,
 
 #define vec_tmpl (cv_mem->cv_tempv)
 #define errfp    (cv_mem->cv_errfp)
+
+
+/* 
+ * =================================================================
+ * PART I - forward problems
+ * =================================================================
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -232,6 +240,102 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 
   return(CV_SUCCESS);
 }
+
+
+/* 
+ * =================================================================
+ * PART II - backward problems
+ * =================================================================
+ */
+
+/* Additional readability replacements */
+
+#define bp_data_B   (ca_mem->ca_bp_dataB)
+
+/*
+ * CVBandPrecAllocB, CVBPSp*B
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVBandPrecAllocB(void *cvadj_mem, long int nB, 
+                     long int muB, long int mlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  void *bp_dataB;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  bp_dataB = CVBandPrecAlloc(cvode_mem, nB, muB, mlB);
+
+  if (bp_dataB == NULL) return(CV_PDATA_NULL);
+
+  bp_data_B = bp_dataB;
+
+  return(CV_SUCCESS);
+
+}
+
+int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBPSptfqmr(cvode_mem, pretypeB, maxlB, bp_data_B);
+
+  return(flag);
+}
+
+int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBPSpbcg(cvode_mem, pretypeB, maxlB, bp_data_B);
+
+  return(flag);
+}
+
+int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBPSpgmr(cvode_mem, pretypeB, maxlB, bp_data_B);
+
+  return(flag);
+}
+
+
+/* 
+ * =================================================================
+ * PART III - private functions
+ * =================================================================
+ */
+
 
 /* Readability Replacements */
 
@@ -414,7 +518,7 @@ static void CVBandPDQJac(CVBandPrecData pdata,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
+    (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing. */
   width = ml + mu + 1;

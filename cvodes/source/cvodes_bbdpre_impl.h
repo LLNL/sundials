@@ -1,12 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -15,8 +14,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVBBDPRE_IMPL_H
-#define _CVBBDPRE_IMPL_H
+#ifndef _CVSBBDPRE_IMPL_H
+#define _CVSBBDPRE_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -25,60 +24,60 @@ extern "C" {
 #include "cvodes_bbdpre.h"
 #include "sundials_band.h"
 
-/*
- * -----------------------------------------------------------------
- * Type: CVBBDPrecData
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Type: CVBBDPrecData
+   * -----------------------------------------------------------------
+   */
 
-typedef struct {
+  typedef struct {
 
-  /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
+    /* passed by user to CVBBDPrecAlloc and used by PrecSetup/PrecSolve */
 
-  long int mudq, mldq, mukeep, mlkeep;
-  realtype dqrely;
-  CVLocalFn gloc;
-  CVCommFn cfn;
+    long int mudq, mldq, mukeep, mlkeep;
+    realtype dqrely;
+    CVLocalFn gloc;
+    CVCommFn cfn;
 
-  /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
+    /* set by CVBBDPrecSetup and used by CVBBDPrecSolve */
 
-  BandMat savedJ;
-  BandMat savedP;
-  long int *pivots;
+    BandMat savedJ;
+    BandMat savedP;
+    long int *pivots;
 
-  /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
+    /* set by CVBBDPrecAlloc and used by CVBBDPrecSetup */
 
-  long int n_local;
+    long int n_local;
 
-  /* available for optional output */
+    /* available for optional output */
 
-  long int rpwsize;
-  long int ipwsize;
-  long int nge;
+    long int rpwsize;
+    long int ipwsize;
+    long int nge;
 
-  /* pointer to cvode_mem */
+    /* pointer to cvode_mem */
 
-  void *cvode_mem;
+    void *cvode_mem;
 
-} *CVBBDPrecData;
+  } *CVBBDPrecData;
 
-/*
- * -----------------------------------------------------------------
- * CVBBDPRE error messages
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * CVBBDPRE error messages
+   * -----------------------------------------------------------------
+   */
 
-/* CVBBDAlloc error messages */
+  /* CVBBDAlloc error messages */
 
 #define _CVBBDALLOC_        "CVBBDAlloc-- "
 #define MSGBBDP_CVMEM_NULL  _CVBBDALLOC_ "Integrator memory is NULL.\n\n"
 #define MSGBBDP_BAD_NVECTOR _CVBBDALLOC_ "A required vector operation is not implemented.\n\n"
 
-/* CVBBDPrecGet* error message */
+  /* CVBBDPrecGet* error message */
 
 #define MSGBBDP_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL.\n\n"
 
-/* CVBBDSp* error message */
+  /* CVBBDSp* error message */
 
 #define MSGBBDP_NO_PDATA "CVBBDSp*-- BBDPrecData is NULL.\n\n"
 

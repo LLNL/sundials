@@ -1,12 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
- *                and Aaron Collier @ LLNL
+ * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -25,7 +24,10 @@
 #include "cvodes_sptfqmr_impl.h"
 #include "cvodes_spbcgs_impl.h"
 #include "cvodes_spgmr_impl.h"
+
 #include "cvodes_impl.h"
+#include "cvodea_impl.h"
+
 #include "sundials_math.h"
 
 #define MIN_INC_MULT RCONST(1000.0)
@@ -44,6 +46,14 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
                           realtype gamma, realtype delta,
                           int lr, void *bbd_data, N_Vector tmp);
 
+/* Wrapper functions for adjoint code */
+
+static void CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
+                    void *cvadj_mem);
+
+static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
+                   void *cvadj_mem);
+
 /* Prototype for difference quotient Jacobian calculation routine */
 
 static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
@@ -55,6 +65,13 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 #define errfp    (cv_mem->cv_errfp)
 #define uround   (cv_mem->cv_uround)
 #define vec_tmpl (cv_mem->cv_tempv)
+
+/* 
+ * =================================================================
+ * PART I - forward problems
+ * =================================================================
+ */
+
 
 /*
  * -----------------------------------------------------------------
@@ -270,6 +287,197 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   return(CV_SUCCESS);
 }
 
+
+
+/* 
+ * =================================================================
+ * PART II - backward problems
+ * =================================================================
+ */
+
+/* Additional readability replacements */
+
+#define bbd_data_B  (ca_mem->ca_bbd_dataB)
+#define gloc_B      (ca_mem->ca_glocB)
+#define cfn_B       (ca_mem->ca_cfnB)
+#define ytmp        (ca_mem->ca_ytmp)
+#define f_data_B    (ca_mem->ca_f_dataB)
+#define getY        (ca_mem->ca_getY)
+
+/*
+ * CVBBDPrecAllocB, CVBPSp*B
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB, 
+                    long int mudqB, long int mldqB, 
+                    long int mukeepB, long int mlkeepB, 
+                    realtype dqrelyB,
+                    CVLocalFnB glocB, CVCommFnB cfnB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  void *bbd_dataB;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  gloc_B = glocB;
+  cfn_B  = cfnB;
+
+  bbd_dataB = CVBBDPrecAlloc(cvode_mem, NlocalB, 
+                             mudqB, mldqB,
+                             mukeepB, mlkeepB, 
+                             dqrelyB, 
+                             CVAgloc, CVAcfn);
+
+  if (bbd_dataB == NULL) return(CV_PDATA_NULL);
+
+  bbd_data_B = bbd_dataB;
+
+  return(CV_SUCCESS);
+
+}
+
+int CVBBDSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+  
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+  
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBBDSptfqmr(cvode_mem, pretypeB, maxlB, bbd_data_B);
+
+  return(flag);
+
+}
+
+int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+  
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+  
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBBDSpbcg(cvode_mem, pretypeB, maxlB, bbd_data_B);
+
+  return(flag);
+
+}
+
+int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+  
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+  
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVBBDSpgmr(cvode_mem, pretypeB, maxlB, bbd_data_B);
+
+  return(flag);
+
+}
+
+int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
+                     realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB)
+{
+  CVadjMem ca_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+  
+  gloc_B = glocB;
+  cfn_B  = cfnB;
+
+  flag = CVBBDPrecReInit(bbd_data_B, mudqB, mldqB,
+                         dqrelyB, CVAgloc, CVAcfn);
+
+  return(flag);
+}
+
+/*
+ * CVAgloc
+ *
+ * This routine interfaces to the CVLocalFnB routine 
+ * provided by the user.
+ * NOTE: f_data actually contains cvadj_mem
+ */
+
+static void CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
+                    void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  /* Forward solution from interpolation */
+  flag = getY(ca_mem, t, ytmp);
+  if (flag != CV_SUCCESS) {
+    printf("\n\nBad t in interpolation\n\n");
+    exit(1);
+  } 
+
+  /* Call user's adjoint glocB routine */
+  gloc_B(NlocalB, t, ytmp, yB, gB, f_data_B);
+}
+
+/*
+ * CVAcfn
+ *
+ * This routine interfaces to the CVCommFnB routine 
+ * provided by the user.
+ * NOTE: f_data actually contains cvadj_mem
+ */
+
+static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
+                   void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  if (cfn_B == NULL) return;
+
+  /* Forward solution from interpolation */
+  flag = getY(ca_mem, t, ytmp);
+  if (flag != CV_SUCCESS) {
+    printf("\n\nBad t in interpolation\n\n");
+    exit(1);
+  } 
+
+  /* Call user's adjoint cfnB routine */
+  cfn_B(NlocalB, t, ytmp, yB, f_data_B);
+}
+
+/* 
+ * =================================================================
+ * PART III - private functions
+ * =================================================================
+ */
+
+
 /* Readability Replacements */
 
 #define Nlocal (pdata->n_local)
@@ -466,7 +674,7 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   /* Set minimum increment based on uround and norm of g */
   gnorm = N_VWrmsNorm(gy, ewt);
   minInc = (gnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * Nlocal * gnorm) : ONE;
+    (MIN_INC_MULT * ABS(h) * uround * Nlocal * gnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mldq + mudq + 1;

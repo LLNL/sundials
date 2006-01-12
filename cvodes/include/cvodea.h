@@ -1,48 +1,28 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.40 $
+ * $Date: 2006-01-12 20:24:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * This is the interface file for the CVODEA adjoint integrator.
  *
- * Part I: Function types:
+ * Function types:
  *    CVRhsFnB
  *    CVQuadRhsFnB
- *    CVDenseJacFnB
- *    CVBandJacFnB
- *    CVSpilsPrecSetupFnB
- *    CVSpilsPrecSolveB
- *    CVSpilsJacTimesVecFnB
- * Part II: Exported functions prototypes:
+ * Exported functions prototypes:
  *    CVadjMalloc
  *    CVadjSetInterpType
  *    CVodeF
  *    CVodeCreateB
  *    CVodeMallocB
- *    CVDenseB
- *    CVBandB
- *    CVSptfqmrB
- *    CVSpbcgB
- *    CVSpgmrB
- *    CVBandPrecAllocB
- *    CVBPSptfqmrB
- *    CVBPSpbcgB
- *    CVBPSpgmrB
- *    CVBBDPrecAllocB
- *    CVBBDPrecReInit
- *    CVBBDSptfqmrB
- *    CVBBDSpbcgB
- *    CVBBDSpgmrB
  *    CVodeB
  *    CVadjFree
- * Part III: CVODEA return values
  * -----------------------------------------------------------------
  */
 
@@ -86,6 +66,21 @@ extern "C" {
 #define CV_HERMITE    1
 #define CV_POLYNOMIAL 2
 
+  /*
+   * ===============================================================
+   * CVODEA RETURN VALUES
+   * ===============================================================
+   */
+
+#define CV_ADJMEM_NULL -101
+#define CV_BAD_TB0     -103
+#define CV_BCKMEM_NULL -104
+#define CV_REIFWD_FAIL -105
+#define CV_FWD_FAIL    -106
+#define CV_BAD_ITASK   -107
+#define CV_BAD_TBOUT   -108
+#define CV_GETY_BADT   -109
+
   /* 
    * ===============================================================
    * FUNCTION TYPES
@@ -102,30 +97,6 @@ extern "C" {
    *    The fQB function which defines the quadratures to be integrated
    *    backwards must have type CVQuadRhsFnB.
    * -----------------------------------------------------------------
-   * CVDenseJacFnB
-   *    A dense Jacobian approximation function djacB for the backward
-   *    integration must have the prototype given below.
-   * -----------------------------------------------------------------
-   * CVBandJacFnB
-   *    A band Jacobian approximation function bjacB for the backward
-   *    integration must have the prototype given below.
-   * -----------------------------------------------------------------
-   * CVSpilsJacTimesVecFnB
-   *    A Jacobian times vector function jtimesB for the backward
-   *    integration must have the prototype given below.
-   * -----------------------------------------------------------------
-   * CVSpilsPrecSetupFnB
-   *    A preconditioner setup function precondB for the backward
-   *    integration must have the prototype given below.
-   * -----------------------------------------------------------------
-   * CVSpilsPrecSolveFnB
-   *    A preconditioner solve function psolveB for the backward
-   *    integration must have the prototype given below.
-   * -----------------------------------------------------------------
-   * CVLocalFnB and CVCommFnB
-   *    Local approximation function and inter-process communication
-   *    function for the BBD preconditioner on the backward phase.
-   * -----------------------------------------------------------------
    */
   
   typedef void (*CVRhsFnB)(realtype t, N_Vector y,
@@ -135,45 +106,7 @@ extern "C" {
   typedef void (*CVQuadRhsFnB)(realtype t, N_Vector y,
                                N_Vector yB, N_Vector qBdot,
                                void *fQ_dataB);
-  
-  typedef void (*CVDenseJacFnB)(long int nB, DenseMat JB, realtype t,
-                                N_Vector y, N_Vector yB, N_Vector fyB,
-                                void *jac_dataB, N_Vector tmp1B,
-                                N_Vector tmp2B, N_Vector tmp3B);
-  
-  typedef void (*CVBandJacFnB)(long int nB, long int mupperB,
-                               long int mlowerB, BandMat JB,
-                               realtype t, N_Vector y,
-                               N_Vector yB, N_Vector fyB,
-                               void *jac_dataB, N_Vector tmp1B,
-                               N_Vector tmp2B, N_Vector tmp3B);
-  
-  typedef int (*CVSpilsJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
-                                       N_Vector y, N_Vector yB, N_Vector fyB,
-                                       void *jac_dataB, N_Vector tmpB);
-  
-  typedef int (*CVSpilsPrecSetupFnB)(realtype t, N_Vector y,
-                                     N_Vector yB, N_Vector fyB,
-                                     booleantype jokB,
-                                     booleantype *jcurPtrB, realtype gammaB,
-                                     void *P_dataB,
-                                     N_Vector tmp1B, N_Vector tmp2B,
-                                     N_Vector tmp3B);
-  
-  typedef int (*CVSpilsPrecSolveFnB)(realtype t, N_Vector y,
-                                     N_Vector yB, N_Vector fyB,
-                                     N_Vector rB, N_Vector zB,
-                                     realtype gammaB, realtype deltaB,
-                                     int lrB, void *P_dataB, N_Vector tmpB);
-  
-  typedef void (*CVLocalFnB)(long int NlocalB, realtype t,
-                             N_Vector y, N_Vector yB, N_Vector gB,
-                             void *f_dataB);
-  
-  typedef void (*CVCommFnB)(long int NlocalB, realtype t,
-                            N_Vector y, N_Vector yB,
-                            void *f_dataB);
-
+     
   /* 
    * ===============================================================
    * EXPORTED FUNCTIONS
@@ -235,18 +168,6 @@ extern "C" {
    * -----------------------------------------------------------------
    * CVodeSetQuad*B, CVodeQuadMallocB, CVodeQuadReInitB
    * -----------------------------------------------------------------
-   * CVDenseB, CVDenseSet*B
-   *    CVDenseB links the main CVODE integrator with the CVDENSE
-   *    linear solver for the backward integration.
-   * -----------------------------------------------------------------
-   * CVDiagB
-   *    CVDiagB links the main CVODE integrator with the CVDIAG
-   *    linear solver for the backward integration.
-   * -----------------------------------------------------------------
-   * CVBandB, CVBandSet*B
-   *    CVBandB links the main CVODE integrator with the CVBAND
-   *    linear solver for the backward integration.
-   * -----------------------------------------------------------------
    * CVSptfqmrB, CVSptfqmrSet*B
    *    CVSptfqmrB links the main CVODE integrator with the CVSPTFQMR
    *    linear solver for the backward integration.
@@ -258,16 +179,6 @@ extern "C" {
    * CVSpgmrB, CVSpgmrSet*B
    *    CVSpgmrB links the main CVODE integrator with the CVSPGMR
    *    linear solver for the backward integration.
-   * -----------------------------------------------------------------
-   * CVBandPrecAllocB, CVBPSp*B
-   *    CVBandPrecAllocB interfaces to the CVBANDPRE preconditioner
-   *    for the backward integration. The pointer to the structure
-   *    returned by this routine should then be used in the call to
-   *    CVBPSp*B which interfaces to CVBPSpgmr/CVBPSpbcg.
-   * -----------------------------------------------------------------
-   * CVBBDPrecAllocB, CVBBDSp*B, CVBBDPrecReInit
-   *    Interface functions for the BBD preconditioner to be used on
-   *    the backward phase.
    * -----------------------------------------------------------------
    */
 
@@ -296,64 +207,7 @@ extern "C" {
                           int itolQB, realtype reltolQB, void *abstolQB);
   int CVodeQuadMallocB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
   int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0);
-  
-  int CVDenseB(void *cvadj_mem, long int nB);
-  
-  int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB);
-  
-  int CVDiagB(void *cvadj_mem);
-  
-  int CVBandB(void *cvadj_mem, long int nB,
-              long int mupperB, long int mlowerB);
-  
-  int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB);
-  
-  int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
-
-  int CVSptfqmrSetPrecTypeB(void *cvadj_mem, int pretypeB);
-  int CVSptfqmrSetDeltB(void *cvadj_mem, realtype deltB);
-  int CVSptfqmrSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
-                                 CVSpilsPrecSolveFnB psolveB, void *P_dataB);
-  int CVSptfqmrSetJacTimesVecFnB(void *cvadj_mem, 
-                                CVSpilsJacTimesVecFnB jtimesB, void *jac_dataB);
-
-  int CVSpbcgSetPrecTypeB(void *cvadj_mem, int pretypeB);
-  int CVSpbcgSetDeltB(void *cvadj_mem, realtype deltB);
-  int CVSpbcgSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
-                                CVSpilsPrecSolveFnB psolveB, void *P_dataB);
-  int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem, 
-                               CVSpilsJacTimesVecFnB jtimesB, void *jac_dataB);
-
-  int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
-  
-  int CVSpgmrSetPrecTypeB(void *cvadj_mem, int pretypeB);
-  int CVSpgmrSetGSTypeB(void *cvadj_mem, int gstypeB);
-  int CVSpgmrSetDeltB(void *cvadj_mem, realtype deltB);
-  int CVSpgmrSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
-                                CVSpilsPrecSolveFnB psolveB, void *P_dataB);
-  int CVSpgmrSetJacTimesVecFnB(void *cvadj_mem, CVSpilsJacTimesVecFnB jtimesB,
-                               void *jac_dataB);
-  
-  int CVBandPrecAllocB(void *cvadj_mem, long int nB,
-                       long int muB, long int mlB);
-
-  int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
-  int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
-  int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
-  
-  int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
-                      long int mudqB, long int mldqB,
-                      long int mukeepB, long int mlkeepB,
-                      realtype dqrelyB,
-                      CVLocalFnB glocB, CVCommFnB cfnB);
-
-  int CVBBDSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
-  int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
-  int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
-  
-  int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
-                       realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB);
-
+    
   /*
    * -----------------------------------------------------------------
    * CVodeB
@@ -460,21 +314,6 @@ extern "C" {
   
   int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
   
-  /*
-   * ===============================================================
-   * CVODEA RETURN VALUES
-   * ===============================================================
-   */
-
-#define CV_ADJMEM_NULL -101
-#define CV_BAD_TB0     -103
-#define CV_BCKMEM_NULL -104
-#define CV_REIFWD_FAIL -105
-#define CV_FWD_FAIL    -106
-#define CV_BAD_ITASK   -107
-#define CV_BAD_TBOUT   -108
-#define CV_GETY_BADT   -109
-
 #ifdef __cplusplus
 }
 #endif

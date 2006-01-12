@@ -1,12 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -15,8 +14,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVBAND_IMPL_H
-#define _CVBAND_IMPL_H
+#ifndef _CVSBAND_IMPL_H
+#define _CVSBAND_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -24,47 +23,47 @@ extern "C" {
 
 #include "cvodes_band.h"
 
-/*
- * -----------------------------------------------------------------
- * Types: CVBandMemRec, CVBandMem                                
- * -----------------------------------------------------------------
- * The type CVBandMem is pointer to a CVBandMemRec.
- * This structure contains CVBand solver-specific data.                
- * -----------------------------------------------------------------
- */                                                                
+  /*
+   * -----------------------------------------------------------------
+   * Types: CVBandMemRec, CVBandMem                                
+   * -----------------------------------------------------------------
+   * The type CVBandMem is pointer to a CVBandMemRec.
+   * This structure contains CVBand solver-specific data.                
+   * -----------------------------------------------------------------
+   */                                                                
 
-typedef struct {
+  typedef struct {
 
-  long int b_n;           /* N = problem dimension                    */
+    long int b_n;           /* N = problem dimension                    */
 
-  CVBandJacFn b_jac;      /* jac = Jacobian routine to be called      */
+    CVBandJacFn b_jac;      /* jac = Jacobian routine to be called      */
 
-  long int b_ml;          /* b_ml = lower bandwidth of savedJ         */
+    long int b_ml;          /* b_ml = lower bandwidth of savedJ         */
   
-  long int b_mu;          /* b_mu = upper bandwidth of savedJ         */ 
+    long int b_mu;          /* b_mu = upper bandwidth of savedJ         */ 
   
-  long int b_storage_mu;  /* upper bandwith of M = MIN(N-1,b_mu+b_ml) */
+    long int b_storage_mu;  /* upper bandwith of M = MIN(N-1,b_mu+b_ml) */
   
-  BandMat b_M;            /* M = I - gamma J, gamma = h / l1          */
+    BandMat b_M;            /* M = I - gamma J, gamma = h / l1          */
   
-  long int *b_pivots;     /* pivots = pivot array for PM = LU         */
+    long int *b_pivots;     /* pivots = pivot array for PM = LU         */
   
-  BandMat b_savedJ;       /* savedJ = old Jacobian                    */
+    BandMat b_savedJ;       /* savedJ = old Jacobian                    */
   
-  long int b_nstlj;       /* nstlj = nst at last Jacobian eval.       */
+    long int b_nstlj;       /* nstlj = nst at last Jacobian eval.       */
   
-  long int b_nje;         /* nje = no. of calls to jac                */
+    long int b_nje;         /* nje = no. of calls to jac                */
   
-  long int b_nfeB;        /* nfeB = no. of calls to f due to difference
-                             quotient band Jacobian approximation     */
+    long int b_nfeB;        /* nfeB = no. of calls to f due to difference
+                               quotient band Jacobian approximation     */
 
-  void *b_J_data;         /* J_data is passed to jac                  */
+    void *b_J_data;         /* J_data is passed to jac                  */
 
-  int b_last_flag;        /* last error return flag                   */
+    int b_last_flag;        /* last error return flag                   */
   
-} CVBandMemRec, *CVBandMem;
+  } CVBandMemRec, *CVBandMem;
 
-/* Error Messages */
+  /* Error Messages */
 
 #define _CVBAND_         "CVBand-- "
 #define MSGB_MEM_FAIL    _CVBAND_ "A memory request failed.\n\n"

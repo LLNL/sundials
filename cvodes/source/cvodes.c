@@ -1,11 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.61 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.62 $
+ * $Date: 2006-01-12 20:24:06 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -654,7 +654,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
     return (CV_ILL_INPUT);
   }
 
-/* Test tolerances */
+  /* Test tolerances */
    
   if (itol != CV_WF) {
     
@@ -674,7 +674,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
     }
 
   }
-   /* Copy tolerances into memory */
+  /* Copy tolerances into memory */
 
   if ( (itol != CV_SV) && (cv_mem->cv_VabstolMallocDone) ) {
     N_VDestroy(cv_mem->cv_Vabstol);
@@ -1072,8 +1072,8 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, N_Vector *yS0)
   }
   
   /*---------------------------------------------- 
-     All error checking is complete at this point 
-  -----------------------------------------------*/
+    All error checking is complete at this point 
+    -----------------------------------------------*/
 
   /* Initialize znS[0] in the history array */
   for (is=0; is<Ns; is++) 
@@ -1165,8 +1165,8 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
   }
 
   /*---------------------------------------------- 
-     All error checking is complete at this point 
-  -----------------------------------------------*/
+    All error checking is complete at this point 
+    -----------------------------------------------*/
 
   /* Initialize znS[0] in the history array */
   for (is=0; is<Ns; is++) 
@@ -1630,7 +1630,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       tretlast = *tret = tout;
       ier =  CVodeGetDky(cv_mem, tout, 0, yout);
       if (ier != CV_SUCCESS) {
-	  if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_TOUT, tout);
+        if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_TOUT, tout);
         return (CV_ILL_INPUT);
       }
       return (CV_SUCCESS);
@@ -2491,7 +2491,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
  * computation with errconQ=TRUE, after an initialization with
  * errconQ=FALSE, without new memory allocation within 
  * CVodeQuadReInit.
-*/
+ */
 
 static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl) 
 {
@@ -2866,7 +2866,7 @@ static int CVSensEwtSetSV(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem)
  * The algorithm used seeks to find h0 as a solution of
  *       (WRMS norm of (h0^2 ydd / 2)) = 1, 
  * where ydd = estimated second derivative of y.
-*/
+ */
 
 static booleantype CVHin(CVodeMem cv_mem, realtype tout)
 {
@@ -3110,7 +3110,7 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
  * - if SLDET is on, check for stability, reduce order if necessary.
  * On a failure in the nonlinear system solution or error test, the
  * step may be reattempted, depending on the nature of the failure.
-*/
+ */
 
 static int CVStep(CVodeMem cv_mem)
 {
@@ -3346,12 +3346,12 @@ static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
   }
 
   /*     
-     On an order decrease, each zn[j] is adjusted by a multiple of zn[q].
-     The coeffs. in the adjustment are the coeffs. of the polynomial:
-          x
-     q * INT { u * ( u + xi_1 ) * ... * ( u + xi_{q-2} ) } du 
-          0
-     where xi_j = [t_n - t_(n-j)]/h => xi_0 = 0
+         On an order decrease, each zn[j] is adjusted by a multiple of zn[q].
+         The coeffs. in the adjustment are the coeffs. of the polynomial:
+         x
+         q * INT { u * ( u + xi_1 ) * ... * ( u + xi_{q-2} ) } du 
+         0
+         where xi_j = [t_n - t_(n-j)]/h => xi_0 = 0
      
   */
 
@@ -3394,12 +3394,12 @@ static void CVAdjustAdams(CVodeMem cv_mem, int deltaq)
 static void CVAdjustBDF(CVodeMem cv_mem, int deltaq)
 {
   switch(deltaq) {
-    case 1: 
-      CVIncreaseBDF(cv_mem);
-      return;
-    case -1: 
-      CVDecreaseBDF(cv_mem);
-      return;
+  case 1: 
+    CVIncreaseBDF(cv_mem);
+    return;
+  case -1: 
+    CVDecreaseBDF(cv_mem);
+    return;
   }
 }
 
@@ -3800,7 +3800,7 @@ static void CVSetBDF(CVodeMem cv_mem)
  *
  * This routine sets the test quantity array tq in the case
  * lmm == CV_BDF.
-*/
+ */
 
 static void CVSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
                        realtype alpha0_hat, realtype xi_inv, realtype xistar_inv)
@@ -4135,11 +4135,11 @@ static int CVNewtonIteration(CVodeMem cv_mem)
   delS = Delp = ZERO;
 
   /* At this point, ftemp  <- f(t_n, y_n(0))
-                    ftempS <- fS(t_n, y_n(0), s_n(0))
-                    acor   <- 0
-                    acorS  <- 0
-                    y      <- y_n(0)
-                    yS     <- yS_n(0)                 */
+     ftempS <- fS(t_n, y_n(0), s_n(0))
+     acor   <- 0
+     acorS  <- 0
+     y      <- y_n(0)
+     yS     <- yS_n(0)                 */
 
   /* Looping point for Newton iteration */
   loop {
@@ -5206,8 +5206,8 @@ static void CVCompleteStep(CVodeMem cv_mem)
 
   /* If necessary, store Delta_n in zn[qmax] to be used in order increase
   
-     This actually will be Delta_{n-1} in the ELTE at q+1 since it happens at
-     the next to last step of order q before a possible one at order q+1
+  This actually will be Delta_{n-1} in the ELTE at q+1 since it happens at
+  the next to last step of order q before a possible one at order q+1
   */
 
   qwait--;
@@ -5418,8 +5418,8 @@ static void CVChooseEta(CVodeMem cv_mem)
     
     /* Store Delta_n in zn[qmax] to be used in order increase 
     
-       This happens at the last step of order q before an increase
-       to order q+1, so it represents Delta_n in the ELTE at q+1
+    This happens at the last step of order q before an increase
+    to order q+1, so it represents Delta_n in the ELTE at q+1
     */
     
     N_VScale(ONE, acor, zn[qmax]);
@@ -5586,7 +5586,7 @@ static int CVsldet(CVodeMem cv_mem)
   realtype rd2a, rd2b, rd3a, cest1, corr1; 
   realtype ratp, ratm, qfac1, qfac2, bb, rrb;
 
- /* The following are cutoffs and tolerances used by this routine */
+  /* The following are cutoffs and tolerances used by this routine */
 
   rrcut  = RCONST(0.98);
   vrrtol = RCONST(1.0e-4);
@@ -5596,15 +5596,15 @@ static int CVsldet(CVodeMem cv_mem)
 
   rr = ZERO;
 
- /*  Index k corresponds to the degree of the interpolating polynomial. */
- /*      k = 1 -> q-1          */
- /*      k = 2 -> q            */
- /*      k = 3 -> q+1          */
+  /*  Index k corresponds to the degree of the interpolating polynomial. */
+  /*      k = 1 -> q-1          */
+  /*      k = 2 -> q            */
+  /*      k = 3 -> q+1          */
 
- /*  Index i is a backward-in-time index, i = 1 -> current time, */
- /*      i = 2 -> previous step, etc    */
+  /*  Index i is a backward-in-time index, i = 1 -> current time, */
+  /*      i = 2 -> previous step, etc    */
 
- /* get maxima, minima, and variances, and form quartic coefficients  */
+  /* get maxima, minima, and variances, and form quartic coefficients  */
 
   for (k=1; k<=3; k++) {
     smink = ssdat[1][k];
@@ -5671,112 +5671,112 @@ static int CVsldet(CVodeMem cv_mem)
 
   } else {
       
-      /* use the quartics to get rr. */
+    /* use the quartics to get rr. */
       
-      if (ABS(qco[1][1]) < TINY*ssmax[1]) {
-        kflag = -4;    
-        return (kflag);
-      }
+    if (ABS(qco[1][1]) < TINY*ssmax[1]) {
+      kflag = -4;    
+      return (kflag);
+    }
       
-      tem = qco[1][2]/qco[1][1];
-      for (i=2; i<=5; i++) {
-        qco[i][2] = qco[i][2] - tem*qco[i][1];
-      }
+    tem = qco[1][2]/qco[1][1];
+    for (i=2; i<=5; i++) {
+      qco[i][2] = qco[i][2] - tem*qco[i][1];
+    }
       
-      qco[1][2] = ZERO;
-      tem = qco[1][3]/qco[1][1];
-      for (i=2; i<=5; i++) {
-        qco[i][3] = qco[i][3] - tem*qco[i][1];
-      }
-      qco[1][3] = ZERO;
+    qco[1][2] = ZERO;
+    tem = qco[1][3]/qco[1][1];
+    for (i=2; i<=5; i++) {
+      qco[i][3] = qco[i][3] - tem*qco[i][1];
+    }
+    qco[1][3] = ZERO;
       
-      if (ABS(qco[2][2]) < TINY*ssmax[2]) {
-        kflag = -4;    
-        return (kflag);
-      }
+    if (ABS(qco[2][2]) < TINY*ssmax[2]) {
+      kflag = -4;    
+      return (kflag);
+    }
       
-      tem = qco[2][3]/qco[2][2];
-      for (i=3; i<=5; i++) {
-        qco[i][3] = qco[i][3] - tem*qco[i][2];
-      }
+    tem = qco[2][3]/qco[2][2];
+    for (i=3; i<=5; i++) {
+      qco[i][3] = qco[i][3] - tem*qco[i][2];
+    }
       
-      if (ABS(qco[4][3]) < TINY*ssmax[3]) {
-        kflag = -4;    
-        return (kflag);
-      }
+    if (ABS(qco[4][3]) < TINY*ssmax[3]) {
+      kflag = -4;    
+      return (kflag);
+    }
       
-      rr = -qco[5][3]/qco[4][3];
+    rr = -qco[5][3]/qco[4][3];
       
-      if (rr < TINY || rr > HUN) {
-        kflag = -5;   
-        return (kflag);
-      }
+    if (rr < TINY || rr > HUN) {
+      kflag = -5;   
+      return (kflag);
+    }
       
-      for (k=1; k<=3; k++) {
-        qkr[k] = qc[5][k] + rr*(qc[4][k] + rr*rr*(qc[2][k] + rr*qc[1][k]));
-      }  
+    for (k=1; k<=3; k++) {
+      qkr[k] = qc[5][k] + rr*(qc[4][k] + rr*rr*(qc[2][k] + rr*qc[1][k]));
+    }  
       
-      sqmax = ZERO;
-      for (k=1; k<=3; k++) {
-        saqk = ABS(qkr[k])/ssmax[k];
-        if (saqk > sqmax) sqmax = saqk;
-      } 
+    sqmax = ZERO;
+    for (k=1; k<=3; k++) {
+      saqk = ABS(qkr[k])/ssmax[k];
+      if (saqk > sqmax) sqmax = saqk;
+    } 
       
-      if (sqmax < sqtol) {
-        kflag = 2;
+    if (sqmax < sqtol) {
+      kflag = 2;
         
-        /*  can compute charactistic root, drop to "given rr,etc"   */
+      /*  can compute charactistic root, drop to "given rr,etc"   */
         
-      } else {
+    } else {
           
-        /* do Newton corrections to improve rr.  */
+      /* do Newton corrections to improve rr.  */
         
-        for (it=1; it<=3; it++) {
-          for (k=1; k<=3; k++) {
-            qp = qc[4][k] + rr*rr*(THREE*qc[2][k] + rr*FOUR*qc[1][k]);
-            drr[k] = ZERO;
-            if (ABS(qp) > TINY*ssmax[k]) drr[k] = -qkr[k]/qp;
-            rrc[k] = rr + drr[k];
-          } 
+      for (it=1; it<=3; it++) {
+        for (k=1; k<=3; k++) {
+          qp = qc[4][k] + rr*rr*(THREE*qc[2][k] + rr*FOUR*qc[1][k]);
+          drr[k] = ZERO;
+          if (ABS(qp) > TINY*ssmax[k]) drr[k] = -qkr[k]/qp;
+          rrc[k] = rr + drr[k];
+        } 
           
-          for (k=1; k<=3; k++) {
-            s = rrc[k];
-            sqmaxk = ZERO;
-            for (j=1; j<=3; j++) {
-              qjk[j][k] = qc[5][j] + s*(qc[4][j] + 
-                                        s*s*(qc[2][j] + s*qc[1][j]));
-              saqj = ABS(qjk[j][k])/ssmax[j];
-              if (saqj > sqmaxk) sqmaxk = saqj;
-            } 
-            sqmx[k] = sqmaxk;
+        for (k=1; k<=3; k++) {
+          s = rrc[k];
+          sqmaxk = ZERO;
+          for (j=1; j<=3; j++) {
+            qjk[j][k] = qc[5][j] + s*(qc[4][j] + 
+                                      s*s*(qc[2][j] + s*qc[1][j]));
+            saqj = ABS(qjk[j][k])/ssmax[j];
+            if (saqj > sqmaxk) sqmaxk = saqj;
           } 
+          sqmx[k] = sqmaxk;
+        } 
               
-          sqmin = sqmx[1] + ONE;
-          for (k=1; k<=3; k++) {
-            if (sqmx[k] < sqmin) {
-              kmin = k;
-              sqmin = sqmx[k];
-            }
-          } 
-          rr = rrc[kmin];
+        sqmin = sqmx[1] + ONE;
+        for (k=1; k<=3; k++) {
+          if (sqmx[k] < sqmin) {
+            kmin = k;
+            sqmin = sqmx[k];
+          }
+        } 
+        rr = rrc[kmin];
               
-          if (sqmin < sqtol) {
-            kflag = 3;
-            /*  can compute charactistic root   */
-            /*  break out of Newton correction loop and drop to "given rr,etc" */ 
-            break;
-          } else {
-            for (j=1; j<=3; j++) {
-              qkr[j] = qjk[j][kmin];
-            }
-          }     
-        } /*  end of Newton correction loop  */ 
+        if (sqmin < sqtol) {
+          kflag = 3;
+          /*  can compute charactistic root   */
+          /*  break out of Newton correction loop and drop to "given rr,etc" */ 
+          break;
+        } else {
+          for (j=1; j<=3; j++) {
+            qkr[j] = qjk[j][kmin];
+          }
+        }     
+      } /*  end of Newton correction loop  */ 
           
-        if (sqmin > sqtol) {
-          kflag = -6;
-          return (kflag);
-        }
-      } /*  end of if (sqmax < sqtol) else   */
+      if (sqmin > sqtol) {
+        kflag = -6;
+        return (kflag);
+      }
+    } /*  end of if (sqmax < sqtol) else   */
   } /*  end of if (vmin < vrrtol*vrrtol) else, quartics to get rr. */
   
   /* given rr, find sigsq[k] and verify rr.  */
@@ -6187,7 +6187,7 @@ static int CVRootfind(CVodeMem cv_mem)
       side = 1;
       /* Stop at root thi if converged; otherwise loop. */
       if (ABS(thi - tlo) <= ttol) break;
-    continue;  /* Return to looping point. */
+      continue;  /* Return to looping point. */
     }
 
     if (zroot) {

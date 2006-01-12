@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier @ LLNL
+ * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -18,7 +18,10 @@
 #include <stdlib.h>
 
 #include "cvodes_sptfqmr_impl.h"
+#include "cvodes_spils_impl.h"
 #include "cvodes_impl.h"
+#include "cvodea_impl.h"
+
 #include "sundials_math.h"
 
 /* Other Constants */
@@ -90,6 +93,13 @@ static int CVSptfqmrDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define sptfqmr_mem (cvsptfqmr_mem->q_sptfqmr_mem)
 #define last_flag   (cvsptfqmr_mem->q_last_flag)
 
+
+/* 
+ * =================================================================
+ * PART I - forward problems
+ * =================================================================
+ */
+                  
 /*
  * -----------------------------------------------------------------
  * Function : CVSptfqmr
@@ -616,6 +626,128 @@ int CVSptfqmrGetLastFlag(void *cvode_mem, int *flag)
 }
 
 
+
+/* 
+ * =================================================================
+ * PART II - backward problems
+ * =================================================================
+ */
+
+/* Additional readability replacements */
+
+#define pset_B      (ca_mem->ca_psetB)
+#define psolve_B    (ca_mem->ca_psolveB)
+#define jtimes_B    (ca_mem->ca_jtimesB)
+#define P_data_B    (ca_mem->ca_P_dataB)
+#define jac_data_B  (ca_mem->ca_jac_dataB)
+
+/*
+ * CVSptfqmrB and CVSptfqmrSet*B
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPTFQMR_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVSptfqmr(cvode_mem, pretypeB, maxlB);
+
+  return(flag);
+}
+
+int CVSptfqmrSetPrecTypeB(void *cvadj_mem, int pretypeB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPTFQMR_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSptfqmrSetPrecType(cvode_mem, pretypeB);
+
+  return(flag);
+}
+
+int CVSptfqmrSetDeltB(void *cvadj_mem, realtype deltB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPTFQMR_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSptfqmrSetDelt(cvode_mem,deltB);
+
+  return(flag);
+}
+
+int CVSptfqmrSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
+				CVSpilsPrecSolveFnB psolveB, void *P_dataB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPTFQMR_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  pset_B   = psetB;
+  psolve_B = psolveB;
+  P_data_B = P_dataB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSptfqmrSetPreconditioner(cvode_mem, 
+				    CVAspilsPrecSetup,
+				    CVAspilsPrecSolve,
+				    cvadj_mem);
+
+  return(flag);
+}
+
+int CVSptfqmrSetJacTimesVecFnB(void *cvadj_mem, 
+			       CVSpilsJacTimesVecFnB jtimesB,
+			       void *jac_dataB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPTFQMR_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  jtimes_B   = jtimesB;
+  jac_data_B = jac_dataB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSptfqmrSetJacTimesVecFn(cvode_mem, CVAspilsJacTimesVec, cvadj_mem);
+
+  return(flag);
+}
+
+
+/* 
+ * =================================================================
+ * PART III - private functions
+ * =================================================================
+ */
+
 /* Additional readability replacements */
 
 #define pretype (cvsptfqmr_mem->q_pretype)
@@ -694,8 +826,8 @@ static int CVSptfqmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlpre + CVSPTFQMR_MSBPRE) ||
-      ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPTFQMR_DGMAX)) ||
-      (convfail == CV_FAIL_OTHER);
+    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPTFQMR_DGMAX)) ||
+    (convfail == CV_FAIL_OTHER);
   *jcurPtr = jbad;
   jok = !jbad;
 
@@ -765,8 +897,8 @@ static int CVSptfqmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   
   /* Call SptfqmrSolve and copy x to b */
   ier = SptfqmrSolve(sptfqmr_mem, cv_mem, x, b, pretype, delta,
-                   cv_mem, weight, weight, CVSptfqmrAtimes, CVSptfqmrPSolve,
-                   &res_norm, &nli_inc, &nps_inc);
+                     cv_mem, weight, weight, CVSptfqmrAtimes, CVSptfqmrPSolve,
+                     &res_norm, &nli_inc, &nps_inc);
 
   N_VScale(ONE, x, b);
   

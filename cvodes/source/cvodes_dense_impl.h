@@ -1,12 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -15,8 +14,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _CVDENSE_IMPL_H
-#define _CVDENSE_IMPL_H
+#ifndef _CVSDENSE_IMPL_H
+#define _CVSDENSE_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -24,41 +23,41 @@ extern "C" {
 
 #include "cvodes_dense.h"
 
-/*
- * -----------------------------------------------------------------
- * Types : CVDenseMemRec, CVDenseMem                             
- * -----------------------------------------------------------------
- * The type CVDenseMem is pointer to a CVDenseMemRec.
- * This structure contains CVDense solver-specific data. 
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Types : CVDenseMemRec, CVDenseMem                             
+   * -----------------------------------------------------------------
+   * The type CVDenseMem is pointer to a CVDenseMemRec.
+   * This structure contains CVDense solver-specific data. 
+   * -----------------------------------------------------------------
+   */
 
-typedef struct {
+  typedef struct {
 
-  long int d_n;       /* problem dimension                      */
+    long int d_n;       /* problem dimension                      */
 
-  CVDenseJacFn d_jac; /* jac = Jacobian routine to be called    */
+    CVDenseJacFn d_jac; /* jac = Jacobian routine to be called    */
 
-  DenseMat d_M;       /* M = I - gamma J, gamma = h / l1        */
+    DenseMat d_M;       /* M = I - gamma J, gamma = h / l1        */
   
-  long int *d_pivots; /* pivots = pivot array for PM = LU   */
+    long int *d_pivots; /* pivots = pivot array for PM = LU   */
   
-  DenseMat d_savedJ;  /* savedJ = old Jacobian                  */
+    DenseMat d_savedJ;  /* savedJ = old Jacobian                  */
   
-  long int  d_nstlj;  /* nstlj = nst at last Jacobian eval.     */
+    long int  d_nstlj;  /* nstlj = nst at last Jacobian eval.     */
   
-  long int d_nje;     /* nje = no. of calls to jac              */
+    long int d_nje;     /* nje = no. of calls to jac              */
 
-  long int d_nfeD;    /* nfeD = no. of calls to f due to
-                         difference quotient approximation of J */
+    long int d_nfeD;    /* nfeD = no. of calls to f due to
+                           difference quotient approximation of J */
   
-  void *d_J_data;     /* J_data is passed to jac                */
+    void *d_J_data;     /* J_data is passed to jac                */
 
-  int d_last_flag;    /* last error return flag */
+    int d_last_flag;    /* last error return flag */
   
-} CVDenseMemRec, *CVDenseMem;
+  } CVDenseMemRec, *CVDenseMem;
 
-/* Error Messages */
+  /* Error Messages */
 
 #define _CVDENSE_         "CVDense-- "
 #define MSGDS_CVMEM_NULL  _CVDENSE_ "Integrator memory is NULL.\n\n"

@@ -1,11 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier @ LLNL
+ * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2004, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -18,7 +18,9 @@
 #include <stdlib.h>
 
 #include "cvodes_spbcgs_impl.h"
+#include "cvodes_spils_impl.h"
 #include "cvodes_impl.h"
+#include "cvodea_impl.h"
 
 #include "sundials_math.h"
 
@@ -90,6 +92,12 @@ static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define nfeSB     (cvspbcg_mem->b_nfeSB)
 #define spbcg_mem (cvspbcg_mem->b_spbcg_mem)
 #define last_flag (cvspbcg_mem->b_last_flag)
+
+/* 
+ * =================================================================
+ * PART I - forward problems
+ * =================================================================
+ */
 
 /*
  * -----------------------------------------------------------------
@@ -609,6 +617,126 @@ int CVSpbcgGetLastFlag(void *cvode_mem, int *flag)
 }
 
 
+/* 
+ * =================================================================
+ * PART II - backward problems
+ * =================================================================
+ */
+
+/* Additional readability replacements */
+
+#define pset_B      (ca_mem->ca_psetB)
+#define psolve_B    (ca_mem->ca_psolveB)
+#define jtimes_B    (ca_mem->ca_jtimesB)
+#define P_data_B    (ca_mem->ca_P_dataB)
+#define jac_data_B  (ca_mem->ca_jac_dataB)
+
+/*
+ * CVSpbcgB and CVSpbcgSet*B
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPBCG_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVSpbcg(cvode_mem, pretypeB, maxlB);
+
+  return(flag);
+}
+
+int CVSpbcgSetPrecTypeB(void *cvadj_mem, int pretypeB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPBCG_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpbcgSetPrecType(cvode_mem, pretypeB);
+
+  return(flag);
+}
+
+int CVSpbcgSetDeltB(void *cvadj_mem, realtype deltB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPBCG_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpbcgSetDelt(cvode_mem,deltB);
+
+  return(flag);
+}
+
+int CVSpbcgSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
+                              CVSpilsPrecSolveFnB psolveB, void *P_dataB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPBCG_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  pset_B   = psetB;
+  psolve_B = psolveB;
+  P_data_B = P_dataB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpbcgSetPreconditioner(cvode_mem, 
+                                  CVAspilsPrecSetup, CVAspilsPrecSolve, cvadj_mem);
+
+  return(flag);
+}
+
+int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem, 
+                             CVSpilsJacTimesVecFnB jtimesB, void *jac_dataB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVSPBCG_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  jtimes_B   = jtimesB;
+  jac_data_B = jac_dataB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVSpbcgSetJacTimesVecFn(cvode_mem, CVAspilsJacTimesVec, cvadj_mem);
+
+  return(flag);
+}
+
+
+/* 
+ * =================================================================
+ * PART III - private functions
+ * =================================================================
+ */
+
+
+
 /* Additional readability replacements */
 
 #define pretype (cvspbcg_mem->b_pretype)
@@ -687,8 +815,8 @@ static int CVSpbcgSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlpre + CVSPBCG_MSBPRE) ||
-      ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPBCG_DGMAX)) ||
-      (convfail == CV_FAIL_OTHER);
+    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPBCG_DGMAX)) ||
+    (convfail == CV_FAIL_OTHER);
   *jcurPtr = jbad;
   jok = !jbad;
 

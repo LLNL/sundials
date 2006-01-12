@@ -1,12 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:51 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-12 20:24:07 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2002, The Regents of the University of California.
+ * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/cvodes/LICENSE.
@@ -20,6 +19,7 @@
 
 #include "cvodes_dense_impl.h"
 #include "cvodes_impl.h"
+#include "cvodea_impl.h"
 
 #include "sundials_math.h"
 
@@ -42,6 +42,13 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ycur, N_Vector fcur);
 
 static void CVDenseFree(CVodeMem cv_mem);
+
+/* Wrapper function for adjoint code */
+
+static void CVAdenseJac(long int nB, DenseMat JB, realtype t, 
+                        N_Vector yB, N_Vector fyB, void *cvadj_mem,
+                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+
 
 /* CVDENSE DQJac routine */
 
@@ -81,6 +88,13 @@ static void CVDenseDQJac(long int n, DenseMat J, realtype t,
 #define nfeD      (cvdense_mem->d_nfeD)
 #define J_data    (cvdense_mem->d_J_data)
 #define last_flag (cvdense_mem->d_last_flag)
+
+
+/* 
+ * =================================================================
+ * PART I - forward problems
+ * =================================================================
+ */
                   
 /*
  * -----------------------------------------------------------------
@@ -324,6 +338,98 @@ int CVDenseGetLastFlag(void *cvode_mem, int *flag)
   return(CVDENSE_SUCCESS);
 }
 
+/* 
+ * =================================================================
+ * PART II - backward problems
+ * =================================================================
+ */
+
+/* Additional readability replacements */
+
+#define djac_B      (ca_mem->ca_djacB)
+#define jac_data_B  (ca_mem->ca_jac_dataB)
+#define ytmp        (ca_mem->ca_ytmp)
+#define getY        (ca_mem->ca_getY)
+
+/*
+ * CVDenseB and CVdenseSet*B
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVDenseB(void *cvadj_mem, long int nB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVDENSE_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+  
+  flag = CVDense(cvode_mem, nB);
+
+  return(flag);
+}
+
+int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) return(CVDENSE_ADJMEM_NULL);
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  djac_B     = djacB;
+  jac_data_B = jac_dataB;
+
+  cvode_mem = (void *) ca_mem->cvb_mem;
+
+  flag = CVDenseSetJacFn(cvode_mem, CVAdenseJac, cvadj_mem);
+
+  return(flag);
+}
+
+/*
+ * CVAdenseJac
+ *
+ * This routine interfaces to the CVDenseJacFnB routine provided 
+ * by the user.
+ * NOTE: jac_data actually contains cvadj_mem
+ */
+
+static void CVAdenseJac(long int nB, DenseMat JB, realtype t, 
+                        N_Vector yB, N_Vector fyB, void *cvadj_mem,
+                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+{
+  CVadjMem ca_mem;
+  int flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  /* Forward solution from interpolation */
+  flag = getY(ca_mem, t, ytmp);
+  if (flag != CV_SUCCESS) {
+    printf("\n\nBad t in interpolation\n\n");
+    exit(1);
+  }
+
+  /* Call user's adjoint dense djacB routine */
+  djac_B(nB, JB, t, ytmp, yB, fyB, jac_data_B, 
+         tmp1B, tmp2B, tmp3B);
+
+}
+
+
+/* 
+ * =================================================================
+ * PART III - private functions
+ * =================================================================
+ */
+
 /*
  * -----------------------------------------------------------------
  * CVDenseInit
@@ -380,8 +486,8 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
  
   dgamma = ABS((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlj + CVD_MSBJ) ||
-         ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
-         (convfail == CV_FAIL_OTHER);
+    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVD_DGMAX)) ||
+    (convfail == CV_FAIL_OTHER);
   jok = !jbad;
  
   if (jok) {
@@ -507,7 +613,7 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
+    (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
 
   /* This is the only for loop for 0..N-1 in CVODE */
 

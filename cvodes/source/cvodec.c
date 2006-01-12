@@ -4,7 +4,7 @@
  * Programmers   : Radu Serban @ LLNL                              *
  * Version of    : 07 February 2004                                *
  *-----------------------------------------------------------------*
- * Copyright (c) 2002, The Regents of the University of California * 
+ * Copyright (c) 2006, The Regents of the University of California * 
  * Produced at the Lawrence Livermore National Laboratory          *
  * All rights reserved                                             *
  * For details, see sundials/cvodes/LICENSE                        *
