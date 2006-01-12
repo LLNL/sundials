@@ -36,31 +36,28 @@ been completed successfully.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-{\cvode}.  In terms of the directory {\em build\_tree} defined in
-Chapter \ref{s:install}, the relevant library files are
+{\cvode}.  The relevant library files are
 \begin{itemize}
-\item {\em build\_tree}\id{/lib/libsundials\_cvode.}{\em lib},
-\item {\em build\_tree}\id{/lib/libsundials\_fcvode.a},
-\item {\em build\_tree}\id{/lib/libsundials\_shared.}{\em lib},
-\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to three files),
-  and
-\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to three files),
+\item {\em libdir}\id{/libsundials\_cvode.}{\em lib},
+\item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one or two files),
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
-and \id{.a} for static libraries. The relevant header files are all located in
-the subdirectory
+and \id{.a} for static libraries. The relevant header files are located in
+the subdirectories
 \begin{itemize}
-\item {\em build\_tree}\id{/include}
+\item {\em incdir}\id{/include}
+\item {\em incdir}\id{/include/cvode}
+\item {\em incdir}\id{/include/sundials}
 \end{itemize}
+The directories {\em libdir} and {\em incdir} are the install libray and include
+directories. For a default installation, these are {\em build\_tree}\id{/lib} and
+{\em build\_tree}\id{/include}, respectively, where {\em build\_tree} was defined in
+Chapter \ref{s:install}.
 
-For an application that contains both a {\cvode} problem (IVP) and a
-{\cvodes} problem (IVP with sensitivity analysis), \index{CVODES@{\cvodes}}
-references to the library files must be made carefully, because both
-of the associated solver library files contain a user-callable
-function called \Id{CVode}, although the version in {\cvodes} is fully
-compatible with that in {\cvode}.  In this case, the loader command
-must reference {\em build\_tree}\id{/lib/libsundials\_cvodes.}{\em lib}, and not 
-{\em build\_tree}\id{/lib/libsundials\_cvode.}{\em lib}.
+Note that an application cannot link to both the {\cvode} and {\cvodes} libraries
+because both contain user-callable functions with the same names (to ensure that {\cvodes}
+is backward compatible with {\cvode}). Therefore, applications that contain both
+IVP problems and IVPs with sensitivity analysis, should use {\cvodes}.
 
 %%==============================================================================
 \section{Data types}\label{s:types}
@@ -80,7 +77,7 @@ and data types can be used. The header file that is always required is:
   types and various constants, and includes function prototypes.
 \end{itemize}
 %%
-Note that \id{cvode.h} includes \Id{sundialstypes.h}, 
+Note that \id{cvode.h} includes \Id{sundials\_types.h}, 
 which defines the types \id{realtype} and \id{booleantype}
 and the constants \id{FALSE} and \id{TRUE}.
 
@@ -96,7 +93,7 @@ the corresponding header files are:
   which defines the parallel MPI implementation, {\nvecp}.
 \end{itemize}
 %%
-Note that both these files include in turn the header file \Id{nvector.h} which 
+Note that both these files include in turn the header file \Id{sundials\_nvector.h} which 
 defines the abstract \Id{N\_Vector} type. 
 
 Finally, if the user chooses Newton iteration for the solution of the nonlinear
@@ -106,35 +103,34 @@ The header files corresponding to the various linear solver options in
 {\cvode} are:
 %%
 \begin{itemize}
-\item \Id{cvdense.h}, 
+\item \Id{cvode\_dense.h}, 
   which is used with the dense direct linear solver in 
-  the context of {\cvode}. This in turn includes a header file (\id{dense.h})
+  the context of {\cvode}. This in turn includes a header file (\id{sundials\_dense.h})
   which defines the \Id{DenseMat} type and corresponding accessor macros; 
-\item \Id{cvband.h}, 
+\item \Id{cvode\_band.h}, 
   which is used with the band direct linear solver in the
-  context of {\cvode}. This in turn includes a header file (\id{band.h})
+  context of {\cvode}. This in turn includes a header file (\id{sundials\_band.h})
   which defines the \Id{BandMat} type and corresponding accessor macros;
-\item \Id{cvdiag.h}, which is used with a diagonal linear solver in the
+\item \Id{cvode\_diag.h}, which is used with a diagonal linear solver in the
   context of {\cvode};
-\item \Id{cvspgmr.h}, 
+\item \Id{cvode\_spgmr.h}, 
   which is used with the Krylov solver {\spgmr} in the
-  context of {\cvode}. This in turn includes a header file (\id{iterative.h})
+  context of {\cvode}. This in turn includes a header file (\id{sundials\_iterative.h})
   which enumerates the kind of preconditioning and the choices for the
   Gram-Schmidt process;
-\item \Id{cvspbcg.h}, 
+\item \Id{cvode\_spbcgs.h}, 
   which is used with the Krylov solver {\spbcg} in the
-  context of {\cvode}. This in turn includes a header file (\id{iterative.h})
+  context of {\cvode}. This in turn includes a header file (\id{sundials\_iterative.h})
   which enumerates the kind of preconditioning;
-\item \Id{cvsptfqmr.h}, 
+\item \Id{cvode\_sptfqmr.h}, 
   which is used with the Krylov solver {\sptfqmr} in the
-  context of {\cvode}. This in turn includes a header file (\id{iterative.h})
+  context of {\cvode}. This in turn includes a header file (\id{sundials\_iterative.h})
   which enumerates the kind of preconditioning.
 \end{itemize}
 
 Other headers may be needed, according as to the choice of preconditioner,
 etc. In one of the examples in \cite{cvode2.4.0_ex}, preconditioning is done
-with a block-diagonal matrix. For this, the header
-\id{smalldense.h} is included.
+with a block-diagonal matrix. For this, the header \id{sundials\_smalldense.h} is included.
 
 %%==============================================================================
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
@@ -575,7 +571,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{CVDense} selects the {\cvdense} linear solver. 
 
-  The user's main function must include the \id{cvdense.h} header file.
+  The user's main function must include the \id{cvode\_dense.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -618,7 +614,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{CVBand} selects the {\cvband} linear solver. 
 
-  The user's main function must include the \id{cvband.h} header file.
+  The user's main function must include the \id{cvode\_band.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -668,7 +664,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{CVDiag} selects the {\cvdiag} linear solver. 
 
-  The user's main function must include the \id{cvdiag.h} header file.
+  The user's main function must include the \id{cvode\_diag.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -707,7 +703,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{CVSpgmr} selects the {\cvspgmr} linear solver. 
 
-  The user's main function must include the \id{cvspgmr.h} header file.
+  The user's main function must include the \id{cvode\_spgmr.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -752,7 +748,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{CVSpbcg} selects the {\cvspbcg} linear solver. 
 
-  The user's main function must include the \id{cvspbcg.h} header file.
+  The user's main function must include the \id{cvode\_spbcgs.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -798,7 +794,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{CVSptfqmr} selects the {\cvsptfqmr} linear solver. 
 
-  The user's main function must include the \id{cvsptfqmr.h} header file.
+  The user's main function must include the \id{cvode\_sptfqmr.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -4786,7 +4782,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
 
@@ -4881,7 +4877,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{CVodeGet*}
   functions described in \S\ref{sss:optout_main}. The unit roundoff can be
-  accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+  accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 \index{half-bandwidths|)}
 \index{Jacobian approximation function!band!user-supplied|)}
@@ -4937,7 +4933,7 @@ is selected (\id{CVSp*} is called in step  \ref{i:lin_solver} of
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 
@@ -5094,7 +5090,7 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFn}, defined as follows:
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 
 %%==============================================================================
@@ -5287,7 +5283,7 @@ additional functions.
 %%
 Besides the header files required for the integration of the ODE problem
 (see \S\ref{ss:header_sim}),  to use the {\cvbandpre} module, the main program 
-must include the header file \id{cvbandpre.h} which declares the needed
+must include the header file \id{cvode\_bandpre.h} which declares the needed
 function prototypes.\index{header files}
 %%
 The following is a summary of the usage of this module and describes the sequence
@@ -5820,7 +5816,7 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 Besides the header files required for the integration of the ODE problem
 (see \S\ref{ss:header_sim}),  to use the {\cvbbdpre} module, the main program 
-must include the header file \id{cvbbdpre.h} which declares the needed
+must include the header file \id{cvode\_bbdpre.h} which declares the needed
 function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence

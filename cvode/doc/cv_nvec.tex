@@ -20,17 +20,19 @@ In Table \ref{t:nvecuse} below, we list the vector functions in the
 The table also shows, for each function, which of the code modules uses
 the function. The {\cvode} column shows function usage within the main
 integrator module, while the remaining seven columns show function usage
-within each of the four {\cvode} linear solvers, the {\cvbandpre} and
+within each of the six {\cvode} linear solvers ({\cvsp} stands for any
+of {\cvspgmr}, {\cvspbcg}, or {\cvsptfqmr}), the {\cvbandpre} and
 {\cvbbdpre} preconditioner modules, and the {\fcvode} module.
 
-There is one subtlety in the {\cvspgmr} column hidden by the table. 
+There is one subtlety in the {\cvsp} column hidden by the table, explained
+here for the case of the {\cvspgmr} module). 
 The dot product function \id{N\_VDotProd} is called both within the 
-implementation file \id{cvspgmr.c} for the {\cvspgmr} solver and within 
-the implementation files \id{spgmr.c} and \id{iterative.c} for the generic {\spgmr} 
-solver upon which the {\cvspgmr} solver is implemented. Also, although
-\id{N\_VDiv} and \id{N\_VProd} are not called within the implementation file
-\id{cvspgmr.c}, they are called within the implementation file
-\id{spgmr.c} and so are required by the {\cvspgmr} solver module.
+implementation file \id{cvode\_spgmr.c} for the {\cvspgmr} solver and within 
+the implementation files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c} 
+for the generic {\spgmr} solver upon which the {\cvspgmr} solver is implemented. 
+Also, although \id{N\_VDiv} and \id{N\_VProd} are not called within the implementation file
+\id{cvode\_spgmr.c}, they are called within the implementation file
+\id{sundials\_spgmr.c} and so are required by the {\cvspgmr} solver module.
 This issue does not arise for the other 
 three {\cvode} linear solvers because the generic {\dense} and {\band} solvers 
 (used in the implementation of {\cvdense} and {\cvband}) do not make calls to 
@@ -51,11 +53,11 @@ interested reader.
 \begin{sideways}{\cvdense}    \end{sideways} & 
 \begin{sideways}{\cvband}     \end{sideways} & 
 \begin{sideways}{\cvdiag}     \end{sideways} & 
-\begin{sideways}{\cvspgmr}    \end{sideways} &
+\begin{sideways}{\cvsp}       \end{sideways} &
 \begin{sideways}{\cvbandpre}  \end{sideways} &
 \begin{sideways}{\cvbbdpre}   \end{sideways} &
 \begin{sideways}{\fcvode}     \end{sideways} \\ \hline\hline
-%                         CVODE DENSE BAND  DIAG  SPGMR BPRE  BBD   FCVODE
+%                         CVODE DENSE BAND  DIAG  SPILS BPRE  BBD   FCVODE
 \id{N\_VClone}           & \cm &     &     & \cm & \cm &     &     &     \\ \hline
 \id{N\_VDestroy}         & \cm &     &     & \cm & \cm &     &     &     \\ \hline
 \id{N\_VSpace}           & \cm &     &     &     &     &     &     &     \\ \hline

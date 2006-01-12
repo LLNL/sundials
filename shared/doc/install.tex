@@ -46,12 +46,9 @@ any changes to the build procedure.
 To install the {\sundials} suite, given a downloaded file named
 {\em sundials\_file}\id{.tar.gz}, issue the following commands from
 a shell command prompt, while within the directory where {\em source\_tree}
-is to be located.  The names of installed libraries and header files
-are listed in Table \ref{t:sundials_files} for reference.  (For brevity,
-the corresponding \id{.c} files are not listed.)  Regarding the file
-extension .{\em lib} appearing in Table \ref{t:sundials_files}, shared libraries
-generally have an extension of \id{.so} and static libraries have an extension of
-\id{.a}.  (See {\em Options for library support} for additional details.)
+is to be located.  
+
+
 \begin{enumerate}
 \item \id{gunzip} {\em sundials\_file}\id{.tar.gz}
 \item \id{tar -xf} {\em sundials\_file}\id{.tar}\hspace{2em} [creates \id{sundials} directory]
@@ -66,88 +63,6 @@ and/or \\
 \verb+   % make examples_clean+ \\
 from a shell command prompt to remove unneeded object files.
 \end{enumerate}
-
-%% >>>>
-
-\newlength{\colA}
-\settowidth{\colA}{{\nvecspc}}
-\newlength{\colB}
-\settowidth{\colB}{\id{libsundials\_nvecspcparallel.{\em lib}}}
-\newlength{\colC}
-\settowidth{\colC}{\id{nvector\_spcparallel.h}}
-
-\tablecaption{SUNDIALS libraries and header files}
-\label{t:sundials_files}
-\tablefirsthead{\hline {\bf Module} & {\bf Libraries} & {\bf Header files} \\}
-\tablehead{\hline \multicolumn{3}{|l|}{\small\slshape continued from last page} \\
-           \hline {\bf Module} & {\bf Libraries} & {\bf Header files} \\ \hline}
-\tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
-\tablelasttail{\hline}
-
-\begin{supertabular}{|p{\colA}|p{\colB}|p{\colC}|}
-\hline
-{\shared} &  \id{libsundials\_shared.{\em lib}} & \id{sundialstypes.h}    \\
-          &                                       & \id{sundialsmath.h}     \\
-          &                                       & \id{sundials\_config.h} \\
-          &                                       & \id{dense.h}            \\
-          &                                       & \id{smalldense.h}       \\
-          &                                       & \id{band.h}             \\
-          &                                       & \id{spgmr.h}            \\
-          &                                       & \id{spbcg.h}            \\
-          &                                       & \id{sptfqmr.h}          \\
-          &                                       & \id{iterative.h}        \\
-          &                                       & \id{nvector.h}          \\
-          &                                       & \id{fnvector.h}         \\
-\hline
-{\nvecs}  & \id{libsundials\_nvecserial.{\em lib}} & \id{nvector\_serial.h}  \\
-          & \id{libsundials\_fnvecserial.a}          &                         \\
-\hline
-{\nvecp}  & \id{libsundials\_nvecparallel.{\em lib}} & \id{nvector\_parallel.h} \\
-          & \id{libsundials\_fnvecparallel.a}        &                            \\
-\hline
-{\nvecspc}  & \id{libsundials\_nvecspcparallel.{\em lib}} & \id{nvector\_spcparallel.h} \\
-            & \id{libsundials\_fnvecspcparallel.a}          &                             \\
-\hline
-{\cvode} & \id{libsundials\_cvode.{\em lib}} & \id{cvode.h}     \\
-         & \id{libsundials\_fcvode.a}          & \id{cvdense.h}   \\
-         &                                     & \id{cvband.h}    \\
-         &                                     & \id{cvdiag.h}    \\
-         &                                     & \id{cvspils.h}   \\
-         &                                     & \id{cvspgmr.h}   \\
-         &                                     & \id{cvspbcg.h}   \\
-         &                                     & \id{cvsptfqmr.h} \\
-         &                                     & \id{cvbandpre.h} \\
-         &                                     & \id{cvbbdpre.h}  \\
-\hline
-{\cvodes} & \id{libsundials\_cvodes.{\em lib}} & \id{cvodes.h}    \\
-          &                                      & \id{cvodea.h}    \\
-          &                                      & \id{cvdense.h}   \\
-          &                                      & \id{cvband.h}    \\
-          &                                      & \id{cvdiag.h}    \\
-          &                                      & \id{cvspils.h}   \\
-          &                                      & \id{cvspgmr.h}   \\
-          &                                      & \id{cvspbcg.h}   \\
-          &                                      & \id{cvsptfmqr.h} \\
-          &                                      & \id{cvbandpre.h} \\
-          &                                      & \id{cvbbdpre.h}  \\
-\hline
-{\ida} & \id{libsundials\_ida.{\em lib}}  & \id{ida.h}        \\
-       & \id{libsundials\_fida.a}           & \id{idadense.h}   \\
-       &                                    & \id{idaband.h}    \\
-       &                                    & \id{idaspils.h}   \\
-       &                                    & \id{idaspgmr.h}   \\
-       &                                    & \id{idaspbcg.h}   \\
-       &                                    & \id{idasptfqmr.h} \\
-       &                                    & \id{idabbdpre.h}  \\
-\hline
-{\kinsol} & \id{libsundials\_kinsol.{\em lib}} & \id{kinsol.h}     \\
-          & \id{libsundials\_fkinsol.a}          & \id{kinspils.h}   \\
-          &                                      & \id{kinspgmr.h}   \\
-          &                                      & \id{kinspbcg.h}   \\
-          &                                      & \id{kinsptfqmr.h} \\
-          &                                      & \id{kinbbdpre.h}  \\
-          &                                      & \id{kindense.h}   \\
-\end{supertabular}
 
 %%===============================================================================
 
@@ -438,6 +353,7 @@ during the configuration of {\sundials}. See the next section for illustrations 
 
 %%===============================================================================
 
+
 \section{Configuration examples}
 
 The following examples are meant to help demonstrate proper usage of the configure options:
@@ -470,3 +386,123 @@ a {\F} compiler is not required).
 The \id{--with-mpi-libs} option is required so that the configure
 script can check if \id{gcc} can link with the appropriate {\mpi}
 library.
+
+
+%%===============================================================================
+
+\section{Installed libraries and exported header files}
+
+Using the default SUNDIALS build system, the command\\
+\id{\% make install}\\
+will install the library files in a directory {\em libdir} and the public
+header files in a directory {\em incdir}. The default values for these directories
+are {\em build\_tree}\id{/lib} and {\em build\_tree}\id{/include}, but these can
+be changed using the configuration options \id{--prefix}, \id{--includedir}, and
+\id{--libdir} (see \S\ref{ss:configuration_options}). For example, a system-wide install
+of {\sundials} could be done using\\
+\id{\% configure --prefix=/usr/local}\\
+The public header files are further organized in subdirectories under {\em incdir}.
+
+The installed libraries and exported header files are listed for reference in 
+Table~\ref{t:sundials_files}. 
+The file extension .{\em lib} is typically \id{.so} for shared libraries and 
+\id{.a} for static libraries (see {\em Options for library support} for additional details.)
+
+A typical user program need not explicitly include any of the shared {\sundials} header
+files from the directory {\em incdir}\id{/sundials} since they are included by the
+appropriate solver header files (for example, \id{cvode\_dense.h} includes 
+\id{sundials\_dense.h}). However, it is both legal and safe to do so either for
+clarity or if needed (for example, the functions declared in \id{sundials\_smalldense} 
+could be used in building a preconditioner).
+
+\begin{table}
+\centering
+\caption{
+  SUNDIALS libraries and header files (names are relative to {\em libdir}/
+  for library files and to {\em incdir}/ for header files)
+}\label{t:sundials_files}
+\medskip
+\begin{tabular}{|l|l|ll|} 
+\hline %% --------------------------------------------------
+{\shared} & Libraries    & -                                 &                                 \\ 
+\cline{2-4}
+          & Header files & sundials/sundials\_types.h        & sundials/sundials\_math.h   \\
+          &              & sundials/sundials\_config.h       & sundias/sundials\_nvector.h\\
+          &              & sundials/sunials\_dense.h         & sundials/sundials\_smalldense.h   \\
+          &              & sundials/sundials\_iterative.h    & sundials/sundials\_band.h\\
+          &              & sundials/sundials\_spbcgs.h       & sundials/sundials\_sptfqmr.h\\
+          &              & sundials/sundials\_spgmr.h        &                        \\ 
+\hline %% --------------------------------------------------
+{\nvecs}  & Libraries    & libsundials\_nvecserial.{\em lib} & libsundials\_fnvecserial.a  \\ 
+\cline{2-4}
+          & Header files & nvector\_serial.h                 &                       \\ 
+\hline %% --------------------------------------------------
+{\nvecp}  & Libraries    & libsundials\_nvecparallel.{\em lib} & libsundials\_fnvecparallel.a \\
+\cline{2-4}
+          & Header files & nvector\_parallel.h               &                    \\ 
+\hline %% --------------------------------------------------
+{\cvode}  & Libraries    & libsundials\_cvode.{\em lib}      & libsundials\_fcvode.a \\
+\cline{2-4}
+          & Header files & cvode.h                           &                       \\
+          &              & cvode/cvode\_dense.h              & cvode/cvode\_band.h   \\
+          &              & cvode/cvode\_diag.h               & cvode/cvode\_spils.h  \\
+          &              & cvode/cvode\_bandpre.h            & cvode/cvode\_bbdpre.h \\
+          &              & cvode/cvode\_spgmr.h              & cvode/cvode\_spbcgs.h \\
+          &              & cvode/cvode\_sptfqmr.h            & cvode/cvode\_impl.h   \\
+\hline %% --------------------------------------------------
+{\cvodes} & Libraries    & libsundials\_cvodes.{\em lib}     &                        \\
+\cline{2-4}
+          & Header files & cvodes.h                          & cvodea.h              \\
+          &              & cvodes/cvodes\_dense.h            & cvodes/cvodes\_band.h   \\
+          &              & cvodes/cvodes\_diag.h             & cvodes/cvodes\_spils.h  \\
+          &              & cvodes/cvodes\_bandpre.h          & cvodes/cvodes\_bbdpre.h \\
+          &              & cvodes/cvodes\_spgmr.h            & cvodes/cvodes\_spbcgs.h \\
+          &              & cvodes/cvodes\_sptfqmr.h          & cvodes/cvodes\_impl.h   \\
+          &              & cvodes/cvodea\_impl.h             &                     \\
+\hline %% --------------------------------------------------
+{\ida}    & Libraries    & libsundials\_ida.{\em lib}        & libsundials\_fida.a \\
+\cline{2-4}
+          & Header files & ida.h                             &                     \\
+          &              & ida/ida\_dense.h                  & ida/ida\_band.h     \\
+          &              & ida/ida\_spils.h                  & ida/ida\_spgmr.h    \\
+          &              & ida/ida\_spbcgs.h                 & ida/ida\_sptfqmr.h  \\
+          &              & ida/ida\_bbdpre.h                 & ida/ida\_impl.h     \\
+\hline %% --------------------------------------------------
+{\kinsol} & Libraries    & libsundials\_kinsol.{\em lib}     & libsundials\_fkinsol.a \\
+\cline{2-4}
+          & Header files & kinsol.h                          &                     \\
+          &              & kinsol/kinsol\_dense.h            & kinsol/kinsol\_band.h     \\
+          &              & kinsol/kinsol\_spils.h            & kinsol/kinsol\_spgmr.h    \\
+          &              & kinsol/kinsol\_spbcgs.h           & kinsol/kinsol\_sptfqmr.h  \\
+          &              & kinsol/kinsol\_bbdpre.h           & kinsol/kinsol\_impl.h     \\
+\hline %% --------------------------------------------------
+\end{tabular}
+\end{table}
+
+%%===============================================================================
+
+\section{Building SUNDIALS without the configure script}
+
+If the \id{configure} script cannot be used (for example when building {\sundials}
+under Windows without using \id{cygwin}) or if the users desires to own the build
+process (for example when {\sundials} is incorporated into a larger project with its
+own build system) the header and source files for the desired modules can be 
+copied from the {\em source\_tree} in some other location(s) and compiled separately.
+
+To compile one of the {\sundials} solvers the necessary files are as follows:
+\begin{itemize}
+\item the solver's public header files located in 
+{\em src\_tree}\id{/}{\em solver}\id{/include}
+\item the solver's implementation header files and sources located in
+{\em src\_tree}\id{/}{\em solver}\id{/source}
+\item (optionally and if present) the solver's Fortran-C interface files located in
+{\em src\_tree}\id{/}{\em solver}\id{/fcmix}
+\item the shared public header files located in
+{\em src\_tree}\id{/shared/include}
+\item the shared sources located in
+{\em src\_tree}\id{/shared/source}
+\item (optionally) the {\nvecs} header and source files located in
+{\em src\_tree}\id{/nvec\_ser}
+\item (optionally) the {\nvecp} header and source files located in
+{\em src\_tree}\id{/nvec\_par}
+\end{itemize}

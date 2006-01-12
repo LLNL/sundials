@@ -31,23 +31,23 @@ explanation of the parts of the program and their interaction with {\cvode}.
 
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\cvode}
-header files.  The \id{sundialstypes.h} file provides the definition of the
+header files.  The \id{sundials\_types.h} file provides the definition of the
 type \id{realtype} (see \ugref{s:types} for details).  
 For now, it suffices to read \id{realtype} as \id{double}.
 The \id{cvode.h} file provides prototypes for the {\cvode}
 functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in
 setting input arguments and testing the return value of \id{CVode}.
-The \id{cvdense.h} file provides the prototype for the \id{CVDense} function.
+The \id{cvode\_dense.h} file provides the prototype for the \id{CVDense} function.
 The \id{nvector\_serial.h} file is the header file for the serial
 implementation of the {\nvector} module and includes definitions of the 
 \id{N\_Vector} type, a macro to access vector components, and prototypes 
 for the serial implementation specific machine environment memory allocation
 and freeing functions.
-The \id{dense.h} file provides the definition of the dense
+The \id{sundials\_dense.h} file provides the definition of the dense
 matrix type \id{DenseMat} and a macro for accessing matrix elements.
-We have explicitly included \id{dense.h}, but this is not necessary because 
-it is included by \id{cvdense.h}.
+We have explicitly included \id{sundials\_dense.h}, but this is not necessary because 
+it is included by \id{cvode\_dense.h}.
 
 This program includes two user-defined accessor macros, \id{Ith} and
 \id{IJth} that are useful in writing the problem functions in a form
@@ -210,14 +210,14 @@ a band matrix with upper and lower half-bandwidths both equal to \id{MY}.
 In the example, we take \id{MX} $= 10$ and \id{MY} $= 5$.
 The source is listed in Appendix \ref{s:cvbanx_c}.
 
-The \id{cvbanx.c} program includes files \id{cvband.h} and
-\id{band.h} in order to use the {\cvband} linear solver. The \id{cvband.h}
-file contains the prototype for the \id{CVBand} routine. The \id{band.h}
+The \id{cvbanx.c} program includes files \id{cvode\_band.h} and
+\id{sundials\_band.h} in order to use the {\cvband} linear solver. The \id{cvode\_band.h}
+file contains the prototype for the \id{CVBand} routine. The \id{sundials\_band.h}
 file contains the definition for band matrix type \id{BandMat} and the
 \id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
 elements (see \ugref{ss:band}).
-We have explicitly included \id{band.h}, but this is not necessary because
-it is included by \id{cvband.h}.  The file \id{nvector\_serial.h} is
+We have explicitly included \id{sundials\_band.h}, but this is not necessary because
+it is included by \id{cvode\_band.h}.  The file \id{nvector\_serial.h} is
 included for the definition of the serial \id{N\_Vector} type.
 
 The include lines at the top of the file are followed by definitions of
@@ -385,10 +385,10 @@ with standard central finite differences on a $10 \times 10$ mesh,
 giving an ODE system of size $200$.
 
 Among the initial \id{\#include} lines in this case are lines to
-include \id{cvspgmr.h} and \id{sundialsmath.h}.  The first contains
+include \id{cvode\_spgmr.h} and \id{sundials\_math.h}.  The first contains
 constants and function prototypes associated with the {\spgmr} method,
 including the values of the \id{pretype} argument to \id{CVSpgmr}.
-The inclusion of \id{sundialsmath.h} is done to access the \id{SQR}
+The inclusion of \id{sundials\_math.h} is done to access the \id{SQR}
 macro for the square of a \id{realtype} number.
 
 The \id{main} program calls \id{CVodeCreate} specifying the \id{CV\_BDF} method
@@ -457,7 +457,7 @@ type \id{DenseMat} for the $N \times N$ dense Jacobian and Newton
 matrices, and calls the large matrix functions.  But to avoid the
 extra layer of function calls, \id{cvkryx.c} uses the small dense
 functions for all operations on the $2 \times 2$ preconditioner blocks.  
-Thus it includes \id{smalldense.h}, and calls the small dense matrix
+Thus it includes \id{sundials\_smalldense.h}, and calls the small dense matrix
 functions \id{denalloc}, \id{dencopy}, \id{denscale}, \id{denaddI}, 
 \id{denfree}, \id{denfreepiv}, \id{gefa}, and \id{gesl}.  The macro
 \id{IJth} defined near the top of the file is used to access

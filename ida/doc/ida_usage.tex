@@ -34,30 +34,23 @@ been completed successfully.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-{\ida}.  In terms of the directory {\em build\_tree} defined in
-Chapter \ref{s:install}, the relevant library files are
+{\cvode}.  The relevant library files are
 \begin{itemize}
-\item {\em build\_tree}\id{/lib/libsundials\_ida.}{\em lib},
-\item {\em build\_tree}\id{/lib/libsundials\_fida.a},
-\item {\em build\_tree}\id{/lib/libsundials\_shared.}{\em lib},
-\item {\em build\_tree}\id{/lib/libsundials\_nvec*.}{\em lib} (up to three files), and
-\item {\em build\_tree}\id{/lib/libsundials\_fnvec*.a} (up to three files),
+\item {\em libdir}\id{/libsundials\_ida.}{\em lib},
+\item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one or two files),
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
-and \id{.a} for static libraries. The relevant header files are all located in
-the subdirectory
+and \id{.a} for static libraries. The relevant header files are located in
+the subdirectories
 \begin{itemize}
-\item {\em build\_tree}\id{/include}
+\item {\em incdir}\id{/include}
+\item {\em incdir}\id{/include/ida}
+\item {\em incdir}\id{/include/sundials}
 \end{itemize}
-
-%For an application that contains both a {\ida} problem (IVP) and a
-%{\idas} problem (IVP with sensitivity analysis), \index{IDAS@{\idas}}
-%references to the library files must be made carefully, because both
-%of the associated solver library files contain a user-callable
-%function called \Id{IDASolve}, although the version in {\idas} is fully
-%compatible with that in {\ida}.  In this case, the loader command
-%must reference {\em build\_tree}\id{/lib/libsundials\_idas.}{\em lib}, and
-%not {\em build\_tree}\id{/lib/libsundials\_ida.}{\em lib}.
+The directories {\em libdir} and {\em incdir} are the install libray and include
+directories. For a default installation, these are {\em build\_tree}\id{/lib} and
+{\em build\_tree}\id{/include}, respectively, where {\em build\_tree} was defined in
+Chapter \ref{s:install}.
 
 %%===================================================================================
 \section{Data types}\label{s:types}
@@ -77,7 +70,7 @@ and data types can be used. The header file that is always required is:
   types and various constants, and includes function prototypes.
 \end{itemize}
 %%
-Note that \id{ida.h} includes \Id{sundialstypes.h}, 
+Note that \id{ida.h} includes \Id{sundials\_types.h}, 
 which defines the types \id{realtype} and \id{booleantype}
 and the constants \id{FALSE} and \id{TRUE}.
 
@@ -93,7 +86,7 @@ the corresponding header files are:
   which defines the parallel MPI implementation, {\nvecp}.
 \end{itemize}
 %%
-Note that both these files include in turn the header file \Id{nvector.h} which 
+Note that both these files include in turn the header file \Id{sundials\_nvector.h} which 
 defines the abstract \Id{N\_Vector} type. 
 
 Finally, a linear solver module header file is required. 
@@ -102,26 +95,26 @@ The header files corresponding to the various linear solver options in {\ida} ar
 as follows:
 %%
 \begin{itemize}
-\item \Id{idadense.h}, 
+\item \Id{ida\_dense.h}, 
   which is used with the dense direct linear solver in 
-  the context of {\ida}. This in turn includes a header file (\id{dense.h})
+  the context of {\ida}. This in turn includes a header file (\id{sundials\_dense.h})
   which defines the \Id{DenseMat} type and corresponding accessor macros; 
-\item \Id{idaband.h}, 
+\item \Id{ida\_band.h}, 
   which is used with the band direct linear solver in the
-  context of {\ida}. This in turn includes a header file (\id{band.h})
+  context of {\ida}. This in turn includes a header file (\id{sundials\_band.h})
   which defines the \Id{BandMat} type and corresponding accessor macros;
-\item \Id{idaspgmr.h}, 
+\item \Id{ida\_spgmr.h}, 
   which is used with the Krylov solver {\spgmr} in the
-  context of {\ida}. This in turn includes a header file (\id{iterative.h})
+  context of {\ida}. This in turn includes a header file (\id{sundials\_iterative.h})
   which enumerates the kind of preconditioning and the choices for the
   Gram-Schmidt process;
-\item \Id{idaspbcg.h}, 
+\item \Id{ida\_spbcgs.h}, 
   which is used with the Krylov solver {\spbcg} in the
-  context of {\ida}. This in turn includes a header file (\id{iterative.h})
+  context of {\ida}. This in turn includes a header file (\id{sundials\_iterative.h})
   which enumerates the kind of preconditioning;
-\item \Id{idasptfqmr.h}, 
+\item \Id{ida\_sptfqmr.h}, 
   which is used with the Krylov solver {\sptfqmr} in the
-  context of {\ida}. This in turn includes a header file (\id{iterative.h})
+  context of {\ida}. This in turn includes a header file (\id{sundials\_iterative.h})
   which enumerates the kind of preconditioning.
 \end{itemize}
 
@@ -558,7 +551,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDADense} selects the {\idadense} linear solver. 
 
-  The user's main function must include the \id{idadense.h} header file.
+  The user's main function must include the \id{ida\_dense.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -601,7 +594,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDABand} selects the {\idaband} linear solver. 
 
-  The user's main function must include the \id{idaband.h} header file.
+  The user's main function must include the \id{ida\_band.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -649,7 +642,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASpgmr} selects the {\idaspgmr} linear solver. 
 
-  The user's main function must include the \id{idaspgmr.h} header file.
+  The user's main function must include the \id{ida\_spgmr.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -685,7 +678,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASpbcg} selects the {\idaspbcg} linear solver. 
 
-  The user's main function must include the \id{idaspbcg.h} header file.
+  The user's main function must include the \id{ida\_spbcgs.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -721,7 +714,7 @@ described separately in Chapter \ref{s:gen_linsolv}.
 {
   The function \ID{IDASptfqmr} selects the {\idasptfqmr} linear solver. 
 
-  The user's main function must include the \id{idasptfqmr.h} header file.
+  The user's main function must include the \id{ida\_sptfqmr.h} header file.
 }
 {
   \begin{args}[ida\_mem]
@@ -4923,7 +4916,7 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
   described in \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
 }
 \index{Jacobian approximation function!dense!user-supplied|)}
@@ -5029,7 +5022,7 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
   it may need to access quantities not in the call list. These include the current
   stepsize, the error weights, etc. To obtain these, use the \id{IDAGet*} functions 
   described in \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
 }
 \index{half-bandwidths|)}
@@ -5092,7 +5085,7 @@ of type \ID{IDASpilsJacTimesVecFn} in the following form:
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{IDAGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
 }
 {}
@@ -5237,7 +5230,7 @@ user-supplied {\C} function of type \ID{IDASpilsPrecSetupFn}, defined as follows
   list. These include the current stepsize, the error weights, etc.
   To obtain these, use the \id{IDAGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed
-  as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
+  as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
 }
 
@@ -5604,7 +5597,7 @@ are then used by \id{Gres}, which is not expected to do any communication.
 %%
 Besides the header files required for the integration of the DAE problem
 (see \S\ref{ss:header_sim}),  to use the {\idabbdpre} module, the main program 
-must include the header file \id{idabbdpre.h} which declares the needed
+must include the header file \id{ida\_bbdpre.h} which declares the needed
 function prototypes.\index{header files}
 
 The following is a summary of the usage of this module and describes the sequence 

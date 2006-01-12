@@ -2,14 +2,14 @@
 % types used in llntyps.h
 %
 \index{portability}
-The \ID{sundialstypes.h} file contains the definition of the type \ID{realtype},
+The \ID{sundials\_types.h} file contains the definition of the type \ID{realtype},
 which is used by the {\sundials} solvers for all floating-point data.
 The type \id{realtype} can be \id{float}, \id{double}, or \id{long double}, with
 the default being \id{double}.
 The user can change the precision of the {\sundials} solvers arithmetic at the
 configuration stage (see \S\ref{ss:configuration_options}).
 
-Additionally, based on the current precision, \id{sundialstypes.h} defines 
+Additionally, based on the current precision, \id{sundials\_types.h} defines 
 \Id{BIG\_REAL} to be the largest value representable as a \id{realtype},
 \Id{SMALL\_REAL} to be the smallest value representable as a \id{realtype}, and
 \Id{UNIT\_ROUNDOFF} to be the difference between $1.0$ and the minimum \id{realtype}
