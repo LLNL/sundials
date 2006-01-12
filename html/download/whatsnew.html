@@ -119,6 +119,8 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn<BR>
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn<BR>
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   <LI> renamed all exported header files (except for <tt>cvode.h</tt>, all header files
+     have the prefix <tt>cvode_</tt>)
    <LI> changed naming scheme for CVODE examples
    </UL>
 <LI> Changes to the FCVODE module
@@ -132,7 +134,16 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
      was removed from FCVMALLOC.
    <LI> the arguments OPTIN, IOPT, and ROPT were removed from FCVREINIT
    </UL>
-
+<LI> Changes related to the build system
+    <UL class="second">
+    <LI> updated configure script and Makefiles for Fortran examples to avoid C++
+     compiler errors (now use CC and MPICC to link only if necessary)
+    <LI> the main CVODE header file (cvode.h) is still exported to the install include
+     directory. However, all other CVODE header files are exported into a <tt>cvode</tt>
+     subdirectory of the install include directory.
+     <LI> the CVODE library now contains all shared object files (there is no separate
+     libsundials_shared library anymore)
+    </UL>
 
 <LI class="title">What's new in v2.3.0?
 <LI> New features
@@ -327,9 +338,18 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
    <LI> added a argument to CVadjMalloc to specify the type of interpolation 
      (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
      for variable-order polynomial interpolation)
+   <LI> renamed all exported header files (except for cvodes.h and cvodea.h all 
+     header files have the prefix <tt>cvodes_</tt>)
    <LI> changed naming scheme for CVODES examples
    </UL>
-
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> the main CVODES header files (cvodes.h and cvodea.h) are still exported to 
+     the install include directory. However, all other CVODES header files are 
+     exported into a <tt>cvodes</tt> subdirectory of the install include directory.
+   <LI> the CVODES library now contains all shared object files (there is no separate
+     libsundials_shared library anymore)
+   </UL>
 
 <LI class="title">What's new in v2.3.0?
 <LI> Bug fixes
@@ -566,8 +586,18 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn<BR>
        IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
    <LI> added IDAGetEstLocalErrors() to return estimated local errors.
+   <LI>  renamed all exported header files (except for ida.h, all header files
+     have the prefix <tt>ida_</tt>)
    <LI> changed naming scheme for IDA examples
   </UL>
+<LI>Changes related to the build system
+   <UL class="second">
+   <LI> the main IDA header file (ida.h) is still exported to the install include
+     directory. However, all other IDA header files are exported into an <tt>ida</tt>
+     subdirectory of the install include directory.
+   <LI> the IDA library now contains all shared object files (there is no separate
+     libsundials_shared library anymore)
+   </UL>
 
 <LI class="title">What's new in v2.3.0?
 <LI> New features
@@ -761,6 +791,8 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        KINSpgmrJactimesVecFn -> KINSpilsJacTimesVecFn<BR>
        KINSpgmrPrecSetupFn   -> KINSpilsPrecSetupFn<BR>
        KINSpgmrPrecSolveFn   -> KINSpilsPrecSolveFn 
+   <LI> renamed all exported header files (except for kinsol.h, all header files
+     have the prefix <tt>kinsol_</tt>)
    <LI> changed naming scheme for KINSOL examples
    </UL>
 <LI> Changes to FKINSOL module:
@@ -777,6 +809,16 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
      FKINSETRIN (real inputs), and FKINSETVIN (vector inputs) through pairs 
      key-value. Optional outputs are still obtained from two arrays (IOUT and 
      ROUT), owned by the user and passed as arguments to FKINMALLOC.
+   </UL>
+<LI> Changes related to the build system
+   <UL class="second">
+   <LI> updated configure script and Makefiles for Fortran examples to avoid C++
+     compiler errors (now use CC and MPICC to link only if necessary)
+   <LI> the main KINSOL header file (kinsol.h) is still exported to the install include
+     directory. However, all other KINSOL header files are exported into a <tt>kinsol</tt>
+     subdirectory of the install include directory.
+   <LI> the KINSOL library now contains all shared object files (there is no separate
+     libsundials_shared library anymore)
    </UL>
 
 <LI class="title">What's new in v2.3.0?
@@ -928,8 +970,15 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
    <UL class="second">
    <LI> updated configure script and Makefiles for Fortran examples to avoid C++
      compiler errors (now use CC and MPICC to link only if necessary)
+   <LI> SUNDIALS shared header files are installed under a <tt>sundials</tt> subdirectory
+     of the installation include directory
+   <LI> the shared object files are now linked into each SUNDIALS library rather
+     than into a separate <tt>libsundials_shared</tt> library
    </UL>
-
+<LI> Changes to the user interface
+   <UL class="second">
+   <LI>  added prefix <tt>sundials_</tt> to all shared header files
+   </UL>
 <LI class="title">What's new in v2.1.1?
 <LI> Changes to the generic NVECTOR module
    <UL class="second">
