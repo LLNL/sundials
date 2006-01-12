@@ -58,9 +58,9 @@ is to be located.
 \item \id{make install}
 \item \id{make examples}
 \item If system storage space conservation is a priority, then issue \\
-\verb+   % make clean+ \\
+\verb+   make clean+ \\
 and/or \\
-\verb+   % make examples_clean+ \\
+\verb+   make examples_clean+ \\
 from a shell command prompt to remove unneeded object files.
 \end{enumerate}
 
@@ -359,9 +359,9 @@ during the configuration of {\sundials}. See the next section for illustrations 
 The following examples are meant to help demonstrate proper usage of the configure options:
 
 \begin{verbatim}
-% configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
-            --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
-            --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
+   % configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
+               --with-mpicc=/usr/apps/mpich/1.2.4/bin/mpicc \ 
+               --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
 \end{verbatim}
 
 \noindent The above example builds {\sundials} using \id{gcc} as the serial {\C}
@@ -370,9 +370,9 @@ compiler, \id{mpif77} as the parallel {\F} compiler, and appends the \id{-g3}
 compilaton flag to the list of default flags.
 
 \begin{verbatim}
-% configure CC=gcc --disable-examples --with-mpicc=no \
-            --with-mpi-root=/usr/apps/mpich/1.2.4 \
-            --with-mpi-libs=-lmpich
+   % configure CC=gcc --disable-examples --with-mpicc=no \
+               --with-mpi-root=/usr/apps/mpich/1.2.4 \
+               --with-mpi-libs=-lmpich
 \end{verbatim}
 
 \noindent This example again builds {\sundials} using \id{gcc} as the serial
@@ -392,39 +392,44 @@ library.
 
 \section{Installed libraries and exported header files}
 
-Using the default SUNDIALS build system, the command\\
-\id{\% make install}\\
-will install the library files in a directory {\em libdir} and the public
-header files in a directory {\em incdir}. The default values for these directories
-are {\em build\_tree}\id{/lib} and {\em build\_tree}\id{/include}, but these can
-be changed using the configuration options \id{--prefix}, \id{--includedir}, and
-\id{--libdir} (see \S\ref{ss:configuration_options}). For example, a system-wide install
-of {\sundials} could be done using\\
-\id{\% configure --prefix=/usr/local}\\
-The public header files are further organized in subdirectories under {\em incdir}.
+Using the standard {\sundials} build system, the command
+\begin{verbatim}
+   % make install
+\end{verbatim}
+will install the libraries under {\em libdir} and the public
+header files under {\em incdir}. The default values for these directories
+are {\em build\_tree}\id{/lib} and {\em build\_tree}\id{/include}, respectively,
+but can be changed using the configure script options \id{--prefix}, \id{--includedir}
+and \id{--libdir} (see \S\ref{ss:configuration_options}). For example, a global installation
+of {\sundials} on a {\sc *NIX} system could be accomplished using
+\begin{verbatim}
+   % configure --prefix=/usr/local
+\end{verbatim}
+Although all installed libraries reside under {\em libdir}, the public header files
+are further organized into subdirectories under {\em incdir}.
 
 The installed libraries and exported header files are listed for reference in 
 Table~\ref{t:sundials_files}. 
 The file extension .{\em lib} is typically \id{.so} for shared libraries and 
-\id{.a} for static libraries (see {\em Options for library support} for additional details.)
+\id{.a} for static libraries (see {\em Options for library support} for additional details).
 
 A typical user program need not explicitly include any of the shared {\sundials} header
-files from the directory {\em incdir}\id{/sundials} since they are included by the
-appropriate solver header files (for example, \id{cvode\_dense.h} includes 
-\id{sundials\_dense.h}). However, it is both legal and safe to do so either for
-clarity or if needed (for example, the functions declared in \id{sundials\_smalldense} 
+files from under the {\em incdir}\id{/sundials} directory since they are implicitly included by the
+appropriate solver header files ({\em e.g.}, \id{cvode\_dense.h} includes 
+\id{sundials\_dense.h}). However, it is both legal and safe to do so
+({\em e.g.}, the functions declared in \id{sundials\_smalldense.h} 
 could be used in building a preconditioner).
 
 \begin{table}
 \centering
 \caption{
-  SUNDIALS libraries and header files (names are relative to {\em libdir}/
-  for library files and to {\em incdir}/ for header files)
+  SUNDIALS libraries and header files (names are relative to {\em libdir}
+  for libraries and to {\em incdir} for header files)
 }\label{t:sundials_files}
 \medskip
 \begin{tabular}{|l|l|ll|} 
 \hline %% --------------------------------------------------
-{\shared} & Libraries    & -                                 &                                 \\ 
+{\shared} & Libraries    & n/a                               &                                 \\ 
 \cline{2-4}
           & Header files & sundials/sundials\_types.h        & sundials/sundials\_math.h   \\
           &              & sundials/sundials\_config.h       & sundias/sundials\_nvector.h\\
@@ -483,26 +488,26 @@ could be used in building a preconditioner).
 
 \section{Building SUNDIALS without the configure script}
 
-If the \id{configure} script cannot be used (for example when building {\sundials}
-under Windows without using \id{cygwin}) or if the users desires to own the build
-process (for example when {\sundials} is incorporated into a larger project with its
-own build system) the header and source files for the desired modules can be 
-copied from the {\em source\_tree} in some other location(s) and compiled separately.
+If the \id{configure} script cannot be used ({\em e.g.}, when building {\sundials}
+under Microsoft Windows without using Cygwin), or if the user prefers to own the build
+process ({\em e.g.}, when {\sundials} is incorporated into a larger project with its
+own build system), then the header and source files for a given module can be 
+copied from the {\em source\_tree} to some other location and compiled separately.
 
-To compile one of the {\sundials} solvers the necessary files are as follows:
+The following files are required to compile a {\sundials} solver module:
 \begin{itemize}
-\item the solver's public header files located in 
-{\em src\_tree}\id{/}{\em solver}\id{/include}
-\item the solver's implementation header files and sources located in
-{\em src\_tree}\id{/}{\em solver}\id{/source}
-\item (optionally and if present) the solver's Fortran-C interface files located in
-{\em src\_tree}\id{/}{\em solver}\id{/fcmix}
-\item the shared public header files located in
-{\em src\_tree}\id{/shared/include}
-\item the shared sources located in
-{\em src\_tree}\id{/shared/source}
-\item (optionally) the {\nvecs} header and source files located in
-{\em src\_tree}\id{/nvec\_ser}
-\item (optionally) the {\nvecp} header and source files located in
-{\em src\_tree}\id{/nvec\_par}
+\item public header files located under 
+{\em source\_tree}\id{/}{\em solver}\id{/include}
+\item implementation header files and source files located under
+{\em source\_tree}\id{/}{\em solver}\id{/source}
+\item (optional) {\F}/{\C} interface files located under
+{\em source\_tree}\id{/}{\em solver}\id{/fcmix}
+\item shared public header files located under
+{\em source\_tree}\id{/shared/include}
+\item shared source files located under
+{\em source\_tree}\id{/shared/source}
+\item (optional) {\nvecs} header and source files located under
+{\em source\_tree}\id{/nvec\_ser}
+\item (optional) {\nvecp} header and source files located under
+{\em source\_tree}\id{/nvec\_par}
 \end{itemize}
