@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2006-01-12 22:53:38 $
+ * $Revision: 1.15 $
+ * $Date: 2006-01-12 23:14:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -199,9 +199,6 @@ extern "C" {
     /* BBD user functions (glocB and cfnB) for backward run */
     CVLocalFnB ca_glocB;
     CVCommFnB  ca_cfnB;
-    
-    /* BP prec data */
-    void *ca_bp_dataB;
     
     /* BBD prec data */
     void *ca_bbd_dataB;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.56 $
- * $Date: 2006-01-12 22:53:37 $
+ * $Revision: 1.57 $
+ * $Date: 2006-01-12 23:14:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -98,7 +98,6 @@ static void CVArhsQ(realtype t, N_Vector yB,
 
 
 #define bbd_data_B  (ca_mem->ca_bbd_dataB)
-#define bp_data_B   (ca_mem->ca_bp_dataB)
 
 
 
@@ -402,7 +401,6 @@ void CVadjFree(void **cvadj_mem)
   CVodeFree(&cvode_bmem);
 
   /* Free preconditioner data (the routines below check for non-NULL data) */
-  CVBandPrecFree(&bp_data_B);
   CVBBDPrecFree(&bbd_data_B);
 
   /* Free CVODEA memory */

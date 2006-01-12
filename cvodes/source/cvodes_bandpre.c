@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-12 23:14:55 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -250,7 +250,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 
 /* Additional readability replacements */
 
-#define bp_data_B   (ca_mem->ca_bp_dataB)
+#define bp_data_B   (ca_mem->ca_pmemB)
 
 /*
  * CVBandPrecAllocB, CVBPSp*B
@@ -327,6 +327,16 @@ int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   flag = CVBPSpgmr(cvode_mem, pretypeB, maxlB, bp_data_B);
 
   return(flag);
+}
+
+
+void CVBandPrecFreeB(void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  if (cvadj_mem == NULL) return;
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  CVBandPrecFree(&bp_data_B);
 }
 
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:03 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-12 23:14:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -247,7 +247,6 @@ extern "C" {
   int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
 
-
   /* 
    * -----------------------------------------------------------------
    * PART II - backward problems
@@ -274,7 +273,8 @@ extern "C" {
   int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB);
   int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB);
-  
+
+  void CVBandPrecFreeB(void *cvadj_mem);
 
 #ifdef __cplusplus
 }
