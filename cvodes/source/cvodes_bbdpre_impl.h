@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-17 23:30:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -61,6 +61,24 @@ extern "C" {
 
   } *CVBBDPrecData;
 
+
+  /*
+   * -----------------------------------------------------------------
+   * Type: CVBBDPrecDataB
+   * -----------------------------------------------------------------
+   */
+
+  typedef struct {
+
+    /* BBD user functions (glocB and cfnB) for backward run */
+    CVLocalFnB glocB;
+    CVCommFnB  cfnB;
+    
+    /* BBD prec data */
+    void *bbd_dataB;
+
+  } *CVBBDPrecDataB;
+
   /*
    * -----------------------------------------------------------------
    * CVBBDPRE error messages
@@ -75,7 +93,7 @@ extern "C" {
 
   /* CVBBDPrecGet* error message */
 
-#define MSGBBDP_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL.\n\n"
+#define MSGBBDP_PDATA_NULL "CVBBDPrecReInit/CVBBDPrecGet*-- BBDPrecData is NULL.\n\n"
 
   /* CVBBDSp* error message */
 

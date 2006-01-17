@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-17 23:30:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -82,7 +82,10 @@
 #include "cvodes.h"
 #include "cvodea.h"
 #include "nvector_serial.h"
+
 #include "cvodes_spgmr.h"
+
+#include "sundials_smalldense.h"
 #include "sundials_types.h"
 #include "sundials_math.h"
 

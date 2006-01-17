@@ -50,6 +50,16 @@ description of their meaning.
 \end{supertabular*}
 \vspace{0.1in}
 
+\noindent {\bf {\cvodea} adjoint solver module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CV\_HERMITE} & 1 & Use Hermite interpolation. \\
+\id{CV\_POLYNOMIAL} & 2 & Use variable-degree polynomial interpolation. \\
+\end{supertabular*}
+\vspace{0.1in}
+
 \noindent {\bf Iterative linear solver module}
 
 \vspace{0.1in}
@@ -92,7 +102,6 @@ description of their meaning.
 \id{CV\_BAD\_K}          & -14 & The derivative order $k$ is larger than the order used. \\
 \id{CV\_BAD\_T}          & -15 & The time $t$ s outside the last step taken. \\
 \id{CV\_BAD\_DKY}        & -16 & The output derivative vector is \id{NULL}. \\
-\id{CV\_PDATA\_NULL}     & -17 & The preconditioner module has not been initialized. \\
 \id{CV\_BAD\_IS}         & -18 & The sensitivity index is larger than the number of sensitivities computed.\\
 \id{CV\_NO\_QUAD}        & -20 & Quadrature integration was not activated. \\
 \id{CV\_NO\_SENS}        & -21 & Forward sensitivity integration was not activated. \\
@@ -127,6 +136,10 @@ description of their meaning.
 \id{CVDENSE\_LMEM\_NULL} & -2 & The {\cvdense} linear solver has not been initialized.\\
 \id{CVDENSE\_ILL\_INPUT} & -3 & The {\cvdense} solver is not compatible with the current {\nvector} module.\\
 \id{CVDENSE\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+%%
+\id{CVDENSE\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
+\id{CVDENSE\_LMEMB\_NULL}  & -102 & The {\cvdense} linear solver has not been initialized for
+                           the backward integration.\\
 \end{supertabular*} 
 \vspace{0.1in}
 
@@ -141,6 +154,10 @@ description of their meaning.
 \id{CVBAND\_ILL\_INPUT} & -3 & The {\cvband} solver is not compatible with the
                          current {\nvector} module, or an input value was illegal.\\
 \id{CVBAND\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+%%
+\id{CVBAND\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
+\id{CVBAND\_LMEMB\_NULL}  & -102 & The {\cvband} linear solver has not been initialized for
+                           the backward integration.\\
 \end{supertabular*} 
 \vspace{0.1in}
 
@@ -154,6 +171,8 @@ description of their meaning.
 \id{CVDIAG\_LMEM\_NULL} & -2 & The {\cvdiag} linear solver has not been initialized.\\
 \id{CVDIAG\_ILL\_INPUT} & -3 & The {\cvdiag} solver is not compatible with the current {\nvector} module.\\
 \id{CVDIAG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+%%
+\id{CVDIAG\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
 \end{supertabular*} 
 \vspace{0.1in}
 
@@ -168,6 +187,10 @@ description of their meaning.
 \id{CVSPGMR\_ILL\_INPUT} & -3 & The {\cvspgmr} solver is not compatible with the
                           current {\nvector} module, or an input value was illegal.\\
 \id{CVSPGMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+%%
+\id{CVSPGMR\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
+\id{CVSPGMR\_LMEMB\_NULL}  & -102 & The {\cvspgmr} linear solver has not been initialized for
+                           the backward integration.\\
 \end{supertabular*} 
 \vspace{0.1in}
 
@@ -201,6 +224,10 @@ description of their meaning.
 \id{CVSPBCG\_ILL\_INPUT} & -3 & The {\cvspbcg} solver is not compatible with the
                           current {\nvector} module, or an input value was illegal.\\
 \id{CVSPBCG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+%%
+\id{CVSPBCG\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
+\id{CVSPBCG\_LMEMB\_NULL}  & -102 & The {\cvspbcg} linear solver has not been initialized for
+                           the backward integration.\\
 \end{supertabular*} 
 \vspace{0.1in}
 
@@ -232,6 +259,10 @@ description of their meaning.
 \id{CVSPTFQMR\_ILL\_INPUT} & -3 & The {\cvsptfqmr} solver is not compatible with the
                           current {\nvector} module, or an input value was illegal.\\
 \id{CVSPTFQMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+%%
+\id{CVSPTFQMR\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
+\id{CVSPTFQMR\_LMEMB\_NULL}  & -102 & The {\cvsptfqmr} linear solver has not been initialized for
+                           the backward integration.\\
 \end{supertabular*} 
 \vspace{0.1in}
 
@@ -248,5 +279,35 @@ description of their meaning.
 \id{SPTFQMR\_MEM\_NULL}          & -1 & The {\sptfqmr} memory is \id{NULL}\\
 \id{SPTFQMR\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\cvbandpre} preconditioner module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CVBANDPRE\_SUCCESS}         &  0 & Successful function return. \\
+\id{CVBANDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
+%%
+\id{CVBANDPRE\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
+\id{CVBANDPRE\_PMEMB\_NULL}  & -102 & The {\cvbandpre} preconditionr module has not been initialized for
+                           the backward integration.\\
+\id{CVBANDPRE\_MEM\_FAIL}  & -103 & A memory allocation failed.\\
+\end{supertabular*} 
+\vspace{0.1in}
+
+\noindent {\bf {\cvbbdpre} preconditioner module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{CVBBDPRE\_SUCCESS}         &  0 & Successful function return. \\
+\id{CVBBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
+%%
+\id{CVBBDPRE\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
+\id{CVBBDPRE\_PMEMB\_NULL}  & -102 & The {\cvbbdpre} preconditionr module has not been initialized for
+                           the backward integration.\\
+\id{CVBBDPRE\_MEM\_FAIL}  & -103 & A memory allocation failed.\\
 \end{supertabular*} 
 \vspace{0.1in}

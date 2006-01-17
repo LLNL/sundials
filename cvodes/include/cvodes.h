@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.45 $
- * $Date: 2006-01-12 20:24:02 $
+ * $Revision: 1.46 $
+ * $Date: 2006-01-17 23:30:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -1253,8 +1253,6 @@ extern "C" {
 #define CV_BAD_K         -14
 #define CV_BAD_T         -15
 #define CV_BAD_DKY       -16
-
-#define CV_PDATA_NULL    -17
 
 #define CV_BAD_IS        -18
 

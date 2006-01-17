@@ -5429,7 +5429,7 @@ in more detail below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \begin{args}[CVBANDPRE\_PDATA\_NULL]
   \item[\Id{CVSPGMR\_SUCCESS}] 
     The {\cvspgmr} initialization was successful.
   \item[\Id{CVSPGMR\_MEM\_NULL}]
@@ -5438,7 +5438,7 @@ in more detail below.
     The preconditioner type \id{pretype} is not valid.
   \item[\Id{CVSPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBANDPRE\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5471,7 +5471,7 @@ in more detail below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPBCG\_ILL\_INPUT]
+  \begin{args}[CVBANDPRE\_PDATA\_NULL]
   \item[\Id{CVSPBCG\_SUCCESS}] 
     The {\cvspbcg} initialization was successful.
   \item[\Id{CVSPBCG\_MEM\_NULL}]
@@ -5480,7 +5480,7 @@ in more detail below.
     The preconditioner type \id{pretype} is not valid.
   \item[\Id{CVSPBCG\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBANDPRE\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5513,7 +5513,7 @@ in more detail below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPTFQMR\_ILL\_INPUT]
+  \begin{args}[CVBANDPRE\_PDATA\_NULL]
   \item[\Id{CVSPTFQMR\_SUCCESS}] 
     The {\cvsptfqmr} initialization was successful.
   \item[\Id{CVSPTFQMR\_MEM\_NULL}]
@@ -5522,7 +5522,7 @@ in more detail below.
     The preconditioner type \id{pretype} is not valid.
   \item[\Id{CVSPTFQMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBANDPRE\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5574,10 +5574,10 @@ the {\cvbandpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_PDATA\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \begin{args}[CVBANDPRE\_PDATA\_NULL]
+  \item[\Id{CVBANDPRE\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBANDPRE\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5613,10 +5613,10 @@ the {\cvbandpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_PDATA\_NULL]
+  \begin{args}[CVBANDPRE\_PDATA\_NULL]
   \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBANDPRE\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -6004,7 +6004,7 @@ next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPGMR\_ILL\_INPUT]
+  \begin{args}[CVBBDPRE\_PDATA\_NULL]
   \item[\Id{CVSPGMR\_SUCCESS}] 
     The {\cvspgmr} initialization was successful.
   \item[\Id{CVSPGMR\_MEM\_NULL}]
@@ -6013,7 +6013,7 @@ next.
     The preconditioner type \id{pretype} is not valid.
   \item[\Id{CVSPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBBDPRE\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -6046,7 +6046,7 @@ next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPBCG\_ILL\_INPUT]
+  \begin{args}[CVBBDPRE\_PDATA\_NULL]
   \item[\Id{CVSPBCG\_SUCCESS}] 
     The {\cvspbcg} initialization was successful.
   \item[\Id{CVSPBCG\_MEM\_NULL}]
@@ -6055,7 +6055,7 @@ next.
     The preconditioner type \id{pretype} is not valid.
   \item[\Id{CVSPBCG\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBBDPRE\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -6088,7 +6088,7 @@ next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPTFQMR\_ILL\_INPUT]
+  \begin{args}[CVBBDPRE\_PDATA\_NULL]
   \item[\Id{CVSPTFQMR\_SUCCESS}] 
     The {\cvsptfqmr} initialization was successful.
   \item[\Id{CVSPTFQMR\_MEM\_NULL}]
@@ -6097,7 +6097,7 @@ next.
     The preconditioner type \id{pretype} is not valid.
   \item[\Id{CVSPTFQMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBBDPRE\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -6160,7 +6160,8 @@ the corresponding \id{CVSp***Set***} functions, must also be made.
   \end{args}
 }
 {
-  The return value of \id{CVBBDPrecReInit} is always \Id{CV\_SUCCESS}.
+  The return value of \id{CVBBDPrecReInit} is \Id{CVBBDPRE\_SUCCESS} indicating
+  success, or \Id{CVBBDPRE\_PDATA\_NULL} if \id{bbd\_data} is \id{NULL}.
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
@@ -6195,10 +6196,10 @@ the {\cvbbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_PDATA\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \begin{args}[CVBBDPRE\_PDATA\_NULL]
+  \item[\Id{CVBBDPRE\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBBDPRE\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -6236,10 +6237,10 @@ the {\cvbbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_PDATA\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \begin{args}[CVBBDPRE\_PDATA\_NULL]
+  \item[\Id{CVBBDPRE\_SUCCESS}] 
     The optional output value has been successfully set.
-  \item[\Id{CV\_PDATA\_NULL}]
+  \item[\Id{CVBBDPRE\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }

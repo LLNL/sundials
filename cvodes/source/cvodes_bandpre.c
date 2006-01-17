@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 23:14:55 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-17 23:30:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -138,7 +138,7 @@ int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSGBP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   flag = CVSptfqmr(cvode_mem, pretype, maxl);
@@ -156,7 +156,7 @@ int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSGBP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   flag = CVSpbcg(cvode_mem, pretype, maxl);
@@ -174,7 +174,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSGBP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
@@ -209,7 +209,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
 
   if ( bp_data == NULL ) {
     fprintf(stderr, MSGBP_PDATA_NULL);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   pdata = (CVBandPrecData) bp_data;
@@ -222,7 +222,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
-  return(CV_SUCCESS);
+  return(CVBANDPRE_SUCCESS);
 }
 
 int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
@@ -231,14 +231,14 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 
   if (bp_data == NULL) {
     fprintf(stderr, MSGBP_PDATA_NULL);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   pdata = (CVBandPrecData) bp_data;
 
   *nfevalsBP = pdata->nfeBP;
 
-  return(CV_SUCCESS);
+  return(CVBANDPRE_SUCCESS);
 }
 
 
@@ -266,18 +266,18 @@ int CVBandPrecAllocB(void *cvadj_mem, long int nB,
   void *cvode_mem;
   void *bp_dataB;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) return(CVBANDPRE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
   bp_dataB = CVBandPrecAlloc(cvode_mem, nB, muB, mlB);
 
-  if (bp_dataB == NULL) return(CV_PDATA_NULL);
+  if (bp_dataB == NULL) return(CVBANDPRE_MEM_FAIL);
 
   bp_data_B = bp_dataB;
 
-  return(CV_SUCCESS);
+  return(CVBANDPRE_SUCCESS);
 
 }
 
@@ -287,7 +287,7 @@ int CVBPSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) return(CVBANDPRE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -303,7 +303,7 @@ int CVBPSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) return(CVBANDPRE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;
@@ -319,7 +319,7 @@ int CVBPSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) return(CVBANDPRE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = (void *) ca_mem->cvb_mem;

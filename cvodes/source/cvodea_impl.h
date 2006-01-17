@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2006-01-12 23:14:55 $
+ * $Revision: 1.16 $
+ * $Date: 2006-01-17 23:30:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -25,15 +25,6 @@ extern "C" {
 
 #include "cvodea.h"
 #include "cvodes_impl.h"
-
-#include "cvodes_dense_impl.h"
-#include "cvodes_band_impl.h"
-#include "cvodes_diag_impl.h"
-#include "cvodes_sptfqmr_impl.h"
-#include "cvodes_spbcgs_impl.h"
-#include "cvodes_spgmr_impl.h"
-#include "cvodes_bandpre_impl.h"
-#include "cvodes_bbdpre_impl.h"
 
 #include "sundials_nvector.h"
 #include "sundials_types.h"
@@ -192,19 +183,6 @@ extern "C" {
 
     /* Memory block for a preconditioner's module interface to CVODEA */ 
     void *ca_pmemB;
-
-
-
-
-    /* BBD user functions (glocB and cfnB) for backward run */
-    CVLocalFnB ca_glocB;
-    CVCommFnB  ca_cfnB;
-    
-    /* BBD prec data */
-    void *ca_bbd_dataB;
-
-
-
     
     /* Unit roundoff */
     realtype ca_uround;

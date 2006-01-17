@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:03 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-17 23:30:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,6 +32,16 @@ extern "C" {
 #endif
 
 #include "sundials_nvector.h"
+
+  /* CVBBDPRE return values */
+
+#define CVBBDPRE_SUCCESS     0
+#define CVBBDPRE_PDATA_NULL -11
+
+#define CVBBDPRE_ADJMEM_NULL -101
+#define CVBBDPRE_PMEMB_NULL  -102
+#define CVBBDPRE_MEM_FAIL    -103
+
 
   /* 
    * -----------------------------------------------------------------
@@ -242,12 +252,12 @@ extern "C" {
    * not call CVSptfqmr.
    *
    * Possible return values are:
-   *    CVSPTFQMR_SUCCESS     if successful
-   *    CVSPTFQMR_MEM_NULL    if the cvode memory was NULL
-   *    CVSPTFQMR_LMEM_NULL   if the cvspbcg memory was NULL
-   *    CVSPTFQMR_MEM_FAIL    if there was a memory allocation failure
-   *    CVSPTFQMR_ILL_INPUT   if a required vector operation is missing
-   *    CV_PDATA_NULL         if the bbd_data was NULL
+   *    CVSPTFQMR_SUCCESS    if successful
+   *    CVSPTFQMR_MEM_NULL   if the cvode memory was NULL
+   *    CVSPTFQMR_LMEM_NULL  if the cvspbcg memory was NULL
+   *    CVSPTFQMR_MEM_FAIL   if there was a memory allocation failure
+   *    CVSPTFQMR_ILL_INPUT  if a required vector operation is missing
+   *    CVBBDPRE_PDATA_NULL  if the bbd_data was NULL
    * -----------------------------------------------------------------
    */
 
@@ -271,12 +281,12 @@ extern "C" {
    * not call CVSpbcg.
    *
    * Possible return values are:
-   *    CVSPBCG_SUCCESS     if successful
-   *    CVSPBCG_MEM_NULL    if the cvode memory was NULL
-   *    CVSPBCG_LMEM_NULL   if the cvspbcg memory was NULL
-   *    CVSPBCG_MEM_FAIL    if there was a memory allocation failure
-   *    CVSPBCG_ILL_INPUT   if a required vector operation is missing
-   *    CV_PDATA_NULL       if the bbd_data was NULL
+   *    CVSPBCG_SUCCESS      if successful
+   *    CVSPBCG_MEM_NULL     if the cvode memory was NULL
+   *    CVSPBCG_LMEM_NULL    if the cvspbcg memory was NULL
+   *    CVSPBCG_MEM_FAIL     if there was a memory allocation failure
+   *    CVSPBCG_ILL_INPUT    if a required vector operation is missing
+   *    CVBBDPRE_PDATA_NULL  if the bbd_data was NULL
    * -----------------------------------------------------------------
    */
 
@@ -300,12 +310,12 @@ extern "C" {
    * not call CVSpgmr.
    *
    * Possible return values are:
-   *    CVSPGMR_SUCCESS     if successful
-   *    CVSPGMR_MEM_NULL    if the cvode memory was NULL
-   *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
-   *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure
-   *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
-   *    CV_PDATA_NULL       if the bbd_data was NULL
+   *    CVSPGMR_SUCCESS      if successful
+   *    CVSPGMR_MEM_NULL     if the cvode memory was NULL
+   *    CVSPGMR_LMEM_NULL    if the cvspgmr memory was NULL
+   *    CVSPGMR_MEM_FAIL     if there was a memory allocation failure
+   *    CVSPGMR_ILL_INPUT    if a required vector operation is missing
+   *    CVBBDPRE_PDATA_NULL  if the bbd_data was NULL
    * -----------------------------------------------------------------
    */
 
@@ -328,8 +338,8 @@ extern "C" {
    * that was returned by CVBBDPrecAlloc. All other arguments have
    * the same names and meanings as those of CVBBDPrecAlloc.
    *
-   * The return value of CVBBDPrecReInit is CV_SUCCESS, indicating
-   * success, or CV_PDATA_NULL if bbd_data was NULL.
+   * The return value of CVBBDPrecReInit is CVBBDPRE_SUCCESS, indicating
+   * success, or CVBBDPRE_PDATA_NULL if bbd_data was NULL.
    * -----------------------------------------------------------------
    */
 
@@ -356,8 +366,8 @@ extern "C" {
    * CVBBDPrecGetNumGfnEvals returns the number of calls to gfn.
    *
    * The return value of CVBBDPrecGet* is one of:
-   *    CV_SUCCESS    if successful
-   *    CV_PDATA_NULL if the bbd_data memory was NULL
+   *    CVBBDPRE_SUCCESS    if successful
+   *    CVBBDPRE_PDATA_NULL if the bbd_data memory was NULL
    * -----------------------------------------------------------------
    */
 
@@ -411,6 +421,7 @@ extern "C" {
   int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
                        realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB);
 
+  void CVBBDPrecFreeB(void *cvadj_mem);
 
 #ifdef __cplusplus
 }

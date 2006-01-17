@@ -88,8 +88,6 @@ description of their meaning.
 \id{IDA\_FIRST\_RES\_FAIL}& -17 & The user-provided residual function failed recoverably on the first call. \\
 \id{IDA\_LINESEARCH\_FAIL}& -18 & The line search failed. \\
 \id{IDA\_NO\_RECOVERY}    & -19 & The residual function, linear solver setup function, or linear solver solve function had a recoverable failure, but \id{IDACalcIC} could not recover. \\
-\id{IDA\_PDATA\_NULL}     & -20 & The preconditioner module has not been initialized. \\
-
 \id{IDA\_RTFUNC\_NULL}    & -21 & The user-supplied root function is \id{NULL}.\\
 
 \end{supertabular*} 
@@ -209,5 +207,16 @@ description of their meaning.
 \id{SPTFQMR\_MEM\_NULL}          & -1 & The {\sptfqmr} memory is \id{NULL}\\
 \id{SPTFQMR\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
+\end{supertabular*} 
+\vspace{0.1in}
+
+
+\noindent {\bf {\idabbdpre} preconditioner module}
+
+\vspace{0.1in}
+\noindent
+\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{IDABBDPRE\_SUCCESS}         &  0 & Successful function return. \\
+\id{IDABBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
 \end{supertabular*} 
 \vspace{0.1in}

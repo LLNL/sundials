@@ -5798,14 +5798,14 @@ next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASPGMR\_ILL\_INPUT]
+  \begin{args}[IDABBDPRE\_PDATA\_NULL]
   \item[\Id{IDASPGMR\_SUCCESS}] 
     The {\idaspgmr} initialization was successful.
   \item[\Id{IDASPGMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPGMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{IDA\_PDATA\_NULL}]
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5835,14 +5835,14 @@ next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASPBCG\_ILL\_INPUT]
+  \begin{args}[IDABBDPRE\_PDATA\_NULL]
   \item[\Id{IDASPBCG\_SUCCESS}] 
     The {\idaspbcg} initialization was successful.
   \item[\Id{IDASPBCG\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPBCG\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{IDA\_PDATA\_NULL}]
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5872,14 +5872,14 @@ next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASPTFQMR\_ILL\_INPUT]
+  \begin{args}[IDABBDPRE\_PDATA\_NULL]
   \item[\Id{IDASPTFQMR\_SUCCESS}] 
     The {\idasptfqmr} initialization was successful.
   \item[\Id{IDASPTFQMR\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDASPTFQMR\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{IDA\_PDATA\_NULL}]
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5941,7 +5941,8 @@ used in the difference-quotient Jacobian approximations, the relative increment
   \end{args}
 }
 {
-  The return value of \id{IDABBDPrecReInit} is always \Id{IDA\_SUCCESS}.
+  The return value of \id{IDABBDPrecReInit} is \Id{IDABBDPRE\_SUCCESS} indicating
+  success, or \Id{IDABBDPRE\_PDATA\_NULL} if \id{bbd\_data} is \id{NULL}.
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
@@ -5978,10 +5979,10 @@ the {\idabbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_PDATA\_NULL]
-  \item[IDA\_SUCCESS] 
+  \begin{args}[IDABBDPRE\_PDATA\_NULL]
+  \item[IDABBDPRE\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDA\_PDATA\_NULL}]
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -6015,10 +6016,10 @@ the {\idabbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_PDATA\_NULL]
-  \item[IDA\_SUCCESS] 
+  \begin{args}[IDABBDPRE\_PDATA\_NULL]
+  \item[IDABBDPRE\_SUCCESS] 
     The optional output value has been successfuly set.
-  \item[\Id{IDA\_PDATA\_NULL}]
+  \item[\Id{IDABBDPRE\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
 }

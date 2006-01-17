@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.63 $
- * $Date: 2006-01-17 17:55:27 $
+ * $Revision: 1.64 $
+ * $Date: 2006-01-17 23:30:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3554,6 +3554,7 @@ static void CVRescale(CVodeMem cv_mem)
 
   }
   h = hscale * eta;
+  next_h = h;
   hscale = h;
   nscon = 0;
 }
@@ -4426,6 +4427,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   /* If already at order 1, restart: reload zn from scratch */
   eta = MAX(ETAMIN, hmin / ABS(h));
   h *= eta;
+  next_h = h;
   hscale = h;
   qwait = LONG_WAIT;
   nscon = 0;
@@ -4505,6 +4507,7 @@ static booleantype CVQuadDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   /* If already at order 1, restart: reload zn and znQ from scratch */
   eta = MAX(ETAMIN, hmin / ABS(h));
   h *= eta;
+  next_h = h;
   hscale = h;
   qwait = LONG_WAIT;
   nscon = 0;
@@ -5146,6 +5149,7 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   /* If already at order 1, restart: reload zn from scratch */
   eta = MAX(ETAMIN, hmin / ABS(h));
   h *= eta;
+  next_h = h;
   hscale = h;
   qwait = LONG_WAIT;
   nscon = 0;

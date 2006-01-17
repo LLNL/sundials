@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-17 23:30:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -76,7 +76,7 @@ typedef struct {
 
 /* CVBBDPrecGet* error message */
 
-#define MSGBBDP_PDATA_NULL "CVBBDPrecGet*-- BBDPrecData is NULL.\n\n"
+#define MSGBBDP_PDATA_NULL "CVBBDPrecReInit/CVBBDPrecGet*-- BBDPrecData is NULL.\n\n"
 
 /* CVBBDSp* error message */
 

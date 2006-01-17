@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:46 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-17 23:29:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -110,6 +110,11 @@ extern "C" {
 #endif
 
 #include "sundials_nvector.h"
+
+/* CVBBDPRE return values */
+
+#define CVBBDPRE_SUCCESS     0
+#define CVBBDPRE_PDATA_NULL -11
 
 /*
  * -----------------------------------------------------------------
@@ -234,7 +239,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
  *    CVSPTFQMR_LMEM_NULL   if the cvsptfqmr memory was NULL
  *    CVSPTFQMR_MEM_FAIL    if there was a memory allocation failure
  *    CVSPTFQMR_ILL_INPUT   if a required vector operation is missing
- *    CV_PDATA_NULL         if the bbd_data was NULL
+ *    CVBBDPRE_PDATA_NULL   if the bbd_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -258,12 +263,12 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * not call CVSpbcg.
  *
  * Possible return values are:
- *    CVSPBCG_SUCCESS     if successful
- *    CVSPBCG_MEM_NULL    if the cvode memory was NULL
- *    CVSPBCG_LMEM_NULL   if the cvspbcg memory was NULL
- *    CVSPBCG_MEM_FAIL    if there was a memory allocation failure
- *    CVSPBCG_ILL_INPUT   if a required vector operation is missing
- *    CV_PDATA_NULL       if the bbd_data was NULL
+ *    CVSPBCG_SUCCESS      if successful
+ *    CVSPBCG_MEM_NULL     if the cvode memory was NULL
+ *    CVSPBCG_LMEM_NULL    if the cvspbcg memory was NULL
+ *    CVSPBCG_MEM_FAIL     if there was a memory allocation failure
+ *    CVSPBCG_ILL_INPUT    if a required vector operation is missing
+ *    CVBBDPRE_PDATA_NULL  if the bbd_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -287,12 +292,12 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * not call CVSpgmr.
  *
  * Possible return values are:
- *    CVSPGMR_SUCCESS     if successful
- *    CVSPGMR_MEM_NULL    if the cvode memory was NULL
- *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
- *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure
- *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
- *    CV_PDATA_NULL       if the bbd_data was NULL
+ *    CVSPGMR_SUCCESS      if successful
+ *    CVSPGMR_MEM_NULL     if the cvode memory was NULL
+ *    CVSPGMR_LMEM_NULL    if the cvspgmr memory was NULL
+ *    CVSPGMR_MEM_FAIL     if there was a memory allocation failure
+ *    CVSPGMR_ILL_INPUT    if a required vector operation is missing
+ *    CVBBDPRE_PDATA_NULL  if the bbd_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -315,8 +320,8 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * that was returned by CVBBDPrecAlloc. All other arguments have
  * the same names and meanings as those of CVBBDPrecAlloc.
  *
- * The return value of CVBBDPrecReInit is CV_SUCCESS, indicating
- * success, or CV_PDATA_NULL if bbd_data was NULL.
+ * The return value of CVBBDPrecReInit is CVBBDPRE_SUCCESS, indicating
+ * success, or CVBBDPRE_PDATA_NULL if bbd_data was NULL.
  * -----------------------------------------------------------------
  */
 
@@ -343,8 +348,8 @@ void CVBBDPrecFree(void **bbd_data);
  * CVBBDPrecGetNumGfnEvals returns the number of calls to gfn.
  *
  * The return value of CVBBDPrecGet* is one of:
- *    CV_SUCCESS    if successful
- *    CV_PDATA_NULL if the bbd_data memory was NULL
+ *    CVBBDPRE_SUCCESS    if successful
+ *    CVBBDPRE_PDATA_NULL if the bbd_data memory was NULL
  * -----------------------------------------------------------------
  */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2006-01-11 21:13:46 $
+ * $Revision: 1.36 $
+ * $Date: 2006-01-17 23:29:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -734,8 +734,6 @@ void CVodeFree(void **cvode_mem);
 #define CV_BAD_K         -14
 #define CV_BAD_T         -15
 #define CV_BAD_DKY       -16
-
-#define CV_PDATA_NULL    -17
 
 /*
  * =================================================================

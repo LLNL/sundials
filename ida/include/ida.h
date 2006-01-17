@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.39 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.40 $
+ * $Date: 2006-01-17 23:30:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -905,8 +905,6 @@ void IDAFree(void **ida_mem);
 #define IDA_FIRST_RES_FAIL  -17
 #define IDA_LINESEARCH_FAIL -18
 #define IDA_NO_RECOVERY     -19
-
-#define IDA_PDATA_NULL      -20
 
 #define IDA_RTFUNC_NULL     -21
 

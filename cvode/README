@@ -115,6 +115,7 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   - changed some names for CVBBDPRE and CVBANDPRE function outputs
    - renamed all exported header files (except for cvode.h, all header files
      have the prefix 'cvode_')
    - changed naming scheme for CVODE examples

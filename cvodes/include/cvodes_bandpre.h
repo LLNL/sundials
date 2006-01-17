@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 23:14:52 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-17 23:30:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,6 +30,15 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
+  /* CVBANDPRE return values */
+
+#define CVBANDPRE_SUCCESS     0
+#define CVBANDPRE_PDATA_NULL -11
+
+#define CVBANDPRE_ADJMEM_NULL -101
+#define CVBANDPRE_PMEMB_NULL  -102
+#define CVBANDPRE_MEM_FAIL    -103
 
 #include "sundials_nvector.h"
 
@@ -152,7 +161,7 @@ extern "C" {
    *    CVSPTFQMR_LMEM_NULL   if the cvsptfqmr memory was NULL
    *    CVSPTFQMR_MEM_FAIL    if there was a memory allocation failure
    *    CVSPTFQMR_ILL_INPUT   if a required vector operation is missing
-   *    CV_PDATA_NULL         if the bp_data was NULL
+   *    CVBANDPRE_PDATA_NULL  if the bp_data was NULL
    * -----------------------------------------------------------------
    */
 
@@ -176,12 +185,12 @@ extern "C" {
    * not call CVSpbcg.
    *
    * Possible return values are:
-   *    CVSPBCG_SUCCESS     if successful
-   *    CVSPBCG_MEM_NULL    if the cvode memory was NULL
-   *    CVSPBCG_LMEM_NULL   if the cvspbcg memory was NULL
-   *    CVSPBCG_MEM_FAIL    if there was a memory allocation failure
-   *    CVSPBCG_ILL_INPUT   if a required vector operation is missing
-   *    CV_PDATA_NULL       if the bp_data was NULL
+   *    CVSPBCG_SUCCESS       if successful
+   *    CVSPBCG_MEM_NULL      if the cvode memory was NULL
+   *    CVSPBCG_LMEM_NULL     if the cvspbcg memory was NULL
+   *    CVSPBCG_MEM_FAIL      if there was a memory allocation failure
+   *    CVSPBCG_ILL_INPUT     if a required vector operation is missing
+   *    CVBANDPRE_PDATA_NULL  if the bp_data was NULL
    * -----------------------------------------------------------------
    */
 
@@ -205,12 +214,12 @@ extern "C" {
    * not call CVSpgmr.
    *
    * Possible return values are:
-   *    CVSPGMR_SUCCESS     if successful
-   *    CVSPGMR_MEM_NULL    if the cvode memory was NULL
-   *    CVSPGMR_LMEM_NULL   if the cvspgmr memory was NULL
-   *    CVSPGMR_MEM_FAIL    if there was a memory allocation failure
-   *    CVSPGMR_ILL_INPUT   if a required vector operation is missing
-   *    CV_PDATA_NULL       if the bp_data was NULL
+   *    CVSPGMR_SUCCESS       if successful
+   *    CVSPGMR_MEM_NULL      if the cvode memory was NULL
+   *    CVSPGMR_LMEM_NULL     if the cvspgmr memory was NULL
+   *    CVSPGMR_MEM_FAIL      if there was a memory allocation failure
+   *    CVSPGMR_ILL_INPUT     if a required vector operation is missing
+   *    CVBANDPRE_PDATA_NULL  if the bp_data was NULL
    * -----------------------------------------------------------------
    */
 
@@ -238,8 +247,8 @@ extern "C" {
    *                          routine f.
    *
    * The return value of CVBandPrecGet* is one of:
-   *    CV_SUCCESS    if successful
-   *    CV_PDATA_NULL if the bp_data memory was NULL
+   *    CVBANDPRE_SUCCESS    if successful
+   *    CVBANDPRE_PDATA_NULL if the bp_data memory was NULL
    * -----------------------------------------------------------------
    */
 

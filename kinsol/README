@@ -140,6 +140,7 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
        KINSpgmrJactimesVecFn -> KINSpilsJacTimesVecFn
        KINSpgmrPrecSetupFn   -> KINSpilsPrecSetupFn
        KINSpgmrPrecSolveFn   -> KINSpilsPrecSolveFn 
+   - changed some names for KINBBDPRE function outputs
    - renamed all exported header files (except for kinsol.h, all header files
      have the prefix 'kinsol_')
    - changed naming scheme for KINSOL examples

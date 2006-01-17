@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-17 23:30:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -111,6 +111,11 @@ extern "C" {
 #endif
 
 #include "sundials_nvector.h"
+
+/* IDABBDPRE return values */
+
+#define IDABBDPRE_SUCCESS     0
+#define IDABBDPRE_PDATA_NULL -11
 
 /*
  * -----------------------------------------------------------------
@@ -244,7 +249,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
  *    IDASPTFQMR_MEM_NULL   if the IDA memory was NULL
  *    IDASPTFQMR_MEM_FAIL   if there was a memory allocation failure
  *    IDASPTFQMR_ILL_INPUT  if there was illegal input
- *    IDA_PDATA_NULL        if bbd_data was NULL
+ *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -268,11 +273,11 @@ int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data);
  * not call IDASpbcg anymore.
  *
  * Possible return values are:
- *    IDASPBCG_SUCCESS    if successful
- *    IDASPBCG_MEM_NULL   if the IDA memory was NULL
- *    IDASPBCG_MEM_FAIL   if there was a memory allocation failure
- *    IDASPBCG_ILL_INPUT  if there was illegal input
- *    IDA_PDATA_NULL      if bbd_data was NULL
+ *    IDASPBCG_SUCCESS      if successful
+ *    IDASPBCG_MEM_NULL     if the IDA memory was NULL
+ *    IDASPBCG_MEM_FAIL     if there was a memory allocation failure
+ *    IDASPBCG_ILL_INPUT    if there was illegal input
+ *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -296,11 +301,11 @@ int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data);
  * not call IDASpgmr anymore.
  *
  * Possible return values are:
- *    IDASPGMR_SUCCESS    if successful
- *    IDASPGMR_MEM_NULL   if the ida memory was NULL
- *    IDASPGMR_MEM_FAIL   if there was a memory allocation failure
- *    IDASPGMR_ILL_INPUT  if there was illegal input
- *    IDA_PDATA_NULL      if bbd_data was NULL
+ *    IDASPGMR_SUCCESS      if successful
+ *    IDASPGMR_MEM_NULL     if the ida memory was NULL
+ *    IDASPGMR_MEM_FAIL     if there was a memory allocation failure
+ *    IDASPGMR_ILL_INPUT    if there was illegal input
+ *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -322,7 +327,8 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data);
  * arguments have the same names and meanings as those of
  * IDABBDPrecAlloc.
  *
- * The return value of IDABBDPrecReInit is 0, indicating success. 
+ * The return value of IDABBDPrecReInit is IDABBDPRE_SUCCESS, indicating
+ * success, or IDABBDPRE_PDATA_NULL if bbd_data was NULL.
  * -----------------------------------------------------------------
  */
 
@@ -350,6 +356,10 @@ void IDABBDPrecFree(void **bbd_data);
  *                        for IDABBDPRE.
  * IDABBDPrecGetNumGfnEvals returns the number of calls to the
  *                          user Gres function.
+ * 
+ * The return value of IDABBDPrecGet* is one of:
+ *    IDABBDPRE_SUCCESS    if successful
+ *    IDABBDPRE_PDATA_NULL if the bbd_data memory was NULL
  * -----------------------------------------------------------------
  */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-17 23:30:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -130,7 +130,7 @@ int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSGBP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   flag = CVSptfqmr(cvode_mem, pretype, maxl);
@@ -148,7 +148,7 @@ int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSGBP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   flag = CVSpbcg(cvode_mem, pretype, maxl);
@@ -166,7 +166,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
 
   if ( p_data == NULL ) {
     fprintf(stderr, MSGBP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
@@ -201,7 +201,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
 
   if ( bp_data == NULL ) {
     fprintf(stderr, MSGBP_PDATA_NULL);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   pdata = (CVBandPrecData) bp_data;
@@ -214,7 +214,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   *leniwBP = pdata->N;
   *lenrwBP = N * ( 2*ml + smu + mu + 2 );
 
-  return(CV_SUCCESS);
+  return(CVBANDPRE_SUCCESS);
 }
 
 int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
@@ -223,14 +223,14 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
 
   if (bp_data == NULL) {
     fprintf(stderr, MSGBP_PDATA_NULL);
-    return(CV_PDATA_NULL);
+    return(CVBANDPRE_PDATA_NULL);
   } 
 
   pdata = (CVBandPrecData) bp_data;
 
   *nfevalsBP = pdata->nfeBP;
 
-  return(CV_SUCCESS);
+  return(CVBANDPRE_SUCCESS);
 }
 
 /* Readability Replacements */

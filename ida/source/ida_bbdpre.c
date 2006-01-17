@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-17 23:30:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -151,7 +151,7 @@ int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBD_NO_PDATA);
-    return(IDA_PDATA_NULL);
+    return(IDABBDPRE_PDATA_NULL);
   }
 
   flag = IDASptfqmr(ida_mem, maxl);
@@ -169,7 +169,7 @@ int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBD_NO_PDATA);
-    return(IDA_PDATA_NULL);
+    return(IDABBDPRE_PDATA_NULL);
   }
 
   flag = IDASpbcg(ida_mem, maxl);
@@ -187,7 +187,7 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBD_NO_PDATA);
-    return(IDA_PDATA_NULL);
+    return(IDABBDPRE_PDATA_NULL);
   }
 
   flag = IDASpgmr(ida_mem, maxl);
@@ -209,6 +209,11 @@ int IDABBDPrecReInit(void *bbd_data,
   IDAMem IDA_mem;
   long int Nlocal;
 
+  if (bbd_data == NULL) {
+    fprintf(stderr, MSGBBD_NO_PDATA);
+    return(IDABBDPRE_PDATA_NULL);
+  } 
+
   pdata =(IBBDPrecData) bbd_data;
   IDA_mem = pdata->IDA_mem;
 
@@ -226,7 +231,7 @@ int IDABBDPrecReInit(void *bbd_data,
   /* Re-initialize nge */
   pdata->nge = 0;
 
-  return(0);
+  return(IDABBDPRE_SUCCESS);
 }
 
 void IDABBDPrecFree(void **bbd_data)
@@ -251,7 +256,7 @@ int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwB
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBD_PDATA_NULL);
-    return(IDA_PDATA_NULL);
+    return(IDABBDPRE_PDATA_NULL);
   } 
 
   pdata = (IBBDPrecData) bbd_data;
@@ -259,7 +264,7 @@ int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwB
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(IDA_SUCCESS);
+  return(IDABBDPRE_SUCCESS);
 }
 
 int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
@@ -268,14 +273,14 @@ int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBD_PDATA_NULL);
-    return(IDA_PDATA_NULL);
+    return(IDABBDPRE_PDATA_NULL);
   } 
 
   pdata = (IBBDPrecData) bbd_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(IDA_SUCCESS);
+  return(IDABBDPRE_SUCCESS);
 }
 
 /* Readability Replacements */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2006-01-12 20:24:02 $
+ * $Revision: 1.41 $
+ * $Date: 2006-01-17 23:30:18 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -41,11 +41,6 @@ extern "C" {
 
 #include <stdio.h>
 
-#include "sundials_dense.h"
-#include "sundials_band.h"
-#include "sundials_sptfqmr.h"
-#include "sundials_spbcgs.h"
-#include "sundials_spgmr.h"
 #include "sundials_nvector.h"
 
   /* 

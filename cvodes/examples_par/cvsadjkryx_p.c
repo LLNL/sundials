@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-17 23:30:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -377,8 +377,10 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(yB);
 
   CVBBDPrecFree(&bbdp_data);
-  CVadjFree(&cvadj_mem);
   CVodeFree(&cvode_mem);
+
+  CVBBDPrecFreeB(cvadj_mem);
+  CVadjFree(&cvadj_mem);
 
   MPI_Finalize();
 

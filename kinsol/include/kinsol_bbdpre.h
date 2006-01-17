@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:59 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-17 23:30:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -108,6 +108,11 @@ extern "C" {
 #endif
 
 #include "sundials_nvector.h"
+
+/* KINBBDPRE return values */
+
+#define KINBBDPRE_SUCCESS     0
+#define KINBBDPRE_PDATA_NULL -11
 
 /*
  * -----------------------------------------------------------------
@@ -232,7 +237,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
  *                       KINSPTFQMR_ILL_INPUT
  *
  *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSptfqmr returns KIN_PDATA_NULL (defined in kinsol.h).
+ *   KINBBDSptfqmr returns KINBBDPRE_PDATA_NULL.
  * -----------------------------------------------------------------
  */
 
@@ -262,7 +267,7 @@ int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data);
  *                     KINSPBCG_ILL_INPUT
  *
  *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSpbcg returns KIN_PDATA_NULL (defined in kinsol.h).
+ *   KINBBDSpbcg returns KINBBDPRE_PDATA_NULL.
  * -----------------------------------------------------------------
  */
 
@@ -292,7 +297,7 @@ int KINBBDSpbcg(void *kinmem, int maxl, void *p_data);
  *                     KINSPGMR_ILL_INPUT
  *
  *   Additionaly, if KINBBDPrecAlloc was not previously called,
- *   KINBBDSpgmr returns KIN_PDATA_NULL (defined in kinsol.h).
+ *   KINBBDSpgmr returns KINBBDPRE_PDATA_NULL.
  * -----------------------------------------------------------------
  */
 
@@ -312,6 +317,10 @@ void KINBBDPrecFree(void **p_data);
 /*
  * -----------------------------------------------------------------
  * Function : KINBBDPrecGet*
+ *
+ * The return value of KINBBDPrecGet* is one of:
+ *    KINBBDPRE_SUCCESS    if successful
+ *    KINBBDPRE_PDATA_NULL if the p_data memory was NULL
  * -----------------------------------------------------------------
  */
 

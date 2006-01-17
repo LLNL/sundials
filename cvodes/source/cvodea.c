@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.57 $
- * $Date: 2006-01-12 23:14:55 $
+ * $Revision: 1.58 $
+ * $Date: 2006-01-17 23:30:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -94,13 +94,6 @@ static void CVArhsQ(realtype t, N_Vector yB,
 #define fQ_B        (ca_mem->ca_fQB)
 #define fQ_data_B   (ca_mem->ca_fQ_dataB)
 #define t_for_quad  (ca_mem->ca_t_for_quad)
-
-
-
-#define bbd_data_B  (ca_mem->ca_bbd_dataB)
-
-
-
 #define Y0          (ca_mem->ca_Y0)
 #define Y1          (ca_mem->ca_Y1)
 #define Y           (ca_mem->ca_Y)
@@ -399,9 +392,6 @@ void CVadjFree(void **cvadj_mem)
   /* Free CVODES memory for backward run */
   cvode_bmem = (void *)ca_mem->cvb_mem;
   CVodeFree(&cvode_bmem);
-
-  /* Free preconditioner data (the routines below check for non-NULL data) */
-  CVBBDPrecFree(&bbd_data_B);
 
   /* Free CVODEA memory */
   free(*cvadj_mem);

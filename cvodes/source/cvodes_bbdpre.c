@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-17 23:30:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -157,7 +157,7 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   flag = CVSptfqmr(cvode_mem, pretype, maxl);
@@ -175,7 +175,7 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   flag = CVSpbcg(cvode_mem, pretype, maxl);
@@ -193,7 +193,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
@@ -216,7 +216,7 @@ int CVBBDPrecReInit(void *bbd_data,
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   pdata  = (CVBBDPrecData) bbd_data;
@@ -235,7 +235,7 @@ int CVBBDPrecReInit(void *bbd_data,
   /* Re-initialize nge */
   pdata->nge = 0;
 
-  return(CV_SUCCESS);
+  return(CVBBDPRE_SUCCESS);
 }
 
 void CVBBDPrecFree(void **bbd_data)
@@ -260,7 +260,7 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBB
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_PDATA_NULL);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   pdata = (CVBBDPrecData) bbd_data;
@@ -268,7 +268,7 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBB
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(CV_SUCCESS);
+  return(CVBBDPRE_SUCCESS);
 }
 
 int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
@@ -277,14 +277,14 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_PDATA_NULL);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   pdata = (CVBBDPrecData) bbd_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(CV_SUCCESS);
+  return(CVBBDPRE_SUCCESS);
 }
 
 
@@ -297,12 +297,15 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 
 /* Additional readability replacements */
 
-#define bbd_data_B  (ca_mem->ca_bbd_dataB)
-#define gloc_B      (ca_mem->ca_glocB)
-#define cfn_B       (ca_mem->ca_cfnB)
 #define ytmp        (ca_mem->ca_ytmp)
 #define f_data_B    (ca_mem->ca_f_dataB)
 #define getY        (ca_mem->ca_getY)
+#define pmemB       (ca_mem->ca_pmemB)
+
+#define bbd_data_B  (cvbbdB_mem->bbd_dataB)
+#define gloc_B      (cvbbdB_mem->glocB)
+#define cfn_B       (cvbbdB_mem->cfnB)
+
 
 /*
  * CVBBDPrecAllocB, CVBPSp*B
@@ -318,11 +321,16 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
                     CVLocalFnB glocB, CVCommFnB cfnB)
 {
   CVadjMem ca_mem;
+  CVBBDPrecDataB cvbbdB_mem;
   void *cvode_mem;
   void *bbd_dataB;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) return(CVBBDPRE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
+
+  /* Get memory for CVBBDPrecDataB */
+  cvbbdB_mem = (CVBBDPrecDataB) malloc(sizeof(* cvbbdB_mem));
+  if (cvbbdB_mem == NULL) return(CVBBDPRE_MEM_FAIL);
 
   cvode_mem = (void *) ca_mem->cvb_mem;
 
@@ -335,11 +343,14 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
                              dqrelyB, 
                              CVAgloc, CVAcfn);
 
-  if (bbd_dataB == NULL) return(CV_PDATA_NULL);
+  if (bbd_dataB == NULL) return(CVBBDPRE_MEM_FAIL);
 
   bbd_data_B = bbd_dataB;
 
-  return(CV_SUCCESS);
+  /* attach pmemB */
+  pmemB = cvbbdB_mem;
+
+  return(CVBBDPRE_SUCCESS);
 
 }
 
@@ -347,12 +358,16 @@ int CVBBDSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
 {
 
   CVadjMem ca_mem;
+  CVBBDPrecDataB cvbbdB_mem;
   void *cvode_mem;
   int flag;
   
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) return(CVBBDPRE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
   
+  if (pmemB == NULL) return(CVBBDPRE_PMEMB_NULL);
+  cvbbdB_mem = (CVBBDPrecDataB) pmemB;
+
   cvode_mem = (void *) ca_mem->cvb_mem;
   
   flag = CVBBDSptfqmr(cvode_mem, pretypeB, maxlB, bbd_data_B);
@@ -365,12 +380,16 @@ int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
 {
 
   CVadjMem ca_mem;
+  CVBBDPrecDataB cvbbdB_mem;
   void *cvode_mem;
   int flag;
   
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) return(CVBBDPRE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
   
+  if (pmemB == NULL) return(CVBBDPRE_PMEMB_NULL);
+  cvbbdB_mem = (CVBBDPrecDataB) pmemB;
+
   cvode_mem = (void *) ca_mem->cvb_mem;
   
   flag = CVBBDSpbcg(cvode_mem, pretypeB, maxlB, bbd_data_B);
@@ -383,12 +402,16 @@ int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
 {
 
   CVadjMem ca_mem;
+  CVBBDPrecDataB cvbbdB_mem;
   void *cvode_mem;
   int flag;
   
   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
   
+  if (pmemB == NULL) return(CVBBDPRE_PMEMB_NULL);
+  cvbbdB_mem = (CVBBDPrecDataB) pmemB;
+
   cvode_mem = (void *) ca_mem->cvb_mem;
   
   flag = CVBBDSpgmr(cvode_mem, pretypeB, maxlB, bbd_data_B);
@@ -401,11 +424,15 @@ int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
                      realtype dqrelyB, CVLocalFnB glocB, CVCommFnB cfnB)
 {
   CVadjMem ca_mem;
+  CVBBDPrecDataB cvbbdB_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) return(CVBBDPRE_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
   
+  if (pmemB == NULL) return(CVBBDPRE_PMEMB_NULL);
+  cvbbdB_mem = (CVBBDPrecDataB) pmemB;
+
   gloc_B = glocB;
   cfn_B  = cfnB;
 
@@ -414,6 +441,24 @@ int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
 
   return(flag);
 }
+
+
+void CVBBDPrecFreeB(void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  CVBBDPrecDataB cvbbdB_mem;
+
+  if (cvadj_mem == NULL) return;
+  ca_mem = (CVadjMem) cvadj_mem;
+  
+  if (pmemB == NULL) return;
+  cvbbdB_mem = (CVBBDPrecDataB) pmemB;
+
+  CVBBDPrecFree(&bbd_data_B);
+  
+  free(pmemB);
+}
+
 
 /*
  * CVAgloc
@@ -427,9 +472,11 @@ static void CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB,
                     void *cvadj_mem)
 {
   CVadjMem ca_mem;
+  CVBBDPrecDataB cvbbdB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvbbdB_mem = (CVBBDPrecDataB) pmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
@@ -454,9 +501,11 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
                    void *cvadj_mem)
 {
   CVadjMem ca_mem;
+  CVBBDPrecDataB cvbbdB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvbbdB_mem = (CVBBDPrecDataB) pmemB;
 
   if (cfn_B == NULL) return;
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-17 23:30:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -79,7 +79,7 @@ typedef struct {
 #define MSGBBD_BAD_NVECTOR "IDABBDPrecAlloc-- a required vector operation is not implemented.\n\n"
 #define MSGBBD_WRONG_NVEC  "IDABBDPrecAlloc-- incompatible NVECTOR implementation.\n\n"
 
-#define MSGBBD_PDATA_NULL "IDABBDPrecGet*-- IBBDPrecData is NULL.\n\n"
+#define MSGBBD_PDATA_NULL "IDABBDPrecReInit/IDABBDPrecGet*-- IBBDPrecData is NULL.\n\n"
 
 #define MSGBBD_NO_PDATA "IDABBDSp*-- IBBDPrecData is NULL.\n\n"
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-17 23:30:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -141,7 +141,7 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   flag = CVSptfqmr(cvode_mem, pretype, maxl);
@@ -159,7 +159,7 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   flag = CVSpbcg(cvode_mem, pretype, maxl);
@@ -177,7 +177,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
@@ -200,7 +200,7 @@ int CVBBDPrecReInit(void *bbd_data,
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   pdata  = (CVBBDPrecData) bbd_data;
@@ -219,7 +219,7 @@ int CVBBDPrecReInit(void *bbd_data,
   /* Re-initialize nge */
   pdata->nge = 0;
 
-  return(CV_SUCCESS);
+  return(CVBBDPRE_SUCCESS);
 }
 
 void CVBBDPrecFree(void **bbd_data)
@@ -244,7 +244,7 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBB
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_PDATA_NULL);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   pdata = (CVBBDPrecData) bbd_data;
@@ -252,7 +252,7 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBB
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(CV_SUCCESS);
+  return(CVBBDPRE_SUCCESS);
 }
 
 int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
@@ -261,14 +261,14 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
 
   if (bbd_data == NULL) {
     fprintf(stderr, MSGBBDP_PDATA_NULL);
-    return(CV_PDATA_NULL);
+    return(CVBBDPRE_PDATA_NULL);
   } 
 
   pdata = (CVBBDPrecData) bbd_data;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(CV_SUCCESS);
+  return(CVBBDPRE_SUCCESS);
 }
 
 /* Readability Replacements */

@@ -122,6 +122,7 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
        IDASpgmrJactimesVecFn -> IDASpilsJacTimesVecFn
        IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn
        IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
+   - changed some names for IDABBDPRE function outputs
    - added IDAGetEstLocalErrors() to return estimated local errors.
    - renamed all exported header files (except for ida.h, all header files
      have the prefix 'ida_')

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.54 $
- * $Date: 2006-01-17 17:55:23 $
+ * $Revision: 1.55 $
+ * $Date: 2006-01-17 23:30:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1924,6 +1924,7 @@ static void CVRescale(CVodeMem cv_mem)
     factor *= eta;
   }
   h = hscale * eta;
+  next_h = h;
   hscale = h;
   nscon = 0;
 }
@@ -2553,6 +2554,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
   /* If already at order 1, restart: reload zn from scratch */
   eta = MAX(ETAMIN, hmin / ABS(h));
   h *= eta;
+  next_h = h;
   hscale = h;
   qwait = LONG_WAIT;
   nscon = 0;
