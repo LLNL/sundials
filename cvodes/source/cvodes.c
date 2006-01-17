@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.62 $
- * $Date: 2006-01-12 20:24:06 $
+ * $Revision: 1.63 $
+ * $Date: 2006-01-17 17:55:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -360,6 +360,16 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_maxncf   = MXNCF;
   cv_mem->cv_nlscoef  = CORTES;
 
+  /* Initialize root finding variables */
+
+  cv_mem->cv_glo    = NULL;
+  cv_mem->cv_ghi    = NULL;
+  cv_mem->cv_grout  = NULL;
+  cv_mem->cv_iroots = NULL;
+  cv_mem->cv_gfun   = NULL;
+  cv_mem->cv_g_data = NULL;
+  cv_mem->cv_nrtfn  = 0;  
+
   /* Set default values for quad. optional inputs */
   cv_mem->cv_quadr    = FALSE;
   cv_mem->cv_fQ       = NULL;
@@ -571,15 +581,11 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
 
-  /* Initialize root finding variables */
+  /* Initialize other integrator optional outputs */
 
-  cv_mem->cv_glo    = NULL;
-  cv_mem->cv_ghi    = NULL;
-  cv_mem->cv_grout  = NULL;
-  cv_mem->cv_iroots = NULL;
-  cv_mem->cv_gfun   = NULL;
-  cv_mem->cv_g_data = NULL;
-  cv_mem->cv_nrtfn  = 0;  
+  cv_mem->cv_h0u      = ZERO;
+  cv_mem->cv_next_h   = ZERO;
+  cv_mem->cv_next_q   = 0;
 
   /* Initialize Stablilty Limit Detection data */
   /* NOTE: We do this even if stab lim det was not
@@ -736,6 +742,12 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   cv_mem->cv_nstlp   = 0;
   cv_mem->cv_nscon   = 0;
   cv_mem->cv_nge     = 0;
+
+  /* Initialize other integrator optional outputs */
+
+  cv_mem->cv_h0u      = ZERO;
+  cv_mem->cv_next_h   = ZERO;
+  cv_mem->cv_next_q   = 0;
 
   /* Initialize Stablilty Limit Detection data */
 
