@@ -1,14 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: Debian package of SUNDIALS 2.1.1 -->
-<!--X-From-R13: Ynznenwh Yhfhznapuv <xnznenwhNtznvy.pbz> -->
-<!--X-Date: Tue, 27 Dec 2005 08:20:54 &#45;0800 (PST) -->
-<!--X-Message-Id: ba4975150512270815n7405c66bj9dd707da2ab37ecd@mail.gmail.com -->
+<!--X-Subject: Manually modifying solver variables -->
+<!--X-From-R13: Oaqernf @vpbynv <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Fri, 13 Jan 2006 01:47:43 &#45;0800 (PST) -->
+<!--X-Message-Id: op.s3a9u9kqt8lo91@smtp.kuleuven.ac.be -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200512271037.49829.andrey@enginum.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: Debian package of SUNDIALS 2.1.1</title>
+<title>Manually modifying solver variables</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00210.html">Date Prev</a>] [<a href="msg00212.html">Date Next</a>] [<a href="msg00210.html">Thread Prev</a>] [<a href="msg00212.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00211">Date Index</a></b>]
-[<b><a href="threads.html#00211">Thread Index</a></b>]
+[<a href="msg00213.html">Date Prev</a>] [<a href="msg00215.html">Date Next</a>] [<a href="msg00212.html">Thread Prev</a>] [<a href="msg00215.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00214">Date Index</a></b>]
+[<b><a href="threads.html#00214">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: Debian package of SUNDIALS 2.1.1</h1>
+<h1>Manually modifying solver variables</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Kamaraju Kusumanchi &lt;<a href="mailto:kamaraju%40gmail.com">kamaraju@gmail.com</a>&gt;</td>
+Andreas Nicolai &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 27 Dec 2005 11:15:02 -0500</td>
+Fri, 13 Jan 2006 10:55:47 +0100</td>
 </tr>
 
 </table>
@@ -101,31 +100,45 @@ Tue, 27 Dec 2005 11:15:02 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>On 12/27/05, Andrey Romanenko &lt;andrey@enginum.com&gt; wrote:
-&gt;<i> Hello,</i>
-&gt;<i></i>
-&gt;<i> This is just a short note to let this list subscribers know that the SUNDIALS</i>
-&gt;<i> 2.1.1 Debian package has entered the &quot;unstable&quot; distribution. This package is</i>
-&gt;<i> maintained by the Debian Octave Group.</i>
-&gt;<i></i>
-&gt;<i> Happy 2006 to all!</i>
-&gt;<i></i>
-&gt;<i> Regards,</i>
-&gt;<i> Andrey Romanenko</i>
-&gt;<i></i>
+<pre style="margin: 0em;">Hi there,</pre><br>
+<pre style="margin: 0em;">I have a question about CVODE. In order to reduce the size of my system, I 
+would like to integrate some variables outside the main integration loop of 
+CVODE. For example, I have 3 highly coupled and strongly non-linear quantities 
+that I integrate with CVODE. But then I have 5 other quantities that influence 
+the system rather marginally, but depend on the solution of the first 3 
+(primary) quantities. Also the accuracy requirements for these other 5 
+variables are much lower.</pre><br>
+<pre style="margin: 0em;">Also, for these other 5 quantities numerical stability isn't critical, so I 
+would now simply use CVODE in its one-step-mode and use an explicit scheme to 
+integrate those 5 variables at the end of each time step. This works fine and 
+very fast, too.</pre><br>
+<pre style="margin: 0em;">But...</pre><br>
+<pre style="margin: 0em;">Some of these 5 variables require now changes of one of my primary variables. 
+Obviously, I may not simply change the variables that I use as input for CVODE 
+(in each new call of the CVODE integrator). At least when I tried to do so, I 
+got weird results. I believe that doing so I would introduce an unsteadyness in 
+the solution and the whole history of past time steps and extrapolation goes 
+down the drain.</pre><br>
+<pre style="margin: 0em;">-----
+Here is a short example to clarify the problem:</pre><br>
+<pre style="margin: 0em;">Primary quantities are: Temperature and salt concentration
+Secondary quantities (not integrated with CVODE) are: solid salt mass 
+concentration</pre><br>
+<pre style="margin: 0em;">After each step of CVODE I calculate the approximate production rate for my 
+salt and calculate the change of mass for my solid salt. But I also have to 
+remove the salt mass from the solution and change the concentration. However, 
+salt concentration is an integrated quantity in CVODE and I cannot do that 
+simply in between calls to CVODE.
+-----</pre><br>
+<pre style="margin: 0em;">Now, is there a safe/recommanded way to modify my solution variables after each 
+step that CVODE took without the need to reinitialize the solver every time?</pre><br>
+<pre style="margin: 0em;">One &quot;hack&quot; I could think of is to &quot;remember&quot; the change I want to make to the 
+variable and simply add it as source/sink term when I next calculate my divergences inside my f() 
+function during the next CVODE integration.</pre><br>
+<pre style="margin: 0em;"><br>Thanks for any suggestions,
+Andreas</pre><br>
+<br>
 
-That is great news. Thanks for your effort and to all the people
-involved in the process.
-
-regards
-raju
---
-Kamaraju S Kusumanchi
-<a  href="http://www.people.cornell.edu/pages/kk288/">http://www.people.cornell.edu/pages/kk288/</a>
-<a  href="http://malayamaarutham.blogspot.com/">http://malayamaarutham.blogspot.com/</a>
-
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -134,33 +147,28 @@ Kamaraju S Kusumanchi
 <table width="95%" frame="below"><tr><td></td></table>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00210" href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
-<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
+<strong><a href="msg00213.html">Re: Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00212.html">Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
+<strong><a href="msg00215.html">Undefined value from CVodeGetCurrentStep</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
+<strong><a href="msg00212.html">Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00212.html">Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
+<strong><a href="msg00215.html">Undefined value from CVodeGetCurrentStep</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00211">
+<li><a href="maillist.html#00214">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00211">
+<li><a href="threads.html#00214">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

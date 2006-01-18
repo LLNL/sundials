@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: Debian package of SUNDIALS 2.1.1 -->
-<!--X-From-R13: Ynznenwh Yhfhznapuv <xnznenwhNtznvy.pbz> -->
-<!--X-Date: Tue, 27 Dec 2005 08:20:54 &#45;0800 (PST) -->
-<!--X-Message-Id: ba4975150512270815n7405c66bj9dd707da2ab37ecd@mail.gmail.com -->
+<!--X-Subject: Re: Undefined value from CVodeGetCurrentStep -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Tue, 17 Jan 2006 09:13:54 &#45;0800 (PST) -->
+<!--X-Message-Id: 43CD2433.2080406@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200512271037.49829.andrey@enginum.com -->
+<!--X-Reference: op.s3bmu2y5t8lo91@smtp.kuleuven.ac.be -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: Debian package of SUNDIALS 2.1.1</title>
+<title>Re: Undefined value from CVodeGetCurrentStep</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00210.html">Date Prev</a>] [<a href="msg00212.html">Date Next</a>] [<a href="msg00210.html">Thread Prev</a>] [<a href="msg00212.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00211">Date Index</a></b>]
-[<b><a href="threads.html#00211">Thread Index</a></b>]
+[<a href="msg00215.html">Date Prev</a>] [<a href="msg00217.html">Date Next</a>] [<a href="msg00215.html">Thread Prev</a>] [<a href="msg00218.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00216">Date Index</a></b>]
+[<b><a href="threads.html#00216">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: Debian package of SUNDIALS 2.1.1</h1>
+<h1>Re: Undefined value from CVodeGetCurrentStep</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Kamaraju Kusumanchi &lt;<a href="mailto:kamaraju%40gmail.com">kamaraju@gmail.com</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 27 Dec 2005 11:15:02 -0500</td>
+Tue, 17 Jan 2006 09:06:59 -0800</td>
 </tr>
 
 </table>
@@ -101,66 +101,72 @@ Tue, 27 Dec 2005 11:15:02 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>On 12/27/05, Andrey Romanenko &lt;andrey@enginum.com&gt; wrote:
-&gt;<i> Hello,</i>
-&gt;<i></i>
-&gt;<i> This is just a short note to let this list subscribers know that the SUNDIALS</i>
-&gt;<i> 2.1.1 Debian package has entered the &quot;unstable&quot; distribution. This package is</i>
-&gt;<i> maintained by the Debian Octave Group.</i>
-&gt;<i></i>
-&gt;<i> Happy 2006 to all!</i>
-&gt;<i></i>
-&gt;<i> Regards,</i>
-&gt;<i> Andrey Romanenko</i>
-&gt;<i></i>
+<tt>Andreas Nicolai wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi again,</pre><br>
+<tt>I call CVodeGetCurrentStep during the calculation of my f() function. 
+However, this yields undefined results when the f() function is called 
+the first time in the CVode() function.</tt><br>
+<br>
+<tt>Is there a way to find out whether the result of CVodeGetCurrentStep is 
+valid or not from within the f() function?</tt><br>
+<br>
+<pre style="margin: 0em;">Andreas</pre><br>
+</blockquote><pre style="margin: 0em;"><br>Andreas,</pre><br>
+<tt>CVodeGetCurrentStep returns the value of the step size to be ATTEMPTED on the next step (next_h). 
+This may very well be different from the step size that ends up being used (hu, returned by 
+CVodeGetLastStep). As such, next_h is set and should be queried/used only AFTER a successful step. 
+Therefore, it does not make much sense to call CVodeGetCurrentStep from within your right hand side 
+function f().</tt><br>
+<br>
+<tt>I don't know how you use the step size inside f(), but it would probably make more sense to use the 
+value of the step size used on the last successful step, hu. Note that hu=0.0 as long as nst=0 (nst 
+being the value returned by CVodeGetNumSteps).</tt><br>
+<br>
+<pre style="margin: 0em;"><br>--Radu</pre><br>
+<tt>P.S. I will however initialize next_h to 0 in CVodeCreate, but only so that we do not have 
+uninitialized variables in the code...</tt><br>
+<br>
 
-That is great news. Thanks for your effort and to all the people
-involved in the process.
-
-regards
-raju
---
-Kamaraju S Kusumanchi
-<a  href="http://www.people.cornell.edu/pages/kk288/">http://www.people.cornell.edu/pages/kk288/</a>
-<a  href="http://malayamaarutham.blogspot.com/">http://malayamaarutham.blogspot.com/</a>
-
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00218" href="msg00218.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00210" href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
-<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+<li><strong><a name="00215" href="msg00215.html">Undefined value from CVodeGetCurrentStep</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
+<strong><a href="msg00215.html">Undefined value from CVodeGetCurrentStep</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00212.html">Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
+<strong><a href="msg00217.html">Re: BVP</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
+<strong><a href="msg00215.html">Undefined value from CVodeGetCurrentStep</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00212.html">Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
+<strong><a href="msg00218.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00211">
+<li><a href="maillist.html#00216">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00211">
+<li><a href="threads.html#00216">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

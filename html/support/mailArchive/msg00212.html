@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: Debian package of SUNDIALS 2.1.1 -->
-<!--X-From-R13: Ynznenwh Yhfhznapuv <xnznenwhNtznvy.pbz> -->
-<!--X-Date: Tue, 27 Dec 2005 08:20:54 &#45;0800 (PST) -->
-<!--X-Message-Id: ba4975150512270815n7405c66bj9dd707da2ab37ecd@mail.gmail.com -->
+<!--X-Subject: Re: Query regarding IDASetEwtFn and user defined Weight Function -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Tue, 10 Jan 2006 08:21:22 &#45;0800 (PST) -->
+<!--X-Message-Id: 43C3DCDD.5030101@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200512271037.49829.andrey@enginum.com -->
+<!--X-Reference: Pine.LNX.4.58.0601091216420.2782@tux64.llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: Debian package of SUNDIALS 2.1.1</title>
+<title>Re: Query regarding IDASetEwtFn and user defined Weight Function</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00210.html">Date Prev</a>] [<a href="msg00212.html">Date Next</a>] [<a href="msg00210.html">Thread Prev</a>] [<a href="msg00212.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00211">Date Index</a></b>]
-[<b><a href="threads.html#00211">Thread Index</a></b>]
+[<a href="msg00211.html">Date Prev</a>] [<a href="msg00213.html">Date Next</a>] [<a href="msg00210.html">Thread Prev</a>] [<a href="msg00213.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00212">Date Index</a></b>]
+[<b><a href="threads.html#00212">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: Debian package of SUNDIALS 2.1.1</h1>
+<h1>Re: Query regarding IDASetEwtFn and user defined Weight Function</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Kamaraju Kusumanchi &lt;<a href="mailto:kamaraju%40gmail.com">kamaraju@gmail.com</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 27 Dec 2005 11:15:02 -0500</td>
+Tue, 10 Jan 2006 08:12:13 -0800</td>
 </tr>
 
 </table>
@@ -101,31 +101,44 @@ Tue, 27 Dec 2005 11:15:02 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>On 12/27/05, Andrey Romanenko &lt;andrey@enginum.com&gt; wrote:
-&gt;<i> Hello,</i>
-&gt;<i></i>
-&gt;<i> This is just a short note to let this list subscribers know that the SUNDIALS</i>
-&gt;<i> 2.1.1 Debian package has entered the &quot;unstable&quot; distribution. This package is</i>
-&gt;<i> maintained by the Debian Octave Group.</i>
-&gt;<i></i>
-&gt;<i> Happy 2006 to all!</i>
-&gt;<i></i>
-&gt;<i> Regards,</i>
-&gt;<i> Andrey Romanenko</i>
-&gt;<i></i>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Date: Mon, 02 Jan 2006 20:10:19 -0500
+From: Vinayak Kumar &lt;vinayak.kumar@gmail.com&gt;
+To: alanh@llnl.gov
+Subject: Query regarding IDASetEwtFn and user defined Weight Function</pre><br>
+<pre style="margin: 0em;">Hi Alan,</pre><br>
+<pre style="margin: 0em;">I wrote my own version of Weight Function and set this function using
+IDASetEwtFn() after calling IDAMalloc(). Now do I need to set the values of
+RTOL and ATOL vectors in the program?</pre><br>
+<pre style="margin: 0em;">Actually, I tried to put uninitialized version of ATOL(N_Vector) and RTOL in
+IDAMalloc() because I don't need them in the program. But this is causing
+error because some of the uninitialized values of ATOL are negative. May you
+please explain why I need to set the RTOL and ATOL even after setting my own
+version of Weight function?</pre><br>
+<pre style="margin: 0em;">Thanks in advance,</pre><br>
+<tt>Vinayak
+</tt></blockquote><pre style="margin: 0em;"><br>Hi Vinayak,</pre><br>
+<tt>No, you do not need to set rtol and atol if you provide your own weight function. However, calling 
+IDASetEwtFn only &quot;declares&quot; the user provided function but that function will be used only if you 
+&quot;enable&quot; it by passing IDA_WF as the itol argument to IDAMalloc (the 6th argument). I suspect you 
+use IDA_SV, correct?</tt><br>
+<br>
+<tt>If itol=IDA_WF then the rtol and atol arguments are ignored, so you could just pass 0.0 for rtol and 
+NULL for atol.</tt><br>
+<br>
+<tt>We do not have an IDA example which illustrates this but you can take a look at the cvdenx_uw CVODE 
+example (or cvsdenx_uw CVODES example) which use this feature (the mechanism is similar in all 3 
+solvers).</tt><br>
+<br>
+<pre style="margin: 0em;">Regards,
+--Radu</pre><br>
+<pre style="margin: 0em;">P.S. Please direct all such querries to the sundials-users mailing list.</pre><br>
+<pre style="margin: 0em;"><br>--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
 
-That is great news. Thanks for your effort and to all the people
-involved in the process.
-
-regards
-raju
---
-Kamaraju S Kusumanchi
-<a  href="http://www.people.cornell.edu/pages/kk288/">http://www.people.cornell.edu/pages/kk288/</a>
-<a  href="http://malayamaarutham.blogspot.com/">http://malayamaarutham.blogspot.com/</a>
-
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -134,33 +147,28 @@ Kamaraju S Kusumanchi
 <table width="95%" frame="below"><tr><td></td></table>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00210" href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
-<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
+<strong><a href="msg00211.html">Re: Debian package of SUNDIALS 2.1.1</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00212.html">Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
+<strong><a href="msg00213.html">Re: Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
 </li>
 
 <li>Previous by thread:
 <strong><a href="msg00210.html">Debian package of SUNDIALS 2.1.1</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00212.html">Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
+<strong><a href="msg00213.html">Re: Re: Query regarding IDASetEwtFn and user defined Weight Function</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00211">
+<li><a href="maillist.html#00212">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00211">
+<li><a href="threads.html#00212">
 <strong>Thread</strong></a></li>
 </ul>
 </li>
