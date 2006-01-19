@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.58 $
- * $Date: 2006-01-17 23:30:21 $
+ * $Revision: 1.59 $
+ * $Date: 2006-01-19 20:45:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -291,21 +291,21 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   return((void *)ca_mem);
 } 
 
-/* CvadjResetInterpType
+/* CVadjSsetInterpType
  *
  * Changes the interpolation type.
  *
- * Possible return values: CV_SUCCESS, CV_ILL_INPUT, CV_MEM_FAIL
+ * Possible return values: CV_SUCCESS, CV_ADJMEM_NULL, CV_ILL_INPUT, CV_MEM_FAIL
  */
 
-int CVadjResetInterpType(void *cvadj_mem, int interp)
+int CVadjSetInterpType(void *cvadj_mem, int interp)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
   booleantype allocOK;
   long int i;
   
-  if (cvadj_mem == NULL) return(CV_ILL_INPUT);
+  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem = (CVadjMem) cvadj_mem;
 
   if ( (interp != CV_HERMITE) && (interp != CV_POLYNOMIAL) ) {

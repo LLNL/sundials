@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.64 $
- * $Date: 2006-01-17 23:30:21 $
+ * $Revision: 1.65 $
+ * $Date: 2006-01-19 20:45:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1104,6 +1104,12 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, N_Vector *yS0)
       nniS1[is] = 0;
     }
 
+  /* Set default values for plist and pbar */
+  for (is=0; is<Ns; is++) {
+    cv_mem->cv_plist[is] = is;
+    cv_mem->cv_pbar[is] = ONE;
+  }
+
   /* Sensitivities will be computed */
   cv_mem->cv_sensi = TRUE;
   cv_mem->cv_sensMallocDone = TRUE;
@@ -1476,33 +1482,19 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   /* Sensitivity-specific tests */
 
-  if (sensi) {
+  if (sensi && fSDQ) {
 
     /* If using internal DQ functions for sensitivity RHS */
-    if(fSDQ) {
 
-      /* Make sure we have the right 'user data' */
-      fS_data = cvode_mem;
-
-      /* Test if we have the problem parameters */
-      if(p == NULL) {
-        if(errfp!=NULL) fprintf(errfp, MSGCVS_P_NULL);
-        return(CV_ILL_INPUT);
-      }
-
-      /* If we do not have plist, use the default */
-      if(plist == NULL) {
-        for (is=0; is<Ns; is++)
-          plist[is] = is;
-      }
-
+    /* Make sure we have the right 'user data' */
+    fS_data = cvode_mem;
+    
+    /* Test if we have the problem parameters */
+    if(p == NULL) {
+      if(errfp!=NULL) fprintf(errfp, MSGCVS_P_NULL);
+      return(CV_ILL_INPUT);
     }
-
-    /* Set pbar if needed and still NULL at this point */
-    if ((fSDQ || itolS == CV_EE) && (pbar == NULL))
-      for (is=0; is<Ns; is++)
-        pbar[is] = ONE;
-
+    
   }
 
   /* Begin first call block */
