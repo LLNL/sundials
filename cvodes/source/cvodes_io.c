@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-19 21:09:32 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1728,9 +1728,10 @@ int CVodeGetNumSensLinSolvSetups(void *cvode_mem, long int *nlinsetupsS)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S *eSweight)
+int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S eSweight)
 {
   CVodeMem cv_mem;
+  int is, Ns;
 
   if (cvode_mem==NULL) {
     fprintf(stderr, MSGCVS_GET_NO_MEM);
@@ -1744,7 +1745,10 @@ int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S *eSweight)
     return(CV_NO_SENS);
   }
 
-  *eSweight = ewtS;
+  Ns = cv_mem->cv_Ns;
+
+  for (is=0; is<Ns; is++)
+    N_VScale(ONE, ewtS[i], eSweight[i]);
 
   return(CV_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2006-01-17 23:30:18 $
+ * $Revision: 1.47 $
+ * $Date: 2006-01-19 21:09:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -1135,7 +1135,7 @@ extern "C" {
   int CVodeGetNumRhsEvalsSens(void *cvode_mem, long int *nfevalsS);
   int CVodeGetNumSensErrTestFails(void *cvode_mem, long int *nSetfails);
   int CVodeGetNumSensLinSolvSetups(void *cvode_mem, long int *nlinsetupsS);
-  int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S *eSweight);
+  int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S eSweight);
 
   /*
    * -----------------------------------------------------------------
