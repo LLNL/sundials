@@ -711,7 +711,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}|textbf}
+    \index{pretype@\texttt{pretype}}
     specifies the preconditioning type and must be one of: 
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \item[maxl] (\id{int})
@@ -756,7 +756,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}|textbf}
+    \index{pretype@\texttt{pretype}}
     specifies the preconditioning type and must be one of: 
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \item[maxl] (\id{int})
@@ -802,7 +802,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}|textbf}
+    \index{pretype@\texttt{pretype}}
     specifies the preconditioning type and must be one of: 
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \item[maxl] (\id{int})
@@ -3253,6 +3253,8 @@ calls to the right-hand side routine for finite-difference Jacobian approximatio
 and last return value from a {\cvdense} function.
 %%
 %%
+\index{CVDENSE@{\cvdense} linear solver!memory requirements} 
+\index{memory requirements!CVDENSE@{\cvdense} linear solver}
 \ucfunction{CVDenseGetWorkSpace}
 {
   flag = CVDenseGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
@@ -3283,8 +3285,6 @@ and last return value from a {\cvdense} function.
   \end{args}
 }
 {
-  \index{CVDENSE@{\cvdense} linear solver!memory requirements} 
-  \index{memory requirements!CVDENSE@{\cvdense} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
   is $2N^2$ \id{realtype} words, and the actual size of the integer workspace
   is $N$ integer words.
@@ -3404,6 +3404,8 @@ calls to the right-hand side routine for finite-difference Jacobian approximatio
 and last return value from a {\cvband} function.
 %%
 %%
+\index{CVBAND@{\cvband} linear solver!memory requirements} 
+\index{memory requirements!CVBAND@{\cvband} linear solver}
 \ucfunction{CVBandGetWorkSpace}
 {
   flag = CVBandGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
@@ -3434,8 +3436,6 @@ and last return value from a {\cvband} function.
   \end{args}
 }
 {
-  \index{CVBAND@{\cvband} linear solver!memory requirements} 
-  \index{memory requirements!CVBAND@{\cvband} linear solver}
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
   the actual size of the real workspace is
   $(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)\, N$ \id{realtype} words,
@@ -3556,6 +3556,8 @@ finite-difference Jacobian approximation, and last return value from a
 {\cvdiag} function.
 %%
 %%
+\index{CVDIAG@{\cvdiag} linear solver!memory requirements} 
+\index{memory requirements!CVDIAG@{\cvdiag} linear solver}
 \ucfunction{CVDiagGetWorkSpace}
 {
   flag = CVDiagGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
@@ -3586,8 +3588,6 @@ finite-difference Jacobian approximation, and last return value from a
   \end{args}
 }
 {
-  \index{CVDIAG@{\cvdiag} linear solver!memory requirements} 
-  \index{memory requirements!CVDIAG@{\cvdiag} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
   is roughly $3 N$ \id{realtype} words.
 }
@@ -3681,6 +3681,8 @@ finite-difference Jacobian-vector product approximation, and last
 return value from a {\cvspgmr} function.
 %%
 %%
+\index{CVSPGMR@{\cvspgmr} linear solver!memory requirements} 
+\index{memory requirements!CVSPGMR@{\cvspgmr} linear solver}
 \ucfunction{CVSpgmrGetWorkSpace}
 {
   flag = CVSpgmrGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
@@ -3711,8 +3713,6 @@ return value from a {\cvspgmr} function.
   \end{args}
 }
 {
-  \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements} 
-  \index{memory requirements!CVSPGMR@{\cvspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is roughly
   (\id{maxl}$+ 5)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ \id{realtype}
@@ -3976,6 +3976,8 @@ finite-difference Jacobian-vector product approximation, and last
 return value from a {\cvspbcg} function.
 %%
 %%
+\index{CVSPBCG@{\cvspbcg} linear solver!memory requirements} 
+\index{memory requirements!CVSPBCG@{\cvspbcg} linear solver}
 \ucfunction{CVSpbcgGetWorkSpace}
 {
   flag = CVSpbcgGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
@@ -4006,8 +4008,6 @@ return value from a {\cvspbcg} function.
   \end{args}
 }
 {
-  \index{CVSPBCG@{\cvspbcg} linear solver!memory requirements} 
-  \index{memory requirements!CVSPBCG@{\cvspbcg} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is roughly $9*N$ \id{realtype} words.
   (In a parallel setting, this value is global --- summed over all processors.)
@@ -4264,6 +4264,8 @@ finite-difference Jacobian-vector product approximation, and last
 return value from a {\cvsptfqmr} function.
 %%
 %%
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!memory requirements} 
+\index{memory requirements!CVSPTFQMR@{\cvsptfqmr} linear solver}
 \ucfunction{CVSptfqmrGetWorkSpace}
 {
   flag = CVSptfqmrGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
@@ -4294,8 +4296,6 @@ return value from a {\cvsptfqmr} function.
   \end{args}
 }
 {
-  \index{CVSPTFQMR@{\cvsptfqmr} linear solver!memory requirements} 
-  \index{memory requirements!CVSPTFQMR@{\cvsptfqmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is roughly  $11*N$ \id{realtype} words.
   (In a parallel setting, this value is global --- summed over all processors.)
@@ -5337,7 +5337,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 
   \id{flag = CVBPSptfqmr(cvode\_mem, pretype, maxl, bp\_data);}
 
-  Each function \Id{CVBPSp*} is a wrapper around the corresponding
+  Each function \id{CVBPSp*} is a wrapper around the corresponding
   specification function \id{CVSp*} and performs the following actions:
   \begin{itemize}
     \item Attaches the {\cvsp} linear solver to the main {\cvode} solver memory;
@@ -5880,7 +5880,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
 
   \id{flag = CVBBDSptfqmr(cvode\_mem, pretype, maxl, bbd\_data);}
 
-  The function \Id{CVBPSp*} is a wrapper around the corresponding specification
+  The function \id{CVBPSp*} is a wrapper around the corresponding specification
   function \id{CVSp*} and performs the following actions:
   \begin{itemize}
     \item Attaches the {\cvsp} linear solver to the main {\cvode} solver memory;

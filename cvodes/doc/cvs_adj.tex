@@ -748,8 +748,8 @@ The call to this function has the form
 \label{ss:optional_input_B}
 %%---------------------------------------------------------------------
 %%
-
 \subsubsection{Main solver optional input functions}
+\index{optional input!backward solver|(}
 
 The adjoint module in {\cvodes} provides wrappers for most of the optional 
 input functions defined in \S\ref{sss:optin_main}. The only difference is 
@@ -771,12 +771,15 @@ The optional input functions defined for the backward problem are:
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
 of their counterparts, but it can also be \Id{CV\_ADJMEM\_NULL} if the \id{cvadj\_mem} 
 argument was \id{NULL}.
+\index{optional input!backward solver|)}
 
 \subsubsection{Dense linear solver}
-
+\index{optional input!dense linear solver|(}
+\index{CVDENSE@{\cvdense} linear solver!optional input|(}
 Optional inputs for the {\cvdense} linear solver module can be set for the backward
 problem through the following function:
 %%
+\index{Jacobian approximation function!dense!user-supplied (backward)}
 \ucfunction{CVDenseSetJacFnB}
 {
   flag = CVDenseSetJacFnB(cvadj\_mem, djacB, jac\_dataB);
@@ -812,12 +815,17 @@ problem through the following function:
 {
   The function type \id{CVDenseJacFnB} is described in \S\ref{ss:user_fct_adj}.
 }
+\index{CVDENSE@{\cvdense} linear solver!optional input|)}
+\index{optional input!dense linear solver|)}
+
 
 \subsubsection{Band linear solver}
-
+\index{optional input!band linear solver|(}
+\index{CVBAND@{\cvband} linear solver!optional input|(}
 Optional inputs for the {\cvband} linear solver module can be set for the backward
 problem through the following function:
 %%
+\index{Jacobian approximation function!band!user-supplied (backward)}
 \ucfunction{CVBandSetJacFnB}
 {
   flag = CVBandSetJacFnB(cvadj\_mem, bjacB, jac\_dataB);
@@ -853,15 +861,19 @@ problem through the following function:
 {
   The function type \id{CVBandJacFnB} is described in \S\ref{ss:user_fct_adj}.
 }
+\index{CVBAND@{\cvband} linear solver!optional input|)}
+\index{optional input!band linear solver|)}
 
 \subsubsection{SPGMR linear solver}
-
+\index{optional input!iterative linear solver|(}
+\index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 Optional inputs for the {\cvspgmr} linear solver module can be set for the backward
 problem through the following functions:
 %%
+\index{preconditioning!user-supplied|(}
 \ucfunction{CVSpgmrSetPreconditionerB}
 {
-  flag = CVSpgmrSetPrecSolveFnB(cvadj\_mem, psolveB, psetupB, p\_dataB);
+  flag = CVSpgmrSetPreconditionerB(cvadj\_mem, psolveB, psetupB, p\_dataB);
 }
 {
   The function \ID{CVSpgmrSetPrecSolveFnB} specifies the preconditioner
@@ -897,7 +909,9 @@ problem through the following functions:
    described in \S\ref{ss:user_fct_adj}.
 }
 %%
+\index{preconditioning!user-supplied|)}
 %%
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 \ucfunction{CVSpgmrSetJacTimesVecFnB}
 {
   flag = CVSpgmrSetJacTimesVecFnB(cvadj\_mem, jtimesB, jac\_data);
@@ -1051,12 +1065,16 @@ problem through the following functions:
   needed only if \id{pretypeB} is being changed from its value in the
   previous call to \id{CVSpgmrB}.
 }
+\index{CVSPGMR@{\cvspgmr} linear solver!optional input|)}
+\index{optional input!iterative linear solver|)}
 
 \subsubsection{SPBCG linear solver}
-
+\index{optional input!iterative linear solver|(}
+\index{CVSPBCG@{\cvspbcg} linear solver!optional input|(}
 Optional inputs for the {\cvspbcg} linear solver module can be set for the backward
 problem through the following functions:
 %%
+\index{preconditioning!user-supplied|(}
 \ucfunction{CVSpbcgSetPreconditionerB}
 {
   flag = CVSpbcgSetPrecSolveFnB(cvadj\_mem, psolveB, psetupB, p\_dataB);
@@ -1094,8 +1112,10 @@ problem through the following functions:
    The function types \id{CVSpilsPrecSolveFnB} and \id{CVSpilsPrecSetupFnB} are
    described in \S\ref{ss:user_fct_adj}.
 }
+\index{preconditioning!user-supplied|)}
 %%
 %%
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 \ucfunction{CVSpbcgSetJacTimesVecFnB}
 {
   flag = CVSpbcgSetJacTimesVecFnB(cvadj\_mem, jtimesB, jac\_data);
@@ -1209,14 +1229,17 @@ problem through the following functions:
   needed only if \id{pretypeB} is being changed from its value in the
   previous call to \id{CVSpbcgB}.
 }
-
+\index{CVSPBCG@{\cvspbcg} linear solver!optional input|)}
+\index{optional input!iterative linear solver|)}
 
 
 \subsubsection{SPTFQMR linear solver}
-
+\index{optional input!iterative linear solver|(}
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|(}
 Optional inputs for the {\cvsptfqmr} linear solver module can be set for the backward
 problem through the following functions:
 %%
+\index{preconditioning!user-supplied|(}
 \ucfunction{CVSptfqmrSetPreconditionerB}
 {
   flag = CVSptfqmrSetPrecSolveFnB(cvadj\_mem, psolveB, psetupB, p\_dataB);
@@ -1254,8 +1277,10 @@ problem through the following functions:
    The function types \id{CVSpilsPrecSolveFnB} and \id{CVSpilsPrecSetupFnB} are
    described in \S\ref{ss:user_fct_adj}.
 }
+\index{preconditioning!user-supplied|)}
 %%
 %%
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 \ucfunction{CVSptfqmrSetJacTimesVecFnB}
 {
   flag = CVSptfqmrSetJacTimesVecFnB(cvadj\_mem, jtimesB, jac\_data);
@@ -1370,13 +1395,14 @@ problem through the following functions:
   previous call to \id{CVSptfqmrB}.
 }
 
-
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|)}
+\index{optional input!iterative linear solver|)}
 
 %---------------------------------------------------------------------------
 \subsection{Optional output functions for the backward problem}
 \label{ss:optional_output_B}
 %---------------------------------------------------------------------------
-
+\index{optional output!backward solver|(}
 The user of the adjoint module in {\cvodes} has access to any of the optional output 
 functions described in \S\ref{ss:optional_output}, both for the main solver and for
 the linear solver modules. The first argument of these \id{CVodeGet*} and \id{CV*Get*}
@@ -1403,6 +1429,7 @@ this memory block:
 {
   {\warn}The user should not modify in any way \id{cvode\_memB}.
 }
+\index{optional output!backward solver|)}
 
 %%---------------------------------------------------------------------
 \subsection{Backward integration of pure quadrature equations}
@@ -1534,7 +1561,8 @@ of \id{CVodeB}, {\cvodes} provides a wrapper for the function \ID{CVodeGetQuad}
 {}
 
 \subsubsection{Optional input/output functions for backward quadrature integration}
-
+\index{optional input!quadrature integration}
+\index{optional output!quadrature integration}
 Optional values controlling the backward integration of quadrature equations can be changed
 from their default values through calls to one of the following functions which are wrappers for
 the corresponding optional input functions defined in \S\ref{ss:quad_optional_input}:
@@ -1707,6 +1735,7 @@ for the backward problem (i.e. \Id{CVDenseB} is called in step \ref{i:lin_solver
 of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDenseSetJacFnB}
 (see \S\ref{ss:optional_input_B}), a function of the following type:
 %%
+\index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{CVDenseJacFnB}
 {
   typedef void (*CVDenseJacFnB)(&long int nB, DenseMat JB, realtype t, \\
@@ -1763,7 +1792,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDense
 %%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem
   (direct method with banded Jacobian)}
-
+\index{Jacobian approximation function!band!user-supplied (backward)}
 If the direct linear solver with banded treatment of the Jacobian is selected
 for the backward problem (i.e. \Id{CVBandB} is called in step \ref{i:lin_solverB} 
 of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVBandSetJacFnB}
@@ -1828,7 +1857,7 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVBandS
 
 %%-------------------------------------------------------------------------------------
 \subsection{Jacobian information for the backward problem (matrix-vector product)}
-
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
 is selected (\id{CVSp*B} is called in step \ref{i:lin_solverB} of \S\ref{ss:skeleton_adj}), 
 the user may provide a function of type \ID{CVSpilsJacTimesVecFnB} in the following form:
@@ -1884,7 +1913,10 @@ the user may provide a function of type \ID{CVSpilsJacTimesVecFnB} in the follow
 
 %%-------------------------------------------------------------------------------------
 \subsection{Preconditioning for the backward problem (linear system solution)}
-
+\index{preconditioning!user-supplied}
+\index{CVSPGMR@{\cvspgmr} linear solver!preconditioner solve function}
+\index{CVSPBCG@{\cvspbcg} linear solver!preconditioner solve function}
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner solve function}
 If preconditioning is used during integration of the backward problem, 
 then the user must provide a {\C} function to solve the linear system 
 $Pz = r$, where $P$ may be either a left or a right preconditioner matrix.
@@ -1941,7 +1973,10 @@ This function must be of type \ID{CVSpilsPrecSolveFnB} defined by
 
 %%-------------------------------------------------------------------------------------
 \subsection{Preconditioning for the backward problem (Jacobian data)}
-
+\index{preconditioning!user-supplied}
+\index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup function}
+\index{CVSPBCG@{\cvspbcg} linear solver!preconditioner setup function}
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner setup function}
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
 user-supplied {\C} function of type \ID{CVSpilsPrecSetupFnB} defined by
@@ -2028,6 +2063,7 @@ the user need not define any additional functions. First, the user must initiali
 {\cvbandpre} module by calling
 %%
 %%
+\index{CVBANDPRE@{\cvbandpre} preconditioner!user-callable functions|(}
 \ucfunction{CVBandPrecAllocB}
 {
   flag = CVBandPrecAlloc(cvadj\_mem, nB, muB, mlB);
@@ -2222,6 +2258,7 @@ backward integration, make the following call:
 }
 %%
 %%
+\index{CVBANDPRE@{\cvbandpre} preconditioner!user-callable functions|)}
 For more details on {\cvbandpre} see \S\ref{sss:cvbandpre}.
 \index{CVBANDPRE@{\cvbandpre} preconditioner!usage with adjoint module|)}
 
@@ -2240,6 +2277,7 @@ the user must define one or two additional functions, described at the end of th
 
 \subsubsection{Usage of CVBBDPRE for the backward problem}
 %%
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!user-callable functions|(}
 The {\cvbbdpre} module is initialized by calling
 %%
 %%
@@ -2497,11 +2535,13 @@ backward integration, make the following call:
   The call to \id{CVBBDPrecFreeB} must preceed that to \id{CVadjFree}.
 }
 %%
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!user-callable functions|)}
 %%
 For more details on {\cvbbdpre} see \S\ref{sss:cvbbdpre}.
 
 \subsubsection{User-supplied functions for CVBBDPRE}
 %%
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|(}
 To use the {\cvbbdpre} module, the user must supply one or two functions which the
 module calls to construct the preconditioner: a required function \id{glocB} 
 (of type \id{CVLocalFnB}) which approximates the right-hand side of the backward
@@ -2585,6 +2625,7 @@ The prototypes for these two functions are described below.
   and \id{yB} arguments. If there is no additional communication needed, then pass
   \id{cfnB} $=$ \id{NULL} to \id{CVBBDPrecAllocB}.
 }
+\index{CVBBDPRE@{\cvbbdpre} preconditioner!user-supplied functions|)}
 %%
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!usage with adjoint module|)}

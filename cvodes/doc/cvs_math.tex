@@ -105,7 +105,7 @@ form of the user-supplied preconditioner matrix \cite{BrHi:89}.
 
 % WRMS Norm
 %----------
-\index{norm!weighted root-mean-square|(}
+\index{weighted root-mean-square norm|(}
 In the process of controlling errors at various levels, {\cvodes} uses
 a weighted root-mean-square norm, denoted
 $\|\cdot\|_{\mbox{\scriptsize WRMS}}$, for all error-like quantities.
@@ -118,7 +118,7 @@ on the relative and absolute tolerances input by the user, namely
 Because $1/W_i$ represents a tolerance in the component $y_i$, a vector
 whose norm is 1 is regarded as ``small.''  For brevity, we will
 usually drop the subscript WRMS on norms in what follows.
-\index{norm!weighted root-mean-square|)}
+\index{weighted root-mean-square norm|)}
 
 % Newton iteration
 %-----------------
@@ -489,7 +489,7 @@ of {\cvodes} can provide different values as an option.
 \index{forward sensitivity analysis!absolute tolerance selection|)}
 
 \subsection{Evaluation of the sensitivity right-hand side}
-\index{forward sensitivity analysis!right hand side evaluation|(}
+\index{forward sensitivity analysis!right-hand side evaluation}
 There are several methods for evaluating the right-hand side of the sensitivity 
 systems (\ref{e:sens_eqns}): analytic evaluation, automatic differentiation, 
 complex-step approximation, and finite differences (or directional derivatives).

@@ -315,19 +315,19 @@ is to be called only after the IVP solution is complete, as it frees the
   cvode\_mem = CVodeCreate(lmm, iter);
 }
 {
-  The function \ID{CVodeCreate} instantiates a {\cvodes} solver object and
+  The function \Id{CVodeCreate} instantiates a {\cvodes} solver object and
   specifies the solution method.
 }
 {
   \begin{args}[iter]
   \item[lmm] (\id{int})
     specifies the linear multistep method and may be one of two
-    possible values: \ID{CV\_ADAMS} or \ID{CV\_BDF}.     
+    possible values: \Id{CV\_ADAMS} or \Id{CV\_BDF}.     
   \item[iter] (\id{int})
     specifies the type of nonlinear solver iteration and may be
-    either \ID{CV\_NEWTON} or \ID{CV\_FUNCTIONAL}. 
+    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
   \end{args}
-  The recommended choices for (\ID{lmm}, \ID{iter}) are
+  The recommended choices for (\Id{lmm}, \Id{iter}) are
   (\id{CV\_ADAMS}, \id{CV\_FUNCTIONAL}) for nonstiff problems and
   (\id{CV\_BDF}, \id{CV\_NEWTON}) for stiff problems.
 }
@@ -345,7 +345,7 @@ is to be called only after the IVP solution is complete, as it frees the
 flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
 }
 {
-  The function \ID{CVodeMalloc} provides required problem and solution
+  The function \Id{CVodeMalloc} provides required problem and solution
   specifications, allocates internal memory, and initializes {\cvodes}.
 }
 {
@@ -360,7 +360,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is one of \ID{CV\_SS}, \ID{CV\_SV}, or \ID{CV\_WF}. Here \ID{itol} = \id{SS}
+    is one of \Id{CV\_SS}, \Id{CV\_SV}, or \Id{CV\_WF}. Here \Id{itol} = \id{SS}
     indicates scalar relative error tolerance and scalar absolute error tolerance,
     while \id{itol} = \id{CV\_SV} indicates scalar relative error tolerance and
     vector absolute error tolerance.  The latter choice is important when the
@@ -411,7 +411,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   CVodeFree(\&cvode\_mem);
 }
 {
-  The function \ID{CVodeFree} frees the memory allocated by
+  The function \Id{CVodeFree} frees the memory allocated by
   a previous call to \id{CVodeMalloc}.
 }
 {
@@ -566,7 +566,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVDense(cvode\_mem, N);
 }
 {
-  The function \ID{CVDense} selects the {\cvdense} linear solver. 
+  The function \Id{CVDense} selects the {\cvdense} linear solver. 
 
   The user's main program must include the \id{cvodes\_dense.h} header file.
 }
@@ -609,7 +609,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVBand(cvode\_mem, N, mupper, mlower);
 }
 {
-  The function \ID{CVBand} selects the {\cvband} linear solver. 
+  The function \Id{CVBand} selects the {\cvband} linear solver. 
 
   The user's main program must include the \id{cvodes\_band.h} header file.
 }
@@ -659,7 +659,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVDiag(cvode\_mem);
 }
 {
-  The function \ID{CVDiag} selects the {\cvdiag} linear solver. 
+  The function \Id{CVDiag} selects the {\cvdiag} linear solver. 
 
   The user's main function must include the \id{cvodes\_diag.h} header file.
 }
@@ -698,7 +698,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVSpgmr(cvode\_mem, pretype, maxl);
 }
 {
-  The function \ID{CVSpgmr} selects the {\cvspgmr} linear solver. 
+  The function \Id{CVSpgmr} selects the {\cvspgmr} linear solver. 
 
   The user's main function must include the \id{cvodes\_spgmr.h} header file.
 }
@@ -707,7 +707,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}|textbf}
+    \index{pretype@\texttt{pretype}}
     specifies the preconditioning type and must be one of: 
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \item[maxl] (\id{int})
@@ -743,7 +743,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVSpbcg(cvode\_mem, pretype, maxl);
 }
 {
-  The function \ID{CVSpbcg} selects the {\cvspbcg} linear solver. 
+  The function \Id{CVSpbcg} selects the {\cvspbcg} linear solver. 
 
   The user's main function must include the \id{cvodes\_spbcgs.h} header file.
 }
@@ -752,7 +752,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}|textbf}
+    \index{pretype@\texttt{pretype}}
     specifies the preconditioning type and must be one of: 
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \item[maxl] (\id{int})
@@ -789,7 +789,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   flag = CVSptfqmr(cvode\_mem, pretype, maxl);
 }
 {
-  The function \ID{CVSptfqmr} selects the {\cvsptfqmr} linear solver. 
+  The function \Id{CVSptfqmr} selects the {\cvsptfqmr} linear solver. 
 
   The user's main function must include the \id{cvodes\_sptfqmr.h} header file.
 }
@@ -798,7 +798,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[pretype] (\id{int})
-    \index{pretype@\texttt{pretype}|textbf}
+    \index{pretype@\texttt{pretype}}
     specifies the preconditioning type and must be one of: 
     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
   \item[maxl] (\id{int})
@@ -839,7 +839,7 @@ perform the integration of the IVP.
   flag = CVode(cvode\_mem, tout, yout, tret, itask);
 }
 {
-  The function \ID{CVode} integrates the ODE over an interval in $t$.
+  The function \Id{CVode} integrates the ODE over an interval in $t$.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1040,7 +1040,7 @@ The calls listed here can be executed in any order.
 flag = CVodeSetErrFile(cvode\_mem, errfp);
 }
 {
-  The function \ID{CVodeSetErrFile} specifies a pointer to the file
+  The function \Id{CVodeSetErrFile} specifies a pointer to the file
   where all {\cvodes} messages should be directed.
 }
 {
@@ -1076,7 +1076,7 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
   flag = CVodeSetFdata(cvode\_mem, f\_data);
 }
 {
-  The function \ID{CVodeSetFdata} specifies the user-defined data block \ID{f\_data}
+  The function \Id{CVodeSetFdata} specifies the user-defined data block \Id{f\_data}
   to be passed to the user-supplied right-hand side function $f$, and attaches it to the main 
   {\cvodes} memory block.
 }
@@ -1108,7 +1108,7 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
 flag = CVodeSetMaxOrder(cvode\_mem, maxord);
 }
 {
-  The function \ID{CVodeSetMaxOrder} specifies the maximum order of the 
+  The function \Id{CVodeSetMaxOrder} specifies the maximum order of the 
   linear multistep method.
 }
 {
@@ -1132,10 +1132,10 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
   \end{args}
 }
 {
-  The default value is \Id{ADAMS\_Q\_MAX = 12} for
-  the Adams-Moulton method and \Id{BDF\_Q\_MAX = 5}
+  The default value is \id{ADAMS\_Q\_MAX = 12} for
+  the Adams-Moulton method and \id{BDF\_Q\_MAX = 5}
   for the BDF method.
-  Since \ID{maxord} affects the memory requirements
+  Since \Id{maxord} affects the memory requirements
   for the internal {\cvodes} memory block, its value
   cannot be increased past its previous value.
 }
@@ -1146,7 +1146,7 @@ flag = CVodeSetMaxOrder(cvode\_mem, maxord);
 flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
 {
-  The function \ID{CVodeSetMaxNumSteps} specifies the maximum number
+  The function \Id{CVodeSetMaxNumSteps} specifies the maximum number
   of steps to be taken by the solver in its attempt to reach 
   the next output time.
 }
@@ -1179,7 +1179,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 }
 {
-  The function \ID{CVodeSetMaxHnilWarns} specifies the maximum number of
+  The function \Id{CVodeSetMaxHnilWarns} specifies the maximum number of
   messages issued by the solver warning that $t+h=t$ on the next internal step.
 }
 {
@@ -1211,7 +1211,7 @@ flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 flag = CVodeSetstabLimDet(cvode\_mem, stldet);
 }
 {
-  The function \ID{CVodeSetStabLimDet} indicates if
+  The function \Id{CVodeSetStabLimDet} indicates if
   the BDF stability limit detection algorithm should be used. See \S\ref{s:bdf_stab}
   for further details.
 }
@@ -1247,7 +1247,7 @@ flag = CVodeSetstabLimDet(cvode\_mem, stldet);
 flag = CVodeSetInitStep(cvode\_mem, hin);
 }
 {
-  The function \ID{CVodeSetInitStep} specifies the initial step size.
+  The function \Id{CVodeSetInitStep} specifies the initial step size.
 }
 {
   \begin{args}[cvode\_mem]
@@ -1279,7 +1279,7 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
 flag = CVodeSetMinStep(cvode\_mem, hmin);
 }
 {
-  The function \ID{CVodeSetMinStep} specifies a lower bound on the magnitude
+  The function \Id{CVodeSetMinStep} specifies a lower bound on the magnitude
   of the step size.
 }
 {
@@ -1311,7 +1311,7 @@ flag = CVodeSetMinStep(cvode\_mem, hmin);
 flag = CVodeSetMaxStep(cvode\_mem, hmax);
 }
 {
-  The function \ID{CVodeSetMaxStep} specifies an upper bound on the magnitude
+  The function \Id{CVodeSetMaxStep} specifies an upper bound on the magnitude
   of the step size.
 }
 {
@@ -1344,7 +1344,7 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
 flag = CVodeSetStopTime(cvode\_mem, tstop);
 }
 {
-  The function \ID{CVodeSetStopTime} specifies the value of the
+  The function \Id{CVodeSetStopTime} specifies the value of the
   independent variable $t$ past which the solution is not to proceed.
 }
 {
@@ -1375,7 +1375,7 @@ flag = CVodeSetStopTime(cvode\_mem, tstop);
 flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
 }
 {
-  The function \ID{CVodeSetMaxErrTestFails} specifies the
+  The function \Id{CVodeSetMaxErrTestFails} specifies the
   maximum number of error test failures permitted in attempting one step.
 }
 {
@@ -1405,7 +1405,7 @@ flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
 flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
 }
 {
-  The function \ID{CVodeSetMaxNonlinIters} specifies the maximum
+  The function \Id{CVodeSetMaxNonlinIters} specifies the maximum
   number of nonlinear solver iterations permitted per step.
 }
 {
@@ -1435,7 +1435,7 @@ flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
 flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
 }
 {
-  The function \ID{CVodeSetMaxConvFails} specifies the
+  The function \Id{CVodeSetMaxConvFails} specifies the
   maximum number of nonlinear solver convergence failures permitted during
   one step.
 }
@@ -1467,7 +1467,7 @@ flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
 flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 }
 {
-  The function \ID{CVodeSetNonlinConvCoef} specifies the safety factor used
+  The function \Id{CVodeSetNonlinConvCoef} specifies the safety factor used
   in the nonlinear convergence test (see \S\ref{ss:ivp_sol}).
 }
 {
@@ -1496,7 +1496,7 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 flag = CVodeSetIterType(cvode\_mem, iter);
 }
 {
-  The function \ID{CVodeSetIterType} resets the nonlinear solver
+  The function \Id{CVodeSetIterType} resets the nonlinear solver
   iteration type to \Id{iter}.
 }
 {
@@ -1532,14 +1532,14 @@ flag = CVodeSetIterType(cvode\_mem, iter);
 flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
 }
 {
-  The function \ID{CVodeSetTolerances} resets the integration tolerances.
+  The function \Id{CVodeSetTolerances} resets the integration tolerances.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[itol] (\id{int}) 
-    is either \ID{CV\_SS} or \ID{CV\_SV}, where \ID{itol = CV\_SS} indicates scalar
+    is either \Id{CV\_SS} or \Id{CV\_SV}, where \id{itol = CV\_SS} indicates scalar
     relative error tolerance and scalar absolute error tolerance, while
     \id{itol}$=$\id{CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
@@ -1583,7 +1583,7 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
 flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
 }
 {
-  The function \ID{CVodeSetEwtFn} specifies the user-defined function
+  The function \Id{CVodeSetEwtFn} specifies the user-defined function
   to be used in computing the error weight vector $W$, which is normally
   defined by Eq.(\ref{e:errwt}).
 }
@@ -1644,7 +1644,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
   flag = CVDenseSetJacFn(cvode\_mem, djac, jac\_data);
 }
 {
-  The function \ID{CVDenseSetJacFn} specifies the dense Jacobian
+  The function \Id{CVDenseSetJacFn} specifies the dense Jacobian
   approximation function to be used and the pointer to user data.
 }
 {
@@ -1704,7 +1704,7 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
   flag = CVBandSetJacFn(cvode\_mem, bjac, jac\_data);
 }
 {
-  The function \ID{CVBandSetJacFn} specifies the banded Jacobian
+  The function \Id{CVBandSetJacFn} specifies the banded Jacobian
   approximation function to be used and the pointer to user data.
 }
 {
@@ -1770,7 +1770,7 @@ The \index{CVSPGMR@{\cvspgmr} linear solver!Jacobian approximation used by}
 product between the Jacobian matrix $J(t,y)$ and a vector $v$.
 The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{CVSpgmrDQJtimes} 
-\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+\index{Jacobian approximation function!Jacobian-vector product!difference quotient}
 that comes with the {\cvspgmr} solver.  A user-defined Jacobian-vector
 function must be of type \id{CVSpilsJacTimesVecFn} and 
 can be specified through a call to \id{CVSpgmrSetJacTimesVecFn} 
@@ -1789,7 +1789,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpgmrSetPreconditioner(cvode\_mem, psetup, psolve, p\_data);
 }
 {
-  The function \ID{CVSpgmrSetPreconditioner} specifies the preconditioner
+  The function \Id{CVSpgmrSetPreconditioner} specifies the preconditioner
   setup and solve functions and the pointer to user data.
 }
 {
@@ -1823,13 +1823,13 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
 \index{preconditioning!user-supplied|)}
 %%
-\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied}
 \ucfunction{CVSpgmrSetJacTimesVecFn}
 {
   flag = CVSpgmrSetJacTimesVecFn(cvode\_mem, jtimes, jac\_data);
 }
 {
-  The function \ID{CVSpgmrSetJacTimesFn} specifies the Jacobian-vector 
+  The function \Id{CVSpgmrSetJacTimesFn} specifies the Jacobian-vector 
   function to be used and the pointer to user data.
 }
 {
@@ -1866,7 +1866,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpgmrSetPrecType(cvode\_mem, pretype);
 }
 {
-  The function \ID{CVSpgmrSetPrecType} resets the type
+  The function \Id{CVSpgmrSetPrecType} resets the type
   of preconditioning to be used.
 }
 {
@@ -1905,10 +1905,10 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpgmrSetGSType(cvode\_mem, gstype);
 }
 {
-  The function \ID{CVSpgmrSetGSType} specifies the type of
+  The function \Id{CVSpgmrSetGSType} specifies the type of
   Gram-Schmidt orthogonalization to be used. 
-  This must be one of the enumeration constants \ID{MODIFIED\_GS}
-  or \ID{CLASSICAL\_GS}. These correspond to using modified Gram-Schmidt 
+  This must be one of the enumeration constants \Id{MODIFIED\_GS}
+  or \Id{CLASSICAL\_GS}. These correspond to using modified Gram-Schmidt 
   and classical Gram-Schmidt, respectively. 
   \index{Gram-Schmidt procedure}
 }
@@ -1943,7 +1943,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpgmrSetDelt(cvode\_mem, delt);
 }
 {
-  The function \ID{CVSpgmrSetDelt} specifies the factor by
+  The function \Id{CVSpgmrSetDelt} specifies the factor by
   which the GMRES\index{GMRES method} convergence test constant is reduced
   from the Newton iteration test constant.
 }
@@ -2008,7 +2008,7 @@ The \index{CVSPBCG@{\cvspbcg} linear solver!Jacobian approximation used by}
 product between the Jacobian matrix $J(t,y)$ and a vector $v$.
 The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{CVSpbcgDQJtimes} 
-\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+\index{Jacobian approximation function!Jacobian-vector product!difference quotient}
 that comes with the {\cvspbcg} solver.  A user-defined Jacobian-vector
 function must be of type \id{CVSpilsJacTimesVecFn} and 
 can be specified through a call to \id{CVSpbcgSetJacTimesVecFn} 
@@ -2026,7 +2026,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpbcgSetPreconditioner(cvode\_mem, psetup, psolve, p\_data);
 }
 {
-  The function \ID{CVSpbcgSetPreconditioner} specifies the preconditioner
+  The function \Id{CVSpbcgSetPreconditioner} specifies the preconditioner
   setup and solve functions and the pointer to user data.
 }
 {
@@ -2059,13 +2059,13 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
 %%
 \index{preconditioning!user-supplied|)}
-\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied}
 \ucfunction{CVSpbcgSetJacTimesVecFn}
 {
   flag = CVSpbcgSetJacTimesVecFn(cvode\_mem, jtimes, jac\_data);
 }
 {
-  The function \ID{CVSpbcgSetJacTimesFn} specifies the Jacobian-vector 
+  The function \Id{CVSpbcgSetJacTimesFn} specifies the Jacobian-vector 
   function to be used and the pointer to user data.
 }
 {
@@ -2102,7 +2102,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpbcgSetPrecType(cvode\_mem, pretype);
 }
 {
-  The function \ID{CVSpbcgSetPrecType} resets the type
+  The function \Id{CVSpbcgSetPrecType} resets the type
   of preconditioning to be used.
 }
 {
@@ -2141,7 +2141,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpbcgSetMaxl(cv\_mem, maxl);
 }
 {
-  The function \ID{CVSpbcgSetMaxl} resets maximum Krylov subspace
+  The function \Id{CVSpbcgSetMaxl} resets maximum Krylov subspace
   dimension for the Bi-CGStab\index{Bi-CGStab method} method.
 }
 {
@@ -2176,7 +2176,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSpbcgSetDelt(cvode\_mem, delt);
 }
 {
-  The function \ID{CVSpbcgSetDelt} specifies the factor by which the
+  The function \Id{CVSpbcgSetDelt} specifies the factor by which the
   Bi-CGStab\index{Bi-CGStab method} convergence test constant is reduced
   from the Newton iteration test constant.
 }
@@ -2241,7 +2241,7 @@ The \index{CVSPTFQMR@{\cvsptfqmr} linear solver!Jacobian approximation used by}
 product between the Jacobian matrix $J(t,y)$ and a vector $v$.
 The user can supply his/her own Jacobian-times-vector approximation function, 
 or use the difference quotient function \Id{CVSptfqmrDQJtimes} 
-\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+\index{Jacobian approximation function!Jacobian-vector product!difference quotient}
 that comes with the {\cvsptfqmr} solver.   A user-defined Jacobian-vector
 function must be of type \id{CVSpilsJacTimesVecFn} and 
 can be specified through a call to \id{CVSptfqmrSetJacTimesVecFn} 
@@ -2259,7 +2259,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSptfqmrSetPreconditioner(cvode\_mem, psetup, psolve, p\_data);
 }
 {
-  The function \ID{CVSptfqmrSetPreconditioner} sets the preconditioner
+  The function \Id{CVSptfqmrSetPreconditioner} sets the preconditioner
   setup and solve functions and the pointer to user data.
 }
 {
@@ -2292,13 +2292,13 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%
 %%
 \index{preconditioning!user-supplied|)}
-\index{Jacobian approximation function!Jacobian times vector!user-supplied}
+\index{Jacobian approximation function!Jacobian-vector product!user-supplied}
 \ucfunction{CVSptfqmrSetJacTimesVecFn}
 {
   flag = CVSptfqmrSetJacTimesVecFn(cvode\_mem, jtimes, jac\_data);
 }
 {
-  The function \ID{CVSptfqmrSetJacTimesFn} specifies the Jacobian-vector 
+  The function \Id{CVSptfqmrSetJacTimesFn} specifies the Jacobian-vector 
   function to be used and the pointer to user data.
 }
 {
@@ -2335,7 +2335,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSptfqmrSetPrecType(cvode\_mem, pretype);
 }
 {
-  The function \ID{CVSptfqmrSetPrecType} resets the type
+  The function \Id{CVSptfqmrSetPrecType} resets the type
   of preconditioning to be used.
 }
 {
@@ -2374,7 +2374,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSptfqmrSetMaxl(cv\_mem, maxl);
 }
 {
-  The function \ID{CVSptfqmrSetMaxl} resets maximum Krylov subspace
+  The function \Id{CVSptfqmrSetMaxl} resets maximum Krylov subspace
   dimension for the TFQMR\index{TFQMR method} method.
 }
 {
@@ -2409,7 +2409,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSptfqmrSetDelt(cvode\_mem, delt);
 }
 {
-  The function \ID{CVSptfqmrSetDelt} specifies the factor by
+  The function \Id{CVSptfqmrSetDelt} specifies the factor by
   which the TFQMR\index{TFQMR method} convergence test constant is reduced
   from the Newton iteration test constant.
 }
@@ -2448,7 +2448,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 %%==============================================================================
 \index{optional output!interpolated solution}
 
-An optional function \ID{CVodeGetDky} is available to obtain additional
+An optional function \Id{CVodeGetDky} is available to obtain additional
 output values.  This function should only be called after a successful
 return from \id{CVode} as it provides interpolated values either of
 $y$ or of its derivatives (up to the current order of the integration
@@ -2462,7 +2462,7 @@ The call to the \id{CVodeGetDky} function has the following form:
   flag = CVodeGetDky(cvode\_mem, t, k, dky);
 }
 {
-  The function \ID{CVodeGetDky} computes the \id{k}-th derivative of the function
+  The function \Id{CVodeGetDky} computes the \id{k}-th derivative of the function
   \id{y} at time \id{t}, i.e. $d^{(k)}y/dt^{(k)} (t)$, where $t_n - h_u \le$
   \id{t} $\le t_n$, $t_n$ denotes the current internal time reached, and $h_u$
   is the  last internal step size successfully used by the solver.  The 
@@ -2635,7 +2635,7 @@ These optional output functions are described next.
   flag = CVodeGetWorkSpace(cvode\_mem, \&lenrw, \&leniw);
 }
 {
-  The function \ID{CVodeGetWorkSpace} returns the
+  The function \Id{CVodeGetWorkSpace} returns the
   {\cvodes} real and integer workspace sizes.
 }
 {
@@ -2695,7 +2695,7 @@ These optional output functions are described next.
   flag = CVodeGetNumSteps(cvode\_mem, \&nsteps);
 }
 {
-  The function \ID{CVodeGetNumSteps} returns the cumulative number of internal 
+  The function \Id{CVodeGetNumSteps} returns the cumulative number of internal 
   steps taken by the solver (total so far).
 }
 {
@@ -2723,7 +2723,7 @@ These optional output functions are described next.
   flag = CVodeGetNumRhsEvals(cvode\_mem, \&nfevals);
 }
 {
-  The function \ID{CVodeGetNumRhsEvals} returns the 
+  The function \Id{CVodeGetNumRhsEvals} returns the 
   number of calls to the user's right-hand side function.
 }
 {
@@ -2755,7 +2755,7 @@ These optional output functions are described next.
   flag = CVodeGetNumLinSolvSetups(cvode\_mem, \&nlinsetups);
 }
 {
-  The function \ID{CVodeGetNumLinSolvSetups} returns the
+  The function \Id{CVodeGetNumLinSolvSetups} returns the
   number of calls made to the linear solver's setup function.
 }
 {
@@ -2783,7 +2783,7 @@ These optional output functions are described next.
   flag = CVodeGetNumErrTestFails(cvode\_mem, \&netfails);
 }
 {
-  The function \ID{CVodeGetNumErrTestFails} returns the
+  The function \Id{CVodeGetNumErrTestFails} returns the
   number of local error test failures that have occurred.
 }
 {
@@ -2811,7 +2811,7 @@ These optional output functions are described next.
   flag = CVodeGetLastOrder(cvode\_mem, \&qlast);
 }
 {
-  The function \ID{CVodeGetLastOrder} returns the
+  The function \Id{CVodeGetLastOrder} returns the
   integration method order used during the last internal step.
 }
 {
@@ -2839,7 +2839,7 @@ These optional output functions are described next.
   flag = CVodeGetCurrentOrder(cvode\_mem, \&qcur);
 }
 {
-  The function \ID{CVodeGetCurrentOrder} returns the
+  The function \Id{CVodeGetCurrentOrder} returns the
   integration method order to be used on the next internal step.
 }
 {
@@ -2867,7 +2867,7 @@ These optional output functions are described next.
   flag = CVodeGetLastStep(cvode\_mem, \&hlast);
 }
 {
-  The function \ID{CVodeGetLastStep} returns the
+  The function \Id{CVodeGetLastStep} returns the
   integration step size taken on the last internal step.
 }
 {
@@ -2895,7 +2895,7 @@ These optional output functions are described next.
   flag = CVodeGetCurrentStep(cvode\_mem, \&hcur);
 }
 {
-  The function \ID{CVodeGetCurrentStep} returns the
+  The function \Id{CVodeGetCurrentStep} returns the
   integration step size to be attempted on the next internal step.
 }
 {
@@ -2923,7 +2923,7 @@ These optional output functions are described next.
   flag = CVodeGetActualInitStep(cvode\_mem, \&hinused);
 }
 {
-  The function \ID{CVodeGetActualInitStep} returns the
+  The function \Id{CVodeGetActualInitStep} returns the
   value of the integration step size used on the first step.
 }
 {
@@ -2957,7 +2957,7 @@ These optional output functions are described next.
   flag = CVodeGetCurrentTime(cvode\_mem, \&tcur);
 }
 {
-  The function \ID{CVodeGetCurrentTime} returns the
+  The function \Id{CVodeGetCurrentTime} returns the
   current internal time reached by the solver.
 }
 {
@@ -2985,7 +2985,7 @@ These optional output functions are described next.
   flag = CVodeGetNumStabLimOrderReds(cvode\_mem, \&nslred);
 }
 {
-  The function \ID{CVodeGetNumStabLimOrderReds} returns the
+  The function \Id{CVodeGetNumStabLimOrderReds} returns the
   number of order reductions dictated by the BDF stability limit 
   detection algorithm (see \S\ref{s:bdf_stab}).
 }
@@ -3017,7 +3017,7 @@ These optional output functions are described next.
   flag = CVodeGetTolScaleFactor(cvode\_mem, \&tolsfac);
 }
 {
-  The function \ID{CVodeGetTolScaleFactor} returns a
+  The function \Id{CVodeGetTolScaleFactor} returns a
   suggested factor by which the user's tolerances 
   should be scaled when too much accuracy has been 
   requested for some internal step.
@@ -3047,7 +3047,7 @@ These optional output functions are described next.
   flag = CVodeGetErrWeights(cvode\_mem, eweight);
 }
 {
-  The function \ID{CVodeGetErrWeights} returns the solution error weights at
+  The function \Id{CVodeGetErrWeights} returns the solution error weights at
   the current time. These are the reciprocals of the $W_i$ given by (\ref{e:errwt}).
 }
 {
@@ -3077,7 +3077,7 @@ These optional output functions are described next.
   flag = CVodeGetEstLocalErrors(cvode\_mem, ele);
 }
 {
-  The function \ID{CVodeGetEstLocalErrors} returns the
+  The function \Id{CVodeGetEstLocalErrors} returns the
   vector of estimated local errors.
 }
 {
@@ -3120,7 +3120,7 @@ These optional output functions are described next.
   \end{tabular}
 }
 {
-  The function \ID{CVodeGetIntegratorStats} returns the {\cvodes} integrator
+  The function \Id{CVodeGetIntegratorStats} returns the {\cvodes} integrator
   statistics as a group.
 }
 {
@@ -3166,7 +3166,7 @@ These optional output functions are described next.
   flag = CVodeGetNumNonlinSolvIters(cvode\_mem, \&nniters);
 }
 {
-  The function \ID{CVodeGetNumNonlinSolvIters} returns the
+  The function \Id{CVodeGetNumNonlinSolvIters} returns the
   number of nonlinear (functional or Newton) iterations performed. 
 }
 {
@@ -3194,7 +3194,7 @@ These optional output functions are described next.
   flag = CVodeGetNumNonlinSolvConvFails(cvode\_mem, \&nncfails);
 }
 {
-  The function \ID{CVodeGetNumNonlinSolvConvFails} returns the
+  The function \Id{CVodeGetNumNonlinSolvConvFails} returns the
   number of nonlinear convergence failures that have occurred.
 }
 {
@@ -3222,7 +3222,7 @@ These optional output functions are described next.
   flag = CVodeGetNonlinSolvStats(cvode\_mem, \&nniters, \&nncfails);
 }
 {
-  The function \ID{CVodeGetNonlinSolvStats} returns the
+  The function \Id{CVodeGetNonlinSolvStats} returns the
   {\cvodes} nonlinear solver statistics as a group.
 }
 {
@@ -3259,12 +3259,14 @@ calls to the right-hand side routine for finite-difference Jacobian approximatio
 and last return value from a {\cvdense} function.
 %%
 %%
+\index{CVDENSE@{\cvdense} linear solver!memory requirements}
+\index{memory requirements!CVDENSE@{\cvdense} linear solver}
 \ucfunction{CVDenseGetWorkSpace}
 {
   flag = CVDenseGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{CVDenseGetWorkSpace} returns the
+  The function \Id{CVDenseGetWorkSpace} returns the
   {\cvdense} real and integer workspace sizes.
 }
 {
@@ -3289,8 +3291,6 @@ and last return value from a {\cvdense} function.
   \end{args}
 }
 {
-  \index{CVDENSE@{\cvdense} linear solver!memory requirements} 
-  \index{memory requirements!CVDENSE@{\cvdense} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
   is $2N^2$ \id{realtype} words, and the actual size of the integer workspace
   is $N$ integer words.
@@ -3302,7 +3302,7 @@ and last return value from a {\cvdense} function.
   flag = CVDenseGetNumJacEvals(cvode\_mem, \&njevals);
 }
 {
-  The function \ID{CVDenseGetNumJacEvals} returns the
+  The function \Id{CVDenseGetNumJacEvals} returns the
   number of calls made to the dense Jacobian approximation function.
 }
 {
@@ -3332,7 +3332,7 @@ and last return value from a {\cvdense} function.
   flag = CVDenseGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \ID{CVDenseGetNumRhsEvals} returns the
+  The function \Id{CVDenseGetNumRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function due to the 
   finite difference dense Jacobian approximation.
 }
@@ -3366,7 +3366,7 @@ and last return value from a {\cvdense} function.
   flag = CVDenseGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \ID{CVDenseGetLastFlag} returns the
+  The function \Id{CVDenseGetLastFlag} returns the
   last return value from a {\cvdense} routine. 
 }
 {
@@ -3411,12 +3411,14 @@ calls to the right-hand side routine for finite-difference Jacobian approximatio
 and last return value from a {\cvband} function.
 %%
 %%
+\index{CVBAND@{\cvband} linear solver!memory requirements} 
+\index{memory requirements!CVBAND@{\cvband} linear solver}
 \ucfunction{CVBandGetWorkSpace}
 {
   flag = CVBandGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{CVBandGetWorkSpace} returns the
+  The function \Id{CVBandGetWorkSpace} returns the
   {\cvband} real and integer workspace sizes.
 }
 {
@@ -3441,8 +3443,6 @@ and last return value from a {\cvband} function.
   \end{args}
 }
 {
-  \index{CVBAND@{\cvband} linear solver!memory requirements} 
-  \index{memory requirements!CVBAND@{\cvband} linear solver}
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
   the actual size of the real workspace is
   $(2$ \id{mupper}$+ 3$ \id{mlower}$+ 2)\, N$ \id{realtype} words,
@@ -3455,7 +3455,7 @@ and last return value from a {\cvband} function.
   flag = CVBandGetNumJacEvals(cvode\_mem, \&njevals);
 }
 {
-  The function \ID{CVBandGetNumJacEvals} returns the
+  The function \Id{CVBandGetNumJacEvals} returns the
   number of calls made to the banded Jacobian approximation function.
 }
 {
@@ -3485,7 +3485,7 @@ and last return value from a {\cvband} function.
   flag = CVBandGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \ID{CVBandGetNumRhsEvals} returns the
+  The function \Id{CVBandGetNumRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function due to the 
   finite difference banded Jacobian approximation.
 }
@@ -3519,7 +3519,7 @@ and last return value from a {\cvband} function.
   flag = CVBandGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \ID{CVBandGetLastFlag} returns the
+  The function \Id{CVBandGetLastFlag} returns the
   value of the last return flag from a {\cvband} routine. 
 }
 {
@@ -3564,12 +3564,14 @@ finite-difference Jacobian approximation, and last return value from a
 {\cvdiag} function.
 %%
 %%
+\index{CVDIAG@{\cvdiag} linear solver!memory requirements} 
+\index{memory requirements!CVDIAG@{\cvdiag} linear solver}
 \ucfunction{CVDiagGetWorkSpace}
 {
   flag = CVDiagGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{CVDiagGetWorkSpace} returns the
+  The function \Id{CVDiagGetWorkSpace} returns the
   {\cvdiag} real and integer workspace sizes.
 }
 {
@@ -3594,8 +3596,6 @@ finite-difference Jacobian approximation, and last return value from a
   \end{args}
 }
 {
-  \index{CVDIAG@{\cvdiag} linear solver!memory requirements} 
-  \index{memory requirements!CVDIAG@{\cvdiag} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
   is roughly $3 N$ \id{realtype} words.
 }
@@ -3606,7 +3606,7 @@ finite-difference Jacobian approximation, and last return value from a
   flag = CVDiagGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \ID{CVDiagGetNumRhsEvals} returns the
+  The function \Id{CVDiagGetNumRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function due to the 
   finite difference Jacobian approximation.
 }
@@ -3641,7 +3641,7 @@ finite-difference Jacobian approximation, and last return value from a
   flag = CVDiagGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \ID{CVDiagGetLastFlag} returns the
+  The function \Id{CVDiagGetLastFlag} returns the
   last return value from a {\cvdiag} routine. 
 }
 {
@@ -3690,12 +3690,14 @@ finite-difference Jacobian-vector product approximation, and last
 return value from a {\cvspgmr} function.
 %%
 %%
+\index{CVSPGMR@{\cvspgmr} linear solver!memory requirements} 
+\index{memory requirements!CVSPGMR@{\cvspgmr} linear solver}
 \ucfunction{CVSpgmrGetWorkSpace}
 {
   flag = CVSpgmrGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{CVSpgmrGetWorkSpace} returns the global sizes of the
+  The function \Id{CVSpgmrGetWorkSpace} returns the global sizes of the
   {\cvspgmr} real and integer workspaces.
 }
 {
@@ -3720,8 +3722,6 @@ return value from a {\cvspgmr} function.
   \end{args}
 }
 {
-  \index{CVSPGMR@{\cvspgmr} linear solver!memory requirements} 
-  \index{memory requirements!CVSPGMR@{\cvspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is roughly
   (\id{maxl}$+ 5)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ \id{realtype}
@@ -3735,7 +3735,7 @@ return value from a {\cvspgmr} function.
   flag = CVSpgmrGetNumLinIters(cvode\_mem, \&nliters);
 }
 {
-  The function \ID{CVSpgmrGetNumLinIters} returns the
+  The function \Id{CVSpgmrGetNumLinIters} returns the
   cumulative number of linear iterations.
 }
 {
@@ -3765,7 +3765,7 @@ return value from a {\cvspgmr} function.
   flag = CVSpgmrGetNumConvFails(cvode\_mem, \&nlcfails);
 }
 {
-  The function \ID{CVSpgmrGetNumConvFails} returns the
+  The function \Id{CVSpgmrGetNumConvFails} returns the
   cumulative number of linear convergence failures.
 }
 {
@@ -3795,7 +3795,7 @@ return value from a {\cvspgmr} function.
   flag = CVSpgmrGetNumPrecEvals(cvode\_mem, \&npevals);
 }
 {
-  The function \ID{CVSpgmrGetNumPrecEvals} returns the
+  The function \Id{CVSpgmrGetNumPrecEvals} returns the
   number of preconditioner evaluations, i.e., the number of 
   calls made to \id{psetup} with \id{jok = FALSE}.
 }
@@ -3826,7 +3826,7 @@ return value from a {\cvspgmr} function.
   flag = CVSpgmrGetNumPrecSolves(cvode\_mem, \&npsolves);
 }
 {
-  The function \ID{CVSpgmrGetNumPrecSolves} returns the
+  The function \Id{CVSpgmrGetNumPrecSolves} returns the
   cumulative number of calls made to the preconditioner 
   solve function \id{psolve}.
 }
@@ -3857,7 +3857,7 @@ return value from a {\cvspgmr} function.
   flag = CVSpgmrGetNumJtimesEvals(cvode\_mem, \&njvevals);
 }
 {
-  The function \ID{CVSpgmrGetNumJtimesEvals} returns the
+  The function \Id{CVSpgmrGetNumJtimesEvals} returns the
   cumulative number of calls made to the Jacobian-vector product function
   \id{jtimes}.
 }
@@ -3888,7 +3888,7 @@ return value from a {\cvspgmr} function.
   flag = CVSpgmrGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \ID{CVSpgmrGetNumRhsEvals} returns the
+  The function \Id{CVSpgmrGetNumRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function due to the
   finite difference Jacobian-vector product approximation.
 }
@@ -3922,7 +3922,7 @@ return value from a {\cvspgmr} function.
   flag = CVSpgmrGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \ID{CVSpgmrGetLastFlag} returns the
+  The function \Id{CVSpgmrGetLastFlag} returns the
   last return value from a {\cvspgmr} routine. 
 }
 {
@@ -3984,12 +3984,14 @@ finite-difference Jacobian-vector product approximation, and last
 return value from a {\cvspbcg} function.
 %%
 %%
+\index{CVSPBCG@{\cvspbcg} linear solver!memory requirements} 
+\index{memory requirements!CVSPBCG@{\cvspbcg} linear solver}
 \ucfunction{CVSpbcgGetWorkSpace}
 {
   flag = CVSpbcgGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{CVSpbcgGetWorkSpace} returns the global sizes of the
+  The function \Id{CVSpbcgGetWorkSpace} returns the global sizes of the
   {\cvspbcg} real and integer workspaces.
 }
 {
@@ -4014,8 +4016,6 @@ return value from a {\cvspbcg} function.
   \end{args}
 }
 {
-  \index{CVSPBCG@{\cvspbcg} linear solver!memory requirements} 
-  \index{memory requirements!CVSPBCG@{\cvspbcg} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is roughly $9*N$ \id{realtype} words.
   (In a parallel setting, this value is global --- summed over all processors.)
@@ -4027,7 +4027,7 @@ return value from a {\cvspbcg} function.
   flag = CVSpbcgGetNumLinIters(cvode\_mem, \&nliters);
 }
 {
-  The function \ID{CVSpbcgGetNumLinIters} returns the
+  The function \Id{CVSpbcgGetNumLinIters} returns the
   cumulative number of linear iterations.
 }
 {
@@ -4057,7 +4057,7 @@ return value from a {\cvspbcg} function.
   flag = CVSpbcgGetNumConvFails(cvode\_mem, \&nlcfails);
 }
 {
-  The function \ID{CVSpbcgGetNumConvFails} returns the
+  The function \Id{CVSpbcgGetNumConvFails} returns the
   cumulative number of linear convergence failures.
 }
 {
@@ -4087,7 +4087,7 @@ return value from a {\cvspbcg} function.
   flag = CVSpbcgGetNumPrecEvals(cvode\_mem, \&npevals);
 }
 {
-  The function \ID{CVSpbcgGetNumPrecEvals} returns the
+  The function \Id{CVSpbcgGetNumPrecEvals} returns the
   number of preconditioner evaluations, i.e., the number of 
   calls made to \id{psetup} with \id{jok = FALSE}.
 }
@@ -4118,7 +4118,7 @@ return value from a {\cvspbcg} function.
   flag = CVSpbcgGetNumPrecSolves(cvode\_mem, \&npsolves);
 }
 {
-  The function \ID{CVSpbcgGetNumPrecSolves} returns the
+  The function \Id{CVSpbcgGetNumPrecSolves} returns the
   cumulative number of calls made to the preconditioner 
   solve function, \id{psolve}.
 }
@@ -4149,7 +4149,7 @@ return value from a {\cvspbcg} function.
   flag = CVSpbcgGetNumJtimesEvals(cvode\_mem, \&njvevals);
 }
 {
-  The function \ID{CVSpbcgGetNumJtimesEvals} returns the
+  The function \Id{CVSpbcgGetNumJtimesEvals} returns the
   cumulative number made to the Jacobian-vector function,
   \id{jtimes}.
 }
@@ -4180,7 +4180,7 @@ return value from a {\cvspbcg} function.
   flag = CVSpbcgGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \ID{CVSpbcgGetNumRhsEvals} returns the
+  The function \Id{CVSpbcgGetNumRhsEvals} returns the
   number of calls to the user right-hand side function for
   finite difference Jacobian-vector product approximation.
 }
@@ -4214,7 +4214,7 @@ return value from a {\cvspbcg} function.
   flag = CVSpbcgGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \ID{CVSpbcgGetLastFlag} returns the
+  The function \Id{CVSpbcgGetLastFlag} returns the
   last return value from a {\cvspbcg} routine. 
 }
 {
@@ -4272,12 +4272,14 @@ finite-difference Jacobian-vector product approximation, and last
 return value from a {\cvsptfqmr} function.
 %%
 %%
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!memory requirements} 
+\index{memory requirements!CVSPTFQMR@{\cvsptfqmr} linear solver}
 \ucfunction{CVSptfqmrGetWorkSpace}
 {
   flag = CVSptfqmrGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{CVSptfqmrGetWorkSpace} returns the global sizes of the
+  The function \Id{CVSptfqmrGetWorkSpace} returns the global sizes of the
   {\cvsptfqmr} real and integer workspaces.
 }
 {
@@ -4302,8 +4304,6 @@ return value from a {\cvsptfqmr} function.
   \end{args}
 }
 {
-  \index{CVSPTFQMR@{\cvsptfqmr} linear solver!memory requirements} 
-  \index{memory requirements!CVSPTFQMR@{\cvsptfqmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is roughly  $11*N$ \id{realtype} words.
   (In a parallel setting, this value is global --- summed over all processors.)
@@ -4315,7 +4315,7 @@ return value from a {\cvsptfqmr} function.
   flag = CVSptfqmrGetNumLinIters(cvode\_mem, \&nliters);
 }
 {
-  The function \ID{CVSptfqmrGetNumLinIters} returns the
+  The function \Id{CVSptfqmrGetNumLinIters} returns the
   cumulative number of linear iterations.
 }
 {
@@ -4345,7 +4345,7 @@ return value from a {\cvsptfqmr} function.
   flag = CVSptfqmrGetNumConvFails(cvode\_mem, \&nlcfails);
 }
 {
-  The function \ID{CVSptfqmrGetNumConvFails} returns the
+  The function \Id{CVSptfqmrGetNumConvFails} returns the
   cumulative number of linear convergence failures.
 }
 {
@@ -4375,7 +4375,7 @@ return value from a {\cvsptfqmr} function.
   flag = CVSptfqmrGetNumPrecEvals(cvode\_mem, \&npevals);
 }
 {
-  The function \ID{CVSptfqmrGetNumPrecEvals} returns the
+  The function \Id{CVSptfqmrGetNumPrecEvals} returns the
   number of preconditioner evaluations, i.e., the number of 
   calls made to \id{psetup} with \id{jok = FALSE}.
 }
@@ -4406,7 +4406,7 @@ return value from a {\cvsptfqmr} function.
   flag = CVSptfqmrGetNumPrecSolves(cvode\_mem, \&npsolves);
 }
 {
-  The function \ID{CVSptfqmrGetNumPrecSolves} returns the
+  The function \Id{CVSptfqmrGetNumPrecSolves} returns the
   cumulative number of calls made to the preconditioner 
   solve function, \id{psolve}.
 }
@@ -4437,7 +4437,7 @@ return value from a {\cvsptfqmr} function.
   flag = CVSptfqmrGetNumJtimesEvals(cvode\_mem, \&njvevals);
 }
 {
-  The function \ID{CVSptfqmrGetNumJtimesEvals} returns the
+  The function \Id{CVSptfqmrGetNumJtimesEvals} returns the
   cumulative number made to the Jacobian-vector function,
   \id{jtimes}.
 }
@@ -4468,7 +4468,7 @@ return value from a {\cvsptfqmr} function.
   flag = CVSptfqmrGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \ID{CVSptfqmrGetNumRhsEvals} returns the
+  The function \Id{CVSptfqmrGetNumRhsEvals} returns the
   number of calls to the user right-hand side function for
   finite difference Jacobian-vector product approximation.
 }
@@ -4502,7 +4502,7 @@ return value from a {\cvsptfqmr} function.
   flag = CVSptfqmrGetLastFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \ID{CVSptfqmrGetLastFlag} returns the
+  The function \Id{CVSptfqmrGetLastFlag} returns the
   last return value from a {\cvsptfqmr} routine. 
 }
 {
@@ -4551,7 +4551,7 @@ return value from a {\cvsptfqmr} function.
 %%==============================================================================
 \index{reinitialization}
 
-The function \ID{CVodeReInit} reinitializes the main {\cvodes} solver for
+The function \Id{CVodeReInit} reinitializes the main {\cvodes} solver for
 the solution of a problem, where a prior call to \Id{CVodeMalloc} has
 been made. The new problem must have the same size as the previous one.
 \id{CVodeReInit} performs the same input checking and initializations 
@@ -4590,7 +4590,7 @@ appropriate \id{CV*Set*} calls, as described in \S\ref{sss:lin_solv_init}
   \item[y0] (\id{N\_Vector})
     is the initial value of $y$. 
   \item[itol] (\id{int}) 
-    is one of \Id{CV\_SS}, \Id{CV\_SV}, or \Id{CV\_WF}, where \Id{itol = CV\_SS} indicates scalar
+    is one of \Id{CV\_SS}, \Id{CV\_SV}, or \Id{CV\_WF}, where \id{itol = CV\_SS} indicates scalar
     relative error tolerance and scalar absolute error tolerance, while
     \id{itol = CV\_SV} indicates scalar relative error tolerance and vector
     absolute error tolerance.  The latter choice is important when the absolute
@@ -4643,7 +4643,7 @@ for use in any of the Krylov iterative algorithms.
 \subsection{ODE right-hand side} \label{ss:rhsFn}
 %%==============================================================================
 \index{right-hand side function}
-The user must provide a function of type \ID{CVRhsFn} defined as follows:
+The user must provide a function of type \Id{CVRhsFn} defined as follows:
 \usfunction{CVRhsFn}
 {
   typedef void (*CVRhsFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
@@ -4679,7 +4679,7 @@ Allocation of memory for \id{ydot} is handled within {\cvodes}.
 %%==============================================================================
 \index{tolerances}
 As an alternative to providing the relative and absolute tolerances, the user may
-provide a function of type \ID{CVEwtFn} to compute a vector \id{ewt} containing the
+provide a function of type \Id{CVEwtFn} to compute a vector \id{ewt} containing the
 weights in the WRMS norm 
 $\|\ v \|_{\mbox{\scriptsize WRMS}} = \sqrt{(1/N)\sum_1^N (W_i \cdot v_i)^2}$.
 The function type \id{CVEwtFn} is defined as follows:
@@ -4722,7 +4722,7 @@ The function type \id{CVEwtFn} is defined as follows:
 
 If the direct linear solver with dense treatment of the Jacobian is used 
 (i.e., \Id{CVDense} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
-the user may provide a function of type \ID{CVDenseJacFn} defined by:
+the user may provide a function of type \Id{CVDenseJacFn} defined by:
 \usfunction{CVDenseJacFn}
 {
   typedef void (*CVDenseJacFn&)(long int N, DenseMat J, realtype t, \\
@@ -4807,7 +4807,7 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by:
 
 If the direct linear solver with banded treatment of the Jacobian is used 
 (i.e. \Id{CVBand} is called in Step \ref{i:lin_solver} of \S\ref{ss:skeleton_sim}), 
-the user may provide a function of type \ID{CVBandJacFn} defined as follows:
+the user may provide a function of type \Id{CVBandJacFn} defined as follows:
 \usfunction{CVBandJacFn}
 {
  typedef void (*CVBandJacFn)&(long int N, long int mupper, \\
@@ -4902,7 +4902,7 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
 If one of the Krylov iterative linear solvers {\spgmr}, {\spbcg}, or {\sptfqmr}
 is selected (\id{CVSp*} is called in step \ref{i:lin_solver} of
 \S\ref{ss:skeleton_sim}), the user may provide a function of type
-\ID{CVSpilsJacTimesVecFn} in the following form:
+\Id{CVSpilsJacTimesVecFn} in the following form:
 \usfunction{CVSpilsJacTimesVecFn}
 {
   typedef int (*CVSpilsJacTimesVecFn)&(N\_Vector v, N\_Vector Jv, \\
@@ -4959,7 +4959,7 @@ is selected (\id{CVSp*} is called in step \ref{i:lin_solver} of
 If preconditioning is used, then the user must provide a {\C} function to
 solve the linear system $Pz = r$, where $P$ may be either a left or
 right preconditioner matrix.
-This function must be of type \ID{CVSpilsPrecSolveFn}, defined as follows:
+This function must be of type \Id{CVSpilsPrecSolveFn}, defined as follows:
 %%
 %%
 \usfunction{CVSpilsPrecSolveFn}
@@ -5024,7 +5024,7 @@ This function must be of type \ID{CVSpilsPrecSolveFn}, defined as follows:
 
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied {\C} function of type \ID{CVSpilsPrecSetupFn}, defined as follows:
+user-supplied {\C} function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
 \usfunction{CVSpilsPrecSetupFn}
 {
   typedef int (*CVSpilsPrecSetupFn&)(realtype t, N\_Vector y, N\_Vector fy,  \\
@@ -5220,7 +5220,7 @@ The form of the call to this function is as follows:
 flag = CVodeQuadMalloc(cvode\_mem, fQ, yQ0);
 }
 {
-  The function \ID{CVodeQuadMalloc} provides required problem specifications,
+  The function \Id{CVodeQuadMalloc} provides required problem specifications,
   allocates internal memory, and initializes quadrature integration.
 }
 {
@@ -5360,7 +5360,8 @@ $y$ in \id{y}. Solution quadratures can be obtained using the following function
 }
 %%
 %%
-The function \ID{CVodeGetQuadDky} computes the \id{k}-th derivatives of the interpolating 
+\index{optional output!interpolated quadratures}
+The function \Id{CVodeGetQuadDky} computes the \id{k}-th derivatives of the interpolating 
 polynomials for the quadrature variables at time \id{t}.
 This function is called by \id{CVodeGetQuad} with \id{k = 0}, but may also be called 
 directly by the user.
@@ -5412,7 +5413,7 @@ directly by the user.
 %%===================================================================================
 
 \subsection{Optional inputs for quadrature integration}\label{ss:quad_optional_input}
-
+\index{optional input!quadrature integration|(}
 {\cvodes} provides the following optional input functions to control the integration
 of quadrature equations.
 %%
@@ -5422,7 +5423,7 @@ of quadrature equations.
   flag = CVodeSetQuadFdata(cvode\_mem, fQ\_data);
 }
 {
-  The function \ID{CVodeSetQuadFdata} specifies the user-defined data block \Id{fQ\_data}
+  The function \Id{CVodeSetQuadFdata} specifies the user-defined data block \Id{fQ\_data}
   and attaches it to the main {\cvodes} memory block.
 }
 {
@@ -5455,7 +5456,7 @@ of quadrature equations.
  flag = CVodeSetQuadErrCon(cvode\_mem, errconQ, itolQ, reltolQ, abstolQ);
 }
 {
-  The function \ID{CVodeSetQuadErrCon} specifies whether or not the
+  The function \Id{CVodeSetQuadErrCon} specifies whether or not the
   quadrature variables should be used in the step size control
   mechanism, and if so, specifies the integration tolerances for the
   quadrature variables.  
@@ -5469,7 +5470,7 @@ of quadrature equations.
     (\id{FALSE}) in the error control mechanism. If \id{errconQ}$=$\id{FALSE},
     the following three arguments are ignored.
   \item[itolQ] (\id{int}) 
-    is either \Id{CV\_SS} or \Id{CV\_SV}, where \Id{itolQ = CV\_SS} indicates 
+    is either \Id{CV\_SS} or \Id{CV\_SV}, where \Id{itolQ} \id{= CV\_SS} indicates 
     scalar relative error tolerance and scalar absolute error tolerance, 
     while \id{itolQ = CV\_SV} indicates scalar relative error tolerance and 
     vector absolute error tolerance. 
@@ -5502,12 +5503,14 @@ of quadrature equations.
   {\warn}It is illegal to call \id{CVodeSetQuadErrCon} before a call 
   to \id{CVodeQuadMalloc}.
 }
+\index{optional input!quadrature integration|)}
 %%
 %%
 
 %%===================================================================================
 
 \subsection{Optional outputs for quadrature integration}\label{ss:quad_optional_output}
+\index{optional output!quadrature integration|(}
 
 {\cvodes} provides the following functions that can be used to obtain solver
 performance information related to quadrature integration.
@@ -5517,7 +5520,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadNumRhsEvals(cvode\_mem, \&nfQevals);
 }
 {
-  The function \ID{CVodeGetQuadNumRhsEvals} returns the 
+  The function \Id{CVodeGetQuadNumRhsEvals} returns the 
   number of calls made to the user's quadrature right-hand side function.
 }
 {
@@ -5547,7 +5550,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadNumErrTestFails(cvode\_mem, \&nQetfails);
 }
 {
-  The function \ID{CVodeGetQuadNumErrTestFails} returns the
+  The function \Id{CVodeGetQuadNumErrTestFails} returns the
   number of local error test failures due to quadrature variables.
 }
 {
@@ -5577,7 +5580,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadErrWeights(cvode\_mem, eQweight);
 }
 {
-  The function \ID{CVodeGetQuadErrWeights} returns the quadrature error weights 
+  The function \Id{CVodeGetQuadErrWeights} returns the quadrature error weights 
   at the current time.
 }
 {
@@ -5613,7 +5616,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadStats(cvode\_mem, \&nfQevals, \&nQetfails);
 }
 {
-  The function \ID{CVodeGetQuadStats} returns the {\cvodes} integrator statistics
+  The function \Id{CVodeGetQuadStats} returns the {\cvodes} integrator statistics
   as a group.
 }
 {
@@ -5638,6 +5641,7 @@ performance information related to quadrature integration.
   \end{args}
 }
 {}
+\index{optional output!quadrature integration|)}
 %%
 %%
 
@@ -5649,7 +5653,7 @@ performance information related to quadrature integration.
 \index{right-hand side function!quadrature equations}
 For integration of quadrature equations, the user must provide a function 
 that defines the right-hand side of the quadrature equations. This function
-must be of type \ID{CVQuadRhsFn} defined as follows:
+must be of type \Id{CVQuadRhsFn} defined as follows:
 \usfunction{CVQuadRhsFn}
 {
   typedef void (*CVQuadRhsFn&)(realtype t, N\_Vector y, \\
@@ -5707,7 +5711,7 @@ required user-supplied function.
   flag = CVodeRootInit(cvode\_mem, nrtfn, g, g\_data);
 }
 {
-  The function \ID{CVodeRootInit} specifies that the roots of a set of
+  The function \Id{CVodeRootInit} specifies that the roots of a set of
   functions $g_i(t,y)$ are to be found while the IVP is being solved.
 }
 {
@@ -5751,7 +5755,7 @@ There are two optional output functions associated with rootfinding.
   flag = CVodeGetRootInfo(cvode\_mem, rootsfound);
 }
 {
-  The function \ID{CVodeGetRootInfo} returns an array showing which 
+  The function \Id{CVodeGetRootInfo} returns an array showing which 
   functions were found to have a root.
 }
 {
@@ -5784,7 +5788,7 @@ There are two optional output functions associated with rootfinding.
   flag = CVodeGetNumGEvals(cvode\_mem, \&ngevals);
 }
 {
-  The function \ID{CVodeGetNumGEvals} returns the cumulative
+  The function \Id{CVodeGetNumGEvals} returns the cumulative
   number of calls made to the user-supplied root function $g$.
 }
 {
@@ -5811,7 +5815,7 @@ There are two optional output functions associated with rootfinding.
 %%==============================================================================
 
 If a rootfinding problem is to be solved during the integration of the ODE system,
-the user must supply a {\C} function of type \ID{CVRootFn}, defined as follows:
+the user must supply a {\C} function of type \Id{CVRootFn}, defined as follows:
 %%
 \usfunction{CVRootFn}
 {
@@ -5922,7 +5926,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed out.
 
   \id{flag = CVBPSptfqmr(cvode\_mem, pretype, maxl, bp\_data);}
 
-  Each function \Id{CVBPSp*} is a wrapper around the corresponding
+  Each function \id{CVBPSp*} is a wrapper around the corresponding
   specification function \id{CVSp*} and performs the following actions:
   \begin{itemize}
     \item Attaches the {\cvsp} linear solver to the main {\cvodes} solver memory;
@@ -5971,7 +5975,7 @@ in more detail below.
   bp\_data = CVBandPrecAlloc(cvode\_mem, N, mu, ml);
 }
 {
-  The function \ID{CVBandPrecAlloc} initializes and allocates
+  The function \Id{CVBandPrecAlloc} initializes and allocates
   memory for the {\cvbandpre} preconditioner.
 }
 {
@@ -6002,7 +6006,7 @@ in more detail below.
   flag = CVBPSpgmr(cvode\_mem, pretype, maxl, bp\_data);
 }
 {
-  The function \ID{CVBPSpgmr} links the {\cvbandpre} data to the
+  The function \Id{CVBPSpgmr} links the {\cvbandpre} data to the
   {\cvspgmr} linear solver and attaches the latter to the {\cvodes}
   memory block.
 }
@@ -6045,7 +6049,7 @@ in more detail below.
   flag = CVBPSpbcg(cvode\_mem, pretype, maxl, bp\_data);
 }
 {
-  The function \ID{CVBPSpbcg} links the {\cvbandpre} data to the
+  The function \Id{CVBPSpbcg} links the {\cvbandpre} data to the
   {\cvspbcg} linear solver and attaches the latter to the {\cvodes}
   memory block.
 }
@@ -6087,7 +6091,7 @@ in more detail below.
   flag = CVBPSptfqmr(cvode\_mem, pretype, maxl, bp\_data);
 }
 {
-  The function \ID{CVBPSptfqmr} links the {\cvbandpre} data to the
+  The function \Id{CVBPSptfqmr} links the {\cvbandpre} data to the
   {\cvsptfqmr} linear solver and attaches the latter to the {\cvodes}
   memory block.
 }
@@ -6128,7 +6132,7 @@ in more detail below.
   CVBandPrecFree(\&bp\_data);
 }
 {
-  The function \ID{CVBandPrecFree} frees the pointer allocated by
+  The function \Id{CVBandPrecFree} frees the pointer allocated by
   \id{CVBandPrecAlloc}.
 }
 {
@@ -6154,7 +6158,7 @@ the {\cvbandpre} module:
   flag = CVBandPrecGetWorkSpace(bp\_data, \&lenrwBP, \&leniwBP);
 }
 {
-  The function \ID{CVBandPrecGetWorkSpace} returns the sizes of
+  The function \Id{CVBandPrecGetWorkSpace} returns the sizes of
   the {\cvbandpre} real and integer workspaces.
 }
 {
@@ -6193,7 +6197,7 @@ the {\cvbandpre} module:
   flag = CVBandPrecGetNumRhsEvals(bp\_data, \&nfevalsBP);
 }
 {
-  The function \ID{CVBandPrecGetNumRhsEvals} returns the
+  The function \Id{CVBandPrecGetNumRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function for
   finite difference banded Jacobian approximation used within
   the preconditioner setup function.
@@ -6457,7 +6461,7 @@ unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are gra
 
   \id{flag = CVBBDSptfqmr(cvode\_mem, pretype, maxl, bbd\_data);}
 
-  The function \Id{CVBPSp*} is a wrapper around the corresponding specification
+  The function \id{CVBPSp*} is a wrapper around the corresponding specification
   function \id{CVSp*} and performs the following actions:
   \begin{itemize}
     \item Attaches the {\cvsp} linear solver to the main {\cvodes} solver memory;
@@ -6512,7 +6516,7 @@ next.
    \end{tabular}
 }
 {
-  The function \ID{CVBBDPrecAlloc} initializes and allocates
+  The function \Id{CVBBDPrecAlloc} initializes and allocates
   memory for the {\cvbbdpre} preconditioner.
 }
 {
@@ -6569,7 +6573,7 @@ next.
   flag = CVBBDSpgmr(cvode\_mem, pretype, maxl, bbd\_data);
 }
 {
-  The function \ID{CVBBDSpgmr} links the {\cvbbdpre} data to the
+  The function \Id{CVBBDSpgmr} links the {\cvbbdpre} data to the
   {\cvspgmr} linear solver and attaches the latter to the {\cvodes}
   memory block.
 }
@@ -6611,7 +6615,7 @@ next.
   flag = CVBBDSpbcg(cvode\_mem, pretype, maxl, bbd\_data);
 }
 {
-  The function \ID{CVBBDSpbcg} links the {\cvbbdpre} data to the
+  The function \Id{CVBBDSpbcg} links the {\cvbbdpre} data to the
   {\cvspbcg} linear solver and attaches the latter to the {\cvodes}
   memory block.
 }
@@ -6653,7 +6657,7 @@ next.
   flag = CVBBDSptfqmr(cvode\_mem, pretype, maxl, bbd\_data);
 }
 {
-  The function \ID{CVBBDSptfqmr} links the {\cvbbdpre} data to the
+  The function \Id{CVBBDSptfqmr} links the {\cvbbdpre} data to the
   {\cvsptfqmr} linear solver and attaches the latter to the {\cvodes}
   memory block.
 }
@@ -6694,7 +6698,7 @@ next.
   CVBBDPrecFree(\&bbd\_data);
 }
 {
-  The function \ID{CVBBDPrecFree} frees the memory allocated by
+  The function \Id{CVBBDPrecFree} frees the memory allocated by
   \id{CVBBDPrecAlloc}.
 }
 {
@@ -6723,7 +6727,7 @@ the corresponding \id{CVSp***Set***} functions, must also be made.
   flag = CVBBDPrecReInit(bbd\_data, mudq, mldq, dqrely, gloc, cfn);
 }
 {
-  The function \ID{CVBBDPrecReInit} re-initializes the {\cvbbdpre} preconditioner.
+  The function \Id{CVBBDPrecReInit} re-initializes the {\cvbbdpre} preconditioner.
 }
 {
   \begin{args}[bbd\_data]
@@ -6771,7 +6775,7 @@ the {\cvbbdpre} module:
   flag = CVBBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
 }
 {
-  The function \ID{CVBBDPrecGetWorkSpace} returns the local
+  The function \Id{CVBBDPrecGetWorkSpace} returns the local
   {\cvbbdpre} real and integer workspace sizes.
 }
 {
@@ -6812,7 +6816,7 @@ the {\cvbbdpre} module:
   flag = CVBBDPrecGetNumGfnEvals(bbd\_data, \&ngevalsBBDP);
 }
 {
-  The function \ID{CVBBDPrecGetNumGfnEvals} returns the
+  The function \Id{CVBBDPrecGetNumGfnEvals} returns the
   number of calls made to the user-supplied \id{gloc} function due to the 
   finite difference approximation of the Jacobian blocks used within
   the preconditioner setup function.

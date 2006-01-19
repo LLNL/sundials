@@ -473,6 +473,7 @@ $y$ in \id{y}. Solution sensitivities can be obtained through one of the followi
 }
 %%
 %%
+\index{optional output!interpolated sensitivities}
 The function \ID{CVodeGetSensDky} computes the \id{k}-th derivatives of the interpolating 
 polynomials for the sensitivity variables at time \id{t}.
 This function is called by \id{CVodeGetSens} with \id{k} $= 0$, but may also be called 
@@ -621,7 +622,7 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
 %--------------------------
 \subsection{Optional inputs for forward sensitivity analysis}
 \label{ss:sens_optional_input}
-
+\index{optional input!forward sensitivity|(}
 Optional input variables that control the computation of sensitivities
 can be changed from their default values through calls to \id{CVodeSetSens*}
 functions. Table~\ref{t:optional_input_fwd} lists all forward sensitivity 
@@ -956,13 +957,14 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 {
   The default value is $3$.
 }
+\index{optional input!forward sensitivity|)}
 %%
 %%
 %%--------------------------
 
 \subsection{Optional outputs for forward sensitivity analysis}
 \label{ss:sens_optional_output}
-
+\index{optional output!forward sensitivity|(}
 Optional output functions that return statistics and solver performance information
 related to forward sensitivity computations are listed in Table~\ref{t:optional_output_fwd}
 and described in detail in the remainder of this section.
@@ -1139,7 +1141,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \end{tabular}
 }
 {
-  The function \ID{CVodeGet} returns all of the above sensitivity-related solver
+  The function \ID{CVodeGetSensStats} returns all of the above sensitivity-related solver
   statistics as a group.
 }
 {
@@ -1379,6 +1381,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 {
   {\warn}The user must allocate space for \id{nSTGR1ncfails}.
 }
+\index{optional output!forward sensitivity|)}
 %%
 %%
 %-------------------------------------------------------------------
@@ -1504,7 +1507,8 @@ The type \id{CVSensRhs1Fn} is defined by
 {
   Allocation of memory for \id{ySdot} is handled within {\cvodes}.
 }
-
+\index{right-hand side function!forward sensitivity|)}
+\index{forward sensitivity analysis!right-hand side evaluation|)}
 %%
 %%-------------------------------------------------------------------
 \section{Note on using partial error control}\label{ss:partial}

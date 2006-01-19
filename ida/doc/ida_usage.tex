@@ -3484,6 +3484,8 @@ calls to the residual routine for finite-difference Jacobian approximation,
 and last return value from a {\idadense} function.
 %%
 %%
+\index{IDADENSE@{\idadense} linear solver!memory requirements} 
+\index{memory requirements!IDADENSE@{\idadense} linear solver}
 \ucfunction{IDADenseGetWorkSpace}
 {
   flag = IDADenseGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
@@ -3514,8 +3516,6 @@ and last return value from a {\idadense} function.
   \end{args}
 }
 {
-  \index{IDADENSE@{\idadense} linear solver!memory requirements} 
-  \index{memory requirements!IDADENSE@{\idadense} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace
   is $2N^2$ \id{realtype} words.
   The actual size of the integer workspace is $N$ integer words.
@@ -3633,6 +3633,8 @@ calls to the residual routine for finite-difference Jacobian approximation,
 and last return value from a {\idaband} function.
 %%
 %%
+\index{IDABAND@{\idaband} linear solver!memory requirements} 
+\index{memory requirements!IDABAND@{\idaband} linear solver}
 \ucfunction{IDABandGetWorkSpace}
 {
   flag = IDABandGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
@@ -3663,8 +3665,6 @@ and last return value from a {\idaband} function.
   \end{args}
 }
 {
-  \index{IDABAND@{\idaband} linear solver!memory requirements} 
-  \index{memory requirements!IDABAND@{\idaband} linear solver}
   In terms of the problem size $N$ and Jacobian half-bandwidths, 
   the actual size of the real workspace is
   $N\,(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)$ \id{realtype} words.
@@ -3781,10 +3781,12 @@ The following optional outputs are available from the {\idaspgmr} module:
 workspace requirements, number of linear iterations,
 number of linear convergence failures, number of calls to the preconditioner
 setup and solve routines, number of calls to the Jacobian-vector product routine,
- number of calls to the residual routine for finite-difference  Jacobian-vector
- product approximation, and last return value from an {\idaspgmr} function.
+number of calls to the residual routine for finite-difference  Jacobian-vector
+product approximation, and last return value from an {\idaspgmr} function.
 %%
 %%
+\index{IDASPGMR@{\idaspgmr} linear solver!memory requirements} 
+\index{memory requirements!IDASPGMR@{\idaspgmr} linear solver}
 \ucfunction{IDASpgmrGetWorkSpace}
 {
   flag = IDASpgmrGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
@@ -3815,8 +3817,6 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \end{args}
 }
 {
-  \index{IDASPGMR@{\idaspgmr} linear solver!memory requirements} 
-  \index{memory requirements!IDASPGMR@{\idaspgmr} linear solver}
   In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
   the actual size of the real workspace is roughly
   $N*($ \id{maxl} $+ 5) +$ \id{maxl} $*($ \id{maxl} $ + 4) + 1$
@@ -4075,10 +4075,12 @@ The following optional outputs are available from the {\idaspbcg} module:
 workspace requirements, number of linear iterations,
 number of linear convergence failures, number of calls to the preconditioner
 setup and solve routines, number of calls to the Jacobian-vector product routine,
- number of calls to the residual routine for finite-difference  Jacobian-vector
- product approximation, and last return value from an {\idaspbcg} function.
+number of calls to the residual routine for finite-difference  Jacobian-vector
+product approximation, and last return value from an {\idaspbcg} function.
 %%
 %%
+\index{IDASPBCG@{\idaspbcg} linear solver!memory requirements} 
+\index{memory requirements!IDASPBCG@{\idaspbcg} linear solver}
 \ucfunction{IDASpbcgGetWorkSpace}
 {
   flag = IDASpbcgGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
@@ -4109,8 +4111,6 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \end{args}
 }
 {
-  \index{IDASPBCG@{\idaspbcg} linear solver!memory requirements} 
-  \index{memory requirements!IDASPBCG@{\idaspbcg} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace is
   roughly $10*N$ \id{realtype} words.  (In a parallel setting, this value
   is global --- summed over all processors.)
@@ -4362,10 +4362,12 @@ The following optional outputs are available from the {\idasptfqmr} module:
 workspace requirements, number of linear iterations,
 number of linear convergence failures, number of calls to the preconditioner
 setup and solve routines, number of calls to the Jacobian-vector product routine,
- number of calls to the residual routine for finite-difference  Jacobian-vector
- product approximation, and last return value from an {\idasptfqmr} function.
+number of calls to the residual routine for finite-difference  Jacobian-vector
+product approximation, and last return value from an {\idasptfqmr} function.
 %%
 %%
+\index{IDASPTFQMR@{\idasptfqmr} linear solver!memory requirements} 
+\index{memory requirements!IDASPTFQMR@{\idasptfqmr} linear solver}
 \ucfunction{IDASptfqmrGetWorkSpace}
 {
   flag = IDASptfqmrGetWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
@@ -4396,8 +4398,6 @@ setup and solve routines, number of calls to the Jacobian-vector product routine
   \end{args}
 }
 {
-  \index{IDASPTFQMR@{\idasptfqmr} linear solver!memory requirements} 
-  \index{memory requirements!IDASPTFQMR@{\idasptfqmr} linear solver}
   In terms of the problem size $N$, the actual size of the real workspace is
   roughly $13*N$ \id{realtype} words.  (In a parallel setting, this value
   is global --- summed over all processors.)
@@ -5952,6 +5952,7 @@ used in the difference-quotient Jacobian approximations, the relative increment
 The following two optional output functions are available for use with
 the {\idabbdpre} module:
 %%
+\index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
 \ucfunction{IDABBDPrecGetWorkSpace}
 {
   flag = IDABBDPrecGetWorkSpace(bbd\_data, \&lenrwBBDP, \&leniwBBDP);
@@ -5980,7 +5981,6 @@ the {\idabbdpre} module:
   \end{args}
 }
 {
-  \index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
   In terms of the local vector dimension $N_l$, and
   \id{smu} = $\min ( N_l - 1 ,$ \id{mukeep} $+$ \id{mlkeep}$)$,
   the actual size of the real workspace is
