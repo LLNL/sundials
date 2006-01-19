@@ -173,7 +173,7 @@ user-callable routines:
   loop than it is to use \id{NV\_Ith\_S(v,i)} within the loop.        
 
 \item
-  {\warn} \id{N\_VNewEmpty\_Serial}, \id{N\_VMake\_Serial}, 
+  {\warn}\id{N\_VNewEmpty\_Serial}, \id{N\_VMake\_Serial}, 
   and \id{N\_VCloneVectorArrayEmpty\_Serial} set the field 
   {\em own\_data} $=$ \id{FALSE}. 
   \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
@@ -182,7 +182,7 @@ user-callable routines:
   deallocate the {\em data} pointer.
                                      
 \item
-  {\warn} To maximize efficiency, vector operations in the {\nvecs} implementation
+  {\warn}To maximize efficiency, vector operations in the {\nvecs} implementation
   that have more than one \id{N\_Vector} argument do not check for
   consistent internal representation of these vectors. It is the user's 
   responsibility to ensure that such routines are called with \id{N\_Vector}

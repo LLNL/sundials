@@ -28,44 +28,43 @@ description of their meaning.
 
 \section{KINSOL input constants}
 
-\noindent {\bf {\kinsol} main solver module}
-
-\vspace{0.1in}
-\noindent
 \begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+
+\hline
+\multicolumn{3}{c}{\bf {\kinsol} main solver module}\\
+\hline\\
+
 \id{KIN\_ETACHOICE1}      & 1 & Use Eisenstat and Walker Choice 1 for $\eta$. \\
 \id{KIN\_ETACHOICE2}      & 2 & Use Eisenstat and Walker Choice 2 for $\eta$. \\
 \id{KIN\_ETACONSTANT}     & 3 & Use constant value for $\eta$. \\
 \id{KIN\_NONE}            & 0 & Use inexact Newton globalization. \\
 \id{KIN\_LINESEARCH}      & 1 & Use line search globalization.
-\end{supertabular*}
-\vspace{0.1in}
 
-\noindent {\bf Iterative linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf Iterative linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{PREC\_NONE}    & 0 & No preconditioning \\
 \id{PREC\_RIGHT}   & 2 & Preconditioning on the right. \\
 \id{MODIFIED\_GS}  & 1 & Use modified Gram-Schmidt procedure. \\
 \id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
+
 \end{supertabular*}
-\vspace{0.1in}
 
 %%-------------------------------------------------------------------------
 
 \section{KINSOL output constants}
 
-\noindent {\bf {\kinsol} main solver module}
-
-\vspace{0.1in}
-\noindent
 \begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+
+\hline
+\multicolumn{3}{c}{\bf {\kinsol} main solver module}\\
+\hline\\
+
 \id{KIN\_SUCCESS}               &  0  & Successful function return. \\
 \id{KIN\_INITIAL\_GUESS\_OK}    &  1  & The initial user-supplied guess already satisfies the stopping criterion. \\
 \id{KIN\_STEP\_LT\_STPTOL}      &  2  & The stopping tolerance on scaled step length was satisfied. \\
-\id{KIN\_MEM\_NULL}             & -1  & The \id{cvode\_mem} argument was \id{NULL}. \\
+\id{KIN\_MEM\_NULL}             & -1  & The \id{kin\_mem} argument was \id{NULL}. \\
 \id{KIN\_ILL\_INPUT}            & -2  & One of the function inputs is illegal. \\
 \id{KIN\_NO\_MALLOC}            & -3  & The {\kinsol} memory was not allocated by a call to \id{KINMalloc}. \\
 \id{KIN\_MEM\_FAIL}             & -4  & A memory allocation failed. \\
@@ -77,28 +76,42 @@ description of their meaning.
 \id{KIN\_LINIT\_FAIL}           & -10 & The linear solver's initialization function failed.  \\
 \id{KIN\_LSETUP\_FAIL}          & -11 & The linear solver's setup function failed in an unrecoverable manner. \\
 \id{KIN\_LSOLVE\_FAIL}          & -12 & The linear solver's solve function failed in an unrecoverable manner. \\
-\id{KIN\_PDATA\_NULL}           & -13 & The preconditioner module has not been initialized. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\kinspgmr} linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\kindense} linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{KINDENSE\_SUCCESS}    &  0 & Successful function return. \\
+\id{KINDENSE\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
+\id{KINDENSE\_LMEM\_NULL} & -2 & The {\kindense} linear solver has not been initialized.\\
+\id{KINDENSE\_ILL\_INPUT} & -3 & The {\kindense} solver is not compatible with the current {\nvector} module.\\
+\id{KINDENSE\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\kinband} linear solver module}\\
+\hline\\
+
+\id{KINBAND\_SUCCESS}    &  0 & Successful function return. \\
+\id{KINBAND\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
+\id{KINBAND\_LMEM\_NULL} & -2 & The {\kinband} linear solver has not been initialized.\\
+\id{KINBAND\_ILL\_INPUT} & -3 & The {\kinband} solver is not compatible with the
+                        current {\nvector} module, or an input value was illegal.\\
+\id{KINBAND\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\kinspgmr} linear solver module}\\
+\hline\\
+
 \id{KINSPGMR\_SUCCESS}    &  0 & Successful function return. \\
 \id{KINSPGMR\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
 \id{KINSPGMR\_LMEM\_NULL} & -2 & The {\kinspgmr} linear solver has not been initialized.\\
 \id{KINSPGMR\_ILL\_INPUT} & -3 & The {\kinspgmr} solver is not compatible with the current {\nvector} module.\\
 \id{KINSPGMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\spgmr} generic linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{SPGMR\_SUCCESS}            &  0 & Converged. \\
 \id{SPGMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPGMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -109,27 +122,21 @@ description of their meaning.
 \id{SPGMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPGMR\_GS\_FAIL}           & -4 & Failure in the Gram-Schmidt procedure. \\
 \id{SPGMR\_QRSOL\_FAIL}        & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\kinspbcg} linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\kinspbcg} linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{KINSPBCG\_SUCCESS}    &  0 & Successful function return. \\
 \id{KINSPBCG\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
 \id{KINSPBCG\_LMEM\_NULL} & -2 & The {\kinspbcg} linear solver has not been initialized.\\
 \id{KINSPBCG\_ILL\_INPUT} & -3 & The {\kinspbcg} solver is not compatible with the current {\nvector} module.\\
 \id{KINSPBCG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\spbcg} generic linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\spbcg} generic linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{SPBCG\_SUCCESS}            &  0 & Converged. \\
 \id{SPBCG\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPBCG\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -137,27 +144,21 @@ description of their meaning.
 \id{SPBCG\_MEM\_NULL}          & -1 & The {\spbcg} memory is \id{NULL}\\
 \id{SPBCG\_ATIMES\_FAIL}       & -2 & The Jacobian tims vector function failed. \\
 \id{SPBCG\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\kinsptfqmr} linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\kinsptfqmr} linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{KINSPTFQMR\_SUCCESS}    &  0 & Successful function return. \\
 \id{KINSPTFQMR\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
 \id{KINSPTFQMR\_LMEM\_NULL} & -2 & The {\kinsptfqmr} linear solver has not been initialized.\\
 \id{KINSPTFQMR\_ILL\_INPUT} & -3 & The {\kinsptfqmr} solver is not compatible with the current {\nvector} module.\\
 \id{KINSPTFQMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\sptfqmr} generic linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\sptfqmr} generic linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{SPTFQMR\_SUCCESS}            &  0 & Converged. \\
 \id{SPTFQMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPTFQMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -165,5 +166,13 @@ description of their meaning.
 \id{SPTFQMR\_MEM\_NULL}          & -1 & The {\sptfqmr} memory is \id{NULL}\\
 \id{SPTFQMR\_ATIMES\_FAIL}       & -2 & The Jacobian tims vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
+
+\\\hline
+\multicolumn{3}{c}{\bf {\kinbbdpre} preconditioner module}\\
+\hline\\
+
+\id{KINBBDPRE\_SUCCESS}         &  0 & Successful function return. \\
+\id{KINBBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
+
+
 \end{supertabular*} 
-\vspace{0.1in}

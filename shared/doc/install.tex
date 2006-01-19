@@ -158,7 +158,7 @@ options.
 
   Default: \id{ARG=double}
 
-  {\warn} Users should {\em not} build {\sundials} with support for
+  {\warn}Users should {\em not} build {\sundials} with support for
   single-precision floating-point arithmetic on 32- or 64-bit systems.
   This will almost certainly result in unreliable numerical solutions.
   The configuration option \id{--with-precision=single} is intended for
@@ -434,7 +434,7 @@ could be used in building a preconditioner).
 \cline{2-4}
           & Header files & sundials/sundials\_types.h        & sundials/sundials\_math.h   \\
           &              & sundials/sundials\_config.h       & sundias/sundials\_nvector.h\\
-          &              & sundials/sunials\_dense.h         & sundials/sundials\_smalldense.h   \\
+          &              & sundials/sunials\_smalldense.h    & sundials/sundials\_dense.h   \\
           &              & sundials/sundials\_iterative.h    & sundials/sundials\_band.h\\
           &              & sundials/sundials\_spbcgs.h       & sundials/sundials\_sptfqmr.h\\
           &              & sundials/sundials\_spgmr.h        &                        \\ 
@@ -487,7 +487,7 @@ could be used in building a preconditioner).
 
 %%===============================================================================
 
-\section{Building SUNDIALS without the configure script}
+\section{Building SUNDIALS without the configure script}\label{ss:no_config}
 
 If the \id{configure} script cannot be used ({\em e.g.}, when building {\sundials}
 under Microsoft Windows without using Cygwin), or if the user prefers to own the build
@@ -514,9 +514,51 @@ The following files are required to compile a {\sundials} solver module:
 \item configuration header file \id{sundials\_config.h} (see below)
 \end{itemize}
 
-The following configuration header file (appropriately modified) can be used
-as \id{sundials\_config.h} which is otherwise created automatically by the
-\id{configure} script.
+A sample header file that, appropriately modified, can be used
+as \id{sundials\_config.h} (otherwise created automatically by the \id{configure} script)
+is provided below.
+The various macro names defined in \id{sundials\_config.h} have the following uses:
+\begin{itemize}
+
+\item precision of the {\sundials} \id{realtype} type\\
+  Only one of the macro names \id{SUNDIALS\_DOUBLE\_PRECISION}, \id{SUNDIALS\_SINGLE\_PRECISION},
+  and \id{SUNDIALS\_EXTENDED\_PRECISION} should be defined indicating double, single, and
+  extended precision, respectively.
+
+\item use of generic math functions\\
+  If the macro name \id{SUNDIALS\_USE\_GENERIC\_MATH} is defined, the functions
+  in \id{sundials\_math.(h,c)} will use the standard \id{pow}, \id{sqrt}, and \id{fabs}
+  functions from \id{math.h}, no matter what the precision of \id{realtype} is.
+  Otherwise, if \id{realtype} is defined to be \id{float}, these functions
+  will use the functions \id{powf}, \id{sqrtf}, and \id{fabsf} which are not ANSI-C standard
+  (but are C99 requirements). If \id{realtype} is defined to be \id{long double}, these functions
+  will use the functions \id{powl}, \id{sqrtl}, and \id{fabsl} which are not ANSI-C standard
+  (but are C99 requirements).
+
+\item {\F} name-mangling scheme\\
+  These macro names are used to decide how {\F} routine names in the
+  source code are mapped to names in the object library (relevant only when
+  using the {\F}-{\C} interface modules). This can be acheived either by defining the
+  {\em function-like} macros
+  \begin{itemize}
+  \item \id{F77\_FUNC(name,NAME)}
+  \item \id{F77\_FUNC\_(name,NAME)}
+  \end{itemize}
+  or by specifying the case of function names and the number of underscores appended to 
+  function names by defining the appropriate {\em object-like} macros from the following lists:
+  \begin{itemize}
+  \item one of \id{SUNDIALS\_CASE\_LOWER} or \id{SUNDIALS\_CASE\_UPPER}
+  \item one of \id{SUNDIALS\_UNDERSCORE\_NONE}, \id{SUNDIALS\_UNDERSCORE\_ONE}, or\\
+    \id{SUNDIALS\_UNDERSCORE\_TWO}
+  \end{itemize}
+  
+\item use of an {\mpi} communicator other than \id{MPI\_WORLD\_COMM} in {\F}\\
+  If the macro name \id{SUNDIALS\_MPI\_COMM\_F2C} is defined then the {\mpi} implementation
+  used defines the type \id{MPI\_Fint} and the function \id{MPI\_Comm\_f2c} and using
+  {\mpi} communicators other than \id{MPI\_WORLD\_COMM} is possible with the
+  {\sundials} {\F}-{\C} interface modules.
+\end{itemize}
+
 
 \begin{verbatim}
 /*

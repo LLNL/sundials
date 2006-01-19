@@ -28,11 +28,11 @@ description of their meaning.
 
 \section{IDA input constants}
 
-\noindent {\bf {\ida} main solver module}
-
-\vspace{0.1in}
-\noindent
 \begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+
+\hline
+\multicolumn{3}{c}{\bf {\ida} main solver module}\\
+\hline\\
 \id{IDA\_SS}               & 1 & Scalar relative tolerance, scalar absolute tolerance. \\
 \id{IDA\_SV}               & 2 & Scalar relative tolerance, vector absolute tolerance. \\
 \id{IDA\_NORMAL}           & 1 & Solver returns at specified output time. \\
@@ -40,32 +40,26 @@ description of their meaning.
 \id{IDA\_NORMAL\_TSTOP}    & 3 & Solver returns at specified output time, but does not proceed past the specified stopping time. \\
 \id{IDA\_ONE\_STEP\_TSTOP} & 4 & Solver returns after each successful step, but does not proceed past the specified stopping time. \\
 \id{IDA\_YA\_YDP\_INIT}    & 1 & Compute $y_a$ and $y^\prime_d$, given $y_d$.\\
-\id{IDA\_Y\_INIT}          & 2 & Compute $y$, given $y^\prime$.
-\end{supertabular*}
-\vspace{0.1in}
-
-
-\noindent {\bf Iterative linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\id{IDA\_Y\_INIT}          & 2 & Compute $y$, given $y^\prime$.\\
+\\\hline
+\multicolumn{3}{c}{\bf Iterative linear solver module}\\
+\hline\\
 \id{PREC\_NONE} & 0 & No preconditioning \\
 \id{PREC\_LEFT} & 1 & Preconditioning on the left. \\
 \id{MODIFIED\_GS}  & 1 & Use modified Gram-Schmidt procedure. \\
 \id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
+
 \end{supertabular*}
-\vspace{0.1in}
 
 %%-------------------------------------------------------------------------
 
 \section{IDA output constants}
 
-\noindent {\bf {\ida} main solver module}
-
-\vspace{0.1in}
-\noindent
 \begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+
+\hline
+\multicolumn{3}{c}{\bf {\ida} main solver module}\\
+\hline\\
 \id{IDA\_SUCCESS}         &  0  & Successful function return. \\
 \id{IDA\_TSTOP\_RETURN}   &  1  & \id{IDASolve} succeeded by reaching the specified stopping point. \\
 \id{IDA\_ROOT\_RETURN}    &  2  & \id{IDASolve} succeeded and found one or more roots. \\
@@ -89,56 +83,33 @@ description of their meaning.
 \id{IDA\_LINESEARCH\_FAIL}& -18 & The line search failed. \\
 \id{IDA\_NO\_RECOVERY}    & -19 & The residual function, linear solver setup function, or linear solver solve function had a recoverable failure, but \id{IDACalcIC} could not recover. \\
 \id{IDA\_RTFUNC\_NULL}    & -21 & The user-supplied root function is \id{NULL}.\\
-
-\end{supertabular*} 
-\vspace{0.1in}
-
-
-\noindent {\bf {\idadense} linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\idadense} linear solver module}\\
+\hline\\
 \id{IDADENSE\_SUCCESS}    &  0 & Successful function return. \\
 \id{IDADENSE\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
 \id{IDADENSE\_LMEM\_NULL} & -2 & The {\idadense} linear solver has not been initialized.\\
 \id{IDADENSE\_ILL\_INPUT} & -3 & The {\idadense} solver is not compatible with the current {\nvector} module.\\
 \id{IDADENSE\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
-
-\noindent {\bf {\idaband} linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\idaband} linear solver module}\\
+\hline\\
 \id{IDABAND\_SUCCESS}    &  0 & Successful function return. \\
 \id{IDABAND\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
 \id{IDABAND\_LMEM\_NULL} & -2 & The {\idaband} linear solver has not been initialized.\\
 \id{IDABAND\_ILL\_INPUT} & -3 & The {\idaband} solver is not compatible with the current {\nvector} module.\\
 \id{IDABAND\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
-
-
-\noindent {\bf {\idaspgmr} linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\idaspgmr} linear solver module}\\
+\hline\\
 \id{IDASPGMR\_SUCCESS}    &  0 & Successful function return. \\
 \id{IDASPGMR\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
 \id{IDASPGMR\_LMEM\_NULL} & -2 & The {\idaspgmr} linear solver has not been initialized.\\
 \id{IDASPGMR\_ILL\_INPUT} & -3 & The {\idaspgmr} solver is not compatible with the current {\nvector} module.\\
 \id{IDASPGMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
-
-\noindent {\bf {\spgmr} generic linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
+\hline\\
 \id{SPGMR\_SUCCESS}            &  0 & Converged. \\
 \id{SPGMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPGMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -149,28 +120,17 @@ description of their meaning.
 \id{SPGMR\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPGMR\_GS\_FAIL}           & -4 & Failure in the Gram-Schmidt procedure. \\
 \id{SPGMR\_QRSOL\_FAIL}        & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
-\end{supertabular*} 
-\vspace{0.1in}
-
-
-\noindent {\bf {\idaspbcg} linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\idaspbcg} linear solver module}\\
+\hline\\
 \id{IDASPBCG\_SUCCESS}    &  0 & Successful function return. \\
 \id{IDASPBCG\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
 \id{IDASPBCG\_LMEM\_NULL} & -2 & The {\idaspbcg} linear solver has not been initialized.\\
 \id{IDASPBCG\_ILL\_INPUT} & -3 & The {\idaspbcg} solver is not compatible with the current {\nvector} module.\\
 \id{IDASPBCG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
-
-\noindent {\bf {\spbcg} generic linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\spbcg} generic linear solver module}\\
+\hline\\
 \id{SPBCG\_SUCCESS}            &  0 & Converged. \\
 \id{SPBCG\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPBCG\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -178,28 +138,17 @@ description of their meaning.
 \id{SPBCG\_MEM\_NULL}          & -1 & The {\spbcg} memory is \id{NULL}\\
 \id{SPBCG\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
 \id{SPBCG\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
-\end{supertabular*} 
-\vspace{0.1in}
-
-
-\noindent {\bf {\idasptfqmr} linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\idasptfqmr} linear solver module}\\
+\hline\\
 \id{IDASPTFQMR\_SUCCESS}    &  0 & Successful function return. \\
 \id{IDASPTFQMR\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
 \id{IDASPTFQMR\_LMEM\_NULL} & -2 & The {\idasptfqmr} linear solver has not been initialized.\\
 \id{IDASPTFQMR\_ILL\_INPUT} & -3 & The {\idasptfqmr} solver is not compatible with the current {\nvector} module.\\
 \id{IDASPTFQMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
-
-\noindent {\bf {\sptfqmr} generic linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\sptfqmr} generic linear solver module}\\
+\hline\\
 \id{SPTFQMR\_SUCCESS}            &  0 & Converged. \\
 \id{SPTFQMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPTFQMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -207,16 +156,10 @@ description of their meaning.
 \id{SPTFQMR\_MEM\_NULL}          & -1 & The {\sptfqmr} memory is \id{NULL}\\
 \id{SPTFQMR\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
-\end{supertabular*} 
-\vspace{0.1in}
-
-
-\noindent {\bf {\idabbdpre} preconditioner module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\\\hline
+\multicolumn{3}{c}{\bf {\idabbdpre} preconditioner module}\\
+\hline\\
 \id{IDABBDPRE\_SUCCESS}         &  0 & Successful function return. \\
 \id{IDABBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
+
 \end{supertabular*} 
-\vspace{0.1in}

@@ -387,7 +387,7 @@ flag = IDAMalloc(ida\_mem, res, t0, y0, yp0, itol, reltol, abstol);
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
   calls to \id{IDASolve} (see \id{IDASetTolerances} in \S\ref{sss:optin_main}).
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
   If an error occurred, \id{IDAMalloc} also prints an error message to the
@@ -1040,19 +1040,16 @@ Lower bound on Newton step & \id{IDASetStepToleranceIC} &  uround$^{2/3}$ \\
 \hline
 \multicolumn{3}{|c|}{\bf IDADENSE linear solver} \\
 \hline
-Dense Jacobian function and data & \id{IDADenseSetJacFn} & internal DQ,\\
-&&NULL \\
+Dense Jacobian function and data & \id{IDADenseSetJacFn} & DQ, NULL\\
 \hline
 \multicolumn{3}{|c|}{\bf IDABAND linear solver} \\
 \hline
-Band Jacobian function and data & \id{IDABandSetJacFn} & internal DQ,\\
-&& NULL \\
+Band Jacobian function and data & \id{IDABandSetJacFn} & DQ, NULL\\
 \hline
 \multicolumn{3}{|c|}{\bf IDASPGMR linear solver} \\
 \hline
 Preconditioner functions and data & \id{IDASpgmrSetPreconditioner} & all NULL \\
-Jacobian-times-vector function and data & \id{IDASpgmrSetJacTimesVecFn} & internal DQ,\\
-&&NULL \\
+Jacobian-times-vector function and data & \id{IDASpgmrSetJacTimesVecFn} & DQ, NULL\\
 Type of Gram-Schmidt orthogonalization & \id{IDASpgmrSetGSType} & classical GS \\
 Maximum no. of restarts & \id{IDASpgmrSetMaxRestarts} & 5 \\
 Factor in linear convergence test & \id{IDASpgmrSetEpsLin} & 0.05 \\
@@ -1061,7 +1058,7 @@ Factor in DQ increment calculation & \id{IDASpgmrSetIncrementFactor} & 1.0 \\
 \multicolumn{3}{|c|}{\bf IDASPBCG linear solver} \\
 \hline
 Preconditioner functions and data & \id{IDASpbcgSetPreconditioner} & all NULL \\
-Jacobian-times-vector function and data & \id{IDASpbcgSetJacTimesVecFn} & internal DQ,\\
+Jacobian-times-vector function and data & \id{IDASpbcgSetJacTimesVecFn} & DQ, NULL\\
 &&NULL \\
 Maximum Krylov subspace size & \id{IDASpbcgSetMaxl} & 5 \\
 Factor in linear convergence test & \id{IDASpbcgSetEpsLin} & 0.05 \\
@@ -1070,8 +1067,7 @@ Factor in DQ increment calculation & \id{IDASpbcgSetIncrementFactor} & 1.0 \\
 \multicolumn{3}{|c|}{\bf IDASPTFQMR linear solver} \\
 \hline
 Preconditioner functions and data & \id{IDASptfqmrSetPreconditioner} & all NULL \\
-Jacobian-times-vector function and data & \id{IDASptfqmrSetJacTimesVecFn} & internal DQ,\\
-&& NULL \\
+Jacobian-times-vector function and data & \id{IDASptfqmrSetJacTimesVecFn} & DQ, NULL\\
 Maximum Krylov subspace size & \id{IDASptfqmrSetMaxl} & 5 \\
 Factor in linear convergence test & \id{IDASptfqmrSetEpsLin} & 0.05 \\
 Factor in DQ increment calculation & \id{IDASptfqmrSetIncrementFactor} & 1.0 \\
@@ -1117,7 +1113,7 @@ flag = IDASetErrFile(ida\_mem, errfp);
   Passing a value \id{NULL} disables all future error message output
   (except for the case in which the {\ida} memory pointer is \id{NULL}).
 
-  {\warn} If \id{IDASetErrFile} is to be called, it should be called before any
+  {\warn}If \id{IDASetErrFile} is to be called, it should be called before any
   other optional input functions, in order to take effect for any later error
   message.
 }
@@ -1593,10 +1589,10 @@ flag = IDASetTolerances(ida\_mem, itol, reltol, abstol);
   to \id{IDASetTolerances} is needed only if the tolerances are being changed
   from their values between successive calls to \id{IDASolve}.
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
-  {\warn} It is illegal to call \id{IDASetTolerances} before a call to
+  It is illegal to call \id{IDASetTolerances} before a call to
   \id{IDAMalloc}.
 
 }
@@ -1636,7 +1632,7 @@ flag = IDASetEwtFn(ida\_mem, efun, edata);
 
   If not needed, pass \id{NULL} for \id{edata}.
 
-  {\warn} It is illegal to call \id{IDASetEwtFn} before a call to \id{IDAMalloc}.
+  {\warn}It is illegal to call \id{IDASetEwtFn} before a call to \id{IDAMalloc}.
 }
 %%
 %%
@@ -1994,13 +1990,12 @@ The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
 fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should also be specified in the call to
+If used, the name of the \id{psetup} function should be specified in the call to
 \id{IDASpgmrSetPreconditioner}.
 \index{IDASPGMR@{\idaspgmr} linear solver!preconditioner setup function}
-%%
-Optionally, the {\idaspgmr} solver passes the pointer \id{p\_data} it receives
-through \id{IDASpgmrSetPreconditioner} to the preconditioner \id{psetup} and
-\id{psolve} functions.  
+
+Optionally, the pointer \id{p\_data} received through \id{IDASpgmrSetPreconditioner} 
+is passed to the preconditioner \id{psetup} and \id{psolve} functions.  
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
@@ -2265,13 +2260,12 @@ The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
 fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should also be specified in the call to
+If used, the name of the \id{psetup} function should be specified in the call to
 \id{IDASpbcgSetPreconditioner}.
 \index{IDASPBCG@{\idaspbcg} linear solver!preconditioner setup function}
-%%
-Optionally, the {\idaspbcg} solver passes the pointer \id{p\_data} it receives
-through \id{IDASpbcgSetPreconditioner} to the preconditioner \id{psetup} and
-\id{psolve} functions.  
+
+Optionally, the pointer \id{p\_data} received through \id{IDASpbcgSetPreconditioner} 
+is passed to the preconditioner \id{psetup} and \id{psolve} functions.  
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
@@ -2496,13 +2490,12 @@ The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
 fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should also be specified in the call to
+If used, the name of the \id{psetup} function should be specified in the call to
 \id{IDASptfqmrSetPreconditioner}.
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!preconditioner setup function}
-%%
-Optionally, the {\idasptfqmr} solver passes the pointer \id{p\_data} it receives
-through \id{IDASptfqmrSetPreconditioner} to the preconditioner \id{psetup} and
-\id{psolve} functions.  
+
+Optionally, the pointer \id{p\_data} received through \id{IDASptfqmrSetPreconditioner} 
+is passed to the preconditioner \id{psetup} and \id{psolve} functions.  
 This allows the user to create an arbitrary structure with relevant problem data 
 and access it during the execution of the user-supplied preconditioner functions
 without using global data in the program.  
@@ -3289,7 +3282,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  {\warn} The user must allocate space for \id{eweight}.
+  {\warn}The user must allocate space for \id{eweight}.
 }
 %%
 %%
@@ -3318,8 +3311,8 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  {\warn} The user must allocate space for \id{ele}. \\
-  {\warn} The values returned in \id{ele} are only valid if
+  {\warn}The user must allocate space for \id{ele}. \\
+  The values returned in \id{ele} are only valid if
   \id{IDASolve} returned a positive value.
 
   The \id{ele} vector, togther with the \id{eweight} vector from
@@ -4728,7 +4721,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}.
   If an error occurred, \id{IDAReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 }
 
@@ -4821,7 +4814,7 @@ The function type \id{IDAEwtFn} is defined as follows:
 {
   Allocation of memory for \id{ewt} is handled within {\ida}.
 
-  {\warn} The error weight vector must have all components positive. It is the
+  {\warn}The error weight vector must have all components positive. It is the
   user's responsiblity to perform this test and return $-1$ if it is not 
   satisfied.
 }
@@ -5321,7 +5314,7 @@ There are two optional output functions associated with rootfinding.
   \end{args}
 }
 {
-  {\warn} The user must allocate memory for the vector \id{rootsfound}.
+  {\warn}The user must allocate memory for the vector \id{rootsfound}.
 }
 %%
 %%

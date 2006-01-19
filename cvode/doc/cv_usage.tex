@@ -399,7 +399,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
   calls to \id{CVode} (see \id{CVodeSetTolerances} in \S\ref{sss:optin_main}).
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
   If an error occurred, \id{CVodeMalloc} also prints an error message to the
@@ -1064,7 +1064,7 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
   Passing a value of \id{NULL} disables all future error message output
   (except for the case in which the {\cvode} memory pointer is \id{NULL}).
 
-  {\warn} If \id{CVodeSetErrFile} is to be called, it should be called before any
+  {\warn}If \id{CVodeSetErrFile} is to be called, it should be called before any
   other optional input functions, in order to take effect for any later error message.
 }
 %%
@@ -1566,10 +1566,10 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
   needed only if the tolerances are being changed from their values between
   successive calls to \id{CVode}.
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
-  {\warn} It is illegal to call \id{CVodeSetTolerances} before a call to \id{CVodeMalloc}.
+  It is illegal to call \id{CVodeSetTolerances} before a call to \id{CVodeMalloc}.
 }
 %%
 %%
@@ -1606,7 +1606,7 @@ flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
 
   If not needed, pass \id{NULL} for \id{edata}.
 
-  {\warn} It is illegal to call \id{CVodeSetEwtFn} before a call to \id{CVodeMalloc}.
+  {\warn}It is illegal to call \id{CVodeSetEwtFn} before a call to \id{CVodeMalloc}.
 }
 %%
 \index{optional input!solver|)}
@@ -1753,8 +1753,8 @@ If used, the \id{psetup} function should also be specified in the call to
 \id{CVSpgmrSetPreconditioner}.
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup function}
 %%
-Optionally, the {\cvspgmr} solver passes the pointer \id{p\_data} it
-receives through \id{CVSpgmrSetPreconditioner} to the preconditioner
+Optionally, the {\cvspgmr} solver passes the pointer \id{p\_data}
+received through \id{CVSpgmrSetPreconditioner} to the preconditioner
 \id{psetup} and \id{psolve} functions.  This allows the user to create
 an arbitrary structure with relevant problem data and access it during
 the execution of the user-supplied preconditioner functions without using
@@ -1989,8 +1989,8 @@ If used, the \id{psetup} function should also be specified in the call to
 \id{CVSpbcgSetPreconditioner}.
 \index{CVSPBCG@{\cvspbcg} linear solver!preconditioner setup function}
 %%
-Optionally, the {\cvspbcg} solver passes the pointer \id{p\_data} it
-receives through \id{CVSpbcgSetPreconditioner} to the preconditioner
+Optionally, the {\cvspbcg} solver passes the pointer \id{p\_data}
+received through \id{CVSpbcgSetPreconditioner} to the preconditioner
 \id{psetup} and \id{psolve} functions.  This allows the user to create
 an arbitrary structure with relevant problem data and access it during
 the execution of the user-supplied preconditioner functions without using
@@ -2217,12 +2217,13 @@ The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
 fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should also be specified in the call to
+
+If used, the \id{psetup} function should be specified in the call to
 \id{CVSptfqmrSetPreconditioner}.
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner setup function}
 %%
-Optionally, the {\cvsptfqmr} solver passes the pointer \id{p\_data} it
-receives through \id{CVSptfqmrSetPreconditioner} to the preconditioner
+Optionally, the {\cvsptfqmr} solver passes the pointer \id{p\_data}
+(the same as that specified through \id{CVSptfqmrSetPreconditioner}) to the preconditioner
 \id{psetup} and \id{psolve} functions.  This allows the user to create
 an arbitrary structure with relevant problem data and access it during
 the execution of the user-supplied preconditioner functions without using
@@ -2254,7 +2255,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 }
 {
   The function \ID{CVSptfqmrSetPreconditioner} specifies the preconditioner
-  setup and solve functions and the pointer to user data.
+  functions and the pointer to user data.
 }
 {
   \begin{args}[cvode\_mem]
@@ -2280,7 +2281,7 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \end{args}
 }
 {
-   The function type \id{CVSptfqmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+   The function type \id{CVSptfqmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.\\
    The function type \id{CVSptfqmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
 }
 %%
@@ -3054,7 +3055,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  {\warn} The user must allocate memory for \id{eweight}.
+  {\warn}The user must allocate memory for \id{eweight}.
 }
 %%
 %%
@@ -3084,7 +3085,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  {\warn} The user must allocate memory for \id{ele}.
+  {\warn}The user must allocate memory for \id{ele}.
 
   The \id{ele} vector, togther with the \id{eweight} vector from
   \id{CVodeGetErrWeights}, can be used to determine how the various
@@ -3385,7 +3386,7 @@ and last return value from a {\cvdense} function.
 }
 {
   If the {\cvdense} setup function failed (\id{CVode} returned \id{CV\_LSETUP\_FAIL}),
-  the value \id{lsflag} is equal to the column index (numbered from one) at which
+  then \id{lsflag} is equal to the column index (numbered from one) at which
   a zero diagonal element was encountered during the LU factorization of the 
   dense Jacobian matrix.
 }
@@ -4608,7 +4609,7 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
   If an error occurred, \id{CVodeReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 }
 
@@ -4696,7 +4697,7 @@ The function type \id{CVEwtFn} is defined as follows:
 {
   Allocation of memory for \id{ewt} is handled within {\cvode}.
 
-  {\warn} The error weight vector must have all components positive. It is the
+  {\warn}The error weight vector must have all components positive. It is the
   user's responsiblity to perform this test and return $-1$ if it is not 
   satisfied.
 }
@@ -5055,8 +5056,8 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFn}, defined as follows:
   \item[gamma]
     is the scalar $\gamma$ appearing in the Newton matrix $M = I - \gamma P$.
   \item[p\_data]
-    is a pointer to user data, the same as the \id{p\_data}      
-    parameter passed to \id{CVSp*SetPreconditioner}.
+    is a pointer to user data, the same as that
+    passed to \id{CVSp*SetPreconditioner}.
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
@@ -5180,7 +5181,7 @@ There are two optional output functions associated with rootfinding.
   \end{args}
 }
 {
-  {\warn} The user must allocate memory for the vector \id{rootsfound}.
+  {\warn}The user must allocate memory for the vector \id{rootsfound}.
 }
 %%
 %%
@@ -5559,8 +5560,8 @@ the {\cvbandpre} module:
   flag = CVBandPrecGetWorkSpace(bp\_data, \&lenrwBP, \&leniwBP);
 }
 {
-  The function \ID{CVBandPrecGetWorkSpace} returns the
-  {\cvbandpre} real and integer workspace sizes.
+  The function \ID{CVBandPrecGetWorkSpace} returns the sizes of
+  the {\cvbandpre} real and integer workspaces.
 }
 {
   \begin{args}[lenrwBP]
@@ -6160,8 +6161,13 @@ the corresponding \id{CVSp***Set***} functions, must also be made.
   \end{args}
 }
 {
-  The return value of \id{CVBBDPrecReInit} is \Id{CVBBDPRE\_SUCCESS} indicating
-  success, or \Id{CVBBDPRE\_PDATA\_NULL} if \id{bbd\_data} is \id{NULL}.
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVBBDPRE\_PDATA\_NULL]
+  \item[\Id{CVBBDPRE\_SUCCESS}]
+    The reinitialization was successful.
+  \item[\Id{CVBBDPRE\_PDATA\_NULL}] 
+    The \id{bbd\_data} argument is \id{NULL}.
+  \end{args}
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or

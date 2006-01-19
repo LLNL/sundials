@@ -28,18 +28,31 @@
 \definecolor{gray}{rgb}{0.5,0.5,0.5} 
 
 %----- Define the warning sign
+
+\newcommand{\marginlabel}[1]
+{\mbox{}\marginpar{\raggedleft\hspace{0pt}{\rule{0mm}{1mm}#1}}}
+
 \newcommand{\warn}{%
-\pstribox[shadow=true,fillstyle=solid,fillcolor=yellow,trimode=*U]{\small !}%
+\marginlabel{\pstribox[shadow=false,fillstyle=solid,fillcolor=yellow,trimode=*U]{\footnotesize !}}%%
 }
 
 %----- Page formatting
-\setlength{\oddsidemargin}{0.5in}
-\setlength{\evensidemargin}{0.0in}
+%% \paperwidth = (1in+\hoffset)*2 + \oddsidemargin + \textwidth + \evensidemargin
+
 \setlength{\paperwidth}{8.5in}
-\setlength{\topmargin}{-.5in}
-\setlength{\hoffset}{0in}
-\setlength{\textwidth}{\paperwidth-(1in+\hoffset)*2-\oddsidemargin-\evensidemargin}
+\setlength{\textwidth}{6.1in}
+\setlength{\hoffset}{0.0in}
+\setlength{\oddsidemargin}{0.2in}
+\setlength{\evensidemargin}{0.2in}
+\setlength{\marginparsep}{0.25in}
+\setlength{\marginparwidth}{0.5in}
+
+\setlength{\paperheight}{11.0in}
 \setlength{\textheight}{9.0in}
+\setlength{\voffset}{-0.25in}
+\setlength{\topmargin}{0.0in}
+%% 
+%% \setlength{\textheight}{9.0in}
 
 %----- SUNDIALS MODULES
 \newcommand{\sundials}{{\normalfont\scshape sundials}}

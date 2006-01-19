@@ -2,7 +2,7 @@
 \chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
 The central {\cvodes} module interfaces with the linear solver module to be
-used by way of calls to four routines.  These are denoted here by 
+used by way of calls to four functions.  These are denoted here by 
 \id{linit}, \id{lsetup}, \id{lsolve}, and \id{lfree}.
 Briefly, their purposes are as follows:
 %%
@@ -16,27 +16,58 @@ Briefly, their purposes are as follows:
 \end{itemize}
 %%
 %%
-A linear solver module must also provide a user-callable specification routine
+A linear solver module must also provide a user-callable specification function
 (like those described in \S\ref{sss:lin_solv_init}) which will attach the above four 
-routines to the main {\cvodes} memory block. The return value of the specification 
-routine should be: \id{CV*\_SUCCESS} = 0 if the routine was successful,
-\id{CV*\_MEM\_FAIL} = -4 if a memory allocation failed, \id{CV*\_ILL\_INPUT} = -3
-if some input was illegal or the {\nvector} implementation is not compatible, or
-\id{CV*\_MEM\_NULL} = -1 if the pointer to the main {\cvodes} memory block is \id{NULL}.
+functions to the main {\cvodes} memory block. 
+The {\cvodes} memory block is a structure defined in the header file \id{cvodes\_impl.h}. 
+A pointer to such a structure is defined as the type \id{CVodeMem}. 
+The four fields in a \id{CvodeMem} structure that must point to the linear solver's 
+functions are \id{cv\_linit}, \id{cv\_lsetup}, \id{cv\_lsolve}, and \id{cv\_lfree}, respectively.
+Note that of the four interface functions, only the \id{lsolve} function is required. 
+The \id{lfree} function must be provided only if the solver specification function
+makes any memory allocation.
+%%
+For consistency with the existing {\cvodes} linear solver modules, we recommend that the 
+return value of the specification function be 0 for a successful return or a negative value 
+if an error occurs (the pointer to the main {\cvodes} memory block is \id{NULL}, 
+an input is illegal, the {\nvector} implementation is not compatible, a memory allocation 
+fails, etc.)
 
-These four routines that interface between {\cvodes} and the linear solver module
+To facilitate data exchange between the four interface functions, the field \id{cv\_lmem}
+in the {\cvodes} memory block can be used to attach a linear solver-specific memory
+block.
+
+
+\vspace{0.1in}
+To be used during the backward integration with the {\cvodea} module, a linear solver module 
+must also provide an additional user-callable specification function (like those described in
+\S\ref{sss:lin_solv_b}) which will attach the four functions to the {\cvodes} memory block for the
+backward integration. Note that this block (of type \id{struct CVodeMemRec}) is not
+directly accessible to the user, but rather is itself a field (\id{cvb\_mem}) in the {\cvodea}
+memory block. 
+The {\cvodea} memory block is a structure defined in the header file \id{cvodea\_impl.h}. 
+A pointer to such a structure is defined as the type \id{CVadjMem}.
+%%
+The specification function for backward integration should also return a negative value
+if the adjoint {\cvodea} memory block is \id{NULL}.
+
+An additional field (\id{ca\_lmemB}) in the {\cvodea} memory block provides a hook-up for
+optionally attaching a linear solver-specific memory block.
+
+\vspace{0.1in}
+The four functions that interface between {\cvodes} and the linear solver module
 necessarily have fixed call sequences.  Thus, a user wishing to implement another 
 linear solver within the {\cvodes} package must adhere to this set of interfaces.
 The following is a complete description of the argument list for each of
-these routines.  Note that the argument list of each routine includes a
-pointer to the main {\cvodes} memory block, by which the routine can access
+these functions.  Note that the argument list of each function includes a
+pointer to the main {\cvodes} memory block, by which the function can access
 various data related to the {\cvodes} solution.  The contents of this memory
-block are given in the file \id{cvodes.h} (but not reproduced here, for
-the sake of space).
+block (of type \id{CVodeMem}) are given in the file \id{cvodes\_impl.h} 
+(but not reproduced here, for the sake of space).
 
 %------------------------------------------------------------------------------
 
-\paragraph{Initialization routine.}
+\section{Initialization function}
 The type definition of \ID{linit} is
 \usfunction{linit}
 {
@@ -64,7 +95,7 @@ The type definition of \ID{linit} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Setup routine.} 
+\section{Setup function} 
 The type definition of \id{lsetup} is
 \usfunction{lsetup}
 {
@@ -95,10 +126,10 @@ The type definition of \id{lsetup} is
        previous attempt at this step (but the Newton iteration converged).
      \item \id{FAIL\_BAD\_J}: this value is passed to \id{lsetup} if
        (a) the previous Newton corrector iteration did not converge and the linear solver's      
-       setup routine indicated that its Jacobian-related data is not current,
+       setup function indicated that its Jacobian-related data is not current,
        or                            
-       (b) during the previous Newton corrector iteration, the linear solver's solve routine  
-       failed in a recoverable manner and the linear solver's setup routine indicated that  
+       (b) during the previous Newton corrector iteration, the linear solver's solve function  
+       failed in a recoverable manner and the linear solver's setup function indicated that  
        its Jacobian-related data is not current.
      \item \id{FAIL\_OTHER}: this value is passed to \id{lsetup} if 
        during the current internal step try, the previous Newton iteration failed to 
@@ -129,7 +160,7 @@ The type definition of \id{lsetup} is
    \end{args}
 }
 {
-  The \id{lsetup} routine should return $0$ if successful,            
+  An \id{lsetup} function should return $0$ if successful,            
   a positive value for a recoverable error, and a negative value  
   for an unrecoverable error.  
 }
@@ -137,7 +168,7 @@ The type definition of \id{lsetup} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Solve routine.}
+\section{Solve function}
 The type definition of \id{lsolve} is
 \usfunction{lsolve}
 {
@@ -145,7 +176,7 @@ The type definition of \id{lsolve} is
                 &N\_Vector ycur, N\_Vector fcur);  
 }
 {
-  The routine \id{lsolve} must solve the linear equation $M x = b$, where         
+  The function \id{lsolve} must solve the linear equation $M x = b$, where         
   $M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$  
   and the right-hand side vector $b$ is input. 
 }
@@ -166,7 +197,7 @@ The type definition of \id{lsolve} is
   \end{args}
 }
 {
-  \id{lsolve} returns a positive value    
+  An \id{lsolve} function should return a positive value    
   for a recoverable error and a negative value for an             
   unrecoverable error. Success is indicated by a $0$ return value.
 }
@@ -174,23 +205,23 @@ The type definition of \id{lsolve} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Memory deallocation routine.}
+\section{Memory deallocation function}
 The type definition of \id{lfree} is
 \usfunction{lfree}
 {
   void (*lfree)(CVodeMem cv\_mem);
 }
 {
-  The routine \id{lfree} should free up any memory allocated by the linear
+  The function \id{lfree} should free up any memory allocated by the linear
   solver.
 }
 {
   The argument \id{cv\_mem} is the {\cvodes} memory pointer of type \id{CVodeMem}.
 }
 {
-  This routine has no return value.
+  An \id{lfree} function has no return value.
 }
 {
-  This routine is called once a problem has been completed and the 
+  This function is called once a problem has been completed and the 
   linear solver is no longer needed.
 }

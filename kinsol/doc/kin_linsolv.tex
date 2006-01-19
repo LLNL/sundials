@@ -8,6 +8,8 @@ These modules are:
 \begin{itemize}
 \item The {\dense} matrix package, which includes functions
       for small dense matrices treated as simple array types.
+\item The {\band} matrix package, which includes the matrix type \id{BandMat},
+      macros and functions for \id{BandMat} matrices.
 \item The {\spgmr} package, which includes a solver for the scaled
       preconditioned GMRES method.
 \item The {\spbcg} package, which includes a solver for the scaled
@@ -22,19 +24,11 @@ implementation of preconditioners used with the combination of {\kinsol}
 and the {\kinspgmr}, {\kinspbcg} or {\kinsptfqmr} solver.
 
 %-------------------------------
-\section{The DENSE module}\label{ss:dense}
+
 \input{dense}
-
-%-------------------------------
-\section{The SPGMR Module}\label{ss:spgmr}
+\input{band}
 \input{spgmr}
-
-%-------------------------------
-\section{The SPBCG Module}\label{ss:spbcg}
 \input{spbcg}
-
-%-------------------------------
-\section{The SPTFQMR Module}\label{ss:sptfqmr}
 \input{sptfqmr}
 
 %-------------------------------

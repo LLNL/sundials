@@ -28,11 +28,12 @@ description of their meaning.
 
 \section{CVODES input constants}
 
-\noindent {\bf {\cvodes} main solver module}
-
-\vspace{0.1in}
-\noindent
 \begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+
+\hline
+\multicolumn{3}{c}{\bf {\cvodes} main solver module}\\
+\hline\\
+
 \id{CV\_ADAMS}            & 1 & Adams-Moulton linear multistep method. \\
 \id{CV\_BDF}              & 2 & BDF linear multistep method. \\
 \id{CV\_FUNCTIONAL}       & 1 & Nonlinear system solution through functional iterations. \\
@@ -47,48 +48,44 @@ description of their meaning.
 \id{CV\_SIMULTANEOUS}     & 1 & Simultaneous corrector forward sensitivity method. \\
 \id{CV\_STAGGERED}        & 2 & Staggered corrector forward sensitivity method. \\
 \id{CV\_STAGGERED1}       & 3 & Staggered (variant) corrector forward sensitivity method. \\
-\end{supertabular*}
-\vspace{0.1in}
 
-\noindent {\bf {\cvodea} adjoint solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\cvodea} adjoint solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CV\_HERMITE} & 1 & Use Hermite interpolation. \\
 \id{CV\_POLYNOMIAL} & 2 & Use variable-degree polynomial interpolation. \\
-\end{supertabular*}
-\vspace{0.1in}
 
-\noindent {\bf Iterative linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf Iterative linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{PREC\_NONE} & 0 & No preconditioning \\
 \id{PREC\_LEFT} & 1 & Preconditioning on the left only. \\
 \id{PREC\_RIGHT} & 2 & Preconditioning on the right only. \\
 \id{PREC\_BOTH} & 3 & Preconditioning on both the left and the right. \\
 \id{MODIFIED\_GS} & 1 & Use modified Gram-Schmidt procedure. \\
 \id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
+
 \end{supertabular*}
-\vspace{0.1in}
+
 
 %%-------------------------------------------------------------------------
 
 \section{CVODES output constants}
 
-\noindent {\bf {\cvodes} main solver module}
-
-\vspace{0.1in}
-\noindent
 \begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+
+\hline
+\multicolumn{3}{c}{\bf {\cvodes} main solver module}\\
+\hline\\
+
 \id{CV\_SUCCESS}         &  0  & Successful function return. \\
 \id{CV\_TSTOP\_RETURN}   &  1  & \id{CVode} succeeded by reaching the specified stopping point. \\
 \id{CV\_ROOT\_RETURN}    &  2  & \id{CVode} succeeded and found one or more roots. \\
 \id{CV\_MEM\_NULL}       & -1  & The \id{cvode\_mem} argument was \id{NULL}. \\
 \id{CV\_ILL\_INPUT}      & -2  & One of the function inputs is illegal. \\
-\id{CV\_NO\_MALLOC}      & -3  & The {\cvode} memory was not allocated by a call to \id{CVodeMalloc}. \\
+\id{CV\_NO\_MALLOC}      & -3  & The {\cvode} memory block was not allocated by a call to \id{CVodeMalloc}. \\
 \id{CV\_TOO\_MUCH\_WORK} & -4  & The solver took \id{mxstep} internal steps but could not reach tout.\\
 \id{CV\_TOO\_MUCH\_ACC}  & -5  & The solver could not satisfy the accuracy demanded by the user for some internal step.\\
 \id{CV\_ERR\_FAILURE}    & -6  & Error test failures occurred too many times during one internal time step or minimum step size was reached. \\
@@ -105,15 +102,11 @@ description of their meaning.
 \id{CV\_BAD\_IS}         & -18 & The sensitivity index is larger than the number of sensitivities computed.\\
 \id{CV\_NO\_QUAD}        & -20 & Quadrature integration was not activated. \\
 \id{CV\_NO\_SENS}        & -21 & Forward sensitivity integration was not activated. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
+\\\hline
+\multicolumn{3}{c}{\bf {\cvodea} adjoint solver module}\\
+\hline\\
 
-\noindent {\bf {\cvodea} adjoint solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CV\_ADJMEM\_NULL} & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
 \id{CV\_BAD\_TB0}     & -103 & The final time for the adjoint problem is outside the interval over which the forward problem was solved.\\
 \id{CV\_BCKMEM\_NULL} & -104 & The \id{cvodes} memory for the backward problem was not created. \\
@@ -122,15 +115,11 @@ description of their meaning.
 \id{CV\_BAD\_ITASK}   & -107 & Wrong task for backward integration. \\
 \id{CV\_BAD\_TBOUT}   & -108 & The desired output time is outside the interval over which the forward problem was solved.\\
 \id{CV\_GETY\_BADT}   & -109 & Wrong time in Hermite interpolation function. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
+\\\hline
+\multicolumn{3}{c}{\bf {\cvdense} linear solver module}\\
+\hline\\
 
-\noindent {\bf {\cvdense} linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CVDENSE\_SUCCESS}    &  0 & Successful function return. \\
 \id{CVDENSE\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
 \id{CVDENSE\_LMEM\_NULL} & -2 & The {\cvdense} linear solver has not been initialized.\\
@@ -140,14 +129,11 @@ description of their meaning.
 \id{CVDENSE\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
 \id{CVDENSE\_LMEMB\_NULL}  & -102 & The {\cvdense} linear solver has not been initialized for
                            the backward integration.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\cvband} linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\cvband} linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CVBAND\_SUCCESS}    &  0 & Successful function return. \\
 \id{CVBAND\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
 \id{CVBAND\_LMEM\_NULL} & -2 & The {\cvband} linear solver has not been initialized.\\
@@ -158,14 +144,11 @@ description of their meaning.
 \id{CVBAND\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
 \id{CVBAND\_LMEMB\_NULL}  & -102 & The {\cvband} linear solver has not been initialized for
                            the backward integration.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\cvdiag} linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\cvdiag} linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CVDIAG\_SUCCESS}    &  0 & Successful function return. \\
 \id{CVDIAG\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
 \id{CVDIAG\_LMEM\_NULL} & -2 & The {\cvdiag} linear solver has not been initialized.\\
@@ -173,14 +156,11 @@ description of their meaning.
 \id{CVDIAG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 %%
 \id{CVDIAG\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\cvspgmr} linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\cvspgmr} linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CVSPGMR\_SUCCESS}    &  0 & Successful function return. \\
 \id{CVSPGMR\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
 \id{CVSPGMR\_LMEM\_NULL} & -2 & The {\cvspgmr} linear solver has not been initialized.\\
@@ -191,14 +171,11 @@ description of their meaning.
 \id{CVSPGMR\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
 \id{CVSPGMR\_LMEMB\_NULL}  & -102 & The {\cvspgmr} linear solver has not been initialized for
                            the backward integration.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\spgmr} generic linear solver module}
+\\\hline
+\multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{SPGMR\_SUCCESS}            &  0 & Converged. \\
 \id{SPGMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPGMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -209,15 +186,11 @@ description of their meaning.
 \id{SPGMR\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
 \id{SPGMR\_GS\_FAIL}           & -4 & Failure in the Gram-Schmidt procedure. \\
 \id{SPGMR\_QRSOL\_FAIL}        & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
+\\\hline
+\multicolumn{3}{c}{\bf {\cvspbcg} linear solver module}\\
+\hline\\
 
-\noindent {\bf {\cvspbcg} linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CVSPBCG\_SUCCESS}    &  0 & Successful function return. \\
 \id{CVSPBCG\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
 \id{CVSPBCG\_LMEM\_NULL} & -2 & The {\cvspbcg} linear solver has not been initialized.\\
@@ -228,15 +201,11 @@ description of their meaning.
 \id{CVSPBCG\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
 \id{CVSPBCG\_LMEMB\_NULL}  & -102 & The {\cvspbcg} linear solver has not been initialized for
                            the backward integration.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
+\\\hline
+\multicolumn{3}{c}{\bf {\spbcg} generic linear solver module}\\
+\hline\\
 
-\noindent {\bf {\spbcg} generic linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{SPBCG\_SUCCESS}            &  0 & Converged. \\
 \id{SPBCG\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPBCG\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -244,15 +213,11 @@ description of their meaning.
 \id{SPBCG\_MEM\_NULL}          & -1 & The {\spbcg} memory is \id{NULL}\\
 \id{SPBCG\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
 \id{SPBCG\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
+\\\hline
+\multicolumn{3}{c}{\bf {\cvsptfqmr} linear solver module}\\
+\hline\\
 
-\noindent {\bf {\cvsptfqmr} linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CVSPTFQMR\_SUCCESS}    &  0 & Successful function return. \\
 \id{CVSPTFQMR\_MEM\_NULL}  & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
 \id{CVSPTFQMR\_LMEM\_NULL} & -2 & The {\cvsptfqmr} linear solver has not been initialized.\\
@@ -263,15 +228,11 @@ description of their meaning.
 \id{CVSPTFQMR\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
 \id{CVSPTFQMR\_LMEMB\_NULL}  & -102 & The {\cvsptfqmr} linear solver has not been initialized for
                            the backward integration.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
+\\\hline
+\multicolumn{3}{c}{\bf {\sptfqmr} generic linear solver module}\\
+\hline\\
 
-\noindent {\bf {\sptfqmr} generic linear solver module}
-
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{SPTFQMR\_SUCCESS}            &  0 & Converged. \\
 \id{SPTFQMR\_RES\_REDUCED}       &  1 & No convergence, but the residual norm was reduced. \\
 \id{SPTFQMR\_CONV\_FAIL}         &  2 & Failure to converge. \\
@@ -279,14 +240,11 @@ description of their meaning.
 \id{SPTFQMR\_MEM\_NULL}          & -1 & The {\sptfqmr} memory is \id{NULL}\\
 \id{SPTFQMR\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
 \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\cvbandpre} preconditioner module}
+\\\hline
+\multicolumn{3}{c}{\bf {\cvbandpre} preconditioner module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CVBANDPRE\_SUCCESS}         &  0 & Successful function return. \\
 \id{CVBANDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
 %%
@@ -294,14 +252,11 @@ description of their meaning.
 \id{CVBANDPRE\_PMEMB\_NULL}  & -102 & The {\cvbandpre} preconditionr module has not been initialized for
                            the backward integration.\\
 \id{CVBANDPRE\_MEM\_FAIL}  & -103 & A memory allocation failed.\\
-\end{supertabular*} 
-\vspace{0.1in}
 
-\noindent {\bf {\cvbbdpre} preconditioner module}
+\\\hline
+\multicolumn{3}{c}{\bf {\cvbbdpre} preconditioner module}\\
+\hline\\
 
-\vspace{0.1in}
-\noindent
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
 \id{CVBBDPRE\_SUCCESS}         &  0 & Successful function return. \\
 \id{CVBBDPRE\_PDATA\_NULL}     & -11 & The preconditioner module has not been initialized. \\
 %%
@@ -309,5 +264,6 @@ description of their meaning.
 \id{CVBBDPRE\_PMEMB\_NULL}  & -102 & The {\cvbbdpre} preconditionr module has not been initialized for
                            the backward integration.\\
 \id{CVBBDPRE\_MEM\_FAIL}  & -103 & A memory allocation failed.\\
+
 \end{supertabular*} 
-\vspace{0.1in}
+

@@ -1,8 +1,37 @@
 % This is a shared SUNDIALS TEX file with description of
 % the generic dense linear solver
-%
-\subsection{Type DenseMat}
+
+\section{The DENSE module}\label{ss:dense}
+
 \index{generic linear solvers!DENSE@{\dense}}
+Relative to the {\sundials} {\em source\_tree}, the files comprising the
+{\dense} generic linear solver are as follows:
+\begin{itemize}
+\item header files (located in {\em source\_tree}\id{/shared/include})\\
+  \id{sundials\_dense.h} \id{sundials\_smalldense.h} \\
+  \id{sundials\_types.h} \id{sundials\_math.h}  \id{sundials\_config.h}
+\item source files (located in {\em source\_tree}\id{/shared/source})\\
+  \id{sundials\_dense.c} \id{sundials\_smalldense.c} \id{sundials\_math.c}
+\end{itemize}
+Only two of the preprocessing directives in the header file \id{sundials\_config.h} 
+are relevant to the {\dense} package by itself (see \S\ref{ss:no_config} for details):
+\begin{itemize}
+\item (required) definition of the precision of the {\sundials} type \id{realtype}. 
+  One of the following lines must be present:\\
+  \id{\#define SUNDIALS\_DOUBLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_SINGLE\_PRECISION 1}\\
+  \id{\#define SUNDIALS\_EXTENDED\_PRECISION 1}
+\item (optional) use of generic math functions:
+  \id{\#define SUNDIALS\_USE\_GENERIC\_MATH 1}
+\end{itemize}
+The \id{sundials\_types.h} header file defines the {\sundials}
+\id{realtype} and \id{booleantype} types and the macro \id{RCONST}, while the 
+\id{sundials\_math.h} header file is needed for the \id{ABS} macro and \id{RAbs} function.
+
+The eight files listed above can be extracted from the {\sundials} {\em source\_tree} and
+compiled by themselves into a {\dense} library or into a larger user code.
+
+\subsection{Type DenseMat}
 \index{DENSE@{\dense} generic linear solver!type \id{DenseMat}|(}
 The type \ID{DenseMat} is defined to be a pointer to a structure    
 with a size and a data field:
