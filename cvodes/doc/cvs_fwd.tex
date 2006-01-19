@@ -76,12 +76,12 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
 
   \begin{itemize}
 
-    \item Number of sensitivities
+    \item Number of sensitivities (required)
 
       Set \id{Ns}, the number of parameters with respect to which sensitivities
       are to be computed.
   
-    \item Problem parameters
+    \item Problem parameters (optional)
 
       If {\cvodes} will evaluate the right-hand sides of the sensitivity 
       systems, set \id{p}, an array of \id{Np} real parameters upon which the IVP 
@@ -93,29 +93,34 @@ analysis beyond those for IVP solution (\S\ref{ss:skeleton_sim}).
       If the user provides a function to evaluate the sensitivity right-hand side,
       \id{p} need not be specified.
 
-    \item Parameter list
+    \item Parameter list (optional)
 
       If {\cvodes} will evaluate the right-hand sides of the sensitivity 
       systems, set \id{plist}, an array of \id{Ns} integer flags to specify the 
       parameters \id{p} with respect to which solution sensitivities are to be computed.
       If sensitivities with respect to the $j$-th problem parameter are desired, set
-      ${\text{plist}}_i = j$, for some $i=1,\ldots,N_s$. Note that the parameters
-      are numbered from $1$ for the purpose of \id{plist}.
+      ${\text{plist}}_i = j$, for some $i=0,\ldots,N_s-1$.
 
       If \id{plist} is not specified, {\cvodes} will compute sensitivities with respect
-      to the first \id{Ns} parameters; i.e., ${\text{plist}}_i = i$, $i=1,\ldots,N_s$.
+      to the first \id{Ns} parameters; i.e., ${\text{plist}}_i = i$, $i=0,\ldots,N_s-1$.
 
-    \item Parameter scaling factors
+      If the user provides a function to evaluate the sensitivity right-hand side,
+      \id{plist} need not be specified.
+
+    \item Parameter scaling factors (optional)
 
       If {\cvodes} estimates tolerances for the sensitivity solution vectors (based
       on tolerances for the state solution vector) or if {\cvodes} will evaluate 
-      the right-hand sides of the sensitivity systems, the results will be more
-      accurate if order of magnitude information is provided.
+      the right-hand sides of the sensitivity systems using the internal difference-quotient
+      function, the results will be more accurate if order of magnitude information is provided.
 
       Set \id{pbar}, an array of \id{Ns} positive scaling factors. Typically,
       if $p_i \ne 0$, the value ${\bar p}_{\text{plist}_i} = |p_i|$ can be used.
 
       If \id{pbar} is not specified, {\cvodes} will use ${\bar p}_i = 1.0$.
+
+      If the user provides a function to evaluate the sensitivity right-hand side and specifies
+      tolerances for the sensitivity variables, \id{pbar} need not be specified.
 
     \end{itemize}
 
@@ -341,7 +346,7 @@ The call to the \id{CVodeSensReInit} function has the form:
   \item[\Id{CV\_MEM\_NULL}] 
     The {\cvodes} memory block was not initialized through a 
     previous call to \id{CVodeCreate}.
-  \item[\Id{CV\_NO\_SENSI}]
+  \item[\Id{CV\_NO\_SENS}]
     Memory space for sensitivity integration was not allocated through a 
     previous call to \id{CVodeSensMalloc}.
   \item[\Id{CV\_ILL\_INPUT}] 
@@ -581,7 +586,7 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
     requested. The time \id{t} must fall within the interval defined by the last 
     successful step taken by {\cvodes}.
   \item[k] (\id{int}) order of derivative.
-  \item[is] (\id{int}) specifies the sensitivity derivative vector that is to be returned
+  \item[is] (\id{int}) specifies the sensitivity derivative vector to be returned
     ($0\le$\id{is}$< N_s$).
   \item[dkyS] (\id{N\_Vector})
     the vector containing the derivative. The space for \id{dkyS} must be allocated by 
@@ -671,7 +676,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
   \end{args}
 }
 {
-  {\warn} This type of sensitivity right-hand side function is not compatible
+  {\warn}This type of function is not compatible
   with the \id{CV\_STAGGERED1} sensitivity solution method (argument \id{ism}
   to \id{CVodeSensMalloc}). The compatibility test is performed at the first
   step in \id{CVode}.
@@ -774,9 +779,9 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     have all its components $> 0.0$.
     (See \S\ref{s:forward_usage}).
   \item[plist] (\id{int *}) 
-    an array of \id{Ns} positive flags to specify which parameters to use in
+    an array of \id{Ns} non-negative flags to specify which parameters to use in
     estimating the sensitivity equations. If non-\id{NULL}, \id{plist} must
-    have all components $\ge 1$.
+    have all components $\ge 0$.
     (See \S\ref{s:forward_usage}).
   \end{args}
 }
@@ -787,14 +792,14 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_NO\_SENS}]
+    Forward sensitivity analysis was not initialized.
   \item[\Id{CV\_ILL\_INPUT}]
     An argument has an illegal value.
   \end{args}
 }
 {
-  {\warn} While \id{plist} and \id{pbar} have default values (see \S\ref{s:forward_usage}),
-  an error will occur if neither \id{p} nor a user-provided sensitivity right-hand side
-  function were not specified. 
+  {\warn}This function must be preceeded by a call to \id{CVodeSensMalloc}.
 }
 %%
 %%
@@ -857,10 +862,10 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
   \end{args}
 }
 {
-  By default, \id{errconQ} is set to \id{FALSE}. 
-  If \id{errcon}$=$\id{TRUE} then both state variables and
+  By default, \id{errconS} is set to \id{FALSE}. 
+  If \id{errconS}$=$\id{TRUE} then both state variables and
   sensitivity variables are included in the error tests. 
-  If \id{errcon}$=$\id{FALSE} then the sensitivity variables are excluded from the 
+  If \id{errconS}$=$\id{FALSE} then the sensitivity variables are excluded from the 
   error tests. Note that, in any event, all variables are considered in the convergence 
   tests.
 }
@@ -879,10 +884,10 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[itolS]  (\id{int}) 
-    is one of \Id{CV\_SS}, \Id{CV\_SV}, or \ID{CV\_EE}, where \Id{itolS}$=$\id{CV\_SS} indicates scalar relative error 
-    tolerance and scalar absolute error tolerance, while \id{itolS}$=$\id{CV\_SV} indicates scalar
+    is one of \Id{CV\_SS}, \Id{CV\_SV}, or \ID{CV\_EE}, where \Id{itolS} $=$ \id{CV\_SS} indicates scalar relative error 
+    tolerance and scalar absolute error tolerance, while \id{itolS} $=$ \id{CV\_SV} indicates scalar
     relative error tolerance and vector absolute error tolerance.
-    If \id{itolS}$=$\id{CV\_EE}, the arguments \id{reltolS} and \id{abstolS} are ignored and
+    If \id{itolS} $=$ \id{CV\_EE}, the arguments \id{reltolS} and \id{abstolS} are ignored and
     {\cvodes} will estimate tolerances for the sensitivity variables based on the state
     tolerances and the scaling factors $\bar p$.
   \item[reltolS] (\id{realtype})
@@ -905,17 +910,21 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     The optional values have been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_NO\_SENS}]
+    Forward sensitivity analysis was not initialized.
   \item[\Id{CV\_ILL\_INPUT}]
      An input argument to \id{CVodeSetSensTolerances} has an illegal value.
   \end{args}
 }
 {
-  The default behavior is for {\cvodes} to estimated appropriate integration 
+  The default behavior is for {\cvodes} to estimate appropriate integration 
   tolerances for the sensitivity variables based on the state tolerances and
   the scaling factors ${\bar p}$. See \S\ref{ss:fwd_sensi} for details.
 
-  {\warn} It is the user's responsibility to provide compatible \id{itolS} and
+  {\warn}It is the user's responsibility to provide compatible \id{itolS} and
   \id{abstolS} arguments.
+
+  This function must be preceeded by a call to \id{CVodeSensMalloc}.
 }
 %%
 %%
@@ -1163,7 +1172,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 %%
 \ucfunction{CVodeGetSensErrWeights}
 {
-  flag = CVodeGetSensErrWeights(cvode\_mem, \&eSweight);
+  flag = CVodeGetSensErrWeights(cvode\_mem, eSweight);
 }
 {
   The function \ID{CVodeGetSensErrWeights} returns the sensitivity error weights at the
@@ -1190,8 +1199,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \end{args}
 }
 {
-  The user need not allocate space for \id{eSweight} and should not modify
-  any of its components.
+  The user must allocate memory for \id{eweightS}.
 }
 %%
 %%
@@ -1201,7 +1209,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
 }
 {
   The function \ID{CVodeGetNumSensNonlinSolvIters} returns the
-  number of nonlinear (functional or Newton) iterations performed for 
+  number of nonlinear iterations performed for 
   sensitivity calculations.
 }
 {
@@ -1335,7 +1343,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \end{args}
 }
 {
-  {\warn} The user must allocate space for \id{nSTGR1niters}.
+  {\warn}The user must allocate space for \id{nSTGR1niters}.
 }
 %%
 %%
@@ -1369,7 +1377,7 @@ No. of staggered convergence failures& \id{CVodeGetNumStgrSensNonlinSolvConvFail
   \end{args}
 }
 {
-  {\warn} The user must allocate space for \id{nSTGR1ncfails}.
+  {\warn}The user must allocate space for \id{nSTGR1ncfails}.
 }
 %%
 %%
@@ -1437,7 +1445,7 @@ of type \ID{CVSensRhsFn} defined by:
   A \id{CVSensRhsFn} function type does not have a return value.                        
 }
 {
-  {\warn} A sensitivity right-hand side function of type \id{CVSensRhsFn} is not
+  {\warn}A sensitivity right-hand side function of type \id{CVSensRhsFn} is not
   compatible with the \id{CV\_STAGGERED1} approach.
 
   Allocation of memory for \id{ySdot} is handled within {\cvodes}.

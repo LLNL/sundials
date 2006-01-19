@@ -28,12 +28,12 @@ description of their meaning.
 
 \section{CVODES input constants}
 
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
-
+\begin{supertabular*}{\textwidth}{p{\tcolone}@{\hspace*{2mm}\extracolsep{\fill}}rp{\tcolthree}}
+%%
 \hline
 \multicolumn{3}{c}{\bf {\cvodes} main solver module}\\
 \hline\\
-
+%%
 \id{CV\_ADAMS}            & 1 & Adams-Moulton linear multistep method. \\
 \id{CV\_BDF}              & 2 & BDF linear multistep method. \\
 \id{CV\_FUNCTIONAL}       & 1 & Nonlinear system solution through functional iterations. \\
@@ -48,25 +48,25 @@ description of their meaning.
 \id{CV\_SIMULTANEOUS}     & 1 & Simultaneous corrector forward sensitivity method. \\
 \id{CV\_STAGGERED}        & 2 & Staggered corrector forward sensitivity method. \\
 \id{CV\_STAGGERED1}       & 3 & Staggered (variant) corrector forward sensitivity method. \\
-
+%%
 \\\hline
 \multicolumn{3}{c}{\bf {\cvodea} adjoint solver module}\\
 \hline\\
-
+%%
 \id{CV\_HERMITE} & 1 & Use Hermite interpolation. \\
 \id{CV\_POLYNOMIAL} & 2 & Use variable-degree polynomial interpolation. \\
-
+%%
 \\\hline
 \multicolumn{3}{c}{\bf Iterative linear solver module}\\
 \hline\\
-
+%%
 \id{PREC\_NONE} & 0 & No preconditioning \\
 \id{PREC\_LEFT} & 1 & Preconditioning on the left only. \\
 \id{PREC\_RIGHT} & 2 & Preconditioning on the right only. \\
 \id{PREC\_BOTH} & 3 & Preconditioning on both the left and the right. \\
 \id{MODIFIED\_GS} & 1 & Use modified Gram-Schmidt procedure. \\
-\id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure. \\
-
+\id{CLASSICAL\_GS} & 2 & Use classical Gram-Schmidt procedure.
+%%
 \end{supertabular*}
 
 
@@ -74,7 +74,7 @@ description of their meaning.
 
 \section{CVODES output constants}
 
-\begin{supertabular*}{\textwidth}{p{\tcolone}rp{\tcolthree}}
+\begin{supertabular*}{\textwidth}{p{\tcolone}@{\hspace*{2mm}\extracolsep{\fill}}rp{\tcolthree}}
 
 \hline
 \multicolumn{3}{c}{\bf {\cvodes} main solver module}\\
@@ -263,7 +263,7 @@ description of their meaning.
 \id{CVBBDPRE\_ADJMEM\_NULL}  & -101 & The \id{cvadj\_mem} argument was \id{NULL}. \\
 \id{CVBBDPRE\_PMEMB\_NULL}  & -102 & The {\cvbbdpre} preconditionr module has not been initialized for
                            the backward integration.\\
-\id{CVBBDPRE\_MEM\_FAIL}  & -103 & A memory allocation failed.\\
+\id{CVBBDPRE\_MEM\_FAIL}  & -103 & A memory allocation failed.
 
 \end{supertabular*} 
 

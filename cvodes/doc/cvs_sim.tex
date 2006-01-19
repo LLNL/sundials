@@ -240,7 +240,7 @@ steps marked with {\s} correspond to {\nvecs}.
 
   Call \id{CV*Set*} functions from the selected linear solver module to
   change optional inputs specific to that linear solver.
-  See \S\ref{sss:optin_linsol} for details.
+  See \S\ref{ss:optional_input} for details.
 
 \item
   {\bf Specify rootfinding problem}
@@ -398,7 +398,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   The tolerance values in \id{reltol} and \id{abstol} may be changed between
   calls to \id{CVode} (see \id{CVodeSetTolerances} in \S\ref{sss:optin_main}).
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
   If an error occurred, \id{CVodeMalloc} also prints an error message to the
@@ -524,7 +524,8 @@ norm is being tested in the Krylov algorithm.  As a rule, however, if
 the preconditioner is the product of two matrices, we recommend that
 preconditioning be done either on the left only or the right only,
 rather than using one factor on each side. For the specification of a
-preconditioner, see \S\ref{sss:optin_linsol} and \S\ref{ss:user_fct_sim}.
+preconditioner, see the iterative linear solver sections in \S\ref{ss:optional_input} 
+and \S\ref{ss:user_fct_sim}.
 
 If preconditioning is done, user-supplied functions define left and right 
 preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity
@@ -776,7 +777,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The {\cvspbcg} solver uses a scaled preconditioned Bi-CGStab
   \index{Bi-CGStab method}
-  iterative method to solve the linear system (\ref{e:Newton}).\\
+  iterative method to solve the linear system (\ref{e:Newton}).
 }
 %%
 %%
@@ -822,7 +823,7 @@ are described separately in Chapter \ref{s:gen_linsolv}.
 {
   The {\cvsptfqmr} solver uses a scaled preconditioned TFQMR
   \index{TFQMR method}
-  iterative method to solve the linear system (\ref{e:Newton}).\\
+  iterative method to solve the linear system (\ref{e:Newton}).
 }
 
 
@@ -944,8 +945,10 @@ perform the integration of the IVP.
 from their default values various optional input parameters that control the
 behavior of the {\cvodes} solver. 
 Table \ref{t:optional_input} lists all optional input functions in {\cvodes} which 
-are then described in detail in the remainder of this section.  For the
-most casual use of {\cvodes}, the reader can skip to \S\ref{ss:user_fct_sim}.
+are then described in detail in the remainder of this section, begining with those
+for the main {\cvode} solver and continuing with those for the linear solver
+modules. Note that the diagonal linear solver module has no optional inputs.
+For the most casual use of {\cvodes}, the reader can skip to \S\ref{ss:user_fct_sim}.
 
 We note that, on error return, all of the optional input functions print an
 error message to \id{stderr} (or to the file pointed to by \id{errfp}, if
@@ -1063,7 +1066,7 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
   Passing a value of \id{NULL} disables all future error message output
   (except for the case in which the {\cvodes} memory pointer is \id{NULL}).
 
-  {\warn} If \id{CVodeSetErrFile} is to be called, it should be called before any
+  {\warn}If \id{CVodeSetErrFile} is to be called, it should be called before any
   other optional input functions, in order to take effect for any later error message.
 }
 %%
@@ -1567,10 +1570,10 @@ flag = CVodeSetTolerances(cvode\_mem, itol, reltol, abstol);
   needed only if the tolerances are being changed from their values beween
   successiv calls to \id{CVode}.
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
-  {\warn} It is illegal to call \id{CVodeSetTolerances} before a call to 
+  It is illegal to call \id{CVodeSetTolerances} before a call to 
   \id{CVodeMalloc}.
 }
 %%
@@ -1608,21 +1611,15 @@ flag = CVodeSetEwtFn(cvode\_mem, efun, e\_data);
   
   If not needed, pass \id{NULL} for \id{edata}.
 
-  {\warn} It is illegal to call \id{CVodeSetEwtFn} before a call to \id{CVodeMalloc}.
+  {\warn}It is illegal to call \id{CVodeSetEwtFn} before a call to \id{CVodeMalloc}.
 }
 %%
 %%
 \index{optional input!solver|)}
 
 %%==============================================================================
-\subsubsection{Linear solver optional input functions}\label{sss:optin_linsol}
-%%==============================================================================
-
-The linear solver modules, with one exception, allow for various optional 
-inputs which are described here. The diagonal linear solver module has no
-optional inputs.
-
 \subsubsection{Dense linear solver}\label{sss:optin_dense}
+%%==============================================================================
 \index{optional input!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional input|(}
 The \index{CVDENSE@{\cvdense} linear solver!Jacobian approximation used by}
@@ -1680,7 +1677,9 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{CVDENSE@{\cvdense} linear solver!optional input|)}
 \index{optional input!dense linear solver|)}
 
+%%==============================================================================
 \subsubsection{Band linear solver}\label{sss:optin_band}
+%%==============================================================================
 \index{optional input!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional input|(}
 The \index{CVBAND@{\cvband} linear solver!Jacobian approximation used by}
@@ -1738,7 +1737,9 @@ identical to \id{f\_data}, if the latter was specified through \id{CVodeSetFdata
 \index{CVBAND@{\cvband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
 
+%%==============================================================================
 \subsubsection{SPGMR linear solver}\label{sss:optin_spgmr}
+%%==============================================================================
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -1751,12 +1752,12 @@ The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
 fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should also be specified in the call to
+If used, \id{psetup} should also be specified in the call to
 \id{CVSpgmrSetPreconditioner}.
 \index{CVSPGMR@{\cvspgmr} linear solver!preconditioner setup function}
 %%
-Optionally, the {\cvspgmr} solver passes the pointer \id{p\_data} it
-receives through \id{CVSpgmrSetPreconditioner} to the preconditioner
+Optionally, the {\cvspgmr} solver passes the pointer \id{p\_data}
+received through \id{CVSpgmrSetPreconditioner} to the preconditioner
 \id{psetup} and \id{psolve} functions.  This allows the user to create
 an arbitrary structure with relevant problem data and access it during
 the execution of the user-supplied preconditioner functions without
@@ -1795,9 +1796,9 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[psetup] (\id{CVSpgmrPrecSetupFn})
+  \item[psetup] (\id{CVSpilsPrecSetupFn})
     user-defined preconditioner setup function.
-  \item[psolve] (\id{CVSpgmrPrecSolveFn})
+  \item[psolve] (\id{CVSpilsPrecSolveFn})
     user-defined preconditioner solve function.
   \item[p\_data] (\id{void *})
      pointer to the user-defined data structure.
@@ -1815,8 +1816,8 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \end{args}
 }
 {
-   The function type \id{CVSpgmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
-   The function type \id{CVSpgmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
+   The function type \id{CVSpilsPrecSolveFn} and \id{CVSpilsPrecSetupFn} are
+   described in \S\ref{ss:psolveFn} and \S\ref{ss:precondFn}, respectively.
 }
 %%
 %%
@@ -1975,7 +1976,9 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
 
+%%==============================================================================
 \subsubsection{SPBCG linear solver}\label{sss:optin_spbcg}
+%%==============================================================================
 \index{optional input!iterative linear solver|(}
 \index{CVSPBCG@{\cvspbcg} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -1992,8 +1995,8 @@ If used, the \id{psetup} function should also be specified in the call to
 \id{CVSpbcgSetPreconditioner}.
 \index{CVSPBCG@{\cvspbcg} linear solver!preconditioner setup function}
 %%
-Optionally, the {\cvspbcg} solver passes the pointer \id{p\_data} it
-receives through \id{CVSpbcgSetPreconditioner} to the preconditioner
+Optionally, the {\cvspbcg} solver passes the pointer \id{p\_data}
+received through \id{CVSpbcgSetPreconditioner} to the preconditioner
 \id{psetup} and \id{psolve} functions.  This allows the user to create
 an arbitrary structure with relevant problem data and access it during
 the execution of the user-supplied preconditioner functions without using
@@ -2030,9 +2033,9 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[psetup] (\id{CVSpbcgPrecSetupFn})
+  \item[psetup] (\id{CVSpilsPrecSetupFn})
     user-defined preconditioner setup function.
-  \item[psolve] (\id{CVSpbcgPrecSolveFn})
+  \item[psolve] (\id{CVSpilsPrecSolveFn})
     user-defined preconditioner solve function.
   \item[p\_data] (\id{void *})
      pointer to the user-defined data structure.
@@ -2050,8 +2053,8 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \end{args}
 }
 {
-   The function type \id{CVSpbcgPrecSolveFn} is described in \S\ref{ss:psolveFn}.
-   The function type \id{CVSpbcgPrecSetupFn} is described in \S\ref{ss:precondFn}.
+   The function type \id{CVSpilsPrecSolveFn} and \id{CVSpilsPrecSetupFn} are
+   described in \S\ref{ss:psolveFn} and \S\ref{ss:precondFn}, respectively.
 }
 %%
 %%
@@ -2206,7 +2209,9 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
 \index{CVSPBCG@{\cvspbcg} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
 
+%%==============================================================================
 \subsubsection{SPTFQMR linear solver}\label{sss:optin_sptfqmr}
+%%==============================================================================
 \index{optional input!iterative linear solver|(}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|(}
 \index{preconditioning!user-supplied|(}
@@ -2219,12 +2224,12 @@ The evaluation and preprocessing of any Jacobian-related data needed
 by the user's preconditioner solve function is done in the optional
 user-supplied function \id{psetup}. Both of these functions are
 fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should also be specified in the call to
+If used, \id{psetup} should be specified in the call to
 \id{CVSptfqmrSetPreconditioner}.
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!preconditioner setup function}
 %%
-Optionally, the {\cvsptfqmr} solver passes the pointer \id{p\_data} it
-receives through \id{CVSptfqmrSetPreconditioner} to the preconditioner
+Optionally, the {\cvsptfqmr} solver passes the pointer \id{p\_data}
+received through \id{CVSptfqmrSetPreconditioner} to the preconditioner
 \id{psetup} and \id{psolve} functions.  This allows the user to create
 an arbitrary structure with relevant problem data and access it during
 the execution of the user-supplied preconditioner functions without using
@@ -2254,16 +2259,16 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   flag = CVSptfqmrSetPreconditioner(cvode\_mem, psetup, psolve, p\_data);
 }
 {
-  The function \ID{CVSptfqmrSetPreconditioner} specifies the preconditioner
+  The function \ID{CVSptfqmrSetPreconditioner} sets the preconditioner
   setup and solve functions and the pointer to user data.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
-  \item[psetup] (\id{CVSptfqmrPrecSetupFn})
+  \item[psetup] (\id{CVSpilsPrecSetupFn})
     user-defined preconditioner setup function.
-  \item[psolve] (\id{CVSptfqmrPrecSolveFn})
+  \item[psolve] (\id{CVSpilsPrecSolveFn})
     user-defined preconditioner solve function.
   \item[p\_data] (\id{void *})
      pointer to the user-defined data structure.
@@ -2281,8 +2286,8 @@ The pointer \id{jac\_data} may be identical to \id{p\_data} and/or \id{f\_data}.
   \end{args}
 }
 {
-   The function type \id{CVSptfqmrPrecSolveFn} is described in \S\ref{ss:psolveFn}.
-   The function type \id{CVSptfqmrPrecSetupFn} is described in \S\ref{ss:precondFn}.
+   The function types \id{CVSpilsPrecSolveFn} and \id{CVSpilsPrecSetupFn} are
+   described \S\ref{ss:psolveFn} and \S\ref{ss:precondFn}, respectively.
 }
 %%
 %%
@@ -2505,14 +2510,17 @@ The call to the \id{CVodeGetDky} function has the following form:
 {\cvodes} provides an extensive set of functions that can be used to obtain
 solver performance information.
 Table \ref{t:optional_output} lists all optional output functions in {\cvodes},
-which are then described in detail in the remainder of this section.
+which are then described in detail in the remainder of this section, begining with those
+for the main {\cvode} solver and continuing with those for the linear solver
+modules. Where the name of an output from a linear solver module would otherwise conflict 
+with the name of an optional output from the main solver, a suffix \id{LS} (for Linear Solver) 
+has been added here (e.g. \id{lenrwLS}).
 
 \newlength{\colABC}
 \settowidth{\colABC}{No. of r.h.s. calls for finite diff. Jacobian-vector evals.}
 \newlength{\colDEF}
 \settowidth{\colDEF}{\id{CVodeGetNumNonlinSolvConvFails}}
 
-\newpage
 \tablecaption{Optional outputs from {\cvodes}, {\cvdense}, {\cvband}, {\cvdiag},
  {\cvspgmr}, {\cvspbcg}, and {\cvsptfqmr}}
 \label{t:optional_output}
@@ -3060,7 +3068,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  {\warn} The user must allocate memory for \id{eweight}.
+  {\warn}The user must allocate memory for \id{eweight}.
 }
 %%
 %%
@@ -3090,7 +3098,7 @@ These optional output functions are described next.
   \end{args}
 }
 {
-  {\warn} The user must allocate memory for \id{ele}.
+  {\warn}The user must allocate memory for \id{ele}.
 
   The \id{ele} vector, togther with the \id{eweight} vector from
   \id{CVodeGetErrWeights}, can be used to determine how the various
@@ -3241,17 +3249,8 @@ These optional output functions are described next.
 \index{optional output!solver|)}
 
 %%==============================================================================
-\subsubsection{Linear solver optional output functions}\label{sss:optout_linsol}
-%%==============================================================================
-
-For each of the linear system solver modules there are various optional 
-outputs that describe the performance of the module. The functions available 
-to access these are described below.  Where the name of an output would
-otherwise conflict with the name of an optional output from the main
-solver, a suffix \id{LS} (for Linear Solver) has been added here (e.g.
-\id{lenrwLS}).
-
 \subsubsection{Dense linear solver}\label{sss:optout_dense}
+%%==============================================================================
 \index{optional output!dense linear solver|(}
 \index{CVDENSE@{\cvdense} linear solver!optional output|(}
 The following optional outputs are available from the {\cvdense} module:
@@ -3401,7 +3400,9 @@ and last return value from a {\cvdense} function.
 \index{optional output!dense linear solver|)}
 
 
+%%==============================================================================
 \subsubsection{Band linear solver}\label{sss:optout_band}
+%%==============================================================================
 \index{optional output!band linear solver|(}
 \index{CVBAND@{\cvband} linear solver!optional output|(}
 The following optional outputs are available from the {\cvband} module:
@@ -3552,7 +3553,9 @@ and last return value from a {\cvband} function.
 \index{optional output!band linear solver|)}
 
 
+%%==============================================================================
 \subsubsection{Diagonal linear solver}\label{sss:optout_diag}
+%%==============================================================================
 \index{optional output!diagonal linear solver|(}
 \index{CVDIAG@{\cvdiag} linear solver!optional output|(}
 The following optional outputs are available from the {\cvdiag} module:
@@ -3673,7 +3676,9 @@ finite-difference Jacobian approximation, and last return value from a
 \index{optional output!diagonal linear solver|)}
 
 
+%%==============================================================================
 \subsubsection{SPGMR linear solver}\label{sss:optout_spgmr}
+%%==============================================================================
 \index{optional output!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvspgmr} module:
@@ -3965,7 +3970,9 @@ return value from a {\cvspgmr} function.
 \index{optional output!iterative linear solver|)}
 
 
+%%==============================================================================
 \subsubsection{SPBCG linear solver}\label{sss:optout_spbcg}
+%%==============================================================================
 \index{optional output!iterative linear solver|(}
 \index{CVSPBCG@{\cvspbcg} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvspbcg}
@@ -4251,7 +4258,9 @@ return value from a {\cvspbcg} function.
 \index{CVSPBCG@{\cvspbcg} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
 
+%%==============================================================================
 \subsubsection{SPTFQMR linear solver}\label{sss:optout_sptfqmr}
+%%==============================================================================
 \index{optional output!iterative linear solver|(}
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional output|(} 
 The following optional outputs are available from the {\cvsptfqmr}
@@ -4616,7 +4625,7 @@ appropriate \id{CV*Set*} calls, as described in \S\ref{sss:lin_solv_init}
   If an error occurred, \id{CVodeReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
 
-  {\warn} It is the user's responsibility to provide compatible \id{itol} and
+  {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 }
 
@@ -4653,8 +4662,8 @@ The user must provide a function of type \ID{CVRhsFn} defined as follows:
   \item[ydot]
     is the output vector $f(t,y)$.
   \item[f\_data]
-    is a pointer to user data --- the same as the \Id{f\_data}      
-    parameter passed to \id{CVodeSetFdata}.   
+    is the \Id{f\_data}      
+    pointer passed to \id{CVodeSetFdata}.   
   \end{args}
 }
 {
@@ -4688,8 +4697,8 @@ The function type \id{CVEwtFn} is defined as follows:
   \item[ewt]
     is the output vector containing the error weights.
   \item[e\_data]
-    is a pointer to user data --- the same as the \Id{e\_data}      
-    parameter passed to \id{CVodeSetEwtFn}.   
+    is the \Id{e\_data}      
+    pointer passed to \id{CVodeSetEwtFn}.   
   \end{args}
 }
 {
@@ -4700,7 +4709,7 @@ The function type \id{CVEwtFn} is defined as follows:
 {
   Allocation of memory for \id{ewt} is handled within {\cvodes}.
 
-  {\warn} The error weight vector must have all components positive. It is the
+  {\warn}The error weight vector must have all components positive. It is the
   user's responsiblity to perform this test and return $-1$ if it is not 
   satisfied.
 }
@@ -4738,8 +4747,8 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by:
   \item[fy]
     is the current value of the vector $f(t,y)$.
   \item[jac\_data]
-    is a pointer to user data --- the same as the \id{jac\_data}      
-    parameter passed to \id{CVDenseSetJacFn}.   
+    is the \id{jac\_data}      
+    pointer passed to \id{CVDenseSetJacFn}.   
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
@@ -4827,8 +4836,8 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   \item[fy]
     is the current value of the vector $f(t,y)$.
   \item[jac\_data]
-    is a pointer to user data - the same as the \id{jac\_data}      
-    parameter passed to \id{CVBandSetJacFn}.   
+    is the \id{jac\_data}      
+    pointer passed to \id{CVBandSetJacFn}.   
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
@@ -4917,8 +4926,8 @@ is selected (\id{CVSp*} is called in step \ref{i:lin_solver} of
   \item[fy]
     is the current value of the vector $f(t,y)$.
   \item[jac\_data]
-    is a pointer to user data - the same as the \id{jac\_data}      
-    parameter passed to \id{CVSp*SetJacTimesVecFn}.   
+    is the \id{jac\_data}      
+    pointer passed to \id{CVSp*SetJacTimesVecFn}.   
   \item[tmp]
     is a pointer to memory allocated for a variable of type \id{N\_Vector}
     which can be used for work space.
@@ -4990,8 +4999,8 @@ This function must be of type \ID{CVSpilsPrecSolveFn}, defined as follows:
     function is to use the left preconditioner (\id{lr = 1}) or 
     the right preconditioner (\id{lr = 2});
   \item[p\_data]
-    is a pointer to user data - the same as the \id{p\_data}      
-    parameter passed to the function \id{CVSp*SetPreconditioner}.
+    is the \id{p\_data}      
+    pointer passed to \id{CVSp*SetPreconditioner}.
   \item[tmp]
     is a pointer to memory allocated for a variable of type \id{N\_Vector}
     which can be used for work space.
@@ -5057,8 +5066,8 @@ user-supplied {\C} function of type \ID{CVSpilsPrecSetupFn}, defined as follows:
   \item[gamma]
     is the scalar $\gamma$ appearing in the Newton matrix $M = I - \gamma P$.
   \item[p\_data]
-    is a pointer to user data, the same as the \id{p\_data}      
-    parameter passed to \id{CVSp*SetPreconditioner}.
+    is the \id{p\_data}      
+    pointer passed to \id{CVSp*SetPreconditioner}.
   \item[tmp1]
   \item[tmp2]
   \item[tmp3]
@@ -5490,7 +5499,7 @@ of quadrature equations.
 {
   By default, \id{errconQ} is set to \id{FALSE}. 
 
-  {\warn} It is illegal to call \id{CVodeSetQuadErrCon} before a call 
+  {\warn}It is illegal to call \id{CVodeSetQuadErrCon} before a call 
   to \id{CVodeQuadMalloc}.
 }
 %%
@@ -5591,7 +5600,7 @@ performance information related to quadrature integration.
   \end{args}
 }
 {
-  {\warn} The user must allocate memory for \id{eQweight}.
+  {\warn}The user must allocate memory for \id{eQweight}.
 
   If quadratures were not included in the error control mechanism (through a 
   call to \id{CVodeSetQuadErrCon} with \id{errconQ = TRUE}), 
@@ -5659,8 +5668,8 @@ must be of type \ID{CVQuadRhsFn} defined as follows:
   \item[yQdot]
     is the output vector $f_Q(t,y)$.
   \item[fQ\_data]
-    is a pointer to user data - the same as the \Id{fQ\_data}      
-    parameter passed to \id{CVodeSetQuadFdata}.   
+    is the \Id{fQ\_data}      
+    pointer passed to \id{CVodeSetQuadFdata}.   
   \end{args}
 }
 {
@@ -5766,7 +5775,7 @@ There are two optional output functions associated with rootfinding.
   \end{args}
 }
 {
-  {\warn} The user must allocate memory for the vector \id{rootsfound}.  
+  {\warn}The user must allocate memory for the vector \id{rootsfound}.  
 }
 %%
 %%
@@ -5822,8 +5831,8 @@ the user must supply a {\C} function of type \ID{CVRootFn}, defined as follows:
   \item[gout]
     is the output array, of length \id{nrtfn}, with components $g_i(t,y)$.
   \item[g\_data]
-    is a pointer to user data --- the same as the \Id{g\_data}      
-    parameter passed to \id{CVodeRootInit}.   
+    is the \Id{g\_data}      
+    pointer passed to \id{CVodeRootInit}.   
   \end{args}
 }
 {
@@ -6145,8 +6154,8 @@ the {\cvbandpre} module:
   flag = CVBandPrecGetWorkSpace(bp\_data, \&lenrwBP, \&leniwBP);
 }
 {
-  The function \ID{CVBandPrecGetWorkSpace} returns the
-  {\cvbandpre} real and integer workspace sizes.
+  The function \ID{CVBandPrecGetWorkSpace} returns the sizes of
+  the {\cvbandpre} real and integer workspaces.
 }
 {
   \begin{args}[lenrwBP]
@@ -6336,8 +6345,8 @@ then used by \id{gloc}, which is not expected to do any communication.
   \item[glocal]
     is the output vector.
   \item[f\_data]
-    is a pointer to user data - the same as the \Id{f\_data}      
-    parameter passed to \id{CVodeSetFdata}.  
+    is the \Id{f\_data}      
+    pointer passed to \id{CVodeSetFdata}.  
   \end{args}
 }
 {
@@ -6370,8 +6379,8 @@ then used by \id{gloc}, which is not expected to do any communication.
   \item[y]
     is the dependent variable. 
   \item[f\_data]
-    is a pointer to user data - the same as the \Id{f\_data}      
-    parameter passed to \id{CVodeSetFdata}.  
+    is the \Id{f\_data}      
+    pointer passed to \id{CVodeSetFdata}.  
   \end{args}
 }
 {
@@ -6736,8 +6745,13 @@ the corresponding \id{CVSp***Set***} functions, must also be made.
   \end{args}
 }
 {
-  The return value of \id{CVBBDPrecReInit} is \Id{CVBBDPRE\_SUCCESS} indicating
-  success, or \Id{CVBBDPRE\_PDATA\_NULL} if \id{bbd\_data} is \id{NULL}.
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVBBDPRE\_PDATA\_NULL]
+  \item[\Id{CVSPBCG\_SUCCESS}] 
+    The {\cvspbcg} re-initialization was successful.
+    \item[\Id{CVBBDPRE\_PDATA\_NULL}]
+    The {\cvbbdpre} preconditioner has not been initialized.
+  \end{args}
 }
 {
   If one of the half-bandwidths \id{mudq} or \id{mldq} is negative or
@@ -6829,6 +6843,5 @@ In addition to the \id{ngevalsBBDP} \id{gloc} evaluations,
 the costs associated with {\cvbbdpre} also include \id{nlinsetups} LU
 factorizations, \id{nlinsetups} calls to \id{cfn}, \id{npsolves} banded
 backsolve calls, and \id{nfevalsLS} right-hand side function evaluations,
-where \id{nlinsetups} is an optional {\cvodes} output (see
-\S\ref{sss:optout_main}), and \id{npsolves} and \id{nfevalsLS} are
-linear solver optional outputs (see \S\ref{sss:optout_linsol}).
+where \id{nlinsetups} is an optional {\cvodes} output and \id{npsolves} and 
+\id{nfevalsLS} are linear solver optional outputs (see \S\ref{ss:optional_output}).

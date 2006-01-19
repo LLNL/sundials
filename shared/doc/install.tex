@@ -526,7 +526,7 @@ The various macro names defined in \id{sundials\_config.h} have the following us
   extended precision, respectively.
 
 \item use of generic math functions\\
-  If the macro name \id{SUNDIALS\_USE\_GENERIC\_MATH} is defined, the functions
+  If \id{SUNDIALS\_USE\_GENERIC\_MATH} is defined, the functions
   in \id{sundials\_math.(h,c)} will use the standard \id{pow}, \id{sqrt}, and \id{fabs}
   functions from \id{math.h}, no matter what the precision of \id{realtype} is.
   Otherwise, if \id{realtype} is defined to be \id{float}, these functions
