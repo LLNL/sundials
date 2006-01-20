@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-20 20:38:41 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
   pbar[1] = data->p[1];
   pbar[2] = data->p[2];
   plist = (int *) malloc(NS * sizeof(int));
-  for (is=0; is<NS; is++) plist[is] = is+1;
+  for (is=0; is<NS; is++) plist[is] = is;
 
   yS0 = N_VCloneVectorArray_Serial(NS, y);
   for (is=0;is<NS;is++) N_VConst(ZERO, yS0[is]);
