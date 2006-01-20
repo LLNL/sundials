@@ -19,10 +19,25 @@ Briefly, their purposes are as follows:
 A linear solver module must also provide a user-callable specification routine
 (like those described in \S\ref{sss:lin_solv_init}) which will attach the above four 
 routines to the main {\cvode} memory block.
+The {\cvode} memory block is a structure defined in the header file \id{cvode\_impl.h}. 
+A pointer to such a structure is defined as the type \id{CVodeMem}. 
+The four fields in a \id{CvodeMem} structure that must point to the linear solver's 
+functions are \id{cv\_linit}, \id{cv\_lsetup}, \id{cv\_lsolve}, and \id{cv\_lfree}, respectively.
 Note that of the four interface routines, only the \id{lsolve} routine is required. 
 The \id{lfree} routine must be provided only if the solver specification routine
 makes any memory allocation.
+%%
+For consistency with the existing {\cvode} linear solver modules, we recommend that the 
+return value of the specification function be 0 for a successful return or a negative value 
+if an error occurs (the pointer to the main {\cvode} memory block is \id{NULL}, 
+an input is illegal, the {\nvector} implementation is not compatible, a memory allocation 
+fails, etc.)
 
+To facilitate data exchange between the four interface functions, the field \id{cv\_lmem}
+in the {\cvode} memory block can be used to attach a linear solver-specific memory
+block.
+
+\vspace{0.1in}
 These four routines that interface between {\cvode} and the linear solver module
 necessarily have fixed call sequences.  Thus, a user wishing to implement another 
 linear solver within the {\cvode} package must adhere to this set of interfaces.

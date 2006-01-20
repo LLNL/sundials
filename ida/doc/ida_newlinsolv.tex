@@ -19,11 +19,27 @@ Briefly, their purposes are as follows:
 %%
 A linear solver module must also provide a user-callable specification routine
 (like those described in \S\ref{sss:lin_solv_init}) which will attach
-the above five routines to the main {\ida} memory block. The return value of the
-specification routine should be: \id{SUCCESS} = 0 if the routine was successful,
-\id{LMEM\_FAIL} = -1 if a memory allocation failed, or \id{LIN\_ILL\_INPUT} = -2
-if some input was illegal.
+the above five routines to the main {\ida} memory block. 
+The {\ida} memory block is a structure defined in the header file \id{ida\_impl.h}. 
+A pointer to such a structure is defined as the type \id{IDAMem}. 
+The five fields in a \id{IDAMem} structure that must point to the linear solver's 
+functions are \id{ida\_linit}, \id{ida\_lsetup}, \id{ida\_lsolve}, \id{ida\_lperf}, 
+and \id{ida\_lfree}, respectively.
+Note that of the four interface routines, only the \id{lsolve} routine is required. 
+The \id{lfree} routine must be provided only if the solver specification routine
+makes any memory allocation.
+%%
+For consistency with the existing {\ida} linear solver modules, we recommend that the 
+return value of the specification function be 0 for a successful return or a negative value 
+if an error occurs (the pointer to the main {\ida} memory block is \id{NULL}, 
+an input is illegal, the {\nvector} implementation is not compatible, a memory allocation 
+fails, etc.)
 
+To facilitate data exchange between the five interface functions, the field \id{ida\_lmem}
+in the {\ida} memory block can be used to attach a linear solver-specific memory
+block.
+
+\vspace{0.1in}
 These five routines, which interface between {\ida} and the linear solver module,
 necessarily have fixed call sequences.  Thus a user wishing to implement another 
 linear solver within the {\ida} package must adhere to this set of interfaces.
