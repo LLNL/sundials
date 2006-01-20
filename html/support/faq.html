@@ -81,31 +81,23 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <ul>
   <li><a href="#inst_path">I got the tarball. What do I do next?</a></li>
   <li><a href="#inst_linux">What configure flags do I really need?</a></li>
+  <li><a href="#inst_noconfig">How do I build SUNDIALS without using the configure script?</a></li>
   <li><a href="#inst_win">How do I install SUNDIALS under Windows?</a></li>
   <li><a href="#inst_cygwin">How can I generate shared libraries under cygwin?</a></li>
   </ul>
-<li><a href="#cvode">CVODE</a>
+<li><a href="#cvode">CVODE / CVODES</a>
   <ul>
-  <li><a href="#cvode_tols">How do I choose tolerances in CVODE?</a></li>
-  <li><a href="#cvode_negvals">How do I control unphysical negative values in CVODE?</a></li>
-  <li></li>
-  <li></li>
-  </ul>
-<li><a href="#cvodes">CVODES</a>
-  <ul>
-  <li><a href="#cvodes_tols">How do I choose tolerances in CVODES?</a></li>
-  <li><a href="#cvodes_negvals">How do I control unphysical negative values in CVODES?</a></li>
-  <li></li>
+  <li><a href="#cvode_tols">How do I choose tolerances in CVODE / CVODES?</a></li>
+  <li><a href="#cvode_negvals">How do I control unphysical negative values in CVODE / CVODES?</a></li>
+  <li><a href="#cvodes_senstoggle">How do I switch on/off forward sensitivity computations in CVODES?</a></li>
   <li></li>
   </ul>
 <li><a href="#ida">IDA</a>
   <ul>
   <li><a href="#ida_tols">How do I choose tolerances in IDA?</a></li>
   <li><a href="#ida_negvals">How do I control unphysical negative values in IDA?</a></li>
-  <li></li>
-  <li></li>
-  <li></li>
   </ul>
+<!--
 <li><a href="#kinsol">KINSOL</a>
   <ul>
   <li></li>
@@ -118,6 +110,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <li></li>
   <li></li>
   </ul>
+-->
 </ul>
 
 </div>
@@ -142,7 +135,7 @@ Next, you need to configure and build the SUNDIALS libraries. You can get some i
 on how to do this here, but more details are available in the user guides 
 (e.g. <tt>sundials/cvode/doc/cv_guide.pdf</tt>).
 <br><br>
-Note that, since we expect most of our users to do local installs of the SUNIDALS packages,
+Note that, since we expect most of our users to do local installs of the SUNDIALS packages,
 our build system does not respect the usual *NIX convention of installing by
 default in <tt>/usr/local</tt>. Instead, the default is to install the libraries and
 header files in two directories, <tt>lib</tt> and <tt>include</tt>, respectively,
@@ -178,6 +171,16 @@ compiler flag <tt>-g3</tt>, you would use:
 
 </div>
 
+
+<a name="inst_noconfig"></a>
+<div class="faq_q">How do I install SUNDIALS without using the configure script?</div>
+<div class="faq_a">
+Complete details on bulding SUNDIALS without using the default build system are provided
+in the "Building SUNDIALS without the configure script" section of the installation
+chapter in any of the SUNDIALS user guides. The required sample configuration header
+file can be obtained here: <a href="samples/sundials_config.h">sundials_config.h</a>.
+</div>
+
 <a name="inst_win"></a>
 <div class="faq_q">How do I install SUNDIALS under Windows?</div>
 <div class="faq_a">
@@ -185,74 +188,85 @@ The easiest way of obtaining Windows libraries for the SUNDIALS solvers is proba
 to use <tt>cygwin</tt> (<a href="http://www.cygwin.com" target="_blank">www.cygwin.com</a>),
 in which case the installation procedure is the same as for any other *NIX system.
 <br><br>
+
 Several of our users have reported successfuly building the SUNDIALS libraries using
-various IDEs (Borland C++, Visual C++, etc.). For more details, browse the
-<a href="mailArchive/maillist.html" target="_blank">sundials-users</a> mailing list.
+various IDEs (Borland C++, Visual C++, etc.). For more details, see 
+<a href="#inst_noconfig">How do I install SUNDIALS without using the configure script?</a> 
+and browse the <a href="mailArchive/maillist.html" target="_blank">sundials-users</a> 
+mailing list.
 <br><br>
 Instructions to compile SUNDIALS with VC8 - Visual Studio C++ Express 2005
 (courtesy of Andreas Nicolai)
-
-<pre>
-1. extract SUNDIALS archive (I use sundials_ser.tar.gz as example here)
-2. copy config.hin to sundials_config.h
-3. edit sundials_config.h and change it so that the following defines are present:
-   #define HAVE_FLOAT_H
-   #define HAVE_MATH_H
-   #define HAVE_MEMORY_H
-   #define HAVE_STDINT_H
-   #define HAVE_STDLIB_H
-   #define HAVE_STRING_H
-   #define HAVE_SYS_STAT_H
-   #define HAVE_SYS_TYPES_H
-   #define SUNDIALS_DOUBLE_PRECISION
-   #define SUNDIALS_USE_GENERIC_MATH
-
-4. create a subdirectory 'projects', 'includes' and 'libs'
-4.1 copy all include files from the various subdirectories in sundials into
-    the 'includes' folder (Windows doesn't have softlinks unfortunately)
-
-5. create the SUNDIALS libraries that you need, here is the general
-   procedure that you have to follow for all libraries
-5.1 start VC
-5.2 create new project:
-    Type: Win32 Console Application
-    Name: libXXX
-    Place: in directory 'projects'
-    In New Project Wizard, select application settings page and choose:
-    - static library
-    - uncheck 'precompiled headers'
-5.3 add existings source files to Sources and Headers
-    (files are in the appropriate SUNDIALS subdirs)
-5.4 open project properties and modify settings:
-    "Configuration properties" - "General"
-    - change "Output Directory" to "../../libs"
-    "Configuration properties" - "C++" : "Additional Include Directories"
-    - add appropriate include directories here (see below)
-    "Configuration properties" - "C++" : "Code generation"
-    - change "Runtime Library" to "Multi-threaded (/MT)"
-      (links to the static runtime library)
-    "Configuration properties" - "C++" : "Preprocessor"
-    - add "HAVE_CONFIG_H" to "Preprocessor Definitions"
-
-6. specific settings for various libraries
-6.1 libNVector:
-    source to add: 'nvector_serial.c' to Sources and 'nvector_serial.h' to Headers
-                  (files are in subdir 'nvec_ser')
-    includes: "../..;../../shared/include"
-6.2 libSundialsShared:
-    sources to add: all in subdirs shared/include and shared/source
-    includes: "../..;../../shared/include"
-6.3 libCVode:
-    source to add: all in subdirs cvode/include and cvode/source
-    includes: "../..;../../shared/include;../../cvode/include;../../cvode/source"
-6.4 for all other solver libs use similar settings as for libCVode
-
-7. linking programs to SUNDIALS libs
-7.1 once all libraries have been created, the corresponding lib-files should 
-    be in the 'libs' subdir, all header files should be copied to 'includes'
-7.2 external SUNDIALS users must add the include directory and link to all used
-    libraries, typically libNVector, libSundialsShared and one of the solver libs
-</pre>
+<ol>
+<li>
+  extract SUNDIALS archive
+</li>
+<li>
+  copy (and optionally edit) the sample 
+  <a href="samples/sundials_config.h">sundials_config.h</a> header file
+</li>
+<li>
+  create subdirectories <tt>projects</tt>, <tt>includes</tt>, and <tt>libs</tt>
+  <br>
+  copy all include files from the various subdirectories in SUNDIALS into
+  the <tt>includes</tt> folder (Windows doesn't have softlinks unfortunately)
+</li>
+<li>
+  create the SUNDIALS libraries that you need
+  <br>
+  here is the general procedure that you have to follow for each library
+  <ul>
+  <li> start VC </li>
+  <li> create new project<br>
+       Type: Win32 Console Application<br>
+       Name: libXXX<br>
+       Place: in directory <tt>projects</tt><br>
+       In New Project Wizard, select application settings page and choose:<br>
+       - static library<br>
+       - uncheck "precompiled headers"
+  </li>
+  <li> add existings source files to Sources and Headers 
+       (files are in the appropriate SUNDIALS subdirs)
+  </li>
+  <li> open project properties and modify settings:<br>
+       "Configuration properties" - "General"<br>
+       - change "Output Directory" to <tt>../../libs</tt><br>
+       "Configuration properties" - "C++" : "Additional Include Directories"<br>
+       - add appropriate include directories here (see below)<br>
+       "Configuration properties" - "C++" : "Code generation"<br>
+       - change "Runtime Library" to "Multi-threaded (/MT)"<br>
+         (links to the static runtime library)<br>
+       "Configuration properties" - "C++" : "Preprocessor"<br>
+       - add "HAVE_CONFIG_H" to "Preprocessor Definitions"
+  </li>
+  </ul>
+</li>
+<li>
+  specific settings for various libraries
+  <ul>
+  <li> libNVector:<br>
+       source to add: <tt>nvector_serial.c</tt> to Sources and <tt>nvector_serial.h</tt> to Headers
+                      (files are in subdir 'nvec_ser')<br>
+       includes: <tt>../..; ../../shared/include</tt>
+  </li>
+  <li> libCVode:<br>
+       source to add: all in subdirs <tt>cvode/include</tt> and <tt>cvode/source</tt>,
+                      all in subdirs <tt>shared/include</tt> and <tt>shared/source</tt><br>
+       includes: <tt>../..; ../../shared/include; ../../cvode/include; ../../cvode/source</tt>
+  </li>
+  <li> for all other solver libs use similar settings as for libCVode</li>
+  </ul>
+</li>
+<li>
+  linking programs to SUNDIALS libs
+  <ul>
+  <li> once all libraries have been created, they should be in the <tt>libs</tt> 
+       subdir while all header files should be copied to <tt>includes</tt></li>
+  <li> external SUNDIALS users must add the include directory and link to all used
+       libraries, typically libNVector and one of the solver libs</li>
+  </ul>
+</li>
+</ol>
 
 </div>
 
@@ -293,11 +307,11 @@ flag:
 <!-- ================= CVODE ===================== -->
 
 <a name="cvode"></a>
-<h1>CVODE</h1>
+<h1>CVODE / CVODES</h1>
 <div class="frame">
 
 <a name="cvode_tols"></a>
-<div class="faq_q">How do I choose tolerances in CVODE?</div>
+<div class="faq_q">How do I choose tolerances in CVODE / CVODES?</div>
 <div class="faq_a">
 For many users, the appropriate choices for tolerance values are a
 concern.  The following pieces of advice are relevant.
@@ -335,7 +349,7 @@ tolerances are reduced.</li>
 </div>
 
 <a name="cvode_negvals"></a>
-<div class="faq_q">How do I control unphysical negative values in CVODE?</div>
+<div class="faq_q">How do I control unphysical negative values in CVODE / CVODES?</div>
 <div class="faq_a">
 In many applications, some components in the true solution are always
 positive or non-negative, though at times very small.  In the numerical
@@ -365,24 +379,21 @@ be changed to zero or a tiny positive number in a temporary variable
 </ol>
 </div>
 
-</div>
-
-<!-- ============== CVODES =============== -->
-
-<a name="cvodes"></a>
-<h1>CVODES</h1>
-<div class="frame">
-
-<a name="cvodes_tols"></a>
-<div class="faq_q">How do I choose tolerances in CVODES?</div>
+<a name="cvodes_senstoggle"></a>
+<div class="faq_q">How do switch on/off forward sensitivity computations in CVODES?</div>
 <div class="faq_a">
-See <a href="#cvode_tols">How do I choose tolerances in CVODE?</a>
-</div>
-
-<a name="cvodes_negvals"></a>
-<div class="faq_q">How do I control unphysical negative values in CVODES?</div>
-<div class="faq_a">
-See <a href="#cvode_negvals">How do I control unphysical negative values in CVODE?</a>
+If you want to turn on and off forward sensitivity calculations during several 
+successive integrations (such as if you were using CVODES within a dynamically-constrained 
+optimization loop, when sometimes you want to only integrate the states and sometimes you 
+also need sensitivities computed), it is most efficient to use CVodeSensToggle. 
+<br><br>
+Sensitivity calculations are enabled by the following functions: 
+CVodeSensMalloc, CVodeSensReInit, and CVodeSensToggle (with TRUE as the second argument) 
+and are disabled by CVodeSensFree (after calling this one, they can be re-enabled only by 
+calling CVodeSensMalloc) and CVodeSensToggle (with FALSE as the second argument). 
+<br><br>
+An example demonstarting these features is available here:
+<a href="samples/cvfdx1.c">cvfdx1.c</a>.
 </div>
 
 
@@ -415,6 +426,8 @@ unsuccessful, because they involve some extra overhead cost.
 
 <!-- ================ KINSOL ================== -->
 
+<!--
+
 <a name="kinsol"></a>
 <h1>KINSOL</h1>
 <div class="frame">
@@ -433,7 +446,11 @@ a
 
 </div>
 
+-->
+
 <!-- =============== sundialsTB ================== -->
+
+<!--
 
 <a name="stb"></a>
 <h1>sundialsTB</h1>
@@ -452,6 +469,8 @@ a
 </div>
 
 </div>
+
+-->
 
 <!-- ------ -->
 
