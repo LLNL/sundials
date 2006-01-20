@@ -116,12 +116,13 @@ of the quadrature equation and the initial values of the quadrature variable).
 
 Allocation for the memory block of the combined forward-backward problem is
 acomplished through the call to \id{CVadjMalloc} which specifies \id{STEPS = 150},
-the number of steps between two checkpoints.
+the number of steps between two checkpoints, and specifies cubic Hermite interpolation.
 
 The call to \id{CVodeF} requests the solution of the forward problem to \id{TOUT}.
 If successful, at the end of the integration, \id{CVodeF} will return the number
 of saved checkpoints in the argument \id{ncheck} (optionally, a list of the checkpoints
-can be printed by calling \id{CVadjGetCheckPointsList}).
+can be obtained by calling \id{CVadjGetCheckPointsInfo} and the checkpoint information
+printed).
 
 The next segment of code deals with the setup of the backward problem. 
 First, a serial vector \id{yB} of length \id{NEQ} is allocated and initalized with the
@@ -130,7 +131,8 @@ A second serial vector \id{qB} of dimension \id{NP} is created and initialized t
 This vector corresponds to the quadrature variables $\xi$ whose values at $t_0$ 
 are the components of the gradient of $G$ with respect to the problem parameters $p$.
 %%
-Following that, the program sets the relative and absolute tolerances for the backward integration.
+Following that, the program sets the relative and absolute tolerances for the backward 
+integration.
 
 The {\cvodes} memory for the integration of the backward integration is created and allocated
 by the calls to the interface routines \id{CVodeCreateB} amd \id{CVodeMallocB} which 
