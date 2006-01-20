@@ -1,16 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: Undefined value from CVodeGetCurrentStep -->
-<!--X-From-R13: Oaqerl Dbznaraxb <naqerlNratvahz.pbz> -->
-<!--X-Date: Tue, 17 Jan 2006 15:31:38 &#45;0800 (PST) -->
-<!--X-Message-Id: 200601172318.09538.andrey@enginum.com -->
+<!--X-Subject: Re: Manually modifying solver variables -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 18 Jan 2006 16:04:59 &#45;0800 (PST) -->
+<!--X-Message-Id: 43CED623.5090508@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: op.s3bmu2y5t8lo91@smtp.kuleuven.ac.be -->
-<!--X-Reference: 43CD2433.2080406@llnl.gov -->
-<!--X-Reference: op.s3jnq9b0t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: op.s3a9u9kqt8lo91@smtp.kuleuven.ac.be -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: Undefined value from CVodeGetCurrentStep</title>
+<title>Re: Manually modifying solver variables</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -69,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00218.html">Date Prev</a>] [<a href="msg00220.html">Date Next</a>] [<a href="msg00218.html">Thread Prev</a>] [<a href="msg00220.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00219">Date Index</a></b>]
-[<b><a href="threads.html#00219">Thread Index</a></b>]
+[<a href="msg00221.html">Date Prev</a>] [<a href="msg00223.html">Date Next</a>] [<a href="msg00214.html">Thread Prev</a>] [<a href="msg00223.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00222">Date Index</a></b>]
+[<b><a href="threads.html#00222">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: Undefined value from CVodeGetCurrentStep</h1>
+<h1>Re: Manually modifying solver variables</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -86,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Andrey Romanenko &lt;<a href="mailto:andrey%40enginum.com">andrey@enginum.com</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 17 Jan 2006 23:18:06 +0000</td>
+Wed, 18 Jan 2006 15:58:27 -0800</td>
 </tr>
 
 </table>
@@ -103,26 +101,66 @@ Tue, 17 Jan 2006 23:18:06 +0000</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Hi!
+<pre style="margin: 0em;">Hi Andreas,</pre><br>
+<tt>You should not attempt to modify the variables integrated by CVODE outside the solver.<br>
+I see two options for you:<br>
+a) lag the two sets of variables in time (search for &quot;time splitting&quot;, &quot;operator splitting&quot;, 
+&quot;fractional step&quot; methods)<br>
+b) solve the whole coupled system with CVODE and, for efficiency, ignore the nonstiff variables and 
+equations in your Jacobian approximation functions.</tt><br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<tt>Andreas Nicolai wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
+<tt>I have a question about CVODE. In order to reduce the size of my system, 
+I would like to integrate some variables outside the main integration 
+loop of CVODE. For example, I have 3 highly coupled and strongly 
+non-linear quantities that I integrate with CVODE. But then I have 5 
+other quantities that influence the system rather marginally, but depend 
+on the solution of the first 3 (primary) quantities. Also the accuracy 
+requirements for these other 5 variables are much lower.</tt><br>
+<br>
+<tt>Also, for these other 5 quantities numerical stability isn't critical, 
+so I would now simply use CVODE in its one-step-mode and use an explicit 
+scheme to integrate those 5 variables at the end of each time step. This 
+works fine and very fast, too.</tt><br>
+<br>
+<pre style="margin: 0em;">But...</pre><br>
+<tt>Some of these 5 variables require now changes of one of my primary 
+variables. Obviously, I may not simply change the variables that I use 
+as input for CVODE (in each new call of the CVODE integrator). At least 
+when I tried to do so, I got weird results. I believe that doing so I 
+would introduce an unsteadyness in the solution and the whole history of 
+past time steps and extrapolation goes down the drain.</tt><br>
+<br>
+<pre style="margin: 0em;">-----
+Here is a short example to clarify the problem:</pre><br>
+<tt>Primary quantities are: Temperature and salt concentration<br>
+Secondary quantities (not integrated with CVODE) are: solid salt mass 
+concentration</tt><br>
+<br>
+<tt>After each step of CVODE I calculate the approximate production rate for 
+my salt and calculate the change of mass for my solid salt. But I also 
+have to remove the salt mass from the solution and change the 
+concentration. However, salt concentration is an integrated quantity in 
+CVODE and I cannot do that simply in between calls to CVODE.<br>
+-----</tt><br>
+<br>
+<tt>Now, is there a safe/recommanded way to modify my solution variables 
+after each step that CVODE took without the need to reinitialize the 
+solver every time?</tt><br>
+<br>
+<tt>One &quot;hack&quot; I could think of is to &quot;remember&quot; the change I want to make 
+to the variable and simply add it as source/sink term when I next 
+calculate my divergences inside my f() function during the next CVODE 
+integration.</tt><br>
+<br>
+<pre style="margin: 0em;"><br>Thanks for any suggestions,
+Andreas</pre><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
 
-Can you solve this by  turning on the root finding feature in order to stop 
-the integration when the concentration hits zero?. Check out section 5.8 of 
-CVODES manual.
-
-Andrey
-
-On Tuesday 17 January 2006 22:36, Andreas Nicolai wrote:
-&gt;<i> Now in order to use the same procedure in CVODE I would need the current</i>
-&gt;<i> time step, that is actually used during the current iteration from within</i>
-&gt;<i> the f() function, in order to correctly calculate the sink term.</i>
-&gt;<i></i>
-&gt;<i> Any suggestions how I could obtain that value?</i>
-&gt;<i></i>
-&gt;<i> PS: Alternatively I could use some kind of scaling function, which would</i>
-&gt;<i> &quot;gently&quot; bend my dissolution rate towards zero if my remaining salt masses</i>
-&gt;<i> approach zero.</i>
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -131,42 +169,38 @@ On Tuesday 17 January 2006 22:36, Andreas Nicolai wrote:
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00220" href="msg00220.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00223" href="msg00223.html">RE: Pass different functions f of different size</a></strong>
+<ul><li><em>From:</em> Mukesh &lt;muk139@psu.edu&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00215" href="msg00215.html">Undefined value from CVodeGetCurrentStep</a></strong>
-<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
-<li><strong><a name="00216" href="msg00216.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00218" href="msg00218.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<li><strong><a name="00214" href="msg00214.html">Manually modifying solver variables</a></strong>
 <ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00218.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<strong><a href="msg00221.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00220.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<strong><a href="msg00223.html">RE: Pass different functions f of different size</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00218.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<strong><a href="msg00214.html">Manually modifying solver variables</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00220.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<strong><a href="msg00223.html">RE: Pass different functions f of different size</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00219">
+<li><a href="maillist.html#00222">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00219">
+<li><a href="threads.html#00222">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

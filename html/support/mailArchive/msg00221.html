@@ -1,12 +1,14 @@
 <!-- MHonArc v2.6.10 -->
 <!--X-Subject: Re: Undefined value from CVodeGetCurrentStep -->
-<!--X-From-R13: Oaqerl Dbznaraxb <naqerlNratvahz.pbz> -->
-<!--X-Date: Tue, 17 Jan 2006 15:31:38 &#45;0800 (PST) -->
-<!--X-Message-Id: 200601172318.09538.andrey@enginum.com -->
+<!--X-From-R13: Oaqernf @vpbynv <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Wed, 18 Jan 2006 03:41:21 &#45;0800 (PST) -->
+<!--X-Message-Id: op.s3kogcgut8lo91@smtp.kuleuven.ac.be -->
 <!--X-Content-Type: text/plain -->
 <!--X-Reference: op.s3bmu2y5t8lo91@smtp.kuleuven.ac.be -->
 <!--X-Reference: 43CD2433.2080406@llnl.gov -->
 <!--X-Reference: op.s3jnq9b0t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: 200601172318.09538.andrey@enginum.com -->
+<!--X-Reference: 43CD830C.6020102@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
@@ -69,9 +71,9 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00218.html">Date Prev</a>] [<a href="msg00220.html">Date Next</a>] [<a href="msg00218.html">Thread Prev</a>] [<a href="msg00220.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00219">Date Index</a></b>]
-[<b><a href="threads.html#00219">Thread Index</a></b>]
+[<a href="msg00220.html">Date Prev</a>] [<a href="msg00222.html">Date Next</a>] [<a href="msg00220.html">Thread Prev</a>] [Thread Next]<br>
+[<b><a href="maillist.html#00221">Date Index</a></b>]
+[<b><a href="threads.html#00221">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
@@ -86,14 +88,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Andrey Romanenko &lt;<a href="mailto:andrey%40enginum.com">andrey@enginum.com</a>&gt;</td>
+Andreas Nicolai &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 17 Jan 2006 23:18:06 +0000</td>
+Wed, 18 Jan 2006 06:49:14 -0500</td>
 </tr>
 
 </table>
@@ -103,37 +105,25 @@ Tue, 17 Jan 2006 23:18:06 +0000</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Hi!
+<pre style="margin: 0em;">Hi again,</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I fixed these issues related to next_h and the next release will include the 
+fixes. In the meantime,
+if you or someone else needs this, I could tell you how to fix the cvode.c (or 
+cvodes.c in CVODES)
+file. For this, I'll need to know the revision number and/or date of your copy 
+of the file (in the
+comment section at the top of the file).
+</pre></blockquote><pre style="margin: 0em;"><br>It is not urgend right now, so I'll just wait for the next release. Thanks 
+for the code fix!</pre><br>
+<pre style="margin: 0em;">Andreas</pre><br>
+<br>
 
-Can you solve this by  turning on the root finding feature in order to stop 
-the integration when the concentration hits zero?. Check out section 5.8 of 
-CVODES manual.
-
-Andrey
-
-On Tuesday 17 January 2006 22:36, Andreas Nicolai wrote:
-&gt;<i> Now in order to use the same procedure in CVODE I would need the current</i>
-&gt;<i> time step, that is actually used during the current iteration from within</i>
-&gt;<i> the f() function, in order to correctly calculate the sink term.</i>
-&gt;<i></i>
-&gt;<i> Any suggestions how I could obtain that value?</i>
-&gt;<i></i>
-&gt;<i> PS: Alternatively I could use some kind of scaling function, which would</i>
-&gt;<i> &quot;gently&quot; bend my dissolution rate towards zero if my remaining salt masses</i>
-&gt;<i> approach zero.</i>
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00220" href="msg00220.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
@@ -144,29 +134,30 @@ On Tuesday 17 January 2006 22:36, Andreas Nicolai wrote:
 <ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 <li><strong><a name="00218" href="msg00218.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
 <ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00219" href="msg00219.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+<li><strong><a name="00220" href="msg00220.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00218.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<strong><a href="msg00220.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00220.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
+<strong><a href="msg00222.html">Re: Manually modifying solver variables</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00218.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
-</li>
-<li>Next by thread:
 <strong><a href="msg00220.html">Re: Undefined value from CVodeGetCurrentStep</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00219">
+<li><a href="maillist.html#00221">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00219">
+<li><a href="threads.html#00221">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

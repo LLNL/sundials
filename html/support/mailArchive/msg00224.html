@@ -1,0 +1,259 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: Pass different functions f of different size -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 18 Jan 2006 18:43:42 &#45;0800 (PST) -->
+<!--X-Message-Id: 43CEFB68.9060604@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 000301c61c8f$1b9d6a00$61cecb82@CEECADLAB.PSU.EDU -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: Pass different functions f of different size</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00223.html">Date Prev</a>] [Date Next] [<a href="msg00223.html">Thread Prev</a>] [<a href="msg00215.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00224">Date Index</a></b>]
+[<b><a href="threads.html#00224">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: Pass different functions f of different size</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 18 Jan 2006 18:37:28 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Hi Mukesh,</pre><br>
+<tt>Mukesh wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">I have two cases for which I am passing void f(integertype N,<br>
+realtype t, N_Vector y, N_Vector ydot,void *f_data) to CVodeMalloc. 
+</blockquote><br>First of all, it seems that you are using a very old version of CVODE (the argument N was removed 
+from the RhsFn type in March 2003). You may want to update.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">In case 1 there are N ydot equations and in case 2 there are N-1 ydot equations.
+However, in case 2 yN = (yN-1)*(yN-2). Since (N-1) ydot equations are
+</pre></blockquote><pre style="margin: 0em;"><br>Do you mean y_{N} = y_{N-1} * y_{N-2} ?</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">exactly same in both the cases, I have included them in same program with a
+switch statement. In face these are two cases of the model I am trying to
+solve.
+My question is how can I pass N-1 equations using CVode when I have
+already defined y = N_VNEW(N,NULL) for case 2 also. I am able to solve case
+1.</pre><br>
+Please let me know if you have any other information in this regard
+</blockquote><br>I'm not completely sure I understand exactly your question. But, if you are trying to solve both 
+systems within the same code, it is perfectly legal to have different N_Vectors simultaneously, as 
+long as you are careful in keeping track which is which. Since the content field of the generic 
+N_Vector type is just a pointer to void, you should be able to use the exact same function f (with a 
+switch statement based on a flag in f_data) for both problems.<br>
+<br>
+<pre style="margin: 0em;">The program below is a demonstration of this (using CVODE v2.3.0)</pre><br>
+<pre style="margin: 0em;">Hope that this helps,</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+
+
+<pre style="margin: 0em;"><tt><br>
+/*
+ * -----------------------------------------------------------------
+ * First system:
+ *    y1' = -.04*y1 + 1.e4*y2*y3
+ *    y2' = 3.e7*(y2)^2
+ *    y3' = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
+ * y1(0)=1 y2(0)=y3(0)=0
+ *
+ * Second system:
+ *    y1' = -.04*y1 + 1.e4*y2*y3
+ *    y2' = 3.e7*(y2)^2
+ * where y3 = -y1-y2+1
+ * y1(0)=1 y2(0)=0
+ *
+ * -- Radu Serban @ LLNL --
+ * -----------------------------------------------------------------
+ */</tt></pre><br>
+<pre style="margin: 0em;"><tt>#include &lt;stdio.h&gt;
+#include &quot;cvode.h&quot;
+#include &quot;nvector_serial.h&quot;
+#include &quot;cvdense.h&quot;</tt></pre><br>
+<pre style="margin: 0em;"><tt>#define Ith(v,i) NV_Ith_S(v,i-1)</tt></pre><br>
+<pre style="margin: 0em;"><tt>static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);</tt></pre><br>
+<pre style="margin: 0em;"><tt>int main()
+{
+  int neq1, neq2, flag1, flag2;
+  N_Vector y1, y2, abstol1, abstol2;
+  void *cvode_mem1, *cvode_mem2;
+  realtype reltol, t0, t1, t;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  reltol = 1.0e-4;
+  t0 = 0.0;   t1 = 0.4;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  flag1 = 1;  flag2 = 2;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  neq1 = 3;
+  y1 = N_VNew_Serial(neq1);
+  abstol1 = N_VNew_Serial(neq1);
+  Ith(y1,1) = 1.0;         Ith(y1,2) = 0.0;         Ith(y1,3) = 0.0;
+  Ith(abstol1,1) = 1.0e-8; Ith(abstol1,2) = 1.0e-6; Ith(abstol1,3) = 1.0e-14;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  neq2 = 2;
+  y2 = N_VNew_Serial(neq2);
+  abstol2 = N_VNew_Serial(neq2);
+  Ith(y2,1) = 1.0;         Ith(y2,2) = 0.0;
+  Ith(abstol2,1) = 1.0e-8; Ith(abstol2,2) = 1.0e-6;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  cvode_mem1 = CVodeCreate(CV_BDF, CV_NEWTON);
+  cvode_mem2 = CVodeCreate(CV_BDF, CV_NEWTON);</tt></pre><br>
+<pre style="margin: 0em;"><tt>  CVodeSetFdata(cvode_mem1, &amp;flag1);
+  CVodeSetFdata(cvode_mem2, &amp;flag2);</tt></pre><br>
+<pre style="margin: 0em;"><tt>  CVodeMalloc(cvode_mem1, f, t0, y1, CV_SV, reltol, abstol1);
+  CVodeMalloc(cvode_mem2, f, t0, y2, CV_SV, reltol, abstol2);</tt></pre><br>
+<pre style="margin: 0em;"><tt>  CVDense(cvode_mem1, neq1);
+  CVDense(cvode_mem2, neq2);</tt></pre><br>
+<pre style="margin: 0em;"><tt>  CVode(cvode_mem1, t1, y1, &amp;t, CV_NORMAL);
+  printf(&quot;t = %g  y1=%g  y2=%g  y3=%g\n&quot;,t, Ith(y1,1), Ith(y1,2), Ith(y1,3));</tt></pre><br>
+<pre style="margin: 0em;"><tt>  CVode(cvode_mem2, t1, y2, &amp;t, CV_NORMAL);
+  printf(&quot;t = %g  y1=%g  y2=%g\n&quot;,t, Ith(y2,1), Ith(y2,2));</tt></pre><br>
+<pre style="margin: 0em;"><tt>  N_VDestroy_Serial(y1);  N_VDestroy_Serial(abstol1);  CVodeFree(cvode_mem1);
+  N_VDestroy_Serial(y2);  N_VDestroy_Serial(abstol2);  CVodeFree(cvode_mem2);</tt></pre><br>
+<pre style="margin: 0em;"><tt>  return(0);
+}</tt></pre><br>
+<pre style="margin: 0em;"><tt>static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  int *flag;
+  realtype y1, y2, y3, yd1, yd2;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  flag = (int *) f_data;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  y1 = Ith(y,1);
+  y2 = Ith(y,2);</tt></pre><br>
+<pre style="margin: 0em;"><tt>  if (*flag == 1)  y3 = Ith(y,3);
+  else             y3 = -y1-y2+1.0;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  yd1 = Ith(ydot,1) = -0.04*y1 + 1.0e4*y2*y3;
+  yd2 = Ith(ydot,2) = 3.0e7*y3*y3;</tt></pre><br>
+<pre style="margin: 0em;"><tt>  if (*flag == 1)  Ith(ydot,3) = -yd1-yd2;
+}</tt></pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00223" href="msg00223.html">RE: Pass different functions f of different size</a></strong>
+<ul><li><em>From:</em> Mukesh &lt;muk139@psu.edu&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00223.html">RE: Pass different functions f of different size</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00223.html">RE: Pass different functions f of different size</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00215.html">Undefined value from CVodeGetCurrentStep</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00224">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00224">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
