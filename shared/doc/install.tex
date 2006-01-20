@@ -516,47 +516,63 @@ The following files are required to compile a {\sundials} solver module:
 
 A sample header file that, appropriately modified, can be used
 as \id{sundials\_config.h} (otherwise created automatically by the \id{configure} script)
-is provided below.
-The various macro names defined in \id{sundials\_config.h} have the following uses:
+is provided below. The various preprocessor macros defined within \id{sundials\_config.h}
+have the following uses:
 \begin{itemize}
 
-\item precision of the {\sundials} \id{realtype} type\\
-  Only one of the macro names \id{SUNDIALS\_DOUBLE\_PRECISION}, \id{SUNDIALS\_SINGLE\_PRECISION},
-  and \id{SUNDIALS\_EXTENDED\_PRECISION} should be defined indicating double, single, and
-  extended precision, respectively.
+\item Precision of the {\sundials} \id{realtype} type\\ \\
+  Only one of the macros \id{SUNDIALS\_SINGLE\_PRECISION}, \id{SUNDIALS\_DOUBLE\_PRECISION} and \\
+  \id{SUNDIALS\_EXTENDED\_PRECISION} should be defined to indicate if the {\sundials}
+  \id{realtype} type is an alias for \id{float}, \id{double}, or \id{long double},
+  respectively.
 
-\item use of generic math functions\\
-  If \id{SUNDIALS\_USE\_GENERIC\_MATH} is defined, the functions
-  in \id{sundials\_math.(h,c)} will use the standard \id{pow}, \id{sqrt}, and \id{fabs}
-  functions from \id{math.h}, no matter what the precision of \id{realtype} is.
-  Otherwise, if \id{realtype} is defined to be \id{float}, these functions
-  will use the functions \id{powf}, \id{sqrtf}, and \id{fabsf} which are not ANSI-C standard
-  (but are C99 requirements). If \id{realtype} is defined to be \id{long double}, these functions
-  will use the functions \id{powl}, \id{sqrtl}, and \id{fabsl} which are not ANSI-C standard
-  (but are C99 requirements).
+\item Use of generic math functions\\ \\
+  If \id{SUNDIALS\_USE\_GENERIC\_MATH} is defined, then the functions
+  in \id{sundials\_math.\{h,c\}} will use the \id{pow}, \id{sqrt} and \id{fabs}
+  functions from the standard math library (see \id{math.h}), irregardless of the definition of \id{realtype}.
+  Otherwise, if \id{realtype} is defined to be an alias for the \id{float} {\C}-type, then
+  {\sundials} will use \id{powf}, \id{sqrtf} and \id{fabsf}.
+  If \id{realtype} is instead defined to be a synonym for the \id{long double} {\C}-type,
+  then \id{powl}, \id{sqrtl} and \id{fabsl} will be used.
 
-\item {\F} name-mangling scheme\\
-  These macro names are used to decide how {\F} routine names in the
-  source code are mapped to names in the object library (relevant only when
-  using the {\F}-{\C} interface modules). This can be acheived either by defining the
-  {\em function-like} macros
+  {\em Note}: Although the \id{powf}/\id{powl}, \id{sqrtf}/\id{sqrtl} and \id{fabsf}/\id{fabsl}
+  routines are not specified in the ANSI {\C} standard, they are ISO C99 requirements. Consequently,
+  these routines will only be used if available.
+
+\item {\F} name-mangling scheme\\ \\
+  The macros given below are used to transform the {\C}-language function names defined in the
+  {\F}-{\C} inteface modules in a manner consistent with the preferred {\F} compiler, thus
+  allowing native {\C} functions to be called from within a {\F} subroutine. The name-mangling
+  scheme can be specified either by appropriately defining the parameterized macros (using the
+  stringization operator, \id{\#\#}, if necessary)
   \begin{itemize}
   \item \id{F77\_FUNC(name,NAME)}
   \item \id{F77\_FUNC\_(name,NAME)}
   \end{itemize}
-  or by specifying the case of function names and the number of underscores appended to 
-  function names by defining the appropriate {\em object-like} macros from the following lists:
+  or by defining {\em one} macro from each of the following lists:
   \begin{itemize}
-  \item one of \id{SUNDIALS\_CASE\_LOWER} or \id{SUNDIALS\_CASE\_UPPER}
-  \item one of \id{SUNDIALS\_UNDERSCORE\_NONE}, \id{SUNDIALS\_UNDERSCORE\_ONE}, or\\
-    \id{SUNDIALS\_UNDERSCORE\_TWO}
+  \item \id{SUNDIALS\_CASE\_LOWER} or \id{SUNDIALS\_CASE\_UPPER}
+  \item \id{SUNDIALS\_UNDERSCORE\_NONE}, \id{SUNDIALS\_UNDERSCORE\_ONE}, or \id{SUNDIALS\_UNDERSCORE\_TWO}
   \end{itemize}
-  
-\item use of an {\mpi} communicator other than \id{MPI\_WORLD\_COMM} in {\F}\\
-  If the macro name \id{SUNDIALS\_MPI\_COMM\_F2C} is defined then the {\mpi} implementation
-  used defines the type \id{MPI\_Fint} and the function \id{MPI\_Comm\_f2c} and using
-  {\mpi} communicators other than \id{MPI\_WORLD\_COMM} is possible with the
-  {\sundials} {\F}-{\C} interface modules.
+
+  For example, to specify that mangled {\C}-language function names should be lowercase with one
+  underscore appended include either
+\begin{verbatim}
+  #define F77_FUNC(name,NAME) name ## _
+  #define F77_FUNC_(name,NAME) name ## _
+\end{verbatim}
+  or
+\begin{verbatim}
+  #define SUNDIALS_CASE_LOWER 1
+  #define SUNDIALS_UNDERSCORE_ONE 1
+\end{verbatim}
+  in the \id{sundials\_config.h} header file.
+
+\item Use of an {\mpi} communicator other than \id{MPI\_COMM\_WORLD} in {\F}\\ \\
+  If the macro \id{SUNDIALS\_MPI\_COMM\_F2C} is defined, then the {\mpi} implementation
+  used to build {\sundials} defines the type \id{MPI\_Fint} and the function \id{MPI\_Comm\_f2c},
+  and it is possible to use {\mpi} communicators other than \id{MPI\_COMM\_WORLD} with the
+  {\F}-{\C} interface modules.
 \end{itemize}
 
 
