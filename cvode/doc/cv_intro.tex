@@ -99,6 +99,15 @@ At the same time, function type names for Scaled Preconditioned Iterative
 Linear Solvers were added for the user-supplied Jacobian-times-vector and
 preconditioner setup and solve functions.
 
+The deallocation functions now take as arguments the address of the respective 
+memory block pointer.
+
+To reduce the possibility of conflicts, the names of all header files have
+been changed by adding unique prefixes (\id{cvode\_} and \id{sundials\_}).
+When using the default installation procedure, the header files are exported
+under various subdirectories of the target \id{include} directory. For more
+details see \s\ref{s:install}.
+
 \subsection*{Changes in v2.3.0}
 
 The user interface has been further refined. Several functions used

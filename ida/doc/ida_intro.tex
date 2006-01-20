@@ -72,6 +72,15 @@ functions may be computed during the integration of the DAE system.
 A user-callable routine was added to access the estimated local error
 vector.
 
+The deallocation functions now take as arguments the address of the respective 
+memory block pointer.
+
+To reduce the possibility of conflicts, the names of all header files have
+been changed by adding unique prefixes (\id{ida\_} and \id{sundials\_}).
+When using the default installation procedure, the header files are exported
+under various subdirectories of the target \id{include} directory. For more
+details see \s\ref{s:install}.
+
 \subsection*{Changes in v2.3.0}
 
 The user interface has been further refined. Several functions used
