@@ -1677,8 +1677,8 @@ Type definitions for all these user-supplied functions are given below.
 The user must provide a function of type \ID{CVRhsFnB} defined as follows:
 \usfunction{CVRhsFnB}
 {
-  typedef void (*CVRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
-                           &N\_Vector yBdot, void *f\_dataB);
+  typedef int (*CVRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                          &N\_Vector yBdot, void *f\_dataB);
 }
 {
   This function computes the right-hand side of the backward problem ODE system.
@@ -1700,7 +1700,8 @@ The user must provide a function of type \ID{CVRhsFnB} defined as follows:
   \end{args}
 }
 {
-  A \id{CVRhsFnB} function type does not have a return value.                        
+  The return value of a \id{CVRhsFnB} function type is currently not used
+  (return a value of 0).
 }
 {
   Allocation of memory for \id{yBdot} is handled within {\cvodes}.
@@ -1726,8 +1727,8 @@ The user must provide a function of type \ID{CVRhsFnB} defined as follows:
 The user must provide a function of type \ID{CVQuadRhsFnB} defined by
 \usfunction{CVQuadRhsFnB}
 {
-  typedef void (*CVQuadRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
-                               &N\_Vector qBdot, void *fQ\_dataB);
+  typedef int (*CVQuadRhsFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                              &N\_Vector qBdot, void *fQ\_dataB);
 }
 {
   This function computes the quadrature equation right-hand side for the
@@ -1750,7 +1751,8 @@ The user must provide a function of type \ID{CVQuadRhsFnB} defined by
   \end{args}
 }
 {
-  A \id{CVQuadRhsFnB} function type does not have a return value.                        
+  The return value of a \id{CVQuadRhsFnB} function type is currently not used
+  (return a value of 0).
 }
 {
   Allocation of memory for \id{qBdot} is handled within {\cvodes}.
@@ -1779,10 +1781,10 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDense
 \index{Jacobian approximation function!dense!user-supplied (backward)}
 \usfunction{CVDenseJacFnB}
 {
-  typedef void (*CVDenseJacFnB)(&long int nB, DenseMat JB, realtype t, \\
-                                &N\_Vector y, N\_Vector yB, N\_Vector fyB, \\
-                                &void *jac\_dataB, N\_Vector tmp1B, \\
-                                &N\_Vector tmp2B, N\_Vector tmp3B);
+  typedef int (*CVDenseJacFnB)(&long int nB, DenseMat JB, realtype t, \\
+                               &N\_Vector y, N\_Vector yB, N\_Vector fyB, \\
+                               &void *jac\_dataB, N\_Vector tmp1B, \\
+                               &N\_Vector tmp2B, N\_Vector tmp3B);
 }
 {
   This function computes the dense Jacobian of the backward problem (or an approximation
@@ -1816,7 +1818,8 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVDense
   \end{args}
 }
 {
-  A \id{CVDenseJacFnB} function type does not have a return value.                        
+  The return value of a \id{CVDenseJacFnB} function type is currently not used
+  (return a value of 0).
 }
 {
   A user-supplied dense Jacobian function must load the \id{nB} by \id{nB}
@@ -1841,12 +1844,12 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVBandS
 %%
 \usfunction{CVBandJacFnB}
 {
- typedef void (*CVBandJacFnB)(&long int nB, \\
-                              &long int mupperB, long int mlowerB, \\
-                              &BandMat JB, realtype t, N\_Vector y, \\
-                              &N\_Vector yB, N\_Vector fyB, void *jac\_dataB, \\
-                              &N\_Vector tmp1B, N\_Vector tmp2B, \\
-                              &N\_Vector tmp3B);
+ typedef int (*CVBandJacFnB)(&long int nB, \\
+                             &long int mupperB, long int mlowerB, \\
+                             &BandMat JB, realtype t, N\_Vector y, \\
+                             &N\_Vector yB, N\_Vector fyB, void *jac\_dataB, \\
+                             &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                             &N\_Vector tmp3B);
 }
 {
   This function computes the banded Jacobian of the backward problem
@@ -1881,7 +1884,8 @@ of \S\ref{ss:skeleton_adj}), the user may provide, through a call to \id{CVBandS
   \end{args}
 }
 {
-  A \id{CVBandJacFnB} function type does not have a return value.                        
+  The return value of a \id{CVBandJacFnB} function type is currently not used
+  (return a value of 0).
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{JB}
@@ -2594,9 +2598,9 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{CVLocalFnB}
 {
-  typedef void (*CVLocalFnB)(&long int NlocalB, realtype t,  \\
-                             &N\_Vector y, N\_Vector yB, N\_Vector gB, \\
-                             &void *f\_dataB);
+  typedef int (*CVLocalFnB)(&long int NlocalB, realtype t,  \\
+                            &N\_Vector y, N\_Vector yB, N\_Vector gB, \\
+                            &void *f\_dataB);
 }
 {
   This function loads the vector
@@ -2620,7 +2624,8 @@ The prototypes for these two functions are described below.
   \end{args}
 }
 {
-  A \id{CVLocalFnB} function type does not have a return value.
+  The return value of a \id{CVLocalFnB} function type is currently not used
+  (return a value of 0).
 }
 {
   This routine assumes that all interprocess communication of data needed to 
@@ -2631,8 +2636,8 @@ The prototypes for these two functions are described below.
 %%
 \usfunction{CVCommFnB}
 {
-  typedef void (*CVCommFnB)(&long int NlocalB, realtype t,  \\
-                            &N\_Vector y, N\_Vector yB, void *f\_dataB);
+  typedef int (*CVCommFnB)(&long int NlocalB, realtype t,  \\
+                           &N\_Vector y, N\_Vector yB, void *f\_dataB);
 }
 {
   This function performs all interprocess communications necessary 
@@ -2655,7 +2660,8 @@ The prototypes for these two functions are described below.
   \end{args}
 }
 {
-  A \id{CVCommFnB} function type does not have a return value.
+  The return value of a \id{CVCommFnB} function type is currently not used
+  (return a value of 0).
 }
 {
   The \id{cfnB} function is expected to save communicated data in space defined within the

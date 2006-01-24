@@ -174,13 +174,14 @@ apply to {\nvecp}.
   The user must in all cases supply the following {\F} routine
   \index{FCVFUN@\texttt{FCVFUN}}
 \begin{verbatim}
-      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR, IER)
       DIMENSION Y(*), YDOT(*), IPAR(*), RPAR(*)
 \end{verbatim}
   It must set the \id{YDOT} array to $f(t,y)$, the right-hand side of the ODE
   system, as function of \id{T}$=t$ and the array \id{Y}$=y$.  
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FCVMALLOC}.
+  \id{IER} is an error return flag (currently not used; set \id{IER=0}). 
 
 %%====================
 \item  {\bf {\nvector} module initialization}
@@ -340,7 +341,7 @@ apply to {\nvecp}.
   \index{FCVDJAC@\texttt{FCVDJAC}}
 \begin{verbatim}
       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, H, IPAR, RPAR,
-     &                    WK1, WK2, WK3)
+     &                    WK1, WK2, WK3, IER)
       DIMENSION Y(*), FY(*), DJAC(NEQ,*), IPAR(*), RPAR(*),
      &          WK1(*), WK2(*), WK3(*)
 \end{verbatim}
@@ -352,7 +353,8 @@ apply to {\nvecp}.
   and are the same as those passed to \id{FCVMALLOC}.
   The vectors \id{WK1}, \id{WK2}, and \id{WK3}
   of length \id{NEQ} are provided as work space for use in \id{FCVDJAC}.
-  
+  \id{IER} is an error return flag (currently not used; set \id{IER=0}). 
+
   If the user's \id{FCVDJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
   in the calculation of suitable increments.  The array \id{EWT} can be
@@ -396,7 +398,7 @@ apply to {\nvecp}.
   \index{FCVBJAC@\texttt{FCVBJAC}}
 \begin{verbatim}
       SUBROUTINE FCVBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H, IPAR, RPAR,
-     &                   WK1, WK2, WK3)
+     &                   WK1, WK2, WK3, IER)
       DIMENSION Y(*), FY(*), BJAC(MDIM,*), IPAR(*), RPAR(*),
      &                WK1(*), WK2(*), WK3(*)
 \end{verbatim}
@@ -413,6 +415,7 @@ apply to {\nvecp}.
   The vectors \id{WK1}, \id{WK2},
   and \id{WK3} of length \id{NEQ} are provided as work space for use in
   \id{FCVBJAC}.
+  \id{IER} is an error return flag (currently not used; set \id{IER=0}). 
 
   If the user's \id{FCVBJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -988,13 +991,14 @@ if the \id{CVODE} memory was \id{NULL}, and $-11$ if a memory allocation failed.
 To specifiy the functions whose roots are to be found, the user must
 define the following routine:
 \begin{verbatim}
-      SUBROUTINE FCVROOTFN (T, Y, G, IPAR, RPAR)
+      SUBROUTINE FCVROOTFN (T, Y, G, IPAR, RPAR, IER)
       DIMENSION Y(*), G(*), IPAR(*), RPAR(*)
 \end{verbatim}
 It must set the \id{G} array, of length \id{NRTFN}, with components $g_i(t,y)$,
 as a function of \id{T} $= t$ and the array \id{Y} $= y$.  
 The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
 and are the same as those passed to \id{FCVMALLOC}.
+\id{IER} is an error return flag (currently not used; set \id{IER=0}). 
 
 When making calls to \id{FCVODE} to solve the ODE system, the occurrence of
 a root is flagged by the return value \id{IER} = 2.  In that case, if
@@ -1364,7 +1368,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   module:
   \index{FCVGLOCFN@\texttt{FCVGLOCFN}}
 \begin{verbatim}
-      SUBROUTINE FCVGLOCFN (NLOC, T, YLOC, GLOC, IPAR, RPAR)
+      SUBROUTINE FCVGLOCFN (NLOC, T, YLOC, GLOC, IPAR, RPAR, IER)
       DIMENSION YLOC(*), GLOC(*), IPAR(*), RPAR(*)
 \end{verbatim}
   This routine is to evaluate the function $g(t,y)$ approximating $f$
@@ -1374,10 +1378,11 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   is to be stored in the array \id{GLOC}.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FCVMALLOC}.
+  \id{IER} is an error return flag (currently not used; set \id{IER=0}).
 
   \index{FCVCOMMFN@\texttt{FCVCOMMFN}}
 \begin{verbatim}
-      SUBROUTINE FCVCOMMFN (NLOC, T, YLOC, IPAR, RPAR)
+      SUBROUTINE FCVCOMMFN (NLOC, T, YLOC, IPAR, RPAR, IER)
       DIMENSION YLOC(*), IPAR(*), RPAR(*)
 \end{verbatim}
   This routine is to perform the inter-processor communication necessary
@@ -1386,6 +1391,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   routine \id{FCVFUN} with the same arguments \id{T} and \id{YLOC}.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FCVMALLOC}.
+  \id{IER} is an error return flag (currently not used; set \id{IER=0}). 
   Thus \id{FCVCOMMFN} can omit any communications done by \id{FCVFUN} if
   relevant to the evaluation of \id{GLOC}.
   (This subroutine must be supplied even if it is empty.)

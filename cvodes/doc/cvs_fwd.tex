@@ -1411,11 +1411,11 @@ of type \ID{CVSensRhsFn} defined by:
 %%
 \usfunction{CVSensRhsFn}
 {
-  typedef void (*CVSensRhsFn)(&int Ns, realtype t, \\
-                              &N\_Vector y, N\_Vector ydot, \\ 
-                              &N\_Vector *yS, N\_Vector *ySdot, \\
-                              &void *fS\_data,  \\
-                              &N\_Vector tmp1, N\_Vector tmp2);
+  typedef int (*CVSensRhsFn)(&int Ns, realtype t, \\
+                             &N\_Vector y, N\_Vector ydot, \\ 
+                             &N\_Vector *yS, N\_Vector *ySdot, \\
+                             &void *fS\_data,  \\
+                             &N\_Vector tmp1, N\_Vector tmp2);
 }
 {
   This function computes the sensitivity right-hand side for all sensitivity
@@ -1445,7 +1445,8 @@ of type \ID{CVSensRhsFn} defined by:
   \end{args}
 }
 {
-  A \id{CVSensRhsFn} function type does not have a return value.                        
+  The return value of a \id{CVSensRhsFn} function type is currently not used
+  (return a value of 0).
 }
 {
   {\warn}A sensitivity right-hand side function of type \id{CVSensRhsFn} is not
@@ -1465,11 +1466,11 @@ The type \id{CVSensRhs1Fn} is defined by
 %%
 \usfunction{CVSensRhs1Fn}
 {
-  typedef void (*CVSensRhs1Fn)(&int Ns, realtype t, \\
-                               &N\_Vector y, N\_Vector ydot, \\ 
-                               &int iS, N\_Vector yS, N\_Vector ySdot, \\
-                               &void *fS\_data,  \\
-                               &N\_Vector tmp1, N\_Vector tmp2);
+  typedef int (*CVSensRhs1Fn)(&int Ns, realtype t, \\
+                              &N\_Vector y, N\_Vector ydot, \\ 
+                              &int iS, N\_Vector yS, N\_Vector ySdot, \\
+                              &void *fS\_data,  \\
+                              &N\_Vector tmp1, N\_Vector tmp2);
 }
 {
   This function computes the sensitivity right-hand side for one sensitivity
@@ -1502,7 +1503,8 @@ The type \id{CVSensRhs1Fn} is defined by
   \end{args}
 }
 {
-  A \id{CVSensRhs1Fn} function type does not have a return value.                        
+  The return value of a \id{CVSensRhs1Fn} function type is currently not used
+  (return a value of 0).
 }
 {
   Allocation of memory for \id{ySdot} is handled within {\cvodes}.

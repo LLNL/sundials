@@ -119,6 +119,8 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn<BR>
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn<BR>
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   <LI> changed function types so that all user-supplied functions return
+     an integer flag (not all of them currently used).
    <LI> changed some names for CVBANDPRE and CVBBDPRE function outputs
    <LI> renamed all exported header files (except for <tt>cvode.h</tt>, all header files
      have the prefix <tt>cvode_</tt>)
@@ -128,11 +130,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
    <UL class="second">
    <LI> added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
    <LI> added support for CVSPTFQMR/SPTFQMR (added FCV*SPTFQMR* functions).
-   <LI> Optional inputs are now set using routines FCVSETIIN (integer inputs)
+   <LI> optional inputs are now set using routines FCVSETIIN (integer inputs)
      and FCVSETRIN (real inputs) through pairs key-value. Optional outputs
      are still obtained from two arrays (IOUT and ROUT), owned by the user
      and passed as arguments to FCVMALLOC. Note that the argument OPTIN
      was removed from FCVMALLOC.
+   <LI> changed the prototypes of user-supplied functions so that they all
+     return an error flag as their last argument (not all of them currently used).
    <LI> the arguments OPTIN, IOPT, and ROPT were removed from FCVREINIT
    </UL>
 <LI> Changes related to the build system
@@ -331,11 +335,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
      CVBANDPRE module to support SPBCG linear solver module.
    <LI> added CVBBDSptfqmr function to CVBBDPRE module and CVBPSptfqmr function to
      CVBANDPRE module to support SPTFQMR linear solver module.
-   <LI> Changed function type names to accomodate
+   <LI> changed function type names to accomodate
      all the Scaled Preconditioned Iterative Linear Solvers now available:<BR>
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn<BR>
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn<BR>
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   <LI> changed function types so that all user-supplied functions return
+     an integer flag (not all of them currently used).
    <LI> changed some names for CVBANDPRE and CVBBDPRE function outputs
    <LI> added a argument to CVadjMalloc to specify the type of interpolation 
      (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
@@ -356,12 +362,12 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <LI class="title">What's new in v2.3.0?
 <LI> Bug fixes
    <UL class="second">
-   <LI> In the adjoint module, fixed bug in storing interpolation data at
+   <LI> in the adjoint module, fixed bug in storing interpolation data at
      a point corresponding to a check point (improperly scaled y').
    </UL>
 <LI> Changes to user interface
    <UL class="second">
-   <LI> Removed CVadjGetCheckPointsList from the list of user-callable functions.
+   <LI> removed CVadjGetCheckPointsList from the list of user-callable functions.
    </UL>
 
 <LI class="title">What's new in v2.2.0?

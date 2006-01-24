@@ -4646,8 +4646,8 @@ for use in any of the Krylov iterative algorithms.
 The user must provide a function of type \Id{CVRhsFn} defined as follows:
 \usfunction{CVRhsFn}
 {
-  typedef void (*CVRhsFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
-                          &void *f\_data);
+  typedef int (*CVRhsFn)(&realtype t, N\_Vector y, N\_Vector ydot, \\
+                         &void *f\_data);
 }
 {
   This function computes the ODE right-hand side for a given value
@@ -4667,10 +4667,11 @@ The user must provide a function of type \Id{CVRhsFn} defined as follows:
   \end{args}
 }
 {
-  A \id{CVRhsFn} function type does not have a return value.                        
+  The return value of a \id{CVRhsFn} function type is currently not used
+  (return a value of 0).
 }
 {
-Allocation of memory for \id{ydot} is handled within {\cvodes}.
+  Allocation of memory for \id{ydot} is handled within {\cvodes}.
 }
 
 %%==============================================================================
@@ -4725,9 +4726,9 @@ If the direct linear solver with dense treatment of the Jacobian is used
 the user may provide a function of type \Id{CVDenseJacFn} defined by:
 \usfunction{CVDenseJacFn}
 {
-  typedef void (*CVDenseJacFn&)(long int N, DenseMat J, realtype t, \\
-                             &N\_Vector y, N\_Vector fy, void *jac\_data, \\
-                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+  typedef (*CVDenseJacFn)(&long int N, DenseMat J, realtype t, \\
+                          &N\_Vector y, N\_Vector fy, void *jac\_data, \\
+                          &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the dense Jacobian $J = \partial f / \partial y$ 
@@ -4758,7 +4759,8 @@ the user may provide a function of type \Id{CVDenseJacFn} defined by:
   \end{args}
 }
 {
-  A \id{CVDenseJacFn} function type does not have a return value.
+  The return value of a \id{CVDenseJacFn} function type is currently not used
+  (return a value of 0).
 }
 {
   A user-supplied dense Jacobian function must load the \id{N} by \id{N}
@@ -4810,7 +4812,7 @@ If the direct linear solver with banded treatment of the Jacobian is used
 the user may provide a function of type \Id{CVBandJacFn} defined as follows:
 \usfunction{CVBandJacFn}
 {
- typedef void (*CVBandJacFn)&(long int N, long int mupper, \\
+ typedef int (*CVBandJacFn)(&long int N, long int mupper, \\
                             &long int mlower, BandMat J, realtype t, \\ 
                             &N\_Vector y, N\_Vector fy, void *jac\_data, \\
                             &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
@@ -4847,7 +4849,8 @@ the user may provide a function of type \Id{CVBandJacFn} defined as follows:
   \end{args}
 }
 {
-  A \id{CVBandJacFn} function type does not have a return value.
+  The return value of a \id{CVBandJacFn} function type is currently not used
+  (return a value of 0).
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{J}
@@ -5656,8 +5659,8 @@ that defines the right-hand side of the quadrature equations. This function
 must be of type \Id{CVQuadRhsFn} defined as follows:
 \usfunction{CVQuadRhsFn}
 {
-  typedef void (*CVQuadRhsFn&)(realtype t, N\_Vector y, \\
-                            &N\_Vector yQdot, void *fQ\_data);
+  typedef int (*CVQuadRhsFn)(&realtype t, N\_Vector y, \\
+                             &N\_Vector yQdot, void *fQ\_data);
 }
 {
   This function computes the quadrature equation right-hand side for a given value
@@ -5677,7 +5680,8 @@ must be of type \Id{CVQuadRhsFn} defined as follows:
   \end{args}
 }
 {
-  A \id{CVQuadRhsFn} function type does not have a return value.
+  The return value of a \id{CVQuadRhsFn} function type is currently not used
+  (return a value of 0).
 }
 {
   Allocation of memory for \id{yQdot} is automatically handled within {\cvodes}.
@@ -5819,8 +5823,8 @@ the user must supply a {\C} function of type \Id{CVRootFn}, defined as follows:
 %%
 \usfunction{CVRootFn}
 {
-  typedef void (*CVRootFn)(&realtype t, N\_Vector y, realtype *gout, \\
-                           &void *g\_data);
+  typedef int (*CVRootFn)(&realtype t, N\_Vector y, realtype *gout, \\
+                          &void *g\_data);
 }
 {
   This function implements a vector-valued function $g(t,y)$ such that the roots of 
@@ -5840,7 +5844,8 @@ the user must supply a {\C} function of type \Id{CVRootFn}, defined as follows:
   \end{args}
 }
 {
-  A \id{CVRootFn} function type does not have a return value.                        
+  The return value of a \id{CVRootFn} function type is currently not used
+  (return a value of 0).
 }
 {
   Allocation of memory for \id{gout} is automatically handled within {\cvodes}.
@@ -6331,8 +6336,8 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 \usfunction{CVLocalFn}
 {
-  typedef void (*CVLocalFn)(&long int Nlocal, realtype t, N\_Vector y, \\
-                            &N\_Vector glocal, void *f\_data);
+  typedef int (*CVLocalFn)(&long int Nlocal, realtype t, N\_Vector y, \\
+                           &N\_Vector glocal, void *f\_data);
 }
 {
   This function computes $g(t,y)$. It loads the vector
@@ -6354,7 +6359,8 @@ then used by \id{gloc}, which is not expected to do any communication.
   \end{args}
 }
 {
-  A \id{CVLocalFn} function type does not have a return value.
+  The return value of a \id{CVLocalFn} function type is currently not used
+  (return a value of 0).
 }
 {
   This function assumes that all interprocess communication of data needed to 
@@ -6367,8 +6373,8 @@ then used by \id{gloc}, which is not expected to do any communication.
 %%
 \usfunction{CVCommFn}
 {
-  typedef void (*CVCommFn)(&long int Nlocal, realtype t,  \\
-                           &N\_Vector y, void *f\_data);
+  typedef int (*CVCommFn)(&long int Nlocal, realtype t,  \\
+                          &N\_Vector y, void *f\_data);
 }
 {
   This function performs all interprocess communication necessary 
@@ -6388,7 +6394,8 @@ then used by \id{gloc}, which is not expected to do any communication.
   \end{args}
 }
 {
-  A \id{CVCommFn} function type does not have a return value.
+  The return value of a \id{CVCommFn} function type is currently not used
+  (return a value of 0).
 }
 {
   The \id{cfn} function is expected to save communicated data in space defined

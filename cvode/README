@@ -115,6 +115,8 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
        CVSpgmrJactimesVecFn -> CVSpilsJacTimesVecFn
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
+   - changed function types so that all user-supplied functions return
+     an integer flag (not all of them currently used).
    - changed some names for CVBBDPRE and CVBANDPRE function outputs
    - renamed all exported header files (except for cvode.h, all header files
      have the prefix 'cvode_')
@@ -123,11 +125,13 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
 - Changes to the FCVODE module
    - added support for CVSPBCG/SPBCG (added FCV*SPBCG* functions).
    - added support for CVSPTFQMR/SPTFQMR (added FCV*SPTFQMR* functions).
-   - Optional inputs are now set using routines FCVSETIIN (integer inputs)
+   - optional inputs are now set using routines FCVSETIIN (integer inputs)
      and FCVSETRIN (real inputs) through pairs key-value. Optional outputs
      are still obtained from two arrays (IOUT and ROUT), owned by the user
      and passed as arguments to FCVMALLOC. Note that the argument OPTIN
      was removed from FCVMALLOC.
+   - changed the prototypes of user-supplied functions so that they all
+     return an error flag as their last argument (not all of them currently used).
    - the arguments OPTIN, IOPT, and ROPT were removed from FCVREINIT
 
 - Changes related to the build system
