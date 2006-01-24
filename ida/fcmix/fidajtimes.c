@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.8 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -25,6 +25,7 @@
 #include "ida_sptfqmr.h"      /* IDASPTFQMR prototypes                          */
 #include "fida.h"             /* actual function names, prototypes and global
 			         variables                                      */
+#include "ida_impl.h"         /* definition of IDAMem type                      */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
 #include "sundials_types.h"   /* definition of type realtype                    */
 
@@ -34,9 +35,12 @@
 extern "C" {
 #endif
 
-extern void FIDA_JTIMES(realtype*, realtype*, realtype*, realtype*,
-			realtype*, realtype*, realtype*, realtype*,
-			realtype*, realtype*, realtype*, int*);
+  extern void FIDA_JTIMES(realtype*, realtype*, realtype*,     /* T, Y, YP   */
+                          realtype*, realtype*, realtype*,     /* R, V, FJV  */
+                          realtype*, realtype*, realtype*,     /* CJ, EWT, H */
+                          long int*, realtype*,                /* IPAR, RPAR */
+                          realtype*, realtype*,                /* WK1, WK2   */
+                          int*);                               /* IER        */
 
 #ifdef __cplusplus
 }
@@ -46,13 +50,16 @@ extern void FIDA_JTIMES(realtype*, realtype*, realtype*, realtype*,
 
 void FIDA_SPGMRSETJAC(int *flag, int *ier)
 {
+  IDAMem ida_mem;
   *ier = 0;
 
   if (*flag == 0) *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
   else {
+    ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem,
-                                   (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
-    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+                                   (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
+    if (F2C_IDA_ewtvec == NULL) 
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -62,13 +69,16 @@ void FIDA_SPGMRSETJAC(int *flag, int *ier)
 
 void FIDA_SPBCGSETJAC(int *flag, int *ier)
 {
+  IDAMem ida_mem;
   *ier = 0;
 
   if (*flag == 0) *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem, NULL, NULL);
   else {
+    ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem,
-                                   (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
-    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+                                   (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
+    if (F2C_IDA_ewtvec == NULL) 
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -78,13 +88,16 @@ void FIDA_SPBCGSETJAC(int *flag, int *ier)
 
 void FIDA_SPTFQMRSETJAC(int *flag, int *ier)
 {
+  IDAMem ida_mem;
   *ier = 0;
 
   if (*flag == 0) *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
   else {
+    ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem,
-                                     (IDASpilsJacTimesVecFn) FIDAJtimes, NULL);
-    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+                                     (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
+    if (F2C_IDA_ewtvec == NULL) 
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -100,6 +113,7 @@ int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   realtype *yy_data, *yp_data, *rr_data, *vdata, *Jvdata, *ewtdata;
   realtype *v1data, *v2data;
   realtype h;
+  FIDAUserData IDA_userdata;
   int ier;
 
   /* Initialize all pointers to NULL */
@@ -124,9 +138,13 @@ int FIDAJtimes(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   v1data  = N_VGetArrayPointer(vtemp1);
   v2data  = N_VGetArrayPointer(vtemp2);
 
+  IDA_userdata = (FIDAUserData) jac_data;
+
   /* Call user-supplied routine */
   FIDA_JTIMES(&t, yy_data, yp_data, rr_data, vdata, Jvdata,
-	      &c_j, ewtdata, &h, v1data, v2data, &ier);
+	      &c_j, ewtdata, &h, 
+              IDA_userdata->ipar, IDA_userdata->rpar,
+              v1data, v2data, &ier);
 
   return(ier);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.7 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -20,6 +20,7 @@
 
 #include "ida_band.h"         /* IDABAND prototypes                             */
 #include "fida.h"             /* function names, prototypes, global variables   */
+#include "ida_impl.h"         /* definition of IDAMem type                      */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
 #include "sundials_types.h"   /* definition of type realtype                    */
 
@@ -29,10 +30,11 @@
 extern "C" {
 #endif
 
-extern void FIDA_BJAC(long int*, long int*, long int*, long int*,
-		      realtype*, realtype*, realtype*, realtype*,
-		      realtype*, realtype*, realtype*, realtype*,
-		      realtype*, realtype*, realtype*, int*);
+  extern void FIDA_BJAC(long int*, long int*, long int*, long int*,
+                        realtype*, realtype*, realtype*, realtype*,
+                        realtype*, realtype*, realtype*, realtype*,
+                        long int*, realtype*,
+                        realtype*, realtype*, realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -42,12 +44,16 @@ extern void FIDA_BJAC(long int*, long int*, long int*, long int*,
 
 void FIDA_BANDSETJAC(int *flag, int *ier)
 {
+  IDAMem ida_mem;
+
   *ier = 0;
 
   if (*flag == 0) *ier = IDABandSetJacFn(IDA_idamem, NULL, NULL);
   else {
+    ida_mem = (IDAMem) IDA_idamem;    
     *ier = IDABandSetJacFn(IDA_idamem, (IDABandJacFn) FIDABandJac, NULL);
-    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+    if (F2C_IDA_ewtvec == NULL) 
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -65,6 +71,7 @@ int FIDABandJac(long int N, long int mupper, long int mlower,
   realtype h;
   long int eband;
   int ier;
+  FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
   yy_data = yp_data = rr_data = jacdata = ewtdata = NULL;
@@ -91,9 +98,13 @@ int FIDABandJac(long int N, long int mupper, long int mlower,
   eband = (J->smu) + mlower + 1;
   jacdata = BAND_COL(J,0) - mupper;
 
+  IDA_userdata = (FIDAUserData) jac_data;
+
   /* Call user-supplied routine */
   FIDA_BJAC(&N, &mupper, &mlower, &eband, &t, yy_data, yp_data, rr_data,
-	    &c_j, jacdata, ewtdata, &h, v1data, v2data, v3data, &ier);
+	    &c_j, jacdata, ewtdata, &h, 
+            IDA_userdata->ipar, IDA_userdata->rpar,
+            v1data, v2data, v3data, &ier);
 
   return(ier);
 }

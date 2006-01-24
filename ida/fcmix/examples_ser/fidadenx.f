@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.2 $
-c     $Date: 2005-12-19 22:12:14 $
+c     $Revision: 1.3 $
+c     $Date: 2006-01-24 22:17:34 $
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -25,8 +25,8 @@ c
       implicit none
 c
       integer ier, ierroot, info(2)
-      integer*4 iout(25)
-      double precision rout(10)
+      integer*4 iout(25), ipar
+      double precision rout(10), rpar
 c
       integer iatol, inopt, nout, jout, itask
       integer nst, kused
@@ -69,7 +69,7 @@ c
       endif
 c
       call fidamalloc(t0, y, yp, iatol, rtol, atol, 
-     &                iout, rout, ier)
+     &                iout, rout, ipar, rpar, ier)
       if (ier .ne. 0) then
          write(6,20) ier
  20      format(///' SUNDIALS_ERROR: FIDAMALLOC returned IER = ', i5)
@@ -151,12 +151,13 @@ c
 c
 c ==========
 c
-      subroutine fidaresfun(tres, y, yp, res, reserr)
+      subroutine fidaresfun(tres, y, yp, res, ipar, rpar, reserr)
 c
       implicit none
 c
       integer reserr
-      double precision tres
+      integer*4 ipar(*)
+      double precision tres, rpar(*)
       double precision y(*), yp(*), res(*)
 c
       res(1) = -0.04d0*y(1)+1.0d4*y(2)*y(3)
@@ -164,19 +165,21 @@ c
       res(1) = res(1)-yp(1)
       res(3) = y(1)+y(2)+y(3)-1.0d0
 c
+      reserr = 0
+c
       return
       end
 c
 c ==========
 c
       subroutine fidadjac(neq, t, y, yp, r, jac, cj, ewt, h,
-     1                    wk1, wk2, wk3, djacerr)
+     1                    ipar, rpar, wk1, wk2, wk3, djacerr)
 c
       implicit none
 c
-      integer*4 neq
+      integer*4 neq, ipar(*)
       integer djacerr
-      double precision t, h, cj
+      double precision t, h, cj, rpar(*)
       double precision y(*), yp(*), r(*), ewt(*), jac(neq,neq)
       double precision wk1(*), wk2(*), wk3(*)
 c
@@ -190,19 +193,25 @@ c
       jac(2,3) = -1.0d4*y(2)
       jac(3,3) = 1.0d0
 c
+      djacerr = 0
+
       return
       end
 c
 c ==========
 c
-      subroutine fidarootfn(t, y, yp, g)
+      subroutine fidarootfn(t, y, yp, g, ipar, rpar, ier)
 c Fortran routine for rootfinding
       implicit none
 c
-      double precision t, y(*), yp(*), g(*)
+      INTEGER*4 ipar(*), ier
+      double precision t, y(*), yp(*), g(*), rpar(*)
 c
       g(1) = y(1) - 1.0d-4
       g(2) = y(3) - 1.0d-2
+
+      ier = 0
+
       return
       end
 c

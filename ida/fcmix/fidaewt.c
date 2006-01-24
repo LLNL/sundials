@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -20,6 +20,7 @@
 
 #include "fida.h"             /* actual function names, prototypes and global
 			         variables                                      */
+#include "ida_impl.h"         /* definition of IDAMem type                      */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
 #include "sundials_types.h"   /* definition of type realtype                    */
 
@@ -31,7 +32,9 @@
 extern "C" {
 #endif
 
-extern void FIDA_EWT(realtype*, realtype*, int*);
+  extern void FIDA_EWT(realtype*, realtype*,   /* Y, EWT */ 
+                       long int*, realtype*,   /* IPAR, RPAR */
+                       int*);                  /* IER */
 
 #ifdef __cplusplus
 }
@@ -45,9 +48,14 @@ extern void FIDA_EWT(realtype*, realtype*, int*);
 
 void FIDA_EWTSET(int *flag, int *ier)
 {
+  IDAMem ida_mem;
+
   *ier = 0;
 
-  if (*flag != 0) *ier = IDASetEwtFn(IDA_idamem, (IDAEwtFn) FIDAEwtSet, NULL);
+  if (*flag != 0) {
+    ida_mem = (IDAMem) IDA_idamem;
+    *ier = IDASetEwtFn(IDA_idamem, (IDAEwtFn) FIDAEwtSet, ida_mem->ida_rdata);
+  }
 
   return;
 }
@@ -62,6 +70,7 @@ int FIDAEwtSet(N_Vector y, N_Vector ewt, void *e_data)
 {
   int ier;
   realtype *y_data, *ewt_data;
+  FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
   y_data = ewt_data = NULL;
@@ -75,8 +84,10 @@ int FIDAEwtSet(N_Vector y, N_Vector ewt, void *e_data)
   y_data   = N_VGetArrayPointer(y);
   ewt_data = N_VGetArrayPointer(ewt);
 
+  IDA_userdata = (FIDAUserData) e_data;
+
   /* Call user-supplied routine */
-  FIDA_EWT(y_data, ewt_data, &ier);
+  FIDA_EWT(y_data, ewt_data, IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
   return(ier);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.8 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -24,6 +24,7 @@
 #include "ida_sptfqmr.h"      /* IDASPTFQMR prototypes                          */
 #include "fida.h"             /* actual function names, prototypes and global
 			         variables                                      */
+#include "ida_impl.h"         /* definition of IDAMem type                      */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
 #include "sundials_types.h"   /* definition of type realtype                    */
 
@@ -33,13 +34,17 @@
 extern "C" {
 #endif
 
-extern void FIDA_PSET(realtype*, realtype*, realtype*, realtype*,
-		      realtype*, realtype*, realtype*, realtype*,
-		      realtype*, realtype*, int*);
-
-extern void FIDA_PSOL(realtype*, realtype*, realtype*, realtype*,
-		      realtype*, realtype*, realtype*, realtype*,
-		      realtype*, realtype*, int*);
+  extern void FIDA_PSET(realtype*, realtype*, realtype*, realtype*,
+                        realtype*, realtype*, realtype*, 
+                        long int*, realtype*,
+                        realtype*, realtype*, realtype*, 
+                        int*);
+  
+  extern void FIDA_PSOL(realtype*, realtype*, realtype*, realtype*,
+                        realtype*, realtype*, realtype*, realtype*,
+                        realtype*, 
+                        long int*, realtype*,
+                        realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -49,13 +54,17 @@ extern void FIDA_PSOL(realtype*, realtype*, realtype*, realtype*,
 
 void FIDA_SPGMRSETPREC(int *flag, int *ier)
 {
+  IDAMem ida_mem;
+
   *ier = 0;
 
   if (*flag == 0) *ier = IDASpgmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
   else {
+    ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpgmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-                                    (IDASpilsPrecSolveFn) FIDAPSol, NULL);
-    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_ewtvec);
+                                    (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
+    if (F2C_IDA_ewtvec == NULL) 
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_ewtvec);
   }
 
   return;
@@ -65,13 +74,17 @@ void FIDA_SPGMRSETPREC(int *flag, int *ier)
 
 void FIDA_SPBCGSETPREC(int *flag, int *ier)
 {
+  IDAMem ida_mem;
+
   *ier = 0;
 
   if (*flag == 0) *ier = IDASpbcgSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
   else {
+    ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpbcgSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-                                    (IDASpilsPrecSolveFn) FIDAPSol, NULL);
-    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+                                    (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
+    if (F2C_IDA_ewtvec == NULL) 
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -81,13 +94,17 @@ void FIDA_SPBCGSETPREC(int *flag, int *ier)
 
 void FIDA_SPTFQMRSETPREC(int *flag, int *ier)
 {
+  IDAMem ida_mem;
+
   *ier = 0;
 
   if (*flag == 0) *ier = IDASptfqmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
   else {
+    ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASptfqmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-                                       (IDASpilsPrecSolveFn) FIDAPSol, NULL);
-    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+                                       (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
+    if (F2C_IDA_ewtvec == NULL) 
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -102,6 +119,7 @@ int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   realtype *yy_data, *yp_data, *rr_data, *ewtdata, *v1data, *v2data, *v3data;
   realtype h;
   int ier;
+  FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
   yy_data = yp_data = rr_data = ewtdata = NULL;
@@ -125,8 +143,11 @@ int FIDAPSet(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   v2data = N_VGetArrayPointer(vtemp2);
   v3data = N_VGetArrayPointer(vtemp3);
 
+  IDA_userdata = (FIDAUserData) prec_data;
+
   /* Call user-supplied routine */
   FIDA_PSET(&t, yy_data, yp_data, rr_data, &c_j, ewtdata, &h,
+            IDA_userdata->ipar, IDA_userdata->rpar,
 	    v1data, v2data, v3data, &ier);
 
   return(ier);
@@ -141,6 +162,7 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 {
   realtype *yy_data, *yp_data, *rr_data, *ewtdata, *rdata, *zdata, *v1data;
   int ier;
+  FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
   yy_data = yp_data = rr_data = ewtdata = rdata = zdata = v1data = NULL;
@@ -162,9 +184,13 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
   zdata   = N_VGetArrayPointer(zvec);
   v1data  = N_VGetArrayPointer(vtemp1);
 
+  IDA_userdata = (FIDAUserData) prec_data;
+
   /* Call user-supplied routine */
   FIDA_PSOL(&t, yy_data, yp_data, rr_data, rdata, zdata,
-	    &c_j, &delta, ewtdata, v1data, &ier);
+	    &c_j, &delta, ewtdata, 
+            IDA_userdata->ipar, IDA_userdata->rpar,
+            v1data, &ier);
 
   return(ier);
 }

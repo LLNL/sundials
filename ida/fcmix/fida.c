@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.18 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -28,6 +28,7 @@
 #include "ida_sptfqmr.h"      /* prototypes for IDASPTFQMR interface routines   */
 #include "ida_spbcgs.h"       /* prototypes for IDASPBCG interface routines     */
 #include "ida_spgmr.h"        /* prototypes for IDASPGMR interface routines     */
+#include "ida_impl.h"         /* definition of IDAMem type                      */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
 #include "sundials_types.h"   /* definition of type realtype                    */
 
@@ -56,7 +57,13 @@ int IDA_nrtfn;
 extern "C" {
 #endif
 
-extern void FIDA_RESFUN(realtype*, realtype*, realtype*, realtype*, int*);
+  extern void FIDA_RESFUN(realtype*,    /* T    */
+                          realtype*,    /* Y    */
+                          realtype*,    /* YP   */
+                          realtype*,    /* R    */
+                          long int*,    /* IPAR */
+                          realtype*,    /* RPAR */
+                          int*);        /* IER  */
 
 #ifdef __cplusplus
 }
@@ -67,11 +74,13 @@ extern void FIDA_RESFUN(realtype*, realtype*, realtype*, realtype*, int*);
 void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
                  long int *iout, realtype *rout, 
+                 long int *ipar, realtype *rpar,
                  int *ier)
 {
   int itol;
   N_Vector Vatol;
   void *atolptr;
+  FIDAUserData IDA_userdata;
 
   /* Check for required vector operations */
   if ((F2C_IDA_vec->ops->nvgetarraypointer == NULL) ||
@@ -90,6 +99,17 @@ void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
   /* Create IDA object */
   IDA_idamem = IDACreate();
   if (IDA_idamem == NULL) {
+    *ier = -1;
+    return;
+  }
+
+  /* Set and attach user data */
+  IDA_userdata = (FIDAUserData) malloc(sizeof *IDA_userdata);
+  IDA_userdata->rpar = rpar;
+  IDA_userdata->ipar = ipar;
+
+  *ier = IDASetRdata(IDA_idamem, IDA_userdata);
+  if(*ier != IDA_SUCCESS) {
     *ier = -1;
     return;
   }
@@ -689,17 +709,17 @@ void FIDA_FREE(void)
 {
   if (IDA_idamem != NULL) IDAFree(&IDA_idamem);
 
-  /* Detach user data from F2C_IDA_vec */
+  /* Free F2C_IDA_vec */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
+  N_VDestroy(F2C_IDA_vec);
 
   /* Free F2C_IDA_ypvec */
-  if (F2C_IDA_ypvec != NULL) {
-    N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
-    N_VDestroy(F2C_IDA_ypvec);
-  }
+  N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
+  N_VDestroy(F2C_IDA_ypvec);
 
   /* Free F2C_IDA_ewtvec */
-  if (F2C_IDA_ewtvec != NULL) N_VDestroy(F2C_IDA_ewtvec);
+  if (F2C_IDA_ewtvec != NULL) 
+    N_VDestroy(F2C_IDA_ewtvec);
 
   return;
 }
@@ -709,8 +729,9 @@ void FIDA_FREE(void)
 int FIDAresfn(realtype t, N_Vector yy, N_Vector yp,
 	      N_Vector rr, void *res_data)
 {
-  realtype *yy_data, *yp_data, *rr_data;
   int ier;
+  realtype *yy_data, *yp_data, *rr_data;
+  FIDAUserData IDA_userdata;
 
   /* NOTE: The user-supplied routine should set ier to an
      appropriate value, but we preset the value to zero
@@ -723,8 +744,11 @@ int FIDAresfn(realtype t, N_Vector yy, N_Vector yp,
   yp_data = N_VGetArrayPointer(yp);
   rr_data = N_VGetArrayPointer(rr);
 
+  IDA_userdata = (FIDAUserData) res_data;
+
   /* Call user-supplied routine */
-  FIDA_RESFUN(&t, yy_data, yp_data, rr_data, &ier);
+  FIDA_RESFUN(&t, yy_data, yp_data, rr_data, 
+              IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
   return(ier);
 }

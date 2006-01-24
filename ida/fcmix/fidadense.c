@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.7 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -21,6 +21,7 @@
 #include "ida_dense.h"        /* IDADENSE prototypes and type DenseMat          */
 #include "fida.h"             /* actual function names, prototypes and global
 			         variables                                      */
+#include "ida_impl.h"         /* definition of IDAMem type                      */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
 #include "sundials_types.h"   /* definition of type realtype                    */
 
@@ -30,9 +31,13 @@
 extern "C" {
 #endif
 
-extern void FIDA_DJAC(long int*, realtype*, realtype*, realtype*, realtype*,
-		      realtype*, realtype*, realtype*, realtype*, realtype*,
-		      realtype*, realtype*, int*);
+  extern void FIDA_DJAC(long int*, 
+                        realtype*, realtype*, realtype*, realtype*,
+                        realtype*, 
+                        realtype*, realtype*, realtype*,
+                        long int*, realtype*,
+                        realtype*, realtype*, realtype*, 
+                        int*);
 
 #ifdef __cplusplus
 }
@@ -42,12 +47,16 @@ extern void FIDA_DJAC(long int*, realtype*, realtype*, realtype*, realtype*,
 
 void FIDA_DENSESETJAC(int *flag, int *ier)
 {
+  IDAMem ida_mem;
+
   *ier = 0;
 
   if (*flag == 0) *ier = IDADenseSetJacFn(IDA_idamem, NULL, NULL);
   else {
-    *ier = IDADenseSetJacFn(IDA_idamem, (IDADenseJacFn) FIDADenseJac, NULL);
-    if (F2C_IDA_ewtvec == NULL) F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+    ida_mem = (IDAMem) IDA_idamem;
+    *ier = IDADenseSetJacFn(IDA_idamem, (IDADenseJacFn) FIDADenseJac, ida_mem->ida_rdata);
+    if (F2C_IDA_ewtvec == NULL) 
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -63,6 +72,7 @@ int FIDADenseJac(long int N, realtype t,
   realtype *yy_data, *yp_data, *rr_data, *jacdata, *ewtdata, *v1data, *v2data, *v3data;
   realtype h;
   int ier;
+  FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
   yy_data = yp_data = rr_data = jacdata = ewtdata = NULL;
@@ -88,9 +98,13 @@ int FIDADenseJac(long int N, realtype t,
 
   jacdata = DENSE_COL(Jac,0);
 
+  IDA_userdata = (FIDAUserData) jac_data;
+
   /* Call user-supplied routine*/
   FIDA_DJAC(&N, &t, yy_data, yp_data, rr_data, jacdata,
-	    &c_j, ewtdata, &h, v1data, v2data, v3data, &ier);
+	    &c_j, ewtdata, &h, 
+            IDA_userdata->ipar, IDA_userdata->rpar,
+            v1data, v2data, v3data, &ier);
 
   return(ier);
 }

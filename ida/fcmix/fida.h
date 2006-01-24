@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.17 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -112,67 +112,73 @@
  * that apply to the serial version of IDA only, and end with p for
  * those that apply to the parallel version only.
  *
+ * -----------------------------------------------------------------------------
+ *
  * (1) User-supplied residual routine: FIDARESFUN
  * The user must in all cases supply the following Fortran routine
- *       SUBROUTINE FIDARESFUN (T, Y, YP, R, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*)
+ *       SUBROUTINE FIDARESFUN(T, Y, YP, R, IPAR, RPAR, IER)
+ *       DIMENSION Y(*), YP(*), R(*), IPAR(*), RPAR(*)
  * It must set the R array to F(t,y,y'), the residual of the DAE 
  * system, as a function of T = t, the array Y = y, and the array YP = y'.
- * Here Y, YP and R are distributed vectors.
+ * Here Y, YP and R are distributed vectors. 
+ * IPAR and RPAR are arrays of integer and real user data, respectively,
+ * as passed to FIDAMALLOC.
  *
  * (2s) Optional user-supplied dense Jacobian approximation routine: FIDADJAC
  * As an option when using the DENSE linear solver, the user may supply a
  * routine that computes a dense approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
- *       SUBROUTINE FIDADJAC (NEQ, T, Y, YP, R, DJAC, CJ, EWT, H,
- *      1                     WK1, WK2, WK3, IER)
- *       INTEGER NEQ, IER
- *       DIMENSION T, Y(*), YP(*), R(*), EWT(*), DJAC(NEQ,*), CJ, H,
- *      1          WK1(*), WK2(*), WK3(*)
+ *       SUBROUTINE FIDADJAC(NEQ, T, Y, YP, R, DJAC, CJ, EWT, H,
+ *      1                    IPAR, RPAR, WK1, WK2, WK3, IER)
+ *       DIMENSION Y(*), YP(*), R(*), EWT(*), DJAC(NEQ,*),
+ *      1          IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
  * This routine must compute the Jacobian and store it columnwise in DJAC.
+ * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  *
  * (3s) Optional user-supplied band Jacobian approximation routine: FIDABJAC
  * As an option when using the BAND linear solver, the user may supply a
  * routine that computes a band approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
- *       SUBROUTINE FIDABJAC (NEQ, MU, ML, MDIM, T, Y, YP, R, CJ,
- *      1                     BJAC, EWT, H, WK1, WK2, WK3, IER)
- *       INTEGER NEQ, MU, ML, MDIM, IER
- *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, BJAC(MDIM,*), WK1(*),
- *      1          WK2(*), WK3(*)
+ *       SUBROUTINE FIDABJAC(NEQ, MU, ML, MDIM, T, Y, YP, R, CJ,
+ *      1                    BJAC, EWT, H, IPAR, RPAR, WK1, WK2, WK3, IER)
+ *       DIMENSION Y(*), YP(*), R(*), EWT(*), BJAC(MDIM,*),
+ *      1          IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
  * This routine must load the MDIM by N array BJAC with the Jacobian matrix at the
  * current (t,y,y') in band form.  Store in BJAC(k,j) the Jacobian element J(i,j)
  * with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
+ * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  *
  * (4) Optional user-supplied Jacobian-vector product routine: FIDAJTIMES
  * As an option when using the SPGMR/SPBCG/SPTFQMR linear solver, the user may
  * supply a routine that computes the product of the system Jacobian J = df/dy
  * and a given vector v.  If supplied, it must have the following form:
- *       SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, FJV, CJ, EWT, H, WK1, WK2, IER)
- *       INTEGER IER
- *       DIMENSION T, V(*), FJV(*), Y(*), YP(*), R(*), CJ, H, EWT(*),
- *      1          WK1(*), WK2(*)
+ *       SUBROUTINE FIDAJTIMES(T, Y, YP, R, V, FJV, CJ, EWT, H, 
+ *      1                      IPAR, RPAR, WK1, WK2, IER)
+ *       DIMENSION V(*), FJV(*), Y(*), YP(*), R(*), EWT(*),
+ *      1          IPAR(*), RPAR(*), WK1(*), WK2(*)
  * This routine must compute the product vector Jv, where the vector v is stored
  * in V, and store the product in FJV.  On return, set IER = 0 if FIDAJTIMES was
  * successful, and nonzero otherwise.
+ * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  *
  * (5) Optional user-supplied error weight vector routine: FIDAEWT
  * As an option to providing the relative and absolute tolerances, the user
  * may supply a routine that computes the weights used in the WRMS norms.
  * If supplied, it must have the following form:
- *       SUBROUTINE FIDAEWT (Y, EWT, IER)
- *       INTEGER IER
+ *       SUBROUTINE FIDAEWT(Y, EWT, IPAR, RPAR, IER)
  *       DIMENSION Y(*), EWT(*)
  * It must store the error weights in EWT, given the current solution vector Y.
  * On return, set IER = 0 if successful, and nonzero otherwise.
+ * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
+ *
+ * -----------------------------------------------------------------------------
  *
  * (6) Initialization:  FNVINITS / FNVINITP , FIDAMALLOC, FIDAREINIT,
  *                      FIDATOLREINIT, and FIDACALCIC
  *
  * (6.1s) To initialize the serial machine environment, the user must make
  * the following call:
- *        CALL FNVINITS (KEY, NEQ, IER)
+ *        CALL FNVINITS(KEY, NEQ, IER)
  * The arguments are:
  * KEY = 2 for IDA
  * NEQ = size of vectors
@@ -180,9 +186,9 @@
  *
  * (6.1p) To initialize the parallel machine environment, the user must make 
  * one of the following calls:
- *        CALL FNVINITP (KEY, NLOCAL, NGLOBAL, IER)
+ *        CALL FNVINITP(KEY, NLOCAL, NGLOBAL, IER)
  *                     -or-
- *        CALL FNVINITP (COMM, KEY, NLOCAL, NGLOBAL, IER)
+ *        CALL FNVINITP(COMM, KEY, NLOCAL, NGLOBAL, IER)
  * The arguments are:
  * COMM = MPI communicator (e.g., MPI_COMM_WORLD)
  * KEY = 2 for IDA
@@ -198,7 +204,8 @@
  *
  * (6.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
- *       CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, IOUT, ROUT, IER)
+ *       CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, 
+ *      1                IOUT, ROUT, IPAR, RPAR, IER)
  * The arguments are:
  * T0    = initial value of t
  * Y0    = array of initial conditions, y(t0)
@@ -211,7 +218,17 @@
  * IOUT  = array of length at least 21 for integer optional outputs
  *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
  * ROUT  = array of length at least 6 for real optional outputs
+ * IPAR  = array with user integer data
+ *          (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ * RPAR  = array with user real data
+ * IER   = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
+ *         See printed message for details in case of failure.
  *
+ * The user data arrays IPAR and RPAR are passed unmodified to all subsequent
+ * calls to user-provided routines. Modifications to either array inside a
+ * user-provided routine will be propagated. Using these two arrays, the user
+ * can dispense with Common blocks to pass data betwen user-provided routines.
+ * 
  * The optional outputs are:
  *           LENRW   = IOUT( 1) -> IDAGetWorkSpace
  *           LENIW   = IOUT( 2) -> IDAGetWorkSpace
@@ -233,12 +250,10 @@
  *           TOLSFAC = ROUT( 5) -> IDAGetTolScaleFactor
  *           UNITRND = ROUT( 6) -> UNIT_ROUNDOFF
  *
- * IER   = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
- *         See printed message for details in case of failure.
  *
  * If the user program includes the FIDAEWT routine for the evaluation of the 
  * error weights, the following call must be made
- *       CALL FIDAEWTSET (FLAG, IER)
+ *       CALL FIDAEWTSET(FLAG, IER)
  * with FLAG = 1 to specify that FIDAEWT is provided.
  * The return flag IER is 0 if successful, and nonzero otherwise.
  *
@@ -266,7 +281,7 @@
  *
  * (6.4) To re-initialize the FIDA solver for the solution of a new problem
  * of the same size as one already solved, make the following call:
- *       CALL FIDAREINIT (T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, IER)
+ *       CALL FIDAREINIT(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, IER)
  * The arguments have the same names and meanings as those of FIDAMALLOC.
  * FIDAREINIT performs the same initializations as FIDAMALLOC, but does no memory 
  * allocation for IDA data structures, using instead the existing internal memory
@@ -274,13 +289,13 @@
  * solution method may or may not be needed.  See below.
  *
  * (6.5) To modify the tolerance parameters, make the following call:
- *       CALL FIDATOLREINIT (IATOL, RTOL, ATOL, IER)
+ *       CALL FIDATOLREINIT(IATOL, RTOL, ATOL, IER)
  * The arguments have the same names and meanings as those of FIDAMALLOC.
  * FIDATOLREINIT simple calls IDASetTolerances with the given arguments.
  *
  * (6.6) To compute consistent initial conditions for an index-one DAE system,
  * make the following call:
- *       CALL FIDACALCIC(T0, Y0, YP0, ICOPT, TOUT, IER)
+ *       CALL FIDACALCIC(T0, Y0, YP0, ICOPT, TOUT, IPAR, RPAR, IER)
  * The arguments are:
  * T0    = initial value of t
  * Y0    = initial condition vector y(t0)
@@ -290,7 +305,10 @@
  * TOUT  = the first value of t at which a solution will be requested
  *         (from FIDASOLVE).
  * IER   = return completion flag.
+ * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  * 
+ * -----------------------------------------------------------------------------
+ *
  * (7) Specification of linear system solution method.
  * FIDA presently includes four choices for the treatment of these systems,
  * and the user of FIDA must call a routine with a specific name to make the
@@ -298,14 +316,14 @@
  * 
  * (7.1s) DENSE treatment of the linear system.
  * The user must make the call
- *       CALL FIDADENSE (NEQ, IER)
+ *       CALL FIDADENSE(NEQ, IER)
  * The arguments are:
  * NEQ = size of vectors
  * IER = error return flag: 0 = success , negative value = an error occured
  * 
  * If the user program includes the FIDADJAC routine for the evaluation of the 
  * dense approximation to the Jacobian, the following call must be made
- *       CALL FIDADENSESETJAC (FLAG, IER)
+ *       CALL FIDADENSESETJAC(FLAG, IER)
  * with FLAG = 1 to specify that FIDADJAC is provided.  (FLAG = 0 specifies
  * using the internal finite differences approximation to the Jacobian.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
@@ -319,7 +337,7 @@
  *
  * (7.2s) BAND treatment of the linear system
  * The user must make the call
- *       CALL FIDABAND (NEQ, MU, ML, IER)
+ *       CALL FIDABAND(NEQ, MU, ML, IER)
  * The arguments are:
  * NEQ = size of vectors
  * MU  = upper bandwidth
@@ -343,7 +361,7 @@
  * (7.3) SPGMR treatment of the linear systems.
  * For the Scaled Preconditioned GMRES solution of the linear systems,
  * the user must make the following call:
- *       CALL FIDASPGMR (MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
+ *       CALL FIDASPGMR(MAXL, IGSTYPE, MAXRS, EPLIFAC, DQINCFAC, IER)
  * The arguments are:
  * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  * IGSTYPE  = specifies the type of Gram-Schmidt orthogonalization to be used:
@@ -362,24 +380,27 @@
  *
  * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
  * preconditioner linear system requires the following call:
- *       CALL FIDASPGMRSETPREC (FLAG, IER)
+ *       CALL FIDASPGMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
  * The user-supplied routine FIDAPSOL must have the form:
- *       SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WRK, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), RV(*), ZV(*), CJ, DELTA, EWT(*), WRK(*)
+ *       SUBROUTINE FIDAPSOL(T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, 
+ *      1                    IPAR, RPAR, WRK, IER)
+ *       DIMENSION Y(*), YP(*), R(*), RV(*), ZV(*), 
+ *      1          IPAR(*), RPAR(*), EWT(*), WRK(*)
  * This routine must solve the preconditioner linear system Pz = r, where r = RV
  * is input, and store the solution z in ZV.
  *
  * The user-supplied routine FIDAPSET must be of the form:
- *       SUBROUTINE FIDAPSET(T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, WK1(*), WK2(*), WK3(*)
+ *       SUBROUTINE FIDAPSET(T, Y, YP, R, CJ, EWT, H, IPAR, RPAR, 
+ *      1                    WK1, WK2, WK3, IER)
+ *       DIMENSION Y(*), YP(*), R(*), EWT(*), IPAR(*), RPAR(*), 
+ *      1          WK1(*), WK2(*), WK3(*)
  * This routine must perform any evaluation of Jacobian-related data and
  * preprocessing needed for the solution of the preconditioner linear systems
  * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
  * positive if a recoverable error occurred, and set IER negative if a
  * non-recoverable error occurred.
+ * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  *
  * Optional outputs specific to the SPGMR case are:
  *        LENRWLS = IOUT(13) -> IDASpgmrGetWorkSpace
@@ -403,7 +424,7 @@
  * (7.4) SPBCG treatment of the linear systems.
  * For the Scaled Preconditioned Bi-CGSTAB solution of the linear systems,
  * the user must make the following call:
- *       CALL FIDASPBCG (MAXL, EPLIFAC, DQINCFAC, IER)              
+ *       CALL FIDASPBCG(MAXL, EPLIFAC, DQINCFAC, IER)              
  * The arguments are:
  * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  * EPLIFAC  = factor in the linear iteration convergence test constant
@@ -413,31 +434,17 @@
  *
  * If the user program includes the FIDAJTIMES routine for the evaluation of the 
  * Jacobian vector product, the following call must be made
- *       CALL FIDASPBCGSETJAC (FLAG, IER)
+ *       CALL FIDASPBCGSETJAC(FLAG, IER)
  * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
  * using and internal finite difference approximation to this product.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  *
  * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
  * preconditioner linear system requires the following call:
- *       CALL FIDASPBCGSETPREC (FLAG, IER)
+ *       CALL FIDASPBCGSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FIDAPSOL must have the form:
- *       SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WRK, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), RV(*), ZV(*), CJ, DELTA, EWT(*), WRK(*)
- * This routine must solve the preconditioner linear system Pz = r, where r = RV
- * is input, and store the solution z in ZV.
- *
- * The user-supplied routine FIDAPSET must be of the form:
- *       SUBROUTINE FIDAPSET (T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, WK1(*), WK2(*), WK3(*)
- * This routine must perform any evaluation of Jacobian-related data and
- * preprocessing needed for the solution of the preconditioner linear systems
- * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
- * positive if a recoverable error occurred, and set IER negative if a
- * non-recoverable error occurred.
+ * The user-supplied routine FIDAPSOL and FIDAPSET must have the forms described
+ * above (see 7.3)
  *
  * Optional outputs specific to the SPBCG case are:
  *        LENRWLS = IOUT(13) -> IDASpbcgGetWorkSpace
@@ -454,13 +461,13 @@
  * SPBCG linear solver, then following the call to FIDAREINIT, a call to the
  * FIDASPBCGREINIT routine is needed if MAXL, EPLIFAC, or DQINCFAC is
  * being changed.  In that case, call FIDASPBCGREINIT as follows:
- *       CALL FIDASPBCGREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
+ *       CALL FIDASPBCGREINIT(MAXL, EPLIFAC, DQINCFAC, IER)
  * The arguments have the same meanings as for FIDASPBCG.
  *
  * (7.5) SPTFQMR treatment of the linear systems.
  * For the Scaled Preconditioned TFQMR solution of the linear systems,
  * the user must make the following call:
- *       CALL FIDASPTFQMR (MAXL, EPLIFAC, DQINCFAC, IER)              
+ *       CALL FIDASPTFQMR(MAXL, EPLIFAC, DQINCFAC, IER)              
  * The arguments are:
  * MAXL     = maximum Krylov subspace dimension; 0 indicates default.
  * EPLIFAC  = factor in the linear iteration convergence test constant
@@ -470,31 +477,17 @@
  *
  * If the user program includes the FIDAJTIMES routine for the evaluation of the 
  * Jacobian vector product, the following call must be made
- *       CALL FIDASPTFQMRSETJAC (FLAG, IER)
+ *       CALL FIDASPTFQMRSETJAC(FLAG, IER)
  * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
  * using and internal finite difference approximation to this product.)
  * The return flag IER is 0 if successful, and nonzero otherwise.
  *
  * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
  * preconditioner linear system requires the following call:
- *       CALL FIDASPTFQMRSETPREC (FLAG, IER)
+ *       CALL FIDASPTFQMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FIDAPSOL must have the form:
- *       SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WRK, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), RV(*), ZV(*), CJ, DELTA, EWT(*), WRK(*)
- * This routine must solve the preconditioner linear system Pz = r, where r = RV
- * is input, and store the solution z in ZV.
- *
- * The user-supplied routine FIDAPSET must be of the form:
- *       SUBROUTINE FIDAPSET (T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*), CJ, EWT(*), H, WK1(*), WK2(*), WK3(*)
- * This routine must perform any evaluation of Jacobian-related data and
- * preprocessing needed for the solution of the preconditioner linear systems
- * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
- * positive if a recoverable error occurred, and set IER negative if a
- * non-recoverable error occurred.
+ * The user-supplied routine FIDAPSOL and FIDAPSET must have the forms described
+ * above (see 7.3)
  *
  * Optional outputs specific to the SPTFQMR case are:
  *        LENRWLS = IOUT(13) -> IDASptfqmrGetWorkSpace
@@ -514,9 +507,11 @@
  *       CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
  * The arguments have the same meanings as for FIDASPTFQMR.
  *
+ * -----------------------------------------------------------------------------
+ *
  * (8) The solver: FIDASOLVE
  * To solve the DAE system, make the following call:
- *       CALL FIDASOLVE (TOUT, TRET, Y, YP, ITASK, IER)
+ *       CALL FIDASOLVE(TOUT, TRET, Y, YP, ITASK, IER)
  * The arguments are:
  * TOUT  = next value of t at which a solution is desired (input)
  * TRET  = value of t reached by the solver on output
@@ -532,15 +527,19 @@
  *         values -1 ... -10 are various failure modes (see IDA manual).
  * The current values of the optional outputs are available in IOUT and ROUT.
  *
+ * -----------------------------------------------------------------------------
+ *
  * (9) Getting current solution: FIDAGETSOL
  * To obtain interpolated values of y and y' for any value of t in the last
  * internal step taken by IDA, make the following call:
- *       CALL FIDAGETSOL (T, YRET, YPRET, IER)
+ *       CALL FIDAGETSOL(T, YRET, YPRET, IER)
  * The arguments are:
  * T   = value of t at which solution is desired, in [TCUR-HU,TCUR].
  * Y   = array containing interpolated y
  * YP  = array containing the derivative of the computed solution, y'(tret)
  * IER = return flag: = 0 for success, < 0 for illegal argument.
+ *
+ * -----------------------------------------------------------------------------
  *
  * (10) Memory freeing: FIDAFREE
  * To the free the internal memory created by the calls to FIDAMALLOC and
@@ -832,11 +831,19 @@ extern "C" {
 
 #endif
 
+/* Type for user data */
+
+typedef struct {
+  realtype *rpar;
+  long int *ipar;
+} *FIDAUserData;
+
 /* Prototypes of exported functions */
 
 void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
                  long int *iout, realtype *rout,
+                 long int *ipar, realtype *rpar,
                  int *ier);
 void FIDA_REINIT(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
@@ -910,14 +917,15 @@ int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *e_data);
 
 /* Declarations for global variables shared amongst various routines */
 
-extern N_Vector F2C_IDA_vec;
+extern N_Vector F2C_IDA_vec;    /* defined in FNVECTOR module */
 
-extern N_Vector F2C_IDA_ypvec, F2C_IDA_ewtvec;
-extern void *IDA_idamem;
-extern long int *IDA_iout;
-extern realtype *IDA_rout;
-extern int IDA_ls;
-extern int IDA_nrtfn;
+extern N_Vector F2C_IDA_ypvec;  /* defined in fida.c */
+extern N_Vector F2C_IDA_ewtvec; /* defined in fida.c */
+extern void *IDA_idamem;        /* defined in fida.c */
+extern long int *IDA_iout;      /* defined in fida.c */
+extern realtype *IDA_rout;      /* defined in fida.c */  
+extern int IDA_ls;              /* defined in fida.c */
+extern int IDA_nrtfn;           /* defined in fida.c */
 
 /* Linear solver IDs */
 

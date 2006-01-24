@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.8 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -42,8 +42,14 @@
 extern "C" {
 #endif
 
-extern void FIDA_GLOCFN(long int*, realtype*, realtype*, realtype*, realtype*, int*);
-extern void FIDA_COMMFN(long int*, realtype*, realtype*, realtype*, int*);
+  extern void FIDA_GLOCFN(long int*, 
+                          realtype*, realtype*, realtype*, realtype*, 
+                          long int*, realtype*,
+                          int*);
+  extern void FIDA_COMMFN(long int*, 
+                          realtype*, realtype*, realtype*, 
+                          long int*, realtype*,
+                          int*);
 
 #ifdef __cplusplus
 }
@@ -159,6 +165,7 @@ int FIDAgloc(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
 {
   realtype *yy_data, *yp_data, *gval_data;
   int ier;
+  FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
   yy_data = yp_data = gval_data = NULL;
@@ -174,8 +181,11 @@ int FIDAgloc(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
   yp_data   = N_VGetArrayPointer(yp);
   gval_data = N_VGetArrayPointer(gval);
 
+  IDA_userdata = (FIDAUserData) res_data;
+
   /* Call user-supplied routine */
-  FIDA_GLOCFN(&Nloc, &t, yy_data, yp_data, gval_data, &ier);
+  FIDA_GLOCFN(&Nloc, &t, yy_data, yp_data, gval_data, 
+              IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
   return(ier);
 }
@@ -187,6 +197,7 @@ int FIDAcfn(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
 {
   realtype *yy_data, *yp_data;
   int ier;
+  FIDAUserData IDA_userdata;
 
   /* Initialize all pointers to NULL */
   yy_data = yp_data = NULL;
@@ -201,8 +212,11 @@ int FIDAcfn(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
   yy_data = N_VGetArrayPointer(yy);
   yp_data = N_VGetArrayPointer(yp);
 
+  IDA_userdata = (FIDAUserData) res_data;
+
   /* Call user-supplied routine */
-  FIDA_COMMFN(&Nloc, &t, yy_data, yp_data, &ier);
+  FIDA_COMMFN(&Nloc, &t, yy_data, yp_data, 
+              IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
   return(ier);
 }

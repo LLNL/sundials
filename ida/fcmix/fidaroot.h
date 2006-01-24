@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,7 @@
  * 1. In order to use the rootfinding feature of the IDA package the user must
  * define the following subroutine:
  *
- *   SUBROUTINE FIDAROOTFN (T, Y, YP, G)
+ *   SUBROUTINE FIDAROOTFN (T, Y, YP, G, IPAR, RPAR, IER)
  *   DIMENSION Y(*), YP(*), G(*)
  *
  * The arguments are:
@@ -52,6 +52,8 @@
  *   Y  = dependent variable vector y  [input]
  *   YP = dependent variable derivative vector y'  [input]
  *   G  = function values g(t,y,y')  [output]
+ *   IPAR, RPAR = user (integer and real) data [input/output]
+ *   IER = return flag (currently not used)
  *
  * 2. After calling FIDAMALLOC but prior to calling FIDASOLVE, the user must
  * allocate and initialize memory for the FIDAROOT module by making the
@@ -164,8 +166,8 @@ void FIDA_ROOTFREE(void);
 
 /* Prototype of function called by IDA module */
 
-void FIDArootfunc(realtype t, N_Vector y, N_Vector yp, realtype *gout,
-                  void *g_data);
+int FIDArootfunc(realtype t, N_Vector y, N_Vector yp, realtype *gout,
+                 void *g_data);
 
 #ifdef __cplusplus
 }

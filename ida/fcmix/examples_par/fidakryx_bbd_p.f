@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.2 $
-c     $Date: 2005-12-19 22:16:53 $
+c     $Revision: 1.3 $
+c     $Date: 2006-01-24 22:17:31 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -48,8 +48,8 @@ c
 c local variables
 c
       integer*4 mudq, mldq, mukeep, mlkeep
-      integer*4 iout(25)
-      double precision rout(10)
+      integer*4 iout(25), ipar
+      double precision rout(10), rpar
       integer nout, ier
       parameter (nout = 11)
       integer npes, inopt, maxl, gstype, maxrs, itask, iatol
@@ -138,11 +138,12 @@ c
 c
 c Initialize problem data
 c
-      call setinitprofile(uu, up, id, res, constr)
+      call setinitprofile(uu, up, id, res, constr, ipar, rpar)
 c
 c Initialize IDA environment
 c
-      call fidamalloc(t0, uu, up, iatol, rtol, atol, iout, rout, ier)
+      call fidamalloc(t0, uu, up, iatol, rtol, atol, 
+     &     iout, rout, ipar, rpar, ier)
       if (ier .ne. 0) then
          write(*,7) ier
  7       format(///' SUNDIALS_ERROR: FIDAMALLOC returned IER = ', i5)
@@ -213,7 +214,7 @@ c
       jysub = thispe/npex
       ixsub = thispe-jysub*npex
 c
-      call setinitprofile(uu, up, id, res, constr)
+      call setinitprofile(uu, up, id, res, constr, ipar, rpar)
 c
       call fidareinit(t0, uu, up, iatol, rtol, atol, ier)
       if (ier .ne. 0) then
@@ -271,17 +272,17 @@ c
 c
 c ==========
 c
-      subroutine setinitprofile(uu, up, id, res, constr)
+      subroutine setinitprofile(uu, up, id, res, constr, ipar, rpar)
 c
 c global variables
 c
       integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
+      integer*4 ixsub, jysub, ipar(*)
       integer thispe
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
-      double precision dx, dy, coeffx, coeffy, coeffxy
+      double precision dx, dy, coeffx, coeffy, coeffxy, rpar(*)
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
@@ -337,7 +338,7 @@ c
          constr(i) = 1.0d0
  17   continue
 c
-      call fidaresfun(0.0d0, uu, up, res, reserr)
+      call fidaresfun(0.0d0, uu, up, res, ipar, rpar, reserr)
 c
       do 18 i = 1, nlocal
          up(i) = -1.0d0*res(i)
@@ -348,17 +349,17 @@ c
 c
 c ==========
 c
-      subroutine fidaresfun(tres, u, up, res, reserr)
+      subroutine fidaresfun(tres, u, up, res, ipar, rpar, reserr)
 c
 c global variables
 c
       integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
+      integer*4 ixsub, jysub, ipar(*)
       integer thispe
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
-      double precision dx, dy, coeffx, coeffy, coeffxy
+      double precision dx, dy, coeffx, coeffy, coeffxy, rpar(*)
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
@@ -371,28 +372,28 @@ c
      &              nlocal, neq, mx, my, mxsub, mysub, npey, npex,
      &              ixsub, jysub, thispe
 c
-      call fidacommfn(nlocal, tres, u, up, reserr)
+      call fidacommfn(nlocal, tres, u, up, ipar, rpar, reserr)
 c
-      call fidaglocfn(nlocal, tres, u, up, res, reserr)
+      call fidaglocfn(nlocal, tres, u, up, res, ipar, rpar, reserr)
 c
       return
       end
 c
 c ==========
 c
-      subroutine fidacommfn(nloc, tres, u, up, reserr)
+      subroutine fidacommfn(nloc, tres, u, up, ipar, rpar, reserr)
 c
       include "mpif.h"
 c
 c global variables
 c
       integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
+      integer*4 ixsub, jysub, ipar(*)
       integer thispe
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
-      double precision dx, dy, coeffx, coeffy, coeffxy
+      double precision dx, dy, coeffx, coeffy, coeffxy, rpar(*)
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables
@@ -419,17 +420,17 @@ c
 c
 c ==========
 c
-      subroutine fidaglocfn(nloc, tres, u, up, res, reserr)
+      subroutine fidaglocfn(nloc, tres, u, up, res, ipar, rpar, reserr)
 c
 c global variables
 c
       integer*4 nlocal, neq, npex, npey, mxsub, mysub, mx, my
-      integer*4 ixsub, jysub
+      integer*4 ixsub, jysub, ipar(*)
       integer thispe
       integer mxsubg, mysubg, nlocalg
       parameter (mxsubg = 5, mysubg = 5)
       parameter (nlocalg = mxsubg*mysubg)
-      double precision dx, dy, coeffx, coeffy, coeffxy
+      double precision dx, dy, coeffx, coeffy, coeffxy, rpar(*)
       double precision uext((mxsubg+2)*(mysubg+2))
 c
 c local variables

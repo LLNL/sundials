@@ -141,7 +141,8 @@ depending on whether {\ida} was built in single, double, or extended precision
 must be declared as \id{INTEGER*4} or \id{INTEGER*8} according to the 
 {\C} type \id{long int}. These integer variables include: the array of
 integer optional outputs (\id{IOUT}), problem dimensions (\id{NEQ},
-\id{NLOCAL}, \id{NGLOBAL}), and Jacobian half-bandwidths (\id{MU}, \id{ML}, etc.).
+\id{NLOCAL}, \id{NGLOBAL}), Jacobian half-bandwidths (\id{MU}, \id{ML}, etc.),
+as well as the array of user integer data, \id{IPAR}.
 This is particularly important when using {\ida} and the {\fida}
 package on 64-bit architectures.
 
@@ -173,12 +174,15 @@ apply to {\nvecp}.
   The user must in all cases supply the following {\F} routine
   \index{FIDARESFUN@\texttt{FIDARESFUN}}
 \begin{verbatim}
-      SUBROUTINE FIDARESFUN (T, Y, YP, R, IER)
-      DIMENSION Y(*), YP(*), R(*)
+      SUBROUTINE FIDARESFUN (T, Y, YP, R, IPAR, RPAR, IER)
+      DIMENSION Y(*), YP(*), R(*), IPAR(*), RPAR(*)
 \end{verbatim}
   It must set the \id{R} array to $F(t,y,y')$, the residual function of the DAE
   system, as a function of \id{T} $ = t$ and the arrays \id{Y} $ = y$ and
-  \id{YP} $ = y'$.  It should return \id{IER} = 0 if it was successful,
+  \id{YP} $ = y'$.  
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
+  It should return \id{IER} = 0 if it was successful,
   \id{IER} = 1 if it had a recoverable failure, or
   \id{IER} = -1 if it had a non-recoverable failure.
   
@@ -219,7 +223,10 @@ apply to {\nvecp}.
   \index{FIDAMALLOC@\texttt{FIDAMALLOC}}
   \ucfunction{FIDAMALLOC}
   {
-     CALL FIDAMALLOC (T0, Y0, YP0, IATOL, RTOL, ATOL, IOUT, ROUT, IER)
+    \begin{tabular}[t]{@{}r@{}l@{}l}
+        &CALL FIDAMALLOC(&T0, Y0, YP0, IATOL, RTOL, ATOL,  \\
+    {\&}&                &IOUT, ROUT, IPAR, RPAR, IER)
+  \end{tabular}
   }
   {
     This function provides required problem and solution specifications, 
@@ -240,6 +247,10 @@ apply to {\nvecp}.
     \item[IOUT] is an integer array of length at least 21 for integer optional
                 outputs.
     \item[ROUT] is a real array of length at least 6 for real optional outputs.
+    \item[IPAR] is an integer array of user data which will be passed
+      unmodified to all user-provided routines.
+    \item[RPAR] is a real array of user data which will be passed
+      unmodified to all user-provided routines.
     \end{args}
   }
   {
@@ -247,6 +258,13 @@ apply to {\nvecp}.
     and $-1$ otherwise. See printed message for details in case of failure.
   }
   {
+    The user intger data array \id{IPAR} must be declared as \id{INTEGER*4} or 
+    \id{INTEGER*8} according to the {\C} type \id{long int}.
+
+    Modifications to the user data arrays \id{IPAR} and \id{RPAR} inside a 
+    user-provided routine will be propagated to all subsequent calls to
+    such routines.
+
     The optional outputs associated with the main {\ida} integrator
     are listed in Table~\ref{t:fida_out}.
   }
@@ -256,12 +274,14 @@ apply to {\nvecp}.
   evaluations. If supplied, it must have the following form:
   \index{FIDAEWT@\texttt{FIDAEWT}}
 \begin{verbatim}
-      SUBROUTINE FIDAEWT (Y, EWT, IER)
-      DIMENSION Y(*), EWT(*)
+      SUBROUTINE FIDAEWT (Y, EWT, IPAR, RPAR, IER)
+      DIMENSION Y(*), EWT(*), IPAR(*), RPAR(*)
 \end{verbatim}
   It must set the positive components of the error weight vector \id{EWT} for
   the calculation of the WRMS norm of \id{Y}. On return, set
   \id{IER} = 0 if \id{FIDAEWT} was successful, and nonzero otherwise.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
 
   If the \id{FIDAEWT} routine is provided, then, 
   following the call to \id{FIDAMALLOC}, the user must make the call:
@@ -302,14 +322,17 @@ apply to {\nvecp}.
   \index{FIDADJAC@\texttt{FIDADJAC}}
 \begin{verbatim}
       SUBROUTINE FIDADJAC (NEQ, T, Y, YP, R, DJAC, CJ, EWT, H,
-     &                     WK1, WK2, WK3, IER)
-      DIMENSION Y(*), YP(*), R(*), EWT(*), DJAC(NEQ,*), WK1(*), WK2(*), WK3(*)
+     &                     IPAR, RPAR, WK1, WK2, WK3, IER)
+      DIMENSION Y(*), YP(*), R(*), EWT(*), DJAC(NEQ,*), 
+     &          IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   This routine must compute the Jacobian and store it columnwise in \id{DJAC}.
   The vectors \id{WK1}, \id{WK2}, and \id{WK3} of length \id{NEQ} are provided
   as work space for use in \id{FIDADJAC}.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
   current values of $t$, $y$, $y'$, $F(t,y,y')$, and $\alpha$, respectively.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
   
   If the user's \id{FIDADJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -351,9 +374,10 @@ apply to {\nvecp}.
   it must have the following form:
   \index{FIDABJAC@\texttt{FIDABJAC}}
 \begin{verbatim}
-      SUBROUTINE FIDABJAC (NEQ, MU, ML, MDIM, T, Y, YP, R, CJ, BJAC,
-     &                     EWT, H, WK1, WK2, WK3, IER)
-      DIMENSION Y(*), YP(*), R(*), EWT(*), BJAC(MDIM,*), WK1(*), WK2(*), WK3(*)
+      SUBROUTINE FIDABJAC(NEQ, MU, ML, MDIM, T, Y, YP, R, CJ, BJAC,
+     &                    EWT, H, IPAR, RPAR, WK1, WK2, WK3, IER)
+      DIMENSION Y(*), YP(*), R(*), EWT(*), BJAC(MDIM,*), 
+     &          IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
 \end{verbatim}
   This routine must load the \id{MDIM} by \id{NEQ} array \id{BJAC} with the
   Jacobian matrix at the current $(t, y, y')$ in band form.  Store in
@@ -363,6 +387,8 @@ apply to {\nvecp}.
   for use in \id{FIDABJAC}.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
   current values of $t$, $y$, $y'$, $F(t,y,y')$, and $\alpha$, respectively.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
 
   If the user's \id{FIDABJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -540,8 +566,10 @@ apply to {\nvecp}.
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FIDAJTIMES@\texttt{FIDAJTIMES}}
 \begin{verbatim}
-      SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, FJV, CJ, EWT, H, WK1, WK2, IER)
-      DIMENSION Y(*), YP(*), R(*), V(*), FJV(*), EWT(*), WK1(*), WK2(*)
+      SUBROUTINE FIDAJTIMES(T, Y, YP, R, V, FJV, CJ, EWT, H, 
+     &                      IPAR, RPAR, WK1, WK2, IER)
+      DIMENSION Y(*), YP(*), R(*), V(*), FJV(*), EWT(*), 
+     &          IPAR(*), RPAR(*), WK1(*), WK2(*)
 \end{verbatim}
   This routine must compute the product vector $Jv$, where the vector $v$ is
   stored in \id{V}, and store the product in \id{FJV}.  On return, set
@@ -550,6 +578,8 @@ apply to {\nvecp}.
   provided as work space for use in \id{FIDAJTIMES}.
   The input arguments \id{T}, \id{Y}, \id{YP}, \id{R}, and \id{CJ} are the
   current values of $t$, $y$, $y'$, $F(t,y,y')$, and $\alpha$, respectively.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
 
   If the user's \id{FIDAJTIMES} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -561,8 +591,10 @@ apply to {\nvecp}.
   supplied, for solution of the preconditioner linear system:
   \index{FIDAPSOL@\texttt{FIDAPSOL}}
 \begin{verbatim}
-      SUBROUTINE FIDAPSOL (T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, WK1, IER)
-      DIMENSION Y(*), YP(*), R(*), RV(*), ZV(*), EWT(*), WK1(*)
+      SUBROUTINE FIDAPSOL(T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, 
+     &                    IPAR, RPAR, WK1, IER)
+      DIMENSION Y(*), YP(*), R(*), RV(*), ZV(*), EWT(*), 
+     &          IPAR(*), RPAR(*), WK1(*)
 \end{verbatim}
   It must solve the preconditioner linear system $Pz = r$, where $r =$ \id{RV} 
   is input, and store the solution $z$ in \id{ZV}. Here $P$ is the left 
@@ -580,14 +612,18 @@ apply to {\nvecp}.
   $\ell_2$ norm, i.e. $\sqrt{\sum(\rho_i * \id{EWT}[i])^2} < $ \id{DELTA}.
   The argument \id{WK1} is a work array of length \id{NEQ} for use by this
   routine.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
 
   If the user's preconditioner requires that any Jacobian-related data be evaluated
   or preprocessed, then the following routine is to be used for the evaluation and 
   preprocessing of the preconditioner:
   \index{FIDAPSET@\texttt{FIDAPSET}}
 \begin{verbatim}
-      SUBROUTINE FIDAPSET (T, Y, YP, R, CJ, EWT, H, WK1, WK2, WK3, IER)
-      DIMENSION Y(*), YP(*), R(*), EWT(*), WK1(*), WK2(*), WK3(*) 
+      SUBROUTINE FIDAPSET(T, Y, YP, R, CJ, EWT, H, 
+     &                    IPAR, RPAR, WK1, WK2, WK3, IER)
+      DIMENSION Y(*), YP(*), R(*), EWT(*), 
+     &          IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*) 
 \end{verbatim}
   It must perform any evaluation of Jacobian-related data and preprocessing needed
   for the solution of the preconditioner linear systems by \id{FIDAPSOL}.
@@ -596,6 +632,8 @@ apply to {\nvecp}.
   On return, set \id{IER = 0} if \id{FIDAPSET} was successful, set \id{IER}
   positive if a recoverable error occurred, and set \id{IER} negative if a 
   non-recoverable error occurred.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
 
   If the user's \id{FIDAPSET} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -962,12 +1000,15 @@ if the \id{IDA} memory was \id{NULL}, and $-14$ if a memory allocation failed.
 To specifiy the functions whose roots are to be found, the user must
 define the following routine:
 \begin{verbatim}
-      SUBROUTINE FIDAROOTFN (T, Y, YP, G)
-      DIMENSION Y(*), YP(*), G(*)
+      SUBROUTINE FIDAROOTFN (T, Y, YP, G, IPAR, RPAR, IER)
+      DIMENSION Y(*), YP(*), G(*), IPAR(*), RPAR(*)
 \end{verbatim}
 It must set the \id{G} array, of length \id{NRTFN}, with components
 $g_i(t,y,y')$, as a function of \id{T} $= t$ and the arrays \id{Y} $= y$
 and \id{YP} $= y'$.
+The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+and are the same as those passed to \id{FIDAMALLOC}.
+\id{IER} is an error return flag (currently not used; set \id{IER=0}). 
 
 When making calls to \id{FIDASOLVE} to solve the DAE system, the occurrence
 of a root is flagged by the return value \id{IER} = 2.  In that case, if
@@ -1198,8 +1239,8 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   module:
   \index{FIDAGLOCFN@\texttt{FIDAGLOCFN}}
 \begin{verbatim}
-      SUBROUTINE FIDAGLOCFN (NLOC, T, YLOC, YPLOC, GLOC, IER)
-      DIMENSION YLOC(*), YPLOC(*), GLOC(*)
+      SUBROUTINE FIDAGLOCFN (NLOC, T, YLOC, YPLOC, GLOC, IPAR, RPAR, IER)
+      DIMENSION YLOC(*), YPLOC(*), GLOC(*), IPAR(*), RPAR(*)
 \end{verbatim}
   This routine is to evaluate the function $G(t,y,y')$ approximating $F$
   (possibly identical to $F$), in terms of \id{T} $ = t$, and the arrays
@@ -1208,11 +1249,13 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   is to be stored in the array \id{GLOC}.  \id{IER} is a return flag that
   should be set to 0 if successful, to 1 (for a recoverable error), or to
   -1 (for a non-recoverable error).
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
 
   \index{FIDACOMMFN@\texttt{FIDACOMMFN}}
 \begin{verbatim}
-      SUBROUTINE FIDACOMMFN (NLOC, T, YLOC, YPLOC, IER)
-      DIMENSION YLOC(*), YPLOC(*)
+      SUBROUTINE FIDACOMMFN (NLOC, T, YLOC, YPLOC, IPAR, RPAR, IER)
+      DIMENSION YLOC(*), YPLOC(*), IPAR(*), RPAR(*)
 \end{verbatim}
   This routine is to perform the inter-processor communication necessary
   for the \id{FIDAGLOCFN} routine.
@@ -1220,6 +1263,8 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   \id{FIDARESFUN} with the same arguments \id{T}, \id{YLOC}, and \id{YPLOC}.
   Thus \id{FIDACOMMFN} can omit any communications done by \id{FIDARESFUN} if
   relevant to the evaluation of \id{GLOC}.
+  The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
+  and are the same as those passed to \id{FIDAMALLOC}.
   \id{IER} is a return flag that should be set to 0 if successful, to 1
   (for a recoverable error), or to -1 (for a non-recoverable error).
   (This subroutine must be supplied even if it contains only the line \id{IER = 0}.)

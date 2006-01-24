@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.8 $
+ * $Date: 2006-01-24 22:17:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -74,9 +74,8 @@
  *
  * (1) User-supplied residual routine: FIDARESFUN
  * The user must in all cases supply the following Fortran routine
- *       SUBROUTINE FIDARESFUN (T, Y, YP, R, IER)
- *       INTEGER IER
- *       DIMENSION T, Y(*), YP(*), R(*)
+ *       SUBROUTINE FIDARESFUN(T, Y, YP, R, IPAR, RPAR, IER)
+ *       DIMENSION Y(*), YP(*), R(*), IPAR(*), RPAR(*)
  * It must set the R array to F(t,y,y'), the residual of the DAE 
  * system, as a function of T = t, the array Y = y, and the array YP = y'.
  * Here Y, YP and R are distributed vectors.
@@ -95,9 +94,8 @@
  *
  * (2.1) Local approximate function FIDAGLOCFN.
  * The user must supply a subroutine of the form
- *       SUBROUTINE FIDAGLOCFN (NLOC, T, YLOC, YPLOC, GLOC, IER)
- *       INTEGER NLOC, IER
- *       DIMENSION T, YLOC(*), YPLOC(*), GLOC(*)
+ *       SUBROUTINE FIDAGLOCFN(NLOC, T, YLOC, YPLOC, GLOC, IPAR, RPAR, IER)
+ *       DIMENSION YLOC(*), YPLOC(*), GLOC(*), IPAR(*), RPAR(*)
  * to compute the function G(t,y,y') which approximates the residual
  * function F(t,y,y').  This function is to be computed locally, i.e., without 
  * interprocess communication.  (The case where G is mathematically
@@ -108,9 +106,8 @@
  *
  * (2.2) Communication function FIDACOMMF.
  * The user must also supply a subroutine of the form
- *       SUBROUTINE FIDACOMMFN (NLOC, T, YLOC, YPLOC, IER)
- *       INTEGER NLOC, IER
- *       DIMENSION T, YLOC(*), YPLOC(*)
+ *       SUBROUTINE FIDACOMMFN(NLOC, T, YLOC, YPLOC, IPAR, RPAR, IER)
+ *       DIMENSION YLOC(*), YPLOC(*), IPAR(*), RPAR(*)
  * which is to perform all interprocess communication necessary to
  * evaluate the approximate residual function G described above.
  * This function takes as input the local vector length NLOC, the
@@ -125,10 +122,10 @@
  * As an option when using the SPGMR/SPBCG/SPTFQMR linear solver, the user may
  * supply a routine that computes the product of the system Jacobian J = df/dy
  * and a given vector v.  If supplied, it must have the following form:
- *       SUBROUTINE FIDAJTIMES (T, Y, YP, R, V, FJV, CJ, EWT, H, WK1, WK2, IER)
- *       INTEGER IER
- *       DIMENSION T, V(*), FJV(*), Y(*), YP(*), R(*), CJ, H, EWT(*),
- *      1          WK1(*), WK2(*)
+ *       SUBROUTINE FIDAJTIMES(T, Y, YP, R, V, FJV, CJ, EWT, H, 
+ *      1                      IPAR, RPAR, WK1, WK2, IER)
+ *       DIMENSION V(*), FJV(*), Y(*), YP(*), R(*), EWT(*),
+ *      1          , IPAR(*), RPAR(*), WK1(*), WK2(*)
  * This routine must compute the product vector Jv, where the vector v is stored
  * in V, and store the product in FJV.  On return, set IER = 0 if FIDAJTIMES was
  * successful, and nonzero otherwise.
@@ -156,7 +153,7 @@
  * (4.2) To set various problem and solution parameters and allocate
  * internal memory, make the following call:
  *       CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR,
- *      1                IOUT, ROUT, IER)
+ *      1                IOUT, ROUT, IPAR, RPAR, IER)
  * The arguments are:
  * T0    = initial value of t
  * Y0    = array of initial conditions, y(t0)
@@ -192,6 +189,9 @@
  *           TOLSFAC = ROUT( 5) -> IDAGetTolScaleFactor
  *           UNITRND = ROUT( 6) -> UNIT_ROUNDOFF
  *
+ * IPAR  = array with user integer data
+ *         (declare as INTEGER*4 or INTEGER*8 according to C type long int)
+ * RPAR  = array with user real data
  * IER   = return completion flag.  Values are 0 = SUCCESS, and -1 = failure.
  *         See printed message for details in case of failure.
  *
