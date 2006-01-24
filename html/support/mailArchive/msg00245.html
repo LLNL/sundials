@@ -1,15 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: Installation Problems -->
+<!--X-Subject: Re: Building SUNDIALS/CVODE on Windows -->
 <!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Mon, 23 Jan 2006 14:02:10 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D550FC.9050301@llnl.gov -->
+<!--X-Date: Tue, 24 Jan 2006 11:10:54 &#45;0800 (PST) -->
+<!--X-Message-Id: 43D67A5A.9010303@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: bdecf7d90601202210r3e21f82ck7246cd3af2660e55@mail.gmail.com -->
-<!--X-Reference: 6.0.1.1.2.20060123121828.01e75ec0@mcantor.pobox.stanford.edu -->
+<!--X-Reference: 000201c62114$cc0f5fe0$0a01a8c0@pcheartbreak -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: Installation Problems</title>
+<title>Re: Building SUNDIALS/CVODE on Windows</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00236.html">Date Prev</a>] [<a href="msg00238.html">Date Next</a>] [<a href="msg00236.html">Thread Prev</a>] [<a href="msg00238.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00237">Date Index</a></b>]
-[<b><a href="threads.html#00237">Thread Index</a></b>]
+[<a href="msg00244.html">Date Prev</a>] [<a href="msg00246.html">Date Next</a>] [<a href="msg00243.html">Thread Prev</a>] [<a href="msg00246.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00245">Date Index</a></b>]
+[<b><a href="threads.html#00245">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: Installation Problems</h1>
+<h1>Re: Building SUNDIALS/CVODE on Windows</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -92,7 +91,7 @@ Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 23 Jan 2006 13:56:12 -0800</td>
+Tue, 24 Jan 2006 11:04:58 -0800</td>
 </tr>
 
 </table>
@@ -102,25 +101,21 @@ Mon, 23 Jan 2006 13:56:12 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>mike cantor wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
-I had a terrible time trying to get sundials to build on windows with 
-MingW (though I know it's possible and others have done it).  I ended up 
-building it with Microsoft VS express (&quot;express&quot; is the free version) 
-using a pre-made project given to me through this mailing list by Radu 
-Serban, who also kindly posted instructions on how to build this project 
-from scratch.  If you like I can pass the project files along to you.  
-After days of tearing my hair out it seamed almost miraculous to 
-download VS express, open up Radu's project file, hit build, and be done.<br>
-<br>
-The thread on the postings was &quot;Difficulty building sundials on windows&quot; 
-if you want to look them over.<br>
-<br>
-<pre style="margin: 0em;">-mike</pre><br>
-</blockquote><pre style="margin: 0em;"><br>Hi Mike,</pre><br>
-You made me curious so I downloaded MinGW and MSYS. I had no problems configuring, compiling, and 
-installing SUNDIALS using the MinGW compilers, both under MSYS and CYGWIN.<br>
-<br>
+<tt>Alan Garny wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Most important, though, may be a compiler directive that enables/disables
+output (i.e. the &quot;fprintf&quot; statements).</pre><br>
+<tt>	Alan.
+</tt></blockquote><pre style="margin: 0em;"><br>Alan,</pre><br>
+<pre style="margin: 0em;">What is the problem with the fprintf statements? Note that:
+1) A message is printed ONLY if an error occurred.
+2) Even then, you can disable 99% of them by redirecting output to a 'NULL' 
+file.
+   In CVODE/CVODES for example, use
+     CVodeSetErrFile(cvode_mem, NULL);
+   right after CVodeCreate(). This will disable all future error message output
+   (unless the solver memory is NULL in some function).
+3) Or else you can use CVodeSetErrFile to redirect all output to some temporary 
+file.</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
 
@@ -134,33 +129,31 @@ installing SUNDIALS using the MinGW compilers, both under MSYS and CYGWIN.<br>
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00229" href="msg00229.html">Installation Problems</a></strong>
-<ul><li><em>From:</em> luv sharma &lt;luvsharma01@gmail.com&gt;</li></ul></li>
-<li><strong><a name="00236" href="msg00236.html">Re: Installation Problems</a></strong>
-<ul><li><em>From:</em> mike cantor &lt;mcantor@stanford.edu&gt;</li></ul></li>
+<li><strong><a name="00243" href="msg00243.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<ul><li><em>From:</em> Alan Garny &lt;agml@hellix.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00236.html">Re: Installation Problems</a></strong>
+<strong><a href="msg00244.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00238.html">Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00246.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00236.html">Re: Installation Problems</a></strong>
+<strong><a href="msg00243.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00238.html">Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00246.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00237">
+<li><a href="maillist.html#00245">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00237">
+<li><a href="threads.html#00245">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

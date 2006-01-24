@@ -1,15 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: Installation Problems -->
-<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Mon, 23 Jan 2006 14:02:10 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D550FC.9050301@llnl.gov -->
+<!--X-Subject: RE: Building SUNDIALS/CVODE on Windows -->
+<!--X-From-R13: "Qney, Oaqerj" <n.pneyNatp.pbz> -->
+<!--X-Date: Tue, 24 Jan 2006 09:08:48 &#45;0800 (PST) -->
+<!--X-Message-Id: 8AB7DFF4B7187C43B0C93FA2D55E5B8C3065FA@xcgca210.northgrum.com -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: bdecf7d90601202210r3e21f82ck7246cd3af2660e55@mail.gmail.com -->
-<!--X-Reference: 6.0.1.1.2.20060123121828.01e75ec0@mcantor.pobox.stanford.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: Installation Problems</title>
+<title>RE: Building SUNDIALS/CVODE on Windows</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00236.html">Date Prev</a>] [<a href="msg00238.html">Date Next</a>] [<a href="msg00236.html">Thread Prev</a>] [<a href="msg00238.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00237">Date Index</a></b>]
-[<b><a href="threads.html#00237">Thread Index</a></b>]
+[<a href="msg00241.html">Date Prev</a>] [<a href="msg00243.html">Date Next</a>] [<a href="msg00247.html">Thread Prev</a>] [<a href="msg00243.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00242">Date Index</a></b>]
+[<b><a href="threads.html#00242">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: Installation Problems</h1>
+<h1>RE: Building SUNDIALS/CVODE on Windows</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -85,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+&quot;Carl, Andrew&quot; &lt;<a href="mailto:a.carl%40ngc.com">a.carl@ngc.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 23 Jan 2006 13:56:12 -0800</td>
+Tue, 24 Jan 2006 09:02:25 -0800</td>
 </tr>
 
 </table>
@@ -102,65 +100,143 @@ Mon, 23 Jan 2006 13:56:12 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>mike cantor wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
-I had a terrible time trying to get sundials to build on windows with 
-MingW (though I know it's possible and others have done it).  I ended up 
-building it with Microsoft VS express (&quot;express&quot; is the free version) 
-using a pre-made project given to me through this mailing list by Radu 
-Serban, who also kindly posted instructions on how to build this project 
-from scratch.  If you like I can pass the project files along to you.  
-After days of tearing my hair out it seamed almost miraculous to 
-download VS express, open up Radu's project file, hit build, and be done.<br>
-<br>
-The thread on the postings was &quot;Difficulty building sundials on windows&quot; 
-if you want to look them over.<br>
-<br>
-<pre style="margin: 0em;">-mike</pre><br>
-</blockquote><pre style="margin: 0em;"><br>Hi Mike,</pre><br>
-You made me curious so I downloaded MinGW and MSYS. I had no problems configuring, compiling, and 
-installing SUNDIALS using the MinGW compilers, both under MSYS and CYGWIN.<br>
-<br>
-<pre style="margin: 0em;">--Radu</pre><br>
-<pre style="margin: 0em;"><br></pre><br>
+<pre>Yes on the MSVC project files!
 
+Andy Carl 
+
+-----Original Message-----
+From: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Herbert Sauro
+Sent: Tuesday, January 24, 2006 8:56 AM
+To: sundials-users@llnl.gov
+Subject: RE: Building SUNDIALS/CVODE on Windows
+
+
+We built CVODE using cygwin aswell but it did require some knowledge of
+how make scripts are used under Unix. This is not something windows
+developers may be aware of (just as Unix developers may not be aware of
+how to use Visual Studio). However, if it were at all possible I would
+recommend providing some VS project files with the distribution as it
+makes installation for windows users a trivial exercise.
+
+Herbert Sauro
+
+-----Original Message-----
+From:   Radu Serban [<a  href="mailto:serban1@llnl.gov">mailto:serban1@llnl.gov</a>]
+Sent:   Tue 1/24/2006 8:37 AM
+To:     sundials-users@llnl.gov
+Cc:     
+Subject:        Re: Building SUNDIALS/CVODE on Windows
+
+Henning,
+
+Henning Schmidt wrote:
+&gt;<i> Hi,</i>
+&gt;<i> </i>
+&gt;<i> I am a new user of the Sundials suite. Two weeks ago I first had a </i>
+&gt;<i> serious look at the CVODE solver to see if I could use it for speeding</i>
+
+&gt;<i> up the simulations in a MATLAB toolbox I am working on, which actually</i>
+
+&gt;<i> turned out to work VERY nicely.</i>
+
+Glad to hear that. You may also want to take a look at sundialsTB which
+provides MEX files to wrap around CVODES and KINSOL. Before downloading
+it, take a look at its documentation to see if it meets your needs.
+(<a  href="http://www.llnl.gov/CASC/sundials/documentation/stb_guide/sundialsTB.ht">http://www.llnl.gov/CASC/sundials/documentation/stb_guide/sundialsTB.ht</a>
+ml)
+
+&gt;<i> Being a Windows user and not having written C programs for a couple of</i>
+
+&gt;<i> years, I initially had a bit of trouble building the needed libraries.</i>
+&gt;<i> After some hours of trial and error it turned out to be very easy. </i>
+
+I am still amazed that it can take hours to install SUNDIALS... Except
+for very particular hardware/software configurations -- which is not the
+case for usual Linux or Windows+cygwin -- it really takes me 5 min. to
+install SUNDIALS.
+configure + make + make install worked every single time for me.
+
+I must assume that many of the problems that people encounter have to be
+related to faulty installations of cygwin, mingw, etc.
+
+Having said that, I'll mention that, for the next release (hopefully in
+about 1 month), we did make some more updates to the build system and
+that the documentation will describe in more details how to build
+SUNDIALS without using the configure script.
+
+&gt;<i> Unsuccessful try: Building SUNDIALS/CVODE libraries using Cygwin </i>
+&gt;<i> ================================================================</i>
+&gt;<i> I downloaded and installed Cygwin. Then I downloaded the </i>
+&gt;<i> Sundials/CVODE package and unzipped it in my Cygwin folder. The </i>
+&gt;<i> &quot;configure&quot; script ran nicely and without any error messages or</i>
+warnings. However, the &quot;make&quot;
+&gt;<i> command just returned an error message I couldn't interpret. Since I </i>
+&gt;<i> didn't intend to make it work under Cygwin only, I did not spend time </i>
+&gt;<i> on finding the problem.</i>
+
+Could you please let us know what those error messages were?
+
+&gt;<i> Working try: Building SUNDIALS/CVODE libraries using Visual Studio </i>
+&gt;<i> Express </i>
+&gt;<i> ======================================================================</i>
+&gt;<i> ==== Visual Studio Express is Microsofts free C++ compiler, which can </i>
+&gt;<i> be found</i>
+&gt;<i> here: <a  href="http://msdn.microsoft.com/vstudio/express/visualc/">http://msdn.microsoft.com/vstudio/express/visualc/</a>. I believe </i>
+&gt;<i> the program is very nice, however, it is also very complex in the way </i>
+&gt;<i> that it has tons of settings and it takes a while to really find the </i>
+&gt;<i> correct settings (or even the menus where to change these settings). </i>
+&gt;<i> So here I will describe how to use it from the command line (MUCH </i>
+&gt;<i> simpler than using the IDE).</i>
+
+Not having used Visual Studio, I cannot judge. But, indeed, the
+procedure you describe seems more straight forward than that described
+in a previous post by Andreas Nicolai.
+
+&gt;<i> /Henning</i>
+
+--Radu
+
+
+
+
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00243" href="msg00243.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<ul><li><em>From:</em> Alan Garny &lt;agml@hellix.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00229" href="msg00229.html">Installation Problems</a></strong>
-<ul><li><em>From:</em> luv sharma &lt;luvsharma01@gmail.com&gt;</li></ul></li>
-<li><strong><a name="00236" href="msg00236.html">Re: Installation Problems</a></strong>
-<ul><li><em>From:</em> mike cantor &lt;mcantor@stanford.edu&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00236.html">Re: Installation Problems</a></strong>
+<strong><a href="msg00241.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00238.html">Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00243.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00236.html">Re: Installation Problems</a></strong>
+<strong><a href="msg00247.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00238.html">Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00243.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00237">
+<li><a href="maillist.html#00242">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00237">
+<li><a href="threads.html#00242">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

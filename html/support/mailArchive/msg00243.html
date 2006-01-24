@@ -1,0 +1,300 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: RE: Building SUNDIALS/CVODE on Windows -->
+<!--X-From-R13: Oyna Uneal <ntzyNuryyvk.pbz> -->
+<!--X-Date: Tue, 24 Jan 2006 10:47:34 &#45;0800 (PST) -->
+<!--X-Message-Id: 000201c62114$cc0f5fe0$0a01a8c0@pcheartbreak -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 8AB7DFF4B7187C43B0C93FA2D55E5B8C3065FA@xcgca210.northgrum.com -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>RE: Building SUNDIALS/CVODE on Windows</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00242.html">Date Prev</a>] [<a href="msg00244.html">Date Next</a>] [<a href="msg00242.html">Thread Prev</a>] [<a href="msg00245.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00243">Date Index</a></b>]
+[<b><a href="threads.html#00243">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>RE: Building SUNDIALS/CVODE on Windows</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Alan Garny &lt;<a href="mailto:agml%40hellix.com">agml@hellix.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 24 Jan 2006 18:34:22 +0000</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>And with the Borland C++ compiler too then... :) (though I have got that one
+working)
+
+Most important, though, may be a compiler directive that enables/disables
+output (i.e. the &quot;fprintf&quot; statements).
+
+        Alan.
+
+&gt;<i> -----Original Message-----</i>
+&gt;<i> From: owner-sundials-users@lists.llnl.gov </i>
+&gt;<i> [<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Carl, Andrew</i>
+&gt;<i> Sent: 24 January 2006 17:02</i>
+&gt;<i> To: sundials-users@llnl.gov</i>
+&gt;<i> Subject: RE: Building SUNDIALS/CVODE on Windows</i>
+&gt;<i> </i>
+&gt;<i> Yes on the MSVC project files!</i>
+&gt;<i> </i>
+&gt;<i> Andy Carl </i>
+&gt;<i> </i>
+&gt;<i> -----Original Message-----</i>
+&gt;<i> From: owner-sundials-users@lists.llnl.gov</i>
+&gt;<i> [<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of </i>
+&gt;<i> Herbert Sauro</i>
+&gt;<i> Sent: Tuesday, January 24, 2006 8:56 AM</i>
+&gt;<i> To: sundials-users@llnl.gov</i>
+&gt;<i> Subject: RE: Building SUNDIALS/CVODE on Windows</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> We built CVODE using cygwin aswell but it did require some </i>
+&gt;<i> knowledge of how make scripts are used under Unix. This is </i>
+&gt;<i> not something windows developers may be aware of (just as </i>
+&gt;<i> Unix developers may not be aware of how to use Visual </i>
+&gt;<i> Studio). However, if it were at all possible I would </i>
+&gt;<i> recommend providing some VS project files with the </i>
+&gt;<i> distribution as it makes installation for windows users a </i>
+&gt;<i> trivial exercise.</i>
+&gt;<i> </i>
+&gt;<i> Herbert Sauro</i>
+&gt;<i> </i>
+&gt;<i> -----Original Message-----</i>
+&gt;<i> From: Radu Serban [<a  href="mailto:serban1@llnl.gov">mailto:serban1@llnl.gov</a>]</i>
+&gt;<i> Sent: Tue 1/24/2006 8:37 AM</i>
+&gt;<i> To:   sundials-users@llnl.gov</i>
+&gt;<i> Cc:   </i>
+&gt;<i> Subject:      Re: Building SUNDIALS/CVODE on Windows</i>
+&gt;<i> </i>
+&gt;<i> Henning,</i>
+&gt;<i> </i>
+&gt;<i> Henning Schmidt wrote:</i>
+&gt;<i> &gt; Hi,</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; I am a new user of the Sundials suite. Two weeks ago I first had a </i>
+&gt;<i> &gt; serious look at the CVODE solver to see if I could use it </i>
+&gt;<i> for speeding</i>
+&gt;<i> </i>
+&gt;<i> &gt; up the simulations in a MATLAB toolbox I am working on, </i>
+&gt;<i> which actually</i>
+&gt;<i> </i>
+&gt;<i> &gt; turned out to work VERY nicely.</i>
+&gt;<i> </i>
+&gt;<i> Glad to hear that. You may also want to take a look at </i>
+&gt;<i> sundialsTB which provides MEX files to wrap around CVODES and </i>
+&gt;<i> KINSOL. Before downloading it, take a look at its </i>
+&gt;<i> documentation to see if it meets your needs.</i>
+&gt;<i> (<a  href="http://www.llnl.gov/CASC/sundials/documentation/stb_guide/sun">http://www.llnl.gov/CASC/sundials/documentation/stb_guide/sun</a></i>
+&gt;<i> dialsTB.ht</i>
+&gt;<i> ml)</i>
+&gt;<i> </i>
+&gt;<i> &gt; Being a Windows user and not having written C programs for </i>
+&gt;<i> a couple of</i>
+&gt;<i> </i>
+&gt;<i> &gt; years, I initially had a bit of trouble building the needed </i>
+&gt;<i> libraries.</i>
+&gt;<i> &gt; After some hours of trial and error it turned out to be very easy. </i>
+&gt;<i> </i>
+&gt;<i> I am still amazed that it can take hours to install </i>
+&gt;<i> SUNDIALS... Except for very particular hardware/software </i>
+&gt;<i> configurations -- which is not the case for usual Linux or </i>
+&gt;<i> Windows+cygwin -- it really takes me 5 min. to install SUNDIALS.</i>
+&gt;<i> configure + make + make install worked every single time for me.</i>
+&gt;<i> </i>
+&gt;<i> I must assume that many of the problems that people encounter </i>
+&gt;<i> have to be related to faulty installations of cygwin, mingw, etc.</i>
+&gt;<i> </i>
+&gt;<i> Having said that, I'll mention that, for the next release </i>
+&gt;<i> (hopefully in about 1 month), we did make some more updates </i>
+&gt;<i> to the build system and that the documentation will describe </i>
+&gt;<i> in more details how to build SUNDIALS without using the </i>
+&gt;<i> configure script.</i>
+&gt;<i> </i>
+&gt;<i> &gt; Unsuccessful try: Building SUNDIALS/CVODE libraries using Cygwin </i>
+&gt;<i> &gt; ================================================================</i>
+&gt;<i> &gt; I downloaded and installed Cygwin. Then I downloaded the </i>
+&gt;<i> &gt; Sundials/CVODE package and unzipped it in my Cygwin folder. The </i>
+&gt;<i> &gt; &quot;configure&quot; script ran nicely and without any error messages or</i>
+&gt;<i> warnings. However, the &quot;make&quot;</i>
+&gt;<i> &gt; command just returned an error message I couldn't </i>
+&gt;<i> interpret. Since I </i>
+&gt;<i> &gt; didn't intend to make it work under Cygwin only, I did not </i>
+&gt;<i> spend time </i>
+&gt;<i> &gt; on finding the problem.</i>
+&gt;<i> </i>
+&gt;<i> Could you please let us know what those error messages were?</i>
+&gt;<i> </i>
+&gt;<i> &gt; Working try: Building SUNDIALS/CVODE libraries using Visual Studio </i>
+&gt;<i> &gt; Express </i>
+&gt;<i> &gt; </i>
+&gt;<i> ======================================================================</i>
+&gt;<i> &gt; ==== Visual Studio Express is Microsofts free C++ compiler, </i>
+&gt;<i> which can </i>
+&gt;<i> &gt; be found</i>
+&gt;<i> &gt; here: <a  href="http://msdn.microsoft.com/vstudio/express/visualc/">http://msdn.microsoft.com/vstudio/express/visualc/</a>. I believe </i>
+&gt;<i> &gt; the program is very nice, however, it is also very complex </i>
+&gt;<i> in the way </i>
+&gt;<i> &gt; that it has tons of settings and it takes a while to really </i>
+&gt;<i> find the </i>
+&gt;<i> &gt; correct settings (or even the menus where to change these settings).</i>
+&gt;<i> &gt; So here I will describe how to use it from the command line (MUCH </i>
+&gt;<i> &gt; simpler than using the IDE).</i>
+&gt;<i> </i>
+&gt;<i> Not having used Visual Studio, I cannot judge. But, indeed, </i>
+&gt;<i> the procedure you describe seems more straight forward than </i>
+&gt;<i> that described in a previous post by Andreas Nicolai.</i>
+&gt;<i> </i>
+&gt;<i> &gt; /Henning</i>
+&gt;<i> </i>
+&gt;<i> --Radu</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> </i>
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00245" href="msg00245.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00242" href="msg00242.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<ul><li><em>From:</em> &quot;Carl, Andrew&quot; &lt;a.carl@ngc.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00242.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00244.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00242.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00245.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00243">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00243">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
