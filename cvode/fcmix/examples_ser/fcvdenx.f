@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.2 $
-C     $Date: 2006-01-24 00:49:48 $
+C     $Revision: 1.3 $
+C     $Date: 2006-01-24 20:20:52 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -187,7 +187,7 @@ C Fortran routine for root finding
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, Y(*), G(*), RPAR(*)
-      INTEGER*4 IPAR(*), IEr
+      INTEGER*4 IPAR(*), IER
 C
       G(1) = Y(1) - 1.0D-4
       G(2) = Y(3) - 1.0D-2
