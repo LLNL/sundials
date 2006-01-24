@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:48:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -200,7 +200,7 @@ static void v_zero(realtype u[], int n);
 
 /* Functions Called By The Solver */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 static int Precond(realtype tn, N_Vector c, N_Vector fc,
 		   booleantype jok, booleantype *jcurPtr, realtype gamma,
@@ -650,7 +650,7 @@ static void FreeUserData(WebData wdata)
  returns it in cdot. The interaction rates are computed by calls to WebRates,
  and these are saved in fsave for use in preconditioning.
 */
-static void f(realtype t, N_Vector c, N_Vector cdot,void *f_data)
+static int f(realtype t, N_Vector c, N_Vector cdot,void *f_data)
 {
   int i, ic, ici, idxl, idxu, jx, ns, mxns, iyoff, jy, idyu, idyl;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
@@ -696,6 +696,8 @@ static void f(realtype t, N_Vector c, N_Vector cdot,void *f_data)
       }
     }
   }
+
+  return(0);
 }
 
 /*

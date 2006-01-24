@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -88,15 +88,15 @@ typedef struct {
 
 /* Prototypes of functions by CVODES */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data, 
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(long int N, DenseMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data, 
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
-               int iS, N_Vector yS, N_Vector ySdot, 
-               void *fS_data, N_Vector tmp1, N_Vector tmp2);
+static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
+              int iS, N_Vector yS, N_Vector ySdot, 
+              void *fS_data, N_Vector tmp1, N_Vector tmp2);
 
 static int ewt(N_Vector y, N_Vector w, void *e_data);
 
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,y). 
  */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y1, y2, y3, yd1, yd3;
   UserData data;
@@ -282,6 +282,8 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
   yd3 = Ith(ydot,3) = p3*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
+
+  return(0);
 }
 
 
@@ -289,9 +291,9 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  * Jacobian routine. Compute J(t,y). 
  */
 
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data, 
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(long int N, DenseMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data, 
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
   UserData data;
@@ -304,15 +306,17 @@ static void Jac(long int N, DenseMat J, realtype t,
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
   IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
                       IJth(J,3,2) = 2*p3*y2;
+
+  return(0);
 }
  
 /* 
  * fS routine. Compute sensitivity r.h.s. 
  */
 
-static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
-               int iS, N_Vector yS, N_Vector ySdot, 
-               void *fS_data, N_Vector tmp1, N_Vector tmp2)
+static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot, 
+              int iS, N_Vector yS, N_Vector ySdot, 
+              void *fS_data, N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;
   realtype p1, p2, p3;
@@ -348,6 +352,8 @@ static void fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
   Ith(ySdot,1) = sd1;
   Ith(ySdot,2) = sd2;
   Ith(ySdot,3) = sd3;
+
+  return(0);
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:48:30 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -147,11 +147,11 @@ static void fucomm(realtype t, N_Vector u, void *f_data);
 
 /* Prototype of function called by the solver */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 /* Prototype of functions called by the CVBBDPRE module */
 
-static void flocal(long int Nlocal, realtype t, N_Vector u,
+static int flocal(long int Nlocal, realtype t, N_Vector u,
                    N_Vector udot, void *f_data);
 
 /* Private function to check function return values */
@@ -699,7 +699,7 @@ static void fucomm(realtype t, N_Vector u, void *f_data)
 /* f routine.  Evaluate f(t,y).  First call fucomm to do communication of 
    subgrid boundary data into uext.  Then calculate f by a call to flocal. */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   UserData data;
 
@@ -712,6 +712,8 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   /* Call flocal to calculate all right-hand sides */
 
   flocal (data->Nlocal, t, u, udot, f_data);
+
+  return(0);
 }
 
 /***************** Functions called by the CVBBDPRE module ****************/
@@ -720,8 +722,8 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
 
-static void flocal(long int Nlocal, realtype t, N_Vector u,
-                   N_Vector udot, void *f_data)
+static int flocal(long int Nlocal, realtype t, N_Vector u,
+                  N_Vector udot, void *f_data)
 {
   realtype *uext;
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
@@ -863,6 +865,8 @@ static void flocal(long int Nlocal, realtype t, N_Vector u,
       duarray[offsetu+1] = vertd2 + hord2 + horad2 + rkin2;
     }
   }
+
+  return(0);
 }
 
 /* Check function return value...

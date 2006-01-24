@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-17 23:30:12 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:50:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -167,21 +167,21 @@ typedef struct {
  *------------------------------------------------------------------
  */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static void f_local(long int Nlocal, realtype t, N_Vector y, 
-                    N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f_local(long int Nlocal, realtype t, N_Vector y, 
+                   N_Vector ydot, void *f_data);
 
-static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
 
 
-static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
-		      void *f_dataB);
-static void fB_local(long int NlocalB, realtype t, 
-                     N_Vector y, N_Vector yB, N_Vector yBdot, 
-                     void *f_dataB);
+static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
+              void *f_dataB);
+static int fB_local(long int NlocalB, realtype t, 
+                    N_Vector y, N_Vector yB, N_Vector yBdot, 
+                    void *f_dataB);
 
-static void fQB(realtype t, N_Vector y, N_Vector yB, 
-                N_Vector qBdot, void *fQ_dataB);
+static int fQB(realtype t, N_Vector y, N_Vector yB, 
+               N_Vector qBdot, void *fQ_dataB);
 
 /*
  *------------------------------------------------------------------
@@ -680,7 +680,7 @@ static void f_comm(long int N_local, realtype t, N_Vector y, void *f_data)
  *------------------------------------------------------------------
  */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   ProblemData d;
   int l_neq=1;
@@ -694,10 +694,12 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
   /* Compute right-hand side locally */
   f_local(l_neq, t, y, ydot, f_data);
+
+  return(0);
 }
 
-static void f_local(long int Nlocal, realtype t, N_Vector y, 
-                    N_Vector ydot, void *f_data)
+static int f_local(long int Nlocal, realtype t, N_Vector y, 
+                   N_Vector ydot, void *f_data)
 {
   realtype *Ydata, *dydata, *pdata;
   realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
@@ -781,6 +783,8 @@ static void f_local(long int Nlocal, realtype t, N_Vector y,
 #ifdef USE3D
   }
 #endif
+
+  return(0);
 }
 
 /*
@@ -792,7 +796,7 @@ static void f_local(long int Nlocal, realtype t, N_Vector y,
  *------------------------------------------------------------------
  */
 
-static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
 {
   ProblemData d;
   realtype *dqdata;
@@ -803,6 +807,8 @@ static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
 
   dqdata[0] = N_VDotProd_Parallel(y,y);
   dqdata[0] *= RCONST(0.5) * (d->dOmega);
+
+  return(0);
 }
 
 /*
@@ -812,8 +818,8 @@ static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
  *------------------------------------------------------------------
  */
 
-static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
-               void *f_dataB)
+static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, 
+              void *f_dataB)
 {
   ProblemData d;
   int l_neq=1;
@@ -827,11 +833,13 @@ static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
 
   /* Compute right-hand side locally */
   fB_local(l_neq, t, y, yB, yBdot, f_dataB);
+
+  return(0);
 }
 
-static void fB_local(long int NlocalB, realtype t, 
-                     N_Vector y, N_Vector yB, N_Vector dyB, 
-                     void *f_dataB)
+static int fB_local(long int NlocalB, realtype t, 
+                    N_Vector y, N_Vector yB, N_Vector dyB, 
+                    void *f_dataB)
 {
   realtype *YBdata, *dyBdata, *ydata;
   realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
@@ -916,6 +924,8 @@ static void fB_local(long int NlocalB, realtype t,
 #ifdef USE3D
   }
 #endif
+
+  return(0);
 }
 
 /*
@@ -926,14 +936,16 @@ static void fB_local(long int NlocalB, realtype t,
  *------------------------------------------------------------------
  */
 
-static void fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, 
-		void *fQ_dataB)
+static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, 
+               void *fQ_dataB)
 {
   ProblemData d;
 
   d = (ProblemData) fQ_dataB;
 
   N_VScale_Parallel(-(d->dOmega), yB, qBdot);
+
+  return(0);
 }
 
 /*

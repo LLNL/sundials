@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.13 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.14 $
+ * $Date: 2006-01-24 00:51:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -167,7 +167,7 @@ static void BRecvWait(MPI_Request request[], long int isubx, long int isuby,
 
 /* Functions Called by the CVODE Solver */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu, 
                    booleantype jok, booleantype *jcurPtr, 
@@ -1071,7 +1071,7 @@ static void BRecvWait(MPI_Request request[], long int isubx, long int isuby,
 
 /* f routine. Compute f(t,y). */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, hord1, hord2, horad1, horad2;
@@ -1240,6 +1240,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     }
   }
 
+  return(0);
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */

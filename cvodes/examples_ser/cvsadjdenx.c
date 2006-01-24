@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -101,20 +101,20 @@ typedef struct {
 
 /* Prototypes of user-supplied functions */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data, 
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int Jac(long int N, DenseMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data, 
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data);
 static int ewt(N_Vector y, N_Vector w, void *e_data);
 
-static void fB(realtype t, N_Vector y, 
-               N_Vector yB, N_Vector yBdot, void *f_dataB);
-static void JacB(long int NB, DenseMat JB, realtype t,
-                 N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
-                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-static void fQB(realtype t, N_Vector y, N_Vector yB, 
-                N_Vector qBdot, void *fQ_dataB);
+static int fB(realtype t, N_Vector y, 
+              N_Vector yB, N_Vector yBdot, void *f_dataB);
+static int JacB(long int NB, DenseMat JB, realtype t,
+                N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
+                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int fQB(realtype t, N_Vector y, N_Vector yB, 
+               N_Vector qBdot, void *fQ_dataB);
 
 
 /* Prototypes of private functions */
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,y). 
 */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y1, y2, y3, yd1, yd3;
   UserData data;
@@ -394,15 +394,17 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
   yd3 = Ith(ydot,3) = p3*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
+
+  return(0);
 }
 
 /* 
  * Jacobian routine. Compute J(t,y). 
 */
 
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data, 
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(long int N, DenseMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data, 
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
   UserData data;
@@ -415,15 +417,19 @@ static void Jac(long int N, DenseMat J, realtype t,
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
   IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
                       IJth(J,3,2) = 2*p3*y2;
+
+  return(0);
 }
 
 /* 
  * fQ routine. Compute fQ(t,y). 
 */
 
-static void fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
+static int fQ(realtype t, N_Vector y, N_Vector qdot, void *fQ_data)
 {
   Ith(qdot,1) = Ith(y,3);  
+
+  return(0);
 }
  
 /*
@@ -454,7 +460,7 @@ static int ewt(N_Vector y, N_Vector w, void *e_data)
  * fB routine. Compute fB(t,y,yB). 
 */
 
-static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB)
+static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -482,15 +488,17 @@ static void fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_data
   Ith(yBdot,1) = - p1*l21;
   Ith(yBdot,2) = p2*y3*l21 - RCONST(2.0)*p3*y2*l32;
   Ith(yBdot,3) = p2*y2*l21 - RCONST(1.0);
+
+  return(0);
 }
 
 /* 
  * JacB routine. Compute JB(t,y,yB). 
 */
 
-static void JacB(long int NB, DenseMat JB, realtype t,
-                 N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
-                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+static int JacB(long int NB, DenseMat JB, realtype t,
+                N_Vector y, N_Vector yB, N_Vector fyB, void *jac_dataB,
+                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -508,14 +516,16 @@ static void JacB(long int NB, DenseMat JB, realtype t,
   IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1; 
   IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
   IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;
+
+  return(0);
 }
 
 /*
  * fQB routine. Compute integrand for quadratures 
 */
 
-static void fQB(realtype t, N_Vector y, N_Vector yB, 
-                N_Vector qBdot, void *fQ_dataB)
+static int fQB(realtype t, N_Vector y, N_Vector yB, 
+               N_Vector qBdot, void *fQ_dataB)
 {
   UserData data;
   realtype y1, y2, y3;
@@ -542,6 +552,8 @@ static void fQB(realtype t, N_Vector y, N_Vector yB,
   Ith(qBdot,1) = y1*l21;
   Ith(qBdot,2) = - y23*l21;
   Ith(qBdot,3) = y2*y2*l32;
+
+  return(0);
 }
 
 /*

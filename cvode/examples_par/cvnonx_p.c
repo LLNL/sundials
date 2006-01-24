@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:48:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -77,7 +77,7 @@ static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the Solver */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 /* Private function to check function return values */
 
@@ -267,7 +267,7 @@ static void PrintFinalStats(void *cvode_mem)
 
 /* f routine. Compute f(t,u). */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;
@@ -330,6 +330,8 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
   }
+
+  return(-1);
 }
 
 /* Check function return value...

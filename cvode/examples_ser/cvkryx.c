@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:48:34 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -131,7 +131,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, realtype gamma,
@@ -445,7 +445,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
 /* f routine. Compute RHS function f(t,u). */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
@@ -532,6 +532,7 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     }
   }
 
+  return(0);
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */

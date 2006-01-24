@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -134,7 +134,7 @@ typedef struct {
 
 /* Prototypes of user-supplied functions */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, void *P_data,
@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,y). 
  */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   realtype c1rt, c2rt, czdn, czup, hord1, hord2, horad1, horad2;
@@ -414,6 +414,8 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
       IJKth(dydata, 2, jx, jz) = vertd2 + hord2 + horad2 + rkin2;
     }
   }
+
+  return(0);
 }
 
 /*

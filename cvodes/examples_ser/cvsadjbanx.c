@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -92,18 +92,18 @@ typedef struct {
 
 /* Prototypes of user-supplied functions */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
-static void Jac(long int N, long int mu, long int ml, BandMat J,
-                realtype t, N_Vector u, N_Vector fu, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
+static int Jac(long int N, long int mu, long int ml, BandMat J,
+               realtype t, N_Vector u, N_Vector fu, void *jac_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3); 
 
-static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *f_dataB);
+static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *f_dataB);
 
-static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
-                 realtype tB, N_Vector u, 
-                 N_Vector uB, N_Vector fuB, void *jac_dataB,
-                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
+static int JacB(long int NB, long int muB, long int mlB, BandMat JB,
+                realtype tB, N_Vector u, 
+                N_Vector uB, N_Vector fuB, void *jac_dataB,
+                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B); 
 
 /* Prototypes of private functions */
 
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
  * f routine. right-hand side of forward ODE.
  */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   realtype *udata, *dudata;
@@ -285,15 +285,17 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
       IJth(dudata, i, j) = hdiff + hadv + vdiff;
     }
   }
+
+  return(0);
 }
 
 /*
  * Jac function. Jacobian of forward ODE.
  */
 
-static void Jac(long int N, long int mu, long int ml, BandMat J,
-                realtype t, N_Vector u, N_Vector fu, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(long int N, long int mu, long int ml, BandMat J,
+               realtype t, N_Vector u, N_Vector fu, void *jac_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   long int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
@@ -328,14 +330,16 @@ static void Jac(long int N, long int mu, long int ml, BandMat J,
       if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
     }
   }
+
+  return(0);
 }
 
 /*
  * fB function. Right-hand side of backward ODE.
  */
 
-static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, 
-               void *f_dataB)
+static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, 
+              void *f_dataB)
 {
   UserData data;
   realtype *uBdata, *duBdata;
@@ -376,16 +380,18 @@ static void fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
       IJth(duBdata, i, j) = hdiffB + hadvB + vdiffB - ONE;
     }
   }
+
+  return(0);
 }
 
 /*
  * JacB function. Jacobian of backward ODE
  */
 
-static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
-                 realtype tB, N_Vector u, 
-                 N_Vector uB, N_Vector fuB, void *jac_dataB,
-                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+static int JacB(long int NB, long int muB, long int mlB, BandMat JB,
+                realtype tB, N_Vector u, 
+                N_Vector uB, N_Vector fuB, void *jac_dataB,
+                N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   long int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
@@ -412,6 +418,8 @@ static void JacB(long int NB, long int muB, long int mlB, BandMat JB,
       if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = - verdc;
     }
   }
+
+  return(0);
 }
 
 /*

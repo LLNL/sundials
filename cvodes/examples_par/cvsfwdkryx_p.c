@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:36 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
@@ -153,7 +153,7 @@ typedef struct {
 
 /* Functions Called by the CVODES Solver */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
  * subgrid boundary data into uext.  Then calculate f by a call to fcalc. 
  */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype *udata, *dudata;
   UserData data;
@@ -399,6 +399,8 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
   /* Call fcalc to calculate all right-hand sides */
   fcalc (t, udata, dudata, data);
+
+  return(0);
 }
 
 /* 

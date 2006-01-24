@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-11 21:13:48 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:50:36 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -88,7 +88,7 @@ typedef struct {
 
 /* Prototypes of user-supplied functins */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 /* Prototypes of private functions */
 
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u). 
  */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;
@@ -347,6 +347,8 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
   }
+
+  return(0);
 }
 
 /*

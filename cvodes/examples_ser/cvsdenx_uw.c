@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:50:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -77,13 +77,13 @@
 
 /* Functions Called by the Solver */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
-static void g(realtype t, N_Vector y, realtype *gout, void *g_data);
+static int g(realtype t, N_Vector y, realtype *gout, void *g_data);
 
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(long int N, DenseMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int ewt(N_Vector y, N_Vector w, void *e_data);
 
@@ -217,7 +217,7 @@ int main()
  * f routine. Compute function f(t,y). 
  */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y1, y2, y3, yd1, yd3;
 
@@ -226,28 +226,32 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   yd1 = Ith(ydot,1) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
   yd3 = Ith(ydot,3) = RCONST(3.0e7)*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
+
+  return(0);
 }
 
 /*
  * g routine. Compute functions g_i(t,y) for i = 0,1. 
  */
 
-static void g(realtype t, N_Vector y, realtype *gout, void *g_data)
+static int g(realtype t, N_Vector y, realtype *gout, void *g_data)
 {
   realtype y1, y3;
 
   y1 = Ith(y,1); y3 = Ith(y,3);
   gout[0] = y1 - RCONST(0.0001);
   gout[1] = y3 - RCONST(0.01);
+
+  return(0);
 }
 
 /*
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(long int N, DenseMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y1, y2, y3;
 
@@ -260,6 +264,8 @@ static void Jac(long int N, DenseMat J, realtype t,
   IJth(J,2,2) = RCONST(-1.0e4)*y3-RCONST(6.0e7)*y2;
   IJth(J,2,3) = RCONST(-1.0e4)*y2;
   IJth(J,3,2) = RCONST(6.0e7)*y2;
+
+  return(0);
 }
 
 /*

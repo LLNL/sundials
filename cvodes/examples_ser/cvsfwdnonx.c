@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -77,7 +77,7 @@ typedef struct {
 
 /* Functions Called by the CVODES Solver */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 
 /* Private Helper Functions */
 
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u). 
  */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype dx;

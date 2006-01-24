@@ -30,7 +30,7 @@
 
 #define Ith(v,i) NV_Ith_S(v,i-1)
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 int main()
 {
@@ -89,7 +89,7 @@ int main()
 }
 
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   int *flag;
 
@@ -111,5 +111,7 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   if (*flag == 1)
     Ith(ydot,3) = -yd1-yd2;
 
+
+  return(0);
 }
 

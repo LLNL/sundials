@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -124,14 +124,14 @@ static void PrintErrInfo(int nerr);
 
 /* Functions Called by the Solver */
 
-static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static void Jac1(long int N, DenseMat J, realtype tn,
-                 N_Vector y, N_Vector fy, void *jac_data,
-                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static void Jac2(long int N, long int mu, long int ml, BandMat J,
-                 realtype tn, N_Vector y, N_Vector fy, void *jac_data,
-                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int f1(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int Jac1(long int N, DenseMat J, realtype tn,
+                N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int f2(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int Jac2(long int N, long int mu, long int ml, BandMat J,
+                realtype tn, N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
 
@@ -311,7 +311,7 @@ static void PrintOutput1(realtype t, realtype y0, realtype y1, int qu, realtype 
   return;
 }
 
-static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   realtype y0, y1;
   
@@ -320,11 +320,13 @@ static void f1(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
   NV_Ith_S(ydot,0) = y1;
   NV_Ith_S(ydot,1) = (ONE - SQR(y0))* P1_ETA * y1 - y0;
+
+  return(0);
 } 
 
-static void Jac1(long int N, DenseMat J, realtype tn,
-                 N_Vector y, N_Vector fy, void *jac_data,
-                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac1(long int N, DenseMat J, realtype tn,
+                N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype y0, y1;
 
@@ -334,6 +336,8 @@ static void Jac1(long int N, DenseMat J, realtype tn,
   DENSE_ELEM(J,0,1) = ONE;
   DENSE_ELEM(J,1,0) = -TWO * P1_ETA * y0 * y1 - ONE;
   DENSE_ELEM(J,1,1) = P1_ETA * (ONE - SQR(y0));
+
+  return(0);
 }
 
 static int Problem2(void)
@@ -497,7 +501,7 @@ static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu)
   return;
 }
 
-static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   long int i, j, k;
   realtype d, *ydata, *dydata;
@@ -521,11 +525,13 @@ static void f2(realtype t, N_Vector y, N_Vector ydot, void *f_data)
       dydata[k] = d;
     }
   }
+
+  return(0);
 }
 
-static void Jac2(long int N, long int mu, long int ml, BandMat J,
-                 realtype tn, N_Vector y, N_Vector fy, void *jac_data,
-                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac2(long int N, long int mu, long int ml, BandMat J,
+                realtype tn, N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   long int i, j, k;
   realtype *kthCol;
@@ -555,6 +561,8 @@ static void Jac2(long int N, long int mu, long int ml, BandMat J,
       if (j != P2_MESHY-1) BAND_COL_ELEM(kthCol,k+P2_MESHX,k) = P2_ALPH2;
     }
   }
+
+  return(0);
 }
 
 static realtype MaxError(N_Vector y, realtype t)

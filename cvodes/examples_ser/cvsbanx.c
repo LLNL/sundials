@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:49 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -92,10 +92,10 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
-static void Jac(long int N, long int mu, long int ml, BandMat J,
-                realtype t, N_Vector u, N_Vector fu, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int Jac(long int N, long int mu, long int ml, BandMat J,
+               realtype t, N_Vector u, N_Vector fu, void *jac_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
  *-------------------------------
@@ -208,7 +208,7 @@ int main(void)
 
 /* f routine. Compute f(t,u). */
 
-static void f(realtype t, N_Vector u,N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u,N_Vector udot, void *f_data)
 {
   realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   realtype *udata, *dudata;
@@ -247,13 +247,15 @@ static void f(realtype t, N_Vector u,N_Vector udot, void *f_data)
       IJth(dudata, i, j) = hdiff + hadv + vdiff;
     }
   }
+
+  return(0);
 }
 
 /* Jacobian routine. Compute J(t,u). */
 
-static void Jac(long int N, long int mu, long int ml, BandMat J,
-                realtype t, N_Vector u, N_Vector fu, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(long int N, long int mu, long int ml, BandMat J,
+               realtype t, N_Vector u, N_Vector fu, void *jac_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   long int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
@@ -288,6 +290,8 @@ static void Jac(long int N, long int mu, long int ml, BandMat J,
       if (j != MY) BAND_COL_ELEM(kthCol,k+1,k)  = verdc;
     }
   }
+
+  return(0);
 }
 
 /*

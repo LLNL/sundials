@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -86,9 +86,9 @@ typedef struct {
 
 /* Prototypes of user-supplied funcitons */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
-static void fB(realtype t, N_Vector u, 
-               N_Vector uB, N_Vector uBdot, void *f_dataB);
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+static int fB(realtype t, N_Vector u, 
+              N_Vector uB, N_Vector uBdot, void *f_dataB);
 
 /* Prototypes of private functions */
 
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u) for forward phase. 
  */
 
-static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
+static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 {
   realtype uLeft, uRight, ui, ult, urt;
   realtype hordc, horac, hdiff, hadv;
@@ -345,14 +345,16 @@ static void f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     hadv = horac*(urt - ult);
     dudata[i] = hdiff + hadv;
   }
+
+  return(0);
 }
 
 /*
  * fB routine. Compute right hand side of backward problem 
  */
 
-static void fB(realtype t, N_Vector u, 
-               N_Vector uB, N_Vector uBdot, void *f_dataB)
+static int fB(realtype t, N_Vector u, 
+              N_Vector uB, N_Vector uBdot, void *f_dataB)
 {
   realtype *uBdata, *duBdata, *udata;
   realtype uBLeft, uBRight, uBi, uBlt, uBrt;
@@ -476,6 +478,8 @@ static void fB(realtype t, N_Vector u,
 
   }
 
+
+  return(0);
 }
 
 /*

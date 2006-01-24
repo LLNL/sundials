@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-24 00:51:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -65,10 +65,10 @@ typedef struct {
 } *UserData;
 
 /* Functions called by the solver */
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int Jac(long int N, DenseMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions */
 static UserData set_data();
@@ -310,7 +310,7 @@ static realtype loosen_tol(void *cvode_mem, realtype t, N_Vector y, UserData dat
  * Compute RHS function f(t,y). 
  */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   UserData data;
   realtype p1, p2, p3;
@@ -328,6 +328,8 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
   yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
   yd3 = Ith(ydot,3) = p3*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
+
+  return(0);
 }
 
 /*
@@ -336,9 +338,9 @@ static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
  * Compute Jacobian J(t,y) = df/dy. *
  */
 
-static void Jac(long int N, DenseMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(long int N, DenseMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData data;
   realtype p1, p2, p3;
@@ -362,6 +364,8 @@ static void Jac(long int N, DenseMat J, realtype t,
   IJth(J,2,3) = -p2*y2;
 
   IJth(J,3,2) = 2*p3*y2;
+
+  return(0);
 }
 
 /*

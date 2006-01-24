@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-17 23:30:15 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:50:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -168,7 +168,7 @@ typedef struct {
 
 /* Prototypes for user-supplied functions */
 
-static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 static int Precond(realtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr, 
@@ -180,7 +180,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
                   realtype gamma, realtype delta,
                   int lr, void *P_data, N_Vector vtemp);
 
-static void fB(realtype t, N_Vector c, N_Vector cB, 
+static int fB(realtype t, N_Vector c, N_Vector cB, 
                N_Vector cBdot, void *f_data);
 
 static int PrecondB(realtype t, N_Vector c, 
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
  * and these are saved in fsave for use in preconditioning.
  */
 
-static void f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
+static int f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
   realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
@@ -400,6 +400,8 @@ static void f(realtype t, N_Vector c, N_Vector cdot, void *f_data)
 
   /* Quadrature equation (species 1) */
   cdotdata[NEQ] = doubleIntgr(c,ISPEC,wdata);
+
+  return(0);
 }
 
 /*
@@ -566,7 +568,7 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
  * interaction rates are computed by calls to WebRatesB.
  */
 
-static void fB(realtype t, N_Vector c, N_Vector cB, 
+static int fB(realtype t, N_Vector c, N_Vector cB, 
                N_Vector cBdot, void *f_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
@@ -622,6 +624,8 @@ static void fB(realtype t, N_Vector c, N_Vector cB,
       }
     }
   }
+
+  return(0);
 }
 
 /*
