@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.19 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,12 +31,13 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_DJAC(long int*,                                  /* N */
-                       realtype*, realtype*, realtype*,            /* T, Y, FY */
-                       realtype*,                                  /* DJAC */
-                       realtype*,                                  /* H */ 
+  extern void FCV_DJAC(long int*,                                  /* N          */
+                       realtype*, realtype*, realtype*,            /* T, Y, FY   */
+                       realtype*,                                  /* DJAC       */
+                       realtype*,                                  /* H          */ 
                        long int*, realtype*,                       /* IPAR, RPAR */
-                       realtype*, realtype*, realtype*);           /* V1, V2, V3 */
+                       realtype*, realtype*, realtype*,            /* V1, V2, V3 */
+                       int *ier);                                  /* IER        */
 #ifdef __cplusplus
 }
 #endif
@@ -63,10 +64,11 @@ void FCV_DENSESETJAC(int *flag, int *ier)
    DENSE_COL from DENSE and the routine N_VGetArrayPointer from NVECTOR.
    Auxiliary data is assumed to be communicated by Common. */
 
-void FCVDenseJac(long int N, DenseMat J, realtype t, 
-                 N_Vector y, N_Vector fy, void *jac_data,
-                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+int FCVDenseJac(long int N, DenseMat J, realtype t, 
+                N_Vector y, N_Vector fy, void *jac_data,
+                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
+  int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
   FCVUserData CV_userdata;
@@ -84,7 +86,8 @@ void FCVDenseJac(long int N, DenseMat J, realtype t,
   CV_userdata = (FCVUserData) jac_data;
 
   FCV_DJAC(&N, &t, ydata, fydata, jacdata, &h, 
-           CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data); 
+           CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier); 
 
+  return(0);
 }
 

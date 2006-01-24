@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.57 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.58 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -61,7 +61,8 @@ extern "C" {
                       realtype*,     /* Y    */
                       realtype*,     /* YDOT */
                       long int*,     /* IPAR */
-                      realtype*);    /* RPAR */
+                      realtype*,     /* RPAR */
+                      int*);         /* IER  */
 #ifdef __cplusplus
 }
 #endif
@@ -593,8 +594,9 @@ void FCV_FREE ()
  * Auxiliary data is assumed to be communicated by Common. 
  */
 
-void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+int FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
+  int ier;
   realtype *ydata, *dydata;
   FCVUserData CV_userdata;
 
@@ -603,5 +605,7 @@ void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
   CV_userdata = (FCVUserData) f_data;
 
-  FCV_FUN(&t, ydata, dydata, CV_userdata->ipar, CV_userdata->rpar);
+  FCV_FUN(&t, ydata, dydata, CV_userdata->ipar, CV_userdata->rpar, &ier);
+
+  return(0);
 }

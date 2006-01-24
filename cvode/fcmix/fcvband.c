@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.19 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -32,11 +32,12 @@
 extern "C" {
 #endif
   extern void FCV_BJAC(long int*, long int*, long int*, long int*, /* N, MU, ML, EBAND */
-                       realtype*, realtype*, realtype*,            /* T, Y, FY */
-                       realtype*,                                  /* BJAC */
-                       realtype*,                                  /* H */
-                       long int*, realtype*,                       /* IPAR, RPAR */
-                       realtype*, realtype*, realtype*);           /* V1, V2, V3 */
+                       realtype*, realtype*, realtype*,            /* T, Y, FY         */
+                       realtype*,                                  /* BJAC             */
+                       realtype*,                                  /* H                */
+                       long int*, realtype*,                       /* IPAR, RPAR       */
+                       realtype*, realtype*, realtype*,            /* V1, V2, V3       */
+                       int*);                                      /* IER              */
 #ifdef __cplusplus
 }
 #endif
@@ -66,11 +67,12 @@ void FCV_BANDSETJAC(int *flag, int *ier)
    passed as the column dimension of the corresponding array.
    Auxiliary data is assumed to be communicated by Common. */
 
-void FCVBandJac(long int N, long int mupper, long int mlower,
-                BandMat J, realtype t,
-                N_Vector y, N_Vector fy, void *jac_data,
-                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+int FCVBandJac(long int N, long int mupper, long int mlower,
+               BandMat J, realtype t,
+               N_Vector y, N_Vector fy, void *jac_data,
+               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
+  int ier;
   realtype *ydata, *fydata, *jacdata, *v1data, *v2data, *v3data;
   realtype h;
   long int eband;
@@ -90,6 +92,7 @@ void FCVBandJac(long int N, long int mupper, long int mlower,
   CV_userdata = (FCVUserData) jac_data;
 
   FCV_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, jacdata, &h,
-           CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data);
+           CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier);
 
+  return(0);
 }

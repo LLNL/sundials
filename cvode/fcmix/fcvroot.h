@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.15 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,7 @@
  * 1. In order to use the rootfinding feature of the CVODE package the user must
  * define the following subroutine:
  *
- *   SUBROUTINE FCVROOTFN (T, Y, G, IPAR, RPAR)
+ *   SUBROUTINE FCVROOTFN (T, Y, G, IPAR, RPAR, IER)
  *   DIMENSION Y(*), G(*), IPAR(*), RPAR(*)
  *
  * The arguments are:
@@ -52,6 +52,7 @@
  *   Y = dependent variable vector y  [input]
  *   G = function values g(t,y)  [output]
  *   IPAR, RPAR = user (integer and real) data [input/output]
+ *   IER = return flag (currently not used)
  *
  * 2. After calling FCVMALLOC but prior to calling FCVODE, the user must
  * allocate and initialize memory for the FCVROOT module by making the
@@ -164,7 +165,7 @@ void FCV_ROOTFREE(void);
 
 /* Prototype of function called by CVODE module */
 
-void FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data);
+int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.56 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.57 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -113,35 +113,38 @@
  *
  * (1) User-supplied right-hand side routine: FCVFUN
  * The user must in all cases supply the following Fortran routine
- *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR)
+ *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR, IER)
  *       DIMENSION Y(*), YDOT(*), IPAR(*), RPAR(*)
  * It must set the YDOT array to f(t,y), the right-hand side of the ODE 
  * system, as function of T = t and the array Y = y.  Here Y and YDOT
  * are distributed vectors. IPAR and RPAR are arrays of integer and real user 
  * data, respectively as passed to FCVMALLOC.
+ * IER is a return flag (currently not used).
  * 
  * (2s) Optional user-supplied dense Jacobian approximation routine: FCVDJAC
  * As an option when using the DENSE linear solver, the user may supply a
  * routine that computes a dense approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
- *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2, WK3)
+ *       SUBROUTINE FCVDJAC (NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2, WK3, IER)
  *       DIMENSION Y(*), FY(*), DJAC(NEQ,*), IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
  * the Jacobian and store it columnwise in DJAC.
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
+ * IER is a return flag (currently not used).
  * 
  * (3s) Optional user-supplied band Jacobian approximation routine: FCVBJAC
  * As an option when using the BAND linear solver, the user may supply a
  * routine that computes a band approximation of the system Jacobian 
  * J = df/dy. If supplied, it must have the following form:
  *       SUBROUTINE FCVBJAC (NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H,
- *      1                    IPAR, RPAR, WK1, WK2, WK3)
+ *      1                    IPAR, RPAR, WK1, WK2, WK3, IER)
  *       DIMENSION Y(*), FY(*), BJAC(MDIM,*), IPAR(*), RPAR(*), WK1(*), WK2(*), WK3(*)
  * Typically this routine will use only NEQ, MU, ML, T, Y, and BJAC. 
  * It must load the MDIM by N array BJAC with the Jacobian matrix at the
  * current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element J(i,j)
  * with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
+ * IER is a return flag (currently not used).
  * 
  * (4) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
  * As an option when using the SP* linear solver, the user may supply
@@ -922,16 +925,16 @@ extern "C" {
 
   /* Prototypes: Functions Called by the CVODE Solver */
   
-  void FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+  int FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data);
   
-  void FCVDenseJac(long int N, DenseMat J, realtype t, 
-                   N_Vector y, N_Vector fy, void *jac_data,
-                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-  
-  void FCVBandJac(long int N, long int mupper, long int mlower,
-                  BandMat J, realtype t, N_Vector y, N_Vector fy,
-                  void *jac_data,
+  int FCVDenseJac(long int N, DenseMat J, realtype t, 
+                  N_Vector y, N_Vector fy, void *jac_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
+  
+  int FCVBandJac(long int N, long int mupper, long int mlower,
+                 BandMat J, realtype t, N_Vector y, N_Vector fy,
+                 void *jac_data,
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
   
   int FCVPSet(realtype tn, N_Vector y,N_Vector fy, booleantype jok,
               booleantype *jcurPtr, realtype gamma, void *P_data,

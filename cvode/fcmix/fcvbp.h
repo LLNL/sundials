@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.18 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -65,7 +65,7 @@
  * 
  * (1) User-supplied right-hand side routine: FCVFUN
  * The user must in all cases supply the following Fortran routine
- *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR)
+ *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR, IER)
  *       DIMENSION Y(*), YDOT(*), IPAR(*), RPAR(*)
  * It must set the YDOT array to f(t,y), the right-hand side of the ODE
  * system, as function of T = t and the array Y = y.  Here Y and YDOT

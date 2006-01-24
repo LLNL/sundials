@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.28 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -39,13 +39,15 @@
 extern "C" {
 #endif
 
-  extern void FCV_GLOCFN(long int*,                        /* NLOC */
+  extern void FCV_GLOCFN(long int*,                        /* NLOC          */
                          realtype*, realtype*, realtype*,  /* T, YLOC, GLOC */
-                         long int*, realtype*);            /* IPAR, RPAR */
+                         long int*, realtype*,             /* IPAR, RPAR    */
+                         int *ier);                        /* IER           */
 
-  extern void FCV_COMMFN(long int*,                        /* NLOC */
-                         realtype*, realtype*,             /* T, Y */
-                         long int*, realtype*);            /* IPAR, RPAR */
+  extern void FCV_COMMFN(long int*,                        /* NLOC          */
+                         realtype*, realtype*,             /* T, Y          */
+                         long int*, realtype*,             /* IPAR, RPAR    */
+                         int *ier);                        /* IER           */
 
 #ifdef __cplusplus
 }
@@ -161,9 +163,10 @@ void FCV_BBDREINIT(long int *Nloc, long int *mudq, long int *mldq,
 /* C function FCVgloc to interface between CVBBDPRE module and a Fortran 
    subroutine FCVLOCFN. */
 
-void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
-             void *f_data)
+int FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
+            void *f_data)
 {
+  int ier;
   realtype *yloc_data, *gloc_data;
   FCVUserData CV_userdata;
 
@@ -172,7 +175,10 @@ void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
 
   CV_userdata = (FCVUserData) f_data;
 
-  FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data, CV_userdata->ipar, CV_userdata->rpar);
+  FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data, 
+             CV_userdata->ipar, CV_userdata->rpar,
+             &ier);
+  return(0);
 }
 
 /***************************************************************************/
@@ -180,9 +186,9 @@ void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
 /* C function FCVcfn to interface between CVBBDPRE module and a Fortran 
    subroutine FCVCOMMF. */
 
-
-void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
+int FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 {
+  int ier;
   realtype *yloc;
   FCVUserData CV_userdata;
 
@@ -190,8 +196,9 @@ void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 
   CV_userdata = (FCVUserData) f_data;
 
-  FCV_COMMFN(&Nloc, &t, yloc, CV_userdata->ipar, CV_userdata->rpar);
+  FCV_COMMFN(&Nloc, &t, yloc, CV_userdata->ipar, CV_userdata->rpar, &ier);
 
+  return(0);
 }
 
 /***************************************************************************/

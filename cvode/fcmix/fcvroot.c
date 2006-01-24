@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.18 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -33,8 +33,9 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FCV_ROOTFN(realtype *, realtype*, realtype*,  /* T, Y, G */
-                         long int*, realtype*);             /* IPAR, RPAR */
+  extern void FCV_ROOTFN(realtype *, realtype*, realtype*,  /* T, Y, G    */
+                         long int*, realtype*,              /* IPAR, RPAR */
+                         int *ier);                         /* IER        */
 #ifdef __cplusplus
 }
 #endif
@@ -71,8 +72,9 @@ void FCV_ROOTFREE(void)
 
 /***************************************************************************/
 
-void FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
+int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
 {
+  int ier;
   realtype *ydata;
   FCVUserData CV_userdata;
 
@@ -80,8 +82,8 @@ void FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
 
   CV_userdata = (FCVUserData) g_data;
 
-  FCV_ROOTFN(&t, ydata, gout, CV_userdata->ipar, CV_userdata->rpar);
+  FCV_ROOTFN(&t, ydata, gout, CV_userdata->ipar, CV_userdata->rpar, &ier);
 
-  return;
+  return(0);
 }
 

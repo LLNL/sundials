@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.27 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -75,7 +75,7 @@
  * 
  * (1) User-supplied right-hand side routine: FCVFUN
  * The user must in all cases supply the following Fortran routine
- *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR)
+ *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR, IER)
  *       DIMENSION Y(*), YDOT(*), IPAR(*), RPAR(*)
  * It must set the YDOT array to f(t,y), the right-hand side of the ODE
  * system, as function of T = t and the array Y = y.  Here Y and YDOT
@@ -95,7 +95,7 @@
  * 
  * (2.1) Local approximate function FCVLOCFN.
  * The user must supply a subroutine of the form
- *       SUBROUTINE FCVLOCFN (NLOC, T, YLOC, GLOC, IPAR, RPAR)
+ *       SUBROUTINE FCVLOCFN (NLOC, T, YLOC, GLOC, IPAR, RPAR, IER)
  *       DIMENSION YLOC(*), GLOC(*), IPAR(*), RPAR(*)
  * to compute the function g(t,y) which approximates the right-hand side
  * function f(t,y).  This function is to be computed locally, i.e. without 
@@ -104,10 +104,11 @@
  * NLOC, the independent variable value T = t, and the local realtype
  * dependent variable array YLOC.  It is to compute the local part of
  * g(t,y) and store this in the realtype array GLOC.
+ * IER is a return flag (currently not used).
  * 
  * (2.2) Communication function FCVCOMMF.
  * The user must also supply a subroutine of the form
- *       SUBROUTINE FCVCOMMF (NLOC, T, YLOC, IPAR, RPAR)
+ *       SUBROUTINE FCVCOMMF (NLOC, T, YLOC, IPAR, RPAR, IER)
  *       DIMENSION YLOC(*), IPAR(*), RPAR(*)
  * which is to perform all interprocess communication necessary to
  * evaluate the approximate right-hand side function g described above.
@@ -118,6 +119,7 @@
  * Each call to the FCVCOMMF is preceded by a call to FCVFUN with the same
  * (t,y) arguments.  Thus FCVCOMMF can omit any communications done by 
  * FCVFUN if relevant to the evaluation of g.
+ * IER is a return flag (currently not used).
  * 
  * (3) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
  * As an option, the user may supply a routine that computes the product
@@ -426,10 +428,10 @@ void FCV_BBDFREE(void);
 
 /* Prototypes: Functions Called by the CVBBDPRE Module */
 
-void FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
-             void *f_data);
+int FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
+            void *f_data);
 
-void FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data);
+int FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data);
 
 
 /* Declarations for global variables, shared among various routines */

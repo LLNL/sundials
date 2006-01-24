@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.25 $
+ * $Date: 2006-01-24 00:49:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -37,12 +37,12 @@
 extern "C" {
 #endif
 
-  extern void FCV_JTIMES(realtype*, realtype*,            /* V, JV */
-                         realtype*, realtype*, realtype*, /* T, Y, FY */
-                         realtype*,                       /* H */
+  extern void FCV_JTIMES(realtype*, realtype*,            /* V, JV      */
+                         realtype*, realtype*, realtype*, /* T, Y, FY   */
+                         realtype*,                       /* H          */
                          long int*, realtype*,            /* IPAR, RPAR */
-                         realtype*,                       /* WRK */
-                         int*);
+                         realtype*,                       /* WRK        */
+                         int*);                           /* IER        */
 
 #ifdef __cplusplus
 }
