@@ -118,26 +118,21 @@ reactions are in the attached document. Will anyone
 help me in this regard?</pre><br>
 <pre style="margin: 0em;">Thanks
 Mzolisi</pre><br>
-<tt><br>		<br>
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Small Business - Try our new resources site!<br>
-<a  href="http://smallbusiness.yahoo.com/resources/">http://smallbusiness.yahoo.com/resources/</a>
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">Hi Mzolisi,</pre><br>
-<tt>Why not use one of the linear solver modules already in SUNDIALS? The CVDENSE module should be just fine for your 
+Why not use one of the linear solver modules already in SUNDIALS? The CVDENSE module should be just fine for your 
 problem (the reaction mechanism you attached has 13 ODEs, not a big problem for a dense direct linear solver). What 
 other linear solver are you thinking of using? Functions like lsetup, lsolve (plus linit and lfree) are needed only if 
-you want to provide a new linear solver module.</tt><br>
+you want to provide a new linear solver module.<br>
 <br>
-<tt>The cvdx example in CVODE should be a good start for you. Just modify the problem dimension, initial conditions, 
+The cvdx example in CVODE should be a good start for you. Just modify the problem dimension, initial conditions, 
 tolerances, and RHS function for your mechanism. To begin with, don't even provide a Jacobian function, let CVDENSE 
-estimate it with difference quotients.</tt><br>
+estimate it with difference quotients.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>P.S. What do you exactly mean by &quot;converting CVODE to Delphi&quot;? Certainly, you are not thinking of rewriting CVODE in 
+P.S. What do you exactly mean by &quot;converting CVODE to Delphi&quot;? Certainly, you are not thinking of rewriting CVODE in 
 Delphi!?!? I've never used Delphi, but I'm sure you can link a C library (such as the SUNDIALS libraries) to your Delphi 
-application, in which case all you need is a Delphi-C interface (much like FCVODE).</tt><br>
+application, in which case all you need is a Delphi-C interface (much like FCVODE).<br>
 <br>
 <pre style="margin: 0em;"><br>--
    Radu Serban

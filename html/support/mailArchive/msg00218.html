@@ -103,8 +103,8 @@ Tue, 17 Jan 2006 17:36:35 -0500</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Radu,</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>I don't know how you use the step size inside f(), but it would probably make more senseto use the value of the step size used on the last successful step, hu. Note that hu=0.0as long as nst=0 (nst being the value returned by CVodeGetNumSteps).
-</tt></blockquote><pre style="margin: 0em;"><br>Let me explain why I need it. I have a sink model that calculates a sink 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">I don't know how you use the step size inside f(), but it would probably make more sense to use the value of the step size used on the last successful step, hu. Note that hu=0.0as long as nst=0 (nst being the value returned by CVodeGetNumSteps).
+</blockquote><pre style="margin: 0em;"><br>Let me explain why I need it. I have a sink model that calculates a sink 
 based on one of my quantities (crystalline salt mass). The sink (rate of 
 dissolution of solid into the solution) is calculated as rate in kg/s. However, 
 the sink function is unsteady when the available salt mass approaches zero. If 

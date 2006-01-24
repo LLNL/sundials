@@ -102,27 +102,27 @@ Mon, 12 Dec 2005 13:29:17 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Dear Kevin,</pre><br>
-<tt>Yes, you are correct.  N_VSpace is meant only to provide diagnostic 
+Yes, you are correct.  N_VSpace is meant only to provide diagnostic 
 information and need not return an exact measure of the memory required 
-to store a vector.</tt><br>
+to store a vector.<br>
 <br>
 <pre style="margin: 0em;">--Aaron</pre><br>
 <tt>Kevin Long wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
-<tt>I'm working on writing code to wrap Trilinos abstract vectors and solvers in 
+I'm working on writing code to wrap Trilinos abstract vectors and solvers in 
 the SUNDIALS N_Vector and solver interfaces. Most of the N_Vector functions 
 are simple to implement with Trilinos objects. However, it's not easy for me 
 to implement N_VSpace with arbitrary Trilinos vectors. So my question is: is 
-it necessary to get an exact measure of memory required?</tt><br>
+it necessary to get an exact measure of memory required?<br>
 <br>
-<tt>I noticed that in IDAMalloc, if the nvspace function pointer is null,  lrw and 
+I noticed that in IDAMalloc, if the nvspace function pointer is null,  lrw and 
 liw are simply set to zero and the code proceeds happily along. After that, 
 the only access to workspace information is through IDAGetWorkSpace, which 
-seems to be mainly for diagnostic output. </tt><br>
+seems to be mainly for diagnostic output. <br>
 <br>
-<tt>Am I correct in understanding that N_VSpace is used for diagnostic information 
+Am I correct in understanding that N_VSpace is used for diagnostic information 
 only, and that things will not crash and burn if I simply provide a rough 
-estimate of vector storage requirements?</tt><br>
+estimate of vector storage requirements?<br>
 <br>
 <pre style="margin: 0em;">Thanks,</pre><br>
 <pre style="margin: 0em;">- kevin</pre><br>

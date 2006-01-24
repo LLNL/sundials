@@ -102,25 +102,25 @@ Fri, 10 Jun 2005 10:18:32 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Since another user has asked the same question, I thought I'll share an example on how tolerances can be controlled in 
-order to enforce a minimum step size.</tt><br>
+Since another user has asked the same question, I thought I'll share an example on how tolerances can be controlled in 
+order to enforce a minimum step size.<br>
 <br>
 <pre style="margin: 0em;">The attached file (cvdx1.c) is a modification of the cvdx CVODE/CVODES example:</pre><br>
-<tt>- When HMIN is reached (CV_ERR_FAILURE or CV_CONV_FAILURE return from CVode), looser tolerances are estimated such that 
+- When HMIN is reached (CV_ERR_FAILURE or CV_CONV_FAILURE return from CVode), looser tolerances are estimated such that 
 the solver can proceed with order 1 without the step size going below HMIN.<br>
 - The absolute tolerance estimates are based on the current value of y'' (see comments for function loosen_tol).<br>
 - While proceeding with looser tolerances, we check for sufficient increase in the step size and, when it reaches 
 H_FACT*HMIN, we tighten the tolerances back to their original values and reset the maximum order to 5 (BDF).<br>
 - Note that one could tighten the tolerances in stages and continue with backward Euler until the tolerances reached 
-their original values.</tt><br>
+their original values.<br>
 <br>
-<tt>See the comments in cvdx1.c for more details on the absolute tolerance control strategy. Note that cvdx1 uses CVODES. To 
+See the comments in cvdx1.c for more details on the absolute tolerance control strategy. Note that cvdx1 uses CVODES. To 
 use it with CVODE, just replace<br>
 #include &quot;cvodes.h&quot;<br>
 with<br>
-#include &quot;cvode.h&quot;</tt><br>
+#include &quot;cvode.h&quot;<br>
 <br>
-<tt>IMPORTANT: Unfortunately, the current implementation of CVodeSetMaxOrd in CVODE/CVODES does not allow an increase in the 
+IMPORTANT: Unfortunately, the current implementation of CVodeSetMaxOrd in CVODE/CVODES does not allow an increase in the 
 maximum order. This is a limitation that we have already removed in the development version. Until the next release, you 
 can just comment out the test<br>
 if (maxord &gt; qmax) {<br>
@@ -128,7 +128,7 @@ if (maxord &gt; qmax) {<br>
 }<br>
 in the function CVodeSetMaxOrd (files cvodeio.c and cvodesio.c in CVODE and CVODES, respectively). However, make sure 
 you never increase the maximum order beyond the value it had whenever CVodeMalloc was called (the default values for 
-qmax are 12 and 5 for Adams and BDF, respectively).</tt><br>
+qmax are 12 and 5 for Adams and BDF, respectively).<br>
 <br>
 <pre style="margin: 0em;">I hope this example is helpful.</pre><br>
 <pre style="margin: 0em;">Cheers,
@@ -139,18 +139,18 @@ qmax are 12 and 5 for Adams and BDF, respectively).</tt><br>
    Lawrence Livermore National Laboratory    [phone] 925-424-4852
    P.O. Box 808, L-560                       [fax]   925-422-6287
    Livermore, CA 94551</pre><br>
-<tt>Radu Serban wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Andreas,</pre><br>
-<tt>Although CVODE has an option for setting a minimum value for the step 
+Radu Serban wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Andreas,</pre><br>
+Although CVODE has an option for setting a minimum value for the step 
 size (CVodeSetMinStep), this will not help your problem. The hmin value 
 in CVODE has a role opposite to what you want: you can look at it as a 
 mechanism for stopping the integrator when accuracy requirements would 
-drive the step size below the prescribed limit.</tt><br>
+drive the step size below the prescribed limit.<br>
 <br>
-<tt>CVODE strives to satisfy first the tolerance requirements and not 
-limitations on step size.</tt><br>
+CVODE strives to satisfy first the tolerance requirements and not 
+limitations on step size.<br>
 <br>
-<tt>The answer to your problem is hidden in your question itself! You say 
+The answer to your problem is hidden in your question itself! You say 
 that in such regions, you are willing to accept a loss of accuracy. Then 
 you should just use looser tolerances in that region and then tighten 
 them back after you're past the tough spot. You can change tolerances 
@@ -160,25 +160,25 @@ that you used to pass tolerances to CVodeMalloc, since CVODE stores them
 by reference and not value. However, I am currently working on changes 
 to the code that will not allow this anymore, for different reasons, and 
 when the new codes will be released -- probably in a week or so -- this 
-option will not be available anymore).</tt><br>
+option will not be available anymore).<br>
 <br>
-<tt>Of course, to do this you'd have to call CVode in ONE_STEP mode. If you 
+Of course, to do this you'd have to call CVode in ONE_STEP mode. If you 
 do not know beforehand where these tough regions are, you should be able 
 to detect them by specifying minimum and maximum step sizes and by 
-monitoring the CVODE solver statistics and/or return values.</tt><br>
+monitoring the CVODE solver statistics and/or return values.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;">Andreas Nicolai wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
-<tt>before using CVODE I was writing single-step, implicit solvers with 
+before using CVODE I was writing single-step, implicit solvers with 
 variable time steps. And depending on the convergence criteria the 
 time step could get very small. However, in order not to break out the 
 solution I enforced a minimum time step (accepting the reduction in 
-accuracy).</tt><br>
+accuracy).<br>
 <br>
-<tt>Can this be done with CVODE as well? I mean, force the solver to go on 
+Can this be done with CVODE as well? I mean, force the solver to go on 
 even if he can't converge at a certain time step which would normally 
-cause him to slow down?</tt><br>
+cause him to slow down?<br>
 <br>
 <pre style="margin: 0em;">Thanks for any suggestions!
 Bye - Andreas</pre><br>
@@ -186,8 +186,8 @@ Bye - Andreas</pre><br>
 </blockquote><br>
 </blockquote><pre>/*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:15:40 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-24 00:52:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------

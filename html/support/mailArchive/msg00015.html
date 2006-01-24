@@ -101,7 +101,7 @@ Thu, 17 Mar 2005 14:16:46 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>As far as I know, in order to do this you have to reinitialize the 
+As far as I know, in order to do this you have to reinitialize the 
 solver.   The vector y returned by your call to CVode(mem, t, y, 
 &amp;treturn, itask) is not the state vector internally maintained by the 
 solver.   The solver may have proceeded past your integration time t, 
@@ -109,19 +109,19 @@ and is giving you an interpolation back to the time requested, so its
 internal state may already be into the future.    You want to change 
 the internal state of the solver, and this requires initialization.   
 You might want to get the current internal step size of the solver and 
-use that when you reinitialize.</tt><br>
+use that when you reinitialize.<br>
 <br>
 <pre style="margin: 0em;">JPH</pre><br>
 <pre style="margin: 0em;">On Mar 17, 2005, at 1:41 PM, Jordan Atlas wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Hello,</pre><br>
-<tt>    Using CVODE integration, is it possible to make step changes in an 
+    Using CVODE integration, is it possible to make step changes in an 
 independent variable between between specific time steps?  For 
 example, if one of the variables is y0, I would like y0 to 
 automatically double (as a step change) every 5 time units, 
-independent of the equation for dy0/dt.</tt><br>
+independent of the equation for dy0/dt.<br>
 <br>
-<tt>    In my loop that calls CVode(...), I tried to do this using 
-something like:</tt><br>
+    In my loop that calls CVode(...), I tried to do this using 
+something like:<br>
 <br>
 <pre style="margin: 0em;">               // If the time is less than the time for the step change
         if (tout &gt;= stepTime)
@@ -134,18 +134,13 @@ something like:</tt><br>
 <pre style="margin: 0em;">                stepTime += stepTime;
                 N_VPrint_Serial(y);
         }</pre><br>
-<tt>    The print statements show y as doubling, but the changes are not 
+    The print statements show y as doubling, but the changes are not 
 reflected in the time course produced by CVode (elsewhere in the 
 code).  Is there anyway to access the independent variable during the 
-integration like this?</tt><br>
+integration like this?<br>
 <br>
 <pre style="margin: 0em;">Thank you,</pre><br>
 <pre style="margin: 0em;">--Jordan Atlas--</pre><br>
-<tt>_________________________________________________________________<br>
-Don?t just search. Find. Check out the new MSN Search! 
-<a  href="http://search.msn.click-url.com/go/onm00200636ave/direct/01/">http://search.msn.click-url.com/go/onm00200636ave/direct/01/</a></tt><br>
-<br>
-<br>
 </blockquote><pre style="margin: 0em;">--
 James Paul Holloway
 hagar@umich.edu

@@ -107,20 +107,21 @@ Tue, 17 May 2005 11:04:20 -0700</td>
 <!--X-Body-of-Message-->
 <tt>Andreas Nicolai wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
-<tt>thanks for the answer. I'm still a bit unclear about how this actually 
-works, even after reading through the articles.</tt><br>
+thanks for the answer. I'm still a bit unclear about how this actually 
+works, even after reading through the articles.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Local Error Test:<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+Local Error Test:<br>
 CVODE controls the local truncation error (LTE) by modifying the step 
 size and/or method order so that the WRMS norm of<br>
 the LTE is less than or equal to 1.0.
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt>Does this mean that:<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+Does this mean that:<br>
 - after a successful step the solver calculates the WRMS norm based on 
 the newly calculated values and then obtains the steps size/method order 
 for the new step<br>
 - if after the next step the error test fails, the time step will be 
-reduced and the solution will be attempted again</tt><br>
+reduced and the solution will be attempted again<br>
 <br>
 <pre style="margin: 0em;">Is that correct?</pre><br>
 <pre style="margin: 0em;">Andreas</pre><br>

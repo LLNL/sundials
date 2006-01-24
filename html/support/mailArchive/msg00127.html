@@ -101,13 +101,13 @@ Thu, 13 Oct 2005 15:40:26 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>The configure script was not able to determine the name-mangling scheme (in order to call a Fortran subroutine from C, 
-we first need to decide what we name that Fortran subroutine so that we can refer to it from C).</tt><br>
+The configure script was not able to determine the name-mangling scheme (in order to call a Fortran subroutine from C, 
+we first need to decide what we name that Fortran subroutine so that we can refer to it from C).<br>
 <br>
-<tt>As you noticed with gfortran, the configure script can find the name-mangling scheme automatically for most compilers, 
+As you noticed with gfortran, the configure script can find the name-mangling scheme automatically for most compilers, 
 but not all. This is why we provide the alternative of manually specifying it, using the configure options 
 --with-f77underscore and --with-f77case. Check the documentation for the Fortran compiler to find out the case and the 
-number of underscores appended to the Fortran routine names.</tt><br>
+number of underscores appended to the Fortran routine names.<br>
 <br>
 <pre style="margin: 0em;">A quick online search gives this:</pre><br>
 <pre style="margin: 0em;">-----
@@ -122,9 +122,9 @@ the confirmation from the linker:</pre><br>
         j.o(.text+0x29): undefined reference to `foo_'</pre><br>
 <pre style="margin: 0em;">That the name mapping you desire is achieved.
 -----</pre><br>
-<tt>So with the above two flags to absoft's f90 the name-mangling scheme is apparently &quot;one underscore + lower case&quot;. I 
+So with the above two flags to absoft's f90 the name-mangling scheme is apparently &quot;one underscore + lower case&quot;. I 
 don't have access to this compiler to check, but I assume that using only the -B108 flag will result in the scheme &quot;one 
-underscore + upper case&quot;</tt><br>
+underscore + upper case&quot;<br>
 <br>
 <pre style="margin: 0em;">Try first to add one or both flags to f90:
 % configure --with-fflags=-B108 ....

@@ -106,9 +106,9 @@ Tue, 17 Jan 2006 15:51:40 -0800</td>
 <!--X-Body-of-Message-->
 <tt>Andrey Romanenko wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi!</pre><br>
-<tt>Can you solve this by  turning on the root finding feature in order to stop 
+Can you solve this by  turning on the root finding feature in order to stop 
 the integration when the concentration hits zero?. Check out section 5.8 of 
-CVODES manual.</tt><br>
+CVODES manual.<br>
 <br>
 <pre style="margin: 0em;">Andrey</pre><br>
 <pre style="margin: 0em;">On Tuesday 17 January 2006 22:36, Andreas Nicolai wrote:</pre><br>
@@ -123,21 +123,21 @@ approach zero.
 </blockquote><pre style="margin: 0em;"><br>Andreas,</pre><br>
 <pre style="margin: 0em;">I think Andrey's suggestion is something to consider for your particular 
 problem.</pre><br>
-<tt>However, getting the current step size in the user functions is legitimate, whether to do something 
+However, getting the current step size in the user functions is legitimate, whether to do something 
 like you were doing, or (as Alan Hindmarsh pointed out to me) when writing a user-provided, 
 finite-difference-based Jacobian approximation function. The latter is something that our 
-documentation mentions, but I had missed in my previous reply to your question...</tt><br>
+documentation mentions, but I had missed in my previous reply to your question...<br>
 <br>
-<tt>I looked again through the code and I discovered that not only next_h, the value returned by 
+I looked again through the code and I discovered that not only next_h, the value returned by 
 CVodeGetCurrentStep, is not initialized in CVodeCreate (leaving it undefined at the first f() call, 
 which is made before any step size is available), but also it is not updated as frequently as it 
 should be (so that it is out of date whenever the step size is changed internally while attempting 
-to take a successful step - changes due to error or convergence test failures).</tt><br>
+to take a successful step - changes due to error or convergence test failures).<br>
 <br>
-<tt>I fixed these issues related to next_h and the next release will include the fixes. In the meantime, 
+I fixed these issues related to next_h and the next release will include the fixes. In the meantime, 
 if you or someone else needs this, I could tell you how to fix the cvode.c (or cvodes.c in CVODES) 
 file. For this, I'll need to know the revision number and/or date of your copy of the file (in the 
-comment section at the top of the file).</tt><br>
+comment section at the top of the file).<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>

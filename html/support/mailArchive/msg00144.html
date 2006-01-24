@@ -122,12 +122,13 @@ not using pro. But my absoft version is also 8.0. The command I used
 is</pre><br>
 <pre style="margin: 0em;">/home/software/compileHere/sundials/configure CC=gcc F77=f90 \
 --with-ldflags=-L/opt/absoft/lib --disable-mpi 2&gt;&amp;1 | tee configure.log
-</pre></blockquote><tt><br>Well, the problem was 'resolved' by configure not finding a functional Fortran compiler at all! But now I suspect you 
+</pre></blockquote>
+<br>Well, the problem was 'resolved' by configure not finding a functional Fortran compiler at all! But now I suspect you 
 don't have everything set up properly. As you can see from the log, f90 was not found in your path! I sent you 
 separately two scripts for you to modify and run to properly set your PATH and LD_LIBRARY_PATH environment variables. 
 For the benefit of everybody else, I've also attached them to this message (setup.csh for users of csh/tcsh, setup.sh 
 for users of sh/bash/ksh). They can be used to properly set-up any compiler. Modify appropriately and run before 
-configuring SUNDIALS (or any other package that uses that compiler).</tt><br>
+configuring SUNDIALS (or any other package that uses that compiler).<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>and the configure.log is attached for your kind reference. I will try
 the suggestions you mentioned in my other email (about editing the
@@ -166,8 +167,8 @@ relevant to your other issue) it realized that this is NOT the GNU
 Fortran 77 compiler!</pre><br>
 <pre style="margin: 0em;">To see exactly what is going on, look into the config.log file and see
 exactly what test program fails (search for 'failed program was:')</pre><br>
-<tt>--Radu
-</tt></blockquote><br>
+--Radu
+</blockquote><br>
 </blockquote></blockquote><p><strong>Attachment:
 <a href="csh06JfEtCaIK.csh" ><tt>setup.csh</tt></a></strong><br>
 <em>Description:</em> C-Shell script</p>

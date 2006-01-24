@@ -104,65 +104,69 @@ Wed, 30 Nov 2005 10:22:04 +0800 (CST)</td>
 <P>&nbsp;&nbsp; You must be genius!:)</P>
 <P>&nbsp;&nbsp; Yes,I checked the order of libraries.They were absolutely wrong!</P>
 <P>&nbsp;&nbsp; After resetted them according to Radu's advice,I got a good news from Kdevelop---'successful!'</P>
-<P>&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp; And by the way,Andreas.I have add the libraries of SUNDIALS.But how to specify the path of them ?I add the path through a stupit way: find the Makefile in 'scr'---&gt;open it ,and find a line named 'all-libraries'----&gt;add the path /root/cvodes/sundials/lib.After rebuild the project,the path will disppeared .Should I still add the path from Automake Manager or some way else?Thank you!<BR><BR><BR><SPAN ></SPAN><BR><BR><BR></P>
+<P>&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp; And by the way,Andreas.I have add the libraries of SUNDIALS.But how to specify the path of them ?I add the path through a stupit way: find the Makefile in 'scr'---&gt;open it ,and find a line named 'all-libraries'----&gt;add the path /root/cvodes/sundials/lib.After rebuild the project,the path will disppeared .Should I still add the path from Automake Manager or some way else?Thank you!<BR><BR>
+
 <BLOCKQUOTE style="PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: #a0c6e5 2px solid; MARGIN-RIGHT: 0px">
-<HR color=#a0c6e5 SIZE=1>
-<BR>-----&#x539F;&#x59CB;&#x90AE;&#x4EF6;-----<BR>&#x53D1;&#x4EF6;&#x4EBA;:"Radu Serban" <SERBAN1@LLNL.GOV><BR>&#x53D1;&#x9001;&#x65F6;&#x95F4;:2005-11-30 00:10:28<BR>&#x6536;&#x4EF6;&#x4EBA;:sundials-users@llnl.gov<BR>&#x6284;&#x9001;:(&#x65E0;)<BR>&#x4E3B;&#x9898;:Re: What's wrong with 'libsundials_cvodes.la'?<BR><BR><BR><PRE style="WIDTH: 100%; WHITE-SPACE: normal; WORD-WRAP: break-word">Andreas Nicolai wrote:
-&gt; Hi,
-&gt; 
-&gt; 
-&gt;&gt;Does anybody use KDevelop?
-&gt; 
-&gt; Yes, I am.
-&gt; 
-&gt; 
-&gt;&gt;Do I have to set KDevelop particularly related to linking libraries out of 
-&gt; 
-&gt; project?
-&gt; Well, not really. Your KDevelop setup is probably not the reason for the 
-&gt; linker error since the linker finds the libraries.
-&gt; 
-&gt; Anyway, here are the instructions for KDevelop. If you have a default sundials 
-&gt; built, the libraries are built as static libraries and after a 'make install' 
-&gt; you can find those libraries and their headers in the corresponding subdies 
-&gt; in the sundials dir.
-&gt; 
-&gt; If you have an Automake based project, simple open your executable project in 
-&gt; the upper pane of the automake manager, and right click the executable target 
-&gt; in the lower pane of the AM and open the target "options". In the 
-&gt; configuration settings go to the libraries tab and add the sundials 
-&gt; libraries. 
-&gt; 
-&gt; NOTE: The order in which you add the libraries is important! 
-&gt; 
-&gt; If the libraries are found and linked (you don't get a "can't find library 
-&gt; xxx" warning), a wrong order of libraries is most likely the cause of your 
-&gt; linker errors.
-&gt; 
-&gt; Good luck,
-&gt; Andreas
-&gt; 
+Andreas Nicolai wrote:
+<blockquote style="PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: #a0c6e5 2px solid; MARGIN-RIGHT: 0px">
+Hi,
+
+<blockquote style="PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: #a0c6e5 2px solid; MARGIN-RIGHT: 0px"> 
+Does anybody use KDevelop?
+</blockquote>
+
+Yes, I am.
+
+
+<blockquote style="PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: #a0c6e5 2px solid; MARGIN-RIGHT: 0px"> 
+Do I have to set KDevelop particularly related to linking libraries out of project?
+</blockquote>
+
+Well, not really. Your KDevelop setup is probably not the reason for the 
+linker error since the linker finds the libraries.
+<br><br>
+Anyway, here are the instructions for KDevelop. If you have a default sundials 
+built, the libraries are built as static libraries and after a 'make install' 
+you can find those libraries and their headers in the corresponding subdies 
+in the sundials dir.
+<br><br>
+If you have an Automake based project, simple open your executable project in 
+the upper pane of the automake manager, and right click the executable target 
+in the lower pane of the AM and open the target "options". In the 
+configuration settings go to the libraries tab and add the sundials 
+libraries. 
+<br><br>
+NOTE: The order in which you add the libraries is important! 
+<br><br>
+If the libraries are found and linked (you don't get a "can't find library 
+xxx" warning), a wrong order of libraries is most likely the cause of your 
+linker errors.
+<br><br>
+Good luck,<br>
+Andreas
+</blockquote>
+
 
 Hello,
-
+<br><br>
 I haven't used KDevelop but, on most systems, the order matters because 
 the linker won't re-scan a library once it is done with it. The primary 
 rule is that if library a "uses" library b, then library a will appear 
 on the command line before library b.
-
-The correct order for CVODES is then (see also the Makefiles in the 
-example_*** directories):
+<br><br>
+The correct order for CVODES is then (see also the Makefiles in the example_*** directories):<br>
   -lsundials_cvode -lsundials_nvecserial -lsundials_shared
-
+<br><br>
 In other words, the NVECTOR library uses symbols defined in the SHARED 
 library and the CVODES library uses symbol from the other two.
-
+<br><br>
 Cheers,
-
+<br>
 --Radu
+</pre>
+</blockquote>
 
-
-</PRE><!---2005 www.mailtech.cn --></BLOCKQUOTE><br><!----><br><br><br><br><br><div style="border-bottom:1px solid #999"></div><br>
+<!---2005 www.mailtech.cn --></BLOCKQUOTE><br><!----><br><br><br><br><br><div style="border-bottom:1px solid #999"></div><br>
 
 	<font color="black" style="font-size:14.8px">&#x60F3; &#x8981; &#x4E00; &#x4E2A; &#x5FEB; n &#x500D; &#x7684; &#x514D; &#x8D39; &#x90AE; &#x7BB1; &#x5417; &#xFF1F; </font>
 	<br>

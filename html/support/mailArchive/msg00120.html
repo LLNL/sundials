@@ -114,25 +114,25 @@ make examples</pre><br>
 <pre style="margin: 0em;">I am getting a multitude of errors (see bottom of the mail)
 which can be sumarised:</pre><br>
 <pre style="margin: 0em;">cc1: /data/opt/sundials/include: Not a directory</pre><br>
-<tt>and indeed this is not a directory but a file. My box is a fairly new 
-linux-debian installation.</tt><br>
+and indeed this is not a directory but a file. My box is a fairly new 
+linux-debian installation.<br>
 <br>
 <pre style="margin: 0em;">best regards
 Eryk</pre><br>
 <br>
-</blockquote><tt><br>Hi Eryk,<br>
+</blockquote><br>Hi Eryk,<br>
 I'm not quite sure why this happens (what version of SUNDIALS do you use?), but apparently configure did not create the 
 include and lib directories under /data/opt/sundials.<br>
 The easiest fix is to create them yourself before running configure:<br>
-% cd /data/opt/sundials<br>
-% mkdir lib include<br>
-% ./configure --prefix=/data/opt/sundials<br>
-% make<br>
-% make install<br>
-% make examples</tt><br>
-<br>
-<tt>After make install, verify that the directory /data/opt/sundials/include contains a bunch of *.h files and that the 
-/data/opt/sundials/lib directory has all library files.</tt><br>
+<pre><tt>
+  % cd /data/opt/sundials
+  % mkdir lib include
+  % ./configure --prefix=/data/opt/sundials
+  % make
+  % make install
+  % make examples</tt></pre><br>
+After make install, verify that the directory /data/opt/sundials/include contains a bunch of *.h files and that the 
+/data/opt/sundials/lib directory has all library files.<br>
 <br>
 <pre style="margin: 0em;">Hope that this helps,
 --Radu</pre><br>

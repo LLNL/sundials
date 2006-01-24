@@ -101,28 +101,28 @@ Mon, 13 Jun 2005 16:04:38 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Andrey Romanenko wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
-<tt>Is there any difference between NV_DATA_S (from the serial NVECTOR 
+Andrey Romanenko wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
+Is there any difference between NV_DATA_S (from the serial NVECTOR 
 implementation) and N_VGetArrayPointer? Apparently they return pointers to 
-the same memory spot, but I thought I would ask to make sure :) Thanks!</tt><br>
+the same memory spot, but I thought I would ask to make sure :) Thanks!<br>
 <br>
 <pre style="margin: 0em;">Regards,
 Andrey Romanenko</pre><br>
 </blockquote><pre style="margin: 0em;"><br>Hi Andrey,</pre><br>
-<tt>Indeed, for the NVECTOR_SERIAL implementation, the macro NV_DATA_S and the fucntion N_VGetArrayPointer return the exact 
-same pointer.</tt><br>
+Indeed, for the NVECTOR_SERIAL implementation, the macro NV_DATA_S and the fucntion N_VGetArrayPointer return the exact 
+same pointer.<br>
 <br>
-<tt>The function N_VGetArrayPointer_Serial is the serial implementation of the N_VGetArrayPointer generic function and must 
+The function N_VGetArrayPointer_Serial is the serial implementation of the N_VGetArrayPointer generic function and must 
 be defined by any NVECTOR module that is supposed to work with one of the following SUNDIALS modules: dense linear 
 solver, band linear solver, band preconditioner, band-block-diagonal preconditioner, or F2C interface module. The 
 SUNDIALS solvers themselves are not aware of the data structure underneath a particular NVECTOR module and therefore, 
 the above modules must rely on a function defined in the table of vector operations (i.e. a function a pointer to which 
-is carried by the vector itself). Note that a macro cannot be used for this purpose.</tt><br>
+is carried by the vector itself). Note that a macro cannot be used for this purpose.<br>
 <br>
-<tt>The macro NV_DATA_S is particular to this specific NVECTOR implementation, and is provided as a convenience for easy 
+The macro NV_DATA_S is particular to this specific NVECTOR implementation, and is provided as a convenience for easy 
 access to the underlying data of a serial nvector and as a more legible alternative to the N_VGetArrayPointer_Serial 
-function.</tt><br>
+function.<br>
 <br>
 <pre style="margin: 0em;">--
    Radu Serban

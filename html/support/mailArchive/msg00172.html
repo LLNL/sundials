@@ -102,40 +102,40 @@ Wed, 23 Nov 2005 14:00:25 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Dear Andreas Nicolai,</pre><br>
-<tt>Regarding the use of a different math library, the method you mentioned 
+Regarding the use of a different math library, the method you mentioned 
 is probably the easiest, but you'll also need to modify 
 shared/source/Makefile after running the configure script.  You'll need 
-to make certain that the LIBS variable is set to the following:</tt><br>
+to make certain that the LIBS variable is set to the following:<br>
 <br>
 <pre style="margin: 0em;">  LIBS = -limf -lm</pre><br>
 <pre style="margin: 0em;">Note: The order in which the libraries are linked is important.</pre><br>
-<tt>This is necessary because there's currently no way for the user to 
-specify a library with &quot;higher precedence&quot; than the standard math library.</tt><br>
+This is necessary because there's currently no way for the user to 
+specify a library with &quot;higher precedence&quot; than the standard math library.<br>
 <br>
-<tt>I'd also recommend that you specify the following argument when running 
-the configure script:</tt><br>
+I'd also recommend that you specify the following argument when running 
+the configure script:<br>
 <br>
 <pre style="margin: 0em;">  CPPFLAGS=-no-gcc</pre><br>
-<tt>By default, the Intel C/C++ compiler sets certain environment variables 
-indicating that it's the GNU C compiler which confuses the configure script.</tt><br>
+By default, the Intel C/C++ compiler sets certain environment variables 
+indicating that it's the GNU C compiler which confuses the configure script.<br>
 <br>
-<tt>Concerning the use of a different compiler, I'm not sure I understand 
+Concerning the use of a different compiler, I'm not sure I understand 
 your request.  Defining a different compiler can easily be accomplished 
-by setting the CC and/or F77 environment variable(s).</tt><br>
+by setting the CC and/or F77 environment variable(s).<br>
 <br>
 <pre style="margin: 0em;">--Aaron</pre><br>
 <tt>Andreas Nicolai wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
-<tt>what is the recommended way to exchange the default/generic math routines from 
-the C stdlib by the faster math functions provided with the Intel C Compiler?</tt><br>
+what is the recommended way to exchange the default/generic math routines from 
+the C stdlib by the faster math functions provided with the Intel C Compiler?<br>
 <br>
-<tt>So far the easiest way seems to be to manually replace the math.h header with 
-mathimf.h in sundials_math.c</tt><br>
+So far the easiest way seems to be to manually replace the math.h header with 
+mathimf.h in sundials_math.c<br>
 <br>
-<tt>Also, could the sundials-built-system be adjusted a little to allow defining 
+Also, could the sundials-built-system be adjusted a little to allow defining 
 an alternative compiler? I believe if the configure.ac file will be 
 distributed in the next release (as suggested in the mailing list already) 
-that might be easily possible.</tt><br>
+that might be easily possible.<br>
 <br>
 <pre style="margin: 0em;">Bye,
 Andreas</pre><br>

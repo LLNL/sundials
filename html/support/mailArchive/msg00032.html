@@ -102,40 +102,42 @@ Fri, 01 Apr 2005 08:39:51 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Jordan,</pre><br>
-<tt>After CVodeMalloc (initialization) or CVodeReInit (re-initialization), CVODE will always start at order 1 (backward 
+After CVodeMalloc (initialization) or CVodeReInit (re-initialization), CVODE will always start at order 1 (backward 
 Euler) using either a step size provided by the user (through CVodeSetInitstep) or estimated internally. Ignoring the 
 fact that in your code snippet below you use hcur before setting it (!), why would you expect the step size to change?!? 
 In your code below, if you reinitialize after *every* step, obviously hcur will always be the same (equal to what CVODE 
-estimated at the very first invocation of CVode()).</tt><br>
+estimated at the very first invocation of CVode()).<br>
 <br>
-<tt>More importantly, why would you reinitialize CVODE after every step? We put so much effort into writing a robust 
-variable-order, variable-step integrator and you want to use it as a fixed-step backward Euler integrator :-(</tt><br>
+More importantly, why would you reinitialize CVODE after every step? We put so much effort into writing a robust 
+variable-order, variable-step integrator and you want to use it as a fixed-step backward Euler integrator :-(<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
 <tt>Jordan Atlas wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Thank you Yi!  That does explain it an fix the problem --&gt; when I use an 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+Thank you Yi!  That does explain it an fix the problem --&gt; when I use an 
 appropriate &quot;tout&quot; for the integration it proceeds with a positive time 
-step.</tt><br>
+step.<br>
 <br>
-<tt>I have an immediately related question.  In my program, I wanted to use 
+I have an immediately related question.  In my program, I wanted to use 
 the CV_ONE_STEP mode and then reinitialize cvode after *every* time 
 step.  If I do that, the time step size does not vary, even if I try to 
 reinitialize and then use CVodeSetInitStep(...) for the &quot;current&quot; step 
-size.</tt><br>
+size.<br>
 <br>
-<tt>Is it possible to reinitialize the integrator after every step and still 
-have a time step size that varies?  I pasted some example code below again.</tt><br>
+Is it possible to reinitialize the integrator after every step and still 
+have a time step size that varies?  I pasted some example code below again.<br>
 <br>
 <pre style="margin: 0em;">Thank you,
 --Jordan--</pre><br>
 <pre style="margin: 0em;">double tret = 0.0;
+<tt>
 for (int steps = 1; steps &lt; 200; steps++)
 {
     flag = CVode(cvode_mem, tret+0.01, y, &amp;tret, CV_ONE_STEP);
-    checkFlag(flag);</pre><br>
-<pre style="margin: 0em;">    //The step size is constant whether or not I include this line
-    //CVodeSetInitStep(hcur);</pre><br>
+    checkFlag(flag);</tt></pre><br>
+<pre style="margin: 0em;"><tt>    //The step size is constant whether or not I include this line
+    //CVodeSetInitStep(hcur);</tt></pre><br>
 <tt>    flag = CVodeGetIntegratorStats(cvode_mem, &amp;nsteps, &amp;nfevals, 
 &amp;nlinsetups, &amp;netfails,&amp;qlast, &amp;qcur, &amp;hinused, &amp;hlast, &amp;hcur, &amp;tcur);<br>
     checkFlag(flag);</tt><br>
@@ -155,10 +157,6 @@ if I ReInit on every step<br>
         checkFlag(flag);<br>
     }<br>
 }</tt><br>
-<br>
-<tt>_________________________________________________________________<br>
-Express yourself instantly with MSN Messenger! Download today - it's 
-FREE! <a  href="http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/">http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/</a></tt><br>
 <br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>

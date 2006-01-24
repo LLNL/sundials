@@ -105,45 +105,48 @@ Tue, 29 Nov 2005 08:10:28 -0800</td>
 <tt>Andreas Nicolai wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Does anybody use KDevelop?
-</tt></blockquote><pre style="margin: 0em;"><br>Yes, I am.</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+Does anybody use KDevelop?
+</blockquote><pre style="margin: 0em;"><br>Yes, I am.</pre><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Do I have to set KDevelop particularly related to linking libraries out of 
-</tt></blockquote><tt><br>project?<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+Do I have to set KDevelop particularly related to linking libraries out of 
+</blockquote>
+<br>project?<br>
 Well, not really. Your KDevelop setup is probably not the reason for the 
-linker error since the linker finds the libraries.</tt><br>
+linker error since the linker finds the libraries.<br>
 <br>
-<tt>Anyway, here are the instructions for KDevelop. If you have a default sundials 
+Anyway, here are the instructions for KDevelop. If you have a default sundials 
 built, the libraries are built as static libraries and after a 'make install' 
 you can find those libraries and their headers in the corresponding subdies 
-in the sundials dir.</tt><br>
+in the sundials dir.<br>
 <br>
-<tt>If you have an Automake based project, simple open your executable project in 
+If you have an Automake based project, simple open your executable project in 
 the upper pane of the automake manager, and right click the executable target 
 in the lower pane of the AM and open the target &quot;options&quot;. In the 
 configuration settings go to the libraries tab and add the sundials 
-libraries. </tt><br>
+libraries. <br>
 <br>
-<tt>NOTE: The order in which you add the libraries is important! </tt><br>
+NOTE: The order in which you add the libraries is important!<br>
 <br>
-<tt>If the libraries are found and linked (you don't get a &quot;can't find library 
+If the libraries are found and linked (you don't get a &quot;can't find library 
 xxx&quot; warning), a wrong order of libraries is most likely the cause of your 
-linker errors.</tt><br>
+linker errors.<br>
 <br>
 <pre style="margin: 0em;">Good luck,
 Andreas</pre><br>
 </blockquote><pre style="margin: 0em;"><br>Hello,</pre><br>
-<tt>I haven't used KDevelop but, on most systems, the order matters because 
+I haven't used KDevelop but, on most systems, the order matters because 
 the linker won't re-scan a library once it is done with it. The primary 
 rule is that if library a &quot;uses&quot; library b, then library a will appear 
-on the command line before library b.</tt><br>
+on the command line before library b.<br>
 <br>
-<tt>The correct order for CVODES is then (see also the Makefiles in the 
+The correct order for CVODES is then (see also the Makefiles in the 
 example_*** directories):<br>
- -lsundials_cvode -lsundials_nvecserial -lsundials_shared</tt><br>
+ -lsundials_cvode -lsundials_nvecserial -lsundials_shared<br>
 <br>
-<tt>In other words, the NVECTOR library uses symbols defined in the SHARED 
-library and the CVODES library uses symbol from the other two.</tt><br>
+In other words, the NVECTOR library uses symbols defined in the SHARED 
+library and the CVODES library uses symbol from the other two.<br>
 <br>
 <pre style="margin: 0em;">Cheers,</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>

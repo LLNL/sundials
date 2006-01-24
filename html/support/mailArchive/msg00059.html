@@ -108,16 +108,16 @@ Tue, 17 May 2005 12:09:29 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hello Woo-Chang,</pre><br>
-<tt>As I mentioned to you before, to build the SUNDIALS libraries under Windows, you can either use cygwin, or set up your 
+As I mentioned to you before, to build the SUNDIALS libraries under Windows, you can either use cygwin, or set up your 
 own project under Visual C++ by specifying the location of all source and header files. You will need to create by hand 
 one header file (sundials_config.h) which is otherwise created automatically by the configure script. The following two 
-lines in sundials_config.h should be enough:</tt><br>
+lines in sundials_config.h should be enough:<br>
 <br>
 <pre style="margin: 0em;">#define SUNDIALS_DOUBLE_PRECISION
 #define SUNDIALS_USE_GENERIC_MATH</pre><br>
-<tt>I have personally installed SUNDIALS under Windows only using cygwin, in which case you can do it exactly as under UNIX, 
+I have personally installed SUNDIALS under Windows only using cygwin, in which case you can do it exactly as under UNIX, 
 that is using the configure script (and you do not need to generate any files by hand). I do not have experience with 
-using Visual C++ but I cannot imagine it being too complicated to build SUNDIALS.</tt><br>
+using Visual C++ but I cannot imagine it being too complicated to build SUNDIALS.<br>
 <br>
 <pre style="margin: 0em;">Just in case someone else can help you with more details, I cc-ed this to the 
 sundials-users mailing list.</pre><br>

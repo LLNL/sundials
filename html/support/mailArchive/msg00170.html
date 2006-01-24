@@ -107,24 +107,28 @@ Mon, 14 Nov 2005 12:36:49 -0800</td>
 <!--X-Body-of-Message-->
 <tt>Rainer Machne wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Radu</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Hmmm, although it doesn't show in your code snippet, I bet that even 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+Hmmm, although it doesn't show in your code snippet, I bet that even 
 when you<br>
 use the internal DQ sensitivity RHS approximation, you still set a 
 user data<br>
 pointer through CVodeSetSensFdata, right?
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">Yes!</pre><br>
 <pre style="margin: 0em;">I didn't think of it, but of course setFdata is not required anymore!</pre><br>
-</blockquote><tt><br>This probably was the reason for the segfault, but it's still a bug in 
+</blockquote>
+<br>This probably was the reason for the segfault, but it's still a bug in 
 CVODES that I need to fix (so that CVODES ignores the pointer passed 
-through CVodeSetSensFdata).</tt><br>
+through CVodeSetSensFdata).<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>As I pass the data-&gt;p pointer to SetSensData, I guess I still can use 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+As I pass the data-&gt;p pointer to SetSensData, I guess I still can use 
 this data structure to update parameters from data-&gt;p in f and Jac for 
-the usual CVode routine (I use the same structure for all these functions).</tt><br>
+the usual CVode routine (I use the same structure for all these functions).<br>
 <br>
-</blockquote><tt><br>Actually, f SHOULD get parameter values from data-&gt;p (otherwise we 
-cannot do a finite-difference approximation to the sensitivity RHS!)</tt><br>
+</blockquote>
+<br>Actually, f SHOULD get parameter values from data-&gt;p (otherwise we 
+cannot do a finite-difference approximation to the sensitivity RHS!)<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Thanks!
 I'll try tomorrow, but I am sure, that's it!</pre><br>
@@ -133,16 +137,16 @@ I'll try tomorrow, but I am sure, that's it!</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Rainer</pre><br>
 <pre style="margin: 0em;"><br>On Mon, 14 Nov 2005, Radu Serban wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Rainer,</pre><br>
-<tt>Hmmm, although it doesn't show in your code snippet, I bet that even 
+Hmmm, although it doesn't show in your code snippet, I bet that even 
 when you use the internal DQ sensitivity RHS approximation, you still 
 set a user data pointer through CVodeSetSensFdata, right? That is not 
 needed, since you do not have a fS function where to use it. However, 
 CVODES uses that for its own 'user data' which is overwritten when 
-calling CVodeSetSensFdata...</tt><br>
+calling CVodeSetSensFdata...<br>
 <br>
-<tt>This is a bug in CVODES which I'll fix right now. Until then, the fix 
+This is a bug in CVODES which I'll fix right now. Until then, the fix 
 is to move the call to CVodeSetSensFdata inside the if statement, as 
-follows (I assume you use the same data structure?)</tt><br>
+follows (I assume you use the same data structure?)<br>
 <br>
 <pre style="margin: 0em;">   /* was construction of parametric matrix successfull ? */
    if ( om-&gt;sensitivity ) {
@@ -163,8 +167,8 @@ follows (I assume you use the same data structure?)</tt><br>
 <pre style="margin: 0em;">Rainer Machne wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
 <pre style="margin: 0em;">I am working with Andrew on the same project.</pre><br>
-<tt>Thanks for your detailed explanations. They will help us a lot to 
-select correct pbar values.</tt><br>
+Thanks for your detailed explanations. They will help us a lot to 
+select correct pbar values.<br>
 <br>
 <pre style="margin: 0em;">As I understand I can use either</pre><br>
 <pre style="margin: 0em;">CVodeSetSensRhs1Fn
@@ -190,12 +194,12 @@ ydot=0x8a3d650, is=0,<br>
 #2  0x08062919 in CVode (cvode_mem=0x8a3ece0, tout=30, yout=0x8a44148,<br>
     tret=0x8a455e8, itask=144945160) at ./cvodes.c:1509</tt><br>
 <br>
-<tt><br>Our program runs fine if we provide a Rhs1 function, but we have 
+<br>Our program runs fine if we provide a Rhs1 function, but we have 
 cases where we cannot provide this function. Find below the code for 
 the two cases, where the first one works fine, but the second causes 
 this failure. As you see, pbar was passed as NULL. The same error 
 occurs if I set pbar to some positive values. data-&gt;p should be set 
-correctly.</tt><br>
+correctly.<br>
 <br>
 <pre style="margin: 0em;">Many Thanks,
 Rainer</pre><br>
@@ -216,7 +220,7 @@ Rainer</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">On Mon, 14 Nov 2005, Radu Serban wrote:</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Hi Andrew,<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Hi Andrew,<br>
 I am aware that the use of p, plist, and pbar can be confusing. I 
 would like to clean that up and feedback from users such as yourself 
 would be very welcome. In the next SUNDIALS release, I will try to 
@@ -224,34 +228,36 @@ make that a bit more intuitive (or at least provide more details in
 the documentation).<br>
 In the meanwhile, see the answers below.<br>
 Thanks,<br>
---Radu</tt><br>
+--Radu<br>
 <br>
 <pre style="margin: 0em;">Andrew Finney wrote:</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Does anyone know the answer to the following question?
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+Does anyone know the answer to the following question?
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;"><br>Yes :-)</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">We are passing a non null fS argument to CVodeSetSensRhs1Fn.
 Is that compatible with passing a non null plist argument to
 CVodeSetSensParams?
 </pre></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt><br>Yes, a non-NULL plist can be passed but will NOT be used when a 
+<br>Yes, a non-NULL plist can be passed but will NOT be used when a 
 user-provided sensitivity RHS function (of either type: CVSensRhsFn 
-or CVSensRhs1Fn) is used.</tt><br>
+or CVSensRhs1Fn) is used.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>If yes please explain the effect of the plist argument and how it 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+If yes please explain the effect of the plist argument and how it 
 should<br>
 be constructed.
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt><br>plist is used ONLY if the sensitivity right-hand sides are evaluated 
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>plist is used ONLY if the sensitivity right-hand sides are evaluated 
 using the internal difference-quotient approximations. In that case, 
 plist should contain the indeces in the array of problem parameters 
 (p) with respect to which sensitivities are desired. Note that, in 
 the current CVODES release (I am thinking of changing this for 
 consistency), the plist values start at 1: if you want to compute 
 sensitivities with respect to the first parameter in the p array, 
-p[0], you need to set one of the components of plist to 1.</tt><br>
+p[0], you need to set one of the components of plist to 1.<br>
 <br>
-<tt>As always, an actual example is better than anything else. I 
+As always, an actual example is better than anything else. I 
 attached a modification of the cvfdx CVODES example that uses a 
 user-provided sensitivity RHS function (of type CVSensRhs1Fn) to 
 compute sensitivities with respect to two problem parameters (NS=2). 
@@ -263,32 +269,34 @@ parameters p1 and p3. As such, pbar is set to be an array of
 dimension NS=2 with components pbar[0]=|p1| and pbar[1]=|p3| (see 
 below why pbar is needed), while the function fS1 computes the RHS 
 of the sensitivity system with respect to p1 if iS=0 and with 
-respect to p3 if iS=1.</tt><br>
+respect to p3 if iS=1.<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Specifically we'd be interested whether the indices in plist are also
 passed to the Rhs1 function (as int iS).
 </pre></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt><br>No, iS does not represent a plist value, but just the index of the 
+<br>No, iS does not represent a plist value, but just the index of the 
 current sensitivity RHS to be evaluated (see the explanation above). 
 As mentioned before, in this case plist is not needed (moreover, p 
-itself is not needed so plist would have no meaning).</tt><br>
+itself is not needed so plist would have no meaning).<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>If we can not provide a Rhs1 function, we understand that we need 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+If we can not provide a Rhs1 function, we understand that we need 
 to set<br>
 p (and use it's contents in the ODE evaluation function f), and<br>
 optionally plist and pbar:<br>
 What else should be set for using the internal approximation method<br>
 instead of a Rhs function?
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt><br>That's it. Note that if plist is not provided, CVODES will compute 
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>That's it. Note that if plist is not provided, CVODES will compute 
 sensitivities with respect to the first NS parameters in the array p 
 (i.e. it will automatically set plist to: plist[i]=i+1, 
 i=0,1,...Ns). Also, if pbar is not provided, CVODES will use 
-pbar[i]=1, i=0,1,...Ns.</tt><br>
+pbar[i]=1, i=0,1,...Ns.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>What and how important are pbar values?
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt><br>The pbar values are needed in two places:<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+What and how important are pbar values?
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>The pbar values are needed in two places:<br>
 1) when the internal difference-quotient functions are used for the 
 evaluation of the sensitivity RHS, pbar is used in computing an 
 appropriate perturbation for the finite-difference approximation 
@@ -296,20 +304,20 @@ appropriate perturbation for the finite-difference approximation
 2) unless the user explicitly specifies tolerances for the 
 sensitivity variables, appropriate values for them are estimated 
 from the tolerances specified for the state variables and pbar 
-values (see Section 3.2.2 in the user guide).</tt><br>
+values (see Section 3.2.2 in the user guide).<br>
 <br>
-<tt>Therefore, pbar is used (possibly the default value of 1.0 if the 
+Therefore, pbar is used (possibly the default value of 1.0 if the 
 user does not provide other values) for the second item even when 
-supplying a sensitivity RHS function.</tt><br>
+supplying a sensitivity RHS function.<br>
 <br>
-<tt>Providing good pbar values is important when the problem is not 
+Providing good pbar values is important when the problem is not 
 scaled (i.e. the parameters with respect to which sensitivities are 
 computed are either very small or very large, i.e. far from unity). 
 Appropriate pbar values will result in finite-difference 
 perturbations that strike a better balance between truncation and 
 round-off errors (item 1 above) and in more accurate noise levels 
 for the sensitivity variables (i.e. absolute tolerances for the 
-sensitivity variables).</tt><br>
+sensitivity variables).<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Many thanks</pre><br>
 <pre style="margin: 0em;">Andrew Finney PhD

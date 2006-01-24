@@ -106,8 +106,8 @@ Tue, 08 Feb 2005 10:29:33 -0800</td>
 <pre style="margin: 0em;">&quot; globalstrategy = KIN_INEXACT_NEWTON
 SUNDIALS_ERROR: FKINSOL returned IER = -6
                 Linear Solver returned IER = ** &quot;</pre><br>
-<tt>Maybe my system is too unstable? Initial guess solution too far from 
-final solution?</tt><br>
+Maybe my system is too unstable? Initial guess solution too far from 
+final solution?<br>
 <br>
 <pre style="margin: 0em;">Thank you in advance</pre><br>
 <pre style="margin: 0em;">--
@@ -120,16 +120,16 @@ Email: arzo@exp.uji.es
 Phone: +34-964-728046
 Fax: +34-964-728066</pre><br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt>IER=-6 corresponds to KIN_MAXITER_REACHED, so the solver reached the maximum number of nonlinear iterations allowed 
-(default 200, can be changed through KINSetNumMaxIters() or specified in IOPT(2) when using FKINSOL).</tt><br>
+IER=-6 corresponds to KIN_MAXITER_REACHED, so the solver reached the maximum number of nonlinear iterations allowed 
+(default 200, can be changed through KINSetNumMaxIters() or specified in IOPT(2) when using FKINSOL).<br>
 <br>
-<tt>The ** for the linear solver return value (IOPT(15)) is probably due to an incorrect format descriptor (see declaration 
-of IOPT).</tt><br>
+The ** for the linear solver return value (IOPT(15)) is probably due to an incorrect format descriptor (see declaration 
+of IOPT).<br>
 <br>
 <pre style="margin: 0em;">Hope this helps,
 --Radu</pre><br>
-<tt>P.S. I realize that the documentation for FKINSOL is not complete enough. I will look into adding more details regarding 
-error return values. I will send an announcement on sundials-announce when updated docs. are available.</tt><br>
+P.S. I realize that the documentation for FKINSOL is not complete enough. I will look into adding more details regarding 
+error return values. I will send an announcement on sundials-announce when updated docs. are available.<br>
 <br>
 <pre style="margin: 0em;"><br>--
    Radu Serban

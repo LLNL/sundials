@@ -102,27 +102,27 @@ Tue, 14 Jun 2005 17:24:58 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Andreas Nicolai wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Herbert,</pre><br>
-<tt>your question may be related to a problem I had some time ago (it may 
-also be completely unrelated, but I write it anyway :-)</tt><br>
+Andreas Nicolai wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Herbert,</pre><br>
+your question may be related to a problem I had some time ago (it may 
+also be completely unrelated, but I write it anyway :-)<br>
 <br>
-<tt>Inside the f() function called from CVODE you get the y-vector and 
+Inside the f() function called from CVODE you get the y-vector and 
 ydot-vector as N_Vectors. It is important to note, that the underlying 
 memory area (where the actual vector data is stored) may be changing in 
 subsequent calls of the f() function. So obtaining the y or ydot memory 
 location and &quot;remembering&quot; it somewhere separate as double pointer to 
 the memory block will not work (I tried and spent half a week looking 
-for the bug :-)</tt><br>
+for the bug :-)<br>
 <br>
-</blockquote><tt><br>Actually the N_Vectors themselves change between different calls to the RHS function, but that's less important. As 
-Andreas noted, do not attempt to save and reuse these addresses between subsequent calls.</tt><br>
+</blockquote><br>Actually the N_Vectors themselves change between different calls to the RHS function, but that's less important. As 
+Andreas noted, do not attempt to save and reuse these addresses between subsequent calls.<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>So, now I always use the macro NV_DATA_S to access data of the y and 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">So, now I always use the macro NV_DATA_S to access data of the y and 
 yend vectors and with modern compilers there's almost no performance 
 penalty for that.
-</tt></blockquote><tt><br>Indeed, the cost of the NV_DATA_S (or NV_DATA_P) macro is only one explicit cast operation and two structure (-&gt;) 
-operations.</tt><br>
+</blockquote><br>Indeed, the cost of the NV_DATA_S (or NV_DATA_P) macro is only one explicit cast operation and two structure (-&gt;) 
+operations.<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Bye,
 Andreas</pre><br>

@@ -102,58 +102,58 @@ Wed, 18 Jan 2006 15:58:27 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Andreas,</pre><br>
-<tt>You should not attempt to modify the variables integrated by CVODE outside the solver.<br>
+You should not attempt to modify the variables integrated by CVODE outside the solver.<br>
 I see two options for you:<br>
 a) lag the two sets of variables in time (search for &quot;time splitting&quot;, &quot;operator splitting&quot;, 
 &quot;fractional step&quot; methods)<br>
 b) solve the whole coupled system with CVODE and, for efficiency, ignore the nonstiff variables and 
-equations in your Jacobian approximation functions.</tt><br>
+equations in your Jacobian approximation functions.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>Andreas Nicolai wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
-<tt>I have a question about CVODE. In order to reduce the size of my system, 
+<tt>Andreas Nicolai wrote:</tt>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
+I have a question about CVODE. In order to reduce the size of my system, 
 I would like to integrate some variables outside the main integration 
 loop of CVODE. For example, I have 3 highly coupled and strongly 
 non-linear quantities that I integrate with CVODE. But then I have 5 
 other quantities that influence the system rather marginally, but depend 
 on the solution of the first 3 (primary) quantities. Also the accuracy 
-requirements for these other 5 variables are much lower.</tt><br>
+requirements for these other 5 variables are much lower.<br>
 <br>
-<tt>Also, for these other 5 quantities numerical stability isn't critical, 
+Also, for these other 5 quantities numerical stability isn't critical, 
 so I would now simply use CVODE in its one-step-mode and use an explicit 
 scheme to integrate those 5 variables at the end of each time step. This 
-works fine and very fast, too.</tt><br>
+works fine and very fast, too.<br>
 <br>
 <pre style="margin: 0em;">But...</pre><br>
-<tt>Some of these 5 variables require now changes of one of my primary 
+Some of these 5 variables require now changes of one of my primary 
 variables. Obviously, I may not simply change the variables that I use 
 as input for CVODE (in each new call of the CVODE integrator). At least 
 when I tried to do so, I got weird results. I believe that doing so I 
 would introduce an unsteadyness in the solution and the whole history of 
-past time steps and extrapolation goes down the drain.</tt><br>
+past time steps and extrapolation goes down the drain.<br>
 <br>
 <pre style="margin: 0em;">-----
 Here is a short example to clarify the problem:</pre><br>
-<tt>Primary quantities are: Temperature and salt concentration<br>
+Primary quantities are: Temperature and salt concentration<br>
 Secondary quantities (not integrated with CVODE) are: solid salt mass 
-concentration</tt><br>
+concentration<br>
 <br>
-<tt>After each step of CVODE I calculate the approximate production rate for 
+After each step of CVODE I calculate the approximate production rate for 
 my salt and calculate the change of mass for my solid salt. But I also 
 have to remove the salt mass from the solution and change the 
 concentration. However, salt concentration is an integrated quantity in 
 CVODE and I cannot do that simply in between calls to CVODE.<br>
------</tt><br>
+-----<br>
 <br>
-<tt>Now, is there a safe/recommanded way to modify my solution variables 
+Now, is there a safe/recommanded way to modify my solution variables 
 after each step that CVODE took without the need to reinitialize the 
-solver every time?</tt><br>
+solver every time?<br>
 <br>
-<tt>One &quot;hack&quot; I could think of is to &quot;remember&quot; the change I want to make 
+One &quot;hack&quot; I could think of is to &quot;remember&quot; the change I want to make 
 to the variable and simply add it as source/sink term when I next 
 calculate my divergences inside my f() function during the next CVODE 
-integration.</tt><br>
+integration.<br>
 <br>
 <pre style="margin: 0em;"><br>Thanks for any suggestions,
 Andreas</pre><br>

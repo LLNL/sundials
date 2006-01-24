@@ -103,18 +103,18 @@ Mon, 19 Dec 2005 19:18:58 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Me again,</pre><br>
-<tt>I thought I had successfully built sundials on Windows using Radu's very 
-handy VS project and VS express but alas I still have problems.</tt><br>
+I thought I had successfully built sundials on Windows using Radu's very 
+handy VS project and VS express but alas I still have problems.<br>
 <br>
-<tt>My code compiles fine and I can use realtype variables (so something is 
+My code compiles fine and I can use realtype variables (so something is 
 working), but when I try to use CVode or N_VMake routines, the code fails 
-on link with errors such as:</tt><br>
+on link with errors such as:<br>
 <br>
-<tt>build\temp.win32-2.3\Release\sim_model.o(.text+0x3c):sim_model.c: undefined 
-reference to `N_VMake_Serial'</tt><br>
+build\temp.win32-2.3\Release\sim_model.o(.text+0x3c):sim_model.c: undefined 
+reference to `N_VMake_Serial'<br>
 <br>
-<tt>The build is done via distutils and setup.py (its a python extension) and 
-the command this script finally executes (from the DOS command line) is:</tt><br>
+The build is done via distutils and setup.py (its a python extension) and 
+the command this script finally executes (from the DOS command line) is:<br>
 <br>
 <tt>C:\MinGW\bin\gcc.exe -mno-cygwin -shared -s 
 build\temp.win32-2.3\Release\pgfit_datatypes.o 
@@ -125,9 +125,9 @@ Files\GnuWin32\lib&quot; -LE:\Python23\libs -LE:\Python23\PCBuild -llibCVode
 -llibNVector -llibSundialsShared llibgsl -lpython23 -o 
 build\lib.win32-2.3\PGModule.pyd</tt><br>
 <br>
-<tt>I can tell its finding the libraries at least because if I change 
+I can tell its finding the libraries at least because if I change 
 &quot;-LE:\sundials\libs&quot; to something bogus like &quot;-LE:\sundials\libXXXs&quot; the 
-link fails with a message indicating that it can't find libCVode.</tt><br>
+link fails with a message indicating that it can't find libCVode.<br>
 <br>
 <pre style="margin: 0em;">I will also mention that &quot;E:\sundials\libs&quot; is in my PATH variable.</pre><br>
 <pre style="margin: 0em;">Any ideas???</pre><br>

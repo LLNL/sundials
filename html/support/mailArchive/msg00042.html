@@ -109,27 +109,27 @@ Tue, 19 Apr 2005 11:53:10 -0700</td>
     libraries.
   - Theoretically speaking, executables linked to static rather than
     shared or dynamically loaded libraries should run slightly faster.</pre><br>
-<tt>Version numbers weren't incorporated into the names of SUNDIALS 
+Version numbers weren't incorporated into the names of SUNDIALS 
 libraries for the following reasons:<br>
   - Library management is a task best left to the system administrator.<br>
   - It's easy enough to create a version-specific subdirectory using<br>
-    standard configure options.</tt><br>
+    standard configure options.<br>
 <br>
-<tt>Finally, I should mention that SUNDIALS is heavily used internally at 
+Finally, I should mention that SUNDIALS is heavily used internally at 
 LLNL and this configuration setup best serves our development and 
-research needs.</tt><br>
+research needs.<br>
 <br>
 <pre style="margin: 0em;">--Aaron</pre><br>
 <tt>Andrey Romanenko wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
-<tt>I have been trying to &quot;debianize&quot; the SUNDIALS suit. It is common practice in 
+I have been trying to &quot;debianize&quot; the SUNDIALS suit. It is common practice in 
 Debian to put dynamic libraries in a separate package from static libraries 
 and header files. I see that by default dynamic libraries of the SUNDIALS 
 modules are not created. Is there a reason why  the user would prefer static 
 linking? I would also like to know how to determine the version of the 
 dynamic libraries. Apparently, the naming scheme is not libbla.so.1.1.1, so,<br>
 potentially, it may wreck havoc if an executable tries to dlopen an 
-incompatible library...</tt><br>
+incompatible library...<br>
 <br>
 <pre style="margin: 0em;">Thank you very much!</pre><br>
 <pre style="margin: 0em;">Andrey

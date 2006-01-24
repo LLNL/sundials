@@ -102,28 +102,28 @@ Fri, 14 Oct 2005 12:17:47 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Raju,</pre><br>
-<tt>The -ffloat-store is a gcc/g77 that enforces exact IEEE conformance on some machines (such as x86 and m68k GNU systems). 
+The -ffloat-store is a gcc/g77 that enforces exact IEEE conformance on some machines (such as x86 and m68k GNU systems). 
 We add this flag by default to CFLAGS if configure decides that the C compiler is GNU C and to FFLAGS is configure 
-thinks the compiler is &quot;GNU Fortran 77&quot;.</tt><br>
+thinks the compiler is &quot;GNU Fortran 77&quot;.<br>
 <br>
-<tt>In some older version of the code which was computing the unit roundoff internally (now we grab it from float.h) having 
+In some older version of the code which was computing the unit roundoff internally (now we grab it from float.h) having 
 this flag was crucial so we added it in the Makefiles in the source directories (it was not necessary in the Makefiles 
 for the SUNDIALS test examples). Later on, some users had floating point problems in their own codes that were resolved 
 by using this flag so we decided to add -ffloat-store to the Makefiles for the SUNDIALS test examples just to make users 
-aware that it may be needed.</tt><br>
+aware that it may be needed.<br>
 <br>
-<tt>For some odd reason, configures identifies the later Absoft f90 compilers as &quot;GNU Fortran 77&quot;. Other people have the 
-same issue (see <a  href="http://lists.gnu.org/archive/html/autoconf/2000-11/msg00040.html">http://lists.gnu.org/archive/html/autoconf/2000-11/msg00040.html</a>).</tt><br>
+For some odd reason, configures identifies the later Absoft f90 compilers as &quot;GNU Fortran 77&quot;. Other people have the 
+same issue (see <a  href="http://lists.gnu.org/archive/html/autoconf/2000-11/msg00040.html">http://lists.gnu.org/archive/html/autoconf/2000-11/msg00040.html</a>).<br>
 <br>
-<tt>Without the autoconf source files, the only fix I can suggest for you right now is to edit the configure script and 
+Without the autoconf source files, the only fix I can suggest for you right now is to edit the configure script and 
 comment out the lines<br>
 FFLAGS=&quot;-ffloat-store&quot;<br>
 and<br>
 FFLAGS=&quot;${FFLAGS} -ffloat-store&quot;<br>
-and then run configure again.</tt><br>
+and then run configure again.<br>
 <br>
-<tt>Or else, if you do not plan on installing SUNDIALS many times, you could just modify the Makefiles that configure 
-creates in the fcmix/examples_* directories.</tt><br>
+Or else, if you do not plan on installing SUNDIALS many times, you could just modify the Makefiles that configure 
+creates in the fcmix/examples_* directories.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <tt>Kamaraju Kusumanchi wrote:

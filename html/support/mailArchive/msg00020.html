@@ -102,8 +102,8 @@ Mon, 21 Mar 2005 13:04:50 +0100</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hello Jordan,</pre><br>
-<tt>CV_Flux() must not be a member function of a class. Instead it has to be 
-a C function. E.g. you can write a function</tt><br>
+CV_Flux() must not be a member function of a class. Instead it has to be 
+a C function. E.g. you can write a function<br>
 <br>
 <pre style="margin: 0em;">cFlux(realtype t, N_Vector CV_Y, N_Vector CV_DY, void *integrator)
 {
@@ -115,51 +115,51 @@ a C function. E.g. you can write a function</tt><br>
 ...
 }</pre><br>
 <pre style="margin: 0em;">In the call to CVodeMalloc you must use the C function cFlux() as parameter:</pre><br>
-<tt>flag_CVodeMalloc = CVodeMalloc(cvode_mem, cFlux, 0.0, CV_Y, CV_SS, 
-&amp;reltol, &amp;abstol);</tt><br>
+flag_CVodeMalloc = CVodeMalloc(cvode_mem, cFlux, 0.0, CV_Y, CV_SS, 
+&amp;reltol, &amp;abstol);<br>
 <br>
-<tt>You must also set the user data to the actual class (this). I do not 
-know the API function for CVODE but for IDA it looks like this:</tt><br>
+You must also set the user data to the actual class (this). I do not 
+know the API function for CVODE but for IDA it looks like this:<br>
 <br>
 <pre style="margin: 0em;">IDASetRdata(mem, this);</pre><br>
 <pre style="margin: 0em;">Best regards
 Jens Bastian</pre><br>
-<tt>Jordan Atlas wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello all,</pre><br>
-<tt>I get the following error when I try to compile my project that uses 
-CVODE (using VC++ 6.0):</tt><br>
+Jordan Atlas wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello all,</pre><br>
+I get the following error when I try to compile my project that uses 
+CVODE (using VC++ 6.0):<br>
 <br>
-<tt>D:\...\Integrator.cpp(329) : error C2664: 'CVodeMalloc' : cannot convert 
+D:\...\Integrator.cpp(329) : error C2664: 'CVodeMalloc' : cannot convert 
 parameter 2 from 'void (double,struct _generic_N_Vector *,struct 
 _generic_N_Vector *,void *)' to 'void (__cdecl *)(double,struct 
 _generic_N_Vector *,struct _generic_N_Vector *,void *)'<br>
-       None of the functions with this name in scope match the target type</tt><br>
+       None of the functions with this name in scope match the target type<br>
 <br>
 <pre style="margin: 0em;">The offending line is:</pre><br>
-<tt>flag_CVodeMalloc = CVodeMalloc(cvode_mem, CV_Flux, 0.0, CV_Y, CV_SS, 
-&amp;reltol, &amp;abstol);</tt><br>
+flag_CVodeMalloc = CVodeMalloc(cvode_mem, CV_Flux, 0.0, CV_Y, CV_SS, 
+&amp;reltol, &amp;abstol);<br>
 <br>
 <pre style="margin: 0em;">This line appears in a function declared as:</pre><br>
-<tt>void Integrator::CVODEMethod()    (ie, it is a member of the Integrator 
-class).</tt><br>
+void Integrator::CVODEMethod()    (ie, it is a member of the Integrator 
+class).<br>
 <br>
 <pre style="margin: 0em;">CV_Y is of type N_Vector.</pre><br>
-<tt>The declaration for my CV_Flux function (the &quot;second parameter&quot; 
-mentioned in the error) is:</tt><br>
+The declaration for my CV_Flux function (the &quot;second parameter&quot; 
+mentioned in the error) is:<br>
 <br>
-<tt>void Integrator::CV_Flux(realtype t, N_Vector CV_Y, N_Vector CV_DY, void 
+void Integrator::CV_Flux(realtype t, N_Vector CV_Y, N_Vector CV_DY, void 
 *f_data)<br>
-(ie - CV_Flux is also a member of the integrator class).</tt><br>
+(ie - CV_Flux is also a member of the integrator class).<br>
 <br>
-<tt>When I made my own example program using CVODE, I declared my RhsFn 
+When I made my own example program using CVODE, I declared my RhsFn 
 exactly the same way, except that it was not a member of a class.  Is it 
-impossible to declare the functions in the way I described?</tt><br>
+impossible to declare the functions in the way I described?<br>
 <br>
-<tt>Please let me know if this description is unclear.  Thank you for your 
-assistance.</tt><br>
+Please let me know if this description is unclear.  Thank you for your 
+assistance.<br>
 <br>
-<tt>--Jordan Atlas--
-</tt></blockquote><br>
+--Jordan Atlas--
+</blockquote><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->

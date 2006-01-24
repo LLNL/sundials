@@ -108,16 +108,16 @@ components are</pre><br>
 (2) ewt[i] = 1 / (*rtol * ABS(ycur[i]) + atol[i]), i=0,...,neq-1
     if itol = CV_SV</pre><br>
 <pre style="margin: 0em;">ewtS is an array of such vectors for the sensitivity variables.</pre><br>
-<tt>The error message you see indicates that there is a component in one of the ewtS vectors for which the denominator is 
+The error message you see indicates that there is a component in one of the ewtS vectors for which the denominator is 
 nonpositive. Since you do not specify your own sensitivity tolerances, CVODES sets the vector of absolute tolerances for 
 the is-th sensitivity to a multiple of the vector of absolute tolerances for the solution variables, the scaling factor 
-being 1/|pbar_is|. The relative tolerance is set to be equal to that for the solution, i.e. reltolS=1e-6.</tt><br>
+being 1/|pbar_is|. The relative tolerance is set to be equal to that for the solution, i.e. reltolS=1e-6.<br>
 <br>
-<tt>You say that pbar is a vector of ones. So you should end up with abstolS = 1e-8 for all sensitivities, so there should 
+You say that pbar is a vector of ones. So you should end up with abstolS = 1e-8 for all sensitivities, so there should 
 be no way for that error to occur. Unless you have some bug in your code so that some tolerances are overwritten. The 
 other reason for me to suspect this, is that ewtS is also computed and tested at the very first step (nst=0) and it 
 seems you did not get an error at that point -- you would have seen the following error message: &quot;Initial ewtS has 
-component(s) equal to zero (illegal)&quot;.</tt><br>
+component(s) equal to zero (illegal)&quot;.<br>
 <br>
 <pre style="margin: 0em;">Here are a few simple tests you can do:
 1) Try itol=CV_SS (since you anyway do not have different absolute tolerances)
@@ -126,14 +126,15 @@ component(s) equal to zero (illegal)&quot;.</tt><br>
 <pre style="margin: 0em;">Let me know what happens.</pre><br>
 <pre style="margin: 0em;">By the way, how recent is your version of CVODES?</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
-<tt>P.S. I did try to set a parameter to 0.0 in the cvfdx example (which is part of the distribution) and everything worked 
-fine just fine.</tt><br>
+P.S. I did try to set a parameter to 0.0 in the cvfdx example (which is part of the distribution) and everything worked 
+fine just fine.<br>
 <br>
 <pre style="margin: 0em;"><br></pre><br>
 <tt>Cao, Yi wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>I just found this is caused by some zeros in parameters. If I replace these zeros with very small number, say 1e-15, then, everything is fine. Does CVODES not support parameters with zero values? Note, I choose scaling vector, Pbar = 1.<br>
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+I just found this is caused by some zeros in parameters. If I replace these zeros with very small number, say 1e-15, then, everything is fine. Does CVODES not support parameters with zero values? Note, I choose scaling vector, Pbar = 1.<br>
  
-Yi Cao</tt><br>
+Yi Cao<br>
 <br>
 <pre style="margin: 0em;">________________________________</pre><br>
 <pre style="margin: 0em;">From: owner-sundials-users@lists.llnl.gov on behalf of Cao, Yi
@@ -189,8 +190,8 @@ nniS    =     0    ncfnS    =     0</pre><br>
 <pre style="margin: 0em;">njeD    =     1    nfeD     =     0</pre><br>
 <pre style="margin: 0em;">Could you help me what is ewtS and how to avoid this error?</pre><br>
 <pre style="margin: 0em;">Regards,</pre><br>
-<tt>Yi Cao
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+Yi Cao
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;"><br>--
     Radu Serban
     Center for Applied Scientific Computing   [email] radu@llnl.gov

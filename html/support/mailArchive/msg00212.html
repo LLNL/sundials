@@ -115,19 +115,19 @@ error because some of the uninitialized values of ATOL are negative. May you
 please explain why I need to set the RTOL and ATOL even after setting my own
 version of Weight function?</pre><br>
 <pre style="margin: 0em;">Thanks in advance,</pre><br>
-<tt>Vinayak
-</tt></blockquote><pre style="margin: 0em;"><br>Hi Vinayak,</pre><br>
-<tt>No, you do not need to set rtol and atol if you provide your own weight function. However, calling 
+Vinayak
+</blockquote><pre style="margin: 0em;"><br>Hi Vinayak,</pre><br>
+No, you do not need to set rtol and atol if you provide your own weight function. However, calling 
 IDASetEwtFn only &quot;declares&quot; the user provided function but that function will be used only if you 
 &quot;enable&quot; it by passing IDA_WF as the itol argument to IDAMalloc (the 6th argument). I suspect you 
-use IDA_SV, correct?</tt><br>
+use IDA_SV, correct?<br>
 <br>
-<tt>If itol=IDA_WF then the rtol and atol arguments are ignored, so you could just pass 0.0 for rtol and 
-NULL for atol.</tt><br>
+If itol=IDA_WF then the rtol and atol arguments are ignored, so you could just pass 0.0 for rtol and 
+NULL for atol.<br>
 <br>
-<tt>We do not have an IDA example which illustrates this but you can take a look at the cvdenx_uw CVODE 
+We do not have an IDA example which illustrates this but you can take a look at the cvdenx_uw CVODE 
 example (or cvsdenx_uw CVODES example) which use this feature (the mechanism is similar in all 3 
-solvers).</tt><br>
+solvers).<br>
 <br>
 <pre style="margin: 0em;">Regards,
 --Radu</pre><br>

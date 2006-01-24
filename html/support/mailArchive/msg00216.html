@@ -103,28 +103,28 @@ Tue, 17 Jan 2006 09:06:59 -0800</td>
 <!--X-Body-of-Message-->
 <tt>Andreas Nicolai wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi again,</pre><br>
-<tt>I call CVodeGetCurrentStep during the calculation of my f() function. 
+I call CVodeGetCurrentStep during the calculation of my f() function. 
 However, this yields undefined results when the f() function is called 
-the first time in the CVode() function.</tt><br>
+the first time in the CVode() function.<br>
 <br>
-<tt>Is there a way to find out whether the result of CVodeGetCurrentStep is 
-valid or not from within the f() function?</tt><br>
+Is there a way to find out whether the result of CVodeGetCurrentStep is 
+valid or not from within the f() function?<br>
 <br>
 <pre style="margin: 0em;">Andreas</pre><br>
 </blockquote><pre style="margin: 0em;"><br>Andreas,</pre><br>
-<tt>CVodeGetCurrentStep returns the value of the step size to be ATTEMPTED on the next step (next_h). 
+CVodeGetCurrentStep returns the value of the step size to be ATTEMPTED on the next step (next_h). 
 This may very well be different from the step size that ends up being used (hu, returned by 
 CVodeGetLastStep). As such, next_h is set and should be queried/used only AFTER a successful step. 
 Therefore, it does not make much sense to call CVodeGetCurrentStep from within your right hand side 
-function f().</tt><br>
+function f().<br>
 <br>
-<tt>I don't know how you use the step size inside f(), but it would probably make more sense to use the 
+I don't know how you use the step size inside f(), but it would probably make more sense to use the 
 value of the step size used on the last successful step, hu. Note that hu=0.0 as long as nst=0 (nst 
-being the value returned by CVodeGetNumSteps).</tt><br>
+being the value returned by CVodeGetNumSteps).<br>
 <br>
 <pre style="margin: 0em;"><br>--Radu</pre><br>
-<tt>P.S. I will however initialize next_h to 0 in CVodeCreate, but only so that we do not have 
-uninitialized variables in the code...</tt><br>
+P.S. I will however initialize next_h to 0 in CVodeCreate, but only so that we do not have 
+uninitialized variables in the code...<br>
 <br>
 
 <!--X-Body-of-Message-End-->

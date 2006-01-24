@@ -110,9 +110,9 @@ size is small).</pre><br>
 own array storage conventions and means for accessing, but I'm concerned
 that NVector types would require an effort to adapt to Numeric array
 types.</pre><br>
-<tt> </tt><br>
 <br>
-</blockquote><tt><br>As one of the SUNDIALS development team, I'm also a Python user. I've 
+<br>
+</blockquote><br>As one of the SUNDIALS development team, I'm also a Python user. I've 
 started a background (aka evening/weekend) project of a Python 
 implementation of parts of SUNDIALS. At this point, I've done the 
 generic NVector routines and implemented and tested about 2/3 of the 
@@ -125,20 +125,20 @@ handled via Numeric Python arrays, methods and ufuncs. Coding this does
 take a little care in notation. Just about everything in Python is a 
 reference to an object. In coding the NVector operations, it's important 
 that the data within the referenced object  be changed rather than the 
-reference being reset to point to a new object.</tt><br>
+reference being reset to point to a new object.<br>
 <br>
-<tt>My intent is to implement the shared linear solver routines after I've 
-finished the NVector routines.</tt><br>
+My intent is to implement the shared linear solver routines after I've 
+finished the NVector routines.<br>
 <br>
-<tt>As a native Python implementation, use should be straightforward. Doing 
+As a native Python implementation, use should be straightforward. Doing 
 a wrapper, would require getting the right Python NVector routines 
 called. The C routines in SUNDIALS wouldn't actually care about the data 
 format, as long as the correct operations are performed and the right 
-norms returned.</tt><br>
+norms returned.<br>
 <br>
-<tt>Anyway, that's a summary of something in progress to acknowledge the 
+Anyway, that's a summary of something in progress to acknowledge the 
 growing Python popularity and create an active role for SUNDIALS within 
-that.</tt><br>
+that.<br>
 <br>
 <pre style="margin: 0em;">...Keith Grant
 CASC/LLNL</pre><br>

@@ -67,7 +67,7 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00223.html">Date Prev</a>] [Date Next] [<a href="msg00223.html">Thread Prev</a>] [<a href="msg00215.html">Thread Next</a>]<br>
+[<a href="msg00223.html">Date Prev</a>] [<a href="msg00229.html">Date Next</a>] [<a href="msg00223.html">Thread Prev</a>] [<a href="msg00215.html">Thread Next</a>]<br>
 [<b><a href="maillist.html#00224">Date Index</a></b>]
 [<b><a href="threads.html#00224">Thread Index</a></b>]
 </p>
@@ -102,31 +102,39 @@ Wed, 18 Jan 2006 18:37:28 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Mukesh,</pre><br>
-<tt>Mukesh wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">I have two cases for which I am passing void f(integertype N,<br>
-realtype t, N_Vector y, N_Vector ydot,void *f_data) to CVodeMalloc. 
-</blockquote><br>First of all, it seems that you are using a very old version of CVODE (the argument N was removed 
-from the RhsFn type in March 2003). You may want to update.<br>
+<tt>Mukesh wrote:</tt>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+I have two cases for which I am passing void f(integertype N,realtype t, N_Vector y, N_Vector ydot,void *f_data) to CVodeMalloc. 
+</blockquote>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">In case 1 there are N ydot equations and in case 2 there are N-1 ydot equations.
+First of all, it seems that you are using a very old version of CVODE (the argument N was removed 
+from the RhsFn type in March 2003). You may want to update.
+<br><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+In case 1 there are N ydot equations and in case 2 there are N-1 ydot equations.
 However, in case 2 yN = (yN-1)*(yN-2). Since (N-1) ydot equations are
-</pre></blockquote><pre style="margin: 0em;"><br>Do you mean y_{N} = y_{N-1} * y_{N-2} ?</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">exactly same in both the cases, I have included them in same program with a
-switch statement. In face these are two cases of the model I am trying to
-solve.
+</blockquote>
+<br>
+Do you mean y_{N} = y_{N-1} * y_{N-2} ?
+<br><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+exactly same in both the cases, I have included them in same program with a
+switch statement. In face these are two cases of the model I am trying to solve.
 My question is how can I pass N-1 equations using CVode when I have
-already defined y = N_VNEW(N,NULL) for case 2 also. I am able to solve case
-1.</pre><br>
+already defined y = N_VNEW(N,NULL) for case 2 also. I am able to solve case 1.
+<br>
 Please let me know if you have any other information in this regard
-</blockquote><br>I'm not completely sure I understand exactly your question. But, if you are trying to solve both 
+</blockquote>
+<br>
+I'm not completely sure I understand exactly your question. But, if you are trying to solve both 
 systems within the same code, it is perfectly legal to have different N_Vectors simultaneously, as 
 long as you are careful in keeping track which is which. Since the content field of the generic 
 N_Vector type is just a pointer to void, you should be able to use the exact same function f (with a 
-switch statement based on a flag in f_data) for both problems.<br>
-<br>
-<pre style="margin: 0em;">The program below is a demonstration of this (using CVODE v2.3.0)</pre><br>
-<pre style="margin: 0em;">Hope that this helps,</pre><br>
-<pre style="margin: 0em;">--Radu</pre><br>
+switch statement based on a flag in f_data) for both problems.
+<br><br>
+The program below is a demonstration of this (using CVODE v2.3.0)<br><br>
+Hope that this helps,<br>
+--Radu<br>
 
 
 <pre style="margin: 0em;"><tt><br>
@@ -220,6 +228,9 @@ switch statement based on a flag in f_data) for both problems.<br>
 <ul>
 <li>Prev by Date:
 <strong><a href="msg00223.html">RE: Pass different functions f of different size</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00229.html">Installation Problems</a></strong>
 </li>
 
 <li>Previous by thread:

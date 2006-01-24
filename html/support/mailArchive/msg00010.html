@@ -101,21 +101,21 @@ Mon, 14 Mar 2005 21:15:09 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt><br>Thank you for the suggestions.  Because I don't currently use cygwin, I 
+<br>Thank you for the suggestions.  Because I don't currently use cygwin, I 
 tried the method posted for Visual Studio.  I was able to build static 
 libraries as long as I included a sundials_config.h with the #define 
-statements quoted below.</tt><br>
+statements quoted below.<br>
 <br>
 <pre style="margin: 0em;">As I understand it, I need to build three libraries:</pre><br>
 <pre style="margin: 0em;">libsundials_cvode.lib
 libsundials_shared.lib
 libsundials_nvec.lib</pre><br>
 <pre style="margin: 0em;">Is this correct?</pre><br>
-<tt>I built those libraries by including the header and source files for 
+I built those libraries by including the header and source files for 
 whatever files were in the appropriate directory (eg., I added all the files 
 in the &quot;shared&quot; directory for the project to build libsundials_shared.lib).  
 Then, I added the directories for whatever other headers it asked for to the 
-include path.</tt><br>
+include path.<br>
 <br>
 <pre style="margin: 0em;">When I try to run any of the serial examples, I get the following error:</pre><br>
 <tt>D:...\cvode_test.cpp(772) : error C2440: '=' : cannot convert from 'void *' 
@@ -123,9 +123,9 @@ to 'int *'<br>
        Conversion from 'void*' to pointer to non-'void' requires an 
 explicit cast</tt><br>
 <br>
-<tt>I'm still not sure if this is a result of compiling the libraries 
+I'm still not sure if this is a result of compiling the libraries 
 incorrectly, so I'm going to try writing my own example using the 
-documentation that came with the source code.</tt><br>
+documentation that came with the source code.<br>
 <br>
 <pre style="margin: 0em;">Thanks again for the leads,</pre><br>
 <pre style="margin: 0em;">--Jordan--</pre><br>
@@ -134,9 +134,9 @@ To: sundials-users@llnl.gov
 Subject: Re: CVODE in windows
 Date: Mon, 14 Mar 2005 08:56:10 -0800</pre><br>
 <pre style="margin: 0em;">Thanks Joachim,</pre><br>
-<tt>You are correct, the two lines below should be enough in sundials_config.h 
+You are correct, the two lines below should be enough in sundials_config.h 
 (the other define's have to do with the Fortran-C interface -- irrelevant 
-for VisualC++).</tt><br>
+for VisualC++).<br>
 <br>
 <pre style="margin: 0em;">I am sending this to the sundials-users list.</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
@@ -154,9 +154,7 @@ I need to do. And I had no time to check all in detail. My project is
 still at the beginning. But I was able to compile the libraries without
 any errors or warnings so far.</pre><br>
 <pre style="margin: 0em;">Joachim</pre><br>
-</blockquote></blockquote><tt><br>_________________________________________________________________<br>
-Express yourself instantly with MSN Messenger! Download today - it's FREE! 
-<a  href="http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/">http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/</a></tt><br>
+</blockquote></blockquote>
 <br>
 <br>
 

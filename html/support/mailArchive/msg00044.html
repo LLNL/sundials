@@ -115,20 +115,21 @@ Thu, 21 Apr 2005 12:41:57 -0700</td>
     platform-specific, so it's easier to build only static
     libraries.
 </pre></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt>Here I am glad to report that on (my) i386 Debian Linux the dynamic libraries 
+Here I am glad to report that on (my) i386 Debian Linux the dynamic libraries 
 build 
 is  problem free.  The only tiny glitch is that the resulting libraries have 
-no *.so extension. I am going to fix that locally.</tt><br>
+no *.so extension. I am going to fix that locally.<br>
 <br>
-</blockquote><tt><br>Hmmm, you could try to update the ltmain.sh file in sundials/config. The version of ltmain.sh that we pack with SUNDIALS 
-is 1.4.3.</tt><br>
+</blockquote>
+<br>Hmmm, you could try to update the ltmain.sh file in sundials/config. The version of ltmain.sh that we pack with SUNDIALS 
+is 1.4.3.<br>
 <br>
-<tt>NOTE: If afterwards you get compilation errors from libtool (&quot;unable to infer tagged configuration&quot;),  this is due to a 
+NOTE: If afterwards you get compilation errors from libtool (&quot;unable to infer tagged configuration&quot;),  this is due to a 
 mismatch between the compilers used to install libtool on your system and what you use to compile SUNDIALS. This may 
 happen anyway for the compilation of nvec_par and parallel examples (if you use that) if you use an MPI compiler scrip 
 (e.g. mpicc). One fix for that is to add a dummy --tag to libtool (if supported by your libtool version) in the 
 appropriate Makefiles. This is a strange fix (after all, if libtool can ignore a dummy tag, it should be able to work 
-fine if --tag is not specified), but it seems to work.</tt><br>
+fine if --tag is not specified), but it seems to work.<br>
 <br>
 <pre style="margin: 0em;">Take a look at
   <a  href="http://people.debian.org/~keybuk/libtool-missing_so.html">http://people.debian.org/~keybuk/libtool-missing_so.html</a>
@@ -140,21 +141,22 @@ libraries for the following reasons:
   - It's easy enough to create a version-specific subdirectory using
     standard configure options.
 </pre></blockquote><pre style="margin: 0em;"><br></pre><br>
-<tt>Ok, I see your point. However, you do not set SONAME explicitly, either.<br>
+Ok, I see your point. However, you do not set SONAME explicitly, either.<br>
 Suppose you have an application compiled and linked dynamically to SUNDIALS.<br>
 Suppose that there is a minor bugfix in the suit inself without any interface 
 change. In this case the library maintains the same SONAME and can be 
 upgraded without recompiling the application. If, on the other hand, there is 
 an interface change (as in the latest release) the SONAME should be different 
 from the previous release, otherwise the compiled application will link to 
-the new library and most likely blow.</tt><br>
+the new library and most likely blow.<br>
 <br>
-</blockquote><tt><br>As Aaron mentioned, we prefer to keep track of different versions through subdirectories whose names encode the version 
-number, rather than having the version encoded in the library name.</tt><br>
+</blockquote>
+<br>As Aaron mentioned, we prefer to keep track of different versions through subdirectories whose names encode the version 
+number, rather than having the version encoded in the library name.<br>
 <br>
-<tt>But it shouldn't be too difficult for you to opt for the second variant (there are not that many SUNDIALS libraries). 
+But it shouldn't be too difficult for you to opt for the second variant (there are not that many SUNDIALS libraries). 
 You should be able to pass &quot;-soname=name&quot; to the linker yourself, using the --with-ldflags option to configure (or using 
-&quot;-Wl,-soname -Wl,name&quot; with the --with-cflags).</tt><br>
+&quot;-Wl,-soname -Wl,name&quot; with the --with-cflags).<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Finally, I should mention that SUNDIALS is heavily used internally at

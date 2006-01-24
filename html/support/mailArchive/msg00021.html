@@ -104,27 +104,27 @@ Mon, 21 Mar 2005 08:22:42 -0500</td>
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Jordan,</pre><br>
 <pre style="margin: 0em;">I believe that Jens meant the cFlux function to look like this:</pre><br>
-<tt>extern &quot;C&quot;<br>
+extern &quot;C&quot;<br>
 void cFlux(realtype t, N_Vector CV_Y, N_Vector CV_DY, void *integrator)<br>
 {<br>
     Integrator * this = (Integrator *) integrator;   //  cast to 
 pointer to Integrator base object<br>
     this-&gt;CV_Flux(t, CV_Y, CV_DY);  // call virtual function CV_Flux<br>
-}</tt><br>
+}<br>
 <br>
-<tt>This function cFlux will provide the glue between cvode and your class 
+This function cFlux will provide the glue between cvode and your class 
 -- it converts the integrator pointer to a pointer to the base class 
 Integrator, and calls the member function CV_Flux of that to do the 
 actual work of computing the right-hand-side of your ODEs.   Note that 
 CV_Flux must be declared as a virtual member function, so that the 
 right one is called even though integrator (and this) points to a base 
-class.</tt><br>
+class.<br>
 <br>
-<tt>It's possible to put  the cFlux function into the class by making it a 
+It's possible to put  the cFlux function into the class by making it a 
 static member function, but there are hassles involved, and no benefits 
-that I can see.</tt><br>
+that I can see.<br>
 <br>
-<tt>I've attached the class odeDynamics that I use to provide an object 
+I've attached the class odeDynamics that I use to provide an object 
 oriented interface to CVode with Dense solvers, either with or without 
 an explicit Jacobian.  Basically one subclasses either odeDynamics or 
 odeDynamicsJacobian and replaces the virtual functions virtual void 
@@ -133,11 +133,11 @@ above) and virtual void Jacobian(double t, double * x, double * xdot,
 double ** jByCols).    There are some other members for looking at 
 state, setting state and reinitializing the solver, indexing the 
 Jacobian etc.   (And I think of odes as dx/dt = f(x,t), so what the 
-cvode documents call y I call x, and what they call x I call t).</tt><br>
+cvode documents call y I call x, and what they call x I call t).<br>
 <br>
 <pre style="margin: 0em;">James</pre><br>
 <pre>// odeDynamics.h
-// $Id: msg00021.html,v 1.1 2006-01-06 19:15:38 radu Exp $
+// $Id: msg00021.html,v 1.2 2006-01-24 00:52:06 radu Exp $
 // A class that will provide an interface to the sundials solvers
 // James Paul Holloway
 // hagar@umich.edu
@@ -320,7 +320,7 @@ jacByCols) = 0;
 
 #endif
 </pre><pre>// odeDynamics.cpp
-// $Id: msg00021.html,v 1.1 2006-01-06 19:15:38 radu Exp $
+// $Id: msg00021.html,v 1.2 2006-01-24 00:52:06 radu Exp $
 // A class that will provide an interface to the sundials solvers
 // James Paul Holloway
 // hagar@umich.edu
@@ -596,8 +596,8 @@ error.&quot;); }
 </pre><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;"><br>On Mar 21, 2005, at 7:04 AM, Jens Bastian wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello Jordan,</pre><br>
-<tt>CV_Flux() must not be a member function of a class. Instead it has to 
-be a C function. E.g. you can write a function</tt><br>
+CV_Flux() must not be a member function of a class. Instead it has to 
+be a C function. E.g. you can write a function<br>
 <br>
 <pre style="margin: 0em;">cFlux(realtype t, N_Vector CV_Y, N_Vector CV_DY, void *integrator)
 {
@@ -608,20 +608,20 @@ be a C function. E.g. you can write a function</tt><br>
 {
 ...
 }</pre><br>
-<tt>In the call to CVodeMalloc you must use the C function cFlux() as 
-parameter:</tt><br>
+In the call to CVodeMalloc you must use the C function cFlux() as 
+parameter:<br>
 <br>
-<tt>flag_CVodeMalloc = CVodeMalloc(cvode_mem, cFlux, 0.0, CV_Y, CV_SS, 
-&amp;reltol, &amp;abstol);</tt><br>
+flag_CVodeMalloc = CVodeMalloc(cvode_mem, cFlux, 0.0, CV_Y, CV_SS, 
+&amp;reltol, &amp;abstol);<br>
 <br>
-<tt>You must also set the user data to the actual class (this). I do not 
-know the API function for CVODE but for IDA it looks like this:</tt><br>
+You must also set the user data to the actual class (this). I do not 
+know the API function for CVODE but for IDA it looks like this:<br>
 <br>
 <pre style="margin: 0em;">IDASetRdata(mem, this);</pre><br>
 <pre style="margin: 0em;">Best regards
 Jens Bastian</pre><br>
-<tt>Jordan Atlas wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Hello all,<br>
+Jordan Atlas wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Hello all,<br>
 I get the following error when I try to compile my project that uses 
 CVODE (using VC++ 6.0):<br>
 D:\...\Integrator.cpp(329) : error C2664: 'CVodeMalloc' : cannot 
@@ -649,7 +649,7 @@ it impossible to declare the functions in the way I described?<br>
 Please let me know if this description is unclear.  Thank you for 
 your assistance.<br>
 --Jordan Atlas--
-</tt></blockquote><pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 <br>
 </blockquote><pre style="margin: 0em;">--
 James Paul Holloway

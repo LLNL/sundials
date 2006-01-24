@@ -101,28 +101,28 @@ Mon, 12 Dec 2005 17:04:09 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi all,</pre><br>
-<tt>I have just spent an entire day unsuccessfully trying to build sundials on 
-windows and would really appreciate some help.</tt><br>
+I have just spent an entire day unsuccessfully trying to build sundials on 
+windows and would really appreciate some help.<br>
 <br>
-<tt>I am trying to build in cygwin.  The situation may or may not be 
-complicated by a previous install of minGW.</tt><br>
+I am trying to build in cygwin.  The situation may or may not be 
+complicated by a previous install of minGW.<br>
 <br>
-<tt>Here is the current state of affairs (SUMMARY: 1 -- ./configure appears to 
+Here is the current state of affairs (SUMMARY: 1 -- ./configure appears to 
 work  but claims it doesn't find the standard header files.  2 -- make and 
 make install appear to work 3 -- make examples can't find neccessary 
-libraries.)</tt><br>
+libraries.)<br>
 <br>
 <pre style="margin: 0em;">-------------------------------------------------------------------------------
 1.
 From the cygwin shell in the Sundials dir, I type
         ./configure CC=gss CFLAGS=-I&quot;c:/cygwin/usr/include&quot;
 Without the CC and CFLAG options set, sundials does not compile.</pre><br>
-<tt>The output as .configure runs contains no warning or error messages except 
+The output as .configure runs contains no warning or error messages except 
 that at the beginning there are a bunch of lines such as &quot;checking for 
 stdlib.h: No.  checking for string.h. No.&quot;  Nonetheless it all appears to 
-compile.</tt><br>
+compile.<br>
 <br>
-<tt>-------------------------------------------------------------------------------<br>
+-------------------------------------------------------------------------------<br>
 2.<br>
 &quot;Make&quot; reports no errors.  &quot;Make install&quot; reports warning in linking stages 
 such as:<br>
@@ -130,11 +130,11 @@ libtool: link: warning: undefined symbols not allowed in i686-pc-cygwin
 shared libraries.<br>
 ---------------------------------------------------------------------------------<br>
 3.<br>
-&quot;Make examples&quot; fails, unable to identify multiple symbols, eg:</tt><br>
+&quot;Make examples&quot; fails, unable to identify multiple symbols, eg:<br>
 <br>
-<tt>In function 'MAIN__':<br>
+In function 'MAIN__':<br>
 /cygdrive/c/sundials/kinsol/fcmix/examples_ser/./kingdiagsf-updated.f:48: 
-undefined reference to '_fnvinits_'.</tt><br>
+undefined reference to '_fnvinits_'.<br>
 <br>
 <pre style="margin: 0em;">Every exmaple fails with multple undefined refs.
 ----------------------------------------------------------------------------</pre><br>

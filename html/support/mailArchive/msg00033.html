@@ -102,36 +102,36 @@ Fri, 01 Apr 2005 09:11:10 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Andreas,</pre><br>
-<tt>Although CVODE has an option for setting a minimum value for the step size (CVodeSetMinStep), this will not help your 
+Although CVODE has an option for setting a minimum value for the step size (CVodeSetMinStep), this will not help your 
 problem. The hmin value in CVODE has a role opposite to what you want: you can look at it as a mechanism for stopping 
-the integrator when accuracy requirements would drive the step size below the prescribed limit.</tt><br>
+the integrator when accuracy requirements would drive the step size below the prescribed limit.<br>
 <br>
 <pre style="margin: 0em;">CVODE strives to satisfy first the tolerance requirements and not limitations 
 on step size.</pre><br>
-<tt>The answer to your problem is hidden in your question itself! You say that in such regions, you are willing to accept a 
+The answer to your problem is hidden in your question itself! You say that in such regions, you are willing to accept a 
 loss of accuracy. Then you should just use looser tolerances in that region and then tighten them back after you're past 
 the tough spot. You can change tolerances between calls to CVode without having to restart it by using the 
 CVodeSetTolerances function (you can also change directly the variables that you used to pass tolerances to CVodeMalloc, 
 since CVODE stores them by reference and not value. However, I am currently working on changes to the code that will not 
 allow this anymore, for different reasons, and when the new codes will be released -- probably in a week or so -- this 
-option will not be available anymore).</tt><br>
+option will not be available anymore).<br>
 <br>
-<tt>Of course, to do this you'd have to call CVode in ONE_STEP mode. If you do not know beforehand where these tough regions 
+Of course, to do this you'd have to call CVode in ONE_STEP mode. If you do not know beforehand where these tough regions 
 are, you should be able to detect them by specifying minimum and maximum step sizes and by monitoring the CVODE solver 
-statistics and/or return values.</tt><br>
+statistics and/or return values.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <tt>Andreas Nicolai wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
-<tt>before using CVODE I was writing single-step, implicit solvers with 
+before using CVODE I was writing single-step, implicit solvers with 
 variable time steps. And depending on the convergence criteria the time 
 step could get very small. However, in order not to break out the 
 solution I enforced a minimum time step (accepting the reduction in 
-accuracy).</tt><br>
+accuracy).<br>
 <br>
-<tt>Can this be done with CVODE as well? I mean, force the solver to go on 
+Can this be done with CVODE as well? I mean, force the solver to go on 
 even if he can't converge at a certain time step which would normally 
-cause him to slow down?</tt><br>
+cause him to slow down?<br>
 <br>
 <pre style="margin: 0em;">Thanks for any suggestions!
 Bye - Andreas</pre><br>

@@ -120,19 +120,19 @@ Institut fuer Theoretische Physik und Computational
 Physics, Technische Universitaet Graz,  Petersgasse 16,  A-8010 Graz
 phone/fax: +43(0)316 873 8195,             email: smallhare@inbox.ru
 </pre></blockquote><pre style="margin: 0em;"><br>Hi Ivan,</pre><br>
-<tt>The 'yout' argument to CVode() is owned and allocated by the user, not by the solver. Therefore, you 
+The 'yout' argument to CVode() is owned and allocated by the user, not by the solver. Therefore, you 
 can make sure that the data field in the yout N_Vector points to my_array before calling CVode(). 
 You can do this in several different ways (note that these methods may not work with NVECTOR modules 
 other than NVECTOR_SERIAL or NVECTOR_PARALLEL since they use constructors not required -- albeit 
-recommended -- to exist in any NVECTOR implementation):</tt><br>
+recommended -- to exist in any NVECTOR implementation):<br>
 <br>
-<tt>(a)<br>
+(a)<br>
 Create an &quot;empty&quot; N_Vector yout using N_VNewEmpty_Serial and attach my_array to it. You can attach 
 my_array either by calling N_VSetArrayPointer_Serial or by using the macro NV_DATA_S defined in 
-nvector_serial.h. We recommend the latter method.</tt><br>
+nvector_serial.h. We recommend the latter method.<br>
 <br>
-<tt>If you already have an N_Vector created (e.g. y0, the vector of initial conditions), you can use 
-N_VCloneEmpty_Serial instead of N_VNewEmpty_Serial above to create yout by cloning.</tt><br>
+If you already have an N_Vector created (e.g. y0, the vector of initial conditions), you can use 
+N_VCloneEmpty_Serial instead of N_VNewEmpty_Serial above to create yout by cloning.<br>
 <br>
 <pre style="margin: 0em;">Option (a), using N_VNewEmpty_Serial and NV_DATA_S looks like the following 
 code snippet:</pre><br>
@@ -149,14 +149,14 @@ flag = CVode(cvode_mem, tout, yout, &amp;tret, itask);
 ...
 N_VDestroy_Serial(yout);
 free(my_array);</pre><br>
-<tt>(b)<br>
+(b)<br>
 Use N_VMake_Serial, as you mentioned in your email (if you look into the implementation of this 
-function, you'll see that it is basically equivalent to option (a) above).</tt><br>
+function, you'll see that it is basically equivalent to option (a) above).<br>
 <br>
-<tt>(c)<br>
+(c)<br>
 Use N_VNew_Serial to create yout, use it in the call to CVode(), and then grab the data into 
 my_array. You can get the data from yout either by using the macro NV_DATA_S (recommended) or by 
-calling the function N_VGetArrayPointer_Serial.</tt><br>
+calling the function N_VGetArrayPointer_Serial.<br>
 <br>
 <pre style="margin: 0em;">In this case, you DO NOT need to allocate or free my_array!</pre><br>
 <pre style="margin: 0em;">...
@@ -170,11 +170,11 @@ flag = CVode(cvode_mem, tout, yout, &amp;tret, itask);
 my_array = NV_DATA_S(yout);
 ...
 N_VDestroy_Serial(yout);</pre><br>
-<tt><br>NOTE: The function N_VSetArrayPointer_Serial is really intended only for internal use by the 
+<br>NOTE: The function N_VSetArrayPointer_Serial is really intended only for internal use by the 
 SUNDIALS solvers (where we do not want it to change the ownership flag), but if used in option (a) 
 above it is safe from this point of view since both N_VNewEmpty_Serial and N_VCloneEmpty_Serial set 
 own_data=FALSE. Therefore, whenever N_VDestroy_Serial(yout) is called, the data field in yout will 
-not be freed, leaving that task to the user (who owns it).</tt><br>
+not be freed, leaving that task to the user (who owns it).<br>
 <br>
 <pre style="margin: 0em;">-- Radu</pre><br>
 <pre style="margin: 0em;"><br>--

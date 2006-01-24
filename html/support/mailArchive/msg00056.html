@@ -104,21 +104,21 @@ Mon, 16 May 2005 18:09:28 -0700</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hello Andreas,</pre><br>
-<tt>You are talking of the stopping test for the nonlinear iteration (Newton iteration). This is related to the local error 
+You are talking of the stopping test for the nonlinear iteration (Newton iteration). This is related to the local error 
 test which controls the &quot;accuracy in time&quot; (see below). The tolerance with which the nonlinear system is solved is 
 selected such that errors in its solution do not affect the local error test. (As a parenthesis, when using an iterative 
 linear solver within the Newton iteration - such as SPGMR - the tolerance with which the linear system is solved is also 
-related to the local error test).</tt><br>
+related to the local error test).<br>
 <br>
-<tt>Local Error Test:<br>
+Local Error Test:<br>
 CVODE controls the local truncation error (LTE) by modifying the step size and/or method order so that the WRMS norm of 
 the LTE is less than or equal to 1.0. The LTE is estimated from the asymptotic relations it satisfies. The WRMS 
 (weighted root-mean-square) norm uses weights based on the current solution and the relative and absolute tolerances, so 
 that any vector representing a perturbation in y (such as the LTE) whose WRMS norm is &lt;= 1 is considered &quot;small&quot; 
-(easiest was to see this is to think of the scalar case, in which case ||v||_WRMS = 1 &lt;=&gt; v = rtol*|y| + atol)</tt><br>
+(easiest was to see this is to think of the scalar case, in which case ||v||_WRMS = 1 &lt;=&gt; v = rtol*|y| + atol)<br>
 <br>
-<tt>For more details, see the ACM TOMS paper &quot;SUNDIALS: Suite of Nonlinear and Differential/Algebraic Equation Solvers&quot;, 
-available as a PDF on the SUNDIALS webpage at<br>
+For more details, see the ACM TOMS paper &quot;SUNDIALS: Suite of Nonlinear and Differential/Algebraic Equation Solvers&quot;, 
+available as a PDF on the SUNDIALS webpage at
    <a  href="http://www.llnl.gov/CASC/sundials/documentation/documentation.html">http://www.llnl.gov/CASC/sundials/documentation/documentation.html</a><br>
 The Cohen-Hindmarsh paper you mention is also available there. If you really want to go to the roots :-) take also a look at<br>
 1) G.D. Byrne and A.C. Hindmarsh, &quot;A Polyalgorithm for the numerical solution of Ordinary Differential Equations&quot;, ACM 
@@ -126,23 +126,23 @@ TOMS, 1(1), 1975, pp. 71-96<br>
 2) K.R. Jackson and R. Sacks-Davis, &quot;An Alternative Implementation of Variable Step-Size Multistep Formulas for Stiff 
 ODEs&quot;, ACM TOMS, 6(3), 1980, pp. 295-318<br>
 3) P.N. Brown, G.D. Byrne, and A.C. Hindmarsh, &quot;VODE, A Variable-Coefficient ODE Solver&quot;, SIAM J. Sci. Stat. Comp., 10, 
-1989, pp. 1038-1051</tt><br>
+1989, pp. 1038-1051<br>
 <br>
 <pre style="margin: 0em;">Ragards,
 --Radu Serban</pre><br>
 <tt>Andreas Nicolai wrote:
 </tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi again,</pre><br>
-<tt>I was wondering how CVODE &quot;knows&quot; whether the solution is actually 
+I was wondering how CVODE &quot;knows&quot; whether the solution is actually 
 accurate in time? As I understand it (for BDF, NEWTON) the iteration is 
 performed until the changes of the calculated state variables are within 
 the tolerance requirements. After that the solver takes a new step and 
 starts iterating for that solution again.<br>
 But how can the solver tell, that the linearization/polynomial 
-approximation in time is accurate and that the time step wasn't too big?</tt><br>
+approximation in time is accurate and that the time step wasn't too big?<br>
 <br>
-<tt>Is there a publication where this method is described a bit more in detail?<br>
+Is there a publication where this method is described a bit more in detail?<br>
 (could the first publication &quot;CVODE, A Stiff/Nonstiff ODE Solver in C&quot; 
-perhaps be made available as PDF on the SUNDIALS webpage?)</tt><br>
+perhaps be made available as PDF on the SUNDIALS webpage?)<br>
 <br>
 <pre style="margin: 0em;">Thanks,
 Andreas</pre><br>

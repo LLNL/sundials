@@ -106,22 +106,22 @@ Fri, 14 Oct 2005 11:40:30 -0700</td>
 <pre style="margin: 0em;">Raju,</pre><br>
 <pre style="margin: 0em;">We'll try to add some more explanations in the installation section of the user 
 guides...</pre><br>
-<tt>The warning that you get may or may not be harmless. The only way to decide is by trying to compile the Fortran examples 
-(but it seems there is another problem with that -- I'll get to that in a reply to your other message).</tt><br>
+The warning that you get may or may not be harmless. The only way to decide is by trying to compile the Fortran examples 
+(but it seems there is another problem with that -- I'll get to that in a reply to your other message).<br>
 <br>
-<tt>The configure script needs to find how to get verbose output from the compiler in order to subsequently parse such 
+The configure script needs to find how to get verbose output from the compiler in order to subsequently parse such 
 output and extract the Fortran linker flags. As you can see, since it wasn't able to do that, it ends up with FLIBS 
-being only &quot;-lm&quot;. That may or may not be enough.</tt><br>
+being only &quot;-lm&quot;. That may or may not be enough.<br>
 <br>
-<tt>As I told you before, I haven't used the Absoft Fortran compiler before. But I found out we do have a version of it 
+As I told you before, I haven't used the Absoft Fortran compiler before. But I found out we do have a version of it 
 installed here (pro8.0 -- older that what you use I guess). I tried to configure SUNDIALS using their f90 compiler (and 
 gcc) and everything worked just fine using just<br>
 % configure F77=f90 --with-ldflags=-L/usr/apps/Absoft/pro8.0/lib<br>
 configure found the name-mangling scheme (uppercase with no underscores) and how to get verbose output (-v) all by 
-itself. Also (and this is relevant to your other issue) it realized that this is NOT the GNU Fortran 77 compiler!</tt><br>
+itself. Also (and this is relevant to your other issue) it realized that this is NOT the GNU Fortran 77 compiler!<br>
 <br>
-<tt>To see exactly what is going on, look into the config.log file and see exactly what test program fails (search for 
-'failed program was:')</tt><br>
+To see exactly what is going on, look into the config.log file and see exactly what test program fails (search for 
+'failed program was:')<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <tt>Kamaraju Kusumanchi wrote:
