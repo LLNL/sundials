@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2005-12-07 20:35:46 $
+C     $Revision: 1.2 $
+C     $Date: 2006-01-24 00:49:48 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, dense user Jacobian.
 C
@@ -164,40 +164,47 @@ C
 
 C     ----------------------------------------------------------------
 
-      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR, IER)
 C Fortran routine for right-hand side function.
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*)
+      INTEGER*4 IPAR(*), IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       YDOT(1) = -0.04D0 * Y(1) + 1.0D4 * Y(2) * Y(3)
       YDOT(3) = 3.0D7 * Y(2) * Y(2)
       YDOT(2) = -YDOT(1) - YDOT(3)
+C
+      IER = 0
+C
       RETURN
       END
 
 C     ----------------------------------------------------------------
 
-      SUBROUTINE FCVROOTFN(T, Y, G, IPAR, RPAR)
+      SUBROUTINE FCVROOTFN(T, Y, G, IPAR, RPAR, IER)
 C Fortran routine for root finding
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, Y(*), G(*), RPAR(*)
-      INTEGER*4 IPAR(*)
+      INTEGER*4 IPAR(*), IEr
 C
       G(1) = Y(1) - 1.0D-4
       G(2) = Y(3) - 1.0D-2
+C
+      IER = 0
+
       RETURN
       END
 
 C     ----------------------------------------------------------------
 
-      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR, V1, V2, V3)
+      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR, 
+     1                   V1, V2, V3, IER)
 C Fortran routine for dense user-supplied Jacobian.
       IMPLICIT NONE
 C
-      INTEGER*4 N, IPAR(*)
+      INTEGER*4 N, IPAR(*), IER
       DOUBLE PRECISION T, Y(*), FY(*), JAC(N,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C
@@ -213,5 +220,8 @@ C
       JAC(2,2) = -1.0D4 * Y3 - 6.0D7 * Y2
       JAC(2,3) = -1.0D4 * Y2
       JAC(3,2) = 6.0D7 * Y2
+C
+      IER = 0
+C
       RETURN
       END

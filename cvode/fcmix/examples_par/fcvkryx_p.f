@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2005-12-13 23:23:30 $
+C     $Revision: 1.2 $
+C     $Date: 2006-01-24 00:49:44 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Stiff case, with BDF/SPGMR, diagonal
 C     preconditioner. Solved with preconditioning on left, then with
@@ -274,11 +274,11 @@ C
 C
 C     ------------------------------------------------------------------------
 C
-      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR, IER)
 C     Routine for right-hand side function f
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*)
+      INTEGER*4 IPAR(*), IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       INTEGER*4 I, MYPE, NLOCAL
@@ -291,6 +291,8 @@ C
       DO I = 1, NLOCAL
          YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
       ENDDO
+C
+      IER = 0
 C
       RETURN
       END

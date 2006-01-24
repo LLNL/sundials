@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2005-12-07 20:35:46 $
+C     $Revision: 1.2 $
+C     $Date: 2006-01-24 00:49:48 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -180,12 +180,12 @@ C
 
 C     ----------------------------------------------------------------
 
-      SUBROUTINE FCVFUN(T, U, UDOT, IPAR, RPAR)
+      SUBROUTINE FCVFUN(T, U, UDOT, IPAR, RPAR, IER)
 C Right-hand side routine
       IMPLICIT NONE
 C
       DOUBLE PRECISION T, U(*), UDOT(*), RPAR(*)
-      INTEGER*4 IPAR(*)
+      INTEGER*4 IPAR(*), IER
 C
       INTEGER*4 I, MX, IOFF, MY, J, IJ
       DOUBLE PRECISION UIJ, UDN, UUP, ULT, URT, HDIFF, HADV, VDIFF
@@ -225,17 +225,19 @@ C Set diffusion and advection terms and load into UDOT.
  10       CONTINUE
  20     CONTINUE
 C
+        IER = 0
+C
       RETURN
       END
 
 C     ----------------------------------------------------------------
 
       SUBROUTINE FCVBJAC(N, MU, ML, MDIM, T, U, FU,
-     1                   BJAC, H, IPAR, RPAR, V1, V2, V3)
+     1                   BJAC, H, IPAR, RPAR, V1, V2, V3, IER)
 C Load banded Jacobian
       IMPLICIT NONE
 C
-      INTEGER*4 N, MU, ML, MDIM, IPAR(*)
+      INTEGER*4 N, MU, ML, MDIM, IPAR(*), IER
       DOUBLE PRECISION T, U(*), FU(*), BJAC(MDIM,*), H, RPAR(*)
       DOUBLE PRECISION V1(*), V2(*), V3(*)
 C
@@ -272,5 +274,7 @@ C
  10       CONTINUE
  20     CONTINUE
 C
+        IER = 0
+C     
       RETURN
       END

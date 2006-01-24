@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2005-12-07 20:35:46 $
+C     $Revision: 1.2 $
+C     $Date: 2006-01-24 00:49:48 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -248,11 +248,11 @@ C
       
 C     ----------------------------------------------------------------
 
-      SUBROUTINE FCVFUN(T, U, UDOT, IPAR, RPAR)
+      SUBROUTINE FCVFUN(T, U, UDOT, IPAR, RPAR, IER)
 C     Routine for right-hand side function f
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*)
+      INTEGER*4 IPAR(*), IER
       DOUBLE PRECISION T, U(2,*), UDOT(2,*), RPAR(*)
 C
       INTEGER ILEFT, IRIGHT
@@ -338,6 +338,8 @@ C     Load all terms into UDOT.
             UDOT(2,IBLOK) = VERTD2 + HORD2 + HORAD2 + RKIN2
  10      CONTINUE
  20   CONTINUE
+C
+      IER = 0
 C
       RETURN
       END

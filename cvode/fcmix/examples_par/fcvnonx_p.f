@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2005-12-07 20:35:46 $
+C     $Revision: 1.2 $
+C     $Date: 2006-01-24 00:49:44 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
 C     ----------------------------------------------------------------
@@ -165,12 +165,12 @@ C
 C
 C     ------------------------------------------------------------------------
 C
-      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR, IER)
 C     Routine for right-hand side function f
 C
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*)
+      INTEGER*4 IPAR(*), IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       INTEGER MYPE
@@ -184,6 +184,8 @@ C
       DO I = 1, NLOCAL
          YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
       ENDDO
+C
+      IER = 0
 C
       RETURN
       END

@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.1 $
-C     $Date: 2005-12-07 20:35:46 $
+C     $Revision: 1.2 $
+C     $Date: 2006-01-24 00:49:44 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -261,11 +261,11 @@ C
 C
 C     ------------------------------------------------------------------------
 C
-      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR)
+      SUBROUTINE FCVFUN(T, Y, YDOT, IPAR, RPAR, IER)
 C     Routine for right-hand side function f
       IMPLICIT NONE
 C
-      INTEGER*4 IPAR(*)
+      INTEGER*4 IPAR(*), IER
       DOUBLE PRECISION T, Y(*), YDOT(*), RPAR(*)
 C
       INTEGER MYPE
@@ -280,26 +280,28 @@ C
          YDOT(I) = -ALPHA * (MYPE * NLOCAL + I) * Y(I)
       ENDDO
 C     
+      IER = 0
+C
       RETURN
       END
 C
 C     ------------------------------------------------------------------------
 C
-      SUBROUTINE FCVGLOCFN(NLOC, T, YLOC, GLOC, IPAR, RPAR)
+      SUBROUTINE FCVGLOCFN(NLOC, T, YLOC, GLOC, IPAR, RPAR, IER)
 C     Routine to define local approximate function g, here the same as f. 
       IMPLICIT NONE
 C
-      INTEGER*4 NLOC, IPAR(*)
+      INTEGER*4 NLOC, IPAR(*), IER
       DOUBLE PRECISION T, YLOC(*), GLOC(*), RPAR(*)
 C     
-      CALL FCVFUN(T, YLOC, GLOC, IPAR, RPAR)
+      CALL FCVFUN(T, YLOC, GLOC, IPAR, RPAR, IER)
 C     
       RETURN
       END
 C
 C     ------------------------------------------------------------------------
 C      
-      SUBROUTINE FCVCOMMFN(NLOC, T, YLOC, IPAR, RPAR)
+      SUBROUTINE FCVCOMMFN(NLOC, T, YLOC, IPAR, RPAR, IER)
 C     Routine to perform communication required for evaluation of g.
       RETURN
       END
