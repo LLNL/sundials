@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2006-01-17 23:30:35 $
+ * $Revision: 1.41 $
+ * $Date: 2006-01-24 19:24:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -83,8 +83,8 @@ typedef int (*IDAResFn)(realtype tt, N_Vector yy, N_Vector yp,
  * -----------------------------------------------------------------
  */
 
-typedef void (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
-                          realtype *gout, void *g_data);
+typedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
+                         realtype *gout, void *g_data);
 
 /*
  * -----------------------------------------------------------------

@@ -5354,7 +5354,7 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
 %%
 \usfunction{IDARootFn}
 {
-  typedef void (*IDARootFn)(&realtype t, N\_Vector y, N\_Vector yp, \\
+  typedef int (*IDARootFn)(&realtype t, N\_Vector y, N\_Vector yp, \\
                            &realtype *gout, void *g\_data);
 }
 {
@@ -5378,7 +5378,8 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
   \end{args}
 }
 {
-  A \id{IDARootFn} function type does not have a return value.
+  The return value of an \id{IDARootFn} function is currently not used
+  (return a value of 0).
 }
 {
   Allocation of memory for \id{gout} is handled within {\ida}.

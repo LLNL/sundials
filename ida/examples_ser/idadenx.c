@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 19:25:00 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -53,8 +53,8 @@
 int resrob(realtype tres, N_Vector yy, N_Vector yp, 
            N_Vector resval, void *rdata);
 
-static void grob(realtype t, N_Vector yy, N_Vector yp,
-                 realtype *gout, void *g_data);
+static int grob(realtype t, N_Vector yy, N_Vector yp,
+                realtype *gout, void *g_data);
 
 int jacrob(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
            N_Vector resvec, realtype cj, void *jdata, DenseMat JJ,
@@ -205,8 +205,8 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *rdata)
  * Root function routine. Compute functions g_i(t,y) for i = 0,1. 
  */
 
-static void grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
-                 void *g_data)
+static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
+                void *g_data)
 {
   realtype *yval, y1, y3;
 
@@ -214,6 +214,8 @@ static void grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
   y1 = yval[0]; y3 = yval[2];
   gout[0] = y1 - RCONST(0.0001);
   gout[1] = y3 - RCONST(0.01);
+
+  return(0);
 }
 
 /*
