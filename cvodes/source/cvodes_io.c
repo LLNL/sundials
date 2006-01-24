@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-19 21:09:32 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:51:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1748,7 +1748,7 @@ int CVodeGetSensErrWeights(void *cvode_mem, N_Vector_S eSweight)
   Ns = cv_mem->cv_Ns;
 
   for (is=0; is<Ns; is++)
-    N_VScale(ONE, ewtS[i], eSweight[i]);
+    N_VScale(ONE, ewtS[is], eSweight[is]);
 
   return(CV_SUCCESS);
 }

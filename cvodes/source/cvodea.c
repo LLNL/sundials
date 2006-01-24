@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.59 $
- * $Date: 2006-01-19 20:45:56 $
+ * $Revision: 1.60 $
+ * $Date: 2006-01-24 00:51:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -70,11 +70,11 @@ static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d);
 
 /* Wrappers */
 
-static void CVArhs(realtype t, N_Vector yB, 
-                   N_Vector yBdot, void *cvadj_mem);
+static int CVArhs(realtype t, N_Vector yB, 
+                  N_Vector yBdot, void *cvadj_mem);
 
-static void CVArhsQ(realtype t, N_Vector yB, 
-                    N_Vector qBdot, void *cvadj_mem);
+static int CVArhsQ(realtype t, N_Vector yB, 
+                   N_Vector qBdot, void *cvadj_mem);
 
 /*=================================================================*/
 /*                  Readibility Constants                          */
@@ -1066,14 +1066,15 @@ int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
 
 int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
 {
+  int flag;
   CVadjMem ca_mem;
 
   if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
   ca_mem  = (CVadjMem) cvadj_mem;
   
-  getY(ca_mem, t, y);
+  flag = getY(ca_mem, t, y);
 
-  return(CV_SUCCESS);
+  return(flag);
 }
 
 /*=================================================================*/
@@ -1833,8 +1834,8 @@ static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)
  * NOTE: f_data actually contains cvadj_mem
  */
 
-static void CVArhs(realtype t, N_Vector yB, 
-                   N_Vector yBdot, void *cvadj_mem)
+static int CVArhs(realtype t, N_Vector yB, 
+                  N_Vector yBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1846,10 +1847,13 @@ static void CVArhs(realtype t, N_Vector yB,
   if (flag != CV_SUCCESS) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
+    /*return(-1);*/
   }
 
   /* Call user's adjoint RHS routine */
   f_B(t, ytmp, yB, yBdot, f_data_B);
+
+  return(0);
 }
 
 /*
@@ -1860,8 +1864,8 @@ static void CVArhs(realtype t, N_Vector yB,
  * NOTE: fQ_data actually contains cvadj_mem
  */
 
-static void CVArhsQ(realtype t, N_Vector yB, 
-                    N_Vector qBdot, void *cvadj_mem)
+static int CVArhsQ(realtype t, N_Vector yB, 
+                   N_Vector qBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
   int flag;
@@ -1873,10 +1877,13 @@ static void CVArhsQ(realtype t, N_Vector yB,
   if (flag != CV_SUCCESS) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
+    /*return(-1);*/
   }
 
   /* Call user's adjoint RHS routine */
   fQ_B(t, ytmp, yB, qBdot, fQ_data_B);
+
+  return(0);
 }
 
 

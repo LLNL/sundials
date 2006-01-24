@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 22:53:38 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:51:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,17 +45,17 @@ static void CVBandFree(CVodeMem cv_mem);
 
 /* Wrapper function for adjoint code */
 
-static void CVAbandJac(long int nB, long int mupperB, 
-                       long int mlowerB, BandMat JB, realtype t, 
-                       N_Vector yB, N_Vector fyB, void *cvadj_mem, 
-                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int CVAbandJac(long int nB, long int mupperB, 
+                      long int mlowerB, BandMat JB, realtype t, 
+                      N_Vector yB, N_Vector fyB, void *cvadj_mem, 
+                      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /* CVBAND DQJac routine */
 
-static void CVBandDQJac(long int n, long int mupper, long int mlower,
-                        BandMat J, realtype t,
-                        N_Vector y, N_Vector fy, void *jac_data,
-                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int CVBandDQJac(long int n, long int mupper, long int mlower,
+                       BandMat J, realtype t,
+                       N_Vector y, N_Vector fy, void *jac_data,
+                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Readability Replacements */
 
@@ -439,10 +439,10 @@ int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB)
  * NOTE: jac_data actually contains cvadj_mem
  */
 
-static void CVAbandJac(long int nB, long int mupperB, 
-                       long int mlowerB, BandMat JB, realtype t, 
-                       N_Vector yB, N_Vector fyB, void *cvadj_mem, 
-                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+static int CVAbandJac(long int nB, long int mupperB, 
+                      long int mlowerB, BandMat JB, realtype t, 
+                      N_Vector yB, N_Vector fyB, void *cvadj_mem, 
+                      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
   CVBandMemB cvbandB_mem;
@@ -456,11 +456,14 @@ static void CVAbandJac(long int nB, long int mupperB,
   if (flag != CV_SUCCESS) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
+    /*return(-1);*/
   }
 
   /* Call user's adjoint band bjacB routine */
   bjac_B(nB, mupperB, mlowerB, JB, t, ytmp, yB, fyB, jac_data_B,
          tmp1B, tmp2B, tmp3B);
+
+  return(0);
 }
 
 /* 
@@ -622,10 +625,10 @@ static void CVBandFree(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
 
-static void CVBandDQJac(long int N, long int mupper, long int mlower,
-                        BandMat J, realtype t,
-                        N_Vector y, N_Vector fy, void *jac_data,
-                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int CVBandDQJac(long int N, long int mupper, long int mlower,
+                       BandMat J, realtype t,
+                       N_Vector y, N_Vector fy, void *jac_data,
+                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, srur;
   N_Vector ftemp, ytemp;
@@ -691,4 +694,6 @@ static void CVBandDQJac(long int N, long int mupper, long int mlower,
   
   /* Increment counter nfeB */
   nfeB += ngroups;
+
+  return(0);
 }

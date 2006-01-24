@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.47 $
- * $Date: 2006-01-19 21:09:28 $
+ * $Revision: 1.48 $
+ * $Date: 2006-01-24 00:50:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -146,12 +146,12 @@ extern "C" {
    * parameter set by the user through the CVodeSetFdata routine.
    * This user-supplied pointer is passed to the user's f function
    * every time it is called.
-   * A CVRhsFn f does not have a return value.
+   * Currently, the return value of a CVRhsFn is ignored.
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVRhsFn)(realtype t, N_Vector y,
-                          N_Vector ydot, void *f_data);
+  typedef int (*CVRhsFn)(realtype t, N_Vector y,
+                         N_Vector ydot, void *f_data);
 
   /*
    * -----------------------------------------------------------------
@@ -166,12 +166,12 @@ extern "C" {
    * The g_data parameter is the same as that passed by the user
    * to the CVodeRootInit routine.  This user-supplied pointer is
    * passed to the user's g function every time it is called.
-   * A CVRootFn g does not have a return value.
+   * Currently, the return value of a CVRootFn is ignored.
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
-                           void *g_data);
+  typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
+                          void *g_data);
 
   /*
    * -----------------------------------------------------------------
@@ -214,15 +214,15 @@ extern "C" {
    * The fS_data parameter is the same as the fS_data parameter
    * set by the user through the CVodeSetSensFdata routine and is
    * passed to the fS function every time it is called.
-   * A CVSensRhsFn function does not have a return value.
+   * Currently, the return value of a CVSensRhsFn function is ignored
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVSensRhsFn)(int Ns, realtype t,
-                              N_Vector y, N_Vector ydot,
-                              N_Vector *yS, N_Vector *ySdot,
-                              void *fS_data,
-                              N_Vector tmp1, N_Vector tmp2);
+  typedef int (*CVSensRhsFn)(int Ns, realtype t,
+                             N_Vector y, N_Vector ydot,
+                             N_Vector *yS, N_Vector *ySdot,
+                             void *fS_data,
+                             N_Vector tmp1, N_Vector tmp2);
 
   /*
    * -----------------------------------------------------------------
@@ -240,15 +240,15 @@ extern "C" {
    * The fS_data parameter is the same as the fS_data parameter
    * set by the user through the CVodeSetSensFdata routine and is
    * passed to the fS1 function every time it is called.
-   * A CVSensRhs1Fn function does not have a return value.
+   * Currently, the return value of a CVSensRhs1Fn function is ignored
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVSensRhs1Fn)(int Ns, realtype t,
-                               N_Vector y, N_Vector ydot,
-                               int iS, N_Vector yS, N_Vector ySdot,
-                               void *fS_data,
-                               N_Vector tmp1, N_Vector tmp2);
+  typedef int (*CVSensRhs1Fn)(int Ns, realtype t,
+                              N_Vector y, N_Vector ydot,
+                              int iS, N_Vector yS, N_Vector ySdot,
+                              void *fS_data,
+                              N_Vector tmp1, N_Vector tmp2);
 
   /*
    * -----------------------------------------------------------------
@@ -262,12 +262,12 @@ extern "C" {
    * The fQ_data parameter is the same as the fQ_data parameter
    * set by the user through the CVodeSetQuadFdata routine and is
    * passed to the fQ function every time it is called.
-   * A CVQuadRhsFn function does not have a return value.
+   * Currently, the return value of a CVQuadRhsFn function is ignored
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVQuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot,
-                              void *fQ_data);
+  typedef int (*CVQuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot,
+                             void *fQ_data);
 
   /*
    * =================================================================

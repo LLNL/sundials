@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 22:53:38 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:51:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -57,8 +57,7 @@ int CVAspilsPrecSetup(realtype t, N_Vector yB,
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    printf("\n\nBad t in interpolation\n\n");
-    exit(1);
+    return(-1);
   } 
 
   /* Call user's adjoint precondB routine */
@@ -92,8 +91,7 @@ int CVAspilsPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    printf("\n\nBad t in interpolation\n\n");
-    exit(1);
+    return(-1);
   } 
 
   /* Call user's adjoint psolveB routine */
@@ -126,8 +124,7 @@ int CVAspilsJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    printf("\n\nBad t in interpolation\n\n");
-    exit(1);
+    return(-1);
   } 
 
   /* Call user's adjoint jtimesB routine */

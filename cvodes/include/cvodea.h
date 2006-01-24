@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2006-01-19 20:45:52 $
+ * $Revision: 1.43 $
+ * $Date: 2006-01-24 00:50:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -94,13 +94,13 @@ extern "C" {
    * -----------------------------------------------------------------
    */
   
-  typedef void (*CVRhsFnB)(realtype t, N_Vector y,
-                           N_Vector yB, N_Vector yBdot,
-                           void *f_dataB);
+  typedef int (*CVRhsFnB)(realtype t, N_Vector y,
+                          N_Vector yB, N_Vector yBdot,
+                          void *f_dataB);
   
-  typedef void (*CVQuadRhsFnB)(realtype t, N_Vector y,
-                               N_Vector yB, N_Vector qBdot,
-                               void *fQ_dataB);
+  typedef int (*CVQuadRhsFnB)(realtype t, N_Vector y,
+                              N_Vector yB, N_Vector qBdot,
+                              void *fQ_dataB);
      
   /* 
    * ===============================================================

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-24 00:50:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -44,9 +44,9 @@ static void CVDenseFree(CVodeMem cv_mem);
 
 /* CVDENSE DQJac routine */
 
-static void CVDenseDQJac(long int n, DenseMat J, realtype t, 
-                         N_Vector y, N_Vector fy, void *jac_data,
-                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int CVDenseDQJac(long int n, DenseMat J, realtype t, 
+                        N_Vector y, N_Vector fy, void *jac_data,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Readability Replacements */
 
@@ -475,9 +475,9 @@ static void CVDenseFree(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
  
-static void CVDenseDQJac(long int N, DenseMat J, realtype t, 
-                         N_Vector y, N_Vector fy, void *jac_data,
-                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int CVDenseDQJac(long int N, DenseMat J, realtype t, 
+                        N_Vector y, N_Vector fy, void *jac_data,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *tmp2_data, *y_data, *ewt_data;
@@ -533,4 +533,6 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
 
   /* Increment counter nfeD */
   nfeD += N;
+
+  return(0);
 }

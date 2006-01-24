@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.55 $
- * $Date: 2006-01-17 23:30:02 $
+ * $Revision: 1.56 $
+ * $Date: 2006-01-24 00:50:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -3168,7 +3168,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
 
   /* Evaluate g at initial t and check for zero values. */
-  gfun (tlo, zn[0], glo, g_data);
+  gfun(tlo, zn[0], glo, g_data);
   nge = 1;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
@@ -3181,7 +3181,8 @@ static int CVRcheck1(CVodeMem cv_mem)
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  gfun (tlo, y, glo, g_data);  nge++;
+  gfun(tlo, y, glo, g_data);
+  nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
     if (ABS(glo[i]) == ZERO) {
@@ -3223,7 +3224,8 @@ static int CVRcheck2(CVodeMem cv_mem)
   if (irfnd == 0) return(CV_SUCCESS);
 
   (void) CVodeGetDky(cv_mem, tlo, 0, y);
-  gfun (tlo, y, glo, g_data);  nge++;
+  gfun(tlo, y, glo, g_data);
+  nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   for (i = 0; i < nrtfn; i++) {
@@ -3244,7 +3246,8 @@ static int CVRcheck2(CVodeMem cv_mem)
   } else {
     (void) CVodeGetDky(cv_mem, tlo, 0, y);
   }
-  gfun (tlo, y, glo, g_data);  nge++;
+  gfun(tlo, y, glo, g_data);
+  nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
     if (ABS(glo[i]) == ZERO) {
@@ -3290,7 +3293,8 @@ static int CVRcheck3(CVodeMem cv_mem)
   }
 
   /* Set ghi = g(thi) and call CVRootfind to search (tlo,thi) for roots. */
-  gfun (thi, y, ghi, g_data);  nge++;
+  gfun(thi, y, ghi, g_data);
+  nge++;
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
   ier = CVRootfind(cv_mem);
   tlo = trout;
@@ -3444,7 +3448,8 @@ static int CVRootfind(CVodeMem cv_mem)
     }
 
     (void) CVodeGetDky(cv_mem, tmid, 0, y);
-    gfun (tmid, y, grout, g_data);  nge++;
+    gfun(tmid, y, grout, g_data);  
+    nge++;
 
     /* Check to see in which subinterval g changes sign, and reset imax.
        Set side = 1 if sign change is on low side, or 2 if on high side.  */  

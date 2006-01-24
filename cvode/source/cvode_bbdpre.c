@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-17 23:30:02 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-24 00:50:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -47,9 +47,9 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
-static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
-                       N_Vector y, N_Vector gy, 
-                       N_Vector ytemp, N_Vector gtemp);
+static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
+                      N_Vector y, N_Vector gy, 
+                      N_Vector ytemp, N_Vector gtemp);
 
 /* Redability replacements */
 
@@ -438,12 +438,12 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  */
 
-static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
-                       N_Vector y, N_Vector gy, 
-                       N_Vector ytemp, N_Vector gtemp)
+static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
+                      N_Vector y, N_Vector gy, 
+                      N_Vector ytemp, N_Vector gtemp)
 {
   CVodeMem cv_mem;
-  realtype    gnorm, minInc, inc, inc_inv;
+  realtype gnorm, minInc, inc, inc_inv;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
 
@@ -453,8 +453,10 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   N_VScale(ONE, y, ytemp);
 
   /* Call cfn and gloc to get base value of g(t,y) */
-  if (cfn != NULL)
+  if (cfn != NULL) {
     cfn (Nlocal, t, y, f_data);
+  }
+
   gloc(Nlocal, t, ytemp, gy, f_data);
 
   /* Obtain pointers to the data for various vectors */
@@ -498,4 +500,6 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
           inc_inv * (gtemp_data[i] - gy_data[i]);
     }
   }
+
+  return(0);
 }

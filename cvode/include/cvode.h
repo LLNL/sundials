@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2006-01-17 23:29:59 $
+ * $Revision: 1.37 $
+ * $Date: 2006-01-24 00:50:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -125,12 +125,12 @@ extern "C" {
  * parameter set by the user through the CVodeSetFdata routine.
  * This user-supplied pointer is passed to the user's f function
  * every time it is called.
- * A CVRhsFn f does not have a return value.
+ * Currently, the return value of a CVRhsFn is ignored.
  * -----------------------------------------------------------------
  */
 
-typedef void (*CVRhsFn)(realtype t, N_Vector y,
-                        N_Vector ydot, void *f_data);
+typedef int (*CVRhsFn)(realtype t, N_Vector y,
+                       N_Vector ydot, void *f_data);
 
 /*
  * -----------------------------------------------------------------
@@ -145,12 +145,12 @@ typedef void (*CVRhsFn)(realtype t, N_Vector y,
  * The g_data parameter is the same as that passed by the user
  * to the CVodeRootInit routine.  This user-supplied pointer is
  * passed to the user's g function every time it is called.
- * A CVRootFn g does not have a return value.
+ * Currently, the return value of a CVRootFn is ignored.
  * -----------------------------------------------------------------
  */
 
-typedef void (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
-                         void *g_data);
+typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
+                        void *g_data);
 
 /*
  * -----------------------------------------------------------------

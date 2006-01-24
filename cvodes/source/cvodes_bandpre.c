@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-17 23:30:21 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-24 00:51:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -47,9 +47,9 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
-static void CVBandPDQJac(CVBandPrecData pdata, 
-                         realtype t, N_Vector y, N_Vector fy, 
-                         N_Vector ftemp, N_Vector ytemp);
+static int CVBandPDQJac(CVBandPrecData pdata, 
+                        realtype t, N_Vector y, N_Vector fy, 
+                        N_Vector ftemp, N_Vector ytemp);
 
 /* Redability replacements */
 
@@ -503,9 +503,9 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  */
 
-static void CVBandPDQJac(CVBandPrecData pdata, 
-                         realtype t, N_Vector y, N_Vector fy, 
-                         N_Vector ftemp, N_Vector ytemp)
+static int CVBandPDQJac(CVBandPrecData pdata, 
+                        realtype t, N_Vector y, N_Vector fy, 
+                        N_Vector ftemp, N_Vector ytemp)
 {
   CVodeMem cv_mem;
   realtype fnorm, minInc, inc, inc_inv, srur;
@@ -560,4 +560,6 @@ static void CVBandPDQJac(CVBandPrecData pdata,
           inc_inv * (ftemp_data[i] - fy_data[i]);
     }
   }
+
+  return(0);
 }

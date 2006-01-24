@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.65 $
- * $Date: 2006-01-19 20:45:56 $
+ * $Revision: 1.66 $
+ * $Date: 2006-01-24 00:51:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -284,15 +284,15 @@ static realtype CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm,
 
 /*----------------*/
 
-static void CVSensRhs(CVodeMem cv_mem, realtype time, 
-                      N_Vector ycur, N_Vector fcur, 
-                      N_Vector *yScur, N_Vector *fScur,
-                      N_Vector temp1, N_Vector temp2);
+static int CVSensRhs(CVodeMem cv_mem, realtype time, 
+                     N_Vector ycur, N_Vector fcur, 
+                     N_Vector *yScur, N_Vector *fScur,
+                     N_Vector temp1, N_Vector temp2);
 
-static void CVSensRhs1(CVodeMem cv_mem, realtype time, 
-                       N_Vector ycur, N_Vector fcur, 
-                       int is, N_Vector yScur, N_Vector fScur,
-                       N_Vector temp1, N_Vector temp2);
+static int CVSensRhs1(CVodeMem cv_mem, realtype time, 
+                      N_Vector ycur, N_Vector fcur, 
+                      int is, N_Vector yScur, N_Vector fScur,
+                      N_Vector temp1, N_Vector temp2);
 
 /*=================================================================*/
 /*             EXPORTED FUNCTIONS IMPLEMENTATION                   */
@@ -5883,7 +5883,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
 
   /* Evaluate g at initial t and check for zero values. */
-  gfun (tlo, zn[0], glo, g_data);
+  gfun(tlo, zn[0], glo, g_data);
   nge = 1;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
@@ -5896,7 +5896,8 @@ static int CVRcheck1(CVodeMem cv_mem)
   tlo += smallh;
   hratio = smallh/h;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  gfun (tlo, y, glo, g_data);  nge++;
+  gfun(tlo, y, glo, g_data);  
+  nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
     if (ABS(glo[i]) == ZERO) {
@@ -5940,7 +5941,8 @@ static int CVRcheck2(CVodeMem cv_mem)
   if (irfnd == 0) return (CV_SUCCESS);
 
   (void) CVodeGetDky(cv_mem, tlo, 0, y);
-  gfun (tlo, y, glo, g_data);  nge++;
+  gfun(tlo, y, glo, g_data);  
+  nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   for (i = 0; i < nrtfn; i++) {
@@ -5961,7 +5963,8 @@ static int CVRcheck2(CVodeMem cv_mem)
   } else {
     (void) CVodeGetDky(cv_mem, tlo, 0, y);
   }
-  gfun (tlo, y, glo, g_data);  nge++;
+  gfun(tlo, y, glo, g_data);
+  nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
     if (ABS(glo[i]) == ZERO) {
@@ -6009,7 +6012,8 @@ static int CVRcheck3(CVodeMem cv_mem)
   }
 
   /* Set ghi = g(thi) and call CVRootfind to search (tlo,thi) for roots. */
-  gfun (thi, y, ghi, g_data);  nge++;
+  gfun(thi, y, ghi, g_data);
+  nge++;
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
   ier = CVRootfind(cv_mem);
   tlo = trout;
@@ -6166,7 +6170,8 @@ static int CVRootfind(CVodeMem cv_mem)
     }
 
     (void) CVodeGetDky(cv_mem, tmid, 0, y);
-    gfun (tmid, y, grout, g_data);  nge++;
+    gfun(tmid, y, grout, g_data);
+    nge++;
 
     /* Check to see in which subinterval g changes sign, and reset imax.
        Set side = 1 if sign change is on low side, or 2 if on high side.  */  
@@ -6441,10 +6446,10 @@ static realtype CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm,
  *  (*) by CVStgrDoErrorTest when restarting from scratch 
  */
 
-static void CVSensRhs(CVodeMem cv_mem, realtype time, 
-                      N_Vector ycur, N_Vector fcur, 
-                      N_Vector *yScur, N_Vector *fScur,
-                      N_Vector temp1, N_Vector temp2)
+static int CVSensRhs(CVodeMem cv_mem, realtype time, 
+                     N_Vector ycur, N_Vector fcur, 
+                     N_Vector *yScur, N_Vector *fScur,
+                     N_Vector temp1, N_Vector temp2)
 {
   int is;
 
@@ -6459,6 +6464,8 @@ static void CVSensRhs(CVodeMem cv_mem, realtype time,
       nfSe++;
     }
   }
+
+  return(0);
 }
 
 /*-----------------------------------------------------------------*/
@@ -6474,14 +6481,16 @@ static void CVSensRhs(CVodeMem cv_mem, realtype time,
  * issued an error message).
  */
 
-static void CVSensRhs1(CVodeMem cv_mem, realtype time, 
-                       N_Vector ycur, N_Vector fcur, 
-                       int is, N_Vector yScur, N_Vector fScur,
-                       N_Vector temp1, N_Vector temp2)
+static int CVSensRhs1(CVodeMem cv_mem, realtype time, 
+                      N_Vector ycur, N_Vector fcur, 
+                      int is, N_Vector yScur, N_Vector fScur,
+                      N_Vector temp1, N_Vector temp2)
 {
   fS1(Ns, time, ycur, fcur, is, yScur, fScur, 
       fS_data, temp1, temp2);
   nfSe++;
+
+  return(0);
 }
 
 /* Undefine Readibility Constants */
@@ -6503,18 +6512,21 @@ static void CVSensRhs1(CVodeMem cv_mem, realtype time,
  * by finite differences
  */
 
-void CVSensRhsDQ(int Ns, realtype t, 
-                 N_Vector y, N_Vector ydot, 
-                 N_Vector *yS, N_Vector *ySdot, 
-                 void *fS_data,  
-                 N_Vector ytemp, N_Vector ftemp)
+int CVSensRhsDQ(int Ns, realtype t, 
+                N_Vector y, N_Vector ydot, 
+                N_Vector *yS, N_Vector *ySdot, 
+                void *fS_data,  
+                N_Vector ytemp, N_Vector ftemp)
 {
   int is;
   
-  for (is=0; is<Ns; is++)
+  for (is=0; is<Ns; is++) {
     CVSensRhs1DQ(Ns, t, y, ydot, is, yS[is], ySdot[is],
                  fS_data, ytemp, ftemp);
   
+  }
+
+  return(0);
 }
 
 /*-----------------------------------------------------------------*/
@@ -6526,11 +6538,11 @@ void CVSensRhsDQ(int Ns, realtype t,
  * equation by finite differences
  */
 
-void CVSensRhs1DQ(int Ns, realtype t, 
-                  N_Vector y, N_Vector ydot, 
-                  int is, N_Vector yS, N_Vector ySdot, 
-                  void *fS_data,
-                  N_Vector ytemp, N_Vector ftemp)
+int CVSensRhs1DQ(int Ns, realtype t, 
+                 N_Vector y, N_Vector ydot, 
+                 int is, N_Vector yS, N_Vector ySdot, 
+                 void *fS_data,
+                 N_Vector ytemp, N_Vector ftemp)
 {
   CVodeMem cv_mem;
   int method;
@@ -6650,5 +6662,6 @@ void CVSensRhs1DQ(int Ns, realtype t,
   /* Increment counter nfeS */
   nfeS += nfel;
   
+  return(0);
 }
 

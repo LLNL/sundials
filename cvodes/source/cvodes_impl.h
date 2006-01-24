@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.24 $
+ * $Date: 2006-01-24 00:51:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,17 +30,17 @@ extern "C" {
 
   /* Prototypes for internal sensitivity rhs DQ functions */
 
-  void CVSensRhsDQ(int Ns, realtype t, 
-                   N_Vector y, N_Vector ydot, 
-                   N_Vector *yS, N_Vector *ySdot, 
-                   void *fS_data,  
-                   N_Vector tempv, N_Vector ftemp);
+  int CVSensRhsDQ(int Ns, realtype t, 
+                  N_Vector y, N_Vector ydot, 
+                  N_Vector *yS, N_Vector *ySdot, 
+                  void *fS_data,  
+                  N_Vector tempv, N_Vector ftemp);
 
-  void CVSensRhs1DQ(int Ns, realtype t, 
-                    N_Vector y, N_Vector ydot, 
-                    int is, N_Vector yS, N_Vector ySdot, 
-                    void *fS_data,
-                    N_Vector tempv, N_Vector ftemp);
+  int CVSensRhs1DQ(int Ns, realtype t, 
+                   N_Vector y, N_Vector ydot, 
+                   int is, N_Vector yS, N_Vector ySdot, 
+                   void *fS_data,
+                   N_Vector tempv, N_Vector ftemp);
 
   /* 
    * =================================================================

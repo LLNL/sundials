@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 22:53:34 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:50:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -139,13 +139,15 @@ extern "C" {
    * tmp1, tmp2, and tmp3 are pointers to memory allocated for
    * vectors of length N which can be used by a CVBandJacFn
    * as temporary storage or work space.
+   *
+   * Currently, the return value of a CVBandJacFn is ignored.
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVBandJacFn)(long int N, long int mupper, long int mlower,
-                              BandMat J, realtype t,
-                              N_Vector y, N_Vector fy, void *jac_data,
-                              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+  typedef int (*CVBandJacFn)(long int N, long int mupper, long int mlower,
+                             BandMat J, realtype t,
+                             N_Vector y, N_Vector fy, void *jac_data,
+                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
   /*
    * -----------------------------------------------------------------
@@ -242,12 +244,12 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVBandJacFnB)(long int nB, long int mupperB,
-                               long int mlowerB, BandMat JB,
-                               realtype t, N_Vector y,
-                               N_Vector yB, N_Vector fyB,
-                               void *jac_dataB, N_Vector tmp1B,
-                               N_Vector tmp2B, N_Vector tmp3B);
+  typedef int (*CVBandJacFnB)(long int nB, long int mupperB,
+                              long int mlowerB, BandMat JB,
+                              realtype t, N_Vector y,
+                              N_Vector yB, N_Vector fyB,
+                              void *jac_dataB, N_Vector tmp1B,
+                              N_Vector tmp2B, N_Vector tmp3B);
   
   /*
    * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-17 23:30:21 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:51:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -48,17 +48,17 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 /* Wrapper functions for adjoint code */
 
-static void CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
-                    void *cvadj_mem);
-
-static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
+static int CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
                    void *cvadj_mem);
+
+static int CVAcfn(long int NlocalB, realtype t, N_Vector yB,
+                  void *cvadj_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 
-static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
-                       N_Vector y, N_Vector gy, 
-                       N_Vector ytemp, N_Vector gtemp);
+static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
+                      N_Vector y, N_Vector gy, 
+                      N_Vector ytemp, N_Vector gtemp);
 
 /* Redability replacements */
 
@@ -468,8 +468,8 @@ void CVBBDPrecFreeB(void *cvadj_mem)
  * NOTE: f_data actually contains cvadj_mem
  */
 
-static void CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
-                    void *cvadj_mem)
+static int CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB, 
+                   void *cvadj_mem)
 {
   CVadjMem ca_mem;
   CVBBDPrecDataB cvbbdB_mem;
@@ -483,10 +483,13 @@ static void CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB,
   if (flag != CV_SUCCESS) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
+    /*return(-1);*/
   } 
 
   /* Call user's adjoint glocB routine */
   gloc_B(NlocalB, t, ytmp, yB, gB, f_data_B);
+
+  return(0);
 }
 
 /*
@@ -497,8 +500,8 @@ static void CVAgloc(long int NlocalB, realtype t, N_Vector yB, N_Vector gB,
  * NOTE: f_data actually contains cvadj_mem
  */
 
-static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
-                   void *cvadj_mem)
+static int CVAcfn(long int NlocalB, realtype t, N_Vector yB,
+                  void *cvadj_mem)
 {
   CVadjMem ca_mem;
   CVBBDPrecDataB cvbbdB_mem;
@@ -514,10 +517,13 @@ static void CVAcfn(long int NlocalB, realtype t, N_Vector yB,
   if (flag != CV_SUCCESS) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
+    /*return(-1)*/
   } 
 
   /* Call user's adjoint cfnB routine */
   cfn_B(NlocalB, t, ytmp, yB, f_data_B);
+
+  return(0);
 }
 
 /* 
@@ -694,12 +700,12 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  */
 
-static void CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
-                       N_Vector y, N_Vector gy, 
-                       N_Vector ytemp, N_Vector gtemp)
+static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, 
+                      N_Vector y, N_Vector gy, 
+                      N_Vector ytemp, N_Vector gtemp)
 {
   CVodeMem cv_mem;
-  realtype    gnorm, minInc, inc, inc_inv;
+  realtype gnorm, minInc, inc, inc_inv;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
 
@@ -709,8 +715,10 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   N_VScale(ONE, y, ytemp);
 
   /* Call cfn and gloc to get base value of g(t,y) */
-  if (cfn != NULL)
+  if (cfn != NULL) {
     cfn (Nlocal, t, y, f_data);
+  }
+
   gloc(Nlocal, t, ytemp, gy, f_data);
 
   /* Obtain pointers to the data for various vectors */
@@ -754,4 +762,6 @@ static void CVBBDDQJac(CVBBDPrecData pdata, realtype t,
           inc_inv * (gtemp_data[i] - gy_data[i]);
     }
   }
+
+  return(0);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-17 23:30:18 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:50:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -153,12 +153,13 @@ extern "C" {
    * preconditioner module.)
    * The f_data parameter is the same as that specified by the user
    * through the CVodeSetFdata routine.
-   * A CVLocalFn gloc does not have a return value.
+   *
+   * Currently, the return value of a CVLocalFn is ignored.
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
-                            N_Vector g, void *f_data);
+  typedef int (*CVLocalFn)(long int Nlocal, realtype t, N_Vector y,
+                           N_Vector g, void *f_data);
 
   /*
    * -----------------------------------------------------------------
@@ -181,11 +182,13 @@ extern "C" {
    * communications done by f if relevant to the evaluation of g.
    * If all necessary communication was done by f, the user can
    * pass NULL for cfn in CVBBDPrecAlloc (see below).
+   *
+   * Currently, the return value of a CVCommFn is ignored.
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
-                           void *f_data);
+  typedef int (*CVCommFn)(long int Nlocal, realtype t, N_Vector y,
+                          void *f_data);
 
   /*
    * -----------------------------------------------------------------
@@ -391,13 +394,13 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  typedef void (*CVLocalFnB)(long int NlocalB, realtype t,
-                             N_Vector y, N_Vector yB, N_Vector gB,
-                             void *f_dataB);
-  
-  typedef void (*CVCommFnB)(long int NlocalB, realtype t,
-                            N_Vector y, N_Vector yB,
+  typedef int (*CVLocalFnB)(long int NlocalB, realtype t,
+                            N_Vector y, N_Vector yB, N_Vector gB,
                             void *f_dataB);
+  
+  typedef int (*CVCommFnB)(long int NlocalB, realtype t,
+                           N_Vector y, N_Vector yB,
+                           void *f_dataB);
 
   /*
    * -----------------------------------------------------------------

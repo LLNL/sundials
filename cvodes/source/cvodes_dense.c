@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 22:53:38 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-24 00:51:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,16 +45,16 @@ static void CVDenseFree(CVodeMem cv_mem);
 
 /* Wrapper function for adjoint code */
 
-static void CVAdenseJac(long int nB, DenseMat JB, realtype t, 
-                        N_Vector yB, N_Vector fyB, void *cvadj_mem,
-                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+static int CVAdenseJac(long int nB, DenseMat JB, realtype t, 
+                       N_Vector yB, N_Vector fyB, void *cvadj_mem,
+                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
 /* CVDENSE DQJac routine */
 
-static void CVDenseDQJac(long int n, DenseMat J, realtype t, 
-                         N_Vector y, N_Vector fy, void *jac_data,
-                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int CVDenseDQJac(long int n, DenseMat J, realtype t, 
+                        N_Vector y, N_Vector fy, void *jac_data,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Readability Replacements */
 
@@ -419,9 +419,9 @@ int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
  * NOTE: jac_data actually contains cvadj_mem
  */
 
-static void CVAdenseJac(long int nB, DenseMat JB, realtype t, 
-                        N_Vector yB, N_Vector fyB, void *cvadj_mem,
-                        N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+static int CVAdenseJac(long int nB, DenseMat JB, realtype t, 
+                       N_Vector yB, N_Vector fyB, void *cvadj_mem,
+                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
   CVDenseMemB cvdenseB_mem;
@@ -435,6 +435,7 @@ static void CVAdenseJac(long int nB, DenseMat JB, realtype t,
   if (flag != CV_SUCCESS) {
     printf("\n\nBad t in interpolation\n\n");
     exit(1);
+    /*return(-1);*/
   }
 
   /* Call user's adjoint dense djacB routine */
@@ -602,9 +603,9 @@ static void CVDenseFree(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
  
-static void CVDenseDQJac(long int N, DenseMat J, realtype t, 
-                         N_Vector y, N_Vector fy, void *jac_data,
-                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int CVDenseDQJac(long int N, DenseMat J, realtype t, 
+                        N_Vector y, N_Vector fy, void *jac_data,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
   realtype *tmp2_data, *y_data, *ewt_data;
@@ -660,4 +661,6 @@ static void CVDenseDQJac(long int N, DenseMat J, realtype t,
 
   /* Increment counter nfeD */
   nfeD += N;
+
+  return(0);
 }

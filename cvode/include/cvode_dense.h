@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:46 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-24 00:50:14 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -96,12 +96,14 @@ extern "C" {
  * tmp1, tmp2, and tmp3 are pointers to memory allocated for
  * vectors of length N which can be used by a CVDenseJacFn
  * as temporary storage or work space.
+ *
+ * Currently, the return value of a CVDenseJacFn is ignored.
  * -----------------------------------------------------------------
  */
 
-typedef void (*CVDenseJacFn)(long int N, DenseMat J, realtype t,
-                             N_Vector y, N_Vector fy, void *jac_data,
-                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+typedef int (*CVDenseJacFn)(long int N, DenseMat J, realtype t,
+                            N_Vector y, N_Vector fy, void *jac_data,
+                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
  * -----------------------------------------------------------------
