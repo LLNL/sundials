@@ -1,0 +1,218 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: Tell the solver that the time step is too large... -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Mon, 23 Jan 2006 06:36:16 &#45;0800 (PST) -->
+<!--X-Message-Id: 43D4E841.2020609@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 003d01c61f8f$9a104620$6801a8c0@ShermsNotebook -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: Tell the solver that the time step is too large...</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00226.html">Date Prev</a>] [<a href="msg00231.html">Date Next</a>] [<a href="msg00225.html">Thread Prev</a>] [<a href="msg00226.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00230">Date Index</a></b>]
+[<b><a href="threads.html#00230">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: Tell the solver that the time step is too large...</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 23 Jan 2006 06:29:21 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Hi Sherm,</pre><br>
+I'd rather have users use a macro like isfinite() in their own code. As far as I know, this is not a 
+macro required by the ANSI-C standard (to which we strive to adhere).<br>
+<br>
+Also, a 'recoverable' error in the user right-hand side function does not necessarily mean that a 
+derivative is NaN. It could be that some quantity (be it a state, a derivative, or some other 
+intermediate other quantity) has now a nonphysical value (such as a negative concentration) which 
+could be remedied by taking a smaller step size.<br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<tt><br>Michael Sherman wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi, Radu. An approach I have used succesfully in the past is to have the
+integrator scan user derivatives for NaN's and infinities using isfinite(),
+then treat the presence of non-finite numbers to mean that the step failed
+and needs to be reduced. Even with a status flag many users are likely to
+neglect this esoteric but ubiquitous issue in their own functions, so it may
+be preferable to handle this in general. Isfinite() is very fast and the
+integrator already makes O(N) passes through states and derivatives, e.g.
+for norms, so the check can be done almost for free.
+Rgds, Sherm</pre><br>
+<pre style="margin: 0em;">-----Original Message-----
+From: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Radu Serban
+Sent: Sunday, January 22, 2006 11:32 AM
+To: sundials-users@llnl.gov
+Subject: Re: Tell the solver that the time step is too large...</pre><br>
+<pre style="margin: 0em;">Andreas,</pre><br>
+<pre style="margin: 0em;">Unfortunately, unlike IDA, the user-supplied functions in CVODE/CVODES
+do not have a return flag. This is something I've wanted to add for a
+while and I may still try to do before the next release. With that, a
+RhsFn would return 0 if successful, a positive value if a recoverable
+error occured (in which case the solver would try to correct and retry),
+and a negative value if an unrecoverable error occured (in which case
+the solver would halt).</pre><br>
+<pre style="margin: 0em;">In the meantime you could try to either:
+1) use CVodeSetMaxStep to specify a maximum length of the step size (if
+you can estimate such a value)
+or
+2) use IDA which has the feature mentioned above.</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<pre style="margin: 0em;">----- Original Message -----
+From: Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;
+Date: Sunday, January 22, 2006 9:53 am
+Subject: Tell the solver that the time step is too large...</pre><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
+here's a problem that I sometimes encounter in CVODE simulations. 
+It happens with fine grids where the gradients between elements 
+can become huge (and also the calculated divergences). When the 
+solver then uses a too large time step, I get overflow/underflow 
+of my floating point numbers and the whole simulation virtually 
+crashes ...
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00225" href="msg00225.html">RE: Tell the solver that the time step is too large...</a></strong>
+<ul><li><em>From:</em> Michael Sherman &lt;msherman@stanford.edu&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00226.html">Re: Tell the solver that the time step is too large...</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00231.html">Re: Tell the solver that the time step is too large...</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00225.html">RE: Tell the solver that the time step is too large...</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00226.html">Re: Tell the solver that the time step is too large...</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00230">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00230">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
