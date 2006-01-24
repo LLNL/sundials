@@ -528,7 +528,7 @@ have the following uses:
 
 \item Use of generic math functions\\ \\
   If \id{SUNDIALS\_USE\_GENERIC\_MATH} is defined, then the functions
-  in \id{sundials\_math.\{h,c\}} will use the \id{pow}, \id{sqrt} and \id{fabs}
+  in \id{sundials\_math.(h,c)} will use the \id{pow}, \id{sqrt} and \id{fabs}
   functions from the standard math library (see \id{math.h}), irregardless of the definition of \id{realtype}.
   Otherwise, if \id{realtype} is defined to be an alias for the \id{float} {\C}-type, then
   {\sundials} will use \id{powf}, \id{sqrtf} and \id{fabsf}.
