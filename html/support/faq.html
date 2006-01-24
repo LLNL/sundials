@@ -90,6 +90,8 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <li><a href="#cvode_tols">How do I choose tolerances in CVODE / CVODES?</a></li>
   <li><a href="#cvode_negvals">How do I control unphysical negative values in CVODE / CVODES?</a></li>
   <li><a href="#cvodes_senstoggle">How do I switch on/off forward sensitivity computations in CVODES?</a></li>
+  <li><a href="#cvodes_plist">What is the role of plist in CVODES?</a></li>
+  <li><a href="#cvodes_pbar">What is the role of pbar in CVODES?</a></li>
   <li></li>
   </ul>
 <li><a href="#ida">IDA</a>
@@ -273,7 +275,7 @@ Instructions to compile SUNDIALS with VC8 - Visual Studio C++ Express 2005
 <a name="inst_cygwin"></a>
 <div class="faq_q">How can I generate shared libraries under cygwin?</div>
 <div class="faq_a">
-In order to create shared libraries (DLLs) under <tt>cygwin</tt>, you must regenerate the
+In order to create shared libraries (DLLs) under <tt>cygwin</tt>, you must <b>regenerate</b> the
 <tt>configure</tt> script using <tt>cygwin</tt>'s autotools and use the <tt>-no-undefined</tt>
 option to <tt>libtool</tt>.
 <ol>
@@ -336,7 +338,7 @@ different noise levels; hence the abstol vector.  It is impossible to
 give any general advice on abstol values, because the appropriate noise
 levels are completely problem-dependent.  The user or modeler hopefully has
 some idea as to what those noise levels are.</li>
-<li> Finally, it is important to pick all the tolerance values conservately,
+<li> Finally, it is important to pick all the tolerance values conservatively,
 because they control the error committed on each individual time step.
 The final (global) errors are some sort of accumulation of those
 per-step errors.  A good rule of thumb is to reduce the tolerances by a
@@ -369,13 +371,13 @@ only in the context of the output medium.  Then the internal values carried
 by the solver are unaffected.  Remember that a small negative value in y
 returned by CVODE, with magnitude comparable to abstol or less,
 is equivalent to zero as far as the computation is concerned.</li>
-<li> The user's right-hand side routine f should never change a
+<li> The user's right-hand side routine f should <b>never</b> change a
 negative value in the solution vector y to a non-negative value,
 as a "solution" to this problem.  This can cause instability.  If the
 f routine cannot tolerate a zero or negative value (e.g. because
 there is a square root or log of it), then the offending value should
 be changed to zero or a tiny positive number in a temporary variable
-(not in the input y vector) for the purposes of computing f(t,y).</li>
+(<b>not</b> in the input y vector) for the purposes of computing f(t,y).</li>
 </ol>
 </div>
 
@@ -385,15 +387,68 @@ be changed to zero or a tiny positive number in a temporary variable
 If you want to turn on and off forward sensitivity calculations during several 
 successive integrations (such as if you were using CVODES within a dynamically-constrained 
 optimization loop, when sometimes you want to only integrate the states and sometimes you 
-also need sensitivities computed), it is most efficient to use CVodeSensToggle. 
+also need sensitivities computed), it is most efficient to use <tt>CVodeSensToggle</tt>. 
 <br><br>
 Sensitivity calculations are enabled by the following functions: 
-CVodeSensMalloc, CVodeSensReInit, and CVodeSensToggle (with TRUE as the second argument) 
-and are disabled by CVodeSensFree (after calling this one, they can be re-enabled only by 
-calling CVodeSensMalloc) and CVodeSensToggle (with FALSE as the second argument). 
+<tt>CVodeSensMalloc</tt>, <tt>CVodeSensReInit</tt>, and <tt>CVodeSensToggle</tt> (with <b>TRUE</b> as the second argument) 
+and are disabled by <tt>CVodeSensFree</tt> (after calling this one, they can be re-enabled <b>only</b> by 
+calling <tt>CVodeSensMalloc</tt>) and <tt>CVodeSensToggle</tt> (with <b>FALSE</b> as the second argument). 
 <br><br>
 An example demonstarting these features is available here:
 <a href="samples/cvfdx1.c">cvfdx1.c</a>.
+</div>
+
+<a name="cvodes_plist"></a>
+<div class="faq_q">What is the role of plist in CVODES?</div>
+<div class="faq_a">
+The argument <tt>plist</tt> to <tt>CVodeSetSensParams</tt> is used to specify the problem parameters 
+with respect to which solution sensitivities are to be computed.
+<br><br>
+<tt>plist</tt> is used <b>only</b> if the sensitivity right-hand sides are evaluated using the 
+internal difference-quotient approximation function. In that case, <tt>plist</tt> should be declared
+as an array of <tt>Ns</tt> integers and should contain 
+the indeces in the array of problem parameters <tt>p</tt> with respect to which sensitivities 
+are desired. For example, if you want to compute sensitivities with respect to the first and 
+third parameters in the <tt>p</tt> array, p[0] and p[2], you need to set 
+<pre>
+plist[0] = 0
+plist[1] = 2
+</pre>
+<br>
+If <tt>plist</tt> is not provided, CVODES will compute sensitivities with respect to the first <tt>Ns</tt>
+parameters in the array <tt>p</tt> (i.e. it will use <tt>plist[i]=i, i=0,1,...Ns</tt>). 
+<br><br>
+If the user provides a function to evaluate the righ-hand sides of the sensitivity equations or if 
+the default values are desired, a <tt>NULL</tt> pointer can be passed to <tt>CVodeSetSensParams</tt>.
+</div>
+
+
+<a name="cvodes_pbar"></a>
+<div class="faq_q">What is the role of pbar in CVODES?</div>
+<div class="faq_a">
+The argument <tt>pbar</tt> to <tt>CVodeSetSensParams</tt> is used to specify scaling factors for
+the problem parameters.
+<br><br>
+<tt>pbar</tt> is used <b>only if</b><br>
+&diams; the internal difference-quotient functions are used for the evaluation of the sensitivity 
+right-hand sides, in which case <tt>pbar</tt> is used in computing an appropriate perturbation 
+for the finite-difference approximation<br>
+<b>or</b><br>
+&diams; the tolerances for the sensitivity variables are estimated automatically by CVODES from those
+specified for the state variables.
+<br><br>
+If provided, <tt>pbar</tt> should be declared as an array of <tt>Ns</tt> <tt>realtype</tt>s and should 
+contain <b>non-zero</b> scaling factors for the <tt>Ns</tt> parameters with respect to which
+sensitivities are to be computed. For non-zero problem parameters, a good choice is
+<pre>
+pbar[i] = p[plist[i]]
+</pre>
+<br>
+If <tt>pbar</tt> is not provided, CVODES will use <tt>pbar[i]=1.0, i=0,1,...Ns</tt>. 
+<br><br>
+If the user provides a function to evaluate the righ-hand sides of the sensitivity equations and also
+specifies tolerances for the sensitivity variables (through <tt>CVodeSetSensTolerances</tt>) or if 
+the default values are desired, a <tt>NULL</tt> pointer can be passed to <tt>CVodeSetSensParams</tt>.
 </div>
 
 
@@ -408,13 +463,13 @@ An example demonstarting these features is available here:
 <a name="ida_tols"></a>
 <div class="faq_q">How do I choose tolerances in IDA?</div>
 <div class="faq_a">
-See <a href="#cvode_tols">How do I choose tolerances in CVODE?</a>
+See <a href="#cvode_tols">How do I choose tolerances in CVODE / CVODES?</a>
 </div>
 
 <a name="ida_negvals"></a>
 <div class="faq_q">How do I control unphysical negative values in IDA?</div>
 <div class="faq_a">
-See <a href="#cvode_negvals">How do I control unphysical negative values in CVODE?</a>
+See <a href="#cvode_negvals">How do I control unphysical negative values in CVODE / CVODES?</a>
 <br>
 IDA provides the option of enforcing positivity or non-negativity
 on components.  But these constraint options should only be exercised if
