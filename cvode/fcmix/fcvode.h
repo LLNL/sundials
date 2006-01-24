@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.57 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.58 $
+ * $Date: 2006-01-24 20:20:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -111,6 +111,8 @@
  * that apply to the serial version of CVODE only, and end with p for
  * those that apply to the parallel version only.
  *
+ * -----------------------------------------------------------------------------
+ *
  * (1) User-supplied right-hand side routine: FCVFUN
  * The user must in all cases supply the following Fortran routine
  *       SUBROUTINE FCVFUN (T, Y, YDOT, IPAR, RPAR, IER)
@@ -167,6 +169,8 @@
  * It must store the error weights in EWT, given the current solution vector Y.
  * On return, set IER = 0 if successful, and nonzero otherwise.
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
+ *
+ * -----------------------------------------------------------------------------
  *
  * (6) Initialization:  FNVINITS / FNVINITP , FCVMALLOC, FCVREINIT
  * 
@@ -272,6 +276,8 @@
  *
  * FCVSETIIN and FCVSETRIN return IER = 0 if successful and IER < 0 if an 
  * error occured.
+ *
+ * -----------------------------------------------------------------------------
  *
  * (7) Specification of linear system solution method.
  * In the case of a stiff system, the implicit BDF method involves the solution
@@ -437,32 +443,9 @@
  * preconditioner linear system requires the following call:
  *       CALL FCVSPBCGSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T,Y,FY,R,Z,GAMMA,DELTA,LR,IPAR,RPAR,VT,IER)
- *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*), IPAR(*), RPAR(*)
- * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
- * must solve the preconditioner linear system Pz = r, where r = R is input, 
- * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
- * and the right preconditioner if LR = 2.  The preconditioner (or the product
- * of the left and right preconditioners if both are nontrivial) should be an 
- * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
- * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
- * 
- * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
- *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*), IPAR(*), RPAR(*) 
- * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
- * perform any evaluation of Jacobian-related data and preprocessing needed
- * for the solution of the preconditioner linear systems by FCVPSOL.
- * The JOK argument allows for Jacobian data to be saved and reused:  If 
- * JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
- * copy of it may be reused, and the preconditioner constructed from it.
- * On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
- * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
- * recoverable error occurred, and set IER negative if a non-recoverable error
- * occurred.
- * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
- * 
+ * The user-supplied routines FCVPSOL and FCVPSET must have the forms
+ * described above (see 7.4)
+ *
  * Optional outputs specific to the SPBCG case are:
  *        LENRWLS = IOUT(13) from CVSpbcgGetWorkSpace
  *        LENIWLS = IOUT(14) from CVSpbcgGetWorkSpace
@@ -507,31 +490,8 @@
  * preconditioner linear system requires the following call:
  *       CALL FCVSPTFQMRSETPREC(FLAG, IER)
  * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FCVPSOL must have the form:
- *       SUBROUTINE FCVPSOL (T,Y,FY,R,Z,GAMMA,DELTA,LR,IPAR,RPAR,VT,IER)
- *       DIMENSION Y(*), FY(*), VT(*), R(*), Z(*), IPAR(*), RPAR(*)
- * Typically this routine will use only NEQ, T, Y, GAMMA, R, LR, and Z.  It
- * must solve the preconditioner linear system Pz = r, where r = R is input, 
- * and store the solution z in Z.  Here P is the left preconditioner if LR = 1
- * and the right preconditioner if LR = 2.  The preconditioner (or the product
- * of the left and right preconditioners if both are nontrivial) should be an 
- * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
- * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
- * 
- * The user-supplied routine FCVPSET must be of the form:
- *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,V1,V2,V3,IER)
- *       DIMENSION Y(*), FY(*), V1(*), V2(*), V3(*), IPAR(*), RPAR(*)
- * Typically this routine will use only NEQ, T, Y, JOK, and GAMMA. It must
- * perform any evaluation of Jacobian-related data and preprocessing needed
- * for the solution of the preconditioner linear systems by FCVPSOL.
- * The JOK argument allows for Jacobian data to be saved and reused:  If 
- * JOK = 0, this data should be recomputed from scratch.  If JOK = 1, a saved
- * copy of it may be reused, and the preconditioner constructed from it.
- * On return, set JCUR = 1 if Jacobian data was computed, and 0 otherwise.
- * Also on return, set IER = 0 if FCVPSET was successful, set IER positive if a 
- * recoverable error occurred, and set IER negative if a non-recoverable error
- * occurred.
- * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
+ * The user-supplied routines FCVPSOL and FCVPSET must have the forms
+ * described above (see 7.4)
  * 
  * Optional outputs specific to the SPTFQMR case are:
  *        LENRWLS = IOUT(13) from CVSptfqmrGetWorkSpace
@@ -552,6 +512,8 @@
  *       CALL FCVSPTFQMRREINIT(IPRETYPE, MAXL, DELT, IER)              
  * The arguments have the same meanings as for FCVSPTFQMR.
  *
+ * -----------------------------------------------------------------------------
+ *
  * (8) The integrator: FCVODE
  * Carrying out the integration is accomplished by making calls as follows:
  *       CALL FCVODE (TOUT, T, Y, ITASK, IER)
@@ -569,6 +531,8 @@
  *         values -1 ... -10 are various failure modes (see CVODE manual).
  * The current values of the optional outputs are available in IOUT and ROUT.
  * 
+ * -----------------------------------------------------------------------------
+ *
  * (9) Computing solution derivatives: FCVDKY
  * To obtain a derivative of the solution, of order up to the current method
  * order, make the following call:
@@ -579,6 +543,8 @@
  * DKY = array containing computed K-th derivative of y on return
  * IER = return flag: = 0 for success, < 0 for illegal argument.
  * 
+ * -----------------------------------------------------------------------------
+ *
  * (10) Memory freeing: FCVFREE 
  * To free the internal memory created by the calls to FCVMALLOC and
  * FNVINITS or FNVINITP, make the call
@@ -866,6 +832,7 @@ extern "C" {
 #endif
 
   /* Type for user data */
+
   typedef struct {
     realtype *rpar;
     long int *ipar;

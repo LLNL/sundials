@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.26 $
+ * $Date: 2006-01-24 20:20:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -58,7 +58,7 @@ void FCV_SPGMRSETJAC(int *flag, int *ier)
     *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
+    *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, cv_mem->cv_f_data);
   }
 }
 
@@ -72,7 +72,7 @@ void FCV_SPBCGSETJAC(int *flag, int *ier)
     *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
+    *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, cv_mem->cv_f_data);
   }
 }
 
@@ -86,7 +86,7 @@ void FCV_SPTFQMRSETJAC(int *flag, int *ier)
     *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, NULL);
+    *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, cv_mem->cv_f_data);
   }
 }
 
