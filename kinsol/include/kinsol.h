@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2006-01-17 23:30:45 $
+ * $Revision: 1.31 $
+ * $Date: 2006-01-25 22:18:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -105,12 +105,12 @@ extern "C" {
  * pointer.
  * 
  * Note: The user-defined routine (internally referenced by a
- * a pointer (type KINSysFn) named func) should have a void return
- * value type.
+ * a pointer (type KINSysFn) named func) should have an 'int' return
+ * value type. However, the return value is currently ignored.
  * -----------------------------------------------------------------
  */
 
-typedef void (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
+typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 22:18:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -59,7 +59,7 @@ typedef struct {
 #define Ith(v,i)    NV_Ith_S(v,i-1)   
 
 /* Functions Called by the KINSOL Solver */
-static void func(N_Vector u, N_Vector f, void *f_data);
+static int func(N_Vector u, N_Vector f, void *f_data);
 
 /* Private Helper Functions */
 static void SetInitialGuess1(N_Vector u, UserData data);
@@ -261,7 +261,7 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
  * System function for predator-prey system 
  */
 
-static void func(N_Vector u, N_Vector f, void *f_data)
+static int func(N_Vector u, N_Vector f, void *f_data)
 {
   realtype *udata, *fdata;
   realtype x1, l1, L1, x2, l2, L2;
@@ -289,6 +289,7 @@ static void func(N_Vector u, N_Vector f, void *f_data)
   fdata[4] = l2 - x2 + lb[1];
   fdata[5] = L2 - x2 + ub[1];
 
+  return(0);
 }
 
 /*

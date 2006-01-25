@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.29 $
+ * $Date: 2006-01-25 22:18:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -73,12 +73,12 @@
 
      The user must in all cases supply the following Fortran routine:
 
-       SUBROUTINE FKFUN (UU, FVAL)
+       SUBROUTINE FKFUN (UU, FVAL, IER)
        DIMENSION UU(*), FVAL(*)
 
      It must set the FVAL array to f(u), the system function, as a function
      of the array UU = u. Here UU and FVAL are vectors (distributed in the
-     parallel case).
+     parallel case). IER is a return flag (currently not used).
 
  (2) Optional user-supplied Jacobian-vector product routine: FKJTIMES
 
@@ -86,7 +86,7 @@
      of the system Jacobian and a given vector. The user-supplied function
      must have the following form:
 
-       SUBROUTINE FKJTIMES(V, Z, NEWU, UU, IER)
+       SUBROUTINE FKJTIMES (V, Z, NEWU, UU, IER)
        DIMENSION V(*), Z(*), UU(*)
 
      This must set the array Z to the product J*V, where J is the Jacobian
@@ -113,7 +113,7 @@
 
        The user must supply a subroutine of the following form:
 
-         SUBROUTINE FKLOCFN (NLOC, ULOC, GLOC)
+         SUBROUTINE FKLOCFN (NLOC, ULOC, GLOC, IER)
          DIMENSION ULOC(*), GLOC(*) 
 
        The routine is used to compute the function g(u) which approximates the
@@ -122,13 +122,13 @@
        mathematically identical to f is allowed. It takes as input the local
        vector length (NLOC) and the local real solution array ULOC. It is to
        compute the local part of g(u) and store the result in the realtype
-       array GLOC.
+       array GLOC. IER is a return flag (currently not used).
 
  (3.2) Communication function: FKCOMMFN
 
        The user must also supply a subroutine of the following form:
 
-         SUBROUTINE FKCOMMFN (NLOC, ULOC)
+         SUBROUTINE FKCOMMFN (NLOC, ULOC, IER)
          DIMENSION ULOC(*)
 
        The routine is used to perform all inter-process communication necessary
@@ -138,7 +138,8 @@
        work space defined by the user, and made available to FKLOCFN. Each call
        to the FKCOMMFN function is preceded by a call to FKFUN with the same
        arguments. Thus FKCOMMFN can omit any communications done by FKFUN if
-       relevant to the evaluation of g.
+       relevant to the evaluation of g. IER is a return flag (currently not
+       used).
 
  (4) Initialization: FNVINITP, FKINMALLOC, FKINBBDINIT, and FKINBBDSP*
 
@@ -391,8 +392,8 @@ void FKIN_BBDFREE(void);
  * -----------------------------------------------------------------
  */
 
-void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data);
-void FKINgcomm(long int Nloc, N_Vector uu, void *f_data);
+int FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data);
+int FKINgcomm(long int Nloc, N_Vector uu, void *f_data);
 
 /*
  * -----------------------------------------------------------------

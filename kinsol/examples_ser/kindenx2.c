@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 22:18:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,7 +45,7 @@
 #define Ith(v,i)    NV_Ith_S(v,i-1)
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
-static void func(N_Vector y, N_Vector f, void *f_data);
+static int func(N_Vector y, N_Vector f, void *f_data);
 static int jac(long int N, DenseMat J, 
                N_Vector y, N_Vector f, void *jac_data,
                N_Vector tmp1, N_Vector tmp2);
@@ -158,7 +158,7 @@ int main()
  * System function 
  */
 
-static void func(N_Vector y, N_Vector f, void *f_data)
+static int func(N_Vector y, N_Vector f, void *f_data)
 {
   realtype *yd, *fd;
 
@@ -226,6 +226,7 @@ static void func(N_Vector y, N_Vector f, void *f_data)
   fd[6] = eq7; fd[14] = lb7; fd[22] = ub7;
   fd[7] = eq8; fd[15] = lb8; fd[23] = ub8;
 
+  return(0);
 }
 
 /*

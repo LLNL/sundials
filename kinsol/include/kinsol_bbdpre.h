@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-17 23:30:45 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 22:18:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -127,8 +127,7 @@ extern "C" {
  * data block f_data.
  *
  * The KINCommFn gcomm is expected to save communicated data in
- * space defined with the structure *f_data. Note: A KINCommFn
- * function does not have a return value.
+ * space defined with the structure *f_data.
  *
  * Each call to the KINCommFn is preceded by a call to the system
  * function func at the current iterate uu. Thus functions of the
@@ -136,10 +135,13 @@ extern "C" {
  * relevant to the evaluation of the KINLocalFn function. If all
  * necessary communication was done in func, the user can pass
  * NULL for gcomm in the call to KINBBDPrecAlloc (see below).
+ *
+ * Note: A KINCommFn function has an 'int' return value. However,
+ * the return value is currently ignored.
  * -----------------------------------------------------------------
  */
 
-typedef void (*KINCommFn)(long int Nlocal, N_Vector u, void *f_data);
+typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *f_data);
 
 /*
  * -----------------------------------------------------------------
@@ -160,12 +162,13 @@ typedef void (*KINCommFn)(long int Nlocal, N_Vector u, void *f_data);
  * save communicated data in work space defined by the user and
  * made available to the preconditioner function for the problem.
  *
- * Note: A KINLocalFn function does not have a return value.
+ * Note: A KINLocalFn function has an 'int' return value. However,
+ * the return value is currenty ignored.
  * -----------------------------------------------------------------
  */
 
-typedef void (*KINLocalFn)(long int Nlocal, N_Vector uu,
-                           N_Vector gval, void *f_data);
+typedef int (*KINLocalFn)(long int Nlocal, N_Vector uu,
+                          N_Vector gval, void *f_data);
 
 /*
  * -----------------------------------------------------------------

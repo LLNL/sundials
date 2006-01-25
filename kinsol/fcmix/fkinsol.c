@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.41 $
+ * $Date: 2006-01-25 22:18:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -64,7 +64,7 @@ int KIN_ls;
 extern "C" {
 #endif
 
-extern void FK_FUN(realtype*, realtype*);
+extern void FK_FUN(realtype*, realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -397,14 +397,15 @@ void FKIN_FREE(void)
  * ----------------------------------------------------------------
  */
 
-void FKINfunc(N_Vector uu, N_Vector fval, void *f_data)
+int FKINfunc(N_Vector uu, N_Vector fval, void *f_data)
 {
   realtype *udata, *fdata;
+  int ier;
 
   udata = N_VGetArrayPointer(uu);
   fdata = N_VGetArrayPointer(fval);
 
-  FK_FUN(udata, fdata);
+  FK_FUN(udata, fdata, &ier);
 
-  return;
+  return(0);
 }

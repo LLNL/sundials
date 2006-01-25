@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 22:18:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -152,7 +152,7 @@ typedef struct {
 
 /* Functions Called by the KINSol Solver */
 
-static void funcprpr(N_Vector cc, N_Vector fval, void *f_data);
+static int funcprpr(N_Vector cc, N_Vector fval, void *f_data);
 
 static int Precondbd(N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale,
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
  *  by a call to fcalcprpr. 
  */
 
-static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
+static int funcprpr(N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype *cdata, *fvdata;
   UserData data;
@@ -357,7 +357,9 @@ static void funcprpr(N_Vector cc, N_Vector fval, void *f_data)
   ccomm (cdata, data);
 
   /* Call fcalcprpr to calculate all right-hand sides */
-  fcalcprpr (cc, fval, data); 
+  fcalcprpr (cc, fval, data);
+
+  return(0);
 }
 
 /*

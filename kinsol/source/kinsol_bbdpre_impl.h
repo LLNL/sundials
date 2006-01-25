@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 22:18:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -77,9 +77,9 @@ typedef struct {
 
 /* KINBBDPrecAlloc error messages */
 
-#define KINBBDALLOC      "KINBBDPrecAlloc-- "
-#define MSGBBD_KINMEM_NULL  KINBBDALLOC "KINSOL Memory is NULL.\n\n"
-#define MSGBBD_BAD_NVECTOR  KINBBDALLOC "A required vector operation is not implemented.\n\n"
+#define KINBBDALLOC        "KINBBDPrecAlloc-- "
+#define MSGBBD_KINMEM_NULL KINBBDALLOC "KINSOL Memory is NULL.\n\n"
+#define MSGBBD_BAD_NVECTOR KINBBDALLOC "A required vector operation is not implemented.\n\n"
 
 /* KINBBDPrecGet* error message */
 

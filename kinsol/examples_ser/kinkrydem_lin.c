@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-11 22:50:46 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-25 22:18:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -156,7 +156,7 @@ typedef struct {
 
 /* Functions Called by the KINSOL Solver */
 
-static void func(N_Vector cc, N_Vector fval, void *f_data);
+static int func(N_Vector cc, N_Vector fval, void *f_data);
 
 static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
@@ -372,7 +372,7 @@ int main(void)
  * System function for predator-prey system 
  */
 
-static void func(N_Vector cc, N_Vector fval, void *f_data)
+static int func(N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
   long int jx, jy, is, idyu, idyl, idxr, idxl;
@@ -419,12 +419,14 @@ static void func(N_Vector cc, N_Vector fval, void *f_data)
         /* Compute the total rate value at (xx,yy) */
         fxy[is] = (coy)[is] * (dcyui - dcyli) +
           (cox)[is] * (dcxri - dcxli) + rxy[is];
-        
+
       } /* end of is loop */
-      
+
     } /* end of jx loop */
-    
-  } /* end of jy loop */  
+
+  } /* end of jy loop */
+
+  return(0);
 }
 
 /*

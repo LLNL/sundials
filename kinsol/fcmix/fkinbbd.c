@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.27 $
+ * $Date: 2006-01-25 22:18:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -50,8 +50,8 @@
 extern "C" {
 #endif
 
-extern void FK_LOCFN(long int*, realtype*, realtype*);
-extern void FK_COMMFN(long int*, realtype*);
+extern void FK_LOCFN(long int*, realtype*, realtype*, int*);
+extern void FK_COMMFN(long int*, realtype*, int*);
 
 #ifdef __cplusplus
 }
@@ -133,20 +133,21 @@ void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier)
  * ----------------------------------------------------------------
  */
 
-void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data)
+int FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data)
 {
   realtype *uloc, *gloc;
+  int ier;
 
   uloc = gloc = NULL;
 
   uloc = N_VGetArrayPointer(uu);
   gloc = N_VGetArrayPointer(gval);
 
-  FK_LOCFN(&Nloc, uloc, gloc);
+  FK_LOCFN(&Nloc, uloc, gloc, &ier);
 
   N_VSetArrayPointer(gloc, gval);
 
-  return;
+  return(0);
 }
 
 /*
@@ -158,17 +159,18 @@ void FKINgloc(long int Nloc, N_Vector uu, N_Vector gval, void *f_data)
  * ----------------------------------------------------------------
  */
 
-void FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
+int FKINgcomm(long int Nloc, N_Vector uu, void *f_data)
 {
   realtype *uloc;
+  int ier;
 
   uloc = NULL;
 
   uloc = N_VGetArrayPointer(uu);
   
-  FK_COMMFN(&Nloc, uloc);
+  FK_COMMFN(&Nloc, uloc, &ier);
 
-  return;
+  return(0);
 }
 
 /*

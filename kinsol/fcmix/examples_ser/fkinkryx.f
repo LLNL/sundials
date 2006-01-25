@@ -1,7 +1,7 @@
       program fkinkryx
 c     ----------------------------------------------------------------
-c     $Revision: 1.1 $
-c     $Date: 2005-12-08 21:05:39 $
+c     $Revision: 1.2 $
+c     $Date: 2006-01-25 22:18:35 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -121,10 +121,11 @@ c * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 c     The function defining the system f(u) = 0 must be defined by a Fortran
 c     function of the following form.
       
-      subroutine fkfun(uu, fval)
+      subroutine fkfun(uu, fval, ier)
 
       implicit none
 
+      integer ier
       integer*4 neq, i
       double precision fval(*), uu(*)
 

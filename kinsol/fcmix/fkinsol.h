@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.40 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.41 $
+ * $Date: 2006-01-25 22:18:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -45,7 +45,7 @@
  The user-supplied functions, each with the corresponding interface function
  which calls it (and its type within KINSOL), are as follows:
 
-   FKFUN    : called by the interface function FKINfunc of type SysFn
+   FKFUN    : called by the interface function FKINfunc of type KINSysFn
    FKDJAC   : called by the interface function FKINDenseJac of type
               KINDenseJacFn
    FKBJAC   : called by the interface function FKINBandJac of type
@@ -83,12 +83,13 @@
 
      The user must in all cases supply the following Fortran routine:
 
-       SUBROUTINE FKFUN (UU, FVAL)
+       SUBROUTINE FKFUN (UU, FVAL, IER)
        DIMENSION UU(*), FVAL(*)
 
      It must set the FVAL array to f(u), the system function, as a
      function of the array UU = u. Here UU and FVAL are arrays representing
      vectors, which are distributed vectors in the parallel case.
+     IER is a return flag (currently not used).
 
  (2s) Optional user-supplied dense Jacobian approximation routine: FKDJAC
   
@@ -738,7 +739,7 @@ void FKIN_SPGMRSETPREC(int *flag, int *ier);
  * -----------------------------------------------------------------
  */
 
-void FKINfunc(N_Vector uu, N_Vector fval, void *f_data);
+int FKINfunc(N_Vector uu, N_Vector fval, void *f_data);
 
 int FKINDenseJac(long int N, DenseMat J, N_Vector uu, N_Vector fval,
                  void *jac_data, N_Vector vtemp1, N_Vector vtemp2);

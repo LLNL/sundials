@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:59 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 22:18:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -125,7 +125,7 @@ typedef int (*KINBandJacFn)(long int N, long int mupper, long int mlower,
  */
 
 int KINBand(void *kinmem, long int N,
-           long int mupper, long int mlower);
+            long int mupper, long int mlower);
 
 /*
  * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 22:18:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -155,11 +155,11 @@ typedef struct {
 
 /* Function called by the KINSol Solver */
 
-static void func(N_Vector cc, N_Vector fval, void *f_data);
+static int func(N_Vector cc, N_Vector fval, void *f_data);
 
-static void ccomm(long int Nlocal, N_Vector cc, void *data);
+static int ccomm(long int Nlocal, N_Vector cc, void *data);
 
-static void func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data);
+static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data);
 
 /* Private Helper Functions */
 
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
  * between processors of data needed to calculate f. 
  */
 
-static void ccomm(long int Nlocal, N_Vector cc, void *userdata)
+static int ccomm(long int Nlocal, N_Vector cc, void *userdata)
 {
 
   realtype *cdata, *cext, buffer[2*NUM_SPECIES*MYSUB];
@@ -378,13 +378,14 @@ static void ccomm(long int Nlocal, N_Vector cc, void *userdata)
   /* Finish receiving boundary data from neighboring PEs */
   BRecvWait(request, isubx, isuby, nsmxsub, cext, buffer);
 
+  return(0);
 }
 
 /*
  * System function for predator-prey system - calculation part 
  */
 
-static void func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data)
+static int func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data)
 {
   realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
   realtype *cext, dely, delx, *cdata;
@@ -485,7 +486,9 @@ static void func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data
       
     } /* end of jx loop */
     
-  } /* end of jy loop */  
+  } /* end of jy loop */
+
+  return(0);
 }
 
 /*
@@ -494,7 +497,7 @@ static void func_local(long int Nlocal, N_Vector cc, N_Vector fval, void *f_data
  * by a call to func_local. 
  */
 
-static void func(N_Vector cc, N_Vector fval, void *f_data)
+static int func(N_Vector cc, N_Vector fval, void *f_data)
 {
   UserData data;
 
@@ -505,6 +508,8 @@ static void func(N_Vector cc, N_Vector fval, void *f_data)
 
   /* Call func_local to calculate all right-hand sides */
   func_local(data->Nlocal, cc, fval, data);
+
+  return(0);
 }
 
 /*

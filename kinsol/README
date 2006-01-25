@@ -122,7 +122,7 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
    - added nonlinear residual monitoring scheme to control Jacobian updating
      when a direct linear solver is used (modified Newton iteration)
 
-- Changes to user-callable functions
+- Changes to user interface
    - changed argument of KINFree and KINBBDPrecFree to be the address of 
      the respective memory block pointer, so that its NULL value is 
      propagated back to the calling function.
@@ -167,7 +167,6 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
      subdirectory of the install include directory.
    - the KINSOL library now contains all shared object files (there is no separate
      libsundials_shared library anymore)
-
 
 v. 2.2.2 (Mar. 2005) ---> v. 2.3.0 (Apr. 2005)
 ----------------------------------------------
