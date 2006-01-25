@@ -1,13 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: RE: Building SUNDIALS/CVODE on Windows -->
-<!--X-From-R13: Vreoreg Enheb <Vreoreg_EnhebNxtv.rqh> -->
-<!--X-Date: Tue, 24 Jan 2006 12:45:06 &#45;0800 (PST) -->
-<!--X-Message-Id: 601BBB4D9640CB4693A2384E4B37872E01E61F30@dell2650&#45;0550.kgi.edu -->
+<!--X-Subject: Error message handling -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 25 Jan 2006 09:39:06 &#45;0800 (PST) -->
+<!--X-Message-Id: 43D7B64C.1090308@llnl.gov -->
 <!--X-Content-Type: text/plain -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>RE: Building SUNDIALS/CVODE on Windows</title>
+<title>Error message handling</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00245.html">Date Prev</a>] [<a href="msg00247.html">Date Next</a>] [<a href="msg00253.html">Thread Prev</a>] [<a href="msg00250.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00246">Date Index</a></b>]
-[<b><a href="threads.html#00246">Thread Index</a></b>]
+[<a href="msg00259.html">Date Prev</a>] [<a href="msg00261.html">Date Next</a>] [<a href="msg00257.html">Thread Prev</a>] [<a href="msg00261.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00260">Date Index</a></b>]
+[<b><a href="threads.html#00260">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>RE: Building SUNDIALS/CVODE on Windows</h1>
+<h1>Error message handling</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Herbert Sauro &lt;<a href="mailto:Herbert_Sauro%40kgi.edu">Herbert_Sauro@kgi.edu</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 24 Jan 2006 12:39:07 -0800</td>
+Wed, 25 Jan 2006 09:33:00 -0800</td>
 </tr>
 
 </table>
@@ -100,77 +100,76 @@ Tue, 24 Jan 2006 12:39:07 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>
-I'm sorry, I've not been following the emails as closely as I should. I
-should say it is not difficult to build covode on unix systems once one
-knows how to do it.
+<pre style="margin: 0em;">Wow,</pre><br>
+I didn't realize this was such a big issue for so many of of our users...<br>
+Critical mass has certainly been reached :-) to consider a different solution for error message 
+handling (and to warrant a new thread on the mailing list).<br>
+<br>
+The solution that seems most feasible (and in line with the SUNDIALS user interface) is that 
+suggested by Andreas, namely allowing for an optional user-supplied error handling function (with a 
+default probably defaulting to the current error message handling).<br>
+<br>
+Without having really thought it through, I see a couple of issues (I'll use 
+CVODE as an example):<br><br>
+1) This would still leave out the &quot;memory NULL&quot; error. In each function that receives as first 
+argument the solver (or preconditioner) memory pointer an error is returned if this pointer is NULL 
+(by the way, this is one of the reasons why it's always good practice to initialize such pointers to 
+NULL before calling a function like CVodeCreate). But then we couldn't access the error handling 
+function stored in cvodemem...<br>
+<br>
+2) Theoretically, each module (e.g. linear solver) should have its own error handling function 
+(since we allow for users to define new such modules). But that is probably overkill, so we need to 
+think of a mechanism that would allow using the same function.<br>
+Now we have the problem that errors cannot be uniquely identified only through the error code (by 
+the way, Alan G., this is the reason why the same error code is - apparently - returned for 
+different errors: they come from different modules. We cannot force a user writing a new linear 
+solver modules to use a set of error codes disjunct from that used by the main CVODE solver).<br>
+So maybe the function type for such an error handling function should also contain an argument 
+(const char*) identifying the module?<br>
+   void error_handler(int error_code, const char *module, const char *msg, void *data);<br>
+<br>
+Please feel free to post comments and/or suggestions. There may be other issues I have overlooked. 
+I'll talk it over with the rest of our team and think of a prototype that I would post here for 
+comments.<br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
 
-Herbert 
-
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
------Original Message-----
-From: Radu Serban [<a  href="mailto:serban1@llnl.gov">mailto:serban1@llnl.gov</a>] 
-Sent: Tuesday, January 24, 2006 10:53 AM
-To: sundials-users@llnl.gov
-Subject: Re: Building SUNDIALS/CVODE on Windows
-
-Herbert Sauro wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
-We built CVODE using cygwin aswell but it did require some knowledge
-of how make scripts are used under Unix. This is not something windows
-developers may be aware of (just as Unix developers may not be aware of
-how to use Visual Studio). However, if it were at all possible I would
-recommend providing some VS project files with the distribution as it
-makes installation for windows users a trivial exercise.
-
-Herbert Sauro
-</blockquote>
-As I must have already mentioned in a previous message, we've updated
-the documentation for the next release to include more details on
-building SUNDIALS without the *NIX configure script. We list there what
-files are needed, where they are located, provide a sample
-sundials_config.h header file, etc.
-
-Also, the new website will have a FAQ section which already contains
-several entries on installation questions. I think that would be the
-best place to provide project files for VC, Borland C++, etc. 
-None of us here use any of these so one of you would have to provide
-them. Please email them to me and I will add them to the website.
-
---Radu
-</blockquote>
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00261" href="msg00261.html">Re: Error message handling</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00245.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00259.html">RE: error messages and logging</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00247.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00261.html">Re: Error message handling</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00253.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00257.html">RE: error messages and logging</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00250.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00261.html">Re: Error message handling</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00246">
+<li><a href="maillist.html#00260">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00246">
+<li><a href="threads.html#00260">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

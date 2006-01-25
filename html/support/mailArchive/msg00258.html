@@ -1,8 +1,8 @@
 <!-- MHonArc v2.6.10 -->
 <!--X-Subject: RE: Building SUNDIALS/CVODE on Windows -->
 <!--X-From-R13: Vreoreg Enheb <Vreoreg_EnhebNxtv.rqh> -->
-<!--X-Date: Tue, 24 Jan 2006 12:45:06 &#45;0800 (PST) -->
-<!--X-Message-Id: 601BBB4D9640CB4693A2384E4B37872E01E61F30@dell2650&#45;0550.kgi.edu -->
+<!--X-Date: Wed, 25 Jan 2006 09:04:30 &#45;0800 (PST) -->
+<!--X-Message-Id: 601BBB4D9640CB4693A2384E4B37872E01D623BB@dell2650&#45;0550.kgi.edu -->
 <!--X-Content-Type: text/plain -->
 <!--X-Head-End-->
 <html>
@@ -66,9 +66,9 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00245.html">Date Prev</a>] [<a href="msg00247.html">Date Next</a>] [<a href="msg00253.html">Thread Prev</a>] [<a href="msg00250.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00246">Date Index</a></b>]
-[<b><a href="threads.html#00246">Thread Index</a></b>]
+[<a href="msg00257.html">Date Prev</a>] [<a href="msg00259.html">Date Next</a>] [<a href="msg00255.html">Thread Prev</a>] [<a href="msg00257.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00258">Date Index</a></b>]
+[<b><a href="threads.html#00258">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
@@ -90,7 +90,7 @@ Herbert Sauro &lt;<a href="mailto:Herbert_Sauro%40kgi.edu">Herbert_Sauro@kgi.edu
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 24 Jan 2006 12:39:07 -0800</td>
+Wed, 25 Jan 2006 08:58:01 -0800</td>
 </tr>
 
 </table>
@@ -101,44 +101,66 @@ Tue, 24 Jan 2006 12:39:07 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre>
-I'm sorry, I've not been following the emails as closely as I should. I
-should say it is not difficult to build covode on unix systems once one
-knows how to do it.
+Hi Emery, your method must certainly work, it would be nice if there was 
+someway to do a simuilar thing without changing the CVODE code, although a 
+global replace doesn't sound too difficult!
 
-Herbert 
+Herbert
 
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+PS I must ring you this week.
+
 -----Original Message-----
-From: Radu Serban [<a  href="mailto:serban1@llnl.gov">mailto:serban1@llnl.gov</a>] 
-Sent: Tuesday, January 24, 2006 10:53 AM
-To: sundials-users@llnl.gov
-Subject: Re: Building SUNDIALS/CVODE on Windows
+From:   Emery Conrad [<a  href="mailto:econrad@vt.edu">mailto:econrad@vt.edu</a>]
+Sent:   Wed 1/25/2006 6:15 AM
+To:     sundials-users@llnl.gov
+Cc:     
+Subject:        Re: Building SUNDIALS/CVODE on Windows
 
-Herbert Sauro wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
-We built CVODE using cygwin aswell but it did require some knowledge
-of how make scripts are used under Unix. This is not something windows
-developers may be aware of (just as Unix developers may not be aware of
-how to use Visual Studio). However, if it were at all possible I would
-recommend providing some VS project files with the distribution as it
-makes installation for windows users a trivial exercise.
+Herbert,
 
-Herbert Sauro
-</blockquote>
-As I must have already mentioned in a previous message, we've updated
-the documentation for the next release to include more details on
-building SUNDIALS without the *NIX configure script. We list there what
-files are needed, where they are located, provide a sample
-sundials_config.h header file, etc.
+My solution to this problem was to replace all printfs and fprintfs in 
+CVODE with my own defined MY_FPRINTF(...) [which can be done with a 
+simple global replace]. Then, I handle the strings coming into this 
+function my own way and combine it into my logging facility (which is 
+nice since CVODE has been incorporated as a library and is a small piece 
+of my code). This way, log messages from many different libraries can be 
+aggregated and piped to the same place. You also have the advantage of 
+thread safety since you control the internals of MY_PRINTF and your 
+logging facility.
 
-Also, the new website will have a FAQ section which already contains
-several entries on installation questions. I think that would be the
-best place to provide project files for VC, Borland C++, etc. 
-None of us here use any of these so one of you would have to provide
-them. Please email them to me and I will add them to the website.
+Emery
 
---Radu
-</blockquote>
+
+Andreas Nicolai wrote:
+&gt;<i> Am Tue, 24 Jan 2006 20:44:28 -0500 hat Herbert Sauro </i>
+&gt;<i> &lt;Herbert_Sauro@kgi.edu&gt; geschrieben:</i>
+&gt;<i>&gt; so be it. If there are windows developers out does anyone know how to</i>
+&gt;<i>&gt; direct stderr to a stream rather then to a file, particularly under</i>
+&gt;<i>&gt; .NET?</i>
+&gt;<i></i>
+&gt;<i> Tricky and ugly and seems to work only with spawned processes.</i>
+&gt;<i></i>
+&gt;<i> Check out:</i>
+&gt;<i></i>
+&gt;<i> <a  href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemdiagnosticsprocessclassstandarderrortopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemdiagnosticsprocessclassstandarderrortopic.asp</a></i>
+&gt;<i>  </i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i> I forward CVODE error messages to an error file and when the solver </i>
+&gt;<i> aborts I simply read the file and show the content (just like you </i>
+&gt;<i> Herbert).</i>
+&gt;<i></i>
+&gt;<i> Bye,</i>
+&gt;<i> Andreas</i>
+&gt;<i></i>
+&gt;<i> --Andreas Nicolai                   Andreas.Nicolai@gmx.net</i>
+&gt;<i> Syracuse University               +01 (315) 443 1099</i>
+&gt;<i> 151 E.A.Link Hall</i>
+&gt;<i> Syracuse NY 13244-1240</i>
+&gt;<i></i>
+
+
+
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -153,24 +175,24 @@ them. Please email them to me and I will add them to the website.
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00245.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00257.html">RE: error messages and logging</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00247.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00259.html">RE: error messages and logging</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00253.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00255.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00250.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00257.html">RE: error messages and logging</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00246">
+<li><a href="maillist.html#00258">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00246">
+<li><a href="threads.html#00258">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

@@ -1,13 +1,15 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: RE: Building SUNDIALS/CVODE on Windows -->
-<!--X-From-R13: Vreoreg Enheb <Vreoreg_EnhebNxtv.rqh> -->
-<!--X-Date: Tue, 24 Jan 2006 12:45:06 &#45;0800 (PST) -->
-<!--X-Message-Id: 601BBB4D9640CB4693A2384E4B37872E01E61F30@dell2650&#45;0550.kgi.edu -->
+<!--X-Subject: Re: Building SUNDIALS/CVODE on Windows -->
+<!--X-From-R13: Szrel Qbaenq <rpbaenqNig.rqh> -->
+<!--X-Date: Wed, 25 Jan 2006 06:22:24 &#45;0800 (PST) -->
+<!--X-Message-Id: 43D7881D.3020801@vt.edu -->
 <!--X-Content-Type: text/plain -->
+<!--X-Reference: 601BBB4D9640CB4693A2384E4B37872E01E61F3A@dell2650&#45;0550.kgi.edu -->
+<!--X-Reference: op.s3wxp6nat8lo91@smtp.kuleuven.ac.be -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>RE: Building SUNDIALS/CVODE on Windows</title>
+<title>Re: Building SUNDIALS/CVODE on Windows</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +68,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00245.html">Date Prev</a>] [<a href="msg00247.html">Date Next</a>] [<a href="msg00253.html">Thread Prev</a>] [<a href="msg00250.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00246">Date Index</a></b>]
-[<b><a href="threads.html#00246">Thread Index</a></b>]
+[<a href="msg00254.html">Date Prev</a>] [<a href="msg00256.html">Date Next</a>] [<a href="msg00256.html">Thread Prev</a>] [<a href="msg00258.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00255">Date Index</a></b>]
+[<b><a href="threads.html#00255">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>RE: Building SUNDIALS/CVODE on Windows</h1>
+<h1>Re: Building SUNDIALS/CVODE on Windows</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +85,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Herbert Sauro &lt;<a href="mailto:Herbert_Sauro%40kgi.edu">Herbert_Sauro@kgi.edu</a>&gt;</td>
+Emery Conrad &lt;<a href="mailto:econrad%40vt.edu">econrad@vt.edu</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 24 Jan 2006 12:39:07 -0800</td>
+Wed, 25 Jan 2006 09:15:57 -0500</td>
 </tr>
 
 </table>
@@ -100,47 +102,40 @@ Tue, 24 Jan 2006 12:39:07 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>
-I'm sorry, I've not been following the emails as closely as I should. I
-should say it is not difficult to build covode on unix systems once one
-knows how to do it.
+<pre style="margin: 0em;">Herbert,</pre><br>
+My solution to this problem was to replace all printfs and fprintfs in 
+CVODE with my own defined MY_FPRINTF(...) [which can be done with a 
+simple global replace]. Then, I handle the strings coming into this 
+function my own way and combine it into my logging facility (which is 
+nice since CVODE has been incorporated as a library and is a small piece 
+of my code). This way, log messages from many different libraries can be 
+aggregated and piped to the same place. You also have the advantage of 
+thread safety since you control the internals of MY_PRINTF and your 
+logging facility.<br>
+<br>
+<pre style="margin: 0em;">Emery</pre><br>
+<br>Andreas Nicolai wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Am Tue, 24 Jan 2006 20:44:28 -0500 hat Herbert Sauro 
+&lt;Herbert_Sauro@kgi.edu&gt; geschrieben:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">so be it. If there are windows developers out does anyone know how to
+direct stderr to a stream rather then to a file, particularly under
+.NET?
+</pre></blockquote><pre style="margin: 0em;"><br>Tricky and ugly and seems to work only with spawned processes.</pre><br>
+<pre style="margin: 0em;">Check out:</pre><br>
+<a  href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemdiagnosticsprocessclassstandarderrortopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemdiagnosticsprocessclassstandarderrortopic.asp</a> <br>
+<br>
+<br>I forward CVODE error messages to an error file and when the solver 
+aborts I simply read the file and show the content (just like you 
+Herbert).<br>
+<br>
+<pre style="margin: 0em;">Bye,
+Andreas</pre><br>
+<pre style="margin: 0em;">--Andreas Nicolai                   Andreas.Nicolai@gmx.net
+Syracuse University               +01 (315) 443 1099
+151 E.A.Link Hall
+Syracuse NY 13244-1240</pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
 
-Herbert 
-
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
------Original Message-----
-From: Radu Serban [<a  href="mailto:serban1@llnl.gov">mailto:serban1@llnl.gov</a>] 
-Sent: Tuesday, January 24, 2006 10:53 AM
-To: sundials-users@llnl.gov
-Subject: Re: Building SUNDIALS/CVODE on Windows
-
-Herbert Sauro wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
-We built CVODE using cygwin aswell but it did require some knowledge
-of how make scripts are used under Unix. This is not something windows
-developers may be aware of (just as Unix developers may not be aware of
-how to use Visual Studio). However, if it were at all possible I would
-recommend providing some VS project files with the distribution as it
-makes installation for windows users a trivial exercise.
-
-Herbert Sauro
-</blockquote>
-As I must have already mentioned in a previous message, we've updated
-the documentation for the next release to include more details on
-building SUNDIALS without the *NIX configure script. We list there what
-files are needed, where they are located, provide a sample
-sundials_config.h header file, etc.
-
-Also, the new website will have a FAQ section which already contains
-several entries on installation questions. I think that would be the
-best place to provide project files for VC, Borland C++, etc. 
-None of us here use any of these so one of you would have to provide
-them. Please email them to me and I will add them to the website.
-
---Radu
-</blockquote>
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -149,28 +144,35 @@ them. Please email them to me and I will add them to the website.
 <table width="95%" frame="below"><tr><td></td></table>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00250" href="msg00250.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<ul><li><em>From:</em> Herbert Sauro &lt;Herbert_Sauro@kgi.edu&gt;</li></ul></li>
+<li><strong><a name="00251" href="msg00251.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00245.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00254.html">Re: error messages and logging</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00247.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00256.html">Re: error messages and logging</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00253.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00256.html">Re: error messages and logging</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00250.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00258.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00246">
+<li><a href="maillist.html#00255">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00246">
+<li><a href="threads.html#00255">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

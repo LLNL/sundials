@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: RE: Building SUNDIALS/CVODE on Windows -->
-<!--X-From-R13: Vreoreg Enheb <Vreoreg_EnhebNxtv.rqh> -->
-<!--X-Date: Tue, 24 Jan 2006 12:45:06 &#45;0800 (PST) -->
-<!--X-Message-Id: 601BBB4D9640CB4693A2384E4B37872E01E61F30@dell2650&#45;0550.kgi.edu -->
+<!--X-Subject: Re: Building SUNDIALS/CVODE on Windows -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Tue, 24 Jan 2006 17:19:59 &#45;0800 (PST) -->
+<!--X-Message-Id: 43D6D0AD.2040507@llnl.gov -->
 <!--X-Content-Type: text/plain -->
+<!--X-Reference: 001a01c62133$350904b0$0a01a8c0@pcheartbreak -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>RE: Building SUNDIALS/CVODE on Windows</title>
+<title>Re: Building SUNDIALS/CVODE on Windows</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00245.html">Date Prev</a>] [<a href="msg00247.html">Date Next</a>] [<a href="msg00253.html">Thread Prev</a>] [<a href="msg00250.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00246">Date Index</a></b>]
-[<b><a href="threads.html#00246">Thread Index</a></b>]
+[<a href="msg00248.html">Date Prev</a>] [<a href="msg00250.html">Date Next</a>] [<a href="msg00248.html">Thread Prev</a>] [<a href="msg00253.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00249">Date Index</a></b>]
+[<b><a href="threads.html#00249">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>RE: Building SUNDIALS/CVODE on Windows</h1>
+<h1>Re: Building SUNDIALS/CVODE on Windows</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Herbert Sauro &lt;<a href="mailto:Herbert_Sauro%40kgi.edu">Herbert_Sauro@kgi.edu</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 24 Jan 2006 12:39:07 -0800</td>
+Tue, 24 Jan 2006 17:13:17 -0800</td>
 </tr>
 
 </table>
@@ -100,77 +101,113 @@ Tue, 24 Jan 2006 12:39:07 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>
-I'm sorry, I've not been following the emails as closely as I should. I
-should say it is not difficult to build covode on unix systems once one
-knows how to do it.
-
-Herbert 
-
+<tt>Alan Garny wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Alan Garny wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
------Original Message-----
-From: Radu Serban [<a  href="mailto:serban1@llnl.gov">mailto:serban1@llnl.gov</a>] 
-Sent: Tuesday, January 24, 2006 10:53 AM
-To: sundials-users@llnl.gov
-Subject: Re: Building SUNDIALS/CVODE on Windows
-
-Herbert Sauro wrote:
+Most important, though, may be a compiler directive that 
+enables/disables output (i.e. the &quot;fprintf&quot; statements).
+</blockquote>
+<br>What is the problem with the fprintf statements? Note that:<br>
+1) A message is printed ONLY if an error occurred.<br>
+2) Even then, you can disable 99% of them by redirecting 
+output to a 'NULL' file.<br>
+   In CVODE/CVODES for example, use<br>
+     CVodeSetErrFile(cvode_mem, NULL);<br>
+   right after CVodeCreate(). This will disable all future 
+error message output<br>
+   (unless the solver memory is NULL in some function).<br>
+3) Or else you can use CVodeSetErrFile to redirect all output 
+to some temporary file.
+</blockquote></blockquote><pre style="margin: 0em;"><br>Hi Alan,</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Argh, I obviously overlooked CVodeSetErrFile... I, however, just had a quick
+look back at the source code and noticed that there is a fair number of
+calls to &quot;fprintf&quot; with &quot;stderr&quot;, so that wouldn't solve my problem. The
+problem is that my application is a pure Windows one and not a console
+application, so there is no easy way for me to allow COVDE to output errors
+to &quot;stderr&quot; or elsewhere.
+</pre></blockquote>
+<br>If CVodeSetErrFile is called as soon as possible (i.e. right after CVodeCreate) then the only error 
+messages that are sent to stderr are those from CVodeCreate (indicating an illegal input or a memory 
+allocation failure) and those indicating that the cvode memory is NULL (i.e. a CVODE function is 
+called before CVodeCreate).<br>
+<br>
+(Note: in the current release there are a few places where fprintf unnecessarily uses stderr, but 
+these have been fixed for the next release).<br>
+<br>
+My point is that such errors are quite unlikely with a minimum of carefulness and so all meaningful 
+error messages can actually be redirected or disabled with CVodeSetErrFile.<br>
+<br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
-We built CVODE using cygwin aswell but it did require some knowledge
-of how make scripts are used under Unix. This is not something windows
-developers may be aware of (just as Unix developers may not be aware of
-how to use Visual Studio). However, if it were at all possible I would
-recommend providing some VS project files with the distribution as it
-makes installation for windows users a trivial exercise.
-
-Herbert Sauro
+So, to have that compiler directive I mentioned earlier would be very nice<br>
+indeed (for me at least... :)). Also, you return an error code and that<br>
+ought to suffice. 
+</blockquote><pre style="margin: 0em;"><br>If only all users would test the error return flag after each call to a 
+CVODE function :-)</pre><br>
+Adding a compiler directive to suppress output could lead to problems for users that use the 
+SUNDIALS libraries installed by someone else.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+One could, in fact, have a function that would return the<br>
+error message (based on the error code), if required. 
 </blockquote>
-As I must have already mentioned in a previous message, we've updated
-the documentation for the next release to include more details on
-building SUNDIALS without the *NIX configure script. We list there what
-files are needed, where they are located, provide a sample
-sundials_config.h header file, etc.
+<br>I can see at least two reasons why this is not advisable:<br>
+1) To keep the number of error codes to a minimum, the same one may be used for different situations 
+(e.g. CV_ILL_INPUT) which are differentiated only through the error message.<br>
+2) Some error messages also print various quantities (the current time, step size) which are context 
+dependent and would be difficult to pass to such a function.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Personally, I would very much welcome such a function, as I had to go through 
+all the important
+bits of the library to extract the error messages that could potentially
+help me debug my application, should CVODE fail to integrate one of my
+systems of ODEs.
+</pre></blockquote><pre style="margin: 0em;"><br>All CVODE constants (including error codes) are listed in Chapter 9 of the 
+user guide.</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+	Alan.
+</blockquote><pre style="margin: 0em;"><br>--Radu</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
 
-Also, the new website will have a FAQ section which already contains
-several entries on installation questions. I think that would be the
-best place to provide project files for VC, Borland C++, etc. 
-None of us here use any of these so one of you would have to provide
-them. Please email them to me and I will add them to the website.
-
---Radu
-</blockquote>
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00253" href="msg00253.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<ul><li><em>From:</em> Alan Garny &lt;agml@hellix.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00248" href="msg00248.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<ul><li><em>From:</em> Alan Garny &lt;agml@hellix.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00245.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00248.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00247.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00250.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00253.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00248.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00250.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00253.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00246">
+<li><a href="maillist.html#00249">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00246">
+<li><a href="threads.html#00249">
 <strong>Thread</strong></a></li>
 </ul>
 </li>
