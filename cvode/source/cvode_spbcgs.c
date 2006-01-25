@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:48 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 00:55:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -173,8 +173,7 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if (errfp != NULL) 
-      fprintf(errfp, MSGBCG_BAD_PRETYPE);
+    if (errfp != NULL) fprintf(errfp, MSGBCG_BAD_PRETYPE);
     return(CVSPBCG_ILL_INPUT);
   }
 
@@ -237,8 +236,7 @@ int CVSpbcgSetPrecType(void *cvode_mem, int pretype)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if (errfp != NULL) 
-      fprintf(errfp, MSGBCG_SET_BAD_PRETYPE);
+    if (errfp != NULL) fprintf(errfp, MSGBCG_SET_BAD_PRETYPE);
     return(CVSPBCG_ILL_INPUT);
   }
 

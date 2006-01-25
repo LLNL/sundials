@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 22:53:38 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-25 00:55:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -182,8 +182,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if (errfp != NULL) 
-      fprintf(errfp, MSGTFQMR_BAD_PRETYPE);
+    if (errfp != NULL) fprintf(errfp, MSGTFQMR_BAD_PRETYPE);
     return(CVSPTFQMR_ILL_INPUT);
   }
 
@@ -246,8 +245,7 @@ int CVSptfqmrSetPrecType(void *cvode_mem, int pretype)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if (errfp != NULL) 
-      fprintf(errfp, MSGTFQMR_SET_BAD_PRETYPE);
+    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SET_BAD_PRETYPE);
     return(CVSPTFQMR_ILL_INPUT);
   }
 

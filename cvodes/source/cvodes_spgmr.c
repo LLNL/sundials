@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 22:53:38 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-25 00:55:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -186,8 +186,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if(errfp!=NULL) 
-      fprintf(errfp, MSGS_BAD_PRETYPE);
+    if(errfp!=NULL) fprintf(errfp, MSGS_BAD_PRETYPE);
     return(CVSPGMR_ILL_INPUT);
   }
 
@@ -250,8 +249,7 @@ int CVSpgmrSetPrecType(void *cvode_mem, int pretype)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if(errfp!=NULL) 
-      fprintf(errfp, MSGS_SET_BAD_PRETYPE);
+    if(errfp!=NULL) fprintf(errfp, MSGS_SET_BAD_PRETYPE);
     return(CVSPGMR_ILL_INPUT);
   }
 
@@ -286,8 +284,7 @@ int CVSpgmrSetGSType(void *cvode_mem, int gstype)
 
   /* Check for legal gstype */
   if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
-    if(errfp!=NULL) 
-      fprintf(errfp, MSGS_SET_BAD_GSTYPE);
+    if(errfp!=NULL) fprintf(errfp, MSGS_SET_BAD_GSTYPE);
     return(CVSPGMR_ILL_INPUT);
   }
 

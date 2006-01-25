@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.51 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.52 $
+ * $Date: 2006-01-25 00:55:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -611,7 +611,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
         lrw -= 3*nrt;
         liw -= nrt;
 
-	fprintf(errfp, MSG_ROOT_FUNC_NULL);
+        if(errfp!=NULL) fprintf(errfp, MSG_ROOT_FUNC_NULL);
 	return(IDA_RTFUNC_NULL);
       }
       else {
@@ -625,7 +625,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
   /* Set variable values in IDA memory block */
   IDA_mem->ida_nrtfn = nrt;
   if (g == NULL) {
-    fprintf(errfp, MSG_ROOT_FUNC_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSG_ROOT_FUNC_NULL);
     return(IDA_RTFUNC_NULL);
   }
   else gfun = g;
@@ -633,28 +633,28 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
   /* Allocate necessary memory and return */
   glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (glo == NULL) {
-    fprintf(stderr, MSG_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_ROOT_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
 
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
     free(glo);
-    fprintf(stderr, MSG_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_ROOT_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
 
   grout = (realtype *) malloc(nrt*sizeof(realtype));
   if (grout == NULL) {
     free(glo); free(ghi);
-    fprintf(stderr, MSG_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_ROOT_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
 
   iroots = (int *) malloc(nrt*sizeof(int));
   if (iroots == NULL) {
     free(glo); free(ghi); free(grout);
-    fprintf(stderr, MSG_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSG_ROOT_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
 
@@ -1016,7 +1016,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       if (ewtsetOK != 0) {
 	if (errfp!=NULL) {
           if (itol == IDA_WF) fprintf(errfp, MSG_EWT_NOW_FAIL, tn);
-          else fprintf(errfp, MSG_EWT_NOW_BAD, tn);
+          else                fprintf(errfp, MSG_EWT_NOW_BAD, tn);
 	}
         istate = IDA_ILL_INPUT;
         ier = IDAGetSolution(IDA_mem, tn, yret, ypret);
@@ -1390,7 +1390,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   if (ewtsetOK != 0) {
     if (errfp!=NULL) {
       if (itol == IDA_WF) fprintf(errfp, MSG_FAIL_EWT);
-      else fprintf(errfp, MSG_BAD_EWT);
+      else                fprintf(errfp, MSG_BAD_EWT);
     }
     return(IDA_ILL_INPUT);
   }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.56 $
- * $Date: 2006-01-24 00:50:23 $
+ * $Revision: 1.57 $
+ * $Date: 2006-01-25 00:55:30 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -719,7 +719,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
         lrw -= 3*nrt;
         liw -= nrt;
 
-	fprintf(errfp, MSGCV_ROOT_FUNC_NULL);
+	if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_FUNC_NULL);
 	return(CV_RTFUNC_NULL);
       }
       else {
@@ -733,7 +733,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   /* Set variable values in CVode memory block */
   cv_mem->cv_nrtfn = nrt;
   if (g == NULL) {
-    fprintf(errfp, MSGCV_ROOT_FUNC_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_FUNC_NULL);
     return(CV_RTFUNC_NULL);
   }
   else gfun = g;
@@ -741,28 +741,28 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   /* Allocate necessary memory and return */
   glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (glo == NULL) {
-    fprintf(stderr, MSGCV_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
     free(glo);
-    fprintf(stderr, MSGCV_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
   grout = (realtype *) malloc(nrt*sizeof(realtype));
   if (grout == NULL) {
     free(glo); free(ghi);
-    fprintf(stderr, MSGCV_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
   iroots = (int *) malloc(nrt*sizeof(int));
   if (iroots == NULL) {
     free(glo); free(ghi); free(grout);
-    fprintf(stderr, MSGCV_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 

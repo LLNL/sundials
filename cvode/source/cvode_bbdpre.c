@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:23 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-25 00:55:30 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -137,15 +137,18 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
 
 int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 {
+  CVodeMem cv_mem;
   int flag;
-
-  if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CVBBDPRE_PDATA_NULL);
-  } 
 
   flag = CVSptfqmr(cvode_mem, pretype, maxl);
   if(flag != CVSPTFQMR_SUCCESS) return(flag);
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (bbd_data == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSGBBDP_NO_PDATA);
+    return(CVBBDPRE_PDATA_NULL);
+  } 
 
   flag = CVSptfqmrSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
   if(flag != CVSPTFQMR_SUCCESS) return(flag);
@@ -155,15 +158,18 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
 int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 {
+  CVodeMem cv_mem;
   int flag;
-
-  if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CVBBDPRE_PDATA_NULL);
-  } 
 
   flag = CVSpbcg(cvode_mem, pretype, maxl);
   if(flag != CVSPBCG_SUCCESS) return(flag);
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (bbd_data == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSGBBDP_NO_PDATA);
+    return(CVBBDPRE_PDATA_NULL);
+  } 
 
   flag = CVSpbcgSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
   if(flag != CVSPBCG_SUCCESS) return(flag);
@@ -173,15 +179,18 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 
 int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
 {
+  CVodeMem cv_mem;
   int flag;
-
-  if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBDP_NO_PDATA);
-    return(CVBBDPRE_PDATA_NULL);
-  } 
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
   if(flag != CVSPGMR_SUCCESS) return(flag);
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (bbd_data == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSGBBDP_NO_PDATA);
+    return(CVBBDPRE_PDATA_NULL);
+  } 
 
   flag = CVSpgmrSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
   if(flag != CVSPGMR_SUCCESS) return(flag);

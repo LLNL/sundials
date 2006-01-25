@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-17 23:30:38 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 00:55:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -147,15 +147,18 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 
 int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data)
 {
+  IDAMem IDA_mem;
   int flag;
-
-  if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBD_NO_PDATA);
-    return(IDABBDPRE_PDATA_NULL);
-  }
 
   flag = IDASptfqmr(ida_mem, maxl);
   if(flag != IDASPTFQMR_SUCCESS) return(flag);
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (bbd_data == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSGBBD_NO_PDATA);
+    return(IDABBDPRE_PDATA_NULL);
+  }
 
   flag = IDASptfqmrSetPreconditioner(ida_mem, IDABBDPrecSetup, IDABBDPrecSolve, bbd_data);
   if(flag != IDASPTFQMR_SUCCESS) return(flag);
@@ -165,15 +168,18 @@ int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data)
 
 int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data)
 {
+  IDAMem IDA_mem;
   int flag;
-
-  if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBD_NO_PDATA);
-    return(IDABBDPRE_PDATA_NULL);
-  }
 
   flag = IDASpbcg(ida_mem, maxl);
   if(flag != IDASPBCG_SUCCESS) return(flag);
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (bbd_data == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSGBBD_NO_PDATA);
+    return(IDABBDPRE_PDATA_NULL);
+  }
 
   flag = IDASpbcgSetPreconditioner(ida_mem, IDABBDPrecSetup, IDABBDPrecSolve, bbd_data);
   if(flag != IDASPBCG_SUCCESS) return(flag);
@@ -183,15 +189,18 @@ int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data)
 
 int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
 {
+  IDAMem IDA_mem;
   int flag;
-
-  if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBD_NO_PDATA);
-    return(IDABBDPRE_PDATA_NULL);
-  }
 
   flag = IDASpgmr(ida_mem, maxl);
   if(flag != IDASPGMR_SUCCESS) return(flag);
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (bbd_data == NULL) {
+    if(errfp!=NULL) fprintf(errfp, MSGBBD_NO_PDATA);
+    return(IDABBDPRE_PDATA_NULL);
+  }
 
   flag = IDASpgmrSetPreconditioner(ida_mem, IDABBDPrecSetup,
                                    IDABBDPrecSolve, bbd_data);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.66 $
- * $Date: 2006-01-24 00:51:01 $
+ * $Revision: 1.67 $
+ * $Date: 2006-01-25 00:55:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -789,7 +789,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
-    fprintf(stdout, MSGCVS_ROOT_NO_MEM);
+    fprintf(stderr, MSGCVS_ROOT_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -841,7 +841,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
         lrw -= 3*nrt;
         liw -= nrt;
 
-	fprintf(errfp, MSGCVS_ROOT_FUNC_NULL);
+	if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_FUNC_NULL);
 	return(CV_RTFUNC_NULL);
       }
       else {
@@ -855,7 +855,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   /* Set variable values in CVode memory block */
   cv_mem->cv_nrtfn = nrt;
   if (g == NULL) {
-    fprintf(errfp, MSGCVS_ROOT_FUNC_NULL);
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_FUNC_NULL);
     return(CV_RTFUNC_NULL);
   }
   else gfun = g;
@@ -863,28 +863,28 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   /* Allocate necessary memory and return */
   glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (glo == NULL) {
-    fprintf(stdout, MSGCVS_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
     
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
     free(glo);
-    fprintf(stdout, MSGCVS_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
     
   grout = (realtype *) malloc(nrt*sizeof(realtype));
   if (grout == NULL) {
     free(glo); free(ghi);
-    fprintf(stdout, MSGCVS_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
   iroots = (int *) malloc(nrt*sizeof(int));
   if (iroots == NULL) {
     free(glo); free(ghi); free(grout);
-    fprintf(stdout, MSGCVS_ROOT_MEM_FAIL);
+    if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
@@ -1573,7 +1573,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (nrtfn > 0) {
       ier = CVRcheck1(cv_mem);
       if (ier != CV_SUCCESS) {
-        fprintf(errfp, MSGCVS_BAD_INIT_ROOT);
+        if(errfp!=NULL) fprintf(errfp, MSGCVS_BAD_INIT_ROOT);
         return(CV_ILL_INPUT);
       }
     }
@@ -1595,7 +1595,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       ier = CVRcheck2(cv_mem);
       
       if (ier == CLOSERT) {
-        fprintf(errfp, MSGCVS_CLOSE_ROOTS, tlo);
+        if(errfp!=NULL) fprintf(errfp, MSGCVS_CLOSE_ROOTS, tlo);
         return(CV_ILL_INPUT);
       }
       
@@ -1700,14 +1700,12 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 	if(ewtsetOK != 0)  
 	  if(errfp!=NULL) {
             if (itol == CV_WF) fprintf(errfp, MSGCVS_EWT_NOW_FAIL, tn);
-            else fprintf(errfp, MSGCVS_EWT_NOW_BAD, tn);
+            else               fprintf(errfp, MSGCVS_EWT_NOW_BAD, tn);
 	  }
         if(ewtSsetOK != 0) 
-          if(errfp!=NULL) 
-            fprintf(errfp, MSGCVS_EWTS_NOW_BAD, tn);
+          if(errfp!=NULL) fprintf(errfp, MSGCVS_EWTS_NOW_BAD, tn);
 	if(ewtQsetOK != 0) 
-          if(errfp!=NULL) 
-            fprintf(errfp, MSGCVS_EWTQ_NOW_BAD, tn);
+          if(errfp!=NULL) fprintf(errfp, MSGCVS_EWTQ_NOW_BAD, tn);
 
         istate = CV_ILL_INPUT;
         tretlast = *tret = tn;
@@ -2419,7 +2417,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
   if (ewtsetOK != 0) {
     if(errfp!=NULL) {
       if (itol == CV_WF) fprintf(errfp, MSGCVS_FAIL_EWT);
-      else fprintf(errfp, MSGCVS_BAD_EWT);
+      else               fprintf(errfp, MSGCVS_BAD_EWT);
     }
     return(CV_ILL_INPUT);
   }
