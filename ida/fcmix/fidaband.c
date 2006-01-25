@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.8 $
+ * $Date: 2006-01-25 23:08:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -48,12 +48,23 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
 
   *ier = 0;
 
-  if (*flag == 0) *ier = IDABandSetJacFn(IDA_idamem, NULL, NULL);
-  else {
+  if (*flag == 0) {
+
+    *ier = IDABandSetJacFn(IDA_idamem, NULL, NULL);
+
+  } else {
+
+    if (F2C_IDA_ewtvec == NULL) {
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+      if (F2C_IDA_ewtvec == NULL) {
+        *ier = -1;
+        return;
+      }
+    }
+
     ida_mem = (IDAMem) IDA_idamem;    
     *ier = IDABandSetJacFn(IDA_idamem, (IDABandJacFn) FIDABandJac, NULL);
-    if (F2C_IDA_ewtvec == NULL) 
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+
   }
 
   return;

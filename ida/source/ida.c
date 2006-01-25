@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.52 $
- * $Date: 2006-01-25 00:55:36 $
+ * $Revision: 1.53 $
+ * $Date: 2006-01-25 23:08:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -172,6 +172,7 @@ void *IDACreate(void)
 {
   IDAMem IDA_mem;
 
+  IDA_mem = NULL;
   IDA_mem = (IDAMem) malloc(sizeof(struct IDAMemRec));
   if (IDA_mem == NULL) {
     fprintf(stderr, MSG_MEM_FAIL);
@@ -495,6 +496,7 @@ int IDAReInit(void *ida_mem, IDAResFn res,
   }
 
   if ( (itol == IDA_SV) && !(IDA_mem->ida_VatolMallocDone) ) {
+    IDA_mem->ida_Vatol = NULL;
     IDA_mem->ida_Vatol = N_VClone(yy0);
     lrw += lrw1;
     liw += liw1;
@@ -570,17 +572,15 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
      functions (changing number of gfun components), then free
      currently held memory resources */
   if ((nrt != IDA_mem->ida_nrtfn) && (IDA_mem->ida_nrtfn > 0)) {
-    free(glo);
-    free(ghi);
-    free(grout);
-    free(iroots);
+
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
 
     lrw -= 3* (IDA_mem->ida_nrtfn);
     liw -= IDA_mem->ida_nrtfn;
 
-    /* Linux version of free() routine doesn't set pointer to NULL */
-    glo = ghi = grout = NULL;
-    iroots = NULL;
   }
 
   /* If IDARootInit() was called with nrtfn == 0, then set ida_nrtfn to
@@ -603,10 +603,10 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
   if (nrt == IDA_mem->ida_nrtfn) {
     if (g != gfun) {
       if (g == NULL) {
-	free(glo);
-	free(ghi);
-	free(grout);
-	free(iroots);
+	free(glo); glo = NULL;
+	free(ghi); ghi = NULL;
+	free(grout); grout = NULL;
+	free(iroots); iroots = NULL;
 
         lrw -= 3*nrt;
         liw -= nrt;
@@ -631,29 +631,36 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
   else gfun = g;
 
   /* Allocate necessary memory and return */
+  glo = NULL;
   glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (glo == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSG_ROOT_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
 
+  ghi = NULL;
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
-    free(glo);
+    free(glo); glo = NULL;
     if(errfp!=NULL) fprintf(errfp, MSG_ROOT_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
 
+  grout = NULL;
   grout = (realtype *) malloc(nrt*sizeof(realtype));
   if (grout == NULL) {
-    free(glo); free(ghi);
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
     if(errfp!=NULL) fprintf(errfp, MSG_ROOT_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
 
+  iroots = NULL;
   iroots = (int *) malloc(nrt*sizeof(int));
   if (iroots == NULL) {
-    free(glo); free(ghi); free(grout);
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
     if(errfp!=NULL) fprintf(errfp, MSG_ROOT_MEM_FAIL);
     return(IDA_MEM_FAIL);
   }
@@ -1223,20 +1230,26 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
 
   /* Allocate ewt, ee, delta, tempv1, tempv2 */
   
+  ewt = NULL;
   ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
 
+  ee = NULL;
   ee = N_VClone(tmpl);
   if (ee == NULL) {
     N_VDestroy(ewt);
     return(FALSE);
   }
+
+  delta = NULL;
   delta = N_VClone(tmpl);
   if (delta == NULL) {
     N_VDestroy(ewt);
     N_VDestroy(ee);
     return(FALSE);
   }
+
+  tempv1 = NULL;
   tempv1 = N_VClone(tmpl);
   if (tempv1 == NULL) {
     N_VDestroy(ewt);
@@ -1244,6 +1257,8 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
     N_VDestroy(delta);
     return(FALSE);
   }
+
+  tempv2 = NULL;
   tempv2= N_VClone(tmpl);
   if (tempv2 == NULL) {
     N_VDestroy(ewt);
@@ -1260,6 +1275,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
 
   maxcol = MAX(maxord,3);
   for (j=0; j <= maxcol; j++) {
+    phi[j] = NULL;
     phi[j] = N_VClone(tmpl);
     if (phi[j] == NULL) {
       N_VDestroy(ewt);
@@ -1277,6 +1293,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl, int tol)
   liw += (maxcol + 6)*liw1;
 
   if (tol == IDA_SV) {
+    Vatol = NULL;
     Vatol = N_VClone(tmpl);
     if (Vatol == NULL) {
       N_VDestroy(ewt);

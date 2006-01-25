@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.60 $
- * $Date: 2006-01-24 00:51:01 $
+ * $Revision: 1.61 $
+ * $Date: 2006-01-25 23:07:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -184,7 +184,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   CVadjMem ca_mem;
   CVodeMem cv_mem;
   booleantype allocOK;
-  long int i;
+  long int i, ii;
 
   /* Check arguments */
   if (cvode_mem == NULL) {
@@ -201,6 +201,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   } 
 
   /* Allocate memory block */
+  ca_mem = NULL;
   ca_mem = (CVadjMem) malloc(sizeof(struct CVadjMemRec));
   if (ca_mem == NULL) {
     fprintf(stderr, MSGAM_MEM_FAIL);
@@ -217,25 +218,46 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   /* Allocate memory for workspace vectors */
   allocOK = CVAallocVectors(ca_mem);
   if (!allocOK) {
+    free(ca_mem); ca_mem = NULL;
     fprintf(stderr, MSGAM_MEM_FAIL);
     return(NULL);
   }
 
   /* Initialize Check Points linked list */
+  ca_mem->ck_mem = NULL;
   ca_mem->ck_mem = CVAckpntInit(cv_mem);
   if (ca_mem->ck_mem == NULL) {
     CVAfreeVectors(ca_mem);
-    free(ca_mem);
+    free(ca_mem); ca_mem = NULL;
     fprintf(stderr, MSGAM_MEM_FAIL);
     return(NULL);
   }
 
   /* Allocate space for the array of Data Point structures */
   
+  ca_mem->dt_mem = NULL;
   ca_mem->dt_mem = (DtpntMem *) malloc((steps+1)*sizeof(struct DtpntMemRec *));
-  
-  for (i=0; i<=steps; i++) 
+  if (ca_mem->dt_mem == NULL) {
+    while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
+    CVAfreeVectors(ca_mem);
+    free(ca_mem); ca_mem = NULL;
+    fprintf(stderr, MSGAM_MEM_FAIL);
+    return(NULL);
+  }
+
+  for (i=0; i<=steps; i++) { 
+    ca_mem->dt_mem[i] = NULL;
     ca_mem->dt_mem[i] = (DtpntMem) malloc(sizeof(struct DtpntMemRec));
+    if (ca_mem->dt_mem[i] == NULL) {
+      for(ii=0; ii<i; ii++) {free(ca_mem->dt_mem[ii]); ca_mem->dt_mem[ii] = NULL;}
+      free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
+      while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
+      CVAfreeVectors(ca_mem);
+      free(ca_mem); ca_mem = NULL;
+      fprintf(stderr, MSGAM_MEM_FAIL);
+      return(NULL);
+    }
+  }
 
   switch (interpType) {
 
@@ -243,9 +265,11 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
     /* Allocate Data Points memory */
     allocOK = CVAhermiteMalloc(ca_mem, steps);
     if (!allocOK) {
-      CVAckpntDelete(&(ca_mem->ck_mem));
+      for(i=0; i<=steps; i++) {free(ca_mem->dt_mem[i]); ca_mem->dt_mem[i] = NULL;}
+      free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
+      while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
       CVAfreeVectors(ca_mem);
-      free(ca_mem);
+      free(ca_mem); ca_mem = NULL;
       fprintf(stderr, MSGAM_MEM_FAIL);
       return(NULL);
     }
@@ -260,9 +284,11 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
     /* Allocate Data Points memory */
     allocOK = CVApolynomialMalloc(ca_mem, steps);
     if (!allocOK) {
-      CVAckpntDelete(&(ca_mem->ck_mem));
+      for(i=0; i<=steps; i++) {free(ca_mem->dt_mem[i]); ca_mem->dt_mem[i] = NULL;}
+      free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
+      while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
       CVAfreeVectors(ca_mem);
-      free(ca_mem);
+      free(ca_mem); ca_mem = NULL;
       fprintf(stderr, MSGAM_MEM_FAIL);
       return(NULL);
     }
@@ -370,9 +396,7 @@ void CVadjFree(void **cvadj_mem)
   ca_mem = (CVadjMem) (*cvadj_mem);
 
   /* Delete check points one by one */
-  while (ca_mem->ck_mem != NULL) {
-    CVAckpntDelete(&(ca_mem->ck_mem));
-  }
+  while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
 
   /* Free vectors at each data point */
   switch (interpType) {
@@ -383,8 +407,8 @@ void CVadjFree(void **cvadj_mem)
     CVApolynomialFree(ca_mem->dt_mem, nsteps);
     break;
   }
-  for(i=0; i<=nsteps; i++) free(ca_mem->dt_mem[i]);
-  free(ca_mem->dt_mem);
+  for(i=0; i<=nsteps; i++) {free(ca_mem->dt_mem[i]); ca_mem->dt_mem[i] = NULL;}
+  free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
 
   /* Free workspace vectors in ca_mem */
   CVAfreeVectors(ca_mem);
@@ -1089,11 +1113,11 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
 
 static booleantype CVAallocVectors(CVadjMem ca_mem)
 {
-
   CVodeMem cv_mem;
 
   cv_mem = ca_mem->cv_mem;
 
+  ytmp = NULL;
   ytmp = N_VClone(tempv);
   if (ytmp == NULL) {
     return(FALSE);
@@ -1127,10 +1151,24 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   CkpntMem ck_mem;
 
   /* Allocate space for ckdata */
+  ck_mem = NULL;
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
+  if (ck_mem == NULL) return(NULL);
 
+  zn_[0] = NULL;
   zn_[0] = N_VClone(tempv);
+  if (zn_[0] == NULL) {
+    free(ck_mem); ck_mem = NULL;
+    return(NULL);
+  }
+  
+  zn_[1] = NULL;
   zn_[1] = N_VClone(tempv);
+  if (zn_[1] == NULL) {
+    N_VDestroy(zn_[0]);
+    free(ck_mem); ck_mem = NULL;
+    return(NULL);
+  }
 
   /* zn_[qmax] was not allocated */
   zqm_ = 0;
@@ -1146,7 +1184,14 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
   quadr_ = quadr && errconQ;
 
   if (quadr_) {
+    znQ_[0] = NULL;
     znQ_[0] = N_VClone(tempvQ);
+    if (znQ_[0] == NULL) {
+      N_VDestroy(zn_[0]);
+      N_VDestroy(zn_[1]);
+      free(ck_mem); ck_mem = NULL;
+      return(NULL);
+    }
     N_VScale(ONE, znQ[0], znQ_[0]);
   }
 
@@ -1166,10 +1211,11 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 static CkpntMem CVAckpntNew(CVodeMem cv_mem)
 {
   CkpntMem ck_mem;
-  int j;
+  int j, jj;
   int qmax; 
 
   /* Allocate space for ckdata */
+  ck_mem = NULL;
   ck_mem = (CkpntMem) malloc(sizeof(struct CkpntMemRec));
   if (ck_mem == NULL) return(NULL);
 
@@ -1181,27 +1227,52 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
   zqm_ = (q < qmax) ? qmax : 0;
 
   for (j=0; j<=q; j++) {
+    zn_[j] = NULL;
     zn_[j] = N_VClone(tempv);
-    if(zn_[j] == NULL) return(NULL);
+    if (zn_[j] == NULL) {
+      for (jj=0; jj<j; jj++) N_VDestroy(zn_[jj]);
+      free(ck_mem); ck_mem = NULL;
+      return(NULL);
+    }
   }
 
-  if ( q < qmax) {
+  if (q < qmax) {
+    zn_[qmax] = NULL;
     zn_[qmax] = N_VClone(tempv);
-    if ( zn_[qmax] == NULL ) return(NULL);
+    if (zn_[qmax] == NULL) {
+      for (j=0; j<=q; j++) N_VDestroy(zn_[j]);
+      free(ck_mem); ck_mem = NULL;
+      return(NULL);
+    }
   }
 
   /* Test if we need to carry quadratures */
   quadr_ = quadr && errconQ;
 
   if (quadr_) {
+
     for (j=0; j<=q; j++) {
+      znQ_[j] = NULL;
       znQ_[j] = N_VClone(tempvQ);
-      if(znQ_[j] == NULL) return(NULL);
+      if(znQ_[j] == NULL) {
+        for (jj=0; jj<j; jj++) N_VDestroy(znQ_[jj]);
+        if (q < qmax) N_VDestroy(zn_[qmax]);
+        for (j=0; j<=q; j++) N_VDestroy(zn_[j]);
+        free(ck_mem); ck_mem = NULL;
+        return(NULL);
+      }
     }
 
     if ( q < qmax) {
+      znQ_[qmax] = NULL;
       znQ_[qmax] = N_VClone(tempvQ);
-      if ( znQ_[qmax] == NULL ) return(NULL);
+      if (znQ_[qmax] == NULL) {
+        for (j=0; j<=q; j++) N_VDestroy(znQ_[j]);
+        N_VDestroy(zn_[qmax]);
+        for (j=0; j<=q; j++) N_VDestroy(zn_[j]);
+        free(ck_mem); ck_mem = NULL;
+        return(NULL);
+      }
     }
   }
 
@@ -1271,7 +1342,7 @@ static void CVAckpntDelete(CkpntMem *ck_memPtr)
       }
     }
 
-    free(tmp);
+    free(tmp); tmp = NULL;
 
   }
 }
@@ -1518,26 +1589,63 @@ static booleantype CVAhermiteMalloc(CVadjMem ca_mem, long int steps)
   CVodeMem cv_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
-  long int i;
+  long int i, ii;
+  booleantype allocOK;
+
+  allocOK = TRUE;
 
   dt_mem = ca_mem->dt_mem;
   cv_mem = ca_mem->cv_mem;
 
   for (i=0; i<=steps; i++) {
+
+    content = NULL;
     content = (HermiteDataMem) malloc(sizeof(struct HermiteDataMemRec));
-    if (content == NULL) return(FALSE);
-    content->y  = N_VClone(tempv);
+    if (content == NULL) {
+      ii = i;
+      allocOK = FALSE;
+      break;
+    }
+
+    content->y = NULL;
+    content->y = N_VClone(tempv);
+    if (content->y == NULL) {
+      free(content); content = NULL;
+      ii = i;
+      allocOK = FALSE;
+      break;
+    }
+
+    content->yd = NULL;
     content->yd = N_VClone(tempv);
+    if (content->yd == NULL) {
+      N_VDestroy(content->y);
+      free(content); content = NULL;
+      ii = i;
+      allocOK = FALSE;
+      break;
+    }
+    
     dt_mem[i]->content = content;
+
   } 
 
-  return(TRUE);
+  if (!allocOK) {
+    for (i=0; i<ii; i++) {
+      content = (HermiteDataMem) (dt_mem[i]->content);
+      N_VDestroy(content->y);
+      N_VDestroy(content->yd);
+      free(dt_mem[i]->content); dt_mem[i]->content = NULL;
+    }
+  }
+
+  return(allocOK);
 }
 
 /*
  * CVAhermiteFree
  *
- * This routine frees the memeory allocated for data storage.
+ * This routine frees the memory allocated for data storage.
  */
 
 static void CVAhermiteFree(DtpntMem *dt_mem, long int steps)
@@ -1549,7 +1657,7 @@ static void CVAhermiteFree(DtpntMem *dt_mem, long int steps)
     content = (HermiteDataMem) (dt_mem[i]->content);
     N_VDestroy(content->y);
     N_VDestroy(content->yd);
-    free(dt_mem[i]->content);
+    free(dt_mem[i]->content); dt_mem[i]->content = NULL;
   }
 }
 
@@ -1671,19 +1779,45 @@ static booleantype CVApolynomialMalloc(CVadjMem ca_mem, long int steps)
   CVodeMem cv_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
-  long int i;
+  long int i, ii;
+  booleantype allocOK;
+
+  allocOK = TRUE;
 
   dt_mem = ca_mem->dt_mem;
   cv_mem = ca_mem->cv_mem;
 
   for (i=0; i<=steps; i++) {
-    content   = (PolynomialDataMem) malloc(sizeof(struct PolynomialDataMemRec));
-    if (content == NULL) return(FALSE);
-    content->y  = N_VClone(tempv);
+    content = NULL;
+    content = (PolynomialDataMem) malloc(sizeof(struct PolynomialDataMemRec));
+    if (content == NULL) {
+      ii = i;
+      allocOK = FALSE;
+      break;
+    }
+
+    content->y = NULL;
+    content->y = N_VClone(tempv);
+    if (content->y == NULL) {
+      free(content); content = NULL;
+      ii = i;
+      allocOK = FALSE;
+      break;
+    }
+
     dt_mem[i]->content = content;
   } 
 
-  return(TRUE);
+  if (!allocOK) {
+    for (i=0; i<ii; i++) {
+      content = (PolynomialDataMem) (dt_mem[i]->content);
+      N_VDestroy(content->y);
+      free(dt_mem[i]->content); dt_mem[i]->content = NULL;
+    }
+  }
+
+  return(allocOK);
+
 }
 
 /*
@@ -1700,7 +1834,7 @@ static void CVApolynomialFree(DtpntMem *dt_mem, long int steps)
   for (i=0; i<=steps; i++) {
     content = (PolynomialDataMem) (dt_mem[i]->content);
     N_VDestroy(content->y);
-    free(dt_mem[i]->content);
+    free(dt_mem[i]->content); dt_mem[i]->content = NULL;
   }
 }
 

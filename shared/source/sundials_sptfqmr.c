@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:03 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -43,25 +43,22 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
   N_Vector q, d, v, p, u;
   N_Vector r_star, vtemp1, vtemp2, vtemp3;
 
-  /* Initialize all pointers to NULL */
-  mem = NULL;
-  r = NULL;
-  q = d = v = p = u = NULL;
-  r_star = vtemp1 = vtemp2 = vtemp3 = NULL;
-
   /* Check the input parameters */
   if ((l_max <= 0) || (vec_tmpl == NULL)) return(NULL);
 
   /* Allocate space for vectors */
+  r_star = NULL;
   r_star = N_VClone(vec_tmpl);
   if (r_star == NULL) return(NULL);
 
+  q = NULL;
   q = N_VClone(vec_tmpl);
   if (q == NULL) {
     N_VDestroy(r_star);
     return(NULL);
   }
 
+  d = NULL;
   d = N_VClone(vec_tmpl);
   if (d == NULL) {
     N_VDestroy(r_star);
@@ -69,6 +66,7 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  v = NULL;
   v = N_VClone(vec_tmpl);
   if (v == NULL) {
     N_VDestroy(r_star);
@@ -77,6 +75,7 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  p = NULL;
   p = N_VClone(vec_tmpl);
   if (p == NULL) {
     N_VDestroy(r_star);
@@ -86,6 +85,7 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  r = NULL;
   r = N_VCloneVectorArray(2, vec_tmpl);
   if (r == NULL) {
     N_VDestroy(r_star);
@@ -96,6 +96,7 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  u = NULL;
   u = N_VClone(vec_tmpl);
   if (u == NULL) {
     N_VDestroy(r_star);
@@ -107,6 +108,7 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  vtemp1 = NULL;
   vtemp1 = N_VClone(vec_tmpl);
   if (vtemp1 == NULL) {
     N_VDestroy(r_star);
@@ -119,6 +121,7 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  vtemp2 = NULL;
   vtemp2 = N_VClone(vec_tmpl);
   if (vtemp2 == NULL) {
     N_VDestroy(r_star);
@@ -132,6 +135,7 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  vtemp3 = NULL;
   vtemp3 = N_VClone(vec_tmpl);
   if (vtemp3 == NULL) {
     N_VDestroy(r_star);
@@ -147,6 +151,7 @@ SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl)
   }
 
   /* Allocate memory for SptfqmrMemRec */
+  mem = NULL;
   mem = (SptfqmrMem) malloc(sizeof(SptfqmrMemRec));
   if (mem == NULL) {
     N_VDestroy(r_star);
@@ -528,5 +533,5 @@ void SptfqmrFree(SptfqmrMem mem)
   N_VDestroy(vtemp2);
   N_VDestroy(vtemp3);
 
-  free(mem);
+  free(mem); mem = NULL;
 }

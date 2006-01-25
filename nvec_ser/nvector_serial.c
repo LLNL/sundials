@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.24 $
- * $Date: 2006-01-11 21:14:01 $
+ * $Revision: 1.25 $
+ * $Date: 2006-01-25 23:08:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -65,15 +65,13 @@ N_Vector N_VNewEmpty_Serial(long int length)
   N_Vector_Ops ops;
   N_VectorContent_Serial content;
 
-  v = NULL;
-  ops = NULL;
-  content = NULL;
-
   /* Create vector */
+  v = NULL;
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
   /* Create vector operation structure */
+  ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
@@ -104,6 +102,7 @@ N_Vector N_VNewEmpty_Serial(long int length)
   ops->nvminquotient     = N_VMinQuotient_Serial;
 
   /* Create content */
+  content = NULL;
   content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
@@ -128,8 +127,6 @@ N_Vector N_VNew_Serial(long int length)
   realtype *data;
 
   v = NULL;
-  data = NULL;
-
   v = N_VNewEmpty_Serial(length);
   if (v == NULL) return(NULL);
 
@@ -137,6 +134,7 @@ N_Vector N_VNew_Serial(long int length)
   if (length > 0) {
 
     /* Allocate memory */
+    data = NULL;
     data = (realtype *) malloc(length * sizeof(realtype));
     if(data == NULL) { N_VDestroy_Serial(v); return(NULL); }
 
@@ -179,14 +177,14 @@ N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
-  vs = NULL;
-
   if (count <= 0) return(NULL);
 
+  vs = NULL;
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
+    vs[j] = NULL;
     vs[j] = N_VClone_Serial(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Serial(vs, j-1);
@@ -206,14 +204,14 @@ N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
-  vs = NULL;
-
   if (count <= 0) return(NULL);
 
+  vs = NULL;
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
+    vs[j] = NULL;
     vs[j] = N_VCloneEmpty_Serial(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Serial(vs, j-1);
@@ -234,7 +232,7 @@ void N_VDestroyVectorArray_Serial(N_Vector *vs, int count)
 
   for (j = 0; j < count; j++) N_VDestroy_Serial(vs[j]);
 
-  free(vs);
+  free(vs); vs = NULL;
 
   return;
 }
@@ -279,17 +277,15 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   N_Vector_Ops ops;
   N_VectorContent_Serial content;
 
-  v = NULL;
-  ops = NULL;
-  content = NULL;
-
   if (w == NULL) return(NULL);
 
   /* Create vector */
+  v = NULL;
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
 
   /* Create vector operation structure */
+  ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
   
@@ -320,6 +316,7 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   ops->nvminquotient     = w->ops->nvminquotient;
 
   /* Create content */
+  content = NULL;
   content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
@@ -341,8 +338,6 @@ N_Vector N_VClone_Serial(N_Vector w)
   long int length;
 
   v = NULL;
-  data = NULL;
-
   v = N_VCloneEmpty_Serial(w);
   if (v == NULL) return(NULL);
 
@@ -352,6 +347,7 @@ N_Vector N_VClone_Serial(N_Vector w)
   if (length > 0) {
 
     /* Allocate memory */
+    data = NULL;
     data = (realtype *) malloc(length * sizeof(realtype));
     if(data == NULL) { N_VDestroy_Serial(v); return(NULL); }
 
@@ -366,10 +362,13 @@ N_Vector N_VClone_Serial(N_Vector w)
 
 void N_VDestroy_Serial(N_Vector v)
 {
-  if (NV_OWN_DATA_S(v) == TRUE) free(NV_DATA_S(v));
-  free(v->content);
-  free(v->ops);
-  free(v);
+  if (NV_OWN_DATA_S(v) == TRUE) {
+    free(NV_DATA_S(v));
+    NV_DATA_S(v) = NULL;
+  }
+  free(v->content); v->content = NULL;
+  free(v->ops); v->ops = NULL;
+  free(v); v = NULL;
 
   return;
 }

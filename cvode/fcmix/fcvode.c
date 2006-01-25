@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.58 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.59 $
+ * $Date: 2006-01-25 23:07:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -106,12 +106,18 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   }
 
   /* Set and attach user data */
+  CV_userdata = NULL;
   CV_userdata = (FCVUserData) malloc(sizeof *CV_userdata);
+  if (CV_userdata == NULL) {
+    *ier = -1;
+    return;
+  }
   CV_userdata->rpar = rpar;
   CV_userdata->ipar = ipar;
 
   *ier = CVodeSetFdata(CV_cvodemem, CV_userdata);
   if(*ier != CV_SUCCESS) {
+    free(CV_userdata); CV_userdata = NULL;
     *ier = -1;
     return;
   }
@@ -128,7 +134,13 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     break;
   case 2:
     itol = CV_SV; 
+    Vatol = NULL;
     Vatol = N_VCloneEmpty(F2C_CVODE_vec);
+    if (Vatol == NULL) {
+      free(CV_userdata); CV_userdata = NULL;
+      *ier = -1;
+      return;
+    }
     N_VSetArrayPointer(atol, Vatol);
     atolptr = (void *) Vatol; 
     break;
@@ -148,6 +160,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
   /* On failure, exit */
   if(*ier != CV_SUCCESS) {
+    free(CV_userdata); CV_userdata = NULL;
     *ier = -1;
     return;
   }
@@ -190,7 +203,12 @@ void FCV_REINIT(realtype *t0, realtype *y0,
     break;
   case 2:
     itol = CV_SV; 
+    Vatol = NULL;
     Vatol = N_VCloneEmpty(F2C_CVODE_vec);
+    if (Vatol == NULL) {
+      *ier = -1;
+      return;
+    }
     N_VSetArrayPointer(atol, Vatol);
     atolptr = (void *) Vatol; 
     break;
@@ -578,9 +596,11 @@ void FCV_FREE ()
   CVodeMem cv_mem;
 
   cv_mem = (CVodeMem) CV_cvodemem;
-  free(cv_mem->cv_f_data);
+
+  free(cv_mem->cv_f_data); cv_mem->cv_f_data = NULL;
 
   CVodeFree(&CV_cvodemem);
+
   N_VSetArrayPointer(NULL, F2C_CVODE_vec);
   N_VDestroy(F2C_CVODE_vec);
 }

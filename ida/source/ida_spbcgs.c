@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -175,6 +175,7 @@ int IDASpbcg(void *ida_mem, int maxl)
   lfree  = IDASpbcgFree;
 
   /* Get memory for IDASpbcgMemRec */
+  idaspbcg_mem = NULL;
   idaspbcg_mem = (IDASpbcgMem) malloc(sizeof(IDASpbcgMemRec));
   if (idaspbcg_mem == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
@@ -199,22 +200,30 @@ int IDASpbcg(void *ida_mem, int maxl)
   setupNonNull = FALSE;
 
   /* Allocate memory for ytemp, yptemp, and xx */
+  ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
+    free(idaspbcg_mem); idaspbcg_mem = NULL;
     return(IDASPBCG_MEM_FAIL);
   }
+
+  yptemp = NULL;
   yptemp = N_VClone(vec_tmpl);
   if (yptemp == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
     N_VDestroy(ytemp);
+    free(idaspbcg_mem); idaspbcg_mem = NULL;
     return(IDASPBCG_MEM_FAIL);
   }
+
+  xx = NULL;
   xx = N_VClone(vec_tmpl);
   if (xx == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(yptemp);
+    free(idaspbcg_mem); idaspbcg_mem = NULL;
     return(IDASPBCG_MEM_FAIL);
   }
 
@@ -223,12 +232,14 @@ int IDASpbcg(void *ida_mem, int maxl)
   sqrtN = RSqrt(N_VDotProd(ytemp, ytemp));
 
   /* Call SpbcgMalloc to allocate workspace for Spbcg */
+  spbcg_mem = NULL;
   spbcg_mem = SpbcgMalloc(maxl1, vec_tmpl);
   if (spbcg_mem == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(yptemp);
     N_VDestroy(xx);
+    free(idaspbcg_mem); idaspbcg_mem = NULL;
     return(IDASPBCG_MEM_FAIL);
   }
 
@@ -741,7 +752,7 @@ static int IDASpbcgFree(IDAMem IDA_mem)
   N_VDestroy(ytemp);
   N_VDestroy(xx);
   SpbcgFree(spbcg_mem);
-  free(lmem);
+  free(lmem); lmem = NULL;
 
   return(0);
 }

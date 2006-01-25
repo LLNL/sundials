@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -139,6 +139,7 @@ int KINDense(void *kinmem, long int N)
   lfree  = KINDenseFree;
 
   /* Get memory for KINDenseMemRec */
+  kindense_mem = NULL;
   kindense_mem = (KINDenseMem) malloc(sizeof(KINDenseMemRec));
   if (kindense_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
@@ -157,15 +158,20 @@ int KINDense(void *kinmem, long int N)
 
   /* Allocate memory for J and pivot array */
   
+  J = NULL;
   J = DenseAllocMat(N);
   if (J == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
+    free(kindense_mem); kindense_mem = NULL;
     return(KINDENSE_MEM_FAIL);
   }
+
+  pivots = NULL;
   pivots = DenseAllocPiv(N);
   if (pivots == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
     DenseFreeMat(J);
+    free(kindense_mem); kindense_mem = NULL;
     return(KINDENSE_MEM_FAIL);
   }
 
@@ -443,7 +449,7 @@ static int KINDenseFree(KINMem kin_mem)
   
   DenseFreeMat(J);
   DenseFreePiv(pivots);
-  free(kindense_mem);
+  free(kindense_mem); kindense_mem = NULL;
   
   return(0);
 }

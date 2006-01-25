@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-25 00:55:30 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-25 23:07:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -86,6 +86,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   }
 
   /* Allocate data memory */
+  pdata = NULL;
   pdata = (CVBBDPrecData) malloc(sizeof *pdata);  
   if (pdata == NULL) return(NULL);
 
@@ -102,22 +103,27 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
 
   /* Allocate memory for saved Jacobian */
   pdata->savedJ = BandAllocMat(Nlocal, muk, mlk, muk);
-  if (pdata->savedJ == NULL) { free(pdata); return(NULL); }
+  if (pdata->savedJ == NULL) { 
+    free(pdata); pdata = NULL; 
+    return(NULL); 
+  }
 
   /* Allocate memory for preconditioner matrix */
   storage_mu = MIN(Nlocal-1, muk + mlk);
+  pdata->savedP = NULL;
   pdata->savedP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->savedP == NULL) {
     BandFreeMat(pdata->savedJ);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
   /* Allocate memory for pivots */
+  pdata->pivots = NULL;
   pdata->pivots = BandAllocPiv(Nlocal);
   if (pdata->savedJ == NULL) {
     BandFreeMat(pdata->savedP);
     BandFreeMat(pdata->savedJ);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
 

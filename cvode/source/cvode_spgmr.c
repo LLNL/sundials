@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 00:55:30 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 23:07:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -153,6 +153,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   lfree  = CVSpgmrFree;
 
   /* Get memory for CVSpgmrMemRec */
+  cvspgmr_mem = NULL;
   cvspgmr_mem = (CVSpgmrMem) malloc(sizeof(CVSpgmrMemRec));
   if (cvspgmr_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGS_MEM_FAIL);
@@ -184,15 +185,19 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   }
 
   /* Allocate memory for ytemp and x */
+  ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGS_MEM_FAIL);
+    free(cvspgmr_mem); cvspgmr_mem = NULL;
     return(CVSPGMR_MEM_FAIL);
   }
+  x = NULL;
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
+    free(cvspgmr_mem); cvspgmr_mem = NULL;
     return(CVSPGMR_MEM_FAIL);
   }
 
@@ -201,11 +206,13 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   sqrtN = RSqrt( N_VDotProd(ytemp, ytemp) );
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
+  spgmr_mem = NULL;
   spgmr_mem = SpgmrMalloc(mxl, vec_tmpl);
   if (spgmr_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(x);
+    free(cvspgmr_mem); cvspgmr_mem = NULL;
     return(CVSPGMR_MEM_FAIL);
   }
   
@@ -807,7 +814,7 @@ static void CVSpgmrFree(CVodeMem cv_mem)
   N_VDestroy(ytemp);
   N_VDestroy(x);
   SpgmrFree(spgmr_mem);
-  free(cvspgmr_mem);
+  free(cvspgmr_mem); cvspgmr_mem = NULL;
 }
 
 /*

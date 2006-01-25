@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-01-25 00:55:34 $
+ * $Revision: 1.6 $
+ * $Date: 2006-01-25 23:07:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -102,6 +102,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   }
 
   /* Allocate data memory */
+  pdata = NULL;
   pdata = (CVBBDPrecData) malloc(sizeof *pdata);  
   if (pdata == NULL) return(NULL);
 
@@ -117,23 +118,30 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
+  pdata->savedJ = NULL;
   pdata->savedJ = BandAllocMat(Nlocal, muk, mlk, muk);
-  if (pdata->savedJ == NULL) { free(pdata); return(NULL); }
+  if (pdata->savedJ == NULL) { 
+    free(pdata); pdata = NULL;
+    return(NULL); 
+  }
 
   /* Allocate memory for preconditioner matrix */
   storage_mu = MIN(Nlocal-1, muk + mlk);
+  pdata->savedP = NULL;
   pdata->savedP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->savedP == NULL) {
     BandFreeMat(pdata->savedJ);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
+
   /* Allocate memory for pivots */
+  pdata->pivots = NULL;
   pdata->pivots = BandAllocPiv(Nlocal);
   if (pdata->savedJ == NULL) {
     BandFreeMat(pdata->savedP);
     BandFreeMat(pdata->savedJ);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
 
@@ -338,6 +346,7 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
   ca_mem = (CVadjMem) cvadj_mem;
 
   /* Get memory for CVBBDPrecDataB */
+  cvbbdB_mem = NULL;
   cvbbdB_mem = (CVBBDPrecDataB) malloc(sizeof(* cvbbdB_mem));
   if (cvbbdB_mem == NULL) return(CVBBDPRE_MEM_FAIL);
 
@@ -352,7 +361,10 @@ int CVBBDPrecAllocB(void *cvadj_mem, long int NlocalB,
                              dqrelyB, 
                              CVAgloc, CVAcfn);
 
-  if (bbd_dataB == NULL) return(CVBBDPRE_MEM_FAIL);
+  if (bbd_dataB == NULL) {
+    free(cvbbdB_mem); cvbbdB_mem = NULL;
+    return(CVBBDPRE_MEM_FAIL);
+  }
 
   bbd_data_B = bbd_dataB;
 
@@ -465,7 +477,7 @@ void CVBBDPrecFreeB(void *cvadj_mem)
 
   CVBBDPrecFree(&bbd_data_B);
   
-  free(pmemB);
+  free(pmemB); pmemB = NULL;
 }
 
 

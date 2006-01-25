@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-11 21:14:01 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-25 23:08:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -64,14 +64,17 @@ void FNV_INITSPCP(MPI_Fint *comm, int *code,
 
   switch(*code) {
   case FCMIX_CVODE:
+    F2C_CVODE_vec = NULL;
     F2C_CVODE_vec = N_VNewEmpty_SpcParallel(F2C_comm,*Ngrp,Nspc,*Nx,*Ny,*Nz,*NGx,*NGy,*NGz);
     if (F2C_CVODE_vec == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
+    F2C_IDA_vec = NULL;
     F2C_IDA_vec = N_VNewEmpty_SpcParallel(F2C_comm,*Ngrp,Nspc,*Nx,*Ny,*Nz,*NGx,*NGy,*NGz);
     if (F2C_IDA_vec == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
+    F2C_KINSOL_vec = NULL;
     F2C_KINSOL_vec = N_VNewEmpty_SpcParallel(F2C_comm,*Ngrp,Nspc,*Nx,*Ny,*Nz,*NGx,*NGy,*NGz);
     if (F2C_KINSOL_vec == NULL) *ier = -1;
     break;
@@ -98,10 +101,12 @@ void FNV_INITSPCP_Q(MPI_Fint *comm, int *code,
 
   switch(*code) {
   case FCMIX_CVODE:
+    F2C_CVODE_vecQ = NULL;
     F2C_CVODE_vecQ = N_VNewEmpty_SpcParallel(F2C_comm,*NgrpQ,NspcQ,*NxQ,*NyQ,*NzQ,*NGxQ,*NGyQ,*NGzQ);
     if (F2C_CVODE_vecQ == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
+    F2C_IDA_vecQ = NULL;
     F2C_IDA_vecQ = N_VNewEmpty_SpcParallel(F2C_comm,*NgrpQ,NspcQ,*NxQ,*NyQ,*NzQ,*NGxQ,*NGyQ,*NGzQ);
     if (F2C_IDA_vecQ == NULL) *ier = -1;
     break;
@@ -128,10 +133,12 @@ void FNV_INITSPCP_B(MPI_Fint *comm, int *code,
 
   switch(*code) {
   case FCMIX_CVODE:
+    F2C_CVODE_vecB = NULL;
     F2C_CVODE_vecB = N_VNewEmpty_SpcParallel(F2C_comm,*NgrpB,NspcB,*NxB,*NyB,*NzB,*NGxB,*NGyB,*NGzB);
     if (F2C_CVODE_vecB == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
+    F2C_IDA_vecB = NULL;
     F2C_IDA_vecB = N_VNewEmpty_SpcParallel(F2C_comm,*NgrpB,NspcB,*NxB,*NyB,*NzB,*NGxB,*NGyB,*NGzB);
     if (F2C_IDA_vecB == NULL) *ier = -1;
     break;
@@ -158,10 +165,12 @@ void FNV_INITSPCP_QB(MPI_Fint *comm, int *code,
 
   switch(*code) {
   case FCMIX_CVODE:
+    F2C_CVODE_vecQB = NULL;
     F2C_CVODE_vecQB = N_VNewEmpty_SpcParallel(F2C_comm,*NgrpQB,NspcQB,*NxQB,*NyQB,*NzQB,*NGxQB,*NGyQB,*NGzQB);
     if (F2C_CVODE_vecQB == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
+    F2C_IDA_vecQB = NULL;
     F2C_IDA_vecQB = N_VNewEmpty_SpcParallel(F2C_comm,*NgrpQB,NspcQB,*NxQB,*NyQB,*NzQB,*NGxQB,*NGyQB,*NGzQB);
     if (F2C_IDA_vecQB == NULL) *ier = -1;
     break;
@@ -176,10 +185,12 @@ void FNV_INITSPCP_S(int *code, int *Ns, int *ier)
 
   switch(*code) {
   case FCMIX_CVODE:
+    F2C_CVODE_vecS = NULL;
     F2C_CVODE_vecS = N_VCloneVectorArrayEmpty_SpcParallel(*Ns, F2C_CVODE_vec);
     if (F2C_CVODE_vecS == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
+    F2C_IDA_vecS = NULL;
     F2C_IDA_vecS = N_VCloneVectorArrayEmpty_SpcParallel(*Ns, F2C_IDA_vec);
     if (F2C_IDA_vecS == NULL) *ier = -1;
     break;

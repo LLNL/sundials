@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-11 21:14:01 $
+ * $Revision: 1.7 $
+ * $Date: 2006-01-25 23:08:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -71,15 +71,13 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   int ig;
   long int tmp, n, N;
 
-  v = NULL;
-  ops = NULL;
-  content = NULL;
-  
   /* Create the new vector */
+  v = NULL;
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
 
   /* Create vector operation structure */
+  ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) {
     free(v); 
@@ -114,6 +112,7 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   ops->nvminquotient     = N_VMinQuotient_SpcParallel;
 
   /* Create content */
+  content = NULL;
   content = (N_VectorContent_SpcParallel) malloc(sizeof(struct _N_VectorContent_SpcParallel));
   if (content == NULL) {free(ops); free(v); return(NULL);}
 
@@ -166,10 +165,8 @@ N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   realtype *data;
   long int n;
 
-  v = NULL;
-  data = NULL;
-
   /* Create the new vector */
+  v = NULL;
   v = N_VNewEmpty_SpcParallel(comm, Ngrp, Nspc, Nx, Ny, Nz, NGx, NGy, NGz);
   if (v == NULL) return(NULL);
 
@@ -179,6 +176,7 @@ N_Vector N_VNew_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   /* Create data */
   if ( n > 0 ) {
     /* Allocate memory */
+    data = NULL;
     data = (realtype *) calloc(n, sizeof(realtype));
     if(data == NULL) {
       N_VDestroy_SpcParallel(v); 
@@ -206,9 +204,8 @@ N_Vector N_VMake_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
 {
   N_Vector v;
 
-  v = NULL;
-
   /* Create the new N_Vector */
+  v = NULL;
   v = N_VNewEmpty_SpcParallel(comm, Ngrp, Nspc, Nx, Ny, Nz, NGx, NGy, NGz);
   if (v == NULL) return(NULL);
 
@@ -261,14 +258,15 @@ N_Vector *N_VCloneVectorArrayEmpty_SpcParallel(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
-  vs = NULL;
 
   if (count <= 0) return(NULL);
 
+  vs = NULL;
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
+    vs[j] = NULL;
     vs[j] = N_VCloneEmpty_SpcParallel(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_SpcParallel(vs, j-1);
@@ -289,14 +287,14 @@ N_Vector *N_VCloneVectorArray_SpcParallel(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
-  vs = NULL;
-
   if (count <= 0) return(NULL);
 
+  vs = NULL;
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
+    vs[j] = NULL;
     vs[j] = N_VClone_SpcParallel(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_SpcParallel(vs, j-1);
@@ -318,7 +316,7 @@ void N_VDestroyVectorArray_SpcParallel(N_Vector *vs, int count)
 
   for (j = 0; j < count; j++) N_VDestroy_SpcParallel(vs[j]);
 
-  free(vs);
+  free(vs); vs = NULL;
 
   return;
 }
@@ -392,18 +390,16 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
   N_VectorContent_SpcParallel content;
   int ig, Ngrp;
 
-  v = NULL;
-  ops = NULL;
-  content = NULL;
-
   /* Check that w has been created */
   if (w == NULL) return(NULL);
 
   /* Create the new vector */
+  v = NULL;
   v = (N_Vector) malloc(sizeof *w);
   if (v == NULL) return(NULL);
 
   /* Create vector operation structure */
+  ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
@@ -435,6 +431,7 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
   ops->nvminquotient     = w->ops->nvminquotient;
 
   /* Create content */
+  content = NULL;
   content = (N_VectorContent_SpcParallel) malloc(sizeof(struct _N_VectorContent_SpcParallel));
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
@@ -483,10 +480,8 @@ N_Vector N_VClone_SpcParallel(N_Vector w)
   realtype *data;
   long int n;
 
-  v = NULL;
-  data = NULL;
-
   /* Create vector */
+  v = NULL;
   v = N_VCloneEmpty_SpcParallel(w);
   if (v == NULL) return(NULL);
 
@@ -496,6 +491,7 @@ N_Vector N_VClone_SpcParallel(N_Vector w)
   /* Create data */
   if ( n > 0 ) {
     /* Allocate memory */
+    data = NULL;
     data = (realtype *) calloc(n, sizeof(realtype));
     if(data == NULL) { 
       N_VDestroy_SpcParallel(v); 
@@ -518,18 +514,21 @@ void N_VDestroy_SpcParallel(N_Vector v)
   N_VectorContent_SpcParallel content;
 
   if ( SPV_OWN_DATA(v) == TRUE ) 
-    if (SPV_DATA(v) != NULL) free(SPV_DATA(v));
+    if (SPV_DATA(v) != NULL) {
+      free(SPV_DATA(v));
+      SPV_DATA(v) = NULL;
+    }
 
   content = SPV_CONTENT(v);
 
-  free(content->Nspc);
-  free(content->n1);
-  free(content->gdata);
-  free(content);
+  free(content->Nspc); content->Nspc = NULL;
+  free(content->n1); content->n1 = NULL;
+  free(content->gdata); content->gdata = NULL;
+  free(content); content = NULL;
 
-  free(v->ops);
-
-  free(v);
+  free(v->ops); v->ops = NULL;
+ 
+  free(v); v = NULL;
 }
 
 /* 

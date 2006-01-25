@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 23:07:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -122,6 +122,7 @@ int CVDiag(void *cvode_mem)
   lfree  = CVDiagFree;
 
   /* Get memory for CVDiagMemRec */
+  cvdiag_mem = NULL;
   cvdiag_mem = (CVDiagMem) malloc(sizeof(CVDiagMemRec));
   if (cvdiag_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
@@ -135,22 +136,30 @@ int CVDiag(void *cvode_mem)
 
   /* Allocate memory for M, bit, and bitcomp */
     
+  M = NULL;
   M = N_VClone(vec_tmpl);
   if (M == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
+    free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
+
+  bit = NULL;
   bit = N_VClone(vec_tmpl);
   if (bit == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
     N_VDestroy(M);
+    free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
+
+  bitcomp = NULL;
   bitcomp = N_VClone(vec_tmpl);
   if (bitcomp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
     N_VDestroy(M);
     N_VDestroy(bit);
+    free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
 
@@ -418,5 +427,5 @@ static void CVDiagFree(CVodeMem cv_mem)
   N_VDestroy(M);
   N_VDestroy(bit);
   N_VDestroy(bitcomp);
-  free(cvdiag_mem);
+  free(cvdiag_mem); cvdiag_mem = NULL;
 }

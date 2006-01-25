@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:10 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -142,6 +142,7 @@ int KINBand(void *kinmem, long int N,
   lfree  = KINBandFree;
   
   /* Get memory for KINBandMemRec */
+  kinband_mem = NULL;
   kinband_mem = (KINBandMem) malloc(sizeof(KINBandMemRec));
   if (kinband_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
@@ -172,15 +173,20 @@ int KINBand(void *kinmem, long int N,
   storage_mu = MIN(N-1, mu + ml);
 
   /* Allocate memory for J and pivot array */
+  J = NULL;
   J = BandAllocMat(N, mu, ml, storage_mu);
   if (J == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    free(kinband_mem); kinband_mem = NULL;
     return(KINBAND_MEM_FAIL);
   }
+
+  pivots = NULL;
   pivots = BandAllocPiv(N);
   if (pivots == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
     BandFreeMat(J);
+    free(kinband_mem); kinband_mem = NULL;
     return(KINBAND_MEM_FAIL);
   }
 
@@ -462,7 +468,7 @@ static int KINBandFree(KINMem kin_mem)
 
   BandFreeMat(J);
   BandFreePiv(pivots);
-  free(kinband_mem);
+  free(kinband_mem); kinband_mem = NULL;
 
   return(0);
 }

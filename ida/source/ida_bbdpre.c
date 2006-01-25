@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 00:55:36 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-25 23:08:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -92,6 +92,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   }
 
   /* Allocate data memory. */
+  pdata = NULL;
   pdata = (IBBDPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) return(NULL);
 
@@ -110,23 +111,29 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   storage_mu = MIN(Nlocal-1, muk+mlk);
 
   /* Allocate memory for preconditioner matrix. */
+  pdata->PP = NULL;
   pdata->PP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
-  if (pdata->PP == NULL) { free(pdata); return(NULL); }
+  if (pdata->PP == NULL) { 
+    free(pdata); pdata = NULL;
+    return(NULL); 
+  }
 
   /* Allocate memory for pivots. */
+  pdata->pivots = NULL;
   pdata->pivots = BandAllocPiv(Nlocal);
   if (pdata->PP == NULL) {
     BandFreeMat(pdata->PP);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
 
   /* Allocate tempv4 for use by IBBDDQJac */
+  tempv4 = NULL;
   tempv4 = N_VClone(vec_tmpl); 
   if (tempv4 == NULL){
     BandFreeMat(pdata->PP);
     BandFreePiv(pdata->pivots);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
   pdata->tempv4 = tempv4;

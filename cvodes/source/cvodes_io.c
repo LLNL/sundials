@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-24 00:51:02 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-25 23:07:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -510,6 +510,7 @@ int CVodeSetTolerances(void *cvode_mem,
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
+    cv_mem->cv_Vabstol = NULL;
     cv_mem->cv_Vabstol = N_VClone(cv_mem->cv_tempv);
     lrw += lrw1;
     liw += liw1;
@@ -655,6 +656,7 @@ int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ,
   }
 
   if ( (itolQ == CV_SV) && !(cv_mem->cv_VabstolQMallocDone) ) {
+    cv_mem->cv_VabstolQ = NULL;
     cv_mem->cv_VabstolQ = N_VClone(cv_mem->cv_tempvQ);
     lrw += lrw1Q;
     liw += liw1Q;
@@ -943,7 +945,7 @@ int CVodeSetSensTolerances(void *cvode_mem, int itolS,
   }
 
   if ( (itolS != CV_SS) && (cv_mem->cv_SabstolSMallocDone) ) {
-    free(cv_mem->cv_SabstolS);
+    free(cv_mem->cv_SabstolS); cv_mem->cv_SabstolS = NULL;
     lrw -= Ns;
     cv_mem->cv_SabstolSMallocDone = FALSE;
   }
@@ -955,6 +957,7 @@ int CVodeSetSensTolerances(void *cvode_mem, int itolS,
   /* See if we need to allocate some memory */
 
   if ( (itolS == CV_SV) && !(cv_mem->cv_VabstolSMallocDone) ) {
+    cv_mem->cv_VabstolS = NULL;
     cv_mem->cv_VabstolS = N_VCloneVectorArray(Ns, cv_mem->cv_tempv);
     lrw += Ns*lrw1;
     liw += Ns*liw1;
@@ -962,6 +965,7 @@ int CVodeSetSensTolerances(void *cvode_mem, int itolS,
   }
 
   if ( (itolS == CV_SS) && !(cv_mem->cv_SabstolSMallocDone) ) {
+    cv_mem->cv_SabstolS = NULL;
     cv_mem->cv_SabstolS = (realtype *)malloc(Ns*sizeof(realtype));
     lrw += Ns;
     cv_mem->cv_SabstolSMallocDone = TRUE;

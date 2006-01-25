@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2006-01-25 22:18:31 $
+ * $Revision: 1.42 $
+ * $Date: 2006-01-25 23:08:06 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -188,7 +188,12 @@ void FKIN_SETVIN(char key_name[], realtype *vval, int *ier, int key_len)
   N_Vector Vec;
 
   if (!strncmp(key_name,"CONSTR_VEC", (size_t)key_len)) {
+    Vec = NULL;
     Vec = N_VCloneEmpty(F2C_KINSOL_vec);
+    if (Vec == NULL) {
+      *ier = -1;
+      return;
+    }
     N_VSetArrayPointer(vval, Vec);
     KINSetConstraints(KIN_kinmem, Vec);
     N_VDestroy(Vec);
@@ -285,10 +290,21 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   uuvec = F2C_KINSOL_vec;
   N_VSetArrayPointer(uu, uuvec);
 
+  uscalevec = NULL;
   uscalevec = N_VCloneEmpty(F2C_KINSOL_vec);
+  if (uscalevec == NULL) {
+    *ier = -4;  /* KIN_MEM_FAIL */
+    return;
+  }
   N_VSetArrayPointer(uscale, uscalevec);
 
+  fscalevec = NULL;
   fscalevec = N_VCloneEmpty(F2C_KINSOL_vec);
+  if (fscalevec == NULL) {
+    N_VDestroy(uscalevec);
+    *ier = -4;  /* KIN_MEM_FAIL */
+    return;
+  }
   N_VSetArrayPointer(fscale, fscalevec);
 
   /* Call main solver function */

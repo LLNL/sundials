@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:02 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,12 +35,14 @@ BandMat BandAllocMat(long int N, long int mu, long int ml, long int smu)
 
   if (N <= 0) return(NULL);
   
+  A = NULL;
   A = (BandMat) malloc(sizeof *A);
   if (A == NULL) return (NULL);
 
+  A->data = NULL;
   A->data = bandalloc(N, smu, ml);
   if (A->data == NULL) {
-    free(A);
+    free(A); A = NULL;
     return(NULL);
   }
   
@@ -54,9 +56,7 @@ BandMat BandAllocMat(long int N, long int mu, long int ml, long int smu)
 
 long int *BandAllocPiv(long int N)
 {
-  if (N <= 0) return(NULL);
-  
-  return((long int *) malloc(N * sizeof(long int)));
+  return(bandallocpiv(N));
 }
 
 long int BandFactor(BandMat A, long int *p)
@@ -93,12 +93,12 @@ void BandAddI(BandMat A)
 void BandFreeMat(BandMat A)
 {
   bandfree(A->data);
-  free(A);
+  free(A); A = NULL;
 }
 
 void BandFreePiv(long int *p)
 { 
-  free(p);
+  bandfreepiv(p);
 }
 
 void BandPrint(BandMat A)
@@ -113,13 +113,15 @@ realtype **bandalloc(long int n, long int smu, long int ml)
 
   if (n <= 0) return(NULL);
 
+  a = NULL;
   a = (realtype **) malloc(n * sizeof(realtype *));
   if (a == NULL) return(NULL);
 
   colSize = smu + ml + 1;
+  a[0] = NULL;
   a[0] = (realtype *) malloc(n * colSize * sizeof(realtype));
   if (a[0] == NULL) {
-    free(a);
+    free(a); a = NULL;
     return(NULL);
   }
 
@@ -130,9 +132,15 @@ realtype **bandalloc(long int n, long int smu, long int ml)
 
 long int *bandallocpiv(long int n)
 {
+  long int *piv;
+
   if (n <= 0) return(NULL);
 
-  return((long int *) malloc(n * sizeof(long int)));
+  piv = NULL;
+  piv = (long int *) malloc(n * sizeof(long int));
+  if (piv == NULL) return(NULL);
+
+  return(piv);
 }
 
 long int gbfa(realtype **a, long int n, long int mu, long int ml, 
@@ -330,13 +338,13 @@ void bandaddI(realtype **a, long int n, long int smu)
 
 void bandfreepiv(long int *p)
 {
-  free(p);
+  free(p); p = NULL;
 }
 
 void bandfree(realtype **a)
 {
-  free(a[0]);
-  free(a);
+  free(a[0]); a[0] = NULL;
+  free(a); a = NULL;
 }
 
 void bandprint(realtype **a, long int n, long int mu, long int ml, 

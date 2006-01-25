@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-25 00:55:30 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-25 23:07:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -84,6 +84,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
     return(NULL);
   }
 
+  pdata = NULL;
   pdata = (CVBandPrecData) malloc(sizeof *pdata);  /* Allocate data memory */
   if (pdata == NULL) return(NULL);
 
@@ -97,27 +98,30 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   pdata->nfeBP = 0;
 
   /* Allocate memory for saved banded Jacobian approximation. */
+  pdata->savedJ = NULL;
   pdata->savedJ = BandAllocMat(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
 
   /* Allocate memory for banded preconditioner. */
   storagemu = MIN(N-1, mup+mlp);
+  pdata->savedP = NULL;
   pdata->savedP = BandAllocMat(N, mup, mlp, storagemu);
   if (pdata->savedP == NULL) {
     BandFreeMat(pdata->savedJ);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
 
   /* Allocate memory for pivot array. */
+  pdata->pivots = NULL;
   pdata->pivots = BandAllocPiv(N);
   if (pdata->savedJ == NULL) {
     BandFreeMat(pdata->savedP);
     BandFreeMat(pdata->savedJ);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
 

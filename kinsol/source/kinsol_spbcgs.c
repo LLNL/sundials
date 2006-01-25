@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -154,8 +154,8 @@ int KINSpbcg(void *kinmem, int maxl)
 
   /* check for required vector operations */
 
-  /* Note: do NOT need to check for N_VClone, N_VDestory, N_VLinearSum, N_VProd,
-     N_VScale, N_VDiv, or N_VWL2Norm because they are required by KINSOL */
+  /* Note: do NOT need to check for N_VLinearSum, N_VProd, N_VScale, N_VDiv, 
+     or N_VWL2Norm because they are required by KINSOL */
 
   if ((vec_tmpl->ops->nvconst == NULL) ||
       (vec_tmpl->ops->nvdotprod == NULL) ||
@@ -172,7 +172,7 @@ int KINSpbcg(void *kinmem, int maxl)
   lfree  = KINSpbcgFree;
 
   /* get memory for KINSpbcgMemRec */
-
+  kinspbcg_mem = NULL;
   kinspbcg_mem = (KINSpbcgMem) malloc(sizeof(KINSpbcgMemRec));
   if (kinspbcg_mem == NULL){
     fprintf(errfp, MSGB_MEM_FAIL);
@@ -197,13 +197,11 @@ int KINSpbcg(void *kinmem, int maxl)
   /* call SpbcgMalloc to allocate workspace for SPBCG */
 
   /* vec_tmpl passed as template vector */
-
+  spbcg_mem = NULL;
   spbcg_mem = SpbcgMalloc(maxl1, vec_tmpl);
   if (spbcg_mem == NULL) {
     fprintf(errfp, MSGB_MEM_FAIL);
-    lmem = NULL;  /* set lmem to NULL and free that memory as a flag to a
-                     later inadvertent KINSol call that SpbcgMalloc failed */
-    free(lmem);
+    free(kinspbcg_mem); kinspbcg_mem = NULL;
     return(KINSPBCG_MEM_FAIL);
   }
 
@@ -700,7 +698,7 @@ static int KINSpbcgFree(KINMem kin_mem)
   kinspbcg_mem = (KINSpbcgMem) lmem;
 
   SpbcgFree(spbcg_mem);
-  free(lmem);
+  free(lmem); lmem = NULL;
 
   return(0);
 }

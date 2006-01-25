@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-25 00:55:34 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-25 23:07:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -160,6 +160,7 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   lfree  = CVSpgmrFree;
 
   /* Get memory for CVSpgmrMemRec */
+  cvspgmr_mem = NULL;
   cvspgmr_mem = (CVSpgmrMem) malloc(sizeof(CVSpgmrMemRec));
   if (cvspgmr_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGS_MEM_FAIL);
@@ -191,15 +192,20 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   }
 
   /* Allocate memory for ytemp and x */
+  ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGS_MEM_FAIL);
+    free(cvspgmr_mem); cvspgmr_mem = NULL;
     return(CVSPGMR_MEM_FAIL);
   }
+
+  x = NULL;
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
+    free(cvspgmr_mem); cvspgmr_mem = NULL;
     return(CVSPGMR_MEM_FAIL);
   }
 
@@ -208,11 +214,13 @@ int CVSpgmr(void *cvode_mem, int pretype, int maxl)
   sqrtN = RSqrt( N_VDotProd(ytemp, ytemp) );
 
   /* Call SpgmrMalloc to allocate workspace for Spgmr */
+  spgmr_mem = NULL;
   spgmr_mem = SpgmrMalloc(mxl, vec_tmpl);
   if (spgmr_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(x);
+    free(cvspgmr_mem); cvspgmr_mem = NULL;
     return(CVSPGMR_MEM_FAIL);
   }
   
@@ -660,6 +668,7 @@ int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   ca_mem = (CVadjMem) cvadj_mem;
 
   /* Get memory for CVSpilsMemRecB */
+  cvspilsB_mem = NULL;
   cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
   if (cvspilsB_mem == NULL) return(CVSPGMR_MEM_FAIL);
 
@@ -675,6 +684,11 @@ int CVSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   cvode_mem = (void *) ca_mem->cvb_mem;
   
   flag = CVSpgmr(cvode_mem, pretypeB, maxlB);
+
+  if (flag != CVSPGMR_SUCCESS) {
+    free(cvspilsB_mem);
+    cvspilsB_mem = NULL;
+  }
 
   return(flag);
 }
@@ -973,7 +987,7 @@ static void CVSpgmrFree(CVodeMem cv_mem)
   N_VDestroy(ytemp);
   N_VDestroy(x);
   SpgmrFree(spgmr_mem);
-  free(cvspgmr_mem);
+  free(cvspgmr_mem); cvspgmr_mem = NULL;
 }
 
 /*

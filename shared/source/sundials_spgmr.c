@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:03 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -50,11 +50,13 @@ SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
 
   /* Get memory for the Krylov basis vectors V[0], ..., V[l_max]. */
 
+  V = NULL;
   V = N_VCloneVectorArray(l_max+1, vec_tmpl);
   if (V == NULL) return(NULL);
 
   /* Get memory for the Hessenberg matrix Hes. */
 
+  Hes = NULL;
   Hes = (realtype **) malloc((l_max+1)*sizeof(realtype *)); 
   if (Hes == NULL) {
     N_VDestroyVectorArray(V, l_max+1);
@@ -62,9 +64,11 @@ SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
   }
 
   for (k = 0; k <= l_max; k++) {
+    Hes[k] = NULL;
     Hes[k] = (realtype *) malloc(l_max*sizeof(realtype));
     if (Hes[k] == NULL) {
-      for (i = 0; i < k; i++) free(Hes[i]);
+      for (i = 0; i < k; i++) {free(Hes[i]); Hes[i] = NULL;}
+      free(Hes); Hes = NULL;
       N_VDestroyVectorArray(V, l_max+1);
       return(NULL);
     }
@@ -72,55 +76,65 @@ SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl)
   
   /* Get memory for Givens rotation components. */
   
+  givens = NULL;
   givens = (realtype *) malloc(2*l_max*sizeof(realtype));
   if (givens == NULL) {
-    for (i = 0; i <= l_max; i++) free(Hes[i]);
+    for (i = 0; i <= l_max; i++) {free(Hes[i]); Hes[i] = NULL;}
+    free(Hes); Hes = NULL;
     N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
   /* Get memory to hold the correction to z_tilde. */
 
+  xcor = NULL;
   xcor = N_VClone(vec_tmpl);
   if (xcor == NULL) {
-    free(givens);
-    for (i = 0; i <= l_max; i++) free(Hes[i]);
+    free(givens); givens = NULL;
+    for (i = 0; i <= l_max; i++) {free(Hes[i]); Hes[i] = NULL;}
+    free(Hes); Hes = NULL;
     N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
   /* Get memory to hold SPGMR y and g vectors. */
 
+  yg = NULL;
   yg = (realtype *) malloc((l_max+1)*sizeof(realtype));
   if (yg == NULL) {
     N_VDestroy(xcor);
-    free(givens);
-    for (i = 0; i <= l_max; i++) free(Hes[i]);
+    free(givens); givens = NULL;
+    for (i = 0; i <= l_max; i++) {free(Hes[i]); Hes[i] = NULL;}
+    free(Hes); Hes = NULL;
     N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
   /* Get an array to hold a temporary vector. */
 
+  vtemp = NULL;
   vtemp = N_VClone(vec_tmpl);
   if (vtemp == NULL) {
-    free(yg);
+    free(yg); yg = NULL;
     N_VDestroy(xcor);
-    free(givens);
-    for (i = 0; i <= l_max; i++) free(Hes[i]);
+    free(givens); givens = NULL;
+    for (i = 0; i <= l_max; i++) {free(Hes[i]); Hes[i] = NULL;}
+    free(Hes); Hes = NULL;
     N_VDestroyVectorArray(V, l_max+1);
     return(NULL);
   }
 
   /* Get memory for an SpgmrMemRec containing SPGMR matrices and vectors. */
 
+  mem = NULL;
   mem = (SpgmrMem) malloc(sizeof(SpgmrMemRec));
   if (mem == NULL) {
     N_VDestroy(vtemp);
-    free(yg);
+    free(yg); yg = NULL;
     N_VDestroy(xcor);
-    free(givens);
-    for (i = 0; i <= l_max; i++) free(Hes[i]);
+    free(givens); givens = NULL;
+    for (i = 0; i <= l_max; i++) {free(Hes[i]); Hes[i] = NULL;}
+    free(Hes); Hes = NULL;
     N_VDestroyVectorArray(V, l_max+1);
     return(NULL); 
   }
@@ -423,20 +437,23 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
 void SpgmrFree(SpgmrMem mem)
 {
   int i, l_max;
-  realtype **Hes;
+  realtype **Hes, *givens, *yg;
   
   if (mem == NULL) return;
 
-  l_max = mem->l_max;
-  Hes = mem->Hes;
+  l_max  = mem->l_max;
+  Hes    = mem->Hes;
+  givens = mem->givens;
+  yg     = mem->yg;
+
+  for (i = 0; i <= l_max; i++) {free(Hes[i]); Hes[i] = NULL;}
+  free(Hes); Hes = NULL;
+  free(mem->givens); givens = NULL; 
+  free(mem->yg); yg = NULL;
 
   N_VDestroyVectorArray(mem->V, l_max+1);
-  for (i = 0; i <= l_max; i++) free(Hes[i]);
-  free(Hes);
-  free(mem->givens);
   N_VDestroy(mem->xcor);
-  free(mem->yg);
   N_VDestroy(mem->vtemp);
 
-  free(mem);
+  free(mem); mem = NULL;
 }

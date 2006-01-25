@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:02 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -33,12 +33,14 @@ DenseMat DenseAllocMat(long int N)
 
   if (N <= 0) return(NULL);
 
+  A = NULL;
   A = (DenseMat) malloc(sizeof *A);
   if (A==NULL) return (NULL);
   
+  A->data = NULL;
   A->data = denalloc(N);
   if (A->data == NULL) {
-    free(A);
+    free(A); A = NULL;
     return(NULL);
   }
 
@@ -49,9 +51,7 @@ DenseMat DenseAllocMat(long int N)
 
 long int *DenseAllocPiv(long int N)
 {
-  if (N <= 0) return(NULL);
-
-  return((long int *) malloc(N * sizeof(long int)));
+  return(denallocpiv(N));
 }
 
 long int DenseFactor(DenseMat A, long int *p)
@@ -87,12 +87,12 @@ void DenseAddI(DenseMat A)
 void DenseFreeMat(DenseMat A)
 {
   denfree(A->data);
-  free(A);
+  free(A); A = NULL;
 }
 
 void DenseFreePiv(long int *p)
 {  
-  free(p);
+  denfreepiv(p);
 }
 
 void DensePrint(DenseMat A)

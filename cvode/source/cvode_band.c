@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-24 00:50:23 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 23:07:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -139,6 +139,7 @@ int CVBand(void *cvode_mem, long int N,
   lfree  = CVBandFree;
   
   /* Get memory for CVBandMemRec */
+  cvband_mem = NULL;
   cvband_mem = (CVBandMem) malloc(sizeof(CVBandMemRec));
   if (cvband_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
@@ -169,22 +170,28 @@ int CVBand(void *cvode_mem, long int N,
   storage_mu = MIN(N-1, mu + ml);
 
   /* Allocate memory for M, savedJ, and pivot arrays */
+  M = NULL;
   M = BandAllocMat(N, mu, ml, storage_mu);
   if (M == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    free(cvband_mem); cvband_mem = NULL;
     return(CVBAND_MEM_FAIL);
   }
+  savedJ = NULL;
   savedJ = BandAllocMat(N, mu, ml, mu);
   if (savedJ == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
     BandFreeMat(M);
+    free(cvband_mem); cvband_mem = NULL;
     return(CVBAND_MEM_FAIL);
   }
+  pivots = NULL;
   pivots = BandAllocPiv(N);
   if (pivots == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
     BandFreeMat(M);
     BandFreeMat(savedJ);
+    free(cvband_mem); cvband_mem = NULL;
     return(CVBAND_MEM_FAIL);
   }
 
@@ -478,7 +485,7 @@ static void CVBandFree(CVodeMem cv_mem)
   BandFreeMat(M);
   BandFreeMat(savedJ);
   BandFreePiv(pivots);
-  free(cvband_mem);
+  free(cvband_mem); cvband_mem = NULL;
 }
 
 /*

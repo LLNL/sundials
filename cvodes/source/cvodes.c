@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.67 $
- * $Date: 2006-01-25 00:55:33 $
+ * $Revision: 1.68 $
+ * $Date: 2006-01-25 23:07:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -326,6 +326,7 @@ void *CVodeCreate(int lmm, int iter)
     return (NULL);
   }
 
+  cv_mem = NULL;
   cv_mem = (CVodeMem) malloc(sizeof(struct CVodeMemRec));
   if (cv_mem == NULL) {
     fprintf(stderr, MSGCVS_CVMEM_FAIL);
@@ -680,6 +681,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
     }
 
   }
+
   /* Copy tolerances into memory */
 
   if ( (itol != CV_SV) && (cv_mem->cv_VabstolMallocDone) ) {
@@ -690,6 +692,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
+    cv_mem->cv_Vabstol = NULL;
     cv_mem->cv_Vabstol = N_VClone(y0);
     lrw += lrw1;
     liw += liw1;
@@ -800,17 +803,14 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
      functions (changing number of gfun components), then free
      currently held memory resources */
   if ((nrt != cv_mem->cv_nrtfn) && (cv_mem->cv_nrtfn > 0)) {
-    free(glo);
-    free(ghi);
-    free(grout);
-    free(iroots);
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
 
     lrw -= 3* (cv_mem->cv_nrtfn);
     liw -= cv_mem->cv_nrtfn;
 
-    /* Linux version of free() routine doesn't set pointer to NULL */
-    glo = ghi = grout = NULL;
-    iroots = NULL;
   }
 
   /* If CVodeRootInit() was called with nrtfn == 0, then set cv_nrtfn to
@@ -833,10 +833,10 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   if (nrt == cv_mem->cv_nrtfn) {
     if (g != gfun) {
       if (g == NULL) {
-	free(glo);
-	free(ghi);
-	free(grout);
-	free(iroots);
+	free(glo); glo = NULL;
+	free(ghi); ghi = NULL;
+	free(grout); grout = NULL;
+	free(iroots); iroots = NULL;
         
         lrw -= 3*nrt;
         liw -= nrt;
@@ -861,29 +861,36 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   else gfun = g;
 
   /* Allocate necessary memory and return */
+  glo = NULL;
   glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (glo == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
     
+  ghi = NULL;
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
-    free(glo);
+    free(glo); glo = NULL;
     if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
     
+  grout = NULL;
   grout = (realtype *) malloc(nrt*sizeof(realtype));
   if (grout == NULL) {
-    free(glo); free(ghi);
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
     if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
+  iroots = NULL;
   iroots = (int *) malloc(nrt*sizeof(int));
   if (iroots == NULL) {
-    free(glo); free(ghi); free(grout);
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
     if(errfp!=NULL) fprintf(errfp, MSGCVS_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
@@ -1060,9 +1067,12 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, N_Vector *yS0)
   /* Allocate ncfS1, ncfnS1, and nniS1 if needed */
   if (ism == CV_STAGGERED1) {
     stgr1alloc = TRUE;
-    ncfS1  = (int*)malloc(Ns*sizeof(int));
+    ncfS1 = NULL;
+    ncfS1 = (int*)malloc(Ns*sizeof(int));
+    ncfnS1 = NULL;
     ncfnS1 = (long int*)malloc(Ns*sizeof(long int));
-    nniS1  = (long int*)malloc(Ns*sizeof(long int));
+    nniS1 = NULL;
+    nniS1 = (long int*)malloc(Ns*sizeof(long int));
     if ( (ncfS1 == NULL) || (ncfnS1 == NULL) || (nniS1 == NULL) ) {
       if(errfp!=NULL) fprintf(errfp, MSGCVS_SCVM_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -1075,9 +1085,9 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, N_Vector *yS0)
   allocOK = CVSensAllocVectors(cv_mem, yS0[0]);
   if (!allocOK) {
     if (stgr1alloc) {
-      free(ncfS1);
-      free(ncfnS1);
-      free(nniS1);
+      free(ncfS1); ncfS1 = NULL;
+      free(ncfnS1); ncfnS1 = NULL;
+      free(nniS1); nniS1 = NULL;
     }
     if(errfp!=NULL) fprintf(errfp, MSGCVS_SCVM_MEM_FAIL);
     return(CV_MEM_FAIL);
@@ -1173,9 +1183,12 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
   /* Allocate ncfS1, ncfnS1, and nniS1 if needed */
   if ( (ism==CV_STAGGERED1) && (stgr1alloc==FALSE) ) {
     stgr1alloc = TRUE;
-    ncfS1  = (int*)malloc(Ns*sizeof(int));
+    ncfS1 = NULL;
+    ncfS1 = (int*)malloc(Ns*sizeof(int));
+    ncfnS1 = NULL;
     ncfnS1 = (long int*)malloc(Ns*sizeof(long int));
-    nniS1  = (long int*)malloc(Ns*sizeof(long int));
+    nniS1 = NULL;
+    nniS1 = (long int*)malloc(Ns*sizeof(long int));
     if ( (ncfS1==NULL) || (ncfnS1==NULL) || (nniS1==NULL) ) {
       if(errfp!=NULL) fprintf(errfp, MSGCVS_SCVM_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -2182,10 +2195,10 @@ void CVodeFree(void **cvode_mem)
   if (iter == CV_NEWTON && lfree != NULL) lfree(cv_mem);
 
   if (nrtfn > 0) {
-    free(glo); 
-    free(ghi); 
-    free(grout); 
-    free(iroots);
+    free(glo); glo = NULL; 
+    free(ghi);  ghi = NULL;
+    free(grout);  grout = NULL;
+    free(iroots); iroots = NULL;
   }
 
   free(*cvode_mem);
@@ -2235,9 +2248,9 @@ void CVodeSensFree(void *cvode_mem)
 
   if(sensMallocDone) {
     if (stgr1alloc) {
-      free(ncfS1);
-      free(ncfnS1);
-      free(nniS1);
+      free(ncfS1); ncfS1 = NULL;
+      free(ncfnS1); ncfnS1 = NULL;
+      free(nniS1); nniS1 = NULL;
       stgr1alloc = FALSE;
     }
     CVSensFreeVectors(cv_mem);
@@ -2296,19 +2309,26 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
 
   /* Allocate ewt, acor, tempv, ftemp */
   
+  ewt = NULL;
   ewt = N_VClone(tmpl);
   if (ewt == NULL) return (FALSE);
+
+  acor = NULL;
   acor = N_VClone(tmpl);
   if (acor == NULL) {
     N_VDestroy(ewt);
     return (FALSE);
   }
+
+  tempv = NULL;
   tempv = N_VClone(tmpl);
   if (tempv == NULL) {
     N_VDestroy(ewt);
     N_VDestroy(acor);
     return (FALSE);
   }
+
+  ftemp = NULL;
   ftemp = N_VClone(tmpl);
   if (ftemp == NULL) {
     N_VDestroy(tempv);
@@ -2320,6 +2340,7 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   /* Allocate zn[0] ... zn[maxord] */
 
   for (j=0; j <= qmax; j++) {
+    zn[j] = NULL;
     zn[j] = N_VClone(tmpl);
     if (zn[j] == NULL) {
       N_VDestroy(ewt);
@@ -2336,6 +2357,7 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   liw += (qmax + 5)*liw1;
 
   if (tol == CV_SV) {
+    Vabstol = NULL;
     Vabstol = N_VClone(tmpl);
     if (Vabstol == NULL) {
       N_VDestroy(ewt);
@@ -2500,12 +2522,14 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   int i, j;
 
   /* Allocate ewtQ */
+  ewtQ = NULL;
   ewtQ = N_VClone(tmpl);
   if (ewtQ == NULL) {
     return (FALSE);
   }
   
   /* Allocate acorQ */
+  acorQ = NULL;
   acorQ = N_VClone(tmpl);
   if (acorQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2513,6 +2537,7 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
 
   /* Allocate yQ */
+  yQ = NULL;
   yQ = N_VClone(tmpl);
   if (yQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2521,6 +2546,7 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
 
   /* Allocate tempvQ */
+  tempvQ = NULL;
   tempvQ = N_VClone(tmpl);
   if (tempvQ == NULL) {
     N_VDestroy(ewtQ);
@@ -2532,6 +2558,7 @@ static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   /* Allocate zQn[0] ... zQn[maxord] */
 
   for (j=0; j <= qmax; j++) {
+    znQ[j] = NULL;
     znQ[j] = N_VClone(tmpl);
     if (znQ[j] == NULL) {
       N_VDestroy(ewtQ);
@@ -2642,12 +2669,14 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   int i, j;
   
   /* Allocate yS */
+  yS = NULL;
   yS = N_VCloneVectorArray(Ns, tmpl);
   if (yS == NULL) {
     return (FALSE);
   }
 
   /* Allocate ewtS */
+  ewtS = NULL;
   ewtS = N_VCloneVectorArray(Ns, tmpl);
   if (ewtS == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2655,6 +2684,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
   
   /* Allocate acorS */
+  acorS = NULL;
   acorS = N_VCloneVectorArray(Ns, tmpl);
   if (acorS == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2663,6 +2693,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
   
   /* Allocate tempvS */
+  tempvS = NULL;
   tempvS = N_VCloneVectorArray(Ns, tmpl);
   if (tempvS == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2672,6 +2703,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
     
   /* Allocate ftempS */
+  ftempS = NULL;
   ftempS = N_VCloneVectorArray(Ns, tmpl);
   if (ftempS == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2683,6 +2715,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   
   /* Allocate znS */
   for (j=0; j<=qmax; j++) {
+    znS[j] = NULL;
     znS[j] = N_VCloneVectorArray(Ns, tmpl);
     if (znS[j] == NULL) {
       N_VDestroyVectorArray(yS, Ns);
@@ -2696,6 +2729,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   }
   
   /* Allocate space for pbar and plist */
+  pbar = NULL;
   pbar = (realtype *)malloc(Ns*sizeof(realtype));
   if (pbar == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2707,6 +2741,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
     return (FALSE);
   }
 
+  plist = NULL;
   plist = (int *)malloc(Ns*sizeof(int));
   if (plist == NULL) {
     N_VDestroyVectorArray(yS, Ns);
@@ -2715,7 +2750,7 @@ static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
     N_VDestroyVectorArray(tempvS, Ns);
     N_VDestroyVectorArray(ftempS, Ns);
     for (i=0; i<=qmax; i++) N_VDestroyVectorArray(znS[i], Ns);
-    free(pbar);
+    free(pbar); pbar = NULL;
     return (FALSE);
   }
 
@@ -2745,8 +2780,8 @@ static void CVSensFreeVectors(CVodeMem cv_mem)
   
   for (j=0; j<=maxord; j++) N_VDestroyVectorArray(znS[j], Ns);  
 
-  free(pbar);
-  free(plist);
+  free(pbar); pbar = NULL;
+  free(plist); plist = NULL;
 
   lrw -= (maxord + 6)*Ns*lrw1 + Ns;
   liw -= (maxord + 6)*Ns*liw1 + Ns;
@@ -2757,7 +2792,7 @@ static void CVSensFreeVectors(CVodeMem cv_mem)
     liw -= Ns*liw1;
   }
   if (cv_mem->cv_SabstolSMallocDone) {
-    free(SabstolS);
+    free(SabstolS); SabstolS = NULL;
     lrw -= Ns;
   }
   cv_mem->cv_VabstolSMallocDone = FALSE;

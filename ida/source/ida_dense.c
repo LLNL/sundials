@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -138,6 +138,7 @@ int IDADense(void *ida_mem, long int Neq)
   lfree  = IDADenseFree;
 
   /* Get memory for IDADenseMemRec. */
+  idadense_mem = NULL;
   idadense_mem = (IDADenseMem) malloc(sizeof(IDADenseMemRec));
   if (idadense_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGD_MEM_FAIL);
@@ -155,15 +156,20 @@ int IDADense(void *ida_mem, long int Neq)
   neq = Neq;
 
   /* Allocate memory for JJ and pivot array. */
+  JJ = NULL;
   JJ = DenseAllocMat(Neq);
   if (JJ == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGD_MEM_FAIL);
+    free(idadense_mem); idadense_mem = NULL;
     return(IDADENSE_MEM_FAIL);
   }
+
+  pivots = NULL;
   pivots = DenseAllocPiv(Neq);
   if (pivots == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGD_MEM_FAIL);
     DenseFreeMat(JJ);
+    free(idadense_mem); idadense_mem = NULL;
     return(IDADENSE_MEM_FAIL);
   }
 
@@ -406,7 +412,7 @@ static int IDADenseFree(IDAMem IDA_mem)
   
   DenseFreeMat(JJ);
   DenseFreePiv(pivots);
-  free(lmem);
+  free(lmem); lmem = NULL;
 
   return(0);
 }

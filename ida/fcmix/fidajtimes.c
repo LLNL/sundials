@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.9 $
+ * $Date: 2006-01-25 23:08:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -53,13 +53,23 @@ void FIDA_SPGMRSETJAC(int *flag, int *ier)
   IDAMem ida_mem;
   *ier = 0;
 
-  if (*flag == 0) *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
-  else {
+  if (*flag == 0) {
+
+    *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+
+  } else {
+
+    if (F2C_IDA_ewtvec == NULL) {
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+      if (F2C_IDA_ewtvec == NULL) {
+        *ier = -1;
+        return;
+      }
+    }
+
     ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem,
                                    (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
-    if (F2C_IDA_ewtvec == NULL) 
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -72,13 +82,23 @@ void FIDA_SPBCGSETJAC(int *flag, int *ier)
   IDAMem ida_mem;
   *ier = 0;
 
-  if (*flag == 0) *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem, NULL, NULL);
-  else {
+  if (*flag == 0) {
+
+    *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+
+  } else {
+
+    if (F2C_IDA_ewtvec == NULL) {
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+      if (F2C_IDA_ewtvec == NULL) {
+        *ier = -1;
+        return;
+      }
+    }
+
     ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem,
                                    (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
-    if (F2C_IDA_ewtvec == NULL) 
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -91,13 +111,23 @@ void FIDA_SPTFQMRSETJAC(int *flag, int *ier)
   IDAMem ida_mem;
   *ier = 0;
 
-  if (*flag == 0) *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
-  else {
+  if (*flag == 0) {
+
+    *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+
+  } else {
+
+    if (F2C_IDA_ewtvec == NULL) {
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+      if (F2C_IDA_ewtvec == NULL) {
+        *ier = -1;
+        return;
+      }
+    }
+
     ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem,
                                      (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
-    if (F2C_IDA_ewtvec == NULL) 
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;

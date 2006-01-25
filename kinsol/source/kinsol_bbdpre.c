@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-17 23:30:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 23:08:10 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -101,6 +101,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
     return(NULL);
   }
 
+  pdata = NULL;
   pdata = (KBBDPrecData) malloc(sizeof *pdata);  /* allocate data memory */
   if (pdata == NULL) return(NULL);
 
@@ -119,28 +120,31 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   /* allocate memory for preconditioner matrix */
 
   storage_mu = MIN(Nlocal-1, muk+mlk);
+  pdata->PP = NULL;
   pdata->PP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) {
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
 
   /* allocate memory for pivots */
 
+  pdata->pivots = NULL;
   pdata->pivots = BandAllocPiv(Nlocal);
   if (pdata->pivots == NULL) {
     BandFreeMat(pdata->PP);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
 
   /* allocate vtemp3 for use by KBBDDQJac routine */
 
+  vtemp3 = NULL;
   vtemp3 = N_VClone(kin_mem->kin_vtemp1);
   if (vtemp3 == NULL) {
     BandFreePiv(pdata->pivots);
     BandFreeMat(pdata->PP);
-    free(pdata);
+    free(pdata); pdata = NULL;
     return(NULL);
   }
   pdata->vtemp3 = vtemp3;

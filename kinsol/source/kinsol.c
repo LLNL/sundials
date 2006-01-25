@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.47 $
+ * $Date: 2006-01-25 23:08:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -120,6 +120,7 @@ void *KINCreate(void)
   KINMem kin_mem;
   realtype uround;
 
+  kin_mem = NULL;
   kin_mem = (KINMem) malloc(sizeof(struct KINMemRec));
   if (kin_mem == NULL) {
     fprintf(stderr, MSG_KINMEM_FAIL);
@@ -229,7 +230,7 @@ int KINMalloc(void *kinmem, KINSysFn func, N_Vector tmpl)
   allocOK = KINAllocVectors(kin_mem, tmpl);
   if (!allocOK) {
     fprintf(errfp, MSG_MEM_FAIL);
-    free(kin_mem);
+    free(kin_mem); kin_mem = NULL;
     return(KIN_MEM_FAIL);
   }
 
@@ -556,15 +557,18 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
   /* allocate unew, fval, pp, vtemp1 and vtemp2 */
   
+  unew = NULL;
   unew = N_VClone(tmpl);
   if (unew == NULL) return(FALSE);
 
+  fval = NULL;
   fval = N_VClone(tmpl);
   if (fval == NULL) {
     N_VDestroy(unew);
     return(FALSE);
   }
 
+  pp = NULL;
   pp = N_VClone(tmpl);
   if (pp == NULL) {
     N_VDestroy(unew);
@@ -572,6 +576,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     return(FALSE);
   }
 
+  vtemp1 = NULL;
   vtemp1 = N_VClone(tmpl);
   if (vtemp1 == NULL) {
     N_VDestroy(unew);
@@ -580,6 +585,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     return(FALSE);
   }
 
+  vtemp2 = NULL;
   vtemp2 = N_VClone(tmpl);
   if (vtemp2 == NULL) {
     N_VDestroy(unew);
@@ -673,8 +679,6 @@ static int KINSolInit(KINMem kin_mem)
   if (constraintsSet) {
     if (!N_VConstrMask(constraints, uu, vtemp1)) {
       fprintf(errfp, MSG_INITIAL_CNSTRNT);
-      KINFreeVectors(kin_mem);
-      free(kin_mem);
       return(KIN_ILL_INPUT);
     }
   }

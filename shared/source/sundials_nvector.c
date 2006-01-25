@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:02 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL                               
  * -----------------------------------------------------------------
@@ -177,14 +177,14 @@ N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
-  vs = NULL;
-
   if (count <= 0) return(NULL);
 
+  vs = NULL;
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
+    vs[j] = NULL;
     vs[j] = N_VCloneEmpty(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray(vs, j-1);
@@ -200,14 +200,14 @@ N_Vector *N_VCloneVectorArray(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
-  vs = NULL;
-
   if (count <= 0) return(NULL);
 
+  vs = NULL;
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
+    vs[j] = NULL;
     vs[j] = N_VClone(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray(vs, j-1);
@@ -224,7 +224,7 @@ void N_VDestroyVectorArray(N_Vector *vs, int count)
 
   for (j = 0; j < count; j++) N_VDestroy(vs[j]);
 
-  free(vs);
+  free(vs); vs = NULL;
 
   return;
 }

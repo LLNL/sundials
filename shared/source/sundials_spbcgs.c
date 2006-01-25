@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:03 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -41,26 +41,26 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
   SpbcgMem mem;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
 
-  mem = NULL;
-  r_star = r = p = q = u = Ap = vtemp = NULL;
-
   /* Check the input parameters */
 
   if (l_max <= 0) return(NULL);
 
   /* Get arrays to hold temporary vectors */
 
+  r_star = NULL;
   r_star = N_VClone(vec_tmpl);
   if (r_star == NULL) {
     return(NULL);
   }
 
+  r = NULL;
   r = N_VClone(vec_tmpl);
   if (r == NULL) {
     N_VDestroy(r_star);
     return(NULL);
   }
 
+  p = NULL;
   p = N_VClone(vec_tmpl);
   if (p == NULL) {
     N_VDestroy(r_star);
@@ -68,6 +68,7 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  q = NULL;
   q = N_VClone(vec_tmpl);
   if (q == NULL) {
     N_VDestroy(r_star);
@@ -76,6 +77,7 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  u = NULL;
   u = N_VClone(vec_tmpl);
   if (u == NULL) {
     N_VDestroy(r_star);
@@ -85,6 +87,7 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  Ap = NULL;
   Ap = N_VClone(vec_tmpl);
   if (Ap == NULL) {
     N_VDestroy(r_star);
@@ -95,6 +98,7 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
     return(NULL);
   }
 
+  vtemp = NULL;
   vtemp = N_VClone(vec_tmpl);
   if (vtemp == NULL) {
     N_VDestroy(r_star);
@@ -108,6 +112,7 @@ SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl)
 
   /* Get memory for an SpbcgMemRec containing SPBCG matrices and vectors */
 
+  mem = NULL;
   mem = (SpbcgMem) malloc(sizeof(SpbcgMemRec));
   if (mem == NULL) {
     N_VDestroy(r_star);
@@ -371,5 +376,5 @@ void SpbcgFree(SpbcgMem mem)
   N_VDestroy(mem->Ap);
   N_VDestroy(mem->vtemp);
 
-  free(mem);
+  free(mem); mem = NULL;
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:03 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -33,12 +33,14 @@ realtype **denalloc(long int n)
 
   if (n <= 0) return(NULL);
 
+  a = NULL;
   a = (realtype **) malloc(n * sizeof(realtype *));
   if (a == NULL) return(NULL);
 
+  a[0] = NULL;
   a[0] = (realtype *) malloc(n * n * sizeof(realtype));
   if (a[0] == NULL) {
-    free(a);
+    free(a); a = NULL;
     return(NULL);
   }
 
@@ -49,9 +51,15 @@ realtype **denalloc(long int n)
 
 long int *denallocpiv(long int n)
 {
+  long int *piv;
+
   if (n <= 0) return(NULL);
 
-  return((long int *) malloc(n * sizeof(long int)));
+  piv = NULL;
+  piv = (long int *) malloc(n * sizeof(long int));
+  if (piv == NULL) return(NULL);
+
+  return(piv);
 }
 
 long int gefa(realtype **a, long int n, long int *p)
@@ -211,13 +219,13 @@ void denaddI(realtype **a, long int n)
 
 void denfreepiv(long int *p)
 {
-  free(p);
+  free(p); p = NULL;
 }
 
 void denfree(realtype **a)
 {
-  free(a[0]);
-  free(a);
+  free(a[0]); a[0] = NULL;
+  free(a); a = NULL;
 }
 
 void denprint(realtype **a, long int n)

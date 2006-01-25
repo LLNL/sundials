@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.9 $
+ * $Date: 2006-01-25 23:08:00 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -58,13 +58,23 @@ void FIDA_SPGMRSETPREC(int *flag, int *ier)
 
   *ier = 0;
 
-  if (*flag == 0) *ier = IDASpgmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
-  else {
+  if (*flag == 0) {
+
+    *ier = IDASpgmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
+
+  } else {
+
+    if (F2C_IDA_ewtvec == NULL) {
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_ewtvec);
+      if (F2C_IDA_ewtvec == NULL) {
+        *ier = -1;
+        return;
+      }
+    }
+
     ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpgmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
                                     (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
-    if (F2C_IDA_ewtvec == NULL) 
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_ewtvec);
   }
 
   return;
@@ -78,13 +88,23 @@ void FIDA_SPBCGSETPREC(int *flag, int *ier)
 
   *ier = 0;
 
-  if (*flag == 0) *ier = IDASpbcgSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
-  else {
+  if (*flag == 0) {
+
+    *ier = IDASpbcgSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
+
+  } else {
+
+    if (F2C_IDA_ewtvec == NULL) {
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+      if (F2C_IDA_ewtvec == NULL) {
+        *ier = -1;
+        return;
+      }
+    }
+
     ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpbcgSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
                                     (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
-    if (F2C_IDA_ewtvec == NULL) 
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;
@@ -98,13 +118,23 @@ void FIDA_SPTFQMRSETPREC(int *flag, int *ier)
 
   *ier = 0;
 
-  if (*flag == 0) *ier = IDASptfqmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
-  else {
+  if (*flag == 0) {
+
+    *ier = IDASptfqmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
+
+  } else {
+
+    if (F2C_IDA_ewtvec == NULL) {
+      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
+      if (F2C_IDA_ewtvec == NULL) {
+        *ier = -1;
+        return;
+      }
+    }
+
     ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASptfqmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
                                        (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
-    if (F2C_IDA_ewtvec == NULL) 
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
   }
 
   return;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.57 $
- * $Date: 2006-01-25 00:55:30 $
+ * $Revision: 1.58 $
+ * $Date: 2006-01-25 23:07:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -254,6 +254,7 @@ void *CVodeCreate(int lmm, int iter)
     return(NULL);
   }
 
+  cv_mem = NULL;
   cv_mem = (CVodeMem) malloc(sizeof(struct CVodeMemRec));
   if (cv_mem == NULL) {
     fprintf(stderr, MSGCV_CVMEM_FAIL);
@@ -578,6 +579,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
+    cv_mem->cv_Vabstol = NULL;
     cv_mem->cv_Vabstol = N_VClone(y0);
     lrw += lrw1;
     liw += liw1;
@@ -678,17 +680,13 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
      functions (changing number of gfun components), then free
      currently held memory resources */
   if ((nrt != cv_mem->cv_nrtfn) && (cv_mem->cv_nrtfn > 0)) {
-    free(glo);
-    free(ghi);
-    free(grout);
-    free(iroots);
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
 
     lrw -= 3* (cv_mem->cv_nrtfn);
     liw -= cv_mem->cv_nrtfn;
-
-    /* Linux version of free() routine doesn't set pointer to NULL */
-    glo = ghi = grout = NULL;
-    iroots = NULL;
   }
 
   /* If CVodeRootInit() was called with nrtfn == 0, then set cv_nrtfn to
@@ -711,10 +709,10 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   if (nrt == cv_mem->cv_nrtfn) {
     if (g != gfun) {
       if (g == NULL) {
-	free(glo);
-	free(ghi);
-	free(grout);
-	free(iroots);
+	free(glo); glo = NULL;
+	free(ghi); ghi = NULL;
+	free(grout); grout = NULL;
+	free(iroots); iroots = NULL;
 
         lrw -= 3*nrt;
         liw -= nrt;
@@ -739,29 +737,36 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *gdata)
   else gfun = g;
 
   /* Allocate necessary memory and return */
+  glo = NULL;
   glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (glo == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
+  ghi = NULL;
   ghi = (realtype *) malloc(nrt*sizeof(realtype));
   if (ghi == NULL) {
-    free(glo);
+    free(glo); glo = NULL;
     if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
+  grout = NULL;
   grout = (realtype *) malloc(nrt*sizeof(realtype));
   if (grout == NULL) {
-    free(glo); free(ghi);
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
     if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
 
+  iroots = NULL;
   iroots = (int *) malloc(nrt*sizeof(int));
   if (iroots == NULL) {
-    free(glo); free(ghi); free(grout);
+    free(glo); glo = NULL; 
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
     if(errfp!=NULL) fprintf(errfp, MSGCV_ROOT_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
@@ -1317,10 +1322,10 @@ void CVodeFree(void **cvode_mem)
   if (iter == CV_NEWTON && lfree != NULL) lfree(cv_mem);
 
   if (nrtfn > 0) {
-    free(glo);
-    free(ghi);
-    free(grout);
-    free(iroots); 
+    free(glo); glo = NULL;
+    free(ghi); ghi = NULL;
+    free(grout); grout = NULL;
+    free(iroots); iroots = NULL;
   }
 
   free(*cvode_mem);
@@ -1376,19 +1381,26 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
 
   /* Allocate ewt, acor, tempv, ftemp */
   
+  ewt = NULL;
   ewt = N_VClone(tmpl);
   if (ewt == NULL) return(FALSE);
+
+  acor = NULL;
   acor = N_VClone(tmpl);
   if (acor == NULL) {
     N_VDestroy(ewt);
     return(FALSE);
   }
+
+  tempv = NULL;
   tempv = N_VClone(tmpl);
   if (tempv == NULL) {
     N_VDestroy(ewt);
     N_VDestroy(acor);
     return(FALSE);
   }
+
+  ftemp = NULL;
   ftemp = N_VClone(tmpl);
   if (ftemp == NULL) {
     N_VDestroy(tempv);
@@ -1400,6 +1412,7 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   /* Allocate zn[0] ... zn[qmax] */
 
   for (j=0; j <= qmax; j++) {
+    zn[j] = NULL;
     zn[j] = N_VClone(tmpl);
     if (zn[j] == NULL) {
       N_VDestroy(ewt);
@@ -1416,6 +1429,7 @@ static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol)
   liw += (qmax + 5)*liw1;
 
   if (tol == CV_SV) {
+    Vabstol = NULL;
     Vabstol = N_VClone(tmpl);
     if (Vabstol == NULL) {
       N_VDestroy(ewt);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -154,8 +154,8 @@ int KINSptfqmr(void *kinmem, int maxl)
 
   /* check for required vector operations */
 
-  /* Note: do NOT need to check for N_VClone, N_VDestory, N_VLinearSum, N_VProd,
-     N_VScale, N_VDiv, or N_VWL2Norm because they are required by KINSOL */
+  /* Note: do NOT need to check for N_VLinearSum, N_VProd, N_VScale, N_VDiv, 
+     or N_VWL2Norm because they are required by KINSOL */
 
   if ((vec_tmpl->ops->nvconst == NULL) ||
       (vec_tmpl->ops->nvdotprod == NULL) ||
@@ -172,7 +172,7 @@ int KINSptfqmr(void *kinmem, int maxl)
   lfree  = KINSptfqmrFree;
 
   /* get memory for KINSptfqmrMemRec */
-
+  kinsptfqmr_mem = NULL;
   kinsptfqmr_mem = (KINSptfqmrMem) malloc(sizeof(KINSptfqmrMemRec));
   if (kinsptfqmr_mem == NULL){
     fprintf(errfp, MSGQ_MEM_FAIL);
@@ -198,12 +198,11 @@ int KINSptfqmr(void *kinmem, int maxl)
 
   /* vec_tmpl passed as template vector */
 
+  sptfqmr_mem = NULL;
   sptfqmr_mem = SptfqmrMalloc(maxl1, vec_tmpl);
   if (sptfqmr_mem == NULL) {
     fprintf(errfp, MSGQ_MEM_FAIL);
-    lmem = NULL;  /* set lmem to NULL and free that memory as a flag to a
-                     later inadvertent KINSol call that SptfqmrMalloc failed */
-    free(lmem);
+    free(kinsptfqmr_mem); kinsptfqmr_mem = NULL;
     return(KINSPTFQMR_MEM_FAIL);
   }
 
@@ -708,7 +707,7 @@ static int KINSptfqmrFree(KINMem kin_mem)
   kinsptfqmr_mem = (KINSptfqmrMem) lmem;
 
   SptfqmrFree(sptfqmr_mem);
-  free(lmem);
+  free(lmem); lmem = NULL;
 
   return(0);
 }

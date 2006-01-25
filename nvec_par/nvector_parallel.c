@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2006-01-11 21:14:01 $
+ * $Revision: 1.28 $
+ * $Date: 2006-01-25 23:08:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -77,10 +77,6 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   N_VectorContent_Parallel content;
   long int n, Nsum;
 
-  v = NULL;
-  ops = NULL;
-  content = NULL;
-
   /* Compute global length as sum of local lengths */
   n = local_length;
   MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
@@ -90,10 +86,12 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   } 
 
   /* Create vector */
+  v = NULL;
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
   /* Create vector operation structure */
+  ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
 
@@ -124,6 +122,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   ops->nvminquotient     = N_VMinQuotient_Parallel;
 
   /* Create content */
+  content = NULL;
   content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
@@ -153,8 +152,6 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
   realtype *data;
 
   v = NULL;
-  data = NULL;
-
   v = N_VNewEmpty_Parallel(comm, local_length, global_length);
   if (v == NULL) return(NULL);
 
@@ -162,6 +159,7 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
   if(local_length > 0) {
 
     /* Allocate memory */
+    data = NULL;
     data = (realtype *) malloc(local_length * sizeof(realtype));
     if(data == NULL) { N_VDestroy_Parallel(v); return(NULL); }
 
@@ -186,7 +184,6 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
   N_Vector v;
 
   v = NULL;
-
   v = N_VNewEmpty_Parallel(comm, local_length, global_length);
   if (v == NULL) return(NULL);
 
@@ -208,14 +205,14 @@ N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
-  vs = NULL;
-
   if (count <= 0) return(NULL);
 
+  vs = NULL;
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
+    vs[j] = NULL;
     vs[j] = N_VClone_Parallel(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Parallel(vs, j-1);
@@ -236,14 +233,14 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
   N_Vector *vs;
   int j;
 
-  vs = NULL;
-
   if (count <= 0) return(NULL);
 
+  vs = NULL;
   vs = (N_Vector *) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
+    vs[j] = NULL;
     vs[j] = N_VCloneEmpty_Parallel(w);
     if (vs[j] == NULL) {
       N_VDestroyVectorArray_Parallel(vs, j-1);
@@ -264,7 +261,7 @@ void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count)
 
   for (j = 0; j < count; j++) N_VDestroy_Parallel(vs[j]);
 
-  free(vs);
+  free(vs); vs = NULL;
 
   return;
 }
@@ -309,17 +306,15 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   N_Vector_Ops ops;
   N_VectorContent_Parallel content;
 
-  v = NULL;
-  ops = NULL;
-  content = NULL;
-
   if (w == NULL) return(NULL);
 
   /* Create vector */
+  v = NULL;
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
   
   /* Create vector operation structure */
+  ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
   if (ops == NULL) { free(v); return(NULL); }
   
@@ -350,6 +345,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   ops->nvminquotient     = w->ops->nvminquotient;
 
   /* Create content */  
+  content = NULL;
   content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
   if (content == NULL) { free(ops); free(v); return(NULL); }
 
@@ -374,8 +370,6 @@ N_Vector N_VClone_Parallel(N_Vector w)
   long int local_length;
 
   v = NULL;
-  data = NULL;
-
   v = N_VCloneEmpty_Parallel(w);
   if (v == NULL) return(NULL);
 
@@ -385,6 +379,7 @@ N_Vector N_VClone_Parallel(N_Vector w)
   if(local_length > 0) {
 
     /* Allocate memory */
+    data = NULL;
     data = (realtype *) malloc(local_length * sizeof(realtype));
     if(data == NULL) { N_VDestroy_Parallel(v); return(NULL); }
 
@@ -398,11 +393,13 @@ N_Vector N_VClone_Parallel(N_Vector w)
 
 void N_VDestroy_Parallel(N_Vector v)
 {
-  if ((NV_OWN_DATA_P(v) == TRUE) && (NV_DATA_P(v) != NULL)) 
+  if ((NV_OWN_DATA_P(v) == TRUE) && (NV_DATA_P(v) != NULL)) {
     free(NV_DATA_P(v));
-  free(v->content);
-  free(v->ops);
-  free(v);
+    NV_DATA_P(v) = NULL;
+  }
+  free(v->content); v->content = NULL;
+  free(v->ops); v->ops = NULL;
+  free(v); v = NULL;
 
   return;
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:03 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -145,6 +145,7 @@ int IDABand(void *ida_mem, long int Neq,
   lfree  = IDABandFree;
 
   /* Get memory for IDABandMemRec. */
+  idaband_mem = NULL;
   idaband_mem = (IDABandMem) malloc(sizeof(IDABandMemRec));
   if (idaband_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
@@ -173,15 +174,20 @@ int IDABand(void *ida_mem, long int Neq,
   storage_mu = MIN(Neq-1, mupper + mlower);
 
   /* Allocate memory for JJ and pivot array. */
+  JJ = NULL;
   JJ = BandAllocMat(Neq, mupper, mlower, storage_mu);
   if (JJ == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    free(idaband_mem); idaband_mem = NULL;
     return(IDABAND_MEM_FAIL);
   }
+
+  pivots = NULL;
   pivots = BandAllocPiv(Neq);
   if (pivots == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
     BandFreeMat(JJ);
+    free(idaband_mem); idaband_mem = NULL;
     return(IDABAND_MEM_FAIL);
   }  
   
@@ -423,7 +429,7 @@ static int IDABandFree(IDAMem IDA_mem)
   
   BandFreeMat(JJ);
   BandFreePiv(pivots);
-  free(lmem);
+  free(lmem); lmem = NULL;
 
   return(0);
 

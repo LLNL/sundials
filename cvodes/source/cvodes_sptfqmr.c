@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-25 00:55:34 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-25 23:07:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -158,6 +158,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   lfree  = CVSptfqmrFree;
 
   /* Get memory for CVSptfqmrMemRec */
+  cvsptfqmr_mem = NULL;
   cvsptfqmr_mem = (CVSptfqmrMem) malloc(sizeof(CVSptfqmrMemRec));
   if (cvsptfqmr_mem == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
@@ -187,15 +188,20 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   }
 
   /* Allocate memory for ytemp and x */
+  ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
     return(CVSPTFQMR_MEM_FAIL);
   }
+
+  x = NULL;
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
     N_VDestroy(ytemp);
+    free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
     return(CVSPTFQMR_MEM_FAIL);
   }
 
@@ -204,11 +210,13 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   sqrtN = RSqrt(N_VDotProd(ytemp, ytemp));
 
   /* Call SptfqmrMalloc to allocate workspace for Sptfqmr */
+  sptfqmr_mem = NULL;
   sptfqmr_mem = SptfqmrMalloc(mxl, vec_tmpl);
   if (sptfqmr_mem == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(x);
+    free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
     return(CVSPTFQMR_MEM_FAIL);
   }
   
@@ -659,6 +667,7 @@ int CVSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
   ca_mem = (CVadjMem) cvadj_mem;
 
   /* Get memory for CVSpilsMemRecB */
+  cvspilsB_mem = NULL;
   cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
   if (cvspilsB_mem == NULL) return(CVSPTFQMR_MEM_FAIL);
 
@@ -674,6 +683,11 @@ int CVSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
   cvode_mem = (void *) ca_mem->cvb_mem;
   
   flag = CVSptfqmr(cvode_mem, pretypeB, maxlB);
+
+  if (flag != CVSPTFQMR_SUCCESS) {
+    free(cvspilsB_mem); 
+    cvspilsB_mem = NULL;
+  }
 
   return(flag);
 }
@@ -958,7 +972,7 @@ static void CVSptfqmrFree(CVodeMem cv_mem)
   N_VDestroy(ytemp);
   N_VDestroy(x);
   SptfqmrFree(sptfqmr_mem);
-  free(cvsptfqmr_mem);
+  free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
 
   return;
 }

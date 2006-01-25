@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:48 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:07:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -504,6 +504,7 @@ int CVodeSetTolerances(void *cvode_mem,
   }
 
   if ( (itol == CV_SV) && !(cv_mem->cv_VabstolMallocDone) ) {
+    cv_mem->cv_Vabstol = NULL;
     cv_mem->cv_Vabstol = N_VClone(cv_mem->cv_ewt);
     lrw += lrw1;
     liw += liw1;

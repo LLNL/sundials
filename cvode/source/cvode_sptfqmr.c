@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 00:55:30 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-25 23:07:47 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -149,6 +149,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   lfree  = CVSptfqmrFree;
 
   /* Get memory for CVSptfqmrMemRec */
+  cvsptfqmr_mem = NULL;
   cvsptfqmr_mem = (CVSptfqmrMem) malloc(sizeof(CVSptfqmrMemRec));
   if (cvsptfqmr_mem == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
@@ -178,15 +179,19 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   }
 
   /* Allocate memory for ytemp and x */
+  ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
     return(CVSPTFQMR_MEM_FAIL);
   }
+  x = NULL;
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
     N_VDestroy(ytemp);
+    free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
     return(CVSPTFQMR_MEM_FAIL);
   }
 
@@ -195,11 +200,13 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   sqrtN = RSqrt(N_VDotProd(ytemp, ytemp));
 
   /* Call SptfqmrMalloc to allocate workspace for Sptfqmr */
+  sptfqmr_mem = NULL;
   sptfqmr_mem = SptfqmrMalloc(mxl, vec_tmpl);
   if (sptfqmr_mem == NULL) {
     if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(x);
+    free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
     return(CVSPTFQMR_MEM_FAIL);
   }
   
@@ -798,7 +805,7 @@ static void CVSptfqmrFree(CVodeMem cv_mem)
   N_VDestroy(ytemp);
   N_VDestroy(x);
   SptfqmrFree(sptfqmr_mem);
-  free(cvsptfqmr_mem);
+  free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
 
   return;
 }

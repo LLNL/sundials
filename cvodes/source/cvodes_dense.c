@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-24 00:51:02 $
+ * $Revision: 1.5 $
+ * $Date: 2006-01-25 23:07:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -148,6 +148,7 @@ int CVDense(void *cvode_mem, long int N)
   lfree  = CVDenseFree;
 
   /* Get memory for CVDenseMemRec */
+  cvdense_mem = NULL;
   cvdense_mem = (CVDenseMem) malloc(sizeof(CVDenseMemRec));
   if (cvdense_mem == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
@@ -166,22 +167,30 @@ int CVDense(void *cvode_mem, long int N)
 
   /* Allocate memory for M, savedJ, and pivot array */
   
+  M = NULL;
   M = DenseAllocMat(N);
   if (M == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
+    free(cvdense_mem); cvdense_mem = NULL;
     return(CVDENSE_MEM_FAIL);
   }
+
+  savedJ = NULL;
   savedJ = DenseAllocMat(N);
   if (savedJ == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
     DenseFreeMat(M);
+    free(cvdense_mem); cvdense_mem = NULL;
     return(CVDENSE_MEM_FAIL);
   }
+
+  pivots = NULL;
   pivots = DenseAllocPiv(N);
   if (pivots == NULL) {
     if(errfp!=NULL) fprintf(errfp, MSGDS_MEM_FAIL);
     DenseFreeMat(M);
     DenseFreeMat(savedJ);
+    free(cvdense_mem); cvdense_mem = NULL;
     return(CVDENSE_MEM_FAIL);
   }
 
@@ -585,7 +594,7 @@ static void CVDenseFree(CVodeMem cv_mem)
   DenseFreeMat(M);
   DenseFreeMat(savedJ);
   DenseFreePiv(pivots);
-  free(cvdense_mem);
+  free(cvdense_mem); cvdense_mem = NULL;
 }
 
 /*

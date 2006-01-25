@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-25 23:08:10 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -162,8 +162,8 @@ int KINSpgmr(void *kinmem, int maxl)
 
   /* check for required vector operations */
 
-  /* Note: do NOT need to check for N_VClone, N_VDestory, N_VLinearSum, N_VProd,
-     N_VScale, N_VDiv, or N_VWL2Norm because they are required by KINSOL */
+  /* Note: do NOT need to check for N_VLinearSum, N_VProd, N_VScale, N_VDiv, 
+     or N_VWL2Norm because they are required by KINSOL */
 
   if ((vec_tmpl->ops->nvconst == NULL) ||
       (vec_tmpl->ops->nvdotprod == NULL) ||
@@ -180,7 +180,7 @@ int KINSpgmr(void *kinmem, int maxl)
   lfree  = KINSpgmrFree;
 
   /* get memory for KINSpgmrMemRec */
-
+  kinspgmr_mem = NULL;
   kinspgmr_mem = (KINSpgmrMem) malloc(sizeof(KINSpgmrMemRec));
   if (kinspgmr_mem == NULL){
     fprintf(errfp, MSGS_MEM_FAIL);
@@ -207,13 +207,11 @@ int KINSpgmr(void *kinmem, int maxl)
   /* call SpgmrMalloc to allocate workspace for SPGMR */
 
   /* vec_tmpl passed as template vector */
-
+  spgmr_mem = NULL;
   spgmr_mem = SpgmrMalloc(maxl1, vec_tmpl);
   if (spgmr_mem == NULL) {
     fprintf(errfp, MSGS_MEM_FAIL);
-    lmem = NULL;  /* set lmem to NULL and free that memory as a flag to a
-                     later inadvertent KINSol call that SpgmrMalloc failed */
-    free(lmem);
+    free(kinspgmr_mem); kinspgmr_mem = NULL;
     return(KINSPGMR_MEM_FAIL);
   }
 
@@ -752,7 +750,7 @@ static int KINSpgmrFree(KINMem kin_mem)
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
   SpgmrFree(spgmr_mem);
-  free(lmem);
+  free(lmem); lmem = NULL;
 
   return(0);
 }
