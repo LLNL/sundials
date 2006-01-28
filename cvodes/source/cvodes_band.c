@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-01-25 23:07:56 $
+ * $Revision: 1.6 $
+ * $Date: 2006-01-28 00:47:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -71,7 +71,6 @@ static int CVBandDQJac(long int n, long int mupper, long int mlower,
 #define gamrat    (cv_mem->cv_gamrat)
 #define ewt       (cv_mem->cv_ewt)
 #define nfe       (cv_mem->cv_nfe)
-#define errfp     (cv_mem->cv_errfp)
 #define linit     (cv_mem->cv_linit)
 #define lsetup    (cv_mem->cv_lsetup)
 #define lsolve    (cv_mem->cv_lsolve)
@@ -100,7 +99,6 @@ static int CVBandDQJac(long int n, long int mupper, long int mlower,
  * PART I - forward problems
  * =================================================================
  */
-
 
 /*
  * -----------------------------------------------------------------
@@ -135,14 +133,14 @@ int CVBand(void *cvode_mem, long int N,
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGB_CVMEM_NULL);
+    CVProcessError(NULL, CVBAND_MEM_NULL, "CVBAND", "CVBand", MSGB_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_BAD_NVECTOR);
+    CVProcessError(cv_mem, CVBAND_ILL_INPUT, "CVBAND", "CVBand", MSGB_BAD_NVECTOR);
     return(CVBAND_ILL_INPUT);
   }
 
@@ -158,7 +156,7 @@ int CVBand(void *cvode_mem, long int N,
   cvband_mem = NULL;
   cvband_mem = (CVBandMem) malloc(sizeof(CVBandMemRec));
   if (cvband_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    CVProcessError(cv_mem, CVBAND_MEM_FAIL, "CVBAND", "CVBand", MSGB_MEM_FAIL);
     return(CVBAND_MEM_FAIL);
   }
   
@@ -178,7 +176,7 @@ int CVBand(void *cvode_mem, long int N,
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_BAD_SIZES);
+    CVProcessError(cv_mem, CVBAND_ILL_INPUT, "CVBAND", "CVBand", MSGB_BAD_SIZES);
     return(CVBAND_ILL_INPUT);
   }
 
@@ -189,24 +187,22 @@ int CVBand(void *cvode_mem, long int N,
   M = NULL;
   M = BandAllocMat(N, mu, ml, storage_mu);
   if (M == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    CVProcessError(cv_mem, CVBAND_MEM_FAIL, "CVBAND", "CVBand", MSGB_MEM_FAIL);
     free(cvband_mem); cvband_mem = NULL;
     return(CVBAND_MEM_FAIL);
   }
-
   savedJ = NULL;
   savedJ = BandAllocMat(N, mu, ml, mu);
   if (savedJ == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    CVProcessError(cv_mem, CVBAND_MEM_FAIL, "CVBAND", "CVBand", MSGB_MEM_FAIL);
     BandFreeMat(M);
     free(cvband_mem); cvband_mem = NULL;
     return(CVBAND_MEM_FAIL);
   }
-
   pivots = NULL;
   pivots = BandAllocPiv(N);
   if (pivots == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    CVProcessError(cv_mem, CVBAND_MEM_FAIL, "CVBAND", "CVBand", MSGB_MEM_FAIL);
     BandFreeMat(M);
     BandFreeMat(savedJ);
     free(cvband_mem); cvband_mem = NULL;
@@ -232,13 +228,13 @@ int CVBandSetJacFn(void *cvode_mem, CVBandJacFn bjac, void *jac_data)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVBAND_MEM_NULL, "CVBAND", "CVBandSetJacFn", MSGB_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    CVProcessError(cv_mem, CVBAND_LMEM_NULL, "CVBAND", "CVBandSetJacFn", MSGB_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -262,13 +258,13 @@ int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVBAND_MEM_NULL, "CVBAND", "CVBandGetWorkSpace", MSGB_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    CVProcessError(cv_mem, CVBAND_LMEM_NULL, "CVBAND", "CVBandGetWorkSpace", MSGB_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -292,13 +288,13 @@ int CVBandGetNumJacEvals(void *cvode_mem, long int *njevals)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVBAND_MEM_NULL, "CVBAND", "CVBandGetNumJacEvals", MSGB_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    CVProcessError(cv_mem, CVBAND_LMEM_NULL, "CVBAND", "CVBandGetNumJacEvals", MSGB_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -321,13 +317,13 @@ int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVBAND_MEM_NULL, "CVBAND", "CVBandGetNumRhsEvals", MSGB_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    CVProcessError(cv_mem, CVBAND_LMEM_NULL, "CVBAND", "CVBandGetNumRhsEvals", MSGB_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -350,13 +346,13 @@ int CVBandGetLastFlag(void *cvode_mem, int *flag)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVBAND_MEM_NULL, "CVBAND", "CVBandGetLastFlag", MSGB_CVMEM_NULL);
     return(CVBAND_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    CVProcessError(cv_mem, CVBAND_LMEM_NULL, "CVBAND", "CVBandGetLastFlag", MSGB_LMEM_NULL);
     return(CVBAND_LMEM_NULL);
   }
   cvband_mem = (CVBandMem) lmem;
@@ -365,6 +361,7 @@ int CVBandGetLastFlag(void *cvode_mem, int *flag)
 
   return(CVBAND_SUCCESS);
 }
+
 
 
 /* 
@@ -394,15 +391,23 @@ int CVBandB(void *cvadj_mem, long int nB,
 {
   CVadjMem ca_mem;
   CVBandMemB cvbandB_mem;
-  void *cvode_mem;
+  CVodeMem cvB_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CVBAND_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVBAND_ADJMEM_NULL, "CVBAND", "CVBandB", MSGB_CAMEM_NULL);
+    return(CVBAND_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
+
+  cvB_mem = ca_mem->cvb_mem;
 
   /* Get memory for CVBandMemRecB */
   cvbandB_mem = (CVBandMemB) malloc(sizeof(CVBandMemRecB));
-  if (cvbandB_mem == NULL) return(CVBAND_MEM_FAIL);
+  if (cvbandB_mem == NULL) {
+    CVProcessError(cvB_mem, CVBAND_MEM_FAIL, "CVBAND", "CVBandB", MSGB_MEM_FAIL);
+    return(CVBAND_MEM_FAIL);
+  }
 
   bjac_B = NULL;
   jac_data_B = NULL;
@@ -410,9 +415,7 @@ int CVBandB(void *cvadj_mem, long int nB,
   /* attach lmemB */
   lmemB = cvbandB_mem;
 
-  cvode_mem = (void *) ca_mem->cvb_mem;
-  
-  flag = CVBand(cvode_mem, nB, mupperB, mlowerB);
+  flag = CVBand(cvB_mem, nB, mupperB, mlowerB);
 
   return(flag);
 }
@@ -421,21 +424,27 @@ int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB)
 {
   CVadjMem ca_mem;
   CVBandMemB cvbandB_mem;
-  void *cvode_mem;
+  CVodeMem cvB_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CVBAND_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVBAND_ADJMEM_NULL, "CVBAND", "CVBandSetJacFnB", MSGB_CAMEM_NULL);
+    return(CVBAND_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
-  if (lmemB == NULL) return(CVBAND_LMEMB_NULL);
+  cvB_mem = ca_mem->cvb_mem;
+
+  if (lmemB == NULL) {
+    CVProcessError(cvB_mem, CVBAND_LMEMB_NULL, "CVBAND", "CVBandSetJacFnB", MSGB_LMEMB_NULL);
+    return(CVBAND_LMEMB_NULL);
+  }
   cvbandB_mem = (CVBandMemB) lmemB;
 
   bjac_B     = bjacB;
   jac_data_B = jac_dataB;
 
-  cvode_mem = (void *) ca_mem->cvb_mem;
-
-  flag = CVBandSetJacFn(cvode_mem, CVAbandJac, cvadj_mem);
+  flag = CVBandSetJacFn(cvB_mem, CVAbandJac, cvadj_mem);
 
   return(flag);
 }
@@ -454,16 +463,18 @@ static int CVAbandJac(long int nB, long int mupperB,
                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
+  CVodeMem cvB_mem;
   CVBandMemB cvbandB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = ca_mem->cvb_mem;
   cvbandB_mem = (CVBandMemB) lmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    printf("\n\nBad t in interpolation\n\n");
+    CVProcessError(cvB_mem, -1, "CVBAND", "CVAbandJac", MSGB_BAD_T);
     exit(1);
     /*return(-1);*/
   }
@@ -537,8 +548,8 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   dgamma = ABS((gamma/gammap) - ONE);
   jbad = (nst == 0) || (nst > nstlj + CVB_MSBJ) ||
-    ((convfail == CV_FAIL_BAD_J) && (dgamma < CVB_DGMAX)) ||
-    (convfail == CV_FAIL_OTHER);
+         ((convfail == CV_FAIL_BAD_J) && (dgamma < CVB_DGMAX)) ||
+         (convfail == CV_FAIL_OTHER);
   jok = !jbad;
   
   if (jok) {
@@ -669,7 +680,7 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
   srur = RSqrt(uround);
   fnorm = N_VWrmsNorm(fy, ewt);
   minInc = (fnorm != ZERO) ?
-    (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
+           (MIN_INC_MULT * ABS(h) * uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mlower + mupper + 1;

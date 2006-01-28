@@ -742,7 +742,6 @@ The call to this function has the form
   will trap all \id{CVodeB} failures.
 }
 
-
 %%---------------------------------------------------------------------
 \subsection{Optional input functions for the backward problem}
 \label{ss:optional_input_B}
@@ -758,9 +757,10 @@ is the pointer to the adjoint memory block, \id{cvadj\_mem}, of type \id{void *}
 returned by \id{CVadjMalloc}. 
 The optional input functions defined for the backward problem are:
 \begin{verbatim}
+  flag = CVodeSetErrHandlerB(cvadj_mem, ehfunB, eh\_dataB);
+  flag = CVodeSetErrFileB(cvadj_mem, errfpB);
   flag = CVodeSetIterTypeB(cvadj_mem, iterB);
   flag = CVodeSetFdataB(cvadj_mem, f_dataB);
-  flag = CVodeSetErrFileB(cvadj_mem, errfpB);
   flag = CVodeSetMaxOrdB(cvadj_mem, maxordB);
   flag = CVodeSetMaxNumStepsB(cvadj_mem, mxstepsB);
   flag = CVodeSetStabLimDetB(cvadj_mem, stldetB);

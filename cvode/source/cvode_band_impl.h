@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -66,17 +66,15 @@ typedef struct {
 
 /* Error Messages */
 
-#define _CVBAND_         "CVBand-- "
-#define MSGB_MEM_FAIL    _CVBAND_ "A memory request failed.\n\n"
-#define MSGB_BAD_SIZES_1 _CVBAND_ "Illegal bandwidth parameter(s)."
-#define MSGB_BAD_SIZES_2 "Must have 0 <=  ml, mu <= N-1.\n\n"
-#define MSGB_BAD_SIZES   MSGB_BAD_SIZES_1 MSGB_BAD_SIZES_2
-#define MSGB_BAD_NVECTOR _CVBAND_ "A required vector operation is not implemented.\n\n"
-#define MSGB_CVMEM_NULL  _CVBAND_ "Integrator memory is NULL.\n\n"
+#define MSGB_CVMEM_NULL "Integrator memory is NULL."
 
-#define MSGB_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- Integrator memory is NULL.\n\n"
+#define MSGB_MEM_FAIL "A memory request failed."
 
-#define MSGB_SETGET_LMEM_NULL "CVBandSet*/CVBandGet*-- CVBAND memory is NULL.\n\n"
+#define MSGB_BAD_SIZES "Illegal bandwidth parameter(s). Must have 0 <=  ml, mu <= N-1."
+
+#define MSGB_BAD_NVECTOR "A required vector operation is not implemented."
+
+#define MSGB_LMEM_NULL "CVBAND memory is NULL."
 
 #ifdef __cplusplus
 }

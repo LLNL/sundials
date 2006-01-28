@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -53,14 +53,13 @@ typedef struct {
 
 /* Error Messages */
 
-#define _CVDIAG_          "CVDiag-- "
-#define MSGDG_CVMEM_NULL  _CVDIAG_ "Integrator memory is NULL.\n\n"
-#define MSGDG_BAD_NVECTOR _CVDIAG_ "A required vector operation is not implemented.\n\n"
-#define MSGDG_MEM_FAIL    _CVDIAG_ "A memory request failed.\n\n"
+#define MSGDG_CVMEM_NULL "Integrator memory is NULL."
 
-#define MSGDG_SETGET_CVMEM_NULL "CVDiagGet*-- Integrator memory is NULL.\n\n"
+#define MSGDG_BAD_NVECTOR "A required vector operation is not implemented."
 
-#define MSGDG_SETGET_LMEM_NULL "CVDiagGet*-- cvdiag memory is NULL.\n\n"
+#define MSGDG_MEM_FAIL "A memory request failed."
+
+#define MSGDG_LMEM_NULL "CVDIAG memory is NULL."
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 22:53:38 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-28 00:47:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -88,17 +88,15 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-#define _CVBAND_         "CVBand-- "
-#define MSGB_MEM_FAIL    _CVBAND_ "A memory request failed.\n\n"
-#define MSGB_BAD_SIZES_1 _CVBAND_ "Illegal bandwidth parameter(s)."
-#define MSGB_BAD_SIZES_2 "Must have 0 <=  ml, mu <= N-1.\n\n"
-#define MSGB_BAD_SIZES   MSGB_BAD_SIZES_1 MSGB_BAD_SIZES_2
-#define MSGB_BAD_NVECTOR _CVBAND_ "A required vector operation is not implemented.\n\n"
-#define MSGB_CVMEM_NULL  _CVBAND_ "Integrator memory is NULL.\n\n"
+#define MSGB_CVMEM_NULL "Integrator memory is NULL."
+#define MSGB_MEM_FAIL "A memory request failed."
+#define MSGB_BAD_SIZES "Illegal bandwidth parameter(s). Must have 0 <=  ml, mu <= N-1."
+#define MSGB_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGB_LMEM_NULL "CVBAND memory is NULL."
 
-#define MSGB_SETGET_CVMEM_NULL "CVBandSet*/CVBandGet*-- Integrator memory is NULL.\n\n"
-
-#define MSGB_SETGET_LMEM_NULL "CVBandSet*/CVBandGet*-- CVBAND memory is NULL.\n\n"
+#define MSGB_CAMEM_NULL "cvadj_mem = NULL illegal."
+#define MSGB_LMEMB_NULL "CVBAND memory is NULL for the backward integration."
+#define MSGB_BAD_T "Bad t for interpolation. Abort!"
 
 #ifdef __cplusplus
 }

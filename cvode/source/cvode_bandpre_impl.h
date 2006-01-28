@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -60,19 +60,11 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-/* CVBandPrecAlloc error messages */
+#define MSGBP_CVMEM_NULL "Integrator memory is NULL."
+#define MSGBP_MEM_FAIL "A memory request failed."
+#define MSGBP_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGBP_PDATA_NULL "BandPrecData is NULL."
 
-#define _CVBALLOC_        "CVBandPreAlloc-- "
-#define MSGBP_CVMEM_NULL  _CVBALLOC_ "Integrator memory is NULL.\n\n"
-#define MSGBP_BAD_NVECTOR _CVBALLOC_ "A required vector operation is not implemented.\n\n"
-
-/* CVBandPrecGet* error message */
-
-#define MSGBP_PDATA_NULL "CVBandPrecGet*-- BandPrecData is NULL.\n\n"
-
-/* CVBPSp* error message */
-
-#define MSGBP_NO_PDATA "CVBPSp*-- BandPrecData is NULL.\n\n"
 
 #ifdef __cplusplus
 }

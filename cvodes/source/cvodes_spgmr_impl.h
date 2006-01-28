@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-28 00:47:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -79,31 +79,17 @@ extern "C" {
 
   /* Error Messages */
 
-#define _CVSPGMR_         "CVSpgmr-- "
-#define MSGS_CVMEM_NULL   _CVSPGMR_ "Integrator memory is NULL.\n\n"
-#define MSGS_MEM_FAIL     _CVSPGMR_ "A memory request failed.\n\n"
-#define MSGS_BAD_PRETYPE1 _CVSPGMR_ "Illegal value for pretype.\n"
-#define MSGS_BAD_PRETYPE2 "The legal values are PREC_NONE, PREC_LEFT, "
-#define MSGS_BAD_PRETYPE3 "PREC_RIGHT, and PREC_BOTH.\n\n"
-#define MSGS_BAD_PRETYPE  MSGS_BAD_PRETYPE1 MSGS_BAD_PRETYPE2 MSGS_BAD_PRETYPE3
-#define MSGS_PSOLVE_REQ   _CVSPGMR_ "pretype != PREC_NONE, but PSOLVE = NULL is illegal.\n\n"
-#define MSGS_BAD_NVECTOR  _CVSPGMR_ "A required vector operation is not implemented.\n\n"
+#define MSGS_CVMEM_NULL "Integrator memory is NULL."
+#define MSGS_MEM_FAIL "A memory request failed."
+#define MSGS_BAD_PRETYPE "Illegal value for pretype. Legal values are PREC_NONE, PREC_LEFT, PREC_RIGHT, and PREC_BOTH."
+#define MSGS_PSOLVE_REQ "pretype != PREC_NONE, but PSOLVE = NULL is illegal."
+#define MSGS_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGS_LMEM_NULL "CVSPGMR memory is NULL."
+#define MSGS_BAD_GSTYPE "Illegal value for gstype. Legal values are MODIFIED_GS and CLASSICAL_GS."
+#define MSGS_BAD_DELT "delt < 0 illegal."
 
-#define MSGS_SETGET_CVMEM_NULL "CVSpgmrSet*/CVSpgmrGet*-- Integrator memory is NULL.\n\n"
-
-#define MSGS_SETGET_LMEM_NULL "CVSpgmrSet*/CVSpgmrGet*-- cvspgmr memory is NULL.\n\n"
-
-#define MSGS_SET_BAD_PRETYPE1 "CVSpgmrSetPrecType-- Illegal value for pretype.\n"
-#define MSGS_SET_BAD_PRETYPE2 "The legal values are PREC_NONE, PREC_LEFT, "
-#define MSGS_SET_BAD_PRETYPE3 "PREC_RIGHT, and PREC_BOTH.\n\n"
-#define MSGS_SET_BAD_PRETYPE  MSGS_SET_BAD_PRETYPE1 MSGS_SET_BAD_PRETYPE2 MSGS_SET_BAD_PRETYPE3
-
-#define MSGS_SET_BAD_GSTYPE1 "CVSpgmrSetGSType-- Illegal value for gstype.\n"
-#define MSGS_SET_BAD_GSTYPE2 "The legal values are MODIFIED_GS and "
-#define MSGS_SET_BAD_GSTYPE3 "CLASSICAL_GS.\n\n"
-#define MSGS_SET_BAD_GSTYPE  MSGS_SET_BAD_GSTYPE1 MSGS_SET_BAD_GSTYPE2 MSGS_SET_BAD_GSTYPE3
-
-#define MSGS_SET_BAD_DELT "CVSpgmrSetDelt-- delt < 0 illegal.\n\n"
+#define MSGS_CAMEM_NULL "cvadj_mem = NULL illegal."
+#define MSGS_LMEMB_NULL "CVSPGMR memory is NULL for the backward integration."
 
 #ifdef __cplusplus
 }

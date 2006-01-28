@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:51:02 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-28 00:47:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -48,15 +48,18 @@ int CVAspilsPrecSetup(realtype t, N_Vector yB,
                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   CVadjMem ca_mem;
+  CVodeMem cvB_mem;
   CVSpilsMemB cvspilsB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = ca_mem->cvb_mem;
   cvspilsB_mem = (CVSpilsMemB) lmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
+    CVProcessError(cvB_mem, -1, "CVSPILS", "CVAspilsPrecSetup", MSGSPILS_BAD_T);
     return(-1);
   } 
 
@@ -82,17 +85,20 @@ int CVAspilsPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
                       int lrB, void *cvadj_mem, N_Vector tmpB)
 {
   CVadjMem ca_mem;
+  CVodeMem cvB_mem;
   CVSpilsMemB cvspilsB_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = ca_mem->cvb_mem;
   cvspilsB_mem = (CVSpilsMemB) lmemB;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
+    CVProcessError(cvB_mem, -1, "CVSPILS", "CVAspilsPrecSolve", MSGSPILS_BAD_T);
     return(-1);
-  } 
+  }
 
   /* Call user's adjoint psolveB routine */
   flag = psolve_B(t, ytmp, yB, fyB, rB, zB, gammaB, deltaB, 

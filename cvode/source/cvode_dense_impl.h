@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:47 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -60,14 +60,13 @@ typedef struct {
 
 /* Error Messages */
 
-#define _CVDENSE_         "CVDense-- "
-#define MSGDS_CVMEM_NULL  _CVDENSE_ "Integrator memory is NULL.\n\n"
-#define MSGDS_BAD_NVECTOR _CVDENSE_ "A required vector operation is not implemented.\n\n"
-#define MSGDS_MEM_FAIL    _CVDENSE_ "A memory request failed.\n\n"
+#define MSGDS_CVMEM_NULL "Integrator memory is NULL."
 
-#define MSGDS_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- Integrator memory is NULL.\n\n"
+#define MSGDS_BAD_NVECTOR "A required vector operation is not implemented."
 
-#define MSGDS_SETGET_LMEM_NULL "CVDenseSet*/CVDenseGet*-- cvdense memory is NULL.\n\n"
+#define MSGDS_MEM_FAIL "A memory request failed."
+
+#define MSGDS_LMEM_NULL "CVDENSE memory is NULL."
 
 #ifdef __cplusplus
 }

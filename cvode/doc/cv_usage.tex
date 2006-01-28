@@ -402,8 +402,8 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
-  If an error occurred, \id{CVodeMalloc} also prints an error message to the
-  file specified by the optional input \id{errfp}.
+  If an error occurred, \id{CVodeMalloc} also send an eror message to the
+  error handler function.
 }
 %%
 %%
@@ -901,7 +901,7 @@ perform the integration of the IVP.
     solver function initialization (called by the user after calling 
     \id{CVodeCreate}) failed to set the linear solver-specific \id{lsolve} field
     in \id{cvode\_mem}. 
-    In any case, the user should see the printed error message for details.
+    In any case, the user should see the error message for details.
   \item[\Id{CV\_LINIT\_FAIL}] 
     The linear solver's initialization function failed. 
   \item[\Id{CV\_TOO\_MUCH\_WORK}] 
@@ -952,9 +952,8 @@ for the main {\cvode} solver and continuing with those for the linear solver
 modules. Note that the diagonal linear solver module has no optional inputs.
 For the most casual use of {\cvode}, the reader can skip to \S\ref{ss:user_fct_sim}.
 
-We note that, on error return, all these functions also print an error message
-to \id{stderr} (or to the file pointed to by \id{errfp} if already specified).
-\index{error message}
+We note that, on error return, all these functions also send an error message
+to the error handler function.\index{error message}
 We also note that all error return values are negative, so a test \id{flag}$<0$
 will catch any error.
 
@@ -969,6 +968,7 @@ will catch any error.
 \hline
 \multicolumn{3}{|c|}{\bf CVODE main solver} \\
 \hline
+Error handler function & \id{CVodeSetErrHandlerFn} & internal fn. \\
 Pointer to an error file & \id{CVodeSetErrFile} & \id{stderr}  \\
 Data for right-hand side function & \id{CVodeSetFdata} & NULL \\
 Maximum order for BDF method & \id{CVodeSetMaxOrd} & 5 \\
@@ -1034,8 +1034,44 @@ Ratio between linear and nonlinear tolerances & \id{CVSptfqmrSetDelt} & 0.05 \\
 \index{optional input!solver|(}
 
 The calls listed here can be executed in any order. 
+%%
+\index{error messages!user-defined handler}
+\ucfunction{CVodeSetErrHandlerFn}
+{
+flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
+}
+{
+  The function \ID{CVodeSetErrHandlerFn} specifies the optional user-defined function
+  to be used in handling error messages.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[ehfun] (\id{CVErrHandlerFn}) 
+    is the {\C} error handler function (see \S\ref{ss:ehFn}).
+  \item[eh\_data] (\id{void *})
+    pointer to user data passed to \id{ehfun} every time it is called.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}] 
+    The function \id{ehfun} and data pointer \id{eh\_data} have been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The default internal error handler function directs error messages to the
+  file specified by the file pointer \id{errfp} (see \id{CVodeSetErrFile} below).
 
-\index{error message}
+  Error messages indicating that the {\cvode} solver memory is \id{NULL} will 
+  always be directed to \id{stderr}.
+}
+%%
+\index{error message!redirecting}
 \ucfunction{CVodeSetErrFile}
 {
 flag = CVodeSetErrFile(cvode\_mem, errfp);
@@ -4614,8 +4650,8 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
   \end{args}
 }
 {
-  If an error occurred, \id{CVodeReInit} also prints an error message to the
-  file specified by the optional input \id{errfp}.
+  If an error occurred, \id{CVodeReInit} also sends an error message to the
+  error handler function.
 
   {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
@@ -4626,11 +4662,11 @@ appropriate \id{Set} calls, as described in \S\ref{sss:lin_solv_init}
 %%==============================================================================
 
 The user-supplied functions consist of one function defining the ODE,
+(optionally) a function that handles error and warning messages,
 (optionally) a function that provides the error weight vector,
 (optionally) a function that provides Jacobian-related information for the linear
 solver (if Newton iteration is chosen), and (optionally) one or two functions 
-that define the preconditioner for use in the any of the Krylov iterative
-algorithms. 
+that define the preconditioner for use in the any of the Krylov iterative algorithms. 
 
 %%==============================================================================
 \subsection{ODE right-hand side} \label{ss:rhsFn}
@@ -4668,7 +4704,44 @@ The user must provide a function of type \ID{CVRhsFn} defined as follows:
   Allocation of memory for \id{ydot} is handled within {\cvode}.
 }
 
-\index{right-hand side function}
+%%==============================================================================
+\subsection{Error message handler function}
+\label{ss:ehFn}
+%%==============================================================================
+\index{error messages!user-defined handler}
+As an alternative to the default behavior of directing error and warning messages 
+to the file pointed to by \id{errfp} (see \id{CVSeterrFile}), the user may
+provide a function of type \ID{CVErrHandlerFn} to process any such messages.
+The function type \id{CVErrHandlerFn} is defined as follows:
+\usfunction{CVErrHandlerFn}
+{
+  typedef void (*CVErrHandlerFn)(&int error\_code,  \\
+                                 &const char *module, const char *function, \\ 
+                                 &char *msg, void *eh\_data); 
+}
+{
+  This function processes error and warning messages from {\cvode} and 
+  its sub-modules.
+}
+{
+  \begin{args}[error\_code]
+  \item[error\_code]
+    is the error code
+  \item[module]
+    is the name of the {\cvode} module reporting the error.
+  \item[function]
+    is the name of the function in which the error occurred.
+  \item[msg]
+    is the error message.
+  \item[eh\_data]
+    is a pointer to user data, the same as the \Id{eh\_data}      
+    parameter passed to \id{CVodeSetErrHandlerFn}.   
+  \end{args}
+}
+{
+  A \id{CVErrHandlerFn} function has no return value.
+}
+{}
 
 %%==============================================================================
 \subsection{Error weight function}

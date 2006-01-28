@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 23:07:47 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -129,14 +129,14 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmr", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if N_VDotProd is present */
   if (vec_tmpl->ops->nvdotprod == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_BAD_NVECTOR);
+    CVProcessError(cv_mem, CVSPTFQMR_ILL_INPUT, "CVSPTFQMR", "CVSptfqmr", MSGTFQMR_BAD_NVECTOR);
     return(CVSPTFQMR_ILL_INPUT);
   }
 
@@ -152,7 +152,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   cvsptfqmr_mem = NULL;
   cvsptfqmr_mem = (CVSptfqmrMem) malloc(sizeof(CVSptfqmrMemRec));
   if (cvsptfqmr_mem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPTFQMR_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGTFQMR_MEM_FAIL);
     return(CVSPTFQMR_MEM_FAIL);
   }
 
@@ -174,7 +174,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_BAD_PRETYPE);
+    CVProcessError(cv_mem, CVSPTFQMR_ILL_INPUT, "CVSPTFQMR", "CVSptfqmr", MSGTFQMR_BAD_PRETYPE);
     return(CVSPTFQMR_ILL_INPUT);
   }
 
@@ -182,14 +182,14 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPTFQMR_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGTFQMR_MEM_FAIL);
     free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
     return(CVSPTFQMR_MEM_FAIL);
   }
   x = NULL;
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPTFQMR_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGTFQMR_MEM_FAIL);
     N_VDestroy(ytemp);
     free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
     return(CVSPTFQMR_MEM_FAIL);
@@ -203,7 +203,7 @@ int CVSptfqmr(void *cvode_mem, int pretype, int maxl)
   sptfqmr_mem = NULL;
   sptfqmr_mem = SptfqmrMalloc(mxl, vec_tmpl);
   if (sptfqmr_mem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPTFQMR_MEM_FAIL, "CVSPTFQMR", "CVSptfqmr", MSGTFQMR_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(x);
     free(cvsptfqmr_mem); cvsptfqmr_mem = NULL;
@@ -229,13 +229,13 @@ int CVSptfqmrSetPrecType(void *cvode_mem, int pretype)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrSetPrecType", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrSetPrecType", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -243,7 +243,7 @@ int CVSptfqmrSetPrecType(void *cvode_mem, int pretype)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SET_BAD_PRETYPE);
+    CVProcessError(cv_mem, CVSPTFQMR_ILL_INPUT, "CVSPTFQMR", "CVSptfqmrSetPrecType", MSGTFQMR_BAD_PRETYPE);
     return(CVSPTFQMR_ILL_INPUT);
   }
 
@@ -266,13 +266,13 @@ int CVSptfqmrSetMaxl(void *cvode_mem, int maxl)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrSetMaxl", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrSetMaxl", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -297,20 +297,20 @@ int CVSptfqmrSetDelt(void *cvode_mem, realtype delt)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrSetDelt", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrSetDelt", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
 
   /* Check for legal delt */
   if (delt < ZERO) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SET_BAD_DELT);
+    CVProcessError(cv_mem, CVSPTFQMR_ILL_INPUT, "CVSPTFQMR", "CVSptfqmrSetDelt", MSGTFQMR_BAD_DELT);
     return(CVSPTFQMR_ILL_INPUT);
   }
 
@@ -335,13 +335,13 @@ int CVSptfqmrSetPreconditioner(void *cvode_mem,
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrSetPreconditioner", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrSetPreconditioner", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -368,13 +368,13 @@ int CVSptfqmrSetJacTimesVecFn(void *cvode_mem,
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrSetJacTimesVecFn", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrSetJacTimesVecFn", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -397,13 +397,13 @@ int CVSptfqmrGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrGetWorkSpace", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrGetWorkSpace", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
 
@@ -426,13 +426,13 @@ int CVSptfqmrGetNumPrecEvals(void *cvode_mem, long int *npevals)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumPrecEvals", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumPrecEvals", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -455,13 +455,13 @@ int CVSptfqmrGetNumPrecSolves(void *cvode_mem, long int *npsolves)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumPrecSolves", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumPrecSolves", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -484,13 +484,13 @@ int CVSptfqmrGetNumLinIters(void *cvode_mem, long int *nliters)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumLinIters", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumLinIters", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -513,13 +513,13 @@ int CVSptfqmrGetNumConvFails(void *cvode_mem, long int *nlcfails)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumConvFails", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumConvFails", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -542,13 +542,13 @@ int CVSptfqmrGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumJtimesEvals", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumJtimesEvals", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -571,13 +571,13 @@ int CVSptfqmrGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumRhsEvals", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrGetNumRhsEvals", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -600,13 +600,13 @@ int CVSptfqmrGetLastFlag(void *cvode_mem, int *flag)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_MEM_NULL, "CVSPTFQMR", "CVSptfqmrGetLastFlag", MSGTFQMR_CVMEM_NULL);
     return(CVSPTFQMR_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPTFQMR_LMEM_NULL, "CVSPTFQMR", "CVSptfqmrGetLastFlag", MSGTFQMR_LMEM_NULL);
     return(CVSPTFQMR_LMEM_NULL);
   }
   cvsptfqmr_mem = (CVSptfqmrMem) lmem;
@@ -648,7 +648,7 @@ static int CVSptfqmrInit(CVodeMem cv_mem)
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_PSOLVE_REQ);
+    CVProcessError(cv_mem, -1, "CVSPTFQMR", "CVSptfqmrInit", MSGTFQMR_PSOLVE_REQ);
     last_flag = -1;
     return(-1);
   }

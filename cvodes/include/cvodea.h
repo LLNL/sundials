@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2006-01-24 00:50:58 $
+ * $Revision: 1.44 $
+ * $Date: 2006-01-28 00:47:13 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -41,6 +41,7 @@ extern "C" {
 
 #include <stdio.h>
 
+#include "cvodes.h"
 #include "sundials_nvector.h"
 
   /* 
@@ -183,9 +184,10 @@ extern "C" {
                    realtype tB0, N_Vector yB0,
                    int itolB, realtype reltolB, void *abstolB);
   
+  int CVodeSetErrHandlerFnB(void *cvadj_mem, CVErrHandlerFn ehfunB, void *eh_dataB);
+  int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB);
   int CVodeSetIterTypeB(void *cvadj_mem, int iterB);
   int CVodeSetFdataB(void *cvadj_mem, void *f_dataB);
-  int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB);
   int CVodeSetMaxOrdB(void *cvadj_mem, int maxordB);
   int CVodeSetMaxNumStepsB(void *cvadj_mem, long int mxstepsB);
   int CVodeSetStabLimDetB(void *cvadj_mem, booleantype stldetB);

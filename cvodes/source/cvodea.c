@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.61 $
- * $Date: 2006-01-25 23:07:56 $
+ * $Revision: 1.62 $
+ * $Date: 2006-01-28 00:47:16 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -188,15 +188,18 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
 
   /* Check arguments */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGAM_NO_MEM);
+    CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_NULL_CVMEM);
     return(NULL);
   }
+  cv_mem = (CVodeMem)cvode_mem;
+
   if (steps <= 0) {
-    fprintf(stderr, MSGAM_BAD_STEPS);
+    CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_BAD_STEPS);
     return(NULL);
   }
+
   if ( (interp != CV_HERMITE) && (interp != CV_POLYNOMIAL) ) {
-    fprintf(stderr, MSGAM_BAD_INTERP);
+    CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_BAD_INTERP);
     return(NULL);
   } 
 
@@ -204,12 +207,11 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   ca_mem = NULL;
   ca_mem = (CVadjMem) malloc(sizeof(struct CVadjMemRec));
   if (ca_mem == NULL) {
-    fprintf(stderr, MSGAM_MEM_FAIL);
+    CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
     return(NULL);
   }
 
-  /* Attach CVODE memory for forward runs */
-  cv_mem = (CVodeMem)cvode_mem;
+  /* Attach CVODES memory for forward runs */
   ca_mem->cv_mem = cv_mem;
 
   /* Set interpType */
@@ -219,7 +221,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   allocOK = CVAallocVectors(ca_mem);
   if (!allocOK) {
     free(ca_mem); ca_mem = NULL;
-    fprintf(stderr, MSGAM_MEM_FAIL);
+    CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -229,7 +231,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   if (ca_mem->ck_mem == NULL) {
     CVAfreeVectors(ca_mem);
     free(ca_mem); ca_mem = NULL;
-    fprintf(stderr, MSGAM_MEM_FAIL);
+    CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -241,7 +243,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
     while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
     CVAfreeVectors(ca_mem);
     free(ca_mem); ca_mem = NULL;
-    fprintf(stderr, MSGAM_MEM_FAIL);
+    CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
     return(NULL);
   }
 
@@ -254,7 +256,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
       while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
       CVAfreeVectors(ca_mem);
       free(ca_mem); ca_mem = NULL;
-      fprintf(stderr, MSGAM_MEM_FAIL);
+      CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
       return(NULL);
     }
   }
@@ -270,7 +272,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
       while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
       CVAfreeVectors(ca_mem);
       free(ca_mem); ca_mem = NULL;
-      fprintf(stderr, MSGAM_MEM_FAIL);
+      CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
       return(NULL);
     }
     /* Attach interpolation functions getY and storePnt */
@@ -289,7 +291,7 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
       while (ca_mem->ck_mem != NULL) CVAckpntDelete(&(ca_mem->ck_mem));
       CVAfreeVectors(ca_mem);
       free(ca_mem); ca_mem = NULL;
-      fprintf(stderr, MSGAM_MEM_FAIL);
+      CVProcessError(NULL, 0, "CVODEA", "CVadjMalloc", MSGAM_MEM_FAIL);
       return(NULL);
     }
     /* Attach interpolation functions getY and storePnt */
@@ -331,11 +333,16 @@ int CVadjSetInterpType(void *cvadj_mem, int interp)
   booleantype allocOK;
   long int i;
   
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjSetInterpType", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
+  cv_mem = ca_mem->cv_mem;
+
   if ( (interp != CV_HERMITE) && (interp != CV_POLYNOMIAL) ) {
-    fprintf(stderr, MSGAS_BAD_INTERP);
+    CVProcessError(NULL, CV_ILL_INPUT, "CVODEA", "CVadjSetInterpType", MSGAM_BAD_INTERP);
     return(CV_ILL_INPUT);
   } 
 
@@ -343,7 +350,6 @@ int CVadjSetInterpType(void *cvadj_mem, int interp)
 
   interpType = interp;
 
-  cv_mem = ca_mem->cv_mem;
 
   switch (interpType) {
 
@@ -352,7 +358,10 @@ int CVadjSetInterpType(void *cvadj_mem, int interp)
     CVApolynomialFree(ca_mem->dt_mem, nsteps);
     /* Allocate Data Points memory */
     allocOK = CVAhermiteMalloc(ca_mem, nsteps);
-    if (!allocOK) return(CV_MEM_FAIL);
+    if (!allocOK) {
+      CVProcessError(NULL, CV_MEM_FAIL, "CVODEA", "CVadjSetInterpType", MSGAM_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
     /* Attach interpolation functions getY and storePnt */
     getY = CVAhermiteGetY;
     storePnt = CVAhermiteStorePnt;
@@ -365,7 +374,10 @@ int CVadjSetInterpType(void *cvadj_mem, int interp)
     CVAhermiteFree(ca_mem->dt_mem, nsteps);
     /* Allocate Data Points memory */
     allocOK = CVApolynomialMalloc(ca_mem, nsteps);
-    if (!allocOK) return(CV_MEM_FAIL);
+    if (!allocOK) {
+      CVProcessError(NULL, CV_MEM_FAIL, "CVODEA", "CVadjSetInterpType", MSGAM_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
     /* Attach interpolation functions getY and storePnt */
     getY = CVApolynomialGetY;
     storePnt = CVApolynomialStorePnt;
@@ -377,7 +389,6 @@ int CVadjSetInterpType(void *cvadj_mem, int interp)
   return(CV_SUCCESS);
 
 }
-
 
 /*
  * CVadjFree
@@ -422,9 +433,6 @@ void CVadjFree(void **cvadj_mem)
   *cvadj_mem = NULL;
 }
 
-
-
-
 /*
  * CVodeF
  *
@@ -446,7 +454,10 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
   int cv_itask, flag;
   booleantype iret;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeF", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
   cv_mem = ca_mem->cv_mem;
@@ -499,6 +510,7 @@ int CVodeF(void *cvadj_mem, realtype tout, N_Vector yout,
       /* Create a new check point, load it, and append it to the list */
       tmp = CVAckpntNew(cv_mem);
       if (tmp == NULL) {
+        CVProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeF", MSGAM_MEM_FAIL);
         flag = CV_MEM_FAIL;
         break;
       }
@@ -563,18 +575,58 @@ int CVodeCreateB(void *cvadj_mem, int lmmB, int iterB)
   CVadjMem ca_mem;
   void *cvode_mem;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeCreateB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
 
   ca_mem = (CVadjMem) cvadj_mem;
 
   cvode_mem = CVodeCreate(lmmB, iterB);
 
-  if (cvode_mem == NULL) return(CV_MEM_FAIL);
+  if (cvode_mem == NULL)
+    return(CV_MEM_FAIL);
 
   ca_mem->cvb_mem = (CVodeMem) cvode_mem;
 
   return(CV_SUCCESS);
 
+}
+
+int CVodeSetErrHandlerFnB(void *cvadj_mem, CVErrHandlerFn ehfunB, void *eh_dataB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetErrHandlerB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetErrHandlerFn(cvode_mem, ehfunB, eh_dataB);
+
+  return(flag);
+}
+
+int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB)
+{
+  CVadjMem ca_mem;
+  void *cvode_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetErrFileB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvode_mem = (void *)ca_mem->cvb_mem;
+
+  flag = CVodeSetErrFile(cvode_mem, errfpB);
+
+  return(flag);
 }
 
 int CVodeSetIterTypeB(void *cvadj_mem, int iterB)
@@ -583,6 +635,10 @@ int CVodeSetIterTypeB(void *cvadj_mem, int iterB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetIterTypeB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
@@ -595,25 +651,15 @@ int CVodeSetFdataB(void *cvadj_mem, void *f_dataB)
 {
   CVadjMem ca_mem;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetFdataB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
   f_data_B = f_dataB;
 
   return(CV_SUCCESS);
-}
-
-int CVodeSetErrFileB(void *cvadj_mem, FILE *errfpB)
-{
-  CVadjMem ca_mem;
-  void *cvode_mem;
-  int flag;
-
-  ca_mem = (CVadjMem) cvadj_mem;
-  cvode_mem = (void *)ca_mem->cvb_mem;
-
-  flag = CVodeSetErrFile(cvode_mem, errfpB);
-
-  return(flag);
 }
 
 int CVodeSetMaxOrdB(void *cvadj_mem, int maxordB)
@@ -622,6 +668,10 @@ int CVodeSetMaxOrdB(void *cvadj_mem, int maxordB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetMaxOrdB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
@@ -637,6 +687,10 @@ int CVodeSetMaxNumStepsB(void *cvadj_mem, long int mxstepsB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetMaxNumStepsB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
@@ -651,6 +705,10 @@ int CVodeSetStabLimDetB(void *cvadj_mem, booleantype stldetB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetStabLimDetB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
@@ -665,6 +723,10 @@ int CVodeSetInitStepB(void *cvadj_mem, realtype hinB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetInitStepB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
@@ -679,6 +741,10 @@ int CVodeSetMinStepB(void *cvadj_mem, realtype hminB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetMinStepB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
@@ -693,6 +759,10 @@ int CVodeSetMaxStepB(void *cvadj_mem, realtype hmaxB)
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetMaxStepB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   cvode_mem = (void *)ca_mem->cvb_mem;
 
@@ -706,28 +776,31 @@ int CVodeMallocB(void *cvadj_mem, CVRhsFnB fB,
                  int itolB, realtype reltolB, void *abstolB)
 {
   CVadjMem ca_mem;
-  void *cvode_mem;
+  CVodeMem cv_mem;
   int sign, flag;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeMallocB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
+  cv_mem = ca_mem->cvb_mem;
+
+  flag = CVodeMalloc(cv_mem, CVArhs, tB0, yB0,
+                     itolB, reltolB, abstolB);
+  if (flag != CV_SUCCESS) return(flag);
+
   sign = (tfinal - tinitial > ZERO) ? 1 : -1;
-  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) )
+  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) ) {
+    CVProcessError(cv_mem, CV_BAD_TB0, "CVODEA", "CVodeMallocB", MSGAM_BAD_TB0);
     return(CV_BAD_TB0);
+  }
 
   f_B = fB;
 
-  cvode_mem = (void *) ca_mem->cvb_mem;
-
-  flag = CVodeMalloc(cvode_mem, CVArhs, tB0, yB0,
-                     itolB, reltolB, abstolB);
-
-  if (flag != CV_SUCCESS) return(flag);
-
-  CVodeSetMaxHnilWarns(cvode_mem, -1);
-  CVodeSetFdata(cvode_mem, cvadj_mem);
+  CVodeSetMaxHnilWarns(cv_mem, -1);
+  CVodeSetFdata(cv_mem, cvadj_mem);
 
   return(CV_SUCCESS);
 
@@ -738,28 +811,32 @@ int CVodeReInitB(void *cvadj_mem, CVRhsFnB fB,
                  int itolB, realtype reltolB, void *abstolB)
 {
   CVadjMem ca_mem;
-  void *cvode_mem;
+  CVodeMem cv_mem;
   int sign, flag;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeReInitB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
-  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
-  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) )
-    return(CV_BAD_TB0);
-  
-  f_B  = fB;
+  cv_mem = ca_mem->cvb_mem;
 
-  cvode_mem = (void *) ca_mem->cvb_mem;
-
-  flag = CVodeReInit(cvode_mem, CVArhs, tB0, yB0,
+  flag = CVodeReInit(cv_mem, CVArhs, tB0, yB0,
                      itolB, reltolB, abstolB);
 
   if (flag != CV_SUCCESS) return(flag);
 
-  CVodeSetMaxHnilWarns(cvode_mem, -1);
-  CVodeSetFdata(cvode_mem, cvadj_mem);
+  sign = (tfinal - tinitial > ZERO) ? 1 : -1;
+  if ( (sign*(tB0-tinitial) < ZERO) || (sign*(tfinal-tB0) < ZERO) ) {
+    CVProcessError(cv_mem, CV_BAD_TB0, "CVODEA", "CVodeReInitB", MSGAM_BAD_TB0);
+    return(CV_BAD_TB0);
+  }
+  
+  f_B  = fB;
+
+  CVodeSetMaxHnilWarns(cv_mem, -1);
+  CVodeSetFdata(cv_mem, cvadj_mem);
 
   return(CV_SUCCESS);
 
@@ -776,6 +853,10 @@ int CVodeSetQuadFdataB(void *cvadj_mem, void *fQ_dataB)
 {
   CVadjMem ca_mem;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetQuadFdataB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
   fQ_data_B = fQ_dataB;
@@ -790,7 +871,12 @@ int CVodeSetQuadErrConB(void *cvadj_mem, booleantype errconQB,
   void *cvode_mem;
   int flag;
 
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeSetQuadErrConB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
+
   cvode_mem = (void *)ca_mem->cvb_mem;
 
   flag = CVodeSetQuadErrCon(cvode_mem, errconQB, itolQB, reltolQB, abstolQB);
@@ -804,8 +890,10 @@ int CVodeQuadMallocB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeQuadMallocB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
   fQ_B = fQB;
@@ -827,8 +915,10 @@ int CVodeQuadReInitB(void *cvadj_mem, CVQuadRhsFnB fQB, N_Vector yQB0)
   void *cvode_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
-
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeQuadReInitB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
   fQ_B = fQB;
@@ -860,25 +950,35 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
   int sign, flag, cv_itask;
   realtype tBn;
   
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem  = (CVadjMem) cvadj_mem;
 
   cvb_mem = ca_mem->cvb_mem;
-  if (cvb_mem == NULL) return(CV_BCKMEM_NULL);
+  if (cvb_mem == NULL) {
+    CVProcessError(NULL, CV_BCKMEM_NULL, "CVODEA", "CVodeB", MSGAM_NULL_CVMEM);
+    return(CV_BCKMEM_NULL);
+  }
 
   if (itaskB == CV_NORMAL)
     cv_itask = CV_NORMAL_TSTOP;
   else if (itaskB == CV_ONE_STEP)
     cv_itask = CV_ONE_STEP_TSTOP;
-  else
+  else {
+    CVProcessError(cvb_mem, CV_BAD_ITASK, "CVODEA", "CVodeB", MSGAM_BAD_ITASKB);
     return(CV_BAD_ITASK);
+  }
 
   ck_mem = ca_mem->ck_mem;
 
   sign = (tfinal - tinitial > ZERO) ? 1 : -1;
 
-  if ( (sign*(tBout-tinitial) < ZERO) || (sign*(tfinal-tBout) < ZERO) )
+  if ( (sign*(tBout-tinitial) < ZERO) || (sign*(tfinal-tBout) < ZERO) ) {
+    CVProcessError(cvb_mem, CV_BAD_TBOUT, "CVODEA", "CVodeB", MSGAM_BAD_TBOUT);
     return(CV_BAD_TBOUT);
+  }
 
   tBn = cvb_mem->cv_tn;
   while ( sign*(tBn - t0_) <= ZERO ) ck_mem = next_;
@@ -889,7 +989,8 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
        This is the 2nd forward integration pass */
     if (ck_mem != ckpntData) {
       flag = CVAdataStore(ca_mem, ck_mem);
-      if (flag != CV_SUCCESS) return(flag);
+      if (flag != CV_SUCCESS)
+        return(flag); /* error message is sent from forward CVODES functions */
     }
 
     /* Backward integration */
@@ -897,16 +998,19 @@ int CVodeB(void *cvadj_mem, realtype tBout, N_Vector yBout,
     flag = CVode(cvb_mem, tBout, yBout, tBret, cv_itask);
 
     /* If an error occured, return now */
-    if (flag < 0) return(flag);
+    if (flag < 0) 
+      return(flag); /* error message is sent from backward CVODES function */
 
     /* Set the time at which CVodeGetQuadB will evaluate any quadratures */
     t_for_quad = *tBret;
 
     /* If in CV_ONE_STEP mode, return now (flag=CV_SUCCESS or flag=CV_TSTOP_RETURN) */
-    if (itaskB == CV_ONE_STEP) return(flag);
+    if (itaskB == CV_ONE_STEP) 
+      return(flag);
 
     /* If succesfully reached tBout, return now */
-    if (*tBret == tBout) return(flag);
+    if (*tBret == tBout) 
+      return(flag);
 
     /* Move check point in linked list to next one */
     ck_mem = next_;
@@ -926,7 +1030,10 @@ int CVodeGetQuadB(void *cvadj_mem, N_Vector qB)
   void *cvode_mem;
   int flag;
   
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVodeGetQuadB", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem  = (CVadjMem) cvadj_mem;
   cvode_mem = (void *) ca_mem->cvb_mem;
   
@@ -949,7 +1056,10 @@ void *CVadjGetCVodeBmem(void *cvadj_mem)
   CVadjMem ca_mem;
   void *cvode_mem;
   
-  if (cvadj_mem == NULL) return(NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, 0, "CVODEA", "CVadjGetCVodeBmem", MSGAM_NULL_CAMEM);
+    return(NULL);
+  }
   ca_mem  = (CVadjMem) cvadj_mem;
   cvode_mem = (void *) ca_mem->cvb_mem;
 
@@ -974,7 +1084,10 @@ int CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt)
   CkpntMem ck_mem;
   int i;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetCheckPointsInfo", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   ck_mem = ca_mem->ck_mem;
   i = 0;
@@ -1008,7 +1121,10 @@ int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
 {
   CVadjMem ca_mem;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetCurrentCheckPoint", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
   *addr = (unsigned int) ckpntData;
@@ -1030,11 +1146,17 @@ int CVadjGetDataPointHermite(void *cvadj_mem, long int which,
   DtpntMem *dt_mem;
   HermiteDataMem content;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetDataPointHermite", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   dt_mem = ca_mem->dt_mem;
 
-  if (interpType != CV_HERMITE) return(CV_ILL_INPUT);
+  if (interpType != CV_HERMITE) {
+    CVProcessError(NULL, CV_ILL_INPUT, "CVODEA", "CVadjGetDataPointHermite", MSGAM_WRONG_INTERP);
+    return(CV_ILL_INPUT);
+  }
 
   *t = dt_mem[which]->t;
 
@@ -1063,11 +1185,17 @@ int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
   DtpntMem *dt_mem;
   PolynomialDataMem content;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetDataPointPolynomial", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
   dt_mem = ca_mem->dt_mem;
 
-  if (interpType != CV_POLYNOMIAL) return(CV_ILL_INPUT);
+  if (interpType != CV_POLYNOMIAL) {
+    CVProcessError(NULL, CV_ILL_INPUT, "CVODEA", "CVadjGetDataPointPolynomial", MSGAM_WRONG_INTERP);
+    return(CV_ILL_INPUT);
+  }
 
   *t = dt_mem[which]->t;
 
@@ -1093,7 +1221,10 @@ int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y)
   int flag;
   CVadjMem ca_mem;
 
-  if (cvadj_mem == NULL) return(CV_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetY", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
   ca_mem  = (CVadjMem) cvadj_mem;
   
   flag = getY(ca_mem, t, y);
@@ -1372,7 +1503,8 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
 
   /* Initialize cv_mem with data from ck_mem */
   flag = CVAckpntGet(cv_mem, ck_mem);
-  if (flag != CV_SUCCESS) return(CV_REIFWD_FAIL);
+  if (flag != CV_SUCCESS)
+    return(CV_REIFWD_FAIL);
 
   /* Set first structure in dt_mem[0] */
   dt_mem[0]->t = t0_;
@@ -1383,7 +1515,8 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
   i = 1;
   do {
     flag = CVode(cv_mem, t1_, ytmp, &t, CV_ONE_STEP);
-    if (flag < 0) return(CV_FWD_FAIL);
+    if (flag < 0) 
+      return(CV_FWD_FAIL);
     dt_mem[i]->t = t;
     storePnt(cv_mem, dt_mem[i]);
     i++;
@@ -1400,7 +1533,7 @@ int CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem)
 /*
  * CVAckpntGet
  *
- * This routine prepares CVODE for a hot restart from
+ * This routine prepares CVODES for a hot restart from
  * the check point ck_mem
  */
 
@@ -1972,14 +2105,16 @@ static int CVArhs(realtype t, N_Vector yB,
                   N_Vector yBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
+  CVodeMem cv_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cv_mem = ca_mem->cvb_mem;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    printf("\n\nBad t in interpolation\n\n");
+    CVProcessError(cv_mem, -1, "CVODEA", "CVArhs", MSGAM_BAD_T);
     exit(1);
     /*return(-1);*/
   }
@@ -2002,14 +2137,16 @@ static int CVArhsQ(realtype t, N_Vector yB,
                    N_Vector qBdot, void *cvadj_mem)
 {
   CVadjMem ca_mem;
+  CVodeMem cv_mem;
   int flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
+  cv_mem = ca_mem->cvb_mem;
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    printf("\n\nBad t in interpolation\n\n");
+    CVProcessError(cv_mem, -1, "CVODEA", "CVArhs", MSGAM_BAD_T);
     exit(1);
     /*return(-1);*/
   }

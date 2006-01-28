@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-01-25 23:07:47 $
+ * $Revision: 1.6 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -53,7 +53,6 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 
 /* Redability replacements */
 
-#define errfp    (cv_mem->cv_errfp)
 #define uround   (cv_mem->cv_uround)
 #define vec_tmpl (cv_mem->cv_tempv)
 
@@ -74,21 +73,24 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   long int muk, mlk, storage_mu;
 
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBBDP_CVMEM_NULL);
+    CVProcessError(NULL, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_CVMEM_NULL);
     return(NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BLOCK BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBBDP_BAD_NVECTOR);
+    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_BAD_NVECTOR);
     return(NULL);
   }
 
   /* Allocate data memory */
   pdata = NULL;
   pdata = (CVBBDPrecData) malloc(sizeof *pdata);  
-  if (pdata == NULL) return(NULL);
+  if (pdata == NULL) {
+    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
+    return(NULL);
+  }
 
   /* Set pointers to gloc and cfn; load half-bandwidths */
   pdata->cvode_mem = cvode_mem;
@@ -105,6 +107,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   pdata->savedJ = BandAllocMat(Nlocal, muk, mlk, muk);
   if (pdata->savedJ == NULL) { 
     free(pdata); pdata = NULL; 
+    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
     return(NULL); 
   }
 
@@ -115,6 +118,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
   if (pdata->savedP == NULL) {
     BandFreeMat(pdata->savedJ);
     free(pdata); pdata = NULL;
+    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
     return(NULL);
   }
   /* Allocate memory for pivots */
@@ -124,6 +128,7 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
     BandFreeMat(pdata->savedP);
     BandFreeMat(pdata->savedJ);
     free(pdata); pdata = NULL;
+    CVProcessError(cv_mem, 0, "CVBBDPRE", "CVBBDPrecAlloc", MSGBBDP_MEM_FAIL);
     return(NULL);
   }
 
@@ -152,7 +157,7 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   cv_mem = (CVodeMem) cvode_mem;
 
   if (bbd_data == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBBDP_NO_PDATA);
+    CVProcessError(cv_mem, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDSptfqmr", MSGBBDP_PDATA_NULL);
     return(CVBBDPRE_PDATA_NULL);
   } 
 
@@ -173,7 +178,7 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   cv_mem = (CVodeMem) cvode_mem;
 
   if (bbd_data == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBBDP_NO_PDATA);
+    CVProcessError(cv_mem, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDSpbcg", MSGBBDP_PDATA_NULL);
     return(CVBBDPRE_PDATA_NULL);
   } 
 
@@ -194,7 +199,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   cv_mem = (CVodeMem) cvode_mem;
 
   if (bbd_data == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBBDP_NO_PDATA);
+    CVProcessError(cv_mem, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDSpgmr", MSGBBDP_PDATA_NULL);
     return(CVBBDPRE_PDATA_NULL);
   } 
 
@@ -214,7 +219,7 @@ int CVBBDPrecReInit(void *bbd_data,
   long int Nlocal;
 
   if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBDP_NO_PDATA);
+    CVProcessError(NULL, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDPrecReInit", MSGBBDP_PDATA_NULL);
     return(CVBBDPRE_PDATA_NULL);
   } 
 
@@ -258,7 +263,7 @@ int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBB
   CVBBDPrecData pdata;
 
   if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBDP_PDATA_NULL);
+    CVProcessError(NULL, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDPrecGetWorkSpace", MSGBBDP_PDATA_NULL);    
     return(CVBBDPRE_PDATA_NULL);
   } 
 
@@ -275,7 +280,7 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   CVBBDPrecData pdata;
 
   if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBDP_PDATA_NULL);
+    CVProcessError(NULL, CVBBDPRE_PDATA_NULL, "CVBBDPRE", "CVBBDPrecGetNumGfnEvals", MSGBBDP_PDATA_NULL);
     return(CVBBDPRE_PDATA_NULL);
   } 
 

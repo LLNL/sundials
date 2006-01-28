@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.37 $
- * $Date: 2006-01-24 00:50:14 $
+ * $Revision: 1.38 $
+ * $Date: 2006-01-28 00:47:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -168,7 +168,7 @@ typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
  *   ewt_i = 1 / (reltol * |y_i| + abstol_i)
  *
  * The e_data parameter is the same as that passed by the user
- * to the CVodeSetEdata routine.  This user-supplied pointer is
+ * to the CVodeSetEwtFn routine.  This user-supplied pointer is
  * passed to the user's e function every time it is called.
  * A CVEwtFn e must return 0 if the error weight vector has been
  * successfuly set and a non-zero value otherwise.
@@ -176,6 +176,27 @@ typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
  */
 
 typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
+
+/*
+ * -----------------------------------------------------------------
+ * Type : CVErrHandlerFn
+ * -----------------------------------------------------------------
+ * A function eh, which handles error messages, must have type
+ * CVErrHandlerFn.
+ * The function eh takes as input the error code, the name of the
+ * module reporting the error, the error message, and a pointer to
+ * user data, the same as that passed to CVodeSetErrHandlerFn.
+ * 
+ * All error codes are negative, except CV_WARNING which indicates 
+ * a warning (the solver continues).
+ *
+ * A CVErrHandlerFn has no return value.
+ * -----------------------------------------------------------------
+ */
+
+typedef void (*CVErrHandlerFn)(int error_code, 
+                               const char *module, const char *function, 
+                               char *msg, void *eh_data); 
 
 /*
  * =================================================================
@@ -217,15 +238,20 @@ void *CVodeCreate(int lmm, int iter);
  * Function                |  Optional input / [ default value ]
  * -----------------------------------------------------------------
  *                         |
+ * CVodeSetErrHandlerFn    | user-provided ErrHandler function.
+ *                         | [internal]
+ *                         |
  * CVodeSetErrFile         | the file pointer for an error file
  *                         | where all CVODE warning and error
- *                         | messages will be written. This parameter
- *                         | can be stdout (standard output), stderr
- *                         | (standard error), a file pointer
- *                         | (corresponding to a user error file
- *                         | opened for writing) returned by fopen.
+ *                         | messages will be written if the default
+ *                         | internal error handling function is used. 
+ *                         | This parameter can be stdout (standard 
+ *                         | output), stderr (standard error), or a 
+ *                         | file pointer (corresponding to a user 
+ *                         | error file opened for writing) returned 
+ *                         | by fopen.
  *                         | If not called, then all messages will
- *                         | be written to standard output.
+ *                         | be written to the standard error stream.
  *                         | [stderr]
  *                         |
  * CVodeSetFdata           | a pointer to user data that will be
@@ -312,6 +338,7 @@ void *CVodeCreate(int lmm, int iter);
  * -----------------------------------------------------------------
  */
 
+int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data);
 int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 int CVodeSetFdata(void *cvode_mem, void *f_data);
 int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data);
@@ -714,6 +741,8 @@ void CVodeFree(void **cvode_mem);
 #define CV_SUCCESS        0
 #define CV_TSTOP_RETURN   1
 #define CV_ROOT_RETURN    2
+
+#define CV_WARNING        99
 
 #define CV_MEM_NULL      -1
 #define CV_ILL_INPUT     -2

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-01-25 23:07:47 $
+ * $Revision: 1.6 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -53,7 +53,6 @@ static int CVBandPDQJac(CVBandPrecData pdata,
 /* Redability replacements */
 
 #define vec_tmpl (cv_mem->cv_tempv)
-#define errfp    (cv_mem->cv_errfp)
 
 /*
  * -----------------------------------------------------------------
@@ -73,20 +72,23 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   long int mup, mlp, storagemu;
 
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBP_CVMEM_NULL);
+    CVProcessError(NULL, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_CVMEM_NULL);
     return(NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBP_BAD_NVECTOR);
+    CVProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_BAD_NVECTOR);
     return(NULL);
   }
 
   pdata = NULL;
   pdata = (CVBandPrecData) malloc(sizeof *pdata);  /* Allocate data memory */
-  if (pdata == NULL) return(NULL);
+  if (pdata == NULL) {
+    CVProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
+    return(NULL);
+  }
 
   /* Load pointers and bandwidths into pdata block. */
   pdata->cvode_mem = cvode_mem;
@@ -102,6 +104,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   pdata->savedJ = BandAllocMat(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
+    CVProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
     return(NULL);
   }
 
@@ -112,6 +115,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
   if (pdata->savedP == NULL) {
     BandFreeMat(pdata->savedJ);
     free(pdata); pdata = NULL;
+    CVProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
     return(NULL);
   }
 
@@ -122,6 +126,7 @@ void *CVBandPrecAlloc(void *cvode_mem, long int N,
     BandFreeMat(pdata->savedP);
     BandFreeMat(pdata->savedJ);
     free(pdata); pdata = NULL;
+    CVProcessError(cv_mem, 0, "CVBANDPRE", "CVBandPrecAlloc", MSGBP_MEM_FAIL);
     return(NULL);
   }
 
@@ -139,7 +144,7 @@ int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   cv_mem = (CVodeMem) cvode_mem;
 
   if ( p_data == NULL ) {
-    if(errfp!=NULL) fprintf(errfp, MSGBP_NO_PDATA);
+    CVProcessError(cv_mem, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBPSptfqmr", MSGBP_PDATA_NULL);
     return(CVBANDPRE_PDATA_NULL);
   } 
 
@@ -160,7 +165,7 @@ int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data)
   cv_mem = (CVodeMem) cvode_mem;
 
   if ( p_data == NULL ) {
-    if(errfp!=NULL) fprintf(errfp, MSGBP_NO_PDATA);
+    CVProcessError(cv_mem, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBPSpbcg", MSGBP_PDATA_NULL);
     return(CVBANDPRE_PDATA_NULL);
   } 
 
@@ -181,7 +186,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   cv_mem = (CVodeMem) cvode_mem;
 
   if ( p_data == NULL ) {
-    if(errfp!=NULL) fprintf(errfp, MSGBP_NO_PDATA);
+    CVProcessError(cv_mem, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBPSpgmr", MSGBP_PDATA_NULL);
     return(CVBANDPRE_PDATA_NULL);
   }
 
@@ -213,7 +218,7 @@ int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwBP, long int *leniwBP)
   long int N, ml, mu, smu;
 
   if ( bp_data == NULL ) {
-    fprintf(stderr, MSGBP_PDATA_NULL);
+    CVProcessError(NULL, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBandPrecGetWorkSpace", MSGBP_PDATA_NULL);
     return(CVBANDPRE_PDATA_NULL);
   } 
 
@@ -235,7 +240,7 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
   CVBandPrecData pdata;
 
   if (bp_data == NULL) {
-    fprintf(stderr, MSGBP_PDATA_NULL);
+    CVProcessError(NULL, CVBANDPRE_PDATA_NULL, "CVBANDPRE", "CVBandPrecGetNumRhsEvals", MSGBP_PDATA_NULL);
     return(CVBANDPRE_PDATA_NULL);
   } 
 

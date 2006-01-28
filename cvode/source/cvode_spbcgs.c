@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 23:07:47 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -129,14 +129,14 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcg", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if N_VDotProd is present */
   if (vec_tmpl->ops->nvdotprod == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_BAD_NVECTOR);
+    CVProcessError(cv_mem, CVSPBCG_ILL_INPUT, "CVSPBCG", "CVSpbcg", MSGBCG_BAD_NVECTOR);
     return(CVSPBCG_ILL_INPUT);
   }
 
@@ -152,7 +152,7 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   cvspbcg_mem = NULL;
   cvspbcg_mem = (CVSpbcgMem) malloc(sizeof(CVSpbcgMemRec));
   if (cvspbcg_mem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGBCG_MEM_FAIL);
     return(CVSPBCG_MEM_FAIL);
   }
 
@@ -174,7 +174,7 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_BAD_PRETYPE);
+    CVProcessError(cv_mem, CVSPBCG_ILL_INPUT, "CVSPBCG", "CVSpbcg", MSGBCG_BAD_PRETYPE);
     return(CVSPBCG_ILL_INPUT);
   }
 
@@ -182,14 +182,14 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGBCG_MEM_FAIL);
     free(cvspbcg_mem); cvspbcg_mem = NULL;
     return(CVSPBCG_MEM_FAIL);
   }
   x = NULL;
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGBCG_MEM_FAIL);
     N_VDestroy(ytemp);
     free(cvspbcg_mem); cvspbcg_mem = NULL;
     return(CVSPBCG_MEM_FAIL);
@@ -203,7 +203,7 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   spbcg_mem = NULL;
   spbcg_mem = SpbcgMalloc(mxl, vec_tmpl);
   if (spbcg_mem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGBCG_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(x);
     free(cvspbcg_mem); cvspbcg_mem = NULL;
@@ -229,13 +229,13 @@ int CVSpbcgSetPrecType(void *cvode_mem, int pretype)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetPrecType", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetPrecType", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -243,7 +243,7 @@ int CVSpbcgSetPrecType(void *cvode_mem, int pretype)
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SET_BAD_PRETYPE);
+    CVProcessError(cv_mem, CVSPBCG_ILL_INPUT, "CVSPBCG", "CVSpbcgSetPrecType", MSGBCG_BAD_PRETYPE);
     return(CVSPBCG_ILL_INPUT);
   }
 
@@ -266,13 +266,13 @@ int CVSpbcgSetMaxl(void *cvode_mem, int maxl)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetMaxl", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetMaxl", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -297,20 +297,20 @@ int CVSpbcgSetDelt(void *cvode_mem, realtype delt)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetDelt", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetDelt", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
 
   /* Check for legal delt */
   if (delt < ZERO) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SET_BAD_DELT);
+    CVProcessError(cv_mem, CVSPBCG_ILL_INPUT, "CVSPBCG", "CVSpbcgSetDelt", MSGBCG_BAD_DELT);
     return(CVSPBCG_ILL_INPUT);
   }
 
@@ -333,13 +333,13 @@ int CVSpbcgSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetPreconditioner", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetPreconditioner", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -365,13 +365,13 @@ int CVSpbcgSetJacTimesVecFn(void *cvode_mem,
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetJacTimesVecFn", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetJacTimesVecFn", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -394,13 +394,13 @@ int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetWorkSpace", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetWorkSpace", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
 
@@ -423,13 +423,13 @@ int CVSpbcgGetNumPrecEvals(void *cvode_mem, long int *npevals)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumPrecEvals", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumPrecEvals", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -452,13 +452,13 @@ int CVSpbcgGetNumPrecSolves(void *cvode_mem, long int *npsolves)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumPrecSolves", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumPrecSolves", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -481,13 +481,13 @@ int CVSpbcgGetNumLinIters(void *cvode_mem, long int *nliters)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumLinIters", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumLinIters", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -510,13 +510,13 @@ int CVSpbcgGetNumConvFails(void *cvode_mem, long int *nlcfails)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumConvFails", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumConvFails", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -539,13 +539,13 @@ int CVSpbcgGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumJtimesEvals", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumJtimesEvals", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -568,13 +568,13 @@ int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumRhsEvals", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumRhsEvals", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -597,13 +597,13 @@ int CVSpbcgGetLastFlag(void *cvode_mem, int *flag)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGBCG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetLastFlag", MSGBCG_CVMEM_NULL);
     return(CVSPBCG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_SETGET_LMEM_NULL);
+    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetLastFlag", MSGBCG_LMEM_NULL);
     return(CVSPBCG_LMEM_NULL);
   }
   cvspbcg_mem = (CVSpbcgMem) lmem;
@@ -645,7 +645,7 @@ static int CVSpbcgInit(CVodeMem cv_mem)
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {
-    if (errfp != NULL) fprintf(errfp, MSGBCG_PSOLVE_REQ);
+    CVProcessError(cv_mem, -1, "CVSPBCG", "CVSpbcgInit", MSGBCG_PSOLVE_REQ);
     last_flag = -1;
     return(-1);
   }

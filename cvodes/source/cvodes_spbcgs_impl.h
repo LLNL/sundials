@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:07 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-28 00:47:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -83,33 +83,16 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  /* CVSpbcg error messages */
+#define MSGBCG_CVMEM_NULL "Integrator memory is NULL."
+#define MSGBCG_MEM_FAIL "A memory request failed."
+#define MSGBCG_BAD_PRETYPE "Illegal value for pretype. Legal values are PREC_NONE, PREC_LEFT, PREC_RIGHT, and PREC_BOTH."
+#define MSGBCG_PSOLVE_REQ "pretype != PREC_NONE, but PSOLVE = NULL is illegal."
+#define MSGBCG_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGBCG_LMEM_NULL "CVSPBCG memory is NULL."
+#define MSGBCG_BAD_DELT "delt < 0 illegal."
 
-#define _CVSPBCG_         "CVSpbcg-- "
-#define MSGBCG_CVMEM_NULL   _CVSPBCG_ "Integrator memory is NULL.\n\n"
-#define MSGBCG_MEM_FAIL     _CVSPBCG_ "A memory request failed.\n\n"
-#define MSGBCG_BAD_PRETYPE1 _CVSPBCG_ "Illegal value for pretype.\n"
-#define MSGBCG_BAD_PRETYPE2 "The legal values are PREC_NONE, PREC_LEFT, "
-#define MSGBCG_BAD_PRETYPE3 "PREC_RIGHT, and PREC_BOTH.\n\n"
-#define MSGBCG_BAD_PRETYPE  MSGBCG_BAD_PRETYPE1 MSGBCG_BAD_PRETYPE2 MSGBCG_BAD_PRETYPE3
-#define MSGBCG_PSOLVE_REQ   _CVSPBCG_ "pretype != PREC_NONE, but PSOLVE = NULL is illegal.\n\n"
-#define MSGBCG_BAD_NVECTOR  _CVSPBCG_ "A required vector operation is not implemented.\n\n"
-
-  /* CVSpbcgSet* and CVSpbcgGet* error messages */
-
-#define MSGBCG_SETGET_CVMEM_NULL "CVSpbcgSet*/CVSpbcgGet*-- Integrator memory is NULL.\n\n"
-#define MSGBCG_SETGET_LMEM_NULL "CVSpbcgSet*/CVSpbcgGet*-- cvspbcg memory is NULL.\n\n"
-
-  /* CVSpbcgSetPrecType error messages */
-
-#define MSGBCG_SET_BAD_PRETYPE1 "CVSpbcgSetPrecType-- Illegal value for pretype.\n"
-#define MSGBCG_SET_BAD_PRETYPE2 "The legal values are PREC_NONE, PREC_LEFT, "
-#define MSGBCG_SET_BAD_PRETYPE3 "PREC_RIGHT, and PREC_BOTH.\n\n"
-#define MSGBCG_SET_BAD_PRETYPE  MSGBCG_SET_BAD_PRETYPE1 MSGBCG_SET_BAD_PRETYPE2 MSGBCG_SET_BAD_PRETYPE3
-
-  /* CVSpbcgSetDelt error message */
-
-#define MSGBCG_SET_BAD_DELT "CVSpbcgSetDelt-- delt < 0 illegal.\n\n"
+#define MSGBCG_CAMEM_NULL "cvadj_mem = NULL illegal."
+#define MSGBCG_LMEMB_NULL "CVSPBCG memory is NULL for the backward integration."
 
 #ifdef __cplusplus
 }

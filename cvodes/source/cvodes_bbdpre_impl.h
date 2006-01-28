@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-17 23:30:21 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-28 00:47:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -85,19 +85,15 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  /* CVBBDAlloc error messages */
+#define MSGBBDP_CVMEM_NULL "Integrator memory is NULL."
+#define MSGBBDP_MEM_FAIL "A memory request failed."
+#define MSGBBDP_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGBBDP_PDATA_NULL "CVBBDPRE memory is NULL."
 
-#define _CVBBDALLOC_        "CVBBDAlloc-- "
-#define MSGBBDP_CVMEM_NULL  _CVBBDALLOC_ "Integrator memory is NULL.\n\n"
-#define MSGBBDP_BAD_NVECTOR _CVBBDALLOC_ "A required vector operation is not implemented.\n\n"
+#define MSGBBDP_CAMEM_NULL "cvadj_mem = NULL illegal."
+#define MSGBBDP_PMEMB_NULL "CVBBDPRE memory is NULL for the backward integration."
+#define MSGBBDP_BAD_T "Bad t for interpolation. Abort!"
 
-  /* CVBBDPrecGet* error message */
-
-#define MSGBBDP_PDATA_NULL "CVBBDPrecReInit/CVBBDPrecGet*-- BBDPrecData is NULL.\n\n"
-
-  /* CVBBDSp* error message */
-
-#define MSGBBDP_NO_PDATA "CVBBDSp*-- BBDPrecData is NULL.\n\n"
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 23:07:56 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-28 00:47:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -52,7 +52,6 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define gamma     (cv_mem->cv_gamma)
 #define ewt       (cv_mem->cv_ewt)
 #define nfe       (cv_mem->cv_nfe)
-#define errfp     (cv_mem->cv_errfp)
 #define zn        (cv_mem->cv_zn)
 #define linit     (cv_mem->cv_linit)
 #define lsetup    (cv_mem->cv_lsetup)
@@ -101,7 +100,7 @@ int CVDiag(void *cvode_mem)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGDG_CVMEM_NULL);
+    CVProcessError(NULL, CVDIAG_MEM_NULL, "CVDIAG", "CVDiag", MSGDG_CVMEM_NULL);
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -109,7 +108,7 @@ int CVDiag(void *cvode_mem)
   /* Check if N_VCompare and N_VInvTest are present */
   if(vec_tmpl->ops->nvcompare == NULL ||
      vec_tmpl->ops->nvinvtest == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDG_BAD_NVECTOR);
+    CVProcessError(cv_mem, CVDIAG_ILL_INPUT, "CVDIAG", "CVDiag", MSGDG_BAD_NVECTOR);
     return(CVDIAG_ILL_INPUT);
   }
 
@@ -125,7 +124,7 @@ int CVDiag(void *cvode_mem)
   cvdiag_mem = NULL;
   cvdiag_mem = (CVDiagMem) malloc(sizeof(CVDiagMemRec));
   if (cvdiag_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
+    CVProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
     return(CVDIAG_MEM_FAIL);
   }
 
@@ -139,24 +138,22 @@ int CVDiag(void *cvode_mem)
   M = NULL;
   M = N_VClone(vec_tmpl);
   if (M == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
+    CVProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
     free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
-
   bit = NULL;
   bit = N_VClone(vec_tmpl);
   if (bit == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
+    CVProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
     N_VDestroy(M);
     free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
-
   bitcomp = NULL;
   bitcomp = N_VClone(vec_tmpl);
   if (bitcomp == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDG_MEM_FAIL);
+    CVProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
     N_VDestroy(M);
     N_VDestroy(bit);
     free(cvdiag_mem); cvdiag_mem = NULL;
@@ -181,7 +178,7 @@ int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGDG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVDIAG_MEM_NULL, "CVDIAG", "CVDiagGetWorkSpace", MSGDG_CVMEM_NULL);
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
@@ -205,13 +202,13 @@ int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGDG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVDIAG_MEM_NULL, "CVDIAG", "CVDiagGetNumRhsEvals", MSGDG_CVMEM_NULL);
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDG_SETGET_LMEM_NULL);
+    CVProcessError(cv_mem, CVDIAG_LMEM_NULL, "CVDIAG", "CVDiagGetNumRhsEvals", MSGDG_LMEM_NULL);
     return(CVDIAG_LMEM_NULL);
   }
   cvdiag_mem = (CVDiagMem) lmem;
@@ -234,13 +231,13 @@ int CVDiagGetLastFlag(void *cvode_mem, int *flag)
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    fprintf(stderr, MSGDG_SETGET_CVMEM_NULL);
+    CVProcessError(NULL, CVDIAG_MEM_NULL, "CVDIAG", "CVDiagGetLastFlag", MSGDG_CVMEM_NULL);
     return(CVDIAG_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGDG_SETGET_LMEM_NULL);
+    CVProcessError(cv_mem, CVDIAG_LMEM_NULL, "CVDIAG", "CVDiagGetLastFlag", MSGDG_LMEM_NULL);
     return(CVDIAG_LMEM_NULL);
   }
   cvdiag_mem = (CVDiagMem) lmem;
@@ -267,15 +264,18 @@ int CVDiagGetLastFlag(void *cvode_mem, int *flag)
 int CVDiagB(void *cvadj_mem)
 {
   CVadjMem ca_mem;
-  void *cvode_mem;
+  CVodeMem cvB_mem;
   int flag;
 
-  if (cvadj_mem == NULL) return(CVDIAG_ADJMEM_NULL);
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVDIAG_ADJMEM_NULL, "CVDIAG", "CVDiagB", MSGDG_CAMEM_NULL);
+    return(CVDIAG_ADJMEM_NULL);
+  }
   ca_mem = (CVadjMem) cvadj_mem;
 
-  cvode_mem = (void *) ca_mem->cvb_mem;
+  cvB_mem = ca_mem->cvb_mem;
   
-  flag = CVDiag(cvode_mem);
+  flag = CVDiag(cvB_mem);
 
   return(flag);
 }
@@ -285,7 +285,6 @@ int CVDiagB(void *cvadj_mem)
  * PART III - private functions
  * =================================================================
  */
-
 
 /*
  * -----------------------------------------------------------------

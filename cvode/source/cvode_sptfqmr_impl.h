@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:48 $
+ * $Revision: 1.2 $
+ * $Date: 2006-01-28 00:47:27 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -84,33 +84,20 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-/* CVSptfqmr error messages */
+#define MSGTFQMR_CVMEM_NULL "Integrator memory is NULL."
 
-#define _CVSPTFQMR_           "CVSptfqmr-- "
-#define MSGTFQMR_CVMEM_NULL   _CVSPTFQMR_ "Integrator memory is NULL.\n\n"
-#define MSGTFQMR_MEM_FAIL     _CVSPTFQMR_ "A memory request failed.\n\n"
-#define MSGTFQMR_BAD_PRETYPE1 _CVSPTFQMR_ "Illegal value for pretype.\n"
-#define MSGTFQMR_BAD_PRETYPE2 "The legal values are PREC_NONE, PREC_LEFT, "
-#define MSGTFQMR_BAD_PRETYPE3 "PREC_RIGHT, and PREC_BOTH.\n\n"
-#define MSGTFQMR_BAD_PRETYPE  MSGTFQMR_BAD_PRETYPE1 MSGTFQMR_BAD_PRETYPE2 MSGTFQMR_BAD_PRETYPE3
-#define MSGTFQMR_PSOLVE_REQ   _CVSPTFQMR_ "pretype != PREC_NONE, but PSOLVE = NULL is illegal.\n\n"
-#define MSGTFQMR_BAD_NVECTOR  _CVSPTFQMR_ "A required vector operation is not implemented.\n\n"
+#define MSGTFQMR_MEM_FAIL "A memory request failed."
 
-/* CVSptfqmrSet* and CVSptfqmrGet* error messages */
+#define MSGTFQMR_BAD_PRETYPE "Illegal value for pretype. Legal values are PREC_NONE, PREC_LEFT, PREC_RIGHT, and PREC_BOTH."
 
-#define MSGTFQMR_SETGET_CVMEM_NULL "CVSptfqmrSet*/CVSptfqmrGet*-- Integrator memory is NULL.\n\n"
-#define MSGTFQMR_SETGET_LMEM_NULL  "CVSptfqmrSet*/CVSptfqmrGet*-- cvsptfqmr memory is NULL.\n\n"
+#define MSGTFQMR_PSOLVE_REQ "pretype != PREC_NONE, but PSOLVE = NULL is illegal."
 
-/* CVSptfqmrSetPrecType error messages */
+#define MSGTFQMR_BAD_NVECTOR "A required vector operation is not implemented."
 
-#define MSGTFQMR_SET_BAD_PRETYPE1 "CVSptfqmrSetPrecType-- Illegal value for pretype.\n"
-#define MSGTFQMR_SET_BAD_PRETYPE2 "The legal values are PREC_NONE, PREC_LEFT, "
-#define MSGTFQMR_SET_BAD_PRETYPE3 "PREC_RIGHT, and PREC_BOTH.\n\n"
-#define MSGTFQMR_SET_BAD_PRETYPE  MSGTFQMR_SET_BAD_PRETYPE1 MSGTFQMR_SET_BAD_PRETYPE2 MSGTFQMR_SET_BAD_PRETYPE3
+#define MSGTFQMR_LMEM_NULL "CVSPTFQMR memory is NULL."
 
-/* CVSptfqmrSetDelt error message */
+#define MSGTFQMR_BAD_DELT "delt < 0 illegal."
 
-#define MSGTFQMR_SET_BAD_DELT "CVSptfqmrSetDelt-- delt < 0 illegal.\n\n"
 
 #ifdef __cplusplus
 }

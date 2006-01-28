@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.48 $
- * $Date: 2006-01-24 00:50:58 $
+ * $Revision: 1.49 $
+ * $Date: 2006-01-28 00:47:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -201,6 +201,27 @@ extern "C" {
 
   /*
    * -----------------------------------------------------------------
+   * Type : CVErrHandlerFn
+   * -----------------------------------------------------------------
+   * A function eh, which handles error messages, must have type
+   * CVErrHandlerFn.
+   * The function eh takes as input the error code, the name of the
+   * module reporting the error, the error message, and a pointer to
+   * user data, the same as that passed to CVodeSetErrHandlerFn.
+   * 
+   * All error codes are negative, except CV_WARNING which indicates 
+   * a warning (the solver continues).
+   *
+   * A CVErrHandlerFn has no return value.
+   * -----------------------------------------------------------------
+   */
+  
+  typedef void (*CVErrHandlerFn)(int error_code, 
+                                 const char *module, const char *function, 
+                                 char *msg, void *eh_data); 
+
+  /*
+   * -----------------------------------------------------------------
    * Type : CVSensRhsFn
    * -----------------------------------------------------------------
    * The fS function which defines the right hand side of the
@@ -309,15 +330,20 @@ extern "C" {
    * Function                |  Optional input / [ default value ]
    * -----------------------------------------------------------------
    *                         |
+   * CVodeSetErrHandlerFn    | user-provided ErrHandler function.
+   *                         | [internal]
+   *                         |
    * CVodeSetErrFile         | the file pointer for an error file
-   *                         | where all CVODES warning and error
-   *                         | messages will be written. This parameter
-   *                         | can be stdout (standard output), stderr
-   *                         | (standard error), a file pointer
-   *                         | (corresponding to a user error file
-   *                         | opened for writing) returned by fopen.
+   *                         | where all CVODE warning and error
+   *                         | messages will be written if the default
+   *                         | internal error handling function is used. 
+   *                         | This parameter can be stdout (standard 
+   *                         | output), stderr (standard error), or a 
+   *                         | file pointer (corresponding to a user 
+   *                         | error file opened for writing) returned 
+   *                         | by fopen.
    *                         | If not called, then all messages will
-   *                         | be written to standard output.
+   *                         | be written to the standard error stream.
    *                         | [stderr]
    *                         |
    * CVodeSetFdata           | a pointer to user data that will be
@@ -404,6 +430,7 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
+  int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data);
   int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
   int CVodeSetFdata(void *cvode_mem, void *f_data);
   int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data);
@@ -1233,6 +1260,8 @@ extern "C" {
 #define CV_SUCCESS        0
 #define CV_TSTOP_RETURN   1
 #define CV_ROOT_RETURN    2
+
+#define CV_WARNING        99
 
 #define CV_MEM_NULL      -1
 #define CV_ILL_INPUT     -2

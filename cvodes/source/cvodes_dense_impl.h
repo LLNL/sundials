@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-12 22:53:38 $
+ * $Revision: 1.4 $
+ * $Date: 2006-01-28 00:47:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -81,14 +81,14 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-#define _CVDENSE_         "CVDense-- "
-#define MSGDS_CVMEM_NULL  _CVDENSE_ "Integrator memory is NULL.\n\n"
-#define MSGDS_BAD_NVECTOR _CVDENSE_ "A required vector operation is not implemented.\n\n"
-#define MSGDS_MEM_FAIL    _CVDENSE_ "A memory request failed.\n\n"
+#define MSGDS_CVMEM_NULL "Integrator memory is NULL."
+#define MSGDS_MEM_FAIL "A memory request failed."
+#define MSGDS_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGDS_LMEM_NULL "CVDENSE memory is NULL."
 
-#define MSGDS_SETGET_CVMEM_NULL "CVDenseSet*/CVDenseGet*-- Integrator memory is NULL.\n\n"
-
-#define MSGDS_SETGET_LMEM_NULL "CVDenseSet*/CVDenseGet*-- cvdense memory is NULL.\n\n"
+#define MSGDS_CAMEM_NULL "cvadj_mem = NULL illegal."
+#define MSGDS_LMEMB_NULL "CVDENSE memory is NULL for the backward integration."
+#define MSGDS_BAD_T "Bad t for interpolation. Abort!"
 
 #ifdef __cplusplus
 }
