@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: sundials&#45;users unsubscribe requests -->
+<!--X-Subject: Re: [sundials&#45;users] Finite difference Jacobian &#45; information to f() when Jacobian is built -->
 <!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Wed, 25 Jan 2006 11:30:27 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D7D090.5060603@llnl.gov -->
+<!--X-Date: Fri, 27 Jan 2006 10:05:32 &#45;0800 (PST) -->
+<!--X-Message-Id: 43DA607A.2060203@llnl.gov -->
 <!--X-Content-Type: text/plain -->
+<!--X-Reference: op.s31ptsr2t8lo91@smtp.kuleuven.ac.be -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>sundials-users unsubscribe requests</title>
+<title>Re: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00261.html">Date Prev</a>] [<a href="msg00263.html">Date Next</a>] [<a href="msg00260.html">Thread Prev</a>] [<a href="msg00264.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00262">Date Index</a></b>]
-[<b><a href="threads.html#00262">Thread Index</a></b>]
+[<a href="msg00271.html">Date Prev</a>] [<a href="msg00273.html">Date Next</a>] [<a href="msg00273.html">Thread Prev</a>] [Thread Next]<br>
+[<b><a href="maillist.html#00272">Date Index</a></b>]
+[<b><a href="threads.html#00272">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>sundials-users unsubscribe requests</h1>
+<h1>Re: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -90,7 +91,7 @@ Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 25 Jan 2006 11:25:04 -0800</td>
+Fri, 27 Jan 2006 10:03:38 -0800</td>
 </tr>
 
 </table>
@@ -100,19 +101,58 @@ Wed, 25 Jan 2006 11:25:04 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">If you wish to unsubscribe from the mailing list, DO NOT send such requests to 
-the mailing list!</pre><br>
-First of all, this will NOT do what you want (I manually unsubscribed those that sent such 
-requests). Secondly, all these requests, if sent as reply to some other post, will mess-up the 
-thread listing in the archive posted online.<br>
+Andreas Nicolai wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
+here's another feature request for CVODE. It might be nice to find out 
+from within f() whether the Jacobian-Difference-Quotient algorithm is 
+currently running?<br>
 <br>
-<pre style="margin: 0em;">If you wish to unsubscribe, you can either:</pre><br>
-<pre style="margin: 0em;">a) send mail to &lt;majordomo@lists.llnl.gov&gt; with the following command in the 
-body of your email message:</pre><br>
-<pre style="margin: 0em;">    unsubscribe sundials-users</pre><br>
-<pre style="margin: 0em;">or</pre><br>
-<pre style="margin: 0em;">b) send me an email (at radu@llnl.gov) and I will unsubscribe you.</pre><br>
-<pre style="margin: 0em;"><br>Thanks,
+My algorithm in the f() function is kind of heavy on lengthy and since 
+my Jacobian would not need to be soo accurate, I'd rather skip some 
+iterations inside my f() function, when it is used to generate the 
+Jacobian. Right now I set a flag before I call CVBandDQJac() and clear 
+it when I leave the function. Checking that flag I can simplify and 
+speed up the f() function execution quite a bit. Especially for large 
+2D/3D systems this makes quite a difference.<br>
+<br>
+It would be nice to have that as a standard feature in CVODE. However, I 
+would rate it as low priority...<br>
+<br>
+<pre style="margin: 0em;">Andreas</pre><br>
+</blockquote><pre style="margin: 0em;"><br>Andreas,</pre><br>
+This would require unnecessarily changing the function type CVRhsFn. The internal DQ Jacobian 
+approximation is provided as a default and is one of several possibilities. It just happens to 
+estimate a Jacobian approximation with first-order forward difference quotient approximations using 
+the 'full' right-hand side function. This is why we allow for a user-supplied Jacobian approximation 
+function.<br>
+<br>
+I suggest you provide your own Jacobian function written based on the internal DQ function (it 
+should take you about 5 minutes to write it):<br>
+<br>
+<pre style="margin: 0em;">Copy CVBandDQJac() from cvband.c to my_BandDQJac() and make the following 
+modifications:
+1) cast jac_data to your data type (a structure 'my_data' containing the field 
+flag initially=1)
+2) set the flag on 0 at the beginning and remember to set it back on 1 before 
+returning
+3) get the current step size (h) using CVodeGetCurrentStep()
+4) get the error weights (ewt) using CVodeGetErrWeights()
+5) set uround=UNIT_ROUNDOFF (defined in sundialstypes.h)
+6) change the call to f() to call your right-hand side function with jac_data 
+as the last argument.
+7) remove the line 'nfeB += ngroups'</pre><br>
+Make sure f_data (passed to the rhs function) and jac_data (passed to the band Jacobian function) 
+are the same. In the main program, call<br>
+<br>
+<pre style="margin: 0em;">  CVodeSetFdata(cvode_mem, my_data);
+  CVBandSetJacFn(cvode_mem, my_BandDQJac, my_data);</pre><br>
+and in the right-hand side function, use the flag from my_data to include all terms if flag=1 and 
+discard them if flag=0.<br>
+<br>
+The exact same thing can be done for a dense DQ Jacobian approximation or for the DQ-based 
+approximation for Jacobian*vector for the iterative linear solvers.<br>
+<br>
+<pre style="margin: 0em;">Hope that this helps,
 --Radu</pre><br>
 <br>
 
@@ -124,28 +164,30 @@ body of your email message:</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00270" href="msg00270.html">[sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00261.html">Re: Error message handling</a></strong>
+<strong><a href="msg00271.html">R: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00263.html">Re: Error message handling</a></strong>
+<strong><a href="msg00273.html">Re: R: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00260.html">Error message handling</a></strong>
-</li>
-<li>Next by thread:
-<strong><a href="msg00264.html">[sundials-users] Problem reagring Residual function in IDA</a></strong>
+<strong><a href="msg00273.html">Re: R: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00262">
+<li><a href="maillist.html#00272">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00262">
+<li><a href="threads.html#00272">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: sundials&#45;users unsubscribe requests -->
-<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Wed, 25 Jan 2006 11:30:27 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D7D090.5060603@llnl.gov -->
+<!--X-Subject: RE: [sundials&#45;users] Re: Error message handling -->
+<!--X-From-R13: Oyna Uneal <ntzyNuryyvk.pbz> -->
+<!--X-Date: Fri, 27 Jan 2006 12:43:03 &#45;0800 (PST) -->
+<!--X-Message-Id: 000701c62381$f55ddb00$0a01a8c0@pcheartbreak -->
 <!--X-Content-Type: text/plain -->
+<!--X-Reference: 43DA6CA9.4040200@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>sundials-users unsubscribe requests</title>
+<title>RE: [sundials-users] Re: Error message handling</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00261.html">Date Prev</a>] [<a href="msg00263.html">Date Next</a>] [<a href="msg00260.html">Thread Prev</a>] [<a href="msg00264.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00262">Date Index</a></b>]
-[<b><a href="threads.html#00262">Thread Index</a></b>]
+[<a href="msg00274.html">Date Prev</a>] [<a href="msg00276.html">Date Next</a>] [<a href="msg00274.html">Thread Prev</a>] [<a href="msg00276.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00275">Date Index</a></b>]
+[<b><a href="threads.html#00275">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>sundials-users unsubscribe requests</h1>
+<h1>RE: [sundials-users] Re: Error message handling</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+Alan Garny &lt;<a href="mailto:agml%40hellix.com">agml@hellix.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 25 Jan 2006 11:25:04 -0800</td>
+Fri, 27 Jan 2006 20:40:48 +0000</td>
 </tr>
 
 </table>
@@ -100,52 +101,110 @@ Wed, 25 Jan 2006 11:25:04 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">If you wish to unsubscribe from the mailing list, DO NOT send such requests to 
-the mailing list!</pre><br>
-First of all, this will NOT do what you want (I manually unsubscribed those that sent such 
-requests). Secondly, all these requests, if sent as reply to some other post, will mess-up the 
-thread listing in the archive posted online.<br>
-<br>
-<pre style="margin: 0em;">If you wish to unsubscribe, you can either:</pre><br>
-<pre style="margin: 0em;">a) send mail to &lt;majordomo@lists.llnl.gov&gt; with the following command in the 
-body of your email message:</pre><br>
-<pre style="margin: 0em;">    unsubscribe sundials-users</pre><br>
-<pre style="margin: 0em;">or</pre><br>
-<pre style="margin: 0em;">b) send me an email (at radu@llnl.gov) and I will unsubscribe you.</pre><br>
-<pre style="margin: 0em;"><br>Thanks,
---Radu</pre><br>
-<br>
+<pre>&gt;<i> I certainly would not want to allow for a compiler directive </i>
+&gt;<i> that would make any error message output impossible. So there </i>
+&gt;<i> will be no NO_ERROR_MESSAGE_OUTPUT preprocessing macro!</i>
+&gt;<i> </i>
+&gt;<i> Right now, I use a preprocessor macro only to decide if error </i>
+&gt;<i> messages that cannot be passed to an error handler function </i>
+&gt;<i> (because they indicate that the solver memory is NULL) should </i>
+&gt;<i> be sent to stderr (and hence the name NO_STDERR_OUPUT).</i>
+&gt;<i> Users that want no output whatsoever, besides compiling CVODE </i>
+&gt;<i> with -DNO_STDERR_OUTPUT, should also do one of the following:</i>
+&gt;<i> a) let CVODE use its own error handler function but pass </i>
+&gt;<i> errfp=NULL (through CVodeSetErrFile)</i>
+&gt;<i> b) define and attach a user-supplied error handler that does nothing.</i>
+&gt;<i> </i>
+&gt;<i> I don't want to allow setting this preprocessor macro </i>
+&gt;<i> explicitely through the configure script because I think </i>
+&gt;<i> disabling any type of error message output is a bad idea and </i>
+&gt;<i> I want to make it as hard as possible to do it :-) Of course </i>
+&gt;<i> there is always a way as the configure script allows passing </i>
+&gt;<i> additional compiler flags, so one could still do:</i>
+&gt;<i> % configure --with-cflags=-DNO_STDERR_OUTPUT (Maybe I </i>
+&gt;<i> shouldn't have mentioned that!)</i>
 
+The sole fact that there is a way is good enough for me to justify the fact
+that it should be possible to do without having to resort to some tricks.
+Also, even though that would prevent a message from being written out, it
+wouldn't prevent from an error code from being returned (and I certainly
+would never suggest scrapping that error code indeed!).
+
+My whole point, in fact, is that you are assuming that most of your users
+are using the library in a console mode kind of way. Though it may be true,
+there are users who don't, but now, I agree, they will be able to redirect
+the error output to somewhere else, which is nice. That, however, leaves
+those of us who don't directly use C/C++ and who may have some problems
+interfacing with the library (see below).
+
+This being all said, I can only suggest what I think would be nice to have.
+In the end, I will go with whatever you decide, since you (and the rest of
+your team) have made my life much easier with your library. I may just have
+to keep using some tricks to get things to work in a non-console way and
+without using C/C++ directly... :) Having said that, I don't think so, based
+on what you have said lately.
+
+&gt;<i> In a previous email you mentioned that fprintf does not </i>
+&gt;<i> &quot;directly&quot; exist in Delphi. Does that mean that you could not </i>
+&gt;<i> link to your Delphi project a code that has any fprintf </i>
+&gt;<i> statements? </i>
+
+That is correct and that's the main reason for my last few messages
+indeed... :)
+
+&gt;<i> If that's the case, maybe I could rename the </i>
+&gt;<i> preprocessor macro to NO_FPRINTF_OUTPUT and also condition </i>
+&gt;<i> the fprintf statements in the default error handler function.</i>
+
+Well, unless I have missed something, I am not sure whether that would be
+required. Indeed, it seems to me that your NO_STDERR_OUTPUT compiler
+directive together with errfp=NULL (through CVodeSetErrFile) would be good
+enough for people in my situation. Please correct me if I am wrong.
+
+        Alan.
+
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00276" href="msg00276.html">Re: [sundials-users] Re: Error message handling</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00274" href="msg00274.html">Re: [sundials-users] Re: Error message handling</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00261.html">Re: Error message handling</a></strong>
+<strong><a href="msg00274.html">Re: [sundials-users] Re: Error message handling</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00263.html">Re: Error message handling</a></strong>
+<strong><a href="msg00276.html">Re: [sundials-users] Re: Error message handling</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00260.html">Error message handling</a></strong>
+<strong><a href="msg00274.html">Re: [sundials-users] Re: Error message handling</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00264.html">[sundials-users] Problem reagring Residual function in IDA</a></strong>
+<strong><a href="msg00276.html">Re: [sundials-users] Re: Error message handling</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00262">
+<li><a href="maillist.html#00275">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00262">
+<li><a href="threads.html#00275">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

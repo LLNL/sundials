@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: sundials&#45;users unsubscribe requests -->
+<!--X-Subject: Re: [sundials&#45;users] Problem reagring Residual function in IDA -->
 <!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Wed, 25 Jan 2006 11:30:27 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D7D090.5060603@llnl.gov -->
+<!--X-Date: Fri, 27 Jan 2006 15:22:46 &#45;0800 (PST) -->
+<!--X-Message-Id: 43DAA9CC.1040106@llnl.gov -->
 <!--X-Content-Type: text/plain -->
+<!--X-Reference: c600b5b40601252343t2e1323d8hda77a43ce68305ce@mail.gmail.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>sundials-users unsubscribe requests</title>
+<title>Re: [sundials-users] Problem reagring Residual function in IDA</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00261.html">Date Prev</a>] [<a href="msg00263.html">Date Next</a>] [<a href="msg00260.html">Thread Prev</a>] [<a href="msg00264.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00262">Date Index</a></b>]
-[<b><a href="threads.html#00262">Thread Index</a></b>]
+[<a href="msg00277.html">Date Prev</a>] [Date Next] [<a href="msg00264.html">Thread Prev</a>] [<a href="msg00267.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00278">Date Index</a></b>]
+[<b><a href="threads.html#00278">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>sundials-users unsubscribe requests</h1>
+<h1>Re: [sundials-users] Problem reagring Residual function in IDA</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -90,7 +91,7 @@ Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 25 Jan 2006 11:25:04 -0800</td>
+Fri, 27 Jan 2006 15:16:28 -0800</td>
 </tr>
 
 </table>
@@ -100,21 +101,36 @@ Wed, 25 Jan 2006 11:25:04 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">If you wish to unsubscribe from the mailing list, DO NOT send such requests to 
-the mailing list!</pre><br>
-First of all, this will NOT do what you want (I manually unsubscribed those that sent such 
-requests). Secondly, all these requests, if sent as reply to some other post, will mess-up the 
-thread listing in the archive posted online.<br>
+Vinayak Kumar wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi all,</pre><br>
+I have a problem in IDASolve(). In one of the ciruit, I am  using 
+Piecewise-Linear source (one like in SPICE). When the time steps for 
+getting the solution using IDASolve() is set high (1e-5), the solver is 
+</blockquote><br>By time steps here, do you mean the difference between consecutive tout values in IDASolve() called 
+with itask=IDA_NORMAL?<br>
 <br>
-<pre style="margin: 0em;">If you wish to unsubscribe, you can either:</pre><br>
-<pre style="margin: 0em;">a) send mail to &lt;majordomo@lists.llnl.gov&gt; with the following command in the 
-body of your email message:</pre><br>
-<pre style="margin: 0em;">    unsubscribe sundials-users</pre><br>
-<pre style="margin: 0em;">or</pre><br>
-<pre style="margin: 0em;">b) send me an email (at radu@llnl.gov) and I will unsubscribe you.</pre><br>
-<pre style="margin: 0em;"><br>Thanks,
---Radu</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">giving error with flag 6 telling that minimum time step has been 
+</blockquote><br>I assume you mean you get a return value IDA_ERR_FAIL (= -6), i.e. a repeated error test failure, 
+correct?<br>
 <br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">reached.When I am reducing the time step (1e-7), the solver is able to 
+execute properly, but when I checked Residual function defined, the 
+solver is skipping this function for most of the steps.
+</blockquote><br>I'm not sure I understand what you mean... Are you saying that IDA is not 'sampling' your piecewise 
+linear function as often as you'd like? Can you provide some more information about the source term? 
+ What is it a function of? What are the intervals it's defined on? How smooth is it?<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">I am not able to understand why this is happening. After getting the 
+solution, I tried to verify the solution with SPICE, it is not at all 
+accurate. Please help me with this problem. Do I need to set some kind 
+of parameters in IDA for this?
+</blockquote><br>Please also provide other relevant information (tolerances, linear solver used, Jacobian function 
+used, etc.)<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I hope I was able to convey my question.</pre><br>
+<pre style="margin: 0em;">Thanks in advance,</pre><br>
+Vinayak
+</blockquote><pre style="margin: 0em;"><br>--Radu</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -124,28 +140,30 @@ body of your email message:</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00264" href="msg00264.html">[sundials-users] Problem reagring Residual function in IDA</a></strong>
+<ul><li><em>From:</em> Vinayak Kumar &lt;vinayak.kumar@gmail.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00261.html">Re: Error message handling</a></strong>
-</li>
-<li>Next by Date:
-<strong><a href="msg00263.html">Re: Error message handling</a></strong>
+<strong><a href="msg00277.html">RE: [sundials-users] Re: Error message handling</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00260.html">Error message handling</a></strong>
+<strong><a href="msg00264.html">[sundials-users] Problem reagring Residual function in IDA</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00264.html">[sundials-users] Problem reagring Residual function in IDA</a></strong>
+<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00262">
+<li><a href="maillist.html#00278">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00262">
+<li><a href="threads.html#00278">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

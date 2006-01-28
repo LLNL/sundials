@@ -1,15 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: Error message handling -->
+<!--X-Subject: [sundials&#45;users] Re: Error message handling -->
 <!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Wed, 25 Jan 2006 11:53:57 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D7D601.70101@llnl.gov -->
+<!--X-Date: Thu, 26 Jan 2006 10:06:37 &#45;0800 (PST) -->
+<!--X-Message-Id: 43D90F25.2080104@llnl.gov -->
 <!--X-Content-Type: text/plain -->
 <!--X-Reference: 43D7B64C.1090308@llnl.gov -->
-<!--X-Reference: op.s3x670hnt8lo91@smtp.kuleuven.ac.be -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: Error message handling</title>
+<title>[sundials-users] Re: Error message handling</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -68,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00262.html">Date Prev</a>] [<a href="msg00264.html">Date Next</a>] [<a href="msg00261.html">Thread Prev</a>] [<a href="msg00265.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00263">Date Index</a></b>]
-[<b><a href="threads.html#00263">Thread Index</a></b>]
+[<a href="msg00264.html">Date Prev</a>] [<a href="msg00266.html">Date Next</a>] [<a href="msg00263.html">Thread Prev</a>] [<a href="msg00266.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00265">Date Index</a></b>]
+[<b><a href="threads.html#00265">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: Error message handling</h1>
+<h1>[sundials-users] Re: Error message handling</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -92,7 +91,7 @@ Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 25 Jan 2006 11:48:17 -0800</td>
+Thu, 26 Jan 2006 10:04:21 -0800</td>
 </tr>
 
 </table>
@@ -102,67 +101,98 @@ Wed, 25 Jan 2006 11:48:17 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-Andreas Nicolai wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Am Wed, 25 Jan 2006 12:33:00 -0500 hat Radu Serban &lt;serban1@llnl.gov&gt; 
-geschrieben:<br>
+<tt>Radu Serban wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Wow,</pre><br>
+<tt>I didn't realize this was such a big issue for so many of of our users...<br>
+Critical mass has certainly been reached :-) to consider a different 
+solution for error message handling (and to warrant a new thread on the 
+mailing list).</tt><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
-Without having really thought it through, I see a couple of issues 
-(I'll use CVODE as an example):<br>
+<tt>The solution that seems most feasible (and in line with the SUNDIALS 
+user interface) is that suggested by Andreas, namely allowing for an 
+optional user-supplied error handling function (with a default probably 
+defaulting to the current error message handling).</tt><br>
 <br>
-1) This would still leave out the &quot;memory NULL&quot; error. In each 
-function that receives as first<br>
-argument the solver (or preconditioner) memory pointer an error is 
-returned if this pointer is NULL<br>
-(by the way, this is one of the reasons why it's always good practice 
-to initialize such pointers to<br>
-NULL before calling a function like CVodeCreate). But then we couldn't 
-access the error handling<br>
-function stored in cvodemem...
-</blockquote><br> I think in this case falling back on stderr would be feasible. The<br>
-calling (windows/UI) program could check the pretty specific return code 
-in this case.
-</blockquote><br>All sundials solvers and sub-modules (linear solver, preconditioner, etc) return -1 (under different 
-names) so indeed this would be easy to capture in the calling program. But this would impose a 
-constraint on any developer of a new module.<br>
+<tt>Without having really thought it through, I see a couple of issues (I'll 
+use CVODE as an example):</tt><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">2) Theoretically, each module (e.g. linear solver) should have its own 
-error handling function<br>
-(since we allow for users to define new such modules). But that is 
-probably overkill, so we need to<br>
-think of a mechanism that would allow using the same function.
-</blockquote><br>That leads either to a global pointer, that is commonly used by modules 
-if not NULL or a pointer argument that is passed on to all modules from 
-the main solver module (would require changing lots of interfaces). A 
-global pointer to the _current_ error handler function seems to be the 
-best solution (even though global==evil, but then again, stderr is 
-global, too).<br>
+<tt>1) This would still leave out the &quot;memory NULL&quot; error. In each function 
+that receives as first argument the solver (or preconditioner) memory 
+pointer an error is returned if this pointer is NULL (by the way, this 
+is one of the reasons why it's always good practice to initialize such 
+pointers to NULL before calling a function like CVodeCreate). But then 
+we couldn't access the error handling function stored in cvodemem...</tt><br>
 <br>
-A possible way to do that would be to set the error handler via a global 
-SundialsSetErrorHandler() function and subsequent called modules would 
-use that error handler function. This would ensure that different 
-modules all use the same error handler (if NULL they use stderr).
-</blockquote><br>Actually, everything is in place to use the same error handler in all modules since a pointer to the 
-main solver memory is passed to all modules. What I was getting at was not access to this function 
-from a sub-module, but rather the issue of uniquely identifying an error (and also passing 
-module-specific information to the error handler).<br>
+<tt>2) Theoretically, each module (e.g. linear solver) should have its own 
+error handling function (since we allow for users to define new such 
+modules). But that is probably overkill, so we need to think of a 
+mechanism that would allow using the same function.<br>
+Now we have the problem that errors cannot be uniquely identified only 
+through the error code (by the way, Alan G., this is the reason why the 
+same error code is - apparently - returned for different errors: they 
+come from different modules. We cannot force a user writing a new linear 
+solver modules to use a set of error codes disjunct from that used by 
+the main CVODE solver).<br>
+So maybe the function type for such an error handling function should 
+also contain an argument (const char*) identifying the module?<br>
+   void error_handler(int error_code, const char *module, const char 
+*msg, void *data);</tt><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">So maybe the function type for such an error handling function should 
-also contain an argument<br>
-(const char*) identifying the module?<br>
-    void error_handler(int error_code, const char *module, const char 
-*msg, void *data);
-</blockquote><br>This sounds good. I wouldn't expect to have too many different modules 
-in future so that it becomes impossible to manage unique identification 
-names.
-</blockquote><br>No, there shouldn't be an unmanageable number of modules. An other option would be to impose that a 
-module appends its name to the error message before sending it to the error handler, but I think I 
-prefer the extra argument.<br>
+<tt>Please feel free to post comments and/or suggestions. There may be other 
+issues I have overlooked. I'll talk it over with the rest of our team 
+and think of a prototype that I would post here for comments.</tt><br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Just my 2 cents,
-Andreas
-</pre></blockquote><pre style="margin: 0em;"><br>--Radu</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br>Here's what I put together. Comments/suggestion?</pre><br>
+<pre style="margin: 0em;">/*
+ * -----------------------------------------------------------------
+ * Type : CVErrHandlerFn
+ * -----------------------------------------------------------------
+ * A function eh, which handles error messages, must have type
+ * CVErrHandlerFn.
+ * The function eh takes as input the error code, the name of the
+ * module reporting the error, the name of the function in which
+ * the error occurred, the error message (with no escape sequences),
+ * and a pointer to user data, the same as that passed to
+ * CVodeSetErrHandlerFn.
+ *
+ * All error codes are negative, except CV_WARNING which indicates
+ * a warning (the solver continues).
+ *
+ * A CVErrHandlerFn has no return value.
+ * -----------------------------------------------------------------
+ */</pre><br>
+<pre style="margin: 0em;">typedef void (*CVErrHandlerFn)(int error_code,
+                               const char *module, const char *function,
+                               char *msg, void *eh_data);</pre><br>
+<pre style="margin: 0em;">/*
+ * -----------------------------------------------------------------
+ * CVodeSetErrHandlerFn specifies a user-provided error handler
+ * function.
+ * -----------------------------------------------------------------
+ * If not specified, an internal error handling function is used
+ * and error messages are directed to the stream specified through
+ * CVodeSetErrFile (default: stderr).
+ * -----------------------------------------------------------------
+ */</pre><br>
+<pre style="margin: 0em;">int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data);</pre><br>
+<pre style="margin: 0em;"><br>---------------------------------------</pre><br>
+<tt>Error messages reporting a NULL (main solver or linear solver) memory pointer are automatically 
+directed to stderr. As Alan Garny requested, this will not happen if the compiler directive 
+NO_STDERR_OUTPUT is defined. However, I will NOT provide a mechanism to set this directive through 
+the configure script. I expect that most users that will use the default build system will run their 
+applications from a console.</tt><br>
 <br>
+<pre style="margin: 0em;"><br>The default error handler prints messages such as:</pre><br>
+<pre style="margin: 0em;">[CVODE ERROR]  CVodeMalloc
+  y0 = NULL illegal.</pre><br>
+<tt>[CVODE WARNING]  CVode<br>
+  Internal t = 6.69184e-06 and h = 3.69212e-06 are such that t + h = t on the next step. The solver 
+will continue anyway.</tt><br>
+<br>
+<pre style="margin: 0em;">-- Radu</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -170,37 +200,40 @@ Andreas
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00266" href="msg00266.html">RE: [sundials-users] Re: Error message handling</a></strong>
+<ul><li><em>From:</em> Alan Garny &lt;agml@hellix.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
 <li><strong><a name="00260" href="msg00260.html">Error message handling</a></strong>
 <ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00261" href="msg00261.html">Re: Error message handling</a></strong>
-<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00262.html">sundials-users unsubscribe requests</a></strong>
+<strong><a href="msg00264.html">[sundials-users] Problem reagring Residual function in IDA</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00264.html">[sundials-users] Problem reagring Residual function in IDA</a></strong>
+<strong><a href="msg00266.html">RE: [sundials-users] Re: Error message handling</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00261.html">Re: Error message handling</a></strong>
+<strong><a href="msg00263.html">Re: Error message handling</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00265.html">[sundials-users] Re: Error message handling</a></strong>
+<strong><a href="msg00266.html">RE: [sundials-users] Re: Error message handling</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00263">
+<li><a href="maillist.html#00265">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00263">
+<li><a href="threads.html#00265">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

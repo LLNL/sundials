@@ -1,13 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: sundials&#45;users unsubscribe requests -->
-<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Wed, 25 Jan 2006 11:30:27 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D7D090.5060603@llnl.gov -->
+<!--X-Subject: [sundials&#45;users] Finite difference Jacobian &#45; information to f() when Jacobian is built -->
+<!--X-From-R13: Oaqernf @vpbynv <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Fri, 27 Jan 2006 08:40:42 &#45;0800 (PST) -->
+<!--X-Message-Id: op.s31ptsr2t8lo91@smtp.kuleuven.ac.be -->
 <!--X-Content-Type: text/plain -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>sundials-users unsubscribe requests</title>
+<title>[sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00261.html">Date Prev</a>] [<a href="msg00263.html">Date Next</a>] [<a href="msg00260.html">Thread Prev</a>] [<a href="msg00264.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00262">Date Index</a></b>]
-[<b><a href="threads.html#00262">Thread Index</a></b>]
+[<a href="msg00269.html">Date Prev</a>] [<a href="msg00271.html">Date Next</a>] [<a href="msg00267.html">Thread Prev</a>] [<a href="msg00271.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00270">Date Index</a></b>]
+[<b><a href="threads.html#00270">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>sundials-users unsubscribe requests</h1>
+<h1>[sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+Andreas Nicolai &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 25 Jan 2006 11:25:04 -0800</td>
+Fri, 27 Jan 2006 11:38:06 -0500</td>
 </tr>
 
 </table>
@@ -100,21 +100,24 @@ Wed, 25 Jan 2006 11:25:04 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">If you wish to unsubscribe from the mailing list, DO NOT send such requests to 
-the mailing list!</pre><br>
-First of all, this will NOT do what you want (I manually unsubscribed those that sent such 
-requests). Secondly, all these requests, if sent as reply to some other post, will mess-up the 
-thread listing in the archive posted online.<br>
-<br>
-<pre style="margin: 0em;">If you wish to unsubscribe, you can either:</pre><br>
-<pre style="margin: 0em;">a) send mail to &lt;majordomo@lists.llnl.gov&gt; with the following command in the 
-body of your email message:</pre><br>
-<pre style="margin: 0em;">    unsubscribe sundials-users</pre><br>
-<pre style="margin: 0em;">or</pre><br>
-<pre style="margin: 0em;">b) send me an email (at radu@llnl.gov) and I will unsubscribe you.</pre><br>
-<pre style="margin: 0em;"><br>Thanks,
---Radu</pre><br>
-<br>
+<pre style="margin: 0em;">Hi there,</pre><br>
+<pre style="margin: 0em;">here's another feature request for CVODE. It might be nice to find out from 
+within f() whether the Jacobian-Difference-Quotient algorithm is currently 
+running?</pre><br>
+<pre style="margin: 0em;">My algorithm in the f() function is kind of heavy on lengthy and since my 
+Jacobian would not need to be soo accurate, I'd rather skip some iterations 
+inside my f() function, when it is used to generate the Jacobian. Right now I 
+set a flag before I call CVBandDQJac() and clear it when I leave the function. 
+Checking that flag I can simplify and speed up the f() function execution quite 
+a bit. Especially for large 2D/3D systems this makes quite a difference.</pre><br>
+<pre style="margin: 0em;">It would be nice to have that as a standard feature in CVODE. However, I would 
+rate it as low priority...</pre><br>
+<pre style="margin: 0em;">Andreas</pre><br>
+<pre style="margin: 0em;">--
+Andreas Nicolai                   Andreas.Nicolai@gmx.net
+Syracuse University               +01 (315) 443 1099
+151 E.A.Link Hall
+Syracuse NY 13244-1240</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -122,30 +125,37 @@ body of your email message:</pre><br>
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00272" href="msg00272.html">Re: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00271" href="msg00271.html">R: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
+<ul><li><em>From:</em> Paolo Greppi 3iP &lt;paolo.greppi@3ip.it&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00261.html">Re: Error message handling</a></strong>
+<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00263.html">Re: Error message handling</a></strong>
+<strong><a href="msg00271.html">R: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00260.html">Error message handling</a></strong>
+<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00264.html">[sundials-users] Problem reagring Residual function in IDA</a></strong>
+<strong><a href="msg00271.html">R: [sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00262">
+<li><a href="maillist.html#00270">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00262">
+<li><a href="threads.html#00270">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

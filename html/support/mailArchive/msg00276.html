@@ -1,0 +1,314 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Re: Error message handling -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Fri, 27 Jan 2006 13:07:38 &#45;0800 (PST) -->
+<!--X-Message-Id: 43DA8B19.1050305@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 000701c62381$f55ddb00$0a01a8c0@pcheartbreak -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Re: Error message handling</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00275.html">Date Prev</a>] [<a href="msg00277.html">Date Next</a>] [<a href="msg00275.html">Thread Prev</a>] [<a href="msg00277.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00276">Date Index</a></b>]
+[<b><a href="threads.html#00276">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Re: Error message handling</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Fri, 27 Jan 2006 13:05:29 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+Alan Garny wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">I certainly would not want to allow for a compiler directive 
+that would make any error message output impossible. So there 
+will be no NO_ERROR_MESSAGE_OUTPUT preprocessing macro!<br>
+<br>
+Right now, I use a preprocessor macro only to decide if error 
+messages that cannot be passed to an error handler function 
+(because they indicate that the solver memory is NULL) should 
+be sent to stderr (and hence the name NO_STDERR_OUPUT).<br>
+Users that want no output whatsoever, besides compiling CVODE 
+with -DNO_STDERR_OUTPUT, should also do one of the following:<br>
+a) let CVODE use its own error handler function but pass 
+errfp=NULL (through CVodeSetErrFile)<br>
+b) define and attach a user-supplied error handler that does nothing.<br>
+<br>
+I don't want to allow setting this preprocessor macro 
+explicitely through the configure script because I think 
+disabling any type of error message output is a bad idea and 
+I want to make it as hard as possible to do it :-) Of course 
+there is always a way as the configure script allows passing 
+additional compiler flags, so one could still do:<br>
+% configure --with-cflags=-DNO_STDERR_OUTPUT (Maybe I 
+shouldn't have mentioned that!)
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">The sole fact that there is a way is good enough for me to justify the fact
+that it should be possible to do without having to resort to some tricks.
+</pre></blockquote><br>I wouldn't call that a trick. It's just a matter of how prominent I want this possibility to be. 
+Also, I'd prefer to keep the number of configure options to a necessary minimum. Otherwise, 
+'configure --help' would be overwhelming.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Also, even though that would prevent a message from being written out, it
+wouldn't prevent from an error code from being returned (and I certainly
+would never suggest scrapping that error code indeed!).</pre><br>
+<pre style="margin: 0em;">My whole point, in fact, is that you are assuming that most of your users
+are using the library in a console mode kind of way. Though it may be true,
+</pre></blockquote><pre style="margin: 0em;"><br>Correct, most users (especially those at the lab) do.</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">there are users who don't, but now, I agree, they will be able to redirect
+the error output to somewhere else, which is nice. That, however, leaves
+those of us who don't directly use C/C++ and who may have some problems
+interfacing with the library (see below).
+</pre></blockquote><pre style="margin: 0em;"><br>Those users, I suspect, are very few indeed.</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">This being all said, I can only suggest what I think would be nice to have.
+In the end, I will go with whatever you decide, since you (and the rest of
+your team) have made my life much easier with your library. I may just have
+to keep using some tricks to get things to work in a non-console way and
+without using C/C++ directly... :) Having said that, I don't think so, based
+on what you have said lately.</pre><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">In a previous email you mentioned that fprintf does not 
+&quot;directly&quot; exist in Delphi. Does that mean that you could not 
+link to your Delphi project a code that has any fprintf 
+statements? 
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">That is correct and that's the main reason for my last few messages
+indeed... :)</pre><br>
+</blockquote><pre style="margin: 0em;"><br>OK, I don't know anything about Delphi. See below.</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">If that's the case, maybe I could rename the 
+preprocessor macro to NO_FPRINTF_OUTPUT and also condition 
+the fprintf statements in the default error handler function.
+</blockquote> 
+Well, unless I have missed something, I am not sure whether that would be<br>
+required. Indeed, it seems to me that your NO_STDERR_OUTPUT compiler<br>
+directive together with errfp=NULL (through CVodeSetErrFile) would be good<br>
+enough for people in my situation. Please correct me if I am wrong.<br>
+<br>
+</blockquote><br>Not quite. There are still some fprintf calls inside an &quot;if(errfp!=NULL)&quot;. To make it clear, below 
+are the two relevant CVODE functions. Whenever an error is issued, CVProcessError is called. This 
+one either sends to stderr (if cvode_mem == NULL) or calls ehfun. CVErrHandler is the default ehfun 
+(of type CVErrHandlerFn). So I guess you'd like the fprintf statements in CVErrHandler to be 
+conditionally compiled. I guess we can do that :-)<br>
+<br>
+<pre style="margin: 0em;">
+<tt>
+/*
+ * CVProcessError is the top level error handling function
+ * - if cv_mem==NULL it prints the error message to stderr
+ * - otherwise, it sets-up and calls the error handling function
+ *   pointed to by cv_ehfun
+ */
+
+#define ehfun    (cv_mem-&gt;cv_ehfun)
+#define eh_data  (cv_mem-&gt;cv_eh_data)
+
+void CVProcessError(CVodeMem cv_mem,
+                    int error_code, const char *module, const char *fname,
+                    const char *msgfmt, ...)
+{
+  va_list ap;
+  char msg[256];
+
+/* Initialize the argument pointer variable
+   (msgfmt is the last required argument to CVProcessError) */
+  va_start(ap, msgfmt);
+
+  if (cv_mem == NULL) {    /* We write to stderr */
+#ifndef NO_STDERR_OUTPUT
+    fprintf(stderr, &quot;\n[%s ERROR]  %s\n  &quot;, module, fname);
+    fprintf(stderr, msgfmt);
+    fprintf(stderr, &quot;\n\n&quot;);
+#endif
+  } else {                 /* We can call ehfun */
+    /* Compose the message */
+    vsprintf(msg, msgfmt, ap);
+    /* Call ehfun */
+    ehfun(error_code, module, fname, msg, eh_data);
+  }
+  
+/* Finalize argument processing */
+  va_end(ap);
+
+  return;
+}
+
+/* CVErrHandler is the default error handling function.
+   It sends the error message to the stream pointed to by cv_errfp */
+
+#define errfp    (cv_mem-&gt;cv_errfp)
+void CVErrHandler(int error_code, const char *module,
+                  const char *function, char *msg, void *data)
+{
+  CVodeMem cv_mem;
+  char err_type[10];
+
+
+  /* data points to cv_mem here */
+  cv_mem = (CVodeMem) data;
+
+  if (error_code == CV_WARNING)
+    sprintf(err_type,&quot;WARNING&quot;);
+  else
+    sprintf(err_type,&quot;ERROR&quot;);
+
+if (errfp!=NULL) {
+    fprintf(errfp,&quot;\n[%s %s]  %s\n&quot;,module,err_type,function);
+    fprintf(errfp,&quot;  %s\n\n&quot;,msg);
+  }
+
+  return;
+}
+
+
+</tt></pre>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">        Alan.</pre><br>
+</blockquote><pre style="margin: 0em;"><br>-- Radu</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00277" href="msg00277.html">RE: [sundials-users] Re: Error message handling</a></strong>
+<ul><li><em>From:</em> Alan Garny &lt;agml@hellix.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00275" href="msg00275.html">RE: [sundials-users] Re: Error message handling</a></strong>
+<ul><li><em>From:</em> Alan Garny &lt;agml@hellix.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00275.html">RE: [sundials-users] Re: Error message handling</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00277.html">RE: [sundials-users] Re: Error message handling</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00275.html">RE: [sundials-users] Re: Error message handling</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00277.html">RE: [sundials-users] Re: Error message handling</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00276">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00276">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
