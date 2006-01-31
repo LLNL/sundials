@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.47 $
- * $Date: 2006-01-25 23:08:10 $
+ * $Revision: 1.48 $
+ * $Date: 2006-01-31 18:30:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -133,40 +133,46 @@ void *KINCreate(void)
   
   /* set default values for solver optional inputs */
 
-  kin_mem->kin_func           = NULL;
-  kin_mem->kin_f_data         = NULL;
-  kin_mem->kin_constraints    = NULL;
-  kin_mem->kin_uscale         = NULL;
-  kin_mem->kin_fscale         = NULL;
-  kin_mem->kin_constraintsSet = FALSE;
-  kin_mem->kin_errfp          = stderr;
-  kin_mem->kin_infofp         = stdout;
-  kin_mem->kin_printfl        = PRINTFL_DEFAULT;
-  kin_mem->kin_mxiter         = MXITER_DEFAULT;
-  kin_mem->kin_noInitSetup    = FALSE;
-  kin_mem->kin_msbset         = MSBSET_DEFAULT;
-  kin_mem->kin_noResMon       = FALSE;
-  kin_mem->kin_msbset_sub     = MSBSET_SUB_DEFAULT;
-  kin_mem->kin_mxnbcf         = MXNBCF_DEFAULT;
-  kin_mem->kin_sthrsh         = TWO;
-  kin_mem->kin_noMinEps       = FALSE;
-  kin_mem->kin_mxnewtstep     = ZERO;
-  kin_mem->kin_sqrt_relfunc   = RSqrt(uround);
-  kin_mem->kin_scsteptol      = RPowerR(uround,TWOTHIRDS);
-  kin_mem->kin_fnormtol       = RPowerR(uround,ONETHIRD);
-  kin_mem->kin_etaflag        = KIN_ETACHOICE1;
-  kin_mem->kin_eta            = POINT1;  /* default for KIN_ETACONSTANT */
-  kin_mem->kin_eta_alpha      = TWO;     /* default for KIN_ETACHOICE2  */
-  kin_mem->kin_eta_gamma      = POINT9;  /* default for KIN_ETACHOICE2  */
-  kin_mem->kin_MallocDone     = FALSE;
-  kin_mem->kin_setupNonNull   = FALSE;
-  kin_mem->kin_omega_min      = OMEGA_MIN;
-  kin_mem->kin_omega_max      = OMEGA_MAX;
+  kin_mem->kin_func             = NULL;
+  kin_mem->kin_f_data           = NULL;
+  kin_mem->kin_constraints      = NULL;
+  kin_mem->kin_uscale           = NULL;
+  kin_mem->kin_fscale           = NULL;
+  kin_mem->kin_constraintsSet   = FALSE;
+  kin_mem->kin_errfp            = stderr;
+  kin_mem->kin_infofp           = stdout;
+  kin_mem->kin_printfl          = PRINTFL_DEFAULT;
+  kin_mem->kin_mxiter           = MXITER_DEFAULT;
+  kin_mem->kin_noInitSetup      = FALSE;
+  kin_mem->kin_msbset           = MSBSET_DEFAULT;
+  kin_mem->kin_noResMon         = FALSE;
+  kin_mem->kin_msbset_sub       = MSBSET_SUB_DEFAULT;
+  kin_mem->kin_update_fnorm_sub = FALSE;
+  kin_mem->kin_mxnbcf           = MXNBCF_DEFAULT;
+  kin_mem->kin_sthrsh           = TWO;
+  kin_mem->kin_noMinEps         = FALSE;
+  kin_mem->kin_mxnewtstep       = ZERO;
+  kin_mem->kin_sqrt_relfunc     = RSqrt(uround);
+  kin_mem->kin_scsteptol        = RPowerR(uround,TWOTHIRDS);
+  kin_mem->kin_fnormtol         = RPowerR(uround,ONETHIRD);
+  kin_mem->kin_etaflag          = KIN_ETACHOICE1;
+  kin_mem->kin_eta              = POINT1;  /* default for KIN_ETACONSTANT */
+  kin_mem->kin_eta_alpha        = TWO;     /* default for KIN_ETACHOICE2  */
+  kin_mem->kin_eta_gamma        = POINT9;  /* default for KIN_ETACHOICE2  */
+  kin_mem->kin_MallocDone       = FALSE;
+  kin_mem->kin_setupNonNull     = FALSE;
+  kin_mem->kin_omega_min        = OMEGA_MIN;
+  kin_mem->kin_omega_max        = OMEGA_MAX;
 
   /* initialize lrw and liw */
 
   kin_mem->kin_lrw = 17;
   kin_mem->kin_liw = 22;
+
+  /* NOTE: needed since KINMalloc could be called after KINSetConstraints */
+
+  kin_mem->kin_lrw1 = 0;
+  kin_mem->kin_liw1 = 0;
 
   return((void *) kin_mem);
 }
@@ -1369,10 +1375,10 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int globalstratret)
 
   /* if the maximum number of iterations is reached, return failure flag */
 
-   if (nni >= mxiter) return(KIN_MAXITER_REACHED);
+  if (nni >= mxiter) return(KIN_MAXITER_REACHED);
 
-   /* check for consecutive number of steps taken of size mxnewtstep
-      and if not maxStepTaken, then set ncscmx to 0 */
+  /* check for consecutive number of steps taken of size mxnewtstep
+     and if not maxStepTaken, then set ncscmx to 0 */
  
   if (maxStepTaken) ncscmx++;
   else ncscmx = 0;
@@ -1589,17 +1595,17 @@ static void KINPrintInfo(KINMem kin_mem, char *funcname, int key,...)
     fprintf(infofp, "fnorm = %15.8Le  ", rnum1);
     fprintf(infofp, "f1norm = %15.8Le  ", rnum2);
     fprintf(infofp, "alpha_cond = %15.8Le  ", rnum3);
-    fprintf(infofp, "pnorm = %15.8Le\n", rnum4);
+    fprintf(infofp, "lam = %15.8Le\n", rnum4);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     fprintf(infofp, "fnorm = %15.8le  ", rnum1);
     fprintf(infofp, "f1norm = %15.8le  ", rnum2);
     fprintf(infofp, "alpha_cond = %15.8le  ", rnum3);
-    fprintf(infofp, "pnorm = %15.8le\n", rnum4);
+    fprintf(infofp, "lam = %15.8le\n", rnum4);
 #else
     fprintf(infofp, "fnorm = %15.8e  ", rnum1);
     fprintf(infofp, "f1norm = %15.8e  ", rnum2);
     fprintf(infofp, "alpha_cond = %15.8e  ", rnum3);
-    fprintf(infofp, "pnorm = %15.8e\n", rnum4);
+    fprintf(infofp, "lam = %15.8e\n", rnum4);
 #endif
     break;
 

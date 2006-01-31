@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:10 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-31 18:30:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -163,6 +163,8 @@ int KINSptfqmr(void *kinmem, int maxl)
     if (errfp != NULL) fprintf(errfp, MSGQ_BAD_NVECTOR);
     return(KINSPTFQMR_ILL_INPUT);
   }
+
+  if (lfree != NULL) lfree(kin_mem);
 
   /* set four main function fields in kin_mem */
 

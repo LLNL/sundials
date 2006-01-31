@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:10 $
+ * $Revision: 1.3 $
+ * $Date: 2006-01-31 18:30:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -171,6 +171,8 @@ int KINSpgmr(void *kinmem, int maxl)
     if (errfp != NULL) fprintf(errfp, MSGS_BAD_NVECTOR);
     return(KINSPGMR_ILL_INPUT);
   }
+
+  if (lfree != NULL) lfree(kin_mem);
 
   /* set four main function fields in kin_mem */
 
@@ -750,7 +752,8 @@ static int KINSpgmrFree(KINMem kin_mem)
   kinspgmr_mem = (KINSpgmrMem) lmem;
 
   SpgmrFree(spgmr_mem);
-  free(lmem); lmem = NULL;
+  free(lmem);
+  lmem = NULL;
 
   return(0);
 }
