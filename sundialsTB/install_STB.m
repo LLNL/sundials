@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/01/11 21:40:24 $
+% $Revision: 1.4 $Date: 2006/01/18 01:10:27 $
 
 % Location of sundialsTB
 
@@ -197,6 +197,7 @@ kinsol_src = {'kinsol_band.c'
               'kinsol_dense.c'
               'kinsol.c'
               'kinsol_io.c'
+              'kinsol_spils.c'
               'kinsol_spbcgs.c'
               'kinsol_spgmr.c'
               'kinsol_sptfqmr.c'};

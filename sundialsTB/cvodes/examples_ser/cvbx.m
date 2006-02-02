@@ -22,7 +22,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
 
 xmax = 2.0;
 ymax = 1.0;
@@ -100,6 +100,10 @@ for i = 1:nout
   [status,t,u, q] = CVode(tout, 'Normal');
 %  [status,t,u] = CVode(tout, 'Normal');
 
+  if status ~= 0
+    return
+  end
+  
   uavg = cvbx_q(t,u,data);
   umax = norm(u,'inf');
   fprintf('At t = %f   max.norm(u) = %e\n',tout, umax);
