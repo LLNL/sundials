@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:40:27 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:39:04 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,7 +44,7 @@ extern "C" {
 
   /* Linear solver types */
 
-  enum {LS_NONE, LS_DENSE, LS_DIAG, LS_BAND, LS_SPGMR, LS_SPBCG, LS_TFQMR};
+  enum {LS_NONE, LS_DENSE, LS_DIAG, LS_BAND, LS_SPGMR, LS_SPBCG, LS_SPTFQMR};
 
   /* Preconditioner modules */
 
@@ -121,33 +121,37 @@ extern "C" {
    * Wrapper functions
    * ---------------------------------------------------------------------------------
    */
+
+  void mtlb_CVodeErrHandler(int error_code, 
+                            const char *module, const char *function, 
+                            char *msg, void *eh_data); 
   
-  void mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data);
+  int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data);
 
-  void mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data);
+  int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data);
 
-  void mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data);
+  int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data);
 
 
-  void mtlb_CVodeSensRhs1(int Ns, realtype t,
-                          N_Vector y, N_Vector ydot,
-                          int iS, N_Vector yS, N_Vector ySdot,
-                          void *fS_data,
-                          N_Vector tmp1, N_Vector tmp2);
-  void mtlb_CVodeSensRhs(int Ns, realtype t,
+  int mtlb_CVodeSensRhs1(int Ns, realtype t,
                          N_Vector y, N_Vector ydot,
-                         N_Vector *yS, N_Vector *ySdot,
+                         int iS, N_Vector yS, N_Vector ySdot,
                          void *fS_data,
                          N_Vector tmp1, N_Vector tmp2);
+  int mtlb_CVodeSensRhs(int Ns, realtype t,
+                        N_Vector y, N_Vector ydot,
+                        N_Vector *yS, N_Vector *ySdot,
+                        void *fS_data,
+                        N_Vector tmp1, N_Vector tmp2);
 
 
-  void mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
-                          N_Vector y, N_Vector fy, void *jac_data,
-                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-  void mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
-                         BandMat J, realtype t,
+  int mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
                          N_Vector y, N_Vector fy, void *jac_data,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+  int mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
+                        BandMat J, realtype t,
+                        N_Vector y, N_Vector fy, void *jac_data,
+                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
   int mtlb_CVodeSpilsJac(N_Vector v, N_Vector Jv, realtype t,
                          N_Vector y, N_Vector fy,
                          void *jac_data, N_Vector tmp);
@@ -162,25 +166,25 @@ extern "C" {
                           int lr, void *P_data, N_Vector tmp);
 
   
-  void mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
-                         N_Vector g, void *f_data);
-  void mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y,
-                         void *f_data);
+  int mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
+                        N_Vector g, void *f_data);
+  int mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y,
+                        void *f_data);
 
 
 
-  void mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB);
-  void mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_dataB);
-  void mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
-                           N_Vector y, N_Vector yB, N_Vector fyB,
-                           void *jac_dataB, N_Vector tmp1B,
-                           N_Vector tmp2B, N_Vector tmp3B);
-  void mtlb_CVodeBandJacB(long int nB, long int mupperB,
-                          long int mlowerB, BandMat JB,
-                          realtype t, N_Vector y,
-                          N_Vector yB, N_Vector fyB,
+  int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *f_dataB);
+  int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot, void *fQ_dataB);
+  int mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
+                          N_Vector y, N_Vector yB, N_Vector fyB,
                           void *jac_dataB, N_Vector tmp1B,
                           N_Vector tmp2B, N_Vector tmp3B);
+  int mtlb_CVodeBandJacB(long int nB, long int mupperB,
+                         long int mlowerB, BandMat JB,
+                         realtype t, N_Vector y,
+                         N_Vector yB, N_Vector fyB,
+                         void *jac_dataB, N_Vector tmp1B,
+                         N_Vector tmp2B, N_Vector tmp3B);
   int mtlb_CVodeSpilsJacB(N_Vector vB, N_Vector JvB, realtype t,
                           N_Vector y, N_Vector yB, N_Vector fyB,
                           void *jac_dataB, N_Vector tmpB);
@@ -197,10 +201,10 @@ extern "C" {
                            realtype gammaB, realtype deltaB,
                            int lrB, void *P_dataB, N_Vector tmpB);
   
-  void mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y, 
+  int mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y, 
                           N_Vector yB, N_Vector gB, void *f_dataB);
 
-  void mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
+  int mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
                           N_Vector yB, void *f_dataB);
 
   void mtlb_CVodeMonitor(int call, double t, N_Vector y, N_Vector yQ, N_Vector *yS);

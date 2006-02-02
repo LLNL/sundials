@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:40:29 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:39:06 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -40,7 +40,7 @@ extern "C" {
 
   /* Linear solver types */
 
-  enum {LS_NONE, LS_DENSE, LS_SPGMR, LS_SPBCG};
+  enum {LS_NONE, LS_DENSE, LS_SPGMR, LS_SPBCG, LS_SPTFQMR};
 
   /* Preconditioner modules */
 
@@ -72,13 +72,22 @@ extern "C" {
 
   extern mxArray *mx_mtlb_data;
 
+  extern int fig_handle;
+  
   /*
    * ---------------------------------------------------------------------------------
    * Wrapper functions
    * ---------------------------------------------------------------------------------
    */
+
+  void mtlb_KINErrHandler(int error_code, 
+                          const char *module, const char *function, 
+                          char *msg, void *eh_data); 
   
-  void mtlb_KINSys(N_Vector y, N_Vector fy, void *f_data );
+  void mtlb_KINInfoHandler(const char *module, const char *function, 
+                           char *msg, void *ih_data); 
+
+  int mtlb_KINSys(N_Vector y, N_Vector fy, void *f_data );
 
   /* Dense direct linear solver */
 
@@ -102,8 +111,8 @@ extern "C" {
 
   /* BBD Preconditioner */
   
-  void mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data);
-  void mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data);
+  int mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data);
+  int mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data);
 
   /*
    * ---------------------------------------------------------------------------------
@@ -112,6 +121,7 @@ extern "C" {
    */
 
   int get_SolverOptions(const mxArray *options,
+                        booleantype *verbose,
                         int *mxiter, int *msbset, int *etachoice, int *mxnbcf,
                         double *eta, double *egamma, double *ealpha, double *mxnewtstep, 
                         double *relfunc, double *fnormtol, double *scsteptol,

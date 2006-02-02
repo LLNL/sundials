@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:23 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:39:06 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -44,6 +44,8 @@ mxArray *mx_mtlb_GLOCfct;
 mxArray *mx_mtlb_GCOMfct;
 
 mxArray *mx_mtlb_data;
+
+int fig_handle;
 
 /*
  * ---------------------------------------------------------------------------------
@@ -128,12 +130,12 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   double *tmp;
 
   int vec_type;
-  mxArray *mx_in[1], *mx_out[2];
+  mxArray *mx_in[3], *mx_out[2];
   mxArray *mx_comm;
 
   int mxiter, msbset, etachoice, mxnbcf;
   double eta, egamma, ealpha, mxnewtstep, relfunc, fnormtol, scsteptol;
-  booleantype noInitSetup, noMinEps;
+  booleantype verbose, noInitSetup, noMinEps;
 
   double *constraints;
   N_Vector NVconstraints;
@@ -185,6 +187,7 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   /* Solver Options -- optional argument */
 
   status = get_SolverOptions(prhs[2],
+                             &verbose,
                              &mxiter, &msbset, &etachoice, &mxnbcf,
                              &eta, &egamma, &ealpha, &mxnewtstep, 
                              &relfunc, &fnormtol, &scsteptol,
@@ -211,6 +214,21 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
    */
 
   kin_mem = KINCreate();
+
+  /* attach error handler function */
+  status = KINSetErrHandlerFn(kin_mem, mtlb_KINErrHandler, NULL);
+
+  if (verbose) {
+    status = KINSetPrintLevel(kin_mem,3);
+    /* attach info handler function */
+    status = KINSetInfoHandlerFn(kin_mem, mtlb_KINInfoHandler, NULL);
+    /* initialize the output window */
+    mx_in[0] = mxCreateScalarDouble(0);
+    mx_in[1] = mxCreateScalarDouble(0); /* ignored */
+    mx_in[2] = mxCreateScalarDouble(0); /* ignored */
+    mexCallMATLAB(1,mx_out,3,mx_in,"kim_info");
+    fig_handle = (int)*mxGetPr(mx_out[0]);
+  }
 
   /* Call KINMalloc */
 
@@ -260,33 +278,49 @@ static void KIM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
       status = KINSpgmr(kin_mem, maxl);
       if (!mxIsEmpty(mx_mtlb_PSOLfct)) {
         if (!mxIsEmpty(mx_mtlb_PSETfct))
-          status = KINSpgmrSetPreconditioner(kin_mem, mtlb_KINSpilsPset, mtlb_KINSpilsPsol, NULL);
+          status = KINSpilsSetPreconditioner(kin_mem, mtlb_KINSpilsPset, mtlb_KINSpilsPsol, NULL);
         else
-          status = KINSpgmrSetPreconditioner(kin_mem, NULL, mtlb_KINSpilsPsol, NULL);
+          status = KINSpilsSetPreconditioner(kin_mem, NULL, mtlb_KINSpilsPsol, NULL);
       }
     } else if (pm == PM_BBDPRE) {
       bbd_data = KINBBDPrecAlloc(kin_mem, N, mudq, mldq, mukeep, mlkeep, dq, mtlb_KINGloc, mtlb_KINGcom);
       status = KINBBDSpgmr(kin_mem, maxl, bbd_data);
     }
-    status = KINSpgmrSetMaxRestarts(kin_mem, maxrs);
+    status = KINSpilsSetMaxRestarts(kin_mem, maxrs);
     if (!mxIsEmpty(mx_mtlb_JACfct))
-      status = KINSpgmrSetJacTimesVecFn(kin_mem, mtlb_KINSpilsJac, NULL);
+      status = KINSpilsSetJacTimesVecFn(kin_mem, mtlb_KINSpilsJac, NULL);
     break;
   case LS_SPBCG:
     if (pm == PM_NONE) {
       status = KINSpbcg(kin_mem, maxl);
       if (!mxIsEmpty(mx_mtlb_PSOLfct)) {
         if (!mxIsEmpty(mx_mtlb_PSETfct))
-          status = KINSpbcgSetPreconditioner(kin_mem, mtlb_KINSpilsPset, mtlb_KINSpilsPsol, NULL);
+          status = KINSpilsSetPreconditioner(kin_mem, mtlb_KINSpilsPset, mtlb_KINSpilsPsol, NULL);
         else
-          status = KINSpbcgSetPreconditioner(kin_mem, NULL, mtlb_KINSpilsPsol, NULL);
+          status = KINSpilsSetPreconditioner(kin_mem, NULL, mtlb_KINSpilsPsol, NULL);
       }
     } else if (pm == PM_BBDPRE) {
       bbd_data = KINBBDPrecAlloc(kin_mem, N, mudq, mldq, mukeep, mlkeep, dq, mtlb_KINGloc, mtlb_KINGcom);
       status = KINBBDSpbcg(kin_mem, maxl, bbd_data);
     }
     if (!mxIsEmpty(mx_mtlb_JACfct))
-      status = KINSpbcgSetJacTimesVecFn(kin_mem, mtlb_KINSpilsJac, NULL);
+      status = KINSpilsSetJacTimesVecFn(kin_mem, mtlb_KINSpilsJac, NULL);
+    break;
+  case LS_SPTFQMR:
+    if (pm == PM_NONE) {
+      status = KINSptfqmr(kin_mem, maxl);
+      if (!mxIsEmpty(mx_mtlb_PSOLfct)) {
+        if (!mxIsEmpty(mx_mtlb_PSETfct))
+          status = KINSpilsSetPreconditioner(kin_mem, mtlb_KINSpilsPset, mtlb_KINSpilsPsol, NULL);
+        else
+          status = KINSpilsSetPreconditioner(kin_mem, NULL, mtlb_KINSpilsPsol, NULL);
+      }
+    } else if (pm == PM_BBDPRE) {
+      bbd_data = KINBBDPrecAlloc(kin_mem, N, mudq, mldq, mukeep, mlkeep, dq, mtlb_KINGloc, mtlb_KINGcom);
+      status = KINBBDSptfqmr(kin_mem, maxl, bbd_data);
+    }
+    if (!mxIsEmpty(mx_mtlb_JACfct))
+      status = KINSpilsSetJacTimesVecFn(kin_mem, mtlb_KINSpilsJac, NULL);
     break;
   }
   
@@ -418,41 +452,31 @@ static void KIM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
     break;
 
   case LS_SPGMR:
-
-    flag = KINSpgmrGetNumLinIters(kin_mem, &nli);
-    flag = KINSpgmrGetNumPrecEvals(kin_mem, &npe);
-    flag = KINSpgmrGetNumPrecSolves(kin_mem, &nps);
-    flag = KINSpgmrGetNumConvFails(kin_mem, &ncfl);
-    
-    nfields = sizeof(fnames_spils)/sizeof(*fnames_spils);
-    mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
- 
-    mxSetField(mx_ls, 0, "name",  mxCreateString("GMRES"));
-    mxSetField(mx_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
-    mxSetField(mx_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
-    mxSetField(mx_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
-    mxSetField(mx_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
-    
-    break;
-
   case LS_SPBCG:
+  case LS_SPTFQMR:
 
-    flag = KINSpbcgGetNumLinIters(kin_mem, &nli);
-    flag = KINSpbcgGetNumPrecEvals(kin_mem, &npe);
-    flag = KINSpbcgGetNumPrecSolves(kin_mem, &nps);
-    flag = KINSpbcgGetNumConvFails(kin_mem, &ncfl);
+    flag = KINSpilsGetNumLinIters(kin_mem, &nli);
+    flag = KINSpilsGetNumPrecEvals(kin_mem, &npe);
+    flag = KINSpilsGetNumPrecSolves(kin_mem, &nps);
+    flag = KINSpilsGetNumConvFails(kin_mem, &ncfl);
     
     nfields = sizeof(fnames_spils)/sizeof(*fnames_spils);
     mx_ls = mxCreateStructMatrix(1, 1, nfields, fnames_spils);
- 
-    mxSetField(mx_ls, 0, "name",  mxCreateString("BiCGStab"));
+
+    if (ls == LS_SPGMR)
+      mxSetField(mx_ls, 0, "name",  mxCreateString("GMRES"));
+    else if (ls == LS_SPBCG)
+      mxSetField(mx_ls, 0, "name",  mxCreateString("BiCGStab"));
+    else
+      mxSetField(mx_ls, 0, "name",  mxCreateString("TFQMR"));
+
     mxSetField(mx_ls, 0, "nli",   mxCreateScalarDouble((double)nli));
     mxSetField(mx_ls, 0, "npe",   mxCreateScalarDouble((double)npe));
     mxSetField(mx_ls, 0, "nps",   mxCreateScalarDouble((double)nps));
     mxSetField(mx_ls, 0, "ncfl",  mxCreateScalarDouble((double)ncfl));
     
     break;
-    
+
   }
 
   mxSetField(plhs[0], 0, "LSInfo", mx_ls);

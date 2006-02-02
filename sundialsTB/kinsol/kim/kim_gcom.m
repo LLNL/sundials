@@ -1,13 +1,9 @@
-function [new_data] = kim_gcom(varargin)
+function [new_data] = kim_gcom(y, f, data)
 
 %
 % Wrapper around the actual user-provided Matlab function
 %
 
-y    = varargin{1};
-fct  = varargin{2};
-data = varargin{3};
-  
 if isempty(data)
   feval(fct,y);
   new_data = [];

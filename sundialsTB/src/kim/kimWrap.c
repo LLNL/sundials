@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:23 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:39:06 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,11 +20,58 @@ static void UpdateUserData(mxArray *mx_data);
 
 /*
  * ---------------------------------------------------------------------------------
+ * Error handler
+ * ---------------------------------------------------------------------------------
+ */
+
+void mtlb_KINErrHandler(int error_code, 
+                        const char *module, const char *function, 
+                        char *msg, void *eh_data)
+{
+  char err_type[10];
+
+  if (error_code == KIN_WARNING)
+    sprintf(err_type,"WARNING");
+  else
+    sprintf(err_type,"ERROR");
+
+  mexPrintf("\n[%s %s]  %s\n",module,err_type,function);
+  mexPrintf("  %s\n\n",msg);
+
+}
+
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Info handler
+ * ---------------------------------------------------------------------------------
+ */
+
+void mtlb_KINInfoHandler(const char *module, const char *function, 
+                         char *msg, void *ih_data)
+{
+  char my_msg[400];
+  mxArray *mx_in[3];
+
+  sprintf(my_msg,"[%s] %s\n  %s\n",module,function,msg);
+
+  /* action=1 -> append */
+  mx_in[0] = mxCreateScalarDouble(1);
+  mx_in[1] = mxCreateScalarDouble((double)fig_handle);
+  mx_in[2] = mxCreateString(my_msg);
+
+  mexCallMATLAB(0,NULL,3,mx_in,"kim_info");
+
+}
+
+
+/*
+ * ---------------------------------------------------------------------------------
  * Wrapper functions
  * ---------------------------------------------------------------------------------
  */
 
-void mtlb_KINSys(N_Vector y, N_Vector fy, void *f_data )
+int mtlb_KINSys(N_Vector y, N_Vector fy, void *f_data )
 {
   mxArray *mx_in[3], *mx_out[2];
   
@@ -47,6 +94,7 @@ void mtlb_KINSys(N_Vector y, N_Vector fy, void *f_data )
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
 int mtlb_KINDenseJac(long int N, DenseMat J, 
@@ -221,7 +269,7 @@ int mtlb_KINSpilsPsol(N_Vector y, N_Vector yscale,
 
 }
 
-void mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data)
+int mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data)
 {
   mxArray *mx_in[3], *mx_out[2];
 
@@ -243,9 +291,11 @@ void mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data)
   mxDestroyArray(mx_in[0]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+
+  return(0);
 }
 
-void mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data)
+int mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data)
 {
   mxArray *mx_in[5], *mx_out[1];
 
@@ -265,6 +315,8 @@ void mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data)
   /* Free temporary space */
   mxDestroyArray(mx_in[0]);
   mxDestroyArray(mx_out[0]);
+
+  return(0);
 }
 
 /*

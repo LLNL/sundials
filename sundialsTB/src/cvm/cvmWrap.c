@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:21 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:39:04 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,11 +20,33 @@ static void UpdateUserData(mxArray *mx_data);
 
 /*
  * ---------------------------------------------------------------------------------
+ * Error handler
+ * ---------------------------------------------------------------------------------
+ */
+
+void mtlb_CVodeErrHandler(int error_code, 
+                          const char *module, const char *function, 
+                          char *msg, void *eh_data)
+{
+  char err_type[10];
+
+  if (error_code == CV_WARNING)
+    sprintf(err_type,"WARNING");
+  else
+    sprintf(err_type,"ERROR");
+
+  mexPrintf("\n[%s %s]  %s\n",module,err_type,function);
+  mexPrintf("  %s\n\n",msg);
+
+}
+
+/*
+ * ---------------------------------------------------------------------------------
  * Wrapper functions
  * ---------------------------------------------------------------------------------
  */
 
-void mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
+int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
 {
   mxArray *mx_in[5], *mx_out[2];
   
@@ -51,9 +73,10 @@ void mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
-void mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
+int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
 {
   mxArray *mx_in[5], *mx_out[2];
 
@@ -80,9 +103,10 @@ void mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
   
+  return(0);
 }
 
-void mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
+int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
 {
   double *gdata;
   int i;
@@ -110,12 +134,13 @@ void mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
 
-void mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
-                        N_Vector y, N_Vector fy, void *jac_data,
-                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
+                       N_Vector y, N_Vector fy, void *jac_data,
+                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   double *J_data;
   long int i;
@@ -151,12 +176,13 @@ void mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
-void mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
-                       BandMat J, realtype t,
-                       N_Vector y, N_Vector fy, void *jac_data,
-                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
+                      BandMat J, realtype t,
+                      N_Vector y, N_Vector fy, void *jac_data,
+                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   double *J_data;
   long int eband, i;
@@ -193,6 +219,7 @@ void mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
 
@@ -329,7 +356,6 @@ int mtlb_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
   mxDestroyArray(mx_out[2]);
 
   return(ret);
-
 }
 
 /*
@@ -338,8 +364,8 @@ int mtlb_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
  * ----------------------------
  */
 
-void mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
-                       N_Vector g, void *f_data)
+int mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
+                      N_Vector g, void *f_data)
 {
   mxArray *mx_in[5], *mx_out[2];
 
@@ -366,9 +392,10 @@ void mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
-void mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *f_data)
+int mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *f_data)
 {
   mxArray *mx_in[5], *mx_out[1];
 
@@ -393,6 +420,7 @@ void mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *f_data)
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_out[0]);
 
+  return(0);
 }
 
 /*
@@ -402,11 +430,11 @@ void mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *f_data)
  */
 
 
-void mtlb_CVodeSensRhs1(int Ns, realtype t,
-                        N_Vector y, N_Vector yd,
-                        int iS, N_Vector yS, N_Vector ySd,
-                        void *fS_data,
-                        N_Vector tmp1, N_Vector tmp2)
+int mtlb_CVodeSensRhs1(int Ns, realtype t,
+                       N_Vector y, N_Vector yd,
+                       int iS, N_Vector yS, N_Vector ySd,
+                       void *fS_data,
+                       N_Vector tmp1, N_Vector tmp2)
 {
   double isd;
   mxArray *mx_in[7], *mx_out[2];
@@ -444,14 +472,15 @@ void mtlb_CVodeSensRhs1(int Ns, realtype t,
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
 
-void mtlb_CVodeSensRhs(int Ns, realtype t,
-                       N_Vector y, N_Vector yd,
-                       N_Vector *yS, N_Vector *ySd,
-                       void *fS_data,
-                       N_Vector tmp1, N_Vector tmp2)
+int mtlb_CVodeSensRhs(int Ns, realtype t,
+                      N_Vector y, N_Vector yd,
+                      N_Vector *yS, N_Vector *ySd,
+                      void *fS_data,
+                      N_Vector tmp1, N_Vector tmp2)
 {
   mxArray *mx_in[6], *mx_out[2];
   int is;
@@ -489,6 +518,7 @@ void mtlb_CVodeSensRhs(int Ns, realtype t,
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
 
@@ -499,7 +529,7 @@ void mtlb_CVodeSensRhs(int Ns, realtype t,
  */
 
 
-void mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_dataB)
+int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_dataB)
 {
   mxArray *mx_in[6], *mx_out[2];
   
@@ -531,10 +561,11 @@ void mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_d
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
 
-void mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void *fQ_dataB)
+int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void *fQ_dataB)
 {
   mxArray *mx_in[6], *mx_out[2];
 
@@ -565,13 +596,15 @@ void mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+
+  return(0);
 }
 
 
-void mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
-                         N_Vector y, N_Vector yB, N_Vector fyB,
-                         void *jac_dataB, N_Vector tmp1B,
-                         N_Vector tmp2B, N_Vector tmp3B)
+int mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
+                        N_Vector y, N_Vector yB, N_Vector fyB,
+                        void *jac_dataB, N_Vector tmp1B,
+                        N_Vector tmp2B, N_Vector tmp3B)
 {
   double *JB_data;
   long int i;
@@ -609,15 +642,17 @@ void mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+
+  return(0);
 }
 
 
-void mtlb_CVodeBandJacB(long int nB, long int mupperB,
-                        long int mlowerB, BandMat JB,
-                        realtype t, N_Vector y,
-                        N_Vector yB, N_Vector fyB,
-                        void *jac_dataB, N_Vector tmp1B,
-                        N_Vector tmp2B, N_Vector tmp3B)
+int mtlb_CVodeBandJacB(long int nB, long int mupperB,
+                       long int mlowerB, BandMat JB,
+                       realtype t, N_Vector y,
+                       N_Vector yB, N_Vector fyB,
+                       void *jac_dataB, N_Vector tmp1B,
+                       N_Vector tmp2B, N_Vector tmp3B)
 {
   double *JB_data;
   long int ebandB, i;
@@ -657,6 +692,7 @@ void mtlb_CVodeBandJacB(long int nB, long int mupperB,
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
+  return(0);
 }
 
 
@@ -810,8 +846,8 @@ int mtlb_CVodeSpilsPsolB(realtype t, N_Vector y,
 
 }
 
-void mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
-                        N_Vector yB, N_Vector gB, void *f_dataB)
+int mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
+                       N_Vector yB, N_Vector gB, void *f_dataB)
 {
   mxArray *mx_in[6], *mx_out[2];
 
@@ -840,10 +876,12 @@ void mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+
+  return(0);
 }
 
-void mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
-                        N_Vector yB, void *f_dataB)
+int mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
+                       N_Vector yB, void *f_dataB)
 {
   mxArray *mx_in[6], *mx_out[1];
 
@@ -870,6 +908,8 @@ void mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y,
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
+
+  return(0);
 }
 
 /*

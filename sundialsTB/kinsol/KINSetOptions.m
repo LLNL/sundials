@@ -22,6 +22,8 @@ function options = KINSetOptions(varargin)
 %KINSetOptions properties
 %(See also the KINSOL User Guide)
 % 
+%Verbose - verbose output [ {false} | true ]
+%   Specifies whether or not KINSOL should output additional information
 %MaxNumIter - maximum number of nonlinear iterations [ scalar | {200} ]
 %   Specifies the maximum number of iterations that the nonlinar solver is allowed
 %   to take.
@@ -156,12 +158,13 @@ function options = KINSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 19:00:02 $
 
 % Based on Matlab's ODESET function
 
 % Print out possible values of properties.
 if (nargin == 0) & (nargout == 0)
+  fprintf('         Verbose: [ true   | {false} ]\n');
   fprintf('      MaxNumIter: [ scalar | {200} ]\n');
   fprintf('    MaxNumSetups: [ scalar | {10} ]\n');
   fprintf(' MaxNumBetaFails: [ scalar | {10} ]\n');
@@ -196,6 +199,7 @@ if (nargin == 0) & (nargout == 0)
 end
 
 Names = [
+    'Verbose         '
     'MaxNumIter      '
     'MaxNumSetups    '
     'MaxNumBetaFails '

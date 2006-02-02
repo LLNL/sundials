@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:23 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:39:06 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,6 +26,7 @@
  */
 
 int get_SolverOptions(const mxArray *options,
+                      booleantype *verbose,
                       int *mxiter, int *msbset, int *etachoice, int *mxnbcf,
                       double *eta, double *egamma, double *ealpha, double *mxnewtstep, 
                       double *relfunc, double *fnormtol, double *scsteptol,
@@ -54,6 +55,7 @@ int get_SolverOptions(const mxArray *options,
 
   *noInitSetup = FALSE;
   *noMinEps = FALSE;
+  *verbose = FALSE;
 
   *constraints = NULL;
 
@@ -117,6 +119,10 @@ int get_SolverOptions(const mxArray *options,
     *scsteptol = (double)*mxGetPr(opt);
 
   /* Boolean values */
+
+  opt = mxGetField(options,0,"Verbose");
+  if ( !mxIsEmpty(opt) )
+    *verbose = mxIsLogicalScalarTrue(opt);
 
   opt = mxGetField(options,0,"InitialSetup");
   if ( !mxIsEmpty(opt) )
@@ -196,6 +202,7 @@ int get_LinSolvOptions(const mxArray *options,
     if(!strcmp(bufval,"Dense")) *ls_tmp = LS_DENSE;
     else if(!strcmp(bufval,"GMRES")) *ls_tmp = LS_SPGMR;
     else if(!strcmp(bufval,"BiCGStab")) *ls_tmp = LS_SPBCG;
+    else if(!strcmp(bufval,"TFQMR")) *ls_tmp = LS_SPTFQMR;
     else mexErrMsgTxt("LinearSolver has an illegal value.");
   }
   

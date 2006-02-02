@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:21 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:39:04 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -324,6 +324,7 @@ int get_LinSolvOptions(const mxArray *options,
     else if(!strcmp(bufval,"Band")) *ls_tmp = LS_BAND;
     else if(!strcmp(bufval,"GMRES")) *ls_tmp = LS_SPGMR;
     else if(!strcmp(bufval,"BiCGStab")) *ls_tmp = LS_SPBCG;
+    else if(!strcmp(bufval,"TFQMR")) *ls_tmp = LS_SPTFQMR;
     else if(!strcmp(bufval,"Dense")) *ls_tmp = LS_DENSE;
     else mexErrMsgTxt("LinearSolver has an illegal value.");
   }
