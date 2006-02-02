@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.62 $
- * $Date: 2006-01-28 00:47:16 $
+ * $Revision: 1.63 $
+ * $Date: 2006-02-02 00:32:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -36,9 +36,9 @@
 /*                  CVODEA Private Constants                       */
 /*=================================================================*/
 
-#define ZERO        RCONST(0.0)     /* real 0.0 */
-#define ONE         RCONST(1.0)     /* real 1.0 */
-#define TWO         RCONST(2.0)     /* real 2.0 */
+#define ZERO        RCONST(0.0)        /* real 0.0 */
+#define ONE         RCONST(1.0)        /* real 1.0 */
+#define TWO         RCONST(2.0)        /* real 2.0 */
 #define FUZZ_FACTOR RCONST(1000000.0)  /* fuzz factor for CVadjGetY */
 
 /*=================================================================*/
@@ -101,6 +101,7 @@ static int CVArhsQ(realtype t, N_Vector yB,
 #define interpType  (ca_mem->ca_interpType)
 #define getY        (ca_mem->ca_getY)
 #define storePnt    (ca_mem->ca_storePnt)
+#define lfreeB      (ca_mem->ca_lfreeB)
 
 #define zn         (cv_mem->cv_zn)
 #define nst        (cv_mem->cv_nst)
@@ -313,13 +314,17 @@ void *CVadjMalloc(void *cvode_mem, long int steps, int interp)
   /* Initialize backward cvode memory to NULL */
   ca_mem->cvb_mem = NULL;
 
+  ca_mem->ca_lmemB = NULL;
+  ca_mem->ca_lfreeB = NULL;
+  ca_mem->ca_pmemB = NULL;
+  
   ca_mem->ca_f_dataB = NULL;
   ca_mem->ca_fQ_dataB = NULL;
 
   return((void *)ca_mem);
 } 
 
-/* CVadjSsetInterpType
+/* CVadjSetInterpType
  *
  * Changes the interpolation type.
  *
@@ -423,6 +428,9 @@ void CVadjFree(void **cvadj_mem)
 
   /* Free workspace vectors in ca_mem */
   CVAfreeVectors(ca_mem);
+
+  /* Free memory allocated by the linear solver */
+  if (lfreeB != NULL) lfreeB(ca_mem);
 
   /* Free CVODES memory for backward run */
   cvode_bmem = (void *)ca_mem->cvb_mem;
@@ -1804,6 +1812,7 @@ static void CVAhermiteFree(DtpntMem *dt_mem, long int steps)
 
 static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 {
+  int retval;
   HermiteDataMem content;
 
   content = (HermiteDataMem) d->content;
@@ -1811,7 +1820,7 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
   N_VScale(ONE, zn[0], content->y);
   
   if (nst == 0)
-    f(tn, content->y, content->yd, f_data);
+    retval = f(tn, content->y, content->yd, f_data);
   else
     N_VScale(ONE/h, zn[1], content->yd);
 
@@ -2106,7 +2115,7 @@ static int CVArhs(realtype t, N_Vector yB,
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
-  int flag;
+  int flag, retval;
 
   ca_mem = (CVadjMem) cvadj_mem;
   cv_mem = ca_mem->cvb_mem;
@@ -2120,7 +2129,7 @@ static int CVArhs(realtype t, N_Vector yB,
   }
 
   /* Call user's adjoint RHS routine */
-  f_B(t, ytmp, yB, yBdot, f_data_B);
+  retval = f_B(t, ytmp, yB, yBdot, f_data_B);
 
   return(0);
 }
@@ -2138,7 +2147,7 @@ static int CVArhsQ(realtype t, N_Vector yB,
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
-  int flag;
+  int flag, retval;
 
   ca_mem = (CVadjMem) cvadj_mem;
   cv_mem = ca_mem->cvb_mem;
@@ -2152,7 +2161,7 @@ static int CVArhsQ(realtype t, N_Vector yB,
   }
 
   /* Call user's adjoint RHS routine */
-  fQ_B(t, ytmp, yB, qBdot, fQ_data_B);
+  retval = fQ_B(t, ytmp, yB, qBdot, fQ_data_B);
 
   return(0);
 }

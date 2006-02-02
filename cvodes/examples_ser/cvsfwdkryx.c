@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:39 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-02 00:32:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -221,8 +221,8 @@ int main(int argc, char *argv[])
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
 
-  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, data);
-  if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1)) return(1);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
+  if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
   printf("\n2-species diurnal advection-diffusion problem\n");
 
@@ -859,14 +859,14 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
     check_flag(&flag, "CVodeGetNumSensNonlinSolvConvFails", 1);
   }
 
-  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
-  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
-  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
+  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpilsGetNumLinIters", 1);
+  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpilsGetNumConvFails", 1);
+  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1);
+  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1);
 
   printf("\nFinal Statistics\n\n");
   printf("nst     = %5ld\n\n", nst);

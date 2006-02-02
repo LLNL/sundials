@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2006-01-24 00:51:17 $
+ * $Revision: 1.15 $
+ * $Date: 2006-02-02 00:32:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban @ LLNL
@@ -273,8 +273,8 @@ int main(int argc, char *argv[])
   flag = CVSpgmr(cvode_mem, PREC_LEFT, MAXL);
   if(check_flag(&flag, "CVSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, data);
-  if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
+  if(check_flag(&flag, "CVSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) {
     printf("MXxMY = %dx%d (%dx%d, %dx%d), PRINT_GRIDINFO = %d, MAXL = %d\n",
@@ -874,18 +874,18 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
-  check_flag(&flag, "CVSpgmrGetWorkSpace", 1, 0);
-  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpgmrGetNumLinIters", 1, 0);
-  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1, 0);
-  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1, 0);
-  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpgmrGetNumConvFails", 1, 0);
-  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
-  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1, 0);
+  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  check_flag(&flag, "CVSpilsGetWorkSpace", 1, 0);
+  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpilsGetNumLinIters", 1, 0);
+  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1, 0);
+  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1, 0);
+  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpilsGetNumConvFails", 1, 0);
+  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
 
   if (sensi) {
     flag = CVodeGetNumSensRhsEvals(cvode_mem, &nfSe);

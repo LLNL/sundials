@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-24 00:50:35 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-02 00:32:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1029,12 +1029,12 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 
-  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
-  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeSPGMR);
+  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwSPGMR, &leniwSPGMR);
+  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
+  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
+  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
+  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
+  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeSPGMR);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %6ld     leniw = %6ld\n", lenrw, leniw);

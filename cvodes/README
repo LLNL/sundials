@@ -114,6 +114,7 @@ v. 2.3.0 (May. 2005) ---> v. 2.4.0 (???. 2006)
    - changed function types so that all user-supplied functions return
      an integer flag (not all of them currently used).
    - changed some names for CVBBDPRE and CVBANDPRE function outputs
+   - added option for user-supplied error handler function.
    - added a argument to CVadjMalloc to specify the type of interpolation 
      (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
      for variable-order polynomial interpolation)

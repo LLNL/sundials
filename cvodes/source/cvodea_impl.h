@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.18 $
+ * $Date: 2006-02-02 00:32:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -181,6 +181,9 @@ extern "C" {
     /* Memory block for a linear solver's interface to CVODEA */
     void *ca_lmemB;
 
+    /* Function to free any memory allocated by the linear solver */
+    void (*ca_lfreeB)(CVadjMem ca_mem);
+
     /* Memory block for a preconditioner's module interface to CVODEA */ 
     void *ca_pmemB;
     
@@ -223,15 +226,15 @@ extern "C" {
   
   /* Error Messages */
   
-#define MSGAM_NULL_CVMEM "cvode_mem = NULL illegal."
-#define MSGAM_NULL_CAMEM "cvadj_mem = NULL illegal."
-#define MSGAM_BAD_STEPS "Steps nonpositive illegal."
-#define MSGAM_MEM_FAIL "A memory request failed."
-#define MSGAM_BAD_INTERP "Illegal value for interp."
-#define MSGAM_BAD_ITASKB "Illegal value for itaskB. Legal values are CV_NORMAL and CV_ONE_STEP."
-#define MSGAM_BAD_TB0 "The initial time tB0 is outside the interval over which the forward problem was solved."
-#define MSGAM_BAD_TBOUT "The final time tBout is outside the interval over which the forward problem was solved."
-#define MSGAM_BAD_T "Bad t for interpolation. Abort!"
+#define MSGAM_NULL_CVMEM   "cvode_mem = NULL illegal."
+#define MSGAM_NULL_CAMEM   "cvadj_mem = NULL illegal."
+#define MSGAM_BAD_STEPS    "Steps nonpositive illegal."
+#define MSGAM_MEM_FAIL     "A memory request failed."
+#define MSGAM_BAD_INTERP   "Illegal value for interp."
+#define MSGAM_BAD_ITASKB   "Illegal value for itaskB. Legal values are CV_NORMAL and CV_ONE_STEP."
+#define MSGAM_BAD_TB0      "The initial time tB0 is outside the interval over which the forward problem was solved."
+#define MSGAM_BAD_TBOUT    "The final time tBout is outside the interval over which the forward problem was solved."
+#define MSGAM_BAD_T        "Bad t for interpolation. Abort!"
 #define MSGAM_WRONG_INTERP "This function cannot be called for the specified interp type."
 
 #ifdef __cplusplus

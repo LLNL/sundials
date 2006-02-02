@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:36 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-02 00:32:14 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -266,8 +266,8 @@ int main(int argc, char *argv[])
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
-  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, predata);
-  if (check_flag(&flag, "CVSpgmrSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, predata);
+  if (check_flag(&flag, "CVSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n\n");
@@ -485,18 +485,18 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVSpgmrGetWorkSpace", 1, 0);
-  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpgmrGetNumLinIters", 1, 0);
-  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1, 0);
-  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1, 0);
-  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpgmrGetNumConvFails", 1, 0);
-  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1, 0);
+  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "CVSpilsGetWorkSpace", 1, 0);
+  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpilsGetNumLinIters", 1, 0);
+  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1, 0);
+  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1, 0);
+  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpilsGetNumConvFails", 1, 0);
+  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);

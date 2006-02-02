@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-02 00:32:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,6 +43,10 @@ static int CVDenseSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static void CVDenseFree(CVodeMem cv_mem);
 
+/* CVDENSE lfreeB function */
+
+static void CVDenseFreeB(CVadjMem ca_mem);
+
 /* Wrapper function for adjoint code */
 
 static int CVAdenseJac(long int nB, DenseMat JB, realtype t, 
@@ -55,6 +59,16 @@ static int CVAdenseJac(long int nB, DenseMat JB, realtype t,
 static int CVDenseDQJac(long int n, DenseMat J, realtype t, 
                         N_Vector y, N_Vector fy, void *jac_data,
                         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+
+/* 
+ * ================================================================
+ *
+ *                   PART I - forward problems
+ *
+ * ================================================================
+ */
+
 
 /* Readability Replacements */
 
@@ -88,13 +102,6 @@ static int CVDenseDQJac(long int n, DenseMat J, realtype t,
 #define J_data    (cvdense_mem->d_J_data)
 #define last_flag (cvdense_mem->d_last_flag)
 
-
-/* 
- * =================================================================
- * PART I - forward problems
- * =================================================================
- */
-                  
 /*
  * -----------------------------------------------------------------
  * CVDense
@@ -344,134 +351,6 @@ int CVDenseGetLastFlag(void *cvode_mem, int *flag)
   return(CVDENSE_SUCCESS);
 }
 
-
-/* 
- * =================================================================
- * PART II - backward problems
- * =================================================================
- */
-
-/* Additional readability replacements */
-
-#define ytmp        (ca_mem->ca_ytmp)
-#define getY        (ca_mem->ca_getY)
-#define lmemB       (ca_mem->ca_lmemB)
-
-#define djac_B      (cvdenseB_mem->d_djacB)
-#define jac_data_B  (cvdenseB_mem->d_jac_dataB)
-
-
-/*
- * CVDenseB and CVdenseSet*B
- *
- * Wrappers for the backward phase around the corresponding 
- * CVODES functions
- */
-
-int CVDenseB(void *cvadj_mem, long int nB)
-{
-  CVadjMem ca_mem;
-  CVDenseMemB cvdenseB_mem;
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVDENSE_ADJMEM_NULL, "CVDENSE", "CVDenseB", MSGDS_CAMEM_NULL);
-    return(CVDENSE_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-
-  /* Get memory for CVDenseMemRecB */
-  cvdenseB_mem = (CVDenseMemB) malloc(sizeof(CVDenseMemRecB));
-  if (cvdenseB_mem == NULL) {
-    CVProcessError(cvB_mem, CVDENSE_MEM_FAIL, "CVDENSE", "CVDenseB", MSGDS_MEM_FAIL);
-    return(CVDENSE_MEM_FAIL);
-  }
-
-  djac_B = NULL;
-  jac_data_B = NULL;
-
-  /* attach lmemB */
-  lmemB = cvdenseB_mem;
-
-  flag = CVDense(cvB_mem, nB);
-
-  return(flag);
-}
-
-int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
-{
-  CVadjMem ca_mem;
-  CVDenseMemB cvdenseB_mem;
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVDENSE_ADJMEM_NULL, "CVDENSE", "CVDenseSetJacFnB", MSGDS_CAMEM_NULL);
-    return(CVDENSE_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-
-  if (lmemB == NULL) {
-    CVProcessError(cvB_mem, CVDENSE_LMEMB_NULL, "CVDENSE", "CVDenseSetJacFnB", MSGDS_LMEMB_NULL);
-    return(CVDENSE_LMEMB_NULL);
-  }
-  cvdenseB_mem = (CVDenseMemB) lmemB;
-
-  djac_B     = djacB;
-  jac_data_B = jac_dataB;
-
-  flag = CVDenseSetJacFn(cvB_mem, CVAdenseJac, cvadj_mem);
-
-  return(flag);
-}
-
-/*
- * CVAdenseJac
- *
- * This routine interfaces to the CVDenseJacFnB routine provided 
- * by the user.
- * NOTE: jac_data actually contains cvadj_mem
- */
-
-static int CVAdenseJac(long int nB, DenseMat JB, realtype t, 
-                       N_Vector yB, N_Vector fyB, void *cvadj_mem,
-                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
-{
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
-  CVDenseMemB cvdenseB_mem;
-  int flag;
-
-  ca_mem = (CVadjMem) cvadj_mem;
-  cvB_mem = ca_mem->cvb_mem;
-  cvdenseB_mem = (CVDenseMemB) lmemB;
-
-  /* Forward solution from interpolation */
-  flag = getY(ca_mem, t, ytmp);
-  if (flag != CV_SUCCESS) {
-    CVProcessError(cvB_mem, -1, "CVDENSE", "CVAdenseJac", MSGDS_BAD_T);
-    exit(1);
-    /*return(-1);*/
-  }
-
-  /* Call user's adjoint dense djacB routine */
-  djac_B(nB, JB, t, ytmp, yB, fyB, jac_data_B, 
-         tmp1B, tmp2B, tmp3B);
-
-}
-
-
-/* 
- * =================================================================
- * PART III - private functions
- * =================================================================
- */
-
 /*
  * -----------------------------------------------------------------
  * CVDenseInit
@@ -521,7 +400,8 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   realtype dgamma;
   long int ier;
   CVDenseMem cvdense_mem;
-  
+  int retval;
+
   cvdense_mem = (CVDenseMem) lmem;
  
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
@@ -542,7 +422,7 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlj = nst;
     *jcurPtr = TRUE;
     DenseZero(M); 
-    jac(n, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
+    retval = jac(n, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
     DenseCopy(M, savedJ);
   }
   
@@ -632,6 +512,7 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
   realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
   long int j;
+  int retval;
 
   CVodeMem cv_mem;
   CVDenseMem  cvdense_mem;
@@ -668,7 +549,7 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
     yjsaved = y_data[j];
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
-    f(tn, y, ftemp, f_data);
+    retval = f(tn, y, ftemp, f_data);
     y_data[j] = yjsaved;
 
     inc_inv = ONE/inc;
@@ -685,3 +566,145 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
 
   return(0);
 }
+
+
+/* 
+ * ================================================================
+ *
+ *                   PART II - backward problems
+ *
+ * ================================================================
+ */
+
+
+/* Additional readability replacements */
+
+#define ytmp        (ca_mem->ca_ytmp)
+#define getY        (ca_mem->ca_getY)
+#define lmemB       (ca_mem->ca_lmemB)
+#define lfreeB      (ca_mem->ca_lfreeB)
+
+#define djac_B      (cvdenseB_mem->d_djacB)
+#define jac_data_B  (cvdenseB_mem->d_jac_dataB)
+
+
+/*
+ * CVDenseB and CVdenseSet*B
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVDenseB(void *cvadj_mem, long int nB)
+{
+  CVadjMem ca_mem;
+  CVDenseMemB cvdenseB_mem;
+  CVodeMem cvB_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVDENSE_ADJMEM_NULL, "CVDENSE", "CVDenseB", MSGDS_CAMEM_NULL);
+    return(CVDENSE_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvB_mem = ca_mem->cvb_mem;
+
+  /* Get memory for CVDenseMemRecB */
+  cvdenseB_mem = (CVDenseMemB) malloc(sizeof(CVDenseMemRecB));
+  if (cvdenseB_mem == NULL) {
+    CVProcessError(cvB_mem, CVDENSE_MEM_FAIL, "CVDENSE", "CVDenseB", MSGDS_MEM_FAIL);
+    return(CVDENSE_MEM_FAIL);
+  }
+
+  djac_B = NULL;
+  jac_data_B = NULL;
+
+  /* attach lmemB and lfreeB */
+  lmemB = cvdenseB_mem;
+  lfreeB = CVDenseFreeB;
+
+  flag = CVDense(cvB_mem, nB);
+
+  return(flag);
+}
+
+int CVDenseSetJacFnB(void *cvadj_mem, CVDenseJacFnB djacB, void *jac_dataB)
+{
+  CVadjMem ca_mem;
+  CVDenseMemB cvdenseB_mem;
+  CVodeMem cvB_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVDENSE_ADJMEM_NULL, "CVDENSE", "CVDenseSetJacFnB", MSGDS_CAMEM_NULL);
+    return(CVDENSE_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvB_mem = ca_mem->cvb_mem;
+
+  if (lmemB == NULL) {
+    CVProcessError(cvB_mem, CVDENSE_LMEMB_NULL, "CVDENSE", "CVDenseSetJacFnB", MSGDS_LMEMB_NULL);
+    return(CVDENSE_LMEMB_NULL);
+  }
+  cvdenseB_mem = (CVDenseMemB) lmemB;
+
+  djac_B     = djacB;
+  jac_data_B = jac_dataB;
+
+  flag = CVDenseSetJacFn(cvB_mem, CVAdenseJac, cvadj_mem);
+
+  return(flag);
+}
+
+/*
+ * CVDenseFreeB 
+ */
+
+
+static void CVDenseFreeB(CVadjMem ca_mem)
+{
+  CVDenseMemB cvdenseB_mem;
+
+  cvdenseB_mem = (CVDenseMemB) lmemB;
+
+  free(cvdenseB_mem);
+}
+
+
+/*
+ * CVAdenseJac
+ *
+ * This routine interfaces to the CVDenseJacFnB routine provided 
+ * by the user.
+ * NOTE: jac_data actually contains cvadj_mem
+ */
+
+static int CVAdenseJac(long int nB, DenseMat JB, realtype t, 
+                       N_Vector yB, N_Vector fyB, void *cvadj_mem,
+                       N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+{
+  CVadjMem ca_mem;
+  CVodeMem cvB_mem;
+  CVDenseMemB cvdenseB_mem;
+  int retval, flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = ca_mem->cvb_mem;
+  cvdenseB_mem = (CVDenseMemB) lmemB;
+
+  /* Forward solution from interpolation */
+  flag = getY(ca_mem, t, ytmp);
+  if (flag != CV_SUCCESS) {
+    CVProcessError(cvB_mem, -1, "CVDENSE", "CVAdenseJac", MSGDS_BAD_T);
+    exit(1);
+    /*return(-1);*/
+  }
+
+  /* Call user's adjoint dense djacB routine */
+  retval = djac_B(nB, JB, t, ytmp, yB, fyB, jac_data_B, 
+         tmp1B, tmp2B, tmp3B);
+
+}
+

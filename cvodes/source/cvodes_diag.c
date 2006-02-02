@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-02 00:32:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -39,6 +39,16 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static void CVDiagFree(CVodeMem cv_mem);
 
+
+/* 
+ * ================================================================
+ *
+ *                   PART I - forward problems
+ *
+ * ================================================================
+ */
+
+
 /* Readability Replacements */
 
 #define lrw1      (cv_mem->cv_lrw1)
@@ -68,12 +78,6 @@ static void CVDiagFree(CVodeMem cv_mem);
 #define nfeDI     (cvdiag_mem->di_nfeDI)
 #define last_flag (cvdiag_mem->di_last_flag)
 
-
-/* 
- * =================================================================
- * PART I - forward problems
- * =================================================================
- */
 
 /*
  * -----------------------------------------------------------------
@@ -247,45 +251,6 @@ int CVDiagGetLastFlag(void *cvode_mem, int *flag)
   return(CVDIAG_SUCCESS);
 }
 
-
-/* 
- * =================================================================
- * PART II - backward problems
- * =================================================================
- */
-
-/*
- * CVDiagB
- *
- * Wrappers for the backward phase around the corresponding 
- * CVODES functions
- */
-
-int CVDiagB(void *cvadj_mem)
-{
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVDIAG_ADJMEM_NULL, "CVDIAG", "CVDiagB", MSGDG_CAMEM_NULL);
-    return(CVDIAG_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-  
-  flag = CVDiag(cvB_mem);
-
-  return(flag);
-}
-
-/* 
- * =================================================================
- * PART III - private functions
- * =================================================================
- */
-
 /*
  * -----------------------------------------------------------------
  * CVDiagInit
@@ -325,7 +290,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   N_Vector ftemp, y;
   booleantype invOK;
   CVDiagMem cvdiag_mem;
-  
+  int retval;
+
   cvdiag_mem = (CVDiagMem) lmem;
 
   /* Rename work vectors for use as temporary values of y and f */
@@ -338,7 +304,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   N_VLinearSum(r, ftemp, ONE, ypred, y);
 
   /* Evaluate f at perturbed y */
-  f(tn, y, M, f_data);
+  retval = f(tn, y, M, f_data);
   nfeDI++;
 
   /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */
@@ -428,3 +394,40 @@ static void CVDiagFree(CVodeMem cv_mem)
   N_VDestroy(bitcomp);
   free(cvdiag_mem); cvdiag_mem = NULL;
 }
+
+
+/* 
+ * ================================================================
+ *
+ *                   PART II - backward problems
+ *
+ * ================================================================
+ */
+
+
+/*
+ * CVDiagB
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVDiagB(void *cvadj_mem)
+{
+  CVadjMem ca_mem;
+  CVodeMem cvB_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVDIAG_ADJMEM_NULL, "CVDIAG", "CVDiagB", MSGDG_CAMEM_NULL);
+    return(CVDIAG_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvB_mem = ca_mem->cvb_mem;
+  
+  flag = CVDiag(cvB_mem);
+
+  return(flag);
+}
+

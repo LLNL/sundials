@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-02 00:32:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,14 +17,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvodes_spbcgs_impl.h"
-#include "cvodes_spils_impl.h"
 #include "cvodes_impl.h"
 #include "cvodea_impl.h"
+#include "cvodes_spils_impl.h"
 
+#include "sundials_spbcgs.h"
 #include "sundials_math.h"
 
-/* Other Constants */
+/* Constants */
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -42,22 +42,20 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static void CVSpbcgFree(CVodeMem cv_mem);
 
-/* CVSPBCG Atimes and PSolve routines called by generic SPBCG solver */
+/* CVSPBCG lfreeB function */
 
-static int CVSpbcgAtimes(void *cv_mem, N_Vector v, N_Vector z);
+static void CVSpbcgFreeB(CVadjMem ca_mem);
 
-static int CVSpbcgPSolve(void *cv_mem, N_Vector r, N_Vector z, int lr);
-
-/* CVSPBCG difference quotient routine for J*v */
-
-static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t,
-                           N_Vector y, N_Vector fy, void *jac_data,
-                           N_Vector work);
+/* 
+ * ================================================================
+ *
+ *                   PART I - forward problems
+ *
+ * ================================================================
+ */
 
 /* Readability Replacements */
 
-#define lrw1         (cv_mem->cv_lrw1)
-#define liw1         (cv_mem->cv_liw1)
 #define tq           (cv_mem->cv_tq)
 #define nst          (cv_mem->cv_nst)
 #define tn           (cv_mem->cv_tn)
@@ -66,6 +64,7 @@ static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define f            (cv_mem->cv_f)
 #define f_data       (cv_mem->cv_f_data)
 #define ewt          (cv_mem->cv_ewt)
+#define errfp        (cv_mem->cv_errfp)
 #define mnewt        (cv_mem->cv_mnewt)
 #define linit        (cv_mem->cv_linit)
 #define lsetup       (cv_mem->cv_lsetup)
@@ -75,28 +74,22 @@ static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define vec_tmpl     (cv_mem->cv_tempv)
 #define setupNonNull (cv_mem->cv_setupNonNull)
 
-#define sqrtN     (cvspbcg_mem->b_sqrtN)   
-#define ytemp     (cvspbcg_mem->b_ytemp)
-#define x         (cvspbcg_mem->b_x)
-#define ycur      (cvspbcg_mem->b_ycur)
-#define fcur      (cvspbcg_mem->b_fcur)
-#define delta     (cvspbcg_mem->b_delta)
-#define deltar    (cvspbcg_mem->b_deltar)
-#define npe       (cvspbcg_mem->b_npe)
-#define nli       (cvspbcg_mem->b_nli)
-#define nps       (cvspbcg_mem->b_nps)
-#define ncfl      (cvspbcg_mem->b_ncfl)
-#define nstlpre   (cvspbcg_mem->b_nstlpre)
-#define njtimes   (cvspbcg_mem->b_njtimes)
-#define nfeSB     (cvspbcg_mem->b_nfeSB)
-#define spbcg_mem (cvspbcg_mem->b_spbcg_mem)
-#define last_flag (cvspbcg_mem->b_last_flag)
-
-/* 
- * =================================================================
- * PART I - forward problems
- * =================================================================
- */
+#define sqrtN     (cvspils_mem->s_sqrtN)   
+#define ytemp     (cvspils_mem->s_ytemp)
+#define x         (cvspils_mem->s_x)
+#define ycur      (cvspils_mem->s_ycur)
+#define fcur      (cvspils_mem->s_fcur)
+#define delta     (cvspils_mem->s_delta)
+#define deltar    (cvspils_mem->s_deltar)
+#define npe       (cvspils_mem->s_npe)
+#define nli       (cvspils_mem->s_nli)
+#define nps       (cvspils_mem->s_nps)
+#define ncfl      (cvspils_mem->s_ncfl)
+#define nstlpre   (cvspils_mem->s_nstlpre)
+#define njtimes   (cvspils_mem->s_njtimes)
+#define nfes      (cvspils_mem->s_nfes)
+#define spils_mem (cvspils_mem->s_spils_mem)
+#define last_flag (cvspils_mem->s_last_flag)
 
 /*
  * -----------------------------------------------------------------
@@ -108,20 +101,20 @@ static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t,
  * the cv_linit, cv_lsetup, cv_lsolve, cv_lfree fields in (*cvode_mem)
  * to be CVSpbcgInit, CVSpbcgSetup, CVSpbcgSolve, and CVSpbcgFree,
  * respectively. It allocates memory for a structure of type
- * CVSpbcgMemRec and sets the cv_lmem field in (*cvode_mem) to the
+ * CVSpilsMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure. It sets setupNonNull in (*cvode_mem),
- * and sets the following fields in the CVSpbcgMemRec structure:
+ * and sets the following fields in the CVSpilsMemRec structure:
  *
- *   b_pretype   = pretype
- *   b_maxl      = CVSPBCG_MAXL  if maxl <= 0
+ *   s_pretype   = pretype
+ *   s_maxl      = CVSPILS_MAXL  if maxl <= 0
  *               = maxl          if maxl >  0
- *   b_delt      = CVSPBCG_DELT
- *   b_P_data    = NULL
- *   b_pset      = NULL
- *   b_psolve    = NULL
- *   b_jtimes    = CVSpbcgDQJtimes
- *   b_j_data    = cvode_mem
- *   b_last_flag = CVSPBCG_SUCCESS
+ *   s_delt      = CVSPILS_DELT
+ *   s_P_data    = NULL
+ *   s_pset      = NULL
+ *   s_psolve    = NULL
+ *   s_jtimes    = CVSpilsDQJtimes
+ *   s_j_data    = cvode_mem
+ *   s_last_flag = CVSPILS_SUCCESS
  *
  * Finally, CVSpbcg allocates memory for ytemp and x, and calls
  * SpbcgMalloc to allocate memory for the Spbcg solver.
@@ -131,20 +124,21 @@ static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 int CVSpbcg(void *cvode_mem, int pretype, int maxl)
 {
   CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
+  CVSpilsMem cvspils_mem;
+  SpbcgMem spbcg_mem;
   int mxl;
 
   /* Return immediately if cvode_mem is NULL */
   if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcg", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
+    CVProcessError(NULL, CVSPILS_MEM_NULL, "CVSPBCG", "CVSpbcg", MSGS_CVMEM_NULL);
+    return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Check if N_VDotProd is present */
   if (vec_tmpl->ops->nvdotprod == NULL) {
-    CVProcessError(cv_mem, CVSPBCG_ILL_INPUT, "CVSPBCG", "CVSpbcg", MSGBCG_BAD_NVECTOR);
-    return(CVSPBCG_ILL_INPUT);
+    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPBCG", "CVSpbcg", MSGS_BAD_NVECTOR);
+    return(CVSPILS_ILL_INPUT);
   }
 
   if (lfree != NULL) lfree(cv_mem);
@@ -155,51 +149,54 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   lsolve = CVSpbcgSolve;
   lfree  = CVSpbcgFree;
 
-  /* Get memory for CVSpbcgMemRec */
-  cvspbcg_mem = NULL;
-  cvspbcg_mem = (CVSpbcgMem) malloc(sizeof(CVSpbcgMemRec));
-  if (cvspbcg_mem == NULL) {
-    CVProcessError(cv_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGBCG_MEM_FAIL);
-    return(CVSPBCG_MEM_FAIL);
+  /* Get memory for CVSpilsMemRec */
+  cvspils_mem = NULL;
+  cvspils_mem = (CVSpilsMem) malloc(sizeof(CVSpilsMemRec));
+  if (cvspils_mem == NULL) {
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGS_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
   }
 
+  /* Set ILS type */
+  cvspils_mem->s_type = SPILS_SPBCG;
+
   /* Set Spbcg parameters that have been passed in call sequence */
-  cvspbcg_mem->b_pretype = pretype;
-  mxl = cvspbcg_mem->b_maxl = (maxl <= 0) ? CVSPBCG_MAXL : maxl;
+  cvspils_mem->s_pretype = pretype;
+  mxl = cvspils_mem->s_maxl = (maxl <= 0) ? CVSPILS_MAXL : maxl;
 
   /* Set default values for the rest of the Spbcg parameters */
-  cvspbcg_mem->b_delt      = CVSPBCG_DELT;
-  cvspbcg_mem->b_P_data    = NULL;
-  cvspbcg_mem->b_pset      = NULL;
-  cvspbcg_mem->b_psolve    = NULL;
-  cvspbcg_mem->b_jtimes    = CVSpbcgDQJtimes;
-  cvspbcg_mem->b_j_data    = cvode_mem;
-  cvspbcg_mem->b_last_flag = CVSPBCG_SUCCESS;
+  cvspils_mem->s_delt      = CVSPILS_DELT;
+  cvspils_mem->s_P_data    = NULL;
+  cvspils_mem->s_pset      = NULL;
+  cvspils_mem->s_psolve    = NULL;
+  cvspils_mem->s_jtimes    = CVSpilsDQJtimes;
+  cvspils_mem->s_j_data    = cvode_mem;
+  cvspils_mem->s_last_flag = CVSPILS_SUCCESS;
 
   setupNonNull = FALSE;
 
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    CVProcessError(cv_mem, CVSPBCG_ILL_INPUT, "CVSPBCG", "CVSpbcg", MSGBCG_BAD_PRETYPE);
-    return(CVSPBCG_ILL_INPUT);
+    CVProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPBCG", "CVSpbcg", MSGS_BAD_PRETYPE);
+    return(CVSPILS_ILL_INPUT);
   }
 
   /* Allocate memory for ytemp and x */
   ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
-    CVProcessError(cv_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGBCG_MEM_FAIL);
-    free(cvspbcg_mem); cvspbcg_mem = NULL;
-    return(CVSPBCG_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGS_MEM_FAIL);
+    free(cvspils_mem); cvspils_mem = NULL;
+    return(CVSPILS_MEM_FAIL);
   }
   x = NULL;
   x = N_VClone(vec_tmpl);
   if (x == NULL) {
-    CVProcessError(cv_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGBCG_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
-    free(cvspbcg_mem); cvspbcg_mem = NULL;
-    return(CVSPBCG_MEM_FAIL);
+    free(cvspils_mem); cvspils_mem = NULL;
+    return(CVSPILS_MEM_FAIL);
   }
 
   /* Compute sqrtN from a dot product */
@@ -210,598 +207,34 @@ int CVSpbcg(void *cvode_mem, int pretype, int maxl)
   spbcg_mem = NULL;
   spbcg_mem = SpbcgMalloc(mxl, vec_tmpl);
   if (spbcg_mem == NULL) {
-    CVProcessError(cv_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGBCG_MEM_FAIL);
+    CVProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcg", MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(x);
-    free(cvspbcg_mem); cvspbcg_mem = NULL;
-    return(CVSPBCG_MEM_FAIL);
+    free(cvspils_mem); cvspils_mem = NULL;
+    return(CVSPILS_MEM_FAIL);
   }
   
+  /* Attach SPBCG memory to spils memory structure */
+  spils_mem = (void *) spbcg_mem;
+
   /* Attach linear solver memory to integrator memory */
-  lmem = cvspbcg_mem;
+  lmem = cvspils_mem;
 
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgSetPrecType
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgSetPrecType(void *cvode_mem, int pretype)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetPrecType", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetPrecType", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  /* Check for legal pretype */ 
-  if ((pretype != PREC_NONE) && (pretype != PREC_LEFT) &&
-      (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
-    CVProcessError(cv_mem, CVSPBCG_ILL_INPUT, "CVSPBCG", "CVSpbcgSetPrecType", MSGBCG_BAD_PRETYPE);
-    return(CVSPBCG_ILL_INPUT);
-  }
-
-  cvspbcg_mem->b_pretype = pretype;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgSetMaxl
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgSetMaxl(void *cvode_mem, int maxl)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-  int mxl;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetMaxl", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetMaxl", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  mxl = (maxl <= 0) ? CVSPBCG_MAXL : maxl;
-  cvspbcg_mem->b_maxl = mxl;
-  spbcg_mem->l_max  = mxl;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgSetDelt
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgSetDelt(void *cvode_mem, realtype delt)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetDelt", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetDelt", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  /* Check for legal delt */
-  if (delt < ZERO) {
-    CVProcessError(cv_mem, CVSPBCG_ILL_INPUT, "CVSPBCG", "CVSpbcgSetDelt", MSGBCG_BAD_DELT);
-    return(CVSPBCG_ILL_INPUT);
-  }
-
-  cvspbcg_mem->b_delt = (delt == ZERO) ? CVSPBCG_DELT : delt;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgSetPreconditioner
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
-                             CVSpilsPrecSolveFn psolve, void *P_data)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetPreconditioner", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetPreconditioner", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  cvspbcg_mem->b_pset = pset;
-  cvspbcg_mem->b_psolve = psolve;
-  if (psolve != NULL) cvspbcg_mem->b_P_data = P_data;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgSetJacTimesVecFn
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgSetJacTimesVecFn(void *cvode_mem, 
-                            CVSpilsJacTimesVecFn jtimes, void *jac_data)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgSetJacTimesVecFn", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgSetJacTimesVecFn", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  cvspbcg_mem->b_jtimes = jtimes;
-  if (jtimes != NULL) cvspbcg_mem->b_j_data = jac_data;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgGetWorkSpace
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
-{
-  CVodeMem cv_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetWorkSpace", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetWorkSpace", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-
-  *lenrwLS = lrw1 * 9;
-  *leniwLS = liw1 * 9;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgGetNumPrecEvals
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgGetNumPrecEvals(void *cvode_mem, long int *npevals)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumPrecEvals", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumPrecEvals", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  *npevals = npe;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgGetNumPrecSolves
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgGetNumPrecSolves(void *cvode_mem, long int *npsolves)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumPrecSolves", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumPrecSolves", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  *npsolves = nps;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgGetNumLinIters
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgGetNumLinIters(void *cvode_mem, long int *nliters)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumLinIters", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumLinIters", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  *nliters = nli;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgGetNumConvFails
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgGetNumConvFails(void *cvode_mem, long int *nlcfails)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumConvFails", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumConvFails", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  *nlcfails = ncfl;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgGetNumJtimesEvals
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumJtimesEvals", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumJtimesEvals", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  *njvevals = njtimes;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgGetNumRhsEvals
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetNumRhsEvals", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetNumRhsEvals", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  *nfevalsLS = nfeSB;
-
-  return(CVSPBCG_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgGetLastFlag
- * -----------------------------------------------------------------
- */
-
-int CVSpbcgGetLastFlag(void *cvode_mem, int *flag)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-
-  /* Return immediately if cvode_mem is NULL */
-  if (cvode_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_MEM_NULL, "CVSPBCG", "CVSpbcgGetLastFlag", MSGBCG_CVMEM_NULL);
-    return(CVSPBCG_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if (lmem == NULL) {
-    CVProcessError(NULL, CVSPBCG_LMEM_NULL, "CVSPBCG", "CVSpbcgGetLastFlag", MSGBCG_LMEM_NULL);
-    return(CVSPBCG_LMEM_NULL);
-  }
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  *flag = last_flag;
-
-  return(CVSPBCG_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
 
-/* 
- * =================================================================
- * PART II - backward problems
- * =================================================================
- */
 
 /* Additional readability replacements */
 
-#define lmemB       (ca_mem->ca_lmemB)
-
-#define pset_B      (cvspilsB_mem->s_psetB)
-#define psolve_B    (cvspilsB_mem->s_psolveB)
-#define jtimes_B    (cvspilsB_mem->s_jtimesB)
-#define P_data_B    (cvspilsB_mem->s_P_dataB)
-#define jac_data_B  (cvspilsB_mem->s_jac_dataB)
-
-/*
- * CVSpbcgB and CVSpbcgSet*B
- *
- * Wrappers for the backward phase around the corresponding 
- * CVODES functions
- */
-
-int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
-{
-  CVadjMem ca_mem;
-  CVSpilsMemB cvspilsB_mem;
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_ADJMEM_NULL, "CVSPBCG", "CVSpbcgB", MSGBCG_CAMEM_NULL);
-    return(CVSPBCG_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-  
-  /* Get memory for CVSpilsMemRecB */
-  cvspilsB_mem = NULL;
-  cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
-  if (cvspilsB_mem == NULL) {
-    CVProcessError(cvB_mem, CVSPBCG_MEM_FAIL, "CVSPBCG", "CVSpbcgB", MSGBCG_MEM_FAIL);
-    return(CVSPBCG_MEM_FAIL);
-  }
-
-  pset_B = NULL;
-  psolve_B = NULL;
-  jtimes_B = NULL;
-  P_data_B = NULL;
-  jac_data_B = NULL;
-
-  /* attach lmemB */
-  lmemB = cvspilsB_mem;
-
-  flag = CVSpbcg(cvB_mem, pretypeB, maxlB);
-
-  if (flag != CVSPBCG_SUCCESS) {
-    free(cvspilsB_mem);
-    cvspilsB_mem = NULL;
-  }
-
-  return(flag);
-}
-
-int CVSpbcgSetPrecTypeB(void *cvadj_mem, int pretypeB)
-{
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_ADJMEM_NULL, "CVSPBCG", "CVSpbcgSetPrecTypeB", MSGBCG_CAMEM_NULL);
-    return(CVSPBCG_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-
-  flag = CVSpbcgSetPrecType(cvB_mem, pretypeB);
-
-  return(flag);
-}
-
-int CVSpbcgSetDeltB(void *cvadj_mem, realtype deltB)
-{
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_ADJMEM_NULL, "CVSPBCG", "CVSpbcgSetDeltB", MSGBCG_CAMEM_NULL);
-    return(CVSPBCG_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-
-  flag = CVSpbcgSetDelt(cvB_mem,deltB);
-
-  return(flag);
-}
-
-int CVSpbcgSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
-                              CVSpilsPrecSolveFnB psolveB, void *P_dataB)
-{
-  CVadjMem ca_mem;
-  CVSpilsMemB cvspilsB_mem; 
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_ADJMEM_NULL, "CVSPBCG", "CVSpbcgSetPreconditionerB", MSGBCG_CAMEM_NULL);
-    return(CVSPBCG_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-
-  if (lmemB == NULL) {
-    CVProcessError(cvB_mem, CVSPBCG_LMEMB_NULL, "CVSPBCG", "CVSpbcgSetPreconditonerB", MSGBCG_LMEMB_NULL);
-    return(CVSPBCG_LMEMB_NULL);
-  }
-  cvspilsB_mem = (CVSpilsMemB) lmemB;
-
-  pset_B   = psetB;
-  psolve_B = psolveB;
-  P_data_B = P_dataB;
-
-  flag = CVSpbcgSetPreconditioner(cvB_mem, CVAspilsPrecSetup, CVAspilsPrecSolve, cvadj_mem);
-
-  return(flag);
-}
-
-int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem, 
-                             CVSpilsJacTimesVecFnB jtimesB, void *jac_dataB)
-{
-  CVadjMem ca_mem;
-  CVSpilsMemB cvspilsB_mem; 
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVSPBCG_ADJMEM_NULL, "CVSPBCG", "CVSpbcgSetJacTimesVecFnB", MSGBCG_CAMEM_NULL);
-    return(CVSPBCG_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-
-  if (lmemB == NULL) {
-    CVProcessError(cvB_mem, CVSPBCG_LMEMB_NULL, "CVSPBCG", "CVSpbcgSetJacTimesVecFnB", MSGBCG_LMEMB_NULL);
-    return(CVSPBCG_LMEMB_NULL);
-  }
-  cvspilsB_mem = (CVSpilsMemB) lmemB;
-  
-  jtimes_B   = jtimesB;
-  jac_data_B = jac_dataB;
-
-  flag = CVSpbcgSetJacTimesVecFn(cvB_mem, CVAspilsJacTimesVec, cvadj_mem);
-
-  return(flag);
-}
-
-
-/* 
- * =================================================================
- * PART III - private functions
- * =================================================================
- */
-
-/* Additional readability replacements */
-
-#define pretype (cvspbcg_mem->b_pretype)
-#define delt    (cvspbcg_mem->b_delt)
-#define maxl    (cvspbcg_mem->b_maxl)
-#define psolve  (cvspbcg_mem->b_psolve)
-#define pset    (cvspbcg_mem->b_pset)
-#define P_data  (cvspbcg_mem->b_P_data)
-#define jtimes  (cvspbcg_mem->b_jtimes)
-#define j_data  (cvspbcg_mem->b_j_data)
+#define pretype (cvspils_mem->s_pretype)
+#define delt    (cvspils_mem->s_delt)
+#define maxl    (cvspils_mem->s_maxl)
+#define psolve  (cvspils_mem->s_psolve)
+#define pset    (cvspils_mem->s_pset)
+#define P_data  (cvspils_mem->s_P_data)
+#define jtimes  (cvspils_mem->s_jtimes)
+#define j_data  (cvspils_mem->s_j_data)
 
 /*
  * -----------------------------------------------------------------
@@ -814,16 +247,20 @@ int CVSpbcgSetJacTimesVecFnB(void *cvadj_mem,
 
 static int CVSpbcgInit(CVodeMem cv_mem)
 {
-  CVSpbcgMem cvspbcg_mem;
-  cvspbcg_mem = (CVSpbcgMem) lmem;
+  CVSpilsMem cvspils_mem;
+  SpbcgMem spbcg_mem;
+
+  cvspils_mem = (CVSpilsMem) lmem;
+  spbcg_mem = (SpbcgMem) spils_mem;
+
 
   /* Initialize counters */
   npe = nli = nps = ncfl = nstlpre = 0;
-  njtimes = nfeSB = 0;
+  njtimes = nfes = 0;
 
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {
-    CVProcessError(cv_mem, -1, "CVSPBCG", "CVSpbcgInit", MSGBCG_PSOLVE_REQ);
+    CVProcessError(cv_mem, -1, "CVSPBCG", "CVSpbcgInit", MSGS_PSOLVE_REQ);
     last_flag = -1;
     return(-1);
   }
@@ -835,11 +272,14 @@ static int CVSpbcgInit(CVodeMem cv_mem)
 
   /* If jtimes is NULL at this time, set it to DQ */
   if (jtimes == NULL) {
-    jtimes = CVSpbcgDQJtimes;
+    jtimes = CVSpilsDQJtimes;
     j_data = cv_mem;
   }
 
-  last_flag = CVSPBCG_SUCCESS;
+  /*  Set maxl in the SPBCG memory in case it was changed by the user */
+  spbcg_mem->l_max  = maxl;
+
+  last_flag = CVSPILS_SUCCESS;
   return(0);
 }
 
@@ -863,14 +303,14 @@ static int CVSpbcgSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   booleantype jbad, jok;
   realtype dgamma;
   int  ier;
-  CVSpbcgMem cvspbcg_mem;
+  CVSpilsMem cvspils_mem;
 
-  cvspbcg_mem = (CVSpbcgMem) lmem;
+  cvspils_mem = (CVSpilsMem) lmem;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
   dgamma = ABS((gamma/gammap) - ONE);
-  jbad = (nst == 0) || (nst > nstlpre + CVSPBCG_MSBPRE) ||
-      ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPBCG_DGMAX)) ||
+  jbad = (nst == 0) || (nst > nstlpre + CVSPILS_MSBPRE) ||
+      ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPILS_DGMAX)) ||
       (convfail == CV_FAIL_OTHER);
   *jcurPtr = jbad;
   jok = !jbad;
@@ -917,10 +357,13 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                         N_Vector ynow, N_Vector fnow)
 {
   realtype bnorm, res_norm;
-  CVSpbcgMem cvspbcg_mem;
+  CVSpilsMem cvspils_mem;
+  SpbcgMem spbcg_mem;
   int nli_inc, nps_inc, ier;
   
-  cvspbcg_mem = (CVSpbcgMem) lmem;
+  cvspils_mem = (CVSpilsMem) lmem;
+
+  spbcg_mem = (SpbcgMem) spils_mem;
 
   /* Test norm(b); if small, return x = 0 or x = b */
   deltar = delt * tq[4]; 
@@ -941,7 +384,7 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   
   /* Call SpbcgSolve and copy x to b */
   ier = SpbcgSolve(spbcg_mem, cv_mem, x, b, pretype, delta,
-                   cv_mem, weight, weight, CVSpbcgAtimes, CVSpbcgPSolve,
+                   cv_mem, weight, weight, CVSpilsAtimes, CVSpilsPSolve,
                    &res_norm, &nli_inc, &nps_inc);
 
   N_VScale(ONE, x, b);
@@ -973,111 +416,99 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static void CVSpbcgFree(CVodeMem cv_mem)
 {
-  CVSpbcgMem cvspbcg_mem;
+  CVSpilsMem cvspils_mem;
+  SpbcgMem spbcg_mem;
 
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-  
+  cvspils_mem = (CVSpilsMem) lmem;
+
+  spbcg_mem = (SpbcgMem) spils_mem;
+
   N_VDestroy(ytemp);
   N_VDestroy(x);
   SpbcgFree(spbcg_mem);
-  free(cvspbcg_mem); cvspbcg_mem = NULL;
+  free(cvspils_mem); cvspils_mem = NULL;
+}
+
+
+/* 
+ * ================================================================
+ *
+ *                   PART II - backward problems
+ *
+ * ================================================================
+ */
+
+
+/* Additional readability replacements */
+
+#define lmemB       (ca_mem->ca_lmemB)
+#define lfreeB      (ca_mem->ca_lfreeB)
+
+#define pset_B      (cvspilsB_mem->s_psetB)
+#define psolve_B    (cvspilsB_mem->s_psolveB)
+#define jtimes_B    (cvspilsB_mem->s_jtimesB)
+#define P_data_B    (cvspilsB_mem->s_P_dataB)
+#define jac_data_B  (cvspilsB_mem->s_jac_dataB)
+
+/*
+ * CVSpbcgB
+ *
+ * Wrapper for the backward phase
+ */
+
+int CVSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
+{
+  CVadjMem ca_mem;
+  CVSpilsMemB cvspilsB_mem;
+  CVodeMem cvB_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVSPILS_ADJMEM_NULL, "CVSPBCG", "CVSpbcgB", MSGS_CAMEM_NULL);
+    return(CVSPILS_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvB_mem = ca_mem->cvb_mem;
+  
+  /* Get memory for CVSpilsMemRecB */
+  cvspilsB_mem = NULL;
+  cvspilsB_mem = (CVSpilsMemB) malloc(sizeof(CVSpilsMemRecB));
+  if (cvspilsB_mem == NULL) {
+    CVProcessError(cvB_mem, CVSPILS_MEM_FAIL, "CVSPBCG", "CVSpbcgB", MSGS_MEM_FAIL);
+    return(CVSPILS_MEM_FAIL);
+  }
+
+  pset_B = NULL;
+  psolve_B = NULL;
+  jtimes_B = NULL;
+  P_data_B = NULL;
+  jac_data_B = NULL;
+
+  /* attach lmemB and lfree */
+  lmemB = cvspilsB_mem;
+  lfreeB = CVSpbcgFreeB;
+
+  flag = CVSpbcg(cvB_mem, pretypeB, maxlB);
+
+  if (flag != CVSPILS_SUCCESS) {
+    free(cvspilsB_mem);
+    cvspilsB_mem = NULL;
+  }
+
+  return(flag);
 }
 
 /*
- * -----------------------------------------------------------------
- * Function : CVSpbcgAtimes
- * -----------------------------------------------------------------
- * This routine generates the matrix-vector product z = Mv, where
- * M = I - gamma*J. The product J*v is obtained by calling the jtimes
- * routine. It is then scaled by -gamma and added to v to obtain M*v.
- * The return value is the same as the value returned by jtimes --
- * 0 if successful, nonzero otherwise.
- * -----------------------------------------------------------------
+ * CVSpbcgFreeB 
  */
 
-static int CVSpbcgAtimes(void *cvode_mem, N_Vector v, N_Vector z)
+
+static void CVSpbcgFreeB(CVadjMem ca_mem)
 {
-  CVodeMem   cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-  int jtflag;
+  CVSpilsMemB cvspilsB_mem;
 
-  cv_mem = (CVodeMem) cvode_mem;
-  cvspbcg_mem = (CVSpbcgMem) lmem;
+  cvspilsB_mem = (CVSpilsMemB) lmemB;
 
-  jtflag = jtimes(v, z, tn, ycur, fcur, j_data, ytemp);
-  njtimes++;
-  if (jtflag != 0) return(jtflag);
-
-  N_VLinearSum(ONE, v, -gamma, z, z);
-
-  return(0);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgPSolve
- * -----------------------------------------------------------------
- * This routine interfaces between the generic SpbcgSolve routine and
- * the user's psolve routine. It passes to psolve all required state
- * information from cvode_mem. Its return value is the same as that
- * returned by psolve. Note that the generic SPBCG solver guarantees
- * that CVSpbcgPSolve will not be called in the case in which
- * preconditioning is not done. This is the only case in which the
- * user's psolve routine is allowed to be NULL.
- * -----------------------------------------------------------------
- */
-
-static int CVSpbcgPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
-{
-  CVodeMem   cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-  int ier;
-
-  cv_mem = (CVodeMem) cvode_mem;
-  cvspbcg_mem = (CVSpbcgMem)lmem;
-
-  ier = psolve(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp);
-  /* This call is counted in nps within the CVSpbcgSolve routine */
-
-  return(ier);     
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : CVSpbcgDQJtimes
- * -----------------------------------------------------------------
- * This routine generates a difference quotient approximation to
- * the Jacobian times vector f_y(t,y) * v. The approximation is
- * Jv = vnrm[f(y + v/vnrm) - f(y)], where vnrm = (WRMS norm of v) is
- * input, i.e. the WRMS norm of v/vnrm is 1.
- * -----------------------------------------------------------------
- */
-
-static int CVSpbcgDQJtimes(N_Vector v, N_Vector Jv, realtype t, 
-                           N_Vector y, N_Vector fy,
-                           void *jac_data, N_Vector work)
-{
-  CVodeMem cv_mem;
-  CVSpbcgMem cvspbcg_mem;
-  realtype vnrm;
-
-  /* jac_data is cvode_mem */
-  cv_mem = (CVodeMem) jac_data;
-  cvspbcg_mem = (CVSpbcgMem) lmem;
-
-  /* Evaluate norm of v */
-  vnrm = N_VWrmsNorm(v, ewt);
-
-  /* Set work = y + (1/vnrm) v */
-  N_VLinearSum(ONE/vnrm, v, ONE, y, work);
-
-  /* Set Jv = f(tn, work) */
-  f(t, work, Jv, f_data); 
-  nfeSB++;
-
-  /* Replace Jv by vnrm*(Jv - fy) */
-  N_VLinearSum(ONE, Jv, -ONE, fy, Jv);
-  N_VScale(vnrm, Jv, Jv);
-
-  return(0);
+  free(cvspilsB_mem);
 }

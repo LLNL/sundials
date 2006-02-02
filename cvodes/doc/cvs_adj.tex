@@ -145,7 +145,8 @@ two implementations provided with {\cvodes}: steps marked with {\p} correspond t
   If Newton iteration is chosen, initialize the linear solver module 
   for the backward problem by calling the appropriate wrapper
   function: \id{CVDenseB}, \id{CVBandB}, \id{CVDiagB},
-  or \id{CVSpgmrB} (see \S\ref{sss:lin_solv_b}). Note that it is not required
+  \id{CVSpgmrB}, \id{CVSpbcgB}, or \id{CVSptfqmr} (see \S\ref{sss:lin_solv_b}). 
+  Note that it is not required
   to use the same linear solver module for both the forward and the 
   backward problems; for example, the forward problem could be solved
   with the {\cvdense} linear solver and the backward problem with {\cvspgmr}.
@@ -639,13 +640,14 @@ argument which must be the pointer to the adjoint memory block returned by
   flag = CVSpgmrB(cvadj_mem, pretypeB, maxlB);
   flag = CVSpbcgB(cvadj_mem, pretypeB, maxlB);
   flag = CVSptfqmrB(cvadj_mem, pretypeB, maxlB);
+  flag = CVSpbcgB(cvadj_mem, pretypeB, maxlB);
+  flag = CVSptfqmrB(cvadj_mem, pretypeB, maxlB);
 \end{verbatim}
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
 of their counterparts.
 If the \id{cvadj\_mem} argument was \id{NULL}, \id{flag} will be
 \id{CVDENSE\_ADJMEM\_NULL}, \id{CVDIAG\_ADJMEM\_NULL}, 
-\id{CVBAND\_ADJMEM\_NULL}, \id{CVSPGMR\_ADJMEM\_NULL}, 
-\id{CVSPBCG\_ADJMEM\_NULL}, and \id{CVSPTFQMR\_ADJMEM\_NULL}, respectively.
+\id{CVBAND\_ADJMEM\_NULL}, or \id{CVSPILS\_ADJMEM\_NULL}.
 
 %%---------------------------------------------------------------------
 \subsection{Backward integration function}
@@ -864,19 +866,21 @@ problem through the following function:
 \index{CVBAND@{\cvband} linear solver!optional input|)}
 \index{optional input!band linear solver|)}
 
-\subsubsection{SPGMR linear solver}
+\subsubsection{SPILS linear solvers}
 \index{optional input!iterative linear solver|(}
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|(}
-Optional inputs for the {\cvspgmr} linear solver module can be set for the backward
+\index{CVSPBCG@{\cvspbcg} linear solver!optional input|(}
+\index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|(}
+Optional inputs for the {\cvspils} linear solver module can be set for the backward
 problem through the following functions:
 %%
 \index{preconditioning!user-supplied|(}
-\ucfunction{CVSpgmrSetPreconditionerB}
+\ucfunction{CVSpilsSetPreconditionerB}
 {
-  flag = CVSpgmrSetPreconditionerB(cvadj\_mem, psolveB, psetupB, p\_dataB);
+  flag = CVSpilsSetPreconditionerB(cvadj\_mem, psolveB, psetupB, p\_dataB);
 }
 {
-  The function \ID{CVSpgmrSetPrecSolveFnB} specifies the preconditioner
+  The function \ID{CVSpilsSetPrecSolveFnB} specifies the preconditioner
   setup and solve functions and the pointer to user data for the backward integration.
 }
 {
@@ -893,14 +897,14 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
+  \begin{args}[CVSPILS\_ADJMEM\_NULL]
+  \item[\Id{CVSPILS\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized through a call to \id{CVSpgmrB}.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspgmr} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -912,19 +916,19 @@ problem through the following functions:
 \index{preconditioning!user-supplied|)}
 %%
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-\ucfunction{CVSpgmrSetJacTimesVecFnB}
+\ucfunction{CVSpilsSetJacTimesVecFnB}
 {
-  flag = CVSpgmrSetJacTimesVecFnB(cvadj\_mem, jtimesB, jac\_data);
+  flag = CVSpilsSetJacTimesVecFnB(cvadj\_mem, jtimesB, jac\_data);
 }
 {
-  The function \ID{CVSpgmrSetJacTimesFnB} specifies the Jacobian-vector 
+  The function \ID{CVSpilsSetJacTimesFnB} specifies the Jacobian-vector 
   product function to be used and te pointer to user data.
 }
 {
   \begin{args}[cvadj\_mem]
   \item[cvadj\_mem] (\id{void *})
     pointer to the adjoint memory block.
-  \item[jtimesB] (\id{CVSpgmrJacTimesVecFnB})
+  \item[jtimesB] (\id{CVSpilsJacTimesVecFnB})
     user-defined Jacobian-vector product function.
   \item[jac\_dataB] (\id{void *})
     pointer to the user-defined data structure.
@@ -932,29 +936,29 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
+  \begin{args}[CVSPILS\_ADJMEM\_NULL]
+  \item[\Id{CVSPILS\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized through a call to \id{CVSpgmrB}.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspgmr} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
 {
-  The function type \id{CVSpgmrJacTimesVecFnB} is described in \S\ref{ss:user_fct_adj}.
+  The function type \id{CVSpilsJacTimesVecFnB} is described in \S\ref{ss:user_fct_adj}.
 }
 %%
 %%
-\ucfunction{CVSpgmrSetGSTypeB}
+\ucfunction{CVSpilsSetGSTypeB}
 {
-  flag = CVSpgmrSetGSType(cvadj\_mem, gstypeB);
+  flag = CVSpilsSetGSType(cvadj\_mem, gstypeB);
 }
 {
-  The function \ID{CVSpgmrSetGSTypeB} specifies the type of
-  Gram-Schmidt orthogonalization to be used. 
+  The function \ID{CVSpilsSetGSTypeB} specifies the type of
+  Gram-Schmidt orthogonalization to be used with {\cvspgmr}.
   This must be one of the enumeration constants \ID{MODIFIED\_GS}
   or \ID{CLASSICAL\_GS}. These correspond to using modified Gram-Schmidt 
   and classical Gram-Schmidt, respectively. 
@@ -970,53 +974,55 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
+  \begin{args}[CVSPILS\_ADJMEM\_NULL]
+  \item[\Id{CVSPILS\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized through a call to \id{CVSpgmrB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspgmr} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The Gram-Schmidt orthogonalization type \id{gstypeB} is not valid.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
+  \item[\Id{CVSPILS\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
 {
   The default value is \id{MODIFIED\_GS}.
+
+  {\warn}This option is available only with {\cvspgmr}.
 }
 %%
 %%
-\ucfunction{CVSpgmrSetDeltB}
+\ucfunction{CVSpilsSetDeltB}
 {
-  flag = CVSpgmrSetDeltB(cvadj\_mem, deltB);
+  flag = CVSpilsSetDeltB(cvadj\_mem, deltB);
 }
 {
-  The function \ID{CVSpgmrSetDeltB} specifies the factor by
-  which the GMRES\index{GMRES method} convergence test constant is reduced
+  The function \ID{CVSpilsSetDeltB} specifies the factor by
+  which the Krylov linear solver's convergence test constant is reduced
   from the Newton iteration test constant.
 }
 {
   \begin{args}[cvadj\_mem]
   \item[cvadj\_mem] (\id{void *})
     pointer to the adjoint memory block.
-  \item[delt] (\id{realtype})
+  \item[deltB] (\id{realtype})
     the value of the convergence test constant reduction factor.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
+  \begin{args}[CVSPILS\_ADJMEM\_NULL]
+  \item[\Id{CVSPILS\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized through a call to \id{CVSpgmrB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspgmr} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The factor \id{deltB} is negative.  
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
+  \item[\Id{CVSPILS\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
@@ -1026,12 +1032,56 @@ problem through the following functions:
 }
 %%
 %%
-\ucfunction{CVSpgmrSetPrecTypeB}
+%%
+\ucfunction{CVSpilsSetMaxlB}
 {
-  flag = CVSpgmrSetPrecTypeB(cvadj\_mem, pretypeB);
+  flag = CVSpilsSetMaxlB(cvadj\_mem, maxlB);
 }
 {
-  The function \ID{CVSpgmrSetPrecTypeB} resets the type
+  The function \ID{CVSpilsSetMaxlB} resets maximum Krylov subspace
+  dimension for the Bi-CGStab\index{Bi-CGStab method} or TFQMR\index{TFQMR method} 
+  methods.
+}
+{
+  \begin{args}[cvadj\_mem]
+  \item[cvadj\_mem] (\id{void *})
+    pointer to the adjoint memory block.
+  \item[maxlB] (\id{realtype})
+    maximum dimension of the Krylov subspace.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVSPILS\_ADJMEM\_NULL]
+  \item[\Id{CVSPILS\_SUCCESS}] 
+    The optional value has been successfuly set.
+  \item[\Id{CVSPILS\_MEM\_NULL}]
+    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspgmr} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
+    The factor \id{deltB} is negative.  
+  \item[\Id{CVSPILS\_ADJMEM\_NULL}]
+    The \id{cvadj\_mem} argument was \id{NULL}.
+  \end{args}
+}
+{
+  The maximum subspace dimension is initially specified in the call
+  to \id{CVSpbcgB} or \id{CVSptfqmrB}.
+  The call to \id{CVSpilsSetMaxlB} is needed only if \id{maxl} is being changed from its 
+  previous value.
+
+  {\warn}This option is available only for the {\cvspbcg} and {\cvsptfqmr} linear solvers.
+
+}
+%%
+%%
+\ucfunction{CVSpilsSetPrecTypeB}
+{
+  flag = CVSpilsSetPrecTypeB(cvadj\_mem, pretypeB);
+}
+{
+  The function \ID{CVSpilsSetPrecTypeB} resets the type
   of preconditioning to be used.
 }
 {
@@ -1046,355 +1096,27 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
+  \begin{args}[CVSPILS\_ADJMEM\_NULL]
+  \item[\Id{CVSPILS\_SUCCESS}] 
     The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspgmr} linear solver has not been initialized through a call to \id{CVSpgmrB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_LMEM\_NULL}]
+    The {\cvspgmr} linear solver has not been initialized.
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The preconditioner type \id{pretype} is not valid.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
+  \item[\Id{CVSPILS\_ADJMEM\_NULL}]
     The \id{cvadj\_mem} argument was \id{NULL}.
   \end{args}
 }
 {
   The preconditioning type is initially specified in the call
-  to \id{CVSpgmrB} (see \S\ref{sss:lin_solv_b}). This function call is
-  needed only if \id{pretypeB} is being changed from its value in the
-  previous call to \id{CVSpgmrB}.
+  to the linear solver specification function (see \S\ref{sss:lin_solv_b}). 
+  The call to \id{CVSpilsSetPrecTypeB} is needed only if \id{pretypeB} is being changed from its 
+  previous value.
 }
 \index{CVSPGMR@{\cvspgmr} linear solver!optional input|)}
-\index{optional input!iterative linear solver|)}
-
-\subsubsection{SPBCG linear solver}
-\index{optional input!iterative linear solver|(}
-\index{CVSPBCG@{\cvspbcg} linear solver!optional input|(}
-Optional inputs for the {\cvspbcg} linear solver module can be set for the backward
-problem through the following functions:
-%%
-\index{preconditioning!user-supplied|(}
-\ucfunction{CVSpbcgSetPreconditionerB}
-{
-  flag = CVSpbcgSetPrecSolveFnB(cvadj\_mem, psolveB, psetupB, p\_dataB);
-}
-{
-  The function \ID{CVSpbcgSetPrecSolveFnB} specifies the preconditioner
-  setup and solve functions and the pointer to user data for the backward integration.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory block.
-  \item[psolveB] (\id{CVSpilsPrecSolveFnB})
-    user-defined preconditioner solve function.
-  \item[psetupB] (\id{CVSpilsPrecSetupFnB})
-    user-defined preconditioner setup function.
-  \item[p\_dataB] (\id{void *})
-     pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspbcg} linear solver has not been initialized through a call to \id{CVSpbcgB}.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
-    The \id{cvadj\_mem} argument was \id{NULL}.
-  \end{args}
-}
-{
-   The function types \id{CVSpilsPrecSolveFnB} and \id{CVSpilsPrecSetupFnB} are
-   described in \S\ref{ss:user_fct_adj}.
-}
-\index{preconditioning!user-supplied|)}
-%%
-%%
-\index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-\ucfunction{CVSpbcgSetJacTimesVecFnB}
-{
-  flag = CVSpbcgSetJacTimesVecFnB(cvadj\_mem, jtimesB, jac\_data);
-}
-{
-  The function \ID{CVSpbcgSetJacTimesFnB} specifies the Jacobian-vector 
-  product function to be used and te pointer to user data.
-}
-{
-  \begin{args}[cvadj\_mem]
-  \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory block.
-  \item[jtimesB] (\id{CVSpbcgJacTimesVecFnB})
-    user-defined Jacobian-vector product function.
-  \item[jac\_dataB] (\id{void *})
-    pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspbcg} linear solver has not been initialized through a call to \id{CVSpbcgB}.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
-    The \id{cvadj\_mem} argument was \id{NULL}.
-  \end{args}
-}
-{
-  The function type \id{CVSpbcgJacTimesVecFnB} is described in \S\ref{ss:user_fct_adj}.
-}
-%%
-%%
-\ucfunction{CVSpbcgSetDeltB}
-{
-  flag = CVSpbcgSetDeltB(cvadj\_mem, deltB);
-}
-{
-  The function \ID{CVSpbcgSetDeltB} specifies the factor by
-  which the GMRES\index{GMRES method} convergence test constant is reduced
-  from the Newton iteration test constant.
-}
-{
-  \begin{args}[cvadj\_mem]
-  \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory block.
-  \item[delt] (\id{realtype})
-    the value of the convergence test constant reduction factor.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspbcg} linear solver has not been initialized through a call to \id{CVSpbcgB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
-    The factor \id{deltB} is negative.  
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
-    The \id{cvadj\_mem} argument was \id{NULL}.
-  \end{args}
-}
-{
-  The default value is $0.05$.
-  Passing a value \id{deltB}$ = 0.0$ also indicates using the default value.
-}
-%%
-%%
-\ucfunction{CVSpbcgSetPrecTypeB}
-{
-  flag = CVSpbcgSetPrecTypeB(cvadj\_mem, pretypeB);
-}
-{
-  The function \ID{CVSpbcgSetPrecTypeB} resets the type
-  of preconditioning to be used.
-}
-{
-  \begin{args}[cvadj\_mem]
-  \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory block.
-  \item[pretypeB] (\id{int})
-    \index{pretypeB@\texttt{pretypeB}}
-    specifies the type of prconditioning and must be one of:
-    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvspbcg} linear solver has not been initialized through a call to \id{CVSpbcgB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
-    The preconditioner type \id{pretype} is not valid.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
-    The \id{cvadj\_mem} argument was \id{NULL}.
-  \end{args}
-}
-{
-  The preconditioning type is initially specified in the call
-  to \id{CVSpbcgB} (see \S\ref{sss:lin_solv_b}). This function call is
-  needed only if \id{pretypeB} is being changed from its value in the
-  previous call to \id{CVSpbcgB}.
-}
 \index{CVSPBCG@{\cvspbcg} linear solver!optional input|)}
-\index{optional input!iterative linear solver|)}
-
-
-\subsubsection{SPTFQMR linear solver}
-\index{optional input!iterative linear solver|(}
-\index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|(}
-Optional inputs for the {\cvsptfqmr} linear solver module can be set for the backward
-problem through the following functions:
-%%
-\index{preconditioning!user-supplied|(}
-\ucfunction{CVSptfqmrSetPreconditionerB}
-{
-  flag = CVSptfqmrSetPrecSolveFnB(cvadj\_mem, psolveB, psetupB, p\_dataB);
-}
-{
-  The function \ID{CVSptfqmrSetPrecSolveFnB} specifies the preconditioner
-  setup and solve functions and the pointer to user data for the backward integration.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory block.
-  \item[psolveB] (\id{CVSpilsPrecSolveFnB})
-    user-defined preconditioner solve function.
-  \item[psetupB] (\id{CVSpilsPrecSetupFnB})
-    user-defined preconditioner setup function.
-  \item[p\_dataB] (\id{void *})
-     pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvsptfqmr} linear solver has not been initialized through a call to \id{CVSptfqmrB}.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
-    The \id{cvadj\_mem} argument was \id{NULL}.
-  \end{args}
-}
-{
-   The function types \id{CVSpilsPrecSolveFnB} and \id{CVSpilsPrecSetupFnB} are
-   described in \S\ref{ss:user_fct_adj}.
-}
-\index{preconditioning!user-supplied|)}
-%%
-%%
-\index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-\ucfunction{CVSptfqmrSetJacTimesVecFnB}
-{
-  flag = CVSptfqmrSetJacTimesVecFnB(cvadj\_mem, jtimesB, jac\_data);
-}
-{
-  The function \ID{CVSptfqmrSetJacTimesFnB} specifies the Jacobian-vector 
-  product function to be used and te pointer to user data.
-}
-{
-  \begin{args}[cvadj\_mem]
-  \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory block.
-  \item[jtimesB] (\id{CVSpilsJacTimesVecFnB})
-    user-defined Jacobian-vector product function.
-  \item[jac\_dataB] (\id{void *})
-    pointer to the user-defined data structure.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvsptfqmr} linear solver has not been initialized through a call to \id{CVSptfqmrB}.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
-    The \id{cvadj\_mem} argument was \id{NULL}.
-  \end{args}
-}
-{
-  The function type \id{CVSpilsJacTimesVecFnB} is described in \S\ref{ss:user_fct_adj}.
-}
-%%
-%%
-\ucfunction{CVSptfqmrSetDeltB}
-{
-  flag = CVSptfqmrSetDeltB(cvadj\_mem, deltB);
-}
-{
-  The function \ID{CVSptfqmrSetDeltB} specifies the factor by
-  which the GMRES\index{GMRES method} convergence test constant is reduced
-  from the Newton iteration test constant.
-}
-{
-  \begin{args}[cvadj\_mem]
-  \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory block.
-  \item[delt] (\id{realtype})
-    the value of the convergence test constant reduction factor.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvsptfqmr} linear solver has not been initialized through a call to \id{CVSptfqmrB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
-    The factor \id{deltB} is negative.  
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
-    The \id{cvadj\_mem} argument was \id{NULL}.
-  \end{args}
-}
-{
-  The default value is $0.05$.
-  Passing a value \id{deltB}$ = 0.0$ also indicates using the default value.
-}
-%%
-%%
-\ucfunction{CVSptfqmrSetPrecTypeB}
-{
-  flag = CVSptfqmrSetPrecTypeB(cvadj\_mem, pretypeB);
-}
-{
-  The function \ID{CVSptfqmrSetPrecTypeB} resets the type
-  of preconditioning to be used.
-}
-{
-  \begin{args}[cvadj\_mem]
-  \item[cvadj\_mem] (\id{void *})
-    pointer to the adjoint memory block.
-  \item[pretypeB] (\id{int})
-    \index{pretypeB@\texttt{pretypeB}}
-    specifies the type of prconditioning and must be one of:
-    \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPGMR\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
-    The optional value has been successfuly set.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
-    The {\cvodes} solver memory block was not created through a call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_LMEM\_NULL}]
-    The {\cvsptfqmr} linear solver has not been initialized through a call to \id{CVSptfqmrB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
-    The preconditioner type \id{pretype} is not valid.
-  \item[\Id{CVSPGMR\_ADJMEM\_NULL}]
-    The \id{cvadj\_mem} argument was \id{NULL}.
-  \end{args}
-}
-{
-  The preconditioning type is initially specified in the call
-  to \id{CVSptfqmrB} (see \S\ref{sss:lin_solv_b}). This function call is
-  needed only if \id{pretypeB} is being changed from its value in the
-  previous call to \id{CVSptfqmrB}.
-}
-
 \index{CVSPTFQMR@{\cvsptfqmr} linear solver!optional input|)}
 \index{optional input!iterative linear solver|)}
 
@@ -1666,7 +1388,7 @@ In addition to the required ODE right-hand side function and any optional functi
 for the forward problem, when using the adjoint sensitivity module in {\cvodes},
 the user must supply one function defining the backward problem ODE and, optionally,
 functions to supply Jacobian-related information (if Newton iteration is chosen) and
-one or two functions that define the preconditioner (if the {\cvspgmr} solver is
+one or two functions that define the preconditioner (if one of the {\cvspils} solvers is
 selected) for the backward problem.
 Type definitions for all these user-supplied functions are given below.
 
@@ -2101,7 +1823,7 @@ preconditioner module {\cvbandpre} described in section \S\ref{sss:cvbandpre}.
 This preconditioner provides a band matrix preconditioner based on difference
 quotients of the backward problem right-hand side function \id{fB}. It generates
 a banded approximation to the Jacobian with $m_{lB}$ sub-diagonals and $m_{uB}$
-super-diagonals to be used with the Krylov linear solver in {\cvspgmr}.
+super-diagonals to be used with one of the Krylov linear solvers.
 
 In order to use the {\cvbandpre} module in the solution of the backward problem,
 the user need not define any additional functions. First, the user must initialize the
@@ -2166,20 +1888,20 @@ preconditioner module, make the following call:
     preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxlB] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{CVSPGMR\_MAXL}$=5$.
+    default value \id{CVSPILS\_MAXL}$=5$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVBANDPRE\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}]
+  \item[\Id{CVSPILS\_SUCCESS}]
     The {\cvspgmr} initialization was successful.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The preconditioner type \id{pretypeB} is not valid.
-  \item[\Id{CVSPGMR\_MEM\_FAIL}]
+  \item[\Id{CVSPILS\_MEM\_FAIL}]
     A memory allocation request failed.
   \item[\Id{CVBANDPRE\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
@@ -2211,20 +1933,20 @@ preconditioner module, make the following call:
     preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxlB] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{CVSPBCG\_MAXL}$=5$.
+    default value \id{CVSPILS\_MAXL}$=5$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVBANDPRE\_ADJMEM\_NULL]
-  \item[\Id{CVSPBCG\_SUCCESS}]
+  \item[\Id{CVSPILS\_SUCCESS}]
     The {\cvspbcg} initialization was successful.
-  \item[\Id{CVSPBCG\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{CVSPBCG\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The preconditioner type \id{pretypeB} is not valid.
-  \item[\Id{CVSPBCG\_MEM\_FAIL}]
+  \item[\Id{CVSPILS\_MEM\_FAIL}]
     A memory allocation request failed.
   \item[\Id{CVBANDPRE\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
@@ -2256,20 +1978,20 @@ preconditioner module, make the following call:
     preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxlB] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{CVSPTFQMR\_MAXL}$=5$.
+    default value \id{CVSPILS\_MAXL}$=5$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPTFQMR\_ILL\_INPUT]
+  \begin{args}[CVSPILS\_ILL\_INPUT]
   \item[\Id{CVBANDPRE\_ADJMEM\_NULL}]
     The {\cvsptfqmr} initialization was successful.
-  \item[\Id{CVSPTFQMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{CVSPTFQMR\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The preconditioner type \id{pretypeB} is not valid.
-  \item[\Id{CVSPTFQMR\_MEM\_FAIL}]
+  \item[\Id{CVSPILS\_MEM\_FAIL}]
     A memory allocation request failed.
   \item[\Id{CVBANDPRE\_PDATA\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
@@ -2400,20 +2122,20 @@ preconditioner module, make the following call:
     preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxlB] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{CVSPGMR\_MAXL}$=5$.
+    default value \id{CVSPILS\_MAXL}$=5$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVBBDPRE\_ADJMEM\_NULL]
-  \item[\Id{CVSPGMR\_SUCCESS}] 
+  \item[\Id{CVSPILS\_SUCCESS}] 
     The {\cvspgmr} initialization was successful.
-  \item[\Id{CVSPGMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{CVSPGMR\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The preconditioner type \id{pretypeB} is not valid.
-  \item[\Id{CVSPGMR\_MEM\_FAIL}]
+  \item[\Id{CVSPILS\_MEM\_FAIL}]
     A memory allocation request failed.
   \item[\Id{CVBBDPRE\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
@@ -2445,20 +2167,20 @@ preconditioner module, make the following call:
     preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxlB] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{CVSPBCG\_MAXL}$=5$.
+    default value \id{CVSPILS\_MAXL}$=5$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVBBDPRE\_ADJMEM\_NULL]
-  \item[\Id{CVSPBCG\_SUCCESS}] 
+  \item[\Id{CVSPILS\_SUCCESS}] 
     The {\cvspbcg} initialization was successful.
-  \item[\Id{CVSPBCG\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{CVSPBCG\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The preconditioner type \id{pretypeB} is not valid.
-  \item[\Id{CVSPBCG\_MEM\_FAIL}]
+  \item[\Id{CVSPILS\_MEM\_FAIL}]
     A memory allocation request failed.
   \item[\Id{CVBBDPRE\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
@@ -2490,20 +2212,20 @@ preconditioner module, make the following call:
     preconditioning type. Can be one of \Id{PREC\_LEFT} or \Id{PREC\_RIGHT}.
   \item[maxlB] (\id{int})
     maximum dimension of the Krylov subspace to be used. Pass $0$ to use the 
-    default value \id{CVSPTFQMR\_MAXL}$=5$.
+    default value \id{CVSPILS\_MAXL}$=5$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVBBDPRE\_ADJMEM\_NULL]
-  \item[\Id{CVSPTFQMR\_SUCCESS}] 
+  \item[\Id{CVSPILS\_SUCCESS}] 
     The {\cvsptfqmr} initialization was successful.
-  \item[\Id{CVSPTFQMR\_MEM\_NULL}]
+  \item[\Id{CVSPILS\_MEM\_NULL}]
     The {\cvodes} memory block for the backward problem was not initialized through a 
     previous call to \id{CVodeCreateB}.
-  \item[\Id{CVSPTFQMR\_ILL\_INPUT}]
+  \item[\Id{CVSPILS\_ILL\_INPUT}]
     The preconditioner type \id{pretypeB} is not valid.
-  \item[\Id{CVSPTFQMR\_MEM\_FAIL}]
+  \item[\Id{CVSPILS\_MEM\_FAIL}]
     A memory allocation request failed.
   \item[\Id{CVBBDPRE\_PDATA\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.

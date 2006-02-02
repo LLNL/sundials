@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:03 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:32:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -13,11 +13,12 @@
  * This is the common header file for the Scaled, Preconditioned
  * Iterative Linear Solvers in CVODE/CVODES.
  *
- * Part I contains type definitions for using the iterative linear
- * solvers on forward problems (IVP integration and/or FSA)
+ * Part I contains type definitions and functions for using the 
+ * iterative linear solvers on forward problems 
+ * (IVP integration and/or FSA)
  *
- * Part II contains type definitions for using the iterative linear
- * solvers on adjopint (backward) problems
+ * Part II contains type definitions and functions for using the 
+ * iterative linear solvers on adjoint (backward) problems
  * -----------------------------------------------------------------
  */
 
@@ -28,7 +29,48 @@
 extern "C" {
 #endif
 
+#include "sundials_iterative.h"
 #include "sundials_nvector.h"
+
+  /*
+   * -----------------------------------------------------------------
+   * CVSPILS return values
+   * -----------------------------------------------------------------
+   */
+
+#define CVSPILS_SUCCESS    0
+#define CVSPILS_MEM_NULL  -1
+#define CVSPILS_LMEM_NULL -2
+#define CVSPILS_ILL_INPUT -3
+#define CVSPILS_MEM_FAIL  -4
+
+#define CVSPILS_ADJMEM_NULL -101
+#define CVSPILS_LMEMB_NULL  -102
+
+  /*
+   * -----------------------------------------------------------------
+   * CVSPILS solver constants
+   * -----------------------------------------------------------------
+   * CVSPILS_MAXL   : default value for the maximum Krylov
+   *                  dimension
+   *
+   * CVSPILS_MSBPRE : maximum number of steps between
+   *                  preconditioner evaluations
+   *
+   * CVSPILS_DGMAX  : maximum change in gamma between
+   *                  preconditioner evaluations
+   *
+   * CVSPILS_DELT   : default value for factor by which the
+   *                  tolerance on the nonlinear iteration is
+   *                  multiplied to get a tolerance on the linear
+   *                  iteration
+   * -----------------------------------------------------------------
+   */
+
+#define CVSPILS_MAXL   5
+#define CVSPILS_MSBPRE 50
+#define CVSPILS_DGMAX  RCONST(0.2)
+#define CVSPILS_DELT   RCONST(0.05)
 
   /* 
    * -----------------------------------------------------------------
@@ -224,6 +266,108 @@ extern "C" {
                                       N_Vector y, N_Vector fy,
                                       void *jac_data, N_Vector tmp);
 
+
+  /*
+   * -----------------------------------------------------------------
+   * Optional inputs to the CVSPILS linear solver
+   * -----------------------------------------------------------------
+   *
+   * CVSpilsSetPrecType resets the type of preconditioner, pretype,
+   *                from the value previously set.
+   *                This must be one of PREC_NONE, PREC_LEFT, 
+   *                PREC_RIGHT, or PREC_BOTH.
+   *
+   * CVSpilsSetGSType specifies the type of Gram-Schmidt
+   *                orthogonalization to be used. This must be one of
+   *                the two enumeration constants MODIFIED_GS or
+   *                CLASSICAL_GS defined in iterative.h. These correspond
+   *                to using modified Gram-Schmidt and classical
+   *                Gram-Schmidt, respectively.
+   *                Default value is MODIFIED_GS.
+   *
+   * CVSpilsSetMaxl resets the maximum Krylov subspace size, maxl,
+   *                from the value previously set.
+   *                An input value <= 0, gives the default value.
+   *
+   * CVSpilsSetDelt specifies the factor by which the tolerance on
+   *                the nonlinear iteration is multiplied to get a
+   *                tolerance on the linear iteration.
+   *                Default value is 0.05.
+   *
+   * CVSpilsSetPreconditioner specifies the PrecSetup and PrecSolve functions.
+   *                as well as a pointer to user preconditioner data.
+   *                This pointer is passed to PrecSetup and PrecSolve
+   *                every time these routines are called.
+   *                Default is NULL for al three arguments.
+   *
+   * CVSpilsSetJacTimesVecFn specifies the jtimes function and a pointer to
+   *                user Jacobian data. This pointer is passed to jtimes every 
+   *                time the jtimes routine is called.
+   *                Default is to use an internal finite difference
+   *                approximation routine.
+   *
+   * The return value of CVSpilsSet* is one of:
+   *    CVSPILS_SUCCESS   if successful
+   *    CVSPILS_MEM_NULL  if the cvode memory was NULL
+   *    CVSPILS_LMEM_NULL if the cvspgmr memory was NULL
+   *    CVSPILS_ILL_INPUT if an input has an illegal value
+   * -----------------------------------------------------------------
+   */
+
+  int CVSpilsSetPrecType(void *cvode_mem, int pretype);
+  int CVSpilsSetGSType(void *cvode_mem, int gstype);
+  int CVSpilsSetMaxl(void *cvode_mem, int maxl);
+  int CVSpilsSetDelt(void *cvode_mem, realtype delt);
+  int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
+                               CVSpilsPrecSolveFn psolve, void *P_data);
+  int CVSpilsSetJacTimesVecFn(void *cvode_mem, 
+                              CVSpilsJacTimesVecFn jtimes, void *jac_data);
+
+  /*
+   * -----------------------------------------------------------------
+   * Optional outputs from the CVSPILS linear solver
+   * -----------------------------------------------------------------
+   * CVSpilsGetWorkSpace returns the real and integer workspace used
+   *                by the SPILS module.
+   *
+   * CVSpilsGetNumPrecEvals returns the number of preconditioner
+   *                 evaluations, i.e. the number of calls made
+   *                 to PrecSetup with jok==FALSE.
+   *
+   * CVSpilsGetNumPrecSolves returns the number of calls made to
+   *                 PrecSolve.
+   *
+   * CVSpilsGetNumLinIters returns the number of linear iterations.
+   *
+   * CVSpilsGetNumConvFails returns the number of linear
+   *                 convergence failures.
+   *
+   * CVSpilsGetNumJtimesEvals returns the number of calls to jtimes.
+   *
+   * CVSpilsGetNumRhsEvals returns the number of calls to the user
+   *                 f routine due to finite difference Jacobian
+   *                 times vector evaluation.
+   *
+   * CVSpilsGetLastFlag returns the last error flag set by any of
+   *                 the CVSPILS interface functions.
+   *
+   * The return value of CVSpilsGet* is one of:
+   *    CVSPILS_SUCCESS   if successful
+   *    CVSPILS_MEM_NULL  if the cvode memory was NULL
+   *    CVSPILS_LMEM_NULL if the cvspgmr memory was NULL
+   * -----------------------------------------------------------------
+   */
+
+  int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
+  int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
+  int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
+  int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
+  int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
+  int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
+  int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
+  int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
+
+
   /* 
    * -----------------------------------------------------------------
    * PART II - backward problems
@@ -276,6 +420,21 @@ extern "C" {
   typedef int (*CVSpilsJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
                                        N_Vector y, N_Vector yB, N_Vector fyB,
                                        void *jac_dataB, N_Vector tmpB);
+
+  /*
+   * -----------------------------------------------------------------
+   * Functions
+   * -----------------------------------------------------------------
+   */
+
+  int CVSpilsSetPrecTypeB(void *cvadj_mem, int pretypeB);
+  int CVSpilsSetGSTypeB(void *cvadj_mem, int gstypeB);
+  int CVSpilsSetDeltB(void *cvadj_mem, realtype deltB);
+  int CVSpilsSetMaxlB(void *cvadj_mem, realtype maxlB);
+  int CVSpilsSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
+                                CVSpilsPrecSolveFnB psolveB, void *P_dataB);
+  int CVSpilsSetJacTimesVecFnB(void *cvadj_mem, CVSpilsJacTimesVecFnB jtimesB,
+                               void *jac_dataB);
 
 
 #ifdef __cplusplus

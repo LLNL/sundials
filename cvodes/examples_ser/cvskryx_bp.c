@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:40 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-02 00:32:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @LLNL
@@ -208,8 +208,8 @@ int main()
       flag = CVodeReInit(cvode_mem, f, T0, u, CV_SS, reltol, &abstol);
       if(check_flag(&flag, "CVodeReInit", 1)) return(1);
 
-      flag = CVSpgmrSetPrecType(cvode_mem, PREC_RIGHT);
-      check_flag(&flag, "CVSpgmrSetPrecType", 1);
+      flag = CVSpilsSetPrecType(cvode_mem, PREC_RIGHT);
+      check_flag(&flag, "CVSpilsSetPrecType", 1);
       
       printf("\n\n-------------------------------------------------------");
       printf("------------\n");
@@ -369,18 +369,18 @@ static void PrintFinalStats(void *cvode_mem, void *bpdata)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
-  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
-  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
-  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
-  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
+  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "CVSpilsGetWorkSpace", 1);
+  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpilsGetNumLinIters", 1);
+  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1);
+  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1);
+  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpilsGetNumConvFails", 1);
+  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
 
   flag = CVBandPrecGetWorkSpace(bpdata, &lenrwBP, &leniwBP);
   check_flag(&flag, "CVBandPrecGetWorkSpace", 1);

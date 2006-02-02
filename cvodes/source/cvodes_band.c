@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-02 00:32:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -43,6 +43,10 @@ static int CVBandSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static void CVBandFree(CVodeMem cv_mem);
 
+/* CVBAND lfreeB function */
+
+static void CVBandFreeB(CVadjMem ca_mem);
+
 /* Wrapper function for adjoint code */
 
 static int CVAbandJac(long int nB, long int mupperB, 
@@ -56,6 +60,16 @@ static int CVBandDQJac(long int n, long int mupper, long int mlower,
                        BandMat J, realtype t,
                        N_Vector y, N_Vector fy, void *jac_data,
                        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+
+/* 
+ * ================================================================
+ *
+ *                   PART I - forward problems
+ *
+ * ================================================================
+ */
+
 
 /* Readability Replacements */
 
@@ -93,12 +107,6 @@ static int CVBandDQJac(long int n, long int mupper, long int mlower,
 #define J_data     (cvband_mem->b_J_data)
 #define last_flag  (cvband_mem->b_last_flag)
 
-
-/* 
- * =================================================================
- * PART I - forward problems
- * =================================================================
- */
 
 /*
  * -----------------------------------------------------------------
@@ -363,135 +371,6 @@ int CVBandGetLastFlag(void *cvode_mem, int *flag)
 }
 
 
-
-/* 
- * =================================================================
- * PART II - backward problems
- * =================================================================
- */
-
-/* Additional readability replacements */
-
-#define ytmp        (ca_mem->ca_ytmp)
-#define getY        (ca_mem->ca_getY)
-#define lmemB       (ca_mem->ca_lmemB)
-
-#define bjac_B      (cvbandB_mem->b_bjacB)
-#define jac_data_B  (cvbandB_mem->b_jac_dataB)
-
-/*
- * CVBandB and CVBandSet*B
- *
- * Wrappers for the backward phase around the corresponding 
- * CVODES functions
- */
-
-int CVBandB(void *cvadj_mem, long int nB, 
-            long int mupperB, long int mlowerB)
-{
-  CVadjMem ca_mem;
-  CVBandMemB cvbandB_mem;
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVBAND_ADJMEM_NULL, "CVBAND", "CVBandB", MSGB_CAMEM_NULL);
-    return(CVBAND_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-
-  /* Get memory for CVBandMemRecB */
-  cvbandB_mem = (CVBandMemB) malloc(sizeof(CVBandMemRecB));
-  if (cvbandB_mem == NULL) {
-    CVProcessError(cvB_mem, CVBAND_MEM_FAIL, "CVBAND", "CVBandB", MSGB_MEM_FAIL);
-    return(CVBAND_MEM_FAIL);
-  }
-
-  bjac_B = NULL;
-  jac_data_B = NULL;
-
-  /* attach lmemB */
-  lmemB = cvbandB_mem;
-
-  flag = CVBand(cvB_mem, nB, mupperB, mlowerB);
-
-  return(flag);
-}
-
-int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB)
-{
-  CVadjMem ca_mem;
-  CVBandMemB cvbandB_mem;
-  CVodeMem cvB_mem;
-  int flag;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CVBAND_ADJMEM_NULL, "CVBAND", "CVBandSetJacFnB", MSGB_CAMEM_NULL);
-    return(CVBAND_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  cvB_mem = ca_mem->cvb_mem;
-
-  if (lmemB == NULL) {
-    CVProcessError(cvB_mem, CVBAND_LMEMB_NULL, "CVBAND", "CVBandSetJacFnB", MSGB_LMEMB_NULL);
-    return(CVBAND_LMEMB_NULL);
-  }
-  cvbandB_mem = (CVBandMemB) lmemB;
-
-  bjac_B     = bjacB;
-  jac_data_B = jac_dataB;
-
-  flag = CVBandSetJacFn(cvB_mem, CVAbandJac, cvadj_mem);
-
-  return(flag);
-}
-
-/*
- * CVAbandJac
- *
- * This routine interfaces to the CVBandJacFnB routine provided 
- * by the user.
- * NOTE: jac_data actually contains cvadj_mem
- */
-
-static int CVAbandJac(long int nB, long int mupperB, 
-                      long int mlowerB, BandMat JB, realtype t, 
-                      N_Vector yB, N_Vector fyB, void *cvadj_mem, 
-                      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
-{
-  CVadjMem ca_mem;
-  CVodeMem cvB_mem;
-  CVBandMemB cvbandB_mem;
-  int flag;
-
-  ca_mem = (CVadjMem) cvadj_mem;
-  cvB_mem = ca_mem->cvb_mem;
-  cvbandB_mem = (CVBandMemB) lmemB;
-
-  /* Forward solution from interpolation */
-  flag = getY(ca_mem, t, ytmp);
-  if (flag != CV_SUCCESS) {
-    CVProcessError(cvB_mem, -1, "CVBAND", "CVAbandJac", MSGB_BAD_T);
-    exit(1);
-    /*return(-1);*/
-  }
-
-  /* Call user's adjoint band bjacB routine */
-  bjac_B(nB, mupperB, mlowerB, JB, t, ytmp, yB, fyB, jac_data_B,
-         tmp1B, tmp2B, tmp3B);
-
-  return(0);
-}
-
-/* 
- * =================================================================
- * PART III - private functions
- * =================================================================
- */
-
 /*
  * -----------------------------------------------------------------
  * CVBandInit
@@ -541,7 +420,8 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   realtype dgamma;
   long int ier;
   CVBandMem cvband_mem;
-  
+  int retval;
+
   cvband_mem = (CVBandMem) lmem;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
@@ -562,7 +442,7 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlj = nst;
     *jcurPtr = TRUE;
     BandZero(M); 
-    jac(n, mu, ml, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
+    retval = jac(n, mu, ml, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
     BandCopy(M, savedJ, mu, ml);
   }
   
@@ -654,6 +534,7 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
   N_Vector ftemp, ytemp;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  int retval;
 
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -696,7 +577,7 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
 
     /* Evaluate f with incremented y */
 
-    f(tn, ytemp, ftemp, f_data);
+    retval = f(tn, ytemp, ftemp, f_data);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < N; j+=width) {
@@ -717,3 +598,147 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
 
   return(0);
 }
+
+
+/* 
+ * ================================================================
+ *
+ *                   PART II - backward problems
+ *
+ * ================================================================
+ */
+
+
+/* Additional readability replacements */
+
+#define ytmp        (ca_mem->ca_ytmp)
+#define getY        (ca_mem->ca_getY)
+#define lmemB       (ca_mem->ca_lmemB)
+#define lfreeB      (ca_mem->ca_lfreeB)
+
+#define bjac_B      (cvbandB_mem->b_bjacB)
+#define jac_data_B  (cvbandB_mem->b_jac_dataB)
+
+/*
+ * CVBandB and CVBandSet*B
+ *
+ * Wrappers for the backward phase around the corresponding 
+ * CVODES functions
+ */
+
+int CVBandB(void *cvadj_mem, long int nB, 
+            long int mupperB, long int mlowerB)
+{
+  CVadjMem ca_mem;
+  CVBandMemB cvbandB_mem;
+  CVodeMem cvB_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVBAND_ADJMEM_NULL, "CVBAND", "CVBandB", MSGB_CAMEM_NULL);
+    return(CVBAND_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvB_mem = ca_mem->cvb_mem;
+
+  /* Get memory for CVBandMemRecB */
+  cvbandB_mem = (CVBandMemB) malloc(sizeof(CVBandMemRecB));
+  if (cvbandB_mem == NULL) {
+    CVProcessError(cvB_mem, CVBAND_MEM_FAIL, "CVBAND", "CVBandB", MSGB_MEM_FAIL);
+    return(CVBAND_MEM_FAIL);
+  }
+
+  bjac_B = NULL;
+  jac_data_B = NULL;
+
+  /* attach lmemB and lfreeB */
+  lmemB = cvbandB_mem;
+  lfreeB = CVBandFreeB;
+
+  flag = CVBand(cvB_mem, nB, mupperB, mlowerB);
+
+  return(flag);
+}
+
+int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB)
+{
+  CVadjMem ca_mem;
+  CVBandMemB cvbandB_mem;
+  CVodeMem cvB_mem;
+  int flag;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CVBAND_ADJMEM_NULL, "CVBAND", "CVBandSetJacFnB", MSGB_CAMEM_NULL);
+    return(CVBAND_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  cvB_mem = ca_mem->cvb_mem;
+
+  if (lmemB == NULL) {
+    CVProcessError(cvB_mem, CVBAND_LMEMB_NULL, "CVBAND", "CVBandSetJacFnB", MSGB_LMEMB_NULL);
+    return(CVBAND_LMEMB_NULL);
+  }
+  cvbandB_mem = (CVBandMemB) lmemB;
+
+  bjac_B     = bjacB;
+  jac_data_B = jac_dataB;
+
+  flag = CVBandSetJacFn(cvB_mem, CVAbandJac, cvadj_mem);
+
+  return(flag);
+}
+
+/*
+ * CVBandFreeB 
+ */
+
+
+static void CVBandFreeB(CVadjMem ca_mem)
+{
+  CVBandMemB cvbandB_mem;
+
+  cvbandB_mem = (CVBandMemB) lmemB;
+
+  free(cvbandB_mem);
+}
+
+
+/*
+ * CVAbandJac
+ *
+ * This routine interfaces to the CVBandJacFnB routine provided 
+ * by the user.
+ * NOTE: jac_data actually contains cvadj_mem
+ */
+
+static int CVAbandJac(long int nB, long int mupperB, 
+                      long int mlowerB, BandMat JB, realtype t, 
+                      N_Vector yB, N_Vector fyB, void *cvadj_mem, 
+                      N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+{
+  CVadjMem ca_mem;
+  CVodeMem cvB_mem;
+  CVBandMemB cvbandB_mem;
+  int retval, flag;
+
+  ca_mem = (CVadjMem) cvadj_mem;
+  cvB_mem = ca_mem->cvb_mem;
+  cvbandB_mem = (CVBandMemB) lmemB;
+
+  /* Forward solution from interpolation */
+  flag = getY(ca_mem, t, ytmp);
+  if (flag != CV_SUCCESS) {
+    CVProcessError(cvB_mem, -1, "CVBAND", "CVAbandJac", MSGB_BAD_T);
+    exit(1);
+    /*return(-1);*/
+  }
+
+  /* Call user's adjoint band bjacB routine */
+  retval = bjac_B(nB, mupperB, mlowerB, JB, t, ytmp, yB, fyB, jac_data_B,
+                  tmp1B, tmp2B, tmp3B);
+
+  return(0);
+}
+

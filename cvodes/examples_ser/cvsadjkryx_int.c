@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-24 00:50:39 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-02 00:32:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -273,8 +273,8 @@ int main(int argc, char *argv[])
   /* Call CVSpgmr for forward run */
   flag = CVSpgmr(cvode_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmr", 1)) return(1);
-  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, wdata);
-  if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1)) return(1);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, wdata);
+  if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
   /* Set-up adjoint calculations */
 
@@ -317,8 +317,8 @@ int main(int argc, char *argv[])
   /* Call CVSpgmr */
   flag = CVSpgmrB(cvadj_mem, PREC_LEFT, 0);
   if(check_flag(&flag, "CVSpgmrB", 1)) return(1);
-  flag = CVSpgmrSetPreconditionerB(cvadj_mem, PrecondB, PSolveB, wdata);
-  if(check_flag(&flag, "CVSpgmrSetPreconditionerB", 1)) return(1);
+  flag = CVSpilsSetPreconditionerB(cvadj_mem, PrecondB, PSolveB, wdata);
+  if(check_flag(&flag, "CVSpilsSetPreconditionerB", 1)) return(1);
 
   /* Perform backward integration */
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.25 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.26 $
+ * $Date: 2006-02-02 00:32:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -447,21 +447,21 @@ extern "C" {
 
 #define MSG_TIME      "t = %Lg"
 #define MSG_TIME_H    "t = %Lg and h = %Lg"
-#define MSG_TIME_INT  "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg.\n\n"
+#define MSG_TIME_INT  "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg."
 #define MSG_TIME_TOUT "tout = %Lg"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
 #define MSG_TIME      "t = %lg"
 #define MSG_TIME_H    "t = %lg and h = %lg"
-#define MSG_TIME_INT  "t = %lg is not between tcur - hu = %lg and tcur = %lg.\n\n"
+#define MSG_TIME_INT  "t = %lg is not between tcur - hu = %lg and tcur = %lg."
 #define MSG_TIME_TOUT "tout = %lg"
 
 #else
 
 #define MSG_TIME      "t = %g"
 #define MSG_TIME_H    "t = %g and h = %g"
-#define MSG_TIME_INT  "t = %g is not between tcur - hu = %g and tcur = %g.\n\n"
+#define MSG_TIME_INT  "t = %g is not between tcur - hu = %g and tcur = %g."
 #define MSG_TIME_TOUT "tout = %g"
 
 #endif

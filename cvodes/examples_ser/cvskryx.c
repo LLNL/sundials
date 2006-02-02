@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:40 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-02 00:32:16 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -204,11 +204,11 @@ int main()
   /* Set modified Gram-Schmidt orthogonalization, preconditioner 
      setup and solve routines Precond and PSolve, and the pointer 
      to the user-defined block data */
-  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
-  if(check_flag(&flag, "CVSpgmrSetGSType", 1)) return(1);
+  flag = CVSpilsSetGSType(cvode_mem, MODIFIED_GS);
+  if(check_flag(&flag, "CVSpilsSetGSType", 1)) return(1);
 
-  flag = CVSpgmrSetPreconditioner(cvode_mem, Precond, PSolve, data);
-  if(check_flag(&flag, "CVSpgmrSetPreconditioner", 1)) return(1);
+  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve, data);
+  if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
 
   /* In loop over output points, call CVode, print results, test for error */
   printf(" \n2-species diurnal advection-diffusion problem\n\n");
@@ -378,18 +378,18 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVSpgmrGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVSpgmrGetWorkSpace", 1);
-  flag = CVSpgmrGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpgmrGetNumLinIters", 1);
-  flag = CVSpgmrGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpgmrGetNumPrecEvals", 1);
-  flag = CVSpgmrGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpgmrGetNumPrecSolves", 1);
-  flag = CVSpgmrGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpgmrGetNumConvFails", 1);
-  flag = CVSpgmrGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVSpgmrGetNumRhsEvals", 1);
+  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "CVSpilsGetWorkSpace", 1);
+  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVSpilsGetNumLinIters", 1);
+  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1);
+  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1);
+  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVSpilsGetNumConvFails", 1);
+  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);

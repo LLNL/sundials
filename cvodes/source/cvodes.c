@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.69 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.70 $
+ * $Date: 2006-02-02 00:32:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1456,7 +1456,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   realtype troundoff, rh, nrm;
   booleantype hOK;
   int ewtsetOK, ewtSsetOK, ewtQsetOK;
-  int is;
+  int retval, is;
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
@@ -1548,15 +1548,15 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
        znQ[1] = fQ, and scale znQ[1] by h.
     */
     
-    f(tn, zn[0], zn[1], f_data); 
+    retval = f(tn, zn[0], zn[1], f_data); 
     nfe++;
 
     if (sensi) {
-      CVSensRhs(cv_mem, tn, zn[0], zn[1], znS[0], znS[1], tempv, ftemp);
+      retval = CVSensRhs(cv_mem, tn, zn[0], zn[1], znS[0], znS[1], tempv, ftemp);
     }    
 
     if (quadr) {
-      fQ(tn, zn[0], znQ[1], fQ_data);
+      retval = fQ(tn, zn[0], znQ[1], fQ_data);
       nfQe++;
     }
 
@@ -1688,7 +1688,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
           return(CV_ILL_INPUT);
         }
         tretlast = *tret = tstop;
-        /*tn = tstop;*/    /* Like CVODE??? */
         return(CV_TSTOP_RETURN);
       }
       
@@ -1782,7 +1781,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     
     /* Check for h below roundoff level in tn */
 
-    /*if (tn + hprime == tn) {*/   /* Like CVODE??? */
     if (tn + h == tn) {
       nhnil++;
       if (nhnil <= mxhnil) 
@@ -1828,9 +1826,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       if ( ABS(tn - tstop) <= troundoff) {
         (void) CVodeGetDky(cv_mem, tstop, 0, yout);
         tretlast = *tret = tstop;
-
-        /*tn = tstop;*/    /* Like CVODE??? */
-        
         istate = CV_TSTOP_RETURN;
         break;
       }
@@ -3097,7 +3092,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
 {
   realtype yddnrm;
-  int is;
+  int retval, is;
   N_Vector wrk1, wrk2;
   
   /* y     <- h*y'(t) + y(t) */
@@ -3110,18 +3105,18 @@ static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
   
   /* tempv <- f(t+h, h*y'(t)+y(t)) */
 
-  f(tn+hg, y, tempv, f_data);
+  retval = f(tn+hg, y, tempv, f_data);
   nfe++;
 
   if (quadr && errconQ) {
-    fQ(tn+hg, y, tempvQ, fQ_data);
+    retval = fQ(tn+hg, y, tempvQ, fQ_data);
     nfQe++;
   }
 
   if (sensi && errconS) {
     wrk1 = ftemp;
     wrk2 = acor;
-    CVSensRhs(cv_mem, tn+hg, y, tempv, yS, tempvS, wrk1, wrk2);
+    retval = CVSensRhs(cv_mem, tn+hg, y, tempv, yS, tempvS, wrk1, wrk2);
   }  
 
   /* tempv <- f(t+h, h*y'(t)+y(t)) - y'(t) */
@@ -3180,7 +3175,7 @@ static int CVStep(CVodeMem cv_mem)
   realtype saved_t, dsm, dsmS, dsmQ;
   int ncf, nef, kflag, nflag, ncfS, nefS, nefQ;
   booleantype do_sensi_stg, do_sensi_stg1, passed;
-  int is;
+  int retval, is;
 
   saved_t = tn;
 
@@ -3233,7 +3228,7 @@ static int CVStep(CVodeMem cv_mem)
     /* Correct the quadrature variables */
     if (quadr) {
       /* Save quadrature correction in acorQ */
-      fQ(tn, y, acorQ, fQ_data);
+      retval = fQ(tn, y, acorQ, fQ_data);
       N_VLinearSum(h, acorQ, -ONE, znQ[1], acorQ);
       N_VScale(rl1, acorQ, acorQ);
       /* Apply correction to quadrature variables */
@@ -3254,7 +3249,7 @@ static int CVStep(CVodeMem cv_mem)
       /* Reset counters for states */
       ncf = nef = 0;
       /* Evaluate f at converged y */
-      f(tn, y, ftemp, f_data);
+      retval = f(tn, y, ftemp, f_data);
       nfe++;
       /* Nonlinear solve for sensitivities (all-at-once) */
       nflag = CVStgrNls(cv_mem);
@@ -3276,7 +3271,7 @@ static int CVStep(CVodeMem cv_mem)
       /* Reset counters for states */
       ncf = nef = 0;
       /* Evaluate f at converged y */
-      f(tn, y, ftemp, f_data);
+      retval = f(tn, y, ftemp, f_data);
       nfe++;
       /* Nonlinear solve for sensitivities (one-by-one) */
       for (is=0; is<Ns; is++) { 
@@ -3936,7 +3931,7 @@ static int CVNlsFunctional(CVodeMem cv_mem)
 {
   int m;
   realtype del, delS, Del, Delp, dcon;
-  int is;
+  int retval, is;
   booleantype do_sensi_sim;
   N_Vector wrk1, wrk2;
 
@@ -3950,13 +3945,13 @@ static int CVNlsFunctional(CVodeMem cv_mem)
   /* Initialize delS and Delp to avoid compiler warning message */
   delS = Delp = ZERO;
 
-  f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, f_data);
   nfe++;
 
   if (do_sensi_sim) {
     wrk1 = ftemp;
     wrk2 = ftempS[0];
-    CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
+    retval = CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
   }
 
   /* Initialize correction to zero */
@@ -4038,13 +4033,13 @@ static int CVNlsFunctional(CVodeMem cv_mem)
 
     Delp = Del;
 
-    f(tn, y, tempv, f_data);
+    retval = f(tn, y, tempv, f_data);
     nfe++;
 
     if (do_sensi_sim) {
       wrk1 = ftemp;
       wrk2 = ftempS[0];
-      CVSensRhs(cv_mem, tn, y, tempv, yS, tempvS, wrk1, wrk2);
+      retval = CVSensRhs(cv_mem, tn, y, tempv, yS, tempvS, wrk1, wrk2);
     }      
 
   } /* end loop */
@@ -4076,7 +4071,7 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
   int convfail, ier;
   booleantype callSetup, do_sensi_sim;
-  int is;
+  int retval, is;
   
   /* Are we computing sensitivities with the CV_SIMULTANEOUS approach? */
   do_sensi_sim = (sensi && (ism==CV_SIMULTANEOUS));
@@ -4112,13 +4107,13 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
 
   loop {
 
-    f(tn, zn[0], ftemp, f_data);
+    retval = f(tn, zn[0], ftemp, f_data);
     nfe++; 
 
     if (do_sensi_sim) {
       wrk1 = tempv;
       wrk2 = tempvS[0];
-      CVSensRhs(cv_mem, tn, zn[0], ftemp, znS[0], ftempS, wrk1, wrk2);
+      retval = CVSensRhs(cv_mem, tn, zn[0], ftemp, znS[0], ftempS, wrk1, wrk2);
     }
 
     if (callSetup) {
@@ -4183,11 +4178,11 @@ static int CVNlsNewton(CVodeMem cv_mem, int nflag)
 
 static int CVNewtonIteration(CVodeMem cv_mem)
 {
-  int m, ret;
+  int m;
   realtype del, delS, Del, Delp, dcon;
   N_Vector b, *bS=NULL, wrk1, wrk2;
   booleantype do_sensi_sim;
-  int is;
+  int retval, is;
   
   /* Are we computing sensitivities with the CV_SIMULTANEOUS approach? */
   do_sensi_sim = (sensi && (ism==CV_SIMULTANEOUS));
@@ -4213,14 +4208,14 @@ static int CVNewtonIteration(CVodeMem cv_mem)
 
     /* Call the lsolve function */
     b = tempv;
-    ret = lsolve(cv_mem, b, ewt, y, ftemp); 
+    retval = lsolve(cv_mem, b, ewt, y, ftemp); 
     nni++;
 
-    if (ret < 0) return(SOLVE_FAIL_UNREC);
+    if (retval < 0) return(SOLVE_FAIL_UNREC);
     
     /* If lsolve had a recoverable failure and Jacobian data is
        not current, signal to try the solution again            */
-    if (ret > 0) { 
+    if (retval > 0) { 
       if ((!jcur) && (setupNonNull)) return(TRY_AGAIN);
       return(CONV_FAIL);
     }
@@ -4236,9 +4231,9 @@ static int CVNewtonIteration(CVodeMem cv_mem)
       }
       bS = tempvS;
       for (is=0; is<Ns; is++) {
-        ret = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
-        if (ret < 0) return(SOLVE_FAIL_UNREC);
-        if (ret > 0) { 
+        retval = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
+        if (retval < 0) return(SOLVE_FAIL_UNREC);
+        if (retval > 0) { 
           if ((!jcur) && (setupNonNull)) return(TRY_AGAIN);
           return(CONV_FAIL);
         }
@@ -4291,13 +4286,13 @@ static int CVNewtonIteration(CVodeMem cv_mem)
     
     /* Save norm of correction, evaluate f, and loop again */
     Delp = Del;
-    f(tn, y, ftemp, f_data);
+    retval = f(tn, y, ftemp, f_data);
     nfe++;
 
     if (do_sensi_sim) {
       wrk1 = tempv;
       wrk2 = tempvS[0];
-      CVSensRhs(cv_mem, tn, y, ftemp, yS, ftempS, wrk1, wrk2);
+      retval = CVSensRhs(cv_mem, tn, y, ftemp, yS, ftempS, wrk1, wrk2);
     }
 
   } /* end loop */
@@ -4430,7 +4425,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
                                  int *nefPtr, realtype *dsmPtr)
 {
   realtype dsm;
-  int is;
+  int retval, is;
   N_Vector wrk1, wrk2;
 
   dsm = acnrm / tq[2];
@@ -4482,12 +4477,12 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   qwait = LONG_WAIT;
   nscon = 0;
 
-  f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, f_data);
   nfe++;
   N_VScale(h, tempv, zn[1]);
 
   if (quadr) {
-    fQ(tn, zn[0], tempvQ, fQ_data);
+    retval = fQ(tn, zn[0], tempvQ, fQ_data);
     nfQe++;
     N_VScale(h, tempvQ, znQ[1]);
   }
@@ -4495,7 +4490,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   if (sensi) {
     wrk1 = ftemp;
     wrk2 = ftempS[0];
-    CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
+    retval = CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
     for (is=0; is<Ns; is++) 
       N_VScale(h, tempvS[is], znS[1][is]);
   }
@@ -4510,7 +4505,7 @@ static booleantype CVQuadDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
                                      int *nefQPtr, realtype *dsmQPtr)
 {
   realtype dsmQ;
-  int is;
+  int retval, is;
   N_Vector wrk1, wrk2;
 
   dsmQ = acnrmQ / tq[2];
@@ -4562,18 +4557,18 @@ static booleantype CVQuadDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   qwait = LONG_WAIT;
   nscon = 0;
 
-  f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, f_data);
   nfe++;
   N_VScale(h, tempv, zn[1]);
 
-  fQ(tn, zn[0], tempvQ, fQ_data);
+  retval = fQ(tn, zn[0], tempvQ, fQ_data);
   nfQe++;
   N_VScale(h, tempvQ, znQ[1]);
 
   if (sensi) {
     wrk1 = ftemp;
     wrk2 = ftempS[0];
-    CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
+    retval = CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
     for (is=0; is<Ns; is++) 
       N_VScale(h, tempvS[is], znS[1][is]);
   }
@@ -4644,7 +4639,7 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
   /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
   wrk1 = tempv;
   wrk2 = ftempS[0];
-  CVSensRhs(cv_mem, tn, y, ftemp, znS[0], tempvS, wrk1, wrk2);
+  retval = CVSensRhs(cv_mem, tn, y, ftemp, znS[0], tempvS, wrk1, wrk2);
 
   /* Initialize correction to zero */
   for (is=0; is<Ns; is++)
@@ -4692,7 +4687,7 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
 
     wrk1 = tempv;
     wrk2 = ftempS[0];
-    CVSensRhs(cv_mem, tn, y, ftemp, yS, tempvS, wrk1, wrk2);
+    retval = CVSensRhs(cv_mem, tn, y, ftemp, yS, tempvS, wrk1, wrk2);
 
   } /* end loop */
   
@@ -4733,7 +4728,7 @@ static int CVStgrNlsNewton(CVodeMem cv_mem)
     /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
     wrk1 = tempv;
     wrk2 = tempvS[0];
-    CVSensRhs(cv_mem, tn, y, ftemp, yS, ftempS, wrk1, wrk2);
+    retval = CVSensRhs(cv_mem, tn, y, ftemp, yS, ftempS, wrk1, wrk2);
     
     /* Do the Newton iteration */
     ier = CVStgrNewtonIteration(cv_mem);
@@ -4863,7 +4858,7 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
     
     wrk1 = tempv;
     wrk2 = tempvS[0];
-    CVSensRhs(cv_mem, tn, y, ftemp, yS, ftempS, wrk1, wrk2);
+    retval = CVSensRhs(cv_mem, tn, y, ftemp, yS, ftempS, wrk1, wrk2);
     
   } /* end loop */
 
@@ -4912,7 +4907,7 @@ static int CVStgr1Nls(CVodeMem cv_mem, int is)
 
 static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is)
 {
-  int m;
+  int retval, m;
   realtype Del, Delp, dcon;
   N_Vector wrk1, wrk2;
 
@@ -4926,7 +4921,7 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is)
   /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
   wrk1 = tempv;
   wrk2 = ftempS[0];
-  CVSensRhs1(cv_mem, tn, y, ftemp, is, znS[0][is], tempvS[is], wrk1, wrk2);
+  retval = CVSensRhs1(cv_mem, tn, y, ftemp, is, znS[0][is], tempvS[is], wrk1, wrk2);
 
   /* Initialize correction to zero */
   N_VConst(ZERO,acorS[is]);
@@ -4967,7 +4962,7 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is)
 
     wrk1 = tempv;
     wrk2 = ftempS[0];
-    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], tempvS[is], wrk1, wrk2);
+    retval = CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], tempvS[is], wrk1, wrk2);
 
   } /* end loop */
   
@@ -4994,7 +4989,7 @@ static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is)
 
 static int CVStgr1NlsNewton(CVodeMem cv_mem, int is)
 {
-  int convfail, ier;
+  int convfail, retval, ier;
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
 
   loop {
@@ -5006,7 +5001,7 @@ static int CVStgr1NlsNewton(CVodeMem cv_mem, int is)
     /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
     wrk1 = tempv;
     wrk2 = tempvS[0];
-    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], ftempS[is], wrk1, wrk2);
+    retval = CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], ftempS[is], wrk1, wrk2);
     
     /* Do the Newton iteration */
     ier = CVStgr1NewtonIteration(cv_mem, is);
@@ -5062,7 +5057,7 @@ static int CVStgr1NlsNewton(CVodeMem cv_mem, int is)
 
 static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is)
 {
-  int m, ret;
+  int m, retval;
   realtype Del, Delp, dcon;
   N_Vector *bS, wrk1, wrk2;
 
@@ -5088,13 +5083,13 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is)
 
     nniS1[is]++;
 
-    ret = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
+    retval = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
 
     /* Unrecoverable error in lsolve */
-    if (ret < 0) return(SOLVE_FAIL_UNREC);
+    if (retval < 0) return(SOLVE_FAIL_UNREC);
 
     /* Recoverable error in lsolve and Jacobian data not current */
-    if (ret > 0) { 
+    if (retval > 0) { 
       if ((!jcur) && (setupNonNull)) return(TRY_AGAIN);
       return(CONV_FAIL);
     }
@@ -5128,7 +5123,7 @@ static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is)
 
     wrk1 = tempv;
     wrk2 = tempvS[0];
-    CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], ftempS[is], wrk1, wrk2);
+    retval = CVSensRhs1(cv_mem, tn, y, ftemp, is, yS[is], ftempS[is], wrk1, wrk2);
 
   } /* end loop */
 
@@ -5153,7 +5148,7 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
                                      int *kflagPtr, realtype saved_t, 
                                      int *nefSPtr, realtype *dsmSPtr)
 {
-  int is;
+  int retval, is;
   realtype dsmS;
   N_Vector wrk1, wrk2;
 
@@ -5206,19 +5201,19 @@ static booleantype CVStgrDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
   qwait = LONG_WAIT;
   nscon = 0;
   
-  f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, f_data);
   nfe++;
   N_VScale(h, tempv, zn[1]);
   
   if (quadr) {
-    fQ(tn, zn[0], tempvQ, fQ_data);
+    retval = fQ(tn, zn[0], tempvQ, fQ_data);
     nfQe++;
     N_VScale(h, tempvQ, znQ[1]);
   }
 
   wrk1 = ftemp;
   wrk2 = ftempS[0];
-  CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
+  retval = CVSensRhs(cv_mem, tn, zn[0], tempv, znS[0], tempvS, wrk1, wrk2);
   for (is=0; is<Ns; is++) 
     N_VScale(h, tempvS[is], znS[1][is]);
   
@@ -5949,7 +5944,7 @@ static int CVsldet(CVodeMem cv_mem)
 
 static int CVRcheck1(CVodeMem cv_mem)
 {
-  int i;
+  int i, retval;
   realtype smallh, hratio;
   booleantype zroot;
 
@@ -5958,7 +5953,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
 
   /* Evaluate g at initial t and check for zero values. */
-  gfun(tlo, zn[0], glo, g_data);
+  retval = gfun(tlo, zn[0], glo, g_data);
   nge = 1;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
@@ -5967,16 +5962,11 @@ static int CVRcheck1(CVodeMem cv_mem)
   if (!zroot) return(CV_SUCCESS);
 
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
-  /*
-  smallh = (h > ZERO) ? ttol : -ttol;
-  tlo += smallh;
-  hratio = smallh/h;
-  */    /* Like CVODE???? */
   hratio = MAX(ttol/ABS(h), TENTH);
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, g_data);
   nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
@@ -6014,14 +6004,14 @@ static int CVRcheck1(CVodeMem cv_mem)
 
 static int CVRcheck2(CVodeMem cv_mem)
 {
-  int i;
+  int i, retval;
   realtype smallh, hratio;
   booleantype zroot;
 
   if (irfnd == 0) return(CV_SUCCESS);
 
   (void) CVodeGetDky(cv_mem, tlo, 0, y);
-  gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, g_data);
   nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
@@ -6043,7 +6033,7 @@ static int CVRcheck2(CVodeMem cv_mem)
   } else {
     (void) CVodeGetDky(cv_mem, tlo, 0, y);
   }
-  gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, g_data);
   nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
@@ -6074,7 +6064,7 @@ static int CVRcheck2(CVodeMem cv_mem)
 
 static int CVRcheck3(CVodeMem cv_mem)
 {
-  int i, ier;
+  int i, retval, ier;
 
   /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
   if (taskc == CV_ONE_STEP) {
@@ -6092,7 +6082,7 @@ static int CVRcheck3(CVodeMem cv_mem)
   }
 
   /* Set ghi = g(thi) and call CVRootfind to search (tlo,thi) for roots. */
-  gfun(thi, y, ghi, g_data);
+  retval = gfun(thi, y, ghi, g_data);
   nge++;
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
   ier = CVRootfind(cv_mem);
@@ -6172,7 +6162,7 @@ static int CVRcheck3(CVodeMem cv_mem)
 static int CVRootfind(CVodeMem cv_mem)
 {
   realtype alpha, tmid, gfrac, maxfrac, fracint, fracsub;
-  int i, imax, side, sideprev;
+  int i, retval, imax, side, sideprev;
   booleantype zroot, sgnchg;
 
   imax = 0;
@@ -6250,7 +6240,7 @@ static int CVRootfind(CVodeMem cv_mem)
     }
 
     (void) CVodeGetDky(cv_mem, tmid, 0, y);
-    gfun(tmid, y, grout, g_data);
+    retval = gfun(tmid, y, grout, g_data);
     nge++;
 
     /* Check to see in which subinterval g changes sign, and reset imax.
@@ -6539,13 +6529,13 @@ static int CVSensRhs(CVodeMem cv_mem, realtype time,
   int is;
 
   if (ifS==CV_ALLSENS) {
-    fS(Ns, time, ycur, fcur, yScur, fScur, 
-       fS_data, temp1, temp2);
+    retval = fS(Ns, time, ycur, fcur, yScur, fScur, 
+                fS_data, temp1, temp2);
     nfSe++;
   } else {
     for (is=0; is<Ns; is++) {
-      fS1(Ns, time, ycur, fcur, is, yScur[is], fScur[is], 
-          fS_data, temp1, temp2);
+      retval = fS1(Ns, time, ycur, fcur, is, yScur[is], fScur[is], 
+                   fS_data, temp1, temp2);
       nfSe++;
     }
   }
@@ -6571,8 +6561,8 @@ static int CVSensRhs1(CVodeMem cv_mem, realtype time,
                       int is, N_Vector yScur, N_Vector fScur,
                       N_Vector temp1, N_Vector temp2)
 {
-  fS1(Ns, time, ycur, fcur, is, yScur, fScur, 
-      fS_data, temp1, temp2);
+  retval = fS1(Ns, time, ycur, fcur, is, yScur, fScur, 
+               fS_data, temp1, temp2);
   nfSe++;
 
   return(0);
@@ -6632,7 +6622,7 @@ int CVSensRhs1DQ(int Ns, realtype t,
                  N_Vector ytemp, N_Vector ftemp)
 {
   CVodeMem cv_mem;
-  int method;
+  int retval, method;
   int nfel = 0, which;
   realtype psave, pbari;
   realtype delta , rdelta;
@@ -6675,12 +6665,12 @@ int CVSensRhs1DQ(int Ns, realtype t,
     
     N_VLinearSum(ONE,y,Delta,yS,ytemp);
     p[which] = psave + Delta;
-    f(t, ytemp, ySdot, f_data);
+    retval = f(t, ytemp, ySdot, f_data);
     nfel++;
     
     N_VLinearSum(ONE,y,-Delta,yS,ytemp);
     p[which] = psave - Delta;
-    f(t, ytemp, ftemp, f_data);
+    retval = f(t, ytemp, ftemp, f_data);
     nfel++;
     
     N_VLinearSum(r2Delta,ySdot,-r2Delta,ftemp,ySdot);
@@ -6693,18 +6683,18 @@ int CVSensRhs1DQ(int Ns, realtype t,
     r2Deltay = HALF/Deltay;
     
     N_VLinearSum(ONE,y,Deltay,yS,ytemp);
-    f(t, ytemp, ySdot, f_data);
+    retval = f(t, ytemp, ySdot, f_data);
     nfel++;
     N_VLinearSum(ONE,y,-Deltay,yS,ytemp);
-    f(t, ytemp, ftemp, f_data);
+    retval = f(t, ytemp, ftemp, f_data);
     nfel++;
     N_VLinearSum(r2Deltay, ySdot, -r2Deltay, ftemp, ySdot);
     
     p[which] = psave + Deltap;
-    f(t, y, ytemp, f_data);
+    retval = f(t, y, ytemp, f_data);
     nfel++;
     p[which] = psave - Deltap;
-    f(t, y, ftemp, f_data);
+    retval = f(t, y, ftemp, f_data);
     nfel++;
     N_VLinearSum(r2Deltap,ytemp,-r2Deltap,ftemp,ftemp);
     
@@ -6719,7 +6709,7 @@ int CVSensRhs1DQ(int Ns, realtype t,
     
     N_VLinearSum(ONE,y,Delta,yS,ytemp);
     p[which] = psave + Delta;
-    f(t, ytemp, ySdot, f_data);
+    retval = f(t, ytemp, ySdot, f_data);
     nfel++;
     
     N_VLinearSum(rDelta,ySdot,-rDelta,ydot,ySdot);
@@ -6729,12 +6719,12 @@ int CVSensRhs1DQ(int Ns, realtype t,
   case FORWARD2:
     
     N_VLinearSum(ONE,y,Deltay,yS,ytemp);
-    f(t, ytemp, ySdot, f_data);
+    retval = f(t, ytemp, ySdot, f_data);
     nfel++;
     N_VLinearSum(rDeltay, ySdot, -rDeltay, ydot, ySdot);
     
     p[which] = psave + Deltap;
-    f(t, y, ytemp, f_data);
+    retval = f(t, y, ytemp, f_data);
     nfel++;
     N_VLinearSum(rDeltap,ytemp,-rDeltap,ydot,ftemp);
       
@@ -6776,13 +6766,13 @@ void CVProcessError(CVodeMem cv_mem,
   char msg[256];
 
   /* Initialize the argument pointer variable 
-     (msgfmt is the last required argument to CVProcessError */
+     (msgfmt is the last required argument to CVProcessError) */
 
   va_start(ap, msgfmt);
 
   if (cv_mem == NULL) {    /* We write to stderr */
 
-#ifndef NO_STDERR_OUTPUT
+#ifndef NO_FPRINTF_OUTPUT
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
     fprintf(stderr, msgfmt);
     fprintf(stderr, "\n\n");
@@ -6828,10 +6818,12 @@ void CVErrHandler(int error_code, const char *module,
   else
     sprintf(err_type,"ERROR");
 
+#ifndef NO_FPRINTF_OUTPUT
   if (errfp!=NULL) {
     fprintf(errfp,"\n[%s %s]  %s\n",module,err_type,function);
     fprintf(errfp,"  %s\n\n",msg);
   }
+#endif
 
   return;
 }
