@@ -2584,17 +2584,17 @@ These optional output functions are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_NO\_SLDET]
+  \begin{args}[CV\_MEM\_NULL]
   \item[\Id{CV\_SUCCESS}] 
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CV\_NO\_SLDET}]
-    The stability limit detection algorithm was not activated 
-    through a call to \id{CVodeSetStabLimDet}.
   \end{args}
 }
-{}
+{
+  If the stability limit detection algorithm was not initialized
+  through a call to \id{CVodeSetStabLimDet}, then \id{nslred}=0.
+}
 %%
 %%
 \ucfunction{CVodeGetTolScaleFactor}
@@ -4819,14 +4819,14 @@ required user-supplied function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_RTFUNC\_NULL]
+  \begin{args}[CV\_ILL\_INPUT]
   \item[CV\_SUCCESS]
     The call to \id{CVodeRootInit} was successful.
   \item[CV\_MEM\_NULL]
     The \id{cvode\_mem} argument was \id{NULL}.
   \item[CV\_MEM\_FAIL]
     A memory allocation failed.
-  \item[CV\_RTFUNC\_NULL]
+  \item[CV\_ILL\_INPUT]
     The function \id{g} is \id{NULL}, but \id{nrtfn}$>0$.
   \end{args}
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2006-02-02 00:32:22 $
+ * $Revision: 1.27 $
+ * $Date: 2006-02-02 23:38:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -538,6 +538,9 @@ extern "C" {
 #define MSGCV_CONV_FAILS "At " MSG_TIME_H ", the corrector convergence test failed repeatedly or with |h| = hmin."
 #define MSGCV_SETUP_FAILED "At " MSG_TIME ", the setup routine failed in an unrecoverable manner."
 #define MSGCV_SOLVE_FAILED "At " MSG_TIME ", the solve routine failed in an unrecoverable manner."
+#define MSGCV_RHSFUNC_FAILED "At " MSG_TIME ", the right-hand side routine failed in an unrecoverable manner."
+#define MSGCV_RTFUNC_FAILED "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
+#define MSGCV_RHSFUNC_FIRST "The right-hand side routine failed at the first call."
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCV_BAD_TSTOP "tstop is behind current " MSG_TIME "in the direction of integration."
 

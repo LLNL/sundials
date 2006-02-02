@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.38 $
- * $Date: 2006-01-28 00:47:24 $
+ * $Revision: 1.39 $
+ * $Date: 2006-02-02 23:38:05 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -473,7 +473,7 @@ int CVodeReInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
  *   CV_MEM_NULL     indicating cvode_mem was NULL, or
  *   CV_MEM_FAIL     indicating a memory allocation failed.
  *                    (including an attempt to increase maxord).
- *   CV_RTFUNC_NULL  indicating nrtfn > 0 but g = NULL.
+ *   CV_ILL_INPUT   indicating nrtfn > 0 but g = NULL.
  * In case of an error return, an error message is also printed.
  * -----------------------------------------------------------------
  */
@@ -738,31 +738,33 @@ void CVodeFree(void **cvode_mem);
  * ----------------------------------------
  */
 
-#define CV_SUCCESS        0
-#define CV_TSTOP_RETURN   1
-#define CV_ROOT_RETURN    2
+#define CV_SUCCESS               0
+#define CV_TSTOP_RETURN          1
+#define CV_ROOT_RETURN           2
 
-#define CV_WARNING        99
+#define CV_WARNING              99
 
-#define CV_MEM_NULL      -1
-#define CV_ILL_INPUT     -2
-#define CV_NO_MALLOC     -3
-#define CV_TOO_MUCH_WORK -4
-#define CV_TOO_MUCH_ACC  -5
-#define CV_ERR_FAILURE   -6
-#define CV_CONV_FAILURE  -7
-#define CV_LINIT_FAIL    -8
-#define CV_LSETUP_FAIL   -9
-#define CV_LSOLVE_FAIL   -10
+#define CV_TOO_MUCH_WORK        -1
+#define CV_TOO_MUCH_ACC         -2
+#define CV_ERR_FAILURE          -3
+#define CV_CONV_FAILURE         -4
 
-#define CV_MEM_FAIL      -11
+#define CV_LINIT_FAIL           -5
+#define CV_LSETUP_FAIL          -6
+#define CV_LSOLVE_FAIL          -7
+#define CV_RHSFUNC_FAIL         -8
+#define CV_FIRST_RHSFUNC_FAIL   -9
+#define CV_REP_RHSFUNC_ERR      -10
+#define CV_RTFUNC_FAIL          -11
+#define CV_REP_RTFUNC_ERR       -12
 
-#define CV_RTFUNC_NULL   -12
-
-#define CV_NO_SLDET      -13
-#define CV_BAD_K         -14
-#define CV_BAD_T         -15
-#define CV_BAD_DKY       -16
+#define CV_MEM_FAIL             -20
+#define CV_MEM_NULL             -21
+#define CV_ILL_INPUT            -22
+#define CV_NO_MALLOC            -23
+#define CV_BAD_K                -24
+#define CV_BAD_T                -25
+#define CV_BAD_DKY              -26
 
 /*
  * =================================================================
