@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.60 $
- * $Date: 2006-02-02 00:31:08 $
+ * $Revision: 1.61 $
+ * $Date: 2006-02-02 16:27:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -3388,7 +3388,7 @@ static int CVRcheck2(CVodeMem cv_mem)
 
 static int CVRcheck3(CVodeMem cv_mem)
 {
-  int i, ier;
+  int i, retval, ier;
 
   /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
   if (taskc == CV_ONE_STEP) {

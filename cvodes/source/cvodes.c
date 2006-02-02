@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.70 $
- * $Date: 2006-02-02 00:32:21 $
+ * $Revision: 1.71 $
+ * $Date: 2006-02-02 16:27:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -4625,7 +4625,7 @@ static int CVStgrNls(CVodeMem cv_mem)
 static int CVStgrNlsFunctional(CVodeMem cv_mem)
 {
   int m;
-  int is;
+  int retval, is;
   realtype Del, Delp, dcon;
   N_Vector wrk1, wrk2;
 
@@ -4713,7 +4713,7 @@ static int CVStgrNlsFunctional(CVodeMem cv_mem)
 
 static int CVStgrNlsNewton(CVodeMem cv_mem)
 {
-  int is;
+  int retval, is;
   int convfail, ier;
   N_Vector vtemp1, vtemp2, vtemp3, wrk1, wrk2;
 
@@ -4783,7 +4783,7 @@ static int CVStgrNlsNewton(CVodeMem cv_mem)
 
 static int CVStgrNewtonIteration(CVodeMem cv_mem)
 {
-  int m, ret;
+  int m, retval;
   realtype Del, Delp, dcon;
   N_Vector *bS, wrk1, wrk2;
   int is;
@@ -4812,13 +4812,13 @@ static int CVStgrNewtonIteration(CVodeMem cv_mem)
     nniS++;
     for (is=0; is<Ns; is++) {
 
-      ret = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
+      retval = lsolve(cv_mem, bS[is], ewtS[is], y, ftemp);
 
       /* Unrecoverable error in lsolve */
-      if (ret < 0) return(SOLVE_FAIL_UNREC);
+      if (retval < 0) return(SOLVE_FAIL_UNREC);
 
       /* Recoverable error in lsolve and Jacobian data not current */
-      if (ret > 0) { 
+      if (retval > 0) { 
         if ((!jcur) && (setupNonNull)) return(TRY_AGAIN);
         return(CONV_FAIL);
       }
@@ -6526,7 +6526,7 @@ static int CVSensRhs(CVodeMem cv_mem, realtype time,
                      N_Vector *yScur, N_Vector *fScur,
                      N_Vector temp1, N_Vector temp2)
 {
-  int is;
+  int retval, is;
 
   if (ifS==CV_ALLSENS) {
     retval = fS(Ns, time, ycur, fcur, yScur, fScur, 
@@ -6561,6 +6561,8 @@ static int CVSensRhs1(CVodeMem cv_mem, realtype time,
                       int is, N_Vector yScur, N_Vector fScur,
                       N_Vector temp1, N_Vector temp2)
 {
+  int retval;
+
   retval = fS1(Ns, time, ycur, fcur, is, yScur, fScur, 
                fS_data, temp1, temp2);
   nfSe++;
