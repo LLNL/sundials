@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-02 00:31:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -378,7 +378,8 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   realtype dgamma;
   long int ier;
   CVDenseMem cvdense_mem;
-  
+  int retval;
+
   cvdense_mem = (CVDenseMem) lmem;
  
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
@@ -399,7 +400,7 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlj = nst;
     *jcurPtr = TRUE;
     DenseZero(M); 
-    jac(n, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
+    retval = jac(n, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
     DenseCopy(M, savedJ);
   }
   
@@ -489,6 +490,7 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
   realtype *tmp2_data, *y_data, *ewt_data;
   N_Vector ftemp, jthCol;
   long int j;
+  int retval;
 
   CVodeMem cv_mem;
   CVDenseMem  cvdense_mem;
@@ -525,7 +527,7 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
     yjsaved = y_data[j];
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
-    f(tn, y, ftemp, f_data);
+    retval = f(tn, y, ftemp, f_data);
     y_data[j] = yjsaved;
 
     inc_inv = ONE/inc;

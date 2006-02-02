@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.29 $
+ * $Date: 2006-02-02 00:30:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -21,13 +21,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fcvbbd.h"           /* prototypes of interfaces to CVBBDPRE           */
 #include "fcvode.h"           /* actual function names, prototypes, global vars.*/
+#include "fcvbbd.h"           /* prototypes of interfaces to CVBBDPRE           */
+
 #include "cvode.h"            /* CVODE constants and prototypes                 */
 #include "cvode_bbdpre.h"     /* prototypes of CVBBDPRE functions and macros    */
+
 #include "cvode_sptfqmr.h"    /* prototypes of CVSPTFQMR interface routines     */
 #include "cvode_spbcgs.h"     /* prototypes of CVSPBCG interface routines       */
 #include "cvode_spgmr.h"      /* prototypes of CVSPGMR interface routines       */
+
 #include "sundials_nvector.h" /* definition of type N_Vector                    */
 #include "sundials_types.h"   /* definition of type realtype                    */
 
@@ -89,10 +92,10 @@ void FCV_BBDSPTFQMR(int *pretype, int *maxl, realtype *delt, int *ier)
   */
 
   *ier = CVBBDSptfqmr(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
-  if (*ier != CVSPTFQMR_SUCCESS) return;
+  if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSptfqmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPTFQMR_SUCCESS) return;
+  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPTFQMR;
 }
@@ -109,10 +112,10 @@ void FCV_BBDSPBCG(int *pretype, int *maxl, realtype *delt, int *ier)
   */
 
   *ier = CVBBDSpbcg(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
-  if (*ier != CVSPBCG_SUCCESS) return;
+  if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpbcgSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPBCG_SUCCESS) return;
+  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPBCG;
 }
@@ -130,13 +133,13 @@ void FCV_BBDSPGMR(int *pretype, int *gstype, int *maxl, realtype *delt, int *ier
   */
 
   *ier = CVBBDSpgmr(CV_cvodemem, *pretype, *maxl, CVBBD_Data);
-  if (*ier != CVSPGMR_SUCCESS) return;
+  if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpgmrSetGSType(CV_cvodemem, *gstype);
-  if (*ier != CVSPGMR_SUCCESS) return;
+  *ier = CVSpilsSetGSType(CV_cvodemem, *gstype);
+  if (*ier != CVSPILS_SUCCESS) return;
 
-  *ier = CVSpgmrSetDelt(CV_cvodemem, *delt);
-  if (*ier != CVSPGMR_SUCCESS) return;
+  *ier = CVSpilsSetDelt(CV_cvodemem, *delt);
+  if (*ier != CVSPILS_SUCCESS) return;
 
   CV_ls = CV_LS_SPGMR;
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-02 00:31:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -396,7 +396,8 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   realtype dgamma;
   long int ier;
   CVBandMem cvband_mem;
-  
+  int retval;
+
   cvband_mem = (CVBandMem) lmem;
 
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
@@ -417,7 +418,7 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlj = nst;
     *jcurPtr = TRUE;
     BandZero(M); 
-    jac(n, mu, ml, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
+    retval = jac(n, mu, ml, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
     BandCopy(M, savedJ, mu, ml);
   }
   
@@ -509,6 +510,7 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
   N_Vector ftemp, ytemp;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  int retval;
 
   CVodeMem cv_mem;
   CVBandMem cvband_mem;
@@ -551,7 +553,7 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
 
     /* Evaluate f with incremented y */
 
-    f(tn, ytemp, ftemp, f_data);
+    retval = f(tn, ytemp, ftemp, f_data);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < N; j+=width) {

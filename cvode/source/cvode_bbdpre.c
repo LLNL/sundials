@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-02 00:31:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -13,19 +13,20 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with CVODE, CVSp*,
- * and the parallel implementation of NVECTOR.
+ * matrix with banded blocks, for use with CVODE, a CVSPILS linear
+ * solver, and the parallel implementation of NVECTOR.
  * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvode_bbdpre_impl.h"
+#include "cvode_sptfqmr.h"
+#include "cvode_spbcgs.h"
+#include "cvode_spgmr.h"
+
 #include "cvode_impl.h"
-#include "cvode_sptfqmr_impl.h"
-#include "cvode_spbcgs_impl.h"
-#include "cvode_spgmr_impl.h"
+#include "cvode_bbdpre_impl.h"
 
 #include "sundials_math.h"
 
@@ -152,7 +153,7 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   int flag;
 
   flag = CVSptfqmr(cvode_mem, pretype, maxl);
-  if(flag != CVSPTFQMR_SUCCESS) return(flag);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -161,10 +162,10 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
     return(CVBBDPRE_PDATA_NULL);
   } 
 
-  flag = CVSptfqmrSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
-  if(flag != CVSPTFQMR_SUCCESS) return(flag);
+  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
-  return(CVSPTFQMR_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
 int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
@@ -173,7 +174,7 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   int flag;
 
   flag = CVSpbcg(cvode_mem, pretype, maxl);
-  if(flag != CVSPBCG_SUCCESS) return(flag);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -182,10 +183,10 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data)
     return(CVBBDPRE_PDATA_NULL);
   } 
 
-  flag = CVSpbcgSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
-  if(flag != CVSPBCG_SUCCESS) return(flag);
+  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
-  return(CVSPBCG_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
 int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
@@ -194,7 +195,7 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
   int flag;
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -203,10 +204,10 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data)
     return(CVBBDPRE_PDATA_NULL);
   } 
 
-  flag = CVSpgmrSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
+  flag = CVSpilsSetPreconditioner(cvode_mem, CVBBDPrecSetup, CVBBDPrecSolve, bbd_data);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
-  return(CVSPGMR_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
 int CVBBDPrecReInit(void *bbd_data, 
@@ -466,6 +467,7 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   realtype gnorm, minInc, inc, inc_inv;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
+  int retval;
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
@@ -474,10 +476,10 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 
   /* Call cfn and gloc to get base value of g(t,y) */
   if (cfn != NULL) {
-    cfn (Nlocal, t, y, f_data);
+    retval = cfn(Nlocal, t, y, f_data);
   }
 
-  gloc(Nlocal, t, ytemp, gy, f_data);
+  retval = gloc(Nlocal, t, ytemp, gy, f_data);
 
   /* Obtain pointers to the data for various vectors */
   y_data     =  N_VGetArrayPointer(y);
@@ -505,7 +507,7 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
     }
 
     /* Evaluate g with incremented y */
-    gloc(Nlocal, t, ytemp, gtemp, f_data);
+    retval = gloc(Nlocal, t, ytemp, gtemp, f_data);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < Nlocal; j+=width) {

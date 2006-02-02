@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.19 $
-# $Date: 2006-01-11 21:13:46 $
+# $Revision: 1.20 $
+# $Date: 2006-02-02 00:31:08 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,8 +49,8 @@ CONFIG_INC_DIR = $(top_builddir)/config
 
 CVODE_LIB = libsundials_cvode.la
 
-CVODE_LIB_FILES  = cvode.lo cvode_io.lo cvode_band.lo cvode_dense.lo cvode_diag.lo cvode_spbcgs.lo cvode_spgmr.lo cvode_sptfqmr.lo cvode_bandpre.lo cvode_bbdpre.lo
-CVODE_OBJ_FILES  = cvode.o cvode_io.o cvode_band.o cvode_dense.o cvode_diag.o cvode_spbcgs.o cvode_spgmr.o cvode_sptfqmr.o cvode_bandpre.o cvode_bbdpre.o
+CVODE_LIB_FILES  = cvode.lo cvode_io.lo cvode_band.lo cvode_dense.lo cvode_diag.lo cvode_spils.lo cvode_spbcgs.lo cvode_spgmr.lo cvode_sptfqmr.lo cvode_bandpre.lo cvode_bbdpre.lo
+CVODE_OBJ_FILES  = cvode.o cvode_io.o cvode_band.o cvode_dense.o cvode_diag.o cvode_spils.o cvode_spbcgs.o cvode_spgmr.o cvode_sptfqmr.o cvode_bandpre.o cvode_bbdpre.o
 
 SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
                    $(SHARED_BUILD_DIR)/sundials_dense.lo \
@@ -115,6 +115,8 @@ cvode_band.lo: $(srcdir)/cvode_band.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvode_band.c
 cvode_diag.lo: $(srcdir)/cvode_diag.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvode_diag.c
+cvode_spils.lo: $(srcdir)/cvode_spils.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvode_spils.c
 cvode_spbcgs.lo: $(srcdir)/cvode_spbcgs.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvode_spbcgs.c
 cvode_spgmr.lo: $(srcdir)/cvode_spgmr.c

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.19 $
+ * $Date: 2006-02-02 00:30:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -160,21 +160,10 @@
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
  * IER       = return completion flag: IER=0: success, IER<0: ans error occurred
  *
- * (3.5A) To specify whether GMRES should use the supplied FCVJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FCVSPGMRSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
- *       FLAG=1 to use the supplied routine FCVJTIMES
- * 
- * (3.5B) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FCVSPBCGSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
- *       FLAG=1 to use the supplied routine FCVJTIMES
- * 
- * (3.5C) To specify whether TFQMR should use the supplied FCVJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FCVSPTFQMRSETJAC(FLAG, IER)
+ * (3.5) To specify whether the Krylov linear solver (GMRES, Bi-CGSTAB, or TFQMR) 
+ * should use the supplied FCVJTIMES or the internal finite difference approximation, 
+ * make the call
+ *        CALL FCVSPILSSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
  *       FLAG=1 to use the supplied routine FCVJTIMES
  *

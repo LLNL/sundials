@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.59 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.60 $
+ * $Date: 2006-02-02 00:31:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -927,6 +927,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   realtype troundoff, rh, nrm;
   booleantype hOK;
   int ewtsetOK;
+  int retval;
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
@@ -990,7 +991,7 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
        set initial h (from H0 or CVHin), and scale zn[1] by h.
        Also check for zeros of root function g at and near t0.    */
     
-    f(tn, zn[0], zn[1], f_data); 
+    retval = f(tn, zn[0], zn[1], f_data); 
     nfe++;
 
     h = hin;
@@ -1704,9 +1705,10 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 static realtype CVYddNorm(CVodeMem cv_mem, realtype hg)
 {
   realtype yddnrm;
-  
+  int retval;
+
   N_VLinearSum(hg, zn[1], ONE, zn[0], y);
-  f(tn+hg, y, tempv, f_data);
+  retval = f(tn+hg, y, tempv, f_data);
   nfe++;
   N_VLinearSum(ONE, tempv, -ONE, zn[1], tempv);
   N_VScale(ONE/hg, tempv, tempv);
@@ -2279,14 +2281,14 @@ static int CVnls(CVodeMem cv_mem, int nflag)
 
 static int CVnlsFunctional(CVodeMem cv_mem)
 {
-  int m;
+  int retval, m;
   realtype del, delp, dcon;
 
   /* Initialize counter and evaluate f at predicted y */
   
   crate = ONE;
   m = 0;
-  f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, f_data);
   nfe++;
   N_VConst(ZERO, acor);
 
@@ -2320,7 +2322,7 @@ static int CVnlsFunctional(CVodeMem cv_mem)
       return(CONV_FAIL);
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
-    f(tn, y, tempv, f_data);
+    retval = f(tn, y, tempv, f_data);
     nfe++;
   }
 }
@@ -2337,7 +2339,7 @@ static int CVnlsFunctional(CVodeMem cv_mem)
 static int CVnlsNewton(CVodeMem cv_mem, int nflag)
 {
   N_Vector vtemp1, vtemp2, vtemp3;
-  int convfail, ier;
+  int convfail, retval, ier;
   booleantype callSetup;
   
   vtemp1 = acor;  /* rename acor as vtemp1 for readability  */
@@ -2363,7 +2365,7 @@ static int CVnlsNewton(CVodeMem cv_mem, int nflag)
   
   loop {
 
-    f(tn, zn[0], ftemp, f_data);
+    retval = f(tn, zn[0], ftemp, f_data);
     nfe++; 
     
     if (callSetup) {
@@ -2410,7 +2412,7 @@ static int CVnlsNewton(CVodeMem cv_mem, int nflag)
 
 static int CVNewtonIteration(CVodeMem cv_mem)
 {
-  int m, ret;
+  int m, retval;
   realtype del, delp, dcon;
   N_Vector b;
 
@@ -2428,14 +2430,14 @@ static int CVNewtonIteration(CVodeMem cv_mem)
 
     /* Call the lsolve function */
     b = tempv;
-    ret = lsolve(cv_mem, b, ewt, y, ftemp); 
+    retval = lsolve(cv_mem, b, ewt, y, ftemp); 
     nni++;
     
-    if (ret < 0) return(SOLVE_FAIL_UNREC);
+    if (retval < 0) return(SOLVE_FAIL_UNREC);
     
     /* If lsolve had a recoverable failure and Jacobian data is
        not current, signal to try the solution again            */
-    if (ret > 0) { 
+    if (retval > 0) { 
       if ((!jcur) && (setupNonNull)) return(TRY_AGAIN);
       return(CONV_FAIL);
     }
@@ -2470,7 +2472,7 @@ static int CVNewtonIteration(CVodeMem cv_mem)
     
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
-    f(tn, y, ftemp, f_data);
+    retval = f(tn, y, ftemp, f_data);
     nfe++;
   }
 }
@@ -2577,6 +2579,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
                                 realtype saved_t, int *nefPtr, realtype *dsmPtr)
 {
   realtype dsm;
+  int retval;
   
   dsm = acnrm / tq[2];
 
@@ -2626,7 +2629,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
   hscale = h;
   qwait = LONG_WAIT;
   nscon = 0;
-  f(tn, zn[0], tempv, f_data);
+  retval = f(tn, zn[0], tempv, f_data);
   nfe++;
   N_VScale(h, tempv, zn[1]);
   return(FALSE);
@@ -3269,7 +3272,7 @@ static int CVsldet(CVodeMem cv_mem)
 
 static int CVRcheck1(CVodeMem cv_mem)
 {
-  int i;
+  int i, retval;
   realtype smallh, hratio;
   booleantype zroot;
 
@@ -3278,7 +3281,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
 
   /* Evaluate g at initial t and check for zero values. */
-  gfun(tlo, zn[0], glo, g_data);
+  retval = gfun(tlo, zn[0], glo, g_data);
   nge = 1;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
@@ -3291,7 +3294,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   smallh = hratio*h;
   tlo += smallh;
   N_VLinearSum(ONE, zn[0], hratio, zn[1], y);
-  gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, g_data);
   nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
@@ -3327,14 +3330,14 @@ static int CVRcheck1(CVodeMem cv_mem)
 
 static int CVRcheck2(CVodeMem cv_mem)
 {
-  int i;
+  int i, retval;
   realtype smallh, hratio;
   booleantype zroot;
 
   if (irfnd == 0) return(CV_SUCCESS);
 
   (void) CVodeGetDky(cv_mem, tlo, 0, y);
-  gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, g_data);
   nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
@@ -3356,7 +3359,7 @@ static int CVRcheck2(CVodeMem cv_mem)
   } else {
     (void) CVodeGetDky(cv_mem, tlo, 0, y);
   }
-  gfun(tlo, y, glo, g_data);
+  retval = gfun(tlo, y, glo, g_data);
   nge++;
   zroot = FALSE;
   for (i = 0; i < nrtfn; i++) {
@@ -3403,7 +3406,7 @@ static int CVRcheck3(CVodeMem cv_mem)
   }
 
   /* Set ghi = g(thi) and call CVRootfind to search (tlo,thi) for roots. */
-  gfun(thi, y, ghi, g_data);
+  retval = gfun(thi, y, ghi, g_data);
   nge++;
   ttol = (ABS(tn) + ABS(h))*uround*HUN;
   ier = CVRootfind(cv_mem);
@@ -3481,7 +3484,7 @@ static int CVRcheck3(CVodeMem cv_mem)
 static int CVRootfind(CVodeMem cv_mem)
 {
   realtype alpha, tmid, gfrac, maxfrac, fracint, fracsub;
-  int i, imax, side, sideprev;
+  int i, retval, imax, side, sideprev;
   booleantype zroot, sgnchg;
 
   imax = 0;
@@ -3558,7 +3561,7 @@ static int CVRootfind(CVodeMem cv_mem)
     }
 
     (void) CVodeGetDky(cv_mem, tmid, 0, y);
-    gfun(tmid, y, grout, g_data);
+    retval = gfun(tmid, y, grout, g_data);
     nge++;
 
     /* Check to see in which subinterval g changes sign, and reset imax.
@@ -3725,13 +3728,13 @@ void CVProcessError(CVodeMem cv_mem,
   char msg[256];
 
   /* Initialize the argument pointer variable 
-     (msgfmt is the last required argument to CVProcessError */
+     (msgfmt is the last required argument to CVProcessError) */
 
   va_start(ap, msgfmt);
 
   if (cv_mem == NULL) {    /* We write to stderr */
 
-#ifndef NO_STDERR_OUTPUT
+#ifndef NO_FPRINTF_OUTPUT
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
     fprintf(stderr, msgfmt);
     fprintf(stderr, "\n\n");
@@ -3777,10 +3780,12 @@ void CVErrHandler(int error_code, const char *module,
   else
     sprintf(err_type,"ERROR");
 
+#ifndef NO_FPRINTF_OUTPUT
   if (errfp!=NULL) {
     fprintf(errfp,"\n[%s %s]  %s\n",module,err_type,function);
     fprintf(errfp,"  %s\n\n",msg);
   }
+#endif
 
   return;
 }

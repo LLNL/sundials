@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.2 $
-C     $Date: 2006-01-24 00:49:48 $
+C     $Revision: 1.3 $
+C     $Date: 2006-02-02 00:31:03 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
@@ -96,7 +96,7 @@ C
         STOP
       ENDIF
 C
-      CALL FCVSPGMRSETPREC(1, IER)
+      CALL FCVSPILSSETPREC(1, IER)
 C
 C Loop over output points, call FCVODE, print sample solution values.
       TOUT = TWOHR

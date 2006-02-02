@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-02 00:31:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -279,7 +279,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   N_Vector ftemp, y;
   booleantype invOK;
   CVDiagMem cvdiag_mem;
-  
+  int retval;
+
   cvdiag_mem = (CVDiagMem) lmem;
 
   /* Rename work vectors for use as temporary values of y and f */
@@ -292,7 +293,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   N_VLinearSum(r, ftemp, ONE, ypred, y);
 
   /* Evaluate f at perturbed y */
-  f(tn, y, M, f_data);
+  retval = f(tn, y, M, f_data);
   nfeDI++;
 
   /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */

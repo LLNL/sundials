@@ -118,6 +118,7 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
    - changed function types so that all user-supplied functions return
      an integer flag (not all of them currently used).
    - changed some names for CVBBDPRE and CVBANDPRE function outputs
+   - added option for user-supplied error handler function.
    - renamed all exported header files (except for cvode.h, all header files
      have the prefix 'cvode_')
    - changed naming scheme for CVODE examples

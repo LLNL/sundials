@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-02 00:31:08 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -13,18 +13,19 @@
  * -----------------------------------------------------------------
  * This file contains implementations of the banded difference
  * quotient Jacobian-based preconditioner and solver routines for
- * use with CVSp*.
+ * use with the CVSPILS linear solvers..
  * -----------------------------------------------------------------
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvode_bandpre_impl.h"
 #include "cvode_impl.h"
-#include "cvode_sptfqmr_impl.h"
-#include "cvode_spbcgs_impl.h"
-#include "cvode_spgmr_impl.h"
+#include "cvode_bandpre_impl.h"
+
+#include "cvode_sptfqmr.h"
+#include "cvode_spbcgs.h"
+#include "cvode_spgmr.h"
 
 #include "sundials_math.h"
 
@@ -139,7 +140,7 @@ int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   int flag;
 
   flag = CVSptfqmr(cvode_mem, pretype, maxl);
-  if(flag != CVSPTFQMR_SUCCESS) return(flag);
+  if(flag != CVSPILS_SUCCESS) return(flag);
   
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -148,10 +149,10 @@ int CVBPSptfqmr(void *cvode_mem, int pretype, int maxl, void *p_data)
     return(CVBANDPRE_PDATA_NULL);
   } 
 
-  flag = CVSptfqmrSetPreconditioner(cvode_mem, CVBandPrecSetup, CVBandPrecSolve, p_data);
-  if(flag != CVSPTFQMR_SUCCESS) return(flag);
+  flag = CVSpilsSetPreconditioner(cvode_mem, CVBandPrecSetup, CVBandPrecSolve, p_data);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
-  return(CVSPTFQMR_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
 int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data)
@@ -160,7 +161,7 @@ int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data)
   int flag;
 
   flag = CVSpbcg(cvode_mem, pretype, maxl);
-  if(flag != CVSPBCG_SUCCESS) return(flag);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -169,10 +170,10 @@ int CVBPSpbcg(void *cvode_mem, int pretype, int maxl, void *p_data)
     return(CVBANDPRE_PDATA_NULL);
   } 
 
-  flag = CVSpbcgSetPreconditioner(cvode_mem, CVBandPrecSetup, CVBandPrecSolve, p_data);
-  if(flag != CVSPBCG_SUCCESS) return(flag);
+  flag = CVSpilsSetPreconditioner(cvode_mem, CVBandPrecSetup, CVBandPrecSolve, p_data);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
-  return(CVSPBCG_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
 int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
@@ -181,7 +182,7 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
   int flag;
 
   flag = CVSpgmr(cvode_mem, pretype, maxl);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
   cv_mem = (CVodeMem) cvode_mem;
 
@@ -190,10 +191,10 @@ int CVBPSpgmr(void *cvode_mem, int pretype, int maxl, void *p_data)
     return(CVBANDPRE_PDATA_NULL);
   }
 
-  flag = CVSpgmrSetPreconditioner(cvode_mem, CVBandPrecSetup, CVBandPrecSolve, p_data);
-  if(flag != CVSPGMR_SUCCESS) return(flag);
+  flag = CVSpilsSetPreconditioner(cvode_mem, CVBandPrecSetup, CVBandPrecSolve, p_data);
+  if(flag != CVSPILS_SUCCESS) return(flag);
 
-  return(CVSPGMR_SUCCESS);
+  return(CVSPILS_SUCCESS);
 }
 
 void CVBandPrecFree(void **bp_data)
@@ -415,6 +416,7 @@ static int CVBandPDQJac(CVBandPrecData pdata,
   realtype fnorm, minInc, inc, inc_inv, srur;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  int retval;
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
@@ -448,7 +450,7 @@ static int CVBandPDQJac(CVBandPrecData pdata,
 
     /* Evaluate f with incremented y. */
 
-    f(t, ytemp, ftemp, f_data);
+    retval = f(t, ytemp, ftemp, f_data);
     nfeBP++;
 
     /* Restore ytemp, then form and load difference quotients. */

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.26 $
- * $Date: 2006-01-24 20:20:33 $
+ * $Revision: 1.27 $
+ * $Date: 2006-02-02 00:30:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -21,9 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvode_sptfqmr.h"    /* CVSptfqmr prototype                            */
-#include "cvode_spbcgs.h"     /* CVSpbcg prototype                              */
-#include "cvode_spgmr.h"      /* CVSpgmr prototype                              */
+#include "cvode_spils.h"
 #include "fcvode.h"           /* actual fn. names, prototypes and global vars.  */
 #include "cvode_impl.h"       /* definition of CVodeMem type                    */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
@@ -50,43 +48,15 @@ extern "C" {
 
 /***************************************************************************/
 
-void FCV_SPGMRSETJAC(int *flag, int *ier)
+void FCV_SPILSSETJAC(int *flag, int *ier)
 {
   CVodeMem cv_mem;
 
   if (*flag == 0) {
-    *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
+    *ier = CVSpilsSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSpgmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, cv_mem->cv_f_data);
-  }
-}
-
-/***************************************************************************/
-
-void FCV_SPBCGSETJAC(int *flag, int *ier)
-{
-  CVodeMem cv_mem;
-
-  if (*flag == 0) {
-    *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
-  } else {
-    cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSpbcgSetJacTimesVecFn(CV_cvodemem, FCVJtimes, cv_mem->cv_f_data);
-  }
-}
-
-/***************************************************************************/
-
-void FCV_SPTFQMRSETJAC(int *flag, int *ier)
-{
-  CVodeMem cv_mem;
-
-  if (*flag == 0) {
-    *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, NULL, NULL);
-  } else {
-    cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSptfqmrSetJacTimesVecFn(CV_cvodemem, FCVJtimes, cv_mem->cv_f_data);
+    *ier = CVSpilsSetJacTimesVecFn(CV_cvodemem, FCVJtimes, cv_mem->cv_f_data);
   }
 }
 

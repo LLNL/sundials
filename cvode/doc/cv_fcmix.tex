@@ -64,26 +64,18 @@ are as follows:
     interfaces to \id{CVSpgmr} and {\spgmr} optional input functions.
   \item \id{FCVSPGMRREINIT} 
     interfaces to {\spgmr} optional input functions.
-  \item \id{FCVSPGMRSETJAC}
-    interfaces to \id{CVSpgmrSetJacTimesVecFn}.
-  \item \id{FCVSPGMRSETPREC}
-    interfaces to \id{CVSpgmrSetPreconditioner}.
   \item \id{FCVSPBCG}
     interfaces to \id{CVSpbcg} and {\spbcg} optional input functions.
   \item \id{FCVSPBCGREINIT} 
     interfaces to {\spbcg} optional input functions.
-  \item \id{FCVSPBCGSETJAC}
-    interfaces to \id{CVSpbcgSetJacTimesVecFn}.
-  \item \id{FCVSPBCGSETPREC}
-    interfaces to \id{CVSpbcgSetPreconditioner}.
   \item \id{FCVSPTFQMR}
     interfaces to \id{CVSptfqmr} and {\sptfqmr} optional input functions.
   \item \id{FCVSPTFQMRREINIT} 
     interfaces to {\sptfqmr} optional input functions.
-  \item \id{FCVSPTFQMRSETJAC}
-    interfaces to \id{CVSptfqmrSetJacTimesVecFn}.
-  \item \id{FCVSPTFQMRSETPREC}
-    interfaces to \id{CVSptfqmrSetPreconditioner}.
+  \item \id{FCVSPILSSETJAC}
+    interfaces to \id{CVSpilsSetJacTimesVecFn}.
+  \item \id{FCVSPILSSETPREC}
+    interfaces to \id{CVSpilsSetPreconditioner}.
  \end{itemize}
 
 \end{itemize}
@@ -459,29 +451,6 @@ apply to {\nvecp}.
   \id{IER} is an error return flag which is $0$ to indicate success, $-1$
   if a memory allocation failure occurred, or $-2$ to indicate an illegal input.
   
-  An optional user-supplied routine, \id{FCVJTIMES} (see below), can be provided for
-  Jacobian-vector products.  If it is, then, following the call to
-  \id{FCVSPGMR}, the user must make the call:
-  \index{FCVSPGMRSETJAC@\texttt{FCVSPGMRSETJAC}}
-\begin{verbatim}
-      CALL FCVSPGMRSETJAC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
-  Jacobian-times-vector approximation.
-  The argument \id{IER} is an error return flag which is $0$ 
-  for success or non-zero if an error occurred.
-  
-  If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then, following the
-  call to \id{FCVSPGMR}, the user must call
-  \index{FCVSPGMRSETPREC@\texttt{FCVSPGMRSETPREC}}
-\begin{verbatim}
-      CALL FCVSPGMRSETPREC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if
-  successful, or negative if a memory error occurred.
-  In addition, the user program must include
-  preconditioner routines \id{FCVPSOL} and \id{FCVPSET} (see below).
-
   Optional outputs specific to the {\spgmr} case are listed in
   Table~\ref{t:fcvode_out}.
 
@@ -500,26 +469,6 @@ apply to {\nvecp}.
       CALL FCVSPBCG(IPRETYPE, MAXL, DELT, IER)
 \end{verbatim}
   Its arguments are the same as those with the same names for \id{FCVSPGMR}.
-
-  If the optional function \id{FCVJTIMES} is provided, then, following the call to
-  \id{FCVSPBCG}, the user must make the call:
-  \index{FCVSPBCGSETJAC@\texttt{FCVSPBCGSETJAC}}
-\begin{verbatim}
-      CALL FCVSPBCGSETJAC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
-  Jacobian-times-vector approximation.
-  The argument \id{IER} is an error return flag which is $0$ 
-  for success or non-zero if an error occurred.
-  
-  If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then, following the
-  call to \id{FCVSPBCG}, the user must call
-  \index{FCVSPBCGSETPREC@\texttt{FCVSPBCGSETPREC}}
-\begin{verbatim}
-      CALL FCVSPBCGSETPREC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$, and the user program must include preconditioner routines
-  \id{FCVPSOL} and \id{FCVPSET} (see below).
 
   Optional outputs specific to the {\spbcg} case are listed in
   Table~\ref{t:fcvode_out}.
@@ -540,31 +489,37 @@ apply to {\nvecp}.
 \end{verbatim}
   Its arguments are the same as those with the same names for \id{FCVSPGMR}.
 
-  If the optional function \id{FCVJTIMES} is provided, then, following the call to
-  \id{FCVSPTFQMR}, the user must make the call:
-  \index{FCVSPTFQMRSETJAC@\texttt{FCVSPTFQMRSETJAC}}
+  Optional outputs specific to the {\sptfqmr} case are listed in
+  Table~\ref{t:fcvode_out}.
+
+  For descriptions of the relevant optional user-supplied routines, see below.
+  
+  %%-------------------------------------------------
+
+  {\s}{\p} {\bf Functions used by SPGMR/SPBCG/SPTFQMR}
+
+  An optional user-supplied routine, \id{FCVJTIMES} (see below), can be provided for
+  Jacobian-vector products.  If it is, then, following the call to
+  \id{FCVSPGMR}, \id{FCVSPBCG}, or \id{FCVSPTFQMR}, the user must make the call:
+  \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
 \begin{verbatim}
-      CALL FCVSPTFQMRSETJAC(FLAG, IER)
+      CALL FCVSPILSSETJAC(FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied
   Jacobian-times-vector approximation.
   The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
   
-  If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then, following the
-  call to \id{FCVSPTFQMR}, the user must call
-  \index{FCVSPTFQMRSETPREC@\texttt{FCVSPTFQMRSETPREC}}
+  If preconditioning is to be done (\id{IPRETYPE} $\neq 0$), then the user must call
+  \index{FCVSPILSSETPREC@\texttt{FCVSPILSSETPREC}}
 \begin{verbatim}
-      CALL FCVSPTFQMRSETPREC(FLAG, IER)
+      CALL FCVSPILSSETPREC(FLAG, IER)
 \end{verbatim}
-  with \id{FLAG} $\neq 0$, and the user program must include preconditioner routines
-  \id{FCVPSOL} and \id{FCVPSET} (see below).
+  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if
+  successful, or negative if a memory error occurred.
+  In addition, the user program must include
+  preconditioner routines \id{FCVPSOL} and \id{FCVPSET} (see below).
 
-  Optional outputs specific to the {\sptfqmr} case are listed in
-  Table~\ref{t:fcvode_out}.
-
-  For descriptions of the relevant optional user-supplied routines, see below.
-  
   %%-------------------------------------------------
 
  {\s}{\p} {\bf User-supplied routines for SPGMR/SPBCG/SPTFQMR}
@@ -575,8 +530,8 @@ apply to {\nvecp}.
   for these routines are given below.
 
   \index{Jacobian approximation function!Jacobian times vector!use in {\fcvode}}
-  As an option when using the {\spgmr} linear solver, the user may supply a 
-  routine that computes the product of the system Jacobian 
+  As an option when using the {\spgmr}, {\spbcg}, or {\sptfqmr}  linear solvers, 
+  the user may supply a routine that computes the product of the system Jacobian 
   $J = \partial f / \partial y$ 
   and a given vector $v$.  If supplied, it must have the following form:
   \index{FCVJTIMES@\texttt{FCVJTIMES}}
@@ -649,8 +604,7 @@ apply to {\nvecp}.
   The arguments \id{WORK1}, \id{WORK2}, \id{WORK3} are work arrays of length 
   \id{NEQ} for use by this routine.
 
-  {\warn}If the user calls any of \id{FCVSPGMRSETPREC}, \id{FCVSPBCGSETPREC}, or 
-  \id{FCVSPTFQMRSETPREC}, the routine \id{FCVPSET} must
+  {\warn}If the user calls \id{FCVSPILSSETPREC} the routine \id{FCVPSET} must
   be provided, even if it is empty.
 
   {\bf Notes} 
@@ -906,15 +860,15 @@ and \S\ref{ss:optional_output}.
 \hline
 \multicolumn{3}{|c|}{{\cvspgmr}, {\cvspbcg}, {\cvsptfqmr} linear solvers}\\
 \hline
-13 & \id{LENRWLS}  & \id{CVSp*GetWorkSpace} \\ 
-14 & \id{LENIWLS}  & \id{CVSp*GetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVSp*GetLastFlag} \\ 
-16 & \id{NFELS}    & \id{CVSp*GetNumRhsEvals} \\ 
-17 & \id{NJTV}     & \id{CVSp*GetNumJacEvals} \\ 
-18 & \id{NPE}      & \id{CVSp*GetNumPrecEvals} \\ 
-19 & \id{NPS}      & \id{CVSp*GetNumPrecSolves} \\ 
-20 & \id{NLI}      & \id{CVSp*GetNumLinIters} \\ 
-21 & \id{NCFL}     & \id{CVSp*GetNumConvFails} \\
+13 & \id{LENRWLS}  & \id{CVSpilsGetWorkSpace} \\ 
+14 & \id{LENIWLS}  & \id{CVSpilsGetWorkSpace} \\ 
+15 & \id{LS\_FLAG} & \id{CVSpilsGetLastFlag} \\ 
+16 & \id{NFELS}    & \id{CVSpilsGetNumRhsEvals} \\ 
+17 & \id{NJTV}     & \id{CVSpilsGetNumJacEvals} \\ 
+18 & \id{NPE}      & \id{CVSpilsGetNumPrecEvals} \\ 
+19 & \id{NPS}      & \id{CVSpilsGetNumPrecSolves} \\ 
+20 & \id{NLI}      & \id{CVSpilsGetNumLinIters} \\ 
+21 & \id{NCFL}     & \id{CVSpilsGetNumConvFails} \\
 \hline
 \multicolumn{3}{c}{}\\
 \multicolumn{3}{c}{Real input-output array \id{ROUT}}\\
@@ -1096,15 +1050,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   Its arguments are the same as those of \id{FCVSPGMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
   
-  Optionally, to specify that {\spgmr} should use the supplied \id{FCVJTIMES}, 
-  make the call
-  \index{FCVSPGMRSETJAC@\texttt{FCVSPGMRSETJAC}}
-\begin{verbatim}
-       CALL FCVSPGMRSETJAC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ 
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
-  
 
   To specify the {\spbcg} linear system solver and use the {\cvbandpre}
   preconditioner, make the following call:
@@ -1115,15 +1060,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   Its arguments are the same as those of \id{FCVSPBCG}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
   
-  Optionally, to specify that {\spbcg} should use the supplied \id{FCVJTIMES}, 
-  make the call
-  \index{FCVSPBCGSETJAC@\texttt{FCVSPBCGSETJAC}}
-\begin{verbatim}
-       CALL FCVSPBCGSETJAC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ 
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
-
 
   To specify the {\spbcg} linear system solver and use the {\cvbandpre}
   preconditioner, make the following call:
@@ -1134,15 +1070,15 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   Its arguments are the same as those of \id{FCVSPTFQMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
   
-  Optionally, to specify that {\sptfqmr} should use the supplied \id{FCVJTIMES}, 
-  make the call
-  \index{FCVSPTFQMRSETJAC@\texttt{FCVSPTFQMRSETJAC}}
+  Optionally, to specify that {\spgmr}, {\spbcg}, or {\sptfqmr} should use 
+  the supplied \id{FCVJTIMES}, make the call
+  \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
 \begin{verbatim}
-       CALL FCVSPTFQMRSETJAC(FLAG, IER)
+       CALL FCVSPILSSETJAC(FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
-
+  
 
 \item \textcolor{gray}{\bf Problem solution}
   
@@ -1264,14 +1200,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   Its arguments are the same as those of \id{FCVSPGMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
   
-  Optionally, to specify that {\spgmr} should use the supplied \id{FCVJTIMES}, 
-  make the call
-  \index{FCVSPGMRSETJAC@\texttt{FCVSPGMRSETJAC}}
-\begin{verbatim}
-       CALL FCVSPGMRSETJAC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ 
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
   
 
   To specify the {\spbcg} linear system solver and use the {\cvbbdpre}
@@ -1283,16 +1211,6 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   Its arguments are the same as those of \id{FCVSPBCG}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
   
-  Optionally, to specify that {\spbcg} should use the supplied \id{FCVJTIMES}, 
-  make the call
-  \index{FCVSPBCGSETJAC@\texttt{FCVSPBCGSETJAC}}
-\begin{verbatim}
-       CALL FCVSPBCGSETJAC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ 
-  (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
-
-
   To specify the {\sptfqmr} linear system solver and use the {\cvbbdpre}
   preconditioner, make the following call:
   \index{FCVBBDSPTFQMR@\texttt{FCVBBDSPTFQMR}}
@@ -1302,14 +1220,15 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   Its arguments are the same as those of \id{FCVSPTFQMR}
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage}).
   
-  Optionally, to specify that {\sptfqmr} should use the supplied \id{FCVJTIMES}, 
-  make the call
-  \index{FCVSPTFQMRSETJAC@\texttt{FCVSPTFQMRSETJAC}}
+  Optionally, to specify that {\spgmr}, {\spbcg}, or {\sptfqmr} should use 
+  the supplied \id{FCVJTIMES}, make the call
+  \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
 \begin{verbatim}
-       CALL FCVSPTFQMRSETJAC(FLAG, IER)
+       CALL FCVSPILSSETJAC(FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
+
 
 \item \textcolor{gray}{\bf Problem solution}
   

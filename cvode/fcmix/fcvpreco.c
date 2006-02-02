@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.23 $
- * $Date: 2006-01-11 21:13:45 $
+ * $Revision: 1.24 $
+ * $Date: 2006-02-02 00:30:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -20,9 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvode_sptfqmr.h"    /* CVSptfqmr prototype                            */
-#include "cvode_spbcgs.h"     /* CVSpbcg prototype                              */
-#include "cvode_spgmr.h"      /* CVSpgmr prototype                              */
+#include "cvode_spils.h"
 #include "fcvode.h"           /* actual fn. names, prototypes and global vars.  */
 #include "cvode_impl.h"       /* definition of CVodeMem type                    */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
@@ -57,43 +55,15 @@ extern "C" {
 
 /***************************************************************************/
 
-void FCV_SPGMRSETPREC(int *flag, int *ier)
+void FCV_SPILSSETPREC(int *flag, int *ier)
 {
   CVodeMem cv_mem;
 
   if (*flag == 0) {
-    *ier = CVSpgmrSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
+    *ier = CVSpilsSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
   } else {
     cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSpgmrSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, cv_mem->cv_f_data);
-  }
-}
-
-/***************************************************************************/
-
-void FCV_SPBCGSETPREC(int *flag, int *ier)
-{
-  CVodeMem cv_mem;
-
-  if (*flag == 0) {
-    *ier = CVSpbcgSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
-  } else {
-    cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSpbcgSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, cv_mem->cv_f_data);
-  }
-}
-
-/***************************************************************************/
-
-void FCV_SPTFQMRSETPREC(int *flag, int *ier)
-{
-  CVodeMem cv_mem;
-
-  if (*flag == 0) {
-    *ier = CVSptfqmrSetPreconditioner(CV_cvodemem, NULL, NULL, NULL);
-  } else {
-    cv_mem = (CVodeMem) CV_cvodemem;
-    *ier = CVSptfqmrSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, cv_mem->cv_f_data);
+    *ier = CVSpilsSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol, cv_mem->cv_f_data);
   }
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.28 $
+ * $Date: 2006-02-02 00:30:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -226,24 +226,13 @@
  * DELT      = linear convergence tolerance factor; 0.0 indicates default.
  * IER       = return completion flag: IER=0: success, IER<0: an error occurred
  *
- * (4.5A) To specify whether GMRES should use the supplied FCVJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FCVSPGMRSETJAC(FLAG, IER)
+ * (4.5) To specify whether the Krylov linear solver (GMRES, Bi-CGSTAB, or TFQMR)
+ * should use the supplied FCVJTIMES or the internal finite difference approximation, 
+ * make the call
+ *        CALL FCVSPILSSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approximation or
  *       FLAG=1 to use the supplied routine FCVJTIMES
  * 
- * (4.5B) To specify whether Bi-CGSTAB should use the supplied FCVJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FCVSPBCGSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approximation or
- *       FLAG=1 to use the supplied routine FCVJTIMES
- *
- * (4.5C) To specify whether TFQMR should use the supplied FCVJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FCVSPTFQMRSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approximation or
- *       FLAG=1 to use the supplied routine FCVJTIMES
- *
  * (5) Re-initialization: FCVREINIT, FCVBBDREINIT
  * If a sequence of problems of the same size is being solved using the SPGMR, SPBCG,
  * SPTFQMR linear solver in combination with the CVBBDPRE preconditioner, then the
