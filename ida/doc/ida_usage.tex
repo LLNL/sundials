@@ -4363,14 +4363,14 @@ required additional user-supplied function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_RTFUNC\_NULL]
+  \begin{args}[IDA\_ILL\_INPUT]
   \item[IDA\_SUCCESS]
     The call to \id{IDARootInit} was successful.
   \item[IDA\_MEM\_NULL]
     The \id{ida\_mem} argument was \id{NULL}.
   \item[IDA\_MEM\_FAIL]
     A memory allocation failed.
-  \item[IDA\_RTFUNC\_NULL]
+  \item[IDA\_ILL\_INPUT]
     The function \id{g} is \id{NULL}, but \id{nrtfn}$>0$.
   \end{args}
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2006-02-02 00:34:34 $
+ * $Revision: 1.43 $
+ * $Date: 2006-02-02 23:19:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -513,7 +513,7 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol);
  *   IDA_MEM_NULL     indicating ida_mem was NULL, or
  *   IDA_MEM_FAIL     indicating a memory allocation failed.
  *                    (including an attempt to increase maxord).
- *   IDA_RTFUNC_NULL  indicating nrtfn > 0 but g = NULL.
+ *   IDA_ILL_INPUT    indicating nrtfn > 0 but g = NULL.
  * In case of an error return, an error message is also printed.
  * -----------------------------------------------------------------
  */
@@ -932,9 +932,6 @@ void IDAFree(void **ida_mem);
 #define IDA_FIRST_RES_FAIL  -17
 #define IDA_LINESEARCH_FAIL -18
 #define IDA_NO_RECOVERY     -19
-
-#define IDA_RTFUNC_NULL     -21
-
 
 /*
  * =================================================================

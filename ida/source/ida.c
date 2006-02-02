@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.54 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.55 $
+ * $Date: 2006-02-02 23:19:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -613,8 +613,8 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
         lrw -= 3*nrt;
         liw -= nrt;
 
-        IDAProcessError(IDA_mem, IDA_RTFUNC_NULL, "IDA", "IDARootInit", MSG_ROOT_FUNC_NULL);
-	return(IDA_RTFUNC_NULL);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDARootInit", MSG_ROOT_FUNC_NULL);
+	return(IDA_ILL_INPUT);
       }
       else {
 	gfun = g;
@@ -627,8 +627,8 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *gdata)
   /* Set variable values in IDA memory block */
   IDA_mem->ida_nrtfn = nrt;
   if (g == NULL) {
-    IDAProcessError(IDA_mem, IDA_RTFUNC_NULL, "IDA", "IDARootInit", MSG_ROOT_FUNC_NULL);
-    return(IDA_RTFUNC_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDARootInit", MSG_ROOT_FUNC_NULL);
+    return(IDA_ILL_INPUT);
   }
   else gfun = g;
 
