@@ -121,6 +121,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
    <LI> changed function types so that all user-supplied functions return
      an integer flag (not all of them currently used).
+   <LI> added option for user-supplied error handler function.
    <LI> changed some names for CVBANDPRE and CVBBDPRE function outputs
    <LI> renamed all exported header files (except for <tt>cvode.h</tt>, all header files
      have the prefix <tt>cvode_</tt>)
@@ -343,6 +344,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
    <LI> changed function types so that all user-supplied functions return
      an integer flag (not all of them currently used).
    <LI> changed some names for CVBANDPRE and CVBBDPRE function outputs
+   <LI> added option for user-supplied error handler function.
    <LI> added a argument to CVadjMalloc to specify the type of interpolation 
      (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
      for variable-order polynomial interpolation)
@@ -594,8 +596,9 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        IDASpgmrPrecSetupFn   -> IDASpilsPrecSetupFn<BR>
        IDASpgmrPrecSolveFn   -> IDASpilsPrecSolveFn
    <LI> changed some names for IDABBDPRE function outputs
+   <LI> added option for user-supplied error handler function.
    <LI> added IDAGetEstLocalErrors() to return estimated local errors.
-   <LI>  renamed all exported header files (except for ida.h, all header files
+   <LI> renamed all exported header files (except for ida.h, all header files
      have the prefix <tt>ida_</tt>)
    <LI> changed naming scheme for IDA examples
   </UL>
@@ -800,7 +803,11 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        KINSpgmrJactimesVecFn -> KINSpilsJacTimesVecFn<BR>
        KINSpgmrPrecSetupFn   -> KINSpilsPrecSetupFn<BR>
        KINSpgmrPrecSolveFn   -> KINSpilsPrecSolveFn 
+   <LI> changed function types so that all user-supplied functions return
+     an integer flag (not all of them currently used).
    <LI> changed some names for KINBBDPRE function outputs
+   <LI> added option for user-supplied error handler function.
+   <LI> added option for user-supplied info handler function.
    <LI> renamed all exported header files (except for kinsol.h, all header files
      have the prefix <tt>kinsol_</tt>)
    <LI> changed naming scheme for KINSOL examples
