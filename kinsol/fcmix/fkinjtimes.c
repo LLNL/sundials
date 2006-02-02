@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.15 $
+ * $Date: 2006-02-02 00:36:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -19,13 +19,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fkinsol.h"          /* prototypes of interfaces and global variables */
-#include "kinsol.h"           /* KINSOL constants and prototypes               */
-#include "kinsol_sptfqmr.h"   /* prototypes of KINSPTFQMR interface routines   */
-#include "kinsol_spbcgs.h"    /* prototypes of KINSPBCG interface routines     */
-#include "kinsol_spgmr.h"     /* prototypes of KINSPGMR interface routines     */
-#include "sundials_nvector.h" /* definition of type N_Vector                   */
-#include "sundials_types.h"   /* definition of type realtype                   */
+#include "kinsol_spils.h"
+#include "fkinsol.h"
+#include "kinsol_impl.h"
+
+#include "sundials_nvector.h"
+#include "sundials_types.h"
 
 /*
  * ----------------------------------------------------------------
@@ -44,42 +43,14 @@ extern void FK_JTIMES(realtype*, realtype*, int*, realtype*, int*);
 
 /*
  * ----------------------------------------------------------------
- * Function : FKIN_SPTFQMRSETJAC
+ * Function : FKIN_SPILSSETJAC
  * ----------------------------------------------------------------
  */
 
-void FKIN_SPTFQMRSETJAC(int *flag, int *ier)
+void FKIN_SPILSSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSptfqmrSetJacTimesVecFn(KIN_kinmem, NULL, NULL);
-  else              KINSptfqmrSetJacTimesVecFn(KIN_kinmem, FKINJtimes, NULL);
-
-  return;
-}
-
-/*
- * ----------------------------------------------------------------
- * Function : FKIN_SPBCGSETJAC
- * ----------------------------------------------------------------
- */
-
-void FKIN_SPBCGSETJAC(int *flag, int *ier)
-{
-  if ((*flag) == 0) KINSpbcgSetJacTimesVecFn(KIN_kinmem, NULL, NULL);
-  else              KINSpbcgSetJacTimesVecFn(KIN_kinmem, FKINJtimes, NULL);
-
-  return;
-}
-
-/*
- * ----------------------------------------------------------------
- * Function : FKIN_SPGMRSETJAC
- * ----------------------------------------------------------------
- */
-
-void FKIN_SPGMRSETJAC(int *flag, int *ier)
-{
-  if ((*flag) == 0) KINSpgmrSetJacTimesVecFn(KIN_kinmem, NULL, NULL);
-  else              KINSpgmrSetJacTimesVecFn(KIN_kinmem, FKINJtimes, NULL);
+  if ((*flag) == 0) KINSpilsSetJacTimesVecFn(KIN_kinmem, NULL, NULL);
+  else              KINSpilsSetJacTimesVecFn(KIN_kinmem, FKINJtimes, NULL);
 
   return;
 }

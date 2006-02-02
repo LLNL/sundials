@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.14 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.15 $
+ * $Date: 2006-02-02 00:36:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -21,6 +21,8 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
+#include <stdarg.h>
 
 #include "kinsol.h"
 
@@ -207,11 +209,51 @@ typedef struct KINMemRec {
 				 called yet                                    */
 
   /* message files */
-  
-  FILE *kin_errfp;  /* where KINSol error/warning messages are sent            */
-  FILE *kin_infofp; /* where KINSol info messages are sent                     */
+  /*-------------------------------------------
+    Error handler function and error ouput file 
+    -------------------------------------------*/
+
+  KINErrHandlerFn kin_ehfun;   /* Error messages are handled by ehfun          */
+  void *kin_eh_data;           /* user pointer passed to ehfun                 */
+  FILE *kin_errfp;             /* KINSOL error messages are sent to errfp      */
+
+  KINInfoHandlerFn kin_ihfun;  /* Info messages are handled by ihfun           */
+  void *kin_ih_data;           /* user pointer passed to ihfun                 */
+  FILE *kin_infofp;            /* where KINSol info messages are sent          */
 
 } *KINMem;
+
+
+
+/*
+ * =================================================================
+ *   K I N S O L    I N T E R N A L   F U N C T I O N S
+ * =================================================================
+ */
+
+
+/* High level error handler */
+
+void KINProcessError(KINMem kin_mem, 
+                    int error_code, const char *module, const char *fname, 
+                    const char *msgfmt, ...);
+
+/* Prototype of internal errHandler function */
+
+void KINErrHandler(int error_code, const char *module, const char *function, 
+                   char *msg, void *eh_data);
+
+
+/* High level info handler */
+
+void KINPrintInfo(KINMem kin_mem, 
+                  int info_code, const char *module, const char *fname, 
+                  const char *msgfmt, ...);
+
+/* Prototype of internal infoHandler function */
+
+void KINInfoHandler(const char *module, const char *function, 
+                    char *msg, void *ih_data);
 
 /*
  * -----------------------------------------------------------------
@@ -219,58 +261,89 @@ typedef struct KINMemRec {
  * -----------------------------------------------------------------
  */
 
-/* KINCreate error messages */
+#define MSG_MEM_FAIL           "A memory request failed."
+#define MSG_NO_MEM             "kinsol_mem = NULL illegal."
+#define MSG_BAD_NVECTOR        "A required vector operation is not implemented."
+#define MSG_FUNC_NULL          "func = NULL illegal."
+#define MSG_NO_MALLOC          "Attempt to call before KINMalloc illegal."
 
-#define MSG_KINMEM_FAIL "KINCreate-- allocation of kin_mem failed.\n\n "
+#define MSG_BAD_PRINTFL        "Illegal value for printfl."
+#define MSG_BAD_MXITER         "Illegal value for mxiter."
+#define MSG_BAD_MSBSET         "Illegal msbset < 0."
+#define MSG_BAD_MSBSETSUB      "Illegal msbsetsub < 0."
+#define MSG_BAD_ETACHOICE      "Illegal value for etachoice."
+#define MSG_BAD_ETACONST       "eta out of range."
+#define MSG_BAD_GAMMA          "gamma out of range."
+#define MSG_BAD_ALPHA          "alpha out of range."
+#define MSG_BAD_MXNEWTSTEP     "Illegal mxnewtstep < 0."
+#define MSG_BAD_RELFUNC        "relfunc < 0 illegal."
+#define MSG_BAD_FNORMTOL       "fnormtol < 0 illegal."
+#define MSG_BAD_SCSTEPTOL      "scsteptol < 0 illegal."
+#define MSG_BAD_MXNBCF         "mxbcf < 0 illegal."
+#define MSG_BAD_CONSTRAINTS    "Illegal values in constraints vector."
+#define MSG_BAD_OMEGA          "scalars < 0 illegal."
 
-/* KINSet* error messages */
+#define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."
+#define MSG_UU_NULL            "uu = NULL illegal."
+#define MSG_BAD_GLSTRAT        "Tllegal value for globalstrategy."
+#define MSG_BAD_USCALE         "uscale = NULL illegal."
+#define MSG_USCALE_NONPOSITIVE "uscale has nonpositive elements."
+#define MSG_BAD_FSCALE         "fscale = NULL illegal."
+#define MSG_FSCALE_NONPOSITIVE "fscale has nonpositive elements."
+#define MSG_INITIAL_CNSTRNT    "Tnitial guess does NOT meet constraints."
+#define MSG_LINIT_FAIL         "The linear solver's init routine failed."
 
-#define MSG_KINS_NO_MEM     "KINSet*-- kin_mem = NULL illegal.\n\n"
-#define MSG_BAD_PRINTFL     "KINSetPrintLevel-- illegal value for printfl.\n\n"
-#define MSG_BAD_MXITER      "KINSetNumMaxIters-- illegal value for mxiter.\n\n"
-#define MSG_BAD_MSBSET      "KINSetMaxSetupCalls-- illegal msbset < 0.\n\n"
-#define MSG_BAD_MSBSETSUB   "KINSetMaxSubSetupCalls-- illegal msbsetsub < 0.\n\n"
-#define MSG_BAD_ETACHOICE   "KINSetEtaForm-- illegal value for etachoice.\n\n"
-#define MSG_BAD_ETACONST    "KINSetEtaConstValue-- eta out of range.\n\n"
-#define MSG_BAD_GAMMA       "KINSetEtaParams-- gamma out of range.\n\n"
-#define MSG_BAD_ALPHA       "KINSetEtaParams-- alpha out of range.\n\n"
-#define MSG_BAD_MXNEWTSTEP  "KINSetMaxNewtonStep-- mxnewtstep < 0 illegal.\n\n"
-#define MSG_BAD_RELFUNC     "KINSetRelErrFunc-- relfunc < 0 illegal.\n\n"
-#define MSG_BAD_FNORMTOL    "KINSetFuncNormTol-- fnormtol < 0 illegal.\n\n"
-#define MSG_BAD_SCSTEPTOL   "KINSetScaledStepTol-- scsteptol < 0 illegal.\n\n"
-#define MSG_BAD_MXNBCF      "KINSetMaxBetaFails-- mxbcf < 0 illegal.\n\n"
-#define MSG_BAD_CONSTRAINTS "KINSetConstraints-- illegal values in constraints vector.\n\n"
-#define MSG_BAD_OMEGA       "KINSetResMonParams-- scalars < 0 illegal.\n\n"
+/*
+ * -----------------------------------------------------------------
+ * KINSOL info messages
+ * -----------------------------------------------------------------
+ */
 
-/* KINMalloc error messages */
+#define INFO_RETVAL    "Return value: %d"
+#define INFO_ADJ       "no. of lambda adjustments = %ld"
 
-#define MSG_KINM_NO_MEM    "KINMalloc-- kin_mem = NULL illegal.\n\n"
-#define MSG_MEM_FAIL       "KINMalloc-- a memory request failed.\n\n"
-#define MSG_FUNC_NULL      "KINMalloc-- func = NULL illegal.\n\n"
-#define MSG_BAD_NVECTOR    "KINMalloc-- a required vector operation is not implemented.\n\n"
-#define MSG_KINS_FUNC_NULL "KINSetSysFunc-- func = NULL illegal.\n\n"
+#if defined(SUNDIALS_EXTENDED_PRECISION)
 
-/* KINSol error messages */
+#define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16Lg"
+#define INFO_TOL       "scsteptol = %12.3Lg  fnormtol = %12.3Lg"
+#define INFO_FMAX      "scaled f norm (for stopping) = %12.3Lg"
+#define INFO_PNORM     "pnorm = %12.4Le"
+#define INFO_PNORM1    "(ivio=1) pnorm = %12.4Le"
+#define INFO_FNORM     "fnorm(L2) = %20.8Le"
+#define INFO_LAM       "min_lam = %11.4Le   f1norm = %11.4Le   pnorm = %11.4Le"
+#define INFO_ALPHA     "fnorm = %15.8Le   f1norm = %15.8Le   alpha_cond = %15.8Le  lam = %15.8Le"
+#define INFO_BETA      "f1norm = %15.8Le   beta_cond = %15.8Le   lam = %15.8Le"
+#define INFO_ALPHABETA "f1norm = %15.8Le  alpha_cond = %15.8Le  beta_cond = %15.8Le  lam = %15.8Le"
 
-#define MSG_KINSOL_NO_MEM    "KINSol-- kinsol_mem = NULL illegal.\n\n"
-#define MSG_KINSOL_NO_MALLOC "KINSol-- attempt to call before KINMalloc illegal.\n\n"
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
 
-/* KINSolInit error messages */
+#define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16lg"
+#define INFO_TOL       "scsteptol = %12.3lg  fnormtol = %12.3lg"
+#define INFO_FMAX      "scaled f norm (for stopping) = %12.3lg"
+#define INFO_PNORM     "pnorm = %12.4le"
+#define INFO_PNORM1    "(ivio=1) pnorm = %12.4le"
+#define INFO_FNORM     "fnorm(L2) = %20.8le"
+#define INFO_LAM       "min_lam = %11.4le   f1norm = %11.4le   pnorm = %11.4le"
+#define INFO_ALPHA     "fnorm = %15.8le   f1norm = %15.8le   alpha_cond = %15.8le  lam = %15.8le"
+#define INFO_BETA      "f1norm = %15.8le   beta_cond = %15.8le   lam = %15.8le"
+#define INFO_ALPHABETA "f1norm = %15.8le  alpha_cond = %15.8le  beta_cond = %15.8le  lam = %15.8le"
 
-#define KINSI                  "KINSolInit--"
-#define MSG_LSOLV_NO_MEM       KINSI "the linear solver memory pointer is NULL.\n\n"
-#define MSG_UU_NULL            KINSI "uu = NULL illegal.\n\n"
-#define MSG_BAD_GLSTRAT        KINSI "illegal value for globalstrategy.\n"
-#define MSG_BAD_USCALE         KINSI "uscale = NULL illegal.\n\n"
-#define MSG_USCALE_NONPOSITIVE KINSI "uscale has nonpositive elements.\n\n"
-#define MSG_BAD_FSCALE         KINSI "fscale = NULL illegal.\n\n"
-#define MSG_FSCALE_NONPOSITIVE KINSI "fscale has nonpositive elements.\n\n"
-#define MSG_INITIAL_CNSTRNT    KINSI "initial guess does NOT meet constraints.\n\n"
-#define MSG_LINIT_FAIL         KINSI "the linear solver's init routine failed.\n\n"
+#else
 
-/* KINGet* error messages */
+#define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16g"
+#define INFO_TOL       "scsteptol = %12.3g  fnormtol = %12.3g"
+#define INFO_FMAX      "scaled f norm (for stopping) = %12.3g"
+#define INFO_PNORM     "pnorm = %12.4e"
+#define INFO_PNORM1    "(ivio=1) pnorm = %12.4e"
+#define INFO_FNORM     "fnorm(L2) = %20.8e"
+#define INFO_LAM       "min_lam = %11.4e   f1norm = %11.4e   pnorm = %11.4e"
+#define INFO_ALPHA     "fnorm = %15.8e   f1norm = %15.8e   alpha_cond = %15.8e  lam = %15.8e"
+#define INFO_BETA      "f1norm = %15.8e   beta_cond = %15.8e   lam = %15.8e"
+#define INFO_ALPHABETA "f1norm = %15.8e  alpha_cond = %15.8e  beta_cond = %15.8e  lam = %15.8e"
 
-#define MSG_KING_NO_MEM "KINGet*-- kin_mem = NULL illegal.\n\n"
+#endif
+
+
 
 #ifdef __cplusplus
 }

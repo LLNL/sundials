@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.21 $
- * $Date: 2006-01-11 21:13:58 $
+ * $Revision: 1.22 $
+ * $Date: 2006-02-02 00:36:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -27,13 +27,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fkinsol.h"          /* prototypes of interfaces and global variables */
-#include "kinsol.h"           /* KINSOL constants and prototypes               */
-#include "kinsol_sptfqmr.h"   /* prototypes of KINSPTFQMR interface routines   */
-#include "kinsol_spbcgs.h"    /* prototypes of KINSPBCG interface routines     */
-#include "kinsol_spgmr.h"     /* prototypes of KINSPGMR interface routines     */
-#include "sundials_nvector.h" /* definition of type N_Vector                   */
-#include "sundials_types.h"   /* definition of type realtype                   */
+#include "kinsol_spils.h"
+#include "fkinsol.h"
+
+#include "kinsol_impl.h"
+
+#include "sundials_nvector.h"
+#include "sundials_types.h"
 
 /*
  * ----------------------------------------------------------------
@@ -56,42 +56,14 @@ extern void FK_PSOL(realtype*, realtype*, realtype*, realtype*,
 
 /*
  * ----------------------------------------------------------------
- * Function : FKIN_SPTFQMRSETPREC
+ * Function : FKIN_SPILSSETPREC
  * ----------------------------------------------------------------
  */
 
-void FKIN_SPTFQMRSETPREC(int *flag, int *ier)
+void FKIN_SPILSSETPREC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSptfqmrSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
-  else              KINSptfqmrSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
-
-  return;
-}
-
-/*
- * ----------------------------------------------------------------
- * Function : FKIN_SPBCGSETPREC
- * ----------------------------------------------------------------
- */
-
-void FKIN_SPBCGSETPREC(int *flag, int *ier)
-{
-  if ((*flag) == 0) KINSpbcgSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
-  else              KINSpbcgSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
-
-  return;
-}
-
-/*
- * ----------------------------------------------------------------
- * Function : FKIN_SPGMRSETPREC
- * ----------------------------------------------------------------
- */
-
-void FKIN_SPGMRSETPREC(int *flag, int *ier)
-{
-  if ((*flag) == 0) KINSpgmrSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
-  else              KINSpgmrSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
+  if ((*flag) == 0) KINSpilsSetPreconditioner(KIN_kinmem, NULL, NULL, NULL);
+  else              KINSpilsSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol, NULL);
 
   return;
 }

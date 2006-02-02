@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:10 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:36:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -122,14 +122,14 @@ int KINBand(void *kinmem, long int N,
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    fprintf(stderr, MSGB_KINMEM_NULL);
+    KINProcessError(NULL, KINBAND_MEM_NULL, "KINBAND", "KINBand", MSGB_KINMEM_NULL);
     return(KINBAND_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_BAD_NVECTOR);
+    KINProcessError(kin_mem, KINBAND_ILL_INPUT, "KINBAND", "KINBand", MSGB_BAD_NVECTOR);
     return(KINBAND_ILL_INPUT);
   }
 
@@ -145,7 +145,7 @@ int KINBand(void *kinmem, long int N,
   kinband_mem = NULL;
   kinband_mem = (KINBandMem) malloc(sizeof(KINBandMemRec));
   if (kinband_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    KINProcessError(kin_mem, KINBAND_MEM_FAIL, "KINBAND", "KINBand", MSGB_MEM_FAIL);
     return(KINBAND_MEM_FAIL);
   }
   
@@ -165,7 +165,7 @@ int KINBand(void *kinmem, long int N,
 
   /* Test ml and mu for legality */
   if ((ml < 0) || (mu < 0) || (ml >= N) || (mu >= N)) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_BAD_SIZES);
+    KINProcessError(kin_mem, KINBAND_MEM_FAIL, "KINBAND", "KINBand", MSGB_MEM_FAIL);
     return(KINBAND_ILL_INPUT);
   }
 
@@ -176,7 +176,7 @@ int KINBand(void *kinmem, long int N,
   J = NULL;
   J = BandAllocMat(N, mu, ml, storage_mu);
   if (J == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    KINProcessError(kin_mem, KINBAND_MEM_FAIL, "KINBAND", "KINBand", MSGB_MEM_FAIL);
     free(kinband_mem); kinband_mem = NULL;
     return(KINBAND_MEM_FAIL);
   }
@@ -184,7 +184,7 @@ int KINBand(void *kinmem, long int N,
   pivots = NULL;
   pivots = BandAllocPiv(N);
   if (pivots == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    KINProcessError(kin_mem, KINBAND_MEM_FAIL, "KINBAND", "KINBand", MSGB_MEM_FAIL);
     BandFreeMat(J);
     free(kinband_mem); kinband_mem = NULL;
     return(KINBAND_MEM_FAIL);
@@ -212,13 +212,13 @@ int KINBandSetJacFn(void *kinmem, KINBandJacFn bjac, void *jac_data)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    fprintf(stderr, MSGB_SETGET_KINMEM_NULL);
+    KINProcessError(NULL, KINBAND_MEM_NULL, "KINBAND", "KINBandSetJacFn", MSGB_KINMEM_NULL);
     return(KINBAND_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    KINProcessError(kin_mem, KINBAND_LMEM_NULL, "KINBAND", "KINBandSetJacFn", MSGB_LMEM_NULL);
     return(KINBAND_LMEM_NULL);
   }
   kinband_mem = (KINBandMem) lmem;
@@ -242,13 +242,13 @@ int KINBandGetWorkSpace(void *kinmem, long int *lenrwB, long int *leniwB)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    fprintf(stderr, MSGB_SETGET_KINMEM_NULL);
+    KINProcessError(NULL, KINBAND_MEM_NULL, "KINBAND", "KINBandGetWorkSpace", MSGB_KINMEM_NULL);
     return(KINBAND_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    KINProcessError(kin_mem, KINBAND_LMEM_NULL, "KINBAND", "KINBandGetWorkSpace", MSGB_LMEM_NULL);
     return(KINBAND_LMEM_NULL);
   }
   kinband_mem = (KINBandMem) lmem;
@@ -272,13 +272,13 @@ int KINBandGetNumJacEvals(void *kinmem, long int *njevalsB)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    fprintf(stderr, MSGB_SETGET_KINMEM_NULL);
+    KINProcessError(NULL, KINBAND_MEM_NULL, "KINBAND", "KINBandGetNumJacEvals", MSGB_KINMEM_NULL);
     return(KINBAND_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    KINProcessError(kin_mem, KINBAND_LMEM_NULL, "KINBAND", "KINBandGetNumJacEvals", MSGB_LMEM_NULL);
     return(KINBAND_LMEM_NULL);
   }
   kinband_mem = (KINBandMem) lmem;
@@ -301,13 +301,13 @@ int KINBandGetNumFuncEvals(void *kinmem, long int *nfevalsB)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    fprintf(stderr, MSGB_SETGET_KINMEM_NULL);
+    KINProcessError(NULL, KINBAND_MEM_NULL, "KINBAND", "KINBandGetNumFuncEvals", MSGB_KINMEM_NULL);
     return(KINBAND_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    KINProcessError(kin_mem, KINBAND_LMEM_NULL, "KINBAND", "KINBandGetNumGuncEvals", MSGB_LMEM_NULL);
     return(KINBAND_LMEM_NULL);
   }
   kinband_mem = (KINBandMem) lmem;
@@ -330,13 +330,13 @@ int KINBandGetLastFlag(void *kinmem, int *flag)
 
   /* Return immediately if kinmem is NULL */
   if (kinmem == NULL) {
-    fprintf(stderr, MSGB_SETGET_KINMEM_NULL);
+    KINProcessError(NULL, KINBAND_MEM_NULL, "KINBAND", "KINBandGetLastFlag", MSGB_KINMEM_NULL);
     return(KINBAND_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    KINProcessError(kin_mem, KINBAND_LMEM_NULL, "KINBAND", "KINBandGetLastFlag", MSGB_LMEM_NULL);
     return(KINBAND_LMEM_NULL);
   }
   kinband_mem = (KINBandMem) lmem;
@@ -390,12 +390,13 @@ static int KINBandSetup(KINMem kin_mem)
 {
   KINBandMem kinband_mem;
   long int ier;
-  
+  int retval;
+
   kinband_mem = (KINBandMem) lmem;
 
   nje++;
   BandZero(J); 
-  jac(n, mu, ml, J, uu, fval, J_data, vtemp1, vtemp2);
+  retval = jac(n, mu, ml, J, uu, fval, J_data, vtemp1, vtemp2);
   
   /* Do LU factorization of J */
   ier = BandFactor(J, pivots);
@@ -497,6 +498,7 @@ static int KINBandDQJac(long int n, long int mupper, long int mlower,
   N_Vector futemp, utemp;
   long int group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data, *uscale_data;
+  int retval;
 
   KINMem kin_mem;
   KINBandMem kinband_mem;
@@ -532,7 +534,7 @@ static int KINBandDQJac(long int n, long int mupper, long int mlower,
     }
 
     /* Evaluate f with incremented u */
-    func(utemp, futemp, f_data);
+    retval = func(utemp, futemp, f_data);
 
     /* Restore utemp components, then form and load difference quotients */
     for (j=group-1; j < n; j+=width) {

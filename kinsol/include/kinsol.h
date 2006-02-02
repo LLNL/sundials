@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2006-01-25 22:18:37 $
+ * $Revision: 1.32 $
+ * $Date: 2006-02-02 00:36:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -112,6 +112,47 @@ extern "C" {
 
 typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *f_data );
 
+
+/*
+ * -----------------------------------------------------------------
+ * Type : KINErrHandlerFn
+ * -----------------------------------------------------------------
+ * A function eh, which handles error messages, must have type
+ * KINErrHandlerFn.
+ * The function eh takes as input the error code, the name of the
+ * module reporting the error, the error message, and a pointer to
+ * user data, the same as that passed to KINSetErrHandlerFn.
+ * 
+ * All error codes are negative, except KIN_WARNING which indicates 
+ * a warning (the solver continues).
+ *
+ * A KINErrHandlerFn has no return value.
+ * -----------------------------------------------------------------
+ */
+
+typedef void (*KINErrHandlerFn)(int error_code, 
+                               const char *module, const char *function, 
+                               char *msg, void *eh_data); 
+
+
+/*
+ * -----------------------------------------------------------------
+ * Type : KINInfoHandlerFn
+ * -----------------------------------------------------------------
+ * A function ih, which handles info messages, must have type
+ * KINInfoHandlerFn.
+ * The function ih takes as input the name of the module and of the
+ * function reporting the info message and a pointer to
+ * user data, the same as that passed to KINSetInfoHandlerFn.
+ * 
+ * A KINInfoHandlerFn has no return value.
+ * -----------------------------------------------------------------
+ */
+
+typedef void (*KINInfoHandlerFn)(const char *module, const char *function, 
+                                 char *msg, void *ih_data); 
+
+
 /*
  * -----------------------------------------------------------------
  * User-Callable Routines
@@ -143,20 +184,14 @@ void *KINCreate(void);
  *                        |
  * -----------------------------------------------------------------
  *                        |
- * KINSetFdata            | pointer to user-allocated memory that is
- *                        | passed to the user-supplied subroutine
- *                        | implementing the nonlinear system function
- *                        | F(u)
- *                        | [NULL]
+ * KINSetErrHandlerFn     | user-provided ErrHandler function.
+ *                        | [internal]
  *                        |
  * KINSetErrFile          | pointer (type FILE) indicating where all
  *                        | warning/error messages should be sent
+ *                        | if the default internal error handler 
+ *                        | is used
  *                        | [stderr]
- *                        |
- * KINSetInfoFile         | pointer (type FILE) specifying where
- *                        | informative (non-error) messages should
- *                        | be sent (see KINSetPrintLevel)
- *                        | [stdout]
  *                        |
  * KINSetPrintLevel       | level of verbosity of output:
  *                        |
@@ -189,6 +224,21 @@ void *KINCreate(void);
  *                        |     statistical information for the linear
  *                        |     solver
  *                        | [0]
+ *                        |
+ * KINSetInfoHandlerFn    | user-provided InfoHandler function.
+ *                        | [internal]
+ *                        |
+ * KINSetInfoFile         | pointer (type FILE) specifying where
+ *                        | informative (non-error) messages should
+ *                        | be sent if the default internal info
+ *                        | handler is used
+ *                        | [stdout]
+ *                        |
+ * KINSetFdata            | pointer to user-allocated memory that is
+ *                        | passed to the user-supplied subroutine
+ *                        | implementing the nonlinear system function
+ *                        | F(u)
+ *                        | [NULL]
  *                        |
  * KINSetNumMaxIters      | maximum number of nonlinear iterations
  *                        | [MXITER_DEFAULT] (defined in kinsol_impl.h)
@@ -356,9 +406,11 @@ void *KINCreate(void);
  * -----------------------------------------------------------------
  */
 
-int KINSetFdata(void *kinmem, void *f_data);
+int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun, void *eh_data);
 int KINSetErrFile(void *kinmem, FILE *errfp);
+int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data);
 int KINSetInfoFile(void *kinmem, FILE *infofp);
+int KINSetFdata(void *kinmem, void *f_data);
 int KINSetPrintLevel(void *kinmemm, int printfl);
 int KINSetNumMaxIters(void *kinmem, long int mxiter);
 int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup);
@@ -665,9 +717,11 @@ void KINFree(void **kinmem);
  * -----------------------------------------------------------------
  */
 
-#define KIN_SUCCESS          0
-#define KIN_INITIAL_GUESS_OK 1
-#define KIN_STEP_LT_STPTOL   2
+#define KIN_SUCCESS             0
+#define KIN_INITIAL_GUESS_OK    1
+#define KIN_STEP_LT_STPTOL      2
+
+#define KIN_WARNING             99
 
 #define KIN_MEM_NULL            -1
 #define KIN_ILL_INPUT           -2

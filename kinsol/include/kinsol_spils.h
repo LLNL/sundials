@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:59 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:36:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -23,7 +23,33 @@
 extern "C" {
 #endif
 
+#include "sundials_iterative.h"
 #include "sundials_nvector.h"
+
+
+/*
+ * -----------------------------------------------------------------
+ * KINSPILS return values
+ * -----------------------------------------------------------------
+ */
+
+#define KINSPILS_SUCCESS 0
+
+#define KINSPILS_MEM_NULL  -1
+#define KINSPILS_LMEM_NULL -2
+#define KINSPILS_ILL_INPUT -3
+#define KINSPILS_MEM_FAIL  -4
+
+/*
+ * -----------------------------------------------------------------
+ * KINSPILS solver constant
+ * -----------------------------------------------------------------
+ * KINSPILS_MAXL : maximum dimension of Krylov subspace allowed by
+ *                 default
+ * -----------------------------------------------------------------
+ */
+
+#define KINSPILS_MAXL 10
 
 /*
  * -----------------------------------------------------------------
@@ -154,6 +180,166 @@ typedef int (*KINSpilsPrecSolveFn)(N_Vector uu, N_Vector uscale,
 typedef int (*KINSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
                                      N_Vector uu, booleantype *new_uu, 
                                      void *J_data);
+
+
+
+
+
+/*
+ * -----------------------------------------------------------------
+ * Optional Input Specification Functions
+ * -----------------------------------------------------------------
+ * The following functions can be called to set optional inputs:
+ *
+ *       Function Name       |   Optional Input  [Default Value]
+ *                           |
+ * -----------------------------------------------------------------
+ *                           |
+ * KINSpilsSetMaxRestarts    | maximum number of times the SPGMR
+ *                           | (scaled preconditioned GMRES) linear
+ *                           | solver can be restarted
+ *                           | [0]
+ *                           |
+ * KINSpilsSetPreconditioner | used to set the following:
+ *                           |   (a) name of user-supplied routine
+ *                           |       used to compute a preconditioner
+ *                           |       matrix for the given linear
+ *                           |       system (pset)
+ *                           |       [NULL]
+ *                           |   (b) name of user-supplied routine
+ *                           |       used to apply preconditioner to
+ *                           |       linear system (psolve)
+ *                           |       [NULL]
+ *                           |   (c) pointer to user-allocated system
+ *                           |       memory that is passed to the pset
+ *                           |       and psolve routines
+ *                           |       [NULL]
+ *                           |
+ * KINSpilsSetJacTimesVecFn  | used to set the following:
+ *                           |   (a) name of user-supplied subroutine
+ *                           |       used to compute the matrix-vector
+ *                           |       product J(u)*v, where J denotes
+ *                           |       the system Jacobian (jtimes)
+ *                           |       [KINSpilsDQJtimes] (see kinsol_spils.c)
+ *                           |   (b) pointer to a user-allocated memory
+ *                           |       block that is passed to the jtimes
+ *                           |       routine
+ *                           |       [NULL]
+ * -----------------------------------------------------------------
+ */
+
+int KINSpilsSetMaxRestarts(void *kinmem, int maxrs);
+int KINSpilsSetPreconditioner(void *kinmem,
+			      KINSpilsPrecSetupFn pset,
+			      KINSpilsPrecSolveFn psolve,
+			      void *P_data);
+int KINSpilsSetJacTimesVecFn(void *kinmem,
+			     KINSpilsJacTimesVecFn jtimes,
+			     void *J_data);
+
+/*
+ * -----------------------------------------------------------------
+ * KINSpilsSet* Return Values
+ * -----------------------------------------------------------------
+ * The possible return values for the KINSpilsSet* subroutines
+ * are the following:
+ *
+ * KINSPILS_SUCCESS : means the associated parameter was successfully
+ *                    set [0]
+ *
+ * KINSPILS_ILL_INPUT : means the supplied parameter was invalid
+ *                      (check error message) [-3]
+ *
+ * KINSPILS_MEM_NULL : means a NULL KINSOL memory block pointer
+ *                     was given [-1]
+ *
+ * KINSPILS_LMEM_NULL : means system memory has not yet been
+ *                      allocated for the linear solver 
+ *                      (lmem == NULL) [-2]
+ * -----------------------------------------------------------------
+ */
+
+/*
+ * -----------------------------------------------------------------
+ * Optional Output Extraction Functions
+ * -----------------------------------------------------------------
+ * The following functions can be called to get optional outputs
+ * and statistical information related to the KINSPILS linear
+ * solvers:
+ *
+ *        Function Name       |      Returned Value
+ *                            |
+ * -----------------------------------------------------------------
+ *                            |
+ * KINSpilsGetWorkSpace       | returns both integer workspace size
+ *                            | (total number of long int-sized blocks
+ *                            | of memory allocated  for
+ *                            | vector storage), and real workspace
+ *                            | size (total number of realtype-sized
+ *                            | blocks of memory allocated
+ *                            | for vector storage)
+ *                            |
+ * KINSpilsGetNumPrecEvals    | total number of preconditioner
+ *                            | evaluations (number of calls made
+ *                            | to the user-defined pset routine)
+ *                            |
+ * KINSpilsGetNumPrecSolves   | total number of times preconditioner
+ *                            | was applied to linear system (number
+ *                            | of calls made to the user-supplied
+ *                            | psolve function)
+ *                            |
+ * KINSpilsGetNumLinIters     | total number of linear iterations
+ *                            | performed
+ *                            |
+ * KINSpilsGetNumConvFails    | total number of linear convergence
+ *                            | failures
+ *                            |
+ * KINSpilsGetNumJtimesEvals  | total number of times the matrix-
+ *                            | vector product J(u)*v was computed
+ *                            | (number of calls made to the jtimes
+ *                            | subroutine)
+ *                            |
+ * KINSpilsGetNumFuncEvals    | total number of evaluations of the
+ *                            | system function F(u) (number of
+ *                            | calls made to the user-supplied
+ *                            | func routine by the linear solver
+ *                            | module member subroutines)
+ *                            |
+ * KINSpilsGetLastFlag        | returns the last flag returned by
+ *                            | the linear solver
+ * -----------------------------------------------------------------
+ */
+
+int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwSG, long int *leniwSG);
+int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
+int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
+int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
+int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
+int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
+int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevalsS); 
+int KINSpilsGetLastFlag(void *kinmem, int *flag);
+
+/*
+ * -----------------------------------------------------------------
+ * KINSpilsGet* Return Values
+ * -----------------------------------------------------------------
+ * The possible return values for the KINSpilsGet* subroutines
+ * are the following:
+ *
+ * KINSPILS_SUCCESS : means the routine exited normally [0]
+ *
+ * KINSPILS_ILL_INPUT : means at least one input parameter was
+ *                      invalid (check error message(s)) [-3]
+ *
+ * KINSPILS_MEM_NULL : means a NULL KINSOL memory block pointer was
+ *                     given [-1]
+ *
+ * KINSPILS_LMEM_NULL : means a NULL linear solver memory block pointer
+ *                      was given [-2]
+ * -----------------------------------------------------------------
+ */
+
+
 
 #ifdef __cplusplus
 }

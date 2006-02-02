@@ -1,7 +1,7 @@
       program fkinkryx
 c     ----------------------------------------------------------------
-c     $Revision: 1.2 $
-c     $Date: 2006-01-25 22:18:35 $
+c     $Revision: 1.3 $
+c     $Date: 2006-02-02 00:36:25 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -77,7 +77,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
          stop
       endif
 
-      call fkinspgmrsetprec(1, ier)
+      call fkinspilssetprec(1, ier)
 
       write(6,1240)
  1240 format('Example program fkinkryx:'//' This fkinsol example code',

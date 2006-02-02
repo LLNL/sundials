@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2006-01-25 23:08:06 $
+ * $Revision: 1.43 $
+ * $Date: 2006-02-02 00:36:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -24,16 +24,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fkinsol.h"          /* prototypes of interfaces and global variables */
-#include "kinsol.h"           /* KINSOL constants and prototypes               */
-#include "kinsol_band.h"      /* prototypes of KINBAND interface routines      */
-#include "kinsol_dense.h"     /* prototypes of KINDENSE interface routines     */
-#include "kinsol_sptfqmr.h"   /* prototypes of KINSPTFQMR interface routines   */
-#include "kinsol_spbcgs.h"    /* prototypes of KINSPBCG interface routines     */
-#include "kinsol_spgmr.h"     /* prototypes of KINSPGMR interface routines     */
-#include "sundials_nvector.h" /* definition of type N_Vector and prototypes
-                                 of related routines                           */
-#include "sundials_types.h"   /* definition of type realtype                   */
+#include "fkinsol.h"          /* prototypes of interfaces and global variables  */
+#include "kinsol.h"           /* KINSOL constants and prototypes                */
+
+#include "kinsol_band.h"      /* prototypes of KINBAND interface routines       */
+#include "kinsol_dense.h"     /* prototypes of KINDENSE interface routines      */
+#include "kinsol_sptfqmr.h"   /* prototypes of KINSPTFQMR interface routines    */
+#include "kinsol_spbcgs.h"    /* prototypes of KINSPBCG interface routines      */
+#include "kinsol_spgmr.h"     /* prototypes of KINSPGMR interface routines      */
+
+#include "kinsol_impl.h"      /* definition of KINMem type                      */
+
+#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
+#include "sundials_types.h"   /* definition of type realtype                    */
 
 /*
  * ----------------------------------------------------------------
@@ -265,7 +268,7 @@ void FKIN_SPBCG(int *maxl, int *ier)
 void FKIN_SPGMR(int *maxl, int *maxlrst, int *ier)
 {
   *ier = KINSpgmr(KIN_kinmem, *maxl);
-  KINSpgmrSetMaxRestarts(KIN_kinmem, *maxlrst);
+  KINSpilsSetMaxRestarts(KIN_kinmem, *maxlrst);
 
   KIN_ls = KIN_LS_SPGMR;
 
@@ -343,36 +346,16 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
     KINBandGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);             /* NJE */
     
   case KIN_LS_SPTFQMR:
-    KINSptfqmrGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
-    KINSptfqmrGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);        /* LSTF */
-    KINSptfqmrGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
-    KINSptfqmrGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);         /* NJE */
-    KINSptfqmrGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);           /* NPE */
-    KINSptfqmrGetNumPrecSolves(KIN_kinmem, &KIN_iout[12]);          /* NPS */
-    KINSptfqmrGetNumLinIters(KIN_kinmem, &KIN_iout[13]);            /* NLI */
-    KINSptfqmrGetNumConvFails(KIN_kinmem, &KIN_iout[14]);           /* NCFL */
-    break;
-    
   case KIN_LS_SPBCG:
-    KINSpbcgGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]);  /* LRW & LIW */
-    KINSpbcgGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);         /* LSTF */
-    KINSpbcgGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);             /* NFE */
-    KINSpbcgGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);          /* NJE */
-    KINSpbcgGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);            /* NPE */
-    KINSpbcgGetNumPrecSolves(KIN_kinmem, &KIN_iout[12]);           /* NPS */
-    KINSpbcgGetNumLinIters(KIN_kinmem, &KIN_iout[13]);             /* NLI */
-    KINSpbcgGetNumConvFails(KIN_kinmem, &KIN_iout[14]);            /* NCFL */
-    break;
-    
   case KIN_LS_SPGMR:
-    KINSpgmrGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]);  /* LRW & LIW */
-    KINSpgmrGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);         /* LSTF */
-    KINSpgmrGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);             /* NFE */
-    KINSpgmrGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);          /* NJE */
-    KINSpgmrGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);            /* NPE */
-    KINSpgmrGetNumPrecSolves(KIN_kinmem, &KIN_iout[12]);           /* NPS */
-    KINSpgmrGetNumLinIters(KIN_kinmem, &KIN_iout[13]);             /* NLI */
-    KINSpgmrGetNumConvFails(KIN_kinmem, &KIN_iout[14]);            /* NCFL */
+    KINSpilsGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
+    KINSpilsGetLastFlag(KIN_kinmem, (int *) &KIN_iout[8]);        /* LSTF */
+    KINSpilsGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
+    KINSpilsGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);         /* NJE */
+    KINSpilsGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);           /* NPE */
+    KINSpilsGetNumPrecSolves(KIN_kinmem, &KIN_iout[12]);          /* NPS */
+    KINSpilsGetNumLinIters(KIN_kinmem, &KIN_iout[13]);            /* NLI */
+    KINSpilsGetNumConvFails(KIN_kinmem, &KIN_iout[14]);           /* NCFL */
     break;
 
   }

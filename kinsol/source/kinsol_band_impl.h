@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:36:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -61,17 +61,11 @@ typedef struct {
 
 /* Error Messages */
 
-#define _KINBAND_         "KINBand-- "
-#define MSGB_MEM_FAIL    _KINBAND_ "A memory request failed.\n\n"
-#define MSGB_BAD_SIZES_1 _KINBAND_ "Illegal bandwidth parameter(s)."
-#define MSGB_BAD_SIZES_2 "Must have 0 <=  ml, mu <= N-1.\n\n"
-#define MSGB_BAD_SIZES   MSGB_BAD_SIZES_1 MSGB_BAD_SIZES_2
-#define MSGB_BAD_NVECTOR _KINBAND_ "A required vector operation is not implemented.\n\n"
-#define MSGB_KINMEM_NULL  _KINBAND_ "Solver memory is NULL.\n\n"
-
-#define MSGB_SETGET_KINMEM_NULL "KINBandSet*/KINBandGet*-- Solver memory is NULL.\n\n"
-
-#define MSGB_SETGET_LMEM_NULL "KINBandSet*/KINBandGet*-- kinband memory is NULL.\n\n"
+#define MSGB_MEM_FAIL    "A memory request failed."
+#define MSGB_BAD_SIZES   "Illegal bandwidth parameter(s). Must have 0 <=  ml, mu <= N-1."
+#define MSGB_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGB_KINMEM_NULL "KINSOL memory is NULL."
+#define MSGB_LMEM_NULL   "KINBAND memory is NULL."
 
 #ifdef __cplusplus
 }

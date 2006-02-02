@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 23:08:10 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-02 00:36:31 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,10 +25,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "kinsol_sptfqmr.h"
+#include "kinsol_spbcgs.h"
+#include "kinsol_spgmr.h"
+
+#include "kinsol_impl.h"
 #include "kinsol_bbdpre_impl.h"
-#include "kinsol_sptfqmr_impl.h"
-#include "kinsol_spbcgs_impl.h"
-#include "kinsol_spgmr_impl.h"
+
 #include "sundials_math.h"
 
 /*
@@ -86,7 +89,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
   pdata = NULL;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSGBBD_KINMEM_NULL);
+    KINProcessError(NULL, 0, "KINBBDPRE", "KINBBDPrecAlloc", MSGBBD_KINMEM_NULL);
     return(NULL);
   }
   kin_mem = (KINMem) kinmem;
@@ -97,7 +100,7 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
      so has already been checked for (see KINMalloc) */
 
   if (vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGBBD_BAD_NVECTOR);
+    KINProcessError(kin_mem, 0, "KINBBDPRE", "KINBBDPrecAlloc", MSGBBD_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -178,23 +181,23 @@ int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data)
   KINMem kin_mem;
   int flag;
 
+  flag = KINSptfqmr(kinmem, maxl);
+  if (flag != KINSPILS_SUCCESS) return(flag);
+
   kin_mem = (KINMem) kinmem;
 
   if (p_data == NULL) {
-    fprintf(errfp, MSGBBD_NO_PDATA);
+    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSptfqmr", MSGBBD_NO_PDATA);
     return(KINBBDPRE_PDATA_NULL);
   }
 
-  flag = KINSptfqmr(kinmem, maxl);
-  if (flag != KINSPTFQMR_SUCCESS) return(flag);
+  flag = KINSpilsSetPreconditioner(kinmem,
+                                   KINBBDPrecSetup,
+                                   KINBBDPrecSolve,
+                                   p_data);
+  if (flag != KINSPILS_SUCCESS) return(flag);
 
-  flag = KINSptfqmrSetPreconditioner(kinmem,
-				     KINBBDPrecSetup,
-				     KINBBDPrecSolve,
-				     p_data);
-  if (flag != KINSPTFQMR_SUCCESS) return(flag);
-
-  return(KINSPTFQMR_SUCCESS);
+  return(KINSPILS_SUCCESS);
 }
 
 /*
@@ -208,23 +211,23 @@ int KINBBDSpbcg(void *kinmem, int maxl, void *p_data)
   KINMem kin_mem;
   int flag;
 
+  flag = KINSpbcg(kinmem, maxl);
+  if (flag != KINSPILS_SUCCESS) return(flag);
+
   kin_mem = (KINMem) kinmem;
 
   if (p_data == NULL) {
-    fprintf(errfp, MSGBBD_NO_PDATA);
+    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSpbcg", MSGBBD_NO_PDATA);
     return(KINBBDPRE_PDATA_NULL);
   }
 
-  flag = KINSpbcg(kinmem, maxl);
-  if (flag != KINSPBCG_SUCCESS) return(flag);
-
-  flag = KINSpbcgSetPreconditioner(kinmem,
+  flag = KINSpilsSetPreconditioner(kinmem,
 				   KINBBDPrecSetup,
 				   KINBBDPrecSolve,
 				   p_data);
-  if (flag != KINSPBCG_SUCCESS) return(flag);
+  if (flag != KINSPILS_SUCCESS) return(flag);
 
-  return(KINSPBCG_SUCCESS);
+  return(KINSPILS_SUCCESS);
 }
 
 /*
@@ -238,23 +241,23 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
   KINMem kin_mem;
   int flag;
 
+  flag = KINSpgmr(kinmem, maxl);
+  if (flag != KINSPILS_SUCCESS) return(flag);
+
   kin_mem = (KINMem) kinmem;
 
   if (p_data == NULL) {
-    fprintf(errfp, MSGBBD_NO_PDATA);
+    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSpgmr", MSGBBD_NO_PDATA);
     return(KINBBDPRE_PDATA_NULL);
   }
 
-  flag = KINSpgmr(kinmem, maxl);
-  if (flag != KINSPGMR_SUCCESS) return(flag);
-
-  flag = KINSpgmrSetPreconditioner(kinmem,
+  flag = KINSpilsSetPreconditioner(kinmem,
 				   KINBBDPrecSetup,
 				   KINBBDPrecSolve,
 				   p_data);
-  if (flag != KINSPGMR_SUCCESS) return(flag);
+  if (flag != KINSPILS_SUCCESS) return(flag);
 
-  return(KINSPGMR_SUCCESS);
+  return(KINSPILS_SUCCESS);
 }
 
 /*
@@ -290,7 +293,7 @@ int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBD
   KBBDPrecData pdata;
 
   if (p_data == NULL) {
-    fprintf(stderr, MSGBBD_PDATA_NULL);
+    KINProcessError(NULL, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDPrecGetWorkSpace", MSGBBD_PDATA_NULL);
     return(KINBBDPRE_PDATA_NULL);
   } 
 
@@ -313,7 +316,7 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
   KBBDPrecData pdata;
 
   if (p_data == NULL) {
-    fprintf(stderr, MSGBBD_PDATA_NULL);
+    KINProcessError(NULL, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDPrecGetNumGfnEvals", MSGBBD_PDATA_NULL);
     return(KINBBDPRE_PDATA_NULL);
   } 
 
@@ -495,6 +498,7 @@ static void KBBDDQJac(KBBDPrecData pdata,
   long int group, i, j, width, ngroups, i1, i2;
   KINMem kin_mem;
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
+  int retval;
 
   kin_mem = pdata->kin_mem;
 
@@ -512,8 +516,11 @@ static void KBBDDQJac(KBBDPrecData pdata,
 
   /* call gcomm and gloc to get base value of g(uu) */
 
-  if (gcomm != NULL) gcomm(Nlocal, uu, f_data);
-  gloc(Nlocal, uu, gu, f_data);
+  if (gcomm != NULL) {
+    retval = gcomm(Nlocal, uu, f_data);
+  }
+
+  retval = gloc(Nlocal, uu, gu, f_data);
 
   /* set bandwidth and number of column groups for band differencing */
 
@@ -533,7 +540,7 @@ static void KBBDDQJac(KBBDPrecData pdata,
   
     /* evaluate g with incremented u */
 
-    gloc(Nlocal, utemp, gtemp, f_data);
+    retval = gloc(Nlocal, utemp, gtemp, f_data);
 
     /* restore utemp, then form and load difference quotients */
 

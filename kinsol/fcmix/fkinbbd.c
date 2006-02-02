@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2006-01-25 22:18:31 $
+ * $Revision: 1.28 $
+ * $Date: 2006-02-02 00:36:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -22,13 +22,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fkinbbd.h"          /* prototypes of interfaces to KINBBDPRE        */
 #include "fkinsol.h"          /* standard interfaces and global variables     */
+#include "fkinbbd.h"          /* prototypes of interfaces to KINBBDPRE        */
+
 #include "kinsol.h"           /* KINSOL constants and prototypes              */
 #include "kinsol_bbdpre.h"    /* prototypes of KINBBDPRE functions and macros */
+
 #include "kinsol_sptfqmr.h"   /* prototypes of KINSPTFQMR interface routines  */
 #include "kinsol_spbcgs.h"    /* prototypes of KINSPBCG interface routines    */
 #include "kinsol_spgmr.h"     /* prototypes of KINSPGMR interface routines    */
+
 #include "sundials_nvector.h" /* definition of type N_Vector                  */
 #include "sundials_types.h"   /* definition of type realtype                  */
 
@@ -117,9 +120,9 @@ void FKIN_BBDSPGMR(int *maxl, int *maxlrst, int *ier)
   *ier = 0;
 
   *ier = KINBBDSpgmr(KIN_kinmem, *maxl, KBBD_Data);
-  if (*ier != KINSPGMR_SUCCESS) return;
+  if (*ier != KINSPILS_SUCCESS) return;
 
-  *ier = KINSpgmrSetMaxRestarts(KIN_kinmem, *maxlrst);
+  *ier = KINSpilsSetMaxRestarts(KIN_kinmem, *maxlrst);
 
   return;
 }

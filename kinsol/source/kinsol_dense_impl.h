@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:00 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:36:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -55,14 +55,10 @@ typedef struct {
 
 /* Error Messages */
 
-#define _KINDENSE_        "KINDense-- "
-#define MSGDS_KINMEM_NULL  _KINDENSE_ "Solver memory is NULL.\n\n"
-#define MSGDS_BAD_NVECTOR _KINDENSE_ "A required vector operation is not implemented.\n\n"
-#define MSGDS_MEM_FAIL    _KINDENSE_ "A memory request failed.\n\n"
-
-#define MSGDS_SETGET_KINMEM_NULL "KINDenseSet*/KINDenseGet*-- Solver memory is NULL.\n\n"
-
-#define MSGDS_SETGET_LMEM_NULL "KINDenseSet*/KINDenseGet*-- kindense memory is NULL.\n\n"
+#define MSGDS_KINMEM_NULL "KINSOL memory is NULL."
+#define MSGDS_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGDS_MEM_FAIL    "A memory request failed."
+#define MSGDS_LMEM_NULL   "KINDENSE memory is NULL."
 
 #endif
 

@@ -1,7 +1,7 @@
       program fkinkryx_p
 c     ----------------------------------------------------------------
-c     $Revision: 1.3 $
-c     $Date: 2006-01-25 22:18:33 $
+c     $Revision: 1.4 $
+c     $Date: 2006-02-02 00:36:23 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -118,7 +118,7 @@ c     number of this process.
       call fkinsetvin('CONSTR_VEC', constr, ier)
 
       call fkinspgmr(maxl, maxlrst, ier)
-      call fkinspgmrsetprec(1, ier)
+      call fkinspilssetprec(1, ier)
       
       if (mype .eq. 0) write(6,1240)
  1240 format('Example program fkinkryx_p:'//

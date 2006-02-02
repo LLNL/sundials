@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.19 $
-# $Date: 2006-01-11 21:13:59 $
+# $Revision: 1.20 $
+# $Date: 2006-02-02 00:36:31 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,8 +49,8 @@ KINSOL_INC_DIR = $(srcdir)/../include
 
 KINSOL_LIB       = libsundials_kinsol.la
 
-KINSOL_LIB_FILES = kinsol.lo kinsol_io.lo kinsol_dense.lo kinsol_band.lo kinsol_spgmr.lo kinsol_spbcgs.lo kinsol_sptfqmr.lo kinsol_bbdpre.lo
-KINSOL_OBJ_FILES = kinsol.o kinsol_io.o kinsol_dense.o kinsol_band.o kinsol_spgmr.o kinsol_spbcgs.o kinsol_sptfqmr.o kinsol_bbdpre.o
+KINSOL_LIB_FILES = kinsol.lo kinsol_io.lo kinsol_dense.lo kinsol_band.lo kinsol_spils.lo kinsol_spgmr.lo kinsol_spbcgs.lo kinsol_sptfqmr.lo kinsol_bbdpre.lo
+KINSOL_OBJ_FILES = kinsol.o kinsol_io.o kinsol_dense.o kinsol_band.o kinsol_spils.o kinsol_spgmr.o kinsol_spbcgs.o kinsol_sptfqmr.o kinsol_bbdpre.o
 
 SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
                    $(SHARED_BUILD_DIR)/sundials_dense.lo \
@@ -109,6 +109,8 @@ kinsol_dense.lo: $(srcdir)/kinsol_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol_dense.c
 kinsol_band.lo: $(srcdir)/kinsol_band.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol_band.c
+kinsol_spils.lo: $(srcdir)/kinsol_spils.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol_spils.c
 kinsol_spgmr.lo: $(srcdir)/kinsol_spgmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol_spgmr.c
 kinsol_spbcgs.lo: $(srcdir)/kinsol_spbcgs.c

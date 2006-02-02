@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:10 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:36:31 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -44,6 +44,29 @@
  * =================================================================
  */
 
+/* 
+ * -----------------------------------------------------------------
+ * KINSetErrHandlerFn
+ * -----------------------------------------------------------------
+ */
+
+int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun, void *eh_data)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetErrHandlerFn", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  kin_mem->kin_ehfun = ehfun;
+  kin_mem->kin_eh_data = eh_data;
+
+  return(KIN_SUCCESS);
+}
+
 /*
  * -----------------------------------------------------------------
  * Function : KINSetErrFile
@@ -55,7 +78,7 @@ int KINSetErrFile(void *kinmem, FILE *errfp)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetErrFile", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -69,24 +92,54 @@ int KINSetErrFile(void *kinmem, FILE *errfp)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetFdata
+ * Function : KINSetPrintLevel
  * -----------------------------------------------------------------
  */
 
-int KINSetFdata(void *kinmem, void *f_data)
+int KINSetPrintLevel(void *kinmem, int printfl)
 {
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetPrintLevel", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
-  kin_mem->kin_f_data = f_data;
+
+  if ((printfl < 0) || (printfl > 3)) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetPrintLevel", MSG_BAD_PRINTFL);
+    return(KIN_ILL_INPUT);
+  }
+
+  kin_mem->kin_printfl = printfl;
 
   return(KIN_SUCCESS);
 }
+
+/* 
+ * -----------------------------------------------------------------
+ * KINSetInfoHandlerFn
+ * -----------------------------------------------------------------
+ */
+
+int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetInfoHandlerFn", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  kin_mem->kin_ihfun = ihfun;
+  kin_mem->kin_ih_data = ih_data;
+
+  return(KIN_SUCCESS);
+}
+
 
 /*
  * -----------------------------------------------------------------
@@ -99,7 +152,7 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetInfoFile", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -111,27 +164,21 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetPrintLevel
+ * Function : KINSetFdata
  * -----------------------------------------------------------------
  */
 
-int KINSetPrintLevel(void *kinmem, int printfl)
+int KINSetFdata(void *kinmem, void *f_data)
 {
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetFdata", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
-
-  if ((printfl < 0) || (printfl > 3)) {
-    fprintf(errfp, MSG_BAD_PRINTFL);
-    return(KIN_ILL_INPUT);
-  }
-
-  kin_mem->kin_printfl = printfl;
+  kin_mem->kin_f_data = f_data;
 
   return(KIN_SUCCESS);
 }
@@ -147,14 +194,14 @@ int KINSetNumMaxIters(void *kinmem, long int mxiter)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetNumMaxIters", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (mxiter < 0) {
-    fprintf(errfp, MSG_BAD_MXITER);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetNumMaxIters", MSG_BAD_MXITER);
     return(KIN_ILL_INPUT);
   }
 
@@ -177,7 +224,7 @@ int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetNoInitSetup", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -198,7 +245,7 @@ int KINSetNoResMon(void *kinmem, booleantype noNNIResMon)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetNoResMon", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -219,14 +266,14 @@ int KINSetMaxSetupCalls(void *kinmem, long int msbset)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMaxSetupCalls", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (msbset < 0) {
-    fprintf(errfp, MSG_BAD_MSBSET);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMaxSetupCalls", MSG_BAD_MSBSET);
     return(KIN_ILL_INPUT);
   }
   
@@ -249,14 +296,14 @@ int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMaxSubSetupCalls", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (msbsetsub < 0) {
-    fprintf(errfp, MSG_BAD_MSBSETSUB);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMaxSubSetupCalls", MSG_BAD_MSBSETSUB);
     return(KIN_ILL_INPUT);
   }
   
@@ -279,7 +326,7 @@ int KINSetEtaForm(void *kinmem, int etachoice)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetEtaForm", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -288,7 +335,7 @@ int KINSetEtaForm(void *kinmem, int etachoice)
   if ((etachoice != KIN_ETACONSTANT) && 
       (etachoice != KIN_ETACHOICE1)  && 
       (etachoice != KIN_ETACHOICE2)) {
-    fprintf(errfp, MSG_BAD_ETACHOICE);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetEtaForm", MSG_BAD_ETACHOICE);
     return(KIN_ILL_INPUT);
   }
 
@@ -308,14 +355,14 @@ int KINSetEtaConstValue(void *kinmem, realtype eta)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetEtaConstValue", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if ((eta < ZERO) || (eta > ONE)) {
-    fprintf(errfp, MSG_BAD_ETACONST);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetEtaConstValue", MSG_BAD_ETACONST);
     return(KIN_ILL_INPUT);
   }
 
@@ -338,7 +385,7 @@ int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetEtaParams", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -346,7 +393,7 @@ int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
 
   if ((ealpha <= ONE) || (ealpha > TWO))
     if (ealpha != ZERO) {
-      fprintf(errfp, MSG_BAD_ALPHA);
+      KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetEtaParams", MSG_BAD_ALPHA);
       return(KIN_ILL_INPUT);
     }
   
@@ -357,7 +404,7 @@ int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
 
   if ((egamma <= ZERO) || (egamma > ONE))
     if (egamma != ZERO) {
-      fprintf(errfp, MSG_BAD_GAMMA);
+      KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetEtaParams", MSG_BAD_GAMMA);
       return(KIN_ILL_INPUT);
     }
 
@@ -380,7 +427,7 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetResMonParams", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -389,7 +436,7 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
   /* check omegamin */
 
   if (omegamin < ZERO) {
-    fprintf(errfp, MSG_BAD_OMEGA);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonParams", MSG_BAD_OMEGA);
     return(KIN_ILL_INPUT);
   }
 
@@ -401,20 +448,20 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
   /* check omegamax */
 
   if (omegamax < ZERO) {
-    fprintf(errfp, MSG_BAD_OMEGA);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonParams", MSG_BAD_OMEGA);
     return(KIN_ILL_INPUT);
   }
 
   if (omegamax == ZERO) {
     if (kin_mem->kin_omega_min > OMEGA_MAX) {
-      fprintf(errfp, MSG_BAD_OMEGA);
+      KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonParams", MSG_BAD_OMEGA);
       return(KIN_ILL_INPUT);
     }
     else kin_mem->kin_omega_max = OMEGA_MAX;
   }
   else {
     if (kin_mem->kin_omega_min > omegamax) {
-      fprintf(errfp, MSG_BAD_OMEGA);
+      KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonParams", MSG_BAD_OMEGA);
       return(KIN_ILL_INPUT);
     }
     else kin_mem->kin_omega_max = omegamax;
@@ -434,7 +481,7 @@ int KINSetResMonConstValue(void *kinmem, realtype omegaconst)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetResMonConstValue", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -443,7 +490,7 @@ int KINSetResMonConstValue(void *kinmem, realtype omegaconst)
   /* check omegaconst */
 
   if (omegaconst < ZERO) {
-    fprintf(errfp, MSG_BAD_OMEGA);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonConstValue", MSG_BAD_OMEGA);
     return(KIN_ILL_INPUT);
   }
 
@@ -471,7 +518,7 @@ int KINSetNoMinEps(void *kinmem, booleantype noMinEps)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetNoMinEps", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -492,14 +539,14 @@ int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMaxNewtonStep", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (mxnewtstep < ZERO) {
-    fprintf(errfp, MSG_BAD_MXNEWTSTEP);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMaxNewtonStep", MSG_BAD_MXNEWTSTEP);
     return(KIN_ILL_INPUT);
   }
 
@@ -522,14 +569,14 @@ int KINSetMaxBetaFails(void *kinmem, long int mxnbcf)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMaxBetaFails", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (mxnbcf < 0) {
-    fprintf(errfp, MSG_BAD_MXNBCF);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMaxBetaFails", MSG_BAD_MXNBCF);
     return(KIN_ILL_INPUT);
   }
 
@@ -554,14 +601,14 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc)
   realtype uround;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetRelErrFunc", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (relfunc < ZERO) {
-    fprintf(errfp, MSG_BAD_RELFUNC);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetRelErrFunc", MSG_BAD_RELFUNC);
     return(KIN_ILL_INPUT);
   }
 
@@ -587,14 +634,14 @@ int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
   realtype uround;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetFuncNormTol", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (fnormtol < ZERO) {
-    fprintf(errfp, MSG_BAD_FNORMTOL);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetFuncNormTol", MSG_BAD_FNORMTOL);
     return(KIN_ILL_INPUT);
   }
 
@@ -620,14 +667,14 @@ int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
   realtype uround;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetScaledStepTol", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (scsteptol < ZERO) {
-    fprintf(errfp, MSG_BAD_SCSTEPTOL);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetScaledStepTol", MSG_BAD_SCSTEPTOL);
     return(KIN_ILL_INPUT);
   }
 
@@ -653,7 +700,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
   realtype temptest;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetConstraints", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -673,7 +720,7 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
 
   temptest = N_VMaxNorm(constraints);
   if (temptest > TWOPT5){ 
-    if (errfp != NULL) fprintf(errfp, MSG_BAD_CONSTRAINTS); 
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetConstraints", MSG_BAD_CONSTRAINTS);
     return(KIN_ILL_INPUT); 
   }
 
@@ -703,14 +750,14 @@ int KINSetSysFunc(void *kinmem, KINSysFn func)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KINS_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetSysFunc", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
   kin_mem = (KINMem) kinmem;
 
   if (func == NULL) {
-    fprintf(errfp, MSG_KINS_FUNC_NULL);
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetSysFunc", MSG_FUNC_NULL);
     return(KIN_ILL_INPUT);
   }
 
@@ -751,7 +798,7 @@ int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KING_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetWorkSpace", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -774,7 +821,7 @@ int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KING_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetNumNonlinSolvIters", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -795,7 +842,7 @@ int KINGetNumFuncEvals(void *kinmem, long int *nfevals)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KING_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetNumFuncEvals", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -816,7 +863,7 @@ int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KING_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetNumBetaCondFails", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -837,7 +884,7 @@ int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KING_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetNumBacktrackOps", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -858,7 +905,7 @@ int KINGetFuncNorm(void *kinmem, realtype *funcnorm)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KING_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetFuncNorm", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -879,7 +926,7 @@ int KINGetStepLength(void *kinmem, realtype *steplength)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    fprintf(stderr, MSG_KING_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetStepLength", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 

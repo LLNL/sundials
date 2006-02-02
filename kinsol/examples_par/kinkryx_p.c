@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 22:18:26 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-02 00:36:14 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -286,13 +286,13 @@ int main(int argc, char *argv[])
   flag = KINSpgmr(kmem, maxl);
   if (check_flag(&flag, "KINSpgmr", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = KINSpgmrSetMaxRestarts(kmem, maxlrst);
-  if (check_flag(&flag, "KINSpgmrSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = KINSpgmrSetPreconditioner(kmem,
+  flag = KINSpilsSetMaxRestarts(kmem, maxlrst);
+  if (check_flag(&flag, "KINSpilsSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINSpilsSetPreconditioner(kmem,
 				   Precondbd,
 				   PSolvebd,
 				   data);
-  if (check_flag(&flag, "KINSpgmrSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag(&flag, "KINSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print out the problem size, solution parameters, initial guess. */
   if (my_pe == 0) 
@@ -768,16 +768,16 @@ static void PrintFinalStats(void *kmem)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1, 0);
 
-  flag = KINSpgmrGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINSpgmrGetNumLinIters", 1, 0);
-  flag = KINSpgmrGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINSpgmrGetNumPrecEvals", 1, 0);
-  flag = KINSpgmrGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINSpgmrGetNumPrecSolves", 1, 0);
-  flag = KINSpgmrGetNumConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINSpgmrGetNumConvFails", 1, 0);
-  flag = KINSpgmrGetNumFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINSpgmrGetNumFuncEvals", 1, 0);
+  flag = KINSpilsGetNumLinIters(kmem, &nli);
+  check_flag(&flag, "KINSpilsGetNumLinIters", 1, 0);
+  flag = KINSpilsGetNumPrecEvals(kmem, &npe);
+  check_flag(&flag, "KINSpilsGetNumPrecEvals", 1, 0);
+  flag = KINSpilsGetNumPrecSolves(kmem, &nps);
+  check_flag(&flag, "KINSpilsGetNumPrecSolves", 1, 0);
+  flag = KINSpilsGetNumConvFails(kmem, &ncfl);
+  check_flag(&flag, "KINSpilsGetNumConvFails", 1, 0);
+  flag = KINSpilsGetNumFuncEvals(kmem, &nfeSG);
+  check_flag(&flag, "KINSpilsGetNumFuncEvals", 1, 0);
 
   printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
