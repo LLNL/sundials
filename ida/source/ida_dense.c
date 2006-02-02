@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:03 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:34:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -59,7 +59,6 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
 #define ewt          (IDA_mem->ida_ewt)
 #define constraints  (IDA_mem->ida_constraints)
 #define nre          (IDA_mem->ida_nre)
-#define errfp        (IDA_mem->ida_errfp)
 #define iopt         (IDA_mem->ida_iopt)
 #define linit        (IDA_mem->ida_linit)
 #define lsetup       (IDA_mem->ida_lsetup)
@@ -116,7 +115,7 @@ int IDADense(void *ida_mem, long int Neq)
 
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGD_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADense", MSGD_IDAMEM_NULL);
     return(IDADENSE_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -124,7 +123,7 @@ int IDADense(void *ida_mem, long int Neq)
   /* Test if the NVECTOR package is compatible with the DENSE solver */
   if(vec_tmpl->ops->nvgetarraypointer == NULL ||
      vec_tmpl->ops->nvsetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_BAD_NVECTOR);
+    IDAProcessError(IDA_mem, IDADENSE_ILL_INPUT, "IDADENSE", "IDADense", MSGD_BAD_NVECTOR);
     return(IDADENSE_ILL_INPUT);
   }
 
@@ -141,7 +140,7 @@ int IDADense(void *ida_mem, long int Neq)
   idadense_mem = NULL;
   idadense_mem = (IDADenseMem) malloc(sizeof(IDADenseMemRec));
   if (idadense_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADENSE_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
     return(IDADENSE_MEM_FAIL);
   }
 
@@ -159,7 +158,7 @@ int IDADense(void *ida_mem, long int Neq)
   JJ = NULL;
   JJ = DenseAllocMat(Neq);
   if (JJ == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADENSE_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
     free(idadense_mem); idadense_mem = NULL;
     return(IDADENSE_MEM_FAIL);
   }
@@ -167,7 +166,7 @@ int IDADense(void *ida_mem, long int Neq)
   pivots = NULL;
   pivots = DenseAllocPiv(Neq);
   if (pivots == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDADENSE_MEM_FAIL, "IDADENSE", "IDADense", MSGD_MEM_FAIL);
     DenseFreeMat(JJ);
     free(idadense_mem); idadense_mem = NULL;
     return(IDADENSE_MEM_FAIL);
@@ -192,13 +191,13 @@ int IDADenseSetJacFn(void *ida_mem, IDADenseJacFn djac, void *jac_data)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGD_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseSetJacFn", MSGD_IDAMEM_NULL);
     return(IDADENSE_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseSetJacFn", MSGD_LMEM_NULL);
     return(IDADENSE_LMEM_NULL);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -216,13 +215,13 @@ int IDADenseGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGD_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseGetWorkSpace", MSGD_IDAMEM_NULL);
     return(IDADENSE_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseGetWorkSpace", MSGD_LMEM_NULL);
     return(IDADENSE_LMEM_NULL);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -240,13 +239,13 @@ int IDADenseGetNumJacEvals(void *ida_mem, long int *njevals)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGD_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseGetNumJacEvals", MSGD_IDAMEM_NULL);
     return(IDADENSE_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseGetNumJacEvals", MSGD_LMEM_NULL);
     return(IDADENSE_LMEM_NULL);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -263,13 +262,13 @@ int IDADenseGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGD_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseGetNumResEvals", MSGD_IDAMEM_NULL);
     return(IDADENSE_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseGetNumResEvals", MSGD_LMEM_NULL);
     return(IDADENSE_LMEM_NULL);
   }
   idadense_mem = (IDADenseMem) lmem;
@@ -286,13 +285,13 @@ int IDADenseGetLastFlag(void *ida_mem, int *flag)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGD_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDADENSE_MEM_NULL, "IDADENSE", "IDADenseGetLastFlag", MSGD_IDAMEM_NULL);
     return(IDADENSE_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGD_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDADENSE_LMEM_NULL, "IDADENSE", "IDADenseGetLastFlag", MSGD_LMEM_NULL);
     return(IDADENSE_LMEM_NULL);
   }
   idadense_mem = (IDADenseMem) lmem;

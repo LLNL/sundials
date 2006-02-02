@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-25 23:08:03 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-02 00:34:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -25,11 +25,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ida_spgmr.h"
+#include "ida_spbcgs.h"
+#include "ida_sptfqmr.h"
+
 #include "ida_impl.h"
 #include "ida_bbdpre_impl.h"
-#include "ida_sptfqmr_impl.h"
-#include "ida_spbcgs_impl.h"
-#include "ida_spgmr_impl.h"
+
 #include "sundials_math.h"
 
 #define ZERO RCONST(0.0)
@@ -57,7 +59,6 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 
 /* Readability Replacements */
 
-#define errfp    (IDA_mem->ida_errfp)
 #define uround   (IDA_mem->ida_uround)
 #define vec_tmpl (IDA_mem->ida_tempv1)
 
@@ -79,7 +80,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   long int muk, mlk, storage_mu;
 
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGBBD_IDAMEM_NULL);
+    IDAProcessError(NULL, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_IDAMEM_NULL);
     return(NULL);
   }
 
@@ -87,14 +88,17 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
 
   /* Test if the NVECTOR package is compatible with BLOCK BAND preconditioner */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBBD_BAD_NVECTOR);
+    IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_BAD_NVECTOR);
     return(NULL);
   }
 
   /* Allocate data memory. */
   pdata = NULL;
   pdata = (IBBDPrecData) malloc(sizeof *pdata);
-  if (pdata == NULL) return(NULL);
+  if (pdata == NULL) {
+    IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
+    return(NULL);
+  }
 
   /* Set pointers to glocal and gcomm; load half-bandwidths. */
   pdata->IDA_mem = IDA_mem;
@@ -115,6 +119,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   pdata->PP = BandAllocMat(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) { 
     free(pdata); pdata = NULL;
+    IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
     return(NULL); 
   }
 
@@ -124,6 +129,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   if (pdata->PP == NULL) {
     BandFreeMat(pdata->PP);
     free(pdata); pdata = NULL;
+    IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
     return(NULL);
   }
 
@@ -134,6 +140,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
     BandFreeMat(pdata->PP);
     BandFreePiv(pdata->pivots);
     free(pdata); pdata = NULL;
+    IDAProcessError(IDA_mem, 0, "IDABBDPRE", "IDABBDPrecAlloc", MSGBBD_MEM_FAIL);
     return(NULL);
   }
   pdata->tempv4 = tempv4;
@@ -158,19 +165,20 @@ int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data)
   int flag;
 
   flag = IDASptfqmr(ida_mem, maxl);
-  if(flag != IDASPTFQMR_SUCCESS) return(flag);
+  if(flag != IDASPILS_SUCCESS) return(flag);
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (bbd_data == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBBD_NO_PDATA);
+    
+    IDAProcessError(IDA_mem, IDABBDPRE_PDATA_NULL, "IDABBDPRE", "IDABBDSptfqmr", MSGBBD_PDATA_NULL);
     return(IDABBDPRE_PDATA_NULL);
   }
 
-  flag = IDASptfqmrSetPreconditioner(ida_mem, IDABBDPrecSetup, IDABBDPrecSolve, bbd_data);
-  if(flag != IDASPTFQMR_SUCCESS) return(flag);
+  flag = IDASpilsSetPreconditioner(ida_mem, IDABBDPrecSetup, IDABBDPrecSolve, bbd_data);
+  if(flag != IDASPILS_SUCCESS) return(flag);
 
-  return(IDASPTFQMR_SUCCESS);
+  return(IDASPILS_SUCCESS);
 }
 
 int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data)
@@ -179,19 +187,19 @@ int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data)
   int flag;
 
   flag = IDASpbcg(ida_mem, maxl);
-  if(flag != IDASPBCG_SUCCESS) return(flag);
+  if(flag != IDASPILS_SUCCESS) return(flag);
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (bbd_data == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBBD_NO_PDATA);
+    IDAProcessError(IDA_mem, IDABBDPRE_PDATA_NULL, "IDABBDPRE", "IDABBDSpbcg", MSGBBD_PDATA_NULL);
     return(IDABBDPRE_PDATA_NULL);
   }
 
-  flag = IDASpbcgSetPreconditioner(ida_mem, IDABBDPrecSetup, IDABBDPrecSolve, bbd_data);
-  if(flag != IDASPBCG_SUCCESS) return(flag);
+  flag = IDASpilsSetPreconditioner(ida_mem, IDABBDPrecSetup, IDABBDPrecSolve, bbd_data);
+  if(flag != IDASPILS_SUCCESS) return(flag);
 
-  return(IDASPBCG_SUCCESS);
+  return(IDASPILS_SUCCESS);
 }
 
 int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
@@ -200,20 +208,20 @@ int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data)
   int flag;
 
   flag = IDASpgmr(ida_mem, maxl);
-  if(flag != IDASPGMR_SUCCESS) return(flag);
+  if(flag != IDASPILS_SUCCESS) return(flag);
 
   IDA_mem = (IDAMem) ida_mem;
 
   if (bbd_data == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGBBD_NO_PDATA);
+    IDAProcessError(IDA_mem, IDABBDPRE_PDATA_NULL, "IDABBDPRE", "IDABBDSpgmr", MSGBBD_PDATA_NULL);
     return(IDABBDPRE_PDATA_NULL);
   }
 
-  flag = IDASpgmrSetPreconditioner(ida_mem, IDABBDPrecSetup,
+  flag = IDASpilsSetPreconditioner(ida_mem, IDABBDPrecSetup,
                                    IDABBDPrecSolve, bbd_data);
-  if(flag != IDASPGMR_SUCCESS) return(flag);
+  if(flag != IDASPILS_SUCCESS) return(flag);
 
-  return(IDASPGMR_SUCCESS);
+  return(IDASPILS_SUCCESS);
 }
 
 int IDABBDPrecReInit(void *bbd_data,
@@ -226,7 +234,7 @@ int IDABBDPrecReInit(void *bbd_data,
   long int Nlocal;
 
   if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBD_NO_PDATA);
+    IDAProcessError(NULL, IDABBDPRE_PDATA_NULL, "IDABBDPRE", "IDABBDPrecReInit", MSGBBD_PDATA_NULL);
     return(IDABBDPRE_PDATA_NULL);
   } 
 
@@ -271,7 +279,7 @@ int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwB
   IBBDPrecData pdata;
 
   if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBD_PDATA_NULL);
+    IDAProcessError(NULL, IDABBDPRE_PDATA_NULL, "IDABBDPRE", "IDABBDPrecGetWorkSpace", MSGBBD_PDATA_NULL);
     return(IDABBDPRE_PDATA_NULL);
   } 
 
@@ -288,7 +296,7 @@ int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   IBBDPrecData pdata;
 
   if (bbd_data == NULL) {
-    fprintf(stderr, MSGBBD_PDATA_NULL);
+    IDAProcessError(NULL, IDABBDPRE_PDATA_NULL, "IDABBDPRE", "IDABBDPrecGetNumGfnEvals", MSGBBD_PDATA_NULL);
     return(IDABBDPRE_PDATA_NULL);
   } 
 

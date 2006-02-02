@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.19 $
+ * $Date: 2006-02-02 00:34:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -22,11 +22,9 @@
 extern "C" {
 #endif
 
+#include <stdarg.h>
+
 #include "ida.h"
-
-/* Prototype of internal ewtSet function */
-
-int IDAEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
 
 /* Basic IDA constants */
 
@@ -172,7 +170,11 @@ typedef struct IDAMemRec {
 
   realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
-  FILE *ida_errfp;       /* IDA error messages are sent to errfp              */
+  /* Error handler function and error ouput file */
+
+  IDAErrHandlerFn ida_ehfun; /* Error messages are handled by ehfun           */
+  void *ida_eh_data;         /* user pointer passed to ehfun                  */
+  FILE *ida_errfp;           /* IDA error messages are sent to errfp          */
 
   /* Flags to verify correct calling sequence */
 
@@ -233,6 +235,20 @@ typedef struct IDAMemRec {
 
 } *IDAMem;
 
+/* Prototype of internal ewtSet function */
+
+int IDAEwtSet(N_Vector ycur, N_Vector weight, void *e_data);
+
+/* High level error handler */
+
+void IDAProcessError(IDAMem IDA_mem, 
+                     int error_code, const char *module, const char *fname, 
+                     const char *msgfmt, ...);
+
+/* Prototype of internal errHandler function */
+
+void IDAErrHandler(int error_code, const char *module, const char *function, 
+                   char *msg, void *eh_data);
 
 /*
  *----------------------------------------------------------------
@@ -242,238 +258,111 @@ typedef struct IDAMemRec {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 
-#define MSG_TIME "at t = %Lg, "
-#define MSG_TIME_H "at t = %Lg and h = %Lg, "
-#define MSG_TIME_INT "t is not between tcur - hu = %Lg and tcur = %Lg.\n\n"
+#define MSG_TIME "t = %Lg, "
+#define MSG_TIME_H "t = %Lg and h = %Lg, "
+#define MSG_TIME_INT "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg."
 #define MSG_TIME_TOUT "tout = %Lg"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
-#define MSG_TIME "at t = %lg, "
-#define MSG_TIME_H "at t = %lg and h = %lg, "
-#define MSG_TIME_INT "t is not between tcur - hu = %lg and tcur = %lg.\n\n"
+#define MSG_TIME "t = %lg, "
+#define MSG_TIME_H "t = %lg and h = %lg, "
+#define MSG_TIME_INT "t = %lg is not between tcur - hu = %lg and tcur = %lg."
 #define MSG_TIME_TOUT "tout = %lg"
 
 #else
 
-#define MSG_TIME "at t = %g, "
-#define MSG_TIME_H "at t = %g and h = %g, "
-#define MSG_TIME_INT "t is not between tcur - hu = %g and tcur = %g.\n\n"
+#define MSG_TIME "t = %g, "
+#define MSG_TIME_H "t = %g and h = %g, "
+#define MSG_TIME_INT "t = %g is not between tcur - hu = %g and tcur = %g."
 #define MSG_TIME_TOUT "tout = %g"
 
 #endif
 
-/* IDACreate error messages */
+/* General errors */
 
-#define MSG_IDAMEM_FAIL    "IDACreate-- allocation of ida_mem failed. \n\n"
+#define MSG_MEM_FAIL       "A memory request failed."
+#define MSG_NO_MEM         "ida_mem = NULL illegal."
+#define MSG_NO_MALLOC      "Attempt to call before IDAMalloc."
+#define MSG_BAD_NVECTOR    "A required vector operation is not implemented."
 
-/* IDAMalloc/IDAReInit error messages */
+/* Initialization errors */
 
-#define _IDAM_             "IDAMalloc/IDAReInit-- "
+#define MSG_Y0_NULL        "y0 = NULL illegal."
+#define MSG_YP0_NULL       "yp0 = NULL illegal."
+#define MSG_BAD_ITOL       "Illegal value for itol. The legal values are IDA_SS, IDA_SV, and IDA_WF."
+#define MSG_RES_NULL       "res = NULL illegal."
+#define MSG_BAD_RTOL       "reltol < 0 illegal."
+#define MSG_ATOL_NULL      "abstol = NULL illegal."
+#define MSG_BAD_ATOL       "Some abstol component < 0.0 illegal."
+#define MSG_ROOT_FUNC_NULL "g = NULL illegal."
 
-#define MSG_IDAM_NO_MEM    _IDAM_ "ida_mem = NULL illegal.\n\n"
-
-#define MSG_Y0_NULL        _IDAM_ "y0 = NULL illegal.\n\n"
-#define MSG_YP0_NULL       _IDAM_ "yp0 = NULL illegal.\n\n"
-
-#define MSG_BAD_ITOL       _IDAM_ "itol has an illegal value.\n"
-
-#define MSG_RES_NULL       _IDAM_ "res = NULL illegal.\n\n"
-
-#define MSG_BAD_RTOL       _IDAM_ "*reltol < 0 illegal.\n\n"
-
-#define MSG_ATOL_NULL      _IDAM_ "abstol = NULL illegal.\n\n"
-
-#define MSG_BAD_ATOL       _IDAM_ "some abstol component < 0.0 illegal.\n\n"
-
-#define MSG_BAD_NVECTOR    _IDAM_ "a required vector operation is not implemented.\n\n"
-
-#define MSG_MEM_FAIL       _IDAM_ "a memory request failed.\n\n"
-
-#define MSG_REI_NO_MALLOC  "IDAReInit-- attempt to call before IDAMalloc. \n\n"
-
-/* IDAInitialSetup error messages -- called from IDACalcIC or IDASolve */
-
-#define _IDAIS_              "Initial setup-- "
-
-#define MSG_MISSING_ID      _IDAIS_ "id = NULL but suppressalg option on.\n\n"
-
-#define MSG_NO_EFUN         _IDAIS_ "itol = IDA_WF but no EwtSet function was provided.\n\n"
-
-#define MSG_FAIL_EWT        _IDAIS_ "The user-provide EwtSet function failed.\n\n"
-
-#define MSG_BAD_EWT         _IDAIS_ "some initial ewt component = 0.0 illegal.\n\n"
-
-#define MSG_Y0_FAIL_CONSTR  _IDAIS_ "y0 fails to satisfy constraints.\n\n"
-
-#define MSG_LSOLVE_NULL     _IDAIS_ "the linear solver's solve routine is NULL.\n\n"
-
-#define MSG_LINIT_FAIL      _IDAIS_ "the linear solver's init routine failed.\n\n"
-
-/* IDARootInit Error Messages */
-
-#define _IDART_ "IDARootInit-- "
-
-#define MSG_ROOT_NO_MEM _IDART_ "ida_mem = NULL illegal.\n\n"
-
-#define MSG_ROOT_MEM_FAIL _IDART_ "A memory request failed.\n\n"
-
-#define MSG_ROOT_FUNC_NULL _IDART_ "g = NULL illegal.\n\n"
-
-/* IDASolve error messages */
-
-#define _IDASLV_             "IDASolve-- "
-
-#define MSG_IDA_NO_MEM     _IDASLV_ "ida_mem = NULL illegal.\n\n"
-
-#define MSG_NO_MALLOC      _IDASLV_ "attempt to call before IDAMalloc. \n\n"
- 
-#define MSG_BAD_HINIT      _IDASLV_ "initial step is not towards tout.\n\n"
-
-#define MSG_BAD_TOUT1      _IDASLV_ "trouble interpolating at " MSG_TIME_TOUT ".\n"
-#define MSG_BAD_TOUT2      "tout too far back in direction of integration.\n\n"
-#define MSG_BAD_TOUT       MSG_BAD_TOUT1 MSG_BAD_TOUT2
-
-#define MSG_BAD_TSTOP      _IDASLV_ MSG_TIME "tstop is behind.\n\n"
-
-#define MSG_MAX_STEPS      _IDASLV_ MSG_TIME "maximum number of steps reached.\n\n"
-
-#define MSG_EWT_NOW_FAIL   _IDASLV_ MSG_TIME "the user-provide EwtSet function failed.\n\n"
-
-#define MSG_EWT_NOW_BAD    _IDASLV_ MSG_TIME "some ewt component has become <= 0.0.\n\n"
-
-#define MSG_TOO_MUCH_ACC   _IDASLV_ MSG_TIME "too much accuracy requested.\n\n"
-
-#define MSG_ERR_FAILS1     "the error test\nfailed repeatedly or with |h| = hmin.\n\n"
-#define MSG_ERR_FAILS      _IDASLV_ MSG_TIME_H MSG_ERR_FAILS1
-
-#define MSG_CONV_FAILS1    "the corrector convergence\nfailed repeatedly.\n\n"
-#define MSG_CONV_FAILS     _IDASLV_ MSG_TIME_H MSG_CONV_FAILS1
-
-#define MSG_SETUP_FAILED1  "the linear solver setup failed unrecoverably.\n\n"
-#define MSG_SETUP_FAILED   _IDASLV_ MSG_TIME MSG_SETUP_FAILED1
-
-#define MSG_SOLVE_FAILED1  "the linear solver solve failed unrecoverably.\n\n"
-#define MSG_SOLVE_FAILED   _IDASLV_ MSG_TIME MSG_SOLVE_FAILED1
-
-#define MSG_TOO_CLOSE      _IDASLV_ "tout too close to t0 to start integration.\n\n"
-
-#define MSG_BAD_INIT_ROOT  _IDASLV_ "Root found at and very near initial t.\n\n"
-
-#define MSG_YRET_NULL      _IDASLV_ "yret = NULL illegal.\n\n"
-#define MSG_YPRET_NULL     _IDASLV_ "ypret = NULL illegal.\n\n"
-#define MSG_TRET_NULL      _IDASLV_ "tret = NULL illegal.\n\n"
-
-#define MSG_BAD_ITASK      _IDASLV_ "itask has an illegal value.\n\n"
-
-#define MSG_NO_TSTOP       _IDASLV_ "tstop not set for this itask. \n\n"
-
-#define MSG_CLOSE_ROOTS    _IDASLV_ "Root found at and very near " MSG_TIME ".\n\n"
-
-#define MSG_REP_RES_ERR1   "repeated recoverable residual errors.\n\n"
-#define MSG_REP_RES_ERR    _IDASLV_ MSG_TIME MSG_REP_RES_ERR1
-
-#define MSG_RES_NONRECOV1  "the residual function failed unrecoverably. \n\n"
-#define MSG_RES_NONRECOV   _IDASLV_ MSG_TIME MSG_RES_NONRECOV1
-
-#define MSG_FAILED_CONSTR1 "unable to satisfy inequality constraints. \n\n"
-#define MSG_FAILED_CONSTR  _IDASLV_ MSG_TIME MSG_FAILED_CONSTR1
+#define MSG_MISSING_ID     "id = NULL but suppressalg option on."
+#define MSG_NO_EFUN        "itol = IDA_WF but no EwtSet function was provided."
+#define MSG_FAIL_EWT       "The user-provide EwtSet function failed."
+#define MSG_BAD_EWT        "Some initial ewt component = 0.0 illegal."
+#define MSG_Y0_FAIL_CONSTR "y0 fails to satisfy constraints."
+#define MSG_LSOLVE_NULL    "The linear solver's solve routine is NULL."
+#define MSG_LINIT_FAIL     "The linear solver's init routine failed."
 
 /* IDACalcIC error messages */
 
-#define _IDAIC_            "IDACalcIC-- "
+#define MSG_IC_BAD_ICOPT   "icopt has an illegal value."
+#define MSG_IC_MISSING_ID  "id = NULL conflicts with icopt."
+#define MSG_IC_TOO_CLOSE   "tout1 too close to t0 to attempt initial condition calculation."
+#define MSG_IC_BAD_ID      "id has illegal values."
+#define MSG_IC_BAD_EWT     "Some initial ewt component = 0.0 illegal."
+#define MSG_IC_RES_NONREC  "The residual function failed unrecoverably. "
+#define MSG_IC_RES_FAIL    "The residual function failed at the first call. "
+#define MSG_IC_SETUP_FAIL  "The linear solver setup failed unrecoverably."
+#define MSG_IC_SOLVE_FAIL  "The linear solver solve failed unrecoverably."
+#define MSG_IC_NO_RECOVERY "The residual routine or the linear setup or solve routine had a recoverable error, but IDACalcIC was unable to recover."
+#define MSG_IC_FAIL_CONSTR "Unable to satisfy the inequality constraints."
+#define MSG_IC_FAILED_LINS "The linesearch algorithm failed with too small a step."
+#define MSG_IC_CONV_FAILED "Newton/Linesearch algorithm failed to converge."
 
-#define MSG_IC_NO_MEM      _IDAIC_ "IDA_mem = NULL illegal.\n\n"
+/* IDASolve error messages */
 
-#define MSG_IC_NO_MALLOC   _IDAIC_ "attempt to call before IDAMalloc. \n\n"
- 
-#define MSG_IC_Y0_NULL     _IDAIC_ "y0 = NULL illegal.\n\n"
-#define MSG_IC_YP0_NULL    _IDAIC_ "yp0 = NULL illegal.\n\n"
+#define MSG_YRET_NULL      "yret = NULL illegal."
+#define MSG_YPRET_NULL     "ypret = NULL illegal."
+#define MSG_TRET_NULL      "tret = NULL illegal."
+#define MSG_BAD_ITASK      "itask has an illegal value."
+#define MSG_NO_TSTOP       "tstop not set for this itask. "
+#define MSG_TOO_CLOSE      "tout too close to t0 to start integration."
+#define MSG_BAD_HINIT      "Initial step is not towards tout."
+#define MSG_BAD_TSTOP      "tstop is behind current " MSG_TIME "in the direction of integration."
+#define MSG_BAD_INIT_ROOT  "Root found at and very near initial t."
+#define MSG_CLOSE_ROOTS    "Root found at and very near " MSG_TIME "."
+#define MSG_MAX_STEPS      "At " MSG_TIME ", mxstep steps taken before reaching tout." 
+#define MSG_EWT_NOW_FAIL   "At " MSG_TIME "the user-provide EwtSet function failed."
+#define MSG_EWT_NOW_BAD    "At " MSG_TIME "some ewt component has become <= 0.0."
+#define MSG_TOO_MUCH_ACC   "At " MSG_TIME "too much accuracy requested."
 
-#define MSG_IC_BAD_ICOPT   _IDAIC_ "icopt has an illegal value.\n\n"
+#define MSG_BAD_T          "Illegal value for t." MSG_TIME_INT
+#define MSG_BAD_TOUT       "Trouble interpolating at " MSG_TIME_TOUT ". tout too far back in direction of integration."
 
-#define MSG_IC_MISSING_ID  _IDAIC_ "id = NULL conflicts with icopt.\n\n"
-
-#define MSG_IC_BAD_ID      _IDAIC_ "id has illegal values.\n\n"
-
-#define MSG_IC_TOO_CLOSE1  _IDAIC_ "tout1 too close to t0 to attempt "
-#define MSG_IC_TOO_CLOSE2  "initial condition calculation.\n\n"
-#define MSG_IC_TOO_CLOSE   MSG_IC_TOO_CLOSE1 MSG_IC_TOO_CLOSE2
-
-#define MSG_IC_BAD_EWT     _IDAIC_ "some ewt component = 0.0 illegal.\n\n"
-
-#define MSG_IC_RES_NONR1   "the residual function failed unrecoverably. \n\n"
-#define MSG_IC_RES_NONREC  _IDAIC_ MSG_IC_RES_NONR1
-
-#define MSG_IC_RES_FAIL1   "the residual function failed at the first call. \n\n"
-#define MSG_IC_RES_FAIL    _IDAIC_ MSG_IC_RES_FAIL1
-
-#define MSG_IC_SETUP_FAIL1 "the linear solver setup failed unrecoverably.\n\n"
-#define MSG_IC_SETUP_FAIL  _IDAIC_ MSG_IC_SETUP_FAIL1
-
-#define MSG_IC_SOLVE_FAIL1 "the linear solver solve failed unrecoverably.\n\n"
-#define MSG_IC_SOLVE_FAIL  _IDAIC_ MSG_IC_SOLVE_FAIL1
-
-#define MSG_IC_NO_RECOV1   _IDAIC_ "The residual routine or the linear"
-#define MSG_IC_NO_RECOV2   " setup or solve routine had a recoverable"
-#define MSG_IC_NO_RECOV3   " error, but IDACalcIC was unable to recover.\n\n"
-#define MSG_IC_NO_RECOVERY MSG_IC_NO_RECOV1 MSG_IC_NO_RECOV2 MSG_IC_NO_RECOV3
-
-#define MSG_IC_FAIL_CON1   "Unable to satisfy the inequality constraints.\n\n"
-#define MSG_IC_FAIL_CONSTR _IDAIC_ MSG_IC_FAIL_CON1
-
-#define MSG_IC_FAILED_LS1  "the linesearch algorithm failed with too small a step.\n\n"
-#define MSG_IC_FAILED_LINS _IDAIC_ MSG_IC_FAILED_LS1
-
-#define MSG_IC_CONV_FAIL1  "Newton/Linesearch algorithm failed to converge.\n\n"
-#define MSG_IC_CONV_FAILED _IDAIC_ MSG_IC_CONV_FAIL1
+#define MSG_ERR_FAILS      "At " MSG_TIME_H "the error test failed repeatedly or with |h| = hmin."
+#define MSG_CONV_FAILS     "At " MSG_TIME_H "the corrector convergence failed repeatedly or with |h| = hmin."
+#define MSG_SETUP_FAILED   "At " MSG_TIME "the linear solver setup failed unrecoverably."
+#define MSG_SOLVE_FAILED   "At " MSG_TIME "the linear solver solve failed unrecoverably."
+#define MSG_REP_RES_ERR    "At " MSG_TIME "repeated recoverable residual errors."
+#define MSG_RES_NONRECOV   "At " MSG_TIME "the residual function failed unrecoverably."
+#define MSG_FAILED_CONSTR  "At " MSG_TIME "unable to satisfy inequality constraints."
 
 /* IDASet* error messages */
 
-#define MSG_IDAS_NO_MEM      "IDASet*-- ida_mem = NULL illegal. \n\n"
+#define MSG_NEG_MAXORD     "maxord<=0 illegal."
+#define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
+#define MSG_NEG_MXSTEPS    "mxsteps < 0 illegal."
+#define MSG_NEG_HMAX       "hmax < 0 illegal."
+#define MSG_NEG_EPCON      "epcon < 0.0 illegal."
+#define MSG_BAD_CONSTR     "Illegal values in constraints vector."
+#define MSG_BAD_EPICCON    "epiccon < 0.0 illegal."
+#define MSG_BAD_MAXNH      "maxnh < 0 illegal."
+#define MSG_BAD_MAXNJ      "maxnj < 0 illegal."
+#define MSG_BAD_MAXNIT     "maxnit < 0 illegal."
+#define MSG_BAD_STEPTOL    "steptol < 0.0 illegal."
 
-#define MSG_IDAS_NEG_MAXORD  "IDASetMaxOrd-- maxord<=0 illegal. \n\n"
-
-#define MSG_IDAS_BAD_MAXORD  "IDASetMaxOrd-- illegal to increase maximum order.\n\n"
-
-#define MSG_IDAS_NEG_MXSTEPS "IDASetMaxNumSteps-- mxsteps < 0 illegal. \n\n"
-
-#define MSG_IDAS_NEG_HMAX    "IDASetMaxStep-- hmax < 0 illegal. \n\n"
-
-#define MSG_IDAS_NEG_EPCON   "IDASetNonlinConvCoef-- epcon < 0.0 illegal. \n\n"
-
-#define MSG_IDAS_BAD_NVECTOR  "IDASetConstraints-- a required vector operation is not implemented.\n\n"
-
-#define MSG_IDAS_BAD_CONSTRAINTS "IDASetConstraints-- illegal values in constraints vector.\n\n"
-
-#define MSG_IDAS_NO_MALLOC   "IDASetTolerances-- Attemp to call before IDAMalloc.\n\n"
-
-#define MSG_IDAS_BAD_ITOL    "IDASetTolerances-- itol has an illegal value.\n\n"
-
-#define MSG_IDAS_BAD_RTOL    "IDASetTolerances-- *rtol < 0 illegal.\n\n"
-
-#define MSG_IDAS_ATOL_NULL   "IDASetTolerances-- atol = NULL illegal.\n\n"
-
-#define MSG_IDAS_BAD_ATOL    "IDASetTolerances-- some atol component < 0.0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_EPICCON "IDASetNonlinConvCoefIC-- epiccon < 0.0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNH   "IDASetMaxNumStepsIC-- maxnh < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNJ   "IDASetMaxNumJacsIC-- maxnj < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_MAXNIT  "IDASetMaxNumItersIC-- maxnit < 0 illegal.\n\n"
-
-#define MSG_IDAS_BAD_STEPTOL "IDASetLineSearchOffIC-- steptol < 0.0 illegal.\n\n"
-
-/* IDAGet* Error Messages */
-
-#define MSG_IDAG_NO_MEM    "IDAGet*-- ida_mem = NULL illegal. \n\n"
-
-#define MSG_IDAG_BAD_T1    "IDAGetSolution-- "
-#define MSG_IDAG_BAD_T     MSG_IDAG_BAD_T1 MSG_TIME MSG_TIME_INT
-
-#define MSG_IDAG_EWT_BAD   "IDAGetErrWeights--  ewt has component(s) equal to zero.\n\n"
 
 #ifdef __cplusplus
 }

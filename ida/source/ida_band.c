@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:03 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:34:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -64,7 +64,6 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
 #define ewt         (IDA_mem->ida_ewt)
 #define constraints (IDA_mem->ida_constraints)
 #define nre         (IDA_mem->ida_nre)
-#define errfp       (IDA_mem->ida_errfp)
 #define iopt        (IDA_mem->ida_iopt)
 #define linit       (IDA_mem->ida_linit)
 #define lsetup      (IDA_mem->ida_lsetup)
@@ -124,14 +123,20 @@ int IDABand(void *ida_mem, long int Neq,
 
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGB_MEM_FAIL);
+    IDAProcessError(NULL, IDABAND_MEM_NULL, "IDABAND", "IDABand", MSGB_IDAMEM_NULL);
     return(IDABAND_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if the NVECTOR package is compatible with the BAND solver */
   if(vec_tmpl->ops->nvgetarraypointer == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_BAD_NVECTOR);
+    IDAProcessError(IDA_mem, IDABAND_ILL_INPUT, "IDABAND", "IDABand", MSGB_BAD_NVECTOR);
+    return(IDABAND_ILL_INPUT);
+  }
+
+  /* Test mlower and mupper for legality. */
+  if ((mlower < 0) || (mupper < 0) || (mlower >= Neq) || (mupper >= Neq)) {
+    IDAProcessError(IDA_mem, IDABAND_ILL_INPUT, "IDABAND", "IDABand", MSGB_BAD_SIZES);
     return(IDABAND_ILL_INPUT);
   }
 
@@ -148,7 +153,7 @@ int IDABand(void *ida_mem, long int Neq,
   idaband_mem = NULL;
   idaband_mem = (IDABandMem) malloc(sizeof(IDABandMemRec));
   if (idaband_mem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDABAND_MEM_FAIL, "IDABAND", "IDABand", MSGB_MEM_FAIL);
     return(IDABAND_MEM_FAIL);
   }
 
@@ -162,11 +167,6 @@ int IDABand(void *ida_mem, long int Neq,
   /* Store problem size */
   neq = Neq;
 
-  /* Test mlower and mupper for legality and load in memory. */
-  if ((mlower < 0) || (mupper < 0) || (mlower >= Neq) || (mupper >= Neq)) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_BAD_SIZES);
-    return(IDABAND_ILL_INPUT);
-  }
   idaband_mem->b_mlower = mlower;
   idaband_mem->b_mupper = mupper;
     
@@ -177,7 +177,7 @@ int IDABand(void *ida_mem, long int Neq,
   JJ = NULL;
   JJ = BandAllocMat(Neq, mupper, mlower, storage_mu);
   if (JJ == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDABAND_MEM_FAIL, "IDABAND", "IDABand", MSGB_MEM_FAIL);
     free(idaband_mem); idaband_mem = NULL;
     return(IDABAND_MEM_FAIL);
   }
@@ -185,7 +185,7 @@ int IDABand(void *ida_mem, long int Neq,
   pivots = NULL;
   pivots = BandAllocPiv(Neq);
   if (pivots == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDABAND_MEM_FAIL, "IDABAND", "IDABand", MSGB_MEM_FAIL);
     BandFreeMat(JJ);
     free(idaband_mem); idaband_mem = NULL;
     return(IDABAND_MEM_FAIL);
@@ -210,13 +210,13 @@ int IDABandSetJacFn(void *ida_mem, IDABandJacFn bjac, void *jac_data)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDABAND_MEM_NULL, "IDABAND", "IDABandSetJacFn", MSGB_IDAMEM_NULL);
     return(IDABAND_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDABAND_LMEM_NULL, "IDABAND", "IDABandSetJacFn", MSGB_LMEM_NULL);
     return(IDABAND_LMEM_NULL);
   }
   idaband_mem = (IDABandMem) lmem;
@@ -234,13 +234,13 @@ int IDABandGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDABAND_MEM_NULL, "IDABAND", "IDABandGetWorkSpace", MSGB_IDAMEM_NULL);
     return(IDABAND_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDABAND_LMEM_NULL, "IDABAND", "IDABandGetWorkSpace", MSGB_LMEM_NULL);
     return(IDABAND_LMEM_NULL);
   }
   idaband_mem = (IDABandMem) lmem;
@@ -258,13 +258,13 @@ int IDABandGetNumJacEvals(void *ida_mem, long int *njevals)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDABAND_MEM_NULL, "IDABAND", "IDABandGetNumJacEvals", MSGB_IDAMEM_NULL);
     return(IDABAND_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDABAND_LMEM_NULL, "IDABAND", "IDABandGetNumJacEvals", MSGB_LMEM_NULL);
     return(IDABAND_LMEM_NULL);
   }
   idaband_mem = (IDABandMem) lmem;
@@ -281,13 +281,13 @@ int IDABandGetNumResEvals(void *ida_mem, long int *nrevalsLS)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDABAND_MEM_NULL, "IDABAND", "IDABandGetNumResEvals", MSGB_IDAMEM_NULL);
     return(IDABAND_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDABAND_LMEM_NULL, "IDABAND", "IDABandGetNumResEvals", MSGB_LMEM_NULL);
     return(IDABAND_LMEM_NULL);
   }
   idaband_mem = (IDABandMem) lmem;
@@ -304,13 +304,13 @@ int IDABandGetLastFlag(void *ida_mem, int *flag)
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGB_SETGET_IDAMEM_NULL);
+    IDAProcessError(NULL, IDABAND_MEM_NULL, "IDABAND", "IDABandGetLastFlag", MSGB_IDAMEM_NULL);
     return(IDABAND_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (lmem == NULL) {
-    if(errfp!=NULL) fprintf(errfp, MSGB_SETGET_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDABAND_LMEM_NULL, "IDABAND", "IDABandGetLastFlag", MSGB_LMEM_NULL);
     return(IDABAND_LMEM_NULL);
   }
   idaband_mem = (IDABandMem) lmem;

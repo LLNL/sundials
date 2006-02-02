@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2006-01-25 23:08:00 $
+ * $Revision: 1.20 $
+ * $Date: 2006-02-02 00:34:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -23,12 +23,15 @@
 
 #include "fida.h"             /* function names, prototypes, global variables   */
 #include "ida.h"              /* IDA constants and prototypes                   */
+
 #include "ida_band.h"         /* prototypes for IDABAND interface routines      */
 #include "ida_dense.h"        /* prototypes for IDADENSE interface routines     */
 #include "ida_sptfqmr.h"      /* prototypes for IDASPTFQMR interface routines   */
 #include "ida_spbcgs.h"       /* prototypes for IDASPBCG interface routines     */
 #include "ida_spgmr.h"        /* prototypes for IDASPGMR interface routines     */
+
 #include "ida_impl.h"         /* definition of IDAMem type                      */
+
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
 #include "sundials_types.h"   /* definition of type realtype                    */
 
@@ -407,16 +410,16 @@ void FIDA_SPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
   *ier = 0;
 
   *ier = IDASptfqmr(IDA_idamem, *maxl);
-  if (*ier != IDASPTFQMR_SUCCESS) return;
+  if (*ier != IDASPILS_SUCCESS) return;
 
   if (*eplifac != ZERO) {
-    *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPTFQMR_SUCCESS) return;
+    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*dqincfac != ZERO) {
-    *ier = IDASptfqmrSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPTFQMR_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPTFQMR;
@@ -432,16 +435,16 @@ void FIDA_SPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
   *ier = 0;
 
   *ier = IDASpbcg(IDA_idamem, *maxl);
-  if (*ier != IDASPBCG_SUCCESS) return;
+  if (*ier != IDASPILS_SUCCESS) return;
 
   if (*eplifac != ZERO) {
-    *ier = IDASpbcgSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPBCG_SUCCESS) return;
+    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*dqincfac != ZERO) {
-    *ier = IDASpbcgSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPBCG_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPBCG;
@@ -458,26 +461,26 @@ void FIDA_SPGMR(int *maxl, int *gstype, int *maxrs,
   *ier = 0;
 
   *ier = IDASpgmr(IDA_idamem, *maxl);
-  if (*ier != IDASPGMR_SUCCESS) return;
+  if (*ier != IDASPILS_SUCCESS) return;
 
   if (*gstype != 0) {
-    *ier = IDASpgmrSetGSType(IDA_idamem, *gstype);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetGSType(IDA_idamem, *gstype);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*maxrs != 0) {
-    *ier = IDASpgmrSetMaxRestarts(IDA_idamem, *maxrs);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetMaxRestarts(IDA_idamem, *maxrs);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*eplifac != ZERO) {
-    *ier = IDASpgmrSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*dqincfac != ZERO) {
-    *ier = IDASpgmrSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPGMR;
@@ -521,18 +524,18 @@ void FIDA_SPTFQMRREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *i
   *ier = 0;
 
   if (*maxl > 0) {
-    *ier = IDASptfqmrSetMaxl(IDA_idamem, *maxl);
-    if (*ier != IDASPTFQMR_SUCCESS) return;
+    *ier = IDASpilsSetMaxl(IDA_idamem, *maxl);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*eplifac != ZERO) {
-    *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPTFQMR_SUCCESS) return;
+    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*dqincfac != ZERO) {
-    *ier = IDASptfqmrSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPTFQMR_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPTFQMR;
@@ -548,18 +551,18 @@ void FIDA_SPBCGREINIT(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier
   *ier = 0;
 
   if (*maxl > 0) {
-    *ier = IDASpbcgSetMaxl(IDA_idamem, *maxl);
-    if (*ier != IDASPBCG_SUCCESS) return;
+    *ier = IDASpilsSetMaxl(IDA_idamem, *maxl);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*eplifac != ZERO) {
-    *ier = IDASpbcgSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPBCG_SUCCESS) return;
+    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*dqincfac != ZERO) {
-    *ier = IDASpbcgSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPBCG_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPBCG;
@@ -576,23 +579,23 @@ void FIDA_SPGMRREINIT(int *gstype, int *maxrs, realtype *eplifac,
   *ier = 0;
 
   if (*gstype != 0) {
-    *ier = IDASpgmrSetGSType(IDA_idamem, *gstype);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetGSType(IDA_idamem, *gstype);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*maxrs != 0) {
-    *ier = IDASpgmrSetMaxRestarts(IDA_idamem, *maxrs);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetMaxRestarts(IDA_idamem, *maxrs);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*eplifac != ZERO) {
-    *ier = IDASpgmrSetEpsLin(IDA_idamem, *eplifac);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*dqincfac != ZERO) {
-    *ier = IDASpgmrSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPGMR;
@@ -662,34 +665,16 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
     IDABandGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                 /* NJE */
     break;
   case IDA_LS_SPGMR:
-    IDASpgmrGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
-    IDASpgmrGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
-    IDASpgmrGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
-    IDASpgmrGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);             /* NJE */
-    IDASpgmrGetNumPrecEvals(IDA_idamem, &IDA_iout[17]);               /* NPE */
-    IDASpgmrGetNumPrecSolves(IDA_idamem, &IDA_iout[18]);              /* NPS */
-    IDASpgmrGetNumLinIters(IDA_idamem, &IDA_iout[19]);                /* NLI */
-    IDASpgmrGetNumConvFails(IDA_idamem, &IDA_iout[20]);               /* NCFL */
-    break;
   case IDA_LS_SPBCG:
-    IDASpbcgGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
-    IDASpbcgGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
-    IDASpbcgGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
-    IDASpbcgGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);             /* NJE */
-    IDASpbcgGetNumPrecEvals(IDA_idamem, &IDA_iout[17]);               /* NPE */
-    IDASpbcgGetNumPrecSolves(IDA_idamem, &IDA_iout[18]);              /* NPS */
-    IDASpbcgGetNumLinIters(IDA_idamem, &IDA_iout[19]);                /* NLI */
-    IDASpbcgGetNumConvFails(IDA_idamem, &IDA_iout[20]);               /* NCFL */
-    break;
   case IDA_LS_SPTFQMR:
-    IDASptfqmrGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]); /* LENRWLS, LENIWLS */
-    IDASptfqmrGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);         /* LSTF */
-    IDASptfqmrGetNumResEvals(IDA_idamem, &IDA_iout[15]);              /* NRE */
-    IDASptfqmrGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);           /* NJE */
-    IDASptfqmrGetNumPrecEvals(IDA_idamem, &IDA_iout[17]);             /* NPE */
-    IDASptfqmrGetNumPrecSolves(IDA_idamem, &IDA_iout[18]);            /* NPS */
-    IDASptfqmrGetNumLinIters(IDA_idamem, &IDA_iout[19]);              /* NLI */
-    IDASptfqmrGetNumConvFails(IDA_idamem, &IDA_iout[20]);             /* NCFL */
+    IDASpilsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
+    IDASpilsGetLastFlag(IDA_idamem, (int *) &IDA_iout[14]);           /* LSTF */
+    IDASpilsGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
+    IDASpilsGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);             /* NJE */
+    IDASpilsGetNumPrecEvals(IDA_idamem, &IDA_iout[17]);               /* NPE */
+    IDASpilsGetNumPrecSolves(IDA_idamem, &IDA_iout[18]);              /* NPS */
+    IDASpilsGetNumLinIters(IDA_idamem, &IDA_iout[19]);                /* NLI */
+    IDASpilsGetNumConvFails(IDA_idamem, &IDA_iout[20]);               /* NCFL */
     break;
   }
 

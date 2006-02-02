@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:34:37 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -77,7 +77,6 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval);
  * =================================================================
  */
 
-#define errfp    (IDA_mem->ida_errfp)
 #define rdata    (IDA_mem->ida_rdata)
 #define res      (IDA_mem->ida_res)
 #define efun     (IDA_mem->ida_efun)
@@ -160,7 +159,7 @@ int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0,
   /* Check if IDA memory exists */
 
   if (ida_mem == NULL) {
-    fprintf(stderr, MSG_IC_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDACalcIC", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -168,7 +167,7 @@ int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0,
   /* Check if problem was malloc'ed */
   
   if (IDA_mem->ida_MallocDone == FALSE) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_NO_MALLOC);
+    IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDACalcIC", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
 
@@ -183,32 +182,32 @@ int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0,
   IDA_mem->ida_t0 = t0;
 
   if (yy0 == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_Y0_NULL); 
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_Y0_NULL);
     return(IDA_ILL_INPUT); 
   }
   IDA_mem->ida_yy0 = yy0;
 
   if (yp0 == NULL) { 
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_YP0_NULL); 
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_YP0_NULL);
     return(IDA_ILL_INPUT); 
   }
   IDA_mem->ida_yp0 = yp0;
 
   if (icopt < IDA_YA_YDP_INIT || icopt > IDA_Y_INIT) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_ICOPT);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_BAD_ICOPT);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_icopt = icopt;
 
   if (icopt == IDA_YA_YDP_INIT && (id == NULL)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_MISSING_ID);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_MISSING_ID);
     return(IDA_ILL_INPUT);
   }
 
   tdist = ABS(tout1 - tn);
   troundoff = TWO*uround*(ABS(tn) + ABS(tout1));    
   if (tdist < troundoff) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_TOO_CLOSE);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_TOO_CLOSE);
     return(IDA_ILL_INPUT);
   }
 
@@ -219,7 +218,7 @@ int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0,
   if (icopt == IDA_YA_YDP_INIT) {
     minid = N_VMin(id);
     if (minid < ZERO) {
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_ID);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_BAD_ID);
       return(IDA_ILL_INPUT);
     }
     if (minid > HALF) IDA_mem->ida_sysindex = 0;
@@ -579,8 +578,8 @@ static int IDALineSrch (IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
  *
  * The return value is IDA_SUCCESS = 0 if no error occurred, or
  *  IC_FAIL_RECOV    if res or lsolve failed recoverably, or
- *  IDA_RES_FAIL if res had a non-recoverable error, or
- *  IDA_LSOLVE_FAIL    if lsolve had a non-recoverable error.
+ *  IDA_RES_FAIL     if res had a non-recoverable error, or
+ *  IDA_LSOLVE_FAIL  if lsolve had a non-recoverable error.
  * -----------------------------------------------------------------
  */
 
@@ -686,43 +685,43 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval)
   switch (retval) {
 
     case IDA_RES_FAIL:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_RES_NONREC);
+      IDAProcessError(IDA_mem, IDA_RES_FAIL, "IDA", "IDACalcIC", MSG_IC_RES_NONREC);
       return(IDA_RES_FAIL);
 
     case IDA_FIRST_RES_FAIL:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_RES_FAIL);
+      IDAProcessError(IDA_mem, IDA_FIRST_RES_FAIL, "IDA", "IDACalcIC", MSG_IC_RES_FAIL);
       return(IDA_FIRST_RES_FAIL);
 
     case IDA_LSETUP_FAIL:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_SETUP_FAIL);
+      IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, "IDA", "IDACalcIC", MSG_IC_SETUP_FAIL);
       return(IDA_LSETUP_FAIL);
 
     case IDA_LSOLVE_FAIL:  
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_SOLVE_FAIL);
+      IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, "IDA", "IDACalcIC", MSG_IC_SOLVE_FAIL);
       return(IDA_LSOLVE_FAIL);
 
     case IC_FAIL_RECOV:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_NO_RECOVERY);
+      IDAProcessError(IDA_mem, IDA_NO_RECOVERY, "IDA", "IDACalcIC", MSG_IC_NO_RECOVERY);
       return(IDA_NO_RECOVERY);
 
     case IC_CONSTR_FAILED: 
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_FAIL_CONSTR);
+      IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDA", "IDACalcIC", MSG_IC_FAIL_CONSTR);
       return(IDA_CONSTR_FAIL);
 
     case IC_LINESRCH_FAILED:  
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_FAILED_LINS);
+      IDAProcessError(IDA_mem, IDA_LINESEARCH_FAIL, "IDA", "IDACalcIC", MSG_IC_FAILED_LINS);
       return(IDA_LINESEARCH_FAIL);
 
     case IC_CONV_FAIL:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_CONV_FAILED);
+      IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDACalcIC", MSG_IC_CONV_FAILED);
       return(IDA_CONV_FAIL);
 
     case IC_SLOW_CONVRG: 
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_CONV_FAILED);
+      IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDACalcIC", MSG_IC_CONV_FAILED);
       return(IDA_CONV_FAIL);
 
     case IDA_BAD_EWT:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_EWT);
+      IDAProcessError(IDA_mem, IDA_BAD_EWT, "IDA", "IDACalcIC", MSG_IC_BAD_EWT);
       return(IDA_BAD_EWT);
 
   }

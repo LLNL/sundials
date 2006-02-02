@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2006-01-11 21:13:53 $
+# $Revision: 1.18 $
+# $Date: 2006-02-02 00:34:37 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,8 +49,8 @@ IDA_INC_DIR    = $(srcdir)/../include
 
 IDA_LIB       = libsundials_ida.la
 
-IDA_LIB_FILES = ida.lo ida_ic.lo ida_io.lo ida_dense.lo ida_band.lo ida_spbcgs.lo ida_spgmr.lo ida_sptfqmr.lo ida_bbdpre.lo
-IDA_OBJ_FILES = ida.o ida_ic.o ida_io.o ida_dense.o ida_band.o ida_spbcgs.o ida_spgmr.o ida_sptfqmr.o ida_bbdpre.o
+IDA_LIB_FILES = ida.lo ida_ic.lo ida_io.lo ida_dense.lo ida_band.lo ida_spils.lo ida_spbcgs.lo ida_spgmr.lo ida_sptfqmr.lo ida_bbdpre.lo
+IDA_OBJ_FILES = ida.o ida_ic.o ida_io.o ida_dense.o ida_band.o ida_spils.o ida_spbcgs.o ida_spgmr.o ida_sptfqmr.o ida_bbdpre.o
 
 SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
                    $(SHARED_BUILD_DIR)/sundials_dense.lo \
@@ -111,6 +111,8 @@ ida_dense.lo: $(srcdir)/ida_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida_dense.c
 ida_band.lo: $(srcdir)/ida_band.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida_band.c
+ida_spils.lo: $(srcdir)/ida_spils.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida_spils.c
 ida_spbcgs.lo: $(srcdir)/ida_spbcgs.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida_spbcgs.c
 ida_spgmr.lo: $(srcdir)/ida_spgmr.c

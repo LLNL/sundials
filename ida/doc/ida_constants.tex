@@ -102,11 +102,11 @@ description of their meaning.
 \\\hline
 \multicolumn{3}{c}{\bf {\idaspgmr} linear solver module}\\
 \hline\\
-\id{IDASPGMR\_SUCCESS}    &  0 & Successful function return. \\
-\id{IDASPGMR\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDASPGMR\_LMEM\_NULL} & -2 & The {\idaspgmr} linear solver has not been initialized.\\
-\id{IDASPGMR\_ILL\_INPUT} & -3 & The {\idaspgmr} solver is not compatible with the current {\nvector} module.\\
-\id{IDASPGMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{IDASPILS\_SUCCESS}    &  0 & Successful function return. \\
+\id{IDASPILS\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
+\id{IDASPILS\_LMEM\_NULL} & -2 & The linear solver has not been initialized.\\
+\id{IDASPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module.\\
+\id{IDASPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \\\hline
 \multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
 \hline\\
@@ -121,14 +121,6 @@ description of their meaning.
 \id{SPGMR\_GS\_FAIL}           & -4 & Failure in the Gram-Schmidt procedure. \\
 \id{SPGMR\_QRSOL\_FAIL}        & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
 \\\hline
-\multicolumn{3}{c}{\bf {\idaspbcg} linear solver module}\\
-\hline\\
-\id{IDASPBCG\_SUCCESS}    &  0 & Successful function return. \\
-\id{IDASPBCG\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDASPBCG\_LMEM\_NULL} & -2 & The {\idaspbcg} linear solver has not been initialized.\\
-\id{IDASPBCG\_ILL\_INPUT} & -3 & The {\idaspbcg} solver is not compatible with the current {\nvector} module.\\
-\id{IDASPBCG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\\\hline
 \multicolumn{3}{c}{\bf {\spbcg} generic linear solver module}\\
 \hline\\
 \id{SPBCG\_SUCCESS}            &  0 & Converged. \\
@@ -138,14 +130,6 @@ description of their meaning.
 \id{SPBCG\_MEM\_NULL}          & -1 & The {\spbcg} memory is \id{NULL}\\
 \id{SPBCG\_ATIMES\_FAIL}       & -2 & The Jacobian-times-vector function failed. \\
 \id{SPBCG\_PSOLVE\_FAIL\_UNREC}& -3 & The preconditioner solve function failed unrecoverably. \\
-\\\hline
-\multicolumn{3}{c}{\bf {\idasptfqmr} linear solver module}\\
-\hline\\
-\id{IDASPTFQMR\_SUCCESS}    &  0 & Successful function return. \\
-\id{IDASPTFQMR\_MEM\_NULL}  & -1 & The \id{ida\_mem} argument was \id{NULL}.\\
-\id{IDASPTFQMR\_LMEM\_NULL} & -2 & The {\idasptfqmr} linear solver has not been initialized.\\
-\id{IDASPTFQMR\_ILL\_INPUT} & -3 & The {\idasptfqmr} solver is not compatible with the current {\nvector} module.\\
-\id{IDASPTFQMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 \\\hline
 \multicolumn{3}{c}{\bf {\sptfqmr} generic linear solver module}\\
 \hline\\

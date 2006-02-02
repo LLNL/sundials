@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-17 23:30:38 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:34:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -75,13 +75,10 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-#define MSGBBD_IDAMEM_NULL "IDABBDPrecAlloc-- integrator memory is NULL.\n\n"
-#define MSGBBD_BAD_NVECTOR "IDABBDPrecAlloc-- a required vector operation is not implemented.\n\n"
-#define MSGBBD_WRONG_NVEC  "IDABBDPrecAlloc-- incompatible NVECTOR implementation.\n\n"
-
-#define MSGBBD_PDATA_NULL "IDABBDPrecReInit/IDABBDPrecGet*-- IBBDPrecData is NULL.\n\n"
-
-#define MSGBBD_NO_PDATA "IDABBDSp*-- IBBDPrecData is NULL.\n\n"
+#define MSGBBD_IDAMEM_NULL "Integrator memory is NULL."
+#define MSGBBD_MEM_FAIL    "A memory request failed."
+#define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGBBD_PDATA_NULL  "BBDPrecData is NULL."
 
 #ifdef __cplusplus
 }

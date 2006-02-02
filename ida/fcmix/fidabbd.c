@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.9 $
+ * $Date: 2006-02-02 00:34:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -22,11 +22,14 @@
 
 #include "fida.h"             /* function names, prototypes, global variables */
 #include "fidabbd.h"          /* prototypes of interfaces to IDABBD           */
+
 #include "ida.h"              /* IDA constants and prototypes                 */
 #include "ida_bbdpre.h"       /* prototypes of IDABBDPRE functions and macros */
+
 #include "ida_spgmr.h"        /* prototypes of IDASPGMR interface routines    */
 #include "ida_spbcgs.h"       /* prototypes of IDASPBCG interface routines    */
 #include "ida_sptfqmr.h"      /* prototypes of IDASPTFQMR interface routines  */
+
 #include "sundials_nvector.h" /* definition of type N_Vector                  */
 #include "sundials_types.h"   /* definition of type realtype                  */
 
@@ -75,14 +78,14 @@ void FIDA_BBDSPTFQMR(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
   *ier = 0;
 
   *ier = IDABBDSptfqmr(IDA_idamem, *maxl, IDABBD_Data);
-  if (*ier != IDASPTFQMR_SUCCESS) return;
+  if (*ier != IDASPILS_SUCCESS) return;
 
-  *ier = IDASptfqmrSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPTFQMR_SUCCESS) return;
+  *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+  if (*ier != IDASPILS_SUCCESS) return;
 
   if (*dqincfac != ZERO) {
-    *ier = IDASptfqmrSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPTFQMR_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPTFQMR;
@@ -97,14 +100,14 @@ void FIDA_BBDSPBCG(int *maxl, realtype *eplifac, realtype *dqincfac, int *ier)
   *ier = 0;
 
   *ier = IDABBDSpbcg(IDA_idamem, *maxl, IDABBD_Data);
-  if (*ier != IDASPBCG_SUCCESS) return;
+  if (*ier != IDASPILS_SUCCESS) return;
 
-  *ier = IDASpbcgSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPBCG_SUCCESS) return;
+  *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+  if (*ier != IDASPILS_SUCCESS) return;
 
   if (*dqincfac != ZERO) {
-    *ier = IDASpbcgSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPBCG_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPBCG;
@@ -120,24 +123,24 @@ void FIDA_BBDSPGMR(int *maxl, int *gstype, int *maxrs,
   *ier = 0;
 
   *ier = IDABBDSpgmr(IDA_idamem, *maxl, IDABBD_Data);
-  if (*ier != IDASPGMR_SUCCESS) return;
+  if (*ier != IDASPILS_SUCCESS) return;
 
   if (*gstype != 0) {
-    *ier = IDASpgmrSetGSType(IDA_idamem, *gstype);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetGSType(IDA_idamem, *gstype);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   if (*maxrs != 0) {
-    *ier = IDASpgmrSetMaxRestarts(IDA_idamem, *maxrs);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetMaxRestarts(IDA_idamem, *maxrs);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
-  *ier = IDASpgmrSetEpsLin(IDA_idamem, *eplifac);
-  if (*ier != IDASPGMR_SUCCESS) return;
+  *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
+  if (*ier != IDASPILS_SUCCESS) return;
 
   if (*dqincfac != ZERO) {
-    *ier = IDASpgmrSetIncrementFactor(IDA_idamem, *dqincfac);
-    if (*ier != IDASPGMR_SUCCESS) return;
+    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
+    if (*ier != IDASPILS_SUCCESS) return;
   }
 
   IDA_ls = IDA_LS_SPGMR;

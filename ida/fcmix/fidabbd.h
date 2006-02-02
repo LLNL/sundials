@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.9 $
+ * $Date: 2006-02-02 00:34:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -35,9 +35,9 @@
  * The user-callable functions in this package, with the corresponding
  * IDA and IDABBDPRE functions, are as follows: 
  *   FIDABBDININT   interfaces to IDABBDPrecAlloc
- *   FIDABBDSPGMR   interfaces to IDABBDSpgmr and IDASpgmrSet*
- *   FIDABBDSPBCG   interfaces to IDABBDSpbcg and IDASpbcgSet*
- *   FIDABBDSPTFQMR interfaces to IDABBDSptfqmr and IDASptfqmrSet*
+ *   FIDABBDSPGMR   interfaces to IDABBDSpgmr and IDASpilsSet*
+ *   FIDABBDSPBCG   interfaces to IDABBDSpbcg and IDASpilsSet*
+ *   FIDABBDSPTFQMR interfaces to IDABBDSptfqmr and IDASpilsSet*
  *   FIDABBDREINIT  interfaces to IDABBDPrecReInit
  *   FIDABBDOPT     accesses optional outputs
  *   FIDABBDFREE    interfaces to IDABBDPrecFree
@@ -251,21 +251,9 @@
  *             approximations to matrix-vector products Jv
  * IER       = return completion flag: IER=0: success, IER<0: an error occured
  *
- * (4.5A) To specify whether TFQMR should use the supplied FIDAJTIMES or the 
+ * (4.5) To specify whether the linear solver should use the supplied FIDAJTIMES or the 
  * internal finite difference approximation, make the call
- *        CALL FIDASPTFQMRSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
- *       FLAG=1 to use the supplied routine FIDAJTIMES
- *
- * (4.5B) To specify whether Bi-CGSTAB should use the supplied FIDAJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FIDASPBCGSETJAC(FLAG, IER)
- * where FLAG=0 for finite differences approxaimtion or
- *       FLAG=1 to use the supplied routine FIDAJTIMES
- *
- * (4.5C) To specify whether GMRES should use the supplied FIDAJTIMES or the 
- * internal finite difference approximation, make the call
- *        CALL FIDASPGMRSETJAC(FLAG, IER)
+ *        CALL FIDASPILSSETJAC(FLAG, IER)
  * where FLAG=0 for finite differences approxaimtion or
  *       FLAG=1 to use the supplied routine FIDAJTIMES
  *

@@ -20,11 +20,11 @@ In Table \ref{t:nvecuse} below, we list the vector functions in the
 The table also shows, for each function, which of the code modules uses
 the function. The {\ida} column shows function usage within the main
 integrator module, while the remaining five columns show function usage
-within each of the five {\ida} linear solvers ({\idasp} stands for any
+within each of the five {\ida} linear solvers ({\idaspils} stands for any
 of {\idaspgmr}, {\idaspbcg}, or {\idasptfqmr}), the {\idabbdpre}
 preconditioner module, and the {\fida} module.
 
-There is one subtlety in the {\idasp} column hidden by the table, explained
+There is one subtlety in the {\idaspils} column hidden by the table, explained
 here for the case of the {\idaspgmr} module). 
 The \id{N\_VDotProd} function is called both within the 
 implementation file \id{ida\_spgmr.c} for the {\idaspgmr} solver and within
@@ -46,7 +46,7 @@ the generic {\dense} and {\band} solvers (used in the implementation of
 \begin{sideways}{\ida}       \end{sideways} & 
 \begin{sideways}{\idadense}  \end{sideways} & 
 \begin{sideways}{\idaband}   \end{sideways} & 
-\begin{sideways}{\idasp}     \end{sideways} &
+\begin{sideways}{\idaspils}  \end{sideways} &
 \begin{sideways}{\idabbdpre} \end{sideways} &
 \begin{sideways}{\fida}      \end{sideways}  \\ \hline\hline 
 \id{N\_VClone}           & \cm &     &     & \cm & \cm &    \\ \hline

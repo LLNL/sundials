@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2006-01-24 19:24:54 $
+ * $Revision: 1.42 $
+ * $Date: 2006-02-02 00:34:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -111,7 +111,27 @@ typedef int (*IDARootFn)(realtype t, N_Vector y, N_Vector yp,
 
 typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *e_data);
 
- 
+/*
+ * -----------------------------------------------------------------
+ * Type : IDAErrHandlerFn
+ * -----------------------------------------------------------------
+ * A function eh, which handles error messages, must have type
+ * IDAErrHandlerFn.
+ * The function eh takes as input the error code, the name of the
+ * module reporting the error, the error message, and a pointer to
+ * user data, the same as that passed to CVodeSetErrHandlerFn.
+ * 
+ * All error codes are negative, except IDA_WARNING which indicates 
+ * a warning (the solver continues).
+ *
+ * An IDAErrHandlerFn has no return value.
+ * -----------------------------------------------------------------
+ */
+
+typedef void (*IDAErrHandlerFn)(int error_code, 
+                                const char *module, const char *function, 
+                                char *msg, void *eh_data); 
+
 /*
  * ----------------------------------------------------------------
  * Inputs to IDAMalloc, IDAReInit, IDACalcIC, and IDASolve.       
@@ -168,16 +188,21 @@ void *IDACreate(void);
  *                      |                                          
  * ---------------------------------------------------------------- 
  *                      |                                          
- * IDASetErrFile        | the file pointer for an error file      
- *                      | where all IDA warning and error         
- *                      | messages will be written. This parameter
- *                      | can be stdout (standard output), stderr 
- *                      | (standard error), a file pointer        
- *                      | (corresponding to a user error file     
- *                      | opened for writing) returned by fopen.  
- *                      | If not called, then all messages will   
- *                      | be written to standard output.          
- *                      | [NULL]                                  
+ * IDASetErrHandlerFn   | user-provided ErrHandler function.
+ *                      | [internal]
+ *                      |
+ * IDASetErrFile        | the file pointer for an error file
+ *                      | where all CVODE warning and error
+ *                      | messages will be written if the default
+ *                      | internal error handling function is used. 
+ *                      | This parameter can be stdout (standard 
+ *                      | output), stderr (standard error), or a 
+ *                      | file pointer (corresponding to a user 
+ *                      | error file opened for writing) returned 
+ *                      | by fopen.
+ *                      | If not called, then all messages will
+ *                      | be written to the standard error stream.
+ *                      | [stderr]
  *                      |                                          
  * IDASetRdata          | a pointer to user data that will be     
  *                      | passed to the user's res function every 
@@ -280,6 +305,7 @@ void *IDACreate(void);
  * ----------------------------------------------------------------
  */
 
+int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, void *eh_data);
 int IDASetErrFile(void *ida_mem, FILE *errfp);
 int IDASetRdata(void *ida_mem, void *res_data);
 int IDASetEwtFn(void *ida_mem, IDAEwtFn efun, void *edata);
@@ -878,10 +904,11 @@ void IDAFree(void **ida_mem);
  * ----------------------------------------
  */
 
-
 #define IDA_SUCCESS          0
 #define IDA_TSTOP_RETURN     1
 #define IDA_ROOT_RETURN      2
+
+#define IDA_WARNING          99
 
 #define IDA_MEM_NULL        -1
 #define IDA_ILL_INPUT       -2

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-02 00:34:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -236,8 +236,8 @@ int main(int argc, char *argv[])
   ier = IDASpgmr(mem, 0);
   if(check_flag(&ier, "IDASpgmr", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpgmrSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
-  if(check_flag(&ier, "IDASpgmrSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
+  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
   
@@ -806,16 +806,16 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
     check_flag(&ier, "IDAGetNumResEvals", 1, id);
     ier = IDAGetLastStep(mem, &hused);
     check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDASpgmrGetNumJtimesEvals(mem, &nje);
-    check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1, id);
-    ier = IDASpgmrGetNumLinIters(mem, &nli);
-    check_flag(&ier, "IDASpgmrGetNumLinIters", 1, id);
-    ier = IDASpgmrGetNumResEvals(mem, &nreLS);
-    check_flag(&ier, "IDASpgmrGetNumResEvals", 1, id);
-    ier = IDASpgmrGetNumPrecEvals(mem, &npe);
-    check_flag(&ier, "IDASpgmrGetPrecEvals", 1, id);
-    ier = IDASpgmrGetNumPrecSolves(mem, &nps);
-    check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1, id);
+    ier = IDASpilsGetNumJtimesEvals(mem, &nje);
+    check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1, id);
+    ier = IDASpilsGetNumLinIters(mem, &nli);
+    check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
+    ier = IDASpilsGetNumResEvals(mem, &nreLS);
+    check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
+    ier = IDASpilsGetNumPrecEvals(mem, &npe);
+    check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
+    ier = IDASpilsGetNumPrecSolves(mem, &nps);
+    check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)  
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
@@ -841,7 +841,7 @@ static void PrintFinalStats(void *mem)
 
   IDAGetNumErrTestFails(mem, &netf);
   IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  IDASpgmrGetNumConvFails(mem, &ncfl);
+  IDASpilsGetNumConvFails(mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);

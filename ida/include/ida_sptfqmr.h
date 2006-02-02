@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:53 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:34:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -40,97 +40,17 @@ extern "C" {
  *          Otherwise pass a positive integer.
  *
  * The return values of IDASptfqmr are:
- *    IDASPTFQMR_SUCCESS    if successful
- *    IDASPTFQMR_MEM_NULL   if the ida memory was NULL
- *    IDASPTFQMR_MEM_FAIL   if there was a memory allocation failure
- *    IDASPTFQMR_ILL_INPUT  if there was illegal input.
+ *    IDASPILS_SUCCESS    if successful
+ *    IDASPILS_MEM_NULL   if the ida memory was NULL
+ *    IDASPILS_MEM_FAIL   if there was a memory allocation failure
+ *    IDASPILS_ILL_INPUT  if there was illegal input.
+ * The above constants are defined in ida_spils.h
+ *
  * -----------------------------------------------------------------
  */
 
 int IDASptfqmr(void *ida_mem, int maxl);
 
-/*
- * -----------------------------------------------------------------
- * Optional inputs to the IDASPTFQMR linear solver
- * -----------------------------------------------------------------
- * IDASptfqmrSetPreconditionr specifies the PrecSetup and PrecSolve
- *                   functions and the pointer to user data that
- *                   is pased to these functinos whenever they
- *                   are called.
- *                   [NULL/NULL/NULL]
- * IDASptfqmrSetJacTimesVecFn specifies the jtimes function and the 
- *                   pointer to user data that is passed to jtimes
- *                   whenever it is called.
- *                   [IDASptfqmrDQJtimes/NULL]
- * IDASptfqmrSetMaxl specifies the maximum Krylov subspace size.
- *                   [5]
- * IDASptfqmrSetEpsLin specifies the factor in the linear iteration
- *                   convergence test constant.
- *                   [0.05]
- * IDASptfqmrSetIncrementFactor specifies a factor in the increments
- *                   to yy used in the difference quotient
- *                   approximations to matrix-vector products Jv.
- *                   [1.0]
- *
- * The return value of IDASptfqmrSet* is one of:
- *    IDASPTFQMR_SUCCESS   if successful
- *    IDASPTFQMR_MEM_NULL  if the ida memory was NULL
- *    IDASPTFQMR_LMEM_NULL if the idasptfqmr memory was NULL
- * -----------------------------------------------------------------
- */
-
-int IDASptfqmrSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
-				IDASpilsPrecSolveFn psolve, void *prec_data);
-int IDASptfqmrSetJacTimesVecFn(void *ida_mem, 
-			       IDASpilsJacTimesVecFn jtimes, void *jac_data);
-int IDASptfqmrSetMaxl(void *ida_mem, int maxl);
-int IDASptfqmrSetEpsLin(void *ida_mem, realtype eplifac);
-int IDASptfqmrSetIncrementFactor(void *ida_mem, realtype dqincfac);
-
-/*
- * -----------------------------------------------------------------
- * Optional outputs from the IDASPTFQMR linear solver
- * -----------------------------------------------------------------
- * IDASptfqmrGetWorkSpace returns the real and integer workspace used
- *                        by IDASPTFQMR.
- * IDASptfqmrGetNumPrecEvals returns the number of preconditioner
- *                        evaluations, i.e., the number of calls made
- *                        to PrecSetup with jok==FALSE.
- * IDASptfqmrGetNumPrecSolves returns the number of calls made to
- *                        PrecSolve.
- * IDASptfqmrGetNumLinIters returns the number of linear iterations.
- * IDASptfqmrGetNumConvFails returns the number of linear
- *                        convergence failures.
- * IDASptfqmrGetNumJtimesEvals returns the number of calls to jtimes
- * IDASptfqmrGetNumResEvals returns the number of calls to the user
- *                        res routine due to finite difference Jacobian
- *                        times vector evaluation.
- * IDASptfqmrGetLastFlag returns the last error flag set by any of
- *                        the IDASPTFQMR interface functions.
- *
- * The return value of IDASptfqmrGet* is one of:
- *    IDASPTFQMR_SUCCESS   if successful
- *    IDASPTFQMR_MEM_NULL  if the ida memory was NULL
- *    IDASPTFQMR_LMEM_NULL if the idasptfqmr memory was NULL
- * -----------------------------------------------------------------
- */
-
-int IDASptfqmrGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
-int IDASptfqmrGetNumPrecEvals(void *ida_mem, long int *npevals);
-int IDASptfqmrGetNumPrecSolves(void *ida_mem, long int *npsolves);
-int IDASptfqmrGetNumLinIters(void *ida_mem, long int *nliters);
-int IDASptfqmrGetNumConvFails(void *ida_mem, long int *nlcfails);
-int IDASptfqmrGetNumJtimesEvals(void *ida_mem, long int *njvevals);
-int IDASptfqmrGetNumResEvals(void *ida_mem, long int *nrevalsLS); 
-int IDASptfqmrGetLastFlag(void *ida_mem, int *flag);
-
-/* IDASPTFQMR return values */
-
-#define IDASPTFQMR_SUCCESS    0
-#define IDASPTFQMR_MEM_NULL  -1 
-#define IDASPTFQMR_LMEM_NULL -2 
-#define IDASPTFQMR_ILL_INPUT -3
-#define IDASPTFQMR_MEM_FAIL  -4
 
 #ifdef __cplusplus
 }

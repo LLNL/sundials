@@ -1,16 +1,16 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-01-25 23:08:00 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-02 00:34:31 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier @ LLNL
+ * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
- * The C function FIDAPSet is to interface between the IDASP*
+ * The C function FIDAPSet is to interface between the IDASPILS
  * modules and the user-supplied preconditioner setup routine FIDAPSET.
  * Note the use of the generic name FIDA_PSET below.
  * -----------------------------------------------------------------
@@ -19,14 +19,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ida_spgmr.h"        /* IDASPGMR prototypes                            */
-#include "ida_spbcgs.h"       /* IDASPBCG prototypes                            */
-#include "ida_sptfqmr.h"      /* IDASPTFQMR prototypes                          */
-#include "fida.h"             /* actual function names, prototypes and global
-			         variables                                      */
-#include "ida_impl.h"         /* definition of IDAMem type                      */
-#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
-#include "sundials_types.h"   /* definition of type realtype                    */
+#include "ida_spils.h"
+#include "fida.h"             /* actual fn. names, prototypes and global variables */
+#include "ida_impl.h"         /* definition of IDAMem type                         */
+#include "sundials_nvector.h" /* definitions of type N_Vector and vector macros    */
+#include "sundials_types.h"   /* definition of type realtype                       */
 
 /*************************************************/
 
@@ -52,7 +49,7 @@ extern "C" {
 
 /*************************************************/
 
-void FIDA_SPGMRSETPREC(int *flag, int *ier)
+void FIDA_SPILSSETPREC(int *flag, int *ier)
 {
   IDAMem ida_mem;
 
@@ -60,37 +57,7 @@ void FIDA_SPGMRSETPREC(int *flag, int *ier)
 
   if (*flag == 0) {
 
-    *ier = IDASpgmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
-
-  } else {
-
-    if (F2C_IDA_ewtvec == NULL) {
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_ewtvec);
-      if (F2C_IDA_ewtvec == NULL) {
-        *ier = -1;
-        return;
-      }
-    }
-
-    ida_mem = (IDAMem) IDA_idamem;
-    *ier = IDASpgmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-                                    (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
-  }
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_SPBCGSETPREC(int *flag, int *ier)
-{
-  IDAMem ida_mem;
-
-  *ier = 0;
-
-  if (*flag == 0) {
-
-    *ier = IDASpbcgSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
+    *ier = IDASpilsSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
 
   } else {
 
@@ -103,38 +70,8 @@ void FIDA_SPBCGSETPREC(int *flag, int *ier)
     }
 
     ida_mem = (IDAMem) IDA_idamem;
-    *ier = IDASpbcgSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
+    *ier = IDASpilsSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
                                     (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
-  }
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_SPTFQMRSETPREC(int *flag, int *ier)
-{
-  IDAMem ida_mem;
-
-  *ier = 0;
-
-  if (*flag == 0) {
-
-    *ier = IDASptfqmrSetPreconditioner(IDA_idamem, NULL, NULL, NULL);
-
-  } else {
-
-    if (F2C_IDA_ewtvec == NULL) {
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
-      if (F2C_IDA_ewtvec == NULL) {
-        *ier = -1;
-        return;
-      }
-    }
-
-    ida_mem = (IDAMem) IDA_idamem;
-    *ier = IDASptfqmrSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-                                       (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
   }
 
   return;

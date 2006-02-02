@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:34:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -331,8 +331,8 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "IDASpgmr", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  flag = IDASpgmrSetPreconditioner(mem, Precondbd, PSolvebd, webdata);
-  if (check_flag(&flag, "IDASpgmrSetPreconditioner", 1, thispe)) 
+  flag = IDASpilsSetPreconditioner(mem, Precondbd, PSolvebd, webdata);
+  if (check_flag(&flag, "IDASpilsSetPreconditioner", 1, thispe)) 
     MPI_Abort(comm, 1);
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
@@ -664,16 +664,16 @@ static void PrintFinalStats(void *mem)
   flag = IDAGetNumNonlinSolvIters(mem, &nni);
   check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, 0);
 
-  flag = IDASpgmrGetNumConvFails(mem, &ncfl);
-  check_flag(&flag, "IDASpgmrGetNumConvFails", 1, 0);
-  flag = IDASpgmrGetNumLinIters(mem, &nli);
-  check_flag(&flag, "IDASpgmrGetNumLinIters", 1, 0);
-  flag = IDASpgmrGetNumPrecEvals(mem, &npe);
-  check_flag(&flag, "IDASpgmrGetNumPrecEvals", 1, 0);
-  flag = IDASpgmrGetNumPrecSolves(mem, &nps);
-  check_flag(&flag, "IDASpgmrGetNumPrecSolves", 1, 0);
-  flag = IDASpgmrGetNumResEvals(mem, &nreLS);
-  check_flag(&flag, "IDASpgmrGetNumResEvals", 1, 0);
+  flag = IDASpilsGetNumConvFails(mem, &ncfl);
+  check_flag(&flag, "IDASpilsGetNumConvFails", 1, 0);
+  flag = IDASpilsGetNumLinIters(mem, &nli);
+  check_flag(&flag, "IDASpilsGetNumLinIters", 1, 0);
+  flag = IDASpilsGetNumPrecEvals(mem, &npe);
+  check_flag(&flag, "IDASpilsGetNumPrecEvals", 1, 0);
+  flag = IDASpilsGetNumPrecSolves(mem, &nps);
+  check_flag(&flag, "IDASpilsGetNumPrecSolves", 1, 0);
+  flag = IDASpilsGetNumResEvals(mem, &nreLS);
+  check_flag(&flag, "IDASpilsGetNumResEvals", 1, 0);
 
   printf("-----------------------------------------------------------\n");
   printf("\nFinal statistics: \n\n");

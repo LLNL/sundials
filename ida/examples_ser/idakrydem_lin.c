@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-02 00:34:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -200,8 +200,8 @@ int main(void)
       ier = IDASpgmr(mem, 0);
       if(check_flag(&ier, "IDASpgmr", 1)) return(1);
 
-      ier = IDASpgmrSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
-      if(check_flag(&ier, "IDASpgmrSetPreconditioner", 1)) return(1);
+      ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
+      if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
 
       break;
 
@@ -217,8 +217,8 @@ int main(void)
       ier = IDASpbcg(mem, 0);
       if(check_flag(&ier, "IDASpbcg", 1)) return(1);
 
-      ier = IDASpbcgSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
-      if(check_flag(&ier, "IDASpbcgSetPreconditioner", 1)) return(1);
+      ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
+      if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
 
       break;
 
@@ -234,8 +234,8 @@ int main(void)
       ier = IDASptfqmr(mem, 0);
       if(check_flag(&ier, "IDASptfqmr", 1)) return(1);
 
-      ier = IDASptfqmrSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
-      if(check_flag(&ier, "IDASptfqmrSetPreconditioner", 1)) return(1);
+      ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat, data);
+      if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
 
       break;
 
@@ -265,33 +265,8 @@ int main(void)
     ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
     check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
 
-    switch(linsolver) {
-
-    /* (a) SPGMR */
-    case(USE_SPGMR):
-
-      ier = IDASpgmrGetNumConvFails(mem, &ncfl);
-      check_flag(&ier, "IDASpgmrGetNumConvFails", 1);
-
-      break;
-
-    /* (b) SPBCG */
-    case(USE_SPBCG):
-
-      ier = IDASpbcgGetNumConvFails(mem, &ncfl);
-      check_flag(&ier, "IDASpbcgGetNumConvFails", 1);
-
-      break;
-
-    /* (b) SPTFQMR */
-    case(USE_SPTFQMR):
-
-      ier = IDASptfqmrGetNumConvFails(mem, &ncfl);
-      check_flag(&ier, "IDASptfqmrGetNumConvFails", 1);
-
-      break;
-
-    }
+    ier = IDASpilsGetNumConvFails(mem, &ncfl);
+    check_flag(&ier, "IDASpilsGetNumConvFails", 1);
 
     printf("\nError test failures            = %ld\n", netf);
     printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -547,48 +522,16 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
   ier = IDAGetLastStep(mem, &hused);
   check_flag(&ier, "IDAGetLastStep", 1);
 
-  switch(linsolver) {
-
-  case(USE_SPGMR):
-    ier = IDASpgmrGetNumJtimesEvals(mem, &nje);
-    check_flag(&ier, "IDASpgmrGetNumJtimesEvals", 1);
-    ier = IDASpgmrGetNumLinIters(mem, &nli);
-    check_flag(&ier, "IDASpgmrGetNumLinIters", 1);
-    ier = IDASpgmrGetNumResEvals(mem, &nreLS);
-    check_flag(&ier, "IDASpgmrGetNumResEvals", 1);
-    ier = IDASpgmrGetNumPrecEvals(mem, &npe);
-    check_flag(&ier, "IDASpgmrGetPrecEvals", 1);
-    ier = IDASpgmrGetNumPrecSolves(mem, &nps);
-    check_flag(&ier, "IDASpgmrGetNumPrecSolves", 1);
-    break;
-
-  case(USE_SPBCG):
-    ier = IDASpbcgGetNumJtimesEvals(mem, &nje);
-    check_flag(&ier, "IDASpbcgGetNumJtimesEvals", 1);
-    ier = IDASpbcgGetNumLinIters(mem, &nli);
-    check_flag(&ier, "IDASpbcgGetNumLinIters", 1);
-    ier = IDASpbcgGetNumResEvals(mem, &nreLS);
-    check_flag(&ier, "IDASpbcgGetNumResEvals", 1);
-    ier = IDASpbcgGetNumPrecEvals(mem, &npe);
-    check_flag(&ier, "IDASpbcgGetPrecEvals", 1);
-    ier = IDASpbcgGetNumPrecSolves(mem, &nps);
-    check_flag(&ier, "IDASpbcgGetNumPrecSolves", 1);
-    break;
-
-  case(USE_SPTFQMR):
-    ier = IDASptfqmrGetNumJtimesEvals(mem, &nje);
-    check_flag(&ier, "IDASptfqmrGetNumJtimesEvals", 1);
-    ier = IDASptfqmrGetNumLinIters(mem, &nli);
-    check_flag(&ier, "IDASptfqmrGetNumLinIters", 1);
-    ier = IDASptfqmrGetNumResEvals(mem, &nreLS);
-    check_flag(&ier, "IDASptfqmrGetNumResEvals", 1);
-    ier = IDASptfqmrGetNumPrecEvals(mem, &npe);
-    check_flag(&ier, "IDASptfqmrGetPrecEvals", 1);
-    ier = IDASptfqmrGetNumPrecSolves(mem, &nps);
-    check_flag(&ier, "IDASptfqmrGetNumPrecSolves", 1);
-    break;
-
-  }
+  ier = IDASpilsGetNumJtimesEvals(mem, &nje);
+  check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1);
+  ier = IDASpilsGetNumLinIters(mem, &nli);
+  check_flag(&ier, "IDASpilsGetNumLinIters", 1);
+  ier = IDASpilsGetNumResEvals(mem, &nreLS);
+  check_flag(&ier, "IDASpilsGetNumResEvals", 1);
+  ier = IDASpilsGetNumPrecEvals(mem, &npe);
+  check_flag(&ier, "IDASpilsGetPrecEvals", 1);
+  ier = IDASpilsGetNumPrecSolves(mem, &nps);
+  check_flag(&ier, "IDASpilsGetNumPrecSolves", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",

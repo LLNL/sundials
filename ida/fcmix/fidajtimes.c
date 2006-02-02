@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-01-25 23:08:00 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-02 00:34:31 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier @ LLNL
+ * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -11,7 +11,7 @@
  * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * The C function FIDAJtimes is to interface between the
- * IDASP* modules and the user-supplied Jacobian-vector
+ * IDASPILS modules and the user-supplied Jacobian-vector
  * product routine FIDAJTIMES. Note the use of the generic name
  * FIDA_JTIMES below.
  * -----------------------------------------------------------------
@@ -20,11 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ida_spgmr.h"        /* IDASPGMR prototypes                            */
-#include "ida_spbcgs.h"       /* IDASPBCG prototypes                            */
-#include "ida_sptfqmr.h"      /* IDASPTFQMR prototypes                          */
-#include "fida.h"             /* actual function names, prototypes and global
-			         variables                                      */
+#include "ida_spils.h"
+#include "fida.h"             /* actual fn. names, prototypes and global vars.  */
 #include "ida_impl.h"         /* definition of IDAMem type                      */
 #include "sundials_nvector.h" /* definitions of type N_Vector and vector macros */
 #include "sundials_types.h"   /* definition of type realtype                    */
@@ -48,14 +45,14 @@ extern "C" {
 
 /*************************************************/
 
-void FIDA_SPGMRSETJAC(int *flag, int *ier)
+void FIDA_SPILSSETJAC(int *flag, int *ier)
 {
   IDAMem ida_mem;
   *ier = 0;
 
   if (*flag == 0) {
 
-    *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
+    *ier = IDASpilsSetJacTimesVecFn(IDA_idamem, NULL, NULL);
 
   } else {
 
@@ -68,66 +65,8 @@ void FIDA_SPGMRSETJAC(int *flag, int *ier)
     }
 
     ida_mem = (IDAMem) IDA_idamem;
-    *ier = IDASpgmrSetJacTimesVecFn(IDA_idamem,
+    *ier = IDASpilsSetJacTimesVecFn(IDA_idamem,
                                    (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
-  }
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_SPBCGSETJAC(int *flag, int *ier)
-{
-  IDAMem ida_mem;
-  *ier = 0;
-
-  if (*flag == 0) {
-
-    *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem, NULL, NULL);
-
-  } else {
-
-    if (F2C_IDA_ewtvec == NULL) {
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
-      if (F2C_IDA_ewtvec == NULL) {
-        *ier = -1;
-        return;
-      }
-    }
-
-    ida_mem = (IDAMem) IDA_idamem;
-    *ier = IDASpbcgSetJacTimesVecFn(IDA_idamem,
-                                   (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
-  }
-
-  return;
-}
-
-/*************************************************/
-
-void FIDA_SPTFQMRSETJAC(int *flag, int *ier)
-{
-  IDAMem ida_mem;
-  *ier = 0;
-
-  if (*flag == 0) {
-
-    *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem, NULL, NULL);
-
-  } else {
-
-    if (F2C_IDA_ewtvec == NULL) {
-      F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
-      if (F2C_IDA_ewtvec == NULL) {
-        *ier = -1;
-        return;
-      }
-    }
-
-    ida_mem = (IDAMem) IDA_idamem;
-    *ier = IDASptfqmrSetJacTimesVecFn(IDA_idamem,
-                                     (IDASpilsJacTimesVecFn) FIDAJtimes, ida_mem->ida_rdata);
   }
 
   return;

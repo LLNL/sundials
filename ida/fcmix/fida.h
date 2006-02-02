@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.18 $
+ * $Date: 2006-02-02 00:34:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,16 +53,10 @@
  *   FIDABANDSETJAC  interfaces to IDABandSetJacFn
  *
  *   FIDASPTFQMR/FIDASPTFQMRREINIT  interface to IDASptfqmr and IDASptfqmrSet*
- *   FIDASPTFQMRSETJAC              interfaces to IDASptfqmrSetJacFn
- *   FIDASPTFQMRSETPREC             interfaces to IDASptfqmrSetPreconditioner
- *
- *   FIDASPBCG/FIDASPBCGREINIT  interface to IDASpbcg and IDASpbcgSet*
- *   FIDASPBCGSETJAC            interfaces to IDASpbcgSetJacFn
- *   FIDASPBCGSETPREC           interfaces to IDASpbcgSetPreconditioner
- *
- *   FIDASPGMR/FIDASPGMRREINIT  interface to IDASpgmr and IDASpgmrSet*
- *   FIDASPGMRSETJAC            interfaces to IDASpgmrSetJacFn
- *   FIDASPGMRSETPREC           interfaces to IDASpgmrSetPreconditioner
+ *   FIDASPBCG/FIDASPBCGREINIT      interface to IDASpbcg and IDASpbcgSet*
+ *   FIDASPGMR/FIDASPGMRREINIT      interface to IDASpgmr and IDASpgmrSet*
+ *   FIDASPILSSETJAC                interfaces to IDASpilsSetJacFn
+ *   FIDASPILSSETPREC               interfaces to IDASpilsSetPreconditioner
  *
  *   FIDASOLVE  interfaces to IDASolve, IDAGet*, and IDA*Get*
  *
@@ -371,37 +365,6 @@
  *            approximations to the matrix-vector products Jv
  * IER      = error return flag: 0 = success; negative value = an error occured
  *
- * If the user program includes the FIDAJTIMES routine for the evaluation of the 
- * Jacobian vector product, the following call must be made
- *       CALL FIDASPGMRSETJAC (FLAG, IER)
- * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
- * using and internal finite difference approximation to this product.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
- *
- * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
- * preconditioner linear system requires the following call:
- *       CALL FIDASPGMRSETPREC(FLAG, IER)
- * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FIDAPSOL must have the form:
- *       SUBROUTINE FIDAPSOL(T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, 
- *      1                    IPAR, RPAR, WRK, IER)
- *       DIMENSION Y(*), YP(*), R(*), RV(*), ZV(*), 
- *      1          IPAR(*), RPAR(*), EWT(*), WRK(*)
- * This routine must solve the preconditioner linear system Pz = r, where r = RV
- * is input, and store the solution z in ZV.
- *
- * The user-supplied routine FIDAPSET must be of the form:
- *       SUBROUTINE FIDAPSET(T, Y, YP, R, CJ, EWT, H, IPAR, RPAR, 
- *      1                    WK1, WK2, WK3, IER)
- *       DIMENSION Y(*), YP(*), R(*), EWT(*), IPAR(*), RPAR(*), 
- *      1          WK1(*), WK2(*), WK3(*)
- * This routine must perform any evaluation of Jacobian-related data and
- * preprocessing needed for the solution of the preconditioner linear systems
- * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
- * positive if a recoverable error occurred, and set IER negative if a
- * non-recoverable error occurred.
- * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
- *
  * Optional outputs specific to the SPGMR case are:
  *        LENRWLS = IOUT(13) -> IDASpgmrGetWorkSpace
  *        LENIWLS = IOUT(14) -> IDASpgmrGetWorkSpace
@@ -432,20 +395,6 @@
  *            approximations to matrix-vector products Jv
  * IER      = error return flag: 0 = success; negative value = an error occured
  *
- * If the user program includes the FIDAJTIMES routine for the evaluation of the 
- * Jacobian vector product, the following call must be made
- *       CALL FIDASPBCGSETJAC(FLAG, IER)
- * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
- * using and internal finite difference approximation to this product.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
- *
- * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
- * preconditioner linear system requires the following call:
- *       CALL FIDASPBCGSETPREC(FLAG, IER)
- * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FIDAPSOL and FIDAPSET must have the forms described
- * above (see 7.3)
- *
  * Optional outputs specific to the SPBCG case are:
  *        LENRWLS = IOUT(13) -> IDASpbcgGetWorkSpace
  *        LENIWLS = IOUT(14) -> IDASpbcgGetWorkSpace
@@ -475,20 +424,6 @@
  *            approximations to matrix-vector products Jv
  * IER      = error return flag: 0 = success; negative value = an error occured
  *
- * If the user program includes the FIDAJTIMES routine for the evaluation of the 
- * Jacobian vector product, the following call must be made
- *       CALL FIDASPTFQMRSETJAC(FLAG, IER)
- * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
- * using and internal finite difference approximation to this product.)
- * The return flag IER is 0 if successful, and nonzero otherwise.
- *
- * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
- * preconditioner linear system requires the following call:
- *       CALL FIDASPTFQMRSETPREC(FLAG, IER)
- * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
- * The user-supplied routine FIDAPSOL and FIDAPSET must have the forms described
- * above (see 7.3)
- *
  * Optional outputs specific to the SPTFQMR case are:
  *        LENRWLS = IOUT(13) -> IDASptfqmrGetWorkSpace
  *        LENIWLS = IOUT(14) -> IDASptfqmrGetWorkSpace
@@ -506,6 +441,39 @@
  * being changed.  In that case, call FIDASPTFQMRREINIT as follows:
  *       CALL FIDASPTFQMRREINIT (MAXL, EPLIFAC, DQINCFAC, IER)
  * The arguments have the same meanings as for FIDASPTFQMR.
+ *
+ * (7.6) Using user-provided functions for the iterative linear solvers
+ * 
+ * If the user program includes the FIDAJTIMES routine for the evaluation of the 
+ * Jacobian vector product, the following call must be made
+ *       CALL FIDASPILSSETJAC (FLAG, IER)
+ * with FLAG = 1 to specify that FIDAJTIMES is provided.  (FLAG = 0 specifies
+ * using and internal finite difference approximation to this product.)
+ * The return flag IER is 0 if successful, and nonzero otherwise.
+ *
+ * Usage of the user-supplied routines FIDAPSOL and FIDAPSET for solution of the 
+ * preconditioner linear system requires the following call:
+ *       CALL FIDASPILSSETPREC(FLAG, IER)
+ * with FLAG = 1. The return flag IER is 0 if successful, nonzero otherwise.
+ * The user-supplied routine FIDAPSOL must have the form:
+ *       SUBROUTINE FIDAPSOL(T, Y, YP, R, RV, ZV, CJ, DELTA, EWT, 
+ *      1                    IPAR, RPAR, WRK, IER)
+ *       DIMENSION Y(*), YP(*), R(*), RV(*), ZV(*), 
+ *      1          IPAR(*), RPAR(*), EWT(*), WRK(*)
+ * This routine must solve the preconditioner linear system Pz = r, where r = RV
+ * is input, and store the solution z in ZV.
+ *
+ * The user-supplied routine FIDAPSET must be of the form:
+ *       SUBROUTINE FIDAPSET(T, Y, YP, R, CJ, EWT, H, IPAR, RPAR, 
+ *      1                    WK1, WK2, WK3, IER)
+ *       DIMENSION Y(*), YP(*), R(*), EWT(*), IPAR(*), RPAR(*), 
+ *      1          WK1(*), WK2(*), WK3(*)
+ * This routine must perform any evaluation of Jacobian-related data and
+ * preprocessing needed for the solution of the preconditioner linear systems
+ * by FIDAPSOL.  On return, set IER = 0 if FIDAPSET was successful, set IER
+ * positive if a recoverable error occurred, and set IER negative if a
+ * non-recoverable error occurred.
+ * IPAR and RPAR are user (integer and real) arrays passed to FIDAMALLOC.
  *
  * -----------------------------------------------------------------------------
  *
@@ -586,13 +554,9 @@ extern "C" {
 #define FIDA_DENSE          F77_FUNC(fidadense, FIDADENSE)
 #define FIDA_DENSESETJAC    F77_FUNC(fidadensesetjac, FIDADENSESETJAC)
 #define FIDA_DJAC           F77_FUNC(fidadjac, FIDADJAC)
-#define FIDA_SPTFQMRSETJAC  F77_FUNC(fidasptfqmrsetjac, FIDASPTFQMRSETJAC)
-#define FIDA_SPBCGSETJAC    F77_FUNC(fidaspbcgsetjac, FIDASPBCGSETJAC)
-#define FIDA_SPGMRSETJAC    F77_FUNC(fidaspgmrsetjac, FIDASPGMRSETJAC)
+#define FIDA_SPILSSETJAC    F77_FUNC(fidaspilssetjac, FIDASPILSSETJAC)
 #define FIDA_JTIMES         F77_FUNC(fidajtimes, FIDAJTIMES)
-#define FIDA_SPTFQMRSETPREC F77_FUNC(fidasptfqmrsetprec, FIDASPTFQMRSETPREC)
-#define FIDA_SPBCGSETPREC   F77_FUNC(fidaspbcgsetprec, FIDASPBCGSETPREC)
-#define FIDA_SPGMRSETPREC   F77_FUNC(fidaspgmrsetprec, FIDASPGMRSETPREC)
+#define FIDA_SPILSSETPREC   F77_FUNC(fidaspilssetprec, FIDASPILSSETPREC)
 #define FIDA_PSET           F77_FUNC(fidapset, FIDAPSET)
 #define FIDA_PSOL           F77_FUNC(fidapsol, FIDAPSOL)
 #define FIDA_RESFUN         F77_FUNC(fidaresfun, FIDARESFUN)
@@ -624,13 +588,9 @@ extern "C" {
 #define FIDA_DENSE          fidadense
 #define FIDA_DENSESETJAC    fidadensesetjac
 #define FIDA_DJAC           fidadjac
-#define FIDA_SPTFQMRSETJAC  fidasptfqmrsetjac
-#define FIDA_SPBCGSETJAC    fidaspbcgsetjac
-#define FIDA_SPGMRSETJAC    fidaspgmrsetjac
+#define FIDA_SPILSSETJAC    fidaspilssetjac
 #define FIDA_JTIMES         fidajtimes
-#define FIDA_SPTFQMRSETPREC fidasptfqmrsetprec
-#define FIDA_SPBCGSETPREC   fidaspbcgsetprec
-#define FIDA_SPGMRSETPREC   fidaspgmrsetprec
+#define FIDA_SPILSSETPREC   fidaspilssetprec
 #define FIDA_PSET           fidapset
 #define FIDA_PSOL           fidapsol
 #define FIDA_RESFUN         fidaresfun
@@ -662,13 +622,9 @@ extern "C" {
 #define FIDA_DENSE          FIDADENSE
 #define FIDA_DENSESETJAC    FIDADENSESETJAC
 #define FIDA_DJAC           FIDADJAC
-#define FIDA_SPTFQMRSETJAC  FIDASPTFQMRSETJAC
-#define FIDA_SPBCGSETJAC    FIDASPBCGSETJAC
-#define FIDA_SPGMRSETJAC    FIDASPGMRSETJAC
+#define FIDA_SPILSSETJAC    FIDASPILSSETJAC
 #define FIDA_JTIMES         FIDAJTIMES
-#define FIDA_SPTFQMRSETPREC FIDASPTFQMRSETPREC
-#define FIDA_SPBCGSETPREC   FIDASPBCGSETPREC
-#define FIDA_SPGMRSETPREC   FIDASPGMRSETPREC
+#define FIDA_SPILSSETPREC   FIDASPILSSETPREC
 #define FIDA_PSET           FIDAPSET
 #define FIDA_PSOL           FIDAPSOL
 #define FIDA_RESFUN         FIDARESFUN
@@ -700,13 +656,9 @@ extern "C" {
 #define FIDA_DENSE          fidadense_
 #define FIDA_DENSESETJAC    fidadensesetjac_
 #define FIDA_DJAC           fidadjac_
-#define FIDA_SPTFQMRSETJAC  fidasptfqmrsetjac_
-#define FIDA_SPBCGSETJAC    fidaspbcgsetjac_
-#define FIDA_SPGMRSETJAC    fidaspgmrsetjac_
+#define FIDA_SPILSSETJAC    fidaspilssetjac_
 #define FIDA_JTIMES         fidajtimes_
-#define FIDA_SPTFQMRSETPREC fidasptfqmrsetprec_
-#define FIDA_SPBCGSETPREC   fidaspbcgsetprec_
-#define FIDA_SPGMRSETPREC   fidaspgmrsetprec_
+#define FIDA_SPILSSETPREC   fidaspilssetprec_
 #define FIDA_PSET           fidapset_
 #define FIDA_PSOL           fidapsol_
 #define FIDA_RESFUN         fidaresfun_
@@ -738,13 +690,9 @@ extern "C" {
 #define FIDA_DENSE          FIDADENSE_
 #define FIDA_DENSESETJAC    FIDADENSESETJAC_
 #define FIDA_DJAC           FIDADJAC_
-#define FIDA_SPTFQMRSETJAC  FIDASPTFQMRSETJAC_
-#define FIDA_SPBCGSETJAC    FIDASPBCGSETJAC_
-#define FIDA_SPGMRSETJAC    FIDASPGMRSETJAC_
+#define FIDA_SPILSSETJAC    FIDASPILSSETJAC_
 #define FIDA_JTIMES         FIDAJTIMES_
-#define FIDA_SPTFQMRSETPREC FIDASPTFQMRSETPREC_
-#define FIDA_SPBCGSETPREC   FIDASPBCGSETPREC_
-#define FIDA_SPGMRSETPREC   FIDASPGMRSETPREC_
+#define FIDA_SPILSSETPREC   FIDASPILSSETPREC_
 #define FIDA_PSET           FIDAPSET_
 #define FIDA_PSOL           FIDAPSOL_
 #define FIDA_RESFUN         FIDARESFUN_
@@ -776,13 +724,9 @@ extern "C" {
 #define FIDA_DENSE          fidadense__
 #define FIDA_DENSESETJAC    fidadensesetjac__
 #define FIDA_DJAC           fidadjac__
-#define FIDA_SPTFQMRSETJAC  fidasptfqmrsetjac__
-#define FIDA_SPBCGSETJAC    fidaspbcgsetjac__
-#define FIDA_SPGMRSETJAC    fidaspgmrsetjac__
+#define FIDA_SPILSSETJAC    fidaspilssetjac__
 #define FIDA_JTIMES         fidajtimes__
-#define FIDA_SPTFQMRSETPREC fidasptfqmrsetprec__
-#define FIDA_SPBCGSETPREC   fidaspbcgsetprec__
-#define FIDA_SPGMRSETPREC   fidaspgmrsetprec__
+#define FIDA_SPILSSETPREC   fidaspilssetprec__
 #define FIDA_PSET           fidapset__
 #define FIDA_PSOL           fidapsol__
 #define FIDA_RESFUN         fidaresfun__
@@ -814,13 +758,9 @@ extern "C" {
 #define FIDA_DENSE          FIDADENSE__
 #define FIDA_DENSESETJAC    FIDADENSESETJAC__
 #define FIDA_DJAC           FIDADJAC__
-#define FIDA_SPTFQMRSETJAC  FIDASPTFQMRSETJAC__
-#define FIDA_SPBCGSETJAC    FIDASPBCGSETJAC__
-#define FIDA_SPGMRSETJAC    FIDASPGMRSETJAC__
+#define FIDA_SPILSSETJAC    FIDASPILSSETJAC__
 #define FIDA_JTIMES         FIDAJTIMES__
-#define FIDA_SPTFQMRSETPREC FIDASPTFQMRSETPREC__
-#define FIDA_SPBCGSETPREC   FIDASPBCGSETPREC__
-#define FIDA_SPGMRSETPREC   FIDASPGMRSETPREC__
+#define FIDA_SPILSSETPREC   FIDASPILSSETPREC__
 #define FIDA_PSET           FIDAPSET__
 #define FIDA_PSOL           FIDAPSOL__
 #define FIDA_RESFUN         FIDARESFUN__
@@ -873,12 +813,8 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
 void FIDA_FREE(void);
 void FIDA_BANDSETJAC(int *flag, int *ier);
 void FIDA_DENSESETJAC(int *flag, int *ier);
-void FIDA_SPGMRSETJAC(int *flag, int *ier);
-void FIDA_SPBCGSETJAC(int *flag, int *ier);
-void FIDA_SPTFQMRSETJAC(int *flag, int *ier);
-void FIDA_SPGMRSETPREC(int *flag, int *ier);
-void FIDA_SPBCGSETPREC(int *flag, int *ier);
-void FIDA_SPTFQMRSETPREC(int *flag, int *ier);
+void FIDA_SPILSSETJAC(int *flag, int *ier);
+void FIDA_SPILSSETPREC(int *flag, int *ier);
 void FIDA_EWTSET(int *flag, int *ier);
 void FIDA_GETSOL(realtype *t, realtype *yret, realtype *ypret, int *ier);
 void FIDA_GETERRWEIGHTS(realtype *eweight, int *ier);

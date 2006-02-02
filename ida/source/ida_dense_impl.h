@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:54 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-02 00:34:37 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -59,17 +59,10 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-#define MSGD_IDAMEM_NULL        "IDADense-- integrator memory is NULL.\n\n"
-
-#define MSGD_MEM_FAIL           "IDADense-- a memory request failed.\n\n"
-
-#define MSGD_BAD_NVECTOR        "IDADense-- a required vector operation is not implemented.\n\n"
-
-#define MSGD_WRONG_NVEC         "IDADense-- incompatible NVECTOR implementation.\n\n"
-
-#define MSGD_SETGET_IDAMEM_NULL "IDADenseSet*/IDADenseGet*-- integrator memory is NULL. \n\n"
-
-#define MSGD_SETGET_LMEM_NULL   "IDADenseSet*/IDADenseGet*-- IDADENSE memory is NULL. \n\n"
+#define MSGD_IDAMEM_NULL "Integrator memory is NULL."
+#define MSGD_MEM_FAIL    "A memory request failed."
+#define MSGD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGD_LMEM_NULL   "IDADENSE memory is NULL."
 
 #ifdef __cplusplus
 }

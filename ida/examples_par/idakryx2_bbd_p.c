@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:13:52 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-02 00:34:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -619,16 +619,16 @@ static void PrintFinalStats(void *mem, void *P_data)
   flag = IDAGetNumNonlinSolvIters(mem, &nni);
   check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, 0);
 
-  flag = IDASpgmrGetNumConvFails(mem, &ncfl);
-  check_flag(&flag, "IDASpgmrGetNumConvFails", 1, 0);
-  flag = IDASpgmrGetNumLinIters(mem, &nli);
-  check_flag(&flag, "IDASpgmrGetNumLinIters", 1, 0);
-  flag = IDASpgmrGetNumPrecEvals(mem, &npe);
-  check_flag(&flag, "IDASpgmrGetNumPrecEvals", 1, 0);
-  flag = IDASpgmrGetNumPrecSolves(mem, &nps);
-  check_flag(&flag, "IDASpgmrGetNumPrecSolves", 1, 0);
-  flag = IDASpgmrGetNumResEvals(mem, &nreLS);
-  check_flag(&flag, "IDASpgmrGetNumResEvals", 1, 0);
+  flag = IDASpilsGetNumConvFails(mem, &ncfl);
+  check_flag(&flag, "IDASpilsGetNumConvFails", 1, 0);
+  flag = IDASpilsGetNumLinIters(mem, &nli);
+  check_flag(&flag, "IDASpilsGetNumLinIters", 1, 0);
+  flag = IDASpilsGetNumPrecEvals(mem, &npe);
+  check_flag(&flag, "IDASpilsGetNumPrecEvals", 1, 0);
+  flag = IDASpilsGetNumPrecSolves(mem, &nps);
+  check_flag(&flag, "IDASpilsGetNumPrecSolves", 1, 0);
+  flag = IDASpilsGetNumResEvals(mem, &nreLS);
+  check_flag(&flag, "IDASpilsGetNumResEvals", 1, 0);
 
   flag = IDABBDPrecGetNumGfnEvals(P_data, &nge);
   check_flag(&flag, "IDABBDPrecGetNumGfnEvals", 1, 0);
