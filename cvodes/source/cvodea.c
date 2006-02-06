@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.63 $
- * $Date: 2006-02-02 00:32:21 $
+ * $Revision: 1.64 $
+ * $Date: 2006-02-06 17:41:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2124,14 +2124,13 @@ static int CVArhs(realtype t, N_Vector yB,
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVODEA", "CVArhs", MSGAM_BAD_T);
-    exit(1);
-    /*return(-1);*/
+    return(-1);
   }
 
   /* Call user's adjoint RHS routine */
   retval = f_B(t, ytmp, yB, yBdot, f_data_B);
 
-  return(0);
+  return(retval);
 }
 
 /*
@@ -2156,14 +2155,13 @@ static int CVArhsQ(realtype t, N_Vector yB,
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
     CVProcessError(cv_mem, -1, "CVODEA", "CVArhs", MSGAM_BAD_T);
-    exit(1);
-    /*return(-1);*/
+    return(-1);
   }
 
   /* Call user's adjoint RHS routine */
   retval = fQ_B(t, ytmp, yB, qBdot, fQ_data_B);
 
-  return(0);
+  return(retval);
 }
 
 

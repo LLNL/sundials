@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.27 $
- * $Date: 2006-02-02 23:38:23 $
+ * $Revision: 1.28 $
+ * $Date: 2006-02-06 17:41:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -179,8 +179,7 @@ extern "C" {
       Does CVodeSensMalloc allocate additional space?
       -----------------------------------------------*/  
 
-    booleantype cv_stgr1alloc;     /* Are ncfS1, ncfnS1, and nniS1 allocated 
-                                      by CVODES?                             */
+    booleantype cv_stgr1alloc; /* Did we allocate ncfS1, ncfnS1, and nniS1?  */
 
     /*-----------------
       Tstop information
@@ -546,11 +545,15 @@ extern "C" {
 
 #define MSGCV_BAD_EWTQ "Initial ewtQ has component(s) equal to zero (illegal)."
 #define MSGCV_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
+#define MSGCV_QRHSFUNC_FAILED "At " MSG_TIME ", the quadrature right-hand side routine failed in an unrecoverable manner."
+#define MSGCV_QRHSFUNC_FIRST "The quadrature right-hand side routine failed at the first call."
 
 #define MSGCV_BAD_ISM_IFS "Illegal sens. rhs for ism = CV_STAGGERED1."
 #define MSGCV_NULL_P "p = NULL when using internal DQ for sensitivity RHS illegal."
 #define MSGCV_BAD_EWTS "Initial ewtS has component(s) equal to zero (illegal)."
 #define MSGCV_EWTS_NOW_BAD "At " MSG_TIME ", a component of ewtS has become <= 0."
+#define MSGCV_SRHSFUNC_FAILED "At " MSG_TIME ", the sensitivity right-hand side routine failed in an unrecoverable manner."
+#define MSGCV_SRHSFUNC_FIRST "The sensitivity right-hand side routine failed at the first call."
 
 
 #ifdef __cplusplus
