@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.62 $
- * $Date: 2006-02-02 23:38:09 $
+ * $Revision: 1.63 $
+ * $Date: 2006-02-06 17:38:08 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -2763,7 +2763,7 @@ static booleantype CVDoErrorTest(CVodeMem cv_mem, int *nflagPtr, int *kflagPtr,
   retval = f(tn, zn[0], tempv, f_data);
   nfe++;
   if (retval < 0) {
-    *kflagPtr = CV_ERR_FAILURE;
+    *kflagPtr = CV_RHSFUNC_FAIL;
     return(FALSE);
   }
 
