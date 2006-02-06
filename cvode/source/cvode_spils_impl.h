@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-02-02 00:31:08 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -117,6 +117,11 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 #define MSGS_LMEM_NULL   "Linear solver memory is NULL."
 #define MSGS_BAD_GSTYPE  "Illegal value for gstype. Legal values are MODIFIED_GS and CLASSICAL_GS."
 #define MSGS_BAD_DELT    "delt < 0 illegal."
+
+#define MSGS_PSET_FAILED "The preconditioner setup routine failed in an unrecoverable manner."
+#define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
+#define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
+
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:31:08 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -286,7 +286,7 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  int  ier;
+  int  retval;
   CVSpilsMem cvspils_mem;
 
   cvspils_mem = (CVSpilsMem) lmem;
@@ -300,8 +300,16 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   jok = !jbad;
 
   /* Call pset routine and possibly reset jcur */
-  ier = pset(tn, ypred, fpred, jok, jcurPtr, gamma, P_data, 
-             vtemp1, vtemp2, vtemp3);
+  retval = pset(tn, ypred, fpred, jok, jcurPtr, gamma, P_data, 
+                vtemp1, vtemp2, vtemp3);
+  if (retval < 0) {
+    CVProcessError(cv_mem, SPGMR_PSET_FAIL_UNREC, "CVSPGMR", "CVSpgmrSetup", MSGS_PSET_FAILED);
+    last_flag = SPGMR_PSET_FAIL_UNREC;
+  }
+  if (retval > 0) {
+    last_flag = SPGMR_PSET_FAIL_REC;
+  }
+
   if (jbad) *jcurPtr = TRUE;
 
   /* If jcur = TRUE, increment npe and save nst value */
@@ -310,9 +318,8 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlpre = nst;
   }
 
-  /* Return the same value ier that pset returned */
-  last_flag = ier;
-  return(ier);
+  /* Return the same value that pset returned */
+  return(retval);
 }
 
 /*
@@ -343,7 +350,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   realtype bnorm, res_norm;
   CVSpilsMem cvspils_mem;
   SpgmrMem spgmr_mem;
-  int nli_inc, nps_inc, ier;
+  int nli_inc, nps_inc, retval;
   
   cvspils_mem = (CVSpilsMem) lmem;
 
@@ -367,27 +374,59 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   N_VConst(ZERO, x);
   
   /* Call SpgmrSolve and copy x to b */
-  ier = SpgmrSolve(spgmr_mem, cv_mem, x, b, pretype, gstype, delta, 0,
-                   cv_mem, weight, weight, CVSpilsAtimes, CVSpilsPSolve,
-                   &res_norm, &nli_inc, &nps_inc);
+  retval = SpgmrSolve(spgmr_mem, cv_mem, x, b, pretype, gstype, delta, 0,
+                      cv_mem, weight, weight, CVSpilsAtimes, CVSpilsPSolve,
+                      &res_norm, &nli_inc, &nps_inc);
 
   N_VScale(ONE, x, b);
   
   /* Increment counters nli, nps, and ncfl */
   nli += nli_inc;
   nps += nps_inc;
-  if (ier != 0) ncfl++;
+  if (retval != 0) ncfl++;
 
-  /* Set return value to -1, 0, or 1 */
-  last_flag = ier;
+  /* Interpret return value from SpgmrSolve */
 
-  if (ier < 0) return(-1);  
+  last_flag = retval;
 
-  if ((ier == SPGMR_SUCCESS) || 
-      ((ier == SPGMR_RES_REDUCED) && (mnewt == 0)))
+  switch(retval) {
+
+  case SPGMR_SUCCESS:
     return(0);
+    break;
+  case SPGMR_RES_REDUCED:
+    if (mnewt == 0) return(0);
+    else            return(1);
+    break;
+  case SPGMR_CONV_FAIL:
+    return(1);
+    break;
+  case SPGMR_QRFACT_FAIL:
+    return(1);
+    break;
+  case SPGMR_PSOLVE_FAIL_REC:
+    return(1);
+    break;
+  case SPGMR_MEM_NULL:
+    return(-1);
+    break;
+  case SPGMR_ATIMES_FAIL:
+    CVProcessError(cv_mem, SPGMR_ATIMES_FAIL, "CVSPGMR", "CVSpgmrSolve", MSGS_JTIMES_FAILED);    
+    return(-1);
+    break;
+  case SPGMR_PSOLVE_FAIL_UNREC:
+    CVProcessError(cv_mem, SPGMR_PSOLVE_FAIL_UNREC, "CVSPGMR", "CVSpgmrSolve", MSGS_PSOLVE_FAILED);
+    return(-1);
+    break;
+  case SPGMR_GS_FAIL:
+    return(-1);
+    break;
+  case SPGMR_QRSOL_FAIL:
+    return(-1);
+    break;
+  }
 
-  return(1);  
+  return(0);
 }
 
 /*

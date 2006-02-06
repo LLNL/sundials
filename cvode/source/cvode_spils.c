@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-02-02 00:31:08 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -588,15 +588,15 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
 {
   CVodeMem   cv_mem;
   CVSpilsMem cvspils_mem;
-  int ier;
+  int retval;
 
   cv_mem = (CVodeMem) cvode_mem;
   cvspils_mem = (CVSpilsMem)lmem;
 
-  ier = psolve(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp);
-  /* This call is counted in nps within the CVSpilsSolve routine */
+  /* This call is counted in nps within the CVSp***Solve routine */
+  retval = psolve(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp);
 
-  return(ier);     
+  return(retval);     
 }
 
 /*
@@ -632,6 +632,7 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
   /* Set Jv = f(tn, work) */
   retval = f(t, work, Jv, f_data); 
   nfes++;
+  if (retval != 0) return(retval);
 
   /* Replace Jv by vnrm*(Jv - fy) */
   N_VLinearSum(ONE, Jv, -ONE, fy, Jv);

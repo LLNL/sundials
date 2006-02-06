@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2006-02-06 17:41:38 $
+ * $Revision: 1.29 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -390,12 +390,6 @@ extern "C" {
     int cv_taskc;         /* copy of parameter task                          */
     int cv_irfnd;         /* flag showing whether last step had a root       */
     long int cv_nge;      /* counter for g evaluations                       */
-
-    /*-------------------------
-      Complex step memory block
-      -------------------------*/
-
-    void *cv_csmem;
 
   } *CVodeMem;
 

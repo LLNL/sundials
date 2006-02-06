@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-24 00:50:58 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-06 23:17:39 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -46,16 +46,27 @@ extern "C" {
 #define CVB_MSBJ  50
 #define CVB_DGMAX RCONST(0.2)
 
-  /* CVBAND return values */
+  /*
+   * -----------------------------------------------------------------
+   * CVBAND return values
+   * -----------------------------------------------------------------
+   */
 
-#define CVBAND_SUCCESS    0
-#define CVBAND_MEM_NULL  -1
-#define CVBAND_LMEM_NULL -2
-#define CVBAND_ILL_INPUT -3
-#define CVBAND_MEM_FAIL  -4
+#define CVBAND_SUCCESS           0
+#define CVBAND_MEM_NULL         -1
+#define CVBAND_LMEM_NULL        -2
+#define CVBAND_ILL_INPUT        -3
+#define CVBAND_MEM_FAIL         -4
 
-#define CVBAND_ADJMEM_NULL -101
-#define CVBAND_LMEMB_NULL  -102
+  /* Additional last_flag values */
+
+#define CVBAND_JACFUNC_UNRECVR  -5
+#define CVBAND_JACFUNC_RECVR    -6
+
+  /* Return values for adjoint module */
+
+#define CVBAND_ADJMEM_NULL      -101
+#define CVBAND_LMEMB_NULL       -102
 
   /* 
    * -----------------------------------------------------------------

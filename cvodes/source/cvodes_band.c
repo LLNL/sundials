@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-02-02 00:32:21 $
+ * $Revision: 1.8 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -433,17 +433,32 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   jok = !jbad;
   
   if (jok) {
+
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
     BandCopy(savedJ, M, mu, ml);
+
   } else {
+
     /* If jok = FALSE, call jac routine for new J value */
     nje++;
     nstlj = nst;
     *jcurPtr = TRUE;
     BandZero(M); 
+
     retval = jac(n, mu, ml, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
+    if (retval < 0) {
+      CVProcessError(cv_mem, CVBAND_JACFUNC_UNRECVR, "CVBAND", "CVBandSetup", MSGB_JACFUNC_FAILED);
+      last_flag = CVBAND_JACFUNC_UNRECVR;
+      return(-1);
+    }
+    if (retval > 0) {
+      last_flag = CVBAND_JACFUNC_RECVR;
+      return(1);
+    }
+
     BandCopy(M, savedJ, mu, ml);
+
   }
   
   /* Scale and add I to get M = I - gamma*J */
@@ -578,6 +593,8 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
     /* Evaluate f with incremented y */
 
     retval = f(tn, ytemp, ftemp, f_data);
+    nfeB++;
+    if (retval != 0) return(retval);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < N; j+=width) {
@@ -593,9 +610,6 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
     }
   }
   
-  /* Increment counter nfeB */
-  nfeB += ngroups;
-
   return(0);
 }
 
@@ -731,14 +745,13 @@ static int CVAbandJac(long int nB, long int mupperB,
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
     CVProcessError(cvB_mem, -1, "CVBAND", "CVAbandJac", MSGB_BAD_T);
-    exit(1);
-    /*return(-1);*/
+    return(-1);
   }
 
   /* Call user's adjoint band bjacB routine */
   retval = bjac_B(nB, mupperB, mlowerB, JB, t, ytmp, yB, fyB, jac_data_B,
                   tmp1B, tmp2B, tmp3B);
 
-  return(0);
+  return(retval);
 }
 

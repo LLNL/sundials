@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:32:19 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-06 23:17:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,14 +38,16 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-#define CVSPILS_SUCCESS    0
-#define CVSPILS_MEM_NULL  -1
-#define CVSPILS_LMEM_NULL -2
-#define CVSPILS_ILL_INPUT -3
-#define CVSPILS_MEM_FAIL  -4
+#define CVSPILS_SUCCESS          0
+#define CVSPILS_MEM_NULL        -1
+#define CVSPILS_LMEM_NULL       -2
+#define CVSPILS_ILL_INPUT       -3
+#define CVSPILS_MEM_FAIL        -4
 
-#define CVSPILS_ADJMEM_NULL -101
-#define CVSPILS_LMEMB_NULL  -102
+  /* Return values for the adjoint module */
+
+#define CVSPILS_ADJMEM_NULL     -101
+#define CVSPILS_LMEMB_NULL      -102
 
   /*
    * -----------------------------------------------------------------

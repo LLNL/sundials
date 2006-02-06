@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-17 23:29:59 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-06 23:17:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -85,8 +85,9 @@ extern "C" {
 
 /* CVBANDPRE return values */
 
-#define CVBANDPRE_SUCCESS     0
-#define CVBANDPRE_PDATA_NULL -11
+#define CVBANDPRE_SUCCESS           0
+#define CVBANDPRE_PDATA_NULL      -11
+#define CVBANDPRE_RHSFUNC_UNRECVR -12
 
 /*
  * -----------------------------------------------------------------

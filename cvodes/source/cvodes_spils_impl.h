@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-02 00:32:22 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -126,6 +126,10 @@ extern "C" {
 #define MSGS_BAD_GSTYPE  "Illegal value for gstype. Legal values are MODIFIED_GS and CLASSICAL_GS."
 #define MSGS_BAD_DELT    "delt < 0 illegal."
   
+#define MSGS_PSET_FAILED "The preconditioner setup routine failed in an unrecoverable manner."
+#define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
+#define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
+
 
   /* 
    * -----------------------------------------------------------------
@@ -198,7 +202,7 @@ extern "C" {
 
 #define MSGS_CAMEM_NULL "cvadj_mem = NULL illegal."
 #define MSGS_LMEMB_NULL "Linear solver memory is NULL for the backward integration."
-#define MSGS_BAD_T      "Bad t for interpolation. Abort!"
+#define MSGS_BAD_T      "Bad t for interpolation."
 
 
 #ifdef __cplusplus

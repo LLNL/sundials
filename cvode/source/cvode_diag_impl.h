@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -54,12 +54,10 @@ typedef struct {
 /* Error Messages */
 
 #define MSGDG_CVMEM_NULL "Integrator memory is NULL."
-
 #define MSGDG_BAD_NVECTOR "A required vector operation is not implemented."
-
 #define MSGDG_MEM_FAIL "A memory request failed."
-
 #define MSGDG_LMEM_NULL "CVDIAG memory is NULL."
+#define MSGDG_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

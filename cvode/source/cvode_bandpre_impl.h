@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -64,6 +64,7 @@ typedef struct {
 #define MSGBP_MEM_FAIL "A memory request failed."
 #define MSGBP_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGBP_PDATA_NULL "BandPrecData is NULL."
+#define MSGBP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
 
 #ifdef __cplusplus

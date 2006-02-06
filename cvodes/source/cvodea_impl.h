@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2006-02-02 00:32:21 $
+ * $Revision: 1.19 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -234,7 +234,7 @@ extern "C" {
 #define MSGAM_BAD_ITASKB   "Illegal value for itaskB. Legal values are CV_NORMAL and CV_ONE_STEP."
 #define MSGAM_BAD_TB0      "The initial time tB0 is outside the interval over which the forward problem was solved."
 #define MSGAM_BAD_TBOUT    "The final time tBout is outside the interval over which the forward problem was solved."
-#define MSGAM_BAD_T        "Bad t for interpolation. Abort!"
+#define MSGAM_BAD_T        "Bad t for interpolation."
 #define MSGAM_WRONG_INTERP "This function cannot be called for the specified interp type."
 
 #ifdef __cplusplus

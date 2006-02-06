@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -69,12 +69,10 @@ typedef struct {
 #define MSGB_CVMEM_NULL "Integrator memory is NULL."
 
 #define MSGB_MEM_FAIL "A memory request failed."
-
 #define MSGB_BAD_SIZES "Illegal bandwidth parameter(s). Must have 0 <=  ml, mu <= N-1."
-
 #define MSGB_BAD_NVECTOR "A required vector operation is not implemented."
-
 #define MSGB_LMEM_NULL "CVBAND memory is NULL."
+#define MSGB_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

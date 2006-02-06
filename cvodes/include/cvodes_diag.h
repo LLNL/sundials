@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-12 20:24:03 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-06 23:17:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,17 +31,27 @@ extern "C" {
 
 #include "sundials_nvector.h"
 
-  /* CVDIAG return values */
+  /*
+   * -----------------------------------------------------------------
+   * CVDIAG return values
+   * -----------------------------------------------------------------
+   */
 
-#define CVDIAG_SUCCESS    0
-#define CVDIAG_MEM_NULL  -1
-#define CVDIAG_LMEM_NULL -2
-#define CVDIAG_ILL_INPUT -3
-#define CVDIAG_MEM_FAIL  -4
+#define CVDIAG_SUCCESS          0
+#define CVDIAG_MEM_NULL        -1
+#define CVDIAG_LMEM_NULL       -2
+#define CVDIAG_ILL_INPUT       -3
+#define CVDIAG_MEM_FAIL        -4
 
-#define CVDIAG_INV_FAIL   1
+  /* Additional last_flag values */
 
-#define CVDIAG_ADJMEM_NULL -101
+#define CVDIAG_INV_FAIL        -5
+#define CVDIAG_RHSFUNC_UNRECVR -6
+#define CVDIAG_RHSFUNC_RECVR   -7
+
+  /* Return values for adjoint module */
+
+#define CVDIAG_ADJMEM_NULL     -101
 
   /* 
    * -----------------------------------------------------------------

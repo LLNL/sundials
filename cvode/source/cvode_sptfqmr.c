@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:31:09 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier @ LLNL
+ * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -287,7 +287,7 @@ static int CVSptfqmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  int  ier;
+  int  retval;
   CVSpilsMem cvspils_mem;
 
   cvspils_mem = (CVSpilsMem) lmem;
@@ -301,8 +301,16 @@ static int CVSptfqmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   jok = !jbad;
 
   /* Call pset routine and possibly reset jcur */
-  ier = pset(tn, ypred, fpred, jok, jcurPtr, gamma, P_data, 
-             vtemp1, vtemp2, vtemp3);
+  retval = pset(tn, ypred, fpred, jok, jcurPtr, gamma, P_data, 
+                vtemp1, vtemp2, vtemp3);
+  if (retval < 0) {
+    CVProcessError(cv_mem, SPTFQMR_PSET_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSetup", MSGS_PSET_FAILED);
+    last_flag = SPTFQMR_PSET_FAIL_UNREC;
+  }
+  if (retval > 0) {
+    last_flag = SPTFQMR_PSET_FAIL_REC;
+  }
+
   if (jbad) *jcurPtr = TRUE;
 
   /* If jcur = TRUE, increment npe and save nst value */
@@ -311,9 +319,8 @@ static int CVSptfqmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlpre = nst;
   }
 
-  /* Return the same value ier that pset returned */
-  last_flag = ier;
-  return(ier);
+  /* Return the same value that pset returned */
+  return(retval);
 }
 
 /*
@@ -344,7 +351,7 @@ static int CVSptfqmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   realtype bnorm, res_norm;
   CVSpilsMem cvspils_mem;
   SptfqmrMem sptfqmr_mem;
-  int nli_inc, nps_inc, ier;
+  int nli_inc, nps_inc, retval;
   
   cvspils_mem = (CVSpilsMem) lmem;
 
@@ -368,27 +375,51 @@ static int CVSptfqmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   N_VConst(ZERO, x);
   
   /* Call SptfqmrSolve and copy x to b */
-  ier = SptfqmrSolve(sptfqmr_mem, cv_mem, x, b, pretype, delta,
-                   cv_mem, weight, weight, CVSpilsAtimes, CVSpilsPSolve,
-                   &res_norm, &nli_inc, &nps_inc);
+  retval = SptfqmrSolve(sptfqmr_mem, cv_mem, x, b, pretype, delta,
+                        cv_mem, weight, weight, CVSpilsAtimes, CVSpilsPSolve,
+                        &res_norm, &nli_inc, &nps_inc);
 
   N_VScale(ONE, x, b);
   
   /* Increment counters nli, nps, and ncfl */
   nli += nli_inc;
   nps += nps_inc;
-  if (ier != 0) ncfl++;
+  if (retval != 0) ncfl++;
 
-  /* Set return value to -1, 0, or 1 */
-  last_flag = ier;
+  /* Interpret return value from SpgmrSolve */
 
-  if (ier < 0) return(-1);  
+  last_flag = retval;
 
-  if ((ier == SPTFQMR_SUCCESS) || 
-      ((ier == SPTFQMR_RES_REDUCED) && (mnewt == 0)))
+  switch(retval) {
+
+  case SPTFQMR_SUCCESS:
     return(0);
+    break;
+  case SPTFQMR_RES_REDUCED:
+    if (mnewt == 0) return(0);
+    else            return(1);
+    break;
+  case SPTFQMR_CONV_FAIL:
+    return(1);
+    break;
+  case SPTFQMR_PSOLVE_FAIL_REC:
+    return(1);
+    break;
+  case SPTFQMR_MEM_NULL:
+    return(-1);
+    break;
+  case SPTFQMR_ATIMES_FAIL:
+    CVProcessError(cv_mem, SPTFQMR_ATIMES_FAIL, "CVSPTFQMR", "CVSptfqmrSolve", MSGS_JTIMES_FAILED);    
+    return(-1);
+    break;
+  case SPTFQMR_PSOLVE_FAIL_UNREC:
+    CVProcessError(cv_mem, SPTFQMR_PSOLVE_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSolve", MSGS_PSOLVE_FAILED);
+    return(-1);
+    break;
+  }
 
-  return(1);  
+  return(0);  
+
 }
 
 /*

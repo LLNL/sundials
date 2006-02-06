@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-24 00:50:14 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-06 23:17:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -178,11 +178,16 @@ int CVDenseGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVDENSE return values */
 
-#define CVDENSE_SUCCESS    0
-#define CVDENSE_MEM_NULL  -1
-#define CVDENSE_LMEM_NULL -2
-#define CVDENSE_ILL_INPUT -3
-#define CVDENSE_MEM_FAIL  -4
+#define CVDENSE_SUCCESS           0
+#define CVDENSE_MEM_NULL         -1
+#define CVDENSE_LMEM_NULL        -2
+#define CVDENSE_ILL_INPUT        -3
+#define CVDENSE_MEM_FAIL         -4
+
+/* Additional last_flag values */
+
+#define CVDENSE_JACFUNC_UNRECVR  -5
+#define CVDENSE_JACFUNC_RECVR    -6
 
 #ifdef __cplusplus
 }

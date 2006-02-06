@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:46 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-06 23:17:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -73,13 +73,24 @@ int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 int CVDiagGetLastFlag(void *cvode_mem, int *flag);
 
-#define CVDIAG_SUCCESS    0
-#define CVDIAG_MEM_NULL  -1
-#define CVDIAG_LMEM_NULL -2
-#define CVDIAG_ILL_INPUT -3
-#define CVDIAG_MEM_FAIL  -4
 
-#define CVDIAG_INV_FAIL   1
+/*
+ * -----------------------------------------------------------------
+ * CVDIAG return values
+ * -----------------------------------------------------------------
+ */
+
+#define CVDIAG_SUCCESS          0
+#define CVDIAG_MEM_NULL        -1
+#define CVDIAG_LMEM_NULL       -2
+#define CVDIAG_ILL_INPUT       -3
+#define CVDIAG_MEM_FAIL        -4
+
+/* Additional last_flag values */
+
+#define CVDIAG_INV_FAIL        -5
+#define CVDIAG_RHSFUNC_UNRECVR -6
+#define CVDIAG_RHSFUNC_RECVR   -7
 
 #ifdef __cplusplus
 }

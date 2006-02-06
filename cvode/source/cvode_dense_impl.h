@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-28 00:47:27 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,38 +35,37 @@ extern "C" {
 
 typedef struct {
 
-  long int d_n;       /* problem dimension                      */
+  long int d_n;        /* problem dimension                       */
 
-  CVDenseJacFn d_jac; /* jac = Jacobian routine to be called    */
+  CVDenseJacFn d_jac;  /* jac = Jacobian routine to be called     */
 
-  DenseMat d_M;       /* M = I - gamma J, gamma = h / l1        */
+  DenseMat d_M;        /* M = I - gamma J, gamma = h / l1         */
   
-  long int *d_pivots; /* pivots = pivot array for PM = LU   */
+  long int *d_pivots;  /* pivots = pivot array for PM = LU        */
   
-  DenseMat d_savedJ;  /* savedJ = old Jacobian                  */
+  DenseMat d_savedJ;   /* savedJ = old Jacobian                   */
   
-  long int  d_nstlj;  /* nstlj = nst at last Jacobian eval.     */
+  long int  d_nstlj;   /* nstlj = nst at last Jacobian eval.      */
   
-  long int d_nje;     /* nje = no. of calls to jac              */
+  long int d_nje;      /* nje = no. of calls to jac               */
 
-  long int d_nfeD;    /* nfeD = no. of calls to f due to
-                         difference quotient approximation of J */
+  long int d_nfeD;     /* nfeD = no. of calls to f due to
+                          difference quotient approximation of J  */
   
-  void *d_J_data;     /* J_data is passed to jac                */
+  void *d_J_data;      /* J_data is passed to jac                 */
 
-  int d_last_flag;    /* last error return flag */
+  int d_last_flag;     /* last error return flag                  */
   
 } CVDenseMemRec, *CVDenseMem;
 
 /* Error Messages */
 
 #define MSGDS_CVMEM_NULL "Integrator memory is NULL."
-
 #define MSGDS_BAD_NVECTOR "A required vector operation is not implemented."
-
 #define MSGDS_MEM_FAIL "A memory request failed."
-
 #define MSGDS_LMEM_NULL "CVDENSE memory is NULL."
+#define MSGDS_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
+
 
 #ifdef __cplusplus
 }

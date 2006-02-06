@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:32:22 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -306,6 +306,15 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   /* Evaluate f at perturbed y */
   retval = f(tn, y, M, f_data);
   nfeDI++;
+  if (retval < 0) {
+    CVProcessError(cv_mem, CVDIAG_RHSFUNC_UNRECVR, "CVDIAG", "CVDiagSetup", MSGDG_RHSFUNC_FAILED);
+    last_flag = CVDIAG_RHSFUNC_UNRECVR;
+    return(-1);
+  }
+  if (retval > 0) {
+    last_flag = CVDIAG_RHSFUNC_RECVR;
+    return(1);
+  }
 
   /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */
   N_VLinearSum(ONE, M, -ONE, fpred, M);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:14 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-06 23:17:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -113,8 +113,9 @@ extern "C" {
 
 /* CVBBDPRE return values */
 
-#define CVBBDPRE_SUCCESS     0
-#define CVBBDPRE_PDATA_NULL -11
+#define CVBBDPRE_SUCCESS            0
+#define CVBBDPRE_PDATA_NULL       -11
+#define CVBBDPRE_FUNC_UNRECVR     -12
 
 /*
  * -----------------------------------------------------------------

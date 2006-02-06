@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-17 23:30:18 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-06 23:17:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,12 +33,13 @@ extern "C" {
 
   /* CVBANDPRE return values */
 
-#define CVBANDPRE_SUCCESS     0
-#define CVBANDPRE_PDATA_NULL -11
+#define CVBANDPRE_SUCCESS           0
+#define CVBANDPRE_PDATA_NULL      -11
+#define CVBANDPRE_RHSFUNC_UNRECVR -12
 
-#define CVBANDPRE_ADJMEM_NULL -101
-#define CVBANDPRE_PMEMB_NULL  -102
-#define CVBANDPRE_MEM_FAIL    -103
+#define CVBANDPRE_ADJMEM_NULL     -101
+#define CVBANDPRE_PMEMB_NULL      -102
+#define CVBANDPRE_MEM_FAIL        -103
 
 #include "sundials_nvector.h"
 

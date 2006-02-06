@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-24 00:50:58 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-06 23:17:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -35,12 +35,13 @@ extern "C" {
 
   /* CVBBDPRE return values */
 
-#define CVBBDPRE_SUCCESS     0
-#define CVBBDPRE_PDATA_NULL -11
+#define CVBBDPRE_SUCCESS            0
+#define CVBBDPRE_PDATA_NULL       -11
+#define CVBBDPRE_FUNC_UNRECVR     -12
 
-#define CVBBDPRE_ADJMEM_NULL -101
-#define CVBBDPRE_PMEMB_NULL  -102
-#define CVBBDPRE_MEM_FAIL    -103
+#define CVBBDPRE_ADJMEM_NULL      -101
+#define CVBBDPRE_PMEMB_NULL       -102
+#define CVBBDPRE_MEM_FAIL         -103
 
 
   /* 

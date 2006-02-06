@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-02-02 00:31:08 $
+ * $Revision: 1.8 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -368,20 +368,36 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 {
   long int ier;
   CVBBDPrecData pdata;
+  CVodeMem cv_mem;
+  int retval;
 
   pdata = (CVBBDPrecData) bbd_data;
 
+  cv_mem = (CVodeMem) pdata->cvode_mem;
+
   if (jok) {
+
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
     BandCopy(savedJ, savedP, mukeep, mlkeep);
+
   } else {
+
     /* Otherwise call CVBBDDQJac for new J value */
     *jcurPtr = TRUE;
     BandZero(savedJ);
-    CVBBDDQJac(pdata, t, y, tmp1, tmp2, tmp3);
-    nge += (1 + MIN(mldq + mudq + 1, Nlocal));
+
+    retval = CVBBDDQJac(pdata, t, y, tmp1, tmp2, tmp3);
+    if (retval < 0) {
+      CVProcessError(cv_mem, CVBBDPRE_FUNC_UNRECVR, "CVBBDPRE", "CVBBDPrecSetup", MSGBBDP_FUNC_FAILED);
+      return(-1);
+    }
+    if (retval > 0) {
+      return(1);
+    }
+
     BandCopy(savedJ, savedP, mukeep, mlkeep);
+
   }
   
   /* Scale and add I to get P = I - gamma*J */
@@ -477,9 +493,12 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
   /* Call cfn and gloc to get base value of g(t,y) */
   if (cfn != NULL) {
     retval = cfn(Nlocal, t, y, f_data);
+    if (retval != 0) return(retval);
   }
 
   retval = gloc(Nlocal, t, ytemp, gy, f_data);
+  nge++;
+  if (retval != 0) return(retval);
 
   /* Obtain pointers to the data for various vectors */
   y_data     =  N_VGetArrayPointer(y);
@@ -508,6 +527,8 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 
     /* Evaluate g with incremented y */
     retval = gloc(Nlocal, t, ytemp, gtemp, f_data);
+    nge++;
+    if (retval != 0) return(retval);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < Nlocal; j+=width) {

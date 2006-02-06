@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:32:22 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -602,15 +602,15 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z, int lr)
 {
   CVodeMem   cv_mem;
   CVSpilsMem cvspils_mem;
-  int ier;
+  int retval;
 
   cv_mem = (CVodeMem) cvode_mem;
   cvspils_mem = (CVSpilsMem)lmem;
 
-  ier = psolve(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp);
-  /* This call is counted in nps within the CVSpilsSolve routine */
+  /* This call is counted in nps within the CVSp***Solve routine */
+  retval = psolve(tn, ycur, fcur, r, z, gamma, delta, lr, P_data, ytemp);
 
-  return(ier);     
+  return(retval);     
 }
 
 /*
@@ -646,6 +646,7 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
   /* Set Jv = f(tn, work) */
   retval = f(t, work, Jv, f_data); 
   nfes++;
+  if (retval != 0) return(retval);
 
   /* Replace Jv by vnrm*(Jv - fy) */
   N_VLinearSum(ONE, Jv, -ONE, fy, Jv);
@@ -842,7 +843,7 @@ int CVAspilsPrecSetup(realtype t, N_Vector yB,
   CVadjMem ca_mem;
   CVodeMem cvB_mem;
   CVSpilsMemB cvspilsB_mem;
-  int flag;
+  int retval, flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
   cvB_mem = ca_mem->cvb_mem;
@@ -856,10 +857,10 @@ int CVAspilsPrecSetup(realtype t, N_Vector yB,
   } 
 
   /* Call user's adjoint precondB routine */
-  flag = pset_B(t, ytmp, yB, fyB, jokB, jcurPtrB, gammaB,
-                P_data_B, tmp1B, tmp2B, tmp3B);
+  retval = pset_B(t, ytmp, yB, fyB, jokB, jcurPtrB, gammaB,
+                  P_data_B, tmp1B, tmp2B, tmp3B);
 
-  return(flag);
+  return(retval);
 }
 
 
@@ -879,7 +880,7 @@ int CVAspilsPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
   CVadjMem ca_mem;
   CVodeMem cvB_mem;
   CVSpilsMemB cvspilsB_mem;
-  int flag;
+  int retval, flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
   cvB_mem = ca_mem->cvb_mem;
@@ -893,10 +894,10 @@ int CVAspilsPrecSolve(realtype t, N_Vector yB, N_Vector fyB,
   }
 
   /* Call user's adjoint psolveB routine */
-  flag = psolve_B(t, ytmp, yB, fyB, rB, zB, gammaB, deltaB, 
-                  lrB, P_data_B, tmpB);
+  retval = psolve_B(t, ytmp, yB, fyB, rB, zB, gammaB, deltaB, 
+                    lrB, P_data_B, tmpB);
 
-  return(flag);
+  return(retval);
 }
 
 
@@ -915,7 +916,7 @@ int CVAspilsJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
   CVadjMem ca_mem;
   CVodeMem cvB_mem;
   CVSpilsMemB cvspilsB_mem;
-  int flag;
+  int retval, flag;
 
   ca_mem = (CVadjMem) cvadj_mem;
   cvB_mem = ca_mem->cvb_mem;
@@ -929,8 +930,8 @@ int CVAspilsJacTimesVec(N_Vector vB, N_Vector JvB, realtype t,
   } 
 
   /* Call user's adjoint jtimesB routine */
-  flag = jtimes_B(vB, JvB, t, ytmp, yB, fyB, jac_data_B, tmpB);
+  retval = jtimes_B(vB, JvB, t, ytmp, yB, fyB, jac_data_B, tmpB);
 
-  return(flag);
+  return(retval);
 }
 

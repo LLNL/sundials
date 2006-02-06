@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-02-02 00:32:22 $
+ * $Revision: 1.8 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -302,7 +302,7 @@ static int CVSpbcgSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 {
   booleantype jbad, jok;
   realtype dgamma;
-  int  ier;
+  int  retval;
   CVSpilsMem cvspils_mem;
 
   cvspils_mem = (CVSpilsMem) lmem;
@@ -316,8 +316,16 @@ static int CVSpbcgSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   jok = !jbad;
 
   /* Call pset routine and possibly reset jcur */
-  ier = pset(tn, ypred, fpred, jok, jcurPtr, gamma, P_data, 
-             vtemp1, vtemp2, vtemp3);
+  retval = pset(tn, ypred, fpred, jok, jcurPtr, gamma, P_data, 
+                vtemp1, vtemp2, vtemp3);
+  if (retval < 0) {
+    CVProcessError(cv_mem, SPBCG_PSET_FAIL_UNREC, "CVSPBCG", "CVSpbcgSetup", MSGS_PSET_FAILED);
+    last_flag = SPBCG_PSET_FAIL_UNREC;
+  }
+  if (retval > 0) {
+    last_flag = SPBCG_PSET_FAIL_REC;
+  }
+
   if (jbad) *jcurPtr = TRUE;
 
   /* If jcur = TRUE, increment npe and save nst value */
@@ -326,9 +334,8 @@ static int CVSpbcgSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlpre = nst;
   }
 
-  /* Return the same value ier that pset returned */
-  last_flag = ier;
-  return(ier);
+  /* Return the same value that pset returned */
+  return(retval);
 }
 
 /*
@@ -359,7 +366,7 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   realtype bnorm, res_norm;
   CVSpilsMem cvspils_mem;
   SpbcgMem spbcg_mem;
-  int nli_inc, nps_inc, ier;
+  int nli_inc, nps_inc, retval;
   
   cvspils_mem = (CVSpilsMem) lmem;
 
@@ -383,27 +390,51 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   N_VConst(ZERO, x);
   
   /* Call SpbcgSolve and copy x to b */
-  ier = SpbcgSolve(spbcg_mem, cv_mem, x, b, pretype, delta,
-                   cv_mem, weight, weight, CVSpilsAtimes, CVSpilsPSolve,
-                   &res_norm, &nli_inc, &nps_inc);
+  retval = SpbcgSolve(spbcg_mem, cv_mem, x, b, pretype, delta,
+                      cv_mem, weight, weight, CVSpilsAtimes, CVSpilsPSolve,
+                      &res_norm, &nli_inc, &nps_inc);
 
   N_VScale(ONE, x, b);
   
   /* Increment counters nli, nps, and ncfl */
   nli += nli_inc;
   nps += nps_inc;
-  if (ier != 0) ncfl++;
+  if (retval != 0) ncfl++;
 
-  /* Set return value to -1, 0, or 1 */
-  last_flag = ier;
+  /* Interpret return value from SpbcgSolve */
 
-  if (ier < 0) return(-1);  
+  last_flag = retval;
 
-  if ((ier == SPBCG_SUCCESS) || 
-      ((ier == SPBCG_RES_REDUCED) && (mnewt == 0)))
+  switch(retval) {
+
+  case SPBCG_SUCCESS:
     return(0);
+    break;
+  case SPBCG_RES_REDUCED:
+    if (mnewt == 0) return(0);
+    else            return(1);
+    break;
+  case SPBCG_CONV_FAIL:
+    return(1);
+    break;
+  case SPBCG_PSOLVE_FAIL_REC:
+    return(1);
+    break;
+  case SPBCG_MEM_NULL:
+    return(-1);
+    break;
+  case SPBCG_ATIMES_FAIL:
+    CVProcessError(cv_mem, SPBCG_ATIMES_FAIL, "CVSPBCG", "CVSpbcgSolve", MSGS_JTIMES_FAILED);    
+    return(-1);
+    break;
+  case SPBCG_PSOLVE_FAIL_UNREC:
+    CVProcessError(cv_mem, SPBCG_PSOLVE_FAIL_UNREC, "CVSPBCG", "CVSpbcgSolve", MSGS_PSOLVE_FAILED);
+    return(-1);
+    break;
+  }
 
-  return(1);  
+  return(0);  
+
 }
 
 /*

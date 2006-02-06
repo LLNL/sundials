@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:31:08 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -391,17 +391,32 @@ static int CVDenseSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   jok = !jbad;
  
   if (jok) {
+
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
     DenseCopy(savedJ, M);
+
   } else {
+
     /* If jok = FALSE, call jac routine for new J value */
     nje++;
     nstlj = nst;
     *jcurPtr = TRUE;
-    DenseZero(M); 
+    DenseZero(M);
+
     retval = jac(n, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
+    if (retval < 0) {
+      CVProcessError(cv_mem, CVDENSE_JACFUNC_UNRECVR, "CVDENSE", "CVDenseSetup", MSGDS_JACFUNC_FAILED);
+      last_flag = CVDENSE_JACFUNC_UNRECVR;
+      return(-1);
+    }
+    if (retval > 0) {
+      last_flag = CVDENSE_JACFUNC_RECVR;
+      return(1);
+    }
+
     DenseCopy(M, savedJ);
+
   }
   
   /* Scale and add I to get M = I - gamma*J */
@@ -527,7 +542,14 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
     yjsaved = y_data[j];
     inc = MAX(srur*ABS(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
+
     retval = f(tn, y, ftemp, f_data);
+    nfeD++;
+    if (retval != 0) {
+      N_VSetArrayPointer(tmp2_data, tmp2);
+      return(retval);
+    }
+    
     y_data[j] = yjsaved;
 
     inc_inv = ONE/inc;
@@ -538,9 +560,6 @@ static int CVDenseDQJac(long int N, DenseMat J, realtype t,
 
   /* Restore original array pointer in tmp2 */
   N_VSetArrayPointer(tmp2_data, tmp2);
-
-  /* Increment counter nfeD */
-  nfeD += N;
 
   return(0);
 }

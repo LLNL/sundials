@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:31:08 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-06 23:17:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -409,17 +409,32 @@ static int CVBandSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   jok = !jbad;
   
   if (jok) {
+
     /* If jok = TRUE, use saved copy of J */
     *jcurPtr = FALSE;
     BandCopy(savedJ, M, mu, ml);
+
   } else {
+
     /* If jok = FALSE, call jac routine for new J value */
     nje++;
     nstlj = nst;
     *jcurPtr = TRUE;
     BandZero(M); 
+
     retval = jac(n, mu, ml, M, tn, ypred, fpred, J_data, vtemp1, vtemp2, vtemp3);
+    if (retval < 0) {
+      CVProcessError(cv_mem, CVBAND_JACFUNC_UNRECVR, "CVBAND", "CVBandSetup", MSGB_JACFUNC_FAILED);
+      last_flag = CVBAND_JACFUNC_UNRECVR;
+      return(-1);
+    }
+    if (retval > 0) {
+      last_flag = CVBAND_JACFUNC_RECVR;
+      return(1);
+    }
+
     BandCopy(M, savedJ, mu, ml);
+
   }
   
   /* Scale and add I to get M = I - gamma*J */
@@ -554,6 +569,8 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
     /* Evaluate f with incremented y */
 
     retval = f(tn, ytemp, ftemp, f_data);
+    nfeB++;
+    if (retval != 0) return(retval);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < N; j+=width) {
@@ -569,8 +586,6 @@ static int CVBandDQJac(long int N, long int mupper, long int mlower,
     }
   }
   
-  /* Increment counter nfeB */
-  nfeB += ngroups;
-
   return(0);
+
 }

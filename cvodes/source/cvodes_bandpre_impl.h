@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,6 +63,7 @@ extern "C" {
 #define MSGBP_MEM_FAIL "A memory request failed."
 #define MSGBP_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGBP_PDATA_NULL "CVBANDPRE memory is NULL."
+#define MSGBP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
 #define MSGBP_CAMEM_NULL "cvadj_mem = NULL illegal."
 

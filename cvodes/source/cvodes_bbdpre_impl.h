@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -89,6 +89,7 @@ extern "C" {
 #define MSGBBDP_MEM_FAIL "A memory request failed."
 #define MSGBBDP_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGBBDP_PDATA_NULL "CVBBDPRE memory is NULL."
+#define MSGBBDP_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
 #define MSGBBDP_CAMEM_NULL "cvadj_mem = NULL illegal."
 #define MSGBBDP_PMEMB_NULL "CVBBDPRE memory is NULL for the backward integration."

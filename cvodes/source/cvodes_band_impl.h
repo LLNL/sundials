@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -93,10 +93,11 @@ extern "C" {
 #define MSGB_BAD_SIZES "Illegal bandwidth parameter(s). Must have 0 <=  ml, mu <= N-1."
 #define MSGB_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGB_LMEM_NULL "CVBAND memory is NULL."
+#define MSGB_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
 #define MSGB_CAMEM_NULL "cvadj_mem = NULL illegal."
 #define MSGB_LMEMB_NULL "CVBAND memory is NULL for the backward integration."
-#define MSGB_BAD_T "Bad t for interpolation. Abort!"
+#define MSGB_BAD_T "Bad t for interpolation."
 
 #ifdef __cplusplus
 }

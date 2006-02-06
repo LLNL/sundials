@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-02 00:32:21 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -326,20 +326,37 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 {
   long int ier;
   CVBandPrecData pdata;
+  CVodeMem cv_mem;
+  int retval;
 
   /* Assume matrix and pivots have already been allocated. */
   pdata = (CVBandPrecData) bp_data;
 
+  cv_mem = (CVodeMem) pdata->cvode_mem;
+
   if (jok) {
+
     /* If jok = TRUE, use saved copy of J. */
     *jcurPtr = FALSE;
     BandCopy(savedJ, savedP, mu, ml);
+
   } else {
+
     /* If jok = FALSE, call CVBandPDQJac for new J value. */
     *jcurPtr = TRUE;
     BandZero(savedJ);
-    CVBandPDQJac(pdata, t, y, fy, tmp1, tmp2);
+
+    retval = CVBandPDQJac(pdata, t, y, fy, tmp1, tmp2);
+    if (retval < 0) {
+      CVProcessError(cv_mem, CVBANDPRE_RHSFUNC_UNRECVR, "CVBANDPRE", "CVBandPrecSetup", MSGBP_RHSFUNC_FAILED);
+      return(-1);
+    }
+    if (retval > 0) {
+      return(1);
+    }
+
     BandCopy(savedJ, savedP, mu, ml);
+
   }
   
   /* Scale and add I to get savedP = I - gamma*J. */
@@ -460,6 +477,7 @@ static int CVBandPDQJac(CVBandPrecData pdata,
 
     retval = f(t, ytemp, ftemp, f_data);
     nfeBP++;
+    if (retval != 0) return(retval);
 
     /* Restore ytemp, then form and load difference quotients. */
     for (j = group-1; j < N; j += width) {

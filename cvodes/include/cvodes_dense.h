@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-24 00:50:58 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-06 23:17:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,17 +45,27 @@ extern "C" {
 
 #define CVD_MSBJ  50
 #define CVD_DGMAX RCONST(0.2)
+  /*
+   * -----------------------------------------------------------------
+   * CVDENSE return values
+   * -----------------------------------------------------------------
+   */
 
-  /* CVDENSE return values */
+#define CVDENSE_SUCCESS           0
+#define CVDENSE_MEM_NULL         -1
+#define CVDENSE_LMEM_NULL        -2
+#define CVDENSE_ILL_INPUT        -3
+#define CVDENSE_MEM_FAIL         -4
 
-#define CVDENSE_SUCCESS    0
-#define CVDENSE_MEM_NULL  -1
-#define CVDENSE_LMEM_NULL -2
-#define CVDENSE_ILL_INPUT -3
-#define CVDENSE_MEM_FAIL  -4
+  /* Additional last_flag values */
 
-#define CVDENSE_ADJMEM_NULL -101
-#define CVDENSE_LMEMB_NULL  -102
+#define CVDENSE_JACFUNC_UNRECVR  -5
+#define CVDENSE_JACFUNC_RECVR    -6
+
+  /* Return values for the adjoint module */
+
+#define CVDENSE_ADJMEM_NULL      -101
+#define CVDENSE_LMEMB_NULL       -102
 
   /* 
    * -----------------------------------------------------------------

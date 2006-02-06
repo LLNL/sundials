@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.73 $
- * $Date: 2006-02-06 17:41:38 $
+ * $Revision: 1.74 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -6805,7 +6805,7 @@ static int CVSensRhs(CVodeMem cv_mem, realtype time,
     if (fSDQ) return(CV_RHSFUNC_FAIL);
     else      return(CV_SRHSFUNC_FAIL);
   }
-  if (retval > 0) return(SRHSFUNC_RCVR);
+  if (retval > 0) return(SRHSFUNC_RECVR);
 
   return(CV_SUCCESS);
 }
@@ -6844,7 +6844,7 @@ static int CVSensRhs1(CVodeMem cv_mem, realtype time,
     if (fSDQ) return(CV_RHSFUNC_FAIL);
     else      return(CV_SRHSFUNC_FAIL);
   }
-  if (retval > 0) return(SRHSFUNC_RCVR);
+  if (retval > 0) return(SRHSFUNC_RECVR);
 
   return(CV_SUCCESS);
 }

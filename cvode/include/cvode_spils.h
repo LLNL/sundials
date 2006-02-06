@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-02 00:31:06 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-06 23:17:31 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -342,13 +342,11 @@ int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
 
 /* CVSPILS return values */
 
-#define CVSPILS_SUCCESS    0
-#define CVSPILS_MEM_NULL  -1
-#define CVSPILS_LMEM_NULL -2
-#define CVSPILS_ILL_INPUT -3
-#define CVSPILS_MEM_FAIL  -4
-
-
+#define CVSPILS_SUCCESS          0
+#define CVSPILS_MEM_NULL        -1
+#define CVSPILS_LMEM_NULL       -2
+#define CVSPILS_ILL_INPUT       -3
+#define CVSPILS_MEM_FAIL        -4
 
 #ifdef __cplusplus
 }

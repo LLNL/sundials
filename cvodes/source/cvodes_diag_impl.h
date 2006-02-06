@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -56,6 +56,7 @@ extern "C" {
 #define MSGDG_MEM_FAIL "A memory request failed."
 #define MSGDG_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGDG_LMEM_NULL "CVDIAG memory is NULL."
+#define MSGDG_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
 #define MSGDG_CAMEM_NULL "cvadj_mem = NULL illegal."
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-06 23:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -36,26 +36,26 @@ extern "C" {
 
   typedef struct {
 
-    long int d_n;       /* problem dimension                      */
+    long int d_n;        /* problem dimension                       */
 
-    CVDenseJacFn d_jac; /* jac = Jacobian routine to be called    */
+    CVDenseJacFn d_jac;  /* jac = Jacobian routine to be called     */
 
-    DenseMat d_M;       /* M = I - gamma J, gamma = h / l1        */
+    DenseMat d_M;        /* M = I - gamma J, gamma = h / l1         */
   
-    long int *d_pivots; /* pivots = pivot array for PM = LU   */
+    long int *d_pivots;  /* pivots = pivot array for PM = LU        */
   
-    DenseMat d_savedJ;  /* savedJ = old Jacobian                  */
+    DenseMat d_savedJ;   /* savedJ = old Jacobian                   */
   
-    long int  d_nstlj;  /* nstlj = nst at last Jacobian eval.     */
+    long int  d_nstlj;   /* nstlj = nst at last Jacobian eval.      */
   
-    long int d_nje;     /* nje = no. of calls to jac              */
+    long int d_nje;      /* nje = no. of calls to jac               */
 
-    long int d_nfeD;    /* nfeD = no. of calls to f due to
-                           difference quotient approximation of J */
+    long int d_nfeD;     /* nfeD = no. of calls to f due to
+                            difference quotient approximation of J  */
   
-    void *d_J_data;     /* J_data is passed to jac                */
+    void *d_J_data;      /* J_data is passed to jac                 */
 
-    int d_last_flag;    /* last error return flag */
+    int d_last_flag;     /* last error return flag                  */
   
   } CVDenseMemRec, *CVDenseMem;
 
@@ -85,10 +85,12 @@ extern "C" {
 #define MSGDS_MEM_FAIL "A memory request failed."
 #define MSGDS_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGDS_LMEM_NULL "CVDENSE memory is NULL."
+#define MSGDS_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
 #define MSGDS_CAMEM_NULL "cvadj_mem = NULL illegal."
 #define MSGDS_LMEMB_NULL "CVDENSE memory is NULL for the backward integration."
-#define MSGDS_BAD_T "Bad t for interpolation. Abort!"
+#define MSGDS_BAD_T "Bad t for interpolation."
+
 
 #ifdef __cplusplus
 }
