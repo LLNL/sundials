@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:02 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-06 23:20:50 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -217,6 +217,11 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 				         memory block is NULL)             */
 #define SPTFQMR_ATIMES_FAIL       -2  /* atimes returned failure flag      */
 #define SPTFQMR_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably       */
+
+/* Additional values useful for an interface to SPTFQMR */
+
+#define SPTFQMR_PSET_FAIL_REC      4
+#define SPTFQMR_PSET_FAIL_UNREC   -4
 
 /*
  * -----------------------------------------------------------------
