@@ -38,6 +38,7 @@ tar uf $tarfile $distrobase/cvodes/source/cvodes_io.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_dense.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_band.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_diag.c
+tar uf $tarfile $distrobase/cvodes/source/cvodes_spils.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_spgmr.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_spbcgs.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_sptfqmr.c
@@ -48,9 +49,7 @@ tar uf $tarfile $distrobase/cvodes/source/cvodea_impl.h
 tar uf $tarfile $distrobase/cvodes/source/cvodes_dense_impl.h
 tar uf $tarfile $distrobase/cvodes/source/cvodes_band_impl.h
 tar uf $tarfile $distrobase/cvodes/source/cvodes_diag_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_spgmr_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_spbcgs_impl.h
-tar uf $tarfile $distrobase/cvodes/source/cvodes_sptfqmr_impl.h
+tar uf $tarfile $distrobase/cvodes/source/cvodes_spils_impl.h
 tar uf $tarfile $distrobase/cvodes/source/cvodes_bandpre_impl.h
 tar uf $tarfile $distrobase/cvodes/source/cvodes_bbdpre_impl.h
 

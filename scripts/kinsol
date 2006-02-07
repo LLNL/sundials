@@ -31,15 +31,14 @@ tar uf $tarfile $distrobase/kinsol/include/kinsol_bbdpre.h
 tar uf $tarfile $distrobase/kinsol/source/Makefile.in
 tar uf $tarfile $distrobase/kinsol/source/kinsol.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_io.c
+tar uf $tarfile $distrobase/kinsol/source/kinsol_spils.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_spgmr.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_spbcgs.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_sptfqmr.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_dense.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_bbdpre.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_impl.h
-tar uf $tarfile $distrobase/kinsol/source/kinsol_spgmr_impl.h
-tar uf $tarfile $distrobase/kinsol/source/kinsol_spbcgs_impl.h
-tar uf $tarfile $distrobase/kinsol/source/kinsol_sptfqmr_impl.h
+tar uf $tarfile $distrobase/kinsol/source/kinsol_spils_impl.h
 tar uf $tarfile $distrobase/kinsol/source/kinsol_dense_impl.h
 tar uf $tarfile $distrobase/kinsol/source/kinsol_bbdpre_impl.h
 

@@ -34,6 +34,7 @@ tar uf $tarfile $distrobase/ida/source/ida_io.c
 tar uf $tarfile $distrobase/ida/source/ida_ic.c
 tar uf $tarfile $distrobase/ida/source/ida_dense.c
 tar uf $tarfile $distrobase/ida/source/ida_band.c
+tar uf $tarfile $distrobase/ida/source/ida_spils.c
 tar uf $tarfile $distrobase/ida/source/ida_spgmr.c
 tar uf $tarfile $distrobase/ida/source/ida_spbcgs.c
 tar uf $tarfile $distrobase/ida/source/ida_sptfqmr.c
@@ -41,9 +42,7 @@ tar uf $tarfile $distrobase/ida/source/ida_bbdpre.c
 tar uf $tarfile $distrobase/ida/source/ida_impl.h
 tar uf $tarfile $distrobase/ida/source/ida_dense_impl.h
 tar uf $tarfile $distrobase/ida/source/ida_band_impl.h
-tar uf $tarfile $distrobase/ida/source/ida_spgmr_impl.h
-tar uf $tarfile $distrobase/ida/source/ida_spbcgs_impl.h
-tar uf $tarfile $distrobase/ida/source/ida_sptfqmr_impl.h
+tar uf $tarfile $distrobase/ida/source/ida_spils_impl.h
 tar uf $tarfile $distrobase/ida/source/ida_bbdpre_impl.h
 
 tar uf $tarfile $distrobase/ida/fcmix/Makefile.in
