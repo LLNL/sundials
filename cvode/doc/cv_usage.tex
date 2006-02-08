@@ -150,7 +150,7 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
 \item 
   {\bf {\p} Initialize MPI}
 
-  Call \id{MPI\_Init(\&argc, \&argv);} to initialize MPI if used by
+  Call \id{MPI\_Init(\&argc, \&argv);} to initialize {\mpi} if used by
   the user's program, aside from the internal use in {\nvecp}.  
   Here \id{argc} and \id{argv} are the command line argument 
   counter and array received by \id{main}.
@@ -163,7 +163,7 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
   {\p} Set \id{Nlocal}, the local vector length (the sub-vector
   length for this processor); \id{N}, the global vector length (the
   problem size $N$, and the sum of all the values of \id{Nlocal});
-  and the active set of processors.
+  and the active set of processes.
   
 \item
   {\bf Set vector of initial values}
@@ -188,10 +188,10 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
 
   {\p} \id{NV\_DATA\_P(y0)}
 
-  Here \id{comm} is the MPI communicator, set in one of two ways: 
-  If a proper subset of active processors is to be used, \id{comm} 
+  Here \id{comm} is the {\mpi} communicator, set in one of two ways: 
+  If a proper subset of active processes is to be used, \id{comm} 
   must be set by suitable MPI calls. Otherwise, to specify that all 
-  processors are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
+  processes are to be used, \id{comm} must be \id{MPI\_COMM\_WORLD}.
   
 \item\label{i:cvode_create} 
   {\bf Create {\cvode} object}
@@ -286,7 +286,7 @@ Steps marked with {\p} correspond to  {\nvecp}, while steps marked with
 \item 
   {\bf {\p} Finalize MPI}
 
-  Call \id{MPI\_Finalize();} to terminate MPI.
+  Call \id{MPI\_Finalize();} to terminate {\mpi}.
   
 \end{Steps}
 
@@ -402,7 +402,7 @@ flag = CVodeMalloc(cvode\_mem, f, t0, y0, itol, reltol, abstol);
   {\warn}It is the user's responsibility to provide compatible \id{itol} and
   \id{abstol} arguments.
 
-  If an error occurred, \id{CVodeMalloc} also send an eror message to the
+  If an error occurred, \id{CVodeMalloc} also sends an error message to the
   error handler function.
 }
 %%
@@ -502,7 +502,7 @@ be changed to zero or a tiny positive number in a temporary variable
 
 %%
 %%==============================================================================
-\subsection{Linear solver specification functions}\label{sss:lin_solv_init}
+\subsection{Linear solver specification functions}\label{ss:lin_solv_init}
 %%==============================================================================
 
 As previously explained, Newton iteration requires the solution of
