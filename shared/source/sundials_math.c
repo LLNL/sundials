@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-18 21:33:02 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-08 22:58:27 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
@@ -91,5 +91,18 @@ realtype RPower2(realtype x)
   return(powf(x, TWO));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(powl(x, TWO));
+#endif
+}
+
+realtype RExp(realtype x)
+{
+#if defined(SUNDIALS_USE_GENERIC_MATH)
+  return((realtype) exp((double) x));
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  return(exp(x));
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+  return(expf(x));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+  return(expl(x));
 #endif
 }

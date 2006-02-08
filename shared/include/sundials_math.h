@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:14:02 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-08 22:58:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
@@ -50,6 +50,10 @@ extern "C" {
 
 #ifndef SQR
 #define SQR RPower2
+#endif
+
+#ifndef EXP
+#define EXP RExp
 #endif
 
 /*
@@ -121,6 +125,19 @@ realtype RAbs(realtype x);
  */
 
 realtype RPower2(realtype x);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : RExp (a.k.a. EXP)
+ * -----------------------------------------------------------------
+ * Usage : realtype exp_x;
+ *         exp_x = RExp(x);
+ * -----------------------------------------------------------------
+ * RExp(x) returns e^x (base-e exponential function).
+ * -----------------------------------------------------------------
+ */
+
+realtype RExp(realtype x);
 
 #ifdef __cplusplus
 }
