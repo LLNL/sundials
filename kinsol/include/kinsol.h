@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.32 $
- * $Date: 2006-02-02 00:36:28 $
+ * $Revision: 1.33 $
+ * $Date: 2006-02-08 22:56:33 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -245,7 +245,7 @@ void *KINCreate(void);
  *                        |
  * KINSetNoInitSetup      | flag controlling whether or not the
  *                        | KINSol routine makes an initial call
- *                        | to the inear solver setup routine (lsetup)
+ *                        | to the linear solver setup routine (lsetup)
  *                        | (possible values are TRUE and FALSE)
  *                        | [FALSE]
  *                        |
