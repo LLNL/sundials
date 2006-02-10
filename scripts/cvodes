@@ -35,6 +35,7 @@ tar uf $tarfile $distrobase/cvodes/source/Makefile.in
 tar uf $tarfile $distrobase/cvodes/source/cvodes.c
 tar uf $tarfile $distrobase/cvodes/source/cvodea.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_io.c
+tar uf $tarfile $distrobase/cvodes/source/cvodea_io.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_dense.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_band.c
 tar uf $tarfile $distrobase/cvodes/source/cvodes_diag.c
