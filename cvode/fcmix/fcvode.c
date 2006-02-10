@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.60 $
- * $Date: 2006-02-02 00:30:58 $
+ * $Revision: 1.61 $
+ * $Date: 2006-02-10 00:03:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -611,5 +611,5 @@ int FCVf(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
   FCV_FUN(&t, ydata, dydata, CV_userdata->ipar, CV_userdata->rpar, &ier);
 
-  return(0);
+  return(ier);
 }

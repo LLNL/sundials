@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2006-02-02 00:30:58 $
+ * $Revision: 1.30 $
+ * $Date: 2006-02-10 00:03:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -181,7 +181,7 @@ int FCVgloc(long int Nloc, realtype t, N_Vector yloc, N_Vector gloc,
   FCV_GLOCFN(&Nloc, &t, yloc_data, gloc_data, 
              CV_userdata->ipar, CV_userdata->rpar,
              &ier);
-  return(0);
+  return(ier);
 }
 
 /***************************************************************************/
@@ -201,7 +201,7 @@ int FCVcfn(long int Nloc, realtype t, N_Vector y, void *f_data)
 
   FCV_COMMFN(&Nloc, &t, yloc, CV_userdata->ipar, CV_userdata->rpar, &ier);
 
-  return(0);
+  return(ier);
 }
 
 /***************************************************************************/

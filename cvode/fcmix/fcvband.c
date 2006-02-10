@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.20 $
+ * $Date: 2006-02-10 00:03:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -94,5 +94,5 @@ int FCVBandJac(long int N, long int mupper, long int mlower,
   FCV_BJAC(&N, &mupper, &mlower, &eband, &t, ydata, fydata, jacdata, &h,
            CV_userdata->ipar, CV_userdata->rpar, v1data, v2data, v3data, &ier);
 
-  return(0);
+  return(ier);
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.28 $
- * $Date: 2006-02-02 00:30:58 $
+ * $Revision: 1.29 $
+ * $Date: 2006-02-10 00:03:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -104,7 +104,8 @@
  * NLOC, the independent variable value T = t, and the local realtype
  * dependent variable array YLOC.  It is to compute the local part of
  * g(t,y) and store this in the realtype array GLOC.
- * IER is a return flag (currently not used).
+ * On return, set IER = 0 if successful, IER > 0 if a recoverable error occurred,
+ * and IER < 0 if an unrecoverable error ocurred.
  * 
  * (2.2) Communication function FCVCOMMF.
  * The user must also supply a subroutine of the form
@@ -119,7 +120,8 @@
  * Each call to the FCVCOMMF is preceded by a call to FCVFUN with the same
  * (t,y) arguments.  Thus FCVCOMMF can omit any communications done by 
  * FCVFUN if relevant to the evaluation of g.
- * IER is a return flag (currently not used).
+ * On return, set IER = 0 if successful, IER > 0 if a recoverable error occurred,
+ * and IER < 0 if an unrecoverable error ocurred.
  * 
  * (3) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
  * As an option, the user may supply a routine that computes the product

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.59 $
- * $Date: 2006-02-02 00:30:58 $
+ * $Revision: 1.60 $
+ * $Date: 2006-02-10 00:03:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -116,7 +116,8 @@
  * system, as function of T = t and the array Y = y.  Here Y and YDOT
  * are distributed vectors. IPAR and RPAR are arrays of integer and real user 
  * data, respectively as passed to FCVMALLOC.
- * IER is a return flag (currently not used).
+ * On return, set IER = 0 if successful, IER > 0 if a recoverable error occurred,
+ * and IER < 0 if an unrecoverable error ocurred.
  * 
  * (2s) Optional user-supplied dense Jacobian approximation routine: FCVDJAC
  * As an option when using the DENSE linear solver, the user may supply a
@@ -127,7 +128,8 @@
  * Typically this routine will use only NEQ, T, Y, and DJAC. It must compute
  * the Jacobian and store it columnwise in DJAC.
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
- * IER is a return flag (currently not used).
+ * On return, set IER = 0 if successful, IER > 0 if a recoverable error occurred,
+ * and IER < 0 if an unrecoverable error ocurred.
  * 
  * (3s) Optional user-supplied band Jacobian approximation routine: FCVBJAC
  * As an option when using the BAND linear solver, the user may supply a
@@ -141,7 +143,8 @@
  * current (t,y) in band form.  Store in BJAC(k,j) the Jacobian element J(i,j)
  * with k = i - j + MU + 1 (k = 1 ... ML+MU+1) and j = 1 ... N.
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
- * IER is a return flag (currently not used).
+ * On return, set IER = 0 if successful, IER > 0 if a recoverable error occurred,
+ * and IER < 0 if an unrecoverable error ocurred.
  * 
  * (4) Optional user-supplied Jacobian-vector product routine: FCVJTIMES
  * As an option when using the SP* linear solver, the user may supply
@@ -466,6 +469,8 @@
  * of the left and right preconditioners if both are nontrivial) should be an 
  * approximation to the matrix I - GAMMA*J (I = identity, J = Jacobian).
  * IPAR and RPAR are user (integer and real) arrays passed to FCVMALLOC.
+ * On return, set IER = 0 if successful, IER > 0 if a recoverable error occurred,
+ * and IER < 0 if an unrecoverable error ocurred.
  *
  * -----------------------------------------------------------------------------
  *

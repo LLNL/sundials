@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.19 $
+ * $Date: 2006-02-10 00:03:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -84,6 +84,6 @@ int FCVrootfunc(realtype t, N_Vector y, realtype *gout, void *g_data)
 
   FCV_ROOTFN(&t, ydata, gout, CV_userdata->ipar, CV_userdata->rpar, &ier);
 
-  return(0);
+  return(ier);
 }
 

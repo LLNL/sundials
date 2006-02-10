@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2006-01-24 00:49:25 $
+ * $Revision: 1.16 $
+ * $Date: 2006-02-10 00:03:09 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -52,7 +52,7 @@
  *   Y = dependent variable vector y  [input]
  *   G = function values g(t,y)  [output]
  *   IPAR, RPAR = user (integer and real) data [input/output]
- *   IER = return flag (currently not used)
+ *   IER = return flag (0 for success, a non-zero value if an error occurred.)
  *
  * 2. After calling FCVMALLOC but prior to calling FCVODE, the user must
  * allocate and initialize memory for the FCVROOT module by making the
