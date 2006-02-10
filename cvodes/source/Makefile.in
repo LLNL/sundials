@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.22 $
-# $Date: 2006-01-12 20:24:06 $
+# $Revision: 1.23 $
+# $Date: 2006-02-10 03:50:49 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -49,8 +49,8 @@ CVODES_INC_DIR = $(srcdir)/../include
 
 CVODES_LIB = libsundials_cvodes.la
 
-CVODES_LIB_FILES = cvodes.lo cvodes_io.lo cvodea.lo cvodes_band.lo cvodes_dense.lo cvodes_diag.lo cvodes_spils.lo cvodes_spbcgs.lo cvodes_spgmr.lo cvodes_sptfqmr.lo cvodes_bandpre.lo cvodes_bbdpre.lo
-CVODES_OBJ_FILES = cvodes.o cvodes_io.o cvodea.o cvodes_band.o cvodes_dense.o cvodes_diag.o cvodes_spils.o cvodes_spbcgs.o cvodes_spgmr.o cvodes_sptfqmr.o cvodes_bandpre.o cvodes_bbdpre.o
+CVODES_LIB_FILES = cvodes.lo cvodes_io.lo cvodea.lo cvodea_io.lo cvodes_band.lo cvodes_dense.lo cvodes_diag.lo cvodes_spils.lo cvodes_spbcgs.lo cvodes_spgmr.lo cvodes_sptfqmr.lo cvodes_bandpre.lo cvodes_bbdpre.lo
+CVODES_OBJ_FILES = cvodes.o cvodes_io.o cvodea.o cvodea_io.o cvodes_band.o cvodes_dense.o cvodes_diag.o cvodes_spils.o cvodes_spbcgs.o cvodes_spgmr.o cvodes_sptfqmr.o cvodes_bandpre.o cvodes_bbdpre.o
 
 SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
                    $(SHARED_BUILD_DIR)/sundials_dense.lo \
@@ -115,6 +115,8 @@ cvodes_io.lo: $(srcdir)/cvodes_io.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_io.c
 cvodea.lo: $(srcdir)/cvodea.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodea.c
+cvodea_io.lo: $(srcdir)/cvodea_io.c
+	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodea_io.c
 cvodes_dense.lo: $(srcdir)/cvodes_dense.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODES_INC_DIR) $(CFLAGS) -c $(srcdir)/cvodes_dense.c
 cvodes_band.lo: $(srcdir)/cvodes_band.c

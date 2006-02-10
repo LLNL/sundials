@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-02-10 00:02:19 $
+ * $Revision: 1.8 $
+ * $Date: 2006-02-10 03:50:49 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1979,11 +1979,11 @@ char *CVodeGetReturnFlagName(int flag)
   case CV_REPTD_RHSFUNC_ERR:
     sprintf(name,"CV_REPTD_RHSFUNC_ERR");
     break;
-  case CV_RTFUNC_FAIL:
-    sprintf(name,"CV_RTFUNC_FAIL");
-    break;
   case CV_UNREC_RHSFUNC_ERR:
     sprintf(name,"CV_UNREC_RHSFUNC_ERR");
+    break;
+  case CV_RTFUNC_FAIL:
+    sprintf(name,"CV_RTFUNC_FAIL");
     break;
   case CV_MEM_FAIL:
     sprintf(name,"CV_MEM_FAIL");
