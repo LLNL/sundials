@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-10 00:02:11 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-10 21:19:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -39,9 +39,9 @@ extern "C" {
 #define CVBBDPRE_PDATA_NULL       -11
 #define CVBBDPRE_FUNC_UNRECVR     -12
 
-#define CVBBDPRE_ADJMEM_NULL      -101
-#define CVBBDPRE_PMEMB_NULL       -102
-#define CVBBDPRE_MEM_FAIL         -103
+#define CVBBDPRE_ADJMEM_NULL      -111
+#define CVBBDPRE_PDATAB_NULL      -112
+#define CVBBDPRE_MEM_FAIL         -113
 
 
   /* 
@@ -383,6 +383,14 @@ extern "C" {
                             long int *leniwBBDP);
   int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
 
+  /*
+   * -----------------------------------------------------------------
+   * The following function returns the name of the constant 
+   * associated with a CVBBDPRE return flag
+   * -----------------------------------------------------------------
+   */
+  
+  char *CVBBDPrecGetReturnFlagName(int flag);
 
   /* 
    * -----------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-10 00:02:03 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-10 21:19:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -340,6 +340,15 @@ int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
 int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
 int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
 int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
+
+/*
+ * -----------------------------------------------------------------
+ * The following function returns the name of the constant 
+ * associated with a CVSPILS return flag
+ * -----------------------------------------------------------------
+ */
+
+char *CVSpilsGetReturnFlagName(int flag);
 
 /* CVSPILS return values */
 

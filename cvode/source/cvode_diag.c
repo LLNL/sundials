@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-06 23:17:36 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-10 21:19:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -238,6 +238,50 @@ int CVDiagGetLastFlag(void *cvode_mem, int *flag)
   *flag = last_flag;
 
   return(CVDIAG_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVDiagGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVDiagGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVDIAG_SUCCESS:
+    sprintf(name,"CVDIAG_SUCCESS");
+    break;   
+  case CVDIAG_MEM_NULL:
+    sprintf(name,"CVDIAG_MEM_NULL");
+    break;
+  case CVDIAG_LMEM_NULL:
+    sprintf(name,"CVDIAG_LMEM_NULL");
+    break;
+  case CVDIAG_ILL_INPUT:
+    sprintf(name,"CVDIAG_ILL_INPUT");
+    break;
+  case CVDIAG_MEM_FAIL:
+    sprintf(name,"CVDIAG_MEM_FAIL");
+    break;
+  case CVDIAG_INV_FAIL:
+    sprintf(name,"CVDIAG_INV_FAIL");
+    break;
+  case CVDIAG_RHSFUNC_UNRECVR:
+    sprintf(name,"CVDIAG_RHSFUNC_UNRECVR");
+    break;
+  case CVDIAG_RHSFUNC_RECVR:
+    sprintf(name,"CVDIAG_RHSFUNC_RECVR");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
 }
 
 /*

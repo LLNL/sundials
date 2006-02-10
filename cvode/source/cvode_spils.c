@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-06 23:17:36 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-10 21:19:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -54,7 +54,6 @@
 #define nfes    (cvspils_mem->s_nfes)
 
 #define last_flag (cvspils_mem->s_last_flag)
-
 
 /*
  * -----------------------------------------------------------------
@@ -522,6 +521,40 @@ int CVSpilsGetLastFlag(void *cvode_mem, int *flag)
   return(CVSPILS_SUCCESS);
 }
 
+/*
+ * -----------------------------------------------------------------
+ * CVSpilsGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVSpilsGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVSPILS_SUCCESS:
+    sprintf(name,"CVSPILS_SUCCESS");
+    break; 
+  case CVSPILS_MEM_NULL:
+    sprintf(name,"CVSPILS_MEM_NULL");
+    break;
+  case CVSPILS_LMEM_NULL:
+    sprintf(name,"CVSPILS_LMEM_NULL");
+    break;
+  case CVSPILS_ILL_INPUT:
+    sprintf(name,"CVSPILS_ILL_INPUT");
+    break;
+  case CVSPILS_MEM_FAIL:
+    sprintf(name,"CVSPILS_MEM_FAIL");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
+}
 
 /*
  * -----------------------------------------------------------------

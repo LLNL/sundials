@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-10 00:02:03 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-10 21:19:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -205,6 +205,15 @@ int CVBandGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
 int CVBandGetNumJacEvals(void *cvode_mem, long int *njevals);
 int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 int CVBandGetLastFlag(void *cvode_mem, int *flag);
+
+/*
+ * -----------------------------------------------------------------
+ * The following function returns the name of the constant 
+ * associated with a CVBAND return flag
+ * -----------------------------------------------------------------
+ */
+
+char *CVBandGetReturnFlagName(int flag);
 
 /* CVBAND return values */
 

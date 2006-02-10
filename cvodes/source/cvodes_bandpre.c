@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2006-02-06 23:17:43 $
+ * $Revision: 1.11 $
+ * $Date: 2006-02-10 21:19:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -258,6 +258,41 @@ int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP)
   *nfevalsBP = pdata->nfeBP;
 
   return(CVBANDPRE_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVBandPrecGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVBandPrecGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVBANDPRE_SUCCESS:
+    sprintf(name,"CVBANDPRE_SUCCESS");
+    break;    
+  case CVBANDPRE_PDATA_NULL:
+    sprintf(name,"CVBANDPRE_PDATA_NULL");
+    break;
+  case CVBANDPRE_RHSFUNC_UNRECVR:
+    sprintf(name,"CVBANDPRE_RHSFUNC_UNRECVR");
+    break;
+  case CVBANDPRE_ADJMEM_NULL:
+    sprintf(name,"CVBANDPRE_ADJMEM_NULL");
+    break;
+  case CVBANDPRE_MEM_FAIL:
+    sprintf(name,"CVBANDPRE_MEM_FAIL");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
 }
 
 /* Readability Replacements */

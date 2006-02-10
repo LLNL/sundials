@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.64 $
- * $Date: 2006-02-10 00:02:07 $
+ * $Revision: 1.65 $
+ * $Date: 2006-02-10 21:19:15 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -135,7 +135,6 @@
 #define RTFOUND          +1
 #define INITROOT         +2
 #define CLOSERT          +3
-
 
 /*
  * Algorithmic constants

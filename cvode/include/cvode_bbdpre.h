@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-10 00:02:03 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-10 21:19:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -363,6 +363,15 @@ void CVBBDPrecFree(void **bbd_data);
 
 int CVBBDPrecGetWorkSpace(void *bbd_data, long int *lenrwLS, long int *leniwLS);
 int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
+
+/*
+ * -----------------------------------------------------------------
+ * The following function returns the name of the constant 
+ * associated with a CVBBDPRE return flag
+ * -----------------------------------------------------------------
+ */
+  
+char *CVBBDPrecGetReturnFlagName(int flag);
 
 #ifdef __cplusplus
 }

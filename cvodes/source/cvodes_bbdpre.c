@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2006-02-10 00:02:19 $
+ * $Revision: 1.11 $
+ * $Date: 2006-02-10 21:19:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -307,6 +307,44 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   *ngevalsBBDP = pdata->nge;
 
   return(CVBBDPRE_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVBBDPrecGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVBBDPrecGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVBBDPRE_SUCCESS:
+    sprintf(name,"CVBBDPRE_SUCCESS");
+    break; 
+  case CVBBDPRE_PDATA_NULL:
+    sprintf(name,"CVBBDPRE_PDATA_NULL");
+    break;
+  case CVBBDPRE_FUNC_UNRECVR:
+    sprintf(name,"CVBBDPRE_FUNC_UNRECVR");
+    break;
+  case CVBBDPRE_ADJMEM_NULL:
+    sprintf(name,"CVBBDPRE_ADJMEM_NULL");
+    break;
+  case CVBBDPRE_PDATAB_NULL:
+    sprintf(name,"CVBBDPRE_PDATAB_NULL");
+    break;
+  case CVBBDPRE_MEM_FAIL:
+    sprintf(name,"CVBBDPRE_MEM_FAIL");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
 }
 
 /* Readability Replacements */
@@ -660,8 +698,8 @@ int CVBBDSptfqmrB(void *cvadj_mem, int pretypeB, int maxlB)
   cvB_mem = ca_mem->cvb_mem;
   
   if (pmemB == NULL) {
-    CVProcessError(cvB_mem, CVBBDPRE_PMEMB_NULL, "CVBBDPRE", "CVBBDSptfqmrB", MSGBBDP_PMEMB_NULL);
-    return(CVBBDPRE_PMEMB_NULL);
+    CVProcessError(cvB_mem, CVBBDPRE_PDATAB_NULL, "CVBBDPRE", "CVBBDSptfqmrB", MSGBBDP_PDATAB_NULL);
+    return(CVBBDPRE_PDATAB_NULL);
   }
   cvbbdB_mem = (CVBBDPrecDataB) pmemB;
 
@@ -688,8 +726,8 @@ int CVBBDSpbcgB(void *cvadj_mem, int pretypeB, int maxlB)
   cvB_mem = ca_mem->cvb_mem;
   
   if (pmemB == NULL) {
-    CVProcessError(cvB_mem, CVBBDPRE_PMEMB_NULL, "CVBBDPRE", "CVBBDSpbcgB", MSGBBDP_PMEMB_NULL);
-    return(CVBBDPRE_PMEMB_NULL);
+    CVProcessError(cvB_mem, CVBBDPRE_PDATAB_NULL, "CVBBDPRE", "CVBBDSpbcgB", MSGBBDP_PDATAB_NULL);
+    return(CVBBDPRE_PDATAB_NULL);
   }
   cvbbdB_mem = (CVBBDPrecDataB) pmemB;
 
@@ -716,8 +754,8 @@ int CVBBDSpgmrB(void *cvadj_mem, int pretypeB, int maxlB)
   cvB_mem = ca_mem->cvb_mem;
   
   if (pmemB == NULL) {
-    CVProcessError(cvB_mem, CVBBDPRE_PMEMB_NULL, "CVBBDPRE", "CVBBDSpgmrB", MSGBBDP_PMEMB_NULL);
-    return(CVBBDPRE_PMEMB_NULL);
+    CVProcessError(cvB_mem, CVBBDPRE_PDATAB_NULL, "CVBBDPRE", "CVBBDSpgmrB", MSGBBDP_PDATAB_NULL);
+    return(CVBBDPRE_PDATAB_NULL);
   }
   cvbbdB_mem = (CVBBDPrecDataB) pmemB;
 
@@ -744,8 +782,8 @@ int CVBBDPrecReInitB(void *cvadj_mem, long int mudqB, long int mldqB,
   cvB_mem = ca_mem->cvb_mem;
 
   if (pmemB == NULL) {
-    CVProcessError(cvB_mem, CVBBDPRE_PMEMB_NULL, "CVBBDPRE", "CVBBDPrecReInitB", MSGBBDP_PMEMB_NULL);
-    return(CVBBDPRE_PMEMB_NULL);
+    CVProcessError(cvB_mem, CVBBDPRE_PDATAB_NULL, "CVBBDPRE", "CVBBDPrecReInitB", MSGBBDP_PDATAB_NULL);
+    return(CVBBDPRE_PDATAB_NULL);
   }
   cvbbdB_mem = (CVBBDPrecDataB) pmemB;
 

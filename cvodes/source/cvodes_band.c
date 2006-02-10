@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-02-06 23:17:43 $
+ * $Revision: 1.9 $
+ * $Date: 2006-02-10 21:19:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -370,6 +370,52 @@ int CVBandGetLastFlag(void *cvode_mem, int *flag)
   return(CVBAND_SUCCESS);
 }
 
+/*
+ * -----------------------------------------------------------------
+ * CVBandGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVBandGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVBAND_SUCCESS:
+    sprintf(name,"CVBAND_SUCCESS");
+    break;  
+  case CVBAND_MEM_NULL:
+    sprintf(name,"CVBAND_MEM_NULL");
+    break;
+  case CVBAND_LMEM_NULL:
+    sprintf(name,"CVBAND_LMEM_NULL");
+    break;
+  case CVBAND_ILL_INPUT:
+    sprintf(name,"CVBAND_ILL_INPUT");
+    break;
+  case CVBAND_MEM_FAIL:
+    sprintf(name,"CVBAND_MEM_FAIL");
+    break;
+  case CVBAND_JACFUNC_UNRECVR:
+    sprintf(name,"CVBAND_JACFUNC_UNRECVR");
+    break;
+  case CVBAND_JACFUNC_RECVR:
+    sprintf(name,"CVBAND_JACFUNC_RECVR");
+    break;
+  case CVBAND_ADJMEM_NULL:
+    sprintf(name,"CVBAND_ADJMEM_NULL");
+    break;
+  case CVBAND_LMEMB_NULL:
+    sprintf(name,"CVBAND_LMEMB_NULL");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
+}
 
 /*
  * -----------------------------------------------------------------

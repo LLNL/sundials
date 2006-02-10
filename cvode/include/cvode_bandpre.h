@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-06 23:17:31 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-10 21:19:13 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -237,6 +237,15 @@ void CVBandPrecFree(void **bp_data);
 
 int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
 int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
+
+/*
+ * -----------------------------------------------------------------
+ * The following function returns the name of the constant 
+ * associated with a CVBANDPRE return flag
+ * -----------------------------------------------------------------
+ */
+  
+char *CVBandPrecGetReturnFlagName(int flag);
 
 #ifdef __cplusplus
 }

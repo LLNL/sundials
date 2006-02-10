@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-02-10 03:50:49 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-10 21:19:20 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -343,6 +343,54 @@ void *CVadjGetCVodeBmem(void *cvadj_mem)
   cvode_mem = (void *) ca_mem->cvb_mem;
 
   return(cvode_mem);
+}
+
+/*
+ * CVadjGetReturnFlagName
+ *
+ * The following function returns the name of the constant 
+ * associated with a CVODEA-specific return flag
+ */
+
+char *CVadjGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CV_SUCCESS:
+    sprintf(name,"CV_SUCCESS");
+    break;
+  case CV_ADJMEM_NULL:
+    sprintf(name,"CV_ADJMEM_NULL");
+    break;
+  case CV_BAD_TB0:
+    sprintf(name,"CV_BAD_TB0");
+    break;
+  case CV_BCKMEM_NULL:
+    sprintf(name,"CV_BCKMEM_NULL");
+    break;
+  case CV_REIFWD_FAIL:
+    sprintf(name,"CV_REIFWD_FAIL");
+    break;
+  case CV_FWD_FAIL:
+    sprintf(name,"CV_FWD_FAIL");
+    break;
+  case CV_BAD_ITASK:
+    sprintf(name,"CV_BAD_ITASK");
+    break;
+  case CV_BAD_TBOUT:
+    sprintf(name,"CV_BAD_TBOUT");
+    break;
+  case CV_GETY_BADT:
+    sprintf(name,"CV_GETY_BADT");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
 }
 
 /* 

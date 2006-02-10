@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-02-06 23:17:36 $
+ * $Revision: 1.9 $
+ * $Date: 2006-02-10 21:19:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -290,6 +290,35 @@ int CVBBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   *ngevalsBBDP = pdata->nge;
 
   return(CVBBDPRE_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVBBDPrecGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVBBDPrecGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVBBDPRE_SUCCESS:
+    sprintf(name,"CVBBDPRE_SUCCESS");
+    break;   
+  case CVBBDPRE_PDATA_NULL:
+    sprintf(name,"CVBBDPRE_PDATA_NULL");
+    break;
+  case CVBBDPRE_FUNC_UNRECVR:
+    sprintf(name,"CVBBDPRE_FUNC_UNRECVR");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
 }
 
 /* Readability Replacements */

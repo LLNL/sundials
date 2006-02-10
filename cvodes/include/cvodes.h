@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.51 $
- * $Date: 2006-02-10 00:02:11 $
+ * $Revision: 1.52 $
+ * $Date: 2006-02-10 21:19:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -1124,6 +1124,13 @@ extern "C" {
   int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
                               long int *nncfails);
 
+
+  /*
+   * -----------------------------------------------------------------
+   * The following function returns the name of the constant 
+   * associated with a CVODES return flag
+   * -----------------------------------------------------------------
+   */
 
   char *CVodeGetReturnFlagName(int flag);
 

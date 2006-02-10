@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-06 23:17:40 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-10 21:19:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -106,6 +106,15 @@ extern "C" {
   int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
   int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
   int CVDiagGetLastFlag(void *cvode_mem, int *flag);
+
+  /*
+   * -----------------------------------------------------------------
+   * The following function returns the name of the constant 
+   * associated with a CVDIAG return flag
+   * -----------------------------------------------------------------
+   */
+  
+  char *CVDiagGetReturnFlagName(int flag);
 
   /* 
    * -----------------------------------------------------------------

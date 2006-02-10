@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-10 00:02:11 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-10 21:19:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -370,6 +370,14 @@ extern "C" {
   int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS); 
   int CVSpilsGetLastFlag(void *cvode_mem, int *flag);
 
+  /*
+   * -----------------------------------------------------------------
+   * The following function returns the name of the constant 
+   * associated with a CVSPILS return flag
+   * -----------------------------------------------------------------
+   */
+  
+  char *CVSpilsGetReturnFlagName(int flag);
 
   /* 
    * -----------------------------------------------------------------

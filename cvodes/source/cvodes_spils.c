@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-06 23:17:43 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-10 21:19:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -536,6 +536,46 @@ int CVSpilsGetLastFlag(void *cvode_mem, int *flag)
   return(CVSPILS_SUCCESS);
 }
 
+/*
+ * -----------------------------------------------------------------
+ * CVSpilsGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVSpilsGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVSPILS_SUCCESS:
+    sprintf(name,"CVSPILS_SUCCESS");
+    break;    
+  case CVSPILS_MEM_NULL:
+    sprintf(name,"CVSPILS_MEM_NULL");
+    break;
+  case CVSPILS_LMEM_NULL:
+    sprintf(name,"CVSPILS_LMEM_NULL");
+    break;
+  case CVSPILS_ILL_INPUT:
+    sprintf(name,"CVSPILS_ILL_INPUT");
+    break;
+  case CVSPILS_MEM_FAIL:
+    sprintf(name,"CVSPILS_MEM_FAIL");
+    break;
+  case CVSPILS_ADJMEM_NULL:
+    sprintf(name,"CVSPILS_ADJMEM_NULL");
+    break;
+  case CVSPILS_LMEMB_NULL:
+    sprintf(name,"CVSPILS_LMEMB_NULL");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
+}
 
 /*
  * -----------------------------------------------------------------

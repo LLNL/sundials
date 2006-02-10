@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-06 23:17:40 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-10 21:19:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -37,9 +37,8 @@ extern "C" {
 #define CVBANDPRE_PDATA_NULL      -11
 #define CVBANDPRE_RHSFUNC_UNRECVR -12
 
-#define CVBANDPRE_ADJMEM_NULL     -101
-#define CVBANDPRE_PMEMB_NULL      -102
-#define CVBANDPRE_MEM_FAIL        -103
+#define CVBANDPRE_ADJMEM_NULL     -111
+#define CVBANDPRE_MEM_FAIL        -112
 
 #include "sundials_nvector.h"
 
@@ -256,6 +255,14 @@ extern "C" {
   int CVBandPrecGetWorkSpace(void *bp_data, long int *lenrwLS, long int *leniwLS);
   int CVBandPrecGetNumRhsEvals(void *bp_data, long int *nfevalsBP);
 
+  /*
+   * -----------------------------------------------------------------
+   * The following function returns the name of the constant 
+   * associated with a CVBANDPRE return flag
+   * -----------------------------------------------------------------
+   */
+  
+  char *CVBandPrecGetReturnFlagName(int flag);
 
   /* 
    * -----------------------------------------------------------------

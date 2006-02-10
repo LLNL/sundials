@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-10 00:02:11 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-10 21:19:18 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -241,6 +241,14 @@ extern "C" {
   int CVBandGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
   int CVBandGetLastFlag(void *cvode_mem, int *flag);
 
+  /*
+   * -----------------------------------------------------------------
+   * The following function returns the name of the constant 
+   * associated with a CVBAND return flag
+   * -----------------------------------------------------------------
+   */
+
+  char *CVBandGetReturnFlagName(int flag);
 
   /* 
    * -----------------------------------------------------------------

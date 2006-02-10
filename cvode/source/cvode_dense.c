@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-06 23:17:36 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-10 21:19:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -298,6 +298,47 @@ int CVDenseGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
   *nfevalsLS = nfeD;
 
   return(CVDENSE_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVDenseGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVDenseGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVDENSE_SUCCESS:
+    sprintf(name,"CVDENSE_SUCCESS");
+    break;   
+  case CVDENSE_MEM_NULL:
+    sprintf(name,"CVDENSE_MEM_NULL");
+    break;
+  case CVDENSE_LMEM_NULL:
+    sprintf(name,"CVDENSE_LMEM_NULL");
+    break;
+  case CVDENSE_ILL_INPUT:
+    sprintf(name,"CVDENSE_ILL_INPUT");
+    break;
+  case CVDENSE_MEM_FAIL:
+    sprintf(name,"CVDENSE_MEM_FAIL");
+    break;
+  case CVDENSE_JACFUNC_UNRECVR:
+    sprintf(name,"CVDENSE_JACFUNC_UNRECVR");
+    break;
+  case CVDENSE_JACFUNC_RECVR:
+    sprintf(name,"CVDENSE_JACFUNC_RECVR");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-06 23:17:43 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-10 21:19:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -85,15 +85,15 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-#define MSGBBDP_CVMEM_NULL "Integrator memory is NULL."
-#define MSGBBDP_MEM_FAIL "A memory request failed."
+#define MSGBBDP_CVMEM_NULL  "Integrator memory is NULL."
+#define MSGBBDP_MEM_FAIL    "A memory request failed."
 #define MSGBBDP_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBBDP_PDATA_NULL "CVBBDPRE memory is NULL."
+#define MSGBBDP_PDATA_NULL  "CVBBDPRE memory is NULL."
 #define MSGBBDP_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
-#define MSGBBDP_CAMEM_NULL "cvadj_mem = NULL illegal."
-#define MSGBBDP_PMEMB_NULL "CVBBDPRE memory is NULL for the backward integration."
-#define MSGBBDP_BAD_T "Bad t for interpolation. Abort!"
+#define MSGBBDP_CAMEM_NULL  "cvadj_mem = NULL illegal."
+#define MSGBBDP_PDATAB_NULL "CVBBDPRE memory is NULL for the backward integration."
+#define MSGBBDP_BAD_T       "Bad t for interpolation. Abort!"
 
 
 #ifdef __cplusplus

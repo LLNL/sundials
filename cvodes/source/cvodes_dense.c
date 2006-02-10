@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-02-06 23:17:43 $
+ * $Revision: 1.9 $
+ * $Date: 2006-02-10 21:19:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -349,6 +349,53 @@ int CVDenseGetLastFlag(void *cvode_mem, int *flag)
   *flag = last_flag;
 
   return(CVDENSE_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * CVDenseGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *CVDenseGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case CVDENSE_SUCCESS:
+    sprintf(name,"CVDENSE_SUCCESS");
+    break; 
+  case CVDENSE_MEM_NULL:
+    sprintf(name,"CVDENSE_MEM_NULL");
+    break;
+  case CVDENSE_LMEM_NULL:
+    sprintf(name,"CVDENSE_LMEM_NULL");
+    break;
+  case CVDENSE_ILL_INPUT:
+    sprintf(name,"CVDENSE_ILL_INPUT");
+    break;
+  case CVDENSE_MEM_FAIL:
+    sprintf(name,"CVDENSE_MEM_FAIL");
+    break;
+  case CVDENSE_JACFUNC_UNRECVR:
+    sprintf(name,"CVDENSE_JACFUNC_UNRECVR");
+    break;
+  case CVDENSE_JACFUNC_RECVR:
+    sprintf(name,"CVDENSE_JACFUNC_RECVR");
+    break;
+  case CVDENSE_ADJMEM_NULL:
+    sprintf(name,"CVDENSE_ADJMEM_NULL");
+    break;
+  case CVDENSE_LMEMB_NULL:
+    sprintf(name,"CVDENSE_LMEMB_NULL");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
 }
 
 /*
