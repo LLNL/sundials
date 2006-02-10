@@ -1,13 +1,16 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Avoiding discontinuities in y_dot -->
-<!--X-From-R13: Oaqernf @vpbynv <Oaqernf.@vpbynvNtzk.arg> -->
-<!--X-Date: Tue, 24 Jan 2006 08:41:14 &#45;0800 (PST) -->
-<!--X-Message-Id: op.s3v5pdk4t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Subject: Re: [sundials&#45;users] Re: Avoiding discontinuities in y_dot -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Wed, 08 Feb 2006 12:37:46 &#45;0800 (PST) -->
+<!--X-Message-Id: Pine.LNX.4.58.0602081232550.8076@tux64.llnl.gov -->
 <!--X-Content-Type: text/plain -->
+<!--X-Reference: op.s3v5pdk4t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Reference: Pine.LNX.4.58.0602071546170.8076@tux64.llnl.gov -->
+<!--X-Reference: 200602071958.46538.Andreas.Nicolai@gmx.net -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Avoiding discontinuities in y_dot</title>
+<title>Re: [sundials-users] Re: Avoiding discontinuities in y_dot</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +69,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00238.html">Date Prev</a>] [<a href="msg00240.html">Date Next</a>] [<a href="msg00227.html">Thread Prev</a>] [<a href="msg00280.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00239">Date Index</a></b>]
-[<b><a href="threads.html#00239">Thread Index</a></b>]
+[<a href="msg00290.html">Date Prev</a>] [<a href="msg00292.html">Date Next</a>] [<a href="msg00289.html">Thread Prev</a>] [<a href="msg00290.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00291">Date Index</a></b>]
+[<b><a href="threads.html#00291">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Avoiding discontinuities in y_dot</h1>
+<h1>Re: [sundials-users] Re: Avoiding discontinuities in y_dot</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +86,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Andreas Nicolai &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 24 Jan 2006 11:35:27 -0500</td>
+Wed, 08 Feb 2006 12:35:32 -0800 (PST)</td>
 </tr>
 
 </table>
@@ -100,111 +103,105 @@ Tue, 24 Jan 2006 11:35:27 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi there,</pre><br>
-<pre style="margin: 0em;">I got a question about CVODE that I might better answer in the user group. It 
-might be of general interest.</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I have essentially 3 state variables here. If I don't' do
-DummyY[i]=Y[i]&lt;0? 0:Y[i] then my code runs in 10 secs (with errors, -ve
-values etc.), When I restrict the slow variables to +ve, it still runs ok
-but when I restrict the fast variable it takes 12 Hrs.
-</pre></blockquote><pre style="margin: 0em;"><br>This refers to range restriction of variables. Often physical 
-quantities/variables are limited to a certain typical range, for instance 
-concentrations/masses to positive numbers or in my case a moisture content must 
-not exceed a maximum moisture content.</pre><br>
-<pre style="margin: 0em;">The straightforward solution, that was proposed in one of the last posts, is to 
-restrict the values obtained from the solver like:</pre><br>
-<pre style="margin: 0em;">y_local[i] = std::max(0.0, y[i]);</pre><br>
-<pre style="margin: 0em;">or in a different fashion for an upper and lower limit</pre><br>
-<pre style="margin: 0em;">y_local[i] = y[i] &lt; 0.0 ? 0.0 : ( y[i] &gt; y_max ? y_max : y[i] );</pre><br>
-<pre style="margin: 0em;">However, that will/might result in a discontinuity of your calculated 
-derivative in y_dot. For non-stiff systems that is typically not a problem 
-because the variables will change _slowly_ and the solver can quickly find the 
-iterative solution. However, for stiff systems sometimes the range around the 
-limitation gives the solver a hard time to converge. This becomes particularly 
-nasty if the difference quotient calculation of the Jacobian is affected.</pre><br>
-<pre style="margin: 0em;">Essentially the gradient of y[i] &quot;jumps&quot; at each limit. For example:</pre><br>
-<pre style="margin: 0em;">dy (y &gt; 0) = some value different (sometimes much different) from 0</pre><br>
-<pre style="margin: 0em;">but</pre><br>
-<pre style="margin: 0em;">dy (y &lt;= 0) = 0</pre><br>
-<pre style="margin: 0em;">The solution that I use to avoid that &quot;jump&quot; is to ensure a smooth transition in the 
-derivative of y. At the limit, say y[i] = 0 the derivative should be 0, slightly away (say a 
-delta_y away) from that limit the derivative should be the actual derivative that is calculated. In 
-between the derivative (or, if it directly depends on the y value, also the variable itself) should 
-be &quot;smoothed&quot; out so that you have a smooth transition from a certain number to zero.</pre><br>
-<pre style="margin: 0em;">In my code I multiply my y values with a scaling function, that is applied when the y 
-values are &quot;close&quot; to a limit. So the actual code I use in my f() function 
-looks like:</pre><br>
-<pre style="margin: 0em;">for (unsigned int i=0; i&lt;n; ++i)
-    y_local[i] = limit(y[i]);</pre><br>
-<pre style="margin: 0em;">and the funtion limit() looks like (pseudo code, because in my case it is much 
-more complicated):</pre><br>
-<pre style="margin: 0em;">double limit(double y) {
-   // LOWER_LIM = DELTA_Y
-   // UPPER_LIM = Y_MAX - DELTA_Y
-   if (y &gt; LOWER_LIM) {
-      if (y &lt; UPPER_LIM)   return y;
-      // scale between UPPER_LIM and Y_MAX
-      double delta = Y_MAX - y;
-      // use parabolic function or any other function type approximate
-      // gradients at UPPER_LIM and Y_MAX (at Y_MAX, delta = 0 and dy should be 
-0)
-      // determine SCALE_UPPER based on a) try-and-error or b) based on your 
-equations
-      return delta &lt; 0.0 ? Y_MAX : Y_MAX - SCALE_UPPER*delta*delta;
-   }
-   else {
-      // scale between 0 and LOWER_LIM
-      return y[i] &lt; 0.0 ? 0.0 : SCALE_LOWER*y[i]*y[i];
-   }
-}</pre><br>
-<pre style="margin: 0em;">The actual scaling function is parabolic: SCALE*delta*delta. In my code I 
-actually use a cosine scaling function and an exponential function, because 
-they simply resulted in better convergence. So trying out some other functions 
-is certainly recommended.</pre><br>
-<pre style="margin: 0em;">Andreas</pre><br>
-<pre style="margin: 0em;">--
-Andreas Nicolai                   Andreas.Nicolai@gmx.net
-Syracuse University               +01 (315) 443 1099
-151 E.A.Link Hall
-Syracuse NY 13244-1240</pre><br>
+<pre>
+Hi Andreas,
 
+Why must you set the dissolution rate to zero when the mass disappears?
+If that rate continues to be smoothly defined, you could leave it
+alone, but continue to replace the mass y_i by yi_local = max(0,y_i)
+in computing f(t,y).  Then y_i will presumably go negative (f_i &lt; 0),
+and yi_local will remain zero, until something (crystallization or
+source) starts up to add mass.  At that point, you would have to
+locate that startup point (with rootfinding if not explicitly known)
+and restart the integration with y_i = 0 (and presumably f_i &gt; 0).
+I don't see any good way around that.  But this means half as many
+root stops and restarts as in my original suggestion of doing a
+stop/restart at y_i = 0 as well as at the startup points (f_i &gt; 0).
+
+My point is that, if and when there is a major discontinuity in the
+model, it is best to stop there and restart.  Letting the ODE/DAE
+solver locate the jump and get through it on its own is likely to be
+less efficient.  The rootfinding calculation should only add
+marginally, as long as the root function is inexpensive.  On the other
+hand, if the jump is small, each of these solvers is designed to
+handle it without extra assistance.
+
+By the way, if and when you do a rootfinding stop on a condition like
+y_i = 0, it is critical that y_i is allowed to go negative, as
+governed by its ODE.  Otherwise the rootfinding can never find the
+zero.  This is another reason why the change to max(0,y_i) must be
+done only in a local variable.
+
+P.S. A minor correction to my comment (1) in my previous message.
+When I say &quot;This use of y_local is the correct way to handle problems
+with such constraints&quot;, I should qualify that by adding: ... as long
+as the true solution of the system satisfies those constraints (and
+the violations of them are just from numerical errors).  If the true
+solution violates a constraint, the something else (e.g. stopping and
+restarting) really needs to be done.
+
+-Alan H.
+
+
+On Tue, 7 Feb 2006, Andreas Nicolai wrote:
+
+&gt;<i> Now I have a problem. The discontinuity happens at unpredictable times, in my</i>
+&gt;<i> case I look at crystallization and dissolution. The discontinuity happens</i>
+&gt;<i> when I calculate the dissolution rate, which must of course be set to zero</i>
+&gt;<i> once my crystalline mass disappears. Now if that were a process that happens</i>
+&gt;<i> only once in my simulation, the root-finding suggestion would be perfect.</i>
+&gt;<i> However, in my simulations I face crystallization and dissolution at &quot;random&quot;</i>
+&gt;<i> times (at least not predictable beforehand, because they depend highly on</i>
+&gt;<i> climatic conditions and material properties).</i>
+&gt;<i></i>
+&gt;<i> In order to use the root finding I would have to check after each completed</i>
+&gt;<i> time step, if I now have a solid salt mass, turn on root finding, integrate</i>
+&gt;<i> until the root is found, switch back to normal integration, and as soon as</i>
+&gt;<i> new salt precipitates, start again with root finding...</i>
+&gt;<i></i>
+&gt;<i> Wouldn't that be overkill and slow down my solution tremendously? Or does the</i>
+&gt;<i> root finding influence the normal integration only marginally?</i>
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00288" href="msg00288.html">[sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00280" href="msg00280.html">[sundials-users] RE: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Mukesh &lt;muk139@psu.edu&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00239" href="msg00239.html">Avoiding discontinuities in y_dot</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+<li><strong><a name="00288" href="msg00288.html">[sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00289" href="msg00289.html">Re: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00238.html">Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00240.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00292.html">Re: R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00227.html">Tell the solver that the time step is too large...</a></strong>
+<strong><a href="msg00289.html">Re: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00280.html">[sundials-users] RE: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00239">
+<li><a href="maillist.html#00291">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00239">
+<li><a href="threads.html#00291">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

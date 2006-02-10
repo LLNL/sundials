@@ -1,0 +1,290 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: [sundials&#45;users] Re: Avoiding discontinuities in y_dot -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Tue, 07 Feb 2006 15:53:39 &#45;0800 (PST) -->
+<!--X-Message-Id: Pine.LNX.4.58.0602071546170.8076@tux64.llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: op.s3v5pdk4t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>[sundials-users] Re: Avoiding discontinuities in y_dot</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00287.html">Date Prev</a>] [<a href="msg00289.html">Date Next</a>] [<a href="msg00280.html">Thread Prev</a>] [<a href="msg00289.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00288">Date Index</a></b>]
+[<b><a href="threads.html#00288">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>[sundials-users] Re: Avoiding discontinuities in y_dot</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 07 Feb 2006 15:50:13 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>
+Hello Andreas,
+
+I agree with most of your advice about this problem.  However,
+there are a couple of points that I'd like to clarify:
+
+(1) In general, I would expect that the RHS function f depends
+continuously on y, even if y is subjected to limits.  That is,
+I expect f is continuous w.r.t. y_local.  And since y_local is a
+continuous function of y, f is still continuous w.r.t. y itself.
+Thus the solver should not have too much trouble in this case.
+This use of y_local is the correct way to handle problems with such
+constraints.
+
+(2) You say there may be cases where for small y_i &gt; 0, f_i is much
+different from 0, while for y_i &lt;= 0, f_i = 0.  In that case, the model
+itself is discontinuous, and should be handled differently, as follows:
+Assuming y_i starts out positive, first define a continuous form of
+the model, in which f_i does not jump when y_i reaches 0.  Then solve
+the IVP with rootfinding turned on, the root function being y_i, so
+that you stop the problem when y_i = 0.  Then flip a switch that sets
+f_i = 0, and restart the IVP solution.
+
+-Alan Hindmarsh
+
+
+
+On Tue, 24 Jan 2006, Andreas Nicolai wrote:
+
+&gt;<i> Hi there,</i>
+&gt;<i></i>
+&gt;<i> I got a question about CVODE that I might better answer in the user group. It </i>
+&gt;<i> might be of general interest.</i>
+&gt;<i></i>
+&gt;<i> &gt; I have essentially 3 state variables here. If I don't' do</i>
+&gt;<i> &gt; DummyY[i]=Y[i]&lt;0? 0:Y[i] then my code runs in 10 secs (with errors, -ve</i>
+&gt;<i> &gt; values etc.), When I restrict the slow variables to +ve, it still runs ok</i>
+&gt;<i> &gt; but when I restrict the fast variable it takes 12 Hrs.</i>
+&gt;<i></i>
+&gt;<i> This refers to range restriction of variables. Often physical </i>
+&gt;<i> quantities/variables are limited to a certain typical range, for instance </i>
+&gt;<i> concentrations/masses to positive numbers or in my case a moisture content </i>
+&gt;<i> must not exceed a maximum moisture content.</i>
+&gt;<i></i>
+&gt;<i> The straightforward solution, that was proposed in one of the last posts, is </i>
+&gt;<i> to restrict the values obtained from the solver like:</i>
+&gt;<i></i>
+&gt;<i> y_local[i] = std::max(0.0, y[i]);</i>
+&gt;<i></i>
+&gt;<i> or in a different fashion for an upper and lower limit</i>
+&gt;<i></i>
+&gt;<i> y_local[i] = y[i] &lt; 0.0 ? 0.0 : ( y[i] &gt; y_max ? y_max : y[i] );</i>
+&gt;<i></i>
+&gt;<i> However, that will/might result in a discontinuity of your calculated </i>
+&gt;<i> derivative in y_dot. For non-stiff systems that is typically not a problem </i>
+&gt;<i> because the variables will change _slowly_ and the solver can quickly find </i>
+&gt;<i> the iterative solution. However, for stiff systems sometimes the range around </i>
+&gt;<i> the limitation gives the solver a hard time to converge. This becomes </i>
+&gt;<i> particularly nasty if the difference quotient calculation of the Jacobian is </i>
+&gt;<i> affected.</i>
+&gt;<i></i>
+&gt;<i> Essentially the gradient of y[i] &quot;jumps&quot; at each limit. For example:</i>
+&gt;<i></i>
+&gt;<i> dy (y &gt; 0) = some value different (sometimes much different) from 0</i>
+&gt;<i></i>
+&gt;<i> but</i>
+&gt;<i></i>
+&gt;<i> dy (y &lt;= 0) = 0</i>
+&gt;<i></i>
+&gt;<i> The solution that I use to avoid that &quot;jump&quot; is to ensure a smooth transition </i>
+&gt;<i> in the derivative of y. At the limit, say y[i] = 0 the derivative should be </i>
+&gt;<i> 0, slightly away (say a delta_y away) from that limit the derivative should </i>
+&gt;<i> be the actual derivative that is calculated. In between the derivative (or, </i>
+&gt;<i> if it directly depends on the y value, also the variable itself) should be </i>
+&gt;<i> &quot;smoothed&quot; out so that you have a smooth transition from a certain number to </i>
+&gt;<i> zero.</i>
+&gt;<i></i>
+&gt;<i> In my code I multiply my y values with a scaling function, that is applied </i>
+&gt;<i> when the y values are &quot;close&quot; to a limit. So the actual code I use in my f() </i>
+&gt;<i> function looks like:</i>
+&gt;<i></i>
+&gt;<i> for (unsigned int i=0; i&lt;n; ++i)</i>
+&gt;<i>      y_local[i] = limit(y[i]);</i>
+&gt;<i></i>
+&gt;<i> and the funtion limit() looks like (pseudo code, because in my case it is </i>
+&gt;<i> much more complicated):</i>
+&gt;<i></i>
+&gt;<i> double limit(double y) {</i>
+&gt;<i>     // LOWER_LIM = DELTA_Y</i>
+&gt;<i>     // UPPER_LIM = Y_MAX - DELTA_Y</i>
+&gt;<i>     if (y &gt; LOWER_LIM) {</i>
+&gt;<i>        if (y &lt; UPPER_LIM)   return y;</i>
+&gt;<i>        // scale between UPPER_LIM and Y_MAX</i>
+&gt;<i>        double delta = Y_MAX - y;</i>
+&gt;<i>        // use parabolic function or any other function type approximate</i>
+&gt;<i>        // gradients at UPPER_LIM and Y_MAX (at Y_MAX, delta = 0 and dy should </i>
+&gt;<i> be 0)</i>
+&gt;<i>        // determine SCALE_UPPER based on a) try-and-error or b) based on your </i>
+&gt;<i> equations</i>
+&gt;<i>        return delta &lt; 0.0 ? Y_MAX : Y_MAX - SCALE_UPPER*delta*delta;</i>
+&gt;<i>     }</i>
+&gt;<i>     else {</i>
+&gt;<i>        // scale between 0 and LOWER_LIM</i>
+&gt;<i>        return y[i] &lt; 0.0 ? 0.0 : SCALE_LOWER*y[i]*y[i];</i>
+&gt;<i>     }</i>
+&gt;<i> }</i>
+&gt;<i></i>
+&gt;<i> The actual scaling function is parabolic: SCALE*delta*delta. In my code I </i>
+&gt;<i> actually use a cosine scaling function and an exponential function, because </i>
+&gt;<i> they simply resulted in better convergence. So trying out some other </i>
+&gt;<i> functions is certainly recommended.</i>
+&gt;<i></i>
+&gt;<i> Andreas</i>
+&gt;<i></i>
+&gt;<i> --</i>
+&gt;<i> Andreas Nicolai                   Andreas.Nicolai@gmx.net</i>
+&gt;<i> Syracuse University               +01 (315) 443 1099</i>
+&gt;<i> 151 E.A.Link Hall</i>
+&gt;<i> Syracuse NY 13244-1240</i>
+&gt;<i></i>
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00290" href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<ul><li><em>From:</em> Paolo Greppi 3iP &lt;paolo.greppi@3ip.it&gt;</li></ul></li>
+<li><strong><a name="00289" href="msg00289.html">Re: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00239" href="msg00239.html">Avoiding discontinuities in y_dot</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00287.html">Re: [sundials-users] N_VECTOR in Pvode (part 2)</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00289.html">Re: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00280.html">[sundials-users] RE: Avoiding discontinuities in y_dot</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00289.html">Re: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00288">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00288">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

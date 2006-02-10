@@ -1,13 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Avoiding discontinuities in y_dot -->
-<!--X-From-R13: Oaqernf @vpbynv <Oaqernf.@vpbynvNtzk.arg> -->
-<!--X-Date: Tue, 24 Jan 2006 08:41:14 &#45;0800 (PST) -->
-<!--X-Message-Id: op.s3v5pdk4t8lo91@smtp.kuleuven.ac.be -->
+<!--X-Subject: [sundials&#45;users] Tolerance in CVSPGMR() -->
+<!--X-From-R13: [hxrfu <zhx139Ncfh.rqh> -->
+<!--X-Date: Wed, 01 Feb 2006 07:19:56 &#45;0800 (PST) -->
+<!--X-Message-Id: 000d01c62742$b4057860$61cecb82@CEECADLAB.PSU.EDU -->
 <!--X-Content-Type: text/plain -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Avoiding discontinuities in y_dot</title>
+<title>[sundials-users] Tolerance in CVSPGMR()</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00238.html">Date Prev</a>] [<a href="msg00240.html">Date Next</a>] [<a href="msg00227.html">Thread Prev</a>] [<a href="msg00280.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00239">Date Index</a></b>]
-[<b><a href="threads.html#00239">Thread Index</a></b>]
+[<a href="msg00280.html">Date Prev</a>] [<a href="msg00282.html">Date Next</a>] [<a href="msg00270.html">Thread Prev</a>] [<a href="msg00282.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00281">Date Index</a></b>]
+[<b><a href="threads.html#00281">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Avoiding discontinuities in y_dot</h1>
+<h1>[sundials-users] Tolerance in CVSPGMR()</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Andreas Nicolai &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
+Mukesh &lt;<a href="mailto:muk139%40psu.edu">muk139@psu.edu</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 24 Jan 2006 11:35:27 -0500</td>
+Wed, 01 Feb 2006 10:18:06 -0500</td>
 </tr>
 
 </table>
@@ -100,74 +100,38 @@ Tue, 24 Jan 2006 11:35:27 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi there,</pre><br>
-<pre style="margin: 0em;">I got a question about CVODE that I might better answer in the user group. It 
-might be of general interest.</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I have essentially 3 state variables here. If I don't' do
-DummyY[i]=Y[i]&lt;0? 0:Y[i] then my code runs in 10 secs (with errors, -ve
-values etc.), When I restrict the slow variables to +ve, it still runs ok
-but when I restrict the fast variable it takes 12 Hrs.
-</pre></blockquote><pre style="margin: 0em;"><br>This refers to range restriction of variables. Often physical 
-quantities/variables are limited to a certain typical range, for instance 
-concentrations/masses to positive numbers or in my case a moisture content must 
-not exceed a maximum moisture content.</pre><br>
-<pre style="margin: 0em;">The straightforward solution, that was proposed in one of the last posts, is to 
-restrict the values obtained from the solver like:</pre><br>
-<pre style="margin: 0em;">y_local[i] = std::max(0.0, y[i]);</pre><br>
-<pre style="margin: 0em;">or in a different fashion for an upper and lower limit</pre><br>
-<pre style="margin: 0em;">y_local[i] = y[i] &lt; 0.0 ? 0.0 : ( y[i] &gt; y_max ? y_max : y[i] );</pre><br>
-<pre style="margin: 0em;">However, that will/might result in a discontinuity of your calculated 
-derivative in y_dot. For non-stiff systems that is typically not a problem 
-because the variables will change _slowly_ and the solver can quickly find the 
-iterative solution. However, for stiff systems sometimes the range around the 
-limitation gives the solver a hard time to converge. This becomes particularly 
-nasty if the difference quotient calculation of the Jacobian is affected.</pre><br>
-<pre style="margin: 0em;">Essentially the gradient of y[i] &quot;jumps&quot; at each limit. For example:</pre><br>
-<pre style="margin: 0em;">dy (y &gt; 0) = some value different (sometimes much different) from 0</pre><br>
-<pre style="margin: 0em;">but</pre><br>
-<pre style="margin: 0em;">dy (y &lt;= 0) = 0</pre><br>
-<pre style="margin: 0em;">The solution that I use to avoid that &quot;jump&quot; is to ensure a smooth transition in the 
-derivative of y. At the limit, say y[i] = 0 the derivative should be 0, slightly away (say a 
-delta_y away) from that limit the derivative should be the actual derivative that is calculated. In 
-between the derivative (or, if it directly depends on the y value, also the variable itself) should 
-be &quot;smoothed&quot; out so that you have a smooth transition from a certain number to zero.</pre><br>
-<pre style="margin: 0em;">In my code I multiply my y values with a scaling function, that is applied when the y 
-values are &quot;close&quot; to a limit. So the actual code I use in my f() function 
-looks like:</pre><br>
-<pre style="margin: 0em;">for (unsigned int i=0; i&lt;n; ++i)
-    y_local[i] = limit(y[i]);</pre><br>
-<pre style="margin: 0em;">and the funtion limit() looks like (pseudo code, because in my case it is much 
-more complicated):</pre><br>
-<pre style="margin: 0em;">double limit(double y) {
-   // LOWER_LIM = DELTA_Y
-   // UPPER_LIM = Y_MAX - DELTA_Y
-   if (y &gt; LOWER_LIM) {
-      if (y &lt; UPPER_LIM)   return y;
-      // scale between UPPER_LIM and Y_MAX
-      double delta = Y_MAX - y;
-      // use parabolic function or any other function type approximate
-      // gradients at UPPER_LIM and Y_MAX (at Y_MAX, delta = 0 and dy should be 
-0)
-      // determine SCALE_UPPER based on a) try-and-error or b) based on your 
-equations
-      return delta &lt; 0.0 ? Y_MAX : Y_MAX - SCALE_UPPER*delta*delta;
-   }
-   else {
-      // scale between 0 and LOWER_LIM
-      return y[i] &lt; 0.0 ? 0.0 : SCALE_LOWER*y[i]*y[i];
-   }
-}</pre><br>
-<pre style="margin: 0em;">The actual scaling function is parabolic: SCALE*delta*delta. In my code I 
-actually use a cosine scaling function and an exponential function, because 
-they simply resulted in better convergence. So trying out some other functions 
-is certainly recommended.</pre><br>
-<pre style="margin: 0em;">Andreas</pre><br>
-<pre style="margin: 0em;">--
-Andreas Nicolai                   Andreas.Nicolai@gmx.net
-Syracuse University               +01 (315) 443 1099
-151 E.A.Link Hall
-Syracuse NY 13244-1240</pre><br>
+<pre>
+Hello All       
 
+        I am solving a set of stiff ODEs which are defined on each finite
+volume grid using CVODE --&gt; CVSPGMR. 
+        I have few questions regarding the solver
+
+a) What does &quot;delt&quot; option in CVSPGMR() means. I mean, in the tutorial it's
+written that it is the factor by which tolerance in the non-linear iteration
+is multiplied to get tolerance in the linear iteration. But where does this
+come into play and how should I decide its value.
+         Right now, the set of ODEs which I am trying to solve is stiff and
+because of which the run time is very very large. However, with slight
+change in RTOL value, the solution time becomes very fast however the
+solution is not as expected. I was wondering if RTOL, ATOL and delt are
+somehow related.
+b) My simulation runs for 2500 time steps and after that it gives
+segmentation fault. Since in each time step, solver accesses the same memory
+structure I can't think of a reason why it gives segmentation error after
+2500 time steps instead of the first one itself.
+
+
+Regards
+
+Mukesh
+
+
+p.s-&gt; Sorry of the error in last mails &quot;Subject&quot;
+
+
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -176,10 +140,10 @@ Syracuse NY 13244-1240</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00288" href="msg00288.html">[sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00280" href="msg00280.html">[sundials-users] RE: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Mukesh &lt;muk139@psu.edu&gt;</li></ul></li>
+<li><strong><a name="00283" href="msg00283.html">Re: [sundials-users] Tolerance in CVSPGMR()</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00282" href="msg00282.html">Re: [sundials-users] Tolerance in CVSPGMR()</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
@@ -187,24 +151,24 @@ Syracuse NY 13244-1240</pre><br>
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00238.html">Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00280.html">[sundials-users] RE: Avoiding discontinuities in y_dot</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00240.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00282.html">Re: [sundials-users] Tolerance in CVSPGMR()</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00227.html">Tell the solver that the time step is too large...</a></strong>
+<strong><a href="msg00270.html">[sundials-users] Finite difference Jacobian - information to f() when Jacobian is built</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00280.html">[sundials-users] RE: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00282.html">Re: [sundials-users] Tolerance in CVSPGMR()</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00239">
+<li><a href="maillist.html#00281">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00239">
+<li><a href="threads.html#00281">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

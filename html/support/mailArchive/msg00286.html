@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Avoiding discontinuities in y_dot -->
-<!--X-From-R13: Oaqernf @vpbynv <Oaqernf.@vpbynvNtzk.arg> -->
-<!--X-Date: Tue, 24 Jan 2006 08:41:14 &#45;0800 (PST) -->
-<!--X-Message-Id: op.s3v5pdk4t8lo91@smtp.kuleuven.ac.be -->
-<!--X-Content-Type: text/plain -->
+<!--X-Subject: [sundials&#45;users] N_VECTOR in Pvode (part 2) -->
+<!--X-From-R13: enw qhssl <enw_qhsslNlnubb.pbz> -->
+<!--X-Date: Thu, 02 Feb 2006 18:26:05 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060203020436.43898.qmail@web37004.mail.mud.yahoo.com -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Reference: 20060202190704.51898.qmail@web37006.mail.mud.yahoo.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Avoiding discontinuities in y_dot</title>
+<title>[sundials-users] N_VECTOR in Pvode (part 2)</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00238.html">Date Prev</a>] [<a href="msg00240.html">Date Next</a>] [<a href="msg00227.html">Thread Prev</a>] [<a href="msg00280.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00239">Date Index</a></b>]
-[<b><a href="threads.html#00239">Thread Index</a></b>]
+[<a href="msg00285.html">Date Prev</a>] [<a href="msg00287.html">Date Next</a>] [<a href="msg00285.html">Thread Prev</a>] [<a href="msg00287.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00286">Date Index</a></b>]
+[<b><a href="threads.html#00286">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Avoiding discontinuities in y_dot</h1>
+<h1>[sundials-users] N_VECTOR in Pvode (part 2)</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Andreas Nicolai &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
+raj duffy &lt;<a href="mailto:raj_duffy%40yahoo.com">raj_duffy@yahoo.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 24 Jan 2006 11:35:27 -0500</td>
+Thu, 02 Feb 2006 18:04:36 -0800 (PST)</td>
 </tr>
 
 </table>
@@ -100,73 +101,9 @@ Tue, 24 Jan 2006 11:35:27 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi there,</pre><br>
-<pre style="margin: 0em;">I got a question about CVODE that I might better answer in the user group. It 
-might be of general interest.</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I have essentially 3 state variables here. If I don't' do
-DummyY[i]=Y[i]&lt;0? 0:Y[i] then my code runs in 10 secs (with errors, -ve
-values etc.), When I restrict the slow variables to +ve, it still runs ok
-but when I restrict the fast variable it takes 12 Hrs.
-</pre></blockquote><pre style="margin: 0em;"><br>This refers to range restriction of variables. Often physical 
-quantities/variables are limited to a certain typical range, for instance 
-concentrations/masses to positive numbers or in my case a moisture content must 
-not exceed a maximum moisture content.</pre><br>
-<pre style="margin: 0em;">The straightforward solution, that was proposed in one of the last posts, is to 
-restrict the values obtained from the solver like:</pre><br>
-<pre style="margin: 0em;">y_local[i] = std::max(0.0, y[i]);</pre><br>
-<pre style="margin: 0em;">or in a different fashion for an upper and lower limit</pre><br>
-<pre style="margin: 0em;">y_local[i] = y[i] &lt; 0.0 ? 0.0 : ( y[i] &gt; y_max ? y_max : y[i] );</pre><br>
-<pre style="margin: 0em;">However, that will/might result in a discontinuity of your calculated 
-derivative in y_dot. For non-stiff systems that is typically not a problem 
-because the variables will change _slowly_ and the solver can quickly find the 
-iterative solution. However, for stiff systems sometimes the range around the 
-limitation gives the solver a hard time to converge. This becomes particularly 
-nasty if the difference quotient calculation of the Jacobian is affected.</pre><br>
-<pre style="margin: 0em;">Essentially the gradient of y[i] &quot;jumps&quot; at each limit. For example:</pre><br>
-<pre style="margin: 0em;">dy (y &gt; 0) = some value different (sometimes much different) from 0</pre><br>
-<pre style="margin: 0em;">but</pre><br>
-<pre style="margin: 0em;">dy (y &lt;= 0) = 0</pre><br>
-<pre style="margin: 0em;">The solution that I use to avoid that &quot;jump&quot; is to ensure a smooth transition in the 
-derivative of y. At the limit, say y[i] = 0 the derivative should be 0, slightly away (say a 
-delta_y away) from that limit the derivative should be the actual derivative that is calculated. In 
-between the derivative (or, if it directly depends on the y value, also the variable itself) should 
-be &quot;smoothed&quot; out so that you have a smooth transition from a certain number to zero.</pre><br>
-<pre style="margin: 0em;">In my code I multiply my y values with a scaling function, that is applied when the y 
-values are &quot;close&quot; to a limit. So the actual code I use in my f() function 
-looks like:</pre><br>
-<pre style="margin: 0em;">for (unsigned int i=0; i&lt;n; ++i)
-    y_local[i] = limit(y[i]);</pre><br>
-<pre style="margin: 0em;">and the funtion limit() looks like (pseudo code, because in my case it is much 
-more complicated):</pre><br>
-<pre style="margin: 0em;">double limit(double y) {
-   // LOWER_LIM = DELTA_Y
-   // UPPER_LIM = Y_MAX - DELTA_Y
-   if (y &gt; LOWER_LIM) {
-      if (y &lt; UPPER_LIM)   return y;
-      // scale between UPPER_LIM and Y_MAX
-      double delta = Y_MAX - y;
-      // use parabolic function or any other function type approximate
-      // gradients at UPPER_LIM and Y_MAX (at Y_MAX, delta = 0 and dy should be 
-0)
-      // determine SCALE_UPPER based on a) try-and-error or b) based on your 
-equations
-      return delta &lt; 0.0 ? Y_MAX : Y_MAX - SCALE_UPPER*delta*delta;
-   }
-   else {
-      // scale between 0 and LOWER_LIM
-      return y[i] &lt; 0.0 ? 0.0 : SCALE_LOWER*y[i]*y[i];
-   }
-}</pre><br>
-<pre style="margin: 0em;">The actual scaling function is parabolic: SCALE*delta*delta. In my code I 
-actually use a cosine scaling function and an exponential function, because 
-they simply resulted in better convergence. So trying out some other functions 
-is certainly recommended.</pre><br>
-<pre style="margin: 0em;">Andreas</pre><br>
-<pre style="margin: 0em;">--
-Andreas Nicolai                   Andreas.Nicolai@gmx.net
-Syracuse University               +01 (315) 443 1099
-151 E.A.Link Hall
-Syracuse NY 13244-1240</pre><br>
+<div id="RTEContent">  
+<pre>--&gt; u=N_VNew(NEQ,machEnv)  <br><br>a) Does this mean N_Vector of length NEQ =<br>(total number of equations) is defined on each processor<br><br>--&gt; cvode_mem = CVodeMalloc(NEQ, f, T0, u, ADAMS, FUNCTIONAL, SS, &amp;reltol,<br>                          &amp;abstol, data, NULL, FALSE, iopt, ropt, machEnv);<br><br><br>a) How come allocated size is total number of equations instead of no. of<br>equations on each processor<br><br>b) Now f() on each processor only calculates udot defined on that processor<br>only, so does this mean<br>that when u (which is of size NEQ) is passed to CVodeMalloc(), CVodeMalloc()<br>somehow knows that it has to read the initialized values<br>of uj1 to ujn where uj's are the variables initialized for the processor<br>under consideration only.<br><br>c) If u of size NEQ is indeed defined on each processor, can we initialize<br>uj1 to ujn using a for loop instead of NV_DATA_P(u).<br><br><br>Regards
+ <br>Raj<br></pre>  </div>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -176,35 +113,38 @@ Syracuse NY 13244-1240</pre><br>
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00288" href="msg00288.html">[sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00280" href="msg00280.html">[sundials-users] RE: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Mukesh &lt;muk139@psu.edu&gt;</li></ul></li>
+<li><strong><a name="00287" href="msg00287.html">Re: [sundials-users] N_VECTOR in Pvode (part 2)</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00285" href="msg00285.html">[sundials-users] N_VECTOR in Pvode</a></strong>
+<ul><li><em>From:</em> raj duffy &lt;raj_duffy@yahoo.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00238.html">Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00285.html">[sundials-users] N_VECTOR in Pvode</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00240.html">Re: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00287.html">Re: [sundials-users] N_VECTOR in Pvode (part 2)</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00227.html">Tell the solver that the time step is too large...</a></strong>
+<strong><a href="msg00285.html">[sundials-users] N_VECTOR in Pvode</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00280.html">[sundials-users] RE: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00287.html">Re: [sundials-users] N_VECTOR in Pvode (part 2)</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00239">
+<li><a href="maillist.html#00286">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00239">
+<li><a href="threads.html#00286">
 <strong>Thread</strong></a></li>
 </ul>
 </li>
