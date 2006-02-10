@@ -284,7 +284,7 @@ inherited from the solvers {\vode} and {\vodpk}, are documented in
 
 % Output modes
 %-------------
-\index{output mode|(}
+\index{output mode}
 Normally, {\cvode} takes steps until a user-defined output value 
 $t = t_{\mbox{\scriptsize out}}$ is overtaken, and then it computes
 $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
@@ -292,7 +292,6 @@ $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
 calling program after each step.  There are also options to force
 {\cvode} not to integrate past a given stopping point 
 $t = t_{\mbox{\scriptsize stop}}$.
-\index{output mode|)}
 
 
 %------------------------

@@ -645,20 +645,7 @@ apply to {\nvecp}.
   with the additional constraint \id{tstop}.
   \id{IER} is a completion flag and will be set to a positive value upon
   successful return or to a negative value if an error occurred. These values
-  correspond to the \id{CVode} returns (see \S\ref{sss:cvode}) as follows:\\
-  $0$: \Id{CV\_SUCCESS}, 
-  $1$: \Id{CV\_TSTOP\_RETURN}, 
-  $2$: \Id{CV\_ROOT\_RETURN},\\
-  $-1$: \Id{CV\_MEM\_NULL}, 
-  $-2$: \Id{Cv\_ILL\_INPUT}, 
-  $-3$: \Id{CV\_NO\_MALLOC},
-  $-4$: \Id{CV\_TOO\_MUCH\_WORK}, \\
-  $-5$: \Id{CV\_TOO\_MUCH\_ACC},
-  $-6$: \Id{CV\_ERR\_FAILURE}, 
-  $-7$: \Id{CV\_CONV\_FAILURE},
-  $-8$: \Id{CV\_LINIT\_FAIL}, \\
-  $-9$: \Id{CV\_LSETUP\_FAIL}, and
-  $-10$: \Id{CV\_LSOLVE\_FAIL}.\\
+  correspond to the \id{CVode} returns (see \S\ref{sss:cvode} and \S\ref{s:cvode_out_constants}).
   The current values of the optional outputs are available in \id{IOUT} and
   \id{ROUT} (see Table~\ref{t:fcvode_out}).
   
@@ -952,7 +939,7 @@ It must set the \id{G} array, of length \id{NRTFN}, with components $g_i(t,y)$,
 as a function of \id{T} $= t$ and the array \id{Y} $= y$.  
 The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
 and are the same as those passed to \id{FCVMALLOC}.
-\id{IER} is an error return flag (currently not used; set \id{IER=0}). 
+Set \id{IER} on 0 if successful, or on a non-zero value if an error occurred.
 
 When making calls to \id{FCVODE} to solve the ODE system, the occurrence of
 a root is flagged by the return value \id{IER} = 2.  In that case, if

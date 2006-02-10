@@ -502,7 +502,7 @@ be changed to zero or a tiny positive number in a temporary variable
 
 %%
 %%==============================================================================
-\subsection{Linear solver specification functions}\label{ss:lin_solv_init}
+\subsection{Linear solver specification functions}\label{sss:lin_solv_init}
 %%==============================================================================
 
 As previously explained, Newton iteration requires the solution of
@@ -857,6 +857,7 @@ perform the integration of the IVP.
   \item[tret] (\id{realtype *})
     the time reached by the solver.
   \item[itask] (\id{int})
+    \index{output mode}
     \index{itask@\texttt{itask}|textbf}
     a flag indicating the job of the solver for the next user step. 
     The \Id{CV\_NORMAL} task is to have the solver take internal steps until   
@@ -880,7 +881,7 @@ perform the integration of the IVP.
   and \id{yout} = $y($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CV\_TOO\_MUCH\_WORK]
+  \begin{args}[CV\_FIRST\_RHSFUNC\_FAIL]
   \item[\Id{CV\_SUCCESS}]
     \id{CVode} succeeded and no root was found.
   \item[\Id{CV\_TSTOP\_RETURN}]
@@ -902,10 +903,10 @@ perform the integration of the IVP.
     time-stepping. The \id{CV\_ILL\_INPUT} flag will also be returned if the linear 
     solver function initialization (called by the user after calling 
     \id{CVodeCreate}) failed to set the linear solver-specific \id{lsolve} field
-    in \id{cvode\_mem}. 
+    in \id{cvode\_mem}. Finally, if the initial time $t_0$ and the final time
+    $t_{out}$ are too close to each other and the user did not specify an initial
+    step size, \id{CVode} will also return \id{CV\_ILL\_INPUT}.
     In any case, the user should see the error message for details.
-  \item[\Id{CV\_LINIT\_FAIL}] 
-    The linear solver's initialization function failed. 
   \item[\Id{CV\_TOO\_MUCH\_WORK}] 
     The solver took \id{mxstep} internal steps but could not reach tout. 
     The default value for \id{mxstep} is \id{MXSTEP\_DEFAULT = 500}.
@@ -918,10 +919,27 @@ perform the integration of the IVP.
   \item[\Id{CV\_CONV\_FAILURE}] 
     Convergence test failures occurred too many times (\id{MXNCF = 10}) during 
     one internal time step or occurred with $|h| = h_{min}$.             
+  \item[\Id{CV\_LINIT\_FAIL}] 
+    The linear solver's initialization function failed. 
   \item[\Id{CV\_LSETUP\_FAIL}] 
     The linear solver's setup function failed in an unrecoverable manner.
   \item[\Id{CV\_LSOLVE\_FAIL}] 
     The linear solver's solve function failed in an unrecoverable manner.
+  \item[\Id{CV\_RHSFUNC\_FAIL}] 
+    The right-hand side function failed in an unrecoverable manner.
+  \item[\Id{CV\_FIRST\_RHSFUNC\_FAIL}] 
+    The right-hand side function had a recoverable error at the first call.
+  \item[\Id{CV\_REPTD\_RHSFUNC\_ERR}]
+    Convergence tests occurred too many times due to repeated recoverable errors in
+    the right-hand side function. The \id{CV\_REPTD\_RHSFUNC\_ERR} will also
+    be returned if the right-hand side function had repeated recoverable errors
+    during the estimation of an initial step size.
+  \item[\Id{CV\_UNREC\_RHSFUNC\_ERR}]
+    The right-hand function had a recoverable error, but no recovery was possible.
+    This failure mode is rare, as it can occur only if the right-hand side function
+    fails recoverably after an error test failed while at order one.
+  \item[\Id{CV\_RTFUNC\_FAIL}] 
+    The rootfinding function failed.
   \end{args} 
 }
 {
@@ -2121,22 +2139,16 @@ modules. Where the name of an output from a linear solver module would otherwise
 with the name of an optional output from the main solver, a suffix \id{LS} (for Linear Solver) 
 has been added here (e.g. \id{lenrwLS}).
 
-\newlength{\colABC}
-\settowidth{\colABC}{No. of r.h.s. calls for finite diff. Jacobian-vector evals.}
-\newlength{\colDEF}
-\settowidth{\colDEF}{\id{CVodeGetNumNonlinSolvConvFails}}
 
-\tablecaption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag}, and {\cvspils}}
+\begin{table}
+\centering
+\caption{Optional outputs from {\cvode}, {\cvdense}, {\cvband}, {\cvdiag}, and {\cvspils}}
 \label{t:optional_output}
-\tablefirsthead{\hline {\bf Optional output} & {\bf Function name} \\}
-\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
-           \hline {\bf Optional output} & {\bf Function name} \\ \hline}
-\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
-\tablelasttail{\hline}
-
-\begin{supertabular}{|p{\colABC}|p{\colDEF}|}
+\medskip
+\begin{tabular}{|l|l|} 
 \hline
-
+{\bf Optional output} & {\bf Function name} \\ 
+\hline
 \multicolumn{2}{|c|}{\bf CVODE main solver} \\
 \hline
 Size of {\cvode} real and integer workspaces & \id{CVodeGetWorkSpace} \\
@@ -2160,6 +2172,7 @@ All {\cvode} integrator statistics & \id{CVodeGetIntegratorStats} \\
 {\cvode} nonlinear solver statistics & \id{CVodeGetNonlinSolvStats} \\
 Array showing roots found & \id{CvodeGetRootInfo} \\
 No. of calls to user root function & \id{CVodeGetNumGEvals} \\
+Name of constant associated with a return flag & \id{CVodeGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVDENSE linear solver} \\
 \hline
@@ -2167,6 +2180,7 @@ Size of {\cvdense} real and integer workspaces & \id{CVDenseGetWorkSpace} \\
 No. of Jacobian evaluations & \id{CVDenseGetNumJacEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDenseGetNumRhsEvals} \\ 
 Last return from a {\cvdense} function & \id{CVDenseGetLastFlag} \\ 
+Name of constant associated with a return flag & \id{CVDenseGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVBAND linear solver} \\
 \hline
@@ -2174,12 +2188,14 @@ Size of {\cvband} real and integer workspaces & \id{CVBandGetWorkSpace} \\
 No. of Jacobian evaluations & \id{CVBandGetNumJacEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVBandGetNumRhsEvals} \\ 
 Last return from a {\cvband} function & \id{CVBandGetLastFlag} \\ 
+Name of constant associated with a return flag & \id{CVBandGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVDIAG linear solver} \\
 \hline
 Size of {\cvdiag} real and integer workspaces & \id{CVDiagGetWorkSpace} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDiagGetNumRhsEvals} \\ 
 Last return from a {\cvdiag} function & \id{CVDiagGetLastFlag} \\ 
+Name of constant associated with a return flag & \id{CVDiagGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVSPILS linear solvers} \\
 \hline
@@ -2191,8 +2207,10 @@ No. of preconditioner solves & \id{CVSpilsGetNumPrecSolves} \\
 No. of Jacobian-vector product evaluations & \id{CVSpilsGetNumJtimesEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{CVSpilsGetNumRhsEvals} \\ 
 Last return from a linear solver function & \id{CVSpilsGetLastFlag} \\ 
-\end{supertabular}
-
+Name of constant associated with a return flag & \id{CVSpilsGetReturnFlagName} \\
+\hline
+\end{tabular}
+\end{table}
 
 %%==============================================================================
 \subsubsection{Main solver optional output functions}\label{sss:optout_main}
@@ -2823,7 +2841,23 @@ These optional output functions are described next.
   \end{args}
 }
 {}
-
+%%
+%%
+\ucfunction{CVodeGetReturnFlagName}
+{
+  name = CVodeGetReturnFlagName(flag);
+}
+{
+  The function \ID{CVodeGetReturnFlagName} returns the
+  name of the {\cvode} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvode} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 \index{optional output!solver|)}
 
 %%==============================================================================
@@ -2974,6 +3008,21 @@ and last return value from a {\cvdense} function.
 }
 %%
 %%
+\ucfunction{CVDenseGetReturnFlagName}
+{
+  name = CVDenseGetReturnFlagName(flag);
+}
+{
+  The function \ID{CVDenseGetReturnFlagName} returns the
+  name of the {\cvdense} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvdense} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 \index{CVDENSE@{\cvdense} linear solver!optional output|)}
 \index{optional output!dense linear solver|)}
 
@@ -3126,6 +3175,21 @@ and last return value from a {\cvband} function.
 }
 %%
 %%
+\ucfunction{CVBandGetReturnFlagName}
+{
+  name = CVBandGetReturnFlagName(flag);
+}
+{
+  The function \ID{CVBandGetReturnFlagName} returns the
+  name of the {\cvband} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvband} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 \index{CVBAND@{\cvband} linear solver!optional output|)}
 \index{optional output!band linear solver|)}
 
@@ -3248,6 +3312,21 @@ finite-difference Jacobian approximation, and last return value from a
 }
 %%
 %%
+\ucfunction{CVDiagGetReturnFlagName}
+{
+  name = CVDiagGetReturnFlagName(flag);
+}
+{
+  The function \ID{CVDiagGetReturnFlagName} returns the
+  name of the {\cvdiag} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvdiag} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 \index{CVDIAG@{\cvdiag} linear solver!optional output|)}
 \index{optional output!diagonal linear solver|)}
 
@@ -3574,6 +3653,21 @@ return value from a linear solver function.
 }
 %%
 %%
+\ucfunction{CVSpilsGetReturnFlagName}
+{
+  name = CVSpilsGetReturnFlagName(flag);
+}
+{
+  The function \ID{CVSpilsGetReturnFlagName} returns the
+  name of the {\cvspils} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvspils} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 \index{CVSPBCG@{\cvspbcg} linear solver!optional output|)} 
 \index{CVSPGMR@{\cvspgmr} linear solver!optional output|)} 
 \index{optional output!iterative linear solver|)}
@@ -3702,11 +3796,26 @@ The user must provide a function of type \ID{CVRhsFn} defined as follows:
   \end{args}
 }
 {
-  The return value of a \id{CVRhsFn} function type is currently not used
-  (return a value of 0).
+  A \id{CVRhsFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvode} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \Id{CV\_RHSFUNC\_FAIL} is returned).
 }
 {
   Allocation of memory for \id{ydot} is handled within {\cvode}.
+
+  {\warn}For efficiency considerations, the right-hand side function is not
+  evaluated at the converged solution of the nonlinear solver. Therefore, a
+  recoverable error in \id{CVRhsFn} at that point cannot be corrected (as it will 
+  occur when the right-hand side function is called the first time during the 
+  following integration step and a successful step cannot be undone).
+
+  There are two other situations in which recovery is not possible even if the right-hand
+  side function returns a recoverable error flag. This include the situation when this
+  occurrs at the very first call to the \id{CVRhsFn} (in which case {\cvode} returns
+  \Id{CV\_FIRST\_RHSFUNC\_ERR}) or if a recoverable error is reported when \id{CVRhsFn}
+  is called after an error test failure, while the linear multistep method order is
+  equal to 1 (in which case {\cvode} returns \Id{CV\_UNREC\_RHSFUNC\_ERR}).
 }
 
 %%==============================================================================
@@ -3838,8 +3947,12 @@ the user may provide a function of type \ID{CVDenseJacFn} defined by
   \end{args}
 }
 {
-  The return value of a \id{CVDenseJacFn} function type is currently not used
-  (return a value of 0).
+  A \id{CVDenseJacFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvode} will attempt to correct, while {\cvdense} sets
+  \id{last\_flag} on \Id{CVDENSE\_JACFUNC\_RECVR}), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted, \id{CVode}
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvdense} sets \id{last\_flag} on 
+  \Id{CVDENSE\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied dense Jacobian function must load the \id{N} by \id{N}
@@ -3928,8 +4041,12 @@ the user may provide a function of type \ID{CVBandJacFn} defined as follows:
   \end{args}
 }
 {
-  The return value of a \id{CVBandJacFn} function type is currently not used
-  (return a value of 0).
+  A \id{CVBandJacFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvode} will attempt to correct, while {\cvband} sets
+  \id{last\_flag} on \Id{CVBAND\_JACFUNC\_RECVR}), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted, \id{CVode}
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvband} sets \id{last\_flag} on 
+  \Id{CVBAND\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{J}
@@ -4335,8 +4452,9 @@ the user must supply a {\C} function of type \ID{CVRootFn}, defined as follows:
   \end{args}
 }
 {
-  The return value of a \id{CVRootFn} function type is currently not used
-  (return a value of 0).
+  A \id{CVRootFn} should return 0 if successful or a non-zero value if
+  an error occured (in which case the integration is halted and \id{CVode} returns
+  \Id{CV\_RTFUNC\_FAIL}).
 }
 {
   Allocation of memory for \id{gout} is handled within {\cvode}.
@@ -4723,6 +4841,21 @@ The total number of right-hand side function evaluations is the
 sum of all three of these counters.
 }
 %%
+\ucfunction{CVBandPrecGetReturnFlagName}
+{
+  name = CVBandPrecGetReturnFlagName(flag);
+}
+{
+  The function \ID{CVBandPrecGetReturnFlagName} returns the
+  name of the {\cvbandpre} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvbandpre} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 \index{CVBANDPRE@{\cvbandpre} preconditioner!optional output|)}
 \index{optional output!banded preconditioner|)}
 
@@ -4858,8 +4991,10 @@ then used by \id{gloc}, which is not expected to do any communication.
   \end{args}
 }
 {
-  The return value of a \id{CVLocalFn} function type is currently not used
-  (return a value of 0).
+  A \id{CVLocalFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvode} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \id{CVode} returns \Id{CV\_LSETUP\_FAIL}). 
 }
 {
   This function assumes that all inter-processor communication of data needed to 
@@ -4893,8 +5028,10 @@ then used by \id{gloc}, which is not expected to do any communication.
   \end{args}
 }
 {
-  The return value of a \id{CVCommFn} function type is currently not used
-  (return a value of 0).
+  A \id{CVCommFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvode} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \id{CVode} returns \Id{CV\_LSETUP\_FAIL}). 
 }
 {
   The \id{cfn} function is expected to save communicated data in space defined
@@ -5348,6 +5485,21 @@ the {\cvbbdpre} module:
 }
 {}
 %%
+\ucfunction{CVBBDPrecGetReturnFlagName}
+{
+  name = CVBBDPrecGetReturnFlagName(flag);
+}
+{
+  The function \ID{CVBBDPrecGetReturnFlagName} returns the
+  name of the {\cvbbdpre} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvbbdpre} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!optional output|)}
 \index{optional output!band-block-diagonal preconditioner|)}
 

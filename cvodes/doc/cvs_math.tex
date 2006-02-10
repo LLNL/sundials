@@ -299,7 +299,7 @@ inherited from {\vode} and {\vodpk}, are documented in
 
 % Output modes
 %-------------
-\index{output mode|(}
+\index{output mode}
 Normally, {\cvodes} takes steps until a user-defined output value 
 $t = t_{\mbox{\scriptsize out}}$ is overtaken, and then it computes
 $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
@@ -307,7 +307,6 @@ $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
 calling program after each step.  There are also options to force
 {\cvodes} not to integrate past a given stopping point 
 $t = t_{\mbox{\scriptsize stop}}$.
-\index{output mode|)}
 
 %----------------------------------------
 \section{Forward sensitivity analysis}\label{ss:fwd_sensi}
@@ -494,8 +493,8 @@ There are several methods for evaluating the right-hand side of the sensitivity
 systems (\ref{e:sens_eqns}): analytic evaluation, automatic differentiation, 
 complex-step approximation, and finite differences (or directional derivatives).
 {\cvodes} provides all the software hooks for implementing interfaces to
-automatic differentiation or complex-step approximation, and future versions
-will provide these capabilities.
+automatic differentiation (AD) or complex-step approximation; future versions
+will include a generic interface to AD-generated functions.
 At the present time, besides the option for analytical sensitivity right-hand 
 sides (user-provided), {\cvodes} can evaluate these quantities using various
 finite difference-based approximations to evaluate the terms $(\dfdyI) s_i$ 

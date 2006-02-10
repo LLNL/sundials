@@ -425,6 +425,29 @@ without having to allocate and deallocate memory, the following function is prov
 
 %--------------------------
 
+\subsection{CVODE solver function}
+
+Even if forward sensitivity analysis was enabled, the call to the main solver 
+function \id{CVode} is exactly the same as in \S\ref{sss:cvode}. However, in this
+case the return value \id{flag} can also be one of the following:
+\begin{args}[CV\_FIRST\_SRHSFUNC\_FAIL]
+\item[\Id{CV\_SRHSFUNC\_FAIL}]
+  The sensitivity right-hand side function failed in an unrecoverable manner.
+\item[\Id{CV\_FIRST\_SRHSFUNC\_FAIL}]
+  The sensitivity right-hand side function failed at the first call.
+\item[\Id{CV\_REPTD\_SRHSFUNC\_ERR}]
+  Convergence tests occurred too many times due to repeated recoverable errors in
+  the sensitivity right-hand side function. The \id{CV\_REPTD\_RHSFUNC\_ERR} will also
+  be returned if the sensitivity right-hand side function had repeated recoverable errors
+  during the estimation of an initial step size.
+\item[\Id{CV\_UNREC\_SRHSFUNC\_ERR}]
+  The sensitivity right-hand function had a recoverable error, but no recovery was possible.
+  This failure mode is rare, as it can occur only if the sensitivity right-hand side function
+  fails recoverably after an error test failed while at order one.
+\end{args}
+
+%--------------------------
+
 \subsection{Forward sensitivity extraction functions}\label{ss:sensi_get}
 
 If forward sensitivity computations have been initialized by a call to \id{CVodeSensMalloc},
@@ -1445,14 +1468,29 @@ of type \ID{CVSensRhsFn} defined by:
   \end{args}
 }
 {
-  The return value of a \id{CVSensRhsFn} function type is currently not used
-  (return a value of 0).
+  A \id{CVSensRhsFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvodes} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \Id{CV\_SRHSFUNC\_FAIL} is returned).
 }
 {
   {\warn}A sensitivity right-hand side function of type \id{CVSensRhsFn} is not
   compatible with the \id{CV\_STAGGERED1} approach.
 
   Allocation of memory for \id{ySdot} is handled within {\cvodes}.
+
+  {\warn}For efficiency considerations, the right-hand side function is not
+  evaluated at the converged solution of the nonlinear solver. Therefore, a
+  recoverable error in \id{CVSensRhsFn} at that point cannot be corrected (as it will 
+  occur when the right-hand side function is called the first time during the 
+  following integration step and a successful step cannot be undone).
+
+  There are two situations in which recovery is not possible even if \id{CVSensRhsFn}
+  function returns a recoverable error flag. This include the situation when this
+  occurrs at the very first call to the \id{CVSensRhsFn} (in which case {\cvodes} returns
+  \Id{CV\_FIRST\_SRHSFUNC\_ERR}) or if a recoverable error is reported when \id{CVSensRhsFn}
+  is called after an error test failure, while the linear multistep method order is
+  equal to 1 (in which case {\cvodes} returns \Id{CV\_UNREC\_SRHSFUNC\_ERR}).
 }
 
 \subsection{Sensitivity equations right-hand side (one at a time)}
@@ -1503,11 +1541,26 @@ The type \id{CVSensRhs1Fn} is defined by
   \end{args}
 }
 {
-  The return value of a \id{CVSensRhs1Fn} function type is currently not used
-  (return a value of 0).
+  A \id{CVSensRhsFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvodes} will attempt to correct), or a negative 
+  value if it failed unrecoverably (in which case the integration is halted and
+  \Id{CV\_SRHSFUNC\_FAIL} is returned).
 }
 {
   Allocation of memory for \id{ySdot} is handled within {\cvodes}.
+
+  {\warn}For efficiency considerations, the right-hand side function is not
+  evaluated at the converged solution of the nonlinear solver. Therefore, a
+  recoverable error in \id{CVSensRhs1Fn} at that point cannot be corrected (as it will 
+  occur when the right-hand side function is called the first time during the 
+  following integration step and a successful step cannot be undone).
+
+  There are two situations in which recovery is not possible even if \id{CVSensRhs1Fn}
+  function returns a recoverable error flag. This include the situation when this
+  occurrs at the very first call to the \id{CVSensRhs1Fn} (in which case {\cvodes} returns
+  \Id{CV\_FIRST\_SRHSFUNC\_ERR}) or if a recoverable error is reported when \id{CVSensRhs1Fn}
+  is called after an error test failure, while the linear multistep method order is
+  equal to 1 (in which case {\cvodes} returns \Id{CV\_UNREC\_SRHSFUNC\_ERR}).
 }
 \index{right-hand side function!forward sensitivity|)}
 \index{forward sensitivity analysis!right-hand side evaluation|)}
