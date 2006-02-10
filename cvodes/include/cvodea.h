@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.44 $
- * $Date: 2006-01-28 00:47:13 $
+ * $Revision: 1.45 $
+ * $Date: 2006-02-10 00:02:11 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -163,18 +163,6 @@ extern "C" {
    *    backward integration.
    * -----------------------------------------------------------------
    * CVodeSetQuad*B, CVodeQuadMallocB, CVodeQuadReInitB
-   * -----------------------------------------------------------------
-   * CVSptfqmrB, CVSptfqmrSet*B
-   *    CVSptfqmrB links the main CVODE integrator with the CVSPTFQMR
-   *    linear solver for the backward integration.
-   * -----------------------------------------------------------------
-   * CVSpbcgB, CVSpbcgSet*B
-   *    CVSpbcgB links the main CVODE integrator with the CVSPBCG
-   *    linear solver for the backward integration.
-   * -----------------------------------------------------------------
-   * CVSpgmrB, CVSpgmrSet*B
-   *    CVSpgmrB links the main CVODE integrator with the CVSPGMR
-   *    linear solver for the backward integration.
    * -----------------------------------------------------------------
    */
 

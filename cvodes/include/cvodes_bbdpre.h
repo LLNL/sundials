@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-06 23:17:40 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-10 00:02:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -155,7 +155,9 @@ extern "C" {
    * The f_data parameter is the same as that specified by the user
    * through the CVodeSetFdata routine.
    *
-   * Currently, the return value of a CVLocalFn is ignored.
+   * A CVLocalFn should return 0 if successful, a positive value if 
+   * a recoverable error occurred, and a negative value if an 
+   * unrecoverable error occurred.
    * -----------------------------------------------------------------
    */
 
@@ -184,7 +186,9 @@ extern "C" {
    * If all necessary communication was done by f, the user can
    * pass NULL for cfn in CVBBDPrecAlloc (see below).
    *
-   * Currently, the return value of a CVCommFn is ignored.
+   * A CVCommFn should return 0 if successful, a positive value if 
+   * a recoverable error occurred, and a negative value if an 
+   * unrecoverable error occurred.
    * -----------------------------------------------------------------
    */
 

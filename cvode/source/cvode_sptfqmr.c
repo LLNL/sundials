@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-06 23:17:36 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-10 00:02:07 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -246,7 +246,7 @@ static int CVSptfqmrInit(CVodeMem cv_mem)
   /* Check for legal combination pretype - psolve */
   if ((pretype != PREC_NONE) && (psolve == NULL)) {
     CVProcessError(cv_mem, -1, "CVSPTFQMR", "CVSptfqmrInit", MSGS_PSOLVE_REQ);
-    last_flag = -1;
+    last_flag = CVSPILS_ILL_INPUT;
     return(-1);
   }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-06 23:17:39 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-10 00:02:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -151,7 +151,9 @@ extern "C" {
    * vectors of length N which can be used by a CVBandJacFn
    * as temporary storage or work space.
    *
-   * Currently, the return value of a CVBandJacFn is ignored.
+   * A CVBandJacFn should return 0 if successful, a positive value if 
+   * a recoverable error occurred, and a negative value if an 
+   * unrecoverable error occurred.
    * -----------------------------------------------------------------
    */
 

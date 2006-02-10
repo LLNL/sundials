@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-28 00:47:17 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-10 00:02:19 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1931,4 +1931,118 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
   return(CV_SUCCESS);
 }
 
+/*-----------------------------------------------------------------*/
+
+char *CVodeGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(24*sizeof(char));
+
+  switch(flag) {
+  case CV_SUCCESS:
+    sprintf(name,"CV_SUCCESS");
+    break;
+  case CV_TSTOP_RETURN:
+    sprintf(name,"CV_TSTOP_RETURN");
+    break;
+  case CV_ROOT_RETURN:
+    sprintf(name,"CV_ROOT_RETURN");
+    break;
+  case CV_TOO_MUCH_WORK:
+    sprintf(name,"CV_TOO_MUCH_WORK");
+    break;
+  case CV_TOO_MUCH_ACC:
+    sprintf(name,"CV_TOO_MUCH_ACC");
+    break;
+  case CV_ERR_FAILURE:
+    sprintf(name,"CV_ERR_FAILURE");
+    break;
+  case CV_CONV_FAILURE:
+    sprintf(name,"CV_CONV_FAILURE");
+    break;
+  case CV_LINIT_FAIL:
+    sprintf(name,"CV_LINIT_FAIL");
+    break;
+  case CV_LSETUP_FAIL:
+    sprintf(name,"CV_LSETUP_FAIL");
+    break;
+  case CV_LSOLVE_FAIL:
+    sprintf(name,"CV_LSOLVE_FAIL");
+    break;
+  case CV_RHSFUNC_FAIL:
+    sprintf(name,"CV_RHSFUNC_FAIL");
+    break;
+  case CV_FIRST_RHSFUNC_ERR:
+    sprintf(name,"CV_FIRST_RHSFUNC_ERR");
+    break;
+  case CV_REPTD_RHSFUNC_ERR:
+    sprintf(name,"CV_REPTD_RHSFUNC_ERR");
+    break;
+  case CV_RTFUNC_FAIL:
+    sprintf(name,"CV_RTFUNC_FAIL");
+    break;
+  case CV_UNREC_RHSFUNC_ERR:
+    sprintf(name,"CV_UNREC_RHSFUNC_ERR");
+    break;
+  case CV_MEM_FAIL:
+    sprintf(name,"CV_MEM_FAIL");
+    break;
+  case CV_MEM_NULL:
+    sprintf(name,"CV_MEM_NULL");
+    break;
+  case CV_ILL_INPUT:
+    sprintf(name,"CV_ILL_INPUT");
+    break;
+  case CV_NO_MALLOC:
+    sprintf(name,"CV_NO_MALLOC");
+    break;
+  case CV_BAD_K:
+    sprintf(name,"CV_BAD_K");
+    break;
+  case CV_BAD_T:
+    sprintf(name,"CV_BAD_T");
+    break;
+  case CV_BAD_DKY:
+    sprintf(name,"CV_BAD_DKY");
+    break;
+  case CV_NO_QUAD:
+    sprintf(name,"CV_NO_QUAD");
+    break;
+  case CV_QRHSFUNC_FAIL:
+    sprintf(name,"CV_QRHSFUNC_FAIL");
+    break;
+  case CV_FIRST_QRHSFUNC_ERR:
+    sprintf(name,"CV_FIRST_QRHSFUNC_ERR");
+    break;
+  case CV_REPTD_QRHSFUNC_ERR:
+    sprintf(name,"CV_REPTD_QRHSFUNC_ERR");
+    break;
+  case CV_UNREC_QRHSFUNC_ERR:
+    sprintf(name,"CV_UNREC_QRHSFUNC_ERR");
+    break;
+  case CV_BAD_IS:
+    sprintf(name,"CV_BAD_IS");
+    break;
+  case CV_NO_SENS:
+    sprintf(name,"CV_NO_SENS");
+    break;
+  case CV_SRHSFUNC_FAIL:
+    sprintf(name,"CV_SRHSFUNC_FAIL");
+    break;
+  case CV_FIRST_SRHSFUNC_ERR:
+    sprintf(name,"CV_FIRST_SRHSFUNC_ERR");
+    break;
+  case CV_REPTD_SRHSFUNC_ERR:
+    sprintf(name,"CV_REPTD_SRHSFUNC_ERR");
+    break;
+  case CV_UNREC_SRHSFUNC_ERR:
+    sprintf(name,"CV_UNREC_SRHSFUNC_ERR");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
+}
 

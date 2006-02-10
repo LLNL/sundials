@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.50 $
- * $Date: 2006-02-02 23:38:18 $
+ * $Revision: 1.51 $
+ * $Date: 2006-02-10 00:02:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -12,6 +12,21 @@
  * For details, see sundials/cvodes/LICENSE.
  * -----------------------------------------------------------------
  * This is the interface file for the main CVODES integrator.
+ * -----------------------------------------------------------------
+ *
+ * CVODES is used to solve numerically the ordinary initial value    
+ * problem:                                                          
+ *                                                                   
+ *                 y' = f(t,y),                                      
+ *                 y(t0) = y0,                                       
+ *                                                                   
+ * where t0, y0 in R^N, and f: R x R^N -> R^N are given.             
+ *                                                                   
+ * Optionally, CVODES can perform forward sensitivity analysis       
+ * to find sensitivities of the solution y with respect to           
+ * parameters in the right hand side f and/or in the initial         
+ * conditions y0.                                                    
+ *
  * -----------------------------------------------------------------
  */
 
@@ -27,20 +42,9 @@ extern "C" {
 #include "sundials_nvector.h"
 
   /*
-   * -----------------------------------------------------------------
-   * CVODES is used to solve numerically the ordinary initial value
-   * problem:
-   *
-   *                 y' = f(t,y),
-   *                 y(t0) = y0,
-   *
-   * where t0, y0 in R^N, and f: R x R^N -> R^N are given.
-   *
-   * Optionally, CVODES can perform forward sensitivity analysis
-   * to find sensitivities of the solution y with respect to
-   * parameters in the right hand side f and/or in the initial
-   * conditions y0.
-   * -----------------------------------------------------------------
+   * =================================================================
+   *              C V O D E S     C O N S T A N T S
+   * =================================================================
    */
 
   /*
@@ -125,6 +129,53 @@ extern "C" {
 #define CV_STAGGERED    2
 #define CV_STAGGERED1   3
 
+  /* 
+   * ----------------------------------------
+   * CVODES return flags
+   * ----------------------------------------
+   */
+
+#define CV_SUCCESS               0
+#define CV_TSTOP_RETURN          1
+#define CV_ROOT_RETURN           2
+
+#define CV_WARNING              99
+
+#define CV_TOO_MUCH_WORK        -1
+#define CV_TOO_MUCH_ACC         -2
+#define CV_ERR_FAILURE          -3
+#define CV_CONV_FAILURE         -4
+
+#define CV_LINIT_FAIL           -5
+#define CV_LSETUP_FAIL          -6
+#define CV_LSOLVE_FAIL          -7
+#define CV_RHSFUNC_FAIL         -8
+#define CV_FIRST_RHSFUNC_ERR    -9
+#define CV_REPTD_RHSFUNC_ERR    -10
+#define CV_UNREC_RHSFUNC_ERR    -11
+#define CV_RTFUNC_FAIL          -12
+
+#define CV_MEM_FAIL             -20
+#define CV_MEM_NULL             -21
+#define CV_ILL_INPUT            -22
+#define CV_NO_MALLOC            -23
+#define CV_BAD_K                -24
+#define CV_BAD_T                -25
+#define CV_BAD_DKY              -26
+
+#define CV_NO_QUAD              -30
+#define CV_QRHSFUNC_FAIL        -31
+#define CV_FIRST_QRHSFUNC_ERR   -32
+#define CV_REPTD_QRHSFUNC_ERR   -33
+#define CV_UNREC_QRHSFUNC_ERR   -34
+
+#define CV_BAD_IS               -40
+#define CV_NO_SENS              -41
+#define CV_SRHSFUNC_FAIL        -42
+#define CV_FIRST_SRHSFUNC_ERR   -43
+#define CV_REPTD_SRHSFUNC_ERR   -44
+#define CV_UNREC_SRHSFUNC_ERR   -45
+
   /*
    * =================================================================
    *              F U N C T I O N   T Y P E S
@@ -146,7 +197,13 @@ extern "C" {
    * parameter set by the user through the CVodeSetFdata routine.
    * This user-supplied pointer is passed to the user's f function
    * every time it is called.
-   * Currently, the return value of a CVRhsFn is ignored.
+   *
+   * A CVRhsFn should return 0 if successful, a negative value if
+   * an unrecoverable error occured, and a positive value if a 
+   * recoverable error (e.g. invalid y values) occured. 
+   * If an unrecoverable occured, the integration is halted. 
+   * If a recoverable error occured, then (in most cases) CVODES
+   * will try to correct and retry.
    * -----------------------------------------------------------------
    */
 
@@ -166,7 +223,9 @@ extern "C" {
    * The g_data parameter is the same as that passed by the user
    * to the CVodeRootInit routine.  This user-supplied pointer is
    * passed to the user's g function every time it is called.
-   * Currently, the return value of a CVRootFn is ignored.
+   *
+   * A CVRootFn should return 0 if successful or a non-zero value
+   * if an error occured (in which case the integration will be halted).
    * -----------------------------------------------------------------
    */
 
@@ -235,7 +294,13 @@ extern "C" {
    * The fS_data parameter is the same as the fS_data parameter
    * set by the user through the CVodeSetSensFdata routine and is
    * passed to the fS function every time it is called.
-   * Currently, the return value of a CVSensRhsFn function is ignored
+   *
+   * A CVSensRhsFn should return 0 if successful, a negative value if
+   * an unrecoverable error occured, and a positive value if a 
+   * recoverable error (e.g. invalid y or yS values) occured. 
+   * If an unrecoverable occured, the integration is halted. 
+   * If a recoverable error occured, then (in most cases) CVODES
+   * will try to correct and retry.
    * -----------------------------------------------------------------
    */
 
@@ -261,7 +326,13 @@ extern "C" {
    * The fS_data parameter is the same as the fS_data parameter
    * set by the user through the CVodeSetSensFdata routine and is
    * passed to the fS1 function every time it is called.
-   * Currently, the return value of a CVSensRhs1Fn function is ignored
+   *
+   * A CVSensRhs1Fn should return 0 if successful, a negative value if
+   * an unrecoverable error occured, and a positive value if a 
+   * recoverable error (e.g. invalid y or yS values) occured. 
+   * If an unrecoverable occured, the integration is halted. 
+   * If a recoverable error occured, then (in most cases) CVODES
+   * will try to correct and retry.
    * -----------------------------------------------------------------
    */
 
@@ -283,7 +354,13 @@ extern "C" {
    * The fQ_data parameter is the same as the fQ_data parameter
    * set by the user through the CVodeSetQuadFdata routine and is
    * passed to the fQ function every time it is called.
-   * Currently, the return value of a CVQuadRhsFn function is ignored
+   *
+   * A CVQuadRhsFn should return 0 if successful, a negative value if
+   * an unrecoverable error occured, and a positive value if a 
+   * recoverable error (e.g. invalid y values) occured. 
+   * If an unrecoverable occured, the integration is halted. 
+   * If a recoverable error occured, then (in most cases) CVODES
+   * will try to correct and retry.
    * -----------------------------------------------------------------
    */
 
@@ -1047,6 +1124,9 @@ extern "C" {
   int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
                               long int *nncfails);
 
+
+  char *CVodeGetReturnFlagName(int flag);
+
   /*
    * -----------------------------------------------------------------
    * Quadrature integration solution extraction routines
@@ -1250,52 +1330,6 @@ extern "C" {
    */
 
   void CVodeSensFree(void *cvode_mem);
-
-  /* 
-   * ----------------------------------------
-   * CVODES return flags
-   * ----------------------------------------
-   */
-
-#define CV_SUCCESS               0
-#define CV_TSTOP_RETURN          1
-#define CV_ROOT_RETURN           2
-
-#define CV_WARNING              99
-
-#define CV_TOO_MUCH_WORK        -1
-#define CV_TOO_MUCH_ACC         -2
-#define CV_ERR_FAILURE          -3
-#define CV_CONV_FAILURE         -4
-
-#define CV_LINIT_FAIL           -5
-#define CV_LSETUP_FAIL          -6
-#define CV_LSOLVE_FAIL          -7
-#define CV_RHSFUNC_FAIL         -8
-#define CV_FIRST_RHSFUNC_FAIL   -9
-#define CV_REP_RHSFUNC_ERR      -10
-#define CV_RTFUNC_FAIL          -11
-#define CV_REP_RTFUNC_ERR       -12
-
-#define CV_MEM_FAIL             -20
-#define CV_MEM_NULL             -21
-#define CV_ILL_INPUT            -22
-#define CV_NO_MALLOC            -23
-#define CV_BAD_K                -24
-#define CV_BAD_T                -25
-#define CV_BAD_DKY              -26
-
-#define CV_NO_QUAD              -30
-#define CV_QRHSFUNC_FAIL        -31
-#define CV_FIRST_QRHSFUNC_FAIL  -32
-#define CV_REP_QRHSFUNC_ERR     -33
-
-#define CV_BAD_IS               -40
-#define CV_NO_SENS              -41
-#define CV_SRHSFUNC_FAIL        -42
-#define CV_FIRST_SRHSFUNC_FAIL  -43
-#define CV_REP_SRHSFUNC_ERR     -44
-
 
   /*
    * =================================================================

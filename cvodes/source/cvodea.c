@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.64 $
- * $Date: 2006-02-06 17:41:38 $
+ * $Revision: 1.65 $
+ * $Date: 2006-02-10 00:02:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -2154,7 +2154,7 @@ static int CVArhsQ(realtype t, N_Vector yB,
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);
   if (flag != CV_SUCCESS) {
-    CVProcessError(cv_mem, -1, "CVODEA", "CVArhs", MSGAM_BAD_T);
+    CVProcessError(cv_mem, -1, "CVODEA", "CVArhsQ", MSGAM_BAD_T);
     return(-1);
   }
 

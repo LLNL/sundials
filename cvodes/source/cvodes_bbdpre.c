@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-06 23:17:43 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-10 00:02:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -829,7 +829,7 @@ static int CVAcfn(long int NlocalB, realtype t, N_Vector yB,
   cvB_mem = ca_mem->cvb_mem;
   cvbbdB_mem = (CVBBDPrecDataB) pmemB;
 
-  if (cfn_B == NULL) return;
+  if (cfn_B == NULL) return(0);
 
   /* Forward solution from interpolation */
   flag = getY(ca_mem, t, ytmp);

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.29 $
- * $Date: 2006-02-06 23:17:43 $
+ * $Revision: 1.30 $
+ * $Date: 2006-02-10 00:02:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -532,14 +532,18 @@ extern "C" {
 #define MSGCV_SETUP_FAILED "At " MSG_TIME ", the setup routine failed in an unrecoverable manner."
 #define MSGCV_SOLVE_FAILED "At " MSG_TIME ", the solve routine failed in an unrecoverable manner."
 #define MSGCV_RHSFUNC_FAILED "At " MSG_TIME ", the right-hand side routine failed in an unrecoverable manner."
-#define MSGCV_RTFUNC_FAILED "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
+#define MSGCV_RHSFUNC_UNREC "At " MSG_TIME ", the right-hand side failed in a recoverable manner, but no recovery is possible."
+#define MSGCV_RHSFUNC_REPTD "At " MSG_TIME "repeated recoverable right-hand side function errors."
 #define MSGCV_RHSFUNC_FIRST "The right-hand side routine failed at the first call."
+#define MSGCV_RTFUNC_FAILED "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCV_BAD_TSTOP "tstop is behind current " MSG_TIME "in the direction of integration."
 
 #define MSGCV_BAD_EWTQ "Initial ewtQ has component(s) equal to zero (illegal)."
 #define MSGCV_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
 #define MSGCV_QRHSFUNC_FAILED "At " MSG_TIME ", the quadrature right-hand side routine failed in an unrecoverable manner."
+#define MSGCV_QRHSFUNC_UNREC "At " MSG_TIME ", the quadrature right-hand side failed in a recoverable manner, but no recovery is possible."
+#define MSGCV_QRHSFUNC_REPTD "At " MSG_TIME "repeated recoverable quadrature right-hand side function errors."
 #define MSGCV_QRHSFUNC_FIRST "The quadrature right-hand side routine failed at the first call."
 
 #define MSGCV_BAD_ISM_IFS "Illegal sens. rhs for ism = CV_STAGGERED1."
@@ -547,6 +551,8 @@ extern "C" {
 #define MSGCV_BAD_EWTS "Initial ewtS has component(s) equal to zero (illegal)."
 #define MSGCV_EWTS_NOW_BAD "At " MSG_TIME ", a component of ewtS has become <= 0."
 #define MSGCV_SRHSFUNC_FAILED "At " MSG_TIME ", the sensitivity right-hand side routine failed in an unrecoverable manner."
+#define MSGCV_SRHSFUNC_UNREC "At " MSG_TIME ", the sensitivity right-hand side failed in a recoverable manner, but no recovery is possible."
+#define MSGCV_SRHSFUNC_REPTD "At " MSG_TIME "repeated recoverable sensitivity right-hand side function errors."
 #define MSGCV_SRHSFUNC_FIRST "The sensitivity right-hand side routine failed at the first call."
 
 

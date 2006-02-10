@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-06 23:17:40 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-10 00:02:11 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -239,7 +239,8 @@ extern "C" {
    * The user-supplied function jtimes is to generate the product
    * J*v for given v, where J is the Jacobian df/dy, or an
    * approximation to it, and v is a given vector. It should return
-   * 0 if successful and a nonzero int otherwise.
+   * 0 if successful a positive value for a recoverable error or 
+   * a negative value for an unrecoverable failure.
    *
    * A function jtimes must have the prototype given below. Its
    * parameters are as follows:
