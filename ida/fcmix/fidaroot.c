@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-10 21:17:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -91,5 +91,5 @@ int FIDArootfunc(realtype t, N_Vector y, N_Vector yp, realtype *gout,
 
   FIDA_ROOTFN(&t, ydata, ypdata, gout, IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
-  return(0);
+  return(ier);
 }

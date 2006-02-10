@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-10 21:17:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -53,7 +53,7 @@
  *   YP = dependent variable derivative vector y'  [input]
  *   G  = function values g(t,y,y')  [output]
  *   IPAR, RPAR = user (integer and real) data [input/output]
- *   IER = return flag (currently not used)
+ *   IER = return flag (set on 0 if successful, non-zero if an error occurred)
  *
  * 2. After calling FIDAMALLOC but prior to calling FIDASOLVE, the user must
  * allocate and initialize memory for the FIDAROOT module by making the

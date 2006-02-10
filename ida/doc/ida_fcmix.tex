@@ -962,7 +962,7 @@ $g_i(t,y,y')$, as a function of \id{T} $= t$ and the arrays \id{Y} $= y$
 and \id{YP} $= y'$.
 The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
 and are the same as those passed to \id{FIDAMALLOC}.
-\id{IER} is an error return flag (currently not used; set \id{IER=0}). 
+Set \id{IER} on 0 if successful, or on a non-zero value if an error occurred.
 
 When making calls to \id{FIDASOLVE} to solve the DAE system, the occurrence
 of a root is flagged by the return value \id{IER} = 2.  In that case, if

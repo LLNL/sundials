@@ -966,6 +966,8 @@ integration of the DAE.
     flag, but the solver was unable to recover.
   \item[\Id{IDA\_RES\_FAIL}]
     The user's residual function returned a nonrecoverable error flag.
+  \item[\Id{IDA\_RTFUNC\_FAIL}] 
+    The rootfinding function failed.
   \end{args} 
 }
 {
@@ -4476,8 +4478,9 @@ the user must supply a {\C} function of type \ID{IDARootFn}, defined as follows:
   \end{args}
 }
 {
-  The return value of an \id{IDARootFn} function is currently not used
-  (return a value of 0).
+  An \id{IDARootFn} should return 0 if successful or a non-zero value if
+  an error occured (in which case the integration is halted and \id{IDASolve} returns
+  \Id{IDA\_RTFUNC\_FAIL}).
 }
 {
   Allocation of memory for \id{gout} is handled within {\ida}.

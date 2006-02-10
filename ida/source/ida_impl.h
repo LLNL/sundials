@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.19 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.20 $
+ * $Date: 2006-02-10 21:17:43 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -348,6 +348,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_REP_RES_ERR    "At " MSG_TIME "repeated recoverable residual errors."
 #define MSG_RES_NONRECOV   "At " MSG_TIME "the residual function failed unrecoverably."
 #define MSG_FAILED_CONSTR  "At " MSG_TIME "unable to satisfy inequality constraints."
+#define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 
 /* IDASet* error messages */
 
