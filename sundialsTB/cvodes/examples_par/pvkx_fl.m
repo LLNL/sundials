@@ -1,11 +1,11 @@
-function [yd, new_data] = pvkx_fl(t, y, data)
+function [yd, flag, new_data] = pvkx_fl(t, y, data)
 %PVKX_FL - local RHS computation for the PVKX example problem.
 %
 %   See also: pvkx, CVGlocalFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:46 $
 
 xmin  = data.xmin;
 ml    = data.ml;
@@ -37,6 +37,7 @@ end
 
 yd = reshape(yd,prod(ml),1);
 
+flag = 0;
 new_data = [];
 
 

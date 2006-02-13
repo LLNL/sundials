@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-02 00:39:04 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-13 23:01:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -134,6 +134,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   */
 
   mode = (int)mxGetScalar(prhs[0]);
+
   switch(mode) {
   case 1:
     CVM_init();
@@ -999,11 +1000,12 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   if (!monitor) {
 
-    if (Nd==0)
+    if (Nd==0) {
       status = CVode(cvode_mem, tout, y, &tret, itask);
-    else
+    } else {
       status = CVodeF(cvadj_mem, tout, y, &tret, itask, &Nc);
-    
+    }
+
   } else {
 
     if (itask == CV_NORMAL)              {iret = FALSE; itask1 = CV_ONE_STEP;}
@@ -1013,11 +1015,12 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     
     while(1) {
       
-      if (Nd==0)
+      if (Nd==0) {
         status = CVode(cvode_mem, tout, y, &tret, itask1);
-      else
+      } else {
         status = CVodeF(cvadj_mem, tout, y, &tret, itask1, &Nc);
-      
+      }
+
       /* break on CVode error */
       if (status < 0) break;   
       

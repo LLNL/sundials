@@ -1,11 +1,11 @@
-function [qd, new_data] = cvbx_q(t, u, data)
+function [qd, flag, new_data] = cvbx_q(t, u, data)
 %CVBX_Q - quadrature function for the CVBX example problem.
 %
 %   See also: cvbx, CVQuadRhsFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
 
 
 mx = data.mx;
@@ -35,4 +35,5 @@ end
 
 qd = qd / (xmax*ymax);
 
+flag = 0;
 new_data = [];

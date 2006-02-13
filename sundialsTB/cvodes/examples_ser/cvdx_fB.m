@@ -1,11 +1,11 @@
-function [yBd, new_data] = cvdx_fB(t, y, yB, data)
+function [yBd, flag, new_data] = cvdx_fB(t, y, yB, data)
 %CVDX_FB - adjoint RHS functin for the CVADX example problem.
 %
 %   See alaos: cvadx, CVRhsFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
 
 r1 = data.p(1);
@@ -28,4 +28,5 @@ yBd(1) = - r1*l21;
 yBd(2) = r2*y3*l21 - 2.0*r3*y2*l32;
 yBd(3) = r2*y2*l21 - 1.0;
 
+flag = 0;
 new_data = [];

@@ -1,11 +1,11 @@
-function [J, new_data] = cvbx_J(t, y, fy, data)
+function [J, flag, new_data] = cvbx_J(t, y, fy, data)
 %CVBX_J - Jacobian functino for the CVBX example problem.
 %
 %   See also: cvbx, CVBandJacFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
 
 
 mx = data.mx;
@@ -37,4 +37,5 @@ for i = 1:mx
   end
 end
 
+flag = 0;
 new_data = [];

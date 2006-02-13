@@ -1,11 +1,11 @@
-function [J, new_data] = cvdx_J(t, y, fy, data)
+function [J, flag, new_data] = cvdx_J(t, y, fy, data)
 %CVDX_J - Jacobian function for the CVDX, CVFDX, and CVADX example problems.
 %
 %   see also: cvdx, cvfdx, cvadx, CVDenseJacFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
 
 
 r1 = data.p(1);
@@ -22,4 +22,5 @@ J(2,3) = -r2*y(2);
 
 J(3,2) = 2*r3*y(2);
 
+flag = 0;
 new_data = [];

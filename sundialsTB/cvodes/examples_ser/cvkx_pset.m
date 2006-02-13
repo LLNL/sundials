@@ -1,11 +1,11 @@
-function [jcur, status, data] = cvkx_pset(t,u,fu,jok,gm,data)
+function [jcur, flag, data] = cvkx_pset(t,u,fu,jok,gm,data)
 %CVKX_PSET - Preconditioner setup function for the CVKX example problem.
 %
 %   See also: cvkx, CVPrecSetupFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
 persistent Jbd
 
@@ -77,6 +77,5 @@ for i = 1:mx*my
   P(:,:,i) = eye(2) + P(:,:,i);
 end
 
-status = 0;
-
+flag = 0;
 data.P = P;

@@ -1,4 +1,4 @@
-function [new_data] = cvm_gcom(type, varargin)
+function [flag, new_data] = cvm_gcom(type, varargin)
 
 %
 % Wrapper around the actual user-provided Matlab function
@@ -16,10 +16,10 @@ switch type
   data = varargin{4};
   
   if isempty(data)
-    feval(fct,t,y);
+    flag = feval(fct,t,y);
     new_data = [];
   else
-    [new_data] = feval(fct,t,y,data);
+    [flag, new_data] = feval(fct,t,y,data);
   end
 
  case -1
@@ -33,10 +33,10 @@ switch type
   data = varargin{5};
   
   if isempty(data)
-    feval(fct,t,y,yB);
+    flag = feval(fct,t,y,yB);
     new_data = [];
   else
-    [new_data] = feval(fct,t,y,yB,data);
+    [flag, new_data] = feval(fct,t,y,yB,data);
   end
 
 end

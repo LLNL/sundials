@@ -1,4 +1,4 @@
-function [ret, new_data] = cvm_djac(type, varargin)
+function [ret, flag, new_data] = cvm_djac(type, varargin)
 
 %
 % Wrapper around the actual user-provided Matlab function
@@ -9,7 +9,7 @@ switch type
  case 1
 
   % Forward ODE
-  
+
   t    = varargin{1};
   y    = varargin{2};
   fy   = varargin{3};
@@ -17,12 +17,12 @@ switch type
   data = varargin{5};
 
   if isempty(data)
-    ret = feval(fct,t,y,fy);
+    [ret, flag] = feval(fct,t,y,fy);
     new_data = [];
   else
-    [ret, new_data] = feval(fct,t,y,fy,data);
+    [ret, flag, new_data] = feval(fct,t,y,fy,data);
   end
- 
+
  case -1
   
   % Backward ODE
@@ -35,10 +35,10 @@ switch type
   data = varargin{6};
   
   if isempty(data)
-    ret = feval(fct,t,y,yB,fyB);
+    [ret, flag] = feval(fct,t,y,yB,fyB);
     new_data = [];
   else
-    [ret, new_data] = feval(fct,t,y,yB,fyB,data);
+    [ret, flag, new_data] = feval(fct,t,y,yB,fyB,data);
   end
   
 end

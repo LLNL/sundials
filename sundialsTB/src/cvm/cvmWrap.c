@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-02 00:39:04 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-13 23:01:29 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -48,8 +48,9 @@ void mtlb_CVodeErrHandler(int error_code,
 
 int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
 {
-  mxArray *mx_in[5], *mx_out[2];
-  
+  mxArray *mx_in[5], *mx_out[3];
+  int ret;
+
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);        /* type=1: forward ODE */
   mx_in[1] = mxCreateScalarDouble(t);          /* current t */
@@ -59,11 +60,14 @@ int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
 
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[2]), N);
-  mexCallMATLAB(2,mx_out,5,mx_in,"cvm_rhs");
-  PutData(yd, mxGetPr(mx_out[0]), N);
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  mexCallMATLAB(3,mx_out,5,mx_in,"cvm_rhs");
+
+  PutData(yd, mxGetPr(mx_out[0]), N);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -72,13 +76,15 @@ int mtlb_CVodeRhs(realtype t, N_Vector y, N_Vector yd, void *f_data)
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
 {
-  mxArray *mx_in[5], *mx_out[2];
+  mxArray *mx_in[5], *mx_out[3];
+  int ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);        /* type=1: forward ODE */
@@ -89,11 +95,14 @@ int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
 
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[2]), N);
-  mexCallMATLAB(2,mx_out,5,mx_in,"cvm_rhsQ");
-  PutData(yQd, mxGetPr(mx_out[0]), Nq);
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  mexCallMATLAB(3,mx_out,5,mx_in,"cvm_rhsQ");
+
+  PutData(yQd, mxGetPr(mx_out[0]), Nq);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -102,15 +111,16 @@ int mtlb_CVodeQUADfct(realtype t, N_Vector y, N_Vector yQd, void *fQ_data)
   mxDestroyArray(mx_in[2]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
-  
-  return(0);
+  mxDestroyArray(mx_out[2]);
+
+  return(ret);
 }
 
 int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
 {
   double *gdata;
-  int i;
-  mxArray *mx_in[4], *mx_out[2];
+  int i, ret;
+  mxArray *mx_in[4], *mx_out[3];
   
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(t);          /* current t */
@@ -120,12 +130,16 @@ int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
   
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[1]), N);
-  mexCallMATLAB(2,mx_out,4,mx_in,"cvm_root");
+
+  mexCallMATLAB(3,mx_out,4,mx_in,"cvm_root");
+
   gdata = mxGetPr(mx_out[0]);
   for (i=0;i<Ng;i++) g[i] = gdata[i];
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -133,8 +147,9 @@ int mtlb_CVodeGfct(realtype t, N_Vector y, double *g, void *g_data)
   mxDestroyArray(mx_in[1]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 
@@ -144,7 +159,8 @@ int mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
 {
   double *J_data;
   long int i;
-  mxArray *mx_in[6], *mx_out[2];
+  int ret;
+  mxArray *mx_in[6], *mx_out[3];
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -157,15 +173,18 @@ int mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[2]), N);
   GetData(fy, mxGetPr(mx_in[3]), N);
-  mexCallMATLAB(2,mx_out,6,mx_in,"cvm_djac");
+
+  mexCallMATLAB(3,mx_out,6,mx_in,"cvm_djac");
 
   /* Extract data */
   J_data = mxGetPr(mx_out[0]);
   for (i=0;i<N;i++)
     memcpy(DENSE_COL(J,i), J_data + i*N, N*sizeof(double));
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -175,8 +194,9 @@ int mtlb_CVodeDenseJac(long int N, DenseMat J, realtype t,
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 int mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
@@ -186,7 +206,8 @@ int mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
 {
   double *J_data;
   long int eband, i;
-  mxArray *mx_in[6], *mx_out[2];
+  int ret;
+  mxArray *mx_in[6], *mx_out[3];
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -199,16 +220,19 @@ int mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[2]), N);
   GetData(fy, mxGetPr(mx_in[3]), N);
-  mexCallMATLAB(2,mx_out,6,mx_in,"cvm_bjac");
+
+  mexCallMATLAB(3,mx_out,6,mx_in,"cvm_bjac");
 
   /* Extract data */
   eband =  mupper + mlower + 1;
   J_data = mxGetPr(mx_out[0]);
   for (i=0;i<N;i++)
     memcpy(BAND_COL(J,i) - mupper, J_data + i*eband, eband*sizeof(double));
+
+  ret = (int)*mxGetPr(mx_out[1]);
   
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -218,8 +242,9 @@ int mtlb_CVodeBandJac(long int N, long int mupper, long int mlower,
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 
@@ -367,7 +392,8 @@ int mtlb_CVodeSpilsPsol(realtype t, N_Vector y, N_Vector fy,
 int mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
                       N_Vector g, void *f_data)
 {
-  mxArray *mx_in[5], *mx_out[2];
+  mxArray *mx_in[5], *mx_out[3];
+  int ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
@@ -378,8 +404,45 @@ int mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
   
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[2]), N);
-  mexCallMATLAB(2,mx_out,5,mx_in,"cvm_gloc");
+
+  mexCallMATLAB(3,mx_out,5,mx_in,"cvm_gloc");
+
   PutData(g, mxGetPr(mx_out[0]), N);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
+  }
+
+  /* Free temporary space */
+  mxDestroyArray(mx_in[0]);
+  mxDestroyArray(mx_in[1]);
+  mxDestroyArray(mx_in[2]);
+  mxDestroyArray(mx_out[0]);
+  mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
+
+  return(ret);
+}
+
+int mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *f_data)
+{
+  mxArray *mx_in[5], *mx_out[2];
+  int ret;
+
+  /* Inputs to the Matlab function */
+  mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
+  mx_in[1] = mxCreateScalarDouble(t);           /* current t */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
+  mx_in[3] = mx_mtlb_GCOMfct;                   /* matlab function handle */
+  mx_in[4] = mx_mtlb_data;                      /* matlab user data */
+  
+  /* Call matlab wrapper */
+  GetData(y, mxGetPr(mx_in[3]), N);
+
+  mexCallMATLAB(2,mx_out,5,mx_in,"cvm_gcom");
+
+  ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
     UpdateUserData(mx_out[1]);
@@ -392,35 +455,7 @@ int mtlb_CVodeBBDgloc(long int Nlocal, realtype t, N_Vector y,
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
-  return(0);
-}
-
-int mtlb_CVodeBBDgcom(long int Nlocal, realtype t, N_Vector y, void *f_data)
-{
-  mxArray *mx_in[5], *mx_out[1];
-
-  /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(1.0);         /* type=1: forward ODE */
-  mx_in[1] = mxCreateScalarDouble(t);           /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
-  mx_in[3] = mx_mtlb_GCOMfct;                   /* matlab function handle */
-  mx_in[4] = mx_mtlb_data;                      /* matlab user data */
-  
-  /* Call matlab wrapper */
-  GetData(y, mxGetPr(mx_in[3]), N);
-  mexCallMATLAB(1,mx_out,5,mx_in,"cvm_gcom");
-
-  if (!mxIsEmpty(mx_out[0])) {
-    UpdateUserData(mx_out[0]);
-  }
-
-  /* Free temporary space */
-  mxDestroyArray(mx_in[0]);
-  mxDestroyArray(mx_in[1]);
-  mxDestroyArray(mx_in[2]);
-  mxDestroyArray(mx_out[0]);
-
-  return(0);
+  return(ret);
 }
 
 /*
@@ -437,8 +472,9 @@ int mtlb_CVodeSensRhs1(int Ns, realtype t,
                        N_Vector tmp1, N_Vector tmp2)
 {
   double isd;
-  mxArray *mx_in[7], *mx_out[2];
-  
+  mxArray *mx_in[7], *mx_out[3];
+  int ret;
+
   isd = 1.0 + iS;
 
   /* Inputs to the Matlab function */
@@ -455,12 +491,14 @@ int mtlb_CVodeSensRhs1(int Ns, realtype t,
   GetData(yd, mxGetPr(mx_in[3]), N);
   GetData(yS, mxGetPr(mx_in[4]), N);
 
-  mexCallMATLAB(2,mx_out,7,mx_in,"cvm_rhsS1");
+  mexCallMATLAB(3,mx_out,7,mx_in,"cvm_rhsS1");
 
   PutData(ySd, mxGetPr(mx_out[0]), N);
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -471,8 +509,9 @@ int mtlb_CVodeSensRhs1(int Ns, realtype t,
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 
@@ -482,8 +521,8 @@ int mtlb_CVodeSensRhs(int Ns, realtype t,
                       void *fS_data,
                       N_Vector tmp1, N_Vector tmp2)
 {
-  mxArray *mx_in[6], *mx_out[2];
-  int is;
+  mxArray *mx_in[6], *mx_out[3];
+  int is, ret;
   double *tmp;
 
   /* Inputs to the Matlab function */
@@ -501,13 +540,15 @@ int mtlb_CVodeSensRhs(int Ns, realtype t,
   for (is=0; is<Ns; is++)
     GetData(yS[is], &tmp[is*Ns], N);
 
-  mexCallMATLAB(2,mx_out,6,mx_in,"cvm_rhsS");
+  mexCallMATLAB(3,mx_out,6,mx_in,"cvm_rhsS");
   
   tmp = mxGetPr(mx_out[0]);
   PutData(ySd[is], &tmp[is*Ns], N);
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -517,8 +558,9 @@ int mtlb_CVodeSensRhs(int Ns, realtype t,
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 
@@ -531,8 +573,9 @@ int mtlb_CVodeSensRhs(int Ns, realtype t,
 
 int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_dataB)
 {
-  mxArray *mx_in[6], *mx_out[2];
-  
+  mxArray *mx_in[6], *mx_out[3];
+  int ret;
+
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
   mx_in[1] = mxCreateScalarDouble(t);           /* current t */
@@ -545,12 +588,14 @@ int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_da
   GetData(y, mxGetPr(mx_in[2]), N);
   GetData(yB, mxGetPr(mx_in[3]), NB);
 
-  mexCallMATLAB(2,mx_out,6,mx_in,"cvm_rhs");
+  mexCallMATLAB(3,mx_out,6,mx_in,"cvm_rhs");
 
   PutData(yBd, mxGetPr(mx_out[0]), NB);
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -560,14 +605,16 @@ int mtlb_CVodeRhsB(realtype t, N_Vector y, N_Vector yB, N_Vector yBd, void *f_da
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 
 int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void *fQ_dataB)
 {
-  mxArray *mx_in[6], *mx_out[2];
+  mxArray *mx_in[6], *mx_out[3];
+  int ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -581,12 +628,14 @@ int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void 
   GetData(y, mxGetPr(mx_in[2]), N);
   GetData(yB, mxGetPr(mx_in[3]), NB);
 
-  mexCallMATLAB(2,mx_out,6,mx_in,"cvm_rhsQ");
+  mexCallMATLAB(3,mx_out,6,mx_in,"cvm_rhsQ");
 
   PutData(yQBd, mxGetPr(mx_out[0]), NqB);
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -596,8 +645,9 @@ int mtlb_CVodeQUADfctB(realtype t, N_Vector y, N_Vector yB, N_Vector yQBd, void 
   mxDestroyArray(mx_in[3]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 
@@ -608,7 +658,8 @@ int mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
 {
   double *JB_data;
   long int i;
-  mxArray *mx_in[7], *mx_out[2];
+  mxArray *mx_in[7], *mx_out[3];
+  int ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -624,14 +675,16 @@ int mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
   GetData(yB, mxGetPr(mx_in[3]), NB);
   GetData(fyB, mxGetPr(mx_in[4]), NB);
 
-  mexCallMATLAB(2,mx_out,7,mx_in,"cvm_djac");
+  mexCallMATLAB(3,mx_out,7,mx_in,"cvm_djac");
 
   JB_data = mxGetPr(mx_out[0]);
   for (i=0;i<NB;i++)
     memcpy(DENSE_COL(JB,i), JB_data + i*NB, NB*sizeof(double));
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -642,8 +695,9 @@ int mtlb_CVodeDenseJacB(long int nB, DenseMat JB, realtype t,
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 
@@ -656,7 +710,8 @@ int mtlb_CVodeBandJacB(long int nB, long int mupperB,
 {
   double *JB_data;
   long int ebandB, i;
-  mxArray *mx_in[7], *mx_out[2];
+  mxArray *mx_in[7], *mx_out[3];
+  int ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -672,15 +727,17 @@ int mtlb_CVodeBandJacB(long int nB, long int mupperB,
   GetData(yB, mxGetPr(mx_in[3]), NB);
   GetData(fyB, mxGetPr(mx_in[4]), NB);
 
-  mexCallMATLAB(2,mx_out,7,mx_in,"cvm_bjac");
+  mexCallMATLAB(3,mx_out,7,mx_in,"cvm_bjac");
 
   ebandB =  mupperB + mlowerB + 1;
   JB_data = mxGetPr(mx_out[0]);
   for (i=0;i<NB;i++)
     memcpy(BAND_COL(JB,i) - mupperB, JB_data + i*ebandB, ebandB*sizeof(double));
-  
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+    
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
@@ -691,8 +748,9 @@ int mtlb_CVodeBandJacB(long int nB, long int mupperB,
   mxDestroyArray(mx_in[4]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
 
@@ -849,7 +907,8 @@ int mtlb_CVodeSpilsPsolB(realtype t, N_Vector y,
 int mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
                        N_Vector yB, N_Vector gB, void *f_dataB)
 {
-  mxArray *mx_in[6], *mx_out[2];
+  mxArray *mx_in[6], *mx_out[3];
+  int ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
@@ -862,8 +921,50 @@ int mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[2]), N);
   GetData(yB, mxGetPr(mx_in[3]), NB);
-  mexCallMATLAB(2,mx_out,6,mx_in,"cvm_gloc");
+
+  mexCallMATLAB(3,mx_out,6,mx_in,"cvm_gloc");
+
   PutData(gB, mxGetPr(mx_out[0]), NB);
+
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
+  }
+
+  /* Free temporary space */
+  mxDestroyArray(mx_in[0]);
+  mxDestroyArray(mx_in[1]);
+  mxDestroyArray(mx_in[2]);
+  mxDestroyArray(mx_in[3]);
+  mxDestroyArray(mx_out[0]);
+  mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
+
+  return(ret);
+}
+
+int mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
+                       N_Vector yB, void *f_dataB)
+{
+  mxArray *mx_in[6], *mx_out[2];
+  int ret;
+
+  /* Inputs to the Matlab function */
+  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
+  mx_in[1] = mxCreateScalarDouble(t);           /* current t */
+  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
+  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yB */
+  mx_in[4] = mx_mtlb_GCOMfctB;                  /* matlab function handle */
+  mx_in[5] = mx_mtlb_data;                      /* matlab user data */
+  
+  /* Call matlab wrapper */
+  GetData(y, mxGetPr(mx_in[2]), N);
+  GetData(yB, mxGetPr(mx_in[3]), NB);
+
+  mexCallMATLAB(2,mx_out,6,mx_in,"cvm_gcom");
+
+  ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
     UpdateUserData(mx_out[1]);
@@ -877,39 +978,7 @@ int mtlb_CVodeBBDglocB(long int NlocalB, realtype t, N_Vector y,
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
-  return(0);
-}
-
-int mtlb_CVodeBBDgcomB(long int NlocalB, realtype t, N_Vector y, 
-                       N_Vector yB, void *f_dataB)
-{
-  mxArray *mx_in[6], *mx_out[1];
-
-  /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateScalarDouble(-1.0);        /* type=-1: backward ODE */
-  mx_in[1] = mxCreateScalarDouble(t);           /* current t */
-  mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
-  mx_in[3] = mxCreateDoubleMatrix(NB,1,mxREAL); /* current yB */
-  mx_in[4] = mx_mtlb_GCOMfctB;                  /* matlab function handle */
-  mx_in[5] = mx_mtlb_data;                      /* matlab user data */
-  
-  /* Call matlab wrapper */
-  GetData(y, mxGetPr(mx_in[2]), N);
-  GetData(yB, mxGetPr(mx_in[3]), NB);
-  mexCallMATLAB(1,mx_out,6,mx_in,"cvm_gcom");
-
-  if (!mxIsEmpty(mx_out[0])) {
-    UpdateUserData(mx_out[0]);
-  }
-
-  /* Free temporary space */
-  mxDestroyArray(mx_in[0]);
-  mxDestroyArray(mx_in[1]);
-  mxDestroyArray(mx_in[2]);
-  mxDestroyArray(mx_in[3]);
-  mxDestroyArray(mx_out[0]);
-
-  return(0);
+  return(ret);
 }
 
 /*

@@ -1,4 +1,4 @@
-function [ret, status, new_data] = cvm_psol(type, varargin)
+function [ret, flag, new_data] = cvm_psol(type, varargin)
 
 %
 % Wrapper around the actual user-provided Matlab function
@@ -18,10 +18,10 @@ switch type
   data = varargin{6};
 
   if isempty(data)
-    [ret, status] = feval(fct,t,y,fy,r);
+    [ret, flag] = feval(fct,t,y,fy,r);
     new_data = [];
   else
-    [ret, status, new_data] = feval(fct,t,y,fy,r,data);
+    [ret, flag, new_data] = feval(fct,t,y,fy,r,data);
   end
   
  case -1
@@ -37,10 +37,10 @@ switch type
   data = varargin{7};
   
   if isempty(data)
-    [ret, status] = feval(fct,t,y,yB,fyB,rB);
+    [ret, flag] = feval(fct,t,y,yB,fyB,rB);
     new_data = [];
   else
-    [ret, status, new_data] = feval(fct,t,y,yB,fyB,rB,data);
+    [ret, flag, new_data] = feval(fct,t,y,yB,fyB,rB,data);
   end
   
 end

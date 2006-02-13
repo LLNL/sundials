@@ -1,11 +1,11 @@
-function [yd, new_data] = pleiades_f(t, y, data)
+function [yd, flag, new_data] = pleiades_f(t, y, data)
 %PLEIADES_F - RHS function for the PLEIADES example problems.
 %
 %   See also: pleiades, CVRhsFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
 
 for i = 1:7
@@ -27,4 +27,5 @@ for i = 1:14
   yd(i) = y(i+14);
 end
 
+flag = 0;
 new_data = [];

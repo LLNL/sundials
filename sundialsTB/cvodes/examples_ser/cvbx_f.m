@@ -1,11 +1,11 @@
-function [ud, new_data] = cvbx_f(t, u, data)
+function [ud, flag, new_data] = cvbx_f(t, u, data)
 %CVBX_F - RHS function for the CVBX example problem
 %
 %   See also: cvbx, CVRhsFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
 
 mx = data.mx;
 my = data.my;
@@ -44,4 +44,5 @@ for j = 1:my
   end
 end
 
+flag = 0;
 new_data = [];

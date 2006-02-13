@@ -4,7 +4,7 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/01/18 01:10:27 $
+% $Revision: 1.5 $Date: 2006/02/02 00:38:02 $
 
 % Location of sundialsTB
 
@@ -97,6 +97,7 @@ cvodes_src = {'cvodes_band.c'
               'cvodea.c'
               'cvodes.c'
               'cvodes_io.c'
+              'cvodea_io.c'
               'cvodes_spils.c'
               'cvodes_spbcgs.c'
               'cvodes_spgmr.c'

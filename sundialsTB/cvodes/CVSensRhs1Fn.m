@@ -12,6 +12,10 @@
 %   set NEW_DATA=[] (do not set NEW_DATA = DATA as it would lead to 
 %   unnecessary copying).
 %
+%   The function ODES1FUN must set FLAG=0 if successful, FLAG<0 if an
+%   unrecoverable failure occurred, or FLAG>0 if a recoverable error
+%   occurred.
+%
 %   See also CVodeSetOptions
 %
 %   NOTE: ODES1FUN is specified through the property FSARhsFn to CVodeSetOptions 
@@ -20,4 +24,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $

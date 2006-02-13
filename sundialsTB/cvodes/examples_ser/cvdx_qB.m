@@ -1,11 +1,11 @@
-function [qBd, new_data] = cvdx_qB(t, y, yB, data)
+function [qBd, flag, new_data] = cvdx_qB(t, y, yB, data)
 %CVDX_QB - adjoint quadrature function for the CVADX example problem.
 %
 %   See also: cavdx, CVQuadRhsFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
 r1 = data.p(1);
 r2 = data.p(2);
@@ -27,4 +27,5 @@ qBd(1) = y1*l21;
 qBd(2) = -y23*l21;
 qBd(3) = l32*y2^2;
 
+flag = 0;
 new_data = [];

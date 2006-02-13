@@ -36,12 +36,12 @@
 %IVP Problem
 %
 %   The function PSETFUN must be defined as 
-%        FUNCTION [JCUR, ERR] = PSETFUN(T,Y,FY,JOK,GAMMA)
+%        FUNCTION [JCUR, FLAG] = PSETFUN(T,Y,FY,JOK,GAMMA)
 %   and must return a logical flag JCUR (true if Jacobian information
 %   was recomputed and false if saved data was reused). If PSETFUN
-%   was successful, it must return ERR=0. For a recoverable error (in    
-%   which case the setup will be retried) it must set ERR to a positive
-%   integer value. If an unrecoverable error occurs, it must set ERR
+%   was successful, it must return FLAG=0. For a recoverable error (in    
+%   which case the setup will be retried) it must set FLAG to a positive
+%   integer value. If an unrecoverable error occurs, it must set FLAG
 %   to a negative value, in which case the integration will be halted.
 %   The input argument FY contains the current value of f(t,y).
 %   If the input logical flag JOK is false, it means that
@@ -51,21 +51,21 @@
 %
 %   If a user data structure DATA was specified in CVodeMalloc, then
 %   PSETFUN must be defined as
-%        FUNCTION [JCUR, ERR, NEW_DATA] = PSETFUN(T,Y,FY,JOK,GAMMA,DATA)
+%        FUNCTION [JCUR, FLAG, NEW_DATA] = PSETFUN(T,Y,FY,JOK,GAMMA,DATA)
 %   If the local modifications to the user data structure are needed in
 %   other user-provided functions then, besides setting the flags JCUR
-%   and ERR, the PSETFUN function must also set NEW_DATA. Otherwise, it 
+%   and FLAG, the PSETFUN function must also set NEW_DATA. Otherwise, it 
 %   should set NEW_DATA=[] (do not set NEW_DATA = DATA as it would lead
 %   to unnecessary copying).
 %
 %Adjoint Problem
 %
 %   The function PSETFUNB must be defined either as
-%        FUNCTION [JCURB, ERR] = PSETFUNB(T,Y,YB,FYB,JOK,GAMMAB)
+%        FUNCTION [JCURB, FLAG] = PSETFUNB(T,Y,YB,FYB,JOK,GAMMAB)
 %   or as
-%        FUNCTION [JCURB, ERR, NEW_DATA] = PSETFUNB(T,Y,YB,FYB,JOK,GAMMAB,DATA)
+%        FUNCTION [JCURB, FLAG, NEW_DATA] = PSETFUNB(T,Y,YB,FYB,JOK,GAMMAB,DATA)
 %   depending on whether a user data structure DATA was specified in
-%   CVodeMalloc. In either case, it must return the flags JCURB and ERR.
+%   CVodeMalloc. In either case, it must return the flags JCURB and FLAG.
 %
 %   See also CVPrecSolveFn, CVodeSetOptions
 %
@@ -76,4 +76,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $

@@ -1,4 +1,4 @@
-function [ret, new_data] = cvm_rhsQ(type, varargin)
+function [ret, flag, new_data] = cvm_rhsQ(type, varargin)
 
 %
 % Wrapper around the actual user-provided Matlab function
@@ -16,10 +16,10 @@ switch type
   data = varargin{4};
   
   if isempty(data)
-    ret = feval(fct,t,y);
+    [ret, flag] = feval(fct,t,y);
     new_data =[];
   else
-    [ret, new_data] = feval(fct,t,y,data);
+    [ret, flag, new_data] = feval(fct,t,y,data);
   end
 
  case -1
@@ -33,10 +33,10 @@ switch type
   data = varargin{5};
   
   if isempty(data)
-    ret = feval(fct,t,y,yB);
+    [ret, flag] = feval(fct,t,y,yB);
     new_data = [];
   else
-    [ret, new_data] = feval(fct,t,y,yB,data);
+    [ret, flag, new_data] = feval(fct,t,y,yB,data);
   end
 
 end

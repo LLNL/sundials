@@ -1,4 +1,4 @@
-function [ret, status, new_data] = cvm_jtv(type, varargin)
+function [ret, flag, new_data] = cvm_jtv(type, varargin)
 
 %
 % Wrapper around the actual user-provided Matlab function
@@ -18,10 +18,10 @@ switch type
   data = varargin{6};
 
   if isempty(data)
-    [ret, status] = feval(fct,t,y,fy,v);
+    [ret, flag] = feval(fct,t,y,fy,v);
     new_data = [];
   else
-    [ret, status, new_data] = feval(fct,t,y,fy,v,data);
+    [ret, flag, new_data] = feval(fct,t,y,fy,v,data);
   end
   
  case -1
@@ -37,10 +37,10 @@ switch type
   data = varargin{7};
   
   if isempty(data)
-    [ret, status] = feval(fct,t,y,yB,fyB,vB);
+    [ret, flag] = feval(fct,t,y,yB,fyB,vB);
     new_data =[];
   else
-    [ret, status, new_data] = feval(fct,t,y,yB,fyB,vB,data);
+    [ret, flag, new_data] = feval(fct,t,y,yB,fyB,vB,data);
   end
 
   

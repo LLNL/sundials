@@ -1,11 +1,11 @@
-function [J, new_data] = pleiades_J(t, y, fy, data)
+function [J, flag, new_data] = pleiades_J(t, y, fy, data)
 %PLEIADES_J - Jacobian function for the PLEIADES example problem.
 %
 %   see also: pleiades, CVDenseJacFn
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
 neq = 28;
 
@@ -50,4 +50,5 @@ for i = 1:7
   J(i+21,i+7) = -sumyy;
 end
 
+flag = 0;
 new_data = [];
