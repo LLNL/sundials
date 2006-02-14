@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.44 $
- * $Date: 2006-02-10 21:17:40 $
+ * $Revision: 1.45 $
+ * $Date: 2006-02-14 20:36:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -562,8 +562,6 @@ extern "C" {
 
   int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g, void *g_data);
 
-
-
   /*
    * ----------------------------------------------------------------
    * Function : IDACalcIC                                           
@@ -927,6 +925,15 @@ extern "C" {
 
   int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, 
                             long int *nncfails);
+
+  /*
+   * -----------------------------------------------------------------
+   * The following function returns the name of the constant 
+   * associated with an IDA return flag
+   * -----------------------------------------------------------------
+   */
+
+  char *IDAGetReturnFlagName(int flag);
 
   /*
    * ----------------------------------------------------------------

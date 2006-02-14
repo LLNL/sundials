@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-14 20:36:20 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -470,6 +470,34 @@ int IDASpilsGetLastFlag(void *ida_mem, int *flag)
   return(IDASPILS_SUCCESS);
 }
 
+char *IDASpilsGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case IDASPILS_SUCCESS:
+    sprintf(name,"IDASPILS_SUCCESS");
+    break; 
+  case IDASPILS_MEM_NULL:
+    sprintf(name,"IDASPILS_MEM_NULL");
+    break;
+  case IDASPILS_LMEM_NULL:
+    sprintf(name,"IDASPILS_LMEM_NULL");
+    break;
+  case IDASPILS_ILL_INPUT:
+    sprintf(name,"IDASPILS_ILL_INPUT");
+    break;
+  case IDASPILS_MEM_FAIL:
+    sprintf(name,"IDASPILS_MEM_FAIL");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
+}
 
 /*
  * -----------------------------------------------------------------

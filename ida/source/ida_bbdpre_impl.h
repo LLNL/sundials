@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-14 15:48:19 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-14 20:36:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,7 +26,6 @@ extern "C" {
 
 #include "ida_bbdpre.h"
 #include "sundials_band.h"
-#include "ida_impl.h"
 
 /*
  * -----------------------------------------------------------------
@@ -65,7 +64,7 @@ typedef struct {
 
   /* pointer to ida_mem */
 
-  IDAMem IDA_mem;
+  void *ida_mem;
 
 } *IBBDPrecData;
 
@@ -79,6 +78,7 @@ typedef struct {
 #define MSGBBD_MEM_FAIL    "A memory request failed."
 #define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGBBD_PDATA_NULL  "BBDPrecData is NULL."
+#define MSGBBD_FUNC_FAILED "The Glocal or Gcomm routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-14 20:36:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -1083,5 +1083,91 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
   *nncfails = ncfn;
 
   return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+char *IDAGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(24*sizeof(char));
+
+  switch(flag) {
+  case IDA_SUCCESS:
+    sprintf(name,"IDA_SUCCESS");
+    break;
+  case IDA_TSTOP_RETURN:
+    sprintf(name,"IDA_TSTOP_RETURN");
+    break;
+  case IDA_ROOT_RETURN:
+    sprintf(name,"IDA_ROOT_RETURN");
+    break;
+  case IDA_TOO_MUCH_WORK:
+    sprintf(name,"IDA_TOO_MUCH_WORK");
+    break;
+  case IDA_TOO_MUCH_ACC:
+    sprintf(name,"IDA_TOO_MUCH_ACC");
+    break;
+  case IDA_ERR_FAIL:
+    sprintf(name,"IDA_ERR_FAIL");
+    break;
+  case IDA_CONV_FAIL:
+    sprintf(name,"IDA_CONV_FAIL");
+    break;
+  case IDA_LINIT_FAIL:
+    sprintf(name,"IDA_LINIT_FAIL");
+    break;
+  case IDA_LSETUP_FAIL:
+    sprintf(name,"IDA_LSETUP_FAIL");
+    break;
+  case IDA_LSOLVE_FAIL:
+    sprintf(name,"IDA_LSOLVE_FAIL");
+    break;
+  case IDA_CONSTR_FAIL:
+    sprintf(name,"IDA_CONSTR_FAIL");
+    break;
+  case IDA_RES_FAIL:
+    sprintf(name,"IDA_RES_FAIL");
+    break;
+  case IDA_FIRST_RES_FAIL:
+    sprintf(name,"IDA_FIRST_RES_FAIL");
+    break;
+  case IDA_REP_RES_ERR:
+    sprintf(name,"IDA_REP_RES_ERR");
+    break;
+  case IDA_RTFUNC_FAIL:
+    sprintf(name,"IDA_RTFUNC_FAIL");
+    break;
+  case IDA_MEM_FAIL:
+    sprintf(name,"IDA_MEM_FAIL");
+    break;
+  case IDA_MEM_NULL:
+    sprintf(name,"IDA_MEM_NULL");
+    break;
+  case IDA_ILL_INPUT:
+    sprintf(name,"IDA_ILL_INPUT");
+    break;
+  case IDA_NO_MALLOC:
+    sprintf(name,"IDA_NO_MALLOC");
+    break;
+  case IDA_BAD_T:
+    sprintf(name,"IDA_BAD_T");
+    break;
+  case IDA_BAD_EWT:
+    sprintf(name,"IDA_BAD_EWT");
+    break;
+  case IDA_NO_RECOVERY:
+    sprintf(name,"IDA_NO_RECOVERY");
+    break;
+  case IDA_LINESEARCH_FAIL:
+    sprintf(name,"IDA_LINESEARCH_FAIL");
+    break;
+
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
 }
 

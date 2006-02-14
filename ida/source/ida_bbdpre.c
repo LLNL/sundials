@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-14 15:48:19 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-14 20:36:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -102,7 +102,7 @@ void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
   }
 
   /* Set pointers to glocal and gcomm; load half-bandwidths. */
-  pdata->IDA_mem = IDA_mem;
+  pdata->ida_mem = IDA_mem;
   pdata->glocal = Gres;
   pdata->gcomm = Gcomm;
   pdata->mudq = MIN(Nlocal-1, MAX(0, mudq));
@@ -240,7 +240,7 @@ int IDABBDPrecReInit(void *bbd_data,
   } 
 
   pdata =(IBBDPrecData) bbd_data;
-  IDA_mem = pdata->IDA_mem;
+  IDA_mem = (IDAMem) pdata->ida_mem;
 
   Nlocal = pdata->n_local;
 
@@ -308,6 +308,29 @@ int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP)
   return(IDABBDPRE_SUCCESS);
 }
 
+char *IDABBDPrecGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case IDABBDPRE_SUCCESS:
+    sprintf(name,"IDABBDPRE_SUCCESS");
+    break;   
+  case IDABBDPRE_PDATA_NULL:
+    sprintf(name,"IDABBDPRE_PDATA_NULL");
+    break;
+  case IDABBDPRE_FUNC_UNRECVR:
+    sprintf(name,"IDABBDPRE_FUNC_UNRECVR");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
+}
+
 /* Readability Replacements */
 
 #define Nlocal (pdata->n_local)
@@ -371,16 +394,24 @@ int IDABBDPrecSetup(realtype tt,
   long int retfac;
   int retval;
   IBBDPrecData pdata;
+  IDAMem IDA_mem;
 
   pdata =(IBBDPrecData) prec_data;
+
+  IDA_mem = (IDAMem) pdata->ida_mem;
 
   /* Call IBBDDQJac for a new Jacobian calculation and store in PP. */
   BandZero(PP);
   retval = IBBDDQJac(pdata, tt, c_j, yy, yp,
                      tempv1, tempv2, tempv3, pdata->tempv4);
-  if (retval < 0) return(-1);
-  if (retval > 0) return(+1);
- 
+  if (retval < 0) {
+    IDAProcessError(IDA_mem, IDABBDPRE_FUNC_UNRECVR, "IDABBDPRE", "IDABBDPrecSetup", MSGBBD_FUNC_FAILED);
+    return(-1);
+  }
+  if (retval > 0) {
+    return(+1);
+  } 
+
   /* Do LU factorization of preconditioner block in place (in PP). */
   retfac = BandFactor(PP, pivots);
 
@@ -471,7 +502,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
   realtype *cnsdata = NULL, *ewtdata;
   realtype *col_j, conj, yj, ypj, ewtj;
 
-  IDA_mem = pdata->IDA_mem;
+  IDA_mem = (IDAMem) pdata->ida_mem;
 
   /* Initialize ytemp and yptemp. */
 

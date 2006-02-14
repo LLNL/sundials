@@ -34,7 +34,7 @@ been completed successfully.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-{\cvode}.  The relevant library files are
+{\ida}.  The relevant library files are
 \begin{itemize}
 \item {\em libdir}\id{/libsundials\_ida.}{\em lib},
 \item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one or two files),
@@ -2426,6 +2426,7 @@ No. of nonlinear solver iterations & \id{IDAGetNumNonlinSolvIters} \\
 No. of nonlinear convergence failures & \id{IDAGetNumNonlinSolvConvFails} \\ 
 Array showing roots found & \id{IDAGetRootInfo} \\
 No. of calls to user root function & \id{IDAGetNumGEvals} \\
+Name of constant associated with a return flag & \id{IDAGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDADENSE linear solver} \\
 \hline
@@ -2433,6 +2434,7 @@ Size of {\idadense} real and integer workspace & \id{IDADenseGetWorkSpace} \\
 No. of Jacobian evaluations & \id{IDADenseGetNumJacEvals} \\
 No. of residual calls for finite diff. Jacobian evals. & \id{IDADenseGetNumResEvals} \\ 
 Last return from a {\idadense} function & \id{IDADenseGetLastFlag} \\ 
+Name of constant associated with a return flag & \id{IDADenseGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDABAND linear solver} \\
 \hline
@@ -2440,6 +2442,7 @@ Size of {\idaband} real and integer workspace & \id{IDABandGetWorkSpace} \\
 No. of Jacobian evaluations & \id{IDABandGetNumJacEvals} \\
 No. of residual calls for finite diff. Jacobian evals. & \id{IDABandGetNumResEvals} \\ 
 Last return from a {\idaband} function & \id{IDABandGetLastFlag} \\ 
+Name of constant associated with a return flag & \id{IDABandGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDASPILS linear solvers} \\
 \hline
@@ -2451,6 +2454,7 @@ No. of preconditioner solves & \id{IDASpilsGetNumPrecSolves} \\
 No. of Jacobian-vector product evaluations & \id{IDASpilsGetNumJtimesEvals} \\
 No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASpilsGetNumResEvals} \\
 Last return from a linear solver function & \id{IDASpilsGetLastFlag} \\
+Name of constant associated with a return flag & \id{IDASpilsGetReturnFlagName} \\
 \end{supertabular}
 
 \subsubsection{Main solver optional output functions}\label{sss:optout_main}
@@ -3057,6 +3061,22 @@ These optional output functions are described next.
 }
 {}
 %%
+\ucfunction{IDAGetReturnFlagName}
+{
+  name = IDAGetReturnFlagName(flag);
+}
+{
+  The function \ID{IDAGetReturnFlagName} returns the
+  name of the {\ida} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\ida} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
+%%
 \index{optional output!solver|)}
 %%
 %%==================================================================================
@@ -3214,6 +3234,22 @@ and last return value from a {\idadense} function.
   the LU factorization of the dense Jacobian matrix.
 }
 %%
+\ucfunction{IDADenseGetReturnFlagName}
+{
+  name = IDADenseGetReturnFlagName(flag);
+}
+{
+  The function \ID{IDADenseGetReturnFlagName} returns the
+  name of the {\cvdense} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvdense} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
+%%
 \index{IDADENSE@{\idadense} linear solver!optional output|)}
 \index{optional output!dense linear solver|)}
 %
@@ -3363,6 +3399,22 @@ and last return value from a {\idaband} function.
   (numbered from one) at which a zero diagonal element was encountered during
   the LU factorization of the banded Jacobian matrix.
 }
+%%
+\ucfunction{IDABandGetReturnFlagName}
+{
+  name = IDABandGetReturnFlagName(flag);
+}
+{
+  The function \ID{IDABandGetReturnFlagName} returns the
+  name of the {\cvband} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvband} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 %%
 \index{IDABAND@{\idaband} linear solver!optional output|)}
 \index{optional output!band linear solver|)}
@@ -3690,6 +3742,22 @@ product approximation, and last return value from a linear solver function.
 
 
 }
+%%
+\ucfunction{IDASpilsGetReturnFlagName}
+{
+  name = IDASpilsGetReturnFlagName(flag);
+}
+{
+  The function \ID{IDASpilsGetReturnFlagName} returns the
+  name of the {\cvspils} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvspils} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
+}
+{}
 %%
 \index{IDASPTFQMR@{\idasptfqmr} linear solver!optional output|)}
 \index{IDASPBCG@{\idaspbcg} linear solver!optional output|)} 
@@ -5117,6 +5185,22 @@ the {\idabbdpre} module:
   \item[\Id{IDABBDPRE\_PDATA\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
   \end{args}
+}
+{}
+%%
+\ucfunction{IDABandPrecGetReturnFlagName}
+{
+  name = IDABandPrecGetReturnFlagName(flag);
+}
+{
+  The function \ID{IDABandPrecGetReturnFlagName} returns the
+  name of the {\cvbandpre} constant corresponding to \id{flag}.
+}
+{
+  The only argument, of type \id{int} is a return flag from a {\cvbandpre} function.
+}
+{
+  The return value is a string containing the name of the corresponding constant.
 }
 {}
 %%

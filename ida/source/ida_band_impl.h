@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-14 15:48:19 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-14 20:36:19 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -71,6 +71,7 @@ typedef struct {
 #define MSGB_BAD_SIZES   "Illegal bandwidth parameter(s). Must have 0 <=  mlower, mupper <= N-1."
 #define MSGB_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGB_LMEM_NULL   "IDABAND memory is NULL."
+#define MSGB_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

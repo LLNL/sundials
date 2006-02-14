@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-14 15:48:19 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-14 20:36:20 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -63,6 +63,7 @@ typedef struct {
 #define MSGD_MEM_FAIL    "A memory request failed."
 #define MSGD_BAD_NVECTOR "A required vector operation is not implemented."
 #define MSGD_LMEM_NULL   "IDADENSE memory is NULL."
+#define MSGD_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

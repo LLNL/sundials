@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-14 20:36:20 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -301,6 +301,41 @@ int IDADenseGetLastFlag(void *ida_mem, int *flag)
   return(IDADENSE_SUCCESS);
 }
 
+char *IDADenseGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case IDADENSE_SUCCESS:
+    sprintf(name,"IDADENSE_SUCCESS");
+    break;   
+  case IDADENSE_MEM_NULL:
+    sprintf(name,"IDADENSE_MEM_NULL");
+    break;
+  case IDADENSE_LMEM_NULL:
+    sprintf(name,"IDADENSE_LMEM_NULL");
+    break;
+  case IDADENSE_ILL_INPUT:
+    sprintf(name,"IDADENSE_ILL_INPUT");
+    break;
+  case IDADENSE_MEM_FAIL:
+    sprintf(name,"IDADENSE_MEM_FAIL");
+    break;
+  case IDADENSE_JACFUNC_UNRECVR:
+    sprintf(name,"IDADENSE_JACFUNC_UNRECVR");
+    break;
+  case IDADENSE_JACFUNC_RECVR:
+    sprintf(name,"IDADENSE_JACFUNC_RECVR");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
+}
+
 /*
  * -----------------------------------------------------------------
  * IDADENSE interface functions
@@ -359,18 +394,24 @@ static int IDADenseSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   DenseZero(JJ);
   retval = jac(neq, tn, yyp, ypp, rrp, cj, jacdata, JJ, 
                tmp1, tmp2, tmp3);
-  last_flag = retval;
-  if (retval < 0) return(-1);
-  if (retval > 0) return(+1);
+  if (retval < 0) {
+    IDAProcessError(IDA_mem, IDADENSE_JACFUNC_UNRECVR, "IDADENSE", "IDADenseSetup", MSGD_JACFUNC_FAILED);
+    last_flag = IDADENSE_JACFUNC_UNRECVR;
+    return(-1);
+  }
+  if (retval > 0) {
+    last_flag = IDADENSE_JACFUNC_RECVR;
+    return(+1);
+  }
 
   /* Do LU factorization of JJ; return success or fail flag. */
   retfac = DenseFactor(JJ, pivots);
 
   if (retfac != 0) {
-    last_flag = 1;
+    last_flag = retfac;
     return(+1);
   }
-  last_flag = 0;
+  last_flag = IDADENSE_SUCCESS;
   return(0);
 }
 

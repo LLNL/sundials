@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-14 15:48:17 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-14 20:36:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -112,259 +112,270 @@ extern "C" {
 
 #include "sundials_nvector.h"
 
-/* IDABBDPRE return values */
+  /* IDABBDPRE return values */
 
-#define IDABBDPRE_SUCCESS     0
-#define IDABBDPRE_PDATA_NULL -11
+#define IDABBDPRE_SUCCESS       0
+#define IDABBDPRE_PDATA_NULL   -11
+#define IDABBDPRE_FUNC_UNRECVR -12
 
-/*
- * -----------------------------------------------------------------
- * Type : IDABBDLocalFn
- * -----------------------------------------------------------------
- * The user must supply a function G(t,y,y') which approximates
- * the function F for the system F(t,y,y') = 0, and which is
- * computed locally (without interprocess communication).
- * (The case where G is mathematically identical to F is allowed.)
- * The implementation of this function must have type IDABBDLocalFn.
- *
- * This function takes as input the independent variable value tt,
- * the current solution vector yy, the current solution
- * derivative vector yp, and a pointer to the user-defined data
- * block res_data. It is to compute the local part of G(t,y,y')
- * and store it in the vector gval. (Providing memory for yy and
- * gval is handled within this preconditioner module.) It is
- * expected that this routine will save communicated data in work
- * space defined by the user, and made available to the
- * preconditioner function for the problem. The res_data
- * parameter is the same as that passed by the user to the
- * IDAMalloc routine.
- *
- * An IDABBDLocalFn Gres is to return an int, defined in the same
- * way as for the residual function: 0 (success), +1 or -1 (fail).
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Type : IDABBDLocalFn
+   * -----------------------------------------------------------------
+   * The user must supply a function G(t,y,y') which approximates
+   * the function F for the system F(t,y,y') = 0, and which is
+   * computed locally (without interprocess communication).
+   * (The case where G is mathematically identical to F is allowed.)
+   * The implementation of this function must have type IDABBDLocalFn.
+   *
+   * This function takes as input the independent variable value tt,
+   * the current solution vector yy, the current solution
+   * derivative vector yp, and a pointer to the user-defined data
+   * block res_data. It is to compute the local part of G(t,y,y')
+   * and store it in the vector gval. (Providing memory for yy and
+   * gval is handled within this preconditioner module.) It is
+   * expected that this routine will save communicated data in work
+   * space defined by the user, and made available to the
+   * preconditioner function for the problem. The res_data
+   * parameter is the same as that passed by the user to the
+   * IDAMalloc routine.
+   *
+   * An IDABBDLocalFn Gres is to return an int, defined in the same
+   * way as for the residual function: 0 (success), +1 or -1 (fail).
+   * -----------------------------------------------------------------
+   */
 
-typedef int (*IDABBDLocalFn)(long int Nlocal, realtype tt,
-                             N_Vector yy, N_Vector yp, N_Vector gval,
-                             void *res_data);
+  typedef int (*IDABBDLocalFn)(long int Nlocal, realtype tt,
+                               N_Vector yy, N_Vector yp, N_Vector gval,
+                               void *res_data);
 
-/*
- * -----------------------------------------------------------------
- * Type : IDABBDCommFn
- * -----------------------------------------------------------------
- * The user may supply a function of type IDABBDCommFn which
- * performs all interprocess communication necessary to
- * evaluate the approximate system function described above.
- *
- * This function takes as input the solution vectors yy and yp,
- * and a pointer to the user-defined data block res_data. The
- * res_data parameter is the same as that passed by the user to
- * the IDAMalloc routine.
- *
- * The IDABBDCommFn Gcomm is expected to save communicated data in
- * space defined with the structure *res_data.
- *
- * A IDABBDCommFn Gcomm returns an int value equal to 0 (success),
- * > 0 (recoverable error), or < 0 (unrecoverable error).
- *
- * Each call to the IDABBDCommFn is preceded by a call to the system
- * function res with the same vectors yy and yp. Thus the
- * IDABBDCommFn gcomm can omit any communications done by res if
- * relevant to the evaluation of the local function glocal.
- * A NULL communication function can be passed to IDABBDPrecAlloc
- * if all necessary communication was done by res.
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Type : IDABBDCommFn
+   * -----------------------------------------------------------------
+   * The user may supply a function of type IDABBDCommFn which
+   * performs all interprocess communication necessary to
+   * evaluate the approximate system function described above.
+   *
+   * This function takes as input the solution vectors yy and yp,
+   * and a pointer to the user-defined data block res_data. The
+   * res_data parameter is the same as that passed by the user to
+   * the IDAMalloc routine.
+   *
+   * The IDABBDCommFn Gcomm is expected to save communicated data in
+   * space defined with the structure *res_data.
+   *
+   * A IDABBDCommFn Gcomm returns an int value equal to 0 (success),
+   * > 0 (recoverable error), or < 0 (unrecoverable error).
+   *
+   * Each call to the IDABBDCommFn is preceded by a call to the system
+   * function res with the same vectors yy and yp. Thus the
+   * IDABBDCommFn gcomm can omit any communications done by res if
+   * relevant to the evaluation of the local function glocal.
+   * A NULL communication function can be passed to IDABBDPrecAlloc
+   * if all necessary communication was done by res.
+   * -----------------------------------------------------------------
+   */
 
-typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt,
-                            N_Vector yy, N_Vector yp,
-                            void *res_data);
+  typedef int (*IDABBDCommFn)(long int Nlocal, realtype tt,
+                              N_Vector yy, N_Vector yp,
+                              void *res_data);
 
-/*
- * -----------------------------------------------------------------
- * Function : IDABBDPrecAlloc
- * -----------------------------------------------------------------
- * IDABBDPrecAlloc allocates and initializes an IBBDPrecData
- * structure to be passed to IDASp* (and used by IDABBDPrecSetup
- * and IDABBDPrecSol).
- *
- * The parameters of IDABBDPrecAlloc are as follows:
- *
- * ida_mem  is a pointer to the memory blockreturned by IDACreate.
- *
- * Nlocal  is the length of the local block of the vectors yy etc.
- *         on the current processor.
- *
- * mudq, mldq  are the upper and lower half-bandwidths to be used
- *             in the computation of the local Jacobian blocks.
- *
- * mukeep, mlkeep are the upper and lower half-bandwidths to be
- *                used in saving the Jacobian elements in the local
- *                block of the preconditioner matrix PP.
- *
- * dq_rel_yy is an optional input. It is the relative increment
- *           to be used in the difference quotient routine for
- *           Jacobian calculation in the preconditioner. The
- *           default is sqrt(unit roundoff), and specified by
- *           passing dq_rel_yy = 0.
- *
- * Gres    is the name of the user-supplied function G(t,y,y')
- *         that approximates F and whose local Jacobian blocks
- *         are to form the preconditioner.
- *
- * Gcomm   is the name of the user-defined function that performs
- *         necessary interprocess communication for the
- *         execution of glocal.
- *
- * IDABBDPrecAlloc returns the storage allocated (type *void),
- * or NULL if the request for storage cannot be satisfied.
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Function : IDABBDPrecAlloc
+   * -----------------------------------------------------------------
+   * IDABBDPrecAlloc allocates and initializes an IBBDPrecData
+   * structure to be passed to IDASp* (and used by IDABBDPrecSetup
+   * and IDABBDPrecSol).
+   *
+   * The parameters of IDABBDPrecAlloc are as follows:
+   *
+   * ida_mem  is a pointer to the memory blockreturned by IDACreate.
+   *
+   * Nlocal  is the length of the local block of the vectors yy etc.
+   *         on the current processor.
+   *
+   * mudq, mldq  are the upper and lower half-bandwidths to be used
+   *             in the computation of the local Jacobian blocks.
+   *
+   * mukeep, mlkeep are the upper and lower half-bandwidths to be
+   *                used in saving the Jacobian elements in the local
+   *                block of the preconditioner matrix PP.
+   *
+   * dq_rel_yy is an optional input. It is the relative increment
+   *           to be used in the difference quotient routine for
+   *           Jacobian calculation in the preconditioner. The
+   *           default is sqrt(unit roundoff), and specified by
+   *           passing dq_rel_yy = 0.
+   *
+   * Gres    is the name of the user-supplied function G(t,y,y')
+   *         that approximates F and whose local Jacobian blocks
+   *         are to form the preconditioner.
+   *
+   * Gcomm   is the name of the user-defined function that performs
+   *         necessary interprocess communication for the
+   *         execution of glocal.
+   *
+   * IDABBDPrecAlloc returns the storage allocated (type *void),
+   * or NULL if the request for storage cannot be satisfied.
+   * -----------------------------------------------------------------
+   */
 
-void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
-		      long int mudq, long int mldq,
-		      long int mukeep, long int mlkeep,
-		      realtype dq_rel_yy,
-		      IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
+  void *IDABBDPrecAlloc(void *ida_mem, long int Nlocal,
+                        long int mudq, long int mldq,
+                        long int mukeep, long int mlkeep,
+                        realtype dq_rel_yy,
+                        IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 
-/*
- * -----------------------------------------------------------------
- * Function : IDABBDSptfqmr
- * -----------------------------------------------------------------
- * IDABBDSptfqmr links the IDABBDPRE preconditioner to the IDASPTFQMR
- * linear solver. It performs the following actions:
- *  1) Calls the IDASPTFQMR specification routine and attaches the
- *     IDASPTFQMR linear solver to the IDA solver;
- *  2) Sets the preconditioner data structure for IDASPTFQMR
- *  3) Sets the preconditioner setup routine for IDASPTFQMR
- *  4) Sets the preconditioner solve routine for IDASPTFQMR
- *
- * Its first 2 arguments are the same as for IDASptfqmr (see
- * idasptfqmr.h). The last argument is the pointer to the IDABBDPRE
- * memory block returned by IDABBDPrecAlloc. Note that the user need
- * not call IDASptfqmr anymore.
- *
- * Possible return values are:
- *    IDASPTFQMR_SUCCESS    if successful
- *    IDASPTFQMR_MEM_NULL   if the IDA memory was NULL
- *    IDASPTFQMR_MEM_FAIL   if there was a memory allocation failure
- *    IDASPTFQMR_ILL_INPUT  if there was illegal input
- *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Function : IDABBDSptfqmr
+   * -----------------------------------------------------------------
+   * IDABBDSptfqmr links the IDABBDPRE preconditioner to the IDASPTFQMR
+   * linear solver. It performs the following actions:
+   *  1) Calls the IDASPTFQMR specification routine and attaches the
+   *     IDASPTFQMR linear solver to the IDA solver;
+   *  2) Sets the preconditioner data structure for IDASPTFQMR
+   *  3) Sets the preconditioner setup routine for IDASPTFQMR
+   *  4) Sets the preconditioner solve routine for IDASPTFQMR
+   *
+   * Its first 2 arguments are the same as for IDASptfqmr (see
+   * idasptfqmr.h). The last argument is the pointer to the IDABBDPRE
+   * memory block returned by IDABBDPrecAlloc. Note that the user need
+   * not call IDASptfqmr anymore.
+   *
+   * Possible return values are:
+   *    IDASPTFQMR_SUCCESS    if successful
+   *    IDASPTFQMR_MEM_NULL   if the IDA memory was NULL
+   *    IDASPTFQMR_MEM_FAIL   if there was a memory allocation failure
+   *    IDASPTFQMR_ILL_INPUT  if there was illegal input
+   *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
+   * -----------------------------------------------------------------
+   */
 
-int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data);
+  int IDABBDSptfqmr(void *ida_mem, int maxl, void *bbd_data);
 
-/*
- * -----------------------------------------------------------------
- * Function : IDABBDSpbcg
- * -----------------------------------------------------------------
- * IDABBDSpbcg links the IDABBDPRE preconditioner to the IDASPBCG
- * linear solver. It performs the following actions:
- *  1) Calls the IDASPBCG specification routine and attaches the
- *     IDASPBCG linear solver to the IDA solver;
- *  2) Sets the preconditioner data structure for IDASPBCG
- *  3) Sets the preconditioner setup routine for IDASPBCG
- *  4) Sets the preconditioner solve routine for IDASPBCG
- *
- * Its first 2 arguments are the same as for IDASpbcg (see
- * idaspbcg.h). The last argument is the pointer to the IDABBDPRE
- * memory block returned by IDABBDPrecAlloc. Note that the user need
- * not call IDASpbcg anymore.
- *
- * Possible return values are:
- *    IDASPBCG_SUCCESS      if successful
- *    IDASPBCG_MEM_NULL     if the IDA memory was NULL
- *    IDASPBCG_MEM_FAIL     if there was a memory allocation failure
- *    IDASPBCG_ILL_INPUT    if there was illegal input
- *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Function : IDABBDSpbcg
+   * -----------------------------------------------------------------
+   * IDABBDSpbcg links the IDABBDPRE preconditioner to the IDASPBCG
+   * linear solver. It performs the following actions:
+   *  1) Calls the IDASPBCG specification routine and attaches the
+   *     IDASPBCG linear solver to the IDA solver;
+   *  2) Sets the preconditioner data structure for IDASPBCG
+   *  3) Sets the preconditioner setup routine for IDASPBCG
+   *  4) Sets the preconditioner solve routine for IDASPBCG
+   *
+   * Its first 2 arguments are the same as for IDASpbcg (see
+   * idaspbcg.h). The last argument is the pointer to the IDABBDPRE
+   * memory block returned by IDABBDPrecAlloc. Note that the user need
+   * not call IDASpbcg anymore.
+   *
+   * Possible return values are:
+   *    IDASPBCG_SUCCESS      if successful
+   *    IDASPBCG_MEM_NULL     if the IDA memory was NULL
+   *    IDASPBCG_MEM_FAIL     if there was a memory allocation failure
+   *    IDASPBCG_ILL_INPUT    if there was illegal input
+   *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
+   * -----------------------------------------------------------------
+   */
 
-int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data);
+  int IDABBDSpbcg(void *ida_mem, int maxl, void *bbd_data);
 
-/*
- * -----------------------------------------------------------------
- * Function : IDABBDSpgmr
- * -----------------------------------------------------------------
- * IDABBDSpgmr links the IDABBDPRE preconditioner to the IDASPGMR
- * linear solver. It performs the following actions:
- *  1) Calls the IDASPGMR specification routine and attaches the
- *     IDASPGMR linear solver to the IDA solver;
- *  2) Sets the preconditioner data structure for IDASPGMR
- *  3) Sets the preconditioner setup routine for IDASPGMR
- *  4) Sets the preconditioner solve routine for IDASPGMR
- *
- * Its first 2 arguments are the same as for IDASpgmr (see
- * idaspgmr.h). The last argument is the pointer to the IDABBDPRE
- * memory block returned by IDABBDPrecAlloc. Note that the user need
- * not call IDASpgmr anymore.
- *
- * Possible return values are:
- *    IDASPGMR_SUCCESS      if successful
- *    IDASPGMR_MEM_NULL     if the ida memory was NULL
- *    IDASPGMR_MEM_FAIL     if there was a memory allocation failure
- *    IDASPGMR_ILL_INPUT    if there was illegal input
- *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Function : IDABBDSpgmr
+   * -----------------------------------------------------------------
+   * IDABBDSpgmr links the IDABBDPRE preconditioner to the IDASPGMR
+   * linear solver. It performs the following actions:
+   *  1) Calls the IDASPGMR specification routine and attaches the
+   *     IDASPGMR linear solver to the IDA solver;
+   *  2) Sets the preconditioner data structure for IDASPGMR
+   *  3) Sets the preconditioner setup routine for IDASPGMR
+   *  4) Sets the preconditioner solve routine for IDASPGMR
+   *
+   * Its first 2 arguments are the same as for IDASpgmr (see
+   * idaspgmr.h). The last argument is the pointer to the IDABBDPRE
+   * memory block returned by IDABBDPrecAlloc. Note that the user need
+   * not call IDASpgmr anymore.
+   *
+   * Possible return values are:
+   *    IDASPGMR_SUCCESS      if successful
+   *    IDASPGMR_MEM_NULL     if the ida memory was NULL
+   *    IDASPGMR_MEM_FAIL     if there was a memory allocation failure
+   *    IDASPGMR_ILL_INPUT    if there was illegal input
+   *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
+   * -----------------------------------------------------------------
+   */
 
-int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data);
+  int IDABBDSpgmr(void *ida_mem, int maxl, void *bbd_data);
 
-/*
- * -----------------------------------------------------------------
- * Function : IDABBDPrecReInit
- * -----------------------------------------------------------------
- * IDABBDPrecReInit reinitializes the IDABBDPRE module when
- * solving a sequence of problems of the same size with
- * IDASPGMR/IDABBDPRE, IDASPBCG/IDABBDPRE, or IDASPTFQMR/IDABBDPRE
- * provided there is no change in Nlocal, mukeep, or mlkeep. After
- * solving one problem, and after calling IDAReInit to reinitialize
- * the integrator for a subsequent problem, call IDABBDPrecReInit.
- *
- * The first argument to IDABBDPrecReInit must be the pointer
- * bbd_data that was returned by IDABBDPrecAlloc. All other
- * arguments have the same names and meanings as those of
- * IDABBDPrecAlloc.
- *
- * The return value of IDABBDPrecReInit is IDABBDPRE_SUCCESS, indicating
- * success, or IDABBDPRE_PDATA_NULL if bbd_data was NULL.
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Function : IDABBDPrecReInit
+   * -----------------------------------------------------------------
+   * IDABBDPrecReInit reinitializes the IDABBDPRE module when
+   * solving a sequence of problems of the same size with
+   * IDASPGMR/IDABBDPRE, IDASPBCG/IDABBDPRE, or IDASPTFQMR/IDABBDPRE
+   * provided there is no change in Nlocal, mukeep, or mlkeep. After
+   * solving one problem, and after calling IDAReInit to reinitialize
+   * the integrator for a subsequent problem, call IDABBDPrecReInit.
+   *
+   * The first argument to IDABBDPrecReInit must be the pointer
+   * bbd_data that was returned by IDABBDPrecAlloc. All other
+   * arguments have the same names and meanings as those of
+   * IDABBDPrecAlloc.
+   *
+   * The return value of IDABBDPrecReInit is IDABBDPRE_SUCCESS, indicating
+   * success, or IDABBDPRE_PDATA_NULL if bbd_data was NULL.
+   * -----------------------------------------------------------------
+   */
 
-int IDABBDPrecReInit(void *bbd_data,
-		     long int mudq, long int mldq,
-		     realtype dq_rel_yy,
-		     IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
+  int IDABBDPrecReInit(void *bbd_data,
+                       long int mudq, long int mldq,
+                       realtype dq_rel_yy,
+                       IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 
-/*
- * -----------------------------------------------------------------
- * Function : IDABBDPrecFree
- * -----------------------------------------------------------------
- * IDABBDPrecFree frees the memory block bbd_data allocated by the
- * call to IDABBDPrecAlloc.
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Function : IDABBDPrecFree
+   * -----------------------------------------------------------------
+   * IDABBDPrecFree frees the memory block bbd_data allocated by the
+   * call to IDABBDPrecAlloc.
+   * -----------------------------------------------------------------
+   */
 
-void IDABBDPrecFree(void **bbd_data);
+  void IDABBDPrecFree(void **bbd_data);
 
-/*
- * -----------------------------------------------------------------
- * Optional outputs for IDABBDPRE
- * -----------------------------------------------------------------
- * IDABBDPrecGetWorkSpace returns the real and integer work space
- *                        for IDABBDPRE.
- * IDABBDPrecGetNumGfnEvals returns the number of calls to the
- *                          user Gres function.
- * 
- * The return value of IDABBDPrecGet* is one of:
- *    IDABBDPRE_SUCCESS    if successful
- *    IDABBDPRE_PDATA_NULL if the bbd_data memory was NULL
- * -----------------------------------------------------------------
- */
+  /*
+   * -----------------------------------------------------------------
+   * Optional outputs for IDABBDPRE
+   * -----------------------------------------------------------------
+   * IDABBDPrecGetWorkSpace returns the real and integer work space
+   *                        for IDABBDPRE.
+   * IDABBDPrecGetNumGfnEvals returns the number of calls to the
+   *                          user Gres function.
+   * 
+   * The return value of IDABBDPrecGet* is one of:
+   *    IDABBDPRE_SUCCESS    if successful
+   *    IDABBDPRE_PDATA_NULL if the bbd_data memory was NULL
+   * -----------------------------------------------------------------
+   */
 
-int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
-int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
+  int IDABBDPrecGetWorkSpace(void *bbd_data, long int *lenrwBBDP, long int *leniwBBDP);
+  int IDABBDPrecGetNumGfnEvals(void *bbd_data, long int *ngevalsBBDP);
+
+  /*
+   * -----------------------------------------------------------------
+   * The following function returns the name of the constant 
+   * associated with an IDABBDPRE return flag
+   * -----------------------------------------------------------------
+   */
+  
+  char *IDABBDPrecGetReturnFlagName(int flag);
+
 
 #ifdef __cplusplus
 }

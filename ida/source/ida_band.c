@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-14 20:36:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -320,6 +320,41 @@ int IDABandGetLastFlag(void *ida_mem, int *flag)
   return(IDABAND_SUCCESS);
 }
 
+char *IDABandGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case IDABAND_SUCCESS:
+    sprintf(name,"IDABAND_SUCCESS");
+    break;   
+  case IDABAND_MEM_NULL:
+    sprintf(name,"IDABAND_MEM_NULL");
+    break;
+  case IDABAND_LMEM_NULL:
+    sprintf(name,"IDABAND_LMEM_NULL");
+    break;
+  case IDABAND_ILL_INPUT:
+    sprintf(name,"IDABAND_ILL_INPUT");
+    break;
+  case IDABAND_MEM_FAIL:
+    sprintf(name,"IDABAND_MEM_FAIL");
+    break;
+  case IDABAND_JACFUNC_UNRECVR:
+    sprintf(name,"IDABAND_JACFUNC_UNRECVR");
+    break;
+  case IDABAND_JACFUNC_RECVR:
+    sprintf(name,"IDABAND_JACFUNC_RECVR");
+    break;
+  default:
+    sprintf(name,"NONE");
+  }
+
+  return(name);
+}
+
 /*
  * -----------------------------------------------------------------
  * IDABAND interface functions
@@ -379,18 +414,24 @@ static int IDABandSetup(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
   BandZero(JJ);
   retval = jac(neq, mu, ml, tn, yyp, ypp, rrp, cj,
                jacdata, JJ, tmp1, tmp2, tmp3);
-  last_flag = retval;
-  if (retval < 0) return(-1);
-  if (retval > 0) return(+1);
+  if (retval < 0) {
+    IDAProcessError(IDA_mem, IDABAND_JACFUNC_UNRECVR, "IDABAND", "IDABandSetup", MSGB_JACFUNC_FAILED);
+    last_flag = IDABAND_JACFUNC_UNRECVR;
+    return(-1);
+  }
+  if (retval > 0) {
+    last_flag = IDABAND_JACFUNC_RECVR;
+    return(+1);
+  }
 
   /* Do LU factorization of JJ; return success or fail flag. */
   retfac = BandFactor(JJ, pivots);
   
   if (retfac != 0) {
-    last_flag = 1;
+    last_flag = retfac;
     return(+1);
   }
-  last_flag = 0;
+  last_flag = IDABAND_SUCCESS;
   return(0);
 }
 /*
