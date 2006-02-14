@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-02 00:34:34 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-14 15:48:17 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -11,7 +11,7 @@
  * For details, see sundials/ida/LICENSE
  * -----------------------------------------------------------------
  * This is the common header file for the Scaled and Preconditioned
- * Iterative Linear Solvers in IDA/IDAS.
+ * Iterative Linear Solvers in IDA.
  * -----------------------------------------------------------------
  */
 

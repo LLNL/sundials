@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-14 15:48:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -12,8 +12,8 @@
  * -----------------------------------------------------------------
  * This is the header file (private version) for the IDABBDPRE
  * module, for a band-block-diagonal preconditioner, i.e. a
- * block-diagonal matrix with banded blocks, for use with IDA/IDAS
- * and IDASp*.
+ * block-diagonal matrix with banded blocks, for use with IDA
+ * and an IDASPILS linear solver.
  * -----------------------------------------------------------------
  */
 

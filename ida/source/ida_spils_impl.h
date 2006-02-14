@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-14 15:48:19 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
- * For details, see sundials/idas/LICENSE.
+ * For details, see sundials/ida/LICENSE.
  * -----------------------------------------------------------------
  * This is the common header file (private version) for the Scaled
  * Preconditioned Iterative Linear Solver modules.

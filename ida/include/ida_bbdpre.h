@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-17 23:30:35 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-14 15:48:17 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This is the header file for the IDABBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with IDA/IDAS and
+ * matrix with banded blocks, for use with IDA and
  * IDASpgmr/IDASpbcg/IDASptfqmr.
  *
  * Summary:

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.6 $
+ * $Date: 2006-02-14 15:48:19 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -13,7 +13,8 @@
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with IDA and IDASp*.
+ * matrix with banded blocks, for use with IDA and an IDASPILS
+ * linear solver.
  *
  * NOTE: With only one processor in use, a banded matrix results
  * rather than a block-diagonal matrix with banded blocks.
