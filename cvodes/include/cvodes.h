@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.52 $
- * $Date: 2006-02-10 21:19:17 $
+ * $Revision: 1.53 $
+ * $Date: 2006-02-14 19:09:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -50,7 +50,7 @@ extern "C" {
   /*
    * -----------------------------------------------------------------
    * Enumerations for inputs to CVodeCreate, CVodeMalloc,
-   * CVodeReInit, CVodeSensMalloc, CVodeSensReInit, CvodeQuadMalloc,
+   * CVodeReInit, CVodeSensMalloc, CVodeSensReInit, CVodeQuadMalloc,
    * CVodeQuadReInit, CVodeSet*, and CVode.
    * -----------------------------------------------------------------
    * Symbolic constants for the lmm, iter, and itol input
@@ -281,6 +281,31 @@ extern "C" {
 
   /*
    * -----------------------------------------------------------------
+   * Type : CVQuadRhsFn
+   * -----------------------------------------------------------------
+   * The fQ function which defines the right hand side of the
+   * quadrature equations yQ' = fQ(t,y) must have type CVQuadRhsFn.
+   * fQ takes as input the value of the independent variable t,
+   * the vector of states y and must store the result of fQ in
+   * yQdot. (Allocation of memory for yQdot is handled by CVODES).
+   * The fQ_data parameter is the same as the fQ_data parameter
+   * set by the user through the CVodeSetQuadFdata routine and is
+   * passed to the fQ function every time it is called.
+   *
+   * A CVQuadRhsFn should return 0 if successful, a negative value if
+   * an unrecoverable error occured, and a positive value if a 
+   * recoverable error (e.g. invalid y values) occured. 
+   * If an unrecoverable occured, the integration is halted. 
+   * If a recoverable error occured, then (in most cases) CVODES
+   * will try to correct and retry.
+   * -----------------------------------------------------------------
+   */
+
+  typedef int (*CVQuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot,
+                             void *fQ_data);
+
+  /*
+   * -----------------------------------------------------------------
    * Type : CVSensRhsFn
    * -----------------------------------------------------------------
    * The fS function which defines the right hand side of the
@@ -341,31 +366,6 @@ extern "C" {
                               int iS, N_Vector yS, N_Vector ySdot,
                               void *fS_data,
                               N_Vector tmp1, N_Vector tmp2);
-
-  /*
-   * -----------------------------------------------------------------
-   * Type : CVQuadRhsFn
-   * -----------------------------------------------------------------
-   * The fQ function which defines the right hand side of the
-   * quadrature equations yQ' = fQ(t,y) must have type CVQuadRhsFn.
-   * fQ takes as input the value of the independent variable t,
-   * the vector of states y and must store the result of fQ in
-   * yQdot. (Allocation of memory for yQdot is handled by CVODES).
-   * The fQ_data parameter is the same as the fQ_data parameter
-   * set by the user through the CVodeSetQuadFdata routine and is
-   * passed to the fQ function every time it is called.
-   *
-   * A CVQuadRhsFn should return 0 if successful, a negative value if
-   * an unrecoverable error occured, and a positive value if a 
-   * recoverable error (e.g. invalid y values) occured. 
-   * If an unrecoverable occured, the integration is halted. 
-   * If a recoverable error occured, then (in most cases) CVODES
-   * will try to correct and retry.
-   * -----------------------------------------------------------------
-   */
-
-  typedef int (*CVQuadRhsFn)(realtype t, N_Vector y, N_Vector yQdot,
-                             void *fQ_data);
 
   /*
    * =================================================================
@@ -677,8 +677,7 @@ extern "C" {
    *                      |
    * -----------------------------------------------------------------
    * If successful, these functions return CV_SUCCESS. If an argument
-   * has an illegal value, they print an error message to the
-   * file specified by errfp and return one of the error flags
+   * has an illegal value, they return one of the error flags
    * defined for the CVodeSet* routines.
    * -----------------------------------------------------------------
    */

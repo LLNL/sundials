@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-02-10 21:19:18 $
+ * $Revision: 1.8 $
+ * $Date: 2006-02-14 19:09:44 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -45,6 +45,7 @@ extern "C" {
 
 #define CVD_MSBJ  50
 #define CVD_DGMAX RCONST(0.2)
+
   /*
    * -----------------------------------------------------------------
    * CVDENSE return values
@@ -242,7 +243,7 @@ extern "C" {
 
   /*
    * -----------------------------------------------------------------
-   * Functions: CVBBDPrecAllocB, CVBBDSp*B, CVBBDPrecReInit
+   * Functions: CVDenseB, CVDenseSetJacFnB
    * -----------------------------------------------------------------
    * CVDenseB links the main CVODE integrator with the CVDENSE
    * linear solver for the backward integration.

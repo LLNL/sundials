@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.30 $
- * $Date: 2006-02-10 00:02:19 $
+ * $Revision: 1.31 $
+ * $Date: 2006-02-14 19:09:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -82,6 +82,7 @@ extern "C" {
     realtype cv_reltol;      /* relative tolerance                           */
     realtype cv_Sabstol;     /* scalar absolute tolerance                    */
     N_Vector cv_Vabstol;     /* vector absolute tolerance                    */
+    CVEwtFn cv_efun;         /* function to set ewt                          */
     void *cv_e_data;         /* user pointer passed to efun                  */
 
     /*-----------------------
@@ -98,7 +99,6 @@ extern "C" {
     realtype cv_reltolQ;     /* relative tolerance for quadratures           */
     realtype cv_SabstolQ;    /* scalar absolute tolerance for quadratures    */
     N_Vector cv_VabstolQ;    /* vector absolute tolerance for quadratures    */
-    CVEwtFn cv_efun;         /* function to set ewt                          */
 
     /*------------------------
       Sensitivity Related Data 

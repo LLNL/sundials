@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-10 21:19:20 $
+ * $Revision: 1.7 $
+ * $Date: 2006-02-14 19:09:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -93,7 +93,7 @@ extern "C" {
 
 #define MSGBBDP_CAMEM_NULL  "cvadj_mem = NULL illegal."
 #define MSGBBDP_PDATAB_NULL "CVBBDPRE memory is NULL for the backward integration."
-#define MSGBBDP_BAD_T       "Bad t for interpolation. Abort!"
+#define MSGBBDP_BAD_T       "Bad t for interpolation."
 
 
 #ifdef __cplusplus

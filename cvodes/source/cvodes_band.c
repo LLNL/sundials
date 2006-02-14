@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-10 21:19:20 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-14 19:09:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -754,7 +754,6 @@ int CVBandSetJacFnB(void *cvadj_mem, CVBandJacFnB bjacB, void *jac_dataB)
  * CVBandFreeB 
  */
 
-
 static void CVBandFreeB(CVadjMem ca_mem)
 {
   CVBandMemB cvbandB_mem;
@@ -763,7 +762,6 @@ static void CVBandFreeB(CVadjMem ca_mem)
 
   free(cvbandB_mem);
 }
-
 
 /*
  * CVAbandJac
