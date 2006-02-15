@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:59 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-15 19:14:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -131,14 +131,17 @@ int KINDenseSetJacFn(void *kinmem, KINDenseJacFn djac, void *jac_data);
  * -----------------------------------------------------------------
  *
  * KINDenseGetWorkSpace returns the real and integer workspace used
- *                     by KINDENSE.
+ *                      by KINDENSE.
  * KINDenseGetNumJacEvals returns the number of calls made to the
- *                       Jacobian evaluation routine djac.
+ *                        Jacobian evaluation routine djac.
  * KINDenseGetNumFuncEvals returns the number of calls to the user
- *                       f routine due to finite difference Jacobian
- *                       evaluation.
+ *                         f routine due to finite difference Jacobian
+ *                         evaluation.
  * KINDenseGetLastFlag returns the last error flag set by any of
- *                    the KINDENSE interface functions.
+ *                     the KINDENSE interface functions.
+ *
+ * KINDenseGetReturnFlagName returns the name of a constant associated
+ *                           with a KINDENSE return flag
  *
  * The return value of KINDenseGet* is one of:
  *    KINDENSE_SUCCESS   if successful
@@ -151,6 +154,7 @@ int KINDenseGetWorkSpace(void *kinmem, long int *lenrwD, long int *leniwD);
 int KINDenseGetNumJacEvals(void *kinmem, long int *njevalsD);
 int KINDenseGetNumFuncEvals(void *kinmem, long int *nfevalsD);
 int KINDenseGetLastFlag(void *kinmem, int *flag);
+char *KINDenseGetReturnFlagName(int flag);
 
 /* CVDENSE return values */
 

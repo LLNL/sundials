@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-02-02 00:36:32 $
+ * $Revision: 1.2 $
+ * $Date: 2006-02-15 19:14:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -424,6 +424,41 @@ int KINSpilsGetLastFlag(void *kinmem, int *flag)
   *flag = last_flag;
 
   return(KINSPILS_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSpilsGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *KINSpilsGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case KINSPILS_SUCCESS:
+    sprintf(name, "KINSPILS_SUCCESS");
+    break;
+  case KINSPILS_MEM_NULL:
+    sprintf(name, "KINSPILS_MEM_NULL");
+    break;
+  case KINSPILS_LMEM_NULL:
+    sprintf(name, "KINSPILS_LMEM_NULL");
+    break;
+  case KINSPILS_ILL_INPUT:
+    sprintf(name, "KINSPILS_ILL_INPUT");
+    break;
+  case KINSPILS_MEM_FAIL:
+    sprintf(name, "KINSPILS_MEM_FAIL");
+    break;
+  default:
+    sprintf(name, "NONE");
+  }
+
+  return(name);
 }
 
 /*

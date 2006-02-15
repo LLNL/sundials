@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:36:31 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-15 19:14:28 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -936,3 +936,70 @@ int KINGetStepLength(void *kinmem, realtype *steplength)
   return(KIN_SUCCESS);
 }
 
+/*
+ * -----------------------------------------------------------------
+ * Function : KINGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *KINGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(24*sizeof(char));
+
+  switch(flag) {
+  case KIN_SUCCESS:
+    sprintf(name, "KIN_SUCCESS");
+    break;
+  case KIN_INITIAL_GUESS_OK:
+    sprintf(name, "KIN_INITIAL_GUESS_OK");
+    break;
+  case KIN_STEP_LT_STPTOL:
+    sprintf(name, "KIN_STEP_LT_STPTOL");
+    break;
+  case KIN_WARNING:
+    sprintf(name, "KIN_WARNING");
+    break;
+  case KIN_MEM_NULL:
+    sprintf(name, "KIN_MEM_NULL");
+    break;
+  case KIN_ILL_INPUT:
+    sprintf(name, "KIN_ILL_INPUT");
+    break;
+  case KIN_NO_MALLOC:
+    sprintf(name, "KIN_NO_MALLOC");
+    break;
+  case KIN_MEM_FAIL:
+    sprintf(name, "KIN_MEM_FAIL");
+    break;
+  case KIN_LINESEARCH_NONCONV:
+    sprintf(name, "KIN_LINESEARCH_NONCONV");
+    break;
+  case KIN_MAXITER_REACHED:
+    sprintf(name, "KIN_MAXITER_REACHED");
+    break;
+  case KIN_MXNEWT_5X_EXCEEDED:
+    sprintf(name, "KIN_MXNEWT_5X_EXCEEDED");
+    break;
+  case KIN_LINESEARCH_BCFAIL:
+    sprintf(name, "KIN_LINESEARCH_BCFAIL");
+    break;
+  case KIN_LINSOLV_NO_RECOVERY:
+    sprintf(name, "KIN_LINSOLV_NO_RECOVERY");
+    break;
+  case KIN_LINIT_FAIL:
+    sprintf(name, "KIN_LINIT_FAIL");
+    break;
+  case KIN_LSETUP_FAIL:
+    sprintf(name, "KIN_LSETUP_FAIL");
+    break;
+  case KIN_LSOLVE_FAIL:
+    sprintf(name, "KIN_LSOLVE_FAIL");
+    break;
+  default:
+    sprintf(name, "NONE");
+  }
+
+  return(name);
+}

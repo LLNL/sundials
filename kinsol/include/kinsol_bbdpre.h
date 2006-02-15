@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 22:18:37 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-15 19:14:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -329,6 +329,15 @@ void KINBBDPrecFree(void **p_data);
 
 int KINBBDPrecGetWorkSpace(void *p_data, long int *lenrwBBDP, long int *leniwBBDP);
 int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP);
+
+/*
+ * -----------------------------------------------------------------
+ * The following function returns the name of the constant 
+ * associated with a KINBBDPRE return flag
+ * -----------------------------------------------------------------
+ */
+
+char *KINBBDPrecGetReturnFlagName(int flag);
 
 /* prototypes for functions KINBBDPrecSetup and KINBBDPrecSolve */
 

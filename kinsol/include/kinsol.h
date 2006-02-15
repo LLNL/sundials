@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.33 $
- * $Date: 2006-02-08 22:56:33 $
+ * $Revision: 1.34 $
+ * $Date: 2006-02-15 19:14:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -341,7 +341,7 @@ void *KINCreate(void);
  *                        | [1000*||uscale*u_0||_L2]
  *                        |
  * KINSetMaxBetaFails     | maximum number of beta condition failures
- *                        | in the line searc algorithm.
+ *                        | in the line search algorithm.
  *                        | [MXNBCF_DEFAULT] (defined in kinsol_impl.h)
  *                        |
  * KINSetRelErrFunc       | real scalar equal to realative error in
@@ -676,6 +676,9 @@ int KINSol(void *kinmem, N_Vector uu, int strategy,
  *                           |
  *                           |  ||uscale*p||_L2
  *                           |
+ * KINGetReturnFlagName      | returns the name of the constant
+ *                           | associated with a KINSOL return flag
+ *                           |
  * -----------------------------------------------------------------
  *
  * The possible return values for the KINSet* subroutines are the
@@ -696,6 +699,7 @@ int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails);
 int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
 int KINGetFuncNorm(void *kinmem, realtype *fnorm);
 int KINGetStepLength(void *kinmem, realtype *steplength);
+char *KINGetReturnFlagName(int flag);
 
 /*
  * -----------------------------------------------------------------

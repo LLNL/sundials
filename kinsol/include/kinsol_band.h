@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 22:18:37 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 19:14:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -155,14 +155,16 @@ int KINBandSetJacFn(void *kinmem, KINBandJacFn bjac, void *jac_data);
  * -----------------------------------------------------------------
  *
  * KINBandGetWorkSpace returns the real and integer workspace used
- *                    by KINBAND.
+ *                     by KINBAND.
  * KINBandGetNumJacEvals returns the number of calls made to the
- *                      Jacobian evaluation routine bjac.
+ *                       Jacobian evaluation routine bjac.
  * KINBandGetNumFuncEvals returns the number of calls to the user
- *                      f routine due to finite difference Jacobian
- *                      evaluation.
+ *                        f routine due to finite difference Jacobian
+ *                        evaluation.
  * KINBandGetLastFlag returns the last error flag set by any of
- *                   the KINBAND interface functions.
+ *                    the KINBAND interface functions.
+ * KINBandGetReturnFlagName returns the name of the constant
+ *                          associated with a KINBAND return flag
  *
  * The return value of KINBandGet* is one of:
  *    KINBAND_SUCCESS   if successful
@@ -175,6 +177,7 @@ int KINBandGetWorkSpace(void *kinmem, long int *lenrwB, long int *leniwB);
 int KINBandGetNumJacEvals(void *kinmem, long int *njevalsB);
 int KINBandGetNumFuncEvals(void *kinmem, long int *nfevalsB);
 int KINBandGetLastFlag(void *kinmem, int *flag);
+char *KINBandGetReturnFlagName(int flag);
 
 /* KINBAND return values */
 

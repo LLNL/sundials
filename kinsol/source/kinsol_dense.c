@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:36:31 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-15 19:14:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -329,6 +329,41 @@ int KINDenseGetLastFlag(void *kinmem, int *flag)
   *flag = last_flag;
 
   return(KINDENSE_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * KINDenseGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *KINDenseGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case KINDENSE_SUCCESS:
+    sprintf(name, "KINDENSE_SUCCESS");
+    break;
+  case KINDENSE_MEM_NULL:
+    sprintf(name, "KINDENSE_MEM_NULL");
+    break;
+  case KINDENSE_LMEM_NULL:
+    sprintf(name, "KINDENSE_LMEM_NULL");
+    break;
+  case KINDENSE_ILL_INPUT:
+    sprintf(name, "KINDENSE_ILL_INPUT");
+    break;
+  case KINDENSE_MEM_FAIL:
+    sprintf(name, "KINDENSE_MEM_FAIL");
+    break;
+  default:
+    sprintf(name, "NONE");
+  }
+
+  return(name);
 }
 
 /*

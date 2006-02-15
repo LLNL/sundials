@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-02 00:36:31 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-15 19:14:28 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -325,6 +325,32 @@ int KINBBDPrecGetNumGfnEvals(void *p_data, long int *ngevalsBBDP)
   *ngevalsBBDP = pdata->nge;
 
   return(KINBBDPRE_SUCCESS);
+}
+
+/*
+ *-----------------------------------------------------------------
+ * Function : KINBBDPrecGetReturnFlagName
+ *-----------------------------------------------------------------
+ */
+
+char *KINBBDPrecGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case KINBBDPRE_SUCCESS:
+    sprintf(name, "KINBBDPRE_SUCCESS");
+    break;
+  case KINBBDPRE_PDATA_NULL:
+    sprintf(name, "KINBBDPRE_PDATA_NULL");
+    break;
+  default:
+    sprintf(name, "NONE");
+  }
+
+  return(name);
 }
 
 /*

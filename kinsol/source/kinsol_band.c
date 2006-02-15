@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:36:31 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-15 19:14:28 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -344,6 +344,41 @@ int KINBandGetLastFlag(void *kinmem, int *flag)
   *flag = last_flag;
 
   return(KINBAND_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * KINBandGetReturnFlagName
+ * -----------------------------------------------------------------
+ */
+
+char *KINBandGetReturnFlagName(int flag)
+{
+  char *name;
+
+  name = (char *)malloc(30*sizeof(char));
+
+  switch(flag) {
+  case KINBAND_SUCCESS:
+    sprintf(name, "KINBAND_SUCCESS");
+    break;
+  case KINBAND_MEM_NULL:
+    sprintf(name, "KINBAND_MEM_NULL");
+    break;
+  case KINBAND_LMEM_NULL:
+    sprintf(name, "KINBAND_LMEM_NULL");
+    break;
+  case KINBAND_ILL_INPUT:
+    sprintf(name, "KINBAND_ILL_INPUT");
+    break;
+  case KINBAND_MEM_FAIL:
+    sprintf(name, "KINBAND_MEM_FAIL");
+    break;
+  default:
+    sprintf(name, "NONE");
+  }
+
+  return(name);
 }
 
 /*

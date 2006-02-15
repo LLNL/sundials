@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-02 00:36:28 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 19:14:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -307,6 +307,9 @@ int KINSpilsSetJacTimesVecFn(void *kinmem,
  *                            |
  * KINSpilsGetLastFlag        | returns the last flag returned by
  *                            | the linear solver
+ *                            |
+ * KINSpilsGetReturnFlagName  | returns the name of the constant
+ *                            | associated with a KINSPILS return flag
  * -----------------------------------------------------------------
  */
 
@@ -318,6 +321,7 @@ int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
 int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
 int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevalsS); 
 int KINSpilsGetLastFlag(void *kinmem, int *flag);
+char *KINSpilsGetReturnFlagName(int flag);
 
 /*
  * -----------------------------------------------------------------
