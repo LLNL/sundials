@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2006-02-02 00:36:20 $
+ * $Revision: 1.43 $
+ * $Date: 2006-02-15 19:11:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -76,7 +76,7 @@
  documentation on the corresponding function in the KINSOL package.
 
  The number labels on the instructions below end with "s" for instructions
- that apply to the serial version of CVODE only, and end with "p" for
+ that apply to the serial version of KINSOL only, and end with "p" for
  those that apply to the parallel version only.
 
  (1) User-supplied system routine: FKFUN
@@ -447,6 +447,7 @@ extern "C" {
 #define FK_PSOL             F77_FUNC(fkpsol, FKPSOL)
 #define FK_JTIMES           F77_FUNC(fkjtimes, FKJTIMES)
 #define FK_DJAC             F77_FUNC(fkdjac, FKDJAC)
+#define FK_BJAC             F77_FUNC(fkbjac, FKBJAC)
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -470,6 +471,7 @@ extern "C" {
 #define FK_PSOL             fkpsol
 #define FK_JTIMES           fkjtimes
 #define FK_DJAC             fkdjac
+#define FK_BJAC             fkbjac
 
 #elif defined(SUNDIALS_UNDERSCORE_NONE) && defined(SUNDIALS_CASE_UPPER)
 
@@ -493,6 +495,7 @@ extern "C" {
 #define FK_PSOL             FKPSOL
 #define FK_JTIMES           FKJTIMES
 #define FK_DJAC             FKDJAC
+#define FK_BJAC             FKBJAC
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_LOWER)
 
@@ -516,6 +519,7 @@ extern "C" {
 #define FK_PSOL             fkpsol_
 #define FK_JTIMES           fkjtimes_
 #define FK_DJAC             fkdjac_
+#define FK_BJAC             fkbjac_
 
 #elif defined(SUNDIALS_UNDERSCORE_ONE) && defined(SUNDIALS_CASE_UPPER)
 
@@ -539,6 +543,7 @@ extern "C" {
 #define FK_PSOL             FKPSOL_
 #define FK_JTIMES           FKJTIMES_
 #define FK_DJAC             FKDJAC_
+#define FK_BJAC             FKBJAC_
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_LOWER)
 
@@ -562,6 +567,7 @@ extern "C" {
 #define FK_PSOL             fkpsol__
 #define FK_JTIMES           fkjtimes__
 #define FK_DJAC             fkdjac__
+#define FK_BJAC             fkbjac__
 
 #elif defined(SUNDIALS_UNDERSCORE_TWO) && defined(SUNDIALS_CASE_UPPER)
 
@@ -585,6 +591,7 @@ extern "C" {
 #define FK_PSOL             FKPSOL__
 #define FK_JTIMES           FKJTIMES__
 #define FK_DJAC             FKDJAC__
+#define FK_BJAC             FKBJAC__
 
 #endif
 
