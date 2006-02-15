@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.66 $
- * $Date: 2006-02-10 03:50:49 $
+ * $Revision: 1.67 $
+ * $Date: 2006-02-15 17:47:01 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1621,7 +1621,8 @@ static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d)
  *
  * This routine uses polynomial interpolation for the forward solution vector. 
  * It is typically called by the wrapper routines before calling
- * user provided routines (fB, djacB, bjacB, jtimesB, psolB).
+ * user provided routines (fB, djacB, bjacB, jtimesB, psolB)) but
+ * can be directly called by the user through CVadjGetY.
  */
 
 static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)

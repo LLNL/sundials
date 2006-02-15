@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-10 21:19:20 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 17:47:02 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -402,11 +402,11 @@ char *CVadjGetReturnFlagName(int flag)
 /*
  * CVadjGetCheckPointsInfo
  *
- * This routine loads an array of nckpnts structures of type CheckPointRec.
+ * This routine loads an array of nckpnts structures of type CVadjCheckPointRec.
  * The user must allocate space for ckpnt.
  */
 
-int CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt)
+int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt)
 {
   CVadjMem ca_mem;
   CkpntMem ck_mem;

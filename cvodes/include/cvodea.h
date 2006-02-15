@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.46 $
- * $Date: 2006-02-10 21:19:17 $
+ * $Revision: 1.47 $
+ * $Date: 2006-02-15 17:46:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -251,16 +251,29 @@ extern "C" {
   
   char *CVadjGetReturnFlagName(int flag);
 
+
+  /*
+   * -----------------------------------------------------------------
+   * CVadjGetY
+   *    Returns the interpolated forward solution at time t. This
+   *    function is a wrapper around the interpType-dependent internal
+   *    function.
+   *    The calling function must allocate space for y.
+   * -----------------------------------------------------------------
+   */
+
+  int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
+  
   /* 
    * ===============================================================
-   * UNDOCUMENTED DEVELOPMENT USER-CALLABLE FUNCTIONS
+   * DEVELOPMENT USER-CALLABLE FUNCTIONS
    * ===============================================================
    */
 
   /*
    * -----------------------------------------------------------------
    * CVadjGetCheckPointsInfo
-   *    Loads an array of nckpnts structures of type CheckPointRec.
+   *    Loads an array of nckpnts structures of type CVadjCheckPointRec.
    *    The user must allocate space for ckpnt (ncheck+1).
    * CVadjGetCurrentCheckPoint
    *    Returns the address of the 'active' check point.
@@ -275,9 +288,9 @@ extern "C" {
     long int nstep;
     int order;
     realtype step;
-  } CheckPointRec;
+  } CVadjCheckPointRec;
 
-  int CVadjGetCheckPointsInfo(void *cvadj_mem, CheckPointRec *ckpnt);
+  int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt);
   int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr);
 
   /*
@@ -292,11 +305,6 @@ extern "C" {
    *    at the data point 'which'. The user must allocate space for
    *    y. Returns CVADJ_MEM_NULL if cvadj_mem is NULL.
    *    Returns CV_ILL_INPUT if interpType != CV_POLYNOMIAL.
-   * CVadjGetY
-   *    Returns the interpolated forward solution at time t. This
-   *    function is a wrapper around the interpType-dependent internal
-   *    function.
-   *    The user must allocate space for y.
    * -----------------------------------------------------------------
    */
 
@@ -305,8 +313,6 @@ extern "C" {
   
   int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
                                   realtype *t, int *order, N_Vector y);
-  
-  int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
   
 #ifdef __cplusplus
 }

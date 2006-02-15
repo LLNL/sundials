@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:39 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-15 17:46:56 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
   long int nst, nstB;
 
-  CheckPointRec *ckpnt;
+  CVadjCheckPointRec *ckpnt;
   int i;
 
   data = NULL;
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
 
   /* Test check point linked list */
   printf("\nList of Check Points (ncheck = %d)\n\n", ncheck);
-  ckpnt = (CheckPointRec *) malloc ( (ncheck+1)*sizeof(CheckPointRec));
+  ckpnt = (CVadjCheckPointRec *) malloc ( (ncheck+1)*sizeof(CVadjCheckPointRec));
   CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
   for (i=0;i<=ncheck;i++) {
     printf("Address:       %u\n",ckpnt[i].my_addr);
