@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2006-02-14 19:09:48 $
+ * $Revision: 1.11 $
+ * $Date: 2006-02-15 15:52:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -717,6 +717,11 @@ int CVBandB(void *cvadj_mem, long int nB,
   lfreeB = CVBandFreeB;
 
   flag = CVBand(cvB_mem, nB, mupperB, mlowerB);
+
+  if (flag != CVBAND_SUCCESS) {
+    free(cvbandB_mem);
+    cvbandB_mem = NULL;
+  }
 
   return(flag);
 }

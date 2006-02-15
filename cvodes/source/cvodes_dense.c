@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-10 21:19:20 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-15 15:52:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -691,6 +691,11 @@ int CVDenseB(void *cvadj_mem, long int nB)
   lfreeB = CVDenseFreeB;
 
   flag = CVDense(cvB_mem, nB);
+
+  if (flag != CVDENSE_SUCCESS) {
+    free(cvdenseB_mem);
+    cvdenseB_mem = NULL;
+  }
 
   return(flag);
 }
