@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:23 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 02:23:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -185,7 +185,9 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
   if (N_VDotProd(x, x) == ZERO) N_VScale(ONE, b, r_star);
   else {
-    if (atimes(A_data, x, r_star) != 0) return(SPBCG_ATIMES_FAIL);
+    ier = atimes(A_data, x, r_star);
+    if (ier != 0)
+      return((ier < 0) ? SPBCG_ATIMES_FAIL_UNREC : SPBCG_ATIMES_FAIL_REC);
     N_VLinearSum(ONE, b, -ONE, r_star, r_star);
   }
 
@@ -240,7 +242,9 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     /*   Apply A: Ap = A P2_inv sx_inv p */
 
-    if (atimes(A_data, vtemp, Ap ) != 0) return(SPBCG_ATIMES_FAIL);
+    ier = atimes(A_data, vtemp, Ap );
+    if (ier != 0)
+      return((ier < 0) ? SPBCG_ATIMES_FAIL_UNREC : SPBCG_ATIMES_FAIL_REC);
 
     /*   Apply left preconditioner: vtemp = P1_inv A P2_inv sx_inv p */
 
@@ -283,7 +287,9 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
 
     /*   Apply A: u = A P2_inv sx_inv u */
 
-    if (atimes(A_data, vtemp, u ) != 0) return(SPBCG_ATIMES_FAIL);
+    ier = atimes(A_data, vtemp, u );
+    if (ier != 0)
+      return((ier < 0) ? SPBCG_ATIMES_FAIL_UNREC : SPBCG_ATIMES_FAIL_REC);
 
     /*   Apply left preconditioner: vtemp = P1_inv A P2_inv sx_inv p */
 

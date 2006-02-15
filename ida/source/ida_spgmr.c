@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-15 02:23:48 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -76,7 +76,6 @@ static int IDASpgmrFree(IDAMem IDA_mem);
 #define ycur      (idaspils_mem->s_ycur)
 #define ypcur     (idaspils_mem->s_ypcur)
 #define rcur      (idaspils_mem->s_rcur)
-#define resflag   (idaspils_mem->s_resflag)
 #define npe       (idaspils_mem->s_npe)
 #define nli       (idaspils_mem->s_nli)
 #define nps       (idaspils_mem->s_nps)
@@ -297,10 +296,18 @@ static int IDASpgmrSetup(IDAMem IDA_mem,
                 tmp1, tmp2, tmp3);
   npe++;
 
-  last_flag = retval;
   /* Return flag showing success or failure of pset. */
-  if (retval < 0) return(-1);
-  if (retval > 0) return(+1);
+  if (retval < 0) {
+    IDAProcessError(IDA_mem, SPGMR_PSET_FAIL_UNREC, "IDASPGMR", "IDASpgmrSetup", MSGS_PSET_FAILED);
+    last_flag = SPGMR_PSET_FAIL_UNREC;
+    return(-1);
+  }
+  if (retval > 0) {
+    last_flag = SPGMR_PSET_FAIL_REC;
+    return(+1);
+  }
+
+  last_flag = SPGMR_SUCCESS;
   return(0);
 }
 
@@ -346,24 +353,59 @@ static int IDASpgmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   retval = SpgmrSolve(spgmr_mem, IDA_mem, xx, bb, pretype, gstype, epslin,
                       maxrs, IDA_mem, weight, weight, IDASpilsAtimes,
                       IDASpilsPSolve, &res_norm, &nli_inc, &nps_inc);
-  last_flag = retval;
+
   if (nli_inc == 0) N_VScale(ONE, SPGMR_VTEMP(spgmr_mem), bb);
   else N_VScale(ONE, xx, bb);
   
   /* Increment counters nli, nps, and return if successful. */
   nli += nli_inc;
   nps += nps_inc;
+  if (retval != SPGMR_SUCCESS) ncfl++;
 
-  if (retval == 0) return(0);
+  /* Interpret return value from SpgmrSolve */
 
-  /* If not successful, increment ncfl and return appropriate flag. */
-  ncfl++;
+  last_flag = retval;
 
-  if (retval > 0)   return(+1);
-  if (retval != -2) return(-1);
-  if (resflag > 0)  return(+1);
-  return(-1);
+  switch(retval) {
 
+  case SPGMR_SUCCESS:
+    return(0);
+    break;
+  case SPGMR_RES_REDUCED:
+    return(1);
+    break;
+  case SPGMR_CONV_FAIL:
+    return(1);
+    break;
+  case SPGMR_QRFACT_FAIL:
+    return(1);
+    break;
+  case SPGMR_PSOLVE_FAIL_REC:
+    return(1);
+    break;
+  case SPGMR_ATIMES_FAIL_REC:
+    return(1);
+    break;
+  case SPGMR_MEM_NULL:
+    return(-1);
+    break;
+  case SPGMR_ATIMES_FAIL_UNREC:
+    IDAProcessError(IDA_mem, SPGMR_ATIMES_FAIL_UNREC, "IDASPGMR", "IDASpgmrSolve", MSGS_JTIMES_FAILED);    
+    return(-1);
+    break;
+  case SPGMR_PSOLVE_FAIL_UNREC:
+    IDAProcessError(IDA_mem, SPGMR_PSOLVE_FAIL_UNREC, "IDASPGMR", "IDASpgmrSolve", MSGS_PSOLVE_FAILED);
+    return(-1);
+    break;
+  case SPGMR_GS_FAIL:
+    return(-1);
+    break;
+  case SPGMR_QRSOL_FAIL:
+    return(-1);
+    break;
+  }
+
+  return(0);
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-14 15:48:19 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 02:23:48 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -53,7 +53,6 @@ typedef struct {
   realtype s_dqincfac; /* dqincfac = optional increment factor in Jv   */
   realtype s_epslin;   /* SpgrmSolve tolerance parameter               */
 
-  int s_resflag;       /* flag from last res call                      */
   long int s_npe;      /* npe = total number of precond calls          */   
   long int s_nli;      /* nli = total number of linear iterations      */
   long int s_nps;      /* nps = total number of psolve calls           */
@@ -151,6 +150,10 @@ int IDASpilsDQJtimes(realtype tt,
 #define MSGS_NEG_MAXRS     "maxrs < 0 illegal."
 #define MSGS_NEG_EPLIFAC   "eplifac < 0.0 illegal."
 #define MSGS_NEG_DQINCFAC  "dqincfac < 0.0 illegal."
+
+#define MSGS_PSET_FAILED "The preconditioner setup routine failed in an unrecoverable manner."
+#define MSGS_PSOLVE_FAILED "The preconditioner solve routine failed in an unrecoverable manner."
+#define MSGS_JTIMES_FAILED "The Jacobian x vector routine failed in an unrecoverable manner."
 
 /* Warning Messages */
 

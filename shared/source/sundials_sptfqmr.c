@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:23 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 02:23:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -241,7 +241,9 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
   /* NOTE: if x == 0 then just set residual to b and continue */
   if (N_VDotProd(x, x) == ZERO) N_VScale(ONE, b, r_star);
   else {
-    if (atimes(A_data, x, r_star) != 0) return(SPTFQMR_ATIMES_FAIL);
+    ier = atimes(A_data, x, r_star);
+    if (ier != 0)
+      return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
     N_VLinearSum(ONE, b, -ONE, r_star, r_star);
   }
 
@@ -276,7 +278,9 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
     (*nps)++;
     if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
   }
-  if (atimes(A_data, vtemp1, v_) != 0) return(SPTFQMR_ATIMES_FAIL);
+  ier = atimes(A_data, vtemp1, v_);
+  if (ier != 0)
+    return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
   if (preOnLeft) {
     ier = psolve(P_data, v_, vtemp1, PREC_LEFT);
     (*nps)++;
@@ -319,7 +323,9 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
     }
-    if (atimes(A_data, r_[1], vtemp1) != 0) return(SPTFQMR_ATIMES_FAIL);
+    ier = atimes(A_data, r_[1], vtemp1);
+    if (ier != 0)
+      return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
     if (preOnLeft) {
       ier = psolve(P_data, vtemp1, r_[1], PREC_LEFT);
       (*nps)++;
@@ -406,7 +412,9 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 	  if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_UNREC);
 	  N_VScale(ONE, vtemp2, vtemp1);
 	}
-	if (atimes(A_data, vtemp1, vtemp2) != 0) return(SPTFQMR_ATIMES_FAIL);
+	ier = atimes(A_data, vtemp1, vtemp2);
+        if (ier != 0)
+          return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
 	if (preOnLeft) {
 	  ier = psolve(P_data, vtemp2, vtemp1, PREC_LEFT);
 	  (*nps)++;
@@ -473,7 +481,9 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
       (*nps)++;
       if (ier != 0) return((ier < 0) ? SPTFQMR_PSOLVE_FAIL_UNREC : SPTFQMR_PSOLVE_FAIL_REC);
     }
-    if (atimes(A_data, vtemp1, v_) != 0) return(SPTFQMR_ATIMES_FAIL);
+    ier = atimes(A_data, vtemp1, v_);
+    if (ier != 0)
+      return((ier < 0) ? SPTFQMR_ATIMES_FAIL_UNREC : SPTFQMR_ATIMES_FAIL_REC);
     if (preOnLeft) {
       ier = psolve(P_data, v_, vtemp1, PREC_LEFT);
       (*nps)++;

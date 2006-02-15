@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-10 21:19:15 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-15 02:23:33 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,10 +20,15 @@
 #include "cvode_impl.h"
 #include "cvode_spils_impl.h"
 
-/* Other Constants */
+/* Private constants */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO   RCONST(0.0)
+#define PT25   RCONST(0.25)
+#define ONE    RCONST(1.0)
+
+/* Algorithmic constants */
+
+#define MAX_ITERS  3  /* max. number of attempts to recover in DQ J*v */
 
 /* Readability Replacements */
 
@@ -649,27 +654,35 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
-  realtype vnrm;
-  int retval;
+  realtype sig, siginv;
+  int iter, retval;
 
   /* jac_data is cvode_mem */
   cv_mem = (CVodeMem) jac_data;
   cvspils_mem = (CVSpilsMem) lmem;
 
-  /* Evaluate norm of v */
-  vnrm = N_VWrmsNorm(v, ewt);
+  /* Initialize perturbation to 1/||v|| */
+  sig = ONE/N_VWrmsNorm(v, ewt);
 
-  /* Set work = y + (1/vnrm) v */
-  N_VLinearSum(ONE/vnrm, v, ONE, y, work);
+  for (iter=0; iter<MAX_ITERS; iter++) {
 
-  /* Set Jv = f(tn, work) */
-  retval = f(t, work, Jv, f_data); 
-  nfes++;
-  if (retval != 0) return(retval);
+    /* Set work = y + sig*v */
+    N_VLinearSum(sig, v, ONE, y, work);
 
-  /* Replace Jv by vnrm*(Jv - fy) */
-  N_VLinearSum(ONE, Jv, -ONE, fy, Jv);
-  N_VScale(vnrm, Jv, Jv);
+    /* Set Jv = f(tn, y+sig*v) */
+    retval = f(t, work, Jv, f_data); 
+    nfes++;
+    if (retval == 0) break;
+    if (retval < 0)  return(-1);
+
+    sig *= PT25;
+  }
+
+  if (retval > 0) return(+1);
+
+  /* Replace Jv by (Jv - fy)/sig */
+  siginv = ONE/sig;
+  N_VLinearSum(siginv, Jv, -siginv, fy, Jv);
 
   return(0);
 }

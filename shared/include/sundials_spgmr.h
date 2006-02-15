@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-06 23:20:50 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 02:23:22 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -252,18 +252,15 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
 #define SPGMR_CONV_FAIL          2  /* Failed to converge            */
 #define SPGMR_QRFACT_FAIL        3  /* QRfact found singular matrix  */
 #define SPGMR_PSOLVE_FAIL_REC    4  /* psolve failed recoverably     */
+#define SPGMR_ATIMES_FAIL_REC    5  /* atimes failed recoverably     */
+#define SPGMR_PSET_FAIL_REC      6  /* pset faild recoverably        */
 
 #define SPGMR_MEM_NULL          -1  /* mem argument is NULL          */
-#define SPGMR_ATIMES_FAIL       -2  /* atimes returned failure flag  */
+#define SPGMR_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag  */
 #define SPGMR_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably   */
-#define SPGMR_GS_FAIL           -4  /* Gram-Schmidt routine         
-                                       returned failure flag         */
+#define SPGMR_GS_FAIL           -4  /* Gram-Schmidt routine faiuled  */        
 #define SPGMR_QRSOL_FAIL        -5  /* QRsol found singular R        */
-
-/* Additional values useful for an interface to SPGMR */
-
-#define SPGMR_PSET_FAIL_REC      5
-#define SPGMR_PSET_FAIL_UNREC   -6
+#define SPGMR_PSET_FAIL_UNREC   -6  /* pset failed unrecoverably     */
 
 /*
  * -----------------------------------------------------------------

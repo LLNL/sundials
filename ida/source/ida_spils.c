@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-14 20:36:20 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 02:23:48 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,11 +21,16 @@
 #include "ida_impl.h"
 #include "ida_spils_impl.h"
 
-/* Constants */
+/* Private constants */
 
-#define ZERO      RCONST(0.0)
-#define ONE       RCONST(1.0)
-#define PT05      RCONST(0.05)
+#define ZERO   RCONST(0.0)
+#define PT25   RCONST(0.25)
+#define PT05   RCONST(0.05)
+#define ONE    RCONST(1.0)
+
+/* Algorithmic constants */
+
+#define MAX_ITERS  3  /* max. number of attempts to recover in DQ J*v */
 
 /* Readability Replacements */
 
@@ -47,7 +52,6 @@
 #define ycur      (idaspils_mem->s_ycur)
 #define ypcur     (idaspils_mem->s_ypcur)
 #define rcur      (idaspils_mem->s_rcur)
-#define resflag   (idaspils_mem->s_resflag)
 #define npe       (idaspils_mem->s_npe)
 #define nli       (idaspils_mem->s_nli)
 #define nps       (idaspils_mem->s_nps)
@@ -578,7 +582,7 @@ int IDASpilsDQJtimes(realtype tt,
   IDASpilsMem idaspils_mem;
   N_Vector y_tmp, yp_tmp;
   realtype sig, siginv;
-  int ires;
+  int iter, retval;
 
   /* jac_data is ida_mem */
   IDA_mem = (IDAMem) jac_data;
@@ -600,15 +604,22 @@ int IDASpilsDQJtimes(realtype tt,
   y_tmp  = work1;
   yp_tmp = work2;
 
-  /* Set y_tmp = yy + sig*v, yp_tmp = yp + cj*sig*v. */
-  N_VLinearSum(sig, v, ONE, yy, y_tmp);
-  N_VLinearSum(c_j*sig, v, ONE, yp, yp_tmp);
+  for (iter=0; iter<MAX_ITERS; iter++) {
 
-  /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-  ires = res(tt, y_tmp, yp_tmp, Jv, rdata); 
-  nres++;
-  resflag = ires;
-  if (ires != 0) return(ires);
+    /* Set y_tmp = yy + sig*v, yp_tmp = yp + cj*sig*v. */
+    N_VLinearSum(sig, v, ONE, yy, y_tmp);
+    N_VLinearSum(c_j*sig, v, ONE, yp, yp_tmp);
+    
+    /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
+    retval = res(tt, y_tmp, yp_tmp, Jv, rdata); 
+    nres++;
+    if (retval == 0) break;
+    if (retval < 0)  return(-1);
+
+    sig *= PT25;
+  }
+
+  if (retval > 0) return(+1);
 
   /* Set Jv to [Jv - rr]/sig and return. */
   siginv = ONE/sig;

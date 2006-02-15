@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-06 23:20:50 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 02:23:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -207,21 +207,18 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 
 /* Return values for SptfqmrSolve */
 
-#define SPTFQMR_SUCCESS            0  /* SPTFQMR algorithm converged       */
+#define SPTFQMR_SUCCESS            0  /* SPTFQMR algorithm converged          */
 #define SPTFQMR_RES_REDUCED        1  /* SPTFQMR did NOT converge, but the
-				         residual was reduced              */
-#define SPTFQMR_CONV_FAIL          2  /* SPTFQMR algorithm failed to
-				         converge                          */
-#define SPTFQMR_PSOLVE_FAIL_REC    3  /* psolve failed recoverably         */
-#define SPTFQMR_MEM_NULL          -1  /* mem == NULL (pointer to SPTFQMR
-				         memory block is NULL)             */
-#define SPTFQMR_ATIMES_FAIL       -2  /* atimes returned failure flag      */
-#define SPTFQMR_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably       */
+				         residual was reduced                 */
+#define SPTFQMR_CONV_FAIL          2  /* SPTFQMR algorithm failed to converge */
+#define SPTFQMR_PSOLVE_FAIL_REC    3  /* psolve failed recoverably            */
+#define SPTFQMR_ATIMES_FAIL_REC    4  /* atimes failed recoverably            */
+#define SPTFQMR_PSET_FAIL_REC      5  /* pset faild recoverably               */
 
-/* Additional values useful for an interface to SPTFQMR */
-
-#define SPTFQMR_PSET_FAIL_REC      4
-#define SPTFQMR_PSET_FAIL_UNREC   -4
+#define SPTFQMR_MEM_NULL          -1  /* mem argument is NULL                 */
+#define SPTFQMR_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag         */
+#define SPTFQMR_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably          */
+#define SPTFQMR_PSET_FAIL_UNREC   -4  /* pset failed unrecoverably            */
 
 /*
  * -----------------------------------------------------------------

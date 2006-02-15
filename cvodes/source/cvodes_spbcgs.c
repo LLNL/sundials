@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-10 00:02:20 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-15 02:23:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -334,6 +334,8 @@ static int CVSpbcgSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlpre = nst;
   }
 
+  last_flag = SPBCG_SUCCESS;
+
   /* Return the same value that pset returned */
   return(retval);
 }
@@ -399,7 +401,7 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* Increment counters nli, nps, and ncfl */
   nli += nli_inc;
   nps += nps_inc;
-  if (retval != 0) ncfl++;
+  if (retval != SPBCG_SUCCESS) ncfl++;
 
   /* Interpret return value from SpbcgSolve */
 
@@ -420,11 +422,14 @@ static int CVSpbcgSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   case SPBCG_PSOLVE_FAIL_REC:
     return(1);
     break;
+  case SPBCG_ATIMES_FAIL_REC:
+    return(1);
+    break;
   case SPBCG_MEM_NULL:
     return(-1);
     break;
-  case SPBCG_ATIMES_FAIL:
-    CVProcessError(cv_mem, SPBCG_ATIMES_FAIL, "CVSPBCG", "CVSpbcgSolve", MSGS_JTIMES_FAILED);    
+  case SPBCG_ATIMES_FAIL_UNREC:
+    CVProcessError(cv_mem, SPBCG_ATIMES_FAIL_UNREC, "CVSPBCG", "CVSpbcgSolve", MSGS_JTIMES_FAILED);    
     return(-1);
     break;
   case SPBCG_PSOLVE_FAIL_UNREC:

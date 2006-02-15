@@ -3616,20 +3616,15 @@ return value from a linear solver function.
 }
 {
   If the {\cvspils} setup function failed (\id{CVode} returned
-  \id{CV\_LSETUP\_FAIL}), \id{lsflag} contains the return value of the
-  preconditioner setup function \id{psetup}.
+  \id{CV\_LSETUP\_FAIL}), \id{lsflag} will be \id{SPGMR\_PSET\_FAIL\_UNREC},
+  \id{SPBCG\_PSET\_FAIL\_UNREC}, or \id{SPTFQMR\_PSET\_FAIL\_UNREC}.
 
   If the {\cvspgmr} solve function failed (\id{CVode} returned
   \id{CV\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
   \id{SpgmrSolve} and will be one of:
-  \id{SPGMR\_CONV\_FAIL}, indicating a failure to converge;
-  \id{SPGMR\_QRFACT\_FAIL}, indicating a singular matrix found during the QR
-  factorization;
-  \id{SPGMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve function
-  \id{psolve} failed recoverably;
   \id{SPGMR\_MEM\_NULL}, indicating that the {\spgmr} memory is \id{NULL};
-  \id{SPGMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian-times-vector
-  function;
+  \id{SPGMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
+  Jacobian-times-vector function;
   \id{SPGMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
   \id{SPGMR\_GS\_FAIL}, indicating a failure in the Gram-Schmidt procedure; 
@@ -3639,24 +3634,18 @@ return value from a linear solver function.
   If the {\cvspbcg} solve function failed (\id{CVode} returned
   \id{CV\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
   \id{SpbcgSolve} and will be one of:
-  \id{SPBCG\_CONV\_FAIL}, indicating a failure to converge;
-  \id{SPBCG\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve function
-  \id{psolve} failed recoverably;
   \id{SPBCG\_MEM\_NULL}, indicating that the {\spbcg} memory is \id{NULL};
-  \id{SPBCG\_ATIMES\_FAIL}, indicating a failure in the Jacobian-times-vector
-  function; or
+  \id{SPBCG\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
+  Jacobian-times-vector function; or
   \id{SPBCG\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably.
 
   If the {\cvsptfqmr} solve function failed (\id{CVode} returned
   \id{CV\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
   \id{SptfqmrSolve} and will be one of:
-  \id{SPTFQMR\_CONV\_FAIL}, indicating a failure to converge;
-  \id{SPTFQMR\_PSOLVE\_FAIL\_REC}, indicating that the preconditioner solve function
-  \id{psolve} failed recoverably;
   \id{SPTFQMR\_MEM\_NULL}, indicating that the {\sptfqmr} memory is \id{NULL};
-  \id{SPTFQMR\_ATIMES\_FAIL}, indicating a failure in the Jacobian-times-vector
-  function; or
+  \id{SPTFQMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
+  Jacobian-times-vector function; or
   \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably.
 }

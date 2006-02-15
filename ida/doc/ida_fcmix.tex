@@ -632,23 +632,7 @@ apply to {\nvecp}.
   with the additional constraint \id{tstop}.
   \id{IER} is a completion flag and will be set to a positive value upon
   successful return or to a negative value if an error occurred. These values
-  correspond to the \id{IDASolve} returns (see \S\ref{sss:idasolve}) as follows:\\
-  $0$: \Id{IDA\_SUCCESS}, 
-  $1$: \Id{IDA\_TSTOP\_RETURN}, 
-  $2$: \Id{IDA\_ROOT\_RETURN},\\
-  $-1$: \Id{IDA\_MEM\_NULL}, 
-  $-2$: \Id{IDA\_ILL\_INPUT}, 
-  $-3$: \Id{IDA\_NO\_MALLOC},
-  $-4$: \Id{IDA\_TOO\_MUCH\_WORK},\\ 
-  $-5$: \Id{IDA\_TOO\_MUCH\_ACC},
-  $-6$: \Id{IDA\_ERR\_FAIL}, 
-  $-7$: \Id{IDA\_CONV\_FAIL},
-  $-8$: \Id{IDA\_LINIT\_FAIL},\\
-  $-9$: \Id{IDA\_LSETUP\_FAIL},
-  $-10$: \Id{IDA\_LSOLVE\_FAIL}, 
-  $-11$: \Id{IDA\_RES\_FAIL},
-  $-12$: \Id{IDA\_CONSTR\_FAIL}, and
-  $-13$: \Id{IDA\_REP\_RES\_ERR}.\\
+  correspond to the \id{IDASolve} returns (see \S\ref{sss:idasolve} and \S\ref{s:ida_out_constants}).
   The current values of the optional outputs are available in \id{IOUT} and
   \id{ROUT} (see Table~\ref{t:fida_out}).
   

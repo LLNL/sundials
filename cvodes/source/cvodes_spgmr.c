@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-10 00:02:20 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-15 02:23:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -331,6 +331,8 @@ static int CVSpgmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlpre = nst;
   }
 
+  last_flag = SPGMR_SUCCESS;
+
   /* Return the same value that pset returned */
   return(retval);
 }
@@ -396,7 +398,7 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* Increment counters nli, nps, and ncfl */
   nli += nli_inc;
   nps += nps_inc;
-  if (retval != 0) ncfl++;
+  if (retval != SPGMR_SUCCESS) ncfl++;
 
   /* Interpret return value from SpgmrSolve */
 
@@ -420,11 +422,14 @@ static int CVSpgmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   case SPGMR_PSOLVE_FAIL_REC:
     return(1);
     break;
+  case SPGMR_ATIMES_FAIL_REC:
+    return(1);
+    break;
   case SPGMR_MEM_NULL:
     return(-1);
     break;
-  case SPGMR_ATIMES_FAIL:
-    CVProcessError(cv_mem, SPGMR_ATIMES_FAIL, "CVSPGMR", "CVSpgmrSolve", MSGS_JTIMES_FAILED);    
+  case SPGMR_ATIMES_FAIL_UNREC:
+    CVProcessError(cv_mem, SPGMR_ATIMES_FAIL_UNREC, "CVSPGMR", "CVSpgmrSolve", MSGS_JTIMES_FAILED);    
     return(-1);
     break;
   case SPGMR_PSOLVE_FAIL_UNREC:

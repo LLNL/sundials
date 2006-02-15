@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:34:37 $
+ * $Revision: 1.4 $
+ * $Date: 2006-02-15 02:23:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -75,7 +75,6 @@ static int IDASptfqmrFree(IDAMem IDA_mem);
 #define ycur        (idaspils_mem->s_ycur)
 #define ypcur       (idaspils_mem->s_ypcur)
 #define rcur        (idaspils_mem->s_rcur)
-#define resflag     (idaspils_mem->s_resflag)
 #define npe         (idaspils_mem->s_npe)
 #define nli         (idaspils_mem->s_nli)
 #define nps         (idaspils_mem->s_nps)
@@ -299,10 +298,18 @@ static int IDASptfqmrSetup(IDAMem IDA_mem,
                 tmp1, tmp2, tmp3);
   npe++;
 
-  last_flag = retval;
-  /* Return flag showing success or failure of pset */
-  if (retval < 0) return(-1);
-  if (retval > 0) return(+1);
+  if (retval < 0) {
+    IDAProcessError(IDA_mem, SPTFQMR_PSET_FAIL_UNREC, "IDASPTFQMR", "IDASptfqmrSetup", MSGS_PSET_FAILED);
+    last_flag = SPTFQMR_PSET_FAIL_UNREC;
+    return(-1);
+  }
+  if (retval > 0) {
+    last_flag = SPTFQMR_PSET_FAIL_REC;
+    return(+1);
+  }
+
+  last_flag = SPTFQMR_SUCCESS;
+
   return(0);
 }
 
@@ -352,23 +359,50 @@ static int IDASptfqmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   retval = SptfqmrSolve(sptfqmr_mem, IDA_mem, xx, bb, pretype, epslin,
                       IDA_mem, weight, weight, IDASpilsAtimes,
                       IDASpilsPSolve, &res_norm, &nli_inc, &nps_inc);
-  last_flag = retval;
+
   if (nli_inc == 0) N_VScale(ONE, SPTFQMR_VTEMP(sptfqmr_mem), bb);
   else N_VScale(ONE, xx, bb);
   
   /* Increment counters nli, nps, and return if successful */
   nli += nli_inc;
   nps += nps_inc;
+  if (retval != SPTFQMR_SUCCESS) ncfl++;
 
-  if (retval == 0) return(0);
+    /* Interpret return value from SpgmrSolve */
 
-  /* If not successful, increment ncfl and return appropriate flag */
-  ncfl++;
+  last_flag = retval;
 
-  if (retval > 0)   return(+1);
-  if (retval != -2) return(-1);
-  if (resflag > 0)  return(+1);
-  return(-1);
+  switch(retval) {
+
+  case SPTFQMR_SUCCESS:
+    return(0);
+    break;
+  case SPTFQMR_RES_REDUCED:
+    return(1);
+    break;
+  case SPTFQMR_CONV_FAIL:
+    return(1);
+    break;
+  case SPTFQMR_PSOLVE_FAIL_REC:
+    return(1);
+    break;
+  case SPTFQMR_ATIMES_FAIL_REC:
+    return(1);
+    break;
+  case SPTFQMR_MEM_NULL:
+    return(-1);
+    break;
+  case SPTFQMR_ATIMES_FAIL_UNREC:
+    IDAProcessError(IDA_mem, SPTFQMR_ATIMES_FAIL_UNREC, "IDASPTFQMR", "IDASptfqmrSolve", MSGS_JTIMES_FAILED);    
+    return(-1);
+    break;
+  case SPTFQMR_PSOLVE_FAIL_UNREC:
+    IDAProcessError(IDA_mem, SPTFQMR_PSOLVE_FAIL_UNREC, "IDASPTFQMR", "IDASptfqmrSolve", MSGS_PSOLVE_FAILED);
+    return(-1);
+    break;
+  }
+
+  return(0);
 }
 
 /*

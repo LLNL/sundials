@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-10 00:02:20 $
+ * $Revision: 1.10 $
+ * $Date: 2006-02-15 02:23:40 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -331,6 +331,8 @@ static int CVSptfqmrSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     nstlpre = nst;
   }
 
+  last_flag = SPTFQMR_SUCCESS;
+
   /* Return the same value that pset returned */
   return(retval);
 }
@@ -396,7 +398,7 @@ static int CVSptfqmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* Increment counters nli, nps, and ncfl */
   nli += nli_inc;
   nps += nps_inc;
-  if (retval != 0) ncfl++;
+  if (retval != SPTFQMR_SUCCESS) ncfl++;
 
   /* Interpret return value from SpgmrSolve */
 
@@ -417,11 +419,14 @@ static int CVSptfqmrSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   case SPTFQMR_PSOLVE_FAIL_REC:
     return(1);
     break;
+  case SPTFQMR_ATIMES_FAIL_REC:
+    return(1);
+    break;
   case SPTFQMR_MEM_NULL:
     return(-1);
     break;
-  case SPTFQMR_ATIMES_FAIL:
-    CVProcessError(cv_mem, SPTFQMR_ATIMES_FAIL, "CVSPTFQMR", "CVSptfqmrSolve", MSGS_JTIMES_FAILED);    
+  case SPTFQMR_ATIMES_FAIL_UNREC:
+    CVProcessError(cv_mem, SPTFQMR_ATIMES_FAIL_UNREC, "CVSPTFQMR", "CVSptfqmrSolve", MSGS_JTIMES_FAILED);    
     return(-1);
     break;
   case SPTFQMR_PSOLVE_FAIL_UNREC:

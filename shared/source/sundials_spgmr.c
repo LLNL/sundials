@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 23:08:23 $
+ * $Revision: 1.3 $
+ * $Date: 2006-02-15 02:23:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -206,8 +206,9 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
   if (N_VDotProd(x, x) == ZERO) {
     N_VScale(ONE, b, vtemp);
   } else {
-    if (atimes(A_data, x, vtemp) != 0)
-      return(SPGMR_ATIMES_FAIL);
+    ier = atimes(A_data, x, vtemp);
+    if (ier != 0)
+      return((ier < 0) ? SPGMR_ATIMES_FAIL_UNREC : SPGMR_ATIMES_FAIL_REC);
     N_VLinearSum(ONE, b, -ONE, vtemp, vtemp);
   }
   N_VScale(ONE, vtemp, V[0]);
@@ -287,8 +288,9 @@ int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
       
       /* Apply A: V[l+1] = A P2_inv s2_inv V[l]. */
 
-      if (atimes(A_data, vtemp, V[l_plus_1] ) != 0)
-        return(SPGMR_ATIMES_FAIL);
+      ier = atimes(A_data, vtemp, V[l_plus_1] );
+      if (ier != 0)
+        return((ier < 0) ? SPGMR_ATIMES_FAIL_UNREC : SPGMR_ATIMES_FAIL_REC);
       
       /* Apply left preconditioning: vtemp = P1_inv A P2_inv s2_inv V[l]. */
 
