@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.76 $
- * $Date: 2006-02-10 03:50:49 $
+ * $Revision: 1.77 $
+ * $Date: 2006-02-16 01:29:15 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -412,8 +412,10 @@ static booleantype CVCheckNvector(N_Vector tmpl);
 
 static booleantype CVAllocVectors(CVodeMem cv_mem, N_Vector tmpl, int tol);
 static void CVFreeVectors(CVodeMem cv_mem);
+
 static booleantype CVQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void CVQuadFreeVectors(CVodeMem cv_mem);
+
 static booleantype CVSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void CVSensFreeVectors(CVodeMem cv_mem);
 
@@ -426,15 +428,18 @@ static int CVYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm);
 /* Initial setup */
 
 static int CVInitialSetup(CVodeMem cv_mem);
+
 static int CVEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 static int CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
-static int CVQuadEwtSet(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem);
-static int CVQuadEwtSetSS(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem);
-static int CVQuadEwtSetSV(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem);
-static int CVSensEwtSet(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem);
-static int CVSensEwtSetEE(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem);
-static int CVSensEwtSetSS(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem);
-static int CVSensEwtSetSV(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem);
+
+static int CVQuadEwtSet(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ);
+static int CVQuadEwtSetSS(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ);
+static int CVQuadEwtSetSV(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ);
+
+static int CVSensEwtSet(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS);
+static int CVSensEwtSetEE(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS);
+static int CVSensEwtSetSS(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS);
+static int CVSensEwtSetSV(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS);
 
 /* Main CVStep function */
 
@@ -465,17 +470,22 @@ static int CVNls(CVodeMem cv_mem, int nflag);
 static int CVNlsFunctional(CVodeMem cv_mem);
 static int CVNlsNewton(CVodeMem cv_mem, int nflag);
 static int CVNewtonIteration(CVodeMem cv_mem);
+
 static int CVQuadNls(CVodeMem cv_mem);
+
 static int CVStgrNls(CVodeMem cv_mem);
 static int CVStgrNlsFunctional(CVodeMem cv_mem);
 static int CVStgrNlsNewton(CVodeMem cv_mem);
 static int CVStgrNewtonIteration(CVodeMem cv_mem);
+
 static int CVStgr1Nls(CVodeMem cv_mem, int is);
 static int CVStgr1NlsFunctional(CVodeMem cv_mem, int is);
 static int CVStgr1NlsNewton(CVodeMem cv_mem, int is);
 static int CVStgr1NewtonIteration(CVodeMem cv_mem, int is);
+
 static int CVHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *ncfPtr, long int *ncfnPtr);
+
 static void CVRestore(CVodeMem cv_mem, realtype saved_t);
 
 /* Error Test */
@@ -502,7 +512,7 @@ static int CVHandleFailure(CVodeMem cv_mem,int flag);
 static void CVBDFStab(CVodeMem cv_mem);
 static int CVsldet(CVodeMem cv_mem);
 
-/* * Functions for rootfinding */
+/* Functions for rootfinding */
 
 static int CVRcheck1(CVodeMem cv_mem);
 static int CVRcheck2(CVodeMem cv_mem);
@@ -2000,12 +2010,12 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       ewtsetOK = efun(zn[0], ewt, e_data);
  
       if (sensi)
-        ewtSsetOK = CVSensEwtSet(znS[0], ewtS, cv_mem);
+        ewtSsetOK = CVSensEwtSet(cv_mem, znS[0], ewtS);
       else
         ewtSsetOK = 0;
 
       if (quadr && errconQ)
-        ewtQsetOK = CVQuadEwtSet(znQ[0], ewtQ, cv_mem);
+        ewtQsetOK = CVQuadEwtSet(cv_mem, znQ[0], ewtQ);
       else
         ewtQsetOK = 0;
         
@@ -3149,7 +3159,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
     tempQ2 = acorQ;
 
     N_VAbs(znQ[0], tempQ2);
-    CVQuadEwtSet(znQ[0], tempQ1, cv_mem);
+    CVQuadEwtSet(cv_mem, znQ[0], tempQ1);
     N_VInv(tempQ1, tempQ1);
     N_VLinearSum(HUB_FACTOR, tempQ2, ONE, tempQ1, tempQ1);
     
@@ -3167,7 +3177,7 @@ static realtype CVUpperBoundH0(CVodeMem cv_mem, realtype tdist)
   if (sensi && errconS) {
 
     tempS1 = acorS;
-    CVSensEwtSet(znS[0], tempS1, cv_mem);
+    CVSensEwtSet(cv_mem, znS[0], tempS1);
 
     for (is=0; is<Ns; is++) {
 
@@ -3321,7 +3331,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
   if (quadr && errconQ) {
 
     /* Load ewtQ */
-    ewtsetOK = CVQuadEwtSet(znQ[0], ewtQ, cv_mem);
+    ewtsetOK = CVQuadEwtSet(cv_mem, znQ[0], ewtQ);
     if (ewtsetOK != 0) {
       CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVInitialSetup", MSGCV_BAD_EWTQ);
       return(CV_ILL_INPUT);
@@ -3342,7 +3352,7 @@ static int CVInitialSetup(CVodeMem cv_mem)
     }    
 
     /* Load ewtS */
-    ewtsetOK = CVSensEwtSet(znS[0], ewtS, cv_mem);
+    ewtsetOK = CVSensEwtSet(cv_mem, znS[0], ewtS);
     if (ewtsetOK != 0) {
       CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVInitialSetup", MSGCV_BAD_EWTS);
       return(CV_ILL_INPUT);
@@ -3454,16 +3464,16 @@ static int CVEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
  *
  */
 
-static int CVQuadEwtSet(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem)
+static int CVQuadEwtSet(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 {
   int flag=0;
 
   switch (itolQ) {
   case CV_SS: 
-    flag = CVQuadEwtSetSS(qcur, weightQ, cv_mem);
+    flag = CVQuadEwtSetSS(cv_mem, qcur, weightQ);
     break;
   case CV_SV: 
-    flag = CVQuadEwtSetSV(qcur, weightQ, cv_mem);
+    flag = CVQuadEwtSetSV(cv_mem, qcur, weightQ);
     break;
   }
 
@@ -3476,7 +3486,7 @@ static int CVQuadEwtSet(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem)
  *
  */
 
-static int CVQuadEwtSetSS(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem)
+static int CVQuadEwtSetSS(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 {
   N_VAbs(qcur, tempvQ);
   N_VScale(reltolQ, tempvQ, tempvQ);
@@ -3492,7 +3502,7 @@ static int CVQuadEwtSetSS(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem)
  *
  */
 
-static int CVQuadEwtSetSV(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem)
+static int CVQuadEwtSetSV(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
 {
   N_VAbs(qcur, tempvQ);
   N_VLinearSum(reltolQ, tempvQ, ONE, VabstolQ, tempvQ);
@@ -3507,19 +3517,19 @@ static int CVQuadEwtSetSV(N_Vector qcur, N_Vector weightQ, CVodeMem cv_mem)
  *
  */
 
-static int CVSensEwtSet(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem)
+static int CVSensEwtSet(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 {
   int flag=0;
 
   switch (itolS) {
   case CV_EE:
-    flag = CVSensEwtSetEE(yScur, weightS, cv_mem);
+    flag = CVSensEwtSetEE(cv_mem, yScur, weightS);
     break;
   case CV_SS: 
-    flag = CVSensEwtSetSS(yScur, weightS, cv_mem);
+    flag = CVSensEwtSetSS(cv_mem, yScur, weightS);
     break;
   case CV_SV: 
-    flag = CVSensEwtSetSV(yScur, weightS, cv_mem);
+    flag = CVSensEwtSetSV(cv_mem, yScur, weightS);
     break;
   }
 
@@ -3539,7 +3549,7 @@ static int CVSensEwtSet(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem)
  *
  */
 
-static int CVSensEwtSetEE(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem)
+static int CVSensEwtSetEE(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 {
   int is;
   N_Vector pyS;
@@ -3563,7 +3573,7 @@ static int CVSensEwtSetEE(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem)
  *
  */
 
-static int CVSensEwtSetSS(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem)
+static int CVSensEwtSetSS(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 {
   int is;
   
@@ -3582,7 +3592,7 @@ static int CVSensEwtSetSS(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem)
  *
  */
 
-static int CVSensEwtSetSV(N_Vector *yScur, N_Vector *weightS, CVodeMem cv_mem)
+static int CVSensEwtSetSV(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
 {
   int is;
   
