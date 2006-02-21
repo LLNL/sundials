@@ -16,45 +16,49 @@ Briefly, their purposes are as follows:
 \end{itemize}
 %%
 %%
-A linear solver module must also provide a user-callable specification function
-(like those described in \S\ref{sss:lin_solv_init}) which will attach the above four 
-functions to the main {\cvodes} memory block. 
-The {\cvodes} memory block is a structure defined in the header file \id{cvodes\_impl.h}. 
+A linear solver module must also provide a user-callable specification
+function (like those described in \S\ref{sss:lin_solv_init}) which
+will attach the above four functions to the main {\cvodes} memory block.
+The {\cvodes} memory block is a structure defined in the header file
+\id{cvodes\_impl.h}.
 A pointer to such a structure is defined as the type \id{CVodeMem}. 
-The four fields in a \id{CvodeMem} structure that must point to the linear solver's 
-functions are \id{cv\_linit}, \id{cv\_lsetup}, \id{cv\_lsolve}, and \id{cv\_lfree}, respectively.
-Note that of the four interface functions, only the \id{lsolve} function is required. 
-The \id{lfree} function must be provided only if the solver specification function
-makes any memory allocation.
+The four fields in a \id{CvodeMem} structure that must point to the
+linear solver's functions are \id{cv\_linit}, \id{cv\_lsetup},
+\id{cv\_lsolve}, and \id{cv\_lfree}, respectively.
+Note that of the four interface functions, only the \id{lsolve}
+function is required.  The \id{lfree} function must be provided only
+if the solver specification function makes any memory allocation.
 %%
-For consistency with the existing {\cvodes} linear solver modules, we recommend that the 
-return value of the specification function be 0 for a successful return or a negative value 
-if an error occurs (the pointer to the main {\cvodes} memory block is \id{NULL}, 
-an input is illegal, the {\nvector} implementation is not compatible, a memory allocation 
-fails, etc.)
+For consistency with the existing {\cvodes} linear solver modules, we
+recommend that the return value of the specification function be 0 for
+a successful return or a negative value if an error occurs (the
+pointer to the main {\cvodes} memory block is \id{NULL}, an input is
+illegal, the {\nvector} implementation is not compatible, a memory
+allocation fails, etc.)
 
-To facilitate data exchange between the four interface functions, the field \id{cv\_lmem}
-in the {\cvodes} memory block can be used to attach a linear solver-specific memory
-block.
+To facilitate data exchange between the four interface functions, the
+field \id{cv\_lmem} in the {\cvodes} memory block can be used to
+attach a linear solver-specific memory block.
 
 
-\vspace{0.1in}
-To be used during the backward integration with the {\cvodea} module, a linear solver module 
-must also provide an additional user-callable specification function (like those described in
-\S\ref{sss:lin_solv_b}) which will attach the four functions to the {\cvodes} memory block for the
-backward integration. Note that this block (of type \id{struct CVodeMemRec}) is not
-directly accessible to the user, but rather is itself a field (\id{cvb\_mem}) in the {\cvodea}
-memory block. 
-The {\cvodea} memory block is a structure defined in the header file \id{cvodea\_impl.h}. 
-A pointer to such a structure is defined as the type \id{CVadjMem}.
+To be used during the backward integration with the {\cvodea} module,
+a linear solver module must also provide an additional user-callable
+specification function (like those described in
+\S\ref{sss:lin_solv_b}) which will attach the four functions to the
+{\cvodes} memory block for the backward integration. Note that this
+block (of type \id{struct CVodeMemRec}) is not directly accessible to
+the user, but rather is itself a field (\id{cvb\_mem}) in the
+{\cvodea} memory block.  The {\cvodea} memory block is a structure
+defined in the header file \id{cvodea\_impl.h}.  A pointer to such a
+structure is defined as the type \id{CVadjMem}.
 %%
-The specification function for backward integration should also return a negative value
-if the adjoint {\cvodea} memory block is \id{NULL}.
+The specification function for backward integration should also return
+a negative value if the adjoint {\cvodea} memory block is \id{NULL}.
 
-An additional field (\id{ca\_lmemB}) in the {\cvodea} memory block provides a hook-up for
-optionally attaching a linear solver-specific memory block.
+An additional field (\id{ca\_lmemB}) in the {\cvodea} memory block
+provides a hook-up for optionally attaching a linear solver-specific
+memory block.
 
-\vspace{0.1in}
 The four functions that interface between {\cvodes} and the linear solver module
 necessarily have fixed call sequences.  Thus, a user wishing to implement another 
 linear solver within the {\cvodes} package must adhere to this set of interfaces.
@@ -115,22 +119,22 @@ The type definition of \id{lsetup} is
      is an input flag used to indicate any problem that occurred during  
      the solution of the nonlinear equation on the current time step for which 
      the linear solver is being used. This flag can be used to help decide     
-     whether the Jacobian data kept by a {\cvodes} linear solver needs to be updated 
-     or not. Its possible values are:
+     whether the Jacobian data kept by a {\cvodes} linear solver needs to be
+     updated or not. Its possible values are:
      \begin{itemize}
      \item \id{NO\_FAILURES}: this value is passed to \id{lsetup} if 
-       either this is the first call for this step, or the local error test failed on the 
-       previous attempt at this step (but the Newton iteration converged).
+       either this is the first call for this step, or the local error test failed
+       on the previous attempt at this step (but the Newton iteration converged).
      \item \id{FAIL\_BAD\_J}: this value is passed to \id{lsetup} if
-       (a) the previous Newton corrector iteration did not converge and the linear solver's      
-       setup function indicated that its Jacobian-related data is not current,
-       or                            
-       (b) during the previous Newton corrector iteration, the linear solver's solve function  
-       failed in a recoverable manner and the linear solver's setup function indicated that  
-       its Jacobian-related data is not current.
-     \item \id{FAIL\_OTHER}: this value is passed to \id{lsetup} if 
-       during the current internal step try, the previous Newton iteration failed to 
-       converge even though the linear solver was using current Jacobian-related data.
+       (a) the previous Newton corrector iteration did not converge and the linear
+       solver's setup function indicated that its Jacobian-related data is not
+       current, or                            
+       (b) during the previous Newton corrector iteration, the linear solver's
+       solve function failed in a recoverable manner and the linear solver's setup
+       function indicated that its Jacobian-related data is not current.
+     \item \id{FAIL\_OTHER}: this value is passed to \id{lsetup} if during the
+       current internal step try, the previous Newton iteration failed to converge
+       even though the linear solver was using current Jacobian-related data.
      \end{itemize}
   
    \item[ypred]
@@ -174,8 +178,8 @@ The type definition of \id{lsolve} is
 }
 {
   The function \id{lsolve} must solve the linear equation $M x = b$, where         
-  $M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$  
-  and the right-hand side vector $b$ is input. 
+  $M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$
+  (see Eq.(\ref{e:Newtonmat})), and the right-hand side vector $b$ is input. 
 }
 {
   \begin{args}[cv\_mem]
@@ -186,7 +190,7 @@ The type definition of \id{lsolve} is
     returned in the vector \id{b}.
   \item[weight]
     is a vector that contains the error weights.
-    These are the reciprocals of the $W_i$ of (\ref{e:errwt}).
+    These are the $W_i$ of Eq.(\ref{e:errwt}).
   \item[ycur]
     is a vector that contains the solver's current approximation to $y(t_n)$.
   \item[fcur]
