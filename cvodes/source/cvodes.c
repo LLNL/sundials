@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.77 $
- * $Date: 2006-02-16 01:29:15 $
+ * $Revision: 1.78 $
+ * $Date: 2006-02-21 23:05:29 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -876,7 +876,7 @@ int CVodeMalloc(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0,
 /*
  * CVodeReInit
  *
- * CVodeReInit re-initializes CVODES' memory for a problem, assuming
+ * CVodeReInit re-initializes CVODES's memory for a problem, assuming
  * it has already been allocated in a prior CVodeMalloc call.
  * All problem specification inputs are checked for errors.
  * If any error occurs during initialization, it is reported to the
@@ -1233,9 +1233,9 @@ int CVodeQuadMalloc(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
 /*
  * CVodeQuadReInit
  *
- * CVodeQuadReInit re-initializes CVODES' quadrature related memory 
+ * CVodeQuadReInit re-initializes CVODES's quadrature related memory 
  * for a problem, assuming it has already been allocated in prior 
- * calls to CVodeMalloc and CvodeQuadMalloc. 
+ * calls to CVodeMalloc and CVodeQuadMalloc. 
  * All problem specification inputs are checked for errors.
  * If any error occurs during initialization, it is reported to the
  * file whose file pointer is errfp.
@@ -1405,7 +1405,7 @@ int CVodeSensMalloc(void *cvode_mem, int Ns, int ism, N_Vector *yS0)
 /*
  * CVodeSensReInit
  *
- * CVodeSensReInit re-initializes CVODES' sensitivity related memory 
+ * CVodeSensReInit re-initializes CVODES's sensitivity related memory 
  * for a problem, assuming it has already been allocated in prior 
  * calls to CVodeMalloc and CVodeSensMalloc. 
  * All problem specification inputs are checked for errors.
@@ -1710,7 +1710,6 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   CVodeMem cv_mem;
   long int nstloc; 
   int retval, hflag, kflag, istate, is, ier, task, irfndp;
-  int ewtsetOK, ewtSsetOK, ewtQsetOK;
   realtype troundoff, rh, nrm;
 
   /* Check if cvode_mem exists */
@@ -2003,41 +2002,40 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     next_h = h;
     next_q = q;
     
-    /* Reset and check ewt */
+    /* Reset and check ewt, ewtQ, ewtS */
 
     if (nst > 0) {
 
-      ewtsetOK = efun(zn[0], ewt, e_data);
- 
-      if (sensi)
-        ewtSsetOK = CVSensEwtSet(cv_mem, znS[0], ewtS);
-      else
-        ewtSsetOK = 0;
-
-      if (quadr && errconQ)
-        ewtQsetOK = CVQuadEwtSet(cv_mem, znQ[0], ewtQ);
-      else
-        ewtQsetOK = 0;
-        
-      if ( (ewtsetOK != 0) || (ewtSsetOK != 0) || (ewtQsetOK != 0) ) {
-
-	if(ewtsetOK != 0)  
-          if (itol == CV_WF) 
-            CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWT_NOW_FAIL, tn);
-          else               
-            CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWT_NOW_BAD, tn);
-
-        if(ewtSsetOK != 0) 
-          CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWTS_NOW_BAD, tn);
-
-	if(ewtQsetOK != 0) 
-          CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWTQ_NOW_BAD, tn);
-
+      ier = efun(zn[0], ewt, e_data);
+      if(ier != 0) {
+        if (itol == CV_WF) CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWT_NOW_FAIL, tn);
+        else               CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWT_NOW_BAD, tn);
         istate = CV_ILL_INPUT;
         tretlast = *tret = tn;
         N_VScale(ONE, zn[0], yout);
         break;
+      }
 
+      if (quadr && errconQ) {
+        ier = CVQuadEwtSet(cv_mem, znQ[0], ewtQ);
+        if(ier != 0) {
+          CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWTQ_NOW_BAD, tn);
+          istate = CV_ILL_INPUT;
+          tretlast = *tret = tn;
+          N_VScale(ONE, zn[0], yout);
+          break;
+        }
+      }
+
+      if (sensi) {
+        ier = CVSensEwtSet(cv_mem, znS[0], ewtS);
+        if (ier != 0) {
+          CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_EWTS_NOW_BAD, tn);
+          istate = CV_ILL_INPUT;
+          tretlast = *tret = tn;
+          N_VScale(ONE, zn[0], yout);
+          break;
+        }
       }
 
     }
@@ -2255,7 +2253,7 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
  * CVodeGetQuad
  *
  * This routine extracts quadrature solution into yQout.
- * This is just a wrapper that calls CvodeGEtQuadDky with k=0                    
+ * This is just a wrapper that calls CVodeGetQuadDky with k=0                    
  */
  
 int CVodeGetQuad(void *cvode_mem, realtype t, N_Vector yQout)
@@ -2340,7 +2338,7 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dkyQ)
  * CVodeGetSens
  *
  * This routine extracts sensitivity solution into ySout.
- * This is just a wrapper that calls CvodeSensDky with k=0                    
+ * This is just a wrapper that calls CVodeSensDky with k=0                    
  */
  
 int CVodeGetSens(void *cvode_mem, realtype t, N_Vector *ySout)
@@ -2352,7 +2350,7 @@ int CVodeGetSens(void *cvode_mem, realtype t, N_Vector *ySout)
  * CVodeGetSens1
  *
  * This routine extracts the is-th sensitivity solution into ySout.
- * This is just a wrapper that calls CvodeSensDky1 with k=0                    
+ * This is just a wrapper that calls CVodeSensDky1 with k=0                    
  */
  
 int CVodeGetSens1(void *cvode_mem, realtype t, int is, N_Vector ySout)
@@ -3301,7 +3299,6 @@ static int CVYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 static int CVInitialSetup(CVodeMem cv_mem)
 {
   int ier;
-  int ewtsetOK;
 
   /* Did the user provide efun? */
 
@@ -3315,8 +3312,8 @@ static int CVInitialSetup(CVodeMem cv_mem)
     }
   }
 
-  ewtsetOK = efun(zn[0], ewt, e_data);
-  if (ewtsetOK != 0) {
+  ier = efun(zn[0], ewt, e_data);
+  if (ier != 0) {
 
     if (itol == CV_WF) 
       CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVInitialSetup", MSGCV_EWT_FAIL);
@@ -3331,8 +3328,8 @@ static int CVInitialSetup(CVodeMem cv_mem)
   if (quadr && errconQ) {
 
     /* Load ewtQ */
-    ewtsetOK = CVQuadEwtSet(cv_mem, znQ[0], ewtQ);
-    if (ewtsetOK != 0) {
+    ier = CVQuadEwtSet(cv_mem, znQ[0], ewtQ);
+    if (ier != 0) {
       CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVInitialSetup", MSGCV_BAD_EWTQ);
       return(CV_ILL_INPUT);
     }
@@ -3352,8 +3349,8 @@ static int CVInitialSetup(CVodeMem cv_mem)
     }    
 
     /* Load ewtS */
-    ewtsetOK = CVSensEwtSet(cv_mem, znS[0], ewtS);
-    if (ewtsetOK != 0) {
+    ier = CVSensEwtSet(cv_mem, znS[0], ewtS);
+    if (ier != 0) {
       CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVInitialSetup", MSGCV_BAD_EWTS);
       return(CV_ILL_INPUT);
     }
@@ -6870,7 +6867,7 @@ static realtype CVStgrUpdateDsm(CVodeMem cv_mem, realtype old_dsm,
  * calls the fS1 routine in a loop over all sensitivities.
  *
  * CVSensRhs is called:
- *  (*) by Cvode at the first step
+ *  (*) by CVode at the first step
  *  (*) by CVYddNorm if errcon=TRUE
  *  (*) by CVNlsFunctional, CVNlsNewton, and CVNewtonIteration
  *      if ism=CV_SIMULTANEOUS

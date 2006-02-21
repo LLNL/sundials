@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-02-10 03:50:49 $
+ * $Revision: 1.9 $
+ * $Date: 2006-02-21 23:05:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,18 +26,20 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-#define lrw   (cv_mem->cv_lrw)
-#define liw   (cv_mem->cv_liw)
-#define lrw1  (cv_mem->cv_lrw1)
-#define liw1  (cv_mem->cv_liw1)
-#define lrw1Q (cv_mem->cv_lrw1Q)
-#define liw1Q (cv_mem->cv_liw1Q)
-
 /* 
  * =================================================================
  * CVODES optional input functions
  * =================================================================
  */
+
+/* 
+ * Readability constants
+ */
+
+#define lrw   (cv_mem->cv_lrw)
+#define liw   (cv_mem->cv_liw)
+#define lrw1  (cv_mem->cv_lrw1)
+#define liw1  (cv_mem->cv_liw1)
 
 /* 
  * CVodeSetErrHandlerFn
@@ -590,6 +592,15 @@ int CVodeSetEwtFn(void *cvode_mem, CVEwtFn efun, void *e_data)
  * =================================================================
  */
 
+/* 
+ * Readability constants
+ */
+
+#define lrw1Q (cv_mem->cv_lrw1Q)
+#define liw1Q (cv_mem->cv_liw1Q)
+
+/*-----------------------------------------------------------------*/
+
 int CVodeSetQuadFdata(void *cvode_mem, void *fQ_data)
 {
   CVodeMem cv_mem;
@@ -681,7 +692,7 @@ int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ,
     cv_mem->cv_VabstolQ = N_VClone(cv_mem->cv_tempvQ);
     lrw += lrw1Q;
     liw += liw1Q;
-    cv_mem->cv_VabstolMallocDone = TRUE;
+    cv_mem->cv_VabstolQMallocDone = TRUE;
   }
 
   /* Copy tolerances into memory */
