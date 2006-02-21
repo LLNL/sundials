@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-14 20:36:20 $
+ * $Revision: 1.5 $
+ * $Date: 2006-02-21 23:14:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -26,16 +26,20 @@
 #define ONE     RCONST(1.0)
 #define TWOPT5  RCONST(2.5)
 
-#define lrw  (IDA_mem->ida_lrw)
-#define liw  (IDA_mem->ida_liw)
-#define lrw1 (IDA_mem->ida_lrw1)
-#define liw1 (IDA_mem->ida_liw1)
-
 /* 
  * =================================================================
  * IDA optional input functions
  * =================================================================
  */
+
+/* 
+ * Readability constants
+ */
+
+#define lrw  (IDA_mem->ida_lrw)
+#define liw  (IDA_mem->ida_liw)
+#define lrw1 (IDA_mem->ida_lrw1)
+#define liw1 (IDA_mem->ida_liw1)
 
 int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun, void *eh_data)
 {

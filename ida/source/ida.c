@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.57 $
- * $Date: 2006-02-16 01:28:18 $
+ * $Revision: 1.58 $
+ * $Date: 2006-02-21 23:14:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -48,7 +48,7 @@
  *       IDAStep
  *       IDASetCoeffs
  *   Nonlinear solver functions
- *       IDAnls
+ *       IDANls
  *       IDAPredict
  *       IDANewtonIter
  *   Error test
@@ -211,25 +211,25 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck);
 
 /* Nonlinear solver functions */
 
-static int IDAPredict(IDAMem IDA_mem);
-static int IDAnls(IDAMem IDA_mem);
+static void IDAPredict(IDAMem IDA_mem);
+static int IDANls(IDAMem IDA_mem);
 static int IDANewtonIter(IDAMem IDA_mem);
 
 /* Error test */
 
 static int IDATestError(IDAMem IDA_mem, realtype ck, 
-                        realtype *est, realtype *erk, realtype *erkm1);
+                        realtype *err_k, realtype *err_km1);
 
 /* Handling of convergence and/or error test failures */
 
 static void IDARestore(IDAMem IDA_mem, realtype saved_t);
-static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
-                          int *ncfPtr, int *nefPtr, realtype est);
+static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
+                          long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr);
 static void IDAReset(IDAMem IDA_mem);
 
 /* Function called after a successful step */
 
-static void IDACompleteStep(IDAMem IDA_mem, realtype error_k, realtype error_km1);
+static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1);
 
 /* Stopping tests and failure handling */
 
@@ -934,7 +934,6 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   long int nstloc;
   int sflag, istate, ier, task, irfndp;
   realtype tdist, troundoff, ypnorm, rh, nrm;
-  int ewtsetOK;
   IDAMem IDA_mem;
 
   /* Check for legal inputs in all cases. */
@@ -1140,9 +1139,9 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     if (nst > 0) {
 
-      ewtsetOK = efun(phi[0], ewt, edata);
+      ier = efun(phi[0], ewt, edata);
 
-      if (ewtsetOK != 0) {
+      if (ier != 0) {
 
         if (itol == IDA_WF) 
           IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_EWT_NOW_FAIL, tn);
@@ -1308,7 +1307,15 @@ void IDAFree(void **ida_mem)
   IDA_mem = (IDAMem) (*ida_mem);
   
   IDAFreeVectors(IDA_mem);
+
   if (lfree != NULL) lfree(IDA_mem);
+
+  if (nrtfn > 0) {
+    free(glo); glo = NULL; 
+    free(ghi);  ghi = NULL;
+    free(grout);  grout = NULL;
+    free(iroots); iroots = NULL;
+  }
 
   free(*ida_mem);
   *ida_mem = NULL;
@@ -1517,7 +1524,6 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 int IDAInitialSetup(IDAMem IDA_mem)
 {
   booleantype conOK;
-  int ewtsetOK;
   int ier;
 
   /* Test for more vector operations, depending on options */
@@ -1547,8 +1553,8 @@ int IDAInitialSetup(IDAMem IDA_mem)
     }
   }
 
-  ewtsetOK = efun(phi[0], ewt, edata);
-  if (ewtsetOK != 0) {
+  ier = efun(phi[0], ewt, edata);
+  if (ier != 0) {
 
       if (itol == IDA_WF) 
         IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_FAIL_EWT);
@@ -1577,7 +1583,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   if (linit != NULL) {
     ier = linit(IDA_mem);
-    if (ier < 0) {
+    if (ier != 0) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_LINIT_FAIL);
       return(IDA_LINIT_FAIL);
     }
@@ -1966,8 +1972,7 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
 static int IDAStep(IDAMem IDA_mem)
 {
   realtype saved_t, ck;
-  realtype est, erk, erkm1;
-  realtype error_k, error_km1;
+  realtype err_k, err_km1;
   int ncf, nef;
   int nflag, kflag;
 
@@ -1997,10 +2002,9 @@ static int IDAStep(IDAMem IDA_mem)
     kflag = IDA_SUCCESS;
 
     /*----------------------------------------------------
-      Update the independent variable
       If tn is past tstop (by roundoff), reset it to tstop.
       -----------------------------------------------------*/
-
+    
     tn = tn + hh;
     if (istop) {
       if ((tn - tstop)*hh > ZERO) tn = tstop;
@@ -2010,19 +2014,20 @@ static int IDAStep(IDAMem IDA_mem)
       Advance state variables
       -----------------------*/
 
-    nflag = IDAnls(IDA_mem);
+    /* Nonlinear system solution */
+    nflag = IDANls(IDA_mem);
 
-    if (nflag == IDA_SUCCESS) {
-      nflag = IDATestError(IDA_mem, ck, &est, &erk, &erkm1);
-      error_k   = erk;
-      error_km1 = erkm1;
-    }
+    /* If NLS was successful, perform error test */
+    if (nflag == IDA_SUCCESS)
+      nflag = IDATestError(IDA_mem, ck, &err_k, &err_km1);
 
+    /* Test for convergence or error test failures */
     if (nflag != IDA_SUCCESS) {
 
-      /* there was a failure; restore and decide what to do */
+      /* restore and decide what to do */
       IDARestore(IDA_mem, saved_t);
-      kflag = IDAHandleNFlag(IDA_mem, nflag, saved_t, &ncf, &nef, est);
+      kflag = IDAHandleNFlag(IDA_mem, nflag, err_k, err_km1, 
+                             &ncfn, &ncf, &netf, &nef);
 
       /* exit on nonrecoverable failure */ 
       if (kflag != PREDICT_AGAIN) return(kflag);
@@ -2041,14 +2046,14 @@ static int IDAStep(IDAMem IDA_mem)
   /* Nonlinear system solve and error test were both successful;
      update data, and consider change of step and/or order */
 
-  IDACompleteStep(IDA_mem, error_k, error_km1);
+  IDACompleteStep(IDA_mem, err_k, err_km1);
 
   /* 
      Rescale ee vector to be the estimated local error
      Notes:
        (1) altering the value of ee is permissible since
            it will be re-initialized to the zero vector by
-           IDASolve()->IDAStep()->IDAnls()->IDANewtonIter()
+           IDASolve()->IDAStep()->IDANls()->IDANewtonIter()
            before it is needed again
        (2) the value of ee is only valid if IDAHandleNFlag()
            returns either PREDICT_AGAIN or IDA_SUCCESS
@@ -2126,7 +2131,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
  */
 
 /*
- * IDAnls
+ * IDANls
  *
  * This routine attempts to solve the nonlinear system using the linear
  * solver specified. NOTE: this routine uses N_Vector ee as the scratch
@@ -2144,9 +2149,9 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
  *  IDA_NCONV_RECVR
  */
 
-static int IDAnls(IDAMem IDA_mem)
+static int IDANls(IDAMem IDA_mem)
 {
-  int retval, ier;
+  int retval;
   booleantype constraintsPassed, callSetup, tryAgain;
   realtype temp1, temp2, vnorm;
   N_Vector tempv3;
@@ -2180,7 +2185,7 @@ static int IDAnls(IDAMem IDA_mem)
   loop{
 
     /* Compute predicted values for yy and yp, and compute residual there. */
-    ier = IDAPredict(IDA_mem);
+    IDAPredict(IDA_mem);
 
     retval = res(tn, yy, yp, delta, rdata);
     nre++;
@@ -2257,7 +2262,7 @@ static int IDAnls(IDAMem IDA_mem)
  * This routine predicts the new values for vectors yy and yp.
  */
 
-static int IDAPredict(IDAMem IDA_mem)
+static void IDAPredict(IDAMem IDA_mem)
 {
   int j;
 
@@ -2268,8 +2273,6 @@ static int IDAPredict(IDAMem IDA_mem)
     N_VLinearSum(ONE,      phi[j], ONE, yy, yy);
     N_VLinearSum(gamma[j], phi[j], ONE, yp, yp);
   }
-
-  return(IDA_SUCCESS);
 }
 
 /*
@@ -2365,73 +2368,55 @@ static int IDANewtonIter(IDAMem IDA_mem)
  * IDATestError
  *
  * This routine estimates errors at orders k, k-1, k-2, decides 
- * whether or not to reduce order, and performs the local error test. 
+ * whether or not to suggest an order decrease, and performs 
+ * the local error test. 
  *
- * On return, *est = *erk    if knew = kk   (maintain order)  
- *            *est = *erkm1  if knew = kk-1 (reduce order)
- *
- * Note that 'est' is only used in IDAHandleNFlag. It is recomputed 
- * in IDACompleteStep.
- *
- * IDATestError returns either IDA_SUCCESS or ERROR_TEST_FAIL
+ * IDATestError returns either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
 
 static int IDATestError(IDAMem IDA_mem, realtype ck, 
-                        realtype *est, realtype *erk, realtype *erkm1)
+                        realtype *err_k, realtype *err_km1)
 {
-  realtype erkm2;                           /* estimated error at k-2 */
+  realtype err_km2;                         /* estimated error at k-2 */
   realtype enorm_k, enorm_km1, enorm_km2;   /* error norms */
-  realtype terk, terkm1, terkm2;            /* local truncation error norms */
+  realtype terr_k, terr_km1, terr_km2;      /* local truncation error norms */
 
   /* Compute error for order k. */
-
   enorm_k = IDAWrmsNorm(IDA_mem, ee, ewt, suppressalg);
-  *erk = sigma[kk] * enorm_k;
-  terk = (kk+1) * (*erk);
+  *err_k = sigma[kk] * enorm_k;
+  terr_k = (kk+1) * (*err_k);
 
   knew = kk;
-  *est = *erk;
 
-  /* Decide whether to reduce the order to k-1 */
-  
   if ( kk > 1 ) {
 
     /* Compute error at order k-1 */
-
     N_VLinearSum(ONE, phi[kk], ONE, ee, delta);
     enorm_km1 = IDAWrmsNorm(IDA_mem, delta, ewt, suppressalg);
-    *erkm1 = sigma[kk-1] * enorm_km1;
-    terkm1 = kk * (*erkm1);
+    *err_km1 = sigma[kk-1] * enorm_km1;
+    terr_km1 = kk * (*err_km1);
 
     if ( kk > 2 ) {
 
       /* Compute error at order k-2 */
-
       N_VLinearSum(ONE, phi[kk-1], ONE, delta, delta);
       enorm_km2 = IDAWrmsNorm(IDA_mem, delta, ewt, suppressalg);
-      erkm2 = sigma[kk-2] * enorm_km2;
-      terkm2 = (kk-1) * erkm2;
+      err_km2 = sigma[kk-2] * enorm_km2;
+      terr_km2 = (kk-1) * err_km2;
 
-      /* Reduce order if errors are reduced */
-
-      if (MAX(terkm1, terkm2) <= terk) { 
-        knew = kk - 1; 
-        *est = *erkm1; 
-      }
+      /* Decrease order if errors are reduced */
+      if (MAX(terr_km1, terr_km2) <= terr_k)  knew = kk - 1; 
 
     } else {
 
-      /* Reduce order to 1 if errors are reduced by at least 1/2 */
-
-      if (terkm1 <= (HALF * terk) ) { 
-        knew = kk - 1; 
-        *est = *erkm1; 
-      } 
+      /* Decrease order to 1 if errors are reduced by at least 1/2 */
+      if (terr_km1 <= (HALF * terr_k) )  knew = kk - 1; 
 
     }
 
   }
-  
+
+  /* Perform error test */
   if (ck * enorm_k > ONE) return(ERROR_TEST_FAIL);
   else                    return(IDA_SUCCESS);
 }
@@ -2501,9 +2486,11 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
  *   IDA_LSOLVE_FAIL
  */
 
-static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
-                          int *ncfPtr, int *nefPtr, realtype est)
+static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
+                          long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr)
 {
+  realtype err_knew;
+
   phase = 1;
     
   if (nflag != ERROR_TEST_FAIL) {
@@ -2512,8 +2499,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
       Nonlinear solver failed 
       -----------------------*/
 
-    (*ncfPtr)++;
-    ncfn++;
+    (*ncfPtr)++;      /* local counter for convergence failures */
+    (*ncfnPtr)++;     /* global counter for convergence failures */
     
     if (nflag < 0) {  /* nonrecoverable failure */
 
@@ -2522,7 +2509,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
     } else {          /* recoverable failure    */
       
       /* Reduce step size for a new prediction
-         Note that if nflag=IDA_CONSTR_RECVR then rr was already set in IDAnls */
+         Note that if nflag=IDA_CONSTR_RECVR then rr was already set in IDANls */
       if (nflag != IDA_CONSTR_RECVR) rr = QUARTER;
       hh *= rr;
 
@@ -2539,16 +2526,18 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype saved_t,
       Error Test failed 
       -----------------*/
 
-    (*nefPtr)++; 
-    netf++;
+    (*nefPtr)++;      /* local counter for error test failures */
+    (*netfPtr)++;     /* global counter for error test failures */
     
     if (*nefPtr == 1) {
       
       /* On first error test failure, keep current order or lower order by one. 
          Compute new stepsize based on differences of the solution. */
 
+      err_knew = (kk==knew)? err_k : err_km1;
+
       kk = knew;      
-      rr = PT9 * RPowerR( TWO*est + PT0001,(-ONE/(kk+1)) );
+      rr = PT9 * RPowerR( TWO * err_knew + PT0001,(-ONE/(kk+1)) );
       rr = MAX(QUARTER, MIN(PT9,rr));
       hh *=rr;
       return(PREDICT_AGAIN);
@@ -2614,13 +2603,12 @@ static void IDAReset(IDAMem IDA_mem)
  * stepsize and order for the next step, and updates the phi array.
  */
 
-static void IDACompleteStep(IDAMem IDA_mem, realtype error_k, realtype error_km1)
+static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
 {
   int j, kdiff, action;
-  realtype terk, terkm1, terkp1;
-  realtype erkp1;
-  realtype error_kp1, est;
-  realtype temp, hnew;
+  realtype terr_k, terr_km1, terr_kp1;
+  realtype err_knew, err_kp1;
+  realtype enorm, tmp, hnew;
 
   nst++;
   kdiff = kk - kused;
@@ -2660,43 +2648,41 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype error_k, realtype error_km1
        been constant, or order was just raised. */
     
     N_VLinearSum (ONE, ee, -ONE, phi[kk+1], tempv1);
-    temp = IDAWrmsNorm(IDA_mem, tempv1, ewt, suppressalg);
-    erkp1= temp/(kk+2);
-
-    error_kp1 = erkp1;
+    enorm = IDAWrmsNorm(IDA_mem, tempv1, ewt, suppressalg);
+    err_kp1= enorm/(kk+2);
 
     /* Choose among orders k-1, k, k+1 using local truncation error norms. */
 
-    terk   = (kk+1) * error_k;
-    terkp1 = (kk+2) * error_kp1;
+    terr_k   = (kk+1) * err_k;
+    terr_kp1 = (kk+2) * err_kp1;
 
     if (kk == 1) {
-      if (terkp1 >= HALF * terk)       {action = MAINTAIN; goto takeaction;}
-      else                             {action = RAISE;    goto takeaction;}
+      if (terr_kp1 >= HALF * terr_k)         {action = MAINTAIN; goto takeaction;}
+      else                                   {action = RAISE;    goto takeaction;}
     } else {
-      terkm1 = kk * error_km1;
-      if (terkm1 <= MIN(terk, terkp1)) {action = LOWER;    goto takeaction;}
-      else if (terkp1  >= terk)        {action = MAINTAIN; goto takeaction;}
-      else                             {action = RAISE;    goto takeaction;}
+      terr_km1 = kk * err_km1;
+      if (terr_km1 <= MIN(terr_k, terr_kp1)) {action = LOWER;    goto takeaction;}
+      else if (terr_kp1 >= terr_k)           {action = MAINTAIN; goto takeaction;}
+      else                                   {action = RAISE;    goto takeaction;}
     }
     
   takeaction:
     
     /* Set the estimated error norm and, on change of order, reset kk. */
-    if      (action == RAISE) { kk++; est = error_kp1; }
-    else if (action == LOWER) { kk--; est = error_km1; }
-    else                      {       est = error_k;   }  
+    if      (action == RAISE) { kk++; err_knew = err_kp1; }
+    else if (action == LOWER) { kk--; err_knew = err_km1; }
+    else                      {       err_knew = err_k;   }  
 
     /* Compute rr = tentative ratio hnew/hh from error norm estimate.
        Reduce hh if rr <= 1, double hh if rr >= 2, else leave hh as is.
        If hh is reduced, hnew/hh is restricted to be between .5 and .9. */
     
     hnew = hh;
-    rr = RPowerR( (TWO * est + PT0001) , (-ONE/(kk+1) ) );
+    rr = RPowerR( (TWO * err_knew + PT0001) , (-ONE/(kk+1) ) );
     
     if (rr >= TWO) {
       hnew = TWO * hh;
-      if( (temp = ABS(hnew)*hmax_inv) > ONE ) hnew /= temp;
+      if( (tmp = ABS(hnew)*hmax_inv) > ONE ) hnew /= tmp;
     } else if (rr <= ONE ) { 
       rr = MAX(HALF, MIN(PT9,rr));
       hnew = hh * rr;
