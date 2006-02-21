@@ -16,28 +16,29 @@ Briefly, their purposes are as follows:
 \end{itemize}
 %%
 %%
-A linear solver module must also provide a user-callable specification routine
-(like those described in \S\ref{sss:lin_solv_init}) which will attach the above four 
-routines to the main {\cvode} memory block.
-The {\cvode} memory block is a structure defined in the header file \id{cvode\_impl.h}. 
-A pointer to such a structure is defined as the type \id{CVodeMem}. 
-The four fields in a \id{CvodeMem} structure that must point to the linear solver's 
-functions are \id{cv\_linit}, \id{cv\_lsetup}, \id{cv\_lsolve}, and \id{cv\_lfree}, respectively.
-Note that of the four interface routines, only the \id{lsolve} routine is required. 
-The \id{lfree} routine must be provided only if the solver specification routine
-makes any memory allocation.
+A linear solver module must also provide a user-callable specification
+routine (like those described in \S\ref{sss:lin_solv_init}) which will
+attach the above four routines to the main {\cvode} memory block.
+The {\cvode} memory block is a structure defined in the header file
+\id{cvode\_impl.h}.  A pointer to such a structure is defined as the
+type \id{CVodeMem}.  The four fields in a \id{CvodeMem} structure that
+must point to the linear solver's functions are \id{cv\_linit},
+\id{cv\_lsetup}, \id{cv\_lsolve}, and \id{cv\_lfree}, respectively.
+Note that of the four interface routines, only the \id{lsolve} routine
+is required.  The \id{lfree} routine must be provided only if the solver
+specification routine makes any memory allocation.
 %%
-For consistency with the existing {\cvode} linear solver modules, we recommend that the 
-return value of the specification function be 0 for a successful return or a negative value 
-if an error occurs (the pointer to the main {\cvode} memory block is \id{NULL}, 
-an input is illegal, the {\nvector} implementation is not compatible, a memory allocation 
-fails, etc.)
+For consistency with the existing {\cvode} linear solver modules, we
+recommend that the return value of the specification function be 0 for
+a successful return or a negative value if an error occurs (the
+pointer to the main {\cvode} memory block is \id{NULL}, an input is
+illegal, the {\nvector} implementation is not compatible, a memory
+allocation fails, etc.)
 
-To facilitate data exchange between the four interface functions, the field \id{cv\_lmem}
-in the {\cvode} memory block can be used to attach a linear solver-specific memory
-block.
+To facilitate data exchange between the four interface functions, the
+field \id{cv\_lmem} in the {\cvode} memory block can be used to attach
+a linear solver-specific memory block.
 
-\vspace{0.1in}
 These four routines that interface between {\cvode} and the linear solver module
 necessarily have fixed call sequences.  Thus, a user wishing to implement another 
 linear solver within the {\cvode} package must adhere to this set of interfaces.
@@ -102,18 +103,19 @@ The type definition of \id{lsetup} is
      or not. Its possible values are:
      \begin{itemize}
      \item \id{CV\_NO\_FAILURES}: this value is passed to \id{lsetup} if 
-       either this is the first call for this step, or the local error test failed on the 
-       previous attempt at this step (but the Newton iteration converged).
+       either this is the first call for this step, or the local error test failed
+       on the previous attempt at this step (but the Newton iteration converged).
      \item \id{CV\_FAIL\_BAD\_J}: this value is passed to \id{lsetup} if
-       (a) the previous Newton corrector iteration did not converge and the linear solver's      
-       setup routine indicated that its Jacobian-related data is not current,
-       or                            
-       (b) during the previous Newton corrector iteration, the linear solver's solve routine  
-       failed in a recoverable manner and the linear solver's setup routine indicated that  
-       its Jacobian-related data is not current.
+       (a) the previous Newton corrector iteration did not converge and the linear
+       solver's setup routine indicated that its Jacobian-related data is not
+       current, or                            
+       (b) during the previous Newton corrector iteration, the linear solver's
+       solve routine failed in a recoverable manner and the linear solver's setup
+       routine indicated that its Jacobian-related data is not current.
      \item \id{CV\_FAIL\_OTHER}: this value is passed to \id{lsetup} if 
-       during the current internal step try, the previous Newton iteration failed to 
-       converge even though the linear solver was using current Jacobian-related data.
+       during the current internal step try, the previous Newton iteration
+       failed to converge even though the linear solver was using current
+       Jacobian-related data.
      \end{itemize}
   
    \item[ypred]
@@ -135,8 +137,7 @@ The type definition of \id{lsetup} is
    \item[vtemp1] 
    \item[vtemp2]
    \item[vtemp3] 
-     are temporary variables of type \id{N\_Vector} provided for use by \id{lsetup}.      
-  
+     are temporary variables of type \id{N\_Vector} provided for use by \id{lsetup}.
    \end{args}
 }
 {
@@ -148,6 +149,7 @@ The type definition of \id{lsetup} is
 
 %------------------------------------------------------------------------------
 
+\newpage
 \paragraph{Solve routine.}
 The type definition of \id{lsolve} is
 \usfunction{lsolve}
@@ -157,8 +159,8 @@ The type definition of \id{lsolve} is
 }
 {
   The routine \id{lsolve} must solve the linear equation $M x = b$, where         
-  $M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$  
-  and the right-hand side vector $b$ is input. 
+  $M$ is some approximation to $I - \gamma J$, $J = (\dfdyI)(t_n, y_{cur})$
+  (see Eq.(\ref{e:Newtonmat})), and the right-hand side vector $b$ is input. 
 }
 {
   \begin{args}[cv\_mem]
@@ -169,7 +171,7 @@ The type definition of \id{lsolve} is
     returned in the vector \id{b}.
   \item[weight]
     is a vector that contains the error weights.
-    These are the reciprocals of the $W_i$ of (\ref{e:errwt}).
+    These are the $W_i$ of Eq.(\ref{e:errwt}).
   \item[ycur]
     is a vector that contains the solver's current approximation to $y(t_n)$.
   \item[fcur]
