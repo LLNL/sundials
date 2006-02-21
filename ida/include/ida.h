@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.45 $
- * $Date: 2006-02-14 20:36:17 $
+ * $Revision: 1.46 $
+ * $Date: 2006-02-21 23:07:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -962,7 +962,7 @@ extern "C" {
    * perform any needed initializations of solver-specific memory,   
    * such as counters/statistics. An (*ida_linit) should return      
    * 0 if it has successfully initialized the IDA linear solver and 
-   * a negative value otherwise. If an error does occur, an 
+   * a non-zero value otherwise. If an error does occur, an 
    * appropriate message should be sent to (idamem->errfp).          
    * ----------------------------------------------------------------
    */                                                                 
