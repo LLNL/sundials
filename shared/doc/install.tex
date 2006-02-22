@@ -51,9 +51,11 @@ is to be located.
 
 \begin{enumerate}
 \item \id{gunzip} {\em sundials\_file}\id{.tar.gz}
-\item \id{tar -xf} {\em sundials\_file}\id{.tar}\hspace{2em} [creates \id{sundials} directory]
+\item \id{tar -xf} {\em sundials\_file}\id{.tar}\hspace{2em} [creates \id{sundials}
+      directory]
 \item \id{cd} {\em build\_tree}
-\item {\em path\_to\_source\_tree}\id{/configure} {\em options}\hspace{2em} [options can be absent]
+\item {\em path\_to\_source\_tree}\id{/configure} {\em options}\hspace{2em}
+      [options can be absent]
 \item \id{make}
 \item \id{make install}
 \item \id{make examples}
@@ -113,9 +115,12 @@ options.
   
   \begin{config}
   \item {\em build\_tree}/{\em solver}/\id{examples\_ser} : serial {\C} examples
-  \item {\em build\_tree}/{\em solver}/\id{examples\_par} : parallel {\C} examples ({\mpi}-enabled)
-  \item {\em build\_tree}/{\em solver}/\id{fcmix}/\id{examples\_ser} : serial {\F} examples
-  \item {\em build\_tree}/{\em solver}/\id{fcmix}/\id{examples\_par} : parallel {\F} examples ({\mpi}-enabled)
+  \item {\em build\_tree}/{\em solver}/\id{examples\_par} : parallel {\C} examples
+        ({\mpi}-enabled)
+  \item {\em build\_tree}/{\em solver}/\id{fcmix}/\id{examples\_ser}: serial {\F}
+        examples
+  \item {\em build\_tree}/{\em solver}/\id{fcmix}/\id{examples\_par}: parallel {\F}
+        examples ({\mpi}-enabled)
   \end{config}
   
   {\em Note}: Some of these subdirectories may not exist depending upon the
@@ -131,7 +136,8 @@ options.
 \item \id{--with-cppflags=ARG}
 
   Specify additional {\C} preprocessor flags 
-  (e.g., \id{ARG=-I<include\_dir>} if necessary header files are located in nonstandard locations).
+  (e.g., \id{ARG=-I<include\_dir>} if necessary header files are located in
+   nonstandard locations).
 
 \item \id{--with-cflags=ARG}
 
@@ -139,13 +145,13 @@ options.
 
 \item \id{--with-ldflags=ARG}
 
-  Specify additional linker flags 
-  (e.g., \id{ARG=-L<lib\_dir>} if required libraries are located in nonstandard locations).
+  Specify additional linker flags (e.g., \id{ARG=-L<lib\_dir>} if
+  required libraries are located in nonstandard locations).
 
 \item \id{--with-libs=ARG}
 
-  Specify additional libraries to be used 
-  (e.g., \id{ARG=-l<foo>} to link with the library named \id{libfoo.a} or \id{libfoo.so}).
+  Specify additional libraries to be used (e.g., \id{ARG=-l<foo>} to
+  link with the library named \id{libfoo.a} or \id{libfoo.so}).
 
 \item \id{--with-precision=ARG}
 
@@ -221,7 +227,8 @@ following two options may be used to override the default behavior.
 
 \subsection*{Options for MPI support}
 
-\noindent The following configuration options are only applicable to the parallel {\sundials} packages:
+\noindent The following configuration options are only applicable to the parallel
+{\sundials} packages:
 
 \begin{config}
   
@@ -283,9 +290,9 @@ may be used to build shared libraries on supported platforms.
 
 \item \id{--enable-shared}
 
-  Using this particular option will result in both static and shared versions
-  of the available {\sundials} libraries being built if the system supports
-  shared libraries. To build only shared libraries also specify \id{--disable-static}.
+  Using this particular option will result in both static and shared versions of
+  the available {\sundials} libraries being built if the system supports shared
+  libraries. To build only shared libraries also specify \id{--disable-static}.
 
   {\em Note}: The {\fcvode}, {\fkinsol}, and {\fida} libraries can only be built as
   static libraries because they contain references to externally defined symbols,
@@ -328,7 +335,8 @@ options should be used:
 %%
 
 \noindent The following environment variables can be locally (re)defined for use 
-during the configuration of {\sundials}. See the next section for illustrations of these.
+during the configuration of {\sundials}. See the next section for
+illustrations of these.
 
 \begin{config}
 
@@ -357,7 +365,8 @@ during the configuration of {\sundials}. See the next section for illustrations 
 
 \section{Configuration examples}
 
-The following examples are meant to help demonstrate proper usage of the configure options:
+The following examples are meant to help demonstrate proper usage of
+the configure options:
 
 \begin{verbatim}
    % configure CC=gcc F77=g77 --with-cflags=-g3 --with-fflags=-g3 \
@@ -397,11 +406,12 @@ Using the standard {\sundials} build system, the command
 \begin{verbatim}
    % make install
 \end{verbatim}
-will install the libraries under {\em libdir} and the public
-header files under {\em incdir}. The default values for these directories
-are {\em build\_tree}\id{/lib} and {\em build\_tree}\id{/include}, respectively,
-but can be changed using the configure script options \id{--prefix}, \id{--includedir}
-and \id{--libdir} (see \S\ref{ss:configuration_options}). For example, a global installation
+will install the libraries under {\em libdir} and the public header
+files under {\em incdir}. The default values for these directories are
+{\em build\_tree}\id{/lib} and {\em build\_tree}\id{/include},
+respectively, but can be changed using the configure script options
+\id{--prefix}, \id{--includedir} and \id{--libdir} (see
+\S\ref{ss:configuration_options}). For example, a global installation
 of {\sundials} on a {\sc *NIX} system could be accomplished using
 \begin{verbatim}
    % configure --prefix=/usr/local
@@ -409,14 +419,15 @@ of {\sundials} on a {\sc *NIX} system could be accomplished using
 Although all installed libraries reside under {\em libdir}, the public header files
 are further organized into subdirectories under {\em incdir}.
 
-The installed libraries and exported header files are listed for reference in 
-Table~\ref{t:sundials_files}. 
-The file extension .{\em lib} is typically \id{.so} for shared libraries and 
-\id{.a} for static libraries (see {\em Options for library support} for additional details).
+The installed libraries and exported header files are listed for
+reference in Table~\ref{t:sundials_files}.  The file extension .{\em lib}
+is typically \id{.so} for shared libraries and \id{.a} for static libraries
+(see {\em Options for library support} for additional details).
 
-A typical user program need not explicitly include any of the shared {\sundials} header
-files from under the {\em incdir}\id{/sundials} directory since they are explicitly included by the
-appropriate solver header files ({\em e.g.}, \id{cvode\_dense.h} includes 
+A typical user program need not explicitly include any of the shared
+{\sundials} header files from under the {\em incdir}\id{/sundials}
+directory since they are explicitly included by the appropriate solver
+header files ({\em e.g.}, \id{cvode\_dense.h} includes
 \id{sundials\_dense.h}). However, it is both legal and safe to do so
 ({\em e.g.}, the functions declared in \id{sundials\_smalldense.h} 
 could be used in building a preconditioner).
@@ -489,11 +500,12 @@ could be used in building a preconditioner).
 
 \section{Building SUNDIALS without the configure script}\label{ss:no_config}
 
-If the \id{configure} script cannot be used ({\em e.g.}, when building {\sundials}
-under Microsoft Windows without using Cygwin), or if the user prefers to own the build
-process ({\em e.g.}, when {\sundials} is incorporated into a larger project with its
-own build system), then the header and source files for a given module can be 
-copied from the {\em source\_tree} to some other location and compiled separately.
+If the \id{configure} script cannot be used ({\em e.g.}, when building
+{\sundials} under Microsoft Windows without using Cygwin), or if the
+user prefers to own the build process ({\em e.g.}, when {\sundials} is
+incorporated into a larger project with its own build system), then
+the header and source files for a given module can be copied from the
+{\em source\_tree} to some other location and compiled separately.
 
 The following files are required to compile a {\sundials} solver module:
 \begin{itemize}
@@ -514,10 +526,10 @@ The following files are required to compile a {\sundials} solver module:
 \item configuration header file \id{sundials\_config.h} (see below)
 \end{itemize}
 
-A sample header file that, appropriately modified, can be used
-as \id{sundials\_config.h} (otherwise created automatically by the \id{configure} script)
-is provided below. The various preprocessor macros defined within \id{sundials\_config.h}
-have the following uses:
+A sample header file that, appropriately modified, can be used as
+\id{sundials\_config.h} (otherwise created automatically by the
+\id{configure} script) is provided below. The various preprocessor
+macros defined within \id{sundials\_config.h} have the following uses:
 \begin{itemize}
 
 \item Precision of the {\sundials} \id{realtype} type\\ \\
@@ -528,23 +540,28 @@ have the following uses:
 
 \item Use of generic math functions\\ \\
   If \id{SUNDIALS\_USE\_GENERIC\_MATH} is defined, then the functions
-  in \id{sundials\_math.(h,c)} will use the \id{pow}, \id{sqrt}, \id{fabs}, and \id{exp}
-  functions from the standard math library (see \id{math.h}), irregardless of the definition of \id{realtype}.
-  Otherwise, if \id{realtype} is defined to be an alias for the \id{float} {\C}-type, then
-  {\sundials} will use \id{powf}, \id{sqrtf}, \id{fabsf}, and \id{expf}.
-  If \id{realtype} is instead defined to be a synonym for the \id{long double} {\C}-type,
-  then \id{powl}, \id{sqrtl}, \id{fabsl}, and \id{expl} will be used.
+  in \id{sundials\_math.(h,c)} will use the \id{pow}, \id{sqrt},
+  \id{fabs}, and \id{exp} functions from the standard math library
+  (see \id{math.h}), regardless of the definition of \id{realtype}.
+  Otherwise, if \id{realtype} is defined to be an alias for the
+  \id{float} {\C}-type, then {\sundials} will use \id{powf},
+  \id{sqrtf}, \id{fabsf}, and \id{expf}.  If \id{realtype} is instead
+  defined to be a synonym for the \id{long double} {\C}-type, then
+  \id{powl}, \id{sqrtl}, \id{fabsl}, and \id{expl} will be used.
 
-  {\em Note}: Although the \id{powf}/\id{powl}, \id{sqrtf}/\id{sqrtl}, \id{fabsf}/\id{fabsl}, and
-  \id{expf}/\id{expl} routines are not specified in the ANSI {\C} standard, they are ISO C99 requirements.
+  {\em Note}: Although the \id{powf}/\id{powl}, \id{sqrtf}/\id{sqrtl},
+  \id{fabsf}/\id{fabsl}, and \id{expf}/\id{expl} routines are not
+  specified in the ANSI {\C} standard, they are ISO C99 requirements.
   Consequently, these routines will only be used if available.
 
 \item {\F} name-mangling scheme\\ \\
-  The macros given below are used to transform the {\C}-language function names defined in the
-  {\F}-{\C} inteface modules in a manner consistent with the preferred {\F} compiler, thus
-  allowing native {\C} functions to be called from within a {\F} subroutine. The name-mangling
-  scheme can be specified either by appropriately defining the parameterized macros (using the
-  stringization operator, \id{\#\#}, if necessary)
+  The macros given below are used to transform the {\C}-language
+  function names defined in the {\F}-{\C} inteface modules in a manner
+  consistent with the preferred {\F} compiler, thus allowing native
+  {\C} functions to be called from within a {\F} subroutine. The
+  name-mangling scheme can be specified either by appropriately
+  defining the parameterized macros (using the stringization operator,
+  \id{\#\#}, if necessary)
   \begin{itemize}
   \item \id{F77\_FUNC(name,NAME)}
   \item \id{F77\_FUNC\_(name,NAME)}
@@ -552,11 +569,12 @@ have the following uses:
   or by defining {\em one} macro from each of the following lists:
   \begin{itemize}
   \item \id{SUNDIALS\_CASE\_LOWER} or \id{SUNDIALS\_CASE\_UPPER}
-  \item \id{SUNDIALS\_UNDERSCORE\_NONE}, \id{SUNDIALS\_UNDERSCORE\_ONE}, or \id{SUNDIALS\_UNDERSCORE\_TWO}
+  \item \id{SUNDIALS\_UNDERSCORE\_NONE}, \id{SUNDIALS\_UNDERSCORE\_ONE}, or
+        \id{SUNDIALS\_UNDERSCORE\_TWO}
   \end{itemize}
 
-  For example, to specify that mangled {\C}-language function names should be lowercase with one
-  underscore appended include either
+  For example, to specify that mangled {\C}-language function names
+  should be lowercase with one underscore appended include either
 \begin{verbatim}
   #define F77_FUNC(name,NAME) name ## _
   #define F77_FUNC_(name,NAME) name ## _
@@ -569,10 +587,11 @@ have the following uses:
   in the \id{sundials\_config.h} header file.
 
 \item Use of an {\mpi} communicator other than \id{MPI\_COMM\_WORLD} in {\F}\\ \\
-  If the macro \id{SUNDIALS\_MPI\_COMM\_F2C} is defined, then the {\mpi} implementation
-  used to build {\sundials} defines the type \id{MPI\_Fint} and the function \id{MPI\_Comm\_f2c},
-  and it is possible to use {\mpi} communicators other than \id{MPI\_COMM\_WORLD} with the
-  {\F}-{\C} interface modules.
+  If the macro \id{SUNDIALS\_MPI\_COMM\_F2C} is defined, then the
+  {\mpi} implementation used to build {\sundials} defines the type
+  \id{MPI\_Fint} and the function \id{MPI\_Comm\_f2c}, and it is
+  possible to use {\mpi} communicators other than
+  \id{MPI\_COMM\_WORLD} with the {\F}-{\C} interface modules.
 \end{itemize}
 
 
