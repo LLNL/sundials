@@ -39,7 +39,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
   <tr valign="top">
   <td height="60" background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
-  <td width="116"><a href="http://www.llnl.gov/CASC/people/serban/"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></a></td>
+  <td width="116"><img SRC="../graphics/head_top_left.png" height="60" width="116" border="0"></td>
   <td width="720"><img SRC="../graphics/head_support_top_right.png" height="60" width="720" border="0"></td>
   <td background="../graphics/table_bck1.gif"><img src="../graphics/table_bck1.gif" width="5" height="60"></td>
   </tr>
@@ -87,17 +87,21 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   </ul>
 <li><a href="#cvode">CVODE / CVODES</a>
   <ul>
-  <li><a href="#cvode_tols">How do I choose tolerances in CVODE / CVODES?</a></li>
-  <li><a href="#cvode_negvals">How do I control unphysical negative values in CVODE / CVODES?</a></li>
+  <li><a href="#cvode_tols">How do I choose tolerances?</a></li>
+  <li><a href="#cvode_negvals">How do I control unphysical negative values?</a></li>
+  <li><a href="#cvode_disc">How do I treat discontinuities in the RHS function?</a></li>
+  <li><a href="#cvode_ewtfn">When is it advantegeous to supply my own EwtFn function?</a></li>
   <li><a href="#cvodes_senstoggle">How do I switch on/off forward sensitivity computations in CVODES?</a></li>
   <li><a href="#cvodes_plist">What is the role of plist in CVODES?</a></li>
   <li><a href="#cvodes_pbar">What is the role of pbar in CVODES?</a></li>
-  <li></li>
+  <li><a href="#cvodes_quad">What is pure quadrature integration?</a></li>
   </ul>
 <li><a href="#ida">IDA</a>
   <ul>
   <li><a href="#ida_tols">How do I choose tolerances in IDA?</a></li>
   <li><a href="#ida_negvals">How do I control unphysical negative values in IDA?</a></li>
+  <li><a href="#ida_disc">How do I treat discontinuities in the residual function in IDA?</a></li>
+  <li><a href="#ida_ewtfn">When is it advantegeous to supply my own EwtFn function?</a></li>
   </ul>
 <!--
 <li><a href="#kinsol">KINSOL</a>
@@ -313,7 +317,7 @@ flag:
 <div class="frame">
 
 <a name="cvode_tols"></a>
-<div class="faq_q">How do I choose tolerances in CVODE / CVODES?</div>
+<div class="faq_q">How do I choose tolerances?</div>
 <div class="faq_a">
 For many users, the appropriate choices for tolerance values are a
 concern.  The following pieces of advice are relevant.
@@ -351,7 +355,7 @@ tolerances are reduced.</li>
 </div>
 
 <a name="cvode_negvals"></a>
-<div class="faq_q">How do I control unphysical negative values in CVODE / CVODES?</div>
+<div class="faq_q">How do I control unphysical negative values?</div>
 <div class="faq_a">
 In many applications, some components in the true solution are always
 positive or non-negative, though at times very small.  In the numerical
@@ -379,6 +383,41 @@ there is a square root or log of it), then the offending value should
 be changed to zero or a tiny positive number in a temporary variable
 (<b>not</b> in the input y vector) for the purposes of computing f(t,y).</li>
 </ol>
+</div>
+
+<a name="cvode_disc"></a>
+<div class="faq_q">How do I treat discontinuities in the RHS function?</div>
+<div class="faq_a">
+If the jumps at the discontinuities are relatively small, simply
+keep them in the RHS function, and let the integrator respond to
+them (possibly taking smaller steps through each point of discontinuity).
+If the jumps are large, it is more efficient to stop at the point of
+discontinuity and restart the integrator with a readjusted ODE model.
+To stop when the location of the discontinuity is known, simply make
+that location a value of tout.  To stop when the location of the
+discontinuity is determined by the solution, use the rootfinding feature.
+In either case, it is critical that the RHS function <b>not</b> incorporate
+the discontinuity, but rather have a smooth extention over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the
+RHS function that can be flipped between the stopping of the
+integration and the restart, so that the restarted problem uses the
+new values (which have jumped).
+</div>
+
+<a name="cvode_ewtfn"></a>
+<div class="faq_q">When is it advantegeous to supply my own EwtFn function?</div>
+<div class="faq_a">
+The main situation where this is a good idea is where the problem
+needs something "in between" the cases covered by CV_SS and CV_SV.
+Namely, suppose there are a few groups of variables (relative to the
+total number of variables) such that all the variables in each group
+require the same value of abstol, but these values are very different
+from one group to another.  Then a user EwtFn function can keep an
+array of those values and construct the ewt vector without any
+additional storage.  Also, <i>in rare cases</i>, one may want to use this
+option to apply different values of reltol to different variables (or
+groups of variables).
 </div>
 
 <a name="cvodes_senstoggle"></a>
@@ -451,6 +490,27 @@ specifies tolerances for the sensitivity variables (through <tt>CVodeSetSensTole
 the default values are desired, a <tt>NULL</tt> pointer can be passed to <tt>CVodeSetSensParams</tt>.
 </div>
 
+<a name="cvodes_quad"></a>
+<div class="faq_q">What is pure quadrature integration?</div>
+<div class="faq_a">
+Suppose your ODE is y'=F(t,y) and you integrate it from 0 to T and that
+you are also interested in computing an integral of the form<br>
+G = int_0^T g(t,y(t)) dt<br>
+for some function g. The most efficient way of computing z is by
+appending one additional differential equation to your ODE system:<br>
+z' = g(t,y)<br>
+with initial condition z(0)=0, in which case<br>
+G = z(T)
+<br><br>
+This additional equation is "a pure quadrature equation" and its main characteristic is that the new differential 
+variable z does not appear in the right hand side of the extended ODE system. If CVODES is notified of such "pure 
+quadrature equations", it can take advantage of this property and do less work than if it didn't know about them
+(these variables need not be considered in the nonlinear system solution).
+<br><br>
+The main reason for the special treatment of "pure quadrature equations" in CVODES is that such integrals (very often a
+large number of them) need to be computed for adjoint sensitivity.
+</div>
+
 
 </div>
 
@@ -463,18 +523,30 @@ the default values are desired, a <tt>NULL</tt> pointer can be passed to <tt>CVo
 <a name="ida_tols"></a>
 <div class="faq_q">How do I choose tolerances in IDA?</div>
 <div class="faq_a">
-See <a href="#cvode_tols">How do I choose tolerances in CVODE / CVODES?</a>
+See <a href="#cvode_tols">How do I choose tolerances?</a> in the CVODE/CVODES section.
 </div>
 
 <a name="ida_negvals"></a>
 <div class="faq_q">How do I control unphysical negative values in IDA?</div>
 <div class="faq_a">
-See <a href="#cvode_negvals">How do I control unphysical negative values in CVODE / CVODES?</a>
+See <a href="#cvode_negvals">How do I control unphysical negative values?</a> in the CVODE/CVODES section.
 <br>
-IDA provides the option of enforcing positivity or non-negativity
+In addition, IDA provides the option of enforcing positivity or non-negativity
 on components.  But these constraint options should only be exercised if
 the use of absolute tolerances to control the computed values is
 unsuccessful, because they involve some extra overhead cost.
+</div>
+
+<a name="ida_disc"></a>
+<div class="faq_q">How do I treat discontinuities in the residual function in IDA?</div>
+<div class="faq_a">
+See <a href="#cvode_disc">How do I treat discontinuities in the RHS function?</a> in the CVODE/CVODES section.
+</div>
+
+<a name="ida_ewtfn"></a>
+<div class="faq_q">When is it advantegeous to supply my own EwtFn function?</div>
+<div class="faq_a">
+See <a href="#cvode_ewtfn">How do I treat discontinuities in the RHS function?</a> in the CVODE/CVODES section.
 </div>
 
 </div>
