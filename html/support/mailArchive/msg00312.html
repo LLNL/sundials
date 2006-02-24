@@ -1,14 +1,15 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: R: [sundials&#45;users] Re: Avoiding discontinuities in y_dot -->
-<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
-<!--X-Date: Wed, 08 Feb 2006 12:55:00 &#45;0800 (PST) -->
-<!--X-Message-Id: Pine.LNX.4.58.0602081244400.8076@tux64.llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] value of t during internal steps of CVODE call -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 22 Feb 2006 09:01:20 &#45;0800 (PST) -->
+<!--X-Message-Id: 43FC983C.80602@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200602080816.k188GaN9000308@nospam&#45;4.llnl.gov -->
+<!--X-Reference: 20060221232047.69837.qmail@web37001.mail.mud.yahoo.com -->
+<!--X-Reference: op.s5ckana5t8lo91@smtp.kuleuven.ac.be -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: R: [sundials-users] Re: Avoiding discontinuities in y_dot</title>
+<title>Re: [sundials-users] value of t during internal steps of CVODE call</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +68,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00291.html">Date Prev</a>] [<a href="msg00293.html">Date Next</a>] [<a href="msg00290.html">Thread Prev</a>] [<a href="msg00241.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00292">Date Index</a></b>]
-[<b><a href="threads.html#00292">Thread Index</a></b>]
+[<a href="msg00311.html">Date Prev</a>] [<a href="msg00313.html">Date Next</a>] [<a href="msg00310.html">Thread Prev</a>] [<a href="msg00313.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00312">Date Index</a></b>]
+[<b><a href="threads.html#00312">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: R: [sundials-users] Re: Avoiding discontinuities in y_dot</h1>
+<h1>Re: [sundials-users] value of t during internal steps of CVODE call</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +85,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 08 Feb 2006 12:53:04 -0800 (PST)</td>
+Wed, 22 Feb 2006 08:58:36 -0800</td>
 </tr>
 
 </table>
@@ -101,67 +102,31 @@ Wed, 08 Feb 2006 12:53:04 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>
-In my opinion, the transformation idea is more harmful than helpful.
-First, the transformation (and its inverse) itself adds expense.
-Second, the proper choice of tolerances for the transformed variable
-is unclear, and is very likely to lead to a more expensive integration
-(aside from the bounds issue).  Finally, I think users are tempted to
-use this (or other tricks) to avoid small (tolerance-level) violations
-of bounds when no such action is really needed.  Just let the small
-unphysical values occur, but locally adjust them if necessary.
+Andreas Nicolai wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Raj,</pre><br>
+Am Tue, 21 Feb 2006 18:20:47 -0500 hat raj duffy &lt;raj_duffy@yahoo.com&gt; 
+geschrieben:<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">This I am doing so as to constrain fluxes to reasonable value such 
+that y's dont' get negative
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+You might want to check out the thread &quot;Avoiding discontinuities in 
+y_dot&quot; not too long ago.<br>
+<br>
+<pre style="margin: 0em;">Andreas</pre><br>
+PS: Radu, is there already some kind of search function for the mailing 
+list archive available? Or would it be possible to set up some kind of 
+FAQ - Wiki page for the more common problems and questions?<br>
+<br>
+</blockquote><br>Yes, there is a search function for the archived messages, but the archive itself has not been 
+updated in quite a while (I changed the format of the web pages and cannot do it until the next 
+release. After that, I'll update the archive more frequently).<br>
+The new website will also have a FAQ section.<br>
+--Radu<br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+<br>
 
-Bad difference-quotient Jacobian values from y_local seem very unlikely to
-me.  The computed values of (partial f / partial y_i) are likely to be
-zero because of y_local, and that is appropriate since y_i is flat (for a
-while).
-
--Alan H.
-
-
-
-On Wed, 8 Feb 2006, Paolo Greppi 3iP wrote:
-
-&gt;<i> Regarding bounds, my experience is as follows.</i>
-&gt;<i> Either the feasible range is open or it is closed. For example open means</i>
-&gt;<i> 0&lt;y&lt;1 and closed 0&lt;=y&lt;=1.</i>
-&gt;<i></i>
-&gt;<i> If the bound is open you can nonlinearly transform the variable so that the</i>
-&gt;<i> unfeasible values are unattainable.</i>
-&gt;<i> One example of function you can use for finite limits is a rational 1st</i>
-&gt;<i> order function; a log scaling is an obvious choice if the feasible range is</i>
-&gt;<i> 0&lt;y&lt;Inf.</i>
-&gt;<i> The solver will see the yscaled=log(y) as the unknown, so no matter how low</i>
-&gt;<i> it will drive it, the physical variable y=exp(yscaled) will be positive.</i>
-&gt;<i></i>
-&gt;<i> If the bound is closed, i.e. even the limit(s) are/is feasible, and if the</i>
-&gt;<i> solver has a step limitation it makes sense to scale anyway with a nonlinear</i>
-&gt;<i> function so that while approaching the limit the solver slows down.</i>
-&gt;<i> In this case you should use one scaling function that makes trespassing the</i>
-&gt;<i> limit possible (maybe using a shift like in log(y+1)).</i>
-&gt;<i> But that does not solve the problem.</i>
-&gt;<i></i>
-&gt;<i> Restricting the values obtained from the solver with y_local protects from</i>
-&gt;<i> division by zero, negative logs and all sort of bad things, but also makes</i>
-&gt;<i> the residual function insensible to further changes to y. Example: if y</i>
-&gt;<i> should be positive and the solver tries first y=-0.1 and next y=-0.01 since</i>
-&gt;<i> the residual always computes with y_local=0, it will be confused.</i>
-&gt;<i> If the jacobian is analytic and computed at y_local=0 it will predict a</i>
-&gt;<i> dependency of f on y which is not seen by the solver when it actually tries</i>
-&gt;<i> different unfeasible values.</i>
-&gt;<i></i>
-&gt;<i> So it is also required to tweak the residual by adding a shadow cost when</i>
-&gt;<i> the limit is trespassed; this acts as a soft wall that smoothly encourages</i>
-&gt;<i> the solver to re-enter the feasible zone.</i>
-&gt;<i> Example:</i>
-&gt;<i> f = f_whatever(y_local) + cost*(y - y_local)</i>
-&gt;<i> This also impacts the jacobian, by adding the cost to the derivative df/dy.</i>
-&gt;<i></i>
-&gt;<i> Any comments welcome,</i>
-&gt;<i></i>
-&gt;<i>       P.</i>
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -172,31 +137,33 @@ On Wed, 8 Feb 2006, Paolo Greppi 3iP wrote:
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00290" href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Paolo Greppi 3iP &lt;paolo.greppi@3ip.it&gt;</li></ul></li>
+<li><strong><a name="00309" href="msg00309.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<ul><li><em>From:</em> raj duffy &lt;raj_duffy@yahoo.com&gt;</li></ul></li>
+<li><strong><a name="00310" href="msg00310.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00291.html">Re: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00311.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00293.html">[sundials-users] Re: y outside feasible range</a></strong>
+<strong><a href="msg00313.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00310.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00241.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00313.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00292">
+<li><a href="maillist.html#00312">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00292">
+<li><a href="threads.html#00312">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

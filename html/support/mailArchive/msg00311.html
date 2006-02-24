@@ -1,0 +1,173 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] value of t during internal steps of CVODE call -->
+<!--X-From-R13: enw qhssl <enw_qhsslNlnubb.pbz> -->
+<!--X-Date: Tue, 21 Feb 2006 19:29:31 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060222032637.35997.qmail@web37014.mail.mud.yahoo.com -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Reference: 43FB8CEB.2070003@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] value of t during internal steps of CVODE call</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00310.html">Date Prev</a>] [<a href="msg00312.html">Date Next</a>] [<a href="msg00308.html">Thread Prev</a>] [<a href="msg00302.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00311">Date Index</a></b>]
+[<b><a href="threads.html#00311">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] value of t during internal steps of CVODE call</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+raj duffy &lt;<a href="mailto:raj_duffy%40yahoo.com">raj_duffy@yahoo.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 21 Feb 2006 19:26:37 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+Hello Radu<br>  <br>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; There are no non-linear convergence  failure and no local error test failure uptill Tsteps=54 which I pasted  earlier. <br>  <br>  Regrads<br>  Raj<br>  <br>  <br><b><i>Radu Serban &lt;serban1@llnl.gov&gt;</i></b> wrote:<blockquote class="replbq" style="border-left: 2px solid rgb(16, 16, 255); margin-left: 5px; padding-left: 5px;">  raj duffy wrote:<br>&gt; <br>&gt;       I checked and the calls indeed they are coming from Jac evaluation it <br>&gt; seems. I am using GMRES-BDF solver. Btw if and when there are<br>&gt; internal time divisions and if I print "t" from inside the fuinction f(),<br>&gt; ain't this will show the internal time steps. Basically I want to have some <br>&gt; flux calculations and check that source volume &gt; CalculatedFlux*(t-ti)<br>&gt;   <br>&gt; Regards<br>&gt;  Raj<br>&gt; <br><br>When using the GMRES linear solver, Jacobian information comes as J*v products and these are <br>evaluated at each !
+ solution
+ of the linear system (i.e. at least once per internal step).<br>This suggests that starting with t~=52 (probably earlier, but can't say from what you've sent) you <br>get quite a few convergence failures.<br>Could you monitor and report this? Use CVodeGetNumNonlinSolvConvFails and CVSpilsGetNumConvFails.<br><br>Secondly, the RHS function may be evaluated at other times than those corresponding to successful <br>internal steps (e.g. in case of error test or convergence failures, the step size will be reduced).<br><br>If you want to do the test you mentioned only to evaluate the quality of the simulation, you should <br>call CVode in ONE_STEP_MODE and perform the check after a successful return from it, outside f(). If <br>you'd like this test to "control" the simulation, then you should do it inside f() at whatever t and <br>y CVODE passes to it, but you'll have to wait for the next release of SUNDIALS which will allow you <br>to return a 'recoverable failure' from the RHS f!
+ unction
+ in case the test fails.<br><br>--Radu<br><br>&gt; */Radu Serban <serban1 @llnl.gov="">/* wrote:<br>&gt; <br>&gt;     Hi Raj,<br>&gt; <br>&gt;     Andreas is correct. These all seem to be calls to the RHS function<br>&gt;     made from the DQ internal<br>&gt;     Jacobian approximation function. To verify that, you can monitor the<br>&gt;     number of calls to f() from<br>&gt;     such DQ functions (use CVDenseGetNumRhsEvals or CVBandGetNumRhsEvals<br>&gt;     for the dense or banded linear<br>&gt;     solver module, respe! ctively). Also, these calls to f() are made at<br>&gt;     the same value of t but each with<br>&gt;     slightly perturbed values of the states (print the values of y from<br>&gt;     within f to see that).<br>&gt; <br>&gt;     However, if this is the case, you should see 6 of these calls at the<br>&gt;     first step too (the Jacobian<br>&gt;     function is always called at nsteps=0).<br>&gt; <br>&gt;     Can you monitor and report some of the other s!
+ olver
+ statistics<br>&gt;     (number of convergence failures,<br>&gt;     error test failures, etc), as well as confirm the linear solver that<br>&gt;     you use?<br>&gt; <br>&gt;     In any case, inside your RHS function, ALWAYS use the value of t<br>&gt;     that is passed as an argument.<br>&gt; <br>&gt;     --Radu<br>&gt; <br>&gt;     raj duffy wrote:<br>&gt;      &gt; Hello<br>&gt;      &gt;<br>&gt;      &gt; When I am printing time t within the for-loop for Cvode with<br>&gt;      &gt; Normal-stepping (denoted by Tsteps) and then inside function f()<br>&gt;      &gt; (denoted by t) I get something like<br>&gt;      &gt;<br>&gt;      &gt; t = 0.000000<br>&gt;      &gt; t = 0.000010<br>&gt;      &gt; t = 0.100010<br>&gt;      &gt; t = 1.100010<br>&gt;      &gt; Tsteps = 1.000000 nsteps 3<br>&gt;      &gt; !<br>&gt;      &gt; t = 2.100010<br>&gt;      &gt; Tsteps = 2.000000 nsteps 4<br>&gt;      &gt;<br>&gt;      &gt; t = 3.100010<br>&gt;      &gt; Tsteps = 3.000000 nsteps 5<!
+ br>&gt;  
+    &gt;<br>&gt;      &gt; t = 4.100010<br>&gt;      &gt; Tsteps = 4.000000 nsteps 6<br>&gt;      &gt;<br>&gt;      &gt; ..........................<br>&gt;      &gt; ........................<br>&gt;      &gt; ......................<br>&gt;      &gt;<br>&gt;      &gt; Tsteps = 51.000000 nsteps 53<br>&gt;      &gt;<br>&gt;      &gt; t = 52.100010<br>&gt;      &gt; t = 52.100010<br>&gt;      &gt; t = 52.100010<br>&gt;      &gt; t = 52.100010<br>&gt;      &gt; t = 52.100010<br>&gt;      &gt; t = 52.100010<br>&gt;      &gt; Tsteps = 52.000000 nsteps 54<br>&gt;      &gt;<br>&gt;      &gt; t = 53.100010<br>&gt;      &gt; t = 53.100010<br>&gt;      &gt; &amp;nb! sp;t = 53.100010<br>&gt;      &gt; t = 53.100010<br>&gt;      &gt; t = 53.100010<br>&gt;      &gt; t = 53.100010<br>&gt;      &gt; Tsteps = 53.000000 nsteps 55<br>&gt;      &gt;<br>&gt;      &gt; t = 54.100010<br>&gt;      &gt; t = 54.100010<br>&gt;      &gt; t = 54.100010<br>&gt;      &gt; t = 54.100010<br>&gt;      &gt; t =
+ 54.100010<br>&gt;      &gt; Tsteps = 54.000000 nsteps 56<br>&gt;      &gt;<br>&gt;      &gt; Now interestingly, number of times f function was called (lets<br>&gt;     say after<br>&gt;      &gt; Tsteps=52 ) is 6 however t doesn'! t shows any internal division<br>&gt;     as all<br>&gt;      &gt; the ts' are same. However the cumulative number of steps taken<br>&gt;     only gets<br>&gt;      &gt; increased by one. So what does this multiple calls to f() suggest.I<br>&gt;      &gt; essentially want to use the value to t during the internal time<br>&gt;     steps in<br>&gt;      &gt; the function f().<br>&gt;      &gt;<br>&gt;      &gt; Regards<br>&gt;      &gt;<br>&gt;      &gt; Raj<br>&gt;      &gt;<br>&gt;      &gt;<br>&gt;     ------------------------------------------------------------------------<br>&gt;      &gt;<br>&gt;      &gt; What are the most popular cars? Find out at Yahoo! Autos<br>&gt;      &gt;<br>&gt;      &gt; &gt;<br>&gt; <br>&gt; <br>&gt; <br>&gt;
+ ------------------------------------------------------------------------<br>&gt; Relax. Yahoo! Mail virus scanning <br>&gt; <http: //us.rd.yahoo.com/mail_us/taglines/virusall/*http://communications.yahoo.com/features.php?page="221"> <br>&gt; helps detect nasty viruses!<br><br><br></http:></serban1></blockquote><br><p>
+		<hr size=1> <a href="http://us.rd.yahoo.com/evt=38381/ ylc=X3oDMTEzcGlrdGY5BF9TAzk3MTA3MDc2BHNlYwNtYWlsdGFncwRzbGsDMWF1dG9z/*http://autos.yahoo.com/index.html ">Yahoo! Autos</a>. Looking for a sweet ride? Get pricing, reviews, & more on new and used cars.
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00308" href="msg00308.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00310.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00312.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00308.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00302.html">[sundials-users] ODE</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00311">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00311">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

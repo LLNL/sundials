@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: R: [sundials&#45;users] Re: Avoiding discontinuities in y_dot -->
-<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
-<!--X-Date: Wed, 08 Feb 2006 12:55:00 &#45;0800 (PST) -->
-<!--X-Message-Id: Pine.LNX.4.58.0602081244400.8076@tux64.llnl.gov -->
-<!--X-Content-Type: text/plain -->
-<!--X-Reference: 200602080816.k188GaN9000308@nospam&#45;4.llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] value of t during internal steps of CVODE call -->
+<!--X-From-R13: enw qhssl <enw_qhsslNlnubb.pbz> -->
+<!--X-Date: Tue, 21 Feb 2006 09:58:07 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060221175557.8542.qmail@web37011.mail.mud.yahoo.com -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Reference: 43FB1CE5.5010601@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: R: [sundials-users] Re: Avoiding discontinuities in y_dot</title>
+<title>Re: [sundials-users] value of t during internal steps of CVODE call</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00291.html">Date Prev</a>] [<a href="msg00293.html">Date Next</a>] [<a href="msg00290.html">Thread Prev</a>] [<a href="msg00241.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00292">Date Index</a></b>]
-[<b><a href="threads.html#00292">Thread Index</a></b>]
+[<a href="msg00305.html">Date Prev</a>] [<a href="msg00307.html">Date Next</a>] [<a href="msg00305.html">Thread Prev</a>] [<a href="msg00307.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00306">Date Index</a></b>]
+[<b><a href="threads.html#00306">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: R: [sundials-users] Re: Avoiding discontinuities in y_dot</h1>
+<h1>Re: [sundials-users] value of t during internal steps of CVODE call</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+raj duffy &lt;<a href="mailto:raj_duffy%40yahoo.com">raj_duffy@yahoo.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 08 Feb 2006 12:53:04 -0800 (PST)</td>
+Tue, 21 Feb 2006 09:55:57 -0800 (PST)</td>
 </tr>
 
 </table>
@@ -101,102 +101,57 @@ Wed, 08 Feb 2006 12:53:04 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>
-In my opinion, the transformation idea is more harmful than helpful.
-First, the transformation (and its inverse) itself adds expense.
-Second, the proper choice of tolerances for the transformed variable
-is unclear, and is very likely to lead to a more expensive integration
-(aside from the bounds issue).  Finally, I think users are tempted to
-use this (or other tricks) to avoid small (tolerance-level) violations
-of bounds when no such action is really needed.  Just let the small
-unphysical values occur, but locally adjust them if necessary.
-
-Bad difference-quotient Jacobian values from y_local seem very unlikely to
-me.  The computed values of (partial f / partial y_i) are likely to be
-zero because of y_local, and that is appropriate since y_i is flat (for a
-while).
-
--Alan H.
-
-
-
-On Wed, 8 Feb 2006, Paolo Greppi 3iP wrote:
-
-&gt;<i> Regarding bounds, my experience is as follows.</i>
-&gt;<i> Either the feasible range is open or it is closed. For example open means</i>
-&gt;<i> 0&lt;y&lt;1 and closed 0&lt;=y&lt;=1.</i>
-&gt;<i></i>
-&gt;<i> If the bound is open you can nonlinearly transform the variable so that the</i>
-&gt;<i> unfeasible values are unattainable.</i>
-&gt;<i> One example of function you can use for finite limits is a rational 1st</i>
-&gt;<i> order function; a log scaling is an obvious choice if the feasible range is</i>
-&gt;<i> 0&lt;y&lt;Inf.</i>
-&gt;<i> The solver will see the yscaled=log(y) as the unknown, so no matter how low</i>
-&gt;<i> it will drive it, the physical variable y=exp(yscaled) will be positive.</i>
-&gt;<i></i>
-&gt;<i> If the bound is closed, i.e. even the limit(s) are/is feasible, and if the</i>
-&gt;<i> solver has a step limitation it makes sense to scale anyway with a nonlinear</i>
-&gt;<i> function so that while approaching the limit the solver slows down.</i>
-&gt;<i> In this case you should use one scaling function that makes trespassing the</i>
-&gt;<i> limit possible (maybe using a shift like in log(y+1)).</i>
-&gt;<i> But that does not solve the problem.</i>
-&gt;<i></i>
-&gt;<i> Restricting the values obtained from the solver with y_local protects from</i>
-&gt;<i> division by zero, negative logs and all sort of bad things, but also makes</i>
-&gt;<i> the residual function insensible to further changes to y. Example: if y</i>
-&gt;<i> should be positive and the solver tries first y=-0.1 and next y=-0.01 since</i>
-&gt;<i> the residual always computes with y_local=0, it will be confused.</i>
-&gt;<i> If the jacobian is analytic and computed at y_local=0 it will predict a</i>
-&gt;<i> dependency of f on y which is not seen by the solver when it actually tries</i>
-&gt;<i> different unfeasible values.</i>
-&gt;<i></i>
-&gt;<i> So it is also required to tweak the residual by adding a shadow cost when</i>
-&gt;<i> the limit is trespassed; this acts as a soft wall that smoothly encourages</i>
-&gt;<i> the solver to re-enter the feasible zone.</i>
-&gt;<i> Example:</i>
-&gt;<i> f = f_whatever(y_local) + cost*(y - y_local)</i>
-&gt;<i> This also impacts the jacobian, by adding the cost to the derivative df/dy.</i>
-&gt;<i></i>
-&gt;<i> Any comments welcome,</i>
-&gt;<i></i>
-&gt;<i>       P.</i>
-
-</pre>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I checked and the calls indeed they are coming from Jac evaluation it&nbsp;<BR> seems. I am using GMRES-BDF solver. Btw if and when there are internal&nbsp;<BR> time divisions and if I print "t" from inside the fuinction f(), ain't&nbsp;<BR> this will show the internal time steps. Basically I want to have some&nbsp;<BR> flux calculations and check that source volume&nbsp;&gt; CalculatedFlux*(t-ti)<BR>&nbsp;&nbsp;<BR> Regards<BR>&nbsp;Raj<BR><BR><B><I>Radu Serban &lt;serban1@llnl.gov&gt;</I></B> wrote:  <BLOCKQUOTE class=replbq style="PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: #1010ff 2px solid">Hi Raj,<BR><BR>Andreas is correct. These all seem to be calls to the RHS function made from the DQ internal <BR>Jacobian approximation function. To verify that, you can monitor the number of calls to f() from <BR>such DQ functions (use CVDenseGetNumRhsEvals or CVBandGetNumRhsEvals for the dense or banded linear <BR>solver module, respe!
+ ctively).
+ Also, these calls to f() are made at the same value of t but each with <BR>slightly perturbed values of the states (print the values of y from within f to see that).<BR><BR>However, if this is the case, you should see 6 of these calls at the first step too (the Jacobian <BR>function is always called at nsteps=0).<BR><BR>Can you monitor and report some of the other solver statistics (number of convergence failures, <BR>error test failures, etc), as well as confirm the linear solver that you use?<BR><BR>In any case, inside your RHS function, ALWAYS use the value of t that is passed as an argument.<BR><BR>--Radu<BR><BR>raj duffy wrote:<BR>&gt; Hello<BR>&gt; <BR>&gt; When I am printing time t within the for-loop for Cvode with <BR>&gt; Normal-stepping (denoted by Tsteps) and then inside function f() <BR>&gt; (denoted by t) I get something like<BR>&gt; <BR>&gt; t = 0.000000<BR>&gt; t = 0.000010<BR>&gt; t = 0.100010<BR>&gt; t = 1.100010<BR>&gt; Tsteps = 1.000000 nsteps 3<BR>&gt; !
+ <BR>&gt;
+ t = 2.100010<BR>&gt; Tsteps = 2.000000 nsteps 4<BR>&gt; <BR>&gt; t = 3.100010<BR>&gt; Tsteps = 3.000000 nsteps 5<BR>&gt; <BR>&gt; t = 4.100010<BR>&gt; Tsteps = 4.000000 nsteps 6<BR>&gt; <BR>&gt; ..........................<BR>&gt; ........................<BR>&gt; ......................<BR>&gt; <BR>&gt; Tsteps = 51.000000 nsteps 53<BR>&gt; <BR>&gt; t = 52.100010<BR>&gt; t = 52.100010<BR>&gt; t = 52.100010<BR>&gt; t = 52.100010<BR>&gt; t = 52.100010<BR>&gt; t = 52.100010<BR>&gt; Tsteps = 52.000000 nsteps 54<BR>&gt; <BR>&gt; t = 53.100010<BR>&gt; t = 53.100010<BR>&gt; &amp;nb! sp;t = 53.100010<BR>&gt; t = 53.100010<BR>&gt; t = 53.100010<BR>&gt; t = 53.100010<BR>&gt; Tsteps = 53.000000 nsteps 55<BR>&gt; <BR>&gt; t = 54.100010<BR>&gt; t = 54.100010<BR>&gt; t = 54.100010<BR>&gt; t = 54.100010<BR>&gt; t = 54.100010<BR>&gt; Tsteps = 54.000000 nsteps 56<BR>&gt; <BR>&gt; Now interestingly, number of times f function was called (lets say after <BR>&gt; Tsteps=52 ) is 6 however t doesn'!
+ t shows
+ any internal division as all <BR>&gt; the ts' are same. However the cumulative number of steps taken only gets <BR>&gt; increased by one. So what does this multiple calls to f() suggest.I <BR>&gt; essentially want to use the value to t during the internal time steps in <BR>&gt; the function f().<BR>&gt; <BR>&gt; Regards<BR>&gt; <BR>&gt; Raj<BR>&gt; <BR>&gt; ------------------------------------------------------------------------<BR>&gt; <BR>&gt; What are the most popular cars? Find out at Yahoo! Autos <BR>&gt; <HTTP: <br evt="38382/_ylc=X3oDMTEzNWFva2Y2BF9TAzk3MTA3MDc2BHNlYwNtYWlsdGFncwRzbGsDMmF1dG9z/*http://autos.yahoo.com/newcars/popular/thisweek.html" us.rd.yahoo.com>&gt; &gt;<BR><BR><BR></BLOCKQUOTE><BR><p>
+		<hr size=1>Relax. Yahoo! Mail 
+<a href="http://us.rd.yahoo.com/mail_us/taglines/virusall/*http://communications.yahoo.com/features.php?page=221">virus scanning</a> helps detect nasty viruses!
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00308" href="msg00308.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00307" href="msg00307.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00290" href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Paolo Greppi 3iP &lt;paolo.greppi@3ip.it&gt;</li></ul></li>
+<li><strong><a name="00305" href="msg00305.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00291.html">Re: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00305.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00293.html">[sundials-users] Re: y outside feasible range</a></strong>
+<strong><a href="msg00307.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00305.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00241.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00307.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00292">
+<li><a href="maillist.html#00306">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00292">
+<li><a href="threads.html#00306">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

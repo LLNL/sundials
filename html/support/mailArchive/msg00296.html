@@ -1,14 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: R: [sundials&#45;users] Re: Avoiding discontinuities in y_dot -->
-<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
-<!--X-Date: Wed, 08 Feb 2006 12:55:00 &#45;0800 (PST) -->
-<!--X-Message-Id: Pine.LNX.4.58.0602081244400.8076@tux64.llnl.gov -->
+<!--X-Subject: [sundials&#45;users] Interesting rounding error problem... -->
+<!--X-From-R13: Oaqernf @vpbynv <Oaqernf.@vpbynvNtzk.arg> -->
+<!--X-Date: Thu, 16 Feb 2006 08:50:26 &#45;0800 (PST) -->
+<!--X-Message-Id: op.s42rlrwgt8lo91@smtp.kuleuven.ac.be -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200602080816.k188GaN9000308@nospam&#45;4.llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: R: [sundials-users] Re: Avoiding discontinuities in y_dot</title>
+<title>[sundials-users] Interesting rounding error problem...</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00291.html">Date Prev</a>] [<a href="msg00293.html">Date Next</a>] [<a href="msg00290.html">Thread Prev</a>] [<a href="msg00241.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00292">Date Index</a></b>]
-[<b><a href="threads.html#00292">Thread Index</a></b>]
+[<a href="msg00295.html">Date Prev</a>] [<a href="msg00297.html">Date Next</a>] [<a href="msg00293.html">Thread Prev</a>] [<a href="msg00299.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00296">Date Index</a></b>]
+[<b><a href="threads.html#00296">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: R: [sundials-users] Re: Avoiding discontinuities in y_dot</h1>
+<h1>[sundials-users] Interesting rounding error problem...</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+Andreas Nicolai &lt;<a href="mailto:Andreas.Nicolai%40gmx.net">Andreas.Nicolai@gmx.net</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 08 Feb 2006 12:53:04 -0800 (PST)</td>
+Thu, 16 Feb 2006 11:47:41 -0500</td>
 </tr>
 
 </table>
@@ -101,102 +100,64 @@ Wed, 08 Feb 2006 12:53:04 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>
-In my opinion, the transformation idea is more harmful than helpful.
-First, the transformation (and its inverse) itself adds expense.
-Second, the proper choice of tolerances for the transformed variable
-is unclear, and is very likely to lead to a more expensive integration
-(aside from the bounds issue).  Finally, I think users are tempted to
-use this (or other tricks) to avoid small (tolerance-level) violations
-of bounds when no such action is really needed.  Just let the small
-unphysical values occur, but locally adjust them if necessary.
+<pre style="margin: 0em;">Hi there,</pre><br>
+<pre style="margin: 0em;">here's again a problem of the wonderful world of real-life-physics and 
+associated numerical problems :-)</pre><br>
+<pre style="margin: 0em;">I have a state variable that stores salt masses.
+I also have a water mass state variable.</pre><br>
+<pre style="margin: 0em;">Now I run a simulation with salt masses = 0. During the simulation I get values 
+around the noise level (typically salt masses -1e-15 &gt; ms &gt; 1e-15.</pre><br>
+<pre style="margin: 0em;">The problem arises when I have very low water masses (mw &lt; 1e-8) and I 
+calculate molalities: ms/mw. Then I get molalities that result purely from 
+numerical errors, up to an order of magnitude bigger then 1e-6. However, the 
+sensitivity of my solution properties and calculated fluxes already starts at this 
+level, resulting in some interesting errors that just keep increasing over time...</pre><br>
+<pre style="margin: 0em;">The fix I'm using right now is to control my salt masses: If they are in the 
+range of my (user defined) noise level, I set them to zero and my molalities 
+stay zero, too. Still, that seems to be some kind of ugly hack.</pre><br>
+<pre style="margin: 0em;">Does anybody have a similar problem and some suggestions how to correct for it?</pre><br>
+<pre style="margin: 0em;">Andreas</pre><br>
+<pre style="margin: 0em;">--
+Andreas Nicolai                   Andreas.Nicolai@gmx.net
+Syracuse University               +01 (315) 443 1099
+151 E.A.Link Hall
+Syracuse NY 13244-1240</pre><br>
 
-Bad difference-quotient Jacobian values from y_local seem very unlikely to
-me.  The computed values of (partial f / partial y_i) are likely to be
-zero because of y_local, and that is appropriate since y_i is flat (for a
-while).
-
--Alan H.
-
-
-
-On Wed, 8 Feb 2006, Paolo Greppi 3iP wrote:
-
-&gt;<i> Regarding bounds, my experience is as follows.</i>
-&gt;<i> Either the feasible range is open or it is closed. For example open means</i>
-&gt;<i> 0&lt;y&lt;1 and closed 0&lt;=y&lt;=1.</i>
-&gt;<i></i>
-&gt;<i> If the bound is open you can nonlinearly transform the variable so that the</i>
-&gt;<i> unfeasible values are unattainable.</i>
-&gt;<i> One example of function you can use for finite limits is a rational 1st</i>
-&gt;<i> order function; a log scaling is an obvious choice if the feasible range is</i>
-&gt;<i> 0&lt;y&lt;Inf.</i>
-&gt;<i> The solver will see the yscaled=log(y) as the unknown, so no matter how low</i>
-&gt;<i> it will drive it, the physical variable y=exp(yscaled) will be positive.</i>
-&gt;<i></i>
-&gt;<i> If the bound is closed, i.e. even the limit(s) are/is feasible, and if the</i>
-&gt;<i> solver has a step limitation it makes sense to scale anyway with a nonlinear</i>
-&gt;<i> function so that while approaching the limit the solver slows down.</i>
-&gt;<i> In this case you should use one scaling function that makes trespassing the</i>
-&gt;<i> limit possible (maybe using a shift like in log(y+1)).</i>
-&gt;<i> But that does not solve the problem.</i>
-&gt;<i></i>
-&gt;<i> Restricting the values obtained from the solver with y_local protects from</i>
-&gt;<i> division by zero, negative logs and all sort of bad things, but also makes</i>
-&gt;<i> the residual function insensible to further changes to y. Example: if y</i>
-&gt;<i> should be positive and the solver tries first y=-0.1 and next y=-0.01 since</i>
-&gt;<i> the residual always computes with y_local=0, it will be confused.</i>
-&gt;<i> If the jacobian is analytic and computed at y_local=0 it will predict a</i>
-&gt;<i> dependency of f on y which is not seen by the solver when it actually tries</i>
-&gt;<i> different unfeasible values.</i>
-&gt;<i></i>
-&gt;<i> So it is also required to tweak the residual by adding a shadow cost when</i>
-&gt;<i> the limit is trespassed; this acts as a soft wall that smoothly encourages</i>
-&gt;<i> the solver to re-enter the feasible zone.</i>
-&gt;<i> Example:</i>
-&gt;<i> f = f_whatever(y_local) + cost*(y - y_local)</i>
-&gt;<i> This also impacts the jacobian, by adding the cost to the derivative df/dy.</i>
-&gt;<i></i>
-&gt;<i> Any comments welcome,</i>
-&gt;<i></i>
-&gt;<i>       P.</i>
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00299" href="msg00299.html">Re: [sundials-users] Interesting rounding error problem...</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00290" href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
-<ul><li><em>From:</em> Paolo Greppi 3iP &lt;paolo.greppi@3ip.it&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00291.html">Re: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00295.html">Re: [sundials-users] Re: y outside feasible range</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00293.html">[sundials-users] Re: y outside feasible range</a></strong>
+<strong><a href="msg00297.html">[sundials-users] Communication between processors within time step</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00290.html">R: [sundials-users] Re: Avoiding discontinuities in y_dot</a></strong>
+<strong><a href="msg00293.html">[sundials-users] Re: y outside feasible range</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00241.html">RE: Building SUNDIALS/CVODE on Windows</a></strong>
+<strong><a href="msg00299.html">Re: [sundials-users] Interesting rounding error problem...</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00292">
+<li><a href="maillist.html#00296">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00292">
+<li><a href="threads.html#00296">
 <strong>Thread</strong></a></li>
 </ul>
 </li>
