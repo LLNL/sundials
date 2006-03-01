@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.32 $
-# $Date: 2006-01-11 21:13:43 $
+# $Revision: 1.33 $
+# $Date: 2006-03-01 23:26:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -826,6 +826,7 @@ AC_DEFUN([SUNDIALS_F77_LNKR_CHECK],
 AC_LANG_PUSH([C])
 
 # Check if using a C++ compiler
+AC_MSG_CHECKING([if $CC is a C++ compiler])
 AC_RUN_IFELSE(
 [AC_LANG_PROGRAM([[]],
 [[
@@ -836,21 +837,20 @@ AC_RUN_IFELSE(
 #endif
 ]])],
 [
-
+AC_MSG_RESULT([yes])
 # CC is a C++ compiler so run the next test
 RUN_F77_LNKR_CHECK="yes"
-
 ],
 [
-
+AC_MSG_RESULT([no])
 # CC is a C compiler so skip the next test
 RUN_F77_LNKR_CHECK="no"
-
 ])
 
 # Revert back to previous language (Fortran 77)
 AC_LANG_POP([C])
 
+AC_MSG_CHECKING([what linker to use])
 # Perform the next test only if using a C++ compiler to build SUNDIALS
 if test "X${RUN_F77_LNKR_CHECK}" = "Xyes"; then
 
@@ -904,6 +904,7 @@ else
   F77_LNKR="\$(F77)"
 
 fi
+AC_MSG_RESULT([$F77_LNKR])
 
 ]) dnl SUNDIALS_F77_LNKR_CHECK
 
@@ -1279,6 +1280,7 @@ MPI_FLAGS_OK="no"
 ])
 
 # MPI-C compiler
+AC_MSG_CHECKING([if using MPI script])
 AC_ARG_WITH(mpicc,
 [AC_HELP_STRING([--with-mpicc[[[[=ARG]]]]],[specify MPI-C compiler to use @<:@mpicc@:>@],
                 [                                ])],
@@ -1291,9 +1293,10 @@ else
 fi
 ],
 [
-USE_MPICC_SCRIPT="yes"
- MPICC_COMP="mpicc"
+  USE_MPICC_SCRIPT="yes"
+  MPICC_COMP="mpicc"
 ])
+AC_MSG_RESULT([$USE_MPICC_SCRIPT])
 
 # Check MPI-C compiler (either MPI compiler script or regular C compiler)
 if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
@@ -1302,11 +1305,6 @@ else
   MPICC_COMP="${CC}"
   MPICC="${CC}"
   SUNDIALS_CHECK_CC_WITH_MPI
-fi
-
-# Determine if MPI_Comm_f2c() from MPI-2 is supported
-if test "X${MPI_C_COMP_OK}" = "Xyes"; then
-  SUNDIALS_CHECK_MPICOMMF2C
 fi
 
 ]) dnl END SUNDIALS_SET_MPICC
@@ -1321,19 +1319,24 @@ AC_DEFUN([SUNDIALS_CHECK_MPICC],
 # Test MPI-C compiler (meaning test MPICC_COMP)
 # Check if MPI-C compiler can be found
 
+AC_MSG_CHECKING([if $MPICC_COMP exists])
+
 # CASE 1: MPICC_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPICC_COMP} ; then
 
+  AC_MSG_RESULT([yes])
   MPICC_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`AS_DIRNAME(["${MPICC_COMP}"])`
-  MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-  MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+  TMP_MPI_INC_DIR="${MPI_BASE_DIR}/../include"
+  TMP_MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
 
 # CASE 2: MPICC_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
+  AC_MSG_RESULT([no])
 
   if test "X${MPI_ROOT_DIR}" = "X"; then
     # Try to find location of executable (perhaps directory was entered
@@ -1348,22 +1351,25 @@ else
     else
       MPICC_COMP_EXISTS="yes"
       MPI_BASE_DIR=`AS_DIRNAME(["${MPICC_COMP}"])`
-      MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-      MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+      TMP_MPI_INC_DIR="${MPI_BASE_DIR}/../include"
+      TMP_MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
 
   # CASE 3: MPICC_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
 
+    AC_MSG_CHECKING([if $MPICC_COMP exists in ${MPI_ROOT_DIR}/bin])
     # MPICC_COMP should really only contain an executable name
     # Found location of MPICC_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICC_COMP} ; then
+      AC_MSG_RESULT([yes])
       MPICC_COMP_EXISTS="yes"
       MPICC_COMP="${MPI_ROOT_DIR}/bin/${MPICC_COMP}"
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+      TMP_MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+      TMP_MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
     # Could NOT find MPICC_COMP anywhere
     else
+      AC_MSG_RESULT([no])
       MPICC_COMP_EXISTS="no"
       MPICC_COMP=""
     fi
@@ -1372,11 +1378,23 @@ else
 
 fi
 
-# Issue warning message if MPICC_COMP does NOT exist, else set MPICC
+# If MPICC_COMP exists, set MPICC and (conditionally) set MPI_INC_DIR
+# and MPI_LIB_DIR so that we do not end up with empty -I options.
+# Otherwise, issue warning message
 if test "X${MPICC_COMP_EXISTS}" = "Xyes"; then
 
   MPICC="${MPICC_COMP}"
   MPI_C_COMP_OK="yes"
+
+  # If MPI_INC_DIR is empty, set it to TMP_MPI_INC_DIR
+  if test "X${MPI_INC_DIR}" = "X"; then
+    MPI_INC_DIR="$TMP_MPI_INC_DIR"
+  fi
+
+  # If MPI_LIB_DIR is empty, set it to TMP_MPI_LIB_DIR
+  if test "X${MPI_LIB_DIR}" = "X"; then
+    MPI_LIB_DIR="$TMP_MPI_LIB_DIR"
+  fi
 
 else
 
@@ -1407,6 +1425,11 @@ fi
 AC_DEFUN([SUNDIALS_CHECK_CC_WITH_MPI],
 [
 
+# Test if we can compile MPI programs using the CC compiler
+# and current MPI settings
+
+AC_MSG_NOTICE([Testing CC with MPI settings])
+
 # Save copies of CPPFLAGS, LDFLAGS and LIBS (preserve information)
 # Temporarily overwritten so we can test MPI implementation
 SAVED_CPPFLAGS="${CPPFLAGS}"
@@ -1416,11 +1439,14 @@ SAVED_LIBS="${LIBS}"
 # Determine location of MPI header files (find MPI include directory)
 MPI_EXISTS="yes"
 
-# MPI include directory was NOT explicitly specified so check if MPI root
+AC_MSG_CHECKING([for location of MPI implementation])
+
+# If MPI include directory was NOT explicitly specified so check if MPI root
 # directory was given by user
 if test "X${MPI_INC_DIR}" = "X"; then
-  # MPI root directory was NOT given so issue a warning message
+  # If MPI root directory was NOT given so issue a warning message
   if test "X${MPI_ROOT_DIR}" = "X"; then
+    AC_MSG_RESULT([not found])
     MPI_EXISTS="no"
     AC_MSG_WARN([cannot find MPI implementation files])
     echo ""
@@ -1439,6 +1465,7 @@ if test "X${MPI_INC_DIR}" = "X"; then
   # Update CPPFLAGS
   else
     MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+    AC_MSG_RESULT([$MPI_INC_DIR])
     if test "X${CPPFLAGS}" = "X"; then
       CPPFLAGS="-I${MPI_INC_DIR}"
     else
@@ -1453,6 +1480,7 @@ if test "X${MPI_INC_DIR}" = "X"; then
   fi
 # MPI include directory was specified so update CPPFLAGS
 else
+  AC_MSG_RESULT([$MPI_INC_DIR])
   if test "X${CPPFLAGS}" = "X"; then
     CPPFLAGS="-I${MPI_INC_DIR}"
   else
@@ -1469,11 +1497,14 @@ fi
 # Only continue if found an MPI implementation
 if test "X${MPI_EXISTS}" = "Xyes"; then
 
+  AC_MSG_CHECKING([for location of MPI libraries])
+
   # Determine location of MPI libraries
   # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
   # Update LDFLAGS
   if test "X${MPI_LIB_DIR}" = "X"; then
     MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+    AC_MSG_RESULT([$MPI_LIB_DIR])
     if test "X${LDFLAGS}" = "X"; then
       LDFLAGS="-L${MPI_LIB_DIR}"
     else
@@ -1481,6 +1512,7 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
     fi
   # MPI library directory was specified so update LDFLAGS
   else
+    AC_MSG_RESULT([$MPI_LIB_DIR])
     if test "X${LDFLAGS}" = "X"; then
       LDFLAGS="-L${MPI_LIB_DIR}"
     else
@@ -1492,7 +1524,7 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
   # If no libraries are given, then issue a warning message
   AC_MSG_CHECKING([for MPI libraries])
   if test "X${MPI_LIBS}" = "X"; then
-    AC_MSG_RESULT(none)
+    AC_MSG_RESULT([none])
     AC_MSG_WARN([no MPI libraries were given])
     echo ""
     echo "   Unable to compile MPI program using C compiler because"
@@ -1544,7 +1576,6 @@ else
   MPI_C_COMP_OK="no"
 fi
   
-
 # Restore CPPFLAGS, LDFLAGS and LIBS
 CPPFLAGS="${SAVED_CPPFLAGS}"
 LDFLAGS="${SAVED_LDFLAGS}"
@@ -1715,6 +1746,7 @@ LIBS="${SAVED_LIBS}"
 AC_DEFUN([SUNDIALS_SET_MPIF77],
 [
 
+AC_MSG_CHECKING([if using MPI script])
 AC_ARG_WITH(mpif77,
 [AC_HELP_STRING([--with-mpif77[[[[=ARG]]]]],[specify MPI-Fortran compiler to use @<:@mpif77@:>@],
                 [                                ])],
@@ -1730,6 +1762,7 @@ fi
 USE_MPIF77_SCRIPT="yes"
 MPIF77_COMP="mpif77"
 ])
+AC_MSG_RESULT([$USE_MPIF77_SCRIPT])
 
 # Do NOT even check for MPI support for Fortran if serial Fortran compiler does NOT work
 # Need serial Fortran compiler to determine name-mangline scheme, and FCMIX libraries will
@@ -1743,6 +1776,14 @@ if test "X${F77_OK}" = "Xyes"; then
     MPIF77="${F77}"
     SUNDIALS_CHECK_F77_WITH_MPI
   fi
+
+  # Determine if MPI_Comm_f2c() from MPI-2 is supported
+  SUNDIALS_CHECK_MPICOMMF2C
+
+else
+
+  AC_MSG_WARN([serial F77 does not work so we do not even bother with MPI-F77])
+
 fi
 
 ]) dnl END SUNDIALS_SET_MPIF77
@@ -1762,6 +1803,7 @@ SAVED_CC="${CC}"
 CC="${MPICC_COMP}"
 
 # Check if using a C++ compiler (MPI-C++ script)
+AC_MSG_CHECKING([if $CC is a C++ compiler])
 AC_RUN_IFELSE(
 [AC_LANG_PROGRAM([[]],
 [[
@@ -1772,16 +1814,14 @@ AC_RUN_IFELSE(
 #endif
 ]])],
 [
-
+AC_MSG_RESULT([yes])
 # MPICC uses a C++ compiler so run the next test
 RUN_MPIF77_LNKR_CHECK="yes"
-
 ],
 [
-
+AC_MSG_RESULT([no])
 # MPICC uses a C compiler so skip the next test
 RUN_MPIF77_LNKR_CHECK="no"
-
 ])
 
 # Reset CC to original value
@@ -1790,6 +1830,7 @@ CC="${SAVED_CC}"
 # Restore the language stack
 AC_LANG_POP([C])
 
+AC_MSG_CHECKING([what linker to use])
 # Perform the next test only if using a C++ compiler to build NVECTOR_PARALLEL
 if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
 
@@ -1864,6 +1905,8 @@ else
   MPIF77_LNKR="\$(MPIF77)"
 
 fi
+AC_MSG_RESULT([$MPIF77_LNKR])
+
 
 ]) dnl SUNDIALS_MPIF77_LNKR_CHECK
 
@@ -1877,24 +1920,26 @@ AC_DEFUN([SUNDIALS_CHECK_MPIF77],
 # Test the MPI-Fortran compiler (meaning test MPIF77_COMP)
 # Check if MPI-Fortran compiler can be found
 
+AC_MSG_CHECKING([if $MPIF77_COMP exists])
+
 # CASE 1: MPIF77_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPIF77_COMP} ; then
 
+  AC_MSG_RESULT([yes])
   MPIF77_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`AS_DIRNAME(["${MPIF77_COMP}"])`
-  MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-  MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
 
 # CASE 2: MPIF77_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
 
+  AC_MSG_RESULT([no])
+
   if test "X${MPI_ROOT_DIR}" = "X"; then
 
-    # Try to find location of executable (perhaps directory was entered
-    # incorrectly)
+    # Try to find location of executable (perhaps directory was entered incorrectly)
     TEMP_MPIF77_COMP=`basename "${MPIF77_COMP}"`
     AC_PATH_PROG([MPIF77_COMP],[${TEMP_MPIF77_COMP}],[none])
     # Cannot find executable in PATH
@@ -1905,22 +1950,21 @@ else
     else
       MPIF77_COMP_EXISTS="yes"
       MPI_BASE_DIR=`AS_DIRNAME(["${MPIF77_COMP}"])`
-      MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-      MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
 
   # CASE 3: MPIF77_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
 
+    AC_MSG_CHECKING([if $MPIF77_COMP exists in ${MPI_ROOT_DIR}/bin])
     # MPIF77_COMP should really only contain an executable name
     # Found location of MPIF77_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPIF77_COMP} ; then
+      AC_MSG_RESULT([yes])
       MPIF77_COMP_EXISTS="yes"
       MPIF77_COMP="${MPI_ROOT_DIR}/bin/${MPIF77_COMP}"
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
     # Could NOT find MPIF77_COMP anywhere
     else
+      AC_MSG_RESULT([no])
       MPIF77_COMP_EXISTS="no"
       MPIF77_COMP=""
     fi
@@ -1934,6 +1978,9 @@ if test "X${MPIF77_COMP_EXISTS}" = "Xyes"; then
 
   MPIF77="${MPIF77_COMP}"
   MPI_F77_COMP_OK="yes"
+
+  # Note that we do not have to worry about empty MPI_INC_DIR and MPI_LIB_DIR
+  # here as they were set in SUNDIALS_CHECK_MPICC
 
   # Check if we must use the MPI-Fortran compiler script (MPIF77) to link
   # the Fortran examples (default is to use MPICC)
@@ -1968,6 +2015,11 @@ fi
 AC_DEFUN([SUNDIALS_CHECK_F77_WITH_MPI],
 [
 
+# Test if we can compile MPI programs using the F77 compiler
+# and current MPI settings
+
+AC_MSG_NOTICE([Testing F77 with MPI settings])
+
 AC_LANG_PUSH([Fortran 77])
 
 # Save copies of FFLAGS, LDFLAGS and LIBS (preserve information)
@@ -1983,11 +2035,15 @@ if test "X${F77_OK}" = "Xyes"; then
   # SUNDIALS_CHECK_CC_WITH_MPI has been executed
   # Determine location of MPI header files (find MPI include directory)
   MPI_EXISTS="yes"
-  # MPI include directory was NOT explicitly specified so check if MPI root
+
+  AC_MSG_CHECKING([for location of MPI implementation])
+
+  # If MPI include directory was NOT explicitly specified so check if MPI root
   # directory was given by user
   if test "X${MPI_INC_DIR}" = "X"; then
-    # MPI root directory was NOT given so issue a warning message
+    # If MPI root directory was NOT given so issue a warning message
     if test "X${MPI_ROOT_DIR}" = "X"; then
+      AC_MSG_RESULT([not found])
       MPI_EXISTS="no"
       AC_MSG_WARN([cannot find MPI implementation files])
       echo ""
@@ -2006,6 +2062,7 @@ if test "X${F77_OK}" = "Xyes"; then
     # Update FFLAGS
     else
       MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+      AC_MSG_RESULT([$MPI_INC_DIR])
       if test "X${FFLAGS}" = "X"; then
         FFLAGS="-I${MPI_INC_DIR}"
       else
@@ -2014,6 +2071,7 @@ if test "X${F77_OK}" = "Xyes"; then
     fi
   # MPI include directory was specified so update FFLAGS
   else
+    AC_MSG_RESULT([$MPI_INC_DIR])
     if test "X${FFLAGS}" = "X"; then
       FFLAGS="-I${MPI_INC_DIR}"
     else
@@ -2024,11 +2082,14 @@ if test "X${F77_OK}" = "Xyes"; then
   # Only continue if found an MPI implementation
   if test "X${MPI_EXISTS}" = "Xyes"; then
 
+    AC_MSG_CHECKING([for location of MPI libraries])
+
     # Determine location of MPI libraries
     # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
     # Update LDFLAGS
     if test "X${MPI_LIB_DIR}" = "X"; then
       MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+      AC_MSG_RESULT([$MPI_LIB_DIR])
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -2036,6 +2097,7 @@ if test "X${F77_OK}" = "Xyes"; then
       fi
     # MPI library directory was specified so update LDFLAGS
     else
+      AC_MSG_RESULT([$MPI_LIB_DIR])
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -2045,7 +2107,9 @@ if test "X${F77_OK}" = "Xyes"; then
 
     # Check if user specified which MPI libraries must be included
     # If no libraries are given, then issue a warning message
+    AC_MSG_CHECKING([for MPI libraries])
     if test "X${MPI_LIBS}" = "X"; then
+      AC_MSG_RESULT([none])
       echo ""
       echo "   Unable to compile MPI program using Fortran compiler because"
       echo "   MPI libraries were not specified."
@@ -2058,6 +2122,7 @@ if test "X${F77_OK}" = "Xyes"; then
       MPI_F77_COMP_OK="no"
     # MPI libraries were specified so update LIBS
     else
+      AC_MSG_RESULT([${MPI_LIBS}])
       if test "X${LIBS}" = "X"; then
         LIBS="${MPI_LIBS}"
       else
@@ -2108,10 +2173,13 @@ if test "X${F77_OK}" = "Xyes"; then
   else
     MPI_F77_COMP_OK="no"
   fi
+
 else
+
   AC_MSG_WARN([cannot find Fortran compiler])
   MPI_F77_COMP_OK="no"
   SUNDIALS_WARN_FLAG="yes"
+
 fi
 
 # Restore FFLAGS, LDFLAGS and LIBS
@@ -2130,6 +2198,7 @@ AC_LANG_POP([Fortran 77])
 AC_DEFUN([SUNDIALS_SET_MPICXX],
 [
 
+AC_MSG_CHECKING([if using MPI script])
 AC_ARG_WITH(mpicxx,
 [AC_HELP_STRING([--with-mpicxx[[[[=ARG]]]]],[specify MPI-C++ compiler to use @<:@mpiCC@:>@],
                 [                                ])],
@@ -2145,6 +2214,7 @@ fi
 USE_MPICXX_SCRIPT="yes"
 MPICXX_COMP="mpiCC"
 ])
+AC_MSG_RESULT([$USE_MPICXX_SCRIPT])
 
 # Check MPI-C++ compiler (either MPI compiler script or regular C++ compiler)
 if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
@@ -2169,19 +2239,22 @@ AC_DEFUN([SUNDIALS_CHECK_MPICXX],
 # Test the MPI-C++ compiler (meaning test MPICXX_COMP)
 # Check if MPI-C++ compiler can be found
 
+AC_MSG_CHECKING([if $MPICXX_COMP exists])
+
 # CASE 1: MPICXX_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPICXX_COMP} ; then
 
+  AC_MSG_RESULT([yes])
   MPICXX_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`AS_DIRNAME(["${MPICXX_COMP}"])`
-  MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-  MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
 
 # CASE 2: MPICXX_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
+  AC_MSG_RESULT([no])
 
   if test "X${MPI_ROOT_DIR}" = "X"; then
 
@@ -2197,22 +2270,21 @@ else
     else
       MPICXX_COMP_EXISTS="yes"
       MPI_BASE_DIR=`AS_DIRNAME(["${MPICXX_COMP}"])`
-      MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-      MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
 
   # CASE 3: MPICXX_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
 
+    AC_MSG_CHECKING([if $MPIF77_COMP exists in ${MPI_ROOT_DIR}/bin])
     # MPICXX_COMP should really only contain an executable name
     # Found location of MPICXX_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICXX_COMP} ; then
+      AC_MSG_RESULT([yes])
       MPICXX_COMP_EXISTS="yes"
       MPICXX_COMP="${MPI_ROOT_DIR}/bin/${MPICXX_COMP}"
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
     # Could NOT find MPICXX_COMP anywhere
     else
+      AC_MSG_RESULT([no])
       MPICXX_COMP_EXISTS="no"
       MPICXX_COMP=""
     fi
@@ -2223,9 +2295,15 @@ fi
 
 # Issue warning message if MPICXX_COMP does NOT exist, else set MPICXX
 if test "X${MPICXX_COMP_EXISTS}" = "Xyes"; then
+
   MPICXX="${MPICXX_COMP}"
   MPI_CXX_COMP_OK="yes"
+
+  # Note that we do not have to worry about empty MPI_INC_DIR and MPI_LIB_DIR
+  # here as they were set in SUNDIALS_CHECK_MPICC
+
 else
+
   AC_MSG_WARN([cannot find MPI-C++ compiler])
   echo ""
   echo "   Unable to find a functional MPI-C++ compiler."
@@ -2241,6 +2319,7 @@ else
   MPICXX=""
   MPI_CXX_COMP_OK="no"
   SUNDIALS_WARN_FLAG="yes"
+
 fi
 
 ]) dnl END SUNDIALS_CHECK_MPICXX
@@ -2251,6 +2330,11 @@ fi
 
 AC_DEFUN([SUNDIALS_CHECK_CXX_WITH_MPI],
 [
+
+# Test if we can compile MPI programs using the C++ compiler
+# and current MPI settings
+
+AC_MSG_NOTICE([Testing C++ with MPI settings])
 
 AC_LANG_PUSH([C++])
 
@@ -2268,11 +2352,15 @@ if test "X${CXX_OK}" = "Xyes"; then
   # has been executed
   # Determine location of MPI header files (find MPI include directory)
   MPI_EXISTS="yes"
+
+  AC_MSG_CHECKING([for location of MPI implementation])
+
   # MPI include directory was NOT explicitly specified so check if MPI root
   # directory was given by user
   if test "X${MPI_INC_DIR}" = "X"; then
     # MPI root directory was NOT given so issue a warning message
     if test "X${MPI_ROOT_DIR}" = "X"; then
+      AC_MSG_RESULT([not found])
       MPI_EXISTS="no"
       AC_MSG_WARN([cannot find MPI implementation files])
       echo ""
@@ -2291,6 +2379,7 @@ if test "X${CXX_OK}" = "Xyes"; then
     # Update CPPFLAGS
     else
       MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+      AC_MSG_RESULT([$MPI_INC_DIR])
       if test "X${CPPFLAGS}" = "X"; then
         CPPFLAGS="-I${MPI_INC_DIR}"
       else
@@ -2299,6 +2388,7 @@ if test "X${CXX_OK}" = "Xyes"; then
     fi
   # MPI include directory was specified so update CPPFLAGS
   else
+    AC_MSG_RESULT([$MPI_INC_DIR])
     if test "X${CPPFLAGS}" = "X"; then
       CPPFLAGS="-I${MPI_INC_DIR}"
     else
@@ -2309,11 +2399,14 @@ if test "X${CXX_OK}" = "Xyes"; then
   # Only continue if found an MPI implementation
   if test "X${MPI_EXISTS}" = "Xyes"; then
 
+    AC_MSG_CHECKING([for location of MPI libraries])
+
     # Determine location of MPI libraries
     # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
     # Update LDFLAGS
     if test "X${MPI_LIB_DIR}" = "X"; then
       MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+      AC_MSG_RESULT([$MPI_LIB_DIR])
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -2321,6 +2414,7 @@ if test "X${CXX_OK}" = "Xyes"; then
       fi
     # MPI library directory was specified so update LDFLAGS
     else
+      AC_MSG_RESULT([$MPI_LIB_DIR])
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -2330,7 +2424,9 @@ if test "X${CXX_OK}" = "Xyes"; then
 
     # Check if user specified which MPI libraries must be included
     # If no libraries are given, then issue a warning message
+    AC_MSG_CHECKING([for MPI libraries])
     if test "X${MPI_LIBS}" = "X"; then
+      AC_MSG_RESULT([none])
       echo ""
       echo "   Unable to compile MPI program using C++ compiler because"
       echo "   MPI libraries were not specified."
@@ -2343,6 +2439,7 @@ if test "X${CXX_OK}" = "Xyes"; then
       MPI_CXX_COMP_OK="no"
     # MPI libraries were specified so update LIBS
     else
+      AC_MSG_RESULT([${MPI_LIBS}])
       if test "X${LIBS}" = "X"; then
         LIBS="${MPI_LIBS}"
       else
@@ -2379,10 +2476,13 @@ if test "X${CXX_OK}" = "Xyes"; then
   else
     MPI_CXX_COMP_OK="no"
   fi
+
 else
+
   AC_MSG_WARN([cannot find C++ compiler])
   MPI_CXX_COMP_OK="no"
   SUNDIALS_WARN_FLAG="yes"
+
 fi
 
 # Restore CPPFLAGS, LDFLAGS and LIBS
@@ -2893,53 +2993,58 @@ echo "
 Configuration:
 --------------
 
-  Host System:             ${host}
-  Build System:            ${build}
-  Source Code Location:    ${srcdir}
-  Install Path (include):  ${SUNDIALS_INC_DIR}
-  Install Path (lib):      ${SUNDIALS_LIB_DIR}
+  Host System:              ${host}
+  Build System:             ${build}
+  Source Code Location:     ${srcdir}
+  Install Path (include):   ${SUNDIALS_INC_DIR}
+  Install Path (lib):       ${SUNDIALS_LIB_DIR}
 
-  C Preprocessor:          ${CPP} ${CPPFLAGS}
-  C Compiler:	           ${CC} ${CFLAGS}
-  C Linker:                ${CC} ${LDFLAGS} ${LIBS}"
+  C Preprocessor:           ${CPP} 
+  C Preporcessor Flags:     ${CPPFLAGS}
+  C Compiler:	            ${CC}
+  C Compiler Flags          ${CFLAGS}
+  C Linker:                 ${CC}
+  Linker Flags:             ${LDFLAGS}
+  Libraries:                ${LIBS}"
 
 if test "X${CXX_ENABLED}" = "Xyes" && test "X${CXX_OK}" = "Xyes"; then
 echo "
-  C++ Preprocessor:        ${CPPCXX} ${CPPFLAGS}
-  C++ Compiler:            ${CXX} ${CXXFLAGS}"
+  C++ Preprocessor:         ${CPPCXX}
+  C++ Preprocessor flags:   ${CPPFLAGS}
+  C++ Compiler:             ${CXX}
+  C++ Compiler Flags:       ${CXXFLAGS}"
 fi
 
 if test "X${F77_ENABLED}" = "Xyes" && test "X${F77_OK}" = "Xyes"; then
 echo "
-  F77 Compiler:            ${F77} ${FFLAGS}
-  F77 Linker:              ${F77} ${LDFLAGS} ${LIBS} ${FLIBS}"
+  F77 Compiler:             ${F77}
+  F77 Compiler Flags:       ${FFLAGS}
+  F77 Linker:               ${F77_LNKR}
+  Additional F77 libraries: ${FLIBS}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes"; then
 echo "  
-  MPI-C:                   ${MPICC}"
+  Use MPI-C script?         ${USE_MPICC_SCRIPT}
+  MPI-C:                    ${MPICC}
+  MPI Root Directory:       ${MPI_ROOT_DIR}
+  MPI Include Directory:    ${MPI_INC_DIR}
+  MPI Library Directory:    ${MPI_LIB_DIR}
+  MPI Flags:                ${MPI_FLAGS}
+  MPI Libraries:            ${MPI_LIBS}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes" && test "X${MPI_CXX_COMP_OK}" = "Xyes"; then
 echo "  
-  MPI-C++:                 ${MPICXX}"
+  Use MPI-C++ script?       ${USE_MPICXX_SCRIPT}
+  MPI-C++:                  ${MPICXX}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" && test "X${MPI_F77_COMP_OK}" = "Xyes"; then
-echo "  
-  MPI-F77:                 ${MPIF77}"
-fi
-
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes" && test "X${MPI_FLAGS_OK}" = "Xyes"; then
 echo "
-  MPI Flags:               ${MPI_FLAGS}"
-fi
-
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes" && test "X${USE_MPICC_SCRIPT}" = "Xno"; then
-echo "
-  MPI Include Directory:   ${MPI_INC_DIR}
-  MPI Library Directory:   ${MPI_LIB_DIR}
-  MPI Libraries:           ${MPI_LIBS}"
+  Use MPI-F77 script?       ${USE_MPIF77_SCRIPT}
+  MPI-F77:                  ${MPIF77}
+  MPI-F77 linker:           ${MPIF77_LNKR}"
 fi
 
 echo "  

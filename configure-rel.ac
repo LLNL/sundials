@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.1 $
-# $Date: 2005-11-29 23:18:41 $
+# $Revision: 1.2 $
+# $Date: 2006-03-01 23:26:10 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -18,6 +18,7 @@ AC_INIT(SUNDIALS, 2.1.1, radu@llnl.gov)
 SUNDIALS_GREETING
 
 # Miscellaneous SUNDIALS initializations
+echo -e "\nInitializations\n---------------\n"
 SUNDIALS_INITIALIZE
 
 # Test enable/disable features
@@ -25,28 +26,35 @@ SUNDIALS_ENABLES
 SUNDIALS_MPI_ENABLES
 
 # Set C compilation
-AC_PROG_CC(${CC} cc gcc)
+Aecho -e "\nC compiler settings\n-------------------\n"
+C_PROG_CC(${CC} cc gcc)
 SUNDIALS_SET_CC
 
 # Set Fortran compilation (Optional)
 if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
+  echo -e "\nFortran compiler settings\n-------------------------\n"
   AC_PROG_F77(${F77} f77 g77)
   SUNDIALS_SET_F77
 fi
 
 # Set MPI support (Optional)
 if test "X${MPI_ENABLED}" = "Xyes"; then
+  echo -e "\nMPI C settings\n--------------\n"
   SUNDIALS_SET_MPICC
   if test "X${F77_ENABLED}" = "Xyes"; then
+    echo -e "\nMPI Fortran settings\n--------------------\n"
     SUNDIALS_SET_MPIF77
   fi
 fi
 
 # Run libtool checks
+echo -e "\nLibtool settings\n----------------\n"
 AC_DISABLE_SHARED
+AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
 # Set examples modules
+echo -e "\nSet-up list of examples\n-----------------------\n"
 SUNDIALS_ENABLE_EXAMPLES
 
 # Substitute variables
@@ -77,9 +85,11 @@ AC_SUBST(F77_LNKR)
 AC_SUBST(MPIF77_LNKR)
 
 # Set installation path
+echo -e "\nInstallation directories\n------------------------\n"
 SUNDIALS_INSTALL_PATH
 
 # Generate makefiles
+echo -e "\nCreate Makefiles\n----------------\n"
 SUNDIALS_BUILD_MODULES_LIST
 AC_CONFIG_FILES([${SUNDIALS_MAKEFILES}])
 AC_OUTPUT

@@ -1564,6 +1564,7 @@ Running SUNDIALS Configure Script
 
 
 # Miscellaneous SUNDIALS initializations
+echo -e "\nInitializations\n---------------\n"
 
 
 # Specify directory containing auxillary build tools and M4 files
@@ -2239,6 +2240,7 @@ fi;
 
 
 # Set C compilation (Required)
+echo -e "\nC compiler settings\n-------------------\n"
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -7069,6 +7071,7 @@ echo "${ECHO_T}$ac_cv_prog_fgrep" >&6
 
 # Set Fortran compilation (Optional)
 if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
+  echo -e "\nFortran compiler settings\n-------------------------\n"
   ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -7161,7 +7164,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:7164:" \
+echo "$as_me:7167:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -7625,7 +7628,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:7628: \"$ac_link\") >&5
+(eval echo $as_me:7631: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -7707,7 +7710,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:7710: \"$ac_link\") >&5
+(eval echo $as_me:7713: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -8160,6 +8163,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 # Check if using a C++ compiler
+echo "$as_me:$LINENO: checking if $CC is a C++ compiler" >&5
+echo $ECHO_N "checking if $CC is a C++ compiler... $ECHO_C" >&6
 if test "$cross_compiling" = yes; then
   { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
 See \`config.log' for more details." >&5
@@ -8200,10 +8205,10 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
 
-
+echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
 # CC is a C++ compiler so run the next test
 RUN_F77_LNKR_CHECK="yes"
-
 
 else
   echo "$as_me: program exited with status $ac_status" >&5
@@ -8212,10 +8217,10 @@ sed 's/^/| /' conftest.$ac_ext >&5
 
 ( exit $ac_status )
 
-
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 # CC is a C compiler so skip the next test
 RUN_F77_LNKR_CHECK="no"
-
 
 fi
 rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
@@ -8228,6 +8233,8 @@ ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
 
+echo "$as_me:$LINENO: checking what linker to use" >&5
+echo $ECHO_N "checking what linker to use... $ECHO_C" >&6
 # Perform the next test only if using a C++ compiler to build SUNDIALS
 if test "X${RUN_F77_LNKR_CHECK}" = "Xyes"; then
 
@@ -8356,6 +8363,8 @@ else
   F77_LNKR="\$(F77)"
 
 fi
+echo "$as_me:$LINENO: result: $F77_LNKR" >&5
+echo "${ECHO_T}$F77_LNKR" >&6
 
 
 fi
@@ -8373,6 +8382,7 @@ fi
 
 # Set C++ compilation (Optional)
 if test "X${CXX_ENABLED}" = "Xyes"; then
+  echo -e "\nC++ compiler settings\n-------------------------\n"
 
 
 
@@ -9270,6 +9280,7 @@ fi
 
 # Set MPI support (Optional)
 if test "X${MPI_ENABLED}" = "Xyes"; then
+  echo -e "\nMPI C settings\n--------------\n"
 
 
 
@@ -9352,6 +9363,8 @@ MPI_FLAGS_OK="no"
 fi;
 
 # MPI-C compiler
+echo "$as_me:$LINENO: checking if using MPI script" >&5
+echo $ECHO_N "checking if using MPI script... $ECHO_C" >&6
 
 # Check whether --with-mpicc or --without-mpicc was given.
 if test "${with_mpicc+set}" = set; then
@@ -9366,10 +9379,12 @@ fi
 
 else
 
-USE_MPICC_SCRIPT="yes"
- MPICC_COMP="mpicc"
+  USE_MPICC_SCRIPT="yes"
+  MPICC_COMP="mpicc"
 
 fi;
+echo "$as_me:$LINENO: result: $USE_MPICC_SCRIPT" >&5
+echo "${ECHO_T}$USE_MPICC_SCRIPT" >&6
 
 # Check MPI-C compiler (either MPI compiler script or regular C compiler)
 if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
@@ -9378,10 +9393,15 @@ if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
 # Test MPI-C compiler (meaning test MPICC_COMP)
 # Check if MPI-C compiler can be found
 
+echo "$as_me:$LINENO: checking if $MPICC_COMP exists" >&5
+echo $ECHO_N "checking if $MPICC_COMP exists... $ECHO_C" >&6
+
 # CASE 1: MPICC_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPICC_COMP} ; then
 
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
   MPICC_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`(dirname "${MPICC_COMP}") 2>/dev/null ||
@@ -9396,12 +9416,15 @@ echo X"${MPICC_COMP}" |
   	  /^X\(\/\/\)$/{ s//\1/; q; }
   	  /^X\(\/\).*/{ s//\1/; q; }
   	  s/.*/./; q'`
-  MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-  MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+  TMP_MPI_INC_DIR="${MPI_BASE_DIR}/../include"
+  TMP_MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
 
 # CASE 2: MPICC_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 
   if test "X${MPI_ROOT_DIR}" = "X"; then
     # Try to find location of executable (perhaps directory was entered
@@ -9466,22 +9489,28 @@ echo X"${MPICC_COMP}" |
   	  /^X\(\/\/\)$/{ s//\1/; q; }
   	  /^X\(\/\).*/{ s//\1/; q; }
   	  s/.*/./; q'`
-      MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-      MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
+      TMP_MPI_INC_DIR="${MPI_BASE_DIR}/../include"
+      TMP_MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
 
   # CASE 3: MPICC_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
 
+    echo "$as_me:$LINENO: checking if $MPICC_COMP exists in ${MPI_ROOT_DIR}/bin" >&5
+echo $ECHO_N "checking if $MPICC_COMP exists in ${MPI_ROOT_DIR}/bin... $ECHO_C" >&6
     # MPICC_COMP should really only contain an executable name
     # Found location of MPICC_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICC_COMP} ; then
+      echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
       MPICC_COMP_EXISTS="yes"
       MPICC_COMP="${MPI_ROOT_DIR}/bin/${MPICC_COMP}"
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+      TMP_MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+      TMP_MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
     # Could NOT find MPICC_COMP anywhere
     else
+      echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
       MPICC_COMP_EXISTS="no"
       MPICC_COMP=""
     fi
@@ -9490,11 +9519,23 @@ echo X"${MPICC_COMP}" |
 
 fi
 
-# Issue warning message if MPICC_COMP does NOT exist, else set MPICC
+# If MPICC_COMP exists, set MPICC and (conditionally) set MPI_INC_DIR
+# and MPI_LIB_DIR so that we do not end up with empty -I options.
+# Otherwise, issue warning message
 if test "X${MPICC_COMP_EXISTS}" = "Xyes"; then
 
   MPICC="${MPICC_COMP}"
   MPI_C_COMP_OK="yes"
+
+  # If MPI_INC_DIR is empty, set it to TMP_MPI_INC_DIR
+  if test "X${MPI_INC_DIR}" = "X"; then
+    MPI_INC_DIR="$TMP_MPI_INC_DIR"
+  fi
+
+  # If MPI_LIB_DIR is empty, set it to TMP_MPI_LIB_DIR
+  if test "X${MPI_LIB_DIR}" = "X"; then
+    MPI_LIB_DIR="$TMP_MPI_LIB_DIR"
+  fi
 
 else
 
@@ -9523,6 +9564,12 @@ else
   MPICC="${CC}"
 
 
+# Test if we can compile MPI programs using the CC compiler
+# and current MPI settings
+
+{ echo "$as_me:$LINENO: Testing CC with MPI settings" >&5
+echo "$as_me: Testing CC with MPI settings" >&6;}
+
 # Save copies of CPPFLAGS, LDFLAGS and LIBS (preserve information)
 # Temporarily overwritten so we can test MPI implementation
 SAVED_CPPFLAGS="${CPPFLAGS}"
@@ -9532,11 +9579,16 @@ SAVED_LIBS="${LIBS}"
 # Determine location of MPI header files (find MPI include directory)
 MPI_EXISTS="yes"
 
-# MPI include directory was NOT explicitly specified so check if MPI root
+echo "$as_me:$LINENO: checking for location of MPI implementation" >&5
+echo $ECHO_N "checking for location of MPI implementation... $ECHO_C" >&6
+
+# If MPI include directory was NOT explicitly specified so check if MPI root
 # directory was given by user
 if test "X${MPI_INC_DIR}" = "X"; then
-  # MPI root directory was NOT given so issue a warning message
+  # If MPI root directory was NOT given so issue a warning message
   if test "X${MPI_ROOT_DIR}" = "X"; then
+    echo "$as_me:$LINENO: result: not found" >&5
+echo "${ECHO_T}not found" >&6
     MPI_EXISTS="no"
     { echo "$as_me:$LINENO: WARNING: cannot find MPI implementation files" >&5
 echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
@@ -9556,6 +9608,8 @@ echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
   # Update CPPFLAGS
   else
     MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+    echo "$as_me:$LINENO: result: $MPI_INC_DIR" >&5
+echo "${ECHO_T}$MPI_INC_DIR" >&6
     if test "X${CPPFLAGS}" = "X"; then
       CPPFLAGS="-I${MPI_INC_DIR}"
     else
@@ -9570,6 +9624,8 @@ echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
   fi
 # MPI include directory was specified so update CPPFLAGS
 else
+  echo "$as_me:$LINENO: result: $MPI_INC_DIR" >&5
+echo "${ECHO_T}$MPI_INC_DIR" >&6
   if test "X${CPPFLAGS}" = "X"; then
     CPPFLAGS="-I${MPI_INC_DIR}"
   else
@@ -9586,11 +9642,16 @@ fi
 # Only continue if found an MPI implementation
 if test "X${MPI_EXISTS}" = "Xyes"; then
 
+  echo "$as_me:$LINENO: checking for location of MPI libraries" >&5
+echo $ECHO_N "checking for location of MPI libraries... $ECHO_C" >&6
+
   # Determine location of MPI libraries
   # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
   # Update LDFLAGS
   if test "X${MPI_LIB_DIR}" = "X"; then
     MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+    echo "$as_me:$LINENO: result: $MPI_LIB_DIR" >&5
+echo "${ECHO_T}$MPI_LIB_DIR" >&6
     if test "X${LDFLAGS}" = "X"; then
       LDFLAGS="-L${MPI_LIB_DIR}"
     else
@@ -9598,6 +9659,8 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
     fi
   # MPI library directory was specified so update LDFLAGS
   else
+    echo "$as_me:$LINENO: result: $MPI_LIB_DIR" >&5
+echo "${ECHO_T}$MPI_LIB_DIR" >&6
     if test "X${LDFLAGS}" = "X"; then
       LDFLAGS="-L${MPI_LIB_DIR}"
     else
@@ -9711,7 +9774,6 @@ else
   MPI_C_COMP_OK="no"
 fi
 
-
 # Restore CPPFLAGS, LDFLAGS and LIBS
 CPPFLAGS="${SAVED_CPPFLAGS}"
 LDFLAGS="${SAVED_LDFLAGS}"
@@ -9720,8 +9782,699 @@ LIBS="${SAVED_LIBS}"
 
 fi
 
-# Determine if MPI_Comm_f2c() from MPI-2 is supported
-if test "X${MPI_C_COMP_OK}" = "Xyes"; then
+
+  if test "X${F77_ENABLED}" = "Xyes"; then
+    echo -e "\nMPI Fortran settings\n--------------------\n"
+
+
+echo "$as_me:$LINENO: checking if using MPI script" >&5
+echo $ECHO_N "checking if using MPI script... $ECHO_C" >&6
+
+# Check whether --with-mpif77 or --without-mpif77 was given.
+if test "${with_mpif77+set}" = set; then
+  withval="$with_mpif77"
+
+if test "X${withval}" = "Xno"; then
+  USE_MPIF77_SCRIPT="no"
+else
+  USE_MPIF77_SCRIPT="yes"
+  MPIF77_COMP="${withval}"
+fi
+
+else
+
+USE_MPIF77_SCRIPT="yes"
+MPIF77_COMP="mpif77"
+
+fi;
+echo "$as_me:$LINENO: result: $USE_MPIF77_SCRIPT" >&5
+echo "${ECHO_T}$USE_MPIF77_SCRIPT" >&6
+
+# Do NOT even check for MPI support for Fortran if serial Fortran compiler does NOT work
+# Need serial Fortran compiler to determine name-mangline scheme, and FCMIX libraries will
+# only be built if a serial Fortran compiler is found
+if test "X${F77_OK}" = "Xyes"; then
+  # Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
+  if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
+
+
+# Test the MPI-Fortran compiler (meaning test MPIF77_COMP)
+# Check if MPI-Fortran compiler can be found
+
+echo "$as_me:$LINENO: checking if $MPIF77_COMP exists" >&5
+echo $ECHO_N "checking if $MPIF77_COMP exists... $ECHO_C" >&6
+
+# CASE 1: MPIF77_COMP was found (cannot check if executable because the
+# "-x" flag is NOT portable)
+if test -f ${MPIF77_COMP} ; then
+
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  MPIF77_COMP_EXISTS="yes"
+  # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
+  MPI_BASE_DIR=`(dirname "${MPIF77_COMP}") 2>/dev/null ||
+$as_expr X"${MPIF77_COMP}" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"${MPIF77_COMP}" : 'X\(//\)[^/]' \| \
+	 X"${MPIF77_COMP}" : 'X\(//\)$' \| \
+	 X"${MPIF77_COMP}" : 'X\(/\)' \| \
+	 .     : '\(.\)' 2>/dev/null ||
+echo X"${MPIF77_COMP}" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
+  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
+  	  /^X\(\/\/\)$/{ s//\1/; q; }
+  	  /^X\(\/\).*/{ s//\1/; q; }
+  	  s/.*/./; q'`
+
+# CASE 2: MPIF77_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
+# so search in PATH
+else
+
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+  if test "X${MPI_ROOT_DIR}" = "X"; then
+
+    # Try to find location of executable (perhaps directory was entered incorrectly)
+    TEMP_MPIF77_COMP=`basename "${MPIF77_COMP}"`
+    # Extract the first word of "${TEMP_MPIF77_COMP}", so it can be a program name with args.
+set dummy ${TEMP_MPIF77_COMP}; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_MPIF77_COMP+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $MPIF77_COMP in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_MPIF77_COMP="$MPIF77_COMP" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_MPIF77_COMP="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_MPIF77_COMP" && ac_cv_path_MPIF77_COMP="none"
+  ;;
+esac
+fi
+MPIF77_COMP=$ac_cv_path_MPIF77_COMP
+
+if test -n "$MPIF77_COMP"; then
+  echo "$as_me:$LINENO: result: $MPIF77_COMP" >&5
+echo "${ECHO_T}$MPIF77_COMP" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+    # Cannot find executable in PATH
+    if test "X${MPIF77_COMP}" = "Xnone"; then
+      MPIF77_COMP_EXISTS="no"
+      MPIF77_COMP=""
+    # Found executable and set MPIF77_COMP to absolute pathname
+    else
+      MPIF77_COMP_EXISTS="yes"
+      MPI_BASE_DIR=`(dirname "${MPIF77_COMP}") 2>/dev/null ||
+$as_expr X"${MPIF77_COMP}" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"${MPIF77_COMP}" : 'X\(//\)[^/]' \| \
+	 X"${MPIF77_COMP}" : 'X\(//\)$' \| \
+	 X"${MPIF77_COMP}" : 'X\(/\)' \| \
+	 .     : '\(.\)' 2>/dev/null ||
+echo X"${MPIF77_COMP}" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
+  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
+  	  /^X\(\/\/\)$/{ s//\1/; q; }
+  	  /^X\(\/\).*/{ s//\1/; q; }
+  	  s/.*/./; q'`
+    fi
+
+  # CASE 3: MPIF77_COMP could NOT be found, but MPI_ROOT_DIR was specified
+  else
+
+    echo "$as_me:$LINENO: checking if $MPIF77_COMP exists in ${MPI_ROOT_DIR}/bin" >&5
+echo $ECHO_N "checking if $MPIF77_COMP exists in ${MPI_ROOT_DIR}/bin... $ECHO_C" >&6
+    # MPIF77_COMP should really only contain an executable name
+    # Found location of MPIF77_COMP
+    if test -f ${MPI_ROOT_DIR}/bin/${MPIF77_COMP} ; then
+      echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+      MPIF77_COMP_EXISTS="yes"
+      MPIF77_COMP="${MPI_ROOT_DIR}/bin/${MPIF77_COMP}"
+    # Could NOT find MPIF77_COMP anywhere
+    else
+      echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+      MPIF77_COMP_EXISTS="no"
+      MPIF77_COMP=""
+    fi
+
+  fi
+
+fi
+
+# Issue warning message if MPIF77_COMP does NOT exist, else set MPIF77
+if test "X${MPIF77_COMP_EXISTS}" = "Xyes"; then
+
+  MPIF77="${MPIF77_COMP}"
+  MPI_F77_COMP_OK="yes"
+
+  # Note that we do not have to worry about empty MPI_INC_DIR and MPI_LIB_DIR
+  # here as they were set in SUNDIALS_CHECK_MPICC
+
+  # Check if we must use the MPI-Fortran compiler script (MPIF77) to link
+  # the Fortran examples (default is to use MPICC)
+
+
+# Switch working language to C for the next test
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+# Temporarily reset CC environment variable to perform next test
+SAVED_CC="${CC}"
+CC="${MPICC_COMP}"
+
+# Check if using a C++ compiler (MPI-C++ script)
+echo "$as_me:$LINENO: checking if $CC is a C++ compiler" >&5
+echo $ECHO_N "checking if $CC is a C++ compiler... $ECHO_C" >&6
+if test "$cross_compiling" = yes; then
+  { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+#ifdef __cplusplus
+  return(0);
+#else
+  return(1);
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+
+echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+# MPICC uses a C++ compiler so run the next test
+RUN_MPIF77_LNKR_CHECK="yes"
+
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+# MPICC uses a C compiler so skip the next test
+RUN_MPIF77_LNKR_CHECK="no"
+
+fi
+rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+
+# Reset CC to original value
+CC="${SAVED_CC}"
+
+# Restore the language stack
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+echo "$as_me:$LINENO: checking what linker to use" >&5
+echo $ECHO_N "checking what linker to use... $ECHO_C" >&6
+# Perform the next test only if using a C++ compiler to build NVECTOR_PARALLEL
+if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
+
+  # Switch language to "Fortran 77"
+  ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+
+
+  # Temporarily reset F77 environment variable to perform test
+  SAVED_F77="${F77}"
+  F77="${MPIF77_COMP}"
+
+  # Compile simple Fortran example, but do NOT link
+  # Note: result stored as conftest.${ac_objext}
+  cat >conftest.$ac_ext <<_ACEOF
+
+	PROGRAM SUNDIALS
+	INTEGER IER
+	CALL MPI_INIT(IER)
+	END
+
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_f77_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+
+
+  # Reset F77 to original value
+  F77="${SAVED_F77}"
+
+  # Revert to previous language
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+  # Temporarily reset LIBS environment variable to perform test
+  SAVED_LIBS="${LIBS}"
+  LIBS="${LIBS} ${FLIBS}"
+
+  # Switch working language to C for next test
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+  # Temporarily reset CC environment variable to perform next test
+  SAVED_CC="${CC}"
+  CC="${MPICC_COMP}"
+
+  # Check if MPICC_COMP can link Fortran example
+  # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
+  # general.m4 and c.m4)
+  if { (eval echo "$as_me:$LINENO: \"$ac_linkonly\"") >&5
+  (eval $ac_linkonly) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  MPIF77_LNKR_CHECK_OK="yes"
+else
+  echo "$as_me: failed program was:" >&5
+if test -f conftest.c ; then
+  sed 's/^/| /' conftest.c >&5
+elif test -f conftest.cc ; then
+  sed 's/^/| /' conftest.cc >&5
+elif test -f conftest.f ; then
+  sed 's/^/| /' conftest.f >&5
+elif test -f conftest.${FC_SRCEXT-f} ; then
+  sed 's/^/| /' conftest.${FC_SRCEXT-f} >&5
+fi
+
+MPIF77_LNKR_CHECK_OK="no"
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext
+
+  # Reset CC to original value
+  CC="${SAVED_CC}"
+
+  # Revert back to previous language (Fortran 77)
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+  # Set LIBS environment variable back to original value
+  LIBS="${SAVED_LIBS}"
+
+  # Note: MPIF77_LNKR variable is used by parallel Fortran example Makefile's
+  if test "X${MPIF77_LNKR_CHECK_OK}" = "Xyes"; then
+    MPIF77_LNKR="\$(MPICC)"
+  else
+    MPIF77_LNKR="\$(MPIF77)"
+  fi
+
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+
+  # If compilation fails, then just use MPIF77
+  MPIF77_LNKR="\$(MPIF77)"
+
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+else
+
+  # Using a C compiler so use MPIF77 to link parallel Fortran examples
+  MPIF77_LNKR="\$(MPIF77)"
+
+fi
+echo "$as_me:$LINENO: result: $MPIF77_LNKR" >&5
+echo "${ECHO_T}$MPIF77_LNKR" >&6
+
+
+
+
+else
+
+  { echo "$as_me:$LINENO: WARNING: cannot find MPI-Fortran compiler" >&5
+echo "$as_me: WARNING: cannot find MPI-Fortran compiler" >&2;}
+  echo ""
+  echo "   Unable to find a functional MPI-Fortran compiler."
+  echo ""
+  echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
+  echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+  echo "   to specify the locations of all relevant MPI files, or"
+  echo "   --with-mpi-root to specify the base installation directory"
+  echo "   of the MPI implementation to be used."
+  echo ""
+  echo "   Disabling parallel Fortran examples...."
+  echo ""
+  MPIF77=""
+  MPI_F77_COMP_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
+
+fi
+
+
+  else
+    MPIF77_COMP="${F77}"
+    MPIF77="${F77}"
+
+
+# Test if we can compile MPI programs using the F77 compiler
+# and current MPI settings
+
+{ echo "$as_me:$LINENO: Testing F77 with MPI settings" >&5
+echo "$as_me: Testing F77 with MPI settings" >&6;}
+
+ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+
+
+# Save copies of FFLAGS, LDFLAGS and LIBS (preserve information)
+# Temporarily overwritten so we can test MPI implementation
+SAVED_FFLAGS="${FFLAGS}"
+SAVED_LDFLAGS="${LDFLAGS}"
+SAVED_LIBS="${LIBS}"
+
+# Only continue if actually found a valid Fortran compiler
+if test "X${F77_OK}" = "Xyes"; then
+
+  # This may seem redundant, but we are not guaranteed that
+  # SUNDIALS_CHECK_CC_WITH_MPI has been executed
+  # Determine location of MPI header files (find MPI include directory)
+  MPI_EXISTS="yes"
+
+  echo "$as_me:$LINENO: checking for location of MPI implementation" >&5
+echo $ECHO_N "checking for location of MPI implementation... $ECHO_C" >&6
+
+  # If MPI include directory was NOT explicitly specified so check if MPI root
+  # directory was given by user
+  if test "X${MPI_INC_DIR}" = "X"; then
+    # If MPI root directory was NOT given so issue a warning message
+    if test "X${MPI_ROOT_DIR}" = "X"; then
+      echo "$as_me:$LINENO: result: not found" >&5
+echo "${ECHO_T}not found" >&6
+      MPI_EXISTS="no"
+      { echo "$as_me:$LINENO: WARNING: cannot find MPI implementation files" >&5
+echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
+      echo ""
+      echo "   Unable to find MPI implementation files."
+      echo ""
+      echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
+      echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+      echo "   to specify the locations of all relevant MPI files, or"
+      echo "   --with-mpi-root to specify the base installation directory"
+      echo "   of the MPI implementation to be used."
+      echo ""
+      echo "   Disabling all parallel Fortran examples..."
+      echo ""
+      SUNDIALS_WARN_FLAG="yes"
+    # MPI root directory was given so set MPI_INC_DIR accordingly
+    # Update FFLAGS
+    else
+      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+      echo "$as_me:$LINENO: result: $MPI_INC_DIR" >&5
+echo "${ECHO_T}$MPI_INC_DIR" >&6
+      if test "X${FFLAGS}" = "X"; then
+        FFLAGS="-I${MPI_INC_DIR}"
+      else
+        FFLAGS="${FFLAGS} -I${MPI_INC_DIR}"
+      fi
+    fi
+  # MPI include directory was specified so update FFLAGS
+  else
+    echo "$as_me:$LINENO: result: $MPI_INC_DIR" >&5
+echo "${ECHO_T}$MPI_INC_DIR" >&6
+    if test "X${FFLAGS}" = "X"; then
+      FFLAGS="-I${MPI_INC_DIR}"
+    else
+      FFLAGS="${FFLAGS} -I${MPI_INC_DIR}"
+    fi
+  fi
+
+  # Only continue if found an MPI implementation
+  if test "X${MPI_EXISTS}" = "Xyes"; then
+
+    echo "$as_me:$LINENO: checking for location of MPI libraries" >&5
+echo $ECHO_N "checking for location of MPI libraries... $ECHO_C" >&6
+
+    # Determine location of MPI libraries
+    # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
+    # Update LDFLAGS
+    if test "X${MPI_LIB_DIR}" = "X"; then
+      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+      echo "$as_me:$LINENO: result: $MPI_LIB_DIR" >&5
+echo "${ECHO_T}$MPI_LIB_DIR" >&6
+      if test "X${LDFLAGS}" = "X"; then
+        LDFLAGS="-L${MPI_LIB_DIR}"
+      else
+        LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
+      fi
+    # MPI library directory was specified so update LDFLAGS
+    else
+      echo "$as_me:$LINENO: result: $MPI_LIB_DIR" >&5
+echo "${ECHO_T}$MPI_LIB_DIR" >&6
+      if test "X${LDFLAGS}" = "X"; then
+        LDFLAGS="-L${MPI_LIB_DIR}"
+      else
+        LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
+      fi
+    fi
+
+    # Check if user specified which MPI libraries must be included
+    # If no libraries are given, then issue a warning message
+    echo "$as_me:$LINENO: checking for MPI libraries" >&5
+echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
+    if test "X${MPI_LIBS}" = "X"; then
+      echo "$as_me:$LINENO: result: none" >&5
+echo "${ECHO_T}none" >&6
+      echo ""
+      echo "   Unable to compile MPI program using Fortran compiler because"
+      echo "   MPI libraries were not specified."
+      echo ""
+      echo "   Try using --with-mpi-libdir and --with-mpi-libs to"
+      echo "   specify the location and names of the MPI libraries."
+      echo ""
+      echo "   Disabling all parallel Fortran examples..."
+      echo ""
+      MPI_F77_COMP_OK="no"
+    # MPI libraries were specified so update LIBS
+    else
+      echo "$as_me:$LINENO: result: ${MPI_LIBS}" >&5
+echo "${ECHO_T}${MPI_LIBS}" >&6
+      if test "X${LIBS}" = "X"; then
+        LIBS="${MPI_LIBS}"
+      else
+        LIBS="${LIBS} ${MPI_LIBS}"
+      fi
+      # Set the MPI_F77_COMP_OK variable to NULL so we can conditionally execute
+      # the next test
+      MPI_F77_COMP_OK=""
+    fi
+
+    if test "X${MPI_F77_COMP_OK}" = "X"; then
+      echo "$as_me:$LINENO: checking if Fortran compiler can compile MPI programs" >&5
+echo $ECHO_N "checking if Fortran compiler can compile MPI programs... $ECHO_C" >&6
+      cat >conftest.$ac_ext <<_ACEOF
+      program main
+
+          INCLUDE "mpif.h"
+          CALL MPI_INIT(IER)
+
+      end
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_f77_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+       MPI_F77_COMP_OK="yes"
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+       { echo "$as_me:$LINENO: WARNING: Fortran compiler cannot compile MPI programs" >&5
+echo "$as_me: WARNING: Fortran compiler cannot compile MPI programs" >&2;}
+       echo ""
+       echo "   Unable to compile MPI program using Fortran compiler."
+       echo ""
+       echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
+       echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
+       echo "   to specify the locations of all relevant MPI files, or"
+       echo "   --with-mpi-root to specify the base installation directory"
+       echo "   of the MPI implementation to be used."
+       echo ""
+       echo "   Disabling all parallel Fortran examples..."
+       echo ""
+       MPI_F77_COMP_OK="no"
+       SUNDIALS_WARN_FLAG="yes"
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+
+      # Set MPIF77_LNKR based on value of F77_LNKR
+      # Note: setting MPIF77_LNKR is trivial if NOT using the MPI compiler script
+      # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
+      # should be used
+      if test "X${F77_LNKR}" = "X\$(CC)"; then
+        MPIF77_LNKR="\$(MPICC)"
+      elif test "X${F77_LNKR}" = "X\$(F77)"; then
+        MPIF77_LNKR="\$(MPIF77)"
+      fi
+    fi
+
+  else
+    MPI_F77_COMP_OK="no"
+  fi
+
+else
+
+  { echo "$as_me:$LINENO: WARNING: cannot find Fortran compiler" >&5
+echo "$as_me: WARNING: cannot find Fortran compiler" >&2;}
+  MPI_F77_COMP_OK="no"
+  SUNDIALS_WARN_FLAG="yes"
+
+fi
+
+# Restore FFLAGS, LDFLAGS and LIBS
+FFLAGS="${SAVED_FFLAGS}"
+LDFLAGS="${SAVED_LDFLAGS}"
+LIBS="${SAVED_LIBS}"
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
+  fi
+
+  # Determine if MPI_Comm_f2c() from MPI-2 is supported
 
 
 # Determine if MPI implementation used to build SUNDIALS supports the
@@ -9926,652 +10679,22 @@ LDFLAGS="${SAVED_LDFLAGS}"
 LIBS="${SAVED_LIBS}"
 
 
-fi
-
-
-  if test "X${F77_ENABLED}" = "Xyes"; then
-
-
-
-# Check whether --with-mpif77 or --without-mpif77 was given.
-if test "${with_mpif77+set}" = set; then
-  withval="$with_mpif77"
-
-if test "X${withval}" = "Xno"; then
-  USE_MPIF77_SCRIPT="no"
-else
-  USE_MPIF77_SCRIPT="yes"
-  MPIF77_COMP="${withval}"
-fi
 
 else
 
-USE_MPIF77_SCRIPT="yes"
-MPIF77_COMP="mpif77"
+  { echo "$as_me:$LINENO: WARNING: serial F77 does not work so we do not even bother with MPI-F77" >&5
+echo "$as_me: WARNING: serial F77 does not work so we do not even bother with MPI-F77" >&2;}
 
-fi;
-
-# Do NOT even check for MPI support for Fortran if serial Fortran compiler does NOT work
-# Need serial Fortran compiler to determine name-mangline scheme, and FCMIX libraries will
-# only be built if a serial Fortran compiler is found
-if test "X${F77_OK}" = "Xyes"; then
-  # Check MPI-Fortran compiler (either MPI compiler script or regular Fortran compiler)
-  if test "X${USE_MPIF77_SCRIPT}" = "Xyes"; then
-
-
-# Test the MPI-Fortran compiler (meaning test MPIF77_COMP)
-# Check if MPI-Fortran compiler can be found
-
-# CASE 1: MPIF77_COMP was found (cannot check if executable because the
-# "-x" flag is NOT portable)
-if test -f ${MPIF77_COMP} ; then
-
-  MPIF77_COMP_EXISTS="yes"
-  # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
-  MPI_BASE_DIR=`(dirname "${MPIF77_COMP}") 2>/dev/null ||
-$as_expr X"${MPIF77_COMP}" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"${MPIF77_COMP}" : 'X\(//\)[^/]' \| \
-	 X"${MPIF77_COMP}" : 'X\(//\)$' \| \
-	 X"${MPIF77_COMP}" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"${MPIF77_COMP}" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-  MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-  MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
-
-# CASE 2: MPIF77_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
-# so search in PATH
-else
-
-  if test "X${MPI_ROOT_DIR}" = "X"; then
-
-    # Try to find location of executable (perhaps directory was entered
-    # incorrectly)
-    TEMP_MPIF77_COMP=`basename "${MPIF77_COMP}"`
-    # Extract the first word of "${TEMP_MPIF77_COMP}", so it can be a program name with args.
-set dummy ${TEMP_MPIF77_COMP}; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_path_MPIF77_COMP+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $MPIF77_COMP in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MPIF77_COMP="$MPIF77_COMP" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_MPIF77_COMP="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-  test -z "$ac_cv_path_MPIF77_COMP" && ac_cv_path_MPIF77_COMP="none"
-  ;;
-esac
-fi
-MPIF77_COMP=$ac_cv_path_MPIF77_COMP
-
-if test -n "$MPIF77_COMP"; then
-  echo "$as_me:$LINENO: result: $MPIF77_COMP" >&5
-echo "${ECHO_T}$MPIF77_COMP" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-    # Cannot find executable in PATH
-    if test "X${MPIF77_COMP}" = "Xnone"; then
-      MPIF77_COMP_EXISTS="no"
-      MPIF77_COMP=""
-    # Found executable and set MPIF77_COMP to absolute pathname
-    else
-      MPIF77_COMP_EXISTS="yes"
-      MPI_BASE_DIR=`(dirname "${MPIF77_COMP}") 2>/dev/null ||
-$as_expr X"${MPIF77_COMP}" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"${MPIF77_COMP}" : 'X\(//\)[^/]' \| \
-	 X"${MPIF77_COMP}" : 'X\(//\)$' \| \
-	 X"${MPIF77_COMP}" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"${MPIF77_COMP}" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-      MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-      MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
-    fi
-
-  # CASE 3: MPIF77_COMP could NOT be found, but MPI_ROOT_DIR was specified
-  else
-
-    # MPIF77_COMP should really only contain an executable name
-    # Found location of MPIF77_COMP
-    if test -f ${MPI_ROOT_DIR}/bin/${MPIF77_COMP} ; then
-      MPIF77_COMP_EXISTS="yes"
-      MPIF77_COMP="${MPI_ROOT_DIR}/bin/${MPIF77_COMP}"
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
-    # Could NOT find MPIF77_COMP anywhere
-    else
-      MPIF77_COMP_EXISTS="no"
-      MPIF77_COMP=""
-    fi
-
-  fi
-
-fi
-
-# Issue warning message if MPIF77_COMP does NOT exist, else set MPIF77
-if test "X${MPIF77_COMP_EXISTS}" = "Xyes"; then
-
-  MPIF77="${MPIF77_COMP}"
-  MPI_F77_COMP_OK="yes"
-
-  # Check if we must use the MPI-Fortran compiler script (MPIF77) to link
-  # the Fortran examples (default is to use MPICC)
-
-
-# Switch working language to C for the next test
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-# Temporarily reset CC environment variable to perform next test
-SAVED_CC="${CC}"
-CC="${MPICC_COMP}"
-
-# Check if using a C++ compiler (MPI-C++ script)
-if test "$cross_compiling" = yes; then
-  { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
-See \`config.log' for more details." >&5
-echo "$as_me: error: cannot run test program while cross compiling
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-#ifdef __cplusplus
-  return(0);
-#else
-  return(1);
-#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-
-
-# MPICC uses a C++ compiler so run the next test
-RUN_MPIF77_LNKR_CHECK="yes"
-
-
-else
-  echo "$as_me: program exited with status $ac_status" >&5
-echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-( exit $ac_status )
-
-
-# MPICC uses a C compiler so skip the next test
-RUN_MPIF77_LNKR_CHECK="no"
-
-
-fi
-rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
-fi
-
-# Reset CC to original value
-CC="${SAVED_CC}"
-
-# Restore the language stack
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-# Perform the next test only if using a C++ compiler to build NVECTOR_PARALLEL
-if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
-
-  # Switch language to "Fortran 77"
-  ac_ext=f
-ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
-ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_f77_compiler_gnu
-
-
-  # Temporarily reset F77 environment variable to perform test
-  SAVED_F77="${F77}"
-  F77="${MPIF77_COMP}"
-
-  # Compile simple Fortran example, but do NOT link
-  # Note: result stored as conftest.${ac_objext}
-  cat >conftest.$ac_ext <<_ACEOF
-
-	PROGRAM SUNDIALS
-	INTEGER IER
-	CALL MPI_INIT(IER)
-	END
-
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_f77_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-
-
-  # Reset F77 to original value
-  F77="${SAVED_F77}"
-
-  # Revert to previous language
-  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-  # Temporarily reset LIBS environment variable to perform test
-  SAVED_LIBS="${LIBS}"
-  LIBS="${LIBS} ${FLIBS}"
-
-  # Switch working language to C for next test
-  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-  # Temporarily reset CC environment variable to perform next test
-  SAVED_CC="${CC}"
-  CC="${MPICC_COMP}"
-
-  # Check if MPICC_COMP can link Fortran example
-  # Note: AC_LINKONLY_IFELSE is a custom macro (modifications made to
-  # general.m4 and c.m4)
-  if { (eval echo "$as_me:$LINENO: \"$ac_linkonly\"") >&5
-  (eval $ac_linkonly) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  MPIF77_LNKR_CHECK_OK="yes"
-else
-  echo "$as_me: failed program was:" >&5
-if test -f conftest.c ; then
-  sed 's/^/| /' conftest.c >&5
-elif test -f conftest.cc ; then
-  sed 's/^/| /' conftest.cc >&5
-elif test -f conftest.f ; then
-  sed 's/^/| /' conftest.f >&5
-elif test -f conftest.${FC_SRCEXT-f} ; then
-  sed 's/^/| /' conftest.${FC_SRCEXT-f} >&5
-fi
-
-MPIF77_LNKR_CHECK_OK="no"
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext
-
-  # Reset CC to original value
-  CC="${SAVED_CC}"
-
-  # Revert back to previous language (Fortran 77)
-  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-  # Set LIBS environment variable back to original value
-  LIBS="${SAVED_LIBS}"
-
-  # Note: MPIF77_LNKR variable is used by parallel Fortran example Makefile's
-  if test "X${MPIF77_LNKR_CHECK_OK}" = "Xyes"; then
-    MPIF77_LNKR="\$(MPICC)"
-  else
-    MPIF77_LNKR="\$(MPIF77)"
-  fi
-
-
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-
-
-  # If compilation fails, then just use MPIF77
-  MPIF77_LNKR="\$(MPIF77)"
-
-
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-
-else
-
-  # Using a C compiler so use MPIF77 to link parallel Fortran examples
-  MPIF77_LNKR="\$(MPIF77)"
-
-fi
-
-
-
-else
-
-  { echo "$as_me:$LINENO: WARNING: cannot find MPI-Fortran compiler" >&5
-echo "$as_me: WARNING: cannot find MPI-Fortran compiler" >&2;}
-  echo ""
-  echo "   Unable to find a functional MPI-Fortran compiler."
-  echo ""
-  echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
-  echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-  echo "   to specify the locations of all relevant MPI files, or"
-  echo "   --with-mpi-root to specify the base installation directory"
-  echo "   of the MPI implementation to be used."
-  echo ""
-  echo "   Disabling parallel Fortran examples...."
-  echo ""
-  MPIF77=""
-  MPI_F77_COMP_OK="no"
-  SUNDIALS_WARN_FLAG="yes"
-
-fi
-
-
-  else
-    MPIF77_COMP="${F77}"
-    MPIF77="${F77}"
-
-
-ac_ext=f
-ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
-ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_f77_compiler_gnu
-
-
-# Save copies of FFLAGS, LDFLAGS and LIBS (preserve information)
-# Temporarily overwritten so we can test MPI implementation
-SAVED_FFLAGS="${FFLAGS}"
-SAVED_LDFLAGS="${LDFLAGS}"
-SAVED_LIBS="${LIBS}"
-
-# Only continue if actually found a valid Fortran compiler
-if test "X${F77_OK}" = "Xyes"; then
-
-  # This may seem redundant, but we are not guaranteed that
-  # SUNDIALS_CHECK_CC_WITH_MPI has been executed
-  # Determine location of MPI header files (find MPI include directory)
-  MPI_EXISTS="yes"
-  # MPI include directory was NOT explicitly specified so check if MPI root
-  # directory was given by user
-  if test "X${MPI_INC_DIR}" = "X"; then
-    # MPI root directory was NOT given so issue a warning message
-    if test "X${MPI_ROOT_DIR}" = "X"; then
-      MPI_EXISTS="no"
-      { echo "$as_me:$LINENO: WARNING: cannot find MPI implementation files" >&5
-echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
-      echo ""
-      echo "   Unable to find MPI implementation files."
-      echo ""
-      echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
-      echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-      echo "   to specify the locations of all relevant MPI files, or"
-      echo "   --with-mpi-root to specify the base installation directory"
-      echo "   of the MPI implementation to be used."
-      echo ""
-      echo "   Disabling all parallel Fortran examples..."
-      echo ""
-      SUNDIALS_WARN_FLAG="yes"
-    # MPI root directory was given so set MPI_INC_DIR accordingly
-    # Update FFLAGS
-    else
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      if test "X${FFLAGS}" = "X"; then
-        FFLAGS="-I${MPI_INC_DIR}"
-      else
-        FFLAGS="${FFLAGS} -I${MPI_INC_DIR}"
-      fi
-    fi
-  # MPI include directory was specified so update FFLAGS
-  else
-    if test "X${FFLAGS}" = "X"; then
-      FFLAGS="-I${MPI_INC_DIR}"
-    else
-      FFLAGS="${FFLAGS} -I${MPI_INC_DIR}"
-    fi
-  fi
-
-  # Only continue if found an MPI implementation
-  if test "X${MPI_EXISTS}" = "Xyes"; then
-
-    # Determine location of MPI libraries
-    # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
-    # Update LDFLAGS
-    if test "X${MPI_LIB_DIR}" = "X"; then
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
-      if test "X${LDFLAGS}" = "X"; then
-        LDFLAGS="-L${MPI_LIB_DIR}"
-      else
-        LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
-      fi
-    # MPI library directory was specified so update LDFLAGS
-    else
-      if test "X${LDFLAGS}" = "X"; then
-        LDFLAGS="-L${MPI_LIB_DIR}"
-      else
-        LDFLAGS="${LDFLAGS} -L${MPI_LIB_DIR}"
-      fi
-    fi
-
-    # Check if user specified which MPI libraries must be included
-    # If no libraries are given, then issue a warning message
-    if test "X${MPI_LIBS}" = "X"; then
-      echo ""
-      echo "   Unable to compile MPI program using Fortran compiler because"
-      echo "   MPI libraries were not specified."
-      echo ""
-      echo "   Try using --with-mpi-libdir and --with-mpi-libs to"
-      echo "   specify the location and names of the MPI libraries."
-      echo ""
-      echo "   Disabling all parallel Fortran examples..."
-      echo ""
-      MPI_F77_COMP_OK="no"
-    # MPI libraries were specified so update LIBS
-    else
-      if test "X${LIBS}" = "X"; then
-        LIBS="${MPI_LIBS}"
-      else
-        LIBS="${LIBS} ${MPI_LIBS}"
-      fi
-      # Set the MPI_F77_COMP_OK variable to NULL so we can conditionally execute
-      # the next test
-      MPI_F77_COMP_OK=""
-    fi
-
-    if test "X${MPI_F77_COMP_OK}" = "X"; then
-      echo "$as_me:$LINENO: checking if Fortran compiler can compile MPI programs" >&5
-echo $ECHO_N "checking if Fortran compiler can compile MPI programs... $ECHO_C" >&6
-      cat >conftest.$ac_ext <<_ACEOF
-      program main
-
-          INCLUDE "mpif.h"
-          CALL MPI_INIT(IER)
-
-      end
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_f77_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-       MPI_F77_COMP_OK="yes"
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-       { echo "$as_me:$LINENO: WARNING: Fortran compiler cannot compile MPI programs" >&5
-echo "$as_me: WARNING: Fortran compiler cannot compile MPI programs" >&2;}
-       echo ""
-       echo "   Unable to compile MPI program using Fortran compiler."
-       echo ""
-       echo "   Try using --with-mpif77 to specify a MPI-Fortran compiler script,"
-       echo "   --with-mpi-incdir, --with-mpi-libdir and --with-mpi-libs"
-       echo "   to specify the locations of all relevant MPI files, or"
-       echo "   --with-mpi-root to specify the base installation directory"
-       echo "   of the MPI implementation to be used."
-       echo ""
-       echo "   Disabling all parallel Fortran examples..."
-       echo ""
-       MPI_F77_COMP_OK="no"
-       SUNDIALS_WARN_FLAG="yes"
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-
-      # Set MPIF77_LNKR based on value of F77_LNKR
-      # Note: setting MPIF77_LNKR is trivial if NOT using the MPI compiler script
-      # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
-      # should be used
-      if test "X${F77_LNKR}" = "X\$(CC)"; then
-        MPIF77_LNKR="\$(MPICC)"
-      elif test "X${F77_LNKR}" = "X\$(F77)"; then
-        MPIF77_LNKR="\$(MPIF77)"
-      fi
-    fi
-
-  else
-    MPI_F77_COMP_OK="no"
-  fi
-else
-  { echo "$as_me:$LINENO: WARNING: cannot find Fortran compiler" >&5
-echo "$as_me: WARNING: cannot find Fortran compiler" >&2;}
-  MPI_F77_COMP_OK="no"
-  SUNDIALS_WARN_FLAG="yes"
-fi
-
-# Restore FFLAGS, LDFLAGS and LIBS
-FFLAGS="${SAVED_FFLAGS}"
-LDFLAGS="${SAVED_LDFLAGS}"
-LIBS="${SAVED_LIBS}"
-
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_linkonly='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_objext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-
-  fi
 fi
 
 
   fi
   if test "X${CXX_ENABLED}" = "Xyes"; then
+    echo -e "\nMPI C++ settings\n--------------------\n"
 
 
+echo "$as_me:$LINENO: checking if using MPI script" >&5
+echo $ECHO_N "checking if using MPI script... $ECHO_C" >&6
 
 # Check whether --with-mpicxx or --without-mpicxx was given.
 if test "${with_mpicxx+set}" = set; then
@@ -10590,6 +10713,8 @@ USE_MPICXX_SCRIPT="yes"
 MPICXX_COMP="mpiCC"
 
 fi;
+echo "$as_me:$LINENO: result: $USE_MPICXX_SCRIPT" >&5
+echo "${ECHO_T}$USE_MPICXX_SCRIPT" >&6
 
 # Check MPI-C++ compiler (either MPI compiler script or regular C++ compiler)
 if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
@@ -10598,10 +10723,15 @@ if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
 # Test the MPI-C++ compiler (meaning test MPICXX_COMP)
 # Check if MPI-C++ compiler can be found
 
+echo "$as_me:$LINENO: checking if $MPICXX_COMP exists" >&5
+echo $ECHO_N "checking if $MPICXX_COMP exists... $ECHO_C" >&6
+
 # CASE 1: MPICXX_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
 if test -f ${MPICXX_COMP} ; then
 
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
   MPICXX_COMP_EXISTS="yes"
   # Determine MPI_INC_DIR and MPI_LIB_DIR for use by Makefile
   MPI_BASE_DIR=`(dirname "${MPICXX_COMP}") 2>/dev/null ||
@@ -10616,12 +10746,13 @@ echo X"${MPICXX_COMP}" |
   	  /^X\(\/\/\)$/{ s//\1/; q; }
   	  /^X\(\/\).*/{ s//\1/; q; }
   	  s/.*/./; q'`
-  MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-  MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
 
 # CASE 2: MPICXX_COMP could NOT be found and MPI_ROOT_DIR was NOT specified,
 # so search in PATH
 else
+
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 
   if test "X${MPI_ROOT_DIR}" = "X"; then
 
@@ -10687,22 +10818,24 @@ echo X"${MPICXX_COMP}" |
   	  /^X\(\/\/\)$/{ s//\1/; q; }
   	  /^X\(\/\).*/{ s//\1/; q; }
   	  s/.*/./; q'`
-      MPI_INC_DIR="${MPI_BASE_DIR}/../include"
-      MPI_LIB_DIR="${MPI_BASE_DIR}/../lib"
     fi
 
   # CASE 3: MPICXX_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
 
+    echo "$as_me:$LINENO: checking if $MPIF77_COMP exists in ${MPI_ROOT_DIR}/bin" >&5
+echo $ECHO_N "checking if $MPIF77_COMP exists in ${MPI_ROOT_DIR}/bin... $ECHO_C" >&6
     # MPICXX_COMP should really only contain an executable name
     # Found location of MPICXX_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICXX_COMP} ; then
+      echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
       MPICXX_COMP_EXISTS="yes"
       MPICXX_COMP="${MPI_ROOT_DIR}/bin/${MPICXX_COMP}"
-      MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
     # Could NOT find MPICXX_COMP anywhere
     else
+      echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
       MPICXX_COMP_EXISTS="no"
       MPICXX_COMP=""
     fi
@@ -10713,9 +10846,15 @@ fi
 
 # Issue warning message if MPICXX_COMP does NOT exist, else set MPICXX
 if test "X${MPICXX_COMP_EXISTS}" = "Xyes"; then
+
   MPICXX="${MPICXX_COMP}"
   MPI_CXX_COMP_OK="yes"
+
+  # Note that we do not have to worry about empty MPI_INC_DIR and MPI_LIB_DIR
+  # here as they were set in SUNDIALS_CHECK_MPICC
+
 else
+
   { echo "$as_me:$LINENO: WARNING: cannot find MPI-C++ compiler" >&5
 echo "$as_me: WARNING: cannot find MPI-C++ compiler" >&2;}
   echo ""
@@ -10732,6 +10871,7 @@ echo "$as_me: WARNING: cannot find MPI-C++ compiler" >&2;}
   MPICXX=""
   MPI_CXX_COMP_OK="no"
   SUNDIALS_WARN_FLAG="yes"
+
 fi
 
 
@@ -10739,6 +10879,12 @@ else
   MPICXX_COMP="${CXX}"
   MPICXX="${CXX}"
 
+
+# Test if we can compile MPI programs using the C++ compiler
+# and current MPI settings
+
+{ echo "$as_me:$LINENO: Testing C++ with MPI settings" >&5
+echo "$as_me: Testing C++ with MPI settings" >&6;}
 
 ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -10761,11 +10907,17 @@ if test "X${CXX_OK}" = "Xyes"; then
   # has been executed
   # Determine location of MPI header files (find MPI include directory)
   MPI_EXISTS="yes"
+
+  echo "$as_me:$LINENO: checking for location of MPI implementation" >&5
+echo $ECHO_N "checking for location of MPI implementation... $ECHO_C" >&6
+
   # MPI include directory was NOT explicitly specified so check if MPI root
   # directory was given by user
   if test "X${MPI_INC_DIR}" = "X"; then
     # MPI root directory was NOT given so issue a warning message
     if test "X${MPI_ROOT_DIR}" = "X"; then
+      echo "$as_me:$LINENO: result: not found" >&5
+echo "${ECHO_T}not found" >&6
       MPI_EXISTS="no"
       { echo "$as_me:$LINENO: WARNING: cannot find MPI implementation files" >&5
 echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
@@ -10785,6 +10937,8 @@ echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
     # Update CPPFLAGS
     else
       MPI_INC_DIR="${MPI_ROOT_DIR}/include"
+      echo "$as_me:$LINENO: result: $MPI_INC_DIR" >&5
+echo "${ECHO_T}$MPI_INC_DIR" >&6
       if test "X${CPPFLAGS}" = "X"; then
         CPPFLAGS="-I${MPI_INC_DIR}"
       else
@@ -10793,6 +10947,8 @@ echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
     fi
   # MPI include directory was specified so update CPPFLAGS
   else
+    echo "$as_me:$LINENO: result: $MPI_INC_DIR" >&5
+echo "${ECHO_T}$MPI_INC_DIR" >&6
     if test "X${CPPFLAGS}" = "X"; then
       CPPFLAGS="-I${MPI_INC_DIR}"
     else
@@ -10803,11 +10959,16 @@ echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
   # Only continue if found an MPI implementation
   if test "X${MPI_EXISTS}" = "Xyes"; then
 
+    echo "$as_me:$LINENO: checking for location of MPI libraries" >&5
+echo $ECHO_N "checking for location of MPI libraries... $ECHO_C" >&6
+
     # Determine location of MPI libraries
     # MPI library directory was NOT specified by user so set based upon MPI_ROOT_DIR
     # Update LDFLAGS
     if test "X${MPI_LIB_DIR}" = "X"; then
       MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
+      echo "$as_me:$LINENO: result: $MPI_LIB_DIR" >&5
+echo "${ECHO_T}$MPI_LIB_DIR" >&6
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -10815,6 +10976,8 @@ echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
       fi
     # MPI library directory was specified so update LDFLAGS
     else
+      echo "$as_me:$LINENO: result: $MPI_LIB_DIR" >&5
+echo "${ECHO_T}$MPI_LIB_DIR" >&6
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -10824,7 +10987,11 @@ echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
 
     # Check if user specified which MPI libraries must be included
     # If no libraries are given, then issue a warning message
+    echo "$as_me:$LINENO: checking for MPI libraries" >&5
+echo $ECHO_N "checking for MPI libraries... $ECHO_C" >&6
     if test "X${MPI_LIBS}" = "X"; then
+      echo "$as_me:$LINENO: result: none" >&5
+echo "${ECHO_T}none" >&6
       echo ""
       echo "   Unable to compile MPI program using C++ compiler because"
       echo "   MPI libraries were not specified."
@@ -10837,6 +11004,8 @@ echo "$as_me: WARNING: cannot find MPI implementation files" >&2;}
       MPI_CXX_COMP_OK="no"
     # MPI libraries were specified so update LIBS
     else
+      echo "$as_me:$LINENO: result: ${MPI_LIBS}" >&5
+echo "${ECHO_T}${MPI_LIBS}" >&6
       if test "X${LIBS}" = "X"; then
         LIBS="${MPI_LIBS}"
       else
@@ -10919,11 +11088,14 @@ rm -f conftest.err conftest.$ac_objext \
   else
     MPI_CXX_COMP_OK="no"
   fi
+
 else
+
   { echo "$as_me:$LINENO: WARNING: cannot find C++ compiler" >&5
 echo "$as_me: WARNING: cannot find C++ compiler" >&2;}
   MPI_CXX_COMP_OK="no"
   SUNDIALS_WARN_FLAG="yes"
+
 fi
 
 # Restore CPPFLAGS, LDFLAGS and LIBS
@@ -10954,6 +11126,7 @@ fi;
 fi
 
 # Run libtool checks
+echo -e "\nLibtool settings\n----------------\n"
 # Check whether --enable-shared or --disable-shared was given.
 if test "${enable_shared+set}" = set; then
   enableval="$enable_shared"
@@ -11493,7 +11666,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 11496 "configure"' > conftest.$ac_ext
+  echo '#line 11669 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -13199,11 +13372,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13202: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13375: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13206: \$? = $ac_status" >&5
+   echo "$as_me:13379: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -13442,11 +13615,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13445: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13618: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13449: \$? = $ac_status" >&5
+   echo "$as_me:13622: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -13502,11 +13675,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13505: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13678: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13509: \$? = $ac_status" >&5
+   echo "$as_me:13682: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15687,7 +15860,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 15690 "configure"
+#line 15863 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15785,7 +15958,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 15788 "configure"
+#line 15961 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -17979,11 +18152,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17982: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:18155: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17986: \$? = $ac_status" >&5
+   echo "$as_me:18159: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -18039,11 +18212,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:18042: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:18215: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:18046: \$? = $ac_status" >&5
+   echo "$as_me:18219: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19400,7 +19573,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 19403 "configure"
+#line 19576 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -19498,7 +19671,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 19501 "configure"
+#line 19674 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -20336,11 +20509,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:20339: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:20512: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:20343: \$? = $ac_status" >&5
+   echo "$as_me:20516: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -20396,11 +20569,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:20399: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:20572: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:20403: \$? = $ac_status" >&5
+   echo "$as_me:20576: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -22432,11 +22605,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22435: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22608: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:22439: \$? = $ac_status" >&5
+   echo "$as_me:22612: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -22675,11 +22848,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22678: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22851: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:22682: \$? = $ac_status" >&5
+   echo "$as_me:22855: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -22735,11 +22908,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:22738: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22911: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:22742: \$? = $ac_status" >&5
+   echo "$as_me:22915: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -24920,7 +25093,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 24923 "configure"
+#line 25096 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -25018,7 +25191,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 25021 "configure"
+#line 25194 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -26036,6 +26209,7 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 # Set examples modules
+echo -e "\nSet-up list of examples\n-----------------------\n"
 
 
 # Check libtool settings to determine which compiler and linker commands
@@ -26232,6 +26406,7 @@ fi
 
 
 # Set installation path
+echo -e "\nInstallation directories\n------------------------\n"
 
 
 # Test for installation/destination directories...
@@ -26489,6 +26664,7 @@ echo "${ECHO_T}${SUNDIALS_LIB_DIR}" >&6
 
 
 # Generate makefiles
+echo -e "\nCreate Makefiles\n----------------\n"
 
 
 EXAMPLE_MODULES=""
@@ -27911,53 +28087,58 @@ echo "
 Configuration:
 --------------
 
-  Host System:             ${host}
-  Build System:            ${build}
-  Source Code Location:    ${srcdir}
-  Install Path (include):  ${SUNDIALS_INC_DIR}
-  Install Path (lib):      ${SUNDIALS_LIB_DIR}
+  Host System:              ${host}
+  Build System:             ${build}
+  Source Code Location:     ${srcdir}
+  Install Path (include):   ${SUNDIALS_INC_DIR}
+  Install Path (lib):       ${SUNDIALS_LIB_DIR}
 
-  C Preprocessor:          ${CPP} ${CPPFLAGS}
-  C Compiler:	           ${CC} ${CFLAGS}
-  C Linker:                ${CC} ${LDFLAGS} ${LIBS}"
+  C Preprocessor:           ${CPP}
+  C Preporcessor Flags:     ${CPPFLAGS}
+  C Compiler:	            ${CC}
+  C Compiler Flags          ${CFLAGS}
+  C Linker:                 ${CC}
+  Linker Flags:             ${LDFLAGS}
+  Libraries:                ${LIBS}"
 
 if test "X${CXX_ENABLED}" = "Xyes" && test "X${CXX_OK}" = "Xyes"; then
 echo "
-  C++ Preprocessor:        ${CPPCXX} ${CPPFLAGS}
-  C++ Compiler:            ${CXX} ${CXXFLAGS}"
+  C++ Preprocessor:         ${CPPCXX}
+  C++ Preprocessor flags:   ${CPPFLAGS}
+  C++ Compiler:             ${CXX}
+  C++ Compiler Flags:       ${CXXFLAGS}"
 fi
 
 if test "X${F77_ENABLED}" = "Xyes" && test "X${F77_OK}" = "Xyes"; then
 echo "
-  F77 Compiler:            ${F77} ${FFLAGS}
-  F77 Linker:              ${F77} ${LDFLAGS} ${LIBS} ${FLIBS}"
+  F77 Compiler:             ${F77}
+  F77 Compiler Flags:       ${FFLAGS}
+  F77 Linker:               ${F77_LNKR}
+  Additional F77 libraries: ${FLIBS}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes"; then
 echo "
-  MPI-C:                   ${MPICC}"
+  Use MPI-C script?         ${USE_MPICC_SCRIPT}
+  MPI-C:                    ${MPICC}
+  MPI Root Directory:       ${MPI_ROOT_DIR}
+  MPI Include Directory:    ${MPI_INC_DIR}
+  MPI Library Directory:    ${MPI_LIB_DIR}
+  MPI Flags:                ${MPI_FLAGS}
+  MPI Libraries:            ${MPI_LIBS}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes" && test "X${MPI_CXX_COMP_OK}" = "Xyes"; then
 echo "
-  MPI-C++:                 ${MPICXX}"
+  Use MPI-C++ script?       ${USE_MPICXX_SCRIPT}
+  MPI-C++:                  ${MPICXX}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" && test "X${MPI_F77_COMP_OK}" = "Xyes"; then
 echo "
-  MPI-F77:                 ${MPIF77}"
-fi
-
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes" && test "X${MPI_FLAGS_OK}" = "Xyes"; then
-echo "
-  MPI Flags:               ${MPI_FLAGS}"
-fi
-
-if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes" && test "X${USE_MPICC_SCRIPT}" = "Xno"; then
-echo "
-  MPI Include Directory:   ${MPI_INC_DIR}
-  MPI Library Directory:   ${MPI_LIB_DIR}
-  MPI Libraries:           ${MPI_LIBS}"
+  Use MPI-F77 script?       ${USE_MPIF77_SCRIPT}
+  MPI-F77:                  ${MPIF77}
+  MPI-F77 linker:           ${MPIF77_LNKR}"
 fi
 
 echo "
