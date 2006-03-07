@@ -16,9 +16,9 @@ function [] = CVodeMallocB(fctB,tB0,yB0,varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
 
-mode = 2;
+mode = 4;
 
 if nargin < 3
   disp('CvodeMallocB:: too few parameters');

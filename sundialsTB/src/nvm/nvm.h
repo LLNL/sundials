@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-11 21:40:31 $
+ * $Revision: 1.3 $
+ * $Date: 2006-03-07 01:20:06 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -30,7 +30,7 @@ extern "C" {
    * ------------------
    */
   
-  void InitVectors(int vec_type, mxArray *mx_comm);
+  void InitVectors();
   N_Vector NewVector(int n);
 
   void PutData(N_Vector v, double *data, int n);

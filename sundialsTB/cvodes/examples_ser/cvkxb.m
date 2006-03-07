@@ -24,7 +24,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
 %------------------------
 % SET USER DATA STRUCTURE
@@ -116,7 +116,8 @@ options = CVodeSetOptions('RelTol',rtol, 'AbsTol',atol,...
                           'LowerBwidth', ml,...
                           'PrecModule','BandPre');
 
-options = CVodeSetOptions(options,'MonitorFn','CVodeMonitor');
+mondata = struct;
+options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
 CVodeMalloc(@cvkx_f,t0,u0,options,data);
 

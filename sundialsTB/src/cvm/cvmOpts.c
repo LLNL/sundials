@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-02 00:39:04 $
+ * $Revision: 1.3 $
+ * $Date: 2006-03-07 01:20:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,7 +17,58 @@
 #include <string.h>
 #include "cvm.h"
 
+extern cvm_CVODESdata cvm_Cdata;  /* CVODE data */
+extern booleantype cvm_quad;      /* Quadratures? */
+extern booleantype cvm_asa;       /* Adjoint sensitivity? */
+extern booleantype cvm_fsa;       /* forward sensitivity? */
+
+extern cvm_MATLABdata cvm_Mdata;  /* MATLAB data */
+
+/* 
+ * ---------------------------------------------------------------------------------
+ * Private constants
+ * ---------------------------------------------------------------------------------
+ */
+
 #define ONE RCONST(1.0)
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Redability replacements
+ * ---------------------------------------------------------------------------------
+ */
+
+#define N           (cvm_Cdata->N) 
+#define Ns          (cvm_Cdata->Ns) 
+#define Nq          (cvm_Cdata->Nq) 
+#define NqB         (cvm_Cdata->NqB) 
+#define Ng          (cvm_Cdata->Ng) 
+#define ls          (cvm_Cdata->ls) 
+#define pm          (cvm_Cdata->pm) 
+#define lsB         (cvm_Cdata->lsB) 
+#define pmB         (cvm_Cdata->pmB) 
+
+#define mx_QUADfct  (cvm_Mdata->mx_QUADfct)
+#define mx_JACfct   (cvm_Mdata->mx_JACfct)
+#define mx_PSETfct  (cvm_Mdata->mx_PSETfct)
+#define mx_PSOLfct  (cvm_Mdata->mx_PSOLfct)
+#define mx_GLOCfct  (cvm_Mdata->mx_GLOCfct)
+#define mx_GCOMfct  (cvm_Mdata->mx_GCOMfct)
+#define mx_Gfct     (cvm_Mdata->mx_Gfct)
+#define mx_SRHSfct  (cvm_Mdata->mx_SRHSfct)
+
+#define mx_QUADfctB (cvm_Mdata->mx_QUADfctB)
+#define mx_JACfctB  (cvm_Mdata->mx_JACfctB)
+#define mx_PSETfctB (cvm_Mdata->mx_PSETfctB)
+#define mx_PSOLfctB (cvm_Mdata->mx_PSOLfctB)
+#define mx_GLOCfctB (cvm_Mdata->mx_GLOCfctB)
+#define mx_GCOMfctB (cvm_Mdata->mx_GCOMfctB)
+
+#define mx_MONfct   (cvm_Mdata->mx_MONfct)
+#define mx_MONdata  (cvm_Mdata->mx_MONdata)
+
+#define mx_MONfctB  (cvm_Mdata->mx_MONfctB)
+#define mx_MONdataB (cvm_Mdata->mx_MONdataB)
 
 /*
  * ---------------------------------------------------------------------------------
@@ -25,19 +76,18 @@
  * ---------------------------------------------------------------------------------
  */
 
-int get_IntgrOptions(const mxArray *options,
+int get_IntgrOptions(const mxArray *options, booleantype fwd,
                      int *lmm, int *iter, int *maxord, booleantype *sld,
                      long int *mxsteps,
                      int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
-                     double *hin, double *hmax, double *hmin, double *tstop, booleantype *tstopSet,
-                     int *Ng_tmp, mxArray **mx_tmp_Gfct,
-                     booleantype *quad, booleantype *fsa, booleantype *asa,
-                     booleantype *monitor, mxArray **mx_tmp_MONfct, mxArray **mx_tmp_MONdata)
+                     double *hin, double *hmax, double *hmin, 
+                     double *tstop, booleantype *tstopSet)
 {
-  mxArray *opt, *empty;
+  mxArray *opt;
   char *bufval;
   int i, buflen, status, q, m, n;
   double *tmp;
+  booleantype tmp_quad;
 
   /* Set default values */
 
@@ -52,22 +102,13 @@ int get_IntgrOptions(const mxArray *options,
   *Sabstol = 1.0e-6;
   *Vabstol = NULL;
 
-  *Ng_tmp = 0;
-  
   *hin = 0.0;
   *hmax = 0.0;
   *hmin = 0.0;
   *tstopSet = FALSE;
   *sld = FALSE;
 
-  *quad = FALSE;
-  *fsa  = FALSE;
-  *asa  = FALSE;
-
-  empty = mxCreateDoubleMatrix(0,0,mxREAL);
-  *mx_tmp_Gfct = mxDuplicateArray(empty);
-  *mx_tmp_MONfct = mxDuplicateArray(empty);
-  *mx_tmp_MONdata = mxDuplicateArray(empty);
+  tmp_quad = FALSE;
 
   /* Return now if options was empty */
 
@@ -110,16 +151,16 @@ int get_IntgrOptions(const mxArray *options,
 
   /* LMM */
 
-  opt = mxGetField(options,0,"Adams");
+  opt = mxGetField(options,0,"LMM");
   if ( !mxIsEmpty(opt) ) {
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
     if(status != 0)
-      mexErrMsgTxt("Cannot parse Adams.");
-    if(!strcmp(bufval,"on")) {*lmm = CV_ADAMS; *maxord = 12;}
-    else if(!strcmp(bufval,"off")) {*lmm = CV_BDF; *maxord = 5;}
-    else mexErrMsgTxt("Adams has an illegal value.");
+      mexErrMsgTxt("Cannot parse LMM.");
+    if(!strcmp(bufval,"Adams")) {*lmm = CV_ADAMS; *maxord = 12;}
+    else if(!strcmp(bufval,"BDF")) {*lmm = CV_BDF; *maxord = 5;}
+    else mexErrMsgTxt("LMM has an illegal value.");
   }
 
   /* ITER */
@@ -137,25 +178,8 @@ int get_IntgrOptions(const mxArray *options,
 
   }
     
-  /* Number of root functions */
-
-  opt = mxGetField(options,0,"NumRoots");
-  if ( !mxIsEmpty(opt) ) {
-    *Ng_tmp = (int)*mxGetPr(opt);
-    if (*Ng_tmp < 0)
-      mexErrMsgTxt("NumRoots is negative.");
-    if (*Ng_tmp > 0) {
-      /* Roots function */
-      opt = mxGetField(options,0,"RootsFn");
-      if ( !mxIsEmpty(opt) ) {
-        *mx_tmp_Gfct = mxDuplicateArray(opt);
-      } else {
-        mexErrMsgTxt("RootsFn required for NumRoots > 0");
-      }
-    }
-  }
-
   /* Maximum number of steps */
+
   opt = mxGetField(options,0,"MaxNumSteps");
   if ( !mxIsEmpty(opt) ) {
     *mxsteps = (int)*mxGetPr(opt);
@@ -226,6 +250,29 @@ int get_IntgrOptions(const mxArray *options,
     else mexErrMsgTxt("StabilityLimDet has an illegal value.");
   }
 
+  /* Options interpreted only for forward phase */
+
+  if (fwd) {
+
+    /* Number of root functions */
+    opt = mxGetField(options,0,"NumRoots");
+    if ( !mxIsEmpty(opt) ) {
+      Ng = (int)*mxGetPr(opt);
+      if (Ng < 0)
+        mexErrMsgTxt("NumRoots is negative.");
+      if (Ng > 0) {
+        /* Roots function */
+        opt = mxGetField(options,0,"RootsFn");
+        if ( !mxIsEmpty(opt) ) {
+          mx_Gfct = mxDuplicateArray(opt);
+        } else {
+          mexErrMsgTxt("RootsFn required for NumRoots > 0");
+        }
+      }
+    }
+
+  }
+
   /* Quadratures? */
 
   opt = mxGetField(options,0,"Quadratures");
@@ -235,60 +282,47 @@ int get_IntgrOptions(const mxArray *options,
     status = mxGetString(opt, bufval, buflen);
     if(status != 0)
       mexErrMsgTxt("Cannot parse Quadratures.");
-    if(!strcmp(bufval,"on")) *quad = TRUE;
-    else if(!strcmp(bufval,"off")) *quad = FALSE;
+    if(!strcmp(bufval,"on")) tmp_quad = TRUE;
+    else if(!strcmp(bufval,"off")) tmp_quad = FALSE;
     else mexErrMsgTxt("Quadratures has an illegal value.");
   }
 
-  /* Sensitivity analysis? */
-
-  opt = mxGetField(options,0,"SensiAnalysis");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0) 
-      mexErrMsgTxt("Cannot parse SensiAnalysis.");
-    if(!strcmp(bufval,"FSA")) {*fsa = TRUE; *asa = FALSE;}
-    else if(!strcmp(bufval,"ASA")) {*fsa = FALSE; *asa = TRUE;}
-    else if(!strcmp(bufval,"off")) {*fsa = FALSE; *asa = FALSE;}
-    else mexErrMsgTxt("SensiAnalysis has an illegal value.");
-  }  
+  if (fwd) cvm_quad  = tmp_quad;
+  else     cvm_quadB = tmp_quad;
 
   /* Monitor? */
+
   opt = mxGetField(options,0,"MonitorFn");
   if ( !mxIsEmpty(opt) ) {
-    *monitor = TRUE;
-    *mx_tmp_MONfct = mxDuplicateArray(opt);
+    if (fwd) {
+      cvm_mon = TRUE;
+      mx_MONfct = mxDuplicateArray(opt);
+    } else {
+      cvm_monB = TRUE;
+      mx_MONfctB = mxDuplicateArray(opt);
+    }
     opt = mxGetField(options,0,"MonitorData");
     if ( !mxIsEmpty(opt) ) {
-      *mx_tmp_MONdata = mxDuplicateArray(opt);
+      if (fwd) mx_MONdata  = mxDuplicateArray(opt);
+      else     mx_MONdataB = mxDuplicateArray(opt);
     }
   }
 
   /* We made it here without problems */
 
-  mxDestroyArray(empty);
-
   return(0);
 }
 
 
-int get_LinSolvOptions(const mxArray *options,
-                       int *ls_tmp,
+int get_LinSolvOptions(const mxArray *options, booleantype fwd,
                        int *mupper, int *mlower,
                        int *mudq, int *mldq, double *dqrely,
-                       int *ptype, int *gstype, int *maxl, int *pm_tmp,
-                       mxArray **mx_tmp_JACfct,
-                       mxArray **mx_tmp_PSETfct, mxArray **mx_tmp_PSOLfct,
-                       mxArray **mx_tmp_GLOCfct, mxArray **mx_tmp_GCOMfct)
+                       int *ptype, int *gstype, int *maxl)
 {
-  mxArray *opt, *empty;
+  mxArray *opt;
   char *bufval;
-  int buflen, status;
+  int buflen, status, tmp_ls, tmp_pm;
   
-  *ls_tmp = LS_DENSE;
-
   *mupper = 0;
   *mlower = 0;
 
@@ -300,14 +334,10 @@ int get_LinSolvOptions(const mxArray *options,
   *gstype = MODIFIED_GS;
   *maxl = 0;
 
-  *pm_tmp = PM_NONE;
+  tmp_ls = LS_DENSE;
+  tmp_pm = PM_NONE;
 
-  empty = mxCreateDoubleMatrix(0,0,mxREAL);
-  *mx_tmp_JACfct  = mxDuplicateArray(empty); 
-  *mx_tmp_PSETfct = mxDuplicateArray(empty); 
-  *mx_tmp_PSOLfct = mxDuplicateArray(empty); 
-  *mx_tmp_GLOCfct = mxDuplicateArray(empty); 
-  *mx_tmp_GCOMfct = mxDuplicateArray(empty); 
+  /* Return now if options was empty */
 
   if (mxIsEmpty(options)) return(0);
 
@@ -320,126 +350,164 @@ int get_LinSolvOptions(const mxArray *options,
     status = mxGetString(opt, bufval, buflen);
     if(status != 0) 
       mexErrMsgTxt("Cannot parse LinearSolver.");
-    if(!strcmp(bufval,"Diag")) *ls_tmp = LS_DIAG;
-    else if(!strcmp(bufval,"Band")) *ls_tmp = LS_BAND;
-    else if(!strcmp(bufval,"GMRES")) *ls_tmp = LS_SPGMR;
-    else if(!strcmp(bufval,"BiCGStab")) *ls_tmp = LS_SPBCG;
-    else if(!strcmp(bufval,"TFQMR")) *ls_tmp = LS_SPTFQMR;
-    else if(!strcmp(bufval,"Dense")) *ls_tmp = LS_DENSE;
+    if(!strcmp(bufval,"Diag")) tmp_ls = LS_DIAG;
+    else if(!strcmp(bufval,"Band")) tmp_ls = LS_BAND;
+    else if(!strcmp(bufval,"GMRES")) tmp_ls = LS_SPGMR;
+    else if(!strcmp(bufval,"BiCGStab")) tmp_ls = LS_SPBCG;
+    else if(!strcmp(bufval,"TFQMR")) tmp_ls = LS_SPTFQMR;
+    else if(!strcmp(bufval,"Dense")) tmp_ls = LS_DENSE;
     else mexErrMsgTxt("LinearSolver has an illegal value.");
+
+    if (fwd) ls  = tmp_ls;
+    else     lsB = tmp_ls;
   }
   
+  /* Jacobian function */
+
   opt = mxGetField(options,0,"JacobianFn");
   if ( !mxIsEmpty(opt) )
-    *mx_tmp_JACfct = mxDuplicateArray(opt);
+    if (fwd) mx_JACfct  = mxDuplicateArray(opt);
+    else     mx_JACfctB = mxDuplicateArray(opt);
+
+  /* SPGMR linear solver options */
   
-  opt = mxGetField(options,0,"UpperBwidth");
-  if ( !mxIsEmpty(opt) )
-    *mupper = (int)*mxGetPr(opt);
+  if (tmp_ls==LS_SPGMR) {
 
-  opt = mxGetField(options,0,"LowerBwidth");
-  if ( !mxIsEmpty(opt) )
-    *mlower = (int)*mxGetPr(opt);
+    /* Type of Gram-Schmidt procedure */
 
-  opt = mxGetField(options,0,"PrecType");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse PrecType.");
-    if(!strcmp(bufval,"Left")) *ptype = PREC_LEFT;
-    else if(!strcmp(bufval,"Right")) *ptype = PREC_RIGHT;
-    else if(!strcmp(bufval,"Both")) *ptype = PREC_BOTH;
-    else if(!strcmp(bufval,"None")) *ptype = PREC_NONE;
-    else mexErrMsgTxt("PrecType has an illegal value.");
+    opt = mxGetField(options,0,"GramSchmidtType");
+    if ( !mxIsEmpty(opt) ) {
+      buflen = mxGetM(opt) * mxGetN(opt) + 1;
+      bufval = mxCalloc(buflen, sizeof(char));
+      status = mxGetString(opt, bufval, buflen);
+      if(status != 0)
+        mexErrMsgTxt("Cannot parse GramSchmidtType.");
+      if(!strcmp(bufval,"Classical")) *gstype = CLASSICAL_GS;
+      else if(!strcmp(bufval,"Modified")) *gstype = MODIFIED_GS;
+      else mexErrMsgTxt("GramSchmidtType has an illegal value.");
+    }
+
   }
 
-  opt = mxGetField(options,0,"GramSchmidtType");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse GramSchmidtType.");
-    if(!strcmp(bufval,"Classical")) *gstype = CLASSICAL_GS;
-    else if(!strcmp(bufval,"Modified")) *gstype = MODIFIED_GS;
-    else mexErrMsgTxt("GramSchmidtType has an illegal value.");
-  }
+  /* SPILS linear solver options */
 
-  opt = mxGetField(options,0,"KrylovMaxDim");
-  if ( !mxIsEmpty(opt) ) {
-    *maxl = (int)*mxGetPr(opt);
-    if (*maxl < 0) 
-      mexErrMsgTxt("KrylovMaxDim is negative.");
-  }
-  
-  opt = mxGetField(options,0,"PrecSetupFn");
-  if ( !mxIsEmpty(opt) ) 
-    *mx_tmp_PSETfct = mxDuplicateArray(opt);
-  
-  opt = mxGetField(options,0,"PrecSolveFn");
-  if ( !mxIsEmpty(opt) )
-    *mx_tmp_PSOLfct = mxDuplicateArray(opt);
+  if ( (tmp_ls==LS_SPGMR) || (tmp_ls==LS_SPBCG) || (tmp_ls==LS_SPTFQMR) ) {
 
-  /* Preconditioner module */
-  
-  opt = mxGetField(options,0,"PrecModule");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse PrecModule.");
-    if(!strcmp(bufval,"BandPre")) *pm_tmp = PM_BANDPRE;
-    else if(!strcmp(bufval,"BBDPre")) *pm_tmp = PM_BBDPRE;
-    else if(!strcmp(bufval,"UserDefined")) *pm_tmp = PM_NONE;
-    else mexErrMsgTxt("PrecModule has an illegal value.");
+    /* Max. dimension of Krylov subspace */
 
-    opt = mxGetField(options,0,"UpperBwidthDQ");
+    opt = mxGetField(options,0,"KrylovMaxDim");
+    if ( !mxIsEmpty(opt) ) {
+      *maxl = (int)*mxGetPr(opt);
+      if (*maxl < 0) 
+        mexErrMsgTxt("KrylovMaxDim is negative.");
+    }
+
+    /* Preconditioning type */
+
+    opt = mxGetField(options,0,"PrecType");
+    if ( !mxIsEmpty(opt) ) {
+      buflen = mxGetM(opt) * mxGetN(opt) + 1;
+      bufval = mxCalloc(buflen, sizeof(char));
+      status = mxGetString(opt, bufval, buflen);
+      if(status != 0)
+        mexErrMsgTxt("Cannot parse PrecType.");
+      if(!strcmp(bufval,"Left")) *ptype = PREC_LEFT;
+      else if(!strcmp(bufval,"Right")) *ptype = PREC_RIGHT;
+      else if(!strcmp(bufval,"Both")) *ptype = PREC_BOTH;
+      else if(!strcmp(bufval,"None")) *ptype = PREC_NONE;
+      else mexErrMsgTxt("PrecType has an illegal value.");
+    }
+
+    /* User defined precoditioning */
+
+    opt = mxGetField(options,0,"PrecSetupFn");
+    if ( !mxIsEmpty(opt) ) 
+      if (fwd) mx_PSETfct  = mxDuplicateArray(opt);
+      else     mx_PSETfctB = mxDuplicateArray(opt);
+  
+    opt = mxGetField(options,0,"PrecSolveFn");
     if ( !mxIsEmpty(opt) )
-      *mudq = (int)*mxGetPr(opt);
+      if (fwd) mx_PSOLfct  = mxDuplicateArray(opt);
+      else     mx_PSOLfctB = mxDuplicateArray(opt);
+    
+    /* Preconditioner module */
+  
+    opt = mxGetField(options,0,"PrecModule");
+    if ( !mxIsEmpty(opt) ) {
+      buflen = mxGetM(opt) * mxGetN(opt) + 1;
+      bufval = mxCalloc(buflen, sizeof(char));
+      status = mxGetString(opt, bufval, buflen);
+      if(status != 0)
+        mexErrMsgTxt("Cannot parse PrecModule.");
+      if(!strcmp(bufval,"BandPre")) tmp_pm = PM_BANDPRE;
+      else if(!strcmp(bufval,"BBDPre")) tmp_pm = PM_BBDPRE;
+      else if(!strcmp(bufval,"UserDefined")) tmp_pm = PM_NONE;
+      else mexErrMsgTxt("PrecModule has an illegal value.");
+      
+      if (fwd) pm  = tmp_pm;
+      else     pmB = tmp_pm;
+    }
 
-    opt = mxGetField(options,0,"LowerBwidthDQ");
-    if ( !mxIsEmpty(opt) )
-      *mldq = (int)*mxGetPr(opt);
+    if (tmp_pm != PM_NONE) {
+    
+      opt = mxGetField(options,0,"UpperBwidthDQ");
+      if ( !mxIsEmpty(opt) )
+        *mudq = (int)*mxGetPr(opt);
 
-    if (*pm_tmp == PM_BBDPRE) {
+      opt = mxGetField(options,0,"LowerBwidthDQ");
+      if ( !mxIsEmpty(opt) )
+        *mldq = (int)*mxGetPr(opt);
+    }
+
+    if (tmp_pm == PM_BBDPRE) {
       
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) 
-        *mx_tmp_GLOCfct = mxDuplicateArray(opt);
+        if (fwd) mx_GLOCfct  = mxDuplicateArray(opt);
+        else     mx_GLOCfctB = mxDuplicateArray(opt);
       else 
         mexErrMsgTxt("GlocalFn required for BBD preconditioner.");
-        
+      
       opt = mxGetField(options,0,"GcommFn");
       if ( !mxIsEmpty(opt) ) 
-        *mx_tmp_GCOMfct = mxDuplicateArray(opt);
+        if (fwd) mx_GCOMfct  = mxDuplicateArray(opt);
+        else     mx_GCOMfctB = mxDuplicateArray(opt);
       
     }
 
   }
+
+  /* Band linear solver / band preconditioner module options */
+
+  if ((tmp_ls==LS_BAND) || (tmp_pm==PM_BANDPRE)) {
+
+    opt = mxGetField(options,0,"UpperBwidth");
+    if ( !mxIsEmpty(opt) )
+      *mupper = (int)*mxGetPr(opt);
+    
+    opt = mxGetField(options,0,"LowerBwidth");
+    if ( !mxIsEmpty(opt) )
+      *mlower = (int)*mxGetPr(opt);
+
+  }
   
   /* We made it here without problems */
-
-  mxDestroyArray(empty);
 
   return(0);
 
 }
 
 
-int get_QuadOptions(const mxArray *options,
-                    int *Nq_tmp, double **yQ0, mxArray **mx_tmp_QUADfct,
-                    booleantype *errconQ,
+int get_QuadOptions(const mxArray *options, booleantype fwd,
+                    double **yQ0, booleantype *errconQ,
                     int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ)
 {
-  mxArray *opt, *empty;
+  mxArray *opt;
   char *bufval;
-  int i, buflen, status, m, n;
+  int tmp_Nq, i, buflen, status, m, n;
   double *tmp;
 
-  *Nq_tmp = 0;
+  tmp_Nq = 0;
   *yQ0 = NULL;
 
   *errconQ = FALSE;
@@ -448,10 +516,9 @@ int get_QuadOptions(const mxArray *options,
   *SabstolQ = 1.0e-6;
   *VabstolQ = NULL;
 
-  empty = mxCreateDoubleMatrix(0,0,mxREAL);
-  *mx_tmp_QUADfct = mxDuplicateArray(empty);
+  /* Return now if options was empty */
 
-  /* Note that options cannot be empty if we got here */
+  if (mxIsEmpty(options)) return(0);
 
   /* Initial conditions for quadratures */
 
@@ -461,21 +528,25 @@ int get_QuadOptions(const mxArray *options,
     n = mxGetN(opt);
     if ( (n != 1) && (m != 1) )
       mexErrMsgTxt("QuadInitCond is not a vector.");
-    if ( n > m ) *Nq_tmp = n;
-    else         *Nq_tmp = m;
+    if ( n > m ) tmp_Nq = n;
+    else         tmp_Nq = m;
     tmp = mxGetPr(opt);
-    *yQ0 = (double *)malloc((*Nq_tmp)*sizeof(double));
-    for(i=0;i<*Nq_tmp;i++) 
+    *yQ0 = (double *)malloc((tmp_Nq)*sizeof(double));
+    for(i=0;i<tmp_Nq;i++) 
       (*yQ0)[i] = tmp[i];
   } else {
     mexErrMsgTxt("QuadInitCond required for quadrature integration.");
   }
 
+  if (fwd) Nq  = tmp_Nq;
+  else     NqB = tmp_Nq;
+
   /* Quadrature function */
 
   opt = mxGetField(options,0,"QuadRhsFn");
   if ( !mxIsEmpty(opt) ) {
-    *mx_tmp_QUADfct = mxDuplicateArray(opt);
+    if (fwd) mx_QUADfct  = mxDuplicateArray(opt);
+    else     mx_QUADfctB = mxDuplicateArray(opt);
   } else {
     mexErrMsgTxt("QuadRhsFn required for quadrature integration.");
   }
@@ -510,10 +581,10 @@ int get_QuadOptions(const mxArray *options,
           *SabstolQ = *tmp;
           if (*SabstolQ < 0.0)
             mexErrMsgTxt("QuadAbsTol is negative.");
-        } else if (n == Nq) {
+        } else if (n == tmp_Nq) {
           *itolQ = CV_SV;
-          *VabstolQ = (double *)malloc((*Nq_tmp)*sizeof(double));
-          for(i=0;i<Nq;i++) {
+          *VabstolQ = (double *)malloc(tmp_Nq*sizeof(double));
+          for(i=0;i<tmp_Nq;i++) {
             (*VabstolQ)[i] = tmp[i];
             if (tmp[i] < 0.0)
               mexErrMsgTxt("QuadAbsTol has a negative component.");
@@ -531,64 +602,23 @@ int get_QuadOptions(const mxArray *options,
 
   /* We made it here without problems */
 
-  mxDestroyArray(empty);
-
-  return(0);
-}
-
-int get_ASAOptions(const mxArray *options, int *Nd_tmp, int *interp_tmp)
-{
-  mxArray *opt;
-  char *bufval;
-  int buflen, status;
-
-  *Nd_tmp = 100;
-  *interp_tmp = CV_HERMITE;
-
-  opt = mxGetField(options,0,"ASANumPoints");
-  if ( !mxIsEmpty(opt) ) {
-    *Nd_tmp = (int)*mxGetPr(opt);
-    if (*Nd_tmp <= 0)
-      mexErrMsgTxt("ASaNumPoints must be positive");
-  } else {
-    mexErrMsgTxt("ASANumPoints required for ASA.");
-  }
-
-  opt = mxGetField(options,0,"ASAInterpType");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse ASAInterpType");
-    if(!strcmp(bufval,"Hermite")) *interp_tmp = CV_HERMITE;
-    else if(!strcmp(bufval,"Polynomial")) *interp_tmp = CV_POLYNOMIAL;
-    else mexErrMsgTxt("ASAInterpType has an illegal value.");
-  }
-
   return(0);
 }
 
 int get_FSAOptions(const mxArray *options, 
-                   int *Ns_tmp, double **yS0,
-                   int *ism_tmp,
                    char **pfield_name, int **plist, double **pbar,
-                   int *Srhs, mxArray **mx_tmp_SRHSfct, double *rho,
+                   booleantype *userSRHS, double *rho,
                    booleantype *errconS, int *itolS, double *reltolS, 
                    double **SabstolS, double **VabstolS)
 {
-  mxArray *opt, *empty;
+  mxArray *opt;
   char *bufval;
   int i, is, m, n, buflen, status;
   double *tmp;
 
   /* Set default values */
 
-  *Ns_tmp = 0;
-  *yS0 = NULL;
-
-  *ism_tmp = CV_STAGGERED;
-
+  *userSRHS = FALSE;
   *errconS = TRUE;
 
   *rho = 0.0;
@@ -601,44 +631,9 @@ int get_FSAOptions(const mxArray *options,
   *plist = NULL;
   *pbar  = NULL;
 
-  empty = mxCreateDoubleMatrix(0,0,mxREAL);
-  *mx_tmp_SRHSfct = mxDuplicateArray(empty);
-  *Srhs = 0;
+  /* Return now if options was empty */
 
-  /* Note that options cannot be empty if we got here */
-
-  /* Initial conditions for sensitivities */
-
-  opt = mxGetField(options,0,"FSAInitCond");
-
-  if ( !mxIsEmpty(opt) ) {
-    m = mxGetM(opt);
-    n = mxGetN(opt);
-    if ( m != N ) 
-      mexErrMsgTxt("FSAInitCond does not have N rows.");
-    *Ns_tmp = n;
-    tmp = mxGetPr(opt);
-    *yS0 = (double *)malloc((*Ns_tmp)*N*sizeof(double));
-    for (i=0; i<(*Ns_tmp)*N; i++)
-      (*yS0)[i] = tmp[i];
-  } else {
-    mexErrMsgTxt("FSAInitCond required for FSA.");
-  }
-
-  /* ISM */
-
-  opt = mxGetField(options,0,"FSAMethod");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse FSAMethod");
-    if(!strcmp(bufval,"Simultaneous")) *ism_tmp = CV_SIMULTANEOUS;
-    else if(!strcmp(bufval,"Staggered")) *ism_tmp = CV_STAGGERED;
-    else if(!strcmp(bufval,"Staggered1")) *ism_tmp = CV_STAGGERED1;
-    else mexErrMsgTxt("FSAMethod has an illegal value.");
-  }
+  if (mxIsEmpty(options)) return(0);
 
   /* Field name in data structure for params. */
 
@@ -663,10 +658,10 @@ int get_FSAOptions(const mxArray *options,
     if ( (n != 1) && (m != 1) )
       mexErrMsgTxt("FSAParamList is not a vector.");
     if (m > n) n = m;
-    if ( n != *Ns_tmp)
+    if ( n != Ns)
       mexErrMsgTxt("FSAParamList does not contain Ns elements.");
-    *plist = (int *) malloc((*Ns_tmp)*sizeof(int));
-    for (is=0;is<*Ns_tmp;is++)
+    *plist = (int *) malloc(Ns*sizeof(int));
+    for (is=0;is<Ns;is++)
       (*plist)[is] = (int) tmp[is];
   }
 
@@ -679,11 +674,11 @@ int get_FSAOptions(const mxArray *options,
     if ( (n != 1) && (m != 1) )
       mexErrMsgTxt("FSAParamScales is not a vector.");
     if ( m > n ) n = m;
-    if ( n != *Ns_tmp)
+    if ( n != Ns)
       mexErrMsgTxt("FSAParamScales does not contain Ns elements.");
     tmp = mxGetPr(opt);
-    *pbar = (double *) malloc((*Ns_tmp)*sizeof(double));
-    for(i=0;i<*Ns_tmp;i++)
+    *pbar = (double *) malloc(Ns*sizeof(double));
+    for(i=0;i<Ns;i++)
       (*pbar)[i] = tmp[i];
   }
 
@@ -719,20 +714,20 @@ int get_FSAOptions(const mxArray *options,
     if ( !mxIsEmpty(opt) ) {
       m = mxGetM(opt);
       n = mxGetN(opt);
-      if ( (m == 1) && (n == *Ns_tmp) ) {
+      if ( (m == 1) && (n == Ns) ) {
         *itolS = CV_SS;
         tmp = mxGetPr(opt);
-        *SabstolS = (double *) malloc((*Ns_tmp)*sizeof(double));
-        for (is=0; is<*Ns_tmp; is++) {
+        *SabstolS = (double *) malloc(Ns*sizeof(double));
+        for (is=0; is<Ns; is++) {
           (*SabstolS)[is] = tmp[is];
           if ( tmp[is] < 0.0 )
             mexErrMsgTxt("FSAAbsTol has a negative component.");
         }
-      } else if ( (m == N) && (n == *Ns_tmp) ) {
+      } else if ( (m == N) && (n == Ns) ) {
         *itolS = CV_SV;
         tmp = mxGetPr(opt);
-        *VabstolS = (double *)malloc((*Ns_tmp)*N*sizeof(double));
-        for (i=0; i<(*Ns_tmp)*N; i++) {
+        *VabstolS = (double *)malloc(Ns*N*sizeof(double));
+        for (i=0; i<Ns*N; i++) {
           (*VabstolS)[i] = tmp[i];
           if ( tmp[i] < 0.0 )
             mexErrMsgTxt("FSAAbsTol has a negative component.");
@@ -747,32 +742,15 @@ int get_FSAOptions(const mxArray *options,
 
   /* Sensitivity RHS function type */
 
-  opt = mxGetField(options,0,"FSARhsType");
+  opt = mxGetField(options,0,"FSARhsFn");
   if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse FSARhsType.");
-    if(!strcmp(bufval,"One")) *Srhs = 1;
-    else if(!strcmp(bufval,"All")) *Srhs = 2;
-    else if(!strcmp(bufval,"None")) *Srhs = 0;
-    else mexErrMsgTxt("FSARhsType has an illegal value.");
-
-    if (*Srhs != 0) {
-      opt = mxGetField(options,0,"FSARhsFn");
-      if ( !mxIsEmpty(opt) ) {
-        *mx_tmp_SRHSfct = mxDuplicateArray(opt);
-      } else {
-        mexErrMsgTxt("FSARhsFn required for FSARhsType other than None");
-      }
-    }
-  }
+    *userSRHS = TRUE;
+    mx_SRHSfct = mxDuplicateArray(opt);
+  } 
 
   /* We made it here without problems */
-
-  mxDestroyArray(empty);
 
   return(0);
 
 }
+

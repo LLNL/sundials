@@ -5,7 +5,7 @@ function [yd, flag, new_data] = pvkx_fl(t, y, data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:46 $
+% $Revision: 1.3 $Date: 2006/02/13 23:01:25 $
 
 xmin  = data.xmin;
 ml    = data.ml;
@@ -20,9 +20,7 @@ for i = 2:ml(1)+1
 
       x = xmin + (start + [i-2 j-2 k-2] ) .* dx;
       v = velocity(x, data);
-
       s = source(x,data);
-      %s = data.s(i-1,j-1,k-1);
 
       [c, cl, cr] = stencil(yext,i,j,k);
 
@@ -39,7 +37,6 @@ yd = reshape(yd,prod(ml),1);
 
 flag = 0;
 new_data = [];
-
 
 
 function [c,cl,cr] = stencil(yext,i,j,k)

@@ -9,7 +9,7 @@ function [] = pvkx(comm)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:46 $
 
 %---------------------------------
 % Domain definition
@@ -34,8 +34,6 @@ if npes ~= prod(np)
   error('Wrong number of processes');
 end
 
-fprintf('This is PE # %d\n',myId);
-
 %---------------------------------
 % Set-up problem data
 %---------------------------------
@@ -49,7 +47,10 @@ data = SetData(comm, npes, myId, xmin, xmax, m, np);
 nlocal = prod(data.ml);
 neq = prod(data.m);
 
-fprintf('nlocal=%d  neq=%d\n',nlocal,neq);
+fprintf('\nPVKX example problem\n\n');
+fprintf('  Processor %d/%d\n',myId,npes);
+fprintf('  Global problem size: %d\n',neq);
+fprintf('  Local problem size:  %d\n\n',nlocal);
 
 
 %--------------------------------
@@ -62,35 +63,30 @@ t0 = 0.0;
 % Initial states (concentrations)
 y0 = zeros(nlocal,1);
 
-% Initial quadratures (local contribution to cost)
-q0 = 1.0;
-
 % TEST communication pattern
-%y0 = (10^myId) * [1:nlocal];
-%[yd, data] = pvkx_f(t0,y0,data);
-%disp(data.myId);
-%disp(data.xmin);
-%disp(data.xmax);
-%disp(data.start);
-%disp(data.m);
-%disp(data.ml);
-%disp(data.dx);
-%disp(size(data.yext));
-%disp(data.yext);
-%return
+fprintf('Local data structure\n');
+fprintf('  myId = %d\n',data.myId);
+fprintf('  xmin = %g %g %g\n',data.xmin);
+fprintf('  xmax = %g %g %g\n',data.xmax);
+fprintf('  dx   = %g %g %g\n',data.dx);
+fprintf('  start  = %3d %3d %3d\n',data.start);
+fprintf('  m      = %3d %3d %3d\n',data.m);
+fprintf('  ml     = %3d %3d %3d\n',data.ml);
+fprintf('  |yext| = %3d %3d %3d\n\n',size(data.yext));
 
 %--------------------------------
-% Forward CVODES initialization
+% CVODES setup
 %--------------------------------
 
-mldq = data.ml(1)+1;
-mudq = data.ml(1)+1;
-
-mlkeep = 2;
-mukeep = 2;
-
+% Tolerances
 options = CVodeSetOptions('RelTol',1.e-8,...
                           'AbsTol',1.e-6);
+
+% Linear solver
+mldq = data.ml(1)+1;
+mudq = data.ml(1)+1;
+mlkeep = 2;
+mukeep = 2;
 
 options = CVodeSetOptions(options,...
                           'LinearSolver','GMRES',...
@@ -102,43 +98,38 @@ options = CVodeSetOptions(options,...
                           'LowerBwidth',mlkeep,...
                           'UpperBwidth',mukeep);
 
-%options = CVodeSetOptions(options,...
-%                          'Quadratures','on',...
-%                          'QuadRhsFn',@pvkx_q,...
-%                          'QuadInitcond', q0,...
-%                          'QuadErrControl','on',...
-%                          'QuadRelTol',1.e-8,'QuadAbsTol',1.e-6);
-%
-%
-%options = CVodeSetOptions(options,...
-%                          'SensiAnalysis', 'ASA',...
-%                          'ASANumPoints', 200);
+% Monitoring
+mondata = struct;
+if myId ==0
+  mondata.mode = 'text';
+else
+  mondata.post = false;
+end
+options = CVodeSetOptions(options,...
+                          'MonitorFn','CVodeMonitor',...
+                          'MonitorData',mondata);
 
+% Memory allocation and initialization
 CVodeMalloc(@pvkx_f,t0,y0,options,data);
-fprintf('CVodeMalloc done\n');
 
-%return
+%--------------------------------
+% CVODES solution
+%--------------------------------
 
-tf = 0.001;
-%[status,t,y,q] = CVode(tf,'Normal');
-
-
+tf = 0.01;
 
 [status,t,y] = CVode(tf,'Normal');
 
-%G = 0.0;
-%MPI_Allreduce(q, G, 'SUM', comm);
-%
 if myId == 0
-%  fprintf('G = %e\n',G);
   si = CVodeGetStats
 end
 
 
 CVodeFree;
 
-
-
+%
+% ===========================================================
+%
 
 function d = SetData(comm, npes, myId, xmin, xmax, m, np)
 

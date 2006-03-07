@@ -4,7 +4,7 @@ function [] = startup_STB(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:38 $
+% $Revision: 1.3 $Date: 2006/01/06 22:30:27 $
 
 % Figure out the location of sundialsTB
 
@@ -62,14 +62,6 @@ if ~exist(q, 'dir')
   warning('SUNDIALS Toolbox not found (NVECTOR M files)');
 end
 addpath(q);
-
-q = [p '/nvector/nvm'];
-if ~exist(q, 'dir')
-  clear p q
-  warning('SUNDIALS Toolbox not found (NVECTOR MEX files)');
-end
-addpath(q);
-
 
 if ~isempty(getenv('MPITB_ROOT'))
 

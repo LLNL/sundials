@@ -5,7 +5,7 @@ function [qd, flag, new_data] = cvbx_q(t, u, data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
+% $Revision: 1.3 $Date: 2006/02/13 23:01:27 $
 
 
 mx = data.mx;
@@ -15,7 +15,7 @@ dy = data.dy;
 xmax = data.xmax;
 ymax = data.ymax;
 
-qd = 0.0;
+qd1 = 0.0;
 for j = 1:my
   for i = 1:mx
     uij = u(j+(i-1)*my);
@@ -29,11 +29,13 @@ for j = 1:my
     else
       del_x = dx;
     end
-    qd = qd + uij * del_x*del_y;
+    qd1 = qd1 + uij * del_x*del_y;
   end
 end
 
-qd = qd / (xmax*ymax);
+qd1 = qd1 / (xmax*ymax);
+
+qd(1) = qd1;
 
 flag = 0;
 new_data = [];

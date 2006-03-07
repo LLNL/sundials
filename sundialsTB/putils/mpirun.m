@@ -10,7 +10,7 @@ function [] = mpirun(fct,npe,dbg)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 19:00:15 $
 
 ih = isa(fct,'function_handle');
 is = isa(fct,'char');
@@ -50,7 +50,18 @@ end
 
 [info NEWORLD] = MPI_Intercomm_merge(children,0);
 
-nvm(1,NEWORLD);
+% Put the MPI communicator in the global workspace
+global sundials_MPI_comm;
+sundials_MPI_comm = NEWORLD;
+
+% Get rank of current process and put it in the global workspace
+[status mype] = MPI_Comm_rank(NEWORLD);
+global sundials_MPI_rank;
+sundials_MPI_rank = mype;
+
+% Call the user main program
 feval(fct,NEWORLD);
-nvm(2);
+
+% Clear the global MPI communicator variable
+clear sundials_MPI_comm
 

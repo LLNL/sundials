@@ -37,9 +37,9 @@ function [status,t,yB,varargout] = CVodeB(tout,itask)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
 
-mode = 6;
+mode = 8;
 if nargout < 3 | nargout > 4
   disp('CVodeB:: wrong number of arguments');
   return

@@ -23,7 +23,6 @@
 %   CVGlocalFn      -  RHS approximation function (BBDPre)
 %   CVGcomFn        -  communication function (BBDPre)
 %   CVSensRhsFn     -  sensitivity RHS function
-%   CVSensRhs1Fn    -  sensitivity RHS function (single)
 %   CVMonitorFn     -  monitoring function
 %
 % Serial examples

@@ -77,12 +77,10 @@ function si = CVodeGetStats()
 %o netfS     - number of error test failures for sensitivity variables
 %o nniS      - number of nonlinear solver iterations for sensitivity variables
 %o ncfnS     - number of convergence test failures due to sensitivity variables
-%o nniSTGR1  - number of nonlinear solver iterations for each sensitivity system
-%o ncfnSTGR1 - number of convergence test failures for each sensitivity system
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
 
-mode = 7;
+mode = 9;
 si = cvm(mode);

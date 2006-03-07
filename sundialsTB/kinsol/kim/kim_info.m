@@ -36,7 +36,6 @@ switch action
 
   f = fin;
   new_str = message;
-%  new_str ='aha';
 
   handles=guidata(f);
   string = get(handles.textbox,'String');

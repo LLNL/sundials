@@ -116,12 +116,16 @@ user-callable functions provided for each {\matlab} interface.
 
 A major design principle for {\sundialsTB}
 was to provide an interface that is, as much as possible, equally familiar to
-users of both the {\sundials} codes and {\matlab}. Moreover, we tried to keep the
+both {\sundials} users and {\matlab} users. Moreover, we tried to keep the
 number of user-callable functions to a minimum. For example, the {\cvodes} {\matlab} 
-interface contains only 9 such functions, 3 of which interface solely to the adjoint
-sensitivity module in {\cvodes}. In tune with the {\matlab} {\sc odeset} function, optional
-solver inputs in {\sundialsTB} are specified through a single function
-({\tt CvodeSetOptions} for {\cvodes}). However, unlike the ODE solvers in {\matlab}, we
+interface contains only 12 such functions, 2 of which relate to forward sensitivity analysis and
+4 more interface solely to the adjoint sensitivity module in {\cvodes}. 
+A user who is only interested in integration of ODEs and not in sensitivity analysis
+therefore needs to call at most 6 functions.
+In tune with the {\matlab} {\sc odeset} function, optional
+solver inputs in {\sundialsTB} are specified through a single function; e.g.
+{\tt CvodeSetOptions} for {\cvodes} (a similar function is used to specify optional
+inputs for forward sensitivity analysis). However, unlike the ODE solvers in {\matlab}, we
 have kept the more flexible {\sundials} model in which a separate ``solve'' function 
 ({\tt CVodeSolve} for {\cvodes}) must be called to return the solution at a desired 
 output time. Solver statistics, as well as optional outputs (such as
@@ -143,29 +147,157 @@ Each interface module in {\sundialsTB} requires the appropriate version of the
 corresponding {\sundials} solver. For parallel support, {\sundialsTB} depends on
 {\mpiTB} with {\sc lam} v $> 7.1.1$ (for MPI-2 spawning feature).
 
-\subsection{Installation} 
+\subsection{Installation/Setup} 
+
+The following steps are required to install and setup {\sundialsTB}:
+
+\subsubsection{Choose ubication}
 
 \begin{enumerate}
-\item Install the appropriate version of the {\sundials} solver(s).
-\item Modify {\tt Makefile} ({\tt SUNDIALS} location) in the {\tt mex} directory 
-  and compile
-\item Optionally, for parallel support, install and configure {\sc LAM} 
-  (local copy, since typical installations only install static libraries) and {\mpiTB}
-\item Add the following paths to your {\matlab} {\tt startup.m} script:
+
+\item 
+  {\sundialsTB} for all MATLAB users (not usual)
+
+  Assume MATLAB is installed under \$MATLAB=/usr/local/matlab7.
+  Place sundialsTB where toolboxes are usually stored:
+\begin{verbatim}
+    $ cd /usr/local/matlab7/toolbox
+\end{verbatim}
+
+\item 
+  {\sundialsTB} for just one user (usual configuration)
+
+  Place sundialsTB in your "matlab" working subdir:
+\begin{verbatim}
+    $ cd ~/matlab
+\end{verbatim}
+
+\end{enumerate}
+
+\subsubsection{Decompress and untar}
+
+\begin{verbatim}
+    $ tar zxvf <wherever>/sundialsTB.tar.gz
+\end{verbatim}
+or
+\begin{verbatim}
+    $ cp <wherever>/sundialsTB.tar.gz
+    $ gunzip sundialsTB.tar.gz
+    $ tar xvf sundialsTB.tar
+    $ rm sundialsTB.tar
+\end{verbatim}
+Now there is a ~/matlab/sundialsTB (or \$MATLAB/toolbox/sundialsTB) subdirectory.
+
+\subsubsection{Configuring MATLAB's startup}
+
+{\sundialsTB} comes with a startup\_STB.m file in the top subdirectory
+
+\begin{enumerate}
+
+\item 
+  {\sundialsTB} for all MATLAB users (not usual)
+
+  Assume MATLAB is installed under \$MATLAB=/usr/local/matlab7.
+  Add {\sundialsTB} startup to the system-wide startup file:
+\begin{verbatim}
+    $ cd \$MATLAB/toolbox/local
+    $ ln -s ../sundialsTB/startup_STB.m
+\end{verbatim}
+  and add these lines to your original local startup.m
+\begin{verbatim}
+    % SUNDIALS Toolbox startup M-file, if it exists.
+    if exist('startup_STB','file')
+      startup_STB
+    end
+\end{verbatim}
+
+\item 
+  {\sundialsTB} for just one user (usual configuration)
+
+  Assume you do not need to keep any previously existing startup.m
+\begin{verbatim}
+    $ cd ~/matlab
+    $ ln -s sundialsTB/startup_STB.m startup.m
+\end{verbatim}
+  If you already had a startup.m, use the method described above,
+  first linking startup\_STB.m to the destination subdir and then
+  editing ~/matlab/startup.m to run startup\_STB.m
+  
+\item 
+  Since symbolic links do not work well with Matlab under Windows,
+  a different alternative of setting-up the startup is as follows:
+  
+  Copy startup\_STB next to MATLAB's startup.m and add these lines
+  to startup.m
+  
+\begin{verbatim}
+  % SUNDIALS Toolbox startup M-file
+  startup('path_to_sundialsTB')
+\end{verbatim}  
+
+  using the optional argument of startup\_STB to explicitly spceify
+  the location of sundialsTB.
+\end{enumerate}
+
+
+\subsubsection{Compile MEX files}
+
+To facilitate the compilation of {\sundialsTB} on platforms that do not have
+a make system, we rely on MATLAB's mex command. Compilation of sundialsTB
+is done by running from under MATLAB the install\_STB.m script which is
+present in the sundialsTB top directory.
+
+\begin{enumerate}
+
+\item
+  If you have not already done so, download and unpack SUNDIALS.
+  Assume SUNDIALS is now located in /path/to/sundials
+
+\item
+  Launch matlab in sundialsTB:
+\begin{verbatim}
+    $ cd $MATLAB/toolbox/sundialsTB
+    $ matlab
+\end{verbatim}
+  or
+\begin{verbatim}
+    $ cd ~/matlab/sundialsTB    
+    $ matlab
+\end{verbatim}
+
+\item
+  Run the install\_STB matlab script.
+  You will be asked for the location of the SUNDIALS source tree. 
+  Input /path/to/sundials.
+
+  Note that parallel support will be compiled into the MEX files only if
+  ALL of the following conditions are met:
   \begin{itemize}
-  \item {\tt sundialsTB/cvodes} and {\tt sundialsTB/mex/cvm}   for {\cvodes}
-%  \item {\tt sundialsTB/ida}    and {\tt sundialsTB/mex/idm}   for {\ida}
-  \item {\tt sundialsTB/kinsol} and {\tt sundialsTB/mex/kim}   for {\kinsol}
-  \item {\tt sundialsTB/nvector} and {\tt sundialsTB/mex/nvm}  for {\nvector} operations
-  \item {\tt sundialsTB/putils}                                for {\tt mpirun} function
-  \end{itemize}
-\item In {\matlab}, try:
-  \begin{itemize}
-  \item {\tt help cvodes}
-  \item {\tt help kinsol}
-  \item{\tt help nvector}
-  \item {\tt help putils}
-  \end{itemize}
+     \item \$LAMHOME is defined
+     \item \$MPITB\_ROOT is defined
+     \item /path/to/sundials/nvec\_par exists 
+   \end{itemize}
+
+\end{enumerate}
+
+\subsubsection{Try one of the sundialsTB examples}
+
+If everything went fine, you should now be able to try one of the CVODES
+or KINSOL examples (in matlab, type 'help cvodes' or 'help kinsol' to see
+a list of all examples available).
+
+\begin{enumerate}
+\item
+  cd to the CVODES serial example directory
+\begin{verbatim}
+    $ cd $MATLAB/toolbox/sundialsTB/cvodes/examples_ser
+\end{verbatim}
+  or
+\begin{verbatim}
+    $ cd ~/matlab/sundialsTB/cvodes/examples_ser
+\end{verbatim}
+\item
+  Launch matlab and execute cvdx
 \end{enumerate}
 
 \subsection{Links} 

@@ -4,7 +4,11 @@ function [] = install_STB
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.5 $Date: 2006/02/02 00:38:02 $
+% $Revision: 1.6 $Date: 2006/02/13 23:01:18 $
+
+% Turn on debugging?
+
+dbg = true;
 
 % Location of sundialsTB
 
@@ -32,48 +36,25 @@ if ~exist(q, 'dir')
   par = false;
 end
 
-% Compile nvm MEX file
-
-install_NVM(stb);
-
 % Compile cvm MEX file
 
 q = [sun '/cvodes'];
 if exist(q,'dir')
-  install_CVM(stb,sun,par);
+  install_CVM(stb,sun,par,dbg);
 end
 
 % Compile kim MEX file
 
 q = [sun '/kinsol'];
 if exist(q,'dir')
-  install_KIM(stb,sun,par);
+  install_KIM(stb,sun,par,dbg);
 end
-
-%---------------------------------------------------------------------------------
-% compilation of nvm MEX file
-%---------------------------------------------------------------------------------
-
-function [] = install_NVM(stb)
-
-% Move to nvm MEX directory
-q = [stb '/src/nvm'];
-cd(q);
-
-nvm = [stb '/nvector/nvm'];
-mex_cmd = sprintf('mex -v -outdir %s nvm.c',nvm)
-eval(mex_cmd);
-
-% Move back to sundialsTB
-
-cd(stb)
-
 
 %---------------------------------------------------------------------------------
 % compilation of cvm MEX file
 %---------------------------------------------------------------------------------
 
-function [] = install_CVM(stb,sun,par)
+function [] = install_CVM(stb,sun,par,dbg)
 
 % Move to cvm MEX directory
 q = [stb '/src/cvm'];
@@ -165,7 +146,12 @@ end
 % Create MEX file
 
 cvm = [stb '/cvodes/cvm'];
-mex_cmd = sprintf('mex -v -outdir %s %s %s %s', cvm, includes, sources, libraries);
+if dbg
+  mex_cmd = 'mex -g';
+else
+  mex_cmd = 'mex';
+end
+mex_cmd = sprintf('%s -v -outdir %s %s %s %s', mex_cmd, cvm, includes, sources, libraries);
 eval(mex_cmd);
 
 % Move back to sundialsTB
@@ -177,7 +163,7 @@ cd(stb)
 % compilation of KINSOL MEX file
 %---------------------------------------------------------------------------------
 
-function [] = install_KIM(stb,sun,par)
+function [] = install_KIM(stb,sun,par,dbg)
 
 % Move to kim MEX directory
 q = [stb '/src/kim'];
@@ -265,7 +251,12 @@ end
 % Create MEX file
 
 kim = [stb '/kinsol/kim'];
-mex_cmd = sprintf('mex -v -outdir %s %s %s %s', kim, includes, sources, libraries);
+if dbg
+  mex_cmd = 'mex -g';
+else
+  mex_cmd = 'mex';
+end
+mex_cmd = sprintf('%s -v -outdir %s %s %s %s', mex_cmd, kim, includes, sources, libraries);
 eval(mex_cmd);
 
 % Move back to sundialsTB

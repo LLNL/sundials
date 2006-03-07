@@ -22,7 +22,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
+% $Revision: 1.3 $Date: 2006/02/02 00:38:30 $
 
 xmax = 2.0;
 ymax = 1.0;
@@ -77,8 +77,10 @@ options = CVodeSetOptions(options,...
 
 
 
-
-%options = CVodeSetOptions(options,'MonitorFn','CVodeMonitor');
+mondata.grph = false;
+options = CVodeSetOptions(options,...
+                          'MonitorFn',@CVodeMonitor,...
+                          'MonitorData',mondata);
 
 CVodeMalloc(@cvbx_f, t, u, options, data);
 
@@ -98,7 +100,6 @@ for i = 1:nout
 
   tout = t + dtout;
   [status,t,u, q] = CVode(tout, 'Normal');
-%  [status,t,u] = CVode(tout, 'Normal');
 
   if status ~= 0
     return
@@ -110,8 +111,8 @@ for i = 1:nout
 
   figure(ff);
   plot([t_old t],[uavg_old uavg]);
-%  plot([t0 tout], [q q]/(tout-t0), 'r-');
-%  plot([tout tout], [0 q]/(tout-t0), 'r-');
+  plot([t0 tout], [q q]/(tout-t0), 'r-');
+  plot([tout tout], [0 q]/(tout-t0), 'r-');
   
 end
   

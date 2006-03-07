@@ -24,7 +24,7 @@ function options = CVodeSetOptions(varargin)
 %CVodeSetOptions properties
 %(See also the CVODES User Guide)
 %
-%Adams - Use Adams linear multistep method [ on | {off} ]
+%LMM - Linear Multistep Method [ 'Adams' | {'BDF'} ]
 %   This property specifies whether the Adams method is to be used instead
 %   of the default Backward Differentiation Formulas (BDF) method.
 %   The Adams method is recommended for non-stiff problems, while BDF is
@@ -183,79 +183,6 @@ function options = CVodeSetOptions(varargin)
 %   Specifies the absolute tolerance for quadrature variables. This parameter is
 %   used only if QuadErrCon=on.
 %
-%SensAnalysis - Sensitivity anlaysis [ FSA | ASA | {off} ]
-%   Enables sensitivity analysis computations. CVODES can perform both Forward 
-%   Sensitivity Analysis (FSA) and Adjoint Sensitivity Analysis (ASA).
-%
-%FSAInitCond - Initial conditions for sensitivity variables [matrix]
-%   Specifies the initial conditions for sensitivity variables. FSAInitcond
-%   must be a matrix with N rows and Ns columns, where N is the problem
-%   dimension and Ns the number of sensitivity systems.
-%FSAMethod - FSA solution method [ Simultaneous | Staggered1 | {Staggered} ]
-%   Specifies the FSA method for treating the nonlinear system solution for
-%   sensitivity variables. In the simultaneous case, the nonlinear systems 
-%   for states and all sensitivities are solved simultaneously. In the 
-%   Staggered case, the nonlinear system for states is solved first and then
-%   the nonlinear systems for all sensitivities are solved at the same time. 
-%   Finally, in the Staggered1 approach all nonlinear systems are solved in 
-%   a sequence (in this case, the sensitivity right-hand sides must be available
-%   for each sensitivity system sepaately - see SensRHS and SensRHStype).
-%FSAParamField - Problem parameters  [ string ]
-%   Specifies the name of the field in the user data structure (passed as an 
-%   argument to CVodeMalloc) in which the nominal values of the problem 
-%   parameters are stored. This property is used only if  CVODES will use difference
-%   quotient approximations to the sensitivity right-hand sides (see SensRHS and 
-%   SensRHStype).
-%FSAParamList - Parameters with respect to which FSA is performed [ integer vector ]
-%   Specifies a list of Ns parameters with respect to which sensitivities are to
-%   be computed. This property is used only if CVODES will use difference-quotient
-%   approximations to the sensitivity right-hand sides (see SensRHS and SensRHStype). 
-%   Its length must be Ns, consistent with the number of columns of FSAinitCond.
-%FSAParamScales - Order of magnitude for problem parameters [ vector ]
-%   Provides order of magnitude information for the parameters with respect to
-%   which sensitivities are computed. This information is used if CVODES 
-%   approximates the sensitivity right-hand sides (see SensRHS) or if CVODES 
-%   estimates integration tolerances for the sensitivity variables (see FSAReltol 
-%   and FSAAbsTol).
-%FSARelTol - Relative tolerance for sensitivity variables [ positive scalar ]
-%   Specifies the scalar relative tolerance for the sensitivity variables. 
-%   See FSAAbsTol.
-%FSAAbsTol - Absolute tolerance for sensitivity variables [ row-vector or matrix ]
-%   Specifies the absolute tolerance for sensitivity variables. FSAAbsTol must be
-%   either a row vector of dimension Ns, in which case each of its components is
-%   used as a scalar absolute tolerance for the coresponding sensitivity vector,
-%   or a N x Ns matrix, in which case each of its columns is used as a vector
-%   of absolute tolerances for the corresponding sensitivity vector.
-%   By default, CVODES estimates the integration tolerances for sensitivity 
-%   variables, based on those for the states and on the order of magnitude 
-%   information for the problem parameters specified through ParamScales.
-%FSAErrControl - Error control strategy for sensitivity variables [ on | {off} ]
-%   Specifies whether sensitivity variables are included in the error control test.
-%   Note that sensitivity variables are always included in the nonlinear system
-%   convergence test.
-%FSARhsFn - Sensitivity right-hand side function [ function ]
-%   Specifies a user-supplied function to evaluate the sensitivity right-hand 
-%   sides. This property is overloaded. The type of this function must be either 
-%   CVSensRhsFn (if it returns the righ-hand sides for all sensitivity systems 
-%   at once) or CVSensRhs1Fn (if it returns the right-hand side for the i-th 
-%   sensitivity). See SensRHStype. By default, CVODES uses an internal 
-%   difference-quotient function to approximate the sensitivity right-hand sides.
-%FSARhsType - Type of the sensitivity right-hand side function [ All | {One} ]
-%   Specifies the type of the function which computes the sensitivity right-hand
-%   sides. FSARhsType = 'All' indicates that FSARhsFn is of type CVSensRhsFn. 
-%   FSARhsType = 'One' indicates that FSARhsFn is of type CVSensRhs1Fn. Note that
-%   either function type can be used with FSAMethod = 'Simultaneous' or with
-%   FSAMethod = 'Staggered', but only FSARhsType = 'One' is acceptable for 
-%   FSAMethod = 'Staggered1'.
-%FSADQparam - Parameter for the DQ approx. of the sensi. RHS [ scalar | {0.0} ]
-%   Specifies the value which controls the selection of the difference-quotient 
-%   scheme used in evaluating the sensitivity right-hand sides. This property is 
-%   used only if CVODES will use difference-quotient approximations. The default 
-%   value 0.0 indicates the use of the second-order centered directional derivative 
-%   formula exclusively. Otherwise, the magnitude of FSADQparam and its sign 
-%   (positive or negative) indicates whether this switching is done with regard 
-%   to (centered or forward) finite differences, respectively.
-%
 %ASANumDataPoints - Number of data points for ASA [ integer | {100} ]
 %   Specifies the (maximum) number of integration steps between two consecutive
 %   check points.
@@ -274,7 +201,6 @@ function options = CVodeSetOptions(varargin)
 %
 %   See also
 %        CVRootFn, CVQuadRhsFn
-%        CVSensRhsFn, CVSensRhs1Fn
 %        CVDenseJacFn, CVBandJacFn, CVJacTimesVecFn
 %        CVPrecSetupFn, CVPrecSolveFn
 %        CVGlocalFn, CVGcommFn
@@ -282,13 +208,13 @@ function options = CVodeSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
 
 % Based on Matlab's ODESET function
 
 % Print out possible values of properties.
 if (nargin == 0) & (nargout == 0)
-  fprintf('           Adams: [ on | {off} ]\n');
+  fprintf('             LMM: [ Adams | {BDF} ]\n');
   fprintf(' NonlinearSolver: [ Functional | {Newton} ]\n');
   fprintf('          RelTol: [ positive scalar | {1e-4} ]\n');
   fprintf('          AbsTol: [ positive scalar or vector | {1e-6} ]\n');
@@ -324,20 +250,6 @@ if (nargin == 0) & (nargout == 0)
   fprintf('      QuadRelTol: [ positive scalar {1e-4} ]\n');
   fprintf('      QuadAbsTol: [ positive scalar or vector {1e-6} ]\n');
   fprintf('\n');
-  fprintf('   SensiAnalysis: [ FSA | ASA | {off} ]\n');
-  fprintf('\n');
-  fprintf('     FSAInitCond: [ matrix ]\n');
-  fprintf('       FSAMethod: [ Simultaneous | Staggered1 | {Staggered} ]\n');
-  fprintf('   FSAParamField: [ string ]\n');
-  fprintf('    FSAParamList: [ integer vector ]\n');
-  fprintf('  FSAParamScales: [ vector ]\n');
-  fprintf('       FSARelTol: [ positive scalar ]\n');
-  fprintf('       FSAAbsTol: [ row-vector or matrix ]\n');
-  fprintf('   FSAErrControl: [ off | {on} ]\n');
-  fprintf('        FSARhsFn: [ function ]\n');
-  fprintf('      FSARhsType: [ All | {One} ]\n');
-  fprintf('      FSADQparam: [ scalar | {0.0} ]\n');
-  fprintf('\n');
   fprintf('    ASANumPoints: [ integer | {100} ]\n');
   fprintf('   ASAInterpType: [ Polynomial | {Hermite} ]\n');
   fprintf('\n');
@@ -348,7 +260,7 @@ if (nargin == 0) & (nargout == 0)
 end
 
 Names = [
-    'Adams           '
+    'LMM             '
     'NonlinearSolver '
     'RelTol          '
     'AbsTol          '
@@ -381,18 +293,6 @@ Names = [
     'QuadErrControl  '
     'QuadRelTol      '
     'QuadAbsTol      '
-    'SensiAnalysis   '
-    'FSAInitCond     '
-    'FSAMethod       '
-    'FSAParamField   '
-    'FSAParamList    '
-    'FSAParamScales  '
-    'FSARelTol       '
-    'FSAAbsTol       '
-    'FSAErrControl   '
-    'FSARhsFn        '
-    'FSARhsType      '
-    'FSADQparam      '
     'ASANumPoints    '
     'ASAInterpType   '
     'MonitorFn       '

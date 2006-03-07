@@ -4,7 +4,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
 iter = 'Newton';
 reltol = 1.0e-7;
@@ -35,7 +35,7 @@ y0(21) = -1.5;
 y0(25) = -1.25;
 y0(26) =  1.0;
 
-options = CVodeSetOptions('Adams', 'on',...
+options = CVodeSetOptions('LMM', 'Adams',...
                           'NonlinearSolver', iter,...
                           'RelTol', reltol,...
                           'AbsTol', abstol,...
@@ -47,10 +47,10 @@ options = CVodeSetOptions('Adams', 'on',...
 %end
 
 mondata.select = [1:14];
-mondata.map = 'colorcube';
 mondata.xaxis = 'linear';
+mondata.sol = true;
 options = CVodeSetOptions(options,...
-                          'MonitorFn', 'CVodeMonitor',...
+                          'MonitorFn', @CVodeMonitor,...
                           'MonitorData', mondata);
 
 CVodeMalloc(@pleiades_f,t0,y0,options,data);

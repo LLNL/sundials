@@ -29,48 +29,59 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
+% -------------------
 % User data structure
+% -------------------
 
 data.p = [0.04; 1.0e4; 3.0e7];
 
-% CVODES options
-
-t0 = 0.0;
-y0 = [1.0;0.0;0.0];
+% ---------------------
+% CVODES initialization
+% ---------------------
 
 options = CVodeSetOptions('RelTol',1.e-4,...
                           'AbsTol',[1.e-8; 1.e-14; 1.e-6],...
                           'JacobianFn',@cvdx_J);
-yS0 = zeros(3,3);
 
-% Case 1: user-provided sensitivity RHS
+mondata = struct;
+mondata.mode = 'both';
+mondata.sol = true;
+mondata.sensi = true;
+options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
-options = CVodeSetOptions(options,...
-                          'SensiAnalysis', 'FSA',...
-                          'FSAInitCond', yS0,...
-                          'FSAMethod', 'Staggered1',...
-                          'FSAErrControl', 'on',...
-                          'FSAParamScales', [0.04; 1.0e4; 3.0e7],...
-                          'FSARhsType', 'One', 'FSARhsFn', @cvdx_fS);
-
-% Case 2: inernal DQ approximation
-
-%options = CVodeSetOptions(options,...
-%                             'ForwardSensi', 'on',...
-%                             'FSAInitCond', yS0,...
-%                             'FSAMethod', 'Staggered1',...
-%                             'FSAErrControl', 'on',...
-%                             'ParamField', 'p',...
-%                             'ParamList', [1 2 3],...
-%                             'ParamScales', [0.04 1.0e4 3.0e7]);
-
-options = CVodeSetOptions(options,'MonitorFn','CVodeMonitor');
+t0 = 0.0;
+y0 = [1.0;0.0;0.0];
 
 CVodeMalloc(@cvdx_f,t0,y0,options,data);
 
+
+% ------------------
+% FSA initialization
+% ------------------
+
+% Case 1: user-provided sensitivity RHS
+
+FSAoptions = CVodeSetFSAOptions('FSAErrControl', 'on',...
+                                'FSAParamScales', [0.04; 1.0e4],...
+                                'FSARhsFn', @cvdx_fS);
+
+% Case 2: internal DQ approximation
+
+%FSAoptions = CVodeSetFSAOptions('FSAErrControl', 'on',...
+%                                'ParamField', 'p',...
+%                                'ParamList', [1 2],...
+%                                'ParamScales', [0.04 1.0e4]);
+
+Ns = 2;
+yS0 = zeros(3,Ns);
+
+CVodeSensMalloc(Ns, 'Simultaneous', yS0, FSAoptions);
+
+% ----------------
 % Problem solution
+% ----------------
 
 t1 = 0.4;
 tmult = 10.0;
@@ -79,12 +90,11 @@ nout = 12;
 iout = 0;
 tout = t1;
 while 1,
-  [status,t,y, yS] = CVode(tout,'Normal');
+  [status, t, y, yS] = CVode(tout,'Normal');
   fprintf('At t = %0.4e  status = %d\n',t,status);
   fprintf('    y = %14.6e  %14.6e  %14.6e\n', y(1), y(2), y(3));
   fprintf('  yS1 = %14.6e  %14.6e  %14.6e\n', yS(1,1), yS(2,1), yS(3,1));
   fprintf('  yS2 = %14.6e  %14.6e  %14.6e\n', yS(1,2), yS(2,2), yS(3,2));
-  fprintf('  yS3 = %14.6e  %14.6e  %14.6e\n', yS(1,3), yS(2,3), yS(3,3));
   if(status ==0)
     iout = iout+1;
     tout = tout*tmult;
@@ -97,7 +107,9 @@ end
 
 si = CVodeGetStats
 
+% -----------
 % Free memory
+% -----------
 
 CVodeFree;
 

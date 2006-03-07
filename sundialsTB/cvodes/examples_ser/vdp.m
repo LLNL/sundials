@@ -5,7 +5,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
 
 
 data.mu = 100.0;
@@ -17,7 +17,10 @@ options = CVodeSetOptions('RelTol',1.e-3,...
                           'AbsTol',1e-6,...
                           'JacobianFn',@vdp_J);
 
-options = CVodeSetOptions(options,'MonitorFn','CVodeMonitor');
+mondata.xaxis = 'linear';
+mondata.mode = 'both';
+mondata.sol = true;
+options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
 CVodeMalloc(@vdp_f,t0,y0,options,data);
 

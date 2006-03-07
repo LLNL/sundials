@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-13 23:01:29 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-07 01:20:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -25,77 +25,29 @@
  * ---------------------------------------------------------------------------------
  */
 
-/* CVODE data */
+cvm_CVODESdata cvm_Cdata;  /* CVODE data */
+booleantype cvm_quad;      /* Forward quadratures? */
+booleantype cvm_quadB;     /* Backward quadratures? */
+booleantype cvm_asa;       /* Adjoint sensitivity? */
+booleantype cvm_fsa;       /* Forward sensitivity? */
+booleantype cvm_mon;       /* Forward monitoring? */ 
+booleantype cvm_monB;      /* Backward monitoring? */ 
 
-void *cvode_mem;   /* CVODES solver memory */
-void *bp_data;     /* Preconditioner memory (BandPre or BBDPre) */
-N_Vector y;        /* solution vector */
-N_Vector yQ;       /* quadratures vector */
-N_Vector *yS;      /* sensitivity vectors */
-int N;             /* problem dimension */
-int Nq;            /* number of quadratures */
-int Ng;            /* number of root functions */
-int Ns;            /* number of sensitivities */
-int Nd;            /* number of data points */
-int Nc;            /* number of check points */
-int ls;            /* linear solver type */
-int pm;            /* preconditioner module */
-int ism;           /* sensitivity method */
-
-void *cvadj_mem;   /* CVODES adjoint memory */
-int interp;
-N_Vector yB;
-N_Vector yQB;
-int NB;
-int NqB;
-int lsB;
-int pmB;
-
-/* Matlab data */
-
-mxArray *mx_mtlb_RHSfct;
-mxArray *mx_mtlb_QUADfct;
-mxArray *mx_mtlb_JACfct;
-mxArray *mx_mtlb_PSETfct;
-mxArray *mx_mtlb_PSOLfct;
-mxArray *mx_mtlb_GLOCfct;
-mxArray *mx_mtlb_GCOMfct;
-
-mxArray *mx_mtlb_Gfct;
-
-mxArray *mx_mtlb_SRHSfct;
-
-mxArray *mx_mtlb_RHSfctB;
-mxArray *mx_mtlb_QUADfctB;
-mxArray *mx_mtlb_JACfctB;
-mxArray *mx_mtlb_PSETfctB;
-mxArray *mx_mtlb_PSOLfctB;
-mxArray *mx_mtlb_GLOCfctB;
-mxArray *mx_mtlb_GCOMfctB;
-
-mxArray *mx_mtlb_data;
-
-/* Monitors */
-
-booleantype monitor;
-mxArray *mx_mtlb_MONfct;
-mxArray *mx_mtlb_MONdata;
-
-booleantype monitorB;
-mxArray *mx_mtlb_MONfctB;
-mxArray *mx_mtlb_MONdataB;
+cvm_MATLABdata cvm_Mdata;  /* MATLAB data */
 
 /*
  * ---------------------------------------------------------------------------------
- * static function prototypes
+ * Static function prototypes
  * ---------------------------------------------------------------------------------
  */
 
 static int CVM_init();
-static int CVM_initB();
-static int CVM_final();
+static void CVM_makePersistent();
+static void CVM_final();
 
 static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+static int CVM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int CVM_ReInit(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 static int CVM_ReInitB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
@@ -121,82 +73,128 @@ void mexFunction(int nlhs, mxArray *plhs[],
      Modes:
      
      1 - initialize CVODES solver
-     2 - initialize backward solver
-     3 - reinitialize CVODES solver (NYI)
-     4 - reinitialize backward solver (NYI)
-     5 - solve problem
-     6 - solve backward problem
-     7 - get integrator stats
-     8 - get backward integrator stats
-     9 - extract data from cvode_mem
-    10 - set one optional input at a time (NYI)
-    11 - finalize
+     2 - initialize forward sensitivity calculations
+     3 - initialize adjoint sensitivity calculations
+     4 - initialize backward solver
+     5 - reinitialize CVODES solver (NYI)
+     6 - reinitialize backward solver (NYI)
+     7 - solve problem
+     8 - solve backward problem
+     9 - get integrator stats
+    10 - get backward integrator stats
+    11 - extract data from cvode_mem
+    12 - set one optional input at a time (NYI)
+    13 - finalize
   */
 
   mode = (int)mxGetScalar(prhs[0]);
+
+  mexUnlock();
 
   switch(mode) {
   case 1:
     CVM_init();
     CVM_Malloc(nlhs, plhs,nrhs-1,&prhs[1]);
-    mexLock();
-    mexMakeArrayPersistent(mx_mtlb_data);
-    mexMakeArrayPersistent(mx_mtlb_RHSfct);
-    mexMakeArrayPersistent(mx_mtlb_QUADfct);
-    mexMakeArrayPersistent(mx_mtlb_Gfct);
-    mexMakeArrayPersistent(mx_mtlb_JACfct);
-    mexMakeArrayPersistent(mx_mtlb_PSETfct);
-    mexMakeArrayPersistent(mx_mtlb_PSOLfct);
-    mexMakeArrayPersistent(mx_mtlb_GLOCfct);
-    mexMakeArrayPersistent(mx_mtlb_GCOMfct);
-    mexMakeArrayPersistent(mx_mtlb_SRHSfct);
-    mexMakeArrayPersistent(mx_mtlb_MONfct);
-    mexMakeArrayPersistent(mx_mtlb_MONdata);
     break;
   case 2:
-    CVM_initB();
-    CVM_MallocB(nlhs, plhs,nrhs-1,&prhs[1]);
-    mexMakeArrayPersistent(mx_mtlb_RHSfctB);
-    mexMakeArrayPersistent(mx_mtlb_QUADfctB);
-    mexMakeArrayPersistent(mx_mtlb_JACfctB);
-    mexMakeArrayPersistent(mx_mtlb_PSETfctB);
-    mexMakeArrayPersistent(mx_mtlb_PSOLfctB);
-    mexMakeArrayPersistent(mx_mtlb_GLOCfctB);
-    mexMakeArrayPersistent(mx_mtlb_GCOMfctB);
-    mexMakeArrayPersistent(mx_mtlb_MONfctB);
-    mexMakeArrayPersistent(mx_mtlb_MONdataB);
+    CVM_SensMalloc(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 3:
-    CVM_ReInit(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_AdjMalloc(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 4:
-    CVM_ReInitB(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_MallocB(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 5:
-    CVM_Solve(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_ReInit(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 6:
-    CVM_SolveB(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_ReInitB(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 7:
-    CVM_Stats(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_Solve(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 8:
-    CVM_StatsB(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_SolveB(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 9:
-    CVM_Get(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_Stats(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 10:
-    CVM_Set(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_StatsB(nlhs, plhs,nrhs-1,&prhs[1]);
     break;
   case 11:
+    CVM_Get(nlhs, plhs,nrhs-1,&prhs[1]);
+    break;
+  case 12:
+    CVM_Set(nlhs, plhs,nrhs-1,&prhs[1]);
+    break;
+  case 13:
     CVM_Free(nlhs, plhs,nrhs-1,&prhs[1]);
     CVM_final();
-    break;
+    return;
   }
 
+  CVM_makePersistent();
+  mexLock();
+
+  return;
 }
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Redability replacements
+ * ---------------------------------------------------------------------------------
+ */
+
+#define cvode_mem   (cvm_Cdata->cvode_mem)
+#define bp_data     (cvm_Cdata->bp_data) 
+#define y           (cvm_Cdata->y) 
+#define yQ          (cvm_Cdata->yQ) 
+#define yS          (cvm_Cdata->yS) 
+#define N           (cvm_Cdata->N) 
+#define Nq          (cvm_Cdata->Nq) 
+#define Ng          (cvm_Cdata->Ng) 
+#define Ns          (cvm_Cdata->Ns) 
+#define Nd          (cvm_Cdata->Nd) 
+#define Nc          (cvm_Cdata->Nc) 
+#define ls          (cvm_Cdata->ls) 
+#define pm          (cvm_Cdata->pm) 
+#define ism         (cvm_Cdata->ism) 
+#define cvadj_mem   (cvm_Cdata->cvadj_mem) 
+#define interp      (cvm_Cdata->interp) 
+#define yB          (cvm_Cdata->yB) 
+#define yQB         (cvm_Cdata->yQB) 
+#define NB          (cvm_Cdata->NB) 
+#define NqB         (cvm_Cdata->NqB) 
+#define lsB         (cvm_Cdata->lsB) 
+#define pmB         (cvm_Cdata->pmB) 
+
+#define mx_data     (cvm_Mdata->mx_data)
+
+#define mx_RHSfct   (cvm_Mdata->mx_RHSfct)
+#define mx_QUADfct  (cvm_Mdata->mx_QUADfct)
+#define mx_JACfct   (cvm_Mdata->mx_JACfct)
+#define mx_PSETfct  (cvm_Mdata->mx_PSETfct)
+#define mx_PSOLfct  (cvm_Mdata->mx_PSOLfct)
+#define mx_GLOCfct  (cvm_Mdata->mx_GLOCfct)
+#define mx_GCOMfct  (cvm_Mdata->mx_GCOMfct)
+#define mx_Gfct     (cvm_Mdata->mx_Gfct)
+#define mx_SRHSfct  (cvm_Mdata->mx_SRHSfct)
+
+#define mx_RHSfctB  (cvm_Mdata->mx_RHSfctB)
+#define mx_QUADfctB (cvm_Mdata->mx_QUADfctB)
+#define mx_JACfctB  (cvm_Mdata->mx_JACfctB)
+#define mx_PSETfctB (cvm_Mdata->mx_PSETfctB)
+#define mx_PSOLfctB (cvm_Mdata->mx_PSOLfctB)
+#define mx_GLOCfctB (cvm_Mdata->mx_GLOCfctB)
+#define mx_GCOMfctB (cvm_Mdata->mx_GCOMfctB)
+
+#define mx_MONfct   (cvm_Mdata->mx_MONfct)
+#define mx_MONdata  (cvm_Mdata->mx_MONdata)
+
+#define mx_MONfctB  (cvm_Mdata->mx_MONfctB)
+#define mx_MONdataB (cvm_Mdata->mx_MONdataB)
 
 /*
  * ---------------------------------------------------------------------------------
@@ -204,22 +202,28 @@ void mexFunction(int nlhs, mxArray *plhs[],
  * ---------------------------------------------------------------------------------
  */
 
+/* CVM_Malloc
+ *
+ * prhs contains:
+ *   fct
+ *   t0
+ *   y0
+ *   options
+ *   data
+ *
+ * plhs contains:
+ *   status
+ *
+ */
+
 static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   double t0, *y0;
-  int i, is, status;
-  double *tmp;
-  mxArray *pfield;
-  char *pfield_name;
-
-  int vec_type;
-  mxArray *mx_in[1], *mx_out[2];
-  mxArray *mx_comm;
+  int i, status;
 
   int lmm, iter, maxord;
-  long int mxsteps;
 
-  booleantype quad, fsa, asa;
+  long int mxsteps;
 
   int itol;
   realtype reltol, Sabstol, *Vabstol;
@@ -234,22 +238,6 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   N_Vector NV_abstolQ;
   void *abstolQ;
 
-  double *yS0;
-
-  booleantype errconS;
-  int itolS;
-  realtype reltolS;
-  realtype *SabstolS, *VabstolS;
-  N_Vector *NV_abstolS;
-  void *abstolS;
-
-  int *plist;
-  double *p;
-  double *pbar;
-
-  int Srhs;
-  double rho;
-
   double hin, hmax, hmin;
 
   double tstop;
@@ -262,28 +250,12 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   int mudq, mldq;
   double dqrely;
 
-  mxArray *options;
-
-  N_Vector yQ_tmp, *yS_tmp;
-
-  /* 
-   * -----------------------------
-   * Find out the vector type and
-   * then pass it to the vector
-   * library.
-   * -----------------------------
+  /* ------------------------------------
+   * Initialize appropriate vector module
+   * ------------------------------------
    */
-
-  /* Call the MEX file nvm with mode=3 */
   
-  mx_in[0] = mxCreateScalarDouble(3);
-  mexCallMATLAB(2,mx_out,1,mx_in,"nvm");
-  vec_type = (int)*mxGetPr(mx_out[0]);
-  mx_comm = mxDuplicateArray(mx_out[1]);
-
-  /* Send vec_type and mx_comm */
-  
-  InitVectors(vec_type, mx_comm);
+  InitVectors();
 
   /* 
    * -----------------------------
@@ -298,9 +270,9 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Matlab user-provided function */
 
-  mx_mtlb_RHSfct = mxDuplicateArray(prhs[0]);
+  mx_RHSfct = mxDuplicateArray(prhs[0]);
   
-  /* initial time */
+  /* Initial time */
 
   t0 = (double)mxGetScalar(prhs[1]);
 
@@ -311,17 +283,14 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Integrator Options -- optional argument */
 
-  status = get_IntgrOptions(prhs[3],
+  status = get_IntgrOptions(prhs[3], TRUE,
                             &lmm, &iter, &maxord, &sld, &mxsteps,
                             &itol, &reltol, &Sabstol, &Vabstol,
-                            &hin, &hmax, &hmin, &tstop, &tstopSet,
-                            &Ng, &mx_mtlb_Gfct,
-                            &quad, &fsa, &asa,
-                            &monitor, &mx_mtlb_MONfct, &mx_mtlb_MONdata);
+                            &hin, &hmax, &hmin, &tstop, &tstopSet);
 
   /* User data -- optional argument */
 
-  mx_mtlb_data = mxDuplicateArray(prhs[4]);
+  mx_data = mxDuplicateArray(prhs[4]);
 
   /* 
    * ---------------------------------------
@@ -330,24 +299,23 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
    */
 
   y = NewVector(N);
-
-  N_VSetArrayPointer(y0, y);
+  PutData(y, y0, N);
 
   switch (itol) {
   case CV_SS:
     abstol = (void *) &Sabstol;
     break;
   case CV_SV:
-    NV_abstol = N_VCloneEmpty(y);
-    N_VSetArrayPointer(Vabstol, NV_abstol);
+    NV_abstol = N_VClone(y);
+    PutData(NV_abstol, Vabstol, N);
     abstol = (void *) NV_abstol;
     break;
   }
 
   /* 
-   * ---------------------------------------
-   * Create cvode object and allocate memory
-   * ---------------------------------------
+   * ----------------------------------------
+   * Create CVODES object and allocate memory
+   * ----------------------------------------
    */
 
   cvode_mem = CVodeCreate(lmm, iter);
@@ -390,133 +358,57 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   status = CVodeSetStabLimDet(cvode_mem, sld);
  
   /* Rootfinding? */
-  if ( !mxIsEmpty(mx_mtlb_Gfct) && (Ng > 0) ) {
+  if ( !mxIsEmpty(mx_Gfct) && (Ng > 0) ) {
     status = CVodeRootInit(cvode_mem, Ng, mtlb_CVodeGfct, NULL);
   }
 
   /* Quadratures? */
-  if ( quad ) {
+  if ( cvm_quad ) {
 
-    status = get_QuadOptions(prhs[3],
-                             &Nq, &yQ0, &mx_mtlb_QUADfct,
-                             &errconQ, &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
+    status = get_QuadOptions(prhs[3], TRUE,
+                             &yQ0, &errconQ, 
+                             &itolQ, &reltolQ, &SabstolQ, &VabstolQ);
 
-    if(status)
-      mexErrMsgTxt("CVodeMalloc:: illegal quadrature input.");      
+    if(status) mexErrMsgTxt("CVodeMalloc:: illegal quadrature input.");      
 
     yQ = NewVector(Nq);
-
-    N_VSetArrayPointer(yQ0, yQ);
+    PutData(yQ, yQ0, Nq);
 
     status = CVodeQuadMalloc(cvode_mem, mtlb_CVodeQUADfct, yQ);
 
-    switch (itolQ) {
-    case CV_SS:
-      abstolQ = (void *) &SabstolQ;
-      break;
-    case CV_SV:
-      NV_abstolQ = N_VCloneEmpty(yQ);
-      N_VSetArrayPointer(VabstolQ, NV_abstolQ);
-      abstolQ = (void *) NV_abstolQ;
-      break;
-    }
-
-    status = CVodeSetQuadErrCon(cvode_mem, errconQ, itolQ, reltolQ, abstolQ);
-
-    if (itolQ == CV_SV) {
-      N_VDestroy(NV_abstolQ);
-    }
-
-  }
-
-  /* Forward Sensitivities? */
-  if (fsa ) {
-
-    plist = NULL;
-    pbar = NULL;
-
-    status = get_FSAOptions(prhs[3], 
-                            &Ns, &yS0, &ism, 
-                            &pfield_name, &plist, &pbar,
-                            &Srhs, &mx_mtlb_SRHSfct, &rho,
-                            &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
-
-    if(status)
-      mexErrMsgTxt("CVodeMalloc:: illegal forward sensitivity input.");   
-
-    if (mxIsEmpty(mx_mtlb_SRHSfct)) {
-      if (pfield_name == NULL)
-        mexErrMsgTxt("CVodeMalloc:: pfield required but was not provided.");
-      pfield = mxGetField(mx_mtlb_data,0,pfield_name);
-      if (pfield == NULL)
-        mexErrMsgTxt("CVodeMalloc:: illegal pfield input.");
-      p = mxGetPr(pfield);
-      mxFree(pfield_name);
-    }
-
-    yS = N_VCloneEmptyVectorArray(Ns, y);
-    for (is=0;is<Ns;is++)
-      N_VSetArrayPointer(&yS0[is*N], yS[is]);
+    if (errconQ) {
     
-    status = CVodeSensMalloc(cvode_mem, Ns, ism, yS);
+      switch (itolQ) {
+      case CV_SS:
+        abstolQ = (void *) &SabstolQ;
+        break;
+      case CV_SV:
+        NV_abstolQ = N_VClone(yQ);
+        PutData(NV_abstolQ, VabstolQ, Nq);
+        abstolQ = (void *) NV_abstolQ;
+        break;
+      }
+      
+      status = CVodeSetQuadErrCon(cvode_mem, errconQ, itolQ, reltolQ, abstolQ);
+      
+      if (itolQ == CV_SV) N_VDestroy(NV_abstolQ);
 
-    switch (itolS) {
-    case CV_SS:
-      abstolS = (void *) SabstolS;
-      break;
-    case CV_SV:
-      NV_abstolS = N_VCloneEmptyVectorArray(Ns, y);
-      for (is=0;is<Ns;is++)
-        N_VSetArrayPointer(&VabstolS[is*N], NV_abstolS[is]);
-      abstolS = (void *) NV_abstolS;
-      break;
-    case CV_EE:
-      abstolS = NULL;
-      break;
-    }
-    
-    status = CVodeSetSensTolerances(cvode_mem, itolS, reltolS, abstolS);
-
-    switch (itolS) {
-    case CV_SS:
-      free(SabstolS);
-      break;
-    case CV_SV:
-      N_VDestroyVectorArray(NV_abstolS, Ns);
-      break;
     }
 
-    status = CVodeSetSensParams(cvode_mem, p, pbar, plist);
-
-    if (plist != NULL) free(plist);
-    if (pbar != NULL)  free(pbar);
-
-    status = CVodeSetSensRho(cvode_mem, rho);
-
-    status = CVodeSetSensErrCon(cvode_mem, errconS);
-    
-    if (Srhs == 1) {
-      status = CVodeSetSensRhs1Fn(cvode_mem, mtlb_CVodeSensRhs1);
-    } else if (Srhs == 2) {
-      status = CVodeSetSensRhsFn(cvode_mem, mtlb_CVodeSensRhs);
-    }
-    
   }
 
   /* Need a linear solver? */
   if (iter == CV_NEWTON) {
 
-    status = get_LinSolvOptions(prhs[3], &ls, 
+    status = get_LinSolvOptions(prhs[3], TRUE,
                                 &mupper, &mlower,
                                 &mudq, &mldq, &dqrely,
-                                &ptype, &gstype, &maxl, &pm,
-                                &mx_mtlb_JACfct, &mx_mtlb_PSETfct, &mx_mtlb_PSOLfct,
-                                &mx_mtlb_GLOCfct, &mx_mtlb_GCOMfct);
+                                &ptype, &gstype, &maxl);
 
     switch (ls) {
     case LS_DENSE:
       status = CVDense(cvode_mem, N);
-      if (!mxIsEmpty(mx_mtlb_JACfct))
+      if (!mxIsEmpty(mx_JACfct))
         status = CVDenseSetJacFn(cvode_mem, mtlb_CVodeDenseJac, NULL);
       break;
     case LS_DIAG:
@@ -524,15 +416,15 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
       break;
     case LS_BAND:
       status = CVBand(cvode_mem, N, mupper, mlower);
-      if (!mxIsEmpty(mx_mtlb_JACfct))
+      if (!mxIsEmpty(mx_JACfct))
         status = CVBandSetJacFn(cvode_mem, mtlb_CVodeBandJac, NULL);
       break;
     case LS_SPGMR:
       switch (pm) {
       case PM_NONE:
         status = CVSpgmr(cvode_mem, ptype, maxl);
-        if (!mxIsEmpty(mx_mtlb_PSOLfct)) {
-          if (!mxIsEmpty(mx_mtlb_PSETfct))
+        if (!mxIsEmpty(mx_PSOLfct)) {
+          if (!mxIsEmpty(mx_PSETfct))
             status = CVSpilsSetPreconditioner(cvode_mem, mtlb_CVodeSpilsPset, mtlb_CVodeSpilsPsol, NULL);
           else
             status = CVSpilsSetPreconditioner(cvode_mem, NULL, mtlb_CVodeSpilsPsol, NULL);
@@ -543,7 +435,7 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         status = CVBPSpgmr(cvode_mem, ptype, maxl, bp_data);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_mtlb_GCOMfct)) {
+        if (!mxIsEmpty(mx_GCOMfct)) {
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, mtlb_CVodeBBDgcom);
         } else {
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, NULL);
@@ -552,15 +444,15 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         break;
       }
       status = CVSpilsSetGSType(cvode_mem, gstype);
-      if (!mxIsEmpty(mx_mtlb_JACfct))
+      if (!mxIsEmpty(mx_JACfct))
         status = CVSpilsSetJacTimesVecFn(cvode_mem, mtlb_CVodeSpilsJac, NULL);
       break;
     case LS_SPBCG:
       switch (pm) {
       case PM_NONE:
         status = CVSpbcg(cvode_mem, ptype, maxl);
-        if (!mxIsEmpty(mx_mtlb_PSOLfct)) {
-          if (!mxIsEmpty(mx_mtlb_PSETfct))
+        if (!mxIsEmpty(mx_PSOLfct)) {
+          if (!mxIsEmpty(mx_PSETfct))
             status = CVSpilsSetPreconditioner(cvode_mem, mtlb_CVodeSpilsPset, mtlb_CVodeSpilsPsol, NULL);
           else
             status = CVSpilsSetPreconditioner(cvode_mem, NULL, mtlb_CVodeSpilsPsol, NULL);
@@ -571,7 +463,7 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         status = CVBPSpbcg(cvode_mem, ptype, maxl, bp_data);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_mtlb_GCOMfct)) {
+        if (!mxIsEmpty(mx_GCOMfct)) {
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, mtlb_CVodeBBDgcom);
         } else {
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, NULL);
@@ -579,15 +471,15 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         CVBBDSpbcg(cvode_mem, ptype, maxl, bp_data);
         break;
       }
-      if (!mxIsEmpty(mx_mtlb_JACfct))
+      if (!mxIsEmpty(mx_JACfct))
         status = CVSpilsSetJacTimesVecFn(cvode_mem, mtlb_CVodeSpilsJac, NULL);
       break;
     case LS_SPTFQMR:
       switch (pm) {
       case PM_NONE:
         status = CVSptfqmr(cvode_mem, ptype, maxl);
-        if (!mxIsEmpty(mx_mtlb_PSOLfct)) {
-          if (!mxIsEmpty(mx_mtlb_PSETfct))
+        if (!mxIsEmpty(mx_PSOLfct)) {
+          if (!mxIsEmpty(mx_PSETfct))
             status = CVSpilsSetPreconditioner(cvode_mem, mtlb_CVodeSpilsPset, mtlb_CVodeSpilsPsol, NULL);
           else
             status = CVSpilsSetPreconditioner(cvode_mem, NULL, mtlb_CVodeSpilsPsol, NULL);
@@ -598,7 +490,7 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         status = CVBPSptfqmr(cvode_mem, ptype, maxl, bp_data);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_mtlb_GCOMfct)) {
+        if (!mxIsEmpty(mx_GCOMfct)) {
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, mtlb_CVodeBBDgcom);
         } else {
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, NULL);
@@ -606,7 +498,7 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         CVBBDSptfqmr(cvode_mem, ptype, maxl, bp_data);
         break;
       }
-      if (!mxIsEmpty(mx_mtlb_JACfct))
+      if (!mxIsEmpty(mx_JACfct))
         status = CVSpilsSetJacTimesVecFn(cvode_mem, mtlb_CVodeSpilsJac, NULL);
       break;
     }
@@ -617,40 +509,168 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   }
 
-  /* Need to initialize adjoint memeory? */
-
-  if (asa) {
-
-    status = get_ASAOptions(prhs[3], &Nd, &interp);
-
-    if (status)
-      mexErrMsgTxt("CVodeMalloc:: illegal ASA input.");      
-
-    cvadj_mem = CVadjMalloc(cvode_mem, Nd, interp);
-
-  } else {
-
-    cvadj_mem = NULL;
-
-  }
-
   /* Do we monitor? */
   
-  if (monitor) {
-    if (Nq > 0)
-      yQ_tmp = yQ;
-    else
-      yQ_tmp = NULL;
-    if (Ns > 0) 
-      yS_tmp = yS;
-    else
-      yS_tmp = NULL;
-    mtlb_CVodeMonitor(0, t0, y, yQ_tmp, yS_tmp);    
+  if (cvm_mon) {
+    mtlb_CVodeMonitor(0, t0, NULL, NULL, NULL);
   }
 
   return(0);
 
 }
+
+/* CVM_SensMalloc
+ *
+ * prhs contains:
+ *   Ns
+ *   sensi_meth
+ *   yS0
+ *   options
+ *
+ * plhs contains:
+ *   status
+ *
+ */
+
+static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+  double t0, *yS0;
+  int buflen, status;
+  char *bufval;
+
+  mxArray *pfield;
+  char *pfield_name;
+
+  booleantype userSRHS, errconS;
+  int itolS;
+  realtype reltolS;
+  realtype *SabstolS, *VabstolS;
+  N_Vector *NV_abstolS;
+  void *abstolS;
+
+  int *plist;
+  double *p, *pbar, rho;
+
+  int is;
+
+  p = NULL;
+  plist = NULL;
+  pbar = NULL;
+
+  /* Number of sensitivities */
+
+  Ns = (int)mxGetScalar(prhs[0]);
+
+  /* Sensitivity method */
+
+  buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
+  bufval = mxCalloc(buflen, sizeof(char));
+  status = mxGetString(prhs[1], bufval, buflen);
+  if(!strcmp(bufval,"Simultaneous")) ism = CV_SIMULTANEOUS;
+  if(!strcmp(bufval,"Staggered"))    ism = CV_STAGGERED;
+
+  /* Sensitivity initial conditions */
+
+  yS0 = mxGetPr(prhs[2]);
+
+  /* Extract Options */
+
+  status = get_FSAOptions(prhs[3], 
+                          &pfield_name, &plist, &pbar,
+                          &userSRHS, &rho,
+                          &errconS, &itolS, &reltolS, &SabstolS, &VabstolS);
+
+  if(status) mexErrMsgTxt("CVodeMalloc:: illegal forward sensitivity input.");   
+
+  /* Prepare arguments for CVODES functions */
+
+  if (mxIsEmpty(mx_SRHSfct)) {
+    if (pfield_name == NULL)
+      mexErrMsgTxt("CVodeMalloc:: pfield required but was not provided.");
+    pfield = mxGetField(mx_data,0,pfield_name);
+    if (pfield == NULL)
+      mexErrMsgTxt("CVodeMalloc:: illegal pfield input.");
+    p = mxGetPr(pfield);
+    mxFree(pfield_name);
+  }
+
+  yS = N_VCloneVectorArray(Ns, y);
+  for (is=0;is<Ns;is++) {
+    PutData(yS[is], &yS0[is*N], N);
+  }
+
+  status = CVodeSensMalloc(cvode_mem, Ns, ism, yS);
+
+  switch (itolS) {
+  case CV_SS:
+    abstolS = (void *) SabstolS;
+    break;
+  case CV_SV:
+    NV_abstolS = N_VCloneVectorArray(Ns, y);
+    for (is=0;is<Ns;is++)
+      PutData(NV_abstolS[is], &VabstolS[is*N], N);
+    abstolS = (void *) NV_abstolS;
+    break;
+  case CV_EE:
+    abstolS = NULL;
+    break;
+  }
+  
+  status = CVodeSetSensTolerances(cvode_mem, itolS, reltolS, abstolS);
+  
+  if (itolS == CV_SS)      free(SabstolS);
+  else if (itolS == CV_SV) N_VDestroyVectorArray(NV_abstolS, Ns);
+  
+  status = CVodeSetSensParams(cvode_mem, p, pbar, plist);
+  
+  if (plist != NULL) free(plist);
+  if (pbar != NULL)  free(pbar);
+  
+  status = CVodeSetSensRho(cvode_mem, rho);
+  
+  status = CVodeSetSensErrCon(cvode_mem, errconS);
+
+  if (userSRHS) {
+    status = CVodeSetSensRhsFn(cvode_mem, mtlb_CVodeSensRhs);
+  }
+
+  cvm_fsa = TRUE;
+
+  return(0);
+}
+
+/* CVM_AdjMalloc
+ *
+ * prhs contains:
+ *
+ * plhs contains:
+ *   status
+ */
+
+static int CVM_AdjMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+  int buflen, status;
+  char *bufval;
+
+  /* Number of steps */
+
+  Nd = (int)mxGetScalar(prhs[0]);
+
+  /* Interpolation method */
+
+  buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
+  bufval = mxCalloc(buflen, sizeof(char));
+  status = mxGetString(prhs[1], bufval, buflen);
+  if(!strcmp(bufval,"Hermite"))    interp = CV_HERMITE;
+  if(!strcmp(bufval,"Polynomial")) interp = CV_POLYNOMIAL;
+
+  cvadj_mem = CVadjMalloc(cvode_mem, Nd, interp);
+
+  cvm_asa = TRUE;
+  
+  return(0);
+}
+
 
 static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -660,10 +680,6 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   int lmmB, iterB, maxordB;
 
   long int mxstepsB;
-
-  booleantype quadB;
-  booleantype fsaB;        /* ignored */
-  booleantype asaB;        /* ignored */
 
   int itolB;
   realtype reltolB, SabstolB, *VabstolB;
@@ -682,18 +698,13 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   double tstopB;            /* ignored */
   booleantype tstopSetB;    /* ignored */
+
   booleantype sldB;         /* ignored */
-  int NgB;                  /* ignored */
-  mxArray *mx_mtlb_GfctB;   /* ignored */
 
   int mupperB, mlowerB;
   int ptypeB, gstypeB, maxlB;
   int mudqB, mldqB;
   double dqrelyB;
-
-  mxArray *optionsB;
-
-  N_Vector yQB_tmp;
 
   /* 
    * -----------------------------
@@ -702,9 +713,9 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
    */
 
 
-  if (monitor) {
+  if (cvm_mon) {
     mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL);
-    monitor = FALSE;
+    cvm_mon = FALSE;
   }
 
   /* 
@@ -719,7 +730,7 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   /* Matlab user-provided function */
 
-  mx_mtlb_RHSfctB = mxDuplicateArray(prhs[0]);
+  mx_RHSfctB = mxDuplicateArray(prhs[0]);
   
   /* Final time */
 
@@ -732,13 +743,11 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   /* Integrator Options -- optional argument */
 
-  status = get_IntgrOptions(prhs[3],
+  status = get_IntgrOptions(prhs[3], FALSE,
                             &lmmB, &iterB, &maxordB, &sldB, &mxstepsB,
                             &itolB, &reltolB, &SabstolB, &VabstolB,
-                            &hinB, &hmaxB, &hminB, &tstopB, &tstopSetB,
-                            &NgB, &mx_mtlb_GfctB, 
-                            &quadB, &fsaB, &asaB,
-                            &monitorB, &mx_mtlb_MONfctB, &mx_mtlb_MONdataB);
+                            &hinB, &hmaxB, &hminB, &tstopB, &tstopSetB);
+
   /* 
    * ---------------------------------------
    * Set final conditions and tolerances
@@ -746,24 +755,23 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
    */
 
   yB = NewVector(NB);
-
-  N_VSetArrayPointer(yB0, yB);
+  PutData(yB, yB0, NB);
 
   switch (itolB) {
   case CV_SS:
     abstolB = (void *) &SabstolB;
     break;
   case CV_SV:
-    NV_abstolB = N_VCloneEmpty(yB);
-    N_VSetArrayPointer(VabstolB, NV_abstolB);
+    NV_abstolB = N_VClone(yB);
+    PutData(NV_abstolB, VabstolB, NB);
     abstolB = (void *) VabstolB;
     break;
   }
 
   /* 
-   * ----------------------------------------------------------
-   * Create cvode object for backward phase and allocate memory
-   * ----------------------------------------------------------
+   * -----------------------------------------------------------
+   * Create CVODES object for backward phase and allocate memory
+   * -----------------------------------------------------------
    */
 
   status = CVodeCreateB(cvadj_mem, lmmB, iterB);
@@ -794,18 +802,17 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
   status = CVodeSetMaxNumStepsB(cvadj_mem, mxstepsB);
 
   /* Quadratures? */
-  if ( quadB ) {
+  if ( cvm_quadB ) {
     
-    status = get_QuadOptions(prhs[3],
-                             &NqB, &yQB0, &mx_mtlb_QUADfctB,
-                             &errconQB, &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
+    status = get_QuadOptions(prhs[3], FALSE,
+                             &yQB0, &errconQB, 
+                             &itolQB, &reltolQB, &SabstolQB, &VabstolQB);
 
     if(status)
       mexErrMsgTxt("CVodeMallocB:: illegal quadrature input.");      
 
     yQB = NewVector(NqB);
-
-    N_VSetArrayPointer(yQB0, yQB);
+    PutData(yQB, yQB0, NqB);
 
     status = CVodeQuadMallocB(cvadj_mem, mtlb_CVodeQUADfctB, yQB);
     
@@ -814,8 +821,8 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
       abstolQB = (void *) &SabstolQB;
       break;
     case CV_SV:
-      NV_abstolQB = N_VCloneEmpty(yQB);
-      N_VSetArrayPointer(VabstolQB, NV_abstolQB);
+      NV_abstolQB = N_VClone(yQB);
+      PutData(NV_abstolQB, VabstolQB, NqB);
       abstolQB = (void *) NV_abstolQB;
       break;
     }
@@ -832,17 +839,15 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   if (iterB == CV_NEWTON) {
 
-    status = get_LinSolvOptions(prhs[3], &lsB, 
+    status = get_LinSolvOptions(prhs[3], FALSE,
                                 &mupperB, &mlowerB,
                                 &mudqB, &mldqB, &dqrelyB,
-                                &ptypeB, &gstypeB, &maxlB, &pmB,
-                                &mx_mtlb_JACfctB, &mx_mtlb_PSETfctB, &mx_mtlb_PSOLfctB,
-                                &mx_mtlb_GLOCfctB, &mx_mtlb_GCOMfctB);
+                                &ptypeB, &gstypeB, &maxlB);
 
     switch(lsB) {
     case LS_DENSE:
       status = CVDenseB(cvadj_mem, NB);
-      if (!mxIsEmpty(mx_mtlb_JACfctB))
+      if (!mxIsEmpty(mx_JACfctB))
         status = CVDenseSetJacFnB(cvadj_mem, mtlb_CVodeDenseJacB, NULL);
       break;
     case LS_DIAG:
@@ -850,15 +855,15 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
       break;
     case LS_BAND:
       status = CVBandB(cvadj_mem, NB, mupperB, mlowerB);
-      if (!mxIsEmpty(mx_mtlb_JACfctB))
+      if (!mxIsEmpty(mx_JACfctB))
         status = CVBandSetJacFnB(cvadj_mem, mtlb_CVodeBandJacB, NULL);
       break;
     case LS_SPGMR:
       switch (pmB) {
       case PM_NONE:
         status = CVSpgmrB(cvadj_mem, ptypeB, maxlB);
-        if (!mxIsEmpty(mx_mtlb_PSOLfctB)) {
-          if (!mxIsEmpty(mx_mtlb_PSETfctB))
+        if (!mxIsEmpty(mx_PSOLfctB)) {
+          if (!mxIsEmpty(mx_PSETfctB))
             status = CVSpilsSetPreconditionerB(cvadj_mem, mtlb_CVodeSpilsPsetB, mtlb_CVodeSpilsPsolB, NULL);
           else
             status = CVSpilsSetPreconditionerB(cvadj_mem, NULL, mtlb_CVodeSpilsPsolB, NULL);
@@ -869,7 +874,7 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
         status = CVBPSpgmrB(cvadj_mem, ptypeB, maxlB);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_mtlb_GCOMfctB)) {
+        if (!mxIsEmpty(mx_GCOMfctB)) {
           status = CVBBDPrecAllocB(cvadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_CVodeBBDglocB, mtlb_CVodeBBDgcomB);
         } else {
           status = CVBBDPrecAllocB(cvadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_CVodeBBDglocB, NULL);
@@ -878,15 +883,15 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
         break;
       }
       status = CVSpilsSetGSTypeB(cvadj_mem, gstypeB);
-      if (!mxIsEmpty(mx_mtlb_JACfctB))
+      if (!mxIsEmpty(mx_JACfctB))
         status = CVSpilsSetJacTimesVecFnB(cvadj_mem, mtlb_CVodeSpilsJacB, NULL);
       break;
     case LS_SPBCG:
       switch (pmB) {
       case PM_NONE:
         status = CVSpbcgB(cvadj_mem, ptypeB, maxlB);
-        if (!mxIsEmpty(mx_mtlb_PSOLfctB)) {
-          if (!mxIsEmpty(mx_mtlb_PSETfctB))
+        if (!mxIsEmpty(mx_PSOLfctB)) {
+          if (!mxIsEmpty(mx_PSETfctB))
             status = CVSpilsSetPreconditionerB(cvadj_mem, mtlb_CVodeSpilsPsetB, mtlb_CVodeSpilsPsolB, NULL);
           else
             status = CVSpilsSetPreconditionerB(cvadj_mem, NULL, mtlb_CVodeSpilsPsolB, NULL);
@@ -897,7 +902,7 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
         status = CVBPSpbcgB(cvadj_mem, ptypeB, maxlB);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_mtlb_GCOMfctB)) {
+        if (!mxIsEmpty(mx_GCOMfctB)) {
           status = CVBBDPrecAllocB(cvadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_CVodeBBDglocB, mtlb_CVodeBBDgcomB);
         } else {
           status = CVBBDPrecAllocB(cvadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_CVodeBBDglocB, NULL);
@@ -905,15 +910,15 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
         CVBBDSpbcgB(cvadj_mem, ptypeB, maxlB);
         break;
       }
-      if (!mxIsEmpty(mx_mtlb_JACfctB))
+      if (!mxIsEmpty(mx_JACfctB))
         status = CVSpilsSetJacTimesVecFnB(cvadj_mem, mtlb_CVodeSpilsJacB, NULL);
       break;
     case LS_SPTFQMR:
       switch (pmB) {
       case PM_NONE:
         status = CVSptfqmrB(cvadj_mem, ptypeB, maxlB);
-        if (!mxIsEmpty(mx_mtlb_PSOLfctB)) {
-          if (!mxIsEmpty(mx_mtlb_PSETfctB))
+        if (!mxIsEmpty(mx_PSOLfctB)) {
+          if (!mxIsEmpty(mx_PSETfctB))
             status = CVSpilsSetPreconditionerB(cvadj_mem, mtlb_CVodeSpilsPsetB, mtlb_CVodeSpilsPsolB, NULL);
           else
             status = CVSpilsSetPreconditionerB(cvadj_mem, NULL, mtlb_CVodeSpilsPsolB, NULL);
@@ -924,7 +929,7 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
         status = CVBPSptfqmrB(cvadj_mem, ptypeB, maxlB);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_mtlb_GCOMfctB)) {
+        if (!mxIsEmpty(mx_GCOMfctB)) {
           status = CVBBDPrecAllocB(cvadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_CVodeBBDglocB, mtlb_CVodeBBDgcomB);
         } else {
           status = CVBBDPrecAllocB(cvadj_mem, NB, mudqB, mldqB, mupperB, mlowerB, dqrelyB, mtlb_CVodeBBDglocB, NULL);
@@ -932,7 +937,7 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
         CVBBDSptfqmrB(cvadj_mem, ptypeB, maxlB);
         break;
       }
-      if (!mxIsEmpty(mx_mtlb_JACfctB))
+      if (!mxIsEmpty(mx_JACfctB))
         status = CVSpilsSetJacTimesVecFnB(cvadj_mem, mtlb_CVodeSpilsJacB, NULL);
       break;
     }
@@ -945,12 +950,8 @@ static int CVM_MallocB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[
 
   /* Do we monitor? */
   
-  if (monitorB) {
-    if (NqB > 0)
-      yQB_tmp = yQB;
-    else
-      yQB_tmp = NULL;
-    mtlb_CVodeMonitorB(0, tB0, yB, yQB_tmp);
+  if (cvm_monB) {
+    mtlb_CVodeMonitorB(0, tB0, NULL, NULL);
   }
 
   return(0);
@@ -976,8 +977,6 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   booleantype iret;
   double h;
 
-  N_Vector yQ_tmp, *yS_tmp;
-
   /* Exract tout */
 
   tout = (double)mxGetScalar(prhs[0]);
@@ -994,32 +993,26 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   /* Call CVode */
 
-  /* Solution vector */
-  plhs[2] = mxCreateDoubleMatrix(N,1,mxREAL);
-  N_VSetArrayPointer(mxGetPr(plhs[2]), y);
+  if (!cvm_mon) {
 
-  if (!monitor) {
-
-    if (Nd==0) {
+    if (!cvm_asa)
       status = CVode(cvode_mem, tout, y, &tret, itask);
-    } else {
+    else
       status = CVodeF(cvadj_mem, tout, y, &tret, itask, &Nc);
-    }
 
   } else {
 
-    if (itask == CV_NORMAL)              {iret = FALSE; itask1 = CV_ONE_STEP;}
+    if      (itask == CV_NORMAL)         {iret = FALSE; itask1 = CV_ONE_STEP;}
     else if (itask == CV_ONE_STEP)       {iret = TRUE;  itask1 = CV_ONE_STEP;}
     else if (itask == CV_NORMAL_TSTOP)   {iret = FALSE; itask1 = CV_ONE_STEP_TSTOP;}
     else if (itask == CV_ONE_STEP_TSTOP) {iret = TRUE;  itask1 = CV_ONE_STEP_TSTOP;}
     
     while(1) {
       
-      if (Nd==0) {
+      if (!cvm_asa)
         status = CVode(cvode_mem, tout, y, &tret, itask1);
-      } else {
+      else
         status = CVodeF(cvadj_mem, tout, y, &tret, itask1, &Nc);
-      }
 
       /* break on CVode error */
       if (status < 0) break;   
@@ -1033,26 +1026,19 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
           iret = TRUE;
         }
       }
-      
+
       /* If root or tstop return, we'll need to break */
       if (status != CV_SUCCESS) iret = TRUE; 
 
-      if (Nq > 0) { 
+      if (cvm_quad)
         status = CVodeGetQuad(cvode_mem, tret, yQ);
-        yQ_tmp = yQ;
-      } else {
-        yQ_tmp == NULL;
-      }
 
-      if (Ns > 0) {
+      if (cvm_fsa)
         status = CVodeGetSens(cvode_mem, tret, yS);
-        yS_tmp = yS;
-      } else {
-        yS_tmp = NULL;
-      }
 
-      mtlb_CVodeMonitor(1, tret, y, yQ_tmp, yS_tmp);
-      
+      /* Call the monitoring function */
+      mtlb_CVodeMonitor(1, tret, y, yQ, yS);
+
       /* break if we need to */
       if(iret)  break;
       
@@ -1066,46 +1052,51 @@ static int CVM_Solve(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   /* Return time */
   plhs[1] = mxCreateScalarDouble(tret);
 
+  /* Solution vector */
+  plhs[2] = mxCreateDoubleMatrix(N,1,mxREAL);
+  GetData(y, mxGetPr(plhs[2]), N);
+
+
   if (nlhs == 3)
     return;
 
   if (nlhs == 4) {
-  
-    if (Nq > 0) {
+
+    if (cvm_quad) {
       plhs[3] = mxCreateDoubleMatrix(Nq,1,mxREAL);
-      N_VSetArrayPointer(mxGetPr(plhs[3]), yQ);
       status = CVodeGetQuad(cvode_mem, tret, yQ);
+      GetData(yQ, mxGetPr(plhs[3]), Nq);
       return;
-    } else if (Ns > 0) {
+    } else if (cvm_fsa) {
       plhs[3] = mxCreateDoubleMatrix(N,Ns,mxREAL);
       ydata = mxGetPr(plhs[3]);
-      for (is=0; is<Ns; is++)
-        N_VSetArrayPointer(&ydata[is*N], yS[is]);
       status = CVodeGetSens(cvode_mem, tret, yS);
+      for (is=0; is<Ns; is++)
+        GetData(yS[is], &ydata[is*N], N);
       return;
     } else {
-      mexErrMsgTxt("CVode:: too many output arguments.");
+      mexErrMsgTxt("CVode:: too many output arguments (4).");
       return;
     }
 
   }
 
-  if ( (Nq ==0) | (Ns == 0) ) {
-    mexErrMsgTxt("CVode:: too many output arguments.");
+  if ( (!cvm_quad) | (!cvm_fsa) ) {
+    mexErrMsgTxt("CVode:: too many output arguments (5).");
     return;
   }
 
   /* Quadratures */
   plhs[3] = mxCreateDoubleMatrix(Nq,1,mxREAL);
-  N_VSetArrayPointer(mxGetPr(plhs[3]), yQ);
   status = CVodeGetQuad(cvode_mem, tret, yQ);
+  GetData(yQ, mxGetPr(plhs[3]), Nq);
 
   /* Sensitivities */
   plhs[4] = mxCreateDoubleMatrix(N,Ns,mxREAL);
   ydata = mxGetPr(plhs[4]);
-  for (is=0; is<Ns; is++)
-    N_VSetArrayPointer(&ydata[is*N], yS[is]);
   status = CVodeGetSens(cvode_mem, tret, yS);
+  for (is=0; is<Ns; is++)
+    GetData(yS[is], &ydata[is*N], N);
 
   return(0);
 }
@@ -1134,22 +1125,19 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   buflen = mxGetM(prhs[1]) * mxGetN(prhs[1]) + 1;
   bufval = mxCalloc(buflen, sizeof(char));
   status = mxGetString(prhs[1], bufval, buflen);
-  if(!strcmp(bufval,"Normal")) itaskB = CV_NORMAL;
-  if(!strcmp(bufval,"OneStep")) itaskB = CV_ONE_STEP;
+  if(!strcmp(bufval,"Normal"))       itaskB = CV_NORMAL;
+  else if(!strcmp(bufval,"OneStep")) itaskB = CV_ONE_STEP;
+  else status = -1;
 
   /* Call CVodeB */
 
-  /* Solution vector */
-  plhs[2] = mxCreateDoubleMatrix(NB,1,mxREAL);
-  N_VSetArrayPointer(mxGetPr(plhs[2]), yB);
-
-  if (!monitorB) {
+  if (!cvm_monB) {
 
     status = CVodeB(cvadj_mem, toutB, yB, &tretB, itaskB);
 
   } else {
     
-    if (itaskB == CV_NORMAL)        iretB = FALSE;
+    if      (itaskB == CV_NORMAL)   iretB = FALSE;
     else if (itaskB == CV_ONE_STEP) iretB = TRUE;
 
     while(1) {
@@ -1170,14 +1158,11 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         }
       }
 
-      if (NqB > 0) {
+      if (cvm_quadB)
         status = CVodeGetQuadB(cvadj_mem, yQB);
-        yQB_tmp = yQB;
-      } else {
-        yQB_tmp = NULL;
-      }
 
-      mtlb_CVodeMonitorB(1, tretB, yB, yQB_tmp);
+      /* Call the monitoring function */
+      mtlb_CVodeMonitorB(1, tretB, yB, yQB);
 
       /* break if we need to */
       if(iretB)  break;
@@ -1192,13 +1177,17 @@ static int CVM_SolveB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
   /* Return time */
   plhs[1] = mxCreateScalarDouble(tretB);
 
+  /* Solution vector */
+  plhs[2] = mxCreateDoubleMatrix(NB,1,mxREAL);
+  GetData(yB, mxGetPr(plhs[2]), NB);
+
   if (nlhs == 3)
     return;
 
-  if (NqB > 0) {
+  if (cvm_quadB) {
     plhs[3] = mxCreateDoubleMatrix(NqB,1,mxREAL);
-    N_VSetArrayPointer(mxGetPr(plhs[3]), yQB);
     status = CVodeGetQuadB(cvadj_mem, yQB);
+    GetData(yQB, mxGetPr(plhs[3]), NqB);
     return;
   } else {
     mexErrMsgTxt("CVodeB:: too many output arguments.");
@@ -1268,8 +1257,6 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     "netfS",
     "nniS",
     "ncfnS",
-    "nniSTGR1",
-    "ncfnSTGR1"
   };
 
   long int nst, nfe, nsetups, nni, ncfn, netf, nge;
@@ -1346,7 +1333,7 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   /* Quadrature Statistics */
 
-  if (Nq >0) {
+  if (cvm_quad) {
 
     flag = CVodeGetQuadStats(cvode_mem, &nfQe, &netfQ);
 
@@ -1449,7 +1436,7 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   /* forward Sensitivity Statistics */
 
-  if (Ns > 0) {
+  if (cvm_fsa) {
 
     flag = CVodeGetSensStats(cvode_mem, &nfSe, &nfeS, &netfS, &nsetupsS); 
 
@@ -1465,34 +1452,6 @@ static int CVM_Stats(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mxSetField(mx_fsa, 0, "nniS",     mxCreateScalarDouble((double)nniS));
     mxSetField(mx_fsa, 0, "ncfnS",    mxCreateScalarDouble((double)ncfnS));
     
-    if ( ism == CV_STAGGERED1 ) {
-      
-      nniSTGR1 = (long int *) malloc(Ns*sizeof(long int));
-      ncfnSTGR1 = (long int *) malloc(Ns*sizeof(long int));
-      
-      flag = CVodeGetNumStgrSensNonlinSolvIters(cvode_mem, nniSTGR1);
-      flag = CVodeGetNumStgrSensNonlinSolvConvFails(cvode_mem, ncfnSTGR1);
-      
-      mx_nniSTGR1 = mxCreateDoubleMatrix(1,Ns,mxREAL);
-      tmp = mxGetPr(mx_nniSTGR1);
-      for (i=0;i<Ns;i++) 
-        tmp[i] = nniSTGR1[i];
-      mx_ncfnSTGR1 = mxCreateDoubleMatrix(1,Ns,mxREAL);
-      tmp = mxGetPr(mx_ncfnSTGR1);
-      for (i=0;i<Ns;i++) 
-        tmp[i] = ncfnSTGR1[i];
-      
-    } else {
-
-      mx_nniSTGR1 = mxCreateDoubleMatrix(0,0,mxREAL);
-      mx_ncfnSTGR1 = mxCreateDoubleMatrix(0,0,mxREAL);
-
-    }
-    
-    mxSetField(mx_fsa, 0, "nniSTGR1",  mx_nniSTGR1);
-    mxSetField(mx_fsa, 0, "ncfnSTGR1", mx_ncfnSTGR1);
-    
-
   } else {
 
     mx_fsa = mxCreateDoubleMatrix(0,0,mxREAL);
@@ -1595,7 +1554,7 @@ static int CVM_StatsB(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 
   /* Quadrature Statistics */
 
-  if (NqB >0) {
+  if (cvm_quadB) {
 
     flag = CVodeGetQuadStats(cvode_memB, &nfQe, &netfQ);
 
@@ -1712,7 +1671,7 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   int key, k, which, status, i, nfields;
   mxArray *mx_y, *mx_yd;
 
-  CheckPointRec *ckpnt;
+  CVadjCheckPointRec *ckpnt;
   const char *fnames_ckpnt[]={
     "addr",
     "next",
@@ -1732,8 +1691,8 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     k = (int) (*mxGetPr(prhs[2]));
 
     plhs[0] = mxCreateDoubleMatrix(N,1,mxREAL);
-    N_VSetArrayPointer(mxGetPr(plhs[0]), y);
     status = CVodeGetDky(cvode_mem, t, k, y);
+    GetData(y, mxGetPr(plhs[0]), N);
 
     break;
 
@@ -1742,8 +1701,8 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     ewt = N_VClone(y);
 
     plhs[0] = mxCreateDoubleMatrix(N,1,mxREAL);
-    N_VSetArrayPointer(mxGetPr(plhs[0]), ewt);
     status = CVodeGetErrWeights(cvode_mem, ewt);
+    GetData(ewt, mxGetPr(plhs[0]), N);
 
     N_VDestroy(ewt);
 
@@ -1755,7 +1714,7 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   case 4:    /* CheckPointsInfo */
 
-    ckpnt = (CheckPointRec *) malloc ( (Nc+1)*sizeof(CheckPointRec));
+    ckpnt = (CVadjCheckPointRec *) malloc ( (Nc+1)*sizeof(CVadjCheckPointRec));
     CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
     nfields = sizeof(fnames_ckpnt)/sizeof(*fnames_ckpnt);
     plhs[0] = mxCreateStructMatrix(Nc+1, 1, nfields, fnames_ckpnt);
@@ -1787,17 +1746,20 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     
       yd = N_VClone(y);
 
-      plhs[0] = mxCreateCellMatrix(1, 3);
-      mx_y  = mxCreateDoubleMatrix(N,1,mxREAL);
-      N_VSetArrayPointer(mxGetPr(mx_y), y);
-      mxSetCell(plhs[0],2,mx_y);
-      mx_yd = mxCreateDoubleMatrix(N,1,mxREAL);
-      N_VSetArrayPointer(mxGetPr(mx_yd), yd);
-      mxSetCell(plhs[0],3,mx_y);
-
       status = CVadjGetDataPointHermite(cvadj_mem, which, &t, y, yd);
 
-      mxSetCell(plhs[0],2,mxCreateScalarDouble(t));
+      plhs[0] = mxCreateCellMatrix(1, 3);
+
+      mxSetCell(plhs[0],1,mxCreateScalarDouble(t));
+
+      mx_y  = mxCreateDoubleMatrix(N,1,mxREAL);
+      GetData(y, mxGetPr(mx_y), N);
+      mxSetCell(plhs[0],2,mx_y);
+
+      mx_yd = mxCreateDoubleMatrix(N,1,mxREAL);
+      GetData(yd, mxGetPr(mx_yd), N);
+      mxSetCell(plhs[0],3,mx_y);
+
 
       N_VDestroy(yd);
     }
@@ -1812,30 +1774,31 @@ static int CVM_Get(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 static int CVM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-  if (monitor) {
+  if (cvm_mon) {
     mtlb_CVodeMonitor(2, 0.0, NULL, NULL, NULL);
   }
 
   N_VDestroy(y);
-  if (Nq > 0) N_VDestroy(yQ);
+  if (cvm_quad) N_VDestroy(yQ);
   if (pm == PM_BANDPRE) CVBandPrecFree(&bp_data);
   if (pm == PM_BBDPRE)  CVBBDPrecFree(&bp_data);
 
-  if (Ns > 0) N_VDestroyVectorArray(yS, Ns);
+  if (cvm_fsa) N_VDestroyVectorArray(yS, Ns);
 
   CVodeFree(&cvode_mem);
 
-  if (Nd > 0) {
+  if (cvm_asa) {
 
-    if (NB > 0) {
-      N_VDestroy(yB);
-      if (monitorB) 
-        mtlb_CVodeMonitorB(2, 0.0, NULL, NULL);
+    if (cvm_monB) {
+      mtlb_CVodeMonitorB(2, 0.0, NULL, NULL);
     }
 
-    if (NqB > 0) N_VDestroy(yQB);
+    N_VDestroy(yB);
+
+    if (cvm_quadB) N_VDestroy(yQB);
    
     CVadjFree(&cvadj_mem);
+
   }
 
   return(0);
@@ -1846,7 +1809,23 @@ static int CVM_init()
 {
   mxArray *empty;
 
-  /* Initialize global dimensions to zero */
+  /* Allocate space for global CVODES and MATLAB data structures */
+  
+  cvm_Cdata = (cvm_CVODESdata) mxMalloc(sizeof(struct cvm_CVODESdataStruct));
+  cvm_Mdata = (cvm_MATLABdata) mxMalloc(sizeof(struct cvm_MATLABdataStruct));
+
+  /* Initialize global CVODES data */
+
+  cvode_mem = NULL;
+  cvadj_mem = NULL;
+  bp_data   = NULL;
+
+  y         = NULL;
+  yQ        = NULL;
+  yS        = NULL;
+  yB        = NULL;
+  yQB       = NULL;
+
   N   = 0;
   Nq  = 0;
   Ng  = 0;
@@ -1855,78 +1834,124 @@ static int CVM_init()
   Nc  = 0;
   NB  = 0;
   NqB = 0;
-  monitor = FALSE;
+
+  ism = CV_STAGGERED;
+
+  interp = CV_POLYNOMIAL;
+
+  ls  = LS_DENSE;
+  lsB = LS_DENSE;
+  pm  = PM_NONE;
+  pmB = PM_NONE;
+
+  /* Initialize global control variables */
+
+  cvm_quad  = FALSE;
+  cvm_quadB = FALSE;
+  cvm_fsa   = FALSE;
+  cvm_asa   = FALSE;
+  cvm_mon   = FALSE;
+  cvm_monB  = FALSE;
+
+  /* Initialize global MATLAB data */
 
   empty = mxCreateDoubleMatrix(0,0,mxREAL);
 
-  mx_mtlb_data     = mxDuplicateArray(empty);
+  mx_data     = mxDuplicateArray(empty);
 
-  mx_mtlb_RHSfct   = mxDuplicateArray(empty);
-  mx_mtlb_Gfct     = mxDuplicateArray(empty);
-  mx_mtlb_QUADfct  = mxDuplicateArray(empty);
-  mx_mtlb_JACfct   = mxDuplicateArray(empty);
-  mx_mtlb_PSETfct  = mxDuplicateArray(empty);
-  mx_mtlb_PSOLfct  = mxDuplicateArray(empty);
-  mx_mtlb_GLOCfct  = mxDuplicateArray(empty);
-  mx_mtlb_GCOMfct  = mxDuplicateArray(empty);
+  mx_RHSfct   = mxDuplicateArray(empty);
+  mx_Gfct     = mxDuplicateArray(empty);
+  mx_QUADfct  = mxDuplicateArray(empty);
+  mx_SRHSfct  = mxDuplicateArray(empty);
+  mx_JACfct   = mxDuplicateArray(empty);
+  mx_PSETfct  = mxDuplicateArray(empty);
+  mx_PSOLfct  = mxDuplicateArray(empty);
+  mx_GLOCfct  = mxDuplicateArray(empty);
+  mx_GCOMfct  = mxDuplicateArray(empty);
 
-  mx_mtlb_MONfct   = mxDuplicateArray(empty);
-  mx_mtlb_MONdata  = mxDuplicateArray(empty);
-  
-  mx_mtlb_SRHSfct  = mxDuplicateArray(empty);
+  mx_RHSfctB  = mxDuplicateArray(empty);
+  mx_QUADfctB = mxDuplicateArray(empty);
+  mx_JACfctB  = mxDuplicateArray(empty);
+  mx_PSETfctB = mxDuplicateArray(empty);
+  mx_PSOLfctB = mxDuplicateArray(empty);
+  mx_GLOCfctB = mxDuplicateArray(empty);
+  mx_GCOMfctB = mxDuplicateArray(empty);
 
-  mxDestroyArray(empty);
+  mx_MONfct   = mxDuplicateArray(empty);
+  mx_MONdata  = mxDuplicateArray(empty);
 
-}
-
-static int CVM_initB()
-{
-  mxArray *empty;
-
-  empty = mxCreateDoubleMatrix(0,0,mxREAL);
-
-  mx_mtlb_RHSfctB  = mxDuplicateArray(empty);
-  mx_mtlb_QUADfctB = mxDuplicateArray(empty);
-  mx_mtlb_JACfctB  = mxDuplicateArray(empty);
-  mx_mtlb_PSETfctB = mxDuplicateArray(empty);
-  mx_mtlb_PSOLfctB = mxDuplicateArray(empty);
-  mx_mtlb_GLOCfctB = mxDuplicateArray(empty);
-  mx_mtlb_GCOMfctB = mxDuplicateArray(empty);
-  mx_mtlb_MONfctB  = mxDuplicateArray(empty);
-  mx_mtlb_MONdataB = mxDuplicateArray(empty);
+  mx_MONfctB  = mxDuplicateArray(empty);
+  mx_MONdataB = mxDuplicateArray(empty);  
 
   mxDestroyArray(empty);
 
   return(0);
 }
 
-static int CVM_final()
+static void CVM_makePersistent()
 {
-  mexUnlock();
-  
-  mxDestroyArray(mx_mtlb_data);
-  
-  mxDestroyArray(mx_mtlb_RHSfct);
-  mxDestroyArray(mx_mtlb_QUADfct);
-  mxDestroyArray(mx_mtlb_Gfct);
-  mxDestroyArray(mx_mtlb_JACfct);
-  mxDestroyArray(mx_mtlb_PSETfct);
-  mxDestroyArray(mx_mtlb_PSOLfct);
+  /* Make global memory persistent */
 
-  mxDestroyArray(mx_mtlb_MONfct);
-  mxDestroyArray(mx_mtlb_MONdata);
+  mexMakeArrayPersistent(mx_data);
 
-  mxDestroyArray(mx_mtlb_SRHSfct);
+  mexMakeArrayPersistent(mx_RHSfct);
+  mexMakeArrayPersistent(mx_Gfct);
+  mexMakeArrayPersistent(mx_QUADfct);
+  mexMakeArrayPersistent(mx_SRHSfct);
+  mexMakeArrayPersistent(mx_JACfct);
+  mexMakeArrayPersistent(mx_PSETfct);
+  mexMakeArrayPersistent(mx_PSOLfct);
+  mexMakeArrayPersistent(mx_GLOCfct);
+  mexMakeArrayPersistent(mx_GCOMfct);
+
+  mexMakeArrayPersistent(mx_RHSfctB);
+  mexMakeArrayPersistent(mx_QUADfctB);
+  mexMakeArrayPersistent(mx_JACfctB);
+  mexMakeArrayPersistent(mx_PSETfctB);
+  mexMakeArrayPersistent(mx_PSOLfctB);
+  mexMakeArrayPersistent(mx_GLOCfctB);
+  mexMakeArrayPersistent(mx_GCOMfctB);
+
+  mexMakeArrayPersistent(mx_MONfct);
+  mexMakeArrayPersistent(mx_MONdata);
+
+  mexMakeArrayPersistent(mx_MONfctB);
+  mexMakeArrayPersistent(mx_MONdataB);
+
+  mexMakeMemoryPersistent(cvm_Cdata);
+  mexMakeMemoryPersistent(cvm_Mdata);
+
+}
+
+
+static void CVM_final()
+{  
+  mxDestroyArray(mx_data);
   
-  if (NB > 0) {
-    mxDestroyArray(mx_mtlb_RHSfctB);
-    mxDestroyArray(mx_mtlb_QUADfctB);
-    mxDestroyArray(mx_mtlb_JACfctB);
-    mxDestroyArray(mx_mtlb_PSETfctB);
-    mxDestroyArray(mx_mtlb_PSOLfctB);
-    mxDestroyArray(mx_mtlb_MONfctB);
-    mxDestroyArray(mx_mtlb_MONdataB);
-  }
+  mxDestroyArray(mx_RHSfct);
+  mxDestroyArray(mx_Gfct);
+  mxDestroyArray(mx_QUADfct);
+  mxDestroyArray(mx_SRHSfct);
+  mxDestroyArray(mx_JACfct);
+  mxDestroyArray(mx_PSETfct);
+  mxDestroyArray(mx_PSOLfct);
+  mxDestroyArray(mx_GLOCfct);
+  mxDestroyArray(mx_GCOMfct);
+  
+  mxDestroyArray(mx_RHSfctB);
+  mxDestroyArray(mx_QUADfctB);
+  mxDestroyArray(mx_JACfctB);
+  mxDestroyArray(mx_PSETfctB);
+  mxDestroyArray(mx_PSOLfctB);
+  mxDestroyArray(mx_GLOCfctB);
+  mxDestroyArray(mx_GCOMfctB);
 
-  return(0);
+  mxDestroyArray(mx_MONfct);
+  mxDestroyArray(mx_MONdata);
+  
+  mxDestroyArray(mx_MONfctB);
+  mxDestroyArray(mx_MONdataB);
+
+  mxFree(cvm_Cdata);
+  mxFree(cvm_Mdata);
 }

@@ -54,6 +54,7 @@ tar uf $tarfile $distrobase/src/nvm/nvm_serial.c
 # CVODES files
 
 tar uf $tarfile $distrobase/cvodes/Contents.m
+tar uf $tarfile $distrobase/cvodes/CVadjMalloc.m
 tar uf $tarfile $distrobase/cvodes/CVBandJacFn.m
 tar uf $tarfile $distrobase/cvodes/CVDenseJacFn.m
 tar uf $tarfile $distrobase/cvodes/CVGcommFn.m
@@ -69,13 +70,14 @@ tar uf $tarfile $distrobase/cvodes/CVode.m
 tar uf $tarfile $distrobase/cvodes/CVodeMallocB.m
 tar uf $tarfile $distrobase/cvodes/CVodeMalloc.m
 tar uf $tarfile $distrobase/cvodes/CVodeMonitor.m
+tar uf $tarfile $distrobase/cvodes/CVodeSensMalloc.m
+tar uf $tarfile $distrobase/cvodes/CVodeSetFSAOptions.m
 tar uf $tarfile $distrobase/cvodes/CVodeSetOptions.m
 tar uf $tarfile $distrobase/cvodes/CVPrecSetupFn.m
 tar uf $tarfile $distrobase/cvodes/CVPrecSolveFn.m
 tar uf $tarfile $distrobase/cvodes/CVQuadRhsFn.m
 tar uf $tarfile $distrobase/cvodes/CVRhsFn.m
 tar uf $tarfile $distrobase/cvodes/CVRootFn.m
-tar uf $tarfile $distrobase/cvodes/CVSensRhs1Fn.m
 tar uf $tarfile $distrobase/cvodes/CVSensRhsFn.m
 
 tar uf $tarfile $distrobase/cvodes/cvm/Contents.m
@@ -174,8 +176,6 @@ tar uf $tarfile $distrobase/nvector/N_VMaxNorm.m
 tar uf $tarfile $distrobase/nvector/N_VMin.m
 tar uf $tarfile $distrobase/nvector/N_VWL2Norm.m
 tar uf $tarfile $distrobase/nvector/N_VWrmsNorm.m
-
-tar uf $tarfile $distrobase/nvector/nvm/Contents.m
 
 # PUTILS files
 

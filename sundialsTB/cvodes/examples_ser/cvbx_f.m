@@ -5,7 +5,7 @@ function [ud, flag, new_data] = cvbx_f(t, u, data)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
+% $Revision: 1.3 $Date: 2006/02/13 23:01:27 $
 
 mx = data.mx;
 my = data.my;
@@ -46,3 +46,5 @@ end
 
 flag = 0;
 new_data = [];
+
+

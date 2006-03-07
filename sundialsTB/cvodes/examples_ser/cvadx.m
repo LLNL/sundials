@@ -42,7 +42,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
 
 
 % ----------------------------------------
@@ -71,14 +71,16 @@ options = CVodeSetOptions(options,...
                           'QuadErrControl','on',...
                           'QuadRelTol',1.e-4,'QuadAbsTol',1.e-6);
 
+mondata = struct;
+mondata.sol = true;
+mondata.mode = 'both';
 options = CVodeSetOptions(options,...
-                          'SensiAnalysis', 'ASA',...
-                          'ASANumPoints', 150);
+                          'MonitorFn',@CVodeMonitor,...
+                          'MonitorData',mondata);
 
-%options = CVodeSetOptions(options,...
-%                          'MonitorFn','CVodeMonitor');
-%
 CVodeMalloc(@cvdx_f,t0,y0,options,data);
+
+CVadjMalloc(150, 'Hermite');
 
 % ----------------------------------------
 % Forward integration
@@ -122,8 +124,8 @@ optionsB = CVodeSetOptions(optionsB,...
                            'QuadErrControl','on',...
                            'QuadRelTol',1.e-6,'QuadAbsTol',1.e-3);
 mondataB.dir = -1;
-mondataB.cntr = false;
 mondataB.sol = true;
+mondataB.mode = 'both';
 optionsB = CVodeSetOptions(optionsB,...
                            'MonitorFn','CVodeMonitor',...
                            'MonitorData', mondataB);

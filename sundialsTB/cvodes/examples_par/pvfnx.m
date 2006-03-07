@@ -21,7 +21,9 @@ function [] = pvfnx(comm)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:46 $
+
+sensi = true;
 
 xmax = 2.0;
 mx = 10;
@@ -59,10 +61,11 @@ end
 rtol = 0.0;
 atol = 1.0e-5;
 
-options = CVodeSetOptions('Adams','on',...
+options = CVodeSetOptions('LMM','Adams',...
                           'NonlinearSolver','Functional',...
                           'Reltol',rtol,'AbsTol',atol);
-sensi = true;
+CVodeMalloc(@pvfnx_f,t0,u0,options,data);
+
 
 if sensi
 
@@ -71,18 +74,16 @@ if sensi
   pbar = data.p;
   plist = [1;2];
 
-  options = CVodeSetOptions(options,...
-                            'SensiAnalysis', 'FSA',...
-                            'FSAInitCond', uS0,...
-                            'FSAMethod', 'Simultaneous',...
-                            'FSAErrControl', 'on',...
-                            'FSAParamField', 'p',...
-                            'FSAParamList', plist,...
-                            'FSAParamScales', pbar,...
-                            'FSADQparam', 0.0);
+  FSAoptions = CVodeSetFSAOptions('FSAErrControl', 'on',...
+                                  'FSAParamField', 'p',...
+                                  'FSAParamList', plist,...
+                                  'FSAParamScales', pbar,...
+                                  'FSADQparam', 0.0);
+
+  CVodeSensMalloc(Ns, 'Simultaneous', uS0, FSAoptions);
+
 end
 
-CVodeMalloc(@pvfnx_f,t0,u0,options,data);
 
 if mype == 0
   fprintf('============================================================\n');

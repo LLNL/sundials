@@ -14,7 +14,11 @@
 %
 %   If additional data is needed inside MONFUN, it must be defined
 %   as
-%      FUNCTION [] = MONFUN(CALL, T, Y, YQ, YS, MONDATA)
+%      FUNCTION NEW_MONDATA = MONFUN(CALL, T, Y, YQ, YS, MONDATA)
+%   If the local modifications to the user data structure need to be 
+%   saved (e.g. for future calls to MONFUN), then MONFUN must set
+%   NEW_MONDATA. Otherwise, it should set NEW_MONDATA=[] 
+%   (do not set NEW_MONDATA = DATA as it would lead to unnecessary copying).
 %
 %   A sample monitoring function, CVodeMonitor, is provided with CVODES.
 %
@@ -29,10 +33,10 @@
 %   If MONFUN is used on the backward integration phase, YS will always be
 %   empty.
 %
-%   See CvodeMonitor for an example of using MONDATA to write a single
+%   See CVodeMonitor for an example of using MONDATA to write a single
 %   monitoring function that works both for the forward and backward
 %   integration phases.
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $

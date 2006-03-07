@@ -24,7 +24,10 @@ problems provided with {\cvodes}.
   \hline
   \multirow{9}{*}{\begin{sideways} Functions  \end{sideways}}
   &  CVodeSetOptions & creates an options structure for {\cvodes}. \\
+  &  CVodeSetFSAOptions & creates an options structure for FSA with {\cvodes}. \\
   &  CVodeMalloc     & allocates and initializes memory for {\cvodes}. \\
+  &  CVodeSensMalloc & allocates and initializes memory for FSA with {\cvodes}. \\
+  &  CVadjMalloc     & allocates and initializes memory for ASA with {\cvodes}. \\
   &  CVodeMallocB    & allocates and initializes backward memory for {\cvodes}. \\
   &  CVode           & integrates the ODE. \\
   &  CVodeB          & integrates the backward ODE. \\
@@ -46,7 +49,6 @@ problems provided with {\cvodes}.
   &  CVGlocalFn      &  RHS approximation function (BBDPre) \\
   &  CVGcommFn       &  communication function (BBDPre) \\
   &  CVSensRhsFn     &  sensitivity RHS function \\
-  &  CVSensRhs1Fn    &  sensitivity RHS function (single) \\
   &  CVMonitorFn     &  monitoring function \\
  \hline
 \end{tabular}

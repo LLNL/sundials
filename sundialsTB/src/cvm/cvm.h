@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-02 00:39:04 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-07 01:20:03 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -41,7 +41,6 @@ extern "C" {
    * ---------------------------------------------------------------------------------
    */
 
-
   /* Linear solver types */
 
   enum {LS_NONE, LS_DENSE, LS_DIAG, LS_BAND, LS_SPGMR, LS_SPBCG, LS_SPTFQMR};
@@ -52,69 +51,87 @@ extern "C" {
 
   /*
    * ---------------------------------------------------------------------------------
-   * Declarations for global variables
+   * Types for global data structures
    * ---------------------------------------------------------------------------------
    */
 
-  /* CVODE data */
+  typedef struct cvm_CVODESdataStruct {
 
-  extern void *cvode_mem;   /* CVODES solver memory */
-  extern void *bp_data;     /* Preconditioner memory (BandPre or BBDPre) */
-  extern N_Vector y;        /* solution vector */
-  extern N_Vector yQ;       /* quadratures vector */
-  extern N_Vector *yS;      /* sensitivity vectors */
-  extern int N;             /* problem dimension */
-  extern int Nq;            /* number of quadratures */
-  extern int Ng;            /* number of root functions */
-  extern int Ns;            /* number of sensitivities */
-  extern int Nd;            /* number of data points */
-  extern int Nc;            /* number of check points */
-  extern int ls;            /* linear solver type */
-  extern int pm;            /* preconditioner module */
-  extern int ism;           /* sensitivity method */
+    void *cvode_mem;   /* CVODES solver memory */
+    void *bp_data;     /* Preconditioner memory (BandPre or BBDPre) */
+    N_Vector y;        /* solution vector */
+    N_Vector yQ;       /* quadratures vector */
+    N_Vector *yS;      /* sensitivity vectors */
+    int N;             /* problem dimension */
+    int Nq;            /* number of quadratures */
+    int Ng;            /* number of root functions */
+    int Ns;            /* number of sensitivities */
+    int Nd;            /* number of data points */
+    int Nc;            /* number of check points */
+    int ls;            /* linear solver type */
+    int pm;            /* preconditioner module */
+    int ism;           /* sensitivity method */
+    
+    void *cvadj_mem;   /* CVODES adjoint memory */
+    int interp;
+    N_Vector yB;
+    N_Vector yQB;
+    int NB;
+    int NqB;
+    int lsB;
+    int pmB;
 
-  extern void *cvadj_mem;   /* CVODES adjoint memory */
-  extern int interp;
-  extern N_Vector yB;
-  extern N_Vector yQB;
-  extern int NB;
-  extern int NqB;
-  extern int lsB;
-  extern int pmB;
+  } *cvm_CVODESdata;
 
-  /* Matlab data */
+  typedef struct cvm_MATLABdataStruct {
 
-  extern mxArray *mx_mtlb_RHSfct;
-  extern mxArray *mx_mtlb_QUADfct;
-  extern mxArray *mx_mtlb_JACfct;
-  extern mxArray *mx_mtlb_PSETfct;
-  extern mxArray *mx_mtlb_PSOLfct;
-  extern mxArray *mx_mtlb_GLOCfct;
-  extern mxArray *mx_mtlb_GCOMfct;
+    mxArray *mx_RHSfct;
+    mxArray *mx_QUADfct;
+    mxArray *mx_JACfct;
+    mxArray *mx_PSETfct;
+    mxArray *mx_PSOLfct;
+    mxArray *mx_GLOCfct;
+    mxArray *mx_GCOMfct;
+    
+    mxArray *mx_Gfct;
+    
+    mxArray *mx_SRHSfct;
+    
+    mxArray *mx_RHSfctB;
+    mxArray *mx_QUADfctB;
+    mxArray *mx_JACfctB;
+    mxArray *mx_PSETfctB;
+    mxArray *mx_PSOLfctB;
+    mxArray *mx_GLOCfctB;
+    mxArray *mx_GCOMfctB;
 
-  extern mxArray *mx_mtlb_Gfct;
+    mxArray *mx_data;
 
-  extern mxArray *mx_mtlb_SRHSfct;
-
-  extern mxArray *mx_mtlb_RHSfctB;
-  extern mxArray *mx_mtlb_QUADfctB;
-  extern mxArray *mx_mtlb_JACfctB;
-  extern mxArray *mx_mtlb_PSETfctB;
-  extern mxArray *mx_mtlb_PSOLfctB;
-  extern mxArray *mx_mtlb_GLOCfctB;
-  extern mxArray *mx_mtlb_GCOMfctB;
-
-  extern mxArray *mx_mtlb_data;
-
-  /* Monitor */
+    /* Monitor */
   
-  extern booleantype monitor;
-  extern mxArray *mx_mtlb_MONfct;
-  extern mxArray *mx_mtlb_MONdata;
+    mxArray *mx_MONfct;
+    mxArray *mx_MONdata;
+    
+    mxArray *mx_MONfctB;
+    mxArray *mx_MONdataB;
 
-  extern booleantype monitorB;
-  extern mxArray *mx_mtlb_MONfctB;
-  extern mxArray *mx_mtlb_MONdataB;
+  } *cvm_MATLABdata;
+
+  /*
+   * ---------------------------------------------------------------------------------
+   * Declarations for global variables (defined in cvm.c)
+   * ---------------------------------------------------------------------------------
+   */
+
+  extern cvm_CVODESdata cvm_Cdata;  /* CVODE data */
+  extern booleantype cvm_quad;      /* Forward quadratures? */
+  extern booleantype cvm_quadB;     /* Backward quadratures? */
+  extern booleantype cvm_asa;       /* Adjoint sensitivity? */
+  extern booleantype cvm_fsa;       /* Forward sensitivity? */
+  extern booleantype cvm_mon;       /* Forward monitoring? */ 
+  extern booleantype cvm_monB;      /* Backward monitoring? */ 
+
+  extern cvm_MATLABdata cvm_Mdata;  /* MATLAB data */
 
   /*
    * ---------------------------------------------------------------------------------
@@ -216,39 +233,26 @@ extern "C" {
    * ---------------------------------------------------------------------------------
    */
 
-  int get_IntgrOptions(const mxArray *options,
+  int get_IntgrOptions(const mxArray *options, booleantype fwd,
                        int *lmm, int *iter, int *maxord, booleantype *sld,
                        long int *mxsteps,
                        int *itol, realtype *reltol, double *Sabstol, double **Vabstol,
-                       double *hin, double *hmax, double *hmin, double *tstop, booleantype *tstopSet,
-                       int *Ng_tmp, mxArray **mx_tmp_Gfct,
-                       booleantype *quad, booleantype *fsa, booleantype *asa,
-                       booleantype *monitor_tmp, mxArray **mx_tmp_MONfct,
-                       mxArray **mx_tmp_MONdata);
+                       double *hin, double *hmax, double *hmin, double *tstop, booleantype *tstopSet);
 
-  int get_LinSolvOptions(const mxArray *options,
-                         int *ls_tmp,
+  int get_LinSolvOptions(const mxArray *options, booleantype fwd,
                          int *mupper, int *mlower,
                          int *mudq, int *mldq, double *dqrely,
-                         int *ptype, int *gstype, int *maxl, int *pm_tmp,
-                         mxArray **mx_tmp_JACfct,
-                         mxArray **mx_tmp_PSETfct, mxArray **mx_tmp_PSOLfct,
-                         mxArray **mx_tmp_GLOCfct, mxArray **mx_tmp_GCOMfct);
-  
-  int get_QuadOptions(const mxArray *options,
-                      int *Nq_tmp, double **yQ0, mxArray **mx_tmp_QUADfct,
-                      booleantype *errconQ,
+                         int *ptype, int *gstype, int *maxl);
+
+  int get_QuadOptions(const mxArray *options, booleantype fwd,
+                      double **yQ0, booleantype *errconQ,
                       int *itolQ, double *reltolQ, double *SabstolQ, double **VabstolQ);
 
   int get_FSAOptions(const mxArray *options, 
-                     int *Ns_tmp, double **yS0,
-                     int *ism_tmp,
                      char **pfield_name, int **plist, double **pbar,
-                     int *Srhs, mxArray **mx_tmp_SRHSfct, double *rho,
+                     booleantype *userSRHS, double *rho,
                      booleantype *errconS, int *itolS, double *reltolS, 
                      double **SabstolS, double **VabstolS);
-
-  int get_ASAOptions(const mxArray *options, int *Nd_tmp, int *interp_tmp);
 
 
 #ifdef __cplusplus

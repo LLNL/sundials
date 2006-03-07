@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:26 $
+ * $Revision: 1.2 $
+ * $Date: 2006-03-07 01:20:06 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,23 +20,38 @@
 #include "nvector_serial.h"
 #include "nvector_parallel.h"
 
-int VecType;
-MPI_Comm comm;
+int sundials_VecType;
+MPI_Comm sundials_comm;
 
-void InitVectors(int vec_type, mxArray *mx_comm)
+void InitVectors()
 {
+  const mxArray *mx_comm;
   char *str;
 
-  VecType = vec_type;
+  /* Check if the Matlab global variable sundials_MPI_comm exists
+     (mpirun and mpiruns set it) */
 
-  if (VecType == 2) {
+  mx_comm = mexGetVariable("global", "sundials_MPI_comm");
+
+  if (mx_comm == NULL) {
+
+    /* If it does not exist, set vector type to 1 (serial) */
+
+    sundials_VecType = 1;
+
+  } else {
+
+    /* If it does exist, set vector type to 2 (parallel) and
+       set the MPI communicator */
+    
+    sundials_VecType = 2;
 
     str = mxArrayToString(mx_comm);
-    if (!strcmp(str,"NULL"  ))      comm = MPI_COMM_NULL  ;
-    else if (!strcmp(str,"WORLD" )) comm = MPI_COMM_WORLD ;
-    else if (!strcmp(str,"SELF"  )) comm = MPI_COMM_SELF  ;
-    else                            comm = *(MPI_Comm*)mxGetData(mx_comm);
-
+    if (!strcmp(str,"NULL"  ))      sundials_comm = MPI_COMM_NULL  ;
+    else if (!strcmp(str,"WORLD" )) sundials_comm = MPI_COMM_WORLD ;
+    else if (!strcmp(str,"SELF"  )) sundials_comm = MPI_COMM_SELF  ;
+    else                            sundials_comm = *(MPI_Comm*)mxGetData(mx_comm);
+    
   }
 
 }
@@ -46,15 +61,15 @@ N_Vector NewVector(int n)
   N_Vector v;
   int nlocal, nglobal;
 
-  if (VecType == 1) {
+  if (sundials_VecType == 1) {
 
-    v = N_VNewEmpty_Serial((long int)n);
+    v = N_VNew_Serial((long int)n);
 
   } else {
 
     nlocal = n;
-    MPI_Allreduce(&nlocal, &nglobal, 1, MPI_INT, MPI_SUM, comm);
-    v = N_VNewEmpty_Parallel(comm, (long int)nlocal, (long int)nglobal);
+    MPI_Allreduce(&nlocal, &nglobal, 1, MPI_INT, MPI_SUM, sundials_comm);
+    v = N_VNew_Parallel(sundials_comm, (long int)nlocal, (long int)nglobal);
 
   }
 

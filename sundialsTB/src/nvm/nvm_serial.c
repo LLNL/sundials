@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-06 19:00:26 $
+ * $Revision: 1.2 $
+ * $Date: 2006-03-07 01:20:06 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -18,18 +18,12 @@
 #include "nvm.h"
 #include "nvector_serial.h"
 
-void InitVectors(int vec_type, mxArray *mx_comm)
-{
-  if (vec_type != 1)
-    mexPrintf("\n\nNO parallel vector support!!\n\n");
-}
-
+void InitVectors()
+{}
 
 N_Vector NewVector(int n)
 {
   N_Vector v;
-
-  v = N_VNewEmpty_Serial((long int)n);
+  v = N_VNew_Serial((long int)n);
   return(v);
-
 }
