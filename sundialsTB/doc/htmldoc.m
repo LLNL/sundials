@@ -3,7 +3,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:51 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:55 $
 
 % Set location of sundialsTB template files location
 s = fileparts(which(mfilename));
@@ -158,16 +158,47 @@ m2html('mfiles',putils_fct,...
 
 %--------------------------------
 
+% Final clean-up in the stb_guide directory
+
 cd(doc_dir);
 
+% Fix links in top level files
+
+old_str = '<a href="../sundialsTB.html">sundialsTB</a> &gt; <a href="../foo.html">foo</a>';
+new_str = '<a href="sundialsTB.html">sundialsTB</a>';
+cmd = sprintf('sed ''s$%s$%s$'' install_STB.html > tmp_file',old_str,new_str);
+system(cmd);
+system('mv tmp_file install_STB.html');
+
+cmd = sprintf('sed ''s$%s$%s$'' startup_STB.html > tmp_file',old_str,new_str);
+system(cmd);
+system('mv tmp_file startup_STB.html');
+
+% Remove generated files not needed
 
 system('rm -f foo.html');
+system('rm -f cvodes/cvodes.html');
+system('rm -f cvodes/cvm/cvodes.html');
+system('rm -f cvodes/examples_ser/cvodes.html');
+system('rm -f cvodes/examples_par/cvodes.html');
+system('rm -f kinsol/kinsol.html');
+system('rm -f kinsol/kim/kinsol.html');
+system('rm -f kinsol/examples_ser/kinsol.html');
+system('rm -f kinsol/examples_par/kinsol.html');
+system('rm -f putils/putils.html');
+system('rm -f nvector/nvector.html');
+
+% Overwrite files for which we have nicer ones :-)
+
 system('rm -f cvodes.html kinsol.html nvector.html putils.html');
 
 system('cp ../html_files/cvodes_top.html cvodes.html');
 system('cp ../html_files/kinsol_top.html kinsol.html');
 system('cp ../html_files/nvector_top.html nvector.html');
 system('cp ../html_files/putils_top.html putils.html');
+
+% Add othe needed files
+
 system('cp ../html_files/sundialsTB.html .');
 system('cp ../html_files/*.png .');
 
