@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] DAI software -->
-<!--X-From-R13: Wna Bnexre <vnaNvnaocnexre.pb.hx> -->
-<!--X-Date: Fri, 27 Jan 2006 03:13:29 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D9FFD7.1020304@ianbparker.co.uk -->
+<!--X-Subject: Re: [sundials&#45;users] CVodeSetstabLimDet -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Mon, 27 Feb 2006 08:57:51 &#45;0800 (PST) -->
+<!--X-Message-Id: 44032ECE.2030602@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 43D9D1FF.2010607@mecha.uni&#45;stuttgart.de -->
+<!--X-Reference: 20060227062019.24684.qmail@web37408.mail.mud.yahoo.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] DAI software</title>
+<title>Re: [sundials-users] CVodeSetstabLimDet</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00267.html">Date Prev</a>] [<a href="msg00269.html">Date Next</a>] [<a href="msg00267.html">Thread Prev</a>] [<a href="msg00269.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00268">Date Index</a></b>]
-[<b><a href="threads.html#00268">Thread Index</a></b>]
+[<a href="msg00316.html">Date Prev</a>] [<a href="msg00318.html">Date Next</a>] [<a href="msg00316.html">Thread Prev</a>] [<a href="msg00318.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00317">Date Index</a></b>]
+[<b><a href="threads.html#00317">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] DAI software</h1>
+<h1>Re: [sundials-users] CVodeSetstabLimDet</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Ian Parker &lt;<a href="mailto:ian%40ianbparker.co.uk">ian@ianbparker.co.uk</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 27 Jan 2006 11:11:19 +0000</td>
+Mon, 27 Feb 2006 08:54:38 -0800</td>
 </tr>
 
 </table>
@@ -101,23 +101,19 @@ Fri, 27 Jan 2006 11:11:19 +0000</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Nils
-Try DASSL and its associated software. It is freely available from NETLIB.</pre><br>
-<pre style="margin: 0em;">Ian</pre><br>
-Nils Wagner wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi all,</pre><br>
-<pre style="margin: 0em;">I am looking for a software package which solves
-differential systems subjected to algebraic inequality constraints.</pre><br>
-<pre style="margin: 0em;">Any pointer would be appreciated.</pre><br>
-Thanks in advance<br>
-                                   Nils Wagner<br>
- <br>
+Gregory Mason wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi everyone</pre><br>
+         When I do   flag = CVodeSetstabLimDet(cvode_mem,TRUE); in my code<br>
+ on compilation i get the error &quot;undefined reference to 
+`CVodeSetstabLimDet'.&quot; However program is working ok with other CVodeSet 
+statements.<br>
 <br>
-<pre style="margin: 0em;">--
-This email has been verified as Virus free
-Virus Protection and more available at <a  href="http://www.plus.net">http://www.plus.net</a></pre><br>
-<br>  
-</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">Anyone have any clue.</pre><br>
+<pre style="margin: 0em;"><br>bye</pre><br>
+<pre style="margin: 0em;">Greg</pre><br>
+</blockquote><pre style="margin: 0em;"><br>Misspelled function name? Correct name is CVodeSetStabLimDet  (capital 'S' 
+for 'Stab').
+--Radu</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -125,40 +121,35 @@ Virus Protection and more available at <a  href="http://www.plus.net">http://www
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00269" href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Ian Parker &lt;ian@ianbparker.co.uk&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00267" href="msg00267.html">[sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Nils Wagner &lt;nwagner@mecha.uni-stuttgart.de&gt;</li></ul></li>
+<li><strong><a name="00316" href="msg00316.html">[sundials-users] CVodeSetstabLimDet</a></strong>
+<ul><li><em>From:</em> Gregory Mason &lt;gregbrickmason@yahoo.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00316.html">[sundials-users] CVodeSetstabLimDet</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00318.html">[sundials-users] sundialsTB</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00316.html">[sundials-users] CVodeSetstabLimDet</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00318.html">[sundials-users] sundialsTB</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00268">
+<li><a href="maillist.html#00317">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00268">
+<li><a href="threads.html#00317">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] DAI software -->
-<!--X-From-R13: Wna Bnexre <vnaNvnaocnexre.pb.hx> -->
-<!--X-Date: Fri, 27 Jan 2006 03:13:29 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D9FFD7.1020304@ianbparker.co.uk -->
+<!--X-Subject: Re: [sundials&#45;users] sundialsTB -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Mon, 27 Feb 2006 11:45:00 &#45;0800 (PST) -->
+<!--X-Message-Id: 44035613.3040505@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 43D9D1FF.2010607@mecha.uni&#45;stuttgart.de -->
+<!--X-Reference: 8B8B9A8EAFB80D4783EC4EE210951B4502621ABF@ccexchange&#45;3.cns.cranfield.ac.uk -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] DAI software</title>
+<title>Re: [sundials-users] sundialsTB</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00267.html">Date Prev</a>] [<a href="msg00269.html">Date Next</a>] [<a href="msg00267.html">Thread Prev</a>] [<a href="msg00269.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00268">Date Index</a></b>]
-[<b><a href="threads.html#00268">Thread Index</a></b>]
+[<a href="msg00318.html">Date Prev</a>] [<a href="msg00320.html">Date Next</a>] [<a href="msg00318.html">Thread Prev</a>] [<a href="msg00320.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00319">Date Index</a></b>]
+[<b><a href="threads.html#00319">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] DAI software</h1>
+<h1>Re: [sundials-users] sundialsTB</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Ian Parker &lt;<a href="mailto:ian%40ianbparker.co.uk">ian@ianbparker.co.uk</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 27 Jan 2006 11:11:19 +0000</td>
+Mon, 27 Feb 2006 11:42:11 -0800</td>
 </tr>
 
 </table>
@@ -101,23 +101,40 @@ Fri, 27 Jan 2006 11:11:19 +0000</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Nils
-Try DASSL and its associated software. It is freely available from NETLIB.</pre><br>
-<pre style="margin: 0em;">Ian</pre><br>
-Nils Wagner wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi all,</pre><br>
-<pre style="margin: 0em;">I am looking for a software package which solves
-differential systems subjected to algebraic inequality constraints.</pre><br>
-<pre style="margin: 0em;">Any pointer would be appreciated.</pre><br>
-Thanks in advance<br>
-                                   Nils Wagner<br>
- <br>
+Cao, Yi wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I downloaded and compiled sundialsTB in MATLAB on a Windows XP PC.
+Everything looks fine. However, some examples will cause Segmentation
+violation error and some examples complain dimensional error or some
+function cannot be found (for example, cvm_rhsS1 called from cvfdx). Is
+there an bug-free copy around?</pre><br>
+<pre style="margin: 0em;">Yi Cao</pre><br>
 <br>
-<pre style="margin: 0em;">--
-This email has been verified as Virus free
-Virus Protection and more available at <a  href="http://www.plus.net">http://www.plus.net</a></pre><br>
-<br>  
 </blockquote><pre style="margin: 0em;"><br></pre><br>
+sundialsTB has not received a lot of mail, so I did not bother keeping the release CVS branch 
+up-to-date. All bug fixes and updates were done only on the development branch, so they'll be 
+available in the next release only.<br>
+<br>
+The cvm_rhsS1.m file was left out of the distribution tarball. It is attached to this message. Save 
+it under sundialsTB/mex/cvm.<br>
+<br>
+The segfault error you see is - I assume - in the cvbx example. The reason for that is a buggy 
+implementation of CVodeMonitor which cannot work if other figures are open while CVodeMonitor gets 
+called (notice that no other examples attempt that). The new release will contained a fixed 
+CVodeMonitor function. In the meantime, to make cvbx work, there are two options:<br>
+<br>
+<pre style="margin: 0em;">a) do not do monitoring; i.e. comment out the line</pre><br>
+<pre style="margin: 0em;">  options = CVodeSetOptions(options,'MonitorFn','CVodeMonitor');</pre><br>
+<pre style="margin: 0em;">b) do not plot additional stuff; i.e. comment out the lines</pre><br>
+<pre style="margin: 0em;">  fig=figure;
+  hold on;
+  box</pre><br>
+<pre style="margin: 0em;">and</pre><br>
+<pre style="margin: 0em;">  figure(fig);
+  plot([t_old t],[uavg_old uavg]);
+  plot([t0 tout], [q q]/(tout-t0), 'r-');
+  plot([tout tout], [0 q]/(tout-t0), 'r-');</pre><br>
+<pre style="margin: 0em;"><br>-- Radu</pre><br>
+<br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -127,38 +144,38 @@ Virus Protection and more available at <a  href="http://www.plus.net">http://www
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00269" href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Ian Parker &lt;ian@ianbparker.co.uk&gt;</li></ul></li>
+<li><strong><a name="00320" href="msg00320.html">RE: [sundials-users] sundialsTB</a></strong>
+<ul><li><em>From:</em> &quot;Cao, Yi&quot; &lt;Y.Cao@cranfield.ac.uk&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00267" href="msg00267.html">[sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Nils Wagner &lt;nwagner@mecha.uni-stuttgart.de&gt;</li></ul></li>
+<li><strong><a name="00318" href="msg00318.html">[sundials-users] sundialsTB</a></strong>
+<ul><li><em>From:</em> &quot;Cao, Yi&quot; &lt;Y.Cao@cranfield.ac.uk&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00318.html">[sundials-users] sundialsTB</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00320.html">RE: [sundials-users] sundialsTB</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00318.html">[sundials-users] sundialsTB</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00320.html">RE: [sundials-users] sundialsTB</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00268">
+<li><a href="maillist.html#00319">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00268">
+<li><a href="threads.html#00319">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

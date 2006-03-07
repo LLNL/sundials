@@ -1,0 +1,315 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: RE: [sundials&#45;users] Changing algebraic variables during integration   with IDA -->
+<!--X-From-R13: "Hbtry, Searfg T &#45; Snfgzna" <rsibtryNrnfgzna.pbz> -->
+<!--X-Date: Fri, 03 Mar 2006 06:28:35 &#45;0800 (PST) -->
+<!--X-Message-Id: 9719251EEFA00B4397C90260CE584496015D2F9C@nt2mail03.emn.com -->
+<!--X-Content-Type: text/plain -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>RE: [sundials-users] Changing algebraic variables during integration   with IDA</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00339.html">Date Prev</a>] [<a href="msg00341.html">Date Next</a>] [<a href="msg00333.html">Thread Prev</a>] [<a href="msg00331.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00340">Date Index</a></b>]
+[<b><a href="threads.html#00340">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>RE: [sundials-users] Changing algebraic variables during integration   with IDA</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+&quot;Vogel, Ernest F - Eastman&quot; &lt;<a href="mailto:efvogel%40eastman.com">efvogel@eastman.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Fri, 03 Mar 2006 09:25:51 -0500</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Radu,
+
+Oops!  I've got a mistake in the equations.  They should be:
+
+Two differential equations:
+yp1 = A - yy3
+yp2 = yy3 - B
+
+One algebraic equation:
+yy3 = C * ( yy1 - yy2 ) 
+
+yy3 is the algebraic variable.  Sorry for that confusion.
+
+I now have additional question, besides the original ones below.
+Because yy3 can be solved for explicitly very easily in this case, is
+there really any advantage to solving this problem as a set of DAEs as
+opposed to a set of ODEs?
+
+Thanks very much and again my apologies for the mistake in the
+equations.
+
+Ernie
+
+
+-----Original Message-----
+From: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Radu Serban
+Sent: Thursday, March 02, 2006 3:33 PM
+To: sundials-users@llnl.gov
+Subject: Re: [sundials-users] Changing algebraic variables during
+integration with IDA
+
+Ernie,
+
+Before attempting to answer any of your questions, please revisit the
+example you give below. If A, B, and C are specified, this is not a 
+DAE. What would the algebraic variable be? If A, B, and C are constants,
+this set of 3 equations has a solution only if A=B and then y1 and 
+y2 are constants: y2=A, y1 = (1+C)*A/C.
+
+Assuming you do have an honest DAE (we also need to figure out its
+index, so a better simplified example is needed for that too), are A, B,
+
+C constants that the controller would change at each action step?
+
+--Radu
+
+Vogel, Ernest F - Eastman wrote:
+&gt;<i> Alan,</i>
+&gt;<i> </i>
+&gt;<i> Thank you very much for your reply.</i>
+&gt;<i> </i>
+&gt;<i> I'd like to offer a simple example for clarification.</i>
+&gt;<i> </i>
+&gt;<i> Two differential equations:</i>
+&gt;<i> yp1 = A - yy2</i>
+&gt;<i> yp2 = yy2 - B</i>
+&gt;<i> </i>
+&gt;<i> One algebraic equation:</i>
+&gt;<i> yy2 = C * ( yy1 - yy2 )</i>
+&gt;<i> </i>
+&gt;<i> (yp is the derivative of yy.)</i>
+&gt;<i> </i>
+&gt;<i> I am simulating a continuous process with discrete feedback control.</i>
+&gt;<i> The integrator stops at the end of each control action step (I am</i>
+using
+&gt;<i> IDASetStopTime so it doesn't overshoot).  In some cases, a controller</i>
+&gt;<i> could change A or B.  In those cases, IDA seemed to handle changes to</i>
+A
+&gt;<i> and B without trouble.  In other cases, a controller could change C.</i>
+As
+&gt;<i> I expected, changes to C caused problems which I over came by calling</i>
+&gt;<i> IDACalcIC whenever I changed C.</i>
+&gt;<i> </i>
+&gt;<i> I was not sure from your reply exactly when I should need to restart</i>
+the
+&gt;<i> solver.  It seems that changes to C should for sure require a restart,</i>
+&gt;<i> but what about A and B?</i>
+&gt;<i> </i>
+&gt;<i> Your reply also brings up a couple more questions:</i>
+&gt;<i> Would you say that in my case, changes to A, B, and C are explicit?</i>
+&gt;<i> Would an implicit change likely occur at an unknown time?</i>
+&gt;<i> What is the difference between the rootfinding feature and IDACalcIC?</i>
+&gt;<i> </i>
+&gt;<i> Once again, thanks very much for your help.</i>
+&gt;<i> </i>
+&gt;<i> Ernie Vogel</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> -----Original Message-----</i>
+&gt;<i> From: Alan Hindmarsh [<a  href="mailto:alanh@llnl.gov">mailto:alanh@llnl.gov</a>] </i>
+&gt;<i> Sent: Wednesday, March 01, 2006 5:08 PM</i>
+&gt;<i> To: Vogel, Ernest F - Eastman</i>
+&gt;<i> Cc: sundials-users@llnl.gov; alanh@llnl.gov</i>
+&gt;<i> Subject: Re: [sundials-users] Changing algebraic variables during</i>
+&gt;<i> integration with IDA</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> Hello Ernie,</i>
+&gt;<i> </i>
+&gt;<i> If and when there is a major discontinuity in the model (whether in a</i>
+&gt;<i> differential variable or an algebraic variagle), it is best to stop</i>
+&gt;<i> there and restart.  Letting the ODE/DAE solver locate the jump and get</i>
+&gt;<i> through it on its own is likely to be less efficient.  If the point of</i>
+&gt;<i> the jump is defined implicitly, use the rootfinding feature (available</i>
+&gt;<i> in CVODE now, and in IDA in the next release) to locate it.  On the</i>
+&gt;<i> other hand, if the jump is small, each of these solvers is designed to</i>
+&gt;<i> handle it without extra assistance.</i>
+&gt;<i> </i>
+&gt;<i> When stopping and restarting after resetting a variable value, you</i>
+&gt;<i> should call IDAReInit.  Also call IDACalcIC only if your new values</i>
+&gt;<i> are not known to be consistent with the DAEs.</i>
+&gt;<i> </i>
+&gt;<i> In the sundials-users archives you will find various other discussions</i>
+&gt;<i> about handling discontinuities.</i>
+&gt;<i> </i>
+&gt;<i> -Alan Hindmarsh</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> On Wed, 22 Feb 2006, Vogel, Ernest F - Eastman wrote:</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i>&gt;For the set of DAEs that I am integrating with IDA, I want to make</i>
+&gt;<i>&gt;changes to variables that appear in the differential equations and</i>
+&gt;<i>&gt;variables that appear in the algebraic equations periodically over the</i>
+&gt;<i>&gt;course of the integration.  Changing variables that appear in</i>
+&gt;<i>&gt;differential equations do not appear to present a problem.  However,</i>
+&gt;<i>&gt;changing variables that appear in algebraic equations make the solver</i>
+&gt;<i>&gt;stop.  That result seems expected because the changes move the</i>
+&gt;<i> </i>
+&gt;<i> algebraic</i>
+&gt;<i> </i>
+&gt;<i>&gt;equations away from a solution.  To fix the problem, I called the</i>
+&gt;<i>&gt;function IDACalcIC to recalculate the algebraic solution each time I</i>
+&gt;<i>&gt;changed a variable in an algebraic equation.  That additional call</i>
+&gt;<i> </i>
+&gt;<i> made</i>
+&gt;<i> </i>
+&gt;<i>&gt;the total function evaluations go up by a factor of 4, compared to the</i>
+&gt;<i>&gt;case where I am not changing algebraic variables.  I'm wondering if</i>
+&gt;<i>&gt;there is a better way to deal with the case of changing variables in</i>
+&gt;<i>&gt;algebraic equations.  Calling IDAReInit seems like a possibility, but</i>
+&gt;<i>&gt;not as likely to work as IDACalcIC.</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt;Thanks for your help!</i>
+&gt;<i>&gt;Ernie Vogel</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> [* Internet Mail *]</i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> </i>
+
+
+
+[* Internet Mail *]
+
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00339.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00341.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00333.html">Re: [sundials-users] Changing algebraic variables during integration with IDA</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00331.html">RE: [sundials-users] sundials-users archives</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00340">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00340">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

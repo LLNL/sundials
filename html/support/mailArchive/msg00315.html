@@ -1,0 +1,176 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] value of t during internal steps of CVODE call -->
+<!--X-From-R13: enw qhssl <enw_qhsslNlnubb.pbz> -->
+<!--X-Date: Sun, 26 Feb 2006 22:06:17 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060227060328.37597.qmail@web37010.mail.mud.yahoo.com -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Reference: 43FC9DA0.8040605@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] value of t during internal steps of CVODE call</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00314.html">Date Prev</a>] [<a href="msg00316.html">Date Next</a>] [<a href="msg00313.html">Thread Prev</a>] [<a href="msg00328.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00315">Date Index</a></b>]
+[<b><a href="threads.html#00315">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] value of t during internal steps of CVODE call</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+raj duffy &lt;<a href="mailto:raj_duffy%40yahoo.com">raj_duffy@yahoo.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Sun, 26 Feb 2006 22:03:28 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+Hey There<br>  &nbsp;&nbsp;&nbsp; Have few more question (perhaps the last set!)  regarding internal time steps and corresponding y values. Below is a  part of my simulation.<br>  "t = ...... y= ........" are being printed from inside the function f()<br>  <br>  Tsteps&nbsp;&nbsp;&nbsp; =&nbsp;&nbsp;&nbsp; 552<br>  t=&nbsp;&nbsp;&nbsp; 553.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116404725<br>  t=&nbsp;&nbsp;&nbsp; 553.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.117354231<br>  t=&nbsp;&nbsp;&nbsp; 553.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116216941<br>  t=&nbsp;&nbsp;&nbsp; 553.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116663327&nbsp;&nbsp; (passes convergence tests)<br>  t=&nbsp;&nbsp;&nbsp; 553.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.115648493&nbsp;&nbsp; (passes convergence tests)<br>  t=&nbsp;&nbsp;&nbsp; 553.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116903802&nbsp;&nbsp; (passes convergence tests)<br>  Tsteps&nbsp;&nbsp;&nbsp;
+ =&nbsp;&nbsp;&nbsp; 553<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116422809<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.117275213<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116433829<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116221562<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116451969<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116722255<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.115780886<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116865043<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.11687925<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116576685<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116454164<br> 
+ t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.117410634<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116358146<br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.11617726&nbsp;&nbsp;&nbsp; <br>  t=&nbsp;&nbsp;&nbsp; 554.100979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp;  0.116245398&nbsp;&nbsp; (Note: after this time step  decreases)&nbsp;&nbsp; <br>  t=&nbsp;&nbsp;&nbsp; 553.350979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116425925<br>  t=&nbsp;&nbsp;&nbsp; 553.350979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.11734981<br>  t=&nbsp;&nbsp;&nbsp; 553.350979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116311416<br>  t=&nbsp;&nbsp;&nbsp; 553.600979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116656432<br>  t=&nbsp;&nbsp;&nbsp; 553.600979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.115716523<br>  t=&nbsp;&nbsp;&nbsp; 553.600979&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116684277<br>  t=&nbsp;&nbsp;&nbsp;
+ 553.987421&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116500736<br>  t=&nbsp;&nbsp;&nbsp; 553.987421&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.117433375<br>  t=&nbsp;&nbsp;&nbsp; 553.987421&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116445501<br>  t=&nbsp;&nbsp;&nbsp; 554.373862&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116841636<br>  t=&nbsp;&nbsp;&nbsp; 554.373862&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.115856428<br>  t=&nbsp;&nbsp;&nbsp; 554.373862&nbsp;&nbsp;&nbsp; y&nbsp;&nbsp;&nbsp; 0.116979296<br>  <br>  <br>  <br>  Now my questions are<br>  <br>  a) Is the y value printed for some t (as above) is also the actual  solution at that t. Or the printed y value above are basically the y  value at the second last iteration before convergence at time t. <br>  <br>  b) what is the actual solution at&nbsp; t=&nbsp;&nbsp;&nbsp; 553.100979  given the fact that last 3 y values corresponding to this t pass  convergence tests and are perhaps just being used for jacobian  evaluation. Will th!
+ is be the
+ value used in first iteration for next  internal time step. <br>  <br>  c) What happens when the time step reverts from a larger value (say  t=554.100979) to a smaller one (t = 553.350979). Does the iteration for  t =553.350979 starts from the y value at t=&nbsp;&nbsp;&nbsp;  553.100979 (i.e. one time step earlier than the convergence failure  which happened at t=554.100979).<br>  <br>  <br><br><b><i>Radu Serban &lt;serban1@llnl.gov&gt;</i></b> wrote:<blockquote class="replbq" style="border-left: 2px solid rgb(16, 16, 255); margin-left: 5px; padding-left: 5px;">  The proper way to implement this is, I think, by adding an additional variable (and equation) to <br>your ODE system that would compute the desired quadrature. Take a look at the CVODES user guide and <br>search for 'pure quadrature integration' to see how that can be done.<br><br>What you have now is a very inaccurate approximation (moreover, the code snippet below does not seem <br>right: the right term in your "!
+ if"
+ statement is something like flux(y(t))*(t-ti) with ti&gt;t)<br><br>--Radu<br><br>raj duffy wrote:<br>&gt; My code looks something like<br>&gt;  <br>&gt; for(i=0,tout=0;i<N ;i++,tout="tout+eps)&lt;br">&gt; {<br>&gt;    ti=tout;       /* ti is global variable */<br>&gt;    CVODE(cvode_mem,tout,CV_Y,&amp;t,CV_NORMAL);<br>&gt; }<br>&gt;  <br>&gt; f(t,...,..)<br>&gt; {<br>&gt;  FluxCalculation();     /* Function of y's */<br>&gt;  If(sourceVolume&gt;CalculatedFlux*(t-ti)); <br>&gt; /* So above I am calculating total volumetric flux starting from ti to <br>&gt; an internal time step t */<br>&gt;  {<br>&gt;    CalculatedFlux=CalculatedFlux<br>&gt;  }<br>&gt; else<br>&gt;  {<br>&gt;   CalculatedFlux=sourceVolume;<br>&gt;  }<br>&gt; }<br>&gt; This I am doing so as to constrain fluxes to reasonable value such that <br>&gt; y's dont' get negative<br>&gt;  <br>&gt; Regards<br>&gt; Raj<br>&gt; <br>&gt; */Alan Hindmarsh <alanh @llnl.gov="">/* wrote:<br>&gt; <br>&gt; <br>&gt;     Hello
+ Raj,<br>&gt; <br>&gt;     You wrote:<br>&gt;      &gt; Basically I want to have some flux calculations and check that<br>&gt;      &gt; source volume &gt; CalculatedFlux*(t-ti)<br>&gt; <br>&gt;     I am a little concerned about this last comment. What is ti?<br>&gt; <br>&gt;     If ti is a past time that you have set externally to the solver, then<br>&gt;     that calculation is fine. You would have to have saved a volume value<br>&gt;     at ti in order to get the appropriate volume for this check.<br>&gt; <br>&gt;     But if by ti you mean the last internal t value that the solver<br>&gt;     stepped to, this calculation is more complicated. You can get that ti<br>&gt;     by way of CVodeGetCurrentTime and CVodeGetLastStep (ti = tcur-hlast).<br>&gt;     But I don't see how you can calculate the appropriate source volume<br>&gt;     that accumulated over the time interval (ti, t), a! t least in normal<br>&gt;     output mode (itask=CV_NORMAL). If instead you are running in
+ one-step<br>&gt;     mode, and saving these values at every step, this would be easy.<br>&gt; <br>&gt;     -Alan Hindmarsh<br>&gt; <br>&gt; <br>&gt; __________________________________________________<br>&gt; Do You Yahoo!?<br>&gt; Tired of spam? Yahoo! Mail has the best spam protection around<br>&gt; http://mail.yahoo.com<br>&gt; <br><br><br></alanh></N></blockquote><br><p>__________________________________________________<br>Do You Yahoo!?<br>Tired of spam?  Yahoo! Mail has the best spam protection around <br>http://mail.yahoo.com 
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00328" href="msg00328.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00313" href="msg00313.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00314.html">[sundials-users] Changing algebraic variables during integration with IDA</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00316.html">[sundials-users] CVodeSetstabLimDet</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00313.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00328.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00315">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00315">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

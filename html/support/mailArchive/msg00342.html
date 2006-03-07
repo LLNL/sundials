@@ -1,0 +1,283 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)? -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Fri, 03 Mar 2006 14:25:35 &#45;0800 (PST) -->
+<!--X-Message-Id: 4408C126.8050608@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 20060303211726.34700.qmail@web37408.mail.mud.yahoo.com -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00341.html">Date Prev</a>] [<a href="msg00343.html">Date Next</a>] [<a href="msg00341.html">Thread Prev</a>] [<a href="msg00344.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00342">Date Index</a></b>]
+[<b><a href="threads.html#00342">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Fri, 03 Mar 2006 14:20:22 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Greg,</pre><br>
+<pre style="margin: 0em;">First, you do not say what happens in the two cases if you specify the initial 
+step size. Do you get the same statistics?</pre><br>
+Gregory Mason wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Hi<br>
+    In the last posting, there are no non-linear convergence failures 
+and error test failure is 22 in CV_NORMAL case  and is 24 in CV_ONE_STEP 
+case, but the number of steps are 539 and 548 respectively. So how come 
+extra error test failuers lead to increase in number of so many step in 
+CV_ONE_STEP.
+</blockquote><br>If, as I suggested in my previous post, you did check the actual initial step used in the two cases (using CVodeGetActualInitStep) you have 
+probably noticed that it is larger in CV_ONE_STEP mode than in CV_NORMAL (because the tout value at the first step, when h0 is computed, is 
+larger). Can you confirm?<br>
+<br>
+By the way, another method to make sure you compare apples to apples, is to make only one call to CVode in CV_NORMAL mode with 
+tout=T1*pow(TMULT,NOUT-1).<br>
+<br>
+Now, a larger step size can lead not only to more failures (a couple more error test failures in your case), but also to the nonlinear 
+solver having more work to do, resulting in more iterations in the nonlinear solver (if you look carefully at your statistics, you'll see 
+that there were quite a few more nonlinear iterations in the CV_ONE_STEP mode) and, of course, in a larger-norm correction for the solution 
+vector. The selection of step size is based on this norm of the correction computed by the nonlinear solver (roughly speaking, the ratio of 
+new to old step sizes is inverse proportional to this norm). So, the larger corrections in CV_ONE_STEP mode will lead to CVODE reducing the 
+step size and therefore you'll see more steps taken to reach the output time. Note that this implies that you could see a difference in the 
+number of steps even if there are no additional error test or convergence failures!<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">        Also, the output time never decreases even when there is 
+error-test failure. Does every time step execution of  CV_ONE_STEP means 
+that only a successful solution output will be obtained even though 
+there  may be convergence failue errors which were internally performed.  
+</blockquote><br>Yes, CVode will return only after successfully taking a new step. Even in CV_ONE_STEP mode, if a failure (error test or convergence) occurs, 
+CVode rejects the step, adjusts, and tries to take a smaller step, all done internally until it succeeds or it decides it cannot take the 
+step (in which case it will return with some negative return value).<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">A related doubt is<br>
+    When I used CV_ONE_STEP, whatever I set the    
+CVodeSetInitStep(initstep) to, all the internal time steps start 
+executing at this interval. So when I have initstep =10e! -5, all my one 
+step calculations are at 10 -5 and when I have initstep = 10e-1, my 
+calculations are at 10e-1. However, when I try to solve the same problem 
+using CV_NORMAL, it shows all shorts of variations in internal step sizes.
+</blockquote><br>I'm not sure I understand what you are saying. Are you now comparing what CVodeGetActualInitStep gives you? What internal step sizes are you 
+talking about (for CV_NORMAL mode)? What function do you call to get those?<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">         Another noteworthy aspect is, for both the init step it shows 
+that there are no non-linear convergence failures or error-convergence 
+failures till I end the simulation.
+</blockquote><br>So you're saying that if you specify h0=1e-5 or h0=1e-1 there are no error test or convergence failures, but if you let CVODE select the 
+initial step, you see several error test failures, correct? Then, most likely, the step size that CVODE selects is too large (which would 
+mean that all error test failures you see occur most likely at the beginning of the simulation, until CVODE manages to reduce the step size 
+enough). Again, if you call CVodeGetActualInitStep, you could probably confirm this. If CVODE estimates too large an initial step this is 
+probably due to T1 being quite large.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Thanks for your time<br>
+ 
+Greg<br>
+ 
+</blockquote><pre style="margin: 0em;"><br>--Radu</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>*/Radu Serban &lt;serban1@llnl.gov&gt;/* wrote:</pre><br>
+<pre style="margin: 0em;">    Gregory Mason wrote:
+     &gt; Hi
+     &gt;
+     &gt; When i try to solve the same system of ODEs using CV_NORMAL and
+     &gt; CV_ONE_STEP method, I get different final stats. For example for
+    cvdx.c
+     &gt; (example problem)
+     &gt;
+     &gt; /* CV_NORMAL*/
+     &gt;
+     &gt; for (iout=1, tout=T1; iout &lt;= NOUT; iout++, tout *= TMULT) {
+     &gt; flag = CVode(cvode_mem, tout, y, &amp;t, NORMAL);
+     &gt; }
+     &gt;
+     &gt; Stats are:
+     &gt;
+     &gt; nst = 539 nfe = 759 nsetups = 106 nje = 10
+     &gt; nni = 756 ncfn = 0 netf = 22
+     &gt;
+     &gt; /* CV_ONE_STEP*/
+     &gt;
+     &gt; tout=T1*pow(TMULT,NOUT-1);
+     &gt; while(t
+     &gt; {
+     &gt; flag = CVode(cvode_mem, tout, y, &amp;t, ONE_STEP);
+     &gt; }
+     &gt;
+     &gt; Stats are:
+     &gt;
+     &gt; nst = 548 nfe = 774 nsetups = 106 nje = 11
+     &gt; nni = 773 ncfn = 0 netf = 24
+     &gt;
+     &gt;
+     &gt; How come number of internal steps in CV_NORMAL not equal to
+    number of
+     &gt; steps taken in CV_ONE_STEP. Other strat are also not same.
+     &gt;
+     &gt; THanks
+     &gt; Greg</pre><br>
+<pre style="margin: 0em;">    Hi Greg,</pre><br>
+<pre style="margin: 0em;">    The initial step size will be different in the two cases. unless
+    provided by the user, the initial step size is computed internally
+    based,
+    among other things, on tout. T! his calculation is done only at the
+    first step, so T1 is used in case 1 and T1*pow(TMULT,NOUT-1) is used in
+    case 2.
+    You can obtain the value of h0 using CVodeGetActualInitStep. You'll
+    see that h0 is larger for the second case (probably too large, so there
+    will be a couple more of error test failures)</pre><br>
+<pre style="margin: 0em;">    Try to set the same initial step size with CVodeSetInitStep for the
+    two cases and compare stats.</pre><br>
+<pre style="margin: 0em;">    --Radu</pre><br>
+<pre style="margin: 0em;"><br>__________________________________________________
+Do You Yahoo!?
+Tired of spam? Yahoo! Mail has the best spam protection around
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00344" href="msg00344.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+<ul><li><em>From:</em> Gregory Mason &lt;gregbrickmason@yahoo.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00341" href="msg00341.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+<ul><li><em>From:</em> Gregory Mason &lt;gregbrickmason@yahoo.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00341.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00343.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00341.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00344.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00342">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00342">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

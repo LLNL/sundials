@@ -1,14 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] DAI software -->
-<!--X-From-R13: Wna Bnexre <vnaNvnaocnexre.pb.hx> -->
-<!--X-Date: Fri, 27 Jan 2006 03:13:29 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D9FFD7.1020304@ianbparker.co.uk -->
-<!--X-Content-Type: text/plain -->
-<!--X-Reference: 43D9D1FF.2010607@mecha.uni&#45;stuttgart.de -->
+<!--X-Subject: [sundials&#45;users] Installing/checking sundials 2.1.1 -->
+<!--X-From-R13: Quevfgbf Tebhmnxvf <puevfgbf.sebhmnxvfNtznvy.pbz> -->
+<!--X-Date: Wed, 01 Mar 2006 03:19:52 &#45;0800 (PST) -->
+<!--X-Message-Id: 4ba776c00603010317l2821e22w39fcdc18ca460816@mail.gmail.com -->
+<!--X-Content-Type: multipart/alternative -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] DAI software</title>
+<title>[sundials-users] Installing/checking sundials 2.1.1</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00267.html">Date Prev</a>] [<a href="msg00269.html">Date Next</a>] [<a href="msg00267.html">Thread Prev</a>] [<a href="msg00269.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00268">Date Index</a></b>]
-[<b><a href="threads.html#00268">Thread Index</a></b>]
+[<a href="msg00324.html">Date Prev</a>] [<a href="msg00326.html">Date Next</a>] [<a href="msg00318.html">Thread Prev</a>] [<a href="msg00329.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00325">Date Index</a></b>]
+[<b><a href="threads.html#00325">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] DAI software</h1>
+<h1>[sundials-users] Installing/checking sundials 2.1.1</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Ian Parker &lt;<a href="mailto:ian%40ianbparker.co.uk">ian@ianbparker.co.uk</a>&gt;</td>
+Christos Frouzakis &lt;<a href="mailto:christos.frouzakis%40gmail.com">christos.frouzakis@gmail.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 27 Jan 2006 11:11:19 +0000</td>
+Wed, 01 Mar 2006 12:17:32 +0100</td>
 </tr>
 
 </table>
@@ -101,23 +100,11 @@ Fri, 27 Jan 2006 11:11:19 +0000</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Nils
-Try DASSL and its associated software. It is freely available from NETLIB.</pre><br>
-<pre style="margin: 0em;">Ian</pre><br>
-Nils Wagner wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi all,</pre><br>
-<pre style="margin: 0em;">I am looking for a software package which solves
-differential systems subjected to algebraic inequality constraints.</pre><br>
-<pre style="margin: 0em;">Any pointer would be appreciated.</pre><br>
-Thanks in advance<br>
-                                   Nils Wagner<br>
- <br>
-<br>
-<pre style="margin: 0em;">--
-This email has been verified as Virus free
-Virus Protection and more available at <a  href="http://www.plus.net">http://www.plus.net</a></pre><br>
-<br>  
-</blockquote><pre style="margin: 0em;"><br></pre><br>
+I am trying to install sundials on an Opteron cluster with Quadrics interconnect using the Portland group compilers. <br>As there are no Quadrics MPI wrappers for the PGI compiles, I had to explicitly define the paths for the include files and libraries. The configuration was done with the command
+<br><br>./configure CC=pgcc CFLAGS=-fast F77=pgf77 FFLAGS=-fast --with-mpicc=pgcc --with-mpif77=pgf77 --with-mpi-incdir=/usr/lib/mpi/include --with-mpi-libdir=/usr/lib/mpi/lib --with-mpi-libs=&quot;-lmpifarg -lmpi -lelan -g77libs&quot; --with-libs=-lg2c
+<br><br>The configuration script did not correctly set the mpi include and library paths, so the corresponding makefiles were corrected by hand. <br><br>The code compiled without any problems, warnings, or errors. <br><br>
+In order to compile the examples, the linker had to be changed from CC to F77, but then everything went smoothly.<br><br>Unfortunately, when I run the examples I get completely wrong results (in comparison to the corresponding *.out files). 
+<br>After a day of trying with compiler flags and modification of makefiles, I ran out of ideas ... Any suggestions?<br><br>Best, <br><br>-Christos Frouzakis<br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -127,38 +114,33 @@ Virus Protection and more available at <a  href="http://www.plus.net">http://www
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00269" href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Ian Parker &lt;ian@ianbparker.co.uk&gt;</li></ul></li>
+<li><strong><a name="00329" href="msg00329.html">Re: [sundials-users] Installing/checking sundials 2.1.1</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00267" href="msg00267.html">[sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Nils Wagner &lt;nwagner@mecha.uni-stuttgart.de&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00324.html">RE: [sundials-users] sundialsTB</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00326.html">[sundials-users] Re: root finding in IDA</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00318.html">[sundials-users] sundialsTB</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00329.html">Re: [sundials-users] Installing/checking sundials 2.1.1</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00268">
+<li><a href="maillist.html#00325">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00268">
+<li><a href="threads.html#00325">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

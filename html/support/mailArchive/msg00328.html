@@ -1,10 +1,10 @@
 <!-- MHonArc v2.6.10 -->
 <!--X-Subject: Re: [sundials&#45;users] value of t during internal steps of CVODE call -->
-<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Wed, 22 Feb 2006 09:23:38 &#45;0800 (PST) -->
-<!--X-Message-Id: 43FC9DA0.8040605@llnl.gov -->
+<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
+<!--X-Date: Wed, 01 Mar 2006 14:54:44 &#45;0800 (PST) -->
+<!--X-Message-Id: Pine.LNX.4.58.0603011451320.2926@tux64.llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 20060221232047.69837.qmail@web37001.mail.mud.yahoo.com -->
+<!--X-Reference: 20060227060328.37597.qmail@web37010.mail.mud.yahoo.com -->
 <!--X-Head-End-->
 <html>
 <head>
@@ -67,9 +67,9 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00312.html">Date Prev</a>] [<a href="msg00314.html">Date Next</a>] [<a href="msg00312.html">Thread Prev</a>] [<a href="msg00315.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00313">Date Index</a></b>]
-[<b><a href="threads.html#00313">Thread Index</a></b>]
+[<a href="msg00327.html">Date Prev</a>] [<a href="msg00329.html">Date Next</a>] [<a href="msg00315.html">Thread Prev</a>] [<a href="msg00308.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00328">Date Index</a></b>]
+[<b><a href="threads.html#00328">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 22 Feb 2006 09:21:36 -0800</td>
+Wed, 01 Mar 2006 14:52:39 -0800 (PST)</td>
 </tr>
 
 </table>
@@ -101,107 +101,141 @@ Wed, 22 Feb 2006 09:21:36 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-The proper way to implement this is, I think, by adding an additional variable (and equation) to 
-your ODE system that would compute the desired quadrature. Take a look at the CVODES user guide and 
-search for 'pure quadrature integration' to see how that can be done.<br>
-<br>
-What you have now is a very inaccurate approximation (moreover, the code snippet below does not seem 
-right: the right term in your &quot;if&quot; statement is something like flux(y(t))*(t-ti) with ti&gt;t)<br>
-<br>
-<pre style="margin: 0em;">--Radu</pre><br>
-<tt>raj duffy wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>My code looks something like<br>
- 
-for(i=0,tout=0;i&lt;N;i++,tout=tout+eps)<br>
-{<br>
-   ti=tout;       /* ti is global variable */<br>
-   CVODE(cvode_mem,tout,CV_Y,&amp;t,CV_NORMAL);<br>
-}<br>
- 
-f(t,...,..)<br>
-{<br>
- FluxCalculation();     /* Function of y's */<br>
- If(sourceVolume&gt;CalculatedFlux*(t-ti)); 
-/* So above I am calculating total volumetric flux starting from ti to 
-an internal time step t */<br>
- {<br>
-   CalculatedFlux=CalculatedFlux<br>
- }<br>
-else<br>
- {<br>
-  CalculatedFlux=sourceVolume;<br>
- }<br>
-}<br>
-This I am doing so as to constrain fluxes to reasonable value such that 
-y's dont' get negative<br>
- 
-Regards<br>
-Raj</tt><br>
-<br>
-<pre style="margin: 0em;">*/Alan Hindmarsh &lt;alanh@llnl.gov&gt;/* wrote:</pre><br>
-<pre style="margin: 0em;"><br>    Hello Raj,</pre><br>
-<pre style="margin: 0em;">    You wrote:
-     &gt; Basically I want to have some flux calculations and check that
-     &gt; source volume &gt; CalculatedFlux*(t-ti)</pre><br>
-<pre style="margin: 0em;">    I am a little concerned about this last comment. What is ti?</pre><br>
-<pre style="margin: 0em;">    If ti is a past time that you have set externally to the solver, then
-    that calculation is fine. You would have to have saved a volume value
-    at ti in order to get the appropriate volume for this check.</pre><br>
-<pre style="margin: 0em;">    But if by ti you mean the last internal t value that the solver
-    stepped to, this calculation is more complicated. You can get that ti
-    by way of CVodeGetCurrentTime and CVodeGetLastStep (ti = tcur-hlast).
-    But I don't see how you can calculate the appropriate source volume
-    that accumulated over the time interval (ti, t), a! t least in normal
-    output mode (itask=CV_NORMAL). If instead you are running in one-step
-    mode, and saving these values at every step, this would be easy.</pre><br>
-<pre style="margin: 0em;">    -Alan Hindmarsh</pre><br>
-<pre style="margin: 0em;"><br>__________________________________________________
-Do You Yahoo!?
-Tired of spam? Yahoo! Mail has the best spam protection around
-<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a></pre><br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
-<br>
+<pre>
+Hello Raj,
 
+Here are answers to your questions, although I can think of no reason
+why you would need to know any of this.
+
+a) The value of y you see inside the f() function is NEVER the actual
+solution.  It is either approximate value in a sequence of iterates,
+or an artificially incremented value for Jacobian evaluation.  The
+last one you see for a given successful step is the next-to-last
+iterate, not the last.
+
+b1) The actual accepted solution for a given successful step (like the
+one ending at t = 553.100979 in your case) is stored internally in an
+array called zn (which also carries much more history information).
+You do not have direct access to that location from outside CVODE.
+But you can certainly get that solution vector, as follows: If you are
+in one-step mode, it is the y value returned.  If you are in normal
+(overshoot and interpolate) mode, call CVodeGetCurrentTime and then
+call CVGetDky with order = 1 and t = tcur.
+
+b2) After a successful step, the actual solution value (in zn) is used
+to start the next step, but only after a q-th order prediction
+operation that uses all the available history information, where q
+is the current method order.  (If q = 1, the prediction has the form
+ypred = yold + h * ydotold, using date at the old t.)
+
+c) When a step fails (as did the one ending at t = 554.100979 in your
+case), and a new stepsize is chosen (it went from 1.0 to .25 in your
+case), a new prediction at the new forward time is done, again using
+all available history information.  The predicted value of y is the
+first one you see within f(); in your case that is y = 0.116425925.
+
+-Alan Hindmarsh
+
+
+On Sun, 26 Feb 2006, raj duffy wrote:
+
+&gt;<i> Hey There</i>
+&gt;<i>       Have few more question (perhaps the last set!)  regarding internal time </i>
+&gt;<i> steps and corresponding y values. Below is a  part of my simulation.</i>
+&gt;<i>   &quot;t = ...... y= ........&quot; are being printed from inside the function f()</i>
+&gt;<i></i>
+&gt;<i>   Tsteps    =    552</i>
+&gt;<i>   t=    553.100979    y    0.116404725</i>
+&gt;<i>   t=    553.100979    y    0.117354231</i>
+&gt;<i>   t=    553.100979    y    0.116216941</i>
+&gt;<i>   t=    553.100979    y    0.116663327   (passes convergence tests)</i>
+&gt;<i>   t=    553.100979    y    0.115648493   (passes convergence tests)</i>
+&gt;<i>   t=    553.100979    y    0.116903802   (passes convergence tests)</i>
+&gt;<i>   Tsteps    =    553</i>
+&gt;<i>   t=    554.100979    y    0.116422809</i>
+&gt;<i>   t=    554.100979    y    0.117275213</i>
+&gt;<i>   t=    554.100979    y    0.116433829</i>
+&gt;<i>   t=    554.100979    y    0.116221562</i>
+&gt;<i>   t=    554.100979    y    0.116451969</i>
+&gt;<i>   t=    554.100979    y    0.116722255</i>
+&gt;<i>   t=    554.100979    y    0.115780886</i>
+&gt;<i>   t=    554.100979    y    0.116865043</i>
+&gt;<i>   t=    554.100979    y    0.11687925</i>
+&gt;<i>   t=    554.100979    y    0.116576685</i>
+&gt;<i>   t=    554.100979    y    0.116454164</i>
+&gt;<i>   t=    554.100979    y    0.117410634</i>
+&gt;<i>   t=    554.100979    y    0.116358146</i>
+&gt;<i>   t=    554.100979    y    0.11617726</i>
+&gt;<i>   t=    554.100979    y     0.116245398   (Note: after this time step  </i>
+&gt;<i> decreases)</i>
+&gt;<i>   t=    553.350979    y    0.116425925</i>
+&gt;<i>   t=    553.350979    y    0.11734981</i>
+&gt;<i>   t=    553.350979    y    0.116311416</i>
+&gt;<i>   t=    553.600979    y    0.116656432</i>
+&gt;<i>   t=    553.600979    y    0.115716523</i>
+&gt;<i>   t=    553.600979    y    0.116684277</i>
+&gt;<i>   t=    553.987421    y    0.116500736</i>
+&gt;<i>   t=    553.987421    y    0.117433375</i>
+&gt;<i>   t=    553.987421    y    0.116445501</i>
+&gt;<i>   t=    554.373862    y    0.116841636</i>
+&gt;<i>   t=    554.373862    y    0.115856428</i>
+&gt;<i>   t=    554.373862    y    0.116979296</i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i></i>
+&gt;<i>   Now my questions are</i>
+&gt;<i></i>
+&gt;<i>   a) Is the y value printed for some t (as above) is also the actual  </i>
+&gt;<i> solution at that t. Or the printed y value above are basically the y  value </i>
+&gt;<i> at the second last iteration before convergence at time t.</i>
+&gt;<i></i>
+&gt;<i>   b) what is the actual solution at  t=    553.100979  given the fact that </i>
+&gt;<i> last 3 y values corresponding to this t pass  convergence tests and are </i>
+&gt;<i> perhaps just being used for jacobian  evaluation. Will this be the value used </i>
+&gt;<i> in first iteration for next  internal time step.</i>
+&gt;<i></i>
+&gt;<i>   c) What happens when the time step reverts from a larger value (say  </i>
+&gt;<i> t=554.100979) to a smaller one (t = 553.350979). Does the iteration for  t </i>
+&gt;<i> =553.350979 starts from the y value at t=     553.100979 (i.e. one time step </i>
+&gt;<i> earlier than the convergence failure  which happened at t=554.100979).</i>
+&gt;<i></i>
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00315" href="msg00315.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
-<ul><li><em>From:</em> raj duffy &lt;raj_duffy@yahoo.com&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00309" href="msg00309.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<li><strong><a name="00315" href="msg00315.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 <ul><li><em>From:</em> raj duffy &lt;raj_duffy@yahoo.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00312.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<strong><a href="msg00327.html">Re: [sundials-users] Changing algebraic variables during integration with IDA</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00314.html">[sundials-users] Changing algebraic variables during integration with IDA</a></strong>
+<strong><a href="msg00329.html">Re: [sundials-users] Installing/checking sundials 2.1.1</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00312.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<strong><a href="msg00315.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00315.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<strong><a href="msg00308.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00313">
+<li><a href="maillist.html#00328">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00313">
+<li><a href="threads.html#00328">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

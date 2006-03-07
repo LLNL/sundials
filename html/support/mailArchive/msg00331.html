@@ -1,14 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] DAI software -->
-<!--X-From-R13: Wna Bnexre <vnaNvnaocnexre.pb.hx> -->
-<!--X-Date: Fri, 27 Jan 2006 03:13:29 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D9FFD7.1020304@ianbparker.co.uk -->
+<!--X-Subject: RE: [sundials&#45;users] sundials&#45;users archives -->
+<!--X-From-R13: "Hbtry, Searfg T &#45; Snfgzna" <rsibtryNrnfgzna.pbz> -->
+<!--X-Date: Thu, 02 Mar 2006 11:15:21 &#45;0800 (PST) -->
+<!--X-Message-Id: 9719251EEFA00B4397C90260CE584496015D2D2C@nt2mail03.emn.com -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 43D9D1FF.2010607@mecha.uni&#45;stuttgart.de -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] DAI software</title>
+<title>RE: [sundials-users] sundials-users archives</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00267.html">Date Prev</a>] [<a href="msg00269.html">Date Next</a>] [<a href="msg00267.html">Thread Prev</a>] [<a href="msg00269.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00268">Date Index</a></b>]
-[<b><a href="threads.html#00268">Thread Index</a></b>]
+[<a href="msg00330.html">Date Prev</a>] [<a href="msg00332.html">Date Next</a>] [<a href="msg00330.html">Thread Prev</a>] [<a href="msg00332.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00331">Date Index</a></b>]
+[<b><a href="threads.html#00331">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] DAI software</h1>
+<h1>RE: [sundials-users] sundials-users archives</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Ian Parker &lt;<a href="mailto:ian%40ianbparker.co.uk">ian@ianbparker.co.uk</a>&gt;</td>
+&quot;Vogel, Ernest F - Eastman&quot; &lt;<a href="mailto:efvogel%40eastman.com">efvogel@eastman.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 27 Jan 2006 11:11:19 +0000</td>
+Thu, 02 Mar 2006 14:13:26 -0500</td>
 </tr>
 
 </table>
@@ -101,24 +100,81 @@ Fri, 27 Jan 2006 11:11:19 +0000</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Nils
-Try DASSL and its associated software. It is freely available from NETLIB.</pre><br>
-<pre style="margin: 0em;">Ian</pre><br>
-Nils Wagner wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi all,</pre><br>
-<pre style="margin: 0em;">I am looking for a software package which solves
-differential systems subjected to algebraic inequality constraints.</pre><br>
-<pre style="margin: 0em;">Any pointer would be appreciated.</pre><br>
-Thanks in advance<br>
-                                   Nils Wagner<br>
- <br>
-<br>
-<pre style="margin: 0em;">--
-This email has been verified as Virus free
-Virus Protection and more available at <a  href="http://www.plus.net">http://www.plus.net</a></pre><br>
-<br>  
-</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre>Alan,
 
+In your note below, you mention the sundials-users archives.  The link
+to archives that I found on the sundials website seems to have only
+entries from 2005, with the latest one dated Oct 19, 2005.
+
+Here's the link I used:
+<a  href="http://www.llnl.gov/casc/sundials/support/mailArchive/maillist.html">http://www.llnl.gov/casc/sundials/support/mailArchive/maillist.html</a>
+
+Is there another link to a more complete and more recent set of archives
+that I am overlooking somewhere?
+
+Thanks.
+
+Ernie Vogel
+
+
+-----Original Message-----
+From: Alan Hindmarsh [<a  href="mailto:alanh@llnl.gov">mailto:alanh@llnl.gov</a>] 
+Sent: Wednesday, March 01, 2006 5:08 PM
+To: Vogel, Ernest F - Eastman
+Cc: sundials-users@llnl.gov; alanh@llnl.gov
+Subject: Re: [sundials-users] Changing algebraic variables during
+integration with IDA
+
+
+Hello Ernie,
+
+If and when there is a major discontinuity in the model (whether in a
+differential variable or an algebraic variagle), it is best to stop
+there and restart.  Letting the ODE/DAE solver locate the jump and get
+through it on its own is likely to be less efficient.  If the point of
+the jump is defined implicitly, use the rootfinding feature (available
+in CVODE now, and in IDA in the next release) to locate it.  On the
+other hand, if the jump is small, each of these solvers is designed to
+handle it without extra assistance.
+
+When stopping and restarting after resetting a variable value, you
+should call IDAReInit.  Also call IDACalcIC only if your new values
+are not known to be consistent with the DAEs.
+
+In the sundials-users archives you will find various other discussions
+about handling discontinuities.
+
+-Alan Hindmarsh
+
+
+On Wed, 22 Feb 2006, Vogel, Ernest F - Eastman wrote:
+
+&gt;<i> For the set of DAEs that I am integrating with IDA, I want to make</i>
+&gt;<i> changes to variables that appear in the differential equations and</i>
+&gt;<i> variables that appear in the algebraic equations periodically over the</i>
+&gt;<i> course of the integration.  Changing variables that appear in</i>
+&gt;<i> differential equations do not appear to present a problem.  However,</i>
+&gt;<i> changing variables that appear in algebraic equations make the solver</i>
+&gt;<i> stop.  That result seems expected because the changes move the</i>
+algebraic
+&gt;<i> equations away from a solution.  To fix the problem, I called the</i>
+&gt;<i> function IDACalcIC to recalculate the algebraic solution each time I</i>
+&gt;<i> changed a variable in an algebraic equation.  That additional call</i>
+made
+&gt;<i> the total function evaluations go up by a factor of 4, compared to the</i>
+&gt;<i> case where I am not changing algebraic variables.  I'm wondering if</i>
+&gt;<i> there is a better way to deal with the case of changing variables in</i>
+&gt;<i> algebraic equations.  Calling IDAReInit seems like a possibility, but</i>
+&gt;<i> not as likely to work as IDACalcIC.</i>
+&gt;<i></i>
+&gt;<i> Thanks for your help!</i>
+&gt;<i> Ernie Vogel</i>
+
+[* Internet Mail *]
+
+
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -127,38 +183,33 @@ Virus Protection and more available at <a  href="http://www.plus.net">http://www
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00269" href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Ian Parker &lt;ian@ianbparker.co.uk&gt;</li></ul></li>
+<li><strong><a name="00332" href="msg00332.html">Re: [sundials-users] sundials-users archives</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00267" href="msg00267.html">[sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Nils Wagner &lt;nwagner@mecha.uni-stuttgart.de&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00330.html">RE: [sundials-users] Changing algebraic variables during integration   with IDA</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00332.html">Re: [sundials-users] sundials-users archives</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00330.html">RE: [sundials-users] Changing algebraic variables during integration   with IDA</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00332.html">Re: [sundials-users] sundials-users archives</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00268">
+<li><a href="maillist.html#00331">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00268">
+<li><a href="threads.html#00331">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

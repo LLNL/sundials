@@ -1,0 +1,286 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Sundials compilation error (problem with xlc/xlf?) -->
+<!--X-From-R13: Oneba Qbyyvre <pbyyvre6Nyyay.tbi> -->
+<!--X-Date: Fri, 03 Mar 2006 14:32:41 &#45;0800 (PST) -->
+<!--X-Message-Id: 4408C2CA.9030003@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 20060303092158.62887.qmail@web30808.mail.mud.yahoo.com -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00342.html">Date Prev</a>] [<a href="msg00344.html">Date Next</a>] [<a href="msg00339.html">Thread Prev</a>] [<a href="msg00347.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00343">Date Index</a></b>]
+[<b><a href="threads.html#00343">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Aaron Collier &lt;<a href="mailto:collier6%40llnl.gov">collier6@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Fri, 03 Mar 2006 14:27:22 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Dear CW,</pre><br>
+When using the IBM compilers you must make certain you are including the 
+appropriate header files, so try the following:<br>
+<br>
+<pre style="margin: 0em;">  $ configure CC=xlc F77=xlf \
+    CPPFLAGS=&quot;-I/usr/mill/include&quot; \
+    CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \
+    FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</pre><br>
+Note: According to the ANSI-C Standard, the constant DBL_MAX should be 
+defined in float.h.<br>
+<br>
+<pre style="margin: 0em;">--Aaron</pre><br>
+CW Yuan wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Aaron and Radu,</pre><br>
+<pre style="margin: 0em;">I've tried to use the configure options:
+CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto -qtune=auto&quot;
+\
+--with-fflags=&quot;-qarch=auto -qtune=auto&quot;</pre><br>
+<pre style="margin: 0em;">(I didn't specify mpicc and mpif77 b/c the configure
+script finds the correct mpi compiling scripts, which
+specifies xlc and xlf within them.)</pre><br>
+<pre style="margin: 0em;">However, we've encountered errors when compiling. I've
+attached the error log with this message (those errors
+were the reason why we tried to used gcc and g77 in
+the first place). The error log seems to indicate two
+types of error. 1) syntax error related to
+usr/include/bits/mathcalls.h and 2) undeclared
+identifier DBL_MAX when compiling nvector_parallel.c.
+Hopefully you can shed some light.</pre><br>
+<pre style="margin: 0em;">thanks so much,</pre><br>
+<pre style="margin: 0em;">-CW</pre><br>
+<pre style="margin: 0em;">--- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear CW,</pre><br>
+You should not use &quot;pwr3&quot; since your system is based<br>
+on the PowerPC 
+architecture and not on the POWER hardware platform.<br>
+ You could try the 
+following:<br>
+<br>
+<pre style="margin: 0em;">  $ CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto
+-qtune=auto&quot; \
+    --with-fflags=&quot;-qarch=auto -qtune=auto&quot; \
+    --with-mpicc=mpcc \
+    --with-mpif77=mpxlf</pre><br>
+<pre style="margin: 0em;">--Aaron</pre><br>
+Radu Serban wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">CW wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
+I'm trying in agony to compile the Sundials
+</blockquote></blockquote>package (especially the 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">parallel code) onto our cluster. Heres a
+</blockquote></blockquote>description of the hardware 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">from the &quot;uname -a&quot; command:</pre><br>
+Linux nano 2.6.15-1.1969_FC5 #1 SMP Sun Feb 19
+</blockquote></blockquote>05:14:37 EST 2006 ppc64 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">ppc64 ppc64 GNU/Linux</pre><br>
+I've attached the screen messages copied from the
+</blockquote></blockquote>terminal after I 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">perform
+/config CC=gcc F77=g77
+make
+make install
+make examples</pre><br>
+But I think I've pretty much nailed down the
+</blockquote></blockquote>source of the problem, 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">pending your approval. After I changed the
+</blockquote></blockquote>compilers to gcc and gcc, I 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">was able to compile the serial codes to get the
+</blockquote></blockquote>serial library files 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">and create the serial examples. But I couldn't do
+</blockquote></blockquote>that with the 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">parallel codes because the parallel codes are
+</blockquote></blockquote>compiled with the 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">&quot;mpicc&quot; and &quot;mpif77&quot; scripts, which use &quot;xlc&quot; and
+</blockquote></blockquote>&quot;xlf&quot; (IBM c/fortran 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">compilers, scripts attached) to compile the
+</blockquote></blockquote>codes. Hence I get error 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">messages in the when I &quot;make&quot; and &quot;make
+</blockquote></blockquote>examples&quot;.
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">I wonder if there's some incompatibility between
+</blockquote></blockquote>Sundials and xlc/xlf? 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">If my assessment of the problem is wrong, what
+</blockquote></blockquote>would be your take?
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Thank you very much.</pre><br>
+<pre style="margin: 0em;">Sincerely yours,</pre><br>
+CW
+</blockquote><pre style="margin: 0em;">CW,</pre><br>
+A quick Google search will show that there are
+</blockquote>several incompatibilities 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">between gcc and xlc, which is apparently what
+</blockquote>happens in your case (look 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">at the compilation errors for nvec_par in your
+</blockquote>Sundials_make.txt file. 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Most of the subsequent errors you see in compiling
+</blockquote>the parallel examples 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">come from the fact that nvec_par was not
+</blockquote>installed!).
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">That being said, there is no incompatibility
+</blockquote>between SUNDIALS and 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">xlc/xlf. SUNDIALS has been compiled on AIX without
+</blockquote>problems. however, we 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">do not mix gcc and xlc.</pre><br>
+Is there any reason why you do not use CC=xlc and
+</blockquote>F77=xlf? FYI, here's a 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">set of configure options that we used to build
+</blockquote>SUNDIALS with xlc/xlf. 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Try them out:</pre><br>
+CC=xlc F77=xlf --with-cflags=&quot;-qarch=pwr3
+</blockquote>-qtune=pwr3 -qmaxmem=8192&quot; 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">--with-fflags=&quot;-qarch=pwr3 -qtune=pwr3
+</blockquote>-qmaxmem=8192&quot; --with-mpicc=mpcc 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">--with-mpif77=mpxlf</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<br>
+</blockquote></blockquote><br>__________________________________________________<br>
+Do You Yahoo!?<br>
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> 
+</blockquote><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00347" href="msg00347.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> CW Yuan &lt;globalrave@yahoo.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00339" href="msg00339.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> CW Yuan &lt;globalrave@yahoo.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00342.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00344.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00339.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00347.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00343">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00343">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

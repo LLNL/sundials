@@ -1,14 +1,13 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] DAI software -->
-<!--X-From-R13: Wna Bnexre <vnaNvnaocnexre.pb.hx> -->
-<!--X-Date: Fri, 27 Jan 2006 03:13:29 &#45;0800 (PST) -->
-<!--X-Message-Id: 43D9FFD7.1020304@ianbparker.co.uk -->
-<!--X-Content-Type: text/plain -->
-<!--X-Reference: 43D9D1FF.2010607@mecha.uni&#45;stuttgart.de -->
+<!--X-Subject: [sundials&#45;users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)? -->
+<!--X-From-R13: Uertbel [nfba <tertoevpxznfbaNlnubb.pbz> -->
+<!--X-Date: Thu, 02 Mar 2006 16:23:43 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060303002157.32283.qmail@web37413.mail.mud.yahoo.com -->
+<!--X-Content-Type: multipart/alternative -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] DAI software</title>
+<title>[sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +66,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00267.html">Date Prev</a>] [<a href="msg00269.html">Date Next</a>] [<a href="msg00267.html">Thread Prev</a>] [<a href="msg00269.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00268">Date Index</a></b>]
-[<b><a href="threads.html#00268">Thread Index</a></b>]
+[<a href="msg00334.html">Date Prev</a>] [<a href="msg00336.html">Date Next</a>] [<a href="msg00334.html">Thread Prev</a>] [<a href="msg00336.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00335">Date Index</a></b>]
+[<b><a href="threads.html#00335">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] DAI software</h1>
+<h1>[sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +83,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Ian Parker &lt;<a href="mailto:ian%40ianbparker.co.uk">ian@ianbparker.co.uk</a>&gt;</td>
+Gregory Mason &lt;<a href="mailto:gregbrickmason%40yahoo.com">gregbrickmason@yahoo.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Fri, 27 Jan 2006 11:11:19 +0000</td>
+Thu, 02 Mar 2006 16:21:57 -0800 (PST)</td>
 </tr>
 
 </table>
@@ -101,23 +100,10 @@ Fri, 27 Jan 2006 11:11:19 +0000</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre style="margin: 0em;">Hi Nils
-Try DASSL and its associated software. It is freely available from NETLIB.</pre><br>
-<pre style="margin: 0em;">Ian</pre><br>
-Nils Wagner wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi all,</pre><br>
-<pre style="margin: 0em;">I am looking for a software package which solves
-differential systems subjected to algebraic inequality constraints.</pre><br>
-<pre style="margin: 0em;">Any pointer would be appreciated.</pre><br>
-Thanks in advance<br>
-                                   Nils Wagner<br>
- <br>
-<br>
-<pre style="margin: 0em;">--
-This email has been verified as Virus free
-Virus Protection and more available at <a  href="http://www.plus.net">http://www.plus.net</a></pre><br>
-<br>  
-</blockquote><pre style="margin: 0em;"><br></pre><br>
+<div>Hi</div>  <div>&nbsp;</div>  <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; When i try to solve the same system of ODEs using CV_NORMAL and CV_ONE_STEP method, I get different final stats. For example for cvdx.c (example problem)</div>  <div>&nbsp;</div>  <div>/* CV_NORMAL*/</div>  <div>&nbsp;</div>  <div>for (iout=1, tout=T1; iout &lt;= NOUT; iout++, tout *= TMULT) {<BR>&nbsp;&nbsp;&nbsp; flag = CVode(cvode_mem, tout, y, &amp;t, NORMAL);<BR>&nbsp; }</div>  <div>&nbsp;</div>  <div>Stats are:</div>  <div>&nbsp;</div>  <div>nst = 539&nbsp;&nbsp;&nbsp; nfe&nbsp; = 759&nbsp;&nbsp;&nbsp; nsetups = 106&nbsp;&nbsp;&nbsp; nje = 10<BR>nni = 756&nbsp;&nbsp;&nbsp; ncfn = 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; netf = 22</div>  <div>&nbsp;</div>  <div>/* CV_ONE_STEP*/</div>  <div>&nbsp;</div>  <div>tout=T1*pow(TMULT,NOUT-1);</div>  <div>&nbsp; while(t&lt;tout)<BR>&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp; flag = CVode(cvode_mem, tout, y, &amp;t, ONE_STEP);<BR>&nbsp;&nbsp;&nbsp; }</div> 
+ <div>&nbsp;</div>  <div>Stats are: </div>  <div><BR>nst = 548&nbsp;&nbsp;&nbsp; nfe&nbsp; = 774&nbsp;&nbsp;&nbsp; nsetups = 106&nbsp;&nbsp;&nbsp; nje = 11<BR>nni = 773&nbsp;&nbsp;&nbsp; ncfn = 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; netf = 24</div>  <div>&nbsp;</div>  <div>&nbsp;</div>  <div>How come number of internal steps in CV_NORMAL not equal to number of steps taken in CV_ONE_STEP. Other strat are also not same.</div>  <div>&nbsp;</div>  <div>THanks</div>  <div>Greg</div>  <div>&nbsp;</div>  <div>&nbsp;</div><p>
+		<hr size=1>Yahoo! Mail<br>
+Bring photos to life! <a href="http://pa.yahoo.com/*http://us.rd.yahoo.com/evt=39174/*http://photomail.mail.yahoo.com">New PhotoMail </a> makes sharing a breeze. 
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -127,38 +113,33 @@ Virus Protection and more available at <a  href="http://www.plus.net">http://www
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00269" href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Ian Parker &lt;ian@ianbparker.co.uk&gt;</li></ul></li>
+<li><strong><a name="00336" href="msg00336.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
-<ul><li><strong>References</strong>:
-<ul>
-<li><strong><a name="00267" href="msg00267.html">[sundials-users] DAI software</a></strong>
-<ul><li><em>From:</em> Nils Wagner &lt;nwagner@mecha.uni-stuttgart.de&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00334.html">[sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00336.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00267.html">[sundials-users] DAI software</a></strong>
+<strong><a href="msg00334.html">[sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00269.html">Re: [sundials-users] DAI software</a></strong>
+<strong><a href="msg00336.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00268">
+<li><a href="maillist.html#00335">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00268">
+<li><a href="threads.html#00335">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

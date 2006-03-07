@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] Changing algebraic variables during integration with IDA -->
-<!--X-From-R13: "Hbtry, Searfg T &#45; Snfgzna" <rsibtryNrnfgzna.pbz> -->
-<!--X-Date: Wed, 22 Feb 2006 13:27:58 &#45;0800 (PST) -->
-<!--X-Message-Id: 9719251EEFA00B4397C90260CE584496015567D4@nt2mail03.emn.com -->
+<!--X-Subject: Re: [sundials&#45;users] Changing algebraic variables during integration with IDA -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Thu, 02 Mar 2006 12:36:17 &#45;0800 (PST) -->
+<!--X-Message-Id: 44075689.805@llnl.gov -->
 <!--X-Content-Type: text/plain -->
+<!--X-Reference: 9719251EEFA00B4397C90260CE584496015D2D26@nt2mail03.emn.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] Changing algebraic variables during integration with IDA</title>
+<title>Re: [sundials-users] Changing algebraic variables during integration with IDA</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00313.html">Date Prev</a>] [<a href="msg00315.html">Date Next</a>] [<a href="msg00302.html">Thread Prev</a>] [<a href="msg00327.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00314">Date Index</a></b>]
-[<b><a href="threads.html#00314">Thread Index</a></b>]
+[<a href="msg00332.html">Date Prev</a>] [<a href="msg00334.html">Date Next</a>] [<a href="msg00330.html">Thread Prev</a>] [<a href="msg00340.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00333">Date Index</a></b>]
+[<b><a href="threads.html#00333">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] Changing algebraic variables during integration with IDA</h1>
+<h1>Re: [sundials-users] Changing algebraic variables during integration with IDA</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-&quot;Vogel, Ernest F - Eastman&quot; &lt;<a href="mailto:efvogel%40eastman.com">efvogel@eastman.com</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 22 Feb 2006 16:23:14 -0500</td>
+Thu, 02 Mar 2006 12:33:13 -0800</td>
 </tr>
 
 </table>
@@ -100,64 +101,126 @@ Wed, 22 Feb 2006 16:23:14 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>For the set of DAEs that I am integrating with IDA, I want to make
+<pre style="margin: 0em;">Ernie,</pre><br>
+Before attempting to answer any of your questions, please revisit the example you give below. If A, B, and C are specified, this is not a 
+DAE. What would the algebraic variable be? If A, B, and C are constants, this set of 3 equations has a solution only if A=B and then y1 and 
+y2 are constants: y2=A, y1 = (1+C)*A/C.<br>
+<br>
+Assuming you do have an honest DAE (we also need to figure out its index, so a better simplified example is needed for that too), are A, B, 
+C constants that the controller would change at each action step?<br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+Vogel, Ernest F - Eastman wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Alan,</pre><br>
+<pre style="margin: 0em;">Thank you very much for your reply.</pre><br>
+<pre style="margin: 0em;">I'd like to offer a simple example for clarification.</pre><br>
+<pre style="margin: 0em;">Two differential equations:
+yp1 = A - yy2
+yp2 = yy2 - B</pre><br>
+<pre style="margin: 0em;">One algebraic equation:
+yy2 = C * ( yy1 - yy2 )</pre><br>
+<pre style="margin: 0em;">(yp is the derivative of yy.)</pre><br>
+<pre style="margin: 0em;">I am simulating a continuous process with discrete feedback control.
+The integrator stops at the end of each control action step (I am using
+IDASetStopTime so it doesn't overshoot).  In some cases, a controller
+could change A or B.  In those cases, IDA seemed to handle changes to A
+and B without trouble.  In other cases, a controller could change C.  As
+I expected, changes to C caused problems which I over came by calling
+IDACalcIC whenever I changed C.</pre><br>
+<pre style="margin: 0em;">I was not sure from your reply exactly when I should need to restart the
+solver.  It seems that changes to C should for sure require a restart,
+but what about A and B?</pre><br>
+<pre style="margin: 0em;">Your reply also brings up a couple more questions:
+Would you say that in my case, changes to A, B, and C are explicit?
+Would an implicit change likely occur at an unknown time?
+What is the difference between the rootfinding feature and IDACalcIC?</pre><br>
+<pre style="margin: 0em;">Once again, thanks very much for your help.</pre><br>
+<pre style="margin: 0em;">Ernie Vogel</pre><br>
+<br>-----Original Message-----<br>
+From: Alan Hindmarsh [<a  href="mailto:alanh@llnl.gov">mailto:alanh@llnl.gov</a>] 
+Sent: Wednesday, March 01, 2006 5:08 PM<br>
+To: Vogel, Ernest F - Eastman<br>
+Cc: sundials-users@llnl.gov; alanh@llnl.gov<br>
+Subject: Re: [sundials-users] Changing algebraic variables during<br>
+integration with IDA<br>
+<br>
+<pre style="margin: 0em;"><br>Hello Ernie,</pre><br>
+<pre style="margin: 0em;">If and when there is a major discontinuity in the model (whether in a
+differential variable or an algebraic variagle), it is best to stop
+there and restart.  Letting the ODE/DAE solver locate the jump and get
+through it on its own is likely to be less efficient.  If the point of
+the jump is defined implicitly, use the rootfinding feature (available
+in CVODE now, and in IDA in the next release) to locate it.  On the
+other hand, if the jump is small, each of these solvers is designed to
+handle it without extra assistance.</pre><br>
+<pre style="margin: 0em;">When stopping and restarting after resetting a variable value, you
+should call IDAReInit.  Also call IDACalcIC only if your new values
+are not known to be consistent with the DAEs.</pre><br>
+<pre style="margin: 0em;">In the sundials-users archives you will find various other discussions
+about handling discontinuities.</pre><br>
+<pre style="margin: 0em;">-Alan Hindmarsh</pre><br>
+<pre style="margin: 0em;"><br>On Wed, 22 Feb 2006, Vogel, Ernest F - Eastman wrote:</pre><br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">For the set of DAEs that I am integrating with IDA, I want to make
 changes to variables that appear in the differential equations and
 variables that appear in the algebraic equations periodically over the
 course of the integration.  Changing variables that appear in
 differential equations do not appear to present a problem.  However,
 changing variables that appear in algebraic equations make the solver
-stop.  That result seems expected because the changes move the algebraic
-equations away from a solution.  To fix the problem, I called the
+stop.  That result seems expected because the changes move the
+</pre></blockquote><pre style="margin: 0em;"><br>algebraic</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">equations away from a solution.  To fix the problem, I called the
 function IDACalcIC to recalculate the algebraic solution each time I
-changed a variable in an algebraic equation.  That additional call made
-the total function evaluations go up by a factor of 4, compared to the
+changed a variable in an algebraic equation.  That additional call
+</pre></blockquote><pre style="margin: 0em;"><br>made</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">the total function evaluations go up by a factor of 4, compared to the
 case where I am not changing algebraic variables.  I'm wondering if
 there is a better way to deal with the case of changing variables in
 algebraic equations.  Calling IDAReInit seems like a possibility, but
-not as likely to work as IDACalcIC.
-
-Thanks for your help!
-
+not as likely to work as IDACalcIC.</pre><br>
+<pre style="margin: 0em;">Thanks for your help!
 Ernie Vogel
+</pre></blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">[* Internet Mail *]</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<br>
 
-
-
-</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00327" href="msg00327.html">Re: [sundials-users] Changing algebraic variables during integration with IDA</a></strong>
-<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00330" href="msg00330.html">RE: [sundials-users] Changing algebraic variables during integration   with IDA</a></strong>
+<ul><li><em>From:</em> &quot;Vogel, Ernest F - Eastman&quot; &lt;efvogel@eastman.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00313.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<strong><a href="msg00332.html">Re: [sundials-users] sundials-users archives</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00315.html">Re: [sundials-users] value of t during internal steps of CVODE call</a></strong>
+<strong><a href="msg00334.html">[sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00302.html">[sundials-users] ODE</a></strong>
+<strong><a href="msg00330.html">RE: [sundials-users] Changing algebraic variables during integration   with IDA</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00327.html">Re: [sundials-users] Changing algebraic variables during integration with IDA</a></strong>
+<strong><a href="msg00340.html">RE: [sundials-users] Changing algebraic variables during integration   with IDA</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00314">
+<li><a href="maillist.html#00333">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00314">
+<li><a href="threads.html#00333">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

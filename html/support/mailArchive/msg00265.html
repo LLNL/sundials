@@ -101,29 +101,29 @@ Thu, 26 Jan 2006 10:04:21 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Radu Serban wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Wow,</pre><br>
-<tt>I didn't realize this was such a big issue for so many of of our users...<br>
+Radu Serban wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Wow,</pre><br>
+I didn't realize this was such a big issue for so many of of our users...<br>
 Critical mass has certainly been reached :-) to consider a different 
 solution for error message handling (and to warrant a new thread on the 
-mailing list).</tt><br>
+mailing list).<br>
 <br>
-<tt>The solution that seems most feasible (and in line with the SUNDIALS 
+The solution that seems most feasible (and in line with the SUNDIALS 
 user interface) is that suggested by Andreas, namely allowing for an 
 optional user-supplied error handling function (with a default probably 
-defaulting to the current error message handling).</tt><br>
+defaulting to the current error message handling).<br>
 <br>
-<tt>Without having really thought it through, I see a couple of issues (I'll 
-use CVODE as an example):</tt><br>
+Without having really thought it through, I see a couple of issues (I'll 
+use CVODE as an example):<br>
 <br>
-<tt>1) This would still leave out the &quot;memory NULL&quot; error. In each function 
+1) This would still leave out the &quot;memory NULL&quot; error. In each function 
 that receives as first argument the solver (or preconditioner) memory 
 pointer an error is returned if this pointer is NULL (by the way, this 
 is one of the reasons why it's always good practice to initialize such 
 pointers to NULL before calling a function like CVodeCreate). But then 
-we couldn't access the error handling function stored in cvodemem...</tt><br>
+we couldn't access the error handling function stored in cvodemem...<br>
 <br>
-<tt>2) Theoretically, each module (e.g. linear solver) should have its own 
+2) Theoretically, each module (e.g. linear solver) should have its own 
 error handling function (since we allow for users to define new such 
 modules). But that is probably overkill, so we need to think of a 
 mechanism that would allow using the same function.<br>
@@ -136,11 +136,11 @@ the main CVODE solver).<br>
 So maybe the function type for such an error handling function should 
 also contain an argument (const char*) identifying the module?<br>
    void error_handler(int error_code, const char *module, const char 
-*msg, void *data);</tt><br>
+*msg, void *data);<br>
 <br>
-<tt>Please feel free to post comments and/or suggestions. There may be other 
+Please feel free to post comments and/or suggestions. There may be other 
 issues I have overlooked. I'll talk it over with the rest of our team 
-and think of a prototype that I would post here for comments.</tt><br>
+and think of a prototype that I would post here for comments.<br>
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
@@ -178,18 +178,18 @@ and think of a prototype that I would post here for comments.</tt><br>
  */</pre><br>
 <pre style="margin: 0em;">int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data);</pre><br>
 <pre style="margin: 0em;"><br>---------------------------------------</pre><br>
-<tt>Error messages reporting a NULL (main solver or linear solver) memory pointer are automatically 
+Error messages reporting a NULL (main solver or linear solver) memory pointer are automatically 
 directed to stderr. As Alan Garny requested, this will not happen if the compiler directive 
 NO_STDERR_OUTPUT is defined. However, I will NOT provide a mechanism to set this directive through 
 the configure script. I expect that most users that will use the default build system will run their 
-applications from a console.</tt><br>
+applications from a console.<br>
 <br>
 <pre style="margin: 0em;"><br>The default error handler prints messages such as:</pre><br>
 <pre style="margin: 0em;">[CVODE ERROR]  CVodeMalloc
   y0 = NULL illegal.</pre><br>
-<tt>[CVODE WARNING]  CVode<br>
+[CVODE WARNING]  CVode<br>
   Internal t = 6.69184e-06 and h = 3.69212e-06 are such that t + h = t on the next step. The solver 
-will continue anyway.</tt><br>
+will continue anyway.<br>
 <br>
 <pre style="margin: 0em;">-- Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>

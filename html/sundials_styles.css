@@ -331,6 +331,7 @@ div.fragment{
 
   text-align: justify;
   width: 650px;
+
 }
 
 div.box{
@@ -353,14 +354,21 @@ div.box ul {
   width: 600px;
 }
 
+div.fragment pre {
+  font-family: monospace;
+}
+
 .comment {
-	color: #228B22;
+  font-family: monospace;
+  color: #228B22;
 }
 .string {
-	color: #B20000;
+  font-family: monospace;
+  color: #B20000;
 }
 .keyword { 
-	color: #0000FF;
+  font-family: monospace;
+  color: #0000FF;
 }
 
 .keywordtype { color: #604020; }
@@ -370,8 +378,9 @@ div.box ul {
 .charliteral { color: #008080; }
 
 a.code {
-	font-weight: normal; 
-	color: #A020F0;
+  font-family: monospace;
+  font-weight: normal; 
+  color: #A020F0;
 }
 
 a.code:hover {
