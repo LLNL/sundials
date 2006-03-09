@@ -3,7 +3,7 @@
 %===================================================================================
 
 {\cvode} is part of a software family called {\sundials}: 
-SUite of Nonlinear and DIfferential/ALgebraic equation Solvers \cite{HBGLSSW:05}.  
+SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}.  
 This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these
 with sensitivity analysis capabilities.
 %
@@ -13,31 +13,31 @@ with sensitivity analysis capabilities.
 
 \index{CVODE@{\cvode}!relationship to {\vode}, {\vodpk}|(}
 {\F} solvers for ODE initial value problems are widespread and heavily used. 
-Two solvers that have been written at LLNL in the past are {\vode} \cite{BBH:89} 
-and {\vodpk} \cite{Byr:92}.
+Two solvers that have been written at LLNL in the past are {\vode}~\cite{BBH:89} 
+and {\vodpk}~\cite{Byr:92}.
 {\vode}\index{VODE@{\vode}} is a general purpose solver that includes methods for
 stiff and nonstiff systems, and in the stiff case uses direct methods (full or
 banded) for the solution of the linear systems that arise at each implicit
 step. Externally, {\vode} is very similar to the well known solver
-{\lsode}\index{LSODE@{\lsode}} \cite{RaHi:94}. {\vodpk}\index{VODPK@{\vodpk}}
+{\lsode}\index{LSODE@{\lsode}}~\cite{RaHi:94}. {\vodpk}\index{VODPK@{\vodpk}}
 is a variant of {\vode} that uses a preconditioned Krylov (iterative)
 method, namely GMRES, for the solution of the linear systems. {\vodpk}
 is a powerful tool for large stiff systems because it combines
 established methods for stiff integration, nonlinear iteration, and
 Krylov (linear) iteration with a problem-specific treatment of the
 dominant source of stiffness, in the form of the user-supplied
-preconditioner matrix \cite{BrHi:89}.  The capabilities of both
+preconditioner matrix~\cite{BrHi:89}.  The capabilities of both
 {\vode} and {\vodpk} have been combined in the {\C}-language package
-{\cvode}\index{CVODE@{\cvode}} \cite{CoHi:96}.
+{\cvode}\index{CVODE@{\cvode}}~\cite{CoHi:96}.
 
 At present, {\cvode} contains three Krylov methods that can be used
 in conjuction with Newton iteration:
-the GMRES (Generalized Minimal RESidual) \cite{SaSc:86},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized) \cite{Van:92}, and
-TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative methods
-\cite{Fre:93}.  As Krylov methods, these require almost no matrix storage
-for solving the Newton equations as compared to direct methods.
-However, the algorithms allow for a user-supplied preconditioner
+the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and
+TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative 
+methods~\cite{Fre:93}.  As Krylov methods, these require almost no 
+matrix storage for solving the Newton equations as compared to direct 
+methods. However, the algorithms allow for a user-supplied preconditioner
 matrix, and for most problems preconditioning is essential for an
 efficient solution.
 For very large stiff ODE systems, the Krylov methods are preferable over
@@ -57,7 +57,7 @@ integration algorithm, allowing for easy modification and expansion of
 the linear solver array.  A second key feature is a separate module
 devoted to vector operations; this facilitated the extension to
 multiprosessor environments with minimal impacts on the rest of the
-solver, resulting in {\pvode}\index{PVODE@{\pvode}} \cite{ByHi:99},
+solver, resulting in {\pvode}\index{PVODE@{\pvode}}~\cite{ByHi:99},
 the parallel variant of {\cvode}.  \index{CVODE@{\cvode}!relationship
 to {\vode}, {\vodpk}|)}
 
@@ -160,7 +160,7 @@ accommodate both styles.
 There are different possible levels of usage of {\cvode}. The most
 casual user, with a small IVP problem only, can get by with reading
 \S\ref{ss:ivp_sol}, then Chapter \ref{s:simulation} through
-\S\ref{sss:cvode} only, and looking at examples in \cite{cvode2.4.0_ex}.
+\S\ref{sss:cvode} only, and looking at examples in~\cite{cvode2.4.0_ex}.
 In a different direction, a more expert user with an IVP problem may want
 to (a) use a package preconditioner (\S\ref{ss:preconds}), (b) supply
 his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
@@ -217,6 +217,6 @@ for that entry.
 
 \paragraph{Acknowledgments.}
 We wish to acknowledge the contributions to previous versions of the
-{\cvode} and {\pvode} codes and user guides of Scott D. Cohen \cite{CoHi:94}
-and George D. Byrne \cite{ByHi:98}.
+{\cvode} and {\pvode} codes and user guides of Scott D. Cohen~\cite{CoHi:94}
+and George D. Byrne~\cite{ByHi:98}.
 

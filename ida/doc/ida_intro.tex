@@ -3,30 +3,30 @@
 %===================================================================================
 
 {\ida} is part of a software family called {\sundials}: 
-SUite of Nonlinear and DIfferential/ALgebraic equation Solvers \cite{HBGLSSW:05}. 
+SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}. 
 This suite consists of {\cvode}, {\kinsol}, and {\ida}, and variants of these
 with sensitivity analysis capabilities.
 
-IDA is a general purpose solver for the initial value problem for
+{\ida} is a general purpose solver for the initial value problem for
 systems of differential-algebraic equations (DAEs).  The name IDA
-stands for Implicit Differential-Algebraic solver.  IDA is based on
-DASPK \cite{BHP:94,BHP:98}, but is written in ANSI-standard C
+stands for Implicit Differential-Algebraic solver.  {\ida} is based on
+{\daspk}~\cite{BHP:94,BHP:98}, but is written in ANSI-standard C
 rather than {\F}77.  Its most notable feature is that, in the
 solution of the underlying nonlinear system at each time step, it offers
 a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
 (iterative) methods.  Thus {\ida} shares significant modules previously
 written within CASC at LLNL to support the ordinary differential
-equation (ODE) solvers {\cvode} \cite{cvode2.4.0_ug,CoHi:96} and {\pvode}
-\cite{ByHi:98,ByHi:99}, and also the nonlinear system solver {\kinsol}
-\cite{kinsol2.4.0_ug}.
+equation (ODE) solvers {\cvode}~\cite{cvode2.4.0_ug,CoHi:96} and 
+{\pvode}~\cite{ByHi:98,ByHi:99}, and also the nonlinear system solver 
+{\kinsol}~\cite{kinsol2.4.0_ug}.
 
 The Newton/Krylov methods in {\ida} are:
-the GMRES (Generalized Minimal RESidual) \cite{SaSc:86},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized) \cite{Van:92}, and
-TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative methods
-\cite{Fre:93}.  As Krylov methods, these require almost no matrix storage
-for solving the Newton equations as compared to direct methods.
-However, the algorithms allow for a user-supplied preconditioner
+the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and
+TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative 
+methods~\cite{Fre:93}.  As Krylov methods, these require almost no 
+matrix storage for solving the Newton equations as compared to direct
+methods. However, the algorithms allow for a user-supplied preconditioner
 matrix, and for most problems preconditioning is essential for an
 efficient solution.
 

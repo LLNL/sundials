@@ -2,8 +2,8 @@
 \chapter{Introduction}\label{s:intro}
 %===================================================================================
 
-{\cvodes} \cite{SeHi:05} is part of a software family called {\sundials}: 
-SUite of Nonlinear and DIfferential/ALgebraic equation Solvers \cite{HBGLSSW:05}.  
+{\cvodes}~\cite{SeHi:05} is part of a software family called {\sundials}: 
+SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}.  
 This suite consists of {\cvode}, {\kinsol} and {\ida}, and variants of these
 with sensitivity analysis capabilities.
 %
@@ -20,27 +20,27 @@ capabilities, using either the forward or the adjoint methods.
 \index{CVODES@{\cvodes}!relationship to {\vode}, {\vodpk}|(} {\F}
 solvers for ODE initial value problems are widespread and heavily
 used.  Two solvers that were previously written at LLNL are {\vode}
-\cite{BBH:89} and {\vodpk} \cite{Byr:92}.  {\vode}\index{VODE@{\vode}}
+\cite{BBH:89} and {\vodpk}~\cite{Byr:92}.  {\vode}\index{VODE@{\vode}}
 is a general-purpose solver that includes methods for both stiff and
 nonstiff systems, and in the stiff case uses direct methods (full or
 banded) for the solution of the linear systems that arise at each
 implicit step. Externally, {\vode} is very similar to the well known
-solver {\lsode}\index{LSODE@{\lsode}} \cite{RaHi:94}.
+solver {\lsode}\index{LSODE@{\lsode}}~\cite{RaHi:94}.
 {\vodpk}\index{VODPK@{\vodpk}} is a variant of {\vode} that uses a
 preconditioned Krylov (iterative) method, namely GMRES, for the
 solution of the linear systems. {\vodpk} is a powerful tool for large
 stiff systems because it combines established methods for stiff
 integration, nonlinear iteration, and Krylov (linear) iteration with a
 problem-specific treatment of the dominant source of stiffness, in the
-form of the user-supplied preconditioner matrix \cite{BrHi:89}.  The
+form of the user-supplied preconditioner matrix~\cite{BrHi:89}.  The
 capabilities of both {\vode} and {\vodpk} were combined in the
-{\C}-language package {\cvode}\index{CVODE@{\cvode}} \cite{CoHi:94,
+{\C}-language package {\cvode}\index{CVODE@{\cvode}}~\cite{CoHi:94,
 CoHi:96}.
 
 At present, {\cvodes} contains three Krylov methods that can be used
 in conjuction with Newton iteration:
-the GMRES (Generalized Minimal RESidual) \cite{SaSc:86},
-Bi-CGStab (Bi-Conjugate Gradient Stabilized) \cite{Van:92}, and
+the GMRES (Generalized Minimal RESidual)~\cite{SaSc:86},
+Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and
 TFQMR (Transpose-Free Quasi-Minimal Residual) linear iterative methods
 \cite{Fre:93}.  As Krylov methods, these require almost no matrix storage
 for solving the Newton equations as compared to direct methods.
@@ -201,10 +201,10 @@ instructions, while others will refer mostly to the examples.
 There are different possible levels of usage of {\cvodes}. The most casual
 user, with an IVP problem only, can get by with reading \S\ref{ss:ivp_sol}, 
 then \S\ref{s:simulation} through \S\ref{sss:cvode} only, and looking at examples 
-in \cite{cvodes2.3.0_ex}.
+in~\cite{cvodes2.3.0_ex}.
 In addition, to solve a forward sensitivity problem the user should read 
 \S\ref{ss:fwd_sensi}, followed by \S\ref{s:forward} through 
-\S\ref{ss:sensi_get} only, and look at examples in \cite{cvodes2.3.0_ex}.
+\S\ref{ss:sensi_get} only, and look at examples in~\cite{cvodes2.3.0_ex}.
 
 In a different direction, a more advanced user with an IVP problem may want to 
 (a) use a package preconditioner (\S\ref{ss:preconds}), 
@@ -223,7 +223,7 @@ A user with an adjoint sensitivity problem needs to understand the IVP
 solution approach at the desired level and also go through 
 \S\ref{ss:adj_sensi} for a short mathematical description of the adjoint
 approach, \S\ref{s:adjoint} for the usage of the adjoint module in {\cvodes},
-and the examples in \cite{cvodes2.3.0_ex}.
+and the examples in~\cite{cvodes2.3.0_ex}.
 
 The structure of this document is as follows:
 \begin{itemize}
