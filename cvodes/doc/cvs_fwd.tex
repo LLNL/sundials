@@ -390,21 +390,18 @@ to \id{CVodeSensMalloc}), the user must call
 To activate and deactivate forward sensitivity calculations for successive {\cvodes} runs,
 without having to allocate and deallocate memory, the following function is provided:
 %%
-\ucfunction{CVodeSensToggle}
+\ucfunction{CVodeSensToggleOff}
 {
-  CVodeSensToggle(cvode\_mem, sensi);
+  CVodeSensToggleOff(cvode\_mem);
 }
 {
-  The function \ID{CVodeSensToggle} activates or deactivates forward sensitivity 
+  The function \ID{CVodeSensToggleOff} deactivates forward sensitivity 
   calculations. It does {\em not} deallocate sensitivity-related memory.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{CVodeMalloc}.
-  \item[sensi] (\id{booleantype})
-    flag indicating activation (\id{sensi = TRUE}) or deactivation
-    (\id{sensi = FALSE}) of sensitivity computations.
   \end{args}
 }
 {
@@ -414,13 +411,11 @@ without having to allocate and deallocate memory, the following function is prov
     \id{CVodeGetSens} was successful.
   \item[\Id{CV\_MEM\_NULL}] 
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CV\_NO\_SENS}] 
-    Forward sensitivity analysis was not initialized.
   \end{args}
 }
 {
-  It is allowed to set \id{sensi = TRUE} only if \id{CVodeSensMalloc} has been
-  previously called to alocate sensitivity-related memory.
+  Since sensitivity-related memory is not deallocated, sensitivities can
+  be reactivated at a later time (using \id{CVodeSensReInit}).
 }
 
 %--------------------------
@@ -661,9 +656,8 @@ remainder of this section.
 \begin{tabular}{|l|l|l|}\hline
 {\bf Optional input} & {\bf Routine name} & {\bf Default} \\
 \hline
-Sensitivity right-hand side routine & \id{CVodeSetSensRhsFn} & internal DQ \\
-Sensitivity right-hand side routine & \id{CVodeSetSensRhs1Fn} & internal DQ \\
-Data for sensitivity right-hand side routine & \id{CVodeSetSensFdata} & \id{NULL} \\
+Sensitivity right-hand side fct. and data & \id{CVodeSetSensRhsFn} & internal DQ \\
+Sensitivity right-hand side fct. and data & \id{CVodeSetSensRhs1Fn} & internal DQ \\
 Sensitivity scaling factors & \id{CVodeSetSensPbar} & \id{NULL} \\
 Type of DQ approximation & \id{CVodeSetSensRho} & 0.0 \\
 Error control strategy & \id{CVodeSetSensErrCon} & \id{FALSE} \\
@@ -676,11 +670,13 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 %%
 \ucfunction{CVodeSetSensRhsFn}
 {
-  flag = CVodeSetSensRhsFn(cvode\_mem, fS);
+  flag = CVodeSetSensRhsFn(cvode\_mem, fS, data);
 }
 {
   The function \ID{CVodeSetSensRhsFn} specifies the user-supplied {\C} function
-  used to evaluate the sensitivity right-hand sides (for all parameters at once).
+  used to evaluate the sensitivity right-hand sides (for all parameters at once)
+  and he user data block for use by the user-supplied sensitivity right-hand 
+  side function.
 }
 {
   \begin{args}[cvode\_mem]
@@ -688,6 +684,8 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     pointer to the {\cvodes} memory block.
   \item[fS] (\id{CVSensRhsFn})
     user-defined sensitivity right-hand side function.
+  \item[fS\_data] (\id{void *})
+    pointer to the user data.
   \end{args}
 }
 {
@@ -707,15 +705,22 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 
   Passing \id{fS}$=$\id{NULL} indicates using the default internal difference 
   quotient sensitivity right-hand side routine.
+
+  The pointer \id{fS\_data} can be the same as the pointer \id{f\_data},
+  specified in a prior call to \id{CVodeSetFdata} (see \S\ref{sss:optin_main})
+  and passed to the user's right-hand side function \id{f}.
 }
+%%
 %%
 \ucfunction{CVodeSetSensRhs1Fn}
 {
-  flag = CVodeSetSensRhs1Fn(cvode\_mem, fS);
+  flag = CVodeSetSensRhs1Fn(cvode\_mem, fS, data);
 }
 {
   The function \ID{CVodeSetSensRhs1Fn} specifies the user-supplied {\C} function
-  used to evaluate the sensitivity right-hand sides (one parameter at a time).
+  used to evaluate the sensitivity right-hand sides (one parameter at a time)
+  and he user data block for use by the user-supplied sensitivity right-hand 
+  side function.
 }
 {
   \begin{args}[cvode\_mem]
@@ -723,6 +728,8 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     pointer to the {\cvodes} memory block.
   \item[fS] (\id{CVSensRhs1Fn})
     user-defined sensitivity right-hand side function.
+  \item[fS\_data] (\id{void *})
+    pointer to the user data.
   \end{args}
 }
 {
@@ -742,38 +749,6 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 
   Passing \id{fS}$=$\id{NULL} indicates using the default internal difference 
   quotient sensitivity right-hand side routine.
-}
-%%
-%%
-\ucfunction{CVodeSetSensFdata}
-{
-  flag = CVodeSetSensFdata(cvode\_mem, fS\_data);
-}
-{
-  The function \ID{CVodeSetSensFdata} specifies the user data block 
-  for use by the user-supplied sensitivity right-hand side function and attaches 
-  it to the main {\cvodes} memory block.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[fS\_data] (\id{void *})
-    pointer to the user data.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \end{args}
-}
-{
-  If \id{fS\_data} is not specified, a \id{NULL} pointer is
-  passed to the user-supplied sensitivity right-hand side function.
 
   The pointer \id{fS\_data} can be the same as the pointer \id{f\_data},
   specified in a prior call to \id{CVodeSetFdata} (see \S\ref{sss:optin_main})
@@ -1461,7 +1436,7 @@ of type \ID{CVSensRhsFn} defined by:
     the sensitivity right-hand side vectors.
   \item[f\_data]
     is a pointer to user data - the same as the \Id{fS\_data}      
-    parameter passed to \id{CVodeSetSensFdata}.
+    parameter passed to \id{CVodeSetSensRhsFn}.
   \item[tmp1]
   \item[tmp2]
     are \id{N\_Vector}s which can be used as temporary storage.
@@ -1534,7 +1509,7 @@ The type \id{CVSensRhs1Fn} is defined by
     the \id{iS}-th sensitivity right-hand side vector.
   \item[f\_data]
     is a pointer to user data - the same as the \Id{fS\_data}      
-    parameter passed to \id{CVodeSetSensFdata}.
+    parameter passed to \id{CVodeSetSensRhs1Fn}.
   \item[tmp1]
   \item[tmp2]
     are \id{N\_Vector}s which can be used as temporary storage.
