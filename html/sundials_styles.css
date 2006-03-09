@@ -37,12 +37,9 @@ h1{
         display: inline;
 	font-weight: bold;
 	letter-spacing: 2px;
-	font-size: 12px;
-	margin: 0px 0px 0px 0px;
-	padding: 5px;
-        padding-bottom: 0px;
+	font-size: 14px;
 
-margin: 0px 0px 0px 0px;
+        margin: 0px 0px 0px 0px;
 	padding: 2px 5px 0px 5px;
         border: 0px;
         border-bottom: 1px solid #dad9c9;
@@ -53,23 +50,26 @@ h2{
         display: inline;
 	font-weight: bold;
 	font-size: 12px;
-	letter-spacing: 2px;
+	letter-spacing: 1px;
 	margin: 0px;
         margin-top: 10px;
 	padding: 0px;
-        border-bottom: 1px  solid #aaaaaa;
+        border-bottom: 1px  solid #dad9c9;
 }
 
 h3{
+        display: inline;
 	letter-spacing: 1px;
-	font-size: 11px;
+	font-size: 12px;
 	font-weight: normal;
 	margin: 0px;
 	margin-bottom: 3px;
 	padding: 0px;
+        border-bottom: 1px  solid #dad9c9;
 }
 
 h4{
+        display: inline;
 	letter-spacing: 1px;
 	font-size: 9px;
 	font-weight: bold;
