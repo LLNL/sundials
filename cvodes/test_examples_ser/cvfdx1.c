@@ -1,11 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-01-24 00:51:20 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-09 20:29:26 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Modification of the cvfdx to illustrate switching on and off
+ * Modification of the cvsfwddendx to illustrate switching on and off
  * sensitivity computations.
  * -----------------------------------------------------------------
  */
@@ -24,26 +24,18 @@
 #define IJth(A,i,j) DENSE_ELEM(A,i-1,j-1)
 
 /* Problem Constants */
-#define NEQ   3
-#define Y1    RCONST(1.0)
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1e-6)
-#define ATOL1 RCONST(1e-8)
-#define ATOL2 RCONST(1e-14)
-#define ATOL3 RCONST(1e-6)
-#define T0    RCONST(0.0)
-#define T1    RCONST(0.4)
-#define TMULT RCONST(10.0)
-#define NOUT  12
-
-#define NP    3
-#define NS    3
+#define MXSTEPS 2000
+#define T0      RCONST(0.0)
+#define T1      RCONST(4.0e10)
 
 #define ZERO  RCONST(0.0)
 
 /* Type : UserData */
 typedef struct {
+  booleantype sensi;
+  booleantype errconS;
+  booleantype fsDQ;
+  int meth;
   realtype p[3];
 } *UserData;
 
@@ -57,8 +49,15 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
               void *fS_data, N_Vector tmp1, N_Vector tmp2);
 
 /* Prototypes of private functions */
-int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, int sensi);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi);
+static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data);
+static void PrintHeader(UserData data);
+static void PrintFinalStats(void *cvode_mem, UserData data);
+
+/* Readibility replacements */
+#define sensi   data->sensi
+#define errconS data->errconS
+#define fsDQ    data->fsDQ
+#define meth    data->meth
 
 /*
  *--------------------------------------------------------------------
@@ -68,137 +67,166 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi);
 
 int main(int argc, char *argv[])
 {
-  void *cvode_mem;
   UserData data;
+  void *cvode_mem;
+
+  long int Neq;
   realtype reltol;
   N_Vector y0, y, abstol;
-  int flag;
 
-  realtype pbar[NP];
+  int Ns;
+  realtype *pbar;
   int is, *plist; 
   N_Vector *yS0, *yS;
-  booleantype sensi;
 
-  /* User data structure */
+  int flag;
+
+  /* Allocate and initialize parameters in user data structure */
   data = (UserData) malloc(sizeof *data);
   data->p[0] = RCONST(0.04);
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
 
-  /* Initial conditions */
-  y0 = N_VNew_Serial(NEQ);
-  Ith(y0,1) = Y1;
-  Ith(y0,2) = Y2;
-  Ith(y0,3) = Y3;
+  /* Problem size */
+  Neq = 3;
 
-  /* Solution vector */
-  y = N_VNew_Serial(NEQ);
-  
-  /* Tolerances: scalar relative tolerance, vector absolute tolerance */
-  reltol = RTOL;               
-  abstol = N_VNew_Serial(NEQ);
-  Ith(abstol,1) = ATOL1;       
-  Ith(abstol,2) = ATOL2;
-  Ith(abstol,3) = ATOL3;
+  /* Allocate vectors */
+  y0 = N_VNew_Serial(Neq);      /* initial conditions */
+  y = N_VNew_Serial(Neq);       /* solution vector */
+  abstol = N_VNew_Serial(Neq);  /* absolute tolerances */
+
+  /* Set initial conditions */
+  Ith(y0,1) = RCONST(1.0);
+  Ith(y0,2) = RCONST(0.0);
+  Ith(y0,3) = RCONST(0.0);
+
+  /* Set integration tolerances */
+  reltol = RCONST(1e-6);
+  Ith(abstol,1) = RCONST(1e-8);
+  Ith(abstol,2) = RCONST(1e-14);
+  Ith(abstol,3) = RCONST(1e-6);
 
   /* Create, set, and allocate CVODES object*/
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   flag = CVodeSetFdata(cvode_mem, data);
+  flag = CVodeSetMaxNumSteps(cvode_mem, MXSTEPS);
   flag = CVodeMalloc(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
 
   /* Attach linear solver */
-  flag = CVDense(cvode_mem, NEQ);
+  flag = CVDense(cvode_mem, Neq);
   flag = CVDenseSetJacFn(cvode_mem, Jac, data);
 
   /* Sensitivity-related settings */
 
+  sensi = TRUE;           /* sensitivity ON */
+  meth = CV_SIMULTANEOUS; /* simultaneous corrector method */
+  errconS = TRUE;         /* full error control */
+  fsDQ = FALSE;           /* user-provided sensitvity RHS */
+
+  Ns = 3;
+
+  pbar = (realtype *) malloc(Ns * sizeof(realtype));
   pbar[0] = data->p[0];
   pbar[1] = data->p[1];
   pbar[2] = data->p[2];
-  plist = (int *) malloc(NS * sizeof(int));
-  for (is=0; is<NS; is++) plist[is] = is;
 
-  yS0 = N_VCloneVectorArray_Serial(NS, y);
-  for (is=0;is<NS;is++) N_VConst(ZERO, yS0[is]);
+  plist = (int *) malloc(Ns * sizeof(int));
+  for (is=0; is<Ns; is++) plist[is] = is;
 
-  yS = N_VCloneVectorArray_Serial(NS, y);
+  yS0 = N_VCloneVectorArray_Serial(Ns, y);
+  for (is=0;is<Ns;is++) N_VConst(ZERO, yS0[is]);
+
+  yS = N_VCloneVectorArray_Serial(Ns, y);
   
-  flag = CVodeSensMalloc(cvode_mem, NS, CV_SIMULTANEOUS, yS0);
+  flag = CVodeSensMalloc(cvode_mem, Ns, meth, yS0);
 
-  flag = CVodeSetSensRhs1Fn(cvode_mem, fS);
-  flag = CVodeSetSensErrCon(cvode_mem, TRUE);
-  flag = CVodeSetSensFdata(cvode_mem, data);
   flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
 
-  /* Deactivate sensitivity and run CVODE */
+  /*
+    Sensitivities are enabled
+    Set full error control
+    Set user-provided sensitivity RHS
+    Run CVODES
+  */
 
-  sensi = FALSE;
-  flag = CVodeSensToggle(cvode_mem, sensi);
+  flag = CVodeSetSensErrCon(cvode_mem, errconS);
+  flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
 
-  printf("Sensitivity: NO\n");
-  flag = runCVode(cvode_mem, y, yS, sensi);
+  flag = runCVode(cvode_mem, y, yS, data);
 
-  /* Reactivate sensitivity and run CVODE with sensitivity */
-
-  sensi = TRUE;
-  flag = CVodeSensToggle(cvode_mem, sensi);
-  
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-
-  printf("Sensitivity: YES (SIMULTANEOUS + FULL ERROR CONTROL)\n");
-  flag = runCVode(cvode_mem, y, yS, sensi);
-
-  /* Deactivate sensitivity and run CVODE twice with different params. */
-
-  sensi = FALSE;
-  flag = CVodeSensToggle(cvode_mem, sensi);
+  /*
+    Change parameters
+    Toggle sensitivities OFF
+    Reinitialize and run CVODES
+  */
 
   data->p[0] = RCONST(0.05);
   data->p[1] = RCONST(2.0e4);
   data->p[2] = RCONST(2.9e7);
+
+  sensi = FALSE;
+
+  flag = CVodeSensToggleOff(cvode_mem);
   flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
+  flag = runCVode(cvode_mem, y, yS, data);
 
-  printf("Sensitivity: NO\n");
-  flag = runCVode(cvode_mem, y, yS, sensi);
-
+  /*
+    Change parameters
+    Switch to internal DQ sensitivity RHS function
+    Toggle sensitivities ON (reinitialize sensitivities)
+    Reinitialize and run CVODES
+  */
+  
   data->p[0] = RCONST(0.06);
   data->p[1] = RCONST(3.0e4);
   data->p[2] = RCONST(2.8e7);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-
-  printf("Sensitivity: NO\n");
-  flag = runCVode(cvode_mem, y, yS, sensi);
-
-  /* Reactivate sensitivity and run CVODE again using a different method 
-     NOTE: CVodeSensToggle is not needed, as CVodeSensReInit does its job */
 
   sensi = TRUE;
+  fsDQ = TRUE;
 
+  flag = CVodeSetSensRhs1Fn(cvode_mem, NULL, NULL);
+  flag = CVodeSensReInit(cvode_mem, meth, yS0);
   flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-  flag = CVodeSensReInit(cvode_mem, CV_STAGGERED, yS0);
-  flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
-  flag = CVodeSetSensErrCon(cvode_mem, FALSE);
+  flag = runCVode(cvode_mem, y, yS, data);
 
-  printf("Sensitivity: YES (STAGGERED + PARTIAL ERROR CONTROL)\n");
-  flag = runCVode(cvode_mem, y, yS, sensi);
+  /*
+    Switch to partial error control
+    Switch back to user-provided sensitivity RHS
+    Toggle sensitivities ON (reinitialize sensitivities)
+    Change method to staggered
+    Reinitialize and run CVODES
+  */
 
-  /* Free sensitivity-related memory and do one more CVODE run 
-     NOTE: CVodeSensToggle is not needed, as CVodeSensFree does its job */
+  sensi = TRUE;
+  errconS = FALSE;
+  fsDQ = FALSE;
+  meth = CV_STAGGERED;
+
+  flag = CVodeSetSensErrCon(cvode_mem, errconS);
+  flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
+  flag = CVodeSensReInit(cvode_mem, meth, yS0);
+  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
+  flag = runCVode(cvode_mem, y, yS, data);
+
+  /*
+    Free sensitivity-related memory
+    (CVodeSensToggle is not needed, as CVodeSensFree toggles sensitivities OFF)
+    Reinitialize and run CVODES
+  */
   
-  sensi = FALSE;  
+  sensi = FALSE;
+
   CVodeSensFree(cvode_mem);
   flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-
-  printf("Sensitivity: NO\n");
-  flag = runCVode(cvode_mem, y, yS, sensi);
+  flag = runCVode(cvode_mem, y, yS, data);
   
   /* Free memory */
 
   N_VDestroy_Serial(y0);                 /* Free y0 vector */
   N_VDestroy_Serial(y);                  /* Free y vector */
   N_VDestroy_Serial(abstol);             /* Free abstol vector */
-  N_VDestroyVectorArray_Serial(yS0, NS); /* Free yS0 vector */
-  N_VDestroyVectorArray_Serial(yS, NS);  /* Free yS vector */
+  N_VDestroyVectorArray_Serial(yS0, Ns); /* Free yS0 vector */
+  N_VDestroyVectorArray_Serial(yS, Ns);  /* Free yS vector */
   free(plist);                           /* Free plist */
 
   free(data);                            /* Free user data */
@@ -208,28 +236,21 @@ int main(int argc, char *argv[])
 
 }
 
-int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, int sensi)
+static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data)
 {
+  realtype t;
+  int flag;
 
-  realtype t, tout;
-  int iout, flag;
+  /* Print header for current run */
+  PrintHeader(data);
 
-  /* In loop over output points, call CVode, print results, test for error */
-  
-  for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
-
-    flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-
-    if (sensi) {
-      flag = CVodeGetSens(cvode_mem, t, yS);
-    }
-
-  }
+  /* Call CVode in CV_NORMAL mode */  
+  flag = CVode(cvode_mem, T1, y, &t, CV_NORMAL);
 
   /* Print final statistics */
-  PrintFinalStats(cvode_mem, sensi);
+  PrintFinalStats(cvode_mem, data);
 
-  printf("\n\n");
+  printf("\n");
 
   return(flag);
 
@@ -338,11 +359,40 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
  *--------------------------------------------------------------------
  */
 
+static void PrintHeader(UserData data)
+{
+  /* Print sensitivity control flags */
+  printf("Sensitivity: ");
+  if (sensi) {
+    printf("YES (");
+    switch (meth) {
+    case CV_SIMULTANEOUS:
+      printf("SIMULTANEOUS + ");
+      break;
+    case CV_STAGGERED:
+      printf("STAGGERED + ");
+      break;
+    case CV_STAGGERED1:
+      printf("STAGGERED-1 + ");
+      break;
+    }
+    if (errconS) printf("FULL ERROR CONTROL + ");
+    else         printf("PARTIAL ERROR CONTROL + ");
+    if (fsDQ)    printf("DQ sensitivity RHS)\n");
+    else         printf("user-provided sensitivity RHS)\n");
+  } else {
+    printf("NO\n");
+  }
+
+  /* Print current problem parameters */
+  printf("Parameters: [%8.4e  %8.4e  %8.4e]\n",data->p[0], data->p[1], data->p[2]);
+}
+
 /* 
  * Print some final statistics from the CVODES memory.
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi)
+static void PrintFinalStats(void *cvode_mem, UserData data)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;
@@ -369,17 +419,20 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   flag = CVDenseGetNumJacEvals(cvode_mem, &njeD);
   flag = CVDenseGetNumRhsEvals(cvode_mem, &nfeD);
 
-  printf("nst     = %5ld\n", nst);
-  printf("nfe     = %5ld\n",   nfe);
-  printf("netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
-  printf("nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
+  printf("Run statistics:\n");
 
-  printf("njeD    = %5ld    nfeD     = %5ld\n", njeD, nfeD);
+  printf("   nst     = %5ld\n", nst);
+  printf("   nfe     = %5ld\n",   nfe);
+  printf("   netf    = %5ld    nsetups  = %5ld\n", netf, nsetups);
+  printf("   nni     = %5ld    ncfn     = %5ld\n", nni, ncfn);
+
+  printf("   njeD    = %5ld    nfeD     = %5ld\n", njeD, nfeD);
 
   if(sensi) {
-    printf("nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
-    printf("netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
-    printf("nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
+    printf("   -----------------------------------\n");
+    printf("   nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
+    printf("   netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
+    printf("   nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
   }
 
 

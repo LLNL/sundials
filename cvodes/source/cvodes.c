@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.79 $
- * $Date: 2006-03-09 19:23:34 $
+ * $Revision: 1.80 $
+ * $Date: 2006-03-09 20:29:24 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -637,7 +637,6 @@ void *CVodeCreate(int lmm, int iter)
 
   /* Set default values for sensi. optional inputs */
   cv_mem->cv_sensi        = FALSE;
-  cv_mem->cv_user_fS_data = NULL;
   cv_mem->cv_fS_data      = (void *)cv_mem;
   cv_mem->cv_fS           = CVSensRhsDQ;
   cv_mem->cv_fS1          = CVSensRhs1DQ;
@@ -1553,7 +1552,6 @@ int CVodeSensToggleOff(void *cvode_mem)
 
 #define fS             (cv_mem->cv_fS)
 #define fS1            (cv_mem->cv_fS1)
-#define user_fS_data   (cv_mem->cv_user_fS_data)
 #define fS_data        (cv_mem->cv_fS_data)
 #define rhomax         (cv_mem->cv_rhomax)
 #define pbar           (cv_mem->cv_pbar)
@@ -1754,27 +1752,28 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   /* Sensitivity-specific tests */
 
-  if (sensi) {
+  if (sensi && fSDQ) {
 
-    if (fSDQ) { /* internal DQ function for sensitivity RHS */
+    /* If using internal DQ function for sensitivity RHS */
 
-      /* Make sure we have the right 'user data' */
-      fS_data = cvode_mem;
+    /* Set internal DQ functions */
+    fS  = CVSensRhsDQ;
+    fS1 = CVSensRhs1DQ;
+
+    /* Make sure we have the right 'user data' */
+    fS_data = cvode_mem;
     
-      /* Test if we have the problem parameters */
-      if(p == NULL) {
-        CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NULL_P);
-        return(CV_ILL_INPUT);
-      }
-    
-    } else {    /* user-provided function for sensitivity RHS */
-
-      /* Use data provided by user */
-      fS_data = user_fS_data;
-
+    /* Test if we have the problem parameters */
+    if(p == NULL) {
+      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NULL_P);
+      return(CV_ILL_INPUT);
     }
 
+    /* Set ifS to CV_ONESENS so that any method can be used */
+    ifS = CV_ONESENS;
+    
   }
+
 
   /* Begin first call block */
   

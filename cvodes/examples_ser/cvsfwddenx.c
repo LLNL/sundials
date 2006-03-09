@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:39 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-09 20:29:21 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -193,12 +193,10 @@ int main(int argc, char *argv[])
     flag = CVodeSensMalloc(cvode_mem, NS, sensi_meth, yS);
     if(check_flag(&flag, "CVodeSensMalloc", 1)) return(1);
 
-    flag = CVodeSetSensRhs1Fn(cvode_mem, fS);
+    flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
     if (check_flag(&flag, "CVodeSetSensRhs1Fn", 1)) return(1);
     flag = CVodeSetSensErrCon(cvode_mem, err_con);
     if (check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
-    flag = CVodeSetSensFdata(cvode_mem, data);
-    if (check_flag(&flag, "CVodeSetSensFdata", 1)) return(1);
     flag = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
     if (check_flag(&flag, "CVodeSetSensParams", 1)) return(1);
 

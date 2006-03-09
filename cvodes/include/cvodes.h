@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.54 $
- * $Date: 2006-03-09 19:23:32 $
+ * $Revision: 1.55 $
+ * $Date: 2006-03-09 20:29:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -740,16 +740,20 @@ extern "C" {
    * Function                   |  Optional input / [ default value ]
    * -----------------------------------------------------------------
    *                            |
-   * CVodeSetSensRhsFn          | sensitivity right hand side function.
+   * CVodeSetSensRhsFn          | sensitivity right hand side function
+   *                            | and user data pointer.
    *                            | This function must compute right hand
    *                            | sides for all sensitivity equations.
    *                            | [CVODES difference quotient approx.]
+   *                            | [internal]
    *                            |
-   * CVodeSetSensRhs1Fn         | the sensitivity right hand side.
+   * CVodeSetSensRhs1Fn         | the sensitivity right hand side
+   *                            | and user data pointer.
    *                            | This function must compute right hand
    *                            | sides for one sensitivity equation at a
    *                            | time.
    *                            | [CVODES difference quotient approx.]
+   *                            | [internal]
    *                            |
    * CVodeSetSensRho            | controls the selection of finite
    *                            | difference schemes used in evaluating
@@ -767,11 +771,6 @@ extern "C" {
    *                            | [p=NULL]
    *                            | [plist=NULL]
    *                            | [pbar=NULL]
-   *                            |
-   * CVodeSetSensFdata          | a pointer to user data that will be
-   *                            | passed to the user's fS function every
-   *                            | time fS is called.
-   *                            | [NULL]
    *                            |
    * CVodeSetSensErrCon         | are sensitivity variables considered in
    *                            | the error control?
@@ -798,9 +797,8 @@ extern "C" {
    * -----------------------------------------------------------------
    */
 
-  int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn fS);
-  int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS);
-  int CVodeSetSensFdata(void *cvode_mem, void *fS_data);
+  int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn f, void *fS_dataS);
+  int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS, void *fS_data);
   int CVodeSetSensRho(void *cvode_mem, realtype rho);
   int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS);
   int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);

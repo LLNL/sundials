@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2006-03-09 19:23:35 $
+ * $Revision: 1.11 $
+ * $Date: 2006-03-09 20:29:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -715,7 +715,7 @@ int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ,
  */
 
 
-int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn fS)
+int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn fS, void *fS_data)
 {
   CVodeMem cv_mem;
 
@@ -726,14 +726,12 @@ int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn fS)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_ifS  = CV_ALLSENS;
-
   if (fS != NULL) {
+    cv_mem->cv_ifS  = CV_ALLSENS;
     cv_mem->cv_fS      = fS;
+    cv_mem->cv_fS_data = fS_data;
     cv_mem->cv_fSDQ    = FALSE;
   } else {
-    cv_mem->cv_fS      = CVSensRhsDQ;
-    cv_mem->cv_fS_data = cvode_mem;
     cv_mem->cv_fSDQ    = TRUE;
   }
 
@@ -742,7 +740,7 @@ int CVodeSetSensRhsFn(void *cvode_mem, CVSensRhsFn fS)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS1)
+int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS1, void *fS_data)
 {
   CVodeMem cv_mem;
 
@@ -753,34 +751,14 @@ int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS1)
 
   cv_mem = (CVodeMem) cvode_mem;
   
-  cv_mem->cv_ifS  = CV_ONESENS;
-
   if(fS1 != NULL) {
+    cv_mem->cv_ifS  = CV_ONESENS;
     cv_mem->cv_fS1     = fS1;
+    cv_mem->cv_fS_data = fS_data;
     cv_mem->cv_fSDQ    = FALSE;
   } else {
-    cv_mem->cv_fS1     = CVSensRhs1DQ;
     cv_mem->cv_fSDQ    = TRUE;
   }
-
-  return(CV_SUCCESS);
-}
-
-/*-----------------------------------------------------------------*/
-
-int CVodeSetSensFdata(void *cvode_mem, void *fS_data)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    CVProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetSensFdata", MSGCV_NO_MEM);    
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* Store pointer provided by user */
-  cv_mem->cv_user_fS_data = fS_data;
 
   return(CV_SUCCESS);
 }
