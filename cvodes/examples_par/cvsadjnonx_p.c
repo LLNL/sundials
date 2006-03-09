@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:35 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-09 00:21:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -300,7 +300,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
   my_pe = data->my_pe;
   
   /* If this process is inactive, return now */
-  if (my_pe == npes) return;
+  if (my_pe == npes) return(0);
 
   /* Extract problem constants from data */
   hordc = data->hdcoef;
