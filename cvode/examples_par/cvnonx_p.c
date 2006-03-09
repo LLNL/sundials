@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:48:30 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-09 00:10:32 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -331,7 +331,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     dudata[i-1] = hdiff + hadv;
   }
 
-  return(-1);
+  return(0);
 }
 
 /* Check function return value...
