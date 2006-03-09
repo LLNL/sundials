@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] mass balance and negative values -->
-<!--X-From-R13: EVGO@UQOW ZW <fhy19Ncfh.rqh> -->
-<!--X-Date: Sun, 05 Mar 2006 18:29:54 &#45;0800 (PST) -->
-<!--X-Message-Id: 200603060222.VAA19895@webmail3.cac.psu.edu -->
-<!--X-Content-Type: text/plain -->
+<!--X-Subject: Re: [sundials&#45;users] mass balance and negative values -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 08 Mar 2006 13:35:44 &#45;0800 (PST) -->
+<!--X-Message-Id: 440F4D82.8060002@llnl.gov -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Reference: 200603060222.VAA19895@webmail3.cac.psu.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] mass balance and negative values</title>
+<title>Re: [sundials-users] mass balance and negative values</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00345.html">Date Prev</a>] [<a href="msg00347.html">Date Next</a>] [<a href="msg00335.html">Thread Prev</a>] [<a href="msg00356.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00346">Date Index</a></b>]
-[<b><a href="threads.html#00346">Thread Index</a></b>]
+[<a href="msg00356.html">Date Prev</a>] [<a href="msg00358.html">Date Next</a>] [<a href="msg00356.html">Thread Prev</a>] [<a href="msg00358.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00357">Date Index</a></b>]
+[<b><a href="threads.html#00357">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] mass balance and negative values</h1>
+<h1>Re: [sundials-users] mass balance and negative values</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-SHUANGCAI LI &lt;<a href="mailto:sul19%40psu.edu">sul19@psu.edu</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Sun, 05 Mar 2006 21:22:19 -0500 (EST)</td>
+Wed, 08 Mar 2006 13:32:50 -0800</td>
 </tr>
 
 </table>
@@ -100,10 +101,19 @@ Sun, 05 Mar 2006 21:22:19 -0500 (EST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Hello All
 
-        I am solving a sytem of stiff ODEs y'=f(y,t) where y values denote 
-water depth
+
+
+<font face="Helvetica, Arial, sans-serif">Hi Shuangcai,<br>
+</font><font face="Helvetica, Arial, sans-serif"><br>
+see below...<br>
+<br>
+</font>SHUANGCAI LI wrote:
+<blockquote cite=""
+ type="cite">
+  <pre wrap="">Hello All
+
+	I am solving a sytem of stiff ODEs y'=f(y,t) where y values denote water depth
 in each grid. I used CVODE in CV_NORMAL mode with GMRES-BDF solver. Many y
 values obtained are found to be -ve. As suggested in this forum, I tried
 reinitialization of variables. However, since y values already obtained are -ve
@@ -128,102 +138,218 @@ y1 from 0 to +ve value.So that much amount of water flux is lost. Also errors
 creep in just by doing reinitialization of -ve y's to 0 at each time step. This
 contributes to errors and the subsequent solutions get messed up big time (for
 certain parameter settings).
-
-In order to correct this problem, I have two options
+  </pre>
+</blockquote>
+<font face="Helvetica, Arial, sans-serif">In his reply, Paolo
+suggested that you should first re-evaluating your flux model. Indeed,
+the first thing to do when unphysical components creep in the solution
+is to decide whether these are due to a wrong or incomplete
+mathematical model of the physical phenomenon or if they are due to the
+numerical solution of the model. <br>
+<br>
+In other words, you first need to ask yourself if, assuming the ODEs
+were solved <b>exactly</b>
+(infinite precision), your model could ever give negative water levels.
+If you are convinced that this cannot happen than the negative values
+come from numerically solving the ODEs (with finite precision). In that
+case, the size of the negative components should be of the order of the
+absolute tolerances you have specified. Can you confirm that? The
+absolute tolerance specifies what you consider to be the noise level
+and as such, any solution component of magnitude comparable to abstol
+or less is equivalent to zero as far as the computation is concerned.
+So, in any output plot or table that you generate, you can just put
+zero in place of any such component (because <b>you</b> decided that
+they are equivalent to zero when you selected that particular abstol!).<br>
+<br>
+>From the information you provided, I think your model is probably OK if
+implemented correctly. Using your form for the magnitude of the flux
+and your sign convention
+for outflux and influx, how about writing your RHS like so:<br>
+<br>
+<font face="Courier New, Courier, monospace">#include "sundialsmath.h"<br>
+#define Ith(v,i) NV_Ith_S(v,i-1)<br>
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)<br>
+{<br>
+&nbsp; realtype y1, y2, flux, k;<br>
+<br>
+&nbsp; y1 = Ith(y,1); <br>
+&nbsp; y2 = Ith(y,2); <br>
+<br>
+&nbsp; /* Note that we do NOT modify the N_Vector y, <br>
+&nbsp;&nbsp;&nbsp;&nbsp; but rather the temporary, local variables y1 and y2 */<br>
+&nbsp; y1 = (y1&lt;0) ? 0.0 : y1;<br>
+&nbsp; y2 = (y2&lt;0) ? 0.0 : y2;<br>
+<br>
+&nbsp; /* k some positive constant */<br>
+&nbsp; k = 1.0;<br>
+<br>
+&nbsp;/* flux -&gt; flux from y1 to y2<br>
+&nbsp;&nbsp; flux&gt;0 if y1&gt;y2<br>
+&nbsp;&nbsp; flux&lt;0 if y1&lt;y2<br>
+&nbsp;&nbsp; flux=0 if y1=y2<br>
+&nbsp; */<br>
+&nbsp; flux = </font></font><font
+ face="Courier New, Courier, monospace">k * RPowerR(y1+y2 ,
+5./3.) * (y1-y2);<br>
+<br>
+&nbsp; Ith(ydot,1) = -flux;<br>
+&nbsp; Ith(ydot,2) = flux;<br>
+&nbsp; <br>
+}<br>
+</font><font face="Helvetica, Arial, sans-serif"><br>
+As a
+further refinement, I would consider setting flux=0 if
+|y1-y2|&lt;abstol (I assume you use a scalar absolute tolerance since
+all y are similar and thus probably have the same noise level).
+Translated, this means that if y1 and y2 differ by less than the noise
+level, they are equal to each other </font><font
+ face="Helvetica, Arial, sans-serif">as far as the computation is
+concerned.<br>
+<br>
+</font><font face="Helvetica, Arial, sans-serif">Any
+negative y1 or y2 values that you would see will have to be smaller in
+magnitude that the absolute tolerance you specify in CVodeMalloc.</font><br>
+<br>
+<blockquote cite=""
+ type="cite">
+  <pre wrap="">In order to correct this problem, I have two options
 
 a) To reinitialize y after every time step (CV_ONE_STEP) for the grid with -ve y
 and then modify the y values in the neighboring cells as well. However, due to
 logistical problems this is very hard to do.
-
-b) To write the equations such that I don't get -ve y in the first place. So
+  </pre>
+</blockquote>
+<font face="Helvetica, Arial, sans-serif">Changing the y values
+outside CVode is fine for output purposes (see above), but it would not
+affect the current solution that CVODE knows about (which is stored
+internally). Anyway, you should <b>not</b> even consider changing the
+latter.</font><br>
+<blockquote cite=""
+ type="cite">
+  <pre wrap="">b) To write the equations such that I don't get -ve y in the first place. So
 here while running my CVode in CV_ONE_STEP mode I wrote the following code
 
          main()
-        {
-            while(t&lt;TMAX)
+	{
+ 	    while(t&lt;TMAX)
              {
-                T=t;
-                CVode(........,&amp;t,CV_ONE_STEP);
-            }
-        }
+	        T=t;
+	        CVode(........,&amp;t,CV_ONE_STEP);
+	    }
+	}
 
          f()
-        {
-            /****** This region (below) have been added now *******/
-            If(y1&gt; Flux(y1,...)*(t-T) )
+	{
+	    /****** This region (below) have been added now *******/
+	    If(y1&gt; Flux(y1,...)*(t-T) )
              /* Note: +ve Flux is going out from y1 to neighbors */
-            {
-                Flux(y1,...)=Flux(y1,y2);
+	    {
+	        Flux(y1,...)=Flux(y1,y2);
               }
-            else
-            {
-                Flux(y1,...)=y1/(t-T);
-             }
-             /****** This region (above) have been added now *******/
-             ydot=Flux(y1,y2)
-        }
+	    else
+	    {
+		Flux(y1,...)=y1/(t-T);
+	     }
+	     /****** This region (above) have been added now *******/
+	     ydot=Flux(y1,y2)
+	}
 
 What this was supposed to do is to restrict outward flux depending on the
 availibity of water depth in that grid (similar to discussion in the group). So
 total water flow in a particular time step can't be greater than what is
 available on that grid. However I still got -ve y values.
-
-While debugging, I found that for several time steps though y(t-1) is -ve and
+  </pre>
+</blockquote>
+<font face="Helvetica, Arial, sans-serif">There are many
+questionable things in the above code snippet. What is the value of the
+flux used in the if test? Is it saved from the previous RHS evaluation?
+Also recall that the integration order can be higher than 1 at the time
+RHS is called, so your 1st order approximation can be very crude...<br>
+</font>
+<blockquote cite=""
+ type="cite">
+  <pre wrap="">While debugging, I found that for several time steps though y(t-1) is -ve and
 ydot = +ve, solution obtained for the next time step becomes such that y(t) &lt;
 y(t-1). 
 
 --&gt; How can this be possible. Because of this perhaps, I still get -ve y values.
-
-    Now, in one earlier discussions on -ve y values, Alan had suggested
+  </pre>
+</blockquote>
+<font face="Helvetica, Arial, sans-serif">You seem to think that
+CVODE only uses a 1st order method (Euler) which is not true. The
+underlying BDF polynomial can have order higher than one, so what you
+describe is possible and valid. <br>
+Consider y(t)=t(1-t), t_n = 0, t_{n+1} = 2. Then y(t_n)=0, y'(t_n)=1,
+y(t_{n+1})=-2. By the way, the sign of y(t_n) is irrelevant. <br>
+</font>
+<blockquote cite=""
+ type="cite">
+  <pre wrap="">    Now, in one earlier discussions on -ve y values, Alan had suggested
 using root finding. However even in that case y obtained is already -ve. More
 so, can we get a snippet for how to use root finding when y gets -ve.
 Meanwhile, I would also like to know your opinion over if the above
 modifications in f() is ok or not and the error discussed above. 
-
-Regards,
+  </pre>
+</blockquote>
+<font face="Helvetica, Arial, sans-serif">The root finding
+feature may be useful if your <b>model</b> was such that it would lead
+to some unphysical negative values, in which case you'd want to locate
+the time where that happens and then adjust the model before
+proceeding. This does not apply to your case.<br>
+</font>
+<blockquote cite=""
+ type="cite">
+  <pre wrap="">Regards,
 
 Shuangcai
-
+  </pre>
+</blockquote>
+<font face="Helvetica, Arial, sans-serif">-- Radu</font><br>
+<pre class="moz-signature" cols="140">-- 
+   Radu Serban
+   Center for Applied Scientific Computing   [email] <a class="moz-txt-link-abbreviated" href="mailto:radu@llnl.gov">radu@llnl.gov</a>
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551
 </pre>
+
+
+</font>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00358" href="msg00358.html">Re: [sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00357" href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00356" href="msg00356.html">R: [sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> Paolo Greppi &lt;paolo.greppi@diam.unige.it&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00346" href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
+<ul><li><em>From:</em> SHUANGCAI LI &lt;sul19@psu.edu&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00345.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+<strong><a href="msg00356.html">R: [sundials-users] mass balance and negative values</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00347.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<strong><a href="msg00358.html">Re: [sundials-users] mass balance and negative values</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00335.html">[sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+<strong><a href="msg00356.html">R: [sundials-users] mass balance and negative values</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00356.html">R: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00358.html">Re: [sundials-users] mass balance and negative values</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00346">
+<li><a href="maillist.html#00357">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00346">
+<li><a href="threads.html#00357">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

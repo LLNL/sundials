@@ -1,13 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: [sundials&#45;users] mass balance and negative values -->
-<!--X-From-R13: EVGO@UQOW ZW <fhy19Ncfh.rqh> -->
-<!--X-Date: Sun, 05 Mar 2006 18:29:54 &#45;0800 (PST) -->
-<!--X-Message-Id: 200603060222.VAA19895@webmail3.cac.psu.edu -->
+<!--X-Subject: R: [sundials&#45;users] mass balance and negative values -->
+<!--X-From-R13: Bnbyb Uerccv <cnbyb.terccvNqvnz.havtr.vg> -->
+<!--X-Date: Wed, 08 Mar 2006 00:57:58 &#45;0800 (PST) -->
+<!--X-Message-Id: 003b01c6428e$001911b0$87b4a401@VAHKIKEERAK -->
 <!--X-Content-Type: text/plain -->
+<!--X-Reference: 200603060222.VAA19895@webmail3.cac.psu.edu -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>[sundials-users] mass balance and negative values</title>
+<title>R: [sundials-users] mass balance and negative values</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -66,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00345.html">Date Prev</a>] [<a href="msg00347.html">Date Next</a>] [<a href="msg00335.html">Thread Prev</a>] [<a href="msg00356.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00346">Date Index</a></b>]
-[<b><a href="threads.html#00346">Thread Index</a></b>]
+[<a href="msg00355.html">Date Prev</a>] [<a href="msg00357.html">Date Next</a>] [<a href="msg00346.html">Thread Prev</a>] [<a href="msg00357.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00356">Date Index</a></b>]
+[<b><a href="threads.html#00356">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>[sundials-users] mass balance and negative values</h1>
+<h1>R: [sundials-users] mass balance and negative values</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -83,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-SHUANGCAI LI &lt;<a href="mailto:sul19%40psu.edu">sul19@psu.edu</a>&gt;</td>
+Paolo Greppi &lt;<a href="mailto:paolo.greppi%40diam.unige.it">paolo.greppi@diam.unige.it</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Sun, 05 Mar 2006 21:22:19 -0500 (EST)</td>
+Wed, 08 Mar 2006 09:55:07 +0100</td>
 </tr>
 
 </table>
@@ -100,40 +101,79 @@ Sun, 05 Mar 2006 21:22:19 -0500 (EST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Hello All
+<pre>Hi Li,
 
-        I am solving a sytem of stiff ODEs y'=f(y,t) where y values denote 
-water depth
-in each grid. I used CVODE in CV_NORMAL mode with GMRES-BDF solver. Many y
-values obtained are found to be -ve. As suggested in this forum, I tried
-reinitialization of variables. However, since y values already obtained are -ve
-before they are reinitialized for the next time step, causes mass balance
-error. Infact this error become very large with time. When I account for this
-error on all the grids in final algebra for mass balance, error becomes small
-but still some error existed. The rest of the error comes from the -ve y values
-generated in the internal time steps.
-So from CV_NORMAL I had to switch to CV_ONE_STEP. So now I know where the mass
-balance error is coming from. Now the question is to correct it.
+I suggest you check your equations first. If the fluxes deplete the water
+inventory in some grid points, and that does not happen in the real world,
+maybe your model is incomplete.
+After that, I suggest you read my post of Wed 08/02/2006 and next try the
+following:
+
+- do not define a local and a global yi
+- introduce new variables xi in each grid point, related to the yi by the
+equation: yi = exp(xi)
+- rewrite the differential equations in term of the xi
+- expose the xi as unknowns to the solver
+
+This way, the yi will never get negative. If your equations are incomplete,
+there will be no solution and the solver will fail.
+
+Regards,
+
+        Paolo
+
+
+Paolo Greppi - Research Associate
+Email paolo.greppi@diam.unige.it
+UNIVERSITA DEGLI STUDI DI GENOVA
+Dipartimento d'Ingegneria Ambientale
+Web <a  href="http://www.diam.unige.it/pert/">http://www.diam.unige.it/pert/</a>
+Via all'Opera Pia, 15/a
+16145 Genova (GE)
+Italia
+
+-----Messaggio originale-----
+Da: owner-sundials-users@lists.llnl.gov
+[<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] Per conto di SHUANGCAI LI
+Inviato: 06 March 2006 03:22
+A: sundials-users@llnl.gov
+Oggetto: [sundials-users] mass balance and negative values
+
+Hello All
+
+        I am solving a sytem of stiff ODEs y'=f(y,t) where y values denote
+water depth in each grid. I used CVODE in CV_NORMAL mode with GMRES-BDF
+solver. Many y values obtained are found to be -ve. As suggested in this
+forum, I tried reinitialization of variables. However, since y values
+already obtained are -ve before they are reinitialized for the next time
+step, causes mass balance error. Infact this error become very large with
+time. When I account for this error on all the grids in final algebra for
+mass balance, error becomes small but still some error existed. The rest of
+the error comes from the -ve y values generated in the internal time steps.
+So from CV_NORMAL I had to switch to CV_ONE_STEP. So now I know where the
+mass balance error is coming from. Now the question is to correct it.
   
        Assuming two neighboring grids, with local y values as y1 and y2
 respectively which are such that y_i=max(0,global_y)
   
                  Flux(y1,y2) = k*(y1+y2)^5/3 * (Abs(y1-y2))
 
-Now, when global y1 &lt; 0, even with some flux contribution to y1 from y2, global
-y1 can still remain -ve. depending on magnitude of Flux(y1,y2) from grid 2. So
-the flux which came out of grid 2 is wasted in adding water to grid 1 (as
-global y1 is still -ve). Instead it should have been used in increasing global
-y1 from 0 to +ve value.So that much amount of water flux is lost. Also errors
-creep in just by doing reinitialization of -ve y's to 0 at each time step. This
-contributes to errors and the subsequent solutions get messed up big time (for
-certain parameter settings).
+Now, when global y1 &lt; 0, even with some flux contribution to y1 from y2,
+global
+y1 can still remain -ve. depending on magnitude of Flux(y1,y2) from grid 2.
+So the flux which came out of grid 2 is wasted in adding water to grid 1 (as
+global y1 is still -ve). Instead it should have been used in increasing
+global
+y1 from 0 to +ve value.So that much amount of water flux is lost. Also
+errors creep in just by doing reinitialization of -ve y's to 0 at each time
+step. This contributes to errors and the subsequent solutions get messed up
+big time (for certain parameter settings).
 
 In order to correct this problem, I have two options
 
-a) To reinitialize y after every time step (CV_ONE_STEP) for the grid with -ve y
-and then modify the y values in the neighboring cells as well. However, due to
-logistical problems this is very hard to do.
+a) To reinitialize y after every time step (CV_ONE_STEP) for the grid with
+-ve y and then modify the y values in the neighboring cells as well.
+However, due to logistical problems this is very hard to do.
 
 b) To write the equations such that I don't get -ve y in the first place. So
 here while running my CVode in CV_ONE_STEP mode I wrote the following code
@@ -164,25 +204,27 @@ here while running my CVode in CV_ONE_STEP mode I wrote the following code
         }
 
 What this was supposed to do is to restrict outward flux depending on the
-availibity of water depth in that grid (similar to discussion in the group). So
-total water flow in a particular time step can't be greater than what is
+availibity of water depth in that grid (similar to discussion in the group).
+So total water flow in a particular time step can't be greater than what is
 available on that grid. However I still got -ve y values.
 
-While debugging, I found that for several time steps though y(t-1) is -ve and
-ydot = +ve, solution obtained for the next time step becomes such that y(t) &lt;
-y(t-1). 
+While debugging, I found that for several time steps though y(t-1) is -ve
+and ydot = +ve, solution obtained for the next time step becomes such that
+y(t) &lt; y(t-1). 
 
---&gt; How can this be possible. Because of this perhaps, I still get -ve y values.
+--&gt; How can this be possible. Because of this perhaps, I still get -ve y
+values.
 
     Now, in one earlier discussions on -ve y values, Alan had suggested
-using root finding. However even in that case y obtained is already -ve. More
-so, can we get a snippet for how to use root finding when y gets -ve.
+using root finding. However even in that case y obtained is already -ve.
+More so, can we get a snippet for how to use root finding when y gets -ve.
 Meanwhile, I would also like to know your opinion over if the above
 modifications in f() is ok or not and the error discussed above. 
 
 Regards,
 
 Shuangcai
+
 
 </pre>
 <!--X-Body-of-Message-End-->
@@ -191,39 +233,35 @@ Shuangcai
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00358" href="msg00358.html">Re: [sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> Alan Hindmarsh &lt;alanh@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00357" href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00356" href="msg00356.html">R: [sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> Paolo Greppi &lt;paolo.greppi@diam.unige.it&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00346" href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
+<ul><li><em>From:</em> SHUANGCAI LI &lt;sul19@psu.edu&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00345.html">Re: [sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+<strong><a href="msg00355.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00347.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00335.html">[sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
+<strong><a href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00356.html">R: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00346">
+<li><a href="maillist.html#00356">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00346">
+<li><a href="threads.html#00356">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

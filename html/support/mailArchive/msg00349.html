@@ -1,0 +1,531 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Sundials compilation error (problem with xlc/xlf?) -->
+<!--X-From-R13: QI Khna <tybonyenirNlnubb.pbz> -->
+<!--X-Date: Mon, 06 Mar 2006 23:53:07 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060307074933.63671.qmail@web30809.mail.mud.yahoo.com -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: 440CFA24.4070207@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00348.html">Date Prev</a>] [<a href="msg00350.html">Date Next</a>] [<a href="msg00348.html">Thread Prev</a>] [<a href="msg00355.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00349">Date Index</a></b>]
+[<b><a href="threads.html#00349">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+CW Yuan &lt;<a href="mailto:globalrave%40yahoo.com">globalrave@yahoo.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 06 Mar 2006 23:49:33 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hello,
+
+If I use xlc to compile a simple routine like the
+attached hello.c, I'd get the warnings as indicated in
+hello_warning.txt, but in the end when executing
+./a.out I'd get the desired result.
+
+What puzzles me is that the two attached .h files are
+GNU library header files yet xlc links to them.  I
+doubt this is what caused my inability to run the
+sundials example files though.  Thank you very much
+for your patience.
+
+
+
+Sincerely yours,
+
+
+
+CW
+
+--- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:
+
+&gt;<i> Dear CW,</i>
+&gt;<i> </i>
+&gt;<i> Have you ever successfully compiled a program using</i>
+&gt;<i> the IBM C/C++ compiler?</i>
+&gt;<i> </i>
+&gt;<i> --Aaron</i>
+&gt;<i> </i>
+&gt;<i> CW Yuan wrote:</i>
+&gt;<i> &gt; Hi,</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; I followed Aaron's suggestion, and I feel like I'm</i>
+&gt;<i> &gt; much closer to a successful compilation now.  So</i>
+&gt;<i> &gt; here's what I did:</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; 1.  ./configure CC=xlc F77=xlf \</i>
+&gt;<i> &gt;      --with-CPPFLAGS=&quot;-I/usr/mill/include&quot; \</i>
+&gt;<i> &gt;      --CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \</i>
+&gt;<i> &gt;      --FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt;      details shown in &quot;Config_Nano.txt&quot;</i>
+&gt;<i> &gt; 2.  go into sundials/shared/include, open up</i>
+&gt;<i> &gt; sundialstypes.h and change the definitions from</i>
+&gt;<i> &gt; DBL_MAX to __DBL_MAX__ (and similarly for the</i>
+&gt;<i> other</i>
+&gt;<i> &gt; variables) because the /usr/mill/include/float.h</i>
+&gt;<i> file</i>
+&gt;<i> &gt; defines all such variables as __XXX__. </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; 3.  go back to /sundials, and &quot;make&quot; and then</i>
+&gt;<i> &quot;make</i>
+&gt;<i> &gt; install&quot;.  Received lots of warnings, shown in the</i>
+&gt;<i> &gt; attached &quot;Makes_Nano.txt&quot;.</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; 4.  &quot;make examples&quot;.  No error.  Shown in</i>
+&gt;<i> &gt; &quot;MakeEamples_Nano.txt&quot;.</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; 5.  test run ./cvbx and get flag = -4 (MaxSteps</i>
+&gt;<i> &gt; reached).  Shown in Cvbx_Output.txt.  Same error</i>
+&gt;<i> for</i>
+&gt;<i> &gt; all other executable examples.  </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; I'm wondering if someone has a take on this? </i>
+&gt;<i> Thanks a</i>
+&gt;<i> &gt; million.</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; CW</i>
+&gt;<i> &gt;   </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; --- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt;&gt; Dear CW,</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; When using the IBM compilers you must make</i>
+&gt;<i> certain</i>
+&gt;<i> &gt;&gt; you are including the </i>
+&gt;<i> &gt;&gt; appropriate header files, so try the following:</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;    $ configure CC=xlc F77=xlf \</i>
+&gt;<i> &gt;&gt;      CPPFLAGS=&quot;-I/usr/mill/include&quot; \</i>
+&gt;<i> &gt;&gt;      CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \</i>
+&gt;<i> &gt;&gt;      FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Note: According to the ANSI-C Standard, the</i>
+&gt;<i> constant</i>
+&gt;<i> &gt;&gt; DBL_MAX should be </i>
+&gt;<i> &gt;&gt; defined in float.h.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; --Aaron</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; CW Yuan wrote:</i>
+&gt;<i> &gt;&gt;&gt; Dear Aaron and Radu,</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; I've tried to use the configure options:</i>
+&gt;<i> &gt;&gt;&gt; CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto</i>
+&gt;<i> &gt;&gt; -qtune=auto&quot;</i>
+&gt;<i> &gt;&gt;&gt; \</i>
+&gt;<i> &gt;&gt;&gt; --with-fflags=&quot;-qarch=auto -qtune=auto&quot;</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; (I didn't specify mpicc and mpif77 b/c the</i>
+&gt;<i> &gt;&gt; configure</i>
+&gt;<i> &gt;&gt;&gt; script finds the correct mpi compiling scripts,</i>
+&gt;<i> &gt;&gt; which</i>
+&gt;<i> &gt;&gt;&gt; specifies xlc and xlf within them.)</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; However, we've encountered errors when</i>
+&gt;<i> compiling.</i>
+&gt;<i> &gt;&gt; I've</i>
+&gt;<i> &gt;&gt;&gt; attached the error log with this message (those</i>
+&gt;<i> &gt;&gt; errors</i>
+&gt;<i> &gt;&gt;&gt; were the reason why we tried to used gcc and g77</i>
+&gt;<i> &gt;&gt; in</i>
+&gt;<i> &gt;&gt;&gt; the first place). The error log seems to</i>
+&gt;<i> indicate</i>
+&gt;<i> &gt;&gt; two</i>
+&gt;<i> &gt;&gt;&gt; types of error. 1) syntax error related to</i>
+&gt;<i> &gt;&gt;&gt; usr/include/bits/mathcalls.h and 2) undeclared</i>
+&gt;<i> &gt;&gt;&gt; identifier DBL_MAX when compiling</i>
+&gt;<i> &gt;&gt; nvector_parallel.c.</i>
+&gt;<i> &gt;&gt;&gt; Hopefully you can shed some light.</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; thanks so much,</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; -CW</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; --- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; Dear CW,</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; You should not use &quot;pwr3&quot; since your system is</i>
+&gt;<i> &gt;&gt; based</i>
+&gt;<i> &gt;&gt;&gt;&gt; on the PowerPC </i>
+&gt;<i> &gt;&gt;&gt;&gt; architecture and not on the POWER hardware</i>
+&gt;<i> &gt;&gt; platform.</i>
+&gt;<i> &gt;&gt;&gt;&gt;  You could try the </i>
+&gt;<i> &gt;&gt;&gt;&gt; following:</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;   $ CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto</i>
+&gt;<i> &gt;&gt;&gt;&gt; -qtune=auto&quot; \</i>
+&gt;<i> &gt;&gt;&gt;&gt;     --with-fflags=&quot;-qarch=auto -qtune=auto&quot; \</i>
+&gt;<i> &gt;&gt;&gt;&gt;     --with-mpicc=mpcc \</i>
+&gt;<i> &gt;&gt;&gt;&gt;     --with-mpif77=mpxlf</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; --Aaron</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; Radu Serban wrote:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; CW wrote:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; Hello,</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; I'm trying in agony to compile the Sundials</i>
+&gt;<i> &gt;&gt;&gt;&gt; package (especially the </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; parallel code) onto our cluster. Heres a</i>
+&gt;<i> &gt;&gt;&gt;&gt; description of the hardware </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; from the &quot;uname -a&quot; command:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; Linux nano 2.6.15-1.1969_FC5 #1 SMP Sun Feb</i>
+&gt;<i> 19</i>
+&gt;<i> &gt;&gt;&gt;&gt; 05:14:37 EST 2006 ppc64 </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; ppc64 ppc64 GNU/Linux</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; I've attached the screen messages copied from</i>
+&gt;<i> &gt;&gt; the</i>
+&gt;<i> &gt;&gt;&gt;&gt; terminal after I </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; perform</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; /config CC=gcc F77=g77</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; make</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; make install</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; make examples</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; But I think I've pretty much nailed down the</i>
+&gt;<i> &gt;&gt;&gt;&gt; source of the problem, </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; pending your approval. After I changed the</i>
+&gt;<i> &gt;&gt;&gt;&gt; compilers to gcc and gcc, I </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; was able to compile the serial codes to get</i>
+&gt;<i> the</i>
+&gt;<i> &gt;&gt;&gt;&gt; serial library files </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; and create the serial examples. But I</i>
+&gt;<i> couldn't</i>
+&gt;<i> &gt;&gt; do</i>
+&gt;<i> &gt;&gt;&gt;&gt; that with the </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; parallel codes because the parallel codes are</i>
+&gt;<i> &gt;&gt;&gt;&gt; compiled with the </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; &quot;mpicc&quot; and &quot;mpif77&quot; scripts, which use &quot;xlc&quot;</i>
+&gt;<i> &gt;&gt; and</i>
+&gt;<i> &gt;&gt;&gt;&gt; &quot;xlf&quot; (IBM c/fortran </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; compilers, scripts attached) to compile the</i>
+&gt;<i> &gt;&gt;&gt;&gt; codes. Hence I get error </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; messages in the when I &quot;make&quot; and &quot;make</i>
+&gt;<i> &gt;&gt;&gt;&gt; examples&quot;.</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; I wonder if there's some incompatibility</i>
+&gt;<i> &gt;&gt; between</i>
+&gt;<i> &gt;&gt;&gt;&gt; Sundials and xlc/xlf? </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; If my assessment of the problem is wrong,</i>
+&gt;<i> what</i>
+&gt;<i> &gt;&gt;&gt;&gt; would be your take?</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; Thank you very much.</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; Sincerely yours,</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; CW</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; CW,</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; A quick Google search will show that there are</i>
+&gt;<i> &gt;&gt;&gt;&gt; several incompatibilities </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; between gcc and xlc, which is apparently what</i>
+&gt;<i> &gt;&gt;&gt;&gt; happens in your case (look </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; at the compilation errors for nvec_par in your</i>
+&gt;<i> &gt;&gt;&gt;&gt; Sundials_make.txt file. </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; Most of the subsequent errors you see in</i>
+&gt;<i> &gt;&gt; compiling</i>
+&gt;<i> &gt;&gt;&gt;&gt; the parallel examples </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; come from the fact that nvec_par was not</i>
+&gt;<i> &gt;&gt;&gt;&gt; installed!).</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; That being said, there is no incompatibility</i>
+&gt;<i> &gt;&gt;&gt;&gt; between SUNDIALS and </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; xlc/xlf. SUNDIALS has been compiled on AIX</i>
+&gt;<i> &gt;&gt; without</i>
+&gt;<i> &gt;&gt;&gt;&gt; problems. however, we </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; do not mix gcc and xlc.</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> </i>
+=== message truncated ===
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> </pre><pre>#include &lt;stdio.h&gt;
+
+int main (int argc, char** argv) {
+  printf(&quot;hello world\n&quot;);
+  exit(0);
+}
+</pre><pre>-bash-3.1$ xlc hello.c
+&quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/libio-ldbl.h&quot;, line 25.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 25.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 26.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 27.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 28.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 29.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 30.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 31.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 32.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 33.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 38.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+&quot;/usr/include/bits/stdio-ldbl.h&quot;, line 39.1: 1506-947 (W) The explicit register 
+specifier is unexpected and is ignored.
+-bash-3.1$ ./a.out
+hello world
+</pre><pre>/* -mlong-double-64 compatibility mode for libio functions.
+   Copyright (C) 2006 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+#ifndef _IO_STDIO_H
+# error &quot;Never include &lt;bits/libio-ldbl.h&gt; directly; use &lt;libio.h&gt; instead.&quot;
+#endif
+
+__LDBL_REDIR_DECL (_IO_vfscanf)
+__LDBL_REDIR_DECL (_IO_vfprintf)
+</pre><pre>/* -mlong-double-64 compatibility mode for stdio functions.
+   Copyright (C) 2006 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+#ifndef _STDIO_H
+# error &quot;Never include &lt;bits/stdio-ldbl.h&gt; directly; use &lt;stdio.h&gt; instead.&quot;
+#endif
+
+__BEGIN_NAMESPACE_STD
+__LDBL_REDIR_DECL (fprintf)
+__LDBL_REDIR_DECL (printf)
+__LDBL_REDIR_DECL (sprintf)
+__LDBL_REDIR_DECL (vfprintf)
+__LDBL_REDIR_DECL (vprintf)
+__LDBL_REDIR_DECL (vsprintf)
+__LDBL_REDIR_DECL (fscanf)
+__LDBL_REDIR_DECL (scanf)
+__LDBL_REDIR_DECL (sscanf)
+__END_NAMESPACE_STD
+
+#if defined __USE_BSD || defined __USE_ISOC99 || defined __USE_UNIX98
+__BEGIN_NAMESPACE_C99
+__LDBL_REDIR_DECL (snprintf)
+__LDBL_REDIR_DECL (vsnprintf)
+__END_NAMESPACE_C99
+#endif
+
+#ifdef	__USE_ISOC99
+__BEGIN_NAMESPACE_C99
+__LDBL_REDIR_DECL (vfscanf)
+__LDBL_REDIR_DECL (vsscanf)
+__LDBL_REDIR_DECL (vscanf)
+__END_NAMESPACE_C99
+#endif
+
+#ifdef __USE_GNU
+__LDBL_REDIR_DECL (vdprintf)
+__LDBL_REDIR_DECL (dprintf)
+__LDBL_REDIR_DECL (vasprintf)
+__LDBL_REDIR_DECL (__asprintf)
+__LDBL_REDIR_DECL (asprintf)
+__LDBL_REDIR_DECL (obstack_printf)
+__LDBL_REDIR_DECL (obstack_vprintf)
+#endif
+
+#if __USE_FORTIFY_LEVEL &gt; 0 &amp;&amp; !defined __cplusplus
+__LDBL_REDIR_DECL (__sprintf_chk)
+__LDBL_REDIR_DECL (__vsprintf_chk)
+# if defined __USE_BSD || defined __USE_ISOC99 || defined __USE_UNIX98
+__LDBL_REDIR_DECL (__snprintf_chk)
+__LDBL_REDIR_DECL (__vsnprintf_chk)
+# endif
+# if __USE_FORTIFY_LEVEL &gt; 1
+__LDBL_REDIR_DECL (__fprintf_chk)
+__LDBL_REDIR_DECL (__printf_chk)
+__LDBL_REDIR_DECL (__vfprintf_chk)
+__LDBL_REDIR_DECL (__vprintf_chk)
+# endif
+#endif
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00355" href="msg00355.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00348" href="msg00348.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00348.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00350.html">Re: [sundials-users] Installing/checking sundials 2.1.1</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00348.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00355.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00349">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00349">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

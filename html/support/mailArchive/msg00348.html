@@ -1,10 +1,10 @@
 <!-- MHonArc v2.6.10 -->
 <!--X-Subject: Re: [sundials&#45;users] Sundials compilation error (problem with xlc/xlf?) -->
-<!--X-From-R13: QI Khna <tybonyenirNlnubb.pbz> -->
-<!--X-Date: Mon, 06 Mar 2006 15:15:40 &#45;0800 (PST) -->
-<!--X-Message-Id: 20060306231228.37189.qmail@web30804.mail.mud.yahoo.com -->
-<!--X-Content-Type: multipart/mixed -->
-<!--X-Reference: 4408C2CA.9030003@llnl.gov -->
+<!--X-From-R13: Oneba Qbyyvre <pbyyvre6Nyyay.tbi> -->
+<!--X-Date: Mon, 06 Mar 2006 19:14:56 &#45;0800 (PST) -->
+<!--X-Message-Id: 440CFA24.4070207@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 20060306231228.37189.qmail@web30804.mail.mud.yahoo.com -->
 <!--X-Head-End-->
 <html>
 <head>
@@ -67,9 +67,9 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00346.html">Date Prev</a>] [<a href="msg00348.html">Date Next</a>] [<a href="msg00343.html">Thread Prev</a>] [<a href="msg00348.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00347">Date Index</a></b>]
-[<b><a href="threads.html#00347">Thread Index</a></b>]
+[<a href="msg00347.html">Date Prev</a>] [<a href="msg00349.html">Date Next</a>] [<a href="msg00347.html">Thread Prev</a>] [<a href="msg00349.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00348">Date Index</a></b>]
+[<b><a href="threads.html#00348">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-CW Yuan &lt;<a href="mailto:globalrave%40yahoo.com">globalrave@yahoo.com</a>&gt;</td>
+Aaron Collier &lt;<a href="mailto:collier6%40llnl.gov">collier6@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 06 Mar 2006 15:12:28 -0800 (PST)</td>
+Mon, 06 Mar 2006 19:12:36 -0800</td>
 </tr>
 
 </table>
@@ -101,393 +101,353 @@ Mon, 06 Mar 2006 15:12:28 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<pre>Hi,
-
-I followed Aaron's suggestion, and I feel like I'm
+<pre style="margin: 0em;">Dear CW,</pre><br>
+<pre style="margin: 0em;">Have you ever successfully compiled a program using the IBM C/C++ compiler?</pre><br>
+<pre style="margin: 0em;">--Aaron</pre><br>
+<tt>CW Yuan wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+<pre style="margin: 0em;">I followed Aaron's suggestion, and I feel like I'm
 much closer to a successful compilation now.  So
-here's what I did:
-
-1.  ./configure CC=xlc F77=xlf \
+here's what I did:</pre><br>
+<pre style="margin: 0em;">1.  ./configure CC=xlc F77=xlf \
      --with-CPPFLAGS=&quot;-I/usr/mill/include&quot; \
      --CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \
-     --FFLAGS=&quot;-qarch=auto -qtune=auto&quot;
-
-     details shown in &quot;Config_Nano.txt&quot;
-2.  go into sundials/shared/include, open up
-sundialstypes.h and change the definitions from
-DBL_MAX to __DBL_MAX__ (and similarly for the other
-variables) because the /usr/mill/include/float.h file
-defines all such variables as __XXX__. 
-
-3.  go back to /sundials, and &quot;make&quot; and then &quot;make
+     --FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</pre><br>
+<tt>     details shown in &quot;Config_Nano.txt&quot;<br>
+2.  go into sundials/shared/include, open up<br>
+sundialstypes.h and change the definitions from<br>
+DBL_MAX to __DBL_MAX__ (and similarly for the other<br>
+variables) because the /usr/mill/include/float.h file<br>
+defines all such variables as __XXX__. </tt><br>
+<br>
+<pre style="margin: 0em;">3.  go back to /sundials, and &quot;make&quot; and then &quot;make
 install&quot;.  Received lots of warnings, shown in the
-attached &quot;Makes_Nano.txt&quot;.
-
-4.  &quot;make examples&quot;.  No error.  Shown in
-&quot;MakeEamples_Nano.txt&quot;.
-
-5.  test run ./cvbx and get flag = -4 (MaxSteps
-reached).  Shown in Cvbx_Output.txt.  Same error for
-all other executable examples.  
-
-I'm wondering if someone has a take on this?  Thanks a
-million.
-
-
-
-CW
-  
-
---- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:
-
-&gt;<i> Dear CW,</i>
-&gt;<i> </i>
-&gt;<i> When using the IBM compilers you must make certain</i>
-&gt;<i> you are including the </i>
-&gt;<i> appropriate header files, so try the following:</i>
-&gt;<i> </i>
-&gt;<i>    $ configure CC=xlc F77=xlf \</i>
-&gt;<i>      CPPFLAGS=&quot;-I/usr/mill/include&quot; \</i>
-&gt;<i>      CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \</i>
-&gt;<i>      FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</i>
-&gt;<i> </i>
-&gt;<i> Note: According to the ANSI-C Standard, the constant</i>
-&gt;<i> DBL_MAX should be </i>
-&gt;<i> defined in float.h.</i>
-&gt;<i> </i>
-&gt;<i> --Aaron</i>
-&gt;<i> </i>
-&gt;<i> CW Yuan wrote:</i>
-&gt;<i> &gt; Dear Aaron and Radu,</i>
-&gt;<i> &gt; </i>
-&gt;<i> &gt; I've tried to use the configure options:</i>
-&gt;<i> &gt; CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto</i>
-&gt;<i> -qtune=auto&quot;</i>
-&gt;<i> &gt; \</i>
-&gt;<i> &gt; --with-fflags=&quot;-qarch=auto -qtune=auto&quot;</i>
-&gt;<i> &gt; </i>
-&gt;<i> &gt; (I didn't specify mpicc and mpif77 b/c the</i>
-&gt;<i> configure</i>
-&gt;<i> &gt; script finds the correct mpi compiling scripts,</i>
-&gt;<i> which</i>
-&gt;<i> &gt; specifies xlc and xlf within them.)</i>
-&gt;<i> &gt; </i>
-&gt;<i> &gt; However, we've encountered errors when compiling.</i>
-&gt;<i> I've</i>
-&gt;<i> &gt; attached the error log with this message (those</i>
-&gt;<i> errors</i>
-&gt;<i> &gt; were the reason why we tried to used gcc and g77</i>
-&gt;<i> in</i>
-&gt;<i> &gt; the first place). The error log seems to indicate</i>
-&gt;<i> two</i>
-&gt;<i> &gt; types of error. 1) syntax error related to</i>
-&gt;<i> &gt; usr/include/bits/mathcalls.h and 2) undeclared</i>
-&gt;<i> &gt; identifier DBL_MAX when compiling</i>
-&gt;<i> nvector_parallel.c.</i>
-&gt;<i> &gt; Hopefully you can shed some light.</i>
-&gt;<i> &gt; </i>
-&gt;<i> &gt; thanks so much,</i>
-&gt;<i> &gt; </i>
-&gt;<i> &gt; -CW</i>
-&gt;<i> &gt; </i>
-&gt;<i> &gt; --- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</i>
-&gt;<i> &gt; </i>
-&gt;<i> &gt;&gt; Dear CW,</i>
-&gt;<i> &gt;&gt;</i>
-&gt;<i> &gt;&gt; You should not use &quot;pwr3&quot; since your system is</i>
-&gt;<i> based</i>
-&gt;<i> &gt;&gt; on the PowerPC </i>
-&gt;<i> &gt;&gt; architecture and not on the POWER hardware</i>
-&gt;<i> platform.</i>
-&gt;<i> &gt;&gt;  You could try the </i>
-&gt;<i> &gt;&gt; following:</i>
-&gt;<i> &gt;&gt;</i>
-&gt;<i> &gt;&gt;   $ CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto</i>
-&gt;<i> &gt;&gt; -qtune=auto&quot; \</i>
-&gt;<i> &gt;&gt;     --with-fflags=&quot;-qarch=auto -qtune=auto&quot; \</i>
-&gt;<i> &gt;&gt;     --with-mpicc=mpcc \</i>
-&gt;<i> &gt;&gt;     --with-mpif77=mpxlf</i>
-&gt;<i> &gt;&gt;</i>
-&gt;<i> &gt;&gt; --Aaron</i>
-&gt;<i> &gt;&gt;</i>
-&gt;<i> &gt;&gt; Radu Serban wrote:</i>
-&gt;<i> &gt;&gt;&gt; CW wrote:</i>
-&gt;<i> &gt;&gt;&gt;&gt; Hello,</i>
-&gt;<i> &gt;&gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt;&gt; I'm trying in agony to compile the Sundials</i>
-&gt;<i> &gt;&gt; package (especially the </i>
-&gt;<i> &gt;&gt;&gt;&gt; parallel code) onto our cluster. Heres a</i>
-&gt;<i> &gt;&gt; description of the hardware </i>
-&gt;<i> &gt;&gt;&gt;&gt; from the &quot;uname -a&quot; command:</i>
-&gt;<i> &gt;&gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt;&gt; Linux nano 2.6.15-1.1969_FC5 #1 SMP Sun Feb 19</i>
-&gt;<i> &gt;&gt; 05:14:37 EST 2006 ppc64 </i>
-&gt;<i> &gt;&gt;&gt;&gt; ppc64 ppc64 GNU/Linux</i>
-&gt;<i> &gt;&gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt;&gt; I've attached the screen messages copied from</i>
-&gt;<i> the</i>
-&gt;<i> &gt;&gt; terminal after I </i>
-&gt;<i> &gt;&gt;&gt;&gt; perform</i>
-&gt;<i> &gt;&gt;&gt;&gt; /config CC=gcc F77=g77</i>
-&gt;<i> &gt;&gt;&gt;&gt; make</i>
-&gt;<i> &gt;&gt;&gt;&gt; make install</i>
-&gt;<i> &gt;&gt;&gt;&gt; make examples</i>
-&gt;<i> &gt;&gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt;&gt; But I think I've pretty much nailed down the</i>
-&gt;<i> &gt;&gt; source of the problem, </i>
-&gt;<i> &gt;&gt;&gt;&gt; pending your approval. After I changed the</i>
-&gt;<i> &gt;&gt; compilers to gcc and gcc, I </i>
-&gt;<i> &gt;&gt;&gt;&gt; was able to compile the serial codes to get the</i>
-&gt;<i> &gt;&gt; serial library files </i>
-&gt;<i> &gt;&gt;&gt;&gt; and create the serial examples. But I couldn't</i>
-&gt;<i> do</i>
-&gt;<i> &gt;&gt; that with the </i>
-&gt;<i> &gt;&gt;&gt;&gt; parallel codes because the parallel codes are</i>
-&gt;<i> &gt;&gt; compiled with the </i>
-&gt;<i> &gt;&gt;&gt;&gt; &quot;mpicc&quot; and &quot;mpif77&quot; scripts, which use &quot;xlc&quot;</i>
-&gt;<i> and</i>
-&gt;<i> &gt;&gt; &quot;xlf&quot; (IBM c/fortran </i>
-&gt;<i> &gt;&gt;&gt;&gt; compilers, scripts attached) to compile the</i>
-&gt;<i> &gt;&gt; codes. Hence I get error </i>
-&gt;<i> &gt;&gt;&gt;&gt; messages in the when I &quot;make&quot; and &quot;make</i>
-&gt;<i> &gt;&gt; examples&quot;.</i>
-&gt;<i> &gt;&gt;&gt;&gt; I wonder if there's some incompatibility</i>
-&gt;<i> between</i>
-&gt;<i> &gt;&gt; Sundials and xlc/xlf? </i>
-&gt;<i> &gt;&gt;&gt;&gt; If my assessment of the problem is wrong, what</i>
-&gt;<i> &gt;&gt; would be your take?</i>
-&gt;<i> &gt;&gt;&gt;&gt; Thank you very much.</i>
-&gt;<i> &gt;&gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt;&gt; Sincerely yours,</i>
-&gt;<i> &gt;&gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt;&gt; CW</i>
-&gt;<i> &gt;&gt;&gt; CW,</i>
-&gt;<i> &gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt; A quick Google search will show that there are</i>
-&gt;<i> &gt;&gt; several incompatibilities </i>
-&gt;<i> &gt;&gt;&gt; between gcc and xlc, which is apparently what</i>
-&gt;<i> &gt;&gt; happens in your case (look </i>
-&gt;<i> &gt;&gt;&gt; at the compilation errors for nvec_par in your</i>
-&gt;<i> &gt;&gt; Sundials_make.txt file. </i>
-&gt;<i> &gt;&gt;&gt; Most of the subsequent errors you see in</i>
-&gt;<i> compiling</i>
-&gt;<i> &gt;&gt; the parallel examples </i>
-&gt;<i> &gt;&gt;&gt; come from the fact that nvec_par was not</i>
-&gt;<i> &gt;&gt; installed!).</i>
-&gt;<i> &gt;&gt;&gt; That being said, there is no incompatibility</i>
-&gt;<i> &gt;&gt; between SUNDIALS and </i>
-&gt;<i> &gt;&gt;&gt; xlc/xlf. SUNDIALS has been compiled on AIX</i>
-&gt;<i> without</i>
-&gt;<i> &gt;&gt; problems. however, we </i>
-&gt;<i> &gt;&gt;&gt; do not mix gcc and xlc.</i>
-&gt;<i> &gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt; Is there any reason why you do not use CC=xlc</i>
-&gt;<i> and</i>
-&gt;<i> &gt;&gt; F77=xlf? FYI, here's a </i>
-&gt;<i> &gt;&gt;&gt; set of configure options that we used to build</i>
-&gt;<i> &gt;&gt; SUNDIALS with xlc/xlf. </i>
-&gt;<i> &gt;&gt;&gt; Try them out:</i>
-&gt;<i> &gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt; CC=xlc F77=xlf --with-cflags=&quot;-qarch=pwr3</i>
-&gt;<i> &gt;&gt; -qtune=pwr3 -qmaxmem=8192&quot; </i>
-&gt;<i> &gt;&gt;&gt; --with-fflags=&quot;-qarch=pwr3 -qtune=pwr3</i>
-&gt;<i> &gt;&gt; -qmaxmem=8192&quot; --with-mpicc=mpcc </i>
-&gt;<i> &gt;&gt;&gt; --with-mpif77=mpxlf</i>
-&gt;<i> &gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt; --Radu</i>
-&gt;<i> &gt;&gt;&gt;</i>
-&gt;<i> &gt;&gt;&gt;</i>
-&gt;<i> &gt; </i>
-&gt;<i> &gt; __________________________________________________</i>
-&gt;<i> &gt; Do You Yahoo!?</i>
-&gt;<i> &gt; Tired of spam?  Yahoo! Mail has the best spam</i>
-&gt;<i> protection around </i>
-&gt;<i> &gt; <a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> </i>
-&gt;<i> </i>
-
-__________________________________________________
+attached &quot;Makes_Nano.txt&quot;.</pre><br>
+<pre style="margin: 0em;">4.  &quot;make examples&quot;.  No error.  Shown in
+&quot;MakeEamples_Nano.txt&quot;.</pre><br>
+<tt>5.  test run ./cvbx and get flag = -4 (MaxSteps<br>
+reached).  Shown in Cvbx_Output.txt.  Same error for<br>
+all other executable examples.  </tt><br>
+<br>
+<pre style="margin: 0em;">I'm wondering if someone has a take on this?  Thanks a
+million.</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<tt>CW<br>
+  </tt><br>
+<br>
+<pre style="margin: 0em;">--- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear CW,</pre><br>
+<tt>When using the IBM compilers you must make certain<br>
+you are including the 
+appropriate header files, so try the following:</tt><br>
+<br>
+<pre style="margin: 0em;">   $ configure CC=xlc F77=xlf \
+     CPPFLAGS=&quot;-I/usr/mill/include&quot; \
+     CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \
+     FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</pre><br>
+<tt>Note: According to the ANSI-C Standard, the constant<br>
+DBL_MAX should be 
+defined in float.h.</tt><br>
+<br>
+<pre style="margin: 0em;">--Aaron</pre><br>
+<tt>CW Yuan wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Aaron and Radu,</pre><br>
+<pre style="margin: 0em;">I've tried to use the configure options:
+CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto
+</pre></blockquote><tt>-qtune=auto&quot;
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">\
+--with-fflags=&quot;-qarch=auto -qtune=auto&quot;</pre><br>
+<tt>(I didn't specify mpicc and mpif77 b/c the
+</tt></blockquote><tt>configure
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>script finds the correct mpi compiling scripts,
+</tt></blockquote><tt>which
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">specifies xlc and xlf within them.)</pre><br>
+<tt>However, we've encountered errors when compiling.
+</tt></blockquote><tt>I've
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>attached the error log with this message (those
+</tt></blockquote><tt>errors
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>were the reason why we tried to used gcc and g77
+</tt></blockquote><tt>in
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>the first place). The error log seems to indicate
+</tt></blockquote><tt>two
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">types of error. 1) syntax error related to
+usr/include/bits/mathcalls.h and 2) undeclared
+identifier DBL_MAX when compiling
+</pre></blockquote><tt>nvector_parallel.c.
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hopefully you can shed some light.</pre><br>
+<pre style="margin: 0em;">thanks so much,</pre><br>
+<pre style="margin: 0em;">-CW</pre><br>
+<pre style="margin: 0em;">--- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear CW,</pre><br>
+<tt>You should not use &quot;pwr3&quot; since your system is
+</tt></blockquote></blockquote><tt>based
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>on the PowerPC 
+architecture and not on the POWER hardware
+</tt></blockquote></blockquote><tt>platform.
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt> You could try the 
+following:</tt><br>
+<br>
+<pre style="margin: 0em;">  $ CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto
+-qtune=auto&quot; \
+    --with-fflags=&quot;-qarch=auto -qtune=auto&quot; \
+    --with-mpicc=mpcc \
+    --with-mpif77=mpxlf</pre><br>
+<pre style="margin: 0em;">--Aaron</pre><br>
+<tt>Radu Serban wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>CW wrote:
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
+<tt>I'm trying in agony to compile the Sundials
+</tt></blockquote></blockquote><tt>package (especially the 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>parallel code) onto our cluster. Heres a
+</tt></blockquote></blockquote><tt>description of the hardware 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">from the &quot;uname -a&quot; command:</pre><br>
+<tt>Linux nano 2.6.15-1.1969_FC5 #1 SMP Sun Feb 19
+</tt></blockquote></blockquote><tt>05:14:37 EST 2006 ppc64 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">ppc64 ppc64 GNU/Linux</pre><br>
+<tt>I've attached the screen messages copied from
+</tt></blockquote></blockquote></blockquote></blockquote><tt>the
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>terminal after I 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">perform
+/config CC=gcc F77=g77
+make
+make install
+make examples</pre><br>
+<tt>But I think I've pretty much nailed down the
+</tt></blockquote></blockquote><tt>source of the problem, 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>pending your approval. After I changed the
+</tt></blockquote></blockquote><tt>compilers to gcc and gcc, I 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>was able to compile the serial codes to get the
+</tt></blockquote></blockquote><tt>serial library files 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>and create the serial examples. But I couldn't
+</tt></blockquote></blockquote></blockquote></blockquote><tt>do
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>that with the 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>parallel codes because the parallel codes are
+</tt></blockquote></blockquote><tt>compiled with the 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>&quot;mpicc&quot; and &quot;mpif77&quot; scripts, which use &quot;xlc&quot;
+</tt></blockquote></blockquote></blockquote></blockquote><tt>and
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>&quot;xlf&quot; (IBM c/fortran 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>compilers, scripts attached) to compile the
+</tt></blockquote></blockquote><tt>codes. Hence I get error 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>messages in the when I &quot;make&quot; and &quot;make
+</tt></blockquote></blockquote><tt>examples&quot;.
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>I wonder if there's some incompatibility
+</tt></blockquote></blockquote></blockquote></blockquote><tt>between
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Sundials and xlc/xlf? 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>If my assessment of the problem is wrong, what
+</tt></blockquote></blockquote><tt>would be your take?
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Thank you very much.</pre><br>
+<pre style="margin: 0em;">Sincerely yours,</pre><br>
+<tt>CW
+</tt></blockquote><pre style="margin: 0em;">CW,</pre><br>
+<tt>A quick Google search will show that there are
+</tt></blockquote><tt>several incompatibilities 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>between gcc and xlc, which is apparently what
+</tt></blockquote><tt>happens in your case (look 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>at the compilation errors for nvec_par in your
+</tt></blockquote><tt>Sundials_make.txt file. 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Most of the subsequent errors you see in
+</tt></blockquote></blockquote></blockquote><tt>compiling
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>the parallel examples 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>come from the fact that nvec_par was not
+</tt></blockquote><tt>installed!).
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>That being said, there is no incompatibility
+</tt></blockquote><tt>between SUNDIALS and 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>xlc/xlf. SUNDIALS has been compiled on AIX
+</tt></blockquote></blockquote></blockquote><tt>without
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>problems. however, we 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">do not mix gcc and xlc.</pre><br>
+<tt>Is there any reason why you do not use CC=xlc
+</tt></blockquote></blockquote></blockquote><tt>and
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>F77=xlf? FYI, here's a 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>set of configure options that we used to build
+</tt></blockquote><tt>SUNDIALS with xlc/xlf. 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Try them out:</pre><br>
+<tt>CC=xlc F77=xlf --with-cflags=&quot;-qarch=pwr3
+</tt></blockquote><tt>-qtune=pwr3 -qmaxmem=8192&quot; 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>--with-fflags=&quot;-qarch=pwr3 -qtune=pwr3
+</tt></blockquote><tt>-qmaxmem=8192&quot; --with-mpicc=mpcc 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">--with-mpif77=mpxlf</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<br>
+</blockquote></blockquote><pre style="margin: 0em;">__________________________________________________
 Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam
+</pre></blockquote><tt>protection around 
+</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt><a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> 
+</tt></blockquote></blockquote><tt><br>__________________________________________________<br>
+Do You Yahoo!?<br>
 Tired of spam?  Yahoo! Mail has the best spam protection around 
-<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> </pre><pre>-bash-3.1$ ./configure CC=xlc F77=xlf --with-cppflags=&quot;-I/usr/mill/include&quot;
---with-cflags=&quot;-qarch=auto -qtune=auto&quot; --with-fflags=&quot;-qarch=auto -qtune=au
-to&quot;
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> </tt><br>
+<br>
+<pre style="margin: 0em;"><br>------------------------------------------------------------------------</pre><br>
+<tt>-bash-3.1$ ./configure CC=xlc F77=xlf --with-cppflags=&quot;-I/usr/mill/include&quot;<br>
+--with-cflags=&quot;-qarch=auto -qtune=auto&quot; --with-fflags=&quot;-qarch=auto -qtune=au<br>
+to&quot;<br>
  
----------------------------------
-Running SUNDIALS Configure Script
----------------------------------
+---------------------------------<br>
+Running SUNDIALS Configure Script<br>
+---------------------------------<br>
  
-checking build system type... powerpc64-unknown-linux-gnu
-checking host system type... powerpc64-unknown-linux-gnu
-checking whether make sets $(MAKE)... yes
-checking for a BSD-compatible install... /usr/bin/install -c
-checking for egrep... grep -E
-checking for sys/types.h... no
-checking for sys/stat.h... no
-checking for stdlib.h... no
-checking for string.h... no
-checking for memory.h... no
-checking for strings.h... no
-checking for inttypes.h... no
-checking for stdint.h... no
-checking for unistd.h... no
-checking floating-point data type to use... double
-checking for xlc... xlc
-checking for C compiler default output file name... a.out
-checking whether the C compiler works... yes
-checking whether we are cross compiling... no
-checking for suffix of executables...
-checking for suffix of object files... o
-checking whether we are using the GNU C compiler... no
-checking whether xlc accepts -g... yes
-checking for xlc option to accept ANSI C... none needed
-checking for xlc... /usr/mill/bin/xlc
-checking for extra C compiler flags... -qarch=auto -qtune=auto
-checking how to run the C preprocessor... /usr/mill/bin/xlc -E
-checking for extra C/C++ preprocessor flags... -I/usr/mill/include
-checking for extra linker flags... none
-checking for extra libraries... none
-checking for ANSI C header files... no
-checking for stdlib.h... (cached) no
-checking float.h usability... yes
-checking float.h presence... yes
-checking for float.h... yes
-checking math.h usability... yes
-checking math.h presence... yes
-checking for math.h... yes
-checking for abs in -lm... yes
-checking for fabs in -lm... yes
-checking for pow in -lm... yes
-checking for sqrt in -lm... yes
-checking for additional required C libraries... -lm
-checking for int... yes
-checking size of int... 4
-checking for long int... yes
-checking size of long int... 4
-checking for double... yes
-checking size of double... 8
-checking for egrep... (cached) grep -E
-checking for fgrep... grep -F
-checking for xlf... xlf
-checking whether we are using the GNU Fortran 77 compiler... no
-checking whether xlf accepts -g... yes
-checking for xlf... /usr/mill/bin/xlf
-checking for extra Fortran compiler flags... -qarch=auto -qtune=auto
-checking how to get verbose linking output from /usr/mill/bin/xlf... -v
-checking for Fortran libraries of /usr/mill/bin/xlf...  
--L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib 
--L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt 
--lpthread
-checking Fortran name-mangling scheme... lowercase with no underscores
-checking for mpicc... /usr/mill/bin/mpicc
-checking for mpif77... /usr/mill/bin/mpif77
-checking for non-GNU ld... /usr/bin/ld
-checking if the linker (/usr/bin/ld) is GNU ld... yes
-checking for /usr/bin/ld option to reload object files... -r
-checking for BSD-compatible nm... /usr/bin/nm -B
-checking for a sed that does not truncate output... /bin/sed
-checking whether ln -s works... yes
-checking how to recognise dependent libraries... pass_all
-checking command to parse /usr/bin/nm -B output... ok
-checking dlfcn.h usability... yes
-checking dlfcn.h presence... yes
-checking for dlfcn.h... yes
-checking for ranlib... ranlib
-checking for strip... strip
-checking for objdir... .libs
-checking for /usr/mill/bin/xlc option to produce PIC... none
-checking if /usr/mill/bin/xlc static flag  works... yes
-checking if /usr/mill/bin/xlc supports -c -o file.o... no
-checking if we can lock with hard links... yes
-checking whether the linker (/usr/bin/ld) supports shared libraries... yes
-checking how to hardcode library paths into programs... immediate
-checking whether stripping libraries is possible... yes
-checking dynamic linker characteristics... GNU/Linux ld.so
-checking if libtool supports shared libraries... no
-checking whether to build shared libraries... no
-checking whether to build static libraries... yes
-creating libtool
-checking if we can build serial C examples... yes
-checking if we can build parallel C examples... yes
-checking if we can build serial Fortran examples... yes
-checking if we can build parallel Fortran examples... yes
-checking for 'include' directory... 
-/home/nano/dcchrzan/chunwei/temp/sundials/include
-checking for 'lib' directory... /home/nano/dcchrzan/chunwei/temp/sundials/lib
-configure: creating ./config.status
-config.status: creating Makefile
-config.status: creating shared/source/Makefile
-config.status: creating nvec_ser/Makefile
-config.status: creating nvec_par/Makefile
-config.status: creating cvode/source/Makefile
-config.status: creating cvode/fcmix/Makefile
-config.status: creating cvode/examples_ser/Makefile
-config.status: creating cvode/examples_par/Makefile
-config.status: creating cvode/fcmix/examples_ser/Makefile
-config.status: creating cvode/fcmix/examples_par/Makefile
-config.status: creating config/fortran_update.sh
-config.status: creating config/sundials_config.h
-config.status: creating config.h
+checking build system type... powerpc64-unknown-linux-gnu<br>
+checking host system type... powerpc64-unknown-linux-gnu<br>
+checking whether make sets $(MAKE)... yes<br>
+checking for a BSD-compatible install... /usr/bin/install -c<br>
+checking for egrep... grep -E<br>
+checking for sys/types.h... no<br>
+checking for sys/stat.h... no<br>
+checking for stdlib.h... no<br>
+checking for string.h... no<br>
+checking for memory.h... no<br>
+checking for strings.h... no<br>
+checking for inttypes.h... no<br>
+checking for stdint.h... no<br>
+checking for unistd.h... no<br>
+checking floating-point data type to use... double<br>
+checking for xlc... xlc<br>
+checking for C compiler default output file name... a.out<br>
+checking whether the C compiler works... yes<br>
+checking whether we are cross compiling... no<br>
+checking for suffix of executables...<br>
+checking for suffix of object files... o<br>
+checking whether we are using the GNU C compiler... no<br>
+checking whether xlc accepts -g... yes<br>
+checking for xlc option to accept ANSI C... none needed<br>
+checking for xlc... /usr/mill/bin/xlc<br>
+checking for extra C compiler flags... -qarch=auto -qtune=auto<br>
+checking how to run the C preprocessor... /usr/mill/bin/xlc -E<br>
+checking for extra C/C++ preprocessor flags... -I/usr/mill/include<br>
+checking for extra linker flags... none<br>
+checking for extra libraries... none<br>
+checking for ANSI C header files... no<br>
+checking for stdlib.h... (cached) no<br>
+checking float.h usability... yes<br>
+checking float.h presence... yes<br>
+checking for float.h... yes<br>
+checking math.h usability... yes<br>
+checking math.h presence... yes<br>
+checking for math.h... yes<br>
+checking for abs in -lm... yes<br>
+checking for fabs in -lm... yes<br>
+checking for pow in -lm... yes<br>
+checking for sqrt in -lm... yes<br>
+checking for additional required C libraries... -lm<br>
+checking for int... yes<br>
+checking size of int... 4<br>
+checking for long int... yes<br>
+checking size of long int... 4<br>
+checking for double... yes<br>
+checking size of double... 8<br>
+checking for egrep... (cached) grep -E<br>
+checking for fgrep... grep -F<br>
+checking for xlf... xlf<br>
+checking whether we are using the GNU Fortran 77 compiler... no<br>
+checking whether xlf accepts -g... yes<br>
+checking for xlf... /usr/mill/bin/xlf<br>
+checking for extra Fortran compiler flags... -qarch=auto -qtune=auto<br>
+checking how to get verbose linking output from /usr/mill/bin/xlf... -v<br>
+checking for Fortran libraries of /usr/mill/bin/xlf...  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
+checking Fortran name-mangling scheme... lowercase with no underscores<br>
+checking for mpicc... /usr/mill/bin/mpicc<br>
+checking for mpif77... /usr/mill/bin/mpif77<br>
+checking for non-GNU ld... /usr/bin/ld<br>
+checking if the linker (/usr/bin/ld) is GNU ld... yes<br>
+checking for /usr/bin/ld option to reload object files... -r<br>
+checking for BSD-compatible nm... /usr/bin/nm -B<br>
+checking for a sed that does not truncate output... /bin/sed<br>
+checking whether ln -s works... yes<br>
+checking how to recognise dependent libraries... pass_all<br>
+checking command to parse /usr/bin/nm -B output... ok<br>
+checking dlfcn.h usability... yes<br>
+checking dlfcn.h presence... yes<br>
+checking for dlfcn.h... yes<br>
+checking for ranlib... ranlib<br>
+checking for strip... strip<br>
+checking for objdir... .libs<br>
+checking for /usr/mill/bin/xlc option to produce PIC... none<br>
+checking if /usr/mill/bin/xlc static flag  works... yes<br>
+checking if /usr/mill/bin/xlc supports -c -o file.o... no<br>
+checking if we can lock with hard links... yes<br>
+checking whether the linker (/usr/bin/ld) supports shared libraries... yes<br>
+checking how to hardcode library paths into programs... immediate<br>
+checking whether stripping libraries is possible... yes<br>
+checking dynamic linker characteristics... GNU/Linux ld.so<br>
+checking if libtool supports shared libraries... no<br>
+checking whether to build shared libraries... no<br>
+checking whether to build static libraries... yes<br>
+creating libtool<br>
+checking if we can build serial C examples... yes<br>
+checking if we can build parallel C examples... yes<br>
+checking if we can build serial Fortran examples... yes<br>
+checking if we can build parallel Fortran examples... yes<br>
+checking for 'include' directory... /home/nano/dcchrzan/chunwei/temp/sundials/include<br>
+checking for 'lib' directory... /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+configure: creating ./config.status<br>
+config.status: creating Makefile<br>
+config.status: creating shared/source/Makefile<br>
+config.status: creating nvec_ser/Makefile<br>
+config.status: creating nvec_par/Makefile<br>
+config.status: creating cvode/source/Makefile<br>
+config.status: creating cvode/fcmix/Makefile<br>
+config.status: creating cvode/examples_ser/Makefile<br>
+config.status: creating cvode/examples_par/Makefile<br>
+config.status: creating cvode/fcmix/examples_ser/Makefile<br>
+config.status: creating cvode/fcmix/examples_par/Makefile<br>
+config.status: creating config/fortran_update.sh<br>
+config.status: creating config/sundials_config.h<br>
+config.status: creating config.h<br>
  
-------------------------------
-SUNDIALS Configuration Summary
-------------------------------
+------------------------------<br>
+SUNDIALS Configuration Summary<br>
+------------------------------<br>
  
-Configuration:
---------------
+Configuration:<br>
+--------------<br>
  
-  Host System:             powerpc64-unknown-linux-gnu
-  Build System:            powerpc64-unknown-linux-gnu
-  Source Code Location:    .
-  Install Path (include):  /home/nano/dcchrzan/chunwei/temp/sundials/include
-  Install Path (lib):      /home/nano/dcchrzan/chunwei/temp/sundials/lib
+  Host System:             powerpc64-unknown-linux-gnu<br>
+  Build System:            powerpc64-unknown-linux-gnu<br>
+  Source Code Location:    .<br>
+  Install Path (include):  /home/nano/dcchrzan/chunwei/temp/sundials/include<br>
+  Install Path (lib):      /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
  
-  C Preprocessor:          /usr/mill/bin/xlc -E -I/usr/mill/include
-  C Compiler:              /usr/mill/bin/xlc -g -qarch=auto -qtune=auto
-  C Linker:                /usr/mill/bin/xlc  -lm
+  C Preprocessor:          /usr/mill/bin/xlc -E -I/usr/mill/include<br>
+  C Compiler:              /usr/mill/bin/xlc -g -qarch=auto -qtune=auto<br>
+  C Linker:                /usr/mill/bin/xlc  -lm<br>
  
-  F77 Compiler:            /usr/mill/bin/xlf -g -qarch=auto -qtune=auto
-  F77 Linker:              /usr/mill/bin/xlf  -lm   -L/opt/ibmcmp/xlsmp/1.5/lib 
--L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt 
--lpthread
+  F77 Compiler:            /usr/mill/bin/xlf -g -qarch=auto -qtune=auto<br>
+  F77 Linker:              /usr/mill/bin/xlf  -lm   -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
  
-  MPI-C:                   /usr/mill/bin/mpicc
+  MPI-C:                   /usr/mill/bin/mpicc<br>
  
-  MPI-F77:                 /usr/mill/bin/mpif77
+  MPI-F77:                 /usr/mill/bin/mpif77<br>
  
-  Type 'make' and then 'make install' to build and install SUNDIALS 2.1.1
+  Type 'make' and then 'make install' to build and install SUNDIALS 2.1.1<br>
  
-Modules:
---------
+Modules:<br>
+--------<br>
  
-  CVODE
+  CVODE<br>
  
-Examples:
----------
+Examples:<br>
+---------<br>
  
-  Type 'make examples' to build the following examples:
+  Type 'make examples' to build the following examples:<br>
  
-            SERIAL    PARALLEL
-          ---------------------
- C       |    YES   |    YES   |
-          ---------------------
- Fortran |    YES   |    YES   |
-          ---------------------
+            SERIAL    PARALLEL<br>
+          ---------------------<br>
+ C       |    YES   |    YES   |<br>
+          ---------------------<br>
+ Fortran |    YES   |    YES   |<br>
+          ---------------------<br>
  
-----------------------------------
-Finished SUNDIALS Configure Script
-----------------------------------
+----------------------------------<br>
+Finished SUNDIALS Configure Script<br>
+----------------------------------<br>
  
--bash-3.1$
-
-</pre><pre>bash-3.1$ make
+-bash-3.1$</tt><br>
+<br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">------------------------------------------------------------------------</pre><br>
+<pre style="margin: 0em;">bash-3.1$ make
 Making nvec_ser...
 make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'
 /usr/bin/install -c -m 644 ..//config/sundials_config.h .
@@ -496,8 +456,7 @@ make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../shared/include -I. -g 
 -qarch=auto -qtune=auto -c ./nvector_serial.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -544,8 +503,7 @@ echo timestamp &gt; nvector_serial.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../shared/include -I. -g 
 -qarch=auto -qtune=auto -c ./fnvector_serial.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -587,9 +545,8 @@ register specifier is unexpected and is ignored.
 &quot;/usr/include/bits/stdlib-ldbl.h&quot;, line 42.1: 1506-947 (W) The explicit 
 register specifier is unexpected and is ignored.
 echo timestamp &gt; fnvector_serial.lo
-make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'
-
-Making nvec_par...
+make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'</pre><br>
+<pre style="margin: 0em;">Making nvec_par...
 make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'
 /usr/bin/install -c -m 644 ..//config/sundials_config.h .
 /bin/sh ..//libtool --mode=compile /usr/mill/bin/mpicc -I/usr/mill/include  -I. 
@@ -598,8 +555,7 @@ make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'
 /usr/mill/bin/mpicc -I/usr/mill/include -I. -I./../shared/include -I. 
 -I/usr/mill/bin/../include -g -qarch=auto -qtune=auto -c ./nvector_parallel.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -647,8 +603,7 @@ echo timestamp &gt; nvector_parallel.lo
 /usr/mill/bin/mpicc -I/usr/mill/include -I. -I./../shared/include -I. 
 -I/usr/mill/bin/../include -g -qarch=auto -qtune=auto -c ./fnvector_parallel.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -690,9 +645,8 @@ register specifier is unexpected and is ignored.
 &quot;/usr/include/bits/stdlib-ldbl.h&quot;, line 42.1: 1506-947 (W) The explicit 
 register specifier is unexpected and is ignored.
 echo timestamp &gt; fnvector_parallel.lo
-make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'
-
-Making shared/source...
+make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'</pre><br>
+<pre style="margin: 0em;">Making shared/source...
 make[1]: Entering directory 
 `/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'
 /usr/bin/install -c -m 644 ../..//config/sundials_config.h .
@@ -701,8 +655,7 @@ make[1]: Entering directory
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../include -g -qarch=auto 
 -qtune=auto -c ./band.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -749,8 +702,7 @@ echo timestamp &gt; band.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../include -g -qarch=auto 
 -qtune=auto -c ./dense.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -797,8 +749,7 @@ echo timestamp &gt; dense.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../include -g -qarch=auto 
 -qtune=auto -c ./iterative.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -833,8 +784,7 @@ echo timestamp &gt; iterative.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../include -g -qarch=auto 
 -qtune=auto -c ./sundialsmath.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -898,8 +848,7 @@ echo timestamp &gt; nvector.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../include -g -qarch=auto 
 -qtune=auto -c ./smalldense.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -946,8 +895,7 @@ echo timestamp &gt; smalldense.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../include -g -qarch=auto 
 -qtune=auto -c ./spgmr.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -990,9 +938,8 @@ register specifier is unexpected and is ignored.
 register specifier is unexpected and is ignored.
 echo timestamp &gt; spgmr.lo
 make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'
-
-Making cvode/source...
+`/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'</pre><br>
+<pre style="margin: 0em;">Making cvode/source...
 make[1]: Entering directory 
 `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'
 /usr/bin/install -c -m 644 ../..//config/sundials_config.h .
@@ -1001,8 +948,7 @@ make[1]: Entering directory
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -g -qarch=auto -qtune=auto -c ./cvode.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1050,8 +996,7 @@ echo timestamp &gt; cvode.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -g -qarch=auto -qtune=auto -c ./cvodeio.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1098,8 +1043,7 @@ echo timestamp &gt; cvodeio.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -g -qarch=auto -qtune=auto -c ./cvband.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1147,8 +1091,7 @@ echo timestamp &gt; cvband.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -g -qarch=auto -qtune=auto -c ./cvdense.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1195,8 +1138,7 @@ echo timestamp &gt; cvdense.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -g -qarch=auto -qtune=auto -c ./cvdiag.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1244,8 +1186,7 @@ echo timestamp &gt; cvdiag.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -g -qarch=auto -qtune=auto -c ./cvspgmr.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1293,8 +1234,7 @@ echo timestamp &gt; cvspgmr.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -g -qarch=auto -qtune=auto -c ./cvbandpre.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1342,8 +1282,7 @@ echo timestamp &gt; cvbandpre.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -g -qarch=auto -qtune=auto -c ./cvbbdpre.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1386,9 +1325,8 @@ register specifier is unexpected and is ignored.
 register specifier is unexpected and is ignored.
 echo timestamp &gt; cvbbdpre.lo
 make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'
-
-Making cvode/fcmix...
+`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'</pre><br>
+<pre style="margin: 0em;">Making cvode/fcmix...
 make[1]: Entering directory 
 `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'
 /usr/bin/install -c -m 644 ../..//config/sundials_config.h .
@@ -1398,8 +1336,7 @@ make[1]: Entering directory
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvode.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1447,8 +1384,7 @@ echo timestamp &gt; fcvode.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvband.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1496,8 +1432,7 @@ echo timestamp &gt; fcvband.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvdense.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1545,8 +1480,7 @@ echo timestamp &gt; fcvdense.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvjtimes.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1594,8 +1528,7 @@ echo timestamp &gt; fcvjtimes.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvpreco.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1643,8 +1576,7 @@ echo timestamp &gt; fcvpreco.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvbbd.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1692,8 +1624,7 @@ echo timestamp &gt; fcvbbd.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvbp.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1741,8 +1672,7 @@ echo timestamp &gt; fcvbp.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvroot.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1790,8 +1720,7 @@ echo timestamp &gt; fcvroot.lo
 /usr/mill/bin/xlc -I/usr/mill/include -I. -I./../../shared/include 
 -I./../include -I. -g -qarch=auto -qtune=auto -c ./fcvewt.c
 &quot;/usr/include/_G_config.h&quot;, line 50.5: 1506-995 (W) An aggregate containing a 
-flexible array member cannot be used as a member of a structure or as an array 
-element.
+flexible array member cannot be used as a member of a structure or as an array element.
 &quot;/usr/include/_G_config.h&quot;, line 51.30: 1506-997 (W) Structure members cannot 
 follow a flexible array member/zero extent array.
 &quot;/usr/include/bits/libio-ldbl.h&quot;, line 24.1: 1506-947 (W) The explicit register 
@@ -1834,37 +1763,29 @@ register specifier is unexpected and is ignored.
 register specifier is unexpected and is ignored.
 echo timestamp &gt; fcvewt.lo
 make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'
-
-bash-3.1$ make install
-Installing nvec_ser...
-make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'
-/usr/bin/install -c -m 644 ..//config/sundials_config.h .
-/bin/sh ..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o 
-libsundials_nvecserial.la nvector_serial.lo -rpath 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -avoid-version
-mkdir .libs
-rm -fr .libs/libsundials_nvecserial.la .libs/libsundials_nvecserial.* 
-.libs/libsundials_nvecserial.*
+`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'</pre><br>
+<tt>bash-3.1$ make install<br>
+Installing nvec_ser...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'<br>
+/usr/bin/install -c -m 644 ..//config/sundials_config.h .<br>
+/bin/sh ..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o libsundials_nvecserial.la nvector_serial.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -avoid-version<br>
+mkdir .libs<br>
+rm -fr .libs/libsundials_nvecserial.la .libs/libsundials_nvecserial.* .libs/libsundials_nvecserial.*<br>
 ar cru .libs/libsundials_nvecserial.a  nvector_serial.o 
-ranlib .libs/libsundials_nvecserial.a
-creating libsundials_nvecserial.la
-(cd .libs &amp;&amp; rm -f libsundials_nvecserial.la &amp;&amp; ln -s 
-../libsundials_nvecserial.la libsundials_nvecserial.la)
-/bin/sh ..//libtool --mode=install /usr/bin/install -c 
-libsundials_nvecserial.la /home/nano/dcchrzan/chunwei/temp/sundials/lib
-/usr/bin/install -c .libs/libsundials_nvecserial.lai 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.la
-/usr/bin/install -c .libs/libsundials_nvecserial.a 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.a
-ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.a
-chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.a
-PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib
-----------------------------------------------------------------------
-Libraries have been installed in:
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib
-
-If you ever happen to want to link against installed libraries
+ranlib .libs/libsundials_nvecserial.a<br>
+creating libsundials_nvecserial.la<br>
+(cd .libs &amp;&amp; rm -f libsundials_nvecserial.la &amp;&amp; ln -s ../libsundials_nvecserial.la libsundials_nvecserial.la)<br>
+/bin/sh ..//libtool --mode=install /usr/bin/install -c libsundials_nvecserial.la /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+/usr/bin/install -c .libs/libsundials_nvecserial.lai /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.la<br>
+/usr/bin/install -c .libs/libsundials_nvecserial.a /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.a<br>
+ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.a<br>
+chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.a<br>
+PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+----------------------------------------------------------------------<br>
+Libraries have been installed in:<br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+<br>
+<pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
 specify the full pathname of the library, or use the `-LLIBDIR'
 flag during linking and do at least one of the following:
@@ -1873,38 +1794,28 @@ flag during linking and do at least one of the following:
    - add LIBDIR to the `LD_RUN_PATH' environment variable
      during linking
    - use the `--rpath LIBDIR' linker flag
-   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
-
-See any operating system documentation about shared libraries for
-more information, such as the ld(1) and ld.so(8) manual pages.
-----------------------------------------------------------------------
-/usr/bin/install -c -m 644 ./nvector_serial.h 
-/home/nano/dcchrzan/chunwei/temp/sundials/include
-/bin/sh ..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o 
-libsundials_fnvecserial.la fnvector_serial.lo -rpath 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -static -avoid-version
-rm -fr .libs/libsundials_fnvecserial.la .libs/libsundials_fnvecserial.* 
-.libs/libsundials_fnvecserial.*
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
+<tt>See any operating system documentation about shared libraries for<br>
+more information, such as the ld(1) and ld.so(8) manual pages.<br>
+----------------------------------------------------------------------<br>
+/usr/bin/install -c -m 644 ./nvector_serial.h /home/nano/dcchrzan/chunwei/temp/sundials/include<br>
+/bin/sh ..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o libsundials_fnvecserial.la fnvector_serial.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -static -avoid-version<br>
+rm -fr .libs/libsundials_fnvecserial.la .libs/libsundials_fnvecserial.* .libs/libsundials_fnvecserial.*<br>
 ar cru .libs/libsundials_fnvecserial.a  fnvector_serial.o 
-ranlib .libs/libsundials_fnvecserial.a
-creating libsundials_fnvecserial.la
-(cd .libs &amp;&amp; rm -f libsundials_fnvecserial.la &amp;&amp; ln -s 
-../libsundials_fnvecserial.la libsundials_fnvecserial.la)
-/bin/sh ..//libtool --mode=install /usr/bin/install -c 
-libsundials_fnvecserial.la /home/nano/dcchrzan/chunwei/temp/sundials/lib
-/usr/bin/install -c .libs/libsundials_fnvecserial.lai 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.la
-/usr/bin/install -c .libs/libsundials_fnvecserial.a 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.a
-ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.a
-chmod 644 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.a
-PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib
-----------------------------------------------------------------------
-Libraries have been installed in:
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib
-
-If you ever happen to want to link against installed libraries
+ranlib .libs/libsundials_fnvecserial.a<br>
+creating libsundials_fnvecserial.la<br>
+(cd .libs &amp;&amp; rm -f libsundials_fnvecserial.la &amp;&amp; ln -s ../libsundials_fnvecserial.la libsundials_fnvecserial.la)<br>
+/bin/sh ..//libtool --mode=install /usr/bin/install -c libsundials_fnvecserial.la /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+/usr/bin/install -c .libs/libsundials_fnvecserial.lai /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.la<br>
+/usr/bin/install -c .libs/libsundials_fnvecserial.a /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.a<br>
+ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.a<br>
+chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.a<br>
+PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+----------------------------------------------------------------------<br>
+Libraries have been installed in:<br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+<br>
+<pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
 specify the full pathname of the library, or use the `-LLIBDIR'
 flag during linking and do at least one of the following:
@@ -1913,42 +1824,32 @@ flag during linking and do at least one of the following:
    - add LIBDIR to the `LD_RUN_PATH' environment variable
      during linking
    - use the `--rpath LIBDIR' linker flag
-   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
-
-See any operating system documentation about shared libraries for
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
+<pre style="margin: 0em;">See any operating system documentation about shared libraries for
 more information, such as the ld(1) and ld.so(8) manual pages.
 ----------------------------------------------------------------------
-make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'
-
-Installing nvec_par...
-make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'
-/usr/bin/install -c -m 644 ..//config/sundials_config.h .
-/bin/sh ..//libtool --mode=link /usr/mill/bin/mpicc -g -qarch=auto -qtune=auto  
--o libsundials_nvecparallel.la nvector_parallel.lo -rpath 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib -lm   -avoid-version
-mkdir .libs
-rm -fr .libs/libsundials_nvecparallel.la .libs/libsundials_nvecparallel.* 
-.libs/libsundials_nvecparallel.*
+make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'</pre><br>
+<tt>Installing nvec_par...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'<br>
+/usr/bin/install -c -m 644 ..//config/sundials_config.h .<br>
+/bin/sh ..//libtool --mode=link /usr/mill/bin/mpicc -g -qarch=auto -qtune=auto  -o libsundials_nvecparallel.la nvector_parallel.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib -lm   -avoid-version<br>
+mkdir .libs<br>
+rm -fr .libs/libsundials_nvecparallel.la .libs/libsundials_nvecparallel.* .libs/libsundials_nvecparallel.*<br>
 ar cru .libs/libsundials_nvecparallel.a  nvector_parallel.o 
-ranlib .libs/libsundials_nvecparallel.a
-creating libsundials_nvecparallel.la
-(cd .libs &amp;&amp; rm -f libsundials_nvecparallel.la &amp;&amp; ln -s 
-../libsundials_nvecparallel.la libsundials_nvecparallel.la)
-/bin/sh ..//libtool --mode=install /usr/bin/install -c 
-libsundials_nvecparallel.la /home/nano/dcchrzan/chunwei/temp/sundials/lib
-/usr/bin/install -c .libs/libsundials_nvecparallel.lai 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel.la
-/usr/bin/install -c .libs/libsundials_nvecparallel.a 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel.a
-ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel.a
-chmod 644 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel.a
-PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib
-----------------------------------------------------------------------
-Libraries have been installed in:
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib
-
-If you ever happen to want to link against installed libraries
+ranlib .libs/libsundials_nvecparallel.a<br>
+creating libsundials_nvecparallel.la<br>
+(cd .libs &amp;&amp; rm -f libsundials_nvecparallel.la &amp;&amp; ln -s ../libsundials_nvecparallel.la libsundials_nvecparallel.la)<br>
+/bin/sh ..//libtool --mode=install /usr/bin/install -c libsundials_nvecparallel.la /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+/usr/bin/install -c .libs/libsundials_nvecparallel.lai /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel.la<br>
+/usr/bin/install -c .libs/libsundials_nvecparallel.a /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel.a<br>
+ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel.a<br>
+chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel.a<br>
+PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+----------------------------------------------------------------------<br>
+Libraries have been installed in:<br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+<br>
+<pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
 specify the full pathname of the library, or use the `-LLIBDIR'
 flag during linking and do at least one of the following:
@@ -1957,38 +1858,28 @@ flag during linking and do at least one of the following:
    - add LIBDIR to the `LD_RUN_PATH' environment variable
      during linking
    - use the `--rpath LIBDIR' linker flag
-   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
-
-See any operating system documentation about shared libraries for
-more information, such as the ld(1) and ld.so(8) manual pages.
-----------------------------------------------------------------------
-/usr/bin/install -c -m 644 ./nvector_parallel.h 
-/home/nano/dcchrzan/chunwei/temp/sundials/include
-/bin/sh ..//libtool --mode=link /usr/mill/bin/mpicc -g -qarch=auto -qtune=auto  
--o libsundials_fnvecparallel.la fnvector_parallel.lo -rpath 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -static -avoid-version
-rm -fr .libs/libsundials_fnvecparallel.la .libs/libsundials_fnvecparallel.* 
-.libs/libsundials_fnvecparallel.*
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
+<tt>See any operating system documentation about shared libraries for<br>
+more information, such as the ld(1) and ld.so(8) manual pages.<br>
+----------------------------------------------------------------------<br>
+/usr/bin/install -c -m 644 ./nvector_parallel.h /home/nano/dcchrzan/chunwei/temp/sundials/include<br>
+/bin/sh ..//libtool --mode=link /usr/mill/bin/mpicc -g -qarch=auto -qtune=auto  -o libsundials_fnvecparallel.la fnvector_parallel.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -static -avoid-version<br>
+rm -fr .libs/libsundials_fnvecparallel.la .libs/libsundials_fnvecparallel.* .libs/libsundials_fnvecparallel.*<br>
 ar cru .libs/libsundials_fnvecparallel.a  fnvector_parallel.o 
-ranlib .libs/libsundials_fnvecparallel.a
-creating libsundials_fnvecparallel.la
-(cd .libs &amp;&amp; rm -f libsundials_fnvecparallel.la &amp;&amp; ln -s 
-../libsundials_fnvecparallel.la libsundials_fnvecparallel.la)
-/bin/sh ..//libtool --mode=install /usr/bin/install -c 
-libsundials_fnvecparallel.la /home/nano/dcchrzan/chunwei/temp/sundials/lib
-/usr/bin/install -c .libs/libsundials_fnvecparallel.lai 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparallel.la
-/usr/bin/install -c .libs/libsundials_fnvecparallel.a 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparallel.a
-ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparallel.a
-chmod 644 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparallel.a
-PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib
-----------------------------------------------------------------------
-Libraries have been installed in:
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib
-
-If you ever happen to want to link against installed libraries
+ranlib .libs/libsundials_fnvecparallel.a<br>
+creating libsundials_fnvecparallel.la<br>
+(cd .libs &amp;&amp; rm -f libsundials_fnvecparallel.la &amp;&amp; ln -s ../libsundials_fnvecparallel.la libsundials_fnvecparallel.la)<br>
+/bin/sh ..//libtool --mode=install /usr/bin/install -c libsundials_fnvecparallel.la /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+/usr/bin/install -c .libs/libsundials_fnvecparallel.lai /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparallel.la<br>
+/usr/bin/install -c .libs/libsundials_fnvecparallel.a /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparallel.a<br>
+ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparallel.a<br>
+chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparallel.a<br>
+PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+----------------------------------------------------------------------<br>
+Libraries have been installed in:<br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+<br>
+<pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
 specify the full pathname of the library, or use the `-LLIBDIR'
 flag during linking and do at least one of the following:
@@ -1997,44 +1888,32 @@ flag during linking and do at least one of the following:
    - add LIBDIR to the `LD_RUN_PATH' environment variable
      during linking
    - use the `--rpath LIBDIR' linker flag
-   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
-
-See any operating system documentation about shared libraries for
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
+<pre style="margin: 0em;">See any operating system documentation about shared libraries for
 more information, such as the ld(1) and ld.so(8) manual pages.
 ----------------------------------------------------------------------
-make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'
-
-Installing shared/source...
-make[1]: Entering directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'
-/usr/bin/install -c -m 644 ../..//config/sundials_config.h .
-/bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto 
--o libsundials_shared.la band.lo dense.lo iterative.lo sundialsmath.lo 
-nvector.lo smalldense.lo spgmr.lo -rpath 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -avoid-version
-mkdir .libs
-rm -fr .libs/libsundials_shared.la .libs/libsundials_shared.* 
-.libs/libsundials_shared.*
-ar cru .libs/libsundials_shared.a  band.o dense.o iterative.o sundialsmath.o 
-nvector.o smalldense.o spgmr.o 
-ranlib .libs/libsundials_shared.a
-creating libsundials_shared.la
-(cd .libs &amp;&amp; rm -f libsundials_shared.la &amp;&amp; ln -s ../libsundials_shared.la 
-libsundials_shared.la)
-/bin/sh ../..//libtool --mode=install /usr/bin/install -c libsundials_shared.la 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib
-/usr/bin/install -c .libs/libsundials_shared.lai 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.la
-/usr/bin/install -c .libs/libsundials_shared.a 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.a
-ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.a
-chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.a
-PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib
-----------------------------------------------------------------------
-Libraries have been installed in:
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib
-
-If you ever happen to want to link against installed libraries
+make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'</pre><br>
+<tt>Installing shared/source...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'<br>
+/usr/bin/install -c -m 644 ../..//config/sundials_config.h .<br>
+/bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o libsundials_shared.la band.lo dense.lo iterative.lo sundialsmath.lo nvector.lo smalldense.lo spgmr.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -avoid-version<br>
+mkdir .libs<br>
+rm -fr .libs/libsundials_shared.la .libs/libsundials_shared.* .libs/libsundials_shared.*<br>
+ar cru .libs/libsundials_shared.a  band.o dense.o iterative.o sundialsmath.o nvector.o smalldense.o spgmr.o 
+ranlib .libs/libsundials_shared.a<br>
+creating libsundials_shared.la<br>
+(cd .libs &amp;&amp; rm -f libsundials_shared.la &amp;&amp; ln -s ../libsundials_shared.la libsundials_shared.la)<br>
+/bin/sh ../..//libtool --mode=install /usr/bin/install -c libsundials_shared.la /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+/usr/bin/install -c .libs/libsundials_shared.lai /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.la<br>
+/usr/bin/install -c .libs/libsundials_shared.a /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.a<br>
+ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.a<br>
+chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.a<br>
+PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+----------------------------------------------------------------------<br>
+Libraries have been installed in:<br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+<br>
+<pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
 specify the full pathname of the library, or use the `-LLIBDIR'
 flag during linking and do at least one of the following:
@@ -2043,9 +1922,8 @@ flag during linking and do at least one of the following:
    - add LIBDIR to the `LD_RUN_PATH' environment variable
      during linking
    - use the `--rpath LIBDIR' linker flag
-   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
-
-See any operating system documentation about shared libraries for
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
+<pre style="margin: 0em;">See any operating system documentation about shared libraries for
 more information, such as the ld(1) and ld.so(8) manual pages.
 ----------------------------------------------------------------------
 /usr/bin/install -c -m 644 ./../include/band.h 
@@ -2067,39 +1945,28 @@ more information, such as the ld(1) and ld.so(8) manual pages.
 /usr/bin/install -c -m 644 ./sundials_config.h 
 /home/nano/dcchrzan/chunwei/temp/sundials/include
 make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'
-
-Installing cvode/source...
-make[1]: Entering directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'
-/usr/bin/install -c -m 644 ../..//config/sundials_config.h .
-/bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto 
--o libsundials_cvode.la cvode.lo cvodeio.lo cvband.lo cvdense.lo cvdiag.lo 
-cvspgmr.lo cvbandpre.lo cvbbdpre.lo -rpath 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib  -lm  -avoid-version
-mkdir .libs
-rm -fr .libs/libsundials_cvode.la .libs/libsundials_cvode.* 
-.libs/libsundials_cvode.*
-ar cru .libs/libsundials_cvode.a  cvode.o cvodeio.o cvband.o cvdense.o cvdiag.o 
-cvspgmr.o cvbandpre.o cvbbdpre.o 
-ranlib .libs/libsundials_cvode.a
-creating libsundials_cvode.la
-(cd .libs &amp;&amp; rm -f libsundials_cvode.la &amp;&amp; ln -s ../libsundials_cvode.la 
-libsundials_cvode.la)
-/bin/sh ../..//libtool --mode=install /usr/bin/install -c libsundials_cvode.la 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib
-/usr/bin/install -c .libs/libsundials_cvode.lai 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.la
-/usr/bin/install -c .libs/libsundials_cvode.a 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.a
-ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.a
-chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.a
-PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib
-----------------------------------------------------------------------
-Libraries have been installed in:
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib
-
-If you ever happen to want to link against installed libraries
+`/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'</pre><br>
+<tt>Installing cvode/source...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'<br>
+/usr/bin/install -c -m 644 ../..//config/sundials_config.h .<br>
+/bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o libsundials_cvode.la cvode.lo cvodeio.lo cvband.lo cvdense.lo cvdiag.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib  -lm  -avoid-version<br>
+mkdir .libs<br>
+rm -fr .libs/libsundials_cvode.la .libs/libsundials_cvode.* .libs/libsundials_cvode.*<br>
+ar cru .libs/libsundials_cvode.a  cvode.o cvodeio.o cvband.o cvdense.o cvdiag.o cvspgmr.o cvbandpre.o cvbbdpre.o 
+ranlib .libs/libsundials_cvode.a<br>
+creating libsundials_cvode.la<br>
+(cd .libs &amp;&amp; rm -f libsundials_cvode.la &amp;&amp; ln -s ../libsundials_cvode.la libsundials_cvode.la)<br>
+/bin/sh ../..//libtool --mode=install /usr/bin/install -c libsundials_cvode.la /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+/usr/bin/install -c .libs/libsundials_cvode.lai /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.la<br>
+/usr/bin/install -c .libs/libsundials_cvode.a /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.a<br>
+ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.a<br>
+chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.a<br>
+PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+----------------------------------------------------------------------<br>
+Libraries have been installed in:<br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+<br>
+<pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
 specify the full pathname of the library, or use the `-LLIBDIR'
 flag during linking and do at least one of the following:
@@ -2108,9 +1975,8 @@ flag during linking and do at least one of the following:
    - add LIBDIR to the `LD_RUN_PATH' environment variable
      during linking
    - use the `--rpath LIBDIR' linker flag
-   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
-
-See any operating system documentation about shared libraries for
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
+<pre style="margin: 0em;">See any operating system documentation about shared libraries for
 more information, such as the ld(1) and ld.so(8) manual pages.
 ----------------------------------------------------------------------
 /usr/bin/install -c -m 644 ./../include/cvode.h 
@@ -2128,39 +1994,28 @@ more information, such as the ld(1) and ld.so(8) manual pages.
 /usr/bin/install -c -m 644 ./../include/cvbbdpre.h 
 /home/nano/dcchrzan/chunwei/temp/sundials/include
 make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'
-
-Installing cvode/fcmix...
-make[1]: Entering directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'
-/usr/bin/install -c -m 644 ../..//config/sundials_config.h .
-/bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto 
--o libsundials_fcvode.la fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo 
-fcvpreco.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo -rpath 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib  -lm  -static -avoid-version
-mkdir .libs
-rm -fr .libs/libsundials_fcvode.la .libs/libsundials_fcvode.* 
-.libs/libsundials_fcvode.*
-ar cru .libs/libsundials_fcvode.a  fcvode.o fcvband.o fcvdense.o fcvjtimes.o 
-fcvpreco.o fcvbbd.o fcvbp.o fcvroot.o fcvewt.o 
-ranlib .libs/libsundials_fcvode.a
-creating libsundials_fcvode.la
-(cd .libs &amp;&amp; rm -f libsundials_fcvode.la &amp;&amp; ln -s ../libsundials_fcvode.la 
-libsundials_fcvode.la)
-/bin/sh ../..//libtool --mode=install /usr/bin/install -c libsundials_fcvode.la 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib
-/usr/bin/install -c .libs/libsundials_fcvode.lai 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.la
-/usr/bin/install -c .libs/libsundials_fcvode.a 
-/home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.a
-ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.a
-chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.a
-PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib
-----------------------------------------------------------------------
-Libraries have been installed in:
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib
-
-If you ever happen to want to link against installed libraries
+`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'</pre><br>
+<tt>Installing cvode/fcmix...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'<br>
+/usr/bin/install -c -m 644 ../..//config/sundials_config.h .<br>
+/bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o libsundials_fcvode.la fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo fcvpreco.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib  -lm  -static -avoid-version<br>
+mkdir .libs<br>
+rm -fr .libs/libsundials_fcvode.la .libs/libsundials_fcvode.* .libs/libsundials_fcvode.*<br>
+ar cru .libs/libsundials_fcvode.a  fcvode.o fcvband.o fcvdense.o fcvjtimes.o fcvpreco.o fcvbbd.o fcvbp.o fcvroot.o fcvewt.o 
+ranlib .libs/libsundials_fcvode.a<br>
+creating libsundials_fcvode.la<br>
+(cd .libs &amp;&amp; rm -f libsundials_fcvode.la &amp;&amp; ln -s ../libsundials_fcvode.la libsundials_fcvode.la)<br>
+/bin/sh ../..//libtool --mode=install /usr/bin/install -c libsundials_fcvode.la /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+/usr/bin/install -c .libs/libsundials_fcvode.lai /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.la<br>
+/usr/bin/install -c .libs/libsundials_fcvode.a /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.a<br>
+ranlib /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.a<br>
+chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.a<br>
+PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
+----------------------------------------------------------------------<br>
+Libraries have been installed in:<br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+<br>
+<pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
 specify the full pathname of the library, or use the `-LLIBDIR'
 flag during linking and do at least one of the following:
@@ -2169,186 +2024,119 @@ flag during linking and do at least one of the following:
    - add LIBDIR to the `LD_RUN_PATH' environment variable
      during linking
    - use the `--rpath LIBDIR' linker flag
-   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
-
-See any operating system documentation about shared libraries for
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
+<pre style="margin: 0em;">See any operating system documentation about shared libraries for
 more information, such as the ld(1) and ld.so(8) manual pages.
 ----------------------------------------------------------------------
 make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'
-</pre><pre>bash-3.1$ make examples
-Making examples in cvode/examples_ser...
-make[1]: Entering directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_ser'
-make[1]: Nothing to be done for `all'.
-make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_ser'
+`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'</pre><br>
+<pre style="margin: 0em;"><br>------------------------------------------------------------------------</pre><br>
+<tt>bash-3.1$ make examples<br>
+Making examples in cvode/examples_ser...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_ser'<br>
+make[1]: Nothing to be done for `all'.<br>
+make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_ser'<br>
  
-Making examples in cvode/examples_par...
-make[1]: Entering directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_par'
-make[1]: Nothing to be done for `all'.
-make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_par'
+Making examples in cvode/examples_par...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_par'<br>
+make[1]: Nothing to be done for `all'.<br>
+make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_par'<br>
  
-Making examples in cvode/fcmix/examples_ser...
-make[1]: Entering directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_ser'
-Updating cvdensef.f...
-/usr/mill/bin/xlf -g -qarch=auto -qtune=auto -c ./cvdensef-updated.f
-** _main   === End of Compilation 1 ===
-** fcvfun   === End of Compilation 2 ===
-** fcvrootfn   === End of Compilation 3 ===
-** fcvdjac   === End of Compilation 4 ===
-1501-510  Compilation successful for file cvdensef-updated.f.
-/usr/mill/bin/xlc -o ./cvdensef ./cvdensef-updated.o  
--L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode 
--lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared 
--lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib 
--L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt 
--lpthread
-Updating cvbandf.f...
-/usr/mill/bin/xlf -g -qarch=auto -qtune=auto -c ./cvbandf-updated.f
-** _main   === End of Compilation 1 ===
-** initbx   === End of Compilation 2 ===
-** maxnorm   === End of Compilation 3 ===
-** fcvfun   === End of Compilation 4 ===
-** fcvbjac   === End of Compilation 5 ===
-1501-510  Compilation successful for file cvbandf-updated.f.
-/usr/mill/bin/xlc -o ./cvbandf ./cvbandf-updated.o  
--L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode 
--lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared 
--lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib 
--L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt 
--lpthread
-Updating cvkryf.f...
-/usr/mill/bin/xlf -g -qarch=auto -qtune=auto -c ./cvkryf-updated.f
-** _main   === End of Compilation 1 ===
-** initkx   === End of Compilation 2 ===
-** fcvfun   === End of Compilation 3 ===
-** fcvpset   === End of Compilation 4 ===
-** fcvpsol   === End of Compilation 5 ===
-** dgefa   === End of Compilation 6 ===
-** dgesl   === End of Compilation 7 ===
-** daxpy   === End of Compilation 8 ===
-** dscal   === End of Compilation 9 ===
-** ddot   === End of Compilation 10 ===
-** idamax   === End of Compilation 11 ===
-** dcopy   === End of Compilation 12 ===
-1501-510  Compilation successful for file cvkryf-updated.f.
-/usr/mill/bin/xlc -o ./cvkryf ./cvkryf-updated.o  
--L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode 
--lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared 
--lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib 
--L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl
--lxlfmath -ldl -lrt -lpthread
-Updating cvkrybf.f...
-/usr/mill/bin/xlf -g -qarch=auto -qtune=auto -c ./cvkrybf-updated.f
-** _main   === End of Compilation 1 ===
-** initkx   === End of Compilation 2 ===
-** fcvfun   === End of Compilation 3 ===
-1501-510  Compilation successful for file cvkrybf-updated.f.
-/usr/mill/bin/xlc -o ./cvkrybf ./cvkrybf-updated.o  
--L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode 
--lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared 
--lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib 
--L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt 
--lpthread
-make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_ser'
+Making examples in cvode/fcmix/examples_ser...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_ser'<br>
+Updating cvdensef.f...<br>
+/usr/mill/bin/xlf -g -qarch=auto -qtune=auto -c ./cvdensef-updated.f<br>
+** _main   === End of Compilation 1 ===<br>
+** fcvfun   === End of Compilation 2 ===<br>
+** fcvrootfn   === End of Compilation 3 ===<br>
+** fcvdjac   === End of Compilation 4 ===<br>
+1501-510  Compilation successful for file cvdensef-updated.f.<br>
+/usr/mill/bin/xlc -o ./cvdensef ./cvdensef-updated.o  -L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode -lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared -lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
+Updating cvbandf.f...<br>
+/usr/mill/bin/xlf -g -qarch=auto -qtune=auto -c ./cvbandf-updated.f<br>
+** _main   === End of Compilation 1 ===<br>
+** initbx   === End of Compilation 2 ===<br>
+** maxnorm   === End of Compilation 3 ===<br>
+** fcvfun   === End of Compilation 4 ===<br>
+** fcvbjac   === End of Compilation 5 ===<br>
+1501-510  Compilation successful for file cvbandf-updated.f.<br>
+/usr/mill/bin/xlc -o ./cvbandf ./cvbandf-updated.o  -L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode -lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared -lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
+Updating cvkryf.f...<br>
+/usr/mill/bin/xlf -g -qarch=auto -qtune=auto -c ./cvkryf-updated.f<br>
+** _main   === End of Compilation 1 ===<br>
+** initkx   === End of Compilation 2 ===<br>
+** fcvfun   === End of Compilation 3 ===<br>
+** fcvpset   === End of Compilation 4 ===<br>
+** fcvpsol   === End of Compilation 5 ===<br>
+** dgefa   === End of Compilation 6 ===<br>
+** dgesl   === End of Compilation 7 ===<br>
+** daxpy   === End of Compilation 8 ===<br>
+** dscal   === End of Compilation 9 ===<br>
+** ddot   === End of Compilation 10 ===<br>
+** idamax   === End of Compilation 11 ===<br>
+** dcopy   === End of Compilation 12 ===<br>
+1501-510  Compilation successful for file cvkryf-updated.f.<br>
+/usr/mill/bin/xlc -o ./cvkryf ./cvkryf-updated.o  -L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode -lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared -lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl<br>
+-lxlfmath -ldl -lrt -lpthread<br>
+Updating cvkrybf.f...<br>
+/usr/mill/bin/xlf -g -qarch=auto -qtune=auto -c ./cvkrybf-updated.f<br>
+** _main   === End of Compilation 1 ===<br>
+** initkx   === End of Compilation 2 ===<br>
+** fcvfun   === End of Compilation 3 ===<br>
+1501-510  Compilation successful for file cvkrybf-updated.f.<br>
+/usr/mill/bin/xlc -o ./cvkrybf ./cvkrybf-updated.o  -L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode -lsundials_cvode -lsundials_fnvecserial -lsundials_nvecserial -lsundials_shared -lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
+make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_ser'<br>
  
-Making examples in cvode/fcmix/examples_par...
-make[1]: Entering directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_par'
-Updating pvdiagnf.f...
-/usr/mill/bin/mpif77  -I/usr/mill/bin/../include -g -qarch=auto -qtune=auto -c 
-./pvdiagnf-updated.f
-** _main   === End of Compilation 1 ===
-** fcvfun   === End of Compilation 2 ===
-1501-510  Compilation successful for file pvdiagnf-updated.f.
-/usr/mill/bin/mpicc -o ./pvdiagnf ./pvdiagnf-updated.o   
--L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode 
--lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel 
--lsundials_shared -L/usr/mill/bin/../lib  -lm  -L/opt/ibmcmp/xlsmp/1.5/lib
--L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt 
--lpthread
-Updating pvdiagkf.f...
-/usr/mill/bin/mpif77  -I/usr/mill/bin/../include -g -qarch=auto -qtune=auto -c 
-./pvdiagkf-updated.f
-** _main   === End of Compilation 1 ===
-** fcvfun   === End of Compilation 2 ===
-** fcvpsol   === End of Compilation 3 ===
-** fcvpset   === End of Compilation 4 ===
-1501-510  Compilation successful for file pvdiagkf-updated.f.
-/usr/mill/bin/mpicc -o ./pvdiagkf ./pvdiagkf-updated.o   
--L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode 
--lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel 
--lsundials_shared -L/usr/mill/bin/../lib  -lm  -L/opt/ibmcmp/xlsmp/1.5/lib
--L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt 
--lpthread
-Updating pvdiagkbf.f...
-/usr/mill/bin/mpif77  -I/usr/mill/bin/../include -g -qarch=auto -qtune=auto -c 
-./pvdiagkbf-updated.f
-** _main   === End of Compilation 1 ===
-** fcvfun   === End of Compilation 2 ===
-** fcvglocfn   === End of Compilation 3 ===
-** fcvcommfn   === End of Compilation 4 ===
-1501-510  Compilation successful for file pvdiagkbf-updated.f.
-/usr/mill/bin/mpicc -o ./pvdiagkbf ./pvdiagkbf-updated.o   
--L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode 
--lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel 
--lsundials_shared -L/usr/mill/bin/../lib  -lm  -L/opt/ibmcmp/xlsmp/1.5/lib 
--L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib 
--L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib 
--L/usr/lib/../lib
--lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread
-make[1]: Leaving directory 
-`/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_par'
+Making examples in cvode/fcmix/examples_par...<br>
+make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_par'<br>
+Updating pvdiagnf.f...<br>
+/usr/mill/bin/mpif77  -I/usr/mill/bin/../include -g -qarch=auto -qtune=auto -c ./pvdiagnf-updated.f<br>
+** _main   === End of Compilation 1 ===<br>
+** fcvfun   === End of Compilation 2 ===<br>
+1501-510  Compilation successful for file pvdiagnf-updated.f.<br>
+/usr/mill/bin/mpicc -o ./pvdiagnf ./pvdiagnf-updated.o   -L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared -L/usr/mill/bin/../lib  -lm  -L/opt/ibmcmp/xlsmp/1.5/lib<br>
+-L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
+Updating pvdiagkf.f...<br>
+/usr/mill/bin/mpif77  -I/usr/mill/bin/../include -g -qarch=auto -qtune=auto -c ./pvdiagkf-updated.f<br>
+** _main   === End of Compilation 1 ===<br>
+** fcvfun   === End of Compilation 2 ===<br>
+** fcvpsol   === End of Compilation 3 ===<br>
+** fcvpset   === End of Compilation 4 ===<br>
+1501-510  Compilation successful for file pvdiagkf-updated.f.<br>
+/usr/mill/bin/mpicc -o ./pvdiagkf ./pvdiagkf-updated.o   -L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared -L/usr/mill/bin/../lib  -lm  -L/opt/ibmcmp/xlsmp/1.5/lib<br>
+-L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
+Updating pvdiagkbf.f...<br>
+/usr/mill/bin/mpif77  -I/usr/mill/bin/../include -g -qarch=auto -qtune=auto -c ./pvdiagkbf-updated.f<br>
+** _main   === End of Compilation 1 ===<br>
+** fcvfun   === End of Compilation 2 ===<br>
+** fcvglocfn   === End of Compilation 3 ===<br>
+** fcvcommfn   === End of Compilation 4 ===<br>
+1501-510  Compilation successful for file pvdiagkbf-updated.f.<br>
+/usr/mill/bin/mpicc -o ./pvdiagkbf ./pvdiagkbf-updated.o   -L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared -L/usr/mill/bin/../lib  -lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib<br>
+-lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
+make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_par'<br>
+ </tt><br>
+<br>
+<pre style="margin: 0em;"><br>------------------------------------------------------------------------</pre><br>
+<tt>bash-3.1$ ./cvbx<br>
  
-</pre><pre>bash-3.1$ ./cvbx
+2-D Advection-Diffusion Equation<br>
+Mesh dimensions = 10 X 5<br>
+Total system size = 50<br>
+Tolerance parameters: reltol = 0   abstol = 1e-05<br>
  
-2-D Advection-Diffusion Equation
-Mesh dimensions = 10 X 5
-Total system size = 50
-Tolerance parameters: reltol = 0   abstol = 1e-05
- 
-At t = 0      max.norm(u) =  8.954716e+01
-CVode-- At t = 0.00279524, mxstep steps taken before reaching tout.
+At t = 0      max.norm(u) =  8.954716e+01<br>
+CVode-- At t = 0.00279524, mxstep steps taken before reaching tout.<br>
  
  
-SUNDIALS_ERROR: CVode() failed with flag = -4
+SUNDIALS_ERROR: CVode() failed with flag = -4<br>
  
  
-Final Statistics:
-nst = 500    nfe  = 528    nsetups = 25     nfeB = 0      njeB = 9
+Final Statistics:<br>
+nst = 500    nfe  = 528    nsetups = 25     nfeB = 0      njeB = 9<br>
 nni = 525    ncfn = 0      netf = 0
-</pre>
+</tt></blockquote><br>
+
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
@@ -2357,38 +2145,38 @@ nni = 525    ncfn = 0      netf = 0
 <table width="95%" frame="below"><tr><td></td></table>
 <ul><li><strong>Follow-Ups</strong>:
 <ul>
-<li><strong><a name="00348" href="msg00348.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00349" href="msg00349.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> CW Yuan &lt;globalrave@yahoo.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00343" href="msg00343.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
-<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00347" href="msg00347.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> CW Yuan &lt;globalrave@yahoo.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00347.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00348.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<strong><a href="msg00349.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00343.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<strong><a href="msg00347.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00348.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<strong><a href="msg00349.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00347">
+<li><a href="maillist.html#00348">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00347">
+<li><a href="threads.html#00348">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

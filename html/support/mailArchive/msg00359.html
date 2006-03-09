@@ -1,0 +1,535 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: [sundials&#45;users] Notes on controlling unphysical solution components and integrating over discontinuities -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Wed, 08 Mar 2006 13:58:06 &#45;0800 (PST) -->
+<!--X-Message-Id: 440F5304.1040304@llnl.gov -->
+<!--X-Content-Type: multipart/alternative -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>[sundials-users] Notes on controlling unphysical solution components and integrating over discontinuities</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00358.html">Date Prev</a>] [Date Next] [<a href="msg00346.html">Thread Prev</a>] [Thread Next]<br>
+[<b><a href="maillist.html#00359">Date Index</a></b>]
+[<b><a href="threads.html#00359">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>[sundials-users] Notes on controlling unphysical solution components and integrating over discontinuities</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 08 Mar 2006 13:56:20 -0800</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+
+<font face="Helvetica, Arial, sans-serif">Recently, many of the
+postings on this forum were related to dealing with <i>unphysical
+solution components</i> and <i>discontinuities</i> in the right-hand
+side (RHS) or residual (RES) functions in <font
+ face="Courier New, Courier, monospace">CVODE/CVODES</font> and <font
+ face="Courier New, Courier, monospace">IDA,</font>
+respectively. However, several new messages show that many users still
+do not clearly understand how to address these issues or how they are
+different.<br>
+<br>
+I thought that it may be useful to post a lengthier message that tries
+to clarify what these problems are and how they can be addressed. Since
+the selection of appropriate integration tolerances is relevant to the
+issue of controlling unphysical solution components, a few comments on
+choosing tolerances are included at the end. <br>
+<br>
+--Radu<br>
+</font>
+<pre class="moz-signature" cols="140">-- 
+   Radu Serban
+   Center for Applied Scientific Computing   [email] <a class="moz-txt-link-abbreviated" href="mailto:radu@llnl.gov">radu@llnl.gov</a>
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre>
+<br>
+<hr size="2" width="100%"><br>
+<font face="Helvetica, Arial, sans-serif">In
+the sequel I'll refer to ODEs (and <font
+ face="Courier New, Courier, monospace">CVODE</font>). DAE or <font
+ face="Courier New, Courier, monospace">IDA</font>-specific issues
+will be explicitly mentioned. <br>
+<br>
+<b>A) What are these problems?</b><br>
+<br>
+First of all, to put things in context and lay blame where it's due,
+recall the chain<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; physical phenomenon -&gt; mathematical model -&gt; numerical
+solution<br>
+&nbsp;<br>
+The <b>only</b> issues with unphysical solution components that can be
+resolved by various settings and/or 'tricks' with numerical solvers
+such as those in <font face="Courier New, Courier, monospace">SUNDIALS</font>
+are those arising in the second step, from
+the mathematical model to its numerical solution. It is unreasonable to
+expect an ODE/DAE solver to resolve problems introduced in the
+modeling part.<br>
+<br>
+On the other hand, issues with discontinuities in the RHS function
+arise (genuinely in some applications) in the first step, namely in
+modeling a certain physical phenomenon.<br>
+<br>
+Secondly, let's define the two problems under discussion (from the
+perspective of the above comment).<br>
+<br>
+<u>A1) Unphysical solution components</u><br>
+<br>
+In many applications, some components in the <b>true</b> solution (of
+the mathematical model) are always positive or non-negative, though at
+times very small. In the numerical solution, however, small negative
+(hence unphysical) values can then occur. In most cases, these values
+are harmless, and simply need to be controlled, not eliminated. <br>
+<br>
+Note that we assume that the mathematical model itself does <b>not</b>
+lead to unphysical solutions. In other words, if we were able to
+exactly solve it, its solution would be physically acceptable. If that
+is not true (e.g. the model for some fluxes is such that it leads to
+negative concentrations) then the mathematical model itself is
+unphysical in some regions and the solution is to go back and revisit
+the first step in the chain above. In such a case, it may be necessary
+to switch between different models depending on the operating
+conditions, which could introduce discontinuities in the ODE right-hand
+side function and thus we may end up in the territory covered by the
+next problem.<br>
+<br>
+The <font face="Courier New, Courier, monospace">CVODE</font> <font
+ face="Courier New, Courier, monospace">cvdx</font> problem is an
+example of unphysical solutions introduced
+by the numerical computation. This problem models three chemical
+reactions and the 3 concentrations would always be positive (and less
+than or equal to 1) if the system of ODEs were solved exactly. However,
+depending on the integration tolerances (more on this later), it is
+possible to obtain small negative values for <font
+ face="Courier New, Courier, monospace">y1</font> and <font
+ face="Courier New, Courier, monospace">y3</font> or even
+completely unrealistic results!<br>
+<br>
+<u>A2) Discontinuities in the RHS function</u><br>
+<br>
+In certain types of problems (most notably in some controls problems)
+the underlying mathematical model must be changed in certain regions of
+the solution space or the solution itself must be perturbed and this
+can introduce discontinuities in the ODE right-hand side. The point (in
+time, or whatever the independent ODE variable happens to be) at which
+such a change occurs can be defined explicitly (i.e., it is known a
+priori or can be determined externally to the ODE solver) or implicitly
+(i.e., it is triggered by the satisfaction of some condition involving
+the ODE solution).<br>
+</font>
+<ul>
+  <li><font face="Helvetica, Arial, sans-serif">For example, a
+model for the water flow in your sprinkler system will have a
+discontinuity whenever the system is turned on, the time at which this
+happens being known a priori. This is an <i>explicitly-defined
+discontinuity</i>.</font></li>
+  <li><font face="Helvetica, Arial, sans-serif">On the other
+hand, imagine having a simple model based on F=ma for the evolution of
+the
+position of an airplane and wish to use it during landing. While
+the airplane is airborne, you integrate your ODEs for x,y,z but once
+the altitude z becomes 0 an additional reaction force needs to be
+introduced into the model (the ground reaction force). Since the time
+at which the airplane touches ground cannot be known in advance, this
+is an <i>implicitly-defined discontinuity</i> (the condition in this
+case
+being z=0).<br>
+    </font></li>
+</ul>
+<font face="Helvetica, Arial, sans-serif">
+Since the integration methods implemented in <font
+ face="Courier New, Courier, monospace">SUNDIALS</font> are based on
+assumptions of sufficient smoothness of the solution and the RHS
+functions, such discontinuities must be&nbsp; addressed and treated
+appropriately.<br>
+<br>
+<b>B) How do you resolve these problems?</b><br>
+<br>
+In attempting to solve one of these problems, it is important to
+remember that you should <b>never</b> simply change the solution <font
+ face="Courier New, Courier, monospace">y</font> passed as an (input
+only) argument to the RHS or RES functions!<br>
+<br>
+</font><font face="Helvetica, Arial, sans-serif"><u>B1)
+Unphysical
+solution components</u><br>
+<br>
+</font><font face="Helvetica, Arial, sans-serif">Note that, if
+unphysical components appear in the numerical solution, the amount by
+which the physical bounds are violated will be of the order of the
+absolute tolerance. The following pieces of advice are relevant:<br>
+</font>
+<ul>
+  <li><font face="Helvetica, Arial, sans-serif"> The way to
+control the size of unwanted physical violations of the computed values
+is with tighter absolute tolerances. This requires some
+knowledge of the noise level of these components, which may or may not
+be different for different components. Some experimentation may be
+needed.<br>
+The <font face="Courier New, Courier, monospace">SUNDIALS</font>
+solvers in the next release (<font
+ face="Courier New, Courier, monospace">SUNDIALS v2.2.0</font>) will
+allow for the RHS/RES functions to return a positive flag indicating a
+"recoverable error". In this case, the solver will attempt to correct
+this by reducing the step size (which, for all practical purposes, is
+equivalent to a
+tightening of the tolerances!). </font><font
+ face="Helvetica, Arial, sans-serif">Note that this assumes that the
+model
+is not at fault for the unphysical values and therefore, if <font
+ face="Courier New, Courier, monospace">y</font> was physical at the
+previous step there must be some step size that will keep it physical.<br>
+    </font></li>
+</ul>
+<ul>
+  <li><font face="Helvetica, Arial, sans-serif"> If output plots
+or tables are being generated, and it is important
+to avoid having negative numbers appear there (for the sake of avoiding
+a long explanation of them, if nothing else), then eliminate them, but <b>only</b>
+in the context of the output medium. Then the internal
+values carried
+by the solver are unaffected. Remember that a small negative value in<font
+ face="Courier New, Courier, monospace"> y</font>
+returned by <font face="Courier New, Courier, monospace">CVODE</font>,
+with magnitude comparable to <font
+ face="Courier New, Courier, monospace">abstol</font> or less,
+is equivalent to zero as far as the computation is concerned.</font></li>
+</ul>
+<ul>
+  <li><font face="Helvetica, Arial, sans-serif"> The user's RHS
+function should <b>never</b> change a
+negative value in the solution vector y to a non-negative value,
+as a "solution" to this problem. This can cause instability. If the RHS
+routine cannot tolerate a zero or negative value (e.g. because
+there is a square root or log of it), then the offending value should
+be changed to zero or a tiny positive number in a temporary variable
+(<b>not</b> in the input y vector) for the purposes of computing f(t,y).</font></li>
+</ul>
+<font face="Helvetica, Arial, sans-serif">In addition, <font
+ face="Courier New, Courier, monospace">IDA</font> provides the option
+of enforcing positivity or non-negativity
+on components (specified through <font
+ face="Courier New, Courier, monospace">IDASetConstraints</font>). But
+these constraint options should only be exercised if
+the use of absolute tolerances to control the computed values is
+unsuccessful, because they involve some extra overhead cost.<br>
+</font><br>
+<font face="Helvetica, Arial, sans-serif"><u>B2) Discontinuities
+in
+the RHS function</u><br>
+</font><font face="Helvetica, Arial, sans-serif"><br>
+If the jumps at the discontinuities are relatively small, simply
+keep them in the RHS function, and let the integrator respond to
+them (possibly taking smaller steps through each point of
+discontinuity).
+<br>
+<br>
+If the jumps are large, it is more efficient to stop at the point of
+discontinuity and restart the integrator. The following steps must
+therefore be taken:<br>
+</font>
+<ol>
+  <li><font face="Helvetica, Arial, sans-serif">Integrate up to
+the point of discontinuity</font><font
+ face="Helvetica, Arial, sans-serif"><br>
+    The method used to reach that location depends on whether
+the discontinuity is defined explicitly or implicitly. In either case,
+it is critical that the RHS function <b>does not</b> incorporate the
+discontinuity while integrating towards it.</font><font
+ face="Helvetica, Arial, sans-serif"><br>
+    </font>
+    <ul>
+      <li><font face="Helvetica, Arial, sans-serif">For an
+explicitly-defined discontinuity </font><font
+ face="Helvetica, Arial, sans-serif">(i.e. <font
+ face="Courier New, Courier, monospace">tdisc</font> is known a priori)
+simply make
+that location an output time (<font
+ face="Courier New, Courier, monospace">tout=tdisc</font>)</font><font
+ face="Helvetica, Arial, sans-serif"> and integrate to that point. If a
+smooth extension of the model over the discontinuity (see below) does
+not exist, in order to
+prevent the solver ever attempting a RHS evaluation at a point beyond
+the location of the discontinuity, also make that location a stopping
+time by calling <font face="Courier New, Courier, monospace">CVodeSetStopTime(cvode_mem,
+tdisc)</font>.<br>
+        </font></li>
+    </ul>
+    <ul>
+      <li><font face="Helvetica, Arial, sans-serif">To stop when
+the location of the
+discontinuity is determined by the solution (implicitly-defined
+discontinuity), use the rootfinding feature (also available in the
+next IDA v2.4.0 release). In other words, the location of the
+discontinuity is the zero of some function <font
+ face="Courier New, Courier, monospace">g</font> of the solution (i.e.,
+        <font face="Courier New, Courier, monospace">g(tdisc,
+y(tdisc))=0</font>). Note that, in this situation, you cannot use <font
+ face="Courier New, Courier, monospace">CVodeSetStopTime</font> to
+prevent the discontinuity from being "seen" during this integration
+phase. Indeed, the rootfinding algorithm relies on detecting sign
+changes in g and therefore needs to be allowed to evaluate it (and
+implicitly the RHS) on both sides of tdisc. Therefore, during this
+phase only, you need to have a <b>smooth extension</b> over the
+discontinuity so that the step across it and the subsequent rootfinding
+can be done efficiently. <br>
+        <br>
+        </font></li>
+    </ul>
+  </li>
+  <li><font face="Helvetica, Arial, sans-serif">Incorporate the
+discontinuity<br>
+Depending on the (problem-dependent) type of discontinuity, you can now
+adjust the solution y (for example by adding a jump) or switch to a new
+ODE model (for example by flipping a switch in the user data passed to
+RHS to activate the use of the new ODE model for the next integration
+phase).<br>
+    <br>
+    </font></li>
+  <li><font face="Helvetica, Arial, sans-serif">Reinitialize the
+solver at the point of discontinuity<br>
+This step is crucial and is the reason for all the work done in step 1
+to identify the location of the discontinuity. Recall that the <font
+ face="Courier New, Courier, monospace">SUNDIALS</font> solvers
+implement <b>multistep</b> methods and therefore use past solution
+history (stored internally) to advance the solution in time. Once a
+discontinuity occurred, the solutions at previous steps are not
+suitable
+any more and must therefore be discarded. Calling the reinitialization
+function <font face="Courier New, Courier, monospace">CVodeReInit</font>
+ensures that the solvers restart at order 1 and begin building up a
+fresh solution history.<br>
+If using <font face="Courier New, Courier, monospace">IDA</font>, you
+must ensure that a solution <font
+ face="Courier New, Courier, monospace">(y,y')</font> <b>consistent</b>
+with the DAE is&nbsp; passed to <font face="Courier New, Courier, monospace">IDAReInit</font>.
+Therefore, you may need to first call <font
+ face="Courier New, Courier, monospace">IDACalcIC</font>.<br>
+    <br>
+    </font></li>
+  <li><font face="Helvetica, Arial, sans-serif">Integrate from
+the point of discontinuity</font></li>
+</ol>
+<font face="Helvetica, Arial, sans-serif"><br>
+<br>
+</font><font face="Helvetica, Arial, sans-serif"><b>C)
+Selection of
+integration tolerances</b><br>
+<br>
+</font><font face="Helvetica, Arial, sans-serif">For many users, the
+appropriate choices for tolerance values are a
+concern. The following pieces of advice are relevant.
+</font>
+<ol>
+  <li><font face="Helvetica, Arial, sans-serif"> The scalar
+relative tolerance <font face="Courier New, Courier, monospace">reltol</font>
+is to be set to control <b>relative</b>
+errors. So <font face="Courier New, Courier, monospace">reltol = 1.0E-4</font>
+means that errors are controlled to .01%. We
+do not recommend using reltol larger than 1.0E-3. On the other hand, <font
+ face="Courier New, Courier, monospace">reltol</font> should
+not be so small that it is comparable to the unit roundoff
+of the machine arithmetic (in double precision, the unit roundoff is of
+the order 1.0E-16).</font></li>
+  <li><font face="Helvetica, Arial, sans-serif"> The absolute
+tolerances <font face="Courier New, Courier, monospace">abstol</font>,
+whether scalar (<font face="Courier New, Courier, monospace">CV_SS</font>)
+or vector (<font face="Courier New, Courier, monospace">CV_SV</font>)
+need to
+be set to control <b>absolute</b> errors when any components of the
+solution
+vector <font face="Courier New, Courier, monospace">y</font> may be so
+small that pure relative error control is
+meaningless. For example, if <font
+ face="Courier New, Courier, monospace">y[i]</font> starts at some
+nonzero value, but in time
+decays to zero, then pure relative error control on <font
+ face="Courier New, Courier, monospace">y[i]</font> makes no sense
+(and is overly costly) after <font
+ face="Courier New, Courier, monospace">y[i]</font> is below some <b>noise
+level</b>. Then <font face="Courier New, Courier, monospace">abstol</font>
+(if
+scalar) or <font face="Courier New, Courier, monospace">abstol[i]</font>
+(if a vector) needs to be set to that
+noise level. If the different components have different noise levels,
+then <font face="Courier New, Courier, monospace">abstol</font> should
+be a vector. See the example cvdx in the <font
+ face="Courier New, Courier, monospace">CVODE</font>
+package, and the discussion of it in the <i>CVODE Examples</i>
+document.
+In that problem, the three components vary between 0 and 1, and have
+different noise levels; hence the <font
+ face="Courier New, Courier, monospace">abstol</font> vector. It is
+impossible to
+give any general advice on <font face="Courier New, Courier, monospace">abstol</font>
+values, because the appropriate noise
+levels are completely problem-dependent. The user or modeler hopefully
+has
+some idea as to what those noise levels are.</font></li>
+  <li><font face="Helvetica, Arial, sans-serif"> It is important
+to pick all the tolerance values conservatively,
+because they control the error committed on each individual time step.
+The final (global) errors are some sort of accumulation of those
+per-step errors. A good rule of thumb is to reduce the tolerances by a
+factor of .01 from the actual desired limits on errors. So if you
+want .01% accuracy (globally), a good choice is <font
+ face="Courier New, Courier, monospace">reltol = 1.0E-6</font>.
+But in any case, it is a good idea to do a few experiments with
+the tolerances to see how the computed solution values vary as
+tolerances are reduced.</font></li>
+  <li><font face="Helvetica, Arial, sans-serif">If the problem
+needs something "in between" the cases covered by <font
+ face="Courier New, Courier, monospace">CV_SS</font> and <font
+ face="Courier New, Courier, monospace">CV_SV</font>, for a more
+memory-efficient implementation, the SUNDIALS solver provide the option
+of user-defined error weight vectors. Suppose there are a few groups of
+variables (relative to the
+total number of variables) such that all the variables in each group
+require the same value of <font face="Courier New, Courier, monospace">abstol</font>,
+but these values are very different
+from one group to another. Then a user <font
+ face="Courier New, Courier, monospace">CVEwtFn</font> function can
+keep an
+array of those values and construct the <font
+ face="Courier New, Courier, monospace">ewt</font> vector without any
+additional storage. Also, in <b>rare</b> cases, one may want to use
+this
+option to apply different values of <font
+ face="Courier New, Courier, monospace">reltol</font> to different
+variables (or
+groups of variables).</font></li>
+</ol>
+
+
+
+
+</font>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00358.html">Re: [sundials-users] mass balance and negative values</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00359">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00359">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
