@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.2 $
-C     $Date: 2006-01-24 00:49:44 $
+C     $Revision: 1.3 $
+C     $Date: 2006-03-09 00:10:08 $
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FCVODE interfaces and FCVBBD interfaces.
@@ -295,7 +295,7 @@ C
       DOUBLE PRECISION T, YLOC(*), GLOC(*), RPAR(*)
 C     
       CALL FCVFUN(T, YLOC, GLOC, IPAR, RPAR, IER)
-C     
+C
       RETURN
       END
 C
@@ -303,5 +303,6 @@ C     ------------------------------------------------------------------------
 C      
       SUBROUTINE FCVCOMMFN(NLOC, T, YLOC, IPAR, RPAR, IER)
 C     Routine to perform communication required for evaluation of g.
+      IER = 0
       RETURN
       END
