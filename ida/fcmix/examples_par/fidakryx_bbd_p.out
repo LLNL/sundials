@@ -1,21 +1,20 @@
-
 fidakryx_bbd_p: Heat equation, parallel example problem for FIDA
                 Discretized heat equation on 2D unit square.
                 Zero boundary conditions, polynomial conditions.
                 Mesh dimensions: 10 x 10         Total system size: 100
-
+ 
 Subgrid dimensions:  5 x  5           Processor array:  2 x  2
 Tolerance parameters: rtol = 0.00E+00   atol = 0.10E-02
 Constraints set to force all solution components >= 0.
 SUPPRESSALG = TRUE to suppress local error testing on all boundary components.
 Linear solver: SPGMR.    Preconditioner: BBDPRE - Banded-block-diagonal.
-
-
+ 
+ 
 Case  1
    Difference quotient half-bandwidths = 5   Retained matrix half-bandwidths = 1
-
+ 
    Output Summary (umax = max-norm of solution)
-
+ 
    time         umax       k   nst  nni  nli  nre nreLS nge    h        npe nps
  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
  0.1000E-01   0.82411E+00  2   12   14    7   14    7   96   0.26E-02    8   21
@@ -29,17 +28,17 @@ Case  1
  0.2560E+01   0.31464E-19  1   43   57   72   57   72  192   0.15E+01   16  129
  0.5120E+01   0.79659E-19  1   44   58   72   58   72  204   0.30E+01   17  130
  0.1024E+02   0.22177E-18  1   45   59   72   59   72  216   0.61E+01   18  131
-
+ 
 Error test failures            =  1
 Nonlinear convergence failures =  0
 Linear convergence failures    =  0
-
-
+ 
+ 
 Case  2
    Difference quotient half-bandwidths = 1   Retained matrix half-bandwidths = 1
-
+ 
    Output Summary (umax = max-norm of solution)
-
+ 
    time         umax       k   nst  nni  nli  nre nreLS nge    h        npe nps
  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
  0.1000E-01   0.82411E+00  2   12   14    7   14    7   32   0.26E-02    8   21
@@ -53,7 +52,7 @@ Case  2
  0.2560E+01   0.72541E-18  1   42   52   86   52   86   64   0.13E+01   16  138
  0.5120E+01   0.65980E-17  1   43   53   86   53   86   68   0.26E+01   17  139
  0.1024E+02   0.49060E-16  1   44   54   86   54   86   72   0.52E+01   18  140
-
+ 
 Error test failures            =  0
 Nonlinear convergence failures =  0
 Linear convergence failures    =  0
