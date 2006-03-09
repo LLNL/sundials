@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-21 23:05:29 $
+ * $Revision: 1.10 $
+ * $Date: 2006-03-09 19:23:35 $
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -760,7 +760,6 @@ int CVodeSetSensRhs1Fn(void *cvode_mem, CVSensRhs1Fn fS1)
     cv_mem->cv_fSDQ    = FALSE;
   } else {
     cv_mem->cv_fS1     = CVSensRhs1DQ;
-    cv_mem->cv_fS_data = cvode_mem;
     cv_mem->cv_fSDQ    = TRUE;
   }
 
@@ -780,7 +779,8 @@ int CVodeSetSensFdata(void *cvode_mem, void *fS_data)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_fS_data = fS_data;
+  /* Store pointer provided by user */
+  cv_mem->cv_user_fS_data = fS_data;
 
   return(CV_SUCCESS);
 }

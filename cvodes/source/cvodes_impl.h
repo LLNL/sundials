@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.31 $
- * $Date: 2006-02-14 19:09:48 $
+ * $Revision: 1.32 $
+ * $Date: 2006-03-09 19:23:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -112,7 +112,8 @@ extern "C" {
 
     CVSensRhsFn cv_fS;       /* fS = (df/dy)*yS + (df/dp)                    */
     CVSensRhs1Fn cv_fS1;     /* fS1 = (df/dy)*yS_i + (df/dp)                 */
-    void *cv_fS_data;        /* user pointer passed to fS                    */
+    void *cv_user_fS_data;   /* user data pointer for fS                     */
+    void *cv_fS_data;        /* actial data pointer passed to fS             */
     booleantype cv_fSDQ;
     int cv_ifS;              /* ifS = ALLSENS or ONESENS                     */
 

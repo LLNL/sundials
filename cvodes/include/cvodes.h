@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.53 $
- * $Date: 2006-02-14 19:09:44 $
+ * $Revision: 1.54 $
+ * $Date: 2006-03-09 19:23:32 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -870,22 +870,19 @@ extern "C" {
 
   /*
    * -----------------------------------------------------------------
-   * Function : CVodeSensToggle
+   * Function : CVodeSensToggleOff
    * -----------------------------------------------------------------
-   * CVodeSensToggle activates or deactivates sensitivity calculations.
-   * It does NOT deallocate sensitivity-related memory.
-   * It is allowed to set sensi=TRUE only if CVodeSensMalloc has been
-   * previously called.
+   * CVodeSensToggleOff deactivates sensitivity calculations.
+   * It does NOT deallocate sensitivity-related memory so that 
+   * sensitivity computations can be later toggled ON (through
+   * CVodeSensReInit).
    * 
    * The return value is equal to CV_SUCCESS = 0 if there were no
-   * errors; otherwise it is a negative int equal to:
-   *   CV_MEM_NULL  indicating cvode_mem was NULL
-   *   CV_NO_SENS   indicating there was not a prior call to
-   *                CVodeSensMalloc.   
+   * errors or CV_MEM_NULL if cvode_mem was NULL
    * -----------------------------------------------------------------
    */
 
-  int CVodeSensToggle(void *cvode_mem, booleantype sensi);
+  int CVodeSensToggleOff(void *cvode_mem);
 
   /*
    * -----------------------------------------------------------------

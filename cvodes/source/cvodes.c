@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.78 $
- * $Date: 2006-02-21 23:05:29 $
+ * $Revision: 1.79 $
+ * $Date: 2006-03-09 19:23:34 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,7 +26,7 @@
  *      CVodeQuadReInit   
  *      CVodeSensMalloc
  *      CVodeSensReInit             
- *      CVodeSensToggle
+ *      CVodeSensToggleOff
  *
  *   Main solver function
  *      CVode
@@ -636,22 +636,23 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_errconQ  = FALSE;
 
   /* Set default values for sensi. optional inputs */
-  cv_mem->cv_sensi    = FALSE;
-  cv_mem->cv_fS_data  = (void *)cv_mem;
-  cv_mem->cv_fS       = CVSensRhsDQ;
-  cv_mem->cv_fS1      = CVSensRhs1DQ;
-  cv_mem->cv_fSDQ     = TRUE;
-  cv_mem->cv_ifS      = CV_ONESENS;
-  cv_mem->cv_rhomax   = ZERO;
-  cv_mem->cv_p        = NULL;
-  cv_mem->cv_pbar     = NULL;
-  cv_mem->cv_plist    = NULL;
-  cv_mem->cv_errconS  = FALSE;
-  cv_mem->cv_maxcorS  = NLS_MAXCOR;
-  cv_mem->cv_ncfS1    = NULL;
-  cv_mem->cv_ncfnS1   = NULL;
-  cv_mem->cv_nniS1    = NULL;
-  cv_mem->cv_itolS    = CV_EE;
+  cv_mem->cv_sensi        = FALSE;
+  cv_mem->cv_user_fS_data = NULL;
+  cv_mem->cv_fS_data      = (void *)cv_mem;
+  cv_mem->cv_fS           = CVSensRhsDQ;
+  cv_mem->cv_fS1          = CVSensRhs1DQ;
+  cv_mem->cv_fSDQ         = TRUE;
+  cv_mem->cv_ifS          = CV_ONESENS;
+  cv_mem->cv_rhomax       = ZERO;
+  cv_mem->cv_p            = NULL;
+  cv_mem->cv_pbar         = NULL;
+  cv_mem->cv_plist        = NULL;
+  cv_mem->cv_errconS      = FALSE;
+  cv_mem->cv_maxcorS      = NLS_MAXCOR;
+  cv_mem->cv_ncfS1        = NULL;
+  cv_mem->cv_ncfnS1       = NULL;
+  cv_mem->cv_nniS1        = NULL;
+  cv_mem->cv_itolS        = CV_EE;
 
   /* Set the saved values for qmax_alloc */
 
@@ -1490,39 +1491,25 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
 }
 
 /*
- * CVodeSensToggle
+ * CVodeSensToggleOff
  *
- * CVodeSensToggle activates or deactivates sensitivity calculations.
+ * CVodeSensToggleOff deactivates sensitivity calculations.
  * It does NOT deallocate sensitivity-related memory.
- * It is allowed to set sensi=TRUE only if CVodeSensMalloc has been
- * previously called.
  */
 
-int CVodeSensToggle(void *cvode_mem, booleantype sensi)
+int CVodeSensToggleOff(void *cvode_mem)
 {
   CVodeMem cv_mem;
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
-    CVProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensToggle", MSGCV_NO_MEM);
+    CVProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensToggleOff", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Disable sensitivities */
-  if (sensi == FALSE) {
-    cv_mem->cv_sensi = FALSE;
-    return(CV_SUCCESS);
-  }
-
-  /* Re-enable sensitivities */
-
-  if (cv_mem->cv_sensMallocDone == FALSE) {
-    CVProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeSensToggle", MSGCV_NO_SENSI);
-    return(CV_NO_SENS);
-  } 
-
-  cv_mem->cv_sensi = TRUE;
+  cv_mem->cv_sensi = FALSE;
 
   return(CV_SUCCESS);
 }
@@ -1566,6 +1553,7 @@ int CVodeSensToggle(void *cvode_mem, booleantype sensi)
 
 #define fS             (cv_mem->cv_fS)
 #define fS1            (cv_mem->cv_fS1)
+#define user_fS_data   (cv_mem->cv_user_fS_data)
 #define fS_data        (cv_mem->cv_fS_data)
 #define rhomax         (cv_mem->cv_rhomax)
 #define pbar           (cv_mem->cv_pbar)
@@ -1766,19 +1754,26 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   /* Sensitivity-specific tests */
 
-  if (sensi && fSDQ) {
+  if (sensi) {
 
-    /* If using internal DQ functions for sensitivity RHS */
+    if (fSDQ) { /* internal DQ function for sensitivity RHS */
 
-    /* Make sure we have the right 'user data' */
-    fS_data = cvode_mem;
+      /* Make sure we have the right 'user data' */
+      fS_data = cvode_mem;
     
-    /* Test if we have the problem parameters */
-    if(p == NULL) {
-      CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NULL_P);
-      return(CV_ILL_INPUT);
+      /* Test if we have the problem parameters */
+      if(p == NULL) {
+        CVProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVode", MSGCV_NULL_P);
+        return(CV_ILL_INPUT);
+      }
+    
+    } else {    /* user-provided function for sensitivity RHS */
+
+      /* Use data provided by user */
+      fS_data = user_fS_data;
+
     }
-    
+
   }
 
   /* Begin first call block */
@@ -3356,8 +3351,6 @@ static int CVInitialSetup(CVodeMem cv_mem)
     }
 
   }
-
-  if (!sensi) errconS = FALSE;
 
   /* Check if lsolve function exists (if needed)
      and call linit function (if it exists) */
