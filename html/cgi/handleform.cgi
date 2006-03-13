@@ -62,6 +62,12 @@
 #@REFERERS = ('www.llnl.gov');
 #@REFERERS = ('cmg.llnl.gov');
 
+# Host name of the web server.
+
+$WEB_SERVER = 'localhost:8090';
+#$WEB_SERVER = 'www.llnl.gov';
+#$WEB_SERVER = 'cmg.llnl.gov';
+
 # %CONFIG defines which form fields should be considered configuration
 # fields rather than standard data fields. Each of the default variables
 # defined in the array below have special meaning to FormHandler and are
@@ -94,12 +100,6 @@
            # error and success templates
            'error_template',          'missing.html',
            'success_html_template',   'confirm.html');
-
-# Host name of the web server.
-
-$WEB_SERVER = 'localhost:8090';
-#$WEB_SERVER = 'www.llnl.gov';
-#$WEB_SERVER = 'cmg.llnl.gov';
 
 # sendmail program
 
