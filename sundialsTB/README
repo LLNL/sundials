@@ -1,6 +1,6 @@
                          sundialsTB
                 A MATLAB interface to SUNDIALS
-                   Release 2.2.0, Month 2006
+                   Release 2.2.0, March 2006
 
                         Radu Serban
          Center for Applied Scientific Computing, LLNL
@@ -20,21 +20,33 @@ The distribution file also contains a user guide (PDF and PS), as well
 as several examples. An HTML version of the documentation is available 
 on the SUNDIALS website (www.llnl.gov/CASC/sundials)
 
+sundialsTB v. 2.2.0 requires SUNDIALS v 2.2.0 and, optionally (for parallel support), 
+MPITB with LAM 7.1.1 for MPI-2 features.
 
-+----------+
-| REQUIRES |
-+----------+
-
- - SUNDIALS v 2.2.0
- - Optionally, for parallel support, MPITB with LAM 7.1.1 (for MPI-2 features)
+SUNDIALS: http://www.llnl.gov/CASC/sundials
+MPITB:    http://atc.ugr.es/javier-bin/mpitb_eng
+LAM:      http://www.lam-mpi.org/
 
 
-+---------+
-| INSTALL |
-+---------+
+A. Documentation
+----------------
+
+/sundialsTB/doc contains PostScript and PDF files for the sundialsTB User Guide.
+An HTML version of the user guide is available on the SUNDIALS web site at
+http://www.llnl.gov/CASC/sundials/documentation/stb_guide/sundialsTB.html
+
+B. Installation
+---------------
+
+Installation of the toolbox consists of the following 5 steps, explained in the sequel:
+1. Choose ubication
+2. Decompress and untar
+3. Configuring MATLAB's startup
+4. Compiling MEX files
+5. Testing the installation
+
 
 1. Choose ubication
--------------------
 
 1.1. sundialsTB for all MATLAB users (not usual)
      Assume MATLAB is installed under $MATLAB=/usr/local/matlab7
@@ -48,7 +60,6 @@ on the SUNDIALS website (www.llnl.gov/CASC/sundials)
      % cd ~/matlab
 
 2. Decompress and untar
------------------------
 
 % tar zxvf <wherever>/sundialsTB.tar.gz
 
@@ -63,7 +74,6 @@ Now there is a ~/matlab/sundialsTB (or $MATLAB/toolbox/sundialsTB) subdirectory.
 
 
 3. Configuring MATLAB's startup
--------------------------------
 
 sundialsTB comes with a startup_STB.m file in the top subdirectory
 
@@ -105,7 +115,6 @@ sundialsTB comes with a startup_STB.m file in the top subdirectory
      the location of sundialsTB.
 
 4. Compiling MEX files
-----------------------
 
 To facilitate the compilation of sundialsTB on platforms that do not have
 a make system, we rely on MATLAB's mex command. Compilation of sundialsTB
@@ -132,8 +141,7 @@ present in the sundialsTB top directory.
      - $MPITB_ROOT is defined
      - /path/to/sundials/nvec_par exists 
 
-5. Try one of the sundialsTB examples
--------------------------------------
+5. Testing the installation
 
 If everything went fine, you should now be able to try one of the CVODES
 or KINSOL examples (in matlab, type 'help cvodes' or 'help kinsol' to see
@@ -146,13 +154,45 @@ a list of all examples available):
 5.2. Launch matlab and execute cvdx
           
 
+C. References
+-------------
 
-+-------+
-| LINKS |
-+-------+
+[1] R. Serban, "sundialsTB, a MATLAB Interface to SUNDIALS", 
+    LLLNL technical report UCRL-SM-212121, May 2005.
 
-SUNDIALS: http://www.llnl.gov/CASC/sundials
-MPITB:    http://atc.ugr.es/javier-bin/mpitb_eng
-LAM:      http://www.lam-mpi.org/
+[2] A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, 
+    D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and 
+    Differential/Algebraic Equation Solvers," ACM Trans. Math. Softw., 
+    31(3), pp. 363-396, 2005.
 
 
+D. Releases
+-----------
+
+v. 2.2.0 - Mar. 2006
+v. 2.1.1 - May. 2005 (first sundialsTB release)
+
+E. Revision History
+-------------------
+
+v. 2.1.1 (May. 2005) ---> v. 2.2.0 (???. 2006)
+---------------------------------------------------------
+
+- New features
+  - modified installation procedure to use a Matlab script
+  - added sample Matlab startup file
+  - expanded CVodeMonitor
+  - added interface to KINSOL's performance monitoring function
+    ('Verbose' option to KINSetOptions)
+
+- Bug fixes
+  - fixed bug in interface to quadrature integration which was causing
+    a segmentatin violation when monitoring was turned on.
+
+- Changes to user interface
+  - updated to reflect changes to the SUNDIALS libraries in v.2.2.0
+  - changed the interface for sensitivity analysis (both forward and
+    adjoint) to follow more closely the CVODES calling sequence
+  - optional inputs for forward sensitivity analysis are now provided
+    through a separate function, CVodeSensSetOptions
+  - removed NVM mex interface
