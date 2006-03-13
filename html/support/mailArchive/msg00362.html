@@ -1,0 +1,600 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Sundials compilation error (problem with xlc/xlf?) -->
+<!--X-From-R13: QI Khna <tybonyenirNlnubb.pbz> -->
+<!--X-Date: Thu, 09 Mar 2006 13:03:54 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060309210208.17170.qmail@web30810.mail.mud.yahoo.com -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: 20060309201313.3246.qmail@web30810.mail.mud.yahoo.com -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00361.html">Date Prev</a>] [<a href="msg00363.html">Date Next</a>] [<a href="msg00361.html">Thread Prev</a>] [<a href="msg00363.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00362">Date Index</a></b>]
+[<b><a href="threads.html#00362">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+CW Yuan &lt;<a href="mailto:globalrave%40yahoo.com">globalrave@yahoo.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Thu, 09 Mar 2006 13:02:08 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hello all,
+
+It's me, the can't-even-install-right guy again.  Now
+I've installed CVODE on a private cluster (with mpich)
+
+computer: i686 athlon
+compiler: gcc version 2.95.4 20011002 (Debian
+prerelease).  g77 compiled with gcc.
+configure: shown in the attached file.
+ 
+The compilation went without error/warning.  The
+gcc-compiled serial/parallel codes show results that
+I'm not sure are acceptable.  The fcmix serial test
+results still show the same bizzaro-output as those in
+my workstation, while running the parallel fcmix
+examples (pvdiagkf pvdiagnf pvdiagkbf) simply render
+the following:
+&quot;MAIN__ called -- missing g77-compiled main program
+MAIN__ called -- missing g77-compiled main program
+MAIN__ called -- missing g77-compiled main program
+MAIN__ called -- missing g77-compiled main program&quot;
+
+This is killing me.........
+
+
+
+CW
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> </pre><pre>
+---------------------------------
+Running SUNDIALS Configure Script
+---------------------------------
+
+checking build system type... i686-pc-linux-gnu
+checking host system type... i686-pc-linux-gnu
+checking whether make sets $(MAKE)... yes
+checking for a BSD-compatible install... /usr/bin/install -c
+checking for egrep... grep -E
+checking for sys/types.h... no
+checking for sys/stat.h... no
+checking for stdlib.h... no
+checking for string.h... no
+checking for memory.h... no
+checking for strings.h... no
+checking for inttypes.h... no
+checking for stdint.h... no
+checking for unistd.h... no
+checking floating-point data type to use... double
+checking for cc... cc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether cc accepts -g... yes
+checking for cc option to accept ANSI C... none needed
+checking for cc... /usr/bin/cc
+checking for extra C compiler flags... none
+checking how to run the C preprocessor... /usr/bin/cc -E
+checking for extra C/C++ preprocessor flags... none
+checking for extra linker flags... none
+checking for extra libraries... -L/usr/pgi/linux86/5.1/lib -lpgftnrtl
+checking for ANSI C header files... yes
+checking for stdlib.h... (cached) no
+checking float.h usability... yes
+checking float.h presence... yes
+checking for float.h... yes
+checking math.h usability... yes
+checking math.h presence... yes
+checking for math.h... yes
+checking for abs in -lm... yes
+checking for fabs in -lm... yes
+checking for pow in -lm... yes
+checking for sqrt in -lm... yes
+checking for additional required C libraries... -lm 
+checking for int... yes
+checking size of int... 4
+checking for long int... yes
+checking size of long int... 4
+checking for double... yes
+checking size of double... 8
+checking for egrep... (cached) grep -E
+checking for fgrep... grep -F
+checking for f77... f77
+checking whether we are using the GNU Fortran 77 compiler... yes
+checking whether f77 accepts -g... yes
+checking for f77... /usr/bin/f77
+checking for extra Fortran compiler flags... none
+checking how to get verbose linking output from /usr/bin/f77... -v
+checking for Fortran libraries of /usr/bin/f77...  -L/usr/pgi/linux86/5.1/lib 
+-L/usr/lib/gcc-lib/i386-linux/2.95.4 -lg2c -lm -lpgftnrtl
+checking Fortran name-mangling scheme... lowercase with one underscore
+checking for ld used by GCC... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for BSD-compatible nm... /usr/bin/nm -B
+checking for a sed that does not truncate output... /bin/sed
+checking whether ln -s works... yes
+checking how to recognise dependent libraries... pass_all
+checking command to parse /usr/bin/nm -B output... ok
+checking dlfcn.h usability... yes
+checking dlfcn.h presence... yes
+checking for dlfcn.h... yes
+checking for ranlib... ranlib
+checking for strip... strip
+checking for objdir... .libs
+checking for /usr/bin/cc option to produce PIC... -fPIC
+checking if /usr/bin/cc PIC flag -fPIC works... yes
+checking if /usr/bin/cc static flag -static works... yes
+checking if /usr/bin/cc supports -c -o file.o... yes
+checking if /usr/bin/cc supports -c -o file.lo... yes
+checking if /usr/bin/cc supports -fno-rtti -fno-exceptions... yes
+checking whether the linker (/usr/bin/ld) supports shared libraries... yes
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+creating libtool
+checking if we can build serial C examples... yes
+checking if we can build parallel C examples... yes
+checking if we can build serial Fortran examples... yes
+checking if we can build parallel Fortran examples... yes
+checking for 'include' directory... /home/chunwei/temp/sundials/include
+checking for 'lib' directory... /home/chunwei/temp/sundials/lib
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating shared/source/Makefile
+config.status: creating nvec_ser/Makefile
+config.status: creating nvec_par/Makefile
+config.status: creating cvode/source/Makefile
+config.status: creating cvode/fcmix/Makefile
+config.status: creating cvode/examples_ser/Makefile
+config.status: creating cvode/examples_par/Makefile
+config.status: creating cvode/fcmix/examples_ser/Makefile
+config.status: creating cvode/fcmix/examples_par/Makefile
+config.status: creating cvodes/source/Makefile
+config.status: creating cvodes/examples_ser/Makefile
+config.status: creating cvodes/examples_par/Makefile
+config.status: creating ida/source/Makefile
+config.status: creating ida/examples_ser/Makefile
+config.status: creating ida/examples_par/Makefile
+config.status: creating kinsol/source/Makefile
+config.status: creating kinsol/fcmix/Makefile
+config.status: creating kinsol/examples_ser/Makefile
+config.status: creating kinsol/examples_par/Makefile
+config.status: creating kinsol/fcmix/examples_ser/Makefile
+config.status: creating kinsol/fcmix/examples_par/Makefile
+config.status: creating config/fortran_update.sh
+config.status: creating config/sundials_config.h
+config.status: creating config.h
+
+------------------------------
+SUNDIALS Configuration Summary
+------------------------------
+
+Configuration:
+--------------
+
+  Host System:             i686-pc-linux-gnu
+  Build System:            i686-pc-linux-gnu
+  Source Code Location:    .
+  Install Path (include):  /home/chunwei/temp/sundials/include
+  Install Path (lib):      /home/chunwei/temp/sundials/lib
+
+  C Preprocessor:          /usr/bin/cc -E 
+  C Compiler:              /usr/bin/cc -g -O2 -ffloat-store
+  C Linker:                /usr/bin/cc  -lm  -L/usr/pgi/linux86/5.1/lib 
+-lpgftnrtl
+
+  F77 Compiler:            /usr/bin/f77 -g -O2 -ffloat-store
+  F77 Linker:              /usr/bin/f77  -lm  -L/usr/pgi/linux86/5.1/lib 
+-lpgftnrtl  -L/usr/pgi/linux86/5.1/lib -L/usr/lib/gcc-lib/i386-linux/2.95.4 
+-lg2c -lm -lpgftnrtl
+
+  MPI-C:                   /opt/mpich-gm/bin/mpicc
+
+  MPI-F77:                 /opt/mpich-gm/bin/mpif77
+
+  Type 'make' and then 'make install' to build and install SUNDIALS 2.1.1
+
+Modules:
+--------
+
+  KINSOL
+  CVODE
+  CVODES
+  IDA
+
+Examples:
+---------
+
+  Type 'make examples' to build the following examples:
+
+            SERIAL    PARALLEL
+          ---------------------
+ C       |    YES   |    YES   |
+          ---------------------
+ Fortran |    YES   |    YES   |
+          ---------------------
+
+----------------------------------
+Finished SUNDIALS Configure Script
+----------------------------------
+
+</pre><pre>Krylov example problem:
+
+ Kinetics-transport, NEQ =  200
+
+
+ t =   0.720000E+04     no. steps =   190   order =   5   stepsize =   
+0.160965E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.144000E+05     no. steps =   221   order =   5   stepsize =   
+0.382687E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.216000E+05     no. steps =   246   order =   5   stepsize =   
+0.278111E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.288000E+05     no. steps =   296   order =   3   stepsize =   
+0.925263E+02
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.360000E+05     no. steps =   363   order =   4   stepsize =   
+0.803018E+02
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.432000E+05     no. steps =   428   order =   5   stepsize =   
+0.579217E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.504000E+05     no. steps =   441   order =   5   stepsize =   
+0.727566E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.576000E+05     no. steps =   457   order =   4   stepsize =   
+0.130747E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.648000E+05     no. steps =   472   order =   5   stepsize =   
+0.671937E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.720000E+05     no. steps =   483   order =   5   stepsize =   
+0.671937E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.792000E+05     no. steps =   494   order =   5   stepsize =   
+0.671937E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.864000E+05     no. steps =   504   order =   5   stepsize =   
+0.671937E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+
+Final statistics:
+
+ number of steps        =   504     number of f evals.     =   656
+ number of prec. setups =    94
+ number of prec. evals. =     9     number of prec. solves =  1184
+ number of nonl. iters. =   653     number of lin. iters.  =   611
+ average Krylov subspace dimension (NLI/NNI) =   0.935681E+00
+ number of conv. failures.. nonlinear =  0 linear =   0
+ number of error test failures =  33
+</pre><pre> 
+2-species diurnal advection-diffusion problem
+
+t = 7.20e+03   no. steps = 219   order = 5   stepsize = 1.59e+02
+c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04
+c2 (bot.left/middle/top rt.) =    2.527e+11     7.154e+11     2.700e+11
+
+t = 1.44e+04   no. steps = 251   order = 5   stepsize = 3.77e+02
+c1 (bot.left/middle/top rt.) =    6.659e+06     5.316e+06     7.301e+06
+c2 (bot.left/middle/top rt.) =    2.582e+11     2.057e+11     2.833e+11
+
+t = 2.16e+04   no. steps = 277   order = 5   stepsize = 2.75e+02
+c1 (bot.left/middle/top rt.) =    2.665e+07     1.036e+07     2.931e+07
+c2 (bot.left/middle/top rt.) =    2.993e+11     1.028e+11     3.313e+11
+
+t = 2.88e+04   no. steps = 313   order = 3   stepsize = 6.80e+01
+c1 (bot.left/middle/top rt.) =    8.702e+06     1.292e+07     9.650e+06
+c2 (bot.left/middle/top rt.) =    3.380e+11     5.029e+11     3.751e+11
+
+t = 3.60e+04   no. steps = 358   order = 4   stepsize = 9.24e+01
+c1 (bot.left/middle/top rt.) =    1.404e+04     2.029e+04     1.561e+04
+c2 (bot.left/middle/top rt.) =    3.387e+11     4.894e+11     3.765e+11
+
+t = 4.32e+04   no. steps = 429   order = 4   stepsize = 1.73e+02
+c1 (bot.left/middle/top rt.) =    6.592e-09     1.652e-08    -2.616e-09
+c2 (bot.left/middle/top rt.) =    3.382e+11     1.355e+11     3.804e+11
+
+t = 5.04e+04   no. steps = 449   order = 4   stepsize = 1.28e+02
+c1 (bot.left/middle/top rt.) =    2.856e-07     4.020e-06     9.283e-08
+c2 (bot.left/middle/top rt.) =    3.358e+11     4.930e+11     3.864e+11
+
+t = 5.76e+04   no. steps = 472   order = 4   stepsize = 3.00e+02
+c1 (bot.left/middle/top rt.) =   -1.760e-12    -5.309e-11    -1.515e-12
+c2 (bot.left/middle/top rt.) =    3.320e+11     9.650e+11     3.909e+11
+
+t = 6.48e+04   no. steps = 484   order = 4   stepsize = 6.36e+02
+c1 (bot.left/middle/top rt.) =    1.954e-10     2.802e-09     1.892e-10
+c2 (bot.left/middle/top rt.) =    3.313e+11     8.922e+11     3.963e+11
+
+t = 7.20e+04   no. steps = 495   order = 4   stepsize = 6.36e+02
+c1 (bot.left/middle/top rt.) =    1.881e-13     2.696e-12     1.821e-13
+c2 (bot.left/middle/top rt.) =    3.330e+11     6.186e+11     4.039e+11
+
+t = 7.92e+04   no. steps = 507   order = 4   stepsize = 6.36e+02
+c1 (bot.left/middle/top rt.) =    2.935e-16     4.202e-15     2.842e-16
+c2 (bot.left/middle/top rt.) =    3.334e+11     6.668e+11     4.120e+11
+
+t = 8.64e+04   no. steps = 518   order = 4   stepsize = 6.36e+02
+c1 (bot.left/middle/top rt.) =    3.794e-19     5.393e-18     3.674e-19
+c2 (bot.left/middle/top rt.) =    3.352e+11     9.110e+11     4.163e+11
+
+
+Final Statistics.. 
+
+lenrw   =  2089     leniw =    50
+llrw    =  2046     lliw  =    10
+nst     =   518
+nfe     =   668     nfel  =   690
+nni     =   665     nli   =   690
+nsetups =    89     netf  =    31
+npe     =     9     nps   =  1286
+ncfn    =     0     ncfl  =     0
+
+</pre><pre>
+2-species diurnal advection-diffusion problem
+
+t = 7.20e+03   no. steps = 219   order = 5   stepsize = 1.59e+02
+At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
+At top right:    c1, c2 =    1.119e+04    2.700e+11 
+
+t = 1.44e+04   no. steps = 251   order = 5   stepsize = 3.77e+02
+At bottom left:  c1, c2 =    6.659e+06    2.582e+11 
+At top right:    c1, c2 =    7.301e+06    2.833e+11 
+
+t = 2.16e+04   no. steps = 277   order = 5   stepsize = 2.75e+02
+At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
+At top right:    c1, c2 =    2.931e+07    3.313e+11 
+
+t = 2.88e+04   no. steps = 319   order = 3   stepsize = 6.44e+01
+At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
+At top right:    c1, c2 =    9.650e+06    3.751e+11 
+
+t = 3.60e+04   no. steps = 362   order = 4   stepsize = 8.42e+01
+At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
+At top right:    c1, c2 =    1.561e+04    3.765e+11 
+
+t = 4.32e+04   no. steps = 432   order = 4   stepsize = 1.75e+02
+At bottom left:  c1, c2 =    2.647e-08    3.382e+11 
+At top right:    c1, c2 =    1.638e-08    3.804e+11 
+
+t = 5.04e+04   no. steps = 448   order = 4   stepsize = 2.89e+02
+At bottom left:  c1, c2 =   -2.972e-10    3.358e+11 
+At top right:    c1, c2 =   -9.773e-11    3.864e+11 
+
+t = 5.76e+04   no. steps = 461   order = 5   stepsize = 4.28e+02
+At bottom left:  c1, c2 =    1.957e-10    3.320e+11 
+At top right:    c1, c2 =   -2.535e-11    3.909e+11 
+
+t = 6.48e+04   no. steps = 471   order = 5   stepsize = 7.37e+02
+At bottom left:  c1, c2 =   -2.373e-10    3.313e+11 
+At top right:    c1, c2 =    1.128e-10    3.963e+11 
+
+t = 7.20e+04   no. steps = 481   order = 5   stepsize = 7.37e+02
+At bottom left:  c1, c2 =    1.660e-11    3.330e+11 
+At top right:    c1, c2 =   -7.943e-12    4.039e+11 
+
+t = 7.92e+04   no. steps = 491   order = 5   stepsize = 7.37e+02
+At bottom left:  c1, c2 =   -7.536e-13    3.334e+11 
+At top right:    c1, c2 =    3.619e-13    4.120e+11 
+
+t = 8.64e+04   no. steps = 501   order = 5   stepsize = 7.37e+02
+At bottom left:  c1, c2 =    3.066e-14    3.352e+11 
+At top right:    c1, c2 =   -1.436e-14    4.163e+11 
+
+
+Final Statistics: 
+
+lenrw   =  2089     leniw =   120
+llrw    =  2046     lliw  =    80
+nst     =   501
+nfe     =   656     nfel  =   647
+nni     =   653     nli   =   647
+nsetups =    87     netf  =    33
+npe     =     9     nps   =  1234
+ncfn    =     0     ncfl  =     0
+
+</pre><pre>
+ 1-D advection-diffusion equation, mesh size = 10 
+
+ Number of PEs =   4 
+
+At t = 0.00  max.norm(u) =  1.569909e+01  nst =   0 
+At t = 0.50  max.norm(u) =  3.052881e+00  nst = 113 
+At t = 1.00  max.norm(u) =  8.753188e-01  nst = 191 
+At t = 1.50  max.norm(u) =  2.494926e-01  nst = 265 
+At t = 2.00  max.norm(u) =  7.109812e-02  nst = 333 
+At t = 2.50  max.norm(u) =  2.025743e-02  nst = 405 
+At t = 3.00  max.norm(u) =  5.773820e-03  nst = 474 
+At t = 3.50  max.norm(u) =  1.651976e-03  nst = 551 
+At t = 4.00  max.norm(u) =  4.758601e-04  nst = 622 
+At t = 4.50  max.norm(u) =  1.367782e-04  nst = 688 
+At t = 5.00  max.norm(u) =  3.961763e-05  nst = 749 
+
+Final Statistics: 
+
+nst = 749     nfe  = 1383    nni = 0       ncfn = 138     netf = 5
+ 
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00363" href="msg00363.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00361" href="msg00361.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> CW Yuan &lt;globalrave@yahoo.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00361.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00363.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00361.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00363.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00362">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00362">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

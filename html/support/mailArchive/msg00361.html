@@ -1,0 +1,735 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Sundials compilation error (problem with xlc/xlf?) -->
+<!--X-From-R13: QI Khna <tybonyenirNlnubb.pbz> -->
+<!--X-Date: Thu, 09 Mar 2006 12:16:44 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060309201313.3246.qmail@web30810.mail.mud.yahoo.com -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: 440E157E.7010600@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00360.html">Date Prev</a>] [<a href="msg00362.html">Date Next</a>] [<a href="msg00360.html">Thread Prev</a>] [<a href="msg00362.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00361">Date Index</a></b>]
+[<b><a href="threads.html#00361">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+CW Yuan &lt;<a href="mailto:globalrave%40yahoo.com">globalrave@yahoo.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Thu, 09 Mar 2006 12:13:13 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hi,
+
+So my failure to successfully install CVODE on the
+64-bit powerpc cluster has led me to try installing it
+on some other cluster.  I've tested it on 2 machines,
+one is my workstation (no mpi) and the other is a
+private cluster.  This email reports the first case:
+
+computer: i686 athlon i386 GNU/Linux
+compiler: gcc version 3.2.3 20030502 (Red Hat Linux
+3.2.3-39).  g77 compiled with gcc.
+configure: CC=gcc F77=g77 --disable-mpi
+
+So the package is compiled with essenstially the same
+compiler used to generate the example outputs.  The
+test results from my installation are shown in the
+attached files.  The compilation went without erro or
+warning.  It could be seen that the serials examples
+compiled with gcc agree quite well with their .out
+files, although there are still some differences in
+cvkx.  On the other hand, I wonder what might've
+happened to the g77-compiled files?  The values from
+my cvkryf and cvbandf runs are mind-boggling when
+compared  to their .out files.  These executables are
+generated with the same compiler as the example are,
+so I really don't understand what could cause this.
+
+Thank you very much for your help,
+
+
+
+CW
+
+--- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:
+
+&gt;<i> Dear CW,</i>
+&gt;<i> </i>
+&gt;<i> As you have noticed, the IBM XL C/C++ compilers use</i>
+&gt;<i> the GNU C and C++ </i>
+&gt;<i> header files and run-time libraries on Linux</i>
+&gt;<i> systems.</i>
+&gt;<i> </i>
+&gt;<i> Try building SUNDIALS without any optimizations:</i>
+&gt;<i> </i>
+&gt;<i>    CFLAGS=&quot;-g -O0&quot;</i>
+&gt;<i>    FFLAGS=&quot;-g -O0&quot;</i>
+&gt;<i> </i>
+&gt;<i> Note: -O0 is the letter O followed by the number</i>
+&gt;<i> zero.</i>
+&gt;<i> </i>
+&gt;<i> --Aaron</i>
+&gt;<i> </i>
+&gt;<i> CW Yuan wrote:</i>
+&gt;<i> &gt; Hello,</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; If I use xlc to compile a simple routine like the</i>
+&gt;<i> &gt; attached hello.c, I'd get the warnings as</i>
+&gt;<i> indicated in</i>
+&gt;<i> &gt; hello_warning.txt, but in the end when executing</i>
+&gt;<i> &gt; ./a.out I'd get the desired result.</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; What puzzles me is that the two attached .h files</i>
+&gt;<i> are</i>
+&gt;<i> &gt; GNU library header files yet xlc links to them.  I</i>
+&gt;<i> &gt; doubt this is what caused my inability to run the</i>
+&gt;<i> &gt; sundials example files though.  Thank you very</i>
+&gt;<i> much</i>
+&gt;<i> &gt; for your patience.</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; Sincerely yours,</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; CW</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; --- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt;&gt; Dear CW,</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Have you ever successfully compiled a program</i>
+&gt;<i> using</i>
+&gt;<i> &gt;&gt; the IBM C/C++ compiler?</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; --Aaron</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; CW Yuan wrote:</i>
+&gt;<i> &gt;&gt;&gt; Hi,</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; I followed Aaron's suggestion, and I feel like</i>
+&gt;<i> I'm</i>
+&gt;<i> &gt;&gt;&gt; much closer to a successful compilation now.  So</i>
+&gt;<i> &gt;&gt;&gt; here's what I did:</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; 1.  ./configure CC=xlc F77=xlf \</i>
+&gt;<i> &gt;&gt;&gt;      --with-CPPFLAGS=&quot;-I/usr/mill/include&quot; \</i>
+&gt;<i> &gt;&gt;&gt;      --CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \</i>
+&gt;<i> &gt;&gt;&gt;      --FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;      details shown in &quot;Config_Nano.txt&quot;</i>
+&gt;<i> &gt;&gt;&gt; 2.  go into sundials/shared/include, open up</i>
+&gt;<i> &gt;&gt;&gt; sundialstypes.h and change the definitions from</i>
+&gt;<i> &gt;&gt;&gt; DBL_MAX to __DBL_MAX__ (and similarly for the</i>
+&gt;<i> &gt;&gt; other</i>
+&gt;<i> &gt;&gt;&gt; variables) because the /usr/mill/include/float.h</i>
+&gt;<i> &gt;&gt; file</i>
+&gt;<i> &gt;&gt;&gt; defines all such variables as __XXX__. </i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; 3.  go back to /sundials, and &quot;make&quot; and then</i>
+&gt;<i> &gt;&gt; &quot;make</i>
+&gt;<i> &gt;&gt;&gt; install&quot;.  Received lots of warnings, shown in</i>
+&gt;<i> the</i>
+&gt;<i> &gt;&gt;&gt; attached &quot;Makes_Nano.txt&quot;.</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; 4.  &quot;make examples&quot;.  No error.  Shown in</i>
+&gt;<i> &gt;&gt;&gt; &quot;MakeEamples_Nano.txt&quot;.</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; 5.  test run ./cvbx and get flag = -4 (MaxSteps</i>
+&gt;<i> &gt;&gt;&gt; reached).  Shown in Cvbx_Output.txt.  Same error</i>
+&gt;<i> &gt;&gt; for</i>
+&gt;<i> &gt;&gt;&gt; all other executable examples.  </i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; I'm wondering if someone has a take on this? </i>
+&gt;<i> &gt;&gt; Thanks a</i>
+&gt;<i> &gt;&gt;&gt; million.</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; CW</i>
+&gt;<i> &gt;&gt;&gt;   </i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt; --- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</i>
+&gt;<i> &gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; Dear CW,</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; When using the IBM compilers you must make</i>
+&gt;<i> &gt;&gt; certain</i>
+&gt;<i> &gt;&gt;&gt;&gt; you are including the </i>
+&gt;<i> &gt;&gt;&gt;&gt; appropriate header files, so try the following:</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;    $ configure CC=xlc F77=xlf \</i>
+&gt;<i> &gt;&gt;&gt;&gt;      CPPFLAGS=&quot;-I/usr/mill/include&quot; \</i>
+&gt;<i> &gt;&gt;&gt;&gt;      CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \</i>
+&gt;<i> &gt;&gt;&gt;&gt;      FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; Note: According to the ANSI-C Standard, the</i>
+&gt;<i> &gt;&gt; constant</i>
+&gt;<i> &gt;&gt;&gt;&gt; DBL_MAX should be </i>
+&gt;<i> &gt;&gt;&gt;&gt; defined in float.h.</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; --Aaron</i>
+&gt;<i> &gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt; CW Yuan wrote:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; Dear Aaron and Radu,</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; I've tried to use the configure options:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto</i>
+&gt;<i> &gt;&gt;&gt;&gt; -qtune=auto&quot;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; \</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; --with-fflags=&quot;-qarch=auto -qtune=auto&quot;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; (I didn't specify mpicc and mpif77 b/c the</i>
+&gt;<i> &gt;&gt;&gt;&gt; configure</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; script finds the correct mpi compiling</i>
+&gt;<i> scripts,</i>
+&gt;<i> &gt;&gt;&gt;&gt; which</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; specifies xlc and xlf within them.)</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; However, we've encountered errors when</i>
+&gt;<i> &gt;&gt; compiling.</i>
+&gt;<i> &gt;&gt;&gt;&gt; I've</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; attached the error log with this message</i>
+&gt;<i> (those</i>
+&gt;<i> &gt;&gt;&gt;&gt; errors</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; were the reason why we tried to used gcc and</i>
+&gt;<i> g77</i>
+&gt;<i> &gt;&gt;&gt;&gt; in</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; the first place). The error log seems to</i>
+&gt;<i> &gt;&gt; indicate</i>
+&gt;<i> &gt;&gt;&gt;&gt; two</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; types of error. 1) syntax error related to</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; usr/include/bits/mathcalls.h and 2) undeclared</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; identifier DBL_MAX when compiling</i>
+&gt;<i> &gt;&gt;&gt;&gt; nvector_parallel.c.</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; Hopefully you can shed some light.</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; thanks so much,</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; -CW</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt; --- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; Dear CW,</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; You should not use &quot;pwr3&quot; since your system</i>
+&gt;<i> is</i>
+&gt;<i> &gt;&gt;&gt;&gt; based</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; on the PowerPC </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; architecture and not on the POWER hardware</i>
+&gt;<i> &gt;&gt;&gt;&gt; platform.</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;  You could try the </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; following:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;   $ CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; -qtune=auto&quot; \</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;     --with-fflags=&quot;-qarch=auto -qtune=auto&quot; \</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;     --with-mpicc=mpcc \</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;     --with-mpif77=mpxlf</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; --Aaron</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; Radu Serban wrote:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt; CW wrote:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Hello,</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; I'm trying in agony to compile the Sundials</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; package (especially the </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; parallel code) onto our cluster. Heres a</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; description of the hardware </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; from the &quot;uname -a&quot; command:</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Linux nano 2.6.15-1.1969_FC5 #1 SMP Sun Feb</i>
+&gt;<i> &gt;&gt; 19</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; 05:14:37 EST 2006 ppc64 </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; ppc64 ppc64 GNU/Linux</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; I've attached the screen messages copied</i>
+&gt;<i> from</i>
+&gt;<i> &gt;&gt;&gt;&gt; the</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt; terminal after I </i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; perform</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; /config CC=gcc F77=g77</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; make</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; make install</i>
+&gt;<i> &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; make examples</i>
+&gt;<i> </i>
+=== message truncated ===
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> </pre><pre>
+2-D Advection-Diffusion Equation
+Mesh dimensions = 10 X 5
+Total system size = 50
+Tolerance parameters: reltol = 0   abstol = 1e-05
+
+At t = 0      max.norm(u) =  8.954716e+01 
+At t = 0.10   max.norm(u) =  4.132889e+00   nst =   85
+At t = 0.20   max.norm(u) =  1.039294e+00   nst =  103
+At t = 0.30   max.norm(u) =  2.979829e-01   nst =  113
+At t = 0.40   max.norm(u) =  8.765774e-02   nst =  120
+At t = 0.50   max.norm(u) =  2.625637e-02   nst =  126
+At t = 0.60   max.norm(u) =  7.830425e-03   nst =  130
+At t = 0.70   max.norm(u) =  2.329387e-03   nst =  134
+At t = 0.80   max.norm(u) =  6.953434e-04   nst =  137
+At t = 0.90   max.norm(u) =  2.115983e-04   nst =  140
+At t = 1.00   max.norm(u) =  6.556853e-05   nst =  142
+
+Final Statistics:
+nst = 142    nfe  = 173    nsetups = 23     nfeB = 0      njeB = 3
+nni = 170    ncfn = 0      netf = 3
+ 
+</pre><pre>Band example problem:
+
+ Advection-diffusion, NEQ = 50
+
+
+ At t =   0.00  max.norm(u) =   0.895472E+02
+ At t =   0.10  max.norm(u) =   0.895472E+02  NST =   85
+ At t =   0.20  max.norm(u) =   0.895472E+02  NST =  103
+ At t =   0.30  max.norm(u) =   0.895472E+02  NST =  113
+ At t =   0.40  max.norm(u) =   0.895472E+02  NST =  120
+ At t =   0.50  max.norm(u) =   0.895472E+02  NST =  126
+ At t =   0.60  max.norm(u) =   0.895472E+02  NST =  130
+ At t =   0.70  max.norm(u) =   0.895472E+02  NST =  134
+ At t =   0.80  max.norm(u) =   0.895472E+02  NST =  137
+ At t =   0.90  max.norm(u) =   0.895472E+02  NST =  140
+ At t =   1.00  max.norm(u) =   0.895472E+02  NST =  142
+
+
+Final statistics:
+
+ No. steps =  142  No. f-s =  173  No. J-s =    3   No. LU-s =   23
+ No. nonlinear iterations =  170
+ No. nonlinear convergence failures =    0
+ No. error test failures =    3
+</pre><pre>Krylov example problem:
+
+ Kinetics-transport, NEQ =  200
+
+
+ t =   0.720E+04     no. steps =   219   order =   5   stepsize =   0.158696E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.144E+05     no. steps =   251   order =   5   stepsize =   0.377205E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.216E+05     no. steps =   277   order =   5   stepsize =   0.274584E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.288E+05     no. steps =   307   order =   4   stepsize =   0.188676E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.360E+05     no. steps =   336   order =   5   stepsize =   0.109975E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.432E+05     no. steps =   390   order =   4   stepsize =   0.461146E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.504E+05     no. steps =   408   order =   4   stepsize =   0.294292E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.576E+05     no. steps =   424   order =   5   stepsize =   0.256081E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.648E+05     no. steps =   435   order =   5   stepsize =   0.667453E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.720E+05     no. steps =   446   order =   5   stepsize =   0.667453E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.792E+05     no. steps =   457   order =   5   stepsize =   0.667453E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+ t =   0.864E+05     no. steps =   467   order =   5   stepsize =   0.667453E+03
+  c1 (bot.left/middle/top rt.) =   0.250000E+06  0.975612E+06  0.250000E+06
+  c2 (bot.left/middle/top rt.) =   0.250000E+12  0.975612E+12  0.250000E+12
+
+
+Final statistics:
+
+ number of steps        =   467     number of f evals.     =  603
+ number of prec. setups =    78
+ number of prec. evals. =     9     number of prec. solves =  1194
+ number of nonl. iters. =   600     number of lin. iters.  =   646
+ average Krylov subspace dimension (NLI/NNI)  =   0.107667E+01
+ number of conv. failures.. nonlinear =   0  linear =   0
+</pre><pre>
+---------------------------------
+Running SUNDIALS Configure Script
+---------------------------------
+
+checking build system type... i686-pc-linux-gnu
+checking host system type... i686-pc-linux-gnu
+checking whether make sets $(MAKE)... yes
+checking for a BSD-compatible install... /usr/bin/install -c
+checking for egrep... grep -E
+checking for sys/types.h... no
+checking for sys/stat.h... no
+checking for stdlib.h... no
+checking for string.h... no
+checking for memory.h... no
+checking for strings.h... no
+checking for inttypes.h... no
+checking for stdint.h... no
+checking for unistd.h... no
+checking floating-point data type to use... double
+checking for gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ANSI C... none needed
+checking for gcc... /usr/bin/gcc
+checking for extra C compiler flags... none
+checking how to run the C preprocessor... /usr/bin/gcc -E
+checking for extra C/C++ preprocessor flags... none
+checking for extra linker flags... none
+checking for extra libraries... none
+checking for ANSI C header files... yes
+checking for stdlib.h... (cached) no
+checking float.h usability... yes
+checking float.h presence... yes
+checking for float.h... yes
+checking math.h usability... yes
+checking math.h presence... yes
+checking for math.h... yes
+checking for abs in -lm... yes
+checking for fabs in -lm... yes
+checking for pow in -lm... yes
+checking for sqrt in -lm... yes
+checking for additional required C libraries... -lm 
+checking for int... yes
+checking size of int... 4
+checking for long int... yes
+checking size of long int... 4
+checking for double... yes
+checking size of double... 8
+checking for egrep... (cached) grep -E
+checking for fgrep... grep -F
+checking for g77... g77
+checking whether we are using the GNU Fortran 77 compiler... yes
+checking whether g77 accepts -g... yes
+checking for g77... /usr/bin/g77
+checking for extra Fortran compiler flags... none
+checking how to get verbose linking output from /usr/bin/g77... -v
+checking for Fortran libraries of /usr/bin/g77...  
+-L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 
+-L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s
+checking Fortran name-mangling scheme... lowercase with one underscore
+checking for ld used by GCC... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for BSD-compatible nm... /usr/bin/nm -B
+checking for a sed that does not truncate output... /bin/sed
+checking whether ln -s works... yes
+checking how to recognise dependent libraries... pass_all
+checking command to parse /usr/bin/nm -B output... ok
+checking dlfcn.h usability... yes
+checking dlfcn.h presence... yes
+checking for dlfcn.h... yes
+checking for ranlib... ranlib
+checking for strip... strip
+checking for objdir... .libs
+checking for /usr/bin/gcc option to produce PIC... -fPIC
+checking if /usr/bin/gcc PIC flag -fPIC works... yes
+checking if /usr/bin/gcc static flag -static works... yes
+checking if /usr/bin/gcc supports -c -o file.o... yes
+checking if /usr/bin/gcc supports -c -o file.lo... yes
+checking if /usr/bin/gcc supports -fno-rtti -fno-exceptions... yes
+checking whether the linker (/usr/bin/ld) supports shared libraries... yes
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+creating libtool
+checking if we can build serial C examples... yes
+checking if we can build serial Fortran examples... yes
+checking for 'include' directory... /home/chunwei/KMC/sundials/include
+checking for 'lib' directory... /home/chunwei/KMC/sundials/lib
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating shared/source/Makefile
+config.status: creating nvec_ser/Makefile
+config.status: creating cvode/source/Makefile
+config.status: creating cvode/fcmix/Makefile
+config.status: creating cvode/examples_ser/Makefile
+config.status: creating cvode/fcmix/examples_ser/Makefile
+config.status: creating config/fortran_update.sh
+config.status: creating config/sundials_config.h
+config.status: creating config.h
+
+------------------------------
+SUNDIALS Configuration Summary
+------------------------------
+
+Configuration:
+--------------
+
+  Host System:             i686-pc-linux-gnu
+  Build System:            i686-pc-linux-gnu
+  Source Code Location:    .
+  Install Path (include):  /home/chunwei/KMC/sundials/include
+  Install Path (lib):      /home/chunwei/KMC/sundials/lib
+
+  C Preprocessor:          /usr/bin/gcc -E 
+  C Compiler:              /usr/bin/gcc -g -O2 -ffloat-store
+  C Linker:                /usr/bin/gcc  -lm 
+
+  F77 Compiler:            /usr/bin/g77 -g -O2 -ffloat-store
+  F77 Linker:              /usr/bin/g77  -lm   
+-L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 
+-L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/../../.. -lfrtbegin -lg2c -lm -lgcc_s
+
+  Type 'make' and then 'make install' to build and install SUNDIALS 2.1.1
+
+Modules:
+--------
+
+  CVODE
+
+Examples:
+---------
+
+  Type 'make examples' to build the following examples:
+
+           SERIAL
+          --------
+ C       |   YES  |
+          --------
+ Fortran |   YES  |
+          --------
+
+----------------------------------
+Finished SUNDIALS Configure Script
+----------------------------------
+
+</pre><pre> 
+2-species diurnal advection-diffusion problem
+
+t = 7.20e+03   no. steps = 219   order = 5   stepsize = 1.59e+02
+c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04
+c2 (bot.left/middle/top rt.) =    2.527e+11     7.154e+11     2.700e+11
+
+t = 1.44e+04   no. steps = 251   order = 5   stepsize = 3.77e+02
+c1 (bot.left/middle/top rt.) =    6.659e+06     5.316e+06     7.301e+06
+c2 (bot.left/middle/top rt.) =    2.582e+11     2.057e+11     2.833e+11
+
+t = 2.16e+04   no. steps = 277   order = 5   stepsize = 2.75e+02
+c1 (bot.left/middle/top rt.) =    2.665e+07     1.036e+07     2.931e+07
+c2 (bot.left/middle/top rt.) =    2.993e+11     1.028e+11     3.313e+11
+
+t = 2.88e+04   no. steps = 315   order = 4   stepsize = 4.61e+02
+c1 (bot.left/middle/top rt.) =    8.702e+06     1.292e+07     9.650e+06
+c2 (bot.left/middle/top rt.) =    3.380e+11     5.029e+11     3.751e+11
+
+t = 3.60e+04   no. steps = 350   order = 4   stepsize = 8.64e+01
+c1 (bot.left/middle/top rt.) =    1.404e+04     2.029e+04     1.561e+04
+c2 (bot.left/middle/top rt.) =    3.387e+11     4.894e+11     3.765e+11
+
+t = 4.32e+04   no. steps = 414   order = 4   stepsize = 4.49e+02
+c1 (bot.left/middle/top rt.) =    1.820e-08    -5.901e-07     2.375e-08
+c2 (bot.left/middle/top rt.) =    3.382e+11     1.355e+11     3.804e+11
+
+t = 5.04e+04   no. steps = 432   order = 5   stepsize = 4.57e+02
+c1 (bot.left/middle/top rt.) =    4.230e-12     8.989e-13     4.802e-12
+c2 (bot.left/middle/top rt.) =    3.358e+11     4.930e+11     3.864e+11
+
+t = 5.76e+04   no. steps = 444   order = 5   stepsize = 5.31e+02
+c1 (bot.left/middle/top rt.) =   -3.560e-13     5.945e-13    -4.118e-13
+c2 (bot.left/middle/top rt.) =    3.320e+11     9.650e+11     3.909e+11
+
+t = 6.48e+04   no. steps = 456   order = 5   stepsize = 8.05e+02
+c1 (bot.left/middle/top rt.) =   -1.553e-13     4.793e-12    -2.082e-13
+c2 (bot.left/middle/top rt.) =    3.313e+11     8.922e+11     3.963e+11
+
+t = 7.20e+04   no. steps = 464   order = 5   stepsize = 8.05e+02
+c1 (bot.left/middle/top rt.) =   -5.589e-14    -1.519e-12    -1.871e-14
+c2 (bot.left/middle/top rt.) =    3.330e+11     6.186e+11     4.039e+11
+
+t = 7.92e+04   no. steps = 473   order = 5   stepsize = 8.05e+02
+c1 (bot.left/middle/top rt.) =    3.720e-15     6.769e-13    -4.754e-15
+c2 (bot.left/middle/top rt.) =    3.334e+11     6.669e+11     4.120e+11
+
+t = 8.64e+04   no. steps = 482   order = 5   stepsize = 8.05e+02
+c1 (bot.left/middle/top rt.) =   -8.761e-16    -2.150e-13     1.918e-15
+c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
+
+
+Final Statistics.. 
+
+lenrw   =  2089     leniw =    50
+llrw    =  2046     lliw  =    10
+nst     =   482
+nfe     =   630     nfel  =   635
+nni     =   627     nli   =   635
+nsetups =    81     netf  =    31
+npe     =     9     nps   =  1198
+ncfn    =     0     ncfl  =     0
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00362" href="msg00362.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> CW Yuan &lt;globalrave@yahoo.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00355" href="msg00355.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> Aaron Collier &lt;collier6@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00360.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00362.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00360.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00362.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00361">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00361">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

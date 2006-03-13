@@ -314,9 +314,9 @@ div.sitemap li {
 }
 
 /*
- -------------
- Matlab files
- -------------
+ -----------------------------
+ Styles for Matlab and C codes
+ -----------------------------
 */
 
 div.fragment{
@@ -358,19 +358,14 @@ div.fragment pre {
   font-family: monospace;
 }
 
-.comment {
-  font-family: monospace;
-  color: #228B22;
-}
-.string {
-  font-family: monospace;
-  color: #B20000;
-}
-.keyword { 
-  font-family: monospace;
-  color: #0000FF;
-}
-
+.comment {font-family: monospace; color: #228B22;}
+.string {font-family: monospace; color: #B20000;}
+.keyword {font-family: monospace; color: #0000FF;}
+.constant {color: #ffd700;}
+.function-name {color: #daa520; font-weight: bold;}
+.variable-name {color: #000094;}
+.builtin {color: #804000;}
+.type {color: #4400dd;}
 .keywordtype { color: #604020; }
 .keywordflow { color: #e08000; }
 .preprocessor { color: #806020; }
@@ -387,6 +382,17 @@ a.code:hover {
   background-color: #384e76;
   color: #ff6500;
 }	
+
+div.fragment a {
+  font-family: monospace;
+  font-weight: normal; 
+  color: #A020F0;
+}
+
+div.fragment a:hover {
+  background-color: #384e76;
+  color: #ff6500;
+}
 
 
 /*

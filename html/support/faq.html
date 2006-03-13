@@ -427,15 +427,14 @@ groups of variables).
 If you want to turn on and off forward sensitivity calculations during several 
 successive integrations (such as if you were using CVODES within a dynamically-constrained 
 optimization loop, when sometimes you want to only integrate the states and sometimes you 
-also need sensitivities computed), it is most efficient to use <tt>CVodeSensToggle</tt>. 
+also need sensitivities computed), it is most efficient to use <tt>CVodeSensToggleOff</tt>. 
 <br><br>
 Sensitivity calculations are enabled by the following functions: 
-<tt>CVodeSensMalloc</tt>, <tt>CVodeSensReInit</tt>, and <tt>CVodeSensToggle</tt> (with <b>TRUE</b> as the second argument) 
-and are disabled by <tt>CVodeSensFree</tt> (after calling this one, they can be re-enabled <b>only</b> by 
-calling <tt>CVodeSensMalloc</tt>) and <tt>CVodeSensToggle</tt> (with <b>FALSE</b> as the second argument). 
+<tt>CVodeSensMalloc</tt> and <tt>CVodeSensReInit</tt>
+and are disabled by <tt>CVodeSensFree</tt> (after calling this one, they can 
+be re-enabled <b>only</b> by calling <tt>CVodeSensMalloc</tt>) and 
+<tt>CVodeSensToggleOff</tt>.
 <br><br>
-An example demonstarting these features is available here:
-<a href="samples/cvfdx1.c">cvfdx1.c</a>.
 </div>
 
 <a name="cvodes_plist"></a>
