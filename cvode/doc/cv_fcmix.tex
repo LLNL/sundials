@@ -173,7 +173,10 @@ apply to {\nvecp}.
   system, as function of \id{T}$=t$ and the array \id{Y}$=y$.  
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FCVMALLOC}.
-  \id{IER} is an error return flag (currently not used; set \id{IER=0}). 
+  \id{IER} is an error return flag which should be set to $0$ if successful, a positive
+  value if a recoverable error occurred (in which case {\cvode} will attempt to correct), 
+  or a negative value if it failed unrecoverably (in which case the integration is 
+  halted.
 
 %%====================
 \item  {\bf {\nvector} module initialization}
@@ -188,7 +191,7 @@ apply to {\nvecp}.
   where 
   \id{KEY} is the solver id (\id{KEY} = 1 for {\cvode}),
   \id{NEQ} is the size of vectors, and
-  \id{IER} is a  return completion flag which is set to $0$ on success and $-1$ 
+  \id{IER} is a  return completion flag which is $0$ on success and $-1$ 
   if a failure occurred.
   
   {\p} To initialize the parallel vector module, the user must make the
@@ -345,7 +348,10 @@ apply to {\nvecp}.
   and are the same as those passed to \id{FCVMALLOC}.
   The vectors \id{WK1}, \id{WK2}, and \id{WK3}
   of length \id{NEQ} are provided as work space for use in \id{FCVDJAC}.
-  \id{IER} is an error return flag (currently not used; set \id{IER=0}). 
+  \id{IER} is an error return flag which should be set to $0$ if successful, 
+  a positive value if a recoverable error occurred (in which case {\cvode} will 
+  attempt to correct), or a negative value if \id{FCVDJAC} failed unrecoverably 
+  (in which case the integration is halted).
 
   If the user's \id{FCVDJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -353,7 +359,7 @@ apply to {\nvecp}.
   obtained by calling \id{FCVGETERRWEIGHTS} using one of the work arrays as
   temporary storage for \id{EWT}.  It may also need the unit roundoff,
   which can be obtained as the optional output \id{ROUT(6)}, passed from
-  the calling program to this routine using either \id{RPAR} or Common.
+  the calling program to this routine using either \id{RPAR} or a common block.
 
   If the \id{FCVDJAC} routine is provided, then, 
   following the call to \id{FCVDENSE}, the user must make the call:
@@ -407,7 +413,10 @@ apply to {\nvecp}.
   The vectors \id{WK1}, \id{WK2},
   and \id{WK3} of length \id{NEQ} are provided as work space for use in
   \id{FCVBJAC}.
-  \id{IER} is an error return flag (currently not used; set \id{IER=0}). 
+  \id{IER} is an error return flag which should be set to $0$ if successful, 
+  a positive value if a recoverable error occurred (in which case {\cvode} will 
+  attempt to correct), or a negative value if \id{FCVBJAC} failed unrecoverably 
+  (in which case the integration is halted).
 
   If the user's \id{FCVBJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -415,7 +424,7 @@ apply to {\nvecp}.
   obtained by calling \id{FCVGETERRWEIGHTS} using one of the work arrays as
   temporary storage for \id{EWT}.  It may also need the unit roundoff,
   which can be obtained as the optional output \id{ROUT(6)}, passed from
-  the calling program to this routine using either \id{RPAR} or Common.
+  the calling program to this routine using either \id{RPAR} or a common block.
 
   If the \id{FCVBJAC} routine is provided, then, following the call to \id{FCVBAND},
   the user must make the call:
@@ -605,7 +614,7 @@ apply to {\nvecp}.
   \id{NEQ} for use by this routine.
 
   {\warn}If the user calls \id{FCVSPILSSETPREC} the routine \id{FCVPSET} must
-  be provided, even if it is empty.
+  be provided, even if it is not needed and must return \id{IER=0}.
 
   {\bf Notes} 
   \begin{itemize}
@@ -622,7 +631,7 @@ apply to {\nvecp}.
   \item[(c) ] If needed in \id{FCVJTIMES}, \id{FCVPSOL}, or \id{FCVPSET}, the
     unit roundoff can be obtained as the optional output \id{ROUT(6)}
     (available after the call to \id{FCVMALLOC}) and can be passed
-    using either the \id{RPAR} user data array or a Common block.
+    using either the \id{RPAR} user data array or a common block.
   \end{itemize}
 
 %%====================
@@ -1284,7 +1293,10 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   is to be stored in the array \id{GLOC}.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FCVMALLOC}.
-  \id{IER} is an error return flag (currently not used; set \id{IER=0}).
+  \id{IER} is an error return flag which should be set to $0$ if successful, 
+  a positive value if a recoverable error occurred (in which case {\cvode} will 
+  attempt to correct), or a negative value if \id{FCVGLOCFN} failed unrecoverably 
+  (in which case the integration is halted).
 
   \index{FCVCOMMFN@\texttt{FCVCOMMFN}}
 \begin{verbatim}
@@ -1300,7 +1312,14 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   \id{IER} is an error return flag (currently not used; set \id{IER=0}). 
   Thus \id{FCVCOMMFN} can omit any communications done by \id{FCVFUN} if
   relevant to the evaluation of \id{GLOC}.
-  (This subroutine must be supplied even if it is empty.)
+  \id{IER} is an error return flag which should be set to $0$ if successful, 
+  a positive value if a recoverable error occurred (in which case {\cvode} will 
+  attempt to correct), or a negative value if \id{FCVCOMMFN} failed unrecoverably 
+  (in which case the integration is halted).
+
+
+  {\warn}The subroutine \id{FCVCOMMFN} must be supplied even if it is not needed 
+  and must return \id{IER=0}.
 
   \index{FCVJTIMES@\texttt{FCVJTIMES}}
   Optionally, the user can supply a routine \id{FCVJTIMES} for the evaluation of

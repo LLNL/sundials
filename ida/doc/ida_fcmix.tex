@@ -597,7 +597,8 @@ apply to {\nvecp}.
   passed from the calling program to this routine using \id{COMMON}.
 
   {\warn} If the user calls \id{FIDASPILSSETPREC},
-  the subroutine \id{FIDAPSET} must be provided, even if it is empty.
+  the subroutine \id{FIDAPSET} must be provided, even if it is not needed and
+  must return \id{IER=0}.
 
 \item {\bf Correct initial values}
 
@@ -1185,7 +1186,9 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   and are the same as those passed to \id{FIDAMALLOC}.
   \id{IER} is a return flag that should be set to 0 if successful, to 1
   (for a recoverable error), or to -1 (for a non-recoverable error).
-  (This subroutine must be supplied even if it contains only the line \id{IER = 0}.)
+
+  {\warn}The subroutine \id{FIDACOMMFN} must be supplied even if it is empty and it must
+  return \id{IER=0}.
 
   \index{FIDAJTIMES@\texttt{FIDAJTIMES}}
   Optionally, the user can supply a routine \id{FIDAJTIMES} for the evaluation of
