@@ -176,7 +176,7 @@ apply to {\nvecp}.
   \id{IER} is an error return flag which should be set to $0$ if successful, a positive
   value if a recoverable error occurred (in which case {\cvode} will attempt to correct), 
   or a negative value if it failed unrecoverably (in which case the integration is 
-  halted.
+  halted).
 
 %%====================
 \item  {\bf {\nvector} module initialization}
@@ -296,7 +296,7 @@ apply to {\nvecp}.
   
   In the case of a stiff system, the implicit \id{BDF} method involves the solution
   of linear systems related to the Jacobian $J = \partial f / \partial y$
-  of the ODE system.  {\cvode} presently includes four choices for the treatment
+  of the ODE system.  {\cvode} presently includes six choices for the treatment
   of these systems, and the user of {\fcvode} must call a routine with a
   specific name to make the desired choice.
 
@@ -867,7 +867,7 @@ and \S\ref{ss:optional_output}.
 21 & \id{NCFL}     & \id{CVSpilsGetNumConvFails} \\
 \hline
 \multicolumn{3}{c}{}\\
-\multicolumn{3}{c}{Real input-output array \id{ROUT}}\\
+\multicolumn{3}{c}{Real output array \id{ROUT}}\\
 \hline
 {\bf Index} & {\bf Optional output} & {\cvode} {\bf function} \\ 
 \hline
@@ -1114,7 +1114,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 The {\fcvbbd} interface sub-module is a package of {\C} functions which,
 as part of the {\fcvode} interface module, support the use of the
-{\cvode} solver with the serial {\nvecp} module, and the combination of
+{\cvode} solver with the parallel {\nvecp} module, and the combination of
 the {\cvbbdpre} preconditioner module (see \S\ref{sss:cvbbdpre}) with
 any of the Krylov iterative linear solvers.
 
@@ -1125,6 +1125,10 @@ The user-callable functions in this package, with the corresponding
   interfaces to \id{CVBBDPrecAlloc}.
 \item \id{FCVBBDSPGMR}
   interfaces to \id{CVBBDSpgmr} and {\spgmr} optional input functions.
+\item \id{FCVBBDSPBCG}
+  interfaces to \id{CVBBDSpbcg} and {\spbcg} optional input functions.
+\item \id{FCVBBDSPTFQMR}
+  interfaces to \id{CVBBDSptfqmr} and {\sptfqmr} optional input functions.
 \item \id{FCVBBDREINIT}
   interfaces to \id{CVBBDPrecReInit}.
 \item \id{FCVBBDOPT}
@@ -1143,7 +1147,7 @@ type within {\cvbbdpre} or {\cvode}):
 {\fcvbbd} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
 \id{FCVLOCFN}  & \id{FCVgloc}     & \id{CVLocalFn} \\
 \id{FCVCOMMF}  & \id{FCVcfn}      & \id{CVCommFn} \\
-\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpgmrJacTimesVecFn} \\ \hline
+\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\ \hline
 \end{tabular}
 \end{center}
 As with the rest of the {\fcvode} routines, the names of all user-supplied routines 
