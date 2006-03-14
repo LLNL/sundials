@@ -4,7 +4,7 @@ function [] = texdoc
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:51 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:55 $
 
 
 global cv_fct cv_ftp ces_drv ces_fct cep_drv cep_fct
@@ -92,6 +92,7 @@ fclose(fid);
 
 system('cp doc/tex_files/*.tex doc/tex/');
 system('cp doc/tex_files/biblio.bib doc/tex/');
+system('cp doc/tex_files/doc_logo.eps doc/tex/');
 
 
 cd(doc_dir);

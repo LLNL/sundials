@@ -7,6 +7,7 @@
 \usepackage{rotating}
 \usepackage{multirow}
 \usepackage{tabls}
+\usepackage{epsfig}
 
 %----- Page formatting
 \setlength{\oddsidemargin}{0.5in}
@@ -82,7 +83,11 @@ Approved for public release; further dissemination unlimited
   {\em Center for Applied Scientific Computing} \\ 
   {\em Lawrence Livermore National Laboratory}
 }
-\date{\STBdate \\ \vfill \STBucrl}
+\date{
+  \STBdate 
+  \vfill 
+  {\centerline{\psfig{figure=doc_logo.eps,width=0.5\textwidth}}}
+  \vfill \STBucrl}
 
 %------ BEGIN document
 
