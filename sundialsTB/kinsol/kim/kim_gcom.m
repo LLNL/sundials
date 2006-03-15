@@ -1,13 +1,13 @@
-function [new_data] = kim_gcom(y, f, data)
+function [flag, new_data] = kim_gcom(y, f, data)
 
 %
 % Wrapper around the actual user-provided Matlab function
 %
 
 if isempty(data)
-  feval(fct,y);
+  flag = feval(fct,y);
   new_data = [];
 else
-  [new_data] = feval(fct,y,data);
+  [flag, new_data] = feval(fct,y,data);
 end
 

@@ -3,13 +3,13 @@
 %IVP Problem
 %
 %   The function GCOMFUN must be defined as 
-%        FUNCTION [FLAG] = GCOMFUN(T,Y)
+%        FUNCTION FLAG = GCOMFUN(T, Y)
 %   and can be used to perform all interprocess communication necessary
 %   to evaluate the approximate right-hand side function for the BBDPre
 %   preconditioner module.
 %   If a user data structure DATA was specified in CVodeMalloc, then
 %   GCOMFUN must be defined as
-%        FUNCTION [FLAG, NEW_DATA] = GCOMFUN(T,Y,DATA)
+%        FUNCTION [FLAG, NEW_DATA] = GCOMFUN(T, Y, DATA)
 %   If the local modifications to the user data structure are needed 
 %   in other user-provided functions then the GCOMFUN function must also 
 %   set NEW_DATA. Otherwise, it should set NEW_DATA=[] (do not set 
@@ -22,9 +22,9 @@
 %Adjoint Problem
 %
 %   The function GCOMFUNB must be defined either as
-%        FUNCTION [FLAG] = GCOMFUNB(T,Y,YB)
+%        FUNCTION FLAG = GCOMFUNB(T, Y, YB)
 %   or as
-%        FUNCTION [FLAG, NEW_DATA] = GCOMFUNB(T,Y,YB,DATA)
+%        FUNCTION [FLAG, NEW_DATA] = GCOMFUNB(T, Y, YB, DATA)
 %   depending on whether a user data structure DATA was specified in
 %   CVodeMalloc. 
 %
@@ -47,4 +47,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% $Revision: 1.3 $Date: 2006/02/13 23:01:20 $

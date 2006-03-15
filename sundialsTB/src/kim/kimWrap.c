@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-02 00:39:06 $
+ * $Revision: 1.3 $
+ * $Date: 2006-03-15 19:31:39 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -16,7 +16,28 @@
 
 #include "kim.h"
 
-static void UpdateUserData(mxArray *mx_data);
+static void UpdateUserData(mxArray *mx_newdata);
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Redability replacements
+ * ---------------------------------------------------------------------------------
+ */
+
+#define N  (kim_Kdata->N)
+#define ls (kim_Kdata->ls)
+#define pm (kim_Kdata->pm)
+
+#define mx_data    (kim_Mdata->mx_data)
+
+#define mx_SYSfct  (kim_Mdata->mx_SYSfct)
+#define mx_JACfct  (kim_Mdata->mx_JACfct)
+#define mx_PSETfct (kim_Mdata->mx_PSETfct)
+#define mx_PSOLfct (kim_Mdata->mx_PSOLfct)
+#define mx_GLOCfct (kim_Mdata->mx_GLOCfct)
+#define mx_GCOMfct (kim_Mdata->mx_GCOMfct)
+
+#define fig_handle (kim_Mdata->fig_handle)
 
 /*
  * ---------------------------------------------------------------------------------
@@ -73,31 +94,36 @@ void mtlb_KINInfoHandler(const char *module, const char *function,
 
 int mtlb_KINSys(N_Vector y, N_Vector fy, void *f_data )
 {
-  mxArray *mx_in[3], *mx_out[2];
+  mxArray *mx_in[3], *mx_out[3];
+  int ret;
   
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL); /* current y */
-  mx_in[1] = mx_mtlb_SYSfct;                   /* matlab function handle */ 
-  mx_in[2] = mx_mtlb_data;                     /* matlab user data */
+  mx_in[1] = mx_SYSfct;                        /* matlab function handle */ 
+  mx_in[2] = mx_data;                          /* matlab user data */
 
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[0]), N);
-  mexCallMATLAB(2,mx_out,3,mx_in,"kim_sys");
+  mexCallMATLAB(3,mx_out,3,mx_in,"kim_sys");
+
   PutData(fy, mxGetPr(mx_out[0]), N);
 
-  if (!mxIsEmpty(mx_out[1])) {
-    UpdateUserData(mx_out[1]);
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
   }
 
   /* Free temporary space */
   mxDestroyArray(mx_in[0]);
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
 
-  return(0);
+  return(ret);
 }
 
-int mtlb_KINDenseJac(long int N, DenseMat J, 
+int mtlb_KINDenseJac(long int Neq, DenseMat J, 
                      N_Vector y, N_Vector fy, void *jac_data,
                      N_Vector tmp1, N_Vector tmp2)
 {
@@ -109,8 +135,8 @@ int mtlb_KINDenseJac(long int N, DenseMat J,
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
   mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current fy */
-  mx_in[2] = mx_mtlb_JACfct;                    /* matlab function handle */
-  mx_in[3] = mx_mtlb_data;                      /* matlab user data */
+  mx_in[2] = mx_JACfct;                         /* matlab function handle */
+  mx_in[3] = mx_data;                           /* matlab user data */
   
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[0]), N);
@@ -140,6 +166,50 @@ int mtlb_KINDenseJac(long int N, DenseMat J,
 }
 
 
+int mtlb_KINBandJac(long int Neq, long int mupper, long int mlower,
+                    BandMat J, N_Vector y, N_Vector fy, void *jac_data,
+                    N_Vector tmp1, N_Vector tmp2)
+{
+  double *J_data;
+  long int eband, i;
+  mxArray *mx_in[4], *mx_out[3];
+  int ret;
+
+  /* Inputs to the Matlab function */
+  mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
+  mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current fy */
+  mx_in[2] = mx_JACfct;                         /* matlab function handle */
+  mx_in[3] = mx_data;                           /* matlab user data */
+  
+  /* Call matlab wrapper */
+  GetData(y, mxGetPr(mx_in[0]), N);
+  GetData(fy, mxGetPr(mx_in[1]), N);
+
+  mexCallMATLAB(3,mx_out,4,mx_in,"kim_bjac");
+
+  /* Extract data */
+  eband =  mupper + mlower + 1;
+  J_data = mxGetPr(mx_out[0]);
+  for (i=0;i<N;i++)
+    memcpy(BAND_COL(J,i) - mupper, J_data + i*eband, eband*sizeof(double));
+
+  ret = (int)*mxGetPr(mx_out[1]);
+ 
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
+  }
+
+  /* Free temporary space */
+  mxDestroyArray(mx_in[0]);
+  mxDestroyArray(mx_in[1]);
+  mxDestroyArray(mx_out[0]);
+  mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
+
+  return(ret);
+
+}
+
 int mtlb_KINSpilsJac(N_Vector v, N_Vector Jv,
                      N_Vector y, booleantype *new_y, 
                      void *J_data)
@@ -151,9 +221,9 @@ int mtlb_KINSpilsJac(N_Vector v, N_Vector Jv,
   mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
   mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* vector v */
   mx_in[2] = mxCreateLogicalScalar(*new_y);     /* */
-  mx_in[3] = mx_mtlb_JACfct;                    /* matlab function handle */
-  mx_in[4] = mx_mtlb_data;                      /* matlab user data */
-  
+  mx_in[3] = mx_JACfct;                         /* matlab function handle */
+  mx_in[4] = mx_data;                           /* matlab user data */
+ 
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[0]), N);
   GetData(v, mxGetPr(mx_in[1]), N);
@@ -193,8 +263,8 @@ int mtlb_KINSpilsPset(N_Vector y, N_Vector yscale,
   mx_in[1] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current yscale */
   mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current fy */
   mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current fscale */
-  mx_in[4] = mx_mtlb_PSETfct;                   /* matlab function handle */
-  mx_in[5] = mx_mtlb_data;                      /* matlab user data */
+  mx_in[4] = mx_PSETfct;                        /* matlab function handle */
+  mx_in[5] = mx_data;                           /* matlab user data */
   
   /* Call matlab wrapper */
   GetData(y,      mxGetPr(mx_in[0]), N);
@@ -236,8 +306,8 @@ int mtlb_KINSpilsPsol(N_Vector y, N_Vector yscale,
   mx_in[2] = mxCreateDoubleMatrix(N,1,mxREAL); /* current fy */
   mx_in[3] = mxCreateDoubleMatrix(N,1,mxREAL); /* current fscale */
   mx_in[4] = mxCreateDoubleMatrix(N,1,mxREAL); /* right hand side */
-  mx_in[5] = mx_mtlb_PSOLfct;                  /* matlab function handle */
-  mx_in[6] = mx_mtlb_data;                     /* matlab user data */
+  mx_in[5] = mx_PSOLfct;                       /* matlab function handle */
+  mx_in[6] = mx_data;                          /* matlab user data */
   
   /* Call matlab wrapper */
   GetData(y,      mxGetPr(mx_in[0]), N);
@@ -271,17 +341,50 @@ int mtlb_KINSpilsPsol(N_Vector y, N_Vector yscale,
 
 int mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data)
 {
-  mxArray *mx_in[3], *mx_out[2];
+  mxArray *mx_in[3], *mx_out[3];
+  int ret;
 
   /* Inputs to the Matlab function */
   mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
-  mx_in[1] = mx_mtlb_GLOCfct;                   /* matlab function handle */
-  mx_in[2] = mx_mtlb_data;                      /* matlab user data */
+  mx_in[1] = mx_GLOCfct;                        /* matlab function handle */
+  mx_in[2] = mx_data;                           /* matlab user data */
   
   /* Call matlab wrapper */
   GetData(y, mxGetPr(mx_in[0]), N);
-  mexCallMATLAB(2,mx_out,3,mx_in,"kim_gloc");
+  mexCallMATLAB(3,mx_out,3,mx_in,"kim_gloc");
+
   PutData(gval, mxGetPr(mx_out[0]), N);
+
+  ret = (int)*mxGetPr(mx_out[1]);
+
+  if (!mxIsEmpty(mx_out[2])) {
+    UpdateUserData(mx_out[2]);
+  }
+
+  /* Free temporary space */
+  mxDestroyArray(mx_in[0]);
+  mxDestroyArray(mx_out[0]);
+  mxDestroyArray(mx_out[1]);
+  mxDestroyArray(mx_out[2]);
+
+  return(ret);
+}
+
+int mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data)
+{
+  mxArray *mx_in[5], *mx_out[2];
+  int ret;
+
+  /* Inputs to the Matlab function */
+  mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
+  mx_in[1] = mx_GCOMfct;                        /* matlab function handle */
+  mx_in[2] = mx_data;                           /* matlab user data */
+  
+  /* Call matlab wrapper */
+  GetData(y, mxGetPr(mx_in[0]), N);
+  mexCallMATLAB(2,mx_out,3,mx_in,"kim_gcom");
+
+  ret = (int)*mxGetPr(mx_out[0]);
 
   if (!mxIsEmpty(mx_out[1])) {
     UpdateUserData(mx_out[1]);
@@ -292,31 +395,7 @@ int mtlb_KINGloc(long int Nlocal, N_Vector y, N_Vector gval, void *f_data)
   mxDestroyArray(mx_out[0]);
   mxDestroyArray(mx_out[1]);
 
-  return(0);
-}
-
-int mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data)
-{
-  mxArray *mx_in[5], *mx_out[1];
-
-  /* Inputs to the Matlab function */
-  mx_in[0] = mxCreateDoubleMatrix(N,1,mxREAL);  /* current y */
-  mx_in[1] = mx_mtlb_GCOMfct;                   /* matlab function handle */
-  mx_in[2] = mx_mtlb_data;                      /* matlab user data */
-  
-  /* Call matlab wrapper */
-  GetData(y, mxGetPr(mx_in[0]), N);
-  mexCallMATLAB(1,mx_out,3,mx_in,"kim_gcom");
-
-  if (!mxIsEmpty(mx_out[0])) {
-    UpdateUserData(mx_out[0]);
-  }
-
-  /* Free temporary space */
-  mxDestroyArray(mx_in[0]);
-  mxDestroyArray(mx_out[0]);
-
-  return(0);
+  return(ret);
 }
 
 /*
@@ -325,11 +404,11 @@ int mtlb_KINGcom(long int Nlocal, N_Vector y, void *f_data)
  * ---------------------------------------------------------------------------------
  */
 
-static void UpdateUserData(mxArray *mx_data)
+static void UpdateUserData(mxArray *mx_newdata)
 {
   mexUnlock();
-  mxDestroyArray(mx_mtlb_data);
-  mx_mtlb_data = mxDuplicateArray(mx_data);
-  mexMakeArrayPersistent(mx_mtlb_data);
+  mxDestroyArray(mx_data);
+  mx_data = mxDuplicateArray(mx_newdata);
+  mexMakeArrayPersistent(mx_data);
   mexLock();
 }

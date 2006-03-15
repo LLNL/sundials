@@ -27,10 +27,28 @@ function options = KINSetOptions(varargin)
 %MaxNumIter - maximum number of nonlinear iterations [ scalar | {200} ]
 %   Specifies the maximum number of iterations that the nonlinar solver is allowed
 %   to take.
+%FuncRelErr - relative residual error [ scalar | {eps} ]
+%   Specifies the realative error in computing f(y) when used in difference
+%   quotient approximation of matrix-vector product J(y)*v.
+%FuncNormTol - residual stopping criteria [ scalar | {eps^(1/3)} ]
+%   Specifies the stopping tolerance on ||fscale*ABS(f(y))||_L-infinity
+%ScaledStepTol - step size stopping criteria [ scalar | {eps^(2/3)} ]
+%   Specifies the stopping tolerance on the maximum scaled step length:
+%                    ||    y_(k+1) - y_k   ||
+%                    || ------------------ ||_L-infinity
+%                    || |y_(k+1)| + yscale ||
+%MaxNewtonStep - maximum Newton step size [ scalar | {0.0} ]
+%   Specifies the maximum allowable value of the scaled length of the Newton step.
+%InitialSetup - initial call to linear solver setup [ false | {true} ]
+%   Specifies whether or not KINSol makes an initial call to the linear solver 
+%   setup function.
 %MaxNumSetups - [ scalar | {10} ]
 %   Specifies the maximum number of nonlinear iterations between calls to the
-%   linear solver setup function (i.e. preconditioner evaluation for an iterative
-%   linear solver).
+%   linear solver setup function (i.e. Jacobian/preconditioner evaluation)
+%MaxNumSubSetups - [ scalar | {5} ]
+%   Specifies the maximum number of nonlinear iterations between checks by the 
+%   nonlinear residual monitoring algorithm (specifies length of subintervals).
+%   NOTE: MaxNumSetups should be a multiple of MaxNumSubSetups.
 %MaxNumBetaFails - maximum number of beta-condition failures [ scalar | {10} ]
 %   Specifies the maximum number of beta-condiiton failures in the line search
 %   algorithm.
@@ -56,21 +74,6 @@ function options = KINSetOptions(varargin)
 %   Specifies the parameter alpha in the case EtaForm='Type2'
 %EtaGamma - gamma parameter for eta [ scalar | {0.9} ]
 %   Specifies the parameter gamma in the case EtaForm='Type2'
-%MaxNewtonStep - maximum Newton step size [ scalar | {0.0} ]
-%   Specifies the maximum allowable value of the scaled length of the Newton step.
-%FuncRelErr - relative residual error [ scalar | {eps} ]
-%   Specifies the realative error in computing f(y) when used in difference
-%   quotient approximation of matrix-vector product J(y)*v.
-%FuncNormTol - residual stopping criteria [ scalar | {eps^(1/3)} ]
-%   Specifies the stopping tolerance on ||fscale*ABS(f(y))||_L-infinity
-%ScaledStepTol - step size stopping criteria [ scalar | {eps^(2/3)} ]
-%   Specifies the stopping tolerance on the maximum scaled step length:
-%                    ||    y_(k+1) - y_k   ||
-%                    || ------------------ ||_L-infinity
-%                    || |y_(k+1)| + yscale ||
-%InitialSetup - initial call to linear solver setup [ false | {true} ]
-%   Specifies whether or not KINSol makes an initial call to the linear solver 
-%   setup function.
 %MinBoundEps - lower bound on eps [ false | {true} ]
 %   Specifies whether or not the value of eps is bounded below by 0.01*FuncNormtol.
 %Constraints - solution constraints [ vector ]
@@ -82,19 +85,27 @@ function options = KINSetOptions(varargin)
 %     Constraints(i) = -2 : y(i) < 0
 %   If Constraints is not specified, no constraints are applied to y.
 %
-%LinearSolver - Type of linear solver used [ Dense | BiCGStab | {GMRES} ]
+%LinearSolver - Type of linear solver [ {Dense} | Band | GMRES | BiCGStab | TFQMR ]
 %   Specifies the type of linear solver to be used for the Newton nonlinear solver. 
 %   Valid choices are: Dense (direct, dense Jacobian), GMRES (iterative, scaled 
 %   preconditioned GMRES), BiCGStab (iterative, scaled preconditioned stabilized 
-%   BiCG). The GMRES and BiCGStab are matrix-free linear solvers.
+%   BiCG), TFQMR (iterative, scaled preconditioned transpose-free QMR).
+%   The GMRES, BiCGStab, and TFQMR are matrix-free linear solvers.
 %JacobianFn - Jacobian function [ function ]
 %   This propeerty is overloaded. Set this value to a function that returns 
 %   Jacobian information consistent with the linear solver used (see Linsolver). 
 %   If not specified, KINSOL uses difference quotient approximations. 
 %   For the Dense linear solver, JacobianFn must be of type KINDenseJacFn and must 
-%   return a dense Jacobian matrix. For the iterative linear solvers, GMRES and 
-%   BiCGStab, JacobianFn must be of type KINJactimesVecFn and must return a 
-%   Jacobian-vector product.
+%   return a dense Jacobian matrix. For the iterative linear solvers, GMRES,
+%   BiCGStab, or TFQMR, JacobianFn must be of type KINJactimesVecFn and must return 
+%   a Jacobian-vector product.
+%KrylovMaxDim - Maximum number of Krylov subspace vectors [ scalar | {10} ]
+%   Specifies the maximum number of vectors in the Krylov subspace. This property 
+%   is used only if an iterative linear solver, GMRES, BiCGStab, or TFQMR is used 
+%   (see LinSolver).
+%MaxNumRestarts - Maximum number of GMRES restarts [ scalar | {0} ]
+%   Specifies the maximum number of times the GMRES (see LinearSolver) solver
+%   can be restarted.
 %PrecModule - Built-in preconditioner module [ BBDPre | {UserDefined} ]
 %   If the PrecModule = 'UserDefined', then the user must provide at least a 
 %   preconditioner solve function (see PrecSolveFn)
@@ -125,29 +136,28 @@ function options = KINSetOptions(varargin)
 %   If PrecModule is BBDPre, GcommFn specifies an optional function
 %   to perform any inter-process communication required for the evaluation of
 %   GlocalFn. GcommFn must be of type KINGcommFn.
-%KrylovMaxDim - Maximum number of Krylov subspace vectors [ scalar | {10} ]
-%   Specifies the maximum number of vectors in the Krylov subspace. This property 
-%   is used only if an iterative linear solver, GMRES or BiCGStab, is used 
-%   (see LinSolver).
-%MaxNumRestarts - Maximum number of GMRES restarts [ scalar | {0} ]
-%   Specifies the maximum number of times the GMRES (see LinearSolver) solver
-%   can be restarted.
+%LowerBwidth - Jacobian/preconditioner lower bandwidth [ scalar | {0} ]
+%   This property is overloaded. If the Band linear solver is used (see LinSolver),
+%   it specifies the lower half-bandwidth of the band Jacobian approximation. 
+%   If one of the three iterative linear solvers, GMRES, BiCGStab, or TFQMR is used 
+%   (see LinSolver) and if the BBDPre preconditioner module in KINSOL is used 
+%   (see PrecModule), it specifies the lower half-bandwidth of the retained 
+%   banded approximation of the local Jacobian block.
+%   LowerBwidth defaults to 0 (no sub-diagonals).
+%UpperBwidth - Jacobian/preconditioner upper bandwidth [ scalar | {0} ]
+%   This property is overloaded. If the Band linear solver is used (see LinSolver),
+%   it specifies the upper half-bandwidth of the band Jacobian approximation. 
+%   If one of the three iterative linear solvers, GMRES, BiCGStab, or TFQMR is used 
+%   (see LinSolver) and if the BBDPre preconditioner module in KINSOL is used 
+%   (see PrecModule), it specifies the upper half-bandwidth of the retained 
+%   banded approximation of the local Jacobian block. 
+%   UpperBwidth defaults to 0 (no super-diagonals).
 %LowerBwidthDQ - BBDPre preconditioner DQ lower bandwidth [ scalar | {0} ]
 %   Specifies the lower half-bandwidth used in the difference-quotient Jacobian
 %   approximation for the BBDPre preconditioner (see PrecModule).
 %UpperBwidthDQ - BBDPre preconditioner DQ upper bandwidth [ scalar | {0} ]
 %   Specifies the upper half-bandwidth used in the difference-quotient Jacobian
 %   approximation for the BBDPre preconditioner (see PrecModule).
-%LowerBwidth - BBDPre preconditioner lower bandwidth [ scalar | {0} ]
-%   If one of the two iterative linear solvers, GMRES or BiCGStab, is used 
-%   (see LinSolver) and if the BBDPre preconditioner module in KINSOL is used 
-%   (see PrecModule), it specifies the lower half-bandwidth of the retained banded 
-%   approximation of the local Jacobian block.
-%UpperBwidth - BBDPre preconditioner upper bandwidth [ scalar | {0} ]
-%   If one of the two iterative linear solvers, GMRES or BiCGStab, is used 
-%   (see LinSolver) and if the BBDPre preconditioner module in KINSOL is used 
-%   (see PrecModule), it specifies the upper half-bandwidth of the retained banded 
-%   approximation of the local Jacobian block.
 %
 %
 %   See also
@@ -158,7 +168,7 @@ function options = KINSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 19:00:02 $
+% $Revision: 1.3 $Date: 2006/02/02 00:38:58 $
 
 % Based on Matlab's ODESET function
 
@@ -166,22 +176,25 @@ function options = KINSetOptions(varargin)
 if (nargin == 0) & (nargout == 0)
   fprintf('         Verbose: [ true   | {false} ]\n');
   fprintf('      MaxNumIter: [ scalar | {200} ]\n');
+  fprintf('      FuncRelErr: [ scalar | {eps} ]\n');
+  fprintf('     FuncNormTol: [ scalar | {eps^(1/3)} ]\n');
+  fprintf('   ScaledStepTol: [ scalar | {eps^(2/3)} ]\n');
+  fprintf('   MaxNewtonStep: [ scalar | {0.0} ]\n');
+  fprintf('    InitialSetup: [ false | {true} ]\n');
   fprintf('    MaxNumSetups: [ scalar | {10} ]\n');
+  fprintf(' MaxNumSubSetups: [ scalar | {5} ]\n');  
   fprintf(' MaxNumBetaFails: [ scalar | {10} ]\n');
   fprintf('         EtaForm: [ Constant | Type2 | {Type1} ]\n');
   fprintf('             Eta: [ scalar | {0.1} ]\n');
   fprintf('        EtaAlpha: [ scalar | {2.0} ]\n');
   fprintf('        EtaGamma: [ scalar | {0.9} ]\n');
-  fprintf('   MaxNewtonStep: [ scalar | {0.0} ]\n');
-  fprintf('      FuncRelErr: [ scalar | {eps} ]\n');
-  fprintf('     FuncNormTol: [ scalar | {eps^(1/3)} ]\n');
-  fprintf('   ScaledStepTol: [ scalar | {eps^(2/3)} ]\n');
-  fprintf('    InitialSetup: [ false | {true} ]\n');
   fprintf('     MinBoundEps: [ false | {true} ]\n');
   fprintf('     Constraints: [ array of scalar ]\n');
   fprintf('\n');
-  fprintf('    LinearSolver: [ Dense | Spbcg | {Spgmr} ]\n');
+  fprintf('    LinearSolver: [ {Dense} | Band | GMRES | BiCGStab | TFQMR ]\n');
   fprintf('      JacobianFn: [ function ]\n');
+  fprintf('    KrylovMaxDim: [ scalar | {10} ]');
+  fprintf('  MaxNumRestarts: [ Classical | {Modified} ]\n');
   fprintf('      PrecModule: [ BBDPre | {UserDefined} ]\n');
   fprintf('     PrecSetupFn: [ function ]\n');
   fprintf('     PrecSolveFn: [ function ]\n');
@@ -191,8 +204,6 @@ if (nargin == 0) & (nargout == 0)
   fprintf('     UpperBwidth: [ scalar | {0} ]\n');
   fprintf('   LowerBwidthDQ: [ scalar | {0} ]\n');
   fprintf('   UpperBwidthDQ: [ scalar | {0} ]\n');
-  fprintf('    KrylovMaxDim: [ scalar | {10} ]');
-  fprintf('  MaxNumRestarts: [ Classical | {Modified} ]\n');
   fprintf('\n');
   fprintf('\n');
   return;
@@ -202,6 +213,7 @@ Names = [
     'Verbose         '
     'MaxNumIter      '
     'MaxNumSetups    '
+    'MaxNumSubSetups '
     'MaxNumBetaFails '
     'EtaForm         '
     'Eta             '

@@ -1,4 +1,4 @@
-function [ret, flag, new_data] = kim_djac(y, fy, fct, data)
+function [ret, flag, new_data] = kim_bjac(y, fy, fct, data)
 
 %
 % Wrapper around the actual user-provided Matlab function

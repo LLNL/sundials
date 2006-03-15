@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-07 01:20:03 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-15 19:31:37 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -31,6 +31,7 @@ extern "C" {
 #include "cvodes_band.h"
 #include "cvodes_spgmr.h"
 #include "cvodes_spbcgs.h"
+#include "cvodes_sptfqmr.h"
 #include "cvodes_bandpre.h"
 #include "cvodes_bbdpre.h"
 #include "sundials_nvector.h"
@@ -123,7 +124,7 @@ extern "C" {
    * ---------------------------------------------------------------------------------
    */
 
-  extern cvm_CVODESdata cvm_Cdata;  /* CVODE data */
+  extern cvm_CVODESdata cvm_Cdata;  /* CVODES data */
   extern booleantype cvm_quad;      /* Forward quadratures? */
   extern booleantype cvm_quadB;     /* Backward quadratures? */
   extern booleantype cvm_asa;       /* Adjoint sensitivity? */

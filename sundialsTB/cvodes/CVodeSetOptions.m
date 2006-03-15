@@ -75,13 +75,13 @@ function options = CVodeSetOptions(varargin)
 %   In this case, if the order is 3 or greater and if the stability limit 
 %   is detected, the method order is reduced.
 %
-%LinearSolver - Linear solver type [ Diag | Band | GMRES | BiCGStab | {Dense} ]
+%LinearSolver - Linear solver type [{Dense}|Diag|Band|GMRES|BiCGStab|TFQMR]
 %   Specifies the type of linear solver to be used for the Newton nonlinear 
 %   solver (see NonlinearSolver). Valid choices are: Dense (direct, dense 
 %   Jacobian), Band (direct, banded Jacobian), Diag (direct, diagonal Jacobian), 
 %   GMRES (iterative, scaled preconditioned GMRES), BiCGStab (iterative, scaled 
-%   preconditioned stabilized BiCG). The GMRES and BiCGStab are matrix-free 
-%   linear solvers.
+%   preconditioned stabilized BiCG), TFQMR (iterative, scaled transpose-free QMR).
+%   The GMRES, BiCGStab, and TFQMR are matrix-free linear solvers.
 %JacobianFn - Jacobian function [ function ]
 %   This propeerty is overloaded. Set this value to a function that returns 
 %   Jacobian information consistent with the linear solver used (see Linsolver). 
@@ -89,17 +89,24 @@ function options = CVodeSetOptions(varargin)
 %   For the Dense linear solver, JacobianFn must be of type CVDenseJacFn and 
 %   must return a dense Jacobian matrix. For the Band linear solver, JacobianFn 
 %   must be of type CVBandJacFn and must return a banded Jacobian matrix. 
-%   For the iterative linear solvers, GMRES and BiCGStab, JacobianFn must be 
-%   of type CVJacTimesVecFn and must return a Jacobian-vector product. This 
+%   For the iterative linear solvers, GMRES, BiCGStab, and TFQMR, JacobianFn must 
+%   be of type CVJacTimesVecFn and must return a Jacobian-vector product. This 
 %   property is not used for the Diag linear solver.
+%KrylovMaxDim - Maximum number of Krylov subspace vectors [ integer | {5} ]
+%   Specifies the maximum number of vectors in the Krylov subspace. This property 
+%   is used only if an iterative linear solver, GMRES, BiCGStab, or TFQMR is used 
+%   (see LinSolver).
+%GramSchmidtType - Gram-Schmidt orthogonalization [ Classical | {Modified} ]
+%   Specifies the type of Gram-Schmidt orthogonalization (classical or modified).
+%   This property is used only if the GMRES linear solver is used (see LinSolver).
 %PrecType - Preconditioner type [ Left | Right | Both | {None} ]
 %   Specifies the type of user preconditioning to be done if an iterative linear
-%   solver, GMRES or BiCGStab, is used (see LinSolver). PrecType must be one of 
-%   the following: 'None', 'Left', 'Right', or 'Both', corresponding to no 
+%   solver, GMRES, BiCGStab, or TFQMR is used (see LinSolver). PrecType must be 
+%   one of the following: 'None', 'Left', 'Right', or 'Both', corresponding to no 
 %   preconditioning, left preconditioning only, right preconditioning only, and 
 %   both left and right preconditioning, respectively.
 %PrecModule - Preconditioner module [ BandPre | BBDPre | {UserDefined} ]
-%   If the PrecModule = 'UserDefined', then the user must provide at least a 
+%   If PrecModule = 'UserDefined', then the user must provide at least a 
 %   preconditioner solve function (see PrecSolveFn)
 %   CVODES provides the following two general-purpose preconditioner modules:
 %     BandPre provide a band matrix preconditioner based on difference quotients
@@ -126,13 +133,6 @@ function options = CVodeSetOptions(varargin)
 %   If PrecType is not 'None', PrecSolveFn specifies a required function which 
 %   must solve a linear system Pz = r, for given r. PrecSolveFn must be of type
 %   CVPrecSolveFn.
-%KrylovMaxDim - Maximum number of Krylov subspace vectors [ integer | {5} ]
-%   Specifies the maximum number of vectors in the Krylov subspace. This property 
-%   is used only if an iterative linear solver, GMRES or BiCGStab, is used (see 
-%   LinSolver).
-%GramSchmidtType - Gram-Schmidt orthogonalization [ Classical | {Modified} ]
-%   Specifies the type of Gram-Schmidt orthogonalization (classical or modified).
-%   This property is used only if the GMRES linear solver is used (see LinSolver).
 %GlocalFn - Local right-hand side approximation funciton for BBDPre [ function ]
 %   If PrecModule is BBDPre, GlocalFn specifies a required function that
 %   evaluates a local approximation to the ODE right-hand side. GlocalFn must
@@ -144,7 +144,7 @@ function options = CVodeSetOptions(varargin)
 %LowerBwidth - Jacobian/preconditioner lower bandwidth [ integer | {0} ]
 %   This property is overloaded. If the Band linear solver is used (see LinSolver),
 %   it specifies the lower half-bandwidth of the band Jacobian approximation. 
-%   If one of the two iterative linear solvers, GMRES or BiCGStab, is used 
+%   If one of the three iterative linear solvers, GMRES, BiCGStab, or TFQMR is used 
 %   (see LinSolver) and if the BBDPre preconditioner module in CVODES is used 
 %   (see PrecModule), it specifies the lower half-bandwidth of the retained 
 %   banded approximation of the local Jacobian block. If the BandPre preconditioner 
@@ -153,7 +153,7 @@ function options = CVodeSetOptions(varargin)
 %UpperBwidth - Jacobian/preconditioner upper bandwidth [ integer | {0} ]
 %   This property is overloaded. If the Band linear solver is used (see LinSolver),
 %   it specifies the upper half-bandwidth of the band Jacobian approximation. 
-%   If one of the two iterative linear solvers, GMRES or BiCGStab, is used 
+%   If one of the three iterative linear solvers, GMRES, BiCGStab, or TFQMR is used 
 %   (see LinSolver) and if the BBDPre preconditioner module in CVODES is used 
 %   (see PrecModule), it specifies the upper half-bandwidth of the retained 
 %   banded approximation of the local Jacobian block. If the BandPre 
@@ -208,7 +208,7 @@ function options = CVodeSetOptions(varargin)
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:41 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:50 $
 
 % Based on Matlab's ODESET function
 
@@ -228,14 +228,14 @@ if (nargin == 0) & (nargout == 0)
   fprintf('        NumRoots: [ integer | {0} ]\n');
   fprintf(' StabilityLimDet: [ on | {off} ]\n');
   fprintf('\n');
-  fprintf('    LinearSolver: [ Diag | Band | GMRES | BiCGStab | {Dense} ]\n');
+  fprintf('    LinearSolver: [ {Dense} | Band | GMRES | BiCGStab | TFQMR ]\n');
   fprintf('      JacobianFn: [ function ]\n');
+  fprintf('    KrylovMaxDim: [ integer | {5} ]\n');
+  fprintf(' GramSchmidtType: [ Classical | {Modified} ]\n');
   fprintf('        PrecType: [ Left | Right | Both | {None} ]\n');
   fprintf('      PrecModule: [ BandPre | BBDPre | {UserDefined} ]\n');
   fprintf('     PrecSetupFn: [ function ]\n');
   fprintf('     PrecSolveFn: [ function ]\n');
-  fprintf('    KrylovMaxDim: [ integer | {5} ]\n');
-  fprintf(' GramSchmidtType: [ Classical | {Modified} ]\n');
   fprintf('        GlocalFn: [ function ]\n');
   fprintf('         GcommFn: [ function ]\n');
   fprintf('     LowerBwidth: [ integer | {0} ]\n');

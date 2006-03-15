@@ -14,4 +14,4 @@
 %   the corresponding MATLAB functions. For parallel vectors, they
 %   can be used either on the local portion of the distributed vector
 %   or on the global vector (in which case they will trigger an MPI
-%   Allreduce operation.
+%   allreduce operation).

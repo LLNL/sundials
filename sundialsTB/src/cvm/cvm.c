@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-07 01:20:03 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-15 19:31:37 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -41,7 +41,7 @@ cvm_MATLABdata cvm_Mdata;  /* MATLAB data */
  * ---------------------------------------------------------------------------------
  */
 
-static int CVM_init();
+static void CVM_init();
 static void CVM_makePersistent();
 static void CVM_final();
 
@@ -94,43 +94,43 @@ void mexFunction(int nlhs, mxArray *plhs[],
   switch(mode) {
   case 1:
     CVM_init();
-    CVM_Malloc(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_Malloc(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 2:
-    CVM_SensMalloc(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_SensMalloc(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 3:
-    CVM_AdjMalloc(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_AdjMalloc(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 4:
-    CVM_MallocB(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_MallocB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 5:
-    CVM_ReInit(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_ReInit(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 6:
-    CVM_ReInitB(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_ReInitB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 7:
-    CVM_Solve(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_Solve(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 8:
-    CVM_SolveB(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_SolveB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 9:
-    CVM_Stats(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_Stats(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 10:
-    CVM_StatsB(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_StatsB(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 11:
-    CVM_Get(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_Get(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 12:
-    CVM_Set(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_Set(nlhs, plhs, nrhs-1, &prhs[1]);
     break;
   case 13:
-    CVM_Free(nlhs, plhs,nrhs-1,&prhs[1]);
+    CVM_Free(nlhs, plhs, nrhs-1, &prhs[1]);
     CVM_final();
     return;
   }
@@ -435,12 +435,11 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         status = CVBPSpgmr(cvode_mem, ptype, maxl, bp_data);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_GCOMfct)) {
+        if (!mxIsEmpty(mx_GCOMfct))
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, mtlb_CVodeBBDgcom);
-        } else {
+        else
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, NULL);
-        }
-        CVBBDSpgmr(cvode_mem, ptype, maxl, bp_data);
+        status = CVBBDSpgmr(cvode_mem, ptype, maxl, bp_data);
         break;
       }
       status = CVSpilsSetGSType(cvode_mem, gstype);
@@ -463,11 +462,10 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         status = CVBPSpbcg(cvode_mem, ptype, maxl, bp_data);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_GCOMfct)) {
+        if (!mxIsEmpty(mx_GCOMfct))
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, mtlb_CVodeBBDgcom);
-        } else {
+        else
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, NULL);
-        }
         CVBBDSpbcg(cvode_mem, ptype, maxl, bp_data);
         break;
       }
@@ -490,11 +488,10 @@ static int CVM_Malloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
         status = CVBPSptfqmr(cvode_mem, ptype, maxl, bp_data);
         break;
       case PM_BBDPRE:
-        if (!mxIsEmpty(mx_GCOMfct)) {
+        if (!mxIsEmpty(mx_GCOMfct))
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, mtlb_CVodeBBDgcom);
-        } else {
+        else
           bp_data = CVBBDPrecAlloc(cvode_mem, N, mudq, mldq, mupper, mlower, dqrely, mtlb_CVodeBBDgloc, NULL);
-        }
         CVBBDSptfqmr(cvode_mem, ptype, maxl, bp_data);
         break;
       }
@@ -631,7 +628,7 @@ static int CVM_SensMalloc(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
   status = CVodeSetSensErrCon(cvode_mem, errconS);
 
   if (userSRHS) {
-    status = CVodeSetSensRhsFn(cvode_mem, mtlb_CVodeSensRhs);
+    status = CVodeSetSensRhsFn(cvode_mem, mtlb_CVodeSensRhs, NULL);
   }
 
   cvm_fsa = TRUE;
@@ -1805,7 +1802,7 @@ static int CVM_Free(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 }
 
 
-static int CVM_init()
+static void CVM_init()
 {
   mxArray *empty;
 
@@ -1885,7 +1882,7 @@ static int CVM_init()
 
   mxDestroyArray(empty);
 
-  return(0);
+  return;
 }
 
 static void CVM_makePersistent()

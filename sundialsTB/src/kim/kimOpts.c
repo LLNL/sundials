@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-02 00:39:06 $
+ * $Revision: 1.3 $
+ * $Date: 2006-03-15 19:31:38 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,7 +17,32 @@
 #include <string.h>
 #include "kim.h"
 
+extern kim_KINSOLdata kim_Kdata;  /* KINSOL data */
+extern kim_MATLABdata kim_Mdata;  /* MATLAB data */
+
+/* 
+ * ---------------------------------------------------------------------------------
+ * Private constants
+ * ---------------------------------------------------------------------------------
+ */
+
 #define ONE RCONST(1.0)
+
+/*
+ * ---------------------------------------------------------------------------------
+ * Redability replacements
+ * ---------------------------------------------------------------------------------
+ */
+
+#define N  (kim_Kdata->N)
+#define ls (kim_Kdata->ls)
+#define pm (kim_Kdata->pm)
+
+#define mx_JACfct  (kim_Mdata->mx_JACfct)
+#define mx_PSETfct (kim_Mdata->mx_PSETfct)
+#define mx_PSOLfct (kim_Mdata->mx_PSOLfct)
+#define mx_GLOCfct (kim_Mdata->mx_GLOCfct)
+#define mx_GCOMfct (kim_Mdata->mx_GCOMfct)
 
 /*
  * ---------------------------------------------------------------------------------
@@ -27,7 +52,8 @@
 
 int get_SolverOptions(const mxArray *options,
                       booleantype *verbose,
-                      int *mxiter, int *msbset, int *etachoice, int *mxnbcf,
+                      int *mxiter, int *msbset, int *msbsetsub, 
+                      int *etachoice, int *mxnbcf,
                       double *eta, double *egamma, double *ealpha, double *mxnewtstep, 
                       double *relfunc, double *fnormtol, double *scsteptol,
                       double **constraints,
@@ -38,10 +64,11 @@ int get_SolverOptions(const mxArray *options,
   int i, buflen, status, n;
   double *tmp;
 
-  /* Set default values */
+  /* Set default values (pass 0 values. KINSOL does the rest) */
 
   *mxiter = 0;
   *msbset = 0;
+  *msbsetsub = 0;
   *mxnbcf = 0;
   *etachoice = KIN_ETACHOICE1;
 
@@ -72,6 +99,10 @@ int get_SolverOptions(const mxArray *options,
   opt = mxGetField(options,0,"MaxNumSetups");
   if ( !mxIsEmpty(opt) )
     *msbset = (int)*mxGetPr(opt);
+  
+  opt = mxGetField(options,0,"MaxNumSubSetups");
+  if ( !mxIsEmpty(opt) )
+    *msbsetsub = (int)*mxGetPr(opt);
   
   opt = mxGetField(options,0,"MaxNumBetaFails");
   if ( !mxIsEmpty(opt) )
@@ -154,40 +185,33 @@ int get_SolverOptions(const mxArray *options,
 }
 
 
+
+
 int get_LinSolvOptions(const mxArray *options,
-                       int *ls_tmp,
-                       int *maxl, int *maxrs, int *ptype, int *pm_tmp,
-                       int *mudq, int *mldq, int *mukeep, int *mlkeep,
-                       double *dq,
-                       mxArray **mx_tmp_JACfct,
-                       mxArray **mx_tmp_PSETfct, mxArray **mx_tmp_PSOLfct,
-                       mxArray **mx_tmp_GLOCfct, mxArray **mx_tmp_GCOMfct)
+                       int *mupper, int *mlower,
+                       int *mudq, int *mldq, double *dqrely,
+                       int *ptype, int *maxrs, int *maxl)
 {
-  mxArray *opt, *empty;
+  mxArray *opt;
   char *bufval;
   int buflen, status;
   
+  *mupper = 0;
+  *mlower = 0;
 
-  *ls_tmp = LS_SPGMR;
+  *mudq = 0;
+  *mldq = 0;
+  *dqrely = 0.0;
 
-  *mudq   = 0;
-  *mldq   = 0;
-  *mukeep = 0;
-  *mlkeep = 0;
-  *dq = 0.0;
+  *ptype = PREC_NONE;
 
   *maxl  = 0;
   *maxrs = 0;
 
-  *ptype = PREC_NONE;
-  *pm_tmp = PM_NONE;
+  ls = LS_DENSE;
+  pm = PM_NONE;
 
-  empty = mxCreateDoubleMatrix(0,0,mxREAL);
-  *mx_tmp_JACfct  = mxDuplicateArray(empty); 
-  *mx_tmp_PSETfct = mxDuplicateArray(empty); 
-  *mx_tmp_PSOLfct = mxDuplicateArray(empty); 
-  *mx_tmp_GLOCfct = mxDuplicateArray(empty); 
-  *mx_tmp_GCOMfct = mxDuplicateArray(empty); 
+  /* Return now if options was empty */
 
   if (mxIsEmpty(options)) return(0);
 
@@ -198,103 +222,132 @@ int get_LinSolvOptions(const mxArray *options,
     buflen = mxGetM(opt) * mxGetN(opt) + 1;
     bufval = mxCalloc(buflen, sizeof(char));
     status = mxGetString(opt, bufval, buflen);
-    if(status != 0) return(status);
-    if(!strcmp(bufval,"Dense")) *ls_tmp = LS_DENSE;
-    else if(!strcmp(bufval,"GMRES")) *ls_tmp = LS_SPGMR;
-    else if(!strcmp(bufval,"BiCGStab")) *ls_tmp = LS_SPBCG;
-    else if(!strcmp(bufval,"TFQMR")) *ls_tmp = LS_SPTFQMR;
+    if(status != 0) 
+      mexErrMsgTxt("Cannot parse LinearSolver.");
+    if(!strcmp(bufval,"Band")) ls = LS_BAND;
+    else if(!strcmp(bufval,"GMRES")) ls = LS_SPGMR;
+    else if(!strcmp(bufval,"BiCGStab")) ls = LS_SPBCG;
+    else if(!strcmp(bufval,"TFQMR")) ls = LS_SPTFQMR;
+    else if(!strcmp(bufval,"Dense")) ls = LS_DENSE;
     else mexErrMsgTxt("LinearSolver has an illegal value.");
   }
   
+  /* Jacobian function */
+
   opt = mxGetField(options,0,"JacobianFn");
   if ( !mxIsEmpty(opt) )
-    *mx_tmp_JACfct = mxDuplicateArray(opt);
-  
-  opt = mxGetField(options,0,"KrylovMaxDim");
-  if ( !mxIsEmpty(opt) )
-    *maxl = (int)*mxGetPr(opt);
+    mx_JACfct  = mxDuplicateArray(opt);
 
-  opt = mxGetField(options,0,"MaxNumRestarts");
-  if ( !mxIsEmpty(opt) )
-    *maxrs = (int)*mxGetPr(opt);  
-  
-  /* Preconditioner? -- this property not used right now!! */
+  /* Band linear solver */
 
-  opt = mxGetField(options,0,"PrecType");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse PrecType.");
-    if(!strcmp(bufval,"Right")) *ptype = PREC_RIGHT;
-    else if(!strcmp(bufval,"None")) *ptype = PREC_NONE;
-    else mexErrMsgTxt("PrecType has an illegal value.");
-  }
-
-  /* Preconditioner module */
-  
-  opt = mxGetField(options,0,"PrecModule");
-  if ( !mxIsEmpty(opt) ) {
-    buflen = mxGetM(opt) * mxGetN(opt) + 1;
-    bufval = mxCalloc(buflen, sizeof(char));
-    status = mxGetString(opt, bufval, buflen);
-    if(status != 0)
-      mexErrMsgTxt("Cannot parse PrecModule.");
-    if(!strcmp(bufval,"BBDPre")) *pm_tmp = PM_BBDPRE;
-    else if(!strcmp(bufval,"UserDefined")) *pm_tmp = PM_NONE;
-    else mexErrMsgTxt("PrecModule has an illegal value.");
-  }
-
-  /* BBDPre options */
-
-  if (*pm_tmp == PM_BBDPRE) {
+  if (ls==LS_BAND) {
 
     opt = mxGetField(options,0,"UpperBwidth");
     if ( !mxIsEmpty(opt) )
-      *mukeep = (int)*mxGetPr(opt);
+      *mupper = (int)*mxGetPr(opt);
     
     opt = mxGetField(options,0,"LowerBwidth");
     if ( !mxIsEmpty(opt) )
-      *mlkeep = (int)*mxGetPr(opt);
+      *mlower = (int)*mxGetPr(opt);
 
-    opt = mxGetField(options,0,"UpperBwidthDQ");
-    if ( !mxIsEmpty(opt) )
-      *mudq = (int)*mxGetPr(opt);
-
-    opt = mxGetField(options,0,"LowerBwidthDQ");
-    if ( !mxIsEmpty(opt) )
-      *mldq = (int)*mxGetPr(opt);
-      
-    opt = mxGetField(options,0,"GlocalFn");
-    if ( !mxIsEmpty(opt) ) 
-      *mx_tmp_GLOCfct = mxDuplicateArray(opt);
-    else 
-      mexErrMsgTxt("GlocalFn required for BBD preconditioner.");
-    
-    opt = mxGetField(options,0,"GcommFn");
-    if ( !mxIsEmpty(opt) ) 
-      *mx_tmp_GCOMfct = mxDuplicateArray(opt);
-    
   }
   
-  /* User provided preconditioner */
+  /*  SPGMR linear solver options */
 
-  if (*pm_tmp == PM_NONE) {
-  
+  if (ls==LS_SPGMR) {
+
+    opt = mxGetField(options,0,"MaxNumRestarts");
+    if ( !mxIsEmpty(opt) )
+      *maxrs = (int)*mxGetPr(opt);  
+
+  }
+
+  /* SPILS linear solver options */
+
+  if ( (ls==LS_SPGMR) || (ls==LS_SPBCG) || (ls==LS_SPTFQMR) ) {
+
+    /* Max. dimension of Krylov subspace */
+
+    opt = mxGetField(options,0,"KrylovMaxDim");
+    if ( !mxIsEmpty(opt) ) {
+      *maxl = (int)*mxGetPr(opt);
+      if (*maxl < 0) 
+        mexErrMsgTxt("KrylovMaxDim is negative.");
+    }
+
+    /* Preconditioning type */
+
+    opt = mxGetField(options,0,"PrecType");
+    if ( !mxIsEmpty(opt) ) {
+      buflen = mxGetM(opt) * mxGetN(opt) + 1;
+      bufval = mxCalloc(buflen, sizeof(char));
+      status = mxGetString(opt, bufval, buflen);
+      if(status != 0)
+        mexErrMsgTxt("Cannot parse PrecType.");
+      if(!strcmp(bufval,"Right")) *ptype = PREC_RIGHT;
+      else if(!strcmp(bufval,"None")) *ptype = PREC_NONE;
+      else mexErrMsgTxt("PrecType has an illegal value.");
+    }
+
+    /* User defined precoditioning */
+
     opt = mxGetField(options,0,"PrecSetupFn");
     if ( !mxIsEmpty(opt) ) 
-      *mx_tmp_PSETfct = mxDuplicateArray(opt);
+      mx_PSETfct  = mxDuplicateArray(opt);
   
     opt = mxGetField(options,0,"PrecSolveFn");
     if ( !mxIsEmpty(opt) )
-      *mx_tmp_PSOLfct = mxDuplicateArray(opt);
+      mx_PSOLfct  = mxDuplicateArray(opt);
+    
+    /* Preconditioner module */
+  
+    opt = mxGetField(options,0,"PrecModule");
+    if ( !mxIsEmpty(opt) ) {
+      buflen = mxGetM(opt) * mxGetN(opt) + 1;
+      bufval = mxCalloc(buflen, sizeof(char));
+      status = mxGetString(opt, bufval, buflen);
+      if(status != 0)
+        mexErrMsgTxt("Cannot parse PrecModule.");
+      if(!strcmp(bufval,"BBDPre")) pm = PM_BBDPRE;
+      else if(!strcmp(bufval,"UserDefined")) pm = PM_NONE;
+      else mexErrMsgTxt("PrecModule has an illegal value.");
+      
+    }
+
+    
+    if (pm == PM_BBDPRE) {
+
+      opt = mxGetField(options,0,"UpperBwidth");
+      if ( !mxIsEmpty(opt) )
+        *mupper = (int)*mxGetPr(opt);
+    
+      opt = mxGetField(options,0,"LowerBwidth");
+      if ( !mxIsEmpty(opt) )
+        *mlower = (int)*mxGetPr(opt);
+
+      opt = mxGetField(options,0,"UpperBwidthDQ");
+      if ( !mxIsEmpty(opt) )
+        *mudq = (int)*mxGetPr(opt);
+
+      opt = mxGetField(options,0,"LowerBwidthDQ");
+      if ( !mxIsEmpty(opt) )
+        *mldq = (int)*mxGetPr(opt);
+      
+      opt = mxGetField(options,0,"GlocalFn");
+      if ( !mxIsEmpty(opt) ) 
+        mx_GLOCfct  = mxDuplicateArray(opt);
+      else 
+        mexErrMsgTxt("GlocalFn required for BBD preconditioner.");
+      
+      opt = mxGetField(options,0,"GcommFn");
+      if ( !mxIsEmpty(opt) ) 
+        mx_GCOMfct  = mxDuplicateArray(opt);
+      
+    }
 
   }
 
   /* We made it here without problems */
-
-  mxDestroyArray(empty);
 
   return(0);
 

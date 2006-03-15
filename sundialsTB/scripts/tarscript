@@ -44,7 +44,6 @@ tar uf $tarfile $distrobase/src/kim/kim.c
 tar uf $tarfile $distrobase/src/kim/kimOpts.c
 tar uf $tarfile $distrobase/src/kim/kimWrap.c
 
-tar uf $tarfile $distrobase/src/nvm/nvm.c
 tar uf $tarfile $distrobase/src/nvm/nvm.h
 tar uf $tarfile $distrobase/src/nvm/nvm_ops.c
 tar uf $tarfile $distrobase/src/nvm/nvm_parallel.c
@@ -132,6 +131,7 @@ tar uf $tarfile $distrobase/cvodes/examples_par/pvnx.m
 # KINSOL files
 
 tar uf $tarfile $distrobase/kinsol/Contents.m
+tar uf $tarfile $distrobase/kinsol/KINBandJacFn.m
 tar uf $tarfile $distrobase/kinsol/KINDenseJacFn.m
 tar uf $tarfile $distrobase/kinsol/KINFree.m
 tar uf $tarfile $distrobase/kinsol/KINGcommFn.m
@@ -147,6 +147,7 @@ tar uf $tarfile $distrobase/kinsol/KINSysFn.m
 
 tar uf $tarfile $distrobase/kinsol/kim/Contents.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_djac.m
+tar uf $tarfile $distrobase/kinsol/kim/kim_bjac.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_gcom.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_gloc.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_jtv.m

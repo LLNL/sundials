@@ -21,7 +21,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:48 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:54 $
 
 data.p = [0.04; 1.0e4; 3.0e7];
 
@@ -38,7 +38,7 @@ mondata.sol = true;
 mondata.mode = 'text';
 mondata.skip = 10;
 mondata.update = 100;
-options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor','MonitorData',mondata);
+options = CVodeSetOptions(options,'MonitorFn',@CVodeMonitor,'MonitorData',mondata);
 
 CVodeMalloc(@cvdx_f,t0,y0,options,data);
 

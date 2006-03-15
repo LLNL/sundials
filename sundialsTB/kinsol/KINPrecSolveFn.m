@@ -5,22 +5,25 @@
 %   the preconditioner matrix (possibly set implicitely by PSETFUN)
 %
 %   The function PSOLFUN must be defined as 
-%        FUNCTION [Z,IER] = PSOLFUN(Y,YSCALE,FY,FSCALE,R)
+%        FUNCTION [Z, FLAG] = PSOLFUN(Y, YSCALE, FY, FSCALE, R)
 %   and must return a vector Z containing the solution of Pz=r.
-%   If successful, PSOLFUN must return IER=0. If an error occurs, then IER
-%   must be set to a non-zero value.
 %   The input argument FY contains the current value of f(y), while YSCALE
 %   and FSCALE are the scaling vectors for solution and system function,
 %   respectively (as passed to KINSol)
 %
 %   If a user data structure DATA was specified in KINMalloc, then
 %   PSOLFUN must be defined as
-%        FUNCTION [Z, IER, NEW_DATA] = PSOLFUN(Y,YSCALE,FY,FSCALE,R,DATA)
+%        FUNCTION [Z, FLAG, NEW_DATA] = PSOLFUN(Y,YSCALE,FY,FSCALE,R,DATA)
 %   If the local modifications to the user data structure are needed in
 %   other user-provided functions then, besides setting the vector Z and
-%   the flag IER, the PSOLFUN function must also set NEW_DATA. Otherwise,
+%   the flag FLAG, the PSOLFUN function must also set NEW_DATA. Otherwise,
 %   it should set NEW_DATA=[] (do not set NEW_DATA = DATA as it would
 %   lead to unnecessary copying).
+%
+%   If successful, PSOLFUN must return FLAG=0. For a recoverable error it 
+%   must set FLAG to a positive value (in which case the solver will attempt 
+%   to correct). If an unrecoverable error occurs, it must set FLAG
+%   to a negative value, in which case the solver will halt.
 %
 %   See also KINPrecSetupFn, KINSetOptions
 %
@@ -29,4 +32,4 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.1 $Date$
+% $Revision: 1.2 $Date: 2006/01/06 19:00:02 $

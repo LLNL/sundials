@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-03-07 01:20:03 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-15 19:31:37 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,7 +17,7 @@
 #include <string.h>
 #include "cvm.h"
 
-extern cvm_CVODESdata cvm_Cdata;  /* CVODE data */
+extern cvm_CVODESdata cvm_Cdata;  /* CVODES data */
 extern booleantype cvm_quad;      /* Quadratures? */
 extern booleantype cvm_asa;       /* Adjoint sensitivity? */
 extern booleantype cvm_fsa;       /* forward sensitivity? */
@@ -369,6 +369,20 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
     if (fwd) mx_JACfct  = mxDuplicateArray(opt);
     else     mx_JACfctB = mxDuplicateArray(opt);
 
+  /* Band linear solver */
+
+  if (tmp_ls==LS_BAND) {
+
+    opt = mxGetField(options,0,"UpperBwidth");
+    if ( !mxIsEmpty(opt) )
+      *mupper = (int)*mxGetPr(opt);
+    
+    opt = mxGetField(options,0,"LowerBwidth");
+    if ( !mxIsEmpty(opt) )
+      *mlower = (int)*mxGetPr(opt);
+
+  }
+
   /* SPGMR linear solver options */
   
   if (tmp_ls==LS_SPGMR) {
@@ -450,6 +464,18 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
 
     if (tmp_pm != PM_NONE) {
     
+      opt = mxGetField(options,0,"UpperBwidth");
+      if ( !mxIsEmpty(opt) )
+        *mupper = (int)*mxGetPr(opt);
+      
+      opt = mxGetField(options,0,"LowerBwidth");
+      if ( !mxIsEmpty(opt) )
+        *mlower = (int)*mxGetPr(opt);
+      
+    }
+
+    if (tmp_pm == PM_BBDPRE) {
+      
       opt = mxGetField(options,0,"UpperBwidthDQ");
       if ( !mxIsEmpty(opt) )
         *mudq = (int)*mxGetPr(opt);
@@ -457,10 +483,7 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
       opt = mxGetField(options,0,"LowerBwidthDQ");
       if ( !mxIsEmpty(opt) )
         *mldq = (int)*mxGetPr(opt);
-    }
 
-    if (tmp_pm == PM_BBDPRE) {
-      
       opt = mxGetField(options,0,"GlocalFn");
       if ( !mxIsEmpty(opt) ) 
         if (fwd) mx_GLOCfct  = mxDuplicateArray(opt);
@@ -477,19 +500,6 @@ int get_LinSolvOptions(const mxArray *options, booleantype fwd,
 
   }
 
-  /* Band linear solver / band preconditioner module options */
-
-  if ((tmp_ls==LS_BAND) || (tmp_pm==PM_BANDPRE)) {
-
-    opt = mxGetField(options,0,"UpperBwidth");
-    if ( !mxIsEmpty(opt) )
-      *mupper = (int)*mxGetPr(opt);
-    
-    opt = mxGetField(options,0,"LowerBwidth");
-    if ( !mxIsEmpty(opt) )
-      *mlower = (int)*mxGetPr(opt);
-
-  }
   
   /* We made it here without problems */
 

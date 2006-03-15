@@ -25,7 +25,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.2 $Date: 2006/01/06 18:59:49 $
+% $Revision: 1.3 $Date: 2006/03/07 01:19:54 $
 
 %------------------------
 % SET USER DATA STRUCTURE
@@ -33,8 +33,8 @@
 
 ns = 2;
 
-mx = 10;
-my = 10;
+mx = 50;
+my = 20;
 
 xmin = 0.0;  xmax = 20.0; xmid = 10.0;
 ymin = 30.0; ymax = 50.0; ymid = 40.0;
@@ -88,19 +88,34 @@ data.P = [];
 t0 = 0.0;
 
 for jy = 1:my
-  y = ymin + (jy - 1) * dy;
-  cy = (0.1 * (y - ymid))^2;
+  y(jy) = ymin + (jy - 1) * dy;
+end
+for jx = 1:mx
+  x(jx) = xmin + (jx - 1) * dx;
+end
+
+for jy = 1:my
+  cy = (0.1 * (y(jy) - ymid))^2;
   cy = 1.0 - cy + 0.5 * cy^2;
   for jx = 1:mx
-    x = xmin + (jx - 1) * dx;
-    cx = (0.1 * (x - xmid))^2;
+    cx = (0.1 * (x(jx) - xmid))^2;
     cx = 1.0 - cx + 0.5 * cx^2;
     u0(1,jx,jy) = c1s * cx * cy;
     u0(2,jx,jy) = c2s * cx * cy;
   end
 end
 
+u0_2 = squeeze(u0(2,:,:));
+
+hfig = figure;
+hold on
+box on
+hsurf0 = surf(y,x,u0_2);
+set(hsurf0,'Edgecolor','flat','EdgeAlpha',0.6);
+set(hsurf0,'FaceAlpha',0);
+
 u0 = reshape(u0,2*mx*my,1);
+
 
 %------------------------
 % SET CVODES OPTIONS
@@ -141,6 +156,16 @@ for i = 1:nout
           u(2,1,1), u(2,5,5), u(2,10,10));
   tout = tout + twohr;
 end
+
+u_2 = squeeze(u(2,:,:));
+figure(hfig);
+hsurf = surf(y,x,u_2);
+shading interp
+
+title('Initial and final values for species 2');
+xlabel('y');
+ylabel('x');
+colorbar
 
 si = CVodeGetStats
 
