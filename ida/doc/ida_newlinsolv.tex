@@ -29,15 +29,16 @@ Note that of the four interface routines, only the \id{lsolve} routine is requir
 The \id{lfree} routine must be provided only if the solver specification routine
 makes any memory allocation.
 %%
-For consistency with the existing {\ida} linear solver modules, we recommend that the 
-return value of the specification function be 0 for a successful return or a negative value 
-if an error occurs (the pointer to the main {\ida} memory block is \id{NULL}, 
-an input is illegal, the {\nvector} implementation is not compatible, a memory allocation 
-fails, etc.)
+For consistency with the existing {\ida} linear solver modules, we
+recommend that the return value of the specification function be 0 for
+a successful return or a negative value if an error occurs (the
+pointer to the main {\ida} memory block is \id{NULL}, an input is
+illegal, the {\nvector} implementation is not compatible, a memory
+allocation fails, etc.)
 
-To facilitate data exchange between the five interface functions, the field \id{ida\_lmem}
-in the {\ida} memory block can be used to attach a linear solver-specific memory
-block.
+To facilitate data exchange between the five interface functions, the
+field \id{ida\_lmem} in the {\ida} memory block can be used to attach
+a linear solver-specific memory block.
 
 \vspace{0.1in}
 These five routines, which interface between {\ida} and the linear solver module,
@@ -52,7 +53,7 @@ the sake of space).
 
 %------------------------------------------------------------------------------
 
-\paragraph{Initialization routine.}
+\section{Initialization function}
 The type definition of \id{linit} is
 \usfunction{linit}
 {
@@ -77,7 +78,7 @@ The type definition of \id{linit} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Setup routine.} 
+\section{Setup routine} 
 The type definition of \id{lsetup} is
 \usfunction{lsetup}
 {
@@ -122,7 +123,7 @@ The type definition of \id{lsetup} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Solve routine.}
+\section{Solve routine}
 The type definition of \id{lsolve} is
 \usfunction{lsolve}
 {
@@ -131,8 +132,8 @@ The type definition of \id{lsolve} is
 }
 {
   The routine \id{lsolve} must solve the linear equation $M x = b$, where         
-  $M$ is some approximation to $J = dF/dy + c_j dF/dy^\prime$  
-  and the right-hand side vector $b$ is input. 
+  $M$ is some approximation to $J = \partial F/ \partial y + c_j dF/dy^\prime$  
+  (see Eqn. (\ref{e:DAE_Jacobian})), and the right-hand side vector $b$ is input. 
 }
 {
   \begin{args}[IDA\_mem]
@@ -143,7 +144,7 @@ The type definition of \id{lsolve} is
     returned in the vector \id{b}.
   \item[weight]
     is a vector that contains the error weights.
-    These are the reciprocals of the $W_i$ of (\ref{e:errwt}).
+    These are the $W_i$ of (\ref{e:errwt}).
   \item[ycur]
     is a vector that contains the solver's current approximation to $y(t_n)$.
   \item[ypcur]
@@ -161,7 +162,7 @@ The type definition of \id{lsolve} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Performance monitoring routine.}
+\section{Performance monitoring routine}
 The type definition of \id{lperf} is
 \usfunction{lperf}
 {
@@ -186,7 +187,7 @@ The type definition of \id{lperf} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Memory deallocation routine.}
+\section{Memory deallocation routine}
 The type definition of \id{lfree} is
 \usfunction{lfree}
 {
