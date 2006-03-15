@@ -82,6 +82,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <ul>
   <li><a href="#inst_path">I got the tarball. What do I do next?</a></li>
   <li><a href="#inst_linux">What configure flags do I really need?</a></li>
+  <li><a href="#inst_c++">Can I use a C++ compiler to build SUNDIALS?</a></li>
   <li><a href="#inst_noconfig">How do I build SUNDIALS without using the configure script?</a></li>
   <li><a href="#inst_win">How do I install SUNDIALS under Windows?</a></li>
   <li><a href="#inst_cygwin">How can I generate shared libraries under cygwin?</a></li>
@@ -176,6 +177,23 @@ compiler flag <tt>-g3</tt>, you would use:
       --with-mpif77=/usr/apps/mpich/1.2.4/bin/mpif77
 </pre>
 
+</div>
+
+<a name="inst_c++"></a>
+<div class="faq_q">Can I use a C++ compiler to build SUNDIALS?</div>
+<div class="faq_a">
+Yes. However, if building SUNDIALS using a C++ compiler and with parallel support, 
+you must take care <b>not</b> to include MPI C++ bindings. This can be done by 
+specifying an implementation-dependent MPI flag using --with-mpi-flags:
+<br>
+&nbsp;&nbsp;&nbsp;&diams; for MPICH, use --with-mpi-flags=-DMPICH_SKIP_MPICXX
+<br>
+&nbsp;&nbsp;&nbsp;&diams; for LAM MPI, use --with-mpi-flags=-DLAM_BUILDING
+<br><br>
+Note that, if you want to use an MPI script, you must specify, through --with-mpicc, 
+the wrapper using the C++ compiler (mpiCC or mpic++, depending on your MPI distribution). 
+If a C++ compiler is specified and --with-mpicc is not specified, the SUNDIALS configure 
+script will automaticall select the correct MPI script. 
 </div>
 
 
