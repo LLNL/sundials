@@ -1,0 +1,395 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Sundials compilation error (problem with xlc/xlf?) -->
+<!--X-From-R13: QI Khna <tybonyenirNlnubb.pbz> -->
+<!--X-Date: Mon, 13 Mar 2006 10:56:08 &#45;0800 (PST) -->
+<!--X-Message-Id: 20060313185239.89501.qmail@web30802.mail.mud.yahoo.com -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 44159867.5060709@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00369.html">Date Prev</a>] [<a href="msg00371.html">Date Next</a>] [<a href="msg00367.html">Thread Prev</a>] [<a href="msg00371.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00370">Date Index</a></b>]
+[<b><a href="threads.html#00370">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+CW Yuan &lt;<a href="mailto:globalrave%40yahoo.com">globalrave@yahoo.com</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 13 Mar 2006 10:52:39 -0800 (PST)</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hi,
+
+Here's what it says near the top of my fcvode.c file:
+
+$Revision: 1.39.2.4
+$Date: 2005/04/07 17:43:18
+
+Thanks.
+
+
+
+CW
+
+
+--- Radu Serban &lt;serban1@llnl.gov&gt; wrote:
+
+&gt;<i> David,</i>
+&gt;<i> </i>
+&gt;<i> Thanks! Your message helped us to discover what</i>
+&gt;<i> seems to be the explanation for the errors CW and</i>
+&gt;<i> Christos reported.</i>
+&gt;<i> </i>
+&gt;<i> CW and Christos, to verify this, could you please</i>
+&gt;<i> tell us the revision number of the fcvode.c file (at</i>
+&gt;<i> the top of the file) in your </i>
+&gt;<i> sundials/cvode/fcmix directory?</i>
+&gt;<i> </i>
+&gt;<i> Thanks,</i>
+&gt;<i> --Radu</i>
+&gt;<i> </i>
+&gt;<i> Aaron Collier wrote:</i>
+&gt;<i> &gt; Dear David Noy,</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; Since the release of SUNDIALS v2.1.1, the FCMIX</i>
+&gt;<i> interface modules have </i>
+&gt;<i> &gt; been modified to address various issues.  Included</i>
+&gt;<i> among the updates is </i>
+&gt;<i> &gt; a change in how F2C_vec (global vector) is handled</i>
+&gt;<i> which should fix the </i>
+&gt;<i> &gt; problem where the solution vector is not being</i>
+&gt;<i> updated.  In the case of </i>
+&gt;<i> &gt; FCVODE, instead of operating on F2C_vec and then</i>
+&gt;<i> changing the address of </i>
+&gt;<i> &gt; the user variable y, the data component of F2C_vec</i>
+&gt;<i> is set to the address </i>
+&gt;<i> &gt; of y which means y is directly operated on by the</i>
+&gt;<i> solver.</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; The next release of SUNDIALS will include a</i>
+&gt;<i> modified build system that </i>
+&gt;<i> &gt; will automatically try to detect which linker must</i>
+&gt;<i> be used when building </i>
+&gt;<i> &gt; the Fortran examples and will modify the</i>
+&gt;<i> appropriate Makefile's </i>
+&gt;<i> &gt; accordingly.</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; --Aaron</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt; Noy, David J wrote:</i>
+&gt;<i> &gt; </i>
+&gt;<i> &gt;&gt; Radu,</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Following CW Yuan and Christos Frouzakis, I'd</i>
+&gt;<i> like to add a third </i>
+&gt;<i> &gt;&gt; report of problems with the Fortran examples and</i>
+&gt;<i> the solution not </i>
+&gt;<i> &gt;&gt; being updated. I can confirm this problem both on</i>
+&gt;<i> an Intel linux </i>
+&gt;<i> &gt;&gt; machine with PGI compilers and on a PowerMac</i>
+&gt;<i> using Absoft Fortran. I </i>
+&gt;<i> &gt;&gt; have done a bit of digging about in the cvdensef</i>
+&gt;<i> example and the </i>
+&gt;<i> &gt;&gt; problem seems to lie in the fcvode.c interface</i>
+&gt;<i> code. At line 357 you </i>
+&gt;<i> &gt;&gt; assign a new address to the solution vector with</i>
+&gt;<i> the line</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;   y = N_VGetArrayPointer(F2C_vec);</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; I think it may be the case that some (many?)</i>
+&gt;<i> Fortran compilers will </i>
+&gt;<i> &gt;&gt; not look for a new address for an array when a</i>
+&gt;<i> subroutine returns - </i>
+&gt;<i> &gt;&gt; only the contents of an array are expected to</i>
+&gt;<i> change, not its </i>
+&gt;<i> &gt;&gt; location. My C coding skills are not up to doing</i>
+&gt;<i> the job properly (I </i>
+&gt;<i> &gt;&gt; work mainly with Fortran), but I found that</i>
+&gt;<i> replacing the line with</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;   realtype *ytmp;</i>
+&gt;<i> &gt;&gt;   ytmp = N_VGetArrayPointer(F2C_vec);</i>
+&gt;<i> &gt;&gt;   for (i=0; i&lt;3; i++)</i>
+&gt;<i> &gt;&gt;     y[i] = ytmp[i];</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; allows the cvdensef example to work correctly. I</i>
+&gt;<i> imagine there is a </i>
+&gt;<i> &gt;&gt; 'proper' way to copy the data content of this</i>
+&gt;<i> vector across which you </i>
+&gt;<i> &gt;&gt; can supply, but I also wonder if there may be</i>
+&gt;<i> other places that you </i>
+&gt;<i> &gt;&gt; have used this approach, requiring a more</i>
+&gt;<i> extensive revision of the </i>
+&gt;<i> &gt;&gt; Fortran interface files.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Incidently, when installing Sundials on the Linux</i>
+&gt;<i> machine I found that </i>
+&gt;<i> &gt;&gt; all the Fortran examples failed to link because</i>
+&gt;<i> configure had set </i>
+&gt;<i> &gt;&gt; $(CC) as the loader which failed. It seems that</i>
+&gt;<i> with PGI compilers, </i>
+&gt;<i> &gt;&gt; Fortran main programs have to be loaded with f77,</i>
+&gt;<i> so replacing the </i>
+&gt;<i> &gt;&gt; loader in the makefile with $(F77) works, but is</i>
+&gt;<i> there a way to get </i>
+&gt;<i> &gt;&gt; configure to write the makefiles this way</i>
+&gt;<i> automatically?</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Regards,</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; David Noy</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; -----Original Message-----</i>
+&gt;<i> &gt;&gt; From: owner-sundials-users@lists.llnl.gov</i>
+&gt;<i> &gt;&gt; [<a  href="mailto:owner-sundials-users@lists.llnl.gov]On">mailto:owner-sundials-users@lists.llnl.gov]On</a></i>
+&gt;<i> Behalf Of Radu Serban</i>
+&gt;<i> &gt;&gt; Sent: 09 March 2006 21:38</i>
+&gt;<i> &gt;&gt; To: sundials-users@llnl.gov</i>
+&gt;<i> &gt;&gt; Subject: Re: [sundials-users] Sundials</i>
+&gt;<i> compilation error (problem with</i>
+&gt;<i> &gt;&gt; xlc/xlf?)</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Hi CW,</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; The results and statistics that you obtain for</i>
+&gt;<i> the C examples, both </i>
+&gt;<i> &gt;&gt; serial and parallel, are fine. When compared with</i>
+&gt;<i> the sample outputs </i>
+&gt;<i> &gt;&gt; provided with SUNDIALS, the differences in</i>
+&gt;<i> solutions are within </i>
+&gt;<i> &gt;&gt; tolerances and you can always expect variations</i>
+&gt;<i> like the ones you see </i>
+&gt;<i> &gt;&gt; in the final statistics.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; As to the Fortran examples, you are now the</i>
+&gt;<i> second one to report that </i>
+&gt;<i> &gt;&gt; the reported solution is not updated. Christos</i>
+&gt;<i> Frouzakis obtained the </i>
+&gt;<i> &gt;&gt; exact same thing on an Opteron machine. I have</i>
+&gt;<i> built SUNDIALS before </i>
+&gt;<i> &gt;&gt; on AMD processors, but never on a 64-bit AMD</i>
+&gt;<i> processor (Opteron or </i>
+&gt;<i> &gt;&gt; Athlon).</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; I have a feeling yours is a 64-bit box also,</i>
+&gt;<i> isn't it? If so, you </i>
+&gt;<i> &gt;&gt; should (as I suggested to Christos) read</i>
+&gt;<i> carefully the g77 manpage to </i>
+&gt;<i> &gt;&gt; see what flags are needed to mix Fortran and C.</i>
+&gt;<i> Also, you may need to </i>
+&gt;<i> &gt;&gt; modify the Fortran examples to ensure that the</i>
+&gt;<i> sizes of various types </i>
+&gt;<i> &gt;&gt; agree with what the C libraries expect. As I've</i>
+&gt;<i> already mentioned to </i>
+&gt;<i> &gt;&gt; Christos, a Google search shows issues related to</i>
+&gt;<i> g77 not generating </i>
+&gt;<i> &gt;&gt; integers 8-byte long by default (and not having</i>
+&gt;<i> the -i8 option </i>
+&gt;<i> &gt;&gt; either). I strongly suspect this is what's going</i>
+&gt;<i> on here.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; I do not have acces to such a machine to try it</i>
+&gt;<i> myself, but I'd try to </i>
+&gt;<i> &gt;&gt; force 32-bit mode and see if that works (-m32</i>
+&gt;<i> compiler switch to gcc </i>
+&gt;<i> &gt;&gt; and g77 I suppose).</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Also, if you have access to PGI compilers, try</i>
+&gt;<i> using those as pgf77 </i>
+&gt;<i> &gt;&gt; does provide the -i8 option.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; Botom line is that these issues are difficult to</i>
+&gt;<i> resolve remotely. The </i>
+&gt;<i> &gt;&gt; very first thing that you should do is write and</i>
+&gt;<i> test a very simple </i>
+&gt;<i> &gt;&gt; mixed Fortran-C program.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt; --Radu</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i></i>
+*********************************************************************
+&gt;<i> &gt;&gt; This message (and any attachments) is for the</i>
+&gt;<i> recipient only.</i>
+&gt;<i> &gt;&gt; NERC is subject to the Freedom of Information Act</i>
+&gt;<i> 2000 and</i>
+&gt;<i> &gt;&gt; the contents of this email and any reply you make</i>
+&gt;<i> may be</i>
+&gt;<i> &gt;&gt; disclosed by NERC unless it is exempt from</i>
+&gt;<i> release under</i>
+&gt;<i> &gt;&gt; the Act. Any material supplied to NERC may be</i>
+&gt;<i> stored in an</i>
+&gt;<i> &gt;&gt; electronic records management system.</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i></i>
+*********************************************************************
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt;&gt;</i>
+&gt;<i> &gt; </i>
+&gt;<i> </i>
+&gt;<i> </i>
+&gt;<i> -- </i>
+&gt;<i>     Radu Serban</i>
+&gt;<i>     Center for Applied Scientific Computing  </i>
+&gt;<i> [email] </i>
+=== message truncated ===
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> 
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00371" href="msg00371.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00367" href="msg00367.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00369.html">Re: [sundials-users] problem installing sundialsTB Matlab interface</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00371.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00367.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00371.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00370">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00370">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

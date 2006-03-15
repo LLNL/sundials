@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] problem installing sundialsTB Matlab interface -->
-<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Mon, 13 Mar 2006 10:21:33 &#45;0800 (PST) -->
-<!--X-Message-Id: 4415B7A6.2010108@llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] Sundials compilation error (problem with xlc/xlf?) -->
+<!--X-From-R13: Oneba Qbyyvre <pbyyvre6Nyyay.tbi> -->
+<!--X-Date: Mon, 13 Mar 2006 19:15:22 &#45;0800 (PST) -->
+<!--X-Message-Id: 4416340E.3060602@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: E1FIq5V&#45;000GS6&#45;00.vasil&#45;yana&#45;mail&#45;ru@f23.mail.ru -->
+<!--X-Reference: 20060313230435.20406.qmail@web30804.mail.mud.yahoo.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] problem installing sundialsTB Matlab interface</title>
+<title>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00368.html">Date Prev</a>] [<a href="msg00370.html">Date Next</a>] [<a href="msg00368.html">Thread Prev</a>] [Thread Next]<br>
-[<b><a href="maillist.html#00369">Date Index</a></b>]
-[<b><a href="threads.html#00369">Thread Index</a></b>]
+[<a href="msg00372.html">Date Prev</a>] [Date Next] [<a href="msg00372.html">Thread Prev</a>] [<a href="msg00335.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00373">Date Index</a></b>]
+[<b><a href="threads.html#00373">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] problem installing sundialsTB Matlab interface</h1>
+<h1>Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+Aaron Collier &lt;<a href="mailto:collier6%40llnl.gov">collier6@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Mon, 13 Mar 2006 10:19:18 -0800</td>
+Mon, 13 Mar 2006 19:10:06 -0800</td>
 </tr>
 
 </table>
@@ -101,52 +101,40 @@ Mon, 13 Mar 2006 10:19:18 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Yana vasilenko wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Radu Serban,</pre><br>
-<pre style="margin: 0em;">I am a student of The University of West Bohemia, Czech Republic. I'm doing
-my research is Matlab environment and I'd like to use sundials solver in
-it.</pre><br>
-<pre style="margin: 0em;">I have a problem installing sundialsTB Matlab interface on my machine
-running Windows XP. I understand sundialsTB was created for Unix
-environment in the first place, but I wondered if I could run it on Windows too.</pre><br>
-<pre style="margin: 0em;">I had cygwin installed and ran sundialsBT installation scripts in a cygwin
-shell. They all executed well, but then I got to the stage of compilation C
-code inside the folder sundialsTB/mex using supplied makefile, which apparently 
-calls mex-utility,
-and the latter isn't present in cygwin even though I have a complete
-installation of it. I know there is a mex-utility that comes with Matlab
-for
-Windows, but I doubt that it is relevant in this situation. I suppose
-that's
-where .mex files should be created and let the solver be called from within</pre><br>
-<pre style="margin: 0em;">Matlab environment, but that's where I got stuck and can not go any
-further.</pre><br>
-<pre style="margin: 0em;">I wonder if there is a different approach, maybe not necessarily using
-cygwin.</pre><br>
-<pre style="margin: 0em;">I'd very much appreciate your help.</pre><br>
-<pre style="margin: 0em;">Thank you in advance.</pre><br>
-<pre style="margin: 0em;"><br>Sincerely,</pre><br>
-<tt>Yana Vasilenko. </tt><br>
+<pre style="margin: 0em;">Dear CW,</pre><br>
+I recently built SUNDIALS v2.1.1 on an IBM POWER-based Linux system 
+using the IBM XL C and Fortran compilers and did not have any of the 
+build problems specifically mentioned in your prior e-mails.  Although I 
+was unable to build the parallel NVECTOR module in 64-bit mode, I did 
+not have any issues with the _G_config.h, libio-ldbl.h, or float.h 
+header files or the definition of DBL_MAX.  Also, except for FCVODE not 
+updating the solution, I got acceptable results when I ran the serial 
+CVODE examples.<br>
 <br>
-</blockquote><pre style="margin: 0em;"><br></pre><br>
-<pre style="margin: 0em;">Hi Yana,</pre><br>
-<tt>I have not tried to install the currently released sundialsTB under Windows, but I know that several users on this mailing list have 
-successfully done so and maybe they could give you some directions. To do it under cygwin, you may want to take a look at gnumex.</tt><br>
+<pre style="margin: 0em;">--Aaron</pre><br>
+CW Yuan wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+<pre style="margin: 0em;">Excuse me for my stubbornness, but I still can't get
+over this installation problem I have with cvode on a
+ppc64 cluster that uses xlc/xlf to compile.  The
+reason I persist on this is because I think I'm
+tantalizingly close to a successful installation.</pre><br>
+The installation steps and test results are attached. 
+I have a feeling that the source of my problem has<br>
+something to do with the definition of my numerical<br>
+types on the 64-bit system, so I've attached the<br>
+float.h file used on the cluster as well.  <br>
 <br>
-<tt>However, for the next SUNDIALS release, precisely to make the sundialsTB installation less platform/OS dependent, I changed it so that it is 
-done from within Matlab, by running a Matlab script. Moreover, the new installation procedure does not assume that the SUNDIALS libraries 
-are precompiled, but rather compiles the necessary SUNDIALS sources with Matlab's mex at the same time as the interface functions.</tt><br>
-<br>
-<tt>I hope that we will have the new SUNDIALS release before the end of the month. However, if you cannot wait for the new release, I will try 
-to retrofit the currently released sundialsTB with the Matlab installation script and post it to the mailing list.</tt><br>
-<br>
-<pre style="margin: 0em;">--Radu</pre><br>
-<pre style="margin: 0em;">--
-   Radu Serban
-   Center for Applied Scientific Computing   [email] radu@llnl.gov
-   Lawrence Livermore National Laboratory    [phone] 925-424-4852
-   P.O. Box 808, L-560                       [fax]   925-422-6287
-   Livermore, CA 94551</pre><br>
+<pre style="margin: 0em;">When all examples render the same error flag, the
+problem must arise from a rudimentary source, but I
+just haven't been able to pin it down.  Using the -q64
+flag for the xlc/xlf compilers, in fact, generated
+errors and wouldn't even compile the examples.</pre><br>
+<pre style="margin: 0em;">Once again, I apologize for this persistence.</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">Sincerely yours,</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">CW</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -158,28 +146,28 @@ to retrofit the currently released sundialsTB with the Matlab installation scrip
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00368" href="msg00368.html">[sundials-users] problem installing sundialsTB Matlab interface</a></strong>
-<ul><li><em>From:</em> Yana vasilenko &lt;vasil-yana@mail.ru&gt;</li></ul></li>
+<li><strong><a name="00372" href="msg00372.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<ul><li><em>From:</em> CW Yuan &lt;globalrave@yahoo.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00368.html">[sundials-users] problem installing sundialsTB Matlab interface</a></strong>
-</li>
-<li>Next by Date:
-<strong><a href="msg00370.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+<strong><a href="msg00372.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00368.html">[sundials-users] problem installing sundialsTB Matlab interface</a></strong>
+<strong><a href="msg00372.html">Re: [sundials-users] Sundials compilation error (problem with xlc/xlf?)</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00335.html">[sundials-users] Inconsistencies in CVODE(......,NORMAL) and CVODE(......,ONE_STEP)?</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00369">
+<li><a href="maillist.html#00373">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00369">
+<li><a href="threads.html#00373">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

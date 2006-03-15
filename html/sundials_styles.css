@@ -405,19 +405,22 @@ div.fragment a:hover {
   margin: 0px;
   border:0px;
   padding: 0px 0px 0px 4px;
-  background: #f7f7f7;
   width: 600px;
 }
 
 #announce{
-  border: 1px solid #dad9c9;
-  background-color: #e5e4d9;
-  padding: 6px 10px 6px 0px;
+  /*border: 1px solid #dad9c9;*/
+  border: 0px;
+  padding: 0px 0px 6px 0px;
   text-align: justify;
   margin-top: 1px;
   margin-bottom: 1px;
   overflow:auto;
-  height:100px;
+  width: 635px;
+}
+
+tr.expand {
+  display: none;
 }
 
 .rs a{

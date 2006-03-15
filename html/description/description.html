@@ -76,7 +76,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 
 <p class="links">
 [
-<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
 ]
 </p>
 
@@ -125,7 +125,7 @@ versions of the codes.
 <p class="links">
 [ <A HREF="#top">Top</A> ]<BR>
 [
-<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
 ]
 </p>
 
@@ -182,7 +182,7 @@ are in Fortran.
 <p class="links">
 [ <A HREF="#top">Top</A> ]<BR>
 [
-<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
 ]
 </p>
 
@@ -196,7 +196,7 @@ is a solver for stiff and nonstiff ODE systems (initial value problem)
 given in explicit form <b>y' = f(t,y,p)</b> with sensitivity analysis capabilities 
 (both forward and adjoint modes).
 <br><br>
-CVODES is a supraset of CVODE and hence all options available
+CVODES is a superset of CVODE and hence all options available
 to CVODE (with the exception of the FCVODE interface module)
 are also available for CVODES. Both integration methods (Adams-Moulton
 and BDF) and the corresponding nonlinear iteration methods, as well as all linear
@@ -246,7 +246,7 @@ solutions during the backward integration.
 <p class="links">
 [ <A HREF="#top">Top</A> ]<BR>
 [
-<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
 ]
 </p>
 
@@ -291,7 +291,7 @@ which provides a band-block-diagonal preconditioner for use with the parallel ve
 <p class="links">
 [ <A HREF="#top">Top</A> ]<BR>
 [
-<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
 ]
 </p>
 
@@ -330,7 +330,31 @@ the user calling program and all user-supplied routines are in Fortran.
 <p class="links">
 [ <A HREF="#top">Top</A> ]<BR>
 [
-<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
+]
+</p>
+
+<!-- ----------------------------------------- -->
+
+<A NAME="descr_stb"></A>
+<h1>Description of sundialsTB</h1>
+<div class="frame">
+<font color="#ff0000"><B>sundialsTB</B></font>
+is a collection of Matlab functions which provide interfaces to the SUNDIALS solvers.
+Currently, sundialsTB provides interfaces to CVODES and KINSOL.
+<br><br>
+The core of each Matlab interface in sundialsTB is a single <tt>mex</tt> 
+file which interfaces to the various user-callable functions for that solver.
+However, this <tt>mex</tt> file should not be called directly, but rather through the 
+user-callable functions provided for each Matlab interface.
+</div>
+
+<!-- ----------------------------------------- -->
+
+<p class="links">
+[ <A HREF="#top">Top</A> ]<BR>
+[
+<A HREF="#descr_sundials">SUNDIALS</A>::<A HREF="#descr_cvode">CVODE</A>::<A HREF="#descr_cvodes">CVODES</A>::<A HREF="#descr_ida">IDA</A>::<A HREF="#descr_kinsol">KINSOL</A>::<A HREF="#descr_stb">sundialsTB</A>
 ]
 </p>
 

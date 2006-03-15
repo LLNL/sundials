@@ -1,5 +1,33 @@
 /*
  *******************************************************
+ Script to expand/contract announcements table
+ *******************************************************
+ */ 
+
+function doTable(i){
+  if(!document.getElementById)
+      return;
+
+  var d=document.getElementById(i);
+  t=d.getElementsByTagName("tr");
+
+  for(x=0;x<t.length;x++)
+      if(t[x].className=='expand')
+
+        if(t[x].style.display=='none') 
+        {
+            t[x].style.display='table-row';
+            document ['arrowImg'].src = "img/arrowUp.png";
+        }
+        else
+        {
+            t[x].style.display='none';
+            document ['arrowImg'].src = "img/arrowDown.png";
+        }
+}
+
+/*
+ *******************************************************
  Script to change images on rollover
  *******************************************************
  */ 

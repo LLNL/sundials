@@ -32,7 +32,7 @@ supportoff = new Image();       supportoff.src = "graphics/support_button.png";
 
 <!-- ******************************************************************************** -->
 
-<body>
+<body onload="doTable('ann_table');return false;">
 
 
 <table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
@@ -97,7 +97,7 @@ consists of the following four solvers:
 
     <div id="announce">
 
-    <table border=0 cellpadding=5 cellspacing=0>
+    <table id="ann_table" bgcolor="#e5e4d9" frame="below" width="100%" cellpadding=5 cellspacing=0>
     <tr>   
       <td>?? ???. 2006</td>
       <td><b>New release (v.2.2.0)</b>
@@ -105,51 +105,54 @@ consists of the following four solvers:
     </tr>
     <tr>
       <td></td>
-      <td><b>Added FAQ</b>
-      [<a href="support/faq.html">Browse</a>] </td>
+      <td><b>Added FAQ</b> [<a href="support/faq.html">Browse</a>] <b>and usage notes</b> [<a href="support/notes.html">Browse</a>] </td>
     </tr>
-    <tr>   
+    <tr class="expand">   
       <td>19 May. 2005</td>
       <td><b>New release (v.2.1.1)</b></td>
     </tr>
-    <tr>
+    <tr class="expand">
       <td></td>
       <td><b>sundialsTB - Matlab interface for CVODES</b>
       [<a href="documentation/stb_guide/sundialsTB.html">Documentation</a> | <a href="download/download.html">Download</a>] </td>
     </tr>
-    <tr>   
+    <tr class="expand">   
       <td>11 Apr. 2005</td>
       <td><b>New release (v.2.1.0)</b></td>
     </tr>
-    <tr>
+    <tr class="expand">
       <td>22 Mar. 2005</td>
       <td><b>Added sundials-users mailing list archive</b>
       [<a href="support/mailArchive/maillist.html">Browse</a>]</td>
     </tr>
-    <tr>
+    <tr class="expand">
       <td></td>
       <td><b>Added download links for older versions</b></td>
     </tr>
-    <tr>   
+    <tr class="expand">   
       <td>03 Mar. 2005</td>
       <td><b>New release (v.2.0.2)</b>
     </tr>
-    <tr>   
+    <tr class="expand">   
       <td>28 Jan. 2005</td>
       <td><b>Added mailing lists</b>
       [<a href="support/support.html">Subscribe</a>]</td>
     </tr>
-    <tr>
+    <tr class="expand">
       <td></td>
       <td><b>New release (v.2.0.1)</b></td>
       <td></td>
     </tr>
-    <tr>   
+    <tr class="expand">   
       <td>08 Dec. 2004</td>
       <td><b>New release (v.2.0)</b></td>
       <td></td>
     </tr>
     </table>
+
+    <center>
+    <a href="" onclick="doTable('ann_table');return false;"><img name="arrowImg" align="middle" border="0"></a>
+    </center>
 
     </div>
 
