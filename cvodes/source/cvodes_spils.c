@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.9 $
- * $Date: 2006-02-15 17:47:02 $
+ * $Revision: 1.10 $
+ * $Date: 2006-03-15 15:33:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s):Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -791,7 +791,7 @@ int CVSpilsSetDeltB(void *cvadj_mem, realtype deltB)
   return(flag);
 }
 
-int CVSpilsSetMaxlB(void *cvadj_mem, realtype maxlB)
+int CVSpilsSetMaxlB(void *cvadj_mem, int maxlB)
 {
   CVadjMem ca_mem;
   CVodeMem cvB_mem;

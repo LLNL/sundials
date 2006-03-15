@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.20 $
- * $Date: 2006-02-02 00:34:31 $
+ * $Revision: 1.21 $
+ * $Date: 2006-03-15 15:33:52 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -354,7 +354,7 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier, int key_len)
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier)
 {
   int itol;
-  N_Vector Vatol;
+  N_Vector Vatol=NULL;
   void *atolptr;
 
   *ier = 0;

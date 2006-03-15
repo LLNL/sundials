@@ -1,6 +1,6 @@
 C     ----------------------------------------------------------------
-C     $Revision: 1.2 $
-C     $Date: 2006-01-24 00:49:48 $
+C     $Revision: 1.3 $
+C     $Date: 2006-03-15 15:33:44 $
 C     ----------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, banded user
 C     Jacobian.
@@ -33,7 +33,7 @@ C
       DATA XMAX/2.0D0/, YMAX/1.0D0/
 C
       INTEGER LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
-      INTEGER IER, METH, ITMETH, IATOL, INOPT, ITASK, JOUT
+      INTEGER IER, METH, ITMETH, IATOL, ITASK, JOUT
       INTEGER*4 IOUT(25), IPAR(2)
       INTEGER*4 MU, ML
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 

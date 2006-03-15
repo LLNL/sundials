@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:39 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-15 15:33:47 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -276,6 +276,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
     hadv = horac*(urt - ult);
     dudata[i] = hdiff + hadv;
   }
+
+  return(0);
 }
 
 /*

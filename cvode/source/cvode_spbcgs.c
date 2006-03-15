@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-02-15 02:23:33 $
+ * $Revision: 1.9 $
+ * $Date: 2006-03-15 15:33:45 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,8 +17,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cvode_impl.h"
+#include "cvode_spbcgs.h"
 #include "cvode_spils_impl.h"
+#include "cvode_impl.h"
 
 #include "sundials_spbcgs.h"
 #include "sundials_math.h"

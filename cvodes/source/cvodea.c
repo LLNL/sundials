@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.67 $
- * $Date: 2006-02-15 17:47:01 $
+ * $Revision: 1.68 $
+ * $Date: 2006-03-15 15:33:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -64,7 +64,7 @@ static int  CVAdataStore(CVadjMem ca_mem, CkpntMem ck_mem);
 static int  CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem); 
 
 static int CVAfindIndex(CVadjMem ca_mem, realtype t, 
-                        long int *indx, booleantype *new);
+                        long int *indx, booleantype *newpoint);
 
 static booleantype CVAhermiteMalloc(CVadjMem ca_mem, long int steps);
 static void CVAhermiteFree(DtpntMem *dt_mem, long int steps);
@@ -1219,7 +1219,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
  *
  * Finds the index in the array of data point strctures such that
  *     dt_mem[indx-1].t <= t < dt_mem[indx].t
- * If indx is changed from the previous invocation, then new = TRUE
+ * If indx is changed from the previous invocation, then newpoint = TRUE
  *
  * If t is beyond the leftmost limit, but close enough, indx=0.
  *
@@ -1228,7 +1228,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
  */
 
 static int CVAfindIndex(CVadjMem ca_mem, realtype t, 
-                        long int *indx, booleantype *new)
+                        long int *indx, booleantype *newpoint)
 {
   static long int ilast;
   DtpntMem *dt_mem;
@@ -1237,16 +1237,16 @@ static int CVAfindIndex(CVadjMem ca_mem, realtype t,
 
   dt_mem = ca_mem->dt_mem;
 
-  *new = FALSE;
+  *newpoint = FALSE;
 
   /* Find the direction of integration */
   sign = (tfinal - tinitial > ZERO) ? 1 : -1;
 
   /* If this is the first time we use new data */
   if (newData) {
-    ilast   = np-1;
-    *new    = TRUE;
-    newData = FALSE;
+    ilast     = np-1;
+    *newpoint = TRUE;
+    newData   = FALSE;
   }
 
   /* Search for indx starting from ilast */
@@ -1256,7 +1256,7 @@ static int CVAfindIndex(CVadjMem ca_mem, realtype t,
   if ( to_left ) {
     /* look for a new indx to the left */
 
-    *new = TRUE;
+    *newpoint = TRUE;
     
     *indx = ilast;
     loop {
@@ -1278,7 +1278,7 @@ static int CVAfindIndex(CVadjMem ca_mem, realtype t,
   } else if ( to_right ) {
     /* look for a new indx to the right */
 
-    *new = TRUE;
+    *newpoint = TRUE;
 
     *indx = ilast;
     loop {
@@ -1344,7 +1344,7 @@ static booleantype CVAhermiteMalloc(CVadjMem ca_mem, long int steps)
   CVodeMem cv_mem;
   DtpntMem *dt_mem;
   HermiteDataMem content;
-  long int i, ii;
+  long int i, ii=0;
   booleantype allocOK;
 
   allocOK = TRUE;
@@ -1459,13 +1459,13 @@ static int CVAhermiteGetY(CVadjMem ca_mem, realtype t, N_Vector y)
   N_Vector y0, yd0, y1, yd1;
   int flag;
   long int indx;
-  booleantype new;
+  booleantype newpoint;
 
   dt_mem = ca_mem->dt_mem;
   
   /* Get the index in dt_mem */
 
-  flag = CVAfindIndex(ca_mem, t, &indx, &new);
+  flag = CVAfindIndex(ca_mem, t, &indx, &newpoint);
   if (flag != CV_SUCCESS) return(flag);
 
   /* If we are beyond the left limit but close enough,
@@ -1487,7 +1487,7 @@ static int CVAhermiteGetY(CVadjMem ca_mem, realtype t, N_Vector y)
   y0  = content0->y;
   yd0 = content0->yd;
 
-  if (new) {
+  if (newpoint) {
     
     /* Recompute Y0 and Y1 */
 
@@ -1537,7 +1537,7 @@ static booleantype CVApolynomialMalloc(CVadjMem ca_mem, long int steps)
   CVodeMem cv_mem;
   DtpntMem *dt_mem;
   PolynomialDataMem content;
-  long int i, ii;
+  long int i, ii=0;
   booleantype allocOK;
 
   allocOK = TRUE;
@@ -1631,14 +1631,14 @@ static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)
   PolynomialDataMem content;
   int flag, dir, order, i, j;
   long int indx, base;
-  booleantype new;
+  booleantype newpoint;
   realtype dt, factor;
 
   dt_mem = ca_mem->dt_mem;
   
   /* Get the index in dt_mem */
 
-  flag = CVAfindIndex(ca_mem, t, &indx, &new);
+  flag = CVAfindIndex(ca_mem, t, &indx, &newpoint);
   if (flag != CV_SUCCESS) return(flag);
 
   /* If we are beyond the left limit but close enough,
@@ -1675,7 +1675,7 @@ static int CVApolynomialGetY(CVadjMem ca_mem, realtype t, N_Vector y)
 
   /* Recompute Y (divided differences for Newton polynomial) if needed */
 
-  if (new) {
+  if (newpoint) {
 
     /* Store 0-th order DD */
     if (dir == 1) {

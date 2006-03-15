@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-02-14 19:09:44 $
+ * $Revision: 1.8 $
+ * $Date: 2006-03-15 15:33:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -440,7 +440,7 @@ extern "C" {
   int CVSpilsSetPrecTypeB(void *cvadj_mem, int pretypeB);
   int CVSpilsSetGSTypeB(void *cvadj_mem, int gstypeB);
   int CVSpilsSetDeltB(void *cvadj_mem, realtype deltB);
-  int CVSpilsSetMaxlB(void *cvadj_mem, realtype maxlB);
+  int CVSpilsSetMaxlB(void *cvadj_mem, int maxlB);
   int CVSpilsSetPreconditionerB(void *cvadj_mem, CVSpilsPrecSetupFnB psetB,
                                 CVSpilsPrecSolveFnB psolveB, void *P_dataB);
   int CVSpilsSetJacTimesVecFnB(void *cvadj_mem, CVSpilsJacTimesVecFnB jtimesB,

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-15 02:23:48 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-15 15:33:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ida_impl.h"
+#include "ida_sptfqmr.h"
 #include "ida_spils_impl.h"
+#include "ida_impl.h"
 
 #include "sundials_sptfqmr.h"
 #include "sundials_math.h"

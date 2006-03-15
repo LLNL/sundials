@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.58 $
- * $Date: 2006-02-21 23:14:38 $
+ * $Revision: 1.59 $
+ * $Date: 2006-03-15 15:33:54 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -2431,7 +2431,6 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
 static void IDARestore(IDAMem IDA_mem, realtype saved_t)
 {
   int j;
-  int is;
 
   tn = saved_t;
   
@@ -2581,12 +2580,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
 
 static void IDAReset(IDAMem IDA_mem)
 {
-  int is;
-
   psi[0] = hh;
 
   N_VScale(rr, phi[1], phi[1]);
-
 }
 
 /* 

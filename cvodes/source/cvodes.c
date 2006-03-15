@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.80 $
- * $Date: 2006-03-09 20:29:24 $
+ * $Revision: 1.81 $
+ * $Date: 2006-03-15 15:33:49 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -6876,7 +6876,7 @@ static int CVSensRhs(CVodeMem cv_mem, realtype time,
                      N_Vector *yScur, N_Vector *fScur,
                      N_Vector temp1, N_Vector temp2)
 {
-  int retval, is;
+  int retval=0, is;
 
   if (ifS==CV_ALLSENS) {
     retval = fS(Ns, time, ycur, fcur, yScur, fScur, 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2006-02-15 02:23:40 $
+ * $Revision: 1.11 $
+ * $Date: 2006-03-15 15:33:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -17,9 +17,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cvodes_spgmr.h"
+#include "cvodes_spils_impl.h"
 #include "cvodes_impl.h"
 #include "cvodea_impl.h"
-#include "cvodes_spils_impl.h"
 
 #include "sundials_spgmr.h"
 #include "sundials_math.h"
