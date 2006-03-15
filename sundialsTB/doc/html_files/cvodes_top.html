@@ -140,13 +140,15 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
 <h1>CVODES Serial Example Problems</h1>
 <div class="frame">
 <table>
-<colgroup width="80">
-<colgroup width="300">
+<colgroup width="60">
+<colgroup width="280">
+<colgroup width="30" align="center">
 <colgroup align="left">
 <tr>
-   <td><strong>Driver</strong></td>
-   <td><strong>Supporting functions</strong></td>
-   <td><strong>Description</strong></td>
+  <td><strong>Driver</strong></td>
+  <td><strong>Supporting functions</strong></td>
+  <td></td>
+  <td><strong>Description</strong></td>
 </tr>
 <tr>
   <td><a href="cvodes/examples_ser/cvdx.html">cvdx</a></td>
@@ -154,6 +156,7 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
     <a href="cvodes/examples_ser/cvdx_f.html">cvdx_f</a>,
     <a href="cvodes/examples_ser/cvdx_J.html">cvdx_J</a>
   </td>
+  <td></td>
   <td>chemical kinetics problem</td>
 </tr>
 <tr>
@@ -163,7 +166,8 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
     <a href="cvodes/examples_ser/cvdx_J.html">cvdx_J</a>
     <a href="cvodes/examples_ser/cvdx_fS.html">cvdx_fS</a>
   </td>
-  <td>forward sensitivity example for cvdx  [<a href="cvfdx.png">screenshot</a>]</td>
+  <td><a href="cvfdx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
+  <td>forward sensitivity example for cvdx</td>
 </tr>
 <tr>
   <td><a href="cvodes/examples_ser/cvadx.html">cvadx</a></td>
@@ -175,7 +179,8 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
     <a href="cvodes/examples_ser/cvdx_J.html">cvdx_J</a>,
     <a href="cvodes/examples_ser/cvdx_JB.html">cvdx_JB</a>
   </td>
-  <td>adjoint sensitivity example for cvdx  [<a href="cvadx.png">screenshot</a>]</td>
+  <td><a href="cvadx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
+  <td>adjoint sensitivity example for cvdx</td>
 </tr>
 <tr>
   <td><a href="cvodes/examples_ser/cvbx.html">cvbx</a></td>
@@ -184,6 +189,7 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
     <a href="cvodes/examples_ser/cvbx_q.html">cvbx_q</a>,
     <a href="cvodes/examples_ser/cvbx_J.html">cvbx_J</a>
   </td>
+  <td></td>
   <td>2D advection-diffusion problem</td>
 </tr>
 </tr>
@@ -194,15 +200,17 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
     <a href="cvodes/examples_ser/cvkx_pset.html">cvkx_pset</a>,
     <a href="cvodes/examples_ser/cvkx_psol.html">cvkx_psol</a>
   </td>
+  <td><a href="cvkx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
   <td>2D diurnal kinetics problem</td>
 </td>
 </tr>
 <tr>
-  <td><a href="cvodes/examples_ser/cvkxb.html">cvkx</a></td>
+  <td><a href="cvodes/examples_ser/cvkxb.html">cvkxb</a></td>
   <td>
     <a href="cvodes/examples_ser/cvkx_f.html">cvkx_f</a>
   </td>
-  <td>2D diurnal kinetics problem</td>
+  <td></td>
+  <td>2D diurnal kinetics problem (BandPre preconditioner module) </td>
 </td>
 </tr>
 <tr>
@@ -210,6 +218,7 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
   <td>
     <a href="cvodes/examples_ser/pleiades_f.html">pleiades_f</a>
   </td>
+  <td><a href="pleiades.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
   <td>celestial mechanics problem</td>
 </td>
 </tr>
@@ -219,6 +228,7 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
     <a href="cvodes/examples_ser/vdp_f.html">vdp_f</a>,
     <a href="cvodes/examples_ser/vdp_J.html">vdp_J</a>
   </td>
+  <td><a href="vdp.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
   <td>van der Pol problem</td>
 </td>
 </tr>
@@ -228,20 +238,23 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
 <h1>CVODES Parallel Example Problems</h1>
 <div class="frame">
 <table>
-<colgroup width="80">
-<colgroup width="300">
+<colgroup width="60">
+<colgroup width="280">
+<colgroup width="30" align="center">
 <colgroup align="left">
 <tr>
-   <td><strong>Driver</strong></td>
-   <td><strong>Supporting functions</strong></td>
-   <td><strong>Description</strong></td>
+  <td><strong>Driver</strong></td>
+  <td><strong>Supporting functions</strong></td>
+  <td></td>
+  <td><strong>Description</strong></td>
 </tr>
 <tr>
   <td><a href="cvodes/examples_par/pvnx.html">pvnx</a></td>
   <td>
     <a href="cvodes/examples_par/pvnx_f.html">pvnx_f</a>
   </td>
-  <td>diagonal ODE example [<a href="pvnx.png">screenshot</a>]</td>
+  <td><a href="pvnx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
+  <td>diagonal ODE example</td>
 </td>
 </tr>
 <tr>
@@ -249,6 +262,7 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
   <td>
     <a href="cvodes/examples_par/pvfnx_f.html">pvfnx_f</a>
   </td>
+  <td></td>
   <td>FSA for a 1D advection-diffusion problem</td>
 </td>
 </tr>
@@ -258,7 +272,8 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>CVODES
     <a href="cvodes/examples_par/pvkx_f.html">pvkx_f</a>,
     <a href="cvodes/examples_par/pvkx_fl.html">pvkx_fl</a>
   </td>
-  <td>3D advection-diffusion with distributed source [<a href="pvkx.png">screenshot</a>]</td>
+  <td><a href="pvkx.png"><img border="0" align="top" src="eye.png" alt="screenshot"></a></td>
+  <td>3D advection-diffusion with distributed source</td>
 </td>
 </tr>
 </table>

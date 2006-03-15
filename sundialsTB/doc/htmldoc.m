@@ -3,7 +3,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:55 $
+% $Revision: 1.4 $Date: 2006/03/07 20:31:21 $
 
 % Set location of sundialsTB template files location
 s = fileparts(which(mfilename));
@@ -86,6 +86,7 @@ cmd = sprintf('rm -f %s/kinsol.html',doc_dir);
 system(cmd);
 
 kinsol_fct = {'kinsol/KINDenseJacFn.m'...
+              'kinsol/KINBandJacFn.m'...
               'kinsol/KINFree.m'...
               'kinsol/KINGcommFn.m'...
               'kinsol/KINGetStats.m'...

@@ -4,7 +4,7 @@ function [] = texdoc
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.3 $Date: 2006/03/07 01:19:55 $
+% $Revision: 1.4 $Date: 2006/03/14 00:47:29 $
 
 
 global cv_fct cv_ftp ces_drv ces_fct cep_drv cep_fct
@@ -244,6 +244,7 @@ kin_fct = {
 
 kin_ftp = {
     'kinsol/KINDenseJacFn.m'...
+    'kinsol/KINBandJacFn.m'...
     'kinsol/KINGcommFn.m'...
     'kinsol/KINGlocalFn.m'...
     'kinsol/KINJacTimesVecFn.m'...

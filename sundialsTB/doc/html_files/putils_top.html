@@ -77,17 +77,27 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>Parallel Utilities
 
 <h1>PUTILS Functions</h1>
 <div class="frame">
-<table width="100">
+<table frame="below" width="400">
+<colgroup width="80">
+<colgroup width="320">
 <tr>
 <td><a href="putils/mpirun.html" title="putils">mpirun</a></td>
+<td>function used to run MPI programs on LAM nodes.</td>
 </tr>
 <tr>
 <td><a href="putils/mpiruns.html" title="putils">mpiruns</a></td>
+<td>function invoked to run MPI programs on slave nodes.</td>
 </tr>
 <tr>
 <td><a href="putils/mpistart.html" title="putils">mpistart</a></td>
+<td>function invoked to initialize LAM MPI (if needed).</td>
 </tr>
 </table>
+<br>
+Note that only <tt>mpirun</tt> is user-callable. 
+<br>
+<tt>mpirun</tt> automatically calls <tt>mpistart</tt> (if needed to initialize LAM) 
+and <tt>mpiruns</tt> (to launch the Matlab functions on the slave nodes).
 </div>
 
 

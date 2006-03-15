@@ -77,9 +77,9 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>NVECTOR
 
 <h1>NVECTOR Functions</h1>
 <div class="frame">
-<table width="200">
-<colgroup width=100>
-<colgroup width=100>
+<table frame="below" width="240">
+<colgroup width=120>
+<colgroup width=120>
 <tr>
 <td><a href="nvector/N_VDotProd.html" title="nvector">N_VDotProd</a></td>
 <td><a href="nvector/N_VMax.html" title="nvector">N_VMax</a></td>
@@ -96,6 +96,13 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>NVECTOR
 <td><a href="nvector/N_VWL2Norm.html" title="nvector">N_VWL2Norm</a></td>
 </tr>
 </table>
+<br>
+For serial vectors, all of the above operations default to
+the corresponding Matlab functions. For parallel vectors, they
+can be used either on the local portion of the distributed vector
+or on the global vector (in which case they will trigger an MPI
+allreduce operation).
+
 </div>
 
 <div id="contact">

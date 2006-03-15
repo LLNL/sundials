@@ -77,39 +77,43 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>KINSOL
 
 <h1>KINSOL Functions</h1>
 <div class="frame">
-<table width="200">
-<colgroup width=100>
-<colgroup width=100>
+<table width="360">
+<colgroup width=120>
+<colgroup width=120>
+<colgroup width=120>
 <tr>
 <td><a href="kinsol/KINSetOptions.html" title="kinsol">KINSetOptions</a></td>  
-<td><a href="kinsol/KINMalloc.html" title="kinsol">KINMalloc</a></td>  
-</tr>
-<tr>
 <td><a href="kinsol/KINSol.html" title="kinsol">KINSol</a></td>  
-<td><a href="kinsol/KINGetStats.html" title="kinsol">KINGetStats</a></td>  
+<td><a href="kinsol/KINFree.html" title="kinsol">KINFree</a></td>  
 </tr>
 <tr>
-<td><a href="kinsol/KINFree.html" title="kinsol">KINFree</a></td>  
+<td><a href="kinsol/KINMalloc.html" title="kinsol">KINMalloc</a></td>  
+<td><a href="kinsol/KINGetStats.html" title="kinsol">KINGetStats</a></td>  
+<td></td>
 </tr>
 </table>
 </div>
                 
 <h1>KINSOL Function Types</h1>  
 <div class="frame">
-<table width="200">
-<colgroup width=100>
-<colgroup width=100>
+<table width="360">
+<colgroup width=120>
+<colgroup width=120>
+<colgroup width=120>
 <tr> 
 <td><a href="kinsol/KINSysFn.html" title="kinsol">KINSysFn</a></td>  
-<td><a href="kinsol/KINPrecSetupFn.html" title="kinsol">KINPrecSetupFn</a></td>  
-</tr>
-<tr>
 <td><a href="kinsol/KINJacTimesVecFn.html" title="kinsol">KINJacTimesVecFn</a></td>  
 <td><a href="kinsol/KINGcommFn.html" title="kinsol">KINGcommFn</a></td>  
 </tr>
 <tr>
-<td><a href="kinsol/KINPrecSolveFn.html" title="kinsol">KINPrecSolveFn</a></td> 
+<td><a href="kinsol/KINDenseJacFn.html" title="kinsol">KINDenseJacFn</a></td>  
+<td><a href="kinsol/KINPrecSetupFn.html" title="kinsol">KINPrecSetupFn</a></td>  
 <td><a href="kinsol/KINGlocalFn.html" title="kinsol">KINGlocalFn</a></td>  
+</tr>
+<tr>
+<td><a href="kinsol/KINBandJacFn.html" title="kinsol">KINBandJacFn</a></td>  
+<td><a href="kinsol/KINPrecSolveFn.html" title="kinsol">KINPrecSolveFn</a></td> 
+<td></td>
 </tr>
 </table>
 </div>                                  
@@ -117,13 +121,15 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>KINSOL
 <h1>KINSOL Serial Example Problems</h1>
 <div class="frame">
 <table>
-<colgroup width="80">
-<colgroup width="300">
+<colgroup width="60">
+<colgroup width="280">
+<colgroup width="30" align="center">
 <colgroup align="left">
 <tr>
-   <td><strong>Driver</strong></td>
-   <td><strong>Supporting functions</strong></td>
-   <td><strong>Description</strong></td>
+  <td><strong>Driver</strong></td>
+  <td><strong>Supporting functions</strong></td>
+  <td></td>
+  <td><strong>Description</strong></td>
 </tr>
 <tr>
   <td><a href="kinsol/examples_ser/kindiag.html">kindiag</a></td>
@@ -132,7 +138,14 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>KINSOL
     <a href="kinsol/examples_ser/kindiag_pset.html">kindiag_pset</a>,
     <a href="kinsol/examples_ser/kindiag_psol.html">kindiag_psol</a>
   </td>
+  <td></td>
   <td>diagonal test problem</td>
+</tr>
+<tr>
+  <td><a href="kinsol/examples_ser/kindx.html">kindx</a></td>
+  <td><a href="kinsol/examples_ser/kindx_sys.html">kindx_sys</a></td>
+  <td></td>
+  <td>dense test problem</td>
 </tr>
 </table>
 </div>
@@ -141,13 +154,15 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>KINSOL
 <h1>KINSOL Parallel Example Problems</h1>
 <div class="frame">
 <table>
-<colgroup width="80">
-<colgroup width="300">
+<colgroup width="60">
+<colgroup width="280">
+<colgroup width="30">
 <colgroup align="left">
 <tr>
-   <td><strong>Driver</strong></td>
-   <td><strong>Supporting functions</strong></td>
-   <td><strong>Description</strong></td>
+  <td><strong>Driver</strong></td>
+  <td><strong>Supporting functions</strong></td>
+  <td></td>
+  <td><strong>Description</strong></td>
 </tr>
 <tr>
   <td><a href="kinsol/examples_par/kindiagp.html">kindiagp</a></td>
@@ -156,6 +171,7 @@ sundialsTB, a Matlab Interface to SUNDIALS<br>KINSOL
     <a href="kinsol/examples_par/kindiagp_pset.html">kindiagp_pset</a>,
     <a href="kinsol/examples_par/kindiagp_psol.html">kindiagp_psol</a>
   </td>
+  <td><a href="kindiagp.png"><img border="0" align="top" src="eye.png" alt="screenshot"></td>
   <td>diagonal test problem</td>
 </tr>
 </table>
