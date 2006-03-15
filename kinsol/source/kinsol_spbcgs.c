@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-02 00:36:31 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-15 23:43:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -20,6 +20,7 @@
 #include <stdarg.h>
 
 #include "kinsol_impl.h"
+#include "kinsol_spbcg.h"
 #include "kinsol_spils_impl.h"
 
 #include "sundials_spbcgs.h"

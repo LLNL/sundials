@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-02 00:36:17 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-15 23:43:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -216,7 +216,6 @@ int main(void)
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
-
 
   KINSetPrintLevel(kmem,3);
 

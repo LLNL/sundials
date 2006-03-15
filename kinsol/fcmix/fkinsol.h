@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.43 $
- * $Date: 2006-02-15 19:11:12 $
+ * $Revision: 1.44 $
+ * $Date: 2006-03-15 23:43:25 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -370,7 +370,7 @@
  
        LENRW  = IOUT(1) = real workspace size
        LENRW  = IOUT(2) = real workspace size
-       NNI    = IOuT(3) = number of Newton iterations
+       NNI    = IOUT(3) = number of Newton iterations
        NFE    = IOUT(4) = number of f evaluations
        NBCF   = IOUT(5) = number of line search beta condition failures
        NBKTRK = IOUT(6) = number of line search backtracks

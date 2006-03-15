@@ -1,7 +1,7 @@
       program fkinkryx
 c     ----------------------------------------------------------------
-c     $Revision: 1.3 $
-c     $Date: 2006-02-02 00:36:25 $
+c     $Revision: 1.4 $
+c     $Date: 2006-03-15 23:43:27 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -22,7 +22,7 @@ c     ----------------------------------------------------------------
 c
       implicit none
 
-      integer ier, globalstrat, inopt, maxl, maxlrst
+      integer ier, globalstrat, maxl, maxlrst
       integer*4 PROBSIZE
       parameter(PROBSIZE=128)
       integer*4 neq, i, msbpre
@@ -84,7 +84,7 @@ c * * * * * * * * * * * * * * * * * * * * * *
      1       ' solves a 128 eqn diagonal algebraic system.'/
      2       ' Its purpose is to demonstrate the use of the Fortran',
      3       ' interface'/' in a serial environment.'///
-     4       ' globalstrategy = KIN_INEXACT_NEWTON')
+     4       ' globalstrategy = KIN_NONE')
 
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
