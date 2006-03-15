@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.33 $
-# $Date: 2006-03-01 23:26:09 $
+# $Revision: 1.34 $
+# $Date: 2006-03-15 20:03:28 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -370,7 +370,6 @@ AC_DEFUN([SUNDIALS_SET_CC],
 [
 
 # Default is C programming language (initialize language stack)
-#AC_LANG([C])
 AC_LANG([C])
 
 AC_ARG_WITH([],[],[])
@@ -611,7 +610,52 @@ AC_PROG_EGREP
 # Defines FGREP and exports via AC_SUBST - used by FCMIX Makefile's
 AC_PROG_FGREP
 
+# Check if CC is a C++ compiler
+# Note: If CC is a C++ compiler and MPI is enabled, then we will
+# check for "mpiCC" instead of "mpicc" if an MPI compiler was NOT specified
+SUNDIALS_CPLUSPLUS_CHECK([${CC}])
+
 ]) dnl END SUNDIALS_SET_CC
+
+#------------------------------------------------------------------
+# CHECK IF COMPILER IS A C++ COMPILER
+#------------------------------------------------------------------
+
+AC_DEFUN([SUNDIALS_CPLUSPLUS_CHECK],
+[
+
+# Rename argument
+COMP_NAME="$1"
+
+# Update the language stack
+AC_LANG_PUSH([C])
+
+# Check if using a C++ compiler
+AC_MSG_CHECKING([if ${COMP_NAME} is a C++ compiler])
+AC_RUN_IFELSE(
+[AC_LANG_PROGRAM([[]],
+[[
+#ifdef __cplusplus
+  return(0);
+#else
+  return(1);
+#endif
+]])],
+[
+AC_MSG_RESULT([yes])
+# COMP_NAME is a C++ compiler
+USING_CPLUSPLUS_COMP="yes"
+],
+[
+AC_MSG_RESULT([no])
+# COMP_NAMPE is NOT a C++ compiler
+USING_CPLUSPLUS_COMP="no"
+])
+
+# Revert back to previous language
+AC_LANG_POP([C])
+
+]) dnl END SUNDIALS_CPLUSPLUS_CHECK
 
 #------------------------------------------------------------------
 # DEFAULT CFLAGS
@@ -822,35 +866,15 @@ AC_LANG_POP([Fortran 77])
 AC_DEFUN([SUNDIALS_F77_LNKR_CHECK],
 [
 
-# Switch working language to C for the next test
-AC_LANG_PUSH([C])
+# Note: SUNDIALS_CPLUSPLUS_CHECK macro was called by SUNDIALS_SET_CC,
+# so we need only check the value of USING_CPLUSPLUS_COMP
+if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
+  RUN_F77_LNKR_CHECK="yes"
+else
+  RUN_F77_LNKR_CHECK="no"
+fi
 
-# Check if using a C++ compiler
-AC_MSG_CHECKING([if $CC is a C++ compiler])
-AC_RUN_IFELSE(
-[AC_LANG_PROGRAM([[]],
-[[
-#ifdef __cplusplus
-  return(0);
-#else
-  return(1);
-#endif
-]])],
-[
-AC_MSG_RESULT([yes])
-# CC is a C++ compiler so run the next test
-RUN_F77_LNKR_CHECK="yes"
-],
-[
-AC_MSG_RESULT([no])
-# CC is a C compiler so skip the next test
-RUN_F77_LNKR_CHECK="no"
-])
-
-# Revert back to previous language (Fortran 77)
-AC_LANG_POP([C])
-
-AC_MSG_CHECKING([what linker to use])
+AC_MSG_CHECKING([which linker to use])
 # Perform the next test only if using a C++ compiler to build SUNDIALS
 if test "X${RUN_F77_LNKR_CHECK}" = "Xyes"; then
 
@@ -886,8 +910,10 @@ if test "X${RUN_F77_LNKR_CHECK}" = "Xyes"; then
   # Note: F77_LNKR variable is used by serial Fortran example Makefile's
   if test "X${F77_LNKR_CHECK_OK}" = "Xyes"; then
     F77_LNKR="\$(CC)"
+    F77_LNKR_OUT="${CC}"
   else
     F77_LNKR="\$(F77)"
+    F77_LNKR_OUT="${F77}"
   fi
 
   ],
@@ -895,6 +921,7 @@ if test "X${RUN_F77_LNKR_CHECK}" = "Xyes"; then
 
   # If compilation fails, then just use F77
   F77_LNKR="\$(F77)"
+  F77_LNKR_OUT="${F77}"
 
   ])
 
@@ -902,9 +929,10 @@ else
 
   # Using a C compiler so use F77 to link serial Fortran examples
   F77_LNKR="\$(F77)"
+  F77_LNKR_OUT="${F77}"
 
 fi
-AC_MSG_RESULT([$F77_LNKR])
+AC_MSG_RESULT([${F77_LNKR_OUT}])
 
 ]) dnl SUNDIALS_F77_LNKR_CHECK
 
@@ -1097,6 +1125,10 @@ esac
 
 ]) dnl END SUNDIALS_DEFAULT_FFLAGS
 
+#------------------------------------------------------------------
+# CHECK C++ COMPILER
+#------------------------------------------------------------------
+
 AC_DEFUN([SUNDIALS_SET_CXX],
 [
 
@@ -1280,7 +1312,8 @@ MPI_FLAGS_OK="no"
 ])
 
 # MPI-C compiler
-AC_MSG_CHECKING([if using MPI script])
+MPICC_COMP_GIVEN="yes"
+AC_MSG_CHECKING([if using MPI-C script])
 AC_ARG_WITH(mpicc,
 [AC_HELP_STRING([--with-mpicc[[[[=ARG]]]]],[specify MPI-C compiler to use @<:@mpicc@:>@],
                 [                                ])],
@@ -1295,8 +1328,17 @@ fi
 [
   USE_MPICC_SCRIPT="yes"
   MPICC_COMP="mpicc"
+  MPICC_COMP_GIVEN="no"
 ])
-AC_MSG_RESULT([$USE_MPICC_SCRIPT])
+AC_MSG_RESULT([${USE_MPICC_SCRIPT}])
+
+# If CC is a C++ compiler, then we certainly do NOT want to use an MPI-C script
+# Note: USING_CPLUSPLUS_COMP was defined by a call to SUNDIALS_CPLUSPLUS_CHECK
+# in SUNDIALS_SET_CC
+# Note: If the user specified an MPI-C script, then we will NOT do anything for now
+if test "X${MPICC_COMP_GIVEN}" = "Xno" && test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
+  MPICC_COMP="mpiCC"
+fi
 
 # Check MPI-C compiler (either MPI compiler script or regular C compiler)
 if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
@@ -1319,7 +1361,7 @@ AC_DEFUN([SUNDIALS_CHECK_MPICC],
 # Test MPI-C compiler (meaning test MPICC_COMP)
 # Check if MPI-C compiler can be found
 
-AC_MSG_CHECKING([if $MPICC_COMP exists])
+AC_MSG_CHECKING([if absolute path to ${MPICC_COMP} was given])
 
 # CASE 1: MPICC_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
@@ -1358,7 +1400,7 @@ else
   # CASE 3: MPICC_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
 
-    AC_MSG_CHECKING([if $MPICC_COMP exists in ${MPI_ROOT_DIR}/bin])
+    AC_MSG_CHECKING([if ${MPICC_COMP} exists in ${MPI_ROOT_DIR}/bin])
     # MPICC_COMP should really only contain an executable name
     # Found location of MPICC_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICC_COMP} ; then
@@ -1465,7 +1507,7 @@ if test "X${MPI_INC_DIR}" = "X"; then
   # Update CPPFLAGS
   else
     MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-    AC_MSG_RESULT([$MPI_INC_DIR])
+    AC_MSG_RESULT([${MPI_INC_DIR}])
     if test "X${CPPFLAGS}" = "X"; then
       CPPFLAGS="-I${MPI_INC_DIR}"
     else
@@ -1480,7 +1522,7 @@ if test "X${MPI_INC_DIR}" = "X"; then
   fi
 # MPI include directory was specified so update CPPFLAGS
 else
-  AC_MSG_RESULT([$MPI_INC_DIR])
+  AC_MSG_RESULT([${MPI_INC_DIR}])
   if test "X${CPPFLAGS}" = "X"; then
     CPPFLAGS="-I${MPI_INC_DIR}"
   else
@@ -1504,7 +1546,7 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
   # Update LDFLAGS
   if test "X${MPI_LIB_DIR}" = "X"; then
     MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
-    AC_MSG_RESULT([$MPI_LIB_DIR])
+    AC_MSG_RESULT([${MPI_LIB_DIR}])
     if test "X${LDFLAGS}" = "X"; then
       LDFLAGS="-L${MPI_LIB_DIR}"
     else
@@ -1512,7 +1554,7 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
     fi
   # MPI library directory was specified so update LDFLAGS
   else
-    AC_MSG_RESULT([$MPI_LIB_DIR])
+    AC_MSG_RESULT([${MPI_LIB_DIR}])
     if test "X${LDFLAGS}" = "X"; then
       LDFLAGS="-L${MPI_LIB_DIR}"
     else
@@ -1554,9 +1596,9 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
     AC_MSG_CHECKING([if C compiler can compile MPI programs])
     AC_LINK_IFELSE(
     [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; char **v; MPI_Init(&c,&v);]])],
-    [AC_MSG_RESULT(yes)
+    [AC_MSG_RESULT([yes])
      MPI_C_COMP_OK="yes"],
-    [AC_MSG_RESULT(no)
+    [AC_MSG_RESULT([no])
      AC_MSG_WARN([C compiler cannot compile MPI programs])
      echo ""
      echo "   Unable to compile MPI program using C compiler."
@@ -1704,7 +1746,7 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
 
   # Check if MPI implementation supports MPI_Comm_f2c() from
   # MPI-2 specification
-  AC_MSG_CHECKING([for MPI_Comm_f2c from MPI-2])
+  AC_MSG_CHECKING([for MPI_Comm_f2c() from MPI-2 specification])
   AC_LINK_IFELSE(
   [AC_LANG_PROGRAM([[#include "mpi.h"]],
   [[
@@ -1715,10 +1757,10 @@ if test "X${MPI_EXISTS}" = "Xyes"; then
       C_comm = MPI_Comm_f2c((MPI_Fint) 1);
       MPI_Finalize();
   ]])],
-  [AC_MSG_RESULT(yes)
+  [AC_MSG_RESULT([yes])
    AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[1],[])
    F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 1"],
-  [AC_MSG_RESULT(no)
+  [AC_MSG_RESULT([no])
    AC_DEFINE([SUNDIALS_MPI_COMM_F2C],[0],[])
    F77_MPI_COMM_F2C="#define SUNDIALS_MPI_COMM_F2C 0"])
 
@@ -1746,7 +1788,7 @@ LIBS="${SAVED_LIBS}"
 AC_DEFUN([SUNDIALS_SET_MPIF77],
 [
 
-AC_MSG_CHECKING([if using MPI script])
+AC_MSG_CHECKING([if using MPI-Fortran script])
 AC_ARG_WITH(mpif77,
 [AC_HELP_STRING([--with-mpif77[[[[=ARG]]]]],[specify MPI-Fortran compiler to use @<:@mpif77@:>@],
                 [                                ])],
@@ -1762,7 +1804,7 @@ fi
 USE_MPIF77_SCRIPT="yes"
 MPIF77_COMP="mpif77"
 ])
-AC_MSG_RESULT([$USE_MPIF77_SCRIPT])
+AC_MSG_RESULT([${USE_MPIF77_SCRIPT}])
 
 # Do NOT even check for MPI support for Fortran if serial Fortran compiler does NOT work
 # Need serial Fortran compiler to determine name-mangline scheme, and FCMIX libraries will
@@ -1795,42 +1837,42 @@ fi
 AC_DEFUN([SUNDIALS_MPIF77_LNKR_CHECK],
 [
 
-# Switch working language to C for the next test
-AC_LANG_PUSH([C])
+# If we are NOT using an MPI script, then MPICC_COMP == CC and we do NOT need
+# to check again if CC is a C++ compiler as we already know the answer
+if test "X${USE_MPICC_SCRIPT}" = "Xyes"; then
 
-# Temporarily reset CC environment variable to perform next test
-SAVED_CC="${CC}"
-CC="${MPICC_COMP}"
+  # Check if using a C++ compiler (meaning MPI-C++ script)
+  # Save result from CC check
+  SAVED_USING_CPLUSPLUS_COMP="${USING_CPLUSPLUS_COMP}"
+  SUNDIALS_CPLUSPLUS_CHECK([${MPICC_COMP}])
+  # MPICC uses a C++ compiler so run the next test
+  if test "X${USING_CPLUSPLUS_COMP}" = "Xyes" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xyes"; then
+    RUN_MPIF77_LNKR_CHECK="yes"
+  # ERROR
+  elif test "X${USING_CPLUSPLUS_COMP}" = "Xyes" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xno"; then
+    AC_MSG_ERROR([${MPICC_COMP} is a C++ compiler but ${CC} is a C compiler])
+  # MPICC uses a C compiler so skip the next test
+  elif test "X${USING_CPLUSPLUS_COMP}" = "Xno" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xno" ; then
+    RUN_MPIF77_LNKR_CHECK="no"
+  # ERROR
+  elif test "X${USING_CPLUSPLUS_COMP}" = "Xno" && test "X${SAVED_USING_CPLUSPLUS_COMP}" = "Xyes" ; then
+    AC_MSG_ERROR([${MPICC_COMP} is a C compiler but ${CC} is a C++ compiler])
+  fi
+  # Restore result from CC check
+  USING_CPLUSPLUS_COMP="${SAVED_USING_CPLUSPLUS_COMP}"
 
-# Check if using a C++ compiler (MPI-C++ script)
-AC_MSG_CHECKING([if $CC is a C++ compiler])
-AC_RUN_IFELSE(
-[AC_LANG_PROGRAM([[]],
-[[
-#ifdef __cplusplus
-  return(0);
-#else
-  return(1);
-#endif
-]])],
-[
-AC_MSG_RESULT([yes])
-# MPICC uses a C++ compiler so run the next test
-RUN_MPIF77_LNKR_CHECK="yes"
-],
-[
-AC_MSG_RESULT([no])
-# MPICC uses a C compiler so skip the next test
-RUN_MPIF77_LNKR_CHECK="no"
-])
+else
 
-# Reset CC to original value
-CC="${SAVED_CC}"
+  AC_MSG_CHECKING([if ${MPICC_COMP} is a C++ compiler])
+  if test "X${USING_CPLUSPLUS_COMP}" = "Xyes"; then
+    AC_MSG_RESULT([yes])
+  else
+    AC_MSG_RESULT([no])
+  fi
 
-# Restore the language stack
-AC_LANG_POP([C])
+fi
 
-AC_MSG_CHECKING([what linker to use])
+AC_MSG_CHECKING([which linker to use])
 # Perform the next test only if using a C++ compiler to build NVECTOR_PARALLEL
 if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
 
@@ -1887,8 +1929,10 @@ if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
   # Note: MPIF77_LNKR variable is used by parallel Fortran example Makefile's
   if test "X${MPIF77_LNKR_CHECK_OK}" = "Xyes"; then
     MPIF77_LNKR="\$(MPICC)"
+    MPIF77_LNKR_OUT="${MPICC}"
   else
     MPIF77_LNKR="\$(MPIF77)"
+    MPIF77_LNKR_OUT="${MPIF77}"
   fi
 
   ],
@@ -1896,6 +1940,7 @@ if test "X${RUN_MPIF77_LNKR_CHECK}" = "Xyes"; then
 
   # If compilation fails, then just use MPIF77
   MPIF77_LNKR="\$(MPIF77)"
+  MPIF77_LNKR_OUT="${MPIF77}"
 
   ])
 
@@ -1903,9 +1948,10 @@ else
 
   # Using a C compiler so use MPIF77 to link parallel Fortran examples
   MPIF77_LNKR="\$(MPIF77)"
+  MPIF77_LNKR_OUT="${MPIF77}"
 
 fi
-AC_MSG_RESULT([$MPIF77_LNKR])
+AC_MSG_RESULT([${MPIF77_LNKR_OUT}])
 
 
 ]) dnl SUNDIALS_MPIF77_LNKR_CHECK
@@ -1920,7 +1966,7 @@ AC_DEFUN([SUNDIALS_CHECK_MPIF77],
 # Test the MPI-Fortran compiler (meaning test MPIF77_COMP)
 # Check if MPI-Fortran compiler can be found
 
-AC_MSG_CHECKING([if $MPIF77_COMP exists])
+AC_MSG_CHECKING([if absolute path to ${MPIF77_COMP} was given])
 
 # CASE 1: MPIF77_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
@@ -1955,7 +2001,7 @@ else
   # CASE 3: MPIF77_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
 
-    AC_MSG_CHECKING([if $MPIF77_COMP exists in ${MPI_ROOT_DIR}/bin])
+    AC_MSG_CHECKING([if ${MPIF77_COMP} exists in ${MPI_ROOT_DIR}/bin])
     # MPIF77_COMP should really only contain an executable name
     # Found location of MPIF77_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPIF77_COMP} ; then
@@ -2062,7 +2108,7 @@ if test "X${F77_OK}" = "Xyes"; then
     # Update FFLAGS
     else
       MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      AC_MSG_RESULT([$MPI_INC_DIR])
+      AC_MSG_RESULT([${MPI_INC_DIR}])
       if test "X${FFLAGS}" = "X"; then
         FFLAGS="-I${MPI_INC_DIR}"
       else
@@ -2071,7 +2117,7 @@ if test "X${F77_OK}" = "Xyes"; then
     fi
   # MPI include directory was specified so update FFLAGS
   else
-    AC_MSG_RESULT([$MPI_INC_DIR])
+    AC_MSG_RESULT([${MPI_INC_DIR}])
     if test "X${FFLAGS}" = "X"; then
       FFLAGS="-I${MPI_INC_DIR}"
     else
@@ -2089,7 +2135,7 @@ if test "X${F77_OK}" = "Xyes"; then
     # Update LDFLAGS
     if test "X${MPI_LIB_DIR}" = "X"; then
       MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
-      AC_MSG_RESULT([$MPI_LIB_DIR])
+      AC_MSG_RESULT([${MPI_LIB_DIR}])
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -2097,7 +2143,7 @@ if test "X${F77_OK}" = "Xyes"; then
       fi
     # MPI library directory was specified so update LDFLAGS
     else
-      AC_MSG_RESULT([$MPI_LIB_DIR])
+      AC_MSG_RESULT([${MPI_LIB_DIR}])
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -2141,9 +2187,9 @@ if test "X${F77_OK}" = "Xyes"; then
           INCLUDE "mpif.h"
           CALL MPI_INIT(IER)
       ])],
-      [AC_MSG_RESULT(yes)
+      [AC_MSG_RESULT([yes])
        MPI_F77_COMP_OK="yes"],
-      [AC_MSG_RESULT(no)
+      [AC_MSG_RESULT([no])
        AC_MSG_WARN([Fortran compiler cannot compile MPI programs])
        echo ""
        echo "   Unable to compile MPI program using Fortran compiler."
@@ -2163,11 +2209,15 @@ if test "X${F77_OK}" = "Xyes"; then
       # Note: setting MPIF77_LNKR is trivial if NOT using the MPI compiler script
       # since the SUNDIALS_F77_LNKR_CHECK macro already checked if CC or F77
       # should be used
+      AC_MSG_CHECKING([which linker to use])
       if test "X${F77_LNKR}" = "X\$(CC)"; then
         MPIF77_LNKR="\$(MPICC)"
+        MPIF77_LNKR_OUT="${MPICC}"
       elif test "X${F77_LNKR}" = "X\$(F77)"; then
         MPIF77_LNKR="\$(MPIF77)"
+        MPIF77_LNKR_OUT="${MPIF77}"
       fi
+      AC_MSG_RESULT([${MPIF77_LNKR_OUT}])
     fi
 
   else
@@ -2198,7 +2248,7 @@ AC_LANG_POP([Fortran 77])
 AC_DEFUN([SUNDIALS_SET_MPICXX],
 [
 
-AC_MSG_CHECKING([if using MPI script])
+AC_MSG_CHECKING([if using MPI-C++ script])
 AC_ARG_WITH(mpicxx,
 [AC_HELP_STRING([--with-mpicxx[[[[=ARG]]]]],[specify MPI-C++ compiler to use @<:@mpiCC@:>@],
                 [                                ])],
@@ -2214,7 +2264,7 @@ fi
 USE_MPICXX_SCRIPT="yes"
 MPICXX_COMP="mpiCC"
 ])
-AC_MSG_RESULT([$USE_MPICXX_SCRIPT])
+AC_MSG_RESULT([${USE_MPICXX_SCRIPT}])
 
 # Check MPI-C++ compiler (either MPI compiler script or regular C++ compiler)
 if test "X${USE_MPICXX_SCRIPT}" = "Xyes"; then
@@ -2239,7 +2289,7 @@ AC_DEFUN([SUNDIALS_CHECK_MPICXX],
 # Test the MPI-C++ compiler (meaning test MPICXX_COMP)
 # Check if MPI-C++ compiler can be found
 
-AC_MSG_CHECKING([if $MPICXX_COMP exists])
+AC_MSG_CHECKING([if absolute path to ${MPICXX_COMP} was given])
 
 # CASE 1: MPICXX_COMP was found (cannot check if executable because the
 # "-x" flag is NOT portable)
@@ -2275,7 +2325,7 @@ else
   # CASE 3: MPICXX_COMP could NOT be found, but MPI_ROOT_DIR was specified
   else
 
-    AC_MSG_CHECKING([if $MPIF77_COMP exists in ${MPI_ROOT_DIR}/bin])
+    AC_MSG_CHECKING([if ${MPICXX_COMP} exists in ${MPI_ROOT_DIR}/bin])
     # MPICXX_COMP should really only contain an executable name
     # Found location of MPICXX_COMP
     if test -f ${MPI_ROOT_DIR}/bin/${MPICXX_COMP} ; then
@@ -2379,7 +2429,7 @@ if test "X${CXX_OK}" = "Xyes"; then
     # Update CPPFLAGS
     else
       MPI_INC_DIR="${MPI_ROOT_DIR}/include"
-      AC_MSG_RESULT([$MPI_INC_DIR])
+      AC_MSG_RESULT([${MPI_INC_DIR}])
       if test "X${CPPFLAGS}" = "X"; then
         CPPFLAGS="-I${MPI_INC_DIR}"
       else
@@ -2388,7 +2438,7 @@ if test "X${CXX_OK}" = "Xyes"; then
     fi
   # MPI include directory was specified so update CPPFLAGS
   else
-    AC_MSG_RESULT([$MPI_INC_DIR])
+    AC_MSG_RESULT([${MPI_INC_DIR}])
     if test "X${CPPFLAGS}" = "X"; then
       CPPFLAGS="-I${MPI_INC_DIR}"
     else
@@ -2406,7 +2456,7 @@ if test "X${CXX_OK}" = "Xyes"; then
     # Update LDFLAGS
     if test "X${MPI_LIB_DIR}" = "X"; then
       MPI_LIB_DIR="${MPI_ROOT_DIR}/lib"
-      AC_MSG_RESULT([$MPI_LIB_DIR])
+      AC_MSG_RESULT([${MPI_LIB_DIR}])
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -2414,7 +2464,7 @@ if test "X${CXX_OK}" = "Xyes"; then
       fi
     # MPI library directory was specified so update LDFLAGS
     else
-      AC_MSG_RESULT([$MPI_LIB_DIR])
+      AC_MSG_RESULT([${MPI_LIB_DIR}])
       if test "X${LDFLAGS}" = "X"; then
         LDFLAGS="-L${MPI_LIB_DIR}"
       else
@@ -2454,9 +2504,9 @@ if test "X${CXX_OK}" = "Xyes"; then
       AC_MSG_CHECKING([if C++ compiler can compile MPI programs])
       AC_LINK_IFELSE(
       [AC_LANG_PROGRAM([[#include "mpi.h"]],[[int c; car **v; MPI_Init(&c,&v);]])],
-      [AC_MSG_RESULT(yes)
+      [AC_MSG_RESULT([yes])
        MPI_CXX_COMP_OK="yes"],
-      [AC_MSG_RESULT(no)
+      [AC_MSG_RESULT([no])
        AC_MSG_WARN([C++ compiler cannot compile MPI programs])
        echo ""
        echo "   Unable to compile MPI program using C++ compiler."
@@ -2990,69 +3040,73 @@ SUNDIALS Configuration Summary
 ------------------------------"
 
 echo "
-Configuration:
---------------
+Configuration
+-------------
 
-  Host System:              ${host}
-  Build System:             ${build}
-  Source Code Location:     ${srcdir}
-  Install Path (include):   ${SUNDIALS_INC_DIR}
-  Install Path (lib):       ${SUNDIALS_LIB_DIR}
+  Host System:               ${host}
+  Build System:              ${build}
+  Source Code Location:      ${srcdir}
+  Install Path (include):    ${SUNDIALS_INC_DIR}
+  Install Path (lib):        ${SUNDIALS_LIB_DIR}
 
-  C Preprocessor:           ${CPP} 
-  C Preporcessor Flags:     ${CPPFLAGS}
-  C Compiler:	            ${CC}
-  C Compiler Flags          ${CFLAGS}
-  C Linker:                 ${CC}
-  Linker Flags:             ${LDFLAGS}
-  Libraries:                ${LIBS}"
+  C Preprocessor:            ${CPP} 
+  C Preporcessor Flags:      ${CPPFLAGS}
+  C Compiler:	             ${CC}
+  C Compiler Flags           ${CFLAGS}
+  C Linker:                  ${CC}
+  Linker Flags:              ${LDFLAGS}
+  Libraries:                 ${LIBS}"
 
 if test "X${CXX_ENABLED}" = "Xyes" && test "X${CXX_OK}" = "Xyes"; then
 echo "
-  C++ Preprocessor:         ${CPPCXX}
-  C++ Preprocessor flags:   ${CPPFLAGS}
-  C++ Compiler:             ${CXX}
-  C++ Compiler Flags:       ${CXXFLAGS}"
+  C++ Preprocessor:          ${CPPCXX}
+  C++ Preprocessor Flags:    ${CPPFLAGS}
+  C++ Compiler:              ${CXX}
+  C++ Compiler Flags:        ${CXXFLAGS}"
 fi
 
 if test "X${F77_ENABLED}" = "Xyes" && test "X${F77_OK}" = "Xyes"; then
 echo "
-  F77 Compiler:             ${F77}
-  F77 Compiler Flags:       ${FFLAGS}
-  F77 Linker:               ${F77_LNKR}
-  Additional F77 libraries: ${FLIBS}"
+  Fortran Compiler:          ${F77}
+  Fortran Compiler Flags:    ${FFLAGS}
+  Fortran Linker:            ${F77_LNKR_OUT}
+  Extra Fortran Libraries:   ${FLIBS}"
+fi
+
+if test "X${MPI_ENABLED}" = "Xyes" && (test "X${MPI_C_COMP_OK}" = "Xyes" || test "X${MPI_CXX_COMP_OK}" = "Xyes" || test "X${MPI_F77_COMP_OK}" = "Xyes"); then
+echo "
+  MPI Root Directory:        ${MPI_ROOT_DIR}
+  MPI Include Directory:     ${MPI_INC_DIR}
+  MPI Library Directory:     ${MPI_LIB_DIR}
+  MPI Flags:                 ${MPI_FLAGS}
+  Extra MPI Libraries:       ${MPI_LIBS}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${MPI_C_COMP_OK}" = "Xyes"; then
 echo "  
-  Use MPI-C script?         ${USE_MPICC_SCRIPT}
-  MPI-C:                    ${MPICC}
-  MPI Root Directory:       ${MPI_ROOT_DIR}
-  MPI Include Directory:    ${MPI_INC_DIR}
-  MPI Library Directory:    ${MPI_LIB_DIR}
-  MPI Flags:                ${MPI_FLAGS}
-  MPI Libraries:            ${MPI_LIBS}"
+  Using MPI-C script?        ${USE_MPICC_SCRIPT}
+  MPI-C:                     ${MPICC}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${CXX_ENABLED}" = "Xyes" && test "X${MPI_CXX_COMP_OK}" = "Xyes"; then
 echo "  
-  Use MPI-C++ script?       ${USE_MPICXX_SCRIPT}
-  MPI-C++:                  ${MPICXX}"
+  Using MPI-C++ script?      ${USE_MPICXX_SCRIPT}
+  MPI-C++:                   ${MPICXX}"
 fi
 
 if test "X${MPI_ENABLED}" = "Xyes" && test "X${F77_ENABLED}" = "Xyes" && test "X${MPI_F77_COMP_OK}" = "Xyes"; then
 echo "
-  Use MPI-F77 script?       ${USE_MPIF77_SCRIPT}
-  MPI-F77:                  ${MPIF77}
-  MPI-F77 linker:           ${MPIF77_LNKR}"
+  Using MPI-Fortran script?  ${USE_MPIF77_SCRIPT}
+  MPI-Fortran:               ${MPIF77}
+  MPI-Fortran Linker:        ${MPIF77_LNKR_OUT}"
 fi
 
 echo "  
   Type 'make' and then 'make install' to build and install ${PACKAGE_STRING}"
 
 echo "
-Modules:
---------
+Modules
+-------
 "
 
 if test "X${KINSOL_ENABLED}" = "Xyes"; then
@@ -3074,8 +3128,8 @@ fi
 if test "X${EXAMPLES_ENABLED}" = "Xyes"; then
 
 echo "
-Examples:
----------
+Examples
+--------
 
   Type 'make examples' to build the following examples:
 "

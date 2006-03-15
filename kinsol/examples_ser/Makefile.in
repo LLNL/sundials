@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2006-01-11 21:13:58 $
+# $Revision: 1.16 $
+# $Date: 2006-03-15 20:04:21 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,19 +50,19 @@ all: $(EXEC_FILES)
 
 kinkryx: $(srcdir)/kinkryx.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinkryx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinkryx $(builddir)/kinkryx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinkryx $(builddir)/kinkryx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 kindenx1: $(srcdir)/kindenx1.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kindenx1.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/kindenx1 $(builddir)/kindenx1.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/kindenx1 $(builddir)/kindenx1.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 kindenx2: $(srcdir)/kindenx2.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kindenx2.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/kindenx2 $(builddir)/kindenx2.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/kindenx2 $(builddir)/kindenx2.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 kinbanx: $(srcdir)/kinbanx.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinbanx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinbanx $(builddir)/kinbanx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinbanx $(builddir)/kinbanx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 kinkrydem_lin: $(srcdir)/kinkrydem_lin.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/kinkrydem_lin.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinkrydem_lin $(builddir)/kinkrydem_lin.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/kinkrydem_lin $(builddir)/kinkrydem_lin.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs

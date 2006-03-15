@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-01-10 00:50:12 $
+# $Revision: 1.5 $
+# $Date: 2006-03-15 20:04:09 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -54,7 +54,13 @@ fortran_update.sh:
 fidadenx: $(srcdir)/fidadenx.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fidadenx.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fidadenx-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fidadenx $(builddir)/fidadenx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                             \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fidadenx ${builddir}/fidadenx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fidadenx ${builddir}/fidadenx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                 \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fidadenx ${builddir}/fidadenx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fidadenx ${builddir}/fidadenx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 clean:
 	rm -rf .libs

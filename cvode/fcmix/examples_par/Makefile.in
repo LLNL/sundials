@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2006-01-10 00:49:43 $
+# $Revision: 1.17 $
+# $Date: 2006-03-15 20:03:39 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -58,17 +58,35 @@ fortran_update.sh:
 fcvnonx_p: $(srcdir)/fcvnonx_p.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvnonx_p.f
 	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvnonx_p-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvnonx_p $(builddir)/fcvnonx_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                      \
+	   echo "${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                                                                \
+	   echo "${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvnonx_p ${builddir}/fcvnonx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 fcvkryx_p: $(srcdir)/fcvkryx_p.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx_p.f
 	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvkryx_p-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvkryx_p $(builddir)/fcvkryx_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                      \
+	   echo "${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                                                                \
+	   echo "${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvkryx_p ${builddir}/fcvkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 fcvkryx_bbd_p: $(srcdir)/fcvkryx_bbd_p.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx_bbd_p.f
 	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fcvkryx_bbd_p-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fcvkryx_bbd_p $(builddir)/fcvkryx_bbd_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                              \
+	   echo "${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                                                                        \
+	   echo "${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fcvkryx_bbd_p ${builddir}/fcvkryx_bbd_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 clean:
 	rm -rf .libs

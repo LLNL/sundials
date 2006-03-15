@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2006-01-11 21:14:02 $
+# $Revision: 1.18 $
+# $Date: 2006-03-15 20:04:39 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -77,8 +77,8 @@ uninstall: clean
 	rm -f $(includedir)/sundials/sundials_spbcgs.h
 	rm -f $(includedir)/sundials/sundials_sptfqmr.h
 	rm -f $(includedir)/sundials/sundials_config.h
-	@if test -d $(includedir)/sundials ; then \
-	   rmdir $(includedir)/sundials ;         \
+	@if test -d ${includedir}/sundials ; then \
+	   rmdir ${includedir}/sundials ;         \
 	fi
 
 sundials_band.lo: $(srcdir)/sundials_band.c
@@ -101,6 +101,6 @@ sundials_sptfqmr.lo: $(srcdir)/sundials_sptfqmr.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) $(CFLAGS) -c $(srcdir)/sundials_sptfqmr.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd $(top_builddir) ;                 \
-	 $(SHELL) ./config.status --recheck ; \
-	 cd $(abs_builddir)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

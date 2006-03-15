@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.20 $
-# $Date: 2006-02-02 00:31:08 $
+# $Revision: 1.21 $
+# $Date: 2006-03-15 20:03:44 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,16 +41,17 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LIB_REVISION = @LIB_REVISION@
+
 SHARED_BUILD_DIR = $(top_builddir)/shared/source
 
 CVODE_INC_DIR  = $(srcdir)/../include
 SHARED_INC_DIR = $(srcdir)/../../shared/include
 CONFIG_INC_DIR = $(top_builddir)/config
 
-CVODE_LIB = libsundials_cvode.la
-
-CVODE_LIB_FILES  = cvode.lo cvode_io.lo cvode_band.lo cvode_dense.lo cvode_diag.lo cvode_spils.lo cvode_spbcgs.lo cvode_spgmr.lo cvode_sptfqmr.lo cvode_bandpre.lo cvode_bbdpre.lo
-CVODE_OBJ_FILES  = cvode.o cvode_io.o cvode_band.o cvode_dense.o cvode_diag.o cvode_spils.o cvode_spbcgs.o cvode_spgmr.o cvode_sptfqmr.o cvode_bandpre.o cvode_bbdpre.o
+CVODE_LIB       = libsundials_cvode.la
+CVODE_LIB_FILES = cvode.lo cvode_io.lo cvode_band.lo cvode_dense.lo cvode_diag.lo cvode_spils.lo cvode_spbcgs.lo cvode_spgmr.lo cvode_sptfqmr.lo cvode_bandpre.lo cvode_bbdpre.lo
+CVODE_OBJ_FILES = cvode.o cvode_io.o cvode_band.o cvode_dense.o cvode_diag.o cvode_spils.o cvode_spbcgs.o cvode_spgmr.o cvode_sptfqmr.o cvode_bandpre.o cvode_bbdpre.o
 
 SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
                    $(SHARED_BUILD_DIR)/sundials_dense.lo \
@@ -65,7 +66,7 @@ SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
 all: $(CVODE_LIB_FILES)
 
 install: shared $(CVODE_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(CVODE_LIB) $(CVODE_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(CVODE_LIB) $(libdir)
 	$(INSTALL) -d $(includedir)/cvode
 	$(INSTALL_HEADER) $(CVODE_INC_DIR)/cvode.h $(includedir)
@@ -81,7 +82,9 @@ install: shared $(CVODE_LIB_FILES)
 	$(INSTALL_HEADER) $(srcdir)/cvode_impl.h $(includedir)/cvode
 
 shared:
-	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+	@cd ${SHARED_BUILD_DIR} ; \
+	 ${MAKE} ;                \
+	 cd ${abs_builddir}
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(CVODE_LIB)
@@ -101,8 +104,8 @@ uninstall: clean
 	rm -f $(includedir)/cvode/cvode_bandpre.h
 	rm -f $(includedir)/cvode/cvode_bbdpre.h
 	rm -f $(includedir)/cvode/cvode_impl.h
-	@if test -d $(includedir)/cvode ; then \
-	   rmdir $(includedir)/cvode ;         \
+	@if test -d ${includedir}/cvode ; then \
+	   rmdir ${includedir}/cvode ;         \
 	fi
 
 cvode.lo: $(srcdir)/cvode.c
@@ -129,6 +132,6 @@ cvode_bbdpre.lo: $(srcdir)/cvode_bbdpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(CVODE_INC_DIR) $(CFLAGS) -c $(srcdir)/cvode_bbdpre.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd $(top_builddir) ;                 \
-	$(SHELL) ./config.status --recheck ; \
-	cd $(abs_builddir)
+	@cd ${top_builddir} ;                \
+	${SHELL} ./config.status --recheck ; \
+	cd ${abs_builddir}

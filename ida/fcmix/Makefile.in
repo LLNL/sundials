@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-01-10 00:50:07 $
+# $Revision: 1.6 $
+# $Date: 2006-03-15 20:04:02 $
 # -----------------------------------------------------------------
 # Programmer(s): Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -39,6 +39,8 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LIB_REVISION = @LIB_REVISION@
+
 CONFIG_INC_DIR = $(top_builddir)/config
 SHARED_INC_DIR = $(srcdir)/../../shared/include
 IDA_INC_DIR    = $(srcdir)/../include
@@ -49,19 +51,18 @@ INCLUDES = -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) -I$(IDA_SRC_
 
 FIDA_LIB       = libsundials_fida.la
 FIDA_LIB_FILES = fida.lo fidaband.lo fidabbd.lo fidadense.lo fidajtimes.lo fidapreco.lo fidaewt.lo fidaroot.lo
-
-OBJECT_FILES = fida.o fidaband.o fidabbd.o fidadense.o fidajtimes.o fidapreco.o fidaewt.o fidaroot.o
+FIDA_OBJ_FILES = fida.o fidaband.o fidabbd.o fidadense.o fidajtimes.o fidapreco.o fidaewt.o fidaroot.o
 
 all: $(FIDA_LIB_FILES)
 
 install: $(FIDA_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FIDA_LIB) $(FIDA_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info 0:0:0
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(FIDA_LIB) $(FIDA_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -static -version-info $(LIB_REVISION)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(FIDA_LIB) $(libdir)
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(FIDA_LIB)
 	rm -f $(FIDA_LIB_FILES)
-	rm -f $(OBJECT_FILES)
+	rm -f $(FIDA_OBJ_FILES)
 
 uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(FIDA_LIB)
@@ -84,6 +85,6 @@ fidaroot.lo: $(srcdir)/fidaroot.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $(srcdir)/fidaroot.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd $(top_builddir) ;                 \
-	 $(SHELL) ./config.status --recheck ; \
-	 cd $(abs_builddir)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

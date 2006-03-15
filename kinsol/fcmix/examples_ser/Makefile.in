@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2006-01-10 00:50:35 $
+# $Revision: 1.16 $
+# $Date: 2006-03-15 20:04:27 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -54,7 +54,13 @@ fortran_update.sh:
 fkinkryx: $(srcdir)/fkinkryx.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fkinkryx.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fkinkryx-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fkinkryx $(builddir)/fkinkryx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                             \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                 \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fkinkryx ${builddir}/fkinkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 clean:
 	rm -rf .libs

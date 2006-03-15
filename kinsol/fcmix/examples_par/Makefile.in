@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.15 $
-# $Date: 2006-01-10 00:50:33 $
+# $Revision: 1.16 $
+# $Date: 2006-03-15 20:04:25 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -58,7 +58,13 @@ fortran_update.sh:
 fkinkryx_p: $(srcdir)/fkinkryx_p.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fkinkryx_p.f
 	$(COMPILER_PREFIX) $(MPIF77) $(MPI_FLAGS) -I$(MPI_INC_DIR) $(FFLAGS) -c $(builddir)/fkinkryx_p-updated.f
-	$(LINKER_PREFIX) $(MPIF77_LNKR) -o $(builddir)/fkinkryx_p $(builddir)/fkinkryx_p-updated.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${MPIF77_LNKR}" = "X${MPIF77}"; then                                                                                                                                                                                        \
+	   echo "${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p ${builddir}/fkinkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p ${builddir}/fkinkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                                                                  \
+	   echo "${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p ${builddir}/fkinkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${MPIF77_LNKR} -o ${builddir}/fkinkryx_p ${builddir}/fkinkryx_p-updated.${OBJ_EXT} ${MPI_FLAGS} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 clean:
 	rm -rf .libs

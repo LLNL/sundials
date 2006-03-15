@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.12 $
-# $Date: 2006-01-11 21:13:52 $
+# $Revision: 1.13 $
+# $Date: 2006-03-15 20:04:00 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -50,19 +50,19 @@ all: $(EXEC_FILES)
 
 idadenx: $(srcdir)/idadenx.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idadenx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/idadenx $(builddir)/idadenx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idadenx $(builddir)/idadenx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 idabanx1: $(srcdir)/idabanx1.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idabanx1.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/idabanx1 $(builddir)/idabanx1.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idabanx1 $(builddir)/idabanx1.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 idakryx: $(srcdir)/idakryx.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idakryx.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/idakryx $(builddir)/idakryx.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idakryx $(builddir)/idakryx.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 idabanx2: $(srcdir)/idabanx2.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idabanx2.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/idabanx2 $(builddir)/idabanx2.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idabanx2 $(builddir)/idabanx2.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 idakrydem_lin: $(srcdir)/idakrydem_lin.c
 	$(COMPILER_PREFIX) $(CC) $(CPPFLAGS) $(SUNDIALS_INCS) $(CFLAGS) -c $(srcdir)/idakrydem_lin.c
-	$(LINKER_PREFIX) $(CC) -o $(builddir)/idakrydem_lin $(builddir)/idakrydem_lin.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(CC) -o $(builddir)/idakrydem_lin $(builddir)/idakrydem_lin.$(OBJ_EXT) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.19 $
-# $Date: 2006-01-11 21:14:01 $
+# $Revision: 1.20 $
+# $Date: 2006-03-15 20:04:33 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -44,6 +44,8 @@ CFLAGS      = @CFLAGS@
 LDFLAGS     = @LDFLAGS@
 LIBS        = @LIBS@
 
+LIB_REVISION = @LIB_REVISION@
+
 FCMIX_ENABLED = @FCMIX_ENABLED@
 
 SHARED_BUILD_DIR = $(top_builddir)/shared/source
@@ -64,36 +66,38 @@ SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_math.lo
 all: $(NVECPAR_LIB_FILES) $(FNVECPAR_LIB_FILES)
 
 install: shared $(NVECPAR_LIB_FILES) $(FNVECPAR_LIB_FILES)
-	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECPAR_LIB) $(NVECPAR_LIB_FILES) $(SHARED_LIB_FILES) $(LDFLAGS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) -rpath $(libdir) -version-info 0:0:0
+	$(LIBTOOL) --mode=link $(MPICC) $(CFLAGS) $(MPI_FLAGS) -o $(NVECPAR_LIB) $(NVECPAR_LIB_FILES) $(SHARED_LIB_FILES) $(LDFLAGS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS) -rpath $(libdir) -version-info $(LIB_REVISION)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(NVECPAR_LIB) $(libdir)
 	$(INSTALL_HEADER) $(NVECPAR_INC_DIR)/nvector_parallel.h $(includedir)
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                                \
-	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPAR_LIB} ${FNVECPAR_LIB_FILES} $(SHARED_LIB_FILES) ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info 0:0:0" ; \
-	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPAR_LIB} ${FNVECPAR_LIB_FILES} $(SHARED_LIB_FILES) ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info 0:0:0 ;        \
-	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECPAR_LIB} ${libdir}" ;                                                                                                                                    \
-	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECPAR_LIB} ${libdir} ;                                                                                                                                           \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                                                            \
+	   echo "${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPAR_LIB} ${FNVECPAR_LIB_FILES} ${SHARED_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info ${LIB_REVISION}" ; \
+	   ${LIBTOOL} --mode=link ${MPICC} ${CFLAGS} ${MPI_FLAGS} -o ${FNVECPAR_LIB} ${FNVECPAR_LIB_FILES} ${SHARED_LIB_FILES} ${LDFLAGS} -L${MPI_LIB_DIR} ${MPI_LIBS} ${LIBS} -rpath ${libdir} -static -version-info ${LIB_REVISION} ;        \
+	   echo "${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECPAR_LIB} ${libdir}" ;                                                                                                                                                         \
+	   ${LIBTOOL} --mode=install ${INSTALL_LIB} ${FNVECPAR_LIB} ${libdir} ;                                                                                                                                                                \
 	 fi
 
 shared:
-	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+	@cd ${SHARED_BUILD_DIR} ; \
+	 ${MAKE} ;                \
+	 cd ${abs_builddir}
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(NVECPAR_LIB)
 	rm -f $(NVECPAR_LIB_FILES)
 	rm -f nvector_parallel.o
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                        \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then               \
 	   echo "${LIBTOOL} --mode=clean rm -f ${FNVECPAR_LIB}" ; \
 	   ${LIBTOOL} --mode=clean rm -f ${FNVECPAR_LIB} ;        \
 	   echo "rm -f ${FNVECPAR_LIB_FILES}" ;                   \
 	   rm -f ${FNVECPAR_LIB_FILES} ;                          \
-	   echo "rm -f fnvector_parallel.o" ;                              \
-	   rm -f fnvector_parallel.o ;                                     \
+	   echo "rm -f fnvector_parallel.o" ;                     \
+	   rm -f fnvector_parallel.o ;                            \
 	 fi
 
 uninstall: clean
 	$(LIBTOOL) --mode=uninstall rm -f $(libdir)/$(NVECPAR_LIB)
 	rm -f $(includedir)/nvector_parallel.h
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                      \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                             \
 	   echo "${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECPAR_LIB}" ; \
 	   ${LIBTOOL} --mode=uninstall rm -f ${libdir}/${FNVECPAR_LIB} ;        \
 	 fi
@@ -101,12 +105,12 @@ uninstall: clean
 nvector_parallel.lo: $(srcdir)/nvector_parallel.c
 	$(LIBTOOL) --mode=compile $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(NVECPAR_INC_DIR) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/nvector_parallel.c
 fnvector_parallel.lo: $(srcdir)/fnvector_parallel.c
-	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                               \
-	   echo "${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} ${MPI_FLAGS} -I$(CONFIG_INC_DIR) -I${SHARED_INC_DIR} -I${NVECPAR_INC_DIR} -I${MPI_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c" ; \
-	   ${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} ${MPI_FLAGS} -I$(CONFIG_INC_DIR) -I${SHARED_INC_DIR} -I${NVECPAR_INC_DIR} -I${MPI_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c ;        \
+	@if test "X${FCMIX_ENABLED}" = "Xyes"; then                                                                                                                                                      \
+	   echo "${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} ${MPI_FLAGS} -I${CONFIG_INC_DIR} -I${SHARED_INC_DIR} -I${NVECPAR_INC_DIR} -I${MPI_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c" ; \
+	   ${LIBTOOL} --mode=compile ${MPICC} ${CPPFLAGS} ${MPI_FLAGS} -I${CONFIG_INC_DIR} -I${SHARED_INC_DIR} -I${NVECPAR_INC_DIR} -I${MPI_INC_DIR} ${CFLAGS} -c ${srcdir}/fnvector_parallel.c ;        \
 	 fi
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd $(top_builddir) ;                 \
-	 $(SHELL) ./config.status --recheck ; \
-	 cd $(abs_builddir)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

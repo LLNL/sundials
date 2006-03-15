@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2006-02-02 00:34:37 $
+# $Revision: 1.19 $
+# $Date: 2006-03-15 20:04:11 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,6 +41,8 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LIB_REVISION = @LIB_REVISION@
+
 SHARED_BUILD_DIR = $(top_builddir)/shared/source
 
 CONFIG_INC_DIR = $(top_builddir)/config
@@ -48,7 +50,6 @@ SHARED_INC_DIR = $(srcdir)/../../shared/include
 IDA_INC_DIR    = $(srcdir)/../include
 
 IDA_LIB       = libsundials_ida.la
-
 IDA_LIB_FILES = ida.lo ida_ic.lo ida_io.lo ida_dense.lo ida_band.lo ida_spils.lo ida_spbcgs.lo ida_spgmr.lo ida_sptfqmr.lo ida_bbdpre.lo
 IDA_OBJ_FILES = ida.o ida_ic.o ida_io.o ida_dense.o ida_band.o ida_spils.o ida_spbcgs.o ida_spgmr.o ida_sptfqmr.o ida_bbdpre.o
 
@@ -65,7 +66,7 @@ SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
 all: $(IDA_LIB_FILES)
 
 install: shared $(IDA_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDA_LIB) $(IDA_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDA_LIB) $(IDA_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDA_LIB) $(libdir)
 	$(INSTALL) -d $(includedir)/ida
 	$(INSTALL_HEADER) $(IDA_INC_DIR)/ida.h $(includedir)
@@ -79,7 +80,9 @@ install: shared $(IDA_LIB_FILES)
 	$(INSTALL_HEADER) $(srcdir)/ida_impl.h $(includedir)/ida
 
 shared:
-	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+	@cd ${SHARED_BUILD_DIR} ; \
+	 ${MAKE} ;                \
+	 cd ${abs_builddir}
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(IDA_LIB)
@@ -97,8 +100,8 @@ uninstall: clean
 	rm -f $(includedir)/ida/ida_bbdpre.h
 	rm -f $(includedir)/ida/ida_spils.h
 	rm -f $(includedir)/ida/ida_impl.h
-	@if test -d $(includedir)/ida ; then \
-	   rmdir $(includedir)/ida ;         \
+	@if test -d ${includedir}/ida ; then \
+	   rmdir ${includedir}/ida ;         \
 	fi
 
 ida.lo: $(srcdir)/ida.c
@@ -123,6 +126,6 @@ ida_bbdpre.lo: $(srcdir)/ida_bbdpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(IDA_INC_DIR) $(CFLAGS) -c $(srcdir)/ida_bbdpre.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd $(top_builddir) ;                 \
-	 $(SHELL) ./config.status --recheck ; \
-	 cd $(abs_builddir)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

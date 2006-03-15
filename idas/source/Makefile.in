@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.18 $
-# $Date: 2006-01-11 21:13:56 $
+# $Revision: 1.19 $
+# $Date: 2006-03-15 20:04:17 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,16 +41,17 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LIB_REVISION = @LIB_REVISION@
+
 SHARED_BUILD_DIR = $(top_builddir)/shared/source
 
 CONFIG_INC_DIR = $(top_builddir)/config
 SHARED_INC_DIR = $(srcdir)/../../shared/include
 IDAS_INC_DIR   = $(srcdir)/../include
 
-IDAS_LIB = libsundials_idas.la
-
-IDAS_LIB_FILES   = idas.lo idaa.lo idas_ic.lo idas_io.lo idas_band.lo idas_dense.lo idas_spbcgs.lo idas_spgmr.lo idas_sptfqmr.lo idas_bbdpre.lo
-IDAS_OBJ_FILES   = idas.o idaa.o idas_ic.o idas_io.o idas_band.o idas_dense.o idas_spbcgs.o idas_spgmr.o idas_sptfqmr.o idas_bbdpre.o
+IDAS_LIB       = libsundials_idas.la
+IDAS_LIB_FILES = idas.lo idaa.lo idas_ic.lo idas_io.lo idas_band.lo idas_dense.lo idas_spbcgs.lo idas_spgmr.lo idas_sptfqmr.lo idas_bbdpre.lo
+IDAS_OBJ_FILES = idas.o idaa.o idas_ic.o idas_io.o idas_band.o idas_dense.o idas_spbcgs.o idas_spgmr.o idas_sptfqmr.o idas_bbdpre.o
 
 SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
                    $(SHARED_BUILD_DIR)/sundials_dense.lo \
@@ -65,7 +66,7 @@ SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
 all: $(IDAS_LIB_FILES)
 
 install: shared $(IDAS_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(IDAS_LIB) $(IDAS_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(IDAS_LIB) $(libdir)
 	$(INSTALL) -d $(includedir)/idas
 	$(INSTALL_HEADER) $(IDAS_INC_DIR)/idas.h $(includedir)
@@ -81,7 +82,9 @@ install: shared $(IDAS_LIB_FILES)
 	$(INSTALL_HEADER) $(srcdir)/idaa_impl.h $(includedir)/idas
 
 shared:
-	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+	@cd ${SHARED_BUILD_DIR} ; \
+	 ${MAKE} ;                \
+	 cd ${abs_builddir}
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(IDAS_LIB)
@@ -101,8 +104,8 @@ uninstall: clean
 	rm -f $(includedir)/idas/idas_spils.h
 	rm -f $(includedir)/idas/idas_impl.h
 	rm -f $(includedir)/idas/idaa_impl.h
-	@if test -d $(includedir)/idas ; then \
-	   rmdir $(includedir)/idas ;         \
+	@if test -d ${includedir}/idas ; then \
+	   rmdir ${includedir}/idas ;         \
 	fi
 
 idas.lo: $(srcdir)/idas.c
@@ -128,6 +131,6 @@ idas_bbdpre.lo: $(srcdir)/idas_bbdpre.c
 
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd $(top_builddir) ;                 \
-	 $(SHELL) ./config.status --recheck ; \
-	 cd $(abs_builddir)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.20 $
-# $Date: 2006-02-02 00:36:31 $
+# $Revision: 1.21 $
+# $Date: 2006-03-15 20:04:30 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -41,6 +41,8 @@ CFLAGS   = @CFLAGS@
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 
+LIB_REVISION = @LIB_REVISION@
+
 SHARED_BUILD_DIR = $(top_builddir)/shared/source
 
 CONFIG_INC_DIR = $(top_builddir)/config
@@ -48,7 +50,6 @@ SHARED_INC_DIR = $(srcdir)/../../shared/include
 KINSOL_INC_DIR = $(srcdir)/../include
 
 KINSOL_LIB       = libsundials_kinsol.la
-
 KINSOL_LIB_FILES = kinsol.lo kinsol_io.lo kinsol_dense.lo kinsol_band.lo kinsol_spils.lo kinsol_spgmr.lo kinsol_spbcgs.lo kinsol_sptfqmr.lo kinsol_bbdpre.lo
 KINSOL_OBJ_FILES = kinsol.o kinsol_io.o kinsol_dense.o kinsol_band.o kinsol_spils.o kinsol_spgmr.o kinsol_spbcgs.o kinsol_sptfqmr.o kinsol_bbdpre.o
 
@@ -65,7 +66,7 @@ SHARED_LIB_FILES = $(SHARED_BUILD_DIR)/sundials_band.lo \
 all: $(KINSOL_LIB_FILES)
 
 install: shared $(KINSOL_LIB_FILES)
-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info 0:0:0
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $(KINSOL_LIB) $(KINSOL_LIB_FILES) $(SHARED_LIB_FILES) -rpath $(libdir) $(LDFLAGS) $(LIBS) -version-info $(LIB_REVISION)
 	$(LIBTOOL) --mode=install $(INSTALL_LIB) $(KINSOL_LIB) $(libdir)
 	$(INSTALL) -d $(includedir)/kinsol
 	$(INSTALL_HEADER) $(KINSOL_INC_DIR)/kinsol.h $(includedir)
@@ -79,7 +80,9 @@ install: shared $(KINSOL_LIB_FILES)
 	$(INSTALL_HEADER) $(srcdir)/kinsol_impl.h $(includedir)/kinsol
 
 shared:
-	@cd $(SHARED_BUILD_DIR); $(MAKE); cd $(abs_builddir)
+	@cd ${SHARED_BUILD_DIR} ; \
+	 ${MAKE} ;                \
+	 cd ${abs_builddir}
 
 clean:
 	$(LIBTOOL) --mode=clean rm -f $(KINSOL_LIB)
@@ -97,8 +100,8 @@ uninstall: clean
 	rm -f $(includedir)/kinsol/kinsol_bbdpre.h
 	rm -f $(includedir)/kinsol/kinsol_spils.h
 	rm -f $(includedir)/kinsol/kinsol_impl.h
-	@if test -d $(includedir)/kinsol ; then \
-	   rmdir $(includedir)/kinsol ;         \
+	@if test -d ${includedir}/kinsol ; then \
+	   rmdir ${includedir}/kinsol ;         \
 	fi
 
 kinsol.lo: $(srcdir)/kinsol.c
@@ -121,6 +124,6 @@ kinsol_bbdpre.lo: $(srcdir)/kinsol_bbdpre.c
 	$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) -I$(CONFIG_INC_DIR) -I$(SHARED_INC_DIR) -I$(KINSOL_INC_DIR) $(CFLAGS) -c $(srcdir)/kinsol_bbdpre.c
 
 libtool: $(top_builddir)/$(LIBTOOL_DEPS)
-	@cd $(top_builddir) ;                 \
-	 $(SHELL) ./config.status --recheck ; \
-	 cd $(abs_builddir)
+	@cd ${top_builddir} ;                 \
+	 ${SHELL} ./config.status --recheck ; \
+	 cd ${abs_builddir}

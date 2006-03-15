@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.16 $
-# $Date: 2006-01-10 00:49:45 $
+# $Revision: 1.17 $
+# $Date: 2006-03-15 20:03:42 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -54,22 +54,46 @@ fortran_update.sh:
 fcvdenx: $(srcdir)/fcvdenx.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvdenx.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fcvdenx-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fcvdenx $(builddir)/fcvdenx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                           \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvdenx ${builddir}/fcvdenx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvdenx ${builddir}/fcvdenx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                               \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvdenx ${builddir}/fcvdenx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvdenx ${builddir}/fcvdenx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 fcvbanx: $(srcdir)/fcvbanx.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvbanx.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fcvbanx-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fcvbanx $(builddir)/fcvbanx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                           \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvbanx ${builddir}/fcvbanx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvbanx ${builddir}/fcvbanx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                               \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvbanx ${builddir}/fcvbanx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvbanx ${builddir}/fcvbanx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 fcvkryx: $(srcdir)/fcvkryx.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fcvkryx-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fcvkryx $(builddir)/fcvkryx-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                           \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvkryx ${builddir}/fcvkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvkryx ${builddir}/fcvkryx-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                               \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvkryx ${builddir}/fcvkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvkryx ${builddir}/fcvkryx-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 fcvkryx_bp: $(srcdir)/fcvkryx_bp.f fortran_update.sh
 	@${SHELL} ${builddir}/fortran_update.sh ${srcdir} fcvkryx_bp.f
 	$(COMPILER_PREFIX) $(F77) $(FFLAGS) -c $(builddir)/fcvkryx_bp-updated.f
-	$(LINKER_PREFIX) $(F77_LNKR) -o $(builddir)/fcvkryx_bp $(builddir)/fcvkryx_bp-updated.$(OBJ_EXT) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) $(LIBS) $(FLIBS)
+	@if test "X${F77_LNKR}" = "X${F77}"; then                                                                                                                                                 \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvkryx_bp ${builddir}/fcvkryx_bp-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvkryx_bp ${builddir}/fcvkryx_bp-updated.${OBJ_EXT} ${FFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 else                                                                                                                                                                                     \
+	   echo "${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvkryx_bp ${builddir}/fcvkryx_bp-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS}" ; \
+	   ${LINKER_PREFIX} ${F77_LNKR} -o ${builddir}/fcvkryx_bp ${builddir}/fcvkryx_bp-updated.${OBJ_EXT} ${CFLAGS} ${LDFLAGS} -L${SUNDIALS_LIB_DIR} ${SUNDIALS_LIBS} ${LIBS} ${FLIBS} ;        \
+	 fi
 
 clean:
 	rm -rf .libs

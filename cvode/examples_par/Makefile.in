@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.13 $
-# $Date: 2006-01-11 21:13:44 $
+# $Revision: 1.14 $
+# $Date: 2006-03-15 20:03:32 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # -----------------------------------------------------------------
@@ -55,13 +55,13 @@ all: $(EXEC_FILES)
 
 cvnonx_p: $(srcdir)/cvnonx_p.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvnonx_p.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvnonx_p $(builddir)/cvnonx_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvnonx_p $(builddir)/cvnonx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 cvkryx_p: $(srcdir)/cvkryx_p.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkryx_p.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvkryx_p $(builddir)/cvkryx_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvkryx_p $(builddir)/cvkryx_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 cvkryx_bbd_p: $(srcdir)/cvkryx_bbd_p.c
 	$(COMPILER_PREFIX) $(MPICC) $(CPPFLAGS) $(MPI_FLAGS) $(SUNDIALS_INCS) -I$(MPI_INC_DIR) $(CFLAGS) -c $(srcdir)/cvkryx_bbd_p.c
-	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvkryx_bbd_p $(builddir)/cvkryx_bbd_p.$(OBJ_EXT) $(MPI_FLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
+	$(LINKER_PREFIX) $(MPICC) -o $(builddir)/cvkryx_bbd_p $(builddir)/cvkryx_bbd_p.$(OBJ_EXT) $(MPI_FLAGS) $(CFLAGS) $(LDFLAGS) -L$(SUNDIALS_LIB_DIR) $(SUNDIALS_LIBS) -L$(MPI_LIB_DIR) $(MPI_LIBS) $(LIBS)
 
 clean:
 	rm -rf .libs
