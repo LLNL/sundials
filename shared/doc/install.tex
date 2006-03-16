@@ -303,31 +303,6 @@ may be used to build shared libraries on supported platforms.
 
 \end{config}
 
-\subsection*{Options for cross-compilation}
-
-%%
-%% Cross-compilation
-%%
-
-\noindent If the {\sundials} suite will be cross-compiled (meaning the build
-procedure will not be completed on the actual destination system, but rather
-on an alternate system with a different architecture) then the following two
-options should be used:
-
-\begin{config}
-
-\item \id{--build=BUILD}
-
-  This particular option is used to specify the canonical system/platform name
-  for the build system.
-
-\item \id{--host=HOST}
-
-  If cross-compiling, then the user must use this option to specify the canonical
-  system/platform name for the destination system.
-
-\end{config}
-
 \subsection*{Environment variables}
 
 %%
