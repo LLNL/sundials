@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-14 20:36:17 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-16 00:42:36 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
@@ -14,7 +14,7 @@
  * This is the header file for the IDABBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
  * matrix with banded blocks, for use with IDA and
- * IDASpgmr/IDASpbcg/IDASptfqmr.
+ * IDASPGMR/IDASPBCG/IDASPTFQMR.
  *
  * Summary:
  *
@@ -246,11 +246,11 @@ extern "C" {
    * not call IDASptfqmr anymore.
    *
    * Possible return values are:
-   *    IDASPTFQMR_SUCCESS    if successful
-   *    IDASPTFQMR_MEM_NULL   if the IDA memory was NULL
-   *    IDASPTFQMR_MEM_FAIL   if there was a memory allocation failure
-   *    IDASPTFQMR_ILL_INPUT  if there was illegal input
-   *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
+   *    IDASPILS_SUCCESS     if successful
+   *    IDASPILS_MEM_NULL    if the IDA memory was NULL
+   *    IDASPILS_MEM_FAIL    if there was a memory allocation failure
+   *    IDASPILS_ILL_INPUT   if there was illegal input
+   *    IDABBDPRE_PDATA_NULL if bbd_data was NULL
    * -----------------------------------------------------------------
    */
 
@@ -274,10 +274,10 @@ extern "C" {
    * not call IDASpbcg anymore.
    *
    * Possible return values are:
-   *    IDASPBCG_SUCCESS      if successful
-   *    IDASPBCG_MEM_NULL     if the IDA memory was NULL
-   *    IDASPBCG_MEM_FAIL     if there was a memory allocation failure
-   *    IDASPBCG_ILL_INPUT    if there was illegal input
+   *    IDASPILS_SUCCESS      if successful
+   *    IDASPILS_MEM_NULL     if the IDA memory was NULL
+   *    IDASPILS_MEM_FAIL     if there was a memory allocation failure
+   *    IDASPILS_ILL_INPUT    if there was illegal input
    *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
    * -----------------------------------------------------------------
    */
@@ -302,10 +302,10 @@ extern "C" {
    * not call IDASpgmr anymore.
    *
    * Possible return values are:
-   *    IDASPGMR_SUCCESS      if successful
-   *    IDASPGMR_MEM_NULL     if the ida memory was NULL
-   *    IDASPGMR_MEM_FAIL     if there was a memory allocation failure
-   *    IDASPGMR_ILL_INPUT    if there was illegal input
+   *    IDASPILS_SUCCESS      if successful
+   *    IDASPILS_MEM_NULL     if the ida memory was NULL
+   *    IDASPILS_MEM_FAIL     if there was a memory allocation failure
+   *    IDASPILS_ILL_INPUT    if there was illegal input
    *    IDABBDPRE_PDATA_NULL  if bbd_data was NULL
    * -----------------------------------------------------------------
    */

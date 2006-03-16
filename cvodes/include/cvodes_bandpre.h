@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-10 21:19:18 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-16 00:42:37 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -156,12 +156,12 @@ extern "C" {
    * not call CVSptfqmr.
    *
    * Possible return values are:
-   *    CVSPTFQMR_SUCCESS     if successful
-   *    CVSPTFQMR_MEM_NULL    if the cvode memory was NULL
-   *    CVSPTFQMR_LMEM_NULL   if the cvsptfqmr memory was NULL
-   *    CVSPTFQMR_MEM_FAIL    if there was a memory allocation failure
-   *    CVSPTFQMR_ILL_INPUT   if a required vector operation is missing
-   *    CVBANDPRE_PDATA_NULL  if the bp_data was NULL
+   *    CVSPILS_SUCCESS      if successful
+   *    CVSPILS_MEM_NULL     if the cvode memory was NULL
+   *    CVSPILS_LMEM_NULL    if the cvsptfqmr memory was NULL
+   *    CVSPILS_MEM_FAIL     if there was a memory allocation failure
+   *    CVSPILS_ILL_INPUT    if a required vector operation is missing
+   *    CVBANDPRE_PDATA_NULL if the bp_data was NULL
    * -----------------------------------------------------------------
    */
 
@@ -185,11 +185,11 @@ extern "C" {
    * not call CVSpbcg.
    *
    * Possible return values are:
-   *    CVSPBCG_SUCCESS       if successful
-   *    CVSPBCG_MEM_NULL      if the cvode memory was NULL
-   *    CVSPBCG_LMEM_NULL     if the cvspbcg memory was NULL
-   *    CVSPBCG_MEM_FAIL      if there was a memory allocation failure
-   *    CVSPBCG_ILL_INPUT     if a required vector operation is missing
+   *    CVSPILS_SUCCESS       if successful
+   *    CVSPILS_MEM_NULL      if the cvode memory was NULL
+   *    CVSPILS_LMEM_NULL     if the cvspbcg memory was NULL
+   *    CVSPILS_MEM_FAIL      if there was a memory allocation failure
+   *    CVSPILS_ILL_INPUT     if a required vector operation is missing
    *    CVBANDPRE_PDATA_NULL  if the bp_data was NULL
    * -----------------------------------------------------------------
    */
@@ -214,11 +214,11 @@ extern "C" {
    * not call CVSpgmr.
    *
    * Possible return values are:
-   *    CVSPGMR_SUCCESS       if successful
-   *    CVSPGMR_MEM_NULL      if the cvode memory was NULL
-   *    CVSPGMR_LMEM_NULL     if the cvspgmr memory was NULL
-   *    CVSPGMR_MEM_FAIL      if there was a memory allocation failure
-   *    CVSPGMR_ILL_INPUT     if a required vector operation is missing
+   *    CVSPILS_SUCCESS       if successful
+   *    CVSPILS_MEM_NULL      if the cvode memory was NULL
+   *    CVSPILS_LMEM_NULL     if the cvspgmr memory was NULL
+   *    CVSPILS_MEM_FAIL      if there was a memory allocation failure
+   *    CVSPILS_ILL_INPUT     if a required vector operation is missing
    *    CVBANDPRE_PDATA_NULL  if the bp_data was NULL
    * -----------------------------------------------------------------
    */
@@ -280,7 +280,7 @@ extern "C" {
    * CVBandPrecAllocB interfaces to the CVBANDPRE preconditioner
    * for the backward integration. The pointer to the structure
    * returned by this routine should then be used in the call to
-   * CVBPSp*B which interfaces to CVBPSpgmr/CVBPSpbcg.
+   * CVBPSp*B which interfaces to CVBPSPGMR/CVBPSPBCG/CVSPTFQMR.
    * -----------------------------------------------------------------
    */
 

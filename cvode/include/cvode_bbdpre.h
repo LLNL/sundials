@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-02-10 21:19:13 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-16 00:42:35 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -13,8 +13,8 @@
  * -----------------------------------------------------------------
  * This is the header file for the CVBBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with CVSpgmr/CVSpbcg, and
- * the parallel implementation of the NVECTOR module.
+ * matrix with banded blocks, for use with CVSPGMR/CVSPBCG/CVSPTFQMR, 
+ * and the parallel implementation of the NVECTOR module.
  *
  * Summary:
  *
@@ -48,6 +48,8 @@
  *   flag = CVBBDSpgmr(cvode_mem, pretype, maxl, bbd_data);
  *      -or-
  *   flag = CVBBDSpbcg(cvode_mem, pretype, maxl, bbd_data);
+ *      -or-
+ *   flag = CVBBDSptfqmr(cvode_mem, pretype, maxl, bbd_data);
  *   ...
  *   ier = CVode(...);
  *   ...
@@ -98,7 +100,7 @@
  *    associated with this module also include nsetups banded LU
  *    factorizations, nlinsetups cfn calls, and npsolves banded
  *    backsolve calls, where nlinsetups and npsolves are
- *    integrator/CVSPGMR/CVSPBCG optional outputs.
+ *    integrator/CVSPGMR/CVSPBCG/CVSPTFQMR optional outputs.
  * -----------------------------------------------------------------
  */
 
@@ -242,12 +244,12 @@ void *CVBBDPrecAlloc(void *cvode_mem, long int Nlocal,
  * not call CVSptfqmr.
  *
  * Possible return values are:
- *    CVSPTFQMR_SUCCESS     if successful
- *    CVSPTFQMR_MEM_NULL    if the cvode memory was NULL
- *    CVSPTFQMR_LMEM_NULL   if the cvsptfqmr memory was NULL
- *    CVSPTFQMR_MEM_FAIL    if there was a memory allocation failure
- *    CVSPTFQMR_ILL_INPUT   if a required vector operation is missing
- *    CVBBDPRE_PDATA_NULL   if the bbd_data was NULL
+ *    CVSPILS_SUCCESS      if successful
+ *    CVSPILS_MEM_NULL     if the cvode memory was NULL
+ *    CVSPILS_LMEM_NULL    if the cvsptfqmr memory was NULL
+ *    CVSPILS_MEM_FAIL     if there was a memory allocation failure
+ *    CVSPILS_ILL_INPUT    if a required vector operation is missing
+ *    CVBBDPRE_PDATA_NULL  if the bbd_data was NULL
  * -----------------------------------------------------------------
  */
 
@@ -271,11 +273,11 @@ int CVBBDSptfqmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * not call CVSpbcg.
  *
  * Possible return values are:
- *    CVSPBCG_SUCCESS      if successful
- *    CVSPBCG_MEM_NULL     if the cvode memory was NULL
- *    CVSPBCG_LMEM_NULL    if the cvspbcg memory was NULL
- *    CVSPBCG_MEM_FAIL     if there was a memory allocation failure
- *    CVSPBCG_ILL_INPUT    if a required vector operation is missing
+ *    CVSPILS_SUCCESS      if successful
+ *    CVSPILS_MEM_NULL     if the cvode memory was NULL
+ *    CVSPILS_LMEM_NULL    if the cvspbcg memory was NULL
+ *    CVSPILS_MEM_FAIL     if there was a memory allocation failure
+ *    CVSPILS_ILL_INPUT    if a required vector operation is missing
  *    CVBBDPRE_PDATA_NULL  if the bbd_data was NULL
  * -----------------------------------------------------------------
  */
@@ -300,11 +302,11 @@ int CVBBDSpbcg(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * not call CVSpgmr.
  *
  * Possible return values are:
- *    CVSPGMR_SUCCESS      if successful
- *    CVSPGMR_MEM_NULL     if the cvode memory was NULL
- *    CVSPGMR_LMEM_NULL    if the cvspgmr memory was NULL
- *    CVSPGMR_MEM_FAIL     if there was a memory allocation failure
- *    CVSPGMR_ILL_INPUT    if a required vector operation is missing
+ *    CVSPILS_SUCCESS      if successful
+ *    CVSPILS_MEM_NULL     if the cvode memory was NULL
+ *    CVSPILS_LMEM_NULL    if the cvspgmr memory was NULL
+ *    CVSPILS_MEM_FAIL     if there was a memory allocation failure
+ *    CVSPILS_ILL_INPUT    if a required vector operation is missing
  *    CVBBDPRE_PDATA_NULL  if the bbd_data was NULL
  * -----------------------------------------------------------------
  */
@@ -317,12 +319,12 @@ int CVBBDSpgmr(void *cvode_mem, int pretype, int maxl, void *bbd_data);
  * -----------------------------------------------------------------
  * CVBBDPrecReInit re-initializes the BBDPRE module when solving a
  * sequence of problems of the same size with CVSPGMR/CVBBDPRE or
- * CVSPBCG/CVBBDPRE, provided there is no change in Nlocal, mukeep,
- * or mlkeep. After solving one problem, and after calling CVodeReInit
- * to re-initialize the integrator for a subsequent problem, call
- * CVBBDPrecReInit. Then call CVSpgmrSet* or CVSpbcgSet* functions if
- * necessary for any changes to CVSpgmr or CVSpbcg parameters, before
- * calling CVode.
+ * CVSPBCG/CVBBDPRE or CVSPTFQMR/CVBBDPRE provided there is no change 
+ * in Nlocal, mukeep, or mlkeep. After solving one problem, and after 
+ * calling CVodeReInit to re-initialize the integrator for a subsequent 
+ * problem, call CVBBDPrecReInit. Then call CVSpgmrSet* or CVSpbcgSet* 
+ * or CVSptfqmrSet* functions if necessary for any changes to CVSPGMR, 
+ * CVSPBCG, or CVSPTFQMR parameters, before calling CVode.
  *
  * The first argument to CVBBDPrecReInit must be the pointer pdata
  * that was returned by CVBBDPrecAlloc. All other arguments have
