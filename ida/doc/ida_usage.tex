@@ -2395,15 +2395,13 @@ of this section.
 \newlength{\colBB}
 \settowidth{\colBB}{\id{IDAGetNumNonlinSolvConvFails}}
 
-\tablecaption{Optional outputs from {\ida}, {\idadense}, {\idaband}, and {\idaspils}}
+\begin{table}
+\centering
+\caption{Optional outputs from {\ida}, {\idadense}, {\idaband}, and {\idaspils}}
 \label{t:optional_output}
-\tablefirsthead{\hline {\bf Optional output} & {\bf Function name} \\}
-\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
-           \hline {\bf Optional output} & {\bf Function name} \\ \hline}
-\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
-\tablelasttail{\hline}
-
-\begin{supertabular}{|p{\colAA}|p{\colBB}|}
+\medskip
+\begin{tabular}{|p{\colAA}|p{\colBB}|}
+\hline {\bf Optional output} & {\bf Function name} \\
 \hline
 \multicolumn{2}{|c|}{\bf IDA main solver} \\
 \hline
@@ -2455,7 +2453,9 @@ No. of Jacobian-vector product evaluations & \id{IDASpilsGetNumJtimesEvals} \\
 No. of residual calls for finite diff. Jacobian-vector evals. & \id{IDASpilsGetNumResEvals} \\
 Last return from a linear solver function & \id{IDASpilsGetLastFlag} \\
 Name of constant associated with a return flag & \id{IDASpilsGetReturnFlagName} \\
-\end{supertabular}
+\hline
+\end{tabular}
+\end{table}
 
 \subsubsection{Main solver optional output functions}\label{sss:optout_main}
 \index{optional output!solver|(}
