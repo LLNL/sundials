@@ -1,12 +1,15 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-03-09 20:29:26 $
+ * $Revision: 1.1 $
+ * $Date: 2006-03-16 15:39:53 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Modification of the cvsfwddendx to illustrate switching on and off
  * sensitivity computations.
+ *
+ * NOTE: For readibility, no checks are performed on the various 
+ *       function return flags.
  * -----------------------------------------------------------------
  */
 

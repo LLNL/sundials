@@ -1,11 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-01-24 00:51:20 $
+ * $Revision: 1.1 $
+ * $Date: 2006-03-16 15:39:53 $
  * -----------------------------------------------------------------
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Modification of the cvdx example to illustrate enforcing a 
+ * Modification of the cvsdenx example to illustrate enforcing a 
  * minimum step size.
  *
  * When HMIN is reached (CV_ERR_FAILURE or CV_CONV_FAILURE return 
@@ -21,8 +21,8 @@
  * with backward Euler until the tolerances reached their original
  * values.
  *
- * For readibility, no checks are performed on the various function
- * return flags.
+ * NOTE: For readibility, no checks are performed on the various 
+ *       function return flags.
  * -----------------------------------------------------------------
  */
 

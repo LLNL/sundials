@@ -1,5 +1,10 @@
 /*
  * -----------------------------------------------------------------
+ * $Revision: 1.1 $
+ * $Date: 2006-03-16 15:39:53 $
+ * -----------------------------------------------------------------
+ * Programmer: Radu Serban @ LLNL
+ * -----------------------------------------------------------------
  * Modification of cvsdenx demonstrating how to integrate two 
  * different but closely related ODE systems at once.
  *
@@ -20,6 +25,8 @@
  *
  * y1(0)=1 y2(0)=0
  *
+ * NOTE: For readibility, no checks are performed on the various 
+ *       function return flags.
  * -----------------------------------------------------------------
  */
 
