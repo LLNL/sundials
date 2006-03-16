@@ -1,0 +1,253 @@
+<html>
+
+<head>
+
+<title>cvsdiscx Example</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+<pre>
+<span class="comment">/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.1 $
+ * $Date: 2006-03-16 17:23:01 $
+ * -----------------------------------------------------------------
+ * Programmer: Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Simple 1D example to illustrate integrating over discontinuities:
+ * 
+ * A) Discontinuity in solution
+ *       y' = -y   ; y(0) = 1    ; t = [0,1]
+ *       y' = -y   ; y(1) = 1    ; t = [1,2]
+ *
+ * B) Discontinuity in RHS (y')
+ *       y' = -y   ; y(0) = 1    ; t = [0,1]
+ *       z' = -5*z ; z(1) = y(1) ; t = [1,2]
+ *    This case is solved twice, first by explicitly treating the 
+ *    discontinuity point and secondly by letting the integrator 
+ *    deal with the discontinuity.
+ *
+ * NOTE: For readibility, no checks are performed on the various 
+ *       function return flags.
+ * -----------------------------------------------------------------
+ */</span>
+
+#<span class="builtin">include</span> <span class="string">&lt;stdio.h&gt;</span>
+#<span class="builtin">include</span> <span class="string">"cvodes.h"</span>
+#<span class="builtin">include</span> <span class="string">"nvector_serial.h"</span>
+#<span class="builtin">include</span> <span class="string">"cvodes_dense.h"</span>
+
+#<span class="builtin">define</span> <span class="function-name">Ith</span>(v,i) NV_Ith_S(v,i-1)
+
+#<span class="builtin">define</span> <span class="variable-name">RHS1</span> 1
+#<span class="builtin">define</span> <span class="variable-name">RHS2</span> 2
+
+<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">f</span>(realtype t, N_Vector y, N_Vector ydot, <span class="type">void</span> *<span class="variable-name">f_data</span>);
+
+<span class="type">int</span> <span class="function-name">main</span>()
+{
+  <span class="type">void</span> *<span class="variable-name">cvode_mem</span>;
+  N_Vector y;
+  <span class="type">int</span> <span class="variable-name">neq</span>, <span class="variable-name">flag</span>;
+  realtype reltol, abstol, t0, t1, t2, t;
+  <span class="type">long</span> <span class="type">int</span> <span class="variable-name">nst1</span>, <span class="variable-name">nst2</span>, <span class="variable-name">nst</span>;
+
+  neq = 1;
+
+  reltol = RCONST(1.0e-3);  
+  abstol = RCONST(1.0e-4);
+
+  t0 = RCONST(0.0);
+  t1 = RCONST(1.0);
+  t2 = RCONST(2.0);
+
+  y = N_VNew_Serial(neq);
+  
+  <span class="comment">/*
+   * ---------------------------------------------------------------
+   * Discontinuity in solution 
+   * Note that it is not required to set TSTOP. 
+   * ---------------------------------------------------------------
+   */</span>
+
+  printf(<span class="string">"\nDiscontinuity in solution\n\n"</span>);
+
+  <span class="comment">/* Initialize solver */</span>
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  Ith(y,1) = 1.0;
+  CVodeMalloc(cvode_mem, f, t0, y, CV_SS, reltol, &amp;abstol);
+  CVodeSetFdata(cvode_mem, &amp;flag);
+  CVDense(cvode_mem, neq);
+
+  <span class="comment">/* Integrate to the point of discontinuity */</span>
+  CVodeSetStopTime(cvode_mem, t1);
+  flag = RHS1;
+  t = t0;
+  printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  <span class="keyword">while</span> (t&lt;t1) {
+    CVode(cvode_mem, t1, y, &amp;t, CV_ONE_STEP_TSTOP);
+    printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  }
+  CVodeGetNumSteps(cvode_mem, &amp;nst1);
+
+  <span class="comment">/* Include discontinuity and reinitialize solver */</span>
+  Ith(y,1) = 1.0;
+  CVodeReInit(cvode_mem, f, t1, y, CV_SS, reltol, &amp;abstol); 
+
+  <span class="comment">/* Integrate from discontinuity */</span>
+  CVodeSetStopTime(cvode_mem, t2);
+  flag = RHS1;
+  t = t1;
+  printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  <span class="keyword">while</span> (t&lt;t2) {
+    CVode(cvode_mem, t2, y, &amp;t, CV_ONE_STEP_TSTOP);
+    printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  }
+  CVodeGetNumSteps(cvode_mem, &amp;nst2);
+  
+  <span class="comment">/* Print statistics and free solver memory */</span>
+  nst = nst1 + nst2;
+  printf(<span class="string">"\nNumber of steps: %d + %d = %d\n"</span>,nst1, nst2, nst);
+
+  CVodeFree(&amp;cvode_mem);
+
+  <span class="comment">/*
+   * ---------------------------------------------------------------
+   * Discontinuity in RHS: Case 1 - explicit treatment 
+   * Note that it is not required to set TSTOP, but without it
+   * we would have to find y(t1) to reinitialize the solver. 
+   * ---------------------------------------------------------------
+   */</span>
+
+  printf(<span class="string">"\nDiscontinuity in RHS: Case 1 - explicit treatment\n\n"</span>);
+
+  <span class="comment">/* Initialize solver */</span>
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  Ith(y,1) = 1.0;
+  CVodeMalloc(cvode_mem, f, t0, y, CV_SS, reltol, &amp;abstol);
+  CVodeSetFdata(cvode_mem, &amp;flag);
+  CVDense(cvode_mem, neq);
+
+  <span class="comment">/* Integrate to the point of discontinuity */</span>
+  CVodeSetStopTime(cvode_mem, t1);
+  flag = RHS1;
+  t = t0;
+  printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  <span class="keyword">while</span> (t&lt;t1) {
+    CVode(cvode_mem, t1, y, &amp;t, CV_ONE_STEP_TSTOP);
+    printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  }
+  CVodeGetNumSteps(cvode_mem, &amp;nst1);
+
+  <span class="comment">/* If TSTOP was not set, we'd need to find y(t1): */</span> 
+  <span class="comment">/* CVodeGetDky(cvode_mem, t1, 0, y); */</span>
+
+  <span class="comment">/* Reinitialize solver */</span>
+  CVodeReInit(cvode_mem, f, t1, y, CV_SS, reltol, &amp;abstol); 
+
+  <span class="comment">/* Integrate from discontinuity with new RHS */</span>
+  CVodeSetStopTime(cvode_mem, t2);
+  flag = RHS2;
+  t = t1;
+  printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  <span class="keyword">while</span> (t&lt;t2) {
+    CVode(cvode_mem, t2, y, &amp;t, CV_ONE_STEP_TSTOP);
+    printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  }
+  CVodeGetNumSteps(cvode_mem, &amp;nst2);
+
+  <span class="comment">/* Print statistics and free solver memory */</span>
+  nst = nst1 + nst2;
+  printf(<span class="string">"\nNumber of steps: %d + %d = %d\n"</span>,nst1, nst2, nst);
+
+  CVodeFree(&amp;cvode_mem);
+  
+  <span class="comment">/*
+   * ---------------------------------------------------------------
+   * Discontinuity in RHS: Case 2 - let CVODES deal with it 
+   * Note that here we MUST set TSTOP to ensure that the 
+   * change in the RHS happens at the appropriate time 
+   * ---------------------------------------------------------------
+   */</span>
+
+  printf(<span class="string">"\nDiscontinuity in RHS: Case 2 - let CVODES deal with it\n\n"</span>);
+
+  <span class="comment">/* Initialize solver */</span>
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  Ith(y,1) = 1.0;
+  CVodeMalloc(cvode_mem, f, t0, y, CV_SS, reltol, &amp;abstol);
+  CVodeSetFdata(cvode_mem, &amp;flag);
+  CVDense(cvode_mem, neq);
+
+  <span class="comment">/* Integrate to the point of discontinuity */</span>
+  CVodeSetStopTime(cvode_mem, t1);
+  flag = RHS1;
+  t = t0;
+  printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  <span class="keyword">while</span> (t&lt;t1) {
+    CVode(cvode_mem, t1, y, &amp;t, CV_ONE_STEP_TSTOP);
+    printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  }
+  CVodeGetNumSteps(cvode_mem, &amp;nst1);
+
+  <span class="comment">/* Continue integration from discontinuity with new RHS */</span>
+  CVodeSetStopTime(cvode_mem, t2);
+  flag = RHS2;
+  t = t1;
+  printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  <span class="keyword">while</span> (t&lt;t2) {
+    CVode(cvode_mem, t2, y, &amp;t, CV_ONE_STEP_TSTOP);
+    printf(<span class="string">"%12.8e  %12.8e\n"</span>,t,Ith(y,1));
+  }
+  CVodeGetNumSteps(cvode_mem, &amp;nst);
+
+  <span class="comment">/* Print statistics and free solver memory */</span>
+  nst2 = nst - nst1;
+  printf(<span class="string">"\nNumber of steps: %d + %d = %d\n"</span>,nst1, nst2, nst);
+
+  CVodeFree(&amp;cvode_mem);
+
+
+  <span class="comment">/* Free y vector and return */</span>
+  N_VDestroy(y);
+  <span class="keyword">return</span>(0);
+}
+
+<span class="comment">/*
+ * RHS function
+ * The form of the RHS function is controlled by the flag passed as f_data:
+ *   flag = RHS1 -&gt; y' = -y
+ *   flag = RHS2 -&gt; y' = -5*y
+ */</span>
+
+<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">f</span>(realtype t, N_Vector y, N_Vector ydot, <span class="type">void</span> *<span class="variable-name">f_data</span>)
+{
+  <span class="type">int</span> *<span class="variable-name">flag</span>;
+
+  flag = (<span class="type">int</span> *) f_data;
+
+  <span class="keyword">switch</span>(*flag) {
+  <span class="keyword">case</span> <span class="constant">RHS1</span>:
+    Ith(ydot,1) = -Ith(y,1);
+    <span class="keyword">break</span>;
+  <span class="keyword">case</span> <span class="constant">RHS2</span>:
+    Ith(ydot,1) = -5.0*Ith(y,1);
+    <span class="keyword">break</span>;
+  }
+
+  <span class="keyword">return</span>(0);
+}
+
+</pre>
+</body>
+</html>

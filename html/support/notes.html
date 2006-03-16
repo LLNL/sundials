@@ -76,7 +76,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <h1>Contents</h1>
 <div class="frame">
 <ul>
-<li><a href="#disc">Controlling unphysical solutions and integrating over discontinuities</a></li>
+<li><a href="#disc">Controlling unphysical solutions and integrating over discontinuities</a>
+<ul>
+<li><a href="#discA">A) Definitions</a></li>
+<li><a href="#discB">B) Treatment</a></li>
+<li><a href="#discC">C) Examples</a></li>
+</ul>
+</li>
 <li><a href="#switch">Switching on/off forward sensitivity computations</a></li>
 </ul>
 </div>
@@ -91,7 +97,8 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 We refer here to ODEs (and CVODE). DAE or IDA-specific issues will be explicitly mentioned. 
 <br>
 <br>
-<h2>A) What are these problems?</h2>
+<a name="discA"></a>
+<h2>A) Definitions</h2>
 <br>
 <br>
 First of all, to put things in context and lay blame where it's due, recall the chain
@@ -183,7 +190,8 @@ functions, such discontinuities must be addressed and treated
 appropriately.
 <br>
 <br>
-<h2>B) How do you resolve these problems?</h2>
+<a name="discB"></a>
+<h2>B) Treatment</h2>
 <br>
 <br>
 In attempting to solve one of these problems, it is important to
@@ -314,7 +322,48 @@ call IDACalcIC.
 Integrate from the point of discontinuity
 </li>
 </ol>
-
+<br>
+<a name="discC"></a>
+<h2>C) Examples</h2>
+<br>
+<br>
+The examples below illustrate the proper treatment of the above problems.
+<br>
+<br>
+<h3>C2) Discontinuities in the solution or RHS function</h3>
+<br>
+<br>
+The example 
+<a href="samples/cvsdiscx.c.html" onclick="window.open('samples/cvsdiscx.c.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false"><tt>cvsdiscx.c</tt></a>
+solves a simple 1D problem and integrates it over the two different types of discontinuities:
+<ol>
+<li> 
+Discontinuity in solution
+<pre><tt>&nbsp;&nbsp;&nbsp;&nbsp;y' = -y   ; y(0) = 1    ; t = [0,1]
+&nbsp;&nbsp;&nbsp;&nbsp;y' = -y   ; y(1) = 1    ; t = [1,2]</tt></pre>
+The integration results are shown in the figure below.
+<center>
+<img src="samples/disc1.png">
+</center>
+</li>
+<li>
+Discontinuity in RHS (y')
+<pre><tt>&nbsp;&nbsp;&nbsp;&nbsp;y' = -y   ; y(0) = 1    ; t = [0,1]
+&nbsp;&nbsp;&nbsp;&nbsp;z' = -5*z ; z(1) = y(1) ; t = [1,2]</tt></pre>
+This case is solved twice, first by explicitly treating the 
+discontinuity point and secondly by letting the integrator 
+deal with the discontinuity.
+The integration results are shown in the figure below. The red line is the solution 
+obtained by reinitializing the solver at the discontinuity point, while the blue line is
+the solution obtained by letting the solver step over the discontinuity without
+reinitialization. The differences between the two solutions are of the order of the absolute
+tolerances. However, the first solution is more correct (note the negative curvature of the
+red curve right after the discontinuity).
+<center>
+<img src="samples/disc2.png">
+</center>
+</li>
+</ol>
 </div>  <!-- END FRAME -->
   
 
@@ -333,460 +382,13 @@ To turn off sensitivity calculations (without deallocating any sensitivity-relat
 or resetting any of the optional inputs, so that sensitivties can later be reactivated)
 it is most efficient to use <tt>CVodeSensToggleOff</tt>. 
 <br><br>
-The example code below (a modification of the CVODES example <tt>cvsfwddenx</tt>) demonstrates 
-the use of <tt>CVodeSensToggleOff</tt>.
+The example code 
+<a href="samples/cvsfwdswitchx.c.html" onclick="window.open('samples/cvsfwdswitchx.c.html', 'popup', 'width=600,height=800,scrollbars=yes');return false"><tt>cvsfwdswitchx.c</tt></a>
+(a modification of the CVODES example <tt>cvsfwddenx</tt>) demonstrates this.
 <br><br>
 Recall that sensitivity calculations are enabled by <tt>CVodeSensMalloc</tt> and <tt>CVodeSensReInit</tt>
 and are disabled by <tt>CVodeSensFree</tt> (after calling this one, they can be re-enabled <b>only</b> by 
 calling <tt>CVodeSensMalloc</tt>) and <tt>CVodeSensToggleOff</tt>.
-<br><br><br>
-
-<h2>SOURCE CODE</h2>
-<div class="fragment">
-<pre>
-<span class="comment">/*
- * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-03-13 18:38:53 $
- * -----------------------------------------------------------------
- * Programmer: Radu Serban @ LLNL
- * -----------------------------------------------------------------
- * Modification of the cvsfwddendx to illustrate switching on and off
- * sensitivity computations.
- * -----------------------------------------------------------------
- */</span>
-
-#<span class="builtin">include</span> <span class="string">&lt;stdio.h&gt;</span>
-#<span class="builtin">include</span> <span class="string">&lt;stdlib.h&gt;</span>
-#<span class="builtin">include</span> <span class="string">&lt;string.h&gt;</span>
-
-#<span class="builtin">include</span> <span class="string">"cvodes.h"</span>
-#<span class="builtin">include</span> <span class="string">"nvector_serial.h"</span>
-#<span class="builtin">include</span> <span class="string">"cvodes_dense.h"</span>
-#<span class="builtin">include</span> <span class="string">"sundials_types.h"</span>
-
-<span class="comment">/* Accessor macros */</span>
-#<span class="builtin">define</span> <span class="function-name">Ith</span>(v,i)    NV_Ith_S(v,i-1)
-#<span class="builtin">define</span> <span class="function-name">IJth</span>(A,i,j) DENSE_ELEM(A,i-1,j-1)
-
-<span class="comment">/* Problem Constants */</span>
-#<span class="builtin">define</span> <span class="variable-name">MXSTEPS</span> 2000
-#<span class="builtin">define</span> <span class="variable-name">T0</span>      RCONST(0.0)
-#<span class="builtin">define</span> <span class="variable-name">T1</span>      RCONST(4.0e10)
-
-#<span class="builtin">define</span> <span class="variable-name">ZERO</span>  RCONST(0.0)
-
-<span class="comment">/* Type : UserData */</span>
-<span class="keyword">typedef</span> <span class="keyword">struct</span> {
-  booleantype sensi;
-  booleantype errconS;
-  booleantype fsDQ;
-  <span class="type">int</span> <span class="variable-name">meth</span>;
-  realtype p[3];
-} *<span class="type">UserData</span>;
-
-<span class="comment">/* Prototypes of functions by CVODES */</span>
-<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">f</span>(realtype t, N_Vector y, N_Vector ydot, <span class="type">void</span> *<span class="variable-name">f_data</span>);
-<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">Jac</span>(<span class="type">long</span> <span class="type">int</span> <span class="variable-name">N</span>, <span class="variable-name">DenseMat</span> J, <span class="variable-name">realtype</span> t,
-               N_Vector y, N_Vector fy, <span class="type">void</span> *<span class="variable-name">jac_data</span>, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">fS</span>(<span class="type">int</span> <span class="variable-name">Ns</span>, <span class="variable-name">realtype</span> t, <span class="variable-name">N_Vector</span> y, <span class="variable-name">N_Vector</span> ydot, 
-              <span class="type">int</span> <span class="variable-name">iS</span>, <span class="variable-name">N_Vector</span> yS, <span class="variable-name">N_Vector</span> ySdot, 
-              <span class="type">void</span> *<span class="variable-name">fS_data</span>, <span class="variable-name">N_Vector</span> tmp1, <span class="variable-name">N_Vector</span> tmp2);
-
-<span class="comment">/* Prototypes of private functions */</span>
-<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">runCVode</span>(<span class="type">void</span> *<span class="variable-name">cvode_mem</span>, <span class="variable-name">N_Vector</span> y, <span class="variable-name">N_Vector</span> *yS, <span class="variable-name">UserData</span> data);
-<span class="keyword">static</span> <span class="type">void</span> <span class="function-name">PrintHeader</span>(UserData data);
-<span class="keyword">static</span> <span class="type">void</span> <span class="function-name">PrintFinalStats</span>(<span class="type">void</span> *<span class="variable-name">cvode_mem</span>, <span class="variable-name">UserData</span> data);
-
-<span class="comment">/* Readibility replacements */</span>
-#<span class="builtin">define</span> <span class="variable-name">sensi</span>   data-&gt;sensi
-#<span class="builtin">define</span> <span class="variable-name">errconS</span> data-&gt;errconS
-#<span class="builtin">define</span> <span class="variable-name">fsDQ</span>    data-&gt;fsDQ
-#<span class="builtin">define</span> <span class="variable-name">meth</span>    data-&gt;meth
-
-<span class="comment">/*
- *--------------------------------------------------------------------
- * MAIN PROGRAM
- *--------------------------------------------------------------------
- */</span>
-
-<span class="type">int</span> <span class="function-name">main</span>(<span class="type">int</span> <span class="variable-name">argc</span>, <span class="type">char</span> *<span class="variable-name">argv</span>[])
-{
-  UserData data;
-  <span class="type">void</span> *<span class="variable-name">cvode_mem</span>;
-
-  <span class="type">long</span> <span class="type">int</span> <span class="variable-name">Neq</span>;
-  realtype reltol;
-  N_Vector y0, y, abstol;
-
-  <span class="type">int</span> <span class="variable-name">Ns</span>;
-  realtype *pbar;
-  <span class="type">int</span> <span class="variable-name">is</span>, *<span class="variable-name">plist</span>; 
-  N_Vector *yS0, *yS;
-
-  <span class="type">int</span> <span class="variable-name">flag</span>;
-
-  <span class="comment">/* Allocate and initialize parameters in user data structure */</span>
-  data = (UserData) malloc(<span class="keyword">sizeof</span> *data);
-  data-&gt;p[0] = RCONST(0.04);
-  data-&gt;p[1] = RCONST(1.0e4);
-  data-&gt;p[2] = RCONST(3.0e7);
-
-  <span class="comment">/* Problem size */</span>
-  Neq = 3;
-
-  <span class="comment">/* Allocate vectors */</span>
-  y0 = N_VNew_Serial(Neq);      <span class="comment">/* initial conditions */</span>
-  y = N_VNew_Serial(Neq);       <span class="comment">/* solution vector */</span>
-  abstol = N_VNew_Serial(Neq);  <span class="comment">/* absolute tolerances */</span>
-
-  <span class="comment">/* Set initial conditions */</span>
-  Ith(y0,1) = RCONST(1.0);
-  Ith(y0,2) = RCONST(0.0);
-  Ith(y0,3) = RCONST(0.0);
-
-  <span class="comment">/* Set integration tolerances */</span>
-  reltol = RCONST(1e-6);
-  Ith(abstol,1) = RCONST(1e-8);
-  Ith(abstol,2) = RCONST(1e-14);
-  Ith(abstol,3) = RCONST(1e-6);
-
-  <span class="comment">/* Create, set, and allocate CVODES object*/</span>
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  flag = CVodeSetFdata(cvode_mem, data);
-  flag = CVodeSetMaxNumSteps(cvode_mem, MXSTEPS);
-  flag = CVodeMalloc(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-
-  <span class="comment">/* Attach linear solver */</span>
-  flag = CVDense(cvode_mem, Neq);
-  flag = CVDenseSetJacFn(cvode_mem, Jac, data);
-
-  <span class="comment">/* Sensitivity-related settings */</span>
-
-  sensi = TRUE;           <span class="comment">/* sensitivity ON */</span>
-  meth = CV_SIMULTANEOUS; <span class="comment">/* simultaneous corrector method */</span>
-  errconS = TRUE;         <span class="comment">/* full error control */</span>
-  fsDQ = FALSE;           <span class="comment">/* user-provided sensitvity RHS */</span>
-
-  Ns = 3;
-
-  pbar = (realtype *) malloc(Ns * <span class="keyword">sizeof</span>(realtype));
-  pbar[0] = data-&gt;p[0];
-  pbar[1] = data-&gt;p[1];
-  pbar[2] = data-&gt;p[2];
-
-  plist = (<span class="type">int</span> *) malloc(Ns * <span class="keyword">sizeof</span>(<span class="type">int</span>));
-  <span class="keyword">for</span> (is=0; is&lt;Ns; is++) plist[is] = is;
-
-  yS0 = N_VCloneVectorArray_Serial(Ns, y);
-  <span class="keyword">for</span> (is=0;is&lt;Ns;is++) N_VConst(ZERO, yS0[is]);
-
-  yS = N_VCloneVectorArray_Serial(Ns, y);
-  
-  flag = CVodeSensMalloc(cvode_mem, Ns, meth, yS0);
-
-  flag = CVodeSetSensParams(cvode_mem, data-&gt;p, pbar, plist);
-
-  <span class="comment">/*
-    Sensitivities are enabled
-    Set full error control
-    Set user-provided sensitivity RHS
-    Run CVODES
-  */</span>
-
-  flag = CVodeSetSensErrCon(cvode_mem, errconS);
-  flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
-
-  flag = runCVode(cvode_mem, y, yS, data);
-
-  <span class="comment">/*
-    Change parameters
-    Toggle sensitivities OFF
-    Reinitialize and run CVODES
-  */</span>
-
-  data-&gt;p[0] = RCONST(0.05);
-  data-&gt;p[1] = RCONST(2.0e4);
-  data-&gt;p[2] = RCONST(2.9e7);
-
-  sensi = FALSE;
-
-  flag = CVodeSensToggleOff(cvode_mem);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-  flag = runCVode(cvode_mem, y, yS, data);
-
-  <span class="comment">/*
-    Change parameters
-    Switch to internal DQ sensitivity RHS function
-    Toggle sensitivities ON (reinitialize sensitivities)
-    Reinitialize and run CVODES
-  */</span>
-  
-  data-&gt;p[0] = RCONST(0.06);
-  data-&gt;p[1] = RCONST(3.0e4);
-  data-&gt;p[2] = RCONST(2.8e7);
-
-  sensi = TRUE;
-  fsDQ = TRUE;
-
-  flag = CVodeSetSensRhs1Fn(cvode_mem, NULL, NULL);
-  flag = CVodeSensReInit(cvode_mem, meth, yS0);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-  flag = runCVode(cvode_mem, y, yS, data);
-
-  <span class="comment">/*
-    Switch to partial error control
-    Switch back to user-provided sensitivity RHS
-    Toggle sensitivities ON (reinitialize sensitivities)
-    Change method to staggered
-    Reinitialize and run CVODES
-  */</span>
-
-  sensi = TRUE;
-  errconS = FALSE;
-  fsDQ = FALSE;
-  meth = CV_STAGGERED;
-
-  flag = CVodeSetSensErrCon(cvode_mem, errconS);
-  flag = CVodeSetSensRhs1Fn(cvode_mem, fS, data);
-  flag = CVodeSensReInit(cvode_mem, meth, yS0);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-  flag = runCVode(cvode_mem, y, yS, data);
-
-  <span class="comment">/*
-    Free sensitivity-related memory
-    (CVodeSensToggle is not needed, as CVodeSensFree toggles sensitivities OFF)
-    Reinitialize and run CVODES
-  */</span>
-  
-  sensi = FALSE;
-
-  CVodeSensFree(cvode_mem);
-  flag = CVodeReInit(cvode_mem, f, T0, y0, CV_SV, reltol, abstol);
-  flag = runCVode(cvode_mem, y, yS, data);
-  
-  <span class="comment">/* Free memory */</span>
-
-  N_VDestroy_Serial(y0);                 <span class="comment">/* Free y0 vector */</span>
-  N_VDestroy_Serial(y);                  <span class="comment">/* Free y vector */</span>
-  N_VDestroy_Serial(abstol);             <span class="comment">/* Free abstol vector */</span>
-  N_VDestroyVectorArray_Serial(yS0, Ns); <span class="comment">/* Free yS0 vector */</span>
-  N_VDestroyVectorArray_Serial(yS, Ns);  <span class="comment">/* Free yS vector */</span>
-  free(plist);                           <span class="comment">/* Free plist */</span>
-
-  free(data);                            <span class="comment">/* Free user data */</span>
-  CVodeFree(&amp;cvode_mem);                 <span class="comment">/* Free CVODES memory */</span>
-
-  <span class="keyword">return</span>(0);
-
-}
-
-<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">runCVode</span>(<span class="type">void</span> *<span class="variable-name">cvode_mem</span>, <span class="variable-name">N_Vector</span> y, <span class="variable-name">N_Vector</span> *yS, <span class="variable-name">UserData</span> data)
-{
-  realtype t;
-  <span class="type">int</span> <span class="variable-name">flag</span>;
-
-  <span class="comment">/* Print header for current run */</span>
-  PrintHeader(data);
-
-  <span class="comment">/* Call CVode in CV_NORMAL mode */</span>  
-  flag = CVode(cvode_mem, T1, y, &amp;t, CV_NORMAL);
-
-  <span class="comment">/* Print final statistics */</span>
-  PrintFinalStats(cvode_mem, data);
-
-  printf(<span class="string">"\n"</span>);
-
-  <span class="keyword">return</span>(flag);
-
-}
-
-<span class="comment">/*
- *--------------------------------------------------------------------
- * FUNCTIONS CALLED BY CVODES
- *--------------------------------------------------------------------
- */</span>
-
-<span class="comment">/*
- * f routine. Compute f(t,y). 
- */</span>
-
-<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">f</span>(realtype t, N_Vector y, N_Vector ydot, <span class="type">void</span> *<span class="variable-name">f_data</span>)
-{
-  realtype y1, y2, y3, yd1, yd3;
-  UserData data;
-  realtype p1, p2, p3;
-
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) f_data;
-  p1 = data-&gt;p[0]; p2 = data-&gt;p[1]; p3 = data-&gt;p[2];
-
-  yd1 = Ith(ydot,1) = -p1*y1 + p2*y2*y3;
-  yd3 = Ith(ydot,3) = p3*y2*y2;
-        Ith(ydot,2) = -yd1 - yd3;
-
-  <span class="keyword">return</span>(0);
-}
-
-
-<span class="comment">/* 
- * Jacobian routine. Compute J(t,y). 
- */</span>
-
-<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">Jac</span>(<span class="type">long</span> <span class="type">int</span> <span class="variable-name">N</span>, <span class="variable-name">DenseMat</span> J, <span class="variable-name">realtype</span> t,
-               N_Vector y, N_Vector fy, <span class="type">void</span> *<span class="variable-name">jac_data</span>, 
-               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype y1, y2, y3;
-  UserData data;
-  realtype p1, p2, p3;
- 
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  data = (UserData) jac_data;
-  p1 = data-&gt;p[0]; p2 = data-&gt;p[1]; p3 = data-&gt;p[2];
- 
-  IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
-  IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
-                      IJth(J,3,2) = 2*p3*y2;
-
-  <span class="keyword">return</span>(0);
-}
- 
-<span class="comment">/* 
- * fS routine. Compute sensitivity r.h.s. 
- */</span>
-
-<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">fS</span>(<span class="type">int</span> <span class="variable-name">Ns</span>, <span class="variable-name">realtype</span> t, <span class="variable-name">N_Vector</span> y, <span class="variable-name">N_Vector</span> ydot, 
-              <span class="type">int</span> <span class="variable-name">iS</span>, <span class="variable-name">N_Vector</span> yS, <span class="variable-name">N_Vector</span> ySdot, 
-              <span class="type">void</span> *<span class="variable-name">fS_data</span>, <span class="variable-name">N_Vector</span> tmp1, <span class="variable-name">N_Vector</span> tmp2)
-{
-  UserData data;
-  realtype p1, p2, p3;
-  realtype y1, y2, y3;
-  realtype s1, s2, s3;
-  realtype sd1, sd2, sd3;
-
-  data = (UserData) fS_data;
-  p1 = data-&gt;p[0]; p2 = data-&gt;p[1]; p3 = data-&gt;p[2];
-
-  y1 = Ith(y,1);  y2 = Ith(y,2);  y3 = Ith(y,3);
-  s1 = Ith(yS,1); s2 = Ith(yS,2); s3 = Ith(yS,3);
-
-  sd1 = -p1*s1 + p2*y3*s2 + p2*y2*s3;
-  sd3 = 2*p3*y2*s2;
-  sd2 = -sd1-sd3;
-
-  <span class="keyword">switch</span> (iS) {
-  <span class="keyword">case</span> <span class="constant">0</span>:
-    sd1 += -y1;
-    sd2 +=  y1;
-    <span class="keyword">break</span>;
-  <span class="keyword">case</span> <span class="constant">1</span>:
-    sd1 +=  y2*y3;
-    sd2 += -y2*y3;
-    <span class="keyword">break</span>;
-  <span class="keyword">case</span> <span class="constant">2</span>:
-    sd2 += -y2*y2;
-    sd3 +=  y2*y2;
-    <span class="keyword">break</span>;
-  }
-  
-  Ith(ySdot,1) = sd1;
-  Ith(ySdot,2) = sd2;
-  Ith(ySdot,3) = sd3;
-
-  <span class="keyword">return</span>(0);
-}
-
-<span class="comment">/*
- *--------------------------------------------------------------------
- * PRIVATE FUNCTIONS
- *--------------------------------------------------------------------
- */</span>
-
-<span class="keyword">static</span> <span class="type">void</span> <span class="function-name">PrintHeader</span>(UserData data)
-{
-  <span class="comment">/* Print sensitivity control flags */</span>
-  printf(<span class="string">"Sensitivity: "</span>);
-  <span class="keyword">if</span> (sensi) {
-    printf(<span class="string">"YES ("</span>);
-    <span class="keyword">switch</span> (meth) {
-    <span class="keyword">case</span> <span class="constant">CV_SIMULTANEOUS</span>:
-      printf(<span class="string">"SIMULTANEOUS + "</span>);
-      <span class="keyword">break</span>;
-    <span class="keyword">case</span> <span class="constant">CV_STAGGERED</span>:
-      printf(<span class="string">"STAGGERED + "</span>);
-      <span class="keyword">break</span>;
-    <span class="keyword">case</span> <span class="constant">CV_STAGGERED1</span>:
-      printf(<span class="string">"STAGGERED-1 + "</span>);
-      <span class="keyword">break</span>;
-    }
-    <span class="keyword">if</span> (errconS) printf(<span class="string">"FULL ERROR CONTROL + "</span>);
-    <span class="keyword">else</span>         printf(<span class="string">"PARTIAL ERROR CONTROL + "</span>);
-    <span class="keyword">if</span> (fsDQ)    printf(<span class="string">"DQ sensitivity RHS)\n"</span>);
-    <span class="keyword">else</span>         printf(<span class="string">"user-provided sensitivity RHS)\n"</span>);
-  } <span class="keyword">else</span> {
-    printf(<span class="string">"NO\n"</span>);
-  }
-
-  <span class="comment">/* Print current problem parameters */</span>
-  printf(<span class="string">"Parameters: [%8.4e  %8.4e  %8.4e]\n"</span>,data-&gt;p[0], data-&gt;p[1], data-&gt;p[2]);
-}
-
-<span class="comment">/* 
- * Print some final statistics from the CVODES memory.
- */</span>
-
-<span class="keyword">static</span> <span class="type">void</span> <span class="function-name">PrintFinalStats</span>(<span class="type">void</span> *<span class="variable-name">cvode_mem</span>, <span class="variable-name">UserData</span> data)
-{
-  <span class="type">long</span> <span class="type">int</span> <span class="variable-name">nst</span>;
-  <span class="type">long</span> <span class="type">int</span> <span class="variable-name">nfe</span>, <span class="variable-name">nsetups</span>, <span class="variable-name">nni</span>, <span class="variable-name">ncfn</span>, <span class="variable-name">netf</span>;
-  <span class="type">long</span> <span class="type">int</span> <span class="variable-name">nfSe</span>, <span class="variable-name">nfeS</span>, <span class="variable-name">nsetupsS</span>, <span class="variable-name">nniS</span>, <span class="variable-name">ncfnS</span>, <span class="variable-name">netfS</span>;
-  <span class="type">long</span> <span class="type">int</span> <span class="variable-name">njeD</span>, <span class="variable-name">nfeD</span>;
-  <span class="type">int</span> <span class="variable-name">flag</span>;
-
-  flag = CVodeGetNumSteps(cvode_mem, &amp;nst);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &amp;nfe);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &amp;nsetups);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &amp;netf);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &amp;nni);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &amp;ncfn);
-
-  <span class="keyword">if</span> (sensi) {
-    flag = CVodeGetNumSensRhsEvals(cvode_mem, &amp;nfSe);
-    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &amp;nfeS);
-    flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &amp;nsetupsS);
-    flag = CVodeGetNumSensErrTestFails(cvode_mem, &amp;netfS);
-    flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &amp;nniS);
-    flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &amp;ncfnS);
-  }
-
-  flag = CVDenseGetNumJacEvals(cvode_mem, &amp;njeD);
-  flag = CVDenseGetNumRhsEvals(cvode_mem, &amp;nfeD);
-
-  printf(<span class="string">"Run statistics:\n"</span>);
-
-  printf(<span class="string">"   nst     = %5ld\n"</span>, nst);
-  printf(<span class="string">"   nfe     = %5ld\n"</span>,   nfe);
-  printf(<span class="string">"   netf    = %5ld    nsetups  = %5ld\n"</span>, netf, nsetups);
-  printf(<span class="string">"   nni     = %5ld    ncfn     = %5ld\n"</span>, nni, ncfn);
-
-  printf(<span class="string">"   njeD    = %5ld    nfeD     = %5ld\n"</span>, njeD, nfeD);
-
-  <span class="keyword">if</span>(sensi) {
-    printf(<span class="string">"   -----------------------------------\n"</span>);
-    printf(<span class="string">"   nfSe    = %5ld    nfeS     = %5ld\n"</span>, nfSe, nfeS);
-    printf(<span class="string">"   netfs   = %5ld    nsetupsS = %5ld\n"</span>, netfS, nsetupsS);
-    printf(<span class="string">"   nniS    = %5ld    ncfnS    = %5ld\n"</span>, nniS, ncfnS);
-  }
-
-
-}
-
-</pre>
-</div> <!--  END CODE FRAGMENT -->
-
 
 </div> <!-- END FRAME -->
 

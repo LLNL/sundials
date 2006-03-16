@@ -1,0 +1,93 @@
+<html>
+
+<head>
+
+<title>sundials_config.h Sample</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+<pre>
+<span class="comment">/*
+ * -----------------------------------------------------------------
+ * Copyright (c) 2005, The Regents of the University of California.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see sundials/shared/LICENSE.
+ * -----------------------------------------------------------------
+ * Sample SUNDIALS configuration header file
+ * -----------------------------------------------------------------
+ */</span>
+ 
+<span class="comment">/* ------------------------------  
+ * Define SUNDIALS version number
+ * ------------------------------ */</span>
+
+#<span class="builtin">define</span> <span class="variable-name">SUNDIALS_PACKAGE_VERSION</span> <span class="string">"2.2.0"</span>
+ 
+<span class="comment">/* ------------------------------------------------- 
+ * Define precision of SUNDIALS data type 'realtype'
+ * ------------------------------------------------- */</span>
+
+<span class="comment">/* Define SUNDIALS data type 'realtype' as 'double' */</span>
+#<span class="builtin">define</span> <span class="variable-name">SUNDIALS_DOUBLE_PRECISION</span> 1
+
+<span class="comment">/* Define SUNDIALS data type 'realtype' as 'float' */</span>
+<span class="comment">/* #define SUNDIALS_SINGLE_PRECISION 1 */</span>
+
+<span class="comment">/* Define SUNDIALS data type 'realtype' as 'long double' */</span>
+<span class="comment">/* #define SUNDIALS_EXTENDED_PRECISION 1 */</span>
+
+<span class="comment">/* --------------------------
+ * Use generic math functions
+ * -------------------------- */</span>
+
+#<span class="builtin">define</span> <span class="variable-name">SUNDIALS_USE_GENERIC_MATH</span> 1
+  
+<span class="comment">/* -----------------------------------------
+ * FCMIX: Define Fortran name-mangling macro
+ * ----------------------------------------- */</span>
+
+#<span class="builtin">define</span> <span class="function-name">F77_FUNC</span>(name,NAME) name ## _
+#<span class="builtin">define</span> <span class="function-name">F77_FUNC_</span>(name,NAME) name ## _
+
+<span class="comment">/* ------------------------------------
+ * FCMIX: Define case of function names
+ * ------------------------------------ */</span>
+ 
+<span class="comment">/* FCMIX: Make function names lowercase */</span>
+<span class="comment">/* #define SUNDIALS_CASE_LOWER 1 */</span>
+
+<span class="comment">/* FCMIX: Make function names uppercase */</span>
+<span class="comment">/* #define SUNDIALS_CASE_UPPER 1 */</span>
+
+<span class="comment">/* ---------------------------------------------------------------
+ * FCMIX: Define number of underscores to append to function names
+ * --------------------------------------------------------------- */</span>
+
+<span class="comment">/* FCMIX: Do NOT append any underscores to functions names */</span>
+<span class="comment">/* #define SUNDIALS_UNDERSCORE_NONE 1 */</span>
+
+<span class="comment">/* FCMIX: Append ONE underscore to function names */</span>
+<span class="comment">/* #define SUNDIALS_UNDERSCORE_ONE 1 */</span>
+
+<span class="comment">/* FCMIX: Append TWO underscores to function names */</span>
+<span class="comment">/* #define SUNDIALS_UNDERSCORE_TWO 1 */</span>
+ 
+<span class="comment">/* ----------------------------------------------------------
+ * FNVECTOR: Allow user to specify different MPI communicator
+ * ---------------------------------------------------------- */</span>
+
+#<span class="builtin">define</span> <span class="variable-name">SUNDIALS_MPI_COMM_F2C</span> 1
+</pre>
+  </body>
+</html>
