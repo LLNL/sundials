@@ -9,21 +9,17 @@ function doTable(i){
       return;
 
   var d=document.getElementById(i);
-  t=d.getElementsByTagName("tr");
 
-  for(x=0;x<t.length;x++)
-      if(t[x].className=='expand')
-
-        if(t[x].style.display=='none') 
-        {
-            t[x].style.display='table-row';
-            document ['arrowImg'].src = "img/arrowUp.png";
-        }
-        else
-        {
-            t[x].style.display='none';
-            document ['arrowImg'].src = "img/arrowDown.png";
-        }
+  if(d.style.display=='none')
+  {
+   d.style.display='block';
+   document ['arrowImg'].src = "img/arrowUp.png";
+  }
+  else
+  {
+   d.style.display='none';
+   document ['arrowImg'].src = "img/arrowDown.png";
+  }
 }
 
 /*

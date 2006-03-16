@@ -409,18 +409,10 @@ div.fragment a:hover {
 }
 
 #announce{
-  /*border: 1px solid #dad9c9;*/
   border: 0px;
   padding: 0px 0px 6px 0px;
-  text-align: justify;
-  margin-top: 1px;
-  margin-bottom: 1px;
-  overflow:auto;
-  width: 635px;
-}
-
-tr.expand {
-  display: none;
+  margin: 1px 0px 1px 10px;
+  width: 630px;
 }
 
 .rs a{
