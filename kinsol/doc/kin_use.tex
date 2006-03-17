@@ -192,7 +192,7 @@ provided with {\kinsol}: Steps marked with {\p} correspond to
   Call \id{kin\_mem = KINCreate();} 
   to create the {\kinsol} memory block.
   \id{KINCreate} returns a pointer to the {\kinsol} memory structure.
-  See \S\ref{sss:kinsolmalloc} for details.
+  See \S\ref{sss:kinmalloc} for details.
 
 \item
   {\bf Set optional inputs}
@@ -232,7 +232,7 @@ provided with {\kinsol}: Steps marked with {\p} correspond to
 
   Call \id{KIN*Set*} functions from the selected linear solver module to
   change optional inputs specific to that linear solver.
-  See \S\ref{ss:optional_inputs} for details.
+  See \S\ref{ss:optional_input} for details.
 
 \item
   {\bf Solve problem}
@@ -2047,7 +2047,7 @@ has been added here ({\em e.g.}, \id{lenrwLS}).
 \label{t:optional_output}
 \tablefirsthead{\hline {\bf Optional output} & {\bf Function name} \\}
 \tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
-	   \hline {\bf Optional output} & {\bf Function name} \\ \hline}
+           \hline {\bf Optional output} & {\bf Function name} \\ \hline}
 \tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \tablelasttail{\hline}
 

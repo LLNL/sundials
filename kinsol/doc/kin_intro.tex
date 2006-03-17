@@ -20,7 +20,7 @@ nonlinear solver packages based on Newton-Krylov methods were
 written in {\F}.  In particular, the NKSOL package, written at
 LLNL, was the first Newton-Krylov solver package written for
 solution of systems arising in solution of partial differential
-equations ~\cite{BrSa:90}.  This {\F} code made use of Newton's
+equations~\cite{BrSa:90}.  This {\F} code made use of Newton's
 method to solve the discrete nonlinear systems and applied a
 preconditioned Krylov linear solver for solution of the Jacobian
 system at each nonlinear iteration.  The key to the Newton-Krylov
@@ -41,9 +41,9 @@ flexibility for future enhancements.
 \index{KINSOL@{\kinsol}!relationship to NKSOL}
 
 At present, {\kinsol} contains three Krylov methods: the GMRES
-(Generalized Minimal RESidual) ~\cite{SaSc:86}, Bi-CGStab
-(Bi-Conjugate Gradient Stabilized) ~\cite{Van:92}, and TFQMR
-(Transpose-Free Quasi-Minimal Residual) ~\cite{Fre:93} linear
+(Generalized Minimal RESidual)~\cite{SaSc:86}, Bi-CGStab
+(Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, and TFQMR
+(Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93} linear
 iterative methods. As Krylov methods, these require almost no
 matrix storage as compared to direct methods. However, the
 algorithms allow for a user-supplied preconditioner matrix,
@@ -113,7 +113,7 @@ To reduce the possibility of conflicts, the names of all header files have
 been changed by adding unique prefixes (\id{kinsol\_} and \id{sundials\_}).
 When using the default installation procedure, the header files are exported
 under various subdirectories of the target \id{include} directory. For more
-details see \s\ref{s:install}.
+details see~\S\ref{s:install}.
 
 \subsection*{Changes in v2.3.0}
 
@@ -155,14 +155,14 @@ instructions, while others will refer mostly to the examples, and the
 organization is intended to accommodate both styles.
 
 There are different possible levels of usage of {\kinsol}. The most casual
-user, with a small nonlinear system, can get by with reading all of Chapter
-\ref{s:math}, then Chapter \ref{c:usage} through \S\ref{sss:kinsol} only, and
-looking at examples in ~\cite{kinsol2.4.0_ex}. In a different direction, a
+user, with a small nonlinear system, can get by with reading all of 
+Chapter~\ref{s:math}, then Chapter~\ref{c:usage} through \S\ref{sss:kinsol} only, and
+looking at examples in~\cite{kinsol2.4.0_ex}. In a different direction, a
 more expert user with a nonlinear system may want to (a) use a package
 preconditioner (\S\ref{sss:kinbbdpre}), (b) supply his/her own Jacobian or
 preconditioner routines (\S\ref{ss:user_fct_sol}), (c) supply a new
-{\nvector} module (Chapter \ref{s:nvector}), or even (d) supply a different
-linear solver module (\S\ref{ss:kinsol_org} and Chapter \ref{s:gen_linsolv}).
+{\nvector} module (Chapter~\ref{s:nvector}), or even (d) supply a different
+linear solver module (\S\ref{ss:kinsol_org} and Chapter~\ref{s:gen_linsolv}).
 
 The structure of this document is as follows:
 \begin{itemize}
