@@ -569,8 +569,8 @@ macros defined within \id{sundials\_config.h} have the following uses:
   \id{MPI\_COMM\_WORLD} with the {\F}-{\C} interface modules.
 \end{itemize}
 
-
-\begin{verbatim}
+\newpage
+\begin{lstlisting}
 /*
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
@@ -582,14 +582,13 @@ macros defined within \id{sundials\_config.h} have the following uses:
  * -----------------------------------------------------------------
  */
  
-/* ------------------------------  
- * Define SUNDIALS version number
+
+/* Define SUNDIALS version number
  * ------------------------------ */
 
 #define SUNDIALS_PACKAGE_VERSION "2.2.0"
  
-/* ------------------------------------------------- 
- * Define precision of SUNDIALS data type 'realtype'
+/* Define precision of SUNDIALS data type 'realtype'
  * ------------------------------------------------- */
 
 /* Define SUNDIALS data type 'realtype' as 'double' */
@@ -601,21 +600,18 @@ macros defined within \id{sundials\_config.h} have the following uses:
 /* Define SUNDIALS data type 'realtype' as 'long double' */
 /* #define SUNDIALS_EXTENDED_PRECISION 1 */
 
-/* --------------------------
- * Use generic math functions
+/* Use generic math functions
  * -------------------------- */
 
 #define SUNDIALS_USE_GENERIC_MATH 1
   
-/* -----------------------------------------
- * FCMIX: Define Fortran name-mangling macro
+/* FCMIX: Define Fortran name-mangling macro
  * ----------------------------------------- */
 
 #define F77_FUNC(name,NAME) name ## _
 #define F77_FUNC_(name,NAME) name ## _
 
-/* ------------------------------------
- * FCMIX: Define case of function names
+/* FCMIX: Define case of function names
  * ------------------------------------ */
  
 /* FCMIX: Make function names lowercase */
@@ -624,8 +620,7 @@ macros defined within \id{sundials\_config.h} have the following uses:
 /* FCMIX: Make function names uppercase */
 /* #define SUNDIALS_CASE_UPPER 1 */
 
-/* ---------------------------------------------------------------
- * FCMIX: Define number of underscores to append to function names
+/* FCMIX: Define number of underscores to append to function names
  * --------------------------------------------------------------- */
 
 /* FCMIX: Do NOT append any underscores to functions names */
@@ -637,10 +632,9 @@ macros defined within \id{sundials\_config.h} have the following uses:
 /* FCMIX: Append TWO underscores to function names */
 /* #define SUNDIALS_UNDERSCORE_TWO 1 */
  
-/* ----------------------------------------------------------
- * FNVECTOR: Allow user to specify different MPI communicator
+/* FNVECTOR: Allow user to specify different MPI communicator
  * ---------------------------------------------------------- */
 
 #define SUNDIALS_MPI_COMM_F2C 1
 
-\end{verbatim}
+\end{lstlisting}

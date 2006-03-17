@@ -9,15 +9,16 @@
 \usepackage{calc}
 \usepackage{hangcaption}
 \usepackage{subfigure}
-\usepackage{color}
+\usepackage[usenames]{color}
 \usepackage{epsfig}
 \usepackage{pstricks}
 
 % Needed for sideways
 \usepackage{rotating}
 
-% Package used for code listings
+% Packages used for output and source code listings
 \usepackage{fancyvrb}
+\usepackage{listings}
 
 \usepackage{fancyheadings}
 
@@ -261,6 +262,16 @@ Approved for public release; further dissemination unlimited
   \cfoot{}
   \pagestyle{fancyplain}
 
+
+  %% Some settings for code listings
+  \lstset{
+    language=C, fancyvrb=true, 
+    basicstyle=\footnotesize\ttfamily, 
+    commentstyle=\color{MidnightBlue},
+    keywordstyle=\color{BrickRed},
+    stringstyle=\color{OliveGreen},
+    numbers=left, numberstyle=\tiny, numbersep=15pt}
+
 }
 
 %%--------------------------------
@@ -276,6 +287,16 @@ Approved for public release; further dissemination unlimited
   \clearemptydoublepage
   %%\clearpage
   \pagestyle{plain}\pagenumbering{arabic}
+
+  %% Some settings for code listings
+  \lstset{
+    fancyvrb=true, 
+    basicstyle=\footnotesize\ttfamily, 
+    commentstyle=\color{MidnightBlue},
+    keywordstyle=\color{BrickRed},
+    stringstyle=\color{OliveGreen},
+    numbers=left, numberstyle=\tiny, numbersep=15pt}
+
 }
 
 %%----------------------------------
