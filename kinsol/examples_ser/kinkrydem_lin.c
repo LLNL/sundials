@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:36:17 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-17 16:58:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -87,14 +87,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "kinsol.h"              /* main KINSOL header file                        */
-#include "nvector_serial.h"      /* definitions of type N_Vector and access macros */
-#include "kinsol_spgmr.h"        /* use KINSPGMR linear solver                     */
-#include "kinsol_spbcgs.h"       /* use KINSPBCG linear solver                     */
-#include "kinsol_sptfqmr.h"      /* use KINSPTFQMR linear solver                   */
-#include "sundials_smalldense.h" /* use generic DENSE solver for preconditioning   */
-#include "sundials_types.h"      /* def's of realtype and booleantype              */
-#include "sundials_math.h"       /* contains RSqrt routine                         */
+#include "kinsol.h"              /* main KINSOL header file */
+#include "nvector_serial.h"      /* definitions of N_Vector and macros */
+#include "kinsol_spgmr.h"        /* use KINSPGMR linear solver */
+#include "kinsol_spbcgs.h"       /* use KINSPBCG linear solver */
+#include "kinsol_sptfqmr.h"      /* use KINSPTFQMR linear solver */
+#include "sundials_smalldense.h" /* use generic DENSE solver for prec. */
+#include "sundials_types.h"      /* def's of realtype and booleantype */
+#include "sundials_math.h"       /* contains RSqrt routine */
 
 /* Problem Constants */
 

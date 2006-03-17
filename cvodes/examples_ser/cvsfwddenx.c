@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-09 20:29:21 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-17 16:57:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -49,11 +49,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cvodes.h"         /* prototypes for CVODES functions and constants */
-#include "nvector_serial.h" /* defs. of serial NVECTOR functions and macros  */
-#include "cvodes_dense.h"   /* prototype for CVDENSE functions and constants */
-#include "sundials_types.h" /* def. of type realtype                         */
-#include "sundials_math.h"  /* definition of ABS                             */
+#include "cvodes.h"         /* prototypes for CVODES fcts. and consts. */
+#include "nvector_serial.h" /* defs. of serial NVECTOR fcts. and macros  */
+#include "cvodes_dense.h"   /* prototype for CVDENSE fcts. and constants */
+#include "sundials_types.h" /* def. of type realtype */
+#include "sundials_math.h"  /* definition of ABS */
 
 /* Accessor macros */
 

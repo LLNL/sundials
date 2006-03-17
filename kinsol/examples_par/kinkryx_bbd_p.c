@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-02 00:36:14 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-17 16:58:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -86,15 +86,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "kinsol.h"              /* main KINSol header file                     */
-#include "nvector_parallel.h"    /* def's of type N_Vector, macro NV_DATA_P     */
-#include "kinsol_spgmr.h"        /* use KINSpgmr linear solver                  */
-#include "kinsol_bbdpre.h"       /* band preconditioner function prototypes     */
-#include "sundials_smalldense.h" /* Definition of denalloc                      */
-#include "sundials_math.h"       /* contains RSqrt routine                      */
-#include "sundials_types.h"      /* def's of realtype and booleantype           */
+#include "kinsol.h"              /* main KINSol header file */
+#include "nvector_parallel.h"    /* def's of N_Vector and NV_DATA_P */
+#include "kinsol_spgmr.h"        /* use KINSpgmr linear solver */
+#include "kinsol_bbdpre.h"       /* band preconditioner fct. prototypes */
+#include "sundials_smalldense.h" /* Definition of denalloc */
+#include "sundials_math.h"       /* contains RSqrt routine */
+#include "sundials_types.h"      /* def's of realtype and booleantype */
 
-#include "mpi.h"                 /* MPI include file                            */
+#include "mpi.h"                 /* MPI include file */
 
 
 /* Problem Constants */

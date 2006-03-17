@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:48:34 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-17 16:57:54 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,12 +35,12 @@
 
 /* Header files with a description of contents used in cvbanx.c */
 
-#include "cvode.h"          /* prototypes for CVODE functions and constants */
-#include "nvector_serial.h" /* serial N_Vector types, functions, and macros */
-#include "cvode_band.h"     /* prototype for CVBand                         */
-#include "sundials_band.h"  /* definitions of type BandMat and macros       */
-#include "sundials_types.h" /* definition of type realtype                  */
-#include "sundials_math.h"  /* definition of ABS                            */
+#include "cvode.h"          /* prototypes for CVODE fcts. and consts. */
+#include "nvector_serial.h" /* serial N_Vector types, fcts., and macros */
+#include "cvode_band.h"     /* prototype for CVBand */
+#include "sundials_band.h"  /* definitions of type BandMat and macros */
+#include "sundials_types.h" /* definition of type realtype */
+#include "sundials_math.h"  /* definition of ABS */
 
 /* Problem Constants */
 

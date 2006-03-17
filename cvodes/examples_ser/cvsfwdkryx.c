@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-02 00:32:16 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-17 16:57:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -52,12 +52,12 @@
 #include <string.h>
 #include <math.h>
 
-#include "cvodes.h"              /* main CVODES header file                         */
-#include "nvector_serial.h"      /* definitions of type N_Vector, macro NV_DATA_S   */
-#include "cvodes_spgmr.h"        /* use CVSPGMR linear solver each internal step    */
-#include "sundials_smalldense.h" /* use generic DENSE solver for preconditioning    */
-#include "sundials_types.h"      /* definition of realtype                          */
-#include "sundials_math.h"       /* contains SQR macro                              */
+#include "cvodes.h"              /* main CVODES header file */
+#include "nvector_serial.h"      /* definitions N_Vector, macro NV_DATA_S */
+#include "cvodes_spgmr.h"        /* use CVSPGMR linear */
+#include "sundials_smalldense.h" /* use generic DENSE solver for prec. */
+#include "sundials_types.h"      /* definition of realtype */
+#include "sundials_math.h"       /* contains SQR macro */
 
 /* Problem Constants */
 

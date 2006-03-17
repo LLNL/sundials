@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:39 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-17 16:57:57 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -35,11 +35,11 @@
 
 /* Header files with a description of contents used in cvsbanx.c */
 
-#include "cvodes.h"         /* prototypes for CVODES functions and constants     */
-#include "nvector_serial.h" /* serial N_Vector types, functions, and macros      */
-#include "cvodes_band.h"    /* prototype for CVBand                              */
-#include "sundials_dense.h" /* definitions of type DenseMat and macro DENSE_ELEM */
-#include "sundials_types.h" /* definition of type realtype                       */
+#include "cvodes.h"         /* prototypes for CVODES fcts. and consts. */
+#include "nvector_serial.h" /* serial N_Vector types, fcts., and macros */
+#include "cvodes_band.h"    /* prototype for CVBand */
+#include "sundials_dense.h" /* definitions DenseMat and DENSE_ELEM */
+#include "sundials_types.h" /* definition of type realtype */
 
 /* Problem Constants */
 

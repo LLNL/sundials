@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:36 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-17 16:57:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -34,11 +34,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "cvodes.h"           /* prototypes for CVode* and various constants */
-#include "nvector_parallel.h" /* parallel N_Vector types, fct., and macros   */
-#include "sundials_types.h"   /* definition of realtype                      */
+#include "cvodes.h"           /* prototypes for CVODE */
+#include "nvector_parallel.h" /* N_Vector types, fct., and macros */
+#include "sundials_types.h"   /* definition of realtype */
 
-#include "mpi.h"              /* MPI constants and types                     */
+#include "mpi.h"              /* MPI constants and types */
 
 /* Problem Constants */
 
