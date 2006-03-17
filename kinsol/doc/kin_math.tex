@@ -22,9 +22,7 @@ following iteration scheme:
    \item Set $u_0 = $ an initial guess
    \item For $n = 0, 1, 2,...$ until convergence do:
       \begin{itemize}
-          \item[(a)] Solve $J(u_n)\delta_n = -F(u_n)$ \label{e:Newton} \\
-                     (inexact) iterative method \\
-	             (modified) direct method
+          \item[(a)] Solve $J(u_n)\delta_n = -F(u_n)$ \label{e:Newton}
           \item[(b)] Set $u_{n+1} = u_n + \lambda \delta_n$,
           $0 < \lambda \leq 1$
           \item[(c)] Test for convergence
