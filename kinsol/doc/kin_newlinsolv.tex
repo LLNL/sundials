@@ -2,9 +2,11 @@
 \chapter{Providing Alternate Linear Solver Modules}\label{s:new_linsolv}
 %===================================================================================
 The central {\kinsol} module interfaces with the linear solver module 
-by way of calls to four routines.  These are denoted here by 
+to be used by way of calls to four routines.  These are denoted here by 
 \id{linit}, \id{lsetup}, \id{lsolve}, and \id{lfree}.
 Briefly, their purposes are as follows:
+%%
+%%
 \begin{itemize}
 \item \id{linit}: initialize and allocate memory specific to the
   linear solver;
@@ -12,12 +14,30 @@ Briefly, their purposes are as follows:
 \item \id{lsolve}: solve the linear system;
 \item \id{lfree}: free the linear solver memory.
 \end{itemize}
-A linear solver module must also provide a user-callable specification routine
-(like that described in \S\ref{ss:lin_solv_init} for {\kinspgmr}) which will attach 
-the above four routines to the main {\kinsol} memory block. 
-Note that of the four interface routines, only the \id{lsolve} routine is required. 
-The \id{lfree} routine must be provided only if the solver specification routine
-makes any memory allocation.
+%%
+%%
+A linear solver module must also provide a user-callable specification
+routine (like that described in \S\ref{sss:lin_solv_init}) which will
+attach the above four routines to the main {\kinsol} memory block.
+The {\kinsol} memory block is a structure defined in the header file
+\id{kinsol\_impl.h}. A pointer to such a structure is defined as the
+type \id{KINMem}. The four fields in a \id{KINMem} structure that
+must point to the linear solver's functions are \id{kin\_linit},
+\id{kin\_lsetup}, \id{kin\_lsolve}, and \id{kin\_lfree}, respectively.
+Note that of the four interface routines, only the \id{lsolve} routine
+is required. The \id{lfree} routine must be provided only if the solver
+specification routine makes any memory allocation.
+%%
+For consistency with the existing {\kinsol} linear solver modules, we
+recommend that the return value of the specification function be $0$ for
+a successful return or a negative value if an error occurs (the
+pointer to the main {\kinsol} memory block is \id{NULL}, an input is
+illegal, the {\nvector} implementation is not compatible, a memory
+allocation fails, etc.)
+
+To facilitate data exchange between the four interface functions, the
+field \id{kin\_lmem} in the {\kinsol} memory block can be used to attach
+a linear solver-specific memory block.
 
 These four routines that interface between {\kinsol} and the linear solver module
 necessarily have fixed call sequences.  Thus, a user wishing to implement another 
@@ -31,7 +51,7 @@ the sake of space).
 
 %------------------------------------------------------------------------------
 
-\paragraph{Initialization routine.}
+\section{Initialization function}
 The type definition of \ID{linit} is
 \usfunction{linit}
 {
@@ -59,7 +79,7 @@ The type definition of \ID{linit} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Setup routine.} 
+\section{Setup function} 
 The type definition of \id{lsetup} is
 \usfunction{lsetup}
 {
@@ -85,7 +105,7 @@ The type definition of \id{lsetup} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Solve routine.}
+\section{Solve function}
 The type definition of \id{lsolve} is
 \usfunction{lsolve}
 {
@@ -120,7 +140,7 @@ The type definition of \id{lsolve} is
 
 %------------------------------------------------------------------------------
 
-\paragraph{Memory deallocation routine.}
+\section{Memory deallocation function}
 The type definition of \id{lfree} is
 \usfunction{lfree}
 {

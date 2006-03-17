@@ -10,7 +10,7 @@ description of their meaning.
 %% Supertabular setings
 
 \newlength{\tcolone}
-\settowidth{\tcolone}{\id{SPGMR\_PSOLVE\_FAIL\_UNREC}}
+\settowidth{\tcolone}{\id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}}
 \newlength{\tcoltwo}
 \settowidth{\tcoltwo}{-20}
 \newlength{\tcolthree}
@@ -26,7 +26,7 @@ description of their meaning.
 
 %%-------------------------------------------------------------------------
 
-\section{KINSOL input constants}
+\section{KINSOL input constants}\label{s:kinsol_in_constants}
 
 \begin{supertabular*}{\textwidth}{p{\tcolone}@{\hspace*{2mm}\extracolsep{\fill}}rp{\tcolthree}}
 
@@ -53,7 +53,7 @@ description of their meaning.
 
 %%-------------------------------------------------------------------------
 
-\section{KINSOL output constants}
+\section{KINSOL output constants}\label{s:kinsol_out_constants}
 
 \begin{supertabular*}{\textwidth}{p{\tcolone}@{\hspace*{2mm}\extracolsep{\fill}}rp{\tcolthree}}
 
@@ -99,14 +99,14 @@ description of their meaning.
 \id{KINBAND\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\kinspgmr} linear solver module}\\
+\multicolumn{3}{c}{\bf {\kinspils} linear solver modules}\\
 \hline\\
 
-\id{KINSPGMR\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINSPGMR\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINSPGMR\_LMEM\_NULL} & -2 & The {\kinspgmr} linear solver has not been initialized.\\
-\id{KINSPGMR\_ILL\_INPUT} & -3 & The {\kinspgmr} solver is not compatible with the current {\nvector} module.\\
-\id{KINSPGMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
+\id{KINSPILS\_SUCCESS}    &  0 & Successful function return. \\
+\id{KINSPILS\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
+\id{KINSPILS\_LMEM\_NULL} & -2 & The linear solver has not been initialized.\\
+\id{KINSPILS\_ILL\_INPUT} & -3 & The solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{KINSPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\spgmr} generic linear solver module}\\
@@ -124,16 +124,6 @@ description of their meaning.
 \id{SPGMR\_QRSOL\_FAIL}        & -5 & The matrix $R$ was found to be singular during the QR solve phase. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\kinspbcg} linear solver module}\\
-\hline\\
-
-\id{KINSPBCG\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINSPBCG\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINSPBCG\_LMEM\_NULL} & -2 & The {\kinspbcg} linear solver has not been initialized.\\
-\id{KINSPBCG\_ILL\_INPUT} & -3 & The {\kinspbcg} solver is not compatible with the current {\nvector} module.\\
-\id{KINSPBCG\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-
-\\\hline
 \multicolumn{3}{c}{\bf {\spbcg} generic linear solver module}\\
 \hline\\
 
@@ -144,16 +134,6 @@ description of their meaning.
 \id{SPBCG\_MEM\_NULL}          & -1 & The {\spbcg} memory is \id{NULL}\\
 \id{SPBCG\_ATIMES\_FAIL}       & -2 & The Jacobian tims vector function failed. \\
 \id{SPBCG\_PSOLVE\_FAIL\_UNREC} & -3 & The preconditioner solve function failed unrecoverably. \\
-
-\\\hline
-\multicolumn{3}{c}{\bf {\kinsptfqmr} linear solver module}\\
-\hline\\
-
-\id{KINSPTFQMR\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINSPTFQMR\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINSPTFQMR\_LMEM\_NULL} & -2 & The {\kinsptfqmr} linear solver has not been initialized.\\
-\id{KINSPTFQMR\_ILL\_INPUT} & -3 & The {\kinsptfqmr} solver is not compatible with the current {\nvector} module.\\
-\id{KINSPTFQMR\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
 
 \\\hline
 \multicolumn{3}{c}{\bf {\sptfqmr} generic linear solver module}\\

@@ -2,7 +2,7 @@
 \chapter{Mathematical Considerations}\label{s:math}
 %===================================================================================
 
-{\kinsol} solves nonlinear algebraic systems in real space, which
+{\kinsol} solves nonlinear algebraic systems in real $N$-space, which
 we write as \index{nonlinear system!definition|)}
 \begin{equation}\label{nonlinear_system}
   F(u) = 0 \, , \quad F:\mbox{\bf R}^N \rightarrow \mbox{\bf R}^N \, ,
@@ -10,40 +10,78 @@ we write as \index{nonlinear system!definition|)}
 given an initial guess $u_0$. \index{nonlinear
 system!definition|(}
 
-{\kinsol} employs the Inexact Newton method developed in
+{\kinsol} can employ either the Inexact Newton method developed in
 \cite{Bro:87,BrSa:90,DES:82} and further described in
-\cite{DeSc:96,Kel:95}, resulting in the following iteration:
+\cite{DeSc:96,Kel:95}, or a Modified Newton method resulting in the
+following iteration scheme:
 
-\index{Inexact Newton iteration!definition|)} \vspace{1ex}
-\noindent{\bf Inexact Newton iteration}
+\index{Inexact Newton iteration!definition|)}
+\index{Modified Newton iteration!definition|)} \vspace{1ex}
+\noindent{\bf Newton iteration}
 \begin{enumerate}
    \item Set $u_0 = $ an initial guess
    \item For $n = 0, 1, 2,...$ until convergence do:
       \begin{itemize}
-          \item[(a)] Approximately solve $J(u_n)\delta_n = -
-          F(u_n)$ \label{e:Newton}
+          \item[(a)] Solve $J(u_n)\delta_n = -F(u_n)$ \label{e:Newton} \\
+                     (inexact) iterative method \\
+	             (modified) direct method
           \item[(b)] Set $u_{n+1} = u_n + \lambda \delta_n$,
           $0 < \lambda \leq 1$
           \item[(c)] Test for convergence
       \end{itemize}
 \end{enumerate}
-\index{Inexact Newton iteration!definition|)} Here, $u_n$ is the
-$n$th iterate to $u$, and $J(u) = F'(u)$ is the system Jacobian.
-As this code module is anticipated for use on large systems, only
-iterative methods are provided to solve the system in step 2(a).
-These solutions are only approximate.  At each stage in the
-iteration process, a scalar multiple of the approximate solution,
-$\delta_n$, is added to $u_n$ to produce a new iterate, $u_{n+1}$.
+Here, $u_n$ is the $n$th iterate to $u$, and $J(u) = F'(u)$ is the system
+Jacobian. At each stage in the iteration process, a scalar multiple of the approximate
+solution, $\delta_n$, is added to $u_n$ to produce a new iterate, $u_{n+1}$.
 A test for convergence is made before the iteration continues.
 
-The linear iterative method currently implemented is one of the
-class of Krylov methods, GMRES \cite{BrHi:89,SaSc:86}, provided
-through the {\spgmr} module common to all {\sundials} codes. Use of
-{\spgmr} provides a linear solver which, by default, is applied in a
-matrix-free manner, with matrix-vector products $Jv$ obtained by
-either finite difference quotients or a user-supplied routine. In
-the case where finite differences are used, the matrix-vector
-product $J(u)v$ is approximated by a quotient of the form given by
+For solving the linear system given in step 2(a), {\kinsol} provides
+a choice of five methods:
+\begin{itemize}
+\item a dense direct solver (serial version only),
+\item a band direct solver (serial version only),
+\item {\spgmr} = Scaled Preconditioned GMRES,
+\item {\spbcg} = Scaled Preconditioned Bi-CGStab, or
+\item {\sptfqmr} = Scaled Preconditioned TFQMR.
+\end{itemize}
+
+In the cases of the direct solver (dense or band), the iteration is a Modified
+Newton iteration, in that the elements of the coefficient matrix are manipulated
+directly through matrix decomposition. However, for any of the preconditioned Krylov
+subspace methods (GMRES, Bi-CGStab, or TFQMR), it is an Inexact Newton iteration,
+in which the iteration matrix is applied in a matrix-free manner, with matrix-vector
+products $Jv$ obtained by either finite difference quotients or a user-supplied routine.
+The system Jacobian $J$ (direct cases) or preconditioner matrix $P$ (Krylov cases)
+is updated as infrequently as possible to balance the high costs of matrix
+operations against other costs. Specifically, this matrix update occurs when:
+\begin{itemize}
+\item starting the problem (optional),
+\item $\|\lambda\delta_{n-1}\|_{D_u,\infty} > 1.5$ (inexact only),
+\item 10 nonlinear iterations have passed since the last update,
+\item the linear solver failed recoverably with outdated Jacobian information,
+\item the global strategy failed with outdated Jacobian information, or
+\item $\|\lambda\delta_{n}\|_{D_u,\infty} < $ {\sc steptol} with outdated Jacobian
+information.
+\end{itemize}
+However, the direct solvers can also optionally use a nonlinear residual monitoring
+scheme to control when the system Jacobian is updated. Specifically, this update
+will occur when 5 nonlinear iterations have passed since the last update and
+\[ \|D_{u}F(u_n)\|_2 > \omega \|D_{u}F(u_m)\|_2 \, , \]
+where $u_n$ is the current iterate and $u_m$ is the iterate from the last nonlinear
+iteration when the system Jacobian was updated. In the above, $\omega$ is a scalar
+given by
+\begin{equation}
+\omega = \min \left (\omega_{min} \, e^{\max \left ( 0 , \beta - 1 \right )} , \omega_{max}\right ) \, ,
+\end{equation}
+where $\beta$ is defined as
+\begin{equation}
+\beta = \frac{\| D_{u}F(u_n) \|_2}{\mbox{{\sc ftol}}} \, ,
+\end{equation}
+where {\sc ftol} is an input scalar tolerance discussed later.
+
+Regarding the iterative linear methods, in the case where finite differences
+are used to approximate the matrix-vector product $Jv$, the approximation is
+of the form given by
 \begin{equation}\label{jacobv}
 J(u) v \approx [F(u+\sigma v) - F(u)]/\sigma \,
 \end{equation}
@@ -61,10 +99,10 @@ roundoff. Convergence of the Newton method is maintained as long
 as the value of $\sigma$ remains appropriately small as shown in
 \cite{Bro:87}.
 
-To the above methods are added scaling and preconditioning.
-Scaling is allowed for both the solution vector and the system
-function vector. For scaling to be used, the user should supply
-values $D_u$, which are diagonal elements of the scaling matrix
+To the above methods are added preconditioning (iterative only)
+and scaling. Scaling is allowed for both the solution vector and
+the system function vector. For scaling to be used, the user should
+supply values $D_u$, which are diagonal elements of the scaling matrix
 such that $D_u u_n$ has all components roughly the same magnitude
 when $u_n$ is close to a solution, and $D_F$, which are diagonal
 scaling matrix elements such that $D_F F$ has all components
@@ -80,13 +118,13 @@ are provided for the solution vector, these values are
 automatically incorporated into the calculation of $\sigma$ in
 (\ref{sigma_comp}). Additionally, right preconditioning is
 provided if the preconditioning setup and solve routines are
-supplied by the user. In this case, GMRES is applied to the linear
-systems $(JP^{-1})(P\delta) = -F$, where $P$ denotes the right
-preconditioning matrix.
+supplied by the user. In this case, the iterative method (GMRES, Bi-CGStab,
+or TFQMR) is applied to the linear systems $(JP^{-1})(P\delta) = -F$, where
+$P$ denotes the right preconditioning matrix.
 
 Two methods of applying a computed step $\delta_n$ to the
 previously computed solution vector are implemented. The first and
-simplest is the Inexact Newton strategy which applies step 2(b) as
+simplest is the standard Newton strategy which applies step 2(b) as
 above with $\lambda$ always set to $1$. The other method is a
 global strategy, which attempts to use the direction implied by
 $\delta_n$ in the most efficient way for furthering convergence of
@@ -114,10 +152,10 @@ is considered a successful completion of {\kinsol}.  The second
 condition (small step) may indicate that the iteration is stalled
 near a point for which the residual is still unacceptable.
 
-Three options for stopping criteria for the linear system solve
-are implemented, including the two algorithms of Eisenstat and
-Walker \cite{EiWa:96}. The Krylov iteration must pass a stopping
-test
+When using an iterative method, three options for stopping criteria
+for the linear system solve are available, including the two algorithms
+of Eisenstat and Walker \cite{EiWa:96}. The Krylov iteration must pass
+a stopping test
 \[ \|J \delta_n + F\|_{D_F} < (\eta_n + U) \|F\|_{D_F} \, , \]
 where $\eta_n$ is one of:
 \begin{itemize}

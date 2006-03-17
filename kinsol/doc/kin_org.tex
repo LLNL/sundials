@@ -28,33 +28,40 @@ The overall organization of the {\kinsol} package is shown in Figure
 \label{f:kinorg}
 \end{figure}
 The central solver module, implemented in the files
-\id{kinsol.h} and \id{kinsol.c}, deals with the solution of a nonlinear
-algebraic system using either an Inexact Newton method or a line search method
-for the global strategy. Although this module contains logic for the Newton
-iteration, it has no knowledge of the method used to solve the linear
-systems that arise. For any given user problem, the user must specify
-which linear solver module to use.
+\id{kinsol.h}, \id{kinsol\_impl.h} and \id{kinsol.c}, deals with the solution
+of a nonlinear algebraic system using either an Inexact Newton method or a
+line search method for the global strategy. Although this module contains logic
+for the Newton iteration, it has no knowledge of the method used to solve the
+linear systems that arise. For any given user problem, one of the linear system
+modules is specified, and is then invoked as needed.
 
 \index{KINSOL@{\kinsol} linear solvers!list of|(}
-At present, the package includes the following {\kinsol} linear system
-module:
+At present, the package includes the following five {\kinsol} linear system
+modules:
 \begin{itemize}
-\item {\kinspgmr}: scaled preconditioned GMRES method.
+\item {\kindense}: LU factorization and backsolving with dense matrices;
+\item {\kinband}: LU factorization and backsolving with banded matrices;
+\item {\kinspgmr}: scaled preconditioned GMRES method;
+\item {\kinspbcg}: scaled preconditioned Bi-CGStab method;
+\item {\kinsptfqmr}: scaled preconditioned TFQMR method.
 \end{itemize}
 This set of linear solver modules is intended to be expanded in the
 future as new algorithms are developed.
 \index{KINSOL@{\kinsol} linear solvers!list of|)}
 
-The {\kinspgmr} package includes an algorithm for the approximation
-by difference quotients of the product between the Jacobian matrix and
-a vector of appropriate length. The user has the option of providing
-a routine for this operation.
-With \index{preconditioning!setup and solve phases} {\kinspgmr},
-the preconditioning must be supplied by the user, in two phases:
-setup (preprocessing of preconditioner data) and solve.
+In the case of the direct methods {\kindense} and {\kinband}, the package includes
+an algorithm for the approximation of the Jacobian by difference quotients, but
+the user also has the option of supplying the Jacobian (or an approximation to it)
+directly. In the case of the Krylov methods {\kinspgmr}, {\kinspbcg} and {\kinsptfqmr},
+the package includes an algorithm for the approximation by difference quotients of the
+product between the Jacobian matrix and a vector of appropriate length. Again, the user
+has the option of providing a routine for this operation.
+For the Krylov methods, \index{preconditioning!setup and solve phases}
+the preconditioning must be supplied by the user, in twho phases:
+setup (preprocessing of Jacobian data) and solve.
 
 \index{KINSOL@{\kinsol} linear solvers!implementation details|(}
-A {\kinsol} linear solver module consists of four routines, devoted to (1)
+Each {\kinsol} linear solver module consists of four routines, devoted to (1)
 memory allocation and initialization, (2) setup of the matrix data
 involved, (3) solution of the system, and (4) freeing of memory.
 The setup and solution phases are separate because the evaluation of
@@ -65,10 +72,11 @@ fixed, thus allowing the central module to be completely independent
 of the linear system method.
 \index{KINSOL@{\kinsol} linear solvers!implementation details|)}
 
-Linear solver modules are also decomposed in another way.
+These modules are also decomposed in another way.
 \index{generic linear solvers!use in {\kinsol}|(}
-The module {\kinspgmr} is a set of
-interface routines built on top of a generic solver module {\spgmr}.
+Each of the modules {\kindense}, {\kinband}, {\kinspgmr}, {\kinspbcg}, and {\kinsptfqmr}
+is a set of interface routines built on top of a generic solver module,
+name {\dense}, {\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}, respectively.
 The interface deals with the use of these methods in the {\kinsol} context,
 whereas the generic solver is independent of the context.
 While the generic solvers here were generated with {\sundials} in mind, our
@@ -78,8 +86,9 @@ solver to be replaced by an improved version, with no necessity to
 revise the {\kinsol} package elsewhere.
 \index{generic linear solvers!use in {\kinsol}|)}
 
-{\kinsol} also provides a preconditioner module called {\kinbbdpre} which
-works in conjunction with {\nvecp} to generate a preconditioner that is
+{\kinsol} also provides a preconditioner module called {\kinbbdpre} for use
+with any of the Krylov iterative liear solvers. It works in conjunction
+with {\nvecp} and generates a preconditioner that is
 a block-diagonal matrix with each block being a band matrix, as
 further described in \S\ref{sss:kinbbdpre}.
 

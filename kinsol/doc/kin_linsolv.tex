@@ -1,7 +1,7 @@
 %===================================================================================
 \chapter{Generic Linear Solvers in SUNDIALS}\label{s:gen_linsolv}
 %===================================================================================
-In this chapter, we describe four generic linear solver code modules that 
+In this chapter, we describe five generic linear solver code modules that 
 are included in {\sundials}, but which are of potential use as generic packages in
 themselves, either in conjunction with the use of {\kinsol} or separately.
 These modules are:
@@ -18,10 +18,18 @@ These modules are:
       preconditioned TFQMR method.
 \end{itemize}
 
-The functions for small dense matrices are fully
-described here because we expect that they will be useful in the
+For reasons related to installation, the names of the files involved
+in these generic solvers begin with the prefix \id{sundials\_}.  But
+despite this, each of the solvers is in fact generic, in that it is
+usable completely independently of {\sundials}.
+
+For the sake of space, the functions for \id{DenseMat} and
+\id{BandMat} matrices and the functions in {\spgmr}, {\spbcg}, and {\sptfqmr}
+are only summarized briefly, since they are less likely to be of direct use
+in connection with {\kinsol}.  The functions for small dense matrices are fully
+described, because we expect that they will be useful in the
 implementation of preconditioners used with the combination of {\kinsol}
-and the {\kinspgmr}, {\kinspbcg} or {\kinsptfqmr} solver.
+and the {\kinspgmr}, {\kinspbcg}, or {\kinsptfqmr} solver.
 
 %-------------------------------
 
