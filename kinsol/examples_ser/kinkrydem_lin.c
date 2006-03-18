@@ -1,14 +1,14 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-03-17 16:58:02 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-18 01:43:01 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  *
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- * This example (a modified version of kinwebs.c) loops through the
+ * This example (a modified version of kinkryx.c) loops through the
  * available iterative linear solvers: SPGMR, SPBCG and SPTFQMR.
  * <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOTE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  *
