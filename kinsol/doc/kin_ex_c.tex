@@ -59,9 +59,9 @@ guess is constant in both $x$ and $y$. For this example, the equations
 differences on a $8 \times 8$ mesh with $n_s = 6$, giving a system of size $384$.
 
 Among the initial \id{\#include} lines in this case are lines to
-include \id{kinspgmr.h} and \id{sundialsmath.h}.  The first contains
+include \id{kinso\_spgmr.h} and \id{sundials\_math.h}.  The first contains
 constants and function prototypes associated with the {\spgmr} method.
-The inclusion of \id{sundialsmath.h} is done to access the \id{MAX} and
+The inclusion of \id{sundials\_math.h} is done to access the \id{MAX} and
 \id{ABS} macros, and the \id{RSqrt} function to compute the square root
 of a \id{realtype} number.
 
@@ -71,13 +71,13 @@ arguments.  The \id{main} program then calls a number of \id{KINSet*}
 routines to notify {\kinsol} of the function data pointer, the
 positivity constraints on the solution, and convergence tolerances on
 the system function and step size.
-It calls  \id{KINSpgmr} (see \ugref{ss:lin_solv_init}) to specify the {\kinspgmr} 
+It calls  \id{KINSpgmr} (see \ugref{sss:lin_solv_init}) to specify the {\kinspgmr} 
 linear solver, and passes a  value of $15$ as the maximum Krylov subspace dimension,
 \id{maxl}.  Next, a maximum value of \id{maxlrst} $=2$ restarts is imposed and
 the user-supplied preconditioner setup and solve functions, \id{PrecSetupBD} and
 \id{PrecSolveBD}, and the pointer to user data are specified through a call to
-\id{KINSpgmrSetPreconditioner} (see \ugref{ss:optional_input}).
-The \id{data} pointer passed to \id{KINSpgmrSetPreconditioner} is passed to \id{PrecSetupBD} 
+\id{KINSpilsSetPreconditioner} (see \ugref{ss:optional_input}).
+The \id{data} pointer passed to \id{KINSpilsSetPreconditioner} is passed to \id{PrecSetupBD} 
 and \id{PrecSolveBD} whenever these are called. 
 
 Next, \id{KINSol} is called, the return value is tested for error conditions, and
@@ -113,12 +113,12 @@ of these preconditioner functions.
 
 The program \id{kinkryx.c} uses the ``small'' dense functions for all operations 
 on the $6 \times 6$ preconditioner blocks.  
-Thus it includes \id{smalldense.h}, and calls the small dense matrix
+Thus it includes \id{sundials\_smalldense.h}, and calls the small dense matrix
 functions \id{denalloc}, \id{denallocpiv}, 
 \id{denfree}, \id{denfreepiv}, \id{gefa}, and \id{gesl}.
 The small dense functions are generally available for {\kinsol} user programs
 (for more information, see \ugref{ss:dense} or the comments in the header file
-\id{smalldense.h}).
+\id{sundials\_smalldense.h}).
 
 In addition to the functions called by {\kinsol}, \id{kinkryx.c} includes
 definitions of several private functions.  These are: \id{AllocUserData}
@@ -143,7 +143,7 @@ In this example, \id{kinkryx\_bbd\_p}, we solve the same problem as with \id{kin
 above, but in parallel, and instead of supplying the preconditioner we use the
 {\kinbbdpre} module.  The source is given in Appendix \ref{s:kinkryx_bbd_p_c}.
 
-In this case, we think of the parallel MPI processes as
+In this case, we think of the parallel {\mpi} processes as
 being laid out in a rectangle, and each process being assigned a
 subgrid of size \id{MXSUB}$\times$\id{MYSUB} of the $x-y$ grid. If
 there are \id{NPEX} processes in the $x$ direction and \id{NPEY}
@@ -155,7 +155,7 @@ processes in the $y$ direction, then the overall grid size is
 The evaluation of the nonlinear system function is performed in \id{func}.
 In this parallel setting, the processes first communicate the subgrid
 boundary data and then compute the local components of the nonlinears system
-function. The MPI communication is isolated in the private function \id{ccomm}
+function. The {\mpi} communication is isolated in the private function \id{ccomm}
 (which in turn calls \id{BRecvPost}, \id{BSend}, and \id{BRecvWait}) and the 
 subgrid boundary data received from neighboring processes is loaded into the
 work array \id{cext}. The computation of the nonlinear system function is done
@@ -181,14 +181,14 @@ is already done for the evaluation of $f$ in \id{func}, a \id{NULL} pointer is
 passed as the \id{gcomm} argument to \id{KINBBDPrecAlloc}.
 
 The \id{main} program resembles closely that of the \id{kinkryx} example, with
-particularization arising from the use of the parallel MPI {\nvecp} module.
-It begins by initializing MPI and obtaining the total number of processes and 
+particularization arising from the use of the parallel {\mpi} {\nvecp} module.
+It begins by initializing {\mpi} and obtaining the total number of processes and 
 the rank of the local process. The local length of the solution vector is then 
 computed as \id{NUM\_SPECIES}$\cdot$\id{MXSUB}$\cdot$\id{MYSUB}.
 Distributed vectors are created by calling the constructor defined in {\nvecp}
-with the MPI communicator and the local and global problem sizes as arguments.
+with the {\mpi} communicator and the local and global problem sizes as arguments.
 All output is performed only from the process with id equal to $0$.
-Finally, after all memory deallocation, the MPI environment is terminated by
+Finally, after all memory deallocation, the {\mpi} environment is terminated by
 calling \id{MPI\_Finalize}.
 
 The output generated by \id{kinkryx\_bbd\_p} is shown below.  Note that 9 Newton
