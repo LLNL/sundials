@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-15 23:43:29 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-18 01:54:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -44,8 +44,9 @@
 
 static int KINSpgmrInit(KINMem kin_mem);
 static int KINSpgmrSetup(KINMem kin_mem);
-static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, realtype *res_norm);
-static int KINSpgmrFree(KINMem kin_mem);
+static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, 
+                         N_Vector bb, realtype *res_norm);
+static void KINSpgmrFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -386,7 +387,7 @@ static int KINSpgmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
  * -----------------------------------------------------------------
  */
 
-static int KINSpgmrFree(KINMem kin_mem)
+static void KINSpgmrFree(KINMem kin_mem)
 {
   KINSpilsMem kinspils_mem;
   SpgmrMem spgmr_mem;
@@ -397,6 +398,4 @@ static int KINSpgmrFree(KINMem kin_mem)
   SpgmrFree(spgmr_mem);
   free(lmem);
   lmem = NULL;
-
-  return(0);
 }

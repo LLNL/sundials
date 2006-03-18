@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-01-25 22:18:39 $
+ * $Revision: 1.3 $
+ * $Date: 2006-03-18 01:54:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -65,7 +65,7 @@ typedef struct {
 
   /* pointer to KINSol memory */
 
-  KINMem kin_mem;
+  void *kin_mem;
 
 } *KBBDPrecData;
 
@@ -75,19 +75,11 @@ typedef struct {
  *-----------------------------------------------------------------
  */
 
-/* KINBBDPrecAlloc error messages */
-
-#define KINBBDALLOC        "KINBBDPrecAlloc-- "
-#define MSGBBD_KINMEM_NULL KINBBDALLOC "KINSOL Memory is NULL.\n\n"
-#define MSGBBD_BAD_NVECTOR KINBBDALLOC "A required vector operation is not implemented.\n\n"
-
-/* KINBBDPrecGet* error message */
-
-#define MSGBBD_PDATA_NULL "KINBBDPrecGet*-- KBBDPrecData is NULL. \n\n"
-
-/* KINBBDSpgmr/KINBBDSpbcg error message */
-
-#define MSGBBD_NO_PDATA "KINBBDSp*-- KBBDPrecData is NULL.\n\n"
+#define MSGBBD_KINMEM_NULL "KINSOL Memory is NULL."
+#define MSGBBD_MEM_FAIL "A memory request failed."
+#define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGBBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
+#define MSGBBD_PDATA_NULL  "BBDPrecData is NULL."
 
 #ifdef __cplusplus
 }

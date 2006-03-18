@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.35 $
- * $Date: 2006-03-18 00:14:07 $
+ * $Revision: 1.36 $
+ * $Date: 2006-03-18 01:54:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -766,8 +766,7 @@ void KINFree(void **kinmem);
  * If the necessary variables have been successfully initialized,
  * then the kin_linit function should return 0 (zero). Otherwise,
  * the subroutine should indicate a failure has occurred by
- * returning a negative integer value and printing an informative
- * error message to the kin_mem->kin_errfp pointer.
+ * returning a non-zero integer value.
  * -----------------------------------------------------------------
  */
 
@@ -784,10 +783,8 @@ void KINFree(void **kinmem);
  *  kinmem  pointer to an internal memory block allocated during
  *          prior calls to KINCreate and KINMalloc
  *
- * If successful, the kin_lsetup routine should return 0 (zero). If
- * a recoverable error occurs, then the subroutine should return a
- * positive integer value. However, if an unrecoverable error
- * occurs, then the function should return a negative integer value.
+ * If successful, the kin_lsetup routine should return 0 (zero).
+ * Otherwise it should return a non-zero value.
  * -----------------------------------------------------------------
  */
 
@@ -818,16 +815,14 @@ void KINFree(void **kinmem);
  *  res_norm  holds the value of the L2-norm (Euclidean norm) of
  *            the residual vector upon return
  *
- * If successful, the kin_lsolve routine should return 0 (zero). If
- * a recoverable error occurs, then the subroutine should return a
- * positive integer value. However, if an unrecoverable error
- * occurs, then the function should return a negative integer value.
+ * If successful, the kin_lsolve routine should return 0 (zero).
+ * Otherwise it should return a non-zero value.
  * -----------------------------------------------------------------
  */
 
 /*
  * -----------------------------------------------------------------
- * Function : int (*kin_lfree)(KINMem kin_mem)
+ * Function : void (*kin_lfree)(KINMem kin_mem)
  * -----------------------------------------------------------------
  * kin_lfree is called by KINFree and should free (deallocate) all
  * system memory resources allocated for the linear solver module
@@ -835,10 +830,6 @@ void KINFree(void **kinmem);
  *
  *  kinmem  pointer to an internal memory block allocated during
  *          prior calls to KINCreate and KINMalloc
- *
- * If successful, the kin_lfree routine should return 0 (zero). If
- * an error occurs, then the subroutine should return a negative
- * integer value.
  * -----------------------------------------------------------------
  */
 

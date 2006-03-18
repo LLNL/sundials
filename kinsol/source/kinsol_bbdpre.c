@@ -1,7 +1,7 @@
 /*
  *-----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-15 19:14:28 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-18 01:54:42 $
  *-----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -49,9 +49,9 @@
  *-----------------------------------------------------------------
  */
 
-static void KBBDDQJac(KBBDPrecData pdata,
-                      N_Vector uu, N_Vector uscale,
-                      N_Vector gu, N_Vector gtemp, N_Vector utemp);
+static int KBBDDQJac(KBBDPrecData pdata,
+                     N_Vector uu, N_Vector uscale,
+                     N_Vector gu, N_Vector gtemp, N_Vector utemp);
 
 /*
  *-----------------------------------------------------------------
@@ -106,11 +106,14 @@ void *KINBBDPrecAlloc(void *kinmem, long int Nlocal,
 
   pdata = NULL;
   pdata = (KBBDPrecData) malloc(sizeof *pdata);  /* allocate data memory */
-  if (pdata == NULL) return(NULL);
+  if (pdata == NULL) {
+    KINProcessError(kin_mem, 0, "KINBBDPRE", "KINBBDPrecAlloc", MSGBBD_MEM_FAIL);
+    return(NULL);
+  }
 
   /* set pointers to gloc and gcomm and load half-bandwiths */
 
-  pdata->kin_mem = kin_mem;
+  pdata->kin_mem = kinmem;
   pdata->gloc = gloc;
   pdata->gcomm = gcomm;
   pdata->mudq = MIN(Nlocal-1, MAX(0, mudq));
@@ -187,7 +190,7 @@ int KINBBDSptfqmr(void *kinmem, int maxl, void *p_data)
   kin_mem = (KINMem) kinmem;
 
   if (p_data == NULL) {
-    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSptfqmr", MSGBBD_NO_PDATA);
+    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSptfqmr", MSGBBD_PDATA_NULL);
     return(KINBBDPRE_PDATA_NULL);
   }
 
@@ -217,7 +220,7 @@ int KINBBDSpbcg(void *kinmem, int maxl, void *p_data)
   kin_mem = (KINMem) kinmem;
 
   if (p_data == NULL) {
-    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSpbcg", MSGBBD_NO_PDATA);
+    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSpbcg", MSGBBD_PDATA_NULL);
     return(KINBBDPRE_PDATA_NULL);
   }
 
@@ -247,7 +250,7 @@ int KINBBDSpgmr(void *kinmem, int maxl, void *p_data)
   kin_mem = (KINMem) kinmem;
 
   if (p_data == NULL) {
-    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSpgmr", MSGBBD_NO_PDATA);
+    KINProcessError(kin_mem, KINBBDPRE_PDATA_NULL, "KINBBDPRE", "KINBBDSpgmr", MSGBBD_PDATA_NULL);
     return(KINBBDPRE_PDATA_NULL);
   }
 
@@ -424,15 +427,25 @@ int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 {
   long int ier;
   KBBDPrecData pdata;
+  KINMem kin_mem;
   N_Vector vtemp3;
+  int retval;
 
   pdata = (KBBDPrecData) p_data;
+
+  kin_mem = (KINMem) pdata->kin_mem;
+
   vtemp3 = pdata->vtemp3;
 
   /* call KBBDDQJac for a new jacobian and store in PP */
 
   BandZero(PP);
-  KBBDDQJac(pdata, uu, uscale, vtemp1, vtemp2, vtemp3);
+  retval = KBBDDQJac(pdata, uu, uscale, vtemp1, vtemp2, vtemp3);
+  if (retval != 0) {
+    KINProcessError(kin_mem, KINBBDPRE_FUNC_UNRECVR, "KINBBDPRE", "KINBBDPrecSetup", MSGBBD_FUNC_FAILED);
+    return(-1);
+  }
+
   nge += (1 + MIN(mldq+mudq+1, Nlocal));
 
   /* do LU factorization of P in place (in PP) */
@@ -516,9 +529,9 @@ int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 
 #define f_data (kin_mem->kin_f_data)
 
-static void KBBDDQJac(KBBDPrecData pdata,
-                      N_Vector uu, N_Vector uscale,
-                      N_Vector gu, N_Vector gtemp, N_Vector utemp)
+static int KBBDDQJac(KBBDPrecData pdata,
+                     N_Vector uu, N_Vector uscale,
+                     N_Vector gu, N_Vector gtemp, N_Vector utemp)
 {
   realtype inc, inc_inv;
   long int group, i, j, width, ngroups, i1, i2;
@@ -526,7 +539,7 @@ static void KBBDDQJac(KBBDPrecData pdata,
   realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
   int retval;
 
-  kin_mem = pdata->kin_mem;
+  kin_mem = (KINMem) pdata->kin_mem;
 
   /* set pointers to the data for all vectors */
 
@@ -544,9 +557,11 @@ static void KBBDDQJac(KBBDPrecData pdata,
 
   if (gcomm != NULL) {
     retval = gcomm(Nlocal, uu, f_data);
+    if (retval != 0) return(retval);
   }
 
   retval = gloc(Nlocal, uu, gu, f_data);
+  if (retval != 0) return(retval);
 
   /* set bandwidth and number of column groups for band differencing */
 
@@ -567,6 +582,7 @@ static void KBBDDQJac(KBBDPrecData pdata,
     /* evaluate g with incremented u */
 
     retval = gloc(Nlocal, utemp, gtemp, f_data);
+    if (retval != 0) return(retval);
 
     /* restore utemp, then form and load difference quotients */
 
@@ -581,4 +597,6 @@ static void KBBDDQJac(KBBDPrecData pdata,
 	BAND_COL_ELEM(col_j, i, j) = inc_inv * (gtempdata[i] - gudata[i]);
     }
   }
+
+  return(0);
 }

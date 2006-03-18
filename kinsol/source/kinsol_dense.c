@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-15 19:14:28 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-18 01:54:42 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,7 +38,7 @@ static int KINDenseSetup(KINMem kin_mem);
 static int KINDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b,
                          realtype *res_norm);
 
-static int KINDenseFree(KINMem kin_mem);
+static void KINDenseFree(KINMem kin_mem);
 
 /* KINDENSE DQJac routine */
 
@@ -477,7 +477,7 @@ static int KINDenseSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_n
  * -----------------------------------------------------------------
  */
 
-static int KINDenseFree(KINMem kin_mem)
+static void KINDenseFree(KINMem kin_mem)
 {
   KINDenseMem  kindense_mem;
 
@@ -486,8 +486,6 @@ static int KINDenseFree(KINMem kin_mem)
   DenseFreeMat(J);
   DenseFreePiv(pivots);
   free(kindense_mem); kindense_mem = NULL;
-  
-  return(0);
 }
 
 /*

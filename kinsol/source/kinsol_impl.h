@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2006-03-18 00:14:09 $
+ * $Revision: 1.17 $
+ * $Date: 2006-03-18 01:54:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -164,7 +164,7 @@ typedef struct KINMemRec {
   int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb, 
                     realtype *res_norm );
 
-  int (*kin_lfree)(struct KINMemRec *kin_mem);
+  void (*kin_lfree)(struct KINMemRec *kin_mem);
 
   booleantype kin_inexact_ls; /* flag set by the linear solver module
 				 (in linit) indicating whether this is an

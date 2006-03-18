@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-15 23:43:29 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-18 01:54:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -46,7 +46,7 @@ static int KINSptfqmrInit(KINMem kin_mem);
 static int KINSptfqmrSetup(KINMem kin_mem);
 static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx,
 			   N_Vector bb, realtype *res_norm);
-static int KINSptfqmrFree(KINMem kin_mem);
+static void KINSptfqmrFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -384,7 +384,7 @@ static int KINSptfqmrSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
  * -----------------------------------------------------------------
  */
 
-static int KINSptfqmrFree(KINMem kin_mem)
+static void KINSptfqmrFree(KINMem kin_mem)
 {
   KINSpilsMem kinspils_mem;
   SptfqmrMem sptfqmr_mem;
@@ -394,6 +394,4 @@ static int KINSptfqmrFree(KINMem kin_mem)
 
   SptfqmrFree(sptfqmr_mem);
   free(lmem); lmem = NULL;
-
-  return(0);
 }

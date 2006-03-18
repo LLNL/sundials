@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-15 19:14:28 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-18 01:54:42 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -38,7 +38,7 @@ static int KINBandSetup(KINMem kin_mem);
 static int KINBandSolve(KINMem kin_mem, N_Vector x, N_Vector b,
                         realtype *res_norm);
 
-static int KINBandFree(KINMem kin_mem);
+static void KINBandFree(KINMem kin_mem);
 
 /* KINBAND DQJac routine */
 
@@ -496,7 +496,7 @@ static int KINBandSolve(KINMem kin_mem, N_Vector x, N_Vector b, realtype *res_no
  * -----------------------------------------------------------------
  */
 
-static int KINBandFree(KINMem kin_mem)
+static void KINBandFree(KINMem kin_mem)
 {
   KINBandMem kinband_mem;
 
@@ -505,8 +505,6 @@ static int KINBandFree(KINMem kin_mem)
   BandFreeMat(J);
   BandFreePiv(pivots);
   free(kinband_mem); kinband_mem = NULL;
-
-  return(0);
 }
 
 /*

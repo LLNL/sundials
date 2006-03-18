@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-03-16 20:34:29 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-18 01:54:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -46,7 +46,7 @@ static int KINSpbcgInit(KINMem kin_mem);
 static int KINSpbcgSetup(KINMem kin_mem);
 static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx,
 			 N_Vector bb, realtype *res_norm);
-static int KINSpbcgFree(KINMem kin_mem);
+static void KINSpbcgFree(KINMem kin_mem);
 
 /*
  * -----------------------------------------------------------------
@@ -386,7 +386,7 @@ static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
  * -----------------------------------------------------------------
  */
 
-static int KINSpbcgFree(KINMem kin_mem)
+static void KINSpbcgFree(KINMem kin_mem)
 {
   KINSpilsMem kinspils_mem;
   SpbcgMem spbcg_mem;
@@ -396,6 +396,4 @@ static int KINSpbcgFree(KINMem kin_mem)
 
   SpbcgFree(spbcg_mem);
   free(lmem); lmem = NULL;
-
-  return(0);
 }

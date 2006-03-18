@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-15 19:14:25 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-18 01:54:40 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -111,9 +111,9 @@ extern "C" {
 
 /* KINBBDPRE return values */
 
-#define KINBBDPRE_SUCCESS     0
-#define KINBBDPRE_PDATA_NULL -11
-
+#define KINBBDPRE_SUCCESS          0
+#define KINBBDPRE_PDATA_NULL     -11
+#define KINBBDPRE_FUNC_UNRECVR   -12
 /*
  * -----------------------------------------------------------------
  * Type : KINCommFn
@@ -136,8 +136,8 @@ extern "C" {
  * necessary communication was done in func, the user can pass
  * NULL for gcomm in the call to KINBBDPrecAlloc (see below).
  *
- * Note: A KINCommFn function has an 'int' return value. However,
- * the return value is currently ignored.
+ * A KINCommFn function should return 0 if successful or
+ * a non-zero value if an error occured.
  * -----------------------------------------------------------------
  */
 
@@ -162,8 +162,8 @@ typedef int (*KINCommFn)(long int Nlocal, N_Vector u, void *f_data);
  * save communicated data in work space defined by the user and
  * made available to the preconditioner function for the problem.
  *
- * Note: A KINLocalFn function has an 'int' return value. However,
- * the return value is currenty ignored.
+ * A KINLocalFn function should return 0 if successful or
+ * a non-zero value if an error occured.
  * -----------------------------------------------------------------
  */
 
