@@ -10,6 +10,9 @@ implementation of the scaled preconditioned Bi-CGStab\index{Bi-CGStab method} me
 For full details, including usage instructions, see the file \id{sundials\_spbcgs.h}.
 \index{SPBCG@{\spbcg} generic linear solver!description of|)}
 
+{\warn}The {\spbcg} package can only be used in conjunction with an actual {\nvector} 
+implementation library, such as the {\nvecs} or {\nvecp} provided with {\sundials}.
+
 The files needed to use the {\spbcg} module by itself are the same as for the
 {\spgmr} module, with \id{sundials\_spbcgs.(h,c)} replacing \id{sundials\_spgmr.(h,c)}.
 
