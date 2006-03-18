@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-15 19:14:28 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-18 00:14:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -240,7 +240,7 @@ int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
  * -----------------------------------------------------------------
  */
 
-int KINSetNoResMon(void *kinmem, booleantype noNNIResMon)
+int KINSetNoResMon(void *kinmem, booleantype noResMon)
 {
   KINMem kin_mem;
 
@@ -250,7 +250,7 @@ int KINSetNoResMon(void *kinmem, booleantype noNNIResMon)
   }
 
   kin_mem = (KINMem) kinmem;
-  kin_mem->kin_noInitSetup = noNNIResMon;
+  kin_mem->kin_noResMon = noResMon;
 
   return(KIN_SUCCESS);
 }
@@ -453,18 +453,21 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
   }
 
   if (omegamax == ZERO) {
+
     if (kin_mem->kin_omega_min > OMEGA_MAX) {
       KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonParams", MSG_BAD_OMEGA);
       return(KIN_ILL_INPUT);
     }
     else kin_mem->kin_omega_max = OMEGA_MAX;
-  }
-  else {
+
+  } else {
+
     if (kin_mem->kin_omega_min > omegamax) {
       KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetResMonParams", MSG_BAD_OMEGA);
       return(KIN_ILL_INPUT);
     }
     else kin_mem->kin_omega_max = omegamax;
+
   }
 
   return(KIN_SUCCESS);
@@ -494,15 +497,8 @@ int KINSetResMonConstValue(void *kinmem, realtype omegaconst)
     return(KIN_ILL_INPUT);
   }
 
-  /* omega_min == -ONE indicates the user specified that
-     omega should be a constant */
-
-  kin_mem->kin_omega_min = -ONE;
-
-  if (omegaconst == ZERO) 
-    kin_mem->kin_omega_max = OMEGA_MAX;
-  else
-    kin_mem->kin_omega_max = omegaconst;
+  /* Load omega value. A value of 0 will force using omega_min and omega_max */
+  kin_mem->kin_omega = omegaconst;
 
   return(KIN_SUCCESS);
 }

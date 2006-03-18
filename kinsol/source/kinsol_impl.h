@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2006-02-02 00:36:31 $
+ * $Revision: 1.16 $
+ * $Date: 2006-03-18 00:14:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -175,18 +175,20 @@ typedef struct KINMemRec {
 
   realtype kin_fnorm;     /* value of L2-norm of fscale*fval                   */
   realtype kin_f1norm;    /* f1norm = 0.5*(fnorm)^2                            */
-  realtype kin_res_norm;  /* value of L2-norm of residual (set by linear
-			    solver)                                            */
+  realtype kin_res_norm;  /* value of L2-norm of residual (set by the linear
+                             solver)                                           */
   realtype kin_sfdotJp;   /* value of scaled func(u) vector (fscale*fval)
-			    dotted with scaled J(u)*pp vector                  */
+                             dotted with scaled J(u)*pp vector                 */
   realtype kin_sJpnorm;   /* value of L2-norm of fscale*(J(u)*pp)              */
+
   realtype kin_fnorm_sub; /* value of L2-norm of fscale*fval (subinterval)     */
-  realtype kin_omega_min; /* lower bound on real scalar used in test to
+  realtype kin_omega;     /* constant value for real scalar used in test to
 			     determine if reduction of norm of nonlinear
-			     residual is sufficient                            */
-  realtype kin_omega_max; /* upper bound on real scalar used in test to
-			     determine if reduction of norm of nonlinear
-			     residual is sufficient                            */
+			     residual is sufficient. a value of zero indicates
+                             that omega should be estimated from omega_min and
+                             omega_max.                                         */
+  realtype kin_omega_min; /* lower bound on omega                               */
+  realtype kin_omega_max; /* upper bound on omega                               */
   
 /*
  * -----------------------------------------------------------------
@@ -285,13 +287,24 @@ void KINInfoHandler(const char *module, const char *function,
 
 #define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."
 #define MSG_UU_NULL            "uu = NULL illegal."
-#define MSG_BAD_GLSTRAT        "Tllegal value for globalstrategy."
+#define MSG_BAD_GLSTRAT        "Illegal value for global strategy."
 #define MSG_BAD_USCALE         "uscale = NULL illegal."
 #define MSG_USCALE_NONPOSITIVE "uscale has nonpositive elements."
 #define MSG_BAD_FSCALE         "fscale = NULL illegal."
 #define MSG_FSCALE_NONPOSITIVE "fscale has nonpositive elements."
 #define MSG_INITIAL_CNSTRNT    "Tnitial guess does NOT meet constraints."
 #define MSG_LINIT_FAIL         "The linear solver's init routine failed."
+
+#define MSG_SYSFUNC_FAILED      "The system function failed in an unrecoverable manner."
+#define MSG_SYSFUNC_FIRST       "The system function failed at the first call."
+#define MSG_LSETUP_FAILED       "The linear solver's setup function failed in an unrecoverable manner."
+#define MSG_LSOLVE_FAILED       "The linear solver's solve function failed in an unrecoverable manner."
+#define MSG_LINSOLV_NO_RECOVERY "The linear solver's solve function failed recoverably, but the Jacobian data is already current."
+#define MSG_LINESEARCH_NONCONV  "The line search algorithm was unable to find an iterate sufficiently distinct from the current iterate."
+#define MSG_LINESEARCH_BCFAIL   "The line search algorithm was unable to satisfy the beta-condition for nbcfails iterations."
+#define MSG_MAXITER_REACHED     "The maximum number of iterations was reached before convergence."
+#define MSG_MXNEWT_5X_EXCEEDED  "Five consecutive steps have been taken that satisfy a scaled step length test."
+#define MSG_SYSFUNC_REPTD       "Unable to correct repeated recoverable system function errors."
 
 /*
  * -----------------------------------------------------------------

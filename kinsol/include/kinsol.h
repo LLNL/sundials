@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.34 $
- * $Date: 2006-02-15 19:14:25 $
+ * $Revision: 1.35 $
+ * $Date: 2006-03-18 00:14:07 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -25,6 +25,37 @@ extern "C" {
 #include <stdio.h>
 
 #include "sundials_nvector.h"
+
+/*
+ * -----------------------------------------------------------------
+ * KINSOL return flags
+ * -----------------------------------------------------------------
+ */
+
+#define KIN_SUCCESS             0
+#define KIN_INITIAL_GUESS_OK    1
+#define KIN_STEP_LT_STPTOL      2
+
+#define KIN_WARNING             99
+
+#define KIN_MEM_NULL            -1
+#define KIN_ILL_INPUT           -2
+#define KIN_NO_MALLOC           -3
+#define KIN_MEM_FAIL            -4
+#define KIN_LINESEARCH_NONCONV  -5
+#define KIN_MAXITER_REACHED     -6
+#define KIN_MXNEWT_5X_EXCEEDED  -7
+#define KIN_LINESEARCH_BCFAIL   -8
+#define KIN_LINSOLV_NO_RECOVERY -9
+#define KIN_LINIT_FAIL          -10
+#define KIN_LSETUP_FAIL         -11
+#define KIN_LSOLVE_FAIL         -12
+
+#define KIN_SYSFUNC_FAIL        -13
+#define KIN_FIRST_SYSFUNC_ERR   -14
+#define KIN_REPTD_SYSFUNC_ERR   -15
+
+
 
 /*
  * -----------------------------------------------------------------
@@ -320,8 +351,9 @@ void *KINCreate(void);
  *                        | [0.00001 and 0.9]
  *                        |
  * KINSetResMonConstValue | constant value used by residual monitoring
- *                        | algorithm
- *                        | [0.9]
+ *                        | algorithm. If omega=0, then it is estimated
+ *                        | using omega_min and omega_max.
+ *                        | [0.0]
  *                        |
  * KINSetNoMinEps         | flag controlling whether or not the value
  *                        | of eps is bounded below by 0.01*fnormtol
@@ -714,31 +746,6 @@ char *KINGetReturnFlagName(int flag);
  */
 
 void KINFree(void **kinmem);
-
-/*
- * -----------------------------------------------------------------
- * KINSOL return flags
- * -----------------------------------------------------------------
- */
-
-#define KIN_SUCCESS             0
-#define KIN_INITIAL_GUESS_OK    1
-#define KIN_STEP_LT_STPTOL      2
-
-#define KIN_WARNING             99
-
-#define KIN_MEM_NULL            -1
-#define KIN_ILL_INPUT           -2
-#define KIN_NO_MALLOC           -3
-#define KIN_MEM_FAIL            -4
-#define KIN_LINESEARCH_NONCONV  -5
-#define KIN_MAXITER_REACHED     -6
-#define KIN_MXNEWT_5X_EXCEEDED  -7
-#define KIN_LINESEARCH_BCFAIL   -8
-#define KIN_LINSOLV_NO_RECOVERY -9
-#define KIN_LINIT_FAIL          -10
-#define KIN_LSETUP_FAIL         -11
-#define KIN_LSOLVE_FAIL         -12
 
 /*
  * -----------------------------------------------------------------
