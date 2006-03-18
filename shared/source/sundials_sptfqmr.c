@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-15 02:23:26 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-18 02:06:52 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -215,11 +215,6 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
   booleantype b_ok;
   int n, m, ier;
 
-#ifdef DEBUG
-  realtype r_prev_norm;
-  N_Vector x_prev = N_VClone(x);
-#endif
-
   /* Exit immediately if memory pointer is NULL */
   if (mem == NULL) return(SPTFQMR_MEM_NULL);
 
@@ -367,13 +362,6 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
       /* eta = c^2*alpha */
       eta = SQR(c)*alpha;
 
-#ifdef DEBUG
-      if (m == 1) {
-	N_VScale(ONE, x, x_prev);
-	r_prev_norm = r_curr_norm;
-      }
-#endif
-
       /* x = x+eta*d_ */
       N_VLinearSum(ONE, x, eta, d_, x);
 
@@ -446,14 +434,6 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 
       }
 
-#ifdef DEBUG
-      if ((r_prev_norm < RCONST(0.95)*r_curr_norm) && (m == 1)) {
-	*res_norm = r_curr_norm = r_prev_norm;
-	N_VScale(ONE, x_prev, x);
-	/* Do NOT need to check for convergence because we would NOT be here if we had */
-      }
-#endif
-
     }  /* END inner loop */
 
     /* If converged, then exit outer loop as well */
@@ -499,10 +479,6 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
     rho[0] = rho[1];
 
   }  /* END outer loop */
-
-#ifdef DEBUG
-  N_VDestroy(x_prev);
-#endif
 
   /* Determine return value */
   /* If iteration converged or residual was reduced, then return current iterate (x) */
