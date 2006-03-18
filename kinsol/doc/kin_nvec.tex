@@ -24,15 +24,14 @@ usage within each of the four {\kinsol} linear solvers ({\kinspils}
 stands for any of {\kinspgmr}, {\kinspbcg}, or {\kinsptfqmr}),
 the {\kinbbdpre} preconditioner module, and the {\fkinsol} module.
 
-There is one subtlety in the {\kinspils} column hidden by the table,
-explained here for the case of the {\kinspgmr} module). The dot product
+There is one subtlety in the {\kinspils} column hidden by the table
+explained here for the case of the {\kinspgmr} module. The dot product
 function \id{N\_VDotProd} is called both within the 
 implementation file \id{kinsol\_spgmr.c} for the {\kinspgmr} solver and within 
 the implementation files \id{sundials\_spgmr.c} and \id{sundials\_iterative.c}
 for the generic {\spgmr} solver upon which the {\kinspgmr} solver is implemented.
 Also, although \id{N\_VDiv} is not called within the
-implementation file \\
-\id{kinsol\_spgmr.c}, it is called within the
+implementation file \id{kinsol\_spgmr.c}, it is called within the
 implementation file \id{sundials\_spgmr.c} and so is required by the
 {\kinspgmr} solver module. This issue does not arise for the other two
 {\kinsol} linear solvers because the generic {\dense} and {\band} solvers
@@ -84,5 +83,5 @@ interested reader.
 The vector functions listed in Table \ref{t:nvecops} that are {\em not} used by
 {\kinsol} are: \id{N\_VAddConst}, \id{N\_VWrmsNorm}, \id{N\_VWrmsNormMask},
 \id{N\_VCompare}, and \id{N\_VInvTest}.
-Therefore a user-supplied {\nvector} module for {\kinsol} could omit these six
+Therefore a user-supplied {\nvector} module for {\kinsol} could omit these five
 functions.
