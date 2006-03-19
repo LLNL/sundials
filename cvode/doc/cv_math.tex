@@ -73,12 +73,12 @@ computed explicitly from the available history data.
 \index{nonlinear system!definition|)}
 For the Newton corrections, {\cvode} provides a choice of six methods:
 \begin{itemize}
-\item a dense direct solver (serial version only),
-\item a band direct solver (serial version only),
-\item a diagonal approximate Jacobian solver,
-\item {\spgmr} = Scaled Preconditioned GMRES, without restarts,
-\item {\spbcg} = Scaled Preconditioned Bi-CGStab, or
-\item {\sptfqmr} = Scaled Preconditioned TFQMR.
+\item dense direct solver,
+\item band direct solver,
+\item diagonal approximate Jacobian solver,
+\item scaled preconditioned GMRES (Generalized Minimal Residual method) without restarts,
+\item scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable method), or
+\item scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal Residual method).
 \end{itemize}
 For large stiff systems, where direct methods are not feasible, the
 combination of a BDF integrator and any of the preconditioned Krylov
@@ -87,6 +87,9 @@ because it combines established methods for stiff integration,
 nonlinear iteration, and Krylov (linear) iteration with a
 problem-specific treatment of the dominant source of stiffness, in the
 form of the user-supplied preconditioner matrix \cite{BrHi:89}.
+%%
+Note that the direct linear solvers (dense and band) can only be 
+used with serial vector representations.
 
 % WRMS Norm
 %----------

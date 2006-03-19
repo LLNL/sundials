@@ -87,11 +87,12 @@ whenever the step size or method order changes.
 %
 The linear systems are solved by one of five methods:
 \begin{itemize}
-\item direct dense solve (serial version only),
-\item direct banded solve (serial version only),
-\item {\spgmr} = Scaled Preconditioned GMRES, with restarts allowed,
-\item {\spbcg} = Scaled Preconditioned Bi-CGStab, or
-\item {\sptfqmr} = Scaled Preconditioned TFQMR.
+\item dense direct solver,
+\item band direct solver,
+\item diagonal approximate Jacobian solver,
+\item scaled preconditioned GMRES (Generalized Minimal Residual method) with restarts allowed,
+\item scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable method), or
+\item scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal Residual method).
 \end{itemize}
 For the {\spgmr}, {\spbcg}, and {\sptfqmr} cases, preconditioning is allowed
 only on the left,\footnote{Left preconditioning is required to make the norm of
@@ -99,6 +100,9 @@ the linear residual in the Newton iteration meaningful; in general,
 $\| J \Delta y + G \|$ is meaningless, since the weights used in 
 the WRMS-norm correspond to $y$.}
 so that the iterative method is applied to systems $(P^{-1}J)\Delta y = -P^{-1}G$. 
+%%
+Note that the direct linear solvers (dense and band) can only be 
+used with serial vector representations.
 
 % WRMS Norm
 %----------
