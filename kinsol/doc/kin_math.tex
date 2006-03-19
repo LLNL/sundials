@@ -43,23 +43,26 @@ A test for convergence is made before the iteration continues.
 For solving the linear system given in step 2(a), {\kinsol} provides
 a choice of five methods:
 \begin{itemize}
-\item a dense direct solver (serial version only),
-\item a band direct solver (serial version only),
-\item {\spgmr} = Scaled Preconditioned GMRES,
-\item {\spbcg} = Scaled Preconditioned Bi-CGStab, or
-\item {\sptfqmr} = Scaled Preconditioned TFQMR.
+\item dense direct solver,
+\item band direct solver,
+\item scaled preconditioned GMRES (Generalized Minimal Residual method),
+\item scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable method), or
+\item scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal Residual method).
 \end{itemize}
 %%
-When using one of the direct linear solvers, the linear system in 2(a) is solved exactly 
-thus resulting in a Modified Newton method (the Jacobian matrix is normally outdated; 
-see below\footnote{{\kinsol} allows the user to enforce a Jacobian evaluation
-at each iteration thus allowing for an Exact Newton iteration.}). 
+When using one of the direct linear solvers, the linear system in 2(a) is 
+solved exactly thus resulting in a Modified Newton method (the Jacobian matrix 
+is normally outdated; see below\footnote{{\kinsol} allows the user to enforce 
+a Jacobian evaluation at each iteration thus allowing for an Exact Newton iteration.}). 
 %%
+Note that the direct linear solvers (dense and band) can only be used with 
+serial vector representations.
+
 On the other hand, using any of the iterative linear solvers (GMRES, Bi-CGStab, or TFQMR), 
 the linear system in 2(a) is solved only approximately thus resulting in an Inexact Newton  
 method.
-In the latter case, right preconditioning is provided if the preconditioning setup and 
-solve routines are supplied by the user. In this case, the iterative method is applied 
+In the latter case, right preconditioning is available if the preconditioning setup and 
+solve routines are supplied by the user, in which case the iterative method is applied 
 to the linear systems $(JP^{-1})(P\delta) = -F$, where $P$ denotes the right preconditioning 
 matrix.
 
@@ -108,8 +111,8 @@ In the text below, we use the following scaled norms:
 where $\| \cdot \|_{\infty}$ is the max norm.  When scaling values are provided 
 for the solution vector, these values are automatically incorporated into the 
 calculation of the perturbations used for the default difference quotient 
-approximations for Jacobian information; see (\ref{sigma_comp}) and (\ref{})
-below.
+approximations for Jacobian information; see (\ref{e:sigmaDQ_direct}) and 
+(\ref{e:sigmaDQ_iterative}) below.
 
 %% GLOBALIZATION
 
@@ -128,8 +131,33 @@ given in \cite{DeSc:96} for step 2(b), where $\lambda$ is chosen
 to guarantee a sufficient decrease in $F$ relative to the step
 length as well as a minimum step length relative to the initial
 rate of decrease of $F$.  One property of the algorithm is that
-the full Newton step tends to be taken close to the solution.  For
-more details, the reader is referred to \cite{DeSc:96}.
+the full Newton step tends to be taken close to the solution.  
+
+{\kinsol} implements a backtracking algorithm to first find
+the value $\lambda$ such that $u_n + \lambda \delta_n$
+satisfies the sufficient decrease condition (or $\alpha$-condition)
+\[
+F(u_n + \lambda\delta_n) \le F(u_n) + \alpha \nabla F(u_n) \lambda\delta_n \, ,
+\]
+where $\alpha = 10^{-4}$.
+%%
+Although backtracking in itself guarantees that the step is not too small,
+{\kinsol} secondly relaxes $\lambda$ to satisfy the so-called $\beta$-condition
+(equivalent to Wolfe's curvature condition):
+\[
+F(u_n + \lambda\delta_n) \ge F(u_n) + \beta \nabla F(u_n) \lambda\delta_n \,
+\]
+where $beta = 0.9$. During this second phase, $\lambda$ is allowed to
+vary in the interval $[\lambda_{min} , \lambda_{max}]$ where
+\[
+\lambda_{min} =  \frac{\mbox{\sc steptol}}{\| \bar\delta_n\|_{\infty}} \, , \quad
+\bar\delta_n^j = \frac{\delta_n^j}{1/D_u^j + |u^j|}
+\]
+and $\lambda_{max}$ corresponds to the maximum feasible step size at the
+current iteration (typically $\lambda_{max} = \mbox{\sc stepmax} / \|\delta_n\|_{D_u}$).
+In the above expressions, $v^j$ indicates the $j$th component of a vector $v$.
+
+For more details, the reader is referred to \cite{DeSc:96}.
 
 %% STOPPING CRITERIA
 
@@ -233,22 +261,40 @@ $\eta$ does not decrease too quickly~\cite{EiWa:96}.
 %% JACOBIAN APPROXIMATIONS
 
 \subsubsection*{Difference quotient Jacobian approximnations}
+%%
+With the direct dense and band methods, the Jacobian may be supplied
+by a user routine, or approximated by difference quotients,
+at the user's option.  In the latter case, we use the usual
+approximation
+\begin{equation}\label{e:JacDQ}
+  J^{ij} = [F^i(u+\sigma_j e^j) - F^i(u)]/\sigma_j \, .
+\end{equation}
+The increments $\sigma_j$ are given by
+\begin{equation}\label{e:sigmaDQ_direct}
+  \sigma_j = \sqrt{U} \; \max\left\{ |u^j| , 1/D_u^j \right\} \, ,
+\end{equation}
+where $U$ is the unit roundoff.
+%%
+In the dense case, this scheme requires $N$ evaluations of $F$, 
+one for each column of $J$.  In the band case, the columns of 
+$J$ are computed in groups, by the Curtis-Powell-Reid algorithm, 
+with the number of $F$ evaluations equal to the bandwidth.
 
-{\bf dq approx. for dense and band Jacobian...}
-
-In the case where finite differences are used to approximate the matrix-vector product 
-$Jv$, the approximation is of the form given by
-\begin{equation}\label{jacobv}
+In the case of a Krylov method, Jacobian information is neeeded 
+only as matrix-vector products $Jv$.  If a routine for $Jv$ is 
+not supplied, these products are approximated by directional
+difference quotients as
+\begin{equation}\label{e:JvDQ}
 J(u) v \approx [F(u+\sigma v) - F(u)]/\sigma \,
 \end{equation}
 where $u$ is the current approximation to a root of
 (\ref{nonlinear_system}), and $\sigma$ is a scalar. The choice of
 $\sigma$ is taken from \cite{BrSa:90} and is given by
-\begin{equation}\label{sigma_comp}
-  \sigma = \frac{\max \{|u^T v|, \mbox{typ}u^T |v|\}}{\|v\|_2}
+\begin{equation}\label{e:sigmaDQ_iterative}
+  \sigma = \frac{\max \{|u^T v|, u^T_{typ} |v|\}}{\|v\|_2}
   \mbox{sign}(u^T v) \sqrt{U} \, ,
 \end{equation}
-where $\mbox{typ}u$ is a vector of typical values for the absolute
+where $u_{typ}$ is a vector of typical values for the absolute
 values of the solution (and can be taken to be inverses of the
 scale factors given for $u$ as described below), and $U$ is unit
 roundoff. Convergence of the Newton method is maintained as long
