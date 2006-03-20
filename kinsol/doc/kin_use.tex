@@ -780,6 +780,19 @@ the nonlinear algebraic system.
     to solve the preconditioned linear system) encountered
     an unrecoverable error, or the linear solver routine
     (\id{lsolve}) encountered an error condition.
+
+  \item[\Id{KIN\_SYSFUNC\_FAIL}]\rule{0pt}{0pt}
+
+    The system function failed in an unrecoverable manner.
+
+  \item[\Id{KIN\_FIRST\_SYSFUNC\_ERR}]\rule{0pt}{0pt}
+
+    The system function failed recoverably at the first call.
+
+  \item[\Id{KIN\_REPTD\_SYSFUNC\_ERR}]\rule{0pt}{0pt}
+
+    The system function had repeated recoverable errors. No recovery is possible.
+
  
   \end{args}
 }
@@ -4050,15 +4063,14 @@ are as follows:
 The user-supplied functions, each listed with the corresponding interface
 function which calls it (and its type within {\kinsol}), are as follows:
 \begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
+\begin{tabular}{l|l|l}
 {\fkinsol} routine ({\F})  &  {\kinsol} function ({\C}) & {\kinsol} function type \\\hline
 \id{FKFUN}    & \id{FKINfunc}     & \id{KINSysFn} \\
 \id{FKDJAC}   & \id{FKINDenseJac} & \id{KINDenseJacFn} \\
 \id{FKBJAC}   & \id{FKINBandJac}  & \id{KINBandJacFn} \\
 \id{FKPSET}   & \id{FKINPSet}     & \id{KINSpilsPrecSetupFn} \\
 \id{FKPSOL}   & \id{FKINPSol}     & \id{KINSpilsPrecSolveFn} \\
-\id{FKJTIMES} & \id{FKINJtimes}   & \id{KINSpilsJacTimesVecFn} \\\hline
+\id{FKJTIMES} & \id{FKINJtimes}   & \id{KINSpilsJacTimesVecFn} \\
 \end{tabular}
 \end{center}
 In contrast to the case of direct use of {\kinsol}, the names of all 
@@ -4632,12 +4644,11 @@ user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within {\kinbbdpre} or {\kinsol}):
 \begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
+\begin{tabular}{l|l|l}
 {\fkinbbd} routine ({\F})  &  {\kinsol} function ({\C}) & {\kinsol} function type \\\hline
 \id{FKLOCFN}  & \id{FKINgloc}     & \id{KINLocalFn} \\
 \id{FKCOMMF}  & \id{FKINgcomm}      & \id{KINCommFn} \\
-\id{FKJTIMES} & \id{FKINJtimes}   & \id{KINSpilsJacTimesVecFn} \\ \hline
+\id{FKJTIMES} & \id{FKINJtimes}   & \id{KINSpilsJacTimesVecFn} \\
 \end{tabular}
 \end{center}
 As with the rest of the {\fkinsol} routines, the names of all user-supplied routines
