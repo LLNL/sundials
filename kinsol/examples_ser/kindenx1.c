@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 22:18:29 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-20 22:21:09 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -14,8 +14,30 @@
  *             Kluwer Academic Publishers, 1999.
  * Test problem 4 from Section 14.1, Chapter 14: Ferraris and Tronconi
  * 
- * The nonlinear system is solved by KINSOL using the method
- * specified in local variable globalstrat.
+ * This problem involves a blend of trigonometric and exponential terms.
+ *    0.5 sin(x1 x2) - 0.25 x2/pi - 0.5 x1 = 0
+ *    (1-0.25/pi) ( exp(2 x1)-e ) + e x2 / pi - 2 e x1 = 0
+ * such that
+ *    0.25 <= x1 <=1.0
+ *    1.5 <= x2 <= 2 pi
+ * 
+ * The treatment of the bound constraints on x1 and x2 is done using
+ * the additional variables
+ *    l1 = x1 - x1_min >= 0
+ *    L1 = x1 - x1_max <= 0
+ *    l2 = x2 - x2_min >= 0
+ *    L2 = x2 - x22_min >= 0
+ * 
+ * and using the constraint feature in KINSOL to impose
+ *    l1 >= 0    l2 >= 0
+ *    L1 <= 0    L2 <= 0
+ * 
+ * The Ferraris-Tronconi test problem has two known solutions.
+ * The nonlinear system is solved by KINSOL using different 
+ * combinations of globalization and Jacobian update strategies 
+ * and with different initial guesses (leading to one or the other
+ * of the known solutions).
+ *
  *
  * Constraints are imposed to make all components of the solution
  * positive.
@@ -122,7 +144,7 @@ int main()
   Ith(c,3) =  ONE;    /* l1 = x1 - x1_min >= 0 */
   Ith(c,4) = -ONE;    /* L1 = x1 - x1_max <= 0 */
   Ith(c,5) =  ONE;    /* l2 = x2 - x2_min >= 0 */
-  Ith(c,6) = -ONE;    /* L2 = x2 - x22_min >= 0 */
+  Ith(c,6) = -ONE;    /* L2 = x2 - x22_min <= 0 */
   
   fnormtol=FTOL; scsteptol=STOL;
 
