@@ -86,8 +86,7 @@ are as follows:
 The user-supplied functions, each listed with the corresponding interface
 function which calls it (and its type within {\ida}), are as follows:
 \begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
+\begin{tabular}{l|l|l}
 {\fida} routine ({\F})  &  {\ida} function ({\C}) & {\ida} function type \\\hline
 \id{FIDARESFUN} & \id{FIDAresfn}    & \id{IDAResFn} \\
 \id{FIDAEWT}    & \id{FIDAEwtSet}   & \id{IDAEwtFn} \\
@@ -95,7 +94,7 @@ function which calls it (and its type within {\ida}), are as follows:
 \id{FIDABJAC}   & \id{FIDABandJac}  & \id{IDABandJacFn} \\
 \id{FIDAPSOL}   & \id{FIDAPSol}     & \id{IDASpilsPrecSolveFn} \\
 \id{FIDAPSET}   & \id{FIDAPSet}     & \id{IDASpilsPrecSetupFn} \\
-\id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\\hline
+\id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\
 \end{tabular}
 \end{center}
 In contrast to the case of direct use of {\ida}, and of most {\F} DAE
@@ -1016,12 +1015,11 @@ user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within {\idabbdpre} or {\ida}):
 \begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
+\begin{tabular}{l|l|l}
 {\fidabbd} routine ({\F})  &  {\ida} function ({\C}) & {\ida} function type \\\hline
 \id{FIDAGLOCFN}  & \id{FIDAgloc}     & \id{IDABBDLocalFn} \\
 \id{FIDACOMMFN}  & \id{FIDAcfn}      & \id{IDABBDCommFn} \\
-\id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\ \hline
+\id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\
 \end{tabular}
 \end{center}
 As with the rest of the {\fida} routines, the names of all user-supplied routines 

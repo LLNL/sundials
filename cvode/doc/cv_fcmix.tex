@@ -85,8 +85,7 @@ are as follows:
 The user-supplied functions, each listed with the corresponding interface
 function which calls it (and its type within {\cvode}), are as follows:
 \begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
+\begin{tabular}{l|l|l}
 {\fcvode} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
 \id{FCVFUN}    & \id{FCVf}        & \id{CVRhsFn} \\
 \id{FCVEWT}    & \id{FCVEwtSet}   & \id{CVEwtFn} \\
@@ -94,7 +93,7 @@ function which calls it (and its type within {\cvode}), are as follows:
 \id{FCVBJAC}   & \id{FCVBandJac}  & \id{CVBandJacFn} \\
 \id{FCVPSOL}   & \id{FCVPSol}     & \id{CVSpilsPrecSolveFn} \\
 \id{FCVPSET}   & \id{FCVPSet}     & \id{CVSpilsPrecSetupFn} \\
-\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\\hline
+\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\
 \end{tabular}
 \end{center}
 In contrast to the case of direct use of {\cvode}, and of most {\F} ODE
@@ -1142,12 +1141,11 @@ user-supplied functions used by this package, are listed below,
 each with the corresponding interface function which calls it (and its
 type within {\cvbbdpre} or {\cvode}):
 \begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
+\begin{tabular}{l|l|l}
 {\fcvbbd} routine ({\F})  &  {\cvode} function ({\C}) & {\cvode} function type \\\hline
 \id{FCVLOCFN}  & \id{FCVgloc}     & \id{CVLocalFn} \\
 \id{FCVCOMMF}  & \id{FCVcfn}      & \id{CVCommFn} \\
-\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\ \hline
+\id{FCVJTIMES} & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\
 \end{tabular}
 \end{center}
 As with the rest of the {\fcvode} routines, the names of all user-supplied routines 
