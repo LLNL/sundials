@@ -2,7 +2,147 @@
 \section{C example problems}\label{s:ex_c}
 %===================================================================================
 
-\subsection{A serial example: kinkryx}\label{ss:kinkryx}
+\subsection{A serial dense example: kindenx1}\label{ss:kindenx1}
+
+As an initial illustration of the use of the {\kinsol} package for the
+solution of nonlinear systems, we give a sample program called \id{kindenx1.c}.
+It uses the {\kinsol} dense linear solver module {\kindense} 
+and the {\nvecs} module (which provides a serial implementation of {\nvector})
+for the solution of the Ferraris-Tronconi test problem~\cite{FlPa:99}.
+
+This problem involves a blend of trigonometric and exponential terms:
+\begin{equation}
+\begin{split}
+  & 0 = 0.5 \sin(x_1 x_2) - 0.25 x_2/\pi - 0.5 x_1 \\
+  & 0 = (1-0.25/\pi) ( e^{2 x_1} - e ) + e x_2 / \pi - 2 e x_1 \\
+  &\text{subject to } \\
+  &\qquad x_{1\min} = 0.25 \le x_1 \le 1 = x_{1\max} \\
+  &\qquad x_{2\min} = 1.5 \le x_2 \le 2\pi = x_{2\max} \, .
+\end{split}
+\end{equation}
+
+The bounds constraints on $x_1$ and $x_2$ are treated by introducing 4 additional
+variables and using {\kinsol}'s optional constraints feature to enforce non-positivity
+and non-negativity:
+\begin{equation*}
+\begin{split}
+  &l_1 = x_1 - x_{1\min} \ge 0\\
+  &L_1 = x_1 - x_{1\max} \le 0\\
+  &l_2 = x_2 - x_{2\min} \ge 0\\
+  &L_2 = x_2 - x_{2\max} \le 0 \, .
+\end{split}
+\end{equation*}
+
+The Ferraris-Tronconi problem has two known solutions. We solve it with
+{\kinsol} using two sets of initial guesses for $x_1$ and $x_2$ (first their 
+lower bounds and secondly the middle of their feasible regions), both with
+an exact and modified Newton method, with and without line search.
+%%
+The source code is listed in Appendix~\ref{s:kindenx1_c}.
+
+Following the initial comment block, this program has a number
+of \id{\#include} lines, which allow access to useful items in {\cvode}
+header files. 
+%%
+The \id{kinsol.h} file provides prototypes for the {\kinsol}
+functions to be called (excluding the linear solver selection
+function), and also a number of constants that are to be used in
+setting input arguments and testing the return value of \id{KINSol}.
+%%
+The \id{nvector\_serial.h} file is the header file for the serial
+implementation of the {\nvector} module and includes definitions of the 
+\id{N\_Vector} type, a macro to access vector components, and prototypes 
+for the serial implementation specific machine environment memory allocation
+and freeing functions.
+%%
+The \id{kinsol\_dense.h} file provides the prototype for the \id{KINDense} function.
+%%
+The \id{sundials\_types.h} file provides the definition of the
+type \id{realtype} (see \ugref{s:types} for details).  
+For now, it suffices to read \id{realtype} as \id{double}.
+%%
+Finally, \id{sundials\_math.h} is included for the definition of the
+exponential functin \id{RExp}.
+
+Next, the program defines some problem-specific constants, which are
+isolated to this early location to make it easy to change them as needed.  
+%%
+This program includes a user-defined accessor macros, \id{Ith} that
+is useful in writing the problem functions in a form closely matching 
+the mathematical description of the system, i.e. with components numbered 
+from 1 instead of from 0. The \id{Ith} macro is used to access components 
+of a vector of type \id{N\_Vector} with a serial implementation.  
+It is defined using the {\nvecs} accessor macro \id{NV\_Ith\_S} which 
+numbers components starting with 0.
+%%
+The program prologue ends with prototypes of the user-supplied system function 
+\id{func} and several private helper functions.
+
+The \id{main} program begins with some dimensions and type declarations,
+including use of the type \id{N\_Vector}, initializations, and allocation
+and definitions for the user data structure \id{data} which contains two
+arrays with lower and upper bounds for $x_1$ and $x_2$. Next, we create 5
+serial vectors of type \id{N\_Vector} for the two different initial guesses,
+the solution vector \id{u}, the scaling factors, and the constraint specifications.
+
+The initial guess vectors \id{u1} and \id{u2} are initialized in the private
+functions \id{SetInitialGuess1} and \id{SetInitialGuess2} and the constraint
+vector \id{c} is initialized to $[0,0,1,-1,1,-1]$ indicating that there are
+no additional constraints on the first two components of \id{u} (i.e.; $x_1$ and 
+$x_2$) and that the 3rd and 5th compnents should be non-negative, while
+the 4th and 6th should be non-positive.
+
+The call to \id{KINCreate} creates the {\kinsol} solver memory block.
+Its return value is a pointer to that memory block for this
+problem.  In the case of failure, the return value is \id{NULL}.  This
+pointer must be passed in the remaining calls to {\kinsol} functions.
+
+The next 4 calls to {\kinsol} optional input functions specify the 
+pointer to the user data structure (to be passed to all subsequent calls
+to \id{func}), the vector of additional constraints, and the function and
+scaled step tolerances, \id{fnormtol} and \id{scsteptol}, respectively.
+
+Solver memory is allocated through the call to \id{KINMalloc} which
+specifies the system function \id{func} and provides the vector \id{u}
+which will be used internally as a template for clonning additional necessary
+vectors of the same type as \id{u}. 
+%%
+The use of the dense linear solver is specifid by calling \id{KINDense} which
+also specifies the problem size \id{NEQ}.
+
+The main program proceeds by solving the nonlinear system 6 times, using 
+each of the two initial guesses \id{u1} and \id{u2} (which are first copied
+into the vector \id{u} using the \id{N\_VScale\_Serial} function from
+the {\nvecs} module), with and without globalization through line search
+(specified by setting \id{glstr} to \id{KIN\_LINESEARCH} and \id{KIN\_NONE},
+respectively), and applying either an exact or a modified Newton method.
+The switch from exact to modified Newton is done by changing the number of 
+nonlinear iterations after which a Jacobian evaluation is enforced, a value
+\id{mset}$=1$ thus resulting in re-evaluating the Jacobian at every single
+iteratin of the nonlinear solver (exact Newton method). Note that passing
+\id{mset}$=0$ indicates using the default {\kinsol} value of 10.
+
+The actual problem solution is carried out in the private function \id{SolveIt}
+which calls the main solver function \id{KINSol} after first setting the optional
+input \id{mset}. After a successful return from \id{KINSol}, the solution
+$[x_1, x_2]$ and some solver statistics are printed. 
+
+The function \id{func} is a straightforward expression of the extended nonlinear 
+system. It uses the macro \id{NV\_DATA\_S} (defined by the {\nvecs} module)
+to extract the pointers to the data arrays of the \id{N\_Vector}s \id{u} and \id{f}
+and sets the components of \id{fdata} using the current values for the components
+of \id{udata}.
+See \ugref{ss:sysFn} for a detailed specification of \id{f}.
+
+The output generated by \id{kindenx1} is shown below.
+
+%%
+\includeOutput{kindenx1}{../examples_ser/kindenx1.out}
+%%
+
+
+
+\subsection{A serial Krylov example: kinkryx}\label{ss:kinkryx}
 
 We give here an example that illustrates the use of {\kinsol} with the Krylov
 method {\spgmr}, in the {\kinspgmr} module, as the linear system solver.
