@@ -19,6 +19,11 @@ These modules are:
       preconditioned TFQMR method.
 \end{itemize}
 
+For reasons related to installation, the names of the files involved
+in these generic solvers begin with the prefix \id{sundials\_}.  But
+despite this, each of the solvers is in fact generic, in that it is
+usable completely independently of {\sundials}.
+
 For the sake of space, the functions for \id{DenseMat} and
 \id{BandMat} matrices and the functions in {\spgmr}, {\spbcg} and {\sptfqmr}
 are only summarized briefly, since they are less likely to be of direct use
