@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.42 $
- * $Date: 2006-03-21 19:14:21 $
+ * $Revision: 1.43 $
+ * $Date: 2006-03-21 23:30:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -603,7 +603,7 @@ extern "C" {
    *                  times (= MXNCF = 10) during one internal time
    *                  step or occurred with |h| = hmin.
    *
-   * CV_LINIT_FAIL:   The linear solver's initialization funciton 
+   * CV_LINIT_FAIL:   The linear solver's initialization function 
    *                  failed.
    *
    * CV_LSETUP_FAIL:  The linear solver's setup routine failed in an
