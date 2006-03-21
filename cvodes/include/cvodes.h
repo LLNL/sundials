@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.55 $
- * $Date: 2006-03-09 20:29:23 $
+ * $Revision: 1.56 $
+ * $Date: 2006-03-21 19:14:23 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -917,7 +917,7 @@ extern "C" {
    *
    * Here is a brief description of each return value:
    *
-   * CV_SUCCESS: CVode succeeded and no roots were found.
+   * CV_SUCCESS:     CVode succeeded and no roots were found.
    *
    * CV_ROOT_RETURN: CVode succeeded, and found one or more roots.
    *                 If nrtfn > 1, call CVodeGetRootInfo to see
@@ -942,19 +942,22 @@ extern "C" {
    *                 error message for more details.
    *
    * CV_TOO_MUCH_WORK: The solver took mxstep internal steps but
-   *                   could not reach tout. The default value for
-   *                   mxstep is MXSTEP_DEFAULT = 500.
+   *                 could not reach tout. The default value for
+   *                 mxstep is MXSTEP_DEFAULT = 500.
    *
    * CV_TOO_MUCH_ACC: The solver could not satisfy the accuracy
-   *                  demanded by the user for some internal step.
+   *                 demanded by the user for some internal step.
    *
    * CV_ERR_FAILURE: Error test failures occurred too many times
    *                 (= MXNEF = 7) during one internal time step or
    *                 occurred with |h| = hmin.
    *
    * CV_CONV_FAILURE: Convergence test failures occurred too many
-   *                  times (= MXNCF = 10) during one internal time
-   *                  step or occurred with |h| = hmin.
+   *                 times (= MXNCF = 10) during one internal time
+   *                 step or occurred with |h| = hmin.
+   *
+   * CV_LINIT_FAIL:  The linear solver's initialization function 
+   *                 failed.
    *
    * CV_LSETUP_FAIL: The linear solver's setup routine failed in an
    *                 unrecoverable manner.

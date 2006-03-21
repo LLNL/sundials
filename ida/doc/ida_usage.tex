@@ -4012,7 +4012,7 @@ the user may provide a function of type \ID{IDADenseJacFn} defined by
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[jac\_data]
     is a pointer to user data --- the same as the \id{jac\_data}      
-    parameter passed to \id{IDADenseSetJacData}.   
+    parameter passed to \id{IDADenseSetJacFn}.   
   \item[Jac]
     is the output Jacobian matrix.  
   \item[tmp1]
@@ -4112,7 +4112,7 @@ the user may provide a function of type \ID{IDABandJacFn} defined as follows:
     step size ($\alpha$ in Eq. (\ref{e:DAE_Jacobian}) ).
   \item[jac\_data]
     is a pointer to user data --- the same as the \id{jac\_data}      
-    parameter passed to \id{IDABandSetJacData}.   
+    parameter passed to \id{IDABandSetJacFn}.   
   \item[Jac]
     is the output Jacobian matrix.  
   \item[tmp1]

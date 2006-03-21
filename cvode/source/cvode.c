@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.65 $
- * $Date: 2006-02-10 21:19:15 $
+ * $Revision: 1.66 $
+ * $Date: 2006-03-21 19:14:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -2481,6 +2481,8 @@ static int CVNlsFunctional(CVodeMem cv_mem)
   /* Loop until convergence; accumulate corrections in acor */
 
   loop {
+
+    nni++;
 
     /* Correct y directly from the last f value */
     N_VLinearSum(h, tempv, -ONE, zn[1], tempv);

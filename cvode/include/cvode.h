@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2006-02-10 21:19:13 $
+ * $Revision: 1.42 $
+ * $Date: 2006-03-21 19:14:21 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
  *                and Dan Shumaker @ LLNL
@@ -602,6 +602,9 @@ extern "C" {
    * CV_CONV_FAILURE: Convergence test failures occurred too many
    *                  times (= MXNCF = 10) during one internal time
    *                  step or occurred with |h| = hmin.
+   *
+   * CV_LINIT_FAIL:   The linear solver's initialization funciton 
+   *                  failed.
    *
    * CV_LSETUP_FAIL:  The linear solver's setup routine failed in an
    *                  unrecoverable manner.
