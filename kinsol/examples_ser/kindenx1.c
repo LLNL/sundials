@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-20 22:21:09 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-21 13:54:29 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -174,6 +174,11 @@ int main()
 
   /* --------------------------- */
 
+  printf("\n------------------------------------------\n");
+  printf("\nInitial guess on lower bounds\n");
+  printf("  [x1,x2] = ");
+  PrintOutput(u1);
+
   N_VScale_Serial(ONE,u1,u);
   glstr = KIN_NONE;
   mset = 1;
@@ -203,6 +208,11 @@ int main()
 
 
   /* --------------------------- */
+
+  printf("\n------------------------------------------\n");
+  printf("\nInitial guess in middle of feasible region\n");
+  printf("  [x1,x2] = ");
+  PrintOutput(u2);
 
   N_VScale_Serial(ONE,u2,u);
   glstr = KIN_NONE;
@@ -249,12 +259,17 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
 {
   int flag;
 
-  printf("--------------------------------\n");
+  printf("\n");
 
-  printf("glstr = %d   mset = %d\n",glstr,mset);
+  if (mset==1)
+    printf("Exact Newton");
+  else
+    printf("Modified Newton",mset);
 
-  printf("Initial guess:");
-  PrintOutput(u);
+  if (glstr == KIN_NONE)
+    printf("\n");
+  else
+    printf(" with line search\n");
 
   flag = KINSetMaxSetupCalls(kmem, mset);
   if (check_flag(&flag, "KINSetMaxSetupCalls", 1)) return(1);
@@ -262,7 +277,7 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
   flag = KINSol(kmem, u, glstr, s, s);
   if (check_flag(&flag, "KINSol", 1)) return(1);
 
-  printf("Solution:     ");
+  printf("Solution:\n  [x1,x2] = ");
   PrintOutput(u);
 
   PrintFinalStats(kmem);
@@ -270,7 +285,6 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
   return(0);
 
 }
-
 
 
 /*
@@ -380,20 +394,18 @@ static void SetInitialGuess2(N_Vector u, UserData data)
 
 static void PrintHeader(int globalstrategy, realtype fnormtol, realtype scsteptol)
 {
-  printf("\nFerraris and Tronconi test problem --  KINSol (serial version)\n");
-  printf("Total system size = %d\n", NEQ);
-  printf("Linear solver is KINDENSE\n");
+  printf("\nFerraris and Tronconi test problem\n");
+  printf("Tolerance parameters:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
-  printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n",
+  printf("  fnormtol  = %10.6Lg\n  scsteptol = %10.6Lg\n",
          fnormtol, scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters:  fnormtol = %lg   scsteptol = %lg\n",
+  printf("  fnormtol  = %10.6lg\n  scsteptol = %10.6lg\n",
          fnormtol, scsteptol);
 #else
-  printf("Tolerance parameters:  fnormtol = %g   scsteptol = %g\n",
+  printf("  fnormtol  = %10.6g\n  scsteptol = %10.6g\n",
          fnormtol, scsteptol);
 #endif
-
 }
 
 /* 
@@ -403,11 +415,11 @@ static void PrintHeader(int globalstrategy, realtype fnormtol, realtype scstepto
 static void PrintOutput(N_Vector u)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf(" %Lg  %Lg\n", Ith(u,1), Ith(u,2));
+    printf(" %8.6Lg  %8.6Lg\n", Ith(u,1), Ith(u,2));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %lg  %lg\n", Ith(u,1), Ith(u,2));
+    printf(" %8.6lg  %8.6lg\n", Ith(u,1), Ith(u,2));
 #else
-    printf(" %g  %g\n", Ith(u,1), Ith(u,2));
+    printf(" %8.6g  %8.6g\n", Ith(u,1), Ith(u,2));
 #endif
 }
 
@@ -430,9 +442,9 @@ static void PrintFinalStats(void *kmem)
   flag = KINDenseGetNumFuncEvals(kmem, &nfeD);
   check_flag(&flag, "KINDenseGetNumFuncEvals", 1);
 
-  printf("Final Statistics.. \n");
-  printf("nni    = %5ld    nfe   = %5ld \n", nni, nfe);
-  printf("nje    = %5ld    nfeD  = %5ld \n", nje, nfeD);
+  printf("Final Statistics:\n");
+  printf("  nni = %5ld    nfe  = %5ld \n", nni, nfe);
+  printf("  nje = %5ld    nfeD = %5ld \n", nje, nfeD);
 }
 
 /*
