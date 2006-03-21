@@ -102,6 +102,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
      the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
    <LI> added support for SPBCG and SPTFQMR to the CVBBDPRE and CVBANDPRE 
      preconditioner modules.
+   <LI> added support for interpreting failures in user-supplied functions.
    </UL>
 <LI> Changes to user interface
    <UL class="second">
@@ -324,6 +325,10 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
      the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
    <LI> added support for SPBCG and SPTFQMR to the CVBBDPRE and CVBANDPRE 
      preconditioner modules.
+   <LI> added support for interpreting failures in user-supplied functions.
+   <LI> added a new variable-degree polynomial interpolation method as an
+     an alternative to the current cubic Hermite interpolation for the
+     adjoint module.
    </UL>
 <LI> Changes to user interface
    <UL class="second">
@@ -345,7 +350,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
      an integer flag (not all of them currently used).
    <LI> changed some names for CVBANDPRE and CVBBDPRE function outputs
    <LI> added option for user-supplied error handler function.
-   <LI> added a argument to CVadjMalloc to specify the type of interpolation 
+   <LI> added an argument to CVadjMalloc to specify the type of interpolation 
      (possible values are CV_HERMITE for cubic Hermite and CV_POLYNOMIAL
      for variable-order polynomial interpolation)
    <LI> renamed all exported header files (except for cvodes.h and cvodea.h all 
@@ -575,11 +580,12 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <UL class="second">
    <LI> added IDASPBCG interface module to allow IDA to interface with the
      shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
-   <LI> added support for SPBCG to the IDABBDPRE preconditioner module.
-   <LI> added FIDA (Fortran interface to IDA).
    <LI> added IDASPTFQMR interface module to allow IDA to interface with the
      shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
-   <LI> added rootfinding feature in IDA; modified irobx example problem.
+   <LI> added FIDA (Fortran interface to IDA).
+   <LI> added support for SPBCG and SPTFQMR to the IDABBDPRE preconditioner module.
+   <LI> added rootfinding feature in IDA.
+   <LI> added support for interpreting failures in user-supplied functions.
   </UL>
 <LI> Changes to user interface
   <UL class="second">
@@ -759,16 +765,24 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <LI class="title">What's new in v2.4.0?
 <LI> New features
    <UL class="second">
+   <LI> added direct linear solvers (dense and band, provided
+     through the KINDENSE and KINBAND modules, respectively) thus adding
+     modified (and exact) Newton methods to KINSOL.
+   <LI> added KINSPBCG interface module to allow KINSOL to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+   <LI> added KINSPTFQMR interface module to allow KINSOL to interface with
+     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module
+   <LI> added support for SPBCG and SPTFQMR to the KINBBDPRE preconditioner module.
    <LI> added option to KINBBDPRE preconditioner module to allow specification
      of different half-bandwidths for difference quotient approximation and
      retained matrix.
-   <LI> added KINSPBCG interface module to allow KINSOL to interface with the
-     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
-   <LI> added support for SPBCG to the KINBBDPRE preconditioner module.
-   <LI> added KINSPTFQMR interface module to allow KINSOL to interface with
-     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module
-   <LI> added KINDENSE interface module (dense linear solver)
-   <LI> added KINBAND interface module (band linear solver)
+   <LI> added support for interpreting failures in user-supplied functions.
+   </UL>
+<LI> Bug fixes
+   <UL class="second">
+   <LI> corrected a bug in the preconditioner logic that caused the initial call
+     to the preconditioner setup routine (controlled by KINSetNoInitSetup) to
+     be skipped during subsequent calls to KINSol.
    </UL>
 <LI> Changes to underlying algorithm
    <UL class="second">
@@ -777,12 +791,6 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
      and the retained matrix.
    <LI> added nonlinear residual monitoring scheme to control Jacobian updating
      when a direct linear solver is used (modified Newton iteration)
-   </UL>
-<LI> Bug fixes
-   <UL class="second">
-   <LI> corrected a bug in the preconditioner logic that caused the initial call
-     to the preconditioner setup routine (controlled by KINSetNoInitSetup) to
-     be skipped during subsequent calls to KINSol.
    </UL>
 <LI> Changes to user interface
    <UL class="second">
@@ -986,13 +994,13 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <LI> expanded CVodeMonitor
   <LI> added interface to KINSOL's performance monitoring function
     ('Verbose' option to KINSetOptions)
-   </UL>
+  </UL>
 
 <LI> Bug fixes
   <UL class="second">
   <LI> fixed bug in interface to quadrature integration which was causing
     a segmentatin violation when monitoring was turned on.
-   </UL>
+  </UL>
 
 <LI> Changes to user interface
   <UL class="second">
@@ -1002,7 +1010,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <LI> optional inputs for forward sensitivity analysis are now provided
     through a separate function, CVodeSensSetOptions
   <LI> removed NVM mex interface
-   </UL>
+  </UL>
 
 </UL>
 </div>

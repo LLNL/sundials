@@ -99,6 +99,7 @@ v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
      the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module.
    - added support for SPBCG and SPTFQMR to the CVBBDPRE and CVBANDPRE 
      preconditioner modules.
+   - added support for interpreting failures in user-supplied functions.
 
 - Changes to user interface
    - changed argument of CVodeFree, CVBandPrecFree, and CVBBDPrecFree to

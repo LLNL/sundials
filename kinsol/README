@@ -98,22 +98,24 @@ E. Revision History
 v. 2.3.0 (Apr. 2005) ---> v. 2.4.0 (???. 2006)
 ------------------------------------------------
 
+- New features
+   - added direct linear solvers (dense and band, provided
+     through the KINDENSE and KINBAND modules, respectively) thus adding
+     modified (and exact) Newton methods to KINSOL.
+   - added KINSPBCG interface module to allow KINSOL to interface with the
+     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
+   - added KINSPTFQMR interface module to allow KINSOL to interface with
+     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module
+   - added support for SPBCG and SPTFQMR to the KINBBDPRE preconditioner module.
+   - added option to KINBBDPRE preconditioner module to allow specification
+     of different half-bandwidths for difference quotient approximation and
+     retained matrix.
+   - added support for interpreting failures in user-supplied functions.
+
 - Bug fixes
    - corrected a bug in the preconditioner logic that caused the initial call
      to the preconditioner setup routine (controlled by KINSetNoInitSetup) to
      be skipped during subsequent calls to KINSol
-
-- New features
-   - added option to KINBBDPRE preconditioner module to allow specification
-     of different half-bandwidths for difference quotient approximation and
-     retained matrix.
-   - added KINSPBCG interface module to allow KINSOL to interface with the
-     shared SPBCG (scaled preconditioned Bi-CGSTAB) linear solver module.
-   - added support for SPBCG to the KINBBDPRE preconditioner module.
-   - added KINSPTFQMR interface module to allow KINSOL to interface with
-     the shared SPTFQMR (scaled preconditioned TFQMR) linear solver module
-   - added KINDENSE interface module (dense linear solver)
-   - added KINBAND interface module (band linear solver)
 
 - Changes to underlying algorithms
    - modified the KINBBDPRE preconditioner module to allow the use of
