@@ -330,6 +330,29 @@ Integrate from the point of discontinuity
 The examples below illustrate the proper treatment of the above problems.
 <br>
 <br>
+<h3>C1) Unphysical solution components</h3>
+<br>
+<br>
+The example <tt><b>cvsnegsolx</b></tt>
+[ <a href="samples/cvsnegsolx.c.html" onclick="window.open('samples/cvsnegsolx.c.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false">view</a> | <a href="samples/cvsdiscx.c">download</a> ]
+is a modification of the CVODES <tt>cvsdenx</tt> example and it illustrates the use 
+of the RHS function return value to control unphysical negative concentrations.
+Note that, to make possible negative solution components, the absolute tolerances had to be 
+loosened a bit from their values in cvsdenx (indeed, as mentioned before, tighter tolerances
+will often ensure that the numerical solution does not introduce unphysical values that
+the mathematical model would otherwise not generate).
+The 3-reaction chemical kinetics mechanism is solved twice, once ignoring the negative
+concentrations and the second time by returning with a flag=1 from the RHS function,
+indicating a <i>recoverable error</i>. The evolution of the concentration of the first species
+at the end of the simulation interval is shown in the following figure, the red curve corresponding to
+the case in which negative concentrations are not controlled and the blue curve
+corresponding to the case in which negative concentrations are intercepted in the RHS function.
+<center>
+<img src="samples/negsol.png">
+</center>
+
+<br>
+<br>
 <h3>C2) Discontinuities in the solution or RHS function</h3>
 <br>
 <br>
@@ -353,8 +376,8 @@ Discontinuity in RHS (y')
 This case is solved twice, first by explicitly treating the 
 discontinuity point and secondly by letting the integrator 
 deal with the discontinuity.
-The integration results are shown in the figure below. The red line is the solution 
-obtained by reinitializing the solver at the discontinuity point, while the blue line is
+The integration results are shown in the figure below. The blue line is the solution 
+obtained by reinitializing the solver at the discontinuity point, while the red line is
 the solution obtained by letting the solver step over the discontinuity without
 reinitialization. The differences between the two solutions are of the order of the absolute
 tolerances. However, the first solution is more correct (note the negative curvature of the

@@ -1,0 +1,214 @@
+<html>
+
+<head>
+
+<title>cvsnegsol Example</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body style="padding: 5px 5px 5px 5px;">
+
+<a href="javascript:window.close();"><img border="0" src="../img/cross.png" style="vertical-align: middle;"> <b>Close</b></a>
+<hr>
+
+
+<pre>
+<span class="comment">/*
+ * -----------------------------------------------------------------
+ * $Revision: 1.1 $
+ * $Date: 2006-03-22 01:00:17 $
+ * -----------------------------------------------------------------
+ * Programmer: Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * Modification of the CVODES example cvsdenx to illustrate treatment
+ * of unphysical solution components throuh the RHS function return 
+ * flag.
+ *
+ * Note that, to make possible negative solution components, the
+ * absolute tolerances had to be loosened a bit from their values 
+ * in cvsdenx.
+ *
+ * The following is a simple example problem, with the coding
+ * needed for its solution by CVODE. The problem is from
+ * chemical kinetics, and consists of the following three rate
+ * equations:         
+ *    dy1/dt = -.04*y1 + 1.e4*y2*y3
+ *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
+ *    dy3/dt = 3.e7*(y2)^2
+ * on the interval from t = 0.0 to t = 4.e10, with initial
+ * conditions: y1 = 1.0, y2 = y3 = 0. The problem is stiff.
+ *
+ * NOTE: For readibility, no checks are performed on the various 
+ *       function return flags.
+ * -----------------------------------------------------------------
+ */</span>
+
+#<span class="builtin">include</span> <span class="string">&lt;stdio.h&gt;</span>
+#<span class="builtin">include</span> <span class="string">"cvodes.h"</span>
+#<span class="builtin">include</span> <span class="string">"nvector_serial.h"</span>
+#<span class="builtin">include</span> <span class="string">"cvodes_dense.h"</span>
+#<span class="builtin">include</span> <span class="string">"sundials_dense.h"</span>
+#<span class="builtin">include</span> <span class="string">"sundials_types.h"</span>
+
+#<span class="builtin">define</span> <span class="function-name">Ith</span>(v,i)    NV_Ith_S(v,i-1)
+
+#<span class="builtin">define</span> <span class="variable-name">NEQ</span>   3
+#<span class="builtin">define</span> <span class="variable-name">Y1</span>    RCONST(1.0)
+#<span class="builtin">define</span> <span class="variable-name">Y2</span>    RCONST(0.0)
+#<span class="builtin">define</span> <span class="variable-name">Y3</span>    RCONST(0.0)
+#<span class="builtin">define</span> <span class="variable-name">RTOL</span>  RCONST(1.0e-4)
+#<span class="builtin">define</span> <span class="variable-name">ATOL1</span> RCONST(7.0e-7)
+#<span class="builtin">define</span> <span class="variable-name">ATOL2</span> RCONST(1.0e-12)
+#<span class="builtin">define</span> <span class="variable-name">ATOL3</span> RCONST(1.0e-5)
+#<span class="builtin">define</span> <span class="variable-name">T0</span>    RCONST(0.0)
+#<span class="builtin">define</span> <span class="variable-name">T1</span>    RCONST(0.4)
+#<span class="builtin">define</span> <span class="variable-name">TMULT</span> RCONST(10.0)
+#<span class="builtin">define</span> <span class="variable-name">NOUT</span>  12
+
+<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">f</span>(realtype t, N_Vector y, N_Vector ydot, <span class="type">void</span> *<span class="variable-name">f_data</span>);
+<span class="keyword">static</span> <span class="type">void</span> <span class="function-name">PrintOutput</span>(realtype t, realtype y1, realtype y2, realtype y3);
+<span class="keyword">static</span> <span class="type">void</span> <span class="function-name">PrintFinalStats</span>(<span class="type">void</span> *<span class="variable-name">cvode_mem</span>);
+
+<span class="comment">/*
+ *-------------------------------
+ * Main Program
+ *-------------------------------
+ */</span>
+
+<span class="type">int</span> <span class="function-name">main</span>()
+{
+  realtype reltol, t, tout;
+  N_Vector y, abstol;
+  <span class="type">void</span> *<span class="variable-name">cvode_mem</span>;
+  <span class="type">int</span> <span class="variable-name">iout</span>;
+  booleantype check_negative;
+
+  <span class="comment">/* Create serial vector of length NEQ for I.C. and abstol */</span>
+  y = N_VNew_Serial(NEQ);
+  abstol = N_VNew_Serial(NEQ); 
+
+  <span class="comment">/* Initialize y */</span>
+  Ith(y,1) = Y1;
+  Ith(y,2) = Y2;
+  Ith(y,3) = Y3;
+
+  <span class="comment">/* Set the tolerances */</span>
+  reltol = RTOL;
+  Ith(abstol,1) = ATOL1;
+  Ith(abstol,2) = ATOL2;
+  Ith(abstol,3) = ATOL3;
+
+  <span class="comment">/* Initialize and allocate solver memory */</span>
+  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  CVodeMalloc(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
+  CVodeSetFdata(cvode_mem, &amp;check_negative);
+  <span class="comment">/* Call CVDense to specify the CVDENSE dense linear solver */</span>
+  CVDense(cvode_mem, NEQ);
+
+  <span class="comment">/* Case 1: ignore negative solution components */</span>
+  printf(<span class="string">"Ignore negative solution components\n\n"</span>);
+  check_negative = FALSE;
+  <span class="comment">/* In loop, call CVode in CV_NORMAL mode */</span>
+  iout = 0;  tout = T1;
+  <span class="keyword">while</span>(1) {
+    CVode(cvode_mem, tout, y, &amp;t, CV_NORMAL);
+    PrintOutput(t, Ith(y,1), Ith(y,2), Ith(y,3));
+    iout++;
+    tout *= TMULT;
+    <span class="keyword">if</span> (iout == NOUT) <span class="keyword">break</span>;
+  }
+  <span class="comment">/* Print some final statistics */</span>
+  PrintFinalStats(cvode_mem);
+
+  <span class="comment">/* Case 2: intercept negative solution components */</span>
+  printf(<span class="string">"Intercept negative solution components\n\n"</span>);
+  check_negative = TRUE;
+  <span class="comment">/* Reinitialize solver */</span>
+  Ith(y,1) = Y1;
+  Ith(y,2) = Y2;
+  Ith(y,3) = Y3;
+  CVodeReInit(cvode_mem, f, T0, y, CV_SV, reltol, abstol);
+  <span class="comment">/* In loop, call CVode in CV_NORMAL mode */</span>
+  iout = 0;  tout = T1;
+  <span class="keyword">while</span>(1) {
+    CVode(cvode_mem, tout, y, &amp;t, CV_NORMAL);
+    PrintOutput(t, Ith(y,1), Ith(y,2), Ith(y,3));
+    iout++;
+    tout *= TMULT;
+    <span class="keyword">if</span> (iout == NOUT) <span class="keyword">break</span>;
+  }
+  <span class="comment">/* Print some final statistics */</span>
+  PrintFinalStats(cvode_mem);
+
+  <span class="comment">/* Free y vector */</span>
+  N_VDestroy_Serial(y);
+
+  <span class="comment">/* Free integrator memory */</span>
+  CVodeFree(&amp;cvode_mem);
+
+  <span class="keyword">return</span>(0);
+}
+
+<span class="keyword">static</span> <span class="type">int</span> <span class="function-name">f</span>(realtype t, N_Vector y, N_Vector ydot, <span class="type">void</span> *<span class="variable-name">f_data</span>)
+{
+  realtype y1, y2, y3, yd1, yd3;
+  booleantype *check_negative;
+
+  check_negative = (booleantype *)f_data;
+
+  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+
+  <span class="keyword">if</span> ( *check_negative &amp;&amp; (y1&lt;0 || y2&lt;0 || y3&lt;0) )
+    <span class="keyword">return</span>(1);
+ 
+  Ith(ydot,1) = yd1 = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
+  Ith(ydot,3) = yd3 = RCONST(3.0e7)*y2*y2;
+  Ith(ydot,2) = -yd1 - yd3;
+
+  <span class="keyword">return</span>(0);
+}
+
+<span class="keyword">static</span> <span class="type">void</span> <span class="function-name">PrintOutput</span>(realtype t, realtype y1, realtype y2, realtype y3)
+{
+  printf(<span class="string">"At t = %0.4le   y =%14.6le  %14.6le  %14.6le\n"</span>, t, y1, y2, y3);
+  <span class="keyword">return</span>;
+}
+
+<span class="keyword">static</span> <span class="type">void</span> <span class="function-name">PrintFinalStats</span>(<span class="type">void</span> *<span class="variable-name">cvode_mem</span>)
+{
+  <span class="type">long</span> <span class="type">int</span> <span class="variable-name">nst</span>, <span class="variable-name">nfe</span>, <span class="variable-name">nsetups</span>, <span class="variable-name">nje</span>, <span class="variable-name">nfeLS</span>, <span class="variable-name">nni</span>, <span class="variable-name">ncfn</span>, <span class="variable-name">netf</span>;
+
+  CVodeGetNumSteps(cvode_mem, &amp;nst);
+  CVodeGetNumRhsEvals(cvode_mem, &amp;nfe);
+  CVodeGetNumLinSolvSetups(cvode_mem, &amp;nsetups);
+  CVodeGetNumErrTestFails(cvode_mem, &amp;netf);
+  CVodeGetNumNonlinSolvIters(cvode_mem, &amp;nni);
+  CVodeGetNumNonlinSolvConvFails(cvode_mem, &amp;ncfn);
+
+  CVDenseGetNumJacEvals(cvode_mem, &amp;nje);
+  CVDenseGetNumRhsEvals(cvode_mem, &amp;nfeLS);
+
+  printf(<span class="string">"\nFinal Statistics:\n"</span>);
+  printf(<span class="string">"nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n"</span>,
+         nst, nfe, nsetups, nfeLS, nje);
+  printf(<span class="string">"nni = %-6ld ncfn = %-6ld netf = %-6ld\n \n"</span>,
+         nni, ncfn, netf);
+}
+
+</pre>
+
+<hr>
+<a href="javascript:window.close();"><img border="0" src="../img/cross.png" style="vertical-align: middle;"> <b>Close</b></a>
+
+
+</body>
+</html>
