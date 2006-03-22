@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.4 $
-# $Date: 2006-03-17 03:45:43 $
+# $Revision: 1.5 $
+# $Date: 2006-03-22 19:06:41 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -28,7 +28,7 @@ SUNDIALS_ENABLES
 SUNDIALS_MPI_ENABLES
 
 # Set C compilation
-Aecho -e "\nC Compiler Settings\n-------------------\n"
+echo -e "\nC Compiler Settings\n-------------------\n"
 C_PROG_CC(${CC} cc gcc)
 SUNDIALS_SET_CC
 
