@@ -86,6 +86,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <li><a href="#inst_noconfig">How do I build SUNDIALS without using the configure script?</a></li>
   <li><a href="#inst_win">How do I install SUNDIALS under Windows?</a></li>
   <li><a href="#inst_cygwin">How can I generate shared libraries under cygwin?</a></li>
+  <li><a href="#inst_32vs64bit">Should I build 32-bit or 64-bit SUNDIALS libraries?</a></li>
   </ul>
 <li><a href="#cvode">CVODE / CVODES</a>
   <ul>
@@ -105,13 +106,12 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
   <li><a href="#ida_disc">How do I treat discontinuities in the residual function in IDA?</a></li>
   <li><a href="#ida_ewtfn">When is it advantegeous to supply my own EwtFn function?</a></li>
   </ul>
-<!--
 <li><a href="#kinsol">KINSOL</a>
   <ul>
-  <li></li>
-  <li></li>
-  <li></li>
+  <li><a href="#kinsol_reinit">How do I reinitialize KINSOL within a C/C++ program?</a></li>
+  <li><a href="#kinsol_violateconstr">Why is the system function being evaluated at points that violate the constraints?</a></li>
   </ul>
+<!--
 <li><a href="#stb">sundialsTB</a>
   <ul>
   <li></li>
@@ -326,6 +326,22 @@ flag:
 </pre>
 </li>
 </ol>
+</div>
+
+<a name="inst_32vs64bit"></a>
+<div class="faq_q">Should I build 32-bit or 64-bit SUNDIALS libraries?</div>
+<div class="faq_a">
+Typically, the "bitness" of a CPU refers to the size of the linear address space a process
+can address (e.g., an IA-32 processor can address up to 4GB).  Consequently, if your program
+does not require more than 4GB of memory, then there is probably no benefit to building a
+64-bit library.
+<br>
+<br>
+People are also often confused by the nomenclature, but the "bitness" of a CPU has nothing
+to do with the accuracy of floating-point computations or the size of floating-point numeric
+data types.  Regardless of the "bitness" of the processor, real numbers are stored in the
+IEEE Standard 754 floating-point format.  Therefore, building a 64-bit library will not
+increase the accuracy of your numerical results.
 </div>
 
 </div>
@@ -572,27 +588,32 @@ See <a href="#cvode_ewtfn">How do I treat discontinuities in the RHS function?</
 
 <!-- ================ KINSOL ================== -->
 
-<!--
-
 <a name="kinsol"></a>
 <h1>KINSOL</h1>
 <div class="frame">
 
-<a name=""></a>
-<div class="faq_q">Q?</div>
+<a name="kinsol_reinit"></a>
+<div class="faq_q">How do I reinitialize KINSOL within a C/C++ program?</div>
 <div class="faq_a">
-a
+Although KINSOL does not provide a reinitialization function, it is possible to reinitialize the solver (meaning reuse
+a KINSOL object), but only if the problem size remains unchanged.  To reinitialize KINSOL, begin by making any necessary
+changes to the problem definition by calling the appropriate <tt>KINSet*</tt> functions (e.g., <tt>KINSetSysFunc</tt>).
+Next, if you would like to use a different linear solver, call the appropriate function (e.g., <tt>KINDense</tt>) followed
+by any calls to the corresponding <tt>KIN*Set*</tt> functions.  Then you can call the <tt>KINSol</tt> function to solve
+the updated nonlinear algebraic system.
 </div>
 
-<a name=""></a>
-<div class="faq_q">Q?</div>
+<a name="kinsol_violateconstr"></a>
+<div class="faq_q">Why is the system function being evaluated at points that violate the constraints?</div>
 <div class="faq_a">
-a
+If you have not supplied a function to compute either J(u) (of type <tt>KINDenseJacFn</tt> or <tt>KINBandJacFn</tt>)
+or J(u)v (of type <tt>KINSpilsJacTimesVecFn</tt>), then the included function may be the culprit.
+The default function used to compute a difference quotient approximation to the Jacobian (direct methods) or
+Jacobian matrix-vector product (Kylov methods) evaluates the user-supplied system function at a slightly perturbed
+point, but does not check if that point violates the constraints.
 </div>
 
 </div>
-
--->
 
 <!-- =============== sundialsTB ================== -->
 
