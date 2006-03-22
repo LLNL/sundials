@@ -239,7 +239,7 @@ The type \id{UserData} is a pointer to a structure containing problem
 data used in the \id{f} and \id{Jac} functions.  This structure is
 allocated and initialized at the beginning of \id{main}. The pointer
 to it, called \id{data}, is passed to both \id{CVodeSetFData} and
-\id{CVBandSetJacData}, and as a result it will be passed back to the
+\id{CVBandSetJacFn}, and as a result it will be passed back to the
 \id{f} and \id{Jac} functions each time they are called.  (If
 appropriate, two different data structures could be defined and passed
 to \id{f} and \id{Jac}.)  The use of the \id{data} pointer eliminates
