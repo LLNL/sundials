@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] mass balance and negative values -->
-<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
-<!--X-Date: Wed, 08 Mar 2006 13:56:48 &#45;0800 (PST) -->
-<!--X-Message-Id: Pine.LNX.4.58.0603081353580.22595@tux64.llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] memory leaks -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Tue, 21 Mar 2006 07:55:53 &#45;0800 (PST) -->
+<!--X-Message-Id: 442021BD.10605@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200603060222.VAA19895@webmail3.cac.psu.edu -->
+<!--X-Reference: 13eaacd00603210708l562e614s@mail.gmail.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] mass balance and negative values</title>
+<title>Re: [sundials-users] memory leaks</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00357.html">Date Prev</a>] [<a href="msg00359.html">Date Next</a>] [<a href="msg00357.html">Thread Prev</a>] [<a href="msg00374.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00358">Date Index</a></b>]
-[<b><a href="threads.html#00358">Thread Index</a></b>]
+[<a href="msg00383.html">Date Prev</a>] [<a href="msg00385.html">Date Next</a>] [<a href="msg00383.html">Thread Prev</a>] [<a href="msg00386.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00384">Date Index</a></b>]
+[<b><a href="threads.html#00384">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] mass balance and negative values</h1>
+<h1>Re: [sundials-users] memory leaks</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
+Tue, 21 Mar 2006 07:54:37 -0800</td>
 </tr>
 
 </table>
@@ -101,19 +101,25 @@ Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-I agree with everything in Radu's reply.  Let me just add one thing.
-<br><br>
-In my opinion, the transformation idea, using xi = log(yi) instead of
-yi, is more harmful than helpful.  First, the transformation (and its
-inverse) itself adds expense.  Second, the proper choice of tolerances
-for the transformed variable is unclear, and is very likely to lead to
-a more expensive integration (aside from the bounds issue).  Finally,
-I think users are tempted to use this (or other tricks) to avoid small
-(tolerance-level) violations of bounds when no such action is really
-needed.  Just let the small unphysical values occur, but locally
-adjust them if necessary.
-<br><br>
--Alan Hindmarsh
+<pre style="margin: 0em;">Hi,</pre><br>
+<pre style="margin: 0em;">A comment unrelated to your main problem (by the way, what is the actual 
+issue?)...</pre><br>
+Adrian Dietz wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">        double *atol =  new double[this-&gt;n_states];
+        for(a = 0; a &lt; this-&gt;n_states; ++a) {
+                atol[a] = 1.e-12;
+        }
+        
+        void *a_tol = (void *)atol;
+        flag = CVodeMalloc(cvode, f, 0., Y0, CV_SS, rtol, a_tol);
+</pre></blockquote><pre style="margin: 0em;"><br>Since you specify itol=CV_SS, i.e. all variables have the same absolute 
+tolerance, there is no need for the array atol. You only need</pre><br>
+<pre style="margin: 0em;">double a_tol = 1.e-12
+flag = CVodeMalloc(cvode, f, 0., Y0, CV_SS, rtol, &amp;a_tol);</pre><br>
+Unless, of course, you plan on using a vector a_tol in the future, in which case a_tol will have to be of type N_Vector and its data array 
+loaded with the atol values...<br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -121,35 +127,40 @@ adjust them if necessary.
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00386" href="msg00386.html">Re: [sundials-users] memory leaks</a></strong>
+<ul><li><em>From:</em> Adrian Dietz &lt;adrian.dietz@gmail.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00346" href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> SHUANGCAI LI &lt;sul19@psu.edu&gt;</li></ul></li>
+<li><strong><a name="00382" href="msg00382.html">[sundials-users] memory leaks</a></strong>
+<ul><li><em>From:</em> Adrian Dietz &lt;adrian.dietz@gmail.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00383.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00359.html">[sundials-users] Notes on controlling unphysical solution components and integrating over discontinuities</a></strong>
+<strong><a href="msg00385.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00383.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00374.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00386.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00358">
+<li><a href="maillist.html#00384">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00358">
+<li><a href="threads.html#00384">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

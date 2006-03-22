@@ -1,14 +1,15 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] mass balance and negative values -->
-<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
-<!--X-Date: Wed, 08 Mar 2006 13:56:48 &#45;0800 (PST) -->
-<!--X-Message-Id: Pine.LNX.4.58.0603081353580.22595@tux64.llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] memory leaks -->
+<!--X-From-R13: Oqevna Rvrgm <nqevna.qvrgmNtznvy.pbz> -->
+<!--X-Date: Tue, 21 Mar 2006 09:50:10 &#45;0800 (PST) -->
+<!--X-Message-Id: 13eaacd00603210946y69a894d8x@mail.gmail.com -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200603060222.VAA19895@webmail3.cac.psu.edu -->
+<!--X-Reference: 13eaacd00603210708l562e614s@mail.gmail.com -->
+<!--X-Reference: 442021BD.10605@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] mass balance and negative values</title>
+<title>Re: [sundials-users] memory leaks</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +68,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00357.html">Date Prev</a>] [<a href="msg00359.html">Date Next</a>] [<a href="msg00357.html">Thread Prev</a>] [<a href="msg00374.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00358">Date Index</a></b>]
-[<b><a href="threads.html#00358">Thread Index</a></b>]
+[<a href="msg00385.html">Date Prev</a>] [<a href="msg00387.html">Date Next</a>] [<a href="msg00384.html">Thread Prev</a>] [<a href="msg00387.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00386">Date Index</a></b>]
+[<b><a href="threads.html#00386">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] mass balance and negative values</h1>
+<h1>Re: [sundials-users] memory leaks</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +85,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+Adrian Dietz &lt;<a href="mailto:adrian.dietz%40gmail.com">adrian.dietz@gmail.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
+Tue, 21 Mar 2006 18:46:53 +0100</td>
 </tr>
 
 </table>
@@ -101,55 +102,118 @@ Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-I agree with everything in Radu's reply.  Let me just add one thing.
-<br><br>
-In my opinion, the transformation idea, using xi = log(yi) instead of
-yi, is more harmful than helpful.  First, the transformation (and its
-inverse) itself adds expense.  Second, the proper choice of tolerances
-for the transformed variable is unclear, and is very likely to lead to
-a more expensive integration (aside from the bounds issue).  Finally,
-I think users are tempted to use this (or other tricks) to avoid small
-(tolerance-level) violations of bounds when no such action is really
-needed.  Just let the small unphysical values occur, but locally
-adjust them if necessary.
-<br><br>
--Alan Hindmarsh
+<pre>Thanks for the remark.. I am going to correct it...
+I am still having problems with memory leaks, it doenst comme from the
+&quot;retour&quot; pointer
+did your heard about somebody having this kind of problem.? I am very
+strict in this point.
+was the memory management tested for the kind of use that I am doing?
+because when using a simple method as Runge-Kutta written by myself I
+dont have this problem.
+Many thanks again..
 
+Adrian Dietz
+
+my code again
+
+static Model *global_pointer_this;
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
+void Model::Evolve_Artificial_CVODE(double time) {
+
+       global_pointer_this = this;
+
+       int a = 0;
+       int flag = 0;
+
+       long int state = this-&gt;n_states;
+       N_Vector Y0 = N_VMake_Serial(state , this-&gt;States);
+       N_Vector Y1 = N_VNew_Serial(state);
+       void *cvode = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
+
+       double rtol = 1.e-12;
+       double *atol =  new double[this-&gt;n_states];
+       for(a = 0; a &lt; this-&gt;n_states; ++a) {
+               atol[a] = 1.e-12;
+       }
+
+       void *a_tol = (void *)atol;
+       flag = CVodeMalloc(cvode, f, 0., Y0, CV_SS, rtol, a_tol);
+       double tret = 0.;
+       flag = CVDense(cvode,state);
+
+       flag = CVode(cvode, time, Y1, &amp;tret, CV_NORMAL);
+
+       double *mon_Y1 = N_VGetArrayPointer_Serial(Y1);
+       for(a = 0; a &lt; this-&gt;n_states; ++a) {
+               this-&gt;States[a] = mon_Y1[a];
+       }
+
+       this-&gt;Compute_Outputs(this-&gt;States);
+
+       N_VDestroy_Serial(Y0);
+       N_VDestroy_Serial(Y1);
+       CVodeFree(cvode);
+
+       delete [] atol;
+}
+
+static void f(realtype t, N_Vector u, N_Vector udot, void *f_data) {
+
+       double *mon_u = N_VGetArrayPointer_Serial(u);
+       double *retour = global_pointer_this-&gt;Get_State_Derivatives(mon_u);
+       double *le_pointeur = N_VGetArrayPointer_Serial(udot);
+       int a = 0;
+       int a_max = global_pointer_this-&gt;N_States();
+       for(a = 0; a &lt; a_max; ++a) {
+               le_pointeur[a] = retour[a];
+       }
+       delete [] retour;
+}
+
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00387" href="msg00387.html">Re: [sundials-users] memory leaks</a></strong>
+<ul><li><em>From:</em> Adrian Dietz &lt;adrian.dietz@gmail.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00346" href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> SHUANGCAI LI &lt;sul19@psu.edu&gt;</li></ul></li>
+<li><strong><a name="00382" href="msg00382.html">[sundials-users] memory leaks</a></strong>
+<ul><li><em>From:</em> Adrian Dietz &lt;adrian.dietz@gmail.com&gt;</li></ul></li>
+<li><strong><a name="00384" href="msg00384.html">Re: [sundials-users] memory leaks</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00385.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00359.html">[sundials-users] Notes on controlling unphysical solution components and integrating over discontinuities</a></strong>
+<strong><a href="msg00387.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00384.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00374.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00387.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00358">
+<li><a href="maillist.html#00386">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00358">
+<li><a href="threads.html#00386">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

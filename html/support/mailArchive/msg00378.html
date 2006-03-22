@@ -1,14 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] mass balance and negative values -->
-<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
-<!--X-Date: Wed, 08 Mar 2006 13:56:48 &#45;0800 (PST) -->
-<!--X-Message-Id: Pine.LNX.4.58.0603081353580.22595@tux64.llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] Offline Manipulation of y values -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Thu, 16 Mar 2006 05:28:19 &#45;0800 (PST) -->
+<!--X-Message-Id: 441966FE.4080000@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200603060222.VAA19895@webmail3.cac.psu.edu -->
+<!--X-Reference: 20060316041330.92829.qmail@web37013.mail.mud.yahoo.com -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] mass balance and negative values</title>
+<title>Re: [sundials-users] Offline Manipulation of y values</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00357.html">Date Prev</a>] [<a href="msg00359.html">Date Next</a>] [<a href="msg00357.html">Thread Prev</a>] [<a href="msg00374.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00358">Date Index</a></b>]
-[<b><a href="threads.html#00358">Thread Index</a></b>]
+[<a href="msg00377.html">Date Prev</a>] [<a href="msg00379.html">Date Next</a>] [<a href="msg00379.html">Thread Prev</a>] [<a href="msg00381.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00378">Date Index</a></b>]
+[<b><a href="threads.html#00378">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] mass balance and negative values</h1>
+<h1>Re: [sundials-users] Offline Manipulation of y values</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +84,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
+Thu, 16 Mar 2006 05:24:14 -0800</td>
 </tr>
 
 </table>
@@ -101,19 +101,79 @@ Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-I agree with everything in Radu's reply.  Let me just add one thing.
-<br><br>
-In my opinion, the transformation idea, using xi = log(yi) instead of
-yi, is more harmful than helpful.  First, the transformation (and its
-inverse) itself adds expense.  Second, the proper choice of tolerances
-for the transformed variable is unclear, and is very likely to lead to
-a more expensive integration (aside from the bounds issue).  Finally,
-I think users are tempted to use this (or other tricks) to avoid small
-(tolerance-level) violations of bounds when no such action is really
-needed.  Just let the small unphysical values occur, but locally
-adjust them if necessary.
-<br><br>
--Alan Hindmarsh
+raj duffy wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there</pre><br>
+    I am solving a system of ODEs. After solving for y values in each 
+time step, I need to feed the y values to other function fo calculate 
+some other variables. However in that function, my y gers modified too.<br>
+    Now in one of the earlier postings, Radu pointed out that y can not 
+be changed outside f function. My code snippet is given below. Is it ok 
+to call OtherFuncF and modify y as presented under or not<br>
+<br>
+<pre style="margin: 0em;">main()
+{</pre><br>
+N_Vector CV_Y;<br>
+CVodeMalloc(cvode_mem, f, cData.StartTime, CV_Y, CV_SS, cData.reltol, 
+&amp;cData.abstol); <br>
+<br>
+for(i=0; i&lt;cData.NumSteps; i++)<br>
+ {<br>
+    CVode(cvode_mem, ... CV_Y, &amp;t, CV_NORMAL); 
+    OtherFuncF(CV_Y);<br>
+ }<br>
+<br>
+<pre style="margin: 0em;">}</pre><br>
+void OtherFuncF( N_Vector VY)<br>
+{<br>
+newY = NV_DATA_S(VY);<br>
+         
+   /* Do manipulations on newY here */<br>
+}<br>
+<br>
+</blockquote><pre style="margin: 0em;"><br>Hi Raj,</pre><br>
+I said that y cannot be modified *INSIDE* user-provided functions, such as the RHS function (in other words while the solver attempts to 
+take a new step). Modifying it outside the integrator (e.g. after a successful return from CVode) is fine from the solver's point of view 
+(but may not be what you need -- see below). Indeed, the output solution vector passed as an argument to CVode (CV_Y in your case) is used 
+only as temporary workspace within CVode and, on output, contains the solution at time t (in CV_NORMAL mode, t=tout). Any modifications to 
+CV_Y done in OtherFuncF will not even be seen by CVODE which uses its internally stored history array to predict and then correct at the 
+following step.<br>
+<br>
+<pre style="margin: 0em;">That being said, this may or may not be what you want:</pre><br>
+(1) If OtherFuncF modifies CV_Y *ONLY* for the purpose of computing these other variables you mention and the modified CV_Y is not needed by 
+itself, then you're OK with the code above.<br>
+<br>
+(2) On the other hand, if you *DO* need to perturb the solution y at the current tout, you'll need to restart the integrator before going 
+back in the for loop. In this latter case, what you have here is a discontinuity in the solution at explicitly-defined points in time (you 
+basically want to &quot;jump&quot; on a different solution curve). See my recent post &quot;Notes on controlling unphysical solution components and 
+integrating over discontinuities&quot;.<br>
+<br>
+Beware that calling CVodeReInit can add quite a bit to the computational expense as it forces the integrator to restart at order 1 and with 
+a smaller step size. Of course, it's all relative and it depends on the size of cData.NumSteps and the number of steps the integrator takes 
+from one tout to the next one.<br>
+<br>
+<pre style="margin: 0em;">Your main program should then look something like this (I assume you specify 
+somehow tout[i], i=0,...,cData.NumSteps-1)</pre><br>
+<pre style="margin: 0em;">main()
+{
+ N_Vector CV_Y;
+ CVodeMalloc(cvode_mem, f, cData.StartTime, CV_Y, CV_SS, cData.reltol, 
+&amp;cData.abstol);
+ ...
+ for(i=0; i&lt;cData.NumSteps; i++) {
+   if (i&gt;0) CVodeReInit(cvode_mem, f, tout[i-1], CV_Y, CV_SS, cData.reltol, 
+&amp;cData.abstol);
+   CVode(cvode_mem, tout[i], CV_Y, &amp;t, CV_NORMAL);
+   OtherFuncF(CV_Y);
+  }</pre><br>
+<pre style="margin: 0em;">}</pre><br>
+<pre style="margin: 0em;">-- Radu</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -121,35 +181,40 @@ adjust them if necessary.
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00381" href="msg00381.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
+<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00346" href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> SHUANGCAI LI &lt;sul19@psu.edu&gt;</li></ul></li>
+<li><strong><a name="00376" href="msg00376.html">[sundials-users] Offline Manipulation of y values</a></strong>
+<ul><li><em>From:</em> raj duffy &lt;raj_duffy@yahoo.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00377.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00359.html">[sundials-users] Notes on controlling unphysical solution components and integrating over discontinuities</a></strong>
+<strong><a href="msg00379.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00379.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00374.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00381.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00358">
+<li><a href="maillist.html#00378">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00358">
+<li><a href="threads.html#00378">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

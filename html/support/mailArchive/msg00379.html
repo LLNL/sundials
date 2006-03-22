@@ -1,14 +1,15 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] mass balance and negative values -->
-<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
-<!--X-Date: Wed, 08 Mar 2006 13:56:48 &#45;0800 (PST) -->
-<!--X-Message-Id: Pine.LNX.4.58.0603081353580.22595@tux64.llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] Offline Manipulation of y values -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Thu, 16 Mar 2006 06:04:07 &#45;0800 (PST) -->
+<!--X-Message-Id: 44196FE9.4050009@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200603060222.VAA19895@webmail3.cac.psu.edu -->
+<!--X-Reference: 20060316041330.92829.qmail@web37013.mail.mud.yahoo.com -->
+<!--X-Reference: op.s6hn8nmkt8lo91@smtp.kuleuven.ac.be -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] mass balance and negative values</title>
+<title>Re: [sundials-users] Offline Manipulation of y values</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +68,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00357.html">Date Prev</a>] [<a href="msg00359.html">Date Next</a>] [<a href="msg00357.html">Thread Prev</a>] [<a href="msg00374.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00358">Date Index</a></b>]
-[<b><a href="threads.html#00358">Thread Index</a></b>]
+[<a href="msg00378.html">Date Prev</a>] [<a href="msg00380.html">Date Next</a>] [<a href="msg00377.html">Thread Prev</a>] [<a href="msg00378.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00379">Date Index</a></b>]
+[<b><a href="threads.html#00379">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] mass balance and negative values</h1>
+<h1>Re: [sundials-users] Offline Manipulation of y values</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +85,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
+Thu, 16 Mar 2006 06:02:17 -0800</td>
 </tr>
 
 </table>
@@ -101,19 +102,38 @@ Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-I agree with everything in Radu's reply.  Let me just add one thing.
-<br><br>
-In my opinion, the transformation idea, using xi = log(yi) instead of
-yi, is more harmful than helpful.  First, the transformation (and its
-inverse) itself adds expense.  Second, the proper choice of tolerances
-for the transformed variable is unclear, and is very likely to lead to
-a more expensive integration (aside from the bounds issue).  Finally,
-I think users are tempted to use this (or other tricks) to avoid small
-(tolerance-level) violations of bounds when no such action is really
-needed.  Just let the small unphysical values occur, but locally
-adjust them if necessary.
-<br><br>
--Alan Hindmarsh
+<pre style="margin: 0em;">Hi Andreas,</pre><br>
+Andreas Nicolai wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Is it ok to call OtherFuncF and modify y as presented under or not
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">newY = NV_DATA_S(VY);
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+Here you just copy pointers. Modifying the content is _not_ ok. Create a 
+</blockquote><pre style="margin: 0em;"><br>As I pointed out in my reply to Raj, from the solver's point of view it is 
+OK to modify y there.</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">deep temporary copy of the data if you need to modify it in your other 
+function. However, if modification of your solver variables is what you 
+want, try the following:<br>
+<br>
+<pre style="margin: 0em;">1. create copy of calculated y values after completing a time step
+2. call other func and modify temporary variables
+3. calculate differences between modified and original variables
+4. add those differences as constant sources/sinks to the next time step</pre><br>
+I know this is a hack, but if you solution isn't too sensitive, this 
+allows a very simple decoupling of the CVODE integration and an external 
+modification/adjustment of the y variables.
+</blockquote><br>This is the wrong approach for at least two reasons:<br>
+1) You would merely replace a discontinuity in the solution with one in the RHS (i.e. in y') and, as I pointed out in my long post on this 
+subject, both types of discontinuities REQUIRE a restart of the integrator.<br>
+2) Moreover, if Raj actually wants a sharp jump in y at such a discontinuity point, you could not capture that with an additional forcing 
+term that attempts to drive the solution towards the desired new value.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Andreas
+</blockquote><pre style="margin: 0em;"><br>--Radu</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">PS: If you want to call your other function to adjust unphysical values 
+in y, please refer to the previous posts from the past weeks.
+</blockquote><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
@@ -125,31 +145,33 @@ adjust them if necessary.
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00346" href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> SHUANGCAI LI &lt;sul19@psu.edu&gt;</li></ul></li>
+<li><strong><a name="00376" href="msg00376.html">[sundials-users] Offline Manipulation of y values</a></strong>
+<ul><li><em>From:</em> raj duffy &lt;raj_duffy@yahoo.com&gt;</li></ul></li>
+<li><strong><a name="00377" href="msg00377.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
+<ul><li><em>From:</em> Andreas Nicolai &lt;Andreas.Nicolai@gmx.net&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00378.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00359.html">[sundials-users] Notes on controlling unphysical solution components and integrating over discontinuities</a></strong>
+<strong><a href="msg00380.html">Re: [sundials-users] Installing/checking sundials 2.1.1</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00377.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00374.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00378.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00358">
+<li><a href="maillist.html#00379">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00358">
+<li><a href="threads.html#00379">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

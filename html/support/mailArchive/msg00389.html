@@ -1,14 +1,16 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] mass balance and negative values -->
-<!--X-From-R13: Oyna Vvaqznefu <nynauNyyay.tbi> -->
-<!--X-Date: Wed, 08 Mar 2006 13:56:48 &#45;0800 (PST) -->
-<!--X-Message-Id: Pine.LNX.4.58.0603081353580.22595@tux64.llnl.gov -->
+<!--X-Subject: Re: [sundials&#45;users] Offline Manipulation of y values -->
+<!--X-From-R13: Oaqerl Dbznaraxb <naqerlNratvahz.pbz> -->
+<!--X-Date: Tue, 21 Mar 2006 15:05:29 &#45;0800 (PST) -->
+<!--X-Message-Id: 200603212301.49442.andrey@enginum.com -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 200603060222.VAA19895@webmail3.cac.psu.edu -->
+<!--X-Reference: 20060316041330.92829.qmail@web37013.mail.mud.yahoo.com -->
+<!--X-Reference: 200603171410.38296.andrey@enginum.com -->
+<!--X-Reference: 44202541.6050205@llnl.gov -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] mass balance and negative values</title>
+<title>Re: [sundials-users] Offline Manipulation of y values</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -67,15 +69,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00357.html">Date Prev</a>] [<a href="msg00359.html">Date Next</a>] [<a href="msg00357.html">Thread Prev</a>] [<a href="msg00374.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00358">Date Index</a></b>]
-[<b><a href="threads.html#00358">Thread Index</a></b>]
+[<a href="msg00388.html">Date Prev</a>] [<a href="msg00390.html">Date Next</a>] [<a href="msg00385.html">Thread Prev</a>] [<a href="msg00390.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00389">Date Index</a></b>]
+[<b><a href="threads.html#00389">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] mass balance and negative values</h1>
+<h1>Re: [sundials-users] Offline Manipulation of y values</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -84,14 +86,14 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <td align="right"><b>
 <em>From</em></b></td>
 <td align="left">
-Alan Hindmarsh &lt;<a href="mailto:alanh%40llnl.gov">alanh@llnl.gov</a>&gt;</td>
+Andrey Romanenko &lt;<a href="mailto:andrey%40enginum.com">andrey@enginum.com</a>&gt;</td>
 </tr>
 
 <tr>
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
+Tue, 21 Mar 2006 23:01:49 +0000</td>
 </tr>
 
 </table>
@@ -101,55 +103,86 @@ Wed, 08 Mar 2006 13:54:25 -0800 (PST)</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-I agree with everything in Radu's reply.  Let me just add one thing.
-<br><br>
-In my opinion, the transformation idea, using xi = log(yi) instead of
-yi, is more harmful than helpful.  First, the transformation (and its
-inverse) itself adds expense.  Second, the proper choice of tolerances
-for the transformed variable is unclear, and is very likely to lead to
-a more expensive integration (aside from the bounds issue).  Finally,
-I think users are tempted to use this (or other tricks) to avoid small
-(tolerance-level) violations of bounds when no such action is really
-needed.  Just let the small unphysical values occur, but locally
-adjust them if necessary.
-<br><br>
--Alan Hindmarsh
+<pre>Hi!
 
+On Tuesday 21 March 2006 16:09, Radu Serban wrote:
+
+&gt;<i> What exactly do you mean by a lighter version of CVodeReInit? CVodeReInit</i>
+&gt;<i> does not do a lot of computation in itself (a few input error checks, a</i>
+&gt;<i> vector copy to load the initial conditions, and, possibly, a vector copy to</i>
+&gt;<i> load the absolute tolerances). What I meant by my comment was that</i>
+&gt;<i> reinitialization adds to the computational expense, no matter how</i>
+&gt;<i> lightweight the reinitialization function itself is, the reason being that</i>
+&gt;<i> the method order and step size MUST be reset when reinitializing the</i>
+&gt;<i> problem.</i>
+
+Thank you very much for the explanation. Guess I was not very clear. What I 
+was wondering was whether it would be possible to somehow &quot;warm start&quot; the 
+solver exploiting the fact that it is used in the context of multiple 
+shooting and to taylor it for this particular use. 
+
+Obviously, the computational burden of the reinitialization function itself is 
+negligible when compared to that of the &quot;cold started&quot; method.
+
+&gt;<i> In multiple shooting, you have to reinitialize the problem as you have a</i>
+&gt;<i> discontinuity in your solution vector (see my previous post).</i>
+
+Yes, that is what I do and I am glad to report that CVODES works very well, 
+including the sensitivity analysis feature. Thanks a lot!
+
+&gt;<i> P.S. I'd be curious to hear more about your multiple shooting code based on</i>
+&gt;<i> CVODES. Before joining LLNL, I wrote a couple of optimal control codes</i>
+&gt;<i> using direct multiple shooting (cooptFM and cooptAM, based on DASPK3.0)</i>
+
+I'll send you more info on this off-list as it may be offtopic here :)
+
+Andrey
+
+</pre>
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->
 <!--X-Follow-Ups-->
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00390" href="msg00390.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00346" href="msg00346.html">[sundials-users] mass balance and negative values</a></strong>
-<ul><li><em>From:</em> SHUANGCAI LI &lt;sul19@psu.edu&gt;</li></ul></li>
+<li><strong><a name="00376" href="msg00376.html">[sundials-users] Offline Manipulation of y values</a></strong>
+<ul><li><em>From:</em> raj duffy &lt;raj_duffy@yahoo.com&gt;</li></ul></li>
+<li><strong><a name="00381" href="msg00381.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
+<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+<li><strong><a name="00385" href="msg00385.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00388.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00359.html">[sundials-users] Notes on controlling unphysical solution components and integrating over discontinuities</a></strong>
+<strong><a href="msg00390.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00357.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00385.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00374.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<strong><a href="msg00390.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00358">
+<li><a href="maillist.html#00389">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00358">
+<li><a href="threads.html#00389">
 <strong>Thread</strong></a></li>
 </ul>
 </li>
