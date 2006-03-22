@@ -607,7 +607,7 @@ the updated nonlinear algebraic system.
 <div class="faq_q">Why is the system function being evaluated at points that violate the constraints?</div>
 <div class="faq_a">
 If you have not supplied a function to compute either J(u) (of type <tt>KINDenseJacFn</tt> or <tt>KINBandJacFn</tt>)
-or J(u)v (of type <tt>KINSpilsJacTimesVecFn</tt>), then the included function may be the culprit.
+or J(u)v (of type <tt>KINSpilsJacTimesVecFn</tt>), then the internal function may be the culprit.
 The default function used to compute a difference quotient approximation to the Jacobian (direct methods) or
 Jacobian matrix-vector product (Kylov methods) evaluates the user-supplied system function at a slightly perturbed
 point, but does not check if that point violates the constraints.
