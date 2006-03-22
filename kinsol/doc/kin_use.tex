@@ -3078,9 +3078,9 @@ If the direct linear solver with dense treatment of the Jacobian is used
 the user may provide a function of type \ID{KINDenseJacFn} defined by
 \usfunction{KINDenseJacFn}
 {
-  typedef int (*KINDenseJacFn)&(long int N, DenseMat J, \\
-                              &N\_Vector u, N\_Vector fu, void *jac\_data, \\
-                              &N\_Vector tmp1, N\_Vector tmp2);
+  typedef int (*KINDenseJacFn)(&long int N, DenseMat J, \\
+                               &N\_Vector u, N\_Vector fu, void *jac\_data, \\
+                               &N\_Vector tmp1, N\_Vector tmp2);
 }
 {
   This function computes the dense Jacobian $J(u)$ 
@@ -3159,10 +3159,10 @@ If the direct linear solver with banded treatment of the Jacobian is used
 the user may provide a function of type \ID{KINBandJacFn} defined as follows:
 \usfunction{KINBandJacFn}
 {
- typedef int (*KINBandJacFn)&(long int N, long int mupper, \\
-                            &long int mlower, BandMat J, \\ 
-                            &N\_Vector u, N\_Vector fu, void *jac\_data, \\
-                            &N\_Vector tmp1, N\_Vector tmp2);
+ typedef int (*KINBandJacFn)(&long int N, long int mupper, \\
+                             &long int mlower, BandMat J, \\ 
+                             &N\_Vector u, N\_Vector fu, void *jac\_data, \\
+                             &N\_Vector tmp1, N\_Vector tmp2);
 }
 {
   This function computes the banded Jacobian $J(u)$ 
@@ -3251,9 +3251,9 @@ is selected (\id{KINSp*} is called in step  \ref{i:lin_solver} of
 \ID{KINSpilsJacTimesVecFn} in the following form:
 \usfunction{KINSpilsJacTimesVecFn}
 {
-  typedef int (*KINSpilsJacTimesVecFn)&(N\_Vector v, N\_Vector Jv, \\
-                                      &N\_Vector u, booleantype new\_uu, \\
-                                      &void *jac\_data);
+  typedef int (*KINSpilsJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, \\
+                                       &N\_Vector u, booleantype new\_u, \\
+                                       &void *jac\_data);
 }
 {
   This function computes the product $J v$ 
@@ -3267,10 +3267,10 @@ is selected (\id{KINSp*} is called in step  \ref{i:lin_solver} of
       is the output vector computed.
   \item[u]
     is the current value of the dependent variable vector.
-  \item[new\_uu]
+  \item[new\_u]
     is a flag (reset by user) indicating if the iterate has been
-    updated in the interim --- Jacobian needs to be updated\/reevaluated,
-    if appropriate, unless \id{new\_uu = FALSE}.
+    updated in the interim --- Jacobian needs to be updated/reevaluated,
+    if appropriate, unless \id{new\_u = FALSE}.
   \item[jac\_data]
     is a pointer to user data --- the same as the \id{jac\_data}      
     parameter passed to \id{KINSp*SetJacTimesVecFn}.
@@ -3286,10 +3286,10 @@ is selected (\id{KINSp*} is called in step  \ref{i:lin_solver} of
   {\kinspgmr} function, using difference quotient approximations,
   is used.
 
-  If the user-provided \id{KINSpilsJacTimesVec} function needs the unit roundoff,
+  If the user-provided \id{KINSpilsJacTimesVecFn} function needs the unit roundoff,
   this can be accessed as \id{UNIT\_ROUNDOFF} defined in \id{sundialstypes.h}.
 
-  {\warn} The user is responsible for resetting the value of \id{new\_u} to \id{FALSE}.
+  {\warn}The user is responsible for resetting the value of \id{new\_u} to \id{FALSE}.
 }
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 
