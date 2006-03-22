@@ -1,11 +1,11 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-03-16 17:24:48 $
+ * $Revision: 1.3 $
+ * $Date: 2006-03-22 00:28:14 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Simple 1D example to illustarte integrating over discontinuities:
+ * Simple 1D example to illustrate integrating over discontinuities:
  * 
  * A) Discontinuity in solution
  *       y' = -y   ; y(0) = 1    ; t = [0,1]
