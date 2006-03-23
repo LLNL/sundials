@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-03-23 01:21:46 $
+ * $Revision: 1.9 $
+ * $Date: 2006-03-23 20:32:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -264,7 +264,7 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
   if (mset==1)
     printf("Exact Newton");
   else
-    printf("Modified Newton",mset);
+    printf("Modified Newton");
 
   if (glstr == KIN_NONE)
     printf("\n");

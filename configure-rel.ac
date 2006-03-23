@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.5 $
-# $Date: 2006-03-22 19:06:41 $
+# $Revision: 1.6 $
+# $Date: 2006-03-23 20:32:48 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 # ------------------------------------------------------------------------
 
 # Initialize configure
-AC_INIT(SUNDIALS, 2.1.1, radu@llnl.gov)
+AC_INIT(SUNDIALS, 2.2.0, radu@llnl.gov)
 LIB_REVISION="0:0:0"
 
 # Display greeting
@@ -27,9 +27,9 @@ SUNDIALS_INITIALIZE
 SUNDIALS_ENABLES
 SUNDIALS_MPI_ENABLES
 
-# Set C compilation
+# Set C compilation (Required)
 echo -e "\nC Compiler Settings\n-------------------\n"
-C_PROG_CC(${CC} cc gcc)
+AC_PROG_CC(${CC} cc gcc)
 SUNDIALS_SET_CC
 
 # Set Fortran compilation (Optional)

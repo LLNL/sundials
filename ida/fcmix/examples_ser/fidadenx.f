@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.3 $
-c     $Date: 2006-01-24 22:17:34 $
+c     $Revision: 1.4 $
+c     $Date: 2006-03-23 20:32:50 $
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -28,7 +28,7 @@ c
       integer*4 iout(25), ipar
       double precision rout(10), rpar
 c
-      integer iatol, inopt, nout, jout, itask
+      integer iatol, nout, jout, itask
       integer nst, kused
       integer*4 neq, i
       double precision t0, t1, rtol, tout, tret

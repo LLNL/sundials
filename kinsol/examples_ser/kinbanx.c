@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 22:18:28 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-23 20:32:53 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -68,9 +68,9 @@ static int check_flag(void *flagvalue, char *funcname, int opt);
 
 int main()
 {
-  realtype fnormtol, scsteptol, fnorm;
+  realtype fnormtol, fnorm;
   N_Vector y, scale;
-  int mset, msubset, flag, i;
+  int mset, msubset, flag;
   void *kmem;
 
   y = scale = NULL;
@@ -84,7 +84,7 @@ int main()
   printf("   d^2 u / dx^2 + d^2 u / dy^2 = u^3 - u + 2.0\n");
   printf(" + homogeneous Dirichlet boundary conditions\n\n");
   printf("Solution method: Modified Newton with band linear solver\n");
-  printf("Problem size: %2ld x %2ld = %4ld\n",NX, NY, NEQ);
+  printf("Problem size: %2ld x %2ld = %4ld\n", (long int) NX, (long int) NY, (long int) NEQ);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -373,7 +373,7 @@ static int check_flag(void *flagvalue, char *funcname, int opt)
 
   /* Check if flag < 0 */
   else if (opt == 1) {
-    errflag = flagvalue;
+    errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr,
               "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",

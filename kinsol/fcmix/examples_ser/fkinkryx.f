@@ -1,7 +1,7 @@
       program fkinkryx
 c     ----------------------------------------------------------------
-c     $Revision: 1.4 $
-c     $Date: 2006-03-15 23:43:27 $
+c     $Revision: 1.5 $
+c     $Date: 2006-03-23 20:32:55 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -134,6 +134,9 @@ c     function of the following form.
       do 10 i = 1, neq
          fval(i) = uu(i) * uu(i) - i * i
  10   continue
+
+      ier = 0
+
       return
       end
       
