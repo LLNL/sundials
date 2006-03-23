@@ -203,10 +203,13 @@ apply to {\nvecp}.
   sum of all values of \id{NLOCAL}). The return flag \id{IER} is
   set to $0$ on a successful return and to $-1$ otherwise.
 
-  {\warn} If the header file \id{sundials\_config.h} defines
-  \id{SUNDIALS\_MPI\_COMM\_F2C} to be $0$, then the argument
-  \id{COMM} is ignored and \id{MPI\_COMM\_WORLD} is used.
-  
+  {\warn}If the header file \id{sundials\_config.h} defines
+  \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
+  implementation used to build {\sundials} includes the
+  \id{MPI\_Comm\_f2c} function), then \id{COMM} can be any valid
+  {\mpi} communicator. Otherwise, \id{MPI\_COMM\_WORLD} will be used, so
+  just pass an integer value as a placeholder.
+
 \item {\bf Problem specification}
 
   To set various problem and solution parameters and allocate

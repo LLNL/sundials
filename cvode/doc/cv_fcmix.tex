@@ -197,17 +197,22 @@ apply to {\nvecp}.
   following call:
   \index{FNVINITP@\texttt{FNVINITP}}
 \begin{verbatim}
-      CALL FNVINITP(KEY, NLOCAL, NGLOBAL, IER)
+      CALL FNVINITP(COMM, KEY, NLOCAL, NGLOBAL, IER)
 \end{verbatim}
-  in which the arguments are: \id{KEY} = 1, \id{NLOCAL} = the local size of
+  in which the arguments are: \id{COMM} = {\mpi} communicator,
+  \id{KEY} = 1, \id{NLOCAL} = the local size of
   vectors on this processor, and \id{NGLOBAL} = the system size (and the global
   size of all vectors, equal to the sum of all values of \id{NLOCAL}).
   The return flag \id{IER} is set to $0$ on a successful return and to $-1$
   otherwise.
-  Note that if MPI was initialized by the user, the communicator must be
-  set to \id{MPI\_COMM\_WORLD}.  If not, this routine initializes MPI and sets
-  the communicator equal to \id{MPI\_COMM\_WORLD}.
-  
+
+  {\warn}If the header file \id{sundials\_config.h} defines
+  \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
+  implementation used to build {\sundials} includes the
+  \id{MPI\_Comm\_f2c} function), then \id{COMM} can be any valid
+  {\mpi} communicator. Otherwise, \id{MPI\_COMM\_WORLD} will be used, so
+  just pass an integer value as a placeholder.
+
 %%====================
 \item {\bf Problem specification}
 %%====================
