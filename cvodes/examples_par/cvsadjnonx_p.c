@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-09 00:21:54 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-23 01:21:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -49,6 +49,7 @@
 #include "cvodes.h"
 #include "cvodea.h"
 #include "nvector_parallel.h"
+#include "sundials_math.h"
 #include "sundials_types.h"
 
 #include "mpi.h"
@@ -507,7 +508,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length, long int my_base)
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*exp(TWO*x);
+    udata[i-1] = x*(XMAX - x)*EXP(TWO*x);
   }  
 }
 

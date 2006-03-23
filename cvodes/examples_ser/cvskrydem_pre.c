@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-17 16:57:57 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-23 01:21:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -376,7 +376,7 @@ static void InitUserData(WebData wdata)
   wdata->mq = MQ;
   wdata->mx = MX;
   wdata->my = MY;
-  wdata->srur = RSqrt(UNIT_ROUNDOFF);
+  wdata->srur = SQRT(UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
   wdata->ngx = NGX;

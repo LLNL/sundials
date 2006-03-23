@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-08 22:58:27 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-23 01:21:37 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
@@ -24,7 +24,6 @@
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
 
 realtype RPowerI(realtype base, int exponent)
 {
@@ -78,19 +77,6 @@ realtype RAbs(realtype x)
   return(fabsf(x));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(fabsl(x));
-#endif
-}
-
-realtype RPower2(realtype x)
-{
-#if defined(SUNDIALS_USE_GENERIC_MATH)
-  return((realtype) pow((double) x, 2.0));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(pow(x, TWO));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return(powf(x, TWO));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return(powl(x, TWO));
 #endif
 }
 

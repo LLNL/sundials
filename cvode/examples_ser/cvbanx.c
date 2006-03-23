@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-17 16:57:54 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-23 01:21:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -40,7 +40,7 @@
 #include "cvode_band.h"     /* prototype for CVBand */
 #include "sundials_band.h"  /* definitions of type BandMat and macros */
 #include "sundials_types.h" /* definition of type realtype */
-#include "sundials_math.h"  /* definition of ABS */
+#include "sundials_math.h"  /* definition of ABS and EXP */
 
 /* Problem Constants */
 
@@ -324,7 +324,7 @@ static void SetIC(N_Vector u, UserData data)
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(FIVE*x*y);
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*EXP(FIVE*x*y);
     }
   }  
 }

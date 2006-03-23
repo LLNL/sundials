@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-17 16:57:58 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-23 01:21:41 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -57,7 +57,7 @@
 #include "cvodes_spgmr.h"        /* prototypes and constants for CVSPGMR solver */
 #include "sundials_smalldense.h" /* prototypes for small dense matrix functions */
 #include "sundials_types.h"      /* definitions of realtype, booleantype */
-#include "sundials_math.h"       /* definition of macro SQR */
+#include "sundials_math.h"       /* definition of macros SQR and EXP */
 
 #include "mpi.h"                 /* MPI constants and types */
 
@@ -752,8 +752,8 @@ static void fcalc(realtype t, realtype udata[],
   data block for use by preconditioner evaluation routine */
   s = sin((data->om)*t);
   if (s > RCONST(0.0)) {
-    q3 = exp(-A3/s);
-    q4coef = exp(-A4/s);
+    q3 = EXP(-A3/s);
+    q4coef = EXP(-A4/s);
   } else {
     q3 = RCONST(0.0);
     q4coef = RCONST(0.0);
@@ -768,8 +768,8 @@ static void fcalc(realtype t, realtype udata[],
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(RCONST(0.2)*ydn);
-    cyup = verdco*exp(RCONST(0.2)*yup);
+    cydn = verdco*EXP(RCONST(0.2)*ydn);
+    cyup = verdco*EXP(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
       jx = lx + isubx*MXSUB;
@@ -887,8 +887,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       jy = ly + isuby*MYSUB;
       ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*exp(RCONST(0.2)*ydn);
-      cyup = verdco*exp(RCONST(0.2)*yup);
+      cydn = verdco*EXP(RCONST(0.2)*ydn);
+      cyup = verdco*EXP(RCONST(0.2)*yup);
       diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
         jx = lx + isubx*MXSUB;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-15 15:33:47 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-23 01:21:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
@@ -51,6 +51,7 @@
 #include "cvodes.h"
 #include "nvector_serial.h"
 #include "sundials_types.h"
+#include "sundials_math.h"
 
 /* Problem Constants */
 #define XMAX  RCONST(2.0)   /* domain boundary           */
@@ -355,7 +356,7 @@ static void SetIC(N_Vector u, realtype dx)
   /* Load initial profile into u vector */
   for (i=0; i<NEQ; i++) {
     x = (i+1)*dx;
-    udata[i] = x*(XMAX - x)*exp(RCONST(2.0)*x);
+    udata[i] = x*(XMAX - x)*EXP(RCONST(2.0)*x);
   }  
 }
 

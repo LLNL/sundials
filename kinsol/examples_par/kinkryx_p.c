@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-17 16:58:04 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-23 01:21:44 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -551,7 +551,7 @@ static void InitUserData(long int my_pe, MPI_Comm comm, UserData data)
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
   data->uround = UNIT_ROUNDOFF;
-  data->sqruround = RSqrt(data->uround);
+  data->sqruround = SQRT(data->uround);
   data->my_pe = my_pe;
   data->comm = comm;
   data->isuby = my_pe/NPEX;

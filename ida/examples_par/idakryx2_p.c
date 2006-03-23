@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-17 16:58:01 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-23 01:21:43 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -1136,7 +1136,7 @@ static int Precondbd(realtype tt, N_Vector cc,
 
   webdata = (UserData)Pdata;
   uround = UNIT_ROUNDOFF;
-  sqru = RSqrt(uround); 
+  sqru = SQRT(uround); 
   thispe = webdata->thispe;
 
   mem = webdata->ida_mem;

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-02-02 00:32:14 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-23 01:21:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -532,14 +532,14 @@ static void SetSource(ProblemData d)
         x[2] = xmin[2] + (m_start[2]+i[2]) * dx[2];
         
         g = G1_AMPL 
-          * exp( -SQR(G1_X-x[0])/SQR(G1_SIGMA) ) 
-          * exp( -SQR(G1_Y-x[1])/SQR(G1_SIGMA) )
-          * exp( -SQR(G1_Z-x[2])/SQR(G1_SIGMA) ); 
+          * EXP( -SQR(G1_X-x[0])/SQR(G1_SIGMA) ) 
+          * EXP( -SQR(G1_Y-x[1])/SQR(G1_SIGMA) )
+          * EXP( -SQR(G1_Z-x[2])/SQR(G1_SIGMA) ); 
         
         g += G2_AMPL 
-          * exp( -SQR(G2_X-x[0])/SQR(G2_SIGMA) ) 
-          * exp( -SQR(G2_Y-x[1])/SQR(G2_SIGMA) )
-          * exp( -SQR(G2_Z-x[2])/SQR(G2_SIGMA) ); 
+          * EXP( -SQR(G2_X-x[0])/SQR(G2_SIGMA) ) 
+          * EXP( -SQR(G2_Y-x[1])/SQR(G2_SIGMA) )
+          * EXP( -SQR(G2_Z-x[2])/SQR(G2_SIGMA) ); 
         
         if( g < G_MIN ) g = ZERO;
 
@@ -547,12 +547,12 @@ static void SetSource(ProblemData d)
       }
 #else
       g = G1_AMPL 
-        * exp( -SQR(G1_X-x[0])/SQR(G1_SIGMA) ) 
-        * exp( -SQR(G1_Y-x[1])/SQR(G1_SIGMA) ); 
+        * EXP( -SQR(G1_X-x[0])/SQR(G1_SIGMA) ) 
+        * EXP( -SQR(G1_Y-x[1])/SQR(G1_SIGMA) ); 
 
       g += G2_AMPL 
-        * exp( -SQR(G2_X-x[0])/SQR(G2_SIGMA) ) 
-        * exp( -SQR(G2_Y-x[1])/SQR(G2_SIGMA) ); 
+        * EXP( -SQR(G2_X-x[0])/SQR(G2_SIGMA) ) 
+        * EXP( -SQR(G2_Y-x[1])/SQR(G2_SIGMA) ); 
       
       if( g < G_MIN ) g = ZERO;
 

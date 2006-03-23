@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-25 22:18:29 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-23 01:21:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -124,7 +124,7 @@ int main()
   /* Initial guess */
 
   N_VConst_Serial(ONE, y);
-  for(i = 1; i <= NVAR; i++) Ith(y,i) = RSqrt(TWO)/TWO;
+  for(i = 1; i <= NVAR; i++) Ith(y,i) = SQRT(TWO)/TWO;
 
   printf("Initial guess:\n");
   PrintOutput(y);

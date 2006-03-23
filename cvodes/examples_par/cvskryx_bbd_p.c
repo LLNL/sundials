@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-17 16:57:58 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-23 01:21:41 $
  * -----------------------------------------------------------------
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
@@ -60,7 +60,7 @@
 #include "cvodes_spgmr.h"     /* prototypes and consts. for CVSPGMR solver */
 #include "cvodes_bbdpre.h"    /* prototypes for CVBBDPRE module */
 #include "sundials_types.h"   /* definitions of realtype, booleantype */
-#include "sundials_math.h"    /* definition of macro SQR */
+#include "sundials_math.h"    /* definition of macros SQR and EXP */
 
 #include "mpi.h"              /* MPI constants and types */
 
@@ -800,8 +800,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
 
   s = sin((data->om)*t);
   if (s > ZERO) {
-    q3 = exp(-A3/s);
-    q4coef = exp(-A4/s);
+    q3 = EXP(-A3/s);
+    q4coef = EXP(-A4/s);
   } else {
     q3 = ZERO;
     q4coef = ZERO;
@@ -819,8 +819,8 @@ static int flocal(long int Nlocal, realtype t, N_Vector u,
 
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(RCONST(0.2)*ydn);
-    cyup = verdco*exp(RCONST(0.2)*yup);
+    cydn = verdco*EXP(RCONST(0.2)*ydn);
+    cyup = verdco*EXP(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
       jx = lx + isubx*MXSUB;

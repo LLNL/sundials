@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-03-17 16:58:02 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-23 01:21:46 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -538,7 +538,7 @@ static void InitUserData(UserData data)
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
   data->uround = UNIT_ROUNDOFF;
-  data->sqruround = RSqrt(data->uround);
+  data->sqruround = SQRT(data->uround);
 
   /* Set up the coefficients a and b plus others found in the equations */
   np = data->np;

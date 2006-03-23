@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-17 16:57:59 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-23 01:21:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -37,6 +37,7 @@
 #include "cvodes.h"           /* prototypes for CVODE */
 #include "nvector_parallel.h" /* N_Vector types, fct., and macros */
 #include "sundials_types.h"   /* definition of realtype */
+#include "sundials_math.h"    /* definition of macro EXP */
 
 #include "mpi.h"              /* MPI constants and types */
 
@@ -209,7 +210,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length,
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*exp(RCONST(2.0)*x);
+    udata[i-1] = x*(XMAX - x)*EXP(RCONST(2.0)*x);
   }  
 }
 

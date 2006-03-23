@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-01-24 00:50:39 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-23 01:21:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -453,7 +453,7 @@ static void SetIC(N_Vector u, UserData data)
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(RCONST(5.0)*x*y);
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*EXP(RCONST(5.0)*x*y);
     }
   }  
 

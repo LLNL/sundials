@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-03-17 16:57:54 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-23 01:21:39 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -48,7 +48,7 @@
 #include "cvode_sptfqmr.h"       /* prototypes & constants for CVSPTFQMR solver */
 #include "sundials_smalldense.h" /* use generic DENSE solver in preconditioning */
 #include "sundials_types.h"      /* definition of realtype */
-#include "sundials_math.h"       /* contains the macros ABS and SQR */
+#include "sundials_math.h"       /* contains the macros ABS, SQR, and EXP */
 
 /* Problem Constants */
 
@@ -552,8 +552,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
   s = sin(data->om*t);
   if (s > ZERO) {
-    q3 = exp(-A3/s);
-    data->q4 = exp(-A4/s);
+    q3 = EXP(-A3/s);
+    data->q4 = EXP(-A4/s);
   } else {
       q3 = ZERO;
       data->q4 = ZERO;
@@ -575,8 +575,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *f_data)
 
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(RCONST(0.2)*ydn);
-    cyup = verdco*exp(RCONST(0.2)*yup);
+    cydn = verdco*EXP(RCONST(0.2)*ydn);
+    cyup = verdco*EXP(RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
@@ -674,8 +674,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
     for (jy=0; jy < MY; jy++) {
       ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*exp(RCONST(0.2)*ydn);
-      cyup = verdco*exp(RCONST(0.2)*yup);
+      cydn = verdco*EXP(RCONST(0.2)*ydn);
+      cyup = verdco*EXP(RCONST(0.2)*yup);
       diag = -(cydn + cyup + TWO*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(udata,1,jx,jy);

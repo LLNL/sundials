@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-17 16:57:57 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-23 01:21:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -57,7 +57,7 @@
 #include "cvodes_spgmr.h"        /* use CVSPGMR linear */
 #include "sundials_smalldense.h" /* use generic DENSE solver for prec. */
 #include "sundials_types.h"      /* definition of realtype */
-#include "sundials_math.h"       /* contains SQR macro */
+#include "sundials_math.h"       /* contains macros SQR and EXP */
 
 /* Problem Constants */
 
@@ -346,8 +346,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
   s = sin(data->om*t);
   if (s > ZERO) {
-    q3 = exp(-A3/s);
-    data->q4 = exp(-A4/s);
+    q3 = EXP(-A3/s);
+    data->q4 = EXP(-A4/s);
   } else {
     q3 = ZERO;
     data->q4 = ZERO;
@@ -369,8 +369,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 
     zdn = ZMIN + (jz - RCONST(0.5))*delz;
     zup = zdn + delz;
-    czdn = verdco*exp(RCONST(0.2)*zdn);
-    czup = verdco*exp(RCONST(0.2)*zup);
+    czdn = verdco*EXP(RCONST(0.2)*zdn);
+    czup = verdco*EXP(RCONST(0.2)*zup);
     idn = (jz == 0) ? 1 : -1;
     iup = (jz == MZ-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
@@ -479,8 +479,8 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
     for (jz=0; jz < MZ; jz++) {
       zdn = ZMIN + (jz - RCONST(0.5))*delz;
       zup = zdn + delz;
-      czdn = verdco*exp(RCONST(0.2)*zdn);
-      czup = verdco*exp(RCONST(0.2)*zup);
+      czdn = verdco*EXP(RCONST(0.2)*zdn);
+      czup = verdco*EXP(RCONST(0.2)*zup);
       diag = -(czdn + czup + RCONST(2.0)*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(ydata,1,jx,jz);

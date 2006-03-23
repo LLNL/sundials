@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-01-24 00:50:36 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-23 01:21:41 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *                and Radu Serban @ LLNL
@@ -56,6 +56,7 @@
 #include "cvodes.h"
 #include "nvector_parallel.h"
 #include "sundials_types.h"
+#include "sundials_math.h"
 
 #include "mpi.h"
 
@@ -432,7 +433,7 @@ static void SetIC(N_Vector u, realtype dx, long int my_length,
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*exp(2.0*x);
+    udata[i-1] = x*(XMAX - x)*EXP(2.0*x);
   }  
 }
 

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-08 22:58:23 $
+ * $Revision: 1.3 $
+ * $Date: 2006-03-23 01:21:36 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
@@ -33,6 +33,8 @@ extern "C" {
  * MIN(A,B) returns the minimum of A and B
  *
  * MAX(A,B) returns the maximum of A and B
+ *
+ * SQR(A) returns A^2
  * -----------------------------------------------------------------
  */
 
@@ -44,12 +46,16 @@ extern "C" {
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 #endif
 
+#ifndef SQR
+#define SQR(A) ((A)*(A))
+#endif
+
 #ifndef ABS
 #define ABS RAbs
 #endif
 
-#ifndef SQR
-#define SQR RPower2
+#ifndef SQRT
+#define SQRT RSqrt
 #endif
 
 #ifndef EXP
@@ -112,19 +118,6 @@ realtype RSqrt(realtype x);
  */
 
 realtype RAbs(realtype x);
-
-/*
- * -----------------------------------------------------------------
- * Function : RPower2 (a.k.a. SQR)
- * -----------------------------------------------------------------
- * Usage : realtype sqr_x;
- *         sqr_x = RPower2(x);
- * -----------------------------------------------------------------
- * RPower2(x) returns x^2.
- * -----------------------------------------------------------------
- */
-
-realtype RPower2(realtype x);
 
 /*
  * -----------------------------------------------------------------

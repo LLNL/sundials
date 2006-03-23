@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-17 16:57:57 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-23 01:21:42 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
@@ -64,7 +64,7 @@
 #include "cvodes_band.h"    /* use CVBAND linear solver */
 #include "cvodes_diag.h"    /* use CVDIAG linear solver */
 #include "sundials_types.h" /* definition of realtype */
-#include "sundials_math.h"  /* contains the macros ABS and SQR */
+#include "sundials_math.h"  /* contains the macros ABS, SQR, and EXP */
 
 /* Shared Problem Constants */
 
@@ -573,7 +573,7 @@ static realtype MaxError(N_Vector y, realtype t)
   if (t == ZERO) return(ZERO);
 
   ydata = NV_DATA_S(y);
-  if (t <= THIRTY) ex = exp(-TWO*t); 
+  if (t <= THIRTY) ex = EXP(-TWO*t); 
   
   for (j = 0; j < P2_MESHY; j++) {
     ifact_inv = ONE;
