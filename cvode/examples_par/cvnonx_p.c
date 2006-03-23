@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-03-23 01:21:38 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-23 21:44:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George Byrne,
  *                and Radu Serban @ LLNL
@@ -165,7 +165,10 @@ int main(int argc, char *argv[])
 
   umax = N_VMaxNorm(u);
 
-  if (my_pe == 0) PrintData(t, umax, 0);
+  if (my_pe == 0) {
+    t = T0;
+    PrintData(t, umax, 0);
+  }
 
   /* In loop over output points, call CVode, print results, test for error */
 
