@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-03-20 06:32:57 $
+ * $Revision: 1.2 $
+ * $Date: 2006-03-23 20:59:32 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -98,7 +98,7 @@ int main()
   
   /* Print statistics and free solver memory */
   nst = nst1 + nst2;
-  printf("\nNumber of steps: %d + %d = %d\n",nst1, nst2, nst);
+  printf("\nNumber of steps: %ld + %ld = %ld\n",nst1, nst2, nst);
 
   CVodeFree(&cvode_mem);
 
@@ -149,7 +149,7 @@ int main()
 
   /* Print statistics and free solver memory */
   nst = nst1 + nst2;
-  printf("\nNumber of steps: %d + %d = %d\n",nst1, nst2, nst);
+  printf("\nNumber of steps: %ld + %ld = %ld\n",nst1, nst2, nst);
 
   CVodeFree(&cvode_mem);
   
@@ -194,7 +194,7 @@ int main()
 
   /* Print statistics and free solver memory */
   nst2 = nst - nst1;
-  printf("\nNumber of steps: %d + %d = %d\n",nst1, nst2, nst);
+  printf("\nNumber of steps: %ld + %ld = %ld\n",nst1, nst2, nst);
 
   CVodeFree(&cvode_mem);
 
