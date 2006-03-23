@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-17 16:57:57 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-23 23:35:20 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, and
  *                Radu Serban @ LLNL
@@ -218,11 +218,11 @@ int main(int argc, char *argv[])
   /* In loop over output points, call CVode, print results, test for error */
   
   printf("\n\n");
-  printf("===================================================");
+  printf("===========================================");
   printf("============================\n");
-  printf("     T     Q       H      NST                    y1");
+  printf("     T     Q       H      NST           y1");
   printf("           y2           y3    \n");
-  printf("===================================================");
+  printf("===========================================");
   printf("============================\n");
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
       if (check_flag(&flag, "CVodeGetSens", 1)) break;
       PrintOutputS(yS);
     } 
-    printf("-------------------------------------------------");
+    printf("-----------------------------------------");
     printf("------------------------------\n");
 
   }
@@ -464,7 +464,7 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
   printf("%8.3e %2d  %8.3e %5ld\n", t, qu, hu, nst);
 #endif
 
-  printf("                          Solution       ");
+  printf("                  Solution       ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", udata[0], udata[1], udata[2]);
@@ -485,7 +485,7 @@ static void PrintOutputS(N_Vector *uS)
   realtype *sdata;
 
   sdata = NV_DATA_S(uS[0]);
-  printf("                          Sensitivity 1  ");
+  printf("                  Sensitivity 1  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
@@ -496,7 +496,7 @@ static void PrintOutputS(N_Vector *uS)
 #endif
   
   sdata = NV_DATA_S(uS[1]);
-  printf("                          Sensitivity 2  ");
+  printf("                  Sensitivity 2  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
@@ -507,7 +507,7 @@ static void PrintOutputS(N_Vector *uS)
 #endif
 
   sdata = NV_DATA_S(uS[2]);
-  printf("                          Sensitivity 3  ");
+  printf("                  Sensitivity 3  ");
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
