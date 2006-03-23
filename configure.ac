@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.32 $
-# $Date: 2006-03-23 22:34:30 $
+# $Revision: 1.33 $
+# $Date: 2006-03-23 22:44:56 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -28,7 +28,6 @@ SUNDIALS_INITIALIZE
 # Test enable/disable features
 SUNDIALS_ENABLES
 SUNDIALS_MPI_ENABLES
-SUNDIALS_DEV_ENABLES
 
 # Set C compilation (Required)
 echo ""
@@ -48,15 +47,6 @@ if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
   SUNDIALS_SET_F77
 fi
 
-# Set C++ compilation (Optional)
-if test "X${CXX_ENABLED}" = "Xyes"; then
-  echo ""
-  echo "C++ Compiler Settings"
-  echo "-------------------------"
-  echo ""
-  SUNDIALS_SET_CXX
-fi
-
 # Set MPI support (Optional)
 if test "X${MPI_ENABLED}" = "Xyes"; then
   echo ""
@@ -70,13 +60,6 @@ if test "X${MPI_ENABLED}" = "Xyes"; then
     echo "--------------------"
     echo ""
     SUNDIALS_SET_MPIF77
-  fi
-  if test "X${CXX_ENABLED}" = "Xyes"; then
-    echo ""
-    echo "MPI-C++ Settings"
-    echo "--------------------"
-    echo ""
-    SUNDIALS_SET_MPICXX
   fi
 fi
 
@@ -95,14 +78,12 @@ echo "Examples"
 echo "--------"
 echo ""
 SUNDIALS_ENABLE_EXAMPLES
-SUNDIALS_ENABLE_DEV_EXAMPLES
 
 # Substitute variables
 AC_SUBST(COMPILER_PREFIX)
 AC_SUBST(LINKER_PREFIX)
 AC_SUBST(OBJ_EXT)
 AC_SUBST(MPICC)
-AC_SUBST(MPICXX)
 AC_SUBST(MPIF77)
 AC_SUBST(MPI_INC_DIR)
 AC_SUBST(MPI_LIB_DIR)
