@@ -71,36 +71,204 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
 <!-- Start content for this page -->
 
 <div class="title">Usage Notes</div>
-<br><br>
 
+<!-- ************************************************************************************ -->
+<!--                  CONTENTS                                                            -->
+
+<br><br>
 <h1>Contents</h1>
+
 <div class="frame">
+
 <ul>
-<li><a href="#disc">Controlling unphysical solutions and integrating over discontinuities</a>
-<ul>
-<li><a href="#discA">A) Definitions</a></li>
-<li><a href="#discB">B) Treatment</a></li>
-<li><a href="#discC">C) Examples</a></li>
-</ul>
+
+<li>
+  <a href="#tout"><b>On the integration return and output times</b></a>
+  <ul>
+  <li><a href="#toutA">A) Definitions</a></li>
+  <li><a href="#toutB">B) Dense output</a></li>
+  <li><a href="#toutC">C) Illustrations</a></li>
+  </ul>
 </li>
-<li><a href="#switch">Switching on/off forward sensitivity computations</a></li>
+
+<li>
+  <a href="#disc"><b>On controlling unphysical solutions and integrating over discontinuities</b></a>
+  <ul>
+  <li><a href="#discA">A) Definitions</a></li>
+  <li><a href="#discB">B) Treatment</a></li>
+  <li><a href="#discC">C) Examples</a></li>
+  </ul>
+</li>
+
+<li>
+  <a href="#switch"><b>On switching on/off forward sensitivity computations</b></a>
+</li>
+
 </ul>
+
 </div>
 
-<!-- ------ -->
+<!-- ************************************************************************************ -->
+<!--                  RETURN AND OUTPUT TIMES                                             -->
 
-<a name="disc"></a>
-<h1>Controlling unphysical solutions and integrating over discontinuities</h1>
+<a name="tout"></a>
+<h1>On the integration return and output times</h1>
 
 <div class="frame">
 <br>
-We refer here to ODEs (and CVODE). DAE or IDA-specific issues will be explicitly mentioned. 
+All SUNDIALS integrators (CVODE, CVODES, IDA) can be used in one of two main modes: 
+<i>normal</i> and <i>one step</i>. Before defining the various relevant terms and 
+describing the behavior and use of the integrators in each case, note that,
+internally, the SUNDIALS integrators work <b>independently</b> of this
+return mode. Indeed, regardless of the output mode, the method order and step size
+are chosen at any given time based solely on accuracy and solver performance
+criteria. 
+<i>The only difference is in the time at which control is passed back to the calling program.</i>
+Optionally, the user can specify a time past which the integration is never to proceed 
+(i.e.; no evaluations of any user-supplied functions will ever be made beyond this time).
+Note that, in this case, when approaching this barrier, the integration step size may 
+be reduced to enforce this condition.
+<br><br>
+Although we will only use CVODE as an example, this note applies equally to CVODES and IDA.
+For clarity, we will assume that the integration proceeds towards larger times.
+
+<br><br>
+<a name="toutA"></a>
+<h2>A) Definitions</h2>
+<br><br>
+
+The following names will be used in the sequel:
+<table style="margin-left:10px;">
+<tr>
+  <td><b>tout</b></td>
+  <td>
+  The next time at which a computed solution is desired;
+  tout is passed as an <i>input</i> to <tt>CVode</tt>.
+  </td>
+</tr>
+<tr>
+  <td><b>tret</b></td> 
+  <td>
+  The time at which the solver returned control to the caling program;
+  tret is an <i>output</i> from <tt>CVode</tt>.
+  </td>
+</tr>
+<tr>
+  <td><b>tstop</b></td> 
+  <td>
+  The time past which the solution should not proceed;
+  tstop is specified through <tt>CVodeSetStopTime</tt>.
+  </td>
+</tr>
+<tr>
+  <td><b>tn</b></tn>
+  <td>
+  The time internally reached by the solver;
+  tn is usually not "seen" by the user, but it can be obtained from
+  <tt>CVodeGetCurrentTime</tt>.
+  </td>
+</tr>
+</table>
+
 <br>
+The main solver function can therefore be called in one of the following modes (specified
+through the <tt>itask</tt> input argument to <tt>CVode</tt>):
+<table style="margin-left:10px;">
+<tr style="vertical-align:top;">
+  <td><b>NORMAL</b></td>
+  <td>
+  The solver takes internal steps until it has reached or just passed tout.
+  The solver then interpolates in order to return an approximate value of y(tout).<br>
+  In this case tret=tout.
+  </td>
+</tr>
+<tr style="vertical-align:top;">
+  <td><b>ONE_STEP</b></td>
+  <td>
+  The solver takes one internal step and returns the solution at the point reached 
+  by that step.<br>
+  In this case, tret=tn.
+  </td>
+</tr>
+<tr style="vertical-align:top;">
+  <td><b>NORMAL_TSTOP</b></td>
+  <td>
+  Same as NORMAL mode, except that the integration never proceeds past the value tstop.<br>
+  In this case, tret=tstop (or tret=tout if tout < tstop).
+  </td>
+</tr>
+<tr style="vertical-align:top;">
+  <td><b>ONE_STEP_TSTOP</b></td>
+  <td>
+  Same as ONE_STEP mode, except that the integration never proceeds past the value tstop.<br>
+  In this case, tret=tn (which may be equal to tstop).
+  </td>
+</tr>
+</table>
+Note that, in <i>one step</i> mode (ONE_STEP or ONE_STEP_TSTOP) the value tout is used <b>only</b>
+on the first call to <tt>CVode</tt>, to obtain the direction of integration (relative to the 
+initial time specified in <tt>CVodeMalloc</tt>) and the rough time scale (used in estimating an
+initial step size).
+
+<br><br>
+<a name="toutB"></a>
+<h2>B) Dense output</h2>
+<br><br>
+In many situations, the solution may be desired at additional times between the tn values
+at which the solver computes the solution. Instead of enforcing a minimum step size &#151; possible,
+but <b>inefficient</b> as this would effectively result in locally "over-solving" the ODE system
+(in that the step size may smaller than that required for the specified tolerances) &#151; all
+SUNDIALS integrators provide dense output functions: <tt>CVodeGetDky</tt> in CVODE and CVODES,
+and <tt>IDAGetSolution</tt> in IDA. After a successful return from the solver function, the
+dense output functions return the interpolated solution at any time t such that 
+tn - hu <= t <= tn, where hu is the last internal step size. In <i>one step</i> mode, the time
+t can therefore be anywhere between the last two return times from the main solver function.
+<br><br>
+Note that, unlike <tt>IDAGetsolution</tt>, the CVODE / CVODES function <tt>CVodeGetDky</tt> can
+also return the k-th derivative of the solution at time t, where k must be at most the current
+method order (obtainable from <tt>CVodeGetCurrentOrder</tt>). To obtain the interpolated solution, 
+use k=0.
+<br><br>
+If the solution is desired at equally-spaced times (e.g., for plotting purposes), rather than
+calling the solver function in <i>one step</i> mode and then call the dense output function, it 
+is more convenient (and may be more efficient) to call the solver function in <i>normal</i> mode,
+within a loop with successive tout values equal to the desired output times. 
+Note that, if tout < tn (i.e., the solver has internally reached a time beyond the requasted tout), 
+<tt>CVode</tt> will simply call the dense output function itself and then return.
+
+<br><br>
+<a name="toutC"></a>
+<h2>C) Illustrations</h2>
+<br><br>
+
+For a typical sequence of internal steps tn the above four modes are illustrated in the 
+following figure in which black dots represent successive tn values, green squares are
+requested output times tout, the red star is a stopping time tstop, and the blue arrows
+indicate actual values of the return times tret.
+<center>
+<img src="samples/tout.png">
+</center>
+
+
+</div>
+
+<!-- ************************************************************************************ -->
+<!--        UNPHYSICAL SOLUTIONS AND DISCONTINUITIES                                      -->
+
+<a name="disc"></a>
+<h1>On controlling unphysical solutions and integrating over discontinuities</h1>
+
+<div class="frame">
 <br>
+Although we use ODEs (and CVODE / CVODES) as examples in this section, this note applies 
+equally to the case of DAEs (and IDA). DAE-specific issues (such as enforcing consistency 
+when restarting IDA) are explicitly highlighted.
+
+<br><br>
 <a name="discA"></a>
 <h2>A) Definitions</h2>
-<br>
-<br>
+<br><br>
+
 First of all, to put things in context and lay blame where it's due, recall the chain
 <br><br>
 <center>physical phenomenon &rarr; mathematical model &rarr; numerical solution</center>
@@ -110,20 +278,18 @@ resolved by various settings and/or 'tricks' with numerical solvers
 such as those in SUNDIALS are those arising in the second step, from
 the mathematical model to its numerical solution. It is unreasonable to
 expect an ODE/DAE solver to resolve problems introduced in the modeling part.
-<br>
-<br>
+<br><br>
 On the other hand, issues with discontinuities in the RHS function
 arise (genuinely in some applications) in the first step, namely in
 modeling a certain physical phenomenon.
-<br>
-<br>
+<br><br>
 Secondly, let's define the two problems under discussion (from the
 perspective of the above comment).
-<br>
-<br>
+
+<br><br>
 <h3>A1) Unphysical solution components</h3>
-<br>
-<br>
+<br><br>
+
 In many applications, some components in the <b>true</b> solution (of
 the mathematical model) are always positive or non-negative, though at
 times very small. In the numerical solution, however, small negative
@@ -142,8 +308,7 @@ to switch between different models depending on the operating
 conditions, which could introduce discontinuities in the ODE right-hand
 side function and thus we may end up in the territory covered by the
 next problem.
-<br>
-<br>
+<br><br>
 The CVODE cvdenx problem is an example of unphysical solutions introduced
 by the numerical computation. This problem models three chemical
 reactions and the 3 concentrations would always be positive (and less
@@ -151,11 +316,11 @@ than or equal to 1) if the system of ODEs were solved exactly. However,
 depending on the integration tolerances (more on this later), it is
 possible to obtain small negative values for y1 and y3 or even
 completely unrealistic results!
-<br>
-<br>
+
+<br><br>
 <h3>A2) Discontinuities in the RHS function</h3>
-<br>
-<br>
+<br><br>
+
 In certain types of problems (most notably in some controls problems)
 the underlying mathematical model must be changed in certain regions of
 the solution space or the solution itself must be perturbed and this
@@ -188,20 +353,20 @@ Since the integration methods implemented in SUNDIALS are based on
 assumptions of sufficient smoothness of the solution and the RHS
 functions, such discontinuities must be addressed and treated
 appropriately.
-<br>
-<br>
+
+<br><br>
 <a name="discB"></a>
 <h2>B) Treatment</h2>
-<br>
-<br>
+<br><br>
+
 In attempting to solve one of these problems, it is important to
 remember that you should <b>never</b> simply change the solution 
 y passed as an (input only) argument to the RHS or RES functions!
-<br>
-<br>
+
+<br><br>
 <h3>B1) Unphysical solution components</h3>
-<br>
-<br>
+<br><br>
+
 Note that, if unphysical components appear in the numerical solution, the amount by
 which the physical bounds are violated will be of the order of the
 absolute tolerance. The following pieces of advice are relevant:
@@ -244,16 +409,15 @@ on components (specified through IDASetConstraints).
 But these constraint options should only be exercised if the use of absolute 
 tolerances to control the computed values is unsuccessful, because they involve 
 some extra overhead cost.
-<br>
-<br>
+
+<br><br>
 <h3>B2) Discontinuities in the RHS function</h3>
-<br>
-<br>
+<br><br>
+
 If the jumps at the discontinuities are relatively small, simply keep them in the 
 RHS function, and let the integrator respond to them (possibly taking smaller steps 
 through each point of discontinuity).
-<br>
-<br>
+<br><br>
 If the jumps are large, it is more efficient to stop at the point of
 discontinuity and restart the integrator. The following steps must
 therefore be taken:
@@ -261,22 +425,19 @@ therefore be taken:
 <ol>
 <li>
 Integrate up to the point of discontinuity
-<br>
-<br>
+<br><br>
 The method used to reach that location depends on whether
 the discontinuity is defined explicitly or implicitly. In either case,
 it is critical that the RHS function <b>does not</b> incorporate the
 discontinuity while integrating towards it.
-<br>
-<br>
+<br><br>
 For an explicitly-defined discontinuity  (i.e. tdisc is known a priori)
 simply make that location an output time (tout=tdisc) and integrate to 
 that point. If a smooth extension of the model over the discontinuity 
 (see below) does not exist, in order to prevent the solver ever attempting 
 a RHS evaluation at a point beyond the location of the discontinuity, also 
 make that location a stopping time by calling CVodeSetStopTime(cvode_mem, tdisc).
-<br>
-<br>
+<br><br>
 To stop when the location of the discontinuity is determined by the solution 
 (implicitly-defined discontinuity), use the rootfinding feature (available 
 both in CVODE/CVODES and IDA). In other words, the location of the discontinuity 
@@ -292,8 +453,7 @@ can be done efficiently.
 </li>
 <li>
 Incorporate the discontinuity
-<br>
-<br>
+<br><br>
 Depending on the (problem-dependent) type of discontinuity, you can now
 adjust the solution y (for example by adding a jump) or switch to a new
 ODE model (for example by flipping a switch in the user data passed to
@@ -302,8 +462,7 @@ phase).
 </li>
 <li>
 Reinitialize the solver at the point of discontinuity
-<br>
-<br>
+<br><br>
 This step is crucial and is the reason for all the work done in step 1
 to identify the location of the discontinuity. Recall that the SUNDIALS 
 solvers implement <b>multistep</b> methods and therefore use past solution
@@ -312,8 +471,7 @@ discontinuity occurred, the solutions at previous steps are not suitable
 any more and must therefore be discarded. Calling the reinitialization
 function CVodeReInit ensures that the solvers restart at order 1 and begin 
 building up a fresh solution history.
-<br>
-<br>
+<br><br>
 If using IDA, you must ensure that a solution (y,y') <b>consistent</b>
 with the DAE is&nbsp; passed to IDAReInit. Therefore, you may need to first 
 call IDACalcIC.
@@ -322,17 +480,18 @@ call IDACalcIC.
 Integrate from the point of discontinuity
 </li>
 </ol>
+
 <br>
 <a name="discC"></a>
 <h2>C) Examples</h2>
-<br>
-<br>
+<br><br>
+
 The examples below illustrate the proper treatment of the above problems.
-<br>
-<br>
+
+<br><br>
 <h3>C1) Unphysical solution components</h3>
-<br>
-<br>
+<br><br>
+
 The example <tt><b>cvsnegsolx</b></tt>
 [ <a href="samples/cvsnegsolx.c.html" onclick="window.open('samples/cvsnegsolx.c.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false">view</a> | <a href="samples/cvsdiscx.c">download</a> ]
 is a modification of the CVODES <tt>cvsdenx</tt> example and it illustrates the use 
@@ -351,11 +510,10 @@ corresponding to the case in which negative concentrations are intercepted in th
 <img src="samples/negsol.png">
 </center>
 
-<br>
-<br>
+<br><br>
 <h3>C2) Discontinuities in the solution or RHS function</h3>
-<br>
-<br>
+<br><br>
+
 The example <tt><b>cvsdiscx</b></tt>
 [ <a href="samples/cvsdiscx.c.html" onclick="window.open('samples/cvsdiscx.c.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false">view</a> | <a href="samples/cvsdiscx.c">download</a> ]
 solves a simple 1D problem and integrates it over the two different types of discontinuities:
@@ -393,9 +551,9 @@ red curve right after the discontinuity).
 <!--  ======================================================================== -->
 
 <a name="switch"></a>
-<h1>Switching on/off forward sensitivity computations</h1>
+<h1>On switching on/off forward sensitivity computations</h1>
 <div class="frame">
-
+<br>
 One of the common applications of sensitivity analysis is in generating derivative
 information for dynamically-constrained optimization when using a reduced-space
 approach. Depending on the optimization method used, several solutions of the 
