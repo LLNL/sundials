@@ -10,21 +10,29 @@ body {
   background-color: #ffffff;
 }
 
-body, td, input, textarea{
+
+body, td {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 11px;
   text-decoration: none;
   color: #666666;
 }
 
+div {
+ width: 500px;
+}
+
+
+/*
+ --------------
+ Links
+ --------------
+*/
+
 A:link {text-decoration: none; color:#36648B}
 A:visited {text-decoration: none; color:#36648B}
 A:active {text-decoration: none; color:#36648B;}
 A:hover {text-decoration: underline; color: #36648B;}
-
-div {
- width: 500px;
-}
 
 /*
  --------------
@@ -284,6 +292,60 @@ div.sitemap ul ul{
 div.sitemap li {
         list-style-type: square;
 }
+
+/*
+ -------------------------------------------------------
+ Styles for Forms
+ ------------------------------------------------------
+*/
+
+input, textarea{
+
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  text-decoration: none;
+  color: #666666;
+}
+
+input.button {
+
+
+  padding: 0px 5px 0px 5px;
+  cursor: pointer;
+
+  border: 1px solid;
+  border-color: #ccc #666 #666 #ccc;
+  background-color: #e5e4d9;
+
+}
+
+input.button:active {
+  border-color: #666 #ccc #ccc #666;
+}
+
+input.textfield {
+
+  padding: 0px 5px 0px 5px;
+
+  border: 1px solid;
+  border-color: #666 #ccc #ccc #666;
+  width: 200px;
+
+}
+
+input.textfield:focus {
+  background-color: #e5e4d9;
+}
+
+textarea{
+  border: 1px solid;
+  border-color: #666 #ccc #ccc #666;
+}
+
+textarea:focus {
+  background-color: #e5e4d9;
+}
+
 
 /*
  -------------------------------------------------------
