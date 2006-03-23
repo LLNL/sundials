@@ -108,3 +108,7 @@ tar uf $tarfile $distrobase/cvodes/examples_par/cvskryx_p.c
 tar uf $tarfile $distrobase/cvodes/examples_par/cvskryx_p.out
 tar uf $tarfile $distrobase/cvodes/examples_par/cvsnonx_p.c
 tar uf $tarfile $distrobase/cvodes/examples_par/cvsnonx_p.out
+
+cd $distrobase/cvodes/doc
+make QUIET=-q clean
+cd -

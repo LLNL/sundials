@@ -16,6 +16,9 @@ tar uf $tarfile $distrobase/config/mod_c.m4
 tar uf $tarfile $distrobase/config/mod_fortran.m4
 tar uf $tarfile $distrobase/config/cust_general.m4
 
+tar uf $tarfile $distrobase/configure.ac
+tar uf $tarfile $distrobase/acinclude.m4
+
 tar uf $tarfile $distrobase/Makefile.in
 tar uf $tarfile $distrobase/config.hin
 

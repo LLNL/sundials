@@ -112,3 +112,7 @@ tar uf $tarfile $distrobase/cvode/fcmix/examples_par/fcvkryx_p.f
 tar uf $tarfile $distrobase/cvode/fcmix/examples_par/fcvkryx_p.out
 tar uf $tarfile $distrobase/cvode/fcmix/examples_par/fcvnonx_p.f
 tar uf $tarfile $distrobase/cvode/fcmix/examples_par/fcvnonx_p.out
+
+cd $distrobase/cvode/doc
+make QUIET=-q clean
+cd -

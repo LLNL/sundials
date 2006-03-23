@@ -91,3 +91,7 @@ tar uf $tarfile $distrobase/ida/fcmix/examples_par/README
 tar uf $tarfile $distrobase/ida/fcmix/examples_par/Makefile.in
 tar uf $tarfile $distrobase/ida/fcmix/examples_par/fidakryx_bbd_p.f
 tar uf $tarfile $distrobase/ida/fcmix/examples_par/fidakryx_bbd_p.out
+
+cd $distrobase/ida/doc
+make QUIET=-q clean
+cd -

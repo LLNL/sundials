@@ -36,10 +36,12 @@ tar uf $tarfile $distrobase/kinsol/source/kinsol_spgmr.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_spbcgs.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_sptfqmr.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_dense.c
+tar uf $tarfile $distrobase/kinsol/source/kinsol_band.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_bbdpre.c
 tar uf $tarfile $distrobase/kinsol/source/kinsol_impl.h
 tar uf $tarfile $distrobase/kinsol/source/kinsol_spils_impl.h
 tar uf $tarfile $distrobase/kinsol/source/kinsol_dense_impl.h
+tar uf $tarfile $distrobase/kinsol/source/kinsol_band_impl.h
 tar uf $tarfile $distrobase/kinsol/source/kinsol_bbdpre_impl.h
 
 tar uf $tarfile $distrobase/kinsol/fcmix/Makefile.in
@@ -81,3 +83,7 @@ tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/README
 tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/Makefile.in
 tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/fkinkryx_p.f
 tar uf $tarfile $distrobase/kinsol/fcmix/examples_par/fkinkryx_p.out
+
+cd $distrobase/kinsol/doc
+make QUIET=-q clean
+cd -
