@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-03-23 01:21:46 $
+ * $Revision: 1.8 $
+ * $Date: 2006-03-23 22:37:26 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -216,8 +216,6 @@ int main(void)
      A pointer to KINSOL problem memory is returned and stored in kmem. */
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
-
-  KINSetPrintLevel(kmem,3);
 
   /* Vector cc passed as template vector. */
   flag = KINMalloc(kmem, func, cc);

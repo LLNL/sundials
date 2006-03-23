@@ -8,7 +8,7 @@ Total system size = 2400
 Subgrid dimensions = 10 X 10
 Processor array is 2 X 2
 
-Flag globalstrategy = 1 (1 = Inex. Newton, 2 = Linesearch)
+Flag globalstrategy = 0 (0 = None, 1 = Linesearch)
 Linear solver is SPGMR with maxl = 20, maxlrst = 2
 Preconditioning uses interaction-only block-diagonal matrix
 Tolerance parameters:  fnormtol = 1e-07   scsteptol = 1e-13
@@ -26,6 +26,6 @@ At top right:
  1.25552 1.25552 1.25552 37663.2 37663.2 37663.2
 
 Final Statistics.. 
-nni    =    20    nli   =  1200
-nfe    =    21    nfeSG =  1220
-nps    =  1220    npe   =     2     ncfl  =    20
+nni    =    21    nli   =  1260
+nfe    =    22    nfeSG =  1281
+nps    =  1281    npe   =     3     ncfl  =    21

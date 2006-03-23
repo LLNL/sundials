@@ -1,7 +1,8 @@
+
 Robot Kinematics Example
 8 variables; -1 <= x_i <= 1
-KINSOL problem size: 8 + 2*8 = 24
- 
+KINSOL problem size: 8 + 2*8 = 24 
+
 Initial guess:
      l=x+1          x         u=1-x
    ----------------------------------
@@ -13,7 +14,7 @@ Initial guess:
           1     0.707107            1
           1     0.707107            1
           1     0.707107            1
- 
+
 Computed solution:
      l=x+1          x         u=1-x
    ----------------------------------
@@ -25,7 +26,7 @@ Computed solution:
    0.733413    -0.266587      1.26659
     1.40464     0.404641     0.595359
     1.91448     0.914475    0.0855246
- 
-Final Statistics..
-nni    =     6    nfe   =     7
-nje    =     6    nfeD  =     0
+
+Final Statistics.. 
+nni    =     6    nfe   =     7 
+nje    =     6    nfeD  =     0 

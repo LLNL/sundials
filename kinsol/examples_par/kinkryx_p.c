@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-03-23 01:21:44 $
+ * $Revision: 1.7 $
+ * $Date: 2006-03-23 22:37:23 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -664,7 +664,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
     printf("Total system size = %d\n\n", NEQ);
     printf("Subgrid dimensions = %d X %d\n", MXSUB, MYSUB);
     printf("Processor array is %d X %d\n\n", NPEX, NPEY);
-    printf("Flag globalstrategy = %d (1 = Inex. Newton, 2 = Linesearch)\n",
+    printf("Flag globalstrategy = %d (0 = None, 1 = Linesearch)\n",
            globalstrategy);
     printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n",
            maxl, maxlrst);
