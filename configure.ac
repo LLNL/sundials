@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
-# $Revision: 1.31 $
-# $Date: 2006-03-17 03:45:43 $
+# $Revision: 1.32 $
+# $Date: 2006-03-23 22:34:30 $
 # ------------------------------------------------------------------------
 # Programmer(s): Radu Serban and Aaron Collier @ LLNL
 # ------------------------------------------------------------------------
@@ -20,7 +20,9 @@ LIB_REVISION="0:0:0"
 SUNDIALS_GREETING
 
 # Miscellaneous SUNDIALS initializations
-echo -e "Initialization\n--------------\n"
+echo "Initialization"
+echo "--------------"
+echo ""
 SUNDIALS_INITIALIZE
 
 # Test enable/disable features
@@ -29,45 +31,69 @@ SUNDIALS_MPI_ENABLES
 SUNDIALS_DEV_ENABLES
 
 # Set C compilation (Required)
-echo -e "\nC Compiler Settings\n-------------------\n"
+echo ""
+echo "C Compiler Settings"
+echo "-------------------"
+echo ""
 AC_PROG_CC(${CC} cc gcc)
 SUNDIALS_SET_CC
 
 # Set Fortran compilation (Optional)
 if test "X${F77_ENABLED}" = "Xyes" || test "X${FCMIX_ENABLED}" = "Xyes" ; then
-  echo -e "\nFortran Compiler Settings\n-------------------------\n"
+  echo ""
+  echo "Fortran Compiler Settings"
+  echo "-------------------------"
+  echo ""
   AC_PROG_F77(${F77} f77 g77)
   SUNDIALS_SET_F77
 fi
 
 # Set C++ compilation (Optional)
 if test "X${CXX_ENABLED}" = "Xyes"; then
-  echo -e "\nC++ Compiler Settings\n-------------------------\n"
+  echo ""
+  echo "C++ Compiler Settings"
+  echo "-------------------------"
+  echo ""
   SUNDIALS_SET_CXX
 fi
 
 # Set MPI support (Optional)
 if test "X${MPI_ENABLED}" = "Xyes"; then
-  echo -e "\nMPI-C Settings\n--------------\n"
+  echo ""
+  echo "MPI-C Settings"
+  echo "--------------"
+  echo ""
   SUNDIALS_SET_MPICC
   if test "X${F77_ENABLED}" = "Xyes"; then
-    echo -e "\nMPI-Fortran Settings\n--------------------\n"
+    echo ""
+    echo "MPI-Fortran Settings"
+    echo "--------------------"
+    echo ""
     SUNDIALS_SET_MPIF77
   fi
   if test "X${CXX_ENABLED}" = "Xyes"; then
-    echo -e "\nMPI-C++ Settings\n--------------------\n"
+    echo ""
+    echo "MPI-C++ Settings"
+    echo "--------------------"
+    echo ""
     SUNDIALS_SET_MPICXX
   fi
 fi
 
 # Run libtool checks
-echo -e "\nLibtool Settings\n----------------\n"
+echo ""
+echo "Libtool Settings"
+echo "----------------"
+echo ""
 AC_DISABLE_SHARED
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
 # Set examples modules
-echo -e "\nExamples\n--------\n"
+echo ""
+echo "Examples"
+echo "--------"
+echo ""
 SUNDIALS_ENABLE_EXAMPLES
 SUNDIALS_ENABLE_DEV_EXAMPLES
 
@@ -101,11 +127,17 @@ AC_SUBST(MPIF77_LNKR)
 AC_SUBST(LIB_REVISION)
 
 # Set installation path
-echo -e "\nInstallation Directories\n------------------------\n"
+echo ""
+echo "Installation Directories"
+echo "------------------------"
+echo ""
 SUNDIALS_INSTALL_PATH
 
 # Generate makefiles
-echo -e "\nCreate Makefiles\n----------------\n"
+echo ""
+echo "Create Makefiles"
+echo "----------------"
+echo ""
 SUNDIALS_BUILD_MODULES_LIST
 AC_CONFIG_FILES([${SUNDIALS_MAKEFILES}])
 AC_OUTPUT
