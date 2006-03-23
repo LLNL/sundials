@@ -1,13 +1,15 @@
 <!-- MHonArc v2.6.10 -->
 <!--X-Subject: Re: [sundials&#45;users] memory leaks -->
 <!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Tue, 21 Mar 2006 10:18:37 &#45;0800 (PST) -->
-<!--X-Message-Id: 44204304.3000100@llnl.gov -->
+<!--X-Date: Thu, 23 Mar 2006 06:58:44 &#45;0800 (PST) -->
+<!--X-Message-Id: 4422B728.9030506@llnl.gov -->
 <!--X-Content-Type: text/plain -->
 <!--X-Reference: 13eaacd00603210708l562e614s@mail.gmail.com -->
 <!--X-Reference: 442021BD.10605@llnl.gov -->
 <!--X-Reference: 13eaacd00603210946y69a894d8x@mail.gmail.com -->
 <!--X-Reference: 13eaacd00603211000p1d6c46b3o@mail.gmail.com -->
+<!--X-Reference: 44204304.3000100@llnl.gov -->
+<!--X-Reference: 13eaacd00603230030v46270f66t@mail.gmail.com -->
 <!--X-Head-End-->
 <html>
 <head>
@@ -70,9 +72,9 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00387.html">Date Prev</a>] [<a href="msg00389.html">Date Next</a>] [<a href="msg00387.html">Thread Prev</a>] [<a href="msg00391.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00388">Date Index</a></b>]
-[<b><a href="threads.html#00388">Thread Index</a></b>]
+[<a href="msg00393.html">Date Prev</a>] [Date Next] [<a href="msg00391.html">Thread Prev</a>] [Thread Next]<br>
+[<b><a href="maillist.html#00394">Date Index</a></b>]
+[<b><a href="threads.html#00394">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
@@ -94,7 +96,7 @@ Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 21 Mar 2006 10:16:36 -0800</td>
+Thu, 23 Mar 2006 06:56:40 -0800</td>
 </tr>
 
 </table>
@@ -104,22 +106,53 @@ Tue, 21 Mar 2006 10:16:36 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-Aha!<br>
-It didn't even occur to me to see what type of nonlinear solver you are using. By passing CV_FUNCTIONAL as the second parameter to 
-CVodeCreate, you specify using functional iterations to solve the nonlinear systems. As such, you do not need to attach a linear solver to 
-CVODE (CVDense specifies the direct dense linear solver). A linear solver is needed only if you use Newton method (specified with CV_NEWTON).<br>
+Adrian Dietz wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Thank you for the explanation..
+but it is not so clear in the notice, I used a dense solver because I
+was using a CV_FUNCTINAL what it is logic, but the dense solver is
+already selected (and allocated) when specifing CV_FUNTIONAL, the
+problem come of course when deallocating memory. The CVODE logic it is
+not false, it should be just explicit in the notice.
+Of course this was my first test of the C version of lsoda, this was
+why you see for exmple a vector for a_tol, in the future I am going to
+takle real size problem (4*320*4),
+Thanks again,
+Adrian Dietz</pre><br>
+</blockquote><pre style="margin: 0em;"><br>I'm not sure what &quot;notice&quot; you refer to...</pre><br>
+The linear solver memory is allocated only when attaching a linear solver to the main integrator memory (through a call such as CVDense) 
+which must FOLLOW the creation of the integrator object (CVodeCreate) where you specify the type of nonlinear solver used.<br>
 <br>
-The memory for the linear solver (allocated by CVDense) is deallocated by CVodeFree, but that is done inside an if statement which tests 
-whether the method is CV_NEWTON. In your case, the linear solver memory deallocation is not called because the solver did NOT expect to have 
-a linear solver attached to it.<br>
+From your message, I suspect you assume that CVODE is a mere translation into C of LSODA. This is not so. although the underlying methods 
+are the same, the two are completely different implementations!<br>
 <br>
+Finally, CVODE does accept a vector of absolute tolerances, but you need to tell the integrator whether abstol is scalar or vector through 
+the  5th argument of CVodeMalloc. Since you were using CV_SS (i.e. scalar relative tolerance and scalar absolute tolerance) you did not need 
+the vector a_tol.<br>
+<br>
+<pre style="margin: 0em;">Please consult the CVODE user guide (also available online on the SUNDIALS 
+website).</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">2006/3/21, Radu Serban &lt;serban1@llnl.gov&gt;:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Aha!
+It didn't even occur to me to see what type of nonlinear solver you are using. 
+By passing CV_FUNCTIONAL as the second parameter to
+CVodeCreate, you specify using functional iterations to solve the nonlinear 
+systems. As such, you do not need to attach a linear solver to
+CVODE (CVDense specifies the direct dense linear solver). A linear solver is 
+needed only if you use Newton method (specified with CV_NEWTON).</pre><br>
+<pre style="margin: 0em;">The memory for the linear solver (allocated by CVDense) is deallocated by 
+CVodeFree, but that is done inside an if statement which tests
+whether the method is CV_NEWTON. In your case, the linear solver memory 
+deallocation is not called because the solver did NOT expect to have
+a linear solver attached to it.</pre><br>
 <pre style="margin: 0em;">Maybe we should consider removing the conditional linear solver memory 
 deallocation to prevent such misuses...</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
-Adrian Dietz wrote:
+<pre style="margin: 0em;">Adrian Dietz wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">I have suppresed the line</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">      flag = CVDense(cvode,state);
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">     flag = CVDense(cvode,state);
 </blockquote><pre style="margin: 0em;"><br>related to the solver.. and the memory leaks desappear, the results
 are the same. what does it means.. ??
 shall I not allocated the solver memory?
@@ -128,6 +161,7 @@ if somebody can clarify it ...
 many thanks</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">2006/3/21, Adrian Dietz &lt;adrian.dietz@gmail.com&gt;:</pre><br>
+<br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Thanks for the remark.. I am going to correct it...
 I am still having problems with memory leaks, it doenst comme from the
 &quot;retour&quot; pointer
@@ -142,44 +176,61 @@ Many thanks again..</pre><br>
 <pre style="margin: 0em;">static Model *global_pointer_this;
 static void f(realtype t, N_Vector u, N_Vector udot, void *f_data);
 void Model::Evolve_Artificial_CVODE(double time) {</pre><br>
-<pre style="margin: 0em;">      global_pointer_this = this;</pre><br>
-<pre style="margin: 0em;">      int a = 0;
-      int flag = 0;</pre><br>
-<pre style="margin: 0em;">      long int state = this-&gt;n_states;
-      N_Vector Y0 = N_VMake_Serial(state , this-&gt;States);
-      N_Vector Y1 = N_VNew_Serial(state);
-      void *cvode = CVodeCreate(CV_BDF, CV_FUNCTIONAL);</pre><br>
-<pre style="margin: 0em;">      double rtol = 1.e-12;
-      double *atol =  new double[this-&gt;n_states];
-      for(a = 0; a &lt; this-&gt;n_states; ++a) {
-              atol[a] = 1.e-12;
-      }</pre><br>
-<pre style="margin: 0em;">      void *a_tol = (void *)atol;
-      flag = CVodeMalloc(cvode, f, 0., Y0, CV_SS, rtol, a_tol);
-      double tret = 0.;
-      flag = CVDense(cvode,state);</pre><br>
-<pre style="margin: 0em;">      flag = CVode(cvode, time, Y1, &amp;tret, CV_NORMAL);</pre><br>
-<pre style="margin: 0em;">      double *mon_Y1 = N_VGetArrayPointer_Serial(Y1);
-      for(a = 0; a &lt; this-&gt;n_states; ++a) {
-              this-&gt;States[a] = mon_Y1[a];
-      }</pre><br>
-<pre style="margin: 0em;">      this-&gt;Compute_Outputs(this-&gt;States);</pre><br>
-<pre style="margin: 0em;">      N_VDestroy_Serial(Y0);
-      N_VDestroy_Serial(Y1);
-      CVodeFree(cvode);</pre><br>
-<pre style="margin: 0em;">      delete [] atol;
+<pre style="margin: 0em;">     global_pointer_this = this;</pre><br>
+<pre style="margin: 0em;">     int a = 0;
+     int flag = 0;</pre><br>
+<pre style="margin: 0em;">     long int state = this-&gt;n_states;
+     N_Vector Y0 = N_VMake_Serial(state , this-&gt;States);
+     N_Vector Y1 = N_VNew_Serial(state);
+     void *cvode = CVodeCreate(CV_BDF, CV_FUNCTIONAL);</pre><br>
+<pre style="margin: 0em;">     double rtol = 1.e-12;
+     double *atol =  new double[this-&gt;n_states];
+     for(a = 0; a &lt; this-&gt;n_states; ++a) {
+             atol[a] = 1.e-12;
+     }</pre><br>
+<pre style="margin: 0em;">     void *a_tol = (void *)atol;
+     flag = CVodeMalloc(cvode, f, 0., Y0, CV_SS, rtol, a_tol);
+     double tret = 0.;
+     flag = CVDense(cvode,state);</pre><br>
+<pre style="margin: 0em;">     flag = CVode(cvode, time, Y1, &amp;tret, CV_NORMAL);</pre><br>
+<pre style="margin: 0em;">     double *mon_Y1 = N_VGetArrayPointer_Serial(Y1);
+     for(a = 0; a &lt; this-&gt;n_states; ++a) {
+             this-&gt;States[a] = mon_Y1[a];
+     }</pre><br>
+<pre style="margin: 0em;">     this-&gt;Compute_Outputs(this-&gt;States);</pre><br>
+<pre style="margin: 0em;">     N_VDestroy_Serial(Y0);
+     N_VDestroy_Serial(Y1);
+     CVodeFree(cvode);</pre><br>
+<pre style="margin: 0em;">     delete [] atol;
 }</pre><br>
 <pre style="margin: 0em;">static void f(realtype t, N_Vector u, N_Vector udot, void *f_data) {</pre><br>
-<pre style="margin: 0em;">      double *mon_u = N_VGetArrayPointer_Serial(u);
-      double *retour = global_pointer_this-&gt;Get_State_Derivatives(mon_u);
-      double *le_pointeur = N_VGetArrayPointer_Serial(udot);
-      int a = 0;
-      int a_max = global_pointer_this-&gt;N_States();
-      for(a = 0; a &lt; a_max; ++a) {
-              le_pointeur[a] = retour[a];
-      }
-      delete [] retour;
+<pre style="margin: 0em;">     double *mon_u = N_VGetArrayPointer_Serial(u);
+     double *retour = global_pointer_this-&gt;Get_State_Derivatives(mon_u);
+     double *le_pointeur = N_VGetArrayPointer_Serial(udot);
+     int a = 0;
+     int a_max = global_pointer_this-&gt;N_States();
+     for(a = 0; a &lt; a_max; ++a) {
+             le_pointeur[a] = retour[a];
+     }
+     delete [] retour;
 }</pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;"><br>--
+Adrian Dietz
+35 rue de Lothaire II
+appartement 69
+54000 Nancy
+France
++33-(0)3.83.44.63.62
+<a  href="http://adrian.dietz.free.fr">http://adrian.dietz.free.fr</a></pre><br>
+<br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;"><br>--
 Adrian Dietz
@@ -204,11 +255,6 @@ France
 </div>
 <div class="container">
 <table width="95%" frame="below"><tr><td></td></table>
-<ul><li><strong>Follow-Ups</strong>:
-<ul>
-<li><strong><a name="00391" href="msg00391.html">Re: [sundials-users] memory leaks</a></strong>
-<ul><li><em>From:</em> Adrian Dietz &lt;adrian.dietz@gmail.com&gt;</li></ul></li>
-</ul></li></ul>
 <!--X-Follow-Ups-End-->
 <!--X-References-->
 <ul><li><strong>References</strong>:
@@ -221,29 +267,27 @@ France
 <ul><li><em>From:</em> Adrian Dietz &lt;adrian.dietz@gmail.com&gt;</li></ul></li>
 <li><strong><a name="00387" href="msg00387.html">Re: [sundials-users] memory leaks</a></strong>
 <ul><li><em>From:</em> Adrian Dietz &lt;adrian.dietz@gmail.com&gt;</li></ul></li>
+<li><strong><a name="00388" href="msg00388.html">Re: [sundials-users] memory leaks</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+<li><strong><a name="00391" href="msg00391.html">Re: [sundials-users] memory leaks</a></strong>
+<ul><li><em>From:</em> Adrian Dietz &lt;adrian.dietz@gmail.com&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00387.html">Re: [sundials-users] memory leaks</a></strong>
-</li>
-<li>Next by Date:
-<strong><a href="msg00389.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
+<strong><a href="msg00393.html">Re: [sundials-users] interpolation</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00387.html">Re: [sundials-users] memory leaks</a></strong>
-</li>
-<li>Next by thread:
 <strong><a href="msg00391.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00388">
+<li><a href="maillist.html#00394">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00388">
+<li><a href="threads.html#00394">
 <strong>Thread</strong></a></li>
 </ul>
 </li>

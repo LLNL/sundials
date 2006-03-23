@@ -1,17 +1,14 @@
 <!-- MHonArc v2.6.10 -->
-<!--X-Subject: Re: [sundials&#45;users] Offline Manipulation of y values -->
+<!--X-Subject: Re: [sundials&#45;users] interpolation -->
 <!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
-<!--X-Date: Tue, 21 Mar 2006 15:30:33 &#45;0800 (PST) -->
-<!--X-Message-Id: 44208BDA.6010905@llnl.gov -->
+<!--X-Date: Thu, 23 Mar 2006 06:48:50 &#45;0800 (PST) -->
+<!--X-Message-Id: 4422B3F0.4050100@llnl.gov -->
 <!--X-Content-Type: text/plain -->
-<!--X-Reference: 20060316041330.92829.qmail@web37013.mail.mud.yahoo.com -->
-<!--X-Reference: 200603171410.38296.andrey@enginum.com -->
-<!--X-Reference: 44202541.6050205@llnl.gov -->
-<!--X-Reference: 200603212301.49442.andrey@enginum.com -->
+<!--X-Reference: E1FMLE0&#45;000DtA&#45;00.smallhare&#45;inbox&#45;ru@f62.mail.ru -->
 <!--X-Head-End-->
 <html>
 <head>
-<title>Re: [sundials-users] Offline Manipulation of y values</title>
+<title>Re: [sundials-users] interpolation</title>
 <meta name="author" content="Radu Serban">
 <meta name="description" content="suite of nonlinear differential algebraic equation solvers">
 <meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
@@ -70,15 +67,15 @@ supportoff = new Image();       supportoff.src = "../../graphics/support_button.
 <!--X-User-Header-End-->
 <!--X-TopPNI-->
 <p class="links">
-[<a href="msg00389.html">Date Prev</a>] [<a href="msg00391.html">Date Next</a>] [<a href="msg00389.html">Thread Prev</a>] [<a href="msg00382.html">Thread Next</a>]<br>
-[<b><a href="maillist.html#00390">Date Index</a></b>]
-[<b><a href="threads.html#00390">Thread Index</a></b>]
+[<a href="msg00392.html">Date Prev</a>] [<a href="msg00394.html">Date Next</a>] [<a href="msg00392.html">Thread Prev</a>] [<a href="msg00326.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00393">Date Index</a></b>]
+[<b><a href="threads.html#00393">Thread Index</a></b>]
 </p>
 
 <!--X-TopPNI-End-->
 <!--X-MsgBody-->
 <!--X-Subject-Header-Begin-->
-<h1>Re: [sundials-users] Offline Manipulation of y values</h1>
+<h1>Re: [sundials-users] interpolation</h1>
 <div class="frame">
 <!--X-Subject-Header-End-->
 <!--X-Head-of-Message-->
@@ -94,7 +91,7 @@ Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td
 <td align="right"><b>
 <em>Date</em></b></td>
 <td align="left">
-Tue, 21 Mar 2006 15:27:22 -0800</td>
+Thu, 23 Mar 2006 06:42:56 -0800</td>
 </tr>
 
 </table>
@@ -104,51 +101,20 @@ Tue, 21 Mar 2006 15:27:22 -0800</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-Andrey Romanenko wrote:
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi!</pre><br>
-<pre style="margin: 0em;">On Tuesday 21 March 2006 16:09, Radu Serban wrote:</pre><br>
+Ivan Ivanov wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi all,</pre><br>
+I have got a solution by cvode using step by step integration.  
+Does cvode have an interpolating function to evaluate the solution at arbitrary points after integration or I have to spline all components of the solution separately and interpolate them by, for example, standard cubic splines?<br>
 <br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">What exactly do you mean by a lighter version of CVodeReInit? CVodeReInit
-does not do a lot of computation in itself (a few input error checks, a
-vector copy to load the initial conditions, and, possibly, a vector copy to
-load the absolute tolerances). What I meant by my comment was that
-reinitialization adds to the computational expense, no matter how
-lightweight the reinitialization function itself is, the reason being that
-the method order and step size MUST be reset when reinitializing the
-problem.
-</pre></blockquote><pre style="margin: 0em;"><br></pre><br>
-Thank you very much for the explanation. Guess I was not very clear. What I 
-was wondering was whether it would be possible to somehow &quot;warm start&quot; the 
-solver exploiting the fact that it is used in the context of multiple 
-shooting and to taylor it for this particular use. <br>
+<pre style="margin: 0em;">Thank you in advance,</pre><br>
+<pre style="margin: 0em;">Ivan Ivanov</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+</blockquote><br>See the &quot;Interpolated output function&quot; section in the CVODE User Guide (section 5.5.5) . The function CVodeGetDky computes the k-th 
+derivative of the solution at any time t such that tn-hu &lt;= t &lt;= tn, where tn is the current internal time reached and hu is the last 
+internal step size. In CV_ONE_STEP mode, this means that t can be anywhere between the last two return times from CVode. To get the solution 
+itself simply use k=0 (i.e. the 0-th derivative).<br>
 <br>
-Obviously, the computational burden of the reinitialization function itself is 
-negligible when compared to that of the &quot;cold started&quot; method.
-</blockquote><br>Well, you do have to pay a price for the added robustness of the multiple shooting over single shooting :-) and that means a larger 
-optimization problem plus the cost of restarting the integrator at the interfaces between shooting intervals.<br>
-<br>
-I cannot think how you could exploit the fact that you are solving the same ODE over the different shooting intervals. As long as you have a 
-discontinuity in the solution (which you do) the solver MUST be restarted (See my lengthier post of a couple of weeks ago on this issue. 
-Also, on the new SUNDIALS website which will be up at the same time with the next release, I will provide more information on this issue in 
-a FAQ and some Usage Notes).<br>
-<br>
-Moreover, even if you come up with a way of avoiding restarts in the context of multiple shooting (which, as I mentioned before, I doubt is 
-even possible) that would probably be not a general enough case to warrant adding it to CVODES.<br>
-<br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">In multiple shooting, you have to reinitialize the problem as you have a
-discontinuity in your solution vector (see my previous post).
-</pre></blockquote><pre style="margin: 0em;"><br></pre><br>
-Yes, that is what I do and I am glad to report that CVODES works very well, 
-including the sensitivity analysis feature. Thanks a lot!
-</blockquote><pre style="margin: 0em;"><br>Glad to hear that.</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">P.S. I'd be curious to hear more about your multiple shooting code based on
-CVODES. Before joining LLNL, I wrote a couple of optimal control codes
-using direct multiple shooting (cooptFM and cooptAM, based on DASPK3.0)
-</pre></blockquote><pre style="margin: 0em;"><br></pre><br>
-I'll send you more info on this off-list as it may be offtopic here :)
-</blockquote><pre style="margin: 0em;"><br>Thanks.</pre><br>
-<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Andrey</pre><br>
-</blockquote><pre style="margin: 0em;"><br>--Radu</pre><br>
+<pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;">--
    Radu Serban
    Center for Applied Scientific Computing   [email] radu@llnl.gov
@@ -166,37 +132,31 @@ I'll send you more info on this off-list as it may be offtopic here :)
 <!--X-References-->
 <ul><li><strong>References</strong>:
 <ul>
-<li><strong><a name="00376" href="msg00376.html">[sundials-users] Offline Manipulation of y values</a></strong>
-<ul><li><em>From:</em> raj duffy &lt;raj_duffy@yahoo.com&gt;</li></ul></li>
-<li><strong><a name="00381" href="msg00381.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
-<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
-<li><strong><a name="00385" href="msg00385.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
-<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
-<li><strong><a name="00389" href="msg00389.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
-<ul><li><em>From:</em> Andrey Romanenko &lt;andrey@enginum.com&gt;</li></ul></li>
+<li><strong><a name="00392" href="msg00392.html">[sundials-users] interpolation</a></strong>
+<ul><li><em>From:</em> Ivan Ivanov &lt;smallhare@inbox.ru&gt;</li></ul></li>
 </ul></li></ul>
 <!--X-References-End-->
 <!--X-BotPNI-->
 <ul>
 <li>Prev by Date:
-<strong><a href="msg00389.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
+<strong><a href="msg00392.html">[sundials-users] interpolation</a></strong>
 </li>
 <li>Next by Date:
-<strong><a href="msg00391.html">Re: [sundials-users] memory leaks</a></strong>
+<strong><a href="msg00394.html">Re: [sundials-users] memory leaks</a></strong>
 </li>
 
 <li>Previous by thread:
-<strong><a href="msg00389.html">Re: [sundials-users] Offline Manipulation of y values</a></strong>
+<strong><a href="msg00392.html">[sundials-users] interpolation</a></strong>
 </li>
 <li>Next by thread:
-<strong><a href="msg00382.html">[sundials-users] memory leaks</a></strong>
+<strong><a href="msg00326.html">[sundials-users] Re: root finding in IDA</a></strong>
 </li>
 
 <li>Index(es):
 <ul>
-<li><a href="maillist.html#00390">
+<li><a href="maillist.html#00393">
 <strong>Main</strong></a></li>
-<li><a href="threads.html#00390">
+<li><a href="threads.html#00393">
 <strong>Thread</strong></a></li>
 </ul>
 </li>
