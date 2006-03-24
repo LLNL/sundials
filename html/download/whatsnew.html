@@ -121,7 +121,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn<BR>
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
    <LI> changed function types so that all user-supplied functions return
-     an integer flag (not all of them currently used).
+     an integer flag.
    <LI> added option for user-supplied error handler function.
    <LI> changed some names for CVBANDPRE and CVBBDPRE function outputs
    <LI> renamed all exported header files (except for <tt>cvode.h</tt>, all header files
@@ -138,7 +138,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
      and passed as arguments to FCVMALLOC. Note that the argument OPTIN
      was removed from FCVMALLOC.
    <LI> changed the prototypes of user-supplied functions so that they all
-     return an error flag as their last argument (not all of them currently used).
+     return an error flag as their last argument.
    <LI> the arguments OPTIN, IOPT, and ROPT were removed from FCVREINIT
    </UL>
 <LI> Changes related to the build system
@@ -347,7 +347,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        CVSpgmrPrecSetupFn   -> CVSpilsPrecSetupFn<BR>
        CVSpgmrPrecSolveFn   -> CVSpilsPrecSolveFn 
    <LI> changed function types so that all user-supplied functions return
-     an integer flag (not all of them currently used).
+     an integer flag.
    <LI> changed some names for CVBANDPRE and CVBBDPRE function outputs
    <LI> added option for user-supplied error handler function.
    <LI> added an argument to CVadjMalloc to specify the type of interpolation 
@@ -812,7 +812,7 @@ supportoff = new Image();       supportoff.src = "../graphics/support_button.png
        KINSpgmrPrecSetupFn   -> KINSpilsPrecSetupFn<BR>
        KINSpgmrPrecSolveFn   -> KINSpilsPrecSolveFn 
    <LI> changed function types so that all user-supplied functions return
-     an integer flag (not all of them currently used).
+     an integer flag.
    <LI> changed some names for KINBBDPRE function outputs
    <LI> added option for user-supplied error handler function.
    <LI> added option for user-supplied info handler function.
