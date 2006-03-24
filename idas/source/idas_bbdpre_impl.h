@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:57 $
+ * $Revision: 1.2 $
+ * $Date: 2006-03-24 15:57:25 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -12,13 +12,13 @@
  * -----------------------------------------------------------------
  * This is the header file (private version) for the IDABBDPRE
  * module, for a band-block-diagonal preconditioner, i.e. a
- * block-diagonal matrix with banded blocks, for use with IDA/IDAS
- * and IDASp*.
+ * block-diagonal matrix with banded blocks, for use with IDAS
+ * and an IDASPILS linear solver.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDABBDPRE_IMPL_H
-#define _IDABBDPRE_IMPL_H
+#ifndef _IDASBBDPRE_IMPL_H
+#define _IDASBBDPRE_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -64,9 +64,27 @@ typedef struct {
 
   /* pointer to ida_mem */
 
-  IDAMem IDA_mem;
+  void *ida_mem;
 
 } *IBBDPrecData;
+
+  /*
+   * -----------------------------------------------------------------
+   * Type: IDABBDPrecDataB
+   * -----------------------------------------------------------------
+   */
+
+  typedef struct {
+
+    /* BBD user functions (glocB and cfnB) for backward run */
+    IDABBDLocalFnB glocalB;
+    IDABBDCommFnB  gcommB;
+    
+    /* BBD prec data */
+    void *bbd_dataB;
+
+  } *IDABBDPrecDataB;
+
 
 /*
  * -----------------------------------------------------------------
@@ -74,13 +92,15 @@ typedef struct {
  * -----------------------------------------------------------------
  */
 
-#define MSGBBD_IDAMEM_NULL "IDABBDPrecAlloc-- integrator memory is NULL.\n\n"
-#define MSGBBD_BAD_NVECTOR "IDABBDPrecAlloc-- a required vector operation is not implemented.\n\n"
-#define MSGBBD_WRONG_NVEC  "IDABBDPrecAlloc-- incompatible NVECTOR implementation.\n\n"
+#define MSGBBD_IDAMEM_NULL "Integrator memory is NULL."
+#define MSGBBD_MEM_FAIL    "A memory request failed."
+#define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGBBD_PDATA_NULL  "BBDPrecData is NULL."
+#define MSGBBD_FUNC_FAILED "The Glocal or Gcomm routine failed in an unrecoverable manner."
 
-#define MSGBBD_PDATA_NULL "IDABBDPrecGet*-- IBBDPrecData is NULL.\n\n"
-
-#define MSGBBD_NO_PDATA "IDABBDSp*-- IBBDPrecData is NULL.\n\n"
+#define MSGBBDP_CAMEM_NULL  "idaadj_mem = NULL illegal."
+#define MSGBBDP_PDATAB_NULL "IDABBDPRE memory is NULL for the backward integration."
+#define MSGBBDP_BAD_T       "Bad t for interpolation."
 
 #ifdef __cplusplus
 }

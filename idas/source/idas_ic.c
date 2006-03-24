@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:57 $
+ * $Revision: 1.2 $
+ * $Date: 2006-03-24 15:57:25 $
  * ----------------------------------------------------------------- 
- * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
+ * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2002, The Regents of the University of California  
  * Produced at the Lawrence Livermore National Laboratory
@@ -15,26 +15,20 @@
  * -----------------------------------------------------------------
  */
 
-/*=================================================================*/
-/*BEGIN        Import Header Files                                 */
-/*=================================================================*/
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "idas_impl.h"
 #include "sundials_math.h"
 
-/*=================================================================*/
-/*END          Import Header Files                                 */
-/*=================================================================*/
-
 /* Macro: loop */
 #define loop for(;;)
 
-/*=================================================================*/
-/*BEGIN        IDAS Constants                                      */
-/*=================================================================*/
+/*
+ * =================================================================
+ * IDA Constants 
+ * =================================================================
+ */
 
 /* Private Constants */
 
@@ -53,15 +47,19 @@
 
 /* Return values for lower level routines used by IDACalcIC */
 
-enum { IC_FAIL_RECOV = 1,  IC_CONSTR_FAILED = 2,  IC_LINESRCH_FAILED = 3,
-       IC_CONV_FAIL =  4,  IC_SLOW_CONVRG =   5 };
+#define IC_FAIL_RECOV       1
+#define IC_CONSTR_FAILED    2
+#define IC_LINESRCH_FAILED  3
+#define IC_CONV_FAIL        4  
+#define IC_SLOW_CONVRG      5
 
-/*=================================================================*/
-/*BEGIN        Private Helper Functions Prototypes                 */
-/*=================================================================*/
+/*
+ * =================================================================
+ * Private Helper Functions Prototypes
+ * =================================================================
+ */
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
-extern booleantype IDAEwtSet(IDAMem IDA_mem, N_Vector ycur);
 extern realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, 
                             booleantype mask);
 
@@ -73,15 +71,16 @@ static int IDANewyyp (IDAMem IDA_mem, realtype lambda);
 static int IDANewy (IDAMem IDA_mem);
 static int IDAICFailFlag (IDAMem IDA_mem, int retval);
 
-/*=================================================================*/
-/*BEGIN        Readibility Constants                               */
-/*=================================================================*/
+/*
+ * =================================================================
+ * Readibility Constants
+ * =================================================================
+ */
 
-#define errfp    (IDA_mem->ida_errfp)
 #define rdata    (IDA_mem->ida_rdata)
 #define res      (IDA_mem->ida_res)
-#define y0       (IDA_mem->ida_y0)
-#define yp0      (IDA_mem->ida_yp0)
+#define efun     (IDA_mem->ida_efun)
+#define edata    (IDA_mem->ida_edata)
 #define uround   (IDA_mem->ida_uround)  
 #define phi      (IDA_mem->ida_phi) 
 #define ewt      (IDA_mem->ida_ewt)  
@@ -116,42 +115,43 @@ static int IDAICFailFlag (IDAMem IDA_mem, int retval);
 #define lsoff    (IDA_mem->ida_lsoff)
 #define steptol  (IDA_mem->ida_steptol)
 
-/*=================================================================*/
-/*END          Readibility Constants                               */
-/*=================================================================*/
-
-/*=================================================================*/
-/*BEGIN        EXPORTED FUNCTIONS IMPLEMENTATION                   */
-/*=================================================================*/
-
-/*-------------------- IDACalcIC ----------------------------------*/
 /*
- IDACalcIC computes consistent initial conditions, given the 
- user's initial guess for unknown components of y0 and/or yp0.
+ * =================================================================
+ * EXPORTED FUNCTIONS IMPLEMENTATION
+ * =================================================================
+ */
 
- The return value is IDA_SUCCESS = 0 if no error occurred.
+/*
+ * -----------------------------------------------------------------
+ * IDACalcIC
+ * -----------------------------------------------------------------
+ * IDACalcIC computes consistent initial conditions, given the 
+ * user's initial guess for unknown components of yy0 and/or yp0.
+ *
+ * The return value is IDA_SUCCESS = 0 if no error occurred.
+ *
+ * The error return values (fully described in ida.h) are:
+ *   IDA_MEM_NULL        ida_mem is NULL
+ *   IDA_NO_MALLOC       ida_mem was not allocated
+ *   IDA_ILL_INPUT       bad value for icopt, tout1, or id
+ *   IDA_LINIT_FAIL      the linear solver linit routine failed
+ *   IDA_BAD_EWT         zero value of some component of ewt
+ *   IDA_RES_FAIL        res had a non-recoverable error
+ *   IDA_FIRST_RES_FAIL  res failed recoverably on the first call
+ *   IDA_LSETUP_FAIL     lsetup had a non-recoverable error
+ *   IDA_LSOLVE_FAIL     lsolve had a non-recoverable error
+ *   IDA_NO_RECOVERY     res, lsetup, or lsolve had a recoverable
+ *                       error, but IDACalcIC could not recover
+ *   IDA_CONSTR_FAIL     the inequality constraints could not be met
+ *   IDA_LINESEARCH_FAIL the linesearch failed (on steptol test)
+ *   IDA_CONV_FAIL       the Newton iterations failed to converge
+ * -----------------------------------------------------------------
+ */
 
- The error return values (fully described in ida.h) are:
-    IDA_MEM_NULL        ida_mem is NULL
-    IDA_NO_MALLOC       ida_mem was not allocated
-    IDA_ILL_INPUT       bad value for icopt, tout1, or id
-    IDA_LINIT_FAIL      the linear solver linit routine failed
-    IDA_BAD_EWT         zero value of some component of ewt
-    IDA_RES_FAIL        res had a non-recoverable error
-    IDA_FIRST_RES_FAIL  res failed recoverably on the first call
-    IDA_LSETUP_FAIL     lsetup had a non-recoverable error
-    IDA_LSOLVE_FAIL     lsolve had a non-recoverable error
-    IDA_NO_RECOVERY     res, lsetup, or lsolve had a recoverable
-                        error, but IDACalcIC could not recover
-    IDA_CONSTR_FAIL     the inequality constraints could not be met
-    IDA_LINESRCH_FAIL   the linesearch failed (on steptol test)
-    IDA_CONV_FAIL       the Newton iterations failed to converge
-*/
-/*-----------------------------------------------------------------*/
-
-int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
+int IDACalcIC (void *ida_mem, realtype t0, N_Vector yy0, N_Vector yp0, 
+               int icopt, realtype tout1)
 {
-  booleantype ewtsetOK;
+  int ewtsetOK;
   int ier, nwt, nh, mxnh, icret, retval=0;
   realtype tdist, troundoff, minid, hic, ypnorm;
   IDAMem IDA_mem;
@@ -159,7 +159,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check if IDA memory exists */
 
   if (ida_mem == NULL) {
-    fprintf(stderr, MSG_IC_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDACalcIC", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -167,7 +167,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   /* Check if problem was malloc'ed */
   
   if (IDA_mem->ida_MallocDone == FALSE) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_NO_MALLOC);
+    IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDACalcIC", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
 
@@ -179,21 +179,35 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 
   /* Check legality of input arguments, and set IDA memory copies. */
 
+  IDA_mem->ida_t0 = t0;
+
+  if (yy0 == NULL) { 
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_Y0_NULL);
+    return(IDA_ILL_INPUT); 
+  }
+  IDA_mem->ida_yy0 = yy0;
+
+  if (yp0 == NULL) { 
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_YP0_NULL);
+    return(IDA_ILL_INPUT); 
+  }
+  IDA_mem->ida_yp0 = yp0;
+
   if (icopt < IDA_YA_YDP_INIT || icopt > IDA_Y_INIT) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_ICOPT);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_BAD_ICOPT);
     return(IDA_ILL_INPUT);
   }
   IDA_mem->ida_icopt = icopt;
 
   if (icopt == IDA_YA_YDP_INIT && (id == NULL)) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_MISSING_ID);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_MISSING_ID);
     return(IDA_ILL_INPUT);
   }
 
   tdist = ABS(tout1 - tn);
   troundoff = TWO*uround*(ABS(tn) + ABS(tout1));    
   if (tdist < troundoff) {
-    if(errfp!=NULL) fprintf(errfp, MSG_IC_TOO_CLOSE);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_TOO_CLOSE);
     return(IDA_ILL_INPUT);
   }
 
@@ -204,7 +218,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   if (icopt == IDA_YA_YDP_INIT) {
     minid = N_VMin(id);
     if (minid < ZERO) {
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_ID);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_BAD_ID);
       return(IDA_ILL_INPUT);
     }
     if (minid > HALF) IDA_mem->ida_sysindex = 0;
@@ -216,7 +230,7 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 
   /* Initializations: 
      cjratio = 1 (for use in direct linear solvers); 
-     set nbacktr = 0 */
+     set nbacktr = 0; */
 
   cjratio = ONE;
   nbacktr = 0;
@@ -251,9 +265,9 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
       ncfn++;
       if (retval < 0) break;
       if (nh == mxnh) break;
-      /* If looping to try again, reset y0 and yp0 if not converging. */
+      /* If looping to try again, reset yy0 and yp0 if not converging. */
       if (retval != IC_SLOW_CONVRG) {
-        N_VScale (ONE, phi[0], y0);
+        N_VScale (ONE, phi[0], yy0);
         N_VScale (ONE, phi[1], yp0);
       }
       hic *= PT1;
@@ -261,14 +275,18 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
       hh = hic;
     }   /* End of nh loop */
 
-    /* Break on failure; else reset ewt, save y0,yp0 in phi, and loop. */
+    /* Break on failure; else reset ewt, save yy0, yp0 in phi, and loop. */
     if (retval != IDA_SUCCESS) break;
-    ewtsetOK = IDAEwtSet(IDA_mem, y0);
-    if (!ewtsetOK) { retval = IDA_BAD_EWT; break; }
-    N_VScale (ONE, y0,  phi[0]);
+    ewtsetOK = efun(yy0, ewt, edata);
+    if (ewtsetOK != 0) { 
+      retval = IDA_BAD_EWT; 
+      break; 
+    }
+    N_VScale (ONE, yy0, phi[0]);
     N_VScale (ONE, yp0, phi[1]);
 
   }   /* End of nwt loop */
+
 
   /* Load the optional outputs. */
   if (icopt == IDA_YA_YDP_INIT)   hused = hic;
@@ -280,17 +298,22 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
   }
 
   /* Otherwise return success flag. */
+
+  IDA_mem->ida_tn = t0;
+
   return(IDA_SUCCESS);
 
 }
 
-/*=================================================================*/
-/*END          EXPORTED FUNCTIONS IMPLEMENTATION                   */
-/*=================================================================*/
+/*
+ * =================================================================
+ * PRIVATE FUNCTIONS IMPLEMENTATION
+ * =================================================================
+ */
 
-/*=================================================================*/
-/*BEGIN        PRIVATE FUNCTIONS IMPLEMENTATION                    */
-/*=================================================================*/
+#define t0       (IDA_mem->ida_t0)
+#define yy0      (IDA_mem->ida_yy0)
+#define yp0      (IDA_mem->ida_yp0)
 
 #define icopt    (IDA_mem->ida_icopt)
 #define sysindex (IDA_mem->ida_sysindex)
@@ -300,29 +323,31 @@ int IDACalcIC (void *ida_mem, int icopt, realtype tout1)
 #define delnew   (IDA_mem->ida_delnew)
 #define dtemp    (IDA_mem->ida_dtemp)
 
-/******************** IDAnlsIC **********************************
+/*
+ * -----------------------------------------------------------------
+ * IDAnlsIC
+ * -----------------------------------------------------------------
+ * IDAnlsIC solves a nonlinear system for consistent initial 
+ * conditions.  It calls IDANewtonIC to do most of the work.
+ *
+ * The return value is IDA_SUCCESS = 0 if no error occurred.
+ * The error return values (positive) considered recoverable are:
+ *  IC_FAIL_RECOV      if res, lsetup, or lsolve failed recoverably
+ *  IC_CONSTR_FAILED   if the constraints could not be met
+ *  IC_LINESRCH_FAILED if the linesearch failed (on steptol test)
+ *  IC_CONV_FAIL       if the Newton iterations failed to converge
+ *  IC_SLOW_CONVRG     if the iterations are converging slowly
+ *                     (failed the convergence test, but showed
+ *                     norm reduction or convergence rate < 1)
+ * The error return values (negative) considered non-recoverable are:
+ *  IDA_RES_FAIL       if res had a non-recoverable error
+ *  IDA_FIRST_RES_FAIL if res failed recoverably on the first call
+ *  IDA_LSETUP_FAIL    if lsetup had a non-recoverable error
+ *  IDA_LSOLVE_FAIL    if lsolve had a non-recoverable error
+ * -----------------------------------------------------------------
+ */
 
- IDAnlsIC solves a nonlinear system for consistent initial 
- conditions.  It calls IDANewtonIC to do most of the work.
-
- The return value is IDA_SUCCESS = 0 if no error occurred.
- The error return values (positive) considered recoverable are:
-    IC_FAIL_RECOV      if res, lsetup, or lsolve failed recoverably
-    IC_CONSTR_FAILED   if the constraints could not be met
-    IC_LINESRCH_FAILED if the linesearch failed (on steptol test)
-    IC_CONV_FAIL       if the Newton iterations failed to converge
-    IC_SLOW_CONVRG     if the iterations are converging slowly
-                       (failed the convergence test, but showed
-                       norm reduction or convergence rate < 1)
- The error return values (negative) considered non-recoverable are:
-    IDA_RES_FAIL         if res had a non-recoverable error
-    IDA_FIRST_RES_FAIL   if res failed recoverably on the first call
-    IDA_LSETUP_FAIL      if lsetup had a non-recoverable error
-    IDA_LSOLVE_FAIL      if lsolve had a non-recoverable error
- 
-*****************************************************************/
-
-static int IDAnlsIC(IDAMem IDA_mem)
+static int IDAnlsIC (IDAMem IDA_mem)
 {
   int retval, nj;
   N_Vector tv1, tv2, tv3;
@@ -331,7 +356,7 @@ static int IDAnlsIC(IDAMem IDA_mem)
   tv2 = tempv2;
   tv3 = phi[2];
 
-  retval = res(tn, y0, yp0, delta, rdata);
+  retval = res(t0, yy0, yp0, delta, rdata);
   nre++;
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IDA_FIRST_RES_FAIL);
@@ -345,7 +370,7 @@ static int IDAnlsIC(IDAMem IDA_mem)
     /* If there is a setup routine, call it. */
     if (setupNonNull) {
       nsetups++;
-      retval = lsetup(IDA_mem, y0, yp0, delta, tv1, tv2, tv3);
+      retval = lsetup(IDA_mem, yy0, yp0, delta, tv1, tv2, tv3);
       if(retval < 0) return(IDA_LSETUP_FAIL);
       if(retval > 0) return(IC_FAIL_RECOV);
     }
@@ -358,40 +383,42 @@ static int IDAnlsIC(IDAMem IDA_mem)
     if (retval == IC_SLOW_CONVRG && setupNonNull) {
       N_VScale (ONE, savres, delta);
       continue;
+    } else {
+      return(retval);
     }
-
-    else return(retval);
 
   }   /* End of nj loop */
 
-  /* No convergence after maxnj tries; return failure flag. */
+  /* No convergence after maxnj tries; return with retval=IC_SLOW_CONVRG */
   return(retval);
 
 }
 
-/******************** IDANewtonIC ************************************
+/*
+ * -----------------------------------------------------------------
+ * IDANewtonIC
+ * -----------------------------------------------------------------
+ * IDANewtonIC performs the Newton iteration to solve for consistent
+ * initial conditions.  It calls IDALineSrch within each iteration.
+ * On return, savres contains the current residual vector.
+ *
+ * The return value is IDA_SUCCESS = 0 if no error occurred.
+ * The error return values (positive) considered recoverable are:
+ *  IC_FAIL_RECOV      if res or lsolve failed recoverably
+ *  IC_CONSTR_FAILED   if the constraints could not be met
+ *  IC_LINESRCH_FAILED if the linesearch failed (on steptol test)
+ *  IC_CONV_FAIL       if the Newton iterations failed to converge
+ *  IC_SLOW_CONVRG     if the iterations appear to be converging slowly.
+ *                     They failed the convergence test, but showed 
+ *                     an overall norm reduction (by a factor of < 0.1)
+ *                     or a convergence rate <= ICRATEMAX).
+ * The error return values (negative) considered non-recoverable are:
+ *  IDA_RES_FAIL   if res had a non-recoverable error
+ *  IDA_LSOLVE_FAIL      if lsolve had a non-recoverable error
+ * -----------------------------------------------------------------
+ */
 
- IDANewtonIC performs the Newton iteration to solve for consistent
- initial conditions.  It calls IDALineSrch within each iteration.
- On return, savres contains the current residual vector.
-
- The return value is IDA_SUCCESS = 0 if no error occurred.
- The error return values (positive) considered recoverable are:
-    IC_FAIL_RECOV      if res or lsolve failed recoverably
-    IC_CONSTR_FAILED   if the constraints could not be met
-    IC_LINESRCH_FAILED if the linesearch failed (on steptol test)
-    IC_CONV_FAIL       if the Newton iterations failed to converge
-    IC_SLOW_CONVRG     if the iterations appear to be converging slowly.
-                       They failed the convergence test, but showed 
-                       an overall norm reduction (by a factor of < 0.1)
-                       or a convergence rate <= ICRATEMAX).
- The error return values (negative) considered non-recoverable are:
-    IDA_RES_FAIL   if res had a non-recoverable error
-    IDA_LSOLVE_FAIL      if lsolve had a non-recoverable error
- 
-**********************************************************************/
-
-static int IDANewtonIC(IDAMem IDA_mem)
+static int IDANewtonIC (IDAMem IDA_mem)
 {
   int retval, mnewt;
   realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
@@ -400,7 +427,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
   delnew = phi[2];
 
   /* Call the linear solve function to get the Newton step, delta. */
-  retval = lsolve(IDA_mem, delta, ewt, y0, yp0, savres);
+  retval = lsolve(IDA_mem, delta, ewt, yy0, yp0, savres);
   if(retval < 0) return(IDA_LSOLVE_FAIL);
   if(retval > 0) return(IC_FAIL_RECOV);
 
@@ -409,6 +436,9 @@ static int IDANewtonIC(IDAMem IDA_mem)
   if (sysindex == 0) fnorm *= tscale*ABS(cj);
   if (fnorm <= epsNewt) return(IDA_SUCCESS);
   fnorm0 = fnorm;
+
+  /* Initialize rate to avoid compiler warning message */
+  rate = ZERO;
 
   /* Newton iteration loop */
 
@@ -427,7 +457,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
     if (fnorm <= epsNewt) return(IDA_SUCCESS);
 
     /* If not converged, copy new step vector, and loop. */
-    N_VScale (ONE, delnew, delta);
+    N_VScale(ONE, delnew, delta);
 
   }   /* End of Newton iteration loop */
 
@@ -438,32 +468,34 @@ static int IDANewtonIC(IDAMem IDA_mem)
 }
 
 
-/******************** IDALineSrch *******************************
+/*
+ * -----------------------------------------------------------------
+ * IDALineSrch
+ * -----------------------------------------------------------------
+ * IDALineSrch performs the Linesearch algorithm with the 
+ * calculation of consistent initial conditions.
+ *
+ * On entry, yy0 and yp0 are the current values of y and y', the 
+ * Newton step is delta, the current residual vector F is savres,
+ * delnorm is WRMS-norm(delta), and fnorm is the norm of the vector
+ * J-inverse F.
+ *
+ * On a successful return, yy0, yp0, and savres have been updated, 
+ * delnew contains the current value of J-inverse F, and fnorm is
+ * WRMS-norm(delnew).
+ *
+ * The return value is IDA_SUCCESS = 0 if no error occurred.
+ * The error return values (positive) considered recoverable are:
+ *  IC_FAIL_RECOV      if res or lsolve failed recoverably
+ *  IC_CONSTR_FAILED   if the constraints could not be met
+ *  IC_LINESRCH_FAILED if the linesearch failed (on steptol test)
+ * The error return values (negative) considered non-recoverable are:
+ *  IDA_RES_FAIL   if res had a non-recoverable error
+ *  IDA_LSOLVE_FAIL      if lsolve had a non-recoverable error
+ * -----------------------------------------------------------------
+ */
 
- IDALineSrch performs the Linesearch algorithm with the 
- calculation of consistent initial conditions.
-
- On entry, y0 and yp0 are the current values of y and y', the 
- Newton step is delta, the current residual vector F is savres,
- delnorm is WRMS-norm(delta), and fnorm is the norm of the vector
- J-inverse F.
-
- On a successful return, y0, yp0, and savres have been updated, 
- delnew contains the current value of J-inverse F, and fnorm is
- WRMS-norm(delnew).
- 
- The return value is IDA_SUCCESS = 0 if no error occurred.
- The error return values (positive) considered recoverable are:
-    IC_FAIL_RECOV      if res or lsolve failed recoverably
-    IC_CONSTR_FAILED   if the constraints could not be met
-    IC_LINESRCH_FAILED if the linesearch failed (on steptol test)
- The error return values (negative) considered non-recoverable are:
-    IDA_RES_FAIL   if res had a non-recoverable error
-    IDA_LSOLVE_FAIL      if lsolve had a non-recoverable error
- 
-*****************************************************************/
-
-static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
+static int IDALineSrch (IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 {
   booleantype conOK;
   int retval;
@@ -489,7 +521,7 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
     if (!conOK) {
       /* Not satisfied.  Compute scaled step to satisfy constraints. */
       N_VProd (mc, delta, dtemp);
-      ratio = PT99*N_VMinQuotient (y0, dtemp);
+      ratio = PT99*N_VMinQuotient (yy0, dtemp);
       (*delnorm) *= ratio;
       if ((*delnorm) <= steptol) return(IC_CONSTR_FAILED);
       N_VScale (ratio, delta, delta);
@@ -525,37 +557,39 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
 
   }  /* End of breakout linesearch loop */
 
-  /* Update y0, yp0, and fnorm, then return. */
-  N_VScale (ONE, ynew,  y0);
+  /* Update yy0, yp0, and fnorm, then return. */
+  N_VScale (ONE, ynew,  yy0);
   if (icopt == IDA_YA_YDP_INIT) N_VScale (ONE, ypnew, yp0);
   *fnorm = fnormp;
   return(IDA_SUCCESS);
 
 }
 
-/******************** IDAfnorm **********************************
+/*
+ * -----------------------------------------------------------------
+ * IDAfnorm
+ * -----------------------------------------------------------------
+ * IDAfnorm computes the norm of the current function value, by
+ * evaluating the DAE residual function, calling the linear 
+ * system solver, and computing a WRMS-norm.
+ *
+ * On return, savres contains the current residual vector F, and
+ * delnew contains J-inverse F.
+ *
+ * The return value is IDA_SUCCESS = 0 if no error occurred, or
+ *  IC_FAIL_RECOV    if res or lsolve failed recoverably, or
+ *  IDA_RES_FAIL     if res had a non-recoverable error, or
+ *  IDA_LSOLVE_FAIL  if lsolve had a non-recoverable error.
+ * -----------------------------------------------------------------
+ */
 
- IDAfnorm computes the norm of the current function value, by
- evaluating the DAE residual function, calling the linear 
- system solver, and computing a WRMS-norm.
- 
- On return, savres contains the current residual vector F, and
- delnew contains J-inverse F.
-
- The return value is IDA_SUCCESS = 0 if no error occurred, or
-    IC_FAIL_RECOV    if res or lsolve failed recoverably, or
-    IDA_RES_FAIL     if res had a non-recoverable error, or
-    IDA_LSOLVE_FAIL  if lsolve had a non-recoverable error.
- 
-*****************************************************************/
-
-static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
+static int IDAfnorm (IDAMem IDA_mem, realtype *fnorm)
 {
 
   int retval;
 
   /* Get residual vector F, return if failed, and save F in savres. */
-  retval = res(tn, ynew, ypnew, delnew, rdata);
+  retval = res(t0, ynew, ypnew, delnew, rdata);
   nre++;
   if(retval < 0) return(IDA_RES_FAIL);
   if(retval > 0) return(IC_FAIL_RECOV);
@@ -575,121 +609,122 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
 
 }
 
-/******************** IDANewyyp *********************************
+/*
+ * -----------------------------------------------------------------
+ * IDANewyyp
+ * -----------------------------------------------------------------
+ * IDANewyyp updates the vectors ynew and ypnew from yy0 and yp0,
+ * using the current step vector lambda*delta, in a manner
+ * depending on icopt and the input id vector.
+ *
+ * The return value is always IDA_SUCCESS = 0.
+ * -----------------------------------------------------------------
+ */
 
- IDANewyyp updates the vectors ynew and ypnew from y0 and yp0,
- using the current step vector lambda*delta, in a manner
- depending on icopt and the input id vector.
- 
- The return value is always IDA_SUCCESS = 0.
- 
-*****************************************************************/
-
-static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
+static int IDANewyyp (IDAMem IDA_mem, realtype lambda)
 {
   
-  /* IDA_YA_YDP_INIT case: ynew = y0  - lambda*delta    where id_i = 0
+  /* IDA_YA_YDP_INIT case: ynew  = yy0 - lambda*delta    where id_i = 0
                            ypnew = yp0 - cj*lambda*delta where id_i = 1. */
   if (icopt == IDA_YA_YDP_INIT) {
     N_VProd (id, delta, dtemp);
     N_VLinearSum (ONE, yp0, -cj*lambda, dtemp, ypnew);
     N_VLinearSum (ONE, delta, -ONE, dtemp, dtemp);
-    N_VLinearSum (ONE, y0, -lambda, dtemp, ynew);
+    N_VLinearSum (ONE, yy0, -lambda, dtemp, ynew);
     return(IDA_SUCCESS);
   }
 
-  /* IDA_Y_INIT case: ynew = y0 - lambda*delta. (ypnew = yp0 preset.) */
-  N_VLinearSum (ONE, y0, -lambda, delta, ynew);
+  /* IDA_Y_INIT case: ynew = yy0 - lambda*delta. (ypnew = yp0 preset.) */
+  N_VLinearSum (ONE, yy0, -lambda, delta, ynew);
   return(IDA_SUCCESS);
 
 }
 
+/*
+ * -----------------------------------------------------------------
+ * IDANewy
+ * -----------------------------------------------------------------
+ * IDANewy updates the vector ynew from yy0,
+ * using the current step vector delta, in a manner
+ * depending on icopt and the input id vector.
+ *
+ * The return value is always IDA_SUCCESS = 0.
+ * -----------------------------------------------------------------
+ */
 
-/******************** IDANewy ***********************************
-
- IDANewy updates the vector ynew from y0,
- using the current step vector delta, in a manner
- depending on icopt and the input id vector.
- 
- The return value is always IDA_SUCCESS = 0.
- 
-*****************************************************************/
-
-static int IDANewy(IDAMem IDA_mem)
+static int IDANewy (IDAMem IDA_mem)
 {
   
-  /* IDA_YA_YDP_INIT case: ynew = y0  - delta    where id_i = 0. */
+  /* IDA_YA_YDP_INIT case: ynew = yy0 - delta    where id_i = 0. */
   if (icopt == IDA_YA_YDP_INIT) {
     N_VProd (id, delta, dtemp);
     N_VLinearSum (ONE, delta, -ONE, dtemp, dtemp);
-    N_VLinearSum (ONE, y0, -ONE, dtemp, ynew);
+    N_VLinearSum (ONE, yy0, -ONE, dtemp, ynew);
     return(IDA_SUCCESS);
   }
 
-  /* IDA_Y_INIT case: ynew = y0 - delta. */
-  N_VLinearSum (ONE, y0, -ONE, delta, ynew);
+  /* IDA_Y_INIT case: ynew = yy0 - delta. */
+  N_VLinearSum (ONE, yy0, -ONE, delta, ynew);
   return(IDA_SUCCESS);
 
 }
 
+/*
+ * -----------------------------------------------------------------
+ * IDAICFailFlag
+ * -----------------------------------------------------------------
+ * IDAICFailFlag prints a message and sets the IDACalcIC return
+ * value appropriate to the flag retval returned by IDAnlsIC.
+ * -----------------------------------------------------------------
+ */
 
-/******************** IDAICFailFlag *****************************
-
- IDAICFailFlag prints a message and sets the IDACalcIC return
- value appropriate to the flag retval returned by IDAnlsIC.
- 
-*****************************************************************/
-
-static int IDAICFailFlag(IDAMem IDA_mem, int retval)
+static int IDAICFailFlag (IDAMem IDA_mem, int retval)
 {
 
   /* Depending on retval, print error message and return error flag. */
   switch (retval) {
 
     case IDA_RES_FAIL:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_RES_NONREC);
+      IDAProcessError(IDA_mem, IDA_RES_FAIL, "IDA", "IDACalcIC", MSG_IC_RES_NONREC);
       return(IDA_RES_FAIL);
 
     case IDA_FIRST_RES_FAIL:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_RES_FAIL);
+      IDAProcessError(IDA_mem, IDA_FIRST_RES_FAIL, "IDA", "IDACalcIC", MSG_IC_RES_FAIL);
       return(IDA_FIRST_RES_FAIL);
 
     case IDA_LSETUP_FAIL:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_SETUP_FAIL);
+      IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, "IDA", "IDACalcIC", MSG_IC_SETUP_FAIL);
       return(IDA_LSETUP_FAIL);
 
     case IDA_LSOLVE_FAIL:  
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_SOLVE_FAIL);
+      IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, "IDA", "IDACalcIC", MSG_IC_SOLVE_FAIL);
       return(IDA_LSOLVE_FAIL);
 
     case IC_FAIL_RECOV:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_NO_RECOVERY);
+      IDAProcessError(IDA_mem, IDA_NO_RECOVERY, "IDA", "IDACalcIC", MSG_IC_NO_RECOVERY);
       return(IDA_NO_RECOVERY);
 
     case IC_CONSTR_FAILED: 
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_FAIL_CONSTR);
+      IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDA", "IDACalcIC", MSG_IC_FAIL_CONSTR);
       return(IDA_CONSTR_FAIL);
 
     case IC_LINESRCH_FAILED:  
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_FAILED_LINS);
+      IDAProcessError(IDA_mem, IDA_LINESEARCH_FAIL, "IDA", "IDACalcIC", MSG_IC_FAILED_LINS);
       return(IDA_LINESEARCH_FAIL);
 
     case IC_CONV_FAIL:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_CONV_FAILED);
+      IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDACalcIC", MSG_IC_CONV_FAILED);
       return(IDA_CONV_FAIL);
 
     case IC_SLOW_CONVRG: 
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_CONV_FAILED);
+      IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDACalcIC", MSG_IC_CONV_FAILED);
       return(IDA_CONV_FAIL);
 
     case IDA_BAD_EWT:
-      if(errfp!=NULL) fprintf(errfp, MSG_IC_BAD_EWT);
+      IDAProcessError(IDA_mem, IDA_BAD_EWT, "IDA", "IDACalcIC", MSG_IC_BAD_EWT);
       return(IDA_BAD_EWT);
 
   }
   return -99;
 }
 
-/*=================================================================*/
-/*END          PRIVATE FUNCTIONS IMPLEMENTATION                    */
-/*=================================================================*/

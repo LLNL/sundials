@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:57 $
+ * $Revision: 1.2 $
+ * $Date: 2006-03-24 15:57:26 $
  * ----------------------------------------------------------------- 
- * Programmer(s): Aaron Collier @ LLNL
+ * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Copyright (c) 2005, The Regents of the University of California.
  * Produced at the Lawrence Livermore National Laboratory.
@@ -18,9 +18,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "idas_sptfqmr_impl.h"
+#include "idas_sptfqmr.h"
+#include "idas_spils_impl.h"
 #include "idas_impl.h"
+#include "idaa_impl.h"
 
+#include "sundials_sptfqmr.h"
 #include "sundials_math.h"
 
 /* Constants */
@@ -29,8 +32,6 @@
 #define ONE  RCONST(1.0)
 #define PT9  RCONST(0.9)
 #define PT05 RCONST(0.05)
-
-#define IDA_SPTFQMR_MAXL 5
 
 /* IDASPTFQMR linit, lsetup, lsolve, lperf, and lfree routines */
 
@@ -47,34 +48,28 @@ static int IDASptfqmrPerf(IDAMem IDA_mem, int perftask);
 
 static int IDASptfqmrFree(IDAMem IDA_mem);
 
-/* IDASPTFQMR Atimes and PSolve routines called by generic SPTFQMR solver */
+/* IDASPTFQMR lfreeB function */
 
-static int IDASptfqmrAtimes(void *ida_mem, N_Vector v, N_Vector z);
+static void IDASptfqmrFreeB(IDAadjMem IDAADJ_mem);
 
-static int IDASptfqmrPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr);
-
-/* Difference quotient approximation for Jac times vector */
-
-static int IDASptfqmrDQJtimes(realtype tt,
-			      N_Vector yy, N_Vector yp, N_Vector rr,
-			      N_Vector v, N_Vector Jv, 
-			      realtype c_j, void *jac_data, 
-			      N_Vector work1, N_Vector work2);
+/* 
+ * ================================================================
+ *
+ *                   PART I - forward problems
+ *
+ * ================================================================
+ */
 
 /* Readability Replacements */
 
-#define lrw1         (IDA_mem->ida_lrw1)
-#define liw1         (IDA_mem->ida_liw1)
 #define nst          (IDA_mem->ida_nst)
 #define tn           (IDA_mem->ida_tn)
 #define cj           (IDA_mem->ida_cj)
 #define epsNewt      (IDA_mem->ida_epsNewt)
-#define nre          (IDA_mem->ida_nre)
 #define res          (IDA_mem->ida_res)
 #define rdata        (IDA_mem->ida_rdata)
 #define ewt          (IDA_mem->ida_ewt)
 #define errfp        (IDA_mem->ida_errfp)
-#define iopt         (IDA_mem->ida_iopt)
 #define linit        (IDA_mem->ida_linit)
 #define lsetup       (IDA_mem->ida_lsetup)
 #define lsolve       (IDA_mem->ida_lsolve)
@@ -86,29 +81,28 @@ static int IDASptfqmrDQJtimes(realtype tt,
 #define setupNonNull (IDA_mem->ida_setupNonNull)
 #define vec_tmpl     (IDA_mem->ida_tempv1)
 
-#define sqrtN       (idasptfqmr_mem->q_sqrtN)
-#define epslin      (idasptfqmr_mem->q_epslin)
-#define ytemp       (idasptfqmr_mem->q_ytemp)
-#define yptemp      (idasptfqmr_mem->q_yptemp)
-#define xx          (idasptfqmr_mem->q_xx)
-#define ycur        (idasptfqmr_mem->q_ycur)
-#define ypcur       (idasptfqmr_mem->q_ypcur)
-#define rcur        (idasptfqmr_mem->q_rcur)
-#define resflag     (idasptfqmr_mem->q_resflag)
-#define npe         (idasptfqmr_mem->q_npe)
-#define nli         (idasptfqmr_mem->q_nli)
-#define nps         (idasptfqmr_mem->q_nps)
-#define ncfl        (idasptfqmr_mem->q_ncfl)
-#define nst0        (idasptfqmr_mem->q_nst0)
-#define nni0        (idasptfqmr_mem->q_nni0)
-#define nli0        (idasptfqmr_mem->q_nli0)
-#define ncfn0       (idasptfqmr_mem->q_ncfn0)
-#define ncfl0       (idasptfqmr_mem->q_ncfl0)
-#define nwarn       (idasptfqmr_mem->q_nwarn)
-#define njtimes     (idasptfqmr_mem->q_njtimes)
-#define nreSG       (idasptfqmr_mem->q_nreSG)
-#define sptfqmr_mem (idasptfqmr_mem->q_sptfqmr_mem)
-#define last_flag   (idasptfqmr_mem->q_last_flag)
+#define sqrtN       (idaspils_mem->s_sqrtN)
+#define epslin      (idaspils_mem->s_epslin)
+#define ytemp       (idaspils_mem->s_ytemp)
+#define yptemp      (idaspils_mem->s_yptemp)
+#define xx          (idaspils_mem->s_xx)
+#define ycur        (idaspils_mem->s_ycur)
+#define ypcur       (idaspils_mem->s_ypcur)
+#define rcur        (idaspils_mem->s_rcur)
+#define npe         (idaspils_mem->s_npe)
+#define nli         (idaspils_mem->s_nli)
+#define nps         (idaspils_mem->s_nps)
+#define ncfl        (idaspils_mem->s_ncfl)
+#define nst0        (idaspils_mem->s_nst0)
+#define nni0        (idaspils_mem->s_nni0)
+#define nli0        (idaspils_mem->s_nli0)
+#define ncfn0       (idaspils_mem->s_ncfn0)
+#define ncfl0       (idaspils_mem->s_ncfl0)
+#define nwarn       (idaspils_mem->s_nwarn)
+#define njtimes     (idaspils_mem->s_njtimes)
+#define nres        (idaspils_mem->s_nres)
+#define spils_mem   (idaspils_mem->s_spils_mem)
+#define last_flag   (idaspils_mem->s_last_flag)
 
 /*
  * -----------------------------------------------------------------
@@ -121,30 +115,30 @@ static int IDASptfqmrDQJtimes(realtype tt,
  * It then sets the ida_linit, ida_lsetup, ida_lsolve, ida_lperf, and
  * ida_lfree fields in (*IDA_mem) to be IDASptfqmrInit, IDASptfqmrSetup,
  * IDASptfqmrSolve, IDASptfqmrPerf, and IDASptfqmrFree, respectively.
- * It allocates memory for a structure of type IDASptfqmrMemRec and sets
+ * It allocates memory for a structure of type IDASpilsMemRec and sets
  * the ida_lmem field in (*IDA_mem) to the address of this structure.
  * It sets setupNonNull in (*IDA_mem). It then sets the following
- * fields in the IDASptfqmrMemRec structure:
+ * fields in the IDASpilsMemRec structure:
  *
- *   q_maxl      = IDA_SPTFQMR_MAXL  if maxl <= 0
- *               = maxl              if maxl > 0
- *   q_eplifac   = PT05
- *   q_dqincfac  = ONE
- *   q_pdata     = NULL
- *   q_pset      = NULL
- *   q_psolve    = NULL
- *   q_jtimes    = IDASptfqmrDQJtimes
- *   q_jdata     = ida_mem
- *   q_last_flag = IDASPTFQMR_SUCCESS
+ *   s_maxl      = IDA_SPILS_MAXL  if maxl <= 0
+ *               = maxl            if maxl > 0
+ *   s_eplifac   = PT05
+ *   s_dqincfac  = ONE
+ *   s_pdata     = NULL
+ *   s_pset      = NULL
+ *   s_psolve    = NULL
+ *   s_jtimes    = IDASptfqmrDQJtimes
+ *   s_jdata     = ida_mem
+ *   s_last_flag = IDASPILS_SUCCESS
  *
  * Finally, IDASptfqmr allocates memory for ytemp, yptemp, and xx, and
  * calls SptfqmrMalloc to allocate memory for the Sptfqmr solver.
  *
  * The return value of IDASptfqmr is:
- *   IDASPTFQMR_SUCCESS   =  0 if successful
- *   IDASPTFQMR_MEM_FAIL  = -1 if IDA_mem is NULL or a memory
+ *   IDASPILS_SUCCESS   =  0 if successful
+ *   IDASPILS_MEM_FAIL  = -1 if IDA_mem is NULL or a memory
  *                             allocation failed
- *   IDASPTFQMR_ILL_INPUT = -2 if a required vector operation is not
+ *   IDASPILS_ILL_INPUT = -2 if a required vector operation is not
  *                             implemented.
  * -----------------------------------------------------------------
  */
@@ -152,20 +146,21 @@ static int IDASptfqmrDQJtimes(realtype tt,
 int IDASptfqmr(void *ida_mem, int maxl)
 {
   IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
+  IDASpilsMem idaspils_mem;
+  SptfqmrMem sptfqmr_mem;
   int flag, maxl1;
 
   /* Return immediately if ida_mem is NULL */
   if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
+    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASPTFQMR", "IDASptfqmr", MSGS_IDAMEM_NULL);
+    return(IDASPILS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Check if N_VDotProd is present */
   if (vec_tmpl->ops->nvdotprod == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_BAD_NVECTOR);
-    return(IDASPTFQMR_ILL_INPUT);
+    IDAProcessError(NULL, IDASPILS_ILL_INPUT, "IDASPTFQMR", "IDASptfqmr", MSGS_BAD_NVECTOR);
+    return(IDASPILS_ILL_INPUT);
   }
 
   if (lfree != NULL) flag = lfree((IDAMem) ida_mem);
@@ -177,48 +172,60 @@ int IDASptfqmr(void *ida_mem, int maxl)
   lperf  = IDASptfqmrPerf;
   lfree  = IDASptfqmrFree;
 
-  /* Get memory for IDASptfqmrMemRec */
-  idasptfqmr_mem = (IDASptfqmrMem) malloc(sizeof(IDASptfqmrMemRec));
-  if (idasptfqmr_mem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
-    return(IDASPTFQMR_MEM_FAIL);
+  /* Get memory for IDASpilsMemRec */
+  idaspils_mem = NULL;
+  idaspils_mem = (IDASpilsMem) malloc(sizeof(IDASpilsMemRec));
+  if (idaspils_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmr", MSGS_MEM_FAIL);
+    return(IDASPILS_MEM_FAIL);
   }
 
+  /* Set ILS type */
+  idaspils_mem->s_type = SPILS_SPTFQMR;
+
   /* Set SPTFQMR parameters that were passed in call sequence */
-  maxl1 = (maxl <= 0) ? IDA_SPTFQMR_MAXL : maxl;
-  idasptfqmr_mem->q_maxl = maxl1;
+  maxl1 = (maxl <= 0) ? IDA_SPILS_MAXL : maxl;
+  idaspils_mem->s_maxl = maxl1;
 
   /* Set default values for the rest of the Sptfqmr parameters */
-  idasptfqmr_mem->q_eplifac   = PT05;
-  idasptfqmr_mem->q_dqincfac  = ONE;
-  idasptfqmr_mem->q_pset      = NULL;
-  idasptfqmr_mem->q_psolve    = NULL;
-  idasptfqmr_mem->q_pdata     = NULL;
-  idasptfqmr_mem->q_jtimes    = IDASptfqmrDQJtimes;
-  idasptfqmr_mem->q_jdata     = ida_mem;
-  idasptfqmr_mem->q_last_flag = IDASPTFQMR_SUCCESS;
+  idaspils_mem->s_eplifac   = PT05;
+  idaspils_mem->s_dqincfac  = ONE;
+  idaspils_mem->s_pset      = NULL;
+  idaspils_mem->s_psolve    = NULL;
+  idaspils_mem->s_pdata     = NULL;
+  idaspils_mem->s_jtimes    = IDASpilsDQJtimes;
+  idaspils_mem->s_jdata     = ida_mem;
+  idaspils_mem->s_last_flag = IDASPILS_SUCCESS;
 
   /* Set setupNonNull to FALSE */
   setupNonNull = FALSE;
 
   /* Allocate memory for ytemp, yptemp, and xx */
+  ytemp = NULL;
   ytemp = N_VClone(vec_tmpl);
   if (ytemp == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
-    return(IDASPTFQMR_MEM_FAIL);
+    IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmr", MSGS_MEM_FAIL);
+    free(idaspils_mem); idaspils_mem = NULL;
+    return(IDASPILS_MEM_FAIL);
   }
+
+  yptemp = NULL;
   yptemp = N_VClone(vec_tmpl);
   if (yptemp == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmr", MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
-    return(IDASPTFQMR_MEM_FAIL);
+    free(idaspils_mem); idaspils_mem = NULL;
+    return(IDASPILS_MEM_FAIL);
   }
+
+  xx = NULL;
   xx = N_VClone(vec_tmpl);
   if (xx == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmr", MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(yptemp);
-    return(IDASPTFQMR_MEM_FAIL);
+    free(idaspils_mem); idaspils_mem = NULL;
+    return(IDASPILS_MEM_FAIL);
   }
 
   /* Compute sqrtN from a dot product */
@@ -226,326 +233,24 @@ int IDASptfqmr(void *ida_mem, int maxl)
   sqrtN = RSqrt(N_VDotProd(ytemp, ytemp));
 
   /* Call SptfqmrMalloc to allocate workspace for Sptfqmr */
+  sptfqmr_mem = NULL;
   sptfqmr_mem = SptfqmrMalloc(maxl1, vec_tmpl);
   if (sptfqmr_mem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_MEM_FAIL);
+    IDAProcessError(NULL, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmr", MSGS_MEM_FAIL);
     N_VDestroy(ytemp);
     N_VDestroy(yptemp);
     N_VDestroy(xx);
-    return(IDASPTFQMR_MEM_FAIL);
+    free(idaspils_mem); idaspils_mem = NULL;
+    return(IDASPILS_MEM_FAIL);
   }
+
+  /* Attach SPTFQMR memory to spils memory structure */
+  spils_mem = (void *)sptfqmr_mem;
 
   /* Attach linear solver memory to the integrator memory */
-  lmem = idasptfqmr_mem;
+  lmem = idaspils_mem;
 
-  return(IDASPTFQMR_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : IDASptfqmrSet* and IDASptfqmrGet*
- * -----------------------------------------------------------------
- */
-
-int IDASptfqmrSetEpsLin(void *ida_mem, realtype eplifac)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  if (eplifac < ZERO) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_IDAS_NEG_EPLIFAC);
-    return(IDASPTFQMR_ILL_INPUT);
-  }
-
-  if (eplifac == ZERO)
-    idasptfqmr_mem->q_eplifac = PT05;
-  else
-    idasptfqmr_mem->q_eplifac = eplifac;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrSetIncrementFactor(void *ida_mem, realtype dqincfac)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  if (dqincfac <= ZERO) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_IDAS_NEG_DQINCFAC);
-    return(IDASPTFQMR_ILL_INPUT);
-  }
-
-  idasptfqmr_mem->q_dqincfac = dqincfac;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrSetPreconditioner(void *ida_mem,
-				IDASpilsPrecSetupFn pset,
-				IDASpilsPrecSolveFn psolve,
-				void *prec_data)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  idasptfqmr_mem->q_pset   = pset;
-  idasptfqmr_mem->q_psolve = psolve;
-  if (psolve != NULL) idasptfqmr_mem->q_pdata = prec_data;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrSetJacTimesVecFn(void *ida_mem, 
-			       IDASpilsJacTimesVecFn jtimes,
-			       void *jac_data)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  idasptfqmr_mem->q_jtimes = jtimes;
-  if (jtimes != NULL) idasptfqmr_mem->q_jdata = jac_data;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrGetWorkSpace(void *ida_mem, long int *lenrwSG, long int *leniwSG)
-{
-  IDAMem IDA_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-
-#ifdef DEBUG
-  *lenrwSG = lrw1*14;
-  *leniwSG = liw1*14;
-#else
-  *lenrwSG = lrw1*13;
-  *leniwSG = liw1*13;
-#endif
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrGetNumPrecEvals(void *ida_mem, long int *npevals)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  *npevals = npe;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrGetNumPrecSolves(void *ida_mem, long int *npsolves)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  *npsolves = nps;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrGetNumLinIters(void *ida_mem, long int *nliters)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  *nliters = nli;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrGetNumConvFails(void *ida_mem, long int *nlcfails)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  *nlcfails = ncfl;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrGetNumJtimesEvals(void *ida_mem, long int *njvevals)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  *njvevals = njtimes;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrGetNumResEvals(void *ida_mem, long int *nrevalsSG)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  *nrevalsSG = nreSG;
-
-  return(IDASPTFQMR_SUCCESS);
-}
-
-int IDASptfqmrGetLastFlag(void *ida_mem, int *flag)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-
-  /* Return immediately if ida_mem is NULL */
-  if (ida_mem == NULL) {
-    fprintf(stderr, MSGTFQMR_SETGET_IDAMEM_NULL);
-    return(IDASPTFQMR_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  if (lmem == NULL) {
-    if (errfp != NULL) fprintf(errfp, MSGTFQMR_SETGET_LMEM_NULL);
-    return(IDASPTFQMR_LMEM_NULL);
-  }
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  *flag = last_flag;
-
-  return(IDASPTFQMR_SUCCESS);
+  return(IDASPILS_SUCCESS);
 }
 
 /*
@@ -556,58 +261,69 @@ int IDASptfqmrGetLastFlag(void *ida_mem, int *flag)
 
 /* Additional readability Replacements */
 
-#define maxl     (idasptfqmr_mem->q_maxl)
-#define eplifac  (idasptfqmr_mem->q_eplifac)
-#define dqincfac (idasptfqmr_mem->q_dqincfac)
-#define psolve   (idasptfqmr_mem->q_psolve)
-#define pset     (idasptfqmr_mem->q_pset)
-#define pdata    (idasptfqmr_mem->q_pdata)
-#define jtimes   (idasptfqmr_mem->q_jtimes)
-#define jdata    (idasptfqmr_mem->q_jdata)
+#define maxl     (idaspils_mem->s_maxl)
+#define eplifac  (idaspils_mem->s_eplifac)
+#define psolve   (idaspils_mem->s_psolve)
+#define pset     (idaspils_mem->s_pset)
+#define pdata    (idaspils_mem->s_pdata)
+#define jtimes   (idaspils_mem->s_jtimes)
+#define jdata    (idaspils_mem->s_jdata)
 
 static int IDASptfqmrInit(IDAMem IDA_mem)
 {
-  IDASptfqmrMem idasptfqmr_mem;
+  IDASpilsMem idaspils_mem;
+  SptfqmrMem sptfqmr_mem;
 
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
+  idaspils_mem = (IDASpilsMem) lmem;
+  sptfqmr_mem = (SptfqmrMem) spils_mem;
 
   /* Initialize counters */
   npe = nli = nps = ncfl = 0;
-  njtimes = nreSG = 0;
+  njtimes = nres = 0;
 
   /* Set setupNonNull to TRUE iff there is preconditioning with setup */
   setupNonNull = (psolve != NULL) && (pset != NULL);
 
   /* If jtimes is NULL at this time, set it to DQ */
   if (jtimes == NULL) {
-    jtimes = IDASptfqmrDQJtimes;
+    jtimes = IDASpilsDQJtimes;
     jdata = IDA_mem;
   }
 
-  last_flag = IDASPTFQMR_SUCCESS;
+  /*  Set maxl in the SPTFQMR memory in case it was changed by the user */
+  sptfqmr_mem->l_max  = maxl;
+
+  last_flag = IDASPILS_SUCCESS;
 
   return(0);
 }
 
 static int IDASptfqmrSetup(IDAMem IDA_mem, 
 			   N_Vector yy_p, N_Vector yp_p, N_Vector rr_p, 
-			   N_Vector tmp1, N_Vector tmp2,
-			   N_Vector tmp3)
+			   N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int retval;
-  IDASptfqmrMem idasptfqmr_mem;
+  IDASpilsMem idaspils_mem;
 
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
+  idaspils_mem = (IDASpilsMem) lmem;
 
   /* Call user setup routine pset and update counter npe */
   retval = pset(tn, yy_p, yp_p, rr_p, cj, pdata,
                 tmp1, tmp2, tmp3);
   npe++;
 
-  last_flag = retval;
-  /* Return flag showing success or failure of pset */
-  if (retval < 0) return(-1);
-  if (retval > 0) return(+1);
+  if (retval < 0) {
+    IDAProcessError(IDA_mem, SPTFQMR_PSET_FAIL_UNREC, "IDASPTFQMR", "IDASptfqmrSetup", MSGS_PSET_FAILED);
+    last_flag = SPTFQMR_PSET_FAIL_UNREC;
+    return(-1);
+  }
+  if (retval > 0) {
+    last_flag = SPTFQMR_PSET_FAIL_REC;
+    return(+1);
+  }
+
+  last_flag = SPTFQMR_SUCCESS;
+
   return(0);
 }
 
@@ -629,12 +345,14 @@ static int IDASptfqmrSetup(IDAMem IDA_mem,
 static int IDASptfqmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
 			   N_Vector yy_now, N_Vector yp_now, N_Vector rr_now)
 {
-  IDASptfqmrMem idasptfqmr_mem;
+  IDASpilsMem idaspils_mem;
+  SptfqmrMem sptfqmr_mem;
   int pretype, nli_inc, nps_inc, retval;
   realtype res_norm;
 
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
+  idaspils_mem = (IDASpilsMem) lmem;
 
+  sptfqmr_mem = (SptfqmrMem)spils_mem;
 
   /* Set SptfqmrSolve convergence test constant epslin, in terms of the
      Newton convergence test constant epsNewt and safety factors. The factor
@@ -653,25 +371,52 @@ static int IDASptfqmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
   
   /* Call SptfqmrSolve and copy xx to bb */
   retval = SptfqmrSolve(sptfqmr_mem, IDA_mem, xx, bb, pretype, epslin,
-                      IDA_mem, weight, weight, IDASptfqmrAtimes,
-                      IDASptfqmrPSolve, &res_norm, &nli_inc, &nps_inc);
-  last_flag = retval;
+                      IDA_mem, weight, weight, IDASpilsAtimes,
+                      IDASpilsPSolve, &res_norm, &nli_inc, &nps_inc);
+
   if (nli_inc == 0) N_VScale(ONE, SPTFQMR_VTEMP(sptfqmr_mem), bb);
   else N_VScale(ONE, xx, bb);
   
   /* Increment counters nli, nps, and return if successful */
   nli += nli_inc;
   nps += nps_inc;
+  if (retval != SPTFQMR_SUCCESS) ncfl++;
 
-  if (retval == 0) return(0);
+    /* Interpret return value from SpgmrSolve */
 
-  /* If not successful, increment ncfl and return appropriate flag */
-  ncfl++;
+  last_flag = retval;
 
-  if (retval > 0)   return(+1);
-  if (retval != -2) return(-1);
-  if (resflag > 0)  return(+1);
-  return(-1);
+  switch(retval) {
+
+  case SPTFQMR_SUCCESS:
+    return(0);
+    break;
+  case SPTFQMR_RES_REDUCED:
+    return(1);
+    break;
+  case SPTFQMR_CONV_FAIL:
+    return(1);
+    break;
+  case SPTFQMR_PSOLVE_FAIL_REC:
+    return(1);
+    break;
+  case SPTFQMR_ATIMES_FAIL_REC:
+    return(1);
+    break;
+  case SPTFQMR_MEM_NULL:
+    return(-1);
+    break;
+  case SPTFQMR_ATIMES_FAIL_UNREC:
+    IDAProcessError(IDA_mem, SPTFQMR_ATIMES_FAIL_UNREC, "IDASPTFQMR", "IDASptfqmrSolve", MSGS_JTIMES_FAILED);    
+    return(-1);
+    break;
+  case SPTFQMR_PSOLVE_FAIL_UNREC:
+    IDAProcessError(IDA_mem, SPTFQMR_PSOLVE_FAIL_UNREC, "IDASPTFQMR", "IDASptfqmrSolve", MSGS_PSOLVE_FAILED);
+    return(-1);
+    break;
+  }
+
+  return(0);
 }
 
 /*
@@ -689,12 +434,12 @@ static int IDASptfqmrSolve(IDAMem IDA_mem, N_Vector bb, N_Vector weight,
 
 static int IDASptfqmrPerf(IDAMem IDA_mem, int perftask)
 {
-  IDASptfqmrMem idasptfqmr_mem;
+  IDASpilsMem idaspils_mem;
   realtype avdim, rcfn, rcfl;
   long int nstd, nnid;
   booleantype lavd, lcfn, lcfl;
 
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
+  idaspils_mem = (IDASpilsMem) lmem;
 
   if (perftask == 0) {
     nst0 = nst;  nni0 = nni;  nli0 = nli;
@@ -714,138 +459,112 @@ static int IDASptfqmrPerf(IDAMem IDA_mem, int perftask)
   if (!(lavd || lcfn || lcfl)) return(0);
   nwarn++;
   if (nwarn > 10) return(1);
-  if (lavd) if (errfp != NULL) fprintf(errfp, MSGTFQMR_AVD_WARN, tn, avdim);
-  if (lcfn) if (errfp != NULL) fprintf(errfp, MSGTFQMR_CFN_WARN, tn, rcfn);
-  if (lcfl) if (errfp != NULL) fprintf(errfp, MSGTFQMR_CFL_WARN, tn, rcfl);
+  if (lavd) 
+    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPTFQMR", "IDASptfqmrPerf", MSGS_AVD_WARN, tn, avdim);
+  if (lcfn) 
+    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPTFQMR", "IDASptfqmrPerf", MSGS_CFN_WARN, tn, rcfn);
+  if (lcfl) 
+    IDAProcessError(IDA_mem, IDA_WARNING, "IDASPTFQMR", "IDASptfqmrPerf", MSGS_CFL_WARN, tn, rcfl);
 
   return(0);
 }
 
 static int IDASptfqmrFree(IDAMem IDA_mem)
 {
-  IDASptfqmrMem idasptfqmr_mem;
+  IDASpilsMem idaspils_mem;
+  SptfqmrMem sptfqmr_mem;
 
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
+  idaspils_mem = (IDASpilsMem) lmem;
   
+  sptfqmr_mem = (SptfqmrMem)spils_mem;
+
   N_VDestroy(ytemp);
   N_VDestroy(yptemp);
   N_VDestroy(xx);
   SptfqmrFree(sptfqmr_mem);
-  free(lmem);
+  free(lmem); lmem = NULL;
 
   return(0);
 }
 
-/*
- * -----------------------------------------------------------------
- * IDASPTFQMR private functions
- * -----------------------------------------------------------------
+/* 
+ * ================================================================
+ *
+ *                   PART II - backward problems
+ *
+ * ================================================================
  */
 
+/* Additional readability replacements */
+
+#define lmemB       (IDAADJ_mem->ia_lmemB)
+#define lfreeB      (IDAADJ_mem->ia_lfreeB)
+
+#define pset_B      (idaspilsB_mem->s_psetB)
+#define psolve_B    (idaspilsB_mem->s_psolveB)
+#define jtimes_B    (idaspilsB_mem->s_jtimesB)
+#define P_data_B    (idaspilsB_mem->s_P_dataB)
+#define jac_data_B  (idaspilsB_mem->s_jac_dataB)
+
 /*
- * -----------------------------------------------------------------
- * Function : IDASptfqmrAtimes
- * -----------------------------------------------------------------
- * This routine generates the matrix-vector product z = Jv, where
- * J is the system Jacobian, by calling either the user provided
- * routine or the internal DQ routine.
- * -----------------------------------------------------------------
+ * IDASptfqmrB
+ *
+ * Wrapper for the backward phase
+ *
  */
 
-static int IDASptfqmrAtimes(void *ida_mem, N_Vector v, N_Vector z)
+int IDASptfqmrB(void *idaadj_mem, int maxlB)
 {
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-  int jtflag;
+  IDAadjMem IDAADJ_mem;
+  IDASpilsMemB idaspilsB_mem;
+  IDAMem IDAB_mem;
+  int flag;
 
-  IDA_mem = (IDAMem) ida_mem;
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
+  if (idaadj_mem == NULL) {
+    IDAProcessError(NULL, IDASPILS_ADJMEM_NULL, "IDASPTFQMR", "IDASptfqmrB", MSGS_CAMEM_NULL);
+    return(IDASPILS_ADJMEM_NULL);
+  }
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
 
-  jtflag = jtimes(tn, ycur, ypcur, rcur, v, z, cj, jdata, ytemp, yptemp);
-  njtimes++;
+  IDAB_mem = (IDAMem) IDAADJ_mem->IDAB_mem;
 
-  return(jtflag);
+  /* Get memory for IDASpilsMemRecB */
+  idaspilsB_mem = NULL;
+  idaspilsB_mem = (IDASpilsMemB) malloc(sizeof(IDASpilsMemRecB));
+  if (idaspilsB_mem == NULL) {
+    IDAProcessError(IDAB_mem, IDASPILS_MEM_FAIL, "IDASPTFQMR", "IDASptfqmrB", MSGS_MEM_FAIL);
+    return(IDASPILS_MEM_FAIL);
+  }
+  
+  pset_B = NULL;
+  psolve_B = NULL;
+  jtimes_B = NULL;
+  P_data_B = NULL;
+  jac_data_B = NULL;
+
+  /* attach lmemB and lfreeB */
+  lmemB = idaspilsB_mem;
+  lfreeB = IDASptfqmrFreeB;
+
+  flag = IDASptfqmr(IDAB_mem, maxlB);
+
+  if (flag != IDASPILS_SUCCESS) {
+    free(idaspilsB_mem);
+    idaspilsB_mem = NULL;
+  }
+
+  return(flag);
 }
 
 /*
- * -----------------------------------------------------------------
- * Function : IDASptfqmrPSolve
- * -----------------------------------------------------------------
- * This routine interfaces between the generic SptfqmrSolve routine
- * and the user's psolve routine. It passes to psolve all required
- * state information from ida_mem. Its return value is the same as
- * that returned by psolve. Note that the generic SPTFQMR solver
- * guarantees that IDASptfqmrPSolve will not be called in the case
- * psolve = NULL.
- * -----------------------------------------------------------------
+ * IDASptfqmrFreeB 
  */
 
-static int IDASptfqmrPSolve(void *ida_mem, N_Vector r, N_Vector z, int lr)
+static void IDASptfqmrFreeB(IDAadjMem IDAADJ_mem)
 {
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-  int retval;
+  IDASpilsMemB idaspilsB_mem;
 
-  IDA_mem = (IDAMem) ida_mem;
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
+  idaspilsB_mem = (IDASpilsMemB) lmemB;
 
-  retval = psolve(tn, ycur, ypcur, rcur, r, z, cj, epslin, pdata, ytemp);
-
-  /* This call is counted in nps within the IDASptfqmrSolve routine */
-
-  return(retval);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : IDASptfqmrDQJtimes
- * -----------------------------------------------------------------
- * This routine generates the matrix-vector product z = Jv, where
- * J is the system Jacobian, by using a difference quotient
- * approximation. The approximation is
- *      Jv = [F(t,y1,yp1) - F(t,y,yp)]/sigma,  where
- *        y1 = y + sigma*v,  yp1 = yp + cj*sigma*v,
- *        sigma = sqrt(Neq)*dqincfac.
- * The return value from the call to res is saved in order to set
- * the return flag from IDASptfqmrSolve.
- * -----------------------------------------------------------------
- */
-
-static int IDASptfqmrDQJtimes(realtype tt,
-			      N_Vector yy, N_Vector yp, N_Vector rr,
-			      N_Vector v, N_Vector Jv, 
-			      realtype c_j, void *jac_data, 
-			      N_Vector tmp1, N_Vector tmp2)
-{
-  IDAMem IDA_mem;
-  IDASptfqmrMem idasptfqmr_mem;
-  N_Vector y_tmp, yp_tmp;
-  realtype sig, siginv;
-  int ires;
-
-  /* jac_data is ida_mem */
-  IDA_mem = (IDAMem) jac_data;
-  idasptfqmr_mem = (IDASptfqmrMem) lmem;
-
-  sig = sqrtN*dqincfac;
-
-  /* Rename tmp1 and tmp2 for readibility */
-  y_tmp  = tmp1;
-  yp_tmp = tmp2;
-
-  /* Set y_tmp = yy + sig*v, yp_tmp = yp + cj*sig*v. */
-  N_VLinearSum(sig, v, ONE, yy, ytemp);
-  N_VLinearSum(c_j*sig, v, ONE, yp, yptemp);
-
-  /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-  ires = res(tt, y_tmp, yp_tmp, Jv, rdata); 
-  nreSG++;
-  resflag = ires;
-  if (ires != 0) return(ires);
-
-  /* Set Jv to [Jv - rr]/sig and return. */
-  siginv = ONE/sig;
-  N_VLinearSum(siginv, Jv, -siginv, rr, Jv);
-
-  return(0);
+  free(idaspilsB_mem);
 }

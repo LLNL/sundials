@@ -1,12 +1,12 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.17 $
- * $Date: 2006-01-11 21:13:55 $
+ * $Revision: 1.1 $
+ * $Date: 2006-03-24 15:57:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Example program for IDA: Food web problem.
+ * Example program for IDAS: Food web problem.
  *
  * This example program (serial version) uses the IDABAND linear 
  * solver, and IDACalcIC for initial condition calculation.
@@ -90,7 +90,7 @@
 #include "idas.h"                /* Main header file                              */
 #include "nvector_serial.h"      /* Definitions of type N_Vector, macro NV_DATA_S */
 #include "idas_band.h"           /* Use IDABAND linear solver                     */
-#include "sundials_smalldense.h" /* Contains definitions for denalloc routine     */
+#include "sundials_smalldense.h" /* Definition of denalloc                        */
 #include "sundials_types.h"      /* Definitions of realtype and booleantype       */
 
 /* Problem Constants. */
@@ -218,7 +218,7 @@ int main()
   retval = IDASetId(mem, id);
   if(check_flag(&retval, "IDASetId", 1)) return(1);
 
-  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, &rtol, &atol);
+  retval = IDAMalloc(mem, resweb, t0, cc, cp, IDA_SS, rtol, &atol);
   if(check_flag(&retval, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the IDA linear solver. */
@@ -230,7 +230,7 @@ int main()
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
-  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  retval = IDACalcIC(mem, t0, cc, cp, IDA_YA_YDP_INIT, tout);
   if(check_flag(&retval, "IDACalcIC", 1)) return(1);
   
   /* Print heading, basic parameters, and initial values. */
@@ -444,7 +444,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 
 static void PrintHeader(long int mu, long int ml, realtype rtol, realtype atol)
 {
-  printf("\niwebsb: Predator-prey DAE serial example problem for IDA \n\n");
+  printf("\nidabanx2: Predator-prey DAE serial example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     System size: %d\n", NEQ);
@@ -512,7 +512,7 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
 
 static void PrintFinalStats(void *mem)
 { 
-  long int nst, nre, nreB, nni, nje, netf, ncfn;
+  long int nst, nre, nreLS, nni, nje, netf, ncfn;
   int flag;
 
   flag = IDAGetNumSteps(mem, &nst);
@@ -527,13 +527,13 @@ static void PrintFinalStats(void *mem)
   check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
   flag = IDABandGetNumJacEvals(mem, &nje);
   check_flag(&flag, "IDABandGetNumJacEvals", 1);
-  flag = IDABandGetNumResEvals(mem, &nreB);
+  flag = IDABandGetNumResEvals(mem, &nreLS);
   check_flag(&flag, "IDABandGetNumResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreB);
+  printf("Number of residual evaluations     = %ld\n", nre+nreLS);
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);

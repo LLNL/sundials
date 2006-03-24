@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:57 $
+ * $Revision: 1.2 $
+ * $Date: 2006-03-24 15:57:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,15 +10,15 @@
  * All rights reserved
  * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
- * This is the header file (private version) for the IDA/IDAS band
+ * This is the header file (private version) for the IDAS band
  * linear solver module, IDABAND. It interfaces between the band
  * module and the integrator when a banded linear solver is
  * appropriate.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDABAND_IMPL_H
-#define _IDABAND_IMPL_H
+#ifndef _IDASBAND_IMPL_H
+#define _IDASBAND_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -60,29 +60,38 @@ typedef struct {
 
 } IDABandMemRec, *IDABandMem;
 
+  /*
+   * -----------------------------------------------------------------
+   * Types : IDABandMemRecB, IDABandMemB       
+   * -----------------------------------------------------------------
+   * IDABandB attaches such a structure to the lmemB filed of IDAadjMem
+   * -----------------------------------------------------------------
+   */
+
+  typedef struct {
+
+    IDABandJacFnB b_bjacB;
+    void *b_jac_dataB;
+
+  } IDABandMemRecB, *IDABandMemB;
+
+
 /*
  * -----------------------------------------------------------------
  * Error Messages 
  * -----------------------------------------------------------------
  */
 
-#define _IDABAND_              "IDABand-- "
+#define MSGB_IDAMEM_NULL "Integrator memory is NULL."
+#define MSGB_MEM_FAIL    "A memory request failed."
+#define MSGB_BAD_SIZES   "Illegal bandwidth parameter(s). Must have 0 <=  mlower, mupper <= N-1."
+#define MSGB_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGB_LMEM_NULL   "IDABAND memory is NULL."
+#define MSGB_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
-#define MSGB_IDAMEM_NULL        _IDABAND_ "Integrator memory is NULL.\n\n"
-
-#define MSGB_BAD_SIZES1         _IDABAND_ "illegal bandwidth parameter(s) "
-#define MSGB_BAD_SIZES2         "Must have 0 <=  mlower, mupper <= N-1.\n\n"
-#define MSGB_BAD_SIZES          MSGB_BAD_SIZES1 MSGB_BAD_SIZES2
-
-#define MSGB_MEM_FAIL           _IDABAND_ "a memory request failed.\n\n"
-
-#define MSGB_BAD_NVECTOR        _IDABAND_ "a required vector operation is not implemented.\n\n"
-
-#define MSGB_WRONG_NVEC         _IDABAND_ "incompatible NVECTOR implementation.\n\n"
-
-#define MSGB_SETGET_IDAMEM_NULL "IDABandSet*/IDABandGet*-- integrator memory is NULL. \n\n"
-
-#define MSGB_SETGET_LMEM_NULL   "IDABandSet*/IDABandGet*-- IDABAND memory is NULL. \n\n"
+#define MSGB_CAMEM_NULL "idaadj_mem = NULL illegal."
+#define MSGB_LMEMB_NULL "IDABAND memory is NULL for the backward integration."
+#define MSGB_BAD_T "Bad t for interpolation."
 
 #ifdef __cplusplus
 }

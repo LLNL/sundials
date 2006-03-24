@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.15 $
- * $Date: 2006-01-11 21:13:55 $
+ * $Revision: 1.1 $
+ * $Date: 2006-03-24 15:57:22 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -20,7 +20,7 @@
  * equations u = 0 at the boundaries are appended, to form a DAE
  * system of size N = M^2. Here M = 10.
  *
- * The system is solved with IDA/IDAS using the banded linear system
+ * The system is solved with IDAS using the banded linear system
  * solver, half-bandwidths equal to M, and default
  * difference-quotient Jacobian. For purposes of illustration,
  * IDACalcIC is called to compute correct values at the boundary,
@@ -35,12 +35,10 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "idas.h"
-#include "nvector_serial.h"
-#include "idas_band.h"
-#include "sundials_types.h"
-#include "sundials_math.h"
-
+#include "idas.h"           /* Main header file                              */
+#include "nvector_serial.h" /* Definitions of type N_Vector, macro NV_DATA_S */
+#include "idas_band.h"      /* Use IDABAND linear solver                     */
+#include "sundials_types.h" /* Definitions of realtype and booleantype       */
 
 /* Problem Constants */
 
@@ -126,13 +124,18 @@ int main(void)
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
   if(check_flag((void *)mem, "IDACreate", 0)) return(1);
+
   ier = IDASetRdata(mem, data);
   if(check_flag(&ier, "IDASetRdata", 1)) return(1);
+
   ier = IDASetId(mem, id);
   if(check_flag(&ier, "IDASetId", 1)) return(1);
+
   ier = IDASetConstraints(mem, constraints);
   if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
-  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, &rtol, &atol);
+  N_VDestroy_Serial(constraints);
+
+  ier = IDAMalloc(mem, heatres, t0, uu, up, IDA_SS, rtol, &atol);
   if(check_flag(&ier, "IDAMalloc", 1)) return(1);
 
   /* Call IDABand to specify the linear solver. */
@@ -142,7 +145,7 @@ int main(void)
  
   /* Call IDACalcIC to correct the initial values. */
   
-  ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
+  ier = IDACalcIC(mem, t0, uu, up, IDA_YA_YDP_INIT, t1);
   if(check_flag(&ier, "IDACalcIC", 1)) return(1);
 
   /* Print output heading. */
@@ -172,7 +175,6 @@ int main(void)
   IDAFree(&mem);
   N_VDestroy_Serial(uu);
   N_VDestroy_Serial(up);
-  N_VDestroy_Serial(constraints);
   N_VDestroy_Serial(id);
   N_VDestroy_Serial(res);
   free(data);
@@ -291,11 +293,11 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 static void PrintHeader(realtype rtol, realtype atol)
 {
-  printf("iheatsb: Heat equation, serial example problem for IDA \n");
-  printf("         Discretized heat equation on 2D unit square. \n");
-  printf("         Zero boundary conditions,");
+  printf("idabanx1: Heat equation, serial example problem for IDA\n");
+  printf("          Discretized heat equation on 2D unit square.\n");
+  printf("          Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
-  printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
+  printf("          Mesh dimensions: %d x %d", MGRID, MGRID);
   printf("        Total system size: %d\n\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
@@ -316,7 +318,7 @@ static void PrintHeader(realtype rtol, realtype atol)
 #endif
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time       umax     k  nst  nni  nje   nre   nreB     h      \n" );
+  printf("  time       umax     k  nst  nni  nje   nre   nreLS    h      \n" );
   printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n");
 }
 
@@ -328,7 +330,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
   int ier;
   realtype umax, hused;
-  long int nst, nni, nje, nre, nreB;
+  long int nst, nni, nje, nre, nreLS;
   int kused;
 
   umax = N_VMaxNorm(uu);
@@ -345,18 +347,18 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_flag(&ier, "IDAGetLastStep", 1);
   ier = IDABandGetNumJacEvals(mem, &nje);
   check_flag(&ier, "IDABandGetNumJacEvals", 1);
-  ier = IDABandGetNumResEvals(mem, &nreB);
+  ier = IDABandGetNumResEvals(mem, &nreLS);
   check_flag(&ier, "IDABandGetNumResEvals", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",
-         t, umax, kused, nst, nni, nje, nre, nreB, hused);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION) 
   printf(" %5.2f %13.5le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2le \n",
-         t, umax, kused, nst, nni, nje, nre, nreB, hused);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
 #else
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
-         t, umax, kused, nst, nni, nje, nre, nreB, hused);
+         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
 #endif
 
 }

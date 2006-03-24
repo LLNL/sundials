@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.16 $
- * $Date: 2006-01-11 21:13:55 $
+ * $Revision: 1.17 $
+ * $Date: 2006-03-24 15:57:23 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -21,201 +21,98 @@
 extern "C" {
 #endif
 
+  /* 
+   * ===============================================================
+   * INCLUDED HEADER FILES
+   * ===============================================================
+   */
+
 #include <stdio.h>
 
-#include "sundials_dense.h"
-#include "sundials_band.h"
-#include "sundials_sptfqmr.h"
-#include "sundials_spbcgs.h"
-#include "sundials_spgmr.h"
+#include "idas.h"
 #include "sundials_nvector.h"
 
-  /******************************************************************
-   *                                                                *
-   * Type : IDAResFnB                                                  *
-   *----------------------------------------------------------------*
-   *                                                                *
-   ******************************************************************/
+  /* 
+   * ===============================================================
+   * DEFINITIONS OF IDAA INPUTS
+   * ===============================================================
+   */
+
+  /*
+   * -----------------------------------------------------------------
+   * interp: Specifies the interpolation type used to evaluate the
+   *         forward solution during the backward integration phase.
+   *         IDA_HERMITE specifies cubic Hermite interpolation.
+   *         IDA_POYNOMIAL specifies the polynomial interpolation
+   * -----------------------------------------------------------------
+   */
   
+#define IDA_HERMITE    1
+#define IDA_POLYNOMIAL 2
+
+
+  /*
+   * ===============================================================
+   * IDAA RETURN VALUES
+   * ===============================================================
+   */
+
+#define IDA_ADJMEM_NULL -101
+#define IDA_BAD_TB0     -103
+#define IDA_BCKMEM_NULL -104
+#define IDA_REIFWD_FAIL -105
+#define IDA_FWD_FAIL    -106
+#define IDA_BAD_ITASK   -107
+#define IDA_BAD_TBOUT   -108
+#define IDA_GETY_BADT   -109
+
+  /* 
+   * ===============================================================
+   * FUNCTION TYPES
+   * ===============================================================
+   */
+
   typedef int (*IDAResFnB)(realtype tt, 
                            N_Vector yy, N_Vector yp,
                            N_Vector yyB, N_Vector ypB, N_Vector rrB,
                            void *rdataB);
 
-  /******************************************************************
-   *                                                                *
-   * Type : IDAQuadRhsFnB                                              *
-   *----------------------------------------------------------------*
-   * The fQB function which defines the quadratures to be integrated*
-   * backwards must have type IDAQuadRhsFnB.                           *
-   *                                                                *
-   ******************************************************************/
-  
   typedef void (*IDAQuadRhsFnB)(realtype tt, 
                                 N_Vector yy, N_Vector yp, 
                                 N_Vector yyB, N_Vector ypB,
                                 N_Vector ypQB, void *rdataQB);
-  
-  /******************************************************************
-   *                                                                *
-   * Type : IDADenseJacFnB                                           *
-   *----------------------------------------------------------------*
-   * A dense Jacobian approximation function djacB for the backward *
-   * integration must have the prototype given below.               *
-   *                                                                *
-   ******************************************************************/
-  
-  typedef int (*IDADenseJacFnB)(long int NeqB, realtype tt, 
-                                N_Vector yy, N_Vector yp,
-                                N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                realtype c_jB, void *jac_dataB, 
-                                DenseMat JacB, 
-                                N_Vector tmp1B, N_Vector tmp2B, 
-                                N_Vector tmp3B);
 
-  /******************************************************************
-   *                                                                *
-   * Type : IDABandJacFnB                                            *
-   *----------------------------------------------------------------*
-   * A band Jacobian approximation function bjacB for the backward  *
-   * integration must have the prototype given below.               *
-   *                                                                *
-   ******************************************************************/
+  /* 
+   * ===============================================================
+   * EXPORTED FUNCTIONS
+   * ===============================================================
+   */
 
-  typedef int (*IDABandJacFnB)(long int NeqB, 
-                               long int mupperB, long int mlowerB, 
-                               realtype tt, 
-                               N_Vector yy, N_Vector yp,
-                               N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                               realtype c_jB, void *jac_dataB,
-                               BandMat JacB, 
-                               N_Vector tmp1B, N_Vector tmp2B, 
-                               N_Vector tmp3B);
 
-  /******************************************************************
-   *                                                                *
-   * Type : IDASpgmrPrecSetupFnB                                     *
-   *----------------------------------------------------------------*
-   * A preconditioner setup function precondB for the backward      *
-   * integration must have the prototype given below.               *
-   *                                                                *
-   ******************************************************************/
+  /* Initialization and optional input for ADJOINT module */
 
-  typedef int (*IDASpgmrPrecSetupFnB)(realtype tt, 
-                                      N_Vector yy, N_Vector yp,
-                                      N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                                      realtype c_jB, void *prec_dataB,
-                                      N_Vector tmp1B, N_Vector tmp2B, 
-                                      N_Vector tmp3B);
+  void *IDAadjMalloc(void *ida_mem, long int steps, int interp);
 
-  /******************************************************************
-   *                                                                *
-   * Type : IDASpgmrPrecSolveFnB                                     *
-   *----------------------------------------------------------------*
-   * A preconditioner solve function psolveB for the backward       *
-   * integration must have the prototype given below.               *
-   *                                                                *
-   ******************************************************************/
+  int IDAadjSetInterpType(void *idaadj_mem, int interp);
 
-  typedef int (*IDASpgmrPrecSolveFnB)(realtype tt, 
-                                      N_Vector yy, N_Vector yp,
-                                      N_Vector yyB, N_Vector ypB, N_Vector rrB, 
-                                      N_Vector rvecB, N_Vector zvecB,
-                                      realtype c_jB, realtype deltaB,
-                                      void *prec_dataB, N_Vector tmpB);
-
-  /******************************************************************
-   *                                                                *
-   * Type : IDASpgmrJacTimesVecFnB                                   *
-   *----------------------------------------------------------------*
-   * A Jacobian times vector function jtimesB for the backward      *
-   * integration must have the prototype given below.               *
-   *                                                                *
-   ******************************************************************/
-
-  typedef int (*IDASpgmrJacTimesVecFnB)(realtype t,
-                                        N_Vector yy, N_Vector yp,
-                                        N_Vector yyB, N_Vector ypB, N_Vector rrB,
-                                        N_Vector vB, N_Vector JvB, 
-                                        realtype c_jB, void *jac_dataB, 
-                                        N_Vector tmp1B, N_Vector tmp2B);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDAAdjMalloc                                         *
-   *----------------------------------------------------------------*
-   * IDAAdjMalloc space for the global IDAA memory structure.      *
-   *                                                                *
-   ******************************************************************/
-
-  void *IDAAdjMalloc(void *ida_mem, long int steps);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDAAdjFree                                           *
-   *----------------------------------------------------------------*
-   * IDAAdjFree frees the memory allocated by IDAAdjMalloc.           *
-   *                                                                *
-   ******************************************************************/
-
-  void IDAAdjFree(void **idaadj_mem);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDAAdjGetIDABmem                                   *
-   *----------------------------------------------------------------*
-   * IDAAdjGetIDABmem returns a (void *) pointer to the IDAS     *
-   * memory allocated for the backward problem. This pointer can    *
-   * then be used to call any of the IDAGet* IDAS routines to   *
-   * extract optional output for the backward integration phase.    *
-   *                                                                *
-   ******************************************************************/
-
-  void *IDAAdjGetIDABmem(void *idaadj_mem);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDAAdjCheckPointsList                               *
-   *----------------------------------------------------------------*
-   *                                                                *
-   ******************************************************************/
-
-  void  IDAAdjCheckPointsList(void *idaadj_mem);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDASolveF                                              *
-   *----------------------------------------------------------------*
-   * IDASolveF integrates towards tout and returns solution into yout. *
-   * In the same time, it stores check point data every 'steps'.    *
-   *                                                                *
-   * IDASolveF can be called repeatedly by the user. The last tout     *
-   * will be used as the starting time for the backward integration.*
-   *                                                                *
-   * ncheckPtr points to the number of check points stored so far.  *
-   *                                                                *
-   * Return:
-   * IDA_MEM_FAIL or any IDASolve return value
-   ******************************************************************/
+  /* Forward solution function */
 
   int IDASolveF(void *idaadj_mem, realtype tout, realtype *tret,
                 N_Vector yret, N_Vector ypret, int itask, int *ncheckPtr);
 
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDACreateB, IDAMallocB, IDASet*B              *
-   *----------------------------------------------------------------*
-   * These functions are just wrappers around the corresponding     *
-   * functions in idas.h, with some particularizations for the    *
-   * backward integration.                                          *
-   *                                                                *
-   ******************************************************************/
+  /* Initialization and optional input for backward integration */
 
   int IDACreateB(void *ida_mem);
-  
-  int IDASetRdataB(void *idaadj_mem, void *res_dataB);
+  int IDAMallocB(void *idaadj_mem, IDAResFnB resB,
+                 realtype tB0, N_Vector yyB0, N_Vector ypB0, 
+                 int itolB, realtype *reltolB, void *abstolB);
+  int IDAReInitB(void *idaadj_mem, IDAResFnB resB,
+                 realtype tB0, N_Vector yyB0, N_Vector ypB0,
+                 int itolB, realtype *reltolB, void *abstolB);
+
+  int IDASetErrHandlerFnB(void *idaadj_mem, IDAErrHandlerFn ehfunB, void *eh_dataB);
   int IDASetErrFileB(void *idaadj_mem, FILE *errfpB);
+  int IDASetRdataB(void *idaadj_mem, void *res_dataB);
   int IDASetMaxOrdB(void *idaadj_mem, int maxordB);
   int IDASetMaxNumStepsB(void *idaadj_mem, long int mxstepsB);
   int IDASetInitStepB(void *idaadj_mem, realtype hinB);
@@ -224,133 +121,68 @@ extern "C" {
   int IDASetIdB(void *idaadj_mem, N_Vector idB);
   int IDASetConstraintsB(void *idaadj_mem, N_Vector constraintsB);
 
-  int IDAMallocB(void *idaadj_mem, IDAResFnB resB,
-                 realtype tB0, N_Vector yyB0, N_Vector ypB0, 
-                 int itolB, realtype *reltolB, void *abstolB);
-  
-  int IDAReInitB(void *idaadj_mem, IDAResFnB resB,
-                 realtype tB0, N_Vector yyB0, N_Vector ypB0,
-                 int itolB, realtype *reltolB, void *abstolB);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDAGetMemB                                    *
-   *----------------------------------------------------------------*
-   * IDAGetMemB returns a (void *) pointer to the IDAS     *
-   * memory allocated for the backward problem. This pointer can    *
-   * then be used to call any of the IDAGet* IDAS routines to   *
-   * extract optional output for the backward integration phase.    *
-   *                                                                *
-   ******************************************************************/
-
-  void *IDAGetMemB(void *idaadj_mem);
-
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDASetQuad*B, IDAQuadMallocB                    *
-   *----------------------------------------------------------------*
-   *                                                                *
-   ******************************************************************/
-
-  int IDASetQuadErrConB(void *idaadj_mem, booleantype errconQB);
-  int IDASetQuadRdataB(void *idaadj_mem, void *rhs_dataQB);
-  int IDASetQuadTolerancesB(void *idaadj_mem, int itolQB, 
-                            realtype *reltolQB, void *abstolQB);
-
+  int IDASetQuadFdataB(void *idaadj_mem, void *rhsQ_dataB);
+  int IDASetQuadErrConB(void *idaadj_mem, booleantype errconQB, 
+                        int itolQB, realtype reltolQB, void *abstolQB);
   int IDAQuadMallocB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDAQuadReInitB                                    *
-   *----------------------------------------------------------------*
-   * IDAQuadReInitB re-initializaes memory for quadrature         *
-   * integration during the backward phase                          *
-   *                                                                *
-   ******************************************************************/
-
   int IDAQuadReInitB(void *idaadj_mem, IDAQuadRhsFnB rhsQB, N_Vector yQB0);
 
-  /******************************************************************
-   *                                                                *
-   * Function : IDADenseB, IDADenseSet*B                              *
-   *----------------------------------------------------------------*
-   * IDADenseB links the main IDAS integrator with the IDADENSE      *
-   * linear solver for the backward integration.                    *
-   *                                                                *
-   ******************************************************************/
-  
-  int IDADenseB(void *idaadj_mem, long int NeqB);
-  
-  int IDADenseSetJacFnB(void *idaadj_mem, IDADenseJacFnB djacB, void *jdataB);
+  /* Backward solution function */
 
-  /******************************************************************
-   *                                                                *
-   * Function : IDABandB, IDABandSet*B                                *
-   *----------------------------------------------------------------*
-   * IDABandB links the main IDAS integrator with the IDABAND        *
-   * linear solver for the backward integration.                    *
-   *                                                                *
-   ******************************************************************/
+  int IDASolveB(void *idaadj_mem, realtype tBout, realtype *tBret,
+                N_Vector yBret, N_Vector ypBret, int itaskB);
 
-  int IDABandB(void *idaadj_mem, long int NeqB,
-               long int mupperB, long int mlowerB);
-
-  int IDABandSetJacFnB(void *idaadj_mem, IDABandJacFnB bjacB, void *jdataB);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDASpgmrB, IDASpgmrSet*B                              *
-   *----------------------------------------------------------------*
-   * IDASpgmrB links the main IDAS integrator with the IDASPGMR      *
-   * linear solver for the backward integration.                    *
-   *                                                                *
-   ******************************************************************/
-
-  int IDASpgmrB(void *idaadj_mem, int maxlB);
-  
-  int IDASpgmrSetGSTypeB(void *idaadj_mem, int gstypeB);
-  int IDASpgmrSetMaxRestartsB(void *idaadj_mem, int maxrsB);
-  int IDASpgmrSetEpsLinB(void *idaadj_mem, realtype eplifacB);
-  int IDASpgmrSetIncrementFactorB(void *idaadj_mem, realtype dqincfacB);
-  int IDASpgmrSetPreconditionerB(void *idaadj_mem, IDASpgmrPrecSetupFnB psetB,
-				 IDASpgmrPrecSolveFnB psolveB, void *pdataB);
-  int IDASpgmrSetJacTimesVecFnB(void *idaadj_mem, IDASpgmrJacTimesVecFnB jtimesB, void *jdataB);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDASolveB                                              *
-   *----------------------------------------------------------------*
-   * IDASolveB performs the backward integration from tfinal to        *
-   * tinitial through a sequence of forward-backward runs in        *
-   * between consecutive check points. It returns the values of     *
-   * the adjoint variables and any existing quadrature variables    *
-   * at tinitial.                                                   *
-   *                                                                *
-   ******************************************************************/
-
-  int IDASolveB(void *idaadj_mem, N_Vector yyB, N_Vector ypB);
-
-  /******************************************************************
-   *                                                                *
-   * Function : IDAGetQuadB                                       *
-   *----------------------------------------------------------------*
-   * IDAGetQuadB extracts values for quadrature variables in      *
-   * the N_Vector qB.                                               *
-   *                                                                *
-   ******************************************************************/
+  /* Optional output from backward integration */
 
   int IDAGetQuadB(void *idaadj_mem, N_Vector qB);
 
-  /******************************************************************
-   * Debugging routines....                                         *
-   *----------------------------------------------------------------*
-   *                                                                *
-   ******************************************************************/
+  /* Deallocation of ADJOINT module */
+
+  void IDAadjFree(void **idaadj_mem);
+
+  /* Optional output from ADJOINT module */
+
+  void *IDAadjGetIDABmem(void *idaadj_mem);
+
+  char *IDAadjGetReturnFlagName(int flag);
+
+  /*
+   * IDAadjGetY
+   *    Returns the interpolated forward solution at time t. This
+   *    function is a wrapper around the interpType-dependent internal
+   *    function.
+   *    The calling function must allocate space for y.
+   */
+
+  int IDAadjGetY(void *idaadj_mem, realtype t, N_Vector y, N_Vector yp);
+
+  /* 
+   * ===============================================================
+   * DEVELOPMENT USER-CALLABLE FUNCTIONS
+   * ===============================================================
+   */
   
-  int IDAAloadData(void *idaadj_mem, int which_ckpnt, long int *points);
-  void IDAAgetData(void *idaadj_mem, long int which_pnt, 
-                   realtype *t, N_Vector yout, N_Vector ydout);
+  /*
+  typedef struct {
+    unsigned int my_addr;
+    unsigned int next_addr;
+    realtype t0;
+    realtype t1;
+    long int nstep;
+    int order;
+    realtype step;
+  } IDAadjCheckPointRec;
+
+  int IDAadjGetCheckPointsInfo(void *idaadj_mem, IDAadjCheckPointRec *ckpnt);
+  int IDAadjGetCurrentCheckPoint(void *idaadj_mem, unsigned int *addr);
+
+  int IDAadjGetDataPointHermite(void *idaadj_mem, long int which,
+                                realtype *t, N_Vector y, N_Vector yd);
+  
+  int CVadjGetDataPointPolynomial(void *idaadj_mem, long int which,
+                                  realtype *t, int *order, N_Vector y);
+  
+  */
 
 #ifdef __cplusplus
 }

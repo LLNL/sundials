@@ -1,5 +1,5 @@
 
-iwebsb: Predator-prey DAE serial example problem for IDA 
+idabanx2: Predator-prey DAE serial example problem for IDA 
 
 Number of species ns: 2     Mesh dimensions: 20 x 20     System size: 800
 Tolerance parameters:  rtol = 1e-05   atol = 1e-05

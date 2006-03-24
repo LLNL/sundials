@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.1 $
- * $Date: 2006-01-11 21:13:57 $
+ * $Revision: 1.2 $
+ * $Date: 2006-03-24 15:57:25 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -10,17 +10,19 @@
  * All rights reserved
  * For details, see sundials/idas/LICENSE
  * -----------------------------------------------------------------
- * This is the header file (private version) for the IDA/IDAS dense
+ * This is the header file (private version) for the IDAS dense
  * linear solver module, IDADENSE.
  * -----------------------------------------------------------------
  */
 
-#ifndef _IDADENSE_IMPL_H
-#define _IDADENSE_IMPL_H
+#ifndef _IDASDENSE_IMPL_H
+#define _IDASDENSE_IMPL_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
+#include <stdio.h>
 
 #include "idas_dense.h"
 
@@ -51,23 +53,37 @@ typedef struct {
 
 } IDADenseMemRec, *IDADenseMem;
 
+  /*
+   * -----------------------------------------------------------------
+   * Types : IDADenseMemRecB, IDADenseMemB       
+   * -----------------------------------------------------------------
+   * IDADenseB attaches such a structure to the lmemB filed of IDAadjMem
+   * -----------------------------------------------------------------
+   */
+
+  typedef struct {
+
+    IDADenseJacFnB d_djacB;
+    void *d_jac_dataB;
+
+  } IDADenseMemRecB, *IDADenseMemB;
+
+
 /*
  * -----------------------------------------------------------------
  * Error Messages
  * -----------------------------------------------------------------
  */
 
-#define MSGD_IDAMEM_NULL        "IDADense-- integrator memory is NULL.\n\n"
+#define MSGD_IDAMEM_NULL "Integrator memory is NULL."
+#define MSGD_MEM_FAIL    "A memory request failed."
+#define MSGD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGD_LMEM_NULL   "IDADENSE memory is NULL."
+#define MSGD_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
-#define MSGD_MEM_FAIL           "IDADense-- a memory request failed.\n\n"
-
-#define MSGD_BAD_NVECTOR        "IDADense-- a required vector operation is not implemented.\n\n"
-
-#define MSGD_WRONG_NVEC         "IDADense-- incompatible NVECTOR implementation.\n\n"
-
-#define MSGD_SETGET_IDAMEM_NULL "IDADenseSet*/IDADenseGet*-- integrator memory is NULL. \n\n"
-
-#define MSGD_SETGET_LMEM_NULL   "IDADenseSet*/IDADenseGet*-- IDADENSE memory is NULL. \n\n"
+#define MSGD_CAMEM_NULL "idaadj_mem = NULL illegal."
+#define MSGD_LMEMB_NULL "IDADENSE memory is NULL for the backward integration."
+#define MSGD_BAD_T "Bad t for interpolation."
 
 #ifdef __cplusplus
 }
