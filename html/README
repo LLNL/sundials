@@ -1,0 +1,9 @@
+Changes that need to be done when uploading to cmg or www
+
+in cgi/
+  - make sure lock/ exists with permissions rwxr-xr-x
+  - do NOT overwrite logfile_dl.txt and logfile_ml.txt
+    if they do not exist, they must be created with rw-r--r--
+  - in handleform.cgi change REFERERS, WEB_SERVER and developer_addr
+in sunjs.js
+  - change redirect.value to the absolute http address

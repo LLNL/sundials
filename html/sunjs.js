@@ -111,7 +111,7 @@ function setFormValues()
         {
                 document.sunRegForm.packageName.value = package_name;
                 document.sunRegForm.subject.value = "SUNDIALS Download Registration - OLD version (" + package_name + ")";
-                document.sunRegForm.redirect.value = "../download/oldversions.html";
+                document.sunRegForm.redirect.value = "../download/download.html";
         }
 
 }
