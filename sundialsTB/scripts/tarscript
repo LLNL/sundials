@@ -150,6 +150,7 @@ tar uf $tarfile $distrobase/kinsol/kim/kim_djac.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_bjac.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_gcom.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_gloc.m
+tar uf $tarfile $distrobase/kinsol/kim/kim_info.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_jtv.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_pset.m
 tar uf $tarfile $distrobase/kinsol/kim/kim_psol.m
