@@ -1,7 +1,7 @@
       program fkinkryx
 c     ----------------------------------------------------------------
-c     $Revision: 1.5 $
-c     $Date: 2006-03-23 20:32:55 $
+c     $Revision: 1.6 $
+c     $Date: 2006-03-24 15:46:41 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan Taylor, Alan Hindmarsh and
 c                    Radu Serban @ LLNL  
@@ -109,8 +109,9 @@ c * * * * * * * * * * * * * * * * * * * * * *
       write(6,1267) iout(3), iout(14), iout(4), iout(12), iout(13),
      1              iout(15)
  1267 format(//'Final statistics:'//
-     1       ' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
-     2       ',  npe = ', i4, ',  nps = ', i4, ',  ncfl = ', i4)
+     1     '  nni = ', i3, ',  nli  = ', i3, /,
+     2     '  nfe = ', i3, ',  npe  = ', i3, /,
+     3     '  nps = ', i3, ',  ncfl = ', i3)
 
       call fkinfree
 

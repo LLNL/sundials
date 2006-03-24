@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-17 16:58:01 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-24 15:46:36 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
@@ -511,22 +511,27 @@ static void PrintHeader(long int SystemSize, int maxl,
                         long int mukeep, long int mlkeep,
                         realtype rtol, realtype atol)
 {
-  printf("\nidakryx2_bbd_p: Predator-prey DAE parallel example problem for IDA \n\n");
-  printf("Number of species ns: %d", NUM_SPECIES);
-  printf("     Mesh dimensions: %d x %d", MX, MY);
-  printf("     Total system size: %ld\n",SystemSize);
-  printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
-  printf("     Processor array: %d x %d\n", NPEX, NPEY);
+  printf("\nidakryx2_bbd_p: Predator-prey DAE parallel example problem\n\n");
+  printf("Number of species ns: %d\n", NUM_SPECIES);
+  printf("Mesh dimensions:      %d x %d\n", MX, MY);
+  printf("Total system size:    %ld\n",SystemSize);
+  printf("Subgrid dimensions:   %d x %d\n", MXSUB, MYSUB);
+  printf("Processor array:      %d x %d\n", NPEX, NPEY);
+  printf("Tolerance parameters:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+  printf(" relative tolerance = %Lg\n", rtol);
+  printf(" absolute tolerance = %Lg\n", atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters:  rtol = %lg   atol = %lg\n", rtol, atol);
+  printf(" relative tolerance = %lg\n", rtol);
+  printf(" absolute tolerance = %lg\n", atol);
 #else
-  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+  printf(" relative tolerance = %g\n", rtol);
+  printf(" absolute tolerance = %g\n", atol);
 #endif
-  printf("Linear solver: IDASPGMR     Max. Krylov dimension maxl: %d\n", maxl);
-  printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
-  printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
+  printf("Linear solver: scaled preconditioned GMRES (IDASPGMR)\n");
+  printf(" max. Krylov dimension: maxl = %d\n", maxl);
+  printf("Preconditioner: band-block-diagonal (IDABBDPRE)\n");
+  printf(" mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
          mudq, mldq, mukeep, mlkeep);
   printf("CalcIC called to correct initial predator concentrations \n\n");
   printf("-----------------------------------------------------------\n");

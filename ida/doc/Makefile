@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.17 $
-# $Date: 2006-03-09 16:54:44 $
+# $Revision: 1.18 $
+# $Date: 2006-03-24 15:46:34 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -90,6 +90,8 @@ all:
 	@echo ""
 
 install: ug_pdf ex_pdf ug_html ex_html
+	rm -rf $(HTML_DIR)/ida_guide
+	rm -rf $(HTML_DIR)/ida_examples
 	cp ida_guide.ps $(HTML_DIR)
 	cp ida_guide.pdf $(HTML_DIR)
 	cp -r ida_guide $(HTML_DIR)

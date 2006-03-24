@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.3 $
-c     $Date: 2006-01-24 22:17:31 $
+c     $Revision: 1.4 $
+c     $Date: 2006-03-24 15:46:37 $
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -703,9 +703,9 @@ c
          write(*,28) tret, umax, iout(9), iout(3), iout(7),
      &               iout(20), iout(4), iout(16), ngebbd, rout(2),
      &               iout(18), iout(19)
- 28      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i3,
-     &          '  ', i3, '  ', i3, '  ', i3, ' ', i4, '  ',
-     &          i3, '  ', e9.2, '  ', i3, '  ', i3)
+ 28      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i2,
+     &          '  ', i3, '  ', i3, '  ', i2,'+',i2, '  ',
+     &          i3, '  ', e9.2, '  ', i2, '  ', i3)
       endif
 c
       return
@@ -777,20 +777,20 @@ c
 c
       write(*,30) mx, my, neq, mxsub, mysub, npex, npey, rtol, atol
  30   format(/'fidakryx_bbd_p: Heat equation, parallel example problem',
-     &       ' for FIDA', /, 16x,'Discretized heat equation',
-     &       ' on 2D unit square.', /, 16x,'Zero boundary',
-     &       ' conditions, polynomial conditions.', /,
-     &       16x,'Mesh dimensions: ', i2, ' x ', i2,
-     &       '         Total system size: ', i3, //,
-     &       'Subgrid dimensions: ', i2, ' x ', i2,
-     &       '           Processor array: ', i2, ' x ', i2, /,
-     &       'Tolerance parameters: rtol = ', e8.2, '   atol = ',
-     &       e8.2, /, 'Constraints set to force all solution',
-     &       ' components >= 0.', /, 'SUPPRESSALG = TRUE to suppress',
-     &       ' local error testing on all boundary components.', /,
-     &       'Linear solver: SPGMR.    Preconditioner: BBDPRE - ',
-     &       'Banded-block-diagonal.')
-c
+     &     ' for FIDA', /, 16x,'Discretized heat equation',
+     &     ' on 2D unit square.', /, 16x,'Zero boundary',
+     &     ' conditions, polynomial conditions.', /,
+     &     16x,'Mesh dimensions: ', i2, ' x ', i2,
+     &     '         Total system size: ', i3, //,
+     &     'Subgrid dimensions: ', i2, ' x ', i2,
+     &     '           Processor array: ', i2, ' x ', i2, /,
+     &     'Tolerance parameters: rtol = ', e8.2, '   atol = ',
+     &     e8.2, /, 'Constraints set to force all solution',
+     &     ' components >= 0.', /, 'SUPPRESSALG = TRUE to remove',
+     &     ' boundary components from the error test.', /,
+     &     'Linear solver: SPGMR.    Preconditioner: BBDPRE - ',
+     &     'Banded-block-diagonal.')
+c     
       return
       end
 c
@@ -804,13 +804,14 @@ c
       integer num
 c
       write(*,31) num, mudq, mukeep
- 31   format(//, 'Case ', i2, /, '   Difference quotient half-',
-     &       'bandwidths =', i2, '   Retained matrix half-bandwidths =',
-     &       i2, //, '   Output Summary (umax = max-norm of solution)',
-     &       //, '   time         umax       k   nst  nni  nli  nre',
-     &       ' nreLS nge    h        npe nps', /,
-     &       ' .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ',
-     &       '.  .  .  .  .  .  .  .  .')
+ 31   format(//, 'Case ', i2, /, '  Difference quotient half-',
+     &     'bandwidths =', i2, /, '  Retained matrix half-bandwidths =',
+     &     i2, //, 'Output Summary',/,'  umax = max-norm of solution',
+     &     /,'  nre = nre + nreLS (total number of RES evals.)',
+     &     //, '   time         umax       k nst  nni  nli   nre',
+     &     '   nge      h     npe  nps', /,
+     &     '-------------------------------------------------------',
+     &     '-------------------')
 c
       return
       end
@@ -825,8 +826,8 @@ c
 c
       write(*,32) iout(5), iout(6), iout(21)
  32   format(/, 'Error test failures            =', i3, /,
-     &       'Nonlinear convergence failures =', i3, /,
-     &       'Linear convergence failures    =', i3)
+     &     'Nonlinear convergence failures =', i3, /,
+     &     'Linear convergence failures    =', i3)
 c
       return
       end

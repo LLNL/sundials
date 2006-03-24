@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------
-# $Revision: 1.23 $
-# $Date: 2006-03-09 16:54:41 $
+# $Revision: 1.24 $
+# $Date: 2006-03-24 15:46:32 $
 # -----------------------------------------------------------------
 # Programmer(s): Radu Serban @ LLNL
 # -----------------------------------------------------------------
@@ -92,6 +92,8 @@ all:
 	@echo ""
 
 install: ug_pdf ex_pdf ug_html ex_html
+	rm -rf $(HTML_DIR)/cv_guide
+	rm -rf $(HTML_DIR)/cv_examples
 	cp cv_guide.ps $(HTML_DIR)
 	cp cv_guide.pdf $(HTML_DIR)
 	cp -r cv_guide $(HTML_DIR)

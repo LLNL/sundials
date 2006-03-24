@@ -19,13 +19,13 @@ changed to {\tt 0.5E-4}.
 \subsection{A serial example: fidadenx}\label{ss:fidadenx}
 
 The \id{fidadenx} example is a {\F} equivalent of the \id{idadenx} problem.
-The source program \id{fidadenx.f} is listed in Appendix \ref{s:fidadenx_f}.
+The source program \id{fidadenx.f} is listed in Appendix~\ref{s:fidadenx_f}.
 
-The main program begins with declarations and initializations.  It calls 
-\id{FNVINITS}, \id{FIDAMALLOC}, \id{FIDAROOTINIT}, \id{FIDADENSE}, and
-\id{FIDADENSESETJAC}, to initialize the {\nvecs} module, the main
-solver memory, the rootfinding module, and the {\idadense} module, and
-to specify user-supplied Jacobian routine.
+The main program begins with declarations and initializations.  
+It calls the routines \id{FNVINITS}, \id{FIDAMALLOC}, \id{FIDAROOTINIT}, 
+\id{FIDADENSE}, and \id{FIDADENSESETJAC}, to initialize the {\nvecs} module, 
+the main solver memory, the rootfinding module, and the {\idadense} module, 
+and to specify user-supplied Jacobian routine, respectively.
 It calls \id{FIDASOLVE} in a loop over \id{TOUT} values, with printing of
 the solution values and performance data (current order and step count
 from the \id{IOUT} array, and current step size from the \id{ROUT} array).
@@ -60,7 +60,7 @@ under the \id{idakryx} example above, but here it is solved in
 parallel, using the {\idabbdpre} (band-block-diagonal) preconditioner
 module.  The decomposition of the problem onto a processor array is
 identical to that in the \id{idakryx1\_p} example above.  The source file,
-\id{fidakryx\_bbd\_p.f}, is listed in Appendix \ref{s:fidakryx_bbd_p}.
+\id{fidakryx\_bbd\_p.f}, is listed in Appendix~\ref{s:fidakryx_bbd_p}.
 
 The problem is solved twice --- once with half-bandwidths of 5 in the
 difference-quotient banded preconditioner blocks, and once with

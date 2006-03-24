@@ -1,7 +1,7 @@
       program fkinkryx_p
 c     ----------------------------------------------------------------
-c     $Revision: 1.4 $
-c     $Date: 2006-02-02 00:36:23 $
+c     $Revision: 1.5 $
+c     $Date: 2006-03-24 15:46:39 $
 c     ----------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
@@ -125,8 +125,7 @@ c     number of this process.
      1       ' This fkinsol example code',
      2       ' solves a 128 eqn diagonal algebraic system.'/
      3       ' Its purpose is to demonstrate the use of the Fortran',
-     4       ' interface'/' in a parallel environment.'///
-     5       ' globalstrategy = KIN_INEXACT_NEWTON')
+     4       ' interface'/' in a parallel environment.')
 
       call fkinsol(uu, globalstrat, scale, scale, ier)
       if (ier .lt. 0) then
@@ -138,7 +137,7 @@ c     number of this process.
       endif
 
       if (mype .eq. 0) write(6,1245) ier
- 1245 format(/' FKINSOL return code is ', i4/)
+ 1245 format(/' FKINSOL return code is ', i4)
 
       if (mype .eq. 0) write(6,1246)
  1246 format(/' The resultant values of uu (process 0) are:'/)
@@ -151,9 +150,10 @@ c     number of this process.
 
       if (mype .eq. 0) write(6,1267) iout(3), iout(14), iout(4),
      1                               iout(12), iout(13), iout(15)
- 1267 format(//'Final statistics:'//
-     1       ' nni = ', i4, ',  nli = ', i4, ',  nfe = ', i4,
-     2       ',  npe = ', i4, ',  nps=', i4, ',  ncfl=', i4)
+ 1267 format(/'Final statistics:'//
+     1     '  nni = ', i3, ',  nli  = ', i3, /,
+     2     '  nfe = ', i3, ',  npe  = ', i3, /,
+     3     '  nps = ', i3, ',  ncfl = ', i3)
 
       call fkinfree
       
