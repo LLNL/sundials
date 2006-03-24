@@ -1,5 +1,5 @@
            SUNDIALS Installation Instructions
-              Release 2.0, November 2004  
+              Release 2.2.0, March 2006  
 
 These are generic installation instructions. For complete installation 
 instructions, consult the user guide for any of the SUNDIALS solvers.
@@ -12,8 +12,7 @@ Contents:
   3.2. Options for Fortran support
   3.3. Options for MPI support
   3.4. Options for library support
-  3.5. Options for cross-compilation
-  3.6. Environment variables
+  3.5. Environment variables
 4. Configuration examples
 
 1. Basic Installation
@@ -76,9 +75,12 @@ what kinds of files go in them.
 The SUNDIALS libraries and header files are summarized below:
 
 SHARED module
-  library:      libsundials_shared.{a,so}  
-  header files: sundialstypes.h  sundialsmath.h  dense.h      smalldense.h
-                band.h           spgmr.h         iterative.h  nvector.h
+  header files: sundials/sundials types.h     sundials/sundials math.h
+                sundials/sundials config.h    sundias/sundials nvector.h
+                sundials/sunials smalldense.h sundials/sundials dense.h
+                sundials/sundials iterative.h sundials/sundials band.h
+                sundials/sundials spbcgs.h    sundials/sundials sptfqmr.h
+                sundials/sundials spgmr.h
 
 
 NVECTOR_SERIAL module
@@ -93,24 +95,40 @@ NVECTOR_PARALLEL module
 
 CVODE module
   libraries:    libsundials_cvode.{a,so} libsundials_fcvode.a
-  header files: cvband.h  cvbandpre.h  cvbbdpre.h  cvdense.h  cvdiag.h  
-                cvode.h   cvspgmr.h
+  header files: cvode.h
+                cvode/cvode_dense.h    cvode/cvode_band.h
+                cvode/cvode_diag.h     cvode/cvode_spils.h
+                cvode/cvode_bandpre.h  cvode/cvode_bbdpre.h
+                cvode/cvode_spgmr.h    cvode/cvode_spbcgs.h
+                cvode/cvode_sptfqmr.h  cvode/cvode_impl.h
 
 
 CVODES module
   library:      libsundials_cvodes.{a,so}
-  header files: cvband.h     cvbbdpre.h  cvdiag.h  cvodec.h  
-                cvbandpre.h  cvdense.h   cvodea.h  cvodes.h  cvspgmr.h
-
+  header files: cvodes.h cvodea.h
+                cvodes/cvodes_dense.h     cvodes/cvodes_band.h
+                cvodes/cvodes_diag.h      cvodes/cvodes_spils.h
+                cvodes/cvodes_bandpre.h   cvodes/cvodes_bbdpre.h
+                cvodes/cvodes_spgmr.h     cvodes/cvodes_spbcgs.h
+                cvodes/cvodes_sptfqmr.h   cvodes/cvodes_impl.h
+                cvodes/cvodea_impl.h
 
 IDA module
   library:      libsundials_ida.{a,so}
-  header files: idaband.h  idabbdpre.h  idadense.h  ida.h  idaspgmr.h
+  header files: ida.h
+                ida/ida_dense.h    ida/ida_band.h
+                ida/ida_spils.h    ida/ida_spgmr.h
+                ida/ida_spbcgs.h   ida/ida_sptfqmr.h
+                ida/ida_bbdpre.h   ida/ida_impl.h
 
 
 KINSOL module
   libraries:    libsundials_kinsol.{a,so} libsundials_fkinsol.a
-  header files: kinbbdpre.h  kinsol.h  kinspgmr.h
+  header files: kinsol.h
+                kinsol/kinsol_dense.h   kinsol/kinsol_band.h
+                kinsol/kinsol_spils.h   kinsol/kinsol_spgmr.h
+                kinsol/kinsol_spbcgs.h  kinsol/kinsol_sptfqmr.h
+                kinsol/kinsol_bbdpre.h  kinsol/kinsol_impl.h
 
 
 
@@ -316,25 +334,7 @@ may be used to build shared libraries on supported platforms.
   unresolvable external symbols, the libraries are still built as static libraries
   for the purpose of consistency.
 
-3.5. Options for cross-compilation
-----------------------------------
-
-If the sundials suite will be cross-compiled (meaning the build
-procedure will not be completed on the actual destination system, but rather
-on an alternate system with a different architecture) then the following two
-options should be used:
-
---build=BUILD
-
-  This particular option is used to specify the canonical system/platform name
-  for the build system.
-
---host=HOST
-
-  If cross-compiling, then the user must use this option to specify the canonical
-  system/platform name for the destination system.
-
-3.6. Environment variables
+3.5. Environment variables
 --------------------------
 
 The following environment variables can be locally (re)defined for use during the 
