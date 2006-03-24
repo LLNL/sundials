@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-18 01:54:42 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-24 02:37:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -432,13 +432,18 @@ static int KINBandSetup(KINMem kin_mem)
   nje++;
   BandZero(J); 
   retval = jac(n, mu, ml, J, uu, fval, J_data, vtemp1, vtemp2);
+  if (retval != 0) {
+    last_flag = -1;
+    return(-1);
+  }
   
   /* Do LU factorization of J */
   ier = BandFactor(J, pivots);
 
-  /* Return 0 if the LU was complete; otherwise return 1 */
+  /* Return 0 if the LU was complete; otherwise return -1 */
   last_flag = ier;
-  if (ier > 0) return(1);
+  if (ier > 0) return(-1);
+
   return(0);
 }
 
@@ -517,6 +522,10 @@ static void KINBandFree(KINMem kin_mem)
  * are contiguous. This makes it possible to get the address of a column
  * of J via the macro BAND_COL and to write a simple for loop to set
  * each of the elements of a column in succession.
+ *
+ * NOTE: Any type of failure of the system function her leads to an
+ *       unrecoverable failure of the Jacobian function and thus
+ *       of the linear solver setup function, stopping KINSOL.
  * -----------------------------------------------------------------
  */
 
@@ -568,6 +577,7 @@ static int KINBandDQJac(long int n, long int mupper, long int mlower,
 
     /* Evaluate f with incremented u */
     retval = func(utemp, futemp, f_data);
+    if (retval != 0) return(-1); 
 
     /* Restore utemp components, then form and load difference quotients */
     for (j=group-1; j < n; j+=width) {

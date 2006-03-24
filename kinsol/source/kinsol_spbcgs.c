@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-03-18 01:54:42 $
+ * $Revision: 1.8 $
+ * $Date: 2006-03-24 02:37:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -288,14 +288,12 @@ static int KINSpbcgSetup(KINMem kin_mem)
 
   last_flag = ret;
 
-  if (ret != 0) return(1);
-
   npe++;
   nnilset = nni; 
 
   /* return the same value ret that pset returned */
 
-  return(0);
+  return(ret);
 }
 
 /*
@@ -360,7 +358,11 @@ static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
      sfdotJp is the dot product of the scaled f vector and the scaled
      vector J*p, where the scaling uses fscale. */
 
-  KINSpilsAtimes(kin_mem, xx, bb);
+  ret = KINSpilsAtimes(kin_mem, xx, bb);
+  if (ret == 0)     ret = SPBCG_SUCCESS;
+  else if (ret > 0) ret = SPBCG_ATIMES_FAIL_REC;
+  else if (ret < 0) ret = SPBCG_ATIMES_FAIL_UNREC;
+
   sJpnorm = N_VWL2Norm(bb,fscale);
   N_VProd(bb, fscale, bb);
   N_VProd(bb, fscale, bb);
@@ -369,13 +371,30 @@ static int KINSpbcgSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   if (printfl > 2) 
     KINPrintInfo(kin_mem, PRNT_EPS, "KINSPBCG", "KINSpbcgSolve", INFO_EPS, *res_norm, eps);
 
-  /* set return value to appropriate value */
+  /* Interpret return value from SpbcgSolve */
 
   last_flag = ret;
 
-  if ((ret == SPBCG_SUCCESS) || (ret == SPBCG_RES_REDUCED)) return(0);
-  else if (ret == SPBCG_PSOLVE_FAIL_REC) return(1);
-  else return(-1);
+  switch(ret) {
+
+  case SPBCG_SUCCESS:
+  case SPBCG_RES_REDUCED:
+    return(0);
+    break;
+  case SPBCG_PSOLVE_FAIL_REC:
+  case SPBCG_ATIMES_FAIL_REC:
+    return(1);
+    break;
+  case SPBCG_CONV_FAIL:
+  case SPBCG_MEM_NULL:
+  case SPBCG_ATIMES_FAIL_UNREC:
+  case SPBCG_PSOLVE_FAIL_UNREC:
+    return(-1);
+    break;
+  }
+
+  return(0);
+
 }
 
 /*

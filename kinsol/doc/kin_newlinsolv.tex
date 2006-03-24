@@ -72,10 +72,7 @@ The type definition of \ID{linit} is
   has successfully initialized the {\kinsol} linear solver and 
   $-1$ otherwise. 
 }
-{
-  If an error does occur, an appropriate message should be sent 
-  to \id{kin\_mem->kin\_errfp}.
-}
+{}
 
 %------------------------------------------------------------------------------
 
@@ -97,9 +94,8 @@ The type definition of \id{lsetup} is
   \end{args}
 }
 {
-  The \id{lsetup} routine should return $0$ if successful,            
-  a positive value for a recoverable error, and a negative value  
-  for an unrecoverable error.  
+  The \id{lsetup} routine should return $0$ if successful and
+  a non-zero value otherwise.
 }
 {}
 
@@ -132,9 +128,10 @@ The type definition of \id{lsolve} is
   \end{args}
 }
 {
-  \id{lsolve} returns a positive value    
-  for a recoverable error and a negative value for an             
-  unrecoverable error. Success is indicated by a $0$ return value.
+  \id{lsolve} should return $0$ if successful.
+  If an error occurs and recovery could be possible by calling again
+  the \id{lsetup} function, then it should return a positive value.
+  Otherwise, \id{lsolve} should return a negative value.
 }
 {}
 

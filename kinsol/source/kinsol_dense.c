@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-03-18 01:54:42 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-24 02:37:59 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -413,13 +413,18 @@ static int KINDenseSetup(KINMem kin_mem)
   nje++;
   DenseZero(J); 
   retval = jac(n, J, uu, fval, J_data, vtemp1, vtemp2);
+  if (retval != 0) {
+    last_flag = -1;
+    return(-1);
+  }
 
   /* Do LU factorization of J */
   ier = DenseFactor(J, pivots); 
 
-  /* Return 0 if the LU was complete; otherwise return 1 */
+  /* Return 0 if the LU was complete; otherwise return -1 */
   last_flag = ier;
-  if (ier > 0) return(1);
+  if (ier > 0) return(-1);
+
   return(0);
 }
 
@@ -507,6 +512,10 @@ static void KINDenseFree(KINMem kin_mem)
  *  sigma_j = max{|u_j|, |1/uscale_j|} * sqrt(uround)
  *
  * Note: uscale_j = 1/typ(u_j)
+ *
+ * NOTE: Any type of failure of the system function her leads to an
+ *       unrecoverable failure of the Jacobian function and thus
+ *       of the linear solver setup function, stopping KINSOL.
  * -----------------------------------------------------------------
  */
 
@@ -554,7 +563,10 @@ static int KINDenseDQJac(long int n, DenseMat J,
     sign = (ujsaved >= ZERO) ? ONE : -ONE;
     inc = sqrt_relfunc*MAX(ABS(ujsaved), ujscale)*sign;
     u_data[j] += inc;
+
     retval = func(u, ftemp, f_data);
+    if (retval != 0) return(-1); 
+
     u_data[j] = ujsaved;
 
     inc_inv = ONE/inc;

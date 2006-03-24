@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.36 $
- * $Date: 2006-03-18 01:54:40 $
+ * $Revision: 1.37 $
+ * $Date: 2006-03-24 02:37:58 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -816,7 +816,9 @@ void KINFree(void **kinmem);
  *            the residual vector upon return
  *
  * If successful, the kin_lsolve routine should return 0 (zero).
- * Otherwise it should return a non-zero value.
+ * Otherwise it should return a positive value if a re-evaluation
+ * of the lsetup function could recover, or a negative value if
+ * no such recovery is possible.
  * -----------------------------------------------------------------
  */
 

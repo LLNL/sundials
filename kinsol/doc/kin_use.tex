@@ -3110,8 +3110,8 @@ the user may provide a function of type \ID{KINDenseJacFn} defined by
   \end{args}
 }
 {
-  The return value of a \id{KINDenseJacFn} function type is currently not used
-  (return a value of 0).
+  A function of type \id{KINDenseJacFn} should return $0$ if successful
+  or a non-zero value otherwise.
 }
 {
   A user-supplied dense Jacobian function must load the \id{N} by \id{N}
@@ -3195,8 +3195,8 @@ the user may provide a function of type \ID{KINBandJacFn} defined as follows:
   \end{args}
 }
 {
-  The return value of a \id{KINBandJacFn} function type is currently not used
-  (return a value of 0).
+  A function of type \id{KINBandJacFn} should return $0$ if successful
+  or a non-zero value otherwise.
 }
 {
   A user-supplied band Jacobian function must load the band matrix \id{J}
@@ -3281,8 +3281,11 @@ is selected (\id{KINSp*} is called in step  \ref{i:lin_solver} of
 }
 {  
   The value to be returned by the Jacobian-times-vector function should be
-  $0$ if successful. Any other return value will result in an unrecoverable
-  error of the generic Krylov solver, in which case the solution process is halted.
+  $0$ if successful. If a recoverable failure occured, the return value should be positive.
+  In this case, {\kinsol} will attempt to correct by calling the preconditioner setup function
+  if the preconditioner information. If this information is current, {\kinsol} halts.
+  If the  Jacobian-times-vector function encounters an unrecoverable error, it should
+  return a negative value, prompting {\kinsol} to halt.
 }
 {
   If a user-defined routine is not given, then an internal
@@ -3348,7 +3351,12 @@ This function must be of type \ID{KINSpilsPrecSolveFn}, defined as follows:
   indicating whether it was successful.  This value should be $0$ if successful, 
   positive for a recoverable error, and negative for an unrecoverable error.
 }
-{}
+{
+  If the preconditioner solve function fails recoverably and if the preconditioner
+  information (set by the preconditioner setup function) is out of date, {\kinsol}
+  attempts to correct by calling the setup function. If the preconditioner data
+  is current, {\kinsol} halts.
+}
 
 
 
@@ -3400,7 +3408,7 @@ typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
 {
   The value to be returned by the preconditioner setup function is a flag
   indicating whether it was successful.  This value should be $0$ if successful, 
-  positive for a recoverable error, and negative for an unrecoverable error.
+  any other value resulting in halting the {\kinsol} solver.
 }
 {
   The user-supplied preconditioner setup subroutine should

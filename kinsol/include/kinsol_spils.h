@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-15 19:14:25 $
+ * $Revision: 1.4 $
+ * $Date: 2006-03-24 02:37:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -137,8 +137,11 @@ typedef int (*KINSpilsPrecSetupFn)(N_Vector uu, N_Vector uscale,
  *
  * If successful, the function should return 0 (zero). If a
  * recoverable error occurs, then the subroutine should return
- * a positive integer value. However, if an unrecoverable error
- * occurs, then the function should return a negative integer value.
+ * a positive integer value (in this case, KINSOL attempts to
+ * correct by calling the preconditioner setup function if the 
+ * preconditioner information is out of date). If an unrecoverable 
+ * error occurs, then the preconditioner solve function should return 
+ * a negative integer value.
  * -----------------------------------------------------------------
  */
 

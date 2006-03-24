@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-02-15 19:14:28 $
+ * $Revision: 1.3 $
+ * $Date: 2006-03-24 02:37:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -548,6 +548,12 @@ int KINSpilsPSolve(void *kinsol_mem, N_Vector r, N_Vector z, int lrdummy)
  * (the square root of the relative error in the function). Note
  * that v in the argument list has already been both preconditioned
  * and unscaled.
+ *
+ * NOTE: Unlike the DQ Jacobian functions for direct linear solvers
+ *       (which are called from within the lsetup function), this
+ *       function is called from within the lsolve function and thus
+ *       a recovery may still be possible even if the system function
+ *       fails (recoverably).
  * -----------------------------------------------------------------
  */
 
@@ -599,6 +605,7 @@ int KINSpilsDQJtimes(N_Vector v, N_Vector Jv,
 
   retval = func(vtemp1, vtemp2, f_data);    
   nfes++;
+  if (retval != 0) return(retval);
 
   /* finish the computation of the difference quotient */
 
