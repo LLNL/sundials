@@ -2982,10 +2982,13 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
   \end{args}
 }
 {
-  A \id{KINSysFn} function type does not have a return value.
+  A \id{KINSysFn} function should return $0$ if successful, a positive value
+  if a recoverable error occurred (in which case {\kinsol} will attempt to
+  correct), or a negative value if it failed unrecoverably (in which case
+  the solution process is halted and \id{KIN\_SYSFUNC\_FAIL} is returned).
 }
 {
-Allocation of memory for \id{fval} is handled within {\kinsol}.
+  Allocation of memory for \id{fval} is handled within {\kinsol}.
 }
 
 %%==============================================================================
