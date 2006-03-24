@@ -190,6 +190,11 @@ specifying an implementation-dependent MPI flag using --with-mpi-flags:
 <br>
 &nbsp;&nbsp;&nbsp;&diams; for LAM MPI, use --with-mpi-flags=-DLAM_BUILDING
 <br><br>
+On the other hand, in order to resolve all necessary symbols while linking
+the parallel Fortran libraries, you must either use the MPI wrapper using
+the C++ compiler (i.e. specify --with-mpif77=mpiCC), or else add the stdc++
+library (i.e. specify --with-libs=-lstdc++).
+<br><br>
 Note that, if you want to use an MPI script, you must specify, through --with-mpicc, 
 the wrapper using the C++ compiler (mpiCC or mpic++, depending on your MPI distribution). 
 If a C++ compiler is specified and --with-mpicc is not specified, the SUNDIALS configure 
