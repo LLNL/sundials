@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.10 $
- * $Date: 2006-02-02 00:34:31 $
+ * $Revision: 1.11 $
+ * $Date: 2006-03-24 01:38:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -51,8 +51,6 @@ extern "C" {
 
 void FIDA_SPILSSETPREC(int *flag, int *ier)
 {
-  IDAMem ida_mem;
-
   *ier = 0;
 
   if (*flag == 0) {
@@ -69,9 +67,8 @@ void FIDA_SPILSSETPREC(int *flag, int *ier)
       }
     }
 
-    ida_mem = (IDAMem) IDA_idamem;
     *ier = IDASpilsSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-                                    (IDASpilsPrecSolveFn) FIDAPSol, ida_mem->ida_rdata);
+				     (IDASpilsPrecSolveFn) FIDAPSol, ((IDAMem) IDA_idamem)->ida_rdata);
   }
 
   return;

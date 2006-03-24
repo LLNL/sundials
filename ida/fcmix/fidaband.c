@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.8 $
- * $Date: 2006-01-25 23:08:00 $
+ * $Revision: 1.9 $
+ * $Date: 2006-03-24 01:38:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -44,8 +44,6 @@ extern "C" {
 
 void FIDA_BANDSETJAC(int *flag, int *ier)
 {
-  IDAMem ida_mem;
-
   *ier = 0;
 
   if (*flag == 0) {
@@ -62,7 +60,6 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
       }
     }
 
-    ida_mem = (IDAMem) IDA_idamem;    
     *ier = IDABandSetJacFn(IDA_idamem, (IDABandJacFn) FIDABandJac, NULL);
 
   }

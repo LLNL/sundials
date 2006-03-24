@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-10 21:17:37 $
+ * $Revision: 1.5 $
+ * $Date: 2006-03-24 01:38:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
@@ -49,10 +49,7 @@ extern "C" {
 
 void FIDA_ROOTINIT(int *nrtfn, int *ier)
 {
-  IDAMem ida_mem;
-
-  ida_mem = (IDAMem) IDA_idamem;
-  *ier = IDARootInit(IDA_idamem, *nrtfn, (IDARootFn) FIDArootfunc, ida_mem->ida_rdata);
+  *ier = IDARootInit(IDA_idamem, *nrtfn, (IDARootFn) FIDArootfunc, ((IDAMem) IDA_idamem)->ida_rdata);
   IDA_nrtfn = *nrtfn;
 
   return;

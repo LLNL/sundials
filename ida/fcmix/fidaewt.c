@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.5 $
- * $Date: 2006-01-24 22:17:29 $
+ * $Revision: 1.6 $
+ * $Date: 2006-03-24 01:38:38 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -48,13 +48,10 @@ extern "C" {
 
 void FIDA_EWTSET(int *flag, int *ier)
 {
-  IDAMem ida_mem;
-
   *ier = 0;
 
   if (*flag != 0) {
-    ida_mem = (IDAMem) IDA_idamem;
-    *ier = IDASetEwtFn(IDA_idamem, (IDAEwtFn) FIDAEwtSet, ida_mem->ida_rdata);
+    *ier = IDASetEwtFn(IDA_idamem, (IDAEwtFn) FIDAEwtSet, ((IDAMem) IDA_idamem)->ida_rdata);
   }
 
   return;
