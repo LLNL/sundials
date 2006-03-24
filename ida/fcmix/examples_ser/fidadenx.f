@@ -1,6 +1,6 @@
 c     ----------------------------------------------------------------
-c     $Revision: 1.4 $
-c     $Date: 2006-03-23 20:32:50 $
+c     $Revision: 1.5 $
+c     $Date: 2006-03-24 00:28:51 $
 c     ----------------------------------------------------------------
 c     This simple example problem for FIDA, due to Robertson, is from 
 c     chemical kinetics, and consists of the following three equations:
@@ -29,10 +29,9 @@ c
       double precision rout(10), rpar
 c
       integer iatol, nout, jout, itask
-      integer nst, kused
+      integer nst, kused, hused
       integer*4 neq, i
       double precision t0, t1, rtol, tout, tret
-      double precision hused
       double precision y(3), yp(3), atol(3)
 c
       data nst/3/, kused/9/, hused/2/
@@ -98,7 +97,7 @@ c
       tout = t1
 c
 c
-      jout = 1;
+      jout = 1
       do while(jout .le. nout)
 c
         call fidasolve(tout, tret, y, yp, itask, ier)
