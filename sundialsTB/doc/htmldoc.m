@@ -3,7 +3,7 @@
 
 % Radu Serban <radu@llnl.gov>
 % Copyright (c) 2005, The Regents of the University of California.
-% $Revision: 1.4 $Date: 2006/03/07 20:31:21 $
+% $Revision: 1.5 $Date: 2006/03/15 19:27:33 $
 
 % Set location of sundialsTB template files location
 s = fileparts(which(mfilename));
@@ -167,6 +167,7 @@ cd(doc_dir);
 
 old_str = '<a href="../sundialsTB.html">sundialsTB</a> &gt; <a href="../foo.html">foo</a>';
 new_str = '<a href="sundialsTB.html">sundialsTB</a>';
+
 cmd = sprintf('sed ''s$%s$%s$'' install_STB.html > tmp_file',old_str,new_str);
 system(cmd);
 system('mv tmp_file install_STB.html');
@@ -174,6 +175,16 @@ system('mv tmp_file install_STB.html');
 cmd = sprintf('sed ''s$%s$%s$'' startup_STB.html > tmp_file',old_str,new_str);
 system(cmd);
 system('mv tmp_file startup_STB.html');
+
+
+% Fix paths to images
+
+system('sed ''s$../../../$../../$g'' install_STB.html > tmp_file');
+system('mv tmp_file install_STB.html');
+
+system('sed ''s$../../../$../../$g'' startup_STB.html > tmp_file');
+system('mv tmp_file startup_STB.html');
+
 
 % Remove generated files not needed
 
