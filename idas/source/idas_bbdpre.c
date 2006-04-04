@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-03-24 15:57:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-04-04 19:03:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -55,12 +55,10 @@ int IDABBDPrecSolve(realtype tt,
 /* Wrapper functions for adjoint code */
 
 static int IDAAglocal(long int NlocalB, realtype tt,
-                      N_Vector yy, N_Vector yp, 
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                       void *res_dataB);
 
 static int IDAAgcomm(long int NlocalB, realtype tt,
-                     N_Vector yy, N_Vector yp,
                      N_Vector yyB, N_Vector ypB,
                      void *res_dataB);
 
@@ -653,34 +651,177 @@ int IDABBDPrecAllocB(void *idaadj_mem, long int NlocalB,
                      long int mudqB, long int mldqB,
                      long int mukeepB, long int mlkeepB,
                      realtype dq_rel_yyB,
-                     IDABBDLocalFnB GresB, IDABBDCommFnB GcommB)
+                     IDABBDLocalFnB glocalB, IDABBDCommFnB gcommB)
 {
+  IDAadjMem IDAADJ_mem;
+  IDABBDPrecDataB idabbdB_mem;
+  IDAMem IDAB_mem;
+  void *bbd_dataB;
 
+  if (idaadj_mem == NULL) {
+    IDAProcessError(NULL, IDABBDPRE_ADJMEM_NULL, "IDABBDPRE", "IDABBDPrecAllocB", MSGBBD_AMEM_NULL);
+    return(IDABBDPRE_ADJMEM_NULL);
+  }
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+
+  /* Get memory for IDABBDPrecDataB */
+  idabbdB_mem = NULL;
+  idabbdB_mem = (IDABBDPrecDataB) malloc(sizeof(* idabbdB_mem));
+  if (idabbdB_mem == NULL) {
+    IDAProcessError(IDAB_mem, IDABBDPRE_MEM_FAIL, "IDABBDPRE", "IDABBDPrecAllocB", MSGBBD_MEM_FAIL);
+    return(IDABBDPRE_MEM_FAIL);
+  }
+
+  glocal_B = glocalB;
+  gcomm_B  = gcommB;
+
+  bbd_dataB = IDABBDPrecAlloc(IDAB_mem, NlocalB, 
+                             mudqB, mldqB,
+                             mukeepB, mlkeepB, 
+                             dq_rel_yyB, 
+                             IDAAglocal, IDAAgcomm);
+  if (bbd_dataB == NULL) {
+    free(idabbdB_mem); idabbdB_mem = NULL;
+
+    return(IDABBDPRE_MEM_FAIL);
+  }
+
+  bbd_data_B = bbd_dataB;
+
+  /* attach pmemB */
+  pmemB = idabbdB_mem;
+
+  return(IDABBDPRE_SUCCESS);
 }
 
 int IDABBDSptfqmrB(void *idaadj_mem, int maxlB)
 {
+  IDAadjMem IDAADJ_mem;
+  IDABBDPrecDataB idabbdB_mem;
+  IDAMem IDAB_mem;
+  int flag;
+  
+  if (idaadj_mem == NULL) {
+    IDAProcessError(NULL, IDABBDPRE_ADJMEM_NULL, "IDABBDPRE", "IDABBDSptfqmrB", MSGBBD_AMEM_NULL);
+    return(IDABBDPRE_ADJMEM_NULL);
+  }
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  
+  if (pmemB == NULL) {
+    IDAProcessError(IDAB_mem, IDABBDPRE_PDATAB_NULL, "IDABBDPRE", "IDABBDSptfqmrB", MSGBBD_PDATAB_NULL);
+    return(IDABBDPRE_PDATAB_NULL);
+  }
+  idabbdB_mem = (IDABBDPrecDataB) pmemB;
 
+  flag = IDABBDSptfqmr(IDAB_mem, maxlB, bbd_data_B);
+
+  return(flag);
 }
 
 int IDABBDSpbcgB(void *idaadj_mem, int maxlB)
 {
+  IDAadjMem IDAADJ_mem;
+  IDABBDPrecDataB idabbdB_mem;
+  IDAMem IDAB_mem;
+  int flag;
+  
+  if (idaadj_mem == NULL) {
+    IDAProcessError(NULL, IDABBDPRE_ADJMEM_NULL, "IDABBDPRE", "IDABBDSptfqmrB", MSGBBD_AMEM_NULL);
+    return(IDABBDPRE_ADJMEM_NULL);
+  }
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  
+  if (pmemB == NULL) {
+    IDAProcessError(IDAB_mem, IDABBDPRE_PDATAB_NULL, "IDABBDPRE", "IDABBDSptfqmrB", MSGBBD_PDATAB_NULL);
+    return(IDABBDPRE_PDATAB_NULL);
+  }
+  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+
+  flag = IDABBDSpbcg(IDAB_mem, maxlB, bbd_data_B);
+
+  return(flag);
 
 }
 
 int IDABBDSpgmrB(void *idaadj_mem, int maxlB)
 {
+  IDAadjMem IDAADJ_mem;
+  IDABBDPrecDataB idabbdB_mem;
+  IDAMem IDAB_mem;
+  int flag;
+  
+  if (idaadj_mem == NULL) {
+    IDAProcessError(NULL, IDABBDPRE_ADJMEM_NULL, "IDABBDPRE", "IDABBDSptfqmrB", MSGBBD_AMEM_NULL);
+    return(IDABBDPRE_ADJMEM_NULL);
+  }
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  
+  if (pmemB == NULL) {
+    IDAProcessError(IDAB_mem, IDABBDPRE_PDATAB_NULL, "IDABBDPRE", "IDABBDSptfqmrB", MSGBBD_PDATAB_NULL);
+    return(IDABBDPRE_PDATAB_NULL);
+  }
+  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+
+  flag = IDABBDSpgmr(IDAB_mem, maxlB, bbd_data_B);
+
+  return(flag);
 
 }
 
 int IDABBDPrecReInitB(void *idaadj_mem, long int mudqB, long int mldqB,
-                      realtype dq_rel_yyB, IDABBDLocalFnB GresB, IDABBDCommFnB GcommB)
+                      realtype dq_rel_yyB, IDABBDLocalFnB glocalB, IDABBDCommFnB gcommB)
 {
+  IDAadjMem IDAADJ_mem;
+  IDAMem IDAB_mem;
+  IDABBDPrecDataB idabbdB_mem;
+  int flag;
+
+  if (idaadj_mem == NULL) {
+    IDAProcessError(NULL, IDABBDPRE_ADJMEM_NULL, "IDABBDPRE", "IDABBDPrecReInitB", MSGBBD_AMEM_NULL);
+    return(IDABBDPRE_ADJMEM_NULL);
+  }
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+
+  if (pmemB == NULL) {
+    IDAProcessError(IDAB_mem, IDABBDPRE_PDATAB_NULL, "IDABBDPRE", "IDABBDPrecReInitB", MSGBBD_PDATAB_NULL);
+    return(IDABBDPRE_PDATAB_NULL);
+  }
+  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+
+  glocal_B = glocalB;
+  gcomm_B  = gcommB;
+
+  flag = IDABBDPrecReInit(bbd_data_B, mudqB, mldqB,
+                          dq_rel_yyB, IDAAglocal, IDAAgcomm);
+
+  return(flag);
 
 }
 
 void IDABBDPrecFreeB(void *idaadj_mem)
 {
+  IDAadjMem IDAADJ_mem;
+  IDABBDPrecDataB idabbdB_mem;
+
+  if (idaadj_mem == NULL) return;
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  
+  if (pmemB == NULL) return;
+  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+
+  IDABBDPrecFree(&bbd_data_B);
+  
+  free(pmemB); pmemB = NULL;
 
 }
 
@@ -695,6 +836,26 @@ static int IDAAglocal(long int NlocalB, realtype tt,
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                       void *idaadj_mem)
 {
+  IDAadjMem IDAADJ_mem;
+  IDAMem IDAB_mem;
+  IDABBDPrecDataB idabbdB_mem;
+  int retval, flag;
+
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+
+  /* Forward solution from interpolation */
+  flag = getY(IDAADJ_mem, tt, ytmp, yptmp);
+  if (flag != IDA_SUCCESS) {
+    IDAProcessError(IDAB_mem, -1, "IDABBDPRE", "IDAAglocal", MSGBBD_BAD_T);
+    return(-1);
+  } 
+
+  /* Call user's adjoint glocB routine */
+  retval = glocal_B(NlocalB, tt, ytmp, yptmp, yyB, ypB, gvalB, res_dataB);
+
+  return(retval);
 
 }
 
@@ -703,5 +864,26 @@ static int IDAAgcomm(long int NlocalB, realtype tt,
                      N_Vector yyB, N_Vector ypB,
                      void *idaadj_mem)
 {
+  IDAadjMem IDAADJ_mem;
+  IDAMem IDAB_mem;
+  IDABBDPrecDataB idabbdB_mem;
+  int retval, flag;
 
+  IDAADJ_mem = (IDAadjMem) idaadj_mem;
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  idabbdB_mem = (IDABBDPrecDataB) pmemB;
+
+  if (cfn_B == NULL) return(0);
+
+  /* Forward solution from interpolation */
+  flag = getY(IDAADJ_mem, tt, ytmp, yptmp);
+  if (flag != IDA_SUCCESS) {
+    IDAProcessError(IDAB_mem, -1, "IDABBDPRE", "IDAAgcomm", MSGBBD_BAD_T);
+    return(-1);
+  } 
+
+  /* Call user's adjoint cfnB routine */
+  retval = gcomm_B(NlocalB, tt, ytmp, yptmp, yyB, ypB, res_dataB);
+
+  return(retval);
 }

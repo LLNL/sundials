@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-03-24 15:57:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-04-04 19:03:02 $
  * ----------------------------------------------------------------- 
  * Programmers: Alan C. Hindmarsh, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -89,9 +89,9 @@ typedef struct {
 #define MSGB_LMEM_NULL   "IDABAND memory is NULL."
 #define MSGB_JACFUNC_FAILED "The Jacobian routine failed in an unrecoverable manner."
 
-#define MSGB_CAMEM_NULL "idaadj_mem = NULL illegal."
+#define MSGB_AMEM_NULL  "idaadj_mem = NULL illegal."
 #define MSGB_LMEMB_NULL "IDABAND memory is NULL for the backward integration."
-#define MSGB_BAD_T "Bad t for interpolation."
+#define MSGB_BAD_T      "Bad t for interpolation."
 
 #ifdef __cplusplus
 }

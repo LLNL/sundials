@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-03-24 15:57:25 $
+ * $Revision: 1.8 $
+ * $Date: 2006-04-04 19:03:02 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -185,7 +185,7 @@ extern "C" {
     void (*ia_lfreeB)(IDAadjMem IDAADJ_mem);
 
     /* Memory block for a preconditioner's module interface to IDAA */ 
-    void *ca_pmemB;
+    void *ia_pmemB;
     
     /* Unit roundoff */
     realtype ia_uround;

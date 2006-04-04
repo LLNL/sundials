@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-03-24 15:57:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-04-04 19:03:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -683,7 +683,7 @@ int IDABandB(void *idaadj_mem, long int NeqB,
   int flag;
 
   if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDABAND_ADJMEM_NULL, "IDABAND", "IDABandB", MSGB_CAMEM_NULL);
+    IDAProcessError(NULL, IDABAND_ADJMEM_NULL, "IDABAND", "IDABandB", MSGB_AMEM_NULL);
     return(IDABAND_ADJMEM_NULL);
   }
   IDAADJ_mem = (IDAadjMem) idaadj_mem;
@@ -722,7 +722,7 @@ int IDABandSetJacFnB(void *idaadj_mem, IDABandJacFnB bjacB, void *jdataB)
   int flag;
 
   if (idaadj_mem == NULL) {
-    IDAProcessError(NULL, IDABAND_ADJMEM_NULL, "IDABAND", "IDABandSetJacFnB", MSGB_CAMEM_NULL);
+    IDAProcessError(NULL, IDABAND_ADJMEM_NULL, "IDABAND", "IDABandSetJacFnB", MSGB_AMEM_NULL);
     return(IDABAND_ADJMEM_NULL);
   }
   IDAADJ_mem = (IDAadjMem) idaadj_mem;

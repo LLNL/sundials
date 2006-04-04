@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-03-24 15:57:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-04-04 19:03:02 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -98,9 +98,9 @@ typedef struct {
 #define MSGBBD_PDATA_NULL  "BBDPrecData is NULL."
 #define MSGBBD_FUNC_FAILED "The Glocal or Gcomm routine failed in an unrecoverable manner."
 
-#define MSGBBDP_CAMEM_NULL  "idaadj_mem = NULL illegal."
-#define MSGBBDP_PDATAB_NULL "IDABBDPRE memory is NULL for the backward integration."
-#define MSGBBDP_BAD_T       "Bad t for interpolation."
+#define MSGBBD_AMEM_NULL   "idaadj_mem = NULL illegal."
+#define MSGBBD_PDATAB_NULL "IDABBDPRE memory is NULL for the backward integration."
+#define MSGBBD_BAD_T       "Bad t for interpolation."
 
 #ifdef __cplusplus
 }
