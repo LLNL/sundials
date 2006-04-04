@@ -885,8 +885,8 @@ perform the integration of the IVP.
   \item[\Id{CV\_SUCCESS}]
     \id{CVode} succeeded and no root was found.
   \item[\Id{CV\_TSTOP\_RETURN}]
-    \id{CVode} succeeded by reaching the stopping point specified through
-    the optional input function \id{CVodeSetStopTime} (see \S\ref{ss:optional_input}).
+    \id{CVode} succeeded by reaching the stopping point specified via the
+    optional input function \id{CVodeSetStopTime} (see \S\ref{ss:optional_input}).
   \item[\Id{CV\_ROOT\_RETURN}]
     \id{CVode} succeeded and found one or more roots.  If \id{nrtfn}
      $>1$, call \id{CVodeGetRootInfo} to see which $g_i$ were found to
@@ -931,7 +931,7 @@ perform the integration of the IVP.
     The right-hand side function had a recoverable error at the first call.
   \item[\Id{CV\_REPTD\_RHSFUNC\_ERR}]
     Convergence tests occurred too many times due to repeated recoverable errors in
-    the right-hand side function. The \id{CV\_REPTD\_RHSFUNC\_ERR} will also
+    the right-hand side function. The value \id{CV\_REPTD\_RHSFUNC\_ERR} will also
     be returned if the right-hand side function had repeated recoverable errors
     during the estimation of an initial step size.
   \item[\Id{CV\_UNREC\_RHSFUNC\_ERR}]
@@ -2604,7 +2604,8 @@ These optional output functions are described next.
 }
 {
   If the stability limit detection algorithm was not initialized
-  through a call to \id{CVodeSetStabLimDet}, then \id{nslred}=0.
+  (\id{CVodeSetStabLimDet} was not called), then this function
+  returns \id{nslred} = 0.
 }
 %%
 %%
@@ -3636,7 +3637,7 @@ return value from a linear solver function.
   \id{SptfqmrSolve} and will be one of:
   \id{SPTFQMR\_MEM\_NULL}, indicating that the {\sptfqmr} memory is \id{NULL};
   \id{SPTFQMR\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
-  Jacobian-times-vector function; or
+  $J*v$ function; or
   \id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably.
 }
@@ -3800,13 +3801,14 @@ The user must provide a function of type \ID{CVRhsFn} defined as follows:
   occur when the right-hand side function is called the first time during the 
   following integration step and a successful step cannot be undone).
 
-  There are two other situations in which recovery is not possible even if the right-hand
-  side function returns a recoverable error flag. This include the situation when this
-  occurrs at the very first call to the \id{CVRhsFn} (in which case {\cvode} returns
-  \Id{CV\_FIRST\_RHSFUNC\_ERR}) or if a recoverable error is reported when \id{CVRhsFn}
-  is called after an error test failure, while the linear multistep method order is
-  equal to 1 (in which case {\cvode} returns \Id{CV\_UNREC\_RHSFUNC\_ERR}).
-}
+  There are two other situations in which recovery is not possible
+  even if the right-hand side function returns a recoverable error
+  flag.  One is when this error flag is returned by the very first
+  call to the \id{CVRhsFn}, in which case {\cvode} returns
+  \Id{CV\_FIRST\_RHSFUNC\_ERR}.  The other is when a recoverable error is
+  reported when \id{CVRhsFn} is called after an error test failure, while the
+  linear multistep method order is equal to 1, in which case {\cvode}
+  returns \Id{CV\_UNREC\_RHSFUNC\_ERR}.  }
 
 %%==============================================================================
 \subsection{Error message handler function}
