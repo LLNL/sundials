@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-04-04 19:03:02 $
+ * $Revision: 1.4 $
+ * $Date: 2006-04-04 19:09:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -634,7 +634,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 #define ytmp        (IDAADJ_mem->ia_ytmp)
 #define yptmp       (IDAADJ_mem->ia_yptmp)
 #define getY        (IDAADJ_mem->ia_getY)
-#define res_dataB   (IDAADJ_mem->ia_res_dataB)
+#define res_dataB   (IDAADJ_mem->ia_rdataB)
 #define pmemB       (IDAADJ_mem->ia_pmemB)
 
 #define bbd_data_B  (idabbdB_mem->bbd_dataB)
@@ -832,7 +832,6 @@ void IDABBDPrecFreeB(void *idaadj_mem)
  */
 
 static int IDAAglocal(long int NlocalB, realtype tt,
-                      N_Vector yy, N_Vector yp, 
                       N_Vector yyB, N_Vector ypB, N_Vector gvalB,
                       void *idaadj_mem)
 {
@@ -860,7 +859,6 @@ static int IDAAglocal(long int NlocalB, realtype tt,
 }
 
 static int IDAAgcomm(long int NlocalB, realtype tt,
-                     N_Vector yy, N_Vector yp,
                      N_Vector yyB, N_Vector ypB,
                      void *idaadj_mem)
 {
@@ -873,7 +871,7 @@ static int IDAAgcomm(long int NlocalB, realtype tt,
   IDAB_mem = IDAADJ_mem->IDAB_mem;
   idabbdB_mem = (IDABBDPrecDataB) pmemB;
 
-  if (cfn_B == NULL) return(0);
+  if (gcomm_B == NULL) return(0);
 
   /* Forward solution from interpolation */
   flag = getY(IDAADJ_mem, tt, ytmp, yptmp);
