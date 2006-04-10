@@ -1,0 +1,68 @@
+<html>
+
+<head>
+
+<title>Microsoft Visual C++ .NET (VC7.1) Project Files</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body style="padding: 5px 5px 5px 5px;">
+
+<a href="javascript:window.close();"><img border="0" src="../img/cross.png" style="vertical-align: middle;"> <b>Close</b></a>
+<hr>
+
+<b>Microsoft Visual C++ .NET (VC7.1) Project Files to build CVODE v2.4.0</b>
+<br>courtesy of Sze-Ping Wong
+<hr>
+
+<ol>
+<li>
+  Download the Sundials V2.2.0 tarball and unpack it.
+</li>
+<li>
+  Download the <a href="cvodeVC71project.tar.gz">cvodeVC71project.tar.gz</a> tarball with VC7.1 project files.
+</li>
+<li>
+  Create the folders <tt>Build</tt>, <tt>include</tt> and <tt>Projects</tt> at the <tt>sundials</tt> 
+  root level (same level as <tt>config</tt>, <tt>cvode</tt>, etc).
+</li>
+<li>
+  Copy (and optionally edit) the sample 
+  <a href="sundials_config.h"><tt>sundials_config.h</tt></a> header file
+  into the <tt>include</tt> folder.
+</li>
+<li>
+  Extract the contents of <tt>cvodeVC71project.tar.gz</tt> under <tt>Projects</tt>. It produces these files:
+    <ul>
+    <li>README
+    <li>VC7.1\cvode.vcproj
+    <li>VC7.1\nvec_ser.vcproj
+    <li>VC7.1\shared.vcproj
+    <li>VC7.1\sundials.sln
+    </ul>
+</li>
+<li>
+  Launch VC7.1.<br>
+  File->"Open Solution" and open sundials.sln. <br>
+  Make the builds.<br>
+  Each of the 3 vcproj files have 'debug' and 'release' as configurations.<br>
+  The resulting binaries are deposited in the <tt>Build</tt> folder.
+</li>
+</ol>
+
+
+<hr>
+<a href="javascript:window.close();"><img border="0" src="../img/cross.png" style="vertical-align: middle;"> <b>Close</b></a>
+
+
+</body>
+</html>

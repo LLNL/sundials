@@ -221,83 +221,17 @@ in which case the installation procedure is the same as for any other *NIX syste
 <br><br>
 
 Several of our users have reported successfuly building the SUNDIALS libraries using
-various IDEs (Borland C++, Visual C++, etc.). For more details, see 
-<a href="#inst_noconfig">How do I install SUNDIALS without using the configure script?</a> 
-and browse the <a href="mailArchive/maillist.html" target="_blank">sundials-users</a> 
+various IDEs (Borland C++, Visual C++, etc.). For more details,
+browse also the <a href="mailArchive/maillist.html" target="_blank">sundials-users</a> 
 mailing list.
-<br><br>
-Instructions to compile SUNDIALS with VC8 - Visual Studio C++ Express 2005
-(courtesy of Andreas Nicolai)
-<ol>
-<li>
-  extract SUNDIALS archive
-</li>
-<li>
-  copy (and optionally edit) the sample <tt><b>sundials_config.h</b></tt> header file
-[ <a href="samples/sundials_config.h.html" onclick="window.open('samples/sundials_config.h.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false">view</a> | <a href="samples/sundials_config.h">download</a> ]
-</li>
-<li>
-  create subdirectories <tt>projects</tt>, <tt>includes</tt>, and <tt>libs</tt>
-  <br>
-  copy all include files from the various subdirectories in SUNDIALS into
-  the <tt>includes</tt> folder (Windows doesn't have softlinks unfortunately)
-</li>
-<li>
-  create the SUNDIALS libraries that you need
-  <br>
-  here is the general procedure that you have to follow for each library
+<ul><li>
   <ul>
-  <li> start VC </li>
-  <li> create new project<br>
-       Type: Win32 Console Application<br>
-       Name: libXXX<br>
-       Place: in directory <tt>projects</tt><br>
-       In New Project Wizard, select application settings page and choose:<br>
-       - static library<br>
-       - uncheck "precompiled headers"
-  </li>
-  <li> add existings source files to Sources and Headers 
-       (files are in the appropriate SUNDIALS subdirs)
-  </li>
-  <li> open project properties and modify settings:<br>
-       "Configuration properties" - "General"<br>
-       - change "Output Directory" to <tt>../../libs</tt><br>
-       "Configuration properties" - "C++" : "Additional Include Directories"<br>
-       - add appropriate include directories here (see below)<br>
-       "Configuration properties" - "C++" : "Code generation"<br>
-       - change "Runtime Library" to "Multi-threaded (/MT)"<br>
-         (links to the static runtime library)<br>
-       "Configuration properties" - "C++" : "Preprocessor"<br>
-       - add "HAVE_CONFIG_H" to "Preprocessor Definitions"
-  </li>
+  <li><a href="samples/instructions_vc8.html" onclick="window.open('samples/instructions_vc8.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false">
+      Instructions to compile SUNDIALS with VC8 - Visual Studio C++ Express 2005</a> -- courtesy of Andreas Nicolai</li>
+  <li><a href="samples/project_vc71.html" onclick="window.open('samples/project_vc71.html', 'popup', 'width=600,height=800,scrollbars=yes,menubar=yes');return false">
+      Project files to build CVODE v2.4.0 using Microsoft Visual C++ .NET (VC7.1)</a> -- courtesy of Sze-Ping Wong</li>
   </ul>
-</li>
-<li>
-  specific settings for various libraries
-  <ul>
-  <li> libNVector:<br>
-       source to add: <tt>nvector_serial.c</tt> to Sources and <tt>nvector_serial.h</tt> to Headers
-                      (files are in subdir 'nvec_ser')<br>
-       includes: <tt>../..; ../../shared/include</tt>
-  </li>
-  <li> libCVode:<br>
-       source to add: all in subdirs <tt>cvode/include</tt> and <tt>cvode/source</tt>,
-                      all in subdirs <tt>shared/include</tt> and <tt>shared/source</tt><br>
-       includes: <tt>../..; ../../shared/include; ../../cvode/include; ../../cvode/source</tt>
-  </li>
-  <li> for all other solver libs use similar settings as for libCVode</li>
-  </ul>
-</li>
-<li>
-  linking programs to SUNDIALS libs
-  <ul>
-  <li> once all libraries have been created, they should be in the <tt>libs</tt> 
-       subdir while all header files should be copied to <tt>includes</tt></li>
-  <li> external SUNDIALS users must add the include directory and link to all used
-       libraries, typically libNVector and one of the solver libs</li>
-  </ul>
-</li>
-</ol>
+</ul>
 
 </div>
 
