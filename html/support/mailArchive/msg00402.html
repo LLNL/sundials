@@ -1,0 +1,433 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: [sundials&#45;users] about confdefs.h -->
+<!--X-From-R13: nangbyvl <nangbylNznb.avxbynri.hn> -->
+<!--X-Date: Mon, 03 Apr 2006 09:36:49 &#45;0700 (PDT) -->
+<!--X-Message-Id: 200604031934.34750.anatoly@mao.nikolaev.ua -->
+<!--X-Content-Type: text/plain -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>[sundials-users] about confdefs.h</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00396.html">Date Prev</a>] [<a href="msg00403.html">Date Next</a>] [<a href="msg00400.html">Thread Prev</a>] [<a href="msg00404.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00402">Date Index</a></b>]
+[<b><a href="threads.html#00402">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>[sundials-users] about confdefs.h</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+anatoliy &lt;<a href="mailto:anatoly%40mao.nikolaev.ua">anatoly@mao.nikolaev.ua</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Mon, 03 Apr 2006 19:34:34 +0300</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hi Colleagues,
+
+I am first time user of Sundials. I am using Cygwin. As I have inspected the 
+log, there was some problem during installation with header confdefs.h.
+I enclosed the log file. May be I am doing something wrong?
+You see, everything was looking good during the installation. I simply 
+inspected the log-file. I am worried whether it is important.
+
+Here is some listing:
+
+It was created by SUNDIALS configure 2.2.0, which was
+generated by GNU Autoconf 2.59.  Invocation command line was
+
+  $ ./configure 
+
+## --------- ##
+## Platform. ##
+## --------- ##
+
+hostname = zonn
+uname -m = i686
+uname -r = 1.5.19(0.150/4/2)
+uname -s = CYGWIN_NT-5.1
+uname -v = 2006-01-20 13:28
+
+/usr/bin/uname -p = unknown
+/bin/uname -X     = unknown
+
+/bin/arch              = unknown
+/usr/bin/arch -k       = unknown
+/usr/convex/getsysinfo = unknown
+hostinfo               = unknown
+/bin/machine           = unknown
+/usr/bin/oslevel       = unknown
+/bin/universe          = unknown
+
+PATH: /usr/local/bin
+PATH: /usr/bin
+PATH: /bin
+PATH: /usr/X11R6/bin
+PATH: /c/WINDOWS/system32
+PATH: /c/WINDOWS
+PATH: /c/WINDOWS/System32/Wbem
+PATH: /c/Program Files/ATI Technologies/ATI Control Panel
+PATH: /usr/bin
+PATH: /sbin
+PATH: /c/PROGRA~1/Actify/Kernel
+PATH: /c/PROGRA~1/Actify/Importers
+PATH: /usr/lib/lapack
+
+
+## ----------- ##
+## Core tests. ##
+## ----------- ##
+
+configure:1817: checking build system type
+configure:1835: result: i686-pc-cygwin
+configure:1845: checking host system type
+configure:1859: result: i686-pc-cygwin
+configure:1876: checking whether make sets $(MAKE)
+configure:1896: result: yes
+configure:1921: checking for a BSD-compatible install
+configure:1976: result: /usr/bin/install -c
+configure:2302: checking for C compiler version
+configure:2305: cc --version &lt;/dev/null &gt;&amp;5
+cc (GCC) 3.4.4 (cygming special) (gdc 0.12, using dmd 0.125)
+Copyright (C) 2004 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+configure:2308: $? = 0
+configure:2310: cc -v &lt;/dev/null &gt;&amp;5
+Reading specs from /usr/lib/gcc/i686-pc-cygwin/3.4.4/specs
+Configured with: /gcc/gcc-3.4.4/gcc-3.4.4-1/configure --verbose --prefix=/usr 
+--exec-prefix=/usr --sysconfdir=/etc --libdir=/usr/lib --libexecdir=/usr/lib 
+--mandir=/usr/share/man --infodir=/usr/share/info 
+--enable-languages=c,ada,c++,d,f77,java,objc --enable-nls 
+--without-included-gettext --enable-version-specific-runtime-libs --without-x 
+--enable-libgcj --disable-java-awt --with-system-zlib --enable-interpreter 
+--disable-libgcj-debug --enable-threads=posix --enable-java-gc=boehm 
+--disable-win32-registry --enable-sjlj-exceptions 
+--enable-hash-synchronization --enable-libstdcxx-debug : (reconfigured) 
+Thread model: posix
+gcc version 3.4.4 (cygming special) (gdc 0.12, using dmd 0.125)
+configure:2313: $? = 0
+configure:2315: cc -V &lt;/dev/null &gt;&amp;5
+cc: `-V' option must have argument
+configure:2318: $? = 1
+configure:2341: checking for C compiler default output file name
+configure:2344: cc    conftest.c  &gt;&amp;5
+configure:2347: $? = 0
+configure:2393: result: a.exe
+configure:2398: checking whether the C compiler works
+configure:2404: ./a.exe
+configure:2407: $? = 0
+configure:2424: result: yes
+configure:2431: checking whether we are cross compiling
+configure:2433: result: no
+configure:2436: checking for suffix of executables
+configure:2438: cc -o conftest.exe    conftest.c  &gt;&amp;5
+configure:2441: $? = 0
+configure:2466: result: .exe
+configure:2472: checking for suffix of object files
+configure:2493: cc -c   conftest.c &gt;&amp;5
+configure:2496: $? = 0
+configure:2518: result: o
+configure:2522: checking whether we are using the GNU C compiler
+configure:2546: cc -c   conftest.c &gt;&amp;5
+configure:2552: $? = 0
+configure:2556: test -z 
+                         || test ! -s conftest.err
+configure:2559: $? = 0
+configure:2562: test -s conftest.o
+configure:2565: $? = 0
+configure:2578: result: yes
+configure:2584: checking whether cc accepts -g
+configure:2605: cc -c -g  conftest.c &gt;&amp;5
+configure:2611: $? = 0
+configure:2615: test -z 
+                         || test ! -s conftest.err
+configure:2618: $? = 0
+configure:2621: test -s conftest.o
+configure:2624: $? = 0
+configure:2635: result: yes
+configure:2652: checking for cc option to accept ANSI C
+configure:2722: cc  -c -g -O2  conftest.c &gt;&amp;5
+configure:2728: $? = 0
+configure:2732: test -z 
+                         || test ! -s conftest.err
+configure:2735: $? = 0
+configure:2738: test -s conftest.o
+configure:2741: $? = 0
+configure:2759: result: none needed
+configure:2777: cc -c -g -O2  conftest.c &gt;&amp;5
+conftest.c:2: error: parse error before &quot;me&quot;
+configure:2783: $? = 1
+configure: failed program was:
+| #ifndef __cplusplus
+|   choke me
+| #endif
+configure:2919: checking for egrep
+configure:2929: result: grep -E
+configure:2948: checking for sys/types.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:2948: checking for sys/stat.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:2948: checking for stdlib.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:2948: checking for string.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:2948: checking for memory.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:2948: checking for strings.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:2948: checking for inttypes.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:2948: checking for stdint.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:2948: checking for unistd.h
+configure:2964: cc -c -g -O2  conftest.c &gt;&amp;5
+configure:2970: $? = 0
+configure:2974: test -z 
+                         || test ! -s conftest.err
+configure:2977: $? = 0
+configure:2980: test -s conftest.o
+configure:2983: $? = 0
+configure:2994: result: yes
+configure:3036: checking floating-point data type to use
+configure:3079: result: double
+configure:3105: checking for cc
+configure:3123: found /usr/bin/cc
+configure:3136: result: /usr/bin/cc
+configure:3152: checking for extra C compiler flags
+configure:3165: result: none
+configure:3179: checking how to run the C preprocessor
+configure:3214: /usr/bin/cc -E  conftest.c
+configure:3220: $? = 0
+configure:3252: /usr/bin/cc -E  conftest.c
+conftest.c:19:28: ac_nonexistent.h: No such file or directory
+configure:3258: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+| 
+| #define PACKAGE_NAME &quot;SUNDIALS&quot;
+| #define PACKAGE_TARNAME &quot;sundials&quot;
+| #define PACKAGE_VERSION &quot;2.2.0&quot;
+| #define PACKAGE_STRING &quot;SUNDIALS 2.2.0&quot;
+| #define PACKAGE_BUGREPORT &quot;radu@llnl.gov&quot;
+| #define HAVE_SYS_TYPES_H 1
+| #define HAVE_SYS_STAT_H 1
+| #define HAVE_STDLIB_H 1
+| #define HAVE_STRING_H 1
+| #define HAVE_MEMORY_H 1
+| #define HAVE_STRINGS_H 1
+| #define HAVE_INTTYPES_H 1
+| #define HAVE_STDINT_H 1
+| #define HAVE_UNISTD_H 1
+| #define SUNDIALS_DOUBLE_PRECISION 1
+| /* end confdefs.h.  */
+| #include &lt;ac_nonexistent.h&gt;
+configure:3297: result: /usr/bin/cc -E
+configure:3321: /usr/bin/cc -E  conftest.c
+configure:3327: $? = 0
+configure:3359: /usr/bin/cc -E  conftest.c
+conftest.c:19:28: ac_nonexistent.h: No such file or directory
+configure:3365: $? = 1
+configure: failed program was:
+| /* confdefs.h.  */
+
+The same is repeating for several times.
+Has anybody occured with such a message?
+
+Regards,
+Anatoliy
+April 3
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00404" href="msg00404.html">Re: [sundials-users] about confdefs.h</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00396.html">Re: [sundials-users] Suggested annotation to documentation</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00403.html">Re: [sundials-users] Suggested annotation to documentation</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00400.html">[sundials-users] Suggested annotation to documentation</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00404.html">Re: [sundials-users] about confdefs.h</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00402">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00402">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

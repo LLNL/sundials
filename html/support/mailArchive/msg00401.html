@@ -1,0 +1,620 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] mass balance and negative values -->
+<!--X-From-R13: Dnqh Ereona <freona1Nyyay.tbi> -->
+<!--X-Date: Sun, 02 Apr 2006 19:17:58 &#45;0700 (PDT) -->
+<!--X-Message-Id: 44308444.8010104@llnl.gov -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 200603281502.KAA06735@webmail9.cac.psu.edu -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] mass balance and negative values</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00400.html">Date Prev</a>] [<a href="msg00395.html">Date Next</a>] [<a href="msg00397.html">Thread Prev</a>] [<a href="msg00359.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00401">Date Index</a></b>]
+[<b><a href="threads.html#00401">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] mass balance and negative values</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Radu Serban &lt;<a href="mailto:serban1%40llnl.gov">serban1@llnl.gov</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Sun, 02 Apr 2006 19:11:16 -0700</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">Shuangcai,</pre><br>
+It seems to me that you do not clearly understand the distinction 
+between a mathematical model and its numerical solution. This is one of 
+the aspects I tried to emphasize in my previous post on these issues 
+(which can now be found in the &quot;Usage Notes&quot; page on the SUNDIALS 
+website, accessible from the Support page).<br>
+<br>
+The bottom line is that the mathematical model for the fluxes Qin and 
+Qout should be independent of the solver you use to integrate the 
+resulting ODEs! You, as the modeler, should be able to write some 
+mathematical forms of these fluxes that are derived from the physics of 
+the problem. Obviously, these include the (common sense) condition that<br>
+there can be no outward flux from a point where the sediment depth is 
+zero! In other words, whatever function you decide to use to model 
+Qout(y) it seems to me that it should satisfy the condition:<br>
+lim (Y-&gt;0) Qout(y) = Qout(0) = 0. How it goes to zero is a question that 
+you must decide since you know the physics.<br>
+<br>
+Now, as discussed many times on this forum, numerically solving the 
+resulting ODEs, can indeed lead to (small) negative values for some Y 
+components. However, if your model for the fluxes is sound, the trick of 
+locally setting to zero any negative Y components in the right hand side 
+function, just for the purpose of calculating Qin and Qout, should work 
+just fine.<br>
+<br>
+<pre style="margin: 0em;">--Radu</pre><br>
+<br>SHUANGCAI LI wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi there,</pre><br>
+	Many thanks for Alan and Radu's important suggestion. Here I encounter another<br>
+problem. My model consists of several types of  ODEs finally. All these ODEs do<br>
+not allow negative values. The first part was discussed in our previous email.<br>
+For the second part, however, negative values show up to tell the needs to<br>
+change the computational mode although they are still unphysical. Here is a<br>
+simple demonstration:<br>
+dY/dt=Qin-Qout,<br>
+where Y is sediment depth, Qin is the sediment input from upstream grid to<br>
+current grid; Qout is the ouput sediment from current grid to the downstream<br>
+grid, which is calculated under the assumption that the Y in current grid is<br>
+large enough to allow the maximum Qout. In this case, Qin and Qout are known<br>
+and Y can be calculated.<br>
+However, in the case Y is very small, Qout will not reach maximum. So, if we<br>
+still compute Qout under previous assumption, we will get negative Y values. So<br>
+negative Y values tell us to switch the computation modes. In other words, dY<br>
+is known, which is set equal to available Y in current grid. In this case, dY<br>
+and Qin are known, and Qout needs to be calculated. That is the problem: how<br>
+can we implement it in CVODE? I tried several approaches: 
+(1)	See the following snippet of codes:<br>
+           /* flux[i][0]= Qin and  flux[i][1]=Qout. It uses the 1st order<br>
+approximation, which is a little crude*/<br>
+    	main()<br>
+	{<br>
+	    .<br>
+	    while(t&lt;TMAX){<br>
+	        T=t;<br>
+	        CVode(........, &amp;t, ONE_STEP);<br>
+                       }<br>
+                       .<br>
+	}<br>
+<br>
+<pre style="margin: 0em;">        f()
+        {
+            .
+            DummyYdot = flux[i][0]&#x2013; flux[i][1];
+            If(DummyYdot &lt; 0 &amp;&amp; abs(DummyYdot/(t-T)) &gt; y[i] ){
+                DummyYdot = -y[i] /(t-T);
+                flux[i][1]= flux[i][0]- DummyYdot;
+                      }
+           Ydot= DummyYdot;
+            .
+        }</pre><br>
+<pre style="margin: 0em;">(2)     Another option is to use the root find feature (CVodeRootInit,
+CVodeGetRootInfo, &#x2026;) combined with CVodeReInit() function. But this way, the
+mass balance will be hard to track and be violated finally, which is a serious
+problem for my model especially in large domain.</pre><br>
+<pre style="margin: 0em;">So, could you please give me some suggestion to deal with this problem? Many
+thanks,</pre><br>
+<pre style="margin: 0em;">Regards,</pre><br>
+<pre style="margin: 0em;">Shuangcai</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<pre style="margin: 0em;">On Wed, 08 Mar 2006 13:32:50 +0000, Radu Serban wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Shuangcai,</pre><br>
+<pre style="margin: 0em;">see below...</pre><br>
+<pre style="margin: 0em;">SHUANGCAI LI wrote:</pre><br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello All</pre><br>
+	I am solving a sytem of stiff ODEs y'=f(y,t) where y values denote water
+</blockquote></blockquote>depth
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">in each grid. I used CVODE in CV_NORMAL mode with GMRES-BDF solver. Many y
+values obtained are found to be -ve. As suggested in this forum, I tried
+reinitialization of variables. However, since y values already obtained are
+</pre></blockquote></blockquote>-ve
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">before they are reinitialized for the next time step, causes mass balance
+error. Infact this error become very large with time. When I account for this
+error on all the grids in final algebra for mass balance, error becomes small
+but still some error existed. The rest of the error comes from the -ve y
+</pre></blockquote></blockquote>values
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">generated in the internal time steps.
+So from CV_NORMAL I had to switch to CV_ONE_STEP. So now I know where the
+</pre></blockquote></blockquote>mass
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">balance error is coming from. Now the question is to correct it.<br>
+ 
+      Assuming two neighboring grids, with local y values as y1 and y2<br>
+respectively which are such that y_i=max(0,global_y)<br>
+ 
+                Flux(y1,y2) = k*(y1+y2)^5/3 * (Abs(y1-y2))<br>
+<br>
+Now, when global y1 &lt; 0, even with some flux contribution to y1 from y2,
+</blockquote></blockquote>global
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">y1 can still remain -ve. depending on magnitude of Flux(y1,y2) from grid 2.
+</blockquote></blockquote>So
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">the flux which came out of grid 2 is wasted in adding water to grid 1 (as
+global y1 is still -ve). Instead it should have been used in increasing
+</pre></blockquote></blockquote>global
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">y1 from 0 to +ve value.So that much amount of water flux is lost. Also errors
+creep in just by doing reinitialization of -ve y's to 0 at each time step.
+</pre></blockquote></blockquote>This
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">contributes to errors and the subsequent solutions get messed up big time
+</blockquote></blockquote>(for
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">certain parameter settings).<br>
+ <br>
+<br>
+</blockquote>In his reply, Paolo suggested that you should first re-evaluating your 
+flux model. Indeed, the first thing to do when unphysical components 
+creep in the solution is to decide whether these are due to a wrong or 
+incomplete mathematical model of the physical phenomenon or if they are 
+due to the numerical solution of the model.<br>
+<br>
+In other words, you first need to ask yourself if, assuming the ODEs 
+were solved *exactly* (infinite precision), your model could ever give 
+negative water levels. If you are convinced that this cannot happen than 
+the negative values come from numerically solving the ODEs (with finite 
+precision). In that case, the size of the negative components should be 
+of the order of the absolute tolerances you have specified. Can you 
+confirm that? The absolute tolerance specifies what you consider to be 
+the noise level and as such, any solution component of magnitude 
+comparable to abstol or less is equivalent to zero as far as the 
+computation is concerned. So, in any output plot or table that you 
+generate, you can just put zero in place of any such component (because 
+*you* decided that they are equivalent to zero when you selected that 
+particular abstol!).<br>
+<br>
+ From the information you provided, I think your model is probably OK if 
+implemented correctly. Using your form for the magnitude of the flux and 
+your sign convention for outflux and influx, how about writing your RHS 
+like so:<br>
+<br>
+<pre style="margin: 0em;">#include &quot;sundialsmath.h&quot;
+#define Ith(v,i) NV_Ith_S(v,i-1)
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  realtype y1, y2, flux, k;</pre><br>
+<pre style="margin: 0em;">  y1 = Ith(y,1);
+  y2 = Ith(y,2);</pre><br>
+<pre style="margin: 0em;">  /* Note that we do NOT modify the N_Vector y,
+     but rather the temporary, local variables y1 and y2 */
+  y1 = (y1&lt;0) ? 0.0 : y1;
+  y2 = (y2&lt;0) ? 0.0 : y2;</pre><br>
+<pre style="margin: 0em;">  /* k some positive constant */
+  k = 1.0;</pre><br>
+<pre style="margin: 0em;"> /* flux -&gt; flux from y1 to y2
+   flux&gt;0 if y1&gt;y2
+   flux&lt;0 if y1&lt;y2
+   flux=0 if y1=y2
+  */
+  flux = k * RPowerR(y1+y2 , 5./3.) * (y1-y2);</pre><br>
+  Ith(ydot,1) = -flux;<br>
+  Ith(ydot,2) = flux;<br>
+ 
+}<br>
+<br>
+As a further refinement, I would consider setting flux=0 if 
+|y1-y2|&lt;abstol (I assume you use a scalar absolute tolerance since all y 
+are similar and thus probably have the same noise level). Translated, 
+this means that if y1 and y2 differ by less than the noise level, they 
+are equal to each other as far as the computation is concerned.<br>
+<br>
+Any negative y1 or y2 values that you would see will have to be smaller 
+in magnitude that the absolute tolerance you specify in CVodeMalloc.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">In order to correct this problem, I have two options</pre><br>
+a) To reinitialize y after every time step (CV_ONE_STEP) for the grid with
+</blockquote></blockquote>-ve y
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">and then modify the y values in the neighboring cells as well. However, due
+</blockquote></blockquote>to
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">logistical problems this is very hard to do.<br>
+ <br>
+<br>
+</blockquote>Changing the y values outside CVode is fine for output purposes (see 
+above), but it would not affect the current solution that CVODE knows 
+about (which is stored internally). Anyway, you should *not* even 
+consider changing the latter.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">b) To write the equations such that I don't get -ve y in the first place. So
+here while running my CVode in CV_ONE_STEP mode I wrote the following code</pre><br>
+<pre style="margin: 0em;">        main()
+        {
+            while(t&lt;TMAX)
+            {
+                T=t;
+                CVode(........,&amp;t,CV_ONE_STEP);
+            }
+        }</pre><br>
+<pre style="margin: 0em;">        f()
+        {
+            /****** This region (below) have been added now *******/
+            If(y1&gt; Flux(y1,...)*(t-T) )
+            /* Note: +ve Flux is going out from y1 to neighbors */
+            {
+                Flux(y1,...)=Flux(y1,y2);
+             }
+            else
+            {
+                Flux(y1,...)=y1/(t-T);
+             }
+             /****** This region (above) have been added now *******/
+             ydot=Flux(y1,y2)
+        }</pre><br>
+<pre style="margin: 0em;">What this was supposed to do is to restrict outward flux depending on the
+availibity of water depth in that grid (similar to discussion in the group).
+</pre></blockquote></blockquote>So
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">total water flow in a particular time step can't be greater than what is<br>
+available on that grid. However I still got -ve y values.<br>
+ <br>
+<br>
+</blockquote>There are many questionable things in the above code snippet. What is 
+the value of the flux used in the if test? Is it saved from the previous 
+RHS evaluation? Also recall that the integration order can be higher 
+than 1 at the time RHS is called, so your 1st order approximation can be 
+very crude...<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">While debugging, I found that for several time steps though y(t-1) is -ve and<br>
+ydot = +ve, solution obtained for the next time step becomes such that y(t) &lt;<br>
+y(t-1). <br>
+<br>
+--&gt; How can this be possible. Because of this perhaps, I still get -ve y
+</blockquote></blockquote>values.
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"> <br>
+<br>
+</blockquote>You seem to think that CVODE only uses a 1st order method (Euler) which 
+is not true. The underlying BDF polynomial can have order higher than 
+one, so what you describe is possible and valid.<br>
+Consider y(t)=t(1-t), t_n = 0, t_{n+1} = 2. Then y(t_n)=0, y'(t_n)=1, 
+y(t_{n+1})=-2. By the way, the sign of y(t_n) is irrelevant.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">   Now, in one earlier discussions on -ve y values, Alan had suggested<br>
+using root finding. However even in that case y obtained is already -ve. More<br>
+so, can we get a snippet for how to use root finding when y gets -ve.<br>
+Meanwhile, I would also like to know your opinion over if the above<br>
+modifications in f() is ok or not and the error discussed above. 
+ <br>
+<br>
+</blockquote>The root finding feature may be useful if your *model* was such that it 
+would lead to some unphysical negative values, in which case you'd want 
+to locate the time where that happens and then adjust the model before 
+proceeding. This does not apply to your case.<br>
+<br>
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Regards,</pre><br>
+Shuangcai<br>
+ <br>
+<br>
+</blockquote><pre style="margin: 0em;">-- Radu</pre><br>
+<pre style="margin: 0em;">--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+<br>  
+  <br>
+<br>
+<pre style="margin: 0em;"><br>Hi Shuangcai,</pre><br>
+<pre style="margin: 0em;">see below...</pre><br>
+<pre style="margin: 0em;">SHUANGCAI LI wrote:</pre><br>
+<pre style="margin: 0em;">  Hello All</pre><br>
+ I am solving a sytem of stiff ODEs y'=f(y,t) where y values denote water
+</blockquote>depth
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">in each grid. I used CVODE in CV_NORMAL mode with GMRES-BDF solver. Many y
+values obtained are found to be -ve. As suggested in this forum, I tried
+reinitialization of variables. However, since y values already obtained are
+</pre></blockquote>-ve
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">before they are reinitialized for the next time step, causes mass balance
+error. Infact this error become very large with time. When I account for this
+error on all the grids in final algebra for mass balance, error becomes small
+but still some error existed. The rest of the error comes from the -ve y
+</pre></blockquote>values
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">generated in the internal time steps.<br>
+So from CV_NORMAL I had to switch to CV_ONE_STEP. So now I know where the mass<br>
+balance error is coming from. Now the question is to correct it.<br>
+  
+       Assuming two neighboring grids, with local y values as y1 and y2<br>
+respectively which are such that y_i=max(0,global_y)<br>
+  
+                 Flux(y1,y2) = k*(y1+y2)^5/3 * (Abs(y1-y2))<br>
+<br>
+Now, when global y1 &lt; 0, even with some flux contribution to y1 from y2,
+</blockquote>global
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">y1 can still remain -ve. depending on magnitude of Flux(y1,y2) from grid 2. So
+the flux which came out of grid 2 is wasted in adding water to grid 1 (as
+global y1 is still -ve). Instead it should have been used in increasing global
+y1 from 0 to +ve value.So that much amount of water flux is lost. Also errors
+creep in just by doing reinitialization of -ve y's to 0 at each time step.
+</pre></blockquote>This
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">contributes to errors and the subsequent solutions get messed up big time (for<br>
+certain parameter settings).<br>
+  <br>
+<br>
+In his reply, Paolo<br>
+suggested that you should first re-evaluating your flux model. Indeed,<br>
+the first thing to do when unphysical components creep in the solution<br>
+is to decide whether these are due to a wrong or incomplete<br>
+mathematical model of the physical phenomenon or if they are due to the<br>
+numerical solution of the model. <br>
+<br>
+<pre style="margin: 0em;">In other words, you first need to ask yourself if, assuming the ODEs
+were solved exactly
+(infinite precision), your model could ever give negative water levels.
+If you are convinced that this cannot happen than the negative values
+come from numerically solving the ODEs (with finite precision). In that
+case, the size of the negative components should be of the order of the
+absolute tolerances you have specified. Can you confirm that? The
+absolute tolerance specifies what you consider to be the noise level
+and as such, any solution component of magnitude comparable to abstol
+or less is equivalent to zero as far as the computation is concerned.
+So, in any output plot or table that you generate, you can just put
+zero in place of any such component (because you decided that
+they are equivalent to zero when you selected that particular abstol!).</pre><br>
+<pre style="margin: 0em;">From the information you provided, I think your model is probably OK if
+implemented correctly. Using your form for the magnitude of the flux
+and your sign convention
+for outflux and influx, how about writing your RHS like so:</pre><br>
+<pre style="margin: 0em;">#include &quot;sundialsmath.h&quot;
+#define Ith(v,i) NV_Ith_S(v,i-1)
+static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  realtype y1, y2, flux, k;</pre><br>
+  y1 = Ith(y,1); 
+  y2 = Ith(y,2); <br>
+<br>
+  /* Note that we do NOT modify the N_Vector y, 
+     but rather the temporary, local variables y1 and y2 */<br>
+  y1 = (y1&lt;0) ? 0.0 : y1;<br>
+  y2 = (y2&lt;0) ? 0.0 : y2;<br>
+<br>
+<pre style="margin: 0em;">  /* k some positive constant */
+  k = 1.0;</pre><br>
+<pre style="margin: 0em;"> /* flux -&gt; flux from y1 to y2
+   flux&gt;0 if y1&gt;y2
+   flux&lt;0 if y1&lt;y2
+   flux=0 if y1=y2
+  */
+  flux = k * RPowerR(y1+y2 ,
+5./3.) * (y1-y2);</pre><br>
+  Ith(ydot,1) = -flux;<br>
+  Ith(ydot,2) = flux;<br>
+  
+}<br>
+<br>
+<pre style="margin: 0em;">As a
+further refinement, I would consider setting flux=0 if
+|y1-y2|&lt;abstol (I assume you use a scalar absolute tolerance since
+all y are similar and thus probably have the same noise level).
+Translated, this means that if y1 and y2 differ by less than the noise
+level, they are equal to each other as far as the computation is
+concerned.</pre><br>
+<pre style="margin: 0em;">Any
+negative y1 or y2 values that you would see will have to be smaller in
+magnitude that the absolute tolerance you specify in CVodeMalloc.</pre><br>
+<pre style="margin: 0em;"><br>  In order to correct this problem, I have two options</pre><br>
+a) To reinitialize y after every time step (CV_ONE_STEP) for the grid with -ve
+</blockquote>y
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">and then modify the y values in the neighboring cells as well. However, due to<br>
+logistical problems this is very hard to do.<br>
+  <br>
+<br>
+<pre style="margin: 0em;">Changing the y values
+outside CVode is fine for output purposes (see above), but it would not
+affect the current solution that CVODE knows about (which is stored
+internally). Anyway, you should not even consider changing the
+latter.</pre><br>
+<pre style="margin: 0em;">  b) To write the equations such that I don't get -ve y in the first place. So
+here while running my CVode in CV_ONE_STEP mode I wrote the following code</pre><br>
+<pre style="margin: 0em;">         main()
+ {
+      while(t&lt;TMAX)
+             {
+         T=t;
+         CVode(........,&amp;t,CV_ONE_STEP);
+     }
+ }</pre><br>
+<pre style="margin: 0em;">         f()
+ {
+     /****** This region (below) have been added now *******/
+     If(y1&gt; Flux(y1,...)*(t-T) )
+             /* Note: +ve Flux is going out from y1 to neighbors */
+     {
+         Flux(y1,...)=Flux(y1,y2);
+              }
+     else
+     {
+  Flux(y1,...)=y1/(t-T);
+      }
+      /****** This region (above) have been added now *******/
+      ydot=Flux(y1,y2)
+ }</pre><br>
+<pre style="margin: 0em;">What this was supposed to do is to restrict outward flux depending on the
+availibity of water depth in that grid (similar to discussion in the group).
+</pre></blockquote>So
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">total water flow in a particular time step can't be greater than what is<br>
+available on that grid. However I still got -ve y values.<br>
+  <br>
+<br>
+<pre style="margin: 0em;">There are many
+questionable things in the above code snippet. What is the value of the
+flux used in the if test? Is it saved from the previous RHS evaluation?
+Also recall that the integration order can be higher than 1 at the time
+RHS is called, so your 1st order approximation can be very crude...</pre><br>
+<br>  While debugging, I found that for several time steps though y(t-1) is -ve
+</blockquote>and
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">ydot = +ve, solution obtained for the next time step becomes such that y(t) &lt;<br>
+y(t-1). <br>
+<br>
+--&gt; How can this be possible. Because of this perhaps, I still get -ve y
+</blockquote>values.
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">  <br>
+<br>
+You seem to think that<br>
+CVODE only uses a 1st order method (Euler) which is not true. The<br>
+underlying BDF polynomial can have order higher than one, so what you<br>
+describe is possible and valid. 
+Consider y(t)=t(1-t), t_n = 0, t_{n+1} = 2. Then y(t_n)=0, y'(t_n)=1,<br>
+y(t_{n+1})=-2. By the way, the sign of y(t_n) is irrelevant. <br>
+<br>
+<br>      Now, in one earlier discussions on -ve y values, Alan had suggested<br>
+using root finding. However even in that case y obtained is already -ve. More<br>
+so, can we get a snippet for how to use root finding when y gets -ve.<br>
+Meanwhile, I would also like to know your opinion over if the above<br>
+modifications in f() is ok or not and the error discussed above. 
+  <br>
+<br>
+<pre style="margin: 0em;">The root finding
+feature may be useful if your model was such that it would lead
+to some unphysical negative values, in which case you'd want to locate
+the time where that happens and then adjust the model before
+proceeding. This does not apply to your case.</pre><br>
+<pre style="margin: 0em;"><br>  Regards,</pre><br>
+Shuangcai<br>
+  <br>
+<br>
+<pre style="margin: 0em;">-- Radu
+--
+   Radu Serban
+   Center for Applied Scientific Computing   [email] radu@llnl.gov
+   Lawrence Livermore National Laboratory    [phone] 925-424-4852
+   P.O. Box 808, L-560                       [fax]   925-422-6287
+   Livermore, CA 94551</pre><br>
+<pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+</blockquote><pre style="margin: 0em;"><br></pre><br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00397" href="msg00397.html">Re: [sundials-users] mass balance and negative values</a></strong>
+<ul><li><em>From:</em> SHUANGCAI LI &lt;sul19@psu.edu&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00400.html">[sundials-users] Suggested annotation to documentation</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00395.html">Re: [sundials-users] Suggested annotation to documentation</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00397.html">Re: [sundials-users] mass balance and negative values</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00359.html">[sundials-users] Notes on controlling unphysical solution components and integrating over discontinuities</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00401">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00401">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
