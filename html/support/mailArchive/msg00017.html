@@ -110,8 +110,8 @@ initial step size (CVodeSetInitStep), keep in mind that the step size before the
 the current method order was at that time and could therefore be too large. Better let CVODE select it.<br>
 --Radu<br>
 <br>
-<tt>Jordan Atlas wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">James,</pre><br>
+Jordan Atlas wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">James,</pre><br>
     As you suggested, I was able to do what I needed by reinitializing 
 the solver using CVodeMalloc(...) and calling CVDense(...).  I still 
 have to take a look at getting the current step size and using that when 

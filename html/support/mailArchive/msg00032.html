@@ -113,8 +113,8 @@ variable-order, variable-step integrator and you want to use it as a fixed-step 
 <br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
-<tt>Jordan Atlas wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+Jordan Atlas wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
 Thank you Yi!  That does explain it an fix the problem --&gt; when I use an 
 appropriate &quot;tout&quot; for the integration it proceeds with a positive time 
 step.<br>
@@ -131,24 +131,24 @@ have a time step size that varies?  I pasted some example code below again.<br>
 <pre style="margin: 0em;">Thank you,
 --Jordan--</pre><br>
 <pre style="margin: 0em;">double tret = 0.0;
-<tt>
+
 for (int steps = 1; steps &lt; 200; steps++)
 {
     flag = CVode(cvode_mem, tret+0.01, y, &amp;tret, CV_ONE_STEP);
-    checkFlag(flag);</tt></pre><br>
-<pre style="margin: 0em;"><tt>    //The step size is constant whether or not I include this line
-    //CVodeSetInitStep(hcur);</tt></pre><br>
-<tt>    flag = CVodeGetIntegratorStats(cvode_mem, &amp;nsteps, &amp;nfevals, 
+    checkFlag(flag);</pre><br>
+<pre style="margin: 0em;">    //The step size is constant whether or not I include this line
+    //CVodeSetInitStep(hcur);</pre><br>
+    flag = CVodeGetIntegratorStats(cvode_mem, &amp;nsteps, &amp;nfevals, 
 &amp;nlinsetups, &amp;netfails,&amp;qlast, &amp;qcur, &amp;hinused, &amp;hlast, &amp;hcur, &amp;tcur);<br>
-    checkFlag(flag);</tt><br>
+    checkFlag(flag);<br>
 <br>
-<tt>    oFile &lt;&lt; tret &lt;&lt; &quot;,&quot; &lt;&lt; NV_Ith_S(y,0) &lt;&lt; &quot;,&quot; &lt;&lt; NV_Ith_S(y,1) &lt;&lt; &quot;,&quot;<br>
+    oFile &lt;&lt; tret &lt;&lt; &quot;,&quot; &lt;&lt; NV_Ith_S(y,0) &lt;&lt; &quot;,&quot; &lt;&lt; NV_Ith_S(y,1) &lt;&lt; &quot;,&quot;<br>
     &lt;&lt; nsteps &lt;&lt; &quot;,&quot; &lt;&lt; nfevals &lt;&lt; &quot;,&quot; &lt;&lt; nlinsetups &lt;&lt; &quot;,&quot; &lt;&lt; netfails 
 &lt;&lt; &quot;,&quot;<br>
     &lt;&lt; qlast &lt;&lt; &quot;,&quot; &lt;&lt; qcur &lt;&lt; &quot;,&quot; &lt;&lt; hinused &lt;&lt; &quot;,&quot; &lt;&lt; hlast &lt;&lt; &quot;,&quot; &lt;&lt; 
-hcur &lt;&lt; &quot;,&quot; &lt;&lt; tcur &lt;&lt; endl;</tt><br>
+hcur &lt;&lt; &quot;,&quot; &lt;&lt; tcur &lt;&lt; endl;<br>
 <br>
-<tt>    if (true)<br>
+    if (true)<br>
     {<br>
         //In this example I'm not actuall making any changes to the 
 dependent variables --- I just want to see what happens to the step size 
@@ -156,7 +156,7 @@ if I ReInit on every step<br>
         flag = CVodeReInit(cvode_mem, f, tret, y, CV_SS, &amp;reltol, &amp;abstol);<br>
         checkFlag(flag);<br>
     }<br>
-}</tt><br>
+}<br>
 <br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>

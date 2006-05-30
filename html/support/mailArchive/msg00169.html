@@ -117,8 +117,8 @@ usual CVode routine (I use the same structure for all these functions).<br>
 <pre style="margin: 0em;">Thanks!
 I'll try tomorrow, but I am sure, that's it!</pre><br>
 <pre style="margin: 0em;">Rainer</pre><br>
-<tt><br>On Mon, 14 Nov 2005, Radu Serban 
-wrote:</tt><br>
+<br>On Mon, 14 Nov 2005, Radu Serban 
+wrote:<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Rainer,</pre><br>
 Hmmm, although it doesn't show in your code snippet, I bet that even when you 
@@ -147,8 +147,8 @@ assume you use the same data structure?)<br>
    }</pre><br>
 <pre style="margin: 0em;">Thanks for spotting this!
 --Radu</pre><br>
-<tt>Rainer Machne wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
+Rainer Machne wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi Radu,</pre><br>
 <pre style="margin: 0em;">I am working with Andrew on the same project.</pre><br>
 Thanks for your detailed explanations. They will help us a lot to select 
 correct pbar values.<br>
@@ -161,7 +161,7 @@ correct pbar values.<br>
 where at least p must be non-NULL. Right?</pre><br>
 <pre style="margin: 0em;"><br>Then, I have an additional problem:
 does the following messages from gdb ring a bell?</pre><br>
-<tt>0x080637ae in CVSensRhs1DQ (Ns=4, t=0, y=0x8a906d0, ydot=0x8a90650, is=0,<br>
+0x080637ae in CVSensRhs1DQ (Ns=4, t=0, y=0x8a906d0, ydot=0x8a90650, is=0,<br>
     yS=0x8aabfc0, ySdot=0x8a92c98, fS_data=0x8aa3120, ytemp=0x8a96ac0,<br>
     ftemp=0x8a96a48) at ./cvodes.c:6501<br>
 6501      pbari = pbar[is];<br>
@@ -174,7 +174,7 @@ is=0,<br>
     fcur=0x8a3d650, yScur=0x8a5bf88, fScur=0x8a5a9b8, temp1=0x8a43ac0,<br>
     temp2=0x8a43a48) at ./cvodes.c:6407<br>
 #2  0x08062919 in CVode (cvode_mem=0x8a3ece0, tout=30, yout=0x8a44148,<br>
-    tret=0x8a455e8, itask=144945160) at ./cvodes.c:1509</tt><br>
+    tret=0x8a455e8, itask=144945160) at ./cvodes.c:1509<br>
 <br>
 <br>Our program runs fine if we provide a Rhs1 function, but we have cases 
 where we cannot provide this function. Find below the code for the two 

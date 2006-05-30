@@ -101,17 +101,17 @@ Fri, 01 Apr 2005 09:16:25 -0500</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>Thank you Yi!  That does explain it an fix the problem --&gt; when I use an 
+Thank you Yi!  That does explain it an fix the problem --&gt; when I use an 
 appropriate &quot;tout&quot; for the integration it proceeds with a positive time 
-step.</tt><br>
+step.<br>
 <br>
-<tt>I have an immediately related question.  In my program, I wanted to use the 
+I have an immediately related question.  In my program, I wanted to use the 
 CV_ONE_STEP mode and then reinitialize cvode after *every* time step.  If I 
 do that, the time step size does not vary, even if I try to reinitialize and 
-then use CVodeSetInitStep(...) for the &quot;current&quot; step size.</tt><br>
+then use CVodeSetInitStep(...) for the &quot;current&quot; step size.<br>
 <br>
-<tt>Is it possible to reinitialize the integrator after every step and still 
-have a time step size that varies?  I pasted some example code below again.</tt><br>
+Is it possible to reinitialize the integrator after every step and still 
+have a time step size that varies?  I pasted some example code below again.<br>
 <br>
 <pre style="margin: 0em;">Thank you,
 --Jordan--</pre><br>
@@ -122,16 +122,16 @@ for (int steps = 1; steps &lt; 200; steps++)
         checkFlag(flag);</pre><br>
 <pre style="margin: 0em;">        //The step size is constant whether or not I include this line
         //CVodeSetInitStep(hcur);</pre><br>
-<tt>	flag = CVodeGetIntegratorStats(cvode_mem, &amp;nsteps, &amp;nfevals, &amp;nlinsetups, 
+	flag = CVodeGetIntegratorStats(cvode_mem, &amp;nsteps, &amp;nfevals, &amp;nlinsetups, 
 &amp;netfails,&amp;qlast, &amp;qcur, &amp;hinused, &amp;hlast, &amp;hcur, &amp;tcur);<br>
-	checkFlag(flag);</tt><br>
+	checkFlag(flag);<br>
 <br>
-<tt>	oFile &lt;&lt; tret &lt;&lt; &quot;,&quot; &lt;&lt; NV_Ith_S(y,0) &lt;&lt; &quot;,&quot; &lt;&lt; NV_Ith_S(y,1) &lt;&lt; &quot;,&quot;<br>
+	oFile &lt;&lt; tret &lt;&lt; &quot;,&quot; &lt;&lt; NV_Ith_S(y,0) &lt;&lt; &quot;,&quot; &lt;&lt; NV_Ith_S(y,1) &lt;&lt; &quot;,&quot;<br>
 	&lt;&lt; nsteps &lt;&lt; &quot;,&quot; &lt;&lt; nfevals &lt;&lt; &quot;,&quot; &lt;&lt; nlinsetups &lt;&lt; &quot;,&quot; &lt;&lt; netfails &lt;&lt; &quot;,&quot;<br>
 	&lt;&lt; qlast &lt;&lt; &quot;,&quot; &lt;&lt; qcur &lt;&lt; &quot;,&quot; &lt;&lt; hinused &lt;&lt; &quot;,&quot; &lt;&lt; hlast &lt;&lt; &quot;,&quot; &lt;&lt; hcur &lt;&lt; 
-&quot;,&quot; &lt;&lt; tcur &lt;&lt; endl;</tt><br>
+&quot;,&quot; &lt;&lt; tcur &lt;&lt; endl;<br>
 <br>
-<tt>	if (true)<br>
+	if (true)<br>
 	{<br>
 		//In this example I'm not actuall making any changes to the dependent 
 variables --- I just want to see what happens to the step size if I ReInit 
@@ -139,11 +139,11 @@ on every step<br>
 		flag = CVodeReInit(cvode_mem, f, tret, y, CV_SS, &amp;reltol, &amp;abstol);<br>
 		checkFlag(flag);<br>
 	}<br>
-}</tt><br>
+}<br>
 <br>
-<tt>_________________________________________________________________<br>
+_________________________________________________________________<br>
 Express yourself instantly with MSN Messenger! Download today - it's FREE! 
-<a  href="http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/">http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/</a></tt><br>
+<a  href="http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/">http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/</a><br>
 <br>
 <br>
 

@@ -102,7 +102,7 @@ Wed, 18 Jan 2006 18:37:28 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Mukesh,</pre><br>
-<tt>Mukesh wrote:</tt>
+Mukesh wrote:
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
 I have two cases for which I am passing void f(integertype N,realtype t, N_Vector y, N_Vector ydot,void *f_data) to CVodeMalloc. 
 </blockquote>
@@ -137,7 +137,7 @@ Hope that this helps,<br>
 --Radu<br>
 
 
-<pre style="margin: 0em;"><tt><br>
+<pre style="margin: 0em;"><br>
 /*
  * -----------------------------------------------------------------
  * First system:
@@ -154,61 +154,61 @@ Hope that this helps,<br>
  *
  * -- Radu Serban @ LLNL --
  * -----------------------------------------------------------------
- */</tt></pre><br>
-<pre style="margin: 0em;"><tt>#include &lt;stdio.h&gt;
+ */</pre><br>
+<pre style="margin: 0em;">#include &lt;stdio.h&gt;
 #include &quot;cvode.h&quot;
 #include &quot;nvector_serial.h&quot;
-#include &quot;cvdense.h&quot;</tt></pre><br>
-<pre style="margin: 0em;"><tt>#define Ith(v,i) NV_Ith_S(v,i-1)</tt></pre><br>
-<pre style="margin: 0em;"><tt>static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);</tt></pre><br>
-<pre style="margin: 0em;"><tt>int main()
+#include &quot;cvdense.h&quot;</pre><br>
+<pre style="margin: 0em;">#define Ith(v,i) NV_Ith_S(v,i-1)</pre><br>
+<pre style="margin: 0em;">static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data);</pre><br>
+<pre style="margin: 0em;">int main()
 {
   int neq1, neq2, flag1, flag2;
   N_Vector y1, y2, abstol1, abstol2;
   void *cvode_mem1, *cvode_mem2;
-  realtype reltol, t0, t1, t;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  reltol = 1.0e-4;
-  t0 = 0.0;   t1 = 0.4;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  flag1 = 1;  flag2 = 2;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  neq1 = 3;
+  realtype reltol, t0, t1, t;</pre><br>
+<pre style="margin: 0em;">  reltol = 1.0e-4;
+  t0 = 0.0;   t1 = 0.4;</pre><br>
+<pre style="margin: 0em;">  flag1 = 1;  flag2 = 2;</pre><br>
+<pre style="margin: 0em;">  neq1 = 3;
   y1 = N_VNew_Serial(neq1);
   abstol1 = N_VNew_Serial(neq1);
   Ith(y1,1) = 1.0;         Ith(y1,2) = 0.0;         Ith(y1,3) = 0.0;
-  Ith(abstol1,1) = 1.0e-8; Ith(abstol1,2) = 1.0e-6; Ith(abstol1,3) = 1.0e-14;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  neq2 = 2;
+  Ith(abstol1,1) = 1.0e-8; Ith(abstol1,2) = 1.0e-6; Ith(abstol1,3) = 1.0e-14;</pre><br>
+<pre style="margin: 0em;">  neq2 = 2;
   y2 = N_VNew_Serial(neq2);
   abstol2 = N_VNew_Serial(neq2);
   Ith(y2,1) = 1.0;         Ith(y2,2) = 0.0;
-  Ith(abstol2,1) = 1.0e-8; Ith(abstol2,2) = 1.0e-6;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  cvode_mem1 = CVodeCreate(CV_BDF, CV_NEWTON);
-  cvode_mem2 = CVodeCreate(CV_BDF, CV_NEWTON);</tt></pre><br>
-<pre style="margin: 0em;"><tt>  CVodeSetFdata(cvode_mem1, &amp;flag1);
-  CVodeSetFdata(cvode_mem2, &amp;flag2);</tt></pre><br>
-<pre style="margin: 0em;"><tt>  CVodeMalloc(cvode_mem1, f, t0, y1, CV_SV, reltol, abstol1);
-  CVodeMalloc(cvode_mem2, f, t0, y2, CV_SV, reltol, abstol2);</tt></pre><br>
-<pre style="margin: 0em;"><tt>  CVDense(cvode_mem1, neq1);
-  CVDense(cvode_mem2, neq2);</tt></pre><br>
-<pre style="margin: 0em;"><tt>  CVode(cvode_mem1, t1, y1, &amp;t, CV_NORMAL);
-  printf(&quot;t = %g  y1=%g  y2=%g  y3=%g\n&quot;,t, Ith(y1,1), Ith(y1,2), Ith(y1,3));</tt></pre><br>
-<pre style="margin: 0em;"><tt>  CVode(cvode_mem2, t1, y2, &amp;t, CV_NORMAL);
-  printf(&quot;t = %g  y1=%g  y2=%g\n&quot;,t, Ith(y2,1), Ith(y2,2));</tt></pre><br>
-<pre style="margin: 0em;"><tt>  N_VDestroy_Serial(y1);  N_VDestroy_Serial(abstol1);  CVodeFree(cvode_mem1);
-  N_VDestroy_Serial(y2);  N_VDestroy_Serial(abstol2);  CVodeFree(cvode_mem2);</tt></pre><br>
-<pre style="margin: 0em;"><tt>  return(0);
-}</tt></pre><br>
-<pre style="margin: 0em;"><tt>static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+  Ith(abstol2,1) = 1.0e-8; Ith(abstol2,2) = 1.0e-6;</pre><br>
+<pre style="margin: 0em;">  cvode_mem1 = CVodeCreate(CV_BDF, CV_NEWTON);
+  cvode_mem2 = CVodeCreate(CV_BDF, CV_NEWTON);</pre><br>
+<pre style="margin: 0em;">  CVodeSetFdata(cvode_mem1, &amp;flag1);
+  CVodeSetFdata(cvode_mem2, &amp;flag2);</pre><br>
+<pre style="margin: 0em;">  CVodeMalloc(cvode_mem1, f, t0, y1, CV_SV, reltol, abstol1);
+  CVodeMalloc(cvode_mem2, f, t0, y2, CV_SV, reltol, abstol2);</pre><br>
+<pre style="margin: 0em;">  CVDense(cvode_mem1, neq1);
+  CVDense(cvode_mem2, neq2);</pre><br>
+<pre style="margin: 0em;">  CVode(cvode_mem1, t1, y1, &amp;t, CV_NORMAL);
+  printf(&quot;t = %g  y1=%g  y2=%g  y3=%g\n&quot;,t, Ith(y1,1), Ith(y1,2), Ith(y1,3));</pre><br>
+<pre style="margin: 0em;">  CVode(cvode_mem2, t1, y2, &amp;t, CV_NORMAL);
+  printf(&quot;t = %g  y1=%g  y2=%g\n&quot;,t, Ith(y2,1), Ith(y2,2));</pre><br>
+<pre style="margin: 0em;">  N_VDestroy_Serial(y1);  N_VDestroy_Serial(abstol1);  CVodeFree(cvode_mem1);
+  N_VDestroy_Serial(y2);  N_VDestroy_Serial(abstol2);  CVodeFree(cvode_mem2);</pre><br>
+<pre style="margin: 0em;">  return(0);
+}</pre><br>
+<pre style="margin: 0em;">static void f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   int *flag;
-  realtype y1, y2, y3, yd1, yd2;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  flag = (int *) f_data;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  y1 = Ith(y,1);
-  y2 = Ith(y,2);</tt></pre><br>
-<pre style="margin: 0em;"><tt>  if (*flag == 1)  y3 = Ith(y,3);
-  else             y3 = -y1-y2+1.0;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  yd1 = Ith(ydot,1) = -0.04*y1 + 1.0e4*y2*y3;
-  yd2 = Ith(ydot,2) = 3.0e7*y3*y3;</tt></pre><br>
-<pre style="margin: 0em;"><tt>  if (*flag == 1)  Ith(ydot,3) = -yd1-yd2;
-}</tt></pre><br>
+  realtype y1, y2, y3, yd1, yd2;</pre><br>
+<pre style="margin: 0em;">  flag = (int *) f_data;</pre><br>
+<pre style="margin: 0em;">  y1 = Ith(y,1);
+  y2 = Ith(y,2);</pre><br>
+<pre style="margin: 0em;">  if (*flag == 1)  y3 = Ith(y,3);
+  else             y3 = -y1-y2+1.0;</pre><br>
+<pre style="margin: 0em;">  yd1 = Ith(ydot,1) = -0.04*y1 + 1.0e4*y2*y3;
+  yd2 = Ith(ydot,2) = 3.0e7*y3*y3;</pre><br>
+<pre style="margin: 0em;">  if (*flag == 1)  Ith(ydot,3) = -yd1-yd2;
+}</pre><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->

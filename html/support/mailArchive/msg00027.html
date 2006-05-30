@@ -102,19 +102,19 @@ Thu, 31 Mar 2005 22:28:17 -0500</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hello,</pre><br>
-<tt>     I'm trying to use CVodeReInit to reinitialize an integration after a 
+     I'm trying to use CVodeReInit to reinitialize an integration after a 
 step change in some of the dependent variables that occurs after some 
 arbitrary length of time.  When I try to use CVodeReInit on a simple system 
 of 2 differential equations using the CV_NORMAL task, it proceeds as 
 expected.  If I use CVodeReInit on the same system while using the 
 CV_ONE_STEP task, I end up having negative step sizes after the integration 
-restarts.</tt><br>
+restarts.<br>
 <br>
-<tt>     Is it possible to reinitialize an integration when you are using 
-CV_ONE_STEP?</tt><br>
+     Is it possible to reinitialize an integration when you are using 
+CV_ONE_STEP?<br>
 <br>
-<tt>    I'll paste some pseudo code below to try and illustrate what I'm doing. 
- Hopefully it helps explain it but please let me know if it's not clear.</tt><br>
+    I'll paste some pseudo code below to try and illustrate what I'm doing. 
+ Hopefully it helps explain it but please let me know if it's not clear.<br>
 <br>
 <pre style="margin: 0em;">Thank you!
 -Jordan</pre><br>
@@ -137,10 +137,10 @@ every</pre><br>
                 }
         }
 }</pre><br>
-<tt>// Using CV_ONE_STEP -- results in negative step sizes after integrator 
+// Using CV_ONE_STEP -- results in negative step sizes after integrator 
 reinitializes<br>
 	double t_init = 0.0;<br>
-	double disctime = 2.0;    // when to have the step change happen</tt><br>
+	double disctime = 2.0;    // when to have the step change happen<br>
 <br>
 <pre style="margin: 0em;">        for (int steps = 1; steps &lt; 200; steps++)
         {
@@ -167,7 +167,7 @@ Reply-To: sundials-users@llnl.gov
 To: sundials-users@llnl.gov
 Subject: Re: changing dependent variable mid-run
 Date: Thu, 17 Mar 2005 12:39:28 -0800</pre><br>
-<tt>Jordan:<br>
+Jordan:<br>
 A couple of points:<br>
 1) To reinitialize CVODE, use CVodeReInit instead of CVodeMalloc, since the 
 problem size remains the same. You do not need to reallocate memory for 
@@ -177,14 +177,14 @@ Although we do provide a function to set the initial step size
 (CVodeSetInitStep), keep in mind that the step size before the 
 reinitialization is based on whatever the current method order was at that 
 time and could therefore be too large. Better let CVODE select it.<br>
---Radu</tt><br>
+--Radu<br>
 <br>
-<tt>Jordan Atlas wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">James,</pre><br>
-<tt>     As you suggested, I was able to do what I needed by reinitializing 
+Jordan Atlas wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">James,</pre><br>
+     As you suggested, I was able to do what I needed by reinitializing 
 the solver using CVodeMalloc(...) and calling CVDense(...).  I still have 
 to take a look at getting the current step size and using that when I 
-reinitialize.  Thanks for the suggestions!</tt><br>
+reinitialize.  Thanks for the suggestions!<br>
 <br>
 <pre style="margin: 0em;">--Jordan--</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">From: James Holloway &lt;hagar@umich.edu&gt;
@@ -192,7 +192,7 @@ Reply-To: sundials-users@llnl.gov
 To: sundials-users@llnl.gov
 Subject: Re: changing dependent variable mid-run
 Date: Thu, 17 Mar 2005 14:16:46 -0500</pre><br>
-<tt>As far as I know, in order to do this you have to reinitialize the 
+As far as I know, in order to do this you have to reinitialize the 
 solver.   The vector y returned by your call to CVode(mem, t, y, 
 &amp;treturn, itask) is not the state vector internally maintained by the 
 solver.   The solver may have proceeded past your integration time t, and 
@@ -200,19 +200,19 @@ is giving you an interpolation back to the time requested, so its
 internal state may already be into the future.    You want to change the 
 internal state of the solver, and this requires initialization.   You 
 might want to get the current internal step size of the solver and use 
-that when you reinitialize.</tt><br>
+that when you reinitialize.<br>
 <br>
 <pre style="margin: 0em;">JPH</pre><br>
 <pre style="margin: 0em;">On Mar 17, 2005, at 1:41 PM, Jordan Atlas wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;"><br>Hello,</pre><br>
-<tt>    Using CVODE integration, is it possible to make step changes in an 
+    Using CVODE integration, is it possible to make step changes in an 
 independent variable between between specific time steps?  For example, 
 if one of the variables is y0, I would like y0 to automatically double 
 (as a step change) every 5 time units, independent of the equation for 
-dy0/dt.</tt><br>
+dy0/dt.<br>
 <br>
-<tt>    In my loop that calls CVode(...), I tried to do this using 
-something like:</tt><br>
+    In my loop that calls CVode(...), I tried to do this using 
+something like:<br>
 <br>
 <pre style="margin: 0em;">               // If the time is less than the time for the step change
     if (tout &gt;= stepTime)
@@ -225,16 +225,16 @@ something like:</tt><br>
 <pre style="margin: 0em;">        stepTime += stepTime;
         N_VPrint_Serial(y);
     }</pre><br>
-<tt>    The print statements show y as doubling, but the changes are not 
+    The print statements show y as doubling, but the changes are not 
 reflected in the time course produced by CVode (elsewhere in the code).  
 Is there anyway to access the independent variable during the 
-integration like this?</tt><br>
+integration like this?<br>
 <br>
 <pre style="margin: 0em;">Thank you,</pre><br>
 <pre style="margin: 0em;">--Jordan Atlas--</pre><br>
-<tt>_________________________________________________________________<br>
+_________________________________________________________________<br>
 Don?t just search. Find. Check out the new MSN Search! 
-<a  href="http://search.msn.click-url.com/go/onm00200636ave/direct/01/">http://search.msn.click-url.com/go/onm00200636ave/direct/01/</a></tt><br>
+<a  href="http://search.msn.click-url.com/go/onm00200636ave/direct/01/">http://search.msn.click-url.com/go/onm00200636ave/direct/01/</a><br>
 <br>
 <br>
 </blockquote><pre style="margin: 0em;">--
@@ -243,9 +243,9 @@ hagar@umich.edu
 734-936-3126
 Preferred Attachment Format: PDF</pre><br>
 <br>
-</blockquote><tt><br>_________________________________________________________________<br>
+</blockquote><br>_________________________________________________________________<br>
 Is your PC infected? Get a FREE online computer virus scan from McAfee&#xAE; 
-Security. <a  href="http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963">http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963</a></tt><br>
+Security. <a  href="http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963">http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963</a><br>
 <br>
 <br>
 </blockquote><pre style="margin: 0em;"><br></pre><br>
@@ -255,9 +255,9 @@ Security. <a  href="http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963">
    Lawrence Livermore National Laboratory    [phone] 925-424-4852
    P.O. Box 808, L-560                       [fax]   925-422-6287
    Livermore, CA 94551
-</pre></blockquote><tt><br>_________________________________________________________________<br>
+</pre></blockquote><br>_________________________________________________________________<br>
 Express yourself instantly with MSN Messenger! Download today - it's FREE! 
-<a  href="http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/">http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/</a></tt><br>
+<a  href="http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/">http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/</a><br>
 <br>
 <br>
 

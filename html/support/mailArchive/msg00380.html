@@ -107,13 +107,13 @@ Fri, 17 Mar 2006 10:26:20 +0100</td>
 <!--X-Body-of-Message-->
 Hi Radu,<br><br><div><br><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">Can you please attach one of your modified Makefiles (for example the one in cvode/fcmix/examples_ser)? Also, could you please indicate what
 <br>&nbsp;&nbsp;SUNDIALS version you use (please post the revision numbers from the comment section at the top of the following files: cvode.h cvode.c<br>fcvode.h fcvode.c)</blockquote><div><br>The modifications refer to using fortran (instead of C) for the linking as discussed before.&nbsp; Please see attached file. The revision numbers are
-<br>cvode.h : $Revision: 1.2 $<br>fcvode.h: *$Revision: 1.2 $<br>cvode.c : $Revision: 1.2 $<br>fcvode.c: $Revision: 
+<br>cvode.h : $Revision: 1.3 $<br>fcvode.h: *$Revision: 1.3 $<br>cvode.c : $Revision: 1.3 $<br>fcvode.c: $Revision: 
 <a href="http://1.39.2.4">1.39.2.4</a> $ <br></div><br><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">&gt; As before, the compilation goes through without complaints, but for some
 <br>&gt; solvers the output from the examples does not compare well with the<br>&gt; output provided. I'm particularly interested in cvode, and more<br>&gt; specifically for mixed fortran/C codes (fcmix). As an example, the
 <br>&gt; output of cvbandf is as follows<br><br>Interesting. I assume you did check the C examples and they work fine, correct? Does cvbx update the solution vector?</blockquote><div><br>Both the serial and the parallel C examples work fine. 
 <br><br>Unfortunately, I didn't have the time to check your suggestion for pinpointing the problem yet.<br></div><br>-Christos.<br></div><br>
 <p><strong>Attachment:
-<a href="binLvHB5fYxZy.bin" ><tt>Makefile</tt></a></strong><br>
+<a href="binLvHB5fYxZy.bin" >Makefile</a></strong><br>
 <em>Description:</em> Binary data</p>
 
 <!--X-Body-of-Message-End-->

@@ -145,7 +145,7 @@ correct pbar values.<br>
 where at least p must be non-NULL. Right?</pre><br>
 <pre style="margin: 0em;"><br>Then, I have an additional problem:
 does the following messages from gdb ring a bell?</pre><br>
-<tt>0x080637ae in CVSensRhs1DQ (Ns=4, t=0, y=0x8a906d0, ydot=0x8a90650, is=0,<br>
+0x080637ae in CVSensRhs1DQ (Ns=4, t=0, y=0x8a906d0, ydot=0x8a90650, is=0,<br>
     yS=0x8aabfc0, ySdot=0x8a92c98, fS_data=0x8aa3120, ytemp=0x8a96ac0,<br>
     ftemp=0x8a96a48) at ./cvodes.c:6501<br>
 6501      pbari = pbar[is];<br>
@@ -158,7 +158,7 @@ is=0,<br>
     fcur=0x8a3d650, yScur=0x8a5bf88, fScur=0x8a5a9b8, temp1=0x8a43ac0,<br>
     temp2=0x8a43a48) at ./cvodes.c:6407<br>
 #2  0x08062919 in CVode (cvode_mem=0x8a3ece0, tout=30, yout=0x8a44148,<br>
-    tret=0x8a455e8, itask=144945160) at ./cvodes.c:1509</tt><br>
+    tret=0x8a455e8, itask=144945160) at ./cvodes.c:1509<br>
 <br>
 <br>Our program runs fine if we provide a Rhs1 function, but we have cases 
 where we cannot provide this function. Find below the code for the two 

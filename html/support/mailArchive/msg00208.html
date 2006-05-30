@@ -116,14 +116,14 @@ reference to `N_VMake_Serial'<br>
 The build is done via distutils and setup.py (its a python extension) and 
 the command this script finally executes (from the DOS command line) is:<br>
 <br>
-<tt>C:\MinGW\bin\gcc.exe -mno-cygwin -shared -s 
+C:\MinGW\bin\gcc.exe -mno-cygwin -shared -s 
 build\temp.win32-2.3\Release\pgfit_datatypes.o 
 build\temp.win32-2.3\Release\pgmodule.o 
 build\temp.win32-2.3\Release\sim_model.o 
 build\temp.win32-2.3\Release\PGModule.def -LE:\sundials\libs &quot;-LE:\Program 
 Files\GnuWin32\lib&quot; -LE:\Python23\libs -LE:\Python23\PCBuild -llibCVode 
 -llibNVector -llibSundialsShared llibgsl -lpython23 -o 
-build\lib.win32-2.3\PGModule.pyd</tt><br>
+build\lib.win32-2.3\PGModule.pyd<br>
 <br>
 I can tell its finding the libraries at least because if I change 
 &quot;-LE:\sundials\libs&quot; to something bogus like &quot;-LE:\sundials\libXXXs&quot; the 

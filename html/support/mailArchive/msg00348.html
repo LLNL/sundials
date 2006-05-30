@@ -104,8 +104,8 @@ Mon, 06 Mar 2006 19:12:36 -0800</td>
 <pre style="margin: 0em;">Dear CW,</pre><br>
 <pre style="margin: 0em;">Have you ever successfully compiled a program using the IBM C/C++ compiler?</pre><br>
 <pre style="margin: 0em;">--Aaron</pre><br>
-<tt>CW Yuan wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+CW Yuan wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
 <pre style="margin: 0em;">I followed Aaron's suggestion, and I feel like I'm
 much closer to a successful compilation now.  So
 here's what I did:</pre><br>
@@ -113,79 +113,79 @@ here's what I did:</pre><br>
      --with-CPPFLAGS=&quot;-I/usr/mill/include&quot; \
      --CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \
      --FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</pre><br>
-<tt>     details shown in &quot;Config_Nano.txt&quot;<br>
+     details shown in &quot;Config_Nano.txt&quot;<br>
 2.  go into sundials/shared/include, open up<br>
 sundialstypes.h and change the definitions from<br>
 DBL_MAX to __DBL_MAX__ (and similarly for the other<br>
 variables) because the /usr/mill/include/float.h file<br>
-defines all such variables as __XXX__. </tt><br>
+defines all such variables as __XXX__. <br>
 <br>
 <pre style="margin: 0em;">3.  go back to /sundials, and &quot;make&quot; and then &quot;make
 install&quot;.  Received lots of warnings, shown in the
 attached &quot;Makes_Nano.txt&quot;.</pre><br>
 <pre style="margin: 0em;">4.  &quot;make examples&quot;.  No error.  Shown in
 &quot;MakeEamples_Nano.txt&quot;.</pre><br>
-<tt>5.  test run ./cvbx and get flag = -4 (MaxSteps<br>
+5.  test run ./cvbx and get flag = -4 (MaxSteps<br>
 reached).  Shown in Cvbx_Output.txt.  Same error for<br>
-all other executable examples.  </tt><br>
+all other executable examples.  <br>
 <br>
 <pre style="margin: 0em;">I'm wondering if someone has a take on this?  Thanks a
 million.</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
-<tt>CW<br>
-  </tt><br>
+CW<br>
+  <br>
 <br>
 <pre style="margin: 0em;">--- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear CW,</pre><br>
-<tt>When using the IBM compilers you must make certain<br>
+When using the IBM compilers you must make certain<br>
 you are including the 
-appropriate header files, so try the following:</tt><br>
+appropriate header files, so try the following:<br>
 <br>
 <pre style="margin: 0em;">   $ configure CC=xlc F77=xlf \
      CPPFLAGS=&quot;-I/usr/mill/include&quot; \
      CFLAGS=&quot;-qarch=auto -qtune=auto&quot; \
      FFLAGS=&quot;-qarch=auto -qtune=auto&quot;</pre><br>
-<tt>Note: According to the ANSI-C Standard, the constant<br>
+Note: According to the ANSI-C Standard, the constant<br>
 DBL_MAX should be 
-defined in float.h.</tt><br>
+defined in float.h.<br>
 <br>
 <pre style="margin: 0em;">--Aaron</pre><br>
-<tt>CW Yuan wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Aaron and Radu,</pre><br>
+CW Yuan wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear Aaron and Radu,</pre><br>
 <pre style="margin: 0em;">I've tried to use the configure options:
 CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto
-</pre></blockquote><tt>-qtune=auto&quot;
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">\
+</pre></blockquote>-qtune=auto&quot;
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">\
 --with-fflags=&quot;-qarch=auto -qtune=auto&quot;</pre><br>
-<tt>(I didn't specify mpicc and mpif77 b/c the
-</tt></blockquote><tt>configure
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>script finds the correct mpi compiling scripts,
-</tt></blockquote><tt>which
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">specifies xlc and xlf within them.)</pre><br>
-<tt>However, we've encountered errors when compiling.
-</tt></blockquote><tt>I've
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>attached the error log with this message (those
-</tt></blockquote><tt>errors
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>were the reason why we tried to used gcc and g77
-</tt></blockquote><tt>in
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>the first place). The error log seems to indicate
-</tt></blockquote><tt>two
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">types of error. 1) syntax error related to
+(I didn't specify mpicc and mpif77 b/c the
+</blockquote>configure
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">script finds the correct mpi compiling scripts,
+</blockquote>which
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">specifies xlc and xlf within them.)</pre><br>
+However, we've encountered errors when compiling.
+</blockquote>I've
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">attached the error log with this message (those
+</blockquote>errors
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">were the reason why we tried to used gcc and g77
+</blockquote>in
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">the first place). The error log seems to indicate
+</blockquote>two
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">types of error. 1) syntax error related to
 usr/include/bits/mathcalls.h and 2) undeclared
 identifier DBL_MAX when compiling
-</pre></blockquote><tt>nvector_parallel.c.
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hopefully you can shed some light.</pre><br>
+</pre></blockquote>nvector_parallel.c.
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hopefully you can shed some light.</pre><br>
 <pre style="margin: 0em;">thanks so much,</pre><br>
 <pre style="margin: 0em;">-CW</pre><br>
 <pre style="margin: 0em;">--- Aaron Collier &lt;collier6@llnl.gov&gt; wrote:</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Dear CW,</pre><br>
-<tt>You should not use &quot;pwr3&quot; since your system is
-</tt></blockquote></blockquote><tt>based
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>on the PowerPC 
+You should not use &quot;pwr3&quot; since your system is
+</blockquote></blockquote>based
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">on the PowerPC 
 architecture and not on the POWER hardware
-</tt></blockquote></blockquote><tt>platform.
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt> You could try the 
-following:</tt><br>
+</blockquote></blockquote>platform.
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"> You could try the 
+following:<br>
 <br>
 <pre style="margin: 0em;">  $ CC=xlc F77=xlf --with-cflags=&quot;-qarch=auto
 -qtune=auto&quot; \
@@ -193,94 +193,94 @@ following:</tt><br>
     --with-mpicc=mpcc \
     --with-mpif77=mpxlf</pre><br>
 <pre style="margin: 0em;">--Aaron</pre><br>
-<tt>Radu Serban wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>CW wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
-<tt>I'm trying in agony to compile the Sundials
-</tt></blockquote></blockquote><tt>package (especially the 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>parallel code) onto our cluster. Heres a
-</tt></blockquote></blockquote><tt>description of the hardware 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">from the &quot;uname -a&quot; command:</pre><br>
-<tt>Linux nano 2.6.15-1.1969_FC5 #1 SMP Sun Feb 19
-</tt></blockquote></blockquote><tt>05:14:37 EST 2006 ppc64 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">ppc64 ppc64 GNU/Linux</pre><br>
-<tt>I've attached the screen messages copied from
-</tt></blockquote></blockquote></blockquote></blockquote><tt>the
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>terminal after I 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">perform
+Radu Serban wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">CW wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hello,</pre><br>
+I'm trying in agony to compile the Sundials
+</blockquote></blockquote>package (especially the 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">parallel code) onto our cluster. Heres a
+</blockquote></blockquote>description of the hardware 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">from the &quot;uname -a&quot; command:</pre><br>
+Linux nano 2.6.15-1.1969_FC5 #1 SMP Sun Feb 19
+</blockquote></blockquote>05:14:37 EST 2006 ppc64 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">ppc64 ppc64 GNU/Linux</pre><br>
+I've attached the screen messages copied from
+</blockquote></blockquote></blockquote></blockquote>the
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">terminal after I 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">perform
 /config CC=gcc F77=g77
 make
 make install
 make examples</pre><br>
-<tt>But I think I've pretty much nailed down the
-</tt></blockquote></blockquote><tt>source of the problem, 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>pending your approval. After I changed the
-</tt></blockquote></blockquote><tt>compilers to gcc and gcc, I 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>was able to compile the serial codes to get the
-</tt></blockquote></blockquote><tt>serial library files 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>and create the serial examples. But I couldn't
-</tt></blockquote></blockquote></blockquote></blockquote><tt>do
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>that with the 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>parallel codes because the parallel codes are
-</tt></blockquote></blockquote><tt>compiled with the 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>&quot;mpicc&quot; and &quot;mpif77&quot; scripts, which use &quot;xlc&quot;
-</tt></blockquote></blockquote></blockquote></blockquote><tt>and
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>&quot;xlf&quot; (IBM c/fortran 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>compilers, scripts attached) to compile the
-</tt></blockquote></blockquote><tt>codes. Hence I get error 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>messages in the when I &quot;make&quot; and &quot;make
-</tt></blockquote></blockquote><tt>examples&quot;.
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>I wonder if there's some incompatibility
-</tt></blockquote></blockquote></blockquote></blockquote><tt>between
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Sundials and xlc/xlf? 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>If my assessment of the problem is wrong, what
-</tt></blockquote></blockquote><tt>would be your take?
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Thank you very much.</pre><br>
+But I think I've pretty much nailed down the
+</blockquote></blockquote>source of the problem, 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">pending your approval. After I changed the
+</blockquote></blockquote>compilers to gcc and gcc, I 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">was able to compile the serial codes to get the
+</blockquote></blockquote>serial library files 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">and create the serial examples. But I couldn't
+</blockquote></blockquote></blockquote></blockquote>do
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">that with the 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">parallel codes because the parallel codes are
+</blockquote></blockquote>compiled with the 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">&quot;mpicc&quot; and &quot;mpif77&quot; scripts, which use &quot;xlc&quot;
+</blockquote></blockquote></blockquote></blockquote>and
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">&quot;xlf&quot; (IBM c/fortran 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">compilers, scripts attached) to compile the
+</blockquote></blockquote>codes. Hence I get error 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">messages in the when I &quot;make&quot; and &quot;make
+</blockquote></blockquote>examples&quot;.
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">I wonder if there's some incompatibility
+</blockquote></blockquote></blockquote></blockquote>between
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Sundials and xlc/xlf? 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">If my assessment of the problem is wrong, what
+</blockquote></blockquote>would be your take?
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Thank you very much.</pre><br>
 <pre style="margin: 0em;">Sincerely yours,</pre><br>
-<tt>CW
-</tt></blockquote><pre style="margin: 0em;">CW,</pre><br>
-<tt>A quick Google search will show that there are
-</tt></blockquote><tt>several incompatibilities 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>between gcc and xlc, which is apparently what
-</tt></blockquote><tt>happens in your case (look 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>at the compilation errors for nvec_par in your
-</tt></blockquote><tt>Sundials_make.txt file. 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>Most of the subsequent errors you see in
-</tt></blockquote></blockquote></blockquote><tt>compiling
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>the parallel examples 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>come from the fact that nvec_par was not
-</tt></blockquote><tt>installed!).
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>That being said, there is no incompatibility
-</tt></blockquote><tt>between SUNDIALS and 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>xlc/xlf. SUNDIALS has been compiled on AIX
-</tt></blockquote></blockquote></blockquote><tt>without
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>problems. however, we 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">do not mix gcc and xlc.</pre><br>
-<tt>Is there any reason why you do not use CC=xlc
-</tt></blockquote></blockquote></blockquote><tt>and
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>F77=xlf? FYI, here's a 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>set of configure options that we used to build
-</tt></blockquote><tt>SUNDIALS with xlc/xlf. 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Try them out:</pre><br>
-<tt>CC=xlc F77=xlf --with-cflags=&quot;-qarch=pwr3
-</tt></blockquote><tt>-qtune=pwr3 -qmaxmem=8192&quot; 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt>--with-fflags=&quot;-qarch=pwr3 -qtune=pwr3
-</tt></blockquote><tt>-qmaxmem=8192&quot; --with-mpicc=mpcc 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">--with-mpif77=mpxlf</pre><br>
+CW
+</blockquote><pre style="margin: 0em;">CW,</pre><br>
+A quick Google search will show that there are
+</blockquote>several incompatibilities 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">between gcc and xlc, which is apparently what
+</blockquote>happens in your case (look 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">at the compilation errors for nvec_par in your
+</blockquote>Sundials_make.txt file. 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">Most of the subsequent errors you see in
+</blockquote></blockquote></blockquote>compiling
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">the parallel examples 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">come from the fact that nvec_par was not
+</blockquote>installed!).
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">That being said, there is no incompatibility
+</blockquote>between SUNDIALS and 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">xlc/xlf. SUNDIALS has been compiled on AIX
+</blockquote></blockquote></blockquote>without
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">problems. however, we 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">do not mix gcc and xlc.</pre><br>
+Is there any reason why you do not use CC=xlc
+</blockquote></blockquote></blockquote>and
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">F77=xlf? FYI, here's a 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">set of configure options that we used to build
+</blockquote>SUNDIALS with xlc/xlf. 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Try them out:</pre><br>
+CC=xlc F77=xlf --with-cflags=&quot;-qarch=pwr3
+</blockquote>-qtune=pwr3 -qmaxmem=8192&quot; 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">--with-fflags=&quot;-qarch=pwr3 -qtune=pwr3
+</blockquote>-qmaxmem=8192&quot; --with-mpicc=mpcc 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">--with-mpif77=mpxlf</pre><br>
 <pre style="margin: 0em;">--Radu</pre><br>
 <br>
 </blockquote></blockquote><pre style="margin: 0em;">__________________________________________________
 Do You Yahoo!?
 Tired of spam?  Yahoo! Mail has the best spam
-</pre></blockquote><tt>protection around 
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><tt><a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> 
-</tt></blockquote></blockquote><tt><br>__________________________________________________<br>
+</pre></blockquote>protection around 
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> 
+</blockquote></blockquote><br>__________________________________________________<br>
 Do You Yahoo!?<br>
 Tired of spam?  Yahoo! Mail has the best spam protection around 
-<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> </tt><br>
+<a  href="http://mail.yahoo.com">http://mail.yahoo.com</a> <br>
 <br>
 <pre style="margin: 0em;"><br>------------------------------------------------------------------------</pre><br>
-<tt>-bash-3.1$ ./configure CC=xlc F77=xlf --with-cppflags=&quot;-I/usr/mill/include&quot;<br>
+-bash-3.1$ ./configure CC=xlc F77=xlf --with-cppflags=&quot;-I/usr/mill/include&quot;<br>
 --with-cflags=&quot;-qarch=auto -qtune=auto&quot; --with-fflags=&quot;-qarch=auto -qtune=au<br>
 to&quot;<br>
  
@@ -443,7 +443,7 @@ Examples:<br>
 Finished SUNDIALS Configure Script<br>
 ----------------------------------<br>
  
--bash-3.1$</tt><br>
+-bash-3.1$<br>
 <br>
 <pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;">------------------------------------------------------------------------</pre><br>
@@ -1764,7 +1764,7 @@ register specifier is unexpected and is ignored.
 echo timestamp &gt; fcvewt.lo
 make[1]: Leaving directory 
 `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'</pre><br>
-<tt>bash-3.1$ make install<br>
+bash-3.1$ make install<br>
 Installing nvec_ser...<br>
 make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'<br>
 /usr/bin/install -c -m 644 ..//config/sundials_config.h .<br>
@@ -1783,7 +1783,7 @@ chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecserial.a
 PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 ----------------------------------------------------------------------<br>
 Libraries have been installed in:<br>
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 <br>
 <pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -1795,7 +1795,7 @@ flag during linking and do at least one of the following:
      during linking
    - use the `--rpath LIBDIR' linker flag
    - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
-<tt>See any operating system documentation about shared libraries for<br>
+See any operating system documentation about shared libraries for<br>
 more information, such as the ld(1) and ld.so(8) manual pages.<br>
 ----------------------------------------------------------------------<br>
 /usr/bin/install -c -m 644 ./nvector_serial.h /home/nano/dcchrzan/chunwei/temp/sundials/include<br>
@@ -1813,7 +1813,7 @@ chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecserial.
 PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 ----------------------------------------------------------------------<br>
 Libraries have been installed in:<br>
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 <br>
 <pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -1829,7 +1829,7 @@ flag during linking and do at least one of the following:
 more information, such as the ld(1) and ld.so(8) manual pages.
 ----------------------------------------------------------------------
 make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_ser'</pre><br>
-<tt>Installing nvec_par...<br>
+Installing nvec_par...<br>
 make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'<br>
 /usr/bin/install -c -m 644 ..//config/sundials_config.h .<br>
 /bin/sh ..//libtool --mode=link /usr/mill/bin/mpicc -g -qarch=auto -qtune=auto  -o libsundials_nvecparallel.la nvector_parallel.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib -lm   -avoid-version<br>
@@ -1847,7 +1847,7 @@ chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_nvecparallel
 PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 ----------------------------------------------------------------------<br>
 Libraries have been installed in:<br>
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 <br>
 <pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -1859,7 +1859,7 @@ flag during linking and do at least one of the following:
      during linking
    - use the `--rpath LIBDIR' linker flag
    - have your system administrator add LIBDIR to `/etc/ld.so.conf'</pre><br>
-<tt>See any operating system documentation about shared libraries for<br>
+See any operating system documentation about shared libraries for<br>
 more information, such as the ld(1) and ld.so(8) manual pages.<br>
 ----------------------------------------------------------------------<br>
 /usr/bin/install -c -m 644 ./nvector_parallel.h /home/nano/dcchrzan/chunwei/temp/sundials/include<br>
@@ -1877,7 +1877,7 @@ chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fnvecparalle
 PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 ----------------------------------------------------------------------<br>
 Libraries have been installed in:<br>
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 <br>
 <pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -1893,7 +1893,7 @@ flag during linking and do at least one of the following:
 more information, such as the ld(1) and ld.so(8) manual pages.
 ----------------------------------------------------------------------
 make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/nvec_par'</pre><br>
-<tt>Installing shared/source...<br>
+Installing shared/source...<br>
 make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'<br>
 /usr/bin/install -c -m 644 ../..//config/sundials_config.h .<br>
 /bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o libsundials_shared.la band.lo dense.lo iterative.lo sundialsmath.lo nvector.lo smalldense.lo spgmr.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib -lm  -avoid-version<br>
@@ -1911,7 +1911,7 @@ chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_shared.a<br>
 PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 ----------------------------------------------------------------------<br>
 Libraries have been installed in:<br>
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 <br>
 <pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -1946,7 +1946,7 @@ more information, such as the ld(1) and ld.so(8) manual pages.
 /home/nano/dcchrzan/chunwei/temp/sundials/include
 make[1]: Leaving directory 
 `/home/nano/dcchrzan/chunwei/temp/sundials/shared/source'</pre><br>
-<tt>Installing cvode/source...<br>
+Installing cvode/source...<br>
 make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'<br>
 /usr/bin/install -c -m 644 ../..//config/sundials_config.h .<br>
 /bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o libsundials_cvode.la cvode.lo cvodeio.lo cvband.lo cvdense.lo cvdiag.lo cvspgmr.lo cvbandpre.lo cvbbdpre.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib  -lm  -avoid-version<br>
@@ -1964,7 +1964,7 @@ chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_cvode.a<br>
 PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 ----------------------------------------------------------------------<br>
 Libraries have been installed in:<br>
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 <br>
 <pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -1995,7 +1995,7 @@ more information, such as the ld(1) and ld.so(8) manual pages.
 /home/nano/dcchrzan/chunwei/temp/sundials/include
 make[1]: Leaving directory 
 `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/source'</pre><br>
-<tt>Installing cvode/fcmix...<br>
+Installing cvode/fcmix...<br>
 make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'<br>
 /usr/bin/install -c -m 644 ../..//config/sundials_config.h .<br>
 /bin/sh ../..//libtool --mode=link /usr/mill/bin/xlc -g -qarch=auto -qtune=auto -o libsundials_fcvode.la fcvode.lo fcvband.lo fcvdense.lo fcvjtimes.lo fcvpreco.lo fcvbbd.lo fcvbp.lo fcvroot.lo fcvewt.lo -rpath /home/nano/dcchrzan/chunwei/temp/sundials/lib  -lm  -static -avoid-version<br>
@@ -2013,7 +2013,7 @@ chmod 644 /home/nano/dcchrzan/chunwei/temp/sundials/lib/libsundials_fcvode.a<br>
 PATH=&quot;$PATH:/sbin&quot; ldconfig -n /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 ----------------------------------------------------------------------<br>
 Libraries have been installed in:<br>
-   /home/nano/dcchrzan/chunwei/temp/sundials/lib</tt><br>
+   /home/nano/dcchrzan/chunwei/temp/sundials/lib<br>
 <br>
 <pre style="margin: 0em;">If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -2031,7 +2031,7 @@ more information, such as the ld(1) and ld.so(8) manual pages.
 make[1]: Leaving directory 
 `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix'</pre><br>
 <pre style="margin: 0em;"><br>------------------------------------------------------------------------</pre><br>
-<tt>bash-3.1$ make examples<br>
+bash-3.1$ make examples<br>
 Making examples in cvode/examples_ser...<br>
 make[1]: Entering directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/examples_ser'<br>
 make[1]: Nothing to be done for `all'.<br>
@@ -2115,10 +2115,10 @@ Updating pvdiagkbf.f...<br>
 /usr/mill/bin/mpicc -o ./pvdiagkbf ./pvdiagkbf-updated.o   -L/home/nano/dcchrzan/chunwei/temp/sundials/lib -lsundials_fcvode -lsundials_cvode -lsundials_fnvecparallel -lsundials_nvecparallel -lsundials_shared -L/usr/mill/bin/../lib  -lm  -L/opt/ibmcmp/xlsmp/1.5/lib -L/opt/ibmcmp/xlmass/4.1/lib -L/opt/ibmcmp/xlf/9.1/lib -R/opt/ibmcmp/lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../../../lib -L/usr/lib/gcc-lib/ppc64-redhat-linux/3.2.3/../../.. -L/lib/../lib -L/usr/lib/../lib<br>
 -lm -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lrt -lpthread<br>
 make[1]: Leaving directory `/home/nano/dcchrzan/chunwei/temp/sundials/cvode/fcmix/examples_par'<br>
- </tt><br>
+ <br>
 <br>
 <pre style="margin: 0em;"><br>------------------------------------------------------------------------</pre><br>
-<tt>bash-3.1$ ./cvbx<br>
+bash-3.1$ ./cvbx<br>
  
 2-D Advection-Diffusion Equation<br>
 Mesh dimensions = 10 X 5<br>
@@ -2135,7 +2135,7 @@ SUNDIALS_ERROR: CVode() failed with flag = -4<br>
 Final Statistics:<br>
 nst = 500    nfe  = 528    nsetups = 25     nfeB = 0      njeB = 9<br>
 nni = 525    ncfn = 0      netf = 0
-</tt></blockquote><br>
+</blockquote><br>
 
 <!--X-Body-of-Message-End-->
 <!--X-MsgBody-End-->

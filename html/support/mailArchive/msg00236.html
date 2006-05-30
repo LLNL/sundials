@@ -116,8 +116,8 @@ The thread on the postings was &quot;Difficulty building sundials on windows&quo
 you want to look them over.<br>
 <br>
 <pre style="margin: 0em;">-mike</pre><br>
-<tt><br>At 10:10 PM 1/20/2006, you wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
+<br>At 10:10 PM 1/20/2006, you wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
 Hi,<br>
      I am having some problems installing Sundials(the latest version). I 
 am working on a Windows platform and using Cygwin. When i run the &quot;make&quot; 
@@ -126,21 +126,21 @@ not creating some directories..but i am not sure which ones and how to
 rectify them.<br>
 I am getting the following error :<br>
 <br>
-<tt>c:\Dev-Cpp\bin\make.exe[1]: Entering directory `c:/DES/sundials/nvec_ser'<br>
+c:\Dev-Cpp\bin\make.exe[1]: Entering directory `c:/DES/sundials/nvec_ser'<br>
 /usr/bin/install -c -m 644 ..//config/sundials_config.h .<br>
 process_begin: CreateProcess((null), /usr/bin/install -c -m 644 
 ..//config/sundi<br>
 als_config.h ., ...) failed.<br>
 make (e=3): The system cannot find the path specified.<br>
 c:\Dev-Cpp\bin\make.exe[1]: *** [update] Error 3<br>
-c:\Dev-Cpp\bin\make.exe[1]: Leaving directory `c:/DES/sundials/nvec_ser'</tt><br>
+c:\Dev-Cpp\bin\make.exe[1]: Leaving directory `c:/DES/sundials/nvec_ser'<br>
 <br>
 <pre style="margin: 0em;">=============================================================</pre><br>
 I guess the above error is because coniguration script is not creating 
 some directories, but i am not sure.The following is the log from the 
 configuration script:<br>
 <br>
-<tt><br>checking build system type... i686-pc-cygwin<br>
+<br>checking build system type... i686-pc-cygwin<br>
 checking host system type... i686-pc-cygwin<br>
 checking whether make sets $(MAKE)... ./configure: eval: line 1666: 
 unexpected E<br>
@@ -202,7 +202,7 @@ checking for f77... no<br>
 checking for g77... no<br>
 checking whether we are using the GNU Fortran 77 compiler... no<br>
 checking whether  accepts -g... no<br>
-configure: WARNING: cannot find Fortran compiler</tt><br>
+configure: WARNING: cannot find Fortran compiler<br>
 <br>
 <pre style="margin: 0em;">   Unable to find a functional Fortran compiler.</pre><br>
 <pre style="margin: 0em;">   Disabling Fortran support...</pre><br>
@@ -215,7 +215,7 @@ configure: WARNING: cannot find MPI-C compiler</pre><br>
    --with-mpi-root to specify the base installation directory
    of the MPI implementation to be used.</pre><br>
 <pre style="margin: 0em;">   Disabling the parallel NVECTOR module and all parallel examples...</pre><br>
-<tt>checking for ld used by GCC... c:/Dev-Cpp/mingw32/bin/ld.exe<br>
+checking for ld used by GCC... c:/Dev-Cpp/mingw32/bin/ld.exe<br>
 checking if the linker (c:/Dev-Cpp/mingw32/bin/ld.exe) is GNU ld... yes<br>
 checking for c:/Dev-Cpp/mingw32/bin/ld.exe option to reload object 
 files... -r<br>
@@ -273,7 +273,7 @@ config.status: creating kinsol/fcmix/Makefile<br>
 config.status: creating kinsol/examples_ser/Makefile<br>
 config.status: creating config/sundials_config.h<br>
 config.status: creating config.h<br>
-config.status: config.h is unchanged</tt><br>
+config.status: config.h is unchanged<br>
 <br>
 <pre style="margin: 0em;">------------------------------
 SUNDIALS Configuration Summary
@@ -298,7 +298,7 @@ SUNDIALS Configuration Summary
 <pre style="margin: 0em;">Examples:
 ---------</pre><br>
 <pre style="margin: 0em;">  Type 'make examples' to build the following examples:</pre><br>
-<tt>            SERIAL    PARALLEL<br>
+            SERIAL    PARALLEL<br>
           ---------------------<br>
  C       |    YES   |    NO    |<br>
           ---------------------<br>
@@ -307,7 +307,7 @@ SUNDIALS Configuration Summary
 ----------------------------------<br>
 Finished SUNDIALS Configure Script<br>
 --------------------------------<br>
-</tt>
+
 =======================================================================<br><br>
 It would be great if you could please provide me some insight into how to 
 rectify this problem.<br>

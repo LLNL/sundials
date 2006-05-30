@@ -114,10 +114,10 @@ NATCO</pre><br>
     I have (I believe) compiled the libraries in windows using VC++ 
 6.0.  When I try to run any of the examples, I get the following error:<br>
 <br>
-<tt>D:\...cvdemd.c(757) : error C2440: '=' : cannot convert from 'void *' 
+D:\...cvdemd.c(757) : error C2440: '=' : cannot convert from 'void *' 
 to 'int *'<br>
        Conversion from 'void*' to pointer to non-'void' requires an 
-explicit cast</tt><br>
+explicit cast<br>
 <br>
 This occures on line 757 of cvdemd.c, or on the corresponding line of 
 the other test files.  The offending expression is:<br>
@@ -155,10 +155,10 @@ libsundials_shared.lib).  Then, I added the directories for whatever
 other headers it asked for to the include path.<br>
 <br>
 <pre style="margin: 0em;">When I try to run any of the serial examples, I get the following error:</pre><br>
-<tt>D:...\cvode_test.cpp(772) : error C2440: '=' : cannot convert from 
+D:...\cvode_test.cpp(772) : error C2440: '=' : cannot convert from 
 'void *' to 'int *'<br>
        Conversion from 'void*' to pointer to non-'void' requires an 
-explicit cast</tt><br>
+explicit cast<br>
 <br>
 I'm still not sure if this is a result of compiling the libraries 
 incorrectly, so I'm going to try writing my own example using the 

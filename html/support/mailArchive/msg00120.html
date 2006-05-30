@@ -101,8 +101,8 @@ Fri, 02 Sep 2005 09:02:57 -0700</td>
 <div class="container">
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
-<tt>nwew wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
+nwew wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">Hi,</pre><br>
 <pre style="margin: 0em;">Sorry for bothering but I have a Problem installing Sundials,
 I have downloaded sundials_ser
 and run:</pre><br>
@@ -124,13 +124,13 @@ Eryk</pre><br>
 I'm not quite sure why this happens (what version of SUNDIALS do you use?), but apparently configure did not create the 
 include and lib directories under /data/opt/sundials.<br>
 The easiest fix is to create them yourself before running configure:<br>
-<pre><tt>
+<pre>
   % cd /data/opt/sundials
   % mkdir lib include
   % ./configure --prefix=/data/opt/sundials
   % make
   % make install
-  % make examples</tt></pre><br>
+  % make examples</pre><br>
 After make install, verify that the directory /data/opt/sundials/include contains a bunch of *.h files and that the 
 /data/opt/sundials/lib directory has all library files.<br>
 <br>

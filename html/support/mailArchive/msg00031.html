@@ -119,12 +119,12 @@ does not step exactly to tout -- well, unless you set tstop=tout using CVodeSetS
 <br>
 <br>
 <pre style="margin: 0em;">
-<tt>
+
 t0____t1_____t2_______t3________t4_________________t5_________tout________t6_________
  |     |      |        |         |                  |                      |
  |     |      |        |         |                  |                      |
    h1    h2      h3         h4            h5                   h6
-</tt></pre><br>
+</pre><br>
 <pre style="margin: 0em;"><br>(A) Now, say you want to get the solution at tout using NORMAL mode. Your 
 code will look something like this</pre><br>
 <pre style="margin: 0em;">--------------------------------------------------------------------------
@@ -221,8 +221,8 @@ do {
 <pre style="margin: 0em;"><br>I hope this helps -- Radu</pre><br>
 <pre style="margin: 0em;"><br></pre><br>
 <pre style="margin: 0em;"><br></pre><br>
-<tt>Cao, Yi wrote:
-</tt><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">It seems that in you CV_NORMAL code, tout is increasing. Hence after
+Cao, Yi wrote:
+<blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">It seems that in you CV_NORMAL code, tout is increasing. Hence after
 CVodeReInit, you still have tout &gt; tret (which becomes new initial
 time), so still get positive steps. But in CV_ONE_STEP code, t_init is
 fixed. At some stage, t_init+0.01 &lt; tret, you will get a negative step.</pre><br>
@@ -365,8 +365,8 @@ independent of the equation for dy0/dt.<br>
    In my loop that calls CVode(...), I tried to do this using 
 something like:<br>
 <br>
-<tt>              // If the time is less than the time for the step
-</tt></blockquote></blockquote></blockquote></blockquote><pre style="margin: 0em;"><br>change</pre><br>
+              // If the time is less than the time for the step
+</blockquote></blockquote></blockquote></blockquote><pre style="margin: 0em;"><br>change</pre><br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em"><pre style="margin: 0em;">   if (tout &gt;= stepTime)
    {
        N_VPrint_Serial(y);</pre><br>

@@ -1,0 +1,270 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Arbitrary precision for sundials solvers? -->
+<!--X-From-R13: Ynv Vnegznaa <Ynv.VnegznaaNhav&#45;xbrya.qr> -->
+<!--X-Date: Wed, 12 Apr 2006 07:37:24 &#45;0700 (PDT) -->
+<!--X-Message-Id: 443D1013.7030905@Uni&#45;Koeln.De -->
+<!--X-Content-Type: text/plain -->
+<!--X-Reference: 6BBF14CC0A5E6845929616D28E450E2E8659F1@sasdmsg02.sasol.com -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Arbitrary precision for sundials solvers?</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00434.html">Date Prev</a>] [<a href="msg00436.html">Date Next</a>] [<a href="msg00434.html">Thread Prev</a>] [<a href="msg00436.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00435">Date Index</a></b>]
+[<b><a href="threads.html#00435">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Arbitrary precision for sundials solvers?</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+Kai Hartmann &lt;<a href="mailto:Kai.Hartmann%40uni-koeln.de">Kai.Hartmann@uni-koeln.de</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Wed, 12 Apr 2006 16:34:59 +0200</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hi Robin,
+
+I also had that in mind some time ago. I thought of it like that:
+
+dy/dt = a*lny - b
+
+z = lny &lt;=&gt; y = exp(z)
+
+dy/dt = dz/dt*exp(z)
+
+=&gt; dz/dt = exp(-z)*(a*z-b)
+
+This leads to the same problem, doesn't it? Well, I tested it and it
+gave exactly the same result.
+
+Did I make mistake?
+
+Kai
+
+
+Jordi, Robin (RG) schrieb:
+&gt;<i> Dear Kai,</i>
+&gt;<i> </i>
+&gt;<i> Why don't you transform the equation using an exponential transform.</i>
+&gt;<i> Eq: Anew = ln(A), Bnew = ln(B) etc. This removes the logs and you solve</i>
+&gt;<i> for the logarithm of the concentrations in question.</i>
+&gt;<i> </i>
+&gt;<i> Cheers,</i>
+&gt;<i> </i>
+&gt;<i> Robin</i>
+&gt;<i> -----Original Message-----</i>
+&gt;<i> From: owner-sundials-users@lists.llnl.gov</i>
+&gt;<i> [<a  href="mailto:owner-sundials-users@lists.llnl.gov">mailto:owner-sundials-users@lists.llnl.gov</a>] On Behalf Of Kai Hartmann</i>
+&gt;<i> Sent: 12 April 2006 11:07 AM</i>
+&gt;<i> To: sundials-users@llnl.gov</i>
+&gt;<i> Subject: Re: [sundials-users] Arbitrary precision for sundials solvers?</i>
+&gt;<i> </i>
+&gt;<i> Hi all, hi Radu.</i>
+&gt;<i> </i>
+&gt;<i>&gt; This alone does not suggest the need for more than extended precision</i>
+&gt;<i>&gt; (or even double precision). I trust you use different absolute</i>
+&gt;<i>&gt; tolerances for different solution components to deal with the</i>
+&gt;<i> different</i>
+&gt;<i>&gt; orders of magnitude.</i>
+&gt;<i>&gt;</i>
+&gt;<i>&gt; What exactly makes you think that you need more precision? How many</i>
+&gt;<i>&gt; significant digits are you after? What is an acceptable noise level</i>
+&gt;<i>&gt; (absolute tolerance)? Maybe you could tell us a bit about the actual</i>
+&gt;<i>&gt; physical problem you try to solve...</i>
+&gt;<i> </i>
+&gt;<i> Ok, I will try to describe the problem.</i>
+&gt;<i> </i>
+&gt;<i> This is about a system of chemical reactions. Consider the following</i>
+&gt;<i> hypothetical reactions:</i>
+&gt;<i> </i>
+&gt;<i> (1) A &lt;-&gt; B  g=-100</i>
+&gt;<i> (2) B &lt;-&gt; C  g=50</i>
+&gt;<i> </i>
+&gt;<i> The flux through each reaction in this system is given by</i>
+&gt;<i> </i>
+&gt;<i> f = -ln(Product/Educt) - g</i>
+&gt;<i> </i>
+&gt;<i> resulting in the following differential equations</i>
+&gt;<i> </i>
+&gt;<i> dA/dt = -f(1) = ln(B/A) - 100</i>
+&gt;<i> dB/dt = f(1) - f(2) = -ln(B/A) +100 +ln(C/B) +50 = ln((A*C)/B^2) +150</i>
+&gt;<i> dC/dt = f(2) = -ln(C/B) - 50</i>
+&gt;<i> </i>
+&gt;<i> Because of the nature of the equation (logarithmic), I think I cannot</i>
+&gt;<i> give an absolute tolerance. When I experimented with it in the past, I</i>
+&gt;<i> got negative and/or complex numbers as solution (and the solver stops).</i>
+&gt;<i> So I always set it to the lowest possible value. The relative tolerance</i>
+&gt;<i> can be moderate (10^-3 to 10^-6).</i>
+&gt;<i> </i>
+&gt;<i> I hope this does make some sense ...</i>
+&gt;<i> </i>
+&gt;<i> Thanks for your help,</i>
+&gt;<i> </i>
+&gt;<i> Kai</i>
+&gt;<i> </i>
+&gt;<i> ----------------------------------------------------------------------------</i>
+&gt;<i> NOTICE: Please note that this eMail, and the contents thereof, </i>
+&gt;<i> is subject to the standard Sasol eMail legal notice which may be found at: </i>
+&gt;<i> <a  href="http://www.sasol.com/legalnotices">http://www.sasol.com/legalnotices</a>                                             </i>
+&gt;<i>                                                              </i>
+&gt;<i> </i>
+&gt;<i> If you cannot access the legal notice through the URL attached and you wish </i>
+&gt;<i> to receive a copy thereof please send an eMail to </i>
+&gt;<i> legalnotice@sasol.com</i>
+&gt;<i> ----------------------------------------------------------------------------</i>
+&gt;<i> </i>
+
+
+-- 
+Kai Hartmann
+CUBIC - Cologne University BioInformatics Center
+Institute for Biochemistry
+Z&#xFC;lpicher Strasse 47
+50674 Koeln
+Phone: +49-221-470-7719
+Fax: +49-221-470-7786
+
+
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00436" href="msg00436.html">Re: [sundials-users] Arbitrary precision for sundials solvers?</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00434" href="msg00434.html">RE: [sundials-users] Arbitrary precision for sundials solvers?</a></strong>
+<ul><li><em>From:</em> &quot;Jordi, Robin (RG)&quot; &lt;robin.jordi@sasol.com&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00434.html">RE: [sundials-users] Arbitrary precision for sundials solvers?</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00436.html">Re: [sundials-users] Arbitrary precision for sundials solvers?</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00434.html">RE: [sundials-users] Arbitrary precision for sundials solvers?</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00436.html">Re: [sundials-users] Arbitrary precision for sundials solvers?</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00435">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00435">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>

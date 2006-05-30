@@ -102,7 +102,7 @@ Mon, 23 Jan 2006 07:00:32 -0800</td>
 <!--X-Head-Body-Sep-End-->
 <!--X-Body-of-Message-->
 <pre style="margin: 0em;">Hi Luv,</pre><br>
-<tt>luv sharma wrote:</tt>
+luv sharma wrote:
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
 Hi,<br>
      I am having some problems installing Sundials(the latest version). 
@@ -111,7 +111,7 @@ I am working on a Windows platform and using Cygwin. When i run the
 script is not creating some directories..but i am not sure which ones 
 and how to rectify them.<br>
 I am getting the following error :<br><br>
-<tt> 
+ 
 c:\Dev-Cpp\bin\make.exe[1]: Entering directory `c:/DES/sundials/nvec_ser'<br>
 /usr/bin/install -c -m 644 ..//config/sundials_config.h .<br>
 process_begin: CreateProcess((null), /usr/bin/install -c -m 644 
@@ -120,7 +120,7 @@ als_config.h ., ...) failed.<br>
 make (e=3): The system cannot find the path specified.<br>
 c:\Dev-Cpp\bin\make.exe[1]: *** [update] Error 3<br>
 c:\Dev-Cpp\bin\make.exe[1]: Leaving directory `c:/DES/sundials/nvec_ser'
-</tt>
+
 </blockquote>
 <br>I had no problems installing SUNDIALS under cygwin. I suspect a problem with your cygwin 
 installation. Try copying some file using &quot;/usr/bin/install -c&quot; from the prompt and see if you get 
@@ -136,14 +136,14 @@ c:/DES/sundials/lib. Your problem cannot be related to these directories not bei
 used only at the 'make install' stage).<br>
 <br>
 <blockquote style="border-left: #5555EE solid 0.2em; margin: 0em; padding-left: 0.85em">
-<tt>checking build system type... i686-pc-cygwin<br>
+checking build system type... i686-pc-cygwin<br>
 checking host system type... i686-pc-cygwin<br>
 checking whether make sets $(MAKE)... ./configure: eval: line 1666: 
 unexpected E<br>
 OF while looking for matching `&quot;'<br>
 ./configure: eval: line 1667: syntax error: unexpected end of file<br>
 no
-</tt></blockquote><br>
+</blockquote><br>
 This is also odd. Have you modified the configure script? If not, this also could indicate a cygwin 
 installation problem.<br>
 <br>

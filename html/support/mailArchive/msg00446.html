@@ -1,0 +1,557 @@
+<!-- MHonArc v2.6.10 -->
+<!--X-Subject: Re: [sundials&#45;users] Forward sensitivities for initial conditions+number of sensitivities -->
+<!--X-From-R13: nangbyvl <nangbylNznb.avxbynri.hn> -->
+<!--X-Date: Tue, 02 May 2006 03:39:55 &#45;0700 (PDT) -->
+<!--X-Message-Id: 200605021336.33784.anatoly@mao.nikolaev.ua -->
+<!--X-Content-Type: multipart/mixed -->
+<!--X-Reference: 200604241327.09442.anatoly@mao.nikolaev.ua -->
+<!--X-Reference: 200605012123.34763.anatoly@mao.nikolaev.ua -->
+<!--X-Reference: 445655FC.60603@llnl.gov -->
+<!--X-Head-End-->
+<html>
+<head>
+<title>Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</title>
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+<script language="JavaScript">
+<!--
+homeon = new Image();           homeon.src = "../../graphics/home_buttonH.png";
+homeoff = new Image();          homeoff.src = "../../graphics/home_button.png";
+descriptionon = new Image();    descriptionon.src = "../../graphics/description_buttonH.png";
+descriptionoff = new Image();   descriptionoff.src = "../../graphics/description_button.png";
+documentationon = new Image();  documentationon.src = "../../graphics/documentation_buttonH.png";
+documentationoff = new Image(); documentationoff.src = "../../graphics/documentation_button.png";
+downloadon = new Image();       downloadon.src = "../../graphics/download_buttonH.png";
+downloadoff = new Image();      downloadoff.src = "../../graphics/download_button.png";
+supporton = new Image();        supporton.src = "../../graphics/support_buttonH.png";
+supportoff = new Image();       supportoff.src = "../../graphics/support_button.png";
+//-->
+</script>
+<script src="../../sunjs.js" type="text/javascript" language="javascript1.2"></script>
+</head>
+<!-- ******************************************************************************** -->
+<body>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td height="60" background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  <td width="116"><img SRC="../../graphics/head_top_left.png" height="60" width="116" border="0"></td>
+  <td width="720"><img SRC="../../graphics/head_mail_top_right.png" height="60" width="720" border="0"></td>
+  <td background="../../graphics/table_bck1.gif"><img src="../../graphics/table_bck1.gif" width="5" height="60"></td>
+  </tr>
+  <tr valign="top">
+  <td height="127" background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  <td width="116">
+    <a href="../../main.html" onMouseOver="img_act('home'); return true;" onMouseOut="img_inact('home'); return true;"><img src="../../graphics/home_button.png" border="0" name="home"></a><br>
+    <a href="../../description/description.html" onMouseOver="img_act('description'); return true;" onMouseOut="img_inact('description'); return true;"><img src="../../graphics/description_button.png" border="0" name="description"></a><br>
+    <a href="../../documentation/documentation.html" onMouseOver="img_act('documentation'); return true;" onMouseOut="img_inact('documentation'); return true;"><img src="../../graphics/documentation_button.png" border="0" name="documentation"></a><br>
+    <a href="../../download/download.html" onMouseOver="img_act('download'); return true;" onMouseOut="img_inact('download'); return true;"><img src="../../graphics/download_button.png" border="0" name="download"></a><br>
+    <a href="../../support/support.html" onMouseOver="img_act('support'); return true;" onMouseOut="img_inact('support'); return true;"><img src="../../graphics/support_button.png" border="0" name="support"></a><br>
+    <img SRC="../../graphics/line_tl.gif" height="7" width="116" border="0"></td>
+  <td width="720">
+      <img SRC="../../graphics/head_bottom_right.png" height="120" width="720" border="0"><br>
+      <img SRC="../../graphics/line_tr.gif" height="7" width="720" border="0"></td>
+  <td background="../../graphics/table_bck2.gif"><img src="../../graphics/table_bck2.gif" width="5" height="127"></td>
+  </tr>
+  <tr valign="top">
+  <td background="../../graphics/table_bck3.gif"></td>
+  <td width="116" valign="bottom" align="center" background="../../graphics/table_bck5.gif"><img SRC="../../graphics/logo.png" border="0"></td>
+  <td width="720" bgcolor="#ffffff">
+  <div id="content">   
+<!-- Start content for this page -->
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<p class="links">
+[<a href="msg00445.html">Date Prev</a>] [<a href="msg00447.html">Date Next</a>] [<a href="msg00445.html">Thread Prev</a>] [<a href="msg00447.html">Thread Next</a>]<br>
+[<b><a href="maillist.html#00446">Date Index</a></b>]
+[<b><a href="threads.html#00446">Thread Index</a></b>]
+</p>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</h1>
+<div class="frame">
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0 cellpadding=2 cellspacing=0>
+<tr>
+<td align="right"><b>
+<em>From</em></b></td>
+<td align="left">
+anatoliy &lt;<a href="mailto:anatoly%40mao.nikolaev.ua">anatoly@mao.nikolaev.ua</a>&gt;</td>
+</tr>
+
+<tr>
+<td align="right"><b>
+<em>Date</em></b></td>
+<td align="left">
+Tue, 02 May 2006 13:36:33 +0300</td>
+</tr>
+
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+</div>
+<div class="container">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<pre>Hi All,
+
+Thanks Dr. Radu Serban for attention to the questions.
+
+&gt;<i> &gt; I have a segmentation fault when I try to set initial conditions in such</i>
+&gt;<i> &gt; a case. Here is a short code, where it is (NS&gt;NEQ and y is N_Vector of</i>
+&gt;<i> &gt; NEQ dimension).</i>
+&gt;<i> &gt;   yS=N_VCloneVectorArray_Serial(NS, y);</i>
+&gt;<i> &gt;   if(check_flag((void *)yS, &quot;N_VCloneVectorArray_Serial&quot;, 0)) return(1);</i>
+&gt;<i> &gt;   for(i=0;i&lt;NS;i++){</i>
+&gt;<i> &gt;     N_VConst(ZERO, yS[i]);</i>
+&gt;<i> &gt;     if(i%7-6) Ith(yS[i],i)=ONE;</i>
+&gt;<i> &gt;     printf(&quot;%lf\n&quot;, Ith(yS[i],i));}</i>
+&gt;<i> &gt; The allocation gives no errors. But when I tried to print assigned values</i>
+&gt;<i> &gt; out, it gave me the lesser list of values and segmentation fault. Is it a</i>
+&gt;<i> &gt; problem of my compilation?</i>
+&gt;<i></i>
+&gt;<i> I assume you use the macro Ith as defined in the CVODES examples. If so,</i>
+&gt;<i> notice that its second argument runs from 1 and not 0. When i=0, you are</i>
+&gt;<i> accessing memory outside that allocated for your vectors, hence the</i>
+&gt;<i> SEGFAULT. Use Ith(yS[i],i+1).</i>
+&gt;<i></i>
+You see, I have forgotten to mention that I changed the macros to begin from 
+the zero (it's convinient to me). I have no ideas of the SEGFAULT. Here is 
+the code with some descriptions. It uses two text files for input (sorry).
+I shall be much obliged for the advices.
+
+Regards,
+Anatoliy
+</pre><pre>/* This is a simplification of dynamical system with Newtonian motions.
+The system was divided in two parts. One part consists of motionless particles
+and another with motion ones. That's why f function was organized in that way.
+
+We need in determining sensitivities with respect to initial conditions and masses
+of motion particles.
+N_Vector y[6*...] is organized in such way. The first 6 numbers are coordinates and
+velocities of particle, then the next 6 are for the second particle and so on.
+Parameters p[7*...] is organized in similiar way with the exception of mass, which is
+following the coordinates.
+That's why we have 6*bodies ODE and want 7*bodies sensitivities (6 for initial
+conditions and one for mass).
+*/
+#include&lt;stdio.h&gt;
+#include&quot;cvodes.h&quot;
+#include&quot;nvector_serial.h&quot;
+#include&quot;cvodes_dense.h&quot;
+#include&quot;sundials_dense.h&quot;
+
+/* This is a useful constant */
+#define J_EPOCH_INI RCONST(2451545.0)
+/* This is the number of explicit bodies in integration */
+#define NUM_ASTER 4
+
+#define RTOL RCONST(1.0e-7)
+#define ATOL RCONST(1.0e-7)
+#define RTOLS RCONST(1.0e-4)
+#define ATOLS RCONST(1.0e-4)
+#define MAXNUMSTEPS 20000
+
+/* This is modified from the usual CVODES!!!!!!!!!!!!!!!!!!*/
+#define Ith(v,i) NV_Ith_S(v,i) /* Ith numbers components 0..neq-1 */
+
+#define ZERO RCONST(0.0)
+#define ONE RCONST(1.0)
+
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+
+typedef struct{
+  realtype p[28];
+  realtype plan_gm[11];
+  realtype y_plan[6*11];
+  FILE *ephem;
+  realtype *abstol;
+  realtype reltol;
+  realtype *abstolS;
+  realtype reltolS;
+} *UserData;
+
+static int check_flag(void *flagvalue, char *funcname, int opt);
+static int runCVode(void *cvode_mem, N_Vector y, N_Vector dky, N_Vector *yS,
+    N_Vector *dkyS, UserData data, realtype tout, realtype *t, FILE *fout);
+static void PrintFinalStats(void *cvode_mem);
+
+int main(void)
+{
+  FILE *in, *out;
+  UserData data;
+  void *cvode_mem;
+  long int count, Neq, Ns;
+  realtype t, t0, tout, abstol, abstolS;
+  N_Vector y, dky;
+  N_Vector *yS, *dkyS;
+  int i, j, flag;
+  y=dky=NULL;
+  yS=dkyS=NULL;
+  cvode_mem=NULL;
+  data=NULL;
+  t0=0.0;
+  abstol=ATOL;
+  abstolS=ATOLS;
+  /* 
+   * Allocate and initialize user data structure 
+   */
+  data=(UserData)malloc(sizeof *data);
+  if(check_flag((void *)data, &quot;malloc&quot;, 2)) return(1);
+  data-&gt;reltol=RTOL;
+  data-&gt;abstol=&amp;abstol;
+  data-&gt;reltolS=RTOLS;
+  data-&gt;abstolS=&amp;abstolS;
+  data-&gt;ephem=fopen(&quot;jtest.txt&quot;, &quot;r&quot;);
+  for(i=0;i&lt;11;i++)
+    fscanf(data-&gt;ephem, &quot;%lf %lf %lf %lf %lf %lf %lf&quot;,
+      data-&gt;y_plan+6*i, data-&gt;y_plan+6*i+1, data-&gt;y_plan+6*i+2,
+      data-&gt;y_plan+6*i+3, data-&gt;y_plan+6*i+4, data-&gt;y_plan+6*i+5,
+      data-&gt;plan_gm+i);
+  /* Here we set parameters */
+  in=fopen(&quot;asttest.txt&quot;, &quot;r&quot;);
+  count=0;
+  while(fscanf(in, &quot;%lf %lf %lf %lf %lf %lf %lf&quot;,
+    data-&gt;p+7*count, data-&gt;p+7*count+1,
+    data-&gt;p+7*count+2, data-&gt;p+7*count+3, data-&gt;p+7*count+4,
+    data-&gt;p+7*count+5, data-&gt;p+7*count+6)!=EOF) count++;
+  fclose(in);
+  if(count!=NUM_ASTER){
+    printf(&quot;Check number of asteroids&quot;);
+    return(1);}
+    /*
+   * Integration settings
+   */
+  /* Problem size */
+  Neq=6*NUM_ASTER;
+  /* Allocate and set vector of initial conditions */
+  y=N_VNew_Serial(Neq);
+  if(check_flag((void *)y, &quot;N_VNew_Serial&quot;, 0)) return(1);
+  for(i=0;i&lt;NUM_ASTER;i++)
+    for(j=0;j&lt;6;j++)
+      Ith(y,6*i+j)=data-&gt;p[7*i+j];
+  /* Allocate vector of results */
+  dky=N_VNew_Serial(Neq);
+  if(check_flag((void *)dky, &quot;N_VNew_Serial&quot;, 0)) return(1);
+  /* Create, set, and allocate CVODES object*/
+  cvode_mem=CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
+  if(check_flag((void *)cvode_mem, &quot;CVodeCreate&quot;, 0)) return(1);
+  flag=CVodeMalloc(cvode_mem, f, t0, y, CV_SS, data-&gt;reltol, data-&gt;abstol);
+  if(check_flag(&amp;flag, &quot;CVodeMalloc&quot;, 1)) return(1);
+  flag=CVodeSetFdata(cvode_mem, data);
+  if(check_flag(&amp;flag, &quot;CVodeSetFdata&quot;, 1)) return(1);
+  flag=CVodeSetMaxNumSteps(cvode_mem, MAXNUMSTEPS);
+  if(check_flag(&amp;flag, &quot;CVodeSetMaxNumSteps&quot;, 1)) return(1);
+  /* Attach linear solver */
+  flag=CVDense(cvode_mem, Neq);
+  if(check_flag(&amp;flag, &quot;CVDense&quot;, 1)) return(1);
+  /*
+   * Sensitivity-related settings
+   */
+  Ns=7*NUM_ASTER;
+  yS=N_VCloneVectorArray_Serial(Ns, y);
+  if(check_flag((void *)yS, &quot;N_VCloneVectorArray_Serial&quot;, 0)) return(1);
+
+  /* Initial conditions for sensitivities */
+printf(&quot;Until here there seems no problem\n&quot;);
+printf(&quot;There should be 28 elements, but only 26\n&quot;);
+  for(i=0;i&lt;Ns;i++){
+    N_VConst(ZERO, yS[i]);
+    if(i%7-6) Ith(yS[i],i)=ONE;
+    printf(&quot;%2d %lf\n&quot;, i, Ith(yS[i],i));}
+    
+printf(&quot;We cannot reach this line, because of the previous initialization\n&quot;);
+    
+  dkyS=N_VCloneVectorArray_Serial(Ns, y);
+  if(check_flag((void *)dkyS, &quot;N_VCloneVectorArray_Serial&quot;, 0)) return(1);
+  flag=CVodeSensMalloc(cvode_mem, Ns, CV_SIMULTANEOUS, yS);
+  if(check_flag(&amp;flag, &quot;CVodeSensMalloc&quot;, 1)) return(1);
+  flag=CVodeSetSensErrCon(cvode_mem, TRUE);
+  if(check_flag(&amp;flag, &quot;CVodeSetSensErrCon&quot;, 1)) return(1);
+  /*
+   * Use DQ sensitivity RHS
+   */
+  flag=CVodeSetSensParams(cvode_mem, data-&gt;p, NULL, NULL);
+  if(check_flag(&amp;flag, &quot;CVodeSetSensParams&quot;, 1)) return(1);
+  flag=CVodeSetSensRhs1Fn(cvode_mem, NULL, NULL);
+  if(check_flag(&amp;flag, &quot;CVodeSetSensRhs1Fn&quot;, 1)) return(1);
+  flag=CVodeSetSensRho(cvode_mem, ONE);
+  if(check_flag(&amp;flag, &quot;CVodeSetSensRho&quot;, 1)) return(1);
+  flag=CVodeSetSensTolerances(cvode_mem, CV_SS, data-&gt;reltolS, data-&gt;abstolS);
+  if(check_flag(&amp;flag, &quot;CVodeSetSensTolerances&quot;, 1)) return(1);
+  /* Run CVODES */
+  printf(&quot;Use DQ sensitivity RHS (output written to cvstest.dat)\n&quot;);
+  out=fopen(&quot;cvstest.dat&quot;,&quot;w&quot;);
+  /* First call of integration. It should be made for compliance with runCVode */
+  tout=2415020.0;
+  flag=CVode(cvode_mem, tout-J_EPOCH_INI, y, &amp;t, CV_NORMAL);
+  if(check_flag(&amp;flag, &quot;CVode&quot;, 1)) return(1);
+  flag=CVodeGetSens(cvode_mem, t, yS);
+  if(check_flag(&amp;flag, &quot;CVodeGetSens&quot;, 1)) return(1);
+  /* Backward integration for test purposes*/
+  tout=2451545.0;
+  flag=runCVode(cvode_mem, y, dky, yS, dkyS, data, tout, &amp;t, out);
+  if(check_flag(&amp;flag, &quot;runCVode&quot;, 1)) return(1);
+  fclose(out);
+  /* Free memory */
+  N_VDestroy_Serial(y);
+  N_VDestroy_Serial(dky);
+  N_VDestroyVectorArray_Serial(yS, Ns);
+  N_VDestroyVectorArray_Serial(dkyS, Ns);
+  fclose(data-&gt;ephem);
+  free(data);
+  CVodeFree(&amp;cvode_mem);
+  return(0);
+}
+
+static int runCVode(void *cvode_mem, N_Vector y, N_Vector dky, N_Vector *yS,
+    N_Vector *dkyS, UserData data, realtype tout, realtype *t, FILE *fout)
+{
+  int flag, i, j;
+  realtype hlast, tcur, tout_reduced;
+  tout_reduced=tout-J_EPOCH_INI;
+ /* Check the last call of integration */
+  flag=CVodeGetCurrentTime(cvode_mem, &amp;tcur);
+  flag=CVodeGetLastStep(cvode_mem, &amp;hlast);
+ /* We try to interpolate first */
+  if((tout_reduced&gt;=tcur-hlast&amp;&amp;tout_reduced&lt;=tcur)||
+      (tout_reduced&lt;=tcur-hlast&amp;&amp;tout_reduced&gt;=tcur)){
+    flag=CVodeGetDky(cvode_mem, tout_reduced, 0, dky);
+    flag=CVodeGetSensDky(cvode_mem, tout_reduced, 0, dkyS);}
+    else{
+      /* Should change the direction to backward of integration
+        and make necessary reinitializations */
+      if((tcur-hlast&lt;tcur&amp;&amp;tout_reduced&lt;tcur-hlast)||
+          (tcur-hlast&gt;tcur&amp;&amp;tout_reduced&gt;tcur-hlast)){
+        flag=CVodeReInit(cvode_mem, f, *t, y, CV_SS, data-&gt;reltol, data-&gt;abstol);
+        flag=CVodeSensReInit(cvode_mem, CV_SIMULTANEOUS, yS);}
+      /* Continue integration in any case (forward and backward) */
+      flag=CVode(cvode_mem, tout_reduced, y, t, CV_NORMAL);
+      flag=CVodeGetSens(cvode_mem, *t, yS);
+      /* Make interpolation */
+      flag=CVodeGetDky(cvode_mem, tout_reduced, 0, dky);
+      flag=CVodeGetSensDky(cvode_mem, tout_reduced, 0, dkyS);}
+ /* Output both functions and sensitivities for the first three components */
+  for(i=0;i&lt;NUM_ASTER;i++){
+    fprintf(fout, &quot;%16.10lf&quot;, tout);
+    for(j=0;j&lt;3;j++)
+      fprintf(fout, &quot;  %+20.17le&quot;, Ith(dky,6*i+j));
+    for(j=0;j&lt;7;j++)
+      fprintf(fout, &quot;  %+13.10le&quot;, Ith(dkyS[7*i],7*i+j));
+    for(j=0;j&lt;7;j++)
+      fprintf(fout, &quot;  %+13.10le&quot;, Ith(dkyS[7*i+1],7*i+j+1));
+    for(j=0;j&lt;7;j++)
+      fprintf(fout, &quot;  %+13.10le&quot;, Ith(dkyS[7*i+2],7*i+j+2));
+    fprintf(fout, &quot;\n&quot;);}
+  /* Print final statistics */
+  PrintFinalStats(cvode_mem);
+  printf(&quot;\n&quot;);
+  return(flag);
+}
+
+static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+{
+  UserData data;
+  data=(UserData)f_data;
+  int i, j;
+  realtype r, r2, y_plan[6*11];
+  for(i=0;i&lt;6*11;i++)
+    y_plan[i]=data-&gt;y_plan[i];
+  for(i=0;i&lt;NUM_ASTER;i++){
+    Ith(ydot,6*i)=Ith(y,6*i+3);
+    Ith(ydot,6*i+1)=Ith(y,6*i+4);
+    Ith(ydot,6*i+2)=Ith(y,6*i+5);
+    Ith(ydot,6*i+5)=Ith(ydot,6*i+4)=Ith(ydot,6*i+3)=0.0;
+    for(j=0;j&lt;NUM_ASTER;j++){
+      if(j==i) continue;
+      r2=(Ith(y,6*i)-Ith(y,6*j))*(Ith(y,6*i)-Ith(y,6*j));
+      r2+=(Ith(y,6*i+1)-Ith(y,6*j+1))*(Ith(y,6*i+1)-Ith(y,6*j+1));
+      r2+=(Ith(y,6*i+2)-Ith(y,6*j+2))*(Ith(y,6*i+2)-Ith(y,6*j+2));
+      r=sqrt(r2);
+      Ith(ydot,6*i+3)+=data-&gt;p[7*j+6]*(Ith(y,6*j)-Ith(y,6*i))/(r2*r);
+      Ith(ydot,6*i+4)+=data-&gt;p[7*j+6]*(Ith(y,6*j+1)-Ith(y,6*i+1))/(r2*r);
+      Ith(ydot,6*i+5)+=data-&gt;p[7*j+6]*(Ith(y,6*j+2)-Ith(y,6*i+2))/(r2*r);}
+    for(j=0;j&lt;11;j++){
+      r2=(Ith(y,6*i)-y_plan[6*j])*(Ith(y,6*i)-y_plan[6*j]);
+      r2+=(Ith(y,6*i+1)-y_plan[6*j+1])*(Ith(y,6*i+1)-y_plan[6*j+1]);
+      r2+=(Ith(y,6*i+2)-y_plan[6*j+2])*(Ith(y,6*i+2)-y_plan[6*j+2]);
+      r=sqrt(r2);
+      Ith(ydot,6*i+3)+=data-&gt;plan_gm[j]*(y_plan[6*j]-Ith(y,6*i))/(r2*r);
+      Ith(ydot,6*i+4)+=data-&gt;plan_gm[j]*(y_plan[6*j+1]-Ith(y,6*i+1))/(r2*r);
+      Ith(ydot,6*i+5)+=data-&gt;plan_gm[j]*(y_plan[6*j+2]-Ith(y,6*i+2))/(r2*r);}}
+  return(0);
+}
+
+static void PrintFinalStats(void *cvode_mem)
+{
+  long int nst;
+  long int nfe, nsetups, nni, ncfn, netf;
+  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int njeD, nfeD;
+  int flag;
+  flag = CVodeGetNumSteps(cvode_mem, &amp;nst);
+  flag = CVodeGetNumRhsEvals(cvode_mem, &amp;nfe);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &amp;nsetups);
+  flag = CVodeGetNumErrTestFails(cvode_mem, &amp;netf);
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &amp;nni);
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &amp;ncfn);
+  flag = CVodeGetNumSensRhsEvals(cvode_mem, &amp;nfSe);
+  flag = CVodeGetNumRhsEvalsSens(cvode_mem, &amp;nfeS);
+  flag = CVodeGetNumSensLinSolvSetups(cvode_mem, &amp;nsetupsS);
+  flag = CVodeGetNumSensErrTestFails(cvode_mem, &amp;netfS);
+  flag = CVodeGetNumSensNonlinSolvIters(cvode_mem, &amp;nniS);
+  flag = CVodeGetNumSensNonlinSolvConvFails(cvode_mem, &amp;ncfnS);
+  flag = CVDenseGetNumJacEvals(cvode_mem, &amp;njeD);
+  flag = CVDenseGetNumRhsEvals(cvode_mem, &amp;nfeD);
+  printf(&quot;Run statistics:\n&quot;);
+  printf(&quot;   nst     = %5ld\n&quot;, nst);
+  printf(&quot;   nfe     = %5ld\n&quot;,   nfe);
+  printf(&quot;   netf    = %5ld    nsetups  = %5ld\n&quot;, netf, nsetups);
+  printf(&quot;   nni     = %5ld    ncfn     = %5ld\n&quot;, nni, ncfn);
+  printf(&quot;   njeD    = %5ld    nfeD     = %5ld\n&quot;, njeD, nfeD);
+  printf(&quot;   -----------------------------------\n&quot;);
+  printf(&quot;   nfSe    = %5ld    nfeS     = %5ld\n&quot;, nfSe, nfeS);
+  printf(&quot;   netfs   = %5ld    nsetupsS = %5ld\n&quot;, netfS, nsetupsS);
+  printf(&quot;   nniS    = %5ld    ncfnS    = %5ld\n&quot;, nniS, ncfnS);
+}
+
+/*
+ * Check function return value...
+ *   opt == 0 means SUNDIALS function allocates memory so check if
+ *            returned NULL pointer
+ *   opt == 1 means SUNDIALS function returns a flag so check if
+ *            flag &gt;= 0
+ *   opt == 2 means function allocates memory so check if returned
+ *            NULL pointer 
+ */
+
+static int check_flag(void *flagvalue, char *funcname, int opt)
+{
+  int *errflag;
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if(opt==0&amp;&amp;flagvalue==NULL){
+    fprintf(stderr, &quot;\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n&quot;,
+        funcname);
+    return(1);}
+  /* Check if flag &lt; 0 */
+  else if(opt==1){
+    errflag=(int *)flagvalue;
+    if(*errflag&lt;0){
+      fprintf(stderr, &quot;\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n&quot;,
+        funcname, *errflag);
+      return(1);}}
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if(opt==2&amp;&amp;flagvalue==NULL){
+    fprintf(stderr, &quot;\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n&quot;,
+        funcname);
+    return(1);}
+  return(0);
+}
+</pre><pre> -1.372301e-01 -4.032407e-01 -2.014123e-01 +2.137177e-02 -4.933057e-03 
+-4.850466e-03 0.491254745e-10
+ -7.254388e-01 -4.892127e-02 +2.371769e-02 +8.034960e-04 -1.849860e-02 
+-8.372768e-03 0.724345248e-09
+ -1.842716e-01 +8.847815e-01 +3.838199e-01 -1.720225e-02 -2.904926e-03 
+-1.259428e-03 0.888769239e-09
+ +1.383579e+00 -1.245800e-03 -3.788312e-02 +6.768779e-04 +1.380728e-02 
++6.314867e-03 0.954953511e-10
+ +3.994040e+00 +2.733932e+00 +1.074589e+00 -4.562936e-03 +5.874704e-03 
++2.629270e-03 0.282534591e-06
+ +6.399275e+00 +6.172010e+00 +2.273850e+00 -4.286972e-03 +3.521586e-03 
++1.638899e-03 0.845971519e-07
+ +1.442472e+01 -1.250891e+01 -5.682605e+00 +2.683483e-03 +2.455247e-03 
++1.037377e-03 0.129202492e-07
+ +1.680492e+01 -2.298276e+01 -9.825348e+00 +2.584654e-03 +1.661665e-03 
++6.157822e-04 0.152435890e-07
+ -9.882480e+00 -2.798150e+01 -5.754608e+00 +3.034130e-03 -1.134343e-03 
+-1.268161e-03 0.218869977e-11
+ -1.862208e-01 +8.829986e-01 +3.833112e-01 -1.683058e-02 -3.289624e-03 
+-1.433458e-03 0.1093189577e-10
+ -7.136459e-03 -2.647023e-03 -9.229497e-04 +5.378460e-06 -6.758187e-06 
+-3.032850e-06 0.2959122082855911e-03
+</pre><pre> -2.38646412E+00  5.43024087E-01  7.403023927E-01  -3.57885033E-03 
+-9.851975686E-03 -3.907576629E-03  0.140918602e-12
+ -8.48273946E-01  1.94179827E+00 -3.283770736E-01  -1.17321586E-02 
+-5.307092429E-03  1.859788912E-03  0.318850635e-13
+ -1.36071667E+00 -1.62320313E+00 -4.692898871E-01   9.63018348E-03 
+-6.422455646E-03 -3.815337822E-03  0.396891000e-13
+  1.79870236E+00  2.09040153E+00  8.060094946E-01  -7.02441103E-03  
+7.225571884E-03  3.029142815E-03  0.0
+</pre>
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+</div>
+<div class="container">
+<table width="95%" frame="below"><tr><td></td></table>
+<ul><li><strong>Follow-Ups</strong>:
+<ul>
+<li><strong><a name="00447" href="msg00447.html">Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<ul><li><strong>References</strong>:
+<ul>
+<li><strong><a name="00440" href="msg00440.html">[sundials-users] Forward sensitivities for initial conditions</a></strong>
+<ul><li><em>From:</em> anatoliy &lt;anatoly@mao.nikolaev.ua&gt;</li></ul></li>
+<li><strong><a name="00444" href="msg00444.html">Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</a></strong>
+<ul><li><em>From:</em> anatoliy &lt;anatoly@mao.nikolaev.ua&gt;</li></ul></li>
+<li><strong><a name="00445" href="msg00445.html">Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</a></strong>
+<ul><li><em>From:</em> Radu Serban &lt;serban1@llnl.gov&gt;</li></ul></li>
+</ul></li></ul>
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li>Prev by Date:
+<strong><a href="msg00445.html">Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</a></strong>
+</li>
+<li>Next by Date:
+<strong><a href="msg00447.html">Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</a></strong>
+</li>
+
+<li>Previous by thread:
+<strong><a href="msg00445.html">Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</a></strong>
+</li>
+<li>Next by thread:
+<strong><a href="msg00447.html">Re: [sundials-users] Forward sensitivities for initial conditions+number of sensitivities</a></strong>
+</li>
+
+<li>Index(es):
+<ul>
+<li><a href="maillist.html#00446">
+<strong>Main</strong></a></li>
+<li><a href="threads.html#00446">
+<strong>Thread</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+<!-- End content for this page -->
+  </div>
+  </td>
+  <td background="../../graphics/table_bck3.gif"></td>
+  </tr>
+  <tr valign="top">
+  <td height="17" background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  <td width="116"><a HREF="http://www.llnl.gov/disclaimer.html" target="_top"><img SRC="../../graphics/line_bl.gif" height="17" width="116" border="0"></a></td>
+  <td width="720"><img SRC="../../graphics/line_br.gif" height="17" width="720" border="0"></td>
+  <td background="../../graphics/table_bck4.gif"><img src="../../graphics/table_bck4.gif" width="5" height="17"></td>
+  </tr>
+  </table>
+</body>
+</html>
