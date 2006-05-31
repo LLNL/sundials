@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-14 20:36:19 $
+ * $Revision: 1.5 $
+ * $Date: 2006-05-31 15:33:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -557,14 +557,16 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
         ewtj = ewt_data[j];
 
         /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
-        adjustments using ypj and ewtj if this is small, and a further
-        adjustment to give it the same sign as hh*ypj. */
+           adjustments using ypj and ewtj if this is small, and a further
+           adjustment to give it the same sign as hh*ypj. */
 
-        inc = srur*MAX(ABS(yj), MAX( ABS(hh*ypj), ONE/ewtj));
+        inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
+
         if (hh*ypj < ZERO) inc = -inc;
         inc = (yj + inc) - yj;
 
         /* Adjust sign(inc) again if yj has an inequality constraint. */
+
         if (constraints != NULL) {
           conj = cns_data[j];
           if (ABS(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
@@ -597,7 +599,7 @@ static int IDABandDQJac(long int Neq, long int mupper, long int mlower,
       
       /* Set increment inc exactly as above. */
       
-      inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewtj));
+      inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewtj );
       if (hh*ypj < ZERO) inc = -inc;
       inc = (yj + inc) - yj;
       if (constraints != NULL) {

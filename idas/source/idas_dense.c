@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.2 $
- * $Date: 2006-03-24 15:57:25 $
+ * $Revision: 1.3 $
+ * $Date: 2006-05-31 15:33:50 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -545,7 +545,8 @@ static int IDADenseDQJac(long int Neq, realtype tt, N_Vector yy, N_Vector yp,
     adjustments using yp_j and ewt_j if this is small, and a further
     adjustment to give it the same sign as hh*yp_j. */
 
-    inc = srur*MAX(ABS(yj),MAX( ABS(hh*ypj), ONE/ewt_data[j]));
+    inc = MAX( srur * MAX( ABS(yj), ABS(hh*ypj) ) , ONE/ewt_data[j] );
+
     if (hh*ypj < ZERO) inc = -inc;
     inc = (yj + inc) - yj;
 
