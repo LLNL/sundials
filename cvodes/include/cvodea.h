@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.47 $
- * $Date: 2006-02-15 17:46:59 $
+ * $Revision: 1.48 $
+ * $Date: 2006-06-09 20:37:45 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -281,8 +281,8 @@ extern "C" {
    */
 
   typedef struct {
-    unsigned int my_addr;
-    unsigned int next_addr;
+    unsigned long int my_addr;
+    unsigned long int next_addr;
     realtype t0;
     realtype t1;
     long int nstep;
@@ -291,7 +291,7 @@ extern "C" {
   } CVadjCheckPointRec;
 
   int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt);
-  int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr);
+  int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned long int *addr);
 
   /*
    * -----------------------------------------------------------------

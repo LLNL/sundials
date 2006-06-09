@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-15 17:47:02 $
+ * $Revision: 1.4 $
+ * $Date: 2006-06-09 20:37:48 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -422,8 +422,8 @@ int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt)
 
   while (ck_mem != NULL) {
 
-    ckpnt[i].my_addr = (unsigned int) ck_mem;
-    ckpnt[i].next_addr = (unsigned int) next_;
+    ckpnt[i].my_addr = (unsigned long int) ck_mem;
+    ckpnt[i].next_addr = (unsigned long int) next_;
     ckpnt[i].t0 = t0_;
     ckpnt[i].t1 = t1_;
     ckpnt[i].nstep = nst_;
@@ -445,7 +445,7 @@ int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt)
  *  Returns the address of the 'active' check point.
  */
 
-int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
+int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned long int *addr)
 {
   CVadjMem ca_mem;
 
@@ -455,7 +455,7 @@ int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned int *addr)
   }
   ca_mem = (CVadjMem) cvadj_mem;
 
-  *addr = (unsigned int) ckpntData;
+  *addr = (unsigned long int) ckpntData;
 
   return(CV_SUCCESS);
 }
