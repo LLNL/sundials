@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.51 $
- * $Date: 2006-03-18 00:14:09 $
+ * $Revision: 1.52 $
+ * $Date: 2006-06-09 00:12:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -1737,7 +1737,7 @@ void KINPrintInfo(KINMem kin_mem,
 
     /* If info_code = PRNT_RETVAL, decode the numeric value */
 
-    ret = (int) (va_arg(ap, int *));
+    ret = va_arg(ap, int);
 
     switch(ret) {
     case KIN_SUCCESS:
