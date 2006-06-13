@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.3 $
- * $Date: 2006-02-15 02:23:26 $
+ * $Revision: 1.4 $
+ * $Date: 2006-06-13 01:11:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Peter Brown and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -210,7 +210,7 @@ int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
   /* Set r_norm to L2 norm of r_star = sb P1_inv r_0, and
      return if small */
 
-  *res_norm = r_norm = RSqrt(beta_denom);
+  *res_norm = r_norm = rho = RSqrt(beta_denom);
   if (r_norm <= delta) return(SPBCG_SUCCESS);
 
   /* Copy r_star to r and p */

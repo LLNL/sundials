@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.52 $
- * $Date: 2006-06-09 00:12:02 $
+ * $Revision: 1.53 $
+ * $Date: 2006-06-13 01:12:04 $
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
@@ -170,7 +170,7 @@ static void KINFreeVectors(KINMem kin_mem);
 static int  KINFullNewton(KINMem kin_mem, realtype *fnormp, 
                           realtype *f1normp, booleantype *maxStepTaken);
 static int  KINLineSearch(KINMem kin_mem, realtype *fnormp, 
-                          realtype *f1normp, booleantype *maxSteptaken);
+                          realtype *f1normp, booleantype *maxStepTaken);
 
 static int  KINLinSolDrv(KINMem kinmem);
 static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
@@ -454,6 +454,10 @@ int KINSol(void *kinmem, N_Vector u, int strategy,
   int ret, sflag;
   booleantype maxStepTaken;
 
+  /* intialize to avoid compiler warning messages */
+
+  maxStepTaken = FALSE;
+  f1normp = fnormp = -ONE;
 
   /* initialize epsmin to avoid compiler warning message */
 

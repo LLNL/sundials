@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-18 02:06:52 $
+ * $Revision: 1.5 $
+ * $Date: 2006-06-13 01:11:59 $
  * -----------------------------------------------------------------
  * Programmer(s): Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -217,6 +217,8 @@ int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
 
   /* Exit immediately if memory pointer is NULL */
   if (mem == NULL) return(SPTFQMR_MEM_NULL);
+
+  temp_val = r_curr_norm = -ONE;  /* Initialize to avoid compiler warnings */
 
   *nli = *nps = 0;    /* Initialize counters */
   converged = FALSE;  /* Initialize convergence flag */

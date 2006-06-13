@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-03-23 01:21:42 $
+ * $Revision: 1.5 $
+ * $Date: 2006-06-13 01:12:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -467,6 +467,8 @@ static void PrintOutput(N_Vector uB, UserData data)
 {
   realtype *uBdata, uBij, uBmax, x, y, dx, dy;
   int i, j;
+
+  x = y = ZERO;
 
   dx = data->dx;
   dy = data->dy;

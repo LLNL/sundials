@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.6 $
- * $Date: 2006-03-23 01:21:42 $
+ * $Revision: 1.7 $
+ * $Date: 2006-06-13 01:12:02 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -1194,6 +1194,8 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 {
   int i, jx, jy;
   realtype *cdata, cij, cmax, x, y;
+
+  x = y = ZERO;
 
   cdata = NV_DATA_S(cB);
 
