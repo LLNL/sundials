@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-06-09 20:37:48 $
+ * $Revision: 1.5 $
+ * $Date: 2006-06-13 01:22:15 $
  * -----------------------------------------------------------------
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -393,12 +393,6 @@ char *CVadjGetReturnFlagName(int flag)
   return(name);
 }
 
-/* 
- * -----------------------------------------------------------------
- * UNDOCUMENTED development user-callable functions
- * -----------------------------------------------------------------
- */
-
 /*
  * CVadjGetCheckPointsInfo
  *
@@ -422,8 +416,8 @@ int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt)
 
   while (ck_mem != NULL) {
 
-    ckpnt[i].my_addr = (unsigned long int) ck_mem;
-    ckpnt[i].next_addr = (unsigned long int) next_;
+    ckpnt[i].my_addr = (void *) ck_mem;
+    ckpnt[i].next_addr = (void *) next_;
     ckpnt[i].t0 = t0_;
     ckpnt[i].t1 = t1_;
     ckpnt[i].nstep = nst_;
@@ -437,27 +431,6 @@ int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt)
 
   return(CV_SUCCESS);
 
-}
-
-/*
- * CVadjGetCurrentCheckPoint
- *
- *  Returns the address of the 'active' check point.
- */
-
-int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned long int *addr)
-{
-  CVadjMem ca_mem;
-
-  if (cvadj_mem == NULL) {
-    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetCurrentCheckPoint", MSGAM_NULL_CAMEM);
-    return(CV_ADJMEM_NULL);
-  }
-  ca_mem = (CVadjMem) cvadj_mem;
-
-  *addr = (unsigned long int) ckpntData;
-
-  return(CV_SUCCESS);
 }
 
 /*
@@ -537,3 +510,29 @@ int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
   return(CV_SUCCESS);
 }
 
+/* 
+ * -----------------------------------------------------------------
+ * UNDOCUMENTED development user-callable functions
+ * -----------------------------------------------------------------
+ */
+
+/*
+ * CVadjGetCurrentCheckPoint
+ *
+ * Returns the address of the 'active' check point.
+ */
+
+int CVadjGetCurrentCheckPoint(void *cvadj_mem, void **addr)
+{
+  CVadjMem ca_mem;
+
+  if (cvadj_mem == NULL) {
+    CVProcessError(NULL, CV_ADJMEM_NULL, "CVODEA", "CVadjGetCurrentCheckPoint", MSGAM_NULL_CAMEM);
+    return(CV_ADJMEM_NULL);
+  }
+  ca_mem = (CVadjMem) cvadj_mem;
+
+  *addr = (void *) ckpntData;
+
+  return(CV_SUCCESS);
+}

@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.48 $
- * $Date: 2006-06-09 20:37:45 $
+ * $Revision: 1.49 $
+ * $Date: 2006-06-13 01:22:12 $
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -263,26 +263,18 @@ extern "C" {
    */
 
   int CVadjGetY(void *cvadj_mem, realtype t, N_Vector y);
-  
-  /* 
-   * ===============================================================
-   * DEVELOPMENT USER-CALLABLE FUNCTIONS
-   * ===============================================================
-   */
 
   /*
    * -----------------------------------------------------------------
    * CVadjGetCheckPointsInfo
    *    Loads an array of nckpnts structures of type CVadjCheckPointRec.
    *    The user must allocate space for ckpnt (ncheck+1).
-   * CVadjGetCurrentCheckPoint
-   *    Returns the address of the 'active' check point.
    * -----------------------------------------------------------------
    */
 
   typedef struct {
-    unsigned long int my_addr;
-    unsigned long int next_addr;
+    void *my_addr;
+    void *next_addr;
     realtype t0;
     realtype t1;
     long int nstep;
@@ -291,7 +283,6 @@ extern "C" {
   } CVadjCheckPointRec;
 
   int CVadjGetCheckPointsInfo(void *cvadj_mem, CVadjCheckPointRec *ckpnt);
-  int CVadjGetCurrentCheckPoint(void *cvadj_mem, unsigned long int *addr);
 
   /*
    * -----------------------------------------------------------------
@@ -313,7 +304,22 @@ extern "C" {
   
   int CVadjGetDataPointPolynomial(void *cvadj_mem, long int which,
                                   realtype *t, int *order, N_Vector y);
-  
+
+  /* 
+   * ===============================================================
+   * DEVELOPMENT USER-CALLABLE FUNCTIONS
+   * ===============================================================
+   */
+
+  /*
+   * -----------------------------------------------------------------
+   * CVadjGetCurrentCheckPoint
+   *    Returns the address of the 'active' check point.
+   * -----------------------------------------------------------------
+   */
+
+  int CVadjGetCurrentCheckPoint(void *cvadj_mem, void **addr);
+
 #ifdef __cplusplus
 }
 #endif
