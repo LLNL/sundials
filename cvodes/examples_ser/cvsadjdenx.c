@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.4 $
- * $Date: 2006-02-15 17:46:56 $
+ * $Revision: 1.5 $
+ * $Date: 2006-06-13 01:32:48 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -254,8 +254,8 @@ int main(int argc, char *argv[])
   ckpnt = (CVadjCheckPointRec *) malloc ( (ncheck+1)*sizeof(CVadjCheckPointRec));
   CVadjGetCheckPointsInfo(cvadj_mem, ckpnt);
   for (i=0;i<=ncheck;i++) {
-    printf("Address:       %u\n",ckpnt[i].my_addr);
-    printf("Next:          %u\n",ckpnt[i].next_addr);
+    printf("Address:       %p\n",ckpnt[i].my_addr);
+    printf("Next:          %p\n",ckpnt[i].next_addr);
     printf("Time interval: %le  %le\n",ckpnt[i].t0, ckpnt[i].t1);
     printf("Step number:   %ld\n",ckpnt[i].nstep);
     printf("Order:         %d\n",ckpnt[i].order);
@@ -365,6 +365,8 @@ int main(int argc, char *argv[])
   N_VDestroy_Serial(yB);
   N_VDestroy_Serial(qB);
   CVadjFree(&cvadj_mem);
+
+  free(ckpnt);
   free(data);
 
   return(0);
