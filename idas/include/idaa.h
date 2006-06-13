@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.18 $
- * $Date: 2006-06-12 18:45:37 $
+ * $Revision: 1.19 $
+ * $Date: 2006-06-13 01:33:59 $
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -164,8 +164,8 @@ extern "C" {
 
   /*
   typedef struct {
-    unsigned long int my_addr;
-    unsigned long int next_addr;
+    void *my_addr;
+    void *next_addr;
     realtype t0;
     realtype t1;
     long int nstep;
@@ -174,7 +174,7 @@ extern "C" {
   } IDAadjCheckPointRec;
 
   int IDAadjGetCheckPointsInfo(void *idaadj_mem, IDAadjCheckPointRec *ckpnt);
-  int IDAadjGetCurrentCheckPoint(void *idaadj_mem, unsigned long int *addr);
+  int IDAadjGetCurrentCheckPoint(void *idaadj_mem, void **addr);
 
   int IDAadjGetDataPointHermite(void *idaadj_mem, long int which,
                                 realtype *t, N_Vector y, N_Vector yd);
