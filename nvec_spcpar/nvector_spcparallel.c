@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.7 $
- * $Date: 2006-01-25 23:08:19 $
+ * $Revision: 1.8 $
+ * $Date: 2006-06-13 15:27:32 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel R. Reynolds and Radu Serban @LLNL
  * -----------------------------------------------------------------
@@ -234,6 +234,12 @@ void N_VLoad_SpcParallel(N_Vector v, int igrp, int ispc, realtype *data)
 
   vd = SPV_GDATA(v,igrp);
   Ns = SPV_NSPECIES(v,igrp);
+  Nx   = SPV_XLENGTH(v);
+  Ny   = SPV_YLENGTH(v);
+  Nz   = SPV_ZLENGTH(v);
+  NGx  = SPV_XGHOST(v);
+  NGy  = SPV_YGHOST(v);
+  NGz  = SPV_ZGHOST(v);
 
   for (k=NGz; k<Nz+NGz; k++) {
     Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
@@ -1021,6 +1027,7 @@ realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
   NGx  = SPV_XGHOST(x);
   NGy  = SPV_YGHOST(x);
   NGz  = SPV_ZGHOST(x);
+  comm = SPV_COMM(x);
 
   sum = ZERO;
   for(ig=0; ig<Ngrp; ig++) {
@@ -1234,6 +1241,7 @@ realtype N_VMin_SpcParallel(N_Vector x)
   Nz   = SPV_ZLENGTH(x);
   NGx  = SPV_XGHOST(x);
   NGy  = SPV_YGHOST(x);  
+  NGz  = SPV_ZGHOST(x);
   comm = SPV_COMM(x);
 
   min = BIG_REAL;
