@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.59 $
- * $Date: 2006-03-15 15:33:54 $
+ * $Revision: 1.60 $
+ * $Date: 2006-06-13 15:26:57 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -1988,6 +1988,10 @@ static int IDAStep(IDAMem IDA_mem)
     phase = 0;
     ns = 0;
   }
+
+  /* To prevent 'unintialized variable' warnings */
+  err_k = ZERO;
+  err_km1 = ZERO;
 
   /* Looping point for attempts to take a step */
 

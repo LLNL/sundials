@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.41 $
- * $Date: 2006-03-24 15:57:25 $
+ * $Revision: 1.42 $
+ * $Date: 2006-06-13 15:26:58 $
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -3027,6 +3027,11 @@ static int IDAStep(IDAMem IDA_mem)
     phase = 0;
     ns = 0;
   }
+
+  /* To prevent 'unintialized variable' warnings */
+  err_k = ZERO;
+  err_km1 = ZERO;
+  err_km2 = ZERO;
 
   /* Looping point for attempts to take a step */
 

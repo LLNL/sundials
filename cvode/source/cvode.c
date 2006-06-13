@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
- * $Revision: 1.66 $
- * $Date: 2006-03-21 19:14:22 $
+ * $Revision: 1.67 $
+ * $Date: 2006-06-13 15:26:56 $
  * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
@@ -1748,6 +1748,7 @@ static int CVHin(CVodeMem cv_mem, realtype tout)
   /* Outer loop */
 
   hnewOK = FALSE;
+  hs = hg;         /* safeguard against 'uninitialized variable' warning */
 
   for(count1 = 1; count1 <= MAX_ITERS; count1++) {
 
