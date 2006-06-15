@@ -43,6 +43,17 @@ function img_inact(imgName) {
  *******************************************************
  */ 
 
+function cookiesEnabled()
+{
+createCookie('SundialsTestCookie','OK');
+if(readCookie('SundialsTestCookie') == 'OK') {
+  eraseCookie('SundialsTestCookie');
+  return true;
+} else {
+  return false;
+}
+}
+
 function createCookie(name,value,days)
 {
 	if (days)

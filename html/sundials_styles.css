@@ -143,6 +143,16 @@ TT {
   font-family: monospace;
 }
 
+div.warn {
+  color:#f00;
+  border: 1px #f00 solid;
+  text-align: center;
+  width: 700px;
+  padding: 5px 0px 5px 5px;
+  margin-bottom: 20px;
+}
+
+
 /*
  ----------------------------------------------
  Framed div (used to frame text+tables for ex.)
